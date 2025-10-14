@@ -25,7 +25,7 @@ type SlideFormEdgeProps = {
   onScroll?: () => void;
 };
 
-export function SlideFormEdge(props: SlideFormEdgeProps) {
+export default function SlideFormEdge(props: SlideFormEdgeProps) {
   const edgeColor = useSelector(getEdgeColor);
   const nodes = useSelector(getNetworkNodes);
 
@@ -67,5 +67,3 @@ export function SlideFormEdge(props: SlideFormEdgeProps) {
     </div>
   );
 }
-
-export default SlideFormEdge;

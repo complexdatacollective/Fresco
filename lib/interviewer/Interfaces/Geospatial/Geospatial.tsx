@@ -10,6 +10,7 @@ import { AnimatePresence, motion, type Variants } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { type ThunkDispatch } from 'redux-thunk';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import CollapsablePrompts from '~/lib/interviewer/components/CollapsablePrompts';
 import Node from '~/lib/interviewer/components/Node';
@@ -21,7 +22,6 @@ import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { type RootState } from '~/lib/interviewer/store';
 import { ActionButton } from '~/lib/ui/components';
 import Button from '~/lib/ui/components/Button';
-import Markdown from '~/lib/ui/components/Fields/Markdown';
 import { useMapbox } from './useMapbox';
 
 type NavDirection = 'forwards' | 'backwards';
@@ -245,7 +245,7 @@ export default function GeospatialInterface({
       >
         <div className="max-w-3xl rounded-lg bg-[var(--nc-panel-bg-muted)] p-8">
           <h1 className="text-center">{introductionPanel?.title}</h1>
-          <Markdown label={introductionPanel?.text} />
+          <RenderMarkdown>{introductionPanel?.text}</RenderMarkdown>
         </div>
       </motion.div>
     );

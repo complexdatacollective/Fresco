@@ -1,11 +1,11 @@
 import { type NcNode } from '@codaco/shared-consts';
 import { useEffect } from 'react';
 import { reduxForm, type InjectedFormProps } from 'redux-form';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
 import { Field, Form } from '~/lib/form';
 import { InputField } from '~/lib/form/components/fields/Input';
 import { validations } from '~/lib/form/validation';
 import Button from '~/lib/ui/components/Button';
-import { MarkdownLabel } from '~/lib/ui/components/Fields';
 import Node from '../../components/Node';
 
 type FormValues = {
@@ -46,7 +46,7 @@ const OtherVariableForm = ({
           </div>
           <div className="other-variable-form__content-right">
             <h4>
-              <MarkdownLabel inline label={prompt} />
+              <RenderMarkdown>{prompt}</RenderMarkdown>
             </h4>
             <Field
               label=""

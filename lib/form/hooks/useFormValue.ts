@@ -1,6 +1,6 @@
 import { useShallow } from 'zustand/react/shallow';
 import { useFormStore } from '../store/formStoreProvider';
-import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
+import { type FieldValue } from '../types';
 
 /**
  * Hook to get form field values by field names

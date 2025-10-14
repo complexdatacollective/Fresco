@@ -2,10 +2,13 @@
 
 import { motion } from 'motion/react';
 import { type ElementType } from 'react';
-import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
 import { cva } from '~/utils/cva';
 import { useField, type UseFieldKeys } from '../hooks/useField';
-import { type BaseFieldProps, type FieldValidation } from '../types';
+import {
+  type BaseFieldProps,
+  type FieldValidation,
+  type FieldValue,
+} from '../types';
 import { getInputState } from '../utils/getInputState';
 import FieldErrors from './FieldErrors';
 import Hint from './Hint';

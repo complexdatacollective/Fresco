@@ -1,14 +1,13 @@
 export { useField } from './useField';
 export { useForm } from './useForm';
 export {
-  default as useFormState,
-  useFieldState,
-  useFormValues,
-  useFormMeta,
-  useHasField,
   useFieldCount,
+  useFieldState,
+  useFormMeta,
+  default as useFormState,
+  useFormValues,
+  useHasField,
   useSubmitForm,
-  type FormStateValues,
 } from './useFormState';
 export { useFormValue } from './useFormValue';
 export * from './useProtocolForm';

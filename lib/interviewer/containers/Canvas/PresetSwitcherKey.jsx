@@ -5,7 +5,8 @@ import React, { Component } from 'react';
 import { createPortal } from 'react-dom';
 import { connect } from 'react-redux';
 import { compose } from 'recompose';
-import { MarkdownLabel, Radio } from '~/lib/ui/components/Fields';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
+import { Radio } from '~/lib/ui/components/Fields';
 import Icon from '~/lib/ui/components/Icon';
 import {
   getCurrentStage,
@@ -98,7 +99,7 @@ class PresetSwitcherKey extends Component {
                     name="contexts"
                     color={`nc-cat-color-seq-${index + 1}`}
                   />
-                  <MarkdownLabel inline label={option.label} />
+                  <RenderMarkdown>{option.label}</RenderMarkdown>
                 </div>
               ))}
             </Accordion>

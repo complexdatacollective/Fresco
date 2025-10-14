@@ -7,8 +7,8 @@ import { isNil } from 'es-toolkit';
 import PropTypes from 'prop-types';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
 import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
-import { MarkdownLabel } from '~/lib/ui/components/Fields';
 import { getCSSVariableAsString } from '~/lib/ui/utils/CSSVariables';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import NodeList from '../components/NodeList';
@@ -105,7 +105,7 @@ const OrdinalBins = ({
             style={{ background: accentColor }}
           >
             <h3 className="ordinal-bin--title h3">
-              <MarkdownLabel label={bin.label} inline />
+              <RenderMarkdown>{bin.label}</RenderMarkdown>
             </h3>
           </div>
           <div

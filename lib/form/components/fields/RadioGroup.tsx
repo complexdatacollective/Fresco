@@ -135,13 +135,7 @@ export const radioLabelVariants = cva({
   },
 });
 
-// Export for backward compatibility
-export const standaloneFocusStyles = cx(
-  interactiveElementStyles.focus,
-  interactiveElementStyles.focusInvalid,
-);
-
-export type RadioOption = {
+type RadioOption = {
   value: string | number;
   label: string;
   disabled?: boolean;

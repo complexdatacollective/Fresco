@@ -5,11 +5,11 @@ import { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { isValid, submit } from 'redux-form';
 import z from 'zod';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
 import { Field, Form } from '~/lib/form';
 import { InputField } from '~/lib/form/components/fields/Input';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import { Button } from '~/lib/ui/components';
-import { Markdown } from '~/lib/ui/components/Fields';
 import EncryptionBackground from '../../components/EncryptedBackground';
 import type { BeforeNextFunction } from '../../containers/ProtocolScreen';
 import type { StageProps } from '../../containers/Stage';
@@ -90,7 +90,7 @@ export default function Anonymisation(props: AnonymisationProps) {
           <h1 className="mb-8 text-center text-balance">
             {explanationText.title}
           </h1>
-          <Markdown label={explanationText.body} />
+          <RenderMarkdown>{explanationText.body}</RenderMarkdown>
           <div className="mt-8 text-center">
             {passphrase && (
               <p className="my-10 text-xl font-bold">

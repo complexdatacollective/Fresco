@@ -4,9 +4,9 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { isDirty, isValid, submit } from 'redux-form';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
 import { Form } from '~/lib/form';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
-import Markdown from '~/lib/ui/components/Fields/Markdown';
 import Icon from '~/lib/ui/components/Icon';
 import Scroller from '~/lib/ui/components/Scroller';
 import { type BeforeNextFunction } from '../containers/ProtocolScreen';
@@ -168,7 +168,7 @@ const EgoForm = (props: EgoFormProps) => {
         >
           <div className="ego-form__introduction">
             <h1>{introductionPanel!.title}</h1>
-            <Markdown label={introductionPanel!.text} />
+            <RenderMarkdown>{introductionPanel!.text}</RenderMarkdown>
           </div>
           <Form onSubmit={handleSubmitForm}>{fieldComponents}</Form>
         </Scroller>

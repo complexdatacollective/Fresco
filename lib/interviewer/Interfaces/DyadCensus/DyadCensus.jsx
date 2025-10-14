@@ -3,6 +3,7 @@ import { get } from 'es-toolkit/compat';
 import { AnimatePresence, motion } from 'motion/react';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import Prompts from '~/lib/interviewer/components/Prompts';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
@@ -12,7 +13,6 @@ import {
   getNetworkNodesForType,
 } from '~/lib/interviewer/selectors/session';
 import BooleanOption from '~/lib/ui/components/Boolean/BooleanOption';
-import { Markdown } from '~/lib/ui/components/Fields';
 import { getNodePair, getPairs } from './helpers';
 import Pair from './Pair';
 import useAutoAdvance from './useAutoAdvance';
@@ -170,7 +170,7 @@ const DyadCensus = (props) => {
             key="intro"
           >
             <h1>{stage.introductionPanel.title}</h1>
-            <Markdown label={stage.introductionPanel.text} />
+            <RenderMarkdown>{stage.introductionPanel.text}</RenderMarkdown>
           </motion.div>
         )}
         {!isIntroduction && (

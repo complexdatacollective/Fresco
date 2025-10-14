@@ -1,9 +1,9 @@
-import React, { memo } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
+import { memo } from 'react';
 import useResizeAware from 'react-resize-aware';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
 import RoundCheckbox from './RoundCheckbox';
-import Markdown from '../Fields/Markdown';
 
 const BooleanOption = ({
   classes = '',
@@ -28,7 +28,11 @@ const BooleanOption = ({
       return label();
     }
 
-    return <Markdown label={label} className="form-field-inline-label" />;
+    return (
+      <RenderMarkdown className="form-field-inline-label">
+        {label}
+      </RenderMarkdown>
+    );
   };
 
   return (

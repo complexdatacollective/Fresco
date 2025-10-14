@@ -33,8 +33,6 @@ export const selectFieldMetadata = createSelector(
   },
 );
 
-export type FieldWithMetadata = ReturnType<typeof selectFieldMetadata>[number];
-
 export const getValidationContext = createSelector(
   [getCodebook, getNetwork, getStageSubject],
   (codebook, network, stageSubject) => ({

@@ -9,7 +9,7 @@ export const headingVariants = cva({
   variants: {
     level: {
       h1: 'scroll-m-20 text-3xl',
-      h2: 'scroll-m-20 text-2xl ',
+      h2: 'scroll-m-20 text-2xl',
       h3: 'scroll-m-20 text-xl',
       h4: 'scroll-m-20 text-lg',
     },
@@ -32,8 +32,6 @@ export const headingVariants = cva({
     { level: 'h4', variant: 'all-caps', className: 'font-bold text-base' },
   ],
 });
-
-export type VariantPropType = VariantProps<typeof headingVariants>;
 
 type HeadingProps = {
   asChild?: boolean;

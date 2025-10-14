@@ -5,8 +5,8 @@ import { AnimatePresence, motion } from 'motion/react';
 import type { ComponentType, ReactElement } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
 import { useFormState } from '~/lib/form';
-import { Markdown } from '~/lib/ui/components/Fields';
 import ProgressBar from '~/lib/ui/components/ProgressBar';
 import { openDialog as openDialogAction } from '../../ducks/modules/dialogs';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
@@ -253,7 +253,7 @@ function SlidesForm({
       >
         <div className="alter-form__introduction">
           <h1>{stage.introductionPanel!.title}</h1>
-          <Markdown label={stage.introductionPanel!.text} />
+          <RenderMarkdown>{stage.introductionPanel!.text}</RenderMarkdown>
         </div>
       </motion.div>
     ),

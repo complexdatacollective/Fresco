@@ -3,6 +3,7 @@ import { get } from 'es-toolkit/compat';
 import { AnimatePresence, motion } from 'motion/react';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import Prompts from '~/lib/interviewer/components/Prompts';
 import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
@@ -13,7 +14,6 @@ import {
   getNetworkNodesForType,
 } from '~/lib/interviewer/selectors/session';
 import BooleanOption from '~/lib/ui/components/Boolean/BooleanOption';
-import { Markdown } from '~/lib/ui/components/Fields';
 import useAutoAdvance from '../DyadCensus/useAutoAdvance';
 import useEdgeState from '../DyadCensus/useEdgeState';
 import useSteps from '../DyadCensus/useSteps';
@@ -178,7 +178,7 @@ const TieStrengthCensus = (props) => {
             key="intro"
           >
             <h1>{stage.introductionPanel.title}</h1>
-            <Markdown label={stage.introductionPanel.text} />
+            <RenderMarkdown>{stage.introductionPanel.text}</RenderMarkdown>
           </motion.div>
         )}
         {!isIntroduction && (

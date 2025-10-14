@@ -3,8 +3,8 @@ import { type NcNode } from '@codaco/shared-consts';
 import cx from 'classnames';
 import { useMemo } from 'react';
 import { Flipped } from 'react-flip-toolkit';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
 import { useDropTarget } from '~/lib/dnd';
-import { MarkdownLabel } from '~/lib/ui/components/Fields';
 import { usePrompts } from '../behaviours/withPrompt';
 import { useNodeLabel } from '../Interfaces/Anonymisation/useNodeLabel';
 import createSorter, { type ProcessedSortRule } from '../utils/createSorter';
@@ -84,7 +84,7 @@ const CategoricalItem = ({
           <Flipped inverseFlipId={id} scale>
             <div className="categorical-item__title">
               <h3>
-                <MarkdownLabel inline label={label} />
+                <RenderMarkdown>{label}</RenderMarkdown>
               </h3>
               {!isExpanded && nodes.length > 0 && <Details nodes={nodes} />}
             </div>

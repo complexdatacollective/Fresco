@@ -10,7 +10,7 @@ import {
 
 const FormStoreContext = createContext<FormStoreApi | undefined>(undefined);
 
-export type FormStoreProviderProps = {
+type FormStoreProviderProps = {
   children: ReactNode;
 };
 

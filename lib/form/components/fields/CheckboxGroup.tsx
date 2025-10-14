@@ -177,7 +177,7 @@ export const checkboxLabelVariants = cva({
   },
 });
 
-export type CheckboxOption = {
+type CheckboxOption = {
   value: string | number;
   label: string;
   disabled?: boolean;
