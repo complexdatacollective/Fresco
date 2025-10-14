@@ -4,7 +4,6 @@ import Section from '~/components/layout/Section';
 import Heading from '~/components/ui/typography/Heading';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import Paragraph from '~/components/ui/typography/Paragraph';
-import { env } from '~/env';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
 import ActivityFeed from './_components/ActivityFeed/ActivityFeed';
@@ -51,18 +50,6 @@ export default async function Home({
           <ActivityFeed />
         </Section>
       </ResponsiveContainer>
-      {env.SANDBOX_MODE && (
-        <ResponsiveContainer>
-          <footer className="flex justify-center py-4">
-            <a href="https://www.netlify.com">
-              <img
-                src="https://www.netlify.com/assets/badges/netlify-badge-color-accent.svg"
-                alt="Deploys by Netlify"
-              />
-            </a>
-          </footer>
-        </ResponsiveContainer>
-      )}
     </>
   );
 }
