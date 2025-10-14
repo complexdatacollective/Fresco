@@ -5,6 +5,7 @@ import {
   backgroundStyles,
   borderStyles,
   cursorStyles,
+  focusRingStyles,
   interactiveElementSizes,
   interactiveElementStyles,
   labelTextStyles,
@@ -106,12 +107,10 @@ export const checkboxInputVariants = cva({
 export const checkboxVisualVariants = cva({
   base: cx(
     interactiveElementStyles.base,
+    focusRingStyles.base,
     'rounded relative',
     'flex items-center justify-center',
     transitionStyles,
-    // Focus styles (when peer input is focused)
-    'peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent/10 peer-focus:ring-offset-0',
-    'peer-focus:border-accent/50',
     // Checked state - matches RadioGroup accent colors
     'peer-checked:border-accent peer-checked:bg-accent',
     // Invalid state

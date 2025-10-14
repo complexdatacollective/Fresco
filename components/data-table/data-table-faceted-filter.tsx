@@ -147,7 +147,7 @@ export function DataTableFacetedFilter<TData, TValue>({
             name="filter"
             placeholder={title}
             autoFocus
-            className="focus-visible:ring-ring border-input bg-background placeholder:text-muted-contrast flex w-full rounded border px-3 py-1 text-sm shadow-2xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-1 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
+            className="border-input bg-background placeholder:text-muted-contrast flex w-full rounded border px-3 py-1 text-sm shadow-2xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:cursor-not-allowed disabled:opacity-50"
           />
           <CommandList className="mt-1">
             <CommandEmpty>No results found.</CommandEmpty>

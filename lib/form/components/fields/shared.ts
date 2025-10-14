@@ -1,4 +1,4 @@
-import { cva, cx } from '~/utils/cva';
+import { cx } from '~/utils/cva';
 
 // ============================================================================
 // Transition Styles
@@ -41,17 +41,14 @@ export const backgroundStyles = {
 export const borderStyles = {
   base: 'rounded border border-outline focus-within:border-accent/50',
   invalid: 'aria-[invalid=true]:border-destructive',
-  focus: 'focus:border-accent/50',
-  focusInvalid: 'aria-[invalid=true]:focus:border-destructive',
-  focusReadOnly: 'is-read-only:focus:',
 } as const;
 
 // ============================================================================
 // Focus Ring Styles
 // ============================================================================
 export const focusRingStyles = {
-  base: 'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/10 focus-visible:ring-offset-0',
-  invalid: 'aria-[invalid=true]:focus-visible:ring-destructive/20',
+  base: 'focusable',
+  invalid: '',
 } as const;
 
 // ============================================================================
@@ -130,12 +127,6 @@ export const interactiveElementStyles = {
   checkedDisabled:
     'disabled:checked:bg-muted-contrast disabled:checked:border-muted-contrast',
   invalidBorder: 'group-data-[invalid=true]:border-destructive',
-  focus: cx(
-    'focus:outline-none focus:ring-4 focus:ring-accent/10 focus:ring-offset-0',
-    'focus:border-accent/50',
-  ),
-  focusInvalid:
-    'group-data-[invalid=true]:focus:border-destructive group-data-[invalid=true]:focus:ring-destructive/20',
 } as const;
 
 export const interactiveElementSizes = {
@@ -219,26 +210,6 @@ export function buildVariantStyles(variant: keyof typeof variantStyles) {
 }
 
 // ============================================================================
-// Legacy exports for backward compatibility
-// ============================================================================
-export const focusVariants = cva({
-  base: 'transition-all duration-300 focus-visible:outline-hidden focus-visible:ring-4 focus-visible:ring-input-contrast/10 focus-visible:ring-offset-0',
-});
-
-export const spacingVariants = cva({
-  base: '',
-  variants: {
-    margin: {
-      default: 'not-first:mt-4',
-      none: 'mt-0',
-    },
-  },
-  defaultVariants: {
-    margin: 'default',
-  },
-});
-
-// ============================================================================
 // Scale-specific Slider Styles (for VisualAnalogScale and LikertScale)
 // ============================================================================
 export const scaleSliderStyles = {
@@ -251,7 +222,7 @@ export const scaleSliderStyles = {
   ),
   thumb: cx(
     'block h-8 w-8 rounded-full bg-accent transition-all duration-200',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/20',
+    'focusable',
     'disabled:pointer-events-none disabled:opacity-50',
     'active:h-10 active:w-10 hover:h-9 hover:w-9',
   ),

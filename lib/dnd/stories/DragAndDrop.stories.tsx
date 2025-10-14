@@ -48,7 +48,7 @@ function DraggableItem({ item }: { item: Item }) {
       {...dragProps}
       className={cx(
         'm-2 rounded-lg px-4 py-3 text-white transition-opacity duration-200 select-none',
-        'focus:ring-accent focus:ring-offset-background focus:ring-2 focus:ring-offset-2 focus:outline-none',
+        'focusable',
         item.type === 'fruit' && 'bg-barbie-pink',
         item.type === 'vegetable' && 'bg-kiwi',
         item.type === 'protein' && 'bg-charcoal',
@@ -93,8 +93,7 @@ function DropZone({
       className={cx(
         'bg-cyber-grape/50 min-h-[300px] rounded-lg border-2 border-dashed border-transparent p-5 transition-all duration-200',
         // Only show focus styles when drop zone is focusable (during dragging)
-        isDragging &&
-          'focus:ring-accent focus:ring-offset-background focus:ring-2 focus:ring-offset-2 focus:outline-none',
+        isDragging && 'focusable',
         isDragging && willAccept && 'border-success bg-cyber-grape',
         isDragging &&
           !willAccept &&

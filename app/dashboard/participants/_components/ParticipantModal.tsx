@@ -2,7 +2,7 @@
 
 import { createId } from '@paralleldrive/cuid2';
 import type { Participant } from '@prisma/client';
-import { HelpCircle } from 'lucide-react';
+import { HelpCircle, WandSparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, type Dispatch, type SetStateAction } from 'react';
 import { createParticipant, updateParticipant } from '~/actions/participants';
@@ -210,6 +210,7 @@ function IdentifierField({
           onClick={() => {
             setFieldValue('identifier', `p-${createId()}`);
           }}
+          icon={<WandSparkles />}
         >
           Generate
         </Button>

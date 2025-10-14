@@ -11,7 +11,7 @@ const toggleButtonStyles = cx(
   'text-center p-3 text-sm font-medium',
   'border-4 border-accent',
   transitionStyles,
-  'focus:outline-none focus:ring-2 focus:ring-accent/20',
+  'focusable',
   'disabled:opacity-50 disabled:cursor-not-allowed',
   'text-accent-contrast',
 );

@@ -41,7 +41,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     ...buttonProps
   } = props;
   const classes = cx(
-    'inline-flex items-center justify-center rounded-full elevation-medium relative transition-all duration-300 spring-[0.2,0.5]',
+    'focusable inline-flex items-center justify-center rounded-full elevation-medium relative transition-all duration-300 spring-[0.2,0.5]',
     'disabled:saturate-50 disabled:cursor-not-allowed',
     'text-white text-lg font-semibold',
     '[--base:var(--node-1)] [--dark:oklch(from_oklch(var(--base))_calc(l-0.05)_c_h)]',

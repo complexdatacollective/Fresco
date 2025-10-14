@@ -5,10 +5,20 @@ const config = {
       extends: [
         'plugin:@typescript-eslint/stylistic-type-checked',
         'plugin:@typescript-eslint/recommended-type-checked',
+        'plugin:better-tailwindcss/recommended-error',
       ],
       files: ['*.ts', '*.tsx'],
       parserOptions: {
         project: true,
+      },
+      settings: {
+        'better-tailwindcss': {
+          entryPoint: 'styles/globals.css',
+        },
+      },
+      rules: {
+        'better-tailwindcss/enforce-consistent-line-wrapping': 'off', // Conflict with prettier
+        'better-tailwindcss/enforce-consistent-class-order': 'off', // Conflict with prettier
       },
     },
     {

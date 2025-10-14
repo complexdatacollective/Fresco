@@ -1,5 +1,5 @@
 type Timeout = ReturnType<typeof setTimeout>;
-type PlainObject = Record<string, any>;
+type PlainObject = Record<string, unknown>;
 
 /* eslint-disable */
 export const range = (start: number, end?: number, step: number = 1) => {

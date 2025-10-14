@@ -16,9 +16,6 @@ import {
 
 // Focus styles for standalone input
 export const standaloneFocusStyles = cx(
-  borderStyles.focus,
-  borderStyles.focusInvalid,
-  borderStyles.focusReadOnly,
   focusRingStyles.base,
   focusRingStyles.invalid,
 );
@@ -26,11 +23,11 @@ export const standaloneFocusStyles = cx(
 // Input element when used with wrapper (prefix/suffix)
 export const inputVariants = cva({
   base: cx(
+    backgroundStyles.base,
+    backgroundStyles.disabled,
+    backgroundStyles.readOnly,
     'flex-1 min-w-0 border-0 p-0',
-    'bg-input', // Match the wrapper's background
-    'disabled:bg-muted', // Ensure disabled state matches wrapper
-    'is-read-only:bg-muted/50', // Ensure read-only state matches wrapper
-    'focus:outline-none focus:ring-0',
+    focusRingStyles.base,
     transitionStyles,
     textStyles.base,
     textStyles.invalid,

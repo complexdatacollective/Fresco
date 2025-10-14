@@ -64,7 +64,7 @@ const ToastAction = React.forwardRef<
   <ToastPrimitives.Action
     ref={ref}
     className={cx(
-      'focus:ring-ring ring-offset-background hover:bg-secondary group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-contrast group-[.destructive]:focus:ring-destructive inline-flex h-8 shrink-0 items-center justify-center rounded border px-3 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none disabled:opacity-50',
+      'hover:bg-secondary group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-contrast inline-flex h-8 shrink-0 items-center justify-center rounded border px-3 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50',
       className,
     )}
     {...props}
@@ -79,7 +79,7 @@ const ToastClose = React.forwardRef<
   <ToastPrimitives.Close
     ref={ref}
     className={cx(
-      'absolute top-2 right-2 rounded p-1 opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100 focus:ring-2 focus:outline-hidden',
+      'absolute top-2 right-2 rounded p-1 opacity-0 transition-opacity group-hover:opacity-100',
       className,
     )}
     toast-close=""
@@ -95,7 +95,8 @@ const ToastTitle = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Title>
 >(({ className, ...props }, ref) => (
   <Heading
-    variant="h4-all-caps"
+    level="h4"
+    variant="all-caps"
     ref={ref}
     className={cx('', className)}
     {...props}

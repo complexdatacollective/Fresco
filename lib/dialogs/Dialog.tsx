@@ -1,6 +1,8 @@
 'use client';
 
+import { Dialog as BaseDialog } from '@base-ui-components/react/dialog';
 import { Slot } from '@radix-ui/react-slot';
+import { AnimatePresence, motion } from 'motion/react';
 import React, { forwardRef, type ReactNode, useId } from 'react';
 import CloseButton from '~/components/CloseButton';
 import Surface from '~/components/layout/Surface';
@@ -14,93 +16,159 @@ export type DialogProps = {
   accent?: 'default' | 'danger' | 'success' | 'warning' | 'info';
   closeDialog: () => void;
   footer?: React.ReactNode;
-} & React.DialogHTMLAttributes<HTMLDialogElement>;
+  open?: boolean;
+  children?: ReactNode;
+};
 
 /**
- * Native HTML Dialog modified so that it can be used with React.
+ * Dialog component using Base UI Dialog primitives with motion animations.
  *
  * For use with `useDialog` and `DialogProvider`. Use `ControlledDialog` in
  * situations where you need to control the dialog's open state manually.
  *
  * Implementation Notes:
  *
- * - The reason this component has an inner Surface component is that the native
- *   dialog uses margin for centering, so we cannot customise margin to ensure
- *   a visible  space from screen edge on small screens.
- * - `allow-discrete` is implemented in the tailwind config, and is required for
- *   the dialog to be able to be animated correctly. See: https://developer.mozilla.org/en-US/docs/Web/CSS/transition-behavior#allow-discrete
- * - There's no way I can think of to use framer-motion for animation here, as
- *   the animation state is linked to the `open` attribute of the dialog, which
- *   can't be read from the dialog itself (although _can_ be read by mutation
- *   observer... but that's a bit much)
+ * - Uses Base UI Dialog for accessibility and state management
+ * - AnimatePresence and motion for enter/exit animations
+ * - The inner Surface component ensures proper spacing from screen edge on small screens
+ * - Backdrop click-to-close is handled by Base UI's dismissible behavior
  */
-export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
+export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
   (
-    { title, description, children, closeDialog, accent, footer, ...rest },
+    { title, description, children, closeDialog, accent, footer, open = false },
     ref,
   ) => {
     const id = useId();
     return (
-      <dialog
-        ref={ref}
-        aria-labelledby={`${id}-title`}
-        aria-describedby={description ? `${id}-description` : undefined}
-        onClose={closeDialog} // Needed so that closing via keyboard still returns a value
-        onClick={(e) => {
-          // Close dialog when clicking on backdrop (the dialog element itself, not children)
-          if (e.target === e.currentTarget) {
+      <BaseDialog.Root
+        open={open}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) {
             closeDialog();
           }
         }}
-        className={cx(
-          '@container',
-          'inset-0 h-screen w-screen', // Full screen to cover everything
-          'flex items-center justify-center', // Needed for content overflow to work correctly
-          'overflow-hidden md:max-h-10/12',
-          'spring-discrete-medium',
-          'rounded-lg bg-transparent', // Or else rounded corner content will have white edges
-          'backdrop:bg-overlay backdrop:backdrop-blur-xs not-open:backdrop:opacity-0 open:backdrop:delay-100 backdrop:starting:opacity-0',
-          'backdrop:transition-opacity',
-          'backdrop:duration-300',
-          'backdrop:transition-discrete',
-          'not-open:opacity-0 starting:pointer-events-none',
-          'm-auto not-open:-translate-y-12 starting:-translate-y-12 starting:opacity-0',
-          '[--bg-scope:var(--color-platinum-dark)]', // set scope to backdrop color
-
-          // Accent overrides the primary hue so that nested buttons inherit color
-          accent === 'success' && '[--color-primary:var(--color-success)]',
-          accent === 'warning' && '[--color-primary:var(--color-warning)]',
-          accent === 'info' && '[--color-primary:var(--color-info)]',
-          accent === 'danger' && '[--color-primary:var(--color-destructive)]',
-        )}
-        {...rest}
+        modal={true}
       >
-        <Surface
-          level={0}
-          className={cx(
-            'relative',
-            'flex flex-col',
-            'w-full md:w-auto',
-            'max-w-2xl',
-            'h-auto max-h-full',
-            'border-primary/75 elevation-none overflow-hidden border-1',
-          )}
-        >
-          <DialogHeading id={`${id}-title`} className="me-8">
-            {title}
-          </DialogHeading>
-          <DialogContent>
-            {description && (
-              <DialogDescription id={`${id}-description`}>
-                {description}
-              </DialogDescription>
+        <BaseDialog.Portal keepMounted>
+          <AnimatePresence>
+            {open && (
+              <BaseDialog.Backdrop
+                render={
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3, delay: 0.1 }}
+                    className={cx(
+                      'absolute inset-0 min-h-dvh',
+                      'flex items-center justify-center',
+                      'bg-overlay backdrop-blur-xs',
+                      '[--bg-scope:var(--color-platinum-dark)]',
+                    )}
+                  />
+                }
+              >
+                <BaseDialog.Popup
+                  ref={ref}
+                  render={
+                    <motion.div
+                      initial={{ opacity: 0, y: -48 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -48 }}
+                      transition={{
+                        type: 'spring',
+                        stiffness: 300,
+                        damping: 30,
+                        duration: 0.3,
+                      }}
+                      className={cx(
+                        '@container w-full md:w-auto',
+                        'flex items-center justify-center',
+                        'max-w-2xl overflow-hidden md:max-h-10/12',
+                        // Accent overrides the primary hue so that nested primary buttons inherit color
+                        accent === 'success' &&
+                          '[--color-primary:var(--color-success)]',
+                        accent === 'warning' &&
+                          '[--color-primary:var(--color-warning)]',
+                        accent === 'info' &&
+                          '[--color-primary:var(--color-info)]',
+                        accent === 'danger' &&
+                          '[--color-primary:var(--color-destructive)]',
+                      )}
+                    >
+                      <Surface
+                        level={0}
+                        className={cx(
+                          'relative',
+                          'flex flex-col',
+                          'h-auto max-h-full max-w-full',
+                          'ring-primary/75 overflow-hidden',
+                        )}
+                      >
+                        <BaseDialog.Title
+                          render={(titleProps) => (
+                            <DialogHeading
+                              {...titleProps}
+                              id={`${id}-title`}
+                              className={cx(titleProps.className, 'me-8')}
+                            >
+                              {title}
+                            </DialogHeading>
+                          )}
+                        />
+                        <DialogContent>
+                          {description && (
+                            <BaseDialog.Description
+                              render={(descProps) => (
+                                <DialogDescription
+                                  {...descProps}
+                                  id={`${id}-description`}
+                                  className={descProps.className}
+                                >
+                                  {description}
+                                </DialogDescription>
+                              )}
+                            />
+                          )}
+                          {children}
+                        </DialogContent>
+                        {footer && <DialogFooter>{footer}</DialogFooter>}
+                        <BaseDialog.Close
+                          render={(closeProps) => {
+                            const typedProps = closeProps as Record<
+                              string,
+                              unknown
+                            >;
+                            return (
+                              <CloseButton
+                                type={typedProps.type as 'button' | undefined}
+                                tabIndex={
+                                  typedProps.tabIndex as number | undefined
+                                }
+                                disabled={
+                                  typedProps.disabled as boolean | undefined
+                                }
+                                aria-label={
+                                  typedProps['aria-label'] as string | undefined
+                                }
+                                data-state={
+                                  typedProps['data-state'] as string | undefined
+                                }
+                                onClick={closeDialog}
+                                data-dialog-close
+                              />
+                            );
+                          }}
+                        />
+                      </Surface>
+                    </motion.div>
+                  }
+                />
+              </BaseDialog.Backdrop>
             )}
-            {children}
-          </DialogContent>
-          {footer && <DialogFooter>{footer}</DialogFooter>}
-          <CloseButton onClick={closeDialog} data-dialog-close />
-        </Surface>
-      </dialog>
+          </AnimatePresence>
+        </BaseDialog.Portal>
+      </BaseDialog.Root>
     );
   },
 );

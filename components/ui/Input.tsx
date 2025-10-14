@@ -46,7 +46,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             id={id}
             type={type}
             className={cx(
-              'focus-visible:ring-ring rounded-input bg-input text-input-contrast ring-offset-background placeholder:text-muted-contrast flex h-10 w-full border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50',
+              'focusable flex h-10 w-full rounded border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:cursor-not-allowed disabled:opacity-50',
               !!leftAdornment && 'pl-10',
               !!rightAdornment && 'pr-10',
               !!error && 'border-destructive',

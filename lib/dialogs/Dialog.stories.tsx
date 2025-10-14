@@ -35,8 +35,7 @@ type Story = StoryObj<typeof Dialog>;
 const DialogTemplate = (args: DialogProps) => (
   <Dialog
     {...args}
-    open
-    ref={undefined}
+    open={true}
     footer={
       <>
         <Button onClick={args.closeDialog}>Cancel</Button>

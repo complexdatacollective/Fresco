@@ -3,9 +3,9 @@
 import { motion } from 'motion/react';
 import type { Route } from 'next';
 import Image from 'next/image';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { UrlObject } from 'url';
+import Link from '~/components/Link';
 import Heading from '~/components/typography/Heading';
 import { env } from '~/env';
 import { cx } from '~/utils/cva';
@@ -48,7 +48,10 @@ export function NavigationBar() {
     <motion.nav className="bg-primary text-primary-contrast flex items-center justify-between gap-4 px-4 py-3">
       <Link href="/" className="flex items-center space-x-2">
         <Image src="/favicon.png" alt="Fresco" width={50} height={50} />
-        <Heading level="h3" className="text-primary-contrast hidden lg:block">
+        <Heading
+          level="h3"
+          className="text-primary-contrast desktop:block hidden"
+        >
           Fresco
           <sup className="align-super text-xs">{env.APP_VERSION}</sup>
         </Heading>

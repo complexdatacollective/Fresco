@@ -10,6 +10,9 @@ const buttonVariants = cva({
   base: cx(
     'font-semibold inline-flex items-center justify-center truncate text-nowrap rounded text-base tracking-wide transition-colors cursor-pointer',
     'disabled:cursor-not-allowed disabled:opacity-50',
+    // Set the size of any child SVG icons to 1rem
+    '[&>svg]:w-auto [&>svg]:h-[1rem] [>svg]:shrink-0',
+    'focusable',
   ),
   variants: {
     variant: {

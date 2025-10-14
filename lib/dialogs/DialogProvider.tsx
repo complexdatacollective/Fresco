@@ -1,12 +1,6 @@
 'use client';
 
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useState,
-  type RefObject,
-} from 'react';
+import React, { createContext, useCallback, useContext, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Button } from '~/components/ui/Button';
 import { generatePublicId } from '~/utils/generatePublicId';
@@ -56,7 +50,7 @@ type Dialog<P, S, C> = AcknowledgeDialog | ChoiceDialog<P, S, C> | CustomDialog;
 type DialogState = Dialog<unknown, unknown, unknown> & {
   id: string;
   resolveCallback: (value: unknown) => void;
-  ref: RefObject<HTMLDialogElement>;
+  open: boolean;
 };
 
 type DialogContextType = {
@@ -77,8 +71,6 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
     async <P = unknown, S = unknown, C = unknown>(
       dialogProps: Dialog<P, S, C>,
     ): Promise<T | null> => {
-      const dialogRef = React.createRef<HTMLDialogElement>();
-
       return new Promise((resolveCallback) => {
         flushSync(() =>
           setDialogs((prevDialogs) => [
@@ -87,14 +79,10 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
               ...dialogProps,
               id: dialogProps.id ?? generatePublicId(),
               resolveCallback,
-              ref: dialogRef,
+              open: true,
             } as DialogState,
           ]),
         );
-
-        if (dialogRef.current) {
-          dialogRef.current.showModal();
-        }
       });
     },
     [setDialogs],
@@ -108,10 +96,12 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
         throw new Error(`Dialog with ID ${id} does not exist`);
       }
 
-      if (dialog.ref.current) {
-        dialog.ref.current.close();
-        dialog.resolveCallback(value);
-      }
+      // Set open to false to trigger exit animation
+      setDialogs((prevDialogs) =>
+        prevDialogs.map((d) => (d.id === id ? { ...d, open: false } : d)),
+      );
+
+      dialog.resolveCallback(value);
 
       // Wait for the animation to finish before removing from state
       await new Promise((resolve) => setTimeout(resolve, 500));
@@ -203,7 +193,7 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
           description={dialog.description}
           closeDialog={() => closeDialog(dialog.id)}
           accent={dialog.intent}
-          ref={dialog.ref}
+          open={dialog.open}
           footer={renderDialogActions(dialog)}
         >
           {dialog.children}

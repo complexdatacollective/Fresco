@@ -3,13 +3,13 @@
 import { Check, X } from 'lucide-react';
 import { type HTMLAttributes } from 'react';
 import { cx } from '~/utils/cva';
-import { transitionStyles } from './shared';
+import { focusRingStyles, transitionStyles } from './shared';
 
 const buttonBaseStyles = cx(
   'flex-1 px-6 py-3 text-left rounded border text-base font-medium',
   'flex items-center gap-3',
   transitionStyles,
-  'focus:outline-none focus:ring-2 focus:ring-accent/20',
+  focusRingStyles.base,
   'disabled:opacity-50 disabled:cursor-not-allowed',
   'bg-input',
 );

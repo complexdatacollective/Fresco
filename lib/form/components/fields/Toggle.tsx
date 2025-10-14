@@ -8,7 +8,7 @@ const toggleStyles = cx(
   'relative inline-flex h-6 w-12 items-center rounded-full',
   'bg-input-contrast/10 border-input-contrast/20',
   'transition-colors duration-300 ease-in-out',
-  'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/10',
+  'focusable',
   'disabled:cursor-not-allowed disabled:opacity-50',
   'data-[state=checked]:bg-accent',
   'shadow-inner',
@@ -16,7 +16,7 @@ const toggleStyles = cx(
 
 const toggleThumbStyles = cx(
   'pointer-events-none block h-5 w-5 absolute left-0.5 rounded-full bg-background shadow-sm',
-  'ring-0 transition-transform duration-300 ease-in-out',
+  'transition-transform duration-300 ease-in-out',
   'data-[state=checked]:translate-x-6',
 );
 
