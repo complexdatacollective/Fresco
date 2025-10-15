@@ -94,6 +94,10 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       );
     });
   };
+  const nodesMap = useFamilyTreeStore((state) => state.network.nodes);
+  const missingNames = () => {
+    return nodesMap.values().some((value) => value.interviewNetworkId == null);
+  };
 
   /**
    * Steps:
@@ -107,6 +111,10 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
   registerBeforeNext((direction) => {
     if (direction === 'forwards') {
+      const isNameGenerationStep = currentStepIndex === 1;
+      if (isNameGenerationStep && missingNames()) {
+        return false;
+      }
       const isLastStep = currentStepIndex === steps.size - 1;
       if (isLastStep) {
         saveEdges();
