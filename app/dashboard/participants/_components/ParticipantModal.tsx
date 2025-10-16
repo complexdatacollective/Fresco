@@ -87,8 +87,8 @@ function ParticipantModal({
 
     if (editingParticipant) {
       await updateParticipant({
-        identifier: editingParticipant.identifier,
-        label: data.label,
+        existingIdentifier: editingParticipant.identifier,
+        formData: data,
       });
     }
 
