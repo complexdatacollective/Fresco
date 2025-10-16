@@ -1,13 +1,46 @@
-import { VersionedProtocolSchema } from '@codaco/protocol-validation';
+import {
+  CurrentProtocolSchema,
+  type VersionedProtocol,
+  VersionedProtocolSchema,
+} from '@codaco/protocol-validation';
 import { NcNetworkSchema } from '@codaco/shared-consts';
 import { PrismaClient } from '@prisma/client';
 import { env } from '~/env';
 import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
+import { appSettingPreprocessedSchema } from '~/schemas/appSettings';
 
 const createPrismaClient = () =>
   new PrismaClient({
     log: env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
   }).$extends({
+    query: {
+      appSettings: {
+        async findUnique({ args, query }) {
+          // Only intercept queries with a key
+          if (!args.where?.key) {
+            return query(args);
+          }
+
+          const key = args.where.key as string;
+
+          if (!(key in appSettingPreprocessedSchema.shape)) {
+            throw new Error(`No preprocessed schema for key: ${key}`);
+          }
+
+          const result = await query(args);
+
+          // Parse the value (or undefined if no result) to get coerced value with defaults
+          const parsedValue = appSettingPreprocessedSchema.shape[
+            key as keyof typeof appSettingPreprocessedSchema.shape
+          ].parse(result?.value);
+
+          return {
+            key,
+            value: parsedValue,
+          };
+        },
+      },
+    },
     result: {
       interview: {
         network: {
@@ -51,7 +84,10 @@ const createPrismaClient = () =>
             schemaVersion: true,
             codebook: true,
           },
-          compute: ({ schemaVersion, codebook }) => {
+          compute: ({
+            schemaVersion,
+            codebook,
+          }): VersionedProtocol['codebook'] => {
             const protocolSchema = VersionedProtocolSchema.parse({
               schemaVersion,
               stages: [],
@@ -67,15 +103,17 @@ const createPrismaClient = () =>
             experiments: true,
           },
           compute: ({ schemaVersion, experiments }) => {
-            const protocolSchema = VersionedProtocolSchema.parse({
+            if (schemaVersion < 8 || !experiments) {
+              return null;
+            }
+
+            const protocolSchema = CurrentProtocolSchema.parse({
               schemaVersion,
               stages: [],
               codebook: {},
               experiments,
             });
-
-            if (!protocolSchema.experiments) return {};
-            return protocolSchema.experiments;
+            return protocolSchema.experiments ?? null;
           },
         },
       },

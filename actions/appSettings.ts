@@ -1,32 +1,34 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { type z } from 'zod/v3';
+import { type z } from 'zod';
 import { safeRevalidateTag } from '~/lib/cache';
-import { type AppSetting, appSettingsSchema } from '~/schemas/appSettings';
+import {
+  type AppSetting,
+  appSettingPreprocessedSchema,
+} from '~/schemas/appSettings';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
 
 // Convert string | boolean | Date to string
-const getStringValue = (value: string | boolean | Date) => {
-  if (typeof value === 'boolean') return value.toString();
+const getStringValue = (value: string | boolean | Date | null) => {
   if (value instanceof Date) return value.toISOString();
-  return value;
+  return value?.toString() ?? 'null';
 };
 
 export async function setAppSetting<
   Key extends AppSetting,
-  V extends z.infer<typeof appSettingsSchema>[Key],
+  V extends z.infer<typeof appSettingPreprocessedSchema>[Key],
 >(key: Key, value: V): Promise<V> {
   await requireApiAuth();
 
-  if (!appSettingsSchema.shape[key]) {
+  if (!appSettingPreprocessedSchema.shape[key]) {
     throw new Error(`Invalid app setting: ${key}`);
   }
 
   try {
-    const result = appSettingsSchema.shape[key].parse(value);
+    const result = appSettingPreprocessedSchema.shape[key].parse(value);
     const stringValue = getStringValue(result);
 
     await prisma.appSettings.upsert({

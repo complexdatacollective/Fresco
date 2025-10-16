@@ -1,3 +1,4 @@
+import { type Codebook } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
@@ -338,7 +339,7 @@ export const updateEgo = createAsyncThunk(
   actionTypes.updateEgo,
   (egoAttributes: NcEgo[EntityAttributesProperty], { getState }) => {
     const state = getState() as RootState;
-    const codebook = state.protocol.codebook;
+    const codebook = state.protocol.codebook as Codebook; // Needed because schema 7 doesn't have strongly typed codebook
     const egoVariables = codebook.ego?.variables;
 
     invariant(egoVariables, 'Ego variables not defined in protocol codebook');

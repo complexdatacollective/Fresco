@@ -70,7 +70,7 @@ export const GenerateParticipationURLButton = ({
           onValueChange={(value) => {
             const protocol = protocols.find(
               (protocol) => protocol.id === value,
-            );
+            ) as Protocol;
 
             setSelectedProtocol(protocol);
             handleCopy(
