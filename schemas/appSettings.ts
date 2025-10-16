@@ -1,5 +1,5 @@
+import { z } from 'zod';
 import { zfd } from 'zod-form-data';
-import { z } from 'zod/v3';
 
 // Variation of the schema that converts the string types in the db to the correct types
 export const appSettingPreprocessedSchema = z.object({

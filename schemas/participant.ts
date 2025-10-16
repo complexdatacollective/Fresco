@@ -1,4 +1,4 @@
-import { z } from 'zod/v3';
+import { z } from 'zod';
 
 // Utility function to check for non-whitespace characters
 const hasNonWhitespaceCharacters = (input: string | undefined) =>
