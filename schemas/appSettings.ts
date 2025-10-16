@@ -1,5 +1,5 @@
+import { z } from 'zod';
 import { zfd } from 'zod-form-data';
-import { z } from 'zod/v3';
 
 export const appSettingsSchema = z
   .object({
