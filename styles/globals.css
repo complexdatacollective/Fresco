@@ -397,6 +397,7 @@
   body {
     @apply bg-background text-text bg-scope;
     font-family: 'Open Sans', sans-serif;
+    position: relative; /* https://base-ui.com/react/overview/quick-start#ios-26-safari */
   }
 
   /* These two tags are semantic, so I think its okay to apply styles to them directly in the global styles. */
