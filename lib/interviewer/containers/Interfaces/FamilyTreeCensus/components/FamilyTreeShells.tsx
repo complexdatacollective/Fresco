@@ -63,13 +63,14 @@ export const FamilyTreeShells = (
               name={node.name}
               label={node.label}
               isEgo={node.isEgo}
-              allowDrag={node.readOnly !== true && stage.stepIndex === 0}
+              allowDrag={node.readOnly !== true}
               interviewNetworkId={node.interviewNetworkId}
               shape={node.sex === 'female' ? 'circle' : 'square'}
               x={node.x ?? 0}
               y={node.y ?? 0}
               selected={node.interviewNetworkId && node[highlightVariable]}
               handleClick={() => {
+                if (stage.stepIndex === 0) return;
                 setSelectedNode(node);
                 if (node.interviewNetworkId && highlightVariable) {
                   const diseaseData: Record<string, VariableValue> = {

@@ -160,7 +160,6 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
         )}
       </div>
       {stageElement &&
-        currentStepIndex === 0 &&
         createPortal(
           <NodeBin
             dropHandler={(node) => {
