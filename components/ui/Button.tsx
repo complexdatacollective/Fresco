@@ -1,77 +1,137 @@
+'use client';
+
 import { Slot } from '@radix-ui/react-slot';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { motion } from 'motion/react';
 import * as React from 'react';
-import { cn } from '~/utils/shadcn';
+import { cva, cx, type VariantProps } from '~/utils/cva';
 import { Skeleton } from './skeleton';
 
-const buttonVariants = cva(
-  'inline-flex items-center justify-center rounded-full text-sm font-semibold ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-nowrap truncate text-foreground',
-  {
-    variants: {
-      variant: {
-        default: 'bg-primary hover:bg-primary/90 text-primary-foreground',
-        success: 'bg-success text-success-foreground hover:bg-success/90',
-        accent: 'bg-accent text-accent-foreground hover:bg-accent/90',
-        info: 'bg-info text-info-foreground hover:bg-info/90',
-        destructive:
-          'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-        outline:
-          'bg-transparent hover:bg-accent hover:text-accent-foreground border',
-        secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        ghost: 'hover:text-accent',
-        tableHeader:
-          'hover:text-accent data-[state=open]:text-accent !p-0 rounded-none',
-        link: 'underline-offset-4 hover:underline',
-      },
-      size: {
-        default: 'h-10 px-6 py-2',
-        xs: 'h-6 px-3 text-xs',
-        sm: 'h-8 px-4',
-        lg: 'h-12 px-8 text-lg',
-        icon: 'h-10 w-10',
-      },
+const buttonVariants = cva({
+  base: cx(
+    'font-semibold inline-flex items-center justify-center truncate text-nowrap rounded text-base tracking-wide transition-colors cursor-pointer',
+    'disabled:cursor-not-allowed disabled:opacity-50',
+    // Set the size of any child SVG icons to 1rem
+    '[&>svg]:w-auto [&>svg]:h-[1rem] [>svg]:shrink-0',
+    'focusable',
+  ),
+  variants: {
+    variant: {
+      default:
+        'bg-[var(--scoped-bg)] text-[var(--scoped-text)] hover:enabled:bg-[color-mix(in_oklch,var(--scoped-bg)_95%,var(--scoped-text))]',
+      outline:
+        'border border-[var(--scoped-bg)] text-[var(--scoped-bg)] hover:enabled:bg-[var(--scoped-bg)] hover:enabled:text-[var(--scoped-text)]',
+      text: 'text-[var(--scoped-bg)] hover:enabled:bg-[var(--scoped-bg)] hover:enabled:text-[var(--scoped-text)]',
+      link: 'text-[var(--scoped-bg)] hover:enabled:underline',
     },
-    defaultVariants: {
-      variant: 'default',
-      size: 'default',
+    color: {
+      default: cx(
+        // bg: mix of 5% of text color and background color
+        '[--scoped-bg:color-mix(in_oklab,oklch(var(--text))_6%,oklch(var(--background)))]',
+        // text: use the foreground color
+        '[--scoped-text:oklch(var(--text))]',
+      ),
+      primary:
+        '[--scoped-bg:var(--color-primary)] [--scoped-text:var(--color-primary-contrast)]',
+      secondary:
+        '[--scoped-bg:var(--color-secondary)] [--scoped-text:var(--color-secondary-contrast)]',
+      warning:
+        '[--scoped-bg:var(--color-warning)] [--scoped-text:var(--color-warning-contrast)]',
+      info: '[--scoped-bg:var(--color-info)] [--scoped-text:var(--color-info-contrast)]',
+      destructive:
+        '[--scoped-bg:var(--color-destructive)] [--scoped-text:var(--color-destructive-contrast)]',
+      accent:
+        '[--scoped-bg:var(--color-accent)] [--scoped-text:var(--color-accent-contrast)]',
+      success:
+        '[--scoped-bg:var(--color-success)] [--scoped-text:var(--color-success-contrast)]',
     },
-    compoundVariants: [
-      {
-        variant: 'tableHeader',
-        size: 'sm',
-      },
-    ],
+    hasIcon: { true: 'gap-2' },
+    iconPosition: {
+      left: 'flex-row',
+      right: 'flex-row-reverse',
+    },
+    size: {
+      xs: 'h-8 px-3 text-xs sm:w-auto',
+      sm: 'h-8 px-4 text-base-sm sm:w-auto',
+      default: 'h-10 px-8 sm:w-auto',
+      lg: 'h-14 px-8 text-base sm:w-auto',
+      icon: 'flex h-10 w-10 shrink-0 rounded-full',
+    },
   },
-);
+  defaultVariants: {
+    variant: 'default',
+    color: 'default',
+    size: 'default',
+  },
+  compoundVariants: [
+    {
+      variant: ['outline', 'text', 'link'],
+      color: 'default',
+      className: 'text-text',
+    },
+  ],
+});
 
 export type ButtonProps = {
   variant?: VariantProps<typeof buttonVariants>['variant'];
+  color?: VariantProps<typeof buttonVariants>['color'];
   size?: VariantProps<typeof buttonVariants>['size'];
   asChild?: boolean;
+  icon?: React.ReactNode;
+  iconPosition?: 'left' | 'right';
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  (
+    {
+      className,
+      variant,
+      color,
+      size,
+      asChild = false,
+      children,
+      icon,
+      iconPosition = 'left',
+      ...props
+    },
+    ref,
+  ) => {
     const Comp = asChild ? Slot : 'button';
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={buttonVariants({
+          variant,
+          color,
+          size,
+          hasIcon: !!icon,
+          iconPosition: iconPosition,
+          className,
+        })}
         ref={ref}
         {...props}
-      />
+      >
+        {icon}
+        {children}
+      </Comp>
     );
   },
 );
 Button.displayName = 'Button';
 
 const ButtonSkeleton = (props: ButtonProps) => {
-  const classes = cn(
-    buttonVariants({ variant: props.variant, size: props.size }),
+  const classes = cx(
+    buttonVariants({
+      variant: props.variant,
+      color: props.color,
+      size: props.size,
+    }),
     props.className,
   );
 
   return <Skeleton className={classes} />;
 };
 
+export default Button;
+
 export { Button, ButtonSkeleton, buttonVariants };
+
+export const MotionButton = motion.create(Button);

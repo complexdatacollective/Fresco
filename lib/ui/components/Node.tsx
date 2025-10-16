@@ -1,7 +1,8 @@
 import { Loader2 } from 'lucide-react';
 import { forwardRef, type HTMLAttributes } from 'react';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
+// TODO: should be part of protocol-validation
 export const NodeColors = [
   'node-color-seq-1',
   'node-color-seq-2',
@@ -39,39 +40,32 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     size = 'md',
     ...buttonProps
   } = props;
-  const classes = cn(
-    'inline-flex items-center justify-center rounded-full shadow-lg relative transition-all duration-300 spring-[0.2,0.5]',
+  const classes = cx(
+    'focusable inline-flex items-center justify-center rounded-full elevation-medium relative transition-all duration-300 spring-[0.2,0.5]',
     'disabled:saturate-50 disabled:cursor-not-allowed',
     'text-white text-lg font-semibold',
-    size === 'sm' && 'h-32 w-32',
-    size === 'md' && 'h-40 w-40',
-    size === 'lg' && 'h-48 w-48',
-    '[--base:var(--node-color-seq-1)] [--dark:var(--node-color-seq-1-dark)]',
-    color === 'node-color-seq-1' &&
-      '[--base:var(--node-color-seq-1)] [--dark:var(--node-color-seq-1-dark)]',
-    color === 'node-color-seq-2' &&
-      '[--base:var(--node-color-seq-2)] [--dark:var(--node-color-seq-2-dark)]',
-    color === 'node-color-seq-3' &&
-      '[--base:var(--node-color-seq-3)] [--dark:var(--node-color-seq-3-dark)]',
-    color === 'node-color-seq-4' &&
-      '[--base:var(--node-color-seq-4)] [--dark:var(--node-color-seq-4-dark)]',
-    color === 'node-color-seq-5' &&
-      '[--base:var(--node-color-seq-5)] [--dark:var(--node-color-seq-5-dark)]',
-    color === 'node-color-seq-6' &&
-      '[--base:var(--node-color-seq-6)] [--dark:var(--node-color-seq-6-dark)]',
-    color === 'node-color-seq-7' &&
-      '[--base:var(--node-color-seq-7)] [--dark:var(--node-color-seq-7-dark)]',
-    color === 'node-color-seq-8' &&
-      '[--base:var(--node-color-seq-8)] [--dark:var(--node-color-seq-8-dark)]',
-    'bg-[linear-gradient(145deg,var(--base)_0%,var(--base)_50%,var(--dark)_50%,var(--dark)_100%)]',
+    '[--base:var(--node-1)] [--dark:oklch(from_oklch(var(--base))_calc(l-0.05)_c_h)]',
+    size === 'sm' && 'h-20 w-20',
+    size === 'md' && 'h-26 w-26',
+    size === 'lg' && 'h-32 w-32',
+    color === 'node-color-seq-1' && '[--base:var(--node-1)]',
+    color === 'node-color-seq-2' && '[--base:var(--node-2)]',
+    color === 'node-color-seq-3' && '[--base:var(--node-3)]',
+    color === 'node-color-seq-4' && '[--base:var(--node-4)]',
+    color === 'node-color-seq-5' && '[--base:var(--node-5)]',
+    color === 'node-color-seq-6' && '[--base:var(--node-6)]',
+    color === 'node-color-seq-7' && '[--base:var(--node-7)]',
+    color === 'node-color-seq-8' && '[--base:var(--node-8)]',
+    'bg-[linear-gradient(145deg,oklch(var(--base))_0%,oklch(var(--base))_50%,var(--dark)_50%,var(--dark)_100%)]',
     selected && 'border-7 border-selected',
     // Linking state uses the ::before pseudo-element
     linking &&
       'shadow-none border-5 border-selected before:content-[""] before:absolute before:-inset-4 before:-z-10 before:bg-selected before:rounded-full before:animate-linking before:origin-center before:opacity-50 before:shadow-lg',
   );
 
-  const labelClasses = cn(
+  const labelClasses = cx(
     'whitespace-pre-line overflow-hidden text-center hyphens-auto text-wrap break-all px-2',
+    size === 'sm' ? 'text-sm' : 'text-base',
   );
 
   const labelWithEllipsis =

@@ -1,14 +1,16 @@
+@use 'sass:list';
+
 $light-color-list: (
-  color('sea-serpent'),
-  color('mustard'),
-  color('neon-coral'),
-  color('sea-green')
+  var(--color-sea-serpent),
+  var(--color-mustard),
+  var(--color-neon-coral),
+  var(--color-sea-green)
 );
 $dark-color-list: (
-  color('sea-serpent--dark'),
-  color('mustard--dark'),
-  color('neon-coral--dark'),
-  color('sea-green--dark')
+  var(--color-sea-serpent-dark),
+  var(--color-mustard-dark),
+  var(--color-neon-coral-dark),
+  var(--color-sea-green-dark)
 );
 
 .spinner {
@@ -74,7 +76,7 @@ $dark-color-list: (
   }
 
   @each $color in $light-color-list {
-    $color-index: index($light-color-list, $color);
+    $color-index: list.index($light-color-list, $color);
 
     @keyframes circle-color-#{$color-index} {
       0% {
@@ -84,14 +86,14 @@ $dark-color-list: (
 
       100% {
         transform: translateX(var(--circle-size));
-        background: nth($dark-color-list, $color-index);
+        background: list.nth($dark-color-list, $color-index);
       }
     }
 
     .circle {
       &:nth-child(#{$color-index}) {
         :nth-child(1) {
-          background: nth($dark-color-list, $color-index);
+          background: list.nth($dark-color-list, $color-index);
           animation: circle-color-#{$color-index}
             calc(var(--animation-duration) / 2)
             var(--circle-easing)

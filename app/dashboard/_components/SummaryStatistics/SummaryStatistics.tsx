@@ -11,7 +11,7 @@ export default function SummaryStatistics() {
 
   return (
     <ResponsiveContainer
-      className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:gap-6"
+      className="tablet:grid-cols-3 desktop:gap-6 grid grid-cols-1 gap-4"
       maxWidth="6xl"
     >
       <Link href="/dashboard/protocols">

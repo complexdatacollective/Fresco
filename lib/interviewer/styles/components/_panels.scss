@@ -1,5 +1,7 @@
+@use '../../../ui/styles/global/core/animation';
+
 .panels {
-  @include transition-properties(
+  @include animation.transition-properties(
     (opacity width margin-right),
     var(--animation-easing),
     var(--animation-duration-standard)

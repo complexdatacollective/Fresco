@@ -125,8 +125,13 @@ export const ParticipantsTableClient = ({
                 protocols={protocols}
               />
             </div>
-            <Button variant="destructive" onClick={handleDeleteAll}>
-              <Trash className="mr-2 inline-block h-4 w-4" />
+            <Button
+              color="destructive"
+              variant="outline"
+              onClick={handleDeleteAll}
+              className="shrink-0"
+            >
+              <Trash className="mr-2 h-4 w-4" />
               Delete All
             </Button>
           </>

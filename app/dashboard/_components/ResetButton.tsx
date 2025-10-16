@@ -3,15 +3,8 @@
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { resetAppSettings } from '~/actions/reset';
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '~/components/ui/AlertDialog';
 import { Button } from '~/components/ui/Button';
+import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
 
 const ResetButton = () => {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -21,31 +14,20 @@ const ResetButton = () => {
     <>
       <Button
         type="submit"
-        variant="destructive"
+        color="destructive"
         onClick={() => setShowConfirmDialog(true)}
       >
         Reset all app data
       </Button>
-      <AlertDialog
+      <ControlledDialog
+        accent="danger"
         open={showConfirmDialog}
-        onOpenChange={(state) => setShowConfirmDialog(state)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action will delete ALL application data, including interviews
-              and protocols. This action cannot be undone. Do you want to
-              continue?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <Button
-              onClick={() => setShowConfirmDialog(false)}
-              variant="outline"
-            >
-              Cancel
-            </Button>
+        closeDialog={() => setShowConfirmDialog(false)}
+        title="Are you sure?"
+        description="This action will delete ALL application data, including interviews and protocols. This action cannot be undone. Do you want to continue?"
+        footer={
+          <>
+            <Button onClick={() => setShowConfirmDialog(false)}>Cancel</Button>
             <Button
               disabled={isResetting}
               onClick={async () => {
@@ -60,14 +42,14 @@ const ResetButton = () => {
                   );
                 }
               }}
-              variant="destructive"
+              color="primary"
             >
               {isResetting && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
               {isResetting ? 'Resetting...' : 'Delete all data'}
             </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          </>
+        }
+      ></ControlledDialog>
     </>
   );
 };

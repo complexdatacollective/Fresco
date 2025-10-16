@@ -1,11 +1,11 @@
 import { CheckCircle, Loader2, XCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { forwardRef, useEffect, useState } from 'react';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
+import CloseButton from '../CloseButton';
 import Heading from '../typography/Heading';
 import Paragraph from '../typography/Paragraph';
 import { Button } from '../ui/Button';
-import { CloseButton } from '../ui/CloseButton';
 import ErrorDialog from '../ui/ErrorDialog';
 import { type ImportJob } from './JobReducer';
 
@@ -37,7 +37,7 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
     return (
       <li
         ref={ref}
-        className={cn(
+        className={cx(
           'background-card bg-card shadow-primary/30 relative flex gap-4 rounded-xl border p-4 shadow-xl',
           error && 'animate-shake border-destructive',
           isComplete && 'border-success',
@@ -56,12 +56,12 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
         </motion.div>
         <motion.div className="w-72" layout>
           <Heading
-            className="text-md text-balance-['unset'] flex-1 truncate"
+            className="text-balance-['unset'] flex-1 truncate text-base"
             variant="h4"
           >
             {id}
           </Heading>
-          <Paragraph variant="smallText" key={status} title={status}>
+          <Paragraph intent="smallText" key={status} title={status}>
             {!error
               ? `${status}...`
               : 'There was an error importing this protocol.'}
@@ -70,7 +70,7 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
           {error && (
             <Button
               size="sm"
-              className="hover:bg-destructive-dark hover:text-destructive-foreground-dark bg-destructive text-destructive-foreground"
+              className="hover:bg-destructive-dark hover:text-destructive-contrast-dark bg-destructive text-destructive-contrast"
               variant="outline"
               onClick={(e) => {
                 e.preventDefault();

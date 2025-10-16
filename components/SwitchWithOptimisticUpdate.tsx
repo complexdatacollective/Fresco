@@ -1,7 +1,7 @@
 'use client';
 
 import { useOptimistic, useTransition } from 'react';
-import { Switch as SwitchUI } from '~/components/ui/switch';
+import { ToggleField as SwitchUI } from '~/lib/form/components/fields/Toggle';
 
 const SwitchWithOptimisticUpdate = ({
   initialValue,
@@ -26,10 +26,8 @@ const SwitchWithOptimisticUpdate = ({
   return (
     <SwitchUI
       disabled={readOnly ?? isTransitioning}
-      checked={optimisticIsActive}
-      onCheckedChange={(checked) =>
-        startTransition(() => updateIsActive(checked))
-      }
+      value={optimisticIsActive}
+      onChange={(checked) => startTransition(() => updateIsActive(checked))}
     />
   );
 };

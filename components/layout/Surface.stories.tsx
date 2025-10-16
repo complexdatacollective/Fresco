@@ -1,6 +1,4 @@
-// src/components/Surface.stories.tsx
-
-import type { Meta, StoryFn } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/nextjs-vite';
 import { type ElementType } from 'react';
 import { Button } from '../ui/Button';
 import Surface, { MotionSurface, type SurfaceVariants } from './Surface';
@@ -127,7 +125,7 @@ export const MotionSurfaceExample: StoryFn<typeof Surface> = () => (
 
 // **New Story: Nested Surfaces**
 export const NestedSurfaces: StoryFn<typeof Surface> = () => (
-  <div className="bg-background text-foreground p-10">
+  <div className="bg-background text-contrast p-10">
     <div className="flex items-center gap-10">
       Background
       <Button color="default">Default Button</Button>

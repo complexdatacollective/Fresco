@@ -7,9 +7,8 @@ import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
-import { cardClasses } from '~/components/ui/card';
 import { useToast } from '~/components/ui/use-toast';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
 export default function Error({
   error,
@@ -47,10 +46,7 @@ ${error.stack}`;
       <ErrorReportNotifier error={error} />
       <ResponsiveContainer
         baseSize="60%"
-        className={cn(
-          cardClasses,
-          'shadow-platinum-dark m-10 w-[30rem] p-10 shadow-xl',
-        )}
+        className={cx('shadow-platinum-dark m-10 w-[30rem] p-10 shadow-xl')}
       >
         <div className="mb-6 flex flex-col items-center justify-center gap-2">
           <Image
@@ -59,11 +55,11 @@ ${error.stack}`;
             height={80}
             alt="Error robot"
           />
-          <Heading variant="h1" className="text-destructive">
+          <Heading level="h1" className="text-destructive">
             Something went wrong.
           </Heading>
         </div>
-        <Paragraph variant="lead" className="mb-0">
+        <Paragraph intent="lead" className="mb-0">
           Fresco encountered an error while trying to load the page, and could
           not continue.
         </Paragraph>
@@ -74,7 +70,7 @@ ${error.stack}`;
           attempt to load the page again.
         </Paragraph>
         <div className="mt-4 flex flex-col gap-2">
-          <Button onClick={copyDebugInfoToClipboard} variant="ghost">
+          <Button onClick={copyDebugInfoToClipboard} variant="outline">
             Copy Debug Information
             <ClipboardCopy className="ml-2" />
           </Button>

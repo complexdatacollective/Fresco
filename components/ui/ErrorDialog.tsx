@@ -2,14 +2,8 @@
 
 import type { AlertDialogProps } from '@radix-ui/react-alert-dialog';
 import React from 'react';
-import {
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogTitle,
-  AlertDialogAction,
-} from '~/components/ui/AlertDialog';
+import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
+import Button from './Button';
 import { Divider } from './Divider';
 
 type ErrorDialogProps = AlertDialogProps & {
@@ -30,25 +24,20 @@ const ErrorDialog = ({
   additionalContent,
 }: ErrorDialogProps) => {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          {description}
-        </AlertDialogHeader>
-        {additionalContent && (
-          <>
-            <Divider className="w-full" />
-            {additionalContent}
-          </>
-        )}
-        <AlertDialogFooter>
-          <AlertDialogAction onClick={onConfirm}>
-            {confirmLabel}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <ControlledDialog
+      open={open}
+      closeDialog={onOpenChange}
+      title={title}
+      description={description}
+      footer={<Button onClick={onConfirm}>{confirmLabel}</Button>}
+    >
+      {additionalContent && (
+        <>
+          <Divider className="w-full" />
+          {additionalContent}
+        </>
+      )}
+    </ControlledDialog>
   );
 };
 

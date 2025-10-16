@@ -1,5 +1,8 @@
+@use '../../../ui/styles/global/core/units';
+@use '../mixins';
+
 .ego-form {
-  @include interface-centering;
+  @include mixins.interface-centering;
 
   padding: 0;
   height: 100%;

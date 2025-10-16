@@ -33,7 +33,7 @@
   --progress-indeterminate-gradient-width: 100rem;
   --progress-indeterminate-animation-duration: 2s;
 
-  @include modifier(indeterminate) {
+  &--indeterminate {
     .progress-bar__filler {
       animation: progress-bar-animation
         var(--progress-indeterminate-animation-duration) linear infinite;

@@ -1,8 +1,8 @@
 import { type ReactNode } from 'react';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import Heading from '../typography/Heading';
 import { Skeleton } from '../ui/skeleton';
-import Section from './Section';
+import Surface from './Surface';
 
 export default function SettingsSection({
   heading,
@@ -18,15 +18,15 @@ export default function SettingsSection({
   devOnly?: boolean;
 }) {
   return (
-    <Section
-      classNames={cn(
+    <Surface
+      className={cx(
         classNames,
         'flex gap-10',
         devOnly && 'border-destructive bg-destructive/5 text-destructive',
       )}
     >
       <div className="flex-1">
-        <Heading variant="h4-all-caps" className="mb-2">
+        <Heading level="h4" variant="all-caps" className="mb-2">
           {heading}
         </Heading>
         {children}
@@ -36,7 +36,7 @@ export default function SettingsSection({
           {controlArea}
         </div>
       )}
-    </Section>
+    </Surface>
   );
 }
 
@@ -46,7 +46,7 @@ export function SettingsSectionSkeleton({
   controlAreaSkelton?: ReactNode;
 }) {
   return (
-    <Section classNames="flex gap-10">
+    <Surface className="flex gap-10">
       <div className="flex-1 space-y-6">
         <Skeleton className="h-6 w-1/3" />
         <Skeleton className="h-12 w-3/4" />
@@ -56,6 +56,6 @@ export function SettingsSectionSkeleton({
           {controlAreaSkelton}
         </div>
       )}
-    </Section>
+    </Surface>
   );
 }

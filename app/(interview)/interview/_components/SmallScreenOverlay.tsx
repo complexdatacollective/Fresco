@@ -21,9 +21,9 @@ const SmallScreenOverlay = async () => {
           height={300}
           alt="Screen too small"
         />
-        <Heading variant="h1">Screen Size Too Small</Heading>
-        <Heading variant="h4"></Heading>
-        <Paragraph variant="lead">
+        <Heading level="h1">Screen Size Too Small</Heading>
+        <Heading level="h4"></Heading>
+        <Paragraph intent="lead">
           To complete this interview, please use a device with a larger screen,
           or maximize your browser window.
         </Paragraph>

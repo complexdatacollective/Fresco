@@ -19,7 +19,7 @@ import {
   PopoverTrigger,
 } from '~/components/ui/popover';
 import { Separator } from '~/components/ui/separator';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
 type DataTableFacetedFilter<TData, TValue> = {
   column?: Column<TData, TValue>;
@@ -104,18 +104,18 @@ export function DataTableFacetedFilter<TData, TValue>({
                         }}
                       >
                         <div
-                          className={cn(
+                          className={cx(
                             'border-primary mr-2 flex size-4 items-center justify-center rounded-sm border',
                             isSelected
-                              ? 'bg-primary text-primary-foreground'
+                              ? 'bg-primary text-primary-contrast'
                               : 'opacity-50 [&_svg]:invisible',
                           )}
                         >
-                          <Check className={cn('size-4')} aria-hidden="true" />
+                          <Check className={cx('size-4')} aria-hidden="true" />
                         </div>
                         {option.icon && (
                           <option.icon
-                            className="text-muted-foreground mr-2 size-4"
+                            className="text-muted-contrast mr-2 size-4"
                             aria-hidden="true"
                           />
                         )}
@@ -147,7 +147,7 @@ export function DataTableFacetedFilter<TData, TValue>({
             name="filter"
             placeholder={title}
             autoFocus
-            className="focus-visible:ring-ring border-input bg-background placeholder:text-muted-foreground flex w-full rounded-md border px-3 py-1 text-sm shadow-2xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-1 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
+            className="border-input bg-background placeholder:text-muted-contrast flex w-full rounded border px-3 py-1 text-sm shadow-2xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:cursor-not-allowed disabled:opacity-50"
           />
           <CommandList className="mt-1">
             <CommandEmpty>No results found.</CommandEmpty>
@@ -170,18 +170,18 @@ export function DataTableFacetedFilter<TData, TValue>({
                     }}
                   >
                     <div
-                      className={cn(
+                      className={cx(
                         'border-primary mr-2 flex size-4 items-center justify-center rounded-sm border',
                         isSelected
-                          ? 'bg-primary text-primary-foreground'
+                          ? 'bg-primary text-primary-contrast'
                           : 'opacity-50 [&_svg]:invisible',
                       )}
                     >
-                      <Check className={cn('size-4')} aria-hidden="true" />
+                      <Check className={cx('size-4')} aria-hidden="true" />
                     </div>
                     {option.icon && (
                       <option.icon
-                        className="text-muted-foreground mr-2 size-4"
+                        className="text-muted-contrast mr-2 size-4"
                         aria-hidden="true"
                       />
                     )}

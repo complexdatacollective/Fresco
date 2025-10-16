@@ -108,7 +108,9 @@ export function getParticipantColumns(
             }
             content={
               <>
-                <Heading variant="h4-all-caps">Unique Participant URL</Heading>
+                <Heading level="h4" variant="all-caps">
+                  Unique Participant URL
+                </Heading>
                 <Paragraph>
                   A unique participant URL allows a participant to take an
                   interview simply by visiting a URL. A participation URL is

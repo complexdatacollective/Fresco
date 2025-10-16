@@ -3,12 +3,12 @@
 import { motion } from 'motion/react';
 import type { Route } from 'next';
 import Image from 'next/image';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { UrlObject } from 'url';
+import Link from '~/components/Link';
 import Heading from '~/components/typography/Heading';
 import { env } from '~/env';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import UserMenu from './UserMenu';
 
 const NavButton = ({
@@ -24,8 +24,8 @@ const NavButton = ({
     <motion.li layout className="relative flex flex-col justify-start">
       <Link
         href={href}
-        className={cn(
-          'text-primary-foreground text-sm font-semibold',
+        className={cx(
+          'text-primary-contrast text-base font-semibold',
           !isActive && 'hover:text-sea-green',
         )}
       >
@@ -34,7 +34,7 @@ const NavButton = ({
       {isActive && (
         <motion.div
           layoutId="underline"
-          className="bg-primary-foreground absolute top-[105%] right-0 left-0 h-[2px] rounded-full"
+          className="bg-primary-contrast absolute top-[105%] right-0 left-0 h-[2px] rounded-full"
         />
       )}
     </motion.li>
@@ -45,10 +45,13 @@ export function NavigationBar() {
   const pathname = usePathname();
 
   return (
-    <motion.nav className="bg-cyber-grape flex items-center justify-between gap-4 px-4 py-3">
+    <motion.nav className="bg-primary text-primary-contrast flex items-center justify-between gap-4 px-4 py-3">
       <Link href="/" className="flex items-center space-x-2">
         <Image src="/favicon.png" alt="Fresco" width={50} height={50} />
-        <Heading variant="h3" className="hidden text-white lg:block">
+        <Heading
+          level="h3"
+          className="text-primary-contrast desktop:block hidden"
+        >
           Fresco
           <sup className="align-super text-xs">{env.APP_VERSION}</sup>
         </Heading>

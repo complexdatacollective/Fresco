@@ -1,5 +1,7 @@
+@use '../mixins';
+
 .narrative-interface {
-  @include interface-centering;
+  @include mixins.interface-centering;
 
   height: 100%;
 
