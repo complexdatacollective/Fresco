@@ -1,8 +1,4 @@
-import {
-  CodebookSchema,
-  ProtocolSchema,
-  stageSchema,
-} from '@codaco/protocol-validation';
+import { VersionedProtocolSchema } from '@codaco/protocol-validation';
 import { NcNetworkSchema } from '@codaco/shared-consts';
 import { PrismaClient } from '@prisma/client';
 import { env } from '~/env';
@@ -37,29 +33,49 @@ const createPrismaClient = () =>
       protocol: {
         stages: {
           needs: {
+            schemaVersion: true,
             stages: true,
           },
-          compute: ({ stages }) => {
-            return stageSchema.array().parse(stages);
+          compute: ({ schemaVersion, stages }) => {
+            const protocolSchema = VersionedProtocolSchema.parse({
+              schemaVersion,
+              stages,
+              codebook: {}, // dummy data
+              experiments: null,
+            });
+            return protocolSchema.stages;
           },
         },
         codebook: {
           needs: {
+            schemaVersion: true,
             codebook: true,
           },
-          compute: ({ codebook }) => {
-            return CodebookSchema.parse(codebook);
+          compute: ({ schemaVersion, codebook }) => {
+            const protocolSchema = VersionedProtocolSchema.parse({
+              schemaVersion,
+              stages: [],
+              codebook,
+              experiments: null,
+            });
+            return protocolSchema.codebook;
           },
         },
         experiments: {
           needs: {
+            schemaVersion: true,
             experiments: true,
           },
-          compute: ({ experiments }) => {
-            if (!experiments) {
-              return null;
-            }
-            return ProtocolSchema.shape.experiments.parse(experiments);
+          compute: ({ schemaVersion, experiments }) => {
+            const protocolSchema = VersionedProtocolSchema.parse({
+              schemaVersion,
+              stages: [],
+              codebook: {},
+              experiments,
+            });
+
+            if (!protocolSchema.experiments) return {};
+            return protocolSchema.experiments;
           },
         },
       },
