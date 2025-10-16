@@ -3,35 +3,33 @@
 import { unstable_noStore } from 'next/cache';
 import { redirect } from 'next/navigation';
 import 'server-only';
-import { type z } from 'zod/v3';
+import type { z } from 'zod';
 import { env } from '~/env';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { createCachedFunction } from '~/lib/cache';
 import {
   type AppSetting,
-  appSettingPreprocessedSchema,
+  type appSettingPreprocessedSchema,
 } from '~/schemas/appSettings';
 import { prisma } from '~/utils/db';
 
-export const getAppSetting = <Key extends AppSetting>(key: Key) =>
+export const getAppSetting = <Key extends AppSetting>(
+  key: Key,
+): Promise<z.infer<typeof appSettingPreprocessedSchema>[Key]> =>
   createCachedFunction(
-    async (key: AppSetting) => {
-      const keyValue = await prisma.appSettings.findUnique({
+    async (
+      key: AppSetting,
+    ): Promise<z.infer<typeof appSettingPreprocessedSchema>[Key]> => {
+      const result = await prisma.appSettings.findUnique({
         where: { key },
       });
 
-      // If the key does not exist, return the default value
-      if (!keyValue) {
-        const value = appSettingPreprocessedSchema.shape[key].parse(
-          undefined,
-        ) as z.infer<typeof appSettingPreprocessedSchema>[Key];
-        return value;
+      // The DB extension handles defaults, so result should never be null
+      if (!result) {
+        throw new Error(`Unexpected: App setting not found for key: ${key}`);
       }
 
-      // Parse the value using the preprocessed schema
-      return appSettingPreprocessedSchema.shape[key].parse(
-        keyValue.value,
-      ) as z.infer<typeof appSettingPreprocessedSchema>[Key];
+      return result.value as z.infer<typeof appSettingPreprocessedSchema>[Key];
     },
     [`appSettings-${key}`, 'appSettings'],
   )(key);
@@ -62,9 +60,13 @@ export async function isAppExpired() {
   const isConfigured = await getAppSetting('configured');
   const initializedAt = await getAppSetting('initializedAt');
 
+  // If initializedAt is null, app can't be expired
+  if (!initializedAt) {
+    return false;
+  }
+
   return (
-    !isConfigured &&
-    new Date(initializedAt).getTime() < Date.now() - UNCONFIGURED_TIMEOUT
+    !isConfigured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT
   );
 }
 

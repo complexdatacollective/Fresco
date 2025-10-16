@@ -1,44 +1,19 @@
 import { zfd } from 'zod-form-data';
 import { z } from 'zod/v3';
 
-export const appSettingsSchema = z
-  .object({
-    initializedAt: z.date(),
-    configured: z.boolean(),
-    allowAnonymousRecruitment: z.boolean(),
-    limitInterviews: z.boolean(),
-    uploadThingToken: z.string(),
-    installationId: z.string(),
-    disableAnalytics: z.boolean(),
-    disableSmallScreenOverlay: z.boolean(),
-  })
-  .strict();
-
-export type AppSetting = keyof z.infer<typeof appSettingsSchema>;
-
-const parseBoolean = (value: unknown): boolean | undefined => {
-  if (value === 'true') return true;
-  if (value === 'false') return false;
-  return undefined;
-};
-
 // Variation of the schema that converts the string types in the db to the correct types
-export const appSettingPreprocessedSchema = appSettingsSchema.extend({
+export const appSettingPreprocessedSchema = z.object({
   initializedAt: z.coerce.date(),
-  configured: z.preprocess(parseBoolean, z.boolean().default(false)),
-  allowAnonymousRecruitment: z.preprocess(
-    parseBoolean,
-    z.boolean().default(false),
-  ),
-  limitInterviews: z.preprocess(parseBoolean, z.boolean().default(false)),
-  disableAnalytics: z.preprocess(parseBoolean, z.boolean().default(false)),
-  disableSmallScreenOverlay: z.preprocess(
-    parseBoolean,
-    z.boolean().default(false),
-  ),
-  uploadThingToken: z.string().optional(),
-  installationId: z.string().optional(),
+  configured: z.stringbool().default(false),
+  allowAnonymousRecruitment: z.stringbool().default(false),
+  limitInterviews: z.stringbool().default(false),
+  disableAnalytics: z.stringbool().default(false),
+  disableSmallScreenOverlay: z.stringbool().default(false),
+  uploadThingToken: z.string(),
+  installationId: z.string().nullable().default(null),
 });
+
+export type AppSetting = keyof z.infer<typeof appSettingPreprocessedSchema>;
 
 // Custom parser for UPLOADTHING_TOKEN to remove token name and quotes
 const parseUploadThingToken = (token: string) => {
