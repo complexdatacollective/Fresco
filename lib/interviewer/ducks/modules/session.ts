@@ -157,6 +157,18 @@ export const addNode = createAsyncThunk(
 
     const variablesForType = getCodebookVariablesForNodeType(type);
 
+    // Validate that all attribute keys exist in the codebook
+    if (attributeData) {
+      const invalidKeys = Object.keys(attributeData).filter(
+        (key) => !(key in variablesForType),
+      );
+
+      invariant(
+        invalidKeys.length === 0,
+        `Invalid node attributes for type "${type}": ${invalidKeys.join(', ')} do not exist in protocol codebook`,
+      );
+    }
+
     const mergedAttributes = {
       ...getDefaultAttributesForEntityType(variablesForType),
       ...attributeData,
@@ -217,6 +229,18 @@ export const addEdge = createAsyncThunk(
 
     const variablesForType = getCodebookVariablesForNodeType(type);
 
+    // Validate that all attribute keys exist in the codebook
+    if (attributeData) {
+      const invalidKeys = Object.keys(attributeData).filter(
+        (key) => !(key in variablesForType),
+      );
+
+      invariant(
+        invalidKeys.length === 0,
+        `Invalid edge attributes for type "${type}": ${invalidKeys.join(', ')} do not exist in protocol codebook`,
+      );
+    }
+
     const mergedAttributes = {
       ...getDefaultAttributesForEntityType(variablesForType),
       ...attributeData,
@@ -253,6 +277,16 @@ export const updateNode = createAsyncThunk(
       makeGetCodebookVariablesForNodeType(state);
 
     const variablesForType = getCodebookVariablesForNodeType(node.type);
+
+    // Validate that all attribute keys exist in the codebook
+    const invalidKeys = Object.keys(newAttributeData).filter(
+      (key) => !(key in variablesForType),
+    );
+
+    invariant(
+      invalidKeys.length === 0,
+      `Invalid node attributes for type "${node.type}": ${invalidKeys.join(', ')} do not exist in protocol codebook`,
+    );
 
     const useEncryption = getShouldEncryptNames(state);
     // We know that encryption is enabled at the protocol level, but are the node attributes we are updating encrypted?
@@ -400,11 +434,48 @@ export const removeNodeFromPrompt = createAsyncThunk(
   },
 );
 
-export const updateEdge = createAction<{
-  edgeId: NcEntity[EntityPrimaryKey]; // Must be uid as this is shared between nodes and edges on slidesform
-  newModelData?: Record<string, unknown>;
-  newAttributeData?: NcEdge[EntityAttributesProperty];
-}>(actionTypes.updateEdge);
+export const updateEdge = createAsyncThunk(
+  actionTypes.updateEdge,
+  (
+    args: {
+      edgeId: NcEntity[EntityPrimaryKey]; // Must be uid as this is shared between nodes and edges on slidesform
+      newModelData?: Record<string, unknown>;
+      newAttributeData?: NcEdge[EntityAttributesProperty];
+    },
+    { getState },
+  ) => {
+    const { edgeId, newModelData, newAttributeData } = args;
+    const state = getState() as RootState;
+    const edge = state.session.network.edges.find(
+      (e) => e[entityPrimaryKeyProperty] === edgeId,
+    );
+
+    invariant(edge, 'Edge not found');
+
+    // Validate that all attribute keys exist in the codebook if newAttributeData is provided
+    if (newAttributeData) {
+      const getCodebookVariablesForNodeType =
+        makeGetCodebookVariablesForNodeType(state);
+
+      const variablesForType = getCodebookVariablesForNodeType(edge.type);
+
+      const invalidKeys = Object.keys(newAttributeData).filter(
+        (key) => !(key in variablesForType),
+      );
+
+      invariant(
+        invalidKeys.length === 0,
+        `Invalid edge attributes for type "${edge.type}": ${invalidKeys.join(', ')} do not exist in protocol codebook`,
+      );
+    }
+
+    return {
+      edgeId,
+      newModelData,
+      newAttributeData,
+    };
+  },
+);
 
 export const updateStageMetadata = createAction<StageMetadataEntry>(
   actionTypes.updateStageMetadata,
@@ -658,7 +729,7 @@ const sessionReducer = createReducer(initialState, (builder) => {
     });
   });
 
-  builder.addCase(updateEdge, (state, action) => {
+  builder.addCase(updateEdge.fulfilled, (state, action) => {
     const { edgeId, newModelData, newAttributeData } = action.payload;
     const { network } = state;
     const { edges } = network;
