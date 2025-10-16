@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { type Edge, type Node } from './store';
 
 export type RelativeOption = { label: string; value: string };
 
@@ -11,50 +12,33 @@ const paternalFatherKey = 'paternal-grandfather';
 const egoKey = 'ego';
 
 type RelativesResult = {
-  mother;
-  father;
-  maternalSiblings;
-  paternalSiblings;
-  egoSiblings;
-  egoChildren;
   grandchildrenOptions: RelativeOption[];
   nieceOptions: RelativeOption[];
   firstCousinOptions: RelativeOption[];
-  getParents: (subjectId: string) => {
-    mother;
-    father;
-  };
 };
 
-export function useRelatives(nodesMap, edgesMap): RelativesResult {
+export const useRelatives = (
+  nodesMap: Map<string, Node>,
+  edgesMap: Map<string, Edge>,
+): RelativesResult => {
   return useMemo(() => {
     const ego = nodesMap.get(egoKey);
 
     if (!ego) {
       return {
-        mother: null,
-        father: null,
-        maternalSiblings: [],
-        paternalSiblings: [],
-        egoSiblings: [],
-        egoChildren: [],
         grandchildrenOptions: [],
         nieceOptions: [],
         firstCousinOptions: [],
-        getParents: () => ({ mother: null, father: null }),
       };
     }
 
-    const mother = nodesMap.get(motherKey);
-    const father = nodesMap.get(fatherKey);
-
-    function getSiblingsByParent(
+    const getSiblingsByParent = (
       parentKeys: (string | null)[],
       edgesMap: Map<string, Edge>,
-      nodesMap: Map<string, PlaceholderNodeProps>,
+      nodesMap: Map<string, Node>,
       subjectKey?: string, // optional
-    ): Map<string, PlaceholderNodeProps> {
-      const siblings = new Map<string, PlaceholderNodeProps>();
+    ): Map<string, Node> => {
+      const siblings = new Map<string, Node>();
 
       parentKeys.forEach((parentKey) => {
         if (!parentKey) return;
@@ -73,7 +57,7 @@ export function useRelatives(nodesMap, edgesMap): RelativesResult {
       });
 
       return siblings;
-    }
+    };
 
     // Ego’s siblings
     const egoSiblings = getSiblingsByParent(
@@ -172,39 +156,10 @@ export function useRelatives(nodesMap, edgesMap): RelativesResult {
       }
     });
 
-    // Helper for other relations
-    function getParents(subjectId: string) {
-      let mother: PlaceholderNodeProps | null = null;
-      let father: PlaceholderNodeProps | null = null;
-
-      // Iterate over edges and find parent -> subject relationships
-      edgesMap.forEach((edge, key) => {
-        if (edge.relationship === 'parent' && edge.target === subjectId) {
-          const parent = nodesMap.get(edge.source);
-          if (!parent) return;
-
-          if (parent.sex === 'female') {
-            mother = parent;
-          } else if (parent.sex === 'male') {
-            father = parent;
-          }
-        }
-      });
-
-      return { mother, father };
-    }
-
     return {
-      mother,
-      father,
-      maternalSiblings,
-      paternalSiblings,
-      egoSiblings,
-      egoChildren,
       grandchildrenOptions,
       nieceOptions,
       firstCousinOptions,
-      getParents,
     };
   }, [nodesMap, edgesMap]);
-}
+};
