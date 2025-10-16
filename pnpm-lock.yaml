@@ -18,7 +18,7 @@ importers:
         specifier: 7.0.0
         version: 7.0.0(next@14.2.32(@babel/core@7.28.3)(@playwright/test@1.55.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.93.2))
       '@codaco/protocol-validation':
-        specifier: 7.0.1
+        specifier: ^7.0.1
         version: 7.0.1
       '@codaco/shared-consts':
         specifier: 5.0.0
@@ -279,7 +279,7 @@ importers:
         specifier: ^13.15.15
         version: 13.15.15
       zod:
-        specifier: ^4.0.17
+        specifier: ^4.1.12
         version: 4.1.12
       zod-form-data:
         specifier: ^3.0.1
