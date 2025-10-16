@@ -48,8 +48,8 @@ function ParticipantModal({
 
     if (editingParticipant) {
       await updateParticipant({
-        identifier: editingParticipant.identifier,
-        label: typedData.label,
+        existingIdentifier: editingParticipant.identifier,
+        formData: data,
       });
       router.refresh();
       setOpen(false);

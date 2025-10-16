@@ -1,4 +1,5 @@
 'use client';
+
 import { Field, Form, SubmitButton } from '~/lib/form';
 import { InputField } from '~/lib/form/components/fields/Input';
 import { createUploadThingTokenSchema } from '~/schemas/appSettings';

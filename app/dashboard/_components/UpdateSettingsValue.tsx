@@ -1,20 +1,22 @@
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { type z } from 'zod';
+import type z from 'zod';
+import { setAppSetting } from '~/actions/appSettings';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
+import { type AppSetting } from '~/schemas/appSettings';
 import ReadOnlyEnvAlert from '../settings/ReadOnlyEnvAlert';
 
-export default function UpdateSettingsValue<T extends string>({
+export default function UpdateSettingsValue({
+  key,
   initialValue,
-  updateValue,
-  schema,
   readOnly,
+  schema,
 }: {
-  initialValue?: T;
-  updateValue: (value: T) => Promise<unknown>;
-  schema: z.ZodSchema<T>;
+  key: AppSetting;
+  initialValue?: string;
   readOnly?: boolean;
+  schema: z.ZodType<string>;
 }) {
   const [newValue, setNewValue] = useState(initialValue);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +49,7 @@ export default function UpdateSettingsValue<T extends string>({
     if (!newValue) return;
 
     setSaving(true);
-    await updateValue(newValue);
+    await setAppSetting(key, newValue);
     setSaving(false);
   };
 

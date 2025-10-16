@@ -1,3 +1,4 @@
+import { type Codebook } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
@@ -149,6 +150,18 @@ export const addNode = createAsyncThunk(
 
     const variablesForType = getCodebookVariablesForNodeType(type);
 
+    // Validate that all attribute keys exist in the codebook
+    if (attributeData) {
+      const invalidKeys = Object.keys(attributeData).filter(
+        (key) => !(key in variablesForType),
+      );
+
+      invariant(
+        invalidKeys.length === 0,
+        `Invalid node attributes for type "${type}": ${invalidKeys.join(', ')} do not exist in protocol codebook`,
+      );
+    }
+
     const mergedAttributes = {
       ...getDefaultAttributesForEntityType(variablesForType),
       ...attributeData,
@@ -209,6 +222,18 @@ export const addEdge = createAsyncThunk(
 
     const variablesForType = getCodebookVariablesForNodeType(type);
 
+    // Validate that all attribute keys exist in the codebook
+    if (attributeData) {
+      const invalidKeys = Object.keys(attributeData).filter(
+        (key) => !(key in variablesForType),
+      );
+
+      invariant(
+        invalidKeys.length === 0,
+        `Invalid edge attributes for type "${type}": ${invalidKeys.join(', ')} do not exist in protocol codebook`,
+      );
+    }
+
     const mergedAttributes = {
       ...getDefaultAttributesForEntityType(variablesForType),
       ...attributeData,
@@ -248,6 +273,16 @@ export const updateNode = createAsyncThunk(
       makeGetCodebookVariablesForNodeType(state);
 
     const variablesForType = getCodebookVariablesForNodeType(node.type);
+
+    // Validate that all attribute keys exist in the codebook
+    const invalidKeys = Object.keys(newAttributeData).filter(
+      (key) => !(key in variablesForType),
+    );
+
+    invariant(
+      invalidKeys.length === 0,
+      `Invalid node attributes for type "${node.type}": ${invalidKeys.join(', ')} do not exist in protocol codebook`,
+    );
 
     const useEncryption = getShouldEncryptNames(state);
     // We know that encryption is enabled at the protocol level, but are the node attributes we are updating encrypted?
@@ -295,8 +330,27 @@ export const deleteEdge = createAction<NcEdge[EntityPrimaryKey]>(
 export const updatePrompt = createAction<number>(actionTypes.updatePrompt);
 export const updateStage = createAction<number>(actionTypes.updateStage);
 
-export const updateEgo = createAction<NcEgo[EntityAttributesProperty]>(
+export const updateEgo = createAsyncThunk(
   actionTypes.updateEgo,
+  (egoAttributes: NcEgo[EntityAttributesProperty], { getState }) => {
+    const state = getState() as RootState;
+    const codebook = state.protocol.codebook as Codebook; // Needed because schema 7 doesn't have strongly typed codebook
+    const egoVariables = codebook.ego?.variables;
+
+    invariant(egoVariables, 'Ego variables not defined in protocol codebook');
+
+    // Validate that all attribute keys exist in the codebook
+    const invalidKeys = Object.keys(egoAttributes).filter(
+      (key) => !(key in egoVariables),
+    );
+
+    invariant(
+      invalidKeys.length === 0,
+      `Invalid ego attributes: ${invalidKeys.join(', ')} do not exist in protocol codebook`,
+    );
+
+    return egoAttributes;
+  },
 );
 
 export const toggleEdge = createAsyncThunk(
@@ -376,11 +430,48 @@ export const removeNodeFromPrompt = createAsyncThunk(
   },
 );
 
-export const updateEdge = createAction<{
-  edgeId: NcEntity[EntityPrimaryKey]; // Must be uid as this is shared between nodes and edges on slidesform
-  newModelData?: Record<string, unknown>;
-  newAttributeData?: NcEdge[EntityAttributesProperty];
-}>(actionTypes.updateEdge);
+export const updateEdge = createAsyncThunk(
+  actionTypes.updateEdge,
+  (
+    args: {
+      edgeId: NcEntity[EntityPrimaryKey]; // Must be uid as this is shared between nodes and edges on slidesform
+      newModelData?: Record<string, unknown>;
+      newAttributeData?: NcEdge[EntityAttributesProperty];
+    },
+    { getState },
+  ) => {
+    const { edgeId, newModelData, newAttributeData } = args;
+    const state = getState() as RootState;
+    const edge = state.session.network.edges.find(
+      (e) => e[entityPrimaryKeyProperty] === edgeId,
+    );
+
+    invariant(edge, 'Edge not found');
+
+    // Validate that all attribute keys exist in the codebook if newAttributeData is provided
+    if (newAttributeData) {
+      const getCodebookVariablesForNodeType =
+        makeGetCodebookVariablesForNodeType(state);
+
+      const variablesForType = getCodebookVariablesForNodeType(edge.type);
+
+      const invalidKeys = Object.keys(newAttributeData).filter(
+        (key) => !(key in variablesForType),
+      );
+
+      invariant(
+        invalidKeys.length === 0,
+        `Invalid edge attributes for type "${edge.type}": ${invalidKeys.join(', ')} do not exist in protocol codebook`,
+      );
+    }
+
+    return {
+      edgeId,
+      newModelData,
+      newAttributeData,
+    };
+  },
+);
 
 export const updateStageMetadata = createAction<StageMetadataEntry[]>(
   actionTypes.updateStageMetadata,
@@ -389,12 +480,19 @@ const sessionReducer = createReducer(initialState, (builder) => {
   builder.addCase(addNode.fulfilled, (state, action) => {
     const { secureAttributes, sessionMeta, modelData } = action.payload;
     const { promptId, stageId } = sessionMeta;
-    invariant(promptId, 'Prompt ID is required to add a node');
     invariant(stageId, 'Stage ID is required to add a node');
 
     const {
       payload: { type, attributeData },
     } = action;
+
+    // If node UUID is provided, check that it doesn't already exist in the network
+    if (modelData?.[entityPrimaryKeyProperty]) {
+      const existingNode = find(state.network.nodes, {
+        [entityPrimaryKeyProperty]: modelData[entityPrimaryKeyProperty],
+      });
+      invariant(!existingNode, 'Node with this ID already exists in network');
+    }
 
     const newNode: NcNode = {
       [entityPrimaryKeyProperty]:
@@ -402,7 +500,7 @@ const sessionReducer = createReducer(initialState, (builder) => {
       type,
       [entityAttributesProperty]: attributeData,
       [entitySecureAttributesMeta]: secureAttributes,
-      promptIDs: [promptId],
+      promptIDs: promptId ? [promptId] : [],
       stageId: stageId,
     };
 
@@ -626,7 +724,7 @@ const sessionReducer = createReducer(initialState, (builder) => {
     });
   });
 
-  builder.addCase(updateEdge, (state, action) => {
+  builder.addCase(updateEdge.fulfilled, (state, action) => {
     const { edgeId, newModelData, newAttributeData } = action.payload;
     const { network } = state;
     const { edges } = network;
@@ -665,7 +763,7 @@ const sessionReducer = createReducer(initialState, (builder) => {
     });
   });
 
-  builder.addCase(updateEgo, (state, action) => {
+  builder.addCase(updateEgo.fulfilled, (state, action) => {
     const { network } = state;
 
     return withLastUpdated({

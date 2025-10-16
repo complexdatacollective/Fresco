@@ -51,13 +51,7 @@ export const store = ({
         network: session.network,
         stageMetadata: session.stageMetadata ?? undefined,
       },
-      protocol: {
-        id: protocol.id,
-        stages: protocol.stages,
-        codebook: protocol.codebook,
-        assets: protocol.assets,
-        experiments: protocol.experiments ?? undefined,
-      },
+      protocol,
     },
   });
 

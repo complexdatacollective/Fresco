@@ -58,6 +58,9 @@ export type FormSchema = z.infer<typeof FormSchema>;
 export const participantListInputSchema = z.array(ParticipantRowSchema);
 
 export const updateSchema = z.object({
-  identifier: participantIdentifierSchema,
-  label: participantLabelSchema,
+  existingIdentifier: participantIdentifierSchema,
+  formData: z.object({
+    identifier: participantIdentifierSchema,
+    label: participantLabelSchema,
+  }),
 });
