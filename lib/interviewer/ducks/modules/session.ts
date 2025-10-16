@@ -292,8 +292,27 @@ export const deleteEdge = createAction<NcEdge[EntityPrimaryKey]>(
 export const updatePrompt = createAction<number>(actionTypes.updatePrompt);
 export const updateStage = createAction<number>(actionTypes.updateStage);
 
-export const updateEgo = createAction<NcEgo[EntityAttributesProperty]>(
+export const updateEgo = createAsyncThunk(
   actionTypes.updateEgo,
+  (egoAttributes: NcEgo[EntityAttributesProperty], { getState }) => {
+    const state = getState() as RootState;
+    const codebook = state.protocol.codebook;
+    const egoVariables = codebook.ego?.variables;
+
+    invariant(egoVariables, 'Ego variables not defined in protocol codebook');
+
+    // Validate that all attribute keys exist in the codebook
+    const invalidKeys = Object.keys(egoAttributes).filter(
+      (key) => !(key in egoVariables),
+    );
+
+    invariant(
+      invalidKeys.length === 0,
+      `Invalid ego attributes: ${invalidKeys.join(', ')} do not exist in protocol codebook`,
+    );
+
+    return egoAttributes;
+  },
 );
 
 export const toggleEdge = createAsyncThunk(
@@ -669,7 +688,7 @@ const sessionReducer = createReducer(initialState, (builder) => {
     });
   });
 
-  builder.addCase(updateEgo, (state, action) => {
+  builder.addCase(updateEgo.fulfilled, (state, action) => {
     const { network } = state;
 
     return withLastUpdated({
