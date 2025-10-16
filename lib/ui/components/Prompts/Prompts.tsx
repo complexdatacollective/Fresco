@@ -1,17 +1,28 @@
+import { type Prompt as TPrompt } from '@codaco/protocol-validation';
 import { findIndex } from 'es-toolkit/compat';
 import { AnimatePresence, motion } from 'motion/react';
-import PropTypes from 'prop-types';
 import { useEffect, useMemo, useRef } from 'react';
+import { cn } from '~/utils/shadcn';
 import Pips from './Pips';
 import Prompt from './Prompt';
+
+type PromptsProps = {
+  prompts: TPrompt[];
+  currentPromptId?: string;
+  speakable?: boolean;
+  className?: string;
+};
 
 /**
  * Displays prompts
  */
-const Prompts = (props) => {
-  const { currentPromptId = 0, prompts, speakable = false } = props;
-
-  const prevPromptRef = useRef();
+const Prompts = ({
+  currentPromptId = '0',
+  prompts,
+  speakable = false,
+  className,
+}: PromptsProps) => {
+  const prevPromptRef = useRef<number>();
 
   const currentIndex = findIndex(
     prompts,
@@ -23,17 +34,20 @@ const Prompts = (props) => {
   }, [currentPromptId, currentIndex]);
 
   const backwards = useMemo(
-    () => currentIndex < prevPromptRef.current,
+    () => currentIndex < (prevPromptRef.current ?? 0),
     [currentIndex],
   );
 
   const variants = {
     initial: { opacity: 0 },
-    animate: { opacity: 1, transition: { when: 'beforeChildren' } },
+    animate: { opacity: 1, transition: { when: 'beforeChildren' as const } },
   };
 
   return (
-    <motion.div className="prompts text-balance" variants={variants}>
+    <motion.div
+      className={cn('prompts text-balance', className)}
+      variants={variants}
+    >
       {prompts.length > 1 ? (
         <Pips count={prompts.length} currentIndex={currentIndex} />
       ) : (
@@ -42,7 +56,8 @@ const Prompts = (props) => {
       <AnimatePresence custom={backwards} mode="wait" initial={false}>
         {prompts.map(
           ({ id, text }) =>
-            prompts[currentIndex].id === id && (
+            currentIndex >= 0 &&
+            prompts[currentIndex]?.id === id && (
               <Prompt
                 key={id}
                 id={id}
@@ -56,12 +71,6 @@ const Prompts = (props) => {
       <div className="prompts__spacer" />
     </motion.div>
   );
-};
-
-Prompts.propTypes = {
-  prompts: PropTypes.any.isRequired,
-  currentPromptId: PropTypes.string,
-  speakable: PropTypes.bool,
 };
 
 export default Prompts;

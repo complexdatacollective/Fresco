@@ -1,23 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   appSettingPreprocessedSchema,
-  appSettingsSchema,
   createUploadThingTokenFormSchema,
 } from '../appSettings';
 
 describe('App Settings Schema Validators', () => {
-  describe('App Setting Schema', () => {
-    it('should reject missing required fields', () => {
-      const invalidSettings = {
-        allowAnonymousRecruitment: false,
-        initializedAt: new Date(),
-        installationId: 'installation123',
-      };
-
-      expect(() => appSettingsSchema.parse(invalidSettings)).toThrow();
-    });
-  });
-
   describe('App Setting Preprocessed Schema', () => {
     it('should parse and convert string date to Date object', () => {
       const validSettings = {

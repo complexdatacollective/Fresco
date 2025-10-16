@@ -1,6 +1,5 @@
 import cx from 'classnames';
 import { motion } from 'motion/react';
-import PropTypes from 'prop-types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { remark } from 'remark';
 import strip from 'strip-markdown';
@@ -13,7 +12,7 @@ import MarkdownLabel from '../Fields/MarkdownLabel';
 const WORDS_PER_SECOND = 0.3;
 
 const variants = {
-  enter: (backwards) => ({
+  enter: (backwards: boolean) => ({
     x: backwards ? '-25%' : '25%',
     opacity: 0,
   }),
@@ -21,17 +20,28 @@ const variants = {
     x: 0,
     opacity: 1,
   },
-  exit: (backwards) => ({
+  exit: (backwards: boolean) => ({
     x: backwards ? '25%' : '-25%',
     opacity: 0,
   }),
 };
 
+type PromptProps = {
+  id: string;
+  text: string;
+  backwards?: boolean;
+  speakable?: boolean;
+};
+
 /**
  * Renders a single prompt.
  */
-const Prompt = (props) => {
-  const { id, text, backwards = false, speakable = false } = props;
+const Prompt = ({
+  id,
+  text,
+  backwards = false,
+  speakable = false,
+}: PromptProps) => {
   const [animationDuration, setAnimationDuration] = useState(0);
 
   const rawText = useMemo(() => {
@@ -39,7 +49,8 @@ const Prompt = (props) => {
       return null;
     }
 
-    const { contents } = remark().use(strip).processSync(text);
+    const result = remark().use(strip).processSync(text);
+    const contents = String(result);
 
     const duration = contents.split(' ').length * WORDS_PER_SECOND;
     setAnimationDuration(duration);
@@ -92,21 +103,16 @@ const Prompt = (props) => {
         x: { type: 'spring', stiffness: 600, damping: 35 },
         opacity: { duration: 0.2 },
       }}
-      style={{
-        '--underline-duration': `${animationDuration}s`,
-      }}
+      style={
+        {
+          '--underline-duration': `${animationDuration}s`,
+        } as React.CSSProperties
+      }
       onTap={handleTap}
     >
       <MarkdownLabel label={text} inline className="prompt__text" />
     </motion.div>
   );
-};
-
-Prompt.propTypes = {
-  id: PropTypes.string.isRequired,
-  text: PropTypes.string.isRequired,
-  backwards: PropTypes.bool,
-  speakable: PropTypes.bool,
 };
 
 export default withNoSSRWrapper(Prompt);

@@ -1,6 +1,5 @@
 'use client';
 
-import { setAppSetting } from '~/actions/appSettings';
 import { createUploadThingTokenSchema } from '~/schemas/appSettings';
 import UpdateSettingsValue from '../../_components/UpdateSettingsValue';
 
@@ -11,10 +10,8 @@ export default function UpdateUploadThingToken({
 }) {
   return (
     <UpdateSettingsValue
+      key="uploadThingToken"
       initialValue={uploadThingKey}
-      updateValue={async (value) => {
-        await setAppSetting('uploadThingToken', value);
-      }}
       schema={createUploadThingTokenSchema}
     />
   );

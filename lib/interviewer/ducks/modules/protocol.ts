@@ -1,12 +1,13 @@
-import { type Protocol, type Stage } from '@codaco/protocol-validation';
+import {
+  type Stage,
+  type VersionedProtocol,
+} from '@codaco/protocol-validation';
 import { type Asset } from '@prisma/client';
 import { createSelector, createSlice } from '@reduxjs/toolkit';
 import { v4 } from 'uuid';
+import { type GetInterviewByIdQuery } from '~/queries/interviews';
 
-type ProtocolState = Pick<Protocol, 'codebook' | 'experiments' | 'stages'> & {
-  id: string;
-  assets?: Asset[];
-};
+type ProtocolState = NonNullable<GetInterviewByIdQuery>['protocol'];
 
 const initialState = {} as ProtocolState;
 
@@ -23,9 +24,23 @@ const protocolSlice = createSlice({
   selectors: {
     getProtocol: (state) => state,
     getShouldEncryptNames: (state) => {
-      return state.experiments?.encryptedVariables ?? false;
+      // experiments only exists in schema version 8+
+      if (state.schemaVersion >= 8) {
+        const experiments = (
+          state as Extract<VersionedProtocol, { schemaVersion: 8 }>
+        ).experiments;
+        return experiments?.encryptedVariables ?? false;
+      }
+      return false;
     },
-    getCodebook: (state): Protocol['codebook'] => state.codebook,
+    getCodebook: (state) => {
+      // Both schema 7 and 8 have the same codebook structure, but we didn't
+      // provide exhaustive typing for schema 7 before moving to schema 8.
+      return state.codebook as Extract<
+        VersionedProtocol,
+        { schemaVersion: 8 }
+      >['codebook'];
+    },
     getStages: createSelector(
       [(state: ProtocolState) => state.stages],
       (stages) => [...(stages ?? []), DefaultFinishStage] as Stage[],

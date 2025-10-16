@@ -1,8 +1,4 @@
-import {
-  migrateProtocol,
-  type Protocol,
-  validateProtocol,
-} from '@codaco/protocol-validation';
+import { migrateProtocol, validateProtocol } from '@codaco/protocol-validation';
 import { queue } from 'async';
 import { XCircle } from 'lucide-react';
 import { hash } from 'ohash';
@@ -114,11 +110,9 @@ export const useProtocolImport = () => {
           ? migrateProtocol(protocolJson, 8)
           : protocolJson;
 
-      const validationResult = await validateProtocol(
-        protocolToValidate as Protocol,
-      );
+      const validationResult = await validateProtocol(protocolToValidate);
 
-      if (!validationResult.isValid) {
+      if (!validationResult.success) {
         const resultAsString = JSON.stringify(validationResult, null, 2);
 
         dispatch({
@@ -152,20 +146,19 @@ export const useProtocolImport = () => {
               additionalContent: (
                 <ErrorDetails errorText={resultAsString}>
                   <ul className="max-w-md list-inside space-y-2">
-                    {[
-                      ...validationResult.schemaErrors,
-                      ...validationResult.logicErrors,
-                    ].map((validationError, i) => (
-                      <li className="flex capitalize" key={i}>
-                        <XCircle className="text-destructive mr-2 h-4 w-4" />
-                        <span>
-                          {validationError.message}{' '}
-                          <span className="text-xs italic">
-                            ({validationError.path})
+                    {validationResult.error.issues.map(
+                      ({ message, path }, i) => (
+                        <li className="flex capitalize" key={i}>
+                          <XCircle className="text-destructive mr-2 h-4 w-4" />
+                          <span>
+                            {message}{' '}
+                            <span className="text-xs italic">
+                              ({path.join(' > ')})
+                            </span>
                           </span>
-                        </span>
-                      </li>
-                    ))}
+                        </li>
+                      ),
+                    )}
                   </ul>
                 </ErrorDetails>
               ),

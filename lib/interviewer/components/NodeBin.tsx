@@ -22,6 +22,7 @@ const NodeBin = ({ accepts, dropHandler }: NodeBinProps) => {
       }
     },
   });
+
   const classNames = cx(
     'node-bin',
     { 'node-bin--active': willAccept },

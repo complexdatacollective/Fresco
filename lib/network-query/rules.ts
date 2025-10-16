@@ -237,8 +237,8 @@ const createRule = (
  */
 export const getRuleFunction = ({ type, options }: FilterRule) => {
   switch (type) {
-    case 'alter':
-      return createRule('alter', options, nodeRule);
+    case 'node':
+      return createRule('node', options, nodeRule);
     case 'edge':
       return createRule('edge', options, edgeRule);
     case 'ego':
@@ -249,8 +249,8 @@ export const getRuleFunction = ({ type, options }: FilterRule) => {
 // As above, but for rules matching single array or edge
 export const getSingleRuleFunction = ({ type, options }: FilterRule) => {
   switch (type) {
-    case 'alter':
-      return createRule('alter', options, singleNodeRule);
+    case 'node':
+      return createRule('node', options, singleNodeRule);
     case 'edge':
       return createRule('edge', options, singleEdgeRule);
     case 'ego':

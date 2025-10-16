@@ -52,7 +52,7 @@ export default async function Settings() {
             ID is used to track analytics data and for other internal purposes.
           </Paragraph>
           <UpdateInstallationId
-            installationId={installationId}
+            installationId={installationId ?? undefined}
             readOnly={!!env.INSTALLATION_ID}
           />
         </SettingsSection>

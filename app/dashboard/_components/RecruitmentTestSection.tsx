@@ -65,7 +65,7 @@ export default function RecruitmentTestSection({
           onValueChange={(value) => {
             const protocol = protocols.find(
               (protocol) => protocol.id === value,
-            );
+            ) as Protocol;
 
             setSelectedProtocol(protocol);
           }}

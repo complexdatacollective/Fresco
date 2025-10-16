@@ -7,7 +7,7 @@ import {
   type SingleEdgeRule,
 } from './rules';
 
-type FilterTypeNotExists = 'alter_not_exists' | 'edge_not_exists';
+type FilterTypeNotExists = 'node_not_exists' | 'edge_not_exists';
 
 const getGroup = (
   rule: RuleFunctionWithMetadata,

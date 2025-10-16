@@ -259,6 +259,8 @@ export default function ProtocolScreen() {
     }
   }, [setQueryStep, isCurrentStepValid, previousValidStageIndex]);
 
+  const { canMoveForward, canMoveBackward } = useSelector(getNavigationInfo);
+
   return (
     <>
       <motion.div
@@ -269,7 +271,12 @@ export default function ProtocolScreen() {
         <Navigation
           moveBackward={moveBackward}
           moveForward={moveForward}
-          disabled={forceNavigationDisabled}
+          disableMoveForward={forceNavigationDisabled || !canMoveForward}
+          // If we have a beforenextfunction, we are always allowed to go back
+          disableMoveBackward={
+            forceNavigationDisabled ||
+            (!canMoveBackward && !beforeNextFunction.current)
+          }
           pulseNext={isReadyForNextStage}
           progress={progress}
         />
