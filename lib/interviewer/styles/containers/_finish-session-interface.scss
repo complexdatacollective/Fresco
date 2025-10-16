@@ -9,7 +9,7 @@
   &__frame {
     max-width: 50rem;
     padding: units.unit(2) units.unit(4);
-    background: var(--nc-light-background);
+    background: var(--nc-panel-bg-muted);
     border-radius: var(--nc-border-radius);
     max-height: calc(100% - 2rem);
     display: flex;
@@ -45,5 +45,4 @@
       text-align: center;
     }
   }
-
 }

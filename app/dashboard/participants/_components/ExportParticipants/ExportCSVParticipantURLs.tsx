@@ -3,18 +3,18 @@
 import { Download } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { useState } from 'react';
+import { type ParticipantWithInterviews } from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTableClient';
+import type { ProtocolWithInterviews } from '~/app/dashboard/_components/ProtocolsTable/ProtocolsTableClient';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
-import type { GetParticipantsReturnType } from '~/queries/participants';
-import type { GetProtocolsReturnType } from '~/queries/protocols';
 
 function ExportCSVParticipantURLs({
   protocol,
   participants,
 }: {
-  protocol?: Awaited<GetProtocolsReturnType>[0];
-  participants: Awaited<GetParticipantsReturnType>;
+  protocol?: ProtocolWithInterviews;
+  participants: ParticipantWithInterviews[];
 }) {
   const download = useDownload();
   const [isExporting, setIsExporting] = useState(false);

@@ -3,9 +3,7 @@
   font-family: 'Quicksand';
   font-style: normal;
   font-weight: 300;
-  src:
-  local('Quicksand Light '),
-  local('Quicksand-Light'),
+  src: local('Quicksand Light '), local('Quicksand-Light');
 }
 
 /* quicksand-400normal - latin */
@@ -13,9 +11,7 @@
   font-family: 'Quicksand';
   font-style: normal;
   font-weight: 400;
-  src:
-  local('Quicksand Regular '),
-  local('Quicksand-Regular'),
+  src: local('Quicksand Regular '), local('Quicksand-Regular');
 }
 
 /* quicksand-500normal - latin */
@@ -23,9 +19,7 @@
   font-family: 'Quicksand';
   font-style: normal;
   font-weight: 500;
-  src:
-  local('Quicksand Medium '),
-  local('Quicksand-Medium'),
+  src: local('Quicksand Medium '), local('Quicksand-Medium');
 }
 
 /* quicksand-700normal - latin */
@@ -33,7 +27,5 @@
   font-family: 'Quicksand';
   font-style: normal;
   font-weight: 700;
-  src:
-  local('Quicksand Bold '),
-  local('Quicksand-Bold'),
+  src: local('Quicksand Bold '), local('Quicksand-Bold');
 }

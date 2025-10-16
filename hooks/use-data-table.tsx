@@ -21,7 +21,7 @@ import type {
   DataTableSearchableColumn,
   FilterParam,
   SortableField,
-} from '~/lib/data-table/types';
+} from '~/components/DataTable/types';
 
 import { debounce } from 'es-toolkit';
 import { useTableStateFromSearchParams } from '~/app/dashboard/_components/ActivityFeed/useTableStateFromSearchParams';

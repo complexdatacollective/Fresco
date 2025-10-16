@@ -1,20 +1,22 @@
 'use client';
 
 import { type ColumnDef } from '@tanstack/react-table';
-import { Checkbox } from '~/components/ui/checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import { Progress } from '~/components/ui/progress';
-import type { Stage } from '@codaco/shared-consts';
 import { Badge } from '~/components/ui/badge';
+import { Checkbox } from '~/components/ui/checkbox';
+import { Progress } from '~/components/ui/progress';
 import TimeAgo from '~/components/ui/TimeAgo';
-import Image from 'next/image';
-import type { GetInterviewsReturnType } from '~/queries/interviews';
+import type { GetInterviewsQuery } from '~/queries/interviews';
+import NetworkSummary from './NetworkSummary';
 
 export const InterviewColumns = (): ColumnDef<
-  Awaited<GetInterviewsReturnType>[0]
+  Awaited<GetInterviewsQuery>[0]
 >[] => [
   {
     id: 'select',
+    meta: {
+      className: 'sticky left-0',
+    },
     header: ({ table }) => (
       <Checkbox
         checked={table.getIsAllPageRowsSelected()}
@@ -32,24 +34,6 @@ export const InterviewColumns = (): ColumnDef<
     enableSorting: false,
     enableHiding: false,
   },
-  // {
-  //   accessorKey: 'id',
-  //   header: ({ column }) => {
-  //     return <DataTableColumnHeader column={column} title="Interview ID" />;
-  //   },
-  // },
-  // {
-  //   accessorKey: 'finishTime',
-  //   header: 'Finish Time',
-  //   cell: ({ row }) => {
-  //     // finishTime is optional
-  //     if (!row.original.finishTime) {
-  //       return 'Not completed';
-  //     }
-  //     const date = new Date(row.original.finishTime);
-  //     return date.toLocaleString();
-  //   },
-  // },
   {
     id: 'identifier',
     accessorKey: 'participant.identifier',
@@ -64,13 +48,6 @@ export const InterviewColumns = (): ColumnDef<
           className="flex items-center gap-2"
           title={row.original.participant.identifier}
         >
-          <Image
-            src="/images/participant.svg"
-            alt="Protocol icon"
-            className="max-w-none"
-            width={24}
-            height={24}
-          />
           <Badge variant={'outline'}>
             <span className="max-w-56 truncate">
               {row.original.participant.identifier}
@@ -81,36 +58,36 @@ export const InterviewColumns = (): ColumnDef<
     },
   },
   {
+    id: 'protocolName',
     accessorKey: 'protocol.name',
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Protocol Name" />;
     },
     cell: ({ row }) => {
+      const protocolFileName = row.original.protocol.name;
+      const protocolName = protocolFileName.replace(/\.netcanvas$/, '');
       return (
         <div
           className="flex w-full max-w-72 items-center gap-2"
           title={row.original.protocol.name}
         >
-          <Image
-            src="/images/protocol-icon.png"
-            alt="Protocol icon"
-            width={32}
-            height={24}
-          />
-          <span className="truncate">{row.original.protocol.name}</span>
+          <span className="truncate">{protocolName}</span>
         </div>
       );
     },
   },
   {
+    id: 'startTime',
     accessorKey: 'startTime',
-    header: 'Started',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Started" />;
+    },
     cell: ({ row }) => {
-      const date = new Date(row.original.startTime);
-      return <TimeAgo date={date} />;
+      return <TimeAgo date={row.original.startTime} />;
     },
   },
   {
+    id: 'lastUpdated',
     accessorKey: 'lastUpdated',
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Updated" />;
@@ -122,18 +99,43 @@ export const InterviewColumns = (): ColumnDef<
   },
   {
     id: 'progress',
+    accessorFn: (row) => {
+      const stages = row.protocol.stages;
+      return Array.isArray(stages)
+        ? (row.currentStep / stages.length) * 100
+        : 0;
+    },
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Progress" />;
     },
     cell: ({ row }) => {
-      const stages = row.original.protocol.stages! as unknown as Stage[];
+      const stages = row.original.protocol.stages;
       const progress = (row.original.currentStep / stages.length) * 100;
       return (
         <div className="flex whitespace-nowrap">
           <Progress value={progress} className="w-12" />
-          <div className="ml-2 text-center text-xs">{progress.toFixed(0)}%</div>
+          <div className="ml-2 text-center">{progress.toFixed(0)}%</div>
         </div>
       );
+    },
+  },
+  {
+    id: 'network',
+    enableSorting: false,
+    accessorFn: (row) => {
+      const network = row.network;
+      const nodeCount = network?.nodes?.length ?? 0;
+      const edgeCount = network?.edges?.length ?? 0;
+      return nodeCount + edgeCount;
+    },
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Network" />;
+    },
+    cell: ({ row }) => {
+      const network = row.original.network;
+      const codebook = row.original.protocol.codebook;
+
+      return <NetworkSummary network={network} codebook={codebook} />;
     },
   },
   {

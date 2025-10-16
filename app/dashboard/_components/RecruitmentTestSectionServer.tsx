@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import SettingsSection from '~/components/layout/SettingsSection';
-import Paragraph from '~/components/ui/typography/Paragraph';
+import Paragraph from '~/components/typography/Paragraph';
 import { getAppSetting } from '~/queries/appSettings';
 import { getParticipants } from '~/queries/participants';
 import { getProtocols } from '~/queries/protocols';

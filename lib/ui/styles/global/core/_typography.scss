@@ -10,21 +10,30 @@ $font-sizes: (
   2: 1.563rem,
   1: 1.25rem,
   body: 1rem,
-  small: .8rem,
+  small: 0.8rem,
 );
 
 @function type-scale($name) {
   @return map-get($font-sizes, $name);
 }
 
-
 // OLD system! To be refactored/removed
 $-type-map: () !default;
 
 @mixin type-set($type-name, $breakpoint-name, $type-properties) {
   $type-group: map-get($-type-map, $type-name) or ();
-  $type-group: map-merge($type-group, ($breakpoint-name: $type-properties));
-  $-type-map: map-merge($-type-map, ($type-name: $type-group)) !global;
+  $type-group: map-merge(
+    $type-group,
+    (
+      $breakpoint-name: $type-properties,
+    )
+  );
+  $-type-map: map-merge(
+    $-type-map,
+    (
+      $type-name: $type-group,
+    )
+  ) !global;
 }
 
 @mixin typography($type-name, $type-property: null) {

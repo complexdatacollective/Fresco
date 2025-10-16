@@ -1,6 +1,7 @@
 import { ChevronDown, ChevronsUpDown, Plus, TextIcon } from 'lucide-react';
 import * as React from 'react';
 
+import { type DataTableFilterOption } from '~/components/DataTable/types';
 import { Button } from '~/components/ui/Button';
 import {
   Command,
@@ -16,7 +17,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '~/components/ui/popover';
-import { type DataTableFilterOption } from '~/lib/data-table/types';
 
 type DataTableAdvancedFilterProps<TData> = {
   options: DataTableFilterOption<TData>[];

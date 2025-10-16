@@ -6,13 +6,11 @@
     "public/scripts/d3-quadtree.v3.min.js",
     "public/scripts/d3-timer.v3.min.js",
     "lib/interviewer/hooks/forceSimulation.worker.js",
-    "lib/ui/components/Sprites/ExportSprite.js",
     "utils/auth.ts",
-    "load-test.js"
+    "load-test.js",
+    "styles/tailwind-motion-spring.ts"
   ],
   "ignoreDependencies": [
-    "server-only",
-    "prop-types",
     "sharp",
     "@tailwindcss/aspect-ratio",
     "@tailwindcss/container-queries",
@@ -20,5 +18,6 @@
     "@tailwindcss/typography",
     "tailwindcss-animate"
   ],
+
   "ignoreBinaries": ["docker-compose", "playwright"]
 }

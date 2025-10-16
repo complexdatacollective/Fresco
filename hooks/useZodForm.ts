@@ -4,7 +4,7 @@ import {
   type FieldValues,
   type UseFormProps,
 } from 'react-hook-form';
-import type { ZodType, ZodTypeDef } from 'zod/v3';
+import type { ZodType, ZodTypeDef } from 'zod';
 
 /**
  * Reusable hook for zod + react-hook-form

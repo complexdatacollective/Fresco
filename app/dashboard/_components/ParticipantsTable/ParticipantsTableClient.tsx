@@ -3,6 +3,7 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { Trash } from 'lucide-react';
 import { use, useCallback, useMemo, useState } from 'react';
+import SuperJSON from 'superjson';
 import {
   deleteAllParticipants,
   deleteParticipants,
@@ -12,11 +13,18 @@ import { getParticipantColumns } from '~/app/dashboard/_components/ParticipantsT
 import { DeleteParticipantsDialog } from '~/app/dashboard/participants/_components/DeleteParticipantsDialog';
 import { DataTable } from '~/components/DataTable/DataTable';
 import { Button } from '~/components/ui/Button';
-import type { GetParticipantsReturnType } from '~/queries/participants';
-import type { GetProtocolsReturnType } from '~/queries/protocols';
-import type { ParticipantWithInterviews } from '~/types/types';
+import type {
+  GetParticipantsQuery,
+  GetParticipantsReturnType,
+} from '~/queries/participants';
+import type {
+  GetProtocolsQuery,
+  GetProtocolsReturnType,
+} from '~/queries/protocols';
 import AddParticipantButton from '../../participants/_components/AddParticipantButton';
 import { GenerateParticipantURLs } from '../../participants/_components/ExportParticipants/GenerateParticipantURLsButton';
+
+export type ParticipantWithInterviews = GetParticipantsQuery[number];
 
 export const ParticipantsTableClient = ({
   participantsPromise,
@@ -25,8 +33,10 @@ export const ParticipantsTableClient = ({
   participantsPromise: GetParticipantsReturnType;
   protocolsPromise: GetProtocolsReturnType;
 }) => {
-  const participants = use(participantsPromise);
-  const protocols = use(protocolsPromise);
+  const rawParticiapnts = use(participantsPromise);
+  const rawProtocols = use(protocolsPromise);
+  const participants = SuperJSON.parse<GetParticipantsQuery>(rawParticiapnts);
+  const protocols = SuperJSON.parse<GetProtocolsQuery>(rawProtocols);
 
   // Memoize the columns so they don't re-render on every render
   const columns = useMemo<ColumnDef<ParticipantWithInterviews, unknown>[]>(

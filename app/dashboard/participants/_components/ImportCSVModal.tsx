@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ZodError } from 'zod';
 import { importParticipants } from '~/actions/participants';
+import Paragraph from '~/components/typography/Paragraph';
+import UnorderedList from '~/components/typography/UnorderedList';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
 import {
@@ -16,8 +18,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import UnorderedList from '~/components/ui/typography/UnorderedList';
 import { useToast } from '~/components/ui/use-toast';
 import { FormSchema } from '~/schemas/participant';
 import DropzoneField from './DropzoneField';
