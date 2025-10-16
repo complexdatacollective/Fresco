@@ -6,6 +6,7 @@ import {
   participantIdentifierSchema,
   participantLabelRequiredSchema,
   participantLabelSchema,
+  updateSchema,
 } from '../participant';
 
 describe('Participant Schema Validators', () => {
@@ -210,6 +211,124 @@ describe('Participant Row Schema - CSV import row', () => {
   });
 });
 
+describe('Update Schema', () => {
+  it('should parse valid update data with both existing and new identifier', () => {
+    const validUpdate = {
+      existingIdentifier: 'old-identifier-123',
+      formData: {
+        identifier: 'new-identifier-456',
+        label: 'Updated Label',
+      },
+    };
+
+    const result = updateSchema.parse(validUpdate);
+    expect(result).toEqual({
+      existingIdentifier: 'old-identifier-123',
+      formData: {
+        identifier: 'new-identifier-456',
+        label: 'Updated Label',
+      },
+    });
+  });
+
+  it('should parse valid update data when keeping the same identifier', () => {
+    const validUpdate = {
+      existingIdentifier: 'same-identifier-123',
+      formData: {
+        identifier: 'same-identifier-123',
+        label: 'Updated Label',
+      },
+    };
+
+    const result = updateSchema.parse(validUpdate);
+    expect(result).toEqual({
+      existingIdentifier: 'same-identifier-123',
+      formData: {
+        identifier: 'same-identifier-123',
+        label: 'Updated Label',
+      },
+    });
+  });
+
+  it('should reject invalid existing identifier', () => {
+    const invalidUpdate = {
+      existingIdentifier: '',
+      formData: {
+        identifier: 'new-identifier-123',
+        label: 'Label',
+      },
+    };
+
+    expect(() => updateSchema.parse(invalidUpdate)).toThrow(
+      'Identifier cannot be empty',
+    );
+  });
+
+  it('should reject invalid new identifier in formData', () => {
+    const invalidUpdate = {
+      existingIdentifier: 'old-id-123',
+      formData: {
+        identifier: '',
+        label: 'Label',
+      },
+    };
+
+    expect(() => updateSchema.parse(invalidUpdate)).toThrow(
+      'Identifier cannot be empty',
+    );
+  });
+
+  it('should trim whitespace from identifiers', () => {
+    const updateWithWhitespace = {
+      existingIdentifier: '  old-id-123  ',
+      formData: {
+        identifier: '  new-id-456  ',
+        label: '  Updated Label  ',
+      },
+    };
+
+    const result = updateSchema.parse(updateWithWhitespace);
+    expect(result).toEqual({
+      existingIdentifier: 'old-id-123',
+      formData: {
+        identifier: 'new-id-456',
+        label: 'Updated Label',
+      },
+    });
+  });
+
+  it('should require the nested formData structure', () => {
+    const flattenedUpdate = {
+      identifier: 'p-123',
+      label: 'Label',
+    };
+
+    // Should fail bc schema expects existingIdentifier and formData
+    expect(() => updateSchema.parse(flattenedUpdate)).toThrow();
+  });
+
+  it('should require existingIdentifier field', () => {
+    // if existingIdentifier is missing, should throw error
+    const missingExistingIdentifier = {
+      formData: {
+        identifier: 'new-id-123',
+        label: 'Label',
+      },
+    };
+
+    expect(() => updateSchema.parse(missingExistingIdentifier)).toThrow();
+  });
+
+  it('should require formData field with identifier and label', () => {
+    // if formData is missing, should throw error
+    const missingFormData = {
+      existingIdentifier: 'old-id',
+    };
+
+    expect(() => updateSchema.parse(missingFormData)).toThrow();
+  });
+});
+
 describe('CSV Schema', () => {
   it('should allow valid CSV with multiple rows', () => {
     const validCsv = [
@@ -227,7 +346,7 @@ describe('CSV Schema', () => {
         { identifier: 'abcd5678' },
         { identifier: 'abcd3456', label: 'Label2' },
         { identifier: undefined, label: 'Label3' },
-      ]
+      ],
     });
   });
 
