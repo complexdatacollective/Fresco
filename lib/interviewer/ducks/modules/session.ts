@@ -386,12 +386,19 @@ const sessionReducer = createReducer(initialState, (builder) => {
   builder.addCase(addNode.fulfilled, (state, action) => {
     const { secureAttributes, sessionMeta, modelData } = action.payload;
     const { promptId, stageId } = sessionMeta;
-    invariant(promptId, 'Prompt ID is required to add a node');
     invariant(stageId, 'Stage ID is required to add a node');
 
     const {
       payload: { type, attributeData },
     } = action;
+
+    // If node UUID is provided, check that it doesn't already exist in the network
+    if (modelData?.[entityPrimaryKeyProperty]) {
+      const existingNode = find(state.network.nodes, {
+        [entityPrimaryKeyProperty]: modelData[entityPrimaryKeyProperty],
+      });
+      invariant(!existingNode, 'Node with this ID already exists in network');
+    }
 
     const newNode: NcNode = {
       [entityPrimaryKeyProperty]:
@@ -399,7 +406,7 @@ const sessionReducer = createReducer(initialState, (builder) => {
       type,
       [entityAttributesProperty]: attributeData,
       [entitySecureAttributesMeta]: secureAttributes,
-      promptIDs: [promptId],
+      promptIDs: promptId ? [promptId] : [],
       stageId: stageId,
     };
 
