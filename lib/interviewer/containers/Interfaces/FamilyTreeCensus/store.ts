@@ -19,6 +19,7 @@ export type Node = {
   x?: number;
   y?: number;
   diseases?: Map<string, boolean>;
+  fields?: Map<string, string>;
 };
 
 export type Edge = {

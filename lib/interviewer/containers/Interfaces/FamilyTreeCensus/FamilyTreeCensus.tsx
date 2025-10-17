@@ -155,8 +155,11 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       {stageElement &&
         createPortal(
           <NodeBin
-            dropHandler={(node) => {
-              removeNode(node.placeholderId);
+            dropHandler={(node, metadata) => {
+              const shellNode = metadata as Record<string, string>;
+              if (shellNode?.placeholderId) {
+                removeNode(shellNode?.placeholderId);
+              }
             }}
             accepts={(node: NcNode & { itemType?: string }) =>
               node.itemType === 'FAMILY_TREE_NODE'

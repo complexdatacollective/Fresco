@@ -67,8 +67,9 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
       nodeId: NcNode[EntityPrimaryKey];
       newAttributeData: NcNode[EntityAttributesProperty];
     }) => {
+      const { name, ...attributes } = payload.newAttributeData;
       void dispatch(updateNetworkNode(payload)).then(() => {
-        updateShellNode(payload.nodeId, payload.newAttributeData);
+        updateShellNode(payload.nodeId, { name: name as string, fields: attributes });
       });
     },
     [dispatch, updateShellNode],
@@ -85,8 +86,10 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
     const values: Record<string, string> = {};
     if (selectedNode) {
       form.fields.forEach((field) => {
-        if (selectedNode[field.variable] != null) {
-          values[field.variable] = selectedNode[field.variable];
+        if (field.variable === 'name' && selectedNode.name != null) {
+          values.name = selectedNode.name;
+        } else if (selectedNode.fields?.has(field.variable)) {
+          values[field.variable] = selectedNode.fields.get(field.variable)!;
         }
       });
     }

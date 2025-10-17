@@ -1,7 +1,6 @@
 import { invariant } from 'es-toolkit';
 import { createContext, useContext, useRef } from 'react';
 import { useStore } from 'zustand';
-import { createUseState } from '~/utils/createUseState';
 import {
   createFamilyTreeStore,
   type FamilyTreeStore,
@@ -40,4 +39,4 @@ export const useFamilyTreeStore = <T,>(
   return useStore(store, selector);
 };
 
-export const useFamilyTreeState = createUseState(useFamilyTreeStore);
+// export const useFamilyTreeState = createUseState(useFamilyTreeStore);

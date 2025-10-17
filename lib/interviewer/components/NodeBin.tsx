@@ -1,10 +1,10 @@
 import { type NcNode } from '@codaco/shared-consts';
 import cx from 'classnames';
-import { useDropTarget } from '~/lib/dnd';
+import { type DragMetadata, useDropTarget } from '~/lib/dnd';
 
 type NodeBinProps = {
   accepts: (node: NcNode) => boolean;
-  dropHandler: (node: NcNode) => void;
+  dropHandler: (node: NcNode, metadata?: DragMetadata) => void;
 };
 
 /**
@@ -18,7 +18,7 @@ const NodeBin = ({ accepts, dropHandler }: NodeBinProps) => {
     onDrop: (metadata) => {
       const node = metadata as NcNode;
       if (accepts(node)) {
-        dropHandler(node);
+        dropHandler(node, metadata);
       }
     },
   });
