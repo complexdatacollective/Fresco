@@ -47,6 +47,7 @@ type NetworkActions = {
   addEdge: (edge: Omit<Edge, 'id'> & { id?: string }) => string | undefined;
   removeEdge: (id: string) => void;
   clearNetwork: () => void;
+  getShellIdByNetworkId: (id: string) => string | null;
   generatePlaceholderNetwork: (
     formData: Record<string, number>,
     egoSex: Sex,
@@ -805,6 +806,13 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
             state.network.nodes.clear();
             state.network.edges.clear();
           });
+        },
+
+        getShellIdByNetworkId: (networkId: string) => {
+          for (const [id, node] of get().network.nodes.entries()) {
+            if (node.interviewNetworkId === networkId) return id;
+          }
+          return null;
         },
 
         generatePlaceholderNetwork: (formData, egoSex) => {

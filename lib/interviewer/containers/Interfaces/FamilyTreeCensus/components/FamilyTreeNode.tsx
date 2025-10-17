@@ -5,6 +5,28 @@ import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
 import { Node } from '~/lib/ui/components';
 import { FAMILY_TREE_CONFIG } from '../config';
 
+// TODO: I feel like this isn't actually necessary but i'll have to look deeper into the Node code to check
+export type FamilyTreeNode = {
+  id: string;
+  label: string;
+  interviewNetworkId?: string;
+  placeholderId?: string;
+  isEgo?: boolean;
+  x: number;
+  y: number;
+  shape?: 'circle' | 'square';
+  selected?: boolean;
+  name?: string;
+  sex?: string;
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | null
+    | undefined
+    | (string | number | boolean)[];
+};
+
 export default function FamilyTreeNode(props: {
   interviewNetworkId?: string;
   placeholderId: string;

@@ -20,10 +20,11 @@ import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/pro
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { Button, Scroller } from '~/lib/ui/components';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
+import type { FamilyTreeNode } from './FamilyTreeNode';
 
 type FamilyTreeNodeFormProps = {
   nodeType: string;
-  selectedNode: Node | void;
+  selectedNode: FamilyTreeNode | void;
   form: TForm;
   onClose: () => void;
 };
@@ -37,42 +38,55 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
   const formRef = useRef<HTMLFormElement>(null);
 
   const updateShellNode = useFamilyTreeStore((state) => state.updateNode);
+  const getShellIdByNetworkId = useFamilyTreeStore(
+    (state) => state.getShellIdByNetworkId,
+  );
   const dispatch = useAppDispatch();
 
   const commitShellNode = useCallback(
     (node: Node, attributes: NcNode[EntityAttributesProperty]) => {
-      if (node.id) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { label, ...networkAttributes } = attributes;
-        void dispatch(
-          addNetworkNode({
-            type: nodeType,
-            modelData: { [entityPrimaryKeyProperty]: node.id },
-            attributeData: networkAttributes,
-          }),
-        ).then(() => {
-          if (node.id) {
-            updateShellNode(node.id, {
-              interviewNetworkId: node.id,
-              ...attributes,
-            });
-          }
-        });
-      }
+      if (!node) return;
+
+      const nodeNetworkId = crypto.randomUUID();
+      const { label, name, ...networkAttributes } = attributes;
+
+      void dispatch(
+        addNetworkNode({
+          type: nodeType,
+          modelData: { [entityPrimaryKeyProperty]: nodeNetworkId },
+          attributeData: networkAttributes,
+        }),
+      ).then(() => {
+        if (node.id) {
+          updateShellNode(node.id, {
+            interviewNetworkId: nodeNetworkId,
+            name: name as string,
+            fields: networkAttributes, // ✅ keep structure consistent from the start
+          });
+        }
+      });
     },
     [dispatch, nodeType, updateShellNode],
   );
+
   const updateNode = useCallback(
     (payload: {
-      nodeId: NcNode[EntityPrimaryKey];
+      nodeId: NcNode[EntityPrimaryKey]; // network ID
       newAttributeData: NcNode[EntityAttributesProperty];
     }) => {
       const { name, ...attributes } = payload.newAttributeData;
       void dispatch(updateNetworkNode(payload)).then(() => {
-        updateShellNode(payload.nodeId, { name: name as string, fields: attributes });
+        // find shell node by interviewNetworkId
+        const shellId = getShellIdByNetworkId(payload.nodeId);
+        if (shellId) {
+          updateShellNode(shellId, {
+            name: name as string,
+            fields: attributes,
+          });
+        }
       });
     },
-    [dispatch, updateShellNode],
+    [dispatch, getShellIdByNetworkId, updateShellNode],
   );
 
   const processedFields = useProtocolFieldProcessor({
@@ -83,16 +97,22 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
   });
 
   const getInitialValues = useCallback(() => {
-    const values: Record<string, string> = {};
-    if (selectedNode) {
-      form.fields.forEach((field) => {
-        if (field.variable === 'name' && selectedNode.name != null) {
-          values.name = selectedNode.name;
-        } else if (selectedNode.fields?.has(field.variable)) {
-          values[field.variable] = selectedNode.fields.get(field.variable)!;
-        }
-      });
-    }
+    const values: Record<string, VariableValue> = {};
+
+    if (!selectedNode) return values;
+
+    form.fields.forEach((field: { variable: string }) => {
+      // Check in fields first (updated values), then fall back to top-level
+      const value =
+        (selectedNode.fields as Record<string, unknown> | undefined)?.[
+          field.variable
+        ] ?? selectedNode[field.variable];
+
+      if (value !== undefined) {
+        values[field.variable] = value as VariableValue;
+      }
+    });
+
     return values;
   }, [selectedNode, form.fields]);
 
@@ -103,7 +123,7 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
       if (selectedNode.interviewNetworkId) {
         // Existing node → update only the editable fields
         void updateNode({
-          nodeId: selectedNode.id,
+          nodeId: selectedNode.interviewNetworkId,
           newAttributeData: value,
         });
       } else {
