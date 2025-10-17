@@ -6,6 +6,7 @@ import {
   createRelationField,
   getRelationFlags,
 } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/dynamicFieldsUtils';
+import { type Node } from './store';
 
 const fatherKey = 'father';
 const motherKey = 'mother';
@@ -15,7 +16,7 @@ export type FieldConfig = {
   options: { label: string; value: string }[];
   type: string;
   variable: string;
-  Component: React.ComponentType<any>;
+  Component: React.ComponentType;
   validation: {
     onSubmit: (value: { value: string }) => string | undefined;
   };
@@ -29,7 +30,7 @@ export function useDynamicFields({
   grandchildrenOptions,
   show,
 }: {
-  nodes: PlaceholderNodeProps[];
+  nodes: Node[];
   firstCousinOptions: RelativeOption[];
   nieceOptions: RelativeOption[];
   grandchildrenOptions: RelativeOption[];

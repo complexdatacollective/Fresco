@@ -42,11 +42,13 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
   const commitShellNode = useCallback(
     (node: Node, attributes: NcNode[EntityAttributesProperty]) => {
       if (node.id) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { label, ...networkAttributes } = attributes;
         void dispatch(
           addNetworkNode({
             type: nodeType,
             modelData: { [entityPrimaryKeyProperty]: node.id },
-            attributeData: attributes,
+            attributeData: networkAttributes,
           }),
         ).then(() => {
           if (node.id) {
@@ -75,7 +77,7 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
   const processedFields = useProtocolFieldProcessor({
     fields: form.fields,
     validationMeta: {
-      entityId: selectedNode?.[entityPrimaryKeyProperty],
+      entityId: selectedNode?.id,
     },
   });
 
@@ -97,10 +99,6 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
 
       if (selectedNode.interviewNetworkId) {
         // Existing node → update only the editable fields
-        console.log('[Form] Updating existing node', {
-          id: selectedNode.id,
-          value,
-        });
         void updateNode({
           nodeId: selectedNode.id,
           newAttributeData: value,
@@ -113,11 +111,6 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
           ...value,
           label,
         };
-
-        console.log('[Form] Adding new node from placeholder', {
-          placeholder: selectedNode,
-          fullPayload,
-        });
         commitShellNode(selectedNode, fullPayload);
       }
 

@@ -18,6 +18,7 @@ export type Node = {
   interviewNetworkId?: string;
   x?: number;
   y?: number;
+  diseases?: Map<string, boolean>;
 };
 
 export type Edge = {
@@ -49,7 +50,7 @@ type NetworkActions = {
     formData: Record<string, number>,
     egoSex: Sex,
   ) => void;
-  addPlaceholderNode: (formData) => void;
+  addPlaceholderNode: (relation: string, anchorId?: string) => void;
   runLayout: () => void;
 };
 
@@ -683,7 +684,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
       };
 
       // if a deleted node had a partner, see if they should also be deleted
-      const maybeDeletePartner = (partnerId?: string) => {
+      const maybeDeletePartner = (partnerId: string | null) => {
         if (!partnerId) return;
         const network = get().network;
         const partnerNode = network.nodes.get(partnerId);
@@ -1185,6 +1186,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           // half siblings
           if (rel.includes('half')) {
             if (!anchorId) {
+              // eslint-disable-next-line no-console
               console.warn(`half relation requires anchorId`);
               return newNodeId;
             }
@@ -1213,6 +1215,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           // nieces and nephews (child of ego’s sibling)
           else if (rel.includes('niece') || rel.includes('nephew')) {
             if (!anchorId) {
+              // eslint-disable-next-line no-console
               console.warn(`Niece/nephew relation requires anchorId`);
               return newNodeId;
             }
@@ -1224,6 +1227,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           // cousins (child of aunt/uncle)
           else if (rel.includes('cousin')) {
             if (!anchorId) {
+              // eslint-disable-next-line no-console
               console.warn(`Cousin relation requires anchorId`);
               return newNodeId;
             }
@@ -1235,6 +1239,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           // grandchildren
           else if (rel.includes('grandson') || rel.includes('granddaughter')) {
             if (!anchorId) {
+              // eslint-disable-next-line no-console
               console.warn(`Grandchild relation requires anchorId`);
               return newNodeId;
             }
@@ -1246,6 +1251,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           // aunt/uncle
           else if (rel.includes('aunt') || rel.includes('uncle')) {
             if (!anchorId) {
+              // eslint-disable-next-line no-console
               console.warn(`Aunt/uncle relation requires anchorId`);
               return newNodeId;
             }

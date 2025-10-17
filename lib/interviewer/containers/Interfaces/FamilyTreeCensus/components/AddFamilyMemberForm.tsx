@@ -1,3 +1,4 @@
+import { type VariableValue } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
 import { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -40,11 +41,15 @@ const AddFamilyMemberForm = () => {
     show,
   });
 
-  const handleSubmit = (formData) => {
+  const handleSubmit = (formData: { value: Record<string, VariableValue> }) => {
     const { value } = formData;
     const relation = value.relation;
-    const anchorId = value[`${relation}Relation`];
-    addPlaceholderNode(relation, anchorId);
+    const relationId =
+      typeof relation === 'string' ? value[`${relation}Relation`] : undefined;
+    const anchorId = typeof relationId === 'string' ? relationId : undefined;
+    if (typeof relation === 'string') {
+      addPlaceholderNode(relation, anchorId);
+    }
     setShow(false);
   };
 

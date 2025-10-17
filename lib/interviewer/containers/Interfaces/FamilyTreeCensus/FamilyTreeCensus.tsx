@@ -29,7 +29,6 @@ const getStageSteps = (
   number,
   {
     promptText: string;
-    component: React.ComponentType;
     diseaseVariable: string | null;
   }
 > => {
@@ -37,7 +36,6 @@ const getStageSteps = (
     number,
     {
       promptText: string;
-      component: React.ComponentType;
       diseaseVariable: string | null;
     }
   >();
@@ -47,7 +45,6 @@ const getStageSteps = (
   // Scaffolding step
   steps.set(stepIndex, {
     promptText: stage.scaffoldingStep.text,
-    component: FamilyTreeShells,
     diseaseVariable: null,
   });
   stepIndex += 1;
@@ -55,7 +52,7 @@ const getStageSteps = (
   // Name generation step
   steps.set(stepIndex, {
     promptText: stage.nameGenerationStep.text,
-    component: FamilyTreeShells,
+    diseaseVariable: null,
   });
   stepIndex += 1;
 
@@ -64,7 +61,6 @@ const getStageSteps = (
     for (const diseaseStep of stage.diseaseNominationStep) {
       steps.set(stepIndex, {
         promptText: diseaseStep.text,
-        component: FamilyTreeShells,
         diseaseVariable: diseaseStep.variable,
       });
       stepIndex += 1;
@@ -134,8 +130,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     return false;
   });
 
-  const CurrentStepComponent = steps.get(currentStepIndex)?.component;
-  const diseaseVariable = steps.get(currentStepIndex)?.diseaseVariable;
+  const diseaseVariable = steps.get(currentStepIndex)?.diseaseVariable ?? null;
 
   const stageElement = document.getElementById('stage');
   const removeNode = useFamilyTreeStore((state) => state.removeNode);
@@ -151,13 +146,11 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           currentPromptId={currentStepIndex.toString()}
           className="shrink-0"
         />
-        {CurrentStepComponent && (
-          <CurrentStepComponent
-            stage={stage}
-            diseaseVariable={diseaseVariable}
-            stepIndex={currentStepIndex}
-          />
-        )}
+        <FamilyTreeShells
+          stage={stage}
+          diseaseVariable={diseaseVariable}
+          stepIndex={currentStepIndex}
+        />
       </div>
       {stageElement &&
         createPortal(

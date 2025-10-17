@@ -1,3 +1,4 @@
+/* eslint-disable */
 import FamilyTreeLayout from '../utils/FamilyTreeLayout';
 
 test('insertCousins places a cousin in the correct order', () => {

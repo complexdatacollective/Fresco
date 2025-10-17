@@ -153,7 +153,7 @@ export const CensusForm = () => {
               name: 'sex',
               value: sexValue,
               onChange: (value: string) => {
-                setSexValue(value);
+                setSexValue(value as Sex);
               },
             }}
             label={'What is your sex?'}

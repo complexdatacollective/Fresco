@@ -16,15 +16,17 @@ import EdgeRenderer from './EdgeRenderer';
 import FamilyTreeNode from './FamilyTreeNode';
 import FamilyTreeNodeForm from './FamilyTreeNodeForm';
 
-export const FamilyTreeShells = (
+export const FamilyTreeShells = (props: {
   stage: Extract<Stage, { type: 'FamilyTreeCensus' }>,
-) => {
+  diseaseVariable: string | null,
+  stepIndex: number,
+}) => {
+  const { stage, diseaseVariable, stepIndex } = props;
   const nodesMap = useFamilyTreeStore((state) => state.network.nodes);
   const nodes = Array.from(
     nodesMap.entries().map(([id, node]) => ({ id, ...node })),
   );
   const [selectedNode, setSelectedNode] = useState<Node | void>(undefined);
-  const highlightVariable = stage.diseaseVariable;
 
   const dispatch = useAppDispatch();
   const updateShellNode = useFamilyTreeStore((state) => state.updateNode);
@@ -32,22 +34,26 @@ export const FamilyTreeShells = (
     (payload: {
       nodeId: NcNode[EntityPrimaryKey];
       newAttributeData: NcNode[EntityAttributesProperty];
+      diseaseValue: boolean;
     }) => {
-      void dispatch(updateNetworkNode(payload)).then(() => {
-        updateShellNode(payload.nodeId, payload.newAttributeData);
-      });
+      if (diseaseVariable) {
+        const shellDiseases = new Map<string, boolean>([[diseaseVariable, payload.diseaseValue]])
+        void dispatch(updateNetworkNode(payload)).then(() => {
+          updateShellNode(payload.nodeId, { diseases: shellDiseases });
+        });
+      }
     },
-    [dispatch, updateShellNode],
+    [diseaseVariable, dispatch, updateShellNode],
   );
 
   return (
     <>
-      {stage.stepIndex === 0 && <AddFamilyMemberForm />}
-      {stage.stepIndex === 1 && (
+      {stepIndex === 0 && <AddFamilyMemberForm />}
+      {stepIndex === 1 && (
         <FamilyTreeNodeForm
-          nodeType={stage.stage.subject.type}
+          nodeType={stage.subject.type}
           selectedNode={selectedNode}
-          form={stage.stage.nameGenerationStep.form}
+          form={stage.nameGenerationStep.form}
           onClose={() => {
             setSelectedNode(undefined);
           }}
@@ -63,22 +69,24 @@ export const FamilyTreeShells = (
               name={node.name}
               label={node.label}
               isEgo={node.isEgo}
-              allowDrag={node.readOnly !== true}
+              allowDrag={node.readOnly !== true && stepIndex === 0}
               interviewNetworkId={node.interviewNetworkId}
               shape={node.sex === 'female' ? 'circle' : 'square'}
               x={node.x ?? 0}
               y={node.y ?? 0}
-              selected={node.interviewNetworkId && node[highlightVariable]}
+              selected={node.interviewNetworkId != null && typeof diseaseVariable === 'string' && node.diseases?.get(diseaseVariable)}
               handleClick={() => {
-                if (stage.stepIndex === 0) return;
+                if (stepIndex === 0) return;
                 setSelectedNode(node);
-                if (node.interviewNetworkId && highlightVariable) {
+                if (node.interviewNetworkId && diseaseVariable) {
+                  const diseaseValue = !node.diseases?.get(diseaseVariable);
                   const diseaseData: Record<string, VariableValue> = {
-                    [highlightVariable]: !node[highlightVariable],
+                    [diseaseVariable]: diseaseValue,
                   };
                   updateNode({
                     nodeId: node.id,
                     newAttributeData: diseaseData,
+                    diseaseValue: diseaseValue
                   });
                 }
               }}
