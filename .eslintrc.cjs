@@ -19,6 +19,7 @@ const config = {
       rules: {
         'better-tailwindcss/enforce-consistent-line-wrapping': 'off', // Conflict with prettier
         'better-tailwindcss/enforce-consistent-class-order': 'off', // Conflict with prettier
+        'better-tailwindcss/no-unregistered-classes': 'warn', // TODO: set to error after fixing existing issues
       },
     },
     {

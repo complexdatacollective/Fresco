@@ -5,34 +5,42 @@ import { type ElementType, forwardRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 
 export const surfaceVariants = cva({
-  base: 'rounded-sm @xl:rounded @4xl:rounded-lg elevation-low @lg:elevation-medium @4xl:elevation-high',
+  base: 'rounded-sm @xl:rounded @4xl:rounded-lg outline-none bg-scope @container w-full',
   variants: {
     level: {
-      0: 'bg-surface text-surface-contrast border border-surface-contrast/10 [--color-text:var(--color-surface-contrast)] [--color-background:var(--color-surface)]',
-      1: 'bg-surface-1 text-surface-1-contrast [--color-text:var(--color-surface-1-contrast)] [--color-background:var(--color-surface-1)]',
-      2: 'bg-surface-2 text-surface-2-contrast [--color-text:var(--color-surface-2-contrast)] [--color-background:var(--color-surface-2)]',
-      3: 'bg-surface-3 text-surface-3-contrast [--color-text:var(--color-surface-3-contrast)] [--color-background:var(--color-surface-3)]',
-      4: 'bg-surface-4 text-surface-4-contrast [--color-text:var(--color-surface-4-contrast)] [--color-background:var(--color-surface-4)]',
+      0: 'bg-surface text-surface-contrast [--color-text:var(--color-surface-contrast)] [--background:var(--surface)]',
+      1: 'bg-surface-1 text-surface-1-contrast [--color-text:var(--color-surface-1-contrast)] [--background:var(--surface-1)]',
+      2: 'bg-surface-2 text-surface-2-contrast [--color-text:var(--color-surface-2-contrast)] [--background:var(--surface-2)]',
+      3: 'bg-surface-3 text-surface-3-contrast [--color-text:var(--color-surface-3-contrast)] [--background:var(--surface-3)]',
+      4: 'bg-surface-4 text-surface-4-contrast [--color-text:var(--color-surface-4-contrast)] [--background:var(--surface-4)]',
     },
     spacing: {
       none: '',
-      xs: 'px-2 py-1 sm:px-2 sm:py-1 md:px-4 md:py-2 lg:px-4 lg:py-2',
-      sm: 'px-4 py-2 sm:px-4 sm:py-2 md:px-6 md:py-4 lg:px-8 lg:py-6',
-      md: 'px-8 py-6 md:px-10 md:py-8 lg:px-12 lg:py-8',
-      lg: 'px-10 py-8 sm:px-10 sm:py-8 md:px-16 md:py-12 lg:px-20 lg:py-16',
-      xl: 'px-10 py-8 sm:px-10 sm:py-8 md:px-20 md:py-16 lg:px-28 lg:py-20',
+      xs: 'px-2 py-2 tablet:px-4 tablet:py-3',
+      sm: 'px-4 py-2 tablet:px-6 tablet:py-4 laptop:px-8 laptop:py-6',
+      md: 'px-8 py-6 tablet:px-10 tablet:py-8 laptop:px-12 laptop:py-8',
+      lg: 'px-10 py-8 tablet:px-16 tablet:py-12 laptop:px-20 laptop:py-16',
+      xl: 'px-10 py-8 tablet:px-20 tablet:py-16 laptop:px-28 laptop:py-20',
     },
     elevation: {
+      dynamic: 'elevation-low @xl:elevation-medium @4xl:elevation-high',
       low: 'elevation-low',
       medium: 'elevation-medium',
       high: 'elevation-high',
       none: 'shadow-none',
     },
+    accent: {
+      info: 'border-l-4 border-info/50',
+      success: 'border-l-4 border-success/50',
+      destructive: 'border-l-4 border-destructive/50',
+      none: '',
+    },
   },
   defaultVariants: {
     level: 0,
     spacing: 'md',
-    elevation: 'none',
+    elevation: 'dynamic',
+    accent: 'none',
   },
 });
 
@@ -50,13 +58,16 @@ type SurfaceProps<T extends ElementType = 'div'> = {
  * being nested.
  */
 const SurfaceComponent = forwardRef<HTMLDivElement, SurfaceProps>(
-  ({ as, children, level, spacing, className, ...rest }, ref) => {
+  ({ as, children, level, spacing, elevation, className, ...rest }, ref) => {
     const Component = as ?? 'div'; // Default to 'div' if `as` is not provided
     return (
       <Component
         ref={ref}
         {...rest}
-        className={cx(surfaceVariants({ level, spacing }), className)}
+        className={cx(
+          surfaceVariants({ level, spacing, elevation }),
+          className,
+        )}
       >
         {children}
       </Component>

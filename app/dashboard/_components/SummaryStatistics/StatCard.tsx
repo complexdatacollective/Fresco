@@ -46,7 +46,7 @@ export function StatCardSkeleton({
 }) {
   return (
     <div className={statCardClasses}>
-      <div className="hidden md:block">{icon}</div>
+      <div className="tablet:block hidden">{icon}</div>
       <div>
         <Heading level="h4" variant="all-caps">
           {title}

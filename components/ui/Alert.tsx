@@ -7,7 +7,7 @@ import Heading from '../typography/Heading';
 import { paragraphVariants } from '../typography/Paragraph';
 
 const alertVariants = cva({
-  base: 'relative w-full bg-card text-contrast border p-4 [&>svg~*]:pl-6 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-contrast my-6',
+  base: 'relative w-full text-contrast border p-4 [&>svg~*]:pl-6 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-contrast my-6',
   variants: {
     variant: {
       default: '',
@@ -32,6 +32,7 @@ const Alert = React.forwardRef<
   <Surface
     ref={ref}
     role="alert"
+    spacing="none"
     className={cx(alertVariants({ variant }), className)}
     {...props}
   />

@@ -38,7 +38,7 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
       <li
         ref={ref}
         className={cx(
-          'background-card bg-card shadow-primary/30 relative flex gap-4 rounded-xl border p-4 shadow-xl',
+          'bg-surface-1 shadow-primary/30 relative flex gap-4 rounded-xl border p-4 shadow-xl',
           error && 'animate-shake border-destructive',
           isComplete && 'border-success',
         )}
@@ -57,7 +57,7 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
         <motion.div className="w-72" layout>
           <Heading
             className="text-balance-['unset'] flex-1 truncate text-base"
-            variant="h4"
+            level="h4"
           >
             {id}
           </Heading>

@@ -13,7 +13,7 @@ const meta = {
     accent: {
       control: {
         type: 'select',
-        options: ['default', 'danger', 'success', 'warning', 'info'],
+        options: ['default', 'danger', 'success', 'info'],
       },
     },
     title: {

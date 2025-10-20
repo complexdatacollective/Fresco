@@ -13,17 +13,17 @@ const preview: Preview = {
     },
 
     backgrounds: {
-      default: 'light',
-      values: [
-        {
+      options: {
+        light: {
           name: 'light',
           value: '#ffffff',
         },
-        {
+
+        dark: {
           name: 'dark',
           value: '#1f1f1f',
         },
-      ],
+      },
     },
 
     a11y: {
@@ -33,13 +33,22 @@ const preview: Preview = {
       test: 'error',
     },
   },
+
   decorators: [
     (Story) => (
-      <Providers>
-        <Story />
-      </Providers>
+      <div className="root" style={{ isolation: 'isolate' }}>
+        <Providers>
+          <Story />
+        </Providers>
+      </div>
     ),
   ],
+
+  initialGlobals: {
+    backgrounds: {
+      value: 'light',
+    },
+  },
 };
 
 export default preview;

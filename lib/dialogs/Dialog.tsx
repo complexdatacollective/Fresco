@@ -13,7 +13,7 @@ import { cx, type VariantProps } from '~/utils/cva';
 export type DialogProps = {
   title?: string;
   description?: ReactNode;
-  accent?: 'default' | 'danger' | 'success' | 'warning' | 'info';
+  accent?: 'default' | 'danger' | 'success' | 'info';
   closeDialog: () => void;
   footer?: React.ReactNode;
   open?: boolean;
@@ -60,7 +60,7 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3, delay: 0.1 }}
                     className={cx(
-                      'absolute inset-0 min-h-dvh',
+                      'fixed inset-0',
                       'flex items-center justify-center',
                       'bg-overlay backdrop-blur-xs',
                       '[--bg-scope:var(--color-platinum-dark)]',
@@ -77,19 +77,14 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
                       exit={{ opacity: 0, y: -48 }}
                       transition={{
                         type: 'spring',
-                        stiffness: 300,
-                        damping: 30,
-                        duration: 0.3,
                       }}
                       className={cx(
-                        '@container w-full md:w-auto',
+                        'w-full',
                         'flex items-center justify-center',
-                        'max-w-2xl overflow-hidden md:max-h-10/12',
+                        'max-h-dvh max-w-2xl',
                         // Accent overrides the primary hue so that nested primary buttons inherit color
                         accent === 'success' &&
                           '[--color-primary:var(--color-success)]',
-                        accent === 'warning' &&
-                          '[--color-primary:var(--color-warning)]',
                         accent === 'info' &&
                           '[--color-primary:var(--color-info)]',
                         accent === 'danger' &&
@@ -102,8 +97,8 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
                           'relative',
                           'flex flex-col',
                           'h-auto max-h-full max-w-full',
-                          'ring-primary/75 overflow-hidden',
                         )}
+                        elevation="high"
                       >
                         <BaseDialog.Title
                           render={(titleProps) => (

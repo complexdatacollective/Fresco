@@ -24,9 +24,10 @@ Command.displayName = CommandPrimitive.displayName;
 const CommandInput = React.forwardRef<
   React.ElementRef<typeof InputField>,
   React.ComponentPropsWithoutRef<typeof InputField>
->(({ className, ...props }) => (
+>(({ className, ...props }, ref) => (
   <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
     <InputField
+      ref={ref}
       size="sm"
       prefixComponent={<SearchIcon />}
       className={cx(className)}

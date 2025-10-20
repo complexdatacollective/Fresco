@@ -156,7 +156,7 @@ const NetworkSummary = ({
     return (
       <NodeSummary
         key={nodeType}
-        color={nodeInfo.color as NodeColorSequence}
+        color={nodeInfo.color}
         count={count}
         typeName={nodeInfo.name}
       />

@@ -13,7 +13,7 @@ const meta: Meta<typeof Dialog> = {
     accent: {
       control: {
         type: 'select',
-        options: ['default', 'danger', 'success', 'warning', 'info'],
+        options: ['default', 'danger', 'success', 'info'],
       },
     },
     title: {
@@ -71,15 +71,6 @@ export const Danger: Story = {
     title: 'Danger Dialog',
     description: 'This dialog indicates danger.',
     accent: 'danger',
-  },
-  render: (args) => <DialogTemplate {...args} />,
-};
-
-export const Warning: Story = {
-  args: {
-    title: 'Warning Dialog',
-    description: 'This dialog indicates a warning.',
-    accent: 'warning',
   },
   render: (args) => <DialogTemplate {...args} />,
 };

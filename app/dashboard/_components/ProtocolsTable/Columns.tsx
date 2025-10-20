@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import InfoTooltip from '~/components/InfoTooltip';
 import Link from '~/components/Link';
-import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { buttonVariants } from '~/components/ui/Button';
 import { Checkbox } from '~/components/ui/checkbox';
@@ -81,7 +80,7 @@ export const getProtocolColumns = (
             trigger={
               <div
                 className={buttonVariants({
-                  variant: 'tableHeader',
+                  variant: 'text',
                   size: 'sm',
                 })}
               >
@@ -89,11 +88,9 @@ export const getProtocolColumns = (
                 <InfoIcon className="mx-2 h-4 w-4" />
               </div>
             }
-            content={
-              <>
-                <Heading level="h4" variant="all-caps">
-                  Anonymous Participation URLs
-                </Heading>
+            title="Anonymous Participation URLs"
+            description={(props) => (
+              <div {...props}>
                 <Paragraph>
                   Anonymous recruitment is enabled, so you can generate
                   anonymous participation URLs for your protocols from the
@@ -105,8 +102,8 @@ export const getProtocolColumns = (
                   To disable anonymous recruitment, visit the{' '}
                   <Link href="/dashboard/settings">settings page</Link>.
                 </Paragraph>
-              </>
-            }
+              </div>
+            )}
           />
         );
       },

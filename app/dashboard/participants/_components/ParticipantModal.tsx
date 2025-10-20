@@ -8,7 +8,6 @@ import { useState, type Dispatch, type SetStateAction } from 'react';
 import { createParticipant, updateParticipant } from '~/actions/participants';
 import ActionError from '~/components/ActionError';
 import InfoTooltip from '~/components/InfoTooltip';
-import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
@@ -90,7 +89,7 @@ function ParticipantModal({
   return (
     <ControlledDialog
       open={open}
-      closeDialog={() => handleOpenChange(open)}
+      closeDialog={() => handleOpenChange(false)}
       title={editingParticipant ? 'Edit Participant' : 'Add Participant'}
       footer={
         <>
@@ -171,22 +170,17 @@ function IdentifierField({
       This could be a study ID, a number, or any other unique identifier. It
       should be unique for each participant, and should not be easy to guess{' '}
       <InfoTooltip
-        trigger={<HelpCircle className="h-4 w-4" />}
-        content={
-          <>
-            <Heading level="h4" variant="all-caps">
-              Participant Identifiers
-            </Heading>
-            <Paragraph>
-              Participant identifiers are used by Fresco to onboard
-              participants. They might be exposed to the participant during this
-              process via the participation URL, and so must{' '}
-              <strong>not</strong> contain any sensitive information, and must
-              not be easy for other participants to guess (e.g. sequential
-              numbers, or easily guessable strings).
-            </Paragraph>
-          </>
-        }
+        trigger={<HelpCircle className="inline-block h-4 w-4" />}
+        title="Participant Identifiers"
+        description={(props) => (
+          <Paragraph {...props}>
+            Participant identifiers are used by Fresco to onboard participants.
+            They might be exposed to the participant during this process via the
+            participation URL, and so must <strong>not</strong> contain any
+            sensitive information, and must not be easy for other participants
+            to guess (e.g. sequential numbers, or easily guessable strings).
+          </Paragraph>
+        )}
       />
       .
     </>

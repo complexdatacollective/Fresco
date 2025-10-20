@@ -118,7 +118,7 @@ export const variantStyles = {
 // ============================================================================
 export const interactiveElementStyles = {
   base: cx(
-    'shrink-0 border-2  bg-input cursor-pointer',
+    'shrink-0 border-2 bg-input cursor-pointer',
     'appearance-none relative',
   ),
   checked: 'checked:border-accent checked:bg-accent',
@@ -217,9 +217,7 @@ export const scaleSliderStyles = {
     'relative flex w-full touch-none select-none items-center',
     'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',
   ),
-  track: cx(
-    'relative h-6 w-full grow overflow-hidden rounded bg-input border ',
-  ),
+  track: cx('relative h-6 w-full grow overflow-hidden rounded bg-input border'),
   thumb: cx(
     'block h-8 w-8 rounded-full bg-accent transition-all duration-200',
     'focusable',

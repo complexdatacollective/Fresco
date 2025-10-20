@@ -17,12 +17,12 @@ export function DataTablePagination<TData>({
   table,
 }: DataTablePaginationProps<TData>) {
   return (
-    <div className="flex w-full flex-col items-center justify-end gap-4 overflow-auto px-2 py-1 sm:flex-row sm:gap-8">
+    <div className="tablet:flex-row tablet:gap-8 flex w-full flex-col items-center justify-end gap-4 overflow-auto px-2 py-1">
       {/* <div className="flex-1 whitespace-nowrap text-sm text-muted-contrast">
         {table.getFilteredSelectedRowModel().rows.length} of{' '}
         {table.getFilteredRowModel().rows.length} row(s) selected.
       </div> */}
-      <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
+      <div className="tablet:flex-row tablet:gap-6 laptop:gap-8 flex flex-col items-center gap-4">
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium whitespace-nowrap">Rows per page</p>
           <SelectField

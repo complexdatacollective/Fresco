@@ -3,9 +3,9 @@
 import { motion } from 'motion/react';
 import type { Route } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { UrlObject } from 'url';
-import Link from '~/components/Link';
 import Heading from '~/components/typography/Heading';
 import { env } from '~/env';
 import { cx } from '~/utils/cva';

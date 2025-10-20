@@ -27,7 +27,7 @@ const roundCheckboxNegativeStyles = cx(
   'bg-destructive border-destructive text-destructive-contrast',
 );
 
-const roundCheckboxUnselectedStyles = cx('bg-input ');
+const roundCheckboxUnselectedStyles = cx('bg-input');
 
 const buttonPositiveStyles = cx('border-success border-2');
 

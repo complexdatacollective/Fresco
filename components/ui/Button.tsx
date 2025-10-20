@@ -8,10 +8,10 @@ import { Skeleton } from './skeleton';
 
 const buttonVariants = cva({
   base: cx(
-    'font-semibold inline-flex items-center justify-center truncate text-nowrap rounded text-base tracking-wide transition-colors cursor-pointer',
+    'elevation-low hover:elevation-medium hover:translate-y-[-3px] transition-transform font-semibold inline-flex items-center justify-center truncate text-nowrap rounded text-base tracking-wide cursor-pointer whitespace-nowrap transition-discrete',
     'disabled:cursor-not-allowed disabled:opacity-50',
     // Set the size of any child SVG icons to 1rem
-    '[&>svg]:w-auto [&>svg]:h-[1rem] [>svg]:shrink-0',
+    '[&>svg]:w-auto [&>svg]:h-[1rem] [&>svg]:shrink-0',
     'focusable',
   ),
   variants: {
@@ -20,8 +20,8 @@ const buttonVariants = cva({
         'bg-[var(--scoped-bg)] text-[var(--scoped-text)] hover:enabled:bg-[color-mix(in_oklch,var(--scoped-bg)_95%,var(--scoped-text))]',
       outline:
         'border border-[var(--scoped-bg)] text-[var(--scoped-bg)] hover:enabled:bg-[var(--scoped-bg)] hover:enabled:text-[var(--scoped-text)]',
-      text: 'text-[var(--scoped-bg)] hover:enabled:bg-[var(--scoped-bg)] hover:enabled:text-[var(--scoped-text)]',
-      link: 'text-[var(--scoped-bg)] hover:enabled:underline',
+      text: 'text-[var(--scoped-bg)] hover:enabled:bg-[var(--scoped-bg)] hover:enabled:text-[var(--scoped-text)] elevation-none',
+      link: 'text-[var(--scoped-bg)] hover:enabled:underline elevation-none',
     },
     color: {
       default: cx(
@@ -50,10 +50,10 @@ const buttonVariants = cva({
       right: 'flex-row-reverse',
     },
     size: {
-      xs: 'h-8 px-3 text-xs sm:w-auto',
-      sm: 'h-8 px-4 text-base-sm sm:w-auto',
-      default: 'h-10 px-8 sm:w-auto',
-      lg: 'h-14 px-8 text-base sm:w-auto',
+      xs: 'h-8 px-3 text-xs tablet:w-auto',
+      sm: 'h-8 px-4 text-sm tablet:w-auto',
+      default: 'h-10 px-8 tablet:w-auto',
+      lg: 'h-14 px-8 text-base tablet:w-auto',
       icon: 'flex h-10 w-10 shrink-0 rounded-full',
     },
   },

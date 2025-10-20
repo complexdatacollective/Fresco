@@ -22,20 +22,22 @@ function RootLayout({ children }: { children: React.ReactNode }) {
       <body
         className={`${quicksand.className} bg-background bg-scope antialiased`}
       >
-        <Providers>{children}</Providers>
-        <Toaster />
-        {env.SANDBOX_MODE && (
-          <ResponsiveContainer>
-            <footer className="z-1 flex justify-center py-4">
-              <a href="https://www.netlify.com">
-                <img
-                  src="https://www.netlify.com/assets/badges/netlify-badge-color-accent.svg"
-                  alt="Deploys by Netlify"
-                />
-              </a>
-            </footer>
-          </ResponsiveContainer>
-        )}
+        <div className="root isolate">
+          <Providers>{children}</Providers>
+          <Toaster />
+          {env.SANDBOX_MODE && (
+            <ResponsiveContainer>
+              <footer className="z-1 flex justify-center py-4">
+                <a href="https://www.netlify.com">
+                  <img
+                    src="https://www.netlify.com/assets/badges/netlify-badge-color-accent.svg"
+                    alt="Deploys by Netlify"
+                  />
+                </a>
+              </footer>
+            </ResponsiveContainer>
+          )}
+        </div>
       </body>
     </html>
   );

@@ -113,6 +113,8 @@
   --color-surface-2-contrast: oklch(var(--surface-2-contrast));
   --color-surface-3: oklch(var(--surface-3));
   --color-surface-3-contrast: oklch(var(--surface-3-contrast));
+  --color-surface-4: oklch(var(--surface-4));
+  --color-surface-4-contrast: oklch(var(--surface-4-contrast));
 
   /* States */
   --color-destructive: oklch(var(--destructive));
@@ -263,6 +265,7 @@
   /* Device-based breakpoints */
   --breakpoint-mobile: 20rem; /* 320px - minimum mobile */
   --breakpoint-tablet: 48rem; /* 768px - small tablets, iPad Mini */
+  --breakpoint-tablet-portrait: 64rem; /* 1024px - iPad Pro 11" */
   --breakpoint-laptop: 80rem; /* 1280px - small laptops, iPad Pro 12.9" */
   --breakpoint-desktop: 120rem; /* 1920px - full HD desktop */
   --breakpoint-desktop-lg: 160rem; /* 2560px - 2K/4K displays */

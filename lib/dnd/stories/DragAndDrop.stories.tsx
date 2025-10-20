@@ -222,7 +222,7 @@ function DragDropExample() {
           </ul>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_2fr]">
+        <div className="laptop:grid-cols-[1fr_2fr] grid grid-cols-1 gap-5">
           <div className="flex flex-col gap-5">
             <DropZone
               title="All Items (Source)"
@@ -240,7 +240,7 @@ function DragDropExample() {
             </ScrollableContainer>
           </div>
           <div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="tablet:grid-cols-2 grid grid-cols-1 gap-4">
               <DropZone
                 title="Fruits Only"
                 acceptTypes={['fruit']}

@@ -25,7 +25,7 @@ type BaseDialog = {
   id?: string;
   title: string;
   description: string;
-  intent?: 'default' | 'danger' | 'success' | 'warning' | 'info';
+  intent?: 'default' | 'danger' | 'success' | 'info';
   children?: React.ReactNode;
 };
 
@@ -37,7 +37,7 @@ type AcknowledgeDialog = BaseDialog & {
 // Make a choice - no is a valid option
 type ChoiceDialog<P = unknown, S = unknown, C = null> = BaseDialog & {
   type: 'choice';
-  intent: 'default' | 'danger' | 'success' | 'warning' | 'info';
+  intent: 'default' | 'danger' | 'success' | 'info';
   actions: DialogActions<P, S, C>;
 };
 
@@ -134,13 +134,10 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
       // Calculate which button should be autofocused based on the dialog intent
       // Aim: least destructive action
       // If danger, focus cancel
-      // If warning, focus secondary (if exists) or cancel
       // Otherwise, focus primary
       let autoFocusButton: 'primary' | 'secondary' | 'cancel' = 'primary';
       if (dialog.intent === 'danger') {
         autoFocusButton = 'cancel';
-      } else if (dialog.intent === 'warning') {
-        autoFocusButton = dialog.actions.secondary ? 'secondary' : 'cancel';
       }
 
       // Render buttons in order: secondary, cancel, primary

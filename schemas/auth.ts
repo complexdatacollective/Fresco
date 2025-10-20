@@ -1,10 +1,6 @@
 import { isStrongPassword } from 'validator';
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
-<<<<<<< HEAD
-import { z } from 'zod';
-=======
->>>>>>> v3.0.0
 
 export const createUserSchema = z
   .object({

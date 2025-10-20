@@ -262,7 +262,7 @@ export const getNodeColorSelector = createSelector(
     }
 
     return (
-      (codebook.node?.[nodeType]?.color as NodeColorSequence) ??
+      (codebook.node?.[nodeType]?.color!) ??
       'node-color-seq-1'
     );
   },
