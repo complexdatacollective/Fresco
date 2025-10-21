@@ -28,7 +28,14 @@ export async function setAppSetting<
   }
 
   try {
-    const result = appSettingPreprocessedSchema.shape[key].parse(value);
+    const normalized =
+      typeof value === 'boolean'
+        ? String(value)
+        : value instanceof Date
+          ? value.toISOString()
+          : value;
+
+    const result = appSettingPreprocessedSchema.shape[key].parse(normalized);
     const stringValue = getStringValue(result);
 
     await prisma.appSettings.upsert({
