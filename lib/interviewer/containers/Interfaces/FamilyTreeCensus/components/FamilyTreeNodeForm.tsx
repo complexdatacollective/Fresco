@@ -48,20 +48,19 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
       if (!node) return;
 
       const nodeNetworkId = crypto.randomUUID();
-      const { label, name, ...networkAttributes } = attributes;
 
       void dispatch(
         addNetworkNode({
           type: nodeType,
           modelData: { [entityPrimaryKeyProperty]: nodeNetworkId },
-          attributeData: networkAttributes,
+          attributeData: attributes,
         }),
       ).then(() => {
         if (node.id) {
           updateShellNode(node.id, {
             interviewNetworkId: nodeNetworkId,
-            name: name as string,
-            fields: networkAttributes, // ✅ keep structure consistent from the start
+            name: attributes.name as string,
+            fields: attributes,
           });
         }
       });
@@ -127,12 +126,11 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
           newAttributeData: value,
         });
       } else {
-        // Placeholder → label and commit
-        const { label } = selectedNode;
+        // TODO: do we want to also store the 'label' i.e. Mother/Father on the network? or only if configured by researcher?
+        // Placeholder → commit
         const fullPayload = {
           ...newNodeAttributes,
           ...value,
-          label,
         };
         commitShellNode(selectedNode, fullPayload);
       }

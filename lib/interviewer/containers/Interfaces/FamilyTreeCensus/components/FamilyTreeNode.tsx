@@ -5,7 +5,6 @@ import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
 import { Node } from '~/lib/ui/components';
 import { FAMILY_TREE_CONFIG } from '../config';
 
-// TODO: I feel like this isn't actually necessary but i'll have to look deeper into the Node code to check
 export type FamilyTreeNode = {
   id: string;
   label: string;

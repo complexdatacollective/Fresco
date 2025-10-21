@@ -17,12 +17,15 @@ import FamilyTreeNode from './FamilyTreeNode';
 import FamilyTreeNodeForm from './FamilyTreeNodeForm';
 
 export const FamilyTreeShells = (props: {
-  stage: Extract<Stage, { type: 'FamilyTreeCensus' }>,
-  diseaseVariable: string | null,
-  stepIndex: number,
+  stage: Extract<Stage, { type: 'FamilyTreeCensus' }>;
+  diseaseVariable: string | null;
+  stepIndex: number;
 }) => {
   const { stage, diseaseVariable, stepIndex } = props;
   const nodesMap = useFamilyTreeStore((state) => state.network.nodes);
+  const getShellIdByNetworkId = useFamilyTreeStore(
+    (state) => state.getShellIdByNetworkId,
+  );
   const nodes = Array.from(
     nodesMap.entries().map(([id, node]) => ({ id, ...node })),
   );
@@ -30,20 +33,45 @@ export const FamilyTreeShells = (props: {
 
   const dispatch = useAppDispatch();
   const updateShellNode = useFamilyTreeStore((state) => state.updateNode);
+
   const updateNode = useCallback(
-    (payload: {
+    async (payload: {
       nodeId: NcNode[EntityPrimaryKey];
       newAttributeData: NcNode[EntityAttributesProperty];
       diseaseValue: boolean;
     }) => {
-      if (diseaseVariable) {
-        const shellDiseases = new Map<string, boolean>([[diseaseVariable, payload.diseaseValue]])
-        void dispatch(updateNetworkNode(payload)).then(() => {
-          updateShellNode(payload.nodeId, { diseases: shellDiseases });
-        });
+      if (!diseaseVariable) return;
+
+      try {
+        const resultAction = await dispatch(updateNetworkNode(payload));
+
+        // confirm network response before updating ui
+        if (updateNetworkNode.fulfilled.match(resultAction)) {
+          const shellId = getShellIdByNetworkId(payload.nodeId);
+          if (shellId) {
+            // merge new disease flag into existing map
+            const currentShell = nodesMap.get(shellId);
+            const mergedDiseases = new Map(currentShell?.diseases ?? []);
+            mergedDiseases.set(diseaseVariable, payload.diseaseValue);
+
+            // update shell node with merged map
+            updateShellNode(shellId, { diseases: mergedDiseases });
+          }
+        } else {
+          // TODO: implement toasts here? or some other notif if fails
+          console.warn('Network node update failed — not updating shell');
+        }
+      } catch (err) {
+        console.error('Error updating node:', err);
       }
     },
-    [diseaseVariable, dispatch, updateShellNode],
+    [
+      diseaseVariable,
+      dispatch,
+      getShellIdByNetworkId,
+      updateShellNode,
+      nodesMap,
+    ],
   );
 
   return (
@@ -74,7 +102,11 @@ export const FamilyTreeShells = (props: {
               shape={node.sex === 'female' ? 'circle' : 'square'}
               x={node.x ?? 0}
               y={node.y ?? 0}
-              selected={node.interviewNetworkId != null && typeof diseaseVariable === 'string' && node.diseases?.get(diseaseVariable)}
+              selected={
+                node.interviewNetworkId != null &&
+                typeof diseaseVariable === 'string' &&
+                node.diseases?.get(diseaseVariable)
+              }
               handleClick={() => {
                 if (stepIndex === 0) return;
                 setSelectedNode(node);
@@ -83,10 +115,10 @@ export const FamilyTreeShells = (props: {
                   const diseaseData: Record<string, VariableValue> = {
                     [diseaseVariable]: diseaseValue,
                   };
-                  updateNode({
-                    nodeId: node.id,
+                  void updateNode({
+                    nodeId: node.interviewNetworkId,
                     newAttributeData: diseaseData,
-                    diseaseValue: diseaseValue
+                    diseaseValue: diseaseValue,
                   });
                 }
               }}
