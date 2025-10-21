@@ -53,7 +53,7 @@ export default function InfoTooltip({
                     level={1}
                     elevation="none" // Can't use it because popovers span multiple backgrounds
                     spacing="sm"
-                    className="max-w-64 text-sm shadow-xl"
+                    className="w-(--available-width) max-w-64 text-sm shadow-xl"
                     initial={{ opacity: 0, scale: 0.96 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.96 }}

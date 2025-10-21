@@ -7,9 +7,9 @@
 @layer theme {
   :root {
     /* Used for relative color values */
-    --base-hue: 287;
+    --base-hue: 280;
 
-    --background: 98% 0.05 var(--base-hue);
+    --background: 98% 0.04 var(--base-hue);
     --text: 10% 0.22 var(--base-hue);
 
     --neutral: var(--platinum);

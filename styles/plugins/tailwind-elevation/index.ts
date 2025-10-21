@@ -88,8 +88,9 @@ export default plugin.withOptions<PluginConfig>(
           resolution,
         )
           .map(({ opacity, blurRadius, spreadRadius, offsetX, offsetY }) => {
-            // Create shadows by reducing background lightness by 40%
-            return `${offsetX} ${offsetY} ${blurRadius} ${spreadRadius} oklch(from var(--bg-scope, ${defaultShadowColor}) calc(l * 0.75) c h / ${opacity})`;
+            // Create shadows by reducing background lightness and scaling chroma inversely
+            // Low bg chroma (0.01) → moderate shadow chroma boost (0.12), high bg chroma (0.4) → slight reduction (5%)
+            return `${offsetX} ${offsetY} ${blurRadius} ${spreadRadius} oklch(from var(--bg-scope) calc(l * 0.5) clamp(0.12, c * 0.95, 0.15) h / ${opacity})`;
           })
           .join(', ');
       };

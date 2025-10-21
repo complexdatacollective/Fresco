@@ -8,7 +8,7 @@ import { Skeleton } from './skeleton';
 
 const buttonVariants = cva({
   base: cx(
-    'elevation-low hover:elevation-medium hover:translate-y-[-3px] transition-transform font-semibold inline-flex items-center justify-center truncate text-nowrap rounded text-base tracking-wide cursor-pointer whitespace-nowrap transition-discrete',
+    'font-semibold inline-flex items-center justify-center truncate text-nowrap rounded text-base tracking-wide transition-colors cursor-pointer',
     'disabled:cursor-not-allowed disabled:opacity-50',
     // Set the size of any child SVG icons to 1rem
     '[&>svg]:w-auto [&>svg]:h-[1rem] [&>svg]:shrink-0',
@@ -20,8 +20,8 @@ const buttonVariants = cva({
         'bg-[var(--scoped-bg)] text-[var(--scoped-text)] hover:enabled:bg-[color-mix(in_oklch,var(--scoped-bg)_95%,var(--scoped-text))]',
       outline:
         'border border-[var(--scoped-bg)] text-[var(--scoped-bg)] hover:enabled:bg-[var(--scoped-bg)] hover:enabled:text-[var(--scoped-text)]',
-      text: 'text-[var(--scoped-bg)] hover:enabled:bg-[var(--scoped-bg)] hover:enabled:text-[var(--scoped-text)] elevation-none',
-      link: 'text-[var(--scoped-bg)] hover:enabled:underline elevation-none',
+      text: 'text-[var(--scoped-bg)] hover:enabled:bg-[var(--scoped-bg)] hover:enabled:text-[var(--scoped-text)]',
+      link: 'text-[var(--scoped-bg)] hover:enabled:underline',
     },
     color: {
       default: cx(

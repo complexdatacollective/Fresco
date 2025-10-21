@@ -632,3 +632,163 @@ export function stripHtmlTags(inputString: string) {
   const htmlTagPattern = /<\/?[^>]+>/gi;
   return inputString.replace(htmlTagPattern, '');
 }
+
+// ============================================================================
+// Split Region Boost System
+// ============================================================================
+
+export type CurveFn = (t: number) => number; // t normalized in [0,1]
+
+export type CurveType = 'exp' | 'pow' | 'sigmoid';
+
+export type RegionConfig = {
+  amp: number; // amplitude (boost/reduction amount)
+  curve: CurveType;
+  strength: number; // controls curvature
+};
+
+export type SplitBoost = {
+  mid: number; // point where boost = 0 (normalized [0,1])
+  left: RegionConfig; // positive amplitude for values < mid
+  right: RegionConfig; // negative amplitude for values > mid
+};
+
+/**
+ * Exponential curve: e^(strength * t) - 1, normalized
+ * Higher strength = steeper curve
+ */
+export function expCurve(t: number, strength: number): number {
+  const normalized = clamp(t, 0, 1);
+  if (strength === 0) return normalized;
+
+  // Exponential growth from 0 to 1
+  const maxVal = Math.exp(strength) - 1;
+  return maxVal === 0
+    ? normalized
+    : (Math.exp(strength * normalized) - 1) / maxVal;
+}
+
+/**
+ * Power curve: t^strength
+ * strength < 1 = ease out (fast start, slow end)
+ * strength > 1 = ease in (slow start, fast end)
+ */
+export function powCurve(t: number, strength: number): number {
+  const normalized = clamp(t, 0, 1);
+  return Math.pow(normalized, strength);
+}
+
+/**
+ * Sigmoid curve: 1 / (1 + e^(-strength * (t - 0.5)))
+ * Creates an S-curve, strength controls steepness
+ */
+export function sigmoidCurve(t: number, strength: number): number {
+  const normalized = clamp(t, 0, 1);
+  // Center the sigmoid at 0.5 and normalize to [0,1]
+  const sigmoid = 1 / (1 + Math.exp(-strength * (normalized - 0.5)));
+  // Normalize so that sigmoid(0) = 0 and sigmoid(1) = 1
+  const sigmoid0 = 1 / (1 + Math.exp(strength * 0.5));
+  const sigmoid1 = 1 / (1 + Math.exp(-strength * 0.5));
+  return (sigmoid - sigmoid0) / (sigmoid1 - sigmoid0);
+}
+
+/**
+ * Get the curve function for a given curve type
+ */
+export function getCurveFunction(
+  type: CurveType,
+): (t: number, strength: number) => number {
+  switch (type) {
+    case 'exp':
+      return expCurve;
+    case 'pow':
+      return powCurve;
+    case 'sigmoid':
+      return sigmoidCurve;
+  }
+}
+
+/**
+ * Apply split region boost to a normalized input value
+ * Returns a multiplier that can be applied to the input value
+ */
+export function applySplitBoost(t: number, config: SplitBoost): number {
+  const normalized = clamp(t, 0, 1);
+
+  if (normalized < config.mid) {
+    // Left region: apply positive boost
+    // Map t from [0, mid] to [0, 1] for the curve function
+    const tNormalized = config.mid === 0 ? 0 : normalized / config.mid;
+    const curveFn = getCurveFunction(config.left.curve);
+    // Invert input: we want maximum boost at t=0, zero boost at t=mid
+    // curveFn(1) gives max value at left edge, curveFn(0) gives 0 at mid
+    const curveValue = curveFn(1 - tNormalized, config.left.strength);
+    const boost = curveValue * config.left.amp;
+    return 1 + boost;
+  } else if (normalized > config.mid) {
+    // Right region: apply negative boost (reduction)
+    // Map t from [mid, 1] to [0, 1] for the curve function
+    const tNormalized =
+      config.mid === 1 ? 0 : (normalized - config.mid) / (1 - config.mid);
+    const curveFn = getCurveFunction(config.right.curve);
+    const curveValue = curveFn(tNormalized, config.right.strength);
+    const reduction = curveValue * config.right.amp;
+    return 1 - reduction;
+  } else {
+    // Exactly at mid: no boost or reduction
+    return 1;
+  }
+}
+
+/**
+ * Default split boost configuration for shadow chroma mapping
+ */
+export const DEFAULT_CHROMA_SPLIT_BOOST: SplitBoost = {
+  mid: 0.179, // (0.08 - 0.01) / 0.39 ≈ 0.179 - represents chroma 0.08 in [0.01, 0.4] range
+  left: {
+    amp: 10, // High amplitude allows unlimited multipliers for low chroma
+    curve: 'pow',
+    strength: 2,
+  },
+  right: {
+    amp: 0.04,
+    curve: 'pow',
+    strength: 1.5,
+  },
+};
+
+/**
+ * Chroma range constants
+ */
+export const MIN_CHROMA = 0.01; // Practical lower bound - values below are essentially colorless
+export const MAX_CHROMA = 0.4; // Practical upper bound for realistic colors
+export const CHROMA_RANGE = MAX_CHROMA - MIN_CHROMA; // 0.39
+
+/**
+ * Maps input chroma (0.01-0.4) to output chroma using a split boost function.
+ * The function provides:
+ * - Very steep boost for low chroma (0.01-0.08): ~2-8x boost prevents grey shadows
+ * - Neutral (1:1) for middle range (0.08-0.30): preserves natural saturation
+ * - Slight reduction for high chroma (0.30-0.40): ~4% reduction for more natural shadows
+ */
+export function mapShadowChroma(
+  inputChroma: number,
+  config: SplitBoost = DEFAULT_CHROMA_SPLIT_BOOST,
+): number {
+  const MIN_OUTPUT_CHROMA = 0.015;
+
+  // Clamp input to valid range
+  const c = clamp(inputChroma, MIN_CHROMA, MAX_CHROMA);
+
+  // Normalize to [0, 1] range: map [0.01, 0.4] → [0, 1]
+  const normalized = (c - MIN_CHROMA) / CHROMA_RANGE;
+
+  // Apply split boost to get multiplier (unlimited)
+  const multiplier = applySplitBoost(normalized, config);
+
+  // Apply multiplier to input chroma
+  const outputChroma = c * multiplier;
+
+  // Clamp output to valid chroma range
+  return clamp(outputChroma, MIN_OUTPUT_CHROMA, MAX_CHROMA);
+}

@@ -1,4 +1,5 @@
 import type { Meta, StoryFn } from '@storybook/nextjs-vite';
+import React from 'react';
 
 const meta: Meta = {
   title: 'Systems/Elevation',
@@ -155,3 +156,51 @@ export const NestedScoping: StoryFn = () => (
     </div>
   </div>
 );
+
+// Chroma Mapping Demonstration
+export const ChromaMapping: StoryFn = () => {
+  return (
+    <div className="bg-surface space-y-8 p-8">
+      <h2 className="text-text mb-6 text-2xl font-bold">
+        Shadow Chroma Mapping
+      </h2>
+
+      {/* Visual demonstration with actual colors */}
+      <div>
+        <p className="text-text mb-6 opacity-70">
+          All backgrounds use the same hue (280°) and lightness (95%), only
+          chroma varies.
+        </p>
+        <div className="grid grid-cols-3">
+          {[
+            0.01, 0.02, 0.04, 0.06, 0.08, 0.12, 0.16, 0.2, 0.24, 0.28, 0.32,
+            0.4,
+          ].map((chroma) => {
+            const bgColor = `oklch(95% ${chroma} 280)`;
+            return (
+              <div
+                key={chroma}
+                className="flex flex-col items-center p-12"
+                style={
+                  {
+                    'backgroundColor': bgColor,
+                    '--bg-scope': bgColor,
+                  } as React.CSSProperties
+                }
+              >
+                <div
+                  key={chroma}
+                  className="elevation-high bg-surface text-surface-contrast flex items-center justify-center rounded-xl p-6"
+                >
+                  <h4 className="mb-2 text-sm font-semibold opacity-70">
+                    Chroma: {chroma.toFixed(2)}
+                  </h4>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};

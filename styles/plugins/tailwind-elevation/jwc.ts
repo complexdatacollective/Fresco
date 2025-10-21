@@ -1,9 +1,11 @@
 import {
   clamp,
   getValuesForBezierCurve,
+  mapShadowChroma,
   normalize,
   range,
   roundTo,
+  type SplitBoost,
 } from './utils';
 
 export type Elevation = 'low' | 'medium' | 'high';
@@ -75,9 +77,9 @@ function calculateShadowOffsets({
   numOfLayers,
 }: ShadowOffsetParams) {
   const maxOffsetByElevation = {
-    low: normalize(oomph, 0, 1, 6, 12),
-    medium: normalize(oomph, 0, 1, 16, 30),
-    high: normalize(oomph, 0, 1, 32, 60),
+    low: normalize(oomph, 0, 1, 12, 18),
+    medium: normalize(oomph, 0, 1, 22, 32),
+    high: normalize(oomph, 0, 1, 36, 50),
   };
 
   // We don't want to use linear interpolation here because we want
@@ -133,9 +135,9 @@ function calculateBlurRadius({
 
   // Apply elevation-specific blur adjustments for visual hierarchy
   const elevationBlurMultiplier = {
-    low: 0.6, // Sharper shadows for low elevation
-    medium: 0.8, // Moderate blur for medium elevation
-    high: 1.2, // More diffused shadows for high elevation
+    low: 0.7, // Sharper shadows for low elevation
+    medium: 0.85, // Moderate blur for medium elevation
+    high: 1.0, // More diffused shadows for high elevation
   };
 
   radius *= elevationBlurMultiplier[elevation];
@@ -300,8 +302,8 @@ export function generateShadows({
 }
 
 export function getShadowBackgroundOklchValues(
-  backgroundOklch: [number, number, number],
   oomph: number,
+  backgroundOklch: [number, number, number],
 ) {
   const [initialLightness, initialChroma, hue] = backgroundOklch;
   let lightness = initialLightness;
@@ -326,12 +328,15 @@ export function generateShadowLayers(
   crispy: number,
   lightSource: { x: number; y: number },
   resolution: number,
+  inputChroma?: number,
+  chromaConfig?: SplitBoost,
 ): {
   offsetX: string;
   offsetY: string;
   blurRadius: string;
   spreadRadius: string;
   opacity: number;
+  adjustedChroma?: number;
 }[] {
   // Determine the number of layers based on elevation and resolution
   const SHADOW_LAYER_LIMITS: Record<Elevation, { min: number; max: number }> = {
@@ -359,12 +364,19 @@ export function generateShadowLayers(
     ),
   );
 
+  // Calculate adjusted chroma if input is provided
+  const adjustedChroma =
+    inputChroma !== undefined
+      ? mapShadowChroma(inputChroma, chromaConfig)
+      : undefined;
+
   const layers: {
     offsetX: string;
     offsetY: string;
     blurRadius: string;
     spreadRadius: string;
     opacity: number;
+    adjustedChroma?: number;
   }[] = [];
 
   for (let layerIndex = 0; layerIndex < numOfLayers; layerIndex++) {
@@ -409,6 +421,7 @@ export function generateShadowLayers(
       blurRadius: `${blurRadius}px`,
       spreadRadius: `${spread}px`,
       opacity: opacity,
+      adjustedChroma: adjustedChroma,
     });
   }
 
