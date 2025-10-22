@@ -91,11 +91,32 @@ export const getInterviewById = async (interviewId: string) => {
   const protocol: VersionedProtocol = {
     schemaVersion: 8,
     codebook: {
+      ego: {
+        variables: {
+          sex: {
+            type: 'categorical',
+            options: [
+              { label: 'Female', value: 'female' },
+              { label: 'Male', value: 'male' },
+            ],
+            validation: { required: true },
+            name: 'sex',
+          },
+        },
+      },
       node: {
         person: {
           name: 'Person',
           iconVariant: 'add-a-person',
           variables: {
+            sex: {
+              name: 'Sex',
+              type: 'categorical',
+              options: [
+                { label: 'Male', value: 'male' },
+                { label: 'Female', value: 'female' },
+              ],
+            },
             name: {
               name: 'Name',
               type: 'text',

@@ -1,5 +1,11 @@
 import { useCallback, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
 import { updateEgo } from '~/lib/interviewer/ducks/modules/session';
+import {
+  getCurrentStage,
+  getNetworkEgo,
+} from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { Button } from '~/lib/ui/components';
 import { Radio, RadioGroup } from '~/lib/ui/components/Fields';
@@ -7,11 +13,7 @@ import NumberInput from '~/lib/ui/components/Fields/Number';
 import Overlay from '../../../Overlay';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
 
-type CensusFormProps = {
-  sexVariable?: string;
-};
-
-export const CensusForm = ({ sexVariable }: CensusFormProps) => {
+export const CensusForm = () => {
   const [show, setShow] = useState(true);
 
   const [fields, setFields] = useState<
@@ -72,12 +74,27 @@ export const CensusForm = ({ sexVariable }: CensusFormProps) => {
     },
   ]);
 
-  const sexOptions = [
-    { value: 'female', label: 'Female' },
-    { value: 'male', label: 'Male' },
-  ];
+  const ego = useSelector(getNetworkEgo);
+  const codebook = useSelector(getCodebook);
+  const stage = useSelector(getCurrentStage);
+  const sexVariable = stage?.sexVariable as string | undefined;
+  const existingSex = sexVariable
+    ? (ego?.attributes?.[sexVariable] as string | undefined)
+    : undefined;
+
+  type SexOption = { value: string; label: string };
+  const variableDef = sexVariable
+    ? (codebook?.ego?.variables?.[sexVariable] as {
+        name?: string;
+        options?: SexOption[];
+      })
+    : undefined;
+
   type Sex = 'male' | 'female';
-  const [sexValue, setSexValue] = useState<Sex>('female');
+  const [sexValue, setSexValue] = useState<Sex>(
+    (existingSex as Sex) ?? 'female',
+  );
+  const shouldAskSex = sexVariable && existingSex == null;
 
   const generatePlaceholderNetwork = useFamilyTreeStore(
     (state) => state.generatePlaceholderNetwork,
@@ -120,9 +137,10 @@ export const CensusForm = ({ sexVariable }: CensusFormProps) => {
   const dispatch = useAppDispatch();
   const updateNode = useFamilyTreeStore((state) => state.updateNode);
   const saveEgoSex = useCallback(() => {
-    void dispatch(updateEgo({ sex: sexValue }));
-    updateNode('ego', { interviewNetworkId: 'ego', sex: sexValue });
-  }, [dispatch, sexValue, updateNode]);
+    if (!sexVariable) return;
+    void dispatch(updateEgo({ [sexVariable]: sexValue }));
+    updateNode('ego', { interviewNetworkId: 'ego', [sexVariable]: sexValue });
+  }, [dispatch, sexValue, updateNode, sexVariable]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,20 +168,21 @@ export const CensusForm = ({ sexVariable }: CensusFormProps) => {
       className="!w-auto"
     >
       <div className="flex flex-col">
-        {sexVariable && (
+        {shouldAskSex && variableDef?.options && (
           <div className="mb-6 w-full *:mb-0!">
             <RadioGroup
               optionComponent={Radio}
               input={{
-                name: 'sex',
+                name: sexVariable,
                 value: sexValue,
                 onChange: (value: string) => setSexValue(value as Sex),
               }}
-              label="What is your sex?"
-              options={sexOptions}
+              label={'What is your sex?'}
+              options={variableDef.options}
             />
           </div>
         )}
+
         <div className="w-full gap-6 *:mb-0! md:grid md:grid-cols-2">
           {fields.map(({ variable, label, error, value }) => (
             <NumberInput
