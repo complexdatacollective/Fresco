@@ -83,7 +83,14 @@ type TreeSpacing = {
   generations: number;
 };
 
-export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
+export const createFamilyTreeStore = (
+  initialNodes: Map<string, Omit<Node, "id">> = new Map(),
+  initialEdges: Map<string, Omit<Edge, "id">> = new Map(),
+  init: FamilyTreeState = initialState
+) => {
+  init.network.nodes = initialNodes
+  init.network.edges = initialEdges
+
   return createStore<FamilyTreeStore>()(
     immer((set, get) => {
       // Network traversal utilities

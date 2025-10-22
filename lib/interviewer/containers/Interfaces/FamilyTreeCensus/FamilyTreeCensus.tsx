@@ -6,10 +6,13 @@ import { useSelector } from 'react-redux';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import { type StageProps } from '~/lib/interviewer/containers/Stage';
 import { addEdge } from '~/lib/interviewer/ducks/modules/session';
+import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
+import { getNodes } from '~/lib/interviewer/selectors/canvas';
+import { getNetworkEdges, getNetworkEgo } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import Prompts from '~/lib/ui/components/Prompts/Prompts';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
-import { getEdgeType } from './components/EdgeRenderer';
+import { getEdgeType, getRelationshipTypeVariable } from './components/EdgeRenderer';
 import { FamilyTreeShells } from './components/FamilyTreeShells';
 import { FamilyTreeProvider, useFamilyTreeStore } from './FamilyTreeProvider';
 
@@ -73,12 +76,14 @@ const getStageSteps = (
 const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const { registerBeforeNext, stage } = props;
 
+  const allNodes = usePropSelector(getNodes, props);
   const dispatch = useAppDispatch();
   const edgesMap = useFamilyTreeStore((state) => state.network.edges);
   const edges = Array.from(
     edgesMap.entries().map(([id, edge]) => ({ id, ...edge })),
   );
   const edgeType = useSelector(getEdgeType);
+  const relationshipVariable = useSelector(getRelationshipTypeVariable)
   const saveEdges = () => {
     edges.forEach((edge) => {
       void dispatch(
@@ -86,6 +91,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           from: edge.source,
           to: edge.target,
           type: edgeType,
+          attributeData: { [relationshipVariable]: edge.relationship }
         }),
       );
     });
@@ -150,6 +156,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           stage={stage}
           diseaseVariable={diseaseVariable}
           stepIndex={currentStepIndex}
+          networkNodes={allNodes}
         />
       </div>
       {stageElement &&
@@ -171,8 +178,12 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   );
 };
 
-export default withNoSSRWrapper((props: FamilyTreeCensusProps) => (
-  <FamilyTreeProvider>
+export default withNoSSRWrapper((props: FamilyTreeCensusProps) => {
+  const ego = useSelector(getNetworkEgo)
+  const allNodes = usePropSelector(getNodes, props);
+  const allEdges = useSelector(getNetworkEdges);
+  return (
+  <FamilyTreeProvider ego={ego} nodes={allNodes} edges={allEdges}>
     <FamilyTreeCensus {...props} />
   </FamilyTreeProvider>
-));
+) });

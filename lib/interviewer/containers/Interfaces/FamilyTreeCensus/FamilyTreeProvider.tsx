@@ -1,10 +1,13 @@
+import { type NcEdge, type NcEgo, type NcNode } from '@codaco/shared-consts';
 import { invariant } from 'es-toolkit';
 import { createContext, useContext, useRef } from 'react';
 import { useStore } from 'zustand';
 import {
   createFamilyTreeStore,
+  type Edge,
   type FamilyTreeStore,
   type FamilyTreeStoreApi,
+  type Node,
 } from './store';
 
 const FamilyTreeContext = createContext<FamilyTreeStoreApi | undefined>(
@@ -12,13 +15,44 @@ const FamilyTreeContext = createContext<FamilyTreeStoreApi | undefined>(
 );
 
 export const FamilyTreeProvider = ({
+  ego,
+  nodes,
+  edges,
   children,
 }: {
+  ego: NcEgo | null,
+  nodes: NcNode[],
+  edges: NcEdge[],
   children: React.ReactNode;
 }) => {
   const storeRef = useRef<FamilyTreeStoreApi>();
 
-  storeRef.current ??= createFamilyTreeStore();
+  const initialNodes = new Map<string, Omit<Node, "id">>(
+    nodes.map((node) => [node._uid, {
+                label: node.attributes.name,
+                sex: node.attributes.sex,
+                readOnly: false,
+                isEgo: false,
+                interviewNetworkId: node._uid,
+              }])
+  );
+  if (ego != null) {
+    initialNodes.set(ego._uid, {
+      label: "You",
+      sex: ego.attributes.sex === 'male' ? 'male' : 'female',
+      readOnly: false,
+      isEgo: true,
+      interviewNetworkId: ego._uid,
+    })
+  }
+  const initialEdges = new Map<string, Omit<Edge, "id">>(
+    edges.map((edge) => [edge._uid, {
+                source: edge.attributes.from,
+                target: edge.attributes.to,
+                interviewNetworkId: edge._uid,
+              }])
+  );
+  storeRef.current ??= createFamilyTreeStore(initialNodes, initialEdges);
 
   return (
     <FamilyTreeContext.Provider value={storeRef.current}>

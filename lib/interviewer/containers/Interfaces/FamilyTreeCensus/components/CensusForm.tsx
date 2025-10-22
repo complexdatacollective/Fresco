@@ -13,8 +13,8 @@ import NumberInput from '~/lib/ui/components/Fields/Number';
 import Overlay from '../../../Overlay';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
 
-export const CensusForm = () => {
-  const [show, setShow] = useState(true);
+export const CensusForm = ({ showForm = true }: { showForm: boolean }) => {
+  const [show, setShow] = useState(showForm);
 
   const [fields, setFields] = useState<
     {

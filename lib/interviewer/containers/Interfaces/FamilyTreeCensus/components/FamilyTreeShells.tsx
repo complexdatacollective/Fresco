@@ -20,12 +20,20 @@ export const FamilyTreeShells = (props: {
   stage: Extract<Stage, { type: 'FamilyTreeCensus' }>;
   diseaseVariable: string | null;
   stepIndex: number;
+  networkNodes: NcNode[];
 }) => {
-  const { stage, diseaseVariable, stepIndex } = props;
+  const { stage, diseaseVariable, stepIndex, networkNodes } = props;
   const nodesMap = useFamilyTreeStore((state) => state.network.nodes);
   const getShellIdByNetworkId = useFamilyTreeStore(
     (state) => state.getShellIdByNetworkId,
   );
+  const runLayout = useFamilyTreeStore(
+    (state) => state.runLayout,
+  );
+  const existingNodes = networkNodes.length > 0;
+  if (existingNodes) {
+    runLayout();
+  }
   const nodes = Array.from(
     nodesMap.entries().map(([id, node]) => ({ id, ...node })),
   );
@@ -126,7 +134,7 @@ export const FamilyTreeShells = (props: {
           ))}
         </div>
       </div>
-      <CensusForm />
+      <CensusForm showForm={!existingNodes} />
     </>
   );
 };

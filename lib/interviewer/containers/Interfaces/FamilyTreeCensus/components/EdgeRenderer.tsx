@@ -21,6 +21,15 @@ export const getEdgeType = createSelector(getCurrentStage, (stage) => {
   return stage.edgeType.type;
 });
 
+export const getRelationshipTypeVariable = createSelector(getCurrentStage, (stage) => {
+  invariant(
+    stage.type === 'FamilyTreeCensus',
+    'Stage must be FamilyTreeCensus',
+  );
+
+  return stage.relationshipTypeVariable;
+});
+
 export default function EdgeRenderer() {
   const nodeMap = useFamilyTreeStore((state) => state.network.nodes);
   const edgesMap = useFamilyTreeStore((state) => state.network.edges);
