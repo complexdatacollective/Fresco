@@ -7,7 +7,11 @@ import NumberInput from '~/lib/ui/components/Fields/Number';
 import Overlay from '../../../Overlay';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
 
-export const CensusForm = () => {
+type CensusFormProps = {
+  sexVariable?: string;
+};
+
+export const CensusForm = ({ sexVariable }: CensusFormProps) => {
   const [show, setShow] = useState(true);
 
   const [fields, setFields] = useState<
@@ -146,20 +150,20 @@ export const CensusForm = () => {
       className="!w-auto"
     >
       <div className="flex flex-col">
-        <div className="w-full *:mb-0!">
-          <RadioGroup
-            optionComponent={Radio}
-            input={{
-              name: 'sex',
-              value: sexValue,
-              onChange: (value: string) => {
-                setSexValue(value as Sex);
-              },
-            }}
-            label={'What is your sex?'}
-            options={sexOptions}
-          />
-        </div>
+        {sexVariable && (
+          <div className="mb-6 w-full *:mb-0!">
+            <RadioGroup
+              optionComponent={Radio}
+              input={{
+                name: 'sex',
+                value: sexValue,
+                onChange: (value: string) => setSexValue(value as Sex),
+              }}
+              label="What is your sex?"
+              options={sexOptions}
+            />
+          </div>
+        )}
         <div className="w-full gap-6 *:mb-0! md:grid md:grid-cols-2">
           {fields.map(({ variable, label, error, value }) => (
             <NumberInput

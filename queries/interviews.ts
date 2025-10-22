@@ -163,6 +163,7 @@ export const getInterviewById = async (interviewId: string) => {
           type: 'family',
         },
         relationshipTypeVariable: 'relationship',
+        sexVariable: 'sex',
         scaffoldingStep: {
           text: 'Create your family tree. You may add additional relatives by using the person icon in the bottom right corner. To remove any relative, drag toward the bottom center of the screen where a trash icon will appear.',
           showQuickStartModal: true,

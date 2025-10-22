@@ -126,7 +126,7 @@ export const FamilyTreeShells = (props: {
           ))}
         </div>
       </div>
-      <CensusForm />
+      <CensusForm sexVariable={stage.sexVariable} />
     </>
   );
 };
