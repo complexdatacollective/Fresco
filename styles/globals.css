@@ -103,6 +103,59 @@
   --color-border: hsl(var(--border));
   --color-link: hsl(var(--link));
 
+  /* interviewer - node sequence colors */
+  --node-color-seq-1: var(--color-neon-coral);
+  --node-color-seq-1-dark: var(--color-neon-coral-dark);
+
+  --node-color-seq-2: var(--color-sea-serpent);
+  --node-color-seq-2-dark: var(--color-sea-serpent-dark);
+
+  --node-color-seq-3: var(--color-purple-pizazz);
+  --node-color-seq-3-dark: var(--color-purple-pizazz-dark);
+
+  --node-color-seq-4: var(--color-neon-carrot);
+  --node-color-seq-4-dark: var(--color-neon-carrot-dark);
+
+  --node-color-seq-5: var(--color-kiwi);
+  --node-color-seq-5-dark: var(--color-kiwi-dark);
+
+  --node-color-seq-6: var(--color-cerulean-blue);
+  --node-color-seq-6-dark: var(--color-cerulean-blue-dark);
+
+  --node-color-seq-7: var(--color-paradise-pink);
+  --node-color-seq-7-dark: var(--color-paradise-pink-dark);
+
+  --node-color-seq-8: var(--color-mustard);
+  --node-color-seq-8-dark: var(--color-mustard-dark);
+
+  /* edge sequence colors */
+  --edge-color-seq-1: var(--color-mustard);
+  --edge-color-seq-1-dark: var(--color-mustard-dark);
+
+  --edge-color-seq-2: var(--color-neon-coral);
+  --edge-color-seq-2-dark: var(--color-neon-coral-dark);
+
+  --edge-color-seq-3: var(--color-kiwi);
+  --edge-color-seq-3-dark: var(--color-kiwi-dark);
+
+  --edge-color-seq-4: var(--color-paradise-pink);
+  --edge-color-seq-4-dark: var(--color-paradise-pink-dark);
+
+  --edge-color-seq-5: var(--color-tomato);
+  --edge-color-seq-5-dark: var(--color-tomato-dark);
+
+  --edge-color-seq-6: var(--color-sea-serpent);
+  --edge-color-seq-6-dark: var(--color-sea-serpent-dark);
+
+  --edge-color-seq-7: var(--color-slate-blue);
+  --edge-color-seq-7-dark: var(--color-slate-blue-dark);
+
+  --edge-color-seq-8: var(--color-sea-green);
+  --edge-color-seq-8-dark: var(--color-sea-green-dark);
+
+  --edge-color-seq-9: var(--color-cerulean-blue);
+  --edge-color-seq-9-dark: var(--color-cerulean-blue-dark);
+
   --radius-*: initial;
   --radius-none: 0px;
   --radius-sm: 0.125rem;
