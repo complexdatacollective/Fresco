@@ -12,7 +12,8 @@ export const surfaceVariants = cva({
       1: 'bg-surface-1 text-surface-1-contrast [--color-text:var(--color-surface-1-contrast)] [--background:var(--surface-1)]',
       2: 'bg-surface-2 text-surface-2-contrast [--color-text:var(--color-surface-2-contrast)] [--background:var(--surface-2)]',
       3: 'bg-surface-3 text-surface-3-contrast [--color-text:var(--color-surface-3-contrast)] [--background:var(--surface-3)]',
-      4: 'bg-surface-4 text-surface-4-contrast [--color-text:var(--color-surface-4-contrast)] [--background:var(--surface-4)]',
+      popover:
+        'bg-surface-popover text-surface-popover-contrast [--color-text:var(--color-surface-popover-contrast)] [--background:var(--surface-popover)]',
     },
     spacing: {
       none: '',

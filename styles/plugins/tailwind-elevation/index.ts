@@ -61,6 +61,7 @@ type PluginConfig = {
   lightX?: number; // 0-1, horizontal light position (0=left, 1=right)
   lightY?: number; // 0-1, vertical light position (0=top, 1=bottom)
   resolution?: number; // 0-1, affects detail level of shadow layers
+  opacityScaleFactor?: number; // multiplier for overall opacity
 };
 
 export default plugin.withOptions<PluginConfig>(
@@ -69,12 +70,13 @@ export default plugin.withOptions<PluginConfig>(
       const {
         lightX = 0,
         lightY = -0.5,
-        oomph = 0.5,
-        crispy = 0.75,
+        oomph = 0.05,
+        crispy = 0.5,
         resolution = 0.3,
+        opacityScaleFactor = 0.65,
       } = options;
 
-      const defaultShadowColor = 'oklch(100% 1 0)';
+      const defaultShadowColor = 'oklch(25% 1 0)';
 
       const generateShadow = (elevation: Elevation) => {
         return generateShadowLayers(
@@ -88,9 +90,9 @@ export default plugin.withOptions<PluginConfig>(
           resolution,
         )
           .map(({ opacity, blurRadius, spreadRadius, offsetX, offsetY }) => {
-            // Create shadows by reducing background lightness and scaling chroma inversely
-            // Low bg chroma (0.01) → moderate shadow chroma boost (0.12), high bg chroma (0.4) → slight reduction (5%)
-            return `${offsetX} ${offsetY} ${blurRadius} ${spreadRadius} oklch(from var(--bg-scope) calc(l * 0.5) clamp(0.12, c * 0.95, 0.15) h / ${opacity})`;
+            const boostedOpacity = opacity * opacityScaleFactor;
+            // Clamp chroma
+            return `${offsetX} ${offsetY} ${blurRadius} ${spreadRadius} oklch(from var(--bg-scope, ${defaultShadowColor}) clamp(0.25, calc(l - 0.25), 0.5) clamp(0.03, c, 0.12) h / ${boostedOpacity})`;
           })
           .join(', ');
       };

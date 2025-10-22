@@ -1,11 +1,9 @@
 import {
   clamp,
   getValuesForBezierCurve,
-  mapShadowChroma,
   normalize,
   range,
   roundTo,
-  type SplitBoost,
 } from './utils';
 
 export type Elevation = 'low' | 'medium' | 'high';
@@ -328,15 +326,12 @@ export function generateShadowLayers(
   crispy: number,
   lightSource: { x: number; y: number },
   resolution: number,
-  inputChroma?: number,
-  chromaConfig?: SplitBoost,
 ): {
   offsetX: string;
   offsetY: string;
   blurRadius: string;
   spreadRadius: string;
   opacity: number;
-  adjustedChroma?: number;
 }[] {
   // Determine the number of layers based on elevation and resolution
   const SHADOW_LAYER_LIMITS: Record<Elevation, { min: number; max: number }> = {
@@ -363,12 +358,6 @@ export function generateShadowLayers(
       SHADOW_LAYER_LIMITS[elevation].max,
     ),
   );
-
-  // Calculate adjusted chroma if input is provided
-  const adjustedChroma =
-    inputChroma !== undefined
-      ? mapShadowChroma(inputChroma, chromaConfig)
-      : undefined;
 
   const layers: {
     offsetX: string;
@@ -421,7 +410,6 @@ export function generateShadowLayers(
       blurRadius: `${blurRadius}px`,
       spreadRadius: `${spread}px`,
       opacity: opacity,
-      adjustedChroma: adjustedChroma,
     });
   }
 

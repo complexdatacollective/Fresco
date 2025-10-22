@@ -9,7 +9,7 @@
     /* Used for relative color values */
     --base-hue: 280;
 
-    --background: 98% 0.04 var(--base-hue);
+    --background: 98% 0.08 var(--base-hue);
     --text: 10% 0.22 var(--base-hue);
 
     --neutral: var(--platinum);
@@ -23,19 +23,19 @@
     --accent: 50% 0.22 var(--accent-hue);
     --accent-contrast: var(--white);
 
-    --secondary: 60% 0.1 var(--base-hue);
+    --secondary: var(--slate-blue);
     --secondary-contrast: var(--white);
 
-    --surface: 100% 0.005 var(--base-hue);
+    --surface: 100% 0.01 var(--base-hue);
     --surface-contrast: var(--text);
-    --surface-1: 96% 0.01 var(--base-hue);
+    --surface-1: 97% 0.02 var(--base-hue);
     --surface-1-contrast: var(--text);
-    --surface-2: 93% 0.015 var(--base-hue);
+    --surface-2: 95% 0.025 var(--base-hue);
     --surface-2-contrast: var(--text);
-    --surface-3: 90% 0.019 var(--base-hue);
+    --surface-3: 93% 0.03 var(--base-hue);
     --surface-3-contrast: var(--text);
-    --surface-4: 88% 0.025 var(--base-hue);
-    --surface-4-contrast: var(--text);
+    --surface-popover: 25% 0.1 var(--base-hue);
+    --surface-popover-contrast: var(--white);
 
     --destructive: var(--tomato);
     --destructive-contrast: var(--white);

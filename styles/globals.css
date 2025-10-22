@@ -113,8 +113,8 @@
   --color-surface-2-contrast: oklch(var(--surface-2-contrast));
   --color-surface-3: oklch(var(--surface-3));
   --color-surface-3-contrast: oklch(var(--surface-3-contrast));
-  --color-surface-4: oklch(var(--surface-4));
-  --color-surface-4-contrast: oklch(var(--surface-4-contrast));
+  --color-surface-popover: oklch(var(--surface-popover));
+  --color-surface-popover-contrast: oklch(var(--surface-popover-contrast));
 
   /* States */
   --color-destructive: oklch(var(--destructive));
@@ -142,7 +142,7 @@
   --color-input-contrast: oklch(var(--input-contrast));
   --color-input-placeholder: oklch(var(--input-placeholder));
 
-  --color-overlay: oklch(var(--overlay) / 0.25);
+  --color-overlay: oklch(var(--overlay) / 0.45);
 
   /* Color sequences */
   --color-node-1: oklch(var(--node-1));

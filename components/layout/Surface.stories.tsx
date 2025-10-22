@@ -125,34 +125,21 @@ export const MotionSurfaceExample: StoryFn<typeof Surface> = () => (
 
 // **New Story: Nested Surfaces**
 export const NestedSurfaces: StoryFn<typeof Surface> = () => (
-  <div className="bg-background text-contrast p-10">
-    <div className="flex items-center gap-10">
-      Background
-      <Button color="default">Default Button</Button>
-    </div>
-    <Surface level={1} className="m-10">
-      <div className="flex items-center gap-10">
+  <div className="bg-background text-text @container p-10">
+    Background
+    <Button color="default">Default Button</Button>
+    <Surface level={0} className="mt-4 flex flex-col space-y-4">
+      This is Surface Level 0<Button color="default">Default Button</Button>
+      <Surface level={1} className="mt-4 flex flex-col space-y-4">
         This is Surface Level 1<Button color="default">Default Button</Button>
-      </div>
-      <Surface level={2} className="m-10">
-        <div className="flex items-center gap-10">
+        <Surface level={2} className="mt-4 flex flex-col space-y-4">
           This is Surface Level 2<Button color="default">Default Button</Button>
-        </div>
-        <Surface level={3} className="m-10">
-          <div className="flex items-center gap-10">
+          <Surface level={3} className="mt-4 flex flex-col space-y-4">
             This is Surface Level 3
             <Button color="default">Default Button</Button>
-          </div>
-          <Surface level={4} className="m-10">
-            <div className="flex items-center gap-10">
+            <Surface level={4} className="mt-4 flex flex-col space-y-4">
               This is Surface Level 4
               <Button color="default">Default Button</Button>
-            </div>
-            <Surface level={0} className="m-10">
-              <div className="flex items-center gap-10">
-                This is the innermost Surface (Level 0)
-                <Button color="default">Default Button</Button>
-              </div>
             </Surface>
           </Surface>
         </Surface>

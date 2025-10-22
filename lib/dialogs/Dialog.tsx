@@ -55,10 +55,14 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
               <BaseDialog.Backdrop
                 render={
                   <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
+                    initial={{
+                      opacity: 0,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      transition: { delay: 0.1, duration: 0.5 },
+                    }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3, delay: 0.1 }}
                     className={cx(
                       'fixed inset-0',
                       'flex items-center justify-center',
@@ -67,99 +71,93 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
                     )}
                   />
                 }
-              >
-                <BaseDialog.Popup
-                  ref={ref}
-                  render={
-                    <motion.div
-                      initial={{ opacity: 0, y: -48 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -48 }}
-                      transition={{
-                        type: 'spring',
-                      }}
-                      className={cx(
-                        'w-full',
-                        'flex items-center justify-center',
-                        'max-h-dvh max-w-2xl',
-                        // Accent overrides the primary hue so that nested primary buttons inherit color
-                        accent === 'success' &&
-                          '[--color-primary:var(--color-success)]',
-                        accent === 'info' &&
-                          '[--color-primary:var(--color-info)]',
-                        accent === 'danger' &&
-                          '[--color-primary:var(--color-destructive)]',
+              />
+            )}
+            {open && (
+              <BaseDialog.Popup
+                ref={ref}
+                render={
+                  <Surface
+                    initial={{ opacity: 0, y: '-10%' }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: '-10%', scale: 0.5 }}
+                    transition={{
+                      type: 'spring',
+                      stiffness: 300,
+                      damping: 30,
+                    }}
+                    as={motion.div}
+                    level={0}
+                    className={cx(
+                      'fixed top-1/2 left-1/2 -mt-8 -translate-x-1/2 -translate-y-1/2',
+                      'max-h-dvh max-w-2xl',
+                      // Accent overrides the primary hue so that nested primary buttons inherit color
+                      accent === 'success' &&
+                        '[--color-primary:var(--color-success)]',
+                      accent === 'info' &&
+                        '[--color-primary:var(--color-info)]',
+                      accent === 'danger' &&
+                        '[--color-primary:var(--color-destructive)]',
+                      'flex flex-col',
+                    )}
+                    elevation="high"
+                  >
+                    <BaseDialog.Title
+                      render={(titleProps) => (
+                        <DialogHeading
+                          {...titleProps}
+                          id={`${id}-title`}
+                          className={cx(titleProps.className, 'me-8')}
+                        >
+                          {title}
+                        </DialogHeading>
                       )}
-                    >
-                      <Surface
-                        level={0}
-                        className={cx(
-                          'relative',
-                          'flex flex-col',
-                          'h-auto max-h-full max-w-full',
-                        )}
-                        elevation="high"
-                      >
-                        <BaseDialog.Title
-                          render={(titleProps) => (
-                            <DialogHeading
-                              {...titleProps}
-                              id={`${id}-title`}
-                              className={cx(titleProps.className, 'me-8')}
+                    />
+                    <DialogContent>
+                      {description && (
+                        <BaseDialog.Description
+                          render={(descProps) => (
+                            <DialogDescription
+                              {...descProps}
+                              id={`${id}-description`}
+                              className={descProps.className}
                             >
-                              {title}
-                            </DialogHeading>
+                              {description}
+                            </DialogDescription>
                           )}
                         />
-                        <DialogContent>
-                          {description && (
-                            <BaseDialog.Description
-                              render={(descProps) => (
-                                <DialogDescription
-                                  {...descProps}
-                                  id={`${id}-description`}
-                                  className={descProps.className}
-                                >
-                                  {description}
-                                </DialogDescription>
-                              )}
-                            />
-                          )}
-                          {children}
-                        </DialogContent>
-                        {footer && <DialogFooter>{footer}</DialogFooter>}
-                        <BaseDialog.Close
-                          render={(closeProps) => {
-                            const typedProps = closeProps as Record<
-                              string,
-                              unknown
-                            >;
-                            return (
-                              <CloseButton
-                                type={typedProps.type as 'button' | undefined}
-                                tabIndex={
-                                  typedProps.tabIndex as number | undefined
-                                }
-                                disabled={
-                                  typedProps.disabled as boolean | undefined
-                                }
-                                aria-label={
-                                  typedProps['aria-label'] as string | undefined
-                                }
-                                data-state={
-                                  typedProps['data-state'] as string | undefined
-                                }
-                                onClick={closeDialog}
-                                data-dialog-close
-                              />
-                            );
-                          }}
-                        />
-                      </Surface>
-                    </motion.div>
-                  }
-                />
-              </BaseDialog.Backdrop>
+                      )}
+                      {children}
+                    </DialogContent>
+                    {footer && <DialogFooter>{footer}</DialogFooter>}
+                    <BaseDialog.Close
+                      render={(closeProps) => {
+                        const typedProps = closeProps as Record<
+                          string,
+                          unknown
+                        >;
+                        return (
+                          <CloseButton
+                            type={typedProps.type as 'button' | undefined}
+                            tabIndex={typedProps.tabIndex as number | undefined}
+                            disabled={
+                              typedProps.disabled as boolean | undefined
+                            }
+                            aria-label={
+                              typedProps['aria-label'] as string | undefined
+                            }
+                            data-state={
+                              typedProps['data-state'] as string | undefined
+                            }
+                            onClick={closeDialog}
+                            data-dialog-close
+                          />
+                        );
+                      }}
+                    />
+                  </Surface>
+                }
+              />
             )}
           </AnimatePresence>
         </BaseDialog.Portal>

@@ -4,7 +4,7 @@ import SubmitButton from '~/components/ui/SubmitButton';
 const UserMenu = () => {
   return (
     <form action={() => void logout()}>
-      <SubmitButton color="default" type="submit">
+      <SubmitButton color="secondary" type="submit">
         Sign out
       </SubmitButton>
     </form>
