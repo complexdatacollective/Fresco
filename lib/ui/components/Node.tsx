@@ -22,7 +22,7 @@ type UINodeProps = {
   selected?: boolean;
   linking?: boolean;
   loading?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
 } & Omit<HTMLAttributes<HTMLButtonElement>, 'color'> & {
     disabled?: boolean;
   };
@@ -45,6 +45,8 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     'disabled:saturate-50 disabled:cursor-not-allowed',
     'text-white text-lg font-semibold',
     '[--base:var(--node-1)] [--dark:oklch(from_oklch(var(--base))_calc(l-0.05)_c_h)]',
+    size === 'xxs' && 'h-8 w-8',
+    size === 'xs' && 'h-16 w-16',
     size === 'sm' && 'h-20 w-20',
     size === 'md' && 'h-26 w-26',
     size === 'lg' && 'h-32 w-32',
@@ -65,7 +67,10 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
 
   const labelClasses = cx(
     'whitespace-pre-line overflow-hidden text-center hyphens-auto text-wrap break-all px-2',
-    size === 'sm' ? 'text-sm' : 'text-base',
+    size === 'xxs' && 'text-xs',
+    size === 'xs' && 'text-sm',
+    size === 'md' && 'text-base',
+    size === 'lg' && 'text-lg',
   );
 
   const labelWithEllipsis =
