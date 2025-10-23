@@ -21,7 +21,6 @@ import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { type RootState } from '~/lib/interviewer/store';
-import { ActionButton } from '~/lib/ui/components';
 import { useMapbox } from './useMapbox';
 
 type NavDirection = 'forwards' | 'backwards';
@@ -290,11 +289,11 @@ export default function GeospatialInterface({
         />
 
         <div className="absolute bottom-10 left-14 z-5">
-          <ActionButton
+          <Button
+            size="lg"
             onClick={handleResetMapZoom}
             icon={<Locate />}
             title="Recenter Map"
-            showPlusButton={false}
           />
         </div>
 

@@ -65,7 +65,7 @@ type NameGeneratorProps = StageProps & {
 const NameGenerator = (props: NameGeneratorProps) => {
   const { registerBeforeNext, stage } = props;
 
-  const { behaviours, type } = stage;
+  const { behaviours, type, panels } = stage;
 
   let quickAdd: string | null = null;
   let form: Form | null = null;
@@ -247,14 +247,16 @@ const NameGenerator = (props: NameGeneratorProps) => {
 
   return (
     <>
-      <div className="name-generator-interface" ref={interfaceRef}>
+      <div className="interface name-generator-interface" ref={interfaceRef}>
         <div className="name-generator-interface__prompt">
           <Prompts />
         </div>
         <div className="name-generator-interface__main">
-          <div className="name-generator-interface__panels">
-            <NodePanels disableAddNew={maxNodesReached} />
-          </div>
+          {panels && (
+            <div className="name-generator-interface__panels">
+              <NodePanels disableAddNew={maxNodesReached} />
+            </div>
+          )}
           <div className="name-generator-interface__nodes">
             <NodeList
               items={nodesForPrompt}

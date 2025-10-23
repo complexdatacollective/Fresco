@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { remark } from 'remark';
 import strip from 'strip-markdown';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
+import Heading from '~/components/typography/Heading';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import useSpeech from '../../hooks/useSpeech';
 import useTimeout from '../../hooks/useTimeout';
@@ -97,9 +98,9 @@ const Prompt = (props) => {
       }}
       onTap={handleTap}
     >
-      <RenderMarkdown inline className="prompt__text">
-        {text}
-      </RenderMarkdown>
+      <Heading level="h2" margin="none" className="font-normal">
+        <RenderMarkdown inline>{text}</RenderMarkdown>
+      </Heading>
     </motion.div>
   );
 };

@@ -445,5 +445,5 @@ This custom variant lets you target only elements with the readonly attribute.
 
 /* Replacement for interface centering mixin */
 @utility interface {
-  @apply mx-4 flex shrink-1 grow-1 basis-auto items-center justify-center;
+  @apply relative mx-4 flex shrink-1 grow-1 basis-auto items-center justify-center;
 }

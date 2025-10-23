@@ -1,4 +1,6 @@
 import React, { useCallback, useState } from 'react';
+import Surface from '~/components/layout/Surface';
+import Heading from '~/components/typography/Heading';
 import { cx } from '~/utils/cva';
 import { type HighlightColor } from '../Interfaces/NameGenerator/components/NodePanels';
 
@@ -30,9 +32,8 @@ const Panel = ({
   }, [setCollapsed, noCollapse]);
 
   const panelClasses = cx(
-    'panel shadow-xl',
-    'flex flex-col grow shrink-0 basis-[5rem] bg-[var(--nc-panel-bg-muted)] border-b-[0.5rem] rounded-[var(--nc-border-radius)] mb-4 overflow-hidden',
-    'transition-all easing-in-out duration-500',
+    'flex flex-col grow shrink-0 basis-[5rem] border-b-[0.5rem] mb-4 overflow-hidden',
+    'transition-all ease-in-out duration-500',
     'last:mb-0',
     highlight === null && 'border-b-0',
     minimize && 'border-b-0 basis-0 grow-0 mb-0 opacity-0',
@@ -54,15 +55,17 @@ const Panel = ({
   );
 
   return (
-    <div className={panelClasses}>
+    <Surface className={panelClasses} elevation="high" spacing="none">
       <div
-        className="flex shrink-0 grow-0 basis-[5rem] flex-col justify-center border-b-[0.1rem] border-[var(--nc-background)] px-4 py-2 text-center"
+        className="border-background flex shrink-0 grow-0 flex-col justify-center border-b-[3px] px-4 py-2 text-center"
         onClick={toggleCollapsed}
       >
-        <h3 className="m-0">{title}</h3>
+        <Heading level="h3" margin="none">
+          {title}
+        </Heading>
       </div>
       <div className={panelContentClasses}>{children}</div>
-    </div>
+    </Surface>
   );
 };
 

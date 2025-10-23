@@ -7,7 +7,7 @@ import Icon, { type InterviewerIconName } from '../Icon';
 export type NodeIcon = keyof typeof dynamicIconImports;
 
 const actionButtonVariants = cva({
-  base: 'group focusable relative mt-2 mr-4 flex h-40 w-40 rounded-full',
+  base: 'group focusable relative mt-2 mr-4 flex h-40 aspect-square rounded-full',
   variants: {
     disabled: {
       true: 'cursor-not-allowed opacity-50 pointer-events-none',

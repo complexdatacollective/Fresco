@@ -136,11 +136,11 @@ const NodeList = memo(
     const isHovering = isValidTarget && isOver;
 
     const classNames = cx(
-      'flex flex-wrap justify-center grow shrink-0 transition-background duration-300 content-start rounded gap-6 basis-full overflow-y-auto',
+      'flex flex-wrap justify-center grow shrink-0 transition-colors duration-300 content-start rounded gap-6 basis-full overflow-y-auto',
       // Fix: Empty NodeLists need minimum dimensions for proper drop zone bounds
       items.length === 0 && 'min-h-[800px] min-w-[300px]',
       willAccept && 'bg-[var(--nc-node-list-action-bg)]',
-      isHovering && (hoverColor ? `bg-[var(${hoverColor})]` : 'bg-accent'),
+      isHovering && 'bg-accent',
       className,
     );
 

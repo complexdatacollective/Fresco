@@ -1,7 +1,9 @@
 import { AnimatePresence, motion, type Variants } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
+import ActionButton from '~/components/interview/ActionButton';
 import { useField } from '~/lib/form';
+import { InputField } from '~/lib/form/components/fields/Input';
 import { type BaseFieldProps, type FieldConfig } from '~/lib/form/types';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import {
@@ -9,7 +11,6 @@ import {
   getNodeTypeLabel,
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
-import { ActionButton } from '~/lib/ui/components';
 import Icon from '~/lib/ui/components/Icon';
 import { cx } from '~/utils/cva';
 
@@ -210,11 +211,10 @@ export default function QuickAddField({
             </motion.div>
           )}
           {checked && (
-            <motion.input
+            <InputField
               layout="position"
               id={inputId}
               key="quick-add-input"
-              className={inputClasses}
               autoFocus
               disabled={disabled}
               placeholder={placeholder}
@@ -230,6 +230,7 @@ export default function QuickAddField({
                   }
                 }
               }}
+              onBlur={() => setChecked(false)}
               value={fieldProps.value as string}
               variants={inputVariants}
               initial="initial"

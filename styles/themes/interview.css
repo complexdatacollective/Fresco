@@ -22,7 +22,7 @@
     --secondary: oklch(var(--neon-coral));
     --secondary-contrast: oklch(var(--white));
 
-    --surface: oklch(from var(--background) calc(l + 0.07) c h);
+    --surface: oklch(from var(--background) calc(l + 0.03) c h);
     --surface-contrast: var(--text);
     --surface-1: oklch(from var(--background) calc(l + 0.15) c h);
     --surface-1-contrast: var(--text);
