@@ -6,9 +6,9 @@ import type { ComponentType, ReactElement } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
+import { useDialog } from '~/lib/dialogs/DialogProvider';
 import { useFormState } from '~/lib/form';
 import ProgressBar from '~/lib/ui/components/ProgressBar';
-import { openDialog as openDialogAction } from '../../ducks/modules/dialogs';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 import { useAppDispatch } from '../../store';
 import { type BeforeNextFunction, type Direction } from '../ProtocolScreen';
@@ -27,14 +27,6 @@ type SlidesFormProps = StageProps & {
     form: Record<string, unknown>;
     submitButton: ReactElement;
   }>;
-};
-
-const confirmDialog = {
-  type: 'Confirm',
-  title: 'Discard changes?',
-  message:
-    'This form contains invalid data, so it cannot be saved. If you continue it will be reset, and your changes will be lost. Do you want to discard your changes?',
-  confirmLabel: 'Discard changes',
 };
 
 const slideVariants = {
@@ -61,10 +53,7 @@ function SlidesForm({
   const { moveForward } = getNavigationHelpers();
 
   const dispatch = useAppDispatch();
-  const openDialog = useCallback(
-    (dialog: typeof confirmDialog) => dispatch(openDialogAction(dialog)),
-    [dispatch],
-  );
+  const { openDialog } = useDialog();
 
   const { submitForm, isValid, isDirty } = useFormState();
 
@@ -97,10 +86,6 @@ function SlidesForm({
     setIsReadyForNext(readyForNext);
   }, [setIsReadyForNext, scrollProgress, isValid]);
 
-  const checkShouldProceed = useCallback(() => {
-    return openDialog(confirmDialog);
-  }, [openDialog]);
-
   const beforeNext: BeforeNextFunction = (direction: Direction) => {
     if (items.length === 0) {
       return true;
@@ -114,7 +99,17 @@ function SlidesForm({
 
     if (direction === 'backwards') {
       if (!isValid && isDirty) {
-        void checkShouldProceed().then((confirm) => {
+        void openDialog({
+          type: 'choice',
+          title: 'Discard changes?',
+          description:
+            'This form contains invalid data, so it cannot be saved. If you continue it will be reset, and your changes will be lost. Do you want to discard your changes?',
+          intent: 'danger',
+          actions: {
+            primary: { label: 'Discard changes', value: true },
+            cancel: { label: 'Go back', value: false },
+          },
+        }).then((confirm) => {
           if (confirm) {
             previousItem();
           }

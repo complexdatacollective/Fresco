@@ -1,6 +1,6 @@
 import cx from 'classnames';
 import PropTypes from 'prop-types';
-import Markdown from '~/lib/ui/components/Fields/Markdown';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Scroller from '~/lib/ui/components/Scroller';
 import { ALLOWED_MARKDOWN_TAGS } from '~/lib/ui/utils/config';
 import AssetMetaProvider from '../behaviours/AssetMetaProvider';
@@ -30,10 +30,11 @@ const getItemComponent = (item) => {
   switch (item.type) {
     case 'text':
       return (
-        <Markdown
-          label={item.content}
+        <RenderMarkdown
           allowedElements={[...ALLOWED_MARKDOWN_TAGS, 'a']} // Allow anchor tags only for the information interface
-        />
+        >
+          {item.content}
+        </RenderMarkdown>
       );
     case 'asset':
       return (

@@ -130,31 +130,7 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
                       {children}
                     </DialogContent>
                     {footer && <DialogFooter>{footer}</DialogFooter>}
-                    <BaseDialog.Close
-                      render={(closeProps) => {
-                        const typedProps = closeProps as Record<
-                          string,
-                          unknown
-                        >;
-                        return (
-                          <CloseButton
-                            type={typedProps.type as 'button' | undefined}
-                            tabIndex={typedProps.tabIndex as number | undefined}
-                            disabled={
-                              typedProps.disabled as boolean | undefined
-                            }
-                            aria-label={
-                              typedProps['aria-label'] as string | undefined
-                            }
-                            data-state={
-                              typedProps['data-state'] as string | undefined
-                            }
-                            onClick={closeDialog}
-                            data-dialog-close
-                          />
-                        );
-                      }}
-                    />
+                    <BaseDialog.Close render={<CloseButton />} />
                   </Surface>
                 }
               />

@@ -88,114 +88,114 @@
 
   --color-*: initial;
 
-  /* 
-    Semantic colors 
+  /*
+    Semantic colors
   */
-  --color-background: oklch(var(--background));
+  --color-background: var(--background);
 
   /* Components should redefine --text so that children inherit the correct color */
-  --color-text: oklch(var(--text));
+  --color-text: var(--text);
 
-  --color-primary: oklch(var(--primary));
-  --color-primary-contrast: oklch(var(--primary-contrast));
+  --color-primary: var(--primary);
+  --color-primary-contrast: var(--primary-contrast);
 
-  --color-accent: oklch(var(--accent));
-  --color-accent-contrast: oklch(var(--accent-contrast));
+  --color-accent: var(--accent);
+  --color-accent-contrast: var(--accent-contrast);
 
-  --color-secondary: oklch(var(--secondary));
-  --color-secondary-contrast: oklch(var(--secondary-contrast));
+  --color-secondary: var(--secondary);
+  --color-secondary-contrast: var(--secondary-contrast);
 
-  --color-surface: oklch(var(--surface));
-  --color-surface-contrast: oklch(var(--surface-contrast));
-  --color-surface-1: oklch(var(--surface-1));
-  --color-surface-1-contrast: oklch(var(--surface-1-contrast));
-  --color-surface-2: oklch(var(--surface-2));
-  --color-surface-2-contrast: oklch(var(--surface-2-contrast));
-  --color-surface-3: oklch(var(--surface-3));
-  --color-surface-3-contrast: oklch(var(--surface-3-contrast));
-  --color-surface-popover: oklch(var(--surface-popover));
-  --color-surface-popover-contrast: oklch(var(--surface-popover-contrast));
+  --color-surface: var(--surface);
+  --color-surface-contrast: var(--surface-contrast);
+  --color-surface-1: var(--surface-1);
+  --color-surface-1-contrast: var(--surface-1-contrast);
+  --color-surface-2: var(--surface-2);
+  --color-surface-2-contrast: var(--surface-2-contrast);
+  --color-surface-3: var(--surface-3);
+  --color-surface-3-contrast: var(--surface-3-contrast);
+  --color-surface-popover: var(--surface-popover);
+  --color-surface-popover-contrast: var(--surface-popover-contrast);
 
   /* States */
-  --color-destructive: oklch(var(--destructive));
-  --color-destructive-contrast: oklch(var(--destructive-contrast));
+  --color-destructive: var(--destructive);
+  --color-destructive-contrast: var(--destructive-contrast);
 
-  --color-warning: oklch(var(--warning));
-  --color-warning-contrast: oklch(var(--warning-contrast));
+  --color-warning: var(--warning);
+  --color-warning-contrast: var(--warning-contrast);
 
-  --color-success: oklch(var(--success));
-  --color-success-contrast: oklch(var(--success-contrast));
+  --color-success: var(--success);
+  --color-success-contrast: var(--success-contrast);
 
-  --color-info: oklch(var(--info));
-  --color-info-contrast: oklch(var(--info-contrast));
+  --color-info: var(--info);
+  --color-info-contrast: var(--info-contrast);
 
-  --color-selected: oklch(var(--selected));
+  --color-selected: var(--selected);
 
-  --ring: oklch(var(--ring));
+  --ring: var(--ring);
 
   /* UI elements */
-  --color-link: oklch(var(--link));
+  --color-link: var(--link);
 
-  --color-outline: oklch(var(--outline));
+  --color-outline: var(--outline);
 
-  --color-input: oklch(var(--input));
-  --color-input-contrast: oklch(var(--input-contrast));
-  --color-input-placeholder: oklch(var(--input-placeholder));
+  --color-input: var(--input);
+  --color-input-contrast: var(--input-contrast);
+  --color-input-placeholder: var(--input-placeholder);
 
-  --color-overlay: oklch(var(--overlay) / 0.45);
+  --color-overlay: oklch(from var(--overlay) l c h / 0.45);
 
   /* Color sequences */
-  --color-node-1: oklch(var(--node-1));
-  --color-node-1-contrast: oklch(var(--node-1-contrast));
-  --color-node-2: oklch(var(--node-2));
-  --color-node-2-contrast: oklch(var(--node-2-contrast));
-  --color-node-3: oklch(var(--node-3));
-  --color-node-3-contrast: oklch(var(--node-3-contrast));
-  --color-node-4: oklch(var(--node-4));
-  --color-node-4-contrast: oklch(var(--node-4-contrast));
-  --color-node-5: oklch(var(--node-5));
-  --color-node-5-contrast: oklch(var(--node-5-contrast));
-  --color-node-6: oklch(var(--node-6));
-  --color-node-6-contrast: oklch(var(--node-6-contrast));
-  --color-node-7: oklch(var(--node-7));
-  --color-node-7-contrast: oklch(var(--node-7-contrast));
-  --color-node-8: oklch(var(--node-8));
-  --color-node-8-contrast: oklch(var(--node-8-contrast));
+  --color-node-1: var(--node-1);
+  --color-node-1-contrast: var(--node-1-contrast);
+  --color-node-2: var(--node-2);
+  --color-node-2-contrast: var(--node-2-contrast);
+  --color-node-3: var(--node-3);
+  --color-node-3-contrast: var(--node-3-contrast);
+  --color-node-4: var(--node-4);
+  --color-node-4-contrast: var(--node-4-contrast);
+  --color-node-5: var(--node-5);
+  --color-node-5-contrast: var(--node-5-contrast);
+  --color-node-6: var(--node-6);
+  --color-node-6-contrast: var(--node-6-contrast);
+  --color-node-7: var(--node-7);
+  --color-node-7-contrast: var(--node-7-contrast);
+  --color-node-8: var(--node-8);
+  --color-node-8-contrast: var(--node-8-contrast);
 
-  --color-edge-1: oklch(var(--edge-1));
-  --color-edge-2: oklch(var(--edge-2));
-  --color-edge-3: oklch(var(--edge-3));
-  --color-edge-4: oklch(var(--edge-4));
-  --color-edge-5: oklch(var(--edge-5));
-  --color-edge-6: oklch(var(--edge-6));
-  --color-edge-7: oklch(var(--edge-7));
-  --color-edge-8: oklch(var(--edge-8));
-  --color-edge-9: oklch(var(--edge-9));
-  --color-edge-10: oklch(var(--edge-10));
+  --color-edge-1: var(--edge-1);
+  --color-edge-2: var(--edge-2);
+  --color-edge-3: var(--edge-3);
+  --color-edge-4: var(--edge-4);
+  --color-edge-5: var(--edge-5);
+  --color-edge-6: var(--edge-6);
+  --color-edge-7: var(--edge-7);
+  --color-edge-8: var(--edge-8);
+  --color-edge-9: var(--edge-9);
+  --color-edge-10: var(--edge-10);
 
-  --color-ord-1: oklch(var(--ord-1));
-  --color-ord-2: oklch(var(--ord-2));
-  --color-ord-3: oklch(var(--ord-3));
-  --color-ord-4: oklch(var(--ord-4));
-  --color-ord-5: oklch(var(--ord-5));
-  --color-ord-6: oklch(var(--ord-6));
-  --color-ord-7: oklch(var(--ord-7));
-  --color-ord-8: oklch(var(--ord-8));
-  --color-ord-9: oklch(var(--ord-9));
-  --color-ord-10: oklch(var(--ord-10));
+  --color-ord-1: var(--ord-1);
+  --color-ord-2: var(--ord-2);
+  --color-ord-3: var(--ord-3);
+  --color-ord-4: var(--ord-4);
+  --color-ord-5: var(--ord-5);
+  --color-ord-6: var(--ord-6);
+  --color-ord-7: var(--ord-7);
+  --color-ord-8: var(--ord-8);
+  --color-ord-9: var(--ord-9);
+  --color-ord-10: var(--ord-10);
 
-  --color-cat-1: oklch(var(--cat-1));
-  --color-cat-2: oklch(var(--cat-2));
-  --color-cat-3: oklch(var(--cat-3));
-  --color-cat-4: oklch(var(--cat-4));
-  --color-cat-5: oklch(var(--cat-5));
-  --color-cat-6: oklch(var(--cat-6));
-  --color-cat-7: oklch(var(--cat-7));
-  --color-cat-8: oklch(var(--cat-8));
-  --color-cat-9: oklch(var(--cat-9));
-  --color-cat-10: oklch(var(--cat-10));
+  --color-cat-1: var(--cat-1);
+  --color-cat-2: var(--cat-2);
+  --color-cat-3: var(--cat-3);
+  --color-cat-4: var(--cat-4);
+  --color-cat-5: var(--cat-5);
+  --color-cat-6: var(--cat-6);
+  --color-cat-7: var(--cat-7);
+  --color-cat-8: var(--cat-8);
+  --color-cat-9: var(--cat-9);
+  --color-cat-10: var(--cat-10);
 
-  /* Named colors */
+  /* Named colors - these reference colors.css triplets, so they keep oklch() */
   --color-neon-coral: oklch(var(--neon-coral));
   --color-neon-coral-dark: oklch(var(--neon-coral--dark));
 
@@ -305,8 +305,23 @@
     linear;
   --animate-background-gradient: background-gradient 5s infinite ease-in-out;
   --animate-linking: linking 1s ease-in-out infinite;
+  --animate-pulse-glow: animate-pulse-glow 2s infinite;
 
   --transform-origin-left-right: 0% 50%;
+
+  @keyframes animate-pulse-glow {
+    0% {
+      box-shadow: 0 0 0 0 oklch(from var(--color-primary) l c h / 0.8);
+    }
+
+    70% {
+      box-shadow: 0 0 0 2rem oklch(from var(--color-primary) l c h / 0);
+    }
+
+    100% {
+      box-shadow: 0 0 0 0 oklch(from var(--color-primary) l c h / 0);
+    }
+  }
 
   @keyframes wiggle {
     0%,
@@ -426,4 +441,9 @@ This custom variant lets you target only elements with the readonly attribute.
 
 @utility focusable {
   @apply focus-visible:outline-accent outline-4 outline-offset-3 outline-transparent transition-colors duration-200 ease-in-out;
+}
+
+/* Replacement for interface centering mixin */
+@utility interface {
+  @apply mx-4 flex shrink-1 grow-1 basis-auto items-center justify-center;
 }

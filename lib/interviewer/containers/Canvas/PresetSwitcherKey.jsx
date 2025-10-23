@@ -6,7 +6,7 @@ import { createPortal } from 'react-dom';
 import { connect } from 'react-redux';
 import { compose } from 'recompose';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
-import { Radio } from '~/lib/ui/components/Fields';
+import { RadioGroupField } from '~/lib/form/components/fields/RadioGroup';
 import Icon from '~/lib/ui/components/Icon';
 import {
   getCurrentStage,
@@ -42,7 +42,7 @@ class PresetSwitcherKey extends Component {
     };
 
     return (
-      <Radio
+      <RadioGroupField
         className="accordion-item"
         key={index}
         input={{

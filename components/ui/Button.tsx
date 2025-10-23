@@ -8,10 +8,10 @@ import { Skeleton } from './skeleton';
 
 const buttonVariants = cva({
   base: cx(
-    'font-semibold inline-flex items-center justify-center truncate text-nowrap rounded text-base tracking-wide transition-colors cursor-pointer',
+    'font-semibold inline-flex items-center justify-center truncate text-nowrap rounded text-base tracking-wide transition-colors cursor-pointer shrink-0',
     'disabled:cursor-not-allowed disabled:opacity-50',
     // Set the size of any child SVG icons to 1rem
-    '[&>svg]:w-auto [&>svg]:h-[1rem] [&>svg]:shrink-0',
+    '[&>svg]:w-auto [&>svg]:max-h-full [&>svg]:shrink-0',
     'focusable',
   ),
   variants: {
@@ -26,9 +26,9 @@ const buttonVariants = cva({
     color: {
       default: cx(
         // bg: mix of 5% of text color and background color
-        '[--scoped-bg:color-mix(in_oklab,oklch(var(--text))_6%,oklch(var(--background)))]',
+        '[--scoped-bg:color-mix(in_oklab,var(--text)_6%,var(--background))]',
         // text: use the foreground color
-        '[--scoped-text:oklch(var(--text))]',
+        '[--scoped-text:var(--text)]',
       ),
       primary:
         '[--scoped-bg:var(--color-primary)] [--scoped-text:var(--color-primary-contrast)]',

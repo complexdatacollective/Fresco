@@ -2,10 +2,10 @@ import { type NcNode } from '@codaco/shared-consts';
 import { useEffect } from 'react';
 import { reduxForm, type InjectedFormProps } from 'redux-form';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
+import Button from '~/components/ui/Button';
 import { Field, Form } from '~/lib/form';
 import { InputField } from '~/lib/form/components/fields/Input';
 import { validations } from '~/lib/form/validation';
-import Button from '~/lib/ui/components/Button';
 import Node from '../../components/Node';
 
 type FormValues = {
@@ -51,17 +51,17 @@ const OtherVariableForm = ({
             <Field
               label=""
               placeholder="Enter your response here..."
-              component={InputField}
+              Component={InputField}
               name="otherVariable"
               validation={validations.required()}
             />
           </div>
         </div>
         <div className="other-variable-form__footer">
-          <Button type="button" color="white" onClick={onCancel}>
+          <Button type="button" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit" aria-label="Submit">
+          <Button type="submit" color="primary" aria-label="Submit">
             Continue
           </Button>
         </div>

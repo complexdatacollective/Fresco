@@ -1,8 +1,5 @@
-'use client';
-
 import { type InputHTMLAttributes, type ReactNode } from 'react';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
-import { type FieldValue } from '../../types';
 import {
   backgroundStyles,
   borderStyles,
@@ -62,11 +59,10 @@ export const inputWrapperVariants = compose(
       'has-[input:focus-visible]:outline-none has-[input:focus-visible]:ring-4 has-[input:focus-visible]:ring-accent/10 has-[input:focus-visible]:ring-offset-0',
       'has-[[aria-invalid=true]]:has-[input:focus]:border-destructive',
       'has-[[aria-invalid=true]]:has-[input:focus-visible]:ring-destructive/20',
-      'has-[input:is-read-only]:has-[input:focus]:',
       // Additional :has selectors for state management
       'has-[[aria-invalid=true]]:border-destructive',
-      'has-[input:disabled]:bg-muted',
-      'has-[input:is-read-only]:bg-muted/50',
+      'has-[input:disabled]:bg-input-placeholder',
+      'has-[input:is-read-only]:bg-input-placeholder/50',
     ),
     variants: {
       size: {
@@ -82,9 +78,9 @@ export const inputWrapperVariants = compose(
           'has-[input:disabled]:bg-transparent has-[input:disabled]:hover:bg-transparent',
         ),
         filled: cx(
-          'border-transparent bg-muted',
-          'hover:bg-muted/80',
-          'has-[input:disabled]:bg-muted has-[input:disabled]:hover:bg-muted',
+          'border-transparent bg-input-placeholder',
+          'hover:bg-input-placeholder/80',
+          'has-[input:disabled]:bg-input-placeholder has-[input:disabled]:hover:bg-input-placeholder',
         ),
         outline: cx(
           'bg-transparent',
@@ -142,8 +138,8 @@ export const standaloneInputVariants = compose(
 export const affixVariants = cva({
   base: cx(
     'flex items-center justify-center shrink-0 grow-0',
-    'bg-muted/50', // Subtle background for affix areas
-    'text-muted-contrast',
+    'bg-[currentColor]/50', // Subtle background for affix areas
+    'text-(--background)',
   ),
   variants: {
     position: {
@@ -161,43 +157,53 @@ export const affixVariants = cva({
   },
 });
 
-type InputFieldProps = Omit<
+type InputType = 'text' | 'number' | 'email' | 'password' | 'search';
+
+// Map input type to its corresponding value type
+type InputValueType<T extends InputType> = T extends 'number'
+  ? number | undefined
+  : string;
+
+type InputFieldProps<T extends InputType = 'text'> = Omit<
   InputHTMLAttributes<HTMLInputElement>,
-  'size' | 'type'
+  'size' | 'type' | 'onChange'
 > &
   VariantProps<typeof inputWrapperVariants> & {
-    type?: 'text' | 'number' | 'email' | 'password';
-    onChange?: (value: FieldValue) => void;
+    type?: T;
+    onChange?: (value: InputValueType<T>) => void;
     // NOTE: these cannot be 'prefix' and 'suffix' because these collide with RDFa attributes in @types/react@18.3.18
     prefixComponent?: ReactNode;
     suffixComponent?: ReactNode;
   };
 
-export function InputField({
+export function InputField<T extends InputType = 'text'>({
   className,
   size,
   variant,
   prefixComponent: prefix,
   suffixComponent: suffix,
   onChange,
-  type = 'text',
+  type = 'text' as T,
   ...inputProps
-}: InputFieldProps) {
+}: InputFieldProps<T>) {
   // Change handler that coerces the value passed on onChange based on the input type
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
-    let value: FieldValue = rawValue;
+    let value: InputValueType<T>;
 
     switch (type) {
       case 'number':
         // Allow clearing the field - empty string should be undefined, not 0
-        value = rawValue === '' ? undefined : Number(rawValue);
+        value = (
+          rawValue === '' ? undefined : Number(rawValue)
+        ) as InputValueType<T>;
         break;
       case 'text':
       case 'email':
       case 'password':
+      case 'search':
       default:
-        value = String(rawValue);
+        value = String(rawValue) as InputValueType<T>;
         break;
     }
 

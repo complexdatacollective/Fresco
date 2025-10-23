@@ -5,21 +5,10 @@ const config = {
       extends: [
         'plugin:@typescript-eslint/stylistic-type-checked',
         'plugin:@typescript-eslint/recommended-type-checked',
-        'plugin:better-tailwindcss/recommended-error',
       ],
       files: ['*.ts', '*.tsx'],
       parserOptions: {
         project: true,
-      },
-      settings: {
-        'better-tailwindcss': {
-          entryPoint: 'styles/globals.css',
-        },
-      },
-      rules: {
-        'better-tailwindcss/enforce-consistent-line-wrapping': 'off', // Conflict with prettier
-        'better-tailwindcss/enforce-consistent-class-order': 'off', // Conflict with prettier
-        'better-tailwindcss/no-unregistered-classes': 'warn', // TODO: set to error after fixing existing issues
       },
     },
     {
@@ -56,7 +45,13 @@ const config = {
     'next/core-web-vitals',
     'prettier',
     'plugin:storybook/recommended',
+    'plugin:better-tailwindcss/recommended-error',
   ],
+  settings: {
+    'better-tailwindcss': {
+      entryPoint: 'styles/globals.css',
+    },
+  },
   ignorePatterns: ['node_modules', 'public'],
   rules: {
     '@typescript-eslint/switch-exhaustiveness-check': 'error',
@@ -87,6 +82,9 @@ const config = {
       },
     ],
     'no-unreachable': 'error',
+    'better-tailwindcss/enforce-consistent-line-wrapping': 'off', // Conflict with prettier
+    'better-tailwindcss/enforce-consistent-class-order': 'off', // Conflict with prettier
+    'better-tailwindcss/no-unregistered-classes': 'warn', // TODO: set to error after fixing existing issues
   },
 };
 

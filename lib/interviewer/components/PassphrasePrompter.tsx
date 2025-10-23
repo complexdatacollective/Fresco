@@ -9,9 +9,9 @@ import {
 } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import z from 'zod';
+import Button from '~/components/ui/Button';
 import { Field, Form } from '~/lib/form';
 import { InputField } from '~/lib/form/components/fields/Input';
-import { Button } from '~/lib/ui/components';
 import { usePassphrase } from '../Interfaces/Anonymisation/usePassphrase';
 import Overlay from '../containers/Overlay';
 
@@ -90,14 +90,18 @@ export default function PassphrasePrompter() {
                 key="tooltip"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="bg-panel flex w-96 flex-col justify-center gap-4 rounded-xl p-6 shadow-xl"
+                className="bg-surface flex w-96 flex-col justify-center gap-4 rounded-xl p-6 shadow-xl"
               >
                 <div>
                   {passphraseInvalid
                     ? 'There was a problem decrypting the data. Please re-enter your passphrase.'
                     : 'Your passphrase is needed to show data on this screen. Click here to enter it.'}
                 </div>
-                <Tooltip.Arrow className="fill-panel" height={10} width={20} />
+                <Tooltip.Arrow
+                  className="fill-surface"
+                  height={10}
+                  width={20}
+                />
               </motion.div>
             </Tooltip.Content>
           </Tooltip.Portal>

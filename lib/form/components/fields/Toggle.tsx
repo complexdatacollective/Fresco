@@ -15,7 +15,7 @@ const toggleStyles = cx(
 );
 
 const toggleThumbStyles = cx(
-  'pointer-events-none block h-5 w-5 absolute left-0.5 rounded-full bg-background shadow-sm',
+  'pointer-events-none block h-5 w-5 absolute left-0.5 rounded-full bg-input shadow-sm',
   'transition-transform duration-300 ease-in-out',
   'data-[state=checked]:translate-x-6',
 );

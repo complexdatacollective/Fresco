@@ -1,8 +1,9 @@
 import { isEqual } from 'es-toolkit';
+import { SearchIcon } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { memo, useEffect, useId, useMemo } from 'react';
 import { useDndStore, type DndStore } from '~/lib/dnd';
-import Search from '~/lib/ui/components/Fields/Search';
+import { InputField } from '~/lib/form/components/fields/Input';
 import { getCSSVariableAsNumber } from '~/lib/ui/utils/CSSVariables';
 import { cx } from '~/utils/cva';
 import Loading from '../components/Loading';
@@ -146,11 +147,6 @@ const SearchableList = memo(
       return sortedResults.filter((item) => !excludeItems.includes(item.id));
     }, [sortedResults, excludeItems]);
 
-    const handleChangeSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const value = event.target.value;
-      setQuery(value);
-    };
-
     const mode = items.length > 100 ? modes.LARGE : modes.SMALL;
 
     const hyperListPlaceholder =
@@ -283,13 +279,15 @@ const SearchableList = memo(
             )}
           </div>
           <div className="searchable-list__search">
-            <Search
-              placeholder="Enter a search term..."
-              input={{
-                name: 'search',
-                value: query,
-                onChange: handleChangeSearch,
+            <InputField
+              prefixComponent={<SearchIcon />}
+              type="search"
+              name="search"
+              value={query}
+              onChange={(value) => {
+                setQuery(value);
               }}
+              placeholder="Enter a search term..."
             />
           </div>
         </Panel>

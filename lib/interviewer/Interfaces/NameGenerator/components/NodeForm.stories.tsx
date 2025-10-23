@@ -229,7 +229,6 @@ const createMockStore = (overrides = {}) => {
       protocol: (state = mockProtocolState) => state,
       form: (state = {}) => state,
       ui: (state = {}) => state,
-      dialogs: (state = {}) => state,
     },
     preloadedState: {
       protocol: mockProtocolState,

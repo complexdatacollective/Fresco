@@ -1,10 +1,10 @@
 import { usePathname, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { finishInterview } from '~/actions/interviews';
+import Button from '~/components/ui/Button';
+import { useDialog } from '~/lib/dialogs/DialogProvider';
 import Loading from '~/lib/interviewer/components/Loading';
-import Button from '~/lib/ui/components/Button';
-import { openDialog as openDialogActopm } from '../ducks/modules/dialogs';
 
 const FinishSession = () => {
   const dispatch = useDispatch();
@@ -27,14 +27,11 @@ const FinishSession = () => {
     }
   };
 
-  const openDialog = useCallback(
-    (dialog) => dispatch(openDialogActopm(dialog)),
-    [dispatch],
-  );
-
   useEffect(() => {
     dispatch({ type: 'PLAY_SOUND', sound: 'finishSession' });
   }, [dispatch]);
+
+  const { openDialog } = useDialog();
 
   const finishInterviewConfirmation = () => {
     openDialog({
@@ -70,7 +67,9 @@ const FinishSession = () => {
         </div>
 
         <div className="finish-session-interface__section finish-session-interface__section--buttons">
-          <Button onClick={finishInterviewConfirmation}>Finish</Button>
+          <Button color="primary" onClick={finishInterviewConfirmation}>
+            Finish
+          </Button>
         </div>
       </div>
     </div>

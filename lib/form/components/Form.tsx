@@ -18,7 +18,7 @@ import FormErrorsList from './FormErrors';
 type FormProps = {
   onSubmit: FormSubmitHandler;
   children: React.ReactNode;
-} & Omit<HTMLMotionProps<'form'>, 'onSubmit' | 'children'>;
+} & Omit<HTMLMotionProps<'form'>, 'onSubmit' | 'children' | 'submitButton'>;
 
 export default function Form(props: FormProps) {
   const id = useId();

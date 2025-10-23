@@ -5,16 +5,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { isDirty, isValid, submit } from 'redux-form';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
+import { useDialog } from '~/lib/dialogs/DialogProvider';
 import { Form } from '~/lib/form';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import Icon from '~/lib/ui/components/Icon';
 import Scroller from '~/lib/ui/components/Scroller';
 import { type BeforeNextFunction } from '../containers/ProtocolScreen';
 import { type StageProps } from '../containers/Stage';
-import {
-  type Dialog,
-  openDialog as openDialogAction,
-} from '../ducks/modules/dialogs';
 import { updateEgo } from '../ducks/modules/session';
 import useFlipflop from '../hooks/useFlipflop';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
@@ -33,14 +30,6 @@ const elementHasOverflow = ({
   scrollHeight: number;
 }) => scrollHeight > clientHeight || scrollWidth > clientWidth;
 
-const confirmDialog: Omit<Dialog, 'id'> = {
-  type: 'Confirm',
-  title: 'Discard changes?',
-  message:
-    'This form contains invalid data, so it cannot be saved. If you continue it will be reset and your changes will be lost. Do you want to discard your changes?',
-  confirmLabel: 'Discard changes',
-};
-
 const getFormName = (index: string) => `EGO_FORM_${index}`;
 
 type EgoFormProps = StageProps & {
@@ -53,10 +42,7 @@ const EgoForm = (props: EgoFormProps) => {
   const { form, introductionPanel } = stage;
 
   const dispatch = useAppDispatch();
-  const openDialog = useCallback(
-    (dialog: Omit<Dialog, 'id'>) => dispatch(openDialogAction(dialog)),
-    [dispatch],
-  );
+  const { openDialog } = useDialog();
   const submitFormRedux = useCallback(
     (formName: string) => dispatch(submit(formName)),
     [dispatch],
@@ -88,19 +74,23 @@ const EgoForm = (props: EgoFormProps) => {
     setIsOverflowing(elementHasOverflow(element));
   }, []);
 
-  const checkShouldProceed = useCallback(() => {
-    return openDialog(confirmDialog);
-  }, [openDialog]);
-
   const beforeNext: BeforeNextFunction = async (direction) => {
     // If direction is backwards, and the form is invalid, check if the user
     // wants to proceed anyway (causing the form to be reset)
     if (direction === 'backwards') {
       if (isFormDirty && !isFormValid) {
-        const result =
-          // eslint-disable-next-line @typescript-eslint/await-thenable
-          (await checkShouldProceed()) as unknown as Promise<boolean>;
-        return result;
+        const result = await openDialog({
+          type: 'choice',
+          title: 'Discard changes?',
+          description:
+            'This form contains invalid data, so it cannot be saved. If you continue it will be reset and your changes will be lost. Do you want to discard your changes?',
+          intent: 'danger',
+          actions: {
+            primary: { label: 'Discard changes', value: true },
+            cancel: { label: 'Go back', value: false },
+          },
+        });
+        return !!result;
       }
 
       // if form is valid submit the form and proceed backwards

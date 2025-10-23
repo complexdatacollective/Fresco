@@ -1,0 +1,148 @@
+/*
+  Default theme for the application.
+  Uses a purple hue as the base color.
+  Light theme by default, with a dark theme variant.
+*/
+
+@layer theme {
+  :root {
+    --background: oklch(var(--navy-taupe));
+    --text: oklch(var(--white));
+
+    --neutral: oklch(var(--platinum));
+    --neutral-contrast: oklch(var(--charcoal));
+
+    --primary: oklch(var(--sea-green));
+    --primary-contrast: oklch(var(--white));
+
+    /* For visual emphasis */
+    --accent: oklch(var(--slate-blue));
+    --accent-contrast: oklch(var(--white));
+
+    --secondary: oklch(var(--neon-coral));
+    --secondary-contrast: oklch(var(--white));
+
+    --surface: oklch(from var(--background) calc(l + 0.07) c h);
+    --surface-contrast: var(--text);
+    --surface-1: oklch(from var(--background) calc(l + 0.15) c h);
+    --surface-1-contrast: var(--text);
+    --surface-2: oklch(from var(--background) calc(l + 0.1) c h);
+    --surface-2-contrast: var(--text);
+    --surface-3: oklch(from var(--background) calc(l + 0.05) c h);
+    --surface-3-contrast: var(--text);
+    --surface-popover: oklch(var(--white));
+    --surface-popover-contrast: oklch(var(--background));
+
+    --destructive: oklch(var(--tomato));
+    --destructive-contrast: oklch(var(--white));
+
+    --warning: oklch(var(--neon-carrot));
+    --warning-contrast: oklch(var(--white));
+
+    --success: oklch(51% 0.15 171);
+    --success-contrast: oklch(var(--white));
+
+    --info: oklch(var(--cerulean-blue));
+    --info-contrast: oklch(var(--white));
+
+    --selected: oklch(90% 0.05 var(--base-hue));
+
+    --ring: oklch(var(--mustard));
+
+    --link: var(--accent);
+
+    --outline: oklch(90% 0.01 var(--base-hue)); /* Used for borders */
+
+    --input: oklch(var(--white));
+    --input-contrast: oklch(var(--cyber-grape));
+    --input-placeholder: oklch(40% 0.05 var(--base-hue));
+
+    --overlay: oklch(10% 0.075 var(--base-hue));
+
+    /* Sequences */
+    --node-1: oklch(var(--neon-coral));
+    --node-1-contrast: oklch(var(--white));
+    --node-2: oklch(var(--sea-serpent));
+    --node-2-contrast: oklch(var(--white));
+    --node-3: oklch(var(--purple-pizazz));
+    --node-3-contrast: oklch(var(--white));
+    --node-4: oklch(var(--neon-carrot));
+    --node-4-contrast: oklch(var(--white));
+    --node-5: oklch(var(--kiwi));
+    --node-5-contrast: oklch(var(--white));
+    --node-6: oklch(var(--cerulean-blue));
+    --node-6-contrast: oklch(var(--white));
+    --node-7: oklch(var(--paradise-pink));
+    --node-7-contrast: oklch(var(--white));
+    --node-8: oklch(var(--mustard));
+    --node-8-contrast: oklch(var(--white));
+
+    --edge-1: oklch(var(--mustard));
+    --edge-2: oklch(var(--purple-pizazz));
+    --edge-3: oklch(var(--neon-coral));
+    --edge-4: oklch(var(--kiwi));
+    --edge-5: oklch(var(--paradise-pink));
+    --edge-6: oklch(var(--tomato));
+    --edge-7: oklch(var(--sea-serpent));
+    --edge-8: oklch(var(--slate-blue));
+    --edge-9: oklch(var(--sea-green));
+    --edge-10: oklch(var(--cerulean-blue));
+
+    --ord-1: oklch(var(--sea-green));
+    --ord-2: oklch(var(--sea-serpent));
+    --ord-3: oklch(var(--tomato));
+    --ord-4: oklch(var(--neon-carrot));
+    --ord-5: oklch(var(--kiwi));
+    --ord-6: oklch(var(--cerulean-blue));
+    --ord-7: oklch(var(--paradise-pink));
+    --ord-8: oklch(var(--mustard));
+
+    /* used by categorical and convex hulls */
+    --cat-1: oklch(var(--sea-serpent));
+    --cat-2: oklch(var(--purple-pizazz));
+    --cat-3: oklch(var(--mustard));
+    --cat-4: oklch(var(--paradise-pink));
+    --cat-5: oklch(var(--kiwi));
+    --cat-6: oklch(var(--cerulean-blue));
+    --cat-7: oklch(var(--neon-carrot));
+    --cat-8: oklch(var(--barbie-pink));
+    --cat-9: oklch(var(--tomato));
+    --cat-10: oklch(var(--slate-blue));
+
+    --radius: 1.75rem;
+  }
+
+  /**
+    The dark interview theme has purple background with light text.
+  */
+  [data-theme='dark'] {
+    --background: oklch(19% 0.03 var(--base-hue));
+    --contrast: oklch(97% 0.001 var(--base-hue));
+
+    /* Reduce chroma for better contrast */
+    --primary: oklch(34% 0.15 var(--base-hue));
+    --accent: oklch(50% 0.15 var(--accent-hue));
+
+    --muted-contrast: oklch(40% 0.01 var(--base-hue));
+
+    --link: oklch(65% 0.15 var(--accent-hue));
+
+    --border-color: oklch(33% 0.01 var(--base-hue));
+
+    --input: var(--background);
+    --input-contrast: var(--contrast);
+
+    /* Surfaces */
+    --surface-0: var(--background);
+    --surface-0-contrast: var(--contrast);
+
+    --surface-1: oklch(26% 0.03 var(--base-hue));
+    --surface-1-contrast: var(--contrast);
+    --surface-2: oklch(30% 0.03 var(--base-hue));
+    --surface-2-contrast: var(--contrast);
+    --surface-3: oklch(33% 0.03 var(--base-hue));
+    --surface-3-contrast: var(--contrast);
+    --surface-4: oklch(36% 0.03 var(--base-hue));
+    --surface-4-contrast: var(--contrast);
+  }
+}

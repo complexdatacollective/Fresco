@@ -26,8 +26,7 @@ function OnboardSteps({ steps }: { steps: string[] }) {
           <div
             className={cx(
               'border-primary/[.06] flex h-10 w-10 items-center justify-center rounded-full border text-sm font-bold',
-              index < currentStep - 1 &&
-                'bg-success border-teal-400 text-white',
+              index < currentStep - 1 && 'bg-success border-success text-white',
               index === currentStep - 1 &&
                 'border-primary bg-primary text-white',
             )}

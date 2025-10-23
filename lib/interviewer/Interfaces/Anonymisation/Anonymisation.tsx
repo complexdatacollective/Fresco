@@ -1,15 +1,12 @@
 import type { Stage } from '@codaco/protocol-validation';
-import { type UnknownAction } from '@reduxjs/toolkit';
 import { motion } from 'motion/react';
-import { useCallback, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { isValid, submit } from 'redux-form';
+import { useCallback, useEffect, useRef } from 'react';
 import z from 'zod';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
-import { Field, Form } from '~/lib/form';
+import Button from '~/components/ui/Button';
+import { Field, Form, useFormState } from '~/lib/form';
 import { InputField } from '~/lib/form/components/fields/Input';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
-import { Button } from '~/lib/ui/components';
 import EncryptionBackground from '../../components/EncryptedBackground';
 import type { BeforeNextFunction } from '../../containers/ProtocolScreen';
 import type { StageProps } from '../../containers/Stage';
@@ -20,6 +17,7 @@ type AnonymisationProps = StageProps & {
 };
 
 export default function Anonymisation(props: AnonymisationProps) {
+  const formRef = useRef<HTMLFormElement>(null);
   const { updateReady } = useReadyForNextStage();
   const {
     registerBeforeNext,
@@ -27,13 +25,7 @@ export default function Anonymisation(props: AnonymisationProps) {
   } = props;
   const { passphrase, setPassphrase } = usePassphrase();
 
-  const dispatch = useDispatch();
-  const isFormValid = useSelector(isValid(FORM_NAME));
-
-  const submitFormRedux = useCallback(
-    () => dispatch(submit(FORM_NAME) as unknown as UnknownAction),
-    [dispatch],
-  );
+  const { isValid: isFormValid } = useFormState();
 
   const preventNavigationWithoutPassphrase: BeforeNextFunction = useCallback(
     (direction) => {
@@ -43,7 +35,7 @@ export default function Anonymisation(props: AnonymisationProps) {
       }
 
       // Submit the form, to trigger validation
-      submitFormRedux();
+      formRef.current?.submit();
 
       if (!isFormValid) {
         return false;
@@ -51,7 +43,7 @@ export default function Anonymisation(props: AnonymisationProps) {
 
       return true;
     },
-    [submitFormRedux, isFormValid],
+    [formRef, isFormValid],
   );
 
   useEffect(() => {
@@ -99,20 +91,7 @@ export default function Anonymisation(props: AnonymisationProps) {
             )}
             {!passphrase && (
               <div>
-                <Form
-                  submitButton={
-                    <Button
-                      key="submit"
-                      aria-label="Submit"
-                      type="submit"
-                      icon="arrow-right"
-                      iconPosition="right"
-                    >
-                      Continue
-                    </Button>
-                  }
-                  onSubmit={handleSetPassphrase}
-                >
+                <Form onSubmit={handleSetPassphrase} ref={formRef}>
                   <Field
                     Component={InputField}
                     name="passphrase"
@@ -142,6 +121,15 @@ export default function Anonymisation(props: AnonymisationProps) {
                       return undefined;
                     }}
                   />
+                  <Button
+                    key="submit"
+                    aria-label="Submit"
+                    type="submit"
+                    icon="arrow-right"
+                    iconPosition="right"
+                  >
+                    Continue
+                  </Button>
                 </Form>
               </div>
             )}

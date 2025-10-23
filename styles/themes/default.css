@@ -9,109 +9,109 @@
     /* Used for relative color values */
     --base-hue: 280;
 
-    --background: 98% 0.08 var(--base-hue);
-    --text: 10% 0.22 var(--base-hue);
+    --background: oklch(98% 0.08 var(--base-hue));
+    --text: oklch(10% 0.22 var(--base-hue));
 
-    --neutral: var(--platinum);
-    --neutral-contrast: var(--charcoal);
+    --neutral: oklch(var(--platinum));
+    --neutral-contrast: oklch(var(--charcoal));
 
-    --primary: 15% 0.18 var(--base-hue);
-    --primary-contrast: var(--white);
+    --primary: oklch(15% 0.18 var(--base-hue));
+    --primary-contrast: oklch(var(--white));
 
     /* For visual emphasis */
     --accent-hue: calc(var(--base-hue) - 30);
-    --accent: 50% 0.22 var(--accent-hue);
-    --accent-contrast: var(--white);
+    --accent: oklch(50% 0.22 var(--accent-hue));
+    --accent-contrast: oklch(var(--white));
 
-    --secondary: var(--slate-blue);
-    --secondary-contrast: var(--white);
+    --secondary: oklch(var(--slate-blue));
+    --secondary-contrast: oklch(var(--white));
 
-    --surface: 100% 0.01 var(--base-hue);
+    --surface: oklch(100% 0.01 var(--base-hue));
     --surface-contrast: var(--text);
-    --surface-1: 97% 0.02 var(--base-hue);
+    --surface-1: oklch(97% 0.02 var(--base-hue));
     --surface-1-contrast: var(--text);
-    --surface-2: 95% 0.025 var(--base-hue);
+    --surface-2: oklch(95% 0.025 var(--base-hue));
     --surface-2-contrast: var(--text);
-    --surface-3: 93% 0.03 var(--base-hue);
+    --surface-3: oklch(93% 0.03 var(--base-hue));
     --surface-3-contrast: var(--text);
-    --surface-popover: 25% 0.1 var(--base-hue);
-    --surface-popover-contrast: var(--white);
+    --surface-popover: oklch(25% 0.1 var(--base-hue));
+    --surface-popover-contrast: oklch(var(--white));
 
-    --destructive: var(--tomato);
-    --destructive-contrast: var(--white);
+    --destructive: oklch(var(--tomato));
+    --destructive-contrast: oklch(var(--white));
 
-    --warning: var(--neon-carrot);
-    --warning-contrast: var(--white);
+    --warning: oklch(var(--neon-carrot));
+    --warning-contrast: oklch(var(--white));
 
-    --success: 51% 0.15 171;
-    --success-contrast: var(--white);
+    --success: oklch(51% 0.15 171);
+    --success-contrast: oklch(var(--white));
 
-    --info: var(--cerulean-blue);
-    --info-contrast: var(--white);
+    --info: oklch(var(--cerulean-blue));
+    --info-contrast: oklch(var(--white));
 
-    --selected: 90% 0.05 var(--base-hue);
+    --selected: oklch(90% 0.05 var(--base-hue));
 
-    --ring: var(--mustard);
+    --ring: oklch(var(--mustard));
 
     --link: var(--accent);
 
-    --outline: 90% 0.01 var(--base-hue); /* Used for borders */
+    --outline: oklch(90% 0.01 var(--base-hue)); /* Used for borders */
 
-    --input: var(--white);
-    --input-contrast: var(--cyber-grape);
-    --input-placeholder: 40% 0.05 var(--base-hue);
+    --input: oklch(var(--white));
+    --input-contrast: oklch(var(--cyber-grape));
+    --input-placeholder: oklch(40% 0.05 var(--base-hue));
 
-    --overlay: 10% 0.075 var(--base-hue);
+    --overlay: oklch(10% 0.075 var(--base-hue));
 
     /* Sequences */
-    --node-1: var(--neon-coral);
-    --node-1-contrast: var(--white);
-    --node-2: var(--sea-serpent);
-    --node-2-contrast: var(--white);
-    --node-3: var(--purple-pizazz);
-    --node-3-contrast: var(--white);
-    --node-4: var(--neon-carrot);
-    --node-4-contrast: var(--white);
-    --node-5: var(--kiwi);
-    --node-5-contrast: var(--white);
-    --node-6: var(--cerulean-blue);
-    --node-6-contrast: var(--white);
-    --node-7: var(--paradise-pink);
-    --node-7-contrast: var(--white);
-    --node-8: var(--mustard);
-    --node-8-contrast: var(--white);
+    --node-1: oklch(var(--neon-coral));
+    --node-1-contrast: oklch(var(--white));
+    --node-2: oklch(var(--sea-serpent));
+    --node-2-contrast: oklch(var(--white));
+    --node-3: oklch(var(--purple-pizazz));
+    --node-3-contrast: oklch(var(--white));
+    --node-4: oklch(var(--neon-carrot));
+    --node-4-contrast: oklch(var(--white));
+    --node-5: oklch(var(--kiwi));
+    --node-5-contrast: oklch(var(--white));
+    --node-6: oklch(var(--cerulean-blue));
+    --node-6-contrast: oklch(var(--white));
+    --node-7: oklch(var(--paradise-pink));
+    --node-7-contrast: oklch(var(--white));
+    --node-8: oklch(var(--mustard));
+    --node-8-contrast: oklch(var(--white));
 
-    --edge-1: var(--mustard);
-    --edge-2: var(--purple-pizazz);
-    --edge-3: var(--neon-coral);
-    --edge-4: var(--kiwi);
-    --edge-5: var(--paradise-pink);
-    --edge-6: var(--tomato);
-    --edge-7: var(--sea-serpent);
-    --edge-8: var(--slate-blue);
-    --edge-9: var(--sea-green);
-    --edge-10: var(--cerulean-blue);
+    --edge-1: oklch(var(--mustard));
+    --edge-2: oklch(var(--purple-pizazz));
+    --edge-3: oklch(var(--neon-coral));
+    --edge-4: oklch(var(--kiwi));
+    --edge-5: oklch(var(--paradise-pink));
+    --edge-6: oklch(var(--tomato));
+    --edge-7: oklch(var(--sea-serpent));
+    --edge-8: oklch(var(--slate-blue));
+    --edge-9: oklch(var(--sea-green));
+    --edge-10: oklch(var(--cerulean-blue));
 
-    --ord-1: var(--sea-green);
-    --ord-2: var(--sea-serpent);
-    --ord-3: var(--tomato);
-    --ord-4: var(--neon-carrot);
-    --ord-5: var(--kiwi);
-    --ord-6: var(--cerulean-blue);
-    --ord-7: var(--paradise-pink);
-    --ord-8: var(--mustard);
+    --ord-1: oklch(var(--sea-green));
+    --ord-2: oklch(var(--sea-serpent));
+    --ord-3: oklch(var(--tomato));
+    --ord-4: oklch(var(--neon-carrot));
+    --ord-5: oklch(var(--kiwi));
+    --ord-6: oklch(var(--cerulean-blue));
+    --ord-7: oklch(var(--paradise-pink));
+    --ord-8: oklch(var(--mustard));
 
     /* used by categorical and convex hulls */
-    --cat-1: var(--sea-serpent);
-    --cat-2: var(--purple-pizazz);
-    --cat-3: var(--mustard);
-    --cat-4: var(--paradise-pink);
-    --cat-5: var(--kiwi);
-    --cat-6: var(--cerulean-blue);
-    --cat-7: var(--neon-carrot);
-    --cat-8: var(--barbie-pink);
-    --cat-9: var(--tomato);
-    --cat-10: var(--slate-blue);
+    --cat-1: oklch(var(--sea-serpent));
+    --cat-2: oklch(var(--purple-pizazz));
+    --cat-3: oklch(var(--mustard));
+    --cat-4: oklch(var(--paradise-pink));
+    --cat-5: oklch(var(--kiwi));
+    --cat-6: oklch(var(--cerulean-blue));
+    --cat-7: oklch(var(--neon-carrot));
+    --cat-8: oklch(var(--barbie-pink));
+    --cat-9: oklch(var(--tomato));
+    --cat-10: oklch(var(--slate-blue));
 
     --radius: 1.75rem;
   }

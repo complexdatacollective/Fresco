@@ -3,7 +3,6 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { useDispatch } from 'react-redux';
 import { reducer as form } from 'redux-form';
-import dialogs from '~/lib/interviewer/ducks/modules/dialogs';
 import protocol from '~/lib/interviewer/ducks/modules/protocol';
 import session from '~/lib/interviewer/ducks/modules/session';
 import ui from '~/lib/interviewer/ducks/modules/ui';
@@ -17,7 +16,6 @@ const rootReducer = combineReducers({
   form,
   session,
   protocol,
-  dialogs,
   ui, // don't do it - this is used for FORM_IS_READY
 });
 

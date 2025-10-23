@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { type ThunkDispatch } from 'redux-thunk';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
+import Button from '~/components/ui/Button';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import CollapsablePrompts from '~/lib/interviewer/components/CollapsablePrompts';
 import Node from '~/lib/interviewer/components/Node';
@@ -21,7 +22,6 @@ import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { type RootState } from '~/lib/interviewer/store';
 import { ActionButton } from '~/lib/ui/components';
-import Button from '~/lib/ui/components/Button';
 import { useMapbox } from './useMapbox';
 
 type NavDirection = 'forwards' | 'backwards';
@@ -272,7 +272,7 @@ export default function GeospatialInterface({
                 this is correct, please select the down arrow to proceed.
               </h2>
               <Button
-                size="small"
+                size="sm"
                 onClick={() => {
                   setLocationValue(null);
                 }}
@@ -315,8 +315,8 @@ export default function GeospatialInterface({
               <Node {...stageNodes[navState.activeIndex]!} />
             </motion.div>
             <Button
-              size="small"
-              color="navy-taupe"
+              size="sm"
+              color="primary"
               onClick={handleOutsideSelectableAreas}
               disabled={initialSelectionValue === 'outside-selectable-areas'}
             >

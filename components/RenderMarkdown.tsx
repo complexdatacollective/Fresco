@@ -1,11 +1,15 @@
 'use client';
 
-import * as React from 'react';
 import { useRender } from '@base-ui-components/react/use-render';
+import * as React from 'react';
 import ReactMarkdown, { type Options } from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import remarkGemoji from 'remark-gemoji';
+import { NativeLink } from './Link';
+import Heading from './typography/Heading';
+import Paragraph from './typography/Paragraph';
+import UnorderedList from './typography/UnorderedList';
 
 const ALLOWED_MARKDOWN_LABEL_TAGS = ['em', 'strong', 'ul', 'ol', 'li'];
 
@@ -25,16 +29,24 @@ const externalLinkRenderer = ({
   href,
   children,
 }: {
-  href?: string;
+  href: string;
   children?: React.ReactNode;
 }) => (
-  <a href={href} target="_blank" rel="noopener noreferrer">
+  <NativeLink href={href} target="_blank" rel="noopener noreferrer">
     {children}
-  </a>
+  </NativeLink>
 );
 
 const defaultMarkdownRenderers = {
   a: externalLinkRenderer,
+  h1: Heading,
+  h2: Heading,
+  h3: Heading,
+  h4: Heading,
+  h5: Heading,
+  h6: Heading,
+  p: Paragraph,
+  ul: UnorderedList,
 };
 
 type RenderMarkdownProps = Options & {

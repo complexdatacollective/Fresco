@@ -1,5 +1,6 @@
 import SmallScreenOverlay from '~/app/(interview)/interview/_components/SmallScreenOverlay';
 import '~/styles/interview.scss';
+import '~/styles/themes/interview.css';
 
 export const metadata = {
   title: 'Network Canvas Fresco - Interview',
@@ -8,7 +9,7 @@ export const metadata = {
 
 function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main className="flex h-[100vh] max-h-[100vh] flex-col bg-(--nc-background) text-(--nc-text)">
+    <main className="flex h-[100vh] max-h-[100vh] flex-col">
       <SmallScreenOverlay />
       {children}
     </main>
