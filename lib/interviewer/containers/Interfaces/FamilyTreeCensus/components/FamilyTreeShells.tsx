@@ -120,9 +120,15 @@ export const FamilyTreeShells = (props: {
                 node.diseases?.get(diseaseVariable)
               }
               handleClick={() => {
-                if (stepIndex === 0) return;
-                setSelectedNode(node);
-                if (node.interviewNetworkId && diseaseVariable) {
+                if (stepIndex === 0) {
+                  return;
+                } else if (stepIndex === 1) {
+                  setSelectedNode(node);
+                } else if (
+                  node.interviewNetworkId &&
+                  diseaseVariable &&
+                  !node.isEgo
+                ) {
                   const diseaseValue = !node.diseases?.get(diseaseVariable);
                   const diseaseData: Record<string, VariableValue> = {
                     [diseaseVariable]: diseaseValue,

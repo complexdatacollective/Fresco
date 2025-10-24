@@ -10,7 +10,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Form from '~/lib/form/components/Form';
 import { useProtocolFieldProcessor } from '~/lib/form/hooks/useProtocolFieldProcessor';
-import { type Node } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/store';
 import Overlay from '~/lib/interviewer/containers/Overlay';
 import {
   addNode as addNetworkNode,
@@ -44,29 +43,21 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
   const dispatch = useAppDispatch();
 
   const commitShellNode = useCallback(
-    (node: Node, attributes: NcNode[EntityAttributesProperty]) => {
+    (node: FamilyTreeNode, attributes: NcNode[EntityAttributesProperty]) => {
       if (!node) return;
-
-      const mergedAttributes: NcNode[EntityAttributesProperty] & {
-        isEgo?: boolean;
-      } = {
-        ...attributes,
-        isEgo: node.isEgo ?? false,
-        sex: node.sex,
-      };
 
       void dispatch(
         addNetworkNode({
           type: nodeType,
-          modelData: { [entityPrimaryKeyProperty]: node.id! },
-          attributeData: mergedAttributes,
+          modelData: { [entityPrimaryKeyProperty]: node.id },
+          attributeData: attributes,
         }),
       ).then(() => {
         if (node.id) {
           updateShellNode(node.id, {
             interviewNetworkId: node.id,
-            name: mergedAttributes.name as string,
-            fields: mergedAttributes,
+            name: attributes.name as string,
+            fields: attributes,
           });
         }
       });

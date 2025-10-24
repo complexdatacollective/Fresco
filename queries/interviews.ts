@@ -109,19 +109,6 @@ export const getInterviewById = async (interviewId: string) => {
           name: 'Person',
           iconVariant: 'add-a-person',
           variables: {
-            //TODO: sex and isEgo would have to be permanently embedded for this stage and not rely on researcher input
-            sex: {
-              name: 'Sex',
-              type: 'categorical',
-              options: [
-                { label: 'Male', value: 'male' },
-                { label: 'Female', value: 'female' },
-              ],
-            },
-            isEgo: {
-              name: 'isEgo',
-              type: 'boolean',
-            },
             name: {
               name: 'Name',
               type: 'text',
