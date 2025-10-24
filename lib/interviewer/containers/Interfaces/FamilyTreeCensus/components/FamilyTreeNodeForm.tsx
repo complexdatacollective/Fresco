@@ -17,7 +17,6 @@ import {
   updateNode as updateNetworkNode,
 } from '~/lib/interviewer/ducks/modules/session';
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
-import { getCurrentStage } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { Button, Scroller } from '~/lib/ui/components';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
@@ -43,30 +42,31 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
     (state) => state.getShellIdByNetworkId,
   );
   const dispatch = useAppDispatch();
-  const stage = useSelector(getCurrentStage);
-  const sexVariable = stage?.sexVariable as string | undefined;
 
   const commitShellNode = useCallback(
     (node: Node, attributes: NcNode[EntityAttributesProperty]) => {
       if (!node) return;
 
-      const attributeData = attributes;
-      if (sexVariable != null) {
-        attributeData[sexVariable] = node.sex;
-      }
+      const mergedAttributes: NcNode[EntityAttributesProperty] & {
+        isEgo?: boolean;
+      } = {
+        ...attributes,
+        isEgo: node.isEgo ?? false,
+        sex: node.sex,
+      };
 
       void dispatch(
         addNetworkNode({
           type: nodeType,
           modelData: { [entityPrimaryKeyProperty]: node.id! },
-          attributeData: attributes,
+          attributeData: mergedAttributes,
         }),
       ).then(() => {
         if (node.id) {
           updateShellNode(node.id, {
             interviewNetworkId: node.id,
-            name: attributes.name as string,
-            fields: attributes,
+            name: mergedAttributes.name as string,
+            fields: mergedAttributes,
           });
         }
       });

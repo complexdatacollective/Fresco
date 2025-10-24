@@ -85,12 +85,12 @@ type TreeSpacing = {
 };
 
 export const createFamilyTreeStore = (
-  initialNodes: Map<string, Omit<Node, "id">>,
-  initialEdges: Map<string, Omit<Edge, "id">>,
-  init: FamilyTreeState = initialState
+  initialNodes: Map<string, Omit<Node, 'id'>>,
+  initialEdges: Map<string, Omit<Edge, 'id'>>,
+  init: FamilyTreeState = initialState,
 ) => {
-  init.network.nodes = initialNodes
-  init.network.edges = initialEdges
+  init.network.nodes = initialNodes;
+  init.network.edges = initialEdges;
 
   return createStore<FamilyTreeStore>()(
     immer((set, get) => {
@@ -732,37 +732,49 @@ export const createFamilyTreeStore = (
           if (nodeId === egoId) {
             return 'ego';
           }
-          const egoPartnerId = getPartner(egoId)
+          const egoPartnerId = getPartner(egoId);
           if (nodeId === egoPartnerId) {
             return 'ego-partner';
           }
-          const egoParents = getParents(egoId)
-          const motherId = egoParents.find((id) => getNodeById(id)?.sex === 'female');
+          const egoParents = getParents(egoId);
+          const motherId = egoParents.find(
+            (id) => getNodeById(id)?.sex === 'female',
+          );
           if (nodeId === motherId) {
             return 'mother';
           }
           if (motherId) {
             const maternalGrandparents = getParents(motherId);
-            const maternalGrandmotherId = maternalGrandparents.find((id) => getNodeById(id)?.sex === 'female');
+            const maternalGrandmotherId = maternalGrandparents.find(
+              (id) => getNodeById(id)?.sex === 'female',
+            );
             if (nodeId === maternalGrandmotherId) {
               return 'maternal-grandmother';
             }
-            const maternalGrandfatherId = maternalGrandparents.find((id) => getNodeById(id)?.sex === 'male');
+            const maternalGrandfatherId = maternalGrandparents.find(
+              (id) => getNodeById(id)?.sex === 'male',
+            );
             if (nodeId === maternalGrandfatherId) {
               return 'maternal-grandfather';
             }
           }
-          const fatherId = egoParents.find((id) => getNodeById(id)?.sex === 'male');
+          const fatherId = egoParents.find(
+            (id) => getNodeById(id)?.sex === 'male',
+          );
           if (nodeId === fatherId) {
             return 'father';
           }
           if (fatherId) {
             const paternalGrandparents = getParents(fatherId);
-            const paternalGrandmotherId = paternalGrandparents.find((id) => getNodeById(id)?.sex === 'female');
+            const paternalGrandmotherId = paternalGrandparents.find(
+              (id) => getNodeById(id)?.sex === 'female',
+            );
             if (nodeId === paternalGrandmotherId) {
               return 'paternal-grandmother';
             }
-            const paternalGrandfatherId = paternalGrandparents.find((id) => getNodeById(id)?.sex === 'male');
+            const paternalGrandfatherId = paternalGrandparents.find(
+              (id) => getNodeById(id)?.sex === 'male',
+            );
             if (nodeId === paternalGrandfatherId) {
               return 'paternal-grandfather';
             }
@@ -783,34 +795,46 @@ export const createFamilyTreeStore = (
           if (relationship === 'ego-partner') {
             return getPartner(egoId);
           }
-          const egoParents = getParents(egoId)
-          if (relationship === 'mother' || (/maternal/.exec(relationship))) {
-            const motherId = egoParents.find((id) => getNodeById(id)?.sex === 'female');
+          const egoParents = getParents(egoId);
+          if (relationship === 'mother' || /maternal/.exec(relationship)) {
+            const motherId = egoParents.find(
+              (id) => getNodeById(id)?.sex === 'female',
+            );
             if (relationship === 'mother') {
               return motherId;
             }
             if (motherId) {
               const maternalGrandparents = getParents(motherId);
               if (relationship === 'maternal-grandmother') {
-                return maternalGrandparents.find((id) => getNodeById(id)?.sex === 'female');
+                return maternalGrandparents.find(
+                  (id) => getNodeById(id)?.sex === 'female',
+                );
               }
               if (relationship === 'maternal-grandfather') {
-                return maternalGrandparents.find((id) => getNodeById(id)?.sex === 'male');
+                return maternalGrandparents.find(
+                  (id) => getNodeById(id)?.sex === 'male',
+                );
               }
             }
           }
-          if (relationship === 'father' || (/paternal/.exec(relationship))) {
-            const fatherId = egoParents.find((id) => getNodeById(id)?.sex === 'male');
+          if (relationship === 'father' || /paternal/.exec(relationship)) {
+            const fatherId = egoParents.find(
+              (id) => getNodeById(id)?.sex === 'male',
+            );
             if (relationship === 'father') {
               return fatherId;
             }
             if (fatherId) {
               const paternalGrandparents = getParents(fatherId);
               if (relationship === 'paternal-grandmother') {
-                return paternalGrandparents.find((id) => getNodeById(id)?.sex === 'female');
+                return paternalGrandparents.find(
+                  (id) => getNodeById(id)?.sex === 'female',
+                );
               }
               if (relationship === 'paternal-grandfather') {
-                return paternalGrandparents.find((id) => getNodeById(id)?.sex === 'male');
+                return paternalGrandparents.find(
+                  (id) => getNodeById(id)?.sex === 'male',
+                );
               }
             }
           }
@@ -1199,7 +1223,8 @@ export const createFamilyTreeStore = (
 
         addPlaceholderNode: (relation: string, anchorRelation?: string) => {
           const store = get();
-          const { addNode, addEdge, network, getNodeIdFromRelationship } = store;
+          const { addNode, addEdge, network, getNodeIdFromRelationship } =
+            store;
 
           const inferSex = (relation: string): Sex => {
             if (
@@ -1301,7 +1326,10 @@ export const createFamilyTreeStore = (
           });
 
           const rel = relation.toLowerCase();
-          const anchorId = anchorRelation != null ? getNodeIdFromRelationship(anchorRelation) : null;
+          const anchorId =
+            anchorRelation != null
+              ? getNodeIdFromRelationship(anchorRelation)
+              : null;
 
           // half siblings
           if (rel.includes('half')) {

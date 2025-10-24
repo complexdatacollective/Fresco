@@ -8,11 +8,10 @@ import { useToast } from '~/components/ui/use-toast';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import { type StageProps } from '~/lib/interviewer/containers/Stage';
 import { addEdge } from '~/lib/interviewer/ducks/modules/session';
-import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
-import { getNodes } from '~/lib/interviewer/selectors/canvas';
 import {
   getNetworkEdges,
   getNetworkEgo,
+  getNetworkNodes,
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import Prompts from '~/lib/ui/components/Prompts/Prompts';
@@ -82,7 +81,7 @@ const getStageSteps = (
 const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const { registerBeforeNext, stage } = props;
 
-  const allNodes = usePropSelector(getNodes, props);
+  const allNodes = useSelector(getNetworkNodes);
   const dispatch = useAppDispatch();
   const edgesMap = useFamilyTreeStore((state) => state.network.edges);
   const edges = Array.from(
@@ -193,7 +192,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
 export default withNoSSRWrapper((props: FamilyTreeCensusProps) => {
   const ego = useSelector(getNetworkEgo);
-  const allNodes = usePropSelector(getNodes, props);
+  const allNodes = useSelector(getNetworkNodes);
   const allEdges = useSelector(getNetworkEdges);
   return (
     <FamilyTreeProvider ego={ego} nodes={allNodes} edges={allEdges}>

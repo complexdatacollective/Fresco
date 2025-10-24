@@ -105,7 +105,11 @@ export const FamilyTreeShells = (props: {
               name={node.name}
               label={node.label}
               isEgo={node.isEgo}
-              allowDrag={node.readOnly !== true && stepIndex < 2}
+              allowDrag={
+                node.readOnly !== true &&
+                stepIndex < 2 &&
+                !node.interviewNetworkId
+              }
               interviewNetworkId={node.interviewNetworkId}
               shape={node.sex === 'female' ? 'circle' : 'square'}
               x={node.x ?? 0}

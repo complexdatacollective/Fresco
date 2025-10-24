@@ -58,7 +58,7 @@ export default function FamilyTreeNode(props: {
     useClickUnlessDragged();
 
   const nodeColor = () => {
-    if (isEgo || interviewNetworkId)
+    if (interviewNetworkId)
       return {
         '--base': `var(--${nodeTypeColor})`,
         '--dark': `var(--${nodeTypeColor}-dark)`,

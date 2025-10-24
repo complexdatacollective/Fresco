@@ -22,39 +22,45 @@ export const FamilyTreeProvider = ({
   edges,
   children,
 }: {
-  ego: NcEgo | null,
-  nodes: NcNode[],
-  edges: NcEdge[],
+  ego: NcEgo | null;
+  nodes: NcNode[];
+  edges: NcEdge[];
   children: React.ReactNode;
 }) => {
   const storeRef = useRef<FamilyTreeStoreApi>();
 
-  const initialNodes = new Map<string, Omit<Node, "id">>(
-    nodes.map((node) => [node._uid, {
-                label: node.attributes.name,
-                sex: node.attributes.sex,
-                readOnly: false,
-                isEgo: false,
-                interviewNetworkId: node._uid,
-              }])
+  const initialNodes = new Map<string, Omit<Node, 'id'>>(
+    nodes.map((node) => [
+      node._uid,
+      {
+        label: node.attributes.name,
+        sex: node.attributes.sex,
+        readOnly: false,
+        isEgo: false,
+        interviewNetworkId: node._uid,
+      },
+    ]),
   );
   if (ego != null) {
     initialNodes.set(ego._uid, {
-      label: "You",
+      label: 'You',
       sex: ego.attributes.sex === 'male' ? 'male' : 'female',
-      readOnly: false,
+      readOnly: true,
       isEgo: true,
-      interviewNetworkId: ego._uid,
-    })
+      // interviewNetworkId: ego._uid,
+    });
   }
-  const relationshipVariable = useSelector(getRelationshipTypeVariable)
-  const initialEdges = new Map<string, Omit<Edge, "id">>(
-    edges.map((edge) => [edge._uid, {
-                relationship: edge.attributes[relationshipVariable],
-                source: edge.from,
-                target: edge.to,
-                interviewNetworkId: edge._uid,
-              }])
+  const relationshipVariable = useSelector(getRelationshipTypeVariable);
+  const initialEdges = new Map<string, Omit<Edge, 'id'>>(
+    edges.map((edge) => [
+      edge._uid,
+      {
+        relationship: edge.attributes[relationshipVariable],
+        source: edge.from,
+        target: edge.to,
+        interviewNetworkId: edge._uid,
+      },
+    ]),
   );
   storeRef.current ??= createFamilyTreeStore(initialNodes, initialEdges);
 
