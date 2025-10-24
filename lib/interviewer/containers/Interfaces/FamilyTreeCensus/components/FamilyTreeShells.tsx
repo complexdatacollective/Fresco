@@ -27,9 +27,7 @@ export const FamilyTreeShells = (props: {
   const getShellIdByNetworkId = useFamilyTreeStore(
     (state) => state.getShellIdByNetworkId,
   );
-  const runLayout = useFamilyTreeStore(
-    (state) => state.runLayout,
-  );
+  const runLayout = useFamilyTreeStore((state) => state.runLayout);
   const existingNodes = networkNodes.length > 0;
   if (existingNodes) {
     runLayout();
@@ -107,7 +105,7 @@ export const FamilyTreeShells = (props: {
               name={node.name}
               label={node.label}
               isEgo={node.isEgo}
-              allowDrag={node.readOnly !== true && stepIndex === 0}
+              allowDrag={node.readOnly !== true && stepIndex < 2}
               interviewNetworkId={node.interviewNetworkId}
               shape={node.sex === 'female' ? 'circle' : 'square'}
               x={node.x ?? 0}

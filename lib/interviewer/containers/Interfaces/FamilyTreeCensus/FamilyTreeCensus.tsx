@@ -3,12 +3,17 @@ import { type NcNode } from '@codaco/shared-consts';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useSelector } from 'react-redux';
+import { Toaster } from '~/components/ui/toaster';
+import { useToast } from '~/components/ui/use-toast';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import { type StageProps } from '~/lib/interviewer/containers/Stage';
 import { addEdge } from '~/lib/interviewer/ducks/modules/session';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import { getNodes } from '~/lib/interviewer/selectors/canvas';
-import { getNetworkEdges, getNetworkEgo } from '~/lib/interviewer/selectors/session';
+import {
+  getNetworkEdges,
+  getNetworkEgo,
+} from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import Prompts from '~/lib/ui/components/Prompts/Prompts';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
@@ -84,7 +89,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     edgesMap.entries().map(([id, edge]) => ({ id, ...edge })),
   );
   const edgeType = useSelector(getEdgeType);
-  const relationshipVariable = useSelector(getRelationshipTypeVariable)
+  const relationshipVariable = useSelector(getRelationshipTypeVariable);
   const saveEdges = () => {
     edges.forEach((edge) => {
       void dispatch(
@@ -92,7 +97,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           from: edge.source,
           to: edge.target,
           type: edgeType,
-          attributeData: { [relationshipVariable]: edge.relationship }
+          attributeData: { [relationshipVariable]: edge.relationship },
         }),
       );
     });
@@ -101,6 +106,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const missingNames = () => {
     return nodesMap.values().some((value) => value.interviewNetworkId == null);
   };
+  const { toast } = useToast();
 
   /**
    * Steps:
@@ -116,6 +122,12 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     if (direction === 'forwards') {
       const isNameGenerationStep = currentStepIndex === 1;
       if (isNameGenerationStep && missingNames()) {
+        toast({
+          title: 'Error',
+          description:
+            'Please enter information for all nodes in the tree before continuing.',
+          variant: 'destructive',
+        });
         return false;
       }
       const isLastStep = currentStepIndex === steps.size - 1;
@@ -180,11 +192,13 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 };
 
 export default withNoSSRWrapper((props: FamilyTreeCensusProps) => {
-  const ego = useSelector(getNetworkEgo)
+  const ego = useSelector(getNetworkEgo);
   const allNodes = usePropSelector(getNodes, props);
   const allEdges = useSelector(getNetworkEdges);
   return (
-  <FamilyTreeProvider ego={ego} nodes={allNodes} edges={allEdges}>
-    <FamilyTreeCensus {...props} />
-  </FamilyTreeProvider>
-) });
+    <FamilyTreeProvider ego={ego} nodes={allNodes} edges={allEdges}>
+      <FamilyTreeCensus {...props} />
+      <Toaster />
+    </FamilyTreeProvider>
+  );
+});

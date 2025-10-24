@@ -136,7 +136,7 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
       setShow(false);
       onClose();
     },
-    [selectedNode, newNodeAttributes, commitShellNode, onClose, updateNode],
+    [selectedNode, onClose, updateNode, newNodeAttributes, commitShellNode],
   );
 
   // When a selected node is passed in, we are editing an existing node.
