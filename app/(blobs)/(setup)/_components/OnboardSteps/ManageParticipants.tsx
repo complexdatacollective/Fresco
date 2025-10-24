@@ -16,7 +16,7 @@ function ManageParticipants({
   return (
     <div className="max-w-[30rem]">
       <div className="mb-6">
-        <Heading variant="h2">Configure Participation</Heading>
+        <Heading level="h2">Configure Participation</Heading>
         <Paragraph>
           You can now optionally upload a CSV file containing the details of
           participants you wish to recruit for your study. You can also choose

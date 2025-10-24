@@ -44,15 +44,29 @@ export const getCurrentStage = createSelector(
 );
 
 export const getStageSubject = createSelector(getCurrentStage, (stage) => {
-  if (!stage) {
-    return null;
+  invariant(stage, 'getStageSubject: No current stage found');
+
+  /**
+   * TODO: Schema 8 added a subject for ego stages, but didnt add it to the
+   * stages themselves. Right now, we can make the assumption that if a stage
+   * doesn't have a subject, it's an ego stage, but this should be formalized.
+   *
+   * https://github.com/complexdatacollective/network-canvas-monorepo/blob/main/packages/protocol-validation/src/schemas/8/common/subjects.ts#L18C1-L22C12
+   */
+
+  if (stage.type === 'Information' || stage.type === 'Anonymisation') {
+    throw new Error(
+      `getStageSubject: Stage type "${stage.type}" does not have a subject`,
+    );
   }
 
-  if ('subject' in stage) {
-    return stage.subject;
+  if (stage.type === 'EgoForm') {
+    return {
+      entity: 'ego',
+    };
   }
 
-  return null;
+  return stage.subject;
 });
 
 export const getSubjectType = createSelector(getStageSubject, (subject) => {
@@ -267,10 +281,7 @@ export const getNodeColorSelector = createSelector(
       return 'node-color-seq-1';
     }
 
-    return (
-      (codebook.node?.[nodeType]?.color as NodeColorSequence) ??
-      'node-color-seq-1'
-    );
+    return codebook.node?.[nodeType]?.color! ?? 'node-color-seq-1';
   },
 );
 

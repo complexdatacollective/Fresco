@@ -1,91 +1,58 @@
 'use client';
 
-import cx from 'classnames';
-import { useEffect, useId } from 'react';
-import { useFieldContext } from '~/lib/form/utils/formContexts';
-import Icon from '~/lib/ui/components/Icon';
-import MarkdownLabel from './MarkdownLabel';
+import * as Switch from '@radix-ui/react-switch';
+import { type InputHTMLAttributes } from 'react';
+import { cx } from '~/utils/cva';
 
-type ToggleProps = {
-  label?: string;
-  fieldLabel?: string;
-  className?: string;
-  disabled?: boolean;
-  title?: string;
+const toggleStyles = cx(
+  'relative inline-flex h-6 w-12 items-center rounded-full',
+  'bg-input-contrast/10 border-input-contrast/20',
+  'transition-colors duration-300 ease-in-out',
+  'focusable',
+  'disabled:cursor-not-allowed disabled:opacity-50',
+  'data-[state=checked]:bg-accent',
+  'shadow-inner',
+);
+
+const toggleThumbStyles = cx(
+  'pointer-events-none block h-5 w-5 absolute left-0.5 rounded-full bg-input shadow-sm',
+  'transition-transform duration-300 ease-in-out',
+  'data-[state=checked]:translate-x-6',
+);
+
+type ToggleFieldProps = Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  'type' | 'onChange' | 'value'
+> & {
+  value?: boolean;
+  onChange?: (value: boolean) => void;
 };
 
-const Toggle = ({
-  label,
-  fieldLabel,
-  className = '',
-  disabled = false,
-  title,
-  ...rest
-}: ToggleProps) => {
-  const fieldContext = useFieldContext();
-  // Use React's useId hook to generate a stable ID
-  const id = useId();
-
-  // Handle the initial value setup
-  useEffect(() => {
-    // Because redux forms will just not pass on this
-    // field if it was never touched and we need it to
-    // return `false`.
-    if (typeof fieldContext.state.value !== 'boolean') {
-      fieldContext.handleChange(false);
-    }
-  }, [fieldContext]);
-
-  const hasError =
-    !fieldContext.state.meta.isValid &&
-    fieldContext.state.meta.isTouched &&
-    fieldContext.state.meta.errors?.[0] !== undefined;
-
-  const containerClassNames = cx('form-field-container', {
-    'form-field-toggle--has-error': hasError,
-  });
-
-  const componentClasses = cx('form-field', 'form-field-toggle', className, {
-    'form-field-toggle--disabled': disabled,
-    'form-field-toggle--has-error': hasError,
-  });
-
+export function ToggleField({
+  className,
+  value = false,
+  onChange,
+  disabled,
+  ...inputProps
+}: ToggleFieldProps) {
   return (
-    <div className={containerClassNames} data-name={fieldContext.name}>
-      {fieldLabel && <MarkdownLabel label={fieldLabel} />}
-      <label className={componentClasses} htmlFor={id} title={title}>
-        <input
-          className="form-field-toggle__input"
-          id={id}
-          {...rest}
-          name={fieldContext.name}
-          value={fieldContext.state.value as string}
-          checked={!!fieldContext.state.value}
-          onChange={(e) => fieldContext.handleChange(e.target.checked)}
-          onBlur={() => fieldContext.handleBlur()}
-          disabled={disabled}
-          type="checkbox"
-        />
-        <div className="form-field-toggle__toggle">
-          <span className="form-field-toggle__button" />
-        </div>
-        {label && (
-          <MarkdownLabel
-            inline
-            label={label}
-            className="form-field-inline-label"
-          />
-        )}
-      </label>
-      {!fieldContext.state.meta.isValid &&
-        fieldContext.state.meta.isTouched && (
-          <div className="form-field-toggle__error">
-            <Icon name="warning" />
-            {fieldContext.state.meta.errors?.[0]}
-          </div>
-        )}
-    </div>
+    <Switch.Root
+      checked={value}
+      onCheckedChange={onChange}
+      disabled={disabled}
+      className={cx(toggleStyles, className)}
+    >
+      <Switch.Thumb className={toggleThumbStyles} />
+      <input
+        type="checkbox"
+        aria-hidden="true"
+        tabIndex={-1}
+        checked={value}
+        disabled={disabled}
+        readOnly
+        className="pointer-events-none absolute m-0 opacity-0"
+        {...inputProps}
+      />
+    </Switch.Root>
   );
-};
-
-export default Toggle;
+}

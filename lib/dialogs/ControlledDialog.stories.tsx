@@ -1,6 +1,6 @@
-import { type Meta, type StoryObj } from '@storybook/react';
-import { ControlledDialog } from './ControlledDialog';
+import { type Meta, type StoryObj } from '@storybook/nextjs-vite';
 import Paragraph from '~/components/typography/Paragraph';
+import { ControlledDialog } from './ControlledDialog';
 
 const meta: Meta<typeof ControlledDialog> = {
   title: 'Systems/Dialogs/ControlledDialog',

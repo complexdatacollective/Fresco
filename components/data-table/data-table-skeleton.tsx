@@ -27,7 +27,7 @@ export function DataTableSkeleton({
         <div className="flex flex-1 items-center space-x-2">
           {searchableColumnCount > 0
             ? Array.from({ length: searchableColumnCount }).map((_, i) => (
-                <Skeleton key={i} className="h-7 w-[150px] lg:w-[250px]" />
+                <Skeleton key={i} className="laptop:w-[250px] h-7 w-[150px]" />
               ))
             : null}
           {filterableColumnCount > 0
@@ -36,7 +36,7 @@ export function DataTableSkeleton({
               ))
             : null}
         </div>
-        {/* <Skeleton className="ml-auto hidden h-7 w-[70px] lg:flex" /> */}
+        {/* <Skeleton className="ml-auto hidden h-7 w-[70px] laptop:flex" /> */}
       </div>
       <Table>
         <TableHeader>
@@ -62,11 +62,11 @@ export function DataTableSkeleton({
           ))}
         </TableBody>
       </Table>
-      <div className="flex w-full flex-col items-center justify-between gap-4 overflow-auto px-2 py-1 sm:flex-row sm:gap-8">
+      <div className="tablet:flex-row tablet:gap-8 flex w-full flex-col items-center justify-between gap-4 overflow-auto px-2 py-1">
         <div className="flex-1">
           <Skeleton className="h-8 w-40" />
         </div>
-        <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
+        <div className="tablet:flex-row tablet:gap-6 laptop:gap-8 flex flex-col items-center gap-4">
           <div className="flex items-center space-x-2">
             <Skeleton className="h-8 w-24" />
             <Skeleton className="h-8 w-[70px]" />
@@ -75,10 +75,10 @@ export function DataTableSkeleton({
             <Skeleton className="h-8 w-20" />
           </div>
           <div className="flex items-center space-x-2">
-            <Skeleton className="hidden size-8 lg:block" />
+            <Skeleton className="laptop:block hidden size-8" />
             <Skeleton className="size-8" />
             <Skeleton className="size-8" />
-            <Skeleton className="hidden size-8 lg:block" />
+            <Skeleton className="laptop:block hidden size-8" />
           </div>
         </div>
       </div>

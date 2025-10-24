@@ -1,5 +1,7 @@
+@use '../mixins';
+
 .categorical-bin-interface {
-  @include interface-centering;
+  @include mixins.interface-centering;
 
   --categorical-bucket-basis: 8rem;
   --categorical-padding-top: 1rem;
@@ -13,7 +15,7 @@
   flex-direction: column;
 
   &__prompt {
-    @include interface-prompt;
+    @include mixins.interface-prompt;
   }
 
   &__bucket {

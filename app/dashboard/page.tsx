@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
-import Section from '~/components/layout/Section';
 import Heading from '~/components/typography/Heading';
 import PageHeader from '~/components/typography/PageHeader';
 import Paragraph from '~/components/typography/Paragraph';
@@ -39,16 +38,14 @@ export default async function Home({
       <SummaryStatistics />
 
       <ResponsiveContainer>
-        <Heading variant="h2">Recent Activity</Heading>
+        <Heading level="h2">Recent Activity</Heading>
         <Paragraph>
           This table summarizes the most recent activity within Fresco. Use it
           to keep track of new protocols, interviews, and participants.
         </Paragraph>
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="6xl">
-        <Section>
-          <ActivityFeed />
-        </Section>
+        <ActivityFeed />
       </ResponsiveContainer>
     </>
   );

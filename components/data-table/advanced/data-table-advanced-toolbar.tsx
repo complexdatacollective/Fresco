@@ -11,7 +11,7 @@ import type {
   DataTableSearchableColumn,
 } from '~/components/DataTable/types';
 import { Button } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
+import { InputField } from '~/lib/form/components/fields/Input';
 
 type DataTableAdvancedToolbarProps<TData> = {
   dataTable: Table<TData>;
@@ -60,7 +60,7 @@ export function DataTableAdvancedToolbar<TData>({
             searchableColumns.map(
               (column) =>
                 dataTable.getColumn(column.id ? String(column.id) : '') && (
-                  <Input
+                  <InputField
                     name="filter"
                     key={String(column.id)}
                     placeholder={`Filter ${column.title}...`}
@@ -74,7 +74,7 @@ export function DataTableAdvancedToolbar<TData>({
                         .getColumn(String(column.id))
                         ?.setFilterValue(event.target.value)
                     }
-                    className="mt-0 h-8 w-[150px] lg:w-[250px]"
+                    className="laptop:w-[250px] mt-0 h-8 w-[150px]"
                   />
                 ),
             )}

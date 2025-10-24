@@ -18,6 +18,7 @@ import type {
   DataTableFilterableColumn,
   DataTableSearchableColumn,
 } from '~/components/DataTable/types';
+import Surface from '../layout/Surface';
 import { DataTableAdvancedToolbar } from './advanced/data-table-advanced-toolbar';
 import { DataTableFloatingBar } from './data-table-floating-bar';
 import { DataTablePagination } from './data-table-pagination';
@@ -88,7 +89,7 @@ export function DataTable<TData, TValue>({
   deleteRowsAction,
 }: DataTableProps<TData, TValue>) {
   return (
-    <>
+    <Surface>
       {advancedFilter ? (
         <DataTableAdvancedToolbar
           dataTable={dataTable}
@@ -153,6 +154,6 @@ export function DataTable<TData, TValue>({
           </DataTableFloatingBar>
         ) : null}
       </div>
-    </>
+    </Surface>
   );
 }

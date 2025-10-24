@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertCircle, FileDown, Loader2 } from 'lucide-react';
+import { FileDown, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ZodError } from 'zod';
@@ -9,16 +9,8 @@ import Paragraph from '~/components/typography/Paragraph';
 import UnorderedList from '~/components/typography/UnorderedList';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '~/components/ui/dialog';
 import { useToast } from '~/components/ui/use-toast';
+import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
 import { FormSchema } from '~/schemas/participant';
 import DropzoneField from './DropzoneField';
 
@@ -83,8 +75,8 @@ const ImportCSVModal = ({
       if (e instanceof ZodError) {
         toast({
           title: 'Error',
-          description: e.errors[0]
-            ? `Invalid CSV File: ${e.errors[0].message}`
+          description: e.issues[0]
+            ? `Invalid CSV File: ${e.issues[0].message}`
             : 'Invalid CSV file. Please check the file requirements and try again.',
           variant: 'destructive',
         });
@@ -102,75 +94,66 @@ const ImportCSVModal = ({
 
   return (
     <>
-      <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
-        <DialogTrigger asChild>
-          <Button className="w-full">
-            <FileDown className="mr-2 h-4 w-4" />
-            Import participants
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="max-w-xl">
-          <DialogHeader>
-            <DialogTitle>Import participants</DialogTitle>
-            <DialogDescription>
-              <Alert variant="info" className="my-4">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>CSV file requirements</AlertTitle>
-                <AlertDescription>
-                  <Paragraph>
-                    Your CSV file can contain the following columns:
-                  </Paragraph>
-                  <UnorderedList>
-                    <li>
-                      identifier - must be a unique string, and{' '}
-                      <strong>should not</strong> be easy to guess. Used to
-                      generate the onboarding URL to allow integration with
-                      other survey tools.
-                    </li>
-                    <li>
-                      label - can be any text or number. Used to provide a human
-                      readable label for the participant.
-                    </li>
-                  </UnorderedList>
-                  <Paragraph>
-                    Either an identifier column or a label column{' '}
-                    <strong>must be provided</strong> for each participant.
-                  </Paragraph>
-                  <Paragraph>
-                    Note: The identifier and label column headers must be
-                    lowercase.
-                  </Paragraph>
-                </AlertDescription>
-              </Alert>
-            </DialogDescription>
-          </DialogHeader>
-          <form
-            id="uploadFile"
-            onSubmit={handleSubmit(async (data) => await onSubmit(data))}
-            className="flex flex-col"
-          >
-            <DropzoneField control={control} name="csvFile" />
-          </form>
-          <DialogFooter>
-            <Button
-              onClick={() => setShowImportDialog(false)}
-              variant="outline"
-            >
-              Cancel
-            </Button>
+      <Button className="w-full" onClick={() => setShowImportDialog(true)}>
+        <FileDown className="mr-2 h-4 w-4" />
+        Import participants
+      </Button>
+
+      <ControlledDialog
+        open={showImportDialog}
+        closeDialog={() => setShowImportDialog(false)}
+        title="Import participants"
+        footer={
+          <>
+            <Button onClick={() => setShowImportDialog(false)}>Cancel</Button>
             <Button
               disabled={isSubmitting || !isValid}
               form="uploadFile"
               type="submit"
+              color="primary"
             >
               {isSubmitting && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
               {isSubmitting ? 'Importing...' : 'Import'}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </>
+        }
+      >
+        <Alert variant="info" className="m-0">
+          <AlertTitle>CSV file requirements</AlertTitle>
+          <AlertDescription>
+            <Paragraph>
+              Your CSV file can contain the following columns:
+            </Paragraph>
+            <UnorderedList>
+              <li>
+                identifier - must be a unique string, and{' '}
+                <strong>should not</strong> be easy to guess. Used to generate
+                the onboarding URL to allow integration with other survey tools.
+              </li>
+              <li>
+                label - can be any text or number. Used to provide a human
+                readable label for the participant.
+              </li>
+            </UnorderedList>
+            <Paragraph>
+              Either an identifier column or a label column{' '}
+              <strong>must be provided</strong> for each participant.
+            </Paragraph>
+            <Paragraph>
+              Note: The identifier and label column headers must be lowercase.
+            </Paragraph>
+          </AlertDescription>
+        </Alert>
+        <form
+          id="uploadFile"
+          onSubmit={handleSubmit(async (data) => await onSubmit(data))}
+          className="mt-4 flex w-full flex-col"
+        >
+          <DropzoneField control={control} name="csvFile" />
+        </form>
+      </ControlledDialog>
     </>
   );
 };

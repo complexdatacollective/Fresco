@@ -1,38 +1,37 @@
 'use client';
 
-import { cva, type VariantProps } from 'class-variance-authority';
-import React from 'react';
-import { cn } from '~/utils/shadcn';
 import { Slot } from '@radix-ui/react-slot';
+import React from 'react';
+import { cva, cx, type VariantProps } from '~/utils/cva';
 
-export const headingVariants = cva('text-balance', {
+export const headingVariants = cva({
+  base: 'text-balance font-heading',
   variants: {
+    level: {
+      h1: 'scroll-m-20 text-3xl',
+      h2: 'scroll-m-20 text-2xl',
+      h3: 'scroll-m-20 text-xl font-semibold',
+      h4: 'scroll-m-20 text-lg font-semibold',
+    },
     variant: {
-      'h1': 'scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl',
-      'h2': 'scroll-m-20 text-3xl font-semibold tracking-tight',
-      'h3': 'scroll-m-20 text-2xl font-semibold tracking-tight',
-      'h4': 'scroll-m-20 text-xl font-semibold tracking-tight',
-      'h4-all-caps':
-        'scroll-m-20 text-sm font-extrabold tracking-widest uppercase',
-      'label':
-        'scroll-m-20 text-sm font-extrabold tracking-normal peer-disabled:opacity-70 peer-disabled:cursor-not-allowed',
+      'default': '',
+      'all-caps': 'uppercase tracking-widest',
+      'page-heading': 'text-4xl',
+    },
+    margin: {
+      default: 'not-last:mb-1.5 not-first:mt-4',
+      none: 'mb-0',
     },
   },
+  defaultVariants: {
+    level: 'h2',
+    variant: 'default',
+    margin: 'default',
+  },
+  compoundVariants: [
+    { level: 'h4', variant: 'all-caps', className: 'font-bold text-base' },
+  ],
 });
-
-type VariantPropType = VariantProps<typeof headingVariants>;
-
-const variantElementMap: Record<
-  NonNullable<VariantPropType['variant']>,
-  string
-> = {
-  'h1': 'h1',
-  'h2': 'h2',
-  'h3': 'h3',
-  'h4': 'h4',
-  'h4-all-caps': 'h4',
-  'label': 'label',
-};
 
 type HeadingProps = {
   asChild?: boolean;
@@ -41,13 +40,11 @@ type HeadingProps = {
   VariantProps<typeof headingVariants>;
 
 const Heading = React.forwardRef<HTMLElement, HeadingProps>(
-  ({ className, variant, as, asChild, ...props }, ref) => {
-    const Comp = asChild
-      ? Slot
-      : (as ?? (variant ? variantElementMap[variant] : undefined) ?? 'div');
+  ({ className, variant, level, margin, as, asChild, ...props }, ref) => {
+    const Comp = asChild ? Slot : (as ?? level ?? 'div');
     return (
       <Comp
-        className={cn(headingVariants({ variant, className }))}
+        className={cx(headingVariants({ variant, level, margin, className }))}
         ref={ref}
         {...props}
       />

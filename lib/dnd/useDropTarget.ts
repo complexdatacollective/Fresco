@@ -327,10 +327,6 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
         'data-zone-id': dropIdRef.current,
         // Only make drop zones focusable when keyboard dragging is active
         'tabIndex': isDragging ? 0 : -1,
-        'style': {
-          // Only include minimal styles for accessibility
-          position: 'relative',
-        },
       } as const,
       // Source zone should not show any drag styling
       isOver: isSourceZone ? false : isOver,

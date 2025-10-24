@@ -10,7 +10,7 @@ import { PROTOCOL_EXTENSION } from '~/fresco.config';
 import usePortal from '~/hooks/usePortal';
 import { useProtocolImport } from '~/hooks/useProtocolImport';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
 function ProtocolUploader({
   className,
@@ -55,9 +55,9 @@ function ProtocolUploader({
         onClick={open}
         variant={buttonVariant}
         size={buttonSize}
-        className={cn(
+        className={cx(
           isActive &&
-            cn(
+            cx(
               'from-cyber-grape via-neon-coral to-cyber-grape bg-linear-to-r text-white',
               'animate-background-gradient pointer-events-none cursor-wait bg-[length:400%]',
             ),
@@ -78,10 +78,7 @@ function ProtocolUploader({
         </Button>
       )}
       <Portal>
-        <motion.div
-          layout
-          className="text-md fixed right-6 bottom-4 z-10 w-[400px]"
-        >
+        <motion.div layout className="fixed right-6 bottom-4 z-10 w-[400px]">
           <motion.ul className="relative flex flex-col-reverse gap-2" layout>
             <AnimatePresence mode="popLayout">
               {jobs.map((job, index) => (

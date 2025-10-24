@@ -5,14 +5,6 @@ import { use, useEffect, useState } from 'react';
 import superjson from 'superjson';
 import { Button } from '~/components/ui/Button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog';
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -20,6 +12,7 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 import { Skeleton } from '~/components/ui/skeleton';
+import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import type {
   GetProtocolsQuery,
@@ -73,45 +66,13 @@ export const GenerateInterviewURLs = ({
         <FileUp className="mr-2 inline-block h-4 w-4" />
         Export Incomplete Interview URLs
       </Button>
-      <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Generate Incomplete Interview URLs</DialogTitle>
-            <DialogDescription>
-              Generate a CSV that contains unique interview URLs for all{' '}
-              <strong>incomplete interviews </strong> by protocol. These URLs
-              can be shared with participants to allow them to finish their
-              interviews.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col items-center justify-end gap-4">
-            {!protocols ? (
-              <Skeleton className="rounded-input h-10 w-full" />
-            ) : (
-              <Select
-                onValueChange={(value) => {
-                  const protocol = protocols.find(
-                    (protocol) => protocol.id === value,
-                  );
-
-                  setSelectedProtocol(protocol);
-                }}
-                value={selectedProtocol?.id}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a Protocol..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {protocols?.map((protocol) => (
-                    <SelectItem key={protocol.id} value={protocol.id}>
-                      {protocol.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
-          <DialogFooter>
+      <ControlledDialog
+        open={open}
+        closeDialog={handleOpenChange}
+        title="Generate URLs for Incomplete Interviews"
+        description="Generate a CSV that contains unique interview URLs for all incomplete interviews by protocol."
+        footer={
+          <>
             <Button onClick={handleOpenChange} variant="outline">
               Cancel
             </Button>
@@ -119,9 +80,37 @@ export const GenerateInterviewURLs = ({
               protocol={selectedProtocol}
               interviews={interviewsToExport}
             />
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </>
+        }
+      >
+        <div className="flex flex-col items-center justify-end gap-4">
+          {!protocols ? (
+            <Skeleton className="rounded-input h-10 w-full" />
+          ) : (
+            <Select
+              onValueChange={(value) => {
+                const protocol = protocols.find(
+                  (protocol) => protocol.id === value,
+                );
+
+                setSelectedProtocol(protocol);
+              }}
+              value={selectedProtocol?.id}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a Protocol..." />
+              </SelectTrigger>
+              <SelectContent>
+                {protocols?.map((protocol) => (
+                  <SelectItem key={protocol.id} value={protocol.id}>
+                    {protocol.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+      </ControlledDialog>
     </>
   );
 };

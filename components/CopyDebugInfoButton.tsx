@@ -1,9 +1,9 @@
 'use client';
 
-import { cn } from '~/utils/shadcn';
-import { useToast } from './ui/use-toast';
 import { Check, ClipboardCopy } from 'lucide-react';
+import { cx } from '~/utils/cva';
 import { Button } from './ui/Button';
+import { useToast } from './ui/use-toast';
 
 export default function CopyDebugInfoButton({
   debugInfo,
@@ -32,8 +32,8 @@ export default function CopyDebugInfoButton({
   return (
     <Button
       onClick={copyDebugInfoToClipboard}
-      className={cn(
-        // 'h-auto w-auto rounded-md border border-platinum-dark bg-transparent p-1 text-primary/70 transition-all',
+      className={cx(
+        // 'h-auto w-auto rounded border border-platinum-dark bg-transparent p-1 text-primary/70 transition-all',
         // 'hover:bg-transparent hover:text-primary/100',
         className,
       )}

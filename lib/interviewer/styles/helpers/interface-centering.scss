@@ -1,0 +1,7 @@
+// Interface centering helper
+@use '../mixins';
+
+// Re-export interface-centering mixin for easy access
+@mixin interface-centering {
+  @include mixins.interface-centering;
+}

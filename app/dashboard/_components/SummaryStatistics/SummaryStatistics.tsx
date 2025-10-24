@@ -11,10 +11,10 @@ export default function SummaryStatistics() {
 
   return (
     <ResponsiveContainer
-      className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:gap-6"
+      className="tablet:grid-cols-3 desktop:gap-6 grid grid-cols-1 gap-4"
       maxWidth="6xl"
     >
-      <Link href="/dashboard/protocols">
+      <Link className="@container" href="/dashboard/protocols">
         <Suspense
           fallback={
             <StatCardSkeleton title="Protocols" icon={<ProtocolIcon />} />
@@ -28,7 +28,7 @@ export default function SummaryStatistics() {
           />
         </Suspense>
       </Link>
-      <Link href="/dashboard/participants">
+      <Link className="@container" href="/dashboard/participants">
         <Suspense
           fallback={
             <StatCardSkeleton
@@ -61,7 +61,7 @@ export default function SummaryStatistics() {
           />
         </Suspense>
       </Link>
-      <Link href="/dashboard/interviews">
+      <Link className="@container" href="/dashboard/interviews">
         <Suspense
           fallback={
             <StatCardSkeleton title="Interviews" icon={<InterviewIcon />} />
@@ -81,7 +81,7 @@ export default function SummaryStatistics() {
 
 export const SummaryStatisticsSkeleton = () => (
   <ResponsiveContainer
-    className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:gap-6"
+    className="tablet:grid-cols-3 laptop:gap-6 grid grid-cols-1 gap-4"
     maxWidth="6xl"
   >
     <StatCardSkeleton title="Protocols" icon={<ProtocolIcon />} />
