@@ -40,7 +40,7 @@
     calc(-0.0075em + 0.0125vw),
     -0.01em
   );
-  --text-lg--font-weight: 600;
+  --text-lg--font-weight: 500;
 
   /* Level 2: xl */
   --text-xl: clamp(1.266rem, calc(1.141rem + 0.625vw), 1.563rem);
@@ -50,7 +50,7 @@
     calc(-0.0125em + 0.0125vw),
     -0.015em
   );
-  --text-xl--font-weight: 600;
+  --text-xl--font-weight: 500;
 
   /* Level 3: 2xl */
   --text-2xl: clamp(1.424rem, calc(1.174rem + 1.25vw), 1.953rem);
@@ -82,6 +82,12 @@
   );
   --text-4xl--font-weight: 700;
 
+  --font-*: initial;
+
+  --font-body: var(--body-font, 'Open Sans', sans-serif);
+  --font-heading: var(--heading-font, 'Open Sans', sans-serif);
+  --font-monospace: 'Fira Code', monospace;
+
   /*****************************************************************************
   *                               COLORS
   *****************************************************************************/
@@ -98,6 +104,9 @@
 
   --color-primary: var(--primary);
   --color-primary-contrast: var(--primary-contrast);
+
+  --color-neutral: var(--neutral);
+  --color-neutral-contrast: var(--neutral-contrast);
 
   --color-accent: var(--accent);
   --color-accent-contrast: var(--accent-contrast);
@@ -255,7 +264,7 @@
     Spacing
   */
   --spacing-*: initial;
-  --spacing: 0.33em;
+  --spacing: var(--spacing-base);
 
   /*
     Breakpoints/Containers
@@ -413,8 +422,7 @@
   }
 
   body {
-    @apply bg-background text-text bg-scope;
-    font-family: 'Open Sans', sans-serif;
+    @apply bg-background text-text bg-scope font-body;
     position: relative; /* https://base-ui.com/react/overview/quick-start#ios-26-safari */
   }
 

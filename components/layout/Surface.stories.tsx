@@ -11,7 +11,7 @@ const meta: Meta<typeof Surface> = {
     level: {
       control: {
         type: 'select',
-        options: [0, 1, 2, 3, 4],
+        options: [0, 1, 2, 3, 'popover'],
       },
       description: 'Defines the background and foreground levels.',
       defaultValue: 1,
@@ -57,7 +57,7 @@ export default meta;
 // Surface with Different Levels
 export const DifferentLevels: StoryFn<typeof Surface> = () => (
   <div className="space-y-4">
-    {[0, 1, 2, 3, 4].map((level) => (
+    {[0, 1, 2, 3, 'popover'].map((level) => (
       <Surface
         key={level}
         level={level as SurfaceVariants['level']}
@@ -105,7 +105,7 @@ export const AsDifferentElements: StoryFn<typeof Surface> = () => (
 
 // Surface with Additional Class Names
 export const WithAdditionalClassName: StoryFn<typeof Surface> = () => (
-  <Surface level={1} spacing="md" className="border-danger border-2">
+  <Surface level={1} spacing="md" className="border-destructive border-2">
     Surface with additional border classes
   </Surface>
 );
@@ -137,8 +137,8 @@ export const NestedSurfaces: StoryFn<typeof Surface> = () => (
           <Surface level={3} className="mt-4 flex flex-col space-y-4">
             This is Surface Level 3
             <Button color="default">Default Button</Button>
-            <Surface level={4} className="mt-4 flex flex-col space-y-4">
-              This is Surface Level 4
+            <Surface level="popover" className="mt-4 flex flex-col space-y-4">
+              This is Surface Level Popover
               <Button color="default">Default Button</Button>
             </Surface>
           </Surface>

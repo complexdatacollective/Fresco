@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
+
 /*
   Default theme for the application.
   Uses a purple hue as the base color.
@@ -6,6 +9,10 @@
 
 @layer theme {
   :root {
+    --heading-font: 'Quicksand', sans-serif;
+    --body-font: 'Inclusive Sans', sans-serif;
+    --spacing-base: 0.25em; /* TW default uses rem */
+
     /* Used for relative color values */
     --base-hue: 280;
 
@@ -15,15 +22,14 @@
     --neutral: oklch(var(--platinum));
     --neutral-contrast: oklch(var(--charcoal));
 
-    --primary: oklch(15% 0.18 var(--base-hue));
+    --primary: oklch(18% 0.2 var(--base-hue));
     --primary-contrast: oklch(var(--white));
 
-    /* For visual emphasis */
-    --accent-hue: calc(var(--base-hue) - 30);
-    --accent: oklch(50% 0.22 var(--accent-hue));
+    /* For your dark primary (15% L), an accent around 55-65% L works well */
+    --accent: oklch(65% 0.2 calc(var(--base-hue) - 100));
     --accent-contrast: oklch(var(--white));
 
-    --secondary: oklch(var(--slate-blue));
+    --secondary: oklch(from var(--primary) calc(l + 0.2) calc(c + 0.05) h);
     --secondary-contrast: oklch(var(--white));
 
     --surface: oklch(100% 0.01 var(--base-hue));
@@ -40,13 +46,17 @@
     --destructive: oklch(var(--tomato));
     --destructive-contrast: oklch(var(--white));
 
-    --warning: oklch(var(--neon-carrot));
+    --warning: oklch(
+      from oklch(var(--neon-carrot)) calc(l - 0.17) calc(c + 0.06) h
+    );
     --warning-contrast: oklch(var(--white));
 
-    --success: oklch(51% 0.15 171);
+    --success: oklch(53% 0.14 185);
     --success-contrast: oklch(var(--white));
 
-    --info: oklch(var(--cerulean-blue));
+    --info: oklch(
+      from oklch(var(--cerulean-blue)) calc(l - 0.05) calc(c + 0.05) h
+    );
     --info-contrast: oklch(var(--white));
 
     --selected: oklch(90% 0.05 var(--base-hue));

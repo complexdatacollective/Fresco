@@ -20,7 +20,7 @@ const actionButtonVariants = cva({
 });
 
 const mainIconVariants = cva({
-  base: 'bg-primary text-white absolute inset-0 flex items-center justify-center rounded-full shadow-2xl scale-90 overflow-hidden',
+  base: 'bg-primary text-white absolute inset-0 flex items-center justify-center rounded-full shadow-2xl scale-90 overflow-hidden [&>.lucide]:w-auto [&>.lucide]:h-24 [&>.lucide]:aspect-square',
   variants: {
     disabled: {
       true: 'opacity-50 cursor-not-allowed pointer-events-none',

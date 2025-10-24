@@ -1,4 +1,4 @@
-import { AlertCircle, Loader2, Trash2 } from 'lucide-react';
+import { Loader2, Trash2 } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import { useEffect, useState } from 'react';
 import { deleteProtocols } from '~/actions/protocols';
@@ -81,7 +81,6 @@ export const DeleteProtocolsDialog = ({
       {protocolsInfo.hasInterviews &&
         !protocolsInfo.hasUnexportedInterviews && (
           <Alert variant="info">
-            <AlertCircle className="h-4 w-4" />
             <AlertTitle>Warning</AlertTitle>
             <AlertDescription>
               {protocolsToDelete.length > 1 ? (
@@ -102,7 +101,6 @@ export const DeleteProtocolsDialog = ({
         )}
       {protocolsInfo.hasUnexportedInterviews && (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
           <AlertTitle>Warning</AlertTitle>
           <AlertDescription>
             {protocolsToDelete.length > 1 ? (

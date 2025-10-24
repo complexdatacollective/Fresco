@@ -25,7 +25,7 @@ export default function InfoTooltip({
   title,
   description,
   trigger = (props) => (
-    <InfoIcon className="mx-2 inline-block h-4 w-4" {...props} />
+    <InfoIcon className="mx-2 inline-block aspect-square h-4 w-4" {...props} />
   ),
   ...rest
 }: InfoTooltipProps) {

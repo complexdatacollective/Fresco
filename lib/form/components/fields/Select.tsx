@@ -79,6 +79,7 @@ export type SelectProps = Omit<
   'size'
 > &
   VariantProps<typeof selectVariants> & {
+    name: string;
     placeholder?: string;
     options: SelectOption[];
   };

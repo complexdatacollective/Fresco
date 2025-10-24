@@ -5,7 +5,9 @@ import { AnimatePresence, motion } from 'motion/react';
 import type { ComponentType, ReactElement } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
+import Surface from '~/components/layout/Surface';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
+import Heading from '~/components/typography/Heading';
 import { useDialog } from '~/lib/dialogs/DialogProvider';
 import { useFormState } from '~/lib/form';
 import ProgressBar from '~/lib/ui/components/ProgressBar';
@@ -147,7 +149,7 @@ function SlidesForm({
     return false;
   };
 
-  const parentClasses = cx('alter-form', parentClass);
+  const parentClasses = cx('interface alter-form', parentClass);
 
   const isComplete = useCallback(
     (direction: Direction | null) => {
@@ -239,17 +241,22 @@ function SlidesForm({
     () => (
       <motion.div
         key="introduction-wrapper"
-        className="introduction-wrapper"
+        className="flex h-full w-full items-center justify-center"
         variants={slideVariants}
         animate="show"
         initial={pendingDirection === 'forwards' ? 'hideBottom' : 'hideTop'}
         exit="hideTop"
         transition={{ ease: 'easeInOut', duration: 0.5 }}
       >
-        <div className="alter-form__introduction">
-          <h1>{stage.introductionPanel!.title}</h1>
+        <Surface
+          className="@container-normal h-auto max-h-[75%] max-w-[80ch]"
+          elevation="medium"
+        >
+          <Heading level="h1" className="text-center">
+            {stage.introductionPanel!.title}
+          </Heading>
           <RenderMarkdown>{stage.introductionPanel!.text}</RenderMarkdown>
-        </div>
+        </Surface>
       </motion.div>
     ),
     [pendingDirection, stage.introductionPanel],

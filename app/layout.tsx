@@ -1,4 +1,3 @@
-import { Quicksand } from 'next/font/google';
 import Providers from '~/components/Providers';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import { Toaster } from '~/components/ui/toaster';
@@ -10,18 +9,10 @@ export const metadata = {
   description: 'Fresco.',
 };
 
-const quicksand = Quicksand({
-  weight: ['300', '400', '500', '600', '700'],
-  subsets: ['latin', 'latin-ext'],
-  display: 'swap',
-});
-
 function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body
-        className={`${quicksand.className} bg-background bg-scope antialiased`}
-      >
+      <body className="bg-background bg-scope antialiased">
         <div className="root isolate">
           <Providers>{children}</Providers>
           <Toaster />

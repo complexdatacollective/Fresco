@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertCircle, FileDown, Loader2 } from 'lucide-react';
+import { FileDown, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ZodError } from 'zod';
@@ -121,7 +121,6 @@ const ImportCSVModal = ({
         }
       >
         <Alert variant="info" className="m-0">
-          <AlertCircle className="h-4 w-4" />
           <AlertTitle>CSV file requirements</AlertTitle>
           <AlertDescription>
             <Paragraph>

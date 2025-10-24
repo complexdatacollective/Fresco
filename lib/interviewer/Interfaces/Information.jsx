@@ -1,6 +1,7 @@
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
+import Heading from '~/components/typography/Heading';
 import Scroller from '~/lib/ui/components/Scroller';
 import { ALLOWED_MARKDOWN_TAGS } from '~/lib/ui/utils/config';
 import AssetMetaProvider from '../behaviours/AssetMetaProvider';
@@ -73,9 +74,9 @@ const Information = ({ stage: { title, items } }) => {
       <Scroller className="information-interface__information-container-scroller">
         <div className="information-interface">
           <div className="information-interface__frame">
-            <h1 className="information-interface__title type--title-1">
+            <Heading level="h2" className="text-center">
               {title}
-            </h1>
+            </Heading>
             <div className="information-interface__items">
               {renderItems(items)}
             </div>

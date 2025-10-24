@@ -55,7 +55,7 @@ const Panel = ({
   );
 
   return (
-    <Surface className={panelClasses} elevation="high" spacing="none">
+    <Surface className={panelClasses} elevation="high" spacing="none" level={2}>
       <div
         className="border-background flex shrink-0 grow-0 flex-col justify-center border-b-[3px] px-4 py-2 text-center"
         onClick={toggleCollapsed}

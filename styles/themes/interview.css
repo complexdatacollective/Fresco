@@ -1,11 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
+
 /*
-  Default theme for the application.
-  Uses a purple hue as the base color.
-  Light theme by default, with a dark theme variant.
+  Theme for interview setting.
 */
 
 @layer theme {
   :root {
+    --heading-font: 'Quicksand', sans-serif;
+    --body-font: 'Quicksand', sans-serif;
+    --spacing-base: 0.33em; /* TW default uses rem */
+
     --background: oklch(var(--navy-taupe));
     --text: oklch(var(--white));
 
@@ -22,11 +26,11 @@
     --secondary: oklch(var(--neon-coral));
     --secondary-contrast: oklch(var(--white));
 
-    --surface: oklch(from var(--background) calc(l + 0.03) c h);
+    --surface: oklch(from var(--background) calc(l + 0.1) calc(c + 0.005) h);
     --surface-contrast: var(--text);
     --surface-1: oklch(from var(--background) calc(l + 0.15) c h);
     --surface-1-contrast: var(--text);
-    --surface-2: oklch(from var(--background) calc(l + 0.1) c h);
+    --surface-2: oklch(from var(--background) calc(l + 0.03) c h);
     --surface-2-contrast: var(--text);
     --surface-3: oklch(from var(--background) calc(l + 0.05) c h);
     --surface-3-contrast: var(--text);
@@ -39,25 +43,25 @@
     --warning: oklch(var(--neon-carrot));
     --warning-contrast: oklch(var(--white));
 
-    --success: oklch(51% 0.15 171);
+    --success: oklch(var(--kiwi));
     --success-contrast: oklch(var(--white));
 
     --info: oklch(var(--cerulean-blue));
     --info-contrast: oklch(var(--white));
 
-    --selected: oklch(90% 0.05 var(--base-hue));
+    --selected: oklch(var(--white));
 
-    --ring: oklch(var(--mustard));
+    --ring: oklch(var(--white));
 
     --link: var(--accent);
 
-    --outline: oklch(90% 0.01 var(--base-hue)); /* Used for borders */
+    --outline: oklch(var(--sea-green)); /* Used for borders */
 
-    --input: oklch(var(--white));
-    --input-contrast: oklch(var(--cyber-grape));
-    --input-placeholder: oklch(40% 0.05 var(--base-hue));
+    --input: oklch(var(--navy-taupe));
+    --input-contrast: oklch(var(--white));
+    --input-placeholder: oklch(var(--slate-blue));
 
-    --overlay: oklch(10% 0.075 var(--base-hue));
+    --overlay: oklch(from oklch(var(--rich-black)) calc(l + 0.15) c h);
 
     /* Sequences */
     --node-1: oklch(var(--neon-coral));

@@ -11,6 +11,9 @@ import Canvas from '../components/Canvas/Canvas';
 import EdgeLayout from '../components/Canvas/EdgeLayout';
 import SimulationPanel from '../components/Canvas/SimulationPanel';
 import CollapsablePrompts from '../components/CollapsablePrompts';
+import Background from '../containers/Canvas/Background';
+import NodeBucket from '../containers/Canvas/NodeBucket';
+import NodeLayout from '../containers/Canvas/NodeLayout';
 import { LayoutProvider } from '../contexts/LayoutContext';
 import { getAssetUrlFromId } from '../ducks/modules/protocol';
 import { actionCreators as resetActions } from '../ducks/modules/reset';
@@ -21,9 +24,6 @@ import {
   getNodes,
   getPlacedNodes,
 } from '../selectors/canvas';
-import Background from '../containers/Canvas/Background';
-import NodeBucket from '../containers/Canvas/NodeBucket';
-import NodeLayout from '../containers/Canvas/NodeLayout';
 
 const withResetInterfaceHandler = withHandlers({
   handleResetInterface:
@@ -108,7 +108,7 @@ const Sociogram = (props) => {
   }, 750); // This value is just a guess based on the animation duration!
 
   return (
-    <div className="sociogram-interface" ref={interfaceRef}>
+    <div className="interface" ref={interfaceRef}>
       <div className="sociogram-interface__drag-safe" ref={dragSafeRef} />
       <CollapsablePrompts
         prompts={stage.prompts}

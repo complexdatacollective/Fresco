@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { HelpCircle, Star } from 'lucide-react';
+import { Label } from '~/lib/form/components/Label';
 import InfoTooltip from './InfoTooltip';
+import Heading from './typography/Heading';
 import { Button } from './ui/Button';
 
 const meta = {
@@ -155,35 +157,39 @@ export const InContext: Story = {
   render: () => (
     <div className="flex flex-col gap-6 p-8">
       <div className="flex items-center gap-2">
-        <label className="font-medium">Field Name</label>
-        <InfoTooltip
-          title="Field Information"
-          description="This field is used to capture the participant's primary identifier."
-        />
+        <Label>
+          Field Name{' '}
+          <InfoTooltip
+            title="Field Information"
+            description="This field is used to capture the participant's primary identifier."
+          />
+        </Label>
       </div>
 
       <div className="flex items-center gap-2">
-        <h3 className="text-lg font-semibold">Section Title</h3>
-        <InfoTooltip
-          title="Section Details"
-          description={(props) => (
-            <div {...props}>
-              <p className="mb-2">
-                This section contains important configuration options:
-              </p>
-              <ul className="list-inside list-disc space-y-1">
-                <li>Option 1: Enables feature X</li>
-                <li>Option 2: Controls behavior Y</li>
-                <li>Option 3: Sets default Z</li>
-              </ul>
-            </div>
-          )}
-        />
+        <Heading level="h3">
+          Section Title
+          <InfoTooltip
+            title="Section Details"
+            description={(props) => (
+              <div {...props}>
+                <p className="mb-2">
+                  This section contains important configuration options:
+                </p>
+                <ul className="list-inside list-disc space-y-1">
+                  <li>Option 1: Enables feature X</li>
+                  <li>Option 2: Controls behavior Y</li>
+                  <li>Option 3: Sets default Z</li>
+                </ul>
+              </div>
+            )}
+          />
+        </Heading>
       </div>
 
       <div className="rounded border p-4">
         <div className="mb-2 flex items-center justify-between">
-          <span className="font-medium">Advanced Settings</span>
+          <Heading level="h4">Advanced Settings</Heading>
           <InfoTooltip
             title="Advanced Mode"
             description="Enabling advanced mode unlocks additional configuration options for power users."
@@ -191,7 +197,7 @@ export const InContext: Story = {
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
               const { color, ...buttonProps } = props;
               return (
-                <Button variant="text" size="sm" {...buttonProps}>
+                <Button variant="text" size="icon" {...buttonProps}>
                   <HelpCircle className="h-4 w-4" />
                 </Button>
               );

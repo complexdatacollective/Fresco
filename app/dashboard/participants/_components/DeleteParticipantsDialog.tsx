@@ -1,4 +1,4 @@
-import { AlertCircle, Loader2, Trash2 } from 'lucide-react';
+import { Loader2, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
@@ -31,7 +31,6 @@ export const DeleteParticipantsDialog = ({
     if (haveUnexportedInterviews) {
       return (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
           <AlertTitle>Warning</AlertTitle>
           <AlertDescription>
             {participantCount > 1 ? (
@@ -54,7 +53,6 @@ export const DeleteParticipantsDialog = ({
 
     return (
       <Alert variant="info">
-        <AlertCircle className="h-4 w-4" />
         <AlertTitle>Warning</AlertTitle>
         <AlertDescription>
           {participantCount > 1 ? (

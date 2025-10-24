@@ -1,5 +1,5 @@
 import type { Interview } from '@prisma/client';
-import { AlertCircle, Loader2, Trash2 } from 'lucide-react';
+import { Loader2, Trash2 } from 'lucide-react';
 import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 import { deleteInterviews } from '~/actions/interviews';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
@@ -81,7 +81,6 @@ export const DeleteInterviewsDialog = ({
     >
       {hasUnexported && (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
           <AlertTitle>Warning</AlertTitle>
           <AlertDescription>
             {interviewsToDelete.length > 1 ? (

@@ -97,7 +97,7 @@ const TypeScaleDemo = () => (
 );
 
 const meta = {
-  title: 'Systems/Typography/Type Scale',
+  title: 'Design System/Type Scale',
   component: TypeScaleDemo,
   parameters: {
     layout: 'fullscreen',
@@ -121,7 +121,7 @@ export const Overview: Story = {
 export const TypicalPageLayout: Story = {
   render: () => (
     <div className="mx-auto max-w-4xl p-8">
-      <div className="bg-info/10 mb-8 rounded-lg p-4 text-sm">
+      <div className="bg-info/10 -mx-8 mb-8 rounded-lg p-8 text-sm">
         Example: This demonstrates a typical content page using all heading
         levels in a hierarchical structure. Notice how each level creates clear
         visual distinction while maintaining harmony.

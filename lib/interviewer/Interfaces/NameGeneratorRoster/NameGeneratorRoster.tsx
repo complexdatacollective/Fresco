@@ -219,58 +219,62 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
   );
 
   return (
-    <div className="name-generator-roster-interface" ref={interfaceRef}>
+    <div className="interface" ref={interfaceRef}>
       <div className="name-generator-roster-interface__prompt" key="prompts">
         <Prompts />
       </div>
-      <motion.div
-        className="name-generator-roster-interface__panels"
-        key="panels"
-        initial="hidden"
-        animate="visible"
-        exit="hidden"
-        variants={variants}
-        style={{ transitionDuration: '--animation-duration-standard' }}
-      >
-        <div className="name-generator-roster-interface__search-panel">
-          <SearchableList
-            key={String(disabled)}
-            loading={itemsStatus.isLoading}
-            items={items}
-            title="Available to add"
-            columns={countColumns}
-            placeholder={
-              itemsStatus.error && <ErrorMessage error={itemsStatus.error} />
-            }
-            itemType="SOURCE_NODES" // drop type
-            excludeItems={excludeItems}
-            itemComponent={DataCard}
-            dragComponent={DragPreviewNode}
-            accepts={({ meta: { itemType } }: { meta: { itemType: string } }) =>
-              itemType !== 'SOURCE_NODES'
-            }
-            onDrop={handleRemoveNode}
-            dropNodeColor={dropNodeColor}
-            disabled={disabled}
-          />
-        </div>
-        <div className="name-generator-roster-interface__node-panel">
-          <Panel title="Added" noCollapse>
-            <div className="name-generator-roster-interface__node-list">
-              <NodeList
-                id="node-list"
-                className={nodeListClasses}
-                itemType="ADDED_NODES"
-                accepts={['ADDED_NODES']}
-                // @ts-expect-error not yet implemented
-                onDrop={handleAddNode}
-                items={nodesForPrompt}
-                itemComponent={Node}
-              />
-            </div>
-          </Panel>
-        </div>
-      </motion.div>
+      <div className="flex h-full w-full grow">
+        <motion.div
+          className="name-generator-roster-interface__panels"
+          key="panels"
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
+          variants={variants}
+          style={{ transitionDuration: '--animation-duration-standard' }}
+        >
+          <div className="name-generator-roster-interface__search-panel">
+            <SearchableList
+              key={String(disabled)}
+              loading={itemsStatus.isLoading}
+              items={items}
+              title="Available to add"
+              columns={countColumns}
+              placeholder={
+                itemsStatus.error && <ErrorMessage error={itemsStatus.error} />
+              }
+              itemType="SOURCE_NODES" // drop type
+              excludeItems={excludeItems}
+              itemComponent={DataCard}
+              dragComponent={DragPreviewNode}
+              accepts={({
+                meta: { itemType },
+              }: {
+                meta: { itemType: string };
+              }) => itemType !== 'SOURCE_NODES'}
+              onDrop={handleRemoveNode}
+              dropNodeColor={dropNodeColor}
+              disabled={disabled}
+            />
+          </div>
+          <div className="name-generator-roster-interface__node-panel">
+            <Panel title="Added" noCollapse>
+              <div className="name-generator-roster-interface__node-list">
+                <NodeList
+                  id="node-list"
+                  className={nodeListClasses}
+                  itemType="ADDED_NODES"
+                  accepts={['ADDED_NODES']}
+                  // @ts-expect-error not yet implemented
+                  onDrop={handleAddNode}
+                  items={nodesForPrompt}
+                  itemComponent={Node}
+                />
+              </div>
+            </Panel>
+          </div>
+        </motion.div>
+      </div>
       {interfaceRef.current && (
         <MinNodesNotMet
           show={showMinWarning}

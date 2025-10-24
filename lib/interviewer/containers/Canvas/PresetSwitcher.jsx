@@ -41,7 +41,7 @@ class PresetSwitcher extends PureComponent {
 
     const currentActivePreset = presets[activePreset];
 
-    const navigationClasses = cx('preset-switcher__navigation ', {
+    const navigationClasses = cx('preset-switcher__navigation', {
       'preset-switcher__navigation--hidden': open,
     });
 

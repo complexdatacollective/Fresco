@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, Info, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { unstable_noStore } from 'next/cache';
 import Markdown from 'react-markdown';
 import { z } from 'zod';
@@ -82,7 +82,6 @@ export default async function VersionSection() {
 
       {error && (
         <Alert variant="destructive" className="mt-4">
-          <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Error fetching update information</AlertTitle>
           <AlertDescription>
             An error occurred while fetching the latest version information.
@@ -92,7 +91,6 @@ export default async function VersionSection() {
 
       {!error && !updateType && (
         <Alert variant="success" className="mt-4">
-          <CheckCircle2 className="h-4 w-4" />
           <AlertTitle>You are up to date</AlertTitle>
           <AlertDescription>
             You are running the latest version of Fresco.
@@ -103,11 +101,9 @@ export default async function VersionSection() {
       {updateType && (
         <>
           <Alert variant="info" className="mt-4">
-            <Info className="h-4 w-4" />
             <AlertTitle>{latestVersion} of Fresco is available!</AlertTitle>
             {updateType === 'major' && (
               <Alert variant="destructive" className="my-4 ml-6 w-fit">
-                <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Major update</AlertTitle>
                 <AlertDescription>
                   This update is a major version bump. A new major version may
@@ -135,7 +131,7 @@ export default async function VersionSection() {
             </article>
             <div className="text-right">
               <a href={releaseUrl} target="_blank">
-                <Button variant="info">View Full Release Notes</Button>
+                <Button color="info">View Full Release Notes</Button>
               </a>
             </div>
           </Alert>

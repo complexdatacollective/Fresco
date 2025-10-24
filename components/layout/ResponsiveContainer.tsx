@@ -2,7 +2,7 @@ import type { HTMLAttributes } from 'react';
 import { type VariantProps, cva, cx } from '~/utils/cva';
 
 const containerVariants = cva({
-  base: '@container tablet:mx-auto flex flex-col my-6 tablet:my-10 w-full mx-2',
+  base: '@container tablet:mx-auto flex flex-col my-6 tablet:my-10 mx-2 grow',
   variants: {
     maxWidth: {
       'xl': 'max-w-xl',

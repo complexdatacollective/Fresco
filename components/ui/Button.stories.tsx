@@ -33,7 +33,7 @@ const meta = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'outline', 'text', 'link'],
+      options: ['default', 'outline', 'text', 'link', 'dashed'],
     },
     color: {
       control: 'select',
@@ -108,6 +108,9 @@ export const Variants: Story = {
         </Button>
         <Button {...args} variant="link">
           Link
+        </Button>
+        <Button {...args} variant="dashed">
+          dashed
         </Button>
       </div>
     </div>
@@ -234,6 +237,9 @@ export const ColorVariantCombinations: Story = {
           Link
         </span>
         <span className="text-muted-foreground w-24 text-center text-xs font-medium">
+          dashed
+        </span>
+        <span className="text-muted-foreground w-24 text-center text-xs font-medium">
           Disabled
         </span>
       </div>
@@ -261,6 +267,9 @@ export const ColorVariantCombinations: Story = {
           </Button>
           <Button variant="link" color={color} className="w-24">
             Link
+          </Button>
+          <Button variant="dashed" color={color} className="w-24">
+            dashed
           </Button>
           <Button variant="default" color={color} disabled className="w-24">
             Disabled

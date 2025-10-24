@@ -5,8 +5,8 @@ import { Skeleton } from '~/components/ui/skeleton';
 import { cx } from '~/utils/cva';
 
 const statCardClasses = cx(
-  'flex flex-col gap-4 p-4 transition-all',
-  'tablet:flex-row tablet:items-center laptop:p-6 desktop:gap-6 desktop:p-10',
+  'flex flex-col gap-4 transition-all',
+  '@3xs:flex-row @3xs:items-center @lg:gap-6',
   'hover:scale-[102%]',
 );
 function StatCard({
@@ -24,7 +24,7 @@ function StatCard({
 
   return (
     <Surface className={statCardClasses}>
-      <div className="tablet:block hidden">{icon}</div>
+      <div className="hidden @3xs:block">{icon}</div>
       <div>
         <Heading level="h4" variant="all-caps" margin="none">
           {title}
@@ -45,7 +45,7 @@ export function StatCardSkeleton({
   icon: React.ReactNode;
 }) {
   return (
-    <div className={statCardClasses}>
+    <Surface className={statCardClasses}>
       <div className="tablet:block hidden">{icon}</div>
       <div>
         <Heading level="h4" variant="all-caps">
@@ -53,7 +53,7 @@ export function StatCardSkeleton({
         </Heading>
         <Skeleton className="mt-2 h-10 w-32" />
       </div>
-    </div>
+    </Surface>
   );
 }
 

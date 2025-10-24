@@ -55,10 +55,7 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
           {error && <XCircle className="text-destructive h-6 w-6" />}
         </motion.div>
         <motion.div className="w-72" layout>
-          <Heading
-            className="text-balance-['unset'] flex-1 truncate text-base"
-            level="h4"
-          >
+          <Heading className="flex-1 truncate" level="h4">
             {id}
           </Heading>
           <Paragraph intent="smallText" key={status} title={status}>
@@ -70,7 +67,7 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
           {error && (
             <Button
               size="sm"
-              className="hover:bg-destructive-dark hover:text-destructive-contrast-dark bg-destructive text-destructive-contrast"
+              color="destructive"
               variant="outline"
               onClick={(e) => {
                 e.preventDefault();

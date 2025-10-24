@@ -76,7 +76,7 @@ export default plugin.withOptions<PluginConfig>(
         opacityScaleFactor = 0.65,
       } = options;
 
-      const defaultShadowColor = 'oklch(25% 1 0)';
+      const defaultShadowColor = 'oklch(10% 1 0)';
 
       const generateShadow = (elevation: Elevation) => {
         return generateShadowLayers(
@@ -92,7 +92,7 @@ export default plugin.withOptions<PluginConfig>(
           .map(({ opacity, blurRadius, spreadRadius, offsetX, offsetY }) => {
             const boostedOpacity = opacity * opacityScaleFactor;
             // Clamp chroma
-            return `${offsetX} ${offsetY} ${blurRadius} ${spreadRadius} oklch(from var(--bg-scope, ${defaultShadowColor}) clamp(0.25, calc(l - 0.25), 0.5) clamp(0.03, c, 0.12) h / ${boostedOpacity})`;
+            return `${offsetX} ${offsetY} ${blurRadius} ${spreadRadius} oklch(from var(--bg-scope, ${defaultShadowColor}) clamp(0.025, calc(l - 0.5), 0.1) clamp(0.03, c, 0.12) h / ${boostedOpacity})`;
           })
           .join(', ');
       };

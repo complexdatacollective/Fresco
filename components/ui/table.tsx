@@ -74,6 +74,7 @@ const TableHead = React.forwardRef<
     ref={ref}
     className={cx(
       'px-4 py-2 whitespace-nowrap [&:has([role=checkbox])]:pr-0',
+      'text-left font-medium first:pl-6 last:pr-6',
       className,
     )}
     {...props}

@@ -36,10 +36,28 @@ const meta: Meta<typeof Node> = {
     size: {
       control: {
         type: 'select',
-        options: ['sm', 'md', 'lg'],
+        options: ['xxs', 'xs', 'sm', 'md', 'lg'],
       },
       description: 'Size of the node.',
       defaultValue: 'md',
+    },
+    shape: {
+      control: {
+        type: 'select',
+        options: [
+          'circle',
+          'square',
+          'star',
+          'triangle',
+          'flower',
+          'rhombus',
+          'hexagon',
+          'octagon',
+          'heart',
+        ],
+      },
+      description: 'Shape of the node.',
+      defaultValue: 'circle',
     },
     disabled: {
       control: 'boolean',
@@ -59,12 +77,82 @@ export default meta;
 // Default Node
 export const Default: StoryFn<typeof Node> = (args) => <Node {...args} />;
 
+Default.args = {
+  label: 'Node',
+  size: 'md',
+  color: 'node-color-seq-1',
+};
+
 // Different Sizes
 export const Sizes: StoryFn<typeof Node> = () => (
-  <div className="flex items-center gap-8">
-    <Node size="sm" label="Small" />
-    <Node size="md" label="Medium" />
-    <Node size="lg" label="Large" />
+  <div className="flex items-end gap-8">
+    <div className="flex flex-col items-center gap-2">
+      <Node size="xxs" label="XXS" />
+      <span className="text-muted-foreground text-xs">xxs (32px)</span>
+    </div>
+    <div className="flex flex-col items-center gap-2">
+      <Node size="xs" label="XS" />
+      <span className="text-muted-foreground text-xs">xs (64px)</span>
+    </div>
+    <div className="flex flex-col items-center gap-2">
+      <Node size="sm" label="SM" />
+      <span className="text-muted-foreground text-xs">sm (80px)</span>
+    </div>
+    <div className="flex flex-col items-center gap-2">
+      <Node size="md" label="MD" />
+      <span className="text-muted-foreground text-xs">md (104px)</span>
+    </div>
+    <div className="flex flex-col items-center gap-2">
+      <Node size="lg" label="LG" />
+      <span className="text-muted-foreground text-xs">lg (128px)</span>
+    </div>
+  </div>
+);
+
+// Different Shapes
+export const Shapes: StoryFn<typeof Node> = () => (
+  <div className="flex flex-col gap-8">
+    <div>
+      <h3 className="mb-4 text-lg font-semibold">All Available Shapes</h3>
+      <div className="grid grid-cols-5 gap-8">
+        <div className="flex flex-col items-center gap-2">
+          <Node shape="circle" label="Circle" />
+          <span className="text-muted-foreground text-xs">Circle</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node shape="square" label="Square" />
+          <span className="text-muted-foreground text-xs">Square</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node shape="star" label="Star" />
+          <span className="text-muted-foreground text-xs">Star</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node shape="triangle" label="Triangle" />
+          <span className="text-muted-foreground text-xs">Triangle</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node shape="flower" label="Flower" />
+          <span className="text-muted-foreground text-xs">Flower</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node shape="rhombus" label="Rhombus" />
+          <span className="text-muted-foreground text-xs">Rhombus</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node shape="hexagon" label="Hexagon" />
+          <span className="text-muted-foreground text-xs">Hexagon</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node shape="octagon" label="Octagon" />
+          <span className="text-muted-foreground text-xs">Octagon</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node shape="heart" label="Heart" />
+          <span className="text-muted-foreground text-xs">Heart</span>
+        </div>
+      </div>
+    </div>
   </div>
 );
 
@@ -83,12 +171,147 @@ export const Colors: StoryFn<typeof Node> = () => (
 
 // Node States
 export const States: StoryFn<typeof Node> = () => (
-  <div className="flex items-center gap-6">
-    <Node label="Default" />
-    <Node label="Selected" selected />
-    <Node label="Loading" loading />
-    <Node label="Disabled" disabled={true} />
-    <Node label="Linking" linking />
+  <div className="flex flex-wrap items-center gap-8">
+    <div className="flex flex-col items-center gap-2">
+      <Node label="Default" />
+      <span className="text-muted-foreground text-xs">Default</span>
+    </div>
+    <div className="flex flex-col items-center gap-2">
+      <Node label="Selected" selected />
+      <span className="text-muted-foreground text-xs">Selected</span>
+    </div>
+    <div className="flex flex-col items-center gap-2">
+      <Node label="Linking" linking />
+      <span className="text-muted-foreground text-xs">Linking</span>
+    </div>
+    <div className="flex flex-col items-center gap-2">
+      <Node label="Loading" loading />
+      <span className="text-muted-foreground text-xs">Loading</span>
+    </div>
+    <div className="flex flex-col items-center gap-2">
+      <Node label="Disabled" disabled={true} />
+      <span className="text-muted-foreground text-xs">Disabled</span>
+    </div>
+  </div>
+);
+
+// Selected Border Scaling
+export const SelectedBorderScaling: StoryFn<typeof Node> = () => (
+  <div className="flex flex-col gap-8">
+    <div>
+      <h3 className="mb-4 text-lg font-semibold">
+        Selected State - Border scales proportionally with size
+      </h3>
+      <p className="text-muted-foreground mb-4 text-sm">
+        Circle and square shapes use borders. Clipped shapes (star, triangle,
+        etc.) use drop-shadow for proper outline rendering.
+      </p>
+      <div className="flex items-end gap-8">
+        <div className="flex flex-col items-center gap-2">
+          <Node size="xxs" label="XXS" selected />
+          <span className="text-muted-foreground text-xs">2px</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node size="xs" label="XS" selected />
+          <span className="text-muted-foreground text-xs">3px</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node size="sm" label="SM" selected />
+          <span className="text-muted-foreground text-xs">4px</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node size="md" label="MD" selected />
+          <span className="text-muted-foreground text-xs">5px</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node size="lg" label="LG" selected />
+          <span className="text-muted-foreground text-xs">7px</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3 className="mb-4 text-lg font-semibold">
+        Selected State - Clipped Shapes
+      </h3>
+      <div className="flex items-end gap-8">
+        <div className="flex flex-col items-center gap-2">
+          <Node size="md" shape="star" label="Star" selected />
+          <span className="text-muted-foreground text-xs">Star</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node size="md" shape="triangle" label="Triangle" selected />
+          <span className="text-muted-foreground text-xs">Triangle</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node size="md" shape="hexagon" label="Hexagon" selected />
+          <span className="text-muted-foreground text-xs">Hexagon</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node size="md" shape="heart" label="Heart" selected />
+          <span className="text-muted-foreground text-xs">Heart</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// Linking Border Scaling
+export const LinkingBorderScaling: StoryFn<typeof Node> = () => (
+  <div className="flex flex-col gap-8">
+    <div>
+      <h3 className="mb-4 text-lg font-semibold">
+        Linking State - Border scales proportionally with size
+      </h3>
+      <p className="text-muted-foreground mb-4 text-sm">
+        Circle and square shapes use borders with pulsing animation. Clipped
+        shapes use drop-shadow with the same animation effect.
+      </p>
+      <div className="flex items-end gap-8">
+        <div className="flex flex-col items-center gap-2">
+          <Node size="xxs" label="XXS" linking />
+          <span className="text-muted-foreground text-xs">1px</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node size="xs" label="XS" linking />
+          <span className="text-muted-foreground text-xs">2px</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node size="sm" label="SM" linking />
+          <span className="text-muted-foreground text-xs">2px</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node size="md" label="MD" linking />
+          <span className="text-muted-foreground text-xs">3px</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node size="lg" label="LG" linking />
+          <span className="text-muted-foreground text-xs">4px</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3 className="mb-4 text-lg font-semibold">
+        Linking State - Clipped Shapes
+      </h3>
+      <div className="flex items-end gap-8">
+        <div className="flex flex-col items-center gap-2">
+          <Node size="md" shape="star" label="Star" linking />
+          <span className="text-muted-foreground text-xs">Star</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node size="md" shape="triangle" label="Triangle" linking />
+          <span className="text-muted-foreground text-xs">Triangle</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node size="md" shape="rhombus" label="Rhombus" linking />
+          <span className="text-muted-foreground text-xs">Rhombus</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Node size="md" shape="flower" label="Flower" linking />
+          <span className="text-muted-foreground text-xs">Flower</span>
+        </div>
+      </div>
+    </div>
   </div>
 );
 
@@ -99,6 +322,149 @@ export const LongLabels: StoryFn<typeof Node> = () => (
     <Node label="Medium length label" />
     <Node label="This is a very long label that should be truncated with ellipsis" />
     <Node label="SuperExtremelyLongLabelWithoutSpacesThatShouldStillBeHandledProperly" />
+  </div>
+);
+
+// Shapes with States
+export const ShapesWithStates: StoryFn<typeof Node> = () => (
+  <div className="flex flex-col gap-8">
+    <div>
+      <h3 className="mb-4 text-lg font-semibold">Shapes - Default State</h3>
+      <div className="flex flex-wrap gap-6">
+        <Node shape="circle" label="Circle" size="sm" />
+        <Node shape="square" label="Square" size="sm" />
+        <Node shape="star" label="Star" size="sm" />
+        <Node shape="triangle" label="Triangle" size="sm" />
+        <Node shape="heart" label="Heart" size="sm" />
+      </div>
+    </div>
+    <div>
+      <h3 className="mb-4 text-lg font-semibold">Shapes - Selected State</h3>
+      <div className="flex flex-wrap gap-6">
+        <Node
+          shape="circle"
+          label="Circle"
+          size="sm"
+          selected
+          color="node-color-seq-2"
+        />
+        <Node
+          shape="square"
+          label="Square"
+          size="sm"
+          selected
+          color="node-color-seq-3"
+        />
+        <Node
+          shape="star"
+          label="Star"
+          size="sm"
+          selected
+          color="node-color-seq-4"
+        />
+        <Node
+          shape="triangle"
+          label="Triangle"
+          size="sm"
+          selected
+          color="node-color-seq-5"
+        />
+        <Node
+          shape="heart"
+          label="Heart"
+          size="sm"
+          selected
+          color="node-color-seq-6"
+        />
+      </div>
+    </div>
+    <div>
+      <h3 className="mb-4 text-lg font-semibold">Shapes - Linking State</h3>
+      <div className="flex flex-wrap gap-6">
+        <Node
+          shape="circle"
+          label="Circle"
+          size="sm"
+          linking
+          color="node-color-seq-7"
+        />
+        <Node
+          shape="hexagon"
+          label="Hexagon"
+          size="sm"
+          linking
+          color="node-color-seq-8"
+        />
+        <Node
+          shape="rhombus"
+          label="Rhombus"
+          size="sm"
+          linking
+          color="node-color-seq-2"
+        />
+        <Node
+          shape="octagon"
+          label="Octagon"
+          size="sm"
+          linking
+          color="node-color-seq-3"
+        />
+        <Node
+          shape="flower"
+          label="Flower"
+          size="sm"
+          linking
+          color="node-color-seq-4"
+        />
+      </div>
+    </div>
+  </div>
+);
+
+// Comprehensive Example
+export const ComprehensiveExample: StoryFn<typeof Node> = () => (
+  <div className="flex flex-col gap-8">
+    <div>
+      <h3 className="mb-4 text-lg font-semibold">Different Colors</h3>
+      <div className="flex flex-wrap gap-4">
+        {NodeColors.map((color, index) => (
+          <Node
+            key={color}
+            color={color}
+            label={`Person ${index + 1}`}
+            size="sm"
+          />
+        ))}
+      </div>
+    </div>
+    <div>
+      <h3 className="mb-4 text-lg font-semibold">Selected Nodes</h3>
+      <div className="flex flex-wrap gap-4">
+        {NodeColors.slice(0, 4).map((color, index) => (
+          <Node
+            key={color}
+            color={color}
+            label={`Person ${index + 1}`}
+            size="sm"
+            selected
+          />
+        ))}
+      </div>
+    </div>
+    <div>
+      <h3 className="mb-4 text-lg font-semibold">Linking Nodes</h3>
+      <div className="flex flex-wrap gap-4">
+        {NodeColors.slice(0, 4).map((color, index) => (
+          <Node
+            key={color}
+            color={color}
+            label={`Person ${index + 1}`}
+            size="sm"
+            linking
+          />
+        ))}
+      </div>
+    </div>
   </div>
 );
 

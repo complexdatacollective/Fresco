@@ -48,6 +48,7 @@ const Navigation = ({
 
   return (
     <Surface
+      level={2}
       role="navigation"
       elevation="none"
       className="@container-normal flex max-h-none w-auto shrink-0 grow-0 flex-col items-center justify-between rounded-none !p-0"

@@ -8,7 +8,7 @@ import { Skeleton } from './skeleton';
 
 const buttonVariants = cva({
   base: cx(
-    'font-semibold inline-flex items-center justify-center truncate text-nowrap rounded text-base tracking-wide transition-colors cursor-pointer shrink-0',
+    'font-semibold inline-flex items-center justify-center truncate text-nowrap rounded tracking-wide transition-colors duration-300 cursor-pointer shrink-0',
     'disabled:cursor-not-allowed disabled:opacity-50',
     // Set the size of any child SVG icons to 1rem
     '[&>svg]:w-auto [&>svg]:max-h-full [&>svg]:shrink-0',
@@ -22,6 +22,8 @@ const buttonVariants = cva({
         'border border-[var(--scoped-bg)] text-[var(--scoped-bg)] hover:enabled:bg-[var(--scoped-bg)] hover:enabled:text-[var(--scoped-text)]',
       text: 'text-[var(--scoped-bg)] hover:enabled:bg-[var(--scoped-bg)] hover:enabled:text-[var(--scoped-text)]',
       link: 'text-[var(--scoped-bg)] hover:enabled:underline',
+      dashed:
+        'border border-[var(--scoped-bg)] border-dashed text-[var(--scoped-bg)] hover:enabled:bg-[var(--scoped-bg)] hover:enabled:text-[var(--scoped-text)]',
     },
     color: {
       default: cx(
@@ -52,8 +54,8 @@ const buttonVariants = cva({
     size: {
       xs: 'h-8 px-3 text-xs tablet:w-auto',
       sm: 'h-8 px-4 text-sm tablet:w-auto',
-      default: 'h-10 px-8 tablet:w-auto',
-      lg: 'h-14 px-8 text-base tablet:w-auto',
+      default: 'h-10 text-base px-8 tablet:w-auto',
+      lg: 'h-14 px-8 text-lg tablet:w-auto',
       icon: 'flex h-10 w-10 shrink-0 rounded-full',
     },
   },
@@ -61,10 +63,12 @@ const buttonVariants = cva({
     variant: 'default',
     color: 'default',
     size: 'default',
+    hasIcon: false,
+    iconPosition: 'left',
   },
   compoundVariants: [
     {
-      variant: ['outline', 'text', 'link'],
+      variant: ['outline', 'text', 'link', 'dashed'],
       color: 'default',
       className: 'text-text',
     },

@@ -1,6 +1,7 @@
 import { Minus } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
+import { MotionSurface } from '~/components/layout/Surface';
 import Prompts from './Prompts';
 
 const CollapsablePrompts = (props) => {
@@ -27,11 +28,12 @@ const CollapsablePrompts = (props) => {
   }, [currentPromptIndex]);
 
   return (
-    <motion.div
+    <MotionSurface
       ref={ref}
-      className="sociogram-interface__prompts"
+      className="border-primary absolute right-10 bottom-10 z-10 w-60 cursor-move overflow-hidden border-b-2 shadow-2xl"
       drag
       dragConstraints={dragConstraints}
+      elevation="none"
     >
       <motion.div
         className="sociogram-interface__prompts__header"
@@ -74,7 +76,7 @@ const CollapsablePrompts = (props) => {
           )}
         </AnimatePresence>
       </motion.div>
-    </motion.div>
+    </MotionSurface>
   );
 };
 

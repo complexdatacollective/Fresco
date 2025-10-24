@@ -5,7 +5,7 @@ import { type ElementType, forwardRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 
 export const surfaceVariants = cva({
-  base: 'rounded-sm @xl:rounded @4xl:rounded-lg outline-none bg-scope @container w-full',
+  base: 'rounded-sm @xl:rounded @4xl:rounded-lg outline-none bg-scope @container grow',
   variants: {
     level: {
       0: 'bg-surface text-surface-contrast [--color-text:var(--color-surface-contrast)] [--background:var(--color-surface)]',
@@ -17,11 +17,19 @@ export const surfaceVariants = cva({
     },
     spacing: {
       none: '',
-      xs: 'px-2 py-2 tablet:px-4 tablet:py-3',
-      sm: 'px-4 py-2 tablet:px-6 tablet:py-4 laptop:px-8 laptop:py-6',
-      md: 'px-8 py-6 tablet:px-10 tablet:py-8 laptop:px-12 laptop:py-8',
-      lg: 'px-10 py-8 tablet:px-16 tablet:py-12 laptop:px-20 laptop:py-16',
-      xl: 'px-10 py-8 tablet:px-20 tablet:py-16 laptop:px-28 laptop:py-20',
+      xs: 'px-2 py-2 @xl:px-4 @xl:py-3',
+      sm: 'px-4 py-2 @xl:px-6 @xl:py-4 @4xl:px-8 @4xl:py-6',
+      md: 'px-8 py-6 @xl:px-10 @xl:py-8 @4xl:px-12 @4xl:py-8',
+      lg: 'px-10 py-8 @xl:px-16 @xl:py-12 @4xl:px-20 @4xl:py-16',
+      xl: 'px-10 py-8 @xl:px-20 @xl:py-16 @4xl:px-28 @4xl:py-20',
+    },
+    bleed: {
+      none: '',
+      xs: '-mx-2 @xl:-mx-4',
+      sm: '-mx-4 @xl:-mx-6 @4xl:-mx-8',
+      md: '-mx-8 @xl:-mx-10 @4xl:-mx-12',
+      lg: '-mx-10 @xl:-mx-16 @4xl:-mx-20',
+      xl: '-mx-10 @xl:-mx-20 @4xl:-mx-28',
     },
     elevation: {
       dynamic: 'elevation-low @xl:elevation-medium @4xl:elevation-high',
@@ -30,18 +38,12 @@ export const surfaceVariants = cva({
       high: 'elevation-high',
       none: 'shadow-none',
     },
-    accent: {
-      info: 'border-l-4 border-info/50',
-      success: 'border-l-4 border-success/50',
-      destructive: 'border-l-4 border-destructive/50',
-      none: '',
-    },
   },
   defaultVariants: {
     level: 0,
     spacing: 'md',
     elevation: 'dynamic',
-    accent: 'none',
+    bleed: 'none',
   },
 });
 
@@ -59,14 +61,17 @@ type SurfaceProps<T extends ElementType = 'div'> = {
  * being nested.
  */
 const SurfaceComponent = forwardRef<HTMLDivElement, SurfaceProps>(
-  ({ as, children, level, spacing, elevation, className, ...rest }, ref) => {
+  (
+    { as, children, level, spacing, elevation, bleed, className, ...rest },
+    ref,
+  ) => {
     const Component = as ?? 'div'; // Default to 'div' if `as` is not provided
     return (
       <Component
         ref={ref}
         {...rest}
         className={cx(
-          surfaceVariants({ level, spacing, elevation }),
+          surfaceVariants({ level, spacing, elevation, bleed }),
           className,
         )}
       >

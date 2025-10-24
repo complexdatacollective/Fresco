@@ -8,6 +8,7 @@ import {
 import { pageSizes } from '~/components/DataTable/types';
 import { Button } from '~/components/ui/Button';
 import { SelectField } from '~/lib/form/components/fields/Select';
+import Paragraph from '../typography/Paragraph';
 
 type DataTablePaginationProps<TData> = {
   table: Table<TData>;
@@ -24,7 +25,13 @@ export function DataTablePagination<TData>({
       </div> */}
       <div className="tablet:flex-row tablet:gap-6 laptop:gap-8 flex flex-col items-center gap-4">
         <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium whitespace-nowrap">Rows per page</p>
+          <Paragraph
+            intent="smallText"
+            className="whitespace-nowrap"
+            margin="none"
+          >
+            Rows per page
+          </Paragraph>
           <SelectField
             value={`${table.getState().pagination.pageSize}`}
             onChange={(value) => {

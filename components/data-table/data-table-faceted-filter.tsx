@@ -147,7 +147,15 @@ export function DataTableFacetedFilter<TData, TValue>({
             name="filter"
             placeholder={title}
             autoFocus
-            className="border-input bg-background placeholder:text-muted-contrast flex w-full rounded border px-3 py-1 text-sm shadow-2xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:cursor-not-allowed disabled:opacity-50"
+            className={cx(
+              'flex w-full',
+              'border-input bg-background rounded border',
+              'px-3 py-1',
+              'placeholder:text-input-placeholder text-sm',
+              'shadow-2xs transition-colors',
+              'file:border-0 file:bg-transparent file:text-sm file:font-medium',
+              'disabled:cursor-not-allowed disabled:opacity-50',
+            )}
           />
           <CommandList className="mt-1">
             <CommandEmpty>No results found.</CommandEmpty>
@@ -181,7 +189,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                     </div>
                     {option.icon && (
                       <option.icon
-                        className="text-muted-contrast mr-2 size-4"
+                        className="text-text/50 mr-2 size-4"
                         aria-hidden="true"
                       />
                     )}

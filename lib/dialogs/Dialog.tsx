@@ -78,9 +78,19 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
                 ref={ref}
                 render={
                   <Surface
-                    initial={{ opacity: 0, y: '-10%' }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: '-10%', scale: 0.5 }}
+                    initial={{ opacity: 0, y: '-10%', scale: 1.1 }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                      scale: 1,
+                      filter: 'blur(0px)',
+                    }}
+                    exit={{
+                      opacity: 0,
+                      y: '-10%',
+                      scale: 1.5,
+                      filter: 'blur(10px)',
+                    }}
                     transition={{
                       type: 'spring',
                       stiffness: 300,
@@ -89,8 +99,8 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
                     as={motion.div}
                     level={0}
                     className={cx(
-                      'fixed top-1/2 left-1/2 -mt-8 -translate-x-1/2 -translate-y-1/2',
-                      'max-h-dvh max-w-2xl',
+                      '@container-normal fixed top-1/2 left-1/2 -mt-8 -translate-x-1/2 -translate-y-1/2',
+                      'flex max-h-dvh max-w-2xl',
                       // Accent overrides the primary hue so that nested primary buttons inherit color
                       accent === 'success' &&
                         '[--color-primary:var(--color-success)]',
@@ -107,7 +117,7 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
                         <DialogHeading
                           {...titleProps}
                           id={`${id}-title`}
-                          className={cx(titleProps.className, 'me-8')}
+                          className={cx(titleProps.className)}
                         >
                           {title}
                         </DialogHeading>
@@ -192,7 +202,10 @@ const DialogContent = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => {
   return (
-    <div className={cx('-mx-8 overflow-y-auto px-8', className)} {...props}>
+    <div
+      className={cx('-mx-8 overflow-y-auto px-8 pb-2', className)}
+      {...props}
+    >
       {children}
     </div>
   );
