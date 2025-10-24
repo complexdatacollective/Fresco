@@ -1197,9 +1197,9 @@ export const createFamilyTreeStore = (
           store.runLayout();
         },
 
-        addPlaceholderNode: (relation: string, anchorId?: string) => {
+        addPlaceholderNode: (relation: string, anchorRelation?: string) => {
           const store = get();
-          const { addNode, addEdge, network } = store;
+          const { addNode, addEdge, network, getNodeIdFromRelationship } = store;
 
           const inferSex = (relation: string): Sex => {
             if (
@@ -1301,6 +1301,7 @@ export const createFamilyTreeStore = (
           });
 
           const rel = relation.toLowerCase();
+          const anchorId = anchorRelation != null ? getNodeIdFromRelationship(anchorRelation) : null;
 
           // half siblings
           if (rel.includes('half')) {
@@ -1316,7 +1317,7 @@ export const createFamilyTreeStore = (
 
           // ego’s children
           else if (rel === 'son' || rel === 'daughter') {
-            const egoId = 'ego';
+            const egoId = getNodeIdFromRelationship('ego');
             if (network.nodes.has(egoId)) {
               const partnerId = ensurePartner(egoId);
               connectAsChild(egoId);
@@ -1327,8 +1328,10 @@ export const createFamilyTreeStore = (
           // siblings (brother, sister)
           else if (rel.includes('brother') || rel.includes('sister')) {
             // always connect to both parents
-            if (network.nodes.has('mother')) connectAsChild('mother');
-            if (network.nodes.has('father')) connectAsChild('father');
+            const motherId = getNodeIdFromRelationship('mother');
+            if (network.nodes.has(motherId)) connectAsChild(motherId);
+            const fatherId = getNodeIdFromRelationship('mother');
+            if (network.nodes.has(fatherId)) connectAsChild(fatherId);
           }
 
           // nieces and nephews (child of ego’s sibling)
