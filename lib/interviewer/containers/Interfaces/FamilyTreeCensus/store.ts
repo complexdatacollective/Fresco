@@ -41,6 +41,7 @@ type FamilyTreeState = {
 };
 
 type NetworkActions = {
+  getNodeIdFromRelationship: (relationship: string) => string;
   addNode: (node: Omit<Node, 'id'> & { id?: string }) => string;
   updateNode: (id: string, updates: Partial<Omit<Node, 'id'>>) => void;
   removeNode: (id: string) => void;
@@ -84,8 +85,8 @@ type TreeSpacing = {
 };
 
 export const createFamilyTreeStore = (
-  initialNodes: Map<string, Omit<Node, "id">> = new Map(),
-  initialEdges: Map<string, Omit<Edge, "id">> = new Map(),
+  initialNodes: Map<string, Omit<Node, "id">>,
+  initialEdges: Map<string, Omit<Edge, "id">>,
   init: FamilyTreeState = initialState
 ) => {
   init.network.nodes = initialNodes
@@ -720,6 +721,101 @@ export const createFamilyTreeStore = (
             state.step = step;
           }),
 
+        getRelationshipToEgo: (nodeId: string) => {
+          const nodes = get().network.nodes;
+          const egoId = Array.from(nodes.entries()).find(
+            ([, node]) => node.isEgo,
+          )?.[0];
+          if (egoId == null) {
+            return '';
+          }
+          if (nodeId === egoId) {
+            return 'ego';
+          }
+          const egoPartnerId = getPartner(egoId)
+          if (nodeId === egoPartnerId) {
+            return 'ego-partner';
+          }
+          const egoParents = getParents(egoId)
+          const motherId = egoParents.find((id) => getNodeById(id)?.sex === 'female');
+          if (nodeId === motherId) {
+            return 'mother';
+          }
+          if (motherId) {
+            const maternalGrandparents = getParents(motherId);
+            const maternalGrandmotherId = maternalGrandparents.find((id) => getNodeById(id)?.sex === 'female');
+            if (nodeId === maternalGrandmotherId) {
+              return 'maternal-grandmother';
+            }
+            const maternalGrandfatherId = maternalGrandparents.find((id) => getNodeById(id)?.sex === 'male');
+            if (nodeId === maternalGrandfatherId) {
+              return 'maternal-grandfather';
+            }
+          }
+          const fatherId = egoParents.find((id) => getNodeById(id)?.sex === 'male');
+          if (nodeId === fatherId) {
+            return 'father';
+          }
+          if (fatherId) {
+            const paternalGrandparents = getParents(fatherId);
+            const paternalGrandmotherId = paternalGrandparents.find((id) => getNodeById(id)?.sex === 'female');
+            if (nodeId === paternalGrandmotherId) {
+              return 'paternal-grandmother';
+            }
+            const paternalGrandfatherId = paternalGrandparents.find((id) => getNodeById(id)?.sex === 'male');
+            if (nodeId === paternalGrandfatherId) {
+              return 'paternal-grandfather';
+            }
+          }
+        },
+
+        getNodeIdFromRelationship: (relationship: string) => {
+          const nodes = get().network.nodes;
+          const egoId = Array.from(nodes.entries()).find(
+            ([, node]) => node.isEgo,
+          )?.[0];
+          if (egoId == null) {
+            return null;
+          }
+          if (relationship === 'ego') {
+            return egoId;
+          }
+          if (relationship === 'ego-partner') {
+            return getPartner(egoId);
+          }
+          const egoParents = getParents(egoId)
+          if (relationship === 'mother' || (/maternal/.exec(relationship))) {
+            const motherId = egoParents.find((id) => getNodeById(id)?.sex === 'female');
+            if (relationship === 'mother') {
+              return motherId;
+            }
+            if (motherId) {
+              const maternalGrandparents = getParents(motherId);
+              if (relationship === 'maternal-grandmother') {
+                return maternalGrandparents.find((id) => getNodeById(id)?.sex === 'female');
+              }
+              if (relationship === 'maternal-grandfather') {
+                return maternalGrandparents.find((id) => getNodeById(id)?.sex === 'male');
+              }
+            }
+          }
+          if (relationship === 'father' || (/paternal/.exec(relationship))) {
+            const fatherId = egoParents.find((id) => getNodeById(id)?.sex === 'male');
+            if (relationship === 'father') {
+              return fatherId;
+            }
+            if (fatherId) {
+              const paternalGrandparents = getParents(fatherId);
+              if (relationship === 'paternal-grandmother') {
+                return paternalGrandparents.find((id) => getNodeById(id)?.sex === 'female');
+              }
+              if (relationship === 'paternal-grandfather') {
+                return paternalGrandparents.find((id) => getNodeById(id)?.sex === 'male');
+              }
+            }
+          }
+        },
+
         addNode: ({
           id = crypto.randomUUID(),
           label,
@@ -826,108 +922,115 @@ export const createFamilyTreeStore = (
           const store = get();
 
           // Clear existing network
-          store.clearNetwork();
+          // store.clearNetwork();
 
           // Use the existing addNode and addEdge actions
-          const { addNode, addEdge } = store;
+          const { addNode, addEdge, updateNode } = store;
 
           // Maternal grandparents
-          addNode({
-            id: 'maternal-grandmother',
+          const maternalGrandmotherId = addNode({
+            //id: 'maternal-grandmother',
             label: 'maternal grandmother',
             sex: 'female',
             readOnly: true,
           });
-          addNode({
-            id: 'maternal-grandfather',
+          const maternalGrandfatherId = addNode({
+            //id: 'maternal-grandfather',
             label: 'maternal grandfather',
             sex: 'male',
             readOnly: true,
           });
           addEdge({
-            source: 'maternal-grandfather',
-            target: 'maternal-grandmother',
+            source: maternalGrandfatherId,
+            target: maternalGrandmotherId,
             relationship: 'partner',
           });
 
           // Paternal grandparents
-          addNode({
-            id: 'paternal-grandmother',
+          const paternalGrandmotherId = addNode({
+            //id: 'paternal-grandmother',
             label: 'paternal grandmother',
             sex: 'female',
             readOnly: true,
           });
-          addNode({
-            id: 'paternal-grandfather',
+          const paternalGrandfatherId = addNode({
+            //id: 'paternal-grandfather',
             label: 'paternal grandfather',
             sex: 'male',
             readOnly: true,
           });
           addEdge({
-            source: 'paternal-grandfather',
-            target: 'paternal-grandmother',
+            source: paternalGrandfatherId,
+            target: paternalGrandmotherId,
             relationship: 'partner',
           });
 
           // Mother
-          addNode({
-            id: 'mother',
+          const motherId = addNode({
+            //id: 'mother',
             label: 'mother',
             sex: 'female',
             readOnly: true,
           });
           addEdge({
-            source: 'maternal-grandfather',
-            target: 'mother',
+            source: maternalGrandfatherId,
+            target: motherId,
             relationship: 'parent',
           });
           addEdge({
-            source: 'maternal-grandmother',
-            target: 'mother',
+            source: maternalGrandmotherId,
+            target: motherId,
             relationship: 'parent',
           });
 
           // Father
-          addNode({
-            id: 'father',
+          const fatherId = addNode({
+            //id: 'father',
             label: 'father',
             sex: 'male',
             readOnly: true,
           });
           addEdge({
-            source: 'paternal-grandfather',
-            target: 'father',
+            source: paternalGrandfatherId,
+            target: fatherId,
             relationship: 'parent',
           });
           addEdge({
-            source: 'paternal-grandmother',
-            target: 'father',
+            source: paternalGrandmotherId,
+            target: fatherId,
             relationship: 'parent',
           });
           addEdge({
-            source: 'father',
-            target: 'mother',
+            source: fatherId,
+            target: motherId,
             relationship: 'partner',
           });
 
           // Ego (self)
-          addNode({
-            id: 'ego',
+          /*const egoId = addNode({
+            //id: 'ego',
             label: 'self',
             sex: egoSex,
             readOnly: true,
             isEgo: true,
-          });
-          addEdge({
-            source: 'father',
-            target: 'ego',
-            relationship: 'parent',
-          });
-          addEdge({
-            source: 'mother',
-            target: 'ego',
-            relationship: 'parent',
-          });
+          });*/
+          const nodes = get().network.nodes;
+          const egoId = Array.from(nodes.entries()).find(
+            ([, node]) => node.isEgo,
+          )?.[0];
+          if (egoId) {
+            updateNode(egoId, { sex: egoSex });
+            addEdge({
+              source: fatherId,
+              target: egoId,
+              relationship: 'parent',
+            });
+            addEdge({
+              source: motherId,
+              target: egoId,
+              relationship: 'parent',
+            });
+          }
 
           // Add siblings
           arrayFromRelationCount(formData, 'brothers').forEach(() => {
@@ -937,12 +1040,12 @@ export const createFamilyTreeStore = (
               readOnly: false,
             });
             addEdge({
-              source: 'father',
+              source: fatherId,
               target: brotherId,
               relationship: 'parent',
             });
             addEdge({
-              source: 'mother',
+              source: motherId,
               target: brotherId,
               relationship: 'parent',
             });
@@ -955,12 +1058,12 @@ export const createFamilyTreeStore = (
               readOnly: false,
             });
             addEdge({
-              source: 'father',
+              source: fatherId,
               target: sisterId,
               relationship: 'parent',
             });
             addEdge({
-              source: 'mother',
+              source: motherId,
               target: sisterId,
               relationship: 'parent',
             });
@@ -969,14 +1072,14 @@ export const createFamilyTreeStore = (
           // Ego's children and partner
           if ((formData.sons ?? 0) > 0 || (formData.daughters ?? 0) > 0) {
             const egoPartnerId = addNode({
-              id: 'ego-partner',
+              //id: 'ego-partner',
               label: "self's partner",
               sex: egoSex === 'female' ? 'male' : 'female',
               readOnly: true,
             });
             addEdge({
               target: egoPartnerId,
-              source: 'ego',
+              source: egoId,
               relationship: 'partner',
             });
 
@@ -987,12 +1090,12 @@ export const createFamilyTreeStore = (
                 readOnly: false,
               });
               addEdge({
-                source: 'ego',
+                source: egoId,
                 target: sonId,
                 relationship: 'parent',
               });
               addEdge({
-                source: 'ego-partner',
+                source: egoPartnerId,
                 target: sonId,
                 relationship: 'parent',
               });
@@ -1005,12 +1108,12 @@ export const createFamilyTreeStore = (
                 readOnly: false,
               });
               addEdge({
-                source: 'ego',
+                source: egoId,
                 target: daughterId,
                 relationship: 'parent',
               });
               addEdge({
-                source: 'ego-partner',
+                source: egoPartnerId,
                 target: daughterId,
                 relationship: 'parent',
               });
@@ -1025,12 +1128,12 @@ export const createFamilyTreeStore = (
               readOnly: false,
             });
             addEdge({
-              source: 'paternal-grandfather',
+              source: paternalGrandfatherId,
               target: uncleId,
               relationship: 'parent',
             });
             addEdge({
-              source: 'paternal-grandmother',
+              source: paternalGrandmotherId,
               target: uncleId,
               relationship: 'parent',
             });
@@ -1043,12 +1146,12 @@ export const createFamilyTreeStore = (
               readOnly: false,
             });
             addEdge({
-              source: 'paternal-grandfather',
+              source: paternalGrandfatherId,
               target: auntId,
               relationship: 'parent',
             });
             addEdge({
-              source: 'paternal-grandmother',
+              source: paternalGrandmotherId,
               target: auntId,
               relationship: 'parent',
             });
@@ -1062,12 +1165,12 @@ export const createFamilyTreeStore = (
               readOnly: false,
             });
             addEdge({
-              source: 'maternal-grandfather',
+              source: maternalGrandfatherId,
               target: uncleId,
               relationship: 'parent',
             });
             addEdge({
-              source: 'maternal-grandmother',
+              source: maternalGrandmotherId,
               target: uncleId,
               relationship: 'parent',
             });
@@ -1080,12 +1183,12 @@ export const createFamilyTreeStore = (
               readOnly: false,
             });
             addEdge({
-              source: 'maternal-grandfather',
+              source: maternalGrandfatherId,
               target: auntId,
               relationship: 'parent',
             });
             addEdge({
-              source: 'maternal-grandmother',
+              source: maternalGrandmotherId,
               target: auntId,
               relationship: 'parent',
             });

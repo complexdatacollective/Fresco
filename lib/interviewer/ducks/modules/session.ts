@@ -24,7 +24,7 @@ import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 import { generateSecureAttributes } from '../../containers/Interfaces/Anonymisation/utils';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
-import { makeGetCodebookVariablesForNodeType } from '../../selectors/protocol';
+import { makeGetCodebookVariablesForEdgeType, makeGetCodebookVariablesForNodeType } from '../../selectors/protocol';
 import {
   getCurrentStageId,
   getPromptId,
@@ -225,10 +225,10 @@ export const addEdge = createAsyncThunk(
     const state = getState() as RootState;
     const sessionMeta = getSessionMeta(state);
 
-    const getCodebookVariablesForNodeType =
-      makeGetCodebookVariablesForNodeType(state);
+    const getCodebookVariablesForEdgeType =
+      makeGetCodebookVariablesForEdgeType(state);
 
-    const variablesForType = getCodebookVariablesForNodeType(type);
+    const variablesForType = getCodebookVariablesForEdgeType(type);
 
     // Validate that all attribute keys exist in the codebook
     if (attributeData) {

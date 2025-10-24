@@ -1,6 +1,7 @@
 import { type NcEdge, type NcEgo, type NcNode } from '@codaco/shared-consts';
 import { invariant } from 'es-toolkit';
 import { createContext, useContext, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import { useStore } from 'zustand';
 import {
   createFamilyTreeStore,
@@ -9,6 +10,7 @@ import {
   type FamilyTreeStoreApi,
   type Node,
 } from './store';
+import { getRelationshipTypeVariable } from './utils/edgeUtils';
 
 const FamilyTreeContext = createContext<FamilyTreeStoreApi | undefined>(
   undefined,
@@ -45,10 +47,12 @@ export const FamilyTreeProvider = ({
       interviewNetworkId: ego._uid,
     })
   }
+  const relationshipVariable = useSelector(getRelationshipTypeVariable)
   const initialEdges = new Map<string, Omit<Edge, "id">>(
     edges.map((edge) => [edge._uid, {
-                source: edge.attributes.from,
-                target: edge.attributes.to,
+                relationship: edge.attributes[relationshipVariable],
+                source: edge.from,
+                target: edge.to,
                 interviewNetworkId: edge._uid,
               }])
   );

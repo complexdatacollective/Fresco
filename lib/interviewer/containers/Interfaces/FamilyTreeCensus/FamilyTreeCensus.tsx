@@ -12,9 +12,10 @@ import { getNetworkEdges, getNetworkEgo } from '~/lib/interviewer/selectors/sess
 import { useAppDispatch } from '~/lib/interviewer/store';
 import Prompts from '~/lib/ui/components/Prompts/Prompts';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
-import { getEdgeType, getRelationshipTypeVariable } from './components/EdgeRenderer';
+import { getEdgeType } from './components/EdgeRenderer';
 import { FamilyTreeShells } from './components/FamilyTreeShells';
 import { FamilyTreeProvider, useFamilyTreeStore } from './FamilyTreeProvider';
+import { getRelationshipTypeVariable } from './utils/edgeUtils';
 
 type FamilyTreeCensusProps = StageProps & {
   stage: Extract<Stage, { type: 'FamilyTreeCensus' }>;

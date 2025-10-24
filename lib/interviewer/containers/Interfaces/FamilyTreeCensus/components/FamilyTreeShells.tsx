@@ -67,9 +67,11 @@ export const FamilyTreeShells = (props: {
           }
         } else {
           // TODO: implement toasts here? or some other notif if fails
+          // eslint-disable-next-line no-console
           console.warn('Network node update failed — not updating shell');
         }
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error('Error updating node:', err);
       }
     },

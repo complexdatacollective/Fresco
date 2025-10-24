@@ -47,18 +47,16 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
     (node: Node, attributes: NcNode[EntityAttributesProperty]) => {
       if (!node) return;
 
-      const nodeNetworkId = crypto.randomUUID();
-
       void dispatch(
         addNetworkNode({
           type: nodeType,
-          modelData: { [entityPrimaryKeyProperty]: nodeNetworkId },
+          modelData: { [entityPrimaryKeyProperty]: node.id! },
           attributeData: attributes,
         }),
       ).then(() => {
         if (node.id) {
           updateShellNode(node.id, {
-            interviewNetworkId: nodeNetworkId,
+            interviewNetworkId: node.id,
             name: attributes.name as string,
             fields: attributes,
           });

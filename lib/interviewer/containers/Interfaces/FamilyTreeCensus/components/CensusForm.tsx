@@ -135,12 +135,13 @@ export const CensusForm = ({ showForm = true }: { showForm: boolean }) => {
     };
 
   const dispatch = useAppDispatch();
+  const getNodeIdFromRelationship = useFamilyTreeStore((state) => state.getNodeIdFromRelationship);
   const updateNode = useFamilyTreeStore((state) => state.updateNode);
   const saveEgoSex = useCallback(() => {
     if (!sexVariable) return;
     void dispatch(updateEgo({ [sexVariable]: sexValue }));
-    updateNode('ego', { interviewNetworkId: 'ego', [sexVariable]: sexValue });
-  }, [dispatch, sexValue, updateNode, sexVariable]);
+    updateNode(getNodeIdFromRelationship('ego'), { [sexVariable]: sexValue });
+  }, [dispatch, sexValue, updateNode, getNodeIdFromRelationship, sexVariable]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
