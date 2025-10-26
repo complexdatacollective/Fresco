@@ -194,8 +194,17 @@ export default withNoSSRWrapper((props: FamilyTreeCensusProps) => {
   const ego = useSelector(getNetworkEgo);
   const allNodes = useSelector(getNetworkNodes);
   const allEdges = useSelector(getNetworkEdges);
+  const { stage } = props;
+  const diseaseVariables =
+    stage.diseaseNominationStep?.map((diseaseStep) => diseaseStep.variable) ??
+    [];
   return (
-    <FamilyTreeProvider ego={ego} nodes={allNodes} edges={allEdges}>
+    <FamilyTreeProvider
+      ego={ego}
+      nodes={allNodes}
+      edges={allEdges}
+      diseaseVariables={diseaseVariables}
+    >
       <FamilyTreeCensus {...props} />
       <Toaster />
     </FamilyTreeProvider>

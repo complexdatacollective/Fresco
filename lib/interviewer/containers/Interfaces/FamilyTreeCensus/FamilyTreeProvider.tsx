@@ -9,6 +9,8 @@ import {
   type FamilyTreeStore,
   type FamilyTreeStoreApi,
   type Node,
+  type Relationship,
+  type Sex,
 } from './store';
 import { getRelationshipTypeVariable } from './utils/edgeUtils';
 
@@ -20,26 +22,37 @@ export const FamilyTreeProvider = ({
   ego,
   nodes,
   edges,
+  diseaseVariables,
   children,
 }: {
   ego: NcEgo | null;
   nodes: NcNode[];
   edges: NcEdge[];
+  diseaseVariables: string[];
   children: React.ReactNode;
 }) => {
   const storeRef = useRef<FamilyTreeStoreApi>();
 
   const initialNodes = new Map<string, Omit<Node, 'id'>>(
-    nodes.map((node) => [
-      node._uid,
-      {
-        label: node.attributes.name,
-        sex: node.attributes.sex,
-        readOnly: false,
-        isEgo: false,
-        interviewNetworkId: node._uid,
-      },
-    ]),
+    nodes.map((node) => {
+      const diseases = new Map(
+        diseaseVariables.map((disease) => [
+          disease,
+          node.attributes[disease] as boolean,
+        ]),
+      );
+      return [
+        node._uid,
+        {
+          label: node.attributes.name as string,
+          sex: node.attributes.sex as Sex,
+          readOnly: false,
+          isEgo: false,
+          interviewNetworkId: node._uid,
+          diseases: diseases,
+        },
+      ];
+    }),
   );
   if (ego != null) {
     initialNodes.set(ego._uid, {
@@ -55,7 +68,7 @@ export const FamilyTreeProvider = ({
     edges.map((edge) => [
       edge._uid,
       {
-        relationship: edge.attributes[relationshipVariable],
+        relationship: edge.attributes[relationshipVariable] as Relationship,
         source: edge.from,
         target: edge.to,
         interviewNetworkId: edge._uid,

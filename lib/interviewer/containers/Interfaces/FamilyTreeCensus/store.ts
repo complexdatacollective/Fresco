@@ -6,7 +6,7 @@ import { FAMILY_TREE_CONFIG } from './config';
 
 enableMapSet();
 
-type Sex = 'male' | 'female';
+export type Sex = 'male' | 'female';
 
 export type Node = {
   id?: string;
@@ -22,12 +22,14 @@ export type Node = {
   fields?: Map<string, string>;
 };
 
+export type Relationship = 'parent' | 'partner' | 'ex-partner';
+
 export type Edge = {
   id?: string;
   interviewNetworkId?: string;
   source: string;
   target: string;
-  relationship: 'parent' | 'partner' | 'ex-partner';
+  relationship: Relationship;
 };
 
 type NetworkState = {

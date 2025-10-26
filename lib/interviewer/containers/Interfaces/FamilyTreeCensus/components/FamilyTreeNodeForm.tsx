@@ -50,7 +50,7 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
         addNetworkNode({
           type: nodeType,
           modelData: { [entityPrimaryKeyProperty]: node.id },
-          attributeData: attributes,
+          attributeData: { sex: node.sex, ...attributes },
         }),
       ).then(() => {
         if (node.id) {
