@@ -6,6 +6,7 @@ import type {
   VariableValue,
 } from '@codaco/shared-consts';
 import { useCallback, useState } from 'react';
+import { useToast } from '~/components/ui/use-toast';
 import { type Node } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/store';
 import { updateNode as updateNetworkNode } from '~/lib/interviewer/ducks/modules/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
@@ -36,6 +37,7 @@ export const FamilyTreeShells = (props: {
     nodesMap.entries().map(([id, node]) => ({ id, ...node })),
   );
   const [selectedNode, setSelectedNode] = useState<Node | void>(undefined);
+  const { toast } = useToast();
 
   const dispatch = useAppDispatch();
   const updateShellNode = useFamilyTreeStore((state) => state.updateNode);
@@ -64,9 +66,12 @@ export const FamilyTreeShells = (props: {
             updateShellNode(shellId, { diseases: mergedDiseases });
           }
         } else {
-          // TODO: implement toasts here? or some other notif if fails
-          // eslint-disable-next-line no-console
-          console.warn('Network node update failed — not updating shell');
+          toast({
+            title: 'Error',
+            description:
+              'There was an issue updating the node. Please try again.',
+            variant: 'destructive',
+          });
         }
       } catch (err) {
         // eslint-disable-next-line no-console
@@ -77,8 +82,9 @@ export const FamilyTreeShells = (props: {
       diseaseVariable,
       dispatch,
       getShellIdByNetworkId,
-      updateShellNode,
       nodesMap,
+      updateShellNode,
+      toast,
     ],
   );
 
@@ -105,11 +111,7 @@ export const FamilyTreeShells = (props: {
               name={node.name}
               label={node.label}
               isEgo={node.isEgo}
-              allowDrag={
-                node.readOnly !== true &&
-                stepIndex < 2 &&
-                !node.interviewNetworkId
-              }
+              allowDrag={node.readOnly !== true && stepIndex < 2}
               interviewNetworkId={node.interviewNetworkId}
               shape={node.sex === 'female' ? 'circle' : 'square'}
               x={node.x ?? 0}

@@ -7,7 +7,7 @@ import { Toaster } from '~/components/ui/toaster';
 import { useToast } from '~/components/ui/use-toast';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import { type StageProps } from '~/lib/interviewer/containers/Stage';
-import { addEdge } from '~/lib/interviewer/ducks/modules/session';
+import { addEdge, deleteNode } from '~/lib/interviewer/ducks/modules/session';
 import {
   getNetworkEdges,
   getNetworkEgo,
@@ -176,9 +176,14 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           <NodeBin
             dropHandler={(node, metadata) => {
               const shellNode = metadata as Record<string, string>;
-              if (shellNode?.placeholderId) {
-                removeNode(shellNode?.placeholderId);
-              }
+              const placeholderId = shellNode?.placeholderId;
+              if (!placeholderId) return;
+
+              const interviewId =
+                nodesMap.get(placeholderId)?.interviewNetworkId;
+              if (interviewId) dispatch(deleteNode(interviewId));
+
+              removeNode(placeholderId);
             }}
             accepts={(node: NcNode & { itemType?: string }) =>
               node.itemType === 'FAMILY_TREE_NODE'
