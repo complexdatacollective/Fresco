@@ -1,17 +1,18 @@
 import * as React from 'react';
 import { cx } from '~/utils/cva';
+import Surface from '../layout/Surface';
 
 const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
-  <div className="max-w-full overflow-x-auto rounded border">
+  <Surface className="max-w-full overflow-x-auto" spacing="none">
     <table
       ref={ref}
-      className={cx('w-full caption-bottom border-collapse text-sm', className)}
+      className={cx('w-full caption-bottom border-collapse', className)}
       {...props}
     />
-  </div>
+  </Surface>
 ));
 Table.displayName = 'Table';
 
@@ -21,7 +22,10 @@ const TableHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <thead
     ref={ref}
-    className={cx('border-collapse [&_tr]:border-b', className)}
+    className={cx(
+      'bg-scope border-collapse bg-current/5 [&_tr]:border-b',
+      className,
+    )}
     {...props}
   />
 ));
@@ -45,7 +49,10 @@ const TableFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tfoot
     ref={ref}
-    className={cx('bg-primary text-primary-contrast font-medium', className)}
+    className={cx(
+      'bg-primary bg-scope text-primary-contrast font-medium',
+      className,
+    )}
     {...props}
   />
 ));
@@ -58,7 +65,7 @@ const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cx(
-      'hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors',
+      'data-[state=selected]:bg-selected border-b transition-colors duration-300 hover:bg-current/5',
       className,
     )}
     {...props}
@@ -73,8 +80,8 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cx(
-      'px-4 py-2 whitespace-nowrap [&:has([role=checkbox])]:pr-0',
-      'text-left font-medium first:pl-6 last:pr-6',
+      'px-4 py-4 whitespace-nowrap [&:has([role=checkbox])]:pr-0',
+      'text-left font-medium first:pl-12 last:pr-12',
       className,
     )}
     {...props}
@@ -89,7 +96,8 @@ const TableCell = React.forwardRef<
   <td
     ref={ref}
     className={cx(
-      'px-4 py-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0',
+      'px-4 py-4 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0',
+      'first:pl-12 last:pr-12',
       className,
     )}
     {...props}
@@ -103,7 +111,7 @@ const TableCaption = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <caption
     ref={ref}
-    className={cx('text-muted-contrast mt-4 text-sm', className)}
+    className={cx('mt-4 text-sm text-current/50', className)}
     {...props}
   />
 ));

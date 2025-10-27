@@ -249,7 +249,7 @@ const ReduxDecorator = (Story, context) => {
 };
 
 const meta: Meta<typeof NodeForm> = {
-  title: 'Interviewer/NameGenerator/NodeForm',
+  title: 'Interfaces/NameGenerator/NodeForm',
   component: NodeForm,
   decorators: [ReduxDecorator],
   parameters: {

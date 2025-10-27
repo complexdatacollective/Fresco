@@ -1,14 +1,6 @@
 import plugin from 'tailwindcss/plugin';
 import { type Elevation, generateShadowLayers } from './jwc';
 
-type ShadowLayer = {
-  offsetX: string;
-  offsetY: string;
-  blurRadius: string;
-  spreadRadius: string;
-  opacity: number;
-};
-
 /**
  * Plugin that adds `elevation` utilities that create shadows based on the
  * blending of multiple shadow layers to create beautiful, realistic shadows.
@@ -70,9 +62,9 @@ export default plugin.withOptions<PluginConfig>(
       const {
         lightX = 0,
         lightY = -0.5,
-        oomph = 0.05,
-        crispy = 0.5,
-        resolution = 0.3,
+        oomph = 0.5,
+        crispy = 1,
+        resolution = 0.5,
         opacityScaleFactor = 0.65,
       } = options;
 

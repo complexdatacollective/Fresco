@@ -1,5 +1,6 @@
 'use client';
 
+import { Settings } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { Route } from 'next';
 import Link from 'next/link';
@@ -7,6 +8,7 @@ import { usePathname } from 'next/navigation';
 import type { UrlObject } from 'url';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
+import Button from '~/components/ui/Button';
 import { cx } from '~/utils/cva';
 import UserMenu from './UserMenu';
 
@@ -15,7 +17,7 @@ const NavButton = ({
   href,
   isActive = false,
 }: {
-  label: string;
+  label: string | React.ReactNode;
   href: UrlObject | Route;
   isActive?: boolean;
 }) => {
@@ -47,7 +49,7 @@ export function NavigationBar() {
         as="nav"
         spacing="none"
         elevation="none"
-        className="bg-primary text-primary-contrast elevation-high @container-normal fixed top-2 left-1/2 flex -translate-x-1/2 items-center justify-between gap-4 rounded-full px-6 py-4 backdrop-blur-sm"
+        className="bg-primary text-primary-contrast elevation-high @container-normal fixed top-2 left-1/2 flex -translate-x-1/2 items-center justify-between gap-4 rounded-full px-6 py-4 backdrop-blur-sm [--color-text:var(--color-white)]"
       >
         <Link href="/" className="flex items-center space-x-2">
           <Heading
@@ -79,12 +81,14 @@ export function NavigationBar() {
             href="/dashboard/interviews"
             isActive={pathname === '/dashboard/interviews'}
           />
-          <NavButton
-            label="Settings"
-            href="/dashboard/settings"
-            isActive={pathname === '/dashboard/settings'}
-          />
         </ul>
+        <Link href="/dashboard/settings">
+          <Button
+            variant="text"
+            size="icon"
+            icon={<Settings size={20} aria-label="Settings" />}
+          />
+        </Link>
         <UserMenu />
       </Surface>
     </>

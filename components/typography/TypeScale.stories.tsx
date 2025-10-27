@@ -278,3 +278,106 @@ export const TypicalPageLayout: Story = {
     </div>
   ),
 };
+
+export const LineHeightDemo: Story = {
+  render: () => (
+    <div className="mx-auto max-w-4xl p-8">
+      <h2 className="mb-4 text-xl">Line Height Visualization</h2>
+      <p className="mb-8">
+        This demonstrates how line height adapts for each text size. Notice how
+        larger text has tighter line spacing while smaller text has more
+        generous spacing for readability.
+      </p>
+
+      <div className="space-y-8">
+        <div>
+          <div className="mb-2 text-xs font-semibold">text-xs</div>
+          <div className="text-xs">
+            Typography is the art and technique of arranging type to make
+            written language legible, readable and appealing when displayed. The
+            arrangement of type involves selecting typefaces, point sizes, line
+            lengths, line-spacing, and letter-spacing, and adjusting the space
+            between pairs of letters.
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-2 text-xs font-semibold">text-sm</div>
+          <div className="text-sm">
+            Typography is the art and technique of arranging type to make
+            written language legible, readable and appealing when displayed. The
+            arrangement of type involves selecting typefaces, point sizes, line
+            lengths, line-spacing, and adjusting the space between pairs of
+            letters.
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-2 text-xs font-semibold">text-base</div>
+          <div className="text-base">
+            Typography is the art and technique of arranging type to make
+            written language legible, readable and appealing when displayed. The
+            arrangement of type involves selecting typefaces, point sizes, line
+            lengths, line-spacing, and adjusting the space between pairs of
+            letters.
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-2 text-xs font-semibold">text-lg</div>
+          <div className="text-lg">
+            Typography is the art and technique of arranging type to make
+            written language legible, readable and appealing when displayed. The
+            arrangement of type involves selecting typefaces, point sizes, line
+            lengths, line-spacing, and adjusting the space between pairs of
+            letters.
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-2 text-xs font-semibold">text-xl</div>
+          <div className="text-xl">
+            Typography is the art and technique of arranging type to make
+            written language legible, readable and appealing when displayed. The
+            arrangement of type involves selecting typefaces, point sizes, line
+            lengths, line-spacing, and adjusting the space between pairs of
+            letters.
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-2 text-xs font-semibold">text-2xl</div>
+          <div className="text-2xl">
+            Typography is the art and technique of arranging type to make
+            written language legible, readable and appealing when displayed. The
+            arrangement of type involves selecting typefaces, point sizes, line
+            lengths, line-spacing, and adjusting the space between pairs of
+            letters.
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-2 text-xs font-semibold">text-3xl</div>
+          <div className="text-3xl">
+            Typography is the art and technique of arranging type to make
+            written language legible, readable and appealing when displayed. The
+            arrangement of type involves selecting typefaces, point sizes, line
+            lengths, line-spacing, and adjusting the space between pairs of
+            letters.
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-2 text-xs font-semibold">text-4xl</div>
+          <div className="text-4xl">
+            Typography is the art and technique of arranging type to make
+            written language legible, readable and appealing when displayed. The
+            arrangement of type involves selecting typefaces, point sizes, line
+            lengths, line-spacing, and adjusting the space between pairs of
+            letters.
+          </div>
+        </div>
+      </div>
+    </div>
+  ),
+};

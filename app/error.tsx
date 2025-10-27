@@ -1,7 +1,6 @@
 'use client';
 
 import { ClipboardCopy } from 'lucide-react';
-import Image from 'next/image';
 import ErrorReportNotifier from '~/components/ErrorReportNotifier';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import Surface from '~/components/layout/Surface';
@@ -45,32 +44,28 @@ ${error.stack}`;
     <div className="flex h-[100vh] items-center justify-center">
       <ErrorReportNotifier error={error} />
       <ResponsiveContainer baseSize="60%">
-        <Surface accent="destructive">
-          <div className="mb-6 flex flex-col items-center justify-center gap-2">
-            <Image
-              src="/images/robot.svg"
-              width={80}
-              height={80}
-              alt="Error robot"
-            />
-            <Heading level="h1" className="text-destructive">
-              Something went wrong.
-            </Heading>
-          </div>
-          <Paragraph intent="lead" className="mb-0">
+        <Surface>
+          <Heading level="h1" className="text-destructive">
+            Something went wrong.
+          </Heading>
+          <Paragraph intent="lead">
             Fresco encountered an error while trying to load the page, and could
             not continue.
           </Paragraph>
           <Paragraph>
             This error has been automatically reported to us, but if you would
             like to provide further information that you think might be useful
-            please use the feedback button. You can also use the rety button to
-            attempt to load the page again.
+            please contact us. You can also use the retry button to attempt to
+            load the page again.
           </Paragraph>
-          <div className="mt-4 flex flex-col gap-2">
-            <Button onClick={copyDebugInfoToClipboard} variant="outline">
+          <hr className="tablet:block hidden" />
+          <div className="tablet:flex-row tablet:justify-between flex flex-col gap-2">
+            <Button
+              onClick={copyDebugInfoToClipboard}
+              variant="outline"
+              icon={<ClipboardCopy />}
+            >
               Copy Debug Information
-              <ClipboardCopy className="ml-2" />
             </Button>
             <Button onClick={handleReset} variant="default" className="flex">
               Try Again

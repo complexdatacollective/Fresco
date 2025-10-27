@@ -2,7 +2,7 @@ import type { Meta, StoryFn } from '@storybook/nextjs-vite';
 import React from 'react';
 
 const meta: Meta = {
-  title: 'Systems/Elevation',
+  title: 'Design System/Elevation',
   parameters: {
     layout: 'fullscreen',
   },

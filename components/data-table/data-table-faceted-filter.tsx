@@ -1,6 +1,5 @@
 import { type Column } from '@tanstack/react-table';
 import { Check, PlusCircle } from 'lucide-react';
-import { getBadgeColorsForActivityType } from '~/app/dashboard/_components/ActivityFeed/utils';
 import { type Option } from '~/components/DataTable/types';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/Button';
@@ -41,37 +40,17 @@ export function DataTableFacetedFilter<TData, TValue>({
       {variant === 'popover' ? (
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="h-10 border-dashed">
-              <PlusCircle className="mr-2" size={16} />
+            <Button variant="dashed" icon={<PlusCircle />} iconPosition="left">
               {title}
               {selectedValues?.size > 0 && (
                 <>
                   <Separator orientation="vertical" className="mx-2 h-4" />
                   <Badge
                     variant="secondary"
-                    className="laptop:hidden rounded-sm px-1"
+                    className="flex aspect-square h-8 w-auto items-center justify-center"
                   >
                     {selectedValues.size}
                   </Badge>
-                  <div className="laptop:flex hidden space-x-1">
-                    {selectedValues.size > 2 ? (
-                      <Badge>{selectedValues.size} selected</Badge>
-                    ) : (
-                      options
-                        .filter((option) => selectedValues.has(option.value))
-                        .map((option) => (
-                          <Badge
-                            variant="secondary"
-                            key={option.value}
-                            className={getBadgeColorsForActivityType(
-                              option.value,
-                            )}
-                          >
-                            {option.label}
-                          </Badge>
-                        ))
-                    )}
-                  </div>
                 </>
               )}
             </Button>

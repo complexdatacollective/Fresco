@@ -28,9 +28,9 @@ const buttonVariants = cva({
     color: {
       default: cx(
         // bg: mix of 5% of text color and background color
-        '[--scoped-bg:color-mix(in_oklab,var(--text)_6%,var(--background))]',
+        '[--scoped-bg:color-mix(in_oklab,var(--color-text)_6%,var(--color-background))]',
         // text: use the foreground color
-        '[--scoped-text:var(--text)]',
+        '[--scoped-text:red]',
       ),
       primary:
         '[--scoped-bg:var(--color-primary)] [--scoped-text:var(--color-primary-contrast)]',

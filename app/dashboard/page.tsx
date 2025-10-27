@@ -28,6 +28,7 @@ export default async function Home({
           headerText="Dashboard"
           subHeaderText="Welcome to Fresco! This page provides an overview of your recent activity and key metrics."
         />
+
         <Suspense fallback={null}>
           <AnonymousRecruitmentWarning />
         </Suspense>

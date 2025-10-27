@@ -11,13 +11,8 @@ export const paragraphVariants = cva({
       blockquote: 'mt-4 border-l-2 pl-6 italic',
       inlineCode:
         'relative rounded bg-background/50 px-[0.3rem] py-[0.2rem] font-monospace font-semibold',
-      lead: '!text-lg', // TODO: remove
-      smallText: '!text-sm', // TODO: remove
-    },
-    size: {
-      default: 'text-base',
-      large: 'text-lg',
-      small: 'text-sm',
+      lead: 'text-lg',
+      smallText: 'text-sm',
     },
     emphasis: {
       default: 'opacity-100',
@@ -31,7 +26,6 @@ export const paragraphVariants = cva({
   defaultVariants: {
     intent: 'default',
     margin: 'default',
-    size: 'default',
     emphasis: 'default',
   },
 });

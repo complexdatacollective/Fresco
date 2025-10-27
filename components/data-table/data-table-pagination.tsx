@@ -18,11 +18,11 @@ export function DataTablePagination<TData>({
   table,
 }: DataTablePaginationProps<TData>) {
   return (
-    <div className="tablet:flex-row tablet:gap-8 flex w-full flex-col items-center justify-end gap-4 overflow-auto px-2 py-1">
-      {/* <div className="flex-1 whitespace-nowrap text-sm text-muted-contrast">
+    <div className="tablet:flex-row tablet:gap-8 flex w-full flex-col items-center justify-end gap-4 px-2 py-1">
+      <div className="flex-1 text-sm whitespace-nowrap text-current/50">
         {table.getFilteredSelectedRowModel().rows.length} of{' '}
         {table.getFilteredRowModel().rows.length} row(s) selected.
-      </div> */}
+      </div>
       <div className="tablet:flex-row tablet:gap-6 laptop:gap-8 flex flex-col items-center gap-4">
         <div className="flex items-center space-x-2">
           <Paragraph
@@ -33,9 +33,10 @@ export function DataTablePagination<TData>({
             Rows per page
           </Paragraph>
           <SelectField
+            name="pageSize"
             value={`${table.getState().pagination.pageSize}`}
-            onChange={(value) => {
-              table.setPageSize(Number(value));
+            onChange={(e) => {
+              table.setPageSize(Number(e.target.value));
             }}
             options={pageSizes.map((size) => ({
               label: size.toLocaleString(),

@@ -133,7 +133,7 @@ function calculateBlurRadius({
 
   // Apply elevation-specific blur adjustments for visual hierarchy
   const elevationBlurMultiplier = {
-    low: 0.7, // Sharper shadows for low elevation
+    low: 0.75, // Sharper shadows for low elevation
     medium: 0.85, // Moderate blur for medium elevation
     high: 1.0, // More diffused shadows for high elevation
   };
@@ -228,12 +228,12 @@ export function generateShadows({
       max: 3,
     },
     medium: {
-      min: 2,
+      min: 3,
       max: 5,
     },
     high: {
       min: 3,
-      max: 10,
+      max: 8,
     },
   };
 
@@ -341,11 +341,11 @@ export function generateShadowLayers(
     },
     medium: {
       min: 2,
-      max: 5,
+      max: 4,
     },
     high: {
       min: 3,
-      max: 10,
+      max: 5,
     },
   };
 

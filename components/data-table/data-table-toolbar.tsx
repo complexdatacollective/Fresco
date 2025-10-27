@@ -32,6 +32,10 @@ export function DataTableToolbar<TData>({
   const isFiltered = table.getState().columnFilters?.length > 0;
   const [isPending, startTransition] = React.useTransition();
 
+  if (searchableColumns.length === 0 && filterableColumns.length === 0) {
+    return null;
+  }
+
   return (
     <div className="flex w-full items-center justify-between space-y-4 overflow-auto">
       <div className="flex flex-1 items-center space-x-2">
@@ -71,13 +75,11 @@ export function DataTableToolbar<TData>({
           )}
         {isFiltered && (
           <Button
-            aria-label="Reset filters"
             variant="link"
-            className="laptop:px-3 px-2"
             onClick={() => table.resetColumnFilters()}
+            icon={<X className="size-4" aria-hidden="true" />}
           >
             Reset
-            <X className="ml-2 size-4" aria-hidden="true" />
           </Button>
         )}
       </div>
@@ -113,7 +115,6 @@ export function DataTableToolbar<TData>({
             </div>
           </Link>
         ) : null}
-        {/* <DataTableViewOptions table={table} /> */}
       </div>
     </div>
   );

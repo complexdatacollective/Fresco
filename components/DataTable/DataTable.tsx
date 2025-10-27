@@ -24,7 +24,6 @@ import {
   TableRow,
 } from '~/components/ui/table';
 import { InputField } from '~/lib/form/components/fields/Input';
-import Surface from '../layout/Surface';
 
 type CustomTable<TData> = TTable<TData> & {
   options?: {
@@ -147,7 +146,7 @@ export function DataTable<TData, TValue>({
   }, [handleExportSelected, table, setRowSelection]);
 
   return (
-    <Surface>
+    <>
       {(filterColumnAccessorKey || headerItems) && (
         <div className="flex items-center gap-2 pt-1 pb-4">
           {filterColumnAccessorKey && (
@@ -216,7 +215,7 @@ export function DataTable<TData, TValue>({
       </Table>
       <div>
         <div className="flex justify-between py-4">
-          <div className="text-muted-contrast text-sm">
+          <div className="text-sm text-current/50">
             {table.getFilteredSelectedRowModel().rows.length} of{' '}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
@@ -278,6 +277,6 @@ export function DataTable<TData, TValue>({
           </Button>
         )}
       </div>
-    </Surface>
+    </>
   );
 }

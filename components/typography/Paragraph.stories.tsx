@@ -3,7 +3,7 @@ import Heading from './Heading';
 import Paragraph from './Paragraph';
 
 const meta = {
-  title: 'Systems/Typography/Paragraph',
+  title: 'UI/Typography/Paragraph',
   component: Paragraph,
   parameters: {
     layout: 'padded',
