@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { type Edge, type Node } from './store';
+import { type FamilyTreeNodeType } from './components/FamilyTreeNode';
+import { type Edge } from './store';
 
 export type RelativeOption = { label: string; value: string };
 
@@ -18,7 +19,7 @@ type RelativesResult = {
 };
 
 export const useRelatives = (
-  nodesMap: Map<string, Node>,
+  nodesMap: Map<string, Omit<FamilyTreeNodeType, 'id'>>,
   edgesMap: Map<string, Edge>,
 ): RelativesResult => {
   return useMemo(() => {
@@ -35,10 +36,10 @@ export const useRelatives = (
     const getSiblingsByParent = (
       parentKeys: (string | null)[],
       edgesMap: Map<string, Edge>,
-      nodesMap: Map<string, Node>,
+      nodesMap: Map<string, Omit<FamilyTreeNodeType, 'id'>>,
       subjectKey?: string, // optional
-    ): Map<string, Node> => {
-      const siblings = new Map<string, Node>();
+    ): Map<string, Omit<FamilyTreeNodeType, 'id'>> => {
+      const siblings = new Map<string, Omit<FamilyTreeNodeType, 'id'>>();
 
       parentKeys.forEach((parentKey) => {
         if (!parentKey) return;

@@ -19,11 +19,11 @@ import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/pro
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { Button, Scroller } from '~/lib/ui/components';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
-import type { FamilyTreeNode } from './FamilyTreeNode';
+import { type FamilyTreeNodeType } from './FamilyTreeNode';
 
 type FamilyTreeNodeFormProps = {
   nodeType: string;
-  selectedNode: FamilyTreeNode | void;
+  selectedNode: FamilyTreeNodeType | void;
   form: TForm;
   onClose: () => void;
 };
@@ -43,7 +43,10 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
   const dispatch = useAppDispatch();
 
   const commitShellNode = useCallback(
-    (node: FamilyTreeNode, attributes: NcNode[EntityAttributesProperty]) => {
+    (
+      node: FamilyTreeNodeType,
+      attributes: NcNode[EntityAttributesProperty],
+    ) => {
       if (!node) return;
 
       void dispatch(
@@ -99,10 +102,19 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
 
     form.fields.forEach((field: { variable: string }) => {
       // Check in fields first (updated values), then fall back to top-level
-      const value =
-        (selectedNode.fields as Record<string, unknown> | undefined)?.[
-          field.variable
-        ] ?? selectedNode[field.variable];
+      const fieldValue = (
+        selectedNode.fields as Record<string, unknown> | undefined
+      )?.[field.variable];
+      let topValue;
+      switch (field.variable) {
+        case 'name':
+          topValue = selectedNode.name;
+          break;
+        case 'sex':
+          topValue = selectedNode.sex;
+          break;
+      }
+      const value = fieldValue ?? topValue;
 
       if (value !== undefined) {
         values[field.variable] = value as VariableValue;

@@ -1,3 +1,4 @@
+import { type VariableType } from '@codaco/protocol-validation';
 import { useEffect, useMemo, useState } from 'react';
 import RadioGroup from '~/lib/form/components/fields/RadioGroup';
 import { type RelativeOption } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useRelatives';
@@ -5,20 +6,22 @@ import {
   buildBaseOptions,
   createRelationField,
   getRelationFlags,
+  type RadioGroupConfig,
 } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/dynamicFieldsUtils';
-import { type Node } from './store';
+import { type FamilyTreeNodeType } from './components/FamilyTreeNode';
 
 const fatherKey = 'father';
 const motherKey = 'mother';
 
-export type FieldConfig = {
+export type FieldConfig<Props = Record<string, unknown>> = {
   fieldLabel: string;
   options: { label: string; value: string }[];
-  type: string;
+  type: VariableType;
   variable: string;
-  Component: React.ComponentType;
+  Component: React.ComponentType<Props>;
   validation: {
     onSubmit: (value: { value: string }) => string | undefined;
+    onChange: () => string | undefined;
   };
   _uniqueKey?: number;
 };
@@ -30,7 +33,7 @@ export function useDynamicFields({
   grandchildrenOptions,
   show,
 }: {
-  nodes: Node[];
+  nodes: FamilyTreeNodeType[];
   firstCousinOptions: RelativeOption[];
   nieceOptions: RelativeOption[];
   grandchildrenOptions: RelativeOption[];
@@ -43,7 +46,7 @@ export function useDynamicFields({
   }, [show]);
 
   const processedFields = useMemo(() => {
-    const baseField: FieldConfig = {
+    const baseField: RadioGroupConfig = {
       fieldLabel: 'How is this person related to you?',
       options: [],
       type: 'ordinal',
@@ -59,6 +62,7 @@ export function useDynamicFields({
       validation: {
         onSubmit: (value: { value: string }) =>
           value?.value ? undefined : 'Relation is required',
+        onChange: () => undefined,
       },
     };
 
@@ -69,7 +73,7 @@ export function useDynamicFields({
       options: buildBaseOptions(flags),
     };
 
-    const additionalFieldsMap: Record<string, FieldConfig> = {
+    const additionalFieldsMap: Record<string, RadioGroupConfig> = {
       aunt: createRelationField('Who is the aunt related to?', 'auntRelation', [
         { label: 'Father', value: fatherKey },
         { label: 'Mother', value: motherKey },
@@ -134,7 +138,7 @@ export function useDynamicFields({
       ? additionalFieldsMap[relationValue]
       : null;
 
-    const processed: FieldConfig[] = [
+    const processed: RadioGroupConfig[] = [
       dynamicBaseField,
       ...(additionalField
         ? [{ ...additionalField, _uniqueKey: Date.now() }]

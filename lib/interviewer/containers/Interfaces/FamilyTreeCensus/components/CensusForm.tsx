@@ -1,11 +1,9 @@
+import { type Stage } from '@codaco/protocol-validation';
 import { useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
 import { updateEgo } from '~/lib/interviewer/ducks/modules/session';
-import {
-  getCurrentStage,
-  getNetworkEgo,
-} from '~/lib/interviewer/selectors/session';
+import { getNetworkEgo } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { Button } from '~/lib/ui/components';
 import { Radio, RadioGroup } from '~/lib/ui/components/Fields';
@@ -13,7 +11,13 @@ import NumberInput from '~/lib/ui/components/Fields/Number';
 import Overlay from '../../../Overlay';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
 
-export const CensusForm = ({ showForm = true }: { showForm: boolean }) => {
+export const CensusForm = ({
+  stage,
+  showForm = true,
+}: {
+  stage: Extract<Stage, { type: 'FamilyTreeCensus' }>;
+  showForm: boolean;
+}) => {
   const [show, setShow] = useState(showForm);
 
   const [fields, setFields] = useState<
@@ -76,8 +80,8 @@ export const CensusForm = ({ showForm = true }: { showForm: boolean }) => {
 
   const ego = useSelector(getNetworkEgo);
   const codebook = useSelector(getCodebook);
-  const stage = useSelector(getCurrentStage);
-  const sexVariable = stage?.sexVariable as string | undefined;
+  //const stage: Extract<Stage, { type: 'FamilyTreeCensus' }> = useSelector(getCurrentStage);
+  const sexVariable = stage.sexVariable;
   const existingSex = sexVariable
     ? (ego?.attributes?.[sexVariable] as string | undefined)
     : undefined;
@@ -135,12 +139,17 @@ export const CensusForm = ({ showForm = true }: { showForm: boolean }) => {
     };
 
   const dispatch = useAppDispatch();
-  const getNodeIdFromRelationship = useFamilyTreeStore((state) => state.getNodeIdFromRelationship);
+  const getNodeIdFromRelationship = useFamilyTreeStore(
+    (state) => state.getNodeIdFromRelationship,
+  );
   const updateNode = useFamilyTreeStore((state) => state.updateNode);
   const saveEgoSex = useCallback(() => {
     if (!sexVariable) return;
     void dispatch(updateEgo({ [sexVariable]: sexValue }));
-    updateNode(getNodeIdFromRelationship('ego'), { [sexVariable]: sexValue });
+    const egoNodeId = getNodeIdFromRelationship('ego');
+    if (egoNodeId != null) {
+      updateNode(egoNodeId, { [sexVariable]: sexValue });
+    }
   }, [dispatch, sexValue, updateNode, getNodeIdFromRelationship, sexVariable]);
 
   const handleSubmit = (e: React.FormEvent) => {

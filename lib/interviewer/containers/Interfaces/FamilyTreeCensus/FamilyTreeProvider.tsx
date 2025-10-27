@@ -3,12 +3,12 @@ import { invariant } from 'es-toolkit';
 import { createContext, useContext, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useStore } from 'zustand';
+import { type FamilyTreeNodeType } from './components/FamilyTreeNode';
 import {
   createFamilyTreeStore,
   type Edge,
   type FamilyTreeStore,
   type FamilyTreeStoreApi,
-  type Node,
   type Relationship,
   type Sex,
 } from './store';
@@ -33,7 +33,7 @@ export const FamilyTreeProvider = ({
 }) => {
   const storeRef = useRef<FamilyTreeStoreApi>();
 
-  const initialNodes = new Map<string, Omit<Node, 'id'>>(
+  const initialNodes = new Map<string, Omit<FamilyTreeNodeType, 'id'>>(
     nodes.map((node) => {
       const diseases = new Map(
         diseaseVariables.map((disease) => [

@@ -2,25 +2,12 @@ import { invariant } from 'es-toolkit';
 import { enableMapSet } from 'immer';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import { type FamilyTreeNodeType } from './components/FamilyTreeNode';
 import { FAMILY_TREE_CONFIG } from './config';
 
 enableMapSet();
 
 export type Sex = 'male' | 'female';
-
-export type Node = {
-  id?: string;
-  name?: string;
-  label: string;
-  sex: Sex;
-  readOnly?: boolean;
-  isEgo?: boolean;
-  interviewNetworkId?: string;
-  x?: number;
-  y?: number;
-  diseases?: Map<string, boolean>;
-  fields?: Map<string, string>;
-};
 
 export type Relationship = 'parent' | 'partner' | 'ex-partner';
 
@@ -33,7 +20,7 @@ export type Edge = {
 };
 
 type NetworkState = {
-  nodes: Map<string, Omit<Node, 'id'>>;
+  nodes: Map<string, Omit<FamilyTreeNodeType, 'id'>>;
   edges: Map<string, Omit<Edge, 'id'>>;
 };
 
@@ -43,9 +30,14 @@ type FamilyTreeState = {
 };
 
 type NetworkActions = {
-  getNodeIdFromRelationship: (relationship: string) => string;
-  addNode: (node: Omit<Node, 'id'> & { id?: string }) => string;
-  updateNode: (id: string, updates: Partial<Omit<Node, 'id'>>) => void;
+  getNodeIdFromRelationship: (
+    relationship: string,
+  ) => string | null | undefined;
+  addNode: (node: Omit<FamilyTreeNodeType, 'id'> & { id?: string }) => string;
+  updateNode: (
+    id: string,
+    updates: Partial<Omit<FamilyTreeNodeType, 'id'>>,
+  ) => void;
   removeNode: (id: string) => void;
   addEdge: (edge: Omit<Edge, 'id'> & { id?: string }) => string | undefined;
   removeEdge: (id: string) => void;
@@ -87,7 +79,7 @@ type TreeSpacing = {
 };
 
 export const createFamilyTreeStore = (
-  initialNodes: Map<string, Omit<Node, 'id'>>,
+  initialNodes: Map<string, Omit<FamilyTreeNodeType, 'id'>>,
   initialEdges: Map<string, Omit<Edge, 'id'>>,
   init: FamilyTreeState = initialState,
 ) => {
@@ -685,6 +677,7 @@ export const createFamilyTreeStore = (
               // do not unlock ego parents
               if (
                 exNode &&
+                typeof exNode.label === 'string' &&
                 exNode.label.toLowerCase() !== 'mother' &&
                 exNode.label.toLowerCase() !== 'father'
               ) {
@@ -1096,7 +1089,10 @@ export const createFamilyTreeStore = (
           });
 
           // Ego's children and partner
-          if ((formData.sons ?? 0) > 0 || (formData.daughters ?? 0) > 0) {
+          if (
+            egoId != null &&
+            ((formData.sons ?? 0) > 0 || (formData.daughters ?? 0) > 0)
+          ) {
             const egoPartnerId = addNode({
               //id: 'ego-partner',
               label: "self's partner",
@@ -1259,7 +1255,7 @@ export const createFamilyTreeStore = (
             // If not, create one
             const partnerSex = node.sex === 'male' ? 'female' : 'male';
             const partnerId = addNode({
-              label: `${node.label}'s partner`,
+              label: `${node.label as string}'s partner`,
               sex: partnerSex,
               readOnly: true,
             });
@@ -1298,7 +1294,7 @@ export const createFamilyTreeStore = (
             // Otherwise create a new ex-partner
             const exPartnerSex = node.sex === 'male' ? 'female' : 'male';
             const exPartnerId = addNode({
-              label: `${node.label}'s ex-partner`,
+              label: `${node.label as string}'s ex-partner`,
               sex: exPartnerSex,
               readOnly: true,
             });
@@ -1348,7 +1344,7 @@ export const createFamilyTreeStore = (
           // ego’s children
           else if (rel === 'son' || rel === 'daughter') {
             const egoId = getNodeIdFromRelationship('ego');
-            if (network.nodes.has(egoId)) {
+            if (egoId != null && network.nodes.has(egoId)) {
               const partnerId = ensurePartner(egoId);
               connectAsChild(egoId);
               if (partnerId) connectAsChild(partnerId);
@@ -1359,9 +1355,11 @@ export const createFamilyTreeStore = (
           else if (rel.includes('brother') || rel.includes('sister')) {
             // always connect to both parents
             const motherId = getNodeIdFromRelationship('mother');
-            if (network.nodes.has(motherId)) connectAsChild(motherId);
+            if (motherId != null && network.nodes.has(motherId))
+              connectAsChild(motherId);
             const fatherId = getNodeIdFromRelationship('mother');
-            if (network.nodes.has(fatherId)) connectAsChild(fatherId);
+            if (fatherId != null && network.nodes.has(fatherId))
+              connectAsChild(fatherId);
           }
 
           // nieces and nephews (child of ego’s sibling)

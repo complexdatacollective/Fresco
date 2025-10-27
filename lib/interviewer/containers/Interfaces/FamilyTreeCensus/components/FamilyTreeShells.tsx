@@ -7,14 +7,13 @@ import type {
 } from '@codaco/shared-consts';
 import { useCallback, useState } from 'react';
 import { useToast } from '~/components/ui/use-toast';
-import { type Node } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/store';
 import { updateNode as updateNetworkNode } from '~/lib/interviewer/ducks/modules/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
 import AddFamilyMemberForm from './AddFamilyMemberForm';
 import { CensusForm } from './CensusForm';
 import EdgeRenderer from './EdgeRenderer';
-import FamilyTreeNode from './FamilyTreeNode';
+import FamilyTreeNode, { type FamilyTreeNodeType } from './FamilyTreeNode';
 import FamilyTreeNodeForm from './FamilyTreeNodeForm';
 
 export const FamilyTreeShells = (props: {
@@ -33,10 +32,12 @@ export const FamilyTreeShells = (props: {
   if (existingNodes) {
     runLayout();
   }
-  const nodes = Array.from(
+  const nodes: FamilyTreeNodeType[] = Array.from(
     nodesMap.entries().map(([id, node]) => ({ id, ...node })),
   );
-  const [selectedNode, setSelectedNode] = useState<Node | void>(undefined);
+  const [selectedNode, setSelectedNode] = useState<FamilyTreeNodeType | void>(
+    undefined,
+  );
   const { toast } = useToast();
 
   const dispatch = useAppDispatch();
@@ -146,7 +147,7 @@ export const FamilyTreeShells = (props: {
           ))}
         </div>
       </div>
-      <CensusForm showForm={!existingNodes} />
+      <CensusForm stage={stage} showForm={!existingNodes} />
     </>
   );
 };

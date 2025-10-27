@@ -1,9 +1,9 @@
 import RadioGroup from '~/lib/form/components/fields/RadioGroup';
 import type { FieldConfig } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useDynamicFields';
 import type { RelativeOption } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useRelatives';
-import { type Node } from '../store';
+import { type FamilyTreeNodeType } from '../components/FamilyTreeNode';
 
-export function getRelationFlags(nodes: Node[]) {
+export function getRelationFlags(nodes: FamilyTreeNodeType[]) {
   const hasAuntOrUncle = nodes.some((n) => /\b(aunt|uncle)\b/i.test(n.label));
   const hasSiblings = nodes.some((n) =>
     ['brother', 'sister', 'halfBrother', 'halfSister'].includes(n.label),
@@ -49,11 +49,15 @@ export function buildBaseOptions(flags: ReturnType<typeof getRelationFlags>) {
   return opts;
 }
 
+export type RadioGroupConfig = FieldConfig<
+  React.ComponentProps<typeof RadioGroup>
+>;
+
 export function createRelationField(
   label: string,
   variable: string,
   options: RelativeOption[],
-): FieldConfig {
+): RadioGroupConfig {
   return {
     fieldLabel: label,
     options,
@@ -63,6 +67,7 @@ export function createRelationField(
     validation: {
       onSubmit: (value: { value: string }) =>
         value?.value ? undefined : 'Relation is required',
+      onChange: () => undefined,
     },
   };
 }
