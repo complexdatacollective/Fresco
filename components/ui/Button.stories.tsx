@@ -44,7 +44,6 @@ const meta = {
         'warning',
         'info',
         'destructive',
-        'accent',
         'success',
       ],
     },
@@ -127,7 +126,6 @@ export const Colors: Story = {
         <Button color="warning">Warning</Button>
         <Button color="info">Info</Button>
         <Button color="destructive">Destructive</Button>
-        <Button color="accent">Accent</Button>
         <Button color="success">Success</Button>
       </div>
     </div>
@@ -224,22 +222,22 @@ export const ColorVariantCombinations: Story = {
     <div className="flex flex-col gap-6">
       <div className="mb-2 flex items-center gap-4">
         <span className="w-24 text-sm font-medium"></span>
-        <span className="text-muted-foreground w-24 text-center text-xs font-medium">
+        <span className="text-text/50 w-24 text-center text-xs font-medium">
           Default
         </span>
-        <span className="text-muted-foreground w-24 text-center text-xs font-medium">
+        <span className="text-text/50 w-24 text-center text-xs font-medium">
           Outline
         </span>
-        <span className="text-muted-foreground w-24 text-center text-xs font-medium">
+        <span className="text-text/50 w-24 text-center text-xs font-medium">
           Text
         </span>
-        <span className="text-muted-foreground w-24 text-center text-xs font-medium">
+        <span className="text-text/50 w-24 text-center text-xs font-medium">
           Link
         </span>
-        <span className="text-muted-foreground w-24 text-center text-xs font-medium">
+        <span className="text-text/50 w-24 text-center text-xs font-medium">
           dashed
         </span>
-        <span className="text-muted-foreground w-24 text-center text-xs font-medium">
+        <span className="text-text/50 w-24 text-center text-xs font-medium">
           Disabled
         </span>
       </div>
@@ -250,7 +248,6 @@ export const ColorVariantCombinations: Story = {
           'secondary',
           'warning',
           'info',
-          'accent',
           'success',
         ] as const
       ).map((color) => (
@@ -276,6 +273,77 @@ export const ColorVariantCombinations: Story = {
           </Button>
         </div>
       ))}
+    </div>
+  ),
+};
+
+export const AdaptiveToContext: Story = {
+  parameters: {
+    layout: 'padded',
+  },
+  render: () => (
+    <div className="flex flex-col gap-8">
+      <div>
+        <h3 className="mb-4 text-lg font-semibold">
+          Default variant adapts to container colors
+        </h3>
+        <p className="text-text/70 mb-6 text-sm">
+          The default button variant with default color uses CSS custom
+          properties to adapt to the text and background colors of its
+          container. Hover to see the lighter shade effect.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-6">
+        <div className="bg-background text-text publish-colors flex items-center gap-4 rounded-lg border p-6">
+          <span className="w-40 text-sm font-medium">Background:</span>
+          <Button variant="default" color="default">
+            Click Me
+          </Button>
+        </div>
+
+        <div className="bg-primary text-primary-contrast publish-colors flex items-center gap-4 rounded-lg border p-6">
+          <span className="w-40 text-sm font-medium">Primary:</span>
+          <Button variant="default" color="default">
+            Click Me
+          </Button>
+        </div>
+
+        <div className="bg-secondary text-secondary-contrast publish-colors flex items-center gap-4 rounded-lg border p-6">
+          <span className="w-40 text-sm font-medium">Secondary:</span>
+          <Button variant="default" color="default">
+            Click Me
+          </Button>
+        </div>
+
+        <div className="bg-surface-1 text-surface-1-contrast publish-colors flex items-center gap-4 rounded-lg border p-6">
+          <span className="w-40 text-sm font-medium">Surface 1:</span>
+          <Button variant="default" color="default">
+            Click Me
+          </Button>
+        </div>
+
+        <div className="bg-surface-2 text-surface-2-contrast publish-colors flex items-center gap-4 rounded-lg border p-6">
+          <span className="w-40 text-sm font-medium">Surface 2:</span>
+          <Button variant="default" color="default">
+            Click Me
+          </Button>
+        </div>
+
+        <div className="bg-destructive text-destructive-contrast publish-colors flex items-center gap-4 rounded-lg border p-6">
+          <span className="w-40 text-sm font-medium">Destructive:</span>
+          <Button variant="default" color="default">
+            Click Me
+          </Button>
+        </div>
+
+        <div className="bg-success text-success-contrast publish-colors flex items-center gap-4 rounded-lg border p-6">
+          <span className="w-40 text-sm font-medium">Success:</span>
+          <Button variant="default" color="default">
+            Click Me
+          </Button>
+        </div>
+      </div>
     </div>
   ),
 };

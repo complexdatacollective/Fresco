@@ -23,7 +23,7 @@ const TableHeader = React.forwardRef<
   <thead
     ref={ref}
     className={cx(
-      'bg-scope border-collapse bg-current/5 [&_tr]:border-b',
+      'publish-colors border-collapse bg-current/5 [&_tr]:border-b',
       className,
     )}
     {...props}
@@ -50,7 +50,7 @@ const TableFooter = React.forwardRef<
   <tfoot
     ref={ref}
     className={cx(
-      'bg-primary bg-scope text-primary-contrast font-medium',
+      'bg-primary publish-colors text-primary-contrast font-medium',
       className,
     )}
     {...props}

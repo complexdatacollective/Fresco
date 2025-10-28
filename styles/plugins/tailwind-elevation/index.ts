@@ -35,14 +35,14 @@ import { type Elevation, generateShadowLayers } from './jwc';
  * space to ensure perceptual uniformity.
  *
  * The background color of the parent element is exposed via a CSS variable that
- * is set in the `bg-scope` utility class. This class should be applied to
+ * is set in the `publish-colors` utility class. This class should be applied to
  * any element that serves as a background for elements using the elevation. A
  * fallback color is provided to ensure shadows are visible even if the
- * `bg-scope` class is not applied.
+ * `publish-colors` class is not applied.
  *
  * Usage:
  *
- * - Apply the `bg-scope` class to a parent element to set the background color context.
+ * - Apply the `publish-colors` class to a parent element to set the background color context.
  * - Use the 'elevation-low', 'elevation-medium', or 'elevation-high' classes on child elements to apply the corresponding shadow effect.
  *
  */
@@ -84,7 +84,7 @@ export default plugin.withOptions<PluginConfig>(
           .map(({ opacity, blurRadius, spreadRadius, offsetX, offsetY }) => {
             const boostedOpacity = opacity * opacityScaleFactor;
             // Clamp chroma
-            return `${offsetX} ${offsetY} ${blurRadius} ${spreadRadius} oklch(from var(--bg-scope, ${defaultShadowColor}) clamp(0.025, calc(l - 0.5), 0.1) clamp(0.03, c, 0.12) h / ${boostedOpacity})`;
+            return `${offsetX} ${offsetY} ${blurRadius} ${spreadRadius} oklch(from var(--published-bg, ${defaultShadowColor}) clamp(0.025, calc(l - 0.5), 0.1) clamp(0.03, c, 0.12) h / ${boostedOpacity})`;
           })
           .join(', ');
       };
@@ -102,8 +102,9 @@ export default plugin.withOptions<PluginConfig>(
         '.elevation-high': {
           'box-shadow': generateShadow('high'),
         },
-        '.bg-scope': {
-          '--bg-scope': 'var(--bg-self)',
+        '.publish-colors': {
+          '--published-bg': 'var(--scoped-bg, --background)',
+          '--published-text': 'var(--scoped-text, --text)',
         },
       };
 
@@ -111,24 +112,28 @@ export default plugin.withOptions<PluginConfig>(
         api.addUtilities(shadowUtilities);
       }
 
-      // For Tailwind v4, we need to add a PostCSS rule that captures bg-* utilities
-      // and adds the --bg-self variable
-      api.addBase({
-        '[class^="bg-"]:where(:not(.bg-scope))': {
-          '--bg-self': 'inherit',
-        },
-      });
-
-      // Use matchUtilities to create bg utilities that set both CSS variable and background
+      // Use matchUtilities to create bg utilities that set --scoped-bg
       api.matchUtilities(
         {
           bg: (value) => ({
-            '--bg-self': value,
-            'backgroundColor': value,
+            '--scoped-bg': value,
           }),
         },
         {
           values: (api.theme?.('backgroundColor') ??
+            api.theme?.('colors') ??
+            {}) as Record<string, string>,
+        },
+      );
+
+      api.matchUtilities(
+        {
+          text: (value) => ({
+            '--scoped-text': value,
+          }),
+        },
+        {
+          values: (api.theme?.('textColor') ??
             api.theme?.('colors') ??
             {}) as Record<string, string>,
         },

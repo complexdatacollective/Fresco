@@ -48,8 +48,8 @@ export function NavigationBar() {
       <Surface
         as="nav"
         spacing="none"
-        elevation="none"
-        className="bg-primary text-primary-contrast elevation-high @container-normal fixed top-2 left-1/2 flex -translate-x-1/2 items-center justify-between gap-4 rounded-full px-6 py-4 backdrop-blur-sm [--color-text:var(--color-white)]"
+        elevation="high"
+        className="bg-primary text-primary-contrast fixed top-2 left-1/2 flex w-5xl max-w-none -translate-x-1/2 items-center justify-between gap-4 rounded-full px-6 py-4"
       >
         <Link href="/" className="flex items-center space-x-2">
           <Heading
@@ -82,14 +82,17 @@ export function NavigationBar() {
             isActive={pathname === '/dashboard/interviews'}
           />
         </ul>
-        <Link href="/dashboard/settings">
-          <Button
-            variant="text"
-            size="icon"
-            icon={<Settings size={20} aria-label="Settings" />}
-          />
-        </Link>
-        <UserMenu />
+        <div className="flex items-center gap-2">
+          <Link href="/dashboard/settings">
+            <Button
+              variant="text"
+              size="icon"
+              aria-label="Settings"
+              icon={<Settings size={20} />}
+            />
+          </Link>
+          <UserMenu />
+        </div>
       </Surface>
     </>
   );

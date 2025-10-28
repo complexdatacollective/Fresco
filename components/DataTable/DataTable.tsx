@@ -24,6 +24,7 @@ import {
   TableRow,
 } from '~/components/ui/table';
 import { InputField } from '~/lib/form/components/fields/Input';
+import Surface from '../layout/Surface';
 
 type CustomTable<TData> = TTable<TData> & {
   options?: {
@@ -148,7 +149,7 @@ export function DataTable<TData, TValue>({
   return (
     <>
       {(filterColumnAccessorKey || headerItems) && (
-        <div className="flex items-center gap-2 pt-1 pb-4">
+        <Surface className="flex items-center gap-2 pt-1 pb-4">
           {filterColumnAccessorKey && (
             <InputField
               name="filter"
@@ -167,7 +168,7 @@ export function DataTable<TData, TValue>({
             />
           )}
           {headerItems}
-        </div>
+        </Surface>
       )}
 
       <Table>

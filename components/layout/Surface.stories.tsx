@@ -62,6 +62,7 @@ export const DifferentLevels: StoryFn<typeof Surface> = () => (
         key={level}
         level={level as SurfaceVariants['level']}
         spacing="md"
+        className="flex items-center gap-10"
       >
         Surface Level {level}
         <Button color="default">Default Button</Button>

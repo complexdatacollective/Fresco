@@ -30,7 +30,7 @@ export const labelTextStyles = {
 // Background Styles
 // ============================================================================
 export const backgroundStyles = {
-  base: 'bg-input',
+  base: 'bg-input elevation-low',
   disabled: 'disabled:bg-muted',
   readOnly: 'is-read-only:bg-muted/50',
 } as const;

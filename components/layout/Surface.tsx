@@ -5,23 +5,22 @@ import { type ElementType, forwardRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 
 export const surfaceVariants = cva({
-  base: 'rounded-sm @xl:rounded @4xl:rounded-lg outline-none bg-scope @container grow',
+  base: 'rounded-sm @xl:rounded @4xl:rounded-lg publish-colors @container grow',
   variants: {
     level: {
-      0: 'bg-surface text-surface-contrast [--color-text:var(--color-surface-contrast)] [--color-background:var(--color-surface)]',
-      1: 'bg-surface-1 text-surface-1-contrast [--color-text:var(--color-surface-1-contrast)] [--color-background:var(--color-surface-1)]',
-      2: 'bg-surface-2 text-surface-2-contrast [--color-text:var(--color-surface-2-contrast)] [--color-background:var(--color-surface-2)]',
-      3: 'bg-surface-3 text-surface-3-contrast [--color-text:var(--color-surface-3-contrast)] [--color-background:var(--color-surface-3)]',
-      popover:
-        'bg-surface-popover text-surface-popover-contrast [--color-text:var(--color-surface-popover-contrast)] [--color-background:var(--color-surface-popover)]',
+      0: 'bg-surface text-surface-contrast',
+      1: 'bg-surface-1 text-surface-1-contrast',
+      2: 'bg-surface-2 text-surface-2-contrast',
+      3: 'bg-surface-3 text-surface-3-contrast',
+      popover: 'bg-surface-popover text-surface-popover-contrast',
     },
     spacing: {
       none: '',
-      xs: 'px-2 py-2 @xl:px-4 @xl:py-3',
-      sm: 'px-4 py-2 @xl:px-6 @xl:py-4 @4xl:px-8 @4xl:py-6',
+      xs: 'px-4 py-2 @xl:px-6 @xl:py-4',
+      sm: 'px-6 py-4 @xl:px-8 @xl:py-6 @4xl:px-10 @4xl:py-6',
       md: 'px-8 py-6 @xl:px-10 @xl:py-8 @4xl:px-12 @4xl:py-8',
       lg: 'px-10 py-8 @xl:px-16 @xl:py-12 @4xl:px-20 @4xl:py-16',
-      xl: 'px-10 py-8 @xl:px-20 @xl:py-16 @4xl:px-28 @4xl:py-20',
+      xl: 'px-12 py-10 @xl:px-20 @xl:py-16 @4xl:px-28 @4xl:py-20',
     },
     bleed: {
       none: '',

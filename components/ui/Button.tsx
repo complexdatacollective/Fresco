@@ -17,34 +17,30 @@ const buttonVariants = cva({
   variants: {
     variant: {
       default:
-        'bg-[var(--scoped-bg)] text-[var(--scoped-text)] hover:enabled:bg-[color-mix(in_oklch,var(--scoped-bg)_95%,var(--scoped-text))]',
+        'bg-[var(--component-text)] text-[var(--component-bg)] hover:enabled:bg-[color-mix(in_oklab,var(--component-text)_90%,var(--component-bg))]',
       outline:
-        'border border-[var(--scoped-bg)] text-[var(--scoped-bg)] hover:enabled:bg-[var(--scoped-bg)] hover:enabled:text-[var(--scoped-text)]',
-      text: 'text-[var(--scoped-bg)] hover:enabled:bg-[var(--scoped-bg)] hover:enabled:text-[var(--scoped-text)]',
-      link: 'text-[var(--scoped-bg)] hover:enabled:underline',
+        'border border-[var(--component-text)] text-[var(--component-text)] hover:enabled:bg-[var(--component-text)] hover:enabled:text-[var(--component-bg)]',
+      text: 'text-[var(--component-text)] hover:enabled:bg-[var(--component-text)] hover:enabled:text-[var(--component-bg)]',
+      link: 'text-[var(--component-text)] hover:enabled:underline',
       dashed:
-        'border border-[var(--scoped-bg)] border-dashed text-[var(--scoped-bg)] hover:enabled:bg-[var(--scoped-bg)] hover:enabled:text-[var(--scoped-text)]',
+        'border border-[var(--component-text)] border-dashed text-[var(--component-text)] hover:enabled:border-solid',
     },
     color: {
       default: cx(
-        // bg: mix of 5% of text color and background color
-        '[--scoped-bg:color-mix(in_oklab,var(--color-text)_6%,var(--color-background))]',
-        // text: use the foreground color
-        '[--scoped-text:red]',
+        '[--component-text:currentColor]',
+        '[--component-bg:var(--published-bg)]',
       ),
       primary:
-        '[--scoped-bg:var(--color-primary)] [--scoped-text:var(--color-primary-contrast)]',
+        '[--component-text:var(--color-primary)] [--component-bg:var(--color-primary-contrast)]',
       secondary:
-        '[--scoped-bg:var(--color-secondary)] [--scoped-text:var(--color-secondary-contrast)]',
+        '[--component-text:var(--color-secondary)] [--component-bg:var(--color-secondary-contrast)]',
       warning:
-        '[--scoped-bg:var(--color-warning)] [--scoped-text:var(--color-warning-contrast)]',
-      info: '[--scoped-bg:var(--color-info)] [--scoped-text:var(--color-info-contrast)]',
+        '[--component-text:var(--color-warning)] [--component-bg:var(--color-warning-contrast)]',
+      info: '[--component-text:var(--color-info)] [--component-bg:var(--color-info-contrast)]',
       destructive:
-        '[--scoped-bg:var(--color-destructive)] [--scoped-text:var(--color-destructive-contrast)]',
-      accent:
-        '[--scoped-bg:var(--color-accent)] [--scoped-text:var(--color-accent-contrast)]',
+        '[--component-text:var(--color-destructive)] [--component-bg:var(--color-destructive-contrast)]',
       success:
-        '[--scoped-bg:var(--color-success)] [--scoped-text:var(--color-success-contrast)]',
+        '[--component-text:var(--color-success)] [--component-bg:var(--color-success-contrast)]',
     },
     hasIcon: { true: 'gap-2' },
     iconPosition: {
@@ -68,21 +64,41 @@ const buttonVariants = cva({
   },
   compoundVariants: [
     {
-      variant: ['outline', 'text', 'link', 'dashed'],
       color: 'default',
-      className: 'text-text',
+      variant: 'default',
+      className:
+        '[--component-text:color-mix(in_oklab,currentColor_20%,var(--published-bg))] [--component-bg:currentColor]',
+    },
+    {
+      variant: ['dashed', 'default', 'outline'],
+      className: 'elevation-low',
     },
   ],
 });
 
-export type ButtonProps = {
+type BaseButtonProps = {
   variant?: VariantProps<typeof buttonVariants>['variant'];
   color?: VariantProps<typeof buttonVariants>['color'];
-  size?: VariantProps<typeof buttonVariants>['size'];
   asChild?: boolean;
   icon?: React.ReactNode;
   iconPosition?: 'left' | 'right';
+};
+
+type IconButtonProps = BaseButtonProps & {
+  'size': 'icon';
+  'aria-label': string;
+  'children'?: never;
+} & Omit<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    'children' | 'aria-label'
+  >;
+
+type TextButtonProps = BaseButtonProps & {
+  size?: 'xs' | 'sm' | 'default' | 'lg';
+  children: React.ReactNode;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
+
+export type ButtonProps = IconButtonProps | TextButtonProps;
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (

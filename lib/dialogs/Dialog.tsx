@@ -67,7 +67,7 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
                       'fixed inset-0',
                       'flex items-center justify-center',
                       'bg-overlay backdrop-blur-xs',
-                      '[--bg-scope:var(--color-platinum-dark)]',
+                      '[--published-bg:var(--color-platinum-dark)]',
                     )}
                   />
                 }

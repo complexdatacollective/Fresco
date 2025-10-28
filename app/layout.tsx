@@ -12,7 +12,7 @@ export const metadata = {
 function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-background bg-scope antialiased">
+      <body className="bg-background publish-colors antialiased">
         <div className="root isolate">
           <Providers>{children}</Providers>
           <Toaster />
