@@ -43,27 +43,33 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
   const dispatch = useAppDispatch();
 
   const commitShellNode = useCallback(
-    (
+    async (
       node: FamilyTreeNodeType,
       attributes: NcNode[EntityAttributesProperty],
     ) => {
       if (!node) return;
 
-      void dispatch(
-        addNetworkNode({
-          type: nodeType,
-          modelData: { [entityPrimaryKeyProperty]: node.id },
-          attributeData: attributes,
-        }),
-      ).then(() => {
-        if (node.id) {
+      try {
+        const resultAction = await dispatch(
+          addNetworkNode({
+            type: nodeType,
+            modelData: { [entityPrimaryKeyProperty]: node.id },
+            attributeData: attributes,
+          }),
+        );
+
+        if (addNetworkNode.fulfilled.match(resultAction)) {
           updateShellNode(node.id, {
             interviewNetworkId: node.id,
             name: attributes.name as string,
             fields: attributes,
           });
+        } else {
+          console.warn('addNetworkNode failed — skipping metadata update');
         }
-      });
+      } catch (err) {
+        console.error('Error committing shell node:', err);
+      }
     },
     [dispatch, nodeType, updateShellNode],
   );
@@ -135,13 +141,12 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
           newAttributeData: value,
         });
       } else {
-        // TODO: do we want to also store the 'label' i.e. Mother/Father on the network? or only if configured by researcher?
         // Placeholder → commit
         const fullPayload = {
           ...newNodeAttributes,
           ...value,
         };
-        commitShellNode(selectedNode, fullPayload);
+        void commitShellNode(selectedNode, fullPayload);
       }
 
       setShow(false);

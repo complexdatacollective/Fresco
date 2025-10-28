@@ -24,7 +24,10 @@ import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 import { generateSecureAttributes } from '../../containers/Interfaces/Anonymisation/utils';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
-import { makeGetCodebookVariablesForEdgeType, makeGetCodebookVariablesForNodeType } from '../../selectors/protocol';
+import {
+  makeGetCodebookVariablesForEdgeType,
+  makeGetCodebookVariablesForNodeType,
+} from '../../selectors/protocol';
 import {
   getCurrentStageId,
   getPromptId,
@@ -76,6 +79,15 @@ export function edgeExists(
 
 const FamilyTreeCensusStageMetadataSchema = z.object({
   hasSeenScaffoldPrompt: z.boolean(),
+  nodes: z
+    .array(
+      z.object({
+        id: z.string(),
+        label: z.string(),
+        sex: z.enum(['male', 'female']),
+      }),
+    )
+    .optional(),
 });
 
 const DyadCensusMetadataItem = z.tuple([

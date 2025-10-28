@@ -3,6 +3,7 @@ import { invariant } from 'es-toolkit';
 import { createContext, useContext, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useStore } from 'zustand';
+import { useAppDispatch } from '~/lib/interviewer/store';
 import { type FamilyTreeNodeType } from './components/FamilyTreeNode';
 import {
   createFamilyTreeStore,
@@ -32,7 +33,7 @@ export const FamilyTreeProvider = ({
   children: React.ReactNode;
 }) => {
   const storeRef = useRef<FamilyTreeStoreApi>();
-
+  const dispatch = useAppDispatch();
   const initialNodes = new Map<string, Omit<FamilyTreeNodeType, 'id'>>(
     nodes.map((node) => {
       const diseases = new Map(
@@ -75,7 +76,12 @@ export const FamilyTreeProvider = ({
       },
     ]),
   );
-  storeRef.current ??= createFamilyTreeStore(initialNodes, initialEdges);
+  storeRef.current ??= createFamilyTreeStore(
+    initialNodes,
+    initialEdges,
+    undefined,
+    dispatch,
+  );
 
   return (
     <FamilyTreeContext.Provider value={storeRef.current}>
@@ -95,5 +101,3 @@ export const useFamilyTreeStore = <T,>(
 
   return useStore(store, selector);
 };
-
-// export const useFamilyTreeState = createUseState(useFamilyTreeStore);

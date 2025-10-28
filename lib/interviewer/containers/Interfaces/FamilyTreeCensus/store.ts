@@ -2,6 +2,8 @@ import { invariant } from 'es-toolkit';
 import { enableMapSet } from 'immer';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
+import type { AppDispatch } from '~/lib/interviewer/store';
 import { type FamilyTreeNodeType } from './components/FamilyTreeNode';
 import { FAMILY_TREE_CONFIG } from './config';
 
@@ -49,6 +51,7 @@ type NetworkActions = {
   ) => void;
   addPlaceholderNode: (relation: string, anchorId?: string) => void;
   runLayout: () => void;
+  syncMetadata: () => void;
 };
 
 type FamilyTreeAction = {
@@ -82,6 +85,7 @@ export const createFamilyTreeStore = (
   initialNodes: Map<string, Omit<FamilyTreeNodeType, 'id'>>,
   initialEdges: Map<string, Omit<Edge, 'id'>>,
   init: FamilyTreeState = initialState,
+  dispatch?: AppDispatch,
 ) => {
   init.network.nodes = initialNodes;
   init.network.edges = initialEdges;
@@ -898,6 +902,7 @@ export const createFamilyTreeStore = (
           maybeDeletePartner(exPartnerId);
 
           get().runLayout();
+          get().syncMetadata();
         },
 
         addEdge: ({ id, source, target, relationship }) => {
@@ -1217,6 +1222,7 @@ export const createFamilyTreeStore = (
           });
 
           store.runLayout();
+          get().syncMetadata();
         },
 
         addPlaceholderNode: (relation: string, anchorRelation?: string) => {
@@ -1255,7 +1261,7 @@ export const createFamilyTreeStore = (
             // If not, create one
             const partnerSex = node.sex === 'male' ? 'female' : 'male';
             const partnerId = addNode({
-              label: `${node.label as string}'s partner`,
+              label: `${node.label}'s partner`,
               sex: partnerSex,
               readOnly: true,
             });
@@ -1294,7 +1300,7 @@ export const createFamilyTreeStore = (
             // Otherwise create a new ex-partner
             const exPartnerSex = node.sex === 'male' ? 'female' : 'male';
             const exPartnerId = addNode({
-              label: `${node.label as string}'s ex-partner`,
+              label: `${node.label}'s ex-partner`,
               sex: exPartnerSex,
               readOnly: true,
             });
@@ -1413,6 +1419,7 @@ export const createFamilyTreeStore = (
           }
 
           store.runLayout();
+          get().syncMetadata();
           return newNodeId;
         },
 
@@ -1429,6 +1436,24 @@ export const createFamilyTreeStore = (
               }
             }
           });
+        },
+
+        syncMetadata: () => {
+          if (!dispatch) return;
+          const latestNetwork = get().network;
+          const metadataNodes = Array.from(latestNetwork.nodes.entries()).map(
+            ([id, n]) => ({
+              id,
+              label: n.label,
+              sex: n.sex,
+            }),
+          );
+          dispatch(
+            updateStageMetadata({
+              hasSeenScaffoldPrompt: true,
+              nodes: metadataNodes,
+            }),
+          );
         },
       };
     }),
