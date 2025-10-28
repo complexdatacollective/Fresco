@@ -10,9 +10,7 @@ import {
   type RadioGroupConfig,
 } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/dynamicFieldsUtils';
 import { type FamilyTreeNodeType } from './components/FamilyTreeNode';
-
-const fatherKey = 'father';
-const motherKey = 'mother';
+import { useFamilyTreeStore } from './FamilyTreeProvider';
 
 export type FieldConfig<Props = Record<string, unknown>> = {
   fieldLabel: string;
@@ -41,6 +39,11 @@ export function useDynamicFields({
   show: boolean;
 }) {
   const [relationValue, setRelationValue] = useState<string | null>(null);
+  const getNodeIdFromRelationship = useFamilyTreeStore(
+    (state) => state.getNodeIdFromRelationship,
+  );
+  const fatherKey = getNodeIdFromRelationship('father')!;
+  const motherKey = getNodeIdFromRelationship('mother')!;
 
   useEffect(() => {
     if (!show) setRelationValue(null);

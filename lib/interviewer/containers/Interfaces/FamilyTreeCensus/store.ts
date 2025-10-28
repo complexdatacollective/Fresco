@@ -1225,7 +1225,7 @@ export const createFamilyTreeStore = (
           get().syncMetadata();
         },
 
-        addPlaceholderNode: (relation: string, anchorRelation?: string) => {
+        addPlaceholderNode: (relation: string, anchorId?: string) => {
           const store = get();
           const { addNode, addEdge, network, getNodeIdFromRelationship } =
             store;
@@ -1330,10 +1330,6 @@ export const createFamilyTreeStore = (
           });
 
           const rel = relation.toLowerCase();
-          const anchorId =
-            anchorRelation != null
-              ? getNodeIdFromRelationship(anchorRelation)
-              : null;
 
           // half siblings
           if (rel.includes('half')) {
@@ -1363,7 +1359,7 @@ export const createFamilyTreeStore = (
             const motherId = getNodeIdFromRelationship('mother');
             if (motherId != null && network.nodes.has(motherId))
               connectAsChild(motherId);
-            const fatherId = getNodeIdFromRelationship('mother');
+            const fatherId = getNodeIdFromRelationship('father');
             if (fatherId != null && network.nodes.has(fatherId))
               connectAsChild(fatherId);
           }

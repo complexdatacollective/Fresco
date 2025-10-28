@@ -46,10 +46,9 @@ const AddFamilyMemberForm = () => {
     const relation = value.relation;
     const relationId =
       typeof relation === 'string' ? value[`${relation}Relation`] : undefined;
-    const anchorRelation =
-      typeof relationId === 'string' ? relationId : undefined;
+    const anchorId = typeof relationId === 'string' ? relationId : undefined;
     if (typeof relation === 'string') {
-      addPlaceholderNode(relation, anchorRelation);
+      addPlaceholderNode(relation, anchorId);
     }
     setShow(false);
   };

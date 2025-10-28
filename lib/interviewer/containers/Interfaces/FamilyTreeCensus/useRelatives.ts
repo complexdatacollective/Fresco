@@ -1,6 +1,7 @@
 import { type VariableValue } from '@codaco/shared-consts';
 import { useMemo } from 'react';
 import { type FamilyTreeNodeType } from './components/FamilyTreeNode';
+import { useFamilyTreeStore } from './FamilyTreeProvider';
 import { type Edge } from './store';
 
 export type RelativeOption = { label: string; value: VariableValue };
@@ -23,8 +24,12 @@ export const useRelatives = (
   nodesMap: Map<string, Omit<FamilyTreeNodeType, 'id'>>,
   edgesMap: Map<string, Edge>,
 ): RelativesResult => {
+  const getNodeIdFromRelationship = useFamilyTreeStore(
+    (state) => state.getNodeIdFromRelationship,
+  );
+
   return useMemo(() => {
-    const ego = nodesMap.get(egoKey);
+    const ego = nodesMap.get(getNodeIdFromRelationship(egoKey)!);
 
     if (!ego) {
       return {
@@ -46,11 +51,15 @@ export const useRelatives = (
         if (!parentKey) return;
 
         for (const [, edge] of edgesMap.entries()) {
-          if (edge.relationship === 'parent' && edge.source === parentKey) {
+          if (
+            edge.relationship === 'parent' &&
+            edge.source === getNodeIdFromRelationship(parentKey)
+          ) {
             const childId = edge.target;
 
             // only skip if subjectKey is provided AND matches
-            if (subjectKey && childId === subjectKey) continue;
+            if (subjectKey && childId === getNodeIdFromRelationship(subjectKey))
+              continue;
 
             const childNode = nodesMap.get(childId);
             if (childNode) siblings.set(childId, childNode);
