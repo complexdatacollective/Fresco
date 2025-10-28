@@ -65,9 +65,11 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
             fields: attributes,
           });
         } else {
+          // eslint-disable-next-line no-console
           console.warn('addNetworkNode failed — skipping metadata update');
         }
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error('Error committing shell node:', err);
       }
     },

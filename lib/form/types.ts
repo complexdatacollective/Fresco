@@ -94,6 +94,4 @@ export type FieldComponentProps = {
   disabled?: boolean;
   type?: VariableType;
   autoFocus?: boolean;
-  className?: string;
-  onChange?: () => unknown;
 };

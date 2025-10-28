@@ -1,4 +1,5 @@
 import { type VariableType } from '@codaco/protocol-validation';
+import { type VariableValue } from '@codaco/shared-consts';
 import { useEffect, useMemo, useState } from 'react';
 import RadioGroup from '~/lib/form/components/fields/RadioGroup';
 import { type RelativeOption } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useRelatives';
@@ -15,7 +16,7 @@ const motherKey = 'mother';
 
 export type FieldConfig<Props = Record<string, unknown>> = {
   fieldLabel: string;
-  options: { label: string; value: string }[];
+  options: { label: string; value: VariableValue }[];
   type: VariableType;
   variable: string;
   Component: React.ComponentType<Props>;

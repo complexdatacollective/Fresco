@@ -1445,7 +1445,7 @@ export const createFamilyTreeStore = (
             ([id, n]) => ({
               id,
               label: n.label,
-              sex: n.sex,
+              sex: n.sex!,
             }),
           );
           dispatch(

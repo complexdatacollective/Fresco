@@ -1,3 +1,4 @@
+import { type VariableValue } from '@codaco/shared-consts';
 import { useSelector } from 'react-redux';
 import { useDragSource } from '~/lib/dnd';
 import { useClickUnlessDragged } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useClickUnlessDragged';
@@ -16,9 +17,9 @@ export type FamilyTreeNodeType = {
   shape?: 'circle' | 'square';
   selected?: boolean;
   name?: string;
-  sex?: string;
+  sex?: 'male' | 'female';
   diseases?: Map<string, boolean>;
-  fields?: Map<string, string>;
+  fields?: Record<string, VariableValue>;
   readOnly: boolean;
   /*[key: string]:
     | string

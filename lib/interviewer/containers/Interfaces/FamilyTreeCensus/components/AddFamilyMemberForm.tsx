@@ -86,6 +86,9 @@ const AddFamilyMemberForm = () => {
         <Scroller>
           <Form
             ref={formRef}
+            // FieldComponentProps expects options of type FieldConfig[] but RadioGroup is JavaScript and options is an untyped array
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
             fields={processedFields}
             handleSubmit={handleSubmit}
             focusFirstInput={true}

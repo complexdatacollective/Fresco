@@ -1,8 +1,9 @@
+import { type VariableValue } from '@codaco/shared-consts';
 import { useMemo } from 'react';
 import { type FamilyTreeNodeType } from './components/FamilyTreeNode';
 import { type Edge } from './store';
 
-export type RelativeOption = { label: string; value: string };
+export type RelativeOption = { label: string; value: VariableValue };
 
 const motherKey = 'mother';
 const fatherKey = 'father';
