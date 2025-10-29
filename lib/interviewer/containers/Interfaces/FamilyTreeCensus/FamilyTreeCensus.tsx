@@ -91,7 +91,19 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const edgeType = useSelector(getEdgeType);
   const relationshipVariable = useSelector(getRelationshipTypeVariable);
   const saveEdges = () => {
+    const existingEdges = new Set(
+      networkEdges.map(
+        (edge) =>
+          `${edge.from}-${edge.to}-${(edge.attributes.relationship as string) ?? ''}`,
+      ),
+    );
+
     edges.forEach((edge) => {
+      const edgeKey = `${edge.source}-${edge.target}-${edge.relationship}`;
+
+      // skip if this edge already exists in the Redux network
+      if (existingEdges.has(edgeKey)) return;
+
       void dispatch(
         addEdge({
           from: edge.source,
@@ -102,6 +114,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       );
     });
   };
+
   const nodesMap = useFamilyTreeStore((state) => state.network.nodes);
   const missingNames = () => {
     return nodesMap.values().some((value) => value.interviewNetworkId == null);
