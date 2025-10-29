@@ -28,6 +28,9 @@ export default function EdgeRenderer() {
   const edgeType = useSelector(getEdgeType);
   const edgeColor = useSelector(getEdgeColorForType(edgeType));
 
+  const safeNumber = (n: unknown): n is number =>
+    typeof n === 'number' && !Number.isNaN(n);
+
   // More useful data structures for the things we need to do in this component
   const { parentEdgesByChild, parentEdgesByParent, partnershipEdges } =
     useMemo(() => {
@@ -74,13 +77,22 @@ export default function EdgeRenderer() {
     for (const edge of partnershipEdges) {
       const sourceNode = nodeMap.get(edge.source);
       const targetNode = nodeMap.get(edge.target);
-      if (!sourceNode || !targetNode) continue;
+      if (
+        !sourceNode ||
+        !targetNode ||
+        typeof sourceNode.x !== 'number' ||
+        typeof sourceNode.y !== 'number' ||
+        typeof targetNode.x !== 'number' ||
+        typeof targetNode.y !== 'number'
+      ) {
+        continue;
+      }
 
       const coords = {
-        x1: targetNode.x! + FAMILY_TREE_CONFIG.nodeContainerWidth / 2,
-        y1: sourceNode.y! + FAMILY_TREE_CONFIG.nodeHeight / 2,
-        x2: targetNode.x! + FAMILY_TREE_CONFIG.nodeContainerWidth * 1.5,
-        y2: targetNode.y! + FAMILY_TREE_CONFIG.nodeHeight / 2,
+        x1: targetNode.x + FAMILY_TREE_CONFIG.nodeContainerWidth / 2,
+        y1: sourceNode.y + FAMILY_TREE_CONFIG.nodeHeight / 2,
+        x2: targetNode.x + FAMILY_TREE_CONFIG.nodeContainerWidth * 1.5,
+        y2: targetNode.y + FAMILY_TREE_CONFIG.nodeHeight / 2,
       };
 
       if (edge.relationship === 'partner') {
@@ -146,7 +158,16 @@ export default function EdgeRenderer() {
 
       const node1 = nodeMap.get(partnerEdge.source);
       const node2 = nodeMap.get(partnerEdge.target);
-      if (!node1 || !node2) continue;
+      if (
+        !node1 ||
+        !node2 ||
+        !safeNumber(node1.x) ||
+        !safeNumber(node1.y) ||
+        !safeNumber(node2.x) ||
+        !safeNumber(node2.y)
+      ) {
+        continue;
+      }
 
       // Get children for both partners
       const node1Children =
@@ -164,16 +185,16 @@ export default function EdgeRenderer() {
 
       // Calculate midpoint between partners
       const xPos =
-        (node1.x! + (node2.x ?? 0)) / 2 + FAMILY_TREE_CONFIG.partnerSpacing / 2;
+        (node1.x + (node2.x ?? 0)) / 2 + FAMILY_TREE_CONFIG.partnerSpacing / 2;
 
       // For ex-partners, start slightly above the connector line
       const yStartPos =
         partnerEdge.relationship === 'ex-partner'
-          ? node1.y! + FAMILY_TREE_CONFIG.nodeHeight / 2 - 5
-          : node1.y! + FAMILY_TREE_CONFIG.nodeHeight / 2 + 5;
+          ? node1.y + FAMILY_TREE_CONFIG.nodeHeight / 2 - 5
+          : node1.y + FAMILY_TREE_CONFIG.nodeHeight / 2 + 5;
 
       const yEndPos =
-        node1.y! +
+        node1.y +
         FAMILY_TREE_CONFIG.nodeContainerHeight +
         FAMILY_TREE_CONFIG.padding / 2;
 
@@ -197,7 +218,19 @@ export default function EdgeRenderer() {
       const childNode = nodeMap.get(childId);
       const parent1 = nodeMap.get(parentEdges[0]!.source);
       const parent2 = nodeMap.get(parentEdges[1]!.source);
-      if (!childNode || !parent1 || !parent2) continue;
+      if (
+        !childNode ||
+        !parent1 ||
+        !parent2 ||
+        !safeNumber(childNode.x) ||
+        !safeNumber(childNode.y) ||
+        !safeNumber(parent1.x) ||
+        !safeNumber(parent1.y) ||
+        !safeNumber(parent2.x) ||
+        !safeNumber(parent2.y)
+      ) {
+        continue;
+      }
 
       // Check if parents are partners or ex-partners
       const parent1Id = parentEdges[0]!.source;
@@ -211,11 +244,10 @@ export default function EdgeRenderer() {
       if (!hasPartnerRelationship) continue;
 
       // Calculate positions
-      const xStartPos =
-        childNode.x! + FAMILY_TREE_CONFIG.nodeContainerWidth / 2;
+      const xStartPos = childNode.x + FAMILY_TREE_CONFIG.nodeContainerWidth / 2;
       const xEndPos =
-        (parent1.x! + parent2.x!) / 2 + FAMILY_TREE_CONFIG.partnerSpacing / 2;
-      const yPos = childNode.y! - FAMILY_TREE_CONFIG.padding / 2;
+        (parent1.x + parent2.x) / 2 + FAMILY_TREE_CONFIG.partnerSpacing / 2;
+      const yPos = childNode.y - FAMILY_TREE_CONFIG.padding / 2;
       const height =
         FAMILY_TREE_CONFIG.nodeHeight / 2 + FAMILY_TREE_CONFIG.padding / 2 - 5;
 

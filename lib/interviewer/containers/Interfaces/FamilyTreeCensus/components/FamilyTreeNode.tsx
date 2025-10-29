@@ -21,14 +21,6 @@ export type FamilyTreeNodeType = {
   diseases?: Map<string, boolean>;
   fields?: Record<string, VariableValue>;
   readOnly: boolean;
-  /*[key: string]:
-    | string
-    | number
-    | boolean
-    | null
-    | undefined
-    | (string | number | boolean)[]
-    | Map<string, boolean | string>;*/
 };
 
 export default function FamilyTreeNode(props: {

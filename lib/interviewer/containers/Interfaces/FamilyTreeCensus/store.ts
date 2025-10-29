@@ -839,29 +839,20 @@ export const createFamilyTreeStore = (
           }
         },
 
-        addNode: ({
-          id = crypto.randomUUID(),
-          label,
-          sex,
-          readOnly = false,
-          isEgo = false,
-          x,
-          y,
-        }) => {
+        addNode: (node) => {
+          const id = node.id ?? crypto.randomUUID();
+
           set((state) => {
             invariant(
               !state.network.nodes.has(id),
               `Node with ID ${id} already exists`,
             );
+
             state.network.nodes.set(id, {
-              label,
-              sex,
-              readOnly,
-              isEgo,
-              x,
-              y,
+              ...node,
             });
           });
+
           return id;
         },
 
@@ -1222,7 +1213,6 @@ export const createFamilyTreeStore = (
           });
 
           store.runLayout();
-          get().syncMetadata();
         },
 
         addPlaceholderNode: (relation: string, anchorId?: string) => {
@@ -1415,7 +1405,6 @@ export const createFamilyTreeStore = (
           }
 
           store.runLayout();
-          get().syncMetadata();
           return newNodeId;
         },
 
@@ -1436,18 +1425,21 @@ export const createFamilyTreeStore = (
 
         syncMetadata: () => {
           if (!dispatch) return;
-          const latestNetwork = get().network;
-          const metadataNodes = Array.from(latestNetwork.nodes.entries()).map(
-            ([id, n]) => ({
-              id,
+
+          const committedNodes = Array.from(get().network.nodes.values())
+            .filter((n) => n.interviewNetworkId != null)
+            .map((n) => ({
+              interviewNetworkId: n.interviewNetworkId!,
               label: n.label,
               sex: n.sex!,
-            }),
-          );
+              isEgo: n.isEgo === true,
+              readOnly: n.readOnly ?? false,
+            }));
+
           dispatch(
             updateStageMetadata({
               hasSeenScaffoldPrompt: true,
-              nodes: metadataNodes,
+              nodes: committedNodes,
             }),
           );
         },

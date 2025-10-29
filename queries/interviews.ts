@@ -163,6 +163,7 @@ export const getInterviewById = async (interviewId: string) => {
       },
     },
     stages: [
+      { id: 'stage-0' },
       {
         id: 'stage-1',
         label: 'Family Tree Census',
@@ -215,6 +216,7 @@ export const getInterviewById = async (interviewId: string) => {
           },
         ],
       },
+      { id: 'stage-2' },
     ],
   };
 

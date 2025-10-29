@@ -5,9 +5,11 @@ import type {
   NcNode,
   VariableValue,
 } from '@codaco/shared-consts';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useToast } from '~/components/ui/use-toast';
 import { updateNode as updateNetworkNode } from '~/lib/interviewer/ducks/modules/session';
+import { getStageMetadata } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
 import AddFamilyMemberForm from './AddFamilyMemberForm';
@@ -21,17 +23,24 @@ export const FamilyTreeShells = (props: {
   diseaseVariable: string | null;
   stepIndex: number;
   networkNodes: NcNode[];
+  networkEdges: {
+    to: string;
+    from: string;
+    attributes: 'parent' | 'partner' | 'ex-partner';
+  }[];
 }) => {
-  const { stage, diseaseVariable, stepIndex, networkNodes } = props;
+  const { stage, diseaseVariable, stepIndex, networkNodes, networkEdges } =
+    props;
   const nodesMap = useFamilyTreeStore((state) => state.network.nodes);
+  const addShellNode = useFamilyTreeStore((state) => state.addNode);
+  const addShellEdge = useFamilyTreeStore((state) => state.addEdge);
+  const runLayout = useFamilyTreeStore((state) => state.runLayout);
+  const updateShellNode = useFamilyTreeStore((state) => state.updateNode);
   const getShellIdByNetworkId = useFamilyTreeStore(
     (state) => state.getShellIdByNetworkId,
   );
-  const runLayout = useFamilyTreeStore((state) => state.runLayout);
+  const clearNetwork = useFamilyTreeStore((state) => state.clearNetwork);
   const existingNodes = networkNodes.length > 0;
-  if (existingNodes) {
-    runLayout();
-  }
   const nodes: FamilyTreeNodeType[] = Array.from(
     nodesMap.entries().map(([id, node]) => ({ id, ...node })),
   );
@@ -39,9 +48,103 @@ export const FamilyTreeShells = (props: {
     undefined,
   );
   const { toast } = useToast();
-
   const dispatch = useAppDispatch();
-  const updateShellNode = useFamilyTreeStore((state) => state.updateNode);
+  const stageMetadata = useSelector(getStageMetadata);
+
+  const shouldHydrate = useMemo(() => {
+    const haveReduxNodes = networkNodes.length > 0;
+    const haveReduxEdges = networkEdges.length > 0;
+
+    return haveReduxNodes && haveReduxEdges;
+  }, [networkNodes.length, networkEdges.length]);
+
+  const metadataByNetworkId = useMemo(() => {
+    const map = new Map<
+      string,
+      {
+        label: string;
+        sex: 'male' | 'female';
+        isEgo: boolean;
+        readOnly: boolean;
+      }
+    >();
+
+    const metaNodes = stageMetadata?.nodes ?? [];
+    for (const node of metaNodes) {
+      if (!node.interviewNetworkId) continue;
+      map.set(node.interviewNetworkId, {
+        label: node.label,
+        sex: node.sex,
+        isEgo: node.isEgo,
+        readOnly: node.readOnly,
+      });
+    }
+
+    return map;
+  }, [stageMetadata]);
+
+  useEffect(() => {
+    if (!shouldHydrate) return;
+
+    clearNetwork();
+
+    for (const netNode of networkNodes) {
+      const id = netNode._uid;
+      const metadataNode = metadataByNetworkId.get(id);
+      const label = metadataNode?.label ?? '';
+      const sex = metadataNode?.sex ?? 'female';
+      const isEgo = metadataNode?.isEgo;
+      const readOnly = metadataNode?.readOnly;
+      const attributes = netNode.attributes ?? {};
+      const diseaseVars =
+        stage.diseaseNominationStep?.map((d) => d.variable) ?? [];
+      const diseases = new Map<string, boolean | null>();
+      const fields: Record<string, unknown> = {};
+
+      for (const [key, value] of Object.entries(attributes)) {
+        if (diseaseVars.includes(key)) {
+          if (value === true || value === false || value === null) {
+            diseases.set(key, value);
+          }
+        } else {
+          fields[key] = value;
+        }
+      }
+
+      addShellNode({
+        id,
+        label,
+        sex,
+        isEgo,
+        readOnly,
+        interviewNetworkId: id,
+        name: fields.name ?? label,
+        fields,
+        diseases,
+      });
+    }
+
+    for (const edge of networkEdges) {
+      addShellEdge({
+        id: `${edge.from}-${edge.to}-${edge.attributes.relationship}`,
+        source: edge.from,
+        target: edge.to,
+        relationship: edge.attributes.relationship,
+      });
+    }
+
+    runLayout();
+  }, [
+    shouldHydrate,
+    networkNodes,
+    networkEdges,
+    metadataByNetworkId,
+    addShellNode,
+    addShellEdge,
+    runLayout,
+    clearNetwork,
+    stage.diseaseNominationStep,
+  ]);
 
   const updateNode = useCallback(
     async (payload: {

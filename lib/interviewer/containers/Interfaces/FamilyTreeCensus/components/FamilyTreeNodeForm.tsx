@@ -40,6 +40,7 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
   const getShellIdByNetworkId = useFamilyTreeStore(
     (state) => state.getShellIdByNetworkId,
   );
+  const syncMetadata = useFamilyTreeStore((state) => state.syncMetadata);
   const dispatch = useAppDispatch();
 
   const commitShellNode = useCallback(
@@ -64,6 +65,7 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
             name: attributes.name as string,
             fields: attributes,
           });
+          syncMetadata();
         } else {
           // eslint-disable-next-line no-console
           console.warn('addNetworkNode failed — skipping metadata update');
@@ -73,7 +75,7 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
         console.error('Error committing shell node:', err);
       }
     },
-    [dispatch, nodeType, updateShellNode],
+    [dispatch, nodeType, syncMetadata, updateShellNode],
   );
 
   const updateNode = useCallback(
@@ -90,10 +92,11 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
             name: name as string,
             fields: attributes,
           });
+          syncMetadata();
         }
       });
     },
-    [dispatch, getShellIdByNetworkId, updateShellNode],
+    [dispatch, getShellIdByNetworkId, syncMetadata, updateShellNode],
   );
 
   const processedFields = useProtocolFieldProcessor({

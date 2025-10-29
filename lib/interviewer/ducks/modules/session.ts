@@ -82,9 +82,11 @@ const FamilyTreeCensusStageMetadataSchema = z.object({
   nodes: z
     .array(
       z.object({
-        id: z.string(),
+        interviewNetworkId: z.string(),
         label: z.string(),
         sex: z.enum(['male', 'female']),
+        isEgo: z.boolean(),
+        readOnly: z.boolean(),
       }),
     )
     .optional(),

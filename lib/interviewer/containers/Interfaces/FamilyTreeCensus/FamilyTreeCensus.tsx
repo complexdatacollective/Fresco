@@ -81,7 +81,8 @@ const getStageSteps = (
 const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const { registerBeforeNext, stage } = props;
 
-  const allNodes = useSelector(getNetworkNodes);
+  const networkNodes = useSelector(getNetworkNodes);
+  const networkEdges = useSelector(getNetworkEdges);
   const dispatch = useAppDispatch();
   const edgesMap = useFamilyTreeStore((state) => state.network.edges);
   const edges = Array.from(
@@ -168,7 +169,8 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           stage={stage}
           diseaseVariable={diseaseVariable}
           stepIndex={currentStepIndex}
-          networkNodes={allNodes}
+          networkNodes={networkNodes}
+          networkEdges={networkEdges}
         />
       </div>
       {stageElement &&
