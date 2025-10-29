@@ -50,6 +50,7 @@ export const FamilyTreeShells = (props: {
   const { toast } = useToast();
   const dispatch = useAppDispatch();
   const stageMetadata = useSelector(getStageMetadata);
+  const [hydratedOnce, setHydratedOnce] = useState(false);
 
   const shouldHydrate = useMemo(() => {
     const haveReduxNodes = networkNodes.length > 0;
@@ -57,6 +58,10 @@ export const FamilyTreeShells = (props: {
 
     return haveReduxNodes && haveReduxEdges;
   }, [networkNodes.length, networkEdges.length]);
+
+  useEffect(() => {
+    setHydratedOnce(false);
+  }, [stage.id]);
 
   const metadataByNetworkId = useMemo(() => {
     const map = new Map<
@@ -84,7 +89,7 @@ export const FamilyTreeShells = (props: {
   }, [stageMetadata]);
 
   useEffect(() => {
-    if (!shouldHydrate) return;
+    if (!shouldHydrate || hydratedOnce) return;
 
     clearNetwork();
 
@@ -134,6 +139,7 @@ export const FamilyTreeShells = (props: {
     }
 
     runLayout();
+    setHydratedOnce(true);
   }, [
     shouldHydrate,
     networkNodes,
@@ -144,6 +150,7 @@ export const FamilyTreeShells = (props: {
     runLayout,
     clearNetwork,
     stage.diseaseNominationStep,
+    hydratedOnce,
   ]);
 
   const updateNode = useCallback(
