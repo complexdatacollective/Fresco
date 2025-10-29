@@ -151,10 +151,8 @@ export const getInterviewById = async (interviewId: string) => {
               type: 'categorical',
               options: [
                 { label: 'Parent', value: 'parent' },
-                { label: 'Child', value: 'child' },
-                { label: 'Sibling', value: 'sibling' },
-                { label: 'Spouse', value: 'spouse' },
-                { label: 'Other', value: 'other' },
+                { label: 'Partner', value: 'partner' },
+                { label: 'Ex-Partner', value: 'ex-partner' },
               ],
             },
           },

@@ -152,6 +152,8 @@ export function useDynamicFields({
     return processed;
   }, [
     nodes,
+    fatherKey,
+    motherKey,
     firstCousinOptions,
     nieceOptions,
     grandchildrenOptions,

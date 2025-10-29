@@ -172,5 +172,5 @@ export const useRelatives = (
       nieceOptions,
       firstCousinOptions,
     };
-  }, [nodesMap, edgesMap]);
+  }, [nodesMap, getNodeIdFromRelationship, edgesMap]);
 };
