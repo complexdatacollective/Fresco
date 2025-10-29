@@ -2,13 +2,17 @@ import { type Stage } from '@codaco/protocol-validation';
 import type {
   EntityAttributesProperty,
   EntityPrimaryKey,
+  NcEdge,
   NcNode,
   VariableValue,
 } from '@codaco/shared-consts';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useToast } from '~/components/ui/use-toast';
-import { updateNode as updateNetworkNode } from '~/lib/interviewer/ducks/modules/session';
+import {
+  type FamilyTreeCensusStageMetadata,
+  updateNode as updateNetworkNode,
+} from '~/lib/interviewer/ducks/modules/session';
 import { getStageMetadata } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
@@ -18,16 +22,18 @@ import EdgeRenderer from './EdgeRenderer';
 import FamilyTreeNode, { type FamilyTreeNodeType } from './FamilyTreeNode';
 import FamilyTreeNodeForm from './FamilyTreeNodeForm';
 
+const isFamilyTreeStageMetadata = (
+  stageMetadata: unknown,
+): stageMetadata is FamilyTreeCensusStageMetadata => {
+  return typeof stageMetadata === 'object' && stageMetadata != null;
+};
+
 export const FamilyTreeShells = (props: {
   stage: Extract<Stage, { type: 'FamilyTreeCensus' }>;
   diseaseVariable: string | null;
   stepIndex: number;
   networkNodes: NcNode[];
-  networkEdges: {
-    to: string;
-    from: string;
-    attributes: 'parent' | 'partner' | 'ex-partner';
-  }[];
+  networkEdges: NcEdge[];
 }) => {
   const { stage, diseaseVariable, stepIndex, networkNodes, networkEdges } =
     props;
@@ -74,15 +80,17 @@ export const FamilyTreeShells = (props: {
       }
     >();
 
-    const metaNodes = stageMetadata?.nodes ?? [];
-    for (const node of metaNodes) {
-      if (!node.interviewNetworkId) continue;
-      map.set(node.interviewNetworkId, {
-        label: node.label,
-        sex: node.sex,
-        isEgo: node.isEgo,
-        readOnly: node.readOnly,
-      });
+    if (isFamilyTreeStageMetadata(stageMetadata)) {
+      const metaNodes = stageMetadata?.nodes ?? [];
+      for (const node of metaNodes) {
+        if (!node.interviewNetworkId) continue;
+        map.set(node.interviewNetworkId, {
+          label: node.label,
+          sex: node.sex,
+          isEgo: node.isEgo,
+          readOnly: node.readOnly,
+        });
+      }
     }
 
     return map;
@@ -99,17 +107,17 @@ export const FamilyTreeShells = (props: {
       const label = metadataNode?.label ?? '';
       const sex = metadataNode?.sex ?? 'female';
       const isEgo = metadataNode?.isEgo;
-      const readOnly = metadataNode?.readOnly;
+      const readOnly = metadataNode?.readOnly ?? false;
       const attributes = netNode.attributes ?? {};
       const diseaseVars =
         stage.diseaseNominationStep?.map((d) => d.variable) ?? [];
-      const diseases = new Map<string, boolean | null>();
-      const fields: Record<string, unknown> = {};
+      const diseases = new Map<string, boolean>();
+      const fields: Record<string, VariableValue> = {};
 
       for (const [key, value] of Object.entries(attributes)) {
         if (diseaseVars.includes(key)) {
           if (value === true || value === false || value === null) {
-            diseases.set(key, value);
+            diseases.set(key, value === true);
           }
         } else {
           fields[key] = value;
@@ -123,7 +131,7 @@ export const FamilyTreeShells = (props: {
         isEgo,
         readOnly,
         interviewNetworkId: id,
-        name: fields.name ?? label,
+        name: (fields.name as string) ?? label,
         fields,
         diseases,
       });
