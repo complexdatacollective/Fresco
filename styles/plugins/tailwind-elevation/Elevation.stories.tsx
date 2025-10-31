@@ -16,7 +16,7 @@ export default meta;
 export const ElevationLevels: StoryFn = () => (
   <div className="bg-background publish-colors h-screen space-y-8 p-8">
     <h2 className="text-text mb-6 text-2xl font-bold">Elevation Levels</h2>
-    <p className="text-text/50 mb-8">
+    <p className="mb-8 text-current/70">
       Three elevation levels create depth hierarchy using mathematically
       generated multi-layer shadows.
     </p>

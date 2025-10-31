@@ -69,7 +69,7 @@ function Item({
             />
             <Button
               size="sm"
-              variant="ghost"
+              variant="text"
               name="save"
               onClick={handleEditSave}
               className="h-8 w-8 p-0"
@@ -79,7 +79,7 @@ function Item({
             </Button>
             <Button
               size="sm"
-              variant="ghost"
+              variant="text"
               name="cancel"
               onClick={handleEditCancel}
               className="h-8 w-8 p-0"
@@ -93,7 +93,7 @@ function Item({
             <span className="flex-1 text-sm">{value}</span>
             <Button
               size="sm"
-              variant="ghost"
+              variant="text"
               name="edit"
               onClick={() => setIsEditing(true)}
               className="h-8 w-8 p-0"
@@ -103,7 +103,7 @@ function Item({
             </Button>
             <Button
               size="sm"
-              variant="ghost"
+              variant="text"
               name="delete"
               onClick={handleDelete}
               className="h-8 w-8 p-0"

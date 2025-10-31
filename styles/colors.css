@@ -110,7 +110,7 @@
     var(--tomato-chroma) var(--tomato-hue);
 
   /* Charcoal */
-  --charcoal-lightness: 48%;
+  --charcoal-lightness: 30%;
   --charcoal-chroma: 0.02;
   --charcoal-hue: 210;
   --charcoal: var(--charcoal-lightness) var(--charcoal-chroma)

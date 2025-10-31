@@ -118,6 +118,7 @@
   --color-info-contrast: var(--info-contrast);
 
   --color-selected: var(--selected);
+  --color-selected-contrast: var(--selected-contrast);
 
   --ring: var(--ring);
 
@@ -128,7 +129,6 @@
 
   --color-input: var(--input);
   --color-input-contrast: var(--input-contrast);
-  --color-input-placeholder: var(--input-placeholder);
 
   --color-overlay: oklch(from var(--overlay) l c h / 0.45);
 
@@ -407,6 +407,11 @@
   hr {
     @apply my-6 rounded border-[1.2px] border-current/5;
   }
+
+  .lucide {
+    /* Slightly increase default stroke width for better visibility */
+    stroke-width: 2.5px;
+  }
 }
 
 /* 
@@ -420,8 +425,16 @@ This custom variant lets you target only elements with the readonly attribute.
 */
 @custom-variant is-read-only (&[readonly]);
 
+@utility focus-styles {
+  @apply outline-4 outline-offset-3 outline-current transition-colors duration-200 ease-in-out;
+}
+
 @utility focusable {
-  @apply focus-visible:outline-accent outline-4 outline-offset-3 outline-transparent transition-colors duration-200 ease-in-out;
+  @apply focus-visible:focus-styles;
+}
+
+@utility focusable-within {
+  @apply focus-within:focus-styles;
 }
 
 /* Replacement for interface centering mixin */

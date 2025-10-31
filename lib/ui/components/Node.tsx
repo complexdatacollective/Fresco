@@ -583,7 +583,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     selected,
     linking,
     loading = false,
-    size,
+    size = 'md',
     ...buttonProps
   } = props;
 

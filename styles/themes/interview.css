@@ -59,7 +59,6 @@
 
     --input: oklch(var(--navy-taupe));
     --input-contrast: oklch(var(--white));
-    --input-placeholder: oklch(var(--slate-blue));
 
     --overlay: oklch(from oklch(var(--rich-black)) calc(l + 0.15) c h);
 

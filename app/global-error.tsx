@@ -73,7 +73,7 @@ ${error.stack}`;
           .
         </Paragraph>
         <div className="mt-4 flex flex-col gap-2">
-          <Button onClick={copyDebugInfoToClipboard} variant="ghost">
+          <Button onClick={copyDebugInfoToClipboard} variant="text">
             Copy Debug Information
             <ClipboardCopy className="ml-2" />
           </Button>

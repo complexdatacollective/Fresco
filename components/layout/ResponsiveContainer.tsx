@@ -1,8 +1,8 @@
 import type { HTMLAttributes } from 'react';
 import { type VariantProps, cva, cx } from '~/utils/cva';
 
-const containerVariants = cva({
-  base: '@container tablet:mx-auto flex flex-col my-6 tablet:my-10 mx-2 grow',
+const responsiveContainerVariants = cva({
+  base: '@container tablet:mx-auto flex flex-col grow',
   variants: {
     maxWidth: {
       'xl': 'max-w-xl',
@@ -20,23 +20,28 @@ const containerVariants = cva({
     },
   },
   defaultVariants: {
-    maxWidth: '3xl',
-    baseSize: '90%',
+    maxWidth: '6xl',
+    baseSize: '100%',
   },
 });
 
-type ContainerProps = {
-  maxWidth?: VariantProps<typeof containerVariants>['maxWidth'];
-  baseSize?: VariantProps<typeof containerVariants>['baseSize'];
-} & HTMLAttributes<HTMLDivElement>;
+export type ResponsiveContainerProps = VariantProps<
+  typeof responsiveContainerVariants
+> &
+  HTMLAttributes<HTMLDivElement>;
 
 const ResponsiveContainer = ({
   children,
   maxWidth,
   baseSize,
   className,
-}: ContainerProps) => (
-  <div className={cx(containerVariants({ maxWidth, baseSize }), className)}>
+}: ResponsiveContainerProps) => (
+  <div
+    className={cx(
+      responsiveContainerVariants({ maxWidth, baseSize }),
+      className,
+    )}
+  >
     {children}
   </div>
 );

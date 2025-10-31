@@ -14,7 +14,7 @@ export default function SummaryStatistics() {
       className="tablet:grid-cols-3 desktop:gap-6 grid grid-cols-1 gap-4"
       maxWidth="6xl"
     >
-      <Link className="@container" href="/dashboard/protocols">
+      <Link className="focusable-within @container" href="/dashboard/protocols">
         <Suspense
           fallback={
             <StatCardSkeleton title="Protocols" icon={<ProtocolIcon />} />
@@ -28,7 +28,10 @@ export default function SummaryStatistics() {
           />
         </Suspense>
       </Link>
-      <Link className="@container" href="/dashboard/participants">
+      <Link
+        className="focusable-within @container"
+        href="/dashboard/participants"
+      >
         <Suspense
           fallback={
             <StatCardSkeleton
@@ -61,7 +64,10 @@ export default function SummaryStatistics() {
           />
         </Suspense>
       </Link>
-      <Link className="@container" href="/dashboard/interviews">
+      <Link
+        className="focusable-within @container"
+        href="/dashboard/interviews"
+      >
         <Suspense
           fallback={
             <StatCardSkeleton title="Interviews" icon={<InterviewIcon />} />

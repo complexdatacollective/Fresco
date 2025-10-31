@@ -24,6 +24,7 @@ export default function SettingsSection({
         'flex gap-10',
         devOnly && 'border-destructive bg-destructive/5 text-destructive',
       )}
+      maxWidth="3xl"
     >
       <div className="flex-1">
         <Heading level="h4" variant="all-caps" className="mb-2">

@@ -103,3 +103,9 @@ export type BaseFieldProps = {
   value?: FieldValue;
   onChange?: (value: FieldValue) => void;
 };
+
+export type BaseFieldComponentProps<T extends FieldValue> = {
+  name: string;
+  value: T;
+  onChange: (value: T) => void;
+};

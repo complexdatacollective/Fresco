@@ -1,7 +1,7 @@
 'use client';
 
 import type { Table } from '@tanstack/react-table';
-import { PlusCircle, Trash, X } from 'lucide-react';
+import { PlusCircle, Search, Trash, X } from 'lucide-react';
 import Link from 'next/link';
 import * as React from 'react';
 import { type UrlObject } from 'url';
@@ -44,6 +44,8 @@ export function DataTableToolbar<TData>({
             (column) =>
               table.getColumn(column.id ? String(column.id) : '') && (
                 <InputField
+                  type="search"
+                  prefixComponent={<Search />}
                   name="Filter"
                   key={String(column.id)}
                   placeholder={`Filter ${column.title}...`}
@@ -75,7 +77,7 @@ export function DataTableToolbar<TData>({
           )}
         {isFiltered && (
           <Button
-            variant="link"
+            variant="text"
             onClick={() => table.resetColumnFilters()}
             icon={<X className="size-4" aria-hidden="true" />}
           >
@@ -88,7 +90,6 @@ export function DataTableToolbar<TData>({
           <Button
             aria-label="Delete selected rows"
             variant="outline"
-            size="sm"
             onClick={(event) => {
               startTransition(() => {
                 table.toggleAllPageRowsSelected(false);

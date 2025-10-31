@@ -4,15 +4,9 @@ import { FileUp } from 'lucide-react';
 import { use, useEffect, useState } from 'react';
 import superjson from 'superjson';
 import { Button } from '~/components/ui/Button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select';
 import { Skeleton } from '~/components/ui/skeleton';
 import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
+import { SelectField } from '~/lib/form/components/fields/Select';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import type {
   GetProtocolsQuery,
@@ -61,9 +55,8 @@ export const GenerateInterviewURLs = ({
       <Button
         disabled={interviews?.length === 0}
         onClick={handleOpenChange}
-        variant="outline"
+        icon={<FileUp />}
       >
-        <FileUp className="mr-2 inline-block h-4 w-4" />
         Export Incomplete Interview URLs
       </Button>
       <ControlledDialog
@@ -85,10 +78,12 @@ export const GenerateInterviewURLs = ({
       >
         <div className="flex flex-col items-center justify-end gap-4">
           {!protocols ? (
-            <Skeleton className="rounded-input h-10 w-full" />
+            <Skeleton className="h-10 w-full rounded" />
           ) : (
-            <Select
-              onValueChange={(value) => {
+            <SelectField
+              name="Protocol"
+              options={protocols?.map((p) => ({ value: p.id, label: p.name }))}
+              onChange={(value) => {
                 const protocol = protocols.find(
                   (protocol) => protocol.id === value,
                 );
@@ -96,18 +91,8 @@ export const GenerateInterviewURLs = ({
                 setSelectedProtocol(protocol);
               }}
               value={selectedProtocol?.id}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a Protocol..." />
-              </SelectTrigger>
-              <SelectContent>
-                {protocols?.map((protocol) => (
-                  <SelectItem key={protocol.id} value={protocol.id}>
-                    {protocol.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              placeholder="Select a Protocol..."
+            />
           )}
         </div>
       </ControlledDialog>

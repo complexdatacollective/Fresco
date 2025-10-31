@@ -1,8 +1,8 @@
 'use client';
 
 import { Menu } from '@base-ui-components/react/menu';
-import { AnimatePresence } from 'motion/react';
 import { Check, ChevronRight, Circle } from 'lucide-react';
+import { AnimatePresence } from 'motion/react';
 import * as React from 'react';
 
 import { cx } from '~/utils/cva';
@@ -94,21 +94,21 @@ const DropdownMenuSubContent = React.forwardRef<
           <Menu.Positioner sideOffset={sideOffset}>
             <Menu.Popup
               ref={ref}
-              render={
-                <MotionSurface
-                  level="popover"
-                  elevation="none"
-                  spacing="none"
-                  className={cx(
-                    'min-w-[8rem] p-1 text-sm shadow-xl',
-                    className,
-                  )}
-                  initial={{ opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.96 }}
-                  transition={{ type: 'spring', duration: 0.5 }}
-                />
-              }
+              // render={
+              //   <MotionSurface
+              //     level="popover"
+              //     elevation="none"
+              //     spacing="none"
+              //     className={cx(
+              //       'min-w-[8rem] p-1 text-sm shadow-xl',
+              //       className,
+              //     )}
+              //     initial={{ opacity: 0, scale: 0.96 }}
+              //     animate={{ opacity: 1, scale: 1 }}
+              //     exit={{ opacity: 0, scale: 0.96 }}
+              //     transition={{ type: 'spring', duration: 0.5 }}
+              //   />
+              // }
               {...props}
             />
           </Menu.Positioner>
@@ -150,6 +150,7 @@ const DropdownMenuContent = React.forwardRef<
                 ref={ref}
                 render={
                   <MotionSurface
+                    noContainer
                     level="popover"
                     elevation="none"
                     spacing="none"
@@ -266,7 +267,7 @@ const DropdownMenuSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <Menu.Separator
     ref={ref}
-    className={cx('bg-border -mx-1 my-1 h-px', className)}
+    className={cx('-mx-1 my-1 h-px bg-current/50', className)}
     {...props}
   />
 ));

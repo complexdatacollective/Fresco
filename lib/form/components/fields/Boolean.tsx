@@ -113,7 +113,7 @@ export function BooleanField({
           onClick={() => onChange?.(null)}
           disabled={disabled}
           className={cx(
-            'text-muted-contrast text-left text-sm underline',
+            'text-left text-sm text-current/70 underline',
             'hover:text-contrast',
             transitionStyles,
             'disabled:cursor-not-allowed disabled:opacity-50',

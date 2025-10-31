@@ -16,14 +16,14 @@
     --background: oklch(98% 0.08 var(--base-hue));
     --text: oklch(10% 0.22 var(--base-hue));
 
-    --neutral: oklch(var(--platinum));
-    --neutral-contrast: oklch(var(--charcoal));
+    --neutral: oklch(99% 0.02 var(--base-hue));
+    --neutral-contrast: oklch(10% 0.2 var(--base-hue));
 
     --primary: oklch(18% 0.2 var(--base-hue));
     --primary-contrast: oklch(var(--white));
 
     /* For your dark primary (15% L), an accent around 55-65% L works well */
-    --accent: oklch(65% 0.2 calc(var(--base-hue) - 100));
+    --accent: oklch(65% 0.3 calc(var(--base-hue) - 100));
     --accent-contrast: oklch(var(--white));
 
     --secondary: oklch(from var(--primary) calc(l + 0.2) calc(c + 0.05) h);
@@ -56,7 +56,8 @@
     );
     --info-contrast: oklch(var(--white));
 
-    --selected: oklch(90% 0.05 var(--base-hue));
+    --selected: var(--accent);
+    --selected-contrast: var(--accent-contrast);
 
     --ring: oklch(var(--mustard));
 
@@ -66,7 +67,6 @@
 
     --input: oklch(var(--white));
     --input-contrast: oklch(var(--cyber-grape));
-    --input-placeholder: oklch(40% 0.05 var(--base-hue));
 
     --overlay: oklch(10% 0.075 var(--base-hue));
 

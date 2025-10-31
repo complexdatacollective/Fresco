@@ -1,20 +1,25 @@
 'use client';
 
-import { type InputHTMLAttributes, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { InputField } from './Input';
 import type { SelectOption } from './Select';
 import { SelectField } from './Select';
 
-type DatePickerFieldProps = Omit<
-  InputHTMLAttributes<HTMLInputElement>,
-  'size' | 'onChange'
-> & {
-  type?: 'full' | 'month' | 'year';
-  value?: string;
-  onChange?: (value: string) => void;
-  name?: string;
-  disabled?: boolean;
-  required?: boolean;
+type DatePickerFieldProps = {
+  'type'?: 'full' | 'month' | 'year';
+  'value'?: string;
+  'onChange'?: (value: string) => void;
+  'name'?: string;
+  'size'?: 'sm' | 'md' | 'lg';
+  'min'?: string;
+  'max'?: string;
+  'disabled'?: boolean;
+  'required'?: boolean;
+  'placeholder'?: string;
+  'className'?: string;
+  'aria-label'?: string;
+  'aria-invalid'?: boolean;
+  'readOnly'?: boolean;
 };
 
 const months: SelectOption[] = [
@@ -33,15 +38,20 @@ const months: SelectOption[] = [
 ];
 
 export function DatePickerField({
-  type: resolutionType = 'full',
+  'type': resolutionType = 'full',
   min,
   max,
   value,
   onChange,
   name,
+  size = 'md',
   disabled,
   required,
-  ...props
+  placeholder,
+  className,
+  'aria-label': ariaLabel,
+  'aria-invalid': ariaInvalid,
+  readOnly,
 }: DatePickerFieldProps) {
   const today = useMemo(() => new Date(), []);
   const minDate = useMemo(
@@ -107,21 +117,25 @@ export function DatePickerField({
       <div className="flex gap-2">
         <SelectField
           size="md"
+          name={`${name ?? 'date'}-year`}
           options={years}
           placeholder="Year"
           value={selectedYear}
-          onChange={(e) => handleChange(e.target.value, undefined)}
-          disabled={disabled}
+          onChange={(value) => handleChange(String(value), undefined)}
+          disabled={disabled ?? readOnly}
           required={required}
+          aria-invalid={ariaInvalid}
         />
         <SelectField
           size="md"
+          name={`${name ?? 'date'}-month`}
           options={availableMonths}
           placeholder="Month"
           value={selectedMonth}
-          onChange={(e) => handleChange(undefined, e.target.value)}
-          disabled={disabled ?? !selectedYear}
+          onChange={(value) => handleChange(undefined, String(value))}
+          disabled={disabled ?? readOnly ?? !selectedYear}
           required={required}
+          aria-invalid={ariaInvalid}
         />
       </div>
     );
@@ -134,10 +148,11 @@ export function DatePickerField({
         options={years}
         placeholder="Year"
         value={value}
-        onChange={(e) => onChange?.(e.target.value)}
-        name={name}
-        disabled={disabled}
+        onChange={(value) => onChange?.(String(value))}
+        name={name ?? 'year'}
+        disabled={disabled ?? readOnly}
         required={required}
+        aria-invalid={ariaInvalid}
       />
     );
   }
@@ -145,14 +160,19 @@ export function DatePickerField({
   return (
     <InputField
       type="date"
+      size={size}
       min={min ? String(min) : undefined}
       max={max ? String(max) : undefined}
       value={value}
-      onChange={(e) => onChange?.(e.target.value)}
+      onChange={(value) => onChange?.(String(value))}
       name={name}
       disabled={disabled}
       required={required}
-      {...props}
+      placeholder={placeholder}
+      className={className}
+      aria-label={ariaLabel}
+      aria-invalid={ariaInvalid}
+      readOnly={readOnly}
     />
   );
 }

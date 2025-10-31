@@ -1,14 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { SelectField } from './Select';
+import { useState } from 'react';
+import {
+  NativeSelectField,
+  StyledSelectField,
+  type SelectOption,
+} from './Select';
 
-const sampleOptions = [
+const sampleOptions: SelectOption[] = [
   { value: 'option1', label: 'Option 1' },
   { value: 'option2', label: 'Option 2' },
   { value: 'option3', label: 'Option 3' },
   { value: 'option4', label: 'Option 4' },
 ];
 
-const countryOptions = [
+const countryOptions: SelectOption[] = [
   { value: 'us', label: 'United States' },
   { value: 'uk', label: 'United Kingdom' },
   { value: 'ca', label: 'Canada' },
@@ -18,36 +23,36 @@ const countryOptions = [
   { value: 'jp', label: 'Japan' },
 ];
 
-const priorityOptions = [
+const priorityOptions: SelectOption[] = [
   { value: 'low', label: 'Low Priority' },
   { value: 'medium', label: 'Medium Priority' },
   { value: 'high', label: 'High Priority' },
   { value: 'urgent', label: 'Urgent' },
 ];
 
-const meta: Meta<typeof SelectField> = {
+const meta: Meta<typeof NativeSelectField> = {
   title: 'Components/Fields/SelectField',
-  component: SelectField,
+  component: NativeSelectField,
   parameters: {
     layout: 'centered',
   },
   tags: ['autodocs'],
   argTypes: {
-    options: {
+    'options': {
       control: false,
       description: 'Array of options to display in the select',
       table: {
         type: { summary: 'SelectOption[]' },
       },
     },
-    placeholder: {
+    'placeholder': {
       control: 'text',
       description: 'Placeholder text for the select',
       table: {
         type: { summary: 'string' },
       },
     },
-    disabled: {
+    'disabled': {
       control: 'boolean',
       description: 'Whether the select is disabled',
       table: {
@@ -55,23 +60,30 @@ const meta: Meta<typeof SelectField> = {
         defaultValue: { summary: 'false' },
       },
     },
-    required: {
+    'aria-invalid': {
       control: 'boolean',
-      description: 'Whether the select is required',
+      description: 'Whether the select has invalid state styling',
       table: {
         type: { summary: 'boolean' },
         defaultValue: { summary: 'false' },
       },
     },
-    multiple: {
+    'required': {
       control: 'boolean',
-      description: 'Whether multiple options can be selected',
+      description: 'Whether the select is required (HTML validation)',
       table: {
         type: { summary: 'boolean' },
         defaultValue: { summary: 'false' },
       },
     },
-    size: {
+    'onChange': {
+      control: false,
+      description: 'Callback when value changes - receives value directly',
+      table: {
+        type: { summary: '(value: string | number) => void' },
+      },
+    },
+    'size': {
       control: 'select',
       options: ['sm', 'md', 'lg'],
       description: 'Size of the select field',
@@ -80,190 +92,341 @@ const meta: Meta<typeof SelectField> = {
         defaultValue: { summary: 'md' },
       },
     },
-    defaultValue: {
-      control: 'text',
-      description: 'Default value of the select',
-      table: {
-        type: { summary: 'string' },
-      },
-    },
-  },
-  args: {
-    options: sampleOptions,
-    placeholder: 'Select an option...',
-    disabled: false,
-    required: false,
-    multiple: false,
   },
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  args: {
-    options: sampleOptions,
-  },
-};
+// Overview and Comparison
+export const Overview: Story = {
+  name: 'Overview: Native vs Styled',
+  render: () => {
+    const [nativeValue, setNativeValue] = useState<string | number>('');
+    const [styledValue, setStyledValue] = useState<string | number>('');
 
-export const Small: Story = {
-  args: {
-    size: 'sm',
-    options: sampleOptions,
-    placeholder: 'Small select',
-  },
-};
+    return (
+      <div className="flex flex-col gap-8">
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">Native Select</h3>
+          <p className="text-neutral-contrast text-sm opacity-70">
+            Uses HTML <code>&lt;select&gt;</code> element with custom styling
+          </p>
+          <div className="w-80">
+            <NativeSelectField
+              name="native-select"
+              options={sampleOptions}
+              placeholder="Select an option..."
+              value={nativeValue}
+              onChange={setNativeValue}
+            />
+          </div>
+          <p className="text-neutral-contrast text-xs opacity-70">
+            Selected: {nativeValue || 'none'}
+          </p>
+        </div>
 
-export const Large: Story = {
-  args: {
-    size: 'lg',
-    options: sampleOptions,
-    placeholder: 'Large select',
-  },
-};
-
-export const WithValue: Story = {
-  args: {
-    options: sampleOptions,
-    defaultValue: 'option2',
-  },
-};
-
-export const Disabled: Story = {
-  args: {
-    options: sampleOptions,
-    disabled: true,
-    defaultValue: 'option1',
-  },
-};
-
-export const Required: Story = {
-  args: {
-    options: sampleOptions,
-    required: true,
-    placeholder: 'Required field',
-  },
-};
-
-export const Multiple: Story = {
-  args: {
-    options: sampleOptions,
-    multiple: true,
-    placeholder: 'Select multiple options',
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">Styled Select (Base UI)</h3>
+          <p className="text-neutral-contrast text-sm opacity-70">
+            Custom dropdown with better accessibility and UX
+          </p>
+          <ul className="text-neutral-contrast mb-2 list-inside list-disc space-y-1 text-xs opacity-70">
+            <li>Check indicator for selected items</li>
+            <li>Better keyboard navigation</li>
+            <li>Hover and focus states</li>
+            <li>Portal-based positioning</li>
+          </ul>
+          <div className="w-80">
+            <StyledSelectField
+              name="styled-select"
+              options={sampleOptions}
+              placeholder="Select an option..."
+              value={styledValue}
+              onChange={setStyledValue}
+            />
+          </div>
+          <p className="text-neutral-contrast text-xs opacity-70">
+            Selected: {styledValue || 'none'}
+          </p>
+        </div>
+      </div>
+    );
   },
   parameters: {
     docs: {
       description: {
-        story: 'Select field with multiple selection enabled',
+        story:
+          'Compare native HTML select with styled Base UI select component. Both share the same API and support string | number values.',
       },
     },
   },
 };
 
-export const CountrySelector: Story = {
-  name: 'Country Selector',
-  args: {
-    options: countryOptions,
-    placeholder: 'Select your country',
-  },
-};
+// Property-based comparisons
+export const Sizes: Story = {
+  name: 'Sizes: All Variants',
+  render: () => {
+    const [nativeSm, setNativeSm] = useState<string | number>('');
+    const [nativeMd, setNativeMd] = useState<string | number>('');
+    const [nativeLg, setNativeLg] = useState<string | number>('');
+    const [styledSm, setStyledSm] = useState<string | number>('');
+    const [styledMd, setStyledMd] = useState<string | number>('');
+    const [styledLg, setStyledLg] = useState<string | number>('');
 
-export const PrioritySelector: Story = {
-  name: 'Priority Selector',
-  args: {
-    options: priorityOptions,
-    placeholder: 'Select priority level',
-    defaultValue: 'medium',
-  },
-};
+    return (
+      <div className="flex flex-col gap-8">
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold">Native Select Sizes</h3>
+          <div className="flex w-full flex-col gap-3">
+            <NativeSelectField
+              name="native-sm-size"
+              size="sm"
+              options={sampleOptions}
+              placeholder="Small (sm)"
+              value={nativeSm}
+              onChange={setNativeSm}
+            />
+            <NativeSelectField
+              name="native-md-size"
+              size="md"
+              options={sampleOptions}
+              placeholder="Medium (md) - default"
+              value={nativeMd}
+              onChange={setNativeMd}
+            />
+            <NativeSelectField
+              name="native-lg-size"
+              size="lg"
+              options={sampleOptions}
+              placeholder="Large (lg)"
+              value={nativeLg}
+              onChange={setNativeLg}
+            />
+          </div>
+        </div>
 
-export const Invalid: Story = {
-  name: 'Invalid State',
-  args: {
-    'options': sampleOptions,
-    'defaultValue': 'option1',
-    'aria-invalid': true,
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold">Styled Select Sizes</h3>
+          <div className="flex w-full flex-col gap-3">
+            <StyledSelectField
+              name="styled-sm-size"
+              size="sm"
+              options={sampleOptions}
+              placeholder="Small (sm)"
+              value={styledSm}
+              onChange={setStyledSm}
+            />
+            <StyledSelectField
+              name="styled-md-size"
+              size="md"
+              options={sampleOptions}
+              placeholder="Medium (md) - default"
+              value={styledMd}
+              onChange={setStyledMd}
+            />
+            <StyledSelectField
+              name="styled-lg-size"
+              size="lg"
+              options={sampleOptions}
+              placeholder="Large (lg)"
+              value={styledLg}
+              onChange={setStyledLg}
+            />
+          </div>
+        </div>
+      </div>
+    );
   },
   parameters: {
     docs: {
       description: {
-        story: 'Select with invalid state styling (uses aria-invalid)',
+        story:
+          'All available sizes (sm, md, lg) for both native and styled select components. Medium is the default size.',
       },
     },
   },
 };
 
-export const AllSizes: Story = {
-  name: 'All Sizes',
+export const States: Story = {
+  name: 'States: All Variants',
   render: () => (
-    <div className="flex flex-col gap-4">
-      <SelectField
-        size="sm"
-        options={sampleOptions}
-        placeholder="Small select"
-      />
-      <SelectField
-        size="md"
-        options={sampleOptions}
-        placeholder="Medium select"
-      />
-      <SelectField
-        size="lg"
-        options={sampleOptions}
-        placeholder="Large select"
-      />
+    <div className="flex flex-col gap-8">
+      <div className="space-y-3">
+        <h3 className="text-lg font-semibold">Native Select States</h3>
+        <div className="flex w-full flex-col gap-3">
+          <div>
+            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+              Normal
+            </p>
+            <NativeSelectField
+              name="native-normal"
+              options={sampleOptions}
+              placeholder="Normal state"
+              value=""
+              onChange={() => {
+                // no-op
+              }}
+            />
+          </div>
+          <div>
+            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+              Disabled
+            </p>
+            <NativeSelectField
+              name="native-disabled-state"
+              options={sampleOptions}
+              disabled
+              value="option2"
+              onChange={() => {
+                // no-op
+              }}
+            />
+          </div>
+          <div>
+            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+              Invalid
+            </p>
+            <NativeSelectField
+              name="native-invalid-state"
+              options={sampleOptions}
+              aria-invalid
+              value="option2"
+              onChange={() => {
+                // no-op
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <h3 className="text-lg font-semibold">Styled Select States</h3>
+        <div className="flex w-full flex-col gap-3">
+          <div>
+            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+              Normal
+            </p>
+            <StyledSelectField
+              name="styled-normal"
+              options={sampleOptions}
+              placeholder="Normal state"
+              value=""
+              onChange={() => {
+                // no-op
+              }}
+            />
+          </div>
+          <div>
+            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+              Disabled
+            </p>
+            <StyledSelectField
+              name="styled-disabled-state"
+              options={sampleOptions}
+              disabled
+              value="option2"
+              onChange={() => {
+                // no-op
+              }}
+            />
+          </div>
+          <div>
+            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+              Invalid
+            </p>
+            <StyledSelectField
+              name="styled-invalid-state"
+              options={sampleOptions}
+              aria-invalid
+              value="option2"
+              onChange={() => {
+                // no-op
+              }}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   ),
   parameters: {
     docs: {
       description: {
-        story: 'Shows all available sizes side by side',
+        story:
+          'All available states for both native and styled select components. State priority: disabled > invalid > normal',
       },
     },
   },
 };
 
-export const DisabledStates: Story = {
-  name: 'Disabled States',
-  render: () => (
-    <div className="flex flex-col gap-4">
-      <SelectField
-        options={sampleOptions}
-        disabled
-        placeholder="Disabled with placeholder"
-      />
-      <SelectField options={sampleOptions} disabled defaultValue="option2" />
-    </div>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story: 'Shows disabled states with and without values',
-      },
-    },
-  },
-};
+// Real-world usage examples
+export const UsageExamples: Story = {
+  name: 'Usage Examples',
+  render: () => {
+    const [country, setCountry] = useState<string | number>('');
+    const [priority, setPriority] = useState<string | number>('medium');
 
-export const InvalidStates: Story = {
-  name: 'Invalid States',
-  render: () => (
-    <div className="flex flex-col gap-4">
-      <SelectField
-        options={sampleOptions}
-        aria-invalid
-        placeholder="Invalid with placeholder"
-      />
-      <SelectField
-        options={sampleOptions}
-        aria-invalid
-        defaultValue="option3"
-      />
-    </div>
-  ),
+    return (
+      <div className="flex flex-col gap-8">
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold">Country Selector</h3>
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Native</label>
+              <NativeSelectField
+                name="country-native"
+                options={countryOptions}
+                placeholder="Select your country"
+                value={country}
+                onChange={setCountry}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Styled</label>
+              <StyledSelectField
+                name="country-styled"
+                options={countryOptions}
+                placeholder="Select your country"
+                value={country}
+                onChange={setCountry}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold">Priority Selector</h3>
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Native</label>
+              <NativeSelectField
+                name="priority-native"
+                options={priorityOptions}
+                placeholder="Select priority level"
+                value={priority}
+                onChange={setPriority}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Styled</label>
+              <StyledSelectField
+                name="priority-styled"
+                options={priorityOptions}
+                placeholder="Select priority level"
+                value={priority}
+                onChange={setPriority}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  },
   parameters: {
     docs: {
       description: {
-        story: 'Shows invalid states with and without values',
+        story:
+          'Real-world usage examples showing both implementations side-by-side with the same data',
       },
     },
   },
@@ -271,8 +434,10 @@ export const InvalidStates: Story = {
 
 export const LongOptionList: Story = {
   name: 'Long Option List',
-  args: {
-    options: [
+  render: () => {
+    const [value, setValue] = useState<string | number>('');
+
+    const longOptions: SelectOption[] = [
       { value: '1', label: 'Afghanistan' },
       { value: '2', label: 'Albania' },
       { value: '3', label: 'Algeria' },
@@ -288,13 +453,38 @@ export const LongOptionList: Story = {
       { value: '13', label: 'Australia' },
       { value: '14', label: 'Austria' },
       { value: '15', label: 'Azerbaijan' },
-    ],
-    placeholder: 'Select a country',
+    ];
+
+    return (
+      <div className="flex flex-col gap-8">
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold">Native Select</h3>
+          <NativeSelectField
+            name="countries-native"
+            options={longOptions}
+            placeholder="Select a country"
+            value={value}
+            onChange={setValue}
+          />
+        </div>
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold">Styled Select</h3>
+          <StyledSelectField
+            name="countries-styled"
+            options={longOptions}
+            placeholder="Select a country"
+            value={value}
+            onChange={setValue}
+          />
+        </div>
+      </div>
+    );
   },
   parameters: {
     docs: {
       description: {
-        story: 'Select with a long list of options to test scrolling behavior',
+        story:
+          'Behavior with a long list of options. The styled select shows a max height with scrolling.',
       },
     },
   },
@@ -302,36 +492,53 @@ export const LongOptionList: Story = {
 
 export const NumericValues: Story = {
   name: 'Numeric Values',
-  args: {
-    options: [
+  render: () => {
+    const [value, setValue] = useState<string | number>(3);
+
+    const numericOptions: SelectOption[] = [
       { value: 1, label: 'One' },
       { value: 2, label: 'Two' },
       { value: 3, label: 'Three' },
       { value: 4, label: 'Four' },
       { value: 5, label: 'Five' },
-    ],
-    placeholder: 'Select a number',
-    defaultValue: 3,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Select with numeric values instead of string values',
-      },
-    },
-  },
-};
+    ];
 
-export const Playground: Story = {
-  args: {
-    options: sampleOptions,
-    placeholder: 'Playground - try different combinations',
+    return (
+      <div className="flex flex-col gap-8">
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold">Native Select</h3>
+          <NativeSelectField
+            name="numbers-native"
+            options={numericOptions}
+            placeholder="Select a number"
+            value={value}
+            onChange={setValue}
+          />
+          <p className="text-neutral-contrast text-xs opacity-70">
+            Value: {value} (type: {typeof value})
+          </p>
+        </div>
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold">Styled Select</h3>
+          <StyledSelectField
+            name="numbers-styled"
+            options={numericOptions}
+            placeholder="Select a number"
+            value={value}
+            onChange={setValue}
+          />
+          <p className="text-neutral-contrast text-xs opacity-70">
+            Value: {value} (type: {typeof value})
+          </p>
+        </div>
+      </div>
+    );
   },
   parameters: {
     docs: {
       description: {
         story:
-          'Use the controls to experiment with different prop combinations',
+          'Both components support numeric values (number type) in addition to string values',
       },
     },
   },

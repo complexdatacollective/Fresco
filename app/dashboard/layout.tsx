@@ -1,3 +1,4 @@
+import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import { getAppSetting, requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
 import { NavigationBar } from './_components/NavigationBar';
@@ -17,12 +18,13 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
   const uploadThingToken = await getAppSetting('uploadThingToken');
 
   return (
-    <>
+    <div className="mt-34 mb-10">
       <NavigationBar />
       {!uploadThingToken && <UploadThingModal />}
-
-      {children}
-    </>
+      <ResponsiveContainer className="flex gap-10">
+        {children}
+      </ResponsiveContainer>
+    </div>
   );
 };
 

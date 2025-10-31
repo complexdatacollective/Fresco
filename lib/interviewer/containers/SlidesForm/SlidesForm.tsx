@@ -249,8 +249,9 @@ function SlidesForm({
         transition={{ ease: 'easeInOut', duration: 0.5 }}
       >
         <Surface
-          className="@container-normal h-auto max-h-[75%] max-w-[80ch]"
+          className="@container-normal h-auto max-h-[75%]"
           elevation="medium"
+          maxWidth="3xl"
         >
           <Heading level="h1" className="text-center">
             {stage.introductionPanel!.title}

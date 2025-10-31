@@ -6,12 +6,14 @@ const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
-  <Surface className="max-w-full overflow-x-auto" spacing="none">
-    <table
-      ref={ref}
-      className={cx('w-full caption-bottom border-collapse', className)}
-      {...props}
-    />
+  <Surface spacing="none">
+    <div className="max-w-full overflow-x-auto">
+      <table
+        ref={ref}
+        className={cx('w-full caption-bottom border-collapse', className)}
+        {...props}
+      />
+    </div>
   </Surface>
 ));
 Table.displayName = 'Table';
@@ -23,7 +25,7 @@ const TableHeader = React.forwardRef<
   <thead
     ref={ref}
     className={cx(
-      'publish-colors border-collapse bg-current/5 [&_tr]:border-b',
+      'publish-colors border-collapse bg-current/10 [&_tr]:border-b',
       className,
     )}
     {...props}
@@ -65,7 +67,8 @@ const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cx(
-      'data-[state=selected]:bg-selected border-b transition-colors duration-300 hover:bg-current/5',
+      'h-16', // Height works the same as min-h for table rows https://stackoverflow.com/questions/19432092/can-i-use-a-min-height-for-table-tr-or-td
+      'data-[state=selected]:bg-selected/15 border-b transition-colors duration-300 hover:bg-current/3',
       className,
     )}
     {...props}
@@ -80,7 +83,7 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cx(
-      'px-4 py-4 whitespace-nowrap [&:has([role=checkbox])]:pr-0',
+      'px-4 whitespace-nowrap',
       'text-left font-medium first:pl-12 last:pr-12',
       className,
     )}
@@ -96,7 +99,7 @@ const TableCell = React.forwardRef<
   <td
     ref={ref}
     className={cx(
-      'px-4 py-4 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0',
+      'px-4 align-middle whitespace-nowrap',
       'first:pl-12 last:pr-12',
       className,
     )}
@@ -111,7 +114,7 @@ const TableCaption = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <caption
     ref={ref}
-    className={cx('mt-4 text-sm text-current/50', className)}
+    className={cx('mt-4 text-sm text-current/70', className)}
     {...props}
   />
 ));

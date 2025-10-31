@@ -216,7 +216,7 @@ export const EmptyTable: Story = {
       </TableHeader>
       <TableBody>
         <TableRow>
-          <TableCell colSpan={3} className="text-center text-current/50">
+          <TableCell colSpan={3} className="text-center text-current/70">
             No data available
           </TableCell>
         </TableRow>

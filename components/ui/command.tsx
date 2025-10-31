@@ -13,7 +13,7 @@ const Command = React.forwardRef<
   <CommandPrimitive
     ref={ref}
     className={cx(
-      'bg-background text-text-contrast flex h-full w-full flex-col overflow-hidden rounded',
+      'flex h-full w-full flex-col overflow-hidden rounded',
       className,
     )}
     {...props}
@@ -24,15 +24,9 @@ Command.displayName = CommandPrimitive.displayName;
 const CommandInput = React.forwardRef<
   React.ElementRef<typeof InputField>,
   React.ComponentPropsWithoutRef<typeof InputField>
->(({ className, ...props }, ref) => (
+>(({ ...props }, ref) => (
   <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
-    <InputField
-      ref={ref}
-      size="sm"
-      prefixComponent={<SearchIcon />}
-      className={cx(className)}
-      {...props}
-    />
+    <InputField ref={ref} prefixComponent={<SearchIcon />} {...props} />
   </div>
 ));
 
@@ -71,7 +65,7 @@ const CommandGroup = React.forwardRef<
   <CommandPrimitive.Group
     ref={ref}
     className={cx(
-      'text-contrast [&_[cmdk-group-heading]]:text-muted-contrast overflow-hidden p-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium',
+      'overflow-hidden p-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium',
       className,
     )}
     {...props}
@@ -86,7 +80,7 @@ const CommandSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.Separator
     ref={ref}
-    className={cx('bg-border -mx-1 h-px', className)}
+    className={cx('-mx-1 h-px bg-current/50', className)}
     {...props}
   />
 ));
@@ -99,7 +93,7 @@ const CommandItem = React.forwardRef<
   <CommandPrimitive.Item
     ref={ref}
     className={cx(
-      'data-[selected=true]:bg-accent data-[selected=true]:text-accent-contrast relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+      'data-[selected=true]:bg-selected data-[selected=true]:text-neutral relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
       className,
     )}
     {...props}
@@ -115,7 +109,7 @@ const CommandShortcut = ({
   return (
     <span
       className={cx(
-        'text-muted-contrast ml-auto text-xs tracking-widest',
+        'ml-auto text-xs tracking-widest text-current/70',
         className,
       )}
       {...props}

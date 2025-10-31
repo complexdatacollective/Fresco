@@ -290,6 +290,7 @@ export default class NodeLayout extends React.Component {
               selected={this.isHighlighted(node)}
               linking={this.isLinking(node)}
               inactive={this.isDisabled(node)}
+              size="md"
             />
           );
         })}

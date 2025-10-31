@@ -2,7 +2,6 @@
 
 import { ClipboardCopy } from 'lucide-react';
 import ErrorReportNotifier from '~/components/ErrorReportNotifier';
-import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
@@ -43,36 +42,34 @@ ${error.stack}`;
   return (
     <div className="flex h-[100vh] items-center justify-center">
       <ErrorReportNotifier error={error} />
-      <ResponsiveContainer baseSize="60%">
-        <Surface>
-          <Heading level="h1" className="text-destructive">
-            Something went wrong.
-          </Heading>
-          <Paragraph intent="lead">
-            Fresco encountered an error while trying to load the page, and could
-            not continue.
-          </Paragraph>
-          <Paragraph>
-            This error has been automatically reported to us, but if you would
-            like to provide further information that you think might be useful
-            please contact us. You can also use the retry button to attempt to
-            load the page again.
-          </Paragraph>
-          <hr className="tablet:block hidden" />
-          <div className="tablet:flex-row tablet:justify-between flex flex-col gap-2">
-            <Button
-              onClick={copyDebugInfoToClipboard}
-              variant="outline"
-              icon={<ClipboardCopy />}
-            >
-              Copy Debug Information
-            </Button>
-            <Button onClick={handleReset} variant="default" className="flex">
-              Try Again
-            </Button>
-          </div>
-        </Surface>
-      </ResponsiveContainer>
+      <Surface baseSize="60%" maxWidth="3xl">
+        <Heading level="h1" className="text-destructive">
+          Something went wrong.
+        </Heading>
+        <Paragraph intent="lead">
+          Fresco encountered an error while trying to load the page, and could
+          not continue.
+        </Paragraph>
+        <Paragraph>
+          This error has been automatically reported to us, but if you would
+          like to provide further information that you think might be useful
+          please contact us. You can also use the retry button to attempt to
+          load the page again.
+        </Paragraph>
+        <hr className="tablet:block hidden" />
+        <div className="tablet:flex-row tablet:justify-between flex flex-col gap-2">
+          <Button
+            onClick={copyDebugInfoToClipboard}
+            variant="outline"
+            icon={<ClipboardCopy />}
+          >
+            Copy Debug Information
+          </Button>
+          <Button onClick={handleReset} variant="default" className="flex">
+            Try Again
+          </Button>
+        </div>
+      </Surface>
     </div>
   );
 }

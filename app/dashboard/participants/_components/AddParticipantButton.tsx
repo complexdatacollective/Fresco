@@ -1,9 +1,9 @@
 import { Button } from '~/components/ui/Button';
 
 import { type Participant } from '@prisma/client';
+import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import ParticipantModal from '~/app/dashboard/participants/_components/ParticipantModal';
-import { Plus } from 'lucide-react';
 
 type AddParticipantButtonProps = {
   existingParticipants: Participant[];
@@ -21,8 +21,7 @@ function AddParticipantButton({
         setOpen={setOpen}
         existingParticipants={existingParticipants}
       />
-      <Button onClick={() => setOpen(true)}>
-        <Plus className="mr-2 inline-block h-4 w-4" />
+      <Button onClick={() => setOpen(true)} icon={<Plus />}>
         Add Single Participant
       </Button>
     </div>

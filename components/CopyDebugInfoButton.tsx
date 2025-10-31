@@ -38,7 +38,7 @@ export default function CopyDebugInfoButton({
         className,
       )}
       title="Copy to clipboard"
-      variant="ghost"
+      variant="text"
     >
       <ClipboardCopy className="mr-2 h-4 w-4" />
       Copy Debug Info

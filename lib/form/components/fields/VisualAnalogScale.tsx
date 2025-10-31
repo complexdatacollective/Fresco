@@ -66,12 +66,12 @@ export function VisualAnalogScaleField({
         {/* Labels positioned below slider */}
         <div className="relative mt-2 flex justify-between">
           {minLabel && (
-            <div className="text-muted-contrast max-w-24 text-left text-sm leading-tight">
+            <div className="max-w-24 text-left text-sm leading-tight text-current/70">
               {minLabel}
             </div>
           )}
           {maxLabel && (
-            <div className="text-muted-contrast max-w-24 text-right text-sm leading-tight">
+            <div className="max-w-24 text-right text-sm leading-tight text-current/70">
               {maxLabel}
             </div>
           )}

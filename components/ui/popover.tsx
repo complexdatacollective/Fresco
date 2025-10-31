@@ -107,12 +107,13 @@ function PopoverContent({
                   level="popover"
                   elevation="none"
                   className={cx(
-                    'w-(--available-width) text-sm shadow-xl',
+                    '@container-normal max-w-(--available-width) text-sm shadow-xl',
                     className,
                   )}
                   initial={{ opacity: 0, scale: 0.96 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.96 }}
+                  noContainer
                   transition={{ type: 'spring', duration: 0.5 }}
                 />
               }

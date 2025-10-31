@@ -62,7 +62,10 @@ $PREFIX: 'nc-';
 @include palette.palette-set($PREFIX + 'background', var(--color-navy-taupe));
 @include palette.palette-set($PREFIX + 'text', var(--color-white));
 @include palette.palette-set($PREFIX + 'text-dark', var(--color-charcoal));
-@include palette.palette-set($PREFIX + 'text-muted', var(--color-cyber-grape));
+@include palette.palette-set(
+  $PREFIX + 'text-current/70',
+  var(--color-cyber-grape)
+);
 @include palette.palette-set($PREFIX + 'link', var(--color-neon-coral));
 @include palette.palette-set(
   $PREFIX + 'light-background',

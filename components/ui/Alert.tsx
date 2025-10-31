@@ -18,13 +18,13 @@ const alertVariants = cva({
   variants: {
     variant: {
       default: '',
-      info: 'bg-info/3 border-info text-info [--color-link:var(--color-info)] [&>svg]:text-info',
+      info: 'bg-[color-mix(in_oklab,var(--color-info)_10%,var(--color-neutral))] border-info text-info [--color-link:var(--color-info)] [&>svg]:text-info',
       destructive:
-        'bg-destructive/5 border-destructive text-destructive [&>svg]:text-destructive [--color-link:var(--color-destructive)]',
+        'bg-[color-mix(in_oklab,var(--color-destructive)_5%,var(--color-neutral))] border-destructive text-destructive [&>svg]:text-destructive [--color-link:var(--color-destructive)]',
       success:
-        'bg-success/1 border-success text-success [&>svg]:text-success [--color-link:var(--color-success)]',
+        'bg-[color-mix(in_oklab,var(--color-success)_0%,var(--color-neutral))] border-success text-success [&>svg]:text-success [--color-link:var(--color-success)]',
       warning:
-        'bg-warning/1 border-warning text-warning [&>svg]:text-warning [--color-link:var(--color-warning)]',
+        'bg-[color-mix(in_oklab,var(--color-warning)_0%,var(--color-neutral))] border-warning text-warning [&>svg]:text-warning [--color-link:var(--color-warning)]',
     },
   },
   defaultVariants: {
@@ -75,6 +75,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
         aria-label={ariaLabel}
         spacing="sm"
         className={cx(alertVariants({ variant }), className)}
+        maxWidth="3xl"
         {...props}
       >
         {IconComponent && (

@@ -11,14 +11,13 @@ export const transitionStyles = 'transition-all duration-200';
 export const textStyles = {
   base: 'text-input-contrast placeholder:text-input-contrast/50 placeholder:italic',
   invalid: 'aria-[invalid=true]:text-destructive',
-  disabled:
-    'disabled:text-muted-contrast disabled:placeholder:text-muted-contrast/50',
-  readOnly: 'is-read-only:text-muted-contrast',
+  disabled: 'disabled:text-current/70 disabled:placeholder:text-current/70/50',
+  readOnly: 'is-read-only:text-current/70',
 } as const;
 
 export const labelTextStyles = {
   base: 'text-contrast select-none text-balance',
-  disabled: 'group-has-[input:disabled]:text-muted-contrast',
+  disabled: 'group-has-[input:disabled]:text-current/70',
   size: {
     sm: 'text-sm',
     md: 'text-base',
@@ -125,7 +124,7 @@ export const interactiveElementStyles = {
   checkedInvalid:
     'group-data-[invalid=true]:checked:border-destructive group-data-[invalid=true]:checked:bg-destructive',
   checkedDisabled:
-    'disabled:checked:bg-muted-contrast disabled:checked:border-muted-contrast',
+    'disabled:checked:bg-current/50 disabled:checked:border-muted-contrast',
   invalidBorder: 'group-data-[invalid=true]:border-destructive',
 } as const;
 

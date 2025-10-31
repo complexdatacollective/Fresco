@@ -1,15 +1,22 @@
 'use client';
 
-import { type InputHTMLAttributes } from 'react';
 import { InputField } from './Input';
 
-type RelativeDatePickerFieldProps = Omit<
-  InputHTMLAttributes<HTMLInputElement>,
-  'type' | 'min' | 'max' | 'size'
-> & {
-  anchor?: string; // ISO date string
-  before?: number; // days before anchor
-  after?: number; // days after anchor
+type RelativeDatePickerFieldProps = {
+  'anchor'?: string; // ISO date string
+  'before'?: number; // days before anchor
+  'after'?: number; // days after anchor
+  'value'?: string;
+  'onChange'?: (value: string) => void;
+  'name'?: string;
+  'size'?: 'sm' | 'md' | 'lg';
+  'disabled'?: boolean;
+  'required'?: boolean;
+  'placeholder'?: string;
+  'className'?: string;
+  'aria-label'?: string;
+  'aria-invalid'?: boolean;
+  'readOnly'?: boolean;
 };
 
 function formatDateForInput(date: Date): string {
@@ -31,7 +38,17 @@ export function RelativeDatePickerField({
   anchor,
   before = 180,
   after = 0,
-  ...datePickerProps
+  value,
+  onChange,
+  name,
+  size = 'md',
+  disabled,
+  required,
+  placeholder,
+  className,
+  'aria-label': ariaLabel,
+  'aria-invalid': ariaInvalid,
+  readOnly,
 }: RelativeDatePickerFieldProps) {
   // Parse anchor date or default to today
   const anchorDate =
@@ -44,9 +61,19 @@ export function RelativeDatePickerField({
   return (
     <InputField
       type="date"
+      size={size}
       min={formatDateForInput(minDate)}
       max={formatDateForInput(maxDate)}
-      {...datePickerProps}
+      value={value}
+      onChange={(value) => onChange?.(String(value))}
+      name={name}
+      disabled={disabled}
+      required={required}
+      placeholder={placeholder}
+      className={className}
+      aria-label={ariaLabel}
+      aria-invalid={ariaInvalid}
+      readOnly={readOnly}
     />
   );
 }

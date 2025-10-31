@@ -24,7 +24,7 @@ const meta: Meta<typeof InputField> = {
   },
   tags: ['autodocs'],
   argTypes: {
-    size: {
+    'size': {
       control: 'select',
       options: ['sm', 'md', 'lg'],
       description: 'Size of the input field',
@@ -33,16 +33,19 @@ const meta: Meta<typeof InputField> = {
         defaultValue: { summary: 'md' },
       },
     },
-    variant: {
+    'type': {
       control: 'select',
-      options: ['default', 'ghost', 'filled', 'outline'],
-      description: 'Visual variant of the input field',
+      options: ['text', 'email', 'password', 'number', 'tel', 'url', 'search'],
+      description:
+        'HTML input type - affects onChange value type (number type returns number, others return string)',
       table: {
-        type: { summary: 'default | ghost | filled | outline' },
-        defaultValue: { summary: 'default' },
+        type: {
+          summary: 'text | email | password | number | tel | url | search',
+        },
+        defaultValue: { summary: 'text' },
       },
     },
-    disabled: {
+    'disabled': {
       control: 'boolean',
       description: 'Whether the input is disabled',
       table: {
@@ -50,7 +53,7 @@ const meta: Meta<typeof InputField> = {
         defaultValue: { summary: 'false' },
       },
     },
-    readOnly: {
+    'readOnly': {
       control: 'boolean',
       description: 'Whether the input is read-only',
       table: {
@@ -58,49 +61,50 @@ const meta: Meta<typeof InputField> = {
         defaultValue: { summary: 'false' },
       },
     },
-    required: {
+    'aria-invalid': {
       control: 'boolean',
-      description: 'Whether the input is required',
+      description: 'Whether the input has invalid state styling',
       table: {
         type: { summary: 'boolean' },
         defaultValue: { summary: 'false' },
       },
     },
-    type: {
-      control: 'select',
-      options: ['text', 'email', 'password', 'number', 'tel', 'url', 'search'],
-      description: 'HTML input type',
+    'required': {
+      control: 'boolean',
+      description: 'Whether the input is required (HTML validation)',
       table: {
-        type: { summary: 'string' },
-        defaultValue: { summary: 'text' },
+        type: { summary: 'boolean' },
+        defaultValue: { summary: 'false' },
       },
     },
-    placeholder: {
+    'placeholder': {
       control: 'text',
       description: 'Placeholder text for the input',
       table: {
         type: { summary: 'string' },
       },
     },
-    defaultValue: {
-      control: 'text',
-      description: 'Default value of the input',
-      table: {
-        type: { summary: 'string' },
-      },
-    },
-    prefixComponent: {
+    'prefixComponent': {
       control: false,
-      description: 'Content to display before the input',
+      description: 'ReactNode to display before the input (e.g., icons)',
       table: {
         type: { summary: 'ReactNode' },
       },
     },
-    suffixComponent: {
+    'suffixComponent': {
       control: false,
-      description: 'Content to display after the input',
+      description:
+        'ReactNode to display after the input (e.g., buttons, icons)',
       table: {
         type: { summary: 'ReactNode' },
+      },
+    },
+    'onChange': {
+      control: false,
+      description:
+        'Type-safe change handler - receives number for type="number", string for others',
+      table: {
+        type: { summary: '(value: number | string) => void' },
       },
     },
   },
@@ -119,7 +123,6 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     size: 'md',
-    variant: 'default',
   },
 };
 
@@ -137,25 +140,15 @@ export const Large: Story = {
   },
 };
 
-export const Ghost: Story = {
-  args: {
-    variant: 'ghost',
-    placeholder: 'Ghost variant',
-  },
-};
-
-export const Filled: Story = {
-  args: {
-    variant: 'filled',
-    placeholder: 'Filled variant',
-  },
-};
-
-export const Outline: Story = {
-  args: {
-    variant: 'outline',
-    placeholder: 'Outline variant',
-  },
+export const AllSizes: Story = {
+  name: 'All Sizes Comparison',
+  render: () => (
+    <div className="flex w-80 flex-col gap-4">
+      <InputField size="sm" placeholder="Small (sm)" />
+      <InputField size="md" placeholder="Medium (md) - default" />
+      <InputField size="lg" placeholder="Large (lg)" />
+    </div>
+  ),
 };
 
 export const WithValue: Story = {
@@ -200,9 +193,53 @@ export const PasswordType: Story = {
 };
 
 export const NumberType: Story = {
-  args: {
-    type: 'number',
-    placeholder: 'Enter a number',
+  name: 'Number Type',
+  render: () => {
+    const [value, setValue] = useState<number | undefined>(42);
+    return (
+      <div className="w-80 space-y-2">
+        <InputField
+          type="number"
+          placeholder="Enter a number"
+          value={value}
+          onChange={setValue}
+        />
+        <p className="text-contrast text-xs opacity-70">
+          Value: {value} (type: {typeof value})
+        </p>
+      </div>
+    );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Number input with type-safe onChange - returns number (or undefined when cleared)',
+      },
+    },
+  },
+};
+
+export const AllInputTypes: Story = {
+  name: 'All Input Types',
+  render: () => (
+    <div className="flex w-80 flex-col gap-3">
+      <InputField type="text" placeholder="Text" />
+      <InputField type="email" placeholder="email@example.com" />
+      <InputField type="password" placeholder="Password" />
+      <InputField type="number" placeholder="123" />
+      <InputField type="tel" placeholder="+1 (555) 123-4567" />
+      <InputField type="url" placeholder="https://example.com" />
+      <InputField type="search" placeholder="Search..." />
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'All supported input types. Number type returns number on onChange, others return string',
+      },
+    },
   },
 };
 
@@ -210,24 +247,6 @@ export const SearchType: Story = {
   args: {
     type: 'search',
     placeholder: 'Search...',
-  },
-};
-
-export const LargeGhost: Story = {
-  name: 'Large Ghost Variant',
-  args: {
-    size: 'lg',
-    variant: 'ghost',
-    placeholder: 'Combined variants',
-  },
-};
-
-export const SmallFilled: Story = {
-  name: 'Small Filled Variant',
-  args: {
-    size: 'sm',
-    variant: 'filled',
-    placeholder: 'Compact filled input',
   },
 };
 
@@ -240,112 +259,48 @@ export const Invalid: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Input with invalid state styling (uses aria-invalid)',
+        story:
+          'Input with invalid state styling (uses aria-invalid). State priority: disabled > readOnly > invalid > normal',
       },
     },
   },
 };
 
-export const DisabledVariants: Story = {
-  name: 'Disabled States (All Variants)',
+export const AllStates: Story = {
+  name: 'All States Comparison',
   render: () => (
-    <div className="flex flex-col gap-4">
-      <InputField
-        variant="default"
-        disabled
-        defaultValue="Disabled default variant"
-      />
-      <InputField
-        variant="ghost"
-        disabled
-        defaultValue="Disabled ghost variant"
-      />
-      <InputField
-        variant="filled"
-        disabled
-        defaultValue="Disabled filled variant"
-      />
-      <InputField
-        variant="outline"
-        disabled
-        defaultValue="Disabled outline variant"
-      />
+    <div className="flex w-80 flex-col gap-4">
+      <div>
+        <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+          Normal
+        </p>
+        <InputField placeholder="Normal state" />
+      </div>
+      <div>
+        <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+          Disabled
+        </p>
+        <InputField disabled defaultValue="Disabled state" />
+      </div>
+      <div>
+        <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+          Read-Only
+        </p>
+        <InputField readOnly defaultValue="Read-only state" />
+      </div>
+      <div>
+        <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+          Invalid
+        </p>
+        <InputField aria-invalid defaultValue="Invalid state" />
+      </div>
     </div>
   ),
   parameters: {
     docs: {
       description: {
-        story: 'Shows how disabled state looks across all variants',
-      },
-    },
-  },
-};
-
-export const ReadOnlyVariants: Story = {
-  name: 'Read-Only States (All Variants)',
-  render: () => (
-    <div className="flex flex-col gap-4">
-      <InputField
-        variant="default"
-        readOnly
-        defaultValue="Read-only default variant"
-      />
-      <InputField
-        variant="ghost"
-        readOnly
-        defaultValue="Read-only ghost variant"
-      />
-      <InputField
-        variant="filled"
-        readOnly
-        defaultValue="Read-only filled variant"
-      />
-      <InputField
-        variant="outline"
-        readOnly
-        defaultValue="Read-only outline variant"
-      />
-    </div>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story: 'Shows how read-only state looks across all variants',
-      },
-    },
-  },
-};
-
-export const InvalidVariants: Story = {
-  name: 'Invalid States (All Variants)',
-  render: () => (
-    <div className="flex flex-col gap-4">
-      <InputField
-        variant="default"
-        aria-invalid
-        defaultValue="Invalid default variant"
-      />
-      <InputField
-        variant="ghost"
-        aria-invalid
-        defaultValue="Invalid ghost variant"
-      />
-      <InputField
-        variant="filled"
-        aria-invalid
-        defaultValue="Invalid filled variant"
-      />
-      <InputField
-        variant="outline"
-        aria-invalid
-        defaultValue="Invalid outline variant"
-      />
-    </div>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story: 'Shows how invalid state looks across all variants',
+        story:
+          'Comparison of all input states. Priority: disabled > readOnly > invalid > normal',
       },
     },
   },
@@ -436,23 +391,36 @@ export const WithClearButton: Story = {
   render: () => {
     const [value, setValue] = useState('Sample text');
     return (
-      <InputField
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder="Type something..."
-        suffixComponent={
-          value && (
-            <button
-              type="button"
-              onClick={() => setValue('')}
-              className="hover:text-contrast"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )
-        }
-      />
+      <div className="w-80 space-y-2">
+        <InputField
+          value={value}
+          onChange={setValue}
+          placeholder="Type something..."
+          suffixComponent={
+            value && (
+              <button
+                type="button"
+                onClick={() => setValue('')}
+                className="hover:text-contrast"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )
+          }
+        />
+        <p className="text-contrast text-xs opacity-70">
+          Note: onChange receives the value directly, not the event
+        </p>
+      </div>
     );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Input with a clear button in the suffix. Demonstrates type-safe onChange handler',
+      },
+    },
   },
 };
 
@@ -472,10 +440,10 @@ export const WithDateIcon: Story = {
   },
 };
 
-export const ComplexExample: Story = {
-  name: 'Complex Example with Multiple Sizes',
+export const SizesWithIcons: Story = {
+  name: 'Sizes with Prefix/Suffix',
   render: () => (
-    <div className="flex flex-col gap-4">
+    <div className="flex w-80 flex-col gap-4">
       <InputField
         size="sm"
         placeholder="Small with icons"
@@ -496,64 +464,102 @@ export const ComplexExample: Story = {
       />
     </div>
   ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Input fields at different sizes with both prefix and suffix components. Icon sizes should scale with input size',
+      },
+    },
+  },
 };
 
-export const VariantExamplesWithIcons: Story = {
-  name: 'Variants with Icons',
+export const StatesWithIcons: Story = {
+  name: 'States with Icons',
   render: () => (
-    <div className="flex flex-col gap-4">
+    <div className="flex w-80 flex-col gap-4">
       <InputField
-        variant="default"
-        placeholder="Default with search"
-        prefixComponent={<Search className="h-4 w-4" />}
-      />
-      <InputField
-        variant="ghost"
-        placeholder="Ghost with mail"
+        defaultValue="Normal"
         prefixComponent={<Mail className="h-4 w-4" />}
-      />
-      <InputField
-        variant="filled"
-        placeholder="Filled with lock"
-        prefixComponent={<Lock className="h-4 w-4" />}
-      />
-      <InputField
-        variant="outline"
-        placeholder="Outline with user"
-        prefixComponent={<User className="h-4 w-4" />}
-      />
-    </div>
-  ),
-};
-
-export const DisabledWithIcons: Story = {
-  name: 'Disabled States with Icons',
-  render: () => (
-    <div className="flex flex-col gap-4">
-      <InputField
-        disabled
-        defaultValue="Disabled with prefix"
-        prefixComponent={<Mail className="h-4 w-4" />}
+        suffixComponent={<Check className="h-4 w-4" />}
       />
       <InputField
         disabled
-        defaultValue="Disabled with suffix"
+        defaultValue="Disabled"
+        prefixComponent={<Mail className="h-4 w-4" />}
         suffixComponent={<Lock className="h-4 w-4" />}
       />
       <InputField
-        disabled
-        defaultValue="Disabled with both"
-        prefixComponent={<User className="h-4 w-4" />}
-        suffixComponent={<Check className="h-4 w-4" />}
+        readOnly
+        defaultValue="Read-only"
+        prefixComponent={<Mail className="h-4 w-4" />}
+      />
+      <InputField
+        aria-invalid
+        defaultValue="Invalid"
+        prefixComponent={<Mail className="h-4 w-4" />}
+        suffixComponent={<AlertCircle className="text-destructive h-4 w-4" />}
       />
     </div>
   ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Different input states with prefix/suffix components. Icons inherit state styling',
+      },
+    },
+  },
+};
+
+export const TypeSafeOnChange: Story = {
+  name: 'Type-Safe onChange Demo',
+  render: () => {
+    const [textValue, setTextValue] = useState('');
+    const [numberValue, setNumberValue] = useState<number | undefined>();
+
+    return (
+      <div className="flex w-80 flex-col gap-6">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Text Input</label>
+          <InputField
+            type="text"
+            value={textValue}
+            onChange={setTextValue}
+            placeholder="Type text..."
+          />
+          <p className="text-contrast text-xs opacity-70">
+            Type: {typeof textValue} | Value: &ldquo;{textValue}&rdquo;
+          </p>
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Number Input</label>
+          <InputField
+            type="number"
+            value={numberValue}
+            onChange={setNumberValue}
+            placeholder="Enter number..."
+          />
+          <p className="text-contrast text-xs opacity-70">
+            Type: {typeof numberValue} | Value: {numberValue ?? 'undefined'}
+          </p>
+        </div>
+      </div>
+    );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Demonstrates type-safe onChange handler. Text inputs return string, number inputs return number (or undefined when empty)',
+      },
+    },
+  },
 };
 
 export const Playground: Story = {
   args: {
     size: 'md',
-    variant: 'default',
     placeholder: 'Playground - try different combinations',
   },
   parameters: {

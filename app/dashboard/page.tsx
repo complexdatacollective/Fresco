@@ -23,22 +23,21 @@ export default async function Home({
 
   return (
     <>
-      <ResponsiveContainer>
-        <PageHeader
-          headerText="Dashboard"
-          subHeaderText="Welcome to Fresco! This page provides an overview of your recent activity and key metrics."
-        />
+      <PageHeader
+        headerText="Dashboard"
+        subHeaderText="Welcome to Fresco! This page provides an overview of your recent activity and key metrics."
+      />
 
-        <Suspense fallback={null}>
-          <AnonymousRecruitmentWarning />
-        </Suspense>
-        <Suspense fallback={null}>
-          <UpdateUploadThingTokenAlert />
-        </Suspense>
-      </ResponsiveContainer>
+      <Suspense fallback={null}>
+        <AnonymousRecruitmentWarning />
+      </Suspense>
+      <Suspense fallback={null}>
+        <UpdateUploadThingTokenAlert />
+      </Suspense>
+
       <SummaryStatistics />
 
-      <ResponsiveContainer>
+      <ResponsiveContainer maxWidth="3xl">
         <Heading level="h2">Recent Activity</Heading>
         <Paragraph>
           This table summarizes the most recent activity within Fresco. Use it

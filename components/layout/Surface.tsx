@@ -3,16 +3,19 @@
 import { motion, type MotionProps } from 'motion/react';
 import { type ElementType, forwardRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
+import ResponsiveContainer, {
+  type ResponsiveContainerProps,
+} from './ResponsiveContainer';
 
 export const surfaceVariants = cva({
-  base: 'rounded-sm @xl:rounded @4xl:rounded-lg publish-colors @container grow',
+  base: 'rounded-sm @xl:rounded @4xl:rounded-lg grow isolate relative publish-colors overflow-hidden',
   variants: {
     level: {
-      0: 'bg-surface text-surface-contrast',
-      1: 'bg-surface-1 text-surface-1-contrast',
-      2: 'bg-surface-2 text-surface-2-contrast',
-      3: 'bg-surface-3 text-surface-3-contrast',
-      popover: 'bg-surface-popover text-surface-popover-contrast',
+      0: 'text-surface-contrast bg-surface',
+      1: 'text-surface-1-contrast bg-surface-1',
+      2: 'text-surface-2-contrast bg-surface-2',
+      3: 'text-surface-3-contrast bg-surface-3',
+      popover: 'text-surface-popover-contrast bg-surface-popover',
     },
     spacing: {
       none: '',
@@ -50,22 +53,49 @@ export type SurfaceVariants = VariantProps<typeof surfaceVariants>;
 
 type SurfaceProps<T extends ElementType = 'div'> = {
   as?: T;
+  noContainer?: boolean;
 } & SurfaceVariants &
-  Omit<React.ComponentPropsWithoutRef<T>, keyof SurfaceVariants | 'as'>;
+  ResponsiveContainerProps &
+  Omit<
+    React.ComponentPropsWithoutRef<T>,
+    | keyof SurfaceVariants
+    | keyof ResponsiveContainerProps
+    | 'as'
+    | 'noContainer'
+  >;
 
 /**
  * Surface is a layout component that provides a background and foreground color
  * and allows for spacing to be applied. It is intended to be used as a container
  * to construct hierarchical layouts, and is explicitly designed to support
  * being nested.
+ *
+ * Implementation note: Uses a ::before pseudo-element for the background layer
+ * to ensure elevation shadows correctly reference the parent's background color
+ * while keeping a single DOM element for clean layout control.
+ *
+ * To override the background color, use `before:bg-*` classes in className:
+ * <Surface className="before:bg-primary text-primary-contrast">
  */
 const SurfaceComponent = forwardRef<HTMLDivElement, SurfaceProps>(
   (
-    { as, children, level, spacing, elevation, bleed, className, ...rest },
+    {
+      as,
+      children,
+      level,
+      spacing,
+      elevation,
+      bleed,
+      className,
+      maxWidth,
+      baseSize,
+      noContainer = false,
+      ...rest
+    },
     ref,
   ) => {
-    const Component = as ?? 'div'; // Default to 'div' if `as` is not provided
-    return (
+    const Component = as ?? 'div';
+    const surfaceElement = (
       <Component
         ref={ref}
         {...rest}
@@ -76,6 +106,16 @@ const SurfaceComponent = forwardRef<HTMLDivElement, SurfaceProps>(
       >
         {children}
       </Component>
+    );
+
+    if (noContainer) {
+      return surfaceElement;
+    }
+
+    return (
+      <ResponsiveContainer maxWidth={maxWidth} baseSize={baseSize}>
+        {surfaceElement}
+      </ResponsiveContainer>
     );
   },
 );

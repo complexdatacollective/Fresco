@@ -34,16 +34,24 @@ import { type Elevation, generateShadowLayers } from './jwc';
  * to different background colors and themes. All colors use the oklch color
  * space to ensure perceptual uniformity.
  *
- * The background color of the parent element is exposed via a CSS variable that
- * is set in the `publish-colors` utility class. This class should be applied to
- * any element that serves as a background for elements using the elevation. A
- * fallback color is provided to ensure shadows are visible even if the
- * `publish-colors` class is not applied.
+ * The background color of the parent element is exposed via CSS variables:
+ * - `--scoped-bg` is set by `bg-*` utilities on the current element
+ * - `--published-bg` is set by the `publish-colors` class, which references `--scoped-bg`
+ *
+ * To prevent child elements with `bg-*` utilities from overriding the published
+ * background (which would break shadow colors), any element with a `bg-*` class
+ * but NOT `publish-colors` will have its `--scoped-bg` forced to `inherit`. This
+ * ensures elevation shadows always reference the parent's published background.
+ *
+ * A fallback color is provided to ensure shadows are visible even if
+ * `publish-colors` is not applied.
  *
  * Usage:
  *
  * - Apply the `publish-colors` class to a parent element to set the background color context.
  * - Use the 'elevation-low', 'elevation-medium', or 'elevation-high' classes on child elements to apply the corresponding shadow effect.
+ * - Child elements can have their own `bg-*` utilities without breaking the elevation shadows.
+ * - NOTE: You CANNOT apply `elevation` classes to elements that set their own background color!
  *
  */
 
@@ -84,12 +92,20 @@ export default plugin.withOptions<PluginConfig>(
           .map(({ opacity, blurRadius, spreadRadius, offsetX, offsetY }) => {
             const boostedOpacity = opacity * opacityScaleFactor;
             // Clamp chroma
-            return `${offsetX} ${offsetY} ${blurRadius} ${spreadRadius} oklch(from var(--published-bg, ${defaultShadowColor}) clamp(0.025, calc(l - 0.5), 0.1) clamp(0.03, c, 0.12) h / ${boostedOpacity})`;
+            return `${offsetX} ${offsetY} ${blurRadius} ${spreadRadius} oklch(from var(--published-bg, ${defaultShadowColor}) clamp(0.025, calc(l - 0.5), 0.1) clamp(0.03, calc(l * 1.3), 0.15) h / ${boostedOpacity})`;
           })
           .join(', ');
       };
 
-      const shadowUtilities: Record<string, Record<string, string>> = {
+      // Reset --scoped-bg on elements with bg-* but not publish-colors
+      // This prevents child elements from overriding the published background
+      api.addBase({
+        '[class*="elevation-"]:where(:not(.publish-colors))': {
+          '--scoped-bg': 'inherit !important',
+        },
+      });
+
+      api.addUtilities({
         '.elevation-none': {
           'box-shadow': 'none',
         },
@@ -106,11 +122,7 @@ export default plugin.withOptions<PluginConfig>(
           '--published-bg': 'var(--scoped-bg, --background)',
           '--published-text': 'var(--scoped-text, --text)',
         },
-      };
-
-      if (api.addUtilities) {
-        api.addUtilities(shadowUtilities);
-      }
+      });
 
       // Use matchUtilities to create bg utilities that set --scoped-bg
       api.matchUtilities(

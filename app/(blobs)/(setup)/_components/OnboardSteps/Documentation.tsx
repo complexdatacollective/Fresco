@@ -5,7 +5,7 @@ import { setAppSetting } from '~/actions/appSettings';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
-import { Button } from '~/components/ui/Button';
+import { IconButton } from '~/components/ui/Button';
 import SubmitButton from '~/components/ui/SubmitButton';
 import trackEvent from '~/lib/analytics';
 import { getInstallationId } from '~/queries/appSettings';
@@ -50,9 +50,11 @@ function Documentation() {
               href="https://documentation.networkcanvas.com/en/fresco"
               target="_blank"
             >
-              <Button variant="outline" size="icon">
-                <FileText />
-              </Button>
+              <IconButton
+                variant="outline"
+                aria-label="View Fresco documentation"
+                icon={<FileText />}
+              />
             </a>
           </div>
         </Surface>
@@ -69,9 +71,11 @@ function Documentation() {
               href="https://documentation.networkcanvas.com/en/fresco/using-fresco"
               target="_blank"
             >
-              <Button variant="outline" size="icon">
-                <FileText />
-              </Button>
+              <IconButton
+                variant="outline"
+                aria-label="View Using Fresco guide"
+                icon={<FileText />}
+              />
             </a>
           </div>
         </Surface>

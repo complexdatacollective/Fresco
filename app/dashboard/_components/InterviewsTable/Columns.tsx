@@ -3,9 +3,9 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { Badge } from '~/components/ui/badge';
-import { Checkbox } from '~/components/ui/checkbox';
 import { Progress } from '~/components/ui/progress';
 import TimeAgo from '~/components/ui/TimeAgo';
+import { Checkbox } from '~/lib/form/components/fields/Checkbox';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import NetworkSummary from './NetworkSummary';
 
@@ -112,7 +112,7 @@ export const InterviewColumns = (): ColumnDef<
       const stages = row.original.protocol.stages;
       const progress = (row.original.currentStep / stages.length) * 100;
       return (
-        <div className="flex whitespace-nowrap">
+        <div className="flex items-center whitespace-nowrap">
           <Progress value={progress} className="w-12" />
           <div className="ml-2 text-center">{progress.toFixed(0)}%</div>
         </div>

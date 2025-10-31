@@ -5,10 +5,13 @@ import Heading from './typography/Heading';
 import Paragraph from './typography/Paragraph';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
-type InfoTooltipProps = ComponentProps<typeof Popover> & {
+type InfoTooltipProps = Omit<ComponentProps<typeof Popover>, 'children'> & {
   title: string;
-  description: string | ((props: ComponentProps<'p'>) => ReactElement);
-  trigger?: (props: ComponentProps<'button'>) => ReactElement;
+  description:
+    | string
+    | ((props: ComponentProps<'p'>) => ReactElement)
+    | ReactElement;
+  trigger?: ReactElement;
   sideOffset?: number;
 };
 
@@ -23,23 +26,13 @@ type InfoTooltipProps = ComponentProps<typeof Popover> & {
 export default function InfoTooltip({
   title,
   description,
-  trigger,
+  trigger = <InfoIcon className="inline-block h-4 w-4" />,
   sideOffset = 10,
   ...rest
 }: InfoTooltipProps) {
   return (
     <Popover openOnHover {...rest}>
-      <PopoverTrigger
-        render={
-          trigger ??
-          ((props) => (
-            <InfoIcon
-              className="mx-2 inline-block aspect-square h-4 w-4"
-              {...props}
-            />
-          ))
-        }
-      />
+      <PopoverTrigger>{trigger}</PopoverTrigger>
       <PopoverContent sideOffset={sideOffset} className="max-w-sm">
         <BasePopover.Title
           render={<Heading level="h4" variant="all-caps" className="!mt-0" />}

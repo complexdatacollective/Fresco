@@ -15,9 +15,15 @@ const meta = {
     },
     size: {
       control: { type: 'select' },
-      options: ['sm', 'md', 'lg'],
+      options: ['xs', 'sm', 'md', 'lg', 'xl'],
     },
     disabled: {
+      control: { type: 'boolean' },
+    },
+    readOnly: {
+      control: { type: 'boolean' },
+    },
+    useColumns: {
       control: { type: 'boolean' },
     },
   },
@@ -167,4 +173,160 @@ export const PreSelected: Story = {
     'defaultValue': ['option2', 'option4'],
     'aria-label': 'Pre-selected Options',
   },
+};
+
+export const ReadOnly: Story = {
+  args: {
+    'name': 'readonly',
+    options,
+    'readOnly': true,
+    'defaultValue': ['option1'],
+    'aria-label': 'ReadOnly Options',
+  },
+};
+
+export const WithColumns: Story = {
+  args: {
+    'name': 'with-columns',
+    'options': Array.from({ length: 12 }, (_, i) => ({
+      value: `option${i + 1}`,
+      label: `Option ${i + 1}`,
+    })),
+    'useColumns': true,
+    'aria-label': 'Columned Options',
+  },
+};
+
+export const AllSizes: Story = {
+  render: () => (
+    <div className="flex flex-col gap-8">
+      {(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => (
+        <div key={size} className="flex flex-col gap-2">
+          <span className="text-sm font-medium capitalize">{size}:</span>
+          <CheckboxGroupField
+            name={`size-${size}`}
+            options={options}
+            size={size}
+            defaultValue={['option1']}
+            aria-label={`${size} size options`}
+            onChange={() => {
+              /* no-op */
+            }}
+          />
+        </div>
+      ))}
+    </div>
+  ),
+};
+
+export const AllStates: Story = {
+  render: () => (
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium">Normal:</span>
+        <CheckboxGroupField
+          name="state-normal"
+          options={options}
+          defaultValue={['option1']}
+          aria-label="Normal state"
+          onChange={() => {
+            /* no-op */
+          }}
+        />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium">ReadOnly:</span>
+        <CheckboxGroupField
+          name="state-readonly"
+          options={options}
+          readOnly
+          defaultValue={['option1']}
+          aria-label="ReadOnly state"
+          onChange={() => {
+            /* no-op */
+          }}
+        />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium">Disabled:</span>
+        <CheckboxGroupField
+          name="state-disabled"
+          options={options}
+          disabled
+          defaultValue={['option1']}
+          aria-label="Disabled state"
+          onChange={() => {
+            /* no-op */
+          }}
+        />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium">Invalid:</span>
+        <CheckboxGroupField
+          name="state-invalid"
+          options={options}
+          aria-invalid="true"
+          defaultValue={['option1']}
+          aria-label="Invalid state"
+          onChange={() => {
+            /* no-op */
+          }}
+        />
+      </div>
+    </div>
+  ),
+};
+
+export const AllOrientations: Story = {
+  render: () => (
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium">Vertical:</span>
+        <CheckboxGroupField
+          name="orientation-vertical"
+          options={options}
+          orientation="vertical"
+          defaultValue={['option1']}
+          aria-label="Vertical orientation"
+          onChange={() => {
+            /* no-op */
+          }}
+        />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium">Horizontal:</span>
+        <CheckboxGroupField
+          name="orientation-horizontal"
+          options={options}
+          orientation="horizontal"
+          defaultValue={['option1']}
+          aria-label="Horizontal orientation"
+          onChange={() => {
+            /* no-op */
+          }}
+        />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium">With Columns:</span>
+        <CheckboxGroupField
+          name="orientation-columns"
+          options={Array.from({ length: 9 }, (_, i) => ({
+            value: `option${i + 1}`,
+            label: `Option ${i + 1}`,
+          }))}
+          useColumns
+          defaultValue={['option1']}
+          aria-label="Columns layout"
+          onChange={() => {
+            /* no-op */
+          }}
+        />
+      </div>
+    </div>
+  ),
 };

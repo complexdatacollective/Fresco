@@ -49,7 +49,7 @@ function EdgeSummary({ color, count, typeName }: EdgeSummaryProps) {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="flex items-center justify-center">
+      <div className="flex h-8 w-8 items-center justify-center">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 60 60"
@@ -153,7 +153,7 @@ const NetworkSummary = ({
   }
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 py-2">
       {nodeSummaries}
       {edgeSummaries}
     </div>

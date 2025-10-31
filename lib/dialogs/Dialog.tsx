@@ -76,8 +76,9 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
             {open && (
               <BaseDialog.Popup
                 ref={ref}
-                render={
+                render={(props) => (
                   <Surface
+                    {...props}
                     initial={{ opacity: 0, y: '-10%', scale: 1.1 }}
                     animate={{
                       opacity: 1,
@@ -99,8 +100,9 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
                     as={motion.div}
                     level={0}
                     className={cx(
+                      'tablet:w-auto w-[calc(100%_-_var(--spacing)*4)] max-w-2xl',
                       'fixed top-1/2 left-1/2 -mt-8 -translate-x-1/2 -translate-y-1/2',
-                      'flex max-h-dvh w-2xl',
+                      'flex max-h-dvh',
                       // Accent overrides the primary hue so that nested primary buttons inherit color
                       accent === 'success' &&
                         '[--color-primary:var(--color-success)]',
@@ -113,16 +115,12 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
                     elevation="high"
                   >
                     <BaseDialog.Title
-                      render={(titleProps) => (
-                        <DialogHeading
-                          {...titleProps}
-                          id={`${id}-title`}
-                          className={cx(titleProps.className)}
-                        >
-                          {title}
-                        </DialogHeading>
-                      )}
-                    />
+                      className="mb-4 flex items-center justify-between gap-4"
+                      render={<div />}
+                    >
+                      <DialogHeading id={`${id}-title`}>{title}</DialogHeading>
+                      <BaseDialog.Close render={<CloseButton />} />
+                    </BaseDialog.Title>
                     <DialogContent>
                       {description && (
                         <BaseDialog.Description
@@ -140,9 +138,8 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
                       {children}
                     </DialogContent>
                     {footer && <DialogFooter>{footer}</DialogFooter>}
-                    <BaseDialog.Close render={<CloseButton />} />
                   </Surface>
-                }
+                )}
               />
             )}
           </AnimatePresence>
@@ -161,7 +158,10 @@ type DialogHeadingProps = {
   VariantProps<typeof headingVariants>;
 
 const DialogHeading = forwardRef<HTMLElement, DialogHeadingProps>(
-  ({ className, variant, level, margin, as, asChild, ...props }, ref) => {
+  (
+    { className, variant, level, margin = 'none', as, asChild, ...props },
+    ref,
+  ) => {
     const Comp = asChild ? Slot : (as ?? level ?? 'h2');
     return (
       <Comp
@@ -217,7 +217,7 @@ const DialogFooter = ({
   ...props
 }: React.HTMLAttributes<HTMLElement>) => {
   return (
-    <footer className={cx('mt-4 flex justify-end gap-2', className)} {...props}>
+    <footer className={cx('mt-4 flex justify-end gap-4', className)} {...props}>
       {children}
     </footer>
   );

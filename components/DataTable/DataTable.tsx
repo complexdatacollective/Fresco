@@ -11,8 +11,16 @@ import {
   type SortingState,
   type Table as TTable,
 } from '@tanstack/react-table';
-import { ChevronLeft, ChevronRight, FileUp, Loader } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  FileUp,
+  Loader,
+  Search,
+  Trash,
+} from 'lucide-react';
 import { useCallback, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { makeDefaultColumns } from '~/components/DataTable/DefaultColumns';
 import { Button } from '~/components/ui/Button';
 import {
@@ -24,7 +32,8 @@ import {
   TableRow,
 } from '~/components/ui/table';
 import { InputField } from '~/lib/form/components/fields/Input';
-import Surface from '../layout/Surface';
+import { MotionSurface } from '../layout/Surface';
+import Heading from '../typography/Heading';
 
 type CustomTable<TData> = TTable<TData> & {
   options?: {
@@ -149,9 +158,11 @@ export function DataTable<TData, TValue>({
   return (
     <>
       {(filterColumnAccessorKey || headerItems) && (
-        <Surface className="flex items-center gap-2 pt-1 pb-4">
+        <div className="flex items-center gap-2 pt-1 pb-4">
           {filterColumnAccessorKey && (
             <InputField
+              type="search"
+              prefixComponent={<Search />}
               name="filter"
               placeholder={`Filter by ${filterColumnAccessorKey}...`}
               value={
@@ -168,7 +179,7 @@ export function DataTable<TData, TValue>({
             />
           )}
           {headerItems}
-        </Surface>
+        </div>
       )}
 
       <Table>
@@ -216,7 +227,7 @@ export function DataTable<TData, TValue>({
       </Table>
       <div>
         <div className="flex justify-between py-4">
-          <div className="text-sm text-current/50">
+          <div className="text-sm text-current/70">
             {table.getFilteredSelectedRowModel().rows.length} of{' '}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
@@ -241,6 +252,7 @@ export function DataTable<TData, TValue>({
             </Button>
           </div>
         </div>
+
         {/**
          * TODO: This is garbage.
          *
@@ -248,34 +260,46 @@ export function DataTable<TData, TValue>({
          * that is passed in to the table that gets given access to the table
          * state. See the other data-table for an example.
          */}
-        {hasSelectedRows && (
-          <Button
-            onClick={() => void deleteHandler()}
-            variant="destructive"
-            size="sm"
-            disabled={isDeleting}
-          >
-            {isDeleting ? (
-              <span className="flex items-center gap-2">
-                Deleting...
-                <Loader className="h-4 w-4 animate-spin text-white" />
-              </span>
-            ) : (
-              'Delete Selected'
-            )}
-          </Button>
-        )}
 
-        {hasSelectedRows && handleExportSelected && (
-          <Button
-            onClick={exportHandler}
-            variant="default"
-            size="sm"
-            className="mx-2 gap-x-2.5"
-          >
-            Export Selected
-            <FileUp className="h-5 w-5" />
-          </Button>
+        {createPortal(
+          <>
+            <MotionSurface
+              className="tablet:w-auto fixed bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center justify-between gap-4"
+              initial={{ opacity: 0, y: 50 }}
+              animate={
+                hasSelectedRows ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }
+              }
+            >
+              <Heading level="h4" className="shrink-0" margin="none">
+                With selected:
+              </Heading>
+              <Button
+                onClick={() => void deleteHandler()}
+                color="destructive"
+                disabled={isDeleting}
+                icon={
+                  isDeleting ? (
+                    <Loader className="h-4 w-4" />
+                  ) : (
+                    <Trash className="h-4 w-4" />
+                  )
+                }
+              >
+                {isDeleting ? 'Deleting...' : 'Delete Selected'}
+              </Button>
+              {handleExportSelected && (
+                <Button
+                  onClick={exportHandler}
+                  color="primary"
+                  className="mx-2 gap-x-2.5"
+                  icon={<FileUp className="h-4 w-4" />}
+                >
+                  Export Selected
+                </Button>
+              )}
+            </MotionSurface>
+          </>,
+          document.body,
         )}
       </div>
     </>

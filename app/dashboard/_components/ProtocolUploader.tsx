@@ -65,9 +65,9 @@ function ProtocolUploader({
         )}
       >
         {isActive ? (
-          <Loader2 className="mr-2 inline-block h-4 w-4 animate-spin" />
+          <Loader2 className="inline-block h-4 w-4 animate-spin" />
         ) : (
-          <FileDown className="mr-2 inline-block h-4 w-4" />
+          <FileDown className="inline-block h-4 w-4" />
         )}
         <input {...getInputProps()} />
         Import protocols

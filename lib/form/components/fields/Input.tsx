@@ -1,174 +1,61 @@
-import { type InputHTMLAttributes, type ReactNode } from 'react';
-import { compose, cva, cx, type VariantProps } from '~/utils/cva';
+import { motion } from 'motion/react';
+import { type ComponentProps, forwardRef, type ReactNode } from 'react';
 import {
-  backgroundStyles,
-  borderStyles,
-  buildVariantStyles,
-  cursorStyles,
-  focusRingStyles,
-  sizeStyles,
-  textStyles,
-  transitionStyles,
-} from './shared';
+  fieldContainerVariants,
+  fieldPlaceholderVariants,
+  fieldStateVariants,
+  proportionalLucideIconVariants,
+  sizeVariants,
+  spacingVariants,
+} from '~/styles/shared/controlVariants';
+import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 
-// Focus styles for standalone input
-export const standaloneFocusStyles = cx(
-  focusRingStyles.base,
-  focusRingStyles.invalid,
+const inputWrapperVariants = compose(
+  sizeVariants,
+  proportionalLucideIconVariants,
+  spacingVariants,
+  fieldContainerVariants,
+  fieldStateVariants,
+  cva({
+    base: 'w-full',
+  }),
 );
 
 // Input element when used with wrapper (prefix/suffix)
-export const inputVariants = cva({
-  base: cx(
-    backgroundStyles.base,
-    backgroundStyles.disabled,
-    backgroundStyles.readOnly,
-    'flex-1 min-w-0 border-0 p-0',
-    focusRingStyles.base,
-    transitionStyles,
-    textStyles.base,
-    textStyles.invalid,
-    textStyles.disabled,
-    textStyles.readOnly,
-  ),
-  variants: {
-    size: {
-      sm: cx(sizeStyles.sm.height, sizeStyles.sm.text, sizeStyles.sm.padding),
-      md: cx(sizeStyles.md.height, sizeStyles.md.text, sizeStyles.md.padding),
-      lg: cx(sizeStyles.lg.height, sizeStyles.lg.text, sizeStyles.lg.padding),
-    },
-  },
-  defaultVariants: {
-    size: 'md',
-  },
-});
-
-// Wrapper for input with prefix/suffix
-export const inputWrapperVariants = compose(
+export const inputVariants = compose(
+  fieldPlaceholderVariants,
   cva({
     base: cx(
-      'group relative inline-flex w-full items-stretch overflow-hidden',
-      transitionStyles,
-      borderStyles.base,
-      borderStyles.invalid,
-      backgroundStyles.base,
-      backgroundStyles.disabled,
-      backgroundStyles.readOnly,
-      // Focus styles using :has
-      'has-[input:focus]:border-accent/50',
-      'has-[input:focus-visible]:outline-none has-[input:focus-visible]:ring-4 has-[input:focus-visible]:ring-accent/10 has-[input:focus-visible]:ring-offset-0',
-      'has-[[aria-invalid=true]]:has-[input:focus]:border-destructive',
-      'has-[[aria-invalid=true]]:has-[input:focus-visible]:ring-destructive/20',
-      // Additional :has selectors for state management
-      'has-[[aria-invalid=true]]:border-destructive',
-      'has-[input:disabled]:bg-input-placeholder',
-      'has-[input:is-read-only]:bg-input-placeholder/50',
+      'cursor-[inherit]',
+      'p-0',
+      'h-full w-full flex-shrink flex-grow basis-0 border-none bg-transparent outline-none focus:ring-0',
+      'shrink-0 grow',
+      // Make lucide icons
     ),
-    variants: {
-      size: {
-        sm: '',
-        md: '',
-        lg: '',
-      },
-      variant: {
-        default: '',
-        ghost: cx(
-          'border-transparent bg-transparent',
-          'hover:bg-input/50',
-          'has-[input:disabled]:bg-transparent has-[input:disabled]:hover:bg-transparent',
-        ),
-        filled: cx(
-          'border-transparent bg-input-placeholder',
-          'hover:bg-input-placeholder/80',
-          'has-[input:disabled]:bg-input-placeholder has-[input:disabled]:hover:bg-input-placeholder',
-        ),
-        outline: cx(
-          'bg-transparent',
-          'hover:bg-input/20',
-          'has-[input:disabled]:bg-transparent has-[input:disabled]:hover:bg-transparent',
-        ),
-      },
-    },
-    defaultVariants: {
-      size: 'md',
-      variant: 'default',
-    },
   }),
 );
 
-// Standalone input (no prefix/suffix)
-export const standaloneInputVariants = compose(
-  cva({
-    base: cx(
-      transitionStyles,
-      borderStyles.base,
-      borderStyles.invalid,
-      backgroundStyles.base,
-      backgroundStyles.disabled,
-      backgroundStyles.readOnly,
-      standaloneFocusStyles,
-      textStyles.base,
-      textStyles.invalid,
-      textStyles.disabled,
-      textStyles.readOnly,
-      cursorStyles.disabled,
-      cursorStyles.readOnly,
-    ),
-    variants: {
-      size: {
-        sm: cx(sizeStyles.sm.height, sizeStyles.sm.text, sizeStyles.sm.padding),
-        md: cx(sizeStyles.md.height, sizeStyles.md.text, sizeStyles.md.padding),
-        lg: cx(sizeStyles.lg.height, sizeStyles.lg.text, sizeStyles.lg.padding),
-      },
-      variant: {
-        default: '',
-        ghost: buildVariantStyles('ghost'),
-        filled: buildVariantStyles('filled'),
-        outline: buildVariantStyles('outline'),
-      },
-    },
-    defaultVariants: {
-      size: 'md',
-      variant: 'default',
-    },
-  }),
-);
-
-// Prefix/suffix styles
-export const affixVariants = cva({
-  base: cx(
-    'flex items-center justify-center shrink-0 grow-0',
-    'bg-[currentColor]/50', // Subtle background for affix areas
-    'text-(--background)',
-  ),
-  variants: {
-    position: {
-      prefix: 'pe-0',
-      suffix: 'ps-0',
-    },
-    size: {
-      sm: cx(sizeStyles.sm.text, sizeStyles.sm.padding),
-      md: cx(sizeStyles.md.text, sizeStyles.md.padding),
-      lg: cx(sizeStyles.lg.text, sizeStyles.lg.padding),
-    },
-  },
-  defaultVariants: {
-    size: 'md',
-  },
-});
-
-type InputType = 'text' | 'number' | 'email' | 'password' | 'search';
+type InputType =
+  | 'text'
+  | 'number'
+  | 'email'
+  | 'password'
+  | 'search'
+  | 'tel'
+  | 'url'
+  | 'date';
 
 // Map input type to its corresponding value type
 type InputValueType<T extends InputType> = T extends 'number'
   ? number | undefined
   : string;
 
-type InputFieldProps<T extends InputType = 'text'> = Omit<
-  InputHTMLAttributes<HTMLInputElement>,
+type InputFieldProps<T extends InputType = InputType> = Omit<
+  ComponentProps<typeof motion.input>,
   'size' | 'type' | 'onChange'
 > &
-  VariantProps<typeof inputWrapperVariants> & {
+  VariantProps<typeof inputVariants> & {
+    size?: VariantProps<typeof inputWrapperVariants>['size'];
     type?: T;
     onChange?: (value: InputValueType<T>) => void;
     // NOTE: these cannot be 'prefix' and 'suffix' because these collide with RDFa attributes in @types/react@18.3.18
@@ -176,16 +63,21 @@ type InputFieldProps<T extends InputType = 'text'> = Omit<
     suffixComponent?: ReactNode;
   };
 
-export function InputField<T extends InputType = 'text'>({
-  className,
-  size,
-  variant,
-  prefixComponent: prefix,
-  suffixComponent: suffix,
-  onChange,
-  type = 'text' as T,
-  ...inputProps
-}: InputFieldProps<T>) {
+export const InputField = forwardRef(function InputField<
+  T extends InputType = InputType,
+>(
+  {
+    className,
+    size = 'md',
+    prefixComponent: prefix,
+    suffixComponent: suffix,
+    onChange,
+    disabled,
+    type = 'text' as T,
+    ...inputProps
+  }: InputFieldProps<T>,
+  ref: React.Ref<HTMLInputElement>,
+) {
   // Change handler that coerces the value passed on onChange based on the input type
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
@@ -202,6 +94,9 @@ export function InputField<T extends InputType = 'text'>({
       case 'email':
       case 'password':
       case 'search':
+      case 'tel':
+      case 'url':
+      case 'date':
       default:
         value = String(rawValue) as InputValueType<T>;
         break;
@@ -210,24 +105,37 @@ export function InputField<T extends InputType = 'text'>({
     onChange?.(value);
   };
 
+  // Work out variant state based on props. Order:
+  // disabled > readOnly > invalid > normal
+  const getState = () => {
+    if (disabled) return 'disabled';
+    if (inputProps.readOnly) return 'readOnly';
+    if (inputProps['aria-invalid']) return 'invalid';
+    return 'normal';
+  };
+
   return (
-    <div className={inputWrapperVariants({ size, variant, className })}>
-      {prefix && (
-        <div className={affixVariants({ size, position: 'prefix' })}>
-          {prefix}
-        </div>
-      )}
-      <input
+    <motion.div
+      layout
+      className={inputWrapperVariants({
+        size,
+        className,
+        state: getState(),
+      })}
+    >
+      {prefix}
+      <motion.input
+        layout
+        ref={ref}
         {...inputProps}
+        disabled={disabled}
         type={type}
         onChange={handleChange}
-        className={inputVariants({ size })}
+        className={inputVariants()}
       />
-      {suffix && (
-        <div className={affixVariants({ size, position: 'suffix' })}>
-          {suffix}
-        </div>
-      )}
-    </div>
+      {suffix}
+    </motion.div>
   );
-}
+}) as <T extends InputType = InputType>(
+  props: InputFieldProps<T> & { ref?: React.Ref<HTMLInputElement> },
+) => React.ReactElement;

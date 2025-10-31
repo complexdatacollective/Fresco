@@ -88,9 +88,11 @@ export const InterviewsTable = ({
         headerItems={
           <>
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button disabled={interviews.length === 0}>
-                  <HardDriveUpload className="mr-2 inline-block h-4 w-4" />
+              <DropdownMenuTrigger>
+                <Button
+                  disabled={interviews.length === 0}
+                  icon={<HardDriveUpload />}
+                >
                   Export Interview Data
                 </Button>
               </DropdownMenuTrigger>

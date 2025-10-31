@@ -3,7 +3,7 @@ import { HelpCircle, Star } from 'lucide-react';
 import { Label } from '~/lib/form/components/Label';
 import InfoTooltip from './InfoTooltip';
 import Heading from './typography/Heading';
-import { Button } from './ui/Button';
+import { Button, IconButton } from './ui/Button';
 
 const meta = {
   title: 'Components/InfoTooltip',
@@ -197,9 +197,12 @@ export const InContext: Story = {
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
               const { color, ...buttonProps } = props;
               return (
-                <Button variant="text" size="icon" {...buttonProps}>
-                  <HelpCircle className="h-4 w-4" />
-                </Button>
+                <IconButton
+                  variant="text"
+                  aria-label="Help"
+                  icon={<HelpCircle />}
+                  {...buttonProps}
+                />
               );
             }}
           />

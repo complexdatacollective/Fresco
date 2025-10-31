@@ -19,7 +19,6 @@ export const containerVariants = cva({
   variants: {
     state: {
       valid: 'border-success',
-      warning: 'border-warning',
       invalid: 'border-destructive',
       disabled: 'opacity-50 cursor-not-allowed',
     },
