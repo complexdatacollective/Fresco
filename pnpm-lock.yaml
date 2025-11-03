@@ -183,8 +183,8 @@ importers:
         specifier: ^8.1.3
         version: 8.1.3(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)
       react-resize-aware:
-        specifier: ^4.0.0
-        version: 4.0.0(react@18.3.1)
+        specifier: ^4.1.0
+        version: 4.1.0(react@18.3.1)
       react-transition-group:
         specifier: ^4.4.5
         version: 4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -6341,10 +6341,10 @@ packages:
       '@types/react':
         optional: true
 
-  react-resize-aware@4.0.0:
-    resolution: {integrity: sha512-42aoj3uGcqhsMQE7yssxuy0+YYNp38CSzoGxRXUV80WUm6uYJKhAwBlOSBltxTbdZSkJXZwgq43iyywjVI9ZgA==}
+  react-resize-aware@4.1.0:
+    resolution: {integrity: sha512-IJNoQZPOrEwcjHglckVCibHbarfpaDuuG/RDIagJgsaC1FG3BL7V5pIaT6ztaLjmti7vMu0NYJDtOh+lBLargg==}
     peerDependencies:
-      react: ^16.8.0 || 17.x || 18.x
+      react: ^16.8.0 || 17.x || 18.x || 19.x
 
   react-style-singleton@2.2.3:
     resolution: {integrity: sha512-b6jSvxvVnyptAiLjbkWLE/lOnR4lfTtDAl+eUC7RZy+QQWc6wRzIV2CE6xBuMmDxc2qIihtDCZD5NPOFl7fRBQ==}
@@ -14563,7 +14563,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.18
 
-  react-resize-aware@4.0.0(react@18.3.1):
+  react-resize-aware@4.1.0(react@18.3.1):
     dependencies:
       react: 18.3.1
 
