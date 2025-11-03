@@ -1,4 +1,3 @@
-import { type VersionedProtocol } from '@codaco/protocol-validation';
 import 'server-only';
 import { stringify } from 'superjson';
 import { prisma } from '~/utils/db';
@@ -87,137 +86,6 @@ export const getInterviewById = async (interviewId: string) => {
   if (!interview) {
     return null;
   }
-
-  const protocol: VersionedProtocol = {
-    schemaVersion: 8,
-    codebook: {
-      ego: {
-        variables: {
-          sex: {
-            type: 'categorical',
-            options: [
-              { label: 'Female', value: 'female' },
-              { label: 'Male', value: 'male' },
-            ],
-            validation: { required: true },
-            name: 'sex',
-          },
-        },
-      },
-      node: {
-        person: {
-          name: 'Person',
-          iconVariant: 'add-a-person',
-          variables: {
-            name: {
-              name: 'Name',
-              type: 'text',
-              component: 'Text',
-              validation: {
-                required: true,
-              },
-            },
-            age: {
-              name: 'Age',
-              type: 'number',
-              component: 'Number',
-              validation: {
-                minValue: 0,
-                maxValue: 120,
-              },
-            },
-            cancer: {
-              name: 'Cancer',
-              type: 'boolean',
-            },
-            diabetes: {
-              name: 'Diabetes',
-              type: 'boolean',
-            },
-            glaucoma: {
-              name: 'Glaucoma',
-              type: 'boolean',
-            },
-          },
-          color: 'node-color-seq-1',
-        },
-      },
-      edge: {
-        family: {
-          name: 'Family Relationship',
-          variables: {
-            relationship: {
-              name: 'Relationship Type',
-              type: 'categorical',
-              options: [
-                { label: 'Parent', value: 'parent' },
-                { label: 'Partner', value: 'partner' },
-                { label: 'Ex-Partner', value: 'ex-partner' },
-              ],
-            },
-          },
-          color: 'edge-color-seq-1',
-        },
-      },
-    },
-    stages: [
-      { id: 'stage-0' },
-      {
-        id: 'stage-1',
-        label: 'Family Tree Census',
-        type: 'FamilyTreeCensus',
-        subject: {
-          entity: 'node',
-          type: 'person',
-        },
-        edgeType: {
-          entity: 'edge',
-          type: 'family',
-        },
-        relationshipTypeVariable: 'relationship',
-        sexVariable: 'sex',
-        scaffoldingStep: {
-          text: 'Create your family tree. You may add additional relatives by using the person icon in the bottom right corner. To remove any relative, drag toward the bottom center of the screen where a trash icon will appear.',
-          showQuickStartModal: true,
-        },
-        nameGenerationStep: {
-          text: 'Next, tap on each person to provide their name and age. If you don\'t know their name, you can write "Don\'t know".',
-          form: {
-            title: 'Add personal info',
-            fields: [
-              {
-                variable: 'name',
-                prompt: 'What is this person&#39;s name?\n',
-              },
-              {
-                variable: 'age',
-                prompt: 'What is this person&#39;s age?\n',
-              },
-            ],
-          },
-        },
-        diseaseNominationStep: [
-          {
-            id: 'cancer',
-            text: 'Tap on a person to indicate if they have ever been diagnosed with cancer.',
-            variable: 'cancer',
-          },
-          {
-            id: 'diabetes',
-            text: 'Tap on a person to indicate if they have ever been diagnosed with diabetes.',
-            variable: 'diabetes',
-          },
-          {
-            id: 'glaucoma',
-            text: 'Tap on a person to indicate if they have ever been diagnosed with glaucoma.',
-            variable: 'glaucoma',
-          },
-        ],
-      },
-      { id: 'stage-2' },
-    ],
-  };
-
   // We need to superjsonify the result, because we pass it to the client
   // and it contains a Date object. We should look into if this could be
   // implemented in the Prisma client instead, or the createCachedFunction
@@ -225,6 +93,5 @@ export const getInterviewById = async (interviewId: string) => {
   // return safeInterview;
   return stringify({
     ...interview,
-    protocol,
   });
 };
