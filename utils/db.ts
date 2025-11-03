@@ -74,7 +74,7 @@ const createPrismaClient = () =>
               schemaVersion,
               stages,
               codebook: {}, // dummy data
-              experiments: {},
+              experiments: null,
             });
             return protocolSchema.stages;
           },
@@ -92,7 +92,7 @@ const createPrismaClient = () =>
               schemaVersion,
               stages: [],
               codebook,
-              experiments: {},
+              experiments: null,
             });
             return protocolSchema.codebook;
           },
@@ -113,7 +113,7 @@ const createPrismaClient = () =>
               codebook: {},
               experiments,
             });
-            return protocolSchema.experiments ?? {};
+            return protocolSchema.experiments ?? null;
           },
         },
       },
