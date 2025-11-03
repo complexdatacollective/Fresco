@@ -68,15 +68,31 @@ const createPrismaClient = () =>
           needs: {
             schemaVersion: true,
             stages: true,
+            codebook: true,
           },
-          compute: ({ schemaVersion, stages }) => {
-            const protocolSchema = VersionedProtocolSchema.parse({
-              schemaVersion,
-              stages,
-              codebook: {}, // dummy data
-              experiments: null,
-            });
-            return protocolSchema.stages;
+          compute: ({ schemaVersion, stages, codebook }) => {
+            try {
+              const protocolSchema = VersionedProtocolSchema.parse({
+                schemaVersion,
+                stages,
+                codebook,
+                experiments: {},
+              });
+              if (protocolSchema.experiments === null)
+                protocolSchema.experiments = {};
+              const parsedStages =
+                VersionedProtocolSchema.safeParse(protocolSchema);
+              if (!parsedStages.success) {
+                console.error(
+                  'VersionProtocolSchema parse failed:',
+                  parsedStages.error,
+                );
+              }
+              return parsedStages.data.stages;
+            } catch (err) {
+              console.error('stages.compute error:', err);
+              return [];
+            }
           },
         },
         codebook: {
@@ -88,13 +104,25 @@ const createPrismaClient = () =>
             schemaVersion,
             codebook,
           }): VersionedProtocol['codebook'] => {
-            const protocolSchema = VersionedProtocolSchema.parse({
-              schemaVersion,
-              stages: [],
-              codebook,
-              experiments: null,
-            });
-            return protocolSchema.codebook;
+            try {
+              const protocolSchema = VersionedProtocolSchema.parse({
+                schemaVersion,
+                stages: [],
+                codebook,
+                experiments: {},
+              });
+              if (protocolSchema.experiments === null)
+                protocolSchema.experiments = {};
+              const parsedCodebook =
+                VersionedProtocolSchema.safeParse(protocolSchema);
+              if (!parsedCodebook.success) {
+                console.error('codebook parse error:', parsedCodebook.error);
+              }
+              return protocolSchema.codebook;
+            } catch (err) {
+              console.error('codebook.compute error:', err);
+              return {};
+            }
           },
         },
         experiments: {
