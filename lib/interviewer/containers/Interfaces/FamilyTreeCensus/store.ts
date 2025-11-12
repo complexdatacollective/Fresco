@@ -405,12 +405,22 @@ export const createFamilyTreeStore = (
             if (partnerId && layerNodes.includes(partnerId)) {
               // Handle couple
               const node = getNodeById(nodeId);
+              const partnerNode = getNodeById(partnerId);
 
-              // Order couple by gender (female first)
-              const [leftId, rightId] =
-                node?.sex === 'male'
-                  ? [partnerId, nodeId]
-                  : [nodeId, partnerId];
+              let leftId = nodeId;
+              let rightId = partnerId;
+
+              if (node?.isEgo) {
+                leftId = nodeId;
+                rightId = partnerId;
+              } else if (partnerNode?.isEgo) {
+                leftId = partnerId;
+                rightId = nodeId;
+              } else {
+                const nodeIsMale = node?.sex === 'male';
+                leftId = nodeIsMale ? partnerId : nodeId;
+                rightId = nodeIsMale ? nodeId : partnerId;
+              }
 
               placed.add(nodeId);
               placed.add(partnerId);
@@ -520,14 +530,9 @@ export const createFamilyTreeStore = (
               let rightPartnerId: string;
 
               if (nodeData?.isEgo) {
-                // ego always on consistent side (e.g., left for male, right for female)
-                if (nodeData.sex === 'male') {
-                  leftPartnerId = nodeId;
-                  rightPartnerId = partnerId;
-                } else {
-                  leftPartnerId = partnerId;
-                  rightPartnerId = nodeId;
-                }
+                // ego always on consistent side
+                leftPartnerId = nodeId;
+                rightPartnerId = partnerId;
               } else {
                 // normal couple rule
                 leftPartnerId = nodeData?.sex === 'male' ? partnerId : nodeId;
@@ -936,21 +941,16 @@ export const createFamilyTreeStore = (
         generatePlaceholderNetwork: (formData, egoSex) => {
           const store = get();
 
-          // Clear existing network
-          // store.clearNetwork();
-
           // Use the existing addNode and addEdge actions
           const { addNode, addEdge, updateNode } = store;
 
           // Maternal grandparents
           const maternalGrandmotherId = addNode({
-            //id: 'maternal-grandmother',
             label: 'maternal grandmother',
             sex: 'female',
             readOnly: true,
           });
           const maternalGrandfatherId = addNode({
-            //id: 'maternal-grandfather',
             label: 'maternal grandfather',
             sex: 'male',
             readOnly: true,
@@ -963,13 +963,11 @@ export const createFamilyTreeStore = (
 
           // Paternal grandparents
           const paternalGrandmotherId = addNode({
-            //id: 'paternal-grandmother',
             label: 'paternal grandmother',
             sex: 'female',
             readOnly: true,
           });
           const paternalGrandfatherId = addNode({
-            //id: 'paternal-grandfather',
             label: 'paternal grandfather',
             sex: 'male',
             readOnly: true,
@@ -982,7 +980,6 @@ export const createFamilyTreeStore = (
 
           // Mother
           const motherId = addNode({
-            //id: 'mother',
             label: 'mother',
             sex: 'female',
             readOnly: true,
@@ -1000,7 +997,6 @@ export const createFamilyTreeStore = (
 
           // Father
           const fatherId = addNode({
-            //id: 'father',
             label: 'father',
             sex: 'male',
             readOnly: true,
@@ -1022,13 +1018,6 @@ export const createFamilyTreeStore = (
           });
 
           // Ego (self)
-          /*const egoId = addNode({
-            //id: 'ego',
-            label: 'self',
-            sex: egoSex,
-            readOnly: true,
-            isEgo: true,
-          });*/
           const nodes = get().network.nodes;
           const egoId = Array.from(nodes.entries()).find(
             ([, node]) => node.isEgo,
@@ -1090,14 +1079,13 @@ export const createFamilyTreeStore = (
             ((formData.sons ?? 0) > 0 || (formData.daughters ?? 0) > 0)
           ) {
             const egoPartnerId = addNode({
-              //id: 'ego-partner',
-              label: "self's partner",
+              label: 'Your partner',
               sex: egoSex === 'female' ? 'male' : 'female',
               readOnly: true,
             });
             addEdge({
-              target: egoPartnerId,
-              source: egoId,
+              target: egoId,
+              source: egoPartnerId,
               relationship: 'partner',
             });
 
@@ -1270,15 +1258,15 @@ export const createFamilyTreeStore = (
             // If not, create one
             const partnerSex = node.sex === 'male' ? 'female' : 'male';
             const partnerId = addNode({
-              label: `${node.label}'s partner`,
+              label: node.isEgo ? 'Your partner' : `${node.label}'s partner`,
               sex: partnerSex,
               readOnly: true,
             });
 
             if (node.isEgo) {
               addEdge({
-                source: nodeId,
-                target: partnerId,
+                source: partnerId,
+                target: nodeId,
                 relationship: 'partner',
               });
             } else {
