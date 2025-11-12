@@ -76,7 +76,7 @@ export default function FamilyTreeNode(props: {
 
   return (
     <div
-      className="absolute"
+      className="family-tree-node absolute"
       style={{
         top: y,
         left: x,
@@ -139,9 +139,9 @@ export default function FamilyTreeNode(props: {
           Position anchor would be ideal for this but no FF support:
           https://developer.mozilla.org/en-US/docs/Web/CSS/position-anchor 
         */}
-        <div className="flex flex-col gap-0.5 text-white">
+        <div className="family-tree-node-label-container flex flex-col gap-0.5 text-white">
           <h4>{name ?? label}</h4>
-          <h5 className="!font-normal">{label}</h5>
+          <h5 className="family-tree-node-label !font-normal">{label}</h5>
         </div>
       </div>
     </div>

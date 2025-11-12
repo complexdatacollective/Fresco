@@ -62,10 +62,6 @@ export async function isAppExpired() {
   const date =
     initializedAt instanceof Date ? initializedAt : new Date(initializedAt);
 
-  console.log(typeof initializedAt); // "object"
-  console.log(initializedAt instanceof Date);
-  console.log(date instanceof Date);
-
   // If initializedAt is null, app can't be expired
   if (!initializedAt) {
     return false;
