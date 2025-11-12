@@ -1234,6 +1234,25 @@ export const createFamilyTreeStore = (
             return 'female';
           };
 
+          const formatRelationLabel = (
+            relation: string,
+            anchorId?: string,
+          ): string => {
+            const rel = relation
+              .replace(/([a-z])([A-Z])/g, '$1 $2')
+              .toLowerCase();
+
+            if (!anchorId || (!rel.includes('aunt') && !rel.includes('uncle')))
+              return rel;
+
+            const anchorLabel =
+              network.nodes.get(anchorId)?.label?.toLowerCase() ?? '';
+            if (anchorLabel.includes('mother')) return `maternal ${rel}`;
+            if (anchorLabel.includes('father')) return `paternal ${rel}`;
+
+            return rel;
+          };
+
           const ensurePartner = (nodeId: string): string | null => {
             const node = network.nodes.get(nodeId);
             if (!node) return null;
@@ -1312,9 +1331,10 @@ export const createFamilyTreeStore = (
             });
           };
 
+          const label = formatRelationLabel(relation, anchorId);
           const sex = inferSex(relation);
           const newNodeId = addNode({
-            label: relation,
+            label: label,
             sex,
             readOnly: false,
           });
