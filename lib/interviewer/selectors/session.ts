@@ -47,7 +47,7 @@ export const getStageSubject = createSelector(getCurrentStage, (stage) => {
   invariant(stage, 'getStageSubject: No current stage found');
 
   /**
-   * TODO: Schema 8 added a subject for ego stages, but didnt add it to the
+   * TODO: Schema 8 added a subject for ego stages, but didn't add it to the
    * stages themselves. Right now, we can make the assumption that if a stage
    * doesn't have a subject, it's an ego stage, but this should be formalized.
    *
@@ -62,7 +62,7 @@ export const getStageSubject = createSelector(getCurrentStage, (stage) => {
 
   if (stage.type === 'EgoForm') {
     return {
-      entity: 'ego',
+      entity: 'ego' as const,
     };
   }
 

@@ -40,10 +40,9 @@ export const controlVariants = cva({
     'flex items-center justify-between min-w-auto',
     'overflow-hidden',
     'truncate text-nowrap',
-    'elevation-low',
     'rounded',
-    'focusable-within outline-transparent',
-    'border-1 border-transparent',
+    'outline-transparent',
+    'border-2 border-transparent',
   ),
 });
 
@@ -62,22 +61,27 @@ export const spacingVariants = cva({
   },
 });
 
-export const fieldContainerVariants = compose(
+export const controlContainerVariants = compose(
   controlVariants,
   cva({
-    base: 'border-current/20 bg-input text-input-contrast transition-all duration-200',
+    base: 'border-current/10 bg-input text-input-contrast transition-all duration-200',
   }),
 );
 
-export const fieldPlaceholderVariants = cva({
+export const placeholderVariants = cva({
   base: cx('placeholder:text-input-contrast/50 placeholder:italic'),
 });
 
-export const fieldStateVariants = cva({
+export const controlStateVariants = cva({
   // Group allows styling based on parent state
   base: cx(
     'group-data-[invalid=true]:border-current cursor-default',
     'data-[checked]:border-accent data-[checked]:bg-accent data-[checked]:text-selected-contrast',
+    //Hover
+    'hover:border-accent/40',
+    // Focus state: add shadow and translate up slightly
+    // 'focus-visible-within:elevation-low focus-visible-within:translate-y-[-2px] focus-visible-within:border-accent',
+    // Invalid state
   ),
   variants: {
     state: {
@@ -112,11 +116,11 @@ export const selectBackgroundVariants = cx(
   'bg-right pe-[1.5em]', // additional padding for background icon
 );
 
-export const fieldWrapperVariants = compose(
+export const controlWrapperVariants = compose(
   sizeVariants,
   spacingVariants,
-  fieldContainerVariants,
-  fieldStateVariants,
+  controlContainerVariants,
+  controlStateVariants,
 );
 
 export const checkboxContainerVariants = cva({

@@ -1,6 +1,6 @@
 import { type SelectHTMLAttributes } from 'react';
 import {
-  fieldWrapperVariants,
+  controlWrapperVariants,
   selectBackgroundVariants,
 } from '~/styles/shared/controlVariants';
 import { cx, type VariantProps } from '~/utils/cva';
@@ -14,7 +14,7 @@ export type SelectProps = Omit<
   SelectHTMLAttributes<HTMLSelectElement>,
   'size' | 'onChange'
 > &
-  VariantProps<typeof fieldWrapperVariants> & {
+  VariantProps<typeof controlWrapperVariants> & {
     name: string;
     value?: string | number;
     placeholder?: string;
@@ -48,7 +48,7 @@ export function SelectField({
 
   return (
     <div
-      className={fieldWrapperVariants({
+      className={controlWrapperVariants({
         size,
         state: getState(),
         className: selectProps.className,

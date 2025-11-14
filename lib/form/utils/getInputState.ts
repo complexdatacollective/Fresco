@@ -4,6 +4,5 @@ import { type UseFieldConfig } from '../hooks/useField';
 export function getInputState(meta: UseFieldConfig['meta']) {
   if (meta.isValidating) return 'valid';
   if (meta.isTouched && meta.errors && meta.errors.length > 0) return 'invalid';
-  if (meta.isDirty) return 'warning';
   return 'valid';
 }

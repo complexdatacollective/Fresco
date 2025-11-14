@@ -2,24 +2,24 @@
 
 import { type ComponentProps, forwardRef } from 'react';
 import {
-  fieldContainerVariants,
-  fieldPlaceholderVariants,
-  fieldStateVariants,
+  controlContainerVariants,
+  controlStateVariants,
+  placeholderVariants,
   spacingVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 
 const textareaWrapperVariants = compose(
   spacingVariants,
-  fieldContainerVariants,
-  fieldStateVariants,
+  controlContainerVariants,
+  controlStateVariants,
   cva({
     base: 'w-full',
   }),
 );
 
 const textareaVariants = compose(
-  fieldPlaceholderVariants,
+  placeholderVariants,
   cva({
     base: cx(
       'w-full h-full resize-y min-h-[120px]',

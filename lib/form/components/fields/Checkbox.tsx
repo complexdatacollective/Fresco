@@ -8,7 +8,7 @@ import {
   checkboxContainerVariants,
   checkboxIndicatorSizeVariants,
   checkboxIndicatorVariants,
-  fieldStateVariants,
+  controlStateVariants,
   smallSizeVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, type VariantProps } from '~/utils/cva';
@@ -16,7 +16,7 @@ import { compose, cva, type VariantProps } from '~/utils/cva';
 const checkboxRootVariants = compose(
   smallSizeVariants,
   checkboxContainerVariants,
-  fieldStateVariants,
+  controlStateVariants,
   cva({
     base: 'aspect-square',
   }),

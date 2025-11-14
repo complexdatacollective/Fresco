@@ -1,7 +1,6 @@
 'use client';
 
 import { motion } from 'motion/react';
-import { type ElementType } from 'react';
 import { cva } from '~/utils/cva';
 import { useField, type UseFieldKeys } from '../hooks/useField';
 import {
@@ -47,8 +46,9 @@ export const fieldAnimationVariants = {
  */
 export default function Field<
   TComponent extends React.ElementType,
-  TComponentProps = React.ComponentPropsWithoutRef<TComponent>,
+  TComponentProps = React.ComponentProps<TComponent>,
 >({
+  showRequired,
   name,
   label,
   hint,
@@ -57,27 +57,21 @@ export default function Field<
   Component,
   ...additionalFieldProps
 }: {
+  showRequired?: boolean;
   name: string;
   initialValue?: FieldValue;
   validation?: FieldValidation;
   Component: TComponent;
 } & BaseFieldProps &
   Omit<TComponentProps, UseFieldKeys>) {
-  // Determine if field is required from validation
-  const isRequired = validation
-    ? typeof validation === 'function'
-      ? false // Can't determine from function, default to false
-      : !validation.isOptional()
-    : false;
-
   const { id, meta, fieldProps, containerProps } = useField({
     name,
     initialValue,
     validation,
-    required: isRequired,
+    showRequired: Boolean(showRequired),
   });
 
-  const FieldComponent = Component as ElementType;
+  const FieldComponent = Component;
 
   const inputVariantState = getInputState(meta);
 
@@ -94,20 +88,16 @@ export default function Field<
       {...containerProps}
     >
       <div>
-        <Label id={`${id}-label`} htmlFor={id}>
+        <Label id={`${id}-label`} htmlFor={id} required={showRequired}>
           {label}
         </Label>
-        {hint && (
-          <Hint id={`${id}-hint`} validation={validation}>
-            {hint}
-          </Hint>
-        )}
+        {hint && <Hint id={`${id}-hint`}>{hint}</Hint>}
       </div>
       <FieldComponent
         name={name}
-        id={id}
         {...fieldProps}
         {...additionalFieldProps}
+        id={id}
       />
       <FieldErrors
         id={`${id}-error`}

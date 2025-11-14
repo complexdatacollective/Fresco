@@ -425,8 +425,11 @@ This custom variant lets you target only elements with the readonly attribute.
 */
 @custom-variant is-read-only (&[readonly]);
 
+/* Custom variant for :focus-within + :focus-visible */
+@variant focus-visible-within (&:has(:focus-visible));
+
 @utility focus-styles {
-  @apply outline-4 outline-offset-3 outline-current transition-colors duration-200 ease-in-out;
+  @apply outline-4 outline-offset-3 outline-current transition-all duration-200 ease-in-out;
 }
 
 @utility focusable {
@@ -434,7 +437,7 @@ This custom variant lets you target only elements with the readonly attribute.
 }
 
 @utility focusable-within {
-  @apply focus-within:focus-styles;
+  @apply focus-visible-within:focus-styles;
 }
 
 /* Replacement for interface centering mixin */

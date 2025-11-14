@@ -22,8 +22,7 @@
     --primary: oklch(18% 0.2 var(--base-hue));
     --primary-contrast: oklch(var(--white));
 
-    /* For your dark primary (15% L), an accent around 55-65% L works well */
-    --accent: oklch(65% 0.3 calc(var(--base-hue) - 100));
+    --accent: oklch(65% 0.3 var(--base-hue));
     --accent-contrast: oklch(var(--white));
 
     --secondary: oklch(from var(--primary) calc(l + 0.2) calc(c + 0.05) h);
@@ -56,7 +55,7 @@
     );
     --info-contrast: oklch(var(--white));
 
-    --selected: var(--accent);
+    --selected: oklch(65% 0.3 calc(var(--base-hue) - 100));
     --selected-contrast: var(--accent-contrast);
 
     --ring: oklch(var(--mustard));

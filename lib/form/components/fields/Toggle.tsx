@@ -3,16 +3,16 @@
 import { Switch } from '@base-ui-components/react/switch';
 import { type ComponentPropsWithoutRef } from 'react';
 import {
-  fieldContainerVariants,
-  fieldStateVariants,
+  controlContainerVariants,
+  controlStateVariants,
   smallSizeVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 
 const toggleContainerVariants = compose(
-  fieldContainerVariants,
+  controlContainerVariants,
   smallSizeVariants,
-  fieldStateVariants,
+  controlStateVariants,
   cva({
     base: cx(
       'relative inline-flex aspect-[2/1] items-center rounded-full',
@@ -37,6 +37,7 @@ type ToggleFieldProps = Omit<
   };
 
 export function ToggleField({
+  id,
   className,
   value = false,
   size = 'md',
@@ -62,6 +63,8 @@ export function ToggleField({
         state: getState(),
         className,
       })}
+      aria-checked={!!value}
+      id={id}
     >
       <Switch.Thumb className={toggleThumbStyles} />
     </Switch.Root>

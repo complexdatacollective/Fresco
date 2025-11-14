@@ -14,19 +14,22 @@ export default function FieldErrors({
   show,
 }: {
   id: string;
-  errors: string[] | null;
+  errors?: string[];
   show: boolean;
 }) {
-  if (!show || !errors || errors.length === 0) return null;
+  if (!show) return null;
 
   return (
-    <div id={id} className="text-destructive flex justify-items-start gap-2">
+    <div
+      id={id}
+      className="text-destructive animate-shake bg-surface flex justify-items-start gap-2 rounded p-2"
+    >
       <TriangleAlert className="w-4" />
-      {errors.length === 1 ? (
+      {errors?.length === 1 ? (
         <Paragraph>{errors[0]}</Paragraph>
       ) : (
         <UnorderedList>
-          {errors.map((error, index) => (
+          {errors?.map((error, index) => (
             <li key={index}>{error}</li>
           ))}
         </UnorderedList>

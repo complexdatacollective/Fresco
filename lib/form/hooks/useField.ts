@@ -3,8 +3,8 @@ import { useShallow } from 'zustand/react/shallow';
 import { useFormStore } from '../store/formStoreProvider';
 import type {
   ChangeHandler,
-  FieldConfig,
   FieldState,
+  FieldValidation,
   FieldValue,
 } from '../types';
 
@@ -28,7 +28,7 @@ export type UseFieldConfig = {
   id: string;
   meta: {
     shouldShowError: boolean;
-    errors: string[] | null;
+    errors: string[] | undefined;
     isValidating: boolean;
     isTouched: boolean;
     isDirty: boolean;
@@ -47,14 +47,17 @@ export type UseFieldConfig = {
   };
 };
 
-// Keys of UseFieldConfig
-export type UseFieldKeys = keyof UseFieldConfig;
+// Keys that the Field component provides to field components
+// This includes both the top-level keys and the individual fieldProps keys
+export type UseFieldKeys =
+  | keyof UseFieldConfig
+  | keyof UseFieldConfig['fieldProps'];
 
 export function useField(config: {
   name: string;
   initialValue?: FieldValue;
-  required?: boolean;
-  validation?: FieldConfig['validation'];
+  validation?: FieldValidation;
+  showRequired: boolean;
 }): UseFieldConfig {
   const id = useId();
 
@@ -68,7 +71,6 @@ export function useField(config: {
   const registerField = useFormStore((store) => store.registerField);
   const unregisterField = useFormStore((store) => store.unregisterField);
   const setFieldValue = useFormStore((store) => store.setFieldValue);
-  const setFieldTouched = useFormStore((store) => store.setFieldTouched);
   const validateField = useFormStore((store) => store.validateField);
 
   const shouldShowError = useFieldShouldShowError(fieldState, fieldErrors);
@@ -122,7 +124,6 @@ export function useField(config: {
 
   const handleBlur = useCallback(
     (e: React.FocusEvent) => {
-      console.log('Field blur', config.name);
       // Skip validation if clicking on a dialog close element
       const relatedTarget = e.relatedTarget;
 
@@ -164,7 +165,7 @@ export function useField(config: {
       'value': controlledValue,
       'onChange': handleChange,
       'onBlur': handleBlur,
-      'aria-required': config.required ?? false,
+      'aria-required': config.showRequired,
       'aria-invalid': shouldShowError,
       /**
        * Set this so that screen readers can properly announce the hint and error messages.

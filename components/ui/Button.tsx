@@ -17,6 +17,7 @@ const buttonSpecificVariants = cva({
     'font-semibold inline-flex tracking-wide cursor-pointer shrink-0',
     'justify-center',
     'disabled:cursor-not-allowed disabled:opacity-50',
+    'focusable',
   ),
   variants: {
     variant: {

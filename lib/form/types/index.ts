@@ -95,13 +95,8 @@ export type FormFieldErrors = Record<string, string[] | null>;
  * Props that all fields **must** handle.
  */
 export type BaseFieldProps = {
-  name: string;
   label: string;
   hint?: React.ReactNode;
-  placeholder?: string;
-  className?: string;
-  value?: FieldValue;
-  onChange?: (value: FieldValue) => void;
 };
 
 export type BaseFieldComponentProps<T extends FieldValue> = {

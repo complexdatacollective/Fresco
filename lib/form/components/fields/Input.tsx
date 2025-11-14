@@ -1,9 +1,9 @@
+import { StopCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { type ComponentProps, forwardRef, type ReactNode } from 'react';
 import {
-  fieldContainerVariants,
-  fieldPlaceholderVariants,
-  fieldStateVariants,
+  controlContainerVariants,
+  placeholderVariants,
   proportionalLucideIconVariants,
   sizeVariants,
   spacingVariants,
@@ -14,8 +14,8 @@ const inputWrapperVariants = compose(
   sizeVariants,
   proportionalLucideIconVariants,
   spacingVariants,
-  fieldContainerVariants,
-  fieldStateVariants,
+  controlContainerVariants,
+  // controlStateVariants,
   cva({
     base: 'w-full',
   }),
@@ -23,14 +23,13 @@ const inputWrapperVariants = compose(
 
 // Input element when used with wrapper (prefix/suffix)
 export const inputVariants = compose(
-  fieldPlaceholderVariants,
+  placeholderVariants,
   cva({
     base: cx(
       'cursor-[inherit]',
       'p-0',
       'h-full w-full flex-shrink flex-grow basis-0 border-none bg-transparent outline-none focus:ring-0',
       'shrink-0 grow',
-      // Make lucide icons
     ),
   }),
 );
@@ -105,23 +104,18 @@ export const InputField = forwardRef(function InputField<
     onChange?.(value);
   };
 
-  // Work out variant state based on props. Order:
-  // disabled > readOnly > invalid > normal
-  const getState = () => {
-    if (disabled) return 'disabled';
-    if (inputProps.readOnly) return 'readOnly';
-    if (inputProps['aria-invalid']) return 'invalid';
-    return 'normal';
-  };
-
   return (
     <motion.div
       layout
-      className={inputWrapperVariants({
-        size,
+      className={cx(
+        inputWrapperVariants({ size }),
+        'border-input-contrast/20 flex border-2 transition-all duration-200',
+        'hover:border-accent/50',
+        'focus-visible-within:border-accent focus-visible-within:elevation-low focus-visible-within:translate-y-[-2px]',
+        // set different border styles if has aria-invalid
+        'has-[aria-invalid=true]:border-destructive',
         className,
-        state: getState(),
-      })}
+      )}
     >
       {prefix}
       <motion.input
@@ -131,8 +125,9 @@ export const InputField = forwardRef(function InputField<
         disabled={disabled}
         type={type}
         onChange={handleChange}
-        className={inputVariants()}
+        className={inputVariants({ className })}
       />
+      <StopCircle className="hidden invalid:block" />
       {suffix}
     </motion.div>
   );

@@ -2,6 +2,7 @@
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { PersonStandingIcon } from 'lucide-react';
+import { action } from 'storybook/actions';
 import { z } from 'zod';
 import { Field, FieldGroup, Form, SubmitButton } from '../components';
 import { InputField } from '../components/fields/Input';
@@ -25,7 +26,7 @@ export const Default: Story = {
       onSubmit={async (data) => {
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
-        console.log('form-submitted', data);
+        action('form-submitted')(data);
 
         return {
           success: true,
@@ -39,7 +40,12 @@ export const Default: Story = {
         placeholder="Enter your name"
         hint="Please enter your full name"
         Component={InputField}
-        validation={z.string().min(2, 'Name must be at least 2 characters')}
+        validation={z
+          .string()
+          .min(2, 'Name must be at least 2 characters')
+
+          .meta({ hintText: 'Must be at least 2 characters' })
+          .optional()}
         prefixComponent={<PersonStandingIcon />}
       />
       <Field
@@ -48,9 +54,11 @@ export const Default: Story = {
         label="Age"
         Component={InputField}
         placeholder="Enter your age"
-        validation={z.coerce
+        showRequired
+        validation={z
           .number()
-          .min(18, 'You must be at least 18 years old')}
+          .min(18, 'You must be at least 18 years old')
+          .prefault(0)}
         type="number"
       />
       <Field
@@ -58,6 +66,7 @@ export const Default: Story = {
         label="Country"
         hint="Select your country of residence"
         Component={SelectField}
+        showRequired
         placeholder="Select a country"
         options={[
           { value: 'us', label: 'United States' },
@@ -74,6 +83,7 @@ export const Default: Story = {
       <Field
         name="preferredContact"
         label="Preferred Contact Method"
+        showRequired
         hint="How would you like us to contact you?"
         Component={RadioGroupField}
         options={[
@@ -128,7 +138,7 @@ export const WithSubmitErrors: Story = {
       onSubmit={async (data) => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        console.log('form-submitted', data);
+        action('form-submitted')(data);
 
         // Simulate server-side validation errors
         // This demonstrates how to return both form-level and field-level errors

@@ -6,7 +6,7 @@ import collectNetworkValues from './utils/collectNetworkValues';
 import { getVariableDefinition } from './utils/getVariableDefinition';
 import isMatchingValue from './utils/isMatchingValue';
 
-type ValidationFunction<T = string | boolean | number> = (
+export type ValidationFunction<T extends string | boolean | number> = (
   // Parameter type is the value of the key/value pair of the protocol
   // validation object. required = boolean, maxLength = number,
   // unique = string etc.
@@ -26,7 +26,7 @@ type ValidationFunction<T = string | boolean | number> = (
  * - boolean: not null
  * - categorical: not null, empty array is not permitted
  */
-export const required = () => () => {
+export const required: ValidationFunction<boolean> = () => () => {
   // TODO: localisation.
   const message = 'You must answer this question before continuing';
 
@@ -37,6 +37,7 @@ export const required = () => () => {
     if (value === null || value === undefined || isEmptyString) {
       ctx.addIssue({
         code: 'custom',
+        input: value,
         message: message,
         path: [],
       });
@@ -47,6 +48,7 @@ export const required = () => () => {
       if (isNaN(value)) {
         ctx.addIssue({
           code: 'custom',
+          input: value,
           message: message,
           path: [],
         });
@@ -58,6 +60,7 @@ export const required = () => () => {
       if (value.length === 0) {
         ctx.addIssue({
           code: 'custom',
+          input: value,
           message: message,
           path: [],
         });
@@ -72,17 +75,9 @@ export const required = () => () => {
 const maxLength: ValidationFunction<number> = (max) => () => {
   invariant(max, 'Max length must be specified');
 
-  return z.unknown().refine(
-    (value) => {
-      if (typeof value === 'string' && value.length > max) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message: `You must enter no more than ${max} characters.`,
-    },
-  );
+  return z.string().max(max, {
+    message: `You must enter no more than ${max} characters.`,
+  });
 };
 
 /**
@@ -184,7 +179,7 @@ const maxSelected: ValidationFunction<number> = (max) => () => {
  * Require that a value is unique among all entities of the same type in the
  * current network
  */
-const unique: ValidationFunction = (attribute, context) => () => {
+const unique: ValidationFunction<string> = (attribute, context) => () => {
   const { stageSubject, network } = context;
 
   return z.unknown().superRefine((value, ctx) => {
@@ -218,7 +213,7 @@ const unique: ValidationFunction = (attribute, context) => () => {
  * need to get the comparison variable from the codebook, because we need to
  * know its name.
  */
-const differentFrom: ValidationFunction =
+const differentFrom: ValidationFunction<string> =
   (attribute, context) => (formValues) => {
     const { stageSubject, codebook } = context;
 
@@ -259,42 +254,46 @@ const differentFrom: ValidationFunction =
  *
  * See note about comparison variables in the `differentFrom` validation.
  */
-const sameAs: ValidationFunction = (attribute, context) => (formValues) => {
-  const { stageSubject, codebook } = context;
+const sameAs: ValidationFunction<string> =
+  (attribute, context) => (formValues) => {
+    const { stageSubject, codebook } = context;
 
-  return z.unknown().superRefine((value, ctx) => {
-    invariant(
-      typeof attribute === 'string',
-      'Attribute must be specified for sameAs validation',
-    );
-    invariant(
-      attribute in formValues,
-      'Form values must contain the attribute being compared',
-    );
+    return z.unknown().superRefine((value, ctx) => {
+      invariant(
+        typeof attribute === 'string',
+        'Attribute must be specified for sameAs validation',
+      );
+      invariant(
+        attribute in formValues,
+        'Form values must contain the attribute being compared',
+      );
 
-    // Get the codebook definition for the variable we are comparing to
-    const comparisonVariable = getVariableDefinition(
-      codebook,
-      stageSubject,
-      attribute,
-    );
+      // Get the codebook definition for the variable we are comparing to
+      const comparisonVariable = getVariableDefinition(
+        codebook,
+        stageSubject,
+        attribute,
+      );
 
-    invariant(comparisonVariable, 'Comparison variable not found in codebook');
+      invariant(
+        comparisonVariable,
+        'Comparison variable not found in codebook',
+      );
 
-    if (!isMatchingValue(value, formValues[attribute])) {
-      ctx.addIssue({
-        code: 'custom',
-        message: `Your answer must be the same as '${comparisonVariable.name}'`,
-        path: [],
-      });
-    }
-  });
-};
+      if (!isMatchingValue(value, formValues[attribute])) {
+        ctx.addIssue({
+          code: 'custom',
+          message: `Your answer must be the same as '${comparisonVariable.name}'`,
+          path: [],
+        });
+      }
+    });
+  };
 
 /**
  * Require that a value be greater than another variable in the same form
  */
-const greaterThanVariable: ValidationFunction =
+const greaterThanVariable: ValidationFunction<string> =
   (attribute, context) => (formValues) => {
     const { stageSubject, codebook } = context;
 
@@ -342,49 +341,52 @@ const greaterThanVariable: ValidationFunction =
 /**
  * Require that a value be less than another variable in the same form
  */
-const lessThanVariable: ValidationFunction =
+const lessThanVariable: ValidationFunction<string> =
   (attribute, context) => (formValues) => {
     const { stageSubject, codebook } = context;
 
-    return z.unknown().superRefine((value, ctx) => {
-      invariant(
-        typeof attribute === 'string',
-        'Attribute must be specified for lessThanVariable validation',
-      );
-      invariant(
-        attribute in formValues,
-        'Form values must contain the attribute being compared',
-      );
+    invariant(
+      typeof attribute === 'string',
+      'Attribute must be specified for lessThanVariable validation',
+    );
 
-      // Get the codebook definition for the variable we are comparing to
-      const comparisonVariable = getVariableDefinition(
-        codebook,
-        stageSubject,
-        attribute,
-      );
+    // Get the codebook definition for the variable we are comparing to
+    const comparisonVariable = getVariableDefinition(
+      codebook,
+      stageSubject,
+      attribute,
+    );
 
-      invariant(
-        comparisonVariable,
-        'Comparison variable not found in codebook',
-      );
+    invariant(comparisonVariable, 'Comparison variable not found in codebook');
 
-      if (
-        compareVariables(
-          value,
-          formValues[attribute],
-          comparisonVariable.type,
-        ) > 0
-      ) {
-        ctx.addIssue({
-          code: 'too_big',
-          maximum: Number(formValues[attribute]),
-          inclusive: false,
-          origin: comparisonVariable.type === 'datetime' ? 'date' : 'number',
-          message: `Your answer must be less than '${comparisonVariable.name}'`,
-          path: [],
-        });
-      }
-    });
+    return z
+      .unknown()
+      .superRefine((value, ctx) => {
+        invariant(
+          attribute in formValues,
+          'Form values must contain the attribute being compared',
+        );
+
+        if (
+          compareVariables(
+            value,
+            formValues[attribute],
+            comparisonVariable.type,
+          ) > 0
+        ) {
+          ctx.addIssue({
+            code: 'too_big',
+            maximum: Number(formValues[attribute]),
+            inclusive: false,
+            origin: comparisonVariable.type === 'datetime' ? 'date' : 'number',
+            message: `Your answer must be less than '${comparisonVariable.name}'`,
+            path: [],
+          });
+        }
+      })
+      .meta({
+        hintText: `Must be less than the value of '${comparisonVariable.name}'.`,
+      });
   };
 
 export const validations = {
@@ -401,4 +403,4 @@ export const validations = {
   sameAs,
   greaterThanVariable,
   lessThanVariable,
-} satisfies Record<string, ValidationFunction>;
+};

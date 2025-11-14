@@ -1,7 +1,6 @@
 import {
   type ComponentType,
   type FormField,
-  type Validation,
   type ValidationName,
 } from '@codaco/protocol-validation';
 import { useSelector } from 'react-redux';
@@ -23,7 +22,7 @@ import { ToggleField } from '../components/fields/Toggle';
 import { ToggleButtonGroupField } from '../components/fields/ToggleButtonGroup';
 import { VisualAnalogScaleField } from '../components/fields/VisualAnalogScale';
 import { type FieldValidation, type FieldValue } from '../types';
-import { validations } from '../validation';
+import { type ValidationFunction, validations } from '../validation';
 
 // @ts-expect-error Slider component erroneously exists - will be removed
 const fieldTypeMap: Record<ComponentType, React.ElementType> = {
@@ -70,6 +69,7 @@ export default function useProtocolForm({
       after?: number;
       validation?: FieldValidation;
       initialValue?: FieldValue;
+      showRequired?: boolean;
     } = {
       name: field.variable,
       label: field.label,
@@ -82,18 +82,25 @@ export default function useProtocolForm({
     }
 
     // process validation
-    if (field.validation) {
+    if ('validation' in field) {
       props.validation = (formValues) =>
-        z.unknown().superRefine(async (value, ctx) => {
-          Object.entries(field.validation as Validation).forEach(
+        z.unknown().superRefine((value, ctx) => {
+          Object.entries(field.validation ?? {}).forEach(
             async ([validationName, parameter]) => {
               try {
-                const validationFnFactory =
-                  validations[validationName as ValidationName];
+                const validationFnFactory = validations[
+                  validationName as ValidationName
+                ] as ValidationFunction<typeof parameter>;
+
                 const validationFn = validationFnFactory(
                   parameter,
                   validationContext,
                 )(formValues);
+
+                // Set required flag
+                if (validationName === 'required' && parameter === true) {
+                  props.showRequired = true;
+                }
 
                 const result = await validationFn.safeParseAsync(value);
 
@@ -169,8 +176,6 @@ export default function useProtocolForm({
       const FieldComponent = fieldTypeMap[component as ComponentType];
 
       const autoFocusField = autoFocus && index === 0;
-
-      console.log('auto', autoFocusField, fieldProps.name);
 
       return (
         <Field

@@ -192,6 +192,7 @@ export function RadioGroupField({
           className,
         })}
         disabled={disabled}
+        role="radiogroup"
         data-invalid={fieldsetProps['aria-invalid'] === 'true'}
         {...(fieldsetProps['aria-labelledby']
           ? { 'aria-labelledby': fieldsetProps['aria-labelledby'] }

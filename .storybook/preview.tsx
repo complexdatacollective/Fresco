@@ -16,7 +16,7 @@ const preview: Preview = {
       options: {
         light: {
           name: 'light',
-          value: '#ffffff',
+          value: 'var(--color-background)',
         },
 
         dark: {

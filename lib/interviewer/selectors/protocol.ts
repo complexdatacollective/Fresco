@@ -78,7 +78,7 @@ export const getCodebookVariablesForSubjectType = createSelector(
   (codebook, subject) => {
     // TODO: make subject mandatory on data stages, and introduce ego subject type.
     if (subject.entity === 'ego') {
-      return codebook.ego.variables ?? {};
+      return codebook.ego?.variables ?? {};
     }
 
     const { entity, type } = subject;

@@ -5,7 +5,7 @@ import {
   type SelectHTMLAttributes,
 } from 'react';
 import {
-  fieldWrapperVariants,
+  controlWrapperVariants,
   selectBackgroundVariants,
 } from '~/styles/shared/controlVariants';
 import { cx, type VariantProps } from '~/utils/cva';
@@ -15,7 +15,7 @@ export type SelectOption = {
   label: string;
 };
 
-export type SelectProps = VariantProps<typeof fieldWrapperVariants> &
+export type SelectProps = VariantProps<typeof controlWrapperVariants> &
   Omit<
     ComponentPropsWithoutRef<typeof Select.Root>,
     'onValueChange' | 'items' | 'multiple'
@@ -63,7 +63,7 @@ export function SelectField({
       name={name}
     >
       <Select.Trigger
-        className={fieldWrapperVariants({
+        className={controlWrapperVariants({
           size,
           state: getState(),
           className,
