@@ -1,7 +1,7 @@
 import type { Preview } from '@storybook/nextjs-vite';
 import Providers from '../components/Providers';
 import '../styles/globals.css';
-// import '../styles/interview.scss';
+import { withTheme, globalTypes } from './theme-switcher';
 
 const preview: Preview = {
   parameters: {
@@ -42,12 +42,16 @@ const preview: Preview = {
         </Providers>
       </div>
     ),
+    withTheme,
   ],
+
+  globalTypes,
 
   initialGlobals: {
     backgrounds: {
       value: 'light',
     },
+    theme: 'default',
   },
 };
 

@@ -1,7 +1,6 @@
 @import 'tailwindcss';
 
 @import './colors.css';
-@import './themes/default.css';
 
 @plugin '@tailwindcss/forms';
 @plugin 'tailwindcss-animate';

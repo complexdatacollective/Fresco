@@ -3,6 +3,7 @@ import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import { Toaster } from '~/components/ui/toaster';
 import { env } from '~/env';
 import '~/styles/globals.css';
+import '~/styles/themes/default.css';
 
 export const metadata = {
   title: 'Network Canvas Fresco',
