@@ -1,3 +1,4 @@
+import { type FilterRule } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
@@ -12,7 +13,7 @@ export const getEntityGenerator = () => {
   return (
     attributes = {},
     modelData = {},
-    entity = 'node',
+    entity: 'node' | 'edge' = 'node',
     type = 'person',
   ) => {
     const entityId = counts[entity] + 1;
@@ -27,7 +28,10 @@ export const getEntityGenerator = () => {
   };
 };
 
-export const generateRuleConfig = (type, options) => ({
+export const generateRuleConfig = (
+  type: FilterRule['type'],
+  options: FilterRule['options'],
+) => ({
   type,
   options,
 });

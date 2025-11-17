@@ -1,11 +1,9 @@
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { type ComponentProps } from 'react';
-import { useSelector } from 'react-redux';
 import Surface from '~/components/layout/Surface';
 import { IconButton } from '~/components/ui/Button';
 import ProgressBar from '~/lib/ui/components/ProgressBar';
 import { cx } from '~/utils/cva';
-import { getNavigationInfo } from '../selectors/session';
 import PassphrasePrompter from './PassphrasePrompter';
 
 const NavigationButton = ({
@@ -29,20 +27,20 @@ const NavigationButton = ({
 type NavigationProps = {
   moveBackward: () => void;
   moveForward: () => void;
+  disableMoveForward?: boolean;
+  disableMoveBackward?: boolean;
   pulseNext: boolean;
-  disabled: boolean;
   progress: number;
 };
 
 const Navigation = ({
   moveBackward,
   moveForward,
+  disableMoveForward,
+  disableMoveBackward,
   pulseNext,
-  disabled,
   progress,
 }: NavigationProps) => {
-  const { canMoveForward, canMoveBackward } = useSelector(getNavigationInfo);
-
   return (
     <Surface
       level={2}
@@ -53,7 +51,7 @@ const Navigation = ({
     >
       <NavigationButton
         onClick={moveBackward}
-        disabled={disabled || !canMoveBackward}
+        disabled={disableMoveBackward}
         icon={<ChevronUp />}
         aria-label="Previous Step"
       />
@@ -64,7 +62,7 @@ const Navigation = ({
       <NavigationButton
         className={cx(pulseNext && 'bg-success animate-pulse-glow')}
         onClick={moveForward}
-        disabled={disabled || !canMoveForward}
+        disabled={disableMoveForward}
         icon={<ChevronDown className="h-8 w-8" strokeWidth="3px" />}
         aria-label="Next Step"
       />

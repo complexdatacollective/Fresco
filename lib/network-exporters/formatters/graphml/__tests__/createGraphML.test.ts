@@ -235,4 +235,46 @@ describe('buildGraphML', () => {
       'mock-uuid-5': 'node',
     });
   });
+  it('places <key> elements before any <graph> element', () => {
+    const graphmlElement = xml.getElementsByTagName('graphml')[0]!;
+    const childElements = Array.from(graphmlElement.childNodes).filter(
+      (node) => node.nodeType === 1,
+    ) as Element[];
+
+    const graphIndex = childElements.findIndex((el) => el.tagName === 'graph');
+    expect(graphIndex).toBeGreaterThan(-1);
+
+    const keyElements = childElements.filter((el) => el.tagName === 'key');
+    expect(keyElements.length).toBeGreaterThan(0);
+
+    for (const keyElement of keyElements) {
+      const keyIndex = childElements.indexOf(keyElement);
+      expect(keyIndex).toBeLessThan(graphIndex);
+    }
+  });
+
+  it('encodes boolean variables correctly as true/false', () => {
+    const booleanKeys = Array.from(xml.getElementsByTagName('key')).filter(
+      (key) => key.getAttribute('attr.type') === 'boolean',
+    );
+
+    expect(booleanKeys.length).toBeGreaterThan(0);
+
+    // For each boolean key, check all data elements that use it
+    for (const key of booleanKeys) {
+      const keyId = key.getAttribute('id')!;
+      const dataElements = Array.from(xml.getElementsByTagName('data')).filter(
+        (data) => data.getAttribute('key') === keyId,
+      );
+
+      // check that it is either 'true' or 'false'
+      for (const dataElement of dataElements) {
+        const textContent = dataElement.textContent;
+
+        if (textContent) {
+          expect(['true', 'false']).toContain(textContent);
+        }
+      }
+    }
+  });
 });

@@ -24,7 +24,10 @@ import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 import { generateSecureAttributes } from '../../Interfaces/Anonymisation/utils';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
-import { makeGetCodebookVariablesForNodeType } from '../../selectors/protocol';
+import {
+  makeGetCodebookVariablesForEdgeType,
+  makeGetCodebookVariablesForNodeType,
+} from '../../selectors/protocol';
 import {
   getCurrentStageId,
   getPromptId,
@@ -74,20 +77,43 @@ export function edgeExists(
   return false;
 }
 
-const StageMetadataEntrySchema = z.tuple([
-  z.number(),
-  z.string(),
-  z.string(),
-  z.boolean(),
+const FamilyTreeCensusStageMetadataSchema = z.object({
+  hasSeenScaffoldPrompt: z.boolean(),
+  nodes: z
+    .array(
+      z.object({
+        interviewNetworkId: z.string(),
+        label: z.string(),
+        sex: z.enum(['male', 'female']),
+        isEgo: z.boolean(),
+        readOnly: z.boolean(),
+      }),
+    )
+    .optional(),
+});
+
+export type FamilyTreeCensusStageMetadata = z.infer<
+  typeof FamilyTreeCensusStageMetadataSchema
+>;
+
+const DyadCensusMetadataItem = z.tuple([
+  z.number(), // prompt index
+  z.string(), // entity a
+  z.string(), // entity b
+  z.boolean(), // is present
 ]);
 
+export type DyadCensusMetadataItem = z.infer<typeof DyadCensusMetadataItem>;
+
+const DyadCensusStageMetadataSchema = z.array(DyadCensusMetadataItem);
+
 export const StageMetadataSchema = z.record(
-  z.string(),
-  z.array(StageMetadataEntrySchema),
+  z.string(), // stage ID
+  z.union([FamilyTreeCensusStageMetadataSchema, DyadCensusStageMetadataSchema]),
 );
 
-export type StageMetadataEntry = z.infer<typeof StageMetadataEntrySchema>;
 type StageMetadata = z.infer<typeof StageMetadataSchema>;
+type StageMetadataEntry = StageMetadata[string];
 
 export type SessionState = {
   id: string;
@@ -217,10 +243,22 @@ export const addEdge = createAsyncThunk(
     const state = getState() as RootState;
     const sessionMeta = getSessionMeta(state);
 
-    const getCodebookVariablesForNodeType =
-      makeGetCodebookVariablesForNodeType(state);
+    const getCodebookVariablesForEdgeType =
+      makeGetCodebookVariablesForEdgeType(state);
 
-    const variablesForType = getCodebookVariablesForNodeType(type);
+    const variablesForType = getCodebookVariablesForEdgeType(type);
+
+    // Validate that all attribute keys exist in the codebook
+    if (attributeData) {
+      const invalidKeys = Object.keys(attributeData).filter(
+        (key) => !(key in variablesForType),
+      );
+
+      invariant(
+        invalidKeys.length === 0,
+        `Invalid edge attributes for type "${type}": ${invalidKeys.join(', ')} do not exist in protocol codebook`,
+      );
+    }
 
     // Validate that all attribute keys exist in the codebook
     if (attributeData) {
@@ -473,9 +511,10 @@ export const updateEdge = createAsyncThunk(
   },
 );
 
-export const updateStageMetadata = createAction<StageMetadataEntry[]>(
+export const updateStageMetadata = createAction<StageMetadataEntry>(
   actionTypes.updateStageMetadata,
 );
+
 const sessionReducer = createReducer(initialState, (builder) => {
   builder.addCase(addNode.fulfilled, (state, action) => {
     const { secureAttributes, sessionMeta, modelData } = action.payload;

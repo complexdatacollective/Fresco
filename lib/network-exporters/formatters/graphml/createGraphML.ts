@@ -29,14 +29,14 @@ function graphMLGenerator(
   const graphElement = xmlDoc.getElementsByTagName('graph')[0]!;
 
   if (network.ego) {
-    graphMLElement.appendChild(generateKeyElements(network.ego));
+    graphMLElement.insertBefore(generateKeyElements(network.ego), graphElement);
     graphElement.appendChild(generateDataElements(network.ego));
   }
 
-  graphMLElement.appendChild(generateKeyElements(network.nodes));
+  graphMLElement.insertBefore(generateKeyElements(network.nodes), graphElement);
   graphElement.appendChild(generateDataElements(network.nodes));
 
-  graphMLElement.appendChild(generateKeyElements(network.edges));
+  graphMLElement.insertBefore(generateKeyElements(network.edges), graphElement);
   graphElement.appendChild(generateDataElements(network.edges));
 
   // Serialize the XML document

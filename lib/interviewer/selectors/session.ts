@@ -1,4 +1,4 @@
-import type { Codebook } from '@codaco/protocol-validation';
+import type { Codebook, StageSubject } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   type EntityPrimaryKey,
@@ -305,8 +305,15 @@ export const makeGetEdgeLabel = () =>
 
 export const getEdgeColor = createSelector(
   getCodebook,
-  (_, props: Record<string, string>) => props.type ?? null,
-  (codebook, edgeType: string | null) => {
+  getStageSubject,
+  (codebook, stageSubject) => {
+    invariant(
+      stageSubject?.entity === 'edge',
+      'getEdgeColor: Not an edge subject',
+    );
+
+    const edgeType = stageSubject?.type ?? null;
+
     if (!edgeType) {
       return 'edge-color-seq-1';
     }
@@ -316,6 +323,17 @@ export const getEdgeColor = createSelector(
     );
   },
 );
+
+export const getEdgeColorForType = (
+  type: Extract<StageSubject, { entity: 'edge' }>['type'],
+) =>
+  createSelector(getCodebook, (codebook) => {
+    if (!type) {
+      return 'edge-color-seq-1';
+    }
+
+    return (codebook as Codebook)?.edge?.[type]?.color ?? 'edge-color-seq-1';
+  });
 
 export const makeGetEdgeColor = () => getEdgeColor;
 

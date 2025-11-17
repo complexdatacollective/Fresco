@@ -12,6 +12,7 @@ export const NodeColors = [
   'node-color-seq-6',
   'node-color-seq-7',
   'node-color-seq-8',
+  'custom',
 ] as const;
 
 export type NodeColorSequence = (typeof NodeColors)[number];
@@ -584,6 +585,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     linking,
     loading = false,
     size = 'md',
+    className,
     ...buttonProps
   } = props;
 

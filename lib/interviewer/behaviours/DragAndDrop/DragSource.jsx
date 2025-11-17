@@ -23,7 +23,6 @@ const dragSource = (WrappedComponent) => {
     const dragManagerRef = useRef(null);
     const previewElRef = useRef(null);
     const [isDragging, setIsDragging] = useState(false);
-
     const cleanupDragManager = () => {
       if (dragManagerRef.current) {
         dragManagerRef.current.unmount();

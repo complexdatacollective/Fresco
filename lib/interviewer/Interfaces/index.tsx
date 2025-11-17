@@ -96,6 +96,9 @@ const getInterface = (interfaceType: InterfaceType) => {
         loading: StageLoading,
       });
     case 'FamilyTreeCensus':
+      return dynamic(() => import('./FamilyTreeCensus/FamilyTreeCensus'), {
+        loading: StageLoading,
+      });
     default:
       return () => <NotFoundInterface interfaceType={interfaceType} />;
   }
