@@ -101,6 +101,13 @@ export const makeGetCodebookVariablesForNodeType = createSelector(
   },
 );
 
+export const makeGetCodebookVariablesForEdgeType = createSelector(
+  getCodebook,
+  (codebook) => (type: string) => {
+    return codebook.edge?.[type]?.variables ?? {};
+  },
+);
+
 export const makeGetApiKeyAssetValue = createSelector(
   getAssetManifest,
   (manifest) => (key: string) => {

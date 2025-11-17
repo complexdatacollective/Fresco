@@ -21,11 +21,7 @@ const createPrismaClient = () =>
             return query(args);
           }
 
-          const key = args.where.key as string;
-
-          if (!(key in appSettingPreprocessedSchema.shape)) {
-            throw new Error(`No preprocessed schema for key: ${key}`);
-          }
+          const key = args.where.key;
 
           const result = await query(args);
 
@@ -68,6 +64,7 @@ const createPrismaClient = () =>
           needs: {
             schemaVersion: true,
             stages: true,
+            codebook: true,
           },
           compute: ({ schemaVersion, stages }) => {
             const protocolSchema = VersionedProtocolSchema.parse({

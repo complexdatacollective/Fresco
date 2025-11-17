@@ -13,11 +13,9 @@ const assetInsertSchema = z.object({
 
 export type AssetInsertType = z.infer<typeof assetInsertSchema>;
 
-export const protocolInsertSchema = z
-  .object({
-    protocol: VersionedProtocolSchema,
-    protocolName: z.string(),
-    newAssets: z.array(assetInsertSchema),
-    existingAssetIds: z.array(z.string()),
-  })
-  .passthrough();
+export const protocolInsertSchema = z.looseObject({
+  protocol: VersionedProtocolSchema,
+  protocolName: z.string(),
+  newAssets: z.array(assetInsertSchema),
+  existingAssetIds: z.array(z.string()),
+});

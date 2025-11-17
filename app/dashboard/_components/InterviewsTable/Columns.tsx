@@ -1,6 +1,5 @@
 'use client';
 
-import type { NcNetwork } from '@codaco/shared-consts';
 import { type ColumnDef } from '@tanstack/react-table';
 import Image from 'next/image';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
@@ -147,7 +146,7 @@ export const InterviewColumns = (): ColumnDef<
     id: 'network',
     enableSorting: false,
     accessorFn: (row) => {
-      const network = row.network as NcNetwork;
+      const network = row.network;
       const nodeCount = network?.nodes?.length ?? 0;
       const edgeCount = network?.edges?.length ?? 0;
       return nodeCount + edgeCount;
