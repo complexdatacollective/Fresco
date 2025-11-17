@@ -18,7 +18,7 @@ const getGroup = (
   }
 
   if (options.operator === 'NOT_EXISTS' && !options.attribute) {
-    return `${type}_not_exists` as const;
+    return `${type}_not_exists` as FilterTypeNotExists;
   }
 
   return type as FilterRule['type'];
@@ -36,7 +36,7 @@ const getGroup = (
  * const config = {
  *   rules: [
  *     {
- *       type: 'alter',
+ *       type: 'node',
  *       options: { type: 'person', attribute: 'name', operator: 'EXACTLY', value: 'Bill'},
  *     },
  *     {
@@ -79,9 +79,9 @@ const getQuery = ({ rules, join }: SkipLogic['filter']) => {
         );
       }
 
-      // alter or edge not existing is a special case because the
+      // node or edge not existing is a special case because the
       // whole network must be evaluated
-      if (type === 'alter_not_exists' || type === 'edge_not_exists') {
+      if (type === 'node_not_exists' || type === 'edge_not_exists') {
         return ruleIterator.call(
           typeRules,
           (rule: ReturnType<SingleEdgeRule>) =>
@@ -90,7 +90,7 @@ const getQuery = ({ rules, join }: SkipLogic['filter']) => {
       }
 
       /*
-       * 'alter' and 'edge' type rules
+       * 'node' and 'edge' type rules
        * If any of the nodes match, this rule passes.
        */
       return network.nodes.some((node) =>

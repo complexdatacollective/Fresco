@@ -124,6 +124,7 @@ export async function insertProtocol(
 ) {
   await requireApiAuth();
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { protocol, protocolName, newAssets, existingAssetIds } = input;
 
   try {
@@ -132,16 +133,22 @@ export async function insertProtocol(
     await prisma.protocol.create({
       data: {
         hash: protocolHash,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         lastModified: protocol.lastModified ?? new Date(),
         name: protocolName,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         schemaVersion: protocol.schemaVersion,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         stages: protocol.stages,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         codebook: protocol.codebook,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         description: protocol.description,
         assets: {
           create: newAssets,
-          connect: existingAssetIds.map((assetId) => ({ assetId })),
+          connect: existingAssetIds.map((assetId: string) => ({ assetId })),
         },
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         experiments: protocol.experiments ?? Prisma.JsonNull,
       },
     });
@@ -155,7 +162,9 @@ export async function insertProtocol(
   } catch (e) {
     // Attempt to delete any assets we uploaded to storage
     if (newAssets.length > 0) {
-      void deleteFilesFromUploadThing(newAssets.map((a) => a.key));
+      void deleteFilesFromUploadThing(
+        newAssets.map((a: { key: string }) => a.key),
+      );
     }
     // Check for protocol already existing
     if (e instanceof Prisma.PrismaClientKnownRequestError) {

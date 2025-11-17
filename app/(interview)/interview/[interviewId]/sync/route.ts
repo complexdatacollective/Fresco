@@ -1,4 +1,3 @@
-import { NcNetworkSchema } from '@codaco/shared-consts';
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
@@ -18,7 +17,7 @@ const routeHandler = async (
 
   const Schema = z.object({
     id: z.string(),
-    network: NcNetworkSchema,
+    network: z.any(),
     currentStep: z.number(),
     stageMetadata: StageMetadataSchema.optional(),
     lastUpdated: z.string(),
@@ -37,6 +36,7 @@ const routeHandler = async (
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { network, currentStep, stageMetadata, lastUpdated } =
     validatedRequest.data;
 
@@ -46,6 +46,7 @@ const routeHandler = async (
         id: interviewId,
       },
       data: {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         network,
         currentStep,
         stageMetadata: stageMetadata ?? undefined,

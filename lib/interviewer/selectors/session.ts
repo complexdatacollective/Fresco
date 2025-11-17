@@ -268,6 +268,7 @@ export const getNodeColorSelector = createSelector(
     }
 
     return (
+      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
       (codebook.node?.[nodeType]?.color as NodeColorSequence) ??
       'node-color-seq-1'
     );

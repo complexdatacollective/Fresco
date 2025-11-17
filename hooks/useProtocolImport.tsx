@@ -110,7 +110,13 @@ export const useProtocolImport = () => {
           ? migrateProtocol(protocolJson, 8)
           : protocolJson;
 
-      const validationResult = await validateProtocol(protocolToValidate);
+      const validationResult = (await validateProtocol(
+        protocolToValidate,
+      )) as unknown as {
+        isValid: boolean;
+        schemaErrors: { message: string; path: string }[];
+        logicErrors: { message: string; path: string }[];
+      };
 
       if (!validationResult.isValid) {
         const resultAsString = JSON.stringify(validationResult, null, 2);

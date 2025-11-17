@@ -165,7 +165,7 @@ export default function useEdgeState(
           },
         });
 
-        dispatch(action);
+        void dispatch(action);
       } else {
         const action = addEdge({
           from: pair[0],

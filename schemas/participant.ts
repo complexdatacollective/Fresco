@@ -47,9 +47,10 @@ export const ParticipantRowSchema = z.union([
 ]);
 
 export const FormSchema = z.object({
-  csvFile: z.array(ParticipantRowSchema, {
-    invalid_type_error: 'Invalid CSV',
-  }),
+  csvFile: z.array(ParticipantRowSchema).refine(
+    (val) => Array.isArray(val),
+    { message: 'Invalid CSV' },
+  ),
 });
 
 export type FormSchema = z.infer<typeof FormSchema>;

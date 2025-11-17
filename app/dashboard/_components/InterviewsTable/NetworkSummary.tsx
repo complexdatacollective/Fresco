@@ -157,6 +157,7 @@ const NetworkSummary = ({
     const nodeInfo = codebook.node?.[nodeType];
 
     if (!nodeInfo) {
+      // eslint-disable-next-line no-console
       console.warn(`Node type ${nodeType} not found in codebook`);
       return null;
     }
@@ -180,6 +181,7 @@ const NetworkSummary = ({
     const edgeInfo = codebook.edge?.[edgeType];
 
     if (!edgeInfo) {
+      // eslint-disable-next-line no-console
       console.warn(`Edge type ${edgeType} not found in codebook`);
       return null;
     }
