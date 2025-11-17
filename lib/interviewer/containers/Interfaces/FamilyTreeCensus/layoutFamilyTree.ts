@@ -1,6 +1,6 @@
 import { FAMILY_TREE_CONFIG } from './config';
 
-export type Relationship = 'parent' | 'partner' | 'ex-partner';
+type Relationship = 'parent' | 'partner' | 'ex-partner';
 
 export type LayoutNode = {
   isEgo?: boolean;
@@ -13,13 +13,13 @@ export type LayoutEdge = {
   relationship: Relationship;
 };
 
-export type TreeSpacing = {
+type TreeSpacing = {
   siblings: number;
   partners: number;
   generations: number;
 };
 
-export type LayoutResult = Map<string, { x: number; y: number }>;
+type LayoutResult = Map<string, { x: number; y: number }>;
 
 const DEFAULT_SPACING: TreeSpacing = {
   siblings: FAMILY_TREE_CONFIG.siblingSpacing,
