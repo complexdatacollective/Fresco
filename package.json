@@ -1,6 +1,6 @@
 {
   "name": "fresco",
-  "version": "2.1.11",
+  "version": "3.0.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@9.1.1+sha256.9551e803dcb7a1839fdf5416153a844060c7bce013218ce823410532504ac10b",
@@ -59,7 +59,7 @@
     "cmdk": "^1.1.1",
     "color": "^2.0.1",
     "concaveman": "^2.0.0",
-    "csvtojson": "^2.0.10",
+    "csvtojson": "^2.0.11",
     "d3-interpolate-path": "^2.3.0",
     "dotenv": "^17.2.3",
     "es-toolkit": "^1.40.0",
@@ -104,7 +104,7 @@
     "uploadthing": "^7.7.4",
     "usehooks-ts": "^3.1.1",
     "uuid": "^11.1.0",
-    "validator": "^13.15.15",
+    "validator": "^13.15.20",
     "zod": "^3.25.76",
     "zod-form-data": "^2.0.7"
   },
