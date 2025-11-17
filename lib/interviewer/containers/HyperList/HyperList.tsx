@@ -276,7 +276,7 @@ const HyperList = <
   // If placeholder is provider it supersedes everything
   const showPlaceholder = !!placeholder;
   // If items is provided but is empty show the empty component
-  const showEmpty = !placeholder && items && items.length === 0;
+  const showEmpty = !placeholder && items?.length === 0;
   // Otherwise show the results!
   const showResults = !placeholder && items && items.length > 0;
 
