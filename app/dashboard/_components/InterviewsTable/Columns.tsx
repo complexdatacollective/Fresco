@@ -1,6 +1,8 @@
 'use client';
 
+import type { NcNetwork } from '@codaco/shared-consts';
 import { type ColumnDef } from '@tanstack/react-table';
+import Image from 'next/image';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { Badge } from '~/components/ui/badge';
 import { Checkbox } from '~/components/ui/checkbox';
@@ -39,7 +41,19 @@ export const InterviewColumns = (): ColumnDef<
     accessorKey: 'participant.identifier',
     header: ({ column }) => {
       return (
-        <DataTableColumnHeader column={column} title="Participant Identifier" />
+        <div className="flex items-center gap-2">
+          <Image
+            src="/images/participant.svg"
+            alt="Participant icon"
+            className="max-w-none"
+            width={24}
+            height={24}
+          />
+          <DataTableColumnHeader
+            column={column}
+            title="Participant Identifier"
+          />
+        </div>
       );
     },
     cell: ({ row }) => {
@@ -61,7 +75,18 @@ export const InterviewColumns = (): ColumnDef<
     id: 'protocolName',
     accessorKey: 'protocol.name',
     header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Protocol Name" />;
+      return (
+        <div className="flex items-center gap-2">
+          <Image
+            src="/images/protocol-icon.png"
+            alt="Protocol icon"
+            className="max-w-none"
+            width={24}
+            height={24}
+          />
+          <DataTableColumnHeader column={column} title="Protocol Name" />
+        </div>
+      );
     },
     cell: ({ row }) => {
       const protocolFileName = row.original.protocol.name;
@@ -94,7 +119,7 @@ export const InterviewColumns = (): ColumnDef<
     },
     cell: ({ row }) => {
       const date = new Date(row.original.lastUpdated);
-      return <TimeAgo date={date} />;
+      return <TimeAgo date={date} className="text-xs" />;
     },
   },
   {
@@ -123,7 +148,7 @@ export const InterviewColumns = (): ColumnDef<
     id: 'network',
     enableSorting: false,
     accessorFn: (row) => {
-      const network = row.network;
+      const network = row.network as NcNetwork;
       const nodeCount = network?.nodes?.length ?? 0;
       const edgeCount = network?.edges?.length ?? 0;
       return nodeCount + edgeCount;
@@ -148,7 +173,11 @@ export const InterviewColumns = (): ColumnDef<
         return <Badge variant="secondary">Not exported</Badge>;
       }
 
-      return <TimeAgo date={row.original.exportTime} />;
+      return (
+        <div className="text-xs">
+          <TimeAgo date={row.original.exportTime} />
+        </div>
+      );
     },
   },
 ];
