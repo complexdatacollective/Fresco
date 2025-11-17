@@ -118,8 +118,7 @@ export const InterviewColumns = (): ColumnDef<
       return <DataTableColumnHeader column={column} title="Updated" />;
     },
     cell: ({ row }) => {
-      const date = new Date(row.original.lastUpdated);
-      return <TimeAgo date={date} className="text-xs" />;
+      return <TimeAgo date={row.original.lastUpdated} />;
     },
   },
   {
