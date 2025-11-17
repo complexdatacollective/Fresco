@@ -1,10 +1,7 @@
 import { PlusIcon } from 'lucide-react';
-import type dynamicIconImports from 'lucide-react/dynamicIconImports';
 import { forwardRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 import Icon, { type InterviewerIconName } from '../Icon';
-
-export type NodeIcon = keyof typeof dynamicIconImports;
 
 const actionButtonVariants = cva({
   base: 'group focusable relative mt-2 mr-4 flex h-26 aspect-square rounded-full',
@@ -66,7 +63,7 @@ const ActionButton = forwardRef<HTMLButtonElement, ActionButtonProps>(
         className={cx(actionButtonVariants({ disabled }), className)}
       >
         <div className={mainIconVariants({ disabled })}>
-          <Icon name={iconName} className="h-full w-[auto]" />
+          <Icon name={iconName} className="h-full w-auto" />
         </div>
         <div className={plusContainerVariants()}>
           <div>

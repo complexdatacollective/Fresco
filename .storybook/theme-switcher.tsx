@@ -15,7 +15,7 @@ export const themes = {
   },
 } as const;
 
-export type ThemeKey = keyof typeof themes;
+type ThemeKey = keyof typeof themes;
 
 const THEME_LINK_ID = 'storybook-theme-stylesheet';
 

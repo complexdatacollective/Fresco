@@ -11,5 +11,5 @@
     "styles/tailwind-motion-spring.ts"
   ],
   "ignoreDependencies": ["sharp"],
-  "ignoreBinaries": ["docker-compose", "playwright"]
+  "ignoreBinaries": ["docker-compose"]
 }

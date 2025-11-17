@@ -7,7 +7,7 @@ export type Option = {
   icon?: React.ComponentType<{ className?: string }>;
 };
 
-export type DataTableFilterOption<TData> = {
+type DataTableFilterOption<TData> = {
   id?: string;
   label: string;
   value: keyof TData | string;

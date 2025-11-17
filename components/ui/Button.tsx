@@ -152,7 +152,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 Button.displayName = 'Button';
 
-export type IconButtonProps = Omit<
+type IconButtonProps = Omit<
   ButtonProps,
   'icon' | 'children' | 'hasIcon' | 'iconPosition' | 'color'
 > & {

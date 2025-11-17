@@ -27,7 +27,7 @@ const checkboxIndicatorComposedVariants = compose(
   checkboxIndicatorVariants,
 );
 
-export type CheckboxProps = Omit<
+type CheckboxProps = Omit<
   ComponentPropsWithoutRef<typeof BaseCheckbox.Root>,
   'size'
 > &
