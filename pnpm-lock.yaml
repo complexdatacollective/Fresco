@@ -25,7 +25,7 @@ importers:
         version: 5.2.2(react-hook-form@7.66.0(react@18.3.1))
       '@lucia-auth/adapter-prisma':
         specifier: ^3.0.2
-        version: 3.0.2(@prisma/client@6.17.1(prisma@6.19.0(typescript@5.8.3))(typescript@5.8.3))(lucia@2.7.7)
+        version: 3.0.2(@prisma/client@6.19.0(prisma@6.19.0(typescript@5.8.3))(typescript@5.8.3))(lucia@2.7.7)
       '@paralleldrive/cuid2':
         specifier: ^3.1.0
         version: 3.1.0
@@ -256,8 +256,8 @@ importers:
         version: 2.0.8(zod@3.25.76)
     devDependencies:
       '@prisma/client':
-        specifier: ^6.16.2
-        version: 6.17.1(prisma@6.19.0(typescript@5.8.3))(typescript@5.8.3)
+        specifier: ^6.19.0
+        version: 6.19.0(prisma@6.19.0(typescript@5.8.3))(typescript@5.8.3)
       '@storybook/nextjs':
         specifier: ^9.1.4
         version: 9.1.4(esbuild@0.25.12)(next@14.2.32(@babel/core@7.28.3)(@playwright/test@1.56.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.93.2))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.93.2)(storybook@9.1.16(@testing-library/dom@10.4.1)(prettier@3.6.2)(vite@6.3.5(@types/node@22.13.9)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.93.2)(terser@5.44.1)))(type-fest@2.19.0)(typescript@5.8.3)(webpack-hot-middleware@2.26.1)(webpack@5.101.3(esbuild@0.25.12))
@@ -2034,8 +2034,8 @@ packages:
       webpack-plugin-serve:
         optional: true
 
-  '@prisma/client@6.17.1':
-    resolution: {integrity: sha512-zL58jbLzYamjnNnmNA51IOZdbk5ci03KviXCuB0Tydc9btH2kDWsi1pQm2VecviRTM7jGia0OPPkgpGnT3nKvw==}
+  '@prisma/client@6.19.0':
+    resolution: {integrity: sha512-QXFT+N/bva/QI2qoXmjBzL7D6aliPffIwP+81AdTGq0FXDoLxLkWivGMawG8iM5B9BKfxLIXxfWWAF6wbuJU6g==}
     engines: {node: '>=18.18'}
     peerDependencies:
       prisma: '*'
@@ -9481,9 +9481,9 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.5
     optional: true
 
-  '@lucia-auth/adapter-prisma@3.0.2(@prisma/client@6.17.1(prisma@6.19.0(typescript@5.8.3))(typescript@5.8.3))(lucia@2.7.7)':
+  '@lucia-auth/adapter-prisma@3.0.2(@prisma/client@6.19.0(prisma@6.19.0(typescript@5.8.3))(typescript@5.8.3))(lucia@2.7.7)':
     dependencies:
-      '@prisma/client': 6.17.1(prisma@6.19.0(typescript@5.8.3))(typescript@5.8.3)
+      '@prisma/client': 6.19.0(prisma@6.19.0(typescript@5.8.3))(typescript@5.8.3)
       lucia: 2.7.7
 
   '@msgpackr-extract/msgpackr-extract-darwin-arm64@3.0.3':
@@ -9720,7 +9720,7 @@ snapshots:
       type-fest: 2.19.0
       webpack-hot-middleware: 2.26.1
 
-  '@prisma/client@6.17.1(prisma@6.19.0(typescript@5.8.3))(typescript@5.8.3)':
+  '@prisma/client@6.19.0(prisma@6.19.0(typescript@5.8.3))(typescript@5.8.3)':
     optionalDependencies:
       prisma: 6.19.0(typescript@5.8.3)
       typescript: 5.8.3
