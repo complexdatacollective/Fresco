@@ -3,9 +3,8 @@
 import { ClipboardCopy } from 'lucide-react';
 import Image from 'next/image';
 import ErrorReportNotifier from '~/components/ErrorReportNotifier';
-import FeedbackButton from '~/components/Feedback/FeedbackButton';
-import Link from '~/components/Link';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
+import Link from '~/components/Link';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
@@ -82,7 +81,6 @@ ${error.stack}`;
             Copy Debug Information
             <ClipboardCopy className="ml-2" />
           </Button>
-          <FeedbackButton variant="outline" />
           <Button onClick={handleReset} variant="default" className="flex">
             Try Again
           </Button>

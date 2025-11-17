@@ -3,7 +3,6 @@
 import { ClipboardCopy } from 'lucide-react';
 import Image from 'next/image';
 import ErrorReportNotifier from '~/components/ErrorReportNotifier';
-import FeedbackButton from '~/components/Feedback/FeedbackButton';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
@@ -79,7 +78,6 @@ ${error.stack}`;
             Copy Debug Information
             <ClipboardCopy className="ml-2" />
           </Button>
-          <FeedbackButton variant="outline" />
           <Button onClick={handleReset} variant="default" className="flex">
             Try Again
           </Button>

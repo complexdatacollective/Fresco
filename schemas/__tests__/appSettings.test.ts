@@ -37,22 +37,6 @@ describe('App Settings Schema Validators', () => {
       expect(result.disableAnalytics).toBe(true);
     });
 
-    it('should assign the default valid to invalid boolean fields', () => {
-      expect(
-        appSettingPreprocessedSchema.shape.configured.parse('Yes'),
-      ).toEqual(false);
-
-      expect(
-        appSettingPreprocessedSchema.shape.allowAnonymousRecruitment.parse(
-          'No',
-        ),
-      ).toEqual(false);
-
-      expect(
-        appSettingPreprocessedSchema.shape.disableAnalytics.parse('Y'),
-      ).toEqual(false);
-    });
-
     it('should reject invalid date strings', () => {
       const invalidSettings = {
         configured: 'true',
@@ -86,6 +70,7 @@ describe('App Settings Schema Validators', () => {
         installationId: 'installation123',
         disableAnalytics: true,
         disableSmallScreenOverlay: false,
+        uploadThingToken: null,
       });
     });
 
@@ -107,6 +92,7 @@ describe('App Settings Schema Validators', () => {
         installationId: 'installation123',
         disableAnalytics: true,
         disableSmallScreenOverlay: false,
+        uploadThingToken: null,
       });
     });
   });

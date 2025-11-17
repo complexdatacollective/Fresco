@@ -10,14 +10,6 @@
     "load-test.js",
     "styles/tailwind-motion-spring.ts"
   ],
-  "ignoreDependencies": [
-    "sharp",
-    "@tailwindcss/aspect-ratio",
-    "@tailwindcss/container-queries",
-    "@tailwindcss/forms",
-    "@tailwindcss/typography",
-    "tailwindcss-animate"
-  ],
-
+  "ignoreDependencies": ["sharp"],
   "ignoreBinaries": ["docker-compose", "playwright"]
 }

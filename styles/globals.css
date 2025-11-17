@@ -104,8 +104,6 @@
   --color-border: hsl(var(--border));
   --color-link: hsl(var(--link));
 
-  --color-overlay: hsl(var(--overlay));
-
   --color-selected: hsl(var(--selected));
 
   /* interviewer - node sequence colors */

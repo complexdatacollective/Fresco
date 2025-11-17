@@ -59,15 +59,15 @@ export async function isAppExpired() {
   unstable_noStore();
   const isConfigured = await getAppSetting('configured');
   const initializedAt = await getAppSetting('initializedAt');
-  const date =
-    initializedAt instanceof Date ? initializedAt : new Date(initializedAt);
 
   // If initializedAt is null, app can't be expired
   if (!initializedAt) {
     return false;
   }
 
-  return !isConfigured && date.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
+  return (
+    !isConfigured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT
+  );
 }
 
 // Used to prevent user account creation after the app has been configured

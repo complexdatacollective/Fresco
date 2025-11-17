@@ -104,14 +104,12 @@ export async function importParticipants(rawInput: unknown) {
 export async function updateParticipant(rawInput: unknown) {
   await requireApiAuth();
 
-  const { identifier, label } = updateSchema.parse(rawInput);
+  const { existingIdentifier, formData } = updateSchema.parse(rawInput);
 
   try {
     const updatedParticipant = await prisma.participant.update({
-      where: { identifier },
-      data: {
-        label: label,
-      },
+      where: { identifier: existingIdentifier },
+      data: formData,
     });
 
     safeRevalidateTag('getParticipants');

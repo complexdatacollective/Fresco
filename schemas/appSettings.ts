@@ -3,13 +3,13 @@ import { zfd } from 'zod-form-data';
 
 // Variation of the schema that converts the string types in the db to the correct types
 export const appSettingPreprocessedSchema = z.object({
-  initializedAt: z.coerce.date(),
+  initializedAt: z.coerce.date().nullable().default(null),
   configured: z.stringbool().default(false),
   allowAnonymousRecruitment: z.stringbool().default(false),
   limitInterviews: z.stringbool().default(false),
   disableAnalytics: z.stringbool().default(false),
   disableSmallScreenOverlay: z.stringbool().default(false),
-  uploadThingToken: z.string(),
+  uploadThingToken: z.string().nullable().default(null),
   installationId: z.string().nullable().default(null),
 });
 

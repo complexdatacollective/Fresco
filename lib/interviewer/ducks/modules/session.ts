@@ -260,6 +260,18 @@ export const addEdge = createAsyncThunk(
       );
     }
 
+    // Validate that all attribute keys exist in the codebook
+    if (attributeData) {
+      const invalidKeys = Object.keys(attributeData).filter(
+        (key) => !(key in variablesForType),
+      );
+
+      invariant(
+        invalidKeys.length === 0,
+        `Invalid edge attributes for type "${type}": ${invalidKeys.join(', ')} do not exist in protocol codebook`,
+      );
+    }
+
     const mergedAttributes = {
       ...getDefaultAttributesForEntityType(variablesForType),
       ...attributeData,
