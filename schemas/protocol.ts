@@ -1,4 +1,4 @@
-import { ProtocolSchema } from '@codaco/protocol-validation';
+import { VersionedProtocolSchema } from '@codaco/protocol-validation';
 import { z } from 'zod';
 
 const assetInsertSchema = z.object({
@@ -15,7 +15,7 @@ export type AssetInsertType = z.infer<typeof assetInsertSchema>;
 
 export const protocolInsertSchema = z
   .object({
-    protocol: ProtocolSchema,
+    protocol: VersionedProtocolSchema,
     protocolName: z.string(),
     newAssets: z.array(assetInsertSchema),
     existingAssetIds: z.array(z.string()),
