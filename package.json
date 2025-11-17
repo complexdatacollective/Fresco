@@ -108,7 +108,7 @@
     "zod-form-data": "^2.0.7"
   },
   "devDependencies": {
-    "@prisma/client": "^6.16.2",
+    "@prisma/client": "^6.19.0",
     "@storybook/nextjs": "^9.1.4",
     "@t3-oss/env-nextjs": "^0.13.8",
     "@tailwindcss/aspect-ratio": "^0.4.2",
