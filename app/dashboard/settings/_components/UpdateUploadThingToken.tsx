@@ -6,12 +6,12 @@ import UpdateSettingsValue from '../../_components/UpdateSettingsValue';
 export default function UpdateUploadThingToken({
   uploadThingKey,
 }: {
-  uploadThingKey?: string;
+  uploadThingKey: string | null;
 }) {
   return (
     <UpdateSettingsValue
       key="uploadThingToken"
-      initialValue={uploadThingKey}
+      initialValue={uploadThingKey ?? undefined}
       schema={createUploadThingTokenSchema}
     />
   );

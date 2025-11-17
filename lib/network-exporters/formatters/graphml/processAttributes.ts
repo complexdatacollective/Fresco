@@ -71,7 +71,9 @@ function processAttributes(
           const optionKey = `${key}_${hashedOptionValue}`;
 
           const attributeValue = entityAttributes[key] as string[] | number[]; // type narrowed to this because these are valid categorical variable values
-          const isSelected = attributeValue.includes(option.value);
+          const isSelected = attributeValue.includes(
+            option.value as string | number,
+          );
           createDomDataElement(optionKey, isSelected ? 'true' : 'false');
         });
 
