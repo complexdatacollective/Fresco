@@ -78,7 +78,7 @@ export default function Field<
   return (
     <motion.div
       key={id}
-      className={containerVariants({ state: inputVariantState })}
+      // className={containerVariants({ state: inputVariantState })}
       variants={fieldAnimationVariants}
       layoutId={name}
       initial="initial"
@@ -87,18 +87,16 @@ export default function Field<
       layout="position"
       {...containerProps}
     >
-      <div>
-        <Label id={`${id}-label`} htmlFor={id} required={showRequired}>
-          {label}
-        </Label>
-        {hint && <Hint id={`${id}-hint`}>{hint}</Hint>}
-      </div>
+      <Label id={`${id}-label`} htmlFor={id} required={showRequired}>
+        {label}
+      </Label>
       <FieldComponent
         name={name}
         {...fieldProps}
         {...additionalFieldProps}
         id={id}
       />
+      {hint && <Hint id={`${id}-hint`}>{hint}</Hint>}
       <FieldErrors
         id={`${id}-error`}
         errors={meta.errors}

@@ -100,7 +100,7 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
                     as={motion.div}
                     level={0}
                     className={cx(
-                      'tablet:w-auto w-[calc(100%_-_var(--spacing)*4)] max-w-2xl',
+                      'w-[calc(100%_-_var(--spacing)*4)] max-w-2xl @2xl:w-auto',
                       'fixed top-1/2 left-1/2 -mt-8 -translate-x-1/2 -translate-y-1/2',
                       'flex max-h-dvh',
                       // Accent overrides the primary hue so that nested primary buttons inherit color

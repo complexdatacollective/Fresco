@@ -8,7 +8,7 @@ export default function Hint({
   children: React.ReactNode;
 }) {
   return (
-    <Paragraph id={id} margin="none" intent="smallText">
+    <Paragraph id={id} margin="none" className="text-xs text-current/60">
       {children}
     </Paragraph>
   );

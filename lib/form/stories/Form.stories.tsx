@@ -32,7 +32,6 @@ export const Default: Story = {
           success: true,
         };
       }}
-      className="elevation-high w-2xl rounded bg-white p-10"
     >
       <Field
         name="name"

@@ -1,7 +1,7 @@
 import type { Preview } from '@storybook/nextjs-vite';
 import Providers from '../components/Providers';
 import '../styles/globals.css';
-import { withTheme, globalTypes } from './theme-switcher';
+import { withTheme, globalTypes, getInitialTheme } from './theme-switcher';
 
 const preview: Preview = {
   parameters: {
@@ -51,7 +51,7 @@ const preview: Preview = {
     backgrounds: {
       value: 'light',
     },
-    theme: 'default',
+    theme: getInitialTheme(),
   },
 };
 

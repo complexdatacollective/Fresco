@@ -34,7 +34,13 @@ export default function Form(props: FormProps) {
   return (
     <LayoutGroup id={id}>
       <AnimatePresence mode="popLayout" initial={false}>
-        <motion.form key="form" layout onSubmit={formProps.onSubmit} {...rest}>
+        <motion.form
+          key="form"
+          className="flex flex-col gap-4"
+          layout
+          onSubmit={formProps.onSubmit}
+          {...rest}
+        >
           {formErrors && (
             <FormErrorsList
               key="form-errors"

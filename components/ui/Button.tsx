@@ -170,18 +170,12 @@ export type IconButtonProps = Omit<
     | 'accent';
 };
 
-const iconButtonSizeVariants = cva({
-  base: 'justify-center rounded-full p-0 aspect-square',
-  variants: {
-    size: {
-      xs: 'w-8',
-      sm: 'w-10',
-      md: 'w-12',
-      lg: 'w-14',
-      xl: 'w-16',
-    },
-  },
-});
+const iconButtonSizeVariants = compose(
+  buttonVariants,
+  cva({
+    base: 'justify-center rounded-full p-0 aspect-square',
+  }),
+);
 
 const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
   ({ icon, className, size = 'md', variant, color, ...props }, ref) => {
@@ -189,12 +183,7 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
       <button
         ref={ref}
         className={cx(
-          buttonVariants({
-            size,
-            variant,
-            color,
-          }),
-          iconButtonSizeVariants({ size }),
+          iconButtonSizeVariants({ size, variant, color }),
           className,
         )}
         {...props}

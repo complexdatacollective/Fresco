@@ -8,7 +8,7 @@
   :root {
     --heading-font: 'Quicksand', sans-serif;
     --body-font: 'Quicksand', sans-serif;
-    --spacing-base: 0.33em; /* TW default uses rem */
+    --spacing-base: 0.25em; /* TW default uses rem */
 
     --background: oklch(var(--navy-taupe));
     --text: oklch(var(--white));
@@ -112,7 +112,7 @@
     --cat-9: oklch(var(--tomato));
     --cat-10: oklch(var(--slate-blue));
 
-    --radius: 1.75rem;
+    --radius: 2rem;
   }
 
   /**
@@ -147,5 +147,12 @@
     --surface-3-contrast: var(--contrast);
     --surface-4: oklch(36% 0.03 var(--base-hue));
     --surface-4-contrast: var(--contrast);
+  }
+}
+
+@layer base {
+  html,
+  body {
+    font-size: 20px;
   }
 }
