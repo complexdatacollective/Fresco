@@ -18,7 +18,8 @@
     "test": "vitest",
     "load-test": "docker run -i grafana/k6 run - <load-test.js",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "typecheck": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental"
   },
   "pnpm": {
     "overrides": {
