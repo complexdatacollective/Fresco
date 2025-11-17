@@ -16,8 +16,9 @@
     "@tailwindcss/container-queries",
     "@tailwindcss/forms",
     "@tailwindcss/typography",
-    "tailwindcss-animate"
+    "tailwindcss-animate",
+    "server-only",
+    "prop-types"
   ],
-
   "ignoreBinaries": ["docker-compose", "playwright"]
 }
