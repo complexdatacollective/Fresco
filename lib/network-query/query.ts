@@ -12,6 +12,7 @@ type FilterTypeNotExists = 'node_not_exists' | 'edge_not_exists';
 const getGroup = (
   rule: RuleFunctionWithMetadata,
 ): FilterRule['type'] | FilterTypeNotExists => {
+  console.log('getGroup rule:', rule);
   const { type, options } = rule;
   if (type === 'ego') {
     return 'ego' as const;
@@ -53,6 +54,7 @@ const getGroup = (
 const getQuery = ({ rules, join }: SkipLogic['filter']) => {
   const ruleRunners = rules.map(getSingleRuleFunction).reduce(
     (acc, rule) => {
+      console.log('getQuery reduce rule:', rule);
       const mappedType = getGroup(rule);
 
       const typeRules = (acc[mappedType] ?? []).concat([rule]);
