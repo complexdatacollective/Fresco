@@ -1,9 +1,11 @@
-import { validateProtocol } from '@codaco/protocol-validation';
+import {
+  migrateProtocol,
+  validateProtocol,
+} from '@codaco/protocol-validation';
 import JSZip from 'jszip';
 import { hash } from 'ohash';
 import { type NextRequest, NextResponse } from 'next/server';
 import { env } from '~/env';
-import { deduplicateAssets } from '~/lib/asset-hashing';
 import { prunePreviewProtocols } from '~/lib/preview-protocol-pruning';
 import { getAppSetting } from '~/queries/appSettings';
 import { getServerSession } from '~/utils/auth';
@@ -72,6 +74,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const protocolName = file.name.replace('.netcanvas', '');
+
     // Parse the zip file
     const arrayBuffer = await file.arrayBuffer();
     const zip = await JSZip.loadAsync(arrayBuffer);
@@ -79,30 +83,35 @@ export async function POST(req: NextRequest) {
     // Extract protocol.json
     const protocolJson = await getProtocolJson(zip);
 
-    // Validate protocol
-    const validationResult = await validateProtocol(protocolJson);
-
-    if (!validationResult.isValid) {
-      const errors = [
-        ...validationResult.schemaErrors,
-        ...validationResult.logicErrors,
-      ].map((e) => `${e.message} (${e.path})`);
-
-      return NextResponse.json(
-        {
-          error: 'Protocol validation failed',
-          validationErrors: errors,
-        },
-        { status: 400 },
-      );
-    }
-
     // Check schema version
     const protocolVersion = protocolJson.schemaVersion;
     if (!APP_SUPPORTED_SCHEMA_VERSIONS.includes(protocolVersion)) {
       return NextResponse.json(
         {
           error: `Unsupported protocol schema version: ${protocolVersion}. Supported versions: ${APP_SUPPORTED_SCHEMA_VERSIONS.join(', ')}`,
+        },
+        { status: 400 },
+      );
+    }
+
+    // Migrate if needed
+    const protocolToValidate =
+      protocolJson.schemaVersion < 8
+        ? migrateProtocol(protocolJson, 8)
+        : protocolJson;
+
+    // Validate protocol
+    const validationResult = await validateProtocol(protocolToValidate);
+
+    if (!validationResult.success) {
+      const errors = validationResult.error.issues.map(
+        ({ message, path }) => `${message} (${path.join(' > ')})`,
+      );
+
+      return NextResponse.json(
+        {
+          error: 'Protocol validation failed',
+          validationErrors: errors,
         },
         { status: 400 },
       );
@@ -128,25 +137,50 @@ export async function POST(req: NextRequest) {
     let protocolId: string;
 
     if (existingPreview) {
-      // Increment upload count
+      // Update timestamp to prevent premature pruning
       const updated = await prisma.protocol.update({
         where: { id: existingPreview.id },
         data: {
-          uploadCount: {
-            increment: 1,
-          },
-          importedAt: new Date(), // Update timestamp to prevent premature pruning
+          importedAt: new Date(),
         },
       });
       protocolId = updated.id;
     } else {
-      // Extract and deduplicate assets
-      const assets = await getProtocolAssets(protocolJson, zip);
+      // Extract assets
+      const { fileAssets, apikeyAssets } = await getProtocolAssets(
+        protocolJson,
+        zip,
+      );
 
-      const { assetsToUpload, assetIdToExistingAssetMap } =
-        await deduplicateAssets(assets);
+      // Combine all assets for checking
+      const allAssets = [...fileAssets, ...apikeyAssets];
 
-      // Upload new assets to UploadThing (if any)
+      // Check which assets already exist in the database
+      const assetIds = allAssets.map((a) => a.assetId);
+      const existingDbAssets = await prisma.asset.findMany({
+        where: {
+          assetId: {
+            in: assetIds,
+          },
+        },
+        select: {
+          assetId: true,
+        },
+      });
+
+      const existingAssetIds = existingDbAssets.map((a) => a.assetId);
+
+      // Only upload file assets that don't exist (apikey assets don't need uploading)
+      const fileAssetsToUpload = fileAssets.filter(
+        (a) => !existingAssetIds.includes(a.assetId),
+      );
+
+      // Apikey assets to create (if they don't already exist)
+      const apikeyAssetsToCreate = apikeyAssets.filter(
+        (a) => !existingAssetIds.includes(a.assetId),
+      );
+
+      // Upload new file assets to UploadThing (if any)
       let newAssetRecords: {
         key: string;
         assetId: string;
@@ -154,13 +188,13 @@ export async function POST(req: NextRequest) {
         type: string;
         url: string;
         size: number;
+        value?: string;
       }[] = [];
 
-      if (assetsToUpload.length > 0) {
-        const files = assetsToUpload.map((asset) => asset.file);
+      if (fileAssetsToUpload.length > 0) {
+        const files = fileAssetsToUpload.map((asset) => asset.file);
 
-        // Note: uploadFiles is a client helper, we need to use server-side upload
-        // For server-side, we'll use the UTApi directly
+        // Use UTApi for server-side upload
         const { getUTApi } = await import('~/lib/uploadthing-server-helpers');
         const utapi = await getUTApi();
 
@@ -174,7 +208,7 @@ export async function POST(req: NextRequest) {
           }),
         );
 
-        newAssetRecords = assetsToUpload.map((asset, idx) => {
+        newAssetRecords = fileAssetsToUpload.map((asset, idx) => {
           const uploaded = uploadedFiles[idx]!;
           return {
             key: uploaded.key,
@@ -187,21 +221,22 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // Get existing asset IDs to connect
-      const existingAssetIds = Array.from(assetIdToExistingAssetMap.keys());
+      // Add apikey assets (they don't need uploading, just database records)
+      newAssetRecords.push(...apikeyAssetsToCreate);
 
       // Create the protocol in the database
       const protocol = await prisma.protocol.create({
         data: {
           hash: protocolHash,
-          name: protocolJson.name,
+          name: protocolName,
           schemaVersion: protocolJson.schemaVersion,
           description: protocolJson.description,
-          lastModified: new Date(protocolJson.lastModified),
+          lastModified: protocolJson.lastModified
+            ? new Date(protocolJson.lastModified)
+            : new Date(),
           stages: protocolJson.stages as never,
           codebook: protocolJson.codebook as never,
           isPreview: true,
-          uploadCount: 1,
           assets: {
             create: newAssetRecords,
             connect: existingAssetIds.map((assetId) => ({ assetId })),
@@ -213,7 +248,7 @@ export async function POST(req: NextRequest) {
 
       void addEvent(
         'Preview Protocol Uploaded',
-        `Preview protocol "${protocolJson.name}" uploaded`,
+        `Preview protocol "${protocolName}" uploaded`,
       );
     }
 

@@ -52,7 +52,6 @@ model Protocol {
   interviews    Interview[]
   experiments   Json?
   isPreview     Boolean     @default(false)
-  uploadCount   Int         @default(1)
 
   @@index([isPreview, importedAt])
 }

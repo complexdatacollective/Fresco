@@ -3,7 +3,6 @@ ALTER TYPE "AppSetting" ADD VALUE 'previewModeRequireAuth';
 
 -- AlterTable
 ALTER TABLE "Protocol" ADD COLUMN "isPreview" BOOLEAN NOT NULL DEFAULT false;
-ALTER TABLE "Protocol" ADD COLUMN "uploadCount" INTEGER NOT NULL DEFAULT 1;
 
 -- CreateTable
 CREATE TABLE "ApiToken" (
