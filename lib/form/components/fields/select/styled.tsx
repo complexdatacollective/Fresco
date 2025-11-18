@@ -93,8 +93,8 @@ export function SelectField({
         <Select.Positioner className="z-50" alignItemWithTrigger={false}>
           <Select.Popup
             className={cx(
-              'elevation-high rounded border-2 border-transparent',
-              'bg-input text-input-contrast',
+              'elevation-high rounded-sm border-2 border-transparent',
+              'bg-surface-popover text-surface-popover-contrast',
               'max-h-96 overflow-auto',
               'min-w-[var(--anchor-width)]',
             )}
@@ -105,11 +105,11 @@ export function SelectField({
                   key={option.value}
                   value={option.value}
                   className={cx(
-                    'flex cursor-pointer items-center gap-2 rounded px-3 py-2',
+                    'flex cursor-pointer items-center gap-2 px-3 py-2',
                     'text-sm transition-colors outline-none',
-                    'hover:bg-input-contrast/10',
-                    'data-[selected]:bg-input-contrast/20',
-                    'data-[highlighted]:bg-input-contrast/10',
+                    'hover:bg-accent/10',
+                    'data-[selected]:bg-selected',
+                    // 'data-[highlighted]:bg-input-contrast/10',
                   )}
                 >
                   <Select.ItemText className="flex-1">

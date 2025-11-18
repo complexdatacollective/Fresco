@@ -228,11 +228,11 @@ const ProtocolFormDemo = ({
   autoFocus?: boolean;
   initialValues?: Record<string, unknown>;
 }) => {
-  const fieldComponents = useProtocolForm({
+  const { fieldComponents } = useProtocolForm({
     fields,
     autoFocus,
     initialValues,
-  }) as React.ReactNode;
+  });
 
   return (
     <Form

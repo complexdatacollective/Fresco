@@ -1,13 +1,9 @@
-import { describe, expect, it } from 'vitest';
-import type {
-  Codebook,
-  StageSubject,
-  Variable,
-} from '@codaco/protocol-validation';
+import type { StageSubject } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   type NcNetwork,
 } from '@codaco/shared-consts';
+import { describe, expect, it } from 'vitest';
 import type { ValidationContext } from '../types';
 import { required, validations } from './index';
 
@@ -20,24 +16,24 @@ describe('Validation Functions', () => {
       node: {
         person: {
           name: 'Person',
-          color: 'blue',
+          color: 'node-color-seq-1',
           variables: {
             testAttribute: {
               name: 'Test Attribute',
               type: 'text',
-            } as Variable,
+            },
             numberAttribute: {
               name: 'Number Attribute',
               type: 'number',
-            } as Variable,
+            },
             dateAttribute: {
               name: 'Date Attribute',
               type: 'datetime',
-            } as Variable,
+            },
           },
         },
       },
-    } as Codebook,
+    },
     network: {
       nodes: [],
       edges: [],
@@ -63,56 +59,56 @@ describe('Validation Functions', () => {
     });
 
     it('should reject undefined values', () => {
-      const validator = required()();
+      const validator = required(true, createMockContext())({});
 
       const result = validator.safeParse(undefined);
       expect(result.success).toBe(false);
     });
 
     it('should reject empty strings', () => {
-      const validator = required()();
+      const validator = required(true, createMockContext())({});
 
       const result = validator.safeParse('  ');
       expect(result.success).toBe(false);
     });
 
     it('should accept non-empty strings', () => {
-      const validator = required()();
+      const validator = required(true, createMockContext())({});
 
       const result = validator.safeParse('valid text');
       expect(result.success).toBe(true);
     });
 
     it('should reject NaN for number fields', () => {
-      const validator = required()();
+      const validator = required(true, createMockContext())({});
 
       const result = validator.safeParse(NaN);
       expect(result.success).toBe(false);
     });
 
     it('should accept zero for number fields', () => {
-      const validator = required()();
+      const validator = required(true, createMockContext())({});
 
       const result = validator.safeParse(0);
       expect(result.success).toBe(true);
     });
 
     it('should reject empty arrays', () => {
-      const validator = required()();
+      const validator = required(true, createMockContext())({});
 
       const result = validator.safeParse([]);
       expect(result.success).toBe(false);
     });
 
     it('should accept non-empty arrays', () => {
-      const validator = required()();
+      const validator = required(true, createMockContext())({});
 
       const result = validator.safeParse(['item1', 'item2']);
       expect(result.success).toBe(true);
     });
 
     it('should accept boolean values', () => {
-      const validator = required()();
+      const validator = required(true, createMockContext())({});
 
       expect(validator.safeParse(true).success).toBe(true);
       expect(validator.safeParse(false).success).toBe(true);

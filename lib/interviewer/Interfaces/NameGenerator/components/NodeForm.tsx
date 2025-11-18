@@ -10,10 +10,11 @@ import {
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import z from 'zod';
 import ActionButton from '~/components/interview/ActionButton';
 import Button from '~/components/ui/Button';
 import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
-import { Form } from '~/lib/form';
+import { Form, type FormSubmitHandler } from '~/lib/form';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { getNodeIconName } from '../../../selectors/name-generator';
@@ -70,16 +71,29 @@ const NodeForm = (props: NodeFormProps) => {
     },
   };
 
-  const fieldComponents = useProtocolForm({
+  const { fieldComponents, formSchema } = useProtocolForm({
     fields: form.fields,
     autoFocus: true,
     initialValues: selectedNode?.[entityAttributesProperty],
   });
 
   // Handle form submission
-  const handleSubmit = useCallback(
-    (values: Record<string, unknown>) => {
-      const variableValues = values as Record<string, VariableValue>;
+  const handleSubmit: FormSubmitHandler = useCallback(
+    async (values) => {
+      // Validate the submitted values using the form schema
+      const result = await formSchema.safeParseAsync(values);
+
+      if (!result.success) {
+        const flattened = z.flattenError(result.error);
+
+        return {
+          success: false,
+          formErrors: flattened.formErrors,
+          fieldErrors: flattened.fieldErrors,
+        };
+      }
+
+      const variableValues = result.data as Record<string, VariableValue>;
 
       if (!selectedNode) {
         addNode({ ...newNodeAttributes, ...variableValues });
@@ -93,15 +107,16 @@ const NodeForm = (props: NodeFormProps) => {
 
       setShow(false);
       onClose();
-      return Promise.resolve({ success: true as const });
+      return { success: true as const };
     },
-    [selectedNode, addNode, newNodeAttributes, updateNode, onClose],
+    [formSchema, selectedNode, addNode, newNodeAttributes, updateNode, onClose],
   );
 
   return (
     <>
       <AnimatePresence>
         <motion.div
+          key="add-button"
           className="name-generator-interface__add-button"
           variants={variants}
         >
@@ -129,12 +144,7 @@ const NodeForm = (props: NodeFormProps) => {
           </Button>
         }
       >
-        <Form
-          id="node-form"
-          onSubmit={handleSubmit}
-          className="w-full"
-          key={`${show}`}
-        >
+        <Form id="node-form" onSubmit={handleSubmit} className="w-full">
           {fieldComponents}
         </Form>
       </ControlledDialog>

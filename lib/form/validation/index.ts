@@ -75,9 +75,12 @@ export const required: ValidationFunction<boolean> = () => () => {
 const maxLength: ValidationFunction<number> = (max) => () => {
   invariant(max, 'Max length must be specified');
 
-  return z.string().max(max, {
-    message: `You must enter no more than ${max} characters.`,
-  });
+  return z
+    .string()
+    .max(max, {
+      message: `You must enter no more than ${max} characters.`,
+    })
+    .prefault('');
 };
 
 /**
@@ -86,17 +89,12 @@ const maxLength: ValidationFunction<number> = (max) => () => {
 const minLength: ValidationFunction<number> = (min) => () => {
   invariant(min, 'Min length must be specified');
 
-  return z.unknown().refine(
-    (value) => {
-      if (typeof value === 'string' && value.length < min) {
-        return false;
-      }
-      return true;
-    },
-    {
+  return z
+    .string()
+    .min(min, {
       message: `You must enter at least ${min} characters.`,
-    },
-  );
+    })
+    .prefault('');
 };
 
 /**
@@ -105,17 +103,12 @@ const minLength: ValidationFunction<number> = (min) => () => {
 const minValue: ValidationFunction<number> = (min) => () => {
   invariant(!isNaN(Number(min)), 'Min value must be specified');
 
-  return z.unknown().refine(
-    (value) => {
-      if (typeof value === 'number' && value < min) {
-        return false;
-      }
-      return true;
-    },
-    {
+  return z
+    .number()
+    .gt(min, {
       message: `You must enter a value greater than ${min}.`,
-    },
-  );
+    })
+    .prefault(min - 1);
 };
 
 /**
@@ -124,17 +117,12 @@ const minValue: ValidationFunction<number> = (min) => () => {
 const maxValue: ValidationFunction<number> = (max) => () => {
   invariant(max, 'Max value must be specified');
 
-  return z.unknown().refine(
-    (value) => {
-      if (typeof value === 'number' && value > max) {
-        return false;
-      }
-      return true;
-    },
-    {
+  return z
+    .number()
+    .lt(max, {
       message: `You must enter a value less than ${max}.`,
-    },
-  );
+    })
+    .prefault(max - 1);
 };
 
 /**
@@ -143,17 +131,12 @@ const maxValue: ValidationFunction<number> = (max) => () => {
 const minSelected: ValidationFunction<number> = (min) => () => {
   invariant(typeof min === 'number', 'Min items must be specified');
 
-  return z.array(z.unknown()).superRefine((value, ctx) => {
-    if (value.length < min) {
-      ctx.addIssue({
-        code: 'too_small',
-        minimum: min,
-        origin: 'array',
-        message: `You must choose a minimum of ${min} option${min === 1 ? '' : 's'}.`,
-        path: [],
-      });
-    }
-  });
+  return z
+    .array(z.unknown())
+    .min(min, {
+      message: `You must choose a minimum of ${min} option${min === 1 ? '' : 's'}.`,
+    })
+    .prefault([]);
 };
 
 /**
@@ -162,17 +145,12 @@ const minSelected: ValidationFunction<number> = (min) => () => {
 const maxSelected: ValidationFunction<number> = (max) => () => {
   invariant(typeof max === 'number', 'Max items must be specified');
 
-  return z.array(z.unknown()).superRefine((value, ctx) => {
-    if (value.length > max) {
-      ctx.addIssue({
-        code: 'too_big',
-        maximum: max,
-        origin: 'array',
-        message: `You can choose a maximum of ${max} option${max === 1 ? '' : 's'}.`,
-        path: [],
-      });
-    }
-  });
+  return z
+    .array(z.unknown())
+    .max(max, {
+      message: `You can choose a maximum of ${max} option${max === 1 ? '' : 's'}.`,
+    })
+    .prefault(Array.from({ length: max }, () => null));
 };
 
 /**

@@ -109,7 +109,7 @@ export const Overview: Story = {
       <div className="flex flex-col gap-8">
         <div className="space-y-2">
           <h3 className="text-lg font-semibold">Native Select</h3>
-          <p className="text-neutral-contrast text-sm opacity-70">
+          <p className="text-sm opacity-70">
             Uses HTML <code>&lt;select&gt;</code> element with custom styling
           </p>
           <div className="w-80">
@@ -121,17 +121,17 @@ export const Overview: Story = {
               onChange={setNativeValue}
             />
           </div>
-          <p className="text-neutral-contrast text-xs opacity-70">
+          <p className="text-xs opacity-70">
             Selected: {nativeValue || 'none'}
           </p>
         </div>
 
         <div className="space-y-2">
           <h3 className="text-lg font-semibold">Styled Select (Base UI)</h3>
-          <p className="text-neutral-contrast text-sm opacity-70">
+          <p className="text-sm opacity-70">
             Custom dropdown with better accessibility and UX
           </p>
-          <ul className="text-neutral-contrast mb-2 list-inside list-disc space-y-1 text-xs opacity-70">
+          <ul className="mb-2 list-inside list-disc space-y-1 text-xs opacity-70">
             <li>Check indicator for selected items</li>
             <li>Better keyboard navigation</li>
             <li>Hover and focus states</li>
@@ -146,7 +146,7 @@ export const Overview: Story = {
               onChange={setStyledValue}
             />
           </div>
-          <p className="text-neutral-contrast text-xs opacity-70">
+          <p className="text-xs opacity-70">
             Selected: {styledValue || 'none'}
           </p>
         </div>
@@ -514,7 +514,7 @@ export const NumericValues: Story = {
             value={value}
             onChange={setValue}
           />
-          <p className="text-neutral-contrast text-xs opacity-70">
+          <p className="text-xs opacity-70">
             Value: {value} (type: {typeof value})
           </p>
         </div>
@@ -527,7 +527,7 @@ export const NumericValues: Story = {
             value={value}
             onChange={setValue}
           />
-          <p className="text-neutral-contrast text-xs opacity-70">
+          <p className="text-xs opacity-70">
             Value: {value} (type: {typeof value})
           </p>
         </div>

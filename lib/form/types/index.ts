@@ -83,7 +83,7 @@ export type FormSubmissionResult =
       // General form errors not tied to a specific field
       formErrors?: string[];
       // Field-specific errors
-      fieldErrors?: Record<string, string[]>;
+      fieldErrors?: Record<string, string[] | undefined>;
     };
 
 /**

@@ -144,7 +144,7 @@ const EgoForm = (props: EgoFormProps) => {
     [scrollProgress, showScrollStatus, isOverflowing],
   );
 
-  const fieldComponents = useProtocolForm({
+  const { fieldComponents } = useProtocolForm({
     fields: form.fields,
     initialValues: egoAttributes,
   });

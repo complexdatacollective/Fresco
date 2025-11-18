@@ -20,7 +20,7 @@
     --primary-contrast: oklch(var(--white));
 
     /* For visual emphasis */
-    --accent: oklch(var(--slate-blue));
+    --accent: oklch(var(--sea-green));
     --accent-contrast: oklch(var(--white));
 
     --secondary: oklch(var(--neon-coral));
@@ -35,7 +35,7 @@
     --surface-3: oklch(from var(--background) calc(l + 0.05) c h);
     --surface-3-contrast: var(--text);
     --surface-popover: oklch(var(--white));
-    --surface-popover-contrast: oklch(var(--background));
+    --surface-popover-contrast: var(--background);
 
     --destructive: oklch(var(--tomato));
     --destructive-contrast: oklch(var(--white));
@@ -53,7 +53,7 @@
 
     --ring: oklch(var(--white));
 
-    --link: var(--accent);
+    --link: var(--barbie-pink);
 
     --outline: oklch(var(--sea-green)); /* Used for borders */
 

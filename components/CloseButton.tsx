@@ -1,20 +1,31 @@
 import { X } from 'lucide-react';
+import { type ComponentPropsWithRef, forwardRef } from 'react';
 import { IconButton } from './ui/Button';
 
-type CloseButtonProps = {
-  className?: string;
-};
-
-export default function CloseButton(props: CloseButtonProps) {
-  const { className, ...rest } = props;
+const CloseButton = forwardRef<
+  HTMLButtonElement,
+  Partial<ComponentPropsWithRef<typeof IconButton>>
+>((props, ref) => {
+  const {
+    className,
+    icon = <X />,
+    title = 'Close',
+    variant = 'text',
+    ...rest
+  } = props;
   return (
     <IconButton
-      title="Close"
-      variant="text"
-      icon={<X />}
-      aria-label="Close"
+      ref={ref}
       {...rest}
+      icon={icon}
+      title={title}
+      variant={variant}
+      aria-label={title}
       className={className}
     />
   );
-}
+});
+
+CloseButton.displayName = 'CloseButton';
+
+export default CloseButton;

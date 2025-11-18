@@ -102,6 +102,38 @@ const mockProtocol = {
               maxLength: 500,
             },
           },
+          skills: {
+            name: 'Skills',
+            type: 'categorical',
+            component: 'CheckboxGroup',
+            options: [
+              { label: 'JavaScript', value: 'javascript' },
+              { label: 'Python', value: 'python' },
+              { label: 'Java', value: 'java' },
+              { label: 'C++', value: 'cpp' },
+              { label: 'Ruby', value: 'ruby' },
+              { label: 'Go', value: 'go' },
+            ],
+            validation: {
+              required: true,
+              minSelected: 1,
+              maxSelected: 4,
+            },
+          },
+          communicationPreference: {
+            name: 'Communication Preference',
+            type: 'categorical',
+            component: 'ToggleButtonGroup',
+            options: [
+              { label: 'Email', value: 'email' },
+              { label: 'Phone', value: 'phone' },
+              { label: 'Text', value: 'text' },
+              { label: 'Video Call', value: 'video' },
+            ],
+            validation: {
+              required: true,
+            },
+          },
         },
       },
     },
@@ -484,6 +516,114 @@ export const WithUniqueValidation: Story = {
       description: {
         story:
           'This story demonstrates unique validation. Try entering "Alice Smith" or "Bob Johnson" to see the validation error.',
+      },
+    },
+  },
+};
+
+// CheckboxGroup with validation
+const checkboxGroupForm: TForm = {
+  title: 'Select Your Skills',
+  fields: [
+    {
+      variable: 'name',
+      prompt: 'Your name',
+    },
+    {
+      variable: 'skills',
+      prompt: 'Select your programming skills (1-4 required)',
+    },
+  ],
+};
+
+export const CheckboxGroupWithValidation: Story = {
+  args: {
+    selectedNode: null,
+    form: checkboxGroupForm,
+    disabled: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'This story demonstrates a CheckboxGroup component with validation. The skills field requires at least 1 selection and allows a maximum of 4 selections. Try submitting without selecting any options, or with more than 4 options to see validation errors.',
+      },
+    },
+  },
+};
+
+export const CheckboxGroupWithInitialValues: Story = {
+  args: {
+    selectedNode: {
+      [entityPrimaryKeyProperty]: 'node-4',
+      type: 'person',
+      [entityAttributesProperty]: {
+        name: 'Sarah Developer',
+        skills: ['javascript', 'python', 'java'],
+      },
+    },
+    form: checkboxGroupForm,
+    disabled: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'This story shows a CheckboxGroup with pre-selected values. The form is pre-populated with JavaScript, Python, and Java skills.',
+      },
+    },
+  },
+};
+
+// ToggleButtonGroup with validation
+const toggleButtonGroupForm: TForm = {
+  title: 'Communication Preferences',
+  fields: [
+    {
+      variable: 'name',
+      prompt: 'Your name',
+    },
+    {
+      variable: 'communicationPreference',
+      prompt: 'How would you prefer to be contacted?',
+    },
+  ],
+};
+
+export const ToggleButtonGroupWithValidation: Story = {
+  args: {
+    selectedNode: null,
+    form: toggleButtonGroupForm,
+    disabled: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'This story demonstrates a ToggleButtonGroup component with required validation. You must select one communication preference option. Try submitting without selecting an option to see the validation error.',
+      },
+    },
+  },
+};
+
+export const ToggleButtonGroupWithInitialValue: Story = {
+  args: {
+    selectedNode: {
+      [entityPrimaryKeyProperty]: 'node-5',
+      type: 'person',
+      [entityAttributesProperty]: {
+        name: 'Mike Contact',
+        communicationPreference: 'email',
+      },
+    },
+    form: toggleButtonGroupForm,
+    disabled: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'This story shows a ToggleButtonGroup with a pre-selected value. The form is pre-populated with "Email" as the selected communication preference.',
       },
     },
   },

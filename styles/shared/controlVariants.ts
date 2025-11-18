@@ -76,7 +76,7 @@ export const controlStateVariants = cva({
   // Group allows styling based on parent state
   base: cx(
     'group-data-[invalid=true]:border-current cursor-default',
-    'data-[checked]:border-accent data-[checked]:bg-accent data-[checked]:text-selected-contrast',
+    'data-[checked]:border-accent data-[checked]:bg-accent data-checked:focus-within:outline-accent data-[checked]:text-selected-contrast',
     //Hover
     'hover:border-accent/40',
     // Focus state: add shadow and translate up slightly
@@ -96,9 +96,8 @@ export const controlStateVariants = cva({
         'data-[checked]:border-current/20 data-[checked]:bg-input-contrast/10 data-[checked]:text-input-contrast/70',
       ),
       invalid: cx(
-        'border-2 border-current/100 text-destructive focus-within:outline-destructive',
-        'focus-within:outline-destructive',
-        'data-[checked]:border-destructive data-[checked]:bg-destructive data-[checked]:text-selected-contrast',
+        'border-2 border-current text-destructive focus-within:outline-destructive',
+        'data-checked:border-destructive data-checked:bg-destructive data-[checked]:text-selected-contrast',
       ),
       normal: '',
     },
@@ -125,14 +124,13 @@ export const controlWrapperVariants = compose(
 
 export const checkboxContainerVariants = cva({
   base: cx(
-    'flex-shrink-0',
+    'shrink-0',
     'flex items-center justify-center',
     'appearance-none',
     'relative',
     'rounded-full',
-    'border-1 border-current/20',
+    'border-2 border-current/20',
     'bg-input text-input-contrast',
-    'transition-all duration-200 ease-in',
     'focusable outline-transparent',
     'cursor-pointer',
   ),
@@ -178,8 +176,8 @@ export const checkboxGroupContainerVariants = cva({
     'w-full',
     'transition-all duration-200',
     'rounded',
-    'border-1 border-current/20',
-    'p-4',
+    'border-2 border-current/20',
+    'p-6',
     'bg-input',
     'focusable-within outline-transparent',
   ),

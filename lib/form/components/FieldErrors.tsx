@@ -1,4 +1,3 @@
-import { TriangleAlert } from 'lucide-react';
 import Paragraph from '~/components/typography/Paragraph';
 import UnorderedList from '~/components/typography/UnorderedList';
 
@@ -20,19 +19,18 @@ export default function FieldErrors({
   if (!show) return null;
 
   return (
-    <div
-      id={id}
-      className="text-destructive animate-shake bg-surface flex justify-items-start gap-2 rounded p-2"
-    >
-      <TriangleAlert className="w-4" />
+    <div id={id} className="text-destructive animate-shake text-sm">
       {errors?.length === 1 ? (
         <Paragraph>{errors[0]}</Paragraph>
       ) : (
-        <UnorderedList>
-          {errors?.map((error, index) => (
-            <li key={index}>{error}</li>
-          ))}
-        </UnorderedList>
+        <>
+          <Paragraph>There are multiple problems:</Paragraph>
+          <UnorderedList>
+            {errors?.map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </UnorderedList>
+        </>
       )}
     </div>
   );

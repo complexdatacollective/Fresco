@@ -18,11 +18,12 @@ const buttonSpecificVariants = cva({
     'justify-center',
     'disabled:cursor-not-allowed disabled:opacity-50',
     'focusable',
+    'elevation-low',
+    'hover:elevation-medium hover:translate-y-[-2px] transition-all active:elevation-none active:translate-y-[1px]',
   ),
   variants: {
     variant: {
-      default:
-        'bg-(--component-text) text-(--component-bg) hover:enabled:bg-[color-mix(in_oklab,var(--component-text),_var(--component-bg)_15%)]',
+      default: 'bg-(--component-text) text-(--component-bg)',
       outline:
         'border-2 border-[var(--component-text)] text-[var(--component-text)] hover:enabled:bg-[var(--component-text)] hover:enabled:text-[var(--component-bg)]',
       text: 'text-[var(--component-text)] hover:enabled:bg-[var(--component-text)] hover:enabled:text-[var(--component-bg)]',
@@ -33,7 +34,7 @@ const buttonSpecificVariants = cva({
       default:
         '[--component-text:var(--color-neutral)] [--component-bg:var(--color-neutral-contrast)]',
       dynamic:
-        'text-current [--component-bg:currentColor] [--component-text:color-mix(in_oklab,var(--published-bg,--background),_currentColor_5%)]',
+        'text-current [--component-bg:currentColor] [--component-text:color-mix(in_oklab,var(--published-bg,--background),currentColor_8%)]',
       primary:
         'focus:outline-primary [--component-text:var(--color-primary)] [--component-bg:var(--color-primary-contrast)]',
       secondary:
@@ -72,12 +73,6 @@ const buttonSpecificVariants = cva({
       variant: ['outline', 'dashed'],
       color: 'dynamic',
       className: 'border-current',
-    },
-    {
-      variant: 'default',
-      color: 'dynamic',
-      className:
-        'hover:enabled:[--component-text:color-mix(in_oklab,var(--published-bg),_var(--component-bg)_15%)]',
     },
     {
       variant: ['text'],

@@ -20,7 +20,7 @@ export const headingVariants = cva({
       'page-heading': 'text-4xl',
     },
     margin: {
-      default: 'not-last:mb-1.5 not-first:mt-4',
+      default: 'not-last:mb-2 not-first:mt-4',
       none: 'mb-0',
     },
   },

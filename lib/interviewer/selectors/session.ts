@@ -70,7 +70,7 @@ export const getStageSubject = createSelector(getCurrentStage, (stage) => {
 });
 
 export const getSubjectType = createSelector(getStageSubject, (subject) => {
-  if (!subject) {
+  if (subject.entity === 'ego') {
     return null;
   }
 

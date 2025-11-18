@@ -18,13 +18,13 @@ const alertVariants = cva({
   variants: {
     variant: {
       default: '',
-      info: 'bg-[color-mix(in_oklab,var(--color-info)_10%,var(--color-neutral))] border-info text-info [--color-link:var(--color-info)] [&>svg]:text-info',
+      info: 'bg-[color-mix(in_oklab,var(--color-info)_1%,var(--color-neutral))] border-info text-info [--color-link:var(--color-info)] [&>svg]:text-info',
       destructive:
-        'bg-[color-mix(in_oklab,var(--color-destructive)_5%,var(--color-neutral))] border-destructive text-destructive [&>svg]:text-destructive [--color-link:var(--color-destructive)]',
+        'bg-[color-mix(in_oklab,var(--color-destructive)_1%,var(--color-neutral))] border-destructive text-destructive [&>svg]:text-destructive [--color-link:var(--color-destructive)]',
       success:
-        'bg-[color-mix(in_oklab,var(--color-success)_0%,var(--color-neutral))] border-success text-success [&>svg]:text-success [--color-link:var(--color-success)]',
+        'bg-[color-mix(in_oklab,var(--color-success)_1%,var(--color-neutral))] border-success text-success [&>svg]:text-success [--color-link:var(--color-success)]',
       warning:
-        'bg-[color-mix(in_oklab,var(--color-warning)_0%,var(--color-neutral))] border-warning text-warning [&>svg]:text-warning [--color-link:var(--color-warning)]',
+        'bg-[color-mix(in_oklab,var(--color-warning)_1%,var(--color-neutral))] border-warning text-warning [&>svg]:text-warning [--color-link:var(--color-warning)]',
     },
   },
   defaultVariants: {

@@ -1,8 +1,7 @@
 'use client';
 
 import { Checkbox as BaseCheckbox } from '@base-ui-components/react/checkbox';
-import { Check } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, useMotionValue, useTransform } from 'motion/react';
 import { type ComponentPropsWithoutRef, forwardRef, useState } from 'react';
 import {
   checkboxContainerVariants,
@@ -57,6 +56,11 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
     const isControlled = checked !== undefined;
     const isChecked = isControlled ? checked : internalChecked;
 
+    const pathLength = useMotionValue(isChecked ? 1 : 0);
+    const strokeLinecap = useTransform(() =>
+      pathLength.get() === 0 ? 'none' : 'round',
+    );
+
     // Work out variant state based on props. Order:
     // disabled > readOnly > invalid > normal
     const getState = () => {
@@ -93,26 +97,64 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
         disabled={disabled ?? readOnly}
         aria-readonly={readOnly}
         {...props}
-      >
-        <BaseCheckbox.Indicator
-          keepMounted
-          className={checkboxIndicatorComposedVariants({ size })}
-        >
-          <motion.div
-            initial={false}
-            animate={{
-              scale: isChecked ? 1 : 0,
-              opacity: isChecked ? 1 : 0,
-            }}
-            transition={{
-              type: 'spring',
-            }}
-            className="flex h-full w-full items-center justify-center"
-          >
-            <Check className="h-full w-full" />
-          </motion.div>
-        </BaseCheckbox.Indicator>
-      </BaseCheckbox.Root>
+        render={(checkboxProps) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          const {
+            onDrag,
+            onDragStart,
+            onDragEnd,
+            onAnimationStart,
+            onAnimationEnd,
+            ...rest
+          } = checkboxProps;
+          void onDrag;
+          void onDragStart;
+          void onDragEnd;
+          void onAnimationStart;
+          void onAnimationEnd;
+          return (
+            <motion.button
+              {...rest}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              data-primary-action
+            >
+              <div
+                className={checkboxIndicatorComposedVariants({ size })}
+                style={{
+                  pointerEvents: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="h-full w-full"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                >
+                  <motion.path
+                    d="M4 12L10 18L20 6"
+                    initial={false}
+                    animate={{ pathLength: isChecked ? 1 : 0 }}
+                    transition={{
+                      type: 'spring',
+                      bounce: 0,
+                      duration: isChecked ? 0.3 : 0.1,
+                    }}
+                    style={{
+                      pathLength,
+                      strokeLinecap,
+                    }}
+                  />
+                </svg>
+              </div>
+            </motion.button>
+          );
+        }}
+      />
     );
   },
 );

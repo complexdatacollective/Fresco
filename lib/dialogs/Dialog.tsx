@@ -53,6 +53,7 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
           <AnimatePresence>
             {open && (
               <BaseDialog.Backdrop
+                key="backdrop"
                 render={
                   <motion.div
                     initial={{
@@ -75,6 +76,7 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
             )}
             {open && (
               <BaseDialog.Popup
+                key="dialog"
                 ref={ref}
                 render={(props) => (
                   <Surface
