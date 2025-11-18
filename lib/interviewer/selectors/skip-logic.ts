@@ -20,7 +20,6 @@ const getSkipMap = createSelector(
       }
 
       const skipOnMatch = skipLogic.action === 'SKIP';
-      console.log('Evaluating skip logic for stage:', index, skipLogic.filter);
       const result = getQuery(skipLogic.filter)(network);
       const isSkipped = (skipOnMatch && result) || (!skipOnMatch && !result);
 
