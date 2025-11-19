@@ -7,7 +7,6 @@ import { NcNetworkSchema } from '@codaco/shared-consts';
 import { PrismaClient } from '@prisma/client';
 import { env } from '~/env';
 import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
-import { appSettingPreprocessedSchema } from '~/schemas/appSettings';
 
 const createPrismaClient = () =>
   new PrismaClient({
@@ -22,17 +21,13 @@ const createPrismaClient = () =>
           }
 
           const key = args.where.key;
-
           const result = await query(args);
 
-          // Parse the value (or undefined if no result) to get coerced value with defaults
-          const parsedValue = appSettingPreprocessedSchema.shape[
-            key as keyof typeof appSettingPreprocessedSchema.shape
-          ].parse(result?.value);
-
+          // Return the raw value or null if no result
+          // The query layer will handle parsing to proper types
           return {
             key,
-            value: parsedValue,
+            value: result?.value ?? null,
           };
         },
       },
@@ -66,12 +61,12 @@ const createPrismaClient = () =>
             stages: true,
             codebook: true,
           },
-          compute: ({ schemaVersion, stages }) => {
+          compute: ({ schemaVersion, stages, codebook }) => {
             const protocolSchema = VersionedProtocolSchema.parse({
               schemaVersion,
               stages,
-              codebook: {}, // dummy data
-              experiments: null,
+              codebook,
+              experiments: {},
             });
             return protocolSchema.stages;
           },
@@ -89,7 +84,7 @@ const createPrismaClient = () =>
               schemaVersion,
               stages: [],
               codebook,
-              experiments: null,
+              experiments: {},
             });
             return protocolSchema.codebook;
           },
@@ -101,7 +96,7 @@ const createPrismaClient = () =>
           },
           compute: ({ schemaVersion, experiments }) => {
             if (schemaVersion < 8 || !experiments) {
-              return null;
+              return {};
             }
 
             const protocolSchema = CurrentProtocolSchema.parse({
@@ -110,7 +105,7 @@ const createPrismaClient = () =>
               codebook: {},
               experiments,
             });
-            return protocolSchema.experiments ?? null;
+            return protocolSchema.experiments ?? {};
           },
         },
       },

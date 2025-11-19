@@ -9,7 +9,7 @@ import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { createCachedFunction } from '~/lib/cache';
 import {
   type AppSetting,
-  type appSettingPreprocessedSchema,
+  appSettingPreprocessedSchema,
 } from '~/schemas/appSettings';
 import { prisma } from '~/utils/db';
 
@@ -17,22 +17,24 @@ export const getAppSetting = <Key extends AppSetting>(
   key: Key,
 ): Promise<z.infer<typeof appSettingPreprocessedSchema>[Key]> =>
   createCachedFunction(
-    async (
-      key: AppSetting,
-    ): Promise<z.infer<typeof appSettingPreprocessedSchema>[Key]> => {
+    async (key: AppSetting): Promise<string | null> => {
       const result = await prisma.appSettings.findUnique({
         where: { key },
       });
 
-      // The DB extension handles defaults, so result should never be null
-      if (!result) {
-        throw new Error(`Unexpected: App setting not found for key: ${key}`);
-      }
-
-      return result.value as z.infer<typeof appSettingPreprocessedSchema>[Key];
+      // Return raw value (string or null) for caching
+      return result?.value ?? null;
     },
     [`appSettings-${key}`, 'appSettings'],
-  )(key);
+  )(key).then((rawValue) => {
+    // Parse the cached raw value to the correct type
+    // Convert null to undefined so schema defaults work correctly
+    const parsedValue = appSettingPreprocessedSchema.shape[key].parse(
+      rawValue ?? undefined,
+    );
+
+    return parsedValue as z.infer<typeof appSettingPreprocessedSchema>[Key];
+  });
 
 export async function requireAppNotExpired(isSetupRoute = false) {
   const expired = await isAppExpired();
