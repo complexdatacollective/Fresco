@@ -252,11 +252,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Redirect to preview interview route
+    // Return the protocol ID and redirect URL
     const url = new URL(env.PUBLIC_URL ?? req.nextUrl.clone());
     url.pathname = `/preview/${protocolId}`;
 
-    return NextResponse.redirect(url);
+    return NextResponse.json(
+      {
+        success: true,
+        protocolId,
+        redirectUrl: url.toString(),
+      },
+      { status: 200 },
+    );
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Preview protocol upload error:', error);
