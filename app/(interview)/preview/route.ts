@@ -16,12 +16,27 @@ import { verifyApiToken } from '~/actions/apiTokens';
 import { addEvent } from '~/actions/activityFeed';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
 
+// CORS headers for external clients (like Architect)
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+// Handle preflight OPTIONS request
+export function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
+
 export async function POST(req: NextRequest) {
   // Check if preview mode is enabled
   if (!env.PREVIEW_MODE) {
     return NextResponse.json(
       { error: 'Preview mode is not enabled' },
-      { status: 403 },
+      { status: 403, headers: corsHeaders },
     );
   }
 
@@ -40,7 +55,7 @@ export async function POST(req: NextRequest) {
       if (!token) {
         return NextResponse.json(
           { error: 'Authentication required. Provide session or API token.' },
-          { status: 401 },
+          { status: 401, headers: corsHeaders },
         );
       }
 
@@ -49,7 +64,7 @@ export async function POST(req: NextRequest) {
       if (!valid) {
         return NextResponse.json(
           { error: 'Invalid API token' },
-          { status: 401 },
+          { status: 401, headers: corsHeaders },
         );
       }
     }
@@ -63,7 +78,7 @@ export async function POST(req: NextRequest) {
     if (!file) {
       return NextResponse.json(
         { error: 'No protocol file provided' },
-        { status: 400 },
+        { status: 400, headers: corsHeaders },
       );
     }
 
@@ -71,7 +86,7 @@ export async function POST(req: NextRequest) {
     if (!file.name.endsWith('.netcanvas')) {
       return NextResponse.json(
         { error: 'File must be a .netcanvas file' },
-        { status: 400 },
+        { status: 400, headers: corsHeaders },
       );
     }
 
@@ -91,7 +106,7 @@ export async function POST(req: NextRequest) {
         {
           error: `Unsupported protocol schema version: ${protocolVersion}. Supported versions: ${APP_SUPPORTED_SCHEMA_VERSIONS.join(', ')}`,
         },
-        { status: 400 },
+        { status: 400, headers: corsHeaders },
       );
     }
 
@@ -115,7 +130,7 @@ export async function POST(req: NextRequest) {
           error: 'Protocol validation failed',
           validationErrors: errors,
         },
-        { status: 400 },
+        { status: 400, headers: corsHeaders },
       );
     }
 
@@ -264,7 +279,7 @@ export async function POST(req: NextRequest) {
         protocolId,
         redirectUrl: url.toString(),
       },
-      { status: 200 },
+      { status: 200, headers: corsHeaders },
     );
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -275,7 +290,7 @@ export async function POST(req: NextRequest) {
         error: 'Failed to process protocol',
         details: error instanceof Error ? error.message : 'Unknown error',
       },
-      { status: 500 },
+      { status: 500, headers: corsHeaders },
     );
   }
 }
