@@ -1,88 +1,230 @@
 'use client';
 
-import React, { forwardRef, useId } from 'react';
+import { Dialog as BaseDialog } from '@base-ui-components/react/dialog';
+import { Slot } from '@radix-ui/react-slot';
+import { AnimatePresence, motion } from 'motion/react';
+import React, { forwardRef, type ReactNode, useId } from 'react';
 import CloseButton from '~/components/CloseButton';
 import Surface from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
-import { cn } from '~/utils/shadcn';
+import { headingVariants } from '~/components/typography/Heading';
+import { paragraphVariants } from '~/components/typography/Paragraph';
+import { cx, type VariantProps } from '~/utils/cva';
 
 export type DialogProps = {
-  title: string;
-  description?: string;
-  accent?: 'default' | 'danger' | 'success' | 'warning' | 'info';
+  title?: string;
+  description?: ReactNode;
+  accent?: 'default' | 'danger' | 'success' | 'info';
   closeDialog: () => void;
-} & React.DialogHTMLAttributes<HTMLDialogElement>;
+  footer?: React.ReactNode;
+  open?: boolean;
+  children?: ReactNode;
+};
 
 /**
- * Native HTML Dialog modified so that it can be used with React.
+ * Dialog component using Base UI Dialog primitives with motion animations.
  *
  * For use with `useDialog` and `DialogProvider`. Use `ControlledDialog` in
  * situations where you need to control the dialog's open state manually.
  *
  * Implementation Notes:
  *
- * - The reason this component has an inner Surface component is that the native
- *   dialog uses margin for centering, so we cannot customise margin to ensure
- *   a visible  space from screen edge on small screens.
- * - `allow-discrete` is implemented in the tailwind config, and is required for
- *   the dialog to be able to be animated correctly. See: https://developer.mozilla.org/en-US/docs/Web/CSS/transition-behavior#allow-discrete
- * - There's no way I can think of to use framer-motion for animation here, as
- *   the animation state is linked to the `open` attribute of the dialog, which
- *   can't be read from the dialog itself (although _can_ be read by mutation
- *   observer... but that's a bit much)
+ * - Uses Base UI Dialog for accessibility and state management
+ * - AnimatePresence and motion for enter/exit animations
+ * - The inner Surface component ensures proper spacing from screen edge on small screens
+ * - Backdrop click-to-close is handled by Base UI's dismissible behavior
  */
-export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(({
-  title,
-  description,
-  children,
-  closeDialog,
-  accent,
-  ...rest
-}, ref) => {
-  const id = useId();
-  // TODO: automatic focus on least destructive action, or initialFocusEl ref.
-  return (
-    <dialog
-      ref={ref}
-      aria-labelledby={`${id}-title`}
-      aria-describedby={description ? `${id}-description` : undefined}
-      onClose={closeDialog} // Needed so that closing via keyboard still returns a value
-      className={cn(
-        'spring-medium',
-        'bg-transparent', // Or else rounded corner content will have white edges
-        'backdrop:bg-charcoal/70 backdrop:backdrop-blur-xs not-open:backdrop:opacity-0 open:backdrop:delay-100 backdrop:starting:opacity-0',
-        'backdrop:transition-opacity',
-        'backdrop:duration-300',
-        'backdrop:transition-discrete',
-        'm-auto transition-discrete not-open:-translate-y-12 not-open:opacity-0 starting:-translate-y-12 starting:opacity-0',
-      )}
-      {...rest}
-    >
-      <Surface
-        level={0}
-        className={cn(
-          'text-surface-0-foreground max-w-4xl rounded bg-white',
-
-          // Accent overrides the primary hue so that nested buttons inherit color
-          accent === 'success' && '[--primary:var(--success)]',
-          accent === 'warning' && '[--primary:var(--warning)]',
-          accent === 'info' && '[--primary:var(--info)]',
-          accent === 'danger' && '[--primary:var(--destructive)]',
-          'border-primary border-b-4',
-        )}
+export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
+  (
+    { title, description, children, closeDialog, accent, footer, open = false },
+    ref,
+  ) => {
+    const id = useId();
+    return (
+      <BaseDialog.Root
+        open={open}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) {
+            closeDialog();
+          }
+        }}
+        modal={true}
       >
-        <Heading variant="h2" id={`${id}-title`}>
-          {title}
-        </Heading>
-        {description && (
-          <Paragraph id={`${id}-description`}>{description}</Paragraph>
-        )}
-        {children}
-        <CloseButton onClick={closeDialog} />
-      </Surface>
-    </dialog>
+        <BaseDialog.Portal keepMounted>
+          <AnimatePresence>
+            {open && (
+              <BaseDialog.Backdrop
+                key="backdrop"
+                render={
+                  <motion.div
+                    initial={{
+                      opacity: 0,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      transition: { delay: 0.1, duration: 0.5 },
+                    }}
+                    exit={{ opacity: 0 }}
+                    className={cx(
+                      'fixed inset-0',
+                      'flex items-center justify-center',
+                      'bg-overlay backdrop-blur-xs',
+                      '[--published-bg:var(--color-platinum-dark)]',
+                    )}
+                  />
+                }
+              />
+            )}
+            {open && (
+              <BaseDialog.Popup
+                key="dialog"
+                ref={ref}
+                render={(props) => (
+                  <Surface
+                    {...props}
+                    initial={{ opacity: 0, y: '-10%', scale: 1.1 }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                      scale: 1,
+                      filter: 'blur(0px)',
+                    }}
+                    exit={{
+                      opacity: 0,
+                      y: '-10%',
+                      scale: 1.5,
+                      filter: 'blur(10px)',
+                    }}
+                    transition={{
+                      type: 'spring',
+                      stiffness: 300,
+                      damping: 30,
+                    }}
+                    as={motion.div}
+                    level={0}
+                    className={cx(
+                      'w-[calc(100%-var(--spacing)*4)] max-w-2xl @2xl:w-auto @2xl:min-w-xl',
+                      'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+                      'flex max-h-[calc(100vh-var(--spacing)*4)]',
+                      // Accent overrides the primary hue so that nested primary buttons inherit color
+                      accent === 'success' &&
+                        '[--color-primary:var(--color-success)]',
+                      accent === 'info' &&
+                        '[--color-primary:var(--color-info)]',
+                      accent === 'danger' &&
+                        '[--color-primary:var(--color-destructive)]',
+                      'flex flex-col',
+                    )}
+                    elevation="high"
+                  >
+                    <BaseDialog.Title
+                      className="mb-4 flex items-center justify-between gap-4"
+                      render={<div />}
+                    >
+                      <DialogHeading id={`${id}-title`}>{title}</DialogHeading>
+                      <BaseDialog.Close render={<CloseButton />} />
+                    </BaseDialog.Title>
+                    <DialogContent>
+                      {description && (
+                        <BaseDialog.Description
+                          render={(descProps) => (
+                            <DialogDescription
+                              {...descProps}
+                              id={`${id}-description`}
+                              className={descProps.className}
+                            >
+                              {description}
+                            </DialogDescription>
+                          )}
+                        />
+                      )}
+                      {children}
+                    </DialogContent>
+                    {footer && <DialogFooter>{footer}</DialogFooter>}
+                  </Surface>
+                )}
+              />
+            )}
+          </AnimatePresence>
+        </BaseDialog.Portal>
+      </BaseDialog.Root>
+    );
+  },
+);
+
+Dialog.displayName = 'Dialog';
+
+type DialogHeadingProps = {
+  asChild?: boolean;
+  as?: string;
+} & React.HTMLAttributes<HTMLHeadingElement> &
+  VariantProps<typeof headingVariants>;
+
+const DialogHeading = forwardRef<HTMLElement, DialogHeadingProps>(
+  (
+    { className, variant, level, margin = 'none', as, asChild, ...props },
+    ref,
+  ) => {
+    const Comp = asChild ? Slot : (as ?? level ?? 'h2');
+    return (
+      <Comp
+        className={cx(headingVariants({ variant, level, margin, className }))}
+        ref={ref}
+        {...props}
+      />
+    );
+  },
+);
+
+DialogHeading.displayName = 'DialogHeading';
+
+type DialogDescriptionProps = {
+  asChild?: boolean;
+} & React.HTMLAttributes<HTMLParagraphElement> &
+  VariantProps<typeof paragraphVariants>;
+
+const DialogDescription = forwardRef<
+  HTMLParagraphElement,
+  DialogDescriptionProps
+>(({ className, intent, emphasis, margin, asChild, ...props }, ref) => {
+  const Comp = asChild ? Slot : 'p';
+  return (
+    <Comp
+      className={cx(paragraphVariants({ intent, emphasis, margin, className }))}
+      ref={ref}
+      {...props}
+    />
   );
 });
 
-Dialog.displayName = 'Dialog';
+DialogDescription.displayName = 'DialogDescription';
+
+const DialogContent = ({
+  children,
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => {
+  return (
+    <div
+      className={cx('-mx-8 overflow-y-auto px-8 pb-2', className)}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+};
+
+const DialogFooter = ({
+  children,
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLElement>) => {
+  return (
+    <footer className={cx('mt-4 flex justify-end gap-4', className)} {...props}>
+      {children}
+    </footer>
+  );
+};
+
+DialogFooter.displayName = 'DialogFooter';
+
+export { DialogContent, DialogDescription, DialogFooter, DialogHeading };

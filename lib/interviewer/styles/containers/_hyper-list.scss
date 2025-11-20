@@ -1,3 +1,5 @@
+@use '../mixins';
+
 .hyper-list {
   display: flex;
 
@@ -9,7 +11,7 @@
   }
 
   &__grid {
-    @include scrollable;
+    @include mixins.scrollable;
 
     overflow-x: hidden !important; // sass-lint:disable-line no-important
   }

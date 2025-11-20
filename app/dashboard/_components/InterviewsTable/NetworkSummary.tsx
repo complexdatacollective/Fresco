@@ -1,7 +1,7 @@
 import { type Codebook } from '@codaco/protocol-validation';
 import type { NcNetwork } from '@codaco/shared-consts';
-import { type NodeColorSequence } from '~/lib/ui/components/Node';
-import { cn } from '~/utils/shadcn';
+import { Node } from '~/lib/ui/components';
+import { cx } from '~/utils/cva';
 
 type EdgeColorSequence =
   | 'edge-color-seq-1'
@@ -14,55 +14,14 @@ type EdgeColorSequence =
   | 'edge-color-seq-8'
   | 'edge-color-seq-9';
 
-type NodeSummaryProps = {
-  color: NodeColorSequence;
-  count: number;
-  typeName: string;
-};
-
 type EdgeSummaryProps = {
   color: EdgeColorSequence;
   count: number;
   typeName: string;
 };
-function NodeSummary({
-  color = 'node-color-seq-1',
-  count,
-  typeName,
-}: NodeSummaryProps) {
-  const classes = cn(
-    'flex items-center h-8 w-8 justify-center rounded-full',
-    'bg-linear-145 from-50% to-50%',
-    'from-[var(--node-color-seq-1)] to-[var(--node-color-seq-1-dark)]',
-    color === 'node-color-seq-1' &&
-      'from-[var(--node-color-seq-1)] to-[var(--node-color-seq-1-dark)]',
-    color === 'node-color-seq-2' &&
-      'from-[var(--node-color-seq-2)] to-[var(--node-color-seq-2-dark)]',
-    color === 'node-color-seq-3' &&
-      'from-[var(--node-color-seq-3)] to-[var(--node-color-seq-3-dark)]',
-    color === 'node-color-seq-4' &&
-      'from-[var(--node-color-seq-4)] to-[var(--node-color-seq-4-dark)]',
-    color === 'node-color-seq-5' &&
-      'from-[var(--node-color-seq-5)] to-[var(--node-color-seq-5-dark)]',
-    color === 'node-color-seq-6' &&
-      'from-[var(--node-color-seq-6)] to-[var(--node-color-seq-6-dark)]',
-    color === 'node-color-seq-7' &&
-      'from-[var(--node-color-seq-7)] to-[var(--node-color-seq-7-dark)]',
-    color === 'node-color-seq-8' &&
-      'from-[var(--node-color-seq-8)] to-[var(--node-color-seq-8-dark)]',
-  );
 
-  return (
-    <div className="flex flex-col items-center">
-      <div className={classes}>
-        <span className="text-xs font-semibold text-white">{count}</span>
-      </div>
-      <span className="pt-1 text-xs">{typeName}</span>
-    </div>
-  );
-}
 function EdgeSummary({ color, count, typeName }: EdgeSummaryProps) {
-  const lightColorClass = cn(
+  const lightColorClass = cx(
     'fill-[var(--edge-color-seq-1)]',
     color === 'edge-color-seq-1' && 'fill-[var(--edge-color-seq-1)]',
     color === 'edge-color-seq-2' && 'fill-[var(--edge-color-seq-2)]',
@@ -75,7 +34,7 @@ function EdgeSummary({ color, count, typeName }: EdgeSummaryProps) {
     color === 'edge-color-seq-9' && 'fill-[var(--edge-color-seq-9)]',
   );
 
-  const darkColorClass = cn(
+  const darkColorClass = cx(
     'fill-[var(--edge-color-seq-1-dark)]',
     color === 'edge-color-seq-1' && 'fill-[var(--edge-color-seq-1-dark)]',
     color === 'edge-color-seq-2' && 'fill-[var(--edge-color-seq-2-dark)]',
@@ -89,12 +48,13 @@ function EdgeSummary({ color, count, typeName }: EdgeSummaryProps) {
   );
 
   return (
-    <div className="flex shrink-0 flex-col items-center">
-      <div className="flex h-8 w-8 shrink-0 grow-0 items-center justify-center">
+    <div className="flex flex-col items-center">
+      <div className="flex h-8 w-8 items-center justify-center">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 60 60"
-          className="aspect-square h-full w-full"
+          width="24"
+          height="24"
         >
           <g id="Links">
             <circle cx="49" cy="11" r="11" className={darkColorClass} />
@@ -131,9 +91,9 @@ function EdgeSummary({ color, count, typeName }: EdgeSummaryProps) {
           </g>
         </svg>
       </div>
-      <div className="pt-1 text-xs">
+      <span className="pt-1 text-xs">
         {typeName} ({count})
-      </div>
+      </span>
     </div>
   );
 }
@@ -156,19 +116,15 @@ const NetworkSummary = ({
   ).map(([nodeType, count]) => {
     const nodeInfo = codebook.node?.[nodeType];
 
-    if (!nodeInfo) {
-      // eslint-disable-next-line no-console
-      console.warn(`Node type ${nodeType} not found in codebook`);
-      return null;
-    }
-
     return (
-      <NodeSummary
-        key={nodeType}
-        color={nodeInfo.color}
-        count={count}
-        typeName={nodeInfo.name}
-      />
+      <div className="flex flex-col items-center" key={nodeType}>
+        <Node
+          size="xxs"
+          color={nodeInfo?.color}
+          label={count.toLocaleString()}
+        />
+        <span className="pt-1 text-xs">{nodeInfo?.name ?? 'Unknown'}</span>
+      </div>
     );
   });
 
@@ -180,11 +136,7 @@ const NetworkSummary = ({
   ).map(([edgeType, count]) => {
     const edgeInfo = codebook.edge?.[edgeType];
 
-    if (!edgeInfo) {
-      // eslint-disable-next-line no-console
-      console.warn(`Edge type ${edgeType} not found in codebook`);
-      return null;
-    }
+    if (!edgeInfo) return null;
 
     return (
       <EdgeSummary
@@ -201,7 +153,7 @@ const NetworkSummary = ({
   }
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 py-2">
       {nodeSummaries}
       {edgeSummaries}
     </div>

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
 import { DndStoreProvider, useDragSource, useDropTarget } from '..';
 
@@ -371,9 +371,7 @@ export const VisualFeedback: Story = {
 
 export const NestedDropTargets: Story = {
   render: () => {
-    const [drops, setDrops] = useState<Array<{ zone: string; item: string }>>(
-      [],
-    );
+    const [drops, setDrops] = useState<{ zone: string; item: string }[]>([]);
 
     const handleDrop = (zoneName: string) => (metadata: any) => {
       setDrops((prev) => [...prev, { zone: zoneName, item: metadata.id }]);

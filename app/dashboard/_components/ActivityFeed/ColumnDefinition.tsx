@@ -26,12 +26,7 @@ export function fetchActivityFeedTableColumnDefs(): ColumnDef<
       ),
       cell: ({ row }) => {
         const timestamp: string = row.getValue('timestamp');
-        return (
-          <TimeAgo
-            date={timestamp}
-            className="flex space-x-2 truncate font-medium"
-          />
-        );
+        return <TimeAgo date={timestamp} className="flex space-x-2 truncate" />;
       },
     },
     {
@@ -54,9 +49,7 @@ export function fetchActivityFeedTableColumnDefs(): ColumnDef<
       ),
       cell: ({ row }) => (
         <div className="flex space-x-2">
-          <span className="max-w-full truncate font-medium">
-            {row.original.message}
-          </span>
+          <span className="max-w-full truncate">{row.original.message}</span>
         </div>
       ),
       enableSorting: false,

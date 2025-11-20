@@ -45,8 +45,14 @@ const config = {
     'next/core-web-vitals',
     'prettier',
     'plugin:storybook/recommended',
+    'plugin:better-tailwindcss/recommended-error',
   ],
-  ignorePatterns: ['node_modules', '*.stories.*', 'public'],
+  settings: {
+    'better-tailwindcss': {
+      entryPoint: 'styles/globals.css',
+    },
+  },
+  ignorePatterns: ['node_modules', 'public'],
   rules: {
     '@typescript-eslint/switch-exhaustiveness-check': 'error',
     '@next/next/no-img-element': 'off',
@@ -76,6 +82,9 @@ const config = {
       },
     ],
     'no-unreachable': 'error',
+    'better-tailwindcss/enforce-consistent-line-wrapping': 'off', // Conflict with prettier
+    'better-tailwindcss/enforce-consistent-class-order': 'off', // Conflict with prettier
+    'better-tailwindcss/no-unregistered-classes': 'warn', // TODO: set to error after fixing existing issues
   },
 };
 

@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { fn } from 'storybook/test';
-import { Button } from '../ui/components';
+import Button from '~/components/ui/Button';
 import { Dialog, type DialogProps } from './Dialog';
 
 const meta: Meta<typeof Dialog> = {
@@ -13,7 +13,7 @@ const meta: Meta<typeof Dialog> = {
     accent: {
       control: {
         type: 'select',
-        options: ['default', 'danger', 'success', 'warning', 'info'],
+        options: ['default', 'danger', 'success', 'info'],
       },
     },
     title: {
@@ -33,12 +33,19 @@ export default meta;
 type Story = StoryObj<typeof Dialog>;
 
 const DialogTemplate = (args: DialogProps) => (
-  <Dialog {...args} open ref={undefined}>
+  <Dialog
+    {...args}
+    open={true}
+    footer={
+      <>
+        <Button onClick={args.closeDialog}>Cancel</Button>
+        <Button color="primary" onClick={args.closeDialog}>
+          Continue
+        </Button>
+      </>
+    }
+  >
     <p>This is the content inside the dialog.</p>
-    <Button color="primary" onClick={args.closeDialog}>
-      Continue
-    </Button>
-    <Button onClick={args.closeDialog}>Cancel</Button>
   </Dialog>
 );
 
@@ -64,15 +71,6 @@ export const Danger: Story = {
     title: 'Danger Dialog',
     description: 'This dialog indicates danger.',
     accent: 'danger',
-  },
-  render: (args) => <DialogTemplate {...args} />,
-};
-
-export const Warning: Story = {
-  args: {
-    title: 'Warning Dialog',
-    description: 'This dialog indicates a warning.',
-    accent: 'warning',
   },
   render: (args) => <DialogTemplate {...args} />,
 };

@@ -1,10 +1,10 @@
-$module-name: prompts;
+$prompts-module-name: prompts;
 
-.#{$module-name} {
+.#{$prompts-module-name} {
   --number-of-lines: 3;
   --prompt-text-size: 1.75rem; // h1
-  --pip-size: #{unit(1.2)};
-  --spacer-size: calc(var(--pip-size) + #{unit(1)});
+  --pip-size: 1.2rem;
+  --spacer-size: calc(var(--pip-size) + 1rem);
 
   width: 100%;
   display: flex;

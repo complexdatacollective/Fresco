@@ -1,81 +1,87 @@
 'use client';
 
-import cx from 'classnames';
-import { useId, useState } from 'react';
-import { useFieldContext } from '~/lib/form/utils/formContexts';
-import Icon from '~/lib/ui/components/Icon';
-import MarkdownLabel from './MarkdownLabel';
+import { type ComponentProps, forwardRef } from 'react';
+import {
+  controlContainerVariants,
+  controlStateVariants,
+  placeholderVariants,
+  spacingVariants,
+} from '~/styles/shared/controlVariants';
+import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 
-type TextAreaProps = {
-  label?: string;
-  placeholder?: string;
-  fieldLabel?: string;
-  className?: string;
-  autoFocus?: boolean;
-  hidden?: boolean;
-};
+const textareaWrapperVariants = compose(
+  spacingVariants,
+  controlContainerVariants,
+  controlStateVariants,
+  cva({
+    base: 'w-full',
+  }),
+);
 
-const TextArea = ({
-  label,
-  placeholder,
-  fieldLabel,
-  className = '',
-  autoFocus = false,
-  hidden = false,
-}: TextAreaProps) => {
-  const fieldContext = useFieldContext();
-  const [hasFocus, setHasFocus] = useState(false);
-  // Use React's useId hook to generate a stable ID
-  const generatedId = useId();
-  const id = `textarea-${generatedId}`;
+const textareaVariants = compose(
+  placeholderVariants,
+  cva({
+    base: cx(
+      'w-full h-full resize-y min-h-[120px]',
+      'p-0 border-none bg-transparent outline-none focus:ring-0',
+      'cursor-[inherit]',
+    ),
+    variants: {
+      size: {
+        xs: 'py-1',
+        sm: 'py-2',
+        md: 'py-3',
+        lg: 'py-4',
+        xl: 'py-5',
+      },
+    },
+  }),
+);
 
-  const handleFocus = () => {
-    setHasFocus(true);
+type TextAreaFieldProps = Omit<
+  ComponentProps<'textarea'>,
+  'size' | 'onChange'
+> &
+  VariantProps<typeof textareaWrapperVariants> & {
+    size?: VariantProps<typeof textareaWrapperVariants>['size'];
+    onChange?: (value: string) => void;
   };
 
-  const handleBlur = () => {
-    setHasFocus(false);
-    fieldContext.handleBlur();
+export const TextAreaField = forwardRef<
+  HTMLTextAreaElement,
+  TextAreaFieldProps
+>(function TextAreaField(
+  { className, size, onChange, disabled, ...textareaProps },
+  ref,
+) {
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onChange?.(e.target.value);
   };
 
-  const seamlessClasses = cx(className, 'form-field-text', {
-    'form-field-text--has-focus': hasFocus,
-    'form-field-text--has-error':
-      !fieldContext.state.meta.isValid &&
-      fieldContext.state.meta.isTouched &&
-      (fieldContext.state.meta.errors?.[0] as string),
-  });
+  // Work out variant state based on props. Order:
+  // disabled > readOnly > invalid > normal
+  const getState = () => {
+    if (disabled) return 'disabled';
+    if (textareaProps.readOnly) return 'readOnly';
+    if (textareaProps['aria-invalid']) return 'invalid';
+    return 'normal';
+  };
 
   return (
-    <label
-      htmlFor={id}
-      className="form-field-container"
-      hidden={hidden}
-      data-name={fieldContext.name}
+    <div
+      className={textareaWrapperVariants({
+        size,
+        className,
+        state: getState(),
+      })}
     >
-      {fieldLabel || label ? <MarkdownLabel label={fieldLabel ?? label} /> : ''}
-      <div className={seamlessClasses}>
-        <textarea
-          id={id}
-          name={fieldContext.name}
-          value={(fieldContext.state.value as string) || ''}
-          className="form-field form-field-text form-field-text--area form-field-text__input"
-          placeholder={placeholder}
-          autoFocus={autoFocus}
-          onBlur={handleBlur}
-          onFocus={handleFocus}
-          onChange={(e) => fieldContext.handleChange(e.target.value)}
-        />
-        {!fieldContext.state.meta.isValid &&
-          fieldContext.state.meta.isTouched && (
-            <div className="form-field-text__error">
-              <Icon name="warning" />
-              {fieldContext.state.meta.errors?.[0]}
-            </div>
-          )}
-      </div>
-    </label>
+      <textarea
+        ref={ref}
+        {...textareaProps}
+        disabled={disabled}
+        onChange={handleChange}
+        className={textareaVariants({ size })}
+      />
+    </div>
   );
-};
-
-export default TextArea;
+});

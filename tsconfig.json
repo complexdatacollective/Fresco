@@ -36,6 +36,7 @@
     "**/*.jsx",
     "**/*.cjs",
     "**/*.mjs",
+    ".storybook/**/*",
     ".next/types/**/*.ts",
     "eslint-local-rules/index.js",
     "actions/auth.ts",

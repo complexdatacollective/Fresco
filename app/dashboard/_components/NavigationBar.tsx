@@ -1,14 +1,15 @@
 'use client';
 
+import { Settings } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { Route } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { UrlObject } from 'url';
+import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
-import { env } from '~/env';
-import { cn } from '~/utils/shadcn';
+import { IconButton } from '~/components/ui/Button';
+import { cx } from '~/utils/cva';
 import UserMenu from './UserMenu';
 
 const NavButton = ({
@@ -16,25 +17,25 @@ const NavButton = ({
   href,
   isActive = false,
 }: {
-  label: string;
+  label: string | React.ReactNode;
   href: UrlObject | Route;
   isActive?: boolean;
 }) => {
   return (
-    <motion.li layout className="relative flex flex-col justify-start">
+    <motion.li
+      layout
+      className="focusable relative flex flex-col justify-start"
+    >
       <Link
         href={href}
-        className={cn(
-          'text-primary-foreground text-sm font-semibold',
-          !isActive && 'hover:text-sea-green',
-        )}
+        className={cx('font-semibold', !isActive && 'hover:text-link')}
       >
         {label}
       </Link>
       {isActive && (
         <motion.div
           layoutId="underline"
-          className="bg-primary-foreground absolute top-[105%] right-0 left-0 h-[2px] rounded-full"
+          className="absolute top-[105%] right-0 left-0 h-[2px] rounded-full bg-[currentColor]"
         />
       )}
     </motion.li>
@@ -45,42 +46,56 @@ export function NavigationBar() {
   const pathname = usePathname();
 
   return (
-    <motion.nav className="bg-cyber-grape flex items-center justify-between gap-4 px-4 py-3">
-      <Link href="/" className="flex items-center space-x-2">
-        <Image src="/favicon.png" alt="Fresco" width={50} height={50} />
-        <Heading variant="h3" className="hidden text-white lg:block">
-          Fresco
-          <sup className="align-super text-xs">{env.APP_VERSION}</sup>
-        </Heading>
-      </Link>
-      <ul className="flex items-center gap-10">
-        <NavButton
-          href="/dashboard"
-          isActive={pathname === '/dashboard'}
-          label="Dashboard"
-        />
-        <NavButton
-          label="Protocols"
-          href="/dashboard/protocols"
-          isActive={pathname === '/dashboard/protocols'}
-        />
-        <NavButton
-          label="Participants"
-          href="/dashboard/participants"
-          isActive={pathname === '/dashboard/participants'}
-        />
-        <NavButton
-          label="Interviews"
-          href="/dashboard/interviews"
-          isActive={pathname === '/dashboard/interviews'}
-        />
-        <NavButton
-          label="Settings"
-          href="/dashboard/settings"
-          isActive={pathname === '/dashboard/settings'}
-        />
-      </ul>
-      <UserMenu />
-    </motion.nav>
+    <>
+      <Surface
+        as="nav"
+        spacing="none"
+        className="bg-primary text-primary-contrast fixed top-2 left-1/2 z-10 flex -translate-x-1/2 items-center justify-between gap-4 rounded-full px-6 py-4"
+      >
+        <Link href="/" className="focusable flex items-center space-x-2">
+          <Heading
+            level="h3"
+            className="tablet:block mx-4 hidden font-extrabold"
+            margin="none"
+          >
+            Fresco
+          </Heading>
+        </Link>
+        <ul className="flex items-center gap-10">
+          <NavButton
+            href="/dashboard"
+            isActive={pathname === '/dashboard'}
+            label="Dashboard"
+          />
+          <NavButton
+            label="Protocols"
+            href="/dashboard/protocols"
+            isActive={pathname === '/dashboard/protocols'}
+          />
+          <NavButton
+            label="Participants"
+            href="/dashboard/participants"
+            isActive={pathname === '/dashboard/participants'}
+          />
+          <NavButton
+            label="Interviews"
+            href="/dashboard/interviews"
+            isActive={pathname === '/dashboard/interviews'}
+          />
+        </ul>
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard/settings">
+            <IconButton
+              variant="text"
+              aria-label="Settings"
+              color="accent"
+              className="text-current"
+              icon={<Settings size={20} />}
+            />
+          </Link>
+          <UserMenu />
+        </div>
+      </Surface>
+    </>
   );
 }

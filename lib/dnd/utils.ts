@@ -32,8 +32,6 @@ export function rafThrottle<TArgs extends readonly unknown[], TReturn = void>(
   return throttledWithCancel;
 }
 
-
-
 // Get element bounds with transform support (viewport coordinates)
 export function getElementBounds(element: HTMLElement): {
   x: number;

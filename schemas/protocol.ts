@@ -13,7 +13,7 @@ const assetInsertSchema = z.object({
 
 export type AssetInsertType = z.infer<typeof assetInsertSchema>;
 
-export const protocolInsertSchema = z.looseObject({
+export const protocolInsertSchema = z.object({
   protocol: CurrentProtocolSchema,
   protocolName: z.string(),
   newAssets: z.array(assetInsertSchema),

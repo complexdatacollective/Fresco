@@ -3,7 +3,7 @@ import { useState } from 'react';
 import type z from 'zod';
 import { setAppSetting } from '~/actions/appSettings';
 import { Button } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
+import { InputField } from '~/lib/form/components/fields/Input';
 import { type AppSetting } from '~/schemas/appSettings';
 import ReadOnlyEnvAlert from '../settings/ReadOnlyEnvAlert';
 
@@ -23,9 +23,7 @@ export default function UpdateSettingsValue({
   const [isSaving, setSaving] = useState(false);
 
   // If key is empty or invalid, set the error state
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-
+  const handleChange = (value: string) => {
     const result = schema.safeParse(value);
 
     if (!result.success) {
@@ -56,15 +54,15 @@ export default function UpdateSettingsValue({
   return (
     <>
       {readOnly && <ReadOnlyEnvAlert />}
-      <Input
+      <InputField
         value={newValue}
         onChange={handleChange}
         onFocus={(event) => event.target.select()}
         type="text"
-        error={error}
         className="w-full"
         disabled={readOnly ?? isSaving}
       />
+      {error && <p className="text-destructive mt-2 text-sm">{error}</p>}
       {newValue !== initialValue && (
         <div className="mt-4 flex justify-end gap-2">
           {!isSaving && (

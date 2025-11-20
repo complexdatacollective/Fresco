@@ -13,8 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '~/components/ui/popover';
-import { cn } from '~/utils/shadcn';
-import { selectTriggerStyles } from './select';
+import { cx } from '~/utils/cva';
 
 const DefaultItemComponent = (item: {
   value: unknown;
@@ -83,7 +82,7 @@ export default function FancyBox<
             role="combobox"
             aria-controls="frameworks"
             aria-expanded={openCombobox}
-            className={cn(selectTriggerStyles, className)}
+            className={cx(className)}
           >
             <span className="truncate">{triggerLabelText}</span>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -97,7 +96,7 @@ export default function FancyBox<
                 ref={inputRef}
                 placeholder={`Search ${plural}...`}
                 value={inputValue}
-                onValueChange={setInputValue}
+                onInput={(e) => setInputValue(e.currentTarget.value)}
                 className="my-2 h-8"
               />
             )}
@@ -121,7 +120,7 @@ export default function FancyBox<
                       value={item.id}
                     >
                       <Check
-                        className={cn(
+                        className={cx(
                           'mr-2 h-4 w-4',
                           isActive ? 'opacity-100' : 'opacity-0',
                         )}

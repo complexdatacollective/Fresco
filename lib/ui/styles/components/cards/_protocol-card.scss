@@ -1,3 +1,6 @@
+@use '../../global/core/helpers';
+@use '../scrollable';
+
 $component: 'protocol-card';
 
 .#{$component} {
@@ -11,7 +14,7 @@ $component: 'protocol-card';
   position: relative;
 
   &--clickable {
-    @include clickable(2);
+    @include helpers.clickable(2);
   }
 
   &--selected {
@@ -28,9 +31,9 @@ $component: 'protocol-card';
   }
 
   &--condensed {
-    @include clickable(1);
+    @include helpers.clickable(1);
     flex-direction: row;
-    height: unit(7);
+    height: 7rem;
 
     .#{$component}__icon-section {
       padding: 0;
@@ -47,7 +50,7 @@ $component: 'protocol-card';
     }
 
     .#{$component}__main-section {
-      padding: unit(1) unit(2);
+      padding: 1rem 2rem;
       width: calc(100% - 4rem);
 
       .protocol-name {
@@ -68,13 +71,13 @@ $component: 'protocol-card';
     color: #aab0fd;
     background: var(--color-slate-blue--dark);
     flex-direction: row;
-    padding: unit(1) unit(4);
+    padding: 1rem 4rem;
     flex: 0 0 auto;
     min-height: 0;
 
     .protocol-icon {
       height: 100%;
-      flex: 0 0 unit(4);
+      flex: 0 0 4rem;
       display: flex;
 
       .icon {
@@ -103,7 +106,7 @@ $component: 'protocol-card';
   }
 
   &__main-section {
-    padding: unit(2) unit(4) unit(1);
+    padding: 2rem 4rem 1rem;
     flex-direction: column;
     display: flex;
     justify-content: center;
@@ -119,8 +122,8 @@ $component: 'protocol-card';
     }
 
     .protocol-description {
-      @include scrollable(unit(1));
-      padding-top: unit(1);
+      @include scrollable.scrollable(1rem);
+      padding-top: 1rem;
       flex: 1 1 auto;
       font-size: 0.8rem;
 
@@ -140,8 +143,8 @@ $component: 'protocol-card';
     width: 3rem;
     text-align: center;
     // background: var(--warning);
-    padding: unit(1);
-    margin-left: unit(1);
+    padding: 1rem;
+    margin-left: 1rem;
     border-radius: 50%;
     display: inline-block;
 

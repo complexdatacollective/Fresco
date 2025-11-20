@@ -1,77 +1,210 @@
+'use client';
+
 import { Slot } from '@radix-ui/react-slot';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { motion } from 'motion/react';
 import * as React from 'react';
-import { cn } from '~/utils/shadcn';
+import {
+  controlVariants,
+  proportionalLucideIconVariants,
+  sizeVariants,
+  spacingVariants,
+} from '~/styles/shared/controlVariants';
+import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { Skeleton } from './skeleton';
 
-const buttonVariants = cva(
-  'inline-flex items-center justify-center rounded-full text-sm font-semibold ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-nowrap truncate text-foreground',
-  {
-    variants: {
-      variant: {
-        default: 'bg-primary hover:bg-primary/90 text-primary-foreground',
-        success: 'bg-success text-success-foreground hover:bg-success/90',
-        accent: 'bg-accent text-accent-foreground hover:bg-accent/90',
-        info: 'bg-info text-info-foreground hover:bg-info/90',
-        destructive:
-          'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-        outline:
-          'bg-transparent hover:bg-accent hover:text-accent-foreground border',
-        secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        ghost: 'hover:text-accent',
-        tableHeader:
-          'hover:text-accent data-[state=open]:text-accent !p-0 rounded-none',
-        link: 'underline-offset-4 hover:underline',
-      },
-      size: {
-        default: 'h-10 px-6 py-2',
-        xs: 'h-6 px-3 text-xs',
-        sm: 'h-8 px-4',
-        lg: 'h-12 px-8 text-lg',
-        icon: 'h-10 w-10',
-      },
+const buttonSpecificVariants = cva({
+  base: cx(
+    'font-semibold inline-flex tracking-wide cursor-pointer shrink-0',
+    'justify-center',
+    'disabled:cursor-not-allowed disabled:opacity-50',
+    'focusable',
+    'elevation-low',
+    'hover:elevation-medium hover:translate-y-[-2px] transition-all active:elevation-none active:translate-y-[1px]',
+  ),
+  variants: {
+    variant: {
+      default: 'bg-(--component-text) text-(--component-bg)',
+      outline:
+        'border-2 border-[var(--component-text)] text-[var(--component-text)] hover:enabled:bg-[var(--component-text)] hover:enabled:text-[var(--component-bg)]',
+      text: 'text-[var(--component-text)] hover:enabled:bg-[var(--component-text)] hover:enabled:text-[var(--component-bg)]',
+      dashed:
+        'border-2 border-[var(--component-text)] border-dashed text-[var(--component-text)] hover:enabled:bg-[var(--component-text)] hover:enabled:text-[var(--component-bg)]',
     },
-    defaultVariants: {
-      variant: 'default',
-      size: 'default',
+    color: {
+      default:
+        '[--component-text:var(--color-neutral)] [--component-bg:var(--color-neutral-contrast)]',
+      dynamic:
+        'text-current [--component-bg:currentColor] [--component-text:color-mix(in_oklab,var(--published-bg,--background),currentColor_8%)]',
+      primary:
+        'focus:outline-primary [--component-text:var(--color-primary)] [--component-bg:var(--color-primary-contrast)]',
+      secondary:
+        'focus:outline-secondary [--component-text:var(--color-secondary)] [--component-bg:var(--color-secondary-contrast)]',
+      warning:
+        'focus:outline-warning [--component-text:var(--color-warning)] [--component-bg:var(--color-warning-contrast)]',
+      info: '[--component-text:var(--color-info)] [--component-bg:var(--color-info-contrast)]',
+      destructive:
+        'focus:outline-destructive [--component-text:var(--color-destructive)] [--component-bg:var(--color-destructive-contrast)]',
+      success:
+        'focus:outline-success [--component-text:var(--color-success)] [--component-bg:var(--color-success-contrast)]',
+      accent:
+        'focus:outline-accent [--component-text:var(--color-accent)] [--component-bg:var(--color-accent-contrast)]',
     },
-    compoundVariants: [
-      {
-        variant: 'tableHeader',
-        size: 'sm',
-      },
-    ],
+    hasIcon: { true: 'gap-2' },
+    iconPosition: {
+      left: 'flex-row',
+      right: 'flex-row-reverse',
+    },
   },
+  defaultVariants: {
+    variant: 'default',
+    color: 'dynamic',
+    hasIcon: false,
+    iconPosition: 'left',
+  },
+  compoundVariants: [
+    // Default color bg is too light to use as outline or text color
+    {
+      variant: ['outline', 'text', 'dashed'],
+      color: 'default',
+      className:
+        '[--component-text:var(--color-neutral-contrast)] hover:enabled:[--component-text:var(--color-neutral)]',
+    },
+    {
+      variant: ['outline', 'dashed'],
+      color: 'dynamic',
+      className: 'border-current',
+    },
+    {
+      variant: ['text'],
+      className: 'elevation-none',
+    },
+  ],
+});
+
+const buttonVariants = compose(
+  sizeVariants,
+  proportionalLucideIconVariants,
+  controlVariants,
+  spacingVariants,
+  buttonSpecificVariants,
 );
 
-export type ButtonProps = {
+type BaseButtonProps = {
   variant?: VariantProps<typeof buttonVariants>['variant'];
-  size?: VariantProps<typeof buttonVariants>['size'];
   asChild?: boolean;
-} & React.ButtonHTMLAttributes<HTMLButtonElement>;
+  icon?: React.ReactNode;
+  iconPosition?: 'left' | 'right';
+};
+
+export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
+  Omit<VariantProps<typeof buttonVariants>, 'color'> &
+  BaseButtonProps & {
+    color?:
+      | 'default'
+      | 'dynamic'
+      | 'primary'
+      | 'secondary'
+      | 'warning'
+      | 'info'
+      | 'destructive'
+      | 'success';
+  };
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  (
+    {
+      className,
+      variant,
+      color,
+      size,
+      asChild = false,
+      children,
+      icon,
+      iconPosition = 'left',
+      ...props
+    },
+    ref,
+  ) => {
     const Comp = asChild ? Slot : 'button';
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={buttonVariants({
+          variant,
+          color,
+          size,
+          hasIcon: !!icon,
+          iconPosition: iconPosition,
+          className,
+        })}
         ref={ref}
         {...props}
-      />
+      >
+        {icon}
+        {children}
+      </Comp>
     );
   },
 );
 Button.displayName = 'Button';
 
+type IconButtonProps = Omit<
+  ButtonProps,
+  'icon' | 'children' | 'hasIcon' | 'iconPosition' | 'color'
+> & {
+  'icon': React.ReactNode;
+  'aria-label': string;
+  'color'?:
+    | 'default'
+    | 'dynamic'
+    | 'primary'
+    | 'secondary'
+    | 'warning'
+    | 'info'
+    | 'destructive'
+    | 'success'
+    | 'accent';
+};
+
+const iconButtonSizeVariants = compose(
+  buttonVariants,
+  cva({
+    base: 'justify-center rounded-full p-0 aspect-square',
+  }),
+);
+
+const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
+  ({ icon, className, size = 'md', variant, color, ...props }, ref) => {
+    return (
+      <button
+        ref={ref}
+        className={cx(
+          iconButtonSizeVariants({ size, variant, color }),
+          className,
+        )}
+        {...props}
+      >
+        {icon}
+      </button>
+    );
+  },
+);
+IconButton.displayName = 'IconButton';
+
 const ButtonSkeleton = (props: ButtonProps) => {
-  const classes = cn(
-    buttonVariants({ variant: props.variant, size: props.size }),
+  const classes = cx(
+    buttonVariants({
+      variant: props.variant,
+      color: props.color,
+      size: props.size,
+    }),
     props.className,
   );
 
   return <Skeleton className={classes} />;
 };
 
-export { Button, ButtonSkeleton, buttonVariants };
+export default Button;
+
+export { Button, ButtonSkeleton, buttonVariants, IconButton };
+
+export const MotionButton = motion.create(Button);

@@ -22,7 +22,7 @@ import { invariant } from 'es-toolkit';
 import { find, get } from 'es-toolkit/compat';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
-import { generateSecureAttributes } from '../../containers/Interfaces/Anonymisation/utils';
+import { generateSecureAttributes } from '../../Interfaces/Anonymisation/utils';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
 import {
   makeGetCodebookVariablesForEdgeType,
@@ -277,12 +277,15 @@ export const addEdge = createAsyncThunk(
       ...attributeData,
     };
 
+    const edgeId = uuid();
+
     return {
       sessionMeta,
       from,
       to,
       type,
       attributeData: mergedAttributes,
+      edgeId,
     };
   },
 );
@@ -725,11 +728,11 @@ const sessionReducer = createReducer(initialState, (builder) => {
 
   builder.addCase(addEdge.fulfilled, (state, action) => {
     const {
-      payload: { from, to, type, attributeData },
+      payload: { from, to, type, attributeData, edgeId },
     } = action;
 
     const newEdge = {
-      [entityPrimaryKeyProperty]: uuid(),
+      [entityPrimaryKeyProperty]: edgeId,
       from,
       to,
       type,
