@@ -55,6 +55,7 @@ export function SelectField({
       })}
     >
       <select
+        autoComplete="off"
         {...selectProps}
         name={name}
         value={value}

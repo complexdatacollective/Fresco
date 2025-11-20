@@ -34,7 +34,7 @@ type CheckboxGroupProps = Omit<
   'size' | 'onChange'
 > &
   VariantProps<typeof checkboxGroupComposedVariants> & {
-    id?: string;
+    id: string;
     name: string;
     options: CheckboxOption[];
     value?: (string | number)[];
@@ -48,7 +48,7 @@ type CheckboxGroupProps = Omit<
   };
 
 export function CheckboxGroupField({
-  id: _id,
+  id,
   className,
   name,
   options,
@@ -90,6 +90,7 @@ export function CheckboxGroupField({
   return (
     <div className="@container">
       <fieldset
+        id={id}
         {...fieldsetProps}
         className={checkboxGroupComposedVariants({
           orientation,

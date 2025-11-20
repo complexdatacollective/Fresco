@@ -8,10 +8,9 @@ import {
   type FieldValidation,
   type FieldValue,
 } from '../types';
-import { getInputState } from '../utils/getInputState';
 import FieldErrors from './FieldErrors';
+import { FieldLabel } from './FieldLabel';
 import Hint from './Hint';
-import { Label } from './Label';
 
 export const containerVariants = cva({
   base: 'grid gap-3 not-first:mt-6',
@@ -45,7 +44,8 @@ export const fieldAnimationVariants = {
  * being used, allowing for additional props to be passed through.
  */
 export default function Field<
-  TComponent extends React.ElementType,
+  // TComponent must extend from a HTMLInputElement to ensure compatibility
+  TComponent extends React.ElementType<HTMLInputElement>,
   TComponentProps = React.ComponentProps<TComponent>,
 >({
   showRequired,
@@ -73,7 +73,11 @@ export default function Field<
 
   const FieldComponent = Component;
 
-  const inputVariantState = getInputState(meta);
+  // Auto-detect if component needs fieldset mode via static property
+  const needsFieldset = 'fieldsetMode' in Component && Component.fieldsetMode;
+
+  // Choose wrapper element based on fieldset mode
+  const WrapperElement = needsFieldset ? 'fieldset' : 'div';
 
   return (
     <motion.div
@@ -87,15 +91,22 @@ export default function Field<
       layout="position"
       {...containerProps}
     >
-      <Label id={`${id}-label`} htmlFor={id} required={showRequired}>
-        {label}
-      </Label>
-      <FieldComponent
-        name={name}
-        {...fieldProps}
-        {...additionalFieldProps}
-        id={id}
-      />
+      <WrapperElement>
+        <FieldLabel
+          id={`${id}-label`}
+          htmlFor={!needsFieldset ? id : undefined}
+          required={showRequired}
+          render={needsFieldset ? <legend /> : undefined}
+        >
+          {label}
+        </FieldLabel>
+        <FieldComponent
+          name={name}
+          {...fieldProps}
+          {...additionalFieldProps}
+          id={id}
+        />
+      </WrapperElement>
       {hint && <Hint id={`${id}-hint`}>{hint}</Hint>}
       <FieldErrors
         id={`${id}-error`}

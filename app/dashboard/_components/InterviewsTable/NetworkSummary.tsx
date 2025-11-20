@@ -1,12 +1,7 @@
 import { type Codebook } from '@codaco/protocol-validation';
 import type { NcNetwork } from '@codaco/shared-consts';
-<<<<<<< HEAD
 import { Node } from '~/lib/ui/components';
 import { cx } from '~/utils/cva';
-=======
-import { type NodeColorSequence } from '~/lib/ui/components/Node';
-import { cn } from '~/utils/shadcn';
->>>>>>> v4
 
 type EdgeColorSequence =
   | 'edge-color-seq-1'
@@ -24,35 +19,6 @@ type EdgeSummaryProps = {
   count: number;
   typeName: string;
 };
-<<<<<<< HEAD
-=======
-function NodeSummary({
-  color = 'node-color-seq-1',
-  count,
-  typeName,
-}: NodeSummaryProps) {
-  const classes = cn(
-    'flex items-center h-8 w-8 justify-center rounded-full',
-    'bg-linear-145 from-50% to-50%',
-    'from-[var(--node-color-seq-1)] to-[var(--node-color-seq-1-dark)]',
-    color === 'node-color-seq-1' &&
-      'from-[var(--node-color-seq-1)] to-[var(--node-color-seq-1-dark)]',
-    color === 'node-color-seq-2' &&
-      'from-[var(--node-color-seq-2)] to-[var(--node-color-seq-2-dark)]',
-    color === 'node-color-seq-3' &&
-      'from-[var(--node-color-seq-3)] to-[var(--node-color-seq-3-dark)]',
-    color === 'node-color-seq-4' &&
-      'from-[var(--node-color-seq-4)] to-[var(--node-color-seq-4-dark)]',
-    color === 'node-color-seq-5' &&
-      'from-[var(--node-color-seq-5)] to-[var(--node-color-seq-5-dark)]',
-    color === 'node-color-seq-6' &&
-      'from-[var(--node-color-seq-6)] to-[var(--node-color-seq-6-dark)]',
-    color === 'node-color-seq-7' &&
-      'from-[var(--node-color-seq-7)] to-[var(--node-color-seq-7-dark)]',
-    color === 'node-color-seq-8' &&
-      'from-[var(--node-color-seq-8)] to-[var(--node-color-seq-8-dark)]',
-  );
->>>>>>> v4
 
 function EdgeSummary({ color, count, typeName }: EdgeSummaryProps) {
   const lightColorClass = cx(

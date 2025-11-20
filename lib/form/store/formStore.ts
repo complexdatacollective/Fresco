@@ -142,9 +142,6 @@ export const createFormStore = () => {
           state.fields.get(fieldName)!.state.isDirty = true;
           state.fields.get(fieldName)!.state.isTouched = true;
           state.isDirty = true;
-
-          // Validate field by calling validateField
-          void state.validateField(fieldName);
         });
       },
 

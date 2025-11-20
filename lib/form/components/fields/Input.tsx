@@ -121,6 +121,7 @@ export const InputField = forwardRef(function InputField<
       <motion.input
         layout
         ref={ref}
+        autoComplete="off"
         {...inputProps}
         disabled={disabled}
         type={type}

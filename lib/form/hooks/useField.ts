@@ -116,10 +116,8 @@ export function useField(config: {
       }
 
       setFieldValue(config.name, value);
-
-      void validateField(config.name);
     },
-    [config.name, setFieldValue, validateField],
+    [config.name, setFieldValue],
   );
 
   const handleBlur = useCallback(
@@ -152,7 +150,7 @@ export function useField(config: {
     id,
     meta: {
       shouldShowError,
-      errors: fieldErrors,
+      errors: fieldErrors ?? undefined,
       isValid: fieldState?.state.isValid ?? false,
       isTouched: fieldState?.state.isTouched ?? false,
       isDirty: fieldState?.state.isDirty ?? false,

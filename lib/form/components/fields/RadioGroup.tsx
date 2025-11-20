@@ -1,9 +1,10 @@
-import { type FieldsetHTMLAttributes } from 'react';
+import { type HTMLAttributes } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 import {
   backgroundStyles,
   borderStyles,
   cursorStyles,
+  focusRingStyles,
   interactiveElementSizes,
   interactiveElementStyles,
   labelTextStyles,
@@ -89,8 +90,8 @@ export const radioInputVariants = cva({
     interactiveElementStyles.base,
     'rounded-full',
     transitionStyles,
-    interactiveElementStyles.focus,
-    interactiveElementStyles.focusInvalid,
+    focusRingStyles.base,
+    focusRingStyles.invalid,
     // Checked state - using background to create the inner circle
     'checked:border-accent checked:bg-input',
     'checked:after:content-[""] checked:after:absolute checked:after:rounded-full checked:after:bg-accent',
@@ -142,7 +143,7 @@ type RadioOption = {
 };
 
 type RadioGroupProps = Omit<
-  FieldsetHTMLAttributes<HTMLFieldSetElement>,
+  HTMLAttributes<HTMLDivElement>,
   'size' | 'onChange'
 > &
   VariantProps<typeof radioGroupVariants> & {
@@ -159,7 +160,7 @@ type RadioGroupProps = Omit<
   };
 
 export function RadioGroupField({
-  id: _id,
+  id,
   className,
   name,
   options,
@@ -170,7 +171,7 @@ export function RadioGroupField({
   orientation = 'vertical',
   size = 'md',
   useColumns = false,
-  ...fieldsetProps
+  ...divProps
 }: RadioGroupProps) {
   const handleChange = (optionValue: string | number) => {
     if (onChange) {
@@ -182,59 +183,64 @@ export function RadioGroupField({
   const isControlled = value !== undefined;
 
   return (
-    <div className="@container">
-      <fieldset
-        {...fieldsetProps}
-        className={radioGroupVariants({
-          orientation,
-          size,
-          useColumns,
-          className,
-        })}
-        disabled={disabled}
-        role="radiogroup"
-        data-invalid={fieldsetProps['aria-invalid'] === 'true'}
-        {...(fieldsetProps['aria-labelledby']
-          ? { 'aria-labelledby': fieldsetProps['aria-labelledby'] }
-          : {})}
-        {...(fieldsetProps['aria-label']
-          ? { 'aria-label': fieldsetProps['aria-label'] }
-          : {})}
-      >
-        {options.map((option) => {
-          const optionId = `${name}-${option.value}`;
-          const isOptionDisabled = disabled || option.disabled;
-          const isChecked = isControlled ? value === option.value : undefined; // Let defaultValue handle uncontrolled case
+    <div
+      id={id}
+      className={radioGroupVariants({
+        orientation,
+        size,
+        useColumns,
+        className: `@container ${className ?? ''}`,
+      })}
+      role="radiogroup"
+      data-invalid={divProps['aria-invalid'] === 'true'}
+      aria-disabled={disabled}
+      {...(divProps['aria-labelledby']
+        ? { 'aria-labelledby': divProps['aria-labelledby'] }
+        : {})}
+      {...(divProps['aria-label']
+        ? { 'aria-label': divProps['aria-label'] }
+        : {})}
+      {...(divProps['aria-describedby']
+        ? { 'aria-describedby': divProps['aria-describedby'] }
+        : {})}
+      {...(divProps['aria-required']
+        ? { 'aria-required': divProps['aria-required'] }
+        : {})}
+    >
+      {options.map((option) => {
+        const optionId = `${name}-${option.value}`;
+        const isOptionDisabled = disabled || option.disabled;
+        const isChecked = isControlled ? value === option.value : undefined; // Let defaultValue handle uncontrolled case
 
-          return (
-            <label
-              key={option.value}
-              htmlFor={optionId}
-              className={radioOptionVariants({ size })}
-            >
-              <input
-                type="radio"
-                id={optionId}
-                name={name}
-                value={option.value}
-                {...(isControlled
-                  ? { checked: isChecked }
-                  : { defaultChecked: defaultValue === option.value })}
-                disabled={isOptionDisabled}
-                onChange={(e) => {
-                  if (e.target.checked && !isOptionDisabled) {
-                    handleChange(option.value);
-                  }
-                }}
-                className={radioInputVariants({ size })}
-              />
-              <span className={radioLabelVariants({ size })}>
-                {option.label}
-              </span>
-            </label>
-          );
-        })}
-      </fieldset>
+        return (
+          <label
+            key={option.value}
+            htmlFor={optionId}
+            className={radioOptionVariants({ size })}
+          >
+            <input
+              type="radio"
+              id={optionId}
+              name={name}
+              value={option.value}
+              {...(isControlled
+                ? { checked: isChecked }
+                : { defaultChecked: defaultValue === option.value })}
+              disabled={isOptionDisabled}
+              onChange={(e) => {
+                if (e.target.checked && !isOptionDisabled) {
+                  handleChange(option.value);
+                }
+              }}
+              className={radioInputVariants({ size })}
+            />
+            <span className={radioLabelVariants({ size })}>{option.label}</span>
+          </label>
+        );
+      })}
     </div>
   );
 }
+
+// Declare that this component needs fieldset mode
+RadioGroupField.fieldsetMode = true as const;
