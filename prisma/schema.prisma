@@ -51,6 +51,9 @@ model Protocol {
   assets        Asset[]
   interviews    Interview[]
   experiments   Json?
+  isPreview     Boolean     @default(false)
+
+  @@index([isPreview, importedAt])
 }
 
 model Asset {
@@ -101,6 +104,7 @@ enum AppSetting {
   disableAnalytics
   disableSmallScreenOverlay
   uploadThingToken
+  previewModeRequireAuth
 }
 
 model AppSettings {
@@ -113,4 +117,13 @@ model Events {
   timestamp DateTime @default(now())
   type      String
   message   String
+}
+
+model ApiToken {
+  id          String   @id @default(cuid())
+  token       String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  lastUsedAt  DateTime?
+  isActive    Boolean  @default(true)
 }

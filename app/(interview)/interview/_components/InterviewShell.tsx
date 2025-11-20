@@ -21,7 +21,7 @@ const InterviewShell = (props: {
   return (
     <Provider store={store(decodedPayload)}>
       <DndStoreProvider>
-        <ProtocolScreen />
+        <ProtocolScreen isPreview={decodedPayload.protocol.isPreview} />
         <DialogManager />
       </DndStoreProvider>
     </Provider>
