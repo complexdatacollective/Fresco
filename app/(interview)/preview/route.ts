@@ -1,4 +1,5 @@
 import {
+  type CurrentProtocol,
   migrateProtocol,
   validateProtocol,
 } from '@codaco/protocol-validation';
@@ -95,10 +96,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Migrate if needed
-    const protocolToValidate =
+    const protocolToValidate = (
       protocolJson.schemaVersion < 8
         ? migrateProtocol(protocolJson, 8)
-        : protocolJson;
+        : protocolJson
+    ) as CurrentProtocol;
 
     // Validate protocol
     const validationResult = await validateProtocol(protocolToValidate);
@@ -148,7 +150,7 @@ export async function POST(req: NextRequest) {
     } else {
       // Extract assets
       const { fileAssets, apikeyAssets } = await getProtocolAssets(
-        protocolJson,
+        protocolToValidate,
         zip,
       );
 
