@@ -3,7 +3,7 @@ $module-name: prompts;
 .#{$module-name} {
   --number-of-lines: 3;
   --prompt-text-size: 1.75rem; // h1
-  --pip-size:  #{unit(1.2)};
+  --pip-size: #{unit(1.2)};
   --spacer-size: calc(var(--pip-size) + #{unit(1)});
 
   width: 100%;

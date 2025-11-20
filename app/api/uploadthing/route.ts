@@ -1,7 +1,7 @@
 import { type NextRequest } from 'next/server';
 import { createRouteHandler } from 'uploadthing/next';
-import { env } from '~/env';
 import { getAppSetting } from '~/queries/appSettings';
+import { getBaseUrl } from '~/utils/getBaseUrl';
 import { ourFileRouter } from './core';
 
 /**
@@ -23,8 +23,8 @@ const routeHandler = async () => {
       // UploadThing attempts to automatically detect this value based on the request URL and headers
       // However, the automatic detection fails in docker deployments
       // docs: https://docs.uploadthing.com/api-reference/server#config
-      callbackUrl: env.PUBLIC_URL && `${env.PUBLIC_URL}/api/uploadthing`,
-      token: uploadThingToken,
+      callbackUrl: `${getBaseUrl()}/api/uploadthing`,
+      token: uploadThingToken ?? undefined,
     },
   });
 

@@ -22,8 +22,8 @@ export function DataTableSkeleton({
   filterableColumnCount = 1,
 }: DataTableSkeletonProps) {
   return (
-    <div className="w-full space-y-3 overflow-auto">
-      <div className="flex w-full items-center justify-between space-x-2 overflow-auto p-1">
+    <div className="w-full space-y-4 overflow-auto">
+      <div className="flex w-full items-center justify-between space-x-2 overflow-auto">
         <div className="flex flex-1 items-center space-x-2">
           {searchableColumnCount > 0
             ? Array.from({ length: searchableColumnCount }).map((_, i) => (
@@ -38,32 +38,30 @@ export function DataTableSkeleton({
         </div>
         {/* <Skeleton className="ml-auto hidden h-7 w-[70px] lg:flex" /> */}
       </div>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {Array.from({ length: 1 }).map((_, i) => (
-              <TableRow key={i} className="hover:bg-transparent">
-                {Array.from({ length: columnCount }).map((_, i) => (
-                  <TableHead key={i}>
-                    <Skeleton className="h-6 w-full" />
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {Array.from({ length: rowCount }).map((_, i) => (
-              <TableRow key={i} className="hover:bg-transparent">
-                {Array.from({ length: columnCount }).map((_, i) => (
-                  <TableCell key={i}>
-                    <Skeleton className="h-6 w-full" />
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <Table>
+        <TableHeader>
+          {Array.from({ length: 1 }).map((_, i) => (
+            <TableRow key={i} className="hover:bg-transparent">
+              {Array.from({ length: columnCount }).map((_, i) => (
+                <TableHead key={i}>
+                  <Skeleton className="h-6 w-full" />
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {Array.from({ length: rowCount }).map((_, i) => (
+            <TableRow key={i} className="hover:bg-transparent">
+              {Array.from({ length: columnCount }).map((_, i) => (
+                <TableCell key={i}>
+                  <Skeleton className="h-6 w-full" />
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
       <div className="flex w-full flex-col items-center justify-between gap-4 overflow-auto px-2 py-1 sm:flex-row sm:gap-8">
         <div className="flex-1">
           <Skeleton className="h-8 w-40" />

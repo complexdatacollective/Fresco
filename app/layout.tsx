@@ -1,5 +1,6 @@
 import { Quicksand } from 'next/font/google';
-import ResponsiveContainer from '~/components/ResponsiveContainer';
+import Providers from '~/components/Providers';
+import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import { Toaster } from '~/components/ui/toaster';
 import { env } from '~/env';
 import '~/styles/globals.css';
@@ -19,7 +20,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className={`${quicksand.className} antialiased`}>
-        {children}
+        <Providers>{children}</Providers>
         <Toaster />
         {env.SANDBOX_MODE && (
           <ResponsiveContainer>

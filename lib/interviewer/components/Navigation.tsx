@@ -1,8 +1,7 @@
-import ProgressBar from '~/lib/ui/components/ProgressBar';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import ProgressBar from '~/lib/ui/components/ProgressBar';
 import { cn } from '~/utils/shadcn';
-import { useSelector } from 'react-redux';
-import { getNavigationInfo } from '../selectors/session';
+import PassphrasePrompter from './PassphrasePrompter';
 
 const NavigationButton = ({
   disabled,
@@ -35,31 +34,29 @@ const NavigationButton = ({
 type NavigationProps = {
   moveBackward: () => void;
   moveForward: () => void;
+  disableMoveForward?: boolean;
+  disableMoveBackward?: boolean;
   pulseNext: boolean;
-  disabled: boolean;
   progress: number;
 };
 
 const Navigation = ({
   moveBackward,
   moveForward,
+  disableMoveForward,
+  disableMoveBackward,
   pulseNext,
-  disabled,
   progress,
 }: NavigationProps) => {
-  const { canMoveForward, canMoveBackward } = useSelector(getNavigationInfo);
-
   return (
     <div
       role="navigation"
       className="flex shrink-0 grow-0 flex-col items-center justify-between bg-[#36315f] [--nc-light-background:#4a4677]"
     >
-      <NavigationButton
-        onClick={moveBackward}
-        disabled={disabled || !canMoveBackward}
-      >
+      <NavigationButton onClick={moveBackward} disabled={disableMoveBackward}>
         <ChevronUp className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
       </NavigationButton>
+      <PassphrasePrompter />
       <div className="m-6 flex grow">
         <ProgressBar percentProgress={progress} />
       </div>
@@ -67,10 +64,10 @@ const Navigation = ({
         className={cn(
           'bg-[var(--nc-light-background)]',
           'hover:bg-[var(--nc-primary)]',
-          pulseNext && 'animate-pulse bg-success',
+          pulseNext && 'bg-success animate-pulse-glow',
         )}
         onClick={moveForward}
-        disabled={disabled || !canMoveForward}
+        disabled={disableMoveForward}
       >
         <ChevronDown className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
       </NavigationButton>

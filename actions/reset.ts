@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { env } from 'process';
-import { safeRevalidateTag } from '~/lib/cache';
+import { CacheTags, safeRevalidateTag } from '~/lib/cache';
 import { getUTApi } from '~/lib/uploadthing-server-helpers';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
@@ -32,12 +32,7 @@ export const resetAppSettings = async () => {
     });
 
     revalidatePath('/');
-    safeRevalidateTag('appSettings');
-    safeRevalidateTag('activityFeed');
-    safeRevalidateTag('summaryStatistics');
-    safeRevalidateTag('getProtocols');
-    safeRevalidateTag('getParticipants');
-    safeRevalidateTag('getInterviews');
+    safeRevalidateTag(CacheTags);
 
     const utapi = await getUTApi();
 

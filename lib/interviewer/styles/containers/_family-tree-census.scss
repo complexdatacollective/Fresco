@@ -1,0 +1,27 @@
+.family-pedigree-interface {
+  width: 100%;
+
+  .prompt {
+    margin-top: 1rem;
+  }
+
+  #family-member-count-form {
+    columns: 2 auto;
+  }
+
+  .family-tree-census-scroller {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    overflow: auto !important;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .family-tree-census-scroller::-webkit-scrollbar {
+    display: none;
+  }
+}

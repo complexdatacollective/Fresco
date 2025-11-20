@@ -1,9 +1,9 @@
 'use client';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import ProtocolUploader from '~/app/dashboard/_components/ProtocolUploader';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
 
 function ConfigureStudy() {
   const [currentStep, setCurrentStep] = useQueryState(

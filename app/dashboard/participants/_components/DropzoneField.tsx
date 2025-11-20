@@ -2,8 +2,8 @@ import { FileCheck, FileText } from 'lucide-react';
 import { useId } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useController, type Control } from 'react-hook-form';
+import Paragraph from '~/components/typography/Paragraph';
 import { Label } from '~/components/ui/Label';
-import Paragraph from '~/components/ui/typography/Paragraph';
 import { type FormSchema } from '~/schemas/participant';
 import parseCSV from '~/utils/parseCSV';
 import { cn } from '~/utils/shadcn';
@@ -79,7 +79,7 @@ export default function DropzoneField<T>({
         </Label>
       )}
       {hint && (
-        <span className="text-sm leading-5 text-muted-foreground">{hint}</span>
+        <span className="text-muted-foreground text-sm leading-5">{hint}</span>
       )}
       <div
         ref={controller.field.ref}
@@ -109,7 +109,7 @@ export default function DropzoneField<T>({
         )}
       </div>
       {controller.fieldState.error && (
-        <span className="text-sm text-destructive">
+        <span className="text-destructive text-sm">
           {controller.fieldState.error.message}
         </span>
       )}

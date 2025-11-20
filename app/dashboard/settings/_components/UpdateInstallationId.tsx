@@ -1,7 +1,6 @@
 'use client';
 
-import { setAppSetting } from '~/actions/appSettings';
-import { appSettingsSchema } from '~/schemas/appSettings';
+import z from 'zod';
 import UpdateSettingsValue from '../../_components/UpdateSettingsValue';
 
 export default function UpdateInstallationId({
@@ -13,12 +12,10 @@ export default function UpdateInstallationId({
 }) {
   return (
     <UpdateSettingsValue
+      key="installationId"
       initialValue={installationId}
-      updateValue={async (value) => {
-        await setAppSetting('installationId', value);
-      }}
-      schema={appSettingsSchema.shape.installationId}
       readOnly={readOnly}
+      schema={z.string().min(1, 'Installation ID cannot be empty')}
     />
   );
 }

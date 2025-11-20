@@ -9,9 +9,9 @@ import trackEvent from '~/lib/analytics';
 import { ensureError } from '~/utils/ensureError';
 import { getSemverUpdateType, semverSchema } from '~/utils/semVer';
 import SettingsSection from './layout/SettingsSection';
+import Heading from './typography/Heading';
+import Paragraph from './typography/Paragraph';
 import { Button } from './ui/Button';
-import Heading from './ui/typography/Heading';
-import Paragraph from './ui/typography/Paragraph';
 
 const GithubApiResponseSchema = z
   .object({
@@ -130,7 +130,7 @@ export default async function VersionSection() {
                 upgrade documentation.
               </Link>
             </AlertDescription>
-            <article className="prose-headings:foreground prose my-4 max-w-full text-sm text-foreground prose-headings:text-sm prose-headings:font-extrabold prose-headings:uppercase prose-headings:tracking-widest prose-headings:text-foreground prose-a:text-link">
+            <article className="prose-headings:foreground prose text-foreground prose-headings:text-sm prose-headings:font-extrabold prose-headings:uppercase prose-headings:tracking-widest prose-headings:text-foreground prose-a:text-link my-4 max-w-full text-sm">
               <Markdown>{releaseNotes}</Markdown>
             </article>
             <div className="text-right">
