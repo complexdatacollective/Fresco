@@ -32,7 +32,8 @@ function checkForNeededMigrations() {
     console.log('There are differences between the schemas.');
     return true;
   } else if (result.status === 1) {
-    console.log('An error occurred.');
+    console.log('An error occurred:', result.stderr);
+    process.exit(1);
     return false;
   }
 }
