@@ -11,10 +11,11 @@ import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
 
-// Convert string | boolean | Date to string
-const getStringValue = (value: string | boolean | Date | null) => {
+// Convert boolean | Date | string to database string
+const toDbString = (value: boolean | Date | string): string => {
   if (value instanceof Date) return value.toISOString();
-  return value?.toString() ?? 'null';
+  if (typeof value === 'boolean') return value.toString();
+  return value;
 };
 
 export async function setAppSetting<
@@ -28,8 +29,13 @@ export async function setAppSetting<
   }
 
   try {
-    const result = appSettingPreprocessedSchema.shape[key].parse(value);
-    const stringValue = getStringValue(result);
+    // Null values are not supported - caller should not pass null
+    if (value === null) {
+      throw new Error('Cannot set app setting to null');
+    }
+
+    // Convert the typed value to a database string
+    const stringValue = toDbString(value);
 
     await prisma.appSettings.upsert({
       where: { key },

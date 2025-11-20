@@ -1,4 +1,7 @@
-import { type Protocol } from '@codaco/protocol-validation';
+import {
+  type CurrentProtocol,
+  type VersionedProtocol,
+} from '@codaco/protocol-validation';
 import type Zip from 'jszip';
 import { type AssetInsertType } from '~/schemas/protocol';
 
@@ -12,7 +15,7 @@ export const getProtocolJson = async (protocolZip: Zip) => {
     throw new Error('protocol.json not found in zip');
   }
 
-  const protocolJson = (await JSON.parse(protocolString)) as Protocol;
+  const protocolJson = (await JSON.parse(protocolString)) as VersionedProtocol;
 
   return protocolJson;
 };
@@ -34,7 +37,7 @@ type ProtocolAssetsResult = {
 };
 
 export const getProtocolAssets = async (
-  protocolJson: Protocol,
+  protocolJson: CurrentProtocol,
   protocolZip: Zip,
 ): Promise<ProtocolAssetsResult> => {
   const assetManifest = protocolJson?.assetManifest;
