@@ -138,7 +138,7 @@
     "eslint-plugin-storybook": "^10.0.8",
     "jest": "^30.2.0",
     "jsdom": "^27.0.1",
-    "knip": "^5.66.2",
+    "knip": "^5.70.1",
     "prettier": "^3.6.0",
     "prettier-plugin-tailwindcss": "^0.7.1",
     "prisma": "^6.18.0",
