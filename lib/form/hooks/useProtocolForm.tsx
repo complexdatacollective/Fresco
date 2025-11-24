@@ -9,7 +9,7 @@ import {
   getValidationContext,
   selectFieldMetadata,
 } from '~/lib/interviewer/selectors/forms';
-import { Field } from '../components';
+import Field from '../components/Field';
 import { BooleanField } from '../components/fields/Boolean';
 import { CheckboxGroupField } from '../components/fields/CheckboxGroup';
 import { DatePickerField } from '../components/fields/DatePicker';

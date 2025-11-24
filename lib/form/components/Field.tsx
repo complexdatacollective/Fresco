@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { useField } from '../hooks';
+import { useField } from '../hooks/useField';
 import { type FieldValidation } from '../types';
 import FieldErrors from './FieldErrors';
 import { FieldLabel } from './FieldLabel';
@@ -46,6 +46,8 @@ export default function Field<C extends React.ComponentType<InputProps<any>>>({
   // const value = {} as ExtractValue<C>;
   // const onChange = (v: ExtractValue<C>) => console.log(name, v);
 
+  console.log({ ...fieldProps });
+
   const needsFieldset = false;
 
   // Choose wrapper element based on fieldset mode
@@ -65,7 +67,6 @@ export default function Field<C extends React.ComponentType<InputProps<any>>>({
         <Component
           id={id}
           name={name}
-          required={required}
           {...(componentProps as any)}
           {...fieldProps}
         />

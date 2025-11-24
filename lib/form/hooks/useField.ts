@@ -144,7 +144,7 @@ export function useField(config: {
 
   // Ensure the value is never undefined to prevent uncontrolled to controlled warnings
   const currentValue = fieldState?.value ?? config.initialValue;
-  const controlledValue = (currentValue ?? '') as FieldValue;
+  const controlledValue = (currentValue ?? undefined) as FieldValue;
 
   const result: UseFieldConfig = {
     id,

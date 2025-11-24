@@ -26,7 +26,7 @@ export type ValidationFunction<T extends string | boolean | number> = (
  * - boolean: not null
  * - categorical: not null, empty array is not permitted
  */
-export const required: ValidationFunction<boolean> = () => () => {
+export const required = () => () => {
   // TODO: localisation.
   const message = 'You must answer this question before continuing';
 

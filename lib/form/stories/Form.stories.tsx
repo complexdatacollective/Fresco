@@ -2,10 +2,13 @@
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { PersonStandingIcon } from 'lucide-react';
+import React from 'react';
 import { action } from 'storybook/actions';
 import { z } from 'zod';
 import { Field, Form, SubmitButton } from '../components';
 import { InputField } from '../components/fields/Input';
+import { MultiSelectField } from '../components/fields/MultiSelectField';
+import { required } from '../validation';
 
 const meta: Meta<typeof Form> = {
   title: 'Systems/Form',
@@ -48,16 +51,20 @@ export const Default: Story = {
         required
         minLength={2}
         prefixComponent={<PersonStandingIcon />}
+        validation={required()}
       />
       <Field
-        name="age"
-        hint="Enter your age. You must be 18 or older."
-        label="Age"
-        component={InputField}
-        type="number"
+        name="tags"
+        label="Tags"
+        hint="Create at least 2 tags (max 5). Items are sortable - drag to reorder!"
+        component={MultiSelectField}
         required
-        min={18}
-        placeholder="Enter your age"
+        sortable
+        validation={z
+          .array(z.object(z.any()))
+          .min(2, 'Please add at least 2 tags')
+          .max(5, 'You can add up to 5 tags')
+          .prefault([])}
       />
       {/* <Field
         name="country"
@@ -128,6 +135,174 @@ export const Default: Story = {
       <SubmitButton className="self-end" />
     </Form>
   ),
+};
+
+export const WithCustomComponents: Story = {
+  render: () => {
+    type Task = {
+      id: string;
+      label: string;
+      priority: 'low' | 'medium' | 'high';
+      completed: boolean;
+    };
+
+    const TaskItemComponent = ({
+      item,
+      onEdit,
+      onRemove,
+    }: {
+      item: Task;
+      onEdit?: () => void;
+      onRemove?: () => void;
+    }) => {
+      const priorityColors = {
+        low: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+        medium:
+          'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+        high: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+      };
+
+      return (
+        <div className="flex items-center gap-3 rounded-lg border bg-white p-3 shadow-sm dark:bg-slate-800">
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <span
+                className={`text-xs font-semibold ${item.completed ? 'line-through opacity-50' : ''}`}
+              >
+                {item.label}
+              </span>
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-medium ${priorityColors[item.priority]}`}
+              >
+                {item.priority}
+              </span>
+            </div>
+          </div>
+          <div className="flex gap-1">
+            {onEdit && (
+              <button
+                type="button"
+                onClick={onEdit}
+                className="rounded px-2 py-1 text-sm hover:bg-slate-100 dark:hover:bg-slate-700"
+              >
+                Edit
+              </button>
+            )}
+            {onRemove && (
+              <button
+                type="button"
+                onClick={onRemove}
+                className="text-destructive rounded px-2 py-1 hover:bg-red-100 dark:hover:bg-red-900/20"
+              >
+                ×
+              </button>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    const TaskEditorComponent = ({
+      item,
+      onSave,
+      onCancel,
+    }: {
+      item?: Task;
+      onSave: (item: Task) => void;
+      onCancel: () => void;
+    }) => {
+      const [label, setLabel] = React.useState(item?.label ?? '');
+      const [priority, setPriority] = React.useState<'low' | 'medium' | 'high'>(
+        item?.priority ?? 'medium',
+      );
+      const [completed, setCompleted] = React.useState(
+        item?.completed ?? false,
+      );
+
+      return (
+        <div className="flex flex-col gap-2 rounded-lg border bg-white p-3 shadow-sm dark:bg-slate-800">
+          <input
+            type="text"
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            className="flex-1 rounded border bg-white px-2 py-1 dark:bg-slate-900"
+            placeholder="Task name..."
+            autoFocus
+          />
+          <div className="flex items-center gap-2">
+            <label className="text-sm">Priority:</label>
+            <select
+              value={priority}
+              onChange={(e) =>
+                setPriority(e.target.value as 'low' | 'medium' | 'high')
+              }
+              className="rounded border bg-white px-2 py-1 text-sm dark:bg-slate-900"
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+            <label className="flex items-center gap-1 text-sm">
+              <input
+                type="checkbox"
+                checked={completed}
+                onChange={(e) => setCompleted(e.target.checked)}
+              />
+              Completed
+            </label>
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (label.trim()) {
+                  onSave({
+                    id: item?.id ?? crypto.randomUUID(),
+                    label: label.trim(),
+                    priority,
+                    completed,
+                  });
+                }
+              }}
+              className="rounded bg-green-600 px-3 py-1 text-sm text-white hover:bg-green-700"
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              onClick={onCancel}
+              className="rounded px-3 py-1 text-sm hover:bg-slate-100 dark:hover:bg-slate-700"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      );
+    };
+
+    return (
+      <Form
+        onSubmit={async (data) => {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          action('form-submitted')(data);
+          return { success: true };
+        }}
+      >
+        <Field
+          name="tasks"
+          label="Tasks"
+          hint="Create and manage your tasks. Drag to reorder, click Edit to modify, or × to remove."
+          component={MultiSelectField<Task>}
+          required
+          min={1}
+          sortable
+          ItemComponent={TaskItemComponent}
+          EditorComponent={TaskEditorComponent}
+        />
+        <SubmitButton className="self-end" />
+      </Form>
+    );
+  },
 };
 
 export const WithServerSideErrors: Story = {

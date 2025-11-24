@@ -2,6 +2,8 @@ import { type VariableValue } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
 import { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
+import ActionButton from '~/components/interview/ActionButton';
+import Button from '~/components/ui/Button';
 import Form from '~/lib/form/components/Form';
 import { useDynamicFields } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useDynamicFields';
 import { useRelatives } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useRelatives';
@@ -11,11 +13,11 @@ import {
   getNodeTypeLabel,
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
-import { ActionButton, Button, Scroller } from '~/lib/ui/components';
+import { Scroller } from '~/lib/ui/components';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
 
 const AddFamilyMemberForm = () => {
-  const subject = useSelector(getStageSubject)!;
+  const subject = useSelector(getStageSubject);
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
   const icon = useSelector(getNodeIconName);
   const nodesMap = useFamilyTreeStore((state) => state.network.nodes);
@@ -80,7 +82,6 @@ const AddFamilyMemberForm = () => {
             Finished
           </Button>
         }
-        allowMaximize={false}
       >
         <Scroller>
           <Form
