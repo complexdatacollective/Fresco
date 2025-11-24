@@ -36,10 +36,16 @@ export type UseFieldConfig = {
   };
   containerProps: {
     'data-field-name': string; // Used for scrolling to field errors
+    'data-disabled': boolean;
+    'data-valid': boolean;
+    'data-validating': boolean;
+    'data-invalid': boolean;
+    'data-dirty': boolean;
+    'data-touched': boolean;
   };
   fieldProps: {
     'value': FieldValue;
-    'onChange': ChangeHandler; // Handles both direct value changes and event-based changes
+    'onChange': ChangeHandler<FieldValue>; // Handles both direct value changes and event-based changes
     'onBlur': (e: React.FocusEvent) => void;
     'aria-required': boolean; // Indicates if the field is required
     'aria-invalid': boolean; // Indicates if the field is invalid
@@ -47,17 +53,11 @@ export type UseFieldConfig = {
   };
 };
 
-// Keys that the Field component provides to field components
-// This includes both the top-level keys and the individual fieldProps keys
-export type UseFieldKeys =
-  | keyof UseFieldConfig
-  | keyof UseFieldConfig['fieldProps'];
-
 export function useField(config: {
   name: string;
   initialValue?: FieldValue;
   validation?: FieldValidation;
-  showRequired: boolean;
+  required?: boolean;
 }): UseFieldConfig {
   const id = useId();
 
@@ -144,7 +144,7 @@ export function useField(config: {
 
   // Ensure the value is never undefined to prevent uncontrolled to controlled warnings
   const currentValue = fieldState?.value ?? config.initialValue;
-  const controlledValue = currentValue === undefined ? '' : currentValue;
+  const controlledValue = (currentValue ?? '') as FieldValue;
 
   const result: UseFieldConfig = {
     id,
@@ -158,13 +158,19 @@ export function useField(config: {
     },
     containerProps: {
       'data-field-name': config.name, // Used for scrolling to field errors
+      'data-disabled': false, // TODO
+      'data-valid': fieldState?.state.isValid ?? false,
+      'data-validating': fieldState?.state.isValidating ?? false,
+      'data-invalid': !fieldState?.state.isValid,
+      'data-dirty': fieldState?.state.isDirty ?? false,
+      'data-touched': fieldState?.state.isTouched ?? false,
     },
     fieldProps: {
       'value': controlledValue,
       'onChange': handleChange,
       'onBlur': handleBlur,
-      'aria-required': config.showRequired,
-      'aria-invalid': shouldShowError,
+      'aria-required': !!config.required,
+      'aria-invalid': !fieldState?.state.isValid,
       /**
        * Set this so that screen readers can properly announce the hint and error messages.
        * If either the hint or error ID is not present, it will be ignored by the screen reader.

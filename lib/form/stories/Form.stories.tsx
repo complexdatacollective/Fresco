@@ -4,10 +4,8 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { PersonStandingIcon } from 'lucide-react';
 import { action } from 'storybook/actions';
 import { z } from 'zod';
-import { Field, FieldGroup, Form, SubmitButton } from '../components';
+import { Field, Form, SubmitButton } from '../components';
 import { InputField } from '../components/fields/Input';
-import { RadioGroupField } from '../components/fields/RadioGroup';
-import { SelectField } from '../components/fields/Select';
 
 const meta: Meta<typeof Form> = {
   title: 'Systems/Form',
@@ -28,6 +26,15 @@ export const Default: Story = {
 
         action('form-submitted')(data);
 
+        if (data.name === 'admin') {
+          return {
+            fieldErrors: {
+              name: 'The name "admin" is not allowed',
+            },
+            success: false,
+          };
+        }
+
         return {
           success: true,
         };
@@ -36,31 +43,23 @@ export const Default: Story = {
       <Field
         name="name"
         label="Name"
-        placeholder="Enter your name"
         hint="Please enter your full name"
-        Component={InputField}
-        validation={z
-          .string()
-          .min(2, 'Name must be at least 2 characters')
-
-          .meta({ hintText: 'Must be at least 2 characters' })
-          .optional()}
+        component={InputField}
+        required
+        minLength={2}
         prefixComponent={<PersonStandingIcon />}
       />
       <Field
         name="age"
         hint="Enter your age. You must be 18 or older."
         label="Age"
-        Component={InputField}
-        placeholder="Enter your age"
-        showRequired
-        validation={z
-          .number()
-          .min(18, 'You must be at least 18 years old')
-          .prefault(0)}
+        component={InputField}
         type="number"
+        required
+        min={18}
+        placeholder="Enter your age"
       />
-      <Field
+      {/* <Field
         name="country"
         label="Country"
         hint="Select your country of residence"
@@ -124,9 +123,9 @@ export const Default: Story = {
           validation={z.string().min(10, 'Invalid phone number')}
           type="tel"
         />
-      </FieldGroup>
+      </FieldGroup> */}
 
-      <SubmitButton className="mt-6" />
+      <SubmitButton className="self-end" />
     </Form>
   ),
 };

@@ -1,17 +1,14 @@
 'use client';
 
-import {
-  AnimatePresence,
-  type HTMLMotionProps,
-  LayoutGroup,
-  motion,
-} from 'motion/react';
-import { useId } from 'react';
+import { motion } from 'motion/react';
+import { type ComponentProps } from 'react';
 import { scrollToFirstError } from '~/lib/form/utils/scrollToFirstError';
 import { cx } from '~/utils/cva';
 import { useForm } from '../hooks/useForm';
 import type { FormSubmitHandler } from '../types';
 import FormErrorsList from './FormErrors';
+
+const MotionForm = motion.create('form');
 
 /**
  *
@@ -19,10 +16,12 @@ import FormErrorsList from './FormErrors';
 type FormProps = {
   onSubmit: FormSubmitHandler;
   children: React.ReactNode;
-} & Omit<HTMLMotionProps<'form'>, 'onSubmit' | 'children' | 'submitButton'>;
+} & Omit<
+  ComponentProps<typeof MotionForm>,
+  'onSubmit' | 'children' | 'submitButton'
+>;
 
 export default function Form(props: FormProps) {
-  const id = useId();
   const { onSubmit, children, className, ...rest } = props;
 
   const { formProps, formErrors } = useForm({
@@ -33,25 +32,24 @@ export default function Form(props: FormProps) {
   });
 
   return (
-    <LayoutGroup id={id}>
-      <AnimatePresence mode="popLayout" initial={false}>
-        <motion.form
-          key="form"
-          className={cx('flex flex-col [&>*:not(:last-child)]:mb-6', className)}
-          layout
-          onSubmit={formProps.onSubmit}
-          {...rest}
-        >
-          {formErrors && (
-            <FormErrorsList
-              key="form-errors"
-              errors={formErrors}
-              className="mb-6"
-            />
-          )}
-          {children}
-        </motion.form>
-      </AnimatePresence>
-    </LayoutGroup>
+    <MotionForm
+      noValidate // Don't show native HTML validation UI
+      className={cx(
+        'flex min-w-md flex-col items-start [&>*:not(:last-child)]:mb-6',
+        className,
+      )}
+      layout
+      onSubmit={formProps.onSubmit}
+      {...rest}
+    >
+      {formErrors && (
+        <FormErrorsList
+          key="form-errors"
+          errors={formErrors}
+          className="mb-6"
+        />
+      )}
+      {children}
+    </MotionForm>
   );
 }

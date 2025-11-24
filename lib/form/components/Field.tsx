@@ -1,110 +1,73 @@
-'use client';
-
 import { motion } from 'motion/react';
-import { cva } from '~/utils/cva';
-import { useField, type UseFieldKeys } from '../hooks/useField';
-import {
-  type BaseFieldProps,
-  type FieldValidation,
-  type FieldValue,
-} from '../types';
+import { useField } from '../hooks';
+import { type FieldValidation } from '../types';
 import FieldErrors from './FieldErrors';
 import { FieldLabel } from './FieldLabel';
 import Hint from './Hint';
 
-export const containerVariants = cva({
-  base: 'grid gap-3 not-first:mt-6',
-  variants: {
-    state: {
-      valid: 'border-success',
-      invalid: 'border-destructive',
-      disabled: 'opacity-50 cursor-not-allowed',
-    },
-  },
-});
-
-// Animation variants for field mount/unmount and layout changes
-export const fieldAnimationVariants = {
-  initial: {
-    opacity: 0,
-  },
-  animate: {
-    opacity: 1,
-  },
-  exit: {
-    opacity: 0,
-  },
+type InputProps<T = unknown> = {
+  value: T;
+  onChange: (value: T) => void;
 };
 
-/**
- * Wrapper that connects a field to the form context, and handles validation
- * and state.
- *
- * additionalFieldProps should be typed to match the specific field component
- * being used, allowing for additional props to be passed through.
- */
-export default function Field<
-  // TComponent must extend from a HTMLInputElement to ensure compatibility
-  TComponent extends React.ElementType<HTMLInputElement>,
-  TComponentProps = React.ComponentProps<TComponent>,
->({
-  showRequired,
+type ExtractValue<C> =
+  C extends React.ComponentType<{ value: infer V }> ? V : never;
+
+type FieldOwnProps<C extends React.ComponentType<InputProps<any>>> = {
+  name: string;
+  label: string;
+  hint?: string;
+  initialValue?: ExtractValue<C>;
+  required?: boolean;
+  validation?: FieldValidation;
+  component: C;
+};
+
+type FieldProps<C extends React.ComponentType<InputProps<any>>> =
+  FieldOwnProps<C> & Omit<React.ComponentProps<C>, keyof InputProps<any>>;
+
+export default function Field<C extends React.ComponentType<InputProps<any>>>({
   name,
   label,
   hint,
   initialValue,
+  required,
   validation,
-  Component,
-  ...additionalFieldProps
-}: {
-  showRequired?: boolean;
-  name: string;
-  initialValue?: FieldValue;
-  validation?: FieldValidation;
-  Component: TComponent;
-} & BaseFieldProps &
-  Omit<TComponentProps, UseFieldKeys>) {
-  const { id, meta, fieldProps, containerProps } = useField({
+  component: Component,
+  ...componentProps
+}: FieldProps<C>) {
+  const { id, containerProps, fieldProps, meta } = useField({
     name,
     initialValue,
+    required,
     validation,
-    showRequired: Boolean(showRequired),
   });
 
-  const FieldComponent = Component;
+  // const value = {} as ExtractValue<C>;
+  // const onChange = (v: ExtractValue<C>) => console.log(name, v);
 
-  // Auto-detect if component needs fieldset mode via static property
-  const needsFieldset = 'fieldsetMode' in Component && Component.fieldsetMode;
+  const needsFieldset = false;
 
   // Choose wrapper element based on fieldset mode
   const WrapperElement = needsFieldset ? 'fieldset' : 'div';
 
   return (
-    <motion.div
-      key={id}
-      // className={containerVariants({ state: inputVariantState })}
-      variants={fieldAnimationVariants}
-      layoutId={name}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      layout="position"
-      {...containerProps}
-    >
+    <motion.div key={id} layout {...containerProps} className="w-full grow">
       <WrapperElement>
         <FieldLabel
           id={`${id}-label`}
           htmlFor={!needsFieldset ? id : undefined}
-          required={showRequired}
+          required={required}
           render={needsFieldset ? <legend /> : undefined}
         >
           {label}
         </FieldLabel>
-        <FieldComponent
-          name={name}
-          {...fieldProps}
-          {...additionalFieldProps}
+        <Component
           id={id}
+          name={name}
+          required={required}
+          {...(componentProps as any)}
+          {...fieldProps}
         />
       </WrapperElement>
       {hint && <Hint id={`${id}-hint`}>{hint}</Hint>}

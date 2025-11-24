@@ -2,7 +2,7 @@ import { type Codebook, type StageSubject } from '@codaco/protocol-validation';
 import { type NcNetwork, type VariableValue } from '@codaco/shared-consts';
 import type * as z from 'zod/v4';
 
-export type FieldValue = VariableValue | undefined;
+export type FieldValue = NonNullable<VariableValue> | undefined;
 
 // Type for flattened errors from Zod
 export type FlattenedErrors = {
@@ -32,9 +32,9 @@ export type FieldState<T extends FieldValue = FieldValue> = {
   validation?: FieldValidation;
 };
 
-export type ChangeHandler = (
+export type ChangeHandler<V = FieldValue> = (
   valueOrEvent:
-    | FieldValue
+    | V
     | React.ChangeEvent<
         HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
       >,
@@ -100,6 +100,7 @@ export type BaseFieldProps = {
 };
 
 export type BaseFieldComponentProps<T extends FieldValue> = {
+  id: string;
   name: string;
   value: T;
   onChange: (value: T) => void;
