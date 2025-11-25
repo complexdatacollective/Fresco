@@ -31,6 +31,9 @@ const config = {
     typedRoutes: true,
     webpackBuildWorker: true,
   },
+  sassOptions: {
+    implementation: 'sass-embedded',
+  },
   transpilePackages: ['@codaco/shared-consts'],
   webpack: (config) => {
     config.module.rules.push({
