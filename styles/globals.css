@@ -431,6 +431,14 @@ This custom variant lets you target only elements with the readonly attribute.
     @apply italic;
   }
 
+  s {
+    @apply line-through;
+  }
+
+  u {
+    @apply underline;
+  }
+
   hr {
     @apply my-6 rounded border-[1.2px] border-current/5;
   }
@@ -442,4 +450,4 @@ This custom variant lets you target only elements with the readonly attribute.
 }
 
 /* Custom variant for :focus-within + :focus-visible */
-@variant focus-visible-within (&:has(:focus-visible))
+@variant focus-visible-within (&:has(:focus-visible));
