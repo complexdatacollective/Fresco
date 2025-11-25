@@ -175,7 +175,7 @@ export const CensusForm = ({
       title="Family Tree Census"
       onClose={() => setShow(false)}
       forceDisableFullscreen
-      className="!w-auto"
+      className="w-auto!"
     >
       <div className="flex flex-col">
         {shouldAskSex && variableDef?.options && (

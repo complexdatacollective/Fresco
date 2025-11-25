@@ -22,29 +22,29 @@ type EdgeSummaryProps = {
 
 function EdgeSummary({ color, count, typeName }: EdgeSummaryProps) {
   const lightColorClass = cx(
-    'fill-[var(--edge-color-seq-1)]',
-    color === 'edge-color-seq-1' && 'fill-[var(--edge-color-seq-1)]',
-    color === 'edge-color-seq-2' && 'fill-[var(--edge-color-seq-2)]',
-    color === 'edge-color-seq-3' && 'fill-[var(--edge-color-seq-3)]',
-    color === 'edge-color-seq-4' && 'fill-[var(--edge-color-seq-4)]',
-    color === 'edge-color-seq-5' && 'fill-[var(--edge-color-seq-5)]',
-    color === 'edge-color-seq-6' && 'fill-[var(--edge-color-seq-6)]',
-    color === 'edge-color-seq-7' && 'fill-[var(--edge-color-seq-7)]',
-    color === 'edge-color-seq-8' && 'fill-[var(--edge-color-seq-8)]',
-    color === 'edge-color-seq-9' && 'fill-[var(--edge-color-seq-9)]',
+    'fill-(--edge-color-seq-1)',
+    color === 'edge-color-seq-1' && 'fill-(--edge-color-seq-1)',
+    color === 'edge-color-seq-2' && 'fill-(--edge-color-seq-2)',
+    color === 'edge-color-seq-3' && 'fill-(--edge-color-seq-3)',
+    color === 'edge-color-seq-4' && 'fill-(--edge-color-seq-4)',
+    color === 'edge-color-seq-5' && 'fill-(--edge-color-seq-5)',
+    color === 'edge-color-seq-6' && 'fill-(--edge-color-seq-6)',
+    color === 'edge-color-seq-7' && 'fill-(--edge-color-seq-7)',
+    color === 'edge-color-seq-8' && 'fill-(--edge-color-seq-8)',
+    color === 'edge-color-seq-9' && 'fill-(--edge-color-seq-9)',
   );
 
   const darkColorClass = cx(
-    'fill-[var(--edge-color-seq-1-dark)]',
-    color === 'edge-color-seq-1' && 'fill-[var(--edge-color-seq-1-dark)]',
-    color === 'edge-color-seq-2' && 'fill-[var(--edge-color-seq-2-dark)]',
-    color === 'edge-color-seq-3' && 'fill-[var(--edge-color-seq-3-dark)]',
-    color === 'edge-color-seq-4' && 'fill-[var(--edge-color-seq-4-dark)]',
-    color === 'edge-color-seq-5' && 'fill-[var(--edge-color-seq-5-dark)]',
-    color === 'edge-color-seq-6' && 'fill-[var(--edge-color-seq-6-dark)]',
-    color === 'edge-color-seq-7' && 'fill-[var(--edge-color-seq-7-dark)]',
-    color === 'edge-color-seq-8' && 'fill-[var(--edge-color-seq-8-dark)]',
-    color === 'edge-color-seq-9' && 'fill-[var(--edge-color-seq-9-dark)]',
+    'fill-(--edge-color-seq-1-dark)',
+    color === 'edge-color-seq-1' && 'fill-(--edge-color-seq-1-dark)',
+    color === 'edge-color-seq-2' && 'fill-(--edge-color-seq-2-dark)',
+    color === 'edge-color-seq-3' && 'fill-(--edge-color-seq-3-dark)',
+    color === 'edge-color-seq-4' && 'fill-(--edge-color-seq-4-dark)',
+    color === 'edge-color-seq-5' && 'fill-(--edge-color-seq-5-dark)',
+    color === 'edge-color-seq-6' && 'fill-(--edge-color-seq-6-dark)',
+    color === 'edge-color-seq-7' && 'fill-(--edge-color-seq-7-dark)',
+    color === 'edge-color-seq-8' && 'fill-(--edge-color-seq-8-dark)',
+    color === 'edge-color-seq-9' && 'fill-(--edge-color-seq-9-dark)',
   );
 
   return (

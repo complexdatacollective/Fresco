@@ -15,7 +15,7 @@ const toggleContainerVariants = compose(
   controlStateVariants,
   cva({
     base: cx(
-      'relative inline-flex aspect-[2/1] items-center rounded-full',
+      'relative inline-flex aspect-2/1 items-center rounded-full',
       'shadow-inner',
     ),
   }),
@@ -24,7 +24,7 @@ const toggleContainerVariants = compose(
 const toggleThumbStyles = cx(
   'pointer-events-none block h-[88%] aspect-square absolute left-0 rounded-full bg-input shadow-sm mx-[5%]',
   'transition-transform',
-  'data-[state=checked]:translate-x-[100%]',
+  'data-[state=checked]:translate-x-full',
 );
 
 type ToggleFieldProps = Omit<

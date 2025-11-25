@@ -26,7 +26,7 @@ export default async function Page() {
       </Paragraph>
       {env.NODE_ENV === 'development' && (
         <form action={() => void resetAppSettings()}>
-          <SubmitButton className="mt-6 max-w-[20rem]" type="submit">
+          <SubmitButton className="mt-6 max-w-xs" type="submit">
             Dev mode: Reset Configuration
           </SubmitButton>
         </form>

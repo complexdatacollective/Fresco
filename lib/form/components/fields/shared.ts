@@ -10,7 +10,7 @@ export const transitionStyles = 'transition-all duration-200';
 // ============================================================================
 export const textStyles = {
   base: 'text-input-contrast placeholder:text-input-contrast/50 placeholder:italic',
-  invalid: 'aria-[invalid=true]:text-destructive',
+  invalid: 'aria-invalid:text-destructive',
   disabled: 'disabled:text-current/70 disabled:placeholder:text-current/70/50',
   readOnly: 'is-read-only:text-current/70',
 } as const;
@@ -39,7 +39,7 @@ export const backgroundStyles = {
 // ============================================================================
 export const borderStyles = {
   base: 'rounded border border-outline focus-within:border-accent/50',
-  invalid: 'aria-[invalid=true]:border-destructive',
+  invalid: 'aria-invalid:border-destructive',
 } as const;
 
 // ============================================================================
@@ -214,7 +214,7 @@ export function buildVariantStyles(variant: keyof typeof variantStyles) {
 export const scaleSliderStyles = {
   root: cx(
     'relative flex w-full touch-none select-none items-center',
-    'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',
+    'data-disabled:opacity-50 data-disabled:cursor-not-allowed',
   ),
   track: cx('relative h-6 w-full grow overflow-hidden rounded bg-input border'),
   thumb: cx(

@@ -89,7 +89,7 @@ export const Default: Story = {
     };
 
     return (
-      <div className="flex h-[100vh] items-center justify-center [background-image:linear-gradient(90deg,oklch(var(--surface-1))_20%,transparent_10%)] [background-size:25px]">
+      <div className="flex h-screen items-center justify-center [background-image:linear-gradient(90deg,oklch(var(--surface-1))_20%,transparent_10%)] bg-size-[25px]">
         <Button onClick={confirmDialog}>Confirm Dialog</Button>
         <Button onClick={customDialog}>Custom Dialog</Button>
       </div>

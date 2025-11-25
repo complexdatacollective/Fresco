@@ -7,6 +7,17 @@
 @plugin './plugins/tailwind-motion-spring.ts';
 @plugin './plugins/tailwind-elevation/index.ts';
 
+/* 
+
+The default tailwind way to do this uses a psuedo element selector, which
+means that anything not editable is "read only", including things
+like <select>. 
+
+This custom variant lets you target only elements with the readonly attribute.
+
+*/
+@custom-variant is-read-only (&[readonly]);
+
 @theme {
   /*****************************************************************************
   *                                  TYPOGRAPHY
@@ -380,6 +391,23 @@
   }
 }
 
+@utility focus-styles {
+  @apply outline-4 outline-offset-3 outline-current transition-all duration-200 ease-in-out;
+}
+
+@utility focusable {
+  @apply focus-visible:focus-styles;
+}
+
+@utility focusable-within {
+  @apply focus-visible-within:focus-styles;
+}
+
+/* Replacement for interface centering mixin */
+@utility interface {
+  @apply relative mx-4 flex shrink grow basis-auto items-center justify-center;
+}
+
 @layer base {
   *,
   ::after,
@@ -413,33 +441,5 @@
   }
 }
 
-/* 
-
-The default tailwind way to do this uses a psuedo element selector, which
-means that anything not editable is "read only", including things
-like <select>. 
-
-This custom variant lets you target only elements with the readonly attribute.
-
-*/
-@custom-variant is-read-only (&[readonly]);
-
 /* Custom variant for :focus-within + :focus-visible */
-@variant focus-visible-within (&:has(:focus-visible));
-
-@utility focus-styles {
-  @apply outline-4 outline-offset-3 outline-current transition-all duration-200 ease-in-out;
-}
-
-@utility focusable {
-  @apply focus-visible:focus-styles;
-}
-
-@utility focusable-within {
-  @apply focus-visible-within:focus-styles;
-}
-
-/* Replacement for interface centering mixin */
-@utility interface {
-  @apply relative mx-4 flex shrink-1 grow-1 basis-auto items-center justify-center;
-}
+@variant focus-visible-within (&:has(:focus-visible))

@@ -76,7 +76,7 @@ export const controlStateVariants = cva({
   // Group allows styling based on parent state
   base: cx(
     'group-data-[invalid=true]:border-current cursor-default',
-    'data-[checked]:border-accent data-[checked]:bg-accent data-checked:focus-within:outline-accent data-[checked]:text-selected-contrast',
+    'data-checked:border-accent data-checked:bg-accent data-checked:focus-within:outline-accent data-checked:text-selected-contrast',
     //Hover
     'hover:border-accent/40',
     // Focus state: add shadow and translate up slightly
@@ -88,16 +88,16 @@ export const controlStateVariants = cva({
       disabled: cx(
         'focus-within:outline-input-contrast/50 bg-input-contrast/5 text-input-contrast/50 cursor-not-allowed',
         'bg-input-contrast/5 text-input-contrast/50',
-        'data-[checked]:border-current/20 data-[checked]:bg-input-contrast/5 data-[checked]:text-input-contrast/50',
+        'data-checked:border-current/20 data-checked:bg-input-contrast/5 data-checked:text-input-contrast/50',
       ),
       readOnly: cx(
         'focus-within:outline-input-contrast/70 bg-input-contrast/10 text-input-contrast/70',
         'bg-input-contrast/10 text-input-contrast/70',
-        'data-[checked]:border-current/20 data-[checked]:bg-input-contrast/10 data-[checked]:text-input-contrast/70',
+        'data-checked:border-current/20 data-checked:bg-input-contrast/10 data-checked:text-input-contrast/70',
       ),
       invalid: cx(
         'border-2 border-current text-destructive focus-within:outline-destructive',
-        'data-checked:border-destructive data-checked:bg-destructive data-[checked]:text-selected-contrast',
+        'data-checked:border-destructive data-checked:bg-destructive data-checked:text-selected-contrast',
       ),
       normal: '',
     },
@@ -204,7 +204,7 @@ export const checkboxGroupContainerVariants = cva({
   compoundVariants: [
     {
       useColumns: true,
-      class: '!flex-none !grid',
+      class: 'flex-none! grid!',
     },
   ],
   defaultVariants: {
@@ -259,7 +259,7 @@ export const checkboxOptionContainerVariants = cva({
     'cursor-pointer',
     'group',
     'transition-all duration-200',
-    'has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50',
+    'has-disabled:cursor-not-allowed has-disabled:opacity-50',
   ),
 });
 
@@ -268,6 +268,6 @@ export const checkboxLabelVariants = cva({
     'select-none',
     'transition-all duration-200',
     'cursor-pointer',
-    'group-has-[:disabled]:text-current/70',
+    'group-has-disabled:text-current/70',
   ),
 });

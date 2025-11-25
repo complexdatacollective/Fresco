@@ -46,7 +46,7 @@ const Navigation = ({
       level={2}
       role="navigation"
       elevation="none"
-      className="flex max-h-none w-auto shrink-0 grow-0 flex-col items-center justify-between rounded-none !p-0"
+      className="flex max-h-none w-auto shrink-0 grow-0 flex-col items-center justify-between rounded-none p-0!"
       noContainer
     >
       <NavigationButton

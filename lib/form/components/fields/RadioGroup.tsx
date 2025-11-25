@@ -54,7 +54,7 @@ export const radioGroupVariants = cva({
   compoundVariants: [
     {
       useColumns: true,
-      class: '!flex-none !grid', // Override orientation flex styles when useColumns is enabled
+      class: 'flex-none! grid!', // Override orientation flex styles when useColumns is enabled
     },
   ],
   defaultVariants: {

@@ -28,7 +28,7 @@ const ProgressBar = ({
       onClick={onClick}
       className={cx(
         // Base styles
-        'relative h-full w-full flex-grow overflow-hidden',
+        'relative h-full w-full grow overflow-hidden',
         'rounded-full',
         // Background using color-mix
         '[background-color:color-mix(in_oklch,currentColor_10%,transparent)]',
@@ -36,7 +36,7 @@ const ProgressBar = ({
         orientation === 'vertical' && 'w-[0.7rem]',
         orientation === 'horizontal' && 'h-[0.7rem]',
         // Complete state - pulse glow animation
-        nudge && 'data-[complete]:animate-pulse-glow',
+        nudge && 'data-complete:animate-pulse-glow',
         // Clickable cursor
         onClick && 'cursor-pointer',
       )}
@@ -49,27 +49,27 @@ const ProgressBar = ({
             // Background using color-mix
             '[background-color:color-mix(in_oklch,currentColor_20%,transparent)]',
             // Complete state
-            'data-[complete]:bg-primary',
+            'data-complete:bg-primary',
             // Orientation-specific sizing and transitions
             // Base UI automatically sets width for horizontal, so we need to override for vertical
             orientation === 'vertical' && [
               // Override Base UI's automatic width and use height instead
-              '!w-full',
+              'w-full!',
               // Height will be controlled by inline style below
-              'transition-[height] duration-[calc(var(--animation-duration-standard,200ms)*3)] ease-[var(--animation-easing,ease)]',
+              'transition-[height] duration-[calc(var(--animation-duration-standard,200ms)*3)] ease-(--animation-easing,ease)',
             ],
             orientation === 'horizontal' && [
               // Base UI automatically handles width, just set height and transition
-              '!h-full',
-              'transition-[width] duration-[var(--animation-duration-standard,200ms)] ease-[var(--animation-easing,ease)]',
+              'h-full!',
+              'transition-[width] duration-(--animation-duration-standard,200ms) ease-(--animation-easing,ease)',
             ],
             // Indeterminate state
-            'data-[indeterminate]:animate-indeterminate-progress-bar',
-            'data-[indeterminate]:bg-gradient-to-r',
-            'data-[indeterminate]:from-[color-mix(in_oklch,currentColor_15%,transparent)]',
-            'data-[indeterminate]:via-[color-mix(in_oklch,currentColor_30%,transparent)]',
-            'data-[indeterminate]:to-[color-mix(in_oklch,currentColor_15%,transparent)]',
-            'data-[indeterminate]:bg-[length:400%]',
+            'data-indeterminate:animate-indeterminate-progress-bar',
+            'data-indeterminate:bg-linear-to-r',
+            'data-indeterminate:from-[color-mix(in_oklch,currentColor_15%,transparent)]',
+            'data-indeterminate:via-[color-mix(in_oklch,currentColor_30%,transparent)]',
+            'data-indeterminate:to-[color-mix(in_oklch,currentColor_15%,transparent)]',
+            'data-indeterminate:bg-[length:400%]',
           )}
           style={
             // For vertical orientation, override Base UI's width and set height instead

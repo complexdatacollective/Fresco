@@ -58,7 +58,7 @@ const nodeVariants = cva({
       //  50% calc(100% - var(--o))
       //);
       'octagon':
-        '[--o:calc(50%*tan(-22.5deg))] [clip-path:polygon(var(--o)_50%,50%_var(--o),calc(100%_-_var(--o))_50%,50%_calc(100%_-_var(--o)))]',
+        '[--o:calc(50%*tan(-22.5deg))] [clip-path:polygon(var(--o)_50%,50%_var(--o),calc(100%-var(--o))_50%,50%_calc(100%-var(--o)))]',
       'scooped-corners': '',
       'inner-notch': '',
       'heart':
@@ -314,12 +314,12 @@ const nodeVariants = cva({
     },
 
     // Linking borders for circle and square
-    { size: 'xxs', shape: 'circle', linking: true, class: 'border-[1px]' },
+    { size: 'xxs', shape: 'circle', linking: true, class: 'border' },
     { size: 'xs', shape: 'circle', linking: true, class: 'border-2' },
     { size: 'sm', shape: 'circle', linking: true, class: 'border-2' },
     { size: 'md', shape: 'circle', linking: true, class: 'border-3' },
     { size: 'lg', shape: 'circle', linking: true, class: 'border-4' },
-    { size: 'xxs', shape: 'square', linking: true, class: 'border-[1px]' },
+    { size: 'xxs', shape: 'square', linking: true, class: 'border' },
     { size: 'xs', shape: 'square', linking: true, class: 'border-2' },
     { size: 'sm', shape: 'square', linking: true, class: 'border-2' },
     { size: 'md', shape: 'square', linking: true, class: 'border-3' },

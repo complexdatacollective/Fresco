@@ -66,7 +66,7 @@ const DropdownMenuSubTrigger = React.forwardRef<
     ref={ref}
     className={cx(
       'flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-hidden transition-colors select-none',
-      'data-[highlighted]:bg-accent data-[open]:bg-accent',
+      'data-highlighted:bg-accent data-open:bg-accent',
       inset && 'pl-8',
       className,
     )}
@@ -185,8 +185,8 @@ const DropdownMenuItem = React.forwardRef<
     ref={ref}
     className={cx(
       'relative flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-hidden transition-colors select-none',
-      'data-[highlighted]:bg-accent data-[highlighted]:text-accent-contrast',
-      'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'data-highlighted:bg-accent data-highlighted:text-accent-contrast',
+      'data-disabled:pointer-events-none data-disabled:opacity-50',
       inset && 'pl-8',
       className,
     )}
@@ -203,8 +203,8 @@ const DropdownMenuCheckboxItem = React.forwardRef<
     ref={ref}
     className={cx(
       'relative flex cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden transition-colors select-none',
-      'data-[highlighted]:bg-accent data-[highlighted]:text-accent-contrast',
-      'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'data-highlighted:bg-accent data-highlighted:text-accent-contrast',
+      'data-disabled:pointer-events-none data-disabled:opacity-50',
       className,
     )}
     {...props}
@@ -227,8 +227,8 @@ const DropdownMenuRadioItem = React.forwardRef<
     ref={ref}
     className={cx(
       'relative flex cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden transition-colors select-none',
-      'data-[highlighted]:bg-accent data-[highlighted]:text-accent-contrast',
-      'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'data-highlighted:bg-accent data-highlighted:text-accent-contrast',
+      'data-disabled:pointer-events-none data-disabled:opacity-50',
       className,
     )}
     {...props}

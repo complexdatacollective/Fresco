@@ -141,7 +141,7 @@ export default function FamilyTreeNode(props: {
         */}
         <div className="family-tree-node-label-container flex flex-col gap-0.5 text-white">
           <h4>{name ?? label}</h4>
-          <h5 className="family-tree-node-label !font-normal">{label}</h5>
+          <h5 className="family-tree-node-label font-normal!">{label}</h5>
         </div>
       </div>
     </div>

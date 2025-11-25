@@ -19,16 +19,16 @@ const buttonSpecificVariants = cva({
     'disabled:cursor-not-allowed disabled:opacity-50',
     'focusable',
     'elevation-low',
-    'hover:elevation-medium active:elevation-none transition-all hover:translate-y-[-2px] active:translate-y-[1px]',
+    'hover:elevation-medium active:elevation-none transition-all hover:translate-y-[-2px] active:translate-y-px',
   ),
   variants: {
     variant: {
       default: 'bg-(--component-text) text-(--component-bg)',
       outline:
-        'border-2 border-[var(--component-text)] text-[var(--component-text)] hover:enabled:bg-[var(--component-text)] hover:enabled:text-[var(--component-bg)]',
-      text: 'text-[var(--component-text)] hover:enabled:bg-[var(--component-text)] hover:enabled:text-[var(--component-bg)]',
+        'border-2 border-(--component-text) text-(--component-text) hover:enabled:bg-(--component-text) hover:enabled:text-(--component-bg)',
+      text: 'text-(--component-text) hover:enabled:bg-(--component-text) hover:enabled:text-(--component-bg)',
       dashed:
-        'border-2 border-dashed border-[var(--component-text)] text-[var(--component-text)] hover:enabled:bg-[var(--component-text)] hover:enabled:text-[var(--component-bg)]',
+        'border-2 border-dashed border-(--component-text) text-(--component-text) hover:enabled:bg-(--component-text) hover:enabled:text-(--component-bg)',
     },
     color: {
       default:

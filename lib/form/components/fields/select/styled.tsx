@@ -96,7 +96,7 @@ export function SelectField({
               'elevation-high rounded-sm border-2 border-transparent',
               'bg-surface-popover text-surface-popover-contrast',
               'max-h-96 overflow-auto',
-              'min-w-[var(--anchor-width)]',
+              'min-w-(--anchor-width)',
             )}
           >
             <Select.List className="p-1">
@@ -108,8 +108,8 @@ export function SelectField({
                     'flex cursor-pointer items-center gap-2 px-3 py-2',
                     'text-sm transition-colors outline-none',
                     'hover:bg-accent/10',
-                    'data-[selected]:bg-selected',
-                    // 'data-[highlighted]:bg-input-contrast/10',
+                    'data-selected:bg-selected',
+                    // 'data-highlighted:bg-input-contrast/10',
                   )}
                 >
                   <Select.ItemText className="flex-1">

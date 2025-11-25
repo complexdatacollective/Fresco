@@ -4,7 +4,7 @@ import { cva, type VariantProps } from '~/utils/cva';
 import { cx } from '~/utils/cva';
 
 const badgeVariants = cva({
-  base: 'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors flex-shrink-1',
+  base: 'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors shrink',
   variants: {
     variant: {
       default:

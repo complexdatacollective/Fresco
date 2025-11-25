@@ -18,7 +18,7 @@ export function DataTablePagination<TData>({
   table,
 }: DataTablePaginationProps<TData>) {
   return (
-    <div className="tablet:flex-row tablet:gap-6 laptop:gap-8 flex grow-1 flex-col items-center justify-between gap-4">
+    <div className="tablet:flex-row tablet:gap-6 laptop:gap-8 flex grow flex-col items-center justify-between gap-4">
       <div className="flex items-center space-x-2">
         <Paragraph
           intent="smallText"

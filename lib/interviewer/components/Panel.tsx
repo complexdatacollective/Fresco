@@ -40,13 +40,13 @@ const Panel = ({
     collapsed && !minimize && 'grow-0',
     highlight === '--primary' && 'border-b-sea-green',
     highlight === '--nc-primary-color-seq-1' &&
-      'border-[var(--nc-primary-color-seq-1)]',
+      'border-(--nc-primary-color-seq-1)',
     highlight === '--nc-primary-color-seq-2' &&
-      'border-[var(--nc-primary-color-seq-2)]',
+      'border-(--nc-primary-color-seq-2)',
     highlight === '--nc-primary-color-seq-3' &&
-      'border-[var(--nc-primary-color-seq-3)]',
+      'border-(--nc-primary-color-seq-3)',
     highlight === '--nc-primary-color-seq-4' &&
-      'border-[var(--nc-primary-color-seq-4)]',
+      'border-(--nc-primary-color-seq-4)',
   );
 
   const panelContentClasses = cx(

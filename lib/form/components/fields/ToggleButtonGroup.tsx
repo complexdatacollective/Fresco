@@ -74,7 +74,7 @@ export function ToggleButtonGroupField({
                   : toggleButtonUnselectedStyles,
               )}
             >
-              <span className="relative z-10 break-words hyphens-auto">
+              <span className="relative z-10 wrap-break-word hyphens-auto">
                 {option.label}
               </span>
             </Checkbox.Root>

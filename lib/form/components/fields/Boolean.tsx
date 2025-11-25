@@ -15,7 +15,7 @@ const buttonBaseStyles = cx(
 );
 
 const roundCheckboxStyles = cx(
-  'flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center',
+  'shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center',
   'transition-colors',
 );
 

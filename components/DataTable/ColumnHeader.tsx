@@ -26,7 +26,7 @@ export function DataTableColumnHeader<TData, TValue>({
   const headerClasses = cx(
     buttonVariants({ variant: 'text' }),
     'pointer-events-none',
-    '!-mx-6', // Adjust for padding in Button
+    '-mx-6!', // Adjust for padding in Button
     className,
   );
 
@@ -41,7 +41,7 @@ export function DataTableColumnHeader<TData, TValue>({
           <Button
             variant="text"
             iconPosition="right"
-            className="!-mx-6" // Adjust for padding in Button
+            className="-mx-6!" // Adjust for padding in Button
             icon={
               column.getIsSorted() !== false ? (
                 <MotionArrow

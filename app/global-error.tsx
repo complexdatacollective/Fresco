@@ -43,7 +43,7 @@ ${error.stack}`;
   };
 
   return (
-    <div className="flex h-[100vh] items-center justify-center">
+    <div className="flex h-screen items-center justify-center">
       <ErrorReportNotifier error={error} />
       <ResponsiveContainer
         baseSize="60%"

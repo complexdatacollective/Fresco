@@ -6,7 +6,7 @@ import BackgroundBlobs from '~/components/BackgroundBlobs/BackgroundBlobs';
 export default function Layout({ children }: PropsWithChildren) {
   return (
     <>
-      <div className="relative z-10 flex h-[90dvh] w-[100dvw] flex-col">
+      <div className="relative z-10 flex h-[90dvh] w-dvw flex-col">
         <div className="p-6">
           <Link href="/">
             <Image
@@ -23,7 +23,7 @@ export default function Layout({ children }: PropsWithChildren) {
           {children}
         </main>
       </div>
-      <div className="text-background-primary bg-navy-taupe fixed top-0 left-0 h-[100dvh] w-[100dvw]">
+      <div className="text-background-primary bg-navy-taupe fixed top-0 left-0 h-dvh w-dvw">
         <BackgroundBlobs large={0} medium={3} small={4} />
       </div>
     </>

@@ -242,7 +242,7 @@ export default function GeospatialInterface({
         exit="exit"
         key="introduction"
       >
-        <div className="max-w-3xl rounded-lg bg-[var(--nc-panel-bg-muted)] p-8">
+        <div className="max-w-3xl rounded-lg bg-(--nc-panel-bg-muted) p-8">
           <h1 className="text-center">{introductionPanel?.title}</h1>
           <RenderMarkdown>{introductionPanel?.text}</RenderMarkdown>
         </div>
@@ -264,7 +264,7 @@ export default function GeospatialInterface({
         {/* if outside-selectable-areas, add an overlay */}
         {initialSelectionValue === 'outside-selectable-areas' && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center">
-            <div className="absolute inset-0 bg-[var(--nc-background)] opacity-75" />
+            <div className="absolute inset-0 bg-(--nc-background) opacity-75" />
             <div className="relative z-20 flex w-1/3 flex-col items-center gap-6 text-center">
               <h2>
                 You have indicated an area outside of the selectable map. If

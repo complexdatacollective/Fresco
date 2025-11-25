@@ -20,7 +20,7 @@ function Stage(props: StageProps) {
 
   return (
     <div
-      className="relative flex h-full w-full flex-grow-1 basis-full overflow-hidden"
+      className="relative flex h-full w-full grow basis-full overflow-hidden"
       id="stage"
       key={stage.id}
     >
