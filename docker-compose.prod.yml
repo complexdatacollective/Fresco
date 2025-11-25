@@ -16,6 +16,11 @@ services:
       - 3000:3000
     networks:
       - fresco_network
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/fresco
+      DATABASE_URL_UNPOOLED: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/fresco
+    env_file:
+      - .env
 
   postgres:
     image: postgres:16-alpine
