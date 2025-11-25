@@ -5,7 +5,7 @@ import { getAppSetting } from '~/queries/appSettings';
 import { getServerSession } from '~/utils/auth';
 
 // CORS headers for external clients (like Architect)
-export const corsHeaders = {
+const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
@@ -20,10 +20,7 @@ export function OPTIONS() {
 }
 
 // Helper to create JSON responses with CORS headers
-export function jsonResponse(
-  data: Record<string, unknown>,
-  status = 200,
-) {
+export function jsonResponse(data: Record<string, unknown>, status = 200) {
   return NextResponse.json(data, { status, headers: corsHeaders });
 }
 

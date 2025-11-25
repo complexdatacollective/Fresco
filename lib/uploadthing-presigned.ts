@@ -14,7 +14,7 @@ type ParsedToken = {
 /**
  * Parse the UploadThing token to extract appId, apiKey, and region info
  */
-export async function parseUploadThingToken(): Promise<ParsedToken | null> {
+async function parseUploadThingToken(): Promise<ParsedToken | null> {
   const token = await getAppSetting('uploadThingToken');
 
   if (!token) {
@@ -153,18 +153,4 @@ export async function generatePresignedUploadUrl(
     fileUrl,
     expiresAt,
   };
-}
-
-/**
- * Get the URL for an uploaded file by its key
- */
-export async function getFileUrlByKey(fileKey: string): Promise<string | null> {
-  const tokenData = await parseUploadThingToken();
-
-  if (!tokenData) {
-    return null;
-  }
-
-  // UploadThing serves files from ufs.sh
-  return `https://${tokenData.appId}.ufs.sh/f/${fileKey}`;
 }
