@@ -181,19 +181,19 @@ export const AllSizesAllStates: Story = {
     <div className="flex flex-col gap-6">
       <div className="mb-2 flex items-center gap-4">
         <span className="w-32 text-sm font-medium"></span>
-        <span className="text-contrast/50 w-24 text-center text-xs font-medium">
+        <span className="w-24 text-center text-xs font-medium text-current/50">
           Normal
         </span>
-        <span className="text-contrast/50 w-24 text-center text-xs font-medium">
+        <span className="w-24 text-center text-xs font-medium text-current/50">
           Checked
         </span>
-        <span className="text-contrast/50 w-24 text-center text-xs font-medium">
+        <span className="w-24 text-center text-xs font-medium text-current/50">
           ReadOnly
         </span>
-        <span className="text-contrast/50 w-24 text-center text-xs font-medium">
+        <span className="w-24 text-center text-xs font-medium text-current/50">
           Disabled
         </span>
-        <span className="text-contrast/50 w-24 text-center text-xs font-medium">
+        <span className="w-24 text-center text-xs font-medium text-current/50">
           Invalid
         </span>
       </div>

@@ -6,7 +6,7 @@ This document provides guidance for AI assistants working with the Fresco codeba
 
 Fresco is a web-based interview platform that brings Network Canvas interviews to the browser. It's built with Next.js 14 (App Router), TypeScript, and PostgreSQL. Version 3.0.0.
 
-**Documentation**: https://documentation.networkcanvas.com/en/fresco
+**Documentation**: <https://documentation.networkcanvas.com/en/fresco>
 
 ## Quick Reference
 
@@ -127,7 +127,8 @@ Environment variables are validated using `env.js` with Zod schemas. Key variabl
 
 ## Debugging and Development Tips
 
-- # Use the playwright mcp to debug errors and view console output directly. Do NOT start the development server or the storybook server. Instead, prompt the user to start these for you.
+- # Use the playwright mcp to debug errors and view console output directly. Do NOT start the development server or the storybook server. Instead, prompt the user to start these for you
+
 - **Strict mode enabled** with `noUncheckedIndexedAccess`
 - Use `type` for type definitions (not `interface`) - enforced by ESLint
 - Prefer inline type imports: `import { type Foo } from './bar'`
@@ -137,7 +138,7 @@ Environment variables are validated using `env.js` with Zod schemas. Key variabl
 ```typescript
 // Correct
 import { type Protocol } from '@prisma/client';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
 // Type definition
 export type CreateInterview = {

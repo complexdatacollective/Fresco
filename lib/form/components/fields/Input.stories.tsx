@@ -204,7 +204,7 @@ export const NumberType: Story = {
           value={value}
           onChange={setValue}
         />
-        <p className="text-contrast text-xs opacity-70">
+        <p className="text-xs text-current opacity-70">
           Value: {value} (type: {typeof value})
         </p>
       </div>
@@ -271,25 +271,25 @@ export const AllStates: Story = {
   render: () => (
     <div className="flex w-80 flex-col gap-4">
       <div>
-        <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+        <p className="mb-1 text-xs font-medium text-current opacity-70">
           Normal
         </p>
         <InputField placeholder="Normal state" />
       </div>
       <div>
-        <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+        <p className="mb-1 text-xs font-medium text-current opacity-70">
           Disabled
         </p>
         <InputField disabled defaultValue="Disabled state" />
       </div>
       <div>
-        <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+        <p className="mb-1 text-xs font-medium text-current opacity-70">
           Read-Only
         </p>
         <InputField readOnly defaultValue="Read-only state" />
       </div>
       <div>
-        <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+        <p className="mb-1 text-xs font-medium text-current opacity-70">
           Invalid
         </p>
         <InputField aria-invalid defaultValue="Invalid state" />
@@ -336,7 +336,7 @@ export const WithPasswordToggle: Story = {
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="hover:text-contrast"
+            className="hover:text-current"
           >
             {showPassword ? (
               <EyeOff className="h-4 w-4" />
@@ -401,14 +401,14 @@ export const WithClearButton: Story = {
               <button
                 type="button"
                 onClick={() => setValue('')}
-                className="hover:text-contrast"
+                className="hover:text-current"
               >
                 <X className="h-4 w-4" />
               </button>
             )
           }
         />
-        <p className="text-contrast text-xs opacity-70">
+        <p className="text-xs text-current opacity-70">
           Note: onChange receives the value directly, not the event
         </p>
       </div>
@@ -528,7 +528,7 @@ export const TypeSafeOnChange: Story = {
             onChange={setTextValue}
             placeholder="Type text..."
           />
-          <p className="text-contrast text-xs opacity-70">
+          <p className="text-xs text-current opacity-70">
             Type: {typeof textValue} | Value: &ldquo;{textValue}&rdquo;
           </p>
         </div>
@@ -540,7 +540,7 @@ export const TypeSafeOnChange: Story = {
             onChange={setNumberValue}
             placeholder="Enter number..."
           />
-          <p className="text-contrast text-xs opacity-70">
+          <p className="text-xs text-current opacity-70">
             Type: {typeof numberValue} | Value: {numberValue ?? 'undefined'}
           </p>
         </div>

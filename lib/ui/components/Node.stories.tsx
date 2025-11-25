@@ -88,23 +88,23 @@ export const Sizes: StoryFn<typeof Node> = () => (
   <div className="flex items-end gap-8">
     <div className="flex flex-col items-center gap-2">
       <Node size="xxs" label="XXS" />
-      <span className="text-current/70-foreground text-xs">xxs (32px)</span>
+      <span className="text-xs text-current/70">xxs (32px)</span>
     </div>
     <div className="flex flex-col items-center gap-2">
       <Node size="xs" label="XS" />
-      <span className="text-current/70-foreground text-xs">xs (64px)</span>
+      <span className="text-xs text-current/70">xs (64px)</span>
     </div>
     <div className="flex flex-col items-center gap-2">
       <Node size="sm" label="SM" />
-      <span className="text-current/70-foreground text-xs">sm (80px)</span>
+      <span className="text-xs text-current/70">sm (80px)</span>
     </div>
     <div className="flex flex-col items-center gap-2">
       <Node size="md" label="MD" />
-      <span className="text-current/70-foreground text-xs">md (104px)</span>
+      <span className="text-xs text-current/70">md (104px)</span>
     </div>
     <div className="flex flex-col items-center gap-2">
       <Node size="lg" label="LG" />
-      <span className="text-current/70-foreground text-xs">lg (128px)</span>
+      <span className="text-xs text-current/70">lg (128px)</span>
     </div>
   </div>
 );
@@ -117,39 +117,39 @@ export const Shapes: StoryFn<typeof Node> = () => (
       <div className="grid grid-cols-5 gap-8">
         <div className="flex flex-col items-center gap-2">
           <Node shape="circle" label="Circle" />
-          <span className="text-current/70-foreground text-xs">Circle</span>
+          <span className="text-xs text-current/70">Circle</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node shape="square" label="Square" />
-          <span className="text-current/70-foreground text-xs">Square</span>
+          <span className="text-xs text-current/70">Square</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node shape="star" label="Star" />
-          <span className="text-current/70-foreground text-xs">Star</span>
+          <span className="text-xs text-current/70">Star</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node shape="triangle" label="Triangle" />
-          <span className="text-current/70-foreground text-xs">Triangle</span>
+          <span className="text-xs text-current/70">Triangle</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node shape="flower" label="Flower" />
-          <span className="text-current/70-foreground text-xs">Flower</span>
+          <span className="text-xs text-current/70">Flower</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node shape="rhombus" label="Rhombus" />
-          <span className="text-current/70-foreground text-xs">Rhombus</span>
+          <span className="text-xs text-current/70">Rhombus</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node shape="hexagon" label="Hexagon" />
-          <span className="text-current/70-foreground text-xs">Hexagon</span>
+          <span className="text-xs text-current/70">Hexagon</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node shape="octagon" label="Octagon" />
-          <span className="text-current/70-foreground text-xs">Octagon</span>
+          <span className="text-xs text-current/70">Octagon</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node shape="heart" label="Heart" />
-          <span className="text-current/70-foreground text-xs">Heart</span>
+          <span className="text-xs text-current/70">Heart</span>
         </div>
       </div>
     </div>
@@ -174,23 +174,23 @@ export const States: StoryFn<typeof Node> = () => (
   <div className="flex flex-wrap items-center gap-8">
     <div className="flex flex-col items-center gap-2">
       <Node label="Default" />
-      <span className="text-current/70-foreground text-xs">Default</span>
+      <span className="text-xs text-current/70">Default</span>
     </div>
     <div className="flex flex-col items-center gap-2">
       <Node label="Selected" selected />
-      <span className="text-current/70-foreground text-xs">Selected</span>
+      <span className="text-xs text-current/70">Selected</span>
     </div>
     <div className="flex flex-col items-center gap-2">
       <Node label="Linking" linking />
-      <span className="text-current/70-foreground text-xs">Linking</span>
+      <span className="text-xs text-current/70">Linking</span>
     </div>
     <div className="flex flex-col items-center gap-2">
       <Node label="Loading" loading />
-      <span className="text-current/70-foreground text-xs">Loading</span>
+      <span className="text-xs text-current/70">Loading</span>
     </div>
     <div className="flex flex-col items-center gap-2">
       <Node label="Disabled" disabled={true} />
-      <span className="text-current/70-foreground text-xs">Disabled</span>
+      <span className="text-xs text-current/70">Disabled</span>
     </div>
   </div>
 );
@@ -202,30 +202,30 @@ export const SelectedBorderScaling: StoryFn<typeof Node> = () => (
       <h3 className="mb-4 text-lg font-semibold">
         Selected State - Border scales proportionally with size
       </h3>
-      <p className="text-current/70-foreground mb-4 text-sm">
+      <p className="mb-4 text-sm text-current/70">
         Circle and square shapes use borders. Clipped shapes (star, triangle,
         etc.) use drop-shadow for proper outline rendering.
       </p>
       <div className="flex items-end gap-8">
         <div className="flex flex-col items-center gap-2">
           <Node size="xxs" label="XXS" selected />
-          <span className="text-current/70-foreground text-xs">2px</span>
+          <span className="text-xs text-current/70">2px</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node size="xs" label="XS" selected />
-          <span className="text-current/70-foreground text-xs">3px</span>
+          <span className="text-xs text-current/70">3px</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node size="sm" label="SM" selected />
-          <span className="text-current/70-foreground text-xs">4px</span>
+          <span className="text-xs text-current/70">4px</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node size="md" label="MD" selected />
-          <span className="text-current/70-foreground text-xs">5px</span>
+          <span className="text-xs text-current/70">5px</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node size="lg" label="LG" selected />
-          <span className="text-current/70-foreground text-xs">7px</span>
+          <span className="text-xs text-current/70">7px</span>
         </div>
       </div>
     </div>
@@ -236,19 +236,19 @@ export const SelectedBorderScaling: StoryFn<typeof Node> = () => (
       <div className="flex items-end gap-8">
         <div className="flex flex-col items-center gap-2">
           <Node size="md" shape="star" label="Star" selected />
-          <span className="text-current/70-foreground text-xs">Star</span>
+          <span className="text-xs text-current/70">Star</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node size="md" shape="triangle" label="Triangle" selected />
-          <span className="text-current/70-foreground text-xs">Triangle</span>
+          <span className="text-xs text-current/70">Triangle</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node size="md" shape="hexagon" label="Hexagon" selected />
-          <span className="text-current/70-foreground text-xs">Hexagon</span>
+          <span className="text-xs text-current/70">Hexagon</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node size="md" shape="heart" label="Heart" selected />
-          <span className="text-current/70-foreground text-xs">Heart</span>
+          <span className="text-xs text-current/70">Heart</span>
         </div>
       </div>
     </div>
@@ -262,30 +262,30 @@ export const LinkingBorderScaling: StoryFn<typeof Node> = () => (
       <h3 className="mb-4 text-lg font-semibold">
         Linking State - Border scales proportionally with size
       </h3>
-      <p className="text-current/70-foreground mb-4 text-sm">
+      <p className="mb-4 text-sm text-current/70">
         Circle and square shapes use borders with pulsing animation. Clipped
         shapes use drop-shadow with the same animation effect.
       </p>
       <div className="flex items-end gap-8">
         <div className="flex flex-col items-center gap-2">
           <Node size="xxs" label="XXS" linking />
-          <span className="text-current/70-foreground text-xs">1px</span>
+          <span className="text-xs text-current/70">1px</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node size="xs" label="XS" linking />
-          <span className="text-current/70-foreground text-xs">2px</span>
+          <span className="text-xs text-current/70">2px</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node size="sm" label="SM" linking />
-          <span className="text-current/70-foreground text-xs">2px</span>
+          <span className="text-xs text-current/70">2px</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node size="md" label="MD" linking />
-          <span className="text-current/70-foreground text-xs">3px</span>
+          <span className="text-xs text-current/70">3px</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node size="lg" label="LG" linking />
-          <span className="text-current/70-foreground text-xs">4px</span>
+          <span className="text-xs text-current/70">4px</span>
         </div>
       </div>
     </div>
@@ -296,19 +296,19 @@ export const LinkingBorderScaling: StoryFn<typeof Node> = () => (
       <div className="flex items-end gap-8">
         <div className="flex flex-col items-center gap-2">
           <Node size="md" shape="star" label="Star" linking />
-          <span className="text-current/70-foreground text-xs">Star</span>
+          <span className="text-xs text-current/70">Star</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node size="md" shape="triangle" label="Triangle" linking />
-          <span className="text-current/70-foreground text-xs">Triangle</span>
+          <span className="text-xs text-current/70">Triangle</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node size="md" shape="rhombus" label="Rhombus" linking />
-          <span className="text-current/70-foreground text-xs">Rhombus</span>
+          <span className="text-xs text-current/70">Rhombus</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <Node size="md" shape="flower" label="Flower" linking />
-          <span className="text-current/70-foreground text-xs">Flower</span>
+          <span className="text-xs text-current/70">Flower</span>
         </div>
       </div>
     </div>

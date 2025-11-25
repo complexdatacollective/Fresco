@@ -40,7 +40,7 @@ export const CustomIcons: Story = {
       {Object.keys(customIcons).map((iconName) => (
         <div key={iconName} className="flex flex-col items-center gap-2">
           <Icon name={iconName} />
-          <span className="text-xs text-gray-600">{iconName}</span>
+          <span className="text-xs text-current/70">{iconName}</span>
         </div>
       ))}
     </div>
@@ -72,7 +72,7 @@ export const LucideIcons: Story = {
       ].map((iconName) => (
         <div key={iconName} className="flex flex-col items-center gap-2">
           <Icon name={iconName} />
-          <span className="text-xs text-gray-600">{iconName}</span>
+          <span className="text-xs text-current/70">{iconName}</span>
         </div>
       ))}
     </div>

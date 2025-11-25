@@ -173,25 +173,25 @@ export const AllStates: Story = {
   render: () => (
     <div className="flex w-full max-w-2xl flex-col gap-4">
       <div>
-        <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+        <p className="mb-1 text-xs font-medium text-current opacity-70">
           Normal
         </p>
         <TextAreaField placeholder="Normal state" rows={3} />
       </div>
       <div>
-        <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+        <p className="mb-1 text-xs font-medium text-current opacity-70">
           Disabled
         </p>
         <TextAreaField disabled defaultValue="Disabled state" rows={3} />
       </div>
       <div>
-        <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+        <p className="mb-1 text-xs font-medium text-current opacity-70">
           Read-Only
         </p>
         <TextAreaField readOnly defaultValue="Read-only state" rows={3} />
       </div>
       <div>
-        <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+        <p className="mb-1 text-xs font-medium text-current opacity-70">
           Invalid
         </p>
         <TextAreaField aria-invalid defaultValue="Invalid state" rows={3} />
@@ -223,7 +223,7 @@ export const WithMaxLength: Story = {
           maxLength={maxLength}
           rows={4}
         />
-        <p className="text-contrast text-xs opacity-70">
+        <p className="text-xs text-current opacity-70">
           {value.length} / {maxLength} characters
         </p>
       </div>
@@ -244,7 +244,7 @@ export const Resizable: Story = {
   render: () => (
     <div className="w-full max-w-md space-y-4">
       <div>
-        <p className="text-contrast mb-2 text-sm opacity-70">
+        <p className="mb-2 text-sm text-current opacity-70">
           The textarea is vertically resizable by default. Try dragging the
           bottom-right corner.
         </p>
@@ -271,13 +271,13 @@ export const TypeSafeOnChange: Story = {
           placeholder="Type something..."
           rows={5}
         />
-        <p className="text-contrast text-xs opacity-70">
+        <p className="text-xs text-current opacity-70">
           Character count: {value.length}
         </p>
-        <p className="text-contrast text-xs opacity-70">
+        <p className="text-xs text-current opacity-70">
           Word count: {value.trim() ? value.trim().split(/\s+/).length : 0}
         </p>
-        <p className="text-contrast text-xs opacity-70">
+        <p className="text-xs text-current opacity-70">
           Note: onChange receives the value directly, not the event
         </p>
       </div>

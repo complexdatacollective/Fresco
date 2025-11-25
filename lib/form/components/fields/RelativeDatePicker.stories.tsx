@@ -105,7 +105,7 @@ export const Default: Story = {
           onChange={setValue}
           name="relative-date"
         />
-        <p className="text-contrast text-xs opacity-70">
+        <p className="text-xs text-current opacity-70">
           Selected: {value || 'none'} (±30 days from today)
         </p>
       </div>
@@ -174,7 +174,7 @@ export const AllStates: Story = {
     <div className="flex w-full max-w-md flex-col gap-6">
       <div className="space-y-3">
         <div>
-          <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+          <p className="mb-1 text-xs font-medium text-current opacity-70">
             Normal
           </p>
           <RelativeDatePickerField
@@ -188,7 +188,7 @@ export const AllStates: Story = {
           />
         </div>
         <div>
-          <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+          <p className="mb-1 text-xs font-medium text-current opacity-70">
             Disabled
           </p>
           <RelativeDatePickerField
@@ -203,7 +203,7 @@ export const AllStates: Story = {
           />
         </div>
         <div>
-          <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+          <p className="mb-1 text-xs font-medium text-current opacity-70">
             Read-Only
           </p>
           <RelativeDatePickerField
@@ -218,7 +218,7 @@ export const AllStates: Story = {
           />
         </div>
         <div>
-          <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+          <p className="mb-1 text-xs font-medium text-current opacity-70">
             Invalid
           </p>
           <RelativeDatePickerField
@@ -259,7 +259,7 @@ export const PastOnly: Story = {
           onChange={setValue}
           name="past-date"
         />
-        <p className="text-contrast text-xs opacity-70">
+        <p className="text-xs text-current opacity-70">
           Allows selection up to 365 days in the past (after=0)
         </p>
       </div>
@@ -289,7 +289,7 @@ export const FutureOnly: Story = {
           onChange={setValue}
           name="future-date"
         />
-        <p className="text-contrast text-xs opacity-70">
+        <p className="text-xs text-current opacity-70">
           Allows selection up to 90 days in the future (before=0)
         </p>
       </div>
@@ -321,7 +321,7 @@ export const WithCustomAnchor: Story = {
           onChange={setValue}
           name="anchor-date"
         />
-        <p className="text-contrast text-xs opacity-70">
+        <p className="text-xs text-current opacity-70">
           Anchored to {anchor} (±7 days)
         </p>
       </div>

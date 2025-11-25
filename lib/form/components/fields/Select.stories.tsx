@@ -256,7 +256,7 @@ export const States: Story = {
         <h3 className="text-lg font-semibold">Native Select States</h3>
         <div className="flex w-full flex-col gap-3">
           <div>
-            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+            <p className="mb-1 text-xs font-medium text-current opacity-70">
               Normal
             </p>
             <NativeSelectField
@@ -270,7 +270,7 @@ export const States: Story = {
             />
           </div>
           <div>
-            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+            <p className="mb-1 text-xs font-medium text-current opacity-70">
               Disabled
             </p>
             <NativeSelectField
@@ -284,7 +284,7 @@ export const States: Story = {
             />
           </div>
           <div>
-            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+            <p className="mb-1 text-xs font-medium text-current opacity-70">
               Invalid
             </p>
             <NativeSelectField
@@ -304,7 +304,7 @@ export const States: Story = {
         <h3 className="text-lg font-semibold">Styled Select States</h3>
         <div className="flex w-full flex-col gap-3">
           <div>
-            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+            <p className="mb-1 text-xs font-medium text-current opacity-70">
               Normal
             </p>
             <StyledSelectField
@@ -318,7 +318,7 @@ export const States: Story = {
             />
           </div>
           <div>
-            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+            <p className="mb-1 text-xs font-medium text-current opacity-70">
               Disabled
             </p>
             <StyledSelectField
@@ -332,7 +332,7 @@ export const States: Story = {
             />
           </div>
           <div>
-            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+            <p className="mb-1 text-xs font-medium text-current opacity-70">
               Invalid
             </p>
             <StyledSelectField

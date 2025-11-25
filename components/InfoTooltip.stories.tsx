@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { HelpCircle, Star } from 'lucide-react';
-import { Label } from '~/lib/form/components/Label';
+import { FieldLabel } from '~/lib/form/components/FieldLabel';
 import InfoTooltip from './InfoTooltip';
 import Heading from './typography/Heading';
 import { Button, IconButton } from './ui/Button';
@@ -53,16 +53,12 @@ export const CustomTrigger: Story = {
   render: (args) => (
     <InfoTooltip
       {...args}
-      trigger={(props) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { color, ...buttonProps } = props;
-        return (
-          <Button variant="outline" size="sm" {...buttonProps}>
-            <HelpCircle className="mr-2 h-4 w-4" />
-            Help
-          </Button>
-        );
-      }}
+      trigger={
+        <Button variant="outline" size="sm">
+          <HelpCircle className="mr-2 h-4 w-4" />
+          Help
+        </Button>
+      }
     />
   ),
 };
@@ -108,10 +104,10 @@ export const WithFormattedContent: Story = {
           </p>
           <p>
             You can use{' '}
-            <code className="rounded bg-gray-100 px-1">code snippets</code> and
-            other formatting.
+            <code className="rounded bg-current/10 px-1">code snippets</code>{' '}
+            and other formatting.
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-current/70">
             Note: Hover behavior is automatic.
           </p>
         </div>
@@ -134,15 +130,13 @@ export const DifferentTriggerIcons: Story = {
       <InfoTooltip
         title="Help Circle"
         description="This uses a help circle icon."
-        trigger={(props) => (
-          <HelpCircle className="h-5 w-5 text-blue-500" {...props} />
-        )}
+        trigger={<HelpCircle className="text-info h-5 w-5" />}
       />
       <InfoTooltip
         title="Star Icon"
         description="This uses a star icon for something special."
         trigger={(props) => (
-          <Star className="h-5 w-5 text-yellow-500" {...props} />
+          <Star className="text-warning h-5 w-5" {...props} />
         )}
       />
     </div>
@@ -157,13 +151,13 @@ export const InContext: Story = {
   render: () => (
     <div className="flex flex-col gap-6 p-8">
       <div className="flex items-center gap-2">
-        <Label>
+        <FieldLabel>
           Field Name{' '}
           <InfoTooltip
             title="Field Information"
             description="This field is used to capture the participant's primary identifier."
           />
-        </Label>
+        </FieldLabel>
       </div>
 
       <div className="flex items-center gap-2">
@@ -207,7 +201,7 @@ export const InContext: Story = {
             }}
           />
         </div>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-current/70">
           Example content showing how the tooltip integrates with other UI
           elements.
         </p>

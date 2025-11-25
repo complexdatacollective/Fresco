@@ -87,7 +87,7 @@ export const FullDate: Story = {
           onChange={setValue}
           name="full-date"
         />
-        <p className="text-contrast text-xs opacity-70">
+        <p className="text-xs text-current opacity-70">
           Selected: {value || 'none'}
         </p>
       </div>
@@ -116,7 +116,7 @@ export const MonthYear: Story = {
           onChange={setValue}
           name="month-year"
         />
-        <p className="text-contrast text-xs opacity-70">
+        <p className="text-xs text-current opacity-70">
           Selected: {value || 'none'}
         </p>
       </div>
@@ -145,7 +145,7 @@ export const YearOnly: Story = {
           onChange={setValue}
           name="year-only"
         />
-        <p className="text-contrast text-xs opacity-70">
+        <p className="text-xs text-current opacity-70">
           Selected: {value || 'none'}
         </p>
       </div>
@@ -178,7 +178,7 @@ export const AllTypes: Story = {
             onChange={setFullDate}
             name="full-comparison"
           />
-          <p className="text-contrast mt-1 text-xs opacity-70">
+          <p className="mt-1 text-xs text-current opacity-70">
             Value: {fullDate || 'none'}
           </p>
         </div>
@@ -190,7 +190,7 @@ export const AllTypes: Story = {
             onChange={setMonthYear}
             name="month-comparison"
           />
-          <p className="text-contrast mt-1 text-xs opacity-70">
+          <p className="mt-1 text-xs text-current opacity-70">
             Value: {monthYear || 'none'}
           </p>
         </div>
@@ -202,7 +202,7 @@ export const AllTypes: Story = {
             onChange={setYear}
             name="year-comparison"
           />
-          <p className="text-contrast mt-1 text-xs opacity-70">
+          <p className="mt-1 text-xs text-current opacity-70">
             Value: {year || 'none'}
           </p>
         </div>
@@ -237,7 +237,7 @@ export const WithConstraints: Story = {
             onChange={setFullDate}
             name="constrained-full"
           />
-          <p className="text-contrast mt-1 text-xs opacity-70">
+          <p className="mt-1 text-xs text-current opacity-70">
             Range: Jan 1, 2024 - Dec 31, 2024
           </p>
         </div>
@@ -251,7 +251,7 @@ export const WithConstraints: Story = {
             onChange={setMonthYear}
             name="constrained-month"
           />
-          <p className="text-contrast mt-1 text-xs opacity-70">
+          <p className="mt-1 text-xs text-current opacity-70">
             Range: Jan 2022 - Dec 2023
           </p>
         </div>
@@ -265,7 +265,7 @@ export const WithConstraints: Story = {
             onChange={setYear}
             name="constrained-year"
           />
-          <p className="text-contrast mt-1 text-xs opacity-70">
+          <p className="mt-1 text-xs text-current opacity-70">
             Range: 1990 - 2000
           </p>
         </div>
@@ -290,7 +290,7 @@ export const AllStates: Story = {
         <h3 className="mb-2 text-sm font-semibold">Full Date</h3>
         <div className="space-y-3">
           <div>
-            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+            <p className="mb-1 text-xs font-medium text-current opacity-70">
               Normal
             </p>
             <DatePickerField
@@ -303,7 +303,7 @@ export const AllStates: Story = {
             />
           </div>
           <div>
-            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+            <p className="mb-1 text-xs font-medium text-current opacity-70">
               Disabled
             </p>
             <DatePickerField
@@ -317,7 +317,7 @@ export const AllStates: Story = {
             />
           </div>
           <div>
-            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+            <p className="mb-1 text-xs font-medium text-current opacity-70">
               Read-Only
             </p>
             <DatePickerField
@@ -331,7 +331,7 @@ export const AllStates: Story = {
             />
           </div>
           <div>
-            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+            <p className="mb-1 text-xs font-medium text-current opacity-70">
               Invalid
             </p>
             <DatePickerField
@@ -351,7 +351,7 @@ export const AllStates: Story = {
         <h3 className="mb-2 text-sm font-semibold">Month/Year</h3>
         <div className="space-y-3">
           <div>
-            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+            <p className="mb-1 text-xs font-medium text-current opacity-70">
               Normal
             </p>
             <DatePickerField
@@ -364,7 +364,7 @@ export const AllStates: Story = {
             />
           </div>
           <div>
-            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+            <p className="mb-1 text-xs font-medium text-current opacity-70">
               Disabled
             </p>
             <DatePickerField
@@ -378,7 +378,7 @@ export const AllStates: Story = {
             />
           </div>
           <div>
-            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+            <p className="mb-1 text-xs font-medium text-current opacity-70">
               Read-Only
             </p>
             <DatePickerField
@@ -392,7 +392,7 @@ export const AllStates: Story = {
             />
           </div>
           <div>
-            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+            <p className="mb-1 text-xs font-medium text-current opacity-70">
               Invalid
             </p>
             <DatePickerField
@@ -412,7 +412,7 @@ export const AllStates: Story = {
         <h3 className="mb-2 text-sm font-semibold">Year Only</h3>
         <div className="space-y-3">
           <div>
-            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+            <p className="mb-1 text-xs font-medium text-current opacity-70">
               Normal
             </p>
             <DatePickerField
@@ -425,7 +425,7 @@ export const AllStates: Story = {
             />
           </div>
           <div>
-            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+            <p className="mb-1 text-xs font-medium text-current opacity-70">
               Disabled
             </p>
             <DatePickerField
@@ -439,7 +439,7 @@ export const AllStates: Story = {
             />
           </div>
           <div>
-            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+            <p className="mb-1 text-xs font-medium text-current opacity-70">
               Read-Only
             </p>
             <DatePickerField
@@ -453,7 +453,7 @@ export const AllStates: Story = {
             />
           </div>
           <div>
-            <p className="text-contrast mb-1 text-xs font-medium opacity-70">
+            <p className="mb-1 text-xs font-medium text-current opacity-70">
               Invalid
             </p>
             <DatePickerField
@@ -507,7 +507,7 @@ export const BirthDateExample: Story = {
           />
         </div>
         {birthDate && (
-          <p className="text-contrast text-xs opacity-70">
+          <p className="text-xs text-current opacity-70">
             Age:{' '}
             {Math.floor(
               (today.getTime() - new Date(birthDate).getTime()) /
