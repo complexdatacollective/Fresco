@@ -4,96 +4,69 @@ import {
   validateProtocol,
 } from '@codaco/protocol-validation';
 import JSZip from 'jszip';
+import { type NextRequest } from 'next/server';
 import { hash } from 'ohash';
-import { type NextRequest, NextResponse } from 'next/server';
+import { addEvent } from '~/actions/activityFeed';
 import { env } from '~/env';
+import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
 import { prunePreviewProtocols } from '~/lib/preview-protocol-pruning';
-import { getAppSetting } from '~/queries/appSettings';
-import { getServerSession } from '~/utils/auth';
+import { getFileUrlByKey } from '~/lib/uploadthing-presigned';
 import { prisma } from '~/utils/db';
 import { getProtocolAssets, getProtocolJson } from '~/utils/protocolImport';
-import { verifyApiToken } from '~/actions/apiTokens';
-import { addEvent } from '~/actions/activityFeed';
-import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
+import { checkPreviewAuth, jsonResponse, OPTIONS } from '../helpers';
 
-// CORS headers for external clients (like Architect)
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
-
-// Handle preflight OPTIONS request
-export function OPTIONS() {
-  return new NextResponse(null, {
-    status: 204,
-    headers: corsHeaders,
-  });
-}
+export { OPTIONS };
 
 export async function POST(req: NextRequest) {
-  // Check if preview mode is enabled
-  if (!env.PREVIEW_MODE) {
-    return NextResponse.json(
-      { error: 'Preview mode is not enabled' },
-      { status: 403, headers: corsHeaders },
-    );
-  }
-
-  // Check authentication if required
-  const requireAuth = await getAppSetting('previewModeRequireAuth');
-
-  if (requireAuth) {
-    // Try session-based auth first
-    const session = await getServerSession();
-
-    if (!session) {
-      // Try API token auth
-      const authHeader = req.headers.get('authorization');
-      const token = authHeader?.replace('Bearer ', '');
-
-      if (!token) {
-        return NextResponse.json(
-          { error: 'Authentication required. Provide session or API token.' },
-          { status: 401, headers: corsHeaders },
-        );
-      }
-
-      const { valid } = await verifyApiToken(token);
-
-      if (!valid) {
-        return NextResponse.json(
-          { error: 'Invalid API token' },
-          { status: 401, headers: corsHeaders },
-        );
-      }
-    }
-  }
+  const authError = await checkPreviewAuth(req);
+  if (authError) return authError;
 
   try {
-    // Get the uploaded file
-    const formData = await req.formData();
-    const file = formData.get('protocol') as File | null;
+    // Get file info from request body
+    const body = (await req.json()) as {
+      fileKey?: string;
+      fileName?: string;
+    };
 
-    if (!file) {
-      return NextResponse.json(
-        { error: 'No protocol file provided' },
-        { status: 400, headers: corsHeaders },
+    const { fileKey, fileName } = body;
+
+    if (!fileKey || typeof fileKey !== 'string') {
+      return jsonResponse({ error: 'fileKey is required' }, 400);
+    }
+
+    // Get the file URL from the key
+    const fileUrl = await getFileUrlByKey(fileKey);
+
+    if (!fileUrl) {
+      return jsonResponse(
+        {
+          error:
+            'Failed to get file URL. UploadThing token may not be configured.',
+        },
+        500,
       );
     }
 
-    // Verify it's a .netcanvas file
-    if (!file.name.endsWith('.netcanvas')) {
-      return NextResponse.json(
-        { error: 'File must be a .netcanvas file' },
-        { status: 400, headers: corsHeaders },
+    // Download the file from UploadThing
+    const fileResponse = await fetch(fileUrl);
+
+    if (!fileResponse.ok) {
+      return jsonResponse(
+        {
+          error: `Failed to download file from UploadThing: ${fileResponse.status} ${fileResponse.statusText}`,
+        },
+        500,
       );
     }
 
-    const protocolName = file.name.replace('.netcanvas', '');
+    const arrayBuffer = await fileResponse.arrayBuffer();
+
+    // Derive protocol name from fileName or fileKey
+    const protocolName = fileName
+      ? fileName.replace('.netcanvas', '')
+      : `protocol-${fileKey.slice(0, 8)}`;
 
     // Parse the zip file
-    const arrayBuffer = await file.arrayBuffer();
     const zip = await JSZip.loadAsync(arrayBuffer);
 
     // Extract protocol.json
@@ -102,11 +75,11 @@ export async function POST(req: NextRequest) {
     // Check schema version
     const protocolVersion = protocolJson.schemaVersion;
     if (!APP_SUPPORTED_SCHEMA_VERSIONS.includes(protocolVersion)) {
-      return NextResponse.json(
+      return jsonResponse(
         {
           error: `Unsupported protocol schema version: ${protocolVersion}. Supported versions: ${APP_SUPPORTED_SCHEMA_VERSIONS.join(', ')}`,
         },
-        { status: 400, headers: corsHeaders },
+        400,
       );
     }
 
@@ -125,12 +98,12 @@ export async function POST(req: NextRequest) {
         ({ message, path }) => `${message} (${path.join(' > ')})`,
       );
 
-      return NextResponse.json(
+      return jsonResponse(
         {
           error: 'Protocol validation failed',
           validationErrors: errors,
         },
-        { status: 400, headers: corsHeaders },
+        400,
       );
     }
 
@@ -265,7 +238,7 @@ export async function POST(req: NextRequest) {
 
       void addEvent(
         'Preview Protocol Uploaded',
-        `Preview protocol "${protocolName}" uploaded`,
+        `Preview protocol "${protocolName}" uploaded via presigned URL`,
       );
     }
 
@@ -273,24 +246,21 @@ export async function POST(req: NextRequest) {
     const url = new URL(env.PUBLIC_URL ?? req.nextUrl.clone());
     url.pathname = `/preview/${protocolId}`;
 
-    return NextResponse.json(
-      {
-        success: true,
-        protocolId,
-        redirectUrl: url.toString(),
-      },
-      { status: 200, headers: corsHeaders },
-    );
+    return jsonResponse({
+      success: true,
+      protocolId,
+      redirectUrl: url.toString(),
+    });
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error('Preview protocol upload error:', error);
+    console.error('Preview protocol process error:', error);
 
-    return NextResponse.json(
+    return jsonResponse(
       {
         error: 'Failed to process protocol',
         details: error instanceof Error ? error.message : 'Unknown error',
       },
-      { status: 500, headers: corsHeaders },
+      500,
     );
   }
 }
