@@ -1,4 +1,4 @@
-import type { Protocol, Stage } from '@codaco/protocol-validation';
+import type { CurrentProtocol, Stage } from '@codaco/protocol-validation';
 import {
   entityPrimaryKeyProperty,
   type VariableValue,
@@ -60,7 +60,7 @@ const nodeAnimationVariants: Variants = {
 };
 
 type GeospatialStage = Extract<
-  Protocol['stages'][number],
+  CurrentProtocol['stages'][number],
   { type: 'Geospatial' }
 >;
 

@@ -10,6 +10,6 @@
     "load-test.js",
     "styles/tailwind-motion-spring.ts"
   ],
-  "ignoreDependencies": ["sharp"],
+  "ignoreDependencies": ["sharp", "esbuild"],
   "ignoreBinaries": ["docker-compose", "playwright"]
 }
