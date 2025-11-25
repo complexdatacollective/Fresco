@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'motion/react';
+import { LayoutGroup, motion } from 'motion/react';
 import { type ComponentProps } from 'react';
 import { scrollToFirstError } from '~/lib/form/utils/scrollToFirstError';
 import { cx } from '~/utils/cva';
@@ -10,9 +10,6 @@ import FormErrorsList from './FormErrors';
 
 const MotionForm = motion.create('form');
 
-/**
- *
- */
 type FormProps = {
   onSubmit: FormSubmitHandler;
   children: React.ReactNode;
@@ -42,14 +39,16 @@ export default function Form(props: FormProps) {
       onSubmit={formProps.onSubmit}
       {...rest}
     >
-      {formErrors && (
-        <FormErrorsList
-          key="form-errors"
-          errors={formErrors}
-          className="mb-6"
-        />
-      )}
-      {children}
+      <LayoutGroup>
+        {formErrors && (
+          <FormErrorsList
+            key="form-errors"
+            errors={formErrors}
+            className="mb-6"
+          />
+        )}
+        {children}
+      </LayoutGroup>
     </MotionForm>
   );
 }

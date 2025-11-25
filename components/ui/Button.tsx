@@ -19,7 +19,8 @@ const buttonSpecificVariants = cva({
     'disabled:cursor-not-allowed disabled:opacity-50',
     'focusable',
     'elevation-low',
-    'hover:elevation-medium active:elevation-none transition-all hover:translate-y-[-2px] active:translate-y-px',
+    'not-disabled:hover:elevation-medium not-disabled:active:elevation-none transition-all not-disabled:hover:translate-y-[-2px] not-disabled:active:translate-y-px',
+    'data-pressed:bg-accent data-pressed:text-accent-contrast data-pressed:elevation-low',
   ),
   variants: {
     variant: {
@@ -167,7 +168,7 @@ type IconButtonProps = Omit<
     | 'accent';
 };
 
-const iconButtonSizeVariants = compose(
+const iconButtonVariants = compose(
   buttonVariants,
   cva({
     base: 'aspect-square justify-center rounded-full p-0',
@@ -183,10 +184,7 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
       <button
         ref={ref}
         type={type}
-        className={cx(
-          iconButtonSizeVariants({ size, variant, color }),
-          className,
-        )}
+        className={cx(iconButtonVariants({ size, variant, color }), className)}
         {...props}
       >
         {icon}
@@ -211,6 +209,12 @@ const ButtonSkeleton = (props: ButtonProps) => {
 
 export default Button;
 
-export { Button, ButtonSkeleton, buttonVariants, IconButton };
+export {
+  Button,
+  ButtonSkeleton,
+  buttonVariants,
+  IconButton,
+  iconButtonVariants,
+};
 
 export const MotionButton = motion.create(Button);

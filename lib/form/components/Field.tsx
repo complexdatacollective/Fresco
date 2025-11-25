@@ -1,3 +1,5 @@
+'use client';
+
 import { motion } from 'motion/react';
 import { useField } from '../hooks/useField';
 import { type FieldValidation } from '../types';
@@ -10,9 +12,19 @@ type InputProps<T = unknown> = {
   onChange: (value: T) => void;
 };
 
+/**
+ * Extract the value type from a component's props
+ */
 type ExtractValue<C> =
-  C extends React.ComponentType<{ value: infer V }> ? V : never;
+  C extends React.ComponentType<infer P>
+    ? P extends { value?: infer V }
+      ? NonNullable<V>
+      : P extends { value: infer V }
+        ? V
+        : never
+    : never;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type FieldOwnProps<C extends React.ComponentType<InputProps<any>>> = {
   name: string;
   label: string;
@@ -23,9 +35,12 @@ type FieldOwnProps<C extends React.ComponentType<InputProps<any>>> = {
   component: C;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type FieldProps<C extends React.ComponentType<InputProps<any>>> =
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   FieldOwnProps<C> & Omit<React.ComponentProps<C>, keyof InputProps<any>>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function Field<C extends React.ComponentType<InputProps<any>>>({
   name,
   label,
@@ -43,34 +58,18 @@ export default function Field<C extends React.ComponentType<InputProps<any>>>({
     validation,
   });
 
-  // const value = {} as ExtractValue<C>;
-  // const onChange = (v: ExtractValue<C>) => console.log(name, v);
-
-  console.log({ ...fieldProps });
-
-  const needsFieldset = false;
-
-  // Choose wrapper element based on fieldset mode
-  const WrapperElement = needsFieldset ? 'fieldset' : 'div';
-
   return (
-    <motion.div key={id} layout {...containerProps} className="w-full grow">
-      <WrapperElement>
-        <FieldLabel
-          id={`${id}-label`}
-          htmlFor={!needsFieldset ? id : undefined}
-          required={required}
-          render={needsFieldset ? <legend /> : undefined}
-        >
-          {label}
-        </FieldLabel>
-        <Component
-          id={id}
-          name={name}
-          {...(componentProps as any)}
-          {...fieldProps}
-        />
-      </WrapperElement>
+    <motion.div layout {...containerProps} className="w-full grow">
+      <FieldLabel id={`${id}-label`} htmlFor={id} required={required}>
+        {label}
+      </FieldLabel>
+      <Component
+        id={id}
+        name={name}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        {...(componentProps as any)}
+        {...fieldProps}
+      />
       {hint && <Hint id={`${id}-hint`}>{hint}</Hint>}
       <FieldErrors
         id={`${id}-error`}

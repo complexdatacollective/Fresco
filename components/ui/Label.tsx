@@ -1,17 +1,18 @@
 'use client';
 
-import * as LabelPrimitive from '@radix-ui/react-label';
+import { motion } from 'motion/react';
 import * as React from 'react';
 import { cx } from '~/utils/cva';
 import { headingVariants } from '../typography/Heading';
 
 const Label = React.forwardRef<
-  React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & {
+  React.ElementRef<typeof motion.label>,
+  React.ComponentPropsWithoutRef<typeof motion.label> & {
     required?: boolean;
   }
 >(({ className, required, ...props }, ref) => (
-  <LabelPrimitive.Root
+  <motion.label
+    layout
     ref={ref}
     className={cx(
       'inline-block',
@@ -28,8 +29,8 @@ const Label = React.forwardRef<
         *
       </span>
     )}
-  </LabelPrimitive.Root>
+  </motion.label>
 ));
-Label.displayName = LabelPrimitive.Root.displayName;
+Label.displayName = 'Label';
 
 export { Label };

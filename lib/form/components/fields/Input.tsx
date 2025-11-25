@@ -48,7 +48,7 @@ export const InputField = function InputField({
       layout
       className={cx(
         inputWrapperVariants({ size: 'md' }),
-        'border-input-contrast/20 flex border-2 transition-all duration-200',
+        'border-input-contrast/20 flex border-2 transition-colors duration-200',
         // 'hover:border-accent/50',
         'group-data-focused:border-accent group-data-focused:elevation-low group-data-focused:translate-y-[-2px]',
         // set different border styles if has aria-invalid

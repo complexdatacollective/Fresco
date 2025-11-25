@@ -2,13 +2,14 @@
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { PersonStandingIcon } from 'lucide-react';
+import { motion } from 'motion/react';
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { action } from 'storybook/actions';
 import { z } from 'zod';
 import { Field, Form, SubmitButton } from '../components';
 import { InputField } from '../components/fields/Input';
 import { MultiSelectField } from '../components/fields/MultiSelectField';
-import { required } from '../validation';
 
 const meta: Meta<typeof Form> = {
   title: 'Systems/Form',
@@ -49,9 +50,19 @@ export const Default: Story = {
         hint="Please enter your full name"
         component={InputField}
         required
-        minLength={2}
+        // maxLength={10}
+        // minLength={2}
+        // minValue={2}
+        // maxValue={10}
+        // minSelected={2}
+        // maxSelected={5}
+        // unique
+        // differentFromField="example"
+        // sameAsField="example"
+        // greaterThanField="age"
+        // lessThanField="age"
         prefixComponent={<PersonStandingIcon />}
-        validation={required()}
+        validation={z.string().min(2, 'Name must be at least 2 characters')}
       />
       <Field
         name="tags"
@@ -60,10 +71,61 @@ export const Default: Story = {
         component={MultiSelectField}
         required
         sortable
+        initialValue={[
+          { label: 'Example Tag', id: 'example-tag' },
+          { label: 'Another Tag', id: 'another-tag' },
+        ]}
         validation={z
-          .array(z.object(z.any()))
+          .array(z.any())
           .min(2, 'Please add at least 2 tags')
           .max(5, 'You can add up to 5 tags')}
+        EditorComponent={(props) => {
+          const { onCancel, onSave, item, layoutId } = props;
+
+          return createPortal(
+            <motion.div
+              layoutId={layoutId}
+              className="absolute inset-0 z-50 m-auto flex w-96 flex-col gap-4 rounded-lg bg-white p-6 shadow-lg"
+            >
+              <InputField
+                type="text"
+                value={item?.label ?? ''}
+                onChange={(e) => {
+                  // Create a new item object with updated label
+                  const updatedItem = {
+                    ...item,
+                    label: e.target.value,
+                  };
+                  // Call onSave with updated item
+                  onSave(updatedItem);
+                }}
+                placeholder="Enter tag label..."
+                autoFocus
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  className="rounded bg-gray-200 px-4 py-2 hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (item) {
+                      onSave(item);
+                    }
+                  }}
+                  className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                >
+                  Save
+                </button>
+              </div>
+            </motion.div>,
+            document.body,
+          );
+        }}
       />
       {/* <Field
         name="country"

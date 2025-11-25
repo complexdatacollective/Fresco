@@ -1,6 +1,6 @@
 // MultiSelectField.tsx (React 18)
 
-import { GripVertical, PencilIcon, X } from 'lucide-react';
+import { GripVertical, PencilIcon, PlusIcon, X } from 'lucide-react';
 import {
   AnimatePresence,
   motion,
@@ -8,7 +8,7 @@ import {
   useDragControls,
 } from 'motion/react';
 import { useCallback, useState } from 'react';
-import Button, { IconButton } from '~/components/ui/Button';
+import { IconButton, MotionButton } from '~/components/ui/Button';
 import { InputField } from './Input';
 
 type Item = {
@@ -16,30 +16,27 @@ type Item = {
   label: string;
 } & Record<string, unknown>;
 
-// Type the element properly
-type MultiSelectElement = HTMLElement & {
-  value: Item[];
-  validity: ValidityState;
-  validationMessage: string;
-  checkValidity(): boolean;
-  reportValidity(): boolean;
+type ItemComponentProps<T extends Item> = {
+  item: T;
+  onEdit?: () => void;
+  onRemove?: () => void;
+  sortable?: boolean;
+  layoutId?: string;
+};
+
+type EditorComponentProps<T extends Item> = {
+  item?: T;
+  onSave: (item: T) => void;
+  onCancel: () => void;
+  layoutId?: string;
 };
 
 type MultiSelectFieldProps<T extends Item = Item> = {
   value?: T[];
   onChange: (value: T[]) => void;
   sortable?: boolean;
-  ItemComponent?: React.ComponentType<{
-    item: T;
-    onEdit?: () => void;
-    onRemove?: () => void;
-    sortable?: boolean;
-  }>;
-  EditorComponent?: React.ComponentType<{
-    item?: T;
-    onSave: (item: T) => void;
-    onCancel: () => void;
-  }>;
+  ItemComponent?: React.ComponentType<ItemComponentProps<T>>;
+  EditorComponent?: React.ComponentType<EditorComponentProps<T>>;
 };
 
 const DefaultItemComponent = ({
@@ -47,7 +44,9 @@ const DefaultItemComponent = ({
   onEdit,
   onRemove,
   sortable,
+  layoutId,
 }: {
+  layoutId?: string;
   sortable?: boolean;
   item: Item;
   onEdit?: () => void;
@@ -58,24 +57,23 @@ const DefaultItemComponent = ({
   return (
     <Reorder.Item
       value={item}
-      layoutId={`item-${item.id}`}
+      layout
+      layoutId={layoutId}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.8 }}
-      transition={{ duration: 0.2 }}
       dragListener={false}
-      className="bg-surface-1 flex items-center gap-2 rounded-lg border p-2"
+      className="bg-surface-1 flex w-full items-center gap-2 rounded-lg border p-2"
       dragControls={controls}
     >
       {sortable && (
-        <div
-          className="reorder-handle"
-          onPointerDown={(e) => controls.start(e)}
-        >
+        <motion.div layout onPointerDown={(e) => controls.start(e)}>
           <GripVertical className="cursor-grab" />
-        </div>
+        </motion.div>
       )}
-      <span className="flex-1">{item.label}</span>
+      <motion.span layout className="flex-1">
+        {item.label}
+      </motion.span>
       {onEdit && (
         <IconButton
           size="sm"
@@ -102,7 +100,9 @@ const DefaultEditorComponent = ({
   item,
   onSave,
   onCancel,
+  layoutId,
 }: {
+  layoutId?: string;
   item?: Item;
   onSave: (item: Item) => void;
   onCancel: () => void;
@@ -110,7 +110,13 @@ const DefaultEditorComponent = ({
   const [label, setLabel] = useState(item?.label ?? '');
 
   return (
-    <div className="bg-surface-1 flex items-center gap-2 rounded-lg border p-2">
+    <motion.div
+      layoutId={layoutId}
+      className="bg-surface-1 flex items-center gap-2 rounded-lg border p-2"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
       <InputField
         type="text"
         value={label}
@@ -118,7 +124,8 @@ const DefaultEditorComponent = ({
         placeholder="Enter label..."
         autoFocus
       />
-      <Button
+      <MotionButton
+        layout
         size="sm"
         onClick={() => {
           if (label.trim()) {
@@ -131,11 +138,11 @@ const DefaultEditorComponent = ({
         color="primary"
       >
         Save
-      </Button>
-      <Button size="sm" onClick={onCancel}>
+      </MotionButton>
+      <MotionButton layout size="sm" onClick={onCancel}>
         Cancel
-      </Button>
-    </div>
+      </MotionButton>
+    </motion.div>
   );
 };
 
@@ -143,16 +150,8 @@ export function MultiSelectField<T extends Item = Item>({
   value = [],
   onChange,
   sortable = false,
-  ItemComponent = DefaultItemComponent as React.ComponentType<{
-    item: T;
-    onEdit?: () => void;
-    onRemove?: () => void;
-  }>,
-  EditorComponent = DefaultEditorComponent as React.ComponentType<{
-    item?: T;
-    onSave: (item: T) => void;
-    onCancel: () => void;
-  }>,
+  ItemComponent = DefaultItemComponent,
+  EditorComponent = DefaultEditorComponent,
 }: MultiSelectFieldProps<T>) {
   const NEW_ITEM_KEY = '__new__';
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -188,84 +187,73 @@ export function MultiSelectField<T extends Item = Item>({
   );
 
   return (
-    <div className="flex flex-col gap-2">
-      {value.length === 0 && (
-        <p className="text-sm text-current/70">
-          No items added yet. Click &quot;Add Item&quot; to get started.
-        </p>
-      )}
-      {/* Items list */}
-      {value.length > 0 && (
-        <Reorder.Group
-          axis="y"
-          values={value}
-          onReorder={handleReorder}
-          className="flex flex-col gap-2"
-        >
-          <AnimatePresence mode="popLayout">
-            {value.map((item) => {
-              const isEditing = editingId === item.id;
+    <div className="flex flex-col items-start gap-2">
+      <Reorder.Group
+        axis="y"
+        values={value}
+        onReorder={handleReorder}
+        className="flex w-full flex-col gap-2"
+      >
+        <AnimatePresence initial={false}>
+          {value.length === 0 && (
+            <motion.p
+              key="no-items"
+              layout
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, transition: { delay: 0.3 } }}
+              exit={{ opacity: 0 }}
+              className="text-sm text-current/70"
+            >
+              No items added yet. Click &quot;Add Item&quot; to get started.
+            </motion.p>
+          )}
+          {value.map((item) => {
+            const isEditing = editingId === item.id;
 
-              if (isEditing) {
-                return (
-                  <EditorComponent
-                    key={item.id}
-                    item={item}
-                    onSave={(updatedItem) => updateItem(item.id, updatedItem)}
-                    onCancel={() => setEditingId(null)}
-                  />
-                );
-              }
-
+            if (isEditing) {
               return (
-                <ItemComponent
-                  key={item.id}
+                <EditorComponent
+                  key={`item-${item.id}`}
+                  layoutId={item.id}
                   item={item}
-                  onEdit={() => setEditingId(item.id)}
-                  onRemove={() => removeItem(item.id)}
-                  sortable={sortable}
+                  onSave={(updatedItem) => updateItem(item.id, updatedItem)}
+                  onCancel={() => setEditingId(null)}
                 />
               );
-            })}
-          </AnimatePresence>
-        </Reorder.Group>
-      )}
+            }
+
+            return (
+              <ItemComponent
+                key={`item-${item.id}`}
+                layoutId={item.id}
+                item={item}
+                onEdit={() => setEditingId(item.id)}
+                onRemove={() => removeItem(item.id)}
+                sortable={sortable}
+              />
+            );
+          })}
+        </AnimatePresence>
+      </Reorder.Group>
 
       {/* Add new item */}
-      <AnimatePresence mode="wait">
-        {editingId === NEW_ITEM_KEY ? (
-          <motion.div
+      <AnimatePresence>
+        {editingId === NEW_ITEM_KEY && (
+          <EditorComponent
             key="new-editor"
-            layoutId="new-item"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.2 }}
-          >
-            <EditorComponent
-              onSave={addItem}
-              onCancel={() => setEditingId(null)}
-            />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="add-button"
-            layoutId="new-item"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.2 }}
-          >
-            <Button
-              onClick={() => setEditingId(NEW_ITEM_KEY)}
-              variant="outline"
-              className="w-full"
-            >
-              Add Item
-            </Button>
-          </motion.div>
+            onSave={addItem}
+            onCancel={() => setEditingId(null)}
+          />
         )}
       </AnimatePresence>
+      <MotionButton
+        key="add-button"
+        onClick={() => setEditingId(NEW_ITEM_KEY)}
+        icon={<PlusIcon />}
+        disabled={editingId === NEW_ITEM_KEY}
+      >
+        Add Item
+      </MotionButton>
     </div>
   );
 }

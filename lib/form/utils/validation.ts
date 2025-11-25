@@ -11,5 +11,6 @@ export async function validateFieldValue<T extends z.ZodTypeAny>(
       ? await validation(formValues)
       : validation;
 
+  console.log('schema', schema, value);
   return (await schema.safeParseAsync(value)) as ValidationResult<T>;
 }
