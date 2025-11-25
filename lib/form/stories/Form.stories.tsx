@@ -63,8 +63,7 @@ export const Default: Story = {
         validation={z
           .array(z.object(z.any()))
           .min(2, 'Please add at least 2 tags')
-          .max(5, 'You can add up to 5 tags')
-          .prefault([])}
+          .max(5, 'You can add up to 5 tags')}
       />
       {/* <Field
         name="country"

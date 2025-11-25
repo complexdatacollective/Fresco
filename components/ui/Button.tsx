@@ -14,12 +14,12 @@ import { Skeleton } from './skeleton';
 
 const buttonSpecificVariants = cva({
   base: cx(
-    'font-semibold inline-flex tracking-wide cursor-pointer shrink-0',
+    'inline-flex shrink-0 cursor-pointer font-semibold tracking-wide',
     'justify-center',
     'disabled:cursor-not-allowed disabled:opacity-50',
     'focusable',
     'elevation-low',
-    'hover:elevation-medium hover:translate-y-[-2px] transition-all active:elevation-none active:translate-y-[1px]',
+    'hover:elevation-medium active:elevation-none transition-all hover:translate-y-[-2px] active:translate-y-[1px]',
   ),
   variants: {
     variant: {
@@ -28,26 +28,26 @@ const buttonSpecificVariants = cva({
         'border-2 border-[var(--component-text)] text-[var(--component-text)] hover:enabled:bg-[var(--component-text)] hover:enabled:text-[var(--component-bg)]',
       text: 'text-[var(--component-text)] hover:enabled:bg-[var(--component-text)] hover:enabled:text-[var(--component-bg)]',
       dashed:
-        'border-2 border-[var(--component-text)] border-dashed text-[var(--component-text)] hover:enabled:bg-[var(--component-text)] hover:enabled:text-[var(--component-bg)]',
+        'border-2 border-dashed border-[var(--component-text)] text-[var(--component-text)] hover:enabled:bg-[var(--component-text)] hover:enabled:text-[var(--component-bg)]',
     },
     color: {
       default:
-        '[--component-text:var(--color-neutral)] [--component-bg:var(--color-neutral-contrast)]',
+        '[--component-bg:var(--color-neutral-contrast)] [--component-text:var(--color-neutral)]',
       dynamic:
         'text-current [--component-bg:currentColor] [--component-text:color-mix(in_oklab,var(--published-bg,--background),currentColor_8%)]',
       primary:
-        'focus:outline-primary [--component-text:var(--color-primary)] [--component-bg:var(--color-primary-contrast)]',
+        'focus:outline-primary [--component-bg:var(--color-primary-contrast)] [--component-text:var(--color-primary)]',
       secondary:
-        'focus:outline-secondary [--component-text:var(--color-secondary)] [--component-bg:var(--color-secondary-contrast)]',
+        'focus:outline-secondary [--component-bg:var(--color-secondary-contrast)] [--component-text:var(--color-secondary)]',
       warning:
-        'focus:outline-warning [--component-text:var(--color-warning)] [--component-bg:var(--color-warning-contrast)]',
-      info: '[--component-text:var(--color-info)] [--component-bg:var(--color-info-contrast)]',
+        'focus:outline-warning [--component-bg:var(--color-warning-contrast)] [--component-text:var(--color-warning)]',
+      info: '[--component-bg:var(--color-info-contrast)] [--component-text:var(--color-info)]',
       destructive:
-        'focus:outline-destructive [--component-text:var(--color-destructive)] [--component-bg:var(--color-destructive-contrast)]',
+        'focus:outline-destructive [--component-bg:var(--color-destructive-contrast)] [--component-text:var(--color-destructive)]',
       success:
-        'focus:outline-success [--component-text:var(--color-success)] [--component-bg:var(--color-success-contrast)]',
+        'focus:outline-success [--component-bg:var(--color-success-contrast)] [--component-text:var(--color-success)]',
       accent:
-        'focus:outline-accent [--component-text:var(--color-accent)] [--component-bg:var(--color-accent-contrast)]',
+        'focus:outline-accent [--component-bg:var(--color-accent-contrast)] [--component-text:var(--color-accent)]',
     },
     hasIcon: { true: 'gap-2' },
     iconPosition: {
@@ -121,6 +121,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       children,
       icon,
       iconPosition = 'left',
+      type = 'button',
       ...props
     },
     ref,
@@ -128,6 +129,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : 'button';
     return (
       <Comp
+        type={type}
         className={buttonVariants({
           variant,
           color,
@@ -168,15 +170,19 @@ type IconButtonProps = Omit<
 const iconButtonSizeVariants = compose(
   buttonVariants,
   cva({
-    base: 'justify-center rounded-full p-0 aspect-square',
+    base: 'aspect-square justify-center rounded-full p-0',
   }),
 );
 
 const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
-  ({ icon, className, size = 'md', variant, color, ...props }, ref) => {
+  (
+    { icon, className, size = 'md', variant, color, type = 'button', ...props },
+    ref,
+  ) => {
     return (
       <button
         ref={ref}
+        type={type}
         className={cx(
           iconButtonSizeVariants({ size, variant, color }),
           className,

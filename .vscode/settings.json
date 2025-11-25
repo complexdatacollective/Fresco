@@ -3,6 +3,9 @@
   "editor.insertSpaces": true,
   "editor.detectIndentation": false,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
   "css.customData": ["./.vscode/css-data.json"],
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
@@ -10,8 +13,12 @@
     "source.organizeImports": "always",
     "source.fixAll": "always",
     "source.fixAll.eslint": "always",
-    "source.fixAll.typescript": "always"
+    "source.fixAll.typescript": "always",
+    "source.fixAll.tailwindcss": "always"
   },
   "editor.formatOnSave": true,
-  "tailwindCSS.classFunctions": ["cva", "cx"]
+  "tailwindCSS.classFunctions": ["cva", "cx"],
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
 }

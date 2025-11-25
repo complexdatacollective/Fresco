@@ -257,7 +257,6 @@ export function MultiSelectField<T extends Item = Item>({
             transition={{ duration: 0.2 }}
           >
             <Button
-              type="button"
               onClick={() => setEditingId(NEW_ITEM_KEY)}
               variant="outline"
               className="w-full"
