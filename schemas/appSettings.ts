@@ -9,6 +9,7 @@ export const appSettingPreprocessedSchema = z.object({
   limitInterviews: z.stringbool().default(false),
   disableAnalytics: z.stringbool().default(false),
   disableSmallScreenOverlay: z.stringbool().default(false),
+  previewModeRequireAuth: z.stringbool().default(true),
   uploadThingToken: z.string().nullable().default(null),
   installationId: z.string().nullable().default(null),
 });

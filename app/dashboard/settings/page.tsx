@@ -1,9 +1,11 @@
 import { Suspense } from 'react';
 import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch';
+import ApiTokenManagement from '~/components/ApiTokenManagement';
 import DisableAnalyticsSwitch from '~/components/DisableAnalyticsSwitch';
 import SettingsSection from '~/components/layout/SettingsSection';
 import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch';
 import Link from '~/components/Link';
+import PreviewModeAuthSwitch from '~/components/PreviewModeAuthSwitch';
 import ToggleSmallScreenWarning from '~/components/ToggleSmallScreenWarning';
 import PageHeader from '~/components/typography/PageHeader';
 import Paragraph from '~/components/typography/Paragraph';
@@ -17,6 +19,7 @@ import {
   getInstallationId,
   requireAppNotExpired,
 } from '~/queries/appSettings';
+import { getApiTokens } from '~/queries/apiTokens';
 import { requirePageAuth } from '~/utils/auth';
 import AnalyticsButton from '../_components/AnalyticsButton';
 import RecruitmentTestSectionServer from '../_components/RecruitmentTestSectionServer';
@@ -32,6 +35,7 @@ export default async function Settings() {
 
   const installationId = await getInstallationId();
   const uploadThingKey = await getAppSetting('uploadThingToken');
+  const apiTokens = env.PREVIEW_MODE ? await getApiTokens() : [];
 
   return (
     <>
@@ -140,10 +144,40 @@ export default async function Settings() {
             Delete all data and reset Fresco to its default state.
           </Paragraph>
         </SettingsSection>
-      )}
-      {env.NODE_ENV === 'development' && (
-        // Only show the Analytics and Recruitment test sections in development
-        <>
+        {env.PREVIEW_MODE && (
+          <>
+            <SettingsSection
+              heading="Preview Mode Authentication"
+              controlArea={
+                <Suspense fallback="Loading">
+                  <PreviewModeAuthSwitch />
+                </Suspense>
+              }
+            >
+              <Paragraph margin="none">
+                When enabled, the preview protocol upload endpoint requires
+                authentication via API token or user session. When disabled,
+                anyone can upload preview protocols.
+              </Paragraph>
+              <Alert variant="warning">
+                <AlertTitle>Security Warning</AlertTitle>
+                <AlertDescription>
+                  Disabling authentication allows anyone to upload protocols to
+                  this instance. Only disable this in trusted environments.
+                </AlertDescription>
+              </Alert>
+            </SettingsSection>
+            <SettingsSection heading="API Tokens">
+              <Paragraph margin="none">
+                API tokens can be used to authenticate preview protocol uploads.
+                Use these tokens in the Authorization header as{' '}
+                <code>Bearer {'<token>'}</code>.
+              </Paragraph>
+              <ApiTokenManagement tokens={apiTokens} />
+            </SettingsSection>
+          </>
+        )}
+        {(env.NODE_ENV === 'development' || !env.SANDBOX_MODE) && (
           <SettingsSection
             devOnly
             heading="Send Test Analytics Event"
