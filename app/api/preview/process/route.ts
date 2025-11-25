@@ -1,76 +1,67 @@
 import {
   type CurrentProtocol,
   migrateProtocol,
+  type VersionedProtocol,
   validateProtocol,
 } from '@codaco/protocol-validation';
-import JSZip from 'jszip';
 import { type NextRequest } from 'next/server';
 import { hash } from 'ohash';
 import { addEvent } from '~/actions/activityFeed';
 import { env } from '~/env';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
 import { prunePreviewProtocols } from '~/lib/preview-protocol-pruning';
-import { getFileUrlByKey } from '~/lib/uploadthing-presigned';
 import { prisma } from '~/utils/db';
-import { getProtocolAssets, getProtocolJson } from '~/utils/protocolImport';
 import { checkPreviewAuth, jsonResponse, OPTIONS } from '../helpers';
 
 export { OPTIONS };
+
+type AssetInput = {
+  assetId: string;
+  key: string;
+  name: string;
+  type: string;
+  url: string;
+  size: number;
+  value?: string; // For apikey assets
+};
+
+type ProcessRequestBody = {
+  protocol: VersionedProtocol;
+  protocolName?: string;
+  assets: AssetInput[];
+};
 
 export async function POST(req: NextRequest) {
   const authError = await checkPreviewAuth(req);
   if (authError) return authError;
 
   try {
-    // Get file info from request body
-    const body = (await req.json()) as {
-      fileKey?: string;
-      fileName?: string;
-    };
+    const body = (await req.json()) as ProcessRequestBody;
 
-    const { fileKey, fileName } = body;
+    const { protocol: protocolJson, protocolName, assets } = body;
 
-    if (!fileKey || typeof fileKey !== 'string') {
-      return jsonResponse({ error: 'fileKey is required' }, 400);
+    if (!protocolJson || typeof protocolJson !== 'object') {
+      return jsonResponse({ error: 'protocol object is required' }, 400);
     }
 
-    // Get the file URL from the key
-    const fileUrl = await getFileUrlByKey(fileKey);
-
-    if (!fileUrl) {
-      return jsonResponse(
-        {
-          error:
-            'Failed to get file URL. UploadThing token may not be configured.',
-        },
-        500,
-      );
+    if (!assets || !Array.isArray(assets)) {
+      return jsonResponse({ error: 'assets array is required' }, 400);
     }
 
-    // Download the file from UploadThing
-    const fileResponse = await fetch(fileUrl);
-
-    if (!fileResponse.ok) {
-      return jsonResponse(
-        {
-          error: `Failed to download file from UploadThing: ${fileResponse.status} ${fileResponse.statusText}`,
-        },
-        500,
-      );
+    // Validate asset structure
+    for (const asset of assets) {
+      if (!asset.assetId || !asset.key || !asset.name || !asset.type) {
+        return jsonResponse(
+          {
+            error: 'Each asset must have assetId, key, name, and type',
+          },
+          400,
+        );
+      }
     }
 
-    const arrayBuffer = await fileResponse.arrayBuffer();
-
-    // Derive protocol name from fileName or fileKey
-    const protocolName = fileName
-      ? fileName.replace('.netcanvas', '')
-      : `protocol-${fileKey.slice(0, 8)}`;
-
-    // Parse the zip file
-    const zip = await JSZip.loadAsync(arrayBuffer);
-
-    // Extract protocol.json
-    const protocolJson = await getProtocolJson(zip);
+    // Derive protocol name
+    const name = protocolName ?? `preview-${Date.now()}`;
 
     // Check schema version
     const protocolVersion = protocolJson.schemaVersion;
@@ -136,17 +127,8 @@ export async function POST(req: NextRequest) {
       });
       protocolId = updated.id;
     } else {
-      // Extract assets
-      const { fileAssets, apikeyAssets } = await getProtocolAssets(
-        protocolToValidate,
-        zip,
-      );
-
-      // Combine all assets for checking
-      const allAssets = [...fileAssets, ...apikeyAssets];
-
       // Check which assets already exist in the database
-      const assetIds = allAssets.map((a) => a.assetId);
+      const assetIds = assets.map((a) => a.assetId);
       const existingDbAssets = await prisma.asset.findMany({
         where: {
           assetId: {
@@ -158,67 +140,26 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      const existingAssetIds = existingDbAssets.map((a) => a.assetId);
+      const existingAssetIds = new Set(existingDbAssets.map((a) => a.assetId));
 
-      // Only upload file assets that don't exist (apikey assets don't need uploading)
-      const fileAssetsToUpload = fileAssets.filter(
-        (a) => !existingAssetIds.includes(a.assetId),
-      );
-
-      // Apikey assets to create (if they don't already exist)
-      const apikeyAssetsToCreate = apikeyAssets.filter(
-        (a) => !existingAssetIds.includes(a.assetId),
-      );
-
-      // Upload new file assets to UploadThing (if any)
-      let newAssetRecords: {
-        key: string;
-        assetId: string;
-        name: string;
-        type: string;
-        url: string;
-        size: number;
-        value?: string;
-      }[] = [];
-
-      if (fileAssetsToUpload.length > 0) {
-        const files = fileAssetsToUpload.map((asset) => asset.file);
-
-        // Use UTApi for server-side upload
-        const { getUTApi } = await import('~/lib/uploadthing-server-helpers');
-        const utapi = await getUTApi();
-
-        const uploadedFiles = await Promise.all(
-          files.map(async (file) => {
-            const uploaded = await utapi.uploadFiles(file);
-            if (uploaded.error) {
-              throw new Error(`Failed to upload asset: ${file.name}`);
-            }
-            return uploaded.data;
-          }),
-        );
-
-        newAssetRecords = fileAssetsToUpload.map((asset, idx) => {
-          const uploaded = uploadedFiles[idx]!;
-          return {
-            key: uploaded.key,
-            assetId: asset.assetId,
-            name: asset.name,
-            type: asset.type,
-            url: uploaded.url,
-            size: uploaded.size,
-          };
-        });
-      }
-
-      // Add apikey assets (they don't need uploading, just database records)
-      newAssetRecords.push(...apikeyAssetsToCreate);
+      // Assets to create (ones that don't already exist)
+      const assetsToCreate = assets
+        .filter((a) => !existingAssetIds.has(a.assetId))
+        .map((a) => ({
+          assetId: a.assetId,
+          key: a.key,
+          name: a.name,
+          type: a.type,
+          url: a.url,
+          size: a.size,
+          value: a.value,
+        }));
 
       // Create the protocol in the database
       const protocol = await prisma.protocol.create({
         data: {
           hash: protocolHash,
-          name: protocolName,
+          name,
           schemaVersion: protocolJson.schemaVersion,
           description: protocolJson.description,
           lastModified: protocolJson.lastModified
@@ -228,8 +169,10 @@ export async function POST(req: NextRequest) {
           codebook: protocolJson.codebook as never,
           isPreview: true,
           assets: {
-            create: newAssetRecords,
-            connect: existingAssetIds.map((assetId) => ({ assetId })),
+            create: assetsToCreate,
+            connect: Array.from(existingAssetIds).map((assetId) => ({
+              assetId,
+            })),
           },
         },
       });
@@ -238,7 +181,7 @@ export async function POST(req: NextRequest) {
 
       void addEvent(
         'Preview Protocol Uploaded',
-        `Preview protocol "${protocolName}" uploaded via presigned URL`,
+        `Preview protocol "${name}" uploaded via direct upload`,
       );
     }
 

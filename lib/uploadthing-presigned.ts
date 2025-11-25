@@ -92,6 +92,7 @@ type GeneratePresignedUrlOptions = {
 type PresignedUrlResult = {
   uploadUrl: string;
   fileKey: string;
+  fileUrl: string;
   expiresAt: number;
 };
 
@@ -143,9 +144,13 @@ export async function generatePresignedUploadUrl(
   const signature = `hmac-sha256=${hmacSha256(urlWithParams, apiKey)}`;
   const finalUrl = `${urlWithParams}&signature=${encodeURIComponent(signature)}`;
 
+  // The URL where the file will be accessible after upload
+  const fileUrl = `https://${appId}.ufs.sh/f/${fileKey}`;
+
   return {
     uploadUrl: finalUrl,
     fileKey,
+    fileUrl,
     expiresAt,
   };
 }
