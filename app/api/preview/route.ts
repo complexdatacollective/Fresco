@@ -1,8 +1,8 @@
 import {
   type CurrentProtocol,
   migrateProtocol,
-  type VersionedProtocol,
   validateProtocol,
+  type VersionedProtocol,
 } from '@codaco/protocol-validation';
 import { type NextRequest } from 'next/server';
 import { hash } from 'ohash';
@@ -10,22 +10,21 @@ import { addEvent } from '~/actions/activityFeed';
 import { env } from '~/env';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
 import { prunePreviewProtocols } from '~/lib/preview-protocol-pruning';
+import { generatePresignedUploadUrl } from '~/lib/uploadthing-presigned';
 import { prisma } from '~/utils/db';
-import { checkPreviewAuth, jsonResponse, OPTIONS } from '../helpers';
+import { checkPreviewAuth, jsonResponse, OPTIONS } from './helpers';
 
 export { OPTIONS };
 
 type AssetInput = {
   assetId: string;
-  key: string;
   name: string;
-  type: string;
-  url: string;
   size: number;
+  type: string;
   value?: string; // For apikey assets
 };
 
-type ProcessRequestBody = {
+type PreviewRequestBody = {
   protocol: VersionedProtocol;
   protocolName?: string;
   assets: AssetInput[];
@@ -36,7 +35,7 @@ export async function POST(req: NextRequest) {
   if (authError) return authError;
 
   try {
-    const body = (await req.json()) as ProcessRequestBody;
+    const body = (await req.json()) as PreviewRequestBody;
 
     const { protocol: protocolJson, protocolName, assets } = body;
 
@@ -50,11 +49,16 @@ export async function POST(req: NextRequest) {
 
     // Validate asset structure
     for (const asset of assets) {
-      if (!asset.assetId || !asset.key || !asset.name || !asset.type) {
+      if (!asset.assetId || !asset.name || !asset.type) {
         return jsonResponse(
-          {
-            error: 'Each asset must have assetId, key, name, and type',
-          },
+          { error: 'Each asset must have assetId, name, and type' },
+          400,
+        );
+      }
+      // Size is required for non-apikey assets
+      if (asset.type !== 'apikey' && typeof asset.size !== 'number') {
+        return jsonResponse(
+          { error: 'Each non-apikey asset must have a size' },
           400,
         );
       }
@@ -116,6 +120,13 @@ export async function POST(req: NextRequest) {
     });
 
     let protocolId: string;
+    const uploads: {
+      assetId: string;
+      uploadUrl: string;
+      fileKey: string;
+      fileUrl: string;
+      expiresAt: number;
+    }[] = [];
 
     if (existingPreview) {
       // Update timestamp to prevent premature pruning
@@ -126,6 +137,7 @@ export async function POST(req: NextRequest) {
         },
       });
       protocolId = updated.id;
+      // No uploads needed - assets already exist
     } else {
       // Check which assets already exist in the database
       const assetIds = assets.map((a) => a.assetId);
@@ -137,25 +149,83 @@ export async function POST(req: NextRequest) {
         },
         select: {
           assetId: true,
+          key: true,
+          url: true,
         },
       });
 
-      const existingAssetIds = new Set(existingDbAssets.map((a) => a.assetId));
+      const existingAssetMap = new Map(
+        existingDbAssets.map((a) => [a.assetId, a]),
+      );
 
-      // Assets to create (ones that don't already exist)
-      const assetsToCreate = assets
-        .filter((a) => !existingAssetIds.has(a.assetId))
-        .map((a) => ({
-          assetId: a.assetId,
-          key: a.key,
-          name: a.name,
-          type: a.type,
-          url: a.url,
-          size: a.size,
-          value: a.value,
-        }));
+      // Separate assets into existing, new file assets, and apikey assets
+      const assetsToCreate: {
+        assetId: string;
+        key: string;
+        name: string;
+        type: string;
+        url: string;
+        size: number;
+        value?: string;
+      }[] = [];
 
-      // Create the protocol in the database
+      const existingAssetIds: string[] = [];
+
+      for (const asset of assets) {
+        const existing = existingAssetMap.get(asset.assetId);
+
+        if (existing) {
+          // Asset already exists - just connect it
+          existingAssetIds.push(asset.assetId);
+        } else if (asset.type === 'apikey') {
+          // Apikey assets don't need uploading
+          assetsToCreate.push({
+            assetId: asset.assetId,
+            key: asset.assetId,
+            name: asset.name,
+            type: asset.type,
+            url: '',
+            size: 0,
+            value: asset.value,
+          });
+        } else {
+          // New file asset - generate presigned URL
+          const presigned = await generatePresignedUploadUrl({
+            fileName: asset.name,
+            fileSize: asset.size,
+            fileType: getContentType(asset.type, asset.name),
+          });
+
+          if (!presigned) {
+            return jsonResponse(
+              {
+                error:
+                  'Failed to generate presigned URL. UploadThing token may not be configured.',
+              },
+              500,
+            );
+          }
+
+          uploads.push({
+            assetId: asset.assetId,
+            uploadUrl: presigned.uploadUrl,
+            fileKey: presigned.fileKey,
+            fileUrl: presigned.fileUrl,
+            expiresAt: presigned.expiresAt,
+          });
+
+          assetsToCreate.push({
+            assetId: asset.assetId,
+            key: presigned.fileKey,
+            name: asset.name,
+            type: asset.type,
+            url: presigned.fileUrl,
+            size: asset.size,
+          });
+        }
+      }
+
+      // Create the protocol and assets in the database
       const protocol = await prisma.protocol.create({
         data: {
           hash: protocolHash,
@@ -170,9 +240,7 @@ export async function POST(req: NextRequest) {
           isPreview: true,
           assets: {
             create: assetsToCreate,
-            connect: Array.from(existingAssetIds).map((assetId) => ({
-              assetId,
-            })),
+            connect: existingAssetIds.map((assetId) => ({ assetId })),
           },
         },
       });
@@ -185,7 +253,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Return the protocol ID and redirect URL
+    // Return the protocol ID, redirect URL, and any uploads needed
     const url = new URL(env.PUBLIC_URL ?? req.nextUrl.clone());
     url.pathname = `/preview/${protocolId}`;
 
@@ -193,10 +261,11 @@ export async function POST(req: NextRequest) {
       success: true,
       protocolId,
       redirectUrl: url.toString(),
+      uploads,
     });
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error('Preview protocol process error:', error);
+    console.error('Preview protocol error:', error);
 
     return jsonResponse(
       {
@@ -205,5 +274,33 @@ export async function POST(req: NextRequest) {
       },
       500,
     );
+  }
+}
+
+/**
+ * Map Network Canvas asset types to content types
+ */
+function getContentType(assetType: string, fileName: string): string {
+  const ext = fileName.split('.').pop()?.toLowerCase();
+
+  switch (assetType) {
+    case 'image':
+      if (ext === 'png') return 'image/png';
+      if (ext === 'gif') return 'image/gif';
+      if (ext === 'webp') return 'image/webp';
+      if (ext === 'svg') return 'image/svg+xml';
+      return 'image/jpeg';
+    case 'video':
+      if (ext === 'webm') return 'video/webm';
+      if (ext === 'mov') return 'video/quicktime';
+      return 'video/mp4';
+    case 'audio':
+      if (ext === 'wav') return 'audio/wav';
+      if (ext === 'ogg') return 'audio/ogg';
+      return 'audio/mpeg';
+    case 'network':
+      return 'application/json';
+    default:
+      return 'application/octet-stream';
   }
 }
