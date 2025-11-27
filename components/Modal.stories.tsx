@@ -2,9 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
-import BasicDialogPopup, {
-  BasicDialogPopupAnimation,
-} from '~/lib/dialogs/BasicDialogPopup';
+import ModalPopup, { ModalPopupAnimation } from '~/lib/dialogs/ModalPopup';
 import { cx } from '~/utils/cva';
 import Modal from './Modal';
 import Button from './ui/Button';
@@ -20,7 +18,7 @@ const meta: Meta<typeof Modal> = {
     docs: {
       description: {
         component:
-          'A reusable modal overlay component that portals content and handles accessibility. Used as the foundation for Dialog, Sheet, and other overlay components. All children must use BasicDialogPopup (BaseDialog.Popup) for proper accessibility and animation support.',
+          'A reusable modal overlay component that portals content and handles accessibility. Used as the foundation for Dialog, Sheet, and other overlay components. All children must use ModalPopup (BaseDialog.Popup) for proper accessibility and animation support.',
       },
     },
   },
@@ -37,24 +35,24 @@ function InteractiveModal() {
     <div className="flex min-h-screen items-center justify-center">
       <Button onClick={() => setOpen(true)}>Open Modal</Button>
       <Modal open={open} onOpenChange={setOpen}>
-        <BasicDialogPopup
+        <ModalPopup
           key="modal-popup"
           className={cx(
             'fixed top-1/2 left-1/2 w-96 -translate-x-1/2 -translate-y-1/2',
             'bg-surface-1 text-surface-1-contrast rounded-lg p-6 shadow-xl',
           )}
-          {...BasicDialogPopupAnimation}
+          {...ModalPopupAnimation}
         >
           <h2 className="mb-2 text-lg font-semibold">Modal Title</h2>
           <p className="mb-4 text-current/70">
             This is a basic modal using the Modal component that uses the
-            built-in animation for BasicDialogPopup. Click outside or press
-            Escape to close.
+            built-in animation for ModalPopup. Click outside or press Escape to
+            close.
           </p>
           <div className="flex justify-end gap-2">
             <Button onClick={() => setOpen(false)}>Close</Button>
           </div>
-        </BasicDialogPopup>
+        </ModalPopup>
       </Modal>
     </div>
   );
@@ -64,29 +62,6 @@ export const Default: Story = {
   render: () => <InteractiveModal />,
 };
 
-export const AlwaysOpen: Story = {
-  args: {
-    open: true,
-  },
-  render: (args) => (
-    <Modal {...args}>
-      <BasicDialogPopup
-        key="always-open-popup"
-        className={cx(
-          'fixed top-1/2 left-1/2 w-96 -translate-x-1/2 -translate-y-1/2',
-          'bg-surface-1 text-surface-1-contrast rounded-lg p-6 shadow-xl',
-        )}
-        {...BasicDialogPopupAnimation}
-      >
-        <h2 className="mb-2 text-lg font-semibold">Always Open Modal</h2>
-        <p className="text-current/70">
-          This modal is always open in Storybook for demonstration purposes.
-        </p>
-      </BasicDialogPopup>
-    </Modal>
-  ),
-};
-
 function SheetExample() {
   const [open, setOpen] = useState(false);
 
@@ -94,7 +69,7 @@ function SheetExample() {
     <div className="flex min-h-screen items-center justify-center">
       <Button onClick={() => setOpen(true)}>Open Sheet</Button>
       <Modal open={open} onOpenChange={setOpen}>
-        <BasicDialogPopup
+        <ModalPopup
           key="sheet-popup"
           className={cx(
             'fixed top-0 right-0 h-full w-96',
@@ -103,7 +78,7 @@ function SheetExample() {
           initial={{ x: '100%', opacity: 0.99 }}
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: '100%', opacity: 0.99 }}
-          transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+          transition={{ type: 'tween', duration: 0.3 }}
         >
           <div className="flex h-full flex-col p-6">
             <h2 className="mb-2 text-lg font-semibold">Sheet Panel</h2>
@@ -116,7 +91,7 @@ function SheetExample() {
               <Button onClick={() => setOpen(false)}>Close</Button>
             </div>
           </div>
-        </BasicDialogPopup>
+        </ModalPopup>
       </Modal>
     </div>
   );
@@ -141,7 +116,7 @@ function BottomSheetExample() {
     <div className="flex min-h-screen items-center justify-center">
       <Button onClick={() => setOpen(true)}>Open Bottom Sheet</Button>
       <Modal open={open} onOpenChange={setOpen}>
-        <BasicDialogPopup
+        <ModalPopup
           key="bottom-sheet-popup"
           className={cx(
             'fixed right-0 bottom-0 left-0',
@@ -150,7 +125,7 @@ function BottomSheetExample() {
           initial={{ y: '100%', opacity: 0.99 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: '100%', opacity: 0.99 }}
-          transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+          transition={{ type: 'tween', duration: 0.3 }}
         >
           <div className="p-6">
             <h2 className="mb-2 text-lg font-semibold">Bottom Sheet</h2>
@@ -161,7 +136,7 @@ function BottomSheetExample() {
               <Button onClick={() => setOpen(false)}>Done</Button>
             </div>
           </div>
-        </BasicDialogPopup>
+        </ModalPopup>
       </Modal>
     </div>
   );
@@ -186,7 +161,7 @@ function FullscreenOverlayExample() {
     <div className="flex min-h-screen items-center justify-center">
       <Button onClick={() => setOpen(true)}>Open Fullscreen</Button>
       <Modal open={open} onOpenChange={setOpen}>
-        <BasicDialogPopup
+        <ModalPopup
           key="fullscreen-popup"
           className={cx(
             'fixed inset-0',
@@ -207,7 +182,7 @@ function FullscreenOverlayExample() {
               immersive experiences, image galleries, or complex forms.
             </p>
           </div>
-        </BasicDialogPopup>
+        </ModalPopup>
       </Modal>
     </div>
   );
@@ -233,13 +208,13 @@ function NestedModalsExample() {
     <div className="flex min-h-screen items-center justify-center">
       <Button onClick={() => setOuterOpen(true)}>Open First Modal</Button>
       <Modal open={outerOpen} onOpenChange={setOuterOpen}>
-        <BasicDialogPopup
+        <ModalPopup
           key="outer-modal-popup"
           className={cx(
             'fixed top-1/2 left-1/2 w-96 -translate-x-1/2 -translate-y-1/2',
             'bg-surface-1 text-surface-1-contrast rounded-lg p-6 shadow-xl',
           )}
-          {...BasicDialogPopupAnimation}
+          {...ModalPopupAnimation}
         >
           <h2 className="mb-2 text-lg font-semibold">First Modal</h2>
           <p className="mb-4 text-current/70">
@@ -251,16 +226,16 @@ function NestedModalsExample() {
               Open Second Modal
             </Button>
           </div>
-        </BasicDialogPopup>
+        </ModalPopup>
       </Modal>
       <Modal open={innerOpen} onOpenChange={setInnerOpen}>
-        <BasicDialogPopup
+        <ModalPopup
           key="inner-modal-popup"
           className={cx(
             'fixed top-1/2 left-1/2 w-80 -translate-x-1/2 -translate-y-1/2',
             'bg-surface-1 text-surface-1-contrast rounded-lg p-6 shadow-xl',
           )}
-          {...BasicDialogPopupAnimation}
+          {...ModalPopupAnimation}
         >
           <h2 className="mb-2 text-lg font-semibold">Second Modal</h2>
           <p className="mb-4 text-current/70">
@@ -269,7 +244,7 @@ function NestedModalsExample() {
           <div className="flex justify-end">
             <Button onClick={() => setInnerOpen(false)}>Close</Button>
           </div>
-        </BasicDialogPopup>
+        </ModalPopup>
       </Modal>
     </div>
   );
@@ -294,7 +269,7 @@ function CustomAnimationExample() {
     <div className="flex min-h-screen items-center justify-center">
       <Button onClick={() => setOpen(true)}>Open Bouncy Modal</Button>
       <Modal open={open} onOpenChange={setOpen}>
-        <BasicDialogPopup
+        <ModalPopup
           key="bouncy-modal-popup"
           className={cx(
             'fixed top-1/2 left-1/2 w-96 -translate-x-1/2 -translate-y-1/2',
@@ -325,7 +300,7 @@ function CustomAnimationExample() {
           <div className="flex justify-end">
             <Button onClick={() => setOpen(false)}>Close</Button>
           </div>
-        </BasicDialogPopup>
+        </ModalPopup>
       </Modal>
     </div>
   );
@@ -378,18 +353,26 @@ function LayoutIdMorphExample() {
             layoutId={item.id}
             onClick={() => setSelectedId(item.id)}
             className={cx(
-              'bg-surface-1 text-surface-1-contrast cursor-pointer rounded-lg p-4 text-left shadow-md',
-              'hover:shadow-lg',
+              'bg-surface-1 text-surface-1-contrast cursor-pointer p-4 text-left',
             )}
+            style={{
+              borderRadius: 28,
+              boxShadow: '0 5px 15px rgba(0,0,0,0.1)',
+            }}
+            whileHover={{
+              boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
+              scale: 1.03,
+            }}
           >
             <motion.div
               layoutId={`${item.id}-image`}
               className={cx(
-                'mb-3 h-24 w-full rounded',
+                'mb-3 h-24 w-full',
                 item.color === 'blue' && 'bg-cerulean-blue',
                 item.color === 'green' && 'bg-kiwi',
                 item.color === 'purple' && 'bg-slate-blue',
               )}
+              style={{ borderRadius: 14 }}
             />
             <motion.h3 layoutId={`${item.id}-title`} className="font-semibold">
               {item.title}
@@ -409,21 +392,27 @@ function LayoutIdMorphExample() {
         onOpenChange={(open) => !open && setSelectedId(null)}
       >
         {selectedItem && (
-          <BasicDialogPopup
+          <ModalPopup
+            key="dialog-popup"
             layoutId={selectedItem.id}
             className={cx(
               'fixed top-1/2 left-1/2 w-[500px] -translate-x-1/2 -translate-y-1/2',
-              'bg-surface-1 text-surface-1-contrast rounded-lg p-6 shadow-xl',
+              'bg-surface-1 text-surface-1-contrast p-6',
             )}
+            style={{ borderRadius: 42 }}
           >
             <motion.div
               layoutId={`${selectedItem.id}-image`}
               className={cx(
-                'mb-4 h-48 w-full rounded',
+                'mb-4 h-48 w-full',
                 selectedItem.color === 'blue' && 'bg-cerulean-blue',
                 selectedItem.color === 'green' && 'bg-kiwi',
                 selectedItem.color === 'purple' && 'bg-slate-blue',
               )}
+              style={{
+                borderRadius: 28,
+                boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
+              }}
             />
             <motion.h2
               layoutId={`${selectedItem.id}-title`}
@@ -437,24 +426,14 @@ function LayoutIdMorphExample() {
             >
               {selectedItem.description}
             </motion.p>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="mb-4 text-current/70"
-            >
+            <motion.p className="mb-4 text-current/70">
               Click outside or press Escape to close and see the morph
               transition back to the card.
             </motion.p>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex justify-end"
-            >
+            <motion.div className="flex justify-end">
               <Button onClick={() => setSelectedId(null)}>Close</Button>
             </motion.div>
-          </BasicDialogPopup>
+          </ModalPopup>
         )}
       </Modal>
     </div>

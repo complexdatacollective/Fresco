@@ -1,5 +1,6 @@
 'use client';
 
+import { Dialog as BaseDialog } from '@base-ui-components/react/dialog';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { GripVertical, PencilIcon, X } from 'lucide-react';
 import { motion, Reorder, useDragControls } from 'motion/react';
@@ -7,8 +8,11 @@ import { useState } from 'react';
 import { action } from 'storybook/actions';
 import { useArgs } from 'storybook/preview-api';
 import { z } from 'zod';
+import CloseButton from '~/components/CloseButton';
+import { surfaceVariants } from '~/components/layout/Surface';
+import Modal from '~/components/Modal';
 import { IconButton, MotionButton } from '~/components/ui/Button';
-import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
+import ModalPopup from '~/lib/dialogs/ModalPopup';
 import { cx } from '~/utils/cva';
 import { Field, Form, SubmitButton } from '..';
 import { ArrayField } from './ArrayField';
@@ -386,6 +390,7 @@ const DialogItemComponent = ({
   onEdit,
   onRemove,
   sortable,
+  layoutId,
 }: {
   layoutId?: string;
   sortable?: boolean;
@@ -400,7 +405,9 @@ const DialogItemComponent = ({
       value={item}
       dragListener={false}
       dragControls={controls}
-      className="bg-surface-1 flex w-full items-center gap-3 rounded-xl border p-4 shadow-sm select-none"
+      layoutId={layoutId}
+      className="bg-surface-1 flex w-full items-center gap-3 border p-4 shadow-sm select-none"
+      style={{ borderRadius: 'var(--radius-xl)' }}
     >
       {sortable && (
         <div onPointerDown={(e) => controls.start(e)}>
@@ -448,83 +455,104 @@ const DialogEditorComponent = ({
 }) => {
   const isEditing = !!item;
 
-  const handleSubmit = (data: Record<string, unknown>) => {
+  const handleSubmit = (data: unknown) => {
+    const formData = data as Record<string, unknown>;
     onSave({
       id: item?.id ?? crypto.randomUUID(),
-      label: (data.label as string).trim(),
-      email: (data.email as string).trim(),
-      phone: (data.phone as string).trim(),
-      notes: (data.notes as string).trim(),
+      label: (formData.label as string).trim(),
+      email: (formData.email as string).trim(),
+      phone: (formData.phone as string).trim(),
+      notes: (formData.notes as string).trim(),
     });
     return Promise.resolve({ success: true });
   };
 
   return (
-    <ControlledDialog
-      open={true}
-      closeDialog={onCancel}
-      title={isEditing ? 'Edit Contact' : 'Add New Contact'}
-      description={
-        isEditing
-          ? 'Update the contact details below'
-          : 'Fill in the contact details'
-      }
-      footer={
-        <>
+    <Modal open={true} onOpenChange={(open) => !open && onCancel()}>
+      <ModalPopup
+        key="dialog-editor"
+        layoutId={layoutId}
+        className={cx(
+          surfaceVariants({ level: 0, spacing: 'md', elevation: 'high' }),
+          'w-[calc(100%-var(--spacing)*4)] max-w-2xl @2xl:w-auto @2xl:min-w-xl',
+          'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+          'flex max-h-[calc(100vh-var(--spacing)*4)]',
+          'flex flex-col',
+          'rounded-none',
+        )}
+        style={{ borderRadius: 'var(--radius)' }}
+      >
+        <BaseDialog.Title
+          render={(props) => (
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <h2 {...props} className="text-lg font-semibold">
+                {isEditing ? 'Edit Contact' : 'Add New Contact'}
+              </h2>
+              <BaseDialog.Close render={<CloseButton />} />
+            </div>
+          )}
+        />
+        <div className="-mx-8 overflow-y-auto px-8 pb-2">
+          <BaseDialog.Description
+            render={(props) => (
+              <p {...props} className="mb-4 text-current/70">
+                {isEditing
+                  ? 'Update the contact details below'
+                  : 'Fill in the contact details'}
+              </p>
+            )}
+          />
+          <Form
+            id="contact-form"
+            onSubmit={handleSubmit}
+            className="w-full max-w-full gap-4"
+          >
+            <Field
+              name="label"
+              label="Name"
+              component={InputField}
+              initialValue={item?.label ?? ''}
+              placeholder="John Doe"
+              required
+              validation={z.string().min(1, 'Name is required')}
+            />
+            <Field
+              name="email"
+              label="Email"
+              component={InputField}
+              type="email"
+              initialValue={item?.email ?? ''}
+              placeholder="john@example.com"
+              required
+              validation={z.string().email()}
+            />
+            <Field
+              name="phone"
+              label="Phone"
+              component={InputField}
+              type="tel"
+              initialValue={item?.phone ?? ''}
+              placeholder="+1 (555) 123-4567"
+            />
+            <Field
+              name="notes"
+              label="Notes"
+              component={InputField}
+              initialValue={item?.notes ?? ''}
+              placeholder="Any additional notes..."
+            />
+          </Form>
+        </div>
+        <footer className="tablet:flex-row mt-4 flex flex-col justify-end gap-4">
           <MotionButton type="button" onClick={onCancel}>
             Cancel
           </MotionButton>
           <SubmitButton form="contact-form" color="primary">
             {isEditing ? 'Save Changes' : 'Add Contact'}
           </SubmitButton>
-        </>
-      }
-      layoutId={layoutId}
-      initial={undefined}
-      animate={undefined}
-      exit={undefined}
-    >
-      <Form
-        id="contact-form"
-        onSubmit={handleSubmit}
-        className="w-full max-w-full gap-4"
-      >
-        <Field
-          name="label"
-          label="Name"
-          component={InputField}
-          initialValue={item?.label ?? ''}
-          placeholder="John Doe"
-          required
-          validation={z.string().min(1, 'Name is required')}
-        />
-        <Field
-          name="email"
-          label="Email"
-          component={InputField}
-          type="email"
-          initialValue={item?.email ?? ''}
-          placeholder="john@example.com"
-          required
-          validation={z.string().email('Invalid email address')}
-        />
-        <Field
-          name="phone"
-          label="Phone"
-          component={InputField}
-          type="tel"
-          initialValue={item?.phone ?? ''}
-          placeholder="+1 (555) 123-4567"
-        />
-        <Field
-          name="notes"
-          label="Notes"
-          component={InputField}
-          initialValue={item?.notes ?? ''}
-          placeholder="Any additional notes..."
-        />
-      </Form>
-    </ControlledDialog>
+        </footer>
+      </ModalPopup>
+    </Modal>
   );
 };
 

@@ -25,19 +25,21 @@ type AnimationPropsWithRequiredOpacity = {
   transition?: HTMLMotionProps<'div'>['transition'];
 };
 
-type BaseDialogPopupProps = Omit<
+type BaseModalPopupProps = Omit<
   ComponentProps<typeof motion.div>,
-  'initial' | 'animate' | 'exit' | 'transition' | 'layoutId'
+  'initial' | 'animate' | 'exit' | 'layoutId'
 > &
-  Omit<Dialog.Popup.Props, 'render'>;
+  Omit<Dialog.Popup.Props, 'render'> & {
+    key: string;
+  };
 
 /**
- * Props for BasicDialogPopup.
+ * Props for ModalPopup.
  * Must provide EITHER animation props OR layoutId (exactly one is required).
  * - Animation props: At least one of initial/animate/exit (with required opacity when objects)
  * - layoutId: For shared layout animations (incompatible with animation props)
  */
-type DialogPopupProps = BaseDialogPopupProps &
+type ModalPopupProps = BaseModalPopupProps &
   (
     | (AnimationPropsWithRequiredOpacity &
         (
@@ -63,7 +65,6 @@ type DialogPopupProps = BaseDialogPopupProps &
         initial?: never;
         animate?: never;
         exit?: never;
-        transition?: never;
       }
   );
 
@@ -71,7 +72,7 @@ type DialogPopupProps = BaseDialogPopupProps &
  * A set of animation parameters loosely based on the iOS 26 dialog animation.
  * All animation states include opacity for Base-UI's animation detection.
  */
-export const BasicDialogPopupAnimation = {
+export const ModalPopupAnimation = {
   initial: { opacity: 0, y: '-10%', scale: 1.1 },
   animate: {
     opacity: 1,
@@ -92,11 +93,11 @@ export const BasicDialogPopupAnimation = {
   },
 } as const;
 
-export default function BasicDialogPopup({
+export default function ModalPopup({
   children,
   className,
   ...props
-}: DialogPopupProps) {
+}: ModalPopupProps) {
   // When using layoutId, apply minimal opacity animations for Base-UI detection
   const layoutIdAnimation =
     'layoutId' in props && props.layoutId
@@ -113,8 +114,8 @@ export default function BasicDialogPopup({
         <motion.div
           {...(popupProps as HTMLMotionProps<'div'>)}
           className={className}
-          {...layoutIdAnimation}
           {...props}
+          {...layoutIdAnimation}
         >
           {children}
         </motion.div>

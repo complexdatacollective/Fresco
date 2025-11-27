@@ -2,14 +2,17 @@
 
 import { Dialog as BaseDialog } from '@base-ui-components/react/dialog';
 import { Slot } from '@radix-ui/react-slot';
-import { motion } from 'motion/react';
-import React, { type ComponentProps, forwardRef, type ReactNode } from 'react';
+import React, { forwardRef, type ReactNode } from 'react';
 import CloseButton from '~/components/CloseButton';
-import Surface from '~/components/layout/Surface';
+import {
+  surfaceVariants,
+  type SurfaceVariants,
+} from '~/components/layout/Surface';
 import Modal from '~/components/Modal';
 import { headingVariants } from '~/components/typography/Heading';
 import { paragraphVariants } from '~/components/typography/Paragraph';
 import { cx, type VariantProps } from '~/utils/cva';
+import ModalPopup, { ModalPopupAnimation } from './ModalPopup';
 
 export type DialogProps = {
   title?: string;
@@ -19,7 +22,8 @@ export type DialogProps = {
   footer?: React.ReactNode;
   open?: boolean;
   children?: ReactNode;
-};
+  className?: string;
+} & SurfaceVariants;
 
 /**
  * Dialog component using Base UI Dialog primitives with motion animations.
@@ -30,14 +34,11 @@ export type DialogProps = {
  * Implementation Notes:
  *
  * - Uses Base UI Dialog for accessibility and state management
- * - AnimatePresence and motion for enter/exit animations
- * - The inner Surface component ensures proper spacing from screen edge on small screens
+ * - ModalPopup with ModalPopupAnimation for consistent animations
+ * - Surface styling applied via className for proper elevation and spacing
  * - Backdrop click-to-close is handled by Base UI's dismissible behavior
  */
-export const Dialog = forwardRef<
-  HTMLDivElement,
-  DialogProps & ComponentProps<typeof Surface>
->(
+export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
   (
     {
       title,
@@ -47,7 +48,12 @@ export const Dialog = forwardRef<
       accent,
       footer,
       open = false,
-      ...surfaceProps
+      level = 0,
+      spacing = 'md',
+      elevation = 'high',
+      bleed,
+      className,
+      ...rest
     },
     ref,
   ) => {
@@ -55,79 +61,55 @@ export const Dialog = forwardRef<
       <Modal
         open={open}
         onOpenChange={(isOpen) => {
-          if (!isOpen) {
+          if (!isOpen && closeDialog) {
             closeDialog();
           }
         }}
       >
-        <BaseDialog.Popup
+        <ModalPopup
           key="dialog"
           ref={ref}
-          render={(props) => (
-            <Surface
-              initial={{ opacity: 0, y: '-10%', scale: 1.1 }}
-              animate={{
-                opacity: 1,
-                y: 0,
-                scale: 1,
-                filter: 'blur(0px)',
-              }}
-              exit={{
-                opacity: 0,
-                y: '-10%',
-                scale: 1.5,
-                filter: 'blur(10px)',
-              }}
-              transition={{
-                type: 'spring',
-                stiffness: 300,
-                damping: 30,
-              }}
-              as={motion.div}
-              level={0}
-              className={cx(
-                'w-[calc(100%-var(--spacing)*4)] max-w-2xl @2xl:w-auto @2xl:min-w-xl',
-                'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
-                'flex max-h-[calc(100vh-var(--spacing)*4)]',
-                // Accent overrides the primary hue so that nested primary buttons inherit color
-                accent === 'success' &&
-                  '[--color-primary:var(--color-success)]',
-                accent === 'info' && '[--color-primary:var(--color-info)]',
-                accent === 'destructive' &&
-                  '[--color-primary-contrast:var(--color-destructive-contrast)] [--color-primary:var(--color-destructive)]',
-                'flex flex-col',
-              )}
-              elevation="high"
-              {...props}
-              {...surfaceProps}
-            >
-              <BaseDialog.Title
-                render={(props) => (
-                  <div className="mb-4 flex items-center justify-between gap-4">
-                    <DialogHeading {...props}>{title}</DialogHeading>
-                    <BaseDialog.Close render={<CloseButton />} />
-                  </div>
+          className={cx(
+            surfaceVariants({ level, spacing, elevation, bleed }),
+            'w-[calc(100%-var(--spacing)*4)] max-w-2xl @2xl:w-auto @2xl:min-w-xl',
+            'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+            'flex max-h-[calc(100vh-var(--spacing)*4)]',
+            // Accent overrides the primary hue so that nested primary buttons inherit color
+            accent === 'success' && '[--color-primary:var(--color-success)]',
+            accent === 'info' && '[--color-primary:var(--color-info)]',
+            accent === 'destructive' &&
+              '[--color-primary-contrast:var(--color-destructive-contrast)] [--color-primary:var(--color-destructive)]',
+            'flex flex-col',
+            className,
+          )}
+          {...ModalPopupAnimation}
+          {...rest}
+        >
+          <BaseDialog.Title
+            render={(props) => (
+              <div className="mb-4 flex items-center justify-between gap-4">
+                <DialogHeading {...props}>{title}</DialogHeading>
+                <BaseDialog.Close render={<CloseButton />} />
+              </div>
+            )}
+          />
+          <DialogContent>
+            {description && (
+              <BaseDialog.Description
+                render={(descProps) => (
+                  <DialogDescription
+                    {...descProps}
+                    className={descProps.className}
+                  >
+                    {description}
+                  </DialogDescription>
                 )}
               />
-              <DialogContent>
-                {description && (
-                  <BaseDialog.Description
-                    render={(descProps) => (
-                      <DialogDescription
-                        {...descProps}
-                        className={descProps.className}
-                      >
-                        {description}
-                      </DialogDescription>
-                    )}
-                  />
-                )}
-                {children}
-              </DialogContent>
-              {footer && <DialogFooter>{footer}</DialogFooter>}
-            </Surface>
-          )}
-        />
+            )}
+            {children}
+          </DialogContent>
+          {footer && <DialogFooter>{footer}</DialogFooter>}
+        </ModalPopup>
       </Modal>
     );
   },
