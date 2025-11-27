@@ -32,7 +32,7 @@ export default function Form(props: FormProps) {
     <MotionForm
       noValidate // Don't show native HTML validation UI
       className={cx(
-        'flex min-w-md flex-col items-start [&>*:not(:last-child)]:mb-6',
+        'flex w-[100vw] max-w-2xl flex-col items-start gap-6',
         className,
       )}
       layout

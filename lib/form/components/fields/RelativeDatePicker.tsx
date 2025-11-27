@@ -1,6 +1,6 @@
 'use client';
 
-import { InputField } from './Input';
+import { InputField } from './InputField';
 
 type RelativeDatePickerFieldProps = {
   'anchor'?: string; // ISO date string

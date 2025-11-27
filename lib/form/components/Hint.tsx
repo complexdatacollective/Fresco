@@ -1,4 +1,5 @@
-import Paragraph from '~/components/typography/Paragraph';
+import { motion } from 'motion/react';
+import { paragraphVariants } from '~/components/typography/Paragraph';
 
 export default function Hint({
   id,
@@ -8,8 +9,12 @@ export default function Hint({
   children: React.ReactNode;
 }) {
   return (
-    <Paragraph id={id} margin="none" className="text-xs text-current/60">
+    <motion.p
+      layout
+      id={id}
+      className={paragraphVariants({ className: 'text-xs text-current/60' })}
+    >
       {children}
-    </Paragraph>
+    </motion.p>
   );
 }

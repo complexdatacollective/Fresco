@@ -235,3 +235,121 @@ export const InForm: Story = {
     </Form>
   ),
 };
+
+// Toolbar Options Stories
+
+export const NoHeadings: Story = {
+  render: () => (
+    <div className="w-[600px]">
+      <RichTextEditorField
+        placeholder="Headings are disabled..."
+        toolbarOptions={{ headings: false }}
+        onChange={action('onChange')}
+      />
+    </div>
+  ),
+};
+
+export const OnlyH2AndH3: Story = {
+  render: () => (
+    <div className="w-[600px]">
+      <RichTextEditorField
+        placeholder="Only H2 and H3 headings available..."
+        toolbarOptions={{
+          headings: { h1: false, h2: true, h3: true, h4: false },
+        }}
+        onChange={action('onChange')}
+      />
+    </div>
+  ),
+};
+
+export const TextFormattingOnly: Story = {
+  render: () => (
+    <div className="w-[600px]">
+      <RichTextEditorField
+        placeholder="Only bold and italic formatting..."
+        toolbarOptions={{
+          headings: false,
+          lists: false,
+          history: false,
+        }}
+        onChange={action('onChange')}
+      />
+    </div>
+  ),
+};
+
+export const NoLists: Story = {
+  render: () => (
+    <div className="w-[600px]">
+      <RichTextEditorField
+        placeholder="Lists are disabled..."
+        toolbarOptions={{ lists: false }}
+        onChange={action('onChange')}
+      />
+    </div>
+  ),
+};
+
+export const BulletListOnly: Story = {
+  render: () => (
+    <div className="w-[600px]">
+      <RichTextEditorField
+        placeholder="Only bullet lists available..."
+        toolbarOptions={{
+          lists: { bullet: true, ordered: false },
+        }}
+        onChange={action('onChange')}
+      />
+    </div>
+  ),
+};
+
+export const NoHistory: Story = {
+  render: () => (
+    <div className="w-[600px]">
+      <RichTextEditorField
+        placeholder="Undo/Redo buttons hidden..."
+        toolbarOptions={{ history: false }}
+        onChange={action('onChange')}
+      />
+    </div>
+  ),
+};
+
+export const MinimalEditor: Story = {
+  render: () => (
+    <div className="w-[600px]">
+      <RichTextEditorField
+        placeholder="Minimal editor - just bold..."
+        toolbarOptions={{
+          bold: true,
+          italic: false,
+          headings: false,
+          lists: false,
+          history: false,
+        }}
+        onChange={action('onChange')}
+      />
+    </div>
+  ),
+};
+
+export const NoToolbar: Story = {
+  render: () => (
+    <div className="w-[600px]">
+      <RichTextEditorField
+        placeholder="No toolbar at all..."
+        toolbarOptions={{
+          bold: false,
+          italic: false,
+          headings: false,
+          lists: false,
+          history: false,
+        }}
+        onChange={action('onChange')}
+      />
+    </div>
+  ),
+};

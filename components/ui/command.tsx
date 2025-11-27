@@ -3,7 +3,7 @@
 import { Command as CommandPrimitive } from 'cmdk';
 import { SearchIcon } from 'lucide-react';
 import * as React from 'react';
-import { InputField } from '~/lib/form/components/fields/Input';
+import { InputField } from '~/lib/form/components/fields/InputField';
 import { cx } from '~/utils/cva';
 
 const Command = React.forwardRef<

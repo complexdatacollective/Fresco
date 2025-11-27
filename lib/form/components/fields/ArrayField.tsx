@@ -1,4 +1,4 @@
-// MultiSelectField.tsx (React 18)
+// ArrayField.tsx (React 18)
 
 import { GripVertical, PencilIcon, PlusIcon, X } from 'lucide-react';
 import {
@@ -9,7 +9,7 @@ import {
 } from 'motion/react';
 import { useCallback, useState } from 'react';
 import { IconButton, MotionButton } from '~/components/ui/Button';
-import { InputField } from './Input';
+import { InputField } from './InputField';
 
 type Item = {
   id: string;
@@ -31,12 +31,14 @@ type EditorComponentProps<T extends Item> = {
   layoutId?: string;
 };
 
-type MultiSelectFieldProps<T extends Item = Item> = {
+type ArrayFieldProps<T extends Item = Item> = {
   value?: T[];
   onChange: (value: T[]) => void;
   sortable?: boolean;
   ItemComponent?: React.ComponentType<ItemComponentProps<T>>;
   EditorComponent?: React.ComponentType<EditorComponentProps<T>>;
+  buttonLabel?: string;
+  emptyStateMessage?: string;
 };
 
 const DefaultItemComponent = ({
@@ -63,7 +65,7 @@ const DefaultItemComponent = ({
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.8 }}
       dragListener={false}
-      className="bg-surface-1 flex w-full items-center gap-2 rounded-lg border p-2"
+      className="bg-surface-1 flex w-full items-center gap-2 rounded-lg border px-4 py-2 select-none"
       dragControls={controls}
     >
       {sortable && (
@@ -146,13 +148,19 @@ const DefaultEditorComponent = ({
   );
 };
 
-export function MultiSelectField<T extends Item = Item>({
+export function ArrayField<T extends Item = Item>({
   value = [],
   onChange,
   sortable = false,
-  ItemComponent = DefaultItemComponent,
-  EditorComponent = DefaultEditorComponent,
-}: MultiSelectFieldProps<T>) {
+  ItemComponent = DefaultItemComponent as React.ComponentType<
+    ItemComponentProps<T>
+  >,
+  EditorComponent = DefaultEditorComponent as React.ComponentType<
+    EditorComponentProps<T>
+  >,
+  buttonLabel = 'Add Item',
+  emptyStateMessage = 'No items added yet. Click "Add Item" to get started.',
+}: ArrayFieldProps<T>) {
   const NEW_ITEM_KEY = '__new__';
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -187,7 +195,7 @@ export function MultiSelectField<T extends Item = Item>({
   );
 
   return (
-    <div className="flex flex-col items-start gap-2">
+    <motion.div layout className="flex flex-col items-start gap-2">
       <Reorder.Group
         axis="y"
         values={value}
@@ -196,16 +204,18 @@ export function MultiSelectField<T extends Item = Item>({
       >
         <AnimatePresence initial={false}>
           {value.length === 0 && (
-            <motion.p
+            <Reorder.Item
+              value={null}
               key="no-items"
               layout
               initial={{ opacity: 0 }}
               animate={{ opacity: 1, transition: { delay: 0.3 } }}
               exit={{ opacity: 0 }}
               className="text-sm text-current/70"
+              dragListener={false}
             >
-              No items added yet. Click &quot;Add Item&quot; to get started.
-            </motion.p>
+              {emptyStateMessage}
+            </Reorder.Item>
           )}
           {value.map((item) => {
             const isEditing = editingId === item.id;
@@ -213,7 +223,7 @@ export function MultiSelectField<T extends Item = Item>({
             if (isEditing) {
               return (
                 <EditorComponent
-                  key={`item-${item.id}`}
+                  key={`editor-${item.id}`}
                   layoutId={item.id}
                   item={item}
                   onSave={(updatedItem) => updateItem(item.id, updatedItem)}
@@ -247,13 +257,15 @@ export function MultiSelectField<T extends Item = Item>({
         )}
       </AnimatePresence>
       <MotionButton
+        layout="position"
         key="add-button"
+        size="sm"
         onClick={() => setEditingId(NEW_ITEM_KEY)}
         icon={<PlusIcon />}
         disabled={editingId === NEW_ITEM_KEY}
       >
-        Add Item
+        {buttonLabel}
       </MotionButton>
-    </div>
+    </motion.div>
   );
 }

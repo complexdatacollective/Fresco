@@ -7,17 +7,6 @@
 @plugin './plugins/tailwind-motion-spring.ts';
 @plugin './plugins/tailwind-elevation/index.ts';
 
-/* 
-
-The default tailwind way to do this uses a psuedo element selector, which
-means that anything not editable is "read only", including things
-like <select>. 
-
-This custom variant lets you target only elements with the readonly attribute.
-
-*/
-@custom-variant is-read-only (&[readonly]);
-
 @theme {
   /*****************************************************************************
   *                                  TYPOGRAPHY
@@ -81,7 +70,6 @@ This custom variant lets you target only elements with the readonly attribute.
   /*****************************************************************************
   *                               COLORS
   *****************************************************************************/
-
   --color-*: initial;
 
   /*
@@ -270,7 +258,6 @@ This custom variant lets you target only elements with the readonly attribute.
   /*
     Border radius
   */
-
   --radius-*: initial;
   --radius-none: 0px;
   --radius-sm: calc(var(--radius) * 0.5);
@@ -391,6 +378,23 @@ This custom variant lets you target only elements with the readonly attribute.
   }
 }
 
+/* 
+
+The default tailwind way to do this uses a psuedo element selector, which
+means that anything not editable is "read only", including things
+like <select>. 
+
+This custom variant lets you target only elements with the readonly attribute.
+
+*/
+@custom-variant is-read-only (&[readonly]);
+
+/**
+ * Utility classes for focus styles:
+  * - focusable: applies focus styles on :focus-visible
+  * - focusable-within: applies focus styles on :focus-within + :focus-visible
+  * - focus-styles: the actual focus styles
+*/
 @utility focus-styles {
   @apply outline-4 outline-offset-3 outline-current transition-all duration-200 ease-in-out;
 }
@@ -408,6 +412,11 @@ This custom variant lets you target only elements with the readonly attribute.
   @apply relative mx-4 flex shrink grow basis-auto items-center justify-center;
 }
 
+/* Required for base-ui components that use portals: https://base-ui.com/react/overview/quick-start#portals */
+@utility root {
+  @apply isolate;
+}
+
 @layer base {
   *,
   ::after,
@@ -422,7 +431,7 @@ This custom variant lets you target only elements with the readonly attribute.
     position: relative; /* https://base-ui.com/react/overview/quick-start#ios-26-safari */
   }
 
-  /* These two tags are semantic, so I think its okay to apply styles to them directly in the global styles. */
+  /* These tags are semantic, so I think its okay to apply styles to them directly in the global styles. */
   strong {
     @apply font-extrabold;
   }
@@ -443,8 +452,8 @@ This custom variant lets you target only elements with the readonly attribute.
     @apply my-6 rounded border-[1.2px] border-current/5;
   }
 
+  /* Slightly increase default stroke width for better visibility */
   .lucide {
-    /* Slightly increase default stroke width for better visibility */
     stroke-width: 2.5px;
   }
 }

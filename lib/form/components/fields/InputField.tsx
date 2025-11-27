@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { type ReactNode } from 'react';
 import {
   controlContainerVariants,
+  controlStateVariants,
   placeholderVariants,
   proportionalLucideIconVariants,
   sizeVariants,
@@ -15,7 +16,7 @@ const inputWrapperVariants = compose(
   proportionalLucideIconVariants,
   spacingVariants,
   controlContainerVariants,
-  // controlStateVariants,
+  controlStateVariants,
   cva({
     base: 'w-full',
   }),
@@ -30,6 +31,7 @@ export const inputVariants = compose(
       'p-0',
       'h-full w-full shrink grow basis-0 border-none bg-transparent outline-none focus:ring-0',
       'shrink-0 grow',
+      'transition-none',
     ),
   }),
 );
@@ -46,16 +48,7 @@ export const InputField = function InputField({
   return (
     <motion.div
       layout
-      className={cx(
-        inputWrapperVariants({ size: 'md' }),
-        'border-input-contrast/20 flex border-2 transition-colors duration-200',
-        // 'hover:border-accent/50',
-        'group-data-focused:border-accent group-data-focused:elevation-low group-data-focused:translate-y-[-2px]',
-        // set different border styles if has aria-invalid
-        'group-data-invalid:border-destructive',
-        'group-data-valid:border-success',
-        className,
-      )}
+      className={cx(inputWrapperVariants({ size: 'md' }), className)}
     >
       {prefix}
       <input
@@ -63,8 +56,8 @@ export const InputField = function InputField({
         className={inputVariants({ className })}
         {...inputProps}
       />
-      <CircleCheck className="text-success hidden group-data-valid:block" />
-      <CircleX className="text-destructive hidden group-data-invalid:block" />
+      <CircleCheck className="text-success hidden group-data-[touched=true]:group-data-[valid=true]:block" />
+      <CircleX className="text-destructive hidden group-data-[touched=true]:group-data-[invalid=true]:block" />
       {suffix}
     </motion.div>
   );

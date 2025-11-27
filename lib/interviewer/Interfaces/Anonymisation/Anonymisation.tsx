@@ -5,7 +5,7 @@ import z from 'zod';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Button from '~/components/ui/Button';
 import { Field, Form, useFormState } from '~/lib/form';
-import { InputField } from '~/lib/form/components/fields/Input';
+import { InputField } from '~/lib/form/components/fields/InputField';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import EncryptionBackground from '../../components/EncryptedBackground';
 import type { BeforeNextFunction } from '../../containers/ProtocolScreen';

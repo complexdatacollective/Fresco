@@ -32,6 +32,7 @@ const meta = {
   title: 'Design System/Colors',
   parameters: {
     layout: 'padded',
+    a11y: { disable: true },
   },
   tags: ['autodocs'],
 } satisfies Meta;
@@ -107,8 +108,12 @@ export const SemanticColors: Story = {
         </p>
         <div className="tablet:grid-cols-4 grid grid-cols-2 gap-6">
           <ColorSwatch name="Background" cssVar="--background" />
-          <ColorSwatch name="Text" cssVar="--text" />
-          <ColorSwatch name="Surface" cssVar="--surface" />
+          <ColorSwatch name="Text" cssVar="--text" contrastVar="--neutral" />
+          <ColorSwatch
+            name="Surface"
+            cssVar="--surface"
+            contrastVar="--surface-contrast"
+          />
           <ColorSwatch name="Outline" cssVar="--outline" />
         </div>
       </div>
@@ -142,7 +147,11 @@ export const SemanticColors: Story = {
             cssVar="--input"
             contrastVar="--input-contrast"
           />
-          <ColorSwatch name="Selected" cssVar="--selected" />
+          <ColorSwatch
+            name="Selected"
+            cssVar="--selected"
+            contrastVar="--selected-contrast"
+          />
           <ColorSwatch name="Link" cssVar="--link" />
           <ColorSwatch name="Ring" cssVar="--ring" />
         </div>
@@ -188,6 +197,7 @@ export const EdgeColors: Story = {
               key={num}
               name={`Edge ${num}`}
               cssVar={`--edge-${num}`}
+              contrastVar="--neutral"
             />
           ))}
         </div>

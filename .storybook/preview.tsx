@@ -1,7 +1,7 @@
 import type { Preview } from '@storybook/nextjs-vite';
 import Providers from '../components/Providers';
 import '../styles/globals.css';
-import { withTheme, globalTypes, getInitialTheme } from './theme-switcher';
+import { getInitialTheme, globalTypes, withTheme } from './theme-switcher';
 
 const preview: Preview = {
   parameters: {
@@ -31,12 +31,29 @@ const preview: Preview = {
       // 'error' - fail CI on a11y violations
       // 'off' - skip a11y checks entirely
       test: 'todo',
+      /**
+       * base-ui dialog adds focus guards which are picked up by a11y tests
+       * but are necessary for proper focus management within the dialog,
+       * and compatible with WCAG guidelines, so we disable this rule here.
+       */
+      config: {
+        rules: [
+          {
+            id: 'aria-hidden-focus',
+            selector: '[data-base-ui-focus-guard]',
+            enabled: false,
+          },
+        ],
+      },
     },
   },
 
   decorators: [
     (Story) => (
-      <div className="root" style={{ isolation: 'isolate' }}>
+      /**
+       * required by base-ui: https://base-ui.com/react/overview/quick-start#portals
+       */
+      <div className="root">
         <Providers>
           <Story />
         </Providers>

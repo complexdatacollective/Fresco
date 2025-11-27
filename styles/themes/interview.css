@@ -16,14 +16,19 @@
     --neutral: oklch(var(--platinum));
     --neutral-contrast: oklch(var(--charcoal));
 
-    --primary: oklch(var(--sea-green));
-    --primary-contrast: oklch(var(--white));
+    --primary: color-mix(
+      in oklab,
+      oklch(from var(--color-sea-green) l calc(c + 0.2) h),
+      white 50%
+    );
+
+    --primary-contrast: color-mix(in oklab, oklch(var(--sea-green)), black 60%);
 
     /* For visual emphasis */
     --accent: oklch(var(--sea-green));
     --accent-contrast: oklch(var(--white));
 
-    --secondary: oklch(var(--neon-coral));
+    --secondary: oklch(var(--slate-blue));
     --secondary-contrast: oklch(var(--white));
 
     --surface: oklch(from var(--background) calc(l + 0.1) calc(c + 0.005) h);
@@ -37,17 +42,37 @@
     --surface-popover: oklch(var(--white));
     --surface-popover-contrast: var(--background);
 
-    --destructive: oklch(var(--tomato));
+    --destructive: oklch(var(--neon-coral));
     --destructive-contrast: oklch(var(--white));
 
-    --warning: oklch(var(--neon-carrot));
-    --warning-contrast: oklch(var(--white));
+    --warning: color-mix(
+      in oklch,
+      oklch(from var(--color-neon-carrot) l calc(c + 0.3) h),
+      white 40%
+    );
+    --warning-contrast: color-mix(
+      in oklab,
+      oklch(var(--neon-carrot)),
+      black 60%
+    );
 
-    --success: oklch(var(--kiwi));
-    --success-contrast: oklch(var(--white));
+    --success: color-mix(
+      in oklch,
+      oklch(from var(--color-kiwi) l calc(c + 0.2) h),
+      white 30%
+    );
+    --success-contrast: color-mix(in oklab, oklch(var(--kiwi)), black 60%);
 
-    --info: oklch(var(--cerulean-blue));
-    --info-contrast: oklch(var(--white));
+    --info: color-mix(
+      in oklch,
+      oklch(from var(--color-cerulean-blue) l calc(c + 0.3) h),
+      white 45%
+    );
+    --info-contrast: color-mix(
+      in oklab,
+      oklch(var(--cerulean-blue)),
+      black 60%
+    );
 
     --selected: oklch(var(--white));
 
@@ -55,7 +80,7 @@
 
     --link: var(--barbie-pink);
 
-    --outline: oklch(var(--sea-green)); /* Used for borders */
+    --outline: currentColor; /* Used for borders */
 
     --input: oklch(var(--navy-taupe));
     --input-contrast: oklch(var(--white));

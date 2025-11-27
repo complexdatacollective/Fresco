@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'motion/react';
+import { LayoutGroup, motion } from 'motion/react';
 import { useField } from '../hooks/useField';
 import { type FieldValidation } from '../types';
 import FieldErrors from './FieldErrors';
@@ -59,23 +59,29 @@ export default function Field<C extends React.ComponentType<InputProps<any>>>({
   });
 
   return (
-    <motion.div layout {...containerProps} className="w-full grow">
-      <FieldLabel id={`${id}-label`} htmlFor={id} required={required}>
-        {label}
-      </FieldLabel>
-      <Component
-        id={id}
-        name={name}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        {...(componentProps as any)}
-        {...fieldProps}
-      />
-      {hint && <Hint id={`${id}-hint`}>{hint}</Hint>}
-      <FieldErrors
-        id={`${id}-error`}
-        errors={meta.errors}
-        show={meta.shouldShowError}
-      />
-    </motion.div>
+    <LayoutGroup>
+      <motion.div
+        layout
+        {...containerProps}
+        className="group w-full grow not-last-of-type:mb-6"
+      >
+        <FieldLabel id={`${id}-label`} htmlFor={id} required={required}>
+          {label}
+        </FieldLabel>
+        {hint && <Hint id={`${id}-hint`}>{hint}</Hint>}
+        <Component
+          id={id}
+          name={name}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          {...(componentProps as any)}
+          {...fieldProps}
+        />
+        <FieldErrors
+          id={`${id}-error`}
+          errors={meta.errors}
+          show={meta.shouldShowError}
+        />
+      </motion.div>
+    </LayoutGroup>
   );
 }

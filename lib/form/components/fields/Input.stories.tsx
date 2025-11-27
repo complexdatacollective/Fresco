@@ -14,7 +14,7 @@ import {
   X,
 } from 'lucide-react';
 import { useState } from 'react';
-import { InputField } from './Input';
+import { InputField } from './InputField';
 
 const meta: Meta<typeof InputField> = {
   title: 'Components/Fields/InputField',

@@ -12,7 +12,7 @@ import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
 import { Field, Form, SubmitButton } from '~/lib/form';
-import { InputField } from '~/lib/form/components/fields/Input';
+import { InputField } from '~/lib/form/components/fields/InputField';
 import { useFormStore } from '~/lib/form/store/formStoreProvider';
 import {
   participantIdentifierSchema,

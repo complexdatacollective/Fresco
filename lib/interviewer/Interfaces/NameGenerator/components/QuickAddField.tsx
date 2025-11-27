@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ActionButton from '~/components/interview/ActionButton';
 import { useField } from '~/lib/form';
-import { InputField } from '~/lib/form/components/fields/Input';
+import { InputField } from '~/lib/form/components/fields/InputField';
 import { type BaseFieldProps, type FieldConfig } from '~/lib/form/types';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import {
@@ -101,7 +101,7 @@ export default function QuickAddField({
   }, [fieldProps.value, meta.isValid]);
 
   const inputClasses = cx(
-    'bg-(--nc-input-background) px-6 py-4 text-lg font-bold text-(--nc-input-text) mr-2 rounded-(--nc-border-radius) w-full',
+    'mr-2 w-full rounded-(--nc-border-radius) bg-(--nc-input-background) px-6 py-4 text-lg font-bold text-(--nc-input-text)',
     meta.shouldShowError &&
       'mr-0 rounded-t-(--nc-border-radius) border-4 border-(--nc-error)',
   );
@@ -273,9 +273,9 @@ function SimpleNode({
   selected: boolean;
 }) {
   const nodeClasses = cx(
-    'rounded-full w-[130px] h-[130px] transition-all',
+    'h-[130px] w-[130px] rounded-full transition-all',
     'bg-[linear-gradient(145deg,var(--bg)_50%,var(--bg-dark)_50%)]',
-    'flex justify-center items-center',
+    'flex items-center justify-center',
     'text-base',
     selected && 'outline-5 outline-white/50',
   );

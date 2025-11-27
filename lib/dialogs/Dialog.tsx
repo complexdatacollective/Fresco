@@ -2,10 +2,16 @@
 
 import { Dialog as BaseDialog } from '@base-ui-components/react/dialog';
 import { Slot } from '@radix-ui/react-slot';
-import { AnimatePresence, motion } from 'motion/react';
-import React, { forwardRef, type ReactNode, useId } from 'react';
+import { motion } from 'motion/react';
+import React, {
+  type ComponentProps,
+  forwardRef,
+  type ReactNode,
+  useId,
+} from 'react';
 import CloseButton from '~/components/CloseButton';
 import Surface from '~/components/layout/Surface';
+import Modal from '~/components/Modal';
 import { headingVariants } from '~/components/typography/Heading';
 import { paragraphVariants } from '~/components/typography/Paragraph';
 import { cx, type VariantProps } from '~/utils/cva';
@@ -13,8 +19,8 @@ import { cx, type VariantProps } from '~/utils/cva';
 export type DialogProps = {
   title?: string;
   description?: ReactNode;
-  accent?: 'default' | 'danger' | 'success' | 'info';
-  closeDialog: () => void;
+  accent?: 'default' | 'destructive' | 'success' | 'info';
+  closeDialog?: () => void;
   footer?: React.ReactNode;
   open?: boolean;
   children?: ReactNode;
@@ -33,120 +39,102 @@ export type DialogProps = {
  * - The inner Surface component ensures proper spacing from screen edge on small screens
  * - Backdrop click-to-close is handled by Base UI's dismissible behavior
  */
-export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
+export const Dialog = forwardRef<
+  HTMLDivElement,
+  DialogProps & ComponentProps<typeof Surface>
+>(
   (
-    { title, description, children, closeDialog, accent, footer, open = false },
+    {
+      title,
+      description,
+      children,
+      closeDialog,
+      accent,
+      footer,
+      open = false,
+      ...surfaceProps
+    },
     ref,
   ) => {
     const id = useId();
     return (
-      <BaseDialog.Root
+      <Modal
         open={open}
         onOpenChange={(isOpen) => {
           if (!isOpen) {
             closeDialog();
           }
         }}
-        modal={true}
       >
-        <BaseDialog.Portal keepMounted>
-          <AnimatePresence>
-            {open && (
-              <BaseDialog.Backdrop
-                key="backdrop"
-                render={
-                  <motion.div
-                    initial={{
-                      opacity: 0,
-                    }}
-                    animate={{
-                      opacity: 1,
-                      transition: { delay: 0.1, duration: 0.5 },
-                    }}
-                    exit={{ opacity: 0 }}
-                    className={cx(
-                      'fixed inset-0',
-                      'flex items-center justify-center',
-                      'bg-overlay backdrop-blur-xs',
-                      '[--published-bg:var(--color-platinum-dark)]',
-                    )}
-                  />
-                }
-              />
-            )}
-            {open && (
-              <BaseDialog.Popup
-                key="dialog"
-                ref={ref}
+        <BaseDialog.Popup
+          key="dialog"
+          ref={ref}
+          render={(props) => (
+            <Surface
+              initial={{ opacity: 0, y: '-10%', scale: 1.1 }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                filter: 'blur(0px)',
+              }}
+              exit={{
+                opacity: 0,
+                y: '-10%',
+                scale: 1.5,
+                filter: 'blur(10px)',
+              }}
+              transition={{
+                type: 'spring',
+                stiffness: 300,
+                damping: 30,
+              }}
+              as={motion.div}
+              level={0}
+              className={cx(
+                'w-[calc(100%-var(--spacing)*4)] max-w-2xl @2xl:w-auto @2xl:min-w-xl',
+                'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+                'flex max-h-[calc(100vh-var(--spacing)*4)]',
+                // Accent overrides the primary hue so that nested primary buttons inherit color
+                accent === 'success' &&
+                  '[--color-primary:var(--color-success)]',
+                accent === 'info' && '[--color-primary:var(--color-info)]',
+                accent === 'destructive' &&
+                  '[--color-primary-contrast:var(--color-destructive-contrast)] [--color-primary:var(--color-destructive)]',
+                'flex flex-col',
+              )}
+              elevation="high"
+              {...props}
+              {...surfaceProps}
+            >
+              <BaseDialog.Title
                 render={(props) => (
-                  <Surface
-                    {...props}
-                    initial={{ opacity: 0, y: '-10%', scale: 1.1 }}
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                      scale: 1,
-                      filter: 'blur(0px)',
-                    }}
-                    exit={{
-                      opacity: 0,
-                      y: '-10%',
-                      scale: 1.5,
-                      filter: 'blur(10px)',
-                    }}
-                    transition={{
-                      type: 'spring',
-                      stiffness: 300,
-                      damping: 30,
-                    }}
-                    as={motion.div}
-                    level={0}
-                    className={cx(
-                      'w-[calc(100%-var(--spacing)*4)] max-w-2xl @2xl:w-auto @2xl:min-w-xl',
-                      'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
-                      'flex max-h-[calc(100vh-var(--spacing)*4)]',
-                      // Accent overrides the primary hue so that nested primary buttons inherit color
-                      accent === 'success' &&
-                        '[--color-primary:var(--color-success)]',
-                      accent === 'info' &&
-                        '[--color-primary:var(--color-info)]',
-                      accent === 'danger' &&
-                        '[--color-primary:var(--color-destructive)]',
-                      'flex flex-col',
-                    )}
-                    elevation="high"
-                  >
-                    <BaseDialog.Title
-                      className="mb-4 flex items-center justify-between gap-4"
-                      render={<div />}
-                    >
-                      <DialogHeading id={`${id}-title`}>{title}</DialogHeading>
-                      <BaseDialog.Close render={<CloseButton />} />
-                    </BaseDialog.Title>
-                    <DialogContent>
-                      {description && (
-                        <BaseDialog.Description
-                          render={(descProps) => (
-                            <DialogDescription
-                              {...descProps}
-                              id={`${id}-description`}
-                              className={descProps.className}
-                            >
-                              {description}
-                            </DialogDescription>
-                          )}
-                        />
-                      )}
-                      {children}
-                    </DialogContent>
-                    {footer && <DialogFooter>{footer}</DialogFooter>}
-                  </Surface>
+                  <div className="mb-4 flex items-center justify-between gap-4">
+                    <DialogHeading {...props}>{title}</DialogHeading>
+                    <BaseDialog.Close render={<CloseButton />} />
+                  </div>
                 )}
               />
-            )}
-          </AnimatePresence>
-        </BaseDialog.Portal>
-      </BaseDialog.Root>
+              <DialogContent>
+                {description && (
+                  <BaseDialog.Description
+                    render={(descProps) => (
+                      <DialogDescription
+                        {...descProps}
+                        className={descProps.className}
+                      >
+                        {description}
+                      </DialogDescription>
+                    )}
+                  />
+                )}
+                {children}
+              </DialogContent>
+              {footer && <DialogFooter>{footer}</DialogFooter>}
+            </Surface>
+          )}
+        />
+      </Modal>
     );
   },
 );
@@ -219,7 +207,14 @@ const DialogFooter = ({
   ...props
 }: React.HTMLAttributes<HTMLElement>) => {
   return (
-    <footer className={cx('mt-4 flex justify-end gap-4', className)} {...props}>
+    <footer
+      className={cx(
+        'tablet:flex-row flex-col',
+        'mt-4 flex justify-end gap-4',
+        className,
+      )}
+      {...props}
+    >
       {children}
     </footer>
   );

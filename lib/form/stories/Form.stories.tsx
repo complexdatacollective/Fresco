@@ -1,15 +1,16 @@
 'use client';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { PersonStandingIcon } from 'lucide-react';
 import { motion } from 'motion/react';
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { action } from 'storybook/actions';
 import { z } from 'zod';
+import Surface from '~/components/layout/Surface';
 import { Field, Form, SubmitButton } from '../components';
-import { InputField } from '../components/fields/Input';
-import { MultiSelectField } from '../components/fields/MultiSelectField';
+import { ArrayField } from '../components/fields/ArrayField';
+import { InputField } from '../components/fields/InputField';
+import { RichTextEditorField } from '../components/fields/RichTextEditor';
 
 const meta: Meta<typeof Form> = {
   title: 'Systems/Form',
@@ -44,89 +45,93 @@ export const Default: Story = {
         };
       }}
     >
-      <Field
-        name="name"
-        label="Name"
-        hint="Please enter your full name"
-        component={InputField}
-        required
-        // maxLength={10}
-        // minLength={2}
-        // minValue={2}
-        // maxValue={10}
-        // minSelected={2}
-        // maxSelected={5}
-        // unique
-        // differentFromField="example"
-        // sameAsField="example"
-        // greaterThanField="age"
-        // lessThanField="age"
-        prefixComponent={<PersonStandingIcon />}
-        validation={z.string().min(2, 'Name must be at least 2 characters')}
-      />
-      <Field
-        name="tags"
-        label="Tags"
-        hint="Create at least 2 tags (max 5). Items are sortable - drag to reorder!"
-        component={MultiSelectField}
-        required
-        sortable
-        initialValue={[
-          { label: 'Example Tag', id: 'example-tag' },
-          { label: 'Another Tag', id: 'another-tag' },
-        ]}
-        validation={z
-          .array(z.any())
-          .min(2, 'Please add at least 2 tags')
-          .max(5, 'You can add up to 5 tags')}
-        EditorComponent={(props) => {
-          const { onCancel, onSave, item, layoutId } = props;
+      <Surface>
+        <Field
+          name="introductionPanel.title"
+          label="Title"
+          hint="The title of the introduction panel"
+          component={InputField}
+          required
+          // maxLength={10}
+          // minLength={2}
+          // minValue={2}
+          // maxValue={10}
+          // minSelected={2}
+          // maxSelected={5}
+          // unique
+          // differentFromField="example"
+          // sameAsField="example"
+          // greaterThanField="age"
+          // lessThanField="age"
+          validation={z.string().min(2, 'Title must be at least 2 characters')}
+        />
+        <Field
+          name="introductionPanel.text"
+          hint="The main text content of the introduction panel"
+          label="Text"
+          component={RichTextEditorField}
+          required
+        />
+      </Surface>
+      <Surface>
+        <Field
+          name="form"
+          label="Form Fields"
+          hint="Add one or more fields to your form to collect attributes about each node the participant creates. Use the drag handle on the left of each prompt adjust its order."
+          component={ArrayField}
+          required
+          sortable
+          buttonLabel="Add Field"
+          emptyStateMessage="No fields added yet. Click 'Add Field' to get started."
+          EditorComponent={(props) => {
+            const { onCancel, onSave, item, layoutId } = props;
 
-          return createPortal(
-            <motion.div
-              layoutId={layoutId}
-              className="absolute inset-0 z-50 m-auto flex w-96 flex-col gap-4 rounded-lg bg-white p-6 shadow-lg"
-            >
-              <InputField
-                type="text"
-                value={item?.label ?? ''}
-                onChange={(e) => {
-                  // Create a new item object with updated label
-                  const updatedItem = {
-                    ...item,
-                    label: e.target.value,
-                  };
-                  // Call onSave with updated item
-                  onSave(updatedItem);
-                }}
-                placeholder="Enter tag label..."
-                autoFocus
-              />
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={onCancel}
-                  className="rounded bg-gray-200 px-4 py-2 hover:bg-gray-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (item) {
-                      onSave(item);
-                    }
+            return createPortal(
+              <motion.div
+                layoutId={layoutId}
+                className="absolute inset-0 z-50 m-auto flex w-96 flex-col gap-4 rounded-lg bg-white p-6 shadow-lg"
+              >
+                <InputField
+                  type="text"
+                  value={item?.label ?? ''}
+                  onChange={(e) => {
+                    // Create a new item object with updated label
+                    const updatedItem = {
+                      ...item,
+                      label: e.target.value,
+                    };
+                    // Call onSave with updated item
+                    onSave(updatedItem);
                   }}
-                  className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                >
-                  Save
-                </button>
-              </div>
-            </motion.div>,
-            document.body,
-          );
-        }}
-      />
+                  placeholder="Enter tag label..."
+                  autoFocus
+                />
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={onCancel}
+                    className="rounded bg-gray-200 px-4 py-2 hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (item) {
+                        onSave(item);
+                      }
+                    }}
+                    className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                  >
+                    Save
+                  </button>
+                </div>
+              </motion.div>,
+              document.body,
+            );
+          }}
+        />
+      </Surface>
       {/* <Field
         name="country"
         label="Country"

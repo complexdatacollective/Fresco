@@ -4,10 +4,10 @@ import { cva, cx, type VariantProps } from '~/utils/cva';
 import Icon, { type InterviewerIconName } from '../Icon';
 
 const actionButtonVariants = cva({
-  base: 'group focusable relative mt-2 mr-4 flex h-26 aspect-square rounded-full',
+  base: 'group focusable relative mt-2 mr-4 flex aspect-square h-26 rounded-full',
   variants: {
     disabled: {
-      true: 'cursor-not-allowed opacity-50 pointer-events-none',
+      true: 'pointer-events-none cursor-not-allowed opacity-50',
       false: 'cursor-pointer',
     },
   },
@@ -17,10 +17,10 @@ const actionButtonVariants = cva({
 });
 
 const mainIconVariants = cva({
-  base: 'bg-primary text-white absolute inset-0 flex items-center justify-center rounded-full elevation-high scale-100 overflow-hidden [&>.lucide]:w-auto [&>.lucide]:h-16 [&>.lucide]:aspect-square',
+  base: 'bg-sea-green elevation-high absolute inset-0 flex scale-100 items-center justify-center overflow-hidden rounded-full text-white [&>.lucide]:aspect-square [&>.lucide]:h-16 [&>.lucide]:w-auto',
   variants: {
     disabled: {
-      true: 'opacity-50 cursor-not-allowed pointer-events-none',
+      true: 'pointer-events-none cursor-not-allowed opacity-50',
       false:
         'transition-transform duration-300 ease-in-out group-hover:scale-105',
     },

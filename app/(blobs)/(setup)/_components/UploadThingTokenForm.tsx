@@ -1,7 +1,7 @@
 'use client';
 
 import { Field, Form, SubmitButton } from '~/lib/form';
-import { InputField } from '~/lib/form/components/fields/Input';
+import { InputField } from '~/lib/form/components/fields/InputField';
 import { createUploadThingTokenSchema } from '~/schemas/appSettings';
 
 export const UploadThingTokenForm = ({

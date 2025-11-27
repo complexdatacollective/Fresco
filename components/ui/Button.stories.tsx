@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { Fragment } from 'react';
 import {
   Check,
   ChevronRight,
@@ -262,41 +263,21 @@ export const DisabledStates: Story = {
         Dashed
       </span>
       {BUTTON_COLORS.map((color) => (
-        <>
-          <span
-            key={`${color}-label`}
-            className="text-sm font-medium capitalize"
-          >
-            {color}:
-          </span>
-          <Button
-            key={`${color}-default`}
-            variant="default"
-            color={color}
-            disabled
-          >
+        <Fragment key={color}>
+          <span className="text-sm font-medium capitalize">{color}:</span>
+          <Button variant="default" color={color} disabled>
             Default
           </Button>
-          <Button
-            key={`${color}-outline`}
-            variant="outline"
-            color={color}
-            disabled
-          >
+          <Button variant="outline" color={color} disabled>
             Outline
           </Button>
-          <Button key={`${color}-text`} variant="text" color={color} disabled>
+          <Button variant="text" color={color} disabled>
             Text
           </Button>
-          <Button
-            key={`${color}-dashed`}
-            variant="dashed"
-            color={color}
-            disabled
-          >
+          <Button variant="dashed" color={color} disabled>
             Dashed
           </Button>
-        </>
+        </Fragment>
       ))}
     </div>
   ),
@@ -356,34 +337,24 @@ export const ColorVariantCombinations: Story = {
         Disabled
       </span>
       {BUTTON_COLORS.map((color) => (
-        <>
-          <span
-            key={`${color}-label`}
-            className="text-sm font-medium capitalize"
-          >
-            {color}:
-          </span>
-          <Button key={`${color}-default`} variant="default" color={color}>
+        <Fragment key={color}>
+          <span className="text-sm font-medium capitalize">{color}:</span>
+          <Button variant="default" color={color}>
             Default
           </Button>
-          <Button key={`${color}-outline`} variant="outline" color={color}>
+          <Button variant="outline" color={color}>
             Outline
           </Button>
-          <Button key={`${color}-text`} variant="text" color={color}>
+          <Button variant="text" color={color}>
             Text
           </Button>
-          <Button key={`${color}-dashed`} variant="dashed" color={color}>
+          <Button variant="dashed" color={color}>
             Dashed
           </Button>
-          <Button
-            key={`${color}-disabled`}
-            variant="default"
-            color={color}
-            disabled
-          >
+          <Button variant="default" color={color} disabled>
             Disabled
           </Button>
-        </>
+        </Fragment>
       ))}
     </div>
   ),

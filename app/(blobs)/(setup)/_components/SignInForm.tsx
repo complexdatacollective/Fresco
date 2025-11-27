@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { login } from '~/actions/auth';
 import { DialogFooter } from '~/lib/dialogs/Dialog';
 import { Field, Form, SubmitButton } from '~/lib/form';
-import { InputField } from '~/lib/form/components/fields/Input';
+import { InputField } from '~/lib/form/components/fields/InputField';
 import PasswordField from '~/lib/form/components/fields/PasswordField';
 import { type FormSubmitHandler } from '~/lib/form/types';
 import { loginSchema } from '~/schemas/auth';

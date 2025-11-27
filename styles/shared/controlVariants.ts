@@ -37,7 +37,7 @@ export const proportionalLucideIconVariants = cva({
 
 export const controlVariants = cva({
   base: cx(
-    'flex items-center justify-between min-w-auto',
+    'flex min-w-auto items-center justify-between',
     'overflow-hidden',
     'truncate text-nowrap',
     'rounded',
@@ -49,11 +49,11 @@ export const controlVariants = cva({
 export const spacingVariants = cva({
   variants: {
     size: {
-      xs: 'px-3 gap-2',
-      sm: 'px-4 gap-3',
-      md: 'px-6 gap-4',
-      lg: 'px-8 gap-5',
-      xl: 'px-10 gap-6',
+      xs: 'gap-2 px-3',
+      sm: 'gap-3 px-4',
+      md: 'gap-4 px-6',
+      lg: 'gap-5 px-8',
+      xl: 'gap-6 px-10',
     },
   },
   defaultVariants: {
@@ -64,7 +64,7 @@ export const spacingVariants = cva({
 export const controlContainerVariants = compose(
   controlVariants,
   cva({
-    base: 'border-current/10 bg-input text-input-contrast transition-all duration-200',
+    base: 'bg-input text-input-contrast',
   }),
 );
 
@@ -75,40 +75,20 @@ export const placeholderVariants = cva({
 export const controlStateVariants = cva({
   // Group allows styling based on parent state
   base: cx(
-    'group-data-[invalid=true]:border-current cursor-default',
-    'data-checked:border-accent data-checked:bg-accent data-checked:focus-within:outline-accent data-checked:text-selected-contrast',
+    'border-(--input-border) [--input-border:oklch(from_var(--color-input-contrast)_l_c_h/0.2)]',
+    'cursor-default group-data-[dirty=true]:group-data-[invalid=true]:[--input-border:var(--color-destructive)]',
+    'data-checked:bg-accent data-checked:focus-within:outline-accent data-checked:text-selected-contrast data-checked:[--input-border:var(--accent)]',
+    'group-data-focused:border-accent group-data-focused:elevation-low group-data-focused:translate-y-[-2px]',
     //Hover
-    'hover:border-accent/40',
+    'hover:[--input-border:oklch(from_var(--color-accent)_l_c_h/0.4)]',
     // Focus state: add shadow and translate up slightly
-    // 'focus-visible-within:elevation-low focus-visible-within:translate-y-[-2px] focus-visible-within:border-accent',
+    'focus-visible-within:elevation-low focus-visible-within:translate-y-[-2px] focus-visible-within:[--input-border:var(--color-accent)]',
     // Invalid state
   ),
-  variants: {
-    state: {
-      disabled: cx(
-        'focus-within:outline-input-contrast/50 bg-input-contrast/5 text-input-contrast/50 cursor-not-allowed',
-        'bg-input-contrast/5 text-input-contrast/50',
-        'data-checked:border-current/20 data-checked:bg-input-contrast/5 data-checked:text-input-contrast/50',
-      ),
-      readOnly: cx(
-        'focus-within:outline-input-contrast/70 bg-input-contrast/10 text-input-contrast/70',
-        'bg-input-contrast/10 text-input-contrast/70',
-        'data-checked:border-current/20 data-checked:bg-input-contrast/10 data-checked:text-input-contrast/70',
-      ),
-      invalid: cx(
-        'border-2 border-current text-destructive focus-within:outline-destructive',
-        'data-checked:border-destructive data-checked:bg-destructive data-checked:text-selected-contrast',
-      ),
-      normal: '',
-    },
-  },
-  defaultVariants: {
-    state: 'normal',
-  },
 });
 
 export const selectBackgroundVariants = cx(
-  'bg-transparent cursor-[inherit]',
+  'cursor-[inherit] bg-transparent',
   // Because of tailwind/forms plugin, we get styles from .form-select
   // Some are overridden here
   'w-full border-0 p-0 outline-none focus:ring-0',
@@ -129,7 +109,7 @@ export const checkboxContainerVariants = cva({
     'appearance-none',
     'relative',
     'rounded-full',
-    'border-2 border-current/20',
+    'border-2',
     'bg-input text-input-contrast',
     'focusable outline-transparent',
     'cursor-pointer',
@@ -139,11 +119,11 @@ export const checkboxContainerVariants = cva({
 export const checkboxIndicatorSizeVariants = cva({
   variants: {
     size: {
-      xs: 'w-3 h-3',
-      sm: 'w-3 h-3',
-      md: 'w-4 h-4',
-      lg: 'w-5 h-5',
-      xl: 'w-6 h-6',
+      xs: 'h-3 w-3',
+      sm: 'h-3 w-3',
+      md: 'h-4 w-4',
+      lg: 'h-5 w-5',
+      xl: 'h-6 w-6',
     },
   },
   defaultVariants: {
@@ -176,7 +156,7 @@ export const checkboxGroupContainerVariants = cva({
     'w-full',
     'transition-all duration-200',
     'rounded',
-    'border-2 border-current/20',
+    'border-2',
     'p-6',
     'bg-input',
     'focusable-within outline-transparent',
@@ -204,7 +184,7 @@ export const checkboxGroupContainerVariants = cva({
   compoundVariants: [
     {
       useColumns: true,
-      class: 'flex-none! grid!',
+      class: 'grid! flex-none!',
     },
   ],
   defaultVariants: {
@@ -227,7 +207,7 @@ export const checkboxGroupStateVariants = cva({
         'focus-within:outline-input-contrast/70',
       ),
       invalid: cx(
-        'border-2 border-destructive',
+        'border-destructive border-2',
         'focus-within:outline-destructive',
       ),
       normal: '',

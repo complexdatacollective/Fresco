@@ -14,7 +14,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className="bg-background publish-colors antialiased">
-        <div className="root isolate">
+        <div className="root">
           <Providers>{children}</Providers>
           <Toaster />
           {env.SANDBOX_MODE && (

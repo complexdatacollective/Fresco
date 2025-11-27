@@ -31,7 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
-import { InputField } from '~/lib/form/components/fields/Input';
+import { InputField } from '~/lib/form/components/fields/InputField';
 import { MotionSurface } from '../layout/Surface';
 import Heading from '../typography/Heading';
 

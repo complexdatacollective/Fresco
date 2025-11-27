@@ -4,7 +4,7 @@ import { reduxForm, type InjectedFormProps } from 'redux-form';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Button from '~/components/ui/Button';
 import { Field, Form } from '~/lib/form';
-import { InputField } from '~/lib/form/components/fields/Input';
+import { InputField } from '~/lib/form/components/fields/InputField';
 import { validations } from '~/lib/form/validation';
 import Node from '../../components/Node';
 

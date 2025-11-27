@@ -11,7 +11,7 @@ import { useCallback, useEffect, useState } from 'react';
 import z from 'zod';
 import Button from '~/components/ui/Button';
 import { Field, Form } from '~/lib/form';
-import { InputField } from '~/lib/form/components/fields/Input';
+import { InputField } from '~/lib/form/components/fields/InputField';
 import { usePassphrase } from '../Interfaces/Anonymisation/usePassphrase';
 import Overlay from '../containers/Overlay';
 

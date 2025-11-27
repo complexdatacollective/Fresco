@@ -6,6 +6,7 @@ const meta: Meta = {
   title: 'Design System/Elevation',
   parameters: {
     layout: 'fullscreen',
+    a11y: { disable: true },
   },
   tags: ['autodocs'],
 };

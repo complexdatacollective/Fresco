@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { InputField } from './Input';
+import { InputField } from './InputField';
 import type { SelectOption } from './Select';
 import { SelectField } from './Select';
 

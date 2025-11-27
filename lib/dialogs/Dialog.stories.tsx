@@ -13,7 +13,7 @@ const meta: Meta<typeof Dialog> = {
     accent: {
       control: {
         type: 'select',
-        options: ['default', 'danger', 'success', 'info'],
+        options: ['default', 'destructive', 'success', 'info'],
       },
     },
     title: {
@@ -45,7 +45,7 @@ const DialogTemplate = (args: DialogProps) => (
       </>
     }
   >
-    <p>This is the content inside the dialog.</p>
+    <p>This is additional content inside the dialog.</p>
   </Dialog>
 );
 
@@ -66,11 +66,11 @@ export const Success: Story = {
   render: (args) => <DialogTemplate {...args} />,
 };
 
-export const Danger: Story = {
+export const Destructive: Story = {
   args: {
-    title: 'Danger Dialog',
-    description: 'This dialog indicates danger.',
-    accent: 'danger',
+    title: 'Destructive Dialog',
+    description: 'This dialog indicates destructive.',
+    accent: 'destructive',
   },
   render: (args) => <DialogTemplate {...args} />,
 };

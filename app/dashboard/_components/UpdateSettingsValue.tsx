@@ -3,7 +3,7 @@ import { useState } from 'react';
 import type z from 'zod';
 import { setAppSetting } from '~/actions/appSettings';
 import { Button } from '~/components/ui/Button';
-import { InputField } from '~/lib/form/components/fields/Input';
+import { InputField } from '~/lib/form/components/fields/InputField';
 import { type AppSetting } from '~/schemas/appSettings';
 import ReadOnlyEnvAlert from '../settings/ReadOnlyEnvAlert';
 

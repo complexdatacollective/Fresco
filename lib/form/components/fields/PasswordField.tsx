@@ -1,6 +1,6 @@
 import { Eye, EyeOff, Lock } from 'lucide-react';
 import { useState } from 'react';
-import { InputField } from './Input';
+import { InputField } from './InputField';
 
 export default function PasswordField(
   props: React.ComponentProps<typeof InputField>,

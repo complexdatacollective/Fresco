@@ -47,8 +47,13 @@
     );
     --warning-contrast: oklch(var(--white));
 
-    --success: oklch(53% 0.14 185);
-    --success-contrast: oklch(var(--white));
+    --success: color-mix(
+      in oklab,
+      oklch(from var(--color-sea-green) l c h),
+      white 15%
+    );
+
+    --success-contrast: color-mix(in oklab, oklch(var(--sea-green)), black 60%);
 
     --info: oklch(
       from oklch(var(--cerulean-blue)) calc(l - 0.05) calc(c + 0.05) h
