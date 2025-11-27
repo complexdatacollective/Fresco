@@ -25,3 +25,5 @@ export default function Modal({
     </BaseDialog.Root>
   );
 }
+
+export const ModalPopup = BaseDialog.Popup;

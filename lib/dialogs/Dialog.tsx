@@ -3,12 +3,7 @@
 import { Dialog as BaseDialog } from '@base-ui-components/react/dialog';
 import { Slot } from '@radix-ui/react-slot';
 import { motion } from 'motion/react';
-import React, {
-  type ComponentProps,
-  forwardRef,
-  type ReactNode,
-  useId,
-} from 'react';
+import React, { type ComponentProps, forwardRef, type ReactNode } from 'react';
 import CloseButton from '~/components/CloseButton';
 import Surface from '~/components/layout/Surface';
 import Modal from '~/components/Modal';
@@ -56,7 +51,6 @@ export const Dialog = forwardRef<
     },
     ref,
   ) => {
-    const id = useId();
     return (
       <Modal
         open={open}

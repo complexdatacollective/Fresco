@@ -30,7 +30,7 @@ const preview: Preview = {
       // 'todo' - show a11y violations in the test UI only
       // 'error' - fail CI on a11y violations
       // 'off' - skip a11y checks entirely
-      test: 'todo',
+      test: 'error',
       /**
        * base-ui dialog adds focus guards which are picked up by a11y tests
        * but are necessary for proper focus management within the dialog,

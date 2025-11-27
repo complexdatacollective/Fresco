@@ -1,0 +1,124 @@
+import { Dialog } from '@base-ui-components/react/dialog';
+import {
+  type HTMLMotionProps,
+  motion,
+  type TargetAndTransition,
+  type VariantLabels,
+} from 'motion/react';
+import { type ComponentProps } from 'react';
+
+/**
+ * Makes the opacity property required in TargetAndTransition.
+ * Base-UI's dialog component detects animation completion via opacity changes.
+ */
+type TargetWithRequiredOpacity = TargetAndTransition & {
+  opacity: number;
+};
+
+/**
+ * Animation props with required opacity for Base-UI dialog detection.
+ */
+type AnimationPropsWithRequiredOpacity = {
+  initial?: boolean | VariantLabels | TargetWithRequiredOpacity;
+  animate?: TargetWithRequiredOpacity | VariantLabels;
+  exit?: TargetWithRequiredOpacity | VariantLabels;
+  transition?: HTMLMotionProps<'div'>['transition'];
+};
+
+type BaseDialogPopupProps = Omit<
+  ComponentProps<typeof motion.div>,
+  'initial' | 'animate' | 'exit' | 'transition' | 'layoutId'
+> &
+  Omit<Dialog.Popup.Props, 'render'>;
+
+/**
+ * Props for BasicDialogPopup.
+ * Must provide EITHER animation props OR layoutId (exactly one is required).
+ * - Animation props: At least one of initial/animate/exit (with required opacity when objects)
+ * - layoutId: For shared layout animations (incompatible with animation props)
+ */
+type DialogPopupProps = BaseDialogPopupProps &
+  (
+    | (AnimationPropsWithRequiredOpacity &
+        (
+          | {
+              initial: NonNullable<
+                AnimationPropsWithRequiredOpacity['initial']
+              >;
+              layoutId?: never;
+            }
+          | {
+              animate: NonNullable<
+                AnimationPropsWithRequiredOpacity['animate']
+              >;
+              layoutId?: never;
+            }
+          | {
+              exit: NonNullable<AnimationPropsWithRequiredOpacity['exit']>;
+              layoutId?: never;
+            }
+        ))
+    | {
+        layoutId: string;
+        initial?: never;
+        animate?: never;
+        exit?: never;
+        transition?: never;
+      }
+  );
+
+/**
+ * A set of animation parameters loosely based on the iOS 26 dialog animation.
+ * All animation states include opacity for Base-UI's animation detection.
+ */
+export const BasicDialogPopupAnimation = {
+  initial: { opacity: 0, y: '-10%', scale: 1.1 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    filter: 'blur(0px)',
+  },
+  exit: {
+    opacity: 0,
+    y: '-10%',
+    scale: 1.5,
+    filter: 'blur(10px)',
+  },
+  transition: {
+    type: 'spring',
+    stiffness: 300,
+    damping: 30,
+  },
+} as const;
+
+export default function BasicDialogPopup({
+  children,
+  className,
+  ...props
+}: DialogPopupProps) {
+  // When using layoutId, apply minimal opacity animations for Base-UI detection
+  const layoutIdAnimation =
+    'layoutId' in props && props.layoutId
+      ? {
+          initial: { opacity: 0.9999 },
+          animate: { opacity: 1 },
+          exit: { opacity: 0.9999 },
+        }
+      : {};
+
+  return (
+    <Dialog.Popup
+      render={(popupProps) => (
+        <motion.div
+          {...(popupProps as HTMLMotionProps<'div'>)}
+          className={className}
+          {...layoutIdAnimation}
+          {...props}
+        >
+          {children}
+        </motion.div>
+      )}
+    />
+  );
+}
