@@ -193,7 +193,6 @@ export async function POST(req: NextRequest) {
           const presigned = await generatePresignedUploadUrl({
             fileName: asset.name,
             fileSize: asset.size,
-            fileType: getContentType(asset.type, asset.name),
           });
 
           if (!presigned) {
@@ -274,33 +273,5 @@ export async function POST(req: NextRequest) {
       },
       500,
     );
-  }
-}
-
-/**
- * Map Network Canvas asset types to content types
- */
-function getContentType(assetType: string, fileName: string): string {
-  const ext = fileName.split('.').pop()?.toLowerCase();
-
-  switch (assetType) {
-    case 'image':
-      if (ext === 'png') return 'image/png';
-      if (ext === 'gif') return 'image/gif';
-      if (ext === 'webp') return 'image/webp';
-      if (ext === 'svg') return 'image/svg+xml';
-      return 'image/jpeg';
-    case 'video':
-      if (ext === 'webm') return 'video/webm';
-      if (ext === 'mov') return 'video/quicktime';
-      return 'video/mp4';
-    case 'audio':
-      if (ext === 'wav') return 'audio/wav';
-      if (ext === 'ogg') return 'audio/ogg';
-      return 'audio/mpeg';
-    case 'network':
-      return 'application/json';
-    default:
-      return 'application/octet-stream';
   }
 }

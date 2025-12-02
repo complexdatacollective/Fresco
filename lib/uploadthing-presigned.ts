@@ -84,7 +84,6 @@ function generateKey(appId: string, fileSeed: string) {
 type GeneratePresignedUrlOptions = {
   fileName: string;
   fileSize: number;
-  fileType?: string;
   /** TTL in milliseconds, defaults to 1 hour */
   ttl?: number;
 };
@@ -102,12 +101,7 @@ type PresignedUrlResult = {
 export async function generatePresignedUploadUrl(
   options: GeneratePresignedUrlOptions,
 ): Promise<PresignedUrlResult | null> {
-  const {
-    fileName,
-    fileSize,
-    fileType = 'application/octet-stream',
-    ttl = 60 * 60 * 1000,
-  } = options;
+  const { fileName, fileSize, ttl = 60 * 60 * 1000 } = options;
 
   const tokenData = await parseUploadThingToken();
 
@@ -118,7 +112,7 @@ export async function generatePresignedUploadUrl(
   const { apiKey, appId, regions, ingestHost } = tokenData;
 
   // Generate a unique file seed based on file properties and timestamp
-  const fileSeed = `${fileName}-${fileSize}-${fileType}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const fileSeed = `${fileName}-${fileSize}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
   const fileKey = generateKey(appId, fileSeed);
 
   // Build the presigned URL
@@ -130,10 +124,7 @@ export async function generatePresignedUploadUrl(
     'x-ut-identifier': appId,
     'x-ut-file-name': fileName,
     'x-ut-file-size': String(fileSize),
-    'x-ut-file-type': fileType,
     'x-ut-slug': 'assetRouter', // Use the existing file router slug
-    'x-ut-content-disposition': 'inline',
-    'x-ut-acl': 'public-read',
   });
 
   // Construct the base URL
