@@ -1,6 +1,6 @@
 'use client';
 
-import { LayoutGroup, motion } from 'motion/react';
+import { motion } from 'motion/react';
 import { type ComponentProps } from 'react';
 import { scrollToFirstError } from '~/lib/form/utils/scrollToFirstError';
 import { cx } from '~/utils/cva';
@@ -32,23 +32,15 @@ export default function Form(props: FormProps) {
     <MotionForm
       noValidate // Don't show native HTML validation UI
       className={cx(
-        'flex w-[100vw] max-w-2xl flex-col items-start gap-6',
+        'flex w-screen max-w-2xl flex-col items-start gap-6',
         className,
       )}
       layout
       onSubmit={formProps.onSubmit}
       {...rest}
     >
-      <LayoutGroup>
-        {formErrors && (
-          <FormErrorsList
-            key="form-errors"
-            errors={formErrors}
-            className="mb-6"
-          />
-        )}
-        {children}
-      </LayoutGroup>
+      {formErrors && <FormErrorsList key="form-errors" errors={formErrors} />}
+      {children}
     </MotionForm>
   );
 }

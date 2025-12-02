@@ -64,7 +64,7 @@ export const spacingVariants = cva({
 export const controlContainerVariants = compose(
   controlVariants,
   cva({
-    base: 'bg-input text-input-contrast',
+    base: 'bg-input text-input-contrast transition-all duration-200',
   }),
 );
 

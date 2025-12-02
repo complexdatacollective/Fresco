@@ -105,18 +105,3 @@ export type BaseFieldComponentProps<T extends FieldValue> = {
   value: T;
   onChange: (value: T) => void;
 };
-
-/**
- * Marker interface for components that need to be rendered within a fieldset
- * Components can declare this static property to indicate they require fieldset mode
- */
-export type FieldsetComponent = {
-  fieldsetMode: true;
-};
-
-/**
- * Type for components that may optionally support fieldset mode
- */
-export type ComponentWithFieldsetSupport =
-  | React.ComponentType<any>
-  | (React.ComponentType<any> & FieldsetComponent);

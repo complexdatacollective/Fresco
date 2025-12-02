@@ -2,15 +2,10 @@
 
 import { LayoutGroup, motion } from 'motion/react';
 import { useField } from '../hooks/useField';
-import { type FieldValidation } from '../types';
+import { type BaseFieldComponentProps, type FieldValidation } from '../types';
 import FieldErrors from './FieldErrors';
 import { FieldLabel } from './FieldLabel';
 import Hint from './Hint';
-
-type InputProps<T = unknown> = {
-  value: T;
-  onChange: (value: T) => void;
-};
 
 /**
  * Extract the value type from a component's props
@@ -25,7 +20,9 @@ type ExtractValue<C> =
     : never;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type FieldOwnProps<C extends React.ComponentType<InputProps<any>>> = {
+type FieldOwnProps<
+  C extends React.ComponentType<BaseFieldComponentProps<any>>,
+> = {
   name: string;
   label: string;
   hint?: string;
@@ -36,12 +33,15 @@ type FieldOwnProps<C extends React.ComponentType<InputProps<any>>> = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type FieldProps<C extends React.ComponentType<InputProps<any>>> =
+type FieldProps<C extends React.ComponentType<BaseFieldComponentProps<any>>> =
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  FieldOwnProps<C> & Omit<React.ComponentProps<C>, keyof InputProps<any>>;
+  FieldOwnProps<C> &
+    Omit<React.ComponentProps<C>, keyof BaseFieldComponentProps<any>>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function Field<C extends React.ComponentType<InputProps<any>>>({
+export default function Field<
+  C extends React.ComponentType<BaseFieldComponentProps<any>>,
+>({
   name,
   label,
   hint,

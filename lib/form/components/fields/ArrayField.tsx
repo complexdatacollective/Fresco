@@ -1,17 +1,22 @@
-// ArrayField.tsx (React 18)
+// MultiSelectField.tsx (React 18)
 
 import { GripVertical, PencilIcon, PlusIcon, X } from 'lucide-react';
 import {
   AnimatePresence,
+  LayoutGroup,
   motion,
   Reorder,
   useDragControls,
 } from 'motion/react';
-import { useCallback, useState } from 'react';
+import { type ComponentProps, useCallback, useState } from 'react';
+import { surfaceVariants } from '~/components/layout/Surface';
 import { IconButton, MotionButton } from '~/components/ui/Button';
+import { cx } from '~/utils/cva';
+import { type BaseFieldComponentProps } from '../../types';
+import { SimpleItem } from './ArrayField/ItemComponents';
 import { InputField } from './InputField';
 
-type Item = {
+export type Item = {
   id: string;
   label: string;
 } & Record<string, unknown>;
@@ -31,7 +36,7 @@ type EditorComponentProps<T extends Item> = {
   layoutId?: string;
 };
 
-type ArrayFieldProps<T extends Item = Item> = {
+type ArrayFieldProps<T extends Item = Item> = BaseFieldComponentProps<T[]> & {
   value?: T[];
   onChange: (value: T[]) => void;
   sortable?: boolean;
@@ -41,60 +46,103 @@ type ArrayFieldProps<T extends Item = Item> = {
   emptyStateMessage?: string;
 };
 
-const DefaultItemComponent = ({
-  item,
+const ReorderItem = ({
+  sortable,
+  allowEdit = true,
+  allowRemove = true,
+  children,
+  className,
   onEdit,
   onRemove,
-  sortable,
-  layoutId,
-}: {
-  layoutId?: string;
+  ...props
+}: ComponentProps<typeof Reorder.Item> & {
   sortable?: boolean;
-  item: Item;
+  allowEdit?: boolean;
+  allowRemove?: boolean;
   onEdit?: () => void;
   onRemove?: () => void;
 }) => {
   const controls = useDragControls();
-
   return (
     <Reorder.Item
-      value={item}
-      layout
-      layoutId={layoutId}
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.8 }}
       dragListener={false}
-      className="bg-surface-1 flex w-full items-center gap-2 rounded-lg border px-4 py-2 select-none"
+      className={cx(
+        surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
+        'flex w-full items-center gap-2 border select-none',
+        className,
+      )}
+      whileDrag={{
+        boxShadow: '10px 20px 30px rgba(0, 0, 0, 0.2)',
+      }}
+      whileHover={{
+        boxShadow: '5px 10px 15px rgba(0, 0, 0, 0.1)',
+      }}
       dragControls={controls}
+      style={{ borderRadius: 9999, boxShadow: 'none' }}
+      {...props}
     >
       {sortable && (
-        <motion.div layout onPointerDown={(e) => controls.start(e)}>
-          <GripVertical className="cursor-grab" />
+        <motion.div
+          layout="position"
+          onPointerDown={(e) => controls.start(e)}
+          className="touch-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <GripVertical className="h-4 w-4 cursor-grab" />
         </motion.div>
       )}
-      <motion.span layout className="flex-1">
-        {item.label}
-      </motion.span>
-      {onEdit && (
-        <IconButton
-          size="sm"
-          variant="text"
-          onClick={onEdit}
-          aria-label="Edit item"
-          icon={<PencilIcon />}
-        />
-      )}
-      {onRemove && (
-        <IconButton
-          variant="text"
-          size="sm"
-          onClick={onRemove}
-          icon={<X />}
-          aria-label="Remove item"
-        />
+      {children}
+      {(allowEdit ?? allowRemove) && (
+        <motion.div
+          layout="position"
+          className="ml-auto flex items-center gap-1"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          {allowEdit && onEdit && (
+            <IconButton
+              size="sm"
+              variant="text"
+              onClick={onEdit}
+              aria-label="Edit item"
+              icon={<PencilIcon />}
+            />
+          )}
+          {allowRemove && onRemove && (
+            <IconButton
+              variant="text"
+              size="sm"
+              onClick={onRemove}
+              icon={<X />}
+              aria-label="Remove item"
+            />
+          )}
+        </motion.div>
       )}
     </Reorder.Item>
+  );
+};
+
+const DefaultItemComponent = ({
+  item,
+  sortable,
+  onEdit,
+  onRemove,
+  itemComponentProps,
+}: {
+  item: Item;
+  sortable: boolean;
+  onEdit: (id: string) => void;
+  onRemove: (id: string) => void;
+  itemComponentProps?: ComponentProps<typeof ReorderItem>;
+}) => {
+  return (
+    <motion.span layout className="flex-1">
+      {item.label}
+    </motion.span>
   );
 };
 
@@ -102,9 +150,7 @@ const DefaultEditorComponent = ({
   item,
   onSave,
   onCancel,
-  layoutId,
 }: {
-  layoutId?: string;
   item?: Item;
   onSave: (item: Item) => void;
   onCancel: () => void;
@@ -112,13 +158,7 @@ const DefaultEditorComponent = ({
   const [label, setLabel] = useState(item?.label ?? '');
 
   return (
-    <motion.div
-      layoutId={layoutId}
-      className="bg-surface-1 flex items-center gap-2 rounded-lg border p-2"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
+    <motion.div layout>
       <InputField
         type="text"
         value={label}
@@ -149,15 +189,12 @@ const DefaultEditorComponent = ({
 };
 
 export function ArrayField<T extends Item = Item>({
+  id,
   value = [],
   onChange,
   sortable = false,
-  ItemComponent = DefaultItemComponent as React.ComponentType<
-    ItemComponentProps<T>
-  >,
-  EditorComponent = DefaultEditorComponent as React.ComponentType<
-    EditorComponentProps<T>
-  >,
+  ItemComponent = SimpleItem,
+  itemTemplate = () => ({ id: crypto.randomUUID(), label: '' }) as T,
   buttonLabel = 'Add Item',
   emptyStateMessage = 'No items added yet. Click "Add Item" to get started.',
 }: ArrayFieldProps<T>) {
@@ -195,77 +232,64 @@ export function ArrayField<T extends Item = Item>({
   );
 
   return (
-    <motion.div layout className="flex flex-col items-start gap-2">
-      <Reorder.Group
-        axis="y"
-        values={value}
-        onReorder={handleReorder}
-        className="flex w-full flex-col gap-2"
-      >
-        <AnimatePresence initial={false}>
-          {value.length === 0 && (
-            <Reorder.Item
-              value={null}
-              key="no-items"
-              layout
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1, transition: { delay: 0.3 } }}
-              exit={{ opacity: 0 }}
-              className="text-sm text-current/70"
-              dragListener={false}
-            >
-              {emptyStateMessage}
-            </Reorder.Item>
-          )}
-          {value.map((item) => {
-            const isEditing = editingId === item.id;
+    <LayoutGroup id={id}>
+      <motion.div layout className="flex flex-col items-start gap-4">
+        <Reorder.Group
+          layout
+          axis="y"
+          values={value}
+          onReorder={handleReorder}
+          className="flex w-full flex-col gap-2"
+        >
+          <AnimatePresence initial={false} mode="popLayout">
+            {value.length === 0 && !editingId && (
+              <Reorder.Item
+                value={null}
+                key="no-items"
+                layout
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-sm text-current/70"
+                dragListener={false}
+              >
+                {emptyStateMessage}
+              </Reorder.Item>
+            )}
+            {value.map((item) => {
+              const isEditing = editingId === item.id;
 
-            if (isEditing) {
               return (
-                <EditorComponent
-                  key={`editor-${item.id}`}
-                  layoutId={item.id}
-                  item={item}
-                  onSave={(updatedItem) => updateItem(item.id, updatedItem)}
+                <ItemComponent
+                  key={item.id}
+                  value={item}
+                  isSortable={sortable}
+                  isEditing={isEditing}
+                  onChange={(updatedValue) => {
+                    updateItem(item.id, {
+                      ...(updatedValue as T),
+                      id: item.id,
+                    });
+                  }}
                   onCancel={() => setEditingId(null)}
+                  onDelete={() => removeItem(item.id)}
+                  onEdit={() => setEditingId(item.id)}
                 />
               );
-            }
-
-            return (
-              <ItemComponent
-                key={`item-${item.id}`}
-                layoutId={item.id}
-                item={item}
-                onEdit={() => setEditingId(item.id)}
-                onRemove={() => removeItem(item.id)}
-                sortable={sortable}
-              />
-            );
-          })}
-        </AnimatePresence>
-      </Reorder.Group>
-
-      {/* Add new item */}
-      <AnimatePresence>
-        {editingId === NEW_ITEM_KEY && (
-          <EditorComponent
-            key="new-editor"
-            onSave={addItem}
-            onCancel={() => setEditingId(null)}
-          />
-        )}
-      </AnimatePresence>
-      <MotionButton
-        layout="position"
-        key="add-button"
-        size="sm"
-        onClick={() => setEditingId(NEW_ITEM_KEY)}
-        icon={<PlusIcon />}
-        disabled={editingId === NEW_ITEM_KEY}
-      >
-        {buttonLabel}
-      </MotionButton>
-    </motion.div>
+            })}
+          </AnimatePresence>
+        </Reorder.Group>
+        <MotionButton
+          layout
+          key="add-button"
+          size="sm"
+          onClick={() => setEditingId(NEW_ITEM_KEY)}
+          icon={<PlusIcon />}
+          disabled={editingId === NEW_ITEM_KEY}
+        >
+          {buttonLabel}
+        </MotionButton>
+      </motion.div>
+    </LayoutGroup>
   );
 }

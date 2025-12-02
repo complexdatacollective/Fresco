@@ -2,8 +2,7 @@
 
 import { Dialog as BaseDialog } from '@base-ui-components/react/dialog';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { GripVertical, PencilIcon, X } from 'lucide-react';
-import { motion, Reorder, useDragControls } from 'motion/react';
+import { motion } from 'motion/react';
 import { useState } from 'react';
 import { action } from 'storybook/actions';
 import { useArgs } from 'storybook/preview-api';
@@ -11,11 +10,12 @@ import { z } from 'zod';
 import CloseButton from '~/components/CloseButton';
 import { surfaceVariants } from '~/components/layout/Surface';
 import Modal from '~/components/Modal';
-import { IconButton, MotionButton } from '~/components/ui/Button';
+import { MotionButton } from '~/components/ui/Button';
 import ModalPopup from '~/lib/dialogs/ModalPopup';
 import { cx } from '~/utils/cva';
 import { Field, Form, SubmitButton } from '..';
 import { ArrayField } from './ArrayField';
+import { PromptItem } from './ArrayField/ItemComponents';
 import { InputField } from './InputField';
 
 // Sample data
@@ -180,58 +180,6 @@ const tagColors = [
   'node-5',
 ] as const satisfies TagItem['color'][];
 
-const TagItemComponent = ({
-  item,
-  onRemove,
-  sortable,
-}: {
-  layoutId?: string;
-  sortable?: boolean;
-  item: TagItem;
-  onRemove?: () => void;
-}) => {
-  const controls = useDragControls();
-
-  const colorClasses = cx([
-    'flex w-full items-center gap-2 rounded-full border px-3 py-1 select-none',
-    item.color === 'node-1' && 'border-node-1/30 bg-node-1/10 text-node-1',
-    item.color === 'node-2' && 'border-node-2/30 bg-node-2/10 text-node-2',
-    item.color === 'node-3' && 'border-node-3/30 bg-node-3/10 text-node-3',
-    item.color === 'node-4' && 'border-node-4/30 bg-node-4/10 text-node-4',
-    item.color === 'node-5' && 'border-node-5/30 bg-node-5/10 text-node-5',
-  ]);
-
-  return (
-    <Reorder.Item
-      value={item}
-      layout
-      layoutId={item.id}
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.8 }}
-      dragListener={false}
-      className={colorClasses}
-      dragControls={controls}
-    >
-      {sortable && (
-        <div onPointerDown={(e) => controls.start(e)}>
-          <GripVertical className="h-4 w-4 cursor-grab" />
-        </div>
-      )}
-      <span className="flex-1 text-sm font-medium">{item.label}</span>
-      {onRemove && (
-        <IconButton
-          variant="text"
-          size="xs"
-          onClick={onRemove}
-          icon={<X className="h-3 w-3" />}
-          aria-label="Remove tag"
-        />
-      )}
-    </Reorder.Item>
-  );
-};
-
 const TagEditorComponent = ({
   item,
   onSave,
@@ -246,7 +194,10 @@ const TagEditorComponent = ({
   const [color, setColor] = useState<TagItem['color']>(item?.color ?? 'node-2');
 
   return (
-    <div className="bg-surface-1 flex flex-wrap items-center gap-2 rounded-lg border p-3">
+    <div
+      className="bg-surface-1 flex flex-wrap items-center gap-2 border p-3"
+      style={{ borderRadius: 9999 }}
+    >
       <InputField
         type="text"
         value={label}
@@ -262,7 +213,7 @@ const TagEditorComponent = ({
             type="button"
             onClick={() => setColor(c)}
             className={cx(
-              'h-6 w-6 rounded-full border-2',
+              'h-6 w-6 border-2',
               color === c ? 'border-text' : 'border-transparent',
               c === 'node-1' && 'bg-node-1',
               c === 'node-2' && 'bg-node-2',
@@ -271,6 +222,7 @@ const TagEditorComponent = ({
               c === 'node-5' && 'bg-node-5',
             )}
             aria-label={`Select ${c} color`}
+            style={{ borderRadius: 9999 }}
           />
         ))}
       </div>
@@ -311,6 +263,16 @@ export const CustomComponents: Story = {
       { id: '3', label: 'Completed', color: 'node-3' },
     ]);
 
+    const colorClasses = (item: TagItem) =>
+      cx([
+        'flex w-full items-center gap-2 border px-3 py-1 select-none',
+        item.color === 'node-1' && 'border-node-1/30 bg-node-1/10 text-node-1',
+        item.color === 'node-2' && 'border-node-2/30 bg-node-2/10 text-node-2',
+        item.color === 'node-3' && 'border-node-3/30 bg-node-3/10 text-node-3',
+        item.color === 'node-4' && 'border-node-4/30 bg-node-4/10 text-node-4',
+        item.color === 'node-5' && 'border-node-5/30 bg-node-5/10 text-node-5',
+      ]);
+
     return (
       <ArrayField<TagItem>
         {...args}
@@ -319,8 +281,8 @@ export const CustomComponents: Story = {
           setTags(newValue);
           action('onChange')(newValue);
         }}
-        ItemComponent={TagItemComponent}
         EditorComponent={TagEditorComponent}
+        itemClassName={colorClasses}
       />
     );
   },
@@ -385,60 +347,12 @@ type ContactItem = {
   notes: string;
 };
 
-const DialogItemComponent = ({
-  item,
-  onEdit,
-  onRemove,
-  sortable,
-  layoutId,
-}: {
-  layoutId?: string;
-  sortable?: boolean;
-  item: ContactItem;
-  onEdit?: () => void;
-  onRemove?: () => void;
-}) => {
-  const controls = useDragControls();
-
+const DialogItemComponent = ({ item }: { item: ContactItem }) => {
   return (
-    <Reorder.Item
-      value={item}
-      dragListener={false}
-      dragControls={controls}
-      layoutId={layoutId}
-      className="bg-surface-1 flex w-full items-center gap-3 border p-4 shadow-sm select-none"
-      style={{ borderRadius: 'var(--radius-xl)' }}
-    >
-      {sortable && (
-        <div onPointerDown={(e) => controls.start(e)}>
-          <GripVertical className="h-5 w-5 cursor-grab opacity-50" />
-        </div>
-      )}
-      <motion.div className="flex-1">
-        <h4 className="font-semibold">{item.label}</h4>
-        <p className="text-sm opacity-70">{item.email}</p>
-      </motion.div>
-      <div className="flex gap-1">
-        {onEdit && (
-          <IconButton
-            size="sm"
-            variant="text"
-            onClick={onEdit}
-            aria-label="Edit contact"
-            icon={<PencilIcon className="h-4 w-4" />}
-          />
-        )}
-        {onRemove && (
-          <IconButton
-            variant="text"
-            size="sm"
-            onClick={onRemove}
-            icon={<X className="h-4 w-4" />}
-            aria-label="Remove contact"
-          />
-        )}
-      </div>
-    </Reorder.Item>
+    <motion.div layout className="flex-1">
+      <h4 className="font-semibold">{item.label}</h4>
+      <p className="text-sm opacity-70">{item.email}</p>
+    </motion.div>
   );
 };
 
@@ -448,7 +362,7 @@ const DialogEditorComponent = ({
   onCancel,
   layoutId,
 }: {
-  layoutId: string;
+  layoutId?: string;
   item?: ContactItem;
   onSave: (item: ContactItem) => void;
   onCancel: () => void;
@@ -471,7 +385,7 @@ const DialogEditorComponent = ({
     <Modal open={true} onOpenChange={(open) => !open && onCancel()}>
       <ModalPopup
         key="dialog-editor"
-        layoutId={layoutId}
+        layoutId={layoutId ?? 'dialog-editor'}
         className={cx(
           surfaceVariants({ level: 0, spacing: 'md', elevation: 'high' }),
           'w-[calc(100%-var(--spacing)*4)] max-w-2xl @2xl:w-auto @2xl:min-w-xl',
@@ -524,7 +438,7 @@ const DialogEditorComponent = ({
               initialValue={item?.email ?? ''}
               placeholder="john@example.com"
               required
-              validation={z.string().email()}
+              validation={z.email()}
             />
             <Field
               name="phone"
@@ -598,8 +512,7 @@ export const DialogEditor: Story = {
           setContacts(newValue);
           action('onChange')(newValue);
         }}
-        ItemComponent={DialogItemComponent}
-        EditorComponent={DialogEditorComponent}
+        ItemComponent={PromptItem}
       />
     );
   },

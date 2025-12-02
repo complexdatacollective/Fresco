@@ -19,7 +19,8 @@ const buttonSpecificVariants = cva({
     'disabled:cursor-not-allowed disabled:opacity-50',
     'focusable',
     'elevation-low',
-    'not-disabled:hover:elevation-medium not-disabled:active:elevation-none transition-all not-disabled:hover:translate-y-[-2px] not-disabled:active:translate-y-px',
+    'not-disabled:hover:elevation-medium not-disabled:active:elevation-none not-disabled:hover:translate-y-[-2px] not-disabled:active:translate-y-px',
+    'transition-[background-color,border-color,color,box-shadow,opacity,translate] duration-150',
     'data-pressed:bg-accent data-pressed:text-accent-contrast data-pressed:elevation-low',
   ),
   variants: {
@@ -217,4 +218,34 @@ export {
   iconButtonVariants,
 };
 
-export const MotionButton = motion.create(Button);
+const MotionButtonBase = motion.create(Button);
+
+type MotionButtonProps = React.ComponentProps<typeof MotionButtonBase>;
+
+const motionButtonStyle: React.CSSProperties = {
+  transitionProperty:
+    'background-color, border-color, color, box-shadow, opacity',
+};
+
+const MotionButton = React.forwardRef<HTMLButtonElement, MotionButtonProps>(
+  ({ whileHover, whileTap, disabled, style, ...props }, ref) => {
+    const hoverVariant = disabled
+      ? undefined
+      : { y: -2, ...(whileHover as object) };
+    const tapVariant = disabled ? undefined : { y: 1, ...(whileTap as object) };
+
+    return (
+      <MotionButtonBase
+        ref={ref}
+        disabled={disabled}
+        whileHover={hoverVariant}
+        whileTap={tapVariant}
+        style={{ ...motionButtonStyle, ...style }}
+        {...props}
+      />
+    );
+  },
+);
+MotionButton.displayName = 'MotionButton';
+
+export { MotionButton };

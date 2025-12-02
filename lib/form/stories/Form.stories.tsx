@@ -358,7 +358,7 @@ export const WithCustomComponents: Story = {
           name="tasks"
           label="Tasks"
           hint="Create and manage your tasks. Drag to reorder, click Edit to modify, or × to remove."
-          component={MultiSelectField<Task>}
+          component={ArrayField<Task>}
           required
           min={1}
           sortable
@@ -423,7 +423,6 @@ export const WithServerSideErrors: Story = {
       <Field
         name="username"
         label="Username"
-        placeholder="Enter username"
         hint="Try entering 'admin' to see a field-level error"
         Component={InputField}
         type="text"
@@ -431,7 +430,6 @@ export const WithServerSideErrors: Story = {
       <Field
         name="email"
         label="Email"
-        placeholder="Enter email"
         hint="Try ending with '@blocked.com' to see a field-level error"
         Component={InputField}
         type="text"
@@ -439,7 +437,6 @@ export const WithServerSideErrors: Story = {
       <Field
         name="password"
         label="Password"
-        placeholder="Enter password"
         hint="Enter different passwords to see a form-level error"
         Component={InputField}
         type="text"
@@ -447,7 +444,6 @@ export const WithServerSideErrors: Story = {
       <Field
         name="confirmPassword"
         label="Confirm Password"
-        placeholder="Confirm password"
         hint="Make sure passwords match"
         Component={InputField}
         type="text"

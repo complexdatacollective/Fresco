@@ -51,7 +51,8 @@ export const InputField = function InputField({
       className={cx(inputWrapperVariants({ size: 'md' }), className)}
     >
       {prefix}
-      <input
+      <motion.input
+        layout
         autoComplete="off"
         className={inputVariants({ className })}
         {...inputProps}
