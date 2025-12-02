@@ -25,11 +25,12 @@ type FamilyTreeNodeFormProps = {
   nodeType: string;
   selectedNode: FamilyTreeNodeType | void;
   form: TForm;
+  diseaseVars: string[];
   onClose: () => void;
 };
 
 const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
-  const { nodeType, selectedNode, form, onClose } = props;
+  const { nodeType, selectedNode, form, diseaseVars, onClose } = props;
 
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
 
@@ -51,6 +52,10 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
       if (!node) return;
 
       try {
+        // set default disease values
+        diseaseVars.forEach((disease) => {
+          attributes[disease] = false;
+        });
         const resultAction = await dispatch(
           addNetworkNode({
             type: nodeType,
