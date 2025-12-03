@@ -129,7 +129,7 @@ export function InlineItemRenderer(
         'flex w-full items-center gap-2 rounded-none border select-none',
         className,
       )}
-      style={{ borderRadius: 'var(--radius)' }}
+      style={{ borderRadius: 'var(--radius-sm)' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 0.6 }}

@@ -4,13 +4,13 @@ import { type ComponentProps, forwardRef } from 'react';
 import {
   controlContainerVariants,
   controlStateVariants,
+  inlineSpacingVariants,
   placeholderVariants,
-  spacingVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 
 const textareaWrapperVariants = compose(
-  spacingVariants,
+  inlineSpacingVariants,
   controlContainerVariants,
   controlStateVariants,
   cva({
@@ -22,8 +22,8 @@ const textareaVariants = compose(
   placeholderVariants,
   cva({
     base: cx(
-      'w-full h-full resize-y min-h-[120px]',
-      'p-0 border-none bg-transparent outline-none focus:ring-0',
+      'h-full min-h-[120px] w-full resize-y',
+      'border-none bg-transparent p-0 outline-none focus:ring-0',
       'cursor-[inherit]',
     ),
     variants: {

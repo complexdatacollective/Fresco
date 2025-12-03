@@ -46,7 +46,7 @@ export const controlVariants = cva({
   ),
 });
 
-export const spacingVariants = cva({
+export const inlineSpacingVariants = cva({
   variants: {
     size: {
       xs: 'gap-2 px-3',
@@ -54,6 +54,22 @@ export const spacingVariants = cva({
       md: 'gap-4 px-6',
       lg: 'gap-5 px-8',
       xl: 'gap-6 px-10',
+    },
+  },
+  defaultVariants: {
+    size: 'md',
+  },
+});
+
+export const groupSpacingVariants = cva({
+  base: 'gap-2',
+  variants: {
+    size: {
+      xs: 'px-3 py-2',
+      sm: 'px-4 py-3',
+      md: 'px-6 py-4',
+      lg: 'px-8 py-5',
+      xl: 'px-10 py-6',
     },
   },
   defaultVariants: {
@@ -95,26 +111,22 @@ export const selectBackgroundVariants = cx(
   'bg-right pe-[1.5em]', // additional padding for background icon
 );
 
+// Variants for wrappers around controls. Note differences with controlContainerVariants.
 export const controlWrapperVariants = compose(
   sizeVariants,
-  spacingVariants,
+  inlineSpacingVariants,
   controlContainerVariants,
   controlStateVariants,
 );
 
-export const checkboxContainerVariants = cva({
-  base: cx(
-    'shrink-0',
-    'flex items-center justify-center',
-    'appearance-none',
-    'relative',
-    'rounded-full',
-    'border-2',
-    'bg-input text-input-contrast',
-    'focusable outline-transparent',
-    'cursor-pointer',
-  ),
-});
+// Variants for GROUP containers (checkbox groups, radio groups, etc).
+export const controlGroupVariants = compose(
+  groupSpacingVariants,
+  controlContainerVariants,
+  controlStateVariants,
+);
+
+export const checkboxContainerVariants = controlWrapperVariants;
 
 export const checkboxIndicatorSizeVariants = cva({
   variants: {

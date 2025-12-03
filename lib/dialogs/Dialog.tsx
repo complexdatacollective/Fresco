@@ -1,8 +1,9 @@
 'use client';
 
 import { Dialog as BaseDialog } from '@base-ui-components/react/dialog';
+import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import { Slot } from '@radix-ui/react-slot';
-import React, { forwardRef, type ReactNode } from 'react';
+import React, { type ComponentProps, forwardRef, type ReactNode } from 'react';
 import CloseButton from '~/components/CloseButton';
 import { type SurfaceVariants } from '~/components/layout/Surface';
 import Modal from '~/components/Modal/Modal';
@@ -159,16 +160,22 @@ DialogDescription.displayName = 'DialogDescription';
 
 const DialogContent = ({
   children,
-  className,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) => {
+}: ComponentProps<typeof ScrollArea.Root>) => {
   return (
-    <div
-      className={cx('-mx-8 overflow-y-auto px-8 pb-2', className)}
+    <ScrollArea.Root
+      className="relative flex min-h-0 flex-1 overflow-hidden"
       {...props}
     >
-      {children}
-    </div>
+      <ScrollArea.Viewport className="focusable min-h-0 flex-1 overflow-y-auto overscroll-contain py-6 pr-6 pl-1">
+        <ScrollArea.Content className="flex flex-col gap-6">
+          {children}
+        </ScrollArea.Content>
+      </ScrollArea.Viewport>
+      <ScrollArea.Scrollbar className="tablet:w-[0.325rem] pointer-events-none absolute m-1 flex w-[0.25rem] justify-center rounded-[1rem] opacity-0 transition-opacity duration-250 data-hovering:pointer-events-auto data-hovering:opacity-100 data-hovering:duration-75 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-75">
+        <ScrollArea.Thumb className="w-full rounded-[inherit] bg-current before:absolute before:top-1/2 before:left-1/2 before:h-[calc(100%+1rem)] before:w-[calc(100%+1rem)] before:-translate-x-1/2 before:-translate-y-1/2 before:content-['']" />
+      </ScrollArea.Scrollbar>
+    </ScrollArea.Root>
   );
 };
 

@@ -4,17 +4,17 @@ import { type ReactNode } from 'react';
 import {
   controlContainerVariants,
   controlStateVariants,
+  inlineSpacingVariants,
   placeholderVariants,
   proportionalLucideIconVariants,
   sizeVariants,
-  spacingVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx } from '~/utils/cva';
 
 const inputWrapperVariants = compose(
   sizeVariants,
   proportionalLucideIconVariants,
-  spacingVariants,
+  inlineSpacingVariants,
   controlContainerVariants,
   controlStateVariants,
   cva({

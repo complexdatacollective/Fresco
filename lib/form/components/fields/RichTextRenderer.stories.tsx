@@ -182,8 +182,8 @@ function WithJsonPreviewComponent() {
   const [content, setContent] = useState<JSONContent>(sampleContent);
 
   return (
-    <div className="flex w-[1400px] gap-6">
-      <div className="w-[400px] shrink-0">
+    <div className="flex gap-6">
+      <div className="shrink-0">
         <h2 className="mb-4 text-lg font-semibold">Editor</h2>
         <RichTextEditorField
           value={content}
@@ -191,7 +191,7 @@ function WithJsonPreviewComponent() {
           placeholder="Start typing..."
         />
       </div>
-      <div className="w-[400px] shrink-0">
+      <div className="shrink-0">
         <h2 className="mb-4 text-lg font-semibold">Rendered Output</h2>
         <div className="rounded-lg border border-current/10 p-6">
           <RichTextRenderer content={content} />

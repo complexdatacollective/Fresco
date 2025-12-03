@@ -5,7 +5,25 @@ import { AnimatePresence, LayoutGroup, motion, Reorder } from 'motion/react';
 import { useCallback, useState } from 'react';
 import { MotionButton } from '~/components/ui/Button';
 import useDialog from '~/lib/dialogs/useDialog';
+import { controlGroupVariants } from '~/styles/shared/controlVariants';
+import { compose, cva } from '~/utils/cva';
 import { type ArrayFieldItemProps, InlineItemRenderer } from './ItemRenderers';
+
+const arrayFieldVariants = compose(
+  controlGroupVariants,
+  cva({
+    base: 'w-full flex-col',
+    variants: {
+      isEmpty: {
+        true: 'items-center justify-center p-10',
+        false: '',
+      },
+    },
+    defaultVariants: {
+      isEmpty: false,
+    },
+  }),
+);
 
 // The base type for items in the array field. Must have an id.
 export type Item = {
@@ -97,7 +115,7 @@ export function ArrayField<T extends Item = Item>({
           axis="y"
           values={value}
           onReorder={handleReorder}
-          className="flex w-full flex-col gap-2"
+          className={arrayFieldVariants({ isEmpty: value.length === 0 })}
         >
           <AnimatePresence initial={false} mode="popLayout">
             {value.length === 0 && !editingId && (

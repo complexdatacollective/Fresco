@@ -67,13 +67,6 @@ const meta: Meta<typeof ArrayField> = {
     emptyStateMessage: 'No items added yet. Click "Add Item" to get started.',
     value: [],
   },
-  decorators: [
-    (Story) => (
-      <div className="w-[400px]">
-        <Story />
-      </div>
-    ),
-  ],
 };
 
 export default meta;

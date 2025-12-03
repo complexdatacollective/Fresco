@@ -1,9 +1,7 @@
 'use client';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { motion } from 'motion/react';
 import React from 'react';
-import { createPortal } from 'react-dom';
 import { action } from 'storybook/actions';
 import { z } from 'zod';
 import Surface from '~/components/layout/Surface';
@@ -81,124 +79,10 @@ export const Default: Story = {
           component={ArrayField}
           required
           sortable
-          buttonLabel="Add Field"
+          addButtonLabel="Add Field"
           emptyStateMessage="No fields added yet. Click 'Add Field' to get started."
-          EditorComponent={(props) => {
-            const { onCancel, onSave, item, layoutId } = props;
-
-            return createPortal(
-              <motion.div
-                layoutId={layoutId}
-                className="absolute inset-0 z-50 m-auto flex w-96 flex-col gap-4 rounded-lg bg-white p-6 shadow-lg"
-              >
-                <InputField
-                  type="text"
-                  value={item?.label ?? ''}
-                  onChange={(e) => {
-                    // Create a new item object with updated label
-                    const updatedItem = {
-                      ...item,
-                      label: e.target.value,
-                    };
-                    // Call onSave with updated item
-                    onSave(updatedItem);
-                  }}
-                  placeholder="Enter tag label..."
-                  autoFocus
-                />
-                <div className="flex justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={onCancel}
-                    className="rounded bg-gray-200 px-4 py-2 hover:bg-gray-300"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (item) {
-                        onSave(item);
-                      }
-                    }}
-                    className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                  >
-                    Save
-                  </button>
-                </div>
-              </motion.div>,
-              document.body,
-            );
-          }}
         />
       </Surface>
-      {/* <Field
-        name="country"
-        label="Country"
-        hint="Select your country of residence"
-        Component={SelectField}
-        showRequired
-        placeholder="Select a country"
-        options={[
-          { value: 'us', label: 'United States' },
-          { value: 'uk', label: 'United Kingdom' },
-          { value: 'ca', label: 'Canada' },
-          { value: 'au', label: 'Australia' },
-          { value: 'de', label: 'Germany' },
-          { value: 'fr', label: 'France' },
-          { value: 'jp', label: 'Japan' },
-          { value: 'other', label: 'Other' },
-        ]}
-        validation={z.string().min(1, 'Please select a country')}
-      />
-      <Field
-        name="preferredContact"
-        label="Preferred Contact Method"
-        showRequired
-        hint="How would you like us to contact you?"
-        Component={RadioGroupField}
-        options={[
-          { value: 'email', label: 'Email' },
-          { value: 'phone', label: 'Phone' },
-          { value: 'sms', label: 'SMS / Text Message' },
-          { value: 'none', label: 'Please do not contact me' },
-        ]}
-        validation={z.string().min(1, 'Please select a contact method')}
-        useColumns
-      />
-      <FieldGroup
-        watch={['preferredContact']}
-        condition={(values) => values.preferredContact === 'email'}
-      >
-        <Field
-          name="email"
-          label="Email"
-          hint="Enter your email address"
-          Component={InputField}
-          placeholder="Enter your email"
-          validation={z.string().email('Invalid email address')}
-          type="email"
-        />
-      </FieldGroup>
-      <FieldGroup
-        watch={['preferredContact']}
-        condition={(values) =>
-          values.preferredContact === 'phone' ||
-          values.preferredContact === 'sms'
-        }
-      >
-        <Field
-          name="phone"
-          label="Phone"
-          hint="Enter your phone number"
-          Component={InputField}
-          placeholder="Enter your phone number"
-          validation={z.string().min(10, 'Invalid phone number')}
-          type="tel"
-        />
-      </FieldGroup> */}
-
-      <SubmitButton className="self-end" />
     </Form>
   ),
 };

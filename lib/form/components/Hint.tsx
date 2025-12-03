@@ -12,7 +12,7 @@ export default function Hint({
     <motion.p
       layout
       id={id}
-      className={paragraphVariants({ className: 'text-xs text-current/60' })}
+      className={paragraphVariants({ className: 'text-xs text-current/70' })}
     >
       {children}
     </motion.p>

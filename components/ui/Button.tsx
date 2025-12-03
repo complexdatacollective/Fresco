@@ -5,9 +5,9 @@ import { motion } from 'motion/react';
 import * as React from 'react';
 import {
   controlVariants,
+  inlineSpacingVariants,
   proportionalLucideIconVariants,
   sizeVariants,
-  spacingVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { Skeleton } from './skeleton';
@@ -87,7 +87,7 @@ const buttonVariants = compose(
   sizeVariants,
   proportionalLucideIconVariants,
   controlVariants,
-  spacingVariants,
+  inlineSpacingVariants,
   buttonSpecificVariants,
 );
 
