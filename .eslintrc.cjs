@@ -26,6 +26,7 @@ const config = {
     '*.test.*',
     'public',
     '.eslintrc.cjs',
+    'tests/e2e/**',
   ],
   rules: {
     '@next/next/no-img-element': 'off',

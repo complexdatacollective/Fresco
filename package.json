@@ -14,6 +14,10 @@
     "vercel-build": "pnpm build:platform",
     "knip": "knip",
     "test": "vitest",
+    "test:e2e": "TEST_IMAGE_NAME=fresco-test:latest playwright test --config=tests/e2e/playwright.config.ts",
+    "test:e2e:ui": "TEST_IMAGE_NAME=fresco-test:latest playwright test --config=tests/e2e/playwright.config.ts --ui",
+    "test:e2e:debug": "TEST_IMAGE_NAME=fresco-test:latest playwright test --config=tests/e2e/playwright.config.ts --debug",
+    "docker-build": "docker build -t fresco-test:latest .",
     "load-test": "docker run -i grafana/k6 run - <load-test.js",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
@@ -108,6 +112,7 @@
     "zod-form-data": "^2.0.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.40.0",
     "@prisma/client": "^6.16.2",
     "@storybook/nextjs": "^9.1.4",
     "@t3-oss/env-nextjs": "^0.13.8",
@@ -146,6 +151,8 @@
     "storybook": "^9.1.5",
     "tailwindcss": "4.1.13",
     "tailwindcss-animate": "^1.0.7",
+    "testcontainers": "^10.0.0",
+    "@testcontainers/postgresql": "^10.0.0",
     "typescript": "5.8.3",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4"

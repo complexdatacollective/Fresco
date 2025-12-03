@@ -8,8 +8,9 @@
     "lib/interviewer/hooks/forceSimulation.worker.js",
     "lib/ui/components/Sprites/ExportSprite.js",
     "utils/auth.ts",
-    "load-test.js"
+    "load-test.js",
+    "tests/e2e/**"
   ],
   "ignoreDependencies": ["server-only", "prop-types", "sharp"],
-  "ignoreBinaries": ["docker-compose", "playwright"]
+  "ignoreBinaries": ["docker-compose"]
 }
