@@ -65,11 +65,11 @@ export const groupSpacingVariants = cva({
   base: 'gap-2',
   variants: {
     size: {
-      xs: 'px-3 py-2',
-      sm: 'px-4 py-3',
-      md: 'px-6 py-4',
-      lg: 'px-8 py-5',
-      xl: 'px-10 py-6',
+      xs: 'px-2 py-2',
+      sm: 'px-3 py-3',
+      md: 'px-4 py-4',
+      lg: 'px-6 py-5',
+      xl: 'px-8 py-6',
     },
   },
   defaultVariants: {

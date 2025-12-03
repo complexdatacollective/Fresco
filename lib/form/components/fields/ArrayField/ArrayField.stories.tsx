@@ -9,7 +9,10 @@ import { z } from 'zod';
 import { cx } from '~/utils/cva';
 import { Field, Form, SubmitButton } from '../..';
 import { ArrayField } from './ArrayField';
-import { SociogramPromptItemRenderer } from './ItemRenderers';
+import {
+  InlineItemRenderer,
+  SociogramPromptItemRenderer,
+} from './ItemRenderers';
 
 // Sample data
 const sampleItems = [
@@ -18,9 +21,11 @@ const sampleItems = [
   { id: '3', label: 'Third item' },
 ];
 
-const meta: Meta<typeof ArrayField> = {
+type SimpleItem = { id: string; label: string };
+
+const meta: Meta<typeof ArrayField<SimpleItem>> = {
   title: 'Systems/Form/Fields/ArrayField',
-  component: ArrayField,
+  component: ArrayField<SimpleItem>,
   parameters: {
     layout: 'centered',
   },
@@ -66,6 +71,8 @@ const meta: Meta<typeof ArrayField> = {
     addButtonLabel: 'Add Item',
     emptyStateMessage: 'No items added yet. Click "Add Item" to get started.',
     value: [],
+    ItemComponent: InlineItemRenderer,
+    itemTemplate: () => ({ id: crypto.randomUUID(), label: '' }),
   },
 };
 
@@ -193,6 +200,7 @@ export const CustomComponents: Story = {
           label: '',
           color: 'node-1',
         })}
+        ItemComponent={InlineItemRenderer}
       />
     );
   },
@@ -218,6 +226,7 @@ export const InForm: Story = {
         sortable
         addButtonLabel="Add Item"
         itemTemplate={() => ({ id: crypto.randomUUID(), label: '' })}
+        ItemComponent={InlineItemRenderer}
         validation={z.array(z.object({ id: z.string(), label: z.string() }))}
       />
       <SubmitButton className="mt-4">Submit</SubmitButton>
@@ -280,7 +289,9 @@ export const DialogEditor: Story = {
 
     return (
       <ArrayField<NameGeneratorPrompt>
-        {...args}
+        sortable={args.sortable}
+        addButtonLabel={args.addButtonLabel}
+        emptyStateMessage={args.emptyStateMessage}
         value={prompts}
         onChange={(newValue) => {
           setPrompts(newValue);

@@ -35,7 +35,7 @@ const meta = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'outline', 'text', 'link', 'dashed'],
+      options: ['default', 'outline', 'text', 'textMuted', 'dashed'],
     },
     color: {
       control: 'select',
@@ -98,6 +98,9 @@ export const Variants: Story = {
         </Button>
         <Button {...args} variant="text">
           Text
+        </Button>
+        <Button {...args} variant="textMuted">
+          Text Muted
         </Button>
         <Button {...args} variant="dashed">
           Dashed
@@ -195,6 +198,9 @@ export const Icons: Story = {
           <Button icon={<Check />} variant="text">
             Text
           </Button>
+          <Button icon={<Check />} variant="textMuted">
+            Text Muted
+          </Button>
           <Button icon={<Check />} variant="dashed">
             Dashed
           </Button>
@@ -248,7 +254,7 @@ export const States: Story = {
 
 export const DisabledStates: Story = {
   render: () => (
-    <div className="grid grid-cols-[auto_repeat(4,1fr)] gap-4">
+    <div className="grid grid-cols-[auto_repeat(5,1fr)] gap-4">
       <span className="text-sm font-medium"></span>
       <span className="text-center text-xs font-medium text-current/70">
         Default
@@ -258,6 +264,9 @@ export const DisabledStates: Story = {
       </span>
       <span className="text-center text-xs font-medium text-current/70">
         Text
+      </span>
+      <span className="text-center text-xs font-medium text-current/70">
+        Text Muted
       </span>
       <span className="text-center text-xs font-medium text-current/70">
         Dashed
@@ -273,6 +282,9 @@ export const DisabledStates: Story = {
           </Button>
           <Button variant="text" color={color} disabled>
             Text
+          </Button>
+          <Button variant="textMuted" color={color} disabled>
+            Text Muted
           </Button>
           <Button variant="dashed" color={color} disabled>
             Dashed
@@ -319,7 +331,7 @@ export const MotionVariant: Story = {
 
 export const ColorVariantCombinations: Story = {
   render: () => (
-    <div className="grid grid-cols-[auto_repeat(5,1fr)] gap-4">
+    <div className="grid grid-cols-[auto_repeat(6,1fr)] gap-4">
       <span className="text-sm font-medium"></span>
       <span className="text-center text-xs font-medium text-current/70">
         Default
@@ -329,6 +341,9 @@ export const ColorVariantCombinations: Story = {
       </span>
       <span className="text-center text-xs font-medium text-current/70">
         Text
+      </span>
+      <span className="text-center text-xs font-medium text-current/70">
+        Text Muted
       </span>
       <span className="text-center text-xs font-medium text-current/70">
         Dashed
@@ -347,6 +362,9 @@ export const ColorVariantCombinations: Story = {
           </Button>
           <Button variant="text" color={color}>
             Text
+          </Button>
+          <Button variant="textMuted" color={color}>
+            Text Muted
           </Button>
           <Button variant="dashed" color={color}>
             Dashed
@@ -392,6 +410,9 @@ export const AdaptiveToContext: Story = {
           <Button variant="text" color="dynamic">
             Text
           </Button>
+          <Button variant="textMuted" color="dynamic">
+            Text Muted
+          </Button>
         </div>
 
         <div className="bg-primary text-primary-contrast publish-colors flex items-center gap-4 rounded-lg border p-6">
@@ -407,6 +428,9 @@ export const AdaptiveToContext: Story = {
           </Button>
           <Button variant="text" color="dynamic">
             Text
+          </Button>
+          <Button variant="textMuted" color="dynamic">
+            Text Muted
           </Button>
         </div>
 
@@ -424,6 +448,9 @@ export const AdaptiveToContext: Story = {
           <Button variant="text" color="dynamic">
             Text
           </Button>
+          <Button variant="textMuted" color="dynamic">
+            Text Muted
+          </Button>
         </div>
 
         <div className="bg-surface-1 text-surface-1-contrast publish-colors flex items-center gap-4 rounded-lg border p-6">
@@ -439,6 +466,9 @@ export const AdaptiveToContext: Story = {
           </Button>
           <Button variant="text" color="dynamic">
             Text
+          </Button>
+          <Button variant="textMuted" color="dynamic">
+            Text Muted
           </Button>
         </div>
 
@@ -456,6 +486,9 @@ export const AdaptiveToContext: Story = {
           <Button variant="text" color="dynamic">
             Text
           </Button>
+          <Button variant="textMuted" color="dynamic">
+            Text Muted
+          </Button>
         </div>
 
         <div className="bg-destructive text-destructive-contrast publish-colors flex items-center gap-4 rounded-lg border p-6">
@@ -472,6 +505,9 @@ export const AdaptiveToContext: Story = {
           <Button variant="text" color="dynamic">
             Text
           </Button>
+          <Button variant="textMuted" color="dynamic">
+            Text Muted
+          </Button>
         </div>
 
         <div className="bg-success text-success-contrast publish-colors flex items-center gap-4 rounded-lg border p-6">
@@ -487,6 +523,9 @@ export const AdaptiveToContext: Story = {
           </Button>
           <Button variant="text" color="dynamic">
             Text
+          </Button>
+          <Button variant="textMuted" color="dynamic">
+            Text Muted
           </Button>
         </div>
       </div>

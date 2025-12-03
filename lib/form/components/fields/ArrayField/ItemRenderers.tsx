@@ -52,7 +52,9 @@ export function SimplePreview({
           <GripVertical className="h-4 w-4 cursor-grab" />
         </motion.div>
       )}
-      {children}
+      <motion.div layout="position" className="flex-1">
+        {children}
+      </motion.div>
       <motion.div
         layout="position"
         className="ml-auto flex items-center gap-1"
@@ -62,13 +64,15 @@ export function SimplePreview({
       >
         <IconButton
           size="sm"
-          variant="text"
+          variant="textMuted"
+          color="primary"
           onClick={onClickEdit}
           aria-label="Edit item"
           icon={<PencilIcon />}
         />
         <IconButton
-          variant="text"
+          variant="textMuted"
+          color="destructive"
           size="sm"
           onClick={onClickDelete}
           icon={<X />}
@@ -98,11 +102,8 @@ export type ArrayFieldItemProps<T extends Item = Item> = {
  * conditional rendering.
  */
 
-export function InlineItemRenderer(
-  props: ArrayFieldItemProps<{
-    id: string;
-    label: string;
-  }>,
+export function InlineItemRenderer<T extends { id: string; label: string }>(
+  props: ArrayFieldItemProps<T>,
 ) {
   const {
     onChange,

@@ -411,6 +411,22 @@ This custom variant lets you target only elements with the readonly attribute.
   @apply focus-visible-within:focus-styles;
 }
 
+/**
+ * focusable-after: applies focus styles via ::after pseudo-element.
+ * Use this when the element has overflow:hidden/auto/scroll which would clip
+ * a regular outline. The pseudo-element sits on top and shows the focus ring
+ * without being affected by overflow.
+ */
+@utility focusable-after {
+  @apply relative;
+  &::after {
+    @apply pointer-events-none absolute inset-0 outline-transparent content-[''];
+  }
+  &:focus-visible::after {
+    @apply focus-styles;
+  }
+}
+
 /* Replacement for interface centering mixin */
 @utility interface {
   @apply relative mx-4 flex shrink grow basis-auto items-center justify-center;

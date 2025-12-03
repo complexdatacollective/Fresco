@@ -7,7 +7,7 @@ import { MotionButton } from '~/components/ui/Button';
 import useDialog from '~/lib/dialogs/useDialog';
 import { controlGroupVariants } from '~/styles/shared/controlVariants';
 import { compose, cva } from '~/utils/cva';
-import { type ArrayFieldItemProps, InlineItemRenderer } from './ItemRenderers';
+import { type ArrayFieldItemProps } from './ItemRenderers';
 
 const arrayFieldVariants = compose(
   controlGroupVariants,
@@ -38,7 +38,7 @@ type ArrayFieldProps<T extends Item = Item> = {
   onChange: (value: T[]) => void;
   // ArrayField-specific props
   sortable?: boolean;
-  ItemComponent?: React.ComponentType<ArrayFieldItemProps<T>>;
+  ItemComponent: React.ComponentType<ArrayFieldItemProps<T>>;
   itemClassName?: (item: T) => string;
   itemTemplate: () => T;
   addButtonLabel?: string;
@@ -50,12 +50,12 @@ export function ArrayField<T extends Item = Item>({
   value = [],
   onChange,
   sortable = false,
-  ItemComponent = InlineItemRenderer,
+  ItemComponent,
   itemClassName,
   itemTemplate,
   addButtonLabel = 'Add Item',
   emptyStateMessage = 'No items added yet. Click "Add Item" to get started.',
-  confirmDelete = false,
+  confirmDelete = true,
 }: ArrayFieldProps<T>) {
   const { confirm } = useDialog();
   const [editingId, setEditingId] = useState<string | null>(null);

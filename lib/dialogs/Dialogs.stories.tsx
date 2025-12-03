@@ -173,7 +173,7 @@ export const DialogTypes: Story = {
         description: 'This dialog has custom content and actions.',
         children: (
           <div className="mt-4 flex flex-col gap-4">
-            <p className="text-muted-foreground">
+            <p className="text-current/70">
               Custom dialogs can contain any React content.
             </p>
             <div className="flex justify-end gap-2">
@@ -332,9 +332,7 @@ export const NestedDialogs: Story = {
         intent: 'default',
         children: (
           <div className="mt-4 flex flex-col gap-4">
-            <p className="text-muted-foreground">
-              Pretend there is a form here...
-            </p>
+            <p className="text-current/70">Pretend there is a form here...</p>
             <div className="flex justify-end gap-2">
               <Button onClick={() => closeDialog(dialogId, null)}>
                 Cancel
@@ -427,6 +425,113 @@ export const ConfirmUtility: StoryObj<Meta<ConfirmUtilityArgs>> = {
         <Button color="destructive" onClick={handleDelete}>
           Delete Project
         </Button>
+      </div>
+    );
+  },
+};
+
+/**
+ * Dialogs automatically become scrollable when content exceeds the viewport height.
+ * The content area uses a scroll container while the header and footer remain fixed.
+ */
+export const ScrollableContent: Story = {
+  render: () => {
+    const { openDialog, closeDialog } = useDialog();
+
+    const showScrollableDialog = async () => {
+      const result = await openDialog({
+        id: 'scrollable-dialog',
+        type: 'custom',
+        title: 'Terms and Conditions',
+        description:
+          'Please read and accept the following terms before continuing.',
+        children: (
+          <div className="mt-4 flex flex-col gap-4">
+            <div className="flex flex-col gap-4 text-sm">
+              <h3 className="font-semibold">1. Introduction</h3>
+              <p>
+                Welcome to our platform. These Terms and Conditions govern your
+                use of our services and constitute a legally binding agreement
+                between you and our company. By accessing or using our platform,
+                you agree to be bound by these terms.
+              </p>
+
+              <h3 className="font-semibold">2. User Responsibilities</h3>
+              <p>
+                As a user, you are responsible for maintaining the
+                confidentiality of your account credentials and for all
+                activities that occur under your account. You agree to notify us
+                immediately of any unauthorized use of your account.
+              </p>
+
+              <h3 className="font-semibold">3. Privacy Policy</h3>
+              <p>
+                Your privacy is important to us. Our Privacy Policy explains how
+                we collect, use, and protect your personal information. By using
+                our services, you consent to the collection and use of your
+                information as described in our Privacy Policy.
+              </p>
+
+              <h3 className="font-semibold">4. Intellectual Property</h3>
+              <p>
+                All content, features, and functionality on this platform are
+                owned by us and are protected by international copyright,
+                trademark, and other intellectual property laws. You may not
+                reproduce, distribute, or create derivative works without our
+                prior written consent.
+              </p>
+
+              <h3 className="font-semibold">5. Limitation of Liability</h3>
+              <p>
+                To the fullest extent permitted by law, we shall not be liable
+                for any indirect, incidental, special, consequential, or
+                punitive damages arising from your use of or inability to use
+                our services, even if we have been advised of the possibility of
+                such damages.
+              </p>
+
+              <h3 className="font-semibold">6. Modifications to Terms</h3>
+              <p>
+                We reserve the right to modify these terms at any time. We will
+                notify you of any material changes by posting the updated terms
+                on our platform. Your continued use of our services after such
+                modifications constitutes your acceptance of the revised terms.
+              </p>
+
+              <h3 className="font-semibold">7. Governing Law</h3>
+              <p>
+                These terms shall be governed by and construed in accordance
+                with the laws of the jurisdiction in which our company is
+                incorporated, without regard to its conflict of law provisions.
+              </p>
+
+              <h3 className="font-semibold">8. Contact Information</h3>
+              <p>
+                If you have any questions about these Terms and Conditions,
+                please contact us at support@example.com. We are committed to
+                resolving any disputes or concerns you may have.
+              </p>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button onClick={() => closeDialog('scrollable-dialog', false)}>
+                Decline
+              </Button>
+              <Button
+                color="primary"
+                onClick={() => closeDialog('scrollable-dialog', true)}
+              >
+                Accept Terms
+              </Button>
+            </div>
+          </div>
+        ),
+      });
+      console.log('Scrollable dialog result:', result);
+    };
+
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Button onClick={showScrollableDialog}>View Terms & Conditions</Button>
       </div>
     );
   },
