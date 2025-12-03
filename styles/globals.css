@@ -420,10 +420,7 @@ This custom variant lets you target only elements with the readonly attribute.
 @utility focusable-after {
   @apply relative;
   &::after {
-    @apply pointer-events-none absolute inset-0 outline-transparent content-[''];
-  }
-  &:focus-visible::after {
-    @apply focus-styles;
+    @apply focusable pointer-events-none absolute inset-0 outline-transparent content-[''];
   }
 }
 
