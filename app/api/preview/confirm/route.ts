@@ -10,9 +10,8 @@ import { addEvent } from '~/actions/activityFeed';
 import { env } from '~/env';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
 import { prunePreviewProtocols } from '~/lib/preview-protocol-pruning';
-import { generatePresignedUploadUrl } from '~/lib/uploadthing-presigned';
 import { prisma } from '~/utils/db';
-import { checkPreviewAuth, jsonResponse, OPTIONS } from './helpers';
+import { checkPreviewAuth, jsonResponse, OPTIONS } from '../helpers';
 
 export { OPTIONS };
 
@@ -21,10 +20,12 @@ type AssetInput = {
   name: string;
   size: number;
   type: string;
+  fileKey: string;
+  fileUrl: string;
   value?: string; // For apikey assets
 };
 
-type PreviewRequestBody = {
+type ConfirmRequestBody = {
   protocol: VersionedProtocol;
   protocolName?: string;
   assets: AssetInput[];
@@ -35,8 +36,7 @@ export async function POST(req: NextRequest) {
   if (authError) return authError;
 
   try {
-    const body = (await req.json()) as PreviewRequestBody;
-
+    const body = (await req.json()) as ConfirmRequestBody;
     const { protocol: protocolJson, protocolName, assets } = body;
 
     if (!protocolJson || typeof protocolJson !== 'object') {
@@ -55,10 +55,10 @@ export async function POST(req: NextRequest) {
           400,
         );
       }
-      // Size is required for non-apikey assets
-      if (asset.type !== 'apikey' && typeof asset.size !== 'number') {
+      // fileKey and fileUrl required for non-apikey assets
+      if (asset.type !== 'apikey' && (!asset.fileKey || !asset.fileUrl)) {
         return jsonResponse(
-          { error: 'Each non-apikey asset must have a size' },
+          { error: 'Each non-apikey asset must have fileKey and fileUrl' },
           400,
         );
       }
@@ -120,13 +120,6 @@ export async function POST(req: NextRequest) {
     });
 
     let protocolId: string;
-    const uploads: {
-      assetId: string;
-      uploadUrl: string;
-      fileKey: string;
-      fileUrl: string;
-      expiresAt: number;
-    }[] = [];
 
     if (existingPreview) {
       // Update timestamp to prevent premature pruning
@@ -137,7 +130,6 @@ export async function POST(req: NextRequest) {
         },
       });
       protocolId = updated.id;
-      // No uploads needed - assets already exist
     } else {
       // Check which assets already exist in the database
       const assetIds = assets.map((a) => a.assetId);
@@ -149,16 +141,12 @@ export async function POST(req: NextRequest) {
         },
         select: {
           assetId: true,
-          key: true,
-          url: true,
         },
       });
 
-      const existingAssetMap = new Map(
-        existingDbAssets.map((a) => [a.assetId, a]),
-      );
+      const existingAssetSet = new Set(existingDbAssets.map((a) => a.assetId));
 
-      // Separate assets into existing, new file assets, and apikey assets
+      // Separate assets into existing and new
       const assetsToCreate: {
         assetId: string;
         key: string;
@@ -172,13 +160,11 @@ export async function POST(req: NextRequest) {
       const existingAssetIds: string[] = [];
 
       for (const asset of assets) {
-        const existing = existingAssetMap.get(asset.assetId);
-
-        if (existing) {
+        if (existingAssetSet.has(asset.assetId)) {
           // Asset already exists - just connect it
           existingAssetIds.push(asset.assetId);
         } else if (asset.type === 'apikey') {
-          // Apikey assets don't need uploading
+          // Apikey assets don't have uploaded files
           assetsToCreate.push({
             assetId: asset.assetId,
             key: asset.assetId,
@@ -189,36 +175,13 @@ export async function POST(req: NextRequest) {
             value: asset.value,
           });
         } else {
-          // New file asset - generate presigned URL
-          const presigned = await generatePresignedUploadUrl({
-            fileName: asset.name,
-            fileSize: asset.size,
-          });
-
-          if (!presigned) {
-            return jsonResponse(
-              {
-                error:
-                  'Failed to generate presigned URL. UploadThing token may not be configured.',
-              },
-              500,
-            );
-          }
-
-          uploads.push({
-            assetId: asset.assetId,
-            uploadUrl: presigned.uploadUrl,
-            fileKey: presigned.fileKey,
-            fileUrl: presigned.fileUrl,
-            expiresAt: presigned.expiresAt,
-          });
-
+          // New file asset - use the fileKey/fileUrl from the upload
           assetsToCreate.push({
             assetId: asset.assetId,
-            key: presigned.fileKey,
+            key: asset.fileKey,
             name: asset.name,
             type: asset.type,
-            url: presigned.fileUrl,
+            url: asset.fileUrl,
             size: asset.size,
           });
         }
@@ -252,7 +215,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Return the protocol ID, redirect URL, and any uploads needed
+    // Return the protocol ID and redirect URL
     const url = new URL(env.PUBLIC_URL ?? req.nextUrl.clone());
     url.pathname = `/preview/${protocolId}`;
 
@@ -260,15 +223,14 @@ export async function POST(req: NextRequest) {
       success: true,
       protocolId,
       redirectUrl: url.toString(),
-      uploads,
     });
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error('Preview protocol error:', error);
+    console.error('Preview confirm error:', error);
 
     return jsonResponse(
       {
-        error: 'Failed to process protocol',
+        error: 'Failed to confirm protocol',
         details: error instanceof Error ? error.message : 'Unknown error',
       },
       500,
