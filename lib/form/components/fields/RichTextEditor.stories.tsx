@@ -13,6 +13,11 @@ const meta: Meta<typeof RichTextEditorField> = {
   parameters: {
     layout: 'centered',
   },
+  args: {
+    'id': 'rich-text-editor',
+    'name': 'content',
+    'aria-describedby': 'rich-text-editor-hint',
+  },
 };
 
 export default meta;
@@ -156,9 +161,10 @@ const simpleContent: JSONContent = {
 };
 
 export const Default: Story = {
-  render: () => (
+  render: (args) => (
     <div className="w-[600px]">
       <RichTextEditorField
+        {...args}
         placeholder="Start typing here..."
         onChange={action('onChange')}
       />
@@ -167,9 +173,10 @@ export const Default: Story = {
 };
 
 export const WithAllElements: Story = {
-  render: () => (
+  render: (args) => (
     <div className="w-[600px]">
       <RichTextEditorField
+        {...args}
         value={allElementsContent}
         onChange={action('onChange')}
       />
@@ -178,9 +185,10 @@ export const WithAllElements: Story = {
 };
 
 export const Disabled: Story = {
-  render: () => (
+  render: (args) => (
     <div className="w-[600px]">
       <RichTextEditorField
+        {...args}
         value={simpleContent}
         disabled
         onChange={action('onChange')}
@@ -190,9 +198,10 @@ export const Disabled: Story = {
 };
 
 export const ReadOnly: Story = {
-  render: () => (
+  render: (args) => (
     <div className="w-[600px]">
       <RichTextEditorField
+        {...args}
         value={simpleContent}
         readOnly
         onChange={action('onChange')}
@@ -202,9 +211,10 @@ export const ReadOnly: Story = {
 };
 
 export const Invalid: Story = {
-  render: () => (
+  render: (args) => (
     <div className="w-[600px]">
       <RichTextEditorField
+        {...args}
         value={simpleContent}
         aria-invalid
         onChange={action('onChange')}
@@ -231,7 +241,7 @@ export const InForm: Story = {
         placeholder="Enter your description..."
         validation={z.object({}).passthrough()}
       />
-      <SubmitButton className="mt-4" />
+      <SubmitButton className="mt-4">Submit</SubmitButton>
     </Form>
   ),
 };
@@ -239,9 +249,10 @@ export const InForm: Story = {
 // Toolbar Options Stories
 
 export const NoHeadings: Story = {
-  render: () => (
+  render: (args) => (
     <div className="w-[600px]">
       <RichTextEditorField
+        {...args}
         placeholder="Headings are disabled..."
         toolbarOptions={{ headings: false }}
         onChange={action('onChange')}
@@ -251,9 +262,10 @@ export const NoHeadings: Story = {
 };
 
 export const OnlyH2AndH3: Story = {
-  render: () => (
+  render: (args) => (
     <div className="w-[600px]">
       <RichTextEditorField
+        {...args}
         placeholder="Only H2 and H3 headings available..."
         toolbarOptions={{
           headings: { h1: false, h2: true, h3: true, h4: false },
@@ -265,9 +277,10 @@ export const OnlyH2AndH3: Story = {
 };
 
 export const TextFormattingOnly: Story = {
-  render: () => (
+  render: (args) => (
     <div className="w-[600px]">
       <RichTextEditorField
+        {...args}
         placeholder="Only bold and italic formatting..."
         toolbarOptions={{
           headings: false,
@@ -281,9 +294,10 @@ export const TextFormattingOnly: Story = {
 };
 
 export const NoLists: Story = {
-  render: () => (
+  render: (args) => (
     <div className="w-[600px]">
       <RichTextEditorField
+        {...args}
         placeholder="Lists are disabled..."
         toolbarOptions={{ lists: false }}
         onChange={action('onChange')}
@@ -293,9 +307,10 @@ export const NoLists: Story = {
 };
 
 export const BulletListOnly: Story = {
-  render: () => (
+  render: (args) => (
     <div className="w-[600px]">
       <RichTextEditorField
+        {...args}
         placeholder="Only bullet lists available..."
         toolbarOptions={{
           lists: { bullet: true, ordered: false },
@@ -307,9 +322,10 @@ export const BulletListOnly: Story = {
 };
 
 export const NoHistory: Story = {
-  render: () => (
+  render: (args) => (
     <div className="w-[600px]">
       <RichTextEditorField
+        {...args}
         placeholder="Undo/Redo buttons hidden..."
         toolbarOptions={{ history: false }}
         onChange={action('onChange')}
@@ -319,9 +335,10 @@ export const NoHistory: Story = {
 };
 
 export const MinimalEditor: Story = {
-  render: () => (
+  render: (args) => (
     <div className="w-[600px]">
       <RichTextEditorField
+        {...args}
         placeholder="Minimal editor - just bold..."
         toolbarOptions={{
           bold: true,
@@ -337,9 +354,10 @@ export const MinimalEditor: Story = {
 };
 
 export const NoToolbar: Story = {
-  render: () => (
+  render: (args) => (
     <div className="w-[600px]">
       <RichTextEditorField
+        {...args}
         placeholder="No toolbar at all..."
         toolbarOptions={{
           bold: false,

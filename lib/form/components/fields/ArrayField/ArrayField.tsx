@@ -30,6 +30,18 @@ export type Item = {
   id: string;
 } & Record<string, unknown>;
 
+export type ArrayFieldItemProps<T extends Item = Item> = {
+  onChange: (value: T) => void;
+  onCancel: () => void;
+  onDelete: () => void;
+  onEdit: () => void;
+  value: T;
+  isEditing: boolean;
+  isNewItem: boolean;
+  isSortable: boolean;
+  className?: string;
+};
+
 type ArrayFieldProps<T extends Item = Item> = {
   // Props compatible with BaseFieldComponentProps<T[]>
   id?: string;

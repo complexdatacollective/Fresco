@@ -38,8 +38,8 @@
     --surface-2-contrast: var(--text);
     --surface-3: oklch(93% 0.03 var(--base-hue));
     --surface-3-contrast: var(--text);
-    --surface-popover: oklch(25% 0.1 var(--base-hue));
-    --surface-popover-contrast: oklch(var(--white));
+    --surface-popover: var(--color-white);
+    --surface-popover-contrast: var(--color-text);
 
     --destructive: oklch(var(--tomato));
     --destructive-contrast: oklch(var(--white));

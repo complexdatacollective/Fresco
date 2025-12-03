@@ -8,16 +8,19 @@ import Hint from './Hint';
 import { type FieldValidation, type FieldValue } from './types';
 
 /**
- * Structural type for field component props.
- * Components must accept these props to be used with Field.
+ * Props that Field provides to components.
+ * These are excluded from FieldProps since they're always provided by Field.
  */
 type FieldComponentProps = {
-  id: string;
-  name: string;
+  'id': string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value?: any;
+  'value'?: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onChange: (value: any) => void;
+  'onChange': (value: any) => void;
+  'onBlur': (e: React.FocusEvent) => void;
+  'aria-required': boolean;
+  'aria-invalid': boolean;
+  'aria-describedby': string;
 };
 
 /**

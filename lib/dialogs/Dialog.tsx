@@ -10,7 +10,7 @@ import { headingVariants } from '~/components/typography/Heading';
 import { paragraphVariants } from '~/components/typography/Paragraph';
 import { ScrollArea } from '~/components/ui/ScrollArea';
 import { cx, type VariantProps } from '~/utils/cva';
-import DialogPopup, { DialogPopupAnimation } from './DialogPopup';
+import DialogPopup from './DialogPopup';
 
 // TODO: These seem like they belong in a shared location.
 export const STATE_VARIANTS = [
@@ -79,7 +79,6 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
               '[--color-primary-contrast:var(--color-destructive-contrast)] [--color-primary:var(--color-destructive)]',
             className,
           )}
-          {...DialogPopupAnimation}
           {...rest}
         >
           <BaseDialog.Title

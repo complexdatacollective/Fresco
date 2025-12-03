@@ -2,31 +2,6 @@ import { surfaceVariants } from '~/components/layout/Surface';
 import { cx } from '~/utils/cva';
 import ModalPopup from '../../components/Modal/ModalPopup';
 
-/**
- * A set of animation parameters loosely based on the iOS 26 dialog animation.
- * All animation states include opacity for Base-UI's animation detection.
- */
-export const DialogPopupAnimation = {
-  initial: { opacity: 0, y: '-10%', scale: 1.1 },
-  animate: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    filter: 'blur(0px)',
-    transition: {
-      type: 'spring',
-      stiffness: 300,
-      damping: 30,
-    },
-  },
-  exit: {
-    opacity: 0,
-    y: '-10%',
-    scale: 1.5,
-    filter: 'blur(10px)',
-  },
-} as const;
-
 export default function DialogPopup({
   children,
   className,
@@ -41,7 +16,6 @@ export default function DialogPopup({
         'flex max-h-[calc(100vh-var(--spacing)*4)] flex-col',
         className,
       )}
-      {...DialogPopupAnimation}
       {...props}
     >
       {children}

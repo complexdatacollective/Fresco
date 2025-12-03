@@ -3,7 +3,6 @@ import { motion } from 'motion/react';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 import ModalPopup from '~/components/Modal/ModalPopup';
-import { DialogPopupAnimation } from '~/lib/dialogs/DialogPopup';
 import { cx } from '~/utils/cva';
 import Button from '../ui/Button';
 import Modal from './Modal';
@@ -42,7 +41,6 @@ function InteractiveModal() {
             'fixed top-1/2 left-1/2 w-96 -translate-x-1/2 -translate-y-1/2',
             'bg-surface-1 text-surface-1-contrast rounded-lg p-6 shadow-xl',
           )}
-          {...DialogPopupAnimation}
         >
           <h2 className="mb-2 text-lg font-semibold">Modal Title</h2>
           <p className="mb-4 text-current/70">
@@ -215,7 +213,6 @@ function NestedModalsExample() {
             'fixed top-1/2 left-1/2 w-96 -translate-x-1/2 -translate-y-1/2',
             'bg-surface-1 text-surface-1-contrast rounded-lg p-6 shadow-xl',
           )}
-          {...DialogPopupAnimation}
         >
           <h2 className="mb-2 text-lg font-semibold">First Modal</h2>
           <p className="mb-4 text-current/70">
@@ -236,7 +233,6 @@ function NestedModalsExample() {
             'fixed top-1/2 left-1/2 w-80 -translate-x-1/2 -translate-y-1/2',
             'bg-surface-1 text-surface-1-contrast rounded-lg p-6 shadow-xl',
           )}
-          {...DialogPopupAnimation}
         >
           <h2 className="mb-2 text-lg font-semibold">Second Modal</h2>
           <p className="mb-4 text-current/70">

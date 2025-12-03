@@ -107,7 +107,7 @@ function PopoverContent({
                   level="popover"
                   elevation="none"
                   className={cx(
-                    '@container-normal max-w-(--available-width) text-sm shadow-xl',
+                    '@container-normal max-w-(--available-width) overflow-visible text-sm shadow-xl',
                     className,
                   )}
                   initial={{ opacity: 0, scale: 0.96 }}

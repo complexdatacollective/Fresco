@@ -8,6 +8,31 @@ import {
 import { type ComponentProps } from 'react';
 
 /**
+ * Default animation parameters loosely based on iOS dialog animations.
+ * All animation states include opacity for Base-UI's animation detection.
+ */
+export const defaultPopupAnimation = {
+  initial: { opacity: 0, y: '-10%', scale: 1.1 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    filter: 'blur(0px)',
+    transition: {
+      type: 'spring',
+      stiffness: 300,
+      damping: 30,
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: '-10%',
+    scale: 1.5,
+    filter: 'blur(10px)',
+  },
+} as const;
+
+/**
  * Makes the opacity property required in TargetAndTransition.
  * Base-UI's dialog component detects animation completion via opacity changes.
  */
@@ -35,31 +60,14 @@ type BaseModalPopupProps = Omit<
 
 /**
  * Props for ModalPopup.
- * Must provide EITHER animation props OR layoutId (exactly one is required).
- * - Animation props: At least one of initial/animate/exit (with required opacity when objects)
+ * Optionally provide animation props OR layoutId.
+ * - If neither is provided, uses defaultPopupAnimation
+ * - Animation props: initial/animate/exit (with required opacity when objects)
  * - layoutId: For shared layout animations (incompatible with animation props)
  */
 type ModalPopupProps = BaseModalPopupProps &
   (
-    | (AnimationPropsWithRequiredOpacity &
-        (
-          | {
-              initial: NonNullable<
-                AnimationPropsWithRequiredOpacity['initial']
-              >;
-              layoutId?: never;
-            }
-          | {
-              animate: NonNullable<
-                AnimationPropsWithRequiredOpacity['animate']
-              >;
-              layoutId?: never;
-            }
-          | {
-              exit: NonNullable<AnimationPropsWithRequiredOpacity['exit']>;
-              layoutId?: never;
-            }
-        ))
+    | (AnimationPropsWithRequiredOpacity & { layoutId?: never })
     | {
         layoutId: string;
         initial?: never;
@@ -70,9 +78,9 @@ type ModalPopupProps = BaseModalPopupProps &
 
 /**
  * A modal popup dialog using Base-UI's Dialog and motion for animations.
- * Requires either animation props (with required opacity) or layoutId for shared layout animations.
- * @see DialogPopup for a preset dialog style with iOS-like animations.
- * @see DialogPopupAnimation for default animation settings.
+ * Uses defaultPopupAnimation when no animation props or layoutId is provided.
+ * @see DialogPopup for a preset dialog style.
+ * @see defaultPopupAnimation for default animation settings.
  *
  * @param children The content of the modal popup.
  * @param className Additional class names for styling.
@@ -83,15 +91,20 @@ export default function ModalPopup({
   className,
   ...props
 }: ModalPopupProps) {
-  // When using layoutId, apply minimal opacity animations for Base-UI detection
-  const layoutIdAnimation =
-    'layoutId' in props && props.layoutId
-      ? {
-          initial: { opacity: 0.9999 },
-          animate: { opacity: 1 },
-          exit: { opacity: 0.9999 },
-        }
-      : {};
+  const hasLayoutId = 'layoutId' in props && props.layoutId;
+  const hasAnimationProps =
+    'initial' in props || 'animate' in props || 'exit' in props;
+
+  // Determine animation: layoutId gets minimal opacity, custom props used as-is, otherwise default
+  const animation = hasLayoutId
+    ? {
+        initial: { opacity: 0.9999 },
+        animate: { opacity: 1 },
+        exit: { opacity: 0.9999 },
+      }
+    : hasAnimationProps
+      ? {}
+      : defaultPopupAnimation;
 
   return (
     <Dialog.Popup
@@ -100,7 +113,7 @@ export default function ModalPopup({
           {...(popupProps as HTMLMotionProps<'div'>)}
           className={className}
           {...props}
-          {...layoutIdAnimation}
+          {...animation}
         >
           {children}
         </motion.div>

@@ -1,18 +1,21 @@
 'use client';
 
-import { type Stage } from '@codaco/protocol-validation';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { useState } from 'react';
+import { type JSONContent } from '@tiptap/core';
+import { Reorder, useDragControls } from 'motion/react';
+import { useId, useState } from 'react';
 import { action } from 'storybook/actions';
 import { useArgs } from 'storybook/preview-api';
 import { z } from 'zod';
+import { surfaceVariants } from '~/components/layout/Surface';
+import { MotionButton } from '~/components/ui/Button';
+import { Dialog } from '~/lib/dialogs/Dialog';
 import { cx } from '~/utils/cva';
 import { Field, Form, SubmitButton } from '../..';
-import { ArrayField } from './ArrayField';
-import {
-  InlineItemRenderer,
-  SociogramPromptItemRenderer,
-} from './ItemRenderers';
+import { RichTextEditorField } from '../RichTextEditor';
+import { RichTextRenderer } from '../RichTextRenderer';
+import { ArrayField, type ArrayFieldItemProps } from './ArrayField';
+import { InlineItemRenderer, SimplePreview } from './ItemRenderers';
 
 // Sample data
 const sampleItems = [
@@ -260,11 +263,104 @@ export const ManyItems: Story = {
 // Modal Editor Story - demonstrates using Dialog primitives to recreate the
 // current architect prompt editing experience.
 
-// Extract name gen prompt as it is the simplest
-type NameGeneratorPrompt = Extract<
-  Stage,
-  { type: 'NameGenerator' }
->['prompts'][number];
+// Simplified version of name generator prompt
+type NameGeneratorPrompt = {
+  id: string;
+  text: JSONContent;
+};
+
+/**
+ * PromptItem is an item component for ArrayField.
+ *
+ * It uses layoutId to transition between view and edit modes. Edit mode is
+ * a modal dialog.
+ */
+
+export function SociogramPromptItemRenderer(
+  props: ArrayFieldItemProps<NameGeneratorPrompt>,
+) {
+  const id = useId();
+  const {
+    onChange,
+    onCancel,
+    isNewItem,
+    isEditing,
+    value,
+    onEdit,
+    isSortable,
+    onDelete,
+  } = props;
+
+  const controls = useDragControls();
+
+  const handleSubmit = (data: unknown) => {
+    onChange({
+      ...value,
+      ...(data as Record<string, unknown>),
+    });
+    return { success: true as const };
+  };
+
+  return (
+    <>
+      <Dialog
+        title={isNewItem ? 'Edit Prompt' : 'Add New Prompt'}
+        description={
+          isNewItem ? 'Update this prompt below' : 'Fill in the prompt details'
+        }
+        open={isEditing}
+        closeDialog={onCancel}
+        {...(isNewItem ? {} : { layoutId: id })}
+        footer={
+          <>
+            <MotionButton type="button" onClick={onCancel}>
+              Cancel
+            </MotionButton>
+            <SubmitButton form="contact-form" color="primary">
+              {isEditing ? 'Save Changes' : 'Add Contact'}
+            </SubmitButton>
+          </>
+        }
+      >
+        <Form
+          id="contact-form"
+          onSubmit={handleSubmit}
+          className="w-full max-w-full gap-4"
+        >
+          <Field
+            name="text"
+            label="Prompt Text"
+            hint="The prompt text instructs your participant about the task on this screen."
+            component={RichTextEditorField}
+            initialValue={value?.text ?? {}}
+            required
+          />
+        </Form>
+      </Dialog>
+      <Reorder.Item
+        layoutId={id}
+        value={value}
+        dragListener={false}
+        dragControls={controls}
+        layout
+        className={cx(
+          surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
+          'flex w-full items-center gap-2 rounded-none border select-none',
+        )}
+        style={{ borderRadius: 'var(--radius)' }}
+      >
+        <SimplePreview
+          isSortable={isSortable}
+          onClickEdit={onEdit}
+          onClickDelete={onDelete}
+          onDragHandlePointerDown={(e) => controls.start(e)}
+        >
+          <RichTextRenderer content={value.text} />
+        </SimplePreview>
+      </Reorder.Item>
+    </>
+  );
+}
 
 export const DialogEditor: Story = {
   args: {
@@ -276,16 +372,7 @@ export const DialogEditor: Story = {
     layout: 'centered',
   },
   render: function Render(args) {
-    const [prompts, setPrompts] = useState<NameGeneratorPrompt[]>([
-      {
-        id: '1',
-        text: 'What is your favorite color?',
-      },
-      {
-        id: '2',
-        text: 'What is your dream job?',
-      },
-    ]);
+    const [prompts, setPrompts] = useState<NameGeneratorPrompt[]>([]);
 
     return (
       <ArrayField<NameGeneratorPrompt>
@@ -297,7 +384,7 @@ export const DialogEditor: Story = {
           setPrompts(newValue);
           action('onChange')(newValue);
         }}
-        itemTemplate={() => ({ id: crypto.randomUUID(), text: '' })}
+        itemTemplate={() => ({ id: crypto.randomUUID(), text: {} })}
         ItemComponent={SociogramPromptItemRenderer}
       />
     );
