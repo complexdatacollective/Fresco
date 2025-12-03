@@ -164,11 +164,7 @@ const DialogContent = ({
   ...props
 }: React.ComponentProps<typeof ScrollArea>) => {
   return (
-    <ScrollArea
-      className={cx('focusable-after rounded-sm', className)}
-      viewportClassName="focusable-after-trigger pe-6 pb-4"
-      {...props}
-    >
+    <ScrollArea className={className} viewportClassName="pe-6 pb-4" {...props}>
       {children}
     </ScrollArea>
   );

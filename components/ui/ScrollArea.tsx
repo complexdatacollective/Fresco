@@ -93,11 +93,16 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
     return (
       <BaseScrollArea.Root
         ref={ref}
-        className={cx('relative flex min-h-0 flex-1', className)}
+        className={cx(
+          'focusable-after relative flex min-h-0 flex-1',
+          className,
+        )}
         {...props}
       >
         <BaseScrollArea.Viewport
           className={cx(
+            // Required by focusable-after
+            'focusable-after-trigger',
             // Layout
             'min-h-0 flex-1 overscroll-contain',
             // Overflow based on orientation
