@@ -64,7 +64,7 @@ type Story = StoryObj<typeof meta>;
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
 export const Default: Story = {
   render: () => {
-    const { openDialog, closeDialog } = useDialog();
+    const { openDialog } = useDialog();
 
     const acknowledgeDialog = async () => {
       // Return type is inferred as true | null
@@ -95,7 +95,20 @@ export const Default: Story = {
       console.log('choice result:', result);
     };
 
-    const nestedDialog = async () => {
+    return (
+      <div className="flex h-screen items-center justify-center gap-4 [background-image:linear-gradient(90deg,oklch(var(--surface-1))_20%,transparent_10%)] bg-size-[25px]">
+        <Button onClick={acknowledgeDialog}>Acknowledge Dialog</Button>
+        <Button onClick={choiceDialog}>Choice Dialog</Button>
+      </div>
+    );
+  },
+};
+
+export const NestedDialogs: Story = {
+  render: () => {
+    const { openDialog, closeDialog } = useDialog();
+
+    const handleDelete = async () => {
       const dialogId = 'delete-item-dialog';
 
       // Open a custom dialog that contains the NestedConfirmation component
@@ -125,10 +138,8 @@ export const Default: Story = {
 
     return (
       <div className="flex h-screen items-center justify-center gap-4 [background-image:linear-gradient(90deg,oklch(var(--surface-1))_20%,transparent_10%)] bg-size-[25px]">
-        <Button onClick={acknowledgeDialog}>Acknowledge Dialog</Button>
-        <Button onClick={choiceDialog}>Choice Dialog</Button>
-        <Button onClick={nestedDialog} color="destructive">
-          Nested Dialog (Delete)
+        <Button onClick={handleDelete} color="destructive">
+          Delete Item
         </Button>
       </div>
     );
