@@ -66,11 +66,21 @@ type DialogState = AnyDialog & {
   open: boolean;
 };
 
+export type ConfirmOptions = {
+  onConfirm: () => void | Promise<void>;
+  title?: string;
+  description?: string;
+  confirmLabel: string;
+  cancelLabel?: string;
+  intent?: 'default' | 'destructive';
+};
+
 export type DialogContextType = {
   closeDialog: <T = boolean>(id: string, value: T | null) => Promise<void>;
   openDialog: <D extends AnyDialog>(
     dialogProps: D,
   ) => Promise<DialogReturnType<D>>;
+  confirm: (options: ConfirmOptions) => Promise<void>;
 };
 
 export const DialogContext = createContext<DialogContextType | null>(null);
@@ -101,18 +111,28 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const closeDialog = useCallback(
     async <T = boolean,>(id: string, value: T | null = null) => {
-      const dialog = dialogs.find((dialog) => dialog.id === id);
+      // Use functional update to access current dialogs state
+      // This avoids stale closure issues when closeDialog is captured in children
+      let dialogToResolve: DialogState | undefined;
 
-      if (!dialog) {
+      setDialogs((prevDialogs) => {
+        dialogToResolve = prevDialogs.find((dialog) => dialog.id === id);
+
+        if (!dialogToResolve) {
+          return prevDialogs; // No change if dialog not found
+        }
+
+        // Set open to false to trigger exit animation
+        return prevDialogs.map((d) =>
+          d.id === id ? { ...d, open: false } : d,
+        );
+      });
+
+      if (!dialogToResolve) {
         throw new Error(`Dialog with ID ${id} does not exist`);
       }
 
-      // Set open to false to trigger exit animation
-      setDialogs((prevDialogs) =>
-        prevDialogs.map((d) => (d.id === id ? { ...d, open: false } : d)),
-      );
-
-      dialog.resolveCallback(value);
+      dialogToResolve.resolveCallback(value);
 
       // Wait for the animation to finish before removing from state
       await new Promise((resolve) => setTimeout(resolve, 500));
@@ -121,12 +141,32 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
         prevDialogs.filter((dialog) => dialog.id !== id),
       );
     },
-    [dialogs, setDialogs],
+    [setDialogs],
+  );
+
+  const confirm = useCallback(
+    async (options: ConfirmOptions): Promise<void> => {
+      const result = await openDialog({
+        type: 'choice',
+        title: options.title ?? 'Are you sure?',
+        description: options.description ?? 'This action cannot be undone.',
+        intent: options.intent ?? 'destructive',
+        actions: {
+          primary: { label: options.confirmLabel, value: true },
+          cancel: { label: options.cancelLabel ?? 'Cancel', value: false },
+        },
+      });
+      if (result === true) {
+        await options.onConfirm();
+      }
+    },
+    [openDialog],
   );
 
   const contextValue: DialogContextType = {
     closeDialog,
     openDialog,
+    confirm,
   };
 
   const renderDialogActions = (dialog: DialogState) => {

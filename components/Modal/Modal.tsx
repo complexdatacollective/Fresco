@@ -32,7 +32,7 @@ export default function Modal({
     <BaseDialog.Root open={open} onOpenChange={onOpenChange}>
       <AnimatePresence>
         {open && (
-          <BaseDialog.Portal keepMounted container={document.body}>
+          <BaseDialog.Portal keepMounted>
             <ModalBackdrop />
             {children}
           </BaseDialog.Portal>

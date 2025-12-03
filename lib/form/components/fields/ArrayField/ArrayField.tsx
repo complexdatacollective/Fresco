@@ -4,7 +4,7 @@ import { PlusIcon } from 'lucide-react';
 import { AnimatePresence, LayoutGroup, motion, Reorder } from 'motion/react';
 import { useCallback, useState } from 'react';
 import { MotionButton } from '~/components/ui/Button';
-import { Dialog } from '~/lib/dialogs/Dialog';
+import useDialog from '~/lib/dialogs/useDialog';
 import { type ArrayFieldItemProps, InlineItemRenderer } from './ItemRenderers';
 
 // The base type for items in the array field. Must have an id.
@@ -39,9 +39,9 @@ export function ArrayField<T extends Item = Item>({
   emptyStateMessage = 'No items added yet. Click "Add Item" to get started.',
   confirmDelete = false,
 }: ArrayFieldProps<T>) {
+  const { confirm } = useDialog();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isNewItem, setIsNewItem] = useState(false);
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const addItem = useCallback(
     (item: T) => {
@@ -64,31 +64,23 @@ export function ArrayField<T extends Item = Item>({
       onChange(value.filter((i) => i.id !== id));
       setEditingId(null);
       setIsNewItem(false);
-      setPendingDeleteId(null);
     },
     [value, onChange],
   );
 
   const requestDelete = useCallback(
-    (id: string) => {
+    async (id: string) => {
       if (confirmDelete) {
-        setPendingDeleteId(id);
+        await confirm({
+          confirmLabel: 'Delete',
+          onConfirm: () => removeItem(id),
+        });
       } else {
         removeItem(id);
       }
     },
-    [confirmDelete, removeItem],
+    [confirmDelete, confirm, removeItem],
   );
-
-  const handleConfirmDelete = useCallback(() => {
-    if (pendingDeleteId) {
-      removeItem(pendingDeleteId);
-    }
-  }, [pendingDeleteId, removeItem]);
-
-  const handleCancelDelete = useCallback(() => {
-    setPendingDeleteId(null);
-  }, []);
 
   const handleReorder = useCallback(
     (newOrder: T[]) => {
@@ -173,27 +165,6 @@ export function ArrayField<T extends Item = Item>({
           {addButtonLabel}
         </MotionButton>
       </motion.div>
-      <Dialog
-        open={pendingDeleteId !== null}
-        closeDialog={handleCancelDelete}
-        title="Delete Item"
-        description="Are you sure you want to delete this item? This action cannot be undone."
-        accent="destructive"
-        footer={
-          <>
-            <MotionButton type="button" onClick={handleCancelDelete}>
-              Cancel
-            </MotionButton>
-            <MotionButton
-              type="button"
-              color="primary"
-              onClick={handleConfirmDelete}
-            >
-              Delete
-            </MotionButton>
-          </>
-        }
-      />
     </LayoutGroup>
   );
 }
