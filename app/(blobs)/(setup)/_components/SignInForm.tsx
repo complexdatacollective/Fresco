@@ -7,7 +7,7 @@ import { DialogFooter } from '~/lib/dialogs/Dialog';
 import { Field, Form, SubmitButton } from '~/lib/form';
 import { InputField } from '~/lib/form/components/fields/InputField';
 import PasswordField from '~/lib/form/components/fields/PasswordField';
-import { type FormSubmitHandler } from '~/lib/form/types';
+import { type FormSubmitHandler } from '~/lib/form/components/types';
 import { loginSchema } from '~/schemas/auth';
 
 export const SignInForm = () => {
@@ -46,7 +46,9 @@ export const SignInForm = () => {
         autoComplete="current-password"
       />
       <DialogFooter>
-        <SubmitButton key="submit" />
+        <SubmitButton key="submit" submittingText="Signing in...">
+          Sign In
+        </SubmitButton>
       </DialogFooter>
     </Form>
   );

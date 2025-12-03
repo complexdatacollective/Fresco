@@ -76,8 +76,6 @@
 
     --selected: oklch(var(--white));
 
-    --ring: oklch(var(--white));
-
     --link: var(--barbie-pink);
 
     --outline: currentColor; /* Used for borders */

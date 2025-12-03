@@ -119,8 +119,8 @@ export default plugin.withOptions<PluginConfig>(
           'box-shadow': generateShadow('high'),
         },
         '.publish-colors': {
-          '--published-bg': 'var(--scoped-bg, --background)',
-          '--published-text': 'var(--scoped-text, --text)',
+          '--published-bg': 'var(--scoped-bg, --color-background)',
+          '--published-text': 'var(--scoped-text, currentColor)',
         },
       });
 

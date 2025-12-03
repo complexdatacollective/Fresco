@@ -1,4 +1,4 @@
-import type { StorybookConfig } from '@storybook/nextjs-vite-vite';
+import type { StorybookConfig } from '@storybook/nextjs-vite';
 
 const config: StorybookConfig = {
   addons: [
@@ -8,7 +8,7 @@ const config: StorybookConfig = {
     '@chromatic-com/storybook',
   ],
   framework: {
-    name: '@storybook/nextjs-vite-vite',
+    name: '@storybook/nextjs-vite',
     options: {
       builder: {
         // Customize the Vite builder options here

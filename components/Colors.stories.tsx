@@ -153,7 +153,6 @@ export const SemanticColors: Story = {
             contrastVar="--selected-contrast"
           />
           <ColorSwatch name="Link" cssVar="--link" />
-          <ColorSwatch name="Ring" cssVar="--ring" />
         </div>
       </div>
     </div>

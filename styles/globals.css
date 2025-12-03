@@ -118,8 +118,6 @@
   --color-selected: var(--selected);
   --color-selected-contrast: var(--selected-contrast);
 
-  --ring: var(--ring);
-
   /* UI elements */
   --color-link: var(--link);
 
@@ -412,15 +410,47 @@ This custom variant lets you target only elements with the readonly attribute.
 }
 
 /**
- * focusable-after: applies focus styles via ::after pseudo-element.
- * Use this when the element has overflow:hidden/auto/scroll which would clip
- * a regular outline. The pseudo-element sits on top and shows the focus ring
- * without being affected by overflow.
+ * focusable-after: applies focus styles via ::after pseudo-element on a wrapper.
+ * Apply this to a PARENT element that wraps a scrollable/overflow child.
+ * The child that should trigger focus styles must have the `focusable-after-trigger` class.
+ * The pseudo-element sits on the parent and won't be clipped by child overflow.
  */
 @utility focusable-after {
   @apply relative;
   &::after {
-    @apply focusable pointer-events-none absolute inset-0 outline-transparent content-[''];
+    @apply pointer-events-none absolute inset-0 rounded-[inherit] outline-transparent content-[''];
+  }
+  &:has(.focusable-after-trigger:focus-visible)::after {
+    @apply focus-styles;
+  }
+}
+
+@utility focusable-after-trigger {
+  @apply outline-none;
+}
+
+/**
+ * Gradient scroll fade for ScrollArea viewport.
+ * Uses CSS variables from Base UI ScrollArea to create fade effects at scroll edges.
+ */
+@utility scroll-area-viewport {
+  --fade-height: max(2.5rem, 10%);
+  &::before,
+  &::after {
+    @apply pointer-events-none absolute left-0 block w-full rounded-sm transition-[height] duration-100 ease-out content-[''];
+  }
+  &::before {
+    --scroll-area-overflow-y-start: inherit;
+    @apply top-0 z-1 bg-linear-to-b from-(--published-bg,var(--background)) to-transparent;
+    height: min(var(--fade-height), var(--scroll-area-overflow-y-start));
+  }
+  &::after {
+    --scroll-area-overflow-y-end: inherit;
+    @apply bottom-0 bg-linear-to-t from-(--published-bg,var(--background)) to-transparent;
+    height: min(
+      var(--fade-height),
+      var(--scroll-area-overflow-y-end, var(--fade-height))
+    );
   }
 }
 
