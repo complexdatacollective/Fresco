@@ -14,12 +14,12 @@ export type BaseDialog = {
   children?: React.ReactNode;
 };
 
-export type AcknowledgeDialog<T = boolean> = BaseDialog & {
+export type AcknowledgeDialog = BaseDialog & {
   type: 'acknowledge';
   actions: {
     primary: {
       label: string;
-      value: T;
+      value: true;
     };
   };
 };
@@ -49,15 +49,14 @@ export type CustomDialog = BaseDialog & {
 };
 
 // Helper type to extract return type from a dialog
-export type DialogReturnType<D> =
-  D extends AcknowledgeDialog<infer T>
-    ? T | null
-    : D extends ChoiceDialog<infer P, infer S, infer C>
-      ? P | S | C | null
-      : unknown;
+export type DialogReturnType<D> = D extends AcknowledgeDialog
+  ? true | null
+  : D extends ChoiceDialog<infer P, infer S, infer C>
+    ? P | S | C | null
+    : unknown;
 
 export type AnyDialog =
-  | AcknowledgeDialog<unknown>
+  | AcknowledgeDialog
   | ChoiceDialog<unknown, unknown, unknown>
   | CustomDialog;
 
