@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useId, useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import { useFormStore } from '../store/formStoreProvider';
 import type {
   ChangeHandler,
   FieldState,
   FieldValidation,
   FieldValue,
-} from '../types';
+} from '../components/types';
+import { useFormStore } from '../store/formStoreProvider';
 
 /**
  * Helper function to determine if a field should show an error message.

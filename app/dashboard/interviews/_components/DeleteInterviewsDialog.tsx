@@ -4,7 +4,6 @@ import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 import { deleteInterviews } from '~/actions/interviews';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
-import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
 
 type DeleteInterviewsDialog = {
   open: boolean;
@@ -39,7 +38,7 @@ export const DeleteInterviewsDialog = ({
   };
 
   return (
-    <ControlledDialog
+    <Dialog
       accent="danger"
       open={open}
       closeDialog={handleCancelDialog}
@@ -97,6 +96,6 @@ export const DeleteInterviewsDialog = ({
           </AlertDescription>
         </Alert>
       )}
-    </ControlledDialog>
+    </Dialog>
   );
 };

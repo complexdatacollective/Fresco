@@ -2,7 +2,11 @@ import { Dialog } from '@base-ui-components/react/dialog';
 import { cx } from 'cva';
 import { motion } from 'motion/react';
 
-export function DialogBackdrop(props: Dialog.Backdrop.Props) {
+/**
+ * A simple backdrop component for modals and dialogs using Base-UI's Dialog
+ * system. Fades in and out using motion.
+ */
+export function ModalBackdrop(props: Dialog.Backdrop.Props) {
   return (
     <Dialog.Backdrop
       render={
@@ -12,14 +16,13 @@ export function DialogBackdrop(props: Dialog.Backdrop.Props) {
           }}
           animate={{
             opacity: 1,
-            transition: { delay: 0.1, duration: 0.5 },
+            transition: { delay: 0.2, duration: 0.5 },
           }}
           exit={{ opacity: 0 }}
           className={cx(
             'fixed inset-0',
             'flex items-center justify-center',
-            'bg-overlay backdrop-blur-xs',
-            '[--published-bg:var(--color-platinum-dark)]',
+            'bg-overlay publish-colors backdrop-blur-xs',
           )}
         />
       }

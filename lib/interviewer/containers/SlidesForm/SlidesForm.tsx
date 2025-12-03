@@ -8,11 +8,10 @@ import { flushSync } from 'react-dom';
 import Surface from '~/components/layout/Surface';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
-import { useDialog } from '~/lib/dialogs/DialogProvider';
+import useDialog from '~/lib/dialogs/useDialog';
 import { useFormState } from '~/lib/form';
 import ProgressBar from '~/lib/ui/components/ProgressBar';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
-import { useAppDispatch } from '../../store';
 import { type BeforeNextFunction, type Direction } from '../ProtocolScreen';
 import { type StageProps } from '../Stage';
 
@@ -54,7 +53,6 @@ function SlidesForm({
 }: SlidesFormProps) {
   const { moveForward } = getNavigationHelpers();
 
-  const dispatch = useAppDispatch();
   const { openDialog } = useDialog();
 
   const { submitForm, isValid, isDirty } = useFormState();

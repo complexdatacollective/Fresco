@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Checkbox } from './Checkbox';
 
 const meta = {
-  title: 'components/fields/Checkbox',
+  title: 'Systems/Form/Fields/Checkbox',
   component: Checkbox,
   parameters: {
     layout: 'centered',

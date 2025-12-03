@@ -1,7 +1,7 @@
 import { AnimatePresence } from 'motion/react';
 import { type ReactNode, useMemo } from 'react';
 import { useFormValue } from '../hooks/useFormValue';
-import { type FieldValue } from '../types';
+import { type FieldValue } from './types';
 
 function useFieldGroupCondition<const T extends readonly string[]>(
   watch: T,

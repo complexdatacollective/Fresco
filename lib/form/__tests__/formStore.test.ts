@@ -1,7 +1,7 @@
 import { beforeEach, it, vi } from 'vitest';
 import { z } from 'zod';
 import { createFormStore } from '../store/formStore';
-import type { FieldConfig, FormConfig } from '../types';
+import type { FieldConfig, FormConfig } from '../types/types';
 
 // Mock the validation utility
 vi.mock('../utils/validation', () => ({

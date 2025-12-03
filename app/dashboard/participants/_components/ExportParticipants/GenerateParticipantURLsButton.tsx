@@ -5,7 +5,6 @@ import type { ParticipantWithInterviews } from '~/app/dashboard/_components/Part
 import type { ProtocolWithInterviews } from '~/app/dashboard/_components/ProtocolsTable/ProtocolsTableClient';
 import { Button } from '~/components/ui/Button';
 import FancyBox from '~/components/ui/FancyBox';
-import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
 import { SelectField } from '~/lib/form/components/fields/Select';
 import ExportCSVParticipantURLs from './ExportCSVParticipantURLs';
 
@@ -45,7 +44,7 @@ export const GenerateParticipantURLs = ({
       >
         Export Participation URLs
       </Button>
-      <ControlledDialog
+      <Dialog
         open={open}
         closeDialog={handleOpenChange}
         title="Generate Participation URLs"
@@ -94,7 +93,7 @@ export const GenerateParticipantURLs = ({
             onValueChange={setSelectedParticipants}
           />
         </div>
-      </ControlledDialog>
+      </Dialog>
     </>
   );
 };

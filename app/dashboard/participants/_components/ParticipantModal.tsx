@@ -10,7 +10,6 @@ import ActionError from '~/components/ActionError';
 import InfoTooltip from '~/components/InfoTooltip';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
-import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
 import { Field, Form, SubmitButton } from '~/lib/form';
 import { InputField } from '~/lib/form/components/fields/InputField';
 import { useFormStore } from '~/lib/form/store/formStoreProvider';
@@ -87,7 +86,7 @@ function ParticipantModal({
     : undefined;
 
   return (
-    <ControlledDialog
+    <Dialog
       open={open}
       closeDialog={() => handleOpenChange(false)}
       title={editingParticipant ? 'Edit Participant' : 'Add Participant'}
@@ -132,7 +131,7 @@ function ParticipantModal({
           initialValue={initialValues?.label}
         />
       </Form>
-    </ControlledDialog>
+    </Dialog>
   );
 }
 

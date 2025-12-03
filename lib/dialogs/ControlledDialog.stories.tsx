@@ -1,10 +1,10 @@
 import { type Meta, type StoryObj } from '@storybook/nextjs-vite';
 import Paragraph from '~/components/typography/Paragraph';
-import { ControlledDialog } from './ControlledDialog';
+import { Dialog } from './Dialog';
 
-const meta: Meta<typeof ControlledDialog> = {
-  title: 'Systems/Dialogs/ControlledDialog',
-  component: ControlledDialog,
+const meta: Meta<typeof Dialog> = {
+  title: 'Systems/Dialogs/Controlled',
+  component: Dialog,
   argTypes: {
     open: {
       control: 'boolean',
@@ -26,7 +26,7 @@ const meta: Meta<typeof ControlledDialog> = {
 
 export default meta;
 
-type Story = StoryObj<typeof ControlledDialog>;
+type Story = StoryObj<typeof Dialog>;
 
 export const Default: Story = {
   args: {
@@ -39,7 +39,7 @@ export const Default: Story = {
       <Paragraph>
         Use the story controls to control the open state of the dialog.
       </Paragraph>
-      <ControlledDialog {...args} />
+      <Dialog {...args} />
     </div>
   ),
 };

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { CheckboxGroupField } from './CheckboxGroup';
 
 const meta = {
-  title: 'Components/Fields/CheckboxGroup',
+  title: 'Systems/Form/Fields/CheckboxGroup',
   component: CheckboxGroupField,
   parameters: {
     layout: 'padded',

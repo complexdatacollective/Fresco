@@ -49,14 +49,14 @@ export const ChoiceDialog: Story = {
   },
 };
 
-export const DangerDialog: Story = {
+export const DestructiveDialog: Story = {
   args: {
     dialog: {
       type: 'choice',
       title: 'Delete Item',
       description:
         'This action cannot be undone. Are you sure you want to delete this item?',
-      intent: 'danger',
+      intent: 'destructive',
       actions: {
         primary: { label: 'Delete', value: true },
         cancel: { label: 'Cancel', value: false },

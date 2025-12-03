@@ -1,11 +1,18 @@
 import { Loader2 } from 'lucide-react';
-import { type ComponentProps } from 'react';
+import React, { type ComponentProps } from 'react';
 import { MotionButton } from '~/components/ui/Button';
 import { useFormStore } from '../store/formStoreProvider';
 
-export default function SubmitButton(
-  props: ComponentProps<typeof MotionButton>,
-) {
+type SubmitButtonProps = ComponentProps<typeof MotionButton> & {
+  submittingText?: React.ReactNode;
+  children: React.ReactNode;
+};
+
+export default function SubmitButton({
+  children,
+  submittingText = 'Submitting...',
+  ...props
+}: SubmitButtonProps) {
   const isSubmitting = useFormStore((state) => state.isSubmitting);
   const isValid = useFormStore((state) => state.isValid);
 
@@ -18,7 +25,7 @@ export default function SubmitButton(
       {...props}
     >
       {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-      {isSubmitting ? 'Submitting...' : 'Submit'}
+      {isSubmitting ? submittingText : children}
     </MotionButton>
   );
 }

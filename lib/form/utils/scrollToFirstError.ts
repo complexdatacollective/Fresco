@@ -1,5 +1,5 @@
 import { scrollParent } from '~/lib/interviewer/utils/scrollParent';
-import type { FlattenedErrors } from '../types';
+import type { FlattenedErrors } from '../components/types';
 
 export const scrollToFirstError = (errors: FlattenedErrors | null) => {
   // Todo: first item is an assumption that may not be valid. Should iterate and check

@@ -2,7 +2,6 @@ import { Loader2, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
-import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
 
 type DeleteParticipantsDialog = {
   open: boolean;
@@ -74,7 +73,7 @@ export const DeleteParticipantsDialog = ({
   }, [haveInterviews, haveUnexportedInterviews, participantCount]);
 
   return (
-    <ControlledDialog
+    <Dialog
       accent="danger"
       open={open}
       closeDialog={onCancel}
@@ -108,6 +107,6 @@ export const DeleteParticipantsDialog = ({
       }
     >
       {dialogContent}
-    </ControlledDialog>
+    </Dialog>
   );
 };

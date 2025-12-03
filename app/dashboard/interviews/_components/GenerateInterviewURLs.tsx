@@ -5,7 +5,6 @@ import { use, useEffect, useState } from 'react';
 import superjson from 'superjson';
 import { Button } from '~/components/ui/Button';
 import { Skeleton } from '~/components/ui/skeleton';
-import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
 import { SelectField } from '~/lib/form/components/fields/Select';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import type {
@@ -59,7 +58,7 @@ export const GenerateInterviewURLs = ({
       >
         Export Incomplete Interview URLs
       </Button>
-      <ControlledDialog
+      <Dialog
         open={open}
         closeDialog={handleOpenChange}
         title="Generate URLs for Incomplete Interviews"
@@ -95,7 +94,7 @@ export const GenerateInterviewURLs = ({
             />
           )}
         </div>
-      </ControlledDialog>
+      </Dialog>
     </>
   );
 };

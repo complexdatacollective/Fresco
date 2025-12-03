@@ -13,7 +13,6 @@ import { useSelector } from 'react-redux';
 import z from 'zod';
 import ActionButton from '~/components/interview/ActionButton';
 import Button from '~/components/ui/Button';
-import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
 import { Form, type FormSubmitHandler } from '~/lib/form';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
@@ -128,7 +127,7 @@ const NodeForm = (props: NodeFormProps) => {
           />
         </motion.div>
       </AnimatePresence>
-      <ControlledDialog
+      <Dialog
         open={show}
         title={form.title}
         closeDialog={handleClose}
@@ -147,7 +146,7 @@ const NodeForm = (props: NodeFormProps) => {
         <Form id="node-form" onSubmit={handleSubmit} className="w-full">
           {fieldComponents}
         </Form>
-      </ControlledDialog>
+      </Dialog>
     </>
   );
 };

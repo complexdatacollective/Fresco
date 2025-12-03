@@ -15,7 +15,7 @@ import { Skeleton } from './skeleton';
 const buttonSpecificVariants = cva({
   base: cx(
     'inline-flex shrink-0 cursor-pointer font-semibold tracking-wide',
-    'justify-center',
+    'items-center justify-center',
     'disabled:cursor-not-allowed disabled:opacity-50',
     'focusable',
     'elevation-low',
@@ -222,13 +222,8 @@ const MotionButtonBase = motion.create(Button);
 
 type MotionButtonProps = React.ComponentProps<typeof MotionButtonBase>;
 
-const motionButtonStyle: React.CSSProperties = {
-  transitionProperty:
-    'background-color, border-color, color, box-shadow, opacity',
-};
-
 const MotionButton = React.forwardRef<HTMLButtonElement, MotionButtonProps>(
-  ({ whileHover, whileTap, disabled, style, ...props }, ref) => {
+  ({ whileHover, whileTap, disabled, ...props }, ref) => {
     const hoverVariant = disabled
       ? undefined
       : { y: -2, ...(whileHover as object) };
@@ -240,7 +235,6 @@ const MotionButton = React.forwardRef<HTMLButtonElement, MotionButtonProps>(
         disabled={disabled}
         whileHover={hoverVariant}
         whileTap={tapVariant}
-        style={{ ...motionButtonStyle, ...style }}
         {...props}
       />
     );

@@ -1,5 +1,6 @@
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
 import react from '@vitejs/plugin-react';
+import { playwright } from '@vitest/browser-playwright';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import tsconfigPaths from 'vite-tsconfig-paths';
@@ -26,12 +27,12 @@ export default defineConfig({
           ],
           name: 'units',
         },
-        resolve: {
-          alias: {
-            // Reference the internal react package shipped in next.js
-            react: 'next/dist/compiled/react/cjs/react.development.js',
-          },
-        },
+        // resolve: {
+        //   alias: {
+        //     // Reference the internal react package shipped in next.js
+        //     react: 'next/dist/compiled/react/cjs/react.development.js',
+        //   },
+        // },
       },
       {
         extends: true,
@@ -43,7 +44,7 @@ export default defineConfig({
         test: {
           name: 'storybook',
           browser: {
-            provider: 'playwright',
+            provider: playwright(),
             enabled: true,
             instances: [{ browser: 'chromium' }],
           },

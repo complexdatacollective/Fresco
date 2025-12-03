@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { RelativeDatePickerField } from './RelativeDatePicker';
 
 const meta: Meta<typeof RelativeDatePickerField> = {
-  title: 'Components/Fields/RelativeDatePickerField',
+  title: 'Systems/Form/Fields/RelativeDatePickerField',
   component: RelativeDatePickerField,
   parameters: {
     layout: 'centered',

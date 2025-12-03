@@ -1,5 +1,9 @@
 import { type z } from 'zod';
-import type { FieldValidation, FieldValue, ValidationResult } from '../types';
+import type {
+  FieldValidation,
+  FieldValue,
+  ValidationResult,
+} from '../components/types';
 
 export async function validateFieldValue<T extends z.ZodTypeAny>(
   value: unknown,
@@ -11,6 +15,5 @@ export async function validateFieldValue<T extends z.ZodTypeAny>(
       ? await validation(formValues)
       : validation;
 
-  console.log('schema', schema, value);
   return (await schema.safeParseAsync(value)) as ValidationResult<T>;
 }

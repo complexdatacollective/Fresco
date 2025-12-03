@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { TextAreaField } from './TextArea';
 
 const meta: Meta<typeof TextAreaField> = {
-  title: 'Components/Fields/TextAreaField',
+  title: 'Systems/Form/Fields/TextAreaField',
   component: TextAreaField,
   parameters: {
     layout: 'centered',

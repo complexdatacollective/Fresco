@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { BooleanField } from './Boolean';
 
 const meta: Meta<typeof BooleanField> = {
-  title: 'Components/Fields/BooleanField',
+  title: 'Systems/Form/Fields/BooleanField',
   component: BooleanField,
   parameters: {
     layout: 'centered',

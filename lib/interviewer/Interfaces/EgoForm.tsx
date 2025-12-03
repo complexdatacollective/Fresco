@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { isDirty, isValid, submit } from 'redux-form';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
-import { useDialog } from '~/lib/dialogs/DialogProvider';
+import useDialog from '~/lib/dialogs/useDialog';
 import { Form } from '~/lib/form';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import Icon from '~/lib/ui/components/Icon';

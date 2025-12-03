@@ -8,7 +8,7 @@ import type {
   FlattenedErrors,
   FormConfig,
   FormSubmitHandler,
-} from '../types';
+} from '../components/types';
 import { setValue } from '../utils/objectPath';
 import { validateFieldValue } from '../utils/validation';
 

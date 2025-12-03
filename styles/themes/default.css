@@ -8,7 +8,9 @@
   :root {
     --heading-font: 'Quicksand', sans-serif;
     --body-font: 'Inclusive Sans', sans-serif;
-    --spacing-base: 0.25em; /* TW default uses rem */
+
+    /* TW default uses rem, we use em so that spacing scales with local font size */
+    --spacing-base: 0.25em;
 
     /* Used for relative color values */
     --base-hue: 280;

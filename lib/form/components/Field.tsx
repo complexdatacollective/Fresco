@@ -2,27 +2,44 @@
 
 import { LayoutGroup, motion } from 'motion/react';
 import { useField } from '../hooks/useField';
-import { type BaseFieldComponentProps, type FieldValidation } from '../types';
 import FieldErrors from './FieldErrors';
 import { FieldLabel } from './FieldLabel';
 import Hint from './Hint';
+import { type FieldValidation, type FieldValue } from './types';
 
 /**
- * Extract the value type from a component's props
+ * Structural type for field component props.
+ * Components must accept these props to be used with Field.
  */
-type ExtractValue<C> =
-  C extends React.ComponentType<infer P>
-    ? P extends { value?: infer V }
-      ? NonNullable<V>
-      : P extends { value: infer V }
-        ? V
-        : never
+type FieldComponentProps = {
+  id: string;
+  name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onChange: (value: any) => void;
+};
+
+/**
+ * Extract the value type from a component's props.
+ * Works with both function components and generic components.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ExtractProps<C> = C extends (props: infer P) => any
+  ? P
+  : C extends React.ComponentType<infer P>
+    ? P
     : never;
 
+type ExtractValue<C> =
+  ExtractProps<C> extends { value?: infer V }
+    ? NonNullable<V>
+    : ExtractProps<C> extends { value: infer V }
+      ? V
+      : never;
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type FieldOwnProps<
-  C extends React.ComponentType<BaseFieldComponentProps<any>>,
-> = {
+type FieldOwnProps<C extends React.ComponentType<any>> = {
   name: string;
   label: string;
   hint?: string;
@@ -33,15 +50,11 @@ type FieldOwnProps<
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type FieldProps<C extends React.ComponentType<BaseFieldComponentProps<any>>> =
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  FieldOwnProps<C> &
-    Omit<React.ComponentProps<C>, keyof BaseFieldComponentProps<any>>;
+type FieldProps<C extends React.ComponentType<any>> = FieldOwnProps<C> &
+  Omit<ExtractProps<C>, keyof FieldComponentProps>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function Field<
-  C extends React.ComponentType<BaseFieldComponentProps<any>>,
->({
+export default function Field<C extends React.ComponentType<any>>({
   name,
   label,
   hint,
@@ -53,7 +66,7 @@ export default function Field<
 }: FieldProps<C>) {
   const { id, containerProps, fieldProps, meta } = useField({
     name,
-    initialValue,
+    initialValue: initialValue as FieldValue | undefined,
     required,
     validation,
   });

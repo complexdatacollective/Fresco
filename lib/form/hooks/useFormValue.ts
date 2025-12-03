@@ -1,6 +1,6 @@
 import { useShallow } from 'zustand/react/shallow';
+import { type FieldValue } from '../components/types';
 import { useFormStore } from '../store/formStoreProvider';
-import { type FieldValue } from '../types';
 
 /**
  * Hook to get form field values by field names

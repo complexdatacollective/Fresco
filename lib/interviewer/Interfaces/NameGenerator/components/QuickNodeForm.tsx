@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux';
 
 import { z } from 'zod';
 import { Form } from '~/lib/form';
-import { type FormSubmitHandler } from '~/lib/form/types';
+import { type FormSubmitHandler } from '~/lib/form/types/types';
 import { getAdditionalAttributesSelector } from '../../../selectors/prop';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from '../../utils/constants';
 import QuickAddField from './QuickAddField';

@@ -1,6 +1,6 @@
 import { invariant } from 'es-toolkit';
 import z from 'zod';
-import { type FieldValue, type ValidationContext } from '../types';
+import { type FieldValue, type ValidationContext } from '../components/types';
 import compareVariables from './compareVariables';
 import collectNetworkValues from './utils/collectNetworkValues';
 import { getVariableDefinition } from './utils/getVariableDefinition';

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ToggleField } from './ToggleField';
 
 const meta: Meta<typeof ToggleField> = {
-  title: 'Components/Fields/ToggleField',
+  title: 'Systems/Form/Fields/ToggleField',
   component: ToggleField,
   parameters: {
     layout: 'centered',

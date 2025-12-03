@@ -1,4 +1,4 @@
-import { Dialog } from '@base-ui-components/react/dialog';
+import { type Stage } from '@codaco/protocol-validation';
 import { GripVertical, PencilIcon, X } from 'lucide-react';
 import {
   AnimatePresence,
@@ -8,31 +8,31 @@ import {
 } from 'motion/react';
 import { type ComponentProps, useId } from 'react';
 import z from 'zod';
-import CloseButton from '~/components/CloseButton';
 import { surfaceVariants } from '~/components/layout/Surface';
-import Modal from '~/components/Modal';
 import { IconButton, MotionButton } from '~/components/ui/Button';
-import ModalPopup from '~/lib/dialogs/ModalPopup';
+import { Dialog } from '~/lib/dialogs/Dialog';
+import { DialogPopupAnimation } from '~/lib/dialogs/DialogPopup';
 import { cx } from '~/utils/cva';
 import Field from '../../Field';
 import Form from '../../Form';
 import SubmitButton from '../../SubmitButton';
-import { type Item } from '../ArrayField';
 import { InputField } from '../InputField';
+import { type Item } from './ArrayField';
 
 export function SimplePreview({
   isSortable,
-  onDragStart,
+  onDragHandlePointerDown,
   onClickEdit,
   onClickDelete,
   children,
   className,
   ...props
-}: ComponentProps<typeof motion.div> & {
+}: Omit<ComponentProps<typeof motion.div>, 'children'> & {
   isSortable?: boolean;
-  onDragStart?: (event: React.PointerEvent) => void;
+  onDragHandlePointerDown?: ComponentProps<typeof motion.div>['onPointerDown'];
   onClickEdit?: () => void;
   onClickDelete?: () => void;
+  children?: React.ReactNode;
 }) {
   return (
     <motion.div
@@ -46,7 +46,7 @@ export function SimplePreview({
       {isSortable && (
         <motion.div
           layout="position"
-          onPointerDown={onDragStart}
+          onPointerDown={onDragHandlePointerDown}
           className="touch-none"
         >
           <GripVertical className="h-4 w-4 cursor-grab" />
@@ -79,15 +79,16 @@ export function SimplePreview({
   );
 }
 
-export type ArrayFieldItemProps = {
-  onChange: (value: Item) => void;
+export type ArrayFieldItemProps<T extends Item = Item> = {
+  onChange: (value: T) => void;
   onCancel: () => void;
   onDelete: () => void;
   onEdit: () => void;
-  value: Item;
+  value: T;
   isEditing: boolean;
-  isNewItem?: boolean;
-  isSortable?: boolean;
+  isNewItem: boolean;
+  isSortable: boolean;
+  className?: string;
 };
 
 /**
@@ -97,13 +98,23 @@ export type ArrayFieldItemProps = {
  * conditional rendering.
  */
 
-export function SimpleItem(
-  props: ArrayFieldItemProps & {
-    confirmDelete?: boolean;
-  },
+export function InlineItemRenderer(
+  props: ArrayFieldItemProps<{
+    id: string;
+    label: string;
+  }>,
 ) {
-  const { onChange, onCancel, onDelete, onEdit, isEditing, value, isSortable } =
-    props;
+  const {
+    onChange,
+    onCancel,
+    onDelete,
+    onEdit,
+    isEditing,
+    value,
+    isSortable,
+    isNewItem,
+    className,
+  } = props;
 
   const controls = useDragControls();
 
@@ -115,18 +126,24 @@ export function SimpleItem(
       layout
       className={cx(
         surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
-        'flex w-full items-center gap-2 border select-none',
+        'flex w-full items-center gap-2 rounded-none border select-none',
+        className,
       )}
+      style={{ borderRadius: 'var(--radius)' }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, scale: 0.6 }}
     >
       <AnimatePresence mode="wait">
         {isEditing ? (
           <motion.div
             key={`editor-${value.id}`}
             layout
-            className="flex items-center gap-4"
+            className="flex w-full items-center gap-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.1 }}
           >
             <InputField
               autoFocus
@@ -139,9 +156,18 @@ export function SimpleItem(
                 })
               }
             />
-            <MotionButton type="button" onClick={onCancel}>
+            <MotionButton type="button" color="primary" onClick={onCancel}>
               Done
             </MotionButton>
+            {isNewItem && (
+              <MotionButton
+                type="button"
+                color="destructive"
+                onClick={onDelete}
+              >
+                Cancel
+              </MotionButton>
+            )}
           </motion.div>
         ) : (
           <SimplePreview
@@ -149,7 +175,8 @@ export function SimpleItem(
             isSortable={isSortable}
             onClickEdit={onEdit}
             onClickDelete={onDelete}
-            onDragStart={(e) => controls.start(e)}
+            onDragHandlePointerDown={(e) => controls.start(e)}
+            transition={{ duration: 0.1 }}
           >
             {value.label}
           </SimplePreview>
@@ -165,7 +192,15 @@ export function SimpleItem(
  * It uses layoutId to transition between view and edit modes. Edit mode is
  * a modal dialog.
  */
-export function PromptItem(props: ArrayFieldItemProps) {
+
+type NameGeneratorPrompt = Extract<
+  Stage,
+  { type: 'NameGenerator' }
+>['prompts'][number];
+
+export function SociogramPromptItemRenderer(
+  props: ArrayFieldItemProps<NameGeneratorPrompt>,
+) {
   const id = useId();
   const {
     onChange,
@@ -180,102 +215,51 @@ export function PromptItem(props: ArrayFieldItemProps) {
 
   const controls = useDragControls();
 
-  const handleSubmit = (data: Record<string, any>) => {
+  const handleSubmit = (data: unknown) => {
     onChange({
       ...value,
-      ...data,
+      ...(data as Record<string, unknown>),
     });
+    return { success: true as const };
   };
-
-  console.log('Rendering PromptItem', { isEditing, value });
 
   return (
     <>
-      <Modal open={isEditing} onOpenChange={onCancel}>
-        <ModalPopup
-          key="dialog-editor"
-          layoutId={id}
-          className={cx(
-            surfaceVariants({ level: 0, spacing: 'md', elevation: 'high' }),
-            'w-[calc(100%-var(--spacing)*4)] max-w-2xl @2xl:w-auto @2xl:min-w-xl',
-            'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
-            'flex max-h-[calc(100vh-var(--spacing)*4)]',
-            'flex flex-col',
-            'rounded-none',
-          )}
-          style={{ borderRadius: 'var(--radius)' }}
-        >
-          <Dialog.Title
-            render={(props) => (
-              <div className="mb-4 flex items-center justify-between gap-4">
-                <h2 {...props} className="text-lg font-semibold">
-                  {isNewItem ? 'Edit Contact' : 'Add New Contact'}
-                </h2>
-                <Dialog.Close render={<CloseButton />} />
-              </div>
-            )}
-          />
-          <div className="-mx-8 overflow-y-auto px-8 pb-2">
-            <Dialog.Description
-              render={(props) => (
-                <p {...props} className="mb-4 text-current/70">
-                  {isEditing
-                    ? 'Update the contact details below'
-                    : 'Fill in the contact details'}
-                </p>
-              )}
-            />
-            <Form
-              id="contact-form"
-              onSubmit={handleSubmit}
-              className="w-full max-w-full gap-4"
-            >
-              <Field
-                name="label"
-                label="Name"
-                component={InputField}
-                initialValue={value?.label ?? ''}
-                placeholder="John Doe"
-                required
-                validation={z.string().min(1, 'Name is required')}
-              />
-              <Field
-                name="email"
-                label="Email"
-                component={InputField}
-                type="email"
-                initialValue={value?.email ?? ''}
-                placeholder="john@example.com"
-                required
-                validation={z.email()}
-              />
-              <Field
-                name="phone"
-                label="Phone"
-                component={InputField}
-                type="tel"
-                initialValue={value?.phone ?? ''}
-                placeholder="+1 (555) 123-4567"
-              />
-              <Field
-                name="notes"
-                label="Notes"
-                component={InputField}
-                initialValue={value?.notes ?? ''}
-                placeholder="Any additional notes..."
-              />
-            </Form>
-          </div>
-          <footer className="tablet:flex-row mt-4 flex flex-col justify-end gap-4">
+      <Dialog
+        title={isNewItem ? 'Edit Prompt' : 'Add New Prompt'}
+        description={
+          isNewItem ? 'Update this prompt below' : 'Fill in the prompt details'
+        }
+        open={isEditing}
+        closeDialog={onCancel}
+        {...(isNewItem ? { ...DialogPopupAnimation } : { layoutId: id })}
+        footer={
+          <>
             <MotionButton type="button" onClick={onCancel}>
               Cancel
             </MotionButton>
             <SubmitButton form="contact-form" color="primary">
               {isEditing ? 'Save Changes' : 'Add Contact'}
             </SubmitButton>
-          </footer>
-        </ModalPopup>
-      </Modal>
+          </>
+        }
+      >
+        <Form
+          id="contact-form"
+          onSubmit={handleSubmit}
+          className="w-full max-w-full gap-4"
+        >
+          <Field
+            name="text"
+            label="Prompt Text"
+            hint="The prompt text instructs your participant about the task on this screen."
+            component={InputField}
+            initialValue={value?.text ?? ''}
+            required
+            validation={z.string().min(1, 'Prompt text is required')}
+          />
+        </Form>
+      </Dialog>
       <Reorder.Item
         layoutId={id}
         value={value}
@@ -284,16 +268,17 @@ export function PromptItem(props: ArrayFieldItemProps) {
         layout
         className={cx(
           surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
-          'flex w-full items-center gap-2 border select-none',
+          'flex w-full items-center gap-2 rounded-none border select-none',
         )}
+        style={{ borderRadius: 'var(--radius)' }}
       >
         <SimplePreview
           isSortable={isSortable}
           onClickEdit={onEdit}
           onClickDelete={onDelete}
-          onDragStart={(e) => controls.start(e)}
+          onDragHandlePointerDown={(e) => controls.start(e)}
         >
-          {value.label}
+          {value.text}
         </SimplePreview>
       </Reorder.Item>
     </>

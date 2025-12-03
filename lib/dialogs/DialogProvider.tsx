@@ -1,66 +1,80 @@
 'use client';
 
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, { createContext, useCallback, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Button } from '~/components/ui/Button';
 import { generatePublicId } from '~/utils/generatePublicId';
 import { Dialog } from './Dialog';
 
-type DialogActions<P = unknown, S = unknown, C = unknown> = {
-  primary: {
-    label: string;
-    value: P;
-  };
-  secondary?: {
-    label: string;
-    value: S;
-  };
-  cancel: {
-    label: string;
-    value: C;
-  };
-};
-
-type BaseDialog = {
+export type BaseDialog = {
   id?: string;
   title: string;
   description: string;
-  intent?: 'default' | 'danger' | 'success' | 'info';
+  intent?: 'default' | 'destructive' | 'success' | 'info';
   children?: React.ReactNode;
 };
 
-type AcknowledgeDialog = BaseDialog & {
+export type AcknowledgeDialog<T = boolean> = BaseDialog & {
   type: 'acknowledge';
-  actions: Omit<DialogActions<boolean>, 'secondary' | 'cancel'>;
+  actions: {
+    primary: {
+      label: string;
+      value: T;
+    };
+  };
 };
 
 // Make a choice - no is a valid option
-type ChoiceDialog<P = unknown, S = unknown, C = null> = BaseDialog & {
+export type ChoiceDialog<P = unknown, S = unknown, C = null> = BaseDialog & {
   type: 'choice';
-  intent: 'default' | 'danger' | 'success' | 'info';
-  actions: DialogActions<P, S, C>;
+  intent: 'default' | 'destructive' | 'success' | 'info';
+  actions: {
+    primary: {
+      label: string;
+      value: P;
+    };
+    secondary?: {
+      label: string;
+      value: S;
+    };
+    cancel: {
+      label: string;
+      value: C;
+    };
+  };
 };
 
-type CustomDialog = BaseDialog & {
+export type CustomDialog = BaseDialog & {
   type: 'custom';
 };
 
-type Dialog<P, S, C> = AcknowledgeDialog | ChoiceDialog<P, S, C> | CustomDialog;
+// Helper type to extract return type from a dialog
+export type DialogReturnType<D> =
+  D extends AcknowledgeDialog<infer T>
+    ? T | null
+    : D extends ChoiceDialog<infer P, infer S, infer C>
+      ? P | S | C | null
+      : unknown;
 
-type DialogState = Dialog<unknown, unknown, unknown> & {
+export type AnyDialog =
+  | AcknowledgeDialog<unknown>
+  | ChoiceDialog<unknown, unknown, unknown>
+  | CustomDialog;
+
+type DialogState = AnyDialog & {
   id: string;
   resolveCallback: (value: unknown) => void;
   open: boolean;
 };
 
-type DialogContextType = {
+export type DialogContextType = {
   closeDialog: <T = boolean>(id: string, value: T | null) => Promise<void>;
-  openDialog: <P = unknown, S = unknown, C = unknown>(
-    dialogProps: Dialog<P, S, C>,
-  ) => Promise<T | null>;
+  openDialog: <D extends AnyDialog>(
+    dialogProps: D,
+  ) => Promise<DialogReturnType<D>>;
 };
 
-const DialogContext = createContext<DialogContextType | null>(null);
+export const DialogContext = createContext<DialogContextType | null>(null);
 
 const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -68,9 +82,7 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
   const [dialogs, setDialogs] = useState<DialogState[]>([]);
 
   const openDialog = useCallback(
-    async <P = unknown, S = unknown, C = unknown>(
-      dialogProps: Dialog<P, S, C>,
-    ): Promise<T | null> => {
+    <D extends AnyDialog>(dialogProps: D): Promise<DialogReturnType<D>> => {
       return new Promise((resolveCallback) => {
         flushSync(() =>
           setDialogs((prevDialogs) => [
@@ -131,14 +143,12 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     if (dialog.type === 'choice') {
-      // Calculate which button should be autofocused based on the dialog intent
+      // Calculate which button should be auto-focused based on the dialog intent
       // Aim: least destructive action
-      // If danger, focus cancel
+      // If destructive, focus cancel
       // Otherwise, focus primary
-      let autoFocusButton: 'primary' | 'secondary' | 'cancel' = 'primary';
-      if (dialog.intent === 'danger') {
-        autoFocusButton = 'cancel';
-      }
+      const autoFocusButton: 'primary' | 'cancel' =
+        dialog.intent === 'destructive' ? 'cancel' : 'primary';
 
       // Render buttons in order: secondary, cancel, primary
       // Primary is visually highlighted
@@ -151,7 +161,6 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
               onClick={() =>
                 closeDialog(dialog.id, dialog.actions.secondary!.value)
               }
-              autoFocus={autoFocusButton === 'secondary'}
             >
               {dialog.actions.secondary.label}
             </Button>
@@ -198,15 +207,6 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
       ))}
     </DialogContext.Provider>
   );
-};
-
-export const useDialog = (): DialogContextType => {
-  const context = useContext(DialogContext);
-  if (!context) {
-    throw new Error('useDialog must be used within a DialogProvider');
-  }
-
-  return context;
 };
 
 export default DialogProvider;

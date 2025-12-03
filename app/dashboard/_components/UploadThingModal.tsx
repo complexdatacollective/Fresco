@@ -6,12 +6,12 @@ import { setAppSetting } from '~/actions/appSettings';
 import { UploadThingTokenForm } from '~/app/(blobs)/(setup)/_components/UploadThingTokenForm';
 import Link from '~/components/Link';
 import Paragraph from '~/components/typography/Paragraph';
-import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
+import { Dialog } from '~/lib/dialogs/Dialog';
 
 function UploadThingModal() {
   const [open, setOpen] = useState(true);
   return (
-    <ControlledDialog
+    <Dialog
       open={open}
       closeDialog={() => setOpen(false)}
       title="Required Environment Variable Update"
@@ -52,7 +52,7 @@ function UploadThingModal() {
       <UploadThingTokenForm
         action={(token) => setAppSetting('uploadThingToken', token)}
       />
-    </ControlledDialog>
+    </Dialog>
   );
 }
 

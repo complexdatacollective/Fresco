@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { fn } from 'storybook/test';
 import Button from '~/components/ui/Button';
-import { Dialog, type DialogProps } from './Dialog';
+import { Dialog, STATE_VARIANTS, type DialogProps } from './Dialog';
 
 const meta: Meta<typeof Dialog> = {
   title: 'Systems/Dialogs/Dialog',
@@ -13,7 +13,7 @@ const meta: Meta<typeof Dialog> = {
     accent: {
       control: {
         type: 'select',
-        options: ['default', 'destructive', 'success', 'info'],
+        options: STATE_VARIANTS,
       },
     },
     title: {

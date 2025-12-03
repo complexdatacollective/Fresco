@@ -21,7 +21,7 @@ import { TextAreaField } from '../components/fields/TextArea';
 import { ToggleButtonGroupField } from '../components/fields/ToggleButtonGroup';
 import { ToggleField } from '../components/fields/ToggleField';
 import { VisualAnalogScaleField } from '../components/fields/VisualAnalogScale';
-import { type FieldValidation, type FieldValue } from '../types';
+import { type FieldValidation, type FieldValue } from '../components/types';
 import { type ValidationFunction, validations } from '../validation';
 
 const fieldTypeMap: Record<ComponentType, React.ElementType> = {

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ToggleButtonGroupField } from './ToggleButtonGroup';
 
 const meta: Meta<typeof ToggleButtonGroupField> = {
-  title: 'Components/Fields/ToggleButtonGroupField',
+  title: 'Systems/Form/Fields/ToggleButtonGroupField',
   component: ToggleButtonGroupField,
   parameters: {
     layout: 'centered',

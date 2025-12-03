@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
-import type { FieldValue } from '../types';
+import type { FieldValue } from '../components/types';
 import { validateFieldValue } from '../utils/validation';
 
 describe('Validation Utils', () => {

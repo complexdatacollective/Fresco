@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { VisualAnalogScaleField } from './VisualAnalogScale';
 
 const meta: Meta<typeof VisualAnalogScaleField> = {
-  title: 'Components/Fields/VisualAnalogScaleField',
+  title: 'Systems/Form/Fields/VisualAnalogScaleField',
   component: VisualAnalogScaleField,
   parameters: {
     layout: 'centered',

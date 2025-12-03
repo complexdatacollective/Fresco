@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { resetAppSettings } from '~/actions/reset';
 import { Button } from '~/components/ui/Button';
-import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
+import { Dialog } from '~/lib/dialogs/Dialog';
 
 const ResetButton = () => {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -19,8 +19,8 @@ const ResetButton = () => {
       >
         Reset all app data
       </Button>
-      <ControlledDialog
-        accent="danger"
+      <Dialog
+        accent="destructive"
         open={showConfirmDialog}
         closeDialog={() => setShowConfirmDialog(false)}
         title="Are you sure?"
@@ -49,7 +49,7 @@ const ResetButton = () => {
             </Button>
           </>
         }
-      ></ControlledDialog>
+      ></Dialog>
     </>
   );
 };

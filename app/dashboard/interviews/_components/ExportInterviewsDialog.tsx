@@ -15,7 +15,6 @@ import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
 import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
 import trackEvent from '~/lib/analytics';
-import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
 import {
   ExportOptionsSchema,
   type FormattedSession,
@@ -172,7 +171,7 @@ export const ExportInterviewsDialog = ({
   return (
     <>
       {isExporting && <ExportingStateAnimation />}
-      <ControlledDialog
+      <Dialog
         open={open}
         closeDialog={handleCancel}
         title="Confirm File Export Options"
@@ -190,7 +189,7 @@ export const ExportInterviewsDialog = ({
           exportOptions={exportOptions}
           setExportOptions={setExportOptions}
         />
-      </ControlledDialog>
+      </Dialog>
     </>
   );
 };

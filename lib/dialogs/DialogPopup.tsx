@@ -1,66 +1,50 @@
-import { Dialog } from '@base-ui-components/react/dialog';
-import { motion } from 'motion/react';
-import { type ComponentProps, type ReactNode } from 'react';
+import { surfaceVariants } from '~/components/layout/Surface';
 import { cx } from '~/utils/cva';
+import ModalPopup from '../../components/Modal/ModalPopup';
 
-type DialogPopupProps = ComponentProps<typeof motion.div> & {
-  header?: ReactNode;
-  children: ReactNode;
-  footer?: ReactNode;
-};
+/**
+ * A set of animation parameters loosely based on the iOS 26 dialog animation.
+ * All animation states include opacity for Base-UI's animation detection.
+ */
+export const DialogPopupAnimation = {
+  initial: { opacity: 0, y: '-10%', scale: 1.1 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    filter: 'blur(0px)',
+    transition: {
+      type: 'spring',
+      stiffness: 300,
+      damping: 30,
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: '-10%',
+    scale: 1.5,
+    filter: 'blur(10px)',
+  },
+} as const;
 
 export default function DialogPopup({
-  header,
   children,
-  footer,
   className,
   ...props
-}: DialogPopupProps) {
+}: React.ComponentProps<typeof ModalPopup>) {
   return (
-    <Dialog.Popup
+    <ModalPopup
       className={cx(
-        'w-3xl',
-        'fixed top-1/2 left-1/2 max-w-[calc(100vw-3rem)] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-lg',
-        'bg-surface-1 text-surface-1-foreground flex max-h-[80vh] flex-col',
-        'shadow-xl',
+        surfaceVariants({ level: 1, elevation: 'high' }),
+        'tablet:w-auto w-[calc(100%-var(--spacing)*10)] max-w-2xl',
+        'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+        'flex max-h-[calc(100vh-var(--spacing)*4)] flex-col',
         className,
       )}
-      render={
-        <motion.div
-          initial={{ opacity: 0, y: '-10%', scale: 1.1 }}
-          animate={{
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            filter: 'blur(0px)',
-          }}
-          exit={{
-            opacity: 0,
-            y: '-10%',
-            scale: 1.5,
-            filter: 'blur(10px)',
-          }}
-          transition={{
-            type: 'spring',
-            stiffness: 300,
-            damping: 30,
-          }}
-          style={{ zIndex: 1000 }}
-          {...props}
-        >
-          {header && (
-            <div className="bg-accent text-accent-foreground sticky top-0 px-4 py-6">
-              {header}
-            </div>
-          )}
-          <div className="flex-1 overflow-y-auto px-4 py-6">{children}</div>
-          {footer && (
-            <div className="bg-accent text-accent-foreground sticky bottom-0 flex justify-end gap-2.5 px-4 py-6">
-              {footer}
-            </div>
-          )}
-        </motion.div>
-      }
-    />
+      {...DialogPopupAnimation}
+      {...props}
+    >
+      {children}
+    </ModalPopup>
   );
 }

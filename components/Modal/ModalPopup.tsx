@@ -69,30 +69,15 @@ type ModalPopupProps = BaseModalPopupProps &
   );
 
 /**
- * A set of animation parameters loosely based on the iOS 26 dialog animation.
- * All animation states include opacity for Base-UI's animation detection.
+ * A modal popup dialog using Base-UI's Dialog and motion for animations.
+ * Requires either animation props (with required opacity) or layoutId for shared layout animations.
+ * @see DialogPopup for a preset dialog style with iOS-like animations.
+ * @see DialogPopupAnimation for default animation settings.
+ *
+ * @param children The content of the modal popup.
+ * @param className Additional class names for styling.
+ * @param props Animation props or layoutId, along with other Dialog.Popup props.
  */
-export const ModalPopupAnimation = {
-  initial: { opacity: 0, y: '-10%', scale: 1.1 },
-  animate: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    filter: 'blur(0px)',
-  },
-  exit: {
-    opacity: 0,
-    y: '-10%',
-    scale: 1.5,
-    filter: 'blur(10px)',
-  },
-  transition: {
-    type: 'spring',
-    stiffness: 300,
-    damping: 30,
-  },
-} as const;
-
 export default function ModalPopup({
   children,
   className,

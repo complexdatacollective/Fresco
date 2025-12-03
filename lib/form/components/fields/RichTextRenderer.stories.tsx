@@ -1,13 +1,13 @@
 'use client';
 
-import type { JSONContent } from '@tiptap/react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import type { JSONContent } from '@tiptap/react';
 import { useState } from 'react';
 import { RichTextEditorField } from './RichTextEditor';
 import { RichTextRenderer } from './RichTextRenderer';
 
 const meta: Meta<typeof RichTextRenderer> = {
-  title: 'Form/Fields/RichTextRenderer',
+  title: 'Systems/Form/Fields/RichTextRenderer',
   component: RichTextRenderer,
   parameters: {
     layout: 'centered',

@@ -10,7 +10,6 @@ import UnorderedList from '~/components/typography/UnorderedList';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
-import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
 import { FormSchema } from '~/schemas/participant';
 import DropzoneField from './DropzoneField';
 
@@ -99,7 +98,7 @@ const ImportCSVModal = ({
         Import participants
       </Button>
 
-      <ControlledDialog
+      <Dialog
         open={showImportDialog}
         closeDialog={() => setShowImportDialog(false)}
         title="Import participants"
@@ -153,7 +152,7 @@ const ImportCSVModal = ({
         >
           <DropzoneField control={control} name="csvFile" />
         </form>
-      </ControlledDialog>
+      </Dialog>
     </>
   );
 };

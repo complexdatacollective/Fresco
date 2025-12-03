@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { RadioGroupField } from './RadioGroup';
 
 const meta = {
-  title: 'Components/Fields/RadioGroup',
+  title: 'Systems/Form/Fields/RadioGroup',
   component: RadioGroupField,
   parameters: {
     layout: 'padded',

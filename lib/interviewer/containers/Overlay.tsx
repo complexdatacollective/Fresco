@@ -1,5 +1,3 @@
-import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
-
 type OverlayProps = {
   children: React.ReactNode;
   onClose: () => void;
@@ -13,7 +11,7 @@ const Overlay = (props: OverlayProps) => {
   const { children, onClose, show, title, footer, className } = props;
 
   return (
-    <ControlledDialog
+    <Dialog
       open={show}
       closeDialog={onClose}
       title={title}
@@ -21,7 +19,7 @@ const Overlay = (props: OverlayProps) => {
       footer={footer}
     >
       {children}
-    </ControlledDialog>
+    </Dialog>
   );
 };
 

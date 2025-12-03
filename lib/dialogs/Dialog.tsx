@@ -4,20 +4,25 @@ import { Dialog as BaseDialog } from '@base-ui-components/react/dialog';
 import { Slot } from '@radix-ui/react-slot';
 import React, { forwardRef, type ReactNode } from 'react';
 import CloseButton from '~/components/CloseButton';
-import {
-  surfaceVariants,
-  type SurfaceVariants,
-} from '~/components/layout/Surface';
-import Modal from '~/components/Modal';
+import { type SurfaceVariants } from '~/components/layout/Surface';
+import Modal from '~/components/Modal/Modal';
 import { headingVariants } from '~/components/typography/Heading';
 import { paragraphVariants } from '~/components/typography/Paragraph';
 import { cx, type VariantProps } from '~/utils/cva';
-import ModalPopup, { ModalPopupAnimation } from './ModalPopup';
+import DialogPopup, { DialogPopupAnimation } from './DialogPopup';
+
+// TODO: These seem like they belong in a shared location.
+export const STATE_VARIANTS = [
+  'default',
+  'destructive',
+  'success',
+  'info',
+] as const;
 
 export type DialogProps = {
   title?: string;
   description?: ReactNode;
-  accent?: 'default' | 'destructive' | 'success' | 'info';
+  accent?: (typeof STATE_VARIANTS)[number];
   closeDialog?: () => void;
   footer?: React.ReactNode;
   open?: boolean;
@@ -28,7 +33,7 @@ export type DialogProps = {
 /**
  * Dialog component using Base UI Dialog primitives with motion animations.
  *
- * For use with `useDialog` and `DialogProvider`. Use `ControlledDialog` in
+ * For use with `useDialog` and `DialogProvider`. Use `Dialog` in
  * situations where you need to control the dialog's open state manually.
  *
  * Implementation Notes:
@@ -48,10 +53,6 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
       accent,
       footer,
       open = false,
-      level = 0,
-      spacing = 'md',
-      elevation = 'high',
-      bleed,
       className,
       ...rest
     },
@@ -66,31 +67,28 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
           }
         }}
       >
-        <ModalPopup
+        <DialogPopup
           key="dialog"
           ref={ref}
           className={cx(
-            surfaceVariants({ level, spacing, elevation, bleed }),
-            'w-[calc(100%-var(--spacing)*4)] max-w-2xl @2xl:w-auto @2xl:min-w-xl',
-            'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
-            'flex max-h-[calc(100vh-var(--spacing)*4)]',
             // Accent overrides the primary hue so that nested primary buttons inherit color
             accent === 'success' && '[--color-primary:var(--color-success)]',
             accent === 'info' && '[--color-primary:var(--color-info)]',
             accent === 'destructive' &&
               '[--color-primary-contrast:var(--color-destructive-contrast)] [--color-primary:var(--color-destructive)]',
-            'flex flex-col',
             className,
           )}
-          {...ModalPopupAnimation}
+          {...DialogPopupAnimation}
           {...rest}
         >
           <BaseDialog.Title
             render={(props) => (
-              <div className="mb-4 flex items-center justify-between gap-4">
-                <DialogHeading {...props}>{title}</DialogHeading>
-                <BaseDialog.Close render={<CloseButton />} />
-              </div>
+              <DialogHeading
+                className="flex items-center justify-between gap-2"
+                {...props}
+              >
+                {title} <BaseDialog.Close render={<CloseButton />} />
+              </DialogHeading>
             )}
           />
           <DialogContent>
@@ -109,7 +107,7 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
             {children}
           </DialogContent>
           {footer && <DialogFooter>{footer}</DialogFooter>}
-        </ModalPopup>
+        </DialogPopup>
       </Modal>
     );
   },
@@ -124,10 +122,7 @@ type DialogHeadingProps = {
   VariantProps<typeof headingVariants>;
 
 const DialogHeading = forwardRef<HTMLElement, DialogHeadingProps>(
-  (
-    { className, variant, level, margin = 'none', as, asChild, ...props },
-    ref,
-  ) => {
+  ({ className, variant, level, margin, as, asChild, ...props }, ref) => {
     const Comp = asChild ? Slot : (as ?? level ?? 'h2');
     return (
       <Comp

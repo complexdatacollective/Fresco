@@ -5,8 +5,8 @@ import { type ComponentProps } from 'react';
 import { scrollToFirstError } from '~/lib/form/utils/scrollToFirstError';
 import { cx } from '~/utils/cva';
 import { useForm } from '../hooks/useForm';
-import type { FormSubmitHandler } from '../types';
 import FormErrorsList from './FormErrors';
+import type { FormSubmitHandler } from './types';
 
 const MotionForm = motion.create('form');
 

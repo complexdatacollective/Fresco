@@ -31,7 +31,7 @@ const priorityOptions: SelectOption[] = [
 ];
 
 const meta: Meta<typeof NativeSelectField> = {
-  title: 'Components/Fields/SelectField',
+  title: 'Systems/Form/Fields/SelectField',
   component: NativeSelectField,
   parameters: {
     layout: 'centered',

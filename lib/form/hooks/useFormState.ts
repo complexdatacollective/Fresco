@@ -1,8 +1,8 @@
 import { type ZodType } from 'zod';
 import { useShallow } from 'zustand/react/shallow';
+import type { FieldValue, FlattenedErrors } from '../components/types';
 import { type FormStore } from '../store/formStore';
 import { useFormStore } from '../store/formStoreProvider';
-import type { FieldValue, FlattenedErrors } from '../types';
 
 /**
  * Form state values with submission method

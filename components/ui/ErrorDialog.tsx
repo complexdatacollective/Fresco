@@ -2,7 +2,6 @@
 
 import type { AlertDialogProps } from '@radix-ui/react-alert-dialog';
 import React from 'react';
-import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
 import Button from './Button';
 import { Divider } from './Divider';
 
@@ -24,7 +23,7 @@ const ErrorDialog = ({
   additionalContent,
 }: ErrorDialogProps) => {
   return (
-    <ControlledDialog
+    <Dialog
       open={open}
       closeDialog={onOpenChange}
       title={title}
@@ -37,7 +36,7 @@ const ErrorDialog = ({
           {additionalContent}
         </>
       )}
-    </ControlledDialog>
+    </Dialog>
   );
 };
 

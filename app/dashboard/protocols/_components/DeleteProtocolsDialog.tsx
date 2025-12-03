@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { deleteProtocols } from '~/actions/protocols';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
-import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
 import type { ProtocolWithInterviews } from '../../_components/ProtocolsTable/ProtocolsTableClient';
 
 type DeleteProtocolsDialogProps = {
@@ -54,7 +53,7 @@ export const DeleteProtocolsDialog = ({
   };
 
   return (
-    <ControlledDialog
+    <Dialog
       open={open}
       closeDialog={() => handleCancelDialog()}
       title="Are you absolutely sure?"
@@ -119,6 +118,6 @@ export const DeleteProtocolsDialog = ({
           </AlertDescription>
         </Alert>
       )}
-    </ControlledDialog>
+    </Dialog>
   );
 };

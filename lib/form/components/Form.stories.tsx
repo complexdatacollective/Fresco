@@ -8,7 +8,7 @@ import { action } from 'storybook/actions';
 import { z } from 'zod';
 import Surface from '~/components/layout/Surface';
 import { Field, Form, SubmitButton } from '../components';
-import { ArrayField } from '../components/fields/ArrayField';
+import { ArrayField } from '../components/fields/ArrayField/ArrayField';
 import { InputField } from '../components/fields/InputField';
 import { RichTextEditorField } from '../components/fields/RichTextEditor';
 
