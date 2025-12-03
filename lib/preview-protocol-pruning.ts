@@ -5,7 +5,8 @@ const MAX_PREVIEW_PROTOCOL_AGE_HOURS = 24;
 
 /**
  * Prune preview protocols based on age limit.
- * Deletes protocols older than 24 hours.
+ * Deletes protocols older than 24 hours, along with their
+ * orphaned assets and participants.
  */
 export async function prunePreviewProtocols(): Promise<{
   deletedCount: number;
@@ -36,18 +37,36 @@ export async function prunePreviewProtocols(): Promise<{
       return { deletedCount: 0 };
     }
 
+    const protocolIds = oldProtocols.map((p) => p.id);
+
     // Select assets that are ONLY associated with the protocols to be deleted
     const assetKeysToDelete = await prisma.asset.findMany({
       where: {
         protocols: {
           every: {
             id: {
-              in: oldProtocols.map((p) => p.id),
+              in: protocolIds,
             },
           },
         },
       },
       select: { key: true },
+    });
+
+    // Find participants whose interviews are ALL with the protocols to be deleted
+    // These will become orphaned after cascade delete
+    const participantsToDelete = await prisma.participant.findMany({
+      where: {
+        interviews: {
+          some: {}, // Has at least one interview
+          every: {
+            protocolId: {
+              in: protocolIds,
+            },
+          },
+        },
+      },
+      select: { id: true },
     });
 
     // Delete assets from UploadThing (best effort)
@@ -72,14 +91,25 @@ export async function prunePreviewProtocols(): Promise<{
       });
     }
 
-    // Delete the protocols
+    // Delete the protocols (interviews cascade delete automatically)
     const result = await prisma.protocol.deleteMany({
       where: {
         id: {
-          in: oldProtocols.map((p) => p.id),
+          in: protocolIds,
         },
       },
     });
+
+    // Delete orphaned participants (their interviews were cascade deleted above)
+    if (participantsToDelete.length > 0) {
+      await prisma.participant.deleteMany({
+        where: {
+          id: {
+            in: participantsToDelete.map((p) => p.id),
+          },
+        },
+      });
+    }
 
     return { deletedCount: result.count };
   } catch (error) {
