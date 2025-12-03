@@ -15,6 +15,31 @@ import {
 } from './helpers';
 
 /**
+ * Check if an option value is selected in the categorical attribute data.
+ * Uses strict equality matching to avoid substring matching bugs.
+ *
+ * @param attributeData - The categorical attribute value (array or single value)
+ * @param optionValue - The option value to check for
+ * @returns true if the option is selected, false otherwise
+ */
+const isCategoricalOptionSelected = (
+  attributeData: unknown,
+  optionValue: string | number | boolean,
+): boolean => {
+  if (!attributeData) {
+    return false;
+  }
+
+  // If it's an array, use Array.prototype.includes (strict equality)
+  if (Array.isArray(attributeData)) {
+    return attributeData.includes(optionValue);
+  }
+
+  // If it's a single value (string, number, or boolean), check for exact equality
+  return attributeData === optionValue;
+};
+
+/**
  * Function for processing attributes of an entity. Processing means creating
  * one or more <data> elements for each attribute.
  */
@@ -70,9 +95,10 @@ function processAttributes(
           const hashedOptionValue = sha1(String(option.value));
           const optionKey = `${key}_${hashedOptionValue}`;
 
-          const attributeValue = entityAttributes[key] as string[] | number[]; // type narrowed to this because these are valid categorical variable values
-          const isSelected = attributeValue.includes(
-            option.value as string | number,
+          const attributeValue = entityAttributes[key];
+          const isSelected = isCategoricalOptionSelected(
+            attributeValue,
+            option.value,
           );
           createDomDataElement(optionKey, isSelected ? 'true' : 'false');
         });
