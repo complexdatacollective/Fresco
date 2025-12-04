@@ -20,8 +20,8 @@
     "load-test": "docker run -i grafana/k6 run - <load-test.js",
     "typecheck": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
-    "chromatic": "pnpx chromatic --project-token=chpt_54d6831d4ddd5cc",
+    "build-storybook": "SKIP_ENV_VALIDATION=true storybook build",
+    "chromatic": "SKIP_ENV_VALIDATION=true pnpx chromatic --project-token=chpt_54d6831d4ddd5cc",
     "docker-build": "docker build -t fresco-test:latest ."
   },
   "pnpm": {

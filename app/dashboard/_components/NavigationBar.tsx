@@ -47,7 +47,13 @@ export function NavigationBar() {
   return (
     <motion.nav className="bg-cyber-grape flex items-center justify-between gap-4 px-4 py-3">
       <Link href="/" className="flex items-center space-x-2">
-        <Image src="/favicon.png" alt="Fresco" width={50} height={50} />
+        <Image
+          src="/favicon.png"
+          alt="Fresco"
+          width={50}
+          height={50}
+          priority
+        />
         <Heading variant="h3" className="hidden text-white lg:block">
           Fresco
           <sup className="align-super text-xs">{env.APP_VERSION}</sup>

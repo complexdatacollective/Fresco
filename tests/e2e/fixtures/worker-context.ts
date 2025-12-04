@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
 import type { TestInfo } from '@playwright/test';
+import { PrismaClient } from '@prisma/client';
 import { loadContextData, type SerializedContext } from './context-storage';
 
 export type WorkerContext = {
@@ -117,7 +117,7 @@ function inferContextFromTestPath(
       auth: 'dashboard',
     };
 
-    const contextKey = suiteToContextMap[suiteName];
+    const contextKey = suiteToContextMap[suiteName!];
     if (contextKey && contexts[contextKey]) {
       return contexts[contextKey];
     }
@@ -159,7 +159,7 @@ function inferContextFromBaseURL(
   testInfo: TestInfo,
   contexts: Record<string, SerializedContext>,
 ): SerializedContext | null {
-  const baseURL = testInfo.project?.use?.baseURL as string | undefined;
+  const baseURL = testInfo.project?.use?.baseURL;
   if (!baseURL) {
     return null;
   }
@@ -194,7 +194,7 @@ export async function getWorkerContextInfo(testInfo: TestInfo): Promise<{
         'No context data file found - global setup may not have run',
       testFile: testInfo.file,
       projectName: testInfo.project?.name,
-      baseURL: testInfo.project?.use?.baseURL as string | undefined,
+      baseURL: testInfo.project?.use?.baseURL,
     };
   }
 
@@ -209,7 +209,7 @@ export async function getWorkerContextInfo(testInfo: TestInfo): Promise<{
       detectionMethod: 'test file path',
       testFile: testInfo.file,
       projectName: testInfo.project?.name,
-      baseURL: testInfo.project?.use?.baseURL as string | undefined,
+      baseURL: testInfo.project?.use?.baseURL,
     };
   }
 
@@ -224,7 +224,7 @@ export async function getWorkerContextInfo(testInfo: TestInfo): Promise<{
       detectionMethod: 'Playwright project name',
       testFile: testInfo.file,
       projectName: testInfo.project?.name,
-      baseURL: testInfo.project?.use?.baseURL as string | undefined,
+      baseURL: testInfo.project?.use?.baseURL,
     };
   }
 
@@ -236,7 +236,7 @@ export async function getWorkerContextInfo(testInfo: TestInfo): Promise<{
       detectionMethod: 'base URL matching',
       testFile: testInfo.file,
       projectName: testInfo.project?.name,
-      baseURL: testInfo.project?.use?.baseURL as string | undefined,
+      baseURL: testInfo.project?.use?.baseURL,
     };
   }
 
@@ -246,7 +246,7 @@ export async function getWorkerContextInfo(testInfo: TestInfo): Promise<{
     detectionMethod: 'fallback to interviews',
     testFile: testInfo.file,
     projectName: testInfo.project?.name,
-    baseURL: testInfo.project?.use?.baseURL as string | undefined,
+    baseURL: testInfo.project?.use?.baseURL,
   };
 }
 

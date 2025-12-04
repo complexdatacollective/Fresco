@@ -57,7 +57,21 @@ export const test = base.extend<TestFixtures>({
     }
 
     const database = new DatabaseSnapshots(context, testInfo);
+
+    // Initialize state tracking to detect unrestored changes
+    await database.initializeTracking();
+
     await run(database);
+
+    // Check for unrestored database changes
+    const warning = await database.checkForUnrestoredChanges();
+    if (warning) {
+      // Log warning but don't fail the test - this is informational
+      // eslint-disable-next-line no-console
+      console.warn(
+        `\n⚠️  DATABASE ISOLATION WARNING in ${testInfo.title}:\n${warning}\n`,
+      );
+    }
 
     // Cleanup will be handled by the worker context cache
     await context.cleanup();

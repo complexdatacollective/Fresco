@@ -1,16 +1,26 @@
-import type { Participant } from '@prisma/client';
 import type { TestInfo } from '@playwright/test';
+import type { Participant } from '@prisma/client';
 import { getWorkerContextInfo, type WorkerContext } from './worker-context';
 
 type ParticipantSnapshot = {
   participants: Participant[];
 };
 
+type DatabaseFingerprint = {
+  participantCount: number;
+  participantIds: string[];
+};
+
+type IsolationState = 'none' | 'isolated' | 'restored';
+
 /**
  * Database operations for test isolation.
  * Uses data-level snapshots for reliable state management across test operations.
  * Automatically clears Next.js data cache after database mutations to ensure
  * the UI reflects the current database state.
+ *
+ * Includes state change tracking to detect when tests modify the database
+ * without proper isolation.
  */
 export class DatabaseSnapshots {
   private context: WorkerContext;
@@ -18,11 +28,96 @@ export class DatabaseSnapshots {
   private _contextInfo: Awaited<
     ReturnType<typeof getWorkerContextInfo>
   > | null = null;
-  private snapshots: Map<string, ParticipantSnapshot> = new Map();
+  private snapshots = new Map<string, ParticipantSnapshot>();
+
+  // State tracking for isolation detection
+  private initialFingerprint: DatabaseFingerprint | null = null;
+  private isolationState: IsolationState = 'none';
+  private isolationDepth = 0;
 
   constructor(context: WorkerContext, testInfo?: TestInfo) {
     this.context = context;
     this.testInfo = testInfo;
+  }
+
+  /**
+   * Initialize state tracking. Called automatically when the fixture is first used.
+   * Records the initial database state to detect unrestored changes.
+   */
+  async initializeTracking(): Promise<void> {
+    this.initialFingerprint ??= await this.getFingerprint();
+  }
+
+  /**
+   * Get a fingerprint of the current database state.
+   * Used to detect if the database was modified without being restored.
+   */
+  private async getFingerprint(): Promise<DatabaseFingerprint> {
+    const participants = await this.context.prisma.participant.findMany({
+      select: { id: true },
+      orderBy: { id: 'asc' },
+    });
+
+    return {
+      participantCount: participants.length,
+      participantIds: participants.map((p) => p.id),
+    };
+  }
+
+  /**
+   * Compare two fingerprints to check if the database state changed.
+   */
+  private fingerprintsMatch(
+    a: DatabaseFingerprint,
+    b: DatabaseFingerprint,
+  ): boolean {
+    if (a.participantCount !== b.participantCount) return false;
+    if (a.participantIds.length !== b.participantIds.length) return false;
+    return a.participantIds.every((id, i) => id === b.participantIds[i]);
+  }
+
+  /**
+   * Check if the database state was modified and not restored.
+   * Returns a warning message if issues are detected, or null if everything is fine.
+   */
+  async checkForUnrestoredChanges(): Promise<string | null> {
+    if (this.initialFingerprint === null) {
+      return null; // Tracking wasn't initialized
+    }
+
+    // If we're still inside an isolation block, that's a problem
+    if (this.isolationDepth > 0) {
+      return `Test ended with ${this.isolationDepth} unclosed isolation scope(s). Did you forget to call cleanup()?`;
+    }
+
+    const currentFingerprint = await this.getFingerprint();
+
+    if (!this.fingerprintsMatch(this.initialFingerprint, currentFingerprint)) {
+      const diff = {
+        initialCount: this.initialFingerprint.participantCount,
+        currentCount: currentFingerprint.participantCount,
+      };
+
+      return (
+        `Database state changed during test but was not restored.\n` +
+        `  Initial participant count: ${diff.initialCount}\n` +
+        `  Current participant count: ${diff.currentCount}\n` +
+        `  Isolation state: ${this.isolationState}\n` +
+        `  💡 Use database.isolate() or database.withSnapshot() for tests that modify data.`
+      );
+    }
+
+    return null;
+  }
+
+  /**
+   * Get the current isolation state for debugging
+   */
+  getIsolationState(): { state: IsolationState; depth: number } {
+    return {
+      state: this.isolationState,
+      depth: this.isolationDepth,
+    };
   }
 
   /**
@@ -39,7 +134,7 @@ export class DatabaseSnapshots {
         detectionMethod: 'direct context',
         testFile: this.testInfo?.file,
         projectName: this.testInfo?.project?.name,
-        baseURL: this.testInfo?.project?.use?.baseURL as string | undefined,
+        baseURL: this.testInfo?.project?.use?.baseURL,
       }
     );
   }
@@ -77,22 +172,45 @@ export class DatabaseSnapshots {
    * Useful for tests that need complete isolation within a single callback.
    */
   async withTransaction<T>(fn: () => Promise<T>): Promise<T> {
-    return this.context.prisma
-      .$transaction(async () => {
-        const result = await fn();
-        throw { __rollback: true, result };
-      })
-      .catch((error) => {
-        if (error?.__rollback) {
-          return error.result as T;
-        }
+    this.isolationDepth++;
+    this.isolationState = 'isolated';
+
+    // We use a symbol to mark the rollback result
+    const ROLLBACK_MARKER = Symbol('rollback');
+    let capturedResult: T | undefined;
+
+    try {
+      await this.context.prisma.$transaction(async () => {
+        capturedResult = await fn();
+        // Throw to trigger rollback - Prisma will catch this
+        const error = new Error('Intentional rollback');
+        (error as unknown as Record<symbol, boolean>)[ROLLBACK_MARKER] = true;
         throw error;
       });
+    } catch (error) {
+      // Check if this is our intentional rollback
+      if (
+        error instanceof Error &&
+        (error as unknown as Record<symbol, boolean>)[ROLLBACK_MARKER]
+      ) {
+        return capturedResult as T;
+      }
+      throw error;
+    } finally {
+      this.isolationDepth--;
+      if (this.isolationDepth === 0) {
+        this.isolationState = 'restored';
+      }
+    }
+
+    // Should never reach here, but TypeScript needs this
+    return capturedResult as T;
   }
 
   /**
    * Create an isolation context that can be cleaned up.
    * Takes a snapshot of current data and returns a cleanup function that restores it.
+   * Tracks isolation state to detect when cleanup is not called.
    * @param name - Optional identifier for the snapshot
    * @returns A cleanup function that restores to the state before isolation
    */
@@ -100,8 +218,16 @@ export class DatabaseSnapshots {
     const snapshotName = name ?? `isolate_${Date.now()}`;
     await this.create(snapshotName);
 
+    this.isolationDepth++;
+    this.isolationState = 'isolated';
+
     return async () => {
+      await this.clearNextCache();
       await this.restore(snapshotName);
+      this.isolationDepth--;
+      if (this.isolationDepth === 0) {
+        this.isolationState = 'restored';
+      }
     };
   }
 

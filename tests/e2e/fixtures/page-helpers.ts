@@ -127,10 +127,10 @@ export class PageHelpers {
   }
 
   /**
-   * Wait for network idle
+   * Wait for page load
    */
-  async waitForNetworkIdle() {
-    await this.page.waitForLoadState('networkidle');
+  async waitForLoad() {
+    await this.page.waitForLoadState('load');
   }
 
   /**

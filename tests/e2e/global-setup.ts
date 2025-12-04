@@ -193,7 +193,7 @@ async function ensureDockerImage() {
 
   try {
     await execAsync(
-      `docker build -t ${imageName} -f ${dockerfile} ${projectRoot}`,
+      `docker build --build-arg DISABLE_IMAGE_OPTIMIZATION=true -t ${imageName} -f ${dockerfile} ${projectRoot}`,
     );
 
     // Set the environment variable for all test environments to use

@@ -1,11 +1,13 @@
-import * as fs from 'fs/promises';
 import { NextResponse } from 'next/server';
-import * as path from 'path';
+import { CacheTags, safeRevalidateTag } from '~/lib/cache';
 
 /**
  * Test-only API endpoint to clear Next.js data cache.
  * This is used by e2e tests to ensure fresh data after database mutations.
  * Only available when SKIP_ENV_VALIDATION is set (test environment).
+ *
+ * Uses revalidateTag() to properly invalidate the in-memory cache,
+ * not just the filesystem cache.
  */
 export async function POST(): Promise<NextResponse> {
   // Only allow when running in test mode (SKIP_ENV_VALIDATION is set by test environment)
@@ -18,36 +20,18 @@ export async function POST(): Promise<NextResponse> {
   }
 
   try {
-    const cacheDir = path.join(process.cwd(), '.next', 'cache');
+    // Revalidate all cache tags to clear the in-memory cache
+    const revalidatedTags: string[] = [];
 
-    // Check if cache directory exists
-    try {
-      await fs.access(cacheDir);
-    } catch {
-      return NextResponse.json({
-        success: true,
-        message: 'Cache directory does not exist',
-        cleared: false,
-      });
-    }
-
-    // Get list of cache subdirectories to clear
-    const entries = await fs.readdir(cacheDir, { withFileTypes: true });
-    const clearedDirs: string[] = [];
-
-    for (const entry of entries) {
-      if (entry.isDirectory()) {
-        const dirPath = path.join(cacheDir, entry.name);
-        await fs.rm(dirPath, { recursive: true, force: true });
-        clearedDirs.push(entry.name);
-      }
+    for (const tag of CacheTags) {
+      safeRevalidateTag(tag);
+      revalidatedTags.push(tag);
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Cache cleared successfully',
-      cleared: true,
-      directories: clearedDirs,
+      message: 'Cache invalidated successfully',
+      revalidatedTags,
     });
   } catch (error) {
     return NextResponse.json(

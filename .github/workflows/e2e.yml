@@ -36,7 +36,7 @@ jobs:
         run: pnpm playwright install --with-deps
 
       - name: Build Docker image for testing
-        run: docker build -t fresco:test .
+        run: docker build --build-arg DISABLE_IMAGE_OPTIMIZATION=true -t fresco:test .
 
       - name: Run E2E tests
         run: pnpm test:e2e
