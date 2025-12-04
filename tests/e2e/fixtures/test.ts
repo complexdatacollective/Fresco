@@ -40,7 +40,8 @@ export const test = base.extend<TestFixtures>({
   },
 
   // Database snapshots fixture - provides database isolation capabilities
-  database: async (_, run, testInfo) => {
+  // eslint-disable-next-line no-empty-pattern
+  database: async ({}, run, testInfo) => {
     // Resolve the appropriate test environment context automatically
     const context = ContextResolver.resolveContext(testInfo);
 

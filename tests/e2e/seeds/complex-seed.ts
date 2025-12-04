@@ -1,5 +1,6 @@
 import { type PrismaClient } from '@prisma/client';
 import { createId } from '@paralleldrive/cuid2';
+import { logger } from '../utils/logger';
 
 /**
  * Seed script for complex test scenarios
@@ -209,8 +210,7 @@ export default async function seed(prisma: PrismaClient) {
     ],
   });
 
-  // eslint-disable-next-line no-console
-  console.log('✅ Complex seed data created');
+  logger.seed.complete();
 }
 
 // Also export a named export for flexibility

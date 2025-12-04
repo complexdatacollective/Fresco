@@ -5,13 +5,13 @@ import { promisify } from 'util';
 import { ADMIN_CREDENTIALS } from './config/test-config';
 import { TestDataBuilder } from './fixtures/test-data-builder';
 import { TestEnvironment } from './fixtures/test-environment';
+import { logger } from './utils/logger';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const execAsync = promisify(exec);
 
 async function globalSetup() {
-  // eslint-disable-next-line no-console
-  console.log('🌍 Running global setup for e2e tests...\n');
+  logger.setup.start();
 
   const testEnv = new TestEnvironment();
 
@@ -21,8 +21,8 @@ async function globalSetup() {
   // Setup parallel environments
   const setupPromises = [
     setupInitialSetupEnvironment(testEnv),
-    // setupDashboardEnvironment(testEnv),
-    // setupInterviewsEnvironment(testEnv),
+    setupDashboardEnvironment(testEnv),
+    setupInterviewsEnvironment(testEnv),
   ];
 
   await Promise.all(setupPromises);
@@ -30,19 +30,13 @@ async function globalSetup() {
   // Store the test environment instance globally for teardown
   globalThis.__TEST_ENVIRONMENT__ = testEnv;
 
-  // eslint-disable-next-line no-console
-  console.log('\n✅ All test environments ready!\n');
+  logger.setup.complete();
 
   // If DEBUG_PAUSE is set, wait for user input before continuing
   // This allows you to inspect the database while containers are running
   // eslint-disable-next-line no-process-env
   if (process.env.DEBUG_PAUSE) {
-    // eslint-disable-next-line no-console
-    console.log('🔍 DEBUG_PAUSE is set. Containers are running.');
-    // eslint-disable-next-line no-console
-    console.log(
-      '   Press Enter to continue with tests (or Ctrl+C to exit)...\n',
-    );
+    logger.setup.debugPause();
     await new Promise<void>((resolve) => {
       process.stdin.once('data', () => resolve());
     });
@@ -152,11 +146,8 @@ async function ensureDockerImage() {
   // If TEST_IMAGE_NAME is already set (e.g., in CI), use that
   // eslint-disable-next-line no-process-env
   if (process.env.TEST_IMAGE_NAME) {
-    // eslint-disable-next-line no-console
-    console.log(
-      // eslint-disable-next-line no-process-env
-      `🐳 Using existing Docker image: ${process.env.TEST_IMAGE_NAME}`,
-    );
+    // eslint-disable-next-line no-process-env
+    logger.docker.usingExisting(process.env.TEST_IMAGE_NAME);
     return;
   }
 
@@ -165,8 +156,7 @@ async function ensureDockerImage() {
   const dockerfile = path.join(projectRoot, 'Dockerfile');
   const imageName = 'fresco-test:latest';
 
-  // eslint-disable-next-line no-console
-  console.log(`🔨 Building Docker image: ${imageName}`);
+  logger.docker.building(imageName);
 
   try {
     await execAsync(
@@ -178,11 +168,9 @@ async function ensureDockerImage() {
     // eslint-disable-next-line no-process-env
     process.env.TEST_IMAGE_NAME = imageName;
 
-    // eslint-disable-next-line no-console
-    console.log(`✅ Docker image built successfully: ${imageName}\n`);
+    logger.docker.buildSuccess(imageName);
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Failed to build Docker image:', error);
+    logger.docker.buildError(error);
     throw error;
   }
 }

@@ -15,9 +15,6 @@ test.describe('Context Detection Examples', () => {
     // Get information about the detected context
     const contextInfo = database.getContextInfo();
 
-    // eslint-disable-next-line no-console
-    console.log('Context detection info:', contextInfo);
-
     // Verify we're using the dashboard context
     expect(contextInfo.resolvedContext).toBe('dashboard');
     expect(contextInfo.availableContexts).toContain('dashboard');

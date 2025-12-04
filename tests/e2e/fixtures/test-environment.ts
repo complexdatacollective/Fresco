@@ -14,6 +14,7 @@ import {
 } from 'testcontainers';
 import { fileURLToPath } from 'url';
 import { TEST_ENVIRONMENT, TEST_TIMEOUTS } from '../config/test-config';
+import { logger } from '../utils/logger';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -41,8 +42,7 @@ export class TestEnvironment {
   private contexts = new Map<string, TestEnvironmentContext>();
 
   async create(config: TestEnvironmentConfig): Promise<TestEnvironmentContext> {
-    // eslint-disable-next-line no-console
-    console.log(`🚀 Creating test environment: ${config.suiteId}`);
+    logger.environment.creating(config.suiteId);
 
     try {
       // Create network for this environment
@@ -108,12 +108,10 @@ export class TestEnvironment {
       // eslint-disable-next-line no-process-env
       process.env[variable] = appUrl;
 
-      // eslint-disable-next-line no-console
-      console.log(`  ${config.suiteId}:        ${appUrl}`);
+      logger.environment.ready(config.suiteId, appUrl);
       return context;
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(`Failed to create environment ${config.suiteId}:`, error);
+      logger.environment.error(config.suiteId, error);
       await this.cleanup(config.suiteId);
       throw error;
     }
@@ -122,8 +120,7 @@ export class TestEnvironment {
   private async startDatabase(
     network: StartedNetwork,
   ): Promise<StartedPostgreSqlContainer> {
-    // eslint-disable-next-line no-console
-    console.log(`  📦 Starting PostgreSQL...`);
+    logger.database.starting();
 
     const container = await new PostgreSqlContainer('postgres:16-alpine')
       .withNetwork(network)
@@ -131,16 +128,16 @@ export class TestEnvironment {
       .start();
 
     const port = container.getMappedPort(5432);
-    // eslint-disable-next-line no-console
-    console.log(`  ✅ PostgreSQL started on port ${port}`);
-    // eslint-disable-next-line no-console
-    console.log(
-      `  🔗 Connect with: psql -h localhost -p ${port} -U ${container.getUsername()} -d ${container.getDatabase()}`,
-    );
-    // eslint-disable-next-line no-console
-    console.log(`  🔗 Password: ${container.getPassword()}`);
-    // eslint-disable-next-line no-console
-    console.log(`  🔗 Connection URI: ${container.getConnectionUri()}`);
+    logger.database.started(port);
+    logger.database.connectionInfo({
+      host: 'localhost',
+      port,
+      username: container.getUsername(),
+      database: container.getDatabase(),
+      password: container.getPassword(),
+      uri: container.getConnectionUri(),
+    });
+
     return container;
   }
 
@@ -148,8 +145,7 @@ export class TestEnvironment {
     seedScript: string,
     prisma: PrismaClient,
   ): Promise<void> {
-    // eslint-disable-next-line no-console
-    console.log(`  🌱 Running seed script: ${seedScript}`);
+    logger.seed.running(seedScript);
 
     const seedPath = path.join(__dirname, '../seeds', seedScript);
 
@@ -172,8 +168,7 @@ export class TestEnvironment {
       }
     }
 
-    // eslint-disable-next-line no-console
-    console.log(`    ✓ Applied seed: ${seedScript}`);
+    logger.seed.applied(seedScript);
   }
 
   private async startApplication(
@@ -182,8 +177,7 @@ export class TestEnvironment {
       network: StartedNetwork;
     },
   ): Promise<StartedTestContainer> {
-    // eslint-disable-next-line no-console
-    console.log(`  🚀 Starting application for ${config.suiteId}...`);
+    logger.app.starting(config.suiteId);
 
     // Assume image is already built (e.g., in CI pipeline)
     // eslint-disable-next-line no-process-env
@@ -191,8 +185,7 @@ export class TestEnvironment {
 
     const databaseUrl = `postgresql://${config.dbContainer.getUsername()}:${config.dbContainer.getPassword()}@postgres-db:5432/${config.dbContainer.getDatabase()}`;
 
-    // eslint-disable-next-line no-console
-    console.log(`  📝 Database URL for ${config.suiteId}: ${databaseUrl}`);
+    logger.database.urlInfo(config.suiteId, databaseUrl);
 
     let container: StartedTestContainer;
     try {
@@ -214,12 +207,25 @@ export class TestEnvironment {
         .withNetworkAliases('app')
         .withLogConsumer((stream) => {
           stream.on('data', (line) => {
-            // eslint-disable-next-line no-console
-            console.log(`  [${config.suiteId}] ${line}`);
+            // Skip if line is null/undefined
+            if (line == null) return;
+            const lineStr =
+              typeof line === 'string' ? line : line.toString('utf-8');
+            logger.app.log(config.suiteId, lineStr);
           });
           stream.on('err', (line) => {
-            // eslint-disable-next-line no-console
-            console.error(`  [${config.suiteId}] ERR: ${line}`);
+            // Skip if line is null/undefined
+            if (line == null) return;
+            const lineStr =
+              typeof line === 'string' ? line : line.toString('utf-8');
+            logger.app.errorLog(config.suiteId, lineStr);
+          });
+          stream.on('error', (err) => {
+            // Handle stream errors (different from container stderr)
+            if (err) {
+              const errMsg = err instanceof Error ? err.message : String(err);
+              logger.app.errorLog(config.suiteId, `Stream error: ${errMsg}`);
+            }
           });
         })
         .withWaitStrategy(
@@ -229,17 +235,11 @@ export class TestEnvironment {
         )
         .start();
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(`  ❌ Container failed to start for ${config.suiteId}`);
-      // eslint-disable-next-line no-console
-      console.error('  Error:', error);
+      logger.app.startError(config.suiteId, error);
       throw error;
     }
 
-    // eslint-disable-next-line no-console
-    console.log(
-      `  ✅ Application started on port ${container.getMappedPort(3000)}`,
-    );
+    logger.app.started(container.getMappedPort(3000));
 
     // Wait a bit for the Next.js app to fully initialize
     await new Promise((resolve) =>
@@ -284,10 +284,7 @@ export class TestEnvironment {
       )
       .start();
 
-    // eslint-disable-next-line no-console
-    console.log(
-      `  ✅ Application started on port ${container.getMappedPort(3000)}`,
-    );
+    logger.app.started(container.getMappedPort(3000));
 
     // Wait a bit for the Next.js app to fully initialize
     await new Promise((resolve) =>
@@ -298,8 +295,7 @@ export class TestEnvironment {
   }
 
   async cleanup(suiteId: string): Promise<void> {
-    // eslint-disable-next-line no-console
-    console.log(`🧹 Cleaning up environment: ${suiteId}`);
+    logger.environment.cleaning(suiteId);
 
     const context = this.contexts.get(suiteId);
     if (!context) return;
@@ -314,8 +310,7 @@ export class TestEnvironment {
 
       this.contexts.delete(suiteId);
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(`Error during cleanup of ${suiteId}:`, error);
+      logger.environment.cleanupError(suiteId, error);
     }
   }
 

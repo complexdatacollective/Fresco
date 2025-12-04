@@ -17,14 +17,13 @@ function checkForNeededMigrations() {
     '--exit-code',
   ];
 
-  console.log(`Running: ${command} ${args.join(' ')}`);
   const result = spawnSync(command, args, { encoding: 'utf-8' });
 
   console.log('Migration diff result:', {
     status: result.status,
     stdout: result.stdout,
     stderr: result.stderr,
-    error: result.error,
+    ...(result.error && { error: result.error }),
   });
 
   if (result.error) {
@@ -76,14 +75,6 @@ async function handleMigrations() {
   try {
     // Use local prisma binary directly to avoid npx downloading a different version
     const prismaBin = './node_modules/.bin/prisma';
-
-    // Log the current database state for debugging
-    const tables = await prisma.$queryRaw`
-      SELECT table_name
-      FROM information_schema.tables
-      WHERE table_schema = 'public' AND table_type = 'BASE TABLE'`;
-    console.log('Current database tables:', tables);
-    console.log('Database is empty:', tables.length === 0);
 
     if (await shouldApplyWorkaround()) {
       console.log(
