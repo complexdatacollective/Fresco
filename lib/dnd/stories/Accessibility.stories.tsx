@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { useCallback, useRef, useState } from 'react';
 import { DndStoreProvider, useDragSource, useDropTarget } from '~/lib/dnd';
 import { useAccessibilityAnnouncements } from '~/lib/dnd/useAccessibilityAnnouncements';

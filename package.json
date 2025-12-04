@@ -31,6 +31,7 @@
     ]
   },
   "dependencies": {
+    "@base-ui-components/react": "1.0.0-rc.0",
     "@codaco/analytics": "8.0.0",
     "@codaco/protocol-validation": "^7.1.0",
     "@codaco/shared-consts": "5.0.0",
@@ -55,6 +56,7 @@
     "@reduxjs/toolkit": "^2.5.0",
     "@tanstack/react-form": "^1.12.3",
     "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-virtual": "^3.13.12",
     "@uploadthing/react": "^7.3.3",
     "@xmldom/xmldom": "^0.9.8",
     "animejs": "^2.2.0",
@@ -120,7 +122,12 @@
     "zustand": "^5.0.6"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.9.0",
     "@prisma/client": "^6.19.0",
+    "@storybook/addon-a11y": "^10.0.8",
+    "@storybook/addon-docs": "^10.0.8",
+    "@storybook/addon-links": "^10.0.8",
+    "@storybook/addon-onboarding": "^10.0.8",
     "@storybook/nextjs": "^10.0.8",
     "@storybook/react": "^10.0.8",
     "@t3-oss/env-nextjs": "^0.13.8",
