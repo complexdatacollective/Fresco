@@ -3,12 +3,12 @@ import { expect, SNAPSHOT_CONFIGS, test } from '../../fixtures/test';
 // Parallel tests - no mutations!
 
 test.describe.parallel('Participants page - parallel', () => {
-  test.beforeEach(async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/dashboard/participants');
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/dashboard/participants');
   });
 
   // Visual snapshot of this page
-  test('should match visual snapshot', async ({ snapshots }) => {
+  test('should match visual snapshot', async ({ page, snapshots }) => {
     await snapshots.expectPageToMatchSnapshot(
       SNAPSHOT_CONFIGS.fullPage('participants-page'),
     );
