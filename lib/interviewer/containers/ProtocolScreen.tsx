@@ -10,6 +10,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import usePrevious from '~/hooks/usePrevious';
 import Navigation from '../components/Navigation';
+import PreviewModeBanner from '../components/PreviewModeBanner';
 import { updatePrompt, updateStage } from '../ducks/modules/session';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import {
@@ -61,7 +62,11 @@ const variants = {
   },
 };
 
-export default function ProtocolScreen() {
+type ProtocolScreenProps = {
+  isPreview: boolean;
+};
+
+export default function ProtocolScreen({ isPreview }: ProtocolScreenProps) {
   const [scope, animate] = useAnimate();
   const dispatch = useDispatch();
 
@@ -259,17 +264,25 @@ export default function ProtocolScreen() {
     }
   }, [setQueryStep, isCurrentStepValid, previousValidStageIndex]);
 
+  const { canMoveForward, canMoveBackward } = useSelector(getNavigationInfo);
+
   return (
     <>
+      {isPreview && <PreviewModeBanner />}
       <motion.div
-        className="relative flex h-full w-full flex-1 flex-row overflow-hidden"
+        className="relative flex h-full w-full flex-1 flex-row gap-6 overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
         <Navigation
           moveBackward={moveBackward}
           moveForward={moveForward}
-          disabled={forceNavigationDisabled}
+          disableMoveForward={forceNavigationDisabled || !canMoveForward}
+          // If we have a beforenextfunction, we are always allowed to go back
+          disableMoveBackward={
+            forceNavigationDisabled ||
+            (!canMoveBackward && !beforeNextFunction.current)
+          }
           pulseNext={isReadyForNextStage}
           progress={progress}
         />

@@ -35,6 +35,10 @@ export const activityTypes = [
   'Interview Completed',
   'Interview(s) Deleted',
   'Data Exported',
+  'API Token Created',
+  'API Token Updated',
+  'API Token Deleted',
+  'Preview Protocol Uploaded',
 ] as const;
 
 export type ActivityType = (typeof activityTypes)[number];

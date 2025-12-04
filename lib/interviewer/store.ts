@@ -51,17 +51,11 @@ export const store = ({
         network: session.network,
         stageMetadata: session.stageMetadata ?? undefined,
       },
-      protocol: {
-        id: protocol.id,
-        stages: protocol.stages,
-        codebook: protocol.codebook,
-        assets: protocol.assets,
-        experiments: protocol.experiments ?? undefined,
-      },
+      protocol,
     },
   });
 
 export type RootState = ReturnType<typeof rootReducer>;
-type AppDispatch = ReturnType<typeof store>['dispatch'];
+export type AppDispatch = ReturnType<typeof store>['dispatch'];
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
 export type AppStore = ReturnType<typeof store>;

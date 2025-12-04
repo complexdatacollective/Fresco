@@ -24,7 +24,7 @@ const routeHandler = async () => {
       // However, the automatic detection fails in docker deployments
       // docs: https://docs.uploadthing.com/api-reference/server#config
       callbackUrl: `${getBaseUrl()}/api/uploadthing`,
-      token: uploadThingToken,
+      token: uploadThingToken ?? undefined,
     },
   });
 

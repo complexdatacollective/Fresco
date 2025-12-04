@@ -10,8 +10,10 @@ import {
   type NcEgo,
   type NcNode,
 } from '@codaco/shared-consts';
-import { includes } from 'es-toolkit/compat';
-import { getEntityAttributes } from '../../utils/general';
+import {
+  getEntityAttributes,
+  isCategoricalOptionSelected,
+} from '../../utils/general';
 import { type ExportOptions } from '../../utils/types';
 
 // TODO: move to protocol validation
@@ -72,8 +74,7 @@ const processEntityVariables = (
           (accumulatedOptions, optionName) => ({
             ...accumulatedOptions,
             [`${attributeName}_${optionName.value}`]:
-              !!attributeData &&
-              includes(attributeData as unknown[], optionName.value),
+              isCategoricalOptionSelected(attributeData, optionName.value),
           }),
           {},
         );

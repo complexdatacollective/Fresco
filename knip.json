@@ -7,15 +7,9 @@
     "public/scripts/d3-timer.v3.min.js",
     "lib/interviewer/hooks/forceSimulation.worker.js",
     "utils/auth.ts",
-    "load-test.js"
+    "load-test.js",
+    "styles/tailwind-motion-spring.ts"
   ],
-  "ignoreDependencies": [
-    "sharp",
-    "@tailwindcss/aspect-ratio",
-    "@tailwindcss/container-queries",
-    "@tailwindcss/forms",
-    "@tailwindcss/typography",
-    "tailwindcss-animate"
-  ],
+  "ignoreDependencies": ["sharp", "esbuild"],
   "ignoreBinaries": ["docker-compose", "playwright"]
 }

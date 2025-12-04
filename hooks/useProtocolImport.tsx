@@ -1,6 +1,6 @@
 import {
+  type CurrentProtocol,
   migrateProtocol,
-  type Protocol,
   validateProtocol,
 } from '@codaco/protocol-validation';
 import { queue } from 'async';
@@ -86,7 +86,10 @@ export const useProtocolImport = () => {
 
       // Check if the protocol version is compatible with the app.
       const protocolVersion = protocolJson.schemaVersion;
-      if (!APP_SUPPORTED_SCHEMA_VERSIONS.includes(protocolVersion)) {
+      if (
+        !protocolVersion ||
+        !APP_SUPPORTED_SCHEMA_VERSIONS.includes(protocolVersion)
+      ) {
         dispatch({
           type: 'UPDATE_ERROR',
           payload: {
@@ -108,17 +111,26 @@ export const useProtocolImport = () => {
 
         return;
       }
-      // Migrate if needed
-      const protocolToValidate =
-        protocolJson.schemaVersion < 8
-          ? migrateProtocol(protocolJson, 8)
-          : protocolJson;
 
-      const validationResult = await validateProtocol(
-        protocolToValidate as Protocol,
-      );
+      // Migrate v7 to v8
+      let protocolToValidate = protocolJson;
 
-      if (!validationResult.isValid) {
+      if (protocolVersion !== 8) {
+        dispatch({
+          type: 'UPDATE_STATUS',
+          payload: {
+            id: fileName,
+            status: 'Migrating protocol',
+          },
+        });
+        // eslint-disable-next-line no-console
+        console.warn('Migrating protocol from v7 to v8...');
+        protocolToValidate = migrateProtocol(protocolJson, 8);
+      }
+
+      const validationResult = await validateProtocol(protocolToValidate);
+
+      if (!validationResult.success) {
         const resultAsString = JSON.stringify(validationResult, null, 2);
 
         dispatch({
@@ -152,20 +164,19 @@ export const useProtocolImport = () => {
               additionalContent: (
                 <ErrorDetails errorText={resultAsString}>
                   <ul className="max-w-md list-inside space-y-2">
-                    {[
-                      ...validationResult.schemaErrors,
-                      ...validationResult.logicErrors,
-                    ].map((validationError, i) => (
-                      <li className="flex capitalize" key={i}>
-                        <XCircle className="text-destructive mr-2 h-4 w-4" />
-                        <span>
-                          {validationError.message}{' '}
-                          <span className="text-xs italic">
-                            ({validationError.path})
+                    {validationResult.error.issues.map(
+                      ({ message, path }, i) => (
+                        <li className="flex capitalize" key={i}>
+                          <XCircle className="text-destructive mr-2 h-4 w-4" />
+                          <span>
+                            {message}{' '}
+                            <span className="text-xs italic">
+                              ({path.join(' > ')})
+                            </span>
                           </span>
-                        </span>
-                      </li>
-                    ))}
+                        </li>
+                      ),
+                    )}
                   </ul>
                 </ErrorDetails>
               ),
@@ -177,9 +188,10 @@ export const useProtocolImport = () => {
       }
 
       // After this point, assume the protocol is valid.
+      const validatedProtocol = validationResult.data as CurrentProtocol;
 
       // Check if the protocol already exists in the database
-      const protocolHash = hash(protocolJson);
+      const protocolHash = hash(validatedProtocol);
       const exists = await getProtocolByHash(protocolHash);
       if (exists) {
         dispatch({
@@ -204,7 +216,7 @@ export const useProtocolImport = () => {
       }
 
       const { fileAssets, apikeyAssets } = await getProtocolAssets(
-        protocolJson,
+        validatedProtocol,
         zip,
       );
 
@@ -341,7 +353,7 @@ export const useProtocolImport = () => {
       });
 
       const result = await insertProtocol({
-        protocol: protocolJson,
+        protocol: validatedProtocol,
         protocolName: fileName,
         newAssets: [...newAssetsWithCombinedMetadata, ...newApikeyAssets],
         existingAssetIds: existingAssetIds,

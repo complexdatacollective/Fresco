@@ -38,6 +38,10 @@ export default function getKeyElementGenerator(
     // track variables we have already created <key>s for, so we don't duplicate
     const done = new Set<string>();
 
+    if (!incomingEntities) {
+      return fragment;
+    }
+
     const entityType = deriveEntityType(incomingEntities);
 
     let entities;

@@ -7,6 +7,9 @@ on:
     branches: [next]
   workflow_dispatch: # Allows manual triggering of the workflow
 
+permissions:
+  contents: read
+
 jobs:
   test:
     timeout-minutes: 60

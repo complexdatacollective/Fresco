@@ -1,33 +1,41 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { type z } from 'zod/v3';
+import { type z } from 'zod';
 import { safeRevalidateTag } from '~/lib/cache';
-import { type AppSetting, appSettingsSchema } from '~/schemas/appSettings';
+import {
+  type AppSetting,
+  appSettingPreprocessedSchema,
+} from '~/schemas/appSettings';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
 
-// Convert string | boolean | Date to string
-const getStringValue = (value: string | boolean | Date) => {
-  if (typeof value === 'boolean') return value.toString();
+// Convert boolean | Date | string to database string
+const toDbString = (value: boolean | Date | string): string => {
   if (value instanceof Date) return value.toISOString();
+  if (typeof value === 'boolean') return value.toString();
   return value;
 };
 
 export async function setAppSetting<
   Key extends AppSetting,
-  V extends z.infer<typeof appSettingsSchema>[Key],
+  V extends z.infer<typeof appSettingPreprocessedSchema>[Key],
 >(key: Key, value: V): Promise<V> {
   await requireApiAuth();
 
-  if (!appSettingsSchema.shape[key]) {
+  if (!appSettingPreprocessedSchema.shape[key]) {
     throw new Error(`Invalid app setting: ${key}`);
   }
 
   try {
-    const result = appSettingsSchema.shape[key].parse(value);
-    const stringValue = getStringValue(result);
+    // Null values are not supported - caller should not pass null
+    if (value === null) {
+      throw new Error('Cannot set app setting to null');
+    }
+
+    // Convert the typed value to a database string
+    const stringValue = toDbString(value);
 
     await prisma.appSettings.upsert({
       where: { key },

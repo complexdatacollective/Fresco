@@ -10,56 +10,6 @@ const StageLoading = () => (
   </div>
 );
 
-const NameGenerator = dynamic(() => import('./NameGenerator'), {
-  loading: StageLoading,
-});
-const NameGeneratorQuickAdd = dynamic(() => import('./NameGeneratorQuickAdd'), {
-  loading: StageLoading,
-});
-const NameGeneratorRoster = dynamic(() => import('./NameGeneratorRoster'), {
-  loading: StageLoading,
-});
-const Sociogram = dynamic(() => import('./Sociogram'), {
-  loading: StageLoading,
-});
-const Information = dynamic(() => import('./Information'), {
-  loading: StageLoading,
-});
-const OrdinalBin = dynamic(() => import('./OrdinalBin'), {
-  loading: StageLoading,
-});
-const CategoricalBin = dynamic(() => import('./CategoricalBin'), {
-  loading: StageLoading,
-});
-const Narrative = dynamic(() => import('./Narrative'), {
-  loading: StageLoading,
-});
-const AlterForm = dynamic(() => import('./AlterForm'), {
-  loading: StageLoading,
-});
-const EgoForm = dynamic(() => import('./EgoForm'), { loading: StageLoading });
-const AlterEdgeForm = dynamic(() => import('./AlterEdgeForm'), {
-  loading: StageLoading,
-});
-const DyadCensus = dynamic(() => import('./DyadCensus/DyadCensus'), {
-  loading: StageLoading,
-});
-const TieStrengthCensus = dynamic(() => import('./TieStrengthCensus'), {
-  loading: StageLoading,
-});
-const FinishSession = dynamic(() => import('./FinishSession'), {
-  loading: StageLoading,
-});
-const Anonymisation = dynamic(() => import('./Anonymisation/Anonymisation'), {
-  loading: StageLoading,
-});
-const OneToManyDyadCensus = dynamic(() => import('./OneToManyDyadCensus'), {
-  loading: StageLoading,
-});
-const Geospatial = dynamic(() => import('./Geospatial/Geospatial'), {
-  loading: StageLoading,
-});
-
 const NotFoundInterface = ({ interfaceType }: { interfaceType: string }) => (
   <div className="flex h-full w-full items-center justify-center">
     <div className="flex flex-col items-center">
@@ -78,40 +28,77 @@ type InterfaceType = StageType | 'FinishSession';
 const getInterface = (interfaceType: InterfaceType) => {
   switch (interfaceType) {
     case 'NameGenerator':
-      return NameGenerator;
+      return dynamic(() => import('./NameGenerator'), {
+        loading: StageLoading,
+      });
     case 'NameGeneratorQuickAdd':
-      return NameGeneratorQuickAdd;
+      return dynamic(() => import('./NameGeneratorQuickAdd'), {
+        loading: StageLoading,
+      });
     case 'NameGeneratorRoster':
-      return NameGeneratorRoster;
+      return dynamic(() => import('./NameGeneratorRoster'), {
+        loading: StageLoading,
+      });
     case 'Sociogram':
-      return Sociogram;
+      return dynamic(() => import('./Sociogram'), {
+        loading: StageLoading,
+      });
     case 'Information':
-      return Information;
+      return dynamic(() => import('./Information'), {
+        loading: StageLoading,
+      });
     case 'OrdinalBin':
-      return OrdinalBin;
+      return dynamic(() => import('./OrdinalBin'), {
+        loading: StageLoading,
+      });
     case 'CategoricalBin':
-      return CategoricalBin;
+      return dynamic(() => import('./CategoricalBin'), {
+        loading: StageLoading,
+      });
     case 'Narrative':
-      return Narrative;
+      return dynamic(() => import('./Narrative'), {
+        loading: StageLoading,
+      });
     case 'AlterForm':
-      return AlterForm;
+      return dynamic(() => import('./AlterForm'), {
+        loading: StageLoading,
+      });
     case 'EgoForm':
-      return EgoForm;
+      return dynamic(() => import('./EgoForm'), {
+        loading: StageLoading,
+      });
     case 'AlterEdgeForm':
-      return AlterEdgeForm;
+      return dynamic(() => import('./AlterEdgeForm'), {
+        loading: StageLoading,
+      });
     case 'DyadCensus':
-      return DyadCensus;
+      return dynamic(() => import('./DyadCensus/DyadCensus'), {
+        loading: StageLoading,
+      });
     case 'TieStrengthCensus':
-      return TieStrengthCensus;
+      return dynamic(() => import('./TieStrengthCensus'), {
+        loading: StageLoading,
+      });
     case 'Anonymisation':
-      return Anonymisation;
+      return dynamic(() => import('./Anonymisation/Anonymisation'), {
+        loading: StageLoading,
+      });
     case 'OneToManyDyadCensus':
-      return OneToManyDyadCensus;
+      return dynamic(() => import('./OneToManyDyadCensus'), {
+        loading: StageLoading,
+      });
     case 'Geospatial':
-      return Geospatial;
+      return dynamic(() => import('./Geospatial/Geospatial'), {
+        loading: StageLoading,
+      });
     case 'FinishSession':
-      return FinishSession;
+      return dynamic(() => import('./FinishSession'), {
+        loading: StageLoading,
+      });
     case 'FamilyTreeCensus':
+      return dynamic(() => import('./FamilyTreeCensus/FamilyTreeCensus'), {
+        loading: StageLoading,
+      });
     default:
       return () => <NotFoundInterface interfaceType={interfaceType} />;
   }

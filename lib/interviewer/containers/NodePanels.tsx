@@ -1,11 +1,10 @@
 import { type Panel } from '@codaco/protocol-validation';
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
-import { compose } from '@reduxjs/toolkit';
 import { invariant } from 'es-toolkit';
 import { get } from 'es-toolkit/compat';
 import { useCallback, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { MonitorDragSource } from '../behaviours/DragAndDrop';
+import { useDndStore, type DndStore } from '~/lib/dnd';
 import { usePrompts } from '../behaviours/withPrompt';
 import Panels from '../components/Panels';
 import {
@@ -23,10 +22,6 @@ import NodePanel from './NodePanel';
 
 type NodePanelsProps = {
   disableAddNew: boolean;
-  meta: NcNode & {
-    itemType: string;
-  };
-  isDragging: boolean;
 };
 
 const NodePanelColors = [
@@ -51,7 +46,10 @@ function NodePanels(props: NodePanelsProps) {
     }[]
   >([]);
 
-  const { disableAddNew, meta, isDragging } = props;
+  const { disableAddNew } = props;
+  const isDragging = useDndStore((state: DndStore) => state.isDragging);
+  const dragItem = useDndStore((state: DndStore) => state.dragItem);
+  const meta = dragItem?.metadata as NcNode & { itemType: string };
 
   const { prompt } = usePrompts();
 
@@ -103,7 +101,7 @@ function NodePanels(props: NodePanelsProps) {
 
   const isPanelCompatible = useCallback(
     (index: number) => {
-      if (panelIndexes.length !== panels?.length) {
+      if (!meta || panelIndexes.length !== panels?.length) {
         return false;
       }
 
@@ -166,9 +164,10 @@ function NodePanels(props: NodePanelsProps) {
         key={index}
         panelConfig={panel}
         disableDragging={disableAddNew}
-        accepts={() => isPanelCompatible(index)}
+        accepts={['EXISTING_NODE']} // TODO: needs to adapt based on panel source
         highlightColor={getHighlight(index)}
         minimize={!isPanelOpen(index)}
+        // @ts-expect-error not yet implemented
         onDrop={handleDrop}
         onUpdate={handlePanelUpdate(index)}
         id={`PANEL_NODE_LIST_${index}`}
@@ -186,4 +185,4 @@ function NodePanels(props: NodePanelsProps) {
   );
 }
 
-export default compose(MonitorDragSource(['isDragging', 'meta']))(NodePanels);
+export default NodePanels;

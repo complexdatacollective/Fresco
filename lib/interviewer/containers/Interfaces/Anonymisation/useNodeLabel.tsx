@@ -3,7 +3,7 @@ import {
   entityPrimaryKeyProperty,
   type NcNode,
 } from '@codaco/shared-consts';
-import { objectHash } from 'ohash';
+import { hash as objectHash } from 'ohash';
 import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import usePrevious from '~/hooks/usePrevious';

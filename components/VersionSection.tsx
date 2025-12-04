@@ -1,7 +1,7 @@
 import { AlertTriangle, CheckCircle2, Info, Loader2 } from 'lucide-react';
 import { unstable_noStore } from 'next/cache';
 import Markdown from 'react-markdown';
-import { z } from 'zod/v3';
+import { z } from 'zod';
 import Link from '~/components/Link';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { env } from '~/env';
@@ -9,9 +9,9 @@ import trackEvent from '~/lib/analytics';
 import { ensureError } from '~/utils/ensureError';
 import { getSemverUpdateType, semverSchema } from '~/utils/semVer';
 import SettingsSection from './layout/SettingsSection';
+import Heading from './typography/Heading';
+import Paragraph from './typography/Paragraph';
 import { Button } from './ui/Button';
-import Heading from './ui/typography/Heading';
-import Paragraph from './ui/typography/Paragraph';
 
 const GithubApiResponseSchema = z
   .object({

@@ -6,11 +6,11 @@ import Image from 'next/image';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import InfoTooltip from '~/components/InfoTooltip';
 import Link from '~/components/Link';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import { buttonVariants } from '~/components/ui/Button';
 import { Checkbox } from '~/components/ui/checkbox';
 import TimeAgo from '~/components/ui/TimeAgo';
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
 import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';
 import type { ProtocolWithInterviews } from './ProtocolsTableClient';
 

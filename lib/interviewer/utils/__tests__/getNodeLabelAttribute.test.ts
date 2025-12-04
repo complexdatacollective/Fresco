@@ -7,7 +7,7 @@ describe('getNodeLabelAttribute', () => {
     // Setup
     const mockCodebook: NodeDefinition = {
       name: 'Person',
-      color: 'red',
+      color: 'node-color-seq-6',
       variables: {
         'var-123': { name: 'name', type: 'text' },
         'var-456': { name: 'age', type: 'number' },
@@ -33,7 +33,7 @@ describe('getNodeLabelAttribute', () => {
     // Setup
     const mockCodebook: NodeDefinition = {
       name: 'Person',
-      color: 'red',
+      color: 'node-color-seq-5',
       variables: {
         'var-123': { name: 'NAME', type: 'text' }, // Upper case
       },
@@ -57,7 +57,7 @@ describe('getNodeLabelAttribute', () => {
     // Setup
     const mockCodebook: NodeDefinition = {
       name: 'Person',
-      color: 'red',
+      color: 'node-color-seq-4',
       variables: {
         'var-456': { name: 'age', type: 'number' },
       },
@@ -82,7 +82,7 @@ describe('getNodeLabelAttribute', () => {
     // Setup
     const mockCodebook: NodeDefinition = {
       name: 'Person',
-      color: 'red',
+      color: 'node-color-seq-3',
       variables: {
         'var-456': { name: 'age', type: 'number' },
       },
@@ -107,7 +107,7 @@ describe('getNodeLabelAttribute', () => {
     // Setup
     const mockCodebook: NodeDefinition = {
       name: 'Person',
-      color: 'red',
+      color: 'node-color-seq-2',
       variables: {
         'var-123': { name: 'firstName', type: 'text' },
         'var-456': { name: 'lastName', type: 'text' },
@@ -148,7 +148,7 @@ describe('getNodeLabelAttribute', () => {
     // Setup
     const mockCodebook: NodeDefinition = {
       name: 'Person',
-      color: 'red',
+      color: 'node-color-seq-1',
       variables: {
         'var-123': { name: 'name', type: 'text' },
       },
