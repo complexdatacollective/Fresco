@@ -75,6 +75,7 @@ styles/                # Global CSS/SCSS
 ### TypeScript
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 - Strict mode enabled with `noUncheckedIndexedAccess`
 - Use `type` over `interface` for type definitions
@@ -129,6 +130,8 @@ Environment variables are validated using `env.js` with Zod schemas. Key variabl
 
 - # Use the playwright mcp to debug errors and view console output directly. Do NOT start the development server or the storybook server. Instead, prompt the user to start these for you
 
+=======
+>>>>>>> v4
 - **Strict mode enabled** with `noUncheckedIndexedAccess`
 - Use `type` for type definitions (not `interface`) - enforced by ESLint
 - Prefer inline type imports: `import { type Foo } from './bar'`
@@ -389,4 +392,7 @@ pnpm storybook      # Component testing
 - [shadcn/ui](https://ui.shadcn.com/)
 - [Prisma](https://www.prisma.io/docs)
 - [Tailwind CSS](https://tailwindcss.com/docs)
-  > > > > > > > next
+
+## Debugging and Development Tips
+
+- Use the Playwright MCP to debug errors and view console output directly. Do NOT start the development server or the storybook server. Instead, prompt the user to start these for you.

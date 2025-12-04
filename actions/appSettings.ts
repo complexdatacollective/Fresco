@@ -10,13 +10,7 @@ import {
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
-
-// Convert boolean | Date | string to database string
-const toDbString = (value: boolean | Date | string): string => {
-  if (value instanceof Date) return value.toISOString();
-  if (typeof value === 'boolean') return value.toString();
-  return value;
-};
+import { getStringValue } from '~/utils/getStringValue';
 
 export async function setAppSetting<
   Key extends AppSetting,
@@ -35,7 +29,7 @@ export async function setAppSetting<
     }
 
     // Convert the typed value to a database string
-    const stringValue = toDbString(value);
+    const stringValue = getStringValue(value);
 
     await prisma.appSettings.upsert({
       where: { key },

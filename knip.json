@@ -8,8 +8,20 @@
     "lib/interviewer/hooks/forceSimulation.worker.js",
     "utils/auth.ts",
     "load-test.js",
-    "styles/tailwind-motion-spring.ts"
+    "styles/tailwind-motion-spring.ts",
+    "tests/e2e/scripts/analyze-test-isolation.ts"
   ],
   "ignoreDependencies": ["sharp", "esbuild", "sass-embedded"],
-  "ignoreBinaries": ["docker-compose"]
+  "ignoreExportsUsedInFile": {
+    "type": true
+  },
+  "ignoreBinaries": ["docker-compose"],
+  "playwright": {
+    "config": "tests/e2e/playwright.config.ts",
+    "entry": [
+      "tests/e2e/global-setup.ts",
+      "tests/e2e/global-teardown.ts",
+      "tests/e2e/suites/**/*.spec.ts"
+    ]
+  }
 }
