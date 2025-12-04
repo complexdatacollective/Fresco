@@ -130,10 +130,17 @@ export class TestEnvironment {
       .withNetworkAliases('postgres-db')
       .start();
 
+    const port = container.getMappedPort(5432);
+    // eslint-disable-next-line no-console
+    console.log(`  ✅ PostgreSQL started on port ${port}`);
     // eslint-disable-next-line no-console
     console.log(
-      `  ✅ PostgreSQL started on port ${container.getMappedPort(5432)}`,
+      `  🔗 Connect with: psql -h localhost -p ${port} -U ${container.getUsername()} -d ${container.getDatabase()}`,
     );
+    // eslint-disable-next-line no-console
+    console.log(`  🔗 Password: ${container.getPassword()}`);
+    // eslint-disable-next-line no-console
+    console.log(`  🔗 Connection URI: ${container.getConnectionUri()}`);
     return container;
   }
 

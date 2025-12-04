@@ -32,6 +32,21 @@ async function globalSetup() {
 
   // eslint-disable-next-line no-console
   console.log('\n✅ All test environments ready!\n');
+
+  // If DEBUG_PAUSE is set, wait for user input before continuing
+  // This allows you to inspect the database while containers are running
+  // eslint-disable-next-line no-process-env
+  if (process.env.DEBUG_PAUSE) {
+    // eslint-disable-next-line no-console
+    console.log('🔍 DEBUG_PAUSE is set. Containers are running.');
+    // eslint-disable-next-line no-console
+    console.log(
+      '   Press Enter to continue with tests (or Ctrl+C to exit)...\n',
+    );
+    await new Promise<void>((resolve) => {
+      process.stdin.once('data', () => resolve());
+    });
+  }
 }
 
 async function setupInitialSetupEnvironment(testEnv: TestEnvironment) {
