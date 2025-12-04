@@ -1,7 +1,10 @@
 import { type Codebook } from '@codaco/protocol-validation';
 import { type NcEgo } from '@codaco/shared-consts';
 import { type DocumentFragment } from '@xmldom/xmldom';
-import { getEntityAttributes } from '../../utils/general';
+import {
+  getEntityAttributes,
+  isCategoricalOptionSelected,
+} from '../../utils/general';
 import {
   type EdgeWithResequencedID,
   type ExportOptions,
@@ -13,31 +16,6 @@ import {
   getCodebookVariablesForEntity,
   sha1,
 } from './helpers';
-
-/**
- * Check if an option value is selected in the categorical attribute data.
- * Uses strict equality matching to avoid substring matching bugs.
- *
- * @param attributeData - The categorical attribute value (array or single value)
- * @param optionValue - The option value to check for
- * @returns true if the option is selected, false otherwise
- */
-const isCategoricalOptionSelected = (
-  attributeData: unknown,
-  optionValue: string | number | boolean,
-): boolean => {
-  if (!attributeData) {
-    return false;
-  }
-
-  // If it's an array, use Array.prototype.includes (strict equality)
-  if (Array.isArray(attributeData)) {
-    return attributeData.includes(optionValue);
-  }
-
-  // If it's a single value (string, number, or boolean), check for exact equality
-  return attributeData === optionValue;
-};
 
 /**
  * Function for processing attributes of an entity. Processing means creating
