@@ -19,19 +19,22 @@ import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/pro
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { Button, Scroller } from '~/lib/ui/components';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
+import { getSexVariable } from '../utils/nodeUtils';
 import { type FamilyTreeNodeType } from './FamilyTreeNode';
 
 type FamilyTreeNodeFormProps = {
   nodeType: string;
   selectedNode: FamilyTreeNodeType | void;
   form: TForm;
+  diseaseVars: string[];
   onClose: () => void;
 };
 
 const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
-  const { nodeType, selectedNode, form, onClose } = props;
+  const { nodeType, selectedNode, form, diseaseVars, onClose } = props;
 
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
+  const sexVariable = useSelector(getSexVariable);
 
   const [show, setShow] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -51,6 +54,13 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
       if (!node) return;
 
       try {
+        if (sexVariable != null && node.sex != null) {
+          attributes[sexVariable] = node.sex;
+        }
+        // set default disease values
+        diseaseVars.forEach((disease) => {
+          attributes[disease] = false;
+        });
         const resultAction = await dispatch(
           addNetworkNode({
             type: nodeType,
@@ -75,7 +85,14 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
         console.error('Error committing shell node:', err);
       }
     },
-    [dispatch, nodeType, syncMetadata, updateShellNode],
+    [
+      sexVariable,
+      diseaseVars,
+      dispatch,
+      nodeType,
+      syncMetadata,
+      updateShellNode,
+    ],
   );
 
   const updateNode = useCallback(

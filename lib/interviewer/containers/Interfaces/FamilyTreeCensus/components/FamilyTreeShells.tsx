@@ -218,6 +218,9 @@ export const FamilyTreeShells = (props: {
           nodeType={stage.subject.type}
           selectedNode={selectedNode}
           form={stage.nameGenerationStep.form}
+          diseaseVars={
+            stage.diseaseNominationStep?.map((d) => d.variable) ?? []
+          }
           onClose={() => {
             setSelectedNode(undefined);
           }}
