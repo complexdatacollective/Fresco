@@ -1,7 +1,10 @@
 import { type Codebook } from '@codaco/protocol-validation';
 import { type NcEgo } from '@codaco/shared-consts';
 import { type DocumentFragment } from '@xmldom/xmldom';
-import { getEntityAttributes } from '../../utils/general';
+import {
+  getEntityAttributes,
+  isCategoricalOptionSelected,
+} from '../../utils/general';
 import {
   type EdgeWithResequencedID,
   type ExportOptions,
@@ -70,9 +73,10 @@ function processAttributes(
           const hashedOptionValue = sha1(String(option.value));
           const optionKey = `${key}_${hashedOptionValue}`;
 
-          const attributeValue = entityAttributes[key] as string[] | number[]; // type narrowed to this because these are valid categorical variable values
-          const isSelected = attributeValue.includes(
-            option.value as string | number,
+          const attributeValue = entityAttributes[key];
+          const isSelected = isCategoricalOptionSelected(
+            attributeValue,
+            option.value,
           );
           createDomDataElement(optionKey, isSelected ? 'true' : 'false');
         });
