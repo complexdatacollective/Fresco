@@ -176,7 +176,7 @@ export class TestEnvironment {
     },
   ): Promise<StartedTestContainer> {
     // eslint-disable-next-line no-console
-    console.log(`  🚀 Starting application...`);
+    console.log(`  🚀 Starting application for ${config.suiteId}...`);
 
     // Assume image is already built (e.g., in CI pipeline)
     // eslint-disable-next-line no-process-env
@@ -184,28 +184,55 @@ export class TestEnvironment {
 
     const databaseUrl = `postgresql://${config.dbContainer.getUsername()}:${config.dbContainer.getPassword()}@postgres-db:5432/${config.dbContainer.getDatabase()}`;
 
-    const container = await new GenericContainer(imageName)
-      .withEnvironment({
-        NODE_ENV: 'test',
-        POSTGRES_PRISMA_URL: databaseUrl,
-        POSTGRES_URL_NON_POOLING: databaseUrl,
-        SKIP_ENV_VALIDATION: TEST_ENVIRONMENT.skipEnvValidation
-          ? 'true'
-          : 'false',
-        HOSTNAME: '0.0.0.0',
-        PORT: '3000',
-        // Add a test UploadThing token for onboarding flow
-        UPLOADTHING_TOKEN: TEST_ENVIRONMENT.uploadThingToken,
-      })
-      .withExposedPorts(3000)
-      .withNetwork(config.network)
-      .withNetworkAliases('app')
-      .withWaitStrategy(
-        Wait.forListeningPorts().withStartupTimeout(
-          TEST_TIMEOUTS.containerStartup,
-        ),
-      )
-      .start();
+    // eslint-disable-next-line no-console
+    console.log(`  📝 Database URL for ${config.suiteId}: ${databaseUrl}`);
+
+    let container: StartedTestContainer;
+    try {
+      container = await new GenericContainer(imageName)
+        .withEnvironment({
+          NODE_ENV: 'test',
+          DATABASE_URL: databaseUrl,
+          DATABASE_URL_UNPOOLED: databaseUrl,
+          SKIP_ENV_VALIDATION: TEST_ENVIRONMENT.skipEnvValidation
+            ? 'true'
+            : 'false',
+          HOSTNAME: '0.0.0.0',
+          PORT: '3000',
+          // Add a test UploadThing token for onboarding flow
+          UPLOADTHING_TOKEN: TEST_ENVIRONMENT.uploadThingToken,
+        })
+        .withExposedPorts(3000)
+        .withNetwork(config.network)
+        .withNetworkAliases('app')
+        .withLogConsumer((stream) => {
+          stream.on('data', (line) => {
+            // eslint-disable-next-line no-console
+            console.log(`  [${config.suiteId}] ${line}`);
+          });
+          stream.on('err', (line) => {
+            // eslint-disable-next-line no-console
+            console.error(`  [${config.suiteId}] ERR: ${line}`);
+          });
+        })
+        .withWaitStrategy(
+          Wait.forListeningPorts().withStartupTimeout(
+            TEST_TIMEOUTS.containerStartup,
+          ),
+        )
+        .start();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(`  ❌ Container failed to start for ${config.suiteId}`);
+      // eslint-disable-next-line no-console
+      console.error('  Error:', error);
+      throw error;
+    }
+
+    // eslint-disable-next-line no-console
+    console.log(
+      `  ✅ Application started on port ${container.getMappedPort(3000)}`,
+    );
 
     // Wait a bit for the Next.js app to fully initialize
     await new Promise((resolve) =>
@@ -230,8 +257,8 @@ export class TestEnvironment {
     const container = await new GenericContainer(imageName)
       .withEnvironment({
         NODE_ENV: 'test',
-        POSTGRES_PRISMA_URL: databaseUrl,
-        POSTGRES_URL_NON_POOLING: databaseUrl,
+        DATABASE_URL: databaseUrl,
+        DATABASE_URL_UNPOOLED: databaseUrl,
         SKIP_ENV_VALIDATION: TEST_ENVIRONMENT.skipEnvValidation
           ? 'true'
           : 'false',

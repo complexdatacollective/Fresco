@@ -15,7 +15,7 @@ importers:
         specifier: 8.0.0
         version: 8.0.0(next@14.2.32(@babel/core@7.28.5)(@playwright/test@1.56.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.94.2))
       '@codaco/protocol-validation':
-        specifier: ^7.1.0
+        specifier: ^7.2.0
         version: 7.2.0
       '@codaco/shared-consts':
         specifier: 5.0.0
@@ -75,10 +75,10 @@ importers:
         specifier: ^1.2.8
         version: 1.2.8(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@reduxjs/toolkit':
-        specifier: ^2.5.0
+        specifier: ^2.11.0
         version: 2.11.0(react-redux@9.2.0(@types/react@18.3.18)(react@18.3.1)(redux@5.0.1))(react@18.3.1)
       '@tanstack/react-form':
-        specifier: ^1.12.3
+        specifier: ^1.26.0
         version: 1.26.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-table':
         specifier: ^8.21.3
@@ -117,7 +117,7 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       csvtojson:
-        specifier: ^2.0.11
+        specifier: ^2.0.14
         version: 2.0.14
       d3-interpolate-path:
         specifier: ^2.3.0
@@ -126,13 +126,13 @@ importers:
         specifier: ^17.2.3
         version: 17.2.3
       es-toolkit:
-        specifier: ^1.40.0
+        specifier: ^1.42.0
         version: 1.42.0
       fuse.js:
         specifier: ^7.1.0
         version: 7.1.0
       immer:
-        specifier: ^10.1.3
+        specifier: ^10.2.0
         version: 10.2.0
       jszip:
         specifier: ^3.10.1
@@ -147,13 +147,13 @@ importers:
         specifier: ^3.7.2
         version: 3.7.2
       mapbox-gl:
-        specifier: ^3.13.0
+        specifier: ^3.16.0
         version: 3.16.0
       motion:
         specifier: ^12.23.24
         version: 12.23.24(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       nanoid:
-        specifier: ^5.1.5
+        specifier: ^5.1.6
         version: 5.1.6
       next:
         specifier: ^14.2.32
@@ -246,7 +246,7 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
       superjson:
-        specifier: ^2.2.2
+        specifier: ^2.2.5
         version: 2.2.5
       tailwind-merge:
         specifier: ^3.4.0
@@ -261,7 +261,7 @@ importers:
         specifier: ^11.1.0
         version: 11.1.0
       validator:
-        specifier: ^13.15.20
+        specifier: ^13.15.23
         version: 13.15.23
       zod:
         specifier: ^4.1.12
@@ -270,11 +270,11 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1(zod@4.1.12)
       zustand:
-        specifier: ^5.0.6
+        specifier: ^5.0.8
         version: 5.0.8(@types/react@18.3.18)(immer@10.2.0)(react@18.3.1)(use-sync-external-store@1.6.0(react@18.3.1))
     devDependencies:
       '@playwright/test':
-        specifier: ^1.40.0
+        specifier: ^1.56.1
         version: 1.56.1
       '@prisma/client':
         specifier: ^6.19.0
@@ -304,8 +304,8 @@ importers:
         specifier: ^0.5.19
         version: 0.5.19(tailwindcss@4.1.17)
       '@testcontainers/postgresql':
-        specifier: ^10.0.0
-        version: 10.28.0
+        specifier: ^11.9.0
+        version: 11.9.0
       '@total-typescript/ts-reset':
         specifier: ^0.6.1
         version: 0.6.1
@@ -358,10 +358,10 @@ importers:
         specifier: ^8.47.0
         version: 8.47.0(eslint@8.57.1)(typescript@5.9.3)
       '@vitejs/plugin-react':
-        specifier: ^5.1.0
+        specifier: ^5.1.1
         version: 5.1.1(vite@7.2.2(@types/node@22.13.9)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.93.3)(sass@1.94.2)(terser@5.44.1)(yaml@2.8.2))
       chromatic:
-        specifier: ^13.1.3
+        specifier: ^13.3.4
         version: 13.3.4
       esbuild:
         specifier: ^0.27.0
@@ -379,10 +379,10 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.47.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@4.4.4)(eslint@8.57.1))
       eslint-import-resolver-typescript:
-        specifier: ^4.4.3
+        specifier: ^4.4.4
         version: 4.4.4(eslint-plugin-import@2.32.0)(eslint@8.57.1)
       eslint-plugin-import:
-        specifier: ^2.31.0
+        specifier: ^2.32.0
         version: 2.32.0(@typescript-eslint/parser@8.47.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@4.4.4)(eslint@8.57.1)
       eslint-plugin-storybook:
         specifier: ^10.0.8
@@ -391,10 +391,10 @@ importers:
         specifier: ^30.2.0
         version: 30.2.0(@types/node@22.13.9)(esbuild-register@3.6.0(esbuild@0.27.0))(ts-node@10.9.2(@types/node@22.13.9)(typescript@5.9.3))
       jsdom:
-        specifier: ^27.0.1
+        specifier: ^27.2.0
         version: 27.2.0(postcss@8.5.6)
       knip:
-        specifier: ^5.70.1
+        specifier: ^5.70.2
         version: 5.70.2(@types/node@22.13.9)(typescript@5.9.3)
       prettier:
         specifier: ^3.6.2
@@ -403,7 +403,7 @@ importers:
         specifier: ^0.7.1
         version: 0.7.1(prettier@3.6.2)
       prisma:
-        specifier: ^6.18.0
+        specifier: ^6.19.0
         version: 6.19.0(typescript@5.9.3)
       sass:
         specifier: ^1.94.2
@@ -418,8 +418,8 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@4.1.17)
       testcontainers:
-        specifier: ^10.0.0
-        version: 10.28.0
+        specifier: ^11.9.0
+        version: 11.9.0
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -430,7 +430,7 @@ importers:
         specifier: ^4.0.13
         version: 4.0.13(@types/debug@4.1.12)(@types/node@22.13.9)(jiti@2.6.1)(jsdom@27.2.0(postcss@8.5.6))(lightningcss@1.30.2)(sass-embedded@1.93.3)(sass@1.94.2)(terser@5.44.1)(yaml@2.8.2)
       wait-on:
-        specifier: ^7.0.0
+        specifier: ^7.2.0
         version: 7.2.0
 
 packages:
@@ -1573,10 +1573,6 @@ packages:
   '@faker-js/faker@10.1.0':
     resolution: {integrity: sha512-C3mrr3b5dRVlKPJdfrAXS8+dq+rq8Qm5SNRazca0JKgw1HQERFmrVb0towvMmw5uu8hHKNiQasMaR/tydf3Zsg==}
     engines: {node: ^20.19.0 || ^22.13.0 || ^23.5.0 || >=24.0.0, npm: '>=10'}
-
-  '@fastify/busboy@2.1.1':
-    resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
-    engines: {node: '>=14'}
 
   '@floating-ui/core@1.7.3':
     resolution: {integrity: sha512-sGnvb5dmrJaKEZ+LDIpguvdX3bDlEllmv4/ClQ9awcmCZrlx5jQyyMWFM5kBI+EyNOCDDiKk8il0zeuX3Zlg/w==}
@@ -3247,8 +3243,8 @@ packages:
     resolution: {integrity: sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg==}
     engines: {node: '>=12'}
 
-  '@testcontainers/postgresql@10.28.0':
-    resolution: {integrity: sha512-NN25rruG5D4Q7pCNIJuHwB+G85OSeJ3xHZ2fWx0O6sPoPEfCYwvpj8mq99cyn68nxFkFYZeyrZJtSFO+FnydiA==}
+  '@testcontainers/postgresql@11.9.0':
+    resolution: {integrity: sha512-beLyLdLygFllktviM132Xd6tQ4i5FnuyZP+4BQEjUb5sJYHYnIrV/ZBzRRflIlF8gugt1GXgudkmr/HxM9vtKw==}
 
   '@testing-library/dom@10.4.1':
     resolution: {integrity: sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg==}
@@ -4696,8 +4692,8 @@ packages:
   diffie-hellman@5.0.3:
     resolution: {integrity: sha512-kqag/Nl+f3GwyK25fhUMYj81BUOrZ9IuJsjIcDE5icNM9FJHAVm3VcUDxdLPoQtTuUylWm6ZIknYJwwaPxsUzg==}
 
-  docker-compose@0.24.8:
-    resolution: {integrity: sha512-plizRs/Vf15H+GCVxq2EUvyPK7ei9b/cVesHvjnX4xaXjM9spHe2Ytq0BitndFgvTJ3E3NljPNUEl7BAN43iZw==}
+  docker-compose@1.3.0:
+    resolution: {integrity: sha512-7Gevk/5eGD50+eMD+XDnFnOrruFkL0kSd7jEG4cjmqweDSUhB7i0g8is/nBdVpl+Bx338SqIB2GLKm32M+Vs6g==}
     engines: {node: '>= 6.0.0'}
 
   docker-modem@5.0.6:
@@ -7917,8 +7913,8 @@ packages:
     resolution: {integrity: sha512-cAGWPIyOHU6zlmg88jwm7VRyXnMN7iV68OGAbYDk/Mh/xC/pzVPlQtY6ngoIH/5/tciuhGfvESU8GrHrcxD56w==}
     engines: {node: '>=8'}
 
-  testcontainers@10.28.0:
-    resolution: {integrity: sha512-1fKrRRCsgAQNkarjHCMKzBKXSJFmzNTiTbhb5E/j5hflRXChEtHvkefjaHlgkNUjfw92/Dq8LTgwQn6RDBFbMg==}
+  testcontainers@11.9.0:
+    resolution: {integrity: sha512-SQ6OqQUig7HcGVF72i+ZVIMvxPSpEz8cgC/B63ekqMzgf98DnveoBbOmqux/Wa5wQAQCt4mEPNMa/Jz7vMg9fQ==}
 
   text-decoder@1.2.0:
     resolution: {integrity: sha512-n1yg1mOj9DNpk3NeZOx7T6jchTbyJS3i3cucbNN6FcdPriMZx7NsgrGpWWdWZZGxD7ES1XB+3uoqHMgOKaN+fg==}
@@ -8108,9 +8104,9 @@ packages:
   undici-types@6.20.0:
     resolution: {integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==}
 
-  undici@5.29.0:
-    resolution: {integrity: sha512-raqeBD6NQK4SkWhQzeYKd1KmIG6dllBOTt55Rmkt4HtI9mwdWtJljnrXjAFUBLTSN67HWrOIZ3EPF4kjUw80Bg==}
-    engines: {node: '>=14.0'}
+  undici@7.16.0:
+    resolution: {integrity: sha512-QEg3HPMll0o3t2ourKwOeUAZ159Kn9mx5pnzHRQO8+Wixmh88YdZRiIwat0iNzNNXn0yoEtXJqFpyW7eM8BV7g==}
+    engines: {node: '>=20.18.1'}
 
   unicode-canonical-property-names-ecmascript@2.0.1:
     resolution: {integrity: sha512-dA8WbNeb2a6oQzAQ55YlT5vQAWGV9WXOsi3SskE3bcCdM0P4SDd+24zS/OCacdRq5BkdsRj9q3Pg6YyQoxIGqg==}
@@ -9750,8 +9746,6 @@ snapshots:
 
   '@faker-js/faker@10.1.0': {}
 
-  '@fastify/busboy@2.1.1': {}
-
   '@floating-ui/core@1.7.3':
     dependencies:
       '@floating-ui/utils': 0.2.10
@@ -11375,9 +11369,9 @@ snapshots:
 
   '@tanstack/table-core@8.21.3': {}
 
-  '@testcontainers/postgresql@10.28.0':
+  '@testcontainers/postgresql@11.9.0':
     dependencies:
-      testcontainers: 10.28.0
+      testcontainers: 11.9.0
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-buffer
@@ -12966,7 +12960,7 @@ snapshots:
       miller-rabin: 4.0.1
       randombytes: 2.1.0
 
-  docker-compose@0.24.8:
+  docker-compose@1.3.0:
     dependencies:
       yaml: 2.8.2
 
@@ -17042,7 +17036,7 @@ snapshots:
       glob: 7.2.3
       minimatch: 3.1.2
 
-  testcontainers@10.28.0:
+  testcontainers@11.9.0:
     dependencies:
       '@balena/dockerignore': 1.0.2
       '@types/dockerode': 3.3.47
@@ -17050,7 +17044,7 @@ snapshots:
       async-lock: 1.4.1
       byline: 5.0.0
       debug: 4.4.3
-      docker-compose: 0.24.8
+      docker-compose: 1.3.0
       dockerode: 4.0.9
       get-port: 7.1.0
       proper-lockfile: 4.1.2
@@ -17058,7 +17052,7 @@ snapshots:
       ssh-remote-port-forward: 1.0.4
       tar-fs: 3.1.1
       tmp: 0.2.5
-      undici: 5.29.0
+      undici: 7.16.0
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-buffer
@@ -17246,9 +17240,7 @@ snapshots:
 
   undici-types@6.20.0: {}
 
-  undici@5.29.0:
-    dependencies:
-      '@fastify/busboy': 2.1.1
+  undici@7.16.0: {}
 
   unicode-canonical-property-names-ecmascript@2.0.1: {}
 

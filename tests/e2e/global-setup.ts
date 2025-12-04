@@ -21,8 +21,8 @@ async function globalSetup() {
   // Setup parallel environments
   const setupPromises = [
     setupInitialSetupEnvironment(testEnv),
-    setupDashboardEnvironment(testEnv),
-    setupInterviewsEnvironment(testEnv),
+    // setupDashboardEnvironment(testEnv),
+    // setupInterviewsEnvironment(testEnv),
   ];
 
   await Promise.all(setupPromises);
