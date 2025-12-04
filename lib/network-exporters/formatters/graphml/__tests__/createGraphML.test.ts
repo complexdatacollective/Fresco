@@ -1,5 +1,3 @@
-/* eslint-env jest */
-
 import { type Codebook } from '@codaco/protocol-validation';
 import { ncUUIDProperty } from '@codaco/shared-consts';
 import {
