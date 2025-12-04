@@ -9,7 +9,7 @@ import { CacheTags, safeRevalidateTag } from '~/lib/cache';
  * Uses revalidateTag() to properly invalidate the in-memory cache,
  * not just the filesystem cache.
  */
-export async function POST(): Promise<NextResponse> {
+export function POST(): NextResponse {
   // Only allow when running in test mode (SKIP_ENV_VALIDATION is set by test environment)
   // eslint-disable-next-line no-process-env
   if (process.env.SKIP_ENV_VALIDATION !== 'true') {

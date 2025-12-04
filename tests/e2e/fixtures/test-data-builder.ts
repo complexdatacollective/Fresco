@@ -186,6 +186,7 @@ export class TestDataBuilder {
 
     // Create or update settings
     for (const [key, value] of Object.entries(finalSettings)) {
+      if (value === null) continue;
       await this.prisma.appSettings.upsert({
         where: { key: key as keyof typeof defaultSettings },
         update: { value: getStringValue(value) },

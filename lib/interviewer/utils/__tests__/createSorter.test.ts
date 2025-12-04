@@ -1,6 +1,6 @@
 import { type EntityDefinition } from '@codaco/protocol-validation';
 import { entityAttributesProperty } from '@codaco/shared-consts';
-import { it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import createSorter, {
   processProtocolSortRule,
   type ProtocolSortRule,

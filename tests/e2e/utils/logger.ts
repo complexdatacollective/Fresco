@@ -105,9 +105,12 @@ export const logger = {
   error: (message: string, err?: unknown) => {
     process.stderr.write(formatMessage('error', message) + '\n');
     if (err) {
-      // String(err) correctly handles non-Error objects
       const errorDetail =
-        err instanceof Error ? (err.stack ?? err.message) : String(err);
+        err instanceof Error
+          ? (err.stack ?? err.message)
+          : typeof err === 'string'
+            ? err
+            : JSON.stringify(err);
       process.stderr.write(chalk.red(errorDetail) + '\n');
     }
   },
@@ -338,7 +341,12 @@ export const logger = {
     startError: (suiteId: string, err: unknown) => {
       logger.error(`  ${icons.error} Container failed to start for ${suiteId}`);
       if (err) {
-        const errorMessage = err instanceof Error ? err.message : String(err);
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : typeof err === 'string'
+              ? err
+              : JSON.stringify(err);
         logger.error(`  Error: ${errorMessage}`);
       }
     },

@@ -206,14 +206,14 @@ export class TestEnvironment {
         .withNetwork(config.network)
         .withNetworkAliases('app')
         .withLogConsumer((stream) => {
-          stream.on('data', (line) => {
+          stream.on('data', (line: string | Buffer) => {
             // Skip if line is null/undefined
             if (line == null) return;
             const lineStr =
               typeof line === 'string' ? line : line.toString('utf-8');
             logger.app.log(config.suiteId, lineStr);
           });
-          stream.on('err', (line) => {
+          stream.on('err', (line: string | Buffer) => {
             // Skip if line is null/undefined
             if (line == null) return;
             const lineStr =

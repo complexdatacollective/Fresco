@@ -1,5 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
+import { env } from '~/env.js';
+
 type HealthStatus = 'healthy' | 'degraded' | 'unhealthy';
 
 type HealthCheck = {
@@ -18,32 +20,33 @@ type HealthResponse = {
   checks: HealthCheck[];
 };
 
-async function checkBasicHealth(): Promise<HealthCheck> {
+function checkBasicHealth(): HealthCheck {
   const start = performance.now();
-  
+
   try {
     // Basic health check - just verify the service is running
     const nodeVersion = process.version;
     const duration = performance.now() - start;
-    
+
     return {
       name: 'basic',
       status: 'healthy',
       duration: Math.round(duration),
       details: {
         nodeVersion,
-        environment: process.env.NODE_ENV,
+        environment: env.NODE_ENV,
         uptime: Math.round(process.uptime()),
       },
     };
   } catch (error) {
     const duration = performance.now() - start;
-    
+
     return {
       name: 'basic',
       status: 'unhealthy',
       duration: Math.round(duration),
-      error: error instanceof Error ? error.message : 'Basic health check failed',
+      error:
+        error instanceof Error ? error.message : 'Basic health check failed',
     };
   }
 }
@@ -51,7 +54,7 @@ async function checkBasicHealth(): Promise<HealthCheck> {
 function getOverallStatus(checks: HealthCheck[]): HealthStatus {
   const hasUnhealthy = checks.some((check) => check.status === 'unhealthy');
   const hasDegraded = checks.some((check) => check.status === 'degraded');
-  
+
   if (hasUnhealthy) return 'unhealthy';
   if (hasDegraded) return 'degraded';
   return 'healthy';
@@ -68,27 +71,27 @@ function getStatusCode(status: HealthStatus): number {
   }
 }
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export function GET(_request: NextRequest): NextResponse {
   const startTime = performance.now();
-  
+
   try {
     // Run health checks
-    const basicCheck = await checkBasicHealth();
+    const basicCheck = checkBasicHealth();
     const checks = [basicCheck];
-    
+
     const overallStatus = getOverallStatus(checks);
     const statusCode = getStatusCode(overallStatus);
-    
+
     const response: HealthResponse = {
       status: overallStatus,
       timestamp: new Date().toISOString(),
       uptime: Math.round(process.uptime()),
-      version: process.env.npm_package_version || 'unknown',
+      version: env.APP_VERSION ?? 'unknown',
       checks,
     };
-    
+
     const totalDuration = Math.round(performance.now() - startTime);
-    
+
     return NextResponse.json(
       {
         ...response,
@@ -118,7 +121,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         },
       ],
     };
-    
+
     return NextResponse.json(response, {
       status: 503,
       headers: {
