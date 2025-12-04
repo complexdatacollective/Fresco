@@ -112,10 +112,10 @@ When creating new visual tests, you need to generate baseline screenshots:
 
 ```bash
 # Generate baselines for all visual tests
-./tests/e2e/scripts/generate-baselines.sh
+./scripts/generate-baselines.sh
 
 # Generate baselines for specific test file
-./tests/e2e/scripts/generate-baselines.sh "participants.spec.ts"
+./scripts/generate-baselines.sh "participants.spec.ts"
 
 # Or use Playwright directly
 npx playwright test --update-snapshots --grep "visual snapshot"
