@@ -181,6 +181,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Create the protocol with assets immediately
+        // Mark as pending if there are assets to upload
         const protocol = await prisma.protocol.create({
           data: {
             hash: protocolHash,
@@ -193,6 +194,7 @@ export async function POST(req: NextRequest) {
             stages: protocolJson.stages as never,
             codebook: protocolJson.codebook as never,
             isPreview: true,
+            isPending: presignedUrls.length > 0,
             assets: {
               create: assetsToCreate,
               connect: existingAssetIds.map((assetId) => ({ assetId })),
@@ -241,10 +243,10 @@ export async function POST(req: NextRequest) {
           return jsonResponse(response, 404);
         }
 
-        // Update timestamp to mark completion
+        // Update timestamp and clear pending flag to mark completion
         await prisma.protocol.update({
           where: { id: protocol.id },
-          data: { importedAt: new Date() },
+          data: { importedAt: new Date(), isPending: false },
         });
 
         void addEvent(
