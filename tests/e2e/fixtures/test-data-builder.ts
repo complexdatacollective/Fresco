@@ -1,10 +1,13 @@
-import { type Protocol, ProtocolSchema } from '@codaco/protocol-validation';
+import {
+  type CurrentProtocol,
+  CurrentProtocolSchema,
+} from '@codaco/protocol-validation';
 import { createId } from '@paralleldrive/cuid2';
 import { type PrismaClient } from '@prisma/client';
 import { generateLuciaPasswordHash } from 'lucia/utils';
-import { objectHash } from 'ohash';
+import { hash as objectHash } from 'ohash';
 import { type z } from 'zod';
-import { type appSettingsSchema } from '~/schemas/appSettings';
+import { type appSettingPreprocessedSchema } from '~/schemas/appSettings';
 import { getStringValue } from '~/utils/getStringValue';
 
 export class TestDataBuilder {
@@ -41,7 +44,7 @@ export class TestDataBuilder {
    * Create a test protocol with basic data
    */
   async createProtocol() {
-    const testProtocol: Protocol = {
+    const testProtocol: CurrentProtocol = {
       description: 'A test protocol for e2e testing',
       schemaVersion: 8,
       stages: [
@@ -83,7 +86,7 @@ export class TestDataBuilder {
         node: {
           person: {
             name: 'Person',
-            color: 'blue',
+            color: 'node-color-seq-3',
             iconVariant: 'user',
             variables: {
               name: {
@@ -98,7 +101,7 @@ export class TestDataBuilder {
       },
     };
 
-    const safeProtocol = ProtocolSchema.parse(testProtocol);
+    const safeProtocol = CurrentProtocolSchema.parse(testProtocol);
 
     const protocol = await this.prisma.protocol.create({
       data: {
@@ -177,7 +180,7 @@ export class TestDataBuilder {
       initializedAt: new Date(),
       installationId: `test-${createId()}`,
       uploadThingToken: "UPLOADTHING_TOKEN='TEST_TOKEN'",
-    } as z.infer<typeof appSettingsSchema>;
+    } as z.infer<typeof appSettingPreprocessedSchema>;
 
     const finalSettings = { ...defaultSettings, ...settings };
 
