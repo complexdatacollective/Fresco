@@ -9,8 +9,8 @@ type ParticipantSnapshot = {
 /**
  * Database operations for test isolation.
  * Uses data-level snapshots for reliable state management across test operations.
- * Note: PostgreSQL savepoints don't work across Prisma operations since each
- * operation runs in its own transaction by default.
+ * Automatically clears Next.js data cache after database mutations to ensure
+ * the UI reflects the current database state.
  */
 export class DatabaseSnapshots {
   private context: WorkerContext;
@@ -42,6 +42,34 @@ export class DatabaseSnapshots {
         baseURL: this.testInfo?.project?.use?.baseURL as string | undefined,
       }
     );
+  }
+
+  /**
+   * Clear the Next.js data cache to ensure UI reflects current database state.
+   * This is necessary because Next.js caches database queries via createCachedFunction.
+   */
+  async clearNextCache(): Promise<void> {
+    try {
+      const response = await fetch(
+        `${this.context.appUrl}/api/test/clear-cache`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      if (!response.ok) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `Failed to clear Next.js cache: ${response.status} ${response.statusText}`,
+        );
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.warn('Failed to clear Next.js cache:', error);
+    }
   }
 
   /**
@@ -88,6 +116,7 @@ export class DatabaseSnapshots {
 
   /**
    * Restore to a previously created snapshot.
+   * Also clears the Next.js cache to ensure UI reflects the restored state.
    * @param name - Name of the snapshot to restore to
    */
   async restore(name: string): Promise<void> {
@@ -106,6 +135,9 @@ export class DatabaseSnapshots {
         data: snapshot.participants,
       });
     }
+
+    // Clear Next.js cache to ensure UI reflects the restored database state
+    await this.clearNextCache();
   }
 
   /**
