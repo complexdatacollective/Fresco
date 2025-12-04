@@ -72,7 +72,7 @@ jobs:
 
       - name: Run Playwright tests
         if: steps.check-playwright.outputs.playwright_installed == 'true'
-        run: pnpm exec playwright test
+        run: pnpm test:e2e
         env:
           CI: true
 
