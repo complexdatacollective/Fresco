@@ -3,6 +3,7 @@ import { verifyApiToken } from '~/actions/apiTokens';
 import { env } from '~/env';
 import { getAppSetting } from '~/queries/appSettings';
 import { getServerSession } from '~/utils/auth';
+import type { ErrorResponse, PreviewResponse } from './types';
 
 // CORS headers for external clients (like Architect)
 const corsHeaders = {
@@ -20,7 +21,7 @@ export function OPTIONS() {
 }
 
 // Helper to create JSON responses with CORS headers
-export function jsonResponse(data: Record<string, unknown>, status = 200) {
+export function jsonResponse(data: PreviewResponse, status = 200) {
   return NextResponse.json(data, { status, headers: corsHeaders });
 }
 
@@ -31,7 +32,11 @@ export async function checkPreviewAuth(
 ): Promise<NextResponse | null> {
   // Check if preview mode is enabled
   if (!env.PREVIEW_MODE) {
-    return jsonResponse({ error: 'Preview mode is not enabled' }, 403);
+    const response: ErrorResponse = {
+      status: 'error',
+      message: 'Preview mode is not enabled',
+    };
+    return jsonResponse(response, 403);
   }
 
   // Check authentication if required
@@ -47,16 +52,21 @@ export async function checkPreviewAuth(
       const token = authHeader?.replace('Bearer ', '');
 
       if (!token) {
-        return jsonResponse(
-          { error: 'Authentication required. Provide session or API token.' },
-          401,
-        );
+        const response: ErrorResponse = {
+          status: 'error',
+          message: 'Authentication required. Provide session or API token.',
+        };
+        return jsonResponse(response, 401);
       }
 
       const { valid } = await verifyApiToken(token);
 
       if (!valid) {
-        return jsonResponse({ error: 'Invalid API token' }, 401);
+        const response: ErrorResponse = {
+          status: 'error',
+          message: 'Invalid API token',
+        };
+        return jsonResponse(response, 401);
       }
     }
   }

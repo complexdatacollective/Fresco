@@ -125,6 +125,8 @@ export async function generatePresignedUploadUrl(
     'x-ut-file-name': fileName,
     'x-ut-file-size': String(fileSize),
     'x-ut-slug': 'assetRouter', // Use the existing file router slug
+    'x-ut-content-disposition': 'inline',
+    'x-ut-acl': 'public-read',
   });
 
   // Construct the base URL
