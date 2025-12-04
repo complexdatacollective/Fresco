@@ -83,7 +83,7 @@
     "lucide-react": "^0.554.0",
     "luxon": "^3.7.2",
     "mapbox-gl": "^3.16.0",
-    "motion": "^12.23.24",
+    "motion": "^12.23.25",
     "nanoid": "^5.1.6",
     "next": "^14.2.32",
     "nuqs": "^1.20.0",
@@ -126,7 +126,7 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
-    "@playwright/test": "^1.56.1",
+    "@playwright/test": "^1.57.0",
     "@prisma/client": "^6.19.0",
     "@storybook/nextjs": "^10.0.8",
     "@storybook/react": "^10.0.8",
@@ -152,7 +152,7 @@
     "@types/uuid": "^10.0.0",
     "@types/validator": "^13.15.10",
     "@typescript-eslint/eslint-plugin": "^8.47.0",
-    "@typescript-eslint/parser": "^8.47.0",
+    "@typescript-eslint/parser": "^8.48.0",
     "@vitejs/plugin-react": "^5.1.1",
     "chalk": "^5.6.2",
     "chromatic": "^13.3.4",
@@ -165,7 +165,7 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-storybook": "^10.0.8",
     "jsdom": "^27.2.0",
-    "knip": "^5.70.2",
+    "knip": "^5.71.0",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.7.1",
     "prisma": "^6.19.0",
@@ -176,6 +176,6 @@
     "testcontainers": "^11.9.0",
     "typescript": "5.9.3",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^4.0.13"
+    "vitest": "^4.0.14"
   }
 }
