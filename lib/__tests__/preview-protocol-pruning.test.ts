@@ -159,7 +159,7 @@ describe('prunePreviewProtocols', () => {
     expect(result.error).toBe('Database error');
   });
 
-  it('should only query for preview protocols', async () => {
+  it('should only query for preview protocols with pending/completed cutoffs', async () => {
     const { prunePreviewProtocols } = await import(
       '../preview-protocol-pruning'
     );
@@ -174,13 +174,25 @@ describe('prunePreviewProtocols', () => {
     const mockCalls = mockPrisma.protocol.findMany.mock.calls;
     expect(mockCalls.length).toBeGreaterThan(0);
 
-    // Check that the query includes isPreview: true
+    // Check that the query includes isPreview: true and OR conditions for pending/completed
     const firstCall = mockCalls[0];
     expect(firstCall).toBeDefined();
     if (firstCall) {
-      const args = firstCall[0] as { where?: { isPreview?: boolean; importedAt?: { lt?: Date } } };
+      type QueryArgs = {
+        where?: {
+          isPreview?: boolean;
+          OR?: Array<{ isPending?: boolean; importedAt?: { lt?: Date } }>;
+        };
+      };
+      const args = firstCall[0] as QueryArgs;
       expect(args.where?.isPreview).toBe(true);
-      expect(args.where?.importedAt?.lt).toBeInstanceOf(Date);
+      expect(args.where?.OR).toHaveLength(2);
+      // Pending protocols cutoff (15 min)
+      expect(args.where?.OR?.[0]?.isPending).toBe(true);
+      expect(args.where?.OR?.[0]?.importedAt?.lt).toBeInstanceOf(Date);
+      // Completed protocols cutoff (24 hours)
+      expect(args.where?.OR?.[1]?.isPending).toBe(false);
+      expect(args.where?.OR?.[1]?.importedAt?.lt).toBeInstanceOf(Date);
     }
   });
 });

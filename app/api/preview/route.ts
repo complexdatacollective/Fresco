@@ -7,7 +7,10 @@ import { type NextRequest } from 'next/server';
 import { hash } from 'ohash';
 import { addEvent } from '~/actions/activityFeed';
 import { env } from '~/env';
-import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
+import {
+  APP_SUPPORTED_SCHEMA_VERSIONS,
+  MIN_ARCHITECT_VERSION_FOR_PREVIEW,
+} from '~/fresco.config';
 import { prunePreviewProtocols } from '~/lib/preview-protocol-pruning';
 import { generatePresignedUploadUrl } from '~/lib/uploadthing-presigned';
 import { prisma } from '~/utils/db';
@@ -42,11 +45,10 @@ export async function POST(req: NextRequest) {
 
         // Check Architect version compatibility
         const [major] = architectVersion.split('.').map(Number);
-        if (major && major < 7) {
+        if (major && major < MIN_ARCHITECT_VERSION_FOR_PREVIEW) {
           const response: InitializeResponse = {
             status: 'error',
-            message:
-              'Architect versions below 7.x are not supported for preview mode',
+            message: `Architect versions below ${MIN_ARCHITECT_VERSION_FOR_PREVIEW}.x are not supported for preview mode`,
           };
           return jsonResponse(response, 400);
         }
