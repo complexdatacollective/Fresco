@@ -3,7 +3,7 @@
  * All test credentials and common settings should be defined here
  */
 
-export const TEST_CONFIG = {
+const TEST_CONFIG = {
   // Admin user credentials - used across all test environments
   admin: {
     username: 'testadmin',

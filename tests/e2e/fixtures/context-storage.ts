@@ -54,10 +54,3 @@ export async function clearContextData(): Promise<void> {
     // File may not exist, ignore
   }
 }
-
-/**
- * Get the path to the context file (for debugging).
- */
-export function getContextFilePath(): string {
-  return CONTEXT_FILE;
-}

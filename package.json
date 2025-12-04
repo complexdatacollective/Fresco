@@ -22,7 +22,8 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "SKIP_ENV_VALIDATION=true storybook build",
     "chromatic": "SKIP_ENV_VALIDATION=true pnpx chromatic --project-token=chpt_54d6831d4ddd5cc",
-    "docker-build": "docker build -t fresco-test:latest ."
+    "docker-build": "docker build -t fresco:latest .",
+    "docker-build:test": "docker build -t fresco-test:latest ."
   },
   "pnpm": {
     "overrides": {
@@ -175,7 +176,6 @@
     "testcontainers": "^11.9.0",
     "typescript": "5.9.3",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^4.0.13",
-    "wait-on": "^7.2.0"
+    "vitest": "^4.0.13"
   }
 }
