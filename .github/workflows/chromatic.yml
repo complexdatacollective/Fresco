@@ -1,4 +1,6 @@
 name: 'Chromatic'
+permissions:
+  contents: read
 
 on: push
 
