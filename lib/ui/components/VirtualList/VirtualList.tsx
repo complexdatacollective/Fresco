@@ -1,4 +1,4 @@
-import { useDirection } from '@radix-ui/react-direction';
+import { useDirection } from '@base-ui-components/react/direction-provider';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { motion } from 'motion/react';
 import React, {
