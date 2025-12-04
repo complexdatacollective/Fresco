@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import { exec, execFile } from 'child_process';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { promisify } from 'util';
@@ -16,6 +16,7 @@ import { logger } from './utils/logger';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 async function globalSetup() {
   logger.setup.start();
@@ -192,9 +193,13 @@ async function ensureDockerImage() {
   logger.docker.building(imageName);
 
   try {
-    await execAsync(
-      `docker build --build-arg DISABLE_IMAGE_OPTIMIZATION=true -t ${imageName} -f ${dockerfile} ${projectRoot}`,
-    );
+    await execFileAsync('docker', [
+      'build',
+      '--build-arg', 'DISABLE_IMAGE_OPTIMIZATION=true',
+      '-t', imageName,
+      '-f', dockerfile,
+      projectRoot,
+    ]);
 
     // Set the environment variable for all test environments to use
     // Note: This is needed for runtime communication between setup and test files
