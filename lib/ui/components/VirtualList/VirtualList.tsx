@@ -19,7 +19,7 @@ type Item = {
   name: string;
 };
 
-export type VirtualListProps = {
+type VirtualListProps = {
   items: Item[];
   itemRenderer: (
     item: Item,
