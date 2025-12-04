@@ -16,9 +16,7 @@ export type StageProps = {
 function Stage(props: StageProps) {
   const { stage, registerBeforeNext, getNavigationHelpers } = props;
 
-  const CurrentInterface = getInterface(
-    stage.type,
-  ) as unknown as ElementType<StageProps>;
+  const CurrentInterface = getInterface(stage.type) as ElementType<StageProps>;
 
   return (
     <div

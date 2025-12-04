@@ -7,7 +7,7 @@ import {
   type SingleEdgeRule,
 } from './rules';
 
-type FilterTypeNotExists = 'alter_not_exists' | 'edge_not_exists';
+type FilterTypeNotExists = 'node_not_exists' | 'edge_not_exists';
 
 const getGroup = (
   rule: RuleFunctionWithMetadata,
@@ -81,7 +81,7 @@ const getQuery = ({ rules, join }: SkipLogic['filter']) => {
 
       // alter or edge not existing is a special case because the
       // whole network must be evaluated
-      if (type === 'alter_not_exists' || type === 'edge_not_exists') {
+      if (type === 'node_not_exists' || type === 'edge_not_exists') {
         return ruleIterator.call(
           typeRules,
           (rule: ReturnType<SingleEdgeRule>) =>

@@ -8,8 +8,8 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
-  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+  url       = env("DATABASE_URL") // uses connection pooling
+  directUrl = env("DATABASE_URL_UNPOOLED") // uses a direct connection
 }
 
 model User {
@@ -51,6 +51,9 @@ model Protocol {
   assets        Asset[]
   interviews    Interview[]
   experiments   Json?
+  isPreview     Boolean     @default(false)
+
+  @@index([isPreview, importedAt])
 }
 
 model Asset {
@@ -101,6 +104,7 @@ enum AppSetting {
   disableAnalytics
   disableSmallScreenOverlay
   uploadThingToken
+  previewModeRequireAuth
 }
 
 model AppSettings {
@@ -113,4 +117,13 @@ model Events {
   timestamp DateTime @default(now())
   type      String
   message   String
+}
+
+model ApiToken {
+  id          String   @id @default(cuid())
+  token       String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  lastUsedAt  DateTime?
+  isActive    Boolean  @default(true)
 }

@@ -1,4 +1,4 @@
-import type { Codebook } from '@codaco/protocol-validation';
+import type { Codebook, StageSubject } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   type EntityPrimaryKey,
@@ -10,6 +10,7 @@ import { createSelector } from '@reduxjs/toolkit';
 import { intersection, invariant } from 'es-toolkit';
 import { filter, includes } from 'es-toolkit/compat';
 import customFilter from '~/lib/network-query/filter';
+import { type NodeColorSequence } from '~/lib/ui/components/Node';
 import { getCodebook, getStages } from '../ducks/modules/protocol';
 import { type RootState } from '../store';
 import { calculateProgress } from './utils';
@@ -258,24 +259,20 @@ export const getNodeTypeDefinition = createSelector(
   },
 );
 
-const getType = (_: unknown, props: Record<string, string>) =>
-  props.type ?? null;
-
-const getNodeColorSelector = createSelector(
+export const getNodeColorSelector = createSelector(
   getCodebook,
-  getType,
-  (codebook, nodeType) => {
+  getSubjectType,
+  (codebook, nodeType): NodeColorSequence => {
     if (!nodeType) {
       return 'node-color-seq-1';
     }
 
-    return codebook.node?.[nodeType]?.color ?? 'node-color-seq-1';
+    return (
+      (codebook.node?.[nodeType]?.color as NodeColorSequence) ??
+      'node-color-seq-1'
+    );
   },
 );
-
-// Pure state selector variant of makeGetNodeColor
-export const getNodeColor = (nodeType: string) => (state: RootState) =>
-  getNodeColorSelector(state, { type: nodeType });
 
 export const getNodeTypeLabel = (nodeType: string) => (state: RootState) => {
   const codebook = getCodebook(state) as unknown as Codebook;
@@ -297,8 +294,15 @@ export const makeGetEdgeLabel = () =>
 
 export const getEdgeColor = createSelector(
   getCodebook,
-  (_, props: Record<string, string>) => props.type ?? null,
-  (codebook, edgeType: string | null) => {
+  getStageSubject,
+  (codebook, stageSubject) => {
+    invariant(
+      stageSubject?.entity === 'edge',
+      'getEdgeColor: Not an edge subject',
+    );
+
+    const edgeType = stageSubject?.type ?? null;
+
     if (!edgeType) {
       return 'edge-color-seq-1';
     }
@@ -308,6 +312,17 @@ export const getEdgeColor = createSelector(
     );
   },
 );
+
+export const getEdgeColorForType = (
+  type: Extract<StageSubject, { entity: 'edge' }>['type'],
+) =>
+  createSelector(getCodebook, (codebook) => {
+    if (!type) {
+      return 'edge-color-seq-1';
+    }
+
+    return (codebook as Codebook)?.edge?.[type]?.color ?? 'edge-color-seq-1';
+  });
 
 export const makeGetEdgeColor = () => getEdgeColor;
 

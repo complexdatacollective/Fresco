@@ -73,7 +73,10 @@ const processEntityVariables = (
             ...accumulatedOptions,
             [`${attributeName}_${optionName.value}`]:
               !!attributeData &&
-              includes(attributeData as unknown[], optionName.value),
+              ((typeof attributeData === 'string' &&
+                attributeData === optionName.value) ||
+                (typeof attributeData != 'string' &&
+                  includes(attributeData as unknown[], optionName.value))),
           }),
           {},
         );

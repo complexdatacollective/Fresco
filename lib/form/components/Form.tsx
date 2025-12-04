@@ -26,6 +26,7 @@ const Form = forwardRef<HTMLFormElement, FormProps>(
       disabled,
       focusFirstInput,
       children,
+      ...rest
     },
     ref,
   ) => {
@@ -84,6 +85,7 @@ const Form = forwardRef<HTMLFormElement, FormProps>(
           await form.handleSubmit();
         }}
         id={id}
+        {...rest}
       >
         {fields.map((field, index) => {
           return (

@@ -41,6 +41,7 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
 *storybook.log
 storybook-static
 
@@ -52,3 +53,6 @@ storybook-static
 /playwright-report/
 /test-results/
 /playwright/.cache/
+
+# Serena
+.serena

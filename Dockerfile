@@ -42,6 +42,7 @@ COPY . .
 # Set environment variables for build - they are provided at runtime
 ENV SKIP_ENV_VALIDATION=true
 ENV NODE_ENV=production
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Enable pnpm and build
 RUN corepack enable pnpm && pnpm run build

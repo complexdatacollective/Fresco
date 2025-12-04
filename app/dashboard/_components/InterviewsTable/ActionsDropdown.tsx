@@ -4,7 +4,7 @@ import type { Interview } from '@prisma/client';
 import type { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
-import { objectHash } from 'ohash';
+import { hash as objectHash } from 'ohash';
 import { useState } from 'react';
 import { DeleteInterviewsDialog } from '~/app/dashboard/interviews/_components/DeleteInterviewsDialog';
 import { ExportInterviewsDialog } from '~/app/dashboard/interviews/_components/ExportInterviewsDialog';

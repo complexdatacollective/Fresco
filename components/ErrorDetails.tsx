@@ -1,12 +1,12 @@
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
+import CopyDebugInfoButton from './CopyDebugInfoButton';
+import Heading from './typography/Heading';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from './ui/collapsible';
-import Heading from './ui/typography/Heading';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import CopyDebugInfoButton from './CopyDebugInfoButton';
 
 export const ErrorDetails = ({
   errorText,

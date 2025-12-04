@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { setAppSetting } from '~/actions/appSettings';
 import { UploadThingTokenForm } from '~/app/(blobs)/(setup)/_components/UploadThingTokenForm';
 import Link from '~/components/Link';
+import Paragraph from '~/components/typography/Paragraph';
 import {
   Dialog,
   DialogContent,
@@ -13,7 +14,6 @@ import {
   DialogTitle,
 } from '~/components/ui/dialog';
 import { Divider } from '~/components/ui/Divider';
-import Paragraph from '~/components/ui/typography/Paragraph';
 
 function UploadThingModal() {
   const [open, setOpen] = useState(true);

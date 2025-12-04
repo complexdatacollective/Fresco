@@ -1,4 +1,4 @@
-import { z } from 'zod/v3';
+import { z } from 'zod';
 
 // Utility function to check for non-whitespace characters
 const hasNonWhitespaceCharacters = (input: string | undefined) =>
@@ -48,7 +48,7 @@ export const ParticipantRowSchema = z.union([
 
 export const FormSchema = z.object({
   csvFile: z.array(ParticipantRowSchema, {
-    invalid_type_error: 'Invalid CSV',
+    error: 'Invalid CSV',
   }),
 });
 
@@ -58,6 +58,9 @@ export type FormSchema = z.infer<typeof FormSchema>;
 export const participantListInputSchema = z.array(ParticipantRowSchema);
 
 export const updateSchema = z.object({
-  identifier: participantIdentifierSchema,
-  label: participantLabelSchema,
+  existingIdentifier: participantIdentifierSchema,
+  formData: z.object({
+    identifier: participantIdentifierSchema,
+    label: participantLabelSchema,
+  }),
 });

@@ -1,6 +1,6 @@
 /* eslint-disable no-process-env */
 import { createEnv } from '@t3-oss/env-nextjs';
-import { z } from 'zod/v3';
+import { z } from 'zod';
 
 // this is a workaround for this issue:https://github.com/colinhacks/zod/issues/1630
 // z.coerce.boolean() doesn't work as expected
@@ -17,8 +17,8 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    POSTGRES_PRISMA_URL: z.string(),
-    POSTGRES_URL_NON_POOLING: z.string(),
+    DATABASE_URL: z.string(),
+    DATABASE_URL_UNPOOLED: z.string(),
     PUBLIC_URL: z.string().url().optional(),
   },
 
@@ -36,6 +36,7 @@ export const env = createEnv({
       .enum(['development', 'test', 'production'])
       .default('development'),
     SANDBOX_MODE: strictBooleanSchema,
+    PREVIEW_MODE: strictBooleanSchema,
     APP_VERSION: z.string().optional(),
     COMMIT_HASH: z.string().optional(),
   },
@@ -44,13 +45,14 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
-    POSTGRES_PRISMA_URL: process.env.POSTGRES_PRISMA_URL,
-    POSTGRES_URL_NON_POOLING: process.env.POSTGRES_URL_NON_POOLING,
+    DATABASE_URL: process.env.DATABASE_URL,
+    DATABASE_URL_UNPOOLED: process.env.DATABASE_URL_UNPOOLED,
     NODE_ENV: process.env.NODE_ENV,
     PUBLIC_URL: process.env.PUBLIC_URL,
     DISABLE_ANALYTICS: process.env.DISABLE_ANALYTICS,
     INSTALLATION_ID: process.env.INSTALLATION_ID,
     SANDBOX_MODE: process.env.SANDBOX_MODE,
+    PREVIEW_MODE: process.env.PREVIEW_MODE,
     APP_VERSION: process.env.APP_VERSION,
     COMMIT_HASH: process.env.COMMIT_HASH,
   },
