@@ -1,3 +1,4 @@
+import { clearContextData } from './fixtures/context-storage';
 import { logger } from './utils/logger';
 
 async function globalTeardown() {
@@ -7,6 +8,9 @@ async function globalTeardown() {
   if (testEnv) {
     await testEnv.cleanupAll();
   }
+
+  // Clean up the context data file
+  await clearContextData();
 
   logger.teardown.complete();
 }

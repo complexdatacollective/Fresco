@@ -126,8 +126,12 @@ export class VisualSnapshots {
       });
     }
 
-    // Wait for network idle to ensure all resources are loaded
-    await this.page.waitForLoadState('networkidle');
+    // Wait for network idle to ensure all resources are loaded (with timeout fallback)
+    try {
+      await this.page.waitForLoadState('networkidle', { timeout: 5000 });
+    } catch {
+      // Network idle timeout is acceptable - Next.js apps often have persistent connections
+    }
 
     // Additional wait time if specified
     if (options.waitTime) {
@@ -226,12 +230,17 @@ export class VisualSnapshots {
   /**
    * Utility method to wait for page to be stable
    */
-  async waitForStablePage(_timeout = 5000): Promise<void> {
-    // Wait for multiple conditions to ensure page is stable
-    await Promise.all([
-      this.page.waitForLoadState('networkidle'),
-      this.page.waitForLoadState('domcontentloaded'),
-    ]);
+  async waitForStablePage(timeout = 5000): Promise<void> {
+    // Wait for DOM to be ready
+    await this.page.waitForLoadState('domcontentloaded');
+
+    // Try to wait for network idle, but don't fail if it times out
+    // (Next.js apps often have persistent connections that prevent networkidle)
+    try {
+      await this.page.waitForLoadState('networkidle', { timeout });
+    } catch {
+      // Network idle timeout is acceptable - the page may have persistent connections
+    }
 
     // Wait for any loading spinners to disappear
     const loadingSelectors = [

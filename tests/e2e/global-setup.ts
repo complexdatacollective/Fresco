@@ -3,8 +3,15 @@ import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { promisify } from 'util';
 import { ADMIN_CREDENTIALS } from './config/test-config';
+import {
+  saveContextData,
+  type SerializedContext,
+} from './fixtures/context-storage';
 import { TestDataBuilder } from './fixtures/test-data-builder';
-import { TestEnvironment } from './fixtures/test-environment';
+import {
+  TestEnvironment,
+  type TestEnvironmentContext,
+} from './fixtures/test-environment';
 import { logger } from './utils/logger';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -19,16 +26,34 @@ async function globalSetup() {
   await ensureDockerImage();
 
   // Setup parallel environments
-  const setupPromises = [
-    setupInitialSetupEnvironment(testEnv),
-    setupDashboardEnvironment(testEnv),
-    setupInterviewsEnvironment(testEnv),
-  ];
-
-  await Promise.all(setupPromises);
+  const [setupContext, dashboardContext, interviewsContext] = await Promise.all(
+    [
+      setupInitialSetupEnvironment(testEnv),
+      setupDashboardEnvironment(testEnv),
+      setupInterviewsEnvironment(testEnv),
+    ],
+  );
 
   // Store the test environment instance globally for teardown
   globalThis.__TEST_ENVIRONMENT__ = testEnv;
+
+  // Save serializable context data to file for test workers
+  const contextData: Record<string, SerializedContext> = {};
+
+  const serializeContext = (
+    suiteId: string,
+    ctx: TestEnvironmentContext,
+  ): SerializedContext => ({
+    suiteId,
+    appUrl: ctx.appUrl,
+    databaseUrl: ctx.dbContainer.getConnectionUri(),
+  });
+
+  contextData.setup = serializeContext('setup', setupContext);
+  contextData.dashboard = serializeContext('dashboard', dashboardContext);
+  contextData.interviews = serializeContext('interviews', interviewsContext);
+
+  await saveContextData(contextData);
 
   logger.setup.complete();
 
@@ -70,6 +95,14 @@ async function setupDashboardEnvironment(testEnv: TestEnvironment) {
       );
 
       await dataBuilder.createProtocol();
+
+      // Create participants for database example tests
+      for (let i = 1; i <= 10; i++) {
+        await dataBuilder.createParticipant({
+          identifier: `P${String(i).padStart(3, '0')}`,
+          label: `Participant ${i}`,
+        });
+      }
     },
   });
 

@@ -1,7 +1,7 @@
 import { test as base, type Page } from '@playwright/test';
-import { ContextResolver } from './context-resolver';
 import { DatabaseSnapshots } from './database-snapshots';
 import { VisualSnapshots } from './visual-snapshots';
+import { getWorkerContextInfo, resolveWorkerContext } from './worker-context';
 
 /**
  * Extended test fixtures for Fresco e2e tests
@@ -43,20 +43,24 @@ export const test = base.extend<TestFixtures>({
   // eslint-disable-next-line no-empty-pattern
   database: async ({}, run, testInfo) => {
     // Resolve the appropriate test environment context automatically
-    const context = ContextResolver.resolveContext(testInfo);
+    const context = await resolveWorkerContext(testInfo);
 
     if (!context) {
-      const contextInfo = ContextResolver.getContextInfo(testInfo);
+      const contextInfo = await getWorkerContextInfo(testInfo);
       throw new Error(
         `No test environment context available. Ensure global setup has run.\n` +
           `Available contexts: ${contextInfo.availableContexts.join(', ')}\n` +
           `Test file: ${testInfo.file}\n` +
-          `Project: ${testInfo.project.name}`,
+          `Project: ${testInfo.project.name}\n` +
+          `Detection: ${contextInfo.detectionMethod}`,
       );
     }
 
     const database = new DatabaseSnapshots(context, testInfo);
     await run(database);
+
+    // Cleanup will be handled by the worker context cache
+    await context.cleanup();
   },
 });
 

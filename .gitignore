@@ -50,6 +50,7 @@ storybook-static
 /tests/e2e/test-results/
 /tests/e2e/screenshots/
 /tests/e2e/.auth/
+/tests/e2e/.context-data.json
 /playwright-report/
 /test-results/
 /playwright/.cache/

@@ -13,7 +13,7 @@ test.describe('Context Detection Examples', () => {
     database,
   }) => {
     // Get information about the detected context
-    const contextInfo = database.getContextInfo();
+    const contextInfo = await database.getContextInfo();
 
     // Verify we're using the dashboard context
     expect(contextInfo.resolvedContext).toBe('dashboard');
@@ -43,17 +43,16 @@ test.describe('Context Detection Examples', () => {
   test('should be able to work with dashboard-specific operations', async ({
     database,
   }) => {
-    const cleanup = await database.isolate('dashboard-operations');
-
     // Test dashboard-specific data operations
     const newProtocol = await database.prisma.protocol.create({
       data: {
         name: 'Test Dashboard Protocol',
-        hash: 'test-hash-dashboard',
+        hash: 'test-hash-dashboard-' + Date.now(),
         schemaVersion: 8,
         stages: [],
         codebook: {},
         experiments: {},
+        lastModified: new Date(),
       },
     });
 
@@ -65,8 +64,10 @@ test.describe('Context Detection Examples', () => {
     });
     expect(found).toBeTruthy();
 
-    // Cleanup will restore to the original state
-    await cleanup();
+    // Manual cleanup - delete the test protocol
+    await database.prisma.protocol.delete({
+      where: { id: newProtocol.id },
+    });
 
     // Verify the test protocol was removed
     const afterCleanup = await database.prisma.protocol.findUnique({
@@ -78,7 +79,7 @@ test.describe('Context Detection Examples', () => {
   test('should show context info in error messages', async ({ database }) => {
     try {
       // This should work fine, but let's demonstrate what happens on context resolution failure
-      const contextInfo = database.getContextInfo();
+      const contextInfo = await database.getContextInfo();
 
       expect(contextInfo).toMatchObject({
         resolvedContext: 'dashboard',
@@ -89,9 +90,9 @@ test.describe('Context Detection Examples', () => {
       });
     } catch (error) {
       // If context resolution failed, the error should be informative
-      expect(error.message).toContain('Available contexts:');
-      expect(error.message).toContain('Test file:');
-      expect(error.message).toContain('Project:');
+      expect((error as Error).message).toContain('Available contexts:');
+      expect((error as Error).message).toContain('Test file:');
+      expect((error as Error).message).toContain('Project:');
     }
   });
 
@@ -109,7 +110,9 @@ test.describe('Context Detection Examples', () => {
     expect(adminUser).toBeTruthy();
     expect(protocols.length).toBeGreaterThan(0);
 
-    // Verify we can see the dashboard page elements
-    await expect(page.locator('h1, h2, [role="heading"]')).toBeVisible();
+    // Verify we can see the dashboard page elements (use .first() since there are multiple headings)
+    await expect(
+      page.locator('h1, h2, [role="heading"]').first(),
+    ).toBeVisible();
   });
 });
