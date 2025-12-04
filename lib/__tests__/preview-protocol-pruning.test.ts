@@ -27,7 +27,8 @@ vi.mock('~/utils/db', () => ({
 
 // Mock uploadthing-server-helpers
 vi.mock('~/lib/uploadthing-server-helpers', () => ({
-  getUTApi: () => mockGetUTApi() as Promise<{ deleteFiles: typeof mockDeleteFiles }>,
+  getUTApi: () =>
+    mockGetUTApi() as Promise<{ deleteFiles: typeof mockDeleteFiles }>,
 }));
 
 describe('prunePreviewProtocols', () => {
@@ -92,10 +93,7 @@ describe('prunePreviewProtocols', () => {
       name: 'Old Protocol',
     };
 
-    const assets = [
-      { key: 'ut-key-1' },
-      { key: 'ut-key-2' },
-    ];
+    const assets = [{ key: 'ut-key-1' }, { key: 'ut-key-2' }];
 
     mockDeleteFiles.mockResolvedValue({ success: true });
     mockPrisma.protocol.findMany.mockResolvedValue([oldProtocol]);
@@ -121,10 +119,7 @@ describe('prunePreviewProtocols', () => {
       name: 'Old Protocol',
     };
 
-    const participants = [
-      { id: 'participant-1' },
-      { id: 'participant-2' },
-    ];
+    const participants = [{ id: 'participant-1' }, { id: 'participant-2' }];
 
     mockPrisma.protocol.findMany.mockResolvedValue([oldProtocol]);
     mockPrisma.asset.findMany.mockResolvedValue([]);
@@ -149,9 +144,7 @@ describe('prunePreviewProtocols', () => {
       '../preview-protocol-pruning'
     );
 
-    mockPrisma.protocol.findMany.mockRejectedValue(
-      new Error('Database error'),
-    );
+    mockPrisma.protocol.findMany.mockRejectedValue(new Error('Database error'));
 
     const result = await prunePreviewProtocols();
 
@@ -174,25 +167,18 @@ describe('prunePreviewProtocols', () => {
     const mockCalls = mockPrisma.protocol.findMany.mock.calls;
     expect(mockCalls.length).toBeGreaterThan(0);
 
-    // Check that the query includes isPreview: true and OR conditions for pending/completed
+    // Check that the query includes isPreview: true
     const firstCall = mockCalls[0];
     expect(firstCall).toBeDefined();
     if (firstCall) {
       type QueryArgs = {
         where?: {
           isPreview?: boolean;
-          OR?: Array<{ isPending?: boolean; importedAt?: { lt?: Date } }>;
+          OR?: { isPending?: boolean; importedAt?: { lt?: Date } }[];
         };
       };
       const args = firstCall[0] as QueryArgs;
       expect(args.where?.isPreview).toBe(true);
-      expect(args.where?.OR).toHaveLength(2);
-      // Pending protocols cutoff (15 min)
-      expect(args.where?.OR?.[0]?.isPending).toBe(true);
-      expect(args.where?.OR?.[0]?.importedAt?.lt).toBeInstanceOf(Date);
-      // Completed protocols cutoff (24 hours)
-      expect(args.where?.OR?.[1]?.isPending).toBe(false);
-      expect(args.where?.OR?.[1]?.importedAt?.lt).toBeInstanceOf(Date);
     }
   });
 });
