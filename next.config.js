@@ -31,6 +31,12 @@ const config = {
     typedRoutes: true,
     webpackBuildWorker: true,
   },
+  images: {
+    // Disable image optimization when DISABLE_IMAGE_OPTIMIZATION is set.
+    // This is useful for Docker test environments where Sharp may have issues.
+    // eslint-disable-next-line no-process-env
+    unoptimized: process.env.DISABLE_IMAGE_OPTIMIZATION === 'true',
+  },
   transpilePackages: ['@codaco/shared-consts'],
   webpack: (config) => {
     config.module.rules.push({
