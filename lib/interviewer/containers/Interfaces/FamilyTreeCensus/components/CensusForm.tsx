@@ -10,9 +10,9 @@ import { Radio, RadioGroup } from '~/lib/ui/components/Fields';
 import NumberInput from '~/lib/ui/components/Fields/Number';
 import Overlay from '../../../Overlay';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
+import { getSexVariable } from '../utils/nodeUtils';
 
 export const CensusForm = ({
-  stage,
   showForm = true,
 }: {
   stage: Extract<Stage, { type: 'FamilyTreeCensus' }>;
@@ -80,8 +80,7 @@ export const CensusForm = ({
 
   const ego = useSelector(getNetworkEgo);
   const codebook = useSelector(getCodebook);
-  //const stage: Extract<Stage, { type: 'FamilyTreeCensus' }> = useSelector(getCurrentStage);
-  const sexVariable = stage.sexVariable;
+  const sexVariable = useSelector(getSexVariable);
   const existingSex = sexVariable
     ? (ego?.attributes?.[sexVariable] as string | undefined)
     : undefined;
