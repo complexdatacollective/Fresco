@@ -3,7 +3,7 @@
   "version": "4.0.0",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@9.1.1+sha256.9551e803dcb7a1839fdf5416153a844060c7bce013218ce823410532504ac10b",
+  "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a",
   "scripts": {
     "build": "next build",
     "dev": "docker-compose -f docker-compose.dev.yml up -d && node ./initialize.js && next dev",
@@ -22,7 +22,13 @@
   "pnpm": {
     "overrides": {
       "d3-force>d3-timer": "3.0.0"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "esbuild",
+      "prisma",
+      "sharp"
+    ]
   },
   "dependencies": {
     "@codaco/analytics": "8.0.0",
@@ -128,7 +134,6 @@
     "@types/async": "^3.2.25",
     "@types/d3-interpolate-path": "^2.0.3",
     "@types/eslint": "^8.56.12",
-    "@types/jest": "^30.0.0",
     "@types/node": "^22.13.9",
     "@types/papaparse": "^5.5.0",
     "@types/react": "18.3.18",
