@@ -5,9 +5,9 @@ import { execSync, spawnSync } from 'child_process';
 const prisma = new PrismaClient();
 
 function checkForNeededMigrations() {
-  const command = 'npx';
+  // Use local prisma binary directly to avoid npx downloading a different version
+  const command = './node_modules/.bin/prisma';
   const args = [
-    'prisma',
     'migrate',
     'diff',
     '--to-schema-datasource',
@@ -18,6 +18,13 @@ function checkForNeededMigrations() {
   ];
 
   const result = spawnSync(command, args, { encoding: 'utf-8' });
+
+  console.log('Migration diff result:', {
+    status: result.status,
+    stdout: result.stdout,
+    stderr: result.stderr,
+    ...(result.error && { error: result.error }),
+  });
 
   if (result.error) {
     console.error('Failed to run command:', result.error);
@@ -36,6 +43,12 @@ function checkForNeededMigrations() {
     process.exit(1);
     return false;
   }
+
+  // If we get an unexpected status code, log it and assume migrations are needed
+  console.log(
+    `Unexpected exit code: ${result.status}, assuming migrations needed`,
+  );
+  return true;
 }
 
 /**
@@ -60,11 +73,14 @@ async function shouldApplyWorkaround() {
 
 async function handleMigrations() {
   try {
+    // Use local prisma binary directly to avoid npx downloading a different version
+    const prismaBin = './node_modules/.bin/prisma';
+
     if (await shouldApplyWorkaround()) {
       console.log(
         'Workaround needed! Running: prisma migrate resolve --applied 0_init',
       );
-      execSync('npx prisma migrate resolve --applied 0_init', {
+      execSync(`${prismaBin} migrate resolve --applied 0_init`, {
         stdio: 'inherit',
       });
     }
@@ -74,7 +90,7 @@ async function handleMigrations() {
 
     if (needsMigrations) {
       console.log('Migrations needed! Running: prisma migrate deploy');
-      execSync('npx prisma migrate deploy', { stdio: 'inherit' });
+      execSync(`${prismaBin} migrate deploy`, { stdio: 'inherit' });
     } else {
       console.log('No migrations needed.');
     }
