@@ -7,7 +7,7 @@ export const getUTApi = async () => {
   const UPLOADTHING_TOKEN = await getAppSetting('uploadThingToken');
 
   const utapi = new UTApi({
-    token: UPLOADTHING_TOKEN,
+    token: UPLOADTHING_TOKEN ?? undefined,
   });
 
   return utapi;

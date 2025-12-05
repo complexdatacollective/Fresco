@@ -5,6 +5,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from 'lucide-react';
+import { pageSizes } from '~/components/DataTable/types';
 import { Button } from '~/components/ui/Button';
 import {
   Select,
@@ -13,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select';
-import { pageSizes } from '~/lib/data-table/types';
 
 type DataTablePaginationProps<TData> = {
   table: Table<TData>;
@@ -30,7 +30,7 @@ export function DataTablePagination<TData>({
       </div> */}
       <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
         <div className="flex items-center space-x-2">
-          <p className="whitespace-nowrap text-sm font-medium">Rows per page</p>
+          <p className="text-sm font-medium whitespace-nowrap">Rows per page</p>
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {

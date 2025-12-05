@@ -6,10 +6,22 @@
     "public/scripts/d3-quadtree.v3.min.js",
     "public/scripts/d3-timer.v3.min.js",
     "lib/interviewer/hooks/forceSimulation.worker.js",
-    "lib/ui/components/Sprites/ExportSprite.js",
     "utils/auth.ts",
-    "load-test.js"
+    "load-test.js",
+    "styles/tailwind-motion-spring.ts",
+    "tests/e2e/scripts/analyze-test-isolation.ts"
   ],
-  "ignoreDependencies": ["server-only", "prop-types", "sharp"],
-  "ignoreBinaries": ["docker-compose", "playwright"]
+  "ignoreExportsUsedInFile": {
+    "type": true
+  },
+  "ignoreDependencies": ["sharp", "esbuild"],
+  "ignoreBinaries": ["docker-compose"],
+  "playwright": {
+    "config": "tests/e2e/playwright.config.ts",
+    "entry": [
+      "tests/e2e/global-setup.ts",
+      "tests/e2e/global-teardown.ts",
+      "tests/e2e/suites/**/*.spec.ts"
+    ]
+  }
 }

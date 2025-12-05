@@ -6,15 +6,15 @@ import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
-import type { GetInterviewsReturnType } from '~/queries/interviews';
-import type { GetProtocolsReturnType } from '~/queries/protocols';
+import type { GetInterviewsQuery } from '~/queries/interviews';
+import type { ProtocolWithInterviews } from '../../_components/ProtocolsTable/ProtocolsTableClient';
 
 function ExportCSVInterviewURLs({
   protocol,
   interviews,
 }: {
-  protocol?: Awaited<GetProtocolsReturnType>[number];
-  interviews: Awaited<GetInterviewsReturnType>;
+  protocol?: ProtocolWithInterviews;
+  interviews: Awaited<GetInterviewsQuery>;
 }) {
   const download = useDownload();
   const [isExporting, setIsExporting] = useState(false);
