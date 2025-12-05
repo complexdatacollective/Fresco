@@ -15,11 +15,23 @@ const NavButton = ({
   label,
   href,
   isActive = false,
+  disabled = false,
 }: {
   label: string;
   href: UrlObject | Route;
   isActive?: boolean;
+  disabled?: boolean;
 }) => {
+  if (disabled) {
+    return (
+      <motion.li layout className="relative flex flex-col justify-start">
+        <span className="cursor-not-allowed text-sm font-semibold text-white/40">
+          {label}
+        </span>
+      </motion.li>
+    );
+  }
+
   return (
     <motion.li layout className="relative flex flex-col justify-start">
       <Link
@@ -34,14 +46,14 @@ const NavButton = ({
       {isActive && (
         <motion.div
           layoutId="underline"
-          className="bg-primary-foreground absolute top-[105%] right-0 left-0 h-[2px] rounded-full"
+          className="bg-primary-foreground absolute top-[105%] right-0 left-0 h-0.5 rounded-full"
         />
       )}
     </motion.li>
   );
 };
 
-export function NavigationBar() {
+export function NavigationBar({ previewMode }: { previewMode: boolean }) {
   const pathname = usePathname();
 
   return (
@@ -58,21 +70,25 @@ export function NavigationBar() {
           href="/dashboard"
           isActive={pathname === '/dashboard'}
           label="Dashboard"
+          disabled={previewMode}
         />
         <NavButton
           label="Protocols"
           href="/dashboard/protocols"
           isActive={pathname === '/dashboard/protocols'}
+          disabled={previewMode}
         />
         <NavButton
           label="Participants"
           href="/dashboard/participants"
           isActive={pathname === '/dashboard/participants'}
+          disabled={previewMode}
         />
         <NavButton
           label="Interviews"
           href="/dashboard/interviews"
           isActive={pathname === '/dashboard/interviews'}
+          disabled={previewMode}
         />
         <NavButton
           label="Settings"
