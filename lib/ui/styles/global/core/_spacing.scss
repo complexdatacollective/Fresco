@@ -1,3 +1,6 @@
+@use 'sass:map';
+@use 'sass:meta';
+
 // TODO: Are these based on anything or are they legacy?
 $spacer: 1.2rem !default;
 $spacer-0: 0;
@@ -27,8 +30,8 @@ $spacing-intervals: (
 );
 
 @function spacing($interval) {
-  @if type-of($interval) == 'string' {
-    @return $spacer * map-get($spacing-intervals, $interval);
+  @if meta.type-of($interval) == 'string' {
+    @return $spacer * map.get($spacing-intervals, $interval);
   }
   @return $spacer * $interval;
 }

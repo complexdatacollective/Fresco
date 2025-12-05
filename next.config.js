@@ -31,6 +31,9 @@ const config = {
     typedRoutes: true,
     webpackBuildWorker: true,
   },
+  sassOptions: {
+    implementation: 'sass-embedded',
+  },
   images: {
     // Disable image optimization when DISABLE_IMAGE_OPTIMIZATION is set.
     // This is useful for Docker test environments where Sharp may have issues.

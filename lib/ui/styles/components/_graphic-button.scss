@@ -1,5 +1,8 @@
+@use '../global/core/typography';
+@use '../global/core/helpers';
+
 .graphic-button {
-  @include clickable;
+  @include helpers.clickable;
   display: inline-flex;
   width: 100%;
   color: var(--color-white);
@@ -14,13 +17,13 @@
     position: relative;
 
     h2 {
-      font-size: type-scale(3);
+      font-size: typography.type-scale(3);
       margin: 0;
     }
 
     h3 {
       text-transform: none !important;
-      font-size: type-scale(body);
+      font-size: typography.type-scale(body);
       margin: 0.5rem 0 0;
     }
 

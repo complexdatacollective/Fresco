@@ -1,7 +1,7 @@
 'use client';
 
+import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { type ReactNode } from 'react';
-import { DirectionProvider } from '@radix-ui/react-direction';
 
 export default function RadixDirectionProvider({
   dir,
@@ -10,5 +10,5 @@ export default function RadixDirectionProvider({
   dir: 'ltr' | 'rtl';
   children: ReactNode;
 }) {
-  return <DirectionProvider dir={dir}>{children}</DirectionProvider>;
+  return <DirectionProvider direction={dir}>{children}</DirectionProvider>;
 }

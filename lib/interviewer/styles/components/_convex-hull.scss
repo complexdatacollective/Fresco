@@ -1,5 +1,7 @@
+@use '../mixins';
+
 .convex-hull {
-  @include gpu;
+  @include mixins.gpu;
 
   position: absolute;
   width: 100%;

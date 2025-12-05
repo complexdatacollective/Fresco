@@ -1,21 +1,25 @@
 'use client';
 
-import * as LabelPrimitive from '@radix-ui/react-label';
-import { type VariantProps } from 'class-variance-authority';
+import { motion } from 'motion/react';
 import * as React from 'react';
-
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import { headingVariants } from '../typography/Heading';
 
 const Label = React.forwardRef<
-  React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & {
+  React.ElementRef<typeof motion.label>,
+  React.ComponentPropsWithoutRef<typeof motion.label> & {
     required?: boolean;
-  } & VariantProps<typeof headingVariants>
+  }
 >(({ className, required, ...props }, ref) => (
-  <LabelPrimitive.Root
+  <motion.label
+    layout
     ref={ref}
-    className={cn(headingVariants({ variant: 'label' }), className)}
+    className={cx(
+      'inline-block',
+      headingVariants({ level: 'label' }),
+      'peer-disabled:opacity-70',
+      className,
+    )}
     {...props}
   >
     {props.children}
@@ -25,8 +29,8 @@ const Label = React.forwardRef<
         *
       </span>
     )}
-  </LabelPrimitive.Root>
+  </motion.label>
 ));
-Label.displayName = LabelPrimitive.Root.displayName;
+Label.displayName = 'Label';
 
 export { Label };

@@ -1,3 +1,5 @@
+@use 'sass:list';
+
 $light-color-list: (
   var(---sea-serpent),
   var(---mustard),
@@ -75,7 +77,7 @@ $dark-color-list: (
   }
 
   @each $color in $light-color-list {
-    $color-index: index($light-color-list, $color);
+    $color-index: list.index($light-color-list, $color);
 
     @keyframes circle-color-#{$color-index} {
       0% {
@@ -85,14 +87,14 @@ $dark-color-list: (
 
       100% {
         transform: translateX(var(--circle-size));
-        background: nth($dark-color-list, $color-index);
+        background: list.nth($dark-color-list, $color-index);
       }
     }
 
     .circle {
       &:nth-child(#{$color-index}) {
         :nth-child(1) {
-          background: nth($dark-color-list, $color-index);
+          background: list.nth($dark-color-list, $color-index);
           animation: circle-color-#{$color-index}
             calc(var(--animation-duration) / 2)
             var(--circle-easing)

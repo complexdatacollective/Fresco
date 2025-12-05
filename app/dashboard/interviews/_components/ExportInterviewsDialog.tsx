@@ -1,5 +1,4 @@
 import type { Interview } from '@prisma/client';
-import { DialogDescription } from '@radix-ui/react-dialog';
 import { FileWarning, Loader2, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import superjson from 'superjson';
@@ -12,14 +11,6 @@ import {
 import { deleteZipFromUploadThing } from '~/actions/uploadThing';
 import Heading from '~/components/typography/Heading';
 import { Button } from '~/components/ui/Button';
-import { cardClasses } from '~/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog';
 import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
 import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
@@ -28,21 +19,18 @@ import {
   ExportOptionsSchema,
   type FormattedSession,
 } from '~/lib/network-exporters/utils/types';
+import { cx } from '~/utils/cva';
 import { ensureError } from '~/utils/ensureError';
-import { cn } from '~/utils/shadcn';
 import ExportOptionsView from './ExportOptionsView';
 
 const ExportingStateAnimation = () => {
   return (
     <div className="bg-background/80 text-primary fixed inset-0 z-99 flex flex-col items-center justify-center gap-3">
       <div
-        className={cn(
-          cardClasses,
-          'flex flex-col items-center justify-center gap-4 p-10',
-        )}
+        className={cx('flex flex-col items-center justify-center gap-4 p-10')}
       >
         <Loader2 className="h-20 w-20 animate-spin" />
-        <Heading variant="h4">
+        <Heading level="h4">
           Exporting and zipping files. Please wait...
         </Heading>
       </div>
@@ -170,7 +158,7 @@ export const ExportInterviewsDialog = ({
             variant: 'default',
             title: 'Could not delete temporary file',
             description:
-              'We were unable to delete the temporary file containing your exported data, which is stored on your UploadThing account. Although extremely unlikely, it is possible that this file could be accessed by someone else. You can delete the file manually by visiting uploadthing.com and logging in with your GitHub account. Please use the feedback button to report this issue.',
+              'We were unable to delete the temporary file containing your exported data, which is stored on your UploadThing account. Although extremely unlikely, it is possible that this file could be accessed by someone else. You can delete the file manually by visiting uploadthing.com and logging in with your GitHub account. Please contact us to report this issue.',
           });
         });
       }
@@ -183,28 +171,24 @@ export const ExportInterviewsDialog = ({
   return (
     <>
       {isExporting && <ExportingStateAnimation />}
-      <Dialog open={open} onOpenChange={handleCancel}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirm File Export Options</DialogTitle>
-            <DialogDescription>
-              Before exporting, please confirm the export options that you wish
-              to use. These options are identical to those found in Interviewer.
-            </DialogDescription>
-          </DialogHeader>
-          <ExportOptionsView
-            exportOptions={exportOptions}
-            setExportOptions={setExportOptions}
-          />
-          <DialogFooter>
-            <Button onClick={handleCancel} variant="outline">
-              Cancel
-            </Button>
-            <Button onClick={handleConfirm}>
+      <Dialog
+        open={open}
+        closeDialog={handleCancel}
+        title="Confirm File Export Options"
+        description="Before exporting, please confirm the export options that you wish to use. These options are identical to those found in Interviewer."
+        footer={
+          <>
+            <Button onClick={handleCancel}>Cancel</Button>
+            <Button onClick={handleConfirm} color="primary">
               {isExporting ? 'Exporting...' : 'Start export process'}
             </Button>
-          </DialogFooter>
-        </DialogContent>
+          </>
+        }
+      >
+        <ExportOptionsView
+          exportOptions={exportOptions}
+          setExportOptions={setExportOptions}
+        />
       </Dialog>
     </>
   );

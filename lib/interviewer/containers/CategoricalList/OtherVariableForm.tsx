@@ -1,10 +1,12 @@
 import { type NcNode } from '@codaco/shared-consts';
 import { useEffect } from 'react';
 import { reduxForm, type InjectedFormProps } from 'redux-form';
-import Button from '~/lib/ui/components/Button';
-import { MarkdownLabel } from '~/lib/ui/components/Fields';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
+import Button from '~/components/ui/Button';
+import { Field, Form } from '~/lib/form';
+import { InputField } from '~/lib/form/components/fields/InputField';
+import { validations } from '~/lib/form/validation';
 import Node from '../../components/Node';
-import Field from '../Field';
 
 type FormValues = {
   otherVariable: string;
@@ -37,33 +39,33 @@ const OtherVariableForm = ({
 
   return (
     <div className="other-variable-form" onClick={(e) => e.stopPropagation()}>
-      <form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit}>
         <div className="other-variable-form__content">
           <div className="other-variable-form__content-left">
             <Node {...node} />
           </div>
           <div className="other-variable-form__content-right">
             <h4>
-              <MarkdownLabel inline label={prompt} />
+              <RenderMarkdown>{prompt}</RenderMarkdown>
             </h4>
             <Field
               label=""
               placeholder="Enter your response here..."
-              component="Text"
+              Component={InputField}
               name="otherVariable"
-              validation={{ required: true }}
+              validation={validations.required()}
             />
           </div>
         </div>
         <div className="other-variable-form__footer">
-          <Button type="button" color="white" onClick={onCancel}>
+          <Button type="button" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit" aria-label="Submit">
+          <Button type="submit" color="primary" aria-label="Submit">
             Continue
           </Button>
         </div>
-      </form>
+      </Form>
     </div>
   );
 };

@@ -24,7 +24,7 @@ export const ErrorDetails = ({
       className="flex flex-1 flex-col space-y-2"
     >
       <CollapsibleTrigger className="flex items-center">
-        <Heading variant="h4-all-caps">
+        <Heading level="h4" variant="all-caps">
           {showStackTrace ? 'Hide' : 'Show'} debug information
         </Heading>
         {showStackTrace ? (

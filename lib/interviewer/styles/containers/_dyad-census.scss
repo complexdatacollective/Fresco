@@ -1,3 +1,6 @@
+@use '../../../ui/styles/global/core/units';
+@use '../mixins';
+
 @mixin recolor-toggle($color) {
   .form-field-togglebutton__checkbox {
     &::before {
@@ -34,7 +37,7 @@
 }
 
 .dyad-census {
-  @include interface-centering;
+  @include mixins.interface-centering;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -48,7 +51,7 @@
   }
 
   &__prompt {
-    @include interface-prompt;
+    @include mixins.interface-prompt;
   }
 
   &__main {

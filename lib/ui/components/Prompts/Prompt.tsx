@@ -3,10 +3,11 @@ import { motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { remark } from 'remark';
 import strip from 'strip-markdown';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
+import Heading from '~/components/typography/Heading';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import useSpeech from '../../hooks/useSpeech';
 import useTimeout from '../../hooks/useTimeout';
-import MarkdownLabel from '../Fields/MarkdownLabel';
 
 // Words read per second (approximate). Used to calculate underline duration.
 const WORDS_PER_SECOND = 0.3;
@@ -110,7 +111,9 @@ const Prompt = ({
       }
       onTap={handleTap}
     >
-      <MarkdownLabel label={text} inline className="prompt__text" />
+      <Heading level="h2" margin="none" className="font-normal">
+        <RenderMarkdown inline>{text}</RenderMarkdown>
+      </Heading>
     </motion.div>
   );
 };

@@ -1,116 +1,46 @@
-import type { VariableValue } from '@codaco/shared-consts';
-import { forwardRef, useEffect, useMemo, useState } from 'react';
-import { useTanStackForm } from '~/lib/form/hooks/useTanStackForm';
-import type { FormErrors, ProcessedFormField } from '~/lib/form/types';
+'use client';
+
+import { motion } from 'motion/react';
+import { type ComponentProps } from 'react';
 import { scrollToFirstError } from '~/lib/form/utils/scrollToFirstError';
+import { cx } from '~/utils/cva';
+import { useForm } from '../hooks/useForm';
+import FormErrorsList from './FormErrors';
+import type { FormSubmitHandler } from './types';
+
+const MotionForm = motion.create('form');
 
 type FormProps = {
-  fields: ProcessedFormField[];
-  handleSubmit: (data: { value: Record<string, VariableValue> }) => void;
-  getInitialValues?: () =>
-    | Record<string, VariableValue>
-    | Promise<Record<string, VariableValue>>;
-  submitButton?: React.ReactNode;
-  disabled?: boolean;
-  focusFirstInput?: boolean;
-} & React.FormHTMLAttributes<HTMLFormElement>;
+  onSubmit: FormSubmitHandler;
+  children: React.ReactNode;
+} & Omit<
+  ComponentProps<typeof MotionForm>,
+  'onSubmit' | 'children' | 'submitButton'
+>;
 
-const Form = forwardRef<HTMLFormElement, FormProps>(
-  (
-    {
-      fields,
-      id,
-      handleSubmit,
-      getInitialValues,
-      submitButton = <button type="submit" key="submit" aria-label="Submit" />,
-      disabled,
-      focusFirstInput,
-      children,
-      ...rest
+export default function Form(props: FormProps) {
+  const { onSubmit, children, className, ...rest } = props;
+
+  const { formProps, formErrors } = useForm({
+    onSubmit,
+    onSubmitInvalid: (errors) => {
+      scrollToFirstError(errors);
     },
-    ref,
-  ) => {
-    const [initialValues, setInitialValues] = useState<
-      Record<string, VariableValue>
-    >({});
+  });
 
-    // Handle initial values loading
-    useEffect(() => {
-      if (!getInitialValues) return;
-
-      const loadInitialValues = async () => {
-        try {
-          const values = await getInitialValues();
-          setInitialValues(values);
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error('Failed to load initial values:', error);
-          setInitialValues({});
-        }
-      };
-
-      void loadInitialValues();
-    }, [getInitialValues]);
-
-    // Create default values from fields and initial values
-    const defaultValues = useMemo(() => {
-      return fields.reduce<Record<string, VariableValue>>((acc, field) => {
-        acc[field.variable] = initialValues[field.variable] ?? '';
-        return acc;
-      }, {});
-    }, [fields, initialValues]);
-
-    const form = useTanStackForm({
-      defaultValues,
-      onSubmit: handleSubmit,
-      onSubmitInvalid: ({ formApi }) => {
-        const errors = formApi.getAllErrors().fields as FormErrors;
-        scrollToFirstError(errors);
-      },
-    });
-
-    // Reset form with new values when initial values change
-    useEffect(() => {
-      if (Object.keys(initialValues).length > 0) {
-        form.reset(defaultValues);
-      }
-    }, [initialValues, defaultValues, form]);
-
-    return (
-      <form
-        ref={ref}
-        onSubmit={async (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          await form.handleSubmit();
-        }}
-        id={id}
-        {...rest}
-      >
-        {fields.map((field, index) => {
-          return (
-            <form.AppField
-              name={field.variable}
-              key={`${field.variable}`}
-              validators={field.validation}
-            >
-              {() => (
-                <field.Component
-                  {...field}
-                  disabled={disabled}
-                  autoFocus={focusFirstInput && index === 0}
-                />
-              )}
-            </form.AppField>
-          );
-        })}
-        {submitButton}
-        {children}
-      </form>
-    );
-  },
-);
-
-Form.displayName = 'Form';
-
-export default Form;
+  return (
+    <MotionForm
+      noValidate // Don't show native HTML validation UI
+      className={cx(
+        'flex w-screen max-w-2xl flex-col items-start gap-6',
+        className,
+      )}
+      layout
+      onSubmit={formProps.onSubmit}
+      {...rest}
+    >
+      {formErrors && <FormErrorsList key="form-errors" errors={formErrors} />}
+      {children}
+    </MotionForm>
+  );
+}
