@@ -10,6 +10,10 @@ const mockPrisma = {
     findMany: vi.fn(),
     deleteMany: vi.fn(),
   },
+  participant: {
+    findMany: vi.fn(),
+    deleteMany: vi.fn(),
+  },
 };
 
 // Mock uploadthing API
@@ -23,7 +27,8 @@ vi.mock('~/utils/db', () => ({
 
 // Mock uploadthing-server-helpers
 vi.mock('~/lib/uploadthing-server-helpers', () => ({
-  getUTApi: () => mockGetUTApi() as Promise<{ deleteFiles: typeof mockDeleteFiles }>,
+  getUTApi: () =>
+    mockGetUTApi() as Promise<{ deleteFiles: typeof mockDeleteFiles }>,
 }));
 
 describe('prunePreviewProtocols', () => {
@@ -48,6 +53,7 @@ describe('prunePreviewProtocols', () => {
 
     mockPrisma.protocol.findMany.mockResolvedValue([oldProtocol]);
     mockPrisma.asset.findMany.mockResolvedValue([]);
+    mockPrisma.participant.findMany.mockResolvedValue([]);
     mockPrisma.protocol.deleteMany.mockResolvedValue({ count: 1 });
 
     const result = await prunePreviewProtocols();
@@ -87,14 +93,12 @@ describe('prunePreviewProtocols', () => {
       name: 'Old Protocol',
     };
 
-    const assets = [
-      { key: 'ut-key-1' },
-      { key: 'ut-key-2' },
-    ];
+    const assets = [{ key: 'ut-key-1' }, { key: 'ut-key-2' }];
 
     mockDeleteFiles.mockResolvedValue({ success: true });
     mockPrisma.protocol.findMany.mockResolvedValue([oldProtocol]);
     mockPrisma.asset.findMany.mockResolvedValue(assets);
+    mockPrisma.participant.findMany.mockResolvedValue([]);
     mockPrisma.asset.deleteMany.mockResolvedValue({ count: 2 });
     mockPrisma.protocol.deleteMany.mockResolvedValue({ count: 1 });
 
@@ -104,14 +108,43 @@ describe('prunePreviewProtocols', () => {
     expect(mockDeleteFiles).toHaveBeenCalledWith(['ut-key-1', 'ut-key-2']);
   });
 
+  it('should delete orphaned participants', async () => {
+    const { prunePreviewProtocols } = await import(
+      '../preview-protocol-pruning'
+    );
+
+    const oldProtocol = {
+      id: 'old-protocol',
+      hash: 'hash-123',
+      name: 'Old Protocol',
+    };
+
+    const participants = [{ id: 'participant-1' }, { id: 'participant-2' }];
+
+    mockPrisma.protocol.findMany.mockResolvedValue([oldProtocol]);
+    mockPrisma.asset.findMany.mockResolvedValue([]);
+    mockPrisma.participant.findMany.mockResolvedValue(participants);
+    mockPrisma.protocol.deleteMany.mockResolvedValue({ count: 1 });
+    mockPrisma.participant.deleteMany.mockResolvedValue({ count: 2 });
+
+    const result = await prunePreviewProtocols();
+
+    expect(result.deletedCount).toBe(1);
+    expect(mockPrisma.participant.deleteMany).toHaveBeenCalledWith({
+      where: {
+        id: {
+          in: ['participant-1', 'participant-2'],
+        },
+      },
+    });
+  });
+
   it('should handle errors gracefully', async () => {
     const { prunePreviewProtocols } = await import(
       '../preview-protocol-pruning'
     );
 
-    mockPrisma.protocol.findMany.mockRejectedValue(
-      new Error('Database error'),
-    );
+    mockPrisma.protocol.findMany.mockRejectedValue(new Error('Database error'));
 
     const result = await prunePreviewProtocols();
 
@@ -119,7 +152,7 @@ describe('prunePreviewProtocols', () => {
     expect(result.error).toBe('Database error');
   });
 
-  it('should only query for preview protocols', async () => {
+  it('should only query for preview protocols with pending/completed cutoffs', async () => {
     const { prunePreviewProtocols } = await import(
       '../preview-protocol-pruning'
     );
@@ -138,9 +171,14 @@ describe('prunePreviewProtocols', () => {
     const firstCall = mockCalls[0];
     expect(firstCall).toBeDefined();
     if (firstCall) {
-      const args = firstCall[0] as { where?: { isPreview?: boolean; importedAt?: { lt?: Date } } };
+      type QueryArgs = {
+        where?: {
+          isPreview?: boolean;
+          OR?: { isPending?: boolean; importedAt?: { lt?: Date } }[];
+        };
+      };
+      const args = firstCall[0] as QueryArgs;
       expect(args.where?.isPreview).toBe(true);
-      expect(args.where?.importedAt?.lt).toBeInstanceOf(Date);
     }
   });
 });

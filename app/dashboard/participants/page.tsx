@@ -4,11 +4,13 @@ import Section from '~/components/layout/Section';
 import PageHeader from '~/components/typography/PageHeader';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
+import { requireNonPreviewMode } from '~/utils/previewMode';
 import ImportExportSection from './_components/ExportParticipants/ImportExportSection';
 
 export default async function ParticipantPage() {
   await requireAppNotExpired();
   await requirePageAuth();
+  requireNonPreviewMode();
 
   return (
     <>

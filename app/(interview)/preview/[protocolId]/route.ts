@@ -30,7 +30,7 @@ const handler = async (
   // Verify that this is actually a preview protocol
   const protocol = await prisma.protocol.findUnique({
     where: { id: protocolId },
-    select: { isPreview: true, name: true },
+    select: { isPreview: true, isPending: true, name: true },
   });
 
   if (!protocol) {
@@ -41,6 +41,12 @@ const handler = async (
   if (!protocol.isPreview) {
     // Not a preview protocol, redirect to regular onboard
     url.pathname = `/onboard/${protocolId}`;
+    return NextResponse.redirect(url);
+  }
+
+  if (protocol.isPending) {
+    // Protocol assets are still being uploaded
+    url.pathname = '/onboard/error';
     return NextResponse.redirect(url);
   }
 

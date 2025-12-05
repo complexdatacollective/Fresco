@@ -9,8 +9,8 @@ import { parseAsInteger, useQueryState } from 'nuqs';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import usePrevious from '~/hooks/usePrevious';
+import AlertBanner from '../components/AlertBanner';
 import Navigation from '../components/Navigation';
-import PreviewModeBanner from '../components/PreviewModeBanner';
 import { updatePrompt, updateStage } from '../ducks/modules/session';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import {
@@ -268,7 +268,12 @@ export default function ProtocolScreen({ isPreview }: ProtocolScreenProps) {
 
   return (
     <>
-      {isPreview && <PreviewModeBanner />}
+      {isPreview && (
+        <AlertBanner>
+          <strong>Preview Mode </strong>- Data you enter here will be publicly
+          visible.
+        </AlertBanner>
+      )}
       <motion.div
         className="relative flex h-full w-full flex-1 flex-row gap-6 overflow-hidden"
         initial={{ opacity: 0 }}

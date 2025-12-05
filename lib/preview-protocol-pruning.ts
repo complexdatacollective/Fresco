@@ -1,11 +1,16 @@
 import { getUTApi } from '~/lib/uploadthing-server-helpers';
 import { prisma } from '~/utils/db';
 
-const MAX_PREVIEW_PROTOCOL_AGE_HOURS = 24;
+// Completed previews: 24 hours
+const MAX_COMPLETED_PREVIEW_AGE_MS = 24 * 60 * 60 * 1000;
+// Pending (abandoned) uploads: 15 minutes
+const MAX_PENDING_PREVIEW_AGE_MS = 15 * 60 * 1000;
 
 /**
  * Prune preview protocols based on age limit.
- * Deletes protocols older than 24 hours.
+ * - Pending protocols (abandoned uploads) are deleted after 15 minutes
+ * - Completed protocols are deleted after 24 hours
+ * Also cleans up orphaned assets and participants.
  */
 export async function prunePreviewProtocols(): Promise<{
   deletedCount: number;
@@ -13,17 +18,19 @@ export async function prunePreviewProtocols(): Promise<{
 }> {
   try {
     const now = new Date();
-    const cutoffDate = new Date(
-      now.getTime() - MAX_PREVIEW_PROTOCOL_AGE_HOURS * 60 * 60 * 1000,
-    );
+    const completedCutoff = new Date(now.getTime() - MAX_COMPLETED_PREVIEW_AGE_MS);
+    const pendingCutoff = new Date(now.getTime() - MAX_PENDING_PREVIEW_AGE_MS);
 
-    // Find all preview protocols older than the cutoff date
+    // Find preview protocols to prune:
+    // - Pending protocols older than 15 minutes (abandoned uploads)
+    // - Completed protocols older than 24 hours
     const oldProtocols = await prisma.protocol.findMany({
       where: {
         isPreview: true,
-        importedAt: {
-          lt: cutoffDate,
-        },
+        OR: [
+          { isPending: true, importedAt: { lt: pendingCutoff } },
+          { isPending: false, importedAt: { lt: completedCutoff } },
+        ],
       },
       select: {
         id: true,
@@ -36,18 +43,36 @@ export async function prunePreviewProtocols(): Promise<{
       return { deletedCount: 0 };
     }
 
+    const protocolIds = oldProtocols.map((p) => p.id);
+
     // Select assets that are ONLY associated with the protocols to be deleted
     const assetKeysToDelete = await prisma.asset.findMany({
       where: {
         protocols: {
           every: {
             id: {
-              in: oldProtocols.map((p) => p.id),
+              in: protocolIds,
             },
           },
         },
       },
       select: { key: true },
+    });
+
+    // Find participants whose interviews are ALL with the protocols to be deleted
+    // These will become orphaned after cascade delete
+    const participantsToDelete = await prisma.participant.findMany({
+      where: {
+        interviews: {
+          some: {}, // Has at least one interview
+          every: {
+            protocolId: {
+              in: protocolIds,
+            },
+          },
+        },
+      },
+      select: { id: true },
     });
 
     // Delete assets from UploadThing (best effort)
@@ -72,14 +97,25 @@ export async function prunePreviewProtocols(): Promise<{
       });
     }
 
-    // Delete the protocols
+    // Delete the protocols (interviews cascade delete automatically)
     const result = await prisma.protocol.deleteMany({
       where: {
         id: {
-          in: oldProtocols.map((p) => p.id),
+          in: protocolIds,
         },
       },
     });
+
+    // Delete orphaned participants (their interviews were cascade deleted above)
+    if (participantsToDelete.length > 0) {
+      await prisma.participant.deleteMany({
+        where: {
+          id: {
+            in: participantsToDelete.map((p) => p.id),
+          },
+        },
+      });
+    }
 
     return { deletedCount: result.count };
   } catch (error) {
