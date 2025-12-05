@@ -15,8 +15,8 @@ importers:
         specifier: 8.0.0
         version: 8.0.0(next@14.2.32(@babel/core@7.28.5)(@playwright/test@1.56.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.94.2))
       '@codaco/protocol-validation':
-        specifier: ^7.1.0
-        version: 7.2.0
+        specifier: 8.0.0
+        version: 8.0.0
       '@codaco/shared-consts':
         specifier: 5.0.0
         version: 5.0.0
@@ -1049,8 +1049,8 @@ packages:
     peerDependencies:
       next: 15.4.7
 
-  '@codaco/protocol-validation@7.2.0':
-    resolution: {integrity: sha512-ttKkk6rpOZq8E+79BIqr1bXx0pH3H65ceV+1NZFGSLD3juxgL8jJ1JDxGGhNCqfNkZZnezOka569z7if1GWetg==}
+  '@codaco/protocol-validation@8.0.0':
+    resolution: {integrity: sha512-uZN9gVWn+fk26Y9BAtnXAEzULKDPpi+rZ3yn5oCpRsllB1R2G+Broy37wgdxQTpVspkuoIe3Hx+A+Bd18KqKWw==}
     hasBin: true
 
   '@codaco/shared-consts@5.0.0':
@@ -8184,7 +8184,7 @@ snapshots:
       next: 14.2.32(@babel/core@7.28.5)(@playwright/test@1.56.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.94.2)
       zod: 4.1.12
 
-  '@codaco/protocol-validation@7.2.0':
+  '@codaco/protocol-validation@8.0.0':
     dependencies:
       '@codaco/shared-consts': 5.0.0
       '@faker-js/faker': 10.1.0
