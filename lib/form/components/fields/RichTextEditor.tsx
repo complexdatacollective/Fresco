@@ -143,7 +143,7 @@ const editorContainerVariants = compose(
 );
 
 const toolbarStyles = cx(
-  'bg-surface-1 text-surface-1-contrast publish-colors order-1 flex w-full flex-wrap items-center gap-1 border-b border-current/10 px-6 py-2',
+  'bg-surface-1 text-surface-1-contrast publish-colors order-1 flex w-full items-center gap-1 border-b border-current/10 px-6 py-2',
 );
 
 const toolbarGroupStyles = cx('flex items-center');

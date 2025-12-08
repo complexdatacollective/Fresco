@@ -1,55 +1,120 @@
+import { type JSONContent } from '@tiptap/core';
 import { GripVertical, PencilIcon, X } from 'lucide-react';
-import {
-  AnimatePresence,
-  motion,
-  Reorder,
-  useDragControls,
-} from 'motion/react';
-import { useState, type ComponentProps } from 'react';
+import { motion, Reorder, useDragControls } from 'motion/react';
+import { forwardRef, useEffect, useState } from 'react';
 import { surfaceVariants } from '~/components/layout/Surface';
 import { IconButton, MotionButton } from '~/components/ui/Button';
+import { Dialog } from '~/lib/dialogs/Dialog';
 import { cx } from '~/utils/cva';
-import { InputField } from '../InputField';
-import { type ArrayFieldItemProps } from './ArrayField';
+import Field from '../../Field';
+import Form from '../../Form';
+import SubmitButton from '../../SubmitButton';
+import { RichTextEditorField } from '../RichTextEditor';
+import { RichTextRenderer } from '../RichTextRenderer';
+import {
+  type ArrayFieldEditorProps,
+  type ArrayFieldItemProps,
+} from './ArrayField';
 
-export function SimplePreview({
-  isSortable,
-  onDragHandlePointerDown,
-  onClickEdit,
-  onClickDelete,
-  children,
-  className,
-  ...props
-}: Omit<ComponentProps<typeof motion.div>, 'children'> & {
-  isSortable?: boolean;
-  onDragHandlePointerDown?: ComponentProps<typeof motion.div>['onPointerDown'];
-  onClickEdit?: () => void;
-  onClickDelete?: () => void;
-  children?: React.ReactNode;
-}) {
+const ItemAnimationProps = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0, scale: 0.6 },
+};
+
+export const SimpleEditor = <T extends { id: string; text: string }>({
+  item,
+  isEditing,
+  isNewItem,
+  onChange,
+  onCancel,
+}: ArrayFieldEditorProps<T>) => {
+  const [text, setText] = useState(item?.text || '');
+
+  useEffect(() => {
+    if (isEditing) {
+      setText(item?.text || '');
+    }
+  }, [isEditing, item]);
+
+  if (!isEditing) {
+    return null;
+  }
+
   return (
     <motion.div
       layout
-      className={cx('flex w-full items-center gap-2', className)}
+      className={cx(
+        surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
+        'flex w-full flex-col gap-2 border p-4',
+      )}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      {...props}
+    >
+      <textarea
+        className="w-full resize-none rounded border px-2 py-1"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        rows={3}
+        placeholder="Enter text..."
+      />
+      <div className="mt-2 flex gap-2">
+        <IconButton
+          variant="primary"
+          onClick={() => onChange({ ...item!, text } as T)}
+          disabled={text.trim() === ''}
+          aria-label={isNewItem ? 'Add item' : 'Save changes'}
+          icon={<PencilIcon />}
+          children={isNewItem ? 'Add' : 'Save'}
+        />
+        <IconButton
+          variant="textMuted"
+          onClick={onCancel}
+          aria-label="Cancel editing"
+          icon={<X />}
+          children="Cancel"
+        />
+      </div>
+    </motion.div>
+  );
+};
+
+export const SimpleItem = forwardRef<
+  HTMLElement,
+  ArrayFieldItemProps<{ id: string; label: string }>
+>(function PromptItem({ item, isSortable, onEdit, onDelete, className }, ref) {
+  const controls = useDragControls();
+
+  return (
+    <Reorder.Item
+      ref={ref as React.Ref<HTMLLIElement>}
+      layoutId={item.id}
+      value={item}
+      dragListener={false}
+      dragControls={controls}
+      layout
+      className={cx(
+        surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
+        'flex w-full items-center gap-2 border select-none',
+        className,
+      )}
+      {...ItemAnimationProps}
     >
       {isSortable && (
         <motion.div
-          layout="position"
-          onPointerDown={onDragHandlePointerDown}
+          layout
+          onPointerDown={(e) => controls.start(e)}
           className="touch-none"
         >
           <GripVertical className="h-4 w-4 cursor-grab" />
         </motion.div>
       )}
-      <motion.div layout="position" className="flex-1">
-        {children}
+      <motion.div layout className="flex-1">
+        {item.label}
       </motion.div>
       <motion.div
-        layout="position"
+        layout
         className="ml-auto flex items-center gap-1"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -59,7 +124,7 @@ export function SimplePreview({
           size="sm"
           variant="textMuted"
           color="primary"
-          onClick={onClickEdit}
+          onClick={onEdit}
           aria-label="Edit item"
           icon={<PencilIcon />}
         />
@@ -67,109 +132,130 @@ export function SimplePreview({
           variant="textMuted"
           color="destructive"
           size="sm"
-          onClick={onClickDelete}
+          onClick={onDelete}
           icon={<X />}
           aria-label="Remove item"
         />
       </motion.div>
-    </motion.div>
+    </Reorder.Item>
   );
-}
+});
 
-/**
- * SimpleItem is an item component for ArrayField.
- *
- * It swaps between view and edit modes using a simple AnimatePresence and
- * conditional rendering.
- */
+// Modal Editor Story - demonstrates using Dialog primitives to recreate the
+// current architect prompt editing experience.
 
-export function InlineItemRenderer<T extends { id: string; label: string }>(
-  props: ArrayFieldItemProps<T>,
-) {
-  const {
-    onChange,
-    onCancel,
-    onDelete,
-    onEdit,
-    isEditing,
-    value,
-    isSortable,
-    isNewItem,
-    className,
-  } = props;
+// Simplified version of name generator prompt
+export type NameGeneratorPrompt = {
+  id: string;
+  text: JSONContent;
+};
 
-  const [label, setLabel] = useState(value.label);
-
+export const PromptItem = forwardRef<
+  HTMLElement,
+  ArrayFieldItemProps<NameGeneratorPrompt>
+>(function PromptItem({ item, isSortable, onEdit, onDelete }, ref) {
   const controls = useDragControls();
-
-  const handleClickDone = () => {
-    onChange({
-      ...value,
-      label,
-    });
-  };
 
   return (
     <Reorder.Item
-      value={value}
+      ref={ref as React.Ref<HTMLLIElement>}
+      layoutId={item.id}
+      value={item}
       dragListener={false}
       dragControls={controls}
       layout
       className={cx(
         surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
-        'flex w-full items-center gap-2 rounded-none border select-none',
-        className,
+        'flex w-full items-center gap-2 border select-none',
       )}
-      style={{ borderRadius: 'var(--radius-sm)' }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0, scale: 0.6 }}
+      {...ItemAnimationProps}
     >
-      <AnimatePresence mode="wait">
-        {isEditing ? (
-          <motion.div
-            key={`editor-${value.id}`}
-            layout
-            className="flex w-full items-center gap-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.1 }}
-          >
-            <InputField
-              autoFocus
-              type="text"
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
-            />
-            <MotionButton
-              type="button"
-              color="primary"
-              onClick={handleClickDone}
-            >
-              Done
-            </MotionButton>
-            <MotionButton
-              type="button"
-              color="destructive"
-              onClick={isNewItem ? onCancel : onDelete}
-            >
-              Cancel
-            </MotionButton>
-          </motion.div>
-        ) : (
-          <SimplePreview
-            key={`item-${value.id}`}
-            isSortable={isSortable}
-            onClickEdit={onEdit}
-            onClickDelete={onDelete}
-            onDragHandlePointerDown={(e) => controls.start(e)}
-            transition={{ duration: 0.1 }}
-          >
-            {value.label}
-          </SimplePreview>
-        )}
-      </AnimatePresence>
+      {isSortable && (
+        <motion.div
+          layout
+          onPointerDown={(e) => controls.start(e)}
+          className="touch-none"
+        >
+          <GripVertical className="h-4 w-4 cursor-grab" />
+        </motion.div>
+      )}
+      <motion.div layout className="flex-1">
+        <RichTextRenderer content={item.text} />
+      </motion.div>
+      <motion.div
+        layout
+        className="ml-auto flex items-center gap-1"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <IconButton
+          size="sm"
+          variant="textMuted"
+          color="primary"
+          onClick={onEdit}
+          aria-label="Edit item"
+          icon={<PencilIcon />}
+        />
+        <IconButton
+          variant="textMuted"
+          color="destructive"
+          size="sm"
+          onClick={onDelete}
+          icon={<X />}
+          aria-label="Remove item"
+        />
+      </motion.div>
     </Reorder.Item>
   );
-}
+});
+
+export const PromptEditor = forwardRef<
+  HTMLDivElement,
+  ArrayFieldEditorProps<NameGeneratorPrompt>
+>(function PromptEditor(
+  { isEditing, isNewItem, onCancel, onChange, item },
+  ref,
+) {
+  const handleSubmit = (data: NameGeneratorPrompt) => {
+    onChange(data);
+
+    return { success: true as const };
+  };
+
+  return (
+    <Dialog
+      ref={ref}
+      title="Edit Prompt"
+      description="Update this prompt below"
+      open={isEditing}
+      closeDialog={onCancel}
+      {...(isNewItem ? {} : { layoutId: item?.id ?? undefined })}
+      footer={
+        <>
+          <MotionButton type="button" onClick={onCancel}>
+            Cancel
+          </MotionButton>
+          <SubmitButton form="contact-form" color="primary">
+            Save Changes
+          </SubmitButton>
+        </>
+      }
+    >
+      <Form
+        id="contact-form"
+        onSubmit={handleSubmit}
+        className="w-full max-w-full gap-4"
+      >
+        <Field
+          name="text"
+          label="Prompt Text"
+          hint="The prompt text instructs your participant about the task on this screen."
+          component={RichTextEditorField}
+          initialValue={item?.text ?? {}}
+          required
+        />
+      </Form>
+    </Dialog>
+  );
+});

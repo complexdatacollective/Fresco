@@ -1,7 +1,7 @@
 'use client';
 
 import { type JSONContent } from '@tiptap/react';
-import { type ComponentPropsWithoutRef, type ReactNode } from 'react';
+import { Fragment, type ComponentPropsWithoutRef, type ReactNode } from 'react';
 import { headingVariants } from '~/components/typography/Heading';
 import { paragraphVariants } from '~/components/typography/Paragraph';
 
@@ -40,18 +40,23 @@ function renderMarks(text: string, marks?: TextMark[]): ReactNode {
     return text;
   }
 
-  return marks.reduce<ReactNode>((acc, mark) => {
+  return marks.reduce<ReactNode>((acc, mark, index) => {
+    const key = `mark-${mark.type}-${index}`;
     switch (mark.type) {
       case 'bold':
-        return <strong>{acc}</strong>;
+        return <strong key={key}>{acc}</strong>;
       case 'italic':
-        return <em>{acc}</em>;
+        return <em key={key}>{acc}</em>;
       case 'code':
-        return <code className="rounded bg-current/10 px-1 py-0.5">{acc}</code>;
+        return (
+          <code key={key} className="rounded bg-current/10 px-1 py-0.5">
+            {acc}
+          </code>
+        );
       case 'strike':
-        return <s>{acc}</s>;
+        return <s key={key}>{acc}</s>;
       case 'underline':
-        return <u>{acc}</u>;
+        return <u key={key}>{acc}</u>;
       default:
         return acc;
     }
@@ -108,7 +113,11 @@ function renderNode(node: JSONContent, index: number): ReactNode {
       );
 
     case 'text':
-      return renderMarks(node.text ?? '', node.marks as TextMark[] | undefined);
+      return (
+        <Fragment key={key}>
+          {renderMarks(node.text ?? '', node.marks as TextMark[] | undefined)}
+        </Fragment>
+      );
 
     case 'hardBreak':
       return <br key={key} />;

@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'motion/react';
+import { LayoutGroup, motion } from 'motion/react';
 import { type ComponentProps } from 'react';
 import { scrollToFirstError } from '~/lib/form/utils/scrollToFirstError';
 import { cx } from '~/utils/cva';
@@ -8,15 +8,10 @@ import { useForm } from '../hooks/useForm';
 import FormErrorsList from './FormErrors';
 import type { FormSubmitHandler } from './types';
 
-const MotionForm = motion.create('form');
-
 type FormProps = {
   onSubmit: FormSubmitHandler;
   children: React.ReactNode;
-} & Omit<
-  ComponentProps<typeof MotionForm>,
-  'onSubmit' | 'children' | 'submitButton'
->;
+} & Omit<ComponentProps<'form'>, 'onSubmit' | 'children' | 'submitButton'>;
 
 export default function Form(props: FormProps) {
   const { onSubmit, children, className, ...rest } = props;
@@ -29,18 +24,19 @@ export default function Form(props: FormProps) {
   });
 
   return (
-    <MotionForm
+    <motion.form
       noValidate // Don't show native HTML validation UI
       className={cx(
         'flex w-screen max-w-2xl flex-col items-start gap-6',
         className,
       )}
-      layout
       onSubmit={formProps.onSubmit}
       {...rest}
     >
-      {formErrors && <FormErrorsList key="form-errors" errors={formErrors} />}
-      {children}
-    </MotionForm>
+      <LayoutGroup>
+        {formErrors && <FormErrorsList key="form-errors" errors={formErrors} />}
+        {children}
+      </LayoutGroup>
+    </motion.form>
   );
 }

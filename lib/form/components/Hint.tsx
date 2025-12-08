@@ -1,4 +1,3 @@
-import { motion } from 'motion/react';
 import { paragraphVariants } from '~/components/typography/Paragraph';
 
 export default function Hint({
@@ -9,12 +8,11 @@ export default function Hint({
   children: React.ReactNode;
 }) {
   return (
-    <motion.p
-      layout
+    <p
       id={id}
       className={paragraphVariants({ className: 'text-xs text-current/70' })}
     >
       {children}
-    </motion.p>
+    </p>
   );
 }

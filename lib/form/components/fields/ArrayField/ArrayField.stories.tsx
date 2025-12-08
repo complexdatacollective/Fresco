@@ -2,20 +2,18 @@
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { type JSONContent } from '@tiptap/core';
-import { Reorder, useDragControls } from 'motion/react';
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { action } from 'storybook/actions';
 import { useArgs } from 'storybook/preview-api';
-import { z } from 'zod';
-import { surfaceVariants } from '~/components/layout/Surface';
-import { MotionButton } from '~/components/ui/Button';
-import { Dialog } from '~/lib/dialogs/Dialog';
 import { cx } from '~/utils/cva';
-import { Field, Form, SubmitButton } from '../..';
-import { RichTextEditorField } from '../RichTextEditor';
-import { RichTextRenderer } from '../RichTextRenderer';
-import { ArrayField, type ArrayFieldItemProps } from './ArrayField';
-import { InlineItemRenderer, SimplePreview } from './ItemRenderers';
+import { ArrayField } from './ArrayField';
+import {
+  type NameGeneratorPrompt,
+  PromptEditor,
+  PromptItem,
+  SimpleEditor,
+  SimpleItem,
+} from './ItemRenderers';
 
 // Sample data
 const sampleItems = [
@@ -64,9 +62,17 @@ const meta: Meta<typeof ArrayField<SimpleItem>> = {
       action: 'onChange',
       description: 'Callback fired when items are added, removed, or reordered',
     },
-    ItemComponent: {
+    itemComponent: {
       control: false,
       description: 'Custom component for rendering each item',
+    },
+    editorComponent: {
+      control: false,
+      description: 'Custom component for editing an item',
+    },
+    itemTemplate: {
+      control: false,
+      description: 'Function that returns a new item template',
     },
   },
   args: {
@@ -74,9 +80,17 @@ const meta: Meta<typeof ArrayField<SimpleItem>> = {
     addButtonLabel: 'Add Item',
     emptyStateMessage: 'No items added yet. Click "Add Item" to get started.',
     value: [],
-    ItemComponent: InlineItemRenderer,
     itemTemplate: () => ({ id: crypto.randomUUID(), label: '' }),
+    itemComponent: SimpleItem,
+    editorComponent: SimpleEditor,
   },
+  decorators: [
+    (Story) => (
+      <div className="w-96">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export default meta;
@@ -101,46 +115,6 @@ export const Default: Story = {
 export const WithInitialItems: Story = {
   args: {
     value: sampleItems,
-  },
-  render: function Render(args) {
-    const [, updateArgs] = useArgs();
-
-    return (
-      <ArrayField
-        {...args}
-        onChange={(newValue) => {
-          updateArgs({ value: newValue });
-          action('onChange')(newValue);
-        }}
-      />
-    );
-  },
-};
-
-export const Sortable: Story = {
-  args: {
-    value: sampleItems,
-    sortable: true,
-  },
-  render: function Render(args) {
-    const [, updateArgs] = useArgs();
-
-    return (
-      <ArrayField
-        {...args}
-        onChange={(newValue) => {
-          updateArgs({ value: newValue });
-          action('onChange')(newValue);
-        }}
-      />
-    );
-  },
-};
-
-export const CustomLabels: Story = {
-  args: {
-    addButtonLabel: 'Add New Option',
-    emptyStateMessage: 'No options configured yet. Add one to get started!',
   },
   render: function Render(args) {
     const [, updateArgs] = useArgs();
@@ -189,52 +163,30 @@ export const CustomComponents: Story = {
 
     return (
       <ArrayField<TagItem>
-        sortable={args.sortable}
-        addButtonLabel={args.addButtonLabel}
-        emptyStateMessage={args.emptyStateMessage}
+        {...args}
         value={tags}
         onChange={(newValue) => {
           setTags(newValue);
           action('onChange')(newValue);
         }}
-        itemClassName={colorClasses}
         itemTemplate={() => ({
           id: crypto.randomUUID(),
           label: '',
           color: 'node-1',
         })}
-        ItemComponent={InlineItemRenderer}
+        itemComponent={(props) => {
+          const classNames = colorClasses(props.item);
+
+          return <SimpleItem {...props} className={classNames} />;
+        }}
+        editorComponent={(props) => {
+          const {} = props;
+
+          return <div>hello</div>;
+        }}
       />
     );
   },
-};
-
-export const InForm: Story = {
-  parameters: {
-    controls: { disable: true },
-  },
-  render: () => (
-    <Form
-      onSubmit={async (data) => {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        action('form-submitted')(data);
-        return { success: true };
-      }}
-    >
-      <Field
-        name="items"
-        label="List Items"
-        hint="Add and reorder items in your list"
-        component={ArrayField<{ id: string; label: string }>}
-        sortable
-        addButtonLabel="Add Item"
-        itemTemplate={() => ({ id: crypto.randomUUID(), label: '' })}
-        ItemComponent={InlineItemRenderer}
-        validation={z.array(z.object({ id: z.string(), label: z.string() }))}
-      />
-      <SubmitButton className="mt-4">Submit</SubmitButton>
-    </Form>
-  ),
 };
 
 export const ManyItems: Story = {
@@ -260,108 +212,6 @@ export const ManyItems: Story = {
   },
 };
 
-// Modal Editor Story - demonstrates using Dialog primitives to recreate the
-// current architect prompt editing experience.
-
-// Simplified version of name generator prompt
-type NameGeneratorPrompt = {
-  id: string;
-  text: JSONContent;
-};
-
-/**
- * PromptItem is an item component for ArrayField.
- *
- * It uses layoutId to transition between view and edit modes. Edit mode is
- * a modal dialog.
- */
-
-function SociogramPromptItemRenderer(
-  props: ArrayFieldItemProps<NameGeneratorPrompt>,
-) {
-  const id = useId();
-  const {
-    onChange,
-    onCancel,
-    isNewItem,
-    isEditing,
-    value,
-    onEdit,
-    isSortable,
-    onDelete,
-  } = props;
-
-  const controls = useDragControls();
-
-  const handleSubmit = (data: unknown) => {
-    onChange({
-      ...value,
-      ...(data as Record<string, unknown>),
-    });
-    return { success: true as const };
-  };
-
-  return (
-    <>
-      <Dialog
-        title={isNewItem ? 'Edit Prompt' : 'Add New Prompt'}
-        description={
-          isNewItem ? 'Update this prompt below' : 'Fill in the prompt details'
-        }
-        open={isEditing}
-        closeDialog={onCancel}
-        {...(isNewItem ? {} : { layoutId: id })}
-        footer={
-          <>
-            <MotionButton type="button" onClick={onCancel}>
-              Cancel
-            </MotionButton>
-            <SubmitButton form="contact-form" color="primary">
-              {isEditing ? 'Save Changes' : 'Add Contact'}
-            </SubmitButton>
-          </>
-        }
-      >
-        <Form
-          id="contact-form"
-          onSubmit={handleSubmit}
-          className="w-full max-w-full gap-4"
-        >
-          <Field
-            name="text"
-            label="Prompt Text"
-            hint="The prompt text instructs your participant about the task on this screen."
-            component={RichTextEditorField}
-            initialValue={value?.text ?? {}}
-            required
-          />
-        </Form>
-      </Dialog>
-      <Reorder.Item
-        layoutId={id}
-        value={value}
-        dragListener={false}
-        dragControls={controls}
-        layout
-        className={cx(
-          surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
-          'flex w-full items-center gap-2 rounded-none border select-none',
-        )}
-        style={{ borderRadius: 'var(--radius)' }}
-      >
-        <SimplePreview
-          isSortable={isSortable}
-          onClickEdit={onEdit}
-          onClickDelete={onDelete}
-          onDragHandlePointerDown={(e) => controls.start(e)}
-        >
-          <RichTextRenderer content={value.text} />
-        </SimplePreview>
-      </Reorder.Item>
-    </>
-  );
-}
-
 export const DialogEditor: Story = {
   args: {
     sortable: true,
@@ -372,20 +222,37 @@ export const DialogEditor: Story = {
     layout: 'centered',
   },
   render: function Render(args) {
-    const [prompts, setPrompts] = useState<NameGeneratorPrompt[]>([]);
+    const [prompts, setPrompts] = useState<NameGeneratorPrompt[]>([
+      {
+        id: '1',
+        text: {
+          type: 'doc',
+          content: [
+            {
+              type: 'paragraph',
+              content: [
+                {
+                  type: 'text',
+                  text: 'Generate a list of creative names for a new product.',
+                },
+              ],
+            },
+          ],
+        } as JSONContent,
+      },
+    ]);
 
     return (
       <ArrayField<NameGeneratorPrompt>
-        sortable={args.sortable}
-        addButtonLabel={args.addButtonLabel}
-        emptyStateMessage={args.emptyStateMessage}
+        {...args}
         value={prompts}
         onChange={(newValue) => {
           setPrompts(newValue);
           action('onChange')(newValue);
         }}
         itemTemplate={() => ({ id: crypto.randomUUID(), text: {} })}
-        ItemComponent={SociogramPromptItemRenderer}
+        itemComponent={PromptItem}
+        editorComponent={PromptEditor}
       />
     );
   },

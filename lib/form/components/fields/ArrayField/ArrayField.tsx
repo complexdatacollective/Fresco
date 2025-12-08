@@ -1,18 +1,22 @@
 // MultiSelectField.tsx (React 18)
 
 import { PlusIcon } from 'lucide-react';
-import { AnimatePresence, LayoutGroup, motion, Reorder } from 'motion/react';
-import { useCallback, useState } from 'react';
+import { AnimatePresence, motion, Reorder } from 'motion/react';
+import {
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+  useCallback,
+  useState,
+} from 'react';
 import { MotionButton } from '~/components/ui/Button';
 import useDialog from '~/lib/dialogs/useDialog';
 import { controlGroupVariants } from '~/styles/shared/controlVariants';
 import { compose, cva } from '~/utils/cva';
-import { type ArrayFieldItemProps } from './ItemRenderers';
 
 const arrayFieldVariants = compose(
   controlGroupVariants,
   cva({
-    base: 'w-full flex-col',
+    base: 'w-full flex-col text-wrap',
     variants: {
       isEmpty: {
         true: 'items-center justify-center p-10',
@@ -31,18 +35,23 @@ export type Item = {
 } & Record<string, unknown>;
 
 export type ArrayFieldItemProps<T extends Item = Item> = {
-  onChange: (value: T) => void;
-  onCancel: () => void;
   onDelete: () => void;
   onEdit: () => void;
-  value: T;
-  isEditing: boolean;
-  isNewItem: boolean;
+  item: T;
   isSortable: boolean;
+  isLeaving?: boolean;
   className?: string;
 };
 
-type ArrayFieldProps<T extends Item = Item> = {
+export type ArrayFieldEditorProps<T extends Item = Item> = {
+  item: T | undefined;
+  isEditing: boolean;
+  isNewItem: boolean;
+  onChange: (value: T) => void;
+  onCancel: () => void;
+};
+
+export type ArrayFieldProps<T extends Item = Item> = {
   // Props compatible with BaseFieldComponentProps<T[]>
   id?: string;
   name?: string;
@@ -50,8 +59,12 @@ type ArrayFieldProps<T extends Item = Item> = {
   onChange: (value: T[]) => void;
   // ArrayField-specific props
   sortable?: boolean;
-  ItemComponent: React.ComponentType<ArrayFieldItemProps<T>>;
-  itemClassName?: (item: T) => string;
+  itemComponent: ForwardRefExoticComponent<
+    ArrayFieldItemProps<T> & RefAttributes<HTMLElement>
+  >;
+  editorComponent?: ForwardRefExoticComponent<
+    ArrayFieldEditorProps<T> & RefAttributes<HTMLDivElement>
+  >;
   itemTemplate: () => T;
   addButtonLabel?: string;
   emptyStateMessage?: string;
@@ -62,8 +75,8 @@ export function ArrayField<T extends Item = Item>({
   value = [],
   onChange,
   sortable = false,
-  ItemComponent,
-  itemClassName,
+  itemComponent: ItemComponent,
+  editorComponent: EditorComponent,
   itemTemplate,
   addButtonLabel = 'Add Item',
   emptyStateMessage = 'No items added yet. Click "Add Item" to get started.',
@@ -71,41 +84,47 @@ export function ArrayField<T extends Item = Item>({
 }: ArrayFieldProps<T>) {
   const { confirm } = useDialog();
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [isNewItem, setIsNewItem] = useState(false);
+  const [draftItem, setDraftItem] = useState<T | null>(null);
+  const [isDraftEditing, setIsDraftEditing] = useState(false);
+  const [showEditor, setShowEditor] = useState(false);
 
-  const addItem = useCallback(
-    (item: T) => {
-      onChange([...value, item]);
+  const startAddingItem = useCallback(() => {
+    const newItem = itemTemplate();
+    setDraftItem(newItem);
+    setIsDraftEditing(true);
+    setShowEditor(true);
+  }, [itemTemplate]);
+
+  const confirmDraft = useCallback(
+    (confirmedItem: T) => {
+      if (draftItem) {
+        onChange([...value, { ...confirmedItem, id: draftItem.id }]);
+        setDraftItem(null);
+        setIsDraftEditing(false);
+        setShowEditor(false);
+      }
     },
-    [value, onChange],
+    [draftItem, onChange, value],
   );
 
   const updateItem = useCallback(
     (id: string, updatedItem: T) => {
       onChange(value.map((i) => (i.id === id ? updatedItem : i)));
       setEditingId(null);
-      setIsNewItem(false);
     },
     [value, onChange],
   );
 
   const removeItem = useCallback(
     (id: string) => {
-      onChange(value.filter((i) => i.id !== id));
       setEditingId(null);
-      setIsNewItem(false);
+      onChange(value.filter((i) => i.id !== id));
     },
     [value, onChange],
   );
 
   const requestDelete = useCallback(
     async (id: string) => {
-      // Skip check if this is a new item. ItemComponent should handle this.
-      if (isNewItem) {
-        removeItem(id);
-        return;
-      }
-
       if (confirmDelete) {
         await confirm({
           confirmLabel: 'Delete',
@@ -115,7 +134,7 @@ export function ArrayField<T extends Item = Item>({
         removeItem(id);
       }
     },
-    [confirmDelete, confirm, removeItem, isNewItem],
+    [confirmDelete, confirm, removeItem],
   );
 
   const handleReorder = useCallback(
@@ -125,82 +144,77 @@ export function ArrayField<T extends Item = Item>({
     [onChange],
   );
 
+  const isAddingNew = draftItem !== null;
+  const isEditing = editingId !== null || isDraftEditing;
+
   return (
-    <LayoutGroup>
-      <motion.div layout className="flex flex-col items-start gap-4">
-        <Reorder.Group
-          layout
-          axis="y"
-          values={value}
-          onReorder={handleReorder}
-          className={arrayFieldVariants({ isEmpty: value.length === 0 })}
-        >
-          <AnimatePresence initial={false} mode="popLayout">
-            {value.length === 0 && !editingId && (
-              <Reorder.Item
-                value={null}
-                key="no-items"
-                layout
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="text-sm text-current/70"
-                dragListener={false}
-              >
-                {emptyStateMessage}
-              </Reorder.Item>
-            )}
-            {value.map((item) => {
-              const isEditing = editingId === item.id;
-
-              return (
-                <ItemComponent
-                  key={item.id}
-                  isNewItem={isNewItem && isEditing}
-                  value={item}
-                  isSortable={sortable}
-                  isEditing={isEditing}
-                  onChange={(updatedValue) => {
-                    updateItem(item.id, {
-                      ...updatedValue,
-                      id: item.id,
-                    });
-                  }}
-                  onCancel={() => {
-                    setEditingId(null);
-
-                    // Wait for animation to finish before removing the new item
-                    setTimeout(() => {
-                      if (isNewItem) {
-                        removeItem(item.id);
-                        setIsNewItem(false);
-                      }
-                    }, 100); // Adjust the timeout duration to match the animation duration
-                  }}
-                  onDelete={() => requestDelete(item.id)}
-                  onEdit={() => setEditingId(item.id)}
-                  className={itemClassName ? itemClassName(item) : undefined}
-                />
-              );
-            })}
-          </AnimatePresence>
-        </Reorder.Group>
-        <MotionButton
-          layout
-          key="add-button"
-          size="sm"
-          onClick={() => {
-            const newItem = itemTemplate();
-            setIsNewItem(true);
-            addItem(newItem);
-            setEditingId(newItem.id);
+    <div className="flex flex-col items-start gap-4">
+      <Reorder.Group
+        layout
+        axis="y"
+        values={value}
+        onReorder={handleReorder}
+        className={arrayFieldVariants({
+          isEmpty: value.length === 0 && !isAddingNew,
+        })}
+      >
+        <AnimatePresence initial={false}>
+          {value.length === 0 && !isAddingNew && (
+            <motion.li
+              layout
+              key="no-items"
+              className="text-sm text-current/70"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, transition: { delay: 0.3 } }}
+              exit={{ opacity: 0 }}
+            >
+              {emptyStateMessage}
+            </motion.li>
+          )}
+          {value.map((item) => (
+            <ItemComponent
+              key={item.id}
+              item={item}
+              isSortable={sortable}
+              onDelete={() => requestDelete(item.id)}
+              onEdit={() => {
+                setEditingId(item.id);
+                setShowEditor(true);
+              }}
+            />
+          ))}
+        </AnimatePresence>
+      </Reorder.Group>
+      <MotionButton
+        layout
+        key="add-button"
+        size="sm"
+        onClick={startAddingItem}
+        icon={<PlusIcon />}
+        disabled={isEditing}
+      >
+        {addButtonLabel}
+      </MotionButton>
+      {EditorComponent && (
+        <EditorComponent
+          item={draftItem ?? value.find((i) => i.id === editingId)}
+          isEditing={showEditor}
+          isNewItem={isAddingNew}
+          onChange={(updatedItem: T) => {
+            if (isAddingNew) {
+              confirmDraft(updatedItem);
+            } else {
+              updateItem(editingId!, updatedItem);
+            }
           }}
-          icon={<PlusIcon />}
-          disabled={editingId !== null}
-        >
-          {addButtonLabel}
-        </MotionButton>
-      </motion.div>
-    </LayoutGroup>
+          onCancel={() => {
+            setShowEditor(false);
+            setEditingId(null);
+            setDraftItem(null);
+            setIsDraftEditing(false);
+          }}
+        />
+      )}
+    </div>
   );
 }

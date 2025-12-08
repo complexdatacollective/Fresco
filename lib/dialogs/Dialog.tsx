@@ -2,13 +2,13 @@
 
 import { Dialog as BaseDialog } from '@base-ui-components/react/dialog';
 import { Slot } from '@radix-ui/react-slot';
+import { motion } from 'motion/react';
 import React, { forwardRef, type ReactNode } from 'react';
 import CloseButton from '~/components/CloseButton';
 import { type SurfaceVariants } from '~/components/layout/Surface';
 import Modal from '~/components/Modal/Modal';
 import { headingVariants } from '~/components/typography/Heading';
 import { paragraphVariants } from '~/components/typography/Paragraph';
-import { ScrollArea } from '~/components/ui/ScrollArea';
 import { cx, type VariantProps } from '~/utils/cva';
 import DialogPopup from './DialogPopup';
 
@@ -161,12 +161,8 @@ const DialogContent = ({
   children,
   className,
   ...props
-}: React.ComponentProps<typeof ScrollArea>) => {
-  return (
-    <ScrollArea className={className} viewportClassName="pe-6 pb-4" {...props}>
-      {children}
-    </ScrollArea>
-  );
+}: React.ComponentProps<typeof motion.div>) => {
+  return <motion.div className="flex-1 overflow-y-auto">{children}</motion.div>;
 };
 
 const DialogFooter = ({
