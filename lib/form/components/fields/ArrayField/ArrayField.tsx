@@ -100,6 +100,12 @@ export function ArrayField<T extends Item = Item>({
 
   const requestDelete = useCallback(
     async (id: string) => {
+      // Skip check if this is a new item. ItemComponent should handle this.
+      if (isNewItem) {
+        removeItem(id);
+        return;
+      }
+
       if (confirmDelete) {
         await confirm({
           confirmLabel: 'Delete',
@@ -109,7 +115,7 @@ export function ArrayField<T extends Item = Item>({
         removeItem(id);
       }
     },
-    [confirmDelete, confirm, removeItem],
+    [confirmDelete, confirm, removeItem, isNewItem],
   );
 
   const handleReorder = useCallback(

@@ -276,7 +276,7 @@ type NameGeneratorPrompt = {
  * a modal dialog.
  */
 
-export function SociogramPromptItemRenderer(
+function SociogramPromptItemRenderer(
   props: ArrayFieldItemProps<NameGeneratorPrompt>,
 ) {
   const id = useId();

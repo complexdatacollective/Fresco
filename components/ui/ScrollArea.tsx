@@ -4,9 +4,9 @@ import { ScrollArea as BaseScrollArea } from '@base-ui-components/react/scroll-a
 import { type ComponentProps, forwardRef } from 'react';
 import { cx } from '~/utils/cva';
 
-type ScrollAreaOrientation = 'vertical' | 'horizontal' | 'both';
-
 type ScrollSnapType = 'mandatory' | 'proximity';
+
+type ScrollSnapAxis = 'x' | 'y' | 'both';
 
 type ScrollAreaProps = {
   className?: string;
@@ -14,10 +14,10 @@ type ScrollAreaProps = {
   children: React.ReactNode;
   /** Whether to show gradient fade at scroll edges. Defaults to true. */
   fade?: boolean;
-  /** Scroll orientation. Defaults to 'vertical'. */
-  orientation?: ScrollAreaOrientation;
   /** Enable scroll-snap behavior. Children should use 'snap-start', 'snap-center', or 'snap-end' classes. */
   snap?: ScrollSnapType;
+  /** Axis for scroll-snap. Defaults to 'both'. Only applies when snap is set. */
+  snapAxis?: ScrollSnapAxis;
 } & Omit<ComponentProps<typeof BaseScrollArea.Root>, 'children'>;
 
 const scrollbarClasses = cx(
@@ -71,23 +71,19 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
       viewportClassName,
       children,
       fade = true,
-      orientation = 'vertical',
       snap,
+      snapAxis = 'both',
       ...props
     },
     ref,
   ) => {
-    const showVertical = orientation === 'vertical' || orientation === 'both';
-    const showHorizontal =
-      orientation === 'horizontal' || orientation === 'both';
-
     const getSnapClasses = () => {
       if (!snap) return null;
       const snapType =
         snap === 'mandatory' ? 'snap-mandatory' : 'snap-proximity';
-      if (orientation === 'horizontal') return `snap-x ${snapType}`;
-      if (orientation === 'both') return `snap-both ${snapType}`;
-      return `snap-y ${snapType}`;
+      if (snapAxis === 'x') return `snap-x ${snapType}`;
+      if (snapAxis === 'y') return `snap-y ${snapType}`;
+      return `snap-both ${snapType}`;
     };
 
     return (
@@ -104,39 +100,37 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
             // Required by focusable-after
             'focusable-after-trigger',
             // Layout
-            'min-h-0 flex-1 overscroll-contain',
-            // Overflow based on orientation
-            showVertical && 'overflow-y-auto',
-            showHorizontal && 'overflow-x-auto',
+            'min-h-0 flex-1 overflow-auto overscroll-contain',
             // Gradient fade effect
             fade && 'scroll-area-viewport',
             // Scroll snap
             getSnapClasses(),
+            // Padding when scrollbars are visible (scrollbar width + margin)
+            'data-has-overflow-y:pr-[calc(0.25rem+0.5rem)]',
+            'data-has-overflow-y:tablet:pr-[calc(0.325rem+0.5rem)]',
+            'data-has-overflow-x:pb-[calc(0.25rem+0.5rem)]',
+            'data-has-overflow-x:tablet:pb-[calc(0.325rem+0.5rem)]',
             viewportClassName,
           )}
         >
           <BaseScrollArea.Content>{children}</BaseScrollArea.Content>
         </BaseScrollArea.Viewport>
 
-        {showVertical && (
-          <BaseScrollArea.Scrollbar
-            orientation="vertical"
-            className={verticalScrollbarClasses}
-          >
-            <BaseScrollArea.Thumb className={cx(thumbClasses, 'w-full')} />
-          </BaseScrollArea.Scrollbar>
-        )}
+        <BaseScrollArea.Scrollbar
+          orientation="vertical"
+          className={verticalScrollbarClasses}
+        >
+          <BaseScrollArea.Thumb className={cx(thumbClasses, 'w-full')} />
+        </BaseScrollArea.Scrollbar>
 
-        {showHorizontal && (
-          <BaseScrollArea.Scrollbar
-            orientation="horizontal"
-            className={horizontalScrollbarClasses}
-          >
-            <BaseScrollArea.Thumb className={cx(thumbClasses, 'h-full')} />
-          </BaseScrollArea.Scrollbar>
-        )}
+        <BaseScrollArea.Scrollbar
+          orientation="horizontal"
+          className={horizontalScrollbarClasses}
+        >
+          <BaseScrollArea.Thumb className={cx(thumbClasses, 'h-full')} />
+        </BaseScrollArea.Scrollbar>
 
-        {orientation === 'both' && <BaseScrollArea.Corner />}
+        <BaseScrollArea.Corner />
       </BaseScrollArea.Root>
     );
   },
@@ -146,7 +140,7 @@ ScrollArea.displayName = 'ScrollArea';
 
 export {
   ScrollArea,
-  type ScrollAreaOrientation,
   type ScrollAreaProps,
+  type ScrollSnapAxis,
   type ScrollSnapType,
 };

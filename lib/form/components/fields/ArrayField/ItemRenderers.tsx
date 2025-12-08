@@ -5,7 +5,7 @@ import {
   Reorder,
   useDragControls,
 } from 'motion/react';
-import { type ComponentProps } from 'react';
+import { useState, type ComponentProps } from 'react';
 import { surfaceVariants } from '~/components/layout/Surface';
 import { IconButton, MotionButton } from '~/components/ui/Button';
 import { cx } from '~/utils/cva';
@@ -98,7 +98,16 @@ export function InlineItemRenderer<T extends { id: string; label: string }>(
     className,
   } = props;
 
+  const [label, setLabel] = useState(value.label);
+
   const controls = useDragControls();
+
+  const handleClickDone = () => {
+    onChange({
+      ...value,
+      label,
+    });
+  };
 
   return (
     <Reorder.Item
@@ -130,26 +139,23 @@ export function InlineItemRenderer<T extends { id: string; label: string }>(
             <InputField
               autoFocus
               type="text"
-              value={value?.label ?? ''}
-              onChange={(e) =>
-                onChange({
-                  ...value,
-                  label: e.target.value,
-                })
-              }
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
             />
-            <MotionButton type="button" color="primary" onClick={onCancel}>
+            <MotionButton
+              type="button"
+              color="primary"
+              onClick={handleClickDone}
+            >
               Done
             </MotionButton>
-            {isNewItem && (
-              <MotionButton
-                type="button"
-                color="destructive"
-                onClick={onDelete}
-              >
-                Cancel
-              </MotionButton>
-            )}
+            <MotionButton
+              type="button"
+              color="destructive"
+              onClick={isNewItem ? onCancel : onDelete}
+            >
+              Cancel
+            </MotionButton>
           </motion.div>
         ) : (
           <SimplePreview
