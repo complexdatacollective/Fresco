@@ -5,20 +5,12 @@ import { getAppSetting } from '~/queries/appSettings';
 import { getServerSession } from '~/utils/auth';
 import type { ErrorResponse, PreviewResponse } from './types';
 
-// CORS headers for external clients (like Architect)
-const corsHeaders = {
+// CORS headers for external client (Architect)
+export const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
-
-// Handle preflight OPTIONS request
-export function OPTIONS() {
-  return new NextResponse(null, {
-    status: 204,
-    headers: corsHeaders,
-  });
-}
 
 // Helper to create JSON responses with CORS headers
 export function jsonResponse(data: PreviewResponse, status = 200) {
@@ -29,7 +21,7 @@ export function jsonResponse(data: PreviewResponse, status = 200) {
 // Returns null if authorized, or an error response if not
 export async function checkPreviewAuth(
   req: NextRequest,
-): Promise<NextResponse | null> {
+): Promise<NextResponse<PreviewResponse> | null> {
   // Check if preview mode is enabled
   if (!env.PREVIEW_MODE) {
     const response: ErrorResponse = {

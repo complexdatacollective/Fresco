@@ -1,9 +1,9 @@
 import {
-  type CurrentProtocol,
   migrateProtocol,
   validateProtocol,
+  type CurrentProtocol,
 } from '@codaco/protocol-validation';
-import { type NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { hash } from 'ohash';
 import { addEvent } from '~/actions/activityFeed';
 import { env } from '~/env';
@@ -11,29 +11,45 @@ import {
   APP_SUPPORTED_SCHEMA_VERSIONS,
   MIN_ARCHITECT_VERSION_FOR_PREVIEW,
 } from '~/fresco.config';
+import trackEvent from '~/lib/analytics';
 import { prunePreviewProtocols } from '~/lib/preview-protocol-pruning';
-import { generatePresignedUploadUrl } from '~/lib/uploadthing-presigned';
+import {
+  generatePresignedUploadUrl,
+  parseUploadThingToken,
+} from '~/lib/uploadthing/presigned';
 import { prisma } from '~/utils/db';
-import { checkPreviewAuth, jsonResponse, OPTIONS } from './helpers';
+import { ensureError } from '~/utils/ensureError';
+import { compareSemver, semverSchema } from '~/utils/semVer';
+import { checkPreviewAuth, corsHeaders, jsonResponse } from './helpers';
 import type {
   AbortResponse,
   CompleteResponse,
   InitializeResponse,
   PreviewRequest,
+  PreviewResponse,
   ReadyResponse,
   RejectedResponse,
 } from './types';
 
-export { OPTIONS };
+// Handle preflight OPTIONS request
+export function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
 
-const REJECTED_RESPONSE: RejectedResponse = {
-  status: 'rejected',
-  message: 'Invalid protocol',
-};
-
-export async function POST(req: NextRequest) {
+export async function POST(
+  req: NextRequest,
+): Promise<NextResponse<PreviewResponse>> {
   const authError = await checkPreviewAuth(req);
+
   if (authError) return authError;
+
+  const REJECTED_RESPONSE: RejectedResponse = {
+    status: 'rejected',
+    message: 'Invalid protocol',
+  };
 
   try {
     const body = (await req.json()) as PreviewRequest;
@@ -44,11 +60,14 @@ export async function POST(req: NextRequest) {
         const { protocol: protocolJson, assetMeta, architectVersion } = body;
 
         // Check Architect version compatibility
-        const [major] = architectVersion.split('.').map(Number);
-        if (major && major < MIN_ARCHITECT_VERSION_FOR_PREVIEW) {
+        const architectVer = semverSchema.parse(`v${architectVersion}`);
+        const minVer = semverSchema.parse(
+          `v${MIN_ARCHITECT_VERSION_FOR_PREVIEW}`,
+        );
+        if (compareSemver(architectVer, minVer) < 0) {
           const response: InitializeResponse = {
             status: 'error',
-            message: `Architect versions below ${MIN_ARCHITECT_VERSION_FOR_PREVIEW}.x are not supported for preview mode`,
+            message: `Architect versions below ${MIN_ARCHITECT_VERSION_FOR_PREVIEW} are not supported for preview mode`,
           };
           return jsonResponse(response, 400);
         }
@@ -81,7 +100,10 @@ export async function POST(req: NextRequest) {
         // Calculate protocol hash
         const protocolHash = hash(protocolJson);
 
-        // Run pruning process before creating new protocol
+        // Prune existing preview protocols based on age limit
+        // - Pending protocols (abandoned uploads) are deleted after 15 minutes
+        // - Completed protocols are deleted after 24 hours
+        // Ensures that we dont accumulate old preview protocols
         await prunePreviewProtocols();
 
         // Check if this exact protocol already exists as a preview
@@ -97,12 +119,6 @@ export async function POST(req: NextRequest) {
 
         // If protocol exists, return ready immediately
         if (existingPreview) {
-          // Update timestamp to prevent premature pruning
-          await prisma.protocol.update({
-            where: { id: existingPreview.id },
-            data: { importedAt: new Date() },
-          });
-
           const url = new URL(env.PUBLIC_URL ?? req.nextUrl.clone());
           url.pathname = `/preview/${existingPreview.id}`;
 
@@ -145,6 +161,8 @@ export async function POST(req: NextRequest) {
         }[] = [];
         const existingAssetIds: string[] = [];
 
+        const tokenData = await parseUploadThingToken();
+
         for (const asset of assetMeta) {
           const existingAsset = existingAssetMap.get(asset.assetId);
 
@@ -156,10 +174,19 @@ export async function POST(req: NextRequest) {
             const manifestEntry = assetManifest[asset.assetId];
             const assetType = manifestEntry?.type ?? 'file';
 
+            if (!tokenData) {
+              const response: InitializeResponse = {
+                status: 'error',
+                message: 'UploadThing not configured',
+              };
+              return jsonResponse(response, 500);
+            }
+
             // New asset - generate presigned URL and prepare asset record
-            const presigned = await generatePresignedUploadUrl({
+            const presigned = generatePresignedUploadUrl({
               fileName: asset.name,
               fileSize: asset.size,
+              tokenData,
             });
 
             if (!presigned) {
@@ -299,9 +326,13 @@ export async function POST(req: NextRequest) {
         return jsonResponse(response);
       }
     }
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Preview request error:', error);
+  } catch (e) {
+    const error = ensureError(e);
+    void trackEvent({
+      type: 'Error',
+      message: error.message,
+      name: 'Preview API Error',
+    });
 
     return jsonResponse(
       {

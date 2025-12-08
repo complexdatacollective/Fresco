@@ -1,10 +1,8 @@
-'use server';
-
 import { createHmac } from 'crypto';
 import Sqids, { defaultOptions } from 'sqids';
 import { getAppSetting } from '~/queries/appSettings';
 
-type ParsedToken = {
+export type ParsedToken = {
   apiKey: string;
   appId: string;
   regions: string[];
@@ -14,7 +12,7 @@ type ParsedToken = {
 /**
  * Parse the UploadThing token to extract appId, apiKey, and region info
  */
-async function parseUploadThingToken(): Promise<ParsedToken | null> {
+export async function parseUploadThingToken(): Promise<ParsedToken | null> {
   const token = await getAppSetting('uploadThingToken');
 
   if (!token) {
@@ -86,6 +84,7 @@ type GeneratePresignedUrlOptions = {
   fileSize: number;
   /** TTL in milliseconds, defaults to 1 hour */
   ttl?: number;
+  tokenData: ParsedToken;
 };
 
 type PresignedUrlResult = {
@@ -98,16 +97,10 @@ type PresignedUrlResult = {
 /**
  * Generate a presigned URL for direct upload to UploadThing
  */
-export async function generatePresignedUploadUrl(
+export function generatePresignedUploadUrl(
   options: GeneratePresignedUrlOptions,
-): Promise<PresignedUrlResult | null> {
-  const { fileName, fileSize, ttl = 60 * 60 * 1000 } = options;
-
-  const tokenData = await parseUploadThingToken();
-
-  if (!tokenData) {
-    return null;
-  }
+): PresignedUrlResult {
+  const { fileName, fileSize, ttl = 60 * 60 * 1000, tokenData } = options;
 
   const { apiKey, appId, regions, ingestHost } = tokenData;
 

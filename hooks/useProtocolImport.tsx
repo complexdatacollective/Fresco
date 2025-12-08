@@ -16,7 +16,7 @@ import {
 } from '~/components/ProtocolImport/JobReducer';
 import { AlertDialogDescription } from '~/components/ui/AlertDialog';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
-import { uploadFiles } from '~/lib/uploadthing-client-helpers';
+import { uploadFiles } from '~/lib/uploadthing/client-helpers';
 import { getNewAssetIds, getProtocolByHash } from '~/queries/protocols';
 import { type AssetInsertType } from '~/schemas/protocol';
 import { DatabaseError } from '~/utils/databaseError';

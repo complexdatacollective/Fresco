@@ -50,6 +50,12 @@ const handler = async (
     return NextResponse.redirect(url);
   }
 
+  // Update timestamp to prevent premature pruning
+  await prisma.protocol.update({
+    where: { id: protocolId },
+    data: { importedAt: new Date() },
+  });
+
   // Create a new interview for preview
   // We use a fixed participant identifier for preview sessions
   const participantIdentifier = `preview-${Date.now()}`;

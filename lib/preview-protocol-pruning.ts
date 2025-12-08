@@ -1,4 +1,4 @@
-import { getUTApi } from '~/lib/uploadthing-server-helpers';
+import { getUTApi } from '~/lib/uploadthing/server-helpers';
 import { prisma } from '~/utils/db';
 
 // Completed previews: 24 hours
@@ -18,7 +18,9 @@ export async function prunePreviewProtocols(): Promise<{
 }> {
   try {
     const now = new Date();
-    const completedCutoff = new Date(now.getTime() - MAX_COMPLETED_PREVIEW_AGE_MS);
+    const completedCutoff = new Date(
+      now.getTime() - MAX_COMPLETED_PREVIEW_AGE_MS,
+    );
     const pendingCutoff = new Date(now.getTime() - MAX_PENDING_PREVIEW_AGE_MS);
 
     // Find preview protocols to prune:

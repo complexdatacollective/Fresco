@@ -25,8 +25,8 @@ vi.mock('~/utils/db', () => ({
   prisma: mockPrisma,
 }));
 
-// Mock uploadthing-server-helpers
-vi.mock('~/lib/uploadthing-server-helpers', () => ({
+// Mock uploadthing server-helpers
+vi.mock('~/lib/uploadthing/server-helpers', () => ({
   getUTApi: () =>
     mockGetUTApi() as Promise<{ deleteFiles: typeof mockDeleteFiles }>,
 }));
