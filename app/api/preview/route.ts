@@ -106,14 +106,10 @@ export async function POST(
         // Ensures that we dont accumulate old preview protocols
         await prunePreviewProtocols();
 
-        // Check if this exact protocol already exists as a preview
+        // Check if this exact protocol already exists
         const existingPreview = await prisma.protocol.findFirst({
           where: {
             hash: protocolHash,
-            isPreview: true,
-          },
-          orderBy: {
-            importedAt: 'desc',
           },
         });
 
@@ -139,75 +135,67 @@ export async function POST(
             assetId: true,
             key: true,
             url: true,
+            type: true,
           },
         });
 
         const existingAssetMap = new Map(
-          existingDbAssets.map((a) => [a.assetId, { key: a.key, url: a.url }]),
+          existingDbAssets.map((a) => [
+            a.assetId,
+            { key: a.key, url: a.url, type: a.type },
+          ]),
         );
 
         // Get asset manifest from protocol to look up asset types
         const assetManifest = protocolToValidate.assetManifest ?? {};
 
-        // Generate presigned URLs for assets that don't exist and prepare asset records
-        const presignedUrls: string[] = [];
-        const assetsToCreate: {
-          assetId: string;
-          key: string;
-          name: string;
-          type: string;
-          url: string;
-          size: number;
-        }[] = [];
-        const existingAssetIds: string[] = [];
+        const existingAssetIds = assetMeta
+          .filter((a) => existingAssetMap.has(a.assetId))
+          .map((a) => a.assetId);
+
+        const newAssets = assetMeta.filter(
+          (a) => !existingAssetMap.has(a.assetId),
+        );
 
         const tokenData = await parseUploadThingToken();
 
-        for (const asset of assetMeta) {
-          const existingAsset = existingAssetMap.get(asset.assetId);
+        if (newAssets.length > 0 && !tokenData) {
+          const response: InitializeResponse = {
+            status: 'error',
+            message: 'UploadThing not configured',
+          };
+          return jsonResponse(response, 500);
+        }
 
-          if (existingAsset) {
-            // Asset already exists - will connect it
-            existingAssetIds.push(asset.assetId);
-          } else {
-            // Look up asset type from protocol's assetManifest
-            const manifestEntry = assetManifest[asset.assetId];
-            const assetType = manifestEntry?.type ?? 'file';
+        const presignedData = newAssets.map((asset) => {
+          const manifestEntry = assetManifest[asset.assetId];
+          const assetType = manifestEntry?.type ?? 'file';
 
-            if (!tokenData) {
-              const response: InitializeResponse = {
-                status: 'error',
-                message: 'UploadThing not configured',
-              };
-              return jsonResponse(response, 500);
-            }
+          const presigned = generatePresignedUploadUrl({
+            fileName: asset.name,
+            fileSize: asset.size,
+            tokenData: tokenData!,
+          });
 
-            // New asset - generate presigned URL and prepare asset record
-            const presigned = generatePresignedUploadUrl({
-              fileName: asset.name,
-              fileSize: asset.size,
-              tokenData,
-            });
+          if (!presigned) {
+            throw new Error('Failed to generate presigned URL');
+          }
 
-            if (!presigned) {
-              const response: InitializeResponse = {
-                status: 'error',
-                message: 'Failed to generate presigned URL',
-              };
-              return jsonResponse(response, 500);
-            }
-
-            presignedUrls.push(presigned.uploadUrl);
-            assetsToCreate.push({
+          return {
+            uploadUrl: presigned.uploadUrl,
+            assetRecord: {
               assetId: asset.assetId,
               key: presigned.fileKey,
               name: asset.name,
               type: assetType,
               url: presigned.fileUrl,
               size: asset.size,
-            });
-          }
-        }
+            },
+          };
+        });
+
+        const presignedUrls = presignedData.map((d) => d.uploadUrl);
+        const assetsToCreate = presignedData.map((d) => d.assetRecord);
 
         // Create the protocol with assets immediately
         // Mark as pending if there are assets to upload
