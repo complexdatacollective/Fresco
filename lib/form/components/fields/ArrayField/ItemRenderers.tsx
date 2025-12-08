@@ -3,12 +3,13 @@ import { GripVertical, PencilIcon, X } from 'lucide-react';
 import { motion, Reorder, useDragControls } from 'motion/react';
 import { forwardRef, useEffect, useState } from 'react';
 import { surfaceVariants } from '~/components/layout/Surface';
-import { IconButton, MotionButton } from '~/components/ui/Button';
+import Button, { IconButton, MotionButton } from '~/components/ui/Button';
 import { Dialog } from '~/lib/dialogs/Dialog';
 import { cx } from '~/utils/cva';
 import Field from '../../Field';
 import Form from '../../Form';
 import SubmitButton from '../../SubmitButton';
+import { InputField } from '../InputField';
 import { RichTextEditorField } from '../RichTextEditor';
 import { RichTextRenderer } from '../RichTextRenderer';
 import {
@@ -29,7 +30,7 @@ export const SimpleEditor = <T extends { id: string; text: string }>({
   onChange,
   onCancel,
 }: ArrayFieldEditorProps<T>) => {
-  const [text, setText] = useState(item?.text || '');
+  const [text, setText] = useState(item?.text ?? '');
 
   useEffect(() => {
     if (isEditing) {
@@ -43,6 +44,7 @@ export const SimpleEditor = <T extends { id: string; text: string }>({
 
   return (
     <motion.div
+      layoutId={isNewItem ? 'new-item-editor' : item?.id}
       layout
       className={cx(
         surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
@@ -52,29 +54,25 @@ export const SimpleEditor = <T extends { id: string; text: string }>({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <textarea
-        className="w-full resize-none rounded border px-2 py-1"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        rows={3}
-        placeholder="Enter text..."
-      />
+      <InputField value={text} onChange={(e) => setText(e.target.value)} />
       <div className="mt-2 flex gap-2">
-        <IconButton
-          variant="primary"
+        <Button
+          color="primary"
           onClick={() => onChange({ ...item!, text } as T)}
           disabled={text.trim() === ''}
-          aria-label={isNewItem ? 'Add item' : 'Save changes'}
           icon={<PencilIcon />}
-          children={isNewItem ? 'Add' : 'Save'}
-        />
-        <IconButton
-          variant="textMuted"
+          size="sm"
+        >
+          {isNewItem ? 'Add' : 'Save'}
+        </Button>
+        <Button
           onClick={onCancel}
           aria-label="Cancel editing"
           icon={<X />}
-          children="Cancel"
-        />
+          size="sm"
+        >
+          Cancel
+        </Button>
       </div>
     </motion.div>
   );
