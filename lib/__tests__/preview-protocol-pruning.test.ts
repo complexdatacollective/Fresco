@@ -10,10 +10,6 @@ const mockPrisma = {
     findMany: vi.fn(),
     deleteMany: vi.fn(),
   },
-  participant: {
-    findMany: vi.fn(),
-    deleteMany: vi.fn(),
-  },
 };
 
 // Mock uploadthing API
@@ -53,7 +49,6 @@ describe('prunePreviewProtocols', () => {
 
     mockPrisma.protocol.findMany.mockResolvedValue([oldProtocol]);
     mockPrisma.asset.findMany.mockResolvedValue([]);
-    mockPrisma.participant.findMany.mockResolvedValue([]);
     mockPrisma.protocol.deleteMany.mockResolvedValue({ count: 1 });
 
     const result = await prunePreviewProtocols();
@@ -98,7 +93,6 @@ describe('prunePreviewProtocols', () => {
     mockDeleteFiles.mockResolvedValue({ success: true });
     mockPrisma.protocol.findMany.mockResolvedValue([oldProtocol]);
     mockPrisma.asset.findMany.mockResolvedValue(assets);
-    mockPrisma.participant.findMany.mockResolvedValue([]);
     mockPrisma.asset.deleteMany.mockResolvedValue({ count: 2 });
     mockPrisma.protocol.deleteMany.mockResolvedValue({ count: 1 });
 
@@ -106,37 +100,6 @@ describe('prunePreviewProtocols', () => {
 
     expect(result.deletedCount).toBe(1);
     expect(mockDeleteFiles).toHaveBeenCalledWith(['ut-key-1', 'ut-key-2']);
-  });
-
-  it('should delete orphaned participants', async () => {
-    const { prunePreviewProtocols } = await import(
-      '../preview-protocol-pruning'
-    );
-
-    const oldProtocol = {
-      id: 'old-protocol',
-      hash: 'hash-123',
-      name: 'Old Protocol',
-    };
-
-    const participants = [{ id: 'participant-1' }, { id: 'participant-2' }];
-
-    mockPrisma.protocol.findMany.mockResolvedValue([oldProtocol]);
-    mockPrisma.asset.findMany.mockResolvedValue([]);
-    mockPrisma.participant.findMany.mockResolvedValue(participants);
-    mockPrisma.protocol.deleteMany.mockResolvedValue({ count: 1 });
-    mockPrisma.participant.deleteMany.mockResolvedValue({ count: 2 });
-
-    const result = await prunePreviewProtocols();
-
-    expect(result.deletedCount).toBe(1);
-    expect(mockPrisma.participant.deleteMany).toHaveBeenCalledWith({
-      where: {
-        id: {
-          in: ['participant-1', 'participant-2'],
-        },
-      },
-    });
   });
 
   it('should handle errors gracefully', async () => {

@@ -38,7 +38,7 @@ export const activityTypes = [
   'API Token Created',
   'API Token Updated',
   'API Token Deleted',
-  'Preview Protocol Uploaded',
+  'Preview Mode',
 ] as const;
 
 export type ActivityType = (typeof activityTypes)[number];

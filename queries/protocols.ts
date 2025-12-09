@@ -6,6 +6,9 @@ import { prisma } from '~/utils/db';
 
 async function prisma_getProtocols() {
   return prisma.protocol.findMany({
+    where: {
+      isPreview: false,
+    },
     include: {
       interviews: true,
     },

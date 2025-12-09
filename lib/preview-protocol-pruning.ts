@@ -61,22 +61,6 @@ export async function prunePreviewProtocols(): Promise<{
       select: { key: true },
     });
 
-    // Find participants whose interviews are ALL with the protocols to be deleted
-    // These will become orphaned after cascade delete
-    const participantsToDelete = await prisma.participant.findMany({
-      where: {
-        interviews: {
-          some: {}, // Has at least one interview
-          every: {
-            protocolId: {
-              in: protocolIds,
-            },
-          },
-        },
-      },
-      select: { id: true },
-    });
-
     // Delete assets from UploadThing (best effort)
     if (assetKeysToDelete.length > 0) {
       try {
@@ -99,7 +83,7 @@ export async function prunePreviewProtocols(): Promise<{
       });
     }
 
-    // Delete the protocols (interviews cascade delete automatically)
+    // Delete the protocols
     const result = await prisma.protocol.deleteMany({
       where: {
         id: {
@@ -107,17 +91,6 @@ export async function prunePreviewProtocols(): Promise<{
         },
       },
     });
-
-    // Delete orphaned participants (their interviews were cascade deleted above)
-    if (participantsToDelete.length > 0) {
-      await prisma.participant.deleteMany({
-        where: {
-          id: {
-            in: participantsToDelete.map((p) => p.id),
-          },
-        },
-      });
-    }
 
     return { deletedCount: result.count };
   } catch (error) {

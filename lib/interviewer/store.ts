@@ -21,10 +21,10 @@ const rootReducer = combineReducers({
   ui, // don't do it - this is used for FORM_IS_READY
 });
 
-export const store = ({
-  protocol,
-  ...session
-}: NonNullable<GetInterviewByIdQuery>) =>
+export const store = (
+  { protocol, ...session }: NonNullable<GetInterviewByIdQuery>,
+  options?: { disableSync?: boolean },
+) =>
   configureStore({
     reducer: rootReducer,
     middleware: (getDefaultMiddleware) =>
@@ -36,7 +36,7 @@ export const store = ({
             'dialogs/open/pending', // Dialogs store callback functions
           ],
         },
-      }).concat([logger, syncMiddleware]),
+      }).concat(options?.disableSync ? [logger] : [logger, syncMiddleware]),
     preloadedState: {
       session: {
         // Important to manually pass only the required state items to the session

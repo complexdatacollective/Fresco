@@ -219,10 +219,7 @@ export async function POST(
           },
         });
 
-        void addEvent(
-          'Preview Protocol Uploaded',
-          `Preview protocol "${protocol.name}" initialized`,
-        );
+        void addEvent('Preview Mode', `Preview protocol upload initiated`);
 
         // If no new assets to upload, return ready immediately
         if (presignedUrls.length === 0) {
@@ -266,10 +263,7 @@ export async function POST(
           data: { importedAt: new Date(), isPending: false },
         });
 
-        void addEvent(
-          'Preview Protocol Uploaded',
-          `Preview protocol "${protocol.name}" completed`,
-        );
+        void addEvent('Preview Mode', `Preview protocol upload completed`);
 
         const url = new URL(env.PUBLIC_URL ?? req.nextUrl.clone());
         url.pathname = `/preview/${protocol.id}`;
