@@ -1,16 +1,9 @@
-import {
-  migrateProtocol,
-  validateProtocol,
-  type CurrentProtocol,
-} from '@codaco/protocol-validation';
 import { NextResponse, type NextRequest } from 'next/server';
 import { hash } from 'ohash';
 import { addEvent } from '~/actions/activityFeed';
 import { env } from '~/env';
-import {
-  APP_SUPPORTED_SCHEMA_VERSIONS,
-  MIN_ARCHITECT_VERSION_FOR_PREVIEW,
-} from '~/fresco.config';
+import { MIN_ARCHITECT_VERSION_FOR_PREVIEW } from '~/fresco.config';
+import { validateAndMigrateProtocol } from '~/lib/protocol/validateAndMigrateProtocol';
 import trackEvent from '~/lib/analytics';
 import { prunePreviewProtocols } from '~/lib/preview-protocol-pruning';
 import {
@@ -73,30 +66,15 @@ export async function POST(
           return jsonResponse(response, 400);
         }
 
-        // Validate protocol object exists
-        if (!protocolJson || typeof protocolJson !== 'object') {
-          return jsonResponse(REJECTED_RESPONSE, 400);
-        }
-
-        // Check schema version
-        const protocolVersion = protocolJson.schemaVersion;
-        if (!APP_SUPPORTED_SCHEMA_VERSIONS.includes(protocolVersion)) {
-          return jsonResponse(REJECTED_RESPONSE, 400);
-        }
-
-        // Migrate if needed
-        const protocolToValidate = (
-          protocolJson.schemaVersion < 8
-            ? migrateProtocol(protocolJson, 8)
-            : protocolJson
-        ) as CurrentProtocol;
-
-        // Validate protocol
-        const validationResult = await validateProtocol(protocolToValidate);
+        // Validate and migrate protocol
+        const validationResult =
+          await validateAndMigrateProtocol(protocolJson);
 
         if (!validationResult.success) {
           return jsonResponse(REJECTED_RESPONSE, 400);
         }
+
+        const protocolToValidate = validationResult.protocol;
 
         // Calculate protocol hash
         const protocolHash = hash(protocolJson);
