@@ -17,6 +17,7 @@ import {
   generatePresignedUploadUrl,
   parseUploadThingToken,
 } from '~/lib/uploadthing/presigned';
+import { getExistingAssets } from '~/queries/protocols';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
 import { compareSemver, semverSchema } from '~/utils/semVer';
@@ -127,17 +128,7 @@ export async function POST(
 
         // Check which assets already exist in the database
         const assetIds = assetMeta.map((a) => a.assetId);
-        const existingDbAssets = await prisma.asset.findMany({
-          where: {
-            assetId: { in: assetIds },
-          },
-          select: {
-            assetId: true,
-            key: true,
-            url: true,
-            type: true,
-          },
-        });
+        const existingDbAssets = await getExistingAssets(assetIds);
 
         const existingAssetMap = new Map(
           existingDbAssets.map((a) => [
