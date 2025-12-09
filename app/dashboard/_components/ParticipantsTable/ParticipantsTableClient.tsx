@@ -130,7 +130,7 @@ export const ParticipantsTableClient = ({
               icon={<Trash />}
               dialog={{
                 type: 'choice',
-                intent: 'danger',
+                intent: 'destructive',
                 title: 'Delete All Participants?',
                 description:
                   'Are you sure you want to delete all participants? This action cannot be undone.',

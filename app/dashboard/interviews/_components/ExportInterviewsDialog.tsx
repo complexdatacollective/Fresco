@@ -15,6 +15,7 @@ import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
 import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
 import trackEvent from '~/lib/analytics';
+import { Dialog } from '~/lib/dialogs/Dialog';
 import {
   ExportOptionsSchema,
   type FormattedSession,

@@ -1,4 +1,3 @@
-import { CircleCheck, CircleX } from 'lucide-react';
 import { motion } from 'motion/react';
 import { type ReactNode } from 'react';
 import {
@@ -57,8 +56,6 @@ export const InputField = function InputField({
         className={inputVariants({ className })}
         {...inputProps}
       />
-      <CircleCheck className="text-success hidden group-data-[touched=true]:group-data-[valid=true]:block" />
-      <CircleX className="text-destructive hidden group-data-[touched=true]:group-data-[invalid=true]:block" />
       {suffix}
     </motion.div>
   );

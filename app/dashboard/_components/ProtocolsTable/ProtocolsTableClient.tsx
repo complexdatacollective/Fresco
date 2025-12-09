@@ -4,6 +4,7 @@ import { use, useState } from 'react';
 import { SuperJSON } from 'superjson';
 import { DataTable } from '~/components/DataTable/DataTable';
 import type { GetProtocolsQuery } from '~/queries/protocols';
+import { DeleteProtocolsDialog } from '../../protocols/_components/DeleteProtocolsDialog';
 import ProtocolUploader from '../ProtocolUploader';
 import { ActionsDropdown } from './ActionsDropdown';
 import { getProtocolColumns } from './Columns';
@@ -35,11 +36,11 @@ const ProtocolsTableClient = ({ dataPromise }: { dataPromise: GetData }) => {
         actions={ActionsDropdown}
         headerItems={<ProtocolUploader buttonDisabled={!hasUploadThingToken} />}
       />
-      {/* <DeleteProtocolsDialog
+      <DeleteProtocolsDialog
         open={showAlertDialog}
         setOpen={setShowAlertDialog}
         protocolsToDelete={protocolsToDelete ?? []}
-      /> */}
+      />
     </>
   );
 };

@@ -6,17 +6,11 @@ import {
   deleteApiToken,
   updateApiToken,
 } from '~/actions/apiTokens';
+import { Dialog } from '~/lib/dialogs/Dialog';
+import { InputField } from '~/lib/form/components/fields/InputField';
 import { type GetApiTokensReturnType } from '~/queries/apiTokens';
+import { Alert, AlertDescription, AlertTitle } from './ui/Alert';
 import { Button } from './ui/Button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from './ui/dialog';
-import { Input } from './ui/Input';
 import { Label } from './ui/Label';
 import { Switch } from './ui/switch';
 import {
@@ -27,7 +21,6 @@ import {
   TableHeader,
   TableRow,
 } from './ui/table';
-import { Alert, AlertDescription, AlertTitle } from './ui/Alert';
 
 type ApiTokenManagementProps = {
   tokens: GetApiTokensReturnType;
@@ -103,18 +96,12 @@ export default function ApiTokenManagement({
 
   return (
     <div className="space-y-4">
-      <Button
-        onClick={() => setIsCreating(true)}
-        variant="outline"
-        size="sm"
-      >
+      <Button onClick={() => setIsCreating(true)} variant="outline" size="sm">
         Create New Token
       </Button>
 
       {tokens.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          No API tokens created yet.
-        </p>
+        <p className="text-sm text-current/70">No API tokens created yet.</p>
       ) : (
         <Table>
           <TableHeader>
@@ -129,9 +116,7 @@ export default function ApiTokenManagement({
           <TableBody>
             {tokens.map((token) => (
               <TableRow key={token.id}>
-                <TableCell>
-                  {token.description ?? <em>Untitled</em>}
-                </TableCell>
+                <TableCell>{token.description ?? <em>Untitled</em>}</TableCell>
                 <TableCell>{formatDate(token.createdAt)}</TableCell>
                 <TableCell>{formatDate(token.lastUsedAt)}</TableCell>
                 <TableCell>
@@ -158,27 +143,13 @@ export default function ApiTokenManagement({
       )}
 
       {/* Create Token Dialog */}
-      <Dialog open={isCreating} onOpenChange={setIsCreating}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create API Token</DialogTitle>
-            <DialogDescription>
-              Create a new API token for authenticating preview protocol
-              uploads.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="description">Description (optional)</Label>
-              <Input
-                id="description"
-                placeholder="e.g., Development token"
-                value={newTokenDescription}
-                onChange={(e) => setNewTokenDescription(e.target.value)}
-              />
-            </div>
-          </div>
-          <DialogFooter>
+      <Dialog
+        open={isCreating}
+        closeDialog={() => setIsCreating(false)}
+        title="Create API Token"
+        description="Create a new API token for authenticating preview protocol uploads."
+        footer={
+          <>
             <Button
               variant="outline"
               onClick={() => {
@@ -191,28 +162,28 @@ export default function ApiTokenManagement({
             <Button onClick={handleCreateToken} disabled={isLoading}>
               {isLoading ? 'Creating...' : 'Create Token'}
             </Button>
-          </DialogFooter>
-        </DialogContent>
+          </>
+        }
+      >
+        <div>
+          <Label htmlFor="description">Description (optional)</Label>
+          <InputField
+            id="description"
+            placeholder="e.g., Development token"
+            value={newTokenDescription}
+            onChange={(e) => setNewTokenDescription(e.target.value)}
+          />
+        </div>
       </Dialog>
 
       {/* Show Created Token Dialog */}
-      <Dialog open={!!createdToken} onOpenChange={() => setCreatedToken(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>API Token Created</DialogTitle>
-            <DialogDescription>
-              Save this token securely. You won&apos;t be able to see it again.
-            </DialogDescription>
-          </DialogHeader>
-          <Alert>
-            <AlertTitle>Your API Token</AlertTitle>
-            <AlertDescription>
-              <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
-                {createdToken}
-              </code>
-            </AlertDescription>
-          </Alert>
-          <DialogFooter>
+      <Dialog
+        open={!!createdToken}
+        closeDialog={() => setCreatedToken(null)}
+        title="API Token Created"
+        description="Save this token securely. You won't be able to see it again."
+        footer={
+          <>
             <Button
               onClick={() => {
                 void navigator.clipboard.writeText(createdToken!);
@@ -222,8 +193,17 @@ export default function ApiTokenManagement({
               Copy to Clipboard
             </Button>
             <Button onClick={() => setCreatedToken(null)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
+          </>
+        }
+      >
+        <Alert>
+          <AlertTitle>Your API Token</AlertTitle>
+          <AlertDescription>
+            <code className="font-monospace relative rounded px-[0.3rem] py-[0.2rem] text-sm">
+              {createdToken}
+            </code>
+          </AlertDescription>
+        </Alert>
       </Dialog>
     </div>
   );

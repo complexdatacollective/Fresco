@@ -5,6 +5,7 @@ import { use, useEffect, useState } from 'react';
 import superjson from 'superjson';
 import { Button } from '~/components/ui/Button';
 import { Skeleton } from '~/components/ui/skeleton';
+import { Dialog } from '~/lib/dialogs/Dialog';
 import { SelectField } from '~/lib/form/components/fields/Select';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import type {

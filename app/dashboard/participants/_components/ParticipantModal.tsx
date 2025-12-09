@@ -10,6 +10,7 @@ import ActionError from '~/components/ActionError';
 import InfoTooltip from '~/components/InfoTooltip';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
+import { Dialog } from '~/lib/dialogs/Dialog';
 import { Field, Form, SubmitButton } from '~/lib/form';
 import { InputField } from '~/lib/form/components/fields/InputField';
 import { useFormStore } from '~/lib/form/store/formStoreProvider';
@@ -126,7 +127,7 @@ function ParticipantModal({
           hint="This optional field allows you to provide a human readable label. This could be a name, or an internal project label for this participant. It does not need to be unique, and will not be exposed to participants."
           placeholder="Enter optional label..."
           validation={participantLabelSchema}
-          Component={InputField}
+          component={InputField}
           type="text"
           initialValue={initialValues?.label}
         />

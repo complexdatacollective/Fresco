@@ -10,6 +10,7 @@ import UnorderedList from '~/components/typography/UnorderedList';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
+import { Dialog } from '~/lib/dialogs/Dialog';
 import { FormSchema } from '~/schemas/participant';
 import DropzoneField from './DropzoneField';
 

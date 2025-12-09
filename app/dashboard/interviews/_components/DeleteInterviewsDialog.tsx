@@ -4,6 +4,7 @@ import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 import { deleteInterviews } from '~/actions/interviews';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
+import { Dialog } from '~/lib/dialogs/Dialog';
 
 type DeleteInterviewsDialog = {
   open: boolean;
@@ -39,7 +40,7 @@ export const DeleteInterviewsDialog = ({
 
   return (
     <Dialog
-      accent="danger"
+      accent="destructive"
       open={open}
       closeDialog={handleCancelDialog}
       title="Are you absolutely sure?"
