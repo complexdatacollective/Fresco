@@ -1,6 +1,6 @@
 import { type JSONContent } from '@tiptap/core';
 import { GripVertical, PencilIcon, X } from 'lucide-react';
-import { motion, Reorder, useDragControls } from 'motion/react';
+import { motion } from 'motion/react';
 import { forwardRef, useEffect, useState } from 'react';
 import { surfaceVariants } from '~/components/layout/Surface';
 import Button, { IconButton, MotionButton } from '~/components/ui/Button';
@@ -17,24 +17,17 @@ import {
   type ArrayFieldItemProps,
 } from './ArrayField';
 
-const ItemAnimationProps = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0, scale: 0.6 },
-};
+type SimpleItemBase = { id: string; label: string };
 
-export const SimpleEditor = <T extends { id: string; text: string }>({
-  item,
-  isEditing,
-  isNewItem,
-  onChange,
-  onCancel,
-}: ArrayFieldEditorProps<T>) => {
-  const [text, setText] = useState(item?.text ?? '');
+export const Editor = forwardRef<
+  HTMLDivElement,
+  ArrayFieldEditorProps<SimpleItemBase>
+>(function Editor({ item, isEditing, isNewItem, onChange, onCancel }, ref) {
+  const [label, setLabel] = useState(item?.label ?? '');
 
   useEffect(() => {
     if (isEditing) {
-      setText(item?.text || '');
+      setLabel(item?.label ?? '');
     }
   }, [isEditing, item]);
 
@@ -44,22 +37,19 @@ export const SimpleEditor = <T extends { id: string; text: string }>({
 
   return (
     <motion.div
-      layoutId={isNewItem ? 'new-item-editor' : item?.id}
+      ref={ref}
       layout
       className={cx(
         surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
         'flex w-full flex-col gap-2 border p-4',
       )}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
     >
-      <InputField value={text} onChange={(e) => setText(e.target.value)} />
+      <InputField value={label} onChange={(e) => setLabel(e.target.value)} />
       <div className="mt-2 flex gap-2">
         <Button
           color="primary"
-          onClick={() => onChange({ ...item!, text } as T)}
-          disabled={text.trim() === ''}
+          onClick={() => onChange({ ...item!, label })}
+          disabled={label.trim() === ''}
           icon={<PencilIcon />}
           size="sm"
         >
@@ -76,33 +66,27 @@ export const SimpleEditor = <T extends { id: string; text: string }>({
       </div>
     </motion.div>
   );
-};
+});
 
-export const SimpleItem = forwardRef<
-  HTMLElement,
-  ArrayFieldItemProps<{ id: string; label: string }>
->(function PromptItem({ item, isSortable, onEdit, onDelete, className }, ref) {
-  const controls = useDragControls();
+export const SimpleEditor = motion.create(Editor);
 
+/**
+ * Simple item content renderer for basic label items.
+ * Renders drag handle, label text, and edit/delete buttons.
+ */
+export function SimpleItem({
+  item,
+  isSortable,
+  onEdit,
+  onDelete,
+  dragControls,
+}: ArrayFieldItemProps<{ id: string; label: string }>) {
   return (
-    <Reorder.Item
-      ref={ref as React.Ref<HTMLLIElement>}
-      layoutId={item.id}
-      value={item}
-      dragListener={false}
-      dragControls={controls}
-      layout
-      className={cx(
-        surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
-        'flex w-full items-center gap-2 border select-none',
-        className,
-      )}
-      {...ItemAnimationProps}
-    >
+    <div className="border-b-input-contrast/10 flex w-full items-center gap-2 border-b px-2 py-1 last:border-b-0">
       {isSortable && (
         <motion.div
           layout
-          onPointerDown={(e) => controls.start(e)}
+          onPointerDown={(e) => dragControls.start(e)}
           className="touch-none"
         >
           <GripVertical className="h-4 w-4 cursor-grab" />
@@ -111,13 +95,7 @@ export const SimpleItem = forwardRef<
       <motion.div layout className="flex-1">
         {item.label}
       </motion.div>
-      <motion.div
-        layout
-        className="ml-auto flex items-center gap-1"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
+      <motion.div layout className="ml-auto flex items-center gap-1">
         <IconButton
           size="sm"
           variant="textMuted"
@@ -135,9 +113,9 @@ export const SimpleItem = forwardRef<
           aria-label="Remove item"
         />
       </motion.div>
-    </Reorder.Item>
+    </div>
   );
-});
+}
 
 // Modal Editor Story - demonstrates using Dialog primitives to recreate the
 // current architect prompt editing experience.
@@ -148,30 +126,23 @@ export type NameGeneratorPrompt = {
   text: JSONContent;
 };
 
-export const PromptItem = forwardRef<
-  HTMLElement,
-  ArrayFieldItemProps<NameGeneratorPrompt>
->(function PromptItem({ item, isSortable, onEdit, onDelete }, ref) {
-  const controls = useDragControls();
-
+/**
+ * Item content renderer for rich text prompt items.
+ * Renders drag handle, rich text content, and edit/delete buttons.
+ */
+export function PromptItem({
+  item,
+  isSortable,
+  onEdit,
+  onDelete,
+  dragControls,
+}: ArrayFieldItemProps<NameGeneratorPrompt>) {
   return (
-    <Reorder.Item
-      ref={ref as React.Ref<HTMLLIElement>}
-      layoutId={item.id}
-      value={item}
-      dragListener={false}
-      dragControls={controls}
-      layout
-      className={cx(
-        surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
-        'flex w-full items-center gap-2 border select-none',
-      )}
-      {...ItemAnimationProps}
-    >
+    <div className="border-b-input-contrast/10 flex w-full items-center gap-2 border-b px-2 py-1 last:border-b-0">
       {isSortable && (
         <motion.div
           layout
-          onPointerDown={(e) => controls.start(e)}
+          onPointerDown={(e) => dragControls.start(e)}
           className="touch-none"
         >
           <GripVertical className="h-4 w-4 cursor-grab" />
@@ -204,9 +175,9 @@ export const PromptItem = forwardRef<
           aria-label="Remove item"
         />
       </motion.div>
-    </Reorder.Item>
+    </div>
   );
-});
+}
 
 export const PromptEditor = forwardRef<
   HTMLDivElement,
@@ -215,8 +186,8 @@ export const PromptEditor = forwardRef<
   { isEditing, isNewItem, onCancel, onChange, item },
   ref,
 ) {
-  const handleSubmit = (data: NameGeneratorPrompt) => {
-    onChange(data);
+  const handleSubmit = (data: unknown) => {
+    onChange(data as NameGeneratorPrompt);
 
     return { success: true as const };
   };

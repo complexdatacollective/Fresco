@@ -396,3 +396,4 @@ pnpm storybook      # Component testing
 ## Debugging and Development Tips
 
 - Use the Playwright MCP to debug errors and view console output directly. Do NOT start the development server or the storybook server. Instead, prompt the user to start these for you.
+- NEVER disable linting rules unless you have asked permission from the user. This applies particularly to no-explicit-any which should only be disabled in truly exceptional circumstances.

@@ -1,10 +1,14 @@
-// MultiSelectField.tsx (React 18)
-
 import { PlusIcon } from 'lucide-react';
-import { AnimatePresence, motion, Reorder } from 'motion/react';
 import {
-  type ForwardRefExoticComponent,
-  type RefAttributes,
+  AnimatePresence,
+  type DragControls,
+  motion,
+  Reorder,
+  useDragControls,
+} from 'motion/react';
+import {
+  type ComponentType,
+  type ReactNode,
   useCallback,
   useState,
 } from 'react';
@@ -29,18 +33,34 @@ const arrayFieldVariants = compose(
   }),
 );
 
+const itemVariants = cva({
+  base: 'w-full',
+});
+
+const itemAnimationProps = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0, scale: 0.6 },
+};
+
+// Re-export DragControls for consumers implementing custom item content
+export { type DragControls } from 'motion/react';
+
 // The base type for items in the array field. Must have an id.
 export type Item = {
   id: string;
 } & Record<string, unknown>;
 
+/**
+ * Props passed to the item content renderer component.
+ * The component renders the CONTENT inside a Reorder.Item (not the Reorder.Item itself).
+ */
 export type ArrayFieldItemProps<T extends Item = Item> = {
+  item: T;
   onDelete: () => void;
   onEdit: () => void;
-  item: T;
   isSortable: boolean;
-  isLeaving?: boolean;
-  className?: string;
+  dragControls: DragControls;
 };
 
 export type ArrayFieldEditorProps<T extends Item = Item> = {
@@ -51,31 +71,86 @@ export type ArrayFieldEditorProps<T extends Item = Item> = {
   onCancel: () => void;
 };
 
+/**
+ * Type for editor components.
+ */
+type EditorComponent<P> = ComponentType<P>;
+
 export type ArrayFieldProps<T extends Item = Item> = {
-  // Props compatible with BaseFieldComponentProps<T[]>
   id?: string;
   name?: string;
   value?: T[];
   onChange: (value: T[]) => void;
-  // ArrayField-specific props
   sortable?: boolean;
-  itemComponent: ForwardRefExoticComponent<
-    ArrayFieldItemProps<T> & RefAttributes<HTMLElement>
-  >;
-  editorComponent?: ForwardRefExoticComponent<
-    ArrayFieldEditorProps<T> & RefAttributes<HTMLDivElement>
-  >;
+
+  /**
+   * Component that renders the content inside each Reorder.Item.
+   * Receives item data, callbacks, and dragControls for implementing a drag handle.
+   *
+   * Note: ArrayField handles the Reorder.Item wrapper automatically.
+   * This component only needs to render the item's visual content and styling.
+   */
+  itemComponent: ComponentType<ArrayFieldItemProps<T>>;
+
+  /**
+   * Component used to edit an item in the array.
+   * Accepts ArrayFieldEditorProps<T>.
+   */
+  editorComponent: EditorComponent<ArrayFieldEditorProps<T>>;
+
+  /**
+   * Function that returns a new item template when adding a new item.
+   */
   itemTemplate: () => T;
   addButtonLabel?: string;
   emptyStateMessage?: string;
   confirmDelete?: boolean;
 };
 
+/**
+ * Internal wrapper component for each item that provides drag controls.
+ */
+function ArrayFieldItem<T extends Item>({
+  item,
+  isSortable,
+  onDelete,
+  onEdit,
+  ItemContent,
+}: {
+  item: T;
+  isSortable: boolean;
+  onDelete: () => void;
+  onEdit: () => void;
+  ItemContent: ComponentType<ArrayFieldItemProps<T>>;
+}): ReactNode {
+  const dragControls = useDragControls();
+
+  return (
+    <Reorder.Item
+      value={item}
+      dragListener={false}
+      dragControls={dragControls}
+      layoutId={item.id}
+      layout
+      className={itemVariants()}
+      {...itemAnimationProps}
+    >
+      <ItemContent
+        item={item}
+        isSortable={isSortable}
+        onDelete={onDelete}
+        onEdit={onEdit}
+        dragControls={dragControls}
+      />
+    </Reorder.Item>
+  );
+}
+
 export function ArrayField<T extends Item = Item>({
   value = [],
   onChange,
   sortable = false,
-  itemComponent: ItemComponent,
+  itemComponent: ItemContent,
   editorComponent: EditorComponent,
   itemTemplate,
   addButtonLabel = 'Add Item',
@@ -172,7 +247,7 @@ export function ArrayField<T extends Item = Item>({
             </motion.li>
           )}
           {value.map((item) => (
-            <ItemComponent
+            <ArrayFieldItem
               key={item.id}
               item={item}
               isSortable={sortable}
@@ -181,6 +256,7 @@ export function ArrayField<T extends Item = Item>({
                 setEditingId(item.id);
                 setShowEditor(true);
               }}
+              ItemContent={ItemContent}
             />
           ))}
         </AnimatePresence>
@@ -195,26 +271,24 @@ export function ArrayField<T extends Item = Item>({
       >
         {addButtonLabel}
       </MotionButton>
-      {EditorComponent && (
-        <EditorComponent
-          item={draftItem ?? value.find((i) => i.id === editingId)}
-          isEditing={showEditor}
-          isNewItem={isAddingNew}
-          onChange={(updatedItem: T) => {
-            if (isAddingNew) {
-              confirmDraft(updatedItem);
-            } else {
-              updateItem(editingId!, updatedItem);
-            }
-          }}
-          onCancel={() => {
-            setShowEditor(false);
-            setEditingId(null);
-            setDraftItem(null);
-            setIsDraftEditing(false);
-          }}
-        />
-      )}
+      <EditorComponent
+        item={draftItem ?? value.find((i) => i.id === editingId)}
+        isEditing={showEditor}
+        isNewItem={isAddingNew}
+        onChange={(updatedItem: T) => {
+          if (isAddingNew) {
+            confirmDraft(updatedItem);
+          } else {
+            updateItem(editingId!, updatedItem);
+          }
+        }}
+        onCancel={() => {
+          setShowEditor(false);
+          setEditingId(null);
+          setDraftItem(null);
+          setIsDraftEditing(false);
+        }}
+      />
     </div>
   );
 }

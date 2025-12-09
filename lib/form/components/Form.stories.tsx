@@ -7,7 +7,10 @@ import { z } from 'zod';
 import Surface from '~/components/layout/Surface';
 import { Field, Form, SubmitButton } from '../components';
 import { ArrayField } from '../components/fields/ArrayField/ArrayField';
-import { InlineItemRenderer } from '../components/fields/ArrayField/ItemRenderers';
+import {
+  Editor,
+  SimpleItem,
+} from '../components/fields/ArrayField/ItemRenderers';
 import { InputField } from '../components/fields/InputField';
 import { RichTextEditorField } from '../components/fields/RichTextEditor';
 
@@ -83,7 +86,8 @@ export const Default: Story = {
           addButtonLabel="Add Field"
           emptyStateMessage="No fields added yet. Click 'Add Field' to get started."
           itemTemplate={() => ({ id: crypto.randomUUID(), label: '' })}
-          ItemComponent={InlineItemRenderer}
+          itemComponent={SimpleItem}
+          editorComponent={Editor}
         />
       </Surface>
     </Form>
@@ -106,7 +110,8 @@ export const WithCustomComponents: Story = {
         component={ArrayField<{ id: string; label: string }>}
         required
         sortable
-        ItemComponent={InlineItemRenderer}
+        itemComponent={SimpleItem}
+        editorComponent={Editor}
         itemTemplate={() => ({
           id: crypto.randomUUID(),
           label: '',

@@ -21,7 +21,7 @@ export const defaultPopupAnimation = {
     transition: {
       type: 'spring',
       stiffness: 300,
-      damping: 30,
+      damping: 20,
     },
   },
   exit: {
@@ -95,12 +95,14 @@ export default function ModalPopup({
   const hasAnimationProps =
     'initial' in props || 'animate' in props || 'exit' in props;
 
-  // Determine animation: layoutId gets minimal opacity, custom props used as-is, otherwise default
+  // Determine animation: layoutId gets minimal opacity so that base-ui detects it,
+  // custom props used as-is, otherwise default
   const animation = hasLayoutId
     ? {
         initial: { opacity: 0.9999 },
         animate: { opacity: 1 },
         exit: { opacity: 0.9999 },
+        transition: { layout: { type: 'spring', stiffness: 300, damping: 25 } }, // Give layout transitions a subtle spring feel
       }
     : hasAnimationProps
       ? {}
