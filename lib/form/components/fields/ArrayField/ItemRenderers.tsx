@@ -138,7 +138,10 @@ export function PromptItem({
   dragControls,
 }: ArrayFieldItemProps<NameGeneratorPrompt>) {
   return (
-    <div className="border-b-input-contrast/10 flex w-full items-center gap-2 border-b px-2 py-1 last:border-b-0">
+    <motion.div
+      layoutId={item.id}
+      className="border-b-input-contrast/10 flex w-full items-center gap-2 border-b px-2 py-1 last:border-b-0"
+    >
       {isSortable && (
         <motion.div
           layout
@@ -175,7 +178,7 @@ export function PromptItem({
           aria-label="Remove item"
         />
       </motion.div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -199,7 +202,7 @@ export const PromptEditor = forwardRef<
       description="Update this prompt below"
       open={isEditing}
       closeDialog={onCancel}
-      {...(isNewItem ? {} : { layoutId: item?.id ?? undefined })}
+      layoutId={item?.id}
       footer={
         <>
           <MotionButton type="button" onClick={onCancel}>

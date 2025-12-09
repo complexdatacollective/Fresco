@@ -29,6 +29,7 @@ export type DialogProps = {
   open?: boolean;
   children?: ReactNode;
   className?: string;
+  layoutId?: string;
 } & SurfaceVariants;
 
 /**

@@ -34,7 +34,7 @@ const arrayFieldVariants = compose(
 );
 
 const itemVariants = cva({
-  base: 'w-full',
+  base: 'w-full select-none',
 });
 
 const itemAnimationProps = {
@@ -130,7 +130,6 @@ function ArrayFieldItem<T extends Item>({
       value={item}
       dragListener={false}
       dragControls={dragControls}
-      layoutId={item.id}
       layout
       className={itemVariants()}
       {...itemAnimationProps}
@@ -184,8 +183,9 @@ export function ArrayField<T extends Item = Item>({
 
   const updateItem = useCallback(
     (id: string, updatedItem: T) => {
-      onChange(value.map((i) => (i.id === id ? updatedItem : i)));
+      onChange(value.map((i) => (i.id === id ? { ...updatedItem, id } : i)));
       setEditingId(null);
+      setShowEditor(false);
     },
     [value, onChange],
   );

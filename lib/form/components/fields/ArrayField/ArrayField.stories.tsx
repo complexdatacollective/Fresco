@@ -6,7 +6,8 @@ import { GripVertical, PencilIcon, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { action } from 'storybook/actions';
 import { useArgs } from 'storybook/preview-api';
-import { IconButton } from '~/components/ui/Button';
+import { Button, IconButton } from '~/components/ui/Button';
+import { InputField } from '~/lib/form/components/fields/InputField';
 import { cx } from '~/utils/cva';
 import { ArrayField, type ArrayFieldItemProps } from './ArrayField';
 import {
@@ -198,6 +199,14 @@ function TagItemComponent({
   );
 }
 
+const TAG_COLORS: Record<TagItem['color'], string> = {
+  'node-1': 'var(--color-node-1)',
+  'node-2': 'var(--color-node-2)',
+  'node-3': 'var(--color-node-3)',
+  'node-4': 'var(--color-node-4)',
+  'node-5': 'var(--color-node-5)',
+};
+
 // Simple editor for TagItem - reuses the label editing pattern
 function TagEditor({
   item,
@@ -213,30 +222,58 @@ function TagEditor({
   onCancel: () => void;
 }) {
   const [label, setLabel] = useState(item?.label ?? '');
+  const [color, setColor] = useState<TagItem['color']>(item?.color ?? 'node-1');
 
   useEffect(() => {
     if (isEditing) {
       setLabel(item?.label ?? '');
+      setColor(item?.color ?? 'node-1');
     }
   }, [isEditing, item]);
 
   if (!isEditing) return null;
 
   return (
-    <div className="bg-surface-1 flex w-full flex-col gap-2 border p-4">
-      <input
-        className="w-full border px-2 py-1"
-        value={label}
-        onChange={(e) => setLabel(e.target.value)}
-      />
+    <div className="bg-surface-1 flex w-full flex-col gap-4 rounded-lg border p-4">
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-medium">Label</label>
+        <InputField
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          placeholder="Enter tag label"
+        />
+      </div>
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-medium">Color</label>
+        <div className="flex gap-2">
+          {(Object.keys(TAG_COLORS) as TagItem['color'][]).map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => setColor(c)}
+              style={{ backgroundColor: TAG_COLORS[c] }}
+              className={cx(
+                'h-8 w-8 rounded-full transition-all',
+                color === c
+                  ? 'ring-primary ring-2 ring-offset-2'
+                  : 'opacity-50 hover:opacity-100',
+              )}
+              aria-label={c}
+            />
+          ))}
+        </div>
+      </div>
       <div className="flex gap-2">
-        <button
-          onClick={() => onChange({ ...item!, label })}
+        <Button
+          color="primary"
+          onClick={() => onChange({ ...item!, label, color })}
           disabled={label.trim() === ''}
         >
           {isNewItem ? 'Add' : 'Save'}
-        </button>
-        <button onClick={onCancel}>Cancel</button>
+        </Button>
+        <Button variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
       </div>
     </div>
   );
