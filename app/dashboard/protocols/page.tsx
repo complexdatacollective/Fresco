@@ -4,14 +4,12 @@ import Section from '~/components/layout/Section';
 import PageHeader from '~/components/typography/PageHeader';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
-import { requireNonPreviewMode } from '~/utils/previewMode';
 import ProtocolsTable from '../_components/ProtocolsTable/ProtocolsTable';
 import UpdateUploadThingTokenAlert from '../_components/UpdateUploadThingTokenAlert';
 
 export default async function ProtocolsPage() {
   await requireAppNotExpired();
   await requirePageAuth();
-  requireNonPreviewMode();
 
   return (
     <>

@@ -1,9 +1,8 @@
 'use client';
 
 import { CircleAlert } from 'lucide-react';
-import type { ReactNode } from 'react';
 
-export default function AlertBanner({ children }: { children?: ReactNode }) {
+export default function PreviewModeBanner() {
   return (
     <div className="bg-background text-foreground relative isolate z-50 flex w-full items-center justify-center gap-x-6 overflow-hidden px-6 py-1.5 sm:px-3.5">
       <div
@@ -32,7 +31,9 @@ export default function AlertBanner({ children }: { children?: ReactNode }) {
       </div>
       <div className="flex flex-row items-center gap-2">
         <CircleAlert className="text-foreground h-4 w-4" />
-        <span className="text-sm">{children}</span>
+        <span className="text-sm">
+          Preview Mode - Data you enter here will be publicly visible
+        </span>
       </div>
     </div>
   );

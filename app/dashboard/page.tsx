@@ -6,7 +6,6 @@ import PageHeader from '~/components/typography/PageHeader';
 import Paragraph from '~/components/typography/Paragraph';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
-import { requireNonPreviewMode } from '~/utils/previewMode';
 import ActivityFeed from './_components/ActivityFeed/ActivityFeed';
 import { searchParamsCache } from './_components/ActivityFeed/SearchParams';
 import SummaryStatistics from './_components/SummaryStatistics/SummaryStatistics';
@@ -20,7 +19,6 @@ export default async function Home({
 }) {
   await requireAppNotExpired();
   await requirePageAuth();
-  requireNonPreviewMode();
 
   searchParamsCache.parse(searchParams);
 
