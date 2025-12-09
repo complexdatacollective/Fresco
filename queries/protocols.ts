@@ -50,3 +50,17 @@ export const getNewAssetIds = async (assetIds: string[]) => {
   // Return the assetIds that are not in the database
   return assetIds.filter((assetId) => !existingAssets.includes(assetId));
 };
+
+/**
+ * Fetches the preview protocol with assets for preview mode.
+ */
+export async function getProtocolForPreview(protocolId: string) {
+  return prisma.protocol.findUnique({
+    where: { id: protocolId },
+    include: { assets: true },
+    omit: {
+      lastModified: true,
+      hash: true,
+    },
+  });
+}

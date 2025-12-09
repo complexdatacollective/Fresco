@@ -5,26 +5,12 @@ import {
 import { notFound } from 'next/navigation';
 import SuperJSON from 'superjson';
 import { v4 as uuid } from 'uuid';
+import InterviewShell from '~/app/(interview)/interview/_components/InterviewShell';
 import { env } from '~/env';
+import { getProtocolForPreview } from '~/queries/protocols';
 import { prisma } from '~/utils/db';
-import InterviewShell from '../../../interview/_components/InterviewShell';
 
 export const dynamic = 'force-dynamic';
-
-/**
- * Fetches the protocol with assets for preview mode.
- * Similar to prisma_getInterviewById but without the interview.
- */
-async function getProtocolForPreview(protocolId: string) {
-  return prisma.protocol.findUnique({
-    where: { id: protocolId },
-    include: { assets: true },
-    omit: {
-      lastModified: true,
-      hash: true,
-    },
-  });
-}
 
 export default async function PreviewInterviewPage({
   params,
