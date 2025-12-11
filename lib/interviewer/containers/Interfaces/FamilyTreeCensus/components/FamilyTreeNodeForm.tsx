@@ -19,7 +19,12 @@ import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/pro
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { Button, Scroller } from '~/lib/ui/components';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
-import { getSexVariable } from '../utils/nodeUtils';
+import {
+  getNodeIsEgoVariable,
+  getRelationshipToEgoVariable,
+  getSexVariable,
+  normalizeRelationshipToEgoLabel,
+} from '../utils/nodeUtils';
 import { type FamilyTreeNodeType } from './FamilyTreeNode';
 
 type FamilyTreeNodeFormProps = {
@@ -35,6 +40,8 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
 
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
   const sexVariable = useSelector(getSexVariable);
+  const nodeIsEgoVariable = useSelector(getNodeIsEgoVariable);
+  const relationshipToEgoVariable = useSelector(getRelationshipToEgoVariable);
 
   const [show, setShow] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -56,6 +63,14 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
       try {
         if (sexVariable != null && node.sex != null) {
           attributes[sexVariable] = node.sex;
+        }
+        if (nodeIsEgoVariable != null) {
+          attributes[nodeIsEgoVariable] = node.isEgo ?? false;
+        }
+        if (relationshipToEgoVariable != null && node.label != null) {
+          attributes[relationshipToEgoVariable] = node.isEgo
+            ? 'ego'
+            : normalizeRelationshipToEgoLabel(node.label);
         }
         // set default disease values
         diseaseVars.forEach((disease) => {
@@ -87,11 +102,13 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
     },
     [
       sexVariable,
+      nodeIsEgoVariable,
+      relationshipToEgoVariable,
       diseaseVars,
       dispatch,
       nodeType,
-      syncMetadata,
       updateShellNode,
+      syncMetadata,
     ],
   );
 

@@ -16,7 +16,7 @@ import {
 import { getStageMetadata } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
-import type { Relationship, RelationshipToEgo } from '../store';
+import type { Relationship } from '../store';
 import AddFamilyMemberForm from './AddFamilyMemberForm';
 import { CensusForm } from './CensusForm';
 import EdgeRenderer from './EdgeRenderer';
@@ -140,18 +140,12 @@ export const FamilyTreeShells = (props: {
 
     for (const edge of networkEdges) {
       const relationship = (edge.attributes.relationship ?? '') as Relationship;
-      const sourceRelationshipToEgo = (edge.attributes
-        .sourceRelationshipToEgo ?? '') as RelationshipToEgo;
-      const targetRelationshipToEgo = (edge.attributes
-        .targetRelationshipToEgo ?? '') as RelationshipToEgo;
       const id = `${edge.from}-${edge.to}-${relationship}`;
       addShellEdge({
         id,
         source: edge.from,
         target: edge.to,
         relationship,
-        sourceRelationshipToEgo,
-        targetRelationshipToEgo,
       });
     }
 

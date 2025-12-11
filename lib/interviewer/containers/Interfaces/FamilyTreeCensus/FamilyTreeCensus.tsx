@@ -19,11 +19,7 @@ import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { getEdgeType } from './components/EdgeRenderer';
 import { FamilyTreeShells } from './components/FamilyTreeShells';
 import { FamilyTreeProvider, useFamilyTreeStore } from './FamilyTreeProvider';
-import {
-  getRelationshipTypeVariable,
-  getSourceRelationshipToEgoVariable,
-  getTargetRelationshipToEgoVariable,
-} from './utils/edgeUtils';
+import { getRelationshipTypeVariable } from './utils/edgeUtils';
 
 type FamilyTreeCensusProps = StageProps & {
   stage: Extract<Stage, { type: 'FamilyTreeCensus' }>;
@@ -94,12 +90,6 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   );
   const edgeType = useSelector(getEdgeType);
   const relationshipVariable = useSelector(getRelationshipTypeVariable);
-  const sourceRelationshipToEgoVariable = useSelector(
-    getSourceRelationshipToEgoVariable,
-  );
-  const targetRelationshipToEgoVariable = useSelector(
-    getTargetRelationshipToEgoVariable,
-  );
   const saveEdges = () => {
     const existingEdges = new Set(
       networkEdges.map(
@@ -121,8 +111,6 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           type: edgeType,
           attributeData: {
             [relationshipVariable]: edge.relationship,
-            [sourceRelationshipToEgoVariable]: edge.sourceRelationshipToEgo,
-            [targetRelationshipToEgoVariable]: edge.targetRelationshipToEgo,
           },
         }),
       );

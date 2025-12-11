@@ -6,7 +6,6 @@ import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
 import type { AppDispatch } from '~/lib/interviewer/store';
 import { type FamilyTreeNodeType } from './components/FamilyTreeNode';
 import { layoutFamilyTree } from './layoutFamilyTree';
-import { normalizeRelationshipToEgoLabel } from './utils/edgeUtils';
 
 enableMapSet();
 
@@ -14,50 +13,12 @@ export type Sex = 'male' | 'female';
 
 export type Relationship = 'parent' | 'partner' | 'ex-partner';
 
-export type RelationshipToEgo =
-  | 'maternal-grandmother'
-  | 'maternal-grandfather'
-  | 'paternal-grandmother'
-  | 'paternal-grandfather'
-  | 'maternal-aunt'
-  | 'maternal-uncle'
-  | 'maternal-aunts-partner'
-  | 'maternal-uncles-partner'
-  | 'paternal-aunt'
-  | 'paternal-uncle'
-  | 'paternal-aunts-partner'
-  | 'paternal-uncles-partner'
-  | 'fathers-ex-partner'
-  | 'mothers-ex-partner'
-  | 'mother'
-  | 'father'
-  | 'ego'
-  | 'sister'
-  | 'brother'
-  | 'sisters-partner'
-  | 'brothers-partner'
-  | 'half-sister'
-  | 'half-brother'
-  | 'your-partner'
-  | 'paternal-first-cousin'
-  | 'maternal-first-cousin'
-  | 'niece'
-  | 'nephew'
-  | 'daughter'
-  | 'son'
-  | 'daughters-partner'
-  | 'sons-partner'
-  | 'granddaughter'
-  | 'grandson';
-
 export type Edge = {
   id?: string;
   interviewNetworkId?: string;
   source: string;
   target: string;
   relationship: Relationship;
-  sourceRelationshipToEgo: string;
-  targetRelationshipToEgo: string;
 };
 
 type NetworkState = {
@@ -426,14 +387,7 @@ export const createFamilyTreeStore = (
           get().syncMetadata();
         },
 
-        addEdge: ({
-          id,
-          source,
-          target,
-          relationship,
-          sourceRelationshipToEgo,
-          targetRelationshipToEgo,
-        }) => {
+        addEdge: ({ id, source, target, relationship }) => {
           const edgeId = id ?? `${source}-${target}-${relationship}`;
           set((state) => {
             if (state.network.edges.has(edgeId)) {
@@ -443,8 +397,6 @@ export const createFamilyTreeStore = (
               source,
               target,
               relationship,
-              sourceRelationshipToEgo,
-              targetRelationshipToEgo,
             });
           });
 
@@ -497,8 +449,6 @@ export const createFamilyTreeStore = (
             source: maternalGrandfatherId,
             target: maternalGrandmotherId,
             relationship: 'partner',
-            sourceRelationshipToEgo: 'maternal-grandfather',
-            targetRelationshipToEgo: 'maternal-grandmother',
           });
 
           // Paternal grandparents
@@ -516,8 +466,6 @@ export const createFamilyTreeStore = (
             source: paternalGrandfatherId,
             target: paternalGrandmotherId,
             relationship: 'partner',
-            sourceRelationshipToEgo: 'paternal-grandfather',
-            targetRelationshipToEgo: 'paternal-grandmother',
           });
 
           // Mother
@@ -530,15 +478,11 @@ export const createFamilyTreeStore = (
             source: maternalGrandfatherId,
             target: motherId,
             relationship: 'parent',
-            sourceRelationshipToEgo: 'maternal-grandfather',
-            targetRelationshipToEgo: 'mother',
           });
           addEdge({
             source: maternalGrandmotherId,
             target: motherId,
             relationship: 'parent',
-            sourceRelationshipToEgo: 'maternal-grandmother',
-            targetRelationshipToEgo: 'mother',
           });
 
           // Father
@@ -551,22 +495,16 @@ export const createFamilyTreeStore = (
             source: paternalGrandfatherId,
             target: fatherId,
             relationship: 'parent',
-            sourceRelationshipToEgo: 'paternal-grandfather',
-            targetRelationshipToEgo: 'father',
           });
           addEdge({
             source: paternalGrandmotherId,
             target: fatherId,
             relationship: 'parent',
-            sourceRelationshipToEgo: 'paternal-grandmother',
-            targetRelationshipToEgo: 'father',
           });
           addEdge({
             source: fatherId,
             target: motherId,
             relationship: 'partner',
-            sourceRelationshipToEgo: 'father',
-            targetRelationshipToEgo: 'mother',
           });
 
           // Ego (self)
@@ -580,15 +518,11 @@ export const createFamilyTreeStore = (
               source: fatherId,
               target: egoId,
               relationship: 'parent',
-              sourceRelationshipToEgo: 'father',
-              targetRelationshipToEgo: 'ego',
             });
             addEdge({
               source: motherId,
               target: egoId,
               relationship: 'parent',
-              sourceRelationshipToEgo: 'mother',
-              targetRelationshipToEgo: 'ego',
             });
           }
 
@@ -603,15 +537,11 @@ export const createFamilyTreeStore = (
               source: fatherId,
               target: brotherId,
               relationship: 'parent',
-              sourceRelationshipToEgo: 'father',
-              targetRelationshipToEgo: 'brother',
             });
             addEdge({
               source: motherId,
               target: brotherId,
               relationship: 'parent',
-              sourceRelationshipToEgo: 'mother',
-              targetRelationshipToEgo: 'brother',
             });
           });
 
@@ -625,15 +555,11 @@ export const createFamilyTreeStore = (
               source: fatherId,
               target: sisterId,
               relationship: 'parent',
-              sourceRelationshipToEgo: 'father',
-              targetRelationshipToEgo: 'sister',
             });
             addEdge({
               source: motherId,
               target: sisterId,
               relationship: 'parent',
-              sourceRelationshipToEgo: 'mother',
-              targetRelationshipToEgo: 'sister',
             });
           });
 
@@ -651,8 +577,6 @@ export const createFamilyTreeStore = (
               target: egoId,
               source: egoPartnerId,
               relationship: 'partner',
-              sourceRelationshipToEgo: 'your-partner',
-              targetRelationshipToEgo: 'ego',
             });
 
             arrayFromRelationCount(formData, 'sons').forEach(() => {
@@ -665,15 +589,11 @@ export const createFamilyTreeStore = (
                 source: egoId,
                 target: sonId,
                 relationship: 'parent',
-                sourceRelationshipToEgo: 'ego',
-                targetRelationshipToEgo: 'son',
               });
               addEdge({
                 source: egoPartnerId,
                 target: sonId,
                 relationship: 'parent',
-                sourceRelationshipToEgo: 'your-partner',
-                targetRelationshipToEgo: 'son',
               });
             });
 
@@ -687,15 +607,11 @@ export const createFamilyTreeStore = (
                 source: egoId,
                 target: daughterId,
                 relationship: 'parent',
-                sourceRelationshipToEgo: 'ego',
-                targetRelationshipToEgo: 'daughter',
               });
               addEdge({
                 source: egoPartnerId,
                 target: daughterId,
                 relationship: 'parent',
-                sourceRelationshipToEgo: 'ego',
-                targetRelationshipToEgo: 'daughter',
               });
             });
           }
@@ -711,15 +627,11 @@ export const createFamilyTreeStore = (
               source: paternalGrandfatherId,
               target: uncleId,
               relationship: 'parent',
-              sourceRelationshipToEgo: 'paternal-grandfather',
-              targetRelationshipToEgo: 'paternal-uncle',
             });
             addEdge({
               source: paternalGrandmotherId,
               target: uncleId,
               relationship: 'parent',
-              sourceRelationshipToEgo: 'paternal-grandmother',
-              targetRelationshipToEgo: 'paternal-uncle',
             });
           });
 
@@ -733,15 +645,11 @@ export const createFamilyTreeStore = (
               source: paternalGrandfatherId,
               target: auntId,
               relationship: 'parent',
-              sourceRelationshipToEgo: 'paternal-grandfather',
-              targetRelationshipToEgo: 'paternal-aunt',
             });
             addEdge({
               source: paternalGrandmotherId,
               target: auntId,
               relationship: 'parent',
-              sourceRelationshipToEgo: 'paternal-grandmother',
-              targetRelationshipToEgo: 'paternal-aunt',
             });
           });
 
@@ -756,15 +664,11 @@ export const createFamilyTreeStore = (
               source: maternalGrandfatherId,
               target: uncleId,
               relationship: 'parent',
-              sourceRelationshipToEgo: 'maternal-grandfather',
-              targetRelationshipToEgo: 'maternal-uncle',
             });
             addEdge({
               source: maternalGrandmotherId,
               target: uncleId,
               relationship: 'parent',
-              sourceRelationshipToEgo: 'maternal-grandmother',
-              targetRelationshipToEgo: 'maternal-uncle',
             });
           });
 
@@ -778,15 +682,11 @@ export const createFamilyTreeStore = (
               source: maternalGrandfatherId,
               target: auntId,
               relationship: 'parent',
-              sourceRelationshipToEgo: 'maternal-grandfather',
-              targetRelationshipToEgo: 'maternal-aunt',
             });
             addEdge({
               source: maternalGrandmotherId,
               target: auntId,
               relationship: 'parent',
-              sourceRelationshipToEgo: 'maternal-grandmother',
-              targetRelationshipToEgo: 'maternal-aunt',
             });
           });
 
@@ -844,12 +744,6 @@ export const createFamilyTreeStore = (
           const ensurePartner = (nodeId: string): string | null => {
             const node = network.nodes.get(nodeId);
             if (!node) return null;
-            const nodeLabel = node.label;
-            const partnerLabel = normalizeRelationshipToEgoLabel(
-              `${nodeLabel}'s partner`,
-            );
-            const nodeLabelNormalized =
-              normalizeRelationshipToEgoLabel(nodeLabel);
 
             // Check if partner already exists
             for (const [, edge] of network.edges) {
@@ -874,18 +768,12 @@ export const createFamilyTreeStore = (
                 source: partnerId,
                 target: nodeId,
                 relationship: 'partner',
-                sourceRelationshipToEgo: 'your-partner',
-                targetRelationshipToEgo: 'ego',
               });
             } else {
               addEdge({
                 source: node.sex === 'female' ? partnerId : nodeId,
                 target: node.sex === 'female' ? nodeId : partnerId,
                 relationship: 'partner',
-                sourceRelationshipToEgo:
-                  node.sex === 'female' ? partnerLabel : nodeLabelNormalized,
-                targetRelationshipToEgo:
-                  node.sex === 'female' ? nodeLabelNormalized : partnerLabel,
               });
             }
 
@@ -895,12 +783,6 @@ export const createFamilyTreeStore = (
           const ensureExPartner = (nodeId: string): string | null => {
             const node = network.nodes.get(nodeId);
             if (!node) return null;
-            const nodeLabel = node.label;
-            const exPartnerLabel = normalizeRelationshipToEgoLabel(
-              `${nodeLabel}'s ex-partner`,
-            );
-            const nodeLabelNormalized =
-              normalizeRelationshipToEgoLabel(nodeLabel);
 
             // Check if an ex-partner already exists
             for (const [, edge] of network.edges) {
@@ -924,10 +806,6 @@ export const createFamilyTreeStore = (
               source: node.sex === 'male' ? exPartnerId : nodeId,
               target: node.sex === 'male' ? nodeId : exPartnerId,
               relationship: 'ex-partner',
-              sourceRelationshipToEgo:
-                node.sex === 'male' ? exPartnerLabel : nodeLabelNormalized,
-              targetRelationshipToEgo:
-                node.sex === 'male' ? nodeLabelNormalized : exPartnerLabel,
             });
 
             return exPartnerId;
@@ -940,10 +818,6 @@ export const createFamilyTreeStore = (
               source: parentId,
               target: newNodeId,
               relationship: 'parent',
-              sourceRelationshipToEgo: normalizeRelationshipToEgoLabel(
-                parent.label,
-              ),
-              targetRelationshipToEgo: normalizeRelationshipToEgoLabel(label),
             });
           };
 

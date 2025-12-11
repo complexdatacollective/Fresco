@@ -11,14 +11,9 @@ import {
   type FamilyTreeStore,
   type FamilyTreeStoreApi,
   type Relationship,
-  type RelationshipToEgo,
   type Sex,
 } from './store';
-import {
-  getRelationshipTypeVariable,
-  getSourceRelationshipToEgoVariable,
-  getTargetRelationshipToEgoVariable,
-} from './utils/edgeUtils';
+import { getRelationshipTypeVariable } from './utils/edgeUtils';
 
 const FamilyTreeContext = createContext<FamilyTreeStoreApi | undefined>(
   undefined,
@@ -66,27 +61,14 @@ export const FamilyTreeProvider = ({
       sex: ego.attributes.sex === 'male' ? 'male' : 'female',
       readOnly: true,
       isEgo: true,
-      // interviewNetworkId: ego._uid,
     });
   }
   const relationshipVariable = useSelector(getRelationshipTypeVariable);
-  const sourceRelationshipToEgoVariable = useSelector(
-    getSourceRelationshipToEgoVariable,
-  );
-  const targetRelationshipToEgoVariable = useSelector(
-    getTargetRelationshipToEgoVariable,
-  );
   const initialEdges = new Map<string, Omit<Edge, 'id'>>(
     edges.map((edge) => [
       edge._uid,
       {
         relationship: edge.attributes[relationshipVariable] as Relationship,
-        sourceRelationshipToEgo: edge.attributes[
-          sourceRelationshipToEgoVariable
-        ] as RelationshipToEgo,
-        targetRelationshipToEgo: edge.attributes[
-          targetRelationshipToEgoVariable
-        ] as RelationshipToEgo,
         source: edge.from,
         target: edge.to,
         interviewNetworkId: edge._uid,
