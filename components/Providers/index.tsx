@@ -6,7 +6,7 @@ import DialogProvider from '~/lib/dialogs/DialogProvider';
 import { DndStoreProvider } from '~/lib/dnd';
 import { FormStoreProvider } from '~/lib/form/store/formStoreProvider';
 import { Toaster } from '../ui/toaster';
-import RadixDirectionProvider from './RadixDirectionProvider';
+import RadixDirectionProvider from './DirectionProvider';
 
 export default function Providers({ children }: { children: ReactNode }) {
   return (

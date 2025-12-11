@@ -144,26 +144,36 @@ describe('Object Path Utils', () => {
       setValue(obj, 'users.0.skills.1', 'typescript');
       setValue(obj, 'users.0.name', 'John');
 
+      // Numeric indices create arrays, which is correct for form field arrays
       expect(obj).toEqual({
-        users: {
-          0: {
-            skills: {
-              1: 'typescript',
-            },
+        users: [
+          {
+            skills: [undefined, 'typescript'],
             name: 'John',
           },
-        },
+        ],
       });
     });
 
-    it('should handle empty path by replacing object', () => {
+    it('should handle bracket notation for arrays', () => {
+      const obj: Record<string, unknown> = {};
+
+      setValue(obj, 'people[0].firstName', 'John');
+      setValue(obj, 'people[0].lastName', 'Doe');
+      setValue(obj, 'people[1].firstName', 'Jane');
+
+      expect(obj).toEqual({
+        people: [{ firstName: 'John', lastName: 'Doe' }, { firstName: 'Jane' }],
+      });
+    });
+
+    it('should handle empty path by doing nothing', () => {
       const obj: Record<string, unknown> = { name: 'John' };
 
       setValue(obj, '', { name: 'Jane' });
 
-      // Empty path should set the root, but our implementation doesn't handle this case
-      // This is expected behavior - empty path is not a valid use case
-      expect(obj).toEqual({ 'name': 'John', '': { name: 'Jane' } });
+      // Empty path should do nothing - it's not a valid use case
+      expect(obj).toEqual({ name: 'John' });
     });
   });
 });

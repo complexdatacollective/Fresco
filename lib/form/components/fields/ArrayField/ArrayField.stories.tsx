@@ -8,13 +8,16 @@ import { action } from 'storybook/actions';
 import { useArgs } from 'storybook/preview-api';
 import { Button, IconButton } from '~/components/ui/Button';
 import { InputField } from '~/lib/form/components/fields/InputField';
+import { type ProtocolSortRule } from '~/lib/interviewer/utils/createSorter';
 import { cx } from '~/utils/cva';
+import { SelectField } from '../Select';
 import { ArrayField, type ArrayFieldItemProps } from './ArrayField';
 import {
-  Editor,
+  ItemShell,
   type NameGeneratorPrompt,
   PromptEditor,
   PromptItem,
+  SimpleEditor,
   SimpleItem,
 } from './ItemRenderers';
 
@@ -93,15 +96,8 @@ const meta: Meta<typeof ArrayField<SimpleItemType>> = {
     value: [],
     itemTemplate: () => ({ id: crypto.randomUUID(), label: '' }),
     itemComponent: SimpleItem,
-    editorComponent: Editor,
+    editorComponent: SimpleEditor,
   },
-  decorators: [
-    (Story) => (
-      <div className="w-96">
-        <Story />
-      </div>
-    ),
-  ],
 };
 
 export default meta;
@@ -116,7 +112,7 @@ export const Default: Story = {
         {...args}
         onChange={(newValue) => {
           updateArgs({ value: newValue });
-          action('onChange')(newValue);
+          // action('onChange')(newValue);
         }}
       />
     );
@@ -135,7 +131,7 @@ export const WithInitialItems: Story = {
         {...args}
         onChange={(newValue) => {
           updateArgs({ value: newValue });
-          action('onChange')(newValue);
+          // action('onChange')(newValue);
         }}
       />
     );
@@ -330,7 +326,81 @@ export const ManyItems: Story = {
         {...args}
         onChange={(newValue) => {
           updateArgs({ value: newValue });
+          // action('onChange')(newValue);
+        }}
+      />
+    );
+  },
+};
+
+export const NoEditor: Story = {
+  args: {
+    sortable: true,
+    addButtonLabel: 'Add Sort Rule',
+    emptyStateMessage: 'No prompts yet. Add your first prompt!',
+  },
+  parameters: {
+    layout: 'centered',
+  },
+  render: function Render(args) {
+    const properties = ['name', 'age', 'dateCreated', 'lastUpdated'] as const;
+    const directions = ['asc', 'desc'] as const;
+
+    const [rules, setRules] = useState<ProtocolSortRule[]>([
+      {
+        property: 'age',
+        direction: 'asc',
+      },
+      {
+        property: 'name',
+        direction: 'desc',
+      },
+    ]);
+
+    return (
+      <ArrayField<ProtocolSortRule>
+        {...args}
+        value={rules}
+        onChange={(newValue) => {
+          setRules(newValue);
           action('onChange')(newValue);
+        }}
+        itemTemplate={() => ({ property: undefined, direction: 'asc' })}
+        /**
+         * Idea here is to omit the editor component entirely, and render
+         * inputs directly in the item component that update the value.
+         */
+        itemComponent={({
+          item,
+          isSortable,
+          dragControls,
+          onChange,
+          onDelete,
+        }) => {
+          return (
+            <ItemShell
+              dragControls={dragControls}
+              isSortable={isSortable}
+              onDelete={onDelete}
+            >
+              <div className="flex w-full items-center gap-2">
+                <SelectField
+                  name="property"
+                  value={item.property}
+                  onChange={(e) => onChange({ ...item, property: e })}
+                  options={properties.map((p) => ({ value: p, label: p }))}
+                  placeholder="Select a property..."
+                />
+                <SelectField
+                  name="direction"
+                  value={item.direction}
+                  onChange={(e) => onChange({ ...item, direction: e })}
+                  options={directions.map((d) => ({ value: d, label: d }))}
+                  placeholder="Select a direction..."
+                />
+              </div>
+            </ItemShell>
+          );
         }}
       />
     );
@@ -375,7 +445,7 @@ export const DialogEditor: Story = {
         value={prompts}
         onChange={(newValue) => {
           setPrompts(newValue);
-          action('onChange')(newValue);
+          // action('onChange')(newValue);
         }}
         itemTemplate={() => ({ id: crypto.randomUUID(), text: {} })}
         itemComponent={PromptItem}

@@ -5,25 +5,25 @@ import {
 } from '~/styles/shared/controlVariants';
 import { cx, type VariantProps } from '~/utils/cva';
 
-export type SelectOption = {
-  value: string | number;
+export type SelectOption<T extends string | number = string | number> = {
+  value: T;
   label: string;
 };
 
-export type SelectProps = Omit<
+export type SelectProps<T extends string | number = string | number> = Omit<
   SelectHTMLAttributes<HTMLSelectElement>,
   'size' | 'onChange'
 > &
   VariantProps<typeof controlWrapperVariants> & {
     name: string;
-    value?: string | number;
+    value?: T;
     placeholder?: string;
-    options: SelectOption[];
-    onChange: (value: string | number) => void;
+    options: SelectOption<T>[];
+    onChange: (value: T) => void;
     className?: string;
   };
 
-export function SelectField({
+export function SelectField<T extends string | number = string | number>({
   options,
   placeholder,
   size,
@@ -32,25 +32,22 @@ export function SelectField({
   disabled,
   name,
   ...selectProps
-}: SelectProps) {
+}: SelectProps<T>) {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value;
-    onChange(selectedValue);
-  };
-
-  // Work out variant state based on props. Order:
-  // disabled > readOnly > invalid > normal
-  const getState = () => {
-    if (disabled) return 'disabled';
-    if (selectProps['aria-invalid']) return 'invalid';
-    return 'normal';
+    // Find the matching option to get the correctly typed value
+    const matchedOption = options.find(
+      (opt) => String(opt.value) === selectedValue,
+    );
+    if (matchedOption) {
+      onChange(matchedOption.value);
+    }
   };
 
   return (
     <div
       className={controlWrapperVariants({
         size,
-        state: getState(),
         className: selectProps.className,
       })}
     >
@@ -63,13 +60,20 @@ export function SelectField({
         onChange={handleChange}
         className={cx(
           selectBackgroundVariants,
-          value === undefined ||
-            value === null ||
-            (value === '' && 'text-input-contrast/50 italic'),
           selectProps.className,
+          (value === undefined || value === null || value === '') &&
+            'text-input-contrast/50 italic',
         )}
       >
-        {placeholder && <option value="">{placeholder}</option>}
+        {placeholder && (
+          <option
+            value=""
+            disabled
+            selected={value === undefined || value === null || value === ''}
+          >
+            {placeholder}
+          </option>
+        )}
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}

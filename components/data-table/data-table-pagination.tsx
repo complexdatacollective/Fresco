@@ -30,9 +30,9 @@ export function DataTablePagination<TData>({
         <SelectField
           name="pageSize"
           size="sm"
-          value={`${table.getState().pagination.pageSize}`}
-          onChange={(e) => {
-            table.setPageSize(Number(e.target.value));
+          value={table.getState().pagination.pageSize}
+          onChange={(value) => {
+            table.setPageSize(value);
           }}
           options={pageSizes.map((size) => ({
             label: size.toLocaleString(),

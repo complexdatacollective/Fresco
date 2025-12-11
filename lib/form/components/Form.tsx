@@ -1,6 +1,6 @@
 'use client';
 
-import { LayoutGroup, motion } from 'motion/react';
+import { LayoutGroup } from 'motion/react';
 import { type ComponentProps } from 'react';
 import { scrollToFirstError } from '~/lib/form/utils/scrollToFirstError';
 import { cx } from '~/utils/cva';
@@ -24,7 +24,7 @@ export default function Form(props: FormProps) {
   });
 
   return (
-    <motion.form
+    <form
       noValidate // Don't show native HTML validation UI
       className={cx(
         'flex w-screen max-w-2xl flex-col items-start gap-6',
@@ -37,6 +37,6 @@ export default function Form(props: FormProps) {
         {formErrors && <FormErrorsList key="form-errors" errors={formErrors} />}
         {children}
       </LayoutGroup>
-    </motion.form>
+    </form>
   );
 }

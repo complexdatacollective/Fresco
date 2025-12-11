@@ -1,8 +1,7 @@
 import { type JSONContent } from '@tiptap/core';
 import { GripVertical, PencilIcon, X } from 'lucide-react';
-import { motion } from 'motion/react';
-import { forwardRef, useEffect, useState } from 'react';
-import { surfaceVariants } from '~/components/layout/Surface';
+import { type DragControls, motion } from 'motion/react';
+import { useEffect, useState } from 'react';
 import Button, { IconButton, MotionButton } from '~/components/ui/Button';
 import { Dialog } from '~/lib/dialogs/Dialog';
 import { cx } from '~/utils/cva';
@@ -12,17 +11,17 @@ import SubmitButton from '../../SubmitButton';
 import { InputField } from '../InputField';
 import { RichTextEditorField } from '../RichTextEditor';
 import { RichTextRenderer } from '../RichTextRenderer';
-import {
-  type ArrayFieldEditorProps,
-  type ArrayFieldItemProps,
-} from './ArrayField';
+import { type ArrayFieldEditorProps } from './ArrayField';
 
 type SimpleItemBase = { id: string; label: string };
 
-export const Editor = forwardRef<
-  HTMLDivElement,
-  ArrayFieldEditorProps<SimpleItemBase>
->(function Editor({ item, isEditing, isNewItem, onChange, onCancel }, ref) {
+export function SimpleEditor({
+  item,
+  isEditing,
+  isNewItem,
+  onChange,
+  onCancel,
+}) {
   const [label, setLabel] = useState(item?.label ?? '');
 
   useEffect(() => {
@@ -36,14 +35,7 @@ export const Editor = forwardRef<
   }
 
   return (
-    <motion.div
-      ref={ref}
-      layout
-      className={cx(
-        surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
-        'flex w-full flex-col gap-2 border p-4',
-      )}
-    >
+    <div className="w-full px-2 py-4">
       <InputField value={label} onChange={(e) => setLabel(e.target.value)} />
       <div className="mt-2 flex gap-2">
         <Button
@@ -64,11 +56,71 @@ export const Editor = forwardRef<
           Cancel
         </Button>
       </div>
-    </motion.div>
+    </div>
   );
-});
+}
 
-export const SimpleEditor = motion.create(Editor);
+export function ItemShell({
+  children,
+  dragControls,
+  isSortable,
+  className,
+  onEdit,
+  onDelete,
+  disabled,
+}: {
+  children: React.ReactNode;
+  dragControls: DragControls;
+  isSortable: boolean;
+  className?: string;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  disabled: boolean;
+}) {
+  return (
+    <div
+      className={cx(
+        'flex w-full items-center gap-2 px-4 py-2 select-none',
+        disabled && 'pointer-events-none opacity-50',
+        className,
+      )}
+    >
+      {isSortable && (
+        <div
+          onPointerDown={(e) => dragControls.start(e)}
+          className="touch-none"
+        >
+          <GripVertical className="h-4 w-4 cursor-grab" />
+        </div>
+      )}
+      {children}
+      {(onDelete ?? onEdit) && (
+        <div className="ml-auto flex items-center gap-1">
+          {onEdit && (
+            <IconButton
+              size="sm"
+              variant="textMuted"
+              color="primary"
+              onClick={onEdit}
+              aria-label="Edit item"
+              icon={<PencilIcon />}
+            />
+          )}
+          {onDelete && (
+            <IconButton
+              variant="textMuted"
+              color="destructive"
+              size="sm"
+              onClick={onDelete}
+              icon={<X />}
+              aria-label="Remove item"
+            />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 /**
  * Simple item content renderer for basic label items.
@@ -80,40 +132,16 @@ export function SimpleItem({
   onEdit,
   onDelete,
   dragControls,
-}: ArrayFieldItemProps<{ id: string; label: string }>) {
+}: ArrayFieldEditorProps<SimpleItemBase>) {
   return (
-    <div className="border-b-input-contrast/10 flex w-full items-center gap-2 border-b px-2 py-1 last:border-b-0">
-      {isSortable && (
-        <motion.div
-          layout
-          onPointerDown={(e) => dragControls.start(e)}
-          className="touch-none"
-        >
-          <GripVertical className="h-4 w-4 cursor-grab" />
-        </motion.div>
-      )}
-      <motion.div layout className="flex-1">
-        {item.label}
-      </motion.div>
-      <motion.div layout className="ml-auto flex items-center gap-1">
-        <IconButton
-          size="sm"
-          variant="textMuted"
-          color="primary"
-          onClick={onEdit}
-          aria-label="Edit item"
-          icon={<PencilIcon />}
-        />
-        <IconButton
-          variant="textMuted"
-          color="destructive"
-          size="sm"
-          onClick={onDelete}
-          icon={<X />}
-          aria-label="Remove item"
-        />
-      </motion.div>
-    </div>
+    <ItemShell
+      dragControls={dragControls}
+      isSortable={isSortable}
+      onEdit={onEdit}
+      onDelete={onDelete}
+    >
+      {item.label}
+    </ItemShell>
   );
 }
 
@@ -136,11 +164,11 @@ export function PromptItem({
   onEdit,
   onDelete,
   dragControls,
-}: ArrayFieldItemProps<NameGeneratorPrompt>) {
+}) {
   return (
     <motion.div
       layoutId={item.id}
-      className="border-b-input-contrast/10 flex w-full items-center gap-2 border-b px-2 py-1 last:border-b-0"
+      className="flex w-full items-center gap-2 px-2 py-1"
     >
       {isSortable && (
         <motion.div
@@ -182,13 +210,13 @@ export function PromptItem({
   );
 }
 
-export const PromptEditor = forwardRef<
-  HTMLDivElement,
-  ArrayFieldEditorProps<NameGeneratorPrompt>
->(function PromptEditor(
-  { isEditing, isNewItem, onCancel, onChange, item },
-  ref,
-) {
+export function PromptEditor({
+  isEditing,
+  isNewItem,
+  onCancel,
+  onChange,
+  item,
+}) {
   const handleSubmit = (data: unknown) => {
     onChange(data as NameGeneratorPrompt);
 
@@ -197,12 +225,11 @@ export const PromptEditor = forwardRef<
 
   return (
     <Dialog
-      ref={ref}
       title="Edit Prompt"
       description="Update this prompt below"
       open={isEditing}
       closeDialog={onCancel}
-      layoutId={item?.id}
+      layoutId={isNewItem ? undefined : item?.id}
       footer={
         <>
           <MotionButton type="button" onClick={onCancel}>
@@ -230,4 +257,105 @@ export const PromptEditor = forwardRef<
       </Form>
     </Dialog>
   );
-});
+}
+
+/**
+ * TestComponent1 - inline editor
+ * TestComponent2 - no editor, just inputs
+ * TestComponent3 - modal editor
+ */
+
+export function TestComponent1({
+  item,
+  isSortable,
+  onEdit,
+  onDelete,
+  isEditing,
+  isNewItem,
+  onChange,
+  onCancel,
+  dragControls,
+}: ArrayFieldEditorProps) {
+  if (isEditing) {
+    return (
+      <SimpleEditor
+        item={item}
+        isEditing={isEditing}
+        isNewItem={isNewItem}
+        onChange={onChange}
+        onCancel={onCancel}
+      />
+    );
+  }
+
+  return (
+    <SimpleItem
+      dragControls={dragControls}
+      isSortable={isSortable}
+      item={item}
+      onEdit={onEdit}
+      onDelete={onDelete}
+    />
+  );
+}
+
+// Renders a div with inputs that directly update the item
+export function TestComponent2({
+  item,
+  isSortable,
+  onEdit,
+  onDelete,
+  isEditing,
+  isNewItem,
+  onChange,
+  onCancel,
+  dragControls,
+}: ArrayFieldEditorProps) {
+  return (
+    <ItemShell dragControls={dragControls} isSortable={isSortable}>
+      <input
+        type="text"
+        value={item.label as string}
+        onChange={(e) => onChange({ ...item, label: e.target.value } as any)}
+      />
+      <MotionButton size="sm" onClick={onDelete}>
+        Delete
+      </MotionButton>
+    </ItemShell>
+  );
+}
+
+// TestComponent3 uses the PromptItem and PromptEditor defined above
+export function TestComponent3({
+  item,
+  isSortable,
+  onEdit,
+  onDelete,
+  isEditing,
+  isNewItem,
+  onChange,
+  onCancel,
+  dragControls,
+}: ArrayFieldEditorProps<NameGeneratorPrompt>) {
+  if (isEditing) {
+    return (
+      <PromptEditor
+        isEditing={isEditing}
+        isNewItem={isNewItem}
+        onCancel={onCancel}
+        onChange={onChange}
+        item={item}
+      />
+    );
+  }
+
+  return (
+    <PromptItem
+      dragControls={dragControls}
+      isSortable={isSortable}
+      item={item}
+      onEdit={onEdit}
+      onDelete={onDelete}
+    />
+  );
+}

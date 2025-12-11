@@ -1,31 +1,25 @@
 import { Select } from '@base-ui-components/react/select';
 import { Check } from 'lucide-react';
 import {
-  type ComponentPropsWithoutRef,
-  type SelectHTMLAttributes,
-} from 'react';
-import {
   controlWrapperVariants,
   selectBackgroundVariants,
 } from '~/styles/shared/controlVariants';
 import { cx, type VariantProps } from '~/utils/cva';
 
-export type SelectOption = {
-  value: string | number;
+export type SelectOption<T extends string> = {
+  value: T;
   label: string;
 };
 
-export type SelectProps = VariantProps<typeof controlWrapperVariants> &
-  Omit<
-    ComponentPropsWithoutRef<typeof Select.Root>,
-    'onValueChange' | 'items' | 'multiple'
-  > &
-  Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size' | 'onChange'> & {
+export type SelectProps<T extends string> = VariantProps<
+  typeof controlWrapperVariants
+> &
+  Omit<Select.Root.Props<T>, 'size' | 'onChange'> & {
     name: string;
-    value?: string | number;
+    value: T | T[];
     placeholder?: string;
-    options: SelectOption[];
-    onChange: (value: string | number) => void;
+    options: SelectOption<T>[];
+    onChange: (value: T) => void;
     className?: string;
   };
 
@@ -39,39 +33,36 @@ export function SelectField({
   disabled,
   name,
   ...rootProps
-}: SelectProps) {
-  const handleValueChange = (newValue: unknown) => {
-    if (newValue !== null && newValue !== undefined) {
-      onChange(newValue as string | number);
-    }
-  };
+}: SelectProps<string>) {
+  // base-ui Select only supports string values, so we convert to/from strings
+  const stringValue = value !== undefined ? String(value) : '';
 
-  // Work out variant state based on props. Order:
-  // disabled > readOnly > invalid > normal
-  const getState = () => {
-    if (disabled) return 'disabled';
-    if (rootProps['aria-invalid']) return 'invalid';
-    return 'normal';
+  const handleValueChange = (newValue: string | string[] | null) => {
+    if (newValue === null) return;
+    // Find the matching option to get the correctly typed value
+    const matchedOption = options.find((opt) => String(opt.value) === newValue);
+    if (matchedOption) {
+      onChange(matchedOption.value);
+    }
   };
 
   return (
     <Select.Root
-      {...rootProps}
-      value={value}
+      value={stringValue}
       onValueChange={handleValueChange}
       disabled={disabled}
       name={name}
+      {...rootProps}
     >
       <Select.Trigger
         className={controlWrapperVariants({
           size,
-          state: getState(),
           className,
         })}
       >
         <div className={cx('form-select', selectBackgroundVariants)}>
           <Select.Value className="flex-1 truncate text-left">
-            {(currentValue: string | number | null) => {
+            {(currentValue: string | null) => {
               if (
                 currentValue === null ||
                 currentValue === undefined ||
@@ -83,7 +74,9 @@ export function SelectField({
                   </span>
                 );
               }
-              const option = options.find((opt) => opt.value === currentValue);
+              const option = options.find(
+                (opt) => String(opt.value) === currentValue,
+              );
               return option?.label ?? currentValue;
             }}
           </Select.Value>
@@ -103,13 +96,12 @@ export function SelectField({
               {options.map((option) => (
                 <Select.Item
                   key={option.value}
-                  value={option.value}
+                  value={String(option.value)}
                   className={cx(
                     'flex cursor-pointer items-center gap-2 px-3 py-2',
                     'text-sm transition-colors outline-none',
                     'hover:bg-accent/10',
                     'data-selected:bg-selected',
-                    // 'data-highlighted:bg-input-contrast/10',
                   )}
                 >
                   <Select.ItemText className="flex-1">

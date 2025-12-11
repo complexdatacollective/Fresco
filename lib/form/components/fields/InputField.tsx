@@ -1,4 +1,3 @@
-import { motion } from 'motion/react';
 import { type ReactNode } from 'react';
 import {
   controlContainerVariants,
@@ -45,18 +44,14 @@ export const InputField = function InputField({
   suffixComponent?: ReactNode;
 }) {
   return (
-    <motion.div
-      layout
-      className={cx(inputWrapperVariants({ size: 'md' }), className)}
-    >
+    <div className={cx(inputWrapperVariants({ size: 'md' }), className)}>
       {prefix}
-      <motion.input
-        layout
+      <input
         autoComplete="off"
         className={inputVariants({ className })}
         {...inputProps}
       />
       {suffix}
-    </motion.div>
+    </div>
   );
 };
