@@ -1,3 +1,8 @@
+import {
+  type CurrentProtocol,
+  migrateProtocol,
+  validateProtocol,
+} from '@codaco/protocol-validation';
 import { queue } from 'async';
 import { XCircle } from 'lucide-react';
 import { hash } from 'ohash';
@@ -12,19 +17,36 @@ import {
 import { AlertDialogDescription } from '~/components/ui/AlertDialog';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
 import { uploadFiles } from '~/lib/uploadthing-client-helpers';
-import { getExistingAssetIds, getProtocolByHash } from '~/queries/protocols';
+import { getNewAssetIds, getProtocolByHash } from '~/queries/protocols';
 import { type AssetInsertType } from '~/schemas/protocol';
 import { DatabaseError } from '~/utils/databaseError';
 import { ensureError } from '~/utils/ensureError';
-import { formatNumberList } from '~/utils/general';
 import {
   fileAsArrayBuffer,
   getProtocolAssets,
   getProtocolJson,
 } from '~/utils/protocolImport';
 
-// Utility helper for adding artificial delay to async functions
-// const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+/**
+ * Formats a list of numbers into a human-readable string.
+ */
+function formatNumberList(numbers: number[]): string {
+  // "1"
+  if (numbers.length === 1) {
+    return numbers[0]!.toString();
+  }
+
+  // "1 and 2"
+  if (numbers.length === 2) {
+    return numbers.join(' and ');
+  }
+
+  // "1, 2, and 3"
+  const lastNumber = numbers.pop();
+  const formattedList = numbers.join(', ') + `, and ${lastNumber}`;
+
+  return formattedList;
+}
 
 export const useProtocolImport = () => {
   const [jobs, dispatch] = useReducer(jobReducer, jobInitialState);
@@ -64,7 +86,10 @@ export const useProtocolImport = () => {
 
       // Check if the protocol version is compatible with the app.
       const protocolVersion = protocolJson.schemaVersion;
-      if (!APP_SUPPORTED_SCHEMA_VERSIONS.includes(protocolVersion)) {
+      if (
+        !protocolVersion ||
+        !APP_SUPPORTED_SCHEMA_VERSIONS.includes(protocolVersion)
+      ) {
         dispatch({
           type: 'UPDATE_ERROR',
           payload: {
@@ -87,11 +112,25 @@ export const useProtocolImport = () => {
         return;
       }
 
-      const { validateProtocol } = await import('@codaco/protocol-validation');
+      // Migrate v7 to v8
+      let protocolToValidate = protocolJson;
 
-      const validationResult = await validateProtocol(protocolJson);
+      if (protocolVersion !== 8) {
+        dispatch({
+          type: 'UPDATE_STATUS',
+          payload: {
+            id: fileName,
+            status: 'Migrating protocol',
+          },
+        });
+        // eslint-disable-next-line no-console
+        console.warn('Migrating protocol from v7 to v8...');
+        protocolToValidate = migrateProtocol(protocolJson, 8);
+      }
 
-      if (!validationResult.isValid) {
+      const validationResult = await validateProtocol(protocolToValidate);
+
+      if (!validationResult.success) {
         const resultAsString = JSON.stringify(validationResult, null, 2);
 
         dispatch({
@@ -125,20 +164,19 @@ export const useProtocolImport = () => {
               additionalContent: (
                 <ErrorDetails errorText={resultAsString}>
                   <ul className="max-w-md list-inside space-y-2">
-                    {[
-                      ...validationResult.schemaErrors,
-                      ...validationResult.logicErrors,
-                    ].map((validationError, i) => (
-                      <li className="flex capitalize" key={i}>
-                        <XCircle className="text-destructive mr-2 h-4 w-4" />
-                        <span>
-                          {validationError.message}{' '}
-                          <span className="text-xs italic">
-                            ({validationError.path})
+                    {validationResult.error.issues.map(
+                      ({ message, path }, i) => (
+                        <li className="flex capitalize" key={i}>
+                          <XCircle className="text-destructive mr-2 h-4 w-4" />
+                          <span>
+                            {message}{' '}
+                            <span className="text-xs italic">
+                              ({path.join(' > ')})
+                            </span>
                           </span>
-                        </span>
-                      </li>
-                    ))}
+                        </li>
+                      ),
+                    )}
                   </ul>
                 </ErrorDetails>
               ),
@@ -150,9 +188,10 @@ export const useProtocolImport = () => {
       }
 
       // After this point, assume the protocol is valid.
+      const validatedProtocol = validationResult.data as CurrentProtocol;
 
       // Check if the protocol already exists in the database
-      const protocolHash = hash(protocolJson);
+      const protocolHash = hash(validatedProtocol);
       const exists = await getProtocolByHash(protocolHash);
       if (exists) {
         dispatch({
@@ -176,28 +215,42 @@ export const useProtocolImport = () => {
         return;
       }
 
-      const assets = await getProtocolAssets(protocolJson, zip);
+      const { fileAssets, apikeyAssets } = await getProtocolAssets(
+        validatedProtocol,
+        zip,
+      );
 
-      const newAssets: typeof assets = [];
-
+      const newAssets: typeof fileAssets = [];
       const existingAssetIds: string[] = [];
-
-      let newAssetsWithCombinedMetadata: AssetInsertType = [];
+      let newAssetsWithCombinedMetadata: AssetInsertType[] = [];
+      const newApikeyAssets: typeof apikeyAssets = [];
 
       // Check if the assets are already in the database.
       // If yes, add them to existingAssetIds to be connected to the protocol.
-      // If not, add them to newAssets to be uploaded.
-
+      // If not, add files to newAssets to be uploaded
+      // and add apikeys to newApikeyAssets to be created in the database with the protocol
       try {
-        const newAssetIds = await getExistingAssetIds(
-          assets.map((asset) => asset.assetId),
+        const newFileAssetIds = await getNewAssetIds(
+          fileAssets.map((asset) => asset.assetId),
         );
 
-        assets.forEach((asset) => {
-          if (newAssetIds.includes(asset.assetId)) {
+        fileAssets.forEach((asset) => {
+          if (newFileAssetIds.includes(asset.assetId)) {
             newAssets.push(asset);
           } else {
             existingAssetIds.push(asset.assetId);
+          }
+        });
+
+        const newApikeyAssetIds = await getNewAssetIds(
+          apikeyAssets.map((apiKey) => apiKey.assetId),
+        );
+
+        apikeyAssets.forEach((apiKey) => {
+          if (newApikeyAssetIds.includes(apiKey.assetId)) {
+            newApikeyAssets.push(apiKey);
+          } else {
+            existingAssetIds.push(apiKey.assetId);
           }
         });
       } catch (e) {
@@ -300,9 +353,9 @@ export const useProtocolImport = () => {
       });
 
       const result = await insertProtocol({
-        protocol: protocolJson,
+        protocol: validatedProtocol,
         protocolName: fileName,
-        newAssets: newAssetsWithCombinedMetadata,
+        newAssets: [...newAssetsWithCombinedMetadata, ...newApikeyAssets],
         existingAssetIds: existingAssetIds,
       });
 

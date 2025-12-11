@@ -5,8 +5,8 @@ import { X } from 'lucide-react';
 import * as React from 'react';
 
 import { cn } from '~/utils/shadcn';
-import Heading from './typography/Heading';
-import { paragraphVariants } from './typography/Paragraph';
+import Heading from '../typography/Heading';
+import { paragraphVariants } from '../typography/Paragraph';
 
 const Dialog = DialogPrimitive.Root;
 

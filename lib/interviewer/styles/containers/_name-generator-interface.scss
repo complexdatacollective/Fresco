@@ -2,34 +2,29 @@
 
 .name-generator-interface {
   @include interface-centering;
-
   flex-direction: column;
+  gap: units.unit(2);
 
   &__prompt {
     @include interface-prompt;
   }
 
   &__main {
-    flex: 1 auto;
+    flex: 1 100%;
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    height: 100%;
-    position: relative;
+    gap: units.unit(2);
     min-height: 0;
   }
 
   &__nodes {
-    flex: 3 1 auto;
-    height: 100%;
+    flex: 1 1 auto;
     display: flex;
-    padding-left: 1.5rem;
   }
 
   &__panels {
-    flex: 0 0 auto;
-    height: 100%;
+    flex: 0 0 33%;
     display: flex;
+    margin-bottom: units.unit(2);
   }
 
   &__add-button {
