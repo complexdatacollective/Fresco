@@ -9,19 +9,21 @@ import type {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useToast } from '~/components/ui/use-toast';
+import AddFamilyMemberForm from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/AddFamilyMemberForm';
+import { CensusForm } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/CensusForm';
+import EdgeRenderer from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/EdgeRenderer';
+import FamilyTreeNode, {
+  type FamilyTreeNodeType,
+} from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
+import FamilyTreeNodeForm from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/FamilyTreeNodeForm';
+import { useFamilyTreeStore } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
+import type { Relationship } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/store';
 import {
   type FamilyTreeCensusStageMetadata,
   updateNode as updateNetworkNode,
 } from '~/lib/interviewer/ducks/modules/session';
 import { getStageMetadata } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
-import { useFamilyTreeStore } from '../FamilyTreeProvider';
-import type { Relationship } from '../store';
-import AddFamilyMemberForm from './AddFamilyMemberForm';
-import { CensusForm } from './CensusForm';
-import EdgeRenderer from './EdgeRenderer';
-import FamilyTreeNode, { type FamilyTreeNodeType } from './FamilyTreeNode';
-import FamilyTreeNodeForm from './FamilyTreeNodeForm';
 
 const isFamilyTreeStageMetadata = (
   stageMetadata: unknown,

@@ -2,13 +2,13 @@ import { createSelector } from '@reduxjs/toolkit';
 import { invariant } from 'es-toolkit';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
+import { FAMILY_TREE_CONFIG } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/config';
+import { useFamilyTreeStore } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
+import { type Edge } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/store';
 import {
   getCurrentStage,
   getEdgeColorForType,
 } from '~/lib/interviewer/selectors/session';
-import { FAMILY_TREE_CONFIG } from '../config';
-import { useFamilyTreeStore } from '../FamilyTreeProvider';
-import { type Edge } from '../store';
 
 const EDGE_WIDTH = 5;
 

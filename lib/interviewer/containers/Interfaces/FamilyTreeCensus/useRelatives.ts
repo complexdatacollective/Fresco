@@ -1,8 +1,8 @@
 import { type VariableValue } from '@codaco/shared-consts';
 import { useMemo } from 'react';
-import { type FamilyTreeNodeType } from './components/FamilyTreeNode';
-import { useFamilyTreeStore } from './FamilyTreeProvider';
-import { type Edge } from './store';
+import { type FamilyTreeNodeType } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
+import { useFamilyTreeStore } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
+import { type Edge } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/store';
 
 export type RelativeOption = { label: string; value: VariableValue };
 

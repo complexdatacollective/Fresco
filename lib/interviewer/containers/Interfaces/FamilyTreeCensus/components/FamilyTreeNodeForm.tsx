@@ -10,6 +10,18 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Form from '~/lib/form/components/Form';
 import { useProtocolFieldProcessor } from '~/lib/form/hooks/useProtocolFieldProcessor';
+import { type FamilyTreeNodeType } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
+import { useFamilyTreeStore } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
+import {
+  type NodeIsEgo,
+  type RelationshipToEgo,
+} from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/store';
+import {
+  getNodeIsEgoVariable,
+  getRelationshipToEgoVariable,
+  getSexVariable,
+  normalizeRelationshipToEgoLabel,
+} from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/nodeUtils';
 import Overlay from '~/lib/interviewer/containers/Overlay';
 import {
   addNode as addNetworkNode,
@@ -18,14 +30,6 @@ import {
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { Button, Scroller } from '~/lib/ui/components';
-import { useFamilyTreeStore } from '../FamilyTreeProvider';
-import {
-  getNodeIsEgoVariable,
-  getRelationshipToEgoVariable,
-  getSexVariable,
-  normalizeRelationshipToEgoLabel,
-} from '../utils/nodeUtils';
-import { type FamilyTreeNodeType } from './FamilyTreeNode';
 
 type FamilyTreeNodeFormProps = {
   nodeType: string;
@@ -65,13 +69,14 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
           attributes[sexVariable] = node.sex;
         }
         if (nodeIsEgoVariable != null) {
-          attributes[nodeIsEgoVariable] = node.isEgo ?? false;
+          attributes[nodeIsEgoVariable] = (node.isEgo ?? false) as NodeIsEgo;
         }
         if (relationshipToEgoVariable != null && node.label != null) {
-          attributes[relationshipToEgoVariable] = node.isEgo
-            ? 'ego'
-            : normalizeRelationshipToEgoLabel(node.label);
+          attributes[relationshipToEgoVariable] = (
+            node.isEgo ? 'ego' : normalizeRelationshipToEgoLabel(node.label)
+          ) as RelationshipToEgo;
         }
+
         // set default disease values
         diseaseVars.forEach((disease) => {
           attributes[disease] = false;

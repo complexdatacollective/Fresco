@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Form from '~/lib/form/components/Form';
+import { useFamilyTreeStore } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
 import { useDynamicFields } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useDynamicFields';
 import { useRelatives } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useRelatives';
 import Overlay from '~/lib/interviewer/containers/Overlay';
@@ -12,7 +13,6 @@ import {
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
-import { useFamilyTreeStore } from '../FamilyTreeProvider';
 
 const AddFamilyMemberForm = () => {
   const subject = useSelector(getStageSubject)!;

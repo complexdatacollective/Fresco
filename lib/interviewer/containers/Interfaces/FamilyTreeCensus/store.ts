@@ -2,16 +2,54 @@ import { invariant } from 'es-toolkit';
 import { enableMapSet } from 'immer';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import { type FamilyTreeNodeType } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
+import { layoutFamilyTree } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/layoutFamilyTree';
 import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
 import type { AppDispatch } from '~/lib/interviewer/store';
-import { type FamilyTreeNodeType } from './components/FamilyTreeNode';
-import { layoutFamilyTree } from './layoutFamilyTree';
 
 enableMapSet();
 
 export type Sex = 'male' | 'female';
 
+export type NodeIsEgo = true | false;
+
 export type Relationship = 'parent' | 'partner' | 'ex-partner';
+
+export type RelationshipToEgo =
+  | 'maternal-grandmother'
+  | 'maternal-grandfather'
+  | 'paternal-grandmother'
+  | 'paternal-grandfather'
+  | 'maternal-aunt'
+  | 'maternal-uncle'
+  | 'maternal-aunts-partner'
+  | 'maternal-uncles-partner'
+  | 'paternal-aunt'
+  | 'paternal-uncle'
+  | 'paternal-aunts-partner'
+  | 'paternal-uncles-partner'
+  | 'fathers-ex-partner'
+  | 'mothers-ex-partner'
+  | 'mother'
+  | 'father'
+  | 'ego'
+  | 'sister'
+  | 'brother'
+  | 'sisters-partner'
+  | 'brothers-partner'
+  | 'half-sister'
+  | 'half-brother'
+  | 'your-partner'
+  | 'paternal-first-cousin'
+  | 'maternal-first-cousin'
+  | 'niece'
+  | 'nephew'
+  | 'daughter'
+  | 'son'
+  | 'daughters-partner'
+  | 'sons-partner'
+  | 'granddaughter'
+  | 'grandson';
 
 export type Edge = {
   id?: string;

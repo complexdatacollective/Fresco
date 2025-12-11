@@ -2,6 +2,8 @@ import { type VariableType } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
 import { useEffect, useMemo, useState } from 'react';
 import RadioGroup from '~/lib/form/components/fields/RadioGroup';
+import { type FamilyTreeNodeType } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
+import { useFamilyTreeStore } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
 import { type RelativeOption } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useRelatives';
 import {
   buildBaseOptions,
@@ -9,8 +11,6 @@ import {
   getRelationFlags,
   type RadioGroupConfig,
 } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/dynamicFieldsUtils';
-import { type FamilyTreeNodeType } from './components/FamilyTreeNode';
-import { useFamilyTreeStore } from './FamilyTreeProvider';
 
 export type FieldConfig<Props = Record<string, unknown>> = {
   fieldLabel: string;
