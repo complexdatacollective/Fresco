@@ -11,10 +11,10 @@
     "styles/tailwind-motion-spring.ts",
     "tests/e2e/scripts/analyze-test-isolation.ts"
   ],
+  "ignoreDependencies": ["sharp", "esbuild", "sass-embedded"],
   "ignoreExportsUsedInFile": {
     "type": true
   },
-  "ignoreDependencies": ["sharp", "esbuild"],
   "ignoreBinaries": ["docker-compose"],
   "playwright": {
     "config": "tests/e2e/playwright.config.ts",

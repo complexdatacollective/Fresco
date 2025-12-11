@@ -1,19 +1,19 @@
-import cx from 'classnames';
 import { isEqual } from 'es-toolkit';
+import { SearchIcon } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { memo, useEffect, useId, useMemo } from 'react';
 import { useDndStore, type DndStore } from '~/lib/dnd';
-import Search from '~/lib/ui/components/Fields/Search';
+import { InputField } from '~/lib/form/components/fields/InputField';
 import { getCSSVariableAsNumber } from '~/lib/ui/utils/CSSVariables';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import Loading from '../components/Loading';
 import Panel from '../components/Panel';
 import useSearch from '../hooks/useSearch';
 import useSort from '../hooks/useSort';
+import DropOverlay from '../Interfaces/NameGeneratorRoster/DropOverlay';
+import { type UseItemElement } from '../Interfaces/NameGeneratorRoster/useItems';
 import { type Direction } from '../utils/createSorter';
 import HyperList from './HyperList';
-import DropOverlay from './Interfaces/NameGeneratorRoster/DropOverlay';
-import { type UseItemElement } from './Interfaces/NameGeneratorRoster/useItems';
 
 const SortButton = ({
   color,
@@ -33,7 +33,7 @@ const SortButton = ({
     {...rest}
     tabIndex={0}
     disabled={disabled}
-    className={cn(
+    className={cx(
       'filter-button',
       isActive && 'filter-button--active',
       disabled && 'pointer-events-none cursor-not-allowed opacity-50',
@@ -146,11 +146,6 @@ const SearchableList = memo(
       }
       return sortedResults.filter((item) => !excludeItems.includes(item.id));
     }, [sortedResults, excludeItems]);
-
-    const handleChangeSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const value = event.target.value;
-      setQuery(value);
-    };
 
     const mode = items.length > 100 ? modes.LARGE : modes.SMALL;
 
@@ -284,13 +279,15 @@ const SearchableList = memo(
             )}
           </div>
           <div className="searchable-list__search">
-            <Search
-              placeholder="Enter a search term..."
-              input={{
-                name: 'search',
-                value: query,
-                onChange: handleChangeSearch,
+            <InputField
+              prefixComponent={<SearchIcon />}
+              type="search"
+              name="search"
+              value={query}
+              onChange={(value) => {
+                setQuery(value);
               }}
+              placeholder="Enter a search term..."
             />
           </div>
         </Panel>

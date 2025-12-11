@@ -1,5 +1,8 @@
+@use '../global/core/animation';
+@use '../global/core/helpers';
+
 .expandable {
-  @include transition-properties(
+  @include animation.transition-properties(
     max-height,
     ease,
     var(--animation-duration-standard)

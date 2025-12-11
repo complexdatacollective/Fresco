@@ -3,10 +3,11 @@ import type { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 import { useState } from 'react';
 import ParticipantModal from '~/app/dashboard/participants/_components/ParticipantModal';
-import { Button } from '~/components/ui/Button';
+import { IconButton } from '~/components/ui/Button';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
@@ -41,20 +42,25 @@ export const ActionsDropdown = ({
         setEditingParticipant={setSelectedParticipant}
       />
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger
+          render={
+            <IconButton
+              variant="text"
+              aria-label="Open menu"
+              icon={<MoreHorizontal />}
+            />
+          }
+        />
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => editParticipant(row.original)}>
-            Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => deleteHandler(row.original)}>
-            Delete
-          </DropdownMenuItem>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => editParticipant(row.original)}>
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => deleteHandler(row.original)}>
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

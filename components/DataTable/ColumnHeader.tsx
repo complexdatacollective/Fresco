@@ -1,14 +1,17 @@
 import { type Column } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 
-import { Button, buttonVariants } from '~/components/ui/Button';
+import { motion } from 'motion/react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
+import Button, { buttonVariants } from '../ui/Button';
+
+const MotionArrow = motion.create(ArrowUp);
 
 type DataTableColumnHeaderProps<TData, TValue> = {
   column: Column<TData, TValue>;
@@ -20,52 +23,58 @@ export function DataTableColumnHeader<TData, TValue>({
   title,
   className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
+  const headerClasses = cx(
+    buttonVariants({ variant: 'text' }),
+    'pointer-events-none',
+    '-mx-6!', // Adjust for padding in Button
+    className,
+  );
+
   if (!column.getCanSort()) {
-    return (
-      <div
-        className={cn(
-          buttonVariants({ size: 'sm', variant: 'tableHeader' }),
-          'pointer-events-none p-0',
-          className,
-        )}
-      >
-        {title}
-      </div>
-    );
+    return <div className={headerClasses}>{title}</div>;
   }
 
   return (
-    <div className={cn('flex items-center', className)}>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="tableHeader" size="sm" className="p-0">
-            <span>{title}</span>
-            {column.getIsSorted() === 'desc' ? (
-              <ArrowDown className="text-success ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === 'asc' ? (
-              <ArrowUp className="text-success ml-2 h-4 w-4" />
-            ) : (
-              <ArrowUpDown className="w-4t ml-2 h-4" />
-            )}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
-          <DropdownMenuItem
-            aria-label="Sort ascending"
-            onClick={() => column.toggleSorting(false)}
-          >
-            <ArrowUp className="text-foreground/70 mr-2 h-3.5 w-3.5" />
-            Asc
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            aria-label="Sort descending"
-            onClick={() => column.toggleSorting(true)}
-          >
-            <ArrowDown className="text-foreground/70 mr-2 h-3.5 w-3.5" />
-            Desc
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="text"
+            iconPosition="right"
+            className="-mx-6!" // Adjust for padding in Button
+            icon={
+              column.getIsSorted() !== false ? (
+                <MotionArrow
+                  className="text-success h-4 w-4"
+                  animate={
+                    column.getIsSorted() === 'asc' ? { rotate: 180 } : {}
+                  }
+                />
+              ) : (
+                <ArrowUpDown className="h-4 w-4" />
+              )
+            }
+          />
+        }
+      >
+        <div className={cx(headerClasses, 'cursor-pointer')}>{title}</div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
+        <DropdownMenuItem
+          aria-label="Sort ascending"
+          onClick={() => column.toggleSorting(false)}
+        >
+          <ArrowUp className="text-background/70 mr-2" />
+          Asc
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          aria-label="Sort descending"
+          onClick={() => column.toggleSorting(true)}
+        >
+          <ArrowDown className="text-accent mr-2" />
+          Desc
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

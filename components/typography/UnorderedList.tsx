@@ -1,4 +1,4 @@
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
 export default function UnorderedList({
   children,
@@ -8,7 +8,12 @@ export default function UnorderedList({
   className?: string;
 }) {
   return (
-    <ul className={cn('my-2 ml-8 list-disc [&>li]:mt-1', className)}>
+    <ul
+      className={cx(
+        'ml-8 list-disc not-last:mb-4 [&>li]:not-last:mb-2 [li>&]:mb-0',
+        className,
+      )}
+    >
       {children}
     </ul>
   );

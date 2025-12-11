@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
-import Section from '~/components/layout/Section';
 import Heading from '~/components/typography/Heading';
 import PageHeader from '~/components/typography/PageHeader';
 import Paragraph from '~/components/typography/Paragraph';
@@ -24,31 +23,29 @@ export default async function Home({
 
   return (
     <>
-      <ResponsiveContainer>
-        <PageHeader
-          headerText="Dashboard"
-          subHeaderText="Welcome to Fresco! This page provides an overview of your recent activity and key metrics."
-        />
-        <Suspense fallback={null}>
-          <AnonymousRecruitmentWarning />
-        </Suspense>
-        <Suspense fallback={null}>
-          <UpdateUploadThingTokenAlert />
-        </Suspense>
-      </ResponsiveContainer>
+      <PageHeader
+        headerText="Dashboard"
+        subHeaderText="Welcome to Fresco! This page provides an overview of your recent activity and key metrics."
+      />
+
+      <Suspense fallback={null}>
+        <AnonymousRecruitmentWarning />
+      </Suspense>
+      <Suspense fallback={null}>
+        <UpdateUploadThingTokenAlert />
+      </Suspense>
+
       <SummaryStatistics />
 
-      <ResponsiveContainer>
-        <Heading variant="h2">Recent Activity</Heading>
+      <ResponsiveContainer maxWidth="3xl">
+        <Heading level="h2">Recent Activity</Heading>
         <Paragraph>
           This table summarizes the most recent activity within Fresco. Use it
           to keep track of new protocols, interviews, and participants.
         </Paragraph>
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="6xl">
-        <Section>
-          <ActivityFeed />
-        </Section>
+        <ActivityFeed />
       </ResponsiveContainer>
     </>
   );

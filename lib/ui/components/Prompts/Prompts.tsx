@@ -2,7 +2,7 @@ import { type Prompt as TPrompt } from '@codaco/protocol-validation';
 import { findIndex } from 'es-toolkit/compat';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useRef } from 'react';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import Pips from './Pips';
 import Prompt from './Prompt';
 
@@ -45,7 +45,7 @@ const Prompts = ({
 
   return (
     <motion.div
-      className={cn('prompts text-balance', className)}
+      className={cx('prompts text-balance', className)}
       variants={variants}
     >
       {prompts.length > 1 ? (

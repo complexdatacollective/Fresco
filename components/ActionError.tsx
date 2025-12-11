@@ -1,5 +1,4 @@
-import { AlertCircle } from 'lucide-react';
-import { Alert, AlertTitle, AlertDescription } from '~/components/ui/Alert';
+import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 
 const ActionError = ({
   errorTitle,
@@ -9,8 +8,7 @@ const ActionError = ({
   errorDescription: string;
 }) => {
   return (
-    <Alert variant="destructive" className="bg-white">
-      <AlertCircle className="h-4 w-4" />
+    <Alert variant="destructive">
       <AlertTitle>{errorTitle} </AlertTitle>
       <AlertDescription>{errorDescription}</AlertDescription>
     </Alert>

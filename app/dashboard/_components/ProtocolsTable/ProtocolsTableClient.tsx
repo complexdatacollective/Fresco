@@ -2,9 +2,9 @@
 
 import { use, useState } from 'react';
 import { SuperJSON } from 'superjson';
-import { DeleteProtocolsDialog } from '~/app/dashboard/protocols/_components/DeleteProtocolsDialog';
 import { DataTable } from '~/components/DataTable/DataTable';
 import type { GetProtocolsQuery } from '~/queries/protocols';
+import { DeleteProtocolsDialog } from '../../protocols/_components/DeleteProtocolsDialog';
 import ProtocolUploader from '../ProtocolUploader';
 import { ActionsDropdown } from './ActionsDropdown';
 import { getProtocolColumns } from './Columns';

@@ -1,3 +1,5 @@
+@use '../../global/core/helpers';
+
 .session-card {
   background-color: var(--color-platinum);
   border-radius: var(--nc-border-radius);
@@ -11,7 +13,7 @@
   position: relative;
 
   &--clickable {
-    @include clickable(2);
+    @include helpers.clickable(2);
   }
 
   &--selected {
@@ -29,7 +31,7 @@
 
   .meta-wrapper {
     display: flex;
-    padding: 0 unit(4);
+    padding: 0 2.4rem;
     background: var(--color-platinum--dark);
     align-items: center;
     justify-content: space-between;
@@ -56,9 +58,9 @@
       }
 
       img {
-        width: unit(2);
-        height: unit(2);
-        margin-right: unit(1);
+        width: 1.2rem;
+        height: 1.2rem;
+        margin-right: 0.6rem;
       }
     }
 
@@ -73,7 +75,7 @@
         letter-spacing: 0.15em;
         font-size: 0.6rem;
         font-weight: 700;
-        margin-right: unit(1);
+        margin-right: 0.6rem;
       }
 
       .progress-bar {
@@ -95,7 +97,7 @@
 
   .main-wrapper {
     flex: 1 0 auto;
-    padding: 0 unit(4);
+    padding: 0 2.4rem;
     display: flex;
     flex-direction: column;
     justify-content: center;

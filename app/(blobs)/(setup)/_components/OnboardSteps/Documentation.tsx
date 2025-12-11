@@ -2,10 +2,10 @@ import { createId } from '@paralleldrive/cuid2';
 import { FileText } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { setAppSetting } from '~/actions/appSettings';
-import Section from '~/components/layout/Section';
+import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
-import { Button } from '~/components/ui/Button';
+import { IconButton } from '~/components/ui/Button';
 import SubmitButton from '~/components/ui/SubmitButton';
 import trackEvent from '~/lib/analytics';
 import { getInstallationId } from '~/queries/appSettings';
@@ -30,7 +30,7 @@ function Documentation() {
   return (
     <div className="max-w-[30rem]">
       <div className="mb-4">
-        <Heading variant="h2">Documentation</Heading>
+        <Heading level="h2">Documentation</Heading>
         <Paragraph>
           This is the end of the onboarding process. You are now ready to use
           Fresco! For further help and information, consider using the resources
@@ -38,9 +38,9 @@ function Documentation() {
         </Paragraph>
       </div>
       <div className="flex flex-col gap-2">
-        <Section classNames="flex gap-10">
+        <Surface className="flex gap-10">
           <div className="flex-1">
-            <Heading variant="h4-all-caps" className="mb-2">
+            <Heading level="h4" variant="all-caps" className="mb-2">
               About Fresco
             </Heading>
             Visit our documentation site to learn more about Fresco.
@@ -50,15 +50,17 @@ function Documentation() {
               href="https://documentation.networkcanvas.com/en/fresco"
               target="_blank"
             >
-              <Button variant="outline" size="icon">
-                <FileText />
-              </Button>
+              <IconButton
+                variant="outline"
+                aria-label="View Fresco documentation"
+                icon={<FileText />}
+              />
             </a>
           </div>
-        </Section>
-        <Section classNames="flex gap-10">
+        </Surface>
+        <Surface className="flex gap-10">
           <div className="flex-1">
-            <Heading variant="h4-all-caps" className="mb-2">
+            <Heading level="h4" variant="all-caps" className="mb-2">
               Using Fresco
             </Heading>
             Read our guide on the basic workflow for using Fresco to conduct
@@ -69,12 +71,14 @@ function Documentation() {
               href="https://documentation.networkcanvas.com/en/fresco/using-fresco"
               target="_blank"
             >
-              <Button variant="outline" size="icon">
-                <FileText />
-              </Button>
+              <IconButton
+                variant="outline"
+                aria-label="View Using Fresco guide"
+                icon={<FileText />}
+              />
             </a>
           </div>
-        </Section>
+        </Surface>
       </div>
 
       <div className="flex justify-end pt-12">

@@ -2,8 +2,6 @@
 
 import { Provider } from 'react-redux';
 import SuperJSON from 'superjson';
-import { DndStoreProvider } from '~/lib/dnd';
-import DialogManager from '~/lib/interviewer/components/DialogManager';
 import ProtocolScreen from '~/lib/interviewer/containers/ProtocolScreen';
 import { store } from '~/lib/interviewer/store';
 import { type GetInterviewByIdQuery } from '~/queries/interviews';

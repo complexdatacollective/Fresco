@@ -12,7 +12,7 @@ import { ActionsDropdown } from '~/app/dashboard/_components/ParticipantsTable/A
 import { getParticipantColumns } from '~/app/dashboard/_components/ParticipantsTable/Columns';
 import { DeleteParticipantsDialog } from '~/app/dashboard/participants/_components/DeleteParticipantsDialog';
 import { DataTable } from '~/components/DataTable/DataTable';
-import { Button } from '~/components/ui/Button';
+import { DialogTrigger } from '~/lib/dialogs/DialogTrigger';
 import type {
   GetParticipantsQuery,
   GetParticipantsReturnType,
@@ -125,10 +125,28 @@ export const ParticipantsTableClient = ({
                 protocols={protocols}
               />
             </div>
-            <Button variant="destructive" onClick={handleDeleteAll}>
-              <Trash className="mr-2 inline-block h-4 w-4" />
+            <DialogTrigger
+              color="destructive"
+              icon={<Trash />}
+              dialog={{
+                type: 'choice',
+                intent: 'destructive',
+                title: 'Delete All Participants?',
+                description:
+                  'Are you sure you want to delete all participants? This action cannot be undone.',
+                actions: {
+                  primary: { label: 'Delete All', value: true },
+                  cancel: { label: 'Cancel', value: false },
+                },
+              }}
+              onResult={(result) => {
+                if (result) {
+                  handleDeleteAll();
+                }
+              }}
+            >
               Delete All
-            </Button>
+            </DialogTrigger>
           </>
         }
       />

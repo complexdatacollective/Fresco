@@ -12,7 +12,7 @@ import {
   type DndStore,
 } from '~/lib/dnd';
 import { type DropCallback } from '~/lib/dnd/types';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import { getCurrentStageId } from '../selectors/session';
 import { MotionNode } from './Node';
 
@@ -30,9 +30,10 @@ const DraggableMotionNode = memo(
     node,
     itemType,
     allowDrag,
+    onClick,
     nodeSize,
     ...nodeProps
-  }: DraggableMotionNodeProps) => {
+  }: DraggableMotionNodeProps & { onClick?: () => void }) => {
     const { dragProps } = useDragSource({
       type: 'node',
       metadata: { ...node, itemType },
@@ -134,12 +135,12 @@ const NodeList = memo(
     const isValidTarget = !isSource && willAccept;
     const isHovering = isValidTarget && isOver;
 
-    const classNames = cn(
-      'flex flex-wrap justify-center grow shrink-0 transition-background duration-300 content-start rounded-md gap-6 basis-full overflow-y-auto',
+    const classNames = cx(
+      'flex flex-wrap justify-center grow shrink-0 transition-colors duration-300 content-start rounded gap-6 basis-full overflow-y-auto',
       // Fix: Empty NodeLists need minimum dimensions for proper drop zone bounds
       items.length === 0 && 'min-h-[800px] min-w-[300px]',
-      willAccept && 'bg-[var(--nc-node-list-action-bg)]',
-      isHovering && (hoverColor ? `bg-[var(${hoverColor})]` : 'bg-accent'),
+      willAccept && 'bg-(--nc-node-list-action-bg)',
+      isHovering && 'bg-accent',
       className,
     );
 

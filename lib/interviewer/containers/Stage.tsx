@@ -1,7 +1,7 @@
 import type { Stage as TStage } from '@codaco/protocol-validation';
 import { type ElementType, memo } from 'react';
 import StageErrorBoundary from '../components/StageErrorBoundary';
-import getInterface from './Interfaces';
+import getInterface from '../Interfaces';
 import type { BeforeNextFunction } from './ProtocolScreen';
 
 export type StageProps = {
@@ -20,7 +20,7 @@ function Stage(props: StageProps) {
 
   return (
     <div
-      className="relative flex h-full w-full flex-grow-1 basis-full overflow-hidden"
+      className="relative flex h-full w-full grow basis-full overflow-hidden"
       id="stage"
       key={stage.id}
     >
