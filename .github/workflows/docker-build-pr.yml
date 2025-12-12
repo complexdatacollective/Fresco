@@ -4,7 +4,7 @@ on:
   pull_request:
     branches:
       - main
-      - develop
+      - 'v*'
     # Only build when relevant files change
     paths:
       - 'Dockerfile'
