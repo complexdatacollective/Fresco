@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from './lib/db/generated/client.js';
+import { PrismaClient } from './lib/db/generated/client.ts';
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
