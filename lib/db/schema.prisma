@@ -3,7 +3,7 @@
 
 generator client {
   provider      = "prisma-client"
-  output        = "../lib/db/generated/prisma"
+  output        = "./generated-client"
   binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
 }
 

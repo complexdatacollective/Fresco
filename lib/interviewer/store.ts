@@ -1,4 +1,4 @@
-import type { Protocol } from '~/lib/db/generated/prisma/client';
+import type { Protocol } from '~/lib/db/generated-client/client';
 import { configureStore } from '@reduxjs/toolkit';
 import { reducer as form } from 'redux-form';
 import thunk from 'redux-thunk';

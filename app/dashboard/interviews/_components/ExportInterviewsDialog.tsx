@@ -1,4 +1,4 @@
-import type { Interview } from '~/lib/db/generated/prisma/client';
+import type { Interview } from '~/lib/db/generated-client/client';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { FileWarning, Loader2, XCircle } from 'lucide-react';
 import { useState } from 'react';

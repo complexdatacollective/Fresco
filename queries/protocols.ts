@@ -1,7 +1,7 @@
 'use server';
 
 import { createCachedFunction } from '~/lib/cache';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db/client';
 
 export const getProtocols = createCachedFunction(async () => {
   const protocols = await prisma.protocol.findMany({

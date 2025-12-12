@@ -1,4 +1,4 @@
-import { type Prisma } from '~/lib/db/generated/prisma/client';
+import { type Prisma } from '~/lib/db/generated-client/client';
 
 export type ProtocolWithInterviews = Prisma.ProtocolGetPayload<{
   include: { interviews: true };

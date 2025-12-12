@@ -1,6 +1,6 @@
 import 'server-only';
 import { createCachedFunction } from '~/lib/cache';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db/client';
 
 export const getInterviews = createCachedFunction(async () => {
   const interviews = await prisma.interview.findMany({

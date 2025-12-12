@@ -12,5 +12,5 @@ type PrismaConfigWithMigrations = PrismaConfig & {
 };
 
 export default defineConfig({
-  schema: path.join(import.meta.dirname, 'prisma', 'schema.prisma'),
+  schema: path.join(import.meta.dirname, 'lib', 'db', 'schema.prisma'),
 }) satisfies PrismaConfigWithMigrations;

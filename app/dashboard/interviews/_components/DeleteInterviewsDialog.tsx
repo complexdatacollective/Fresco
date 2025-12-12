@@ -1,4 +1,4 @@
-import type { Interview } from '~/lib/db/generated/prisma/client';
+import type { Interview } from '~/lib/db/generated-client/client';
 import { AlertCircle, Loader2, Trash2 } from 'lucide-react';
 import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 import { deleteInterviews } from '~/actions/interviews';

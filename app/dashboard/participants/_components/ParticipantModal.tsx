@@ -1,7 +1,7 @@
 'use client';
 
 import { createId } from '@paralleldrive/cuid2';
-import type { Participant } from '~/lib/db/generated/prisma/client';
+import type { Participant } from '~/lib/db/generated-client/client';
 import { HelpCircle, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';

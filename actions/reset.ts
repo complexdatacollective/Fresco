@@ -5,7 +5,7 @@ import { env } from 'process';
 import { safeRevalidateTag } from '~/lib/cache';
 import { getUTApi } from '~/lib/uploadthing-server-helpers';
 import { requireApiAuth } from '~/utils/auth';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db/client';
 
 export const resetAppSettings = async () => {
   if (env.NODE_ENV !== 'development') {

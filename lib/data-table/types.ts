@@ -1,4 +1,4 @@
-import { type Prisma } from '~/lib/db/generated/prisma/client';
+import { type Prisma } from '~/lib/db/generated-client/client';
 import * as z from 'zod';
 
 export type Option = {

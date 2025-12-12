@@ -14,7 +14,7 @@
 /prisma/db.sqlite-journal
 
 # prisma generated client
-/lib/db/generated/prisma
+/lib/db/generated-client
 
 # next.js
 /.next/

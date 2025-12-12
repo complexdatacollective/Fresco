@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createUserFormDataSchema, loginSchema } from '~/schemas/auth';
 import { auth, getServerSession } from '~/utils/auth';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db/client';
 
 export async function signup(formData: unknown) {
   const parsedFormData = createUserFormDataSchema.safeParse(formData);
