@@ -1,0 +1,89 @@
+name: Build Docker Image (PR)
+
+on:
+  # Allow other workflows to call this one
+  workflow_call:
+    outputs:
+      artifact-name:
+        description: 'Name of the uploaded Docker image artifact'
+        value: ${{ jobs.build.outputs.artifact-name }}
+      image-name:
+        description: 'Name to use when loading the image'
+        value: ${{ jobs.build.outputs.image-name }}
+
+  # Also run directly on PRs
+  pull_request:
+    branches:
+      - main
+      - 'v*'
+    # Only build when relevant files change
+    paths:
+      - 'Dockerfile'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'prisma/**'
+      - 'app/**'
+      - 'components/**'
+      - 'lib/**'
+      - 'actions/**'
+      - 'hooks/**'
+      - 'utils/**'
+      - 'schemas/**'
+      - 'types/**'
+      - 'public/**'
+      - 'styles/**'
+      - 'next.config.js'
+      - 'tailwind.config.ts'
+      - 'postcss.config.js'
+      - 'tsconfig.json'
+      - '.github/workflows/docker-build-pr.yml'
+      - 'postinstall.js'
+      - 'migrate-and-start.sh'
+      - 'setup-database.js'
+      - 'initialize.js'
+
+permissions:
+  contents: read
+
+env:
+  IMAGE_NAME: fresco-pr
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    outputs:
+      artifact-name: ${{ steps.artifact-info.outputs.name }}
+      image-name: ${{ env.IMAGE_NAME }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Generate artifact name
+        id: artifact-info
+        run: |
+          # Use run_id for unique artifact names (works for both PR and workflow_call)
+          echo "name=docker-image-${{ github.run_id }}" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          push: false
+          tags: ${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          outputs: type=docker,dest=/tmp/image.tar
+
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.artifact-info.outputs.name }}
+          path: /tmp/image.tar
+          retention-days: 7
+          compression-level: 1  # Minimal compression for faster upload/download
