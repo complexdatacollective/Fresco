@@ -1,7 +1,7 @@
 'use server';
 
 import { createId } from '@paralleldrive/cuid2';
-import { Prisma, type Interview, type Protocol } from '~/lib/db/generated-client/client';
+import { Prisma, type Interview, type Protocol } from '~/lib/db/generated/client';
 import { cookies } from 'next/headers';
 import trackEvent from '~/lib/analytics';
 import { safeRevalidateTag } from '~/lib/cache';
@@ -26,7 +26,7 @@ import type {
 } from '~/schemas/interviews';
 import { type NcNetwork } from '~/schemas/network-canvas';
 import { requireApiAuth } from '~/utils/auth';
-import { prisma } from '~/lib/db/client';
+import { prisma } from '~/lib/db';
 import { ensureError } from '~/utils/ensureError';
 import { addEvent } from './activityFeed';
 import { uploadZipToUploadThing } from './uploadThing';

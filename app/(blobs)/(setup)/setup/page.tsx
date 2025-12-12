@@ -6,7 +6,7 @@ import {
   requireAppNotExpired,
 } from '~/queries/appSettings';
 import { getServerSession } from '~/utils/auth';
-import { prisma } from '~/lib/db/client';
+import { prisma } from '~/lib/db';
 import Setup from './Setup';
 
 async function getSetupData() {

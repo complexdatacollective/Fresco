@@ -1,6 +1,6 @@
 'use client';
 
-import type { Interview } from '~/lib/db/generated-client/client';
+import type { Interview } from '~/lib/db/generated/client';
 import type { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';

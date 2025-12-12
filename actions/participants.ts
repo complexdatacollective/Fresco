@@ -8,7 +8,7 @@ import {
   updateSchema,
 } from '~/schemas/participant';
 import { requireApiAuth } from '~/utils/auth';
-import { prisma } from '~/lib/db/client';
+import { prisma } from '~/lib/db';
 
 export async function deleteParticipants(participantIds: string[]) {
   await requireApiAuth();

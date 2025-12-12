@@ -1,6 +1,6 @@
 import 'server-only';
 import { createCachedFunction } from '~/lib/cache';
-import { prisma } from '~/lib/db/client';
+import { prisma } from '~/lib/db';
 
 export const getSummaryStatistics = createCachedFunction(async () => {
   const counts = await prisma.$transaction([

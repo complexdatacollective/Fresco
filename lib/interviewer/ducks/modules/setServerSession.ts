@@ -1,4 +1,4 @@
-import { type Protocol, type Prisma } from '~/lib/db/generated-client/client';
+import { type Protocol, type Prisma } from '~/lib/db/generated/client';
 // import type { Protocol } from '@codaco/shared-consts';
 // import type { ServerSession } from '~/app/(interview)/interview/[interviewId]/page';
 

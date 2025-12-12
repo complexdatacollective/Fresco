@@ -1,6 +1,6 @@
 import 'server-only';
 import { createCachedFunction } from '~/lib/cache';
-import { prisma } from '~/lib/db/client';
+import { prisma } from '~/lib/db';
 
 export const getParticipants = createCachedFunction(async () => {
   const participants = await prisma.participant.findMany({

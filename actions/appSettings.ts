@@ -5,7 +5,7 @@ import { type z } from 'zod';
 import { safeRevalidateTag } from '~/lib/cache';
 import { type AppSetting, appSettingsSchema } from '~/schemas/appSettings';
 import { requireApiAuth } from '~/utils/auth';
-import { prisma } from '~/lib/db/client';
+import { prisma } from '~/lib/db';
 import { ensureError } from '~/utils/ensureError';
 
 // Convert string | boolean | Date to string

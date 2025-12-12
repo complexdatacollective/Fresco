@@ -11,7 +11,7 @@ import type { Row } from '@tanstack/react-table';
 import { useState } from 'react';
 import ParticipantModal from '~/app/dashboard/participants/_components/ParticipantModal';
 import type { ParticipantWithInterviews } from '~/types/types';
-import type { Participant } from '~/lib/db/generated-client/client';
+import type { Participant } from '~/lib/db/generated/client';
 
 export const ActionsDropdown = ({
   row,

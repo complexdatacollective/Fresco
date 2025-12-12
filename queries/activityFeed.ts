@@ -2,7 +2,7 @@ import { hash } from 'ohash';
 import 'server-only';
 import { createCachedFunction } from '~/lib/cache';
 import { type SearchParams } from '~/lib/data-table/types';
-import { prisma } from '~/lib/db/client';
+import { prisma } from '~/lib/db';
 
 export const getActivities = (rawSearchParams: unknown) =>
   createCachedFunction(

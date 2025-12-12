@@ -9,7 +9,7 @@ import {
   type Activity,
   activityTypes,
 } from '~/lib/data-table/types';
-import type { Events } from '~/lib/db/generated-client/client';
+import type { Events } from '~/lib/db/generated/client';
 import TimeAgo from '~/components/ui/TimeAgo';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { getBadgeColorsForActivityType } from './utils';

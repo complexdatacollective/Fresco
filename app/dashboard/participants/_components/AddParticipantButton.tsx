@@ -1,6 +1,6 @@
 import { Button } from '~/components/ui/Button';
 
-import { type Participant } from '~/lib/db/generated-client/client';
+import { type Participant } from '~/lib/db/generated/client';
 import { useState } from 'react';
 import ParticipantModal from '~/app/dashboard/participants/_components/ParticipantModal';
 import { Plus } from 'lucide-react';
