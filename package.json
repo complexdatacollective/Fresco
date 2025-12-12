@@ -141,7 +141,7 @@
     "knip": "^5.71.0",
     "prettier": "^3.6.0",
     "prettier-plugin-tailwindcss": "^0.7.1",
-    "prisma": "^6.18.0",
+    "prisma": "^7.1.0",
     "sass": "^1.94.2",
     "storybook": "^10.0.8",
     "tailwindcss": "4.1.17",
