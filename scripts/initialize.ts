@@ -2,7 +2,16 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { prisma } from '~/lib/db';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '~/lib/db/generated/client';
+
+// CLI scripts must use the PG adapter directly because the Neon serverless
+// adapter doesn't work in CLI/Node.js context (only in serverless runtimes)
+const adapter = new PrismaPg({
+  // eslint-disable-next-line no-process-env
+  connectionString: process.env.DATABASE_URL,
+});
+const prisma = new PrismaClient({ adapter });
 
 /**
  * We set the initializedAt key here, because this script is run when the
