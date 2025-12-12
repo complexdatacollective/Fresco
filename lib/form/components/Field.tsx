@@ -1,10 +1,7 @@
 'use client';
 
-import { motion } from 'motion/react';
 import { useField } from '../hooks/useField';
-import FieldErrors from './FieldErrors';
-import { FieldLabel } from './FieldLabel';
-import Hint from './Hint';
+import { BaseField } from './BaseField';
 import { type FieldValidation, type FieldValue } from './types';
 
 /**
@@ -42,7 +39,7 @@ type ExtractValue<C> =
       : never;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type FieldOwnProps<C extends React.ComponentType<any>> = {
+export type FieldOwnProps<C extends React.ComponentType<any>> = {
   name: string;
   label: string;
   hint?: string;
@@ -53,9 +50,15 @@ type FieldOwnProps<C extends React.ComponentType<any>> = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type FieldProps<C extends React.ComponentType<any>> = FieldOwnProps<C> &
+export type FieldProps<C extends React.ComponentType<any>> = FieldOwnProps<C> &
   Omit<ExtractProps<C>, keyof FieldComponentProps>;
 
+/**
+ * Field component that connects to form context via useField hook.
+ * Provides automatic state management, validation, and error display.
+ *
+ * For fields outside of form context, use UnconnectedField instead.
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function Field<C extends React.ComponentType<any>>({
   name,
@@ -75,14 +78,15 @@ export default function Field<C extends React.ComponentType<any>>({
   });
 
   return (
-    <motion.div
-      {...containerProps}
-      className="group w-full grow not-last-of-type:mb-6"
+    <BaseField
+      id={id}
+      label={label}
+      hint={hint}
+      required={required}
+      errors={meta.errors}
+      showErrors={meta.shouldShowError}
+      containerProps={containerProps}
     >
-      <FieldLabel id={`${id}-label`} htmlFor={id} required={required}>
-        {label}
-      </FieldLabel>
-      {hint && <Hint id={`${id}-hint`}>{hint}</Hint>}
       <Component
         id={id}
         name={name}
@@ -90,11 +94,6 @@ export default function Field<C extends React.ComponentType<any>>({
         {...(componentProps as any)}
         {...fieldProps}
       />
-      <FieldErrors
-        id={`${id}-error`}
-        errors={meta.errors}
-        show={meta.shouldShowError}
-      />
-    </motion.div>
+    </BaseField>
   );
 }

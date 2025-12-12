@@ -1,7 +1,8 @@
-import { type JSONContent } from '@tiptap/core';
+import { type nameGeneratorPromptSchema } from '@codaco/protocol-validation';
 import { GripVertical, PencilIcon, X } from 'lucide-react';
 import { motion } from 'motion/react';
 import { forwardRef, useEffect, useState } from 'react';
+import type z from 'zod';
 import { surfaceVariants } from '~/components/layout/Surface';
 import Button, { IconButton, MotionButton } from '~/components/ui/Button';
 import { Dialog } from '~/lib/dialogs/Dialog';
@@ -10,8 +11,6 @@ import Field from '../../Field';
 import Form from '../../Form';
 import SubmitButton from '../../SubmitButton';
 import { InputField } from '../InputField';
-import { RichTextEditorField } from '../RichTextEditor';
-import { RichTextRenderer } from '../RichTextRenderer';
 import {
   type ArrayFieldEditorProps,
   type ArrayFieldItemProps,
@@ -121,10 +120,7 @@ export function SimpleItem({
 // current architect prompt editing experience.
 
 // Simplified version of name generator prompt
-export type NameGeneratorPrompt = {
-  id: string;
-  text: JSONContent;
-};
+export type NameGeneratorPrompt = z.infer<typeof nameGeneratorPromptSchema>;
 
 /**
  * Item content renderer for rich text prompt items.
@@ -144,18 +140,14 @@ export function PromptItem({
     >
       {isSortable && (
         <motion.div
-          layout
           onPointerDown={(e) => dragControls.start(e)}
           className="touch-none"
         >
           <GripVertical className="h-4 w-4 cursor-grab" />
         </motion.div>
       )}
-      <motion.div layout className="flex-1">
-        <RichTextRenderer content={item.text} />
-      </motion.div>
+      <motion.div className="flex-1">{item.text}</motion.div>
       <motion.div
-        layout
         className="ml-auto flex items-center gap-1"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -202,7 +194,7 @@ export const PromptEditor = forwardRef<
       description="Update this prompt below"
       open={isEditing}
       closeDialog={onCancel}
-      layoutId={item?.id}
+      layoutId={isNewItem ? undefined : item?.id}
       footer={
         <>
           <MotionButton type="button" onClick={onCancel}>
@@ -223,8 +215,8 @@ export const PromptEditor = forwardRef<
           name="text"
           label="Prompt Text"
           hint="The prompt text instructs your participant about the task on this screen."
-          component={RichTextEditorField}
-          initialValue={item?.text ?? {}}
+          component={InputField}
+          initialValue={item?.text}
           required
         />
       </Form>

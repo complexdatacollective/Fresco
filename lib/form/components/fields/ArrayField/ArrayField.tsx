@@ -2,6 +2,7 @@ import { PlusIcon } from 'lucide-react';
 import {
   AnimatePresence,
   type DragControls,
+  LayoutGroup,
   motion,
   Reorder,
   useDragControls,
@@ -14,6 +15,10 @@ import {
 } from 'react';
 import { MotionButton } from '~/components/ui/Button';
 import useDialog from '~/lib/dialogs/useDialog';
+import {
+  useInternalIds,
+  type WithInternalId,
+} from '~/lib/form/hooks/useInternalIds';
 import { controlGroupVariants } from '~/styles/shared/controlVariants';
 import { compose, cva } from '~/utils/cva';
 
@@ -43,27 +48,23 @@ const itemAnimationProps = {
   exit: { opacity: 0, scale: 0.6 },
 };
 
-// Re-export DragControls for consumers implementing custom item content
+// Re-export for consumers
 export { type DragControls } from 'motion/react';
-
-// The base type for items in the array field. Must have an id.
-export type Item = {
-  id: string;
-} & Record<string, unknown>;
+export { type WithInternalId } from '~/lib/form/hooks/useInternalIds';
 
 /**
  * Props passed to the item content renderer component.
  * The component renders the CONTENT inside a Reorder.Item (not the Reorder.Item itself).
  */
-export type ArrayFieldItemProps<T extends Item = Item> = {
-  item: T;
+export type ArrayFieldItemProps<T extends object> = {
+  item: WithInternalId<T>;
   onDelete: () => void;
   onEdit: () => void;
   isSortable: boolean;
   dragControls: DragControls;
 };
 
-export type ArrayFieldEditorProps<T extends Item = Item> = {
+export type ArrayFieldEditorProps<T extends object> = {
   item: T | undefined;
   isEditing: boolean;
   isNewItem: boolean;
@@ -71,12 +72,7 @@ export type ArrayFieldEditorProps<T extends Item = Item> = {
   onCancel: () => void;
 };
 
-/**
- * Type for editor components.
- */
-type EditorComponent<P> = ComponentType<P>;
-
-export type ArrayFieldProps<T extends Item = Item> = {
+export type ArrayFieldProps<T extends object> = {
   id?: string;
   name?: string;
   value?: T[];
@@ -84,8 +80,23 @@ export type ArrayFieldProps<T extends Item = Item> = {
   sortable?: boolean;
 
   /**
+   * Optional function to extract an ID from an item.
+   * If the item has its own ID, return it. Otherwise return undefined.
+   * When undefined is returned, ArrayField generates and tracks an internal ID.
+   *
+   * @example
+   * // For items with an 'id' property
+   * getId={(item) => item.id}
+   *
+   * @example
+   * // For items without IDs (all get internal IDs)
+   * // Simply omit this prop
+   */
+  getId?: (item: T) => string | undefined;
+
+  /**
    * Component that renders the content inside each Reorder.Item.
-   * Receives item data, callbacks, and dragControls for implementing a drag handle.
+   * Receives item data (with _internalId), callbacks, and dragControls for implementing a drag handle.
    *
    * Note: ArrayField handles the Reorder.Item wrapper automatically.
    * This component only needs to render the item's visual content and styling.
@@ -96,12 +107,13 @@ export type ArrayFieldProps<T extends Item = Item> = {
    * Component used to edit an item in the array.
    * Accepts ArrayFieldEditorProps<T>.
    */
-  editorComponent: EditorComponent<ArrayFieldEditorProps<T>>;
+  editorComponent: ComponentType<ArrayFieldEditorProps<T>>;
 
   /**
    * Function that returns a new item template when adding a new item.
+   * Note: You don't need to include an 'id' property - ArrayField handles ID generation internally.
    */
-  itemTemplate: () => T;
+  itemTemplate: () => Partial<T>;
   addButtonLabel?: string;
   emptyStateMessage?: string;
   confirmDelete?: boolean;
@@ -110,14 +122,14 @@ export type ArrayFieldProps<T extends Item = Item> = {
 /**
  * Internal wrapper component for each item that provides drag controls.
  */
-function ArrayFieldItem<T extends Item>({
+function ArrayFieldItemWrapper<T extends object>({
   item,
   isSortable,
   onDelete,
   onEdit,
   ItemContent,
 }: {
-  item: T;
+  item: WithInternalId<T>;
   isSortable: boolean;
   onDelete: () => void;
   onEdit: () => void;
@@ -145,10 +157,11 @@ function ArrayFieldItem<T extends Item>({
   );
 }
 
-export function ArrayField<T extends Item = Item>({
+export function ArrayField<T extends object>({
   value = [],
   onChange,
   sortable = false,
+  getId,
   itemComponent: ItemContent,
   editorComponent: EditorComponent,
   itemTemplate,
@@ -157,112 +170,126 @@ export function ArrayField<T extends Item = Item>({
   confirmDelete = true,
 }: ArrayFieldProps<T>) {
   const { confirm } = useDialog();
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingInternalId, setEditingInternalId] = useState<string | null>(
+    null,
+  );
   const [draftItem, setDraftItem] = useState<T | null>(null);
-  const [isDraftEditing, setIsDraftEditing] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
 
+  const [items, setItems] = useInternalIds(value, onChange, { getId });
+
   const startAddingItem = useCallback(() => {
-    const newItem = itemTemplate();
-    setDraftItem(newItem);
-    setIsDraftEditing(true);
+    setDraftItem(itemTemplate() as T);
     setShowEditor(true);
   }, [itemTemplate]);
 
   const confirmDraft = useCallback(
     (confirmedItem: T) => {
-      if (draftItem) {
-        onChange([...value, { ...confirmedItem, id: draftItem.id }]);
-        setDraftItem(null);
-        setIsDraftEditing(false);
-        setShowEditor(false);
-      }
+      setItems([
+        ...items,
+        {
+          ...confirmedItem,
+          _internalId: crypto.randomUUID(),
+        } as WithInternalId<T>,
+      ]);
+      setDraftItem(null);
+      setShowEditor(false);
     },
-    [draftItem, onChange, value],
+    [items, setItems],
   );
 
   const updateItem = useCallback(
-    (id: string, updatedItem: T) => {
-      onChange(value.map((i) => (i.id === id ? { ...updatedItem, id } : i)));
-      setEditingId(null);
+    (internalId: string, updatedItem: T) => {
+      setItems(
+        items.map((item) =>
+          item._internalId === internalId
+            ? ({ ...updatedItem, _internalId: internalId } as WithInternalId<T>)
+            : item,
+        ),
+      );
+      setEditingInternalId(null);
       setShowEditor(false);
     },
-    [value, onChange],
+    [items, setItems],
   );
 
   const removeItem = useCallback(
-    (id: string) => {
-      setEditingId(null);
-      onChange(value.filter((i) => i.id !== id));
+    (internalId: string) => {
+      setEditingInternalId(null);
+      setItems(items.filter((item) => item._internalId !== internalId));
     },
-    [value, onChange],
+    [items, setItems],
   );
 
   const requestDelete = useCallback(
-    async (id: string) => {
+    async (internalId: string) => {
       if (confirmDelete) {
         await confirm({
           confirmLabel: 'Delete',
-          onConfirm: () => removeItem(id),
+          onConfirm: () => removeItem(internalId),
         });
       } else {
-        removeItem(id);
+        removeItem(internalId);
       }
     },
     [confirmDelete, confirm, removeItem],
   );
 
-  const handleReorder = useCallback(
-    (newOrder: T[]) => {
-      onChange(newOrder);
+  const findByInternalId = useCallback(
+    (internalId: string): T | undefined => {
+      const found = items.find((item) => item._internalId === internalId);
+      if (!found) return undefined;
+      // Strip _internalId for the editor - omit using destructuring
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { _internalId: _, ...rest } = found;
+      return rest as T;
     },
-    [onChange],
+    [items],
   );
 
   const isAddingNew = draftItem !== null;
-  const isEditing = editingId !== null || isDraftEditing;
+  const isEditing = editingInternalId !== null || isAddingNew;
 
   return (
     <div className="flex flex-col items-start gap-4">
       <Reorder.Group
-        layout
         axis="y"
-        values={value}
-        onReorder={handleReorder}
+        values={items}
+        onReorder={setItems}
         className={arrayFieldVariants({
-          isEmpty: value.length === 0 && !isAddingNew,
+          isEmpty: items.length === 0 && !isAddingNew,
         })}
       >
-        <AnimatePresence initial={false}>
-          {value.length === 0 && !isAddingNew && (
-            <motion.li
-              layout
-              key="no-items"
-              className="text-sm text-current/70"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1, transition: { delay: 0.3 } }}
-              exit={{ opacity: 0 }}
-            >
-              {emptyStateMessage}
-            </motion.li>
-          )}
-          {value.map((item) => (
-            <ArrayFieldItem
-              key={item.id}
-              item={item}
-              isSortable={sortable}
-              onDelete={() => requestDelete(item.id)}
-              onEdit={() => {
-                setEditingId(item.id);
-                setShowEditor(true);
-              }}
-              ItemContent={ItemContent}
-            />
-          ))}
-        </AnimatePresence>
+        <LayoutGroup id="array-field-items">
+          <AnimatePresence initial={false}>
+            {items.length === 0 && (
+              <motion.li
+                key="no-items"
+                className="text-sm text-current/70"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, transition: { delay: 0.3 } }}
+                exit={{ opacity: 0 }}
+              >
+                {emptyStateMessage}
+              </motion.li>
+            )}
+            {items.map((item) => (
+              <ArrayFieldItemWrapper
+                key={item._internalId}
+                item={item}
+                isSortable={sortable}
+                onDelete={() => requestDelete(item._internalId)}
+                onEdit={() => {
+                  setEditingInternalId(item._internalId);
+                  setShowEditor(true);
+                }}
+                ItemContent={ItemContent}
+              />
+            ))}
+          </AnimatePresence>
+        </LayoutGroup>
       </Reorder.Group>
       <MotionButton
-        layout
         key="add-button"
         size="sm"
         onClick={startAddingItem}
@@ -272,21 +299,20 @@ export function ArrayField<T extends Item = Item>({
         {addButtonLabel}
       </MotionButton>
       <EditorComponent
-        item={draftItem ?? value.find((i) => i.id === editingId)}
+        item={draftItem ?? findByInternalId(editingInternalId ?? '')}
         isEditing={showEditor}
         isNewItem={isAddingNew}
         onChange={(updatedItem: T) => {
           if (isAddingNew) {
             confirmDraft(updatedItem);
           } else {
-            updateItem(editingId!, updatedItem);
+            updateItem(editingInternalId!, updatedItem);
           }
         }}
         onCancel={() => {
           setShowEditor(false);
-          setEditingId(null);
+          setEditingInternalId(null);
           setDraftItem(null);
-          setIsDraftEditing(false);
         }}
       />
     </div>

@@ -142,10 +142,6 @@ export function useField(config: {
     [config.name, validateField],
   );
 
-  // Ensure the value is never undefined to prevent uncontrolled to controlled warnings
-  const currentValue = fieldState?.value ?? config.initialValue;
-  const controlledValue = (currentValue ?? undefined) as FieldValue;
-
   const result: UseFieldConfig = {
     id,
     meta: {
@@ -166,7 +162,7 @@ export function useField(config: {
       'data-touched': fieldState?.state.isTouched ?? false,
     },
     fieldProps: {
-      'value': controlledValue,
+      'value': fieldState?.value,
       'onChange': handleChange,
       'onBlur': handleBlur,
       'aria-required': !!config.required,

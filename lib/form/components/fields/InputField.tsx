@@ -1,4 +1,3 @@
-import { motion } from 'motion/react';
 import { type ReactNode } from 'react';
 import {
   controlContainerVariants,
@@ -39,24 +38,22 @@ export const InputField = function InputField({
   prefixComponent: prefix,
   suffixComponent: suffix,
   className,
+  value,
   ...inputProps
 }: React.InputHTMLAttributes<HTMLInputElement> & {
   prefixComponent?: ReactNode;
   suffixComponent?: ReactNode;
 }) {
   return (
-    <motion.div
-      layout
-      className={cx(inputWrapperVariants({ size: 'md' }), className)}
-    >
+    <div className={cx(inputWrapperVariants({ size: 'md' }), className)}>
       {prefix}
-      <motion.input
-        layout
+      <input
         autoComplete="off"
         className={inputVariants({ className })}
+        value={value ?? ''} // Value can't be undefined for input components or React assumes it is uncontrolled
         {...inputProps}
       />
       {suffix}
-    </motion.div>
+    </div>
   );
 };

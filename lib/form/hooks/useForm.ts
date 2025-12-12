@@ -45,14 +45,13 @@ export function useForm(config: FormConfig) {
 
   const handleSubmit = useCallback(
     async (e: FormEvent) => {
-      console.log('yo');
       e.preventDefault(); // Prevent default form submission
+      e.stopPropagation(); // Stop event propagation
       setSubmitting(true);
       setErrors(null);
 
       try {
         const isValid = await validateForm(); // Run field level validation
-        console.log('isValid', isValid);
         if (!isValid) {
           // Wait a tick for the store to update with errors
           setTimeout(() => {
