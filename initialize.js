@@ -1,7 +1,12 @@
-/* eslint-disable no-console */
-import { PrismaClient } from "@prisma/client";
+/* eslint-disable no-console, no-process-env */
+import dotenv from 'dotenv';
+dotenv.config();
 
-const prisma = new PrismaClient();
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from './lib/db/generated/prisma/index.js';
+
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const prisma = new PrismaClient({ adapter });
 
 /** 
  * We set the the initializedAt key here, because this script is run when the

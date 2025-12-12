@@ -1,5 +1,5 @@
 import { prisma as prismaAdapter } from '@lucia-auth/adapter-prisma';
-import type { User } from '@prisma/client';
+import type { User } from '~/lib/db/generated/prisma/client';
 import { lucia } from 'lucia';
 import { nextjs_future } from 'lucia/middleware';
 import 'lucia/polyfill/node'; // polyfill for Node.js versions <= 18

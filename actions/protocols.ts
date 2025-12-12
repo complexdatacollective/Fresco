@@ -1,7 +1,7 @@
 'use server';
 
 import { type Protocol } from '@codaco/shared-consts';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '~/lib/db/generated/prisma/client';
 import { safeRevalidateTag } from 'lib/cache';
 import { hash } from 'ohash';
 import { type z } from 'zod';

@@ -1,6 +1,6 @@
 'use client';
 
-import type { Participant, Protocol } from '@prisma/client';
+import type { Participant, Protocol } from '~/lib/db/generated/prisma/client';
 import { useRef, useState } from 'react';
 import {
   Select,
