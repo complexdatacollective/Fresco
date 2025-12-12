@@ -148,7 +148,6 @@
     "eslint-config-next": "^15.5.7",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-storybook": "^10.0.8",
-    "jest": "^30.2.0",
     "jsdom": "^27.0.1",
     "knip": "^5.71.0",
     "prettier": "^3.6.0",
