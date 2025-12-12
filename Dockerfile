@@ -11,17 +11,14 @@ WORKDIR /app
 # Enable corepack early for better caching
 RUN corepack enable
 
-# Copy dependency files, Prisma schema, and postinstall script
-COPY package.json pnpm-lock.yaml* postinstall.js ./
-COPY prisma ./prisma
+# Copy dependency files and postinstall script
+COPY package.json pnpm-lock.yaml* postinstall.js prisma.config.ts ./
+COPY lib/db/schema.prisma ./lib/db/schema.prisma
 
 # Install pnpm and dependencies with cache mount for faster builds
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
     --mount=type=cache,target=/root/.cache/pnpm \
     corepack enable pnpm && pnpm i --frozen-lockfile --prefer-offline
-
-# Copy remaining setup scripts
-COPY migrate-and-start.sh setup-database.js initialize.js ./
 
 # ---------
 
@@ -32,9 +29,8 @@ WORKDIR /app
 # Install git for version info
 RUN apk add --no-cache git
 
-# Copy node_modules and Prisma files from deps stage
+# Copy node_modules from deps stage
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/prisma ./prisma
 
 # Copy source code
 COPY . .
@@ -70,11 +66,17 @@ RUN mkdir .next && chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy runtime scripts and database schema
-COPY --from=builder --chown=nextjs:nodejs /app/initialize.js ./
-COPY --from=builder --chown=nextjs:nodejs /app/setup-database.js ./
+# Copy runtime scripts, database schema, and dependencies needed for tsx
+COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
 COPY --from=builder --chown=nextjs:nodejs /app/migrate-and-start.sh ./
-COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/lib/db/schema.prisma ./lib/db/schema.prisma
+COPY --from=builder --chown=nextjs:nodejs /app/lib/db/migrations ./lib/db/migrations
+COPY --from=builder --chown=nextjs:nodejs /app/lib/db/generated ./lib/db/generated
+COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./
+COPY --from=builder --chown=nextjs:nodejs /app/env.js ./
+COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./
 
 # Switch to non-root user
 USER nextjs

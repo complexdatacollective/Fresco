@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
 
-node setup-database.js
-node initialize.js
+npx tsx scripts/setup-database.ts
+npx tsx scripts/initialize.ts
 exec node server.js

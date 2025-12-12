@@ -1,23 +1,24 @@
-/* eslint-disable no-console, no-process-env */
+/* eslint-disable no-console */
 import dotenv from 'dotenv';
 dotenv.config();
 
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from './lib/db/generated/client.ts';
+import { PrismaClient } from '~/lib/db/generated/client';
+import { env } from '~/env';
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg({ connectionString: env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-/** 
- * We set the the initializedAt key here, because this script is run when the
+/**
+ * We set the initializedAt key here, because this script is run when the
  * app is first deployed.
-**/
-async function setInitializedAt() {
+ */
+async function setInitializedAt(): Promise<void> {
   // Check if app is already initialized
   const initializedAt = await prisma.appSettings.findUnique({
     where: {
-      key: 'initializedAt'
-    }
+      key: 'initializedAt',
+    },
   });
 
   if (initializedAt) {
@@ -37,12 +38,9 @@ async function setInitializedAt() {
     update: {},
     create: {
       key: 'initializedAt',
-      value: now
-    }
+      value: now,
+    },
   });
 }
 
-// Self executing function
-(async () => {
-  await setInitializedAt();
-})();
+await setInitializedAt();
