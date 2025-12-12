@@ -40,8 +40,10 @@ ENV SKIP_ENV_VALIDATION=true
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-# Enable pnpm and build
-RUN corepack enable pnpm && pnpm run build
+# Enable pnpm, generate Prisma client, and build
+# Note: prisma generate must run here because the generated client (lib/db/generated/)
+# is gitignored and not copied from deps stage (only node_modules is copied)
+RUN corepack enable pnpm && pnpm exec prisma generate && pnpm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
