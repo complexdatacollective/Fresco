@@ -1,18 +1,19 @@
 /* eslint-disable no-console */
-import { PrismaClient } from "@prisma/client";
+import dotenv from 'dotenv';
+dotenv.config();
 
-const prisma = new PrismaClient();
+import { prisma } from '~/lib/db';
 
-/** 
- * We set the the initializedAt key here, because this script is run when the
+/**
+ * We set the initializedAt key here, because this script is run when the
  * app is first deployed.
-**/
-async function setInitializedAt() {
+ */
+async function setInitializedAt(): Promise<void> {
   // Check if app is already initialized
   const initializedAt = await prisma.appSettings.findUnique({
     where: {
-      key: 'initializedAt'
-    }
+      key: 'initializedAt',
+    },
   });
 
   if (initializedAt) {
@@ -32,12 +33,9 @@ async function setInitializedAt() {
     update: {},
     create: {
       key: 'initializedAt',
-      value: now
-    }
+      value: now,
+    },
   });
 }
 
-// Self executing function
-(async () => {
-  await setInitializedAt();
-})();
+await setInitializedAt();

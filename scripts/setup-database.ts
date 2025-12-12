@@ -1,16 +1,25 @@
 /* eslint-disable no-console */
-import { PrismaClient } from '@prisma/client';
+import dotenv from 'dotenv';
+dotenv.config();
+
+import { prisma } from '~/lib/db';
 import { execSync, spawnSync } from 'child_process';
 
-const prisma = new PrismaClient();
+type TableRow = {
+  table_name: string;
+};
 
-function checkForNeededMigrations() {
+function checkForNeededMigrations(): boolean {
   const command = 'npx';
   const args = [
-    'prisma', 'migrate', 'diff',
-    '--to-schema-datasource', './prisma/schema.prisma',
-    '--from-schema-datamodel', './prisma/schema.prisma',
-    '--exit-code'
+    'prisma',
+    'migrate',
+    'diff',
+    '--to-schema-datasource',
+    './lib/db/schema.prisma',
+    '--from-schema-datamodel',
+    './lib/db/schema.prisma',
+    '--exit-code',
   ];
 
   const result = spawnSync(command, args, { encoding: 'utf-8' });
@@ -31,36 +40,42 @@ function checkForNeededMigrations() {
     console.log('An error occurred.');
     return false;
   }
+
+  return false;
 }
 
 /**
  * This function checks if the database is in a state where the workaround is needed.
- * 
+ *
  * The workaround is needed when the database is not empty and the _prisma_migrations
  * table does not exist.
  */
-async function shouldApplyWorkaround() {
-  const tables = await prisma.$queryRaw`
-    SELECT table_name 
-    FROM information_schema.tables 
+async function shouldApplyWorkaround(): Promise<boolean> {
+  const tables = await prisma.$queryRaw<TableRow[]>`
+    SELECT table_name
+    FROM information_schema.tables
     WHERE table_schema = 'public' AND table_type = 'BASE TABLE'`;
 
   const databaseNotEmpty = tables.length > 0;
-  const migrationsTableExists = tables.some(table => table.table_name === '_prisma_migrations');
-
+  const migrationsTableExists = tables.some(
+    (table) => table.table_name === '_prisma_migrations',
+  );
 
   return !migrationsTableExists && databaseNotEmpty;
 }
 
-async function handleMigrations() {
-
+async function handleMigrations(): Promise<void> {
   try {
     if (await shouldApplyWorkaround()) {
-      console.log('Workaround needed! Running: prisma migrate resolve --applied 0_init');
-      execSync('npx prisma migrate resolve --applied 0_init', { stdio: 'inherit' });
+      console.log(
+        'Workaround needed! Running: prisma migrate resolve --applied 0_init',
+      );
+      execSync('npx prisma migrate resolve --applied 0_init', {
+        stdio: 'inherit',
+      });
     }
 
-    // Determine if there are any migrations to run, by comparing the local schema with the database schema using prisma migrate diff
+    // Determine if there are any migrations to run
     const needsMigrations = checkForNeededMigrations();
 
     if (needsMigrations) {
@@ -77,7 +92,4 @@ async function handleMigrations() {
   }
 }
 
-
-(async () => {
-  await handleMigrations();
-})();
+await handleMigrations();
