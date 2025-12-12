@@ -1,12 +1,12 @@
-import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '~/lib/db/generated/client';
 import { env } from '~/env';
+import { createPrismaAdapter } from './adapter';
 
 const createPrismaClient = () => {
-  // Use the pooled connection URL for runtime queries
-  const connectionString = env.DATABASE_URL;
-
-  const adapter = new PrismaPg({ connectionString });
+  const adapter = createPrismaAdapter(
+    env.DATABASE_URL,
+    env.USE_NEON_POSTGRES_ADAPTER,
+  );
 
   return new PrismaClient({
     adapter,
