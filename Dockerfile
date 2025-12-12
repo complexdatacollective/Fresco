@@ -66,12 +66,9 @@ RUN mkdir .next && chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy runtime scripts, database schema, and dependencies needed for tsx
+# Copy runtime scripts, database files, and dependencies needed for tsx
 COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
-COPY --from=builder --chown=nextjs:nodejs /app/migrate-and-start.sh ./
-COPY --from=builder --chown=nextjs:nodejs /app/lib/db/schema.prisma ./lib/db/schema.prisma
-COPY --from=builder --chown=nextjs:nodejs /app/lib/db/migrations ./lib/db/migrations
-COPY --from=builder --chown=nextjs:nodejs /app/lib/db/generated ./lib/db/generated
+COPY --from=builder --chown=nextjs:nodejs /app/lib/db ./lib/db
 COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./
@@ -84,4 +81,4 @@ USER nextjs
 EXPOSE 3000
 
 # Use exec form for better signal handling
-CMD ["sh", "migrate-and-start.sh"]
+CMD ["sh", "scripts/migrate-and-start.sh"]
