@@ -2,16 +2,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { PrismaClient } from '~/lib/db/generated/client';
-import { createPrismaAdapter } from '~/lib/db/adapter';
+import { prisma } from '~/lib/db';
 import { execSync, spawnSync } from 'child_process';
-import { env } from '~/env';
-
-const adapter = createPrismaAdapter(
-  env.DATABASE_URL,
-  env.USE_NEON_POSTGRES_ADAPTER,
-);
-const prisma = new PrismaClient({ adapter });
 
 type TableRow = {
   table_name: string;

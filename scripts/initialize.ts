@@ -2,15 +2,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { PrismaClient } from '~/lib/db/generated/client';
-import { createPrismaAdapter } from '~/lib/db/adapter';
-import { env } from '~/env';
-
-const adapter = createPrismaAdapter(
-  env.DATABASE_URL,
-  env.USE_NEON_POSTGRES_ADAPTER,
-);
-const prisma = new PrismaClient({ adapter });
+import { prisma } from '~/lib/db';
 
 /**
  * We set the initializedAt key here, because this script is run when the

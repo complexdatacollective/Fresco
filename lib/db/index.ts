@@ -1,12 +1,12 @@
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaNeon } from '@prisma/adapter-neon';
 import { PrismaClient } from '~/lib/db/generated/client';
 import { env } from '~/env';
-import { createPrismaAdapter } from './adapter';
 
 const createPrismaClient = () => {
-  const adapter = createPrismaAdapter(
-    env.DATABASE_URL,
-    env.USE_NEON_POSTGRES_ADAPTER,
-  );
+  const adapter = env.USE_NEON_POSTGRES_ADAPTER
+    ? new PrismaNeon({ connectionString: env.DATABASE_URL })
+    : new PrismaPg({ connectionString: env.DATABASE_URL });
 
   return new PrismaClient({
     adapter,
