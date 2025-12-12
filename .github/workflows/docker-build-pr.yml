@@ -37,6 +37,10 @@ on:
       - 'postcss.config.js'
       - 'tsconfig.json'
       - '.github/workflows/docker-build-pr.yml'
+      - 'postinstall.js'
+      - 'migrate-and-start.sh'
+      - 'setup-database.js'
+      - 'initialize.js'
 
 permissions:
   contents: read
