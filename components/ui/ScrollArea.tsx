@@ -1,7 +1,12 @@
 'use client';
 
-import { ScrollArea as BaseScrollArea } from '@base-ui-components/react/scroll-area';
-import { type ComponentProps, forwardRef } from 'react';
+import {
+  type CSSProperties,
+  forwardRef,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'react';
 import { cx } from '~/utils/cva';
 
 type ScrollSnapType = 'mandatory' | 'proximity';
@@ -18,53 +23,7 @@ type ScrollAreaProps = {
   snap?: ScrollSnapType;
   /** Axis for scroll-snap. Defaults to 'both'. Only applies when snap is set. */
   snapAxis?: ScrollSnapAxis;
-} & Omit<ComponentProps<typeof BaseScrollArea.Root>, 'children'>;
-
-const scrollbarClasses = cx(
-  // Layout
-  'absolute ms-2 flex',
-  // Ensure scrollbar renders above fade pseudo elements
-  'z-10',
-  // Sizing
-  'rounded-[--spacing(4)]',
-  // Appearance
-  'bg-current/10 opacity-0',
-  // Transitions
-  'pointer-events-none transition-opacity duration-250',
-  // Hover state
-  'data-hovering:pointer-events-auto',
-  'data-hovering:opacity-100',
-  'data-hovering:duration-75',
-  // Scrolling state
-  'data-scrolling:pointer-events-auto',
-  'data-scrolling:opacity-100',
-  'data-scrolling:duration-75',
-);
-
-const verticalScrollbarClasses = cx(
-  scrollbarClasses,
-  // Positioning
-  'top-0 right-0 bottom-0',
-  // Width
-  'w-2',
-);
-
-const horizontalScrollbarClasses = cx(
-  scrollbarClasses,
-  // Positioning
-  'right-0 bottom-0 left-0',
-  // Height
-  'h-2',
-);
-
-const thumbClasses = cx(
-  'rounded-[inherit] bg-current',
-  // Larger hit area for easier grabbing
-  'before:absolute before:top-1/2 before:left-1/2',
-  'before:h-[calc(100%+--spacing(4))] before:w-[calc(100%+--spacing(4))]',
-  'before:-translate-x-1/2 before:-translate-y-1/2',
-  'before:content-[""]',
-);
+};
 
 const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
   (
@@ -75,10 +34,54 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
       fade = true,
       snap,
       snapAxis = 'both',
-      ...props
     },
     ref,
   ) => {
+    const viewportRef = useRef<HTMLDivElement>(null);
+
+    const updateScrollVariables = useCallback(() => {
+      const viewport = viewportRef.current;
+      if (!viewport) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = viewport;
+
+      // Calculate distance from top and bottom edges
+      const overflowStart = scrollTop;
+      const overflowEnd = scrollHeight - clientHeight - scrollTop;
+
+      // Set CSS variables for the fade effect
+      viewport.style.setProperty(
+        '--scroll-area-overflow-y-start',
+        `${overflowStart}px`,
+      );
+      viewport.style.setProperty(
+        '--scroll-area-overflow-y-end',
+        `${overflowEnd}px`,
+      );
+    }, []);
+
+    useEffect(() => {
+      const viewport = viewportRef.current;
+      if (!viewport || !fade) return;
+
+      // Initial update
+      updateScrollVariables();
+
+      // Update on scroll
+      viewport.addEventListener('scroll', updateScrollVariables, {
+        passive: true,
+      });
+
+      // Update on resize (content or viewport size changes)
+      const resizeObserver = new ResizeObserver(updateScrollVariables);
+      resizeObserver.observe(viewport);
+
+      return () => {
+        viewport.removeEventListener('scroll', updateScrollVariables);
+        resizeObserver.disconnect();
+      };
+    }, [fade, updateScrollVariables]);
+
     const getSnapClasses = () => {
       if (!snap) return null;
       const snapType =
@@ -89,7 +92,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
     };
 
     return (
-      <BaseScrollArea.Root
+      <div
         ref={ref}
         className={cx(
           'focusable-after relative flex min-h-0 flex-1',
@@ -97,50 +100,36 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
           '-mx-4',
           className,
         )}
-        {...props}
       >
-        <BaseScrollArea.Viewport
+        <div
+          ref={viewportRef}
+          tabIndex={0}
           className={cx(
             // Required by focusable-after
             'focusable-after-trigger',
             // Layout
-            'group min-h-0 flex-1 overflow-auto overscroll-contain',
+            'min-h-0 flex-1 overflow-auto overscroll-contain',
             // Padding to prevent animated elements from clipping (inside scroll bounds)
             'px-4',
+            // Extra padding at bottom to prevent clipping of shadows/effects
+            'pb-2',
             // Gradient fade effect
             fade && 'scroll-area-viewport',
             // Scroll snap
             getSnapClasses(),
             viewportClassName,
           )}
+          style={
+            {
+              // Initialize CSS variables for fade effect
+              '--scroll-area-overflow-y-start': '0px',
+              '--scroll-area-overflow-y-end': '0px',
+            } as CSSProperties
+          }
         >
-          <BaseScrollArea.Content
-            className={cx(
-              // Additional padding when scrollbars are visible (scrollbar width + margin)
-              'group-data-has-overflow-y:pr-4',
-              'group-data-has-overflow-x:pb-4',
-            )}
-          >
-            {children}
-          </BaseScrollArea.Content>
-        </BaseScrollArea.Viewport>
-
-        <BaseScrollArea.Scrollbar
-          orientation="vertical"
-          className={verticalScrollbarClasses}
-        >
-          <BaseScrollArea.Thumb className={cx(thumbClasses, 'w-full')} />
-        </BaseScrollArea.Scrollbar>
-
-        <BaseScrollArea.Scrollbar
-          orientation="horizontal"
-          className={horizontalScrollbarClasses}
-        >
-          <BaseScrollArea.Thumb className={cx(thumbClasses, 'h-full')} />
-        </BaseScrollArea.Scrollbar>
-
-        <BaseScrollArea.Corner />
-      </BaseScrollArea.Root>
+          {children}
+        </div>
+      </div>
     );
   },
 );

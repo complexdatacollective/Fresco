@@ -46,17 +46,15 @@ export function NameGeneratorPromptItem({
   onDelete,
   dragControls,
 }: ArrayFieldItemProps<NameGeneratorPrompt>) {
-  const isDraft = item._draft === true;
-
-  if (isDraft) {
+  // Hide item when when it's a new draft
+  if (item._draft) {
     return null;
   }
 
   return (
     <motion.div
       layoutId={item._internalId}
-      layout
-      className="flex w-full items-center gap-2 px-2 py-2"
+      className={cx('flex w-full items-center gap-2 px-4 py-4')}
     >
       {isSortable && (
         <motion.div
@@ -64,7 +62,7 @@ export function NameGeneratorPromptItem({
           onPointerDown={(e) => dragControls.start(e)}
           className="touch-none"
         >
-          <GripVertical className="h-4 w-4 cursor-grab" />
+          <GripVertical className="w-8 cursor-grab" />
         </motion.div>
       )}
       <motion.div layout className="flex-1">
@@ -97,7 +95,7 @@ export function NameGeneratorPromptItem({
         <IconButton
           size="sm"
           variant="textMuted"
-          color="primary"
+          color="default"
           onClick={onEdit}
           aria-label="Edit prompt"
           icon={<PencilIcon />}
@@ -216,8 +214,10 @@ export function AdditionalAttributeItem({
       <motion.div
         className={cx(
           surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
+          'min-w-lg',
           'flex w-full flex-col border p-4',
         )}
+        layoutId={item._internalId}
       >
         <UnconnectedField
           component={SelectField}
@@ -228,6 +228,7 @@ export function AdditionalAttributeItem({
           placeholder="Select a variable..."
           onChange={(val) => setVariable(String(val))}
           options={[...MOCK_VARIABLES]}
+          required
         />
         <UnconnectedField
           component={BooleanField}
@@ -236,6 +237,7 @@ export function AdditionalAttributeItem({
           value={value}
           onChange={setValue}
           noReset
+          required
         />
         <div className="flex gap-2">
           <Button
@@ -262,7 +264,10 @@ export function AdditionalAttributeItem({
 
   // Display mode
   return (
-    <motion.div className="flex w-full items-center gap-2 px-2 py-2">
+    <motion.div
+      className="flex w-full items-center gap-2 px-2 py-2"
+      layoutId={item._internalId}
+    >
       {isSortable && (
         <motion.div
           layout
@@ -351,10 +356,16 @@ function getOperatorLabel(operator: FilterOperator): string {
 export function FilterRuleItem({
   item,
   isSortable,
+  isBeingEdited,
   onEdit,
   onDelete,
   dragControls,
 }: ArrayFieldItemProps<FilterRule>) {
+  // Hide item when being edited (layoutId transfers to editor) or when it's a new draft
+  if (isBeingEdited || item._draft) {
+    return null;
+  }
+
   const needsValue = !['EXISTS', 'NOT_EXISTS'].includes(item.options.operator);
 
   return (

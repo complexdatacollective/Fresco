@@ -129,10 +129,16 @@ export type NameGeneratorPrompt = z.infer<typeof nameGeneratorPromptSchema>;
 export function PromptItem({
   item,
   isSortable,
+  isBeingEdited,
   onEdit,
   onDelete,
   dragControls,
 }: ArrayFieldItemProps<NameGeneratorPrompt>) {
+  // Hide item when being edited (layoutId transfers to editor) or when it's a new draft
+  if (isBeingEdited || item._draft) {
+    return null;
+  }
+
   return (
     <motion.div
       layoutId={item.id}

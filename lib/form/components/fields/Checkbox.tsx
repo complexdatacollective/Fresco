@@ -1,6 +1,6 @@
 'use client';
 
-import { Checkbox as BaseCheckbox } from '@base-ui-components/react/checkbox';
+import { Checkbox as BaseCheckbox } from '@base-ui/react/checkbox';
 import { motion, useMotionValue, useTransform } from 'motion/react';
 import { type ComponentPropsWithoutRef, forwardRef, useState } from 'react';
 import {

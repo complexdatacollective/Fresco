@@ -133,10 +133,6 @@ export function makeValidationFunction(props: Record<string, unknown>) {
             validationName as ValidationName
           ] as ValidationFunction<string | number | boolean>;
 
-          console.log('validationName', validationName);
-          console.log('validationFnFactory', validationFnFactory);
-          console.log('parameter', parameter);
-
           const validationFn = validationFnFactory(
             parameter as string | number | boolean,
           )(formValues);

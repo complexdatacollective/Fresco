@@ -1,6 +1,6 @@
 'use client';
 
-import { Switch } from '@base-ui-components/react/switch';
+import { Switch } from '@base-ui/react/switch';
 import { motion } from 'motion/react';
 import { type ComponentPropsWithoutRef } from 'react';
 import {

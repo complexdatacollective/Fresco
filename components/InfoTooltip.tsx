@@ -1,4 +1,4 @@
-import { Popover as BasePopover } from '@base-ui-components/react/popover';
+import { Popover as BasePopover } from '@base-ui/react/popover';
 import { InfoIcon } from 'lucide-react';
 import { type ComponentProps, type ReactElement } from 'react';
 import Heading from './typography/Heading';

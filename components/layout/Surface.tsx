@@ -8,7 +8,7 @@ import ResponsiveContainer, {
 } from './ResponsiveContainer';
 
 export const surfaceVariants = cva({
-  base: 'publish-colors relative isolate min-w-2xl grow overflow-hidden rounded-sm @xl:rounded @4xl:rounded-lg',
+  base: 'publish-colors relative isolate grow overflow-hidden rounded-sm @xl:rounded @4xl:rounded-lg',
   variants: {
     level: {
       0: 'text-surface-contrast bg-surface',

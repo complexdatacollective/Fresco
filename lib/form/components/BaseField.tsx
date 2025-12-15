@@ -1,6 +1,5 @@
 'use client';
 
-import { motion, type HTMLMotionProps } from 'motion/react';
 import { type ReactNode } from 'react';
 import FieldErrors from './FieldErrors';
 import { FieldLabel } from './FieldLabel';
@@ -15,7 +14,7 @@ export type BaseFieldProps = {
   showErrors?: boolean;
   children: ReactNode;
   // TODO: the data attributes should be typed based on the return value of useField.
-  containerProps?: Omit<HTMLMotionProps<'div'>, 'className'> &
+  containerProps?: Omit<HTMLDivElement, 'className'> &
     Record<`data-${string}`, string | boolean | undefined>;
 };
 
@@ -34,7 +33,7 @@ export function BaseField({
   containerProps,
 }: BaseFieldProps) {
   return (
-    <motion.div
+    <div
       {...containerProps}
       className="group w-full grow not-last-of-type:mb-6"
     >
@@ -44,6 +43,6 @@ export function BaseField({
       {hint && <Hint id={`${id}-hint`}>{hint}</Hint>}
       {children}
       <FieldErrors id={`${id}-error`} errors={errors} show={showErrors} />
-    </motion.div>
+    </div>
   );
 }

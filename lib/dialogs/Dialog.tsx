@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog as BaseDialog } from '@base-ui-components/react/dialog';
+import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 import { Slot } from '@radix-ui/react-slot';
 import { type motion } from 'motion/react';
 import React, { forwardRef, type ReactNode } from 'react';
@@ -46,74 +46,68 @@ export type DialogProps = {
  * - Surface styling applied via className for proper elevation and spacing
  * - Backdrop click-to-close is handled by Base UI's dismissible behavior
  */
-export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
-  (
-    {
-      title,
-      description,
-      children,
-      closeDialog,
-      accent,
-      footer,
-      open = false,
-      className,
-      ...rest
-    },
-    ref,
-  ) => {
-    return (
-      <Modal
-        open={open}
-        onOpenChange={(isOpen) => {
-          if (!isOpen && closeDialog) {
-            closeDialog();
-          }
-        }}
+export function Dialog({
+  title,
+  description,
+  children,
+  closeDialog,
+  accent,
+  footer,
+  open = false,
+  className,
+  ...rest
+}: DialogProps) {
+  return (
+    <Modal
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen && closeDialog) {
+          closeDialog();
+        }
+      }}
+    >
+      <DialogPopup
+        key="dialog"
+        className={cx(
+          // Accent overrides the primary hue so that nested primary buttons inherit color
+          accent === 'success' && '[--color-primary:var(--color-success)]',
+          accent === 'info' && '[--color-primary:var(--color-info)]',
+          accent === 'destructive' &&
+            '[--color-primary-contrast:var(--color-destructive-contrast)] [--color-primary:var(--color-destructive)]',
+          className,
+        )}
+        {...rest}
       >
-        <DialogPopup
-          key="dialog"
-          ref={ref}
-          className={cx(
-            // Accent overrides the primary hue so that nested primary buttons inherit color
-            accent === 'success' && '[--color-primary:var(--color-success)]',
-            accent === 'info' && '[--color-primary:var(--color-info)]',
-            accent === 'destructive' &&
-              '[--color-primary-contrast:var(--color-destructive-contrast)] [--color-primary:var(--color-destructive)]',
-            className,
+        <BaseDialog.Title
+          render={(props) => (
+            <DialogHeading
+              className="flex items-center justify-between gap-2"
+              {...props}
+            >
+              {title} <BaseDialog.Close render={<CloseButton />} />
+            </DialogHeading>
           )}
-          {...rest}
-        >
-          <BaseDialog.Title
-            render={(props) => (
-              <DialogHeading
-                className="flex items-center justify-between gap-2"
-                {...props}
-              >
-                {title} <BaseDialog.Close render={<CloseButton />} />
-              </DialogHeading>
-            )}
-          />
-          <DialogContent>
-            {description && (
-              <BaseDialog.Description
-                render={(descProps) => (
-                  <DialogDescription
-                    {...descProps}
-                    className={descProps.className}
-                  >
-                    {description}
-                  </DialogDescription>
-                )}
-              />
-            )}
-            {children}
-          </DialogContent>
-          {footer && <DialogFooter>{footer}</DialogFooter>}
-        </DialogPopup>
-      </Modal>
-    );
-  },
-);
+        />
+        <DialogContent>
+          {description && (
+            <BaseDialog.Description
+              render={(descProps) => (
+                <DialogDescription
+                  {...descProps}
+                  className={descProps.className}
+                >
+                  {description}
+                </DialogDescription>
+              )}
+            />
+          )}
+          {children}
+        </DialogContent>
+        {footer && <DialogFooter>{footer}</DialogFooter>}
+      </DialogPopup>
+    </Modal>
+  );
+}
 
 Dialog.displayName = 'Dialog';
 

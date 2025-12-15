@@ -1,4 +1,4 @@
-import { Dialog } from '@base-ui-components/react/dialog';
+import { Dialog } from '@base-ui/react/dialog';
 import {
   type HTMLMotionProps,
   motion,
@@ -22,6 +22,7 @@ export const defaultPopupAnimation = {
       type: 'spring',
       stiffness: 300,
       damping: 20,
+      when: 'beforeChildren',
     },
   },
   exit: {
@@ -54,9 +55,7 @@ type BaseModalPopupProps = Omit<
   ComponentProps<typeof motion.div>,
   'initial' | 'animate' | 'exit' | 'layoutId'
 > &
-  Omit<Dialog.Popup.Props, 'render'> & {
-    key: string;
-  };
+  Omit<Dialog.Popup.Props, 'render'>;
 
 /**
  * Props for ModalPopup.
@@ -107,7 +106,11 @@ export default function ModalPopup({
       }
     : hasAnimationProps
       ? {}
-      : defaultPopupAnimation;
+      : {
+          initial: defaultPopupAnimation.initial,
+          animate: defaultPopupAnimation.animate,
+          exit: defaultPopupAnimation.exit,
+        };
 
   return (
     <Dialog.Popup
@@ -115,6 +118,7 @@ export default function ModalPopup({
         <motion.div
           {...(popupProps as HTMLMotionProps<'div'>)}
           className={className}
+          variants={defaultPopupAnimation}
           {...props}
           {...animation}
         >

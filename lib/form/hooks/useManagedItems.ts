@@ -31,20 +31,20 @@ type UseManagedItemsReturn<T extends object> = {
   /** Update items - only triggers onChange for non-draft changes. */
   setItems: (items: WithManagedProperties<T>[]) => void;
 
-  // ─── Editing State (derived from items) ─────────────────────────────────
-  /** The item currently being edited (_draft: true), or undefined if none. */
+  // ─── Editing State ───────────────────────────────────────────────────────
+  /** The item currently being edited, or undefined if none. */
   editingItem: WithManagedProperties<T> | undefined;
-  /** True if editingItem is a newly added item (vs editing an existing one). */
+  /** True if editingItem is a newly added draft item (vs editing an existing one). */
   isAddingNew: boolean;
 
   // ─── Editing Actions ─────────────────────────────────────────────────────
-  /** Start adding a new item. Creates a draft (cancels any existing edit). */
+  /** Start adding a new item. Creates a draft and starts editing it. */
   startAdding: (template: T) => void;
-  /** Start editing an existing item. Marks it as draft (cancels any existing edit). */
+  /** Start editing an existing item by its internal ID. */
   startEditing: (internalId: string) => void;
-  /** Cancel the current edit. Reverts/removes the draft item. */
+  /** Cancel the current edit. Removes draft items, clears editing state. */
   cancelEditing: () => void;
-  /** Save the current edit. Confirms the draft and calls onChange. */
+  /** Save the current edit. Confirms drafts and calls onChange. */
   saveEditing: (data: T) => void;
 
   // ─── Item Operations ─────────────────────────────────────────────────────
@@ -59,15 +59,16 @@ type UseManagedItemsReturn<T extends object> = {
  *
  * This hook provides a complete solution for managing editable array fields:
  * - Stable internal IDs for React keys
- * - Single draft item that represents the item being edited
- * - Draft items don't trigger onChange until confirmed
+ * - Draft items for newly added items that don't trigger onChange until confirmed
+ * - Separate editing state tracked by ID (not draft flag)
  *
  * Key behaviors:
- * - Only one draft can exist at a time; if a draft exists, it's being edited
- * - `editingItem` is derived by finding the item with `_draft: true`
- * - Adding a draft: Creates an item with _draft: true (removes existing draft)
- * - Confirming a draft: Removes _draft flag and calls onChange
- * - Canceling: Removes the draft from local state without calling onChange
+ * - `_draft` flag is only set on newly added items (via startAdding)
+ * - `editingItem` is tracked by internal ID, separate from draft status
+ * - startAdding: Creates an item with _draft: true and starts editing it
+ * - startEditing: Sets the editing ID to an existing item (no draft flag)
+ * - saveEditing: For drafts, removes _draft flag; for all items, calls onChange
+ * - cancelEditing: Removes draft items, clears editing state
  *
  * @example
  * ```tsx
@@ -79,6 +80,7 @@ type UseManagedItemsReturn<T extends object> = {
  *     items,
  *     editingItem,
  *     startAdding,
+ *     startEditing,
  *     cancelEditing,
  *     saveEditing,
  *     removeItem,
@@ -90,6 +92,7 @@ type UseManagedItemsReturn<T extends object> = {
  *         <Item
  *           key={item._internalId}
  *           item={item}
+ *           onEdit={() => startEditing(item._internalId)}
  *           onDelete={() => removeItem(item._internalId)}
  *         />
  *       ))}
@@ -135,18 +138,19 @@ export function useManagedItems<T extends object>(
     [config],
   );
 
-  // All items stored together - draft identified by _draft property
-  const [items, setItemsInternal] = useState<WithManagedProperties<T>[]>(() =>
-    value.map((item) => ({
+  // Combined state for atomic updates (prevents animation flickering)
+  const [state, setState] = useState<{
+    items: WithManagedProperties<T>[];
+    editingId: string | null;
+  }>(() => ({
+    items: value.map((item) => ({
       ...item,
       _internalId: getInternalId(item),
     })),
-  );
+    editingId: null,
+  }));
 
-  // Track whether current draft is a new item (vs editing existing)
-  const isNewDraftRef = useRef<boolean>(false);
-  // Store original item data when editing existing (for cancel/revert)
-  const originalItemRef = useRef<WithManagedProperties<T> | null>(null);
+  const { items, editingId } = state;
 
   // Sync with external value changes
   const prevValueRef = useRef(value);
@@ -163,14 +167,18 @@ export function useManagedItems<T extends object>(
     }));
 
     // Merge: confirmed items from value + draft (if any)
-    setItemsInternal(
-      currentDraft ? [...newConfirmed, currentDraft] : newConfirmed,
-    );
+    setState((prev) => ({
+      ...prev,
+      items: currentDraft ? [...newConfirmed, currentDraft] : newConfirmed,
+    }));
   }
 
-  // Derive editing state: the draft item is the one being edited
-  const editingItem = useMemo(() => items.find((item) => item._draft), [items]);
-  const isAddingNew = editingItem ? isNewDraftRef.current : false;
+  // Derive editing state from editingId
+  const editingItem = useMemo(
+    () => items.find((item) => item._internalId === editingId),
+    [items, editingId],
+  );
+  const isAddingNew = editingItem?._draft ?? false;
 
   // Check if an item is a draft
   const isDraft = useCallback(
@@ -197,7 +205,7 @@ export function useManagedItems<T extends object>(
     [onChange],
   );
 
-  // Start adding a new item (creates draft, cancels any existing edit)
+  // Start adding a new item (creates draft and sets editing state)
   const startAdding = useCallback((template: T): void => {
     const internalId = crypto.randomUUID();
     const draftItem: WithManagedProperties<T> = {
@@ -206,94 +214,87 @@ export function useManagedItems<T extends object>(
       _draft: true,
     };
 
-    isNewDraftRef.current = true;
-    originalItemRef.current = null;
-
-    // Cancel any existing edit and add new draft
-    setItemsInternal((prev) => {
-      // If editing an existing item, revert it first
-      const reverted = prev.map((item) => {
-        if (item._draft && originalItemRef.current) {
-          return originalItemRef.current;
-        }
-        return item;
-      });
-      // Remove any new drafts and add the new one
-      return [...reverted.filter((item) => !item._draft), draftItem];
-    });
+    // Remove any existing draft, add the new one, and set editing ID atomically
+    setState((prev) => ({
+      items: [...prev.items.filter((item) => !item._draft), draftItem],
+      editingId: internalId,
+    }));
   }, []);
 
-  // Start editing an existing item (marks it as draft)
+  // Start editing an existing item (sets editing ID, no draft flag)
   const startEditing = useCallback((internalId: string): void => {
-    setItemsInternal((prev) => {
-      const targetItem = prev.find((item) => item._internalId === internalId);
-      if (!targetItem || targetItem._draft) return prev;
+    setState((prev) => {
+      // Skip if already editing this item
+      if (prev.editingId === internalId) return prev;
 
-      // Store original for potential cancel
-      originalItemRef.current = { ...targetItem };
-      isNewDraftRef.current = false;
+      const targetItem = prev.items.find(
+        (item) => item._internalId === internalId,
+      );
+      // Skip if target doesn't exist
+      if (!targetItem) return prev;
 
-      // Cancel any existing edit first, then mark target as draft
-      return prev.map((item) => {
-        // Revert any existing editing item
-        if (item._draft && originalItemRef.current) {
-          return originalItemRef.current;
-        }
-        // Mark target as draft
-        if (item._internalId === internalId) {
-          return { ...item, _draft: true };
-        }
-        return item;
-      });
+      // Check if there's a draft to remove
+      const hasDraft = prev.items.some((item) => item._draft);
+
+      return {
+        // Only filter if there's actually a draft to remove
+        items: hasDraft
+          ? prev.items.filter((item) => !item._draft)
+          : prev.items,
+        editingId: internalId,
+      };
     });
   }, []);
 
-  // Cancel the current edit (removes new draft or reverts existing item)
+  // Cancel the current edit (removes draft items if any, clears editing state)
   const cancelEditing = useCallback((): void => {
-    setItemsInternal((prev) => {
-      if (isNewDraftRef.current) {
-        // New item: just remove the draft
-        return prev.filter((item) => !item._draft);
-      } else if (originalItemRef.current) {
-        // Existing item: revert to original
-        return prev.map((item) =>
-          item._draft ? originalItemRef.current! : item,
-        );
-      }
-      return prev;
+    setState((prev) => {
+      // Skip if not currently editing
+      if (prev.editingId === null) return prev;
+
+      // Check if there's a draft to remove
+      const hasDraft = prev.items.some((item) => item._draft);
+
+      return {
+        // Only filter if there's actually a draft to remove
+        items: hasDraft
+          ? prev.items.filter((item) => !item._draft)
+          : prev.items,
+        editingId: null,
+      };
     });
-    isNewDraftRef.current = false;
-    originalItemRef.current = null;
   }, []);
 
-  // Save the current edit (confirms the draft)
+  // Save the current edit (confirms drafts, updates existing items)
   const saveEditing = useCallback(
     (data: T): void => {
-      setItemsInternal((prev) => {
-        const draftIdx = prev.findIndex((item) => item._draft);
-        if (draftIdx === -1) return prev;
+      if (!editingId) return;
 
-        const draft = prev[draftIdx]!;
+      setState((prev) => {
+        const editingIdx = prev.items.findIndex(
+          (item) => item._internalId === editingId,
+        );
+        if (editingIdx === -1) return prev;
 
-        const newItems = prev.map((item, idx) => {
-          if (idx !== draftIdx) return item;
+        const editingItemRef = prev.items[editingIdx]!;
 
-          // Remove _draft flag when saving
+        const newItems = prev.items.map((item, idx) => {
+          if (idx !== editingIdx) return item;
+
+          // Update the item with new data, removing _draft flag if present
           return {
             ...data,
-            _internalId: draft._internalId,
+            _internalId: editingItemRef._internalId,
           } as WithManagedProperties<T>;
         });
 
         // Notify parent with all non-draft items
         notifyChange(newItems);
 
-        return newItems;
+        return { items: newItems, editingId: null };
       });
-      isNewDraftRef.current = false;
-      originalItemRef.current = null;
     },
-    [notifyChange],
+    [editingId, notifyChange],
   );
 
   // Remove an item
@@ -302,15 +303,15 @@ export function useManagedItems<T extends object>(
       const item = items.find((i) => i._internalId === internalId);
       const itemIsDraft = item?._draft ?? false;
 
-      setItemsInternal((prev) => {
-        const newItems = prev.filter((i) => i._internalId !== internalId);
+      setState((prev) => {
+        const newItems = prev.items.filter((i) => i._internalId !== internalId);
 
         // Only notify if removing a non-draft item
         if (!itemIsDraft) {
           notifyChange(newItems);
         }
 
-        return newItems;
+        return { ...prev, items: newItems };
       });
     },
     [items, notifyChange],
@@ -321,7 +322,7 @@ export function useManagedItems<T extends object>(
     (newItems: WithManagedProperties<T>[]): void => {
       const hasNonDraftChanges = newItems.some((item) => !item._draft);
 
-      setItemsInternal(newItems);
+      setState((prev) => ({ ...prev, items: newItems }));
 
       if (hasNonDraftChanges) {
         notifyChange(newItems);

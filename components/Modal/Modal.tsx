@@ -1,4 +1,4 @@
-import { Dialog as BaseDialog } from '@base-ui-components/react/dialog';
+import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 import { AnimatePresence } from 'motion/react';
 import type { ReactNode } from 'react';
 import { ModalBackdrop } from './ModalBackdrop';

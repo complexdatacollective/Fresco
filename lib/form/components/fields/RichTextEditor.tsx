@@ -1,8 +1,8 @@
 'use client';
 
-import { Toggle } from '@base-ui-components/react/toggle';
-import { ToggleGroup } from '@base-ui-components/react/toggle-group';
-import { Toolbar } from '@base-ui-components/react/toolbar';
+import { Toggle } from '@base-ui/react/toggle';
+import { ToggleGroup } from '@base-ui/react/toggle-group';
+import { Toolbar } from '@base-ui/react/toolbar';
 import { type AnyExtension } from '@tiptap/core';
 import BulletList from '@tiptap/extension-bullet-list';
 import Heading from '@tiptap/extension-heading';

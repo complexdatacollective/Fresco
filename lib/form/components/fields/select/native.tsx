@@ -52,7 +52,7 @@ export function SelectField({
         autoComplete="off"
         {...selectProps}
         name={name}
-        value={value}
+        value={value ?? ''}
         disabled={disabled}
         onChange={handleChange}
         className={cx(
@@ -62,7 +62,7 @@ export function SelectField({
         )}
       >
         {placeholder && (
-          <option value="" disabled selected={!hasValue}>
+          <option value="" disabled>
             {placeholder}
           </option>
         )}

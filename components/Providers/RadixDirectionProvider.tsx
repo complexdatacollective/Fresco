@@ -1,6 +1,6 @@
 'use client';
 
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { type ReactNode } from 'react';
 
 export default function RadixDirectionProvider({

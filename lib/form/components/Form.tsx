@@ -1,7 +1,6 @@
 'use client';
 
-import { LayoutGroup } from 'motion/react';
-import { useId, type ComponentProps } from 'react';
+import { type ComponentProps } from 'react';
 import { scrollToFirstError } from '~/lib/form/utils/scrollToFirstError';
 import { cx } from '~/utils/cva';
 import { useForm } from '../hooks/useForm';
@@ -17,8 +16,6 @@ type FormProps = {
 function FormInner(props: FormProps) {
   const { onSubmit, children, className, ...rest } = props;
 
-  const id = useId();
-
   const { formProps, formErrors } = useForm({
     onSubmit,
     onSubmitInvalid: (errors) => {
@@ -33,10 +30,8 @@ function FormInner(props: FormProps) {
       onSubmit={formProps.onSubmit}
       {...rest}
     >
-      <LayoutGroup id={id}>
-        {formErrors && <FormErrorsList key="form-errors" errors={formErrors} />}
-        {children}
-      </LayoutGroup>
+      {formErrors && <FormErrorsList key="form-errors" errors={formErrors} />}
+      {children}
     </form>
   );
 }

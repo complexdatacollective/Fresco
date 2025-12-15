@@ -431,7 +431,9 @@ This custom variant lets you target only elements with the readonly attribute.
 
 /**
  * Gradient scroll fade for ScrollArea viewport.
- * Uses CSS variables from Base UI ScrollArea to create fade effects at scroll edges.
+ * Uses CSS variables set by ScrollArea component to create fade effects at scroll edges.
+ * --scroll-area-overflow-y-start: distance scrolled from top
+ * --scroll-area-overflow-y-end: distance remaining to scroll
  */
 @utility scroll-area-viewport {
   --fade-height: max(2.5rem, 10%);
@@ -440,17 +442,12 @@ This custom variant lets you target only elements with the readonly attribute.
     @apply pointer-events-none absolute left-0 block w-full transition-[height] duration-100 ease-out content-[''];
   }
   &::before {
-    --scroll-area-overflow-y-start: inherit;
     @apply top-0 z-1 bg-linear-to-b from-(--published-bg,var(--background)) to-transparent;
-    height: min(var(--fade-height), var(--scroll-area-overflow-y-start));
+    height: min(var(--fade-height), var(--scroll-area-overflow-y-start, 0px));
   }
   &::after {
-    --scroll-area-overflow-y-end: inherit;
     @apply bottom-0 bg-linear-to-t from-(--published-bg,var(--background)) to-transparent;
-    height: min(
-      var(--fade-height),
-      var(--scroll-area-overflow-y-end, var(--fade-height))
-    );
+    height: min(var(--fade-height), var(--scroll-area-overflow-y-end, 0px));
   }
 }
 

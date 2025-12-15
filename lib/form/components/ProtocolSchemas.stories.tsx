@@ -53,7 +53,7 @@ const samplePrompts: NameGeneratorPrompt[] = [
 
 export const NameGeneratorPrompts: Story = {
   render: () => (
-    <Surface>
+    <>
       <Heading level="h2">Name Generator Prompts</Heading>
       <Form
         onSubmit={async (data) => {
@@ -102,7 +102,7 @@ export const NameGeneratorPrompts: Story = {
 
         <SubmitButton className="mt-6">Save Prompts</SubmitButton>
       </Form>
-    </Surface>
+    </>
   ),
 };
 

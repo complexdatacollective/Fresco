@@ -1,12 +1,18 @@
 import { PlusIcon } from 'lucide-react';
 import {
-  AnimatePresence,
   type DragControls,
+  LayoutGroup,
   motion,
   Reorder,
   useDragControls,
 } from 'motion/react';
-import { type ComponentType, forwardRef, type Ref, useCallback } from 'react';
+import {
+  type ComponentType,
+  forwardRef,
+  type Ref,
+  useCallback,
+  useId,
+} from 'react';
 import { MotionButton } from '~/components/ui/Button';
 import useDialog from '~/lib/dialogs/useDialog';
 import {
@@ -30,15 +36,11 @@ const itemVariants = cva({
   base: 'w-full select-none',
 });
 
-const itemAnimationProps = {
+export const itemAnimationProps = {
   initial: { opacity: 0 },
   animate: { opacity: 1 },
   exit: { opacity: 0, scale: 0.6 },
 };
-
-// Re-export for consumers
-export { type DragControls } from 'motion/react';
-export { type WithManagedProperties } from '~/lib/form/hooks/useManagedItems';
 
 /**
  * Props passed to the item content renderer component.
@@ -158,6 +160,7 @@ const ArrayFieldItemWrapper = forwardRef(function ArrayFieldItemWrapper<
       dragListener={false}
       dragControls={dragControls}
       className={itemVariants()}
+      layout={false}
       {...itemAnimationProps}
     >
       <ItemComponent
@@ -225,15 +228,17 @@ export function ArrayField<T extends object>({
     [confirmDelete, confirm, removeItem, isDraft],
   );
 
+  const id = useId();
+
   return (
-    <div className="flex flex-col items-start gap-4">
-      <Reorder.Group
-        axis="y"
-        values={items}
-        onReorder={setItems}
-        className={arrayFieldVariants()}
-      >
-        <AnimatePresence mode="popLayout" initial={false}>
+    <LayoutGroup id={id}>
+      <div className="flex flex-col items-start gap-4">
+        <Reorder.Group
+          axis="y"
+          values={items}
+          onReorder={setItems}
+          className={arrayFieldVariants()}
+        >
           {items.length === 0 && (
             <motion.li
               key="no-items"
@@ -259,25 +264,25 @@ export function ArrayField<T extends object>({
               ItemComponent={ItemComponent}
             />
           ))}
-        </AnimatePresence>
-      </Reorder.Group>
-      <MotionButton
-        key="add-button"
-        size="sm"
-        onClick={() => startAdding(itemTemplate() as T)}
-        icon={<PlusIcon />}
-        disabled={!!editingItem}
-      >
-        {addButtonLabel}
-      </MotionButton>
-      {EditorComponent && (
-        <EditorComponent
-          item={editingItem}
-          isNewItem={isAddingNew}
-          onSave={saveEditing}
-          onCancel={cancelEditing}
-        />
-      )}
-    </div>
+        </Reorder.Group>
+        <MotionButton
+          key="add-button"
+          size="sm"
+          onClick={() => startAdding(itemTemplate() as T)}
+          icon={<PlusIcon />}
+          disabled={!!editingItem}
+        >
+          {addButtonLabel}
+        </MotionButton>
+        {EditorComponent && (
+          <EditorComponent
+            item={editingItem}
+            isNewItem={isAddingNew}
+            onSave={saveEditing}
+            onCancel={cancelEditing}
+          />
+        )}
+      </div>
+    </LayoutGroup>
   );
 }
