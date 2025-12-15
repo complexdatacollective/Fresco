@@ -36,13 +36,6 @@ const meta: Meta<typeof Form> = {
   parameters: {
     layout: 'centered',
   },
-  decorators: [
-    (Story) => (
-      <div className="w-[600px] max-w-full">
-        <Story />
-      </div>
-    ),
-  ],
 };
 
 export default meta;
@@ -428,13 +421,7 @@ export const VariableDefinitionWithValidation: Story = {
           hint="A unique identifier for this variable (camelCase recommended)"
           component={InputField}
           required
-          validation={z
-            .string()
-            .min(1, 'Name is required')
-            .regex(
-              /^[a-z][a-zA-Z0-9]*$/,
-              'Must start with lowercase letter and contain only alphanumeric characters',
-            )}
+          pattern="^[a-z][a-zA-Z0-9]*$"
           placeholder="e.g., firstName, age, isMarried"
         />
 

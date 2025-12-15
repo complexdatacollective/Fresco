@@ -4,7 +4,7 @@ import {
 } from '@codaco/protocol-validation';
 import { GripVertical, PencilIcon, Trash2, X } from 'lucide-react';
 import { motion } from 'motion/react';
-import { forwardRef, useEffect, useState } from 'react';
+import { forwardRef, useState } from 'react';
 import { surfaceVariants } from '~/components/layout/Surface';
 import Button, { IconButton, MotionButton } from '~/components/ui/Button';
 import { Dialog } from '~/lib/dialogs/Dialog';
@@ -42,14 +42,10 @@ export const MOCK_VARIABLES = [
 export function NameGeneratorPromptItem({
   item,
   isSortable,
-  isBeingEdited,
   onEdit,
   onDelete,
   dragControls,
 }: ArrayFieldItemProps<NameGeneratorPrompt>) {
-  // Use static layoutId only when being edited to enable shared layout animation with dialog
-  const layoutId = isBeingEdited ? 'test' : undefined;
-
   const isDraft = item._draft === true;
 
   if (isDraft) {
@@ -58,8 +54,9 @@ export function NameGeneratorPromptItem({
 
   return (
     <motion.div
-      layoutId={layoutId}
-      className="border-b-input-contrast/10 flex w-full items-center gap-2 border-b px-2 py-2 last:border-b-0"
+      layoutId={item._internalId}
+      layout
+      className="flex w-full items-center gap-2 px-2 py-2"
     >
       {isSortable && (
         <motion.div
@@ -124,14 +121,6 @@ export function NameGeneratorPromptEditor({
   onSave,
   item,
 }: ArrayFieldEditorProps<NameGeneratorPrompt>) {
-  const [open, setOpen] = useState(!!item);
-
-  useEffect(() => {
-    const newState = !!item;
-    console.log('new state', newState);
-    setOpen(newState);
-  }, [item]);
-
   const handleSubmit = (data: NameGeneratorPrompt) => {
     onSave({
       id: item?.id ?? crypto.randomUUID(),
@@ -142,27 +131,18 @@ export function NameGeneratorPromptEditor({
     return { success: true as const };
   };
 
-  const handleClose = () => {
-    setOpen(false);
-    onCancel();
-  };
-
   const formId = `prompt-form-${item?._internalId ?? 'new'}`;
-
-  const layoutId = isNewItem ? undefined : { layoutId: 'test' };
-
-  console.log('Rendering Prompt Editor', layoutId);
 
   return (
     <Dialog
       title={isNewItem ? 'Add Prompt' : 'Edit Prompt'}
       description="Configure the prompt text and any additional attributes to set on created nodes"
-      open={open}
-      closeDialog={handleClose}
-      {...layoutId}
+      open={!!item}
+      closeDialog={onCancel}
+      layoutId={isNewItem ? undefined : item?._internalId}
       footer={
         <>
-          <MotionButton type="button" onClick={handleClose}>
+          <MotionButton type="button" onClick={onCancel}>
             Cancel
           </MotionButton>
           <MotionButton form={formId} type="submit" color="primary">
@@ -191,6 +171,7 @@ export function NameGeneratorPromptEditor({
           itemTemplate={() => ({ variable: undefined, value: undefined })}
           itemComponent={AdditionalAttributeItem}
           confirmDelete={false}
+          initialValue={item?.additionalAttributes}
         />
       </Form>
     </Dialog>
@@ -217,16 +198,8 @@ export function AdditionalAttributeItem({
   dragControls,
 }: ArrayFieldItemProps<AdditionalAttribute>) {
   // Local state for inline editing
-  const [variable, setVariable] = useState(
-    item.variable ?? MOCK_VARIABLES[0]?.value ?? '',
-  );
+  const [variable, setVariable] = useState(item?.variable);
   const [value, setValue] = useState<boolean | null>(item.value ?? null);
-
-  // Reset local state when item changes or editing starts
-  useEffect(() => {
-    setVariable(item.variable ?? MOCK_VARIABLES[0]?.value ?? '');
-    setValue(item.value ?? null);
-  }, [item, isBeingEdited]);
 
   const handleSave = () => {
     if (variable && value !== null && onChange) {
@@ -241,8 +214,6 @@ export function AdditionalAttributeItem({
   if (isBeingEdited) {
     return (
       <motion.div
-        layoutId={item._internalId}
-        layout
         className={cx(
           surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
           'flex w-full flex-col border p-4',
@@ -291,10 +262,7 @@ export function AdditionalAttributeItem({
 
   // Display mode
   return (
-    <motion.div
-      layoutId={item._internalId}
-      className="border-b-input-contrast/10 flex w-full items-center gap-2 border-b px-2 py-2 last:border-b-0"
-    >
+    <motion.div className="flex w-full items-center gap-2 px-2 py-2">
       {isSortable && (
         <motion.div
           layout

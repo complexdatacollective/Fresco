@@ -1,3 +1,4 @@
+import { isEmpty } from 'es-toolkit/compat';
 import { type SelectHTMLAttributes } from 'react';
 import {
   controlWrapperVariants,
@@ -38,19 +39,12 @@ export function SelectField({
     onChange(selectedValue);
   };
 
-  // Work out variant state based on props. Order:
-  // disabled > readOnly > invalid > normal
-  const getState = () => {
-    if (disabled) return 'disabled';
-    if (selectProps['aria-invalid']) return 'invalid';
-    return 'normal';
-  };
+  const hasValue = isEmpty(value) === false;
 
   return (
     <div
       className={controlWrapperVariants({
         size,
-        state: getState(),
         className: selectProps.className,
       })}
     >
@@ -63,13 +57,15 @@ export function SelectField({
         onChange={handleChange}
         className={cx(
           selectBackgroundVariants,
-          value === undefined ||
-            value === null ||
-            (value === '' && 'text-input-contrast/50 italic'),
+          !hasValue && 'text-input-contrast/50 italic',
           selectProps.className,
         )}
       >
-        {placeholder && <option value="">{placeholder}</option>}
+        {placeholder && (
+          <option value="" disabled selected={!hasValue}>
+            {placeholder}
+          </option>
+        )}
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}

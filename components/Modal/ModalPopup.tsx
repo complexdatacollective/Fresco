@@ -91,7 +91,8 @@ export default function ModalPopup({
   className,
   ...props
 }: ModalPopupProps) {
-  const hasLayoutId = 'layoutId' in props && props.layoutId;
+  const hasLayoutId = 'layoutId' in props && props.layoutId !== undefined;
+
   const hasAnimationProps =
     'initial' in props || 'animate' in props || 'exit' in props;
 

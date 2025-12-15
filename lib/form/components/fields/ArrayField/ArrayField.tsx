@@ -2,12 +2,11 @@ import { PlusIcon } from 'lucide-react';
 import {
   AnimatePresence,
   type DragControls,
-  LayoutGroup,
   motion,
   Reorder,
   useDragControls,
 } from 'motion/react';
-import { type ComponentType, type ReactNode, useCallback } from 'react';
+import { type ComponentType, forwardRef, type Ref, useCallback } from 'react';
 import { MotionButton } from '~/components/ui/Button';
 import useDialog from '~/lib/dialogs/useDialog';
 import {
@@ -16,6 +15,9 @@ import {
 } from '~/lib/form/hooks/useManagedItems';
 import { controlGroupVariants } from '~/styles/shared/controlVariants';
 import { compose, cva } from '~/utils/cva';
+
+// Stable empty array to prevent infinite re-renders when value is undefined
+const EMPTY_ARRAY: never[] = [];
 
 const arrayFieldVariants = compose(
   controlGroupVariants,
@@ -43,7 +45,7 @@ export { type WithManagedProperties } from '~/lib/form/hooks/useManagedItems';
  * The component renders the CONTENT inside a Reorder.Item (not the Reorder.Item itself).
  */
 export type ArrayFieldItemProps<T extends object> = {
-  item: WithManagedProperties<T>;
+  item: Partial<WithManagedProperties<T>>;
   isNewItem: boolean;
   onChange?: (value: T) => void;
   onCancel?: () => void;
@@ -115,20 +117,7 @@ export type ArrayFieldProps<T extends object> = {
   confirmDelete?: boolean;
 };
 
-/**
- * Internal wrapper component for each item that provides drag controls.
- */
-function ArrayFieldItemWrapper<T extends object>({
-  item,
-  isSortable,
-  isBeingEdited,
-  isNewItem,
-  onDelete,
-  onEdit,
-  onCancel,
-  onChange,
-  ItemContent,
-}: {
+type ArrayFieldItemWrapperProps<T extends object> = {
   item: WithManagedProperties<T>;
   isSortable: boolean;
   isBeingEdited: boolean;
@@ -137,20 +126,41 @@ function ArrayFieldItemWrapper<T extends object>({
   onChange?: (value: T) => void;
   onDelete: () => void;
   onEdit: () => void;
-  ItemContent: ComponentType<ArrayFieldItemProps<T>>;
-}): ReactNode {
+  ItemComponent: ComponentType<ArrayFieldItemProps<T>>;
+};
+
+/**
+ * Internal wrapper component for each item that provides drag controls.
+ * Uses forwardRef to support AnimatePresence popLayout mode.
+ */
+const ArrayFieldItemWrapper = forwardRef(function ArrayFieldItemWrapper<
+  T extends object,
+>(
+  {
+    item,
+    isSortable,
+    isBeingEdited,
+    isNewItem,
+    onDelete,
+    onEdit,
+    onCancel,
+    onChange,
+    ItemComponent,
+  }: ArrayFieldItemWrapperProps<T>,
+  ref: Ref<HTMLLIElement>,
+) {
   const dragControls = useDragControls();
 
   return (
     <Reorder.Item
+      ref={ref}
       value={item}
       dragListener={false}
       dragControls={dragControls}
-      layout
       className={itemVariants()}
       {...itemAnimationProps}
     >
-      <ItemContent
+      <ItemComponent
         item={item}
         isSortable={isSortable}
         isBeingEdited={isBeingEdited}
@@ -163,14 +173,16 @@ function ArrayFieldItemWrapper<T extends object>({
       />
     </Reorder.Item>
   );
-}
+}) as <T extends object>(
+  props: ArrayFieldItemWrapperProps<T> & { ref?: Ref<HTMLLIElement> },
+) => JSX.Element;
 
 export function ArrayField<T extends object>({
-  value = [],
+  value = EMPTY_ARRAY as T[],
   onChange,
   sortable = false,
   getId,
-  itemComponent: ItemContent,
+  itemComponent: ItemComponent,
   editorComponent: EditorComponent,
   itemTemplate,
   addButtonLabel = 'Add Item',
@@ -182,9 +194,7 @@ export function ArrayField<T extends object>({
   const {
     items,
     setItems,
-    editingId,
     editingItem,
-    isEditing,
     isAddingNew,
     startAdding,
     startEditing,
@@ -223,42 +233,40 @@ export function ArrayField<T extends object>({
         onReorder={setItems}
         className={arrayFieldVariants()}
       >
-        <LayoutGroup id="array-field-items">
-          <AnimatePresence initial={false}>
-            {items.length === 0 && (
-              <motion.li
-                key="no-items"
-                className="text-sm text-current/70"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1, transition: { delay: 0.3 } }}
-                exit={{ opacity: 0 }}
-              >
-                {emptyStateMessage}
-              </motion.li>
-            )}
-            {items.map((item) => (
-              <ArrayFieldItemWrapper
-                key={item._internalId}
-                item={item}
-                isSortable={sortable}
-                onDelete={() => requestDelete(item._internalId)}
-                onEdit={() => startEditing(item._internalId)}
-                onChange={saveEditing}
-                isNewItem={!!item._draft}
-                isBeingEdited={editingId === item._internalId}
-                onCancel={cancelEditing}
-                ItemContent={ItemContent}
-              />
-            ))}
-          </AnimatePresence>
-        </LayoutGroup>
+        <AnimatePresence mode="popLayout" initial={false}>
+          {items.length === 0 && (
+            <motion.li
+              key="no-items"
+              className="text-sm text-current/70"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, transition: { delay: 0.3 } }}
+              exit={{ opacity: 0 }}
+            >
+              {emptyStateMessage}
+            </motion.li>
+          )}
+          {items.map((item) => (
+            <ArrayFieldItemWrapper
+              key={item._internalId}
+              item={item}
+              isSortable={sortable}
+              onDelete={() => requestDelete(item._internalId)}
+              onEdit={() => startEditing(item._internalId)}
+              onChange={saveEditing}
+              isNewItem={!!item._draft}
+              isBeingEdited={editingItem?._internalId === item._internalId}
+              onCancel={cancelEditing}
+              ItemComponent={ItemComponent}
+            />
+          ))}
+        </AnimatePresence>
       </Reorder.Group>
       <MotionButton
         key="add-button"
         size="sm"
         onClick={() => startAdding(itemTemplate() as T)}
         icon={<PlusIcon />}
-        disabled={isEditing}
+        disabled={!!editingItem}
       >
         {addButtonLabel}
       </MotionButton>

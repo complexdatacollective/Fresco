@@ -57,7 +57,6 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
       footer,
       open = false,
       className,
-      layoutId,
       ...rest
     },
     ref,
@@ -82,7 +81,6 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
               '[--color-primary-contrast:var(--color-destructive-contrast)] [--color-primary:var(--color-destructive)]',
             className,
           )}
-          layoutId={layoutId}
           {...rest}
         >
           <BaseDialog.Title
@@ -163,8 +161,8 @@ DialogDescription.displayName = 'DialogDescription';
 
 const DialogContent = ({
   children,
-  className: _className,
-  ..._props
+  className,
+  ...props
 }: React.ComponentProps<typeof motion.div>) => {
   return <ScrollArea>{children}</ScrollArea>;
 };

@@ -23,8 +23,10 @@ type ScrollAreaProps = {
 const scrollbarClasses = cx(
   // Layout
   'absolute ms-2 flex',
+  // Ensure scrollbar renders above fade pseudo elements
+  'z-10',
   // Sizing
-  'rounded-[1rem]',
+  'rounded-[--spacing(4)]',
   // Appearance
   'bg-current/10 opacity-0',
   // Transitions
@@ -59,7 +61,7 @@ const thumbClasses = cx(
   'rounded-[inherit] bg-current',
   // Larger hit area for easier grabbing
   'before:absolute before:top-1/2 before:left-1/2',
-  'before:h-[calc(100%+1rem)] before:w-[calc(100%+1rem)]',
+  'before:h-[calc(100%+--spacing(4))] before:w-[calc(100%+--spacing(4))]',
   'before:-translate-x-1/2 before:-translate-y-1/2',
   'before:content-[""]',
 );
@@ -91,6 +93,8 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
         ref={ref}
         className={cx(
           'focusable-after relative flex min-h-0 flex-1',
+          // Negative margin to offset the Viewport's internal padding
+          '-mx-4',
           className,
         )}
         {...props}
@@ -101,6 +105,8 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
             'focusable-after-trigger',
             // Layout
             'group min-h-0 flex-1 overflow-auto overscroll-contain',
+            // Padding to prevent animated elements from clipping (inside scroll bounds)
+            'px-4',
             // Gradient fade effect
             fade && 'scroll-area-viewport',
             // Scroll snap
