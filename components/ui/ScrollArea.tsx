@@ -22,7 +22,7 @@ type ScrollAreaProps = {
 
 const scrollbarClasses = cx(
   // Layout
-  'absolute z-2 m-1 flex',
+  'absolute ms-2 flex',
   // Sizing
   'rounded-[1rem]',
   // Appearance
@@ -44,7 +44,7 @@ const verticalScrollbarClasses = cx(
   // Positioning
   'top-0 right-0 bottom-0',
   // Width
-  'tablet:w-[0.325rem] w-[0.25rem]',
+  'w-2',
 );
 
 const horizontalScrollbarClasses = cx(
@@ -52,7 +52,7 @@ const horizontalScrollbarClasses = cx(
   // Positioning
   'right-0 bottom-0 left-0',
   // Height
-  'tablet:h-[0.325rem] h-[0.25rem]',
+  'h-2',
 );
 
 const thumbClasses = cx(
@@ -100,20 +100,23 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
             // Required by focusable-after
             'focusable-after-trigger',
             // Layout
-            'min-h-0 flex-1 overflow-auto overscroll-contain',
+            'group min-h-0 flex-1 overflow-auto overscroll-contain',
             // Gradient fade effect
             fade && 'scroll-area-viewport',
             // Scroll snap
             getSnapClasses(),
-            // Padding when scrollbars are visible (scrollbar width + margin)
-            'data-has-overflow-y:pr-[calc(0.25rem+0.5rem)]',
-            'data-has-overflow-y:tablet:pr-[calc(0.325rem+0.5rem)]',
-            'data-has-overflow-x:pb-[calc(0.25rem+0.5rem)]',
-            'data-has-overflow-x:tablet:pb-[calc(0.325rem+0.5rem)]',
             viewportClassName,
           )}
         >
-          <BaseScrollArea.Content>{children}</BaseScrollArea.Content>
+          <BaseScrollArea.Content
+            className={cx(
+              // Additional padding when scrollbars are visible (scrollbar width + margin)
+              'group-data-has-overflow-y:pr-4',
+              'group-data-has-overflow-x:pb-4',
+            )}
+          >
+            {children}
+          </BaseScrollArea.Content>
         </BaseScrollArea.Viewport>
 
         <BaseScrollArea.Scrollbar

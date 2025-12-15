@@ -5,6 +5,7 @@ import { useId, type ComponentProps } from 'react';
 import { scrollToFirstError } from '~/lib/form/utils/scrollToFirstError';
 import { cx } from '~/utils/cva';
 import { useForm } from '../hooks/useForm';
+import { FormStoreProvider } from '../store/formStoreProvider';
 import FormErrorsList from './FormErrors';
 import type { FormSubmitHandler } from './types';
 
@@ -13,7 +14,7 @@ type FormProps = {
   children: React.ReactNode;
 } & Omit<ComponentProps<'form'>, 'onSubmit' | 'children' | 'submitButton'>;
 
-export default function Form(props: FormProps) {
+function FormInner(props: FormProps) {
   const { onSubmit, children, className, ...rest } = props;
 
   const id = useId();
@@ -37,5 +38,13 @@ export default function Form(props: FormProps) {
         {children}
       </LayoutGroup>
     </form>
+  );
+}
+
+export default function Form(props: FormProps) {
+  return (
+    <FormStoreProvider>
+      <FormInner {...props} />
+    </FormStoreProvider>
   );
 }

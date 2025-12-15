@@ -1,5 +1,3 @@
-'use client';
-
 import {
   type AdditionalAttributes,
   type FilterRule,
@@ -13,7 +11,6 @@ import { Dialog } from '~/lib/dialogs/Dialog';
 import { cx } from '~/utils/cva';
 import Field from '../../Field';
 import Form from '../../Form';
-import { IsolatedForm } from '../../IsolatedForm';
 import { UnconnectedField } from '../../UnconnectedField';
 import { BooleanField } from '../Boolean';
 import { InputField } from '../InputField';
@@ -45,13 +42,23 @@ export const MOCK_VARIABLES = [
 export function NameGeneratorPromptItem({
   item,
   isSortable,
+  isBeingEdited,
   onEdit,
   onDelete,
   dragControls,
 }: ArrayFieldItemProps<NameGeneratorPrompt>) {
+  // Use static layoutId only when being edited to enable shared layout animation with dialog
+  const layoutId = isBeingEdited ? 'test' : undefined;
+
+  const isDraft = item._draft === true;
+
+  if (isDraft) {
+    return null;
+  }
+
   return (
     <motion.div
-      layoutId={item._internalId}
+      layoutId={layoutId}
       className="border-b-input-contrast/10 flex w-full items-center gap-2 border-b px-2 py-2 last:border-b-0"
     >
       {isSortable && (
@@ -112,15 +119,21 @@ export function NameGeneratorPromptItem({
 }
 
 export function NameGeneratorPromptEditor({
-  isEditing,
   isNewItem,
   onCancel,
-  onChange,
+  onSave,
   item,
 }: ArrayFieldEditorProps<NameGeneratorPrompt>) {
+  const [open, setOpen] = useState(!!item);
+
+  useEffect(() => {
+    const newState = !!item;
+    console.log('new state', newState);
+    setOpen(newState);
+  }, [item]);
+
   const handleSubmit = (data: NameGeneratorPrompt) => {
-    console.log('prompt editor submitdata:', data);
-    onChange({
+    onSave({
       id: item?.id ?? crypto.randomUUID(),
       text: data.text,
       additionalAttributes: data.additionalAttributes,
@@ -129,18 +142,27 @@ export function NameGeneratorPromptEditor({
     return { success: true as const };
   };
 
-  const formId = `prompt-form-${item?.id ?? 'new'}`;
+  const handleClose = () => {
+    setOpen(false);
+    onCancel();
+  };
+
+  const formId = `prompt-form-${item?._internalId ?? 'new'}`;
+
+  const layoutId = isNewItem ? undefined : { layoutId: 'test' };
+
+  console.log('Rendering Prompt Editor', layoutId);
 
   return (
     <Dialog
       title={isNewItem ? 'Add Prompt' : 'Edit Prompt'}
       description="Configure the prompt text and any additional attributes to set on created nodes"
-      open={isEditing}
-      closeDialog={onCancel}
-      layoutId={isNewItem ? undefined : item?.id}
+      open={open}
+      closeDialog={handleClose}
+      {...layoutId}
       footer={
         <>
-          <MotionButton type="button" onClick={onCancel}>
+          <MotionButton type="button" onClick={handleClose}>
             Cancel
           </MotionButton>
           <MotionButton form={formId} type="submit" color="primary">
@@ -149,11 +171,7 @@ export function NameGeneratorPromptEditor({
         </>
       }
     >
-      <Form
-        onSubmit={handleSubmit}
-        className="w-full max-w-full gap-4"
-        id={formId}
-      >
+      <Form onSubmit={handleSubmit} className="w-full max-w-full" id={formId}>
         <Field
           name="text"
           label="Prompt Text"
@@ -161,18 +179,18 @@ export function NameGeneratorPromptEditor({
           component={InputField}
           initialValue={item?.text}
           required
+          maxLength={5}
         />
         <Field
           name="additionalAttributes"
           label="Additional Attributes"
           hint="Automatically set these attribute values on nodes created from this prompt"
           component={ArrayField<AdditionalAttribute>}
-          sortable
           addButtonLabel="Add Attribute"
           emptyStateMessage="No additional attributes configured"
           itemTemplate={() => ({ variable: undefined, value: undefined })}
           itemComponent={AdditionalAttributeItem}
-          editorComponent={AdditionalAttributeEditor}
+          confirmDelete={false}
         />
       </Form>
     </Dialog>
@@ -190,10 +208,88 @@ export type AdditionalAttribute = AdditionalAttributes[number];
 export function AdditionalAttributeItem({
   item,
   isSortable,
+  isBeingEdited,
+  isNewItem,
+  onChange,
+  onCancel,
   onEdit,
   onDelete,
   dragControls,
 }: ArrayFieldItemProps<AdditionalAttribute>) {
+  // Local state for inline editing
+  const [variable, setVariable] = useState(
+    item.variable ?? MOCK_VARIABLES[0]?.value ?? '',
+  );
+  const [value, setValue] = useState<boolean | null>(item.value ?? null);
+
+  // Reset local state when item changes or editing starts
+  useEffect(() => {
+    setVariable(item.variable ?? MOCK_VARIABLES[0]?.value ?? '');
+    setValue(item.value ?? null);
+  }, [item, isBeingEdited]);
+
+  const handleSave = () => {
+    if (variable && value !== null && onChange) {
+      onChange({
+        variable,
+        value,
+      });
+    }
+  };
+
+  // Inline edit mode
+  if (isBeingEdited) {
+    return (
+      <motion.div
+        layoutId={item._internalId}
+        layout
+        className={cx(
+          surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
+          'flex w-full flex-col border p-4',
+        )}
+      >
+        <UnconnectedField
+          component={SelectField}
+          label="Variable"
+          hint="Select the variable to set"
+          name={`additional-attribute-variable-${item._internalId}`}
+          value={variable}
+          placeholder="Select a variable..."
+          onChange={(val) => setVariable(String(val))}
+          options={[...MOCK_VARIABLES]}
+        />
+        <UnconnectedField
+          component={BooleanField}
+          label="Value"
+          hint="The boolean value to assign"
+          value={value}
+          onChange={setValue}
+          noReset
+        />
+        <div className="flex gap-2">
+          <Button
+            color="primary"
+            size="sm"
+            icon={<PencilIcon />}
+            onClick={handleSave}
+            disabled={!variable || value === null}
+          >
+            {isNewItem ? 'Add' : 'Save'}
+          </Button>
+          <Button
+            type="button"
+            onClick={onCancel}
+            aria-label="Cancel editing"
+            size="sm"
+          >
+            Cancel
+          </Button>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // Display mode
   return (
     <motion.div
       layoutId={item._internalId}
@@ -242,87 +338,6 @@ export function AdditionalAttributeItem({
           aria-label="Remove attribute"
         />
       </motion.div>
-    </motion.div>
-  );
-}
-
-export function AdditionalAttributeEditor({
-  item,
-  isEditing,
-  isNewItem,
-  onChange,
-  onCancel,
-}: ArrayFieldEditorProps<AdditionalAttribute>) {
-  // Use local state - no Form wrapper to avoid interfering with parent form context
-  const [variable, setVariable] = useState(
-    item?.variable ?? MOCK_VARIABLES[0]?.value ?? undefined,
-  );
-  const [value, setValue] = useState<boolean | null>(item?.value ?? null);
-
-  // Reset when item changes
-  useEffect(() => {
-    setVariable(item?.variable ?? MOCK_VARIABLES[0]?.value ?? '');
-    setValue(item?.value ?? null);
-  }, [item]);
-
-  const handleSave = () => {
-    if (variable && value !== null) {
-      onChange({
-        variable,
-        value,
-      });
-    }
-  };
-
-  if (!isEditing) {
-    return null;
-  }
-
-  return (
-    <motion.div
-      layout
-      className={cx(
-        surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
-        'flex w-full flex-col gap-4 border p-4',
-      )}
-    >
-      <UnconnectedField
-        component={SelectField}
-        label="Variable"
-        hint="Select the variable to set"
-        name="additional-attribute-variable"
-        value={variable}
-        placeholder="Select a variable..."
-        onChange={(val) => setVariable(String(val))}
-        options={[...MOCK_VARIABLES]}
-      />
-      <UnconnectedField
-        component={BooleanField}
-        label="Value"
-        hint="The boolean value to assign"
-        value={value}
-        onChange={setValue}
-        noReset
-      />
-      <div className="flex gap-2">
-        <Button
-          color="primary"
-          size="sm"
-          icon={<PencilIcon />}
-          onClick={handleSave}
-          disabled={!variable || value === null}
-        >
-          {isNewItem ? 'Add' : 'Save'}
-        </Button>
-        <Button
-          type="button"
-          onClick={onCancel}
-          aria-label="Cancel editing"
-          size="sm"
-        >
-          Cancel
-        </Button>
-      </div>
     </motion.div>
   );
 }
@@ -488,11 +503,7 @@ export const FilterRuleEditor = forwardRef<
         </>
       }
     >
-      <IsolatedForm
-        submitButtonId={formId}
-        onSubmit={handleSubmit}
-        className="w-full max-w-full gap-4"
-      >
+      <Form onSubmit={handleSubmit} className="w-full max-w-full">
         <Field
           name="type"
           label="Entity Type"
@@ -538,7 +549,7 @@ export const FilterRuleEditor = forwardRef<
           }
           placeholder="e.g., 25, John, true"
         />
-      </IsolatedForm>
+      </Form>
     </Dialog>
   );
 });
@@ -725,27 +736,21 @@ export const ValidationConfigEditor = forwardRef<
         </>
       }
     >
-      <IsolatedForm
-        submitButtonId={formId}
-        onSubmit={handleSubmit}
-        className="w-full max-w-full gap-4"
-      >
-        <div className="grid grid-cols-2 gap-4">
-          <Field
-            name="required"
-            label="Required"
-            component={BooleanField}
-            initialValue={item?.required}
-            noReset
-          />
-          <Field
-            name="unique"
-            label="Must be unique"
-            component={BooleanField}
-            initialValue={item?.unique}
-            noReset
-          />
-        </div>
+      <Form onSubmit={handleSubmit} className="w-full max-w-full">
+        <Field
+          name="required"
+          label="Required"
+          component={BooleanField}
+          initialValue={item?.required}
+          noReset
+        />
+        <Field
+          name="unique"
+          label="Must be unique"
+          component={BooleanField}
+          initialValue={item?.unique}
+          noReset
+        />
 
         <div className="border-t pt-4">
           <h4 className="mb-3 text-sm font-medium text-current/70">
@@ -854,7 +859,7 @@ export const ValidationConfigEditor = forwardRef<
             />
           </div>
         </div>
-      </IsolatedForm>
+      </Form>
     </Dialog>
   );
 });

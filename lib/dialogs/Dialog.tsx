@@ -2,13 +2,14 @@
 
 import { Dialog as BaseDialog } from '@base-ui-components/react/dialog';
 import { Slot } from '@radix-ui/react-slot';
-import { motion } from 'motion/react';
+import { type motion } from 'motion/react';
 import React, { forwardRef, type ReactNode } from 'react';
 import CloseButton from '~/components/CloseButton';
 import { type SurfaceVariants } from '~/components/layout/Surface';
 import Modal from '~/components/Modal/Modal';
 import { headingVariants } from '~/components/typography/Heading';
 import { paragraphVariants } from '~/components/typography/Paragraph';
+import { ScrollArea } from '~/components/ui/ScrollArea';
 import { cx, type VariantProps } from '~/utils/cva';
 import DialogPopup from './DialogPopup';
 
@@ -56,6 +57,7 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
       footer,
       open = false,
       className,
+      layoutId,
       ...rest
     },
     ref,
@@ -80,6 +82,7 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
               '[--color-primary-contrast:var(--color-destructive-contrast)] [--color-primary:var(--color-destructive)]',
             className,
           )}
+          layoutId={layoutId}
           {...rest}
         >
           <BaseDialog.Title
@@ -160,10 +163,10 @@ DialogDescription.displayName = 'DialogDescription';
 
 const DialogContent = ({
   children,
-  className,
-  ...props
+  className: _className,
+  ..._props
 }: React.ComponentProps<typeof motion.div>) => {
-  return <motion.div className="flex-1 overflow-y-auto">{children}</motion.div>;
+  return <ScrollArea>{children}</ScrollArea>;
 };
 
 const DialogFooter = ({

@@ -50,6 +50,14 @@ type Story = StoryObj<typeof meta>;
 
 const nameGeneratorPromptsSchema = z.array(nameGeneratorPromptSchema);
 
+const samplePrompts: NameGeneratorPrompt[] = [
+  {
+    id: 'prompt-1',
+    text: 'Think of people you see regularly in your daily life.',
+    additionalAttributes: [{ variable: 'closeness', value: true }],
+  },
+];
+
 export const NameGeneratorPrompts: Story = {
   render: () => (
     <Surface>
@@ -89,6 +97,8 @@ export const NameGeneratorPrompts: Story = {
           sortable
           addButtonLabel="Add Prompt"
           emptyStateMessage="No prompts added yet. Click 'Add Prompt' to get started."
+          initialValue={samplePrompts}
+          getId={(item) => item.id}
           itemTemplate={() => ({
             id: crypto.randomUUID(),
           })}

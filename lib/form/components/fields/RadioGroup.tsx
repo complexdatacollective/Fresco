@@ -54,7 +54,7 @@ export const radioGroupVariants = cva({
   compoundVariants: [
     {
       useColumns: true,
-      class: 'flex-none! grid!', // Override orientation flex styles when useColumns is enabled
+      class: 'grid! flex-none!', // Override orientation flex styles when useColumns is enabled
     },
   ],
   defaultVariants: {
@@ -68,7 +68,7 @@ export const radioGroupVariants = cva({
 export const radioOptionVariants = cva({
   base: cx(
     transitionStyles,
-    'flex items-center cursor-pointer group',
+    'group flex cursor-pointer items-center',
     // Disabled state
     'has-[input:disabled]:cursor-not-allowed has-[input:disabled]:opacity-50',
   ),
@@ -94,7 +94,7 @@ export const radioInputVariants = cva({
     focusRingStyles.invalid,
     // Checked state - using background to create the inner circle
     'checked:border-accent checked:bg-input',
-    'checked:after:content-[""] checked:after:absolute checked:after:rounded-full checked:after:bg-accent',
+    'checked:after:bg-accent checked:after:absolute checked:after:rounded-full checked:after:content-[""]',
     // Invalid state
     interactiveElementStyles.invalidBorder,
     interactiveElementStyles.checkedInvalid,
@@ -173,15 +173,6 @@ export function RadioGroupField({
   useColumns = false,
   ...divProps
 }: RadioGroupProps) {
-  const handleChange = (optionValue: string | number) => {
-    if (onChange) {
-      onChange(optionValue);
-    }
-  };
-
-  // Determine if this is controlled or uncontrolled
-  const isControlled = value !== undefined;
-
   return (
     <div
       id={id}
@@ -192,25 +183,12 @@ export function RadioGroupField({
         className: `@container ${className ?? ''}`,
       })}
       role="radiogroup"
-      data-invalid={divProps['aria-invalid'] === 'true'}
-      aria-disabled={disabled}
-      {...(divProps['aria-labelledby']
-        ? { 'aria-labelledby': divProps['aria-labelledby'] }
-        : {})}
-      {...(divProps['aria-label']
-        ? { 'aria-label': divProps['aria-label'] }
-        : {})}
-      {...(divProps['aria-describedby']
-        ? { 'aria-describedby': divProps['aria-describedby'] }
-        : {})}
-      {...(divProps['aria-required']
-        ? { 'aria-required': divProps['aria-required'] }
-        : {})}
+      {...divProps}
     >
       {options.map((option) => {
         const optionId = `${name}-${option.value}`;
         const isOptionDisabled = disabled || option.disabled;
-        const isChecked = isControlled ? value === option.value : undefined; // Let defaultValue handle uncontrolled case
+        const isChecked = value === option.value;
 
         return (
           <label
@@ -223,13 +201,11 @@ export function RadioGroupField({
               id={optionId}
               name={name}
               value={option.value}
-              {...(isControlled
-                ? { checked: isChecked }
-                : { defaultChecked: defaultValue === option.value })}
+              checked={isChecked}
               disabled={isOptionDisabled}
               onChange={(e) => {
                 if (e.target.checked && !isOptionDisabled) {
-                  handleChange(option.value);
+                  onChange?.(option.value);
                 }
               }}
               className={radioInputVariants({ size })}

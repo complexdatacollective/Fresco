@@ -46,6 +46,10 @@ type FieldValidator = (
   fieldPath?: string[],
 ) => Promise<void>;
 
+/**
+ * Hook to automatically convert protocol form definitions into the new form
+ * system by generating Field's and their validation functions.
+ */
 export default function useProtocolForm({
   fields,
   autoFocus = false,

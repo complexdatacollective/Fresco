@@ -11,7 +11,7 @@ export type ValidationFunction<T extends string | boolean | number> = (
   // validation object. required = boolean, maxLength = number,
   // unique = string etc.
   parameter: T,
-  context: ValidationContext,
+  context?: ValidationContext,
 ) => (formValues: Record<string, FieldValue>) => z.ZodType;
 
 /**
@@ -158,6 +158,10 @@ const maxSelected: ValidationFunction<number> = (max) => () => {
  * current network
  */
 const unique: ValidationFunction<string> = (attribute, context) => () => {
+  invariant(
+    context,
+    'Validation context must be provided when using unique validation',
+  );
   const { stageSubject, network } = context;
 
   return z.unknown().superRefine((value, ctx) => {
@@ -193,6 +197,11 @@ const unique: ValidationFunction<string> = (attribute, context) => () => {
  */
 const differentFrom: ValidationFunction<string> =
   (attribute, context) => (formValues) => {
+    invariant(
+      context,
+      'Validation context must be provided when using differentFrom validation',
+    );
+
     const { stageSubject, codebook } = context;
 
     return z.unknown().superRefine((value, ctx) => {
@@ -234,6 +243,11 @@ const differentFrom: ValidationFunction<string> =
  */
 const sameAs: ValidationFunction<string> =
   (attribute, context) => (formValues) => {
+    invariant(
+      context,
+      'Validation context must be provided when using sameAs validation',
+    );
+
     const { stageSubject, codebook } = context;
 
     return z.unknown().superRefine((value, ctx) => {
@@ -273,6 +287,11 @@ const sameAs: ValidationFunction<string> =
  */
 const greaterThanVariable: ValidationFunction<string> =
   (attribute, context) => (formValues) => {
+    invariant(
+      context,
+      'Validation context must be provided when using greaterThanVariable validation',
+    );
+
     const { stageSubject, codebook } = context;
 
     return z.unknown().superRefine((value, ctx) => {
@@ -317,10 +336,29 @@ const greaterThanVariable: ValidationFunction<string> =
   };
 
 /**
+ * Require that a value matches a pattern. Designed to mirror the 'pattern'
+ * attribute of HTML5 input elements.
+ */
+const pattern: ValidationFunction<string> = (regex) => () => {
+  invariant(regex, 'Regex must be specified');
+
+  return z
+    .string()
+    .regex(new RegExp(regex), {
+      message: 'Your answer does not match the required format.',
+    })
+    .prefault('');
+};
+
+/**
  * Require that a value be less than another variable in the same form
  */
 const lessThanVariable: ValidationFunction<string> =
   (attribute, context) => (formValues) => {
+    invariant(
+      context,
+      'Validation context must be provided when using lessThanVariable validation',
+    );
     const { stageSubject, codebook } = context;
 
     invariant(
@@ -372,6 +410,7 @@ export const validations = {
   requiredAcceptsNull: required, // TODO - remove;
   minLength,
   maxLength,
+  pattern,
   minValue,
   maxValue,
   minSelected,
