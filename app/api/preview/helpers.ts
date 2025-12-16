@@ -3,7 +3,7 @@ import { verifyApiToken } from '~/actions/apiTokens';
 import { env } from '~/env';
 import { getAppSetting } from '~/queries/appSettings';
 import { getServerSession } from '~/utils/auth';
-import type { ErrorResponse, PreviewResponse } from './types';
+import type { AuthError, PreviewResponse } from './types';
 
 // CORS headers for external client (Architect)
 export const corsHeaders = {
@@ -18,17 +18,19 @@ export function jsonResponse(data: PreviewResponse, status = 200) {
 }
 
 // Check preview mode and authentication
-// Returns null if authorized, or an error response if not
+// Returns null if authorized, or error data if not
 export async function checkPreviewAuth(
   req: NextRequest,
-): Promise<NextResponse<PreviewResponse> | null> {
+): Promise<AuthError | null> {
   // Check if preview mode is enabled
   if (!env.PREVIEW_MODE) {
-    const response: ErrorResponse = {
-      status: 'error',
-      message: 'Preview mode is not enabled',
+    return {
+      response: {
+        status: 'error',
+        message: 'Preview mode is not enabled',
+      },
+      status: 403,
     };
-    return jsonResponse(response, 403);
   }
 
   // Check authentication if required
@@ -44,21 +46,25 @@ export async function checkPreviewAuth(
       const token = authHeader?.replace('Bearer ', '');
 
       if (!token) {
-        const response: ErrorResponse = {
-          status: 'error',
-          message: 'Authentication required. Provide session or API token.',
+        return {
+          response: {
+            status: 'error',
+            message: 'Authentication required. Provide session or API token.',
+          },
+          status: 401,
         };
-        return jsonResponse(response, 401);
       }
 
       const { valid } = await verifyApiToken(token);
 
       if (!valid) {
-        const response: ErrorResponse = {
-          status: 'error',
-          message: 'Invalid API token',
+        return {
+          response: {
+            status: 'error',
+            message: 'Invalid API token',
+          },
+          status: 401,
         };
-        return jsonResponse(response, 401);
       }
     }
   }

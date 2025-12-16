@@ -3,9 +3,9 @@ import { hash } from 'ohash';
 import { addEvent } from '~/actions/activityFeed';
 import { env } from '~/env';
 import { MIN_ARCHITECT_VERSION_FOR_PREVIEW } from '~/fresco.config';
-import { validateAndMigrateProtocol } from '~/lib/protocol/validateAndMigrateProtocol';
 import trackEvent from '~/lib/analytics';
 import { prunePreviewProtocols } from '~/lib/preview-protocol-pruning';
+import { validateAndMigrateProtocol } from '~/lib/protocol/validateAndMigrateProtocol';
 import {
   generatePresignedUploadUrl,
   parseUploadThingToken,
@@ -38,7 +38,9 @@ export async function POST(
 ): Promise<NextResponse<PreviewResponse>> {
   const authError = await checkPreviewAuth(req);
 
-  if (authError) return authError;
+  if (authError) {
+    return jsonResponse(authError.response, authError.status);
+  }
 
   const REJECTED_RESPONSE: RejectedResponse = {
     status: 'rejected',
@@ -67,8 +69,7 @@ export async function POST(
         }
 
         // Validate and migrate protocol
-        const validationResult =
-          await validateAndMigrateProtocol(protocolJson);
+        const validationResult = await validateAndMigrateProtocol(protocolJson);
 
         if (!validationResult.success) {
           return jsonResponse(REJECTED_RESPONSE, 400);

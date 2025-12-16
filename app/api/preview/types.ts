@@ -77,3 +77,8 @@ export type PreviewResponse =
   | InitializeResponse
   | CompleteResponse
   | AbortResponse;
+
+export type AuthError = {
+  response: ErrorResponse;
+  status: number;
+};
