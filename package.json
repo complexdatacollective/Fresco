@@ -12,6 +12,7 @@
     "lint": "SKIP_ENV_VALIDATION=true next lint",
     "start": "next start",
     "vercel-build": "pnpm build:platform",
+    "netlify-build": "pnpm build:platform",
     "knip": "knip",
     "test": "vitest",
     "load-test": "docker run -i grafana/k6 run - <load-test.js",
