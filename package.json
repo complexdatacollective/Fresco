@@ -114,6 +114,7 @@
     "sanitize-filename": "^1.6.3",
     "server-only": "^0.0.1",
     "sharp": "^0.34.5",
+    "sqids": "^0.3.0",
     "strip-markdown": "^6.0.0",
     "superjson": "^2.2.5",
     "tailwind-merge": "^3.4.0",

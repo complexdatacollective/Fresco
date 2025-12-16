@@ -1,5 +1,6 @@
 export const PROTOCOL_EXTENSION = '.netcanvas';
 export const APP_SUPPORTED_SCHEMA_VERSIONS = [7, 8];
+export const MIN_ARCHITECT_VERSION_FOR_PREVIEW = '7.0.1';
 
 // If unconfigured, the app will shut down after 2 hours (7200000 ms)
 export const UNCONFIGURED_TIMEOUT = 7200000;

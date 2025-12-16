@@ -10,7 +10,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import usePrevious from '~/hooks/usePrevious';
 import Navigation from '../components/Navigation';
-import PreviewModeBanner from '../components/PreviewModeBanner';
 import { updatePrompt, updateStage } from '../ducks/modules/session';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import {
@@ -62,11 +61,7 @@ const variants = {
   },
 };
 
-type ProtocolScreenProps = {
-  isPreview: boolean;
-};
-
-export default function ProtocolScreen({ isPreview }: ProtocolScreenProps) {
+export default function ProtocolScreen() {
   const [scope, animate] = useAnimate();
   const dispatch = useDispatch();
 
@@ -268,7 +263,6 @@ export default function ProtocolScreen({ isPreview }: ProtocolScreenProps) {
 
   return (
     <>
-      {isPreview && <PreviewModeBanner />}
       <motion.div
         className="relative flex h-full w-full flex-1 flex-row gap-6 overflow-hidden"
         initial={{ opacity: 0 }}

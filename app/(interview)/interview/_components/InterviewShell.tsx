@@ -13,15 +13,16 @@ import { type GetInterviewByIdQuery } from '~/queries/interviews';
 // Eventually it will handle syncing this data back.
 const InterviewShell = (props: {
   rawPayload: string; // superjson encoded interview
+  disableSync?: boolean; // Disable syncing to database (for preview mode)
 }) => {
   const decodedPayload = SuperJSON.parse<NonNullable<GetInterviewByIdQuery>>(
     props.rawPayload,
   );
 
   return (
-    <Provider store={store(decodedPayload)}>
+    <Provider store={store(decodedPayload, { disableSync: props.disableSync })}>
       <DndStoreProvider>
-        <ProtocolScreen isPreview={decodedPayload.protocol.isPreview} />
+        <ProtocolScreen />
         <DialogManager />
       </DndStoreProvider>
     </Provider>

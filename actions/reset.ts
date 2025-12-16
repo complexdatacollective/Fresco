@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { env } from 'process';
 import { CacheTags, safeRevalidateTag } from '~/lib/cache';
-import { getUTApi } from '~/lib/uploadthing-server-helpers';
+import { getUTApi } from '~/lib/uploadthing/server-helpers';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 

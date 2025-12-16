@@ -60,3 +60,14 @@ export function getSemverUpdateType(
   // If we reach this point, we know the current version is higher than the new version
   return null;
 }
+
+/**
+ * Compare two semantic versions.
+ * Returns -1 if a < b, 0 if a == b, 1 if a > b
+ */
+export function compareSemver(a: SemVer, b: SemVer): -1 | 0 | 1 {
+  if (a.major !== b.major) return a.major < b.major ? -1 : 1;
+  if (a.minor !== b.minor) return a.minor < b.minor ? -1 : 1;
+  if (a.patch !== b.patch) return a.patch < b.patch ? -1 : 1;
+  return 0;
+}
