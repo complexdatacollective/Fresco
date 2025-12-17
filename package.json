@@ -124,7 +124,7 @@
   "devDependencies": {
     "@prisma/client": "^7.1.0",
     "@storybook/nextjs": "^10.0.8",
-    "@t3-oss/env-nextjs": "^0.13.8",
+    "@t3-oss/env-nextjs": "^0.13.10",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/forms": "^0.5.10",
