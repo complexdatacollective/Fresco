@@ -116,8 +116,9 @@ const EgoForm = (props: EgoFormProps) => {
   registerBeforeNext(beforeNext);
 
   const handleSubmitForm = useCallback(
-    async (formData: Record<string, VariableValue>) => {
-      await dispatch(updateEgo(formData));
+    async (formData: unknown) => {
+      await dispatch(updateEgo(formData as Record<string, VariableValue>));
+      return { success: true as const };
     },
     [dispatch],
   );

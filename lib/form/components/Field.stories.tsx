@@ -134,7 +134,7 @@ export const WithZodValidation: Story = {
       component={InputField}
       custom={{
         schema: z.email('Enter a valid email address'),
-        hint: 'be a valid email address',
+        hint: 'Enter a valid email address',
       }}
     />
   ),
@@ -187,21 +187,18 @@ export const NestedFieldName: Story = {
         return Promise.resolve({ success: true });
       }}
     >
-      <div className="flex w-96 flex-col gap-4">
-        <Field
-          name="user.profile.firstName"
-          label="First Name"
-          hint="Nested field: user.profile.firstName"
-          component={InputField}
-        />
-        <Field
-          name="user.profile.lastName"
-          label="Last Name"
-          hint="Nested field: user.profile.lastName"
-          component={InputField}
-        />
-        <SubmitButton>Submit</SubmitButton>
-      </div>
+      <Field
+        name="user.profile.firstName"
+        label="First Name"
+        hint="Nested field: user.profile.firstName"
+        component={InputField}
+      />
+      <Field
+        name="user.profile.lastName"
+        label="Last Name"
+        hint="Nested field: user.profile.lastName"
+        component={InputField}
+      />
     </Form>
   ),
   decorators: [],
@@ -229,85 +226,6 @@ export const MultipleValidations: Story = {
       description: {
         story:
           'Field with multiple validation rules applied. Validations are checked in order: required, minLength, maxLength, pattern, etc.',
-      },
-    },
-  },
-};
-
-export const AllValidationOptions: Story = {
-  render: () => (
-    <Form
-      onSubmit={(data) => {
-        action('form-submitted')(data);
-        return Promise.resolve({ success: true });
-      }}
-    >
-      <div className="flex w-96 flex-col gap-4">
-        <Field
-          name="requiredField"
-          label="Required Field"
-          hint="This field is required"
-          component={InputField}
-          required
-        />
-        <Field
-          name="minLengthField"
-          label="Min Length (3)"
-          component={InputField}
-          minLength={3}
-        />
-        <Field
-          name="maxLengthField"
-          label="Max Length (10)"
-          component={InputField}
-          maxLength={10}
-        />
-        <Field
-          name="patternField"
-          label="Pattern (letters only)"
-          component={InputField}
-          pattern={{
-            regex: '^[a-zA-Z]+$',
-            hint: 'Only letters allowed',
-          }}
-        />
-        <Field
-          name="zodValidation"
-          label="Zod Validation (email)"
-          component={InputField}
-          custom={{
-            schema: z.email('Invalid email'),
-            hint: 'Be a valid email address',
-          }}
-        />
-        <SubmitButton>Submit</SubmitButton>
-      </div>
-    </Form>
-  ),
-  decorators: [],
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Demonstrates the various built-in validation options: required, minLength, maxLength, pattern, and custom Zod validation.',
-      },
-    },
-  },
-};
-
-export const Playground: Story = {
-  args: {
-    name: 'playground',
-    label: 'Playground Field',
-    hint: 'Use the controls to experiment with different props',
-    component: InputField,
-    required: false,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Interactive playground - use the controls panel to experiment with different Field configurations.',
       },
     },
   },

@@ -26,39 +26,23 @@ export type FieldValidation =
     ) => z.ZodType | Promise<z.ZodType>);
 
 /**
+ * Schema for custom validation - can be a Zod schema directly, or a function
+ * that receives form values and validation context and returns a schema.
+ */
+export type CustomValidationSchema =
+  | z.ZodType
+  | ((
+      formValues: Record<string, FieldValue>,
+      validationContext?: ValidationContext,
+    ) => z.ZodType | Promise<z.ZodType>);
+
+/**
  * Custom field validation with required hint metadata.
  * The schema can be a Zod schema directly, or a function that receives
- * form values and returns a schema (for validations that depend on other fields).
- *
- * @example
- * ```tsx
- * // Simple validation
- * <Field
- *   custom={{ schema: z.email(), hint: 'Enter a valid email' }}
- * />
- *
- * // Multiple validations
- * <Field
- *   custom={[
- *     { schema: z.string().min(5), hint: 'At least 5 characters' },
- *     { schema: z.string().max(100), hint: 'Maximum 100 characters' },
- *   ]}
- * />
- *
- * // Context-aware validation
- * <Field
- *   custom={{
- *     schema: (formValues) => z.string().refine(
- *       (val) => val !== formValues.otherField,
- *       'Must be different from other field'
- *     ),
- *     hint: 'Must be different from other field',
- *   }}
- * />
- * ```
+ * form values and validation context and returns a schema.
  */
 export type CustomFieldValidation = {
-  schema: FieldValidation;
+  schema: CustomValidationSchema;
   hint: string;
 };
 
@@ -137,14 +121,6 @@ export type FormSubmissionResult =
  * Type for field errors object (used for scrolling to first error)
  */
 export type FormFieldErrors = Record<string, string[] | null>;
-
-/**
- * Props that all fields **must** handle.
- */
-export type BaseFieldProps = {
-  label: string;
-  hint?: React.ReactNode;
-};
 
 export type BaseFieldComponentProps<T extends FieldValue> = {
   id: string;

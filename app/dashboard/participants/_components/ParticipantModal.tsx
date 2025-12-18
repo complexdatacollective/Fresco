@@ -37,7 +37,7 @@ function ParticipantModal({
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSubmit = async (data) => {
+  const handleSubmit = async (data: unknown) => {
     setError(null);
 
     const typedData = data as {
@@ -126,7 +126,10 @@ function ParticipantModal({
           label="Label"
           hint="This optional field allows you to provide a human readable label. This could be a name, or an internal project label for this participant. It does not need to be unique, and will not be exposed to participants."
           placeholder="Enter optional label..."
-          validation={participantLabelSchema}
+          custom={{
+            schema: participantLabelSchema,
+            hint: 'Optional human-readable label',
+          }}
           component={InputField}
           type="text"
           initialValue={initialValues?.label}
@@ -193,9 +196,12 @@ function IdentifierField({
       label="Participant Identifier"
       hint={hint}
       placeholder="Enter an identifier..."
-      validation={identifierValidation}
+      custom={{
+        schema: identifierValidation,
+        hint: 'Unique identifier for this participant',
+      }}
       type="text"
-      Component={InputField}
+      component={InputField}
       suffixComponent={
         <Button
           type="button"

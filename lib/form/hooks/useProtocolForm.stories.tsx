@@ -6,6 +6,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Provider } from 'react-redux';
 import { Form, SubmitButton } from '../components';
+import { type FieldValue } from '../components/types';
 import useProtocolForm from './useProtocolForm';
 
 // Mock protocol data
@@ -150,6 +151,57 @@ const mockProtocol = {
               maxLength: 500,
             },
           },
+          nickname: {
+            name: 'Nickname',
+            type: 'text',
+            component: 'Text',
+            validation: {
+              unique: true,
+            },
+          },
+          password: {
+            name: 'Password',
+            type: 'text',
+            component: 'Text',
+            validation: {
+              required: true,
+              minLength: 8,
+            },
+          },
+          confirmPassword: {
+            name: 'Confirm Password',
+            type: 'text',
+            component: 'Text',
+            validation: {
+              required: true,
+              sameAs: 'password',
+            },
+          },
+          startAge: {
+            name: 'Start Age',
+            type: 'number',
+            component: 'Number',
+            validation: {
+              required: true,
+            },
+          },
+          endAge: {
+            name: 'End Age',
+            type: 'number',
+            component: 'Number',
+            validation: {
+              required: true,
+              greaterThanVariable: 'startAge',
+            },
+          },
+          alternateEmail: {
+            name: 'Alternate Email',
+            type: 'text',
+            component: 'Text',
+            validation: {
+              differentFrom: 'email',
+            },
+          },
         },
       },
     },
@@ -186,10 +238,31 @@ const createMockStore = () => {
     exportTime: null,
     lastUpdated: new Date().toISOString(),
     network: {
-      nodes: [],
+      nodes: [
+        // Existing nodes for testing unique validation
+        {
+          _uid: 'existing-node-1',
+          type: 'person',
+          attributes: {
+            name: 'John',
+            nickname: 'Johnny',
+            email: 'john@example.com',
+          },
+        },
+        {
+          _uid: 'existing-node-2',
+          type: 'person',
+          attributes: {
+            name: 'Jane',
+            nickname: 'JaneD',
+            email: 'jane@example.com',
+          },
+        },
+      ],
       edges: [],
       ego: {
-        _attributes: {},
+        _uid: 'ego',
+        attributes: {},
       },
     },
   };
@@ -226,7 +299,7 @@ const ProtocolFormDemo = ({
 }: {
   fields: TForm['fields'];
   autoFocus?: boolean;
-  initialValues?: Record<string, unknown>;
+  initialValues?: Record<string, FieldValue>;
 }) => {
   const { fieldComponents } = useProtocolForm({
     fields,
@@ -244,7 +317,7 @@ const ProtocolFormDemo = ({
       className="elevation-high w-2xl rounded bg-white p-10"
     >
       {fieldComponents}
-      <SubmitButton className="mt-6" />
+      <SubmitButton className="mt-6">Submit</SubmitButton>
     </Form>
   );
 };
@@ -561,6 +634,139 @@ export const MinimalForm: Story = {
     docs: {
       description: {
         story: 'A minimal form with just a single field.',
+      },
+    },
+  },
+};
+
+export const UniqueValidation: Story = {
+  args: {
+    fields: [
+      {
+        variable: 'nickname',
+        prompt:
+          'Enter a unique nickname (try "Johnny" or "JaneD" to see validation error)',
+      },
+    ],
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Demonstrates the unique validation. The nickname must be unique among all existing nodes. Try entering "Johnny" or "JaneD" to see the validation error.',
+      },
+    },
+  },
+};
+
+export const SameAsValidation: Story = {
+  args: {
+    fields: [
+      {
+        variable: 'password',
+        prompt: 'Enter your password',
+      },
+      {
+        variable: 'confirmPassword',
+        prompt: 'Confirm your password',
+      },
+    ],
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Demonstrates the sameAs validation. The confirm password field must match the password field.',
+      },
+    },
+  },
+};
+
+export const DifferentFromValidation: Story = {
+  args: {
+    fields: [
+      {
+        variable: 'email',
+        prompt: 'Enter your primary email',
+      },
+      {
+        variable: 'alternateEmail',
+        prompt: 'Enter an alternate email (must be different from primary)',
+      },
+    ],
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Demonstrates the differentFrom validation. The alternate email must be different from the primary email.',
+      },
+    },
+  },
+};
+
+export const GreaterThanVariableValidation: Story = {
+  args: {
+    fields: [
+      {
+        variable: 'startAge',
+        prompt: 'Enter start age',
+      },
+      {
+        variable: 'endAge',
+        prompt: 'Enter end age (must be greater than start age)',
+      },
+    ],
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Demonstrates the greaterThanVariable validation. The end age must be greater than the start age.',
+      },
+    },
+  },
+};
+
+export const ContextDependentValidations: Story = {
+  args: {
+    fields: [
+      {
+        variable: 'nickname',
+        prompt:
+          'Enter a unique nickname (try "Johnny" or "JaneD" to see validation error)',
+      },
+      {
+        variable: 'password',
+        prompt: 'Enter your password',
+      },
+      {
+        variable: 'confirmPassword',
+        prompt: 'Confirm your password (must match password)',
+      },
+      {
+        variable: 'email',
+        prompt: 'Enter your primary email',
+      },
+      {
+        variable: 'alternateEmail',
+        prompt: 'Enter an alternate email (must be different from primary)',
+      },
+      {
+        variable: 'startAge',
+        prompt: 'Enter start age',
+      },
+      {
+        variable: 'endAge',
+        prompt: 'Enter end age (must be greater than start age)',
+      },
+    ],
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'A comprehensive example demonstrating all context-dependent validations: unique, sameAs, differentFrom, and greaterThanVariable.',
       },
     },
   },

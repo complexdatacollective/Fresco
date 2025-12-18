@@ -9,7 +9,7 @@ import Hint from './Hint';
 export type BaseFieldProps = {
   id: string;
   label: string;
-  hint?: string;
+  hint?: ReactNode;
   validationSummary?: ReactNode;
   required?: boolean;
   errors?: string[];

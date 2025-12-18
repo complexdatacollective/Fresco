@@ -173,7 +173,6 @@ export const AllStates: Story = {
 };
 
 export const WithMaxLength: Story = {
-  name: 'With Max Length',
   render: () => {
     const [value, setValue] = useState('');
     const maxLength = 200;

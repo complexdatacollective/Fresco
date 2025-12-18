@@ -31,7 +31,10 @@ export const SignInForm = () => {
         name="username"
         label="Username"
         placeholder="Enter your username"
-        validation={loginSchema.shape.username}
+        custom={{
+          schema: loginSchema.shape.username,
+          hint: 'Enter your username',
+        }}
         component={InputField}
         autoComplete="username"
         prefixComponent={<User2 className="h-4 w-4" />}
@@ -42,7 +45,10 @@ export const SignInForm = () => {
         label="Password"
         placeholder="Enter your password"
         component={PasswordField}
-        validation={loginSchema.shape.password}
+        custom={{
+          schema: loginSchema.shape.password,
+          hint: 'Enter your password',
+        }}
         autoComplete="current-password"
       />
       <DialogFooter>

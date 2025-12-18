@@ -36,8 +36,11 @@ export const SignUpForm = () => {
         label="Username"
         placeholder="username..."
         hint="Your username should be at least 4 characters, and must not contain any spaces."
-        validation={createUserSchema.shape.username}
-        Component={InputField}
+        custom={{
+          schema: createUserSchema.shape.username,
+          hint: 'At least 4 characters, no spaces',
+        }}
+        component={InputField}
         autoComplete="do-not-autofill"
       />
       <Field
@@ -46,8 +49,11 @@ export const SignUpForm = () => {
         label="Password"
         placeholder="******************"
         hint="Your password must be at least 8 characters long, and contain at least one each of lowercase, uppercase, number and symbol characters."
-        validation={createUserSchema.shape.password}
-        Component={InputField}
+        custom={{
+          schema: createUserSchema.shape.password,
+          hint: 'At least 8 characters with lowercase, uppercase, number and symbol',
+        }}
+        component={InputField}
         type="password"
         autoComplete="do-not-autofill"
       />
@@ -73,8 +79,11 @@ function PasswordConfirmField() {
       name="confirmPassword"
       label="Confirm password"
       placeholder="******************"
-      validation={createUserSchema.shape.confirmPassword}
-      Component={InputField}
+      custom={{
+        schema: createUserSchema.shape.confirmPassword,
+        hint: 'Must match the password above',
+      }}
+      component={InputField}
       type="password"
       autoComplete="do-not-autofill"
     />

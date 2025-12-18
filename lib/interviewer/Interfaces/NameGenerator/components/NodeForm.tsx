@@ -10,7 +10,6 @@ import {
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import z from 'zod';
 import ActionButton from '~/components/interview/ActionButton';
 import Button from '~/components/ui/Button';
 import { Dialog } from '~/lib/dialogs/Dialog';
@@ -71,29 +70,25 @@ const NodeForm = (props: NodeFormProps) => {
     },
   };
 
-  const { fieldComponents, formSchema } = useProtocolForm({
+  // Convert null values to undefined for form compatibility
+  const initialValues = selectedNode?.[entityAttributesProperty]
+    ? Object.fromEntries(
+        Object.entries(selectedNode[entityAttributesProperty]).map(
+          ([key, value]) => [key, value ?? undefined],
+        ),
+      )
+    : undefined;
+
+  const { fieldComponents } = useProtocolForm({
     fields: form.fields,
     autoFocus: true,
-    initialValues: selectedNode?.[entityAttributesProperty],
+    initialValues,
   });
 
   // Handle form submission
   const handleSubmit: FormSubmitHandler = useCallback(
-    async (values) => {
-      // Validate the submitted values using the form schema
-      const result = await formSchema.safeParseAsync(values);
-
-      if (!result.success) {
-        const flattened = z.flattenError(result.error);
-
-        return {
-          success: false,
-          formErrors: flattened.formErrors,
-          fieldErrors: flattened.fieldErrors,
-        };
-      }
-
-      const variableValues = result.data as Record<string, VariableValue>;
+    (values) => {
+      const variableValues = values as Record<string, VariableValue>;
 
       if (!selectedNode) {
         addNode({ ...newNodeAttributes, ...variableValues });
@@ -109,7 +104,7 @@ const NodeForm = (props: NodeFormProps) => {
       onClose();
       return { success: true as const };
     },
-    [formSchema, selectedNode, addNode, newNodeAttributes, updateNode, onClose],
+    [selectedNode, addNode, newNodeAttributes, updateNode, onClose],
   );
 
   return (

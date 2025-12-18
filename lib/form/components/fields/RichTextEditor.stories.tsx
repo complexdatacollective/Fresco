@@ -239,7 +239,10 @@ export const InForm: Story = {
         hint="Write a detailed description using rich text formatting"
         component={RichTextEditorField}
         placeholder="Enter your description..."
-        validation={z.object({}).passthrough()}
+        custom={{
+          schema: z.object({}).passthrough(),
+          hint: 'Enter rich text content',
+        }}
       />
       <SubmitButton className="mt-4">Submit</SubmitButton>
     </Form>

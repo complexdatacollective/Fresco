@@ -1,10 +1,22 @@
-import { useCallback, useEffect, useId, useRef } from 'react';
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+} from 'react';
 import { useShallow } from 'zustand/react/shallow';
+import {
+  type ValidationProps,
+  makeValidationFunction,
+  makeValidationHints,
+} from '../components/Field';
 import type {
   ChangeHandler,
   FieldState,
-  FieldValidation,
   FieldValue,
+  ValidationContext,
 } from '../components/types';
 import { useFormStore } from '../store/formStoreProvider';
 
@@ -28,7 +40,7 @@ function useFieldShouldShowError(
   );
 }
 
-export type UseFieldConfig = {
+export type UseFieldResult = {
   id: string;
   meta: {
     shouldShowError: boolean;
@@ -56,22 +68,55 @@ export type UseFieldConfig = {
     'aria-invalid': boolean; // Indicates if the field is invalid
     'aria-describedby': string; // IDs of elements that provide additional information about the field
   };
+  validationSummary?: ReactNode;
 };
 
-export function useField(config: {
+export type UseFieldConfig = {
   name: string;
   initialValue?: FieldValue;
-  validation?: FieldValidation;
-  required?: boolean;
-}): UseFieldConfig {
-  const id = useId();
+  showValidationHints?: boolean;
+  /**
+   * Context required for context-dependent validations like unique, sameAs, etc.
+   */
+  validationContext?: ValidationContext;
+} & Partial<ValidationProps>;
 
+export function useField(config: UseFieldConfig): UseFieldResult {
+  const {
+    name,
+    initialValue,
+    showValidationHints = false,
+    validationContext,
+    ...validationProps
+  } = config;
+
+  const id = useId();
   const isUnmountingRef = useRef(false);
 
-  const fieldState = useFormStore((state) => state.getFieldState(config.name));
+  // Memoize the validation function based on validation props
+  // We serialize the props to create a stable dependency
+  const validationPropsJson = JSON.stringify(validationProps);
+
+  // Include validationContext in the props passed to makeValidationFunction
+  const propsWithContext = { ...validationProps, validationContext };
+
+  const validation = useMemo(
+    () => makeValidationFunction(propsWithContext),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [validationPropsJson, validationContext],
+  );
+
+  // Memoize the validation summary (only compute if showValidationHints is true)
+  const validationSummary = useMemo(
+    () => (showValidationHints ? makeValidationHints(propsWithContext) : undefined),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [showValidationHints, validationPropsJson, validationContext],
+  );
+
+  const fieldState = useFormStore((state) => state.getFieldState(name));
 
   const fieldErrors = useFormStore(
-    useShallow((state) => state.getFieldErrors(config.name)),
+    useShallow((state) => state.getFieldErrors(name)),
   );
   const registerField = useFormStore((store) => store.registerField);
   const unregisterField = useFormStore((store) => store.unregisterField);
@@ -81,28 +126,20 @@ export function useField(config: {
 
   const shouldShowError = useFieldShouldShowError(fieldState, fieldErrors);
 
-  // Register field on mount - use useLayoutEffect to ensure it runs after form registration
+  // Register field on mount
   useEffect(() => {
-    isUnmountingRef.current = false; // Reset the flag on each mount
+    isUnmountingRef.current = false;
     registerField({
-      name: config.name,
-      initialValue: config.initialValue,
-      validation: config.validation,
+      name,
+      initialValue,
+      validation,
     });
 
     return () => {
       isUnmountingRef.current = true;
-      unregisterField(config.name);
+      unregisterField(name);
     };
-
-    // NOTE: We intentionally exclude config.validation from dependencies
-    // because validation functions are often defined inline and would cause
-    // unnecessary re-registrations. The validation is used during validation
-    // calls, not during registration.
-    //
-    // TODO: memoize the validation function so that this is safe
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config.name, config.initialValue, unregisterField, registerField]);
+  }, [name, initialValue, validation, unregisterField, registerField]);
 
   const handleChange: ChangeHandler = useCallback(
     (valueOrEvent) => {
@@ -159,12 +196,14 @@ export function useField(config: {
     [config.name, setFieldBlurred, validateField],
   );
 
-  // Only show invalid state after the field has been blurred at least once
+  // Only show invalid state after the field has been blurred and is dirty
   const showInvalid = Boolean(
-    fieldState?.state.isBlurred && !fieldState?.state.isValid,
+    fieldState?.state.isBlurred &&
+      fieldState?.state.isDirty &&
+      !fieldState?.state.isValid,
   );
 
-  const result: UseFieldConfig = {
+  const result: UseFieldResult = {
     id,
     meta: {
       shouldShowError,
@@ -176,7 +215,7 @@ export function useField(config: {
       isValidating: fieldState?.state.isValidating ?? false,
     },
     containerProps: {
-      'data-field-name': config.name, // Used for scrolling to field errors
+      'data-field-name': name, // Used for scrolling to field errors
       'data-disabled': false, // TODO
       'data-valid': fieldState?.state.isValid ?? false,
       'data-validating': fieldState?.state.isValidating ?? false,
@@ -188,7 +227,7 @@ export function useField(config: {
       'value': fieldState?.value,
       'onChange': handleChange,
       'onBlur': handleBlur,
-      'aria-required': !!config.required,
+      'aria-required': !!validationProps.required,
       'aria-invalid': showInvalid,
       /**
        * Set this so that screen readers can properly announce the hint and error messages.
@@ -200,6 +239,7 @@ export function useField(config: {
        */
       'aria-describedby': `${id}-hint ${id}-error`.trim(),
     },
+    validationSummary,
   };
 
   return result;

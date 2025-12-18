@@ -9,7 +9,7 @@ export const UploadThingTokenForm = ({
 }: {
   action: (token: string) => Promise<string | void>;
 }) => {
-  const handleSubmit = async (data) => {
+  const handleSubmit = async (data: unknown) => {
     const typedData = data as { uploadThingToken: string };
     await action(typedData.uploadThingToken);
     return {
@@ -25,8 +25,11 @@ export const UploadThingTokenForm = ({
         label="UPLOADTHING_TOKEN"
         placeholder="UPLOADTHING_TOKEN=******************"
         hint="Copy and paste the full token from your UploadThing dashboard."
-        validation={createUploadThingTokenSchema}
-        Component={InputField}
+        custom={{
+          schema: createUploadThingTokenSchema,
+          hint: 'Paste the full token including the UPLOADTHING_TOKEN= prefix',
+        }}
+        component={InputField}
         type="text"
       />
       <SubmitButton key="submit" className="mt-6">

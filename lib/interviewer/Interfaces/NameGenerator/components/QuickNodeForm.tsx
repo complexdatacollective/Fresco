@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux';
 
 import { z } from 'zod';
 import { Form } from '~/lib/form';
-import { type FormSubmitHandler } from '~/lib/form/types/types';
+import { type FormSubmitHandler } from '~/lib/form/components/types';
 import { getAdditionalAttributesSelector } from '../../../selectors/prop';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from '../../utils/constants';
 import QuickAddField from './QuickAddField';
@@ -92,7 +92,10 @@ const QuickNodeForm = ({
           disabled={disabled}
           placeholder="Type a label and press enter..."
           onShowInput={onShowForm}
-          validation={z.string().min(2, 'Must be 2 or more characters')}
+          custom={{
+            schema: z.string().min(2, 'Must be 2 or more characters'),
+            hint: 'Enter at least 2 characters',
+          }}
         />
       </Form>
     </motion.div>

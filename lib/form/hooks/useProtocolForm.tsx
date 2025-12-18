@@ -1,15 +1,13 @@
 import {
   type ComponentType,
   type FormField,
-  type ValidationName,
 } from '@codaco/protocol-validation';
 import { useSelector } from 'react-redux';
-import z from 'zod';
 import {
   getValidationContext,
   selectFieldMetadata,
 } from '~/lib/interviewer/selectors/forms';
-import Field from '../components/Field';
+import Field, { type ValidationProps } from '../components/Field';
 import { BooleanField } from '../components/fields/Boolean';
 import { CheckboxGroupField } from '../components/fields/CheckboxGroup';
 import { DatePickerField } from '../components/fields/DatePicker';
@@ -21,10 +19,10 @@ import { TextAreaField } from '../components/fields/TextArea';
 import { ToggleButtonGroupField } from '../components/fields/ToggleButtonGroup';
 import { ToggleField } from '../components/fields/ToggleField';
 import { VisualAnalogScaleField } from '../components/fields/VisualAnalogScale';
-import { type FieldValidation, type FieldValue } from '../components/types';
-import { type ValidationFunction, validations } from '../validation';
+import { type FieldValue, type ValidationContext } from '../components/types';
 
-const fieldTypeMap: Record<ComponentType, React.ElementType> = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const fieldTypeMap: Record<ComponentType, React.ComponentType<any>> = {
   Text: InputField,
   TextArea: TextAreaField,
   Number: InputField,
@@ -39,16 +37,9 @@ const fieldTypeMap: Record<ComponentType, React.ElementType> = {
   RelativeDatePicker: RelativeDatePickerField,
 };
 
-type FieldValidator = (
-  fieldValue: unknown,
-  formValues: Record<string, FieldValue>,
-  ctx: z.RefinementCtx,
-  fieldPath?: string[],
-) => Promise<void>;
-
 /**
  * Hook to automatically convert protocol form definitions into the new form
- * system by generating Field's and their validation functions.
+ * system by generating Field components with validation props.
  */
 export default function useProtocolForm({
   fields,
@@ -59,63 +50,15 @@ export default function useProtocolForm({
   autoFocus?: boolean;
   initialValues?: Record<string, FieldValue>;
 }) {
-  const validationContext = useSelector(getValidationContext);
+  const validationContext = useSelector(
+    getValidationContext,
+  ) as ValidationContext | null;
 
   const fieldsMetadata = useSelector((state) =>
     selectFieldMetadata(state, fields),
   );
 
-  // Create a map of field validators to avoid duplication
-  const fieldValidators = new Map<string, FieldValidator>();
-
-  // Helper function to create a validator for a field
-  const createFieldValidator = (field: {
-    variable: string;
-    validation?: Record<string, unknown>;
-  }): FieldValidator => {
-    if (!field.validation) {
-      return async () => {
-        // No validation
-      };
-    }
-
-    return async (fieldValue, formValues, ctx, fieldPath = []) => {
-      const validationEntries = Object.entries(field.validation!);
-
-      for (const [validationName, parameter] of validationEntries) {
-        try {
-          const validationFnFactory = validations[
-            validationName as ValidationName
-          ] as ValidationFunction<string | number | boolean>;
-
-          const validationFn = validationFnFactory(
-            parameter as string | number | boolean,
-            validationContext,
-          )(formValues);
-
-          const result = await validationFn.safeParseAsync(fieldValue);
-
-          if (!result.success && result.error) {
-            result.error.issues.forEach((issue) => {
-              ctx.addIssue({
-                code: 'custom',
-                message: issue.message,
-                path: [...fieldPath, ...issue.path],
-              });
-            });
-          }
-        } catch (error) {
-          ctx.addIssue({
-            code: 'custom',
-            message: 'An error occurred while validating.',
-            path: fieldPath,
-          });
-        }
-      }
-    };
-  };
-
-  const fieldsWithMetadata = fieldsMetadata.map((field) => {
+  const fieldsWithMetadata = fieldsMetadata.map((field, index) => {
     const props: {
       name: string;
       label: string;
@@ -129,33 +72,60 @@ export default function useProtocolForm({
       max?: string;
       before?: number;
       after?: number;
-      validation?: FieldValidation;
       initialValue?: FieldValue;
-      showRequired?: boolean;
-    } = {
+      autoFocus?: boolean;
+      validationContext?: ValidationContext;
+    } & Partial<ValidationProps> = {
       name: field.variable,
       label: field.label,
       component: field.component,
     };
 
-    // Handle setting the required flag, which is shown by the label component
-    props.showRequired = field.validation?.required === true;
+    // Set autoFocus on the first field if requested
+    if (autoFocus && index === 0) {
+      props.autoFocus = true;
+    }
 
     // Set initial value if provided
     if (initialValues?.[field.variable] !== undefined) {
       props.initialValue = initialValues[field.variable];
     }
 
-    // Create and store the field validator
+    // Pass validation properties directly from the protocol validation object
     if ('validation' in field && field.validation) {
-      const validator = createFieldValidator(field);
-      fieldValidators.set(field.variable, validator);
+      const validation = field.validation as Record<string, unknown>;
 
-      // Create field-level validation function that uses the validator
-      props.validation = (formValues) =>
-        z.unknown().superRefine(async (value, ctx) => {
-          await validator(value, formValues, ctx);
-        });
+      if (validation.required !== undefined)
+        props.required = validation.required as boolean;
+      if (validation.minLength !== undefined)
+        props.minLength = validation.minLength as number;
+      if (validation.maxLength !== undefined)
+        props.maxLength = validation.maxLength as number;
+      if (validation.minValue !== undefined)
+        props.minValue = validation.minValue as number;
+      if (validation.maxValue !== undefined)
+        props.maxValue = validation.maxValue as number;
+      if (validation.minSelected !== undefined)
+        props.minSelected = validation.minSelected as number;
+      if (validation.maxSelected !== undefined)
+        props.maxSelected = validation.maxSelected as number;
+      if (validation.pattern !== undefined)
+        props.pattern = validation.pattern as ValidationProps['pattern'];
+      // For 'unique', the protocol uses boolean but validation needs the attribute name
+      if (validation.unique === true) props.unique = field.variable;
+      if (validation.differentFrom !== undefined)
+        props.differentFrom = validation.differentFrom as string;
+      if (validation.sameAs !== undefined)
+        props.sameAs = validation.sameAs as string;
+      if (validation.greaterThanVariable !== undefined)
+        props.greaterThanVariable = validation.greaterThanVariable as string;
+      if (validation.lessThanVariable !== undefined)
+        props.lessThanVariable = validation.lessThanVariable as string;
+    }
+
+    // Pass validation context for context-dependent validations (unique, sameAs, differentFrom, etc.)
+    if (validationContext) {
+      props.validationContext = validationContext;
     }
 
     // Process ordinal and categorical options
@@ -205,39 +175,12 @@ export default function useProtocolForm({
   });
 
   const fieldComponents = fieldsWithMetadata.map(
-    ({ component, validation, ...fieldProps }, index) => {
+    ({ component, ...fieldProps }, index) => {
       const FieldComponent = fieldTypeMap[component as ComponentType];
 
-      const autoFocusField = autoFocus && index === 0;
-
-      return (
-        <Field
-          key={index}
-          {...fieldProps}
-          validation={validation}
-          Component={FieldComponent}
-          autoFocus={autoFocusField}
-        />
-      );
+      return <Field key={index} {...fieldProps} component={FieldComponent} />;
     },
   );
 
-  // Create a Zod schema for the entire form
-  // Reuse the field validators we created during the map
-  const formSchema = z
-    .record(z.string(), z.unknown())
-    .superRefine(async (formValues, ctx) => {
-      // Validate each field using the stored validators
-      for (const [fieldName, validator] of fieldValidators.entries()) {
-        const fieldValue = formValues[fieldName];
-        await validator(
-          fieldValue,
-          formValues as Record<string, FieldValue>,
-          ctx,
-          [fieldName],
-        );
-      }
-    });
-
-  return { fieldComponents, formSchema };
+  return { fieldComponents };
 }

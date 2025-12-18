@@ -4,7 +4,7 @@ import {
   type NcNetwork,
 } from '@codaco/shared-consts';
 import { describe, expect, it } from 'vitest';
-import type { ValidationContext } from '../types';
+import type { ValidationContext } from '../components/types';
 import { required, validations } from './index';
 
 describe('Validation Functions', () => {
@@ -53,62 +53,62 @@ describe('Validation Functions', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0]?.message).toBe(
-          'You must answer this question before continuing',
+          'You must answer this question before continuing.',
         );
       }
     });
 
     it('should reject undefined values', () => {
-      const validator = required(true, createMockContext())({});
+      const validator = required()({});
 
       const result = validator.safeParse(undefined);
       expect(result.success).toBe(false);
     });
 
     it('should reject empty strings', () => {
-      const validator = required(true, createMockContext())({});
+      const validator = required()({});
 
       const result = validator.safeParse('  ');
       expect(result.success).toBe(false);
     });
 
     it('should accept non-empty strings', () => {
-      const validator = required(true, createMockContext())({});
+      const validator = required()({});
 
       const result = validator.safeParse('valid text');
       expect(result.success).toBe(true);
     });
 
     it('should reject NaN for number fields', () => {
-      const validator = required(true, createMockContext())({});
+      const validator = required()({});
 
       const result = validator.safeParse(NaN);
       expect(result.success).toBe(false);
     });
 
     it('should accept zero for number fields', () => {
-      const validator = required(true, createMockContext())({});
+      const validator = required()({});
 
       const result = validator.safeParse(0);
       expect(result.success).toBe(true);
     });
 
     it('should reject empty arrays', () => {
-      const validator = required(true, createMockContext())({});
+      const validator = required()({});
 
       const result = validator.safeParse([]);
       expect(result.success).toBe(false);
     });
 
     it('should accept non-empty arrays', () => {
-      const validator = required(true, createMockContext())({});
+      const validator = required()({});
 
       const result = validator.safeParse(['item1', 'item2']);
       expect(result.success).toBe(true);
     });
 
     it('should accept boolean values', () => {
-      const validator = required(true, createMockContext())({});
+      const validator = required()({});
 
       expect(validator.safeParse(true).success).toBe(true);
       expect(validator.safeParse(false).success).toBe(true);
@@ -123,7 +123,7 @@ describe('Validation Functions', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0]?.message).toBe(
-          'You must enter no more than 5 characters.',
+          'Too long. Enter fewer than than 5 characters.',
         );
       }
     });
@@ -160,7 +160,7 @@ describe('Validation Functions', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0]?.message).toBe(
-          'You must enter at least 5 characters.',
+          'Too short. Enter at least 5 characters.',
         );
       }
     });
@@ -197,7 +197,7 @@ describe('Validation Functions', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0]?.message).toBe(
-          'You must enter a value of at least 10.',
+          'Too small. Value must be at least 10.',
         );
       }
     });
@@ -231,7 +231,7 @@ describe('Validation Functions', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0]?.message).toBe(
-          'You must enter a value of at most 10.',
+          'Too large. Value must be at most 10.',
         );
       }
     });
@@ -268,7 +268,7 @@ describe('Validation Functions', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0]?.message).toBe(
-          'You must choose a minimum of 3 options.',
+          'Too few selected. Select at least 3 values.',
         );
       }
     });
@@ -294,7 +294,7 @@ describe('Validation Functions', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0]?.message).toBe(
-          'You must choose a minimum of 1 option.',
+          'Too few selected. Select at least 1 value.',
         );
       }
     });
@@ -317,7 +317,7 @@ describe('Validation Functions', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0]?.message).toBe(
-          'You can choose a maximum of 2 options.',
+          'Too many items selected. Select a maximum of 2 values.',
         );
       }
     });
@@ -343,7 +343,7 @@ describe('Validation Functions', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0]?.message).toBe(
-          'You can choose a maximum of 1 option.',
+          'Too many items selected. Select a maximum of 1 value.',
         );
       }
     });
@@ -389,7 +389,7 @@ describe('Validation Functions', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0]?.message).toBe(
-          'This value must be unique.',
+          'This value is used elsewhere. It must be unique.',
         );
       }
     });
@@ -452,7 +452,7 @@ describe('Validation Functions', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0]?.message).toBe(
-          "Your answer must be different from 'Test Attribute'",
+          "Your answer must be different from 'Test Attribute'.",
         );
       }
     });
@@ -478,12 +478,16 @@ describe('Validation Functions', () => {
       }).toThrow('Attribute must be specified for differentFrom validation');
     });
 
-    it('should throw error when attribute is not in form values', () => {
-      expect(() => {
-        validations
-          .differentFrom('missingAttribute', createMockContext())({})
-          .safeParse('test');
-      }).toThrow('Form values must contain the attribute being compared');
+    it('should pass validation when comparison attribute is not in form values (allows hint generation)', () => {
+      // When the comparison attribute is not in formValues, validation is skipped
+      // This allows hint generation to work without requiring formValues
+      const validator = validations.differentFrom(
+        'testAttribute',
+        createMockContext(),
+      )({});
+
+      const result = validator.safeParse('someValue');
+      expect(result.success).toBe(true);
     });
 
     it('should throw error when comparison variable is not found in codebook', () => {
@@ -511,7 +515,7 @@ describe('Validation Functions', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0]?.message).toBe(
-          "Your answer must be the same as 'Test Attribute'",
+          "Your answer must be the same as 'Test Attribute'.",
         );
       }
     });
@@ -537,12 +541,16 @@ describe('Validation Functions', () => {
       }).toThrow('Attribute must be specified for sameAs validation');
     });
 
-    it('should throw error when attribute is not in form values', () => {
-      expect(() => {
-        validations
-          .sameAs('missingAttribute', createMockContext())({})
-          .safeParse('test');
-      }).toThrow('Form values must contain the attribute being compared');
+    it('should pass validation when comparison attribute is not in form values (allows hint generation)', () => {
+      // When the comparison attribute is not in formValues, validation is skipped
+      // This allows hint generation to work without requiring formValues
+      const validator = validations.sameAs(
+        'testAttribute',
+        createMockContext(),
+      )({});
+
+      const result = validator.safeParse('someValue');
+      expect(result.success).toBe(true);
     });
   });
 
@@ -557,7 +565,7 @@ describe('Validation Functions', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0]?.message).toBe(
-          "Your answer must be greater than 'Number Attribute'",
+          "Your answer must be greater than the value of 'Number Attribute'.",
         );
       }
     });
@@ -598,12 +606,16 @@ describe('Validation Functions', () => {
       );
     });
 
-    it('should throw error when attribute is not in form values', () => {
-      expect(() => {
-        validations
-          .greaterThanVariable('missingAttribute', createMockContext())({})
-          .safeParse(10);
-      }).toThrow('Form values must contain the attribute being compared');
+    it('should pass validation when comparison attribute is not in form values (allows hint generation)', () => {
+      // When the comparison attribute is not in formValues, validation is skipped
+      // This allows hint generation to work without requiring formValues
+      const validator = validations.greaterThanVariable(
+        'numberAttribute',
+        createMockContext(),
+      )({});
+
+      const result = validator.safeParse(10);
+      expect(result.success).toBe(true);
     });
   });
 
@@ -618,7 +630,7 @@ describe('Validation Functions', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0]?.message).toBe(
-          "Your answer must be less than 'Number Attribute'",
+          "Your answer must be less than the value of 'Number Attribute'.",
         );
       }
     });
@@ -663,6 +675,18 @@ describe('Validation Functions', () => {
           .lessThanVariable('missingAttribute', createMockContext())({})
           .safeParse(10);
       }).toThrow('Comparison variable not found in codebook');
+    });
+
+    it('should pass validation when comparison attribute is not in form values (allows hint generation)', () => {
+      // When the comparison attribute is not in formValues, validation is skipped
+      // This allows hint generation to work without requiring formValues
+      const validator = validations.lessThanVariable(
+        'numberAttribute',
+        createMockContext(),
+      )({});
+
+      const result = validator.safeParse(10);
+      expect(result.success).toBe(true);
     });
   });
 });

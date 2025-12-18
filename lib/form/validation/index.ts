@@ -238,10 +238,6 @@ const differentFrom: ValidationFunction<string> =
       typeof attribute === 'string',
       'Attribute must be specified for differentFrom validation',
     );
-    invariant(
-      attribute in formValues,
-      'Form values must contain the attribute being compared',
-    );
 
     const { stageSubject, codebook } = context;
 
@@ -257,6 +253,10 @@ const differentFrom: ValidationFunction<string> =
     return z
       .unknown()
       .superRefine((value, ctx) => {
+        // Only validate if the comparison attribute exists in formValues
+        if (!(attribute in formValues)) {
+          return;
+        }
         if (isMatchingValue(value, formValues[attribute])) {
           ctx.addIssue({
             code: 'custom',
@@ -284,10 +284,6 @@ const sameAs: ValidationFunction<string> =
       typeof attribute === 'string',
       'Attribute must be specified for sameAs validation',
     );
-    invariant(
-      attribute in formValues,
-      'Form values must contain the attribute being compared',
-    );
 
     const { stageSubject, codebook } = context;
 
@@ -303,6 +299,10 @@ const sameAs: ValidationFunction<string> =
     return z
       .unknown()
       .superRefine((value, ctx) => {
+        // Only validate if the comparison attribute exists in formValues
+        if (!(attribute in formValues)) {
+          return;
+        }
         if (!isMatchingValue(value, formValues[attribute])) {
           ctx.addIssue({
             code: 'custom',
@@ -328,10 +328,6 @@ const greaterThanVariable: ValidationFunction<string> =
       context,
       'Validation context must be provided when using greaterThanVariable validation',
     );
-    invariant(
-      attribute in formValues,
-      'Form values must contain the attribute being compared',
-    );
 
     const { stageSubject, codebook } = context;
 
@@ -347,6 +343,10 @@ const greaterThanVariable: ValidationFunction<string> =
     return z
       .unknown()
       .superRefine((value, ctx) => {
+        // Only validate if the comparison attribute exists in formValues
+        if (!(attribute in formValues)) {
+          return;
+        }
         if (
           compareVariables(
             value,
@@ -420,10 +420,10 @@ const lessThanVariable: ValidationFunction<string> =
     return z
       .unknown()
       .superRefine((value, ctx) => {
-        invariant(
-          attribute in formValues,
-          'Form values must contain the attribute being compared',
-        );
+        // Only validate if the comparison attribute exists in formValues
+        if (!(attribute in formValues)) {
+          return;
+        }
 
         if (
           compareVariables(

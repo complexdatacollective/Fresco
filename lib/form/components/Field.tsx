@@ -1,6 +1,7 @@
 'use client';
 
 import { LayoutGroup } from 'motion/react';
+import { type ReactNode } from 'react';
 import z from 'zod';
 import UnorderedList from '~/components/typography/UnorderedList';
 import { useField } from '../hooks/useField';
@@ -10,7 +11,11 @@ import {
   validations,
 } from '../validation';
 import { BaseField } from './BaseField';
-import { type CustomFieldValidation, type FieldValue } from './types';
+import {
+  type CustomFieldValidation,
+  type FieldValue,
+  type ValidationContext,
+} from './types';
 
 /**
  * Props that Field provides to components.
@@ -46,7 +51,7 @@ type ExtractValue<C> =
       ? V
       : never;
 
-type ValidationProps = {
+export type ValidationProps = {
   required: boolean;
   minLength: number;
   maxLength: number;
@@ -55,11 +60,17 @@ type ValidationProps = {
   maxValue: number;
   minSelected: number;
   maxSelected: number;
-  unique: boolean;
+  unique: string;
   differentFrom: string;
   sameAs: string;
   greaterThanVariable: string;
   lessThanVariable: string;
+  /**
+   * Custom validation with schema and hint.
+   * Can be a single validation or an array of validations.
+   * Schema can be a Zod schema directly, or a function that receives
+   * form values and validation context and returns a schema.
+   */
   custom: CustomFieldValidation | CustomFieldValidation[];
 };
 
@@ -96,8 +107,13 @@ function filterValidationProps(
 export type FieldOwnProps<C extends React.ComponentType<any>> = {
   name: string;
   label: string;
-  hint?: string;
-  initialValue?: ExtractValue<C>;
+  hint?: ReactNode;
+  initialValue?: FieldValue;
+  showValidationHints?: boolean;
+  /**
+   * Context required for context-dependent validations like unique, sameAs, etc.
+   */
+  validationContext?: ValidationContext;
   component: C;
 } & Partial<ValidationProps>;
 
@@ -117,16 +133,17 @@ export default function Field<C extends React.ComponentType<any>>({
   label,
   hint,
   initialValue,
+  showValidationHints = false,
+  validationContext,
   component: Component,
   ...componentProps
 }: FieldProps<C>) {
-  const validationFn = makeValidationFunction(componentProps);
-
-  const { id, containerProps, fieldProps, meta } = useField({
+  const { id, containerProps, fieldProps, meta, validationSummary } = useField({
     name,
-    initialValue: initialValue as FieldValue | undefined,
-    required: Boolean(componentProps.required),
-    validation: validationFn,
+    initialValue,
+    showValidationHints,
+    validationContext,
+    ...componentProps,
   });
 
   return (
@@ -135,7 +152,7 @@ export default function Field<C extends React.ComponentType<any>>({
         id={id}
         label={label}
         hint={hint}
-        validationSummary={makeValidationSummary(componentProps)}
+        validationSummary={validationSummary}
         required={Boolean(componentProps.required)}
         errors={meta.errors}
         showErrors={meta.shouldShowError}
@@ -154,16 +171,22 @@ export default function Field<C extends React.ComponentType<any>>({
 }
 
 /**
- * Helper hook that parses component props and converts them into a validation
- * using functions from ~/lib/form/validation/index.ts
+ * Helper function that parses component props and converts them into a validation
+ * using functions from ~/lib/form/validation/index.ts.
+ *
+ * Exported for use by UnconnectedField.
  */
 export function makeValidationFunction(props: Record<string, unknown>) {
+  const validationContext = props.validationContext as
+    | ValidationContext
+    | undefined;
+
   return (formValues: Record<string, FieldValue>) =>
     z.unknown().superRefine(async (fieldValue, ctx) => {
       // Handle built-in validations from the validations object
-      const validationEntries = Object.entries(props)
-        // Filter to only named ValidationProps (excluding 'custom')
-        .filter(([key]) => key in validations);
+      const validationEntries = Object.entries(props).filter(
+        ([key]) => key in validations && key !== 'validationContext',
+      );
 
       for (const [validationName, parameter] of validationEntries) {
         try {
@@ -173,6 +196,7 @@ export function makeValidationFunction(props: Record<string, unknown>) {
 
           const validationFn = validationFnFactory(
             parameter as ValidationParameter,
+            validationContext,
           )(formValues);
 
           const result = await validationFn.safeParseAsync(fieldValue);
@@ -206,7 +230,9 @@ export function makeValidationFunction(props: Record<string, unknown>) {
           try {
             // Resolve schema if it's a function
             const resolvedSchema =
-              typeof schema === 'function' ? await schema(formValues) : schema;
+              typeof schema === 'function'
+                ? await schema(formValues, validationContext)
+                : schema;
 
             const result = await resolvedSchema.safeParseAsync(fieldValue);
 
@@ -235,11 +261,17 @@ export function makeValidationFunction(props: Record<string, unknown>) {
 /**
  * Helper function that generates a human readable summary of the validation rules
  * applied to a field by extracting hint metadata from each validation schema.
+ *
+ * Exported for use by UnconnectedField.
  */
-export function makeValidationSummary(props: Record<string, unknown>) {
-  const validationEntries = Object.entries(props)
-    // Filter to only named ValidationProps (excluding 'custom')
-    .filter(([key]) => key in validations);
+export function makeValidationHints(props: Record<string, unknown>) {
+  const validationContext = props.validationContext as
+    | ValidationContext
+    | undefined;
+
+  const validationEntries = Object.entries(props).filter(
+    ([key]) => key in validations && key !== 'validationContext',
+  );
 
   const hints: string[] = [];
 
@@ -264,6 +296,7 @@ export function makeValidationSummary(props: Record<string, unknown>) {
           | number
           | boolean
           | { regex: string; hint: string },
+        validationContext,
       )({});
 
       // Extract hint from the schema's metadata

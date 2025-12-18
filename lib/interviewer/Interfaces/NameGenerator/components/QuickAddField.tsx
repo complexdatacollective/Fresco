@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import ActionButton from '~/components/interview/ActionButton';
 import { useField } from '~/lib/form';
 import { InputField } from '~/lib/form/components/fields/InputField';
-import { type BaseFieldProps, type FieldConfig } from '~/lib/form/types/types';
+import { type CustomFieldValidation } from '~/lib/form/components/types';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import {
   getNodeColorSelector,
@@ -14,11 +14,12 @@ import {
 import Icon from '~/lib/ui/components/Icon';
 import { cx } from '~/utils/cva';
 
-type QuickAddFieldProps = Omit<BaseFieldProps, 'label'> & {
+type QuickAddFieldProps = {
+  name: string;
   placeholder: string;
   disabled: boolean;
   onShowInput: () => void;
-  validation: FieldConfig['validation'];
+  custom?: CustomFieldValidation;
 };
 
 const inputVariants: Variants = {
@@ -53,7 +54,7 @@ export default function QuickAddField({
   name: targetVariable,
   disabled,
   onShowInput,
-  validation,
+  custom,
 }: QuickAddFieldProps) {
   const [checked, setChecked] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -61,7 +62,7 @@ export default function QuickAddField({
   const { id, meta, fieldProps, containerProps } = useField({
     name: targetVariable,
     initialValue: '',
-    validation,
+    custom,
   });
 
   const tooltipTimer = useRef<NodeJS.Timeout | undefined>(undefined);
