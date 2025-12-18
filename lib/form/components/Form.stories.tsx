@@ -134,7 +134,7 @@ export const BlurThenChangeValidation: Story = {
           label="Email"
           hint="Type something invalid, then click away to see validation"
           component={InputField}
-          custom={z.string().email('Please enter a valid email address')}
+          custom={z.email('Please enter a valid email address')}
         />
         <Field
           name="minLength"

@@ -13,6 +13,7 @@ import { useSelector } from 'react-redux';
 import z from 'zod';
 import ActionButton from '~/components/interview/ActionButton';
 import Button from '~/components/ui/Button';
+import { Dialog } from '~/lib/dialogs/Dialog';
 import { Form, type FormSubmitHandler } from '~/lib/form';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';

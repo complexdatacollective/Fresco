@@ -126,8 +126,9 @@ export default function Field<C extends React.ComponentType<any>>({
 export function makeValidationFunction(props: Record<string, unknown>) {
   return (formValues: Record<string, FieldValue>) =>
     z.unknown().superRefine(async (fieldValue, ctx) => {
+      // Handle built-in validations from the validations object
       const validationEntries = Object.entries(props)
-        // Filter to only named ValidationProps
+        // Filter to only named ValidationProps (excluding 'custom')
         .filter(([key]) => key in validations);
 
       for (const [validationName, parameter] of validationEntries) {
@@ -152,7 +153,33 @@ export function makeValidationFunction(props: Record<string, unknown>) {
             });
           }
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log('validation error', error);
+          ctx.addIssue({
+            code: 'custom',
+            message: 'An error occurred while validating.',
+          });
+        }
+      }
+
+      // Handle custom Zod schema validation
+      if ('custom' in props && props.custom) {
+        try {
+          const customSchema = props.custom as z.ZodType;
+          const result = await customSchema.safeParseAsync(fieldValue);
+
+          if (!result.success && result.error) {
+            result.error.issues.forEach((issue) => {
+              ctx.addIssue({
+                code: 'custom',
+                message: issue.message,
+                path: [...issue.path],
+              });
+            });
+          }
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log('custom validation error', error);
           ctx.addIssue({
             code: 'custom',
             message: 'An error occurred while validating.',
