@@ -98,29 +98,29 @@ const minLength: ValidationFunction<number> = (min) => () => {
 };
 
 /**
- * Require that a number be greater than a minimum value
+ * Require that a number be greater than or equal to a minimum value
  */
 const minValue: ValidationFunction<number> = (min) => () => {
   invariant(!isNaN(Number(min)), 'Min value must be specified');
 
   return z
     .number()
-    .gt(min, {
-      message: `You must enter a value greater than ${min}.`,
+    .gte(min, {
+      message: `You must enter a value of at least ${min}.`,
     })
     .prefault(min - 1);
 };
 
 /**
- * Require that a number be less than a maximum value
+ * Require that a number be less than or equal to a maximum value
  */
 const maxValue: ValidationFunction<number> = (max) => () => {
   invariant(max, 'Max value must be specified');
 
   return z
     .number()
-    .lt(max, {
-      message: `You must enter a value less than ${max}.`,
+    .lte(max, {
+      message: `You must enter a value of at most ${max}.`,
     })
     .prefault(max - 1);
 };

@@ -197,7 +197,7 @@ describe('Validation Functions', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0]?.message).toBe(
-          'You must enter a value greater than 10.',
+          'You must enter a value of at least 10.',
         );
       }
     });
@@ -231,7 +231,7 @@ describe('Validation Functions', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0]?.message).toBe(
-          'You must enter a value less than 10.',
+          'You must enter a value of at most 10.',
         );
       }
     });
@@ -657,12 +657,12 @@ describe('Validation Functions', () => {
       }).toThrow('Attribute must be specified for lessThanVariable validation');
     });
 
-    it('should throw error when attribute is not in form values', () => {
+    it('should throw error when attribute is not in codebook', () => {
       expect(() => {
         validations
           .lessThanVariable('missingAttribute', createMockContext())({})
           .safeParse(10);
-      }).toThrow('Form values must contain the attribute being compared');
+      }).toThrow('Comparison variable not found in codebook');
     });
   });
 });

@@ -86,6 +86,7 @@ describe('FormStore', () => {
       expect(field?.state).toEqual({
         isValidating: false,
         isTouched: false,
+        isBlurred: false,
         isDirty: false,
         isValid: false,
       });

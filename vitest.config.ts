@@ -26,6 +26,7 @@ export default defineConfig({
             '**/*.stories.ts',
           ],
           name: 'units',
+          setupFiles: ['./vitest.setup.ts'],
         },
         // resolve: {
         //   alias: {

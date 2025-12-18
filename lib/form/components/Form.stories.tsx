@@ -119,7 +119,7 @@ export const BlurThenChangeValidation: Story = {
       }}
     >
       <div className="flex w-96 flex-col gap-4">
-        <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-800">
+        <div className="bg-info/10 text-info rounded-sm p-4 text-sm">
           <p className="font-medium">Validation Behavior:</p>
           <ol className="mt-2 list-inside list-decimal space-y-1">
             <li>Start typing - no errors shown yet</li>
@@ -369,7 +369,7 @@ export const MultiFieldCondition: Story = {
             values.experienceLevel === 'advanced'
           }
         >
-          <div className="rounded-md bg-green-50 p-3 text-sm text-green-800">
+          <div className="bg-success/10 text-success rounded-sm p-3 text-sm">
             Advanced researcher fields unlocked!
           </div>
           <Field
@@ -391,7 +391,7 @@ export const MultiFieldCondition: Story = {
             values.role === 'student' && values.experienceLevel === 'beginner'
           }
         >
-          <div className="rounded-md bg-yellow-50 p-3 text-sm text-yellow-800">
+          <div className="bg-warning/10 text-warning rounded-sm p-3 text-sm">
             Welcome! Here are some helpful fields for beginners.
           </div>
           <Field name="school" label="School Name" component={InputField} />
@@ -503,7 +503,7 @@ export const SubmissionHandling: Story = {
       }}
     >
       <div className="flex w-96 flex-col gap-4">
-        <div className="rounded-md bg-gray-50 p-3 text-sm text-gray-600">
+        <div className="bg-surface-1 text-text/70 rounded-sm p-3 text-sm">
           This form simulates a 2-second API call on submit. Watch the submit
           button show a loading state.
         </div>

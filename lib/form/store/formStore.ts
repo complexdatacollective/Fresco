@@ -107,7 +107,7 @@ export const createFormStore = () => {
               isTouched: false,
               isBlurred: false,
               isDirty: false,
-              isValid: true,
+              isValid: false,
             },
           };
 

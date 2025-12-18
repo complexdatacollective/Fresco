@@ -30,7 +30,7 @@ function FieldGroup<const T extends readonly string[]>({
   const shouldRender = useFieldGroupCondition(watch, condition);
 
   return (
-    <AnimatePresence mode="popLayout">
+    <AnimatePresence mode="sync">
       {shouldRender === true && <>{children}</>}
     </AnimatePresence>
   );
