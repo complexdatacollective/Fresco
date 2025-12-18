@@ -103,8 +103,8 @@ export function RadioGroupField({
         {options.map((option) => {
           const optionId = `${name}-${option.value}`;
           const isOptionDisabled = disabled || option.disabled;
-          const isChecked =
-            value !== undefined ? value === option.value : undefined;
+          const isControlled = onChange !== undefined;
+          const isChecked = value === option.value;
 
           return (
             <label
@@ -117,8 +117,9 @@ export function RadioGroupField({
                 id={optionId}
                 name={name}
                 value={option.value}
-                checked={isChecked}
-                defaultChecked={defaultValue === option.value}
+                {...(isControlled
+                  ? { checked: isChecked }
+                  : { defaultChecked: defaultValue === option.value })}
                 disabled={isOptionDisabled}
                 readOnly={readOnly}
                 onChange={(e) => {

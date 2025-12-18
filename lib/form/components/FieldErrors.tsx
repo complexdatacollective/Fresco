@@ -1,5 +1,4 @@
 import Paragraph from '~/components/typography/Paragraph';
-import UnorderedList from '~/components/typography/UnorderedList';
 
 /**
  * Render field errors.
@@ -24,15 +23,7 @@ export default function FieldErrors({
       className="text-destructive animate-shake text-sm"
       key={errors?.join('|')} // Re-render when errors change, to trigger animation
     >
-      {errors?.length === 1 ? (
-        <Paragraph>{errors[0]}</Paragraph>
-      ) : (
-        <UnorderedList>
-          {errors?.map((error, index) => (
-            <li key={index}>{error}</li>
-          ))}
-        </UnorderedList>
-      )}
+      {errors && <Paragraph>{errors[0]}</Paragraph>}
     </div>
   );
 }

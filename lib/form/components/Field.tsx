@@ -1,12 +1,16 @@
 'use client';
 
-import { type ValidationName } from '@codaco/protocol-validation';
 import { LayoutGroup } from 'motion/react';
 import z from 'zod';
+import UnorderedList from '~/components/typography/UnorderedList';
 import { useField } from '../hooks/useField';
-import { type ValidationFunction, validations } from '../validation';
+import {
+  type ValidationFunction,
+  type ValidationParameter,
+  validations,
+} from '../validation';
 import { BaseField } from './BaseField';
-import { type FieldValidation, type FieldValue } from './types';
+import { type CustomFieldValidation, type FieldValue } from './types';
 
 /**
  * Props that Field provides to components.
@@ -46,7 +50,7 @@ type ValidationProps = {
   required: boolean;
   minLength: number;
   maxLength: number;
-  pattern: string;
+  pattern: { regex: string; hint: string; errorMessage: string };
   minValue: number;
   maxValue: number;
   minSelected: number;
@@ -56,8 +60,37 @@ type ValidationProps = {
   sameAs: string;
   greaterThanVariable: string;
   lessThanVariable: string;
-  custom: FieldValidation;
+  custom: CustomFieldValidation | CustomFieldValidation[];
 };
+
+const validationPropKeys: (keyof ValidationProps)[] = [
+  'required',
+  'minLength',
+  'maxLength',
+  'pattern',
+  'minValue',
+  'maxValue',
+  'minSelected',
+  'maxSelected',
+  'unique',
+  'differentFrom',
+  'sameAs',
+  'greaterThanVariable',
+  'lessThanVariable',
+  'custom',
+];
+
+function filterValidationProps(
+  props: Record<string, unknown>,
+): Record<string, unknown> {
+  const filtered: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (!validationPropKeys.includes(key as keyof ValidationProps)) {
+      filtered[key] = value;
+    }
+  }
+  return filtered;
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FieldOwnProps<C extends React.ComponentType<any>> = {
@@ -70,7 +103,7 @@ export type FieldOwnProps<C extends React.ComponentType<any>> = {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FieldProps<C extends React.ComponentType<any>> = FieldOwnProps<C> &
-  Omit<ExtractProps<C>, keyof FieldComponentProps>;
+  Omit<ExtractProps<C>, keyof FieldComponentProps | keyof ValidationProps>;
 
 /**
  * Field component that connects to form context via useField hook.
@@ -102,6 +135,7 @@ export default function Field<C extends React.ComponentType<any>>({
         id={id}
         label={label}
         hint={hint}
+        validationSummary={makeValidationSummary(componentProps)}
         required={Boolean(componentProps.required)}
         errors={meta.errors}
         showErrors={meta.shouldShowError}
@@ -111,7 +145,7 @@ export default function Field<C extends React.ComponentType<any>>({
           id={id}
           name={name}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          {...(componentProps as any)}
+          {...(filterValidationProps(componentProps) as any)}
           {...fieldProps}
         />
       </BaseField>
@@ -134,11 +168,11 @@ export function makeValidationFunction(props: Record<string, unknown>) {
       for (const [validationName, parameter] of validationEntries) {
         try {
           const validationFnFactory = validations[
-            validationName as ValidationName
-          ] as ValidationFunction<string | number | boolean>;
+            validationName as keyof typeof validations
+          ] as ValidationFunction<ValidationParameter>;
 
           const validationFn = validationFnFactory(
-            parameter as string | number | boolean,
+            parameter as ValidationParameter,
           )(formValues);
 
           const result = await validationFn.safeParseAsync(fieldValue);
@@ -162,28 +196,37 @@ export function makeValidationFunction(props: Record<string, unknown>) {
         }
       }
 
-      // Handle custom Zod schema validation
+      // Handle custom validations (single or array)
       if ('custom' in props && props.custom) {
-        try {
-          const customSchema = props.custom as z.ZodType;
-          const result = await customSchema.safeParseAsync(fieldValue);
+        const customValidations = Array.isArray(props.custom)
+          ? (props.custom as CustomFieldValidation[])
+          : [props.custom as CustomFieldValidation];
 
-          if (!result.success && result.error) {
-            result.error.issues.forEach((issue) => {
-              ctx.addIssue({
-                code: 'custom',
-                message: issue.message,
-                path: [...issue.path],
+        for (const { schema } of customValidations) {
+          try {
+            // Resolve schema if it's a function
+            const resolvedSchema =
+              typeof schema === 'function' ? await schema(formValues) : schema;
+
+            const result = await resolvedSchema.safeParseAsync(fieldValue);
+
+            if (!result.success && result.error) {
+              result.error.issues.forEach((issue) => {
+                ctx.addIssue({
+                  code: 'custom',
+                  message: issue.message,
+                  path: [...issue.path],
+                });
               });
+            }
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.log('custom validation error', error);
+            ctx.addIssue({
+              code: 'custom',
+              message: 'An error occurred while validating.',
             });
           }
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log('custom validation error', error);
-          ctx.addIssue({
-            code: 'custom',
-            message: 'An error occurred while validating.',
-          });
         }
       }
     });
@@ -191,49 +234,71 @@ export function makeValidationFunction(props: Record<string, unknown>) {
 
 /**
  * Helper function that generates a human readable summary of the validation rules
- * applied to a field that can be displayed to the user.
+ * applied to a field by extracting hint metadata from each validation schema.
  */
 export function makeValidationSummary(props: Record<string, unknown>) {
   const validationEntries = Object.entries(props)
-    // Filter to only named ValidationProps
+    // Filter to only named ValidationProps (excluding 'custom')
     .filter(([key]) => key in validations);
 
-  const tips = [];
+  const hints: string[] = [];
 
   for (const [validationName, parameter] of validationEntries) {
-    switch (validationName) {
-      case 'required':
-        if (parameter === true) {
-          tips.push('This field is required');
-        }
-        break;
-      case 'minLength':
-        tips.push(`Minimum length: ${parameter}`);
-        break;
-      case 'maxLength':
-        tips.push(`Maximum length: ${parameter}`);
-        break;
-      case 'pattern':
-        tips.push(`Must match pattern: ${parameter}`);
-        break;
-      case 'minValue':
-        tips.push(`Minimum value: ${parameter}`);
-        break;
-      case 'maxValue':
-        tips.push(`Maximum value: ${parameter}`);
-        break;
-      case 'minSelected':
-        tips.push(`Select at least ${parameter} options`);
-        break;
-      case 'maxSelected':
-        tips.push(`Select no more than ${parameter} options`);
-        break;
-      case 'unique':
-        if (parameter === true) {
-          tips.push('Value must be unique');
-        }
-        break;
+    // Skip required=false or other falsy values that indicate no validation
+    if (validationName === 'required' && parameter !== true) {
+      continue;
     }
-    return tips;
+
+    try {
+      const validationFnFactory = validations[
+        validationName as keyof typeof validations
+      ] as ValidationFunction<
+        string | number | boolean | { regex: string; hint: string }
+      >;
+
+      // Call the factory with the parameter to get the validation function
+      // Pass empty object as formValues since we just need metadata
+      const validationFn = validationFnFactory(
+        parameter as
+          | string
+          | number
+          | boolean
+          | { regex: string; hint: string },
+      )({});
+
+      // Extract hint from the schema's metadata
+      const meta = validationFn.meta() as { hint?: string } | undefined;
+      if (meta?.hint) {
+        hints.push(meta.hint);
+      }
+    } catch {
+      // If we can't get the hint (e.g., missing context for some validations),
+      // skip this validation's hint
+      // eslint-disable-next-line no-console
+      console.warn(`Could not extract hint for validation: ${validationName}`);
+    }
   }
+
+  // Handle custom validation hints
+  if ('custom' in props && props.custom) {
+    const customValidations = Array.isArray(props.custom)
+      ? (props.custom as CustomFieldValidation[])
+      : [props.custom as CustomFieldValidation];
+
+    for (const { hint } of customValidations) {
+      hints.push(hint);
+    }
+  }
+
+  if (hints.length === 0) {
+    return null;
+  }
+
+  return (
+    <UnorderedList className="mb-4!">
+      {hints.map((hint, index) => (
+        <li key={index}>{hint}</li>
+      ))}
+    </UnorderedList>
+  );
 }

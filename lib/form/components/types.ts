@@ -25,6 +25,43 @@ export type FieldValidation =
       formValues: Record<string, FieldValue>,
     ) => z.ZodType | Promise<z.ZodType>);
 
+/**
+ * Custom field validation with required hint metadata.
+ * The schema can be a Zod schema directly, or a function that receives
+ * form values and returns a schema (for validations that depend on other fields).
+ *
+ * @example
+ * ```tsx
+ * // Simple validation
+ * <Field
+ *   custom={{ schema: z.email(), hint: 'Enter a valid email' }}
+ * />
+ *
+ * // Multiple validations
+ * <Field
+ *   custom={[
+ *     { schema: z.string().min(5), hint: 'At least 5 characters' },
+ *     { schema: z.string().max(100), hint: 'Maximum 100 characters' },
+ *   ]}
+ * />
+ *
+ * // Context-aware validation
+ * <Field
+ *   custom={{
+ *     schema: (formValues) => z.string().refine(
+ *       (val) => val !== formValues.otherField,
+ *       'Must be different from other field'
+ *     ),
+ *     hint: 'Must be different from other field',
+ *   }}
+ * />
+ * ```
+ */
+export type CustomFieldValidation = {
+  schema: FieldValidation;
+  hint: string;
+};
+
 export type ValidationResult<T extends z.ZodTypeAny> =
   | { success: true; data: z.infer<T> }
   | { success: false; error: z.ZodError<z.infer<T>> };

@@ -157,6 +157,7 @@ export function NameGeneratorPromptEditor({
           initialValue={item?.text}
           required
           maxLength={5}
+          autoFocus
         />
         <Field
           name="additionalAttributes"
@@ -544,7 +545,6 @@ export function FilterRuleEditor({
 export type ValidationConfig = {
   id: string;
   required?: boolean;
-  requiredAcceptsNull?: boolean;
   minLength?: number;
   maxLength?: number;
   minValue?: number;
@@ -562,7 +562,6 @@ function formatValidationSummary(config: ValidationConfig): string[] {
   const rules: string[] = [];
 
   if (config.required) rules.push('Required');
-  if (config.requiredAcceptsNull) rules.push('Required (accepts null)');
   if (config.unique) rules.push('Must be unique');
   if (config.minLength !== undefined)
     rules.push(`Min length: ${config.minLength}`);
@@ -656,7 +655,6 @@ export function ValidationConfigEditor({
 
     // Boolean fields
     if (data.required === true) config.required = true;
-    if (data.requiredAcceptsNull === true) config.requiredAcceptsNull = true;
     if (data.unique === true) config.unique = true;
 
     // Number fields - only include if they have values

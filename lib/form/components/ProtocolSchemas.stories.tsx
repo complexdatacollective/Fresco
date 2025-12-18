@@ -98,9 +98,9 @@ export const NameGeneratorPrompts: Story = {
           itemComponent={NameGeneratorPromptItem}
           editorComponent={NameGeneratorPromptEditor}
           required
+          minSelected={2}
         />
-
-        <SubmitButton className="mt-6">Save Prompts</SubmitButton>
+        <SubmitButton>Save Prompts</SubmitButton>
       </Form>
     </>
   ),
@@ -137,7 +137,7 @@ export const Filter: Story = {
       <Surface level={1} spacing="lg">
         <div className="mb-6">
           <Heading level="h2">Network Filter</Heading>
-          <Paragraph intent="smallText">
+          <Paragraph>
             Create a filter to match specific network entities. Filters can be
             used for skip logic, panel filtering, and other conditional
             behaviors.
@@ -214,7 +214,7 @@ export const Validations: Story = {
       <Surface level={1} spacing="lg">
         <div className="mb-6">
           <Heading level="h2">Field Validation Configuration</Heading>
-          <Paragraph intent="smallText">
+          <Paragraph>
             Configure validation rules for a form field. All validations are
             optional - only enable the ones you need.
           </Paragraph>
@@ -408,7 +408,7 @@ export const VariableDefinitionWithValidation: Story = {
       <Surface level={1} spacing="lg">
         <div className="mb-6">
           <Heading level="h2">Variable Definition</Heading>
-          <Paragraph intent="smallText">
+          <Paragraph>
             Define a protocol variable with its validation rules. This
             demonstrates how the ValidationsSchema integrates with variable
             definitions.

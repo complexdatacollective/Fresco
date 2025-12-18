@@ -30,7 +30,7 @@ function FormInner(props: FormProps) {
   return (
     <form
       noValidate // Don't show native HTML validation UI
-      className={cx('flex w-full flex-col items-start gap-6', className)}
+      className={cx('w-full', className)}
       onSubmit={formProps.onSubmit}
       {...rest}
     >

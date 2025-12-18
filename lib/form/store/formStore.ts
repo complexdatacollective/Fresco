@@ -345,12 +345,13 @@ export const createFormStore = () => {
               fieldErrors[fieldName] = combinedErrors;
             }
 
-            // Mark field as touched and blurred so errors will show
+            // Mark field as touched, blurred, and dirty so errors will show
             set((draft) => {
               const field = draft.fields.get(fieldName);
               if (field) {
                 field.state.isTouched = true;
                 field.state.isBlurred = true;
+                field.state.isDirty = true;
                 field.state.isValid = false;
               }
             });

@@ -8,12 +8,7 @@ export default function UnorderedList({
   className?: string;
 }) {
   return (
-    <ul
-      className={cx(
-        'ml-8 list-disc not-last:mb-4 [&>li]:not-last:mb-2 [li>&]:mb-0',
-        className,
-      )}
-    >
+    <ul className={cx('ml-8 list-disc not-last:mb-4', className)}>
       {children}
     </ul>
   );

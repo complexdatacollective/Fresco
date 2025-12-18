@@ -1,7 +1,7 @@
 'use client';
 
-import { motion } from 'motion/react';
 import { type ReactNode } from 'react';
+import Paragraph from '~/components/typography/Paragraph';
 import FieldErrors from './FieldErrors';
 import { FieldLabel } from './FieldLabel';
 import Hint from './Hint';
@@ -10,12 +10,13 @@ export type BaseFieldProps = {
   id: string;
   label: string;
   hint?: string;
+  validationSummary?: ReactNode;
   required?: boolean;
   errors?: string[];
   showErrors?: boolean;
   children: ReactNode;
   // TODO: the data attributes should be typed based on the return value of useField.
-  containerProps?: Omit<HTMLDivElement, 'className'> &
+  containerProps?: Omit<React.HTMLAttributes<HTMLDivElement>, 'className'> &
     Record<`data-${string}`, string | boolean | undefined>;
 };
 
@@ -27,6 +28,7 @@ export function BaseField({
   id,
   label,
   hint,
+  validationSummary,
   required,
   errors = [],
   showErrors = false,
@@ -34,22 +36,18 @@ export function BaseField({
   containerProps,
 }: BaseFieldProps) {
   return (
-    <motion.div
-      key={id}
-      layout
-      {...containerProps}
-      className="group w-full grow not-last-of-type:mb-6"
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0, scale: 0.6 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-    >
+    <div {...containerProps} className="group w-full grow not-last:mb-6">
       <FieldLabel id={`${id}-label`} htmlFor={id} required={required}>
         {label}
       </FieldLabel>
-      {hint && <Hint id={`${id}-hint`}>{hint}</Hint>}
+      {(hint ?? validationSummary) && (
+        <Hint id={`${id}-hint`}>
+          {hint && <Paragraph>{hint}</Paragraph>}
+          {validationSummary}
+        </Hint>
+      )}
       {children}
       <FieldErrors id={`${id}-error`} errors={errors} show={showErrors} />
-    </motion.div>
+    </div>
   );
 }

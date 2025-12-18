@@ -1,5 +1,3 @@
-import { paragraphVariants } from '~/components/typography/Paragraph';
-
 export default function Hint({
   id,
   children,
@@ -8,11 +6,8 @@ export default function Hint({
   children: React.ReactNode;
 }) {
   return (
-    <p
-      id={id}
-      className={paragraphVariants({ className: 'text-xs text-current/70' })}
-    >
+    <div id={id} className="text-sm text-current/70">
       {children}
-    </p>
+    </div>
   );
 }

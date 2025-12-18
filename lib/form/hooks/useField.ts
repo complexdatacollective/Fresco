@@ -10,7 +10,7 @@ import { useFormStore } from '../store/formStoreProvider';
 
 /**
  * Helper function to determine if a field should show an error message.
- * Only shows errors after the field has been blurred at least once.
+ * Only shows errors after the field has been blurred and is dirty (value changed).
  */
 function useFieldShouldShowError(
   fieldState: FieldState | undefined,
@@ -22,8 +22,10 @@ function useFieldShouldShowError(
 
   const { state } = fieldState;
 
-  // Only show errors after the field has been blurred at least once
-  return Boolean(state.isBlurred && fieldErrors && fieldErrors.length > 0);
+  // Only show errors after the field has been blurred and is dirty
+  return Boolean(
+    state.isBlurred && state.isDirty && fieldErrors && fieldErrors.length > 0,
+  );
 }
 
 export type UseFieldConfig = {

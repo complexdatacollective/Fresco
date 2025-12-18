@@ -101,9 +101,9 @@ export const Required: Story = {
   args: {
     name: 'password',
     label: 'Password',
-    hint: 'Must be at least 8 characters',
     component: InputField,
     required: true,
+    minLength: 8,
   },
 };
 
@@ -131,9 +131,11 @@ export const WithZodValidation: Story = {
     <Field
       name="email"
       label="Email"
-      hint="Enter a valid email address"
       component={InputField}
-      validation={z.string().email('Please enter a valid email address')}
+      custom={{
+        schema: z.email('Enter a valid email address'),
+        hint: 'be a valid email address',
+      }}
     />
   ),
   parameters: {
@@ -150,7 +152,6 @@ export const WithMinLength: Story = {
   args: {
     name: 'title',
     label: 'Title',
-    hint: 'Minimum 5 characters required',
     component: InputField,
     minLength: 5,
   },
@@ -160,7 +161,6 @@ export const WithMaxLength: Story = {
   args: {
     name: 'shortName',
     label: 'Short Name',
-    hint: 'Maximum 10 characters allowed',
     component: InputField,
     maxLength: 10,
   },
@@ -170,9 +170,12 @@ export const WithPattern: Story = {
   args: {
     name: 'zipCode',
     label: 'ZIP Code',
-    hint: 'US ZIP code format (e.g., 12345)',
     component: InputField,
-    pattern: '^[0-9]{5}$',
+    pattern: {
+      regex: '^[0-9]{5}$',
+      hint: 'Enter be a valid US ZIP code (e.g., 12345)',
+      errorMessage: 'Not a valid ZIP code.',
+    },
   },
 };
 
@@ -216,7 +219,6 @@ export const MultipleValidations: Story = {
   args: {
     name: 'password',
     label: 'Password',
-    hint: 'Required, 8-20 characters',
     component: InputField,
     required: true,
     minLength: 8,
@@ -251,30 +253,32 @@ export const AllValidationOptions: Story = {
         <Field
           name="minLengthField"
           label="Min Length (3)"
-          hint="Minimum 3 characters"
           component={InputField}
           minLength={3}
         />
         <Field
           name="maxLengthField"
           label="Max Length (10)"
-          hint="Maximum 10 characters"
           component={InputField}
           maxLength={10}
         />
         <Field
           name="patternField"
           label="Pattern (letters only)"
-          hint="Only letters allowed"
           component={InputField}
-          pattern="^[a-zA-Z]+$"
+          pattern={{
+            regex: '^[a-zA-Z]+$',
+            hint: 'Only letters allowed',
+          }}
         />
         <Field
           name="zodValidation"
           label="Zod Validation (email)"
-          hint="Custom Zod schema"
           component={InputField}
-          validation={z.string().email('Invalid email')}
+          custom={{
+            schema: z.email('Invalid email'),
+            hint: 'Be a valid email address',
+          }}
         />
         <SubmitButton>Submit</SubmitButton>
       </div>

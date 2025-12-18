@@ -257,7 +257,7 @@ export function ArrayField<T extends object>({
           axis="y"
           values={items}
           onReorder={setItems}
-          className={arrayFieldVariants()}
+          className={arrayFieldVariants({ state: getState() })}
         >
           <AnimatePresence mode="popLayout">
             {items.length === 0 && (

@@ -46,11 +46,9 @@ export const Default: Story = {
         return Promise.resolve({ success: true });
       }}
     >
-      <div className="flex w-96 flex-col gap-4">
-        <Field name="name" label="Name" component={InputField} />
-        <Field name="email" label="Email" component={InputField} />
-        <SubmitButton>Submit</SubmitButton>
-      </div>
+      <Field name="name" label="Name" component={InputField} />
+      <Field name="email" label="Email" component={InputField} />
+      <SubmitButton>Submit</SubmitButton>
     </Form>
   ),
 };
@@ -63,41 +61,42 @@ export const WithValidation: Story = {
         return Promise.resolve({ success: true });
       }}
     >
-      <div className="flex w-96 flex-col gap-4">
-        <Field
-          name="username"
-          label="Username"
-          hint="Must be at least 3 characters"
-          component={InputField}
-          required
-          minLength={3}
-        />
-        <Field
-          name="email"
-          label="Email"
-          hint="Enter a valid email address"
-          component={InputField}
-          required
-          custom={z.string().email('Please enter a valid email address')}
-        />
-        <Field
-          name="password"
-          label="Password"
-          hint="8-20 characters required"
-          component={InputField}
-          required
-          minLength={8}
-          maxLength={20}
-        />
-        <Field
-          name="zipCode"
-          label="ZIP Code"
-          hint="5-digit US ZIP code"
-          component={InputField}
-          pattern="^[0-9]{5}$"
-        />
-        <SubmitButton>Create Account</SubmitButton>
-      </div>
+      <Field
+        name="username"
+        label="Username"
+        component={InputField}
+        required
+        minLength={3}
+      />
+      <Field
+        name="email"
+        label="Email"
+        component={InputField}
+        required
+        custom={{
+          schema: z.email('Enter a valid email address'),
+          hint: 'Enter a valid email address',
+        }}
+      />
+      <Field
+        name="password"
+        label="Password"
+        component={InputField}
+        required
+        minLength={8}
+        maxLength={20}
+      />
+      <Field
+        name="zipCode"
+        label="ZIP Code"
+        component={InputField}
+        pattern={{
+          regex: '^[0-9]{5}$',
+          hint: 'Enter a valid US ZIP code (e.g., 12345).',
+          errorMessage: 'Not a valid ZIP code.',
+        }}
+      />
+      <SubmitButton>Create Account</SubmitButton>
     </Form>
   ),
   parameters: {
@@ -118,33 +117,30 @@ export const BlurThenChangeValidation: Story = {
         return Promise.resolve({ success: true });
       }}
     >
-      <div className="flex w-96 flex-col gap-4">
-        <div className="bg-info/10 text-info rounded-sm p-4 text-sm">
-          <p className="font-medium">Validation Behavior:</p>
-          <ol className="mt-2 list-inside list-decimal space-y-1">
-            <li>Start typing - no errors shown yet</li>
-            <li>
-              Click away (blur) - field validates, errors appear if invalid
-            </li>
-            <li>Continue typing - errors update in real-time</li>
-          </ol>
-        </div>
-        <Field
-          name="email"
-          label="Email"
-          hint="Type something invalid, then click away to see validation"
-          component={InputField}
-          custom={z.email('Please enter a valid email address')}
-        />
-        <Field
-          name="minLength"
-          label="Minimum Length Field"
-          hint="Requires at least 5 characters"
-          component={InputField}
-          minLength={5}
-        />
-        <SubmitButton>Submit</SubmitButton>
+      <div className="bg-info/10 text-info rounded-sm p-4 text-sm">
+        <p className="font-medium">Validation Behavior:</p>
+        <ol className="mt-2 list-inside list-decimal space-y-1">
+          <li>Start typing - no errors shown yet</li>
+          <li>Click away (blur) - field validates, errors appear if invalid</li>
+          <li>Continue typing - errors update in real-time</li>
+        </ol>
       </div>
+      <Field
+        name="email"
+        label="Email"
+        component={InputField}
+        custom={{
+          schema: z.email('Enter a valid email address'),
+          hint: 'Type something invalid, then click away to see validation',
+        }}
+      />
+      <Field
+        name="minLength"
+        label="Minimum Length Field"
+        component={InputField}
+        minLength={5}
+      />
+      <SubmitButton>Submit</SubmitButton>
     </Form>
   ),
   parameters: {
@@ -165,54 +161,55 @@ export const ConditionalFieldsWithFieldGroup: Story = {
         return Promise.resolve({ success: true });
       }}
     >
-      <div className="flex w-96 flex-col gap-4">
+      <Field
+        name="hasAccount"
+        label="Do you have an existing account?"
+        component={RadioGroupField}
+        options={[
+          { value: 'yes', label: 'Yes, I have an account' },
+          { value: 'no', label: 'No, I am new' },
+        ]}
+      />
+
+      <FieldGroup
+        watch={['hasAccount'] as const}
+        condition={(values) => values.hasAccount === 'yes'}
+      >
         <Field
-          name="hasAccount"
-          label="Do you have an existing account?"
-          component={RadioGroupField}
-          options={[
-            { value: 'yes', label: 'Yes, I have an account' },
-            { value: 'no', label: 'No, I am new' },
-          ]}
+          name="accountEmail"
+          label="Account Email"
+          component={InputField}
+          custom={{
+            schema: z.email('Enter a valid email address'),
+            hint: 'Enter your existing account email',
+          }}
         />
+      </FieldGroup>
 
-        <FieldGroup
-          watch={['hasAccount'] as const}
-          condition={(values) => values.hasAccount === 'yes'}
-        >
-          <Field
-            name="accountEmail"
-            label="Account Email"
-            hint="Enter your existing account email"
-            component={InputField}
-            custom={z.string().email('Please enter a valid email')}
-          />
-        </FieldGroup>
+      <FieldGroup
+        watch={['hasAccount'] as const}
+        condition={(values) => values.hasAccount === 'no'}
+      >
+        <Field
+          name="newEmail"
+          label="Email"
+          component={InputField}
+          required
+          custom={{
+            schema: z.email('Enter a valid email address'),
+            hint: "We'll create a new account for you",
+          }}
+        />
+        <Field
+          name="newPassword"
+          label="Choose a Password"
+          component={InputField}
+          required
+          minLength={8}
+        />
+      </FieldGroup>
 
-        <FieldGroup
-          watch={['hasAccount'] as const}
-          condition={(values) => values.hasAccount === 'no'}
-        >
-          <Field
-            name="newEmail"
-            label="Email"
-            hint="We'll create a new account for you"
-            component={InputField}
-            required
-            custom={z.string().email('Please enter a valid email')}
-          />
-          <Field
-            name="newPassword"
-            label="Choose a Password"
-            hint="At least 8 characters"
-            component={InputField}
-            required
-            minLength={8}
-          />
-        </FieldGroup>
-
-        <SubmitButton>Continue</SubmitButton>
-      </div>
+      <SubmitButton>Continue</SubmitButton>
     </Form>
   ),
   parameters: {
@@ -233,7 +230,7 @@ export const NestedConditionalFields: Story = {
         return Promise.resolve({ success: true });
       }}
     >
-      <div className="flex w-96 flex-col gap-4">
+      <div className="flex w-96 flex-col">
         <Field
           name="contactMethod"
           label="Preferred contact method"
@@ -255,7 +252,10 @@ export const NestedConditionalFields: Story = {
             label="Email Address"
             component={InputField}
             required
-            custom={z.string().email('Invalid email')}
+            custom={{
+              schema: z.email('Invalid email'),
+              hint: 'Enter a valid email',
+            }}
           />
         </FieldGroup>
 
@@ -268,7 +268,10 @@ export const NestedConditionalFields: Story = {
             label="Phone Number"
             component={InputField}
             required
-            pattern="^[0-9]{10}$"
+            pattern={{
+              regex: '^[0-9]{10}$',
+              hint: '10-digit phone number',
+            }}
           />
           <Field
             name="phoneType"
@@ -288,7 +291,6 @@ export const NestedConditionalFields: Story = {
             <Field
               name="companyName"
               label="Company Name"
-              hint="Required for work phone"
               component={InputField}
               required
             />
@@ -312,7 +314,11 @@ export const NestedConditionalFields: Story = {
             label="ZIP Code"
             component={InputField}
             required
-            pattern="^[0-9]{5}$"
+            pattern={{
+              regex: '^[0-9]{5}$',
+              hint: 'Enter a valid US ZIP code (e.g., 12345).',
+              errorMessage: 'Not a valid ZIP code.',
+            }}
           />
         </FieldGroup>
 
@@ -338,73 +344,76 @@ export const MultiFieldCondition: Story = {
         return Promise.resolve({ success: true });
       }}
     >
-      <div className="flex w-96 flex-col gap-4">
+      <Field
+        name="role"
+        label="Your Role"
+        component={SelectField}
+        options={[
+          { value: '', label: 'Select a role...' },
+          { value: 'student', label: 'Student' },
+          { value: 'professional', label: 'Professional' },
+          { value: 'researcher', label: 'Researcher' },
+        ]}
+      />
+
+      <Field
+        name="experienceLevel"
+        label="Experience Level"
+        component={RadioGroupField}
+        options={[
+          { value: 'beginner', label: 'Beginner' },
+          { value: 'intermediate', label: 'Intermediate' },
+          { value: 'advanced', label: 'Advanced' },
+        ]}
+      />
+
+      <FieldGroup
+        watch={['role', 'experienceLevel'] as const}
+        condition={(values) =>
+          values.role === 'researcher' && values.experienceLevel === 'advanced'
+        }
+      >
+        <div className="bg-success/10 text-success rounded-sm p-3 text-sm">
+          Advanced researcher fields unlocked!
+        </div>
         <Field
-          name="role"
-          label="Your Role"
-          component={SelectField}
-          options={[
-            { value: '', label: 'Select a role...' },
-            { value: 'student', label: 'Student' },
-            { value: 'professional', label: 'Professional' },
-            { value: 'researcher', label: 'Researcher' },
-          ]}
+          name="publications"
+          label="Number of Publications"
+          component={InputField}
+          custom={{
+            schema: z.coerce.number().min(0, 'Must be a positive number'),
+            hint: 'Enter a positive number',
+          }}
         />
-
         <Field
-          name="experienceLevel"
-          label="Experience Level"
-          component={RadioGroupField}
-          options={[
-            { value: 'beginner', label: 'Beginner' },
-            { value: 'intermediate', label: 'Intermediate' },
-            { value: 'advanced', label: 'Advanced' },
-          ]}
+          name="researchArea"
+          label="Primary Research Area"
+          component={TextAreaField}
         />
+      </FieldGroup>
 
-        <FieldGroup
-          watch={['role', 'experienceLevel'] as const}
-          condition={(values) =>
-            values.role === 'researcher' &&
-            values.experienceLevel === 'advanced'
-          }
-        >
-          <div className="bg-success/10 text-success rounded-sm p-3 text-sm">
-            Advanced researcher fields unlocked!
-          </div>
-          <Field
-            name="publications"
-            label="Number of Publications"
-            component={InputField}
-            custom={z.coerce.number().min(0, 'Must be a positive number')}
-          />
-          <Field
-            name="researchArea"
-            label="Primary Research Area"
-            component={TextAreaField}
-          />
-        </FieldGroup>
+      <FieldGroup
+        watch={['role', 'experienceLevel'] as const}
+        condition={(values) =>
+          values.role === 'student' && values.experienceLevel === 'beginner'
+        }
+      >
+        <div className="bg-warning/10 text-warning rounded-sm p-3 text-sm">
+          Welcome! Here are some helpful fields for beginners.
+        </div>
+        <Field name="school" label="School Name" component={InputField} />
+        <Field
+          name="graduationYear"
+          label="Expected Graduation Year"
+          component={InputField}
+          pattern={{
+            regex: '^[0-9]{4}$',
+            hint: '4-digit year (e.g., 2025)',
+          }}
+        />
+      </FieldGroup>
 
-        <FieldGroup
-          watch={['role', 'experienceLevel'] as const}
-          condition={(values) =>
-            values.role === 'student' && values.experienceLevel === 'beginner'
-          }
-        >
-          <div className="bg-warning/10 text-warning rounded-sm p-3 text-sm">
-            Welcome! Here are some helpful fields for beginners.
-          </div>
-          <Field name="school" label="School Name" component={InputField} />
-          <Field
-            name="graduationYear"
-            label="Expected Graduation Year"
-            component={InputField}
-            pattern="^[0-9]{4}$"
-          />
-        </FieldGroup>
-
-        <SubmitButton>Submit Application</SubmitButton>
-      </div>
+      <SubmitButton>Submit Application</SubmitButton>
     </Form>
   ),
   parameters: {
@@ -425,60 +434,61 @@ export const FormWithAllFieldTypes: Story = {
         return Promise.resolve({ success: true });
       }}
     >
-      <div className="flex w-[500px] flex-col gap-4">
-        <Field
-          name="fullName"
-          label="Full Name"
-          hint="Enter your first and last name"
-          component={InputField}
-          required
-        />
+      <Field
+        name="fullName"
+        label="Full Name"
+        hint="Enter your first and last name"
+        component={InputField}
+        required
+      />
 
-        <Field
-          name="email"
-          label="Email Address"
-          component={InputField}
-          required
-          custom={z.string().email('Invalid email format')}
-        />
+      <Field
+        name="email"
+        label="Email Address"
+        component={InputField}
+        required
+        custom={{
+          schema: z.email('Invalid email format'),
+          hint: 'Enter a valid email',
+        }}
+      />
 
-        <Field
-          name="country"
-          label="Country"
-          component={SelectField}
-          options={[
-            { value: '', label: 'Select your country...' },
-            { value: 'us', label: 'United States' },
-            { value: 'uk', label: 'United Kingdom' },
-            { value: 'ca', label: 'Canada' },
-            { value: 'au', label: 'Australia' },
-            { value: 'other', label: 'Other' },
-          ]}
-          required
-        />
+      <Field
+        name="country"
+        label="Country"
+        component={SelectField}
+        options={[
+          { value: '', label: 'Select your country...' },
+          { value: 'us', label: 'United States' },
+          { value: 'uk', label: 'United Kingdom' },
+          { value: 'ca', label: 'Canada' },
+          { value: 'au', label: 'Australia' },
+          { value: 'other', label: 'Other' },
+        ]}
+        required
+      />
 
-        <Field
-          name="gender"
-          label="Gender"
-          component={RadioGroupField}
-          options={[
-            { value: 'male', label: 'Male' },
-            { value: 'female', label: 'Female' },
-            { value: 'other', label: 'Other' },
-            { value: 'prefer_not_to_say', label: 'Prefer not to say' },
-          ]}
-        />
+      <Field
+        name="gender"
+        label="Gender"
+        component={RadioGroupField}
+        options={[
+          { value: 'male', label: 'Male' },
+          { value: 'female', label: 'Female' },
+          { value: 'other', label: 'Other' },
+          { value: 'prefer_not_to_say', label: 'Prefer not to say' },
+        ]}
+      />
 
-        <Field
-          name="bio"
-          label="Short Bio"
-          hint="Tell us about yourself (max 500 characters)"
-          component={TextAreaField}
-          maxLength={500}
-        />
+      <Field
+        name="bio"
+        label="Short Bio"
+        hint="Tell us about yourself"
+        component={TextAreaField}
+        maxLength={500}
+      />
 
-        <SubmitButton>Save Profile</SubmitButton>
-      </div>
+      <SubmitButton>Save Profile</SubmitButton>
     </Form>
   ),
   parameters: {
@@ -502,19 +512,17 @@ export const SubmissionHandling: Story = {
         return { success: true };
       }}
     >
-      <div className="flex w-96 flex-col gap-4">
-        <div className="bg-surface-1 text-text/70 rounded-sm p-3 text-sm">
-          This form simulates a 2-second API call on submit. Watch the submit
-          button show a loading state.
-        </div>
-        <Field
-          name="message"
-          label="Message"
-          component={TextAreaField}
-          required
-        />
-        <SubmitButton>Send Message</SubmitButton>
+      <div className="bg-surface-1 text-text/70 rounded-sm p-3 text-sm">
+        This form simulates a 2-second API call on submit. Watch the submit
+        button show a loading state.
       </div>
+      <Field
+        name="message"
+        label="Message"
+        component={TextAreaField}
+        required
+      />
+      <SubmitButton>Send Message</SubmitButton>
     </Form>
   ),
   parameters: {
