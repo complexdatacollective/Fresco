@@ -14,17 +14,17 @@ import Heading from '../typography/Heading';
 import { paragraphVariants } from '../typography/Paragraph';
 
 const alertVariants = cva({
-  base: 'w-full text-contrast border flex gap-3 my-6',
+  base: 'text-contrast my-6 flex w-full gap-3 border',
   variants: {
     variant: {
       default: '',
-      info: 'bg-[color-mix(in_oklab,var(--color-info)_1%,var(--color-neutral))] border-info text-info [--color-link:var(--color-info)] [&>svg]:text-info',
+      info: 'border-info text-info [&>svg]:text-info bg-[color-mix(in_oklab,var(--color-info)_1%,var(--color-neutral))] [--color-link:var(--color-info)]',
       destructive:
-        'bg-[color-mix(in_oklab,var(--color-destructive)_1%,var(--color-neutral))] border-destructive text-destructive [&>svg]:text-destructive [--color-link:var(--color-destructive)]',
+        'border-destructive-contrast text-destructive-contrast [&>svg]:text-destructive-contrast bg-destructive [--color-link:var(--color-destructive-contrast)]',
       success:
-        'bg-[color-mix(in_oklab,var(--color-success)_1%,var(--color-neutral))] border-success text-success [&>svg]:text-success [--color-link:var(--color-success)]',
+        'border-success-contrast text-success-contrast [&>svg]:text-success-contrast bg-success [--color-link:var(--color-success-contrast)]',
       warning:
-        'bg-[color-mix(in_oklab,var(--color-warning)_1%,var(--color-neutral))] border-warning text-warning [&>svg]:text-warning [--color-link:var(--color-warning)]',
+        'border-warning-contrast text-warning-contrast [&>svg]:text-warning-contrast bg-warning [--color-link:var(--color-warning-contrast)]',
     },
   },
   defaultVariants: {

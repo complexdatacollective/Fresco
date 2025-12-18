@@ -45,7 +45,7 @@ const buttonSpecificVariants = cva({
         'focus:outline-secondary [--component-bg:var(--color-secondary-contrast)] [--component-text:var(--color-secondary)]',
       warning:
         'focus:outline-warning [--component-bg:var(--color-warning-contrast)] [--component-text:var(--color-warning)]',
-      info: '[--component-bg:var(--color-info-contrast)] [--component-text:var(--color-info)]',
+      info: 'focus:outline-info [--component-bg:var(--color-info-contrast)] [--component-text:var(--color-info)]',
       destructive:
         'focus:outline-destructive [--component-bg:var(--color-destructive-contrast)] [--component-text:var(--color-destructive)]',
       success:

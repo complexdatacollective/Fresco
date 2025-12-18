@@ -307,7 +307,6 @@ export const AllStates: Story = {
 };
 
 export const WithSearchIcon: Story = {
-  name: 'With Search Icon',
   args: {
     placeholder: 'Search...',
     prefixComponent: <Search className="h-4 w-4" />,
@@ -315,7 +314,6 @@ export const WithSearchIcon: Story = {
 };
 
 export const WithEmailIcon: Story = {
-  name: 'With Email Icon',
   args: {
     type: 'email',
     placeholder: 'user@example.com',
@@ -324,7 +322,6 @@ export const WithEmailIcon: Story = {
 };
 
 export const WithPasswordToggle: Story = {
-  name: 'With Password Toggle',
   render: () => {
     const [showPassword, setShowPassword] = useState(false);
     return (
@@ -370,12 +367,11 @@ export const WithLoadingState: Story = {
 };
 
 export const WithValidationIcons: Story = {
-  name: 'With Validation Icons',
   render: () => (
     <div className="flex flex-col gap-4">
       <InputField
         defaultValue="Valid input"
-        suffixComponent={<Check className="h-4 w-4 text-green-500" />}
+        suffixComponent={<Check className="text-success h-4 w-4" />}
       />
       <InputField
         defaultValue="Invalid input"
@@ -387,14 +383,14 @@ export const WithValidationIcons: Story = {
 };
 
 export const WithClearButton: Story = {
-  name: 'With Clear Button',
   render: () => {
     const [value, setValue] = useState('Sample text');
+
     return (
       <div className="w-80 space-y-2">
         <InputField
           value={value}
-          onChange={setValue}
+          onChange={(e) => setValue(e.target.value)}
           placeholder="Type something..."
           suffixComponent={
             value && (
@@ -408,9 +404,6 @@ export const WithClearButton: Story = {
             )
           }
         />
-        <p className="text-xs text-current opacity-70">
-          Note: onChange receives the value directly, not the event
-        </p>
       </div>
     );
   },

@@ -162,8 +162,9 @@
     "@typescript-eslint/eslint-plugin": "^8.47.0",
     "@typescript-eslint/parser": "^8.48.0",
     "@vitejs/plugin-react": "^5.1.1",
-    "@vitest/browser": "3.2.4",
-    "@vitest/browser-playwright": "^4.0.15",
+    "@vitest/browser": "4.0.16",
+    "@vitest/browser-playwright": "^4.0.16",
+    "@vitest/coverage-v8": "^4.0.16",
     "chalk": "^5.6.2",
     "chromatic": "^13.3.4",
     "esbuild": "^0.27.0",
@@ -188,6 +189,6 @@
     "testcontainers": "^11.9.0",
     "typescript": "5.9.3",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^4.0.15"
+    "vitest": "^4.0.16"
   }
 }
