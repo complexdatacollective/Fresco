@@ -4,26 +4,28 @@ import { Checkbox as BaseCheckbox } from '@base-ui/react/checkbox';
 import { motion, useMotionValue, useTransform } from 'motion/react';
 import { type ComponentPropsWithoutRef, forwardRef, useState } from 'react';
 import {
-  checkboxContainerVariants,
-  checkboxIndicatorSizeVariants,
-  checkboxIndicatorVariants,
-  controlStateVariants,
+  controlVariants,
+  inputControlVariants,
   smallSizeVariants,
+  stateVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, type VariantProps } from '~/utils/cva';
 
 const checkboxRootVariants = compose(
   smallSizeVariants,
-  checkboxContainerVariants,
-  controlStateVariants,
+  controlVariants,
+  inputControlVariants,
+  stateVariants,
   cva({
-    base: 'aspect-square',
+    base: 'focusable flex aspect-square items-center justify-center',
   }),
 );
 
-const checkboxIndicatorComposedVariants = compose(
-  checkboxIndicatorSizeVariants,
-  checkboxIndicatorVariants,
+const checkboxIndicatorVariants = compose(
+  smallSizeVariants,
+  cva({
+    base: 'focusable',
+  }),
 );
 
 type CheckboxProps = Omit<
@@ -36,124 +38,82 @@ type CheckboxProps = Omit<
   };
 
 export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
-  (
-    {
-      className,
-      size = 'md',
-      invalid,
-      readOnly,
-      checked,
-      onCheckedChange,
-      disabled,
-      ...props
-    },
-    ref,
-  ) => {
+  ({ className, size = 'md', onCheckedChange, ...props }, ref) => {
     const [internalChecked, setInternalChecked] = useState(
-      checked ?? props.defaultChecked ?? false,
+      props.checked ?? props.defaultChecked ?? false,
     );
 
-    const isControlled = checked !== undefined;
-    const isChecked = isControlled ? checked : internalChecked;
+    const isControlled = props.checked !== undefined;
+    const isChecked = isControlled ? props.checked : internalChecked;
 
     const pathLength = useMotionValue(isChecked ? 1 : 0);
     const strokeLinecap = useTransform(() =>
       pathLength.get() === 0 ? 'none' : 'round',
     );
 
-    // Work out variant state based on props. Order:
-    // disabled > readOnly > invalid > normal
-    const getState = () => {
-      if (disabled) return 'disabled';
-      if (readOnly) return 'readOnly';
-      if (invalid) return 'invalid';
-      return 'normal';
-    };
-
-    const handleCheckedChange = (
-      newChecked: boolean,
-      eventDetails: {
-        reason: 'none';
-        event: Event;
-        cancel: () => void;
-        allowPropagation: () => void;
-        isCanceled: boolean;
-        isPropagationAllowed: boolean;
-      },
-    ) => {
-      if (readOnly) return;
+    const handleCheckedChange: NonNullable<
+      ComponentPropsWithoutRef<typeof BaseCheckbox.Root>['onCheckedChange']
+    > = (newChecked, eventDetails) => {
+      if (props.readOnly) return;
       if (!isControlled) {
         setInternalChecked(newChecked);
       }
       onCheckedChange?.(newChecked, eventDetails);
     };
 
+    const getState = () => {
+      if (props.disabled) return 'disabled';
+      if (props.readOnly) return 'readOnly';
+      if (props['aria-invalid']) return 'invalid';
+      return 'normal';
+    };
+
     return (
       <BaseCheckbox.Root
         ref={ref}
-        className={checkboxRootVariants({ size, state: getState(), className })}
-        checked={checked}
         onCheckedChange={handleCheckedChange}
-        disabled={disabled ?? readOnly}
-        aria-readonly={readOnly}
         {...props}
-        render={(checkboxProps) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          const {
-            onDrag,
-            onDragStart,
-            onDragEnd,
-            onAnimationStart,
-            onAnimationEnd,
-            ...rest
-          } = checkboxProps;
-          void onDrag;
-          void onDragStart;
-          void onDragEnd;
-          void onAnimationStart;
-          void onAnimationEnd;
-          return (
-            <motion.button
-              {...rest}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              data-primary-action
-            >
-              <div
-                className={checkboxIndicatorComposedVariants({ size })}
-                style={{
-                  pointerEvents: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
+        render={({
+          onDrag: _onDrag,
+          onDragEnd: _onDragEnd,
+          onDragStart: _onDragStart,
+          onAnimationStart: _onAnimationStart,
+          ...rest
+        }) => (
+          <motion.button
+            {...rest}
+            className={checkboxRootVariants({
+              size,
+              className,
+              state: getState(),
+            })}
+          >
+            <div className={checkboxIndicatorVariants({ size })}>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                className="h-full w-full"
+                stroke="currentColor"
+                strokeWidth="3"
               >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="h-full w-full"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                >
-                  <motion.path
-                    d="M4 12L10 18L20 6"
-                    initial={false}
-                    animate={{ pathLength: isChecked ? 1 : 0 }}
-                    transition={{
-                      type: 'spring',
-                      bounce: 0,
-                      duration: isChecked ? 0.3 : 0.1,
-                    }}
-                    style={{
-                      pathLength,
-                      strokeLinecap,
-                    }}
-                  />
-                </svg>
-              </div>
-            </motion.button>
-          );
-        }}
+                <motion.path
+                  d="M4 12L10 18L20 6"
+                  initial={false}
+                  animate={{ pathLength: isChecked ? 1 : 0 }}
+                  transition={{
+                    type: 'spring',
+                    bounce: 0,
+                    duration: isChecked ? 0.3 : 0.1,
+                  }}
+                  style={{
+                    pathLength,
+                    strokeLinecap,
+                  }}
+                />
+              </svg>
+            </div>
+          </motion.button>
+        )}
       />
     );
   },

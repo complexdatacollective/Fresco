@@ -2,23 +2,23 @@
 
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { type HTMLAttributes } from 'react';
+import { transitionStyles } from '~/styles/shared/controlVariants';
 import { cx } from '~/utils/cva';
-import { transitionStyles } from './shared';
 
 const toggleButtonStyles = cx(
   'relative inline-flex items-center justify-center',
-  'w-36 h-36 rounded-full cursor-pointer',
-  'text-center p-3 text-sm font-medium',
-  'border-4 border-accent',
+  'h-36 w-36 cursor-pointer rounded-full',
+  'p-3 text-center text-sm font-medium',
+  'border-accent border-4',
   transitionStyles,
   'focusable',
-  'disabled:opacity-50 disabled:cursor-not-allowed',
+  'disabled:cursor-not-allowed disabled:opacity-50',
   'text-accent-contrast',
 );
 
 const toggleButtonSelectedStyles = cx(
   'bg-accent',
-  'after:absolute after:inset-2 after:rounded-full after:bg-accent after:-z-10',
+  'after:bg-accent after:absolute after:inset-2 after:-z-10 after:rounded-full',
 );
 
 const toggleButtonUnselectedStyles = cx('text-accent-contrast bg-primary');

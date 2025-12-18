@@ -1,7 +1,7 @@
-import { beforeEach, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
+import { type FieldConfig, type FormConfig } from '../components/types';
 import { createFormStore } from '../store/formStore';
-import type { FieldConfig, FormConfig } from '../types/types';
 
 // Mock the validation utility
 vi.mock('../utils/validation', () => ({
@@ -40,7 +40,7 @@ describe('FormStore', () => {
       const onSubmit = vi.fn();
       const onSubmitInvalid = vi.fn();
 
-      const formConfig: FormConfig<z.ZodAny> = {
+      const formConfig: FormConfig = {
         onSubmit,
         onSubmitInvalid,
       };
@@ -55,7 +55,7 @@ describe('FormStore', () => {
     it('should register form without optional handlers', () => {
       const onSubmit = vi.fn();
 
-      const formConfig: FormConfig<z.ZodAny> = {
+      const formConfig: FormConfig = {
         onSubmit,
       };
 
@@ -514,7 +514,7 @@ describe('FormStore', () => {
 
       it('should submit form successfully when valid', async () => {
         const mockOnSubmit = vi.fn().mockResolvedValue({ success: true });
-        const formConfig: FormConfig<z.ZodAny> = {
+        const formConfig: FormConfig = {
           onSubmit: mockOnSubmit,
         };
 
@@ -538,7 +538,7 @@ describe('FormStore', () => {
       it('should submit even if form validation fails (current implementation)', async () => {
         const mockOnSubmit = vi.fn().mockResolvedValue({ success: true });
         const mockOnSubmitInvalid = vi.fn();
-        const formConfig: FormConfig<z.ZodAny> = {
+        const formConfig: FormConfig = {
           onSubmit: mockOnSubmit,
           onSubmitInvalid: mockOnSubmitInvalid,
         };
@@ -568,7 +568,7 @@ describe('FormStore', () => {
             { code: 'custom', message: 'Server error', path: [] },
           ]),
         });
-        const formConfig: FormConfig<z.ZodAny> = {
+        const formConfig: FormConfig = {
           onSubmit: mockOnSubmit,
         };
 
@@ -591,7 +591,7 @@ describe('FormStore', () => {
         const mockOnSubmit = vi
           .fn()
           .mockRejectedValue(new Error('Network error'));
-        const formConfig: FormConfig<z.ZodAny> = {
+        const formConfig: FormConfig = {
           onSubmit: mockOnSubmit,
         };
 
@@ -631,7 +631,7 @@ describe('FormStore', () => {
         });
 
         const mockOnSubmit = vi.fn().mockReturnValue(submitPromise);
-        const formConfig: FormConfig<z.ZodAny> = {
+        const formConfig: FormConfig = {
           onSubmit: mockOnSubmit,
         };
 

@@ -4,36 +4,36 @@ import { useCallback, useMemo, useRef, useState } from 'react';
  * Managed properties added to array items for internal tracking.
  */
 type ManagedProperties = {
-  _internalId: string;
-  _draft?: boolean;
+  readonly _internalId: string;
+  readonly _draft?: boolean;
 };
 
 /**
- * Item with managed properties (internal ID and optional draft flag) merged in.
+ * Item with internal properties (_internalId and optional _draft flag) merged in.
  */
-export type WithManagedProperties<T> = T & ManagedProperties;
+export type WithItemProperties<T> = T & ManagedProperties;
 
 /**
- * Configuration for the useManagedItems hook.
+ * Configuration for the useArrayFieldItems hook.
  */
-type UseManagedItemsConfig<T> = {
+type UseArrayFieldItemsConfig<T> = {
   /** Optional function to extract an existing ID from an item. */
   getId?: (item: T) => string | undefined;
 };
 
 /**
- * Return type for the useManagedItems hook.
+ * Return type for the useArrayFieldItems hook.
  */
-type UseManagedItemsReturn<T extends object> = {
+type UseArrayFieldItemsReturn<T extends object> = {
   // ─── Items ───────────────────────────────────────────────────────────────
   /** All items (both confirmed and draft) with managed properties. */
-  items: WithManagedProperties<T>[];
+  items: WithItemProperties<T>[];
   /** Update items - only triggers onChange for non-draft changes. */
-  setItems: (items: WithManagedProperties<T>[]) => void;
+  setItems: (items: WithItemProperties<T>[]) => void;
 
   // ─── Editing State ───────────────────────────────────────────────────────
   /** The item currently being edited, or undefined if none. */
-  editingItem: WithManagedProperties<T> | undefined;
+  editingItem: WithItemProperties<T> | undefined;
   /** True if editingItem is a newly added draft item (vs editing an existing one). */
   isAddingNew: boolean;
 
@@ -70,6 +70,14 @@ type UseManagedItemsReturn<T extends object> = {
  * - saveEditing: For drafts, removes _draft flag; for all items, calls onChange
  * - cancelEditing: Removes draft items, clears editing state
  *
+ * External value sync behavior:
+ * - When the parent's `value` prop changes, items are re-synced with new data
+ * - Draft items (unsaved additions) are preserved across value changes
+ * - If an item being edited is removed by the parent, `editingId` is cleared
+ * - For non-draft edits: `editingItem` reflects the NEW data from the parent,
+ *   not any unsaved local edits. Consumers should handle this case if needed
+ *   (e.g., by warning users or merging changes)
+ *
  * @example
  * ```tsx
  * function ItemList({ value, onChange }: {
@@ -84,7 +92,7 @@ type UseManagedItemsReturn<T extends object> = {
  *     cancelEditing,
  *     saveEditing,
  *     removeItem,
- *   } = useManagedItems(value, onChange);
+ *   } = useArrayFieldItems(value, onChange);
  *
  *   return (
  *     <>
@@ -109,11 +117,11 @@ type UseManagedItemsReturn<T extends object> = {
  * }
  * ```
  */
-export function useManagedItems<T extends object>(
+export function useArrayFieldItems<T extends object>(
   value: T[],
   onChange: (items: T[]) => void,
-  config?: UseManagedItemsConfig<T>,
-): UseManagedItemsReturn<T> {
+  config?: UseArrayFieldItemsConfig<T>,
+): UseArrayFieldItemsReturn<T> {
   // WeakMap ties internal ID lifespan to the original object for GC
   const idMapRef = useRef<WeakMap<T, string>>(new WeakMap());
 
@@ -140,7 +148,7 @@ export function useManagedItems<T extends object>(
 
   // Combined state for atomic updates (prevents animation flickering)
   const [state, setState] = useState<{
-    items: WithManagedProperties<T>[];
+    items: WithItemProperties<T>[];
     editingId: string | null;
   }>(() => ({
     items: value.map((item) => ({
@@ -161,16 +169,27 @@ export function useManagedItems<T extends object>(
     const currentDraft = items.find((item) => item._draft === true);
 
     // Map incoming items with internal IDs
-    const newConfirmed: WithManagedProperties<T>[] = value.map((item) => ({
+    const newConfirmed: WithItemProperties<T>[] = value.map((item) => ({
       ...item,
       _internalId: getInternalId(item),
     }));
 
     // Merge: confirmed items from value + draft (if any)
-    setState((prev) => ({
-      ...prev,
-      items: currentDraft ? [...newConfirmed, currentDraft] : newConfirmed,
-    }));
+    setState((prev) => {
+      const newItems = currentDraft
+        ? [...newConfirmed, currentDraft]
+        : newConfirmed;
+
+      // Clear editingId if the edited item no longer exists
+      const editingStillExists =
+        prev.editingId === null ||
+        newItems.some((item) => item._internalId === prev.editingId);
+
+      return {
+        items: newItems,
+        editingId: editingStillExists ? prev.editingId : null,
+      };
+    });
   }
 
   // Derive editing state from editingId
@@ -191,7 +210,7 @@ export function useManagedItems<T extends object>(
 
   // Notify parent of non-draft items (strips managed properties, preserves ID mapping)
   const notifyChange = useCallback(
-    (allItems: WithManagedProperties<T>[]) => {
+    (allItems: WithItemProperties<T>[]) => {
       const confirmedItems = allItems
         .filter((item) => !item._draft)
         .map(({ _internalId, _draft, ...rest }) => {
@@ -208,7 +227,7 @@ export function useManagedItems<T extends object>(
   // Start adding a new item (creates draft and sets editing state)
   const startAdding = useCallback((template: T): void => {
     const internalId = crypto.randomUUID();
-    const draftItem: WithManagedProperties<T> = {
+    const draftItem: WithItemProperties<T> = {
       ...template,
       _internalId: internalId,
       _draft: true,
@@ -285,7 +304,7 @@ export function useManagedItems<T extends object>(
           return {
             ...data,
             _internalId: editingItemRef._internalId,
-          } as WithManagedProperties<T>;
+          } as WithItemProperties<T>;
         });
 
         // Notify parent with all non-draft items
@@ -300,10 +319,9 @@ export function useManagedItems<T extends object>(
   // Remove an item
   const removeItem = useCallback(
     (internalId: string): void => {
-      const item = items.find((i) => i._internalId === internalId);
-      const itemIsDraft = item?._draft ?? false;
-
       setState((prev) => {
+        const item = prev.items.find((i) => i._internalId === internalId);
+        const itemIsDraft = item?._draft ?? false;
         const newItems = prev.items.filter((i) => i._internalId !== internalId);
 
         // Only notify if removing a non-draft item
@@ -314,12 +332,12 @@ export function useManagedItems<T extends object>(
         return { ...prev, items: newItems };
       });
     },
-    [items, notifyChange],
+    [notifyChange],
   );
 
   // Set items - handles both draft and non-draft updates
   const setItems = useCallback(
-    (newItems: WithManagedProperties<T>[]): void => {
+    (newItems: WithItemProperties<T>[]): void => {
       const hasNonDraftChanges = newItems.some((item) => !item._draft);
 
       setState((prev) => ({ ...prev, items: newItems }));

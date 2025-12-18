@@ -8,8 +8,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '~/components/ui/tooltip';
+import { scaleSliderStyles } from '~/styles/shared/controlVariants';
 import { cx } from '~/utils/cva';
-import { scaleSliderStyles } from './shared';
 
 type Option = {
   label: string;

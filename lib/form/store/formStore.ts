@@ -37,6 +37,7 @@ export type FormStore = {
   // Field state updates
   setFieldValue: (fieldName: string, value: FieldValue) => void;
   setFieldTouched: (fieldName: string, touched: boolean) => void;
+  setFieldBlurred: (fieldName: string) => void;
 
   setErrors: (errors: FlattenedErrors | null) => void;
 
@@ -104,8 +105,9 @@ export const createFormStore = () => {
             state: {
               isValidating: false,
               isTouched: false,
+              isBlurred: false,
               isDirty: false,
-              isValid: false,
+              isValid: true,
             },
           };
 
@@ -153,6 +155,14 @@ export const createFormStore = () => {
         });
       },
 
+      setFieldBlurred: (fieldName) => {
+        set((state) => {
+          if (!state.fields.get(fieldName)) return;
+
+          state.fields.get(fieldName)!.state.isBlurred = true;
+        });
+      },
+
       getFieldState: (fieldName) => {
         const state = get();
         return state.fields.get(fieldName);
@@ -184,7 +194,7 @@ export const createFormStore = () => {
 
         // Return field errors from flattened structure
         const fieldErrors = state.errors.fieldErrors[fieldName];
-        return fieldErrors && fieldErrors.length > 0 ? fieldErrors : null;
+        return fieldErrors ?? null;
       },
       validateField: async (fieldName) => {
         const state = get();
@@ -335,11 +345,12 @@ export const createFormStore = () => {
               fieldErrors[fieldName] = combinedErrors;
             }
 
-            // Mark field as touched so errors will show
+            // Mark field as touched and blurred so errors will show
             set((draft) => {
               const field = draft.fields.get(fieldName);
               if (field) {
                 field.state.isTouched = true;
+                field.state.isBlurred = true;
                 field.state.isValid = false;
               }
             });
@@ -436,6 +447,7 @@ export const createFormStore = () => {
             state: {
               isValidating: false,
               isTouched: false,
+              isBlurred: false,
               isDirty: false,
               isValid: true,
             },

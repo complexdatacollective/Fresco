@@ -1,6 +1,7 @@
 'use client';
 
 import { type ValidationName } from '@codaco/protocol-validation';
+import { LayoutGroup } from 'motion/react';
 import z from 'zod';
 import { useField } from '../hooks/useField';
 import { type ValidationFunction, validations } from '../validation';
@@ -96,23 +97,25 @@ export default function Field<C extends React.ComponentType<any>>({
   });
 
   return (
-    <BaseField
-      id={id}
-      label={label}
-      hint={hint}
-      required={Boolean(componentProps.required)}
-      errors={meta.errors}
-      showErrors={meta.shouldShowError}
-      containerProps={containerProps}
-    >
-      <Component
+    <LayoutGroup id={id}>
+      <BaseField
         id={id}
-        name={name}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        {...(componentProps as any)}
-        {...fieldProps}
-      />
-    </BaseField>
+        label={label}
+        hint={hint}
+        required={Boolean(componentProps.required)}
+        errors={meta.errors}
+        showErrors={meta.shouldShowError}
+        containerProps={containerProps}
+      >
+        <Component
+          id={id}
+          name={name}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          {...(componentProps as any)}
+          {...fieldProps}
+        />
+      </BaseField>
+    </LayoutGroup>
   );
 }
 

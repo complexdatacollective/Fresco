@@ -33,8 +33,10 @@ import { headingVariants } from '~/components/typography/Heading';
 import { paragraphVariants } from '~/components/typography/Paragraph';
 import { iconButtonVariants } from '~/components/ui/Button';
 import {
-  controlContainerVariants,
-  controlStateVariants,
+  controlVariants,
+  inputControlVariants,
+  multilineContentVariants,
+  stateVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 
@@ -135,10 +137,11 @@ function createCustomExtensions({
 }
 
 const editorContainerVariants = compose(
-  controlContainerVariants,
-  controlStateVariants,
+  controlVariants,
+  inputControlVariants,
+  stateVariants,
   cva({
-    base: 'flex w-full flex-col',
+    base: 'flex h-auto w-full flex-col',
   }),
 );
 
@@ -156,7 +159,8 @@ const toolbarButtonStyles = iconButtonVariants({
 const toolbarSeparatorStyles = cx('mx-2 h-5 w-px shrink-0 bg-current/20');
 
 const editorContentStyles = cx(
-  'order-2 min-h-[120px] w-full flex-1 px-6 py-4',
+  multilineContentVariants(),
+  'order-2 flex-1',
   'outline-none',
   '[&_.tiptap]:min-h-[120px] [&_.tiptap]:outline-none',
   // Placeholder styles

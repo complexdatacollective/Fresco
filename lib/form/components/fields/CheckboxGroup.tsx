@@ -1,26 +1,25 @@
 import { type FieldsetHTMLAttributes } from 'react';
 import {
-  checkboxGroupContainerVariants,
-  checkboxGroupSizeVariants,
-  checkboxGroupStateVariants,
-  checkboxLabelVariants,
-  checkboxOptionContainerVariants,
-  checkboxOptionSizeVariants,
+  controlLabelVariants,
+  controlVariants,
+  groupSpacingVariants,
+  inputControlVariants,
+  orientationVariants,
+  stateVariants,
 } from '~/styles/shared/controlVariants';
-import { compose, type VariantProps } from '~/utils/cva';
+import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { Checkbox } from './Checkbox';
 
 // Compose fieldset wrapper variants
 const checkboxGroupComposedVariants = compose(
-  checkboxGroupSizeVariants,
-  checkboxGroupContainerVariants,
-  checkboxGroupStateVariants,
-);
-
-// Compose individual checkbox option variants
-const checkboxOptionComposedVariants = compose(
-  checkboxOptionSizeVariants,
-  checkboxOptionContainerVariants,
+  controlVariants,
+  inputControlVariants,
+  groupSpacingVariants,
+  stateVariants,
+  orientationVariants,
+  cva({
+    base: 'items-start',
+  }),
 );
 
 type CheckboxOption = {
@@ -34,7 +33,7 @@ type CheckboxGroupProps = Omit<
   'size' | 'onChange'
 > &
   VariantProps<typeof checkboxGroupComposedVariants> & {
-    id: string;
+    id?: string;
     name: string;
     options: CheckboxOption[];
     value?: (string | number)[];
@@ -43,7 +42,7 @@ type CheckboxGroupProps = Omit<
     disabled?: boolean;
     readOnly?: boolean;
     orientation?: 'horizontal' | 'vertical';
-    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+    size?: 'sm' | 'md' | 'lg' | 'xl';
     useColumns?: boolean;
   };
 
@@ -100,7 +99,6 @@ export function CheckboxGroupField({
           className,
         })}
         disabled={disabled}
-        data-invalid={isInvalid}
         {...(fieldsetProps['aria-labelledby']
           ? { 'aria-labelledby': fieldsetProps['aria-labelledby'] }
           : {})}
@@ -115,7 +113,10 @@ export function CheckboxGroupField({
           return (
             <label
               key={option.value}
-              className={checkboxOptionComposedVariants({ size })}
+              className={cx(
+                'flex items-center gap-2',
+                controlLabelVariants({ size }),
+              )}
             >
               <Checkbox
                 name={name}
@@ -133,7 +134,7 @@ export function CheckboxGroupField({
                 size={size}
                 invalid={isInvalid}
               />
-              <span className={checkboxLabelVariants()}>{option.label}</span>
+              <span>{option.label}</span>
             </label>
           );
         })}

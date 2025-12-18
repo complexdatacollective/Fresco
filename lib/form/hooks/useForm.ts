@@ -68,6 +68,8 @@ export function useForm(config: FormConfig) {
         // The schema is passed to onSubmit which provides type safety
         const result = await configRef.current.onSubmit?.(values);
 
+        console.log('result', result);
+
         if (result.success) {
           // Clear errors on successful submission
           setErrors(null);
@@ -82,7 +84,10 @@ export function useForm(config: FormConfig) {
       } catch (error) {
         console.log('error', error);
         // Handle form submission errors
-        setErrors(null); // Clear any previous form errors
+        setErrors({
+          formErrors: ['An error occurred while submitting the form.'],
+          fieldErrors: {},
+        });
       } finally {
         setSubmitting(false);
       }

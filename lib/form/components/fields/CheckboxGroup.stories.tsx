@@ -15,7 +15,7 @@ const meta = {
     },
     size: {
       control: { type: 'select' },
-      options: ['xs', 'sm', 'md', 'lg', 'xl'],
+      options: ['sm', 'md', 'lg', 'xl'],
     },
     disabled: {
       control: { type: 'boolean' },
@@ -200,7 +200,7 @@ export const WithColumns: Story = {
 export const AllSizes: Story = {
   render: () => (
     <div className="flex flex-col gap-8">
-      {(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => (
+      {(['sm', 'md', 'lg', 'xl'] as const).map((size) => (
         <div key={size} className="flex flex-col gap-2">
           <span className="text-sm font-medium capitalize">{size}:</span>
           <CheckboxGroupField

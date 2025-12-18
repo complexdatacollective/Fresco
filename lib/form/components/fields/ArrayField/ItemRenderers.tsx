@@ -1,7 +1,7 @@
 import { type nameGeneratorPromptSchema } from '@codaco/protocol-validation';
 import { GripVertical, PencilIcon, X } from 'lucide-react';
 import { motion } from 'motion/react';
-import { forwardRef, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type z from 'zod';
 import { surfaceVariants } from '~/components/layout/Surface';
 import Button, { IconButton, MotionButton } from '~/components/ui/Button';
@@ -18,56 +18,98 @@ import {
 
 type SimpleItemBase = { id: string; label: string };
 
-export const Editor = forwardRef<
-  HTMLDivElement,
-  ArrayFieldEditorProps<SimpleItemBase>
->(function Editor({ item, isEditing, isNewItem, onChange, onCancel }, ref) {
+/**
+ * Simple inline editor for basic label items.
+ * Demonstrates the inline editing pattern where the item component
+ * handles both display and edit modes using isBeingEdited.
+ */
+export function SimpleInlineItem({
+  item,
+  isSortable,
+  isBeingEdited,
+  isNewItem,
+  onChange,
+  onCancel,
+  onEdit,
+  onDelete,
+  dragControls,
+}: ArrayFieldItemProps<SimpleItemBase>) {
   const [label, setLabel] = useState(item?.label ?? '');
 
   useEffect(() => {
-    if (isEditing) {
+    if (isBeingEdited) {
       setLabel(item?.label ?? '');
     }
-  }, [isEditing, item]);
+  }, [isBeingEdited, item]);
 
-  if (!isEditing) {
-    return null;
+  if (isBeingEdited) {
+    return (
+      <motion.div
+        layout
+        className={cx(
+          surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
+          'flex w-full flex-col gap-2 border p-4',
+        )}
+      >
+        <InputField value={label} onChange={(e) => setLabel(e.target.value)} />
+        <div className="mt-2 flex gap-2">
+          <Button
+            color="primary"
+            onClick={() => onChange?.({ id: item.id ?? '', label })}
+            disabled={label.trim() === ''}
+            icon={<PencilIcon />}
+            size="sm"
+          >
+            {isNewItem ? 'Add' : 'Save'}
+          </Button>
+          <Button
+            onClick={onCancel}
+            aria-label="Cancel editing"
+            icon={<X />}
+            size="sm"
+          >
+            Cancel
+          </Button>
+        </div>
+      </motion.div>
+    );
   }
 
   return (
-    <motion.div
-      ref={ref}
-      layout
-      className={cx(
-        surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
-        'flex w-full flex-col gap-2 border p-4',
+    <div className="border-b-input-contrast/10 flex w-full items-center gap-2 border-b px-2 py-1 last:border-b-0">
+      {isSortable && (
+        <motion.div
+          layout
+          onPointerDown={(e) => dragControls.start(e)}
+          className="touch-none"
+        >
+          <GripVertical className="h-4 w-4 cursor-grab" />
+        </motion.div>
       )}
-    >
-      <InputField value={label} onChange={(e) => setLabel(e.target.value)} />
-      <div className="mt-2 flex gap-2">
-        <Button
+      <motion.div layout className="flex-1">
+        {item.label}
+      </motion.div>
+      <motion.div layout className="ml-auto flex items-center gap-1">
+        <IconButton
+          size="sm"
+          variant="textMuted"
           color="primary"
-          onClick={() => onChange({ ...item!, label })}
-          disabled={label.trim() === ''}
+          onClick={onEdit}
+          aria-label="Edit item"
           icon={<PencilIcon />}
+        />
+        <IconButton
+          variant="textMuted"
+          color="destructive"
           size="sm"
-        >
-          {isNewItem ? 'Add' : 'Save'}
-        </Button>
-        <Button
-          onClick={onCancel}
-          aria-label="Cancel editing"
+          onClick={onDelete}
           icon={<X />}
-          size="sm"
-        >
-          Cancel
-        </Button>
-      </div>
-    </motion.div>
+          aria-label="Remove item"
+        />
+      </motion.div>
+    </div>
   );
-});
-
-export const SimpleEditor = motion.create(Editor);
+}
 
 /**
  * Simple item content renderer for basic label items.
@@ -180,25 +222,28 @@ export function PromptItem({
   );
 }
 
-export const PromptEditor = forwardRef<
-  HTMLDivElement,
-  ArrayFieldEditorProps<NameGeneratorPrompt>
->(function PromptEditor(
-  { isEditing, isNewItem, onCancel, onChange, item },
-  ref,
-) {
+/**
+ * Dialog-based editor for rich text prompt items.
+ * Demonstrates the dialog editing pattern where a separate editorComponent
+ * handles editing in a modal dialog.
+ */
+export function PromptEditor({
+  isNewItem,
+  onCancel,
+  onSave,
+  item,
+}: ArrayFieldEditorProps<NameGeneratorPrompt>) {
   const handleSubmit = (data: unknown) => {
-    onChange(data as NameGeneratorPrompt);
+    onSave(data as NameGeneratorPrompt);
 
     return { success: true as const };
   };
 
   return (
     <Dialog
-      ref={ref}
-      title="Edit Prompt"
-      description="Update this prompt below"
-      open={isEditing}
+      title={isNewItem ? 'Add Prompt' : 'Edit Prompt'}
+      description="Configure the prompt text shown to participants"
+      open={!!item}
       closeDialog={onCancel}
       layoutId={isNewItem ? undefined : item?.id}
       footer={
@@ -206,14 +251,14 @@ export const PromptEditor = forwardRef<
           <MotionButton type="button" onClick={onCancel}>
             Cancel
           </MotionButton>
-          <SubmitButton form="contact-form" color="primary">
-            Save Changes
+          <SubmitButton form="prompt-editor-form" color="primary">
+            {isNewItem ? 'Add Prompt' : 'Save Changes'}
           </SubmitButton>
         </>
       }
     >
       <Form
-        id="contact-form"
+        id="prompt-editor-form"
         onSubmit={handleSubmit}
         className="w-full max-w-full gap-4"
       >
@@ -228,4 +273,4 @@ export const PromptEditor = forwardRef<
       </Form>
     </Dialog>
   );
-});
+}

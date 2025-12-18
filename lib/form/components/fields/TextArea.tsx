@@ -2,48 +2,37 @@
 
 import { type ComponentProps, forwardRef } from 'react';
 import {
-  controlContainerVariants,
-  controlStateVariants,
-  inlineSpacingVariants,
+  controlVariants,
+  inputControlVariants,
+  multilineContentVariants,
   placeholderVariants,
+  stateVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 
 const textareaWrapperVariants = compose(
-  inlineSpacingVariants,
-  controlContainerVariants,
-  controlStateVariants,
+  controlVariants,
+  inputControlVariants,
+  stateVariants,
   cva({
-    base: 'w-full',
+    base: 'h-auto w-full',
   }),
 );
 
 const textareaVariants = compose(
   placeholderVariants,
+  multilineContentVariants,
   cva({
     base: cx(
-      'h-full min-h-[120px] w-full resize-y',
-      'border-none bg-transparent p-0 outline-none focus:ring-0',
+      'h-full resize-y',
+      'border-none bg-transparent outline-none focus:ring-0',
       'cursor-[inherit]',
     ),
-    variants: {
-      size: {
-        xs: 'py-1',
-        sm: 'py-2',
-        md: 'py-3',
-        lg: 'py-4',
-        xl: 'py-5',
-      },
-    },
   }),
 );
 
-type TextAreaFieldProps = Omit<
-  ComponentProps<'textarea'>,
-  'size' | 'onChange'
-> &
+type TextAreaFieldProps = Omit<ComponentProps<'textarea'>, 'onChange'> &
   VariantProps<typeof textareaWrapperVariants> & {
-    size?: VariantProps<typeof textareaWrapperVariants>['size'];
     onChange?: (value: string) => void;
   };
 
@@ -51,7 +40,7 @@ export const TextAreaField = forwardRef<
   HTMLTextAreaElement,
   TextAreaFieldProps
 >(function TextAreaField(
-  { className, size, onChange, disabled, ...textareaProps },
+  { className, onChange, disabled, ...textareaProps },
   ref,
 ) {
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -70,7 +59,6 @@ export const TextAreaField = forwardRef<
   return (
     <div
       className={textareaWrapperVariants({
-        size,
         className,
         state: getState(),
       })}
@@ -80,7 +68,7 @@ export const TextAreaField = forwardRef<
         {...textareaProps}
         disabled={disabled}
         onChange={handleChange}
-        className={textareaVariants({ size })}
+        className={textareaVariants()}
       />
     </div>
   );

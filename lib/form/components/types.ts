@@ -5,10 +5,19 @@ import type * as z from 'zod/v4';
 export type FieldValue = NonNullable<VariableValue> | undefined;
 
 // Type for flattened errors from Zod
-export type FlattenedErrors = {
-  formErrors: string[];
-  fieldErrors: Record<string, string[]>;
-};
+export type FlattenedErrors =
+  | {
+      formErrors: string[];
+      fieldErrors: never;
+    }
+  | {
+      formErrors: never;
+      fieldErrors: Record<string, string[]>;
+    }
+  | {
+      formErrors: string[];
+      fieldErrors: Record<string, string[]>;
+    };
 
 export type FieldValidation =
   | z.ZodType
@@ -26,6 +35,7 @@ export type FieldState<T extends FieldValue = FieldValue> = {
   state: {
     isValidating: boolean;
     isTouched: boolean;
+    isBlurred: boolean;
     isDirty: boolean;
     isValid: boolean;
   };

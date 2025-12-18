@@ -2,38 +2,13 @@
 
 import { Check, X } from 'lucide-react';
 import { type HTMLAttributes } from 'react';
+import Button from '~/components/ui/Button';
+import {
+  booleanButtonVariants,
+  booleanIndicatorVariants,
+  controlLabelVariants,
+} from '~/styles/shared/controlVariants';
 import { cx } from '~/utils/cva';
-import { focusRingStyles, transitionStyles } from './shared';
-
-const buttonBaseStyles = cx(
-  'flex-1 px-6 py-3 text-left rounded border text-base font-medium',
-  'flex items-center gap-3',
-  transitionStyles,
-  focusRingStyles.base,
-  'disabled:opacity-50 disabled:cursor-not-allowed',
-  'bg-input',
-);
-
-const roundCheckboxStyles = cx(
-  'shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center',
-  'transition-colors',
-);
-
-const roundCheckboxPositiveStyles = cx(
-  'bg-success border-success text-success-contrast',
-);
-
-const roundCheckboxNegativeStyles = cx(
-  'bg-destructive border-destructive text-destructive-contrast',
-);
-
-const roundCheckboxUnselectedStyles = cx('bg-input');
-
-const buttonPositiveStyles = cx('border-success border-2');
-
-const buttonNegativeStyles = cx('border-destructive border-2');
-
-const buttonUnselectedStyles = cx('');
 
 type BooleanFieldProps = Omit<
   HTMLAttributes<HTMLFieldSetElement>,
@@ -43,7 +18,7 @@ type BooleanFieldProps = Omit<
   onChange?: (value: boolean | null) => void;
   disabled?: boolean;
   noReset?: boolean;
-  label?: string; // Optional label for fieldset legend
+  label?: string;
   options?: {
     label: string;
     value: boolean;
@@ -80,47 +55,36 @@ export function BooleanField({
               type="button"
               onClick={() => onChange?.(option.value)}
               disabled={disabled}
-              className={cx(
-                buttonBaseStyles,
-                isSelected
-                  ? isPositive
-                    ? buttonPositiveStyles
-                    : buttonNegativeStyles
-                  : buttonUnselectedStyles,
-              )}
+              className={booleanButtonVariants({
+                selected: isSelected,
+                positive: isPositive,
+              })}
             >
               <div
-                className={cx(
-                  roundCheckboxStyles,
-                  isSelected
-                    ? isPositive
-                      ? roundCheckboxPositiveStyles
-                      : roundCheckboxNegativeStyles
-                    : roundCheckboxUnselectedStyles,
-                )}
+                className={booleanIndicatorVariants({
+                  selected: isSelected,
+                  positive: isPositive,
+                })}
               >
                 {isSelected &&
                   (isPositive ? <Check size={16} /> : <X size={16} />)}
               </div>
-              <span>{option.label}</span>
+              <span className={controlLabelVariants({ size: 'md' })}>
+                {option.label}
+              </span>
             </button>
           );
         })}
       </div>
       {!noReset && (
-        <button
-          type="button"
+        <Button
+          variant="text"
           onClick={() => onChange?.(null)}
           disabled={disabled}
-          className={cx(
-            'text-left text-sm text-current/70 underline',
-            'hover:text-contrast',
-            transitionStyles,
-            'disabled:cursor-not-allowed disabled:opacity-50',
-          )}
+          size="xs"
         >
           Reset answer
-        </button>
+        </Button>
       )}
     </fieldset>
   );

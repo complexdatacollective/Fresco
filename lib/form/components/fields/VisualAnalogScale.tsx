@@ -2,8 +2,8 @@
 
 import * as Slider from '@radix-ui/react-slider';
 import { type HTMLAttributes } from 'react';
+import { scaleSliderStyles } from '~/styles/shared/controlVariants';
 import { cx } from '~/utils/cva';
-import { scaleSliderStyles } from './shared';
 
 type VisualAnalogScaleFieldProps = Omit<
   HTMLAttributes<HTMLDivElement>,

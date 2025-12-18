@@ -10,15 +10,6 @@ const meta: Meta<typeof TextAreaField> = {
   },
   tags: ['autodocs'],
   argTypes: {
-    'size': {
-      control: 'select',
-      options: ['sm', 'md', 'lg'],
-      description: 'Size of the textarea field',
-      table: {
-        type: { summary: 'sm | md | lg' },
-        defaultValue: { summary: 'md' },
-      },
-    },
     'disabled': {
       control: 'boolean',
       description: 'Whether the textarea is disabled',
@@ -94,34 +85,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {
-    size: 'md',
-  },
-};
-
-export const Small: Story = {
-  args: {
-    size: 'sm',
-    placeholder: 'Small textarea',
-  },
-};
-
-export const Large: Story = {
-  args: {
-    size: 'lg',
-    placeholder: 'Large textarea',
-  },
-};
-
-export const AllSizes: Story = {
-  name: 'All Sizes Comparison',
-  render: () => (
-    <div className="flex w-full max-w-2xl flex-col gap-4">
-      <TextAreaField size="sm" placeholder="Small (sm)" rows={3} />
-      <TextAreaField size="md" placeholder="Medium (md) - default" rows={4} />
-      <TextAreaField size="lg" placeholder="Large (lg)" rows={5} />
-    </div>
-  ),
+  args: {},
 };
 
 export const WithValue: Story = {
@@ -295,7 +259,6 @@ export const TypeSafeOnChange: Story = {
 
 export const Playground: Story = {
   args: {
-    size: 'md',
     placeholder: 'Playground - try different combinations',
     rows: 5,
   },

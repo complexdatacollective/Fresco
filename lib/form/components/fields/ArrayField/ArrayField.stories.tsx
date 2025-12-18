@@ -1,88 +1,102 @@
 'use client';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { type JSONContent } from '@tiptap/core';
 import { GripVertical, PencilIcon, X } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { action } from 'storybook/actions';
 import { useArgs } from 'storybook/preview-api';
-import { Button, IconButton } from '~/components/ui/Button';
+import { surfaceVariants } from '~/components/layout/Surface';
+import { Button, IconButton, MotionButton } from '~/components/ui/Button';
+import { Dialog } from '~/lib/dialogs/Dialog';
+import Field from '~/lib/form/components/Field';
 import { InputField } from '~/lib/form/components/fields/InputField';
+import Form from '~/lib/form/components/Form';
+import SubmitButton from '~/lib/form/components/SubmitButton';
 import { cx } from '~/utils/cva';
-import { ArrayField, type ArrayFieldItemProps } from './ArrayField';
 import {
-  Editor,
-  type NameGeneratorPrompt,
-  PromptEditor,
-  PromptItem,
-  SimpleItem,
-} from './ItemRenderers';
+  ArrayField,
+  type ArrayFieldEditorProps,
+  type ArrayFieldItemProps,
+} from './ArrayField';
+import { SimpleInlineItem } from './ItemRenderers';
 
-// Sample data
-const sampleItems = [
+// ============================================================================
+// Sample Data Types
+// ============================================================================
+
+type SimpleItemType = { id: string; label: string };
+
+const sampleItems: SimpleItemType[] = [
   { id: '1', label: 'First item' },
   { id: '2', label: 'Second item' },
   { id: '3', label: 'Third item' },
 ];
 
-type SimpleItemType = { id: string; label: string };
+// ============================================================================
+// Meta Configuration
+// ============================================================================
 
 const meta: Meta<typeof ArrayField<SimpleItemType>> = {
   title: 'Systems/Form/Fields/ArrayField',
   component: ArrayField<SimpleItemType>,
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component: `
+ArrayField manages arrays of items with support for:
+- **Inline editing**: Item component handles both display and edit modes
+- **Dialog editing**: Separate editorComponent for complex forms in dialogs
+- **Drag-and-drop reordering**: Enable with \`sortable\` prop
+- **Draft items**: New items are drafts until saved
+
+## Two Editing Patterns
+
+### 1. Inline Editing (No editorComponent)
+The \`itemComponent\` handles both display and edit modes using \`isBeingEdited\`.
+When editing, call \`onChange\` to save and exit edit mode.
+
+### 2. Dialog Editing (With editorComponent)
+The \`itemComponent\` only displays items. A separate \`editorComponent\` receives
+\`item\`, \`isNewItem\`, \`onSave\`, and \`onCancel\` to handle editing in a dialog.
+        `,
+      },
+    },
   },
   argTypes: {
     sortable: {
       control: 'boolean',
       description: 'Enable drag-and-drop reordering of items',
-      table: {
-        defaultValue: { summary: 'false' },
-      },
+      table: { defaultValue: { summary: 'false' } },
     },
     confirmDelete: {
       control: 'boolean',
       description: 'Show a confirmation dialog before deleting an item',
-      table: {
-        defaultValue: { summary: 'false' },
-      },
+      table: { defaultValue: { summary: 'true' } },
     },
     addButtonLabel: {
       control: 'text',
       description: 'Label for the "Add Item" button',
-      table: {
-        defaultValue: { summary: 'Add Item' },
-      },
+      table: { defaultValue: { summary: 'Add Item' } },
     },
     emptyStateMessage: {
       control: 'text',
       description: 'Message shown when the list is empty',
-      table: {
-        defaultValue: {
-          summary: 'No items added yet. Click "Add Item" to get started.',
-        },
-      },
-    },
-    value: {
-      control: 'object',
-      description: 'Array of items with id and label properties',
-    },
-    onChange: {
-      action: 'onChange',
-      description: 'Callback fired when items are added, removed, or reordered',
     },
     itemComponent: {
       control: false,
-      description: 'Custom component for rendering each item',
+      description:
+        'Component for rendering each item. Receives ArrayFieldItemProps including isBeingEdited for inline editing.',
     },
     editorComponent: {
       control: false,
-      description: 'Custom component for editing an item',
+      description:
+        'Optional component for dialog-based editing. Receives ArrayFieldEditorProps with onSave callback.',
     },
     itemTemplate: {
       control: false,
-      description: 'Function that returns a new item template',
+      description: 'Function that returns a new item template when adding',
     },
   },
   args: {
@@ -90,10 +104,6 @@ const meta: Meta<typeof ArrayField<SimpleItemType>> = {
     confirmDelete: true,
     addButtonLabel: 'Add Item',
     emptyStateMessage: 'No items added yet. Click "Add Item" to get started.',
-    value: [],
-    itemTemplate: () => ({ id: crypto.randomUUID(), label: '' }),
-    itemComponent: SimpleItem,
-    editorComponent: Editor,
   },
   decorators: [
     (Story) => (
@@ -107,7 +117,20 @@ const meta: Meta<typeof ArrayField<SimpleItemType>> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+// ============================================================================
+// Basic Stories
+// ============================================================================
+
+/**
+ * Default ArrayField with inline editing.
+ * The SimpleInlineItem component handles both display and edit modes.
+ */
 export const Default: Story = {
+  args: {
+    value: [],
+    itemTemplate: () => ({ id: crypto.randomUUID(), label: '' }),
+    itemComponent: SimpleInlineItem,
+  },
   render: function Render(args) {
     const [, updateArgs] = useArgs();
 
@@ -123,9 +146,15 @@ export const Default: Story = {
   },
 };
 
+/**
+ * ArrayField with pre-populated items and sorting enabled.
+ */
 export const WithInitialItems: Story = {
   args: {
     value: sampleItems,
+    sortable: true,
+    itemTemplate: () => ({ id: crypto.randomUUID(), label: '' }),
+    itemComponent: SimpleInlineItem,
   },
   render: function Render(args) {
     const [, updateArgs] = useArgs();
@@ -142,23 +171,107 @@ export const WithInitialItems: Story = {
   },
 };
 
-// Custom item type with additional properties
+// ============================================================================
+// Inline Editing Pattern
+// ============================================================================
+
 type TagItem = {
   id: string;
   label: string;
   color: 'node-1' | 'node-2' | 'node-3' | 'node-4' | 'node-5';
 };
 
-// Custom item component for TagItem - handles its own styling based on color
-function TagItemComponent({
+const TAG_COLORS: Record<TagItem['color'], string> = {
+  'node-1': 'var(--color-node-1)',
+  'node-2': 'var(--color-node-2)',
+  'node-3': 'var(--color-node-3)',
+  'node-4': 'var(--color-node-4)',
+  'node-5': 'var(--color-node-5)',
+};
+
+/**
+ * Inline editing item component for TagItem.
+ * Handles both display and edit modes within the same component.
+ */
+function TagInlineItem({
   item,
   isSortable,
+  isBeingEdited,
+  isNewItem,
+  onChange,
+  onCancel,
   onEdit,
   onDelete,
   dragControls,
 }: ArrayFieldItemProps<TagItem>) {
+  const [label, setLabel] = useState(item?.label ?? '');
+  const [color, setColor] = useState<TagItem['color']>(item?.color ?? 'node-1');
+
+  useEffect(() => {
+    if (isBeingEdited) {
+      setLabel(item?.label ?? '');
+      setColor(item?.color ?? 'node-1');
+    }
+  }, [isBeingEdited, item]);
+
+  // Edit mode
+  if (isBeingEdited) {
+    return (
+      <motion.div
+        layout
+        className={cx(
+          surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
+          'flex w-full flex-col gap-4 border p-4',
+        )}
+      >
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Label</label>
+          <InputField
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            placeholder="Enter tag label"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Color</label>
+          <div className="flex gap-2">
+            {(Object.keys(TAG_COLORS) as TagItem['color'][]).map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => setColor(c)}
+                style={{ backgroundColor: TAG_COLORS[c] }}
+                className={cx(
+                  'h-8 w-8 rounded-full transition-all',
+                  color === c
+                    ? 'ring-primary ring-2 ring-offset-2'
+                    : 'opacity-50 hover:opacity-100',
+                )}
+                aria-label={c}
+              />
+            ))}
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            color="primary"
+            size="sm"
+            onClick={() => onChange?.({ id: item.id ?? '', label, color })}
+            disabled={label.trim() === ''}
+          >
+            {isNewItem ? 'Add' : 'Save'}
+          </Button>
+          <Button size="sm" onClick={onCancel}>
+            Cancel
+          </Button>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // Display mode
   const colorClasses = cx([
-    'flex w-full items-center gap-2 border px-3 py-1 select-none',
+    'flex w-full items-center gap-2 border px-3 py-2 select-none',
     item.color === 'node-1' && 'border-node-1/30 bg-node-1/10 text-node-1',
     item.color === 'node-2' && 'border-node-2/30 bg-node-2/10 text-node-2',
     item.color === 'node-3' && 'border-node-3/30 bg-node-3/10 text-node-3',
@@ -167,7 +280,7 @@ function TagItemComponent({
   ]);
 
   return (
-    <div className={colorClasses}>
+    <motion.div layout className={colorClasses}>
       {isSortable && (
         <div
           onPointerDown={(e) => dragControls.start(e)}
@@ -195,95 +308,30 @@ function TagItemComponent({
           aria-label="Remove item"
         />
       </div>
-    </div>
+    </motion.div>
   );
 }
 
-const TAG_COLORS: Record<TagItem['color'], string> = {
-  'node-1': 'var(--color-node-1)',
-  'node-2': 'var(--color-node-2)',
-  'node-3': 'var(--color-node-3)',
-  'node-4': 'var(--color-node-4)',
-  'node-5': 'var(--color-node-5)',
-};
+/**
+ * Inline editing pattern demonstration.
+ * The TagInlineItem component handles both display and edit modes.
+ * No separate editorComponent is needed.
+ */
+export const InlineEditing: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**Inline Editing Pattern**
 
-// Simple editor for TagItem - reuses the label editing pattern
-function TagEditor({
-  item,
-  isEditing,
-  isNewItem,
-  onChange,
-  onCancel,
-}: {
-  item: TagItem | undefined;
-  isEditing: boolean;
-  isNewItem: boolean;
-  onChange: (value: TagItem) => void;
-  onCancel: () => void;
-}) {
-  const [label, setLabel] = useState(item?.label ?? '');
-  const [color, setColor] = useState<TagItem['color']>(item?.color ?? 'node-1');
-
-  useEffect(() => {
-    if (isEditing) {
-      setLabel(item?.label ?? '');
-      setColor(item?.color ?? 'node-1');
-    }
-  }, [isEditing, item]);
-
-  if (!isEditing) return null;
-
-  return (
-    <div className="bg-surface-1 flex w-full flex-col gap-4 rounded-lg border p-4">
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">Label</label>
-        <InputField
-          value={label}
-          onChange={(e) => setLabel(e.target.value)}
-          placeholder="Enter tag label"
-        />
-      </div>
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">Color</label>
-        <div className="flex gap-2">
-          {(Object.keys(TAG_COLORS) as TagItem['color'][]).map((c) => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => setColor(c)}
-              style={{ backgroundColor: TAG_COLORS[c] }}
-              className={cx(
-                'h-8 w-8 rounded-full transition-all',
-                color === c
-                  ? 'ring-primary ring-2 ring-offset-2'
-                  : 'opacity-50 hover:opacity-100',
-              )}
-              aria-label={c}
-            />
-          ))}
-        </div>
-      </div>
-      <div className="flex gap-2">
-        <Button
-          color="primary"
-          onClick={() => onChange({ ...item!, label, color })}
-          disabled={label.trim() === ''}
-        >
-          {isNewItem ? 'Add' : 'Save'}
-        </Button>
-        <Button variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-export const CustomComponents: Story = {
-  args: {
-    sortable: true,
-    addButtonLabel: 'Add Tag',
-    emptyStateMessage: 'No tags yet. Create one!',
+The item component handles both display and edit modes:
+- Check \`isBeingEdited\` to determine which UI to render
+- In edit mode, call \`onChange(updatedItem)\` to save
+- Call \`onCancel()\` to cancel and discard changes
+- Use \`isNewItem\` to show "Add" vs "Save" button labels
+        `,
+      },
+    },
   },
   render: function Render() {
     const [tags, setTags] = useState<TagItem[]>([
@@ -295,6 +343,7 @@ export const CustomComponents: Story = {
     return (
       <ArrayField<TagItem>
         sortable
+        confirmDelete={false}
         addButtonLabel="Add Tag"
         emptyStateMessage="No tags yet. Create one!"
         value={tags}
@@ -307,20 +356,359 @@ export const CustomComponents: Story = {
           label: '',
           color: 'node-1',
         })}
-        itemComponent={TagItemComponent}
-        editorComponent={TagEditor}
+        itemComponent={TagInlineItem}
       />
     );
   },
 };
 
+// ============================================================================
+// Dialog Editing Pattern
+// ============================================================================
+
+type ContactItem = {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+};
+
+/**
+ * Display-only item component for contacts.
+ * Editing is handled by the separate dialog editor.
+ */
+function ContactDisplayItem({
+  item,
+  isSortable,
+  isBeingEdited,
+  onEdit,
+  onDelete,
+  dragControls,
+}: ArrayFieldItemProps<ContactItem>) {
+  // Hide when being edited (dialog takes over) or when it's a new draft
+  if (isBeingEdited || item._draft) {
+    return null;
+  }
+
+  return (
+    <motion.div
+      layoutId={item._internalId}
+      className="border-b-input-contrast/10 flex w-full items-center gap-3 border-b px-2 py-2 last:border-b-0"
+    >
+      {isSortable && (
+        <div
+          onPointerDown={(e) => dragControls.start(e)}
+          className="touch-none"
+        >
+          <GripVertical className="h-4 w-4 cursor-grab" />
+        </div>
+      )}
+      <div className="flex flex-1 flex-col">
+        <span className="font-medium">{item.name}</span>
+        <span className="text-sm text-current/70">{item.email}</span>
+        {item.phone && (
+          <span className="text-sm text-current/50">{item.phone}</span>
+        )}
+      </div>
+      <div className="ml-auto flex items-center gap-1">
+        <IconButton
+          size="sm"
+          variant="textMuted"
+          color="primary"
+          onClick={onEdit}
+          aria-label="Edit contact"
+          icon={<PencilIcon />}
+        />
+        <IconButton
+          variant="textMuted"
+          color="destructive"
+          size="sm"
+          onClick={onDelete}
+          icon={<X />}
+          aria-label="Remove contact"
+        />
+      </div>
+    </motion.div>
+  );
+}
+
+// Simulated list of "existing" emails on the server
+const EXISTING_EMAILS = [
+  'john@example.com',
+  'jane@example.com',
+  'admin@example.com',
+  'test@example.com',
+];
+
+/**
+ * Simulates checking if an email already exists on the server.
+ * Returns true if the email is already taken.
+ */
+async function checkEmailExists(
+  email: string,
+  currentItemEmail?: string,
+): Promise<boolean> {
+  // Simulate network delay
+  await new Promise((resolve) => setTimeout(resolve, 800));
+
+  // If we're editing and the email hasn't changed, it's valid
+  if (
+    currentItemEmail &&
+    email.toLowerCase() === currentItemEmail.toLowerCase()
+  ) {
+    return false;
+  }
+
+  // Check against "existing" emails
+  return EXISTING_EMAILS.some(
+    (existing) => existing.toLowerCase() === email.toLowerCase(),
+  );
+}
+
+/**
+ * Dialog editor for contacts.
+ * Demonstrates async validation - checking if email already exists on server.
+ */
+function ContactDialogEditor({
+  item,
+  isNewItem,
+  onSave,
+  onCancel,
+}: ArrayFieldEditorProps<ContactItem>) {
+  const formId = `contact-form-${item?._internalId ?? 'new'}`;
+
+  return (
+    <Form
+      id={formId}
+      onSubmit={async (data: unknown) => {
+        const formData = data as Record<string, string>;
+        const email = formData.email ?? '';
+
+        if (isNewItem) {
+          // Check if email already exists on server
+          const emailExists = await checkEmailExists(email, item?.email);
+
+          if (emailExists) {
+            return {
+              success: false,
+              fieldErrors: {
+                email: ['This email address is already in use'],
+              },
+            };
+          }
+        }
+
+        onSave({
+          id: item?.id ?? crypto.randomUUID(),
+          name: formData.name ?? '',
+          email,
+          phone: formData.phone,
+        });
+
+        return { success: true };
+      }}
+    >
+      <Dialog
+        title={isNewItem ? 'Add Contact' : 'Edit Contact'}
+        description="Enter the contact details below"
+        open={!!item}
+        closeDialog={onCancel}
+        layoutId={isNewItem ? undefined : item?._internalId}
+        footer={
+          <>
+            <MotionButton type="button" onClick={onCancel}>
+              Cancel
+            </MotionButton>
+            <SubmitButton form={formId} color="primary">
+              {isNewItem ? 'Add Contact' : 'Save Changes'}
+            </SubmitButton>
+          </>
+        }
+      >
+        <Field
+          name="name"
+          label="Name"
+          hint="Full name of the contact"
+          component={InputField}
+          initialValue={item?.name}
+          required
+        />
+        <Field
+          name="email"
+          label="Email"
+          hint="Try 'admin@example.com' or 'test@example.com' to see validation error"
+          component={InputField}
+          type="email"
+          initialValue={item?.email}
+          required
+        />
+        <Field
+          name="phone"
+          label="Phone"
+          hint="Optional phone number"
+          component={InputField}
+          type="tel"
+          initialValue={item?.phone}
+        />
+      </Dialog>
+    </Form>
+  );
+}
+
+/**
+ * Dialog editing pattern demonstration.
+ * Uses a separate editorComponent for complex form editing in a dialog.
+ */
+export const DialogEditing: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**Dialog Editing Pattern**
+
+For complex forms, use a separate \`editorComponent\`:
+- \`itemComponent\` only handles display (return null when \`isBeingEdited\` or \`item._draft\`)
+- \`editorComponent\` receives \`item\`, \`isNewItem\`, \`onSave\`, and \`onCancel\`
+- Check \`!!item\` to determine if the dialog should be open
+- Call \`onSave(updatedItem)\` to save and close
+- Use \`layoutId\` for smooth animations between item and dialog
+        `,
+      },
+    },
+  },
+  render: function Render() {
+    const [contacts, setContacts] = useState<ContactItem[]>([
+      {
+        id: '1',
+        name: 'John Doe',
+        email: 'john@example.com',
+        phone: '555-1234',
+      },
+      { id: '2', name: 'Jane Smith', email: 'jane@example.com' },
+    ]);
+
+    return (
+      <ArrayField<ContactItem>
+        sortable
+        addButtonLabel="Add Contact"
+        emptyStateMessage="No contacts yet. Add your first contact!"
+        value={contacts}
+        onChange={(newValue) => {
+          setContacts(newValue);
+          action('onChange')(newValue);
+        }}
+        itemTemplate={() => ({
+          id: crypto.randomUUID(),
+          name: '',
+          email: '',
+        })}
+        itemComponent={ContactDisplayItem}
+        editorComponent={ContactDialogEditor}
+      />
+    );
+  },
+};
+
+// ============================================================================
+// Display-Only (No Editing)
+// ============================================================================
+
+/**
+ * Display-only item component without edit functionality.
+ */
+function DisplayOnlyItem({
+  item,
+  isSortable,
+  onDelete,
+  dragControls,
+}: ArrayFieldItemProps<SimpleItemType>) {
+  return (
+    <div className="border-b-input-contrast/10 flex w-full items-center gap-2 border-b px-2 py-1 last:border-b-0">
+      {isSortable && (
+        <div
+          onPointerDown={(e) => dragControls.start(e)}
+          className="touch-none"
+        >
+          <GripVertical className="h-4 w-4 cursor-grab" />
+        </div>
+      )}
+      <div className="flex-1">{item.label}</div>
+      <IconButton
+        variant="textMuted"
+        color="destructive"
+        size="sm"
+        onClick={onDelete}
+        icon={<X />}
+        aria-label="Remove item"
+      />
+    </div>
+  );
+}
+
+/**
+ * Simplified ArrayField without editing.
+ * Items can only be added (with template values) and removed.
+ */
+export const NoEditing: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**No Editing Pattern**
+
+For simple lists where items are added with default values:
+- \`itemComponent\` only shows display UI and delete button
+- Don't call \`onEdit\` - items are created fully-formed from template
+- Useful for lists where items don't need customization
+        `,
+      },
+    },
+  },
+  render: function Render() {
+    const [items, setItems] = useState<SimpleItemType[]>([
+      { id: '1', label: 'Pre-defined item 1' },
+      { id: '2', label: 'Pre-defined item 2' },
+    ]);
+
+    let counter = items.length;
+
+    return (
+      <ArrayField<SimpleItemType>
+        sortable
+        confirmDelete={false}
+        addButtonLabel="Add Pre-defined Item"
+        emptyStateMessage="No items yet."
+        value={items}
+        onChange={(newValue) => {
+          setItems(newValue);
+          action('onChange')(newValue);
+        }}
+        itemTemplate={() => ({
+          id: crypto.randomUUID(),
+          label: `Pre-defined item ${++counter}`,
+        })}
+        itemComponent={DisplayOnlyItem}
+      />
+    );
+  },
+};
+
+// ============================================================================
+// Many Items
+// ============================================================================
+
+/**
+ * Performance test with many items.
+ */
 export const ManyItems: Story = {
   args: {
     sortable: true,
-    value: Array.from({ length: 10 }, (_, i) => ({
+    value: Array.from({ length: 20 }, (_, i) => ({
       id: String(i + 1),
       label: `Item number ${i + 1}`,
     })),
+    itemTemplate: () => ({ id: crypto.randomUUID(), label: '' }),
+    itemComponent: SimpleInlineItem,
   },
   render: function Render(args) {
     const [, updateArgs] = useArgs();
@@ -332,54 +720,6 @@ export const ManyItems: Story = {
           updateArgs({ value: newValue });
           action('onChange')(newValue);
         }}
-      />
-    );
-  },
-};
-
-export const DialogEditor: Story = {
-  args: {
-    sortable: true,
-    addButtonLabel: 'Add Prompt',
-    emptyStateMessage: 'No prompts yet. Add your first prompt!',
-  },
-  parameters: {
-    layout: 'centered',
-  },
-  render: function Render() {
-    const [prompts, setPrompts] = useState<NameGeneratorPrompt[]>([
-      {
-        id: '1',
-        text: {
-          type: 'doc',
-          content: [
-            {
-              type: 'paragraph',
-              content: [
-                {
-                  type: 'text',
-                  text: 'Generate a list of creative names for a new product.',
-                },
-              ],
-            },
-          ],
-        } as JSONContent,
-      },
-    ]);
-
-    return (
-      <ArrayField<NameGeneratorPrompt>
-        sortable
-        addButtonLabel="Add Prompt"
-        emptyStateMessage="No prompts yet. Add your first prompt!"
-        value={prompts}
-        onChange={(newValue) => {
-          setPrompts(newValue);
-          action('onChange')(newValue);
-        }}
-        itemTemplate={() => ({ id: crypto.randomUUID(), text: {} })}
-        itemComponent={PromptItem}
-        editorComponent={PromptEditor}
       />
     );
   },

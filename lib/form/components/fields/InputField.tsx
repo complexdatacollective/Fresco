@@ -1,23 +1,22 @@
 import { type ReactNode } from 'react';
 import {
-  controlContainerVariants,
-  controlStateVariants,
+  controlVariants,
   inlineSpacingVariants,
+  inputControlVariants,
   placeholderVariants,
   proportionalLucideIconVariants,
   sizeVariants,
+  stateVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx } from '~/utils/cva';
 
 const inputWrapperVariants = compose(
   sizeVariants,
-  proportionalLucideIconVariants,
+  controlVariants,
+  inputControlVariants,
   inlineSpacingVariants,
-  controlContainerVariants,
-  controlStateVariants,
-  cva({
-    base: 'w-full',
-  }),
+  proportionalLucideIconVariants,
+  stateVariants,
 );
 
 // Input element when used with wrapper (prefix/suffix)
@@ -37,15 +36,30 @@ export const inputVariants = compose(
 export const InputField = function InputField({
   prefixComponent: prefix,
   suffixComponent: suffix,
+  size = 'md',
   className,
   value,
   ...inputProps
-}: React.InputHTMLAttributes<HTMLInputElement> & {
+}: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> & {
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   prefixComponent?: ReactNode;
   suffixComponent?: ReactNode;
 }) {
+  // Calculate state based on props. Order: disabled > readOnly > invalid > normal
+  const getState = () => {
+    if (inputProps.disabled) return 'disabled';
+    if (inputProps['aria-invalid']) return 'invalid';
+    if (inputProps.readOnly) return 'readOnly';
+    return 'normal';
+  };
+
   return (
-    <div className={cx(inputWrapperVariants({ size: 'md' }), className)}>
+    <div
+      className={cx(
+        inputWrapperVariants({ size, state: getState() }),
+        className,
+      )}
+    >
       {prefix}
       <input
         autoComplete="off"

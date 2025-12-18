@@ -10,6 +10,7 @@ import { useFormStore } from '../store/formStoreProvider';
 
 /**
  * Helper function to determine if a field should show an error message.
+ * Only shows errors after the field has been blurred at least once.
  */
 function useFieldShouldShowError(
   fieldState: FieldState | undefined,
@@ -21,7 +22,8 @@ function useFieldShouldShowError(
 
   const { state } = fieldState;
 
-  return Boolean(state.isTouched && fieldErrors && fieldErrors.length > 0);
+  // Only show errors after the field has been blurred at least once
+  return Boolean(state.isBlurred && fieldErrors && fieldErrors.length > 0);
 }
 
 export type UseFieldConfig = {
@@ -31,6 +33,7 @@ export type UseFieldConfig = {
     errors: string[] | undefined;
     isValidating: boolean;
     isTouched: boolean;
+    isBlurred: boolean;
     isDirty: boolean;
     isValid: boolean;
   };
@@ -71,6 +74,7 @@ export function useField(config: {
   const registerField = useFormStore((store) => store.registerField);
   const unregisterField = useFormStore((store) => store.unregisterField);
   const setFieldValue = useFormStore((store) => store.setFieldValue);
+  const setFieldBlurred = useFormStore((store) => store.setFieldBlurred);
   const validateField = useFormStore((store) => store.validateField);
 
   const shouldShowError = useFieldShouldShowError(fieldState, fieldErrors);
@@ -116,8 +120,15 @@ export function useField(config: {
       }
 
       setFieldValue(config.name, value);
+
+      // Validate on change only after the field has been blurred once
+      // This provides real-time feedback on subsequent edits without
+      // bombarding users with errors while typing their first characters
+      if (fieldState?.state.isBlurred) {
+        void validateField(config.name);
+      }
     },
-    [config.name, setFieldValue],
+    [config.name, setFieldValue, fieldState?.state.isBlurred, validateField],
   );
 
   const handleBlur = useCallback(
@@ -136,10 +147,19 @@ export function useField(config: {
         return;
       }
 
+      // Mark the field as having been blurred at least once
+      // This enables subsequent change validation
+      setFieldBlurred(config.name);
+
       // TODO: cache validation result if value hasn't changed.
       void validateField(config.name);
     },
-    [config.name, validateField],
+    [config.name, setFieldBlurred, validateField],
+  );
+
+  // Only show invalid state after the field has been blurred at least once
+  const showInvalid = Boolean(
+    fieldState?.state.isBlurred && !fieldState?.state.isValid,
   );
 
   const result: UseFieldConfig = {
@@ -149,6 +169,7 @@ export function useField(config: {
       errors: fieldErrors ?? undefined,
       isValid: fieldState?.state.isValid ?? false,
       isTouched: fieldState?.state.isTouched ?? false,
+      isBlurred: fieldState?.state.isBlurred ?? false,
       isDirty: fieldState?.state.isDirty ?? false,
       isValidating: fieldState?.state.isValidating ?? false,
     },
@@ -157,7 +178,7 @@ export function useField(config: {
       'data-disabled': false, // TODO
       'data-valid': fieldState?.state.isValid ?? false,
       'data-validating': fieldState?.state.isValidating ?? false,
-      'data-invalid': !fieldState?.state.isValid,
+      'data-invalid': showInvalid,
       'data-dirty': fieldState?.state.isDirty ?? false,
       'data-touched': fieldState?.state.isTouched ?? false,
     },
@@ -166,7 +187,7 @@ export function useField(config: {
       'onChange': handleChange,
       'onBlur': handleBlur,
       'aria-required': !!config.required,
-      'aria-invalid': !fieldState?.state.isValid,
+      'aria-invalid': showInvalid,
       /**
        * Set this so that screen readers can properly announce the hint and error messages.
        * If either the hint or error ID is not present, it will be ignored by the screen reader.

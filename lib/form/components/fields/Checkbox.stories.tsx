@@ -12,7 +12,7 @@ const meta = {
   argTypes: {
     size: {
       control: 'select',
-      options: ['xs', 'sm', 'md', 'lg', 'xl'],
+      options: ['sm', 'md', 'lg', 'xl'],
     },
     disabled: {
       control: 'boolean',
@@ -45,10 +45,6 @@ export const Default: Story = {
 export const Sizes: Story = {
   render: () => (
     <div className="flex items-center gap-4">
-      <div className="flex flex-col items-center gap-2">
-        <Checkbox size="xs" aria-label="Extra small checkbox" />
-        <span className="text-xs text-current/70">Extra Small</span>
-      </div>
       <div className="flex flex-col items-center gap-2">
         <Checkbox size="sm" aria-label="Small checkbox" />
         <span className="text-xs text-current/70">Small</span>
@@ -198,7 +194,7 @@ export const AllSizesAllStates: Story = {
         </span>
       </div>
 
-      {(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => (
+      {(['sm', 'md', 'lg', 'xl'] as const).map((size) => (
         <div key={size} className="flex items-center gap-4">
           <span className="w-32 text-sm font-medium capitalize">{size}:</span>
           <div className="flex w-24 justify-center">

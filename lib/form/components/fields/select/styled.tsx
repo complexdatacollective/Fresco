@@ -1,32 +1,50 @@
 import { Select } from '@base-ui/react/select';
-import { Check } from 'lucide-react';
-import {
-  type ComponentPropsWithoutRef,
-  type SelectHTMLAttributes,
-} from 'react';
-import {
-  controlWrapperVariants,
-  selectBackgroundVariants,
-} from '~/styles/shared/controlVariants';
-import { cx, type VariantProps } from '~/utils/cva';
+import { Check, ChevronDown } from 'lucide-react';
+import { type ComponentPropsWithoutRef } from 'react';
+import { cva, cx, type VariantProps } from '~/utils/cva';
+import { selectWrapperVariants } from './native';
+
+// Size-based variants for dropdown items
+const dropdownItemVariants = cva({
+  base: cx(
+    'flex cursor-pointer items-center gap-2 px-3',
+    'transition-colors outline-none',
+    'hover:bg-accent/10',
+    'data-selected:bg-selected',
+  ),
+  variants: {
+    size: {
+      xs: 'py-1 text-xs',
+      sm: 'py-1.5 text-sm',
+      md: 'py-2 text-base',
+      lg: 'py-2.5 text-lg',
+      xl: 'py-3 text-xl',
+    },
+  },
+  defaultVariants: {
+    size: 'md',
+  },
+});
 
 export type SelectOption = {
   value: string | number;
   label: string;
 };
 
-export type SelectProps = VariantProps<typeof controlWrapperVariants> &
+export type SelectProps = VariantProps<typeof selectWrapperVariants> &
   Omit<
     ComponentPropsWithoutRef<typeof Select.Root>,
-    'onValueChange' | 'items' | 'multiple'
-  > &
-  Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size' | 'onChange'> & {
-    name: string;
-    value?: string | number;
-    placeholder?: string;
-    options: SelectOption[];
-    onChange: (value: string | number) => void;
-    className?: string;
+    'onValueChange' | 'items' | 'multiple' | 'value' | 'defaultValue'
+  > & {
+    'name': string;
+    'value'?: string | number;
+    'defaultValue'?: string | number;
+    'placeholder'?: string;
+    'options': SelectOption[];
+    'onChange': (value: string | number) => void;
+    'className'?: string;
+    'disabled'?: boolean;
+    'aria-invalid'?: boolean | 'true' | 'false';
   };
 
 export function SelectField({
@@ -36,6 +54,7 @@ export function SelectField({
   className,
   onChange,
   value,
+  defaultValue,
   disabled,
   name,
   ...rootProps
@@ -46,8 +65,6 @@ export function SelectField({
     }
   };
 
-  // Work out variant state based on props. Order:
-  // disabled > readOnly > invalid > normal
   const getState = () => {
     if (disabled) return 'disabled';
     if (rootProps['aria-invalid']) return 'invalid';
@@ -57,37 +74,41 @@ export function SelectField({
   return (
     <Select.Root
       {...rootProps}
-      value={value}
+      value={value !== undefined ? String(value) : undefined}
+      defaultValue={
+        defaultValue !== undefined ? String(defaultValue) : undefined
+      }
       onValueChange={handleValueChange}
       disabled={disabled}
       name={name}
     >
       <Select.Trigger
-        className={controlWrapperVariants({
+        className={selectWrapperVariants({
           size,
+          className: cx('w-full', className),
           state: getState(),
-          className,
         })}
       >
-        <div className={cx('form-select', selectBackgroundVariants)}>
-          <Select.Value className="flex-1 truncate text-left">
-            {(currentValue: string | number | null) => {
-              if (
-                currentValue === null ||
-                currentValue === undefined ||
-                currentValue === ''
-              ) {
-                return (
-                  <span className="text-input-contrast/50 italic">
-                    {placeholder}
-                  </span>
-                );
-              }
-              const option = options.find((opt) => opt.value === currentValue);
-              return option?.label ?? currentValue;
-            }}
-          </Select.Value>
-        </div>
+        <Select.Value className="flex-1 truncate text-left">
+          {(currentValue: string | number | null) => {
+            if (
+              currentValue === null ||
+              currentValue === undefined ||
+              currentValue === ''
+            ) {
+              return (
+                <span className="text-input-contrast/50 italic">
+                  {placeholder}
+                </span>
+              );
+            }
+            const option = options.find((opt) => opt.value === currentValue);
+            return option?.label ?? currentValue;
+          }}
+        </Select.Value>
+        <Select.Icon className="shrink-0">
+          <ChevronDown className="h-[1.2em] w-[1.2em]" />
+        </Select.Icon>
       </Select.Trigger>
       <Select.Portal>
         <Select.Positioner className="z-50" alignItemWithTrigger={false}>
@@ -104,19 +125,13 @@ export function SelectField({
                 <Select.Item
                   key={option.value}
                   value={option.value}
-                  className={cx(
-                    'flex cursor-pointer items-center gap-2 px-3 py-2',
-                    'text-sm transition-colors outline-none',
-                    'hover:bg-accent/10',
-                    'data-selected:bg-selected',
-                    // 'data-highlighted:bg-input-contrast/10',
-                  )}
+                  className={dropdownItemVariants({ size })}
                 >
                   <Select.ItemText className="flex-1">
                     {option.label}
                   </Select.ItemText>
                   <Select.ItemIndicator>
-                    <Check className="size-4" />
+                    <Check className="h-[1.2em] w-[1.2em]" />
                   </Select.ItemIndicator>
                 </Select.Item>
               ))}

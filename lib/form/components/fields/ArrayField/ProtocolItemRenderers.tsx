@@ -3,8 +3,8 @@ import {
   type FilterRule,
 } from '@codaco/protocol-validation';
 import { GripVertical, PencilIcon, Trash2, X } from 'lucide-react';
-import { motion } from 'motion/react';
-import { forwardRef, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useState } from 'react';
 import { surfaceVariants } from '~/components/layout/Surface';
 import Button, { IconButton, MotionButton } from '~/components/ui/Button';
 import { Dialog } from '~/lib/dialogs/Dialog';
@@ -58,14 +58,13 @@ export function NameGeneratorPromptItem({
     >
       {isSortable && (
         <motion.div
-          layout
           onPointerDown={(e) => dragControls.start(e)}
           className="touch-none"
         >
           <GripVertical className="w-8 cursor-grab" />
         </motion.div>
       )}
-      <motion.div layout className="flex-1">
+      <motion.div className="flex-1">
         {item.text}
         {item.additionalAttributes && item.additionalAttributes.length > 0 && (
           <div className="mt-1 flex flex-wrap gap-1">
@@ -208,109 +207,116 @@ export function AdditionalAttributeItem({
     }
   };
 
-  // Inline edit mode
-  if (isBeingEdited) {
-    return (
-      <motion.div
-        className={cx(
-          surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
-          'min-w-lg',
-          'flex w-full flex-col border p-4',
-        )}
-        layoutId={item._internalId}
-      >
-        <UnconnectedField
-          component={SelectField}
-          label="Variable"
-          hint="Select the variable to set"
-          name={`additional-attribute-variable-${item._internalId}`}
-          value={variable}
-          placeholder="Select a variable..."
-          onChange={(val) => setVariable(String(val))}
-          options={[...MOCK_VARIABLES]}
-          required
-        />
-        <UnconnectedField
-          component={BooleanField}
-          label="Value"
-          hint="The boolean value to assign"
-          value={value}
-          onChange={setValue}
-          noReset
-          required
-        />
-        <div className="flex gap-2">
-          <Button
-            color="primary"
-            size="sm"
-            icon={<PencilIcon />}
-            onClick={handleSave}
-            disabled={!variable || value === null}
-          >
-            {isNewItem ? 'Add' : 'Save'}
-          </Button>
-          <Button
-            type="button"
-            onClick={onCancel}
-            aria-label="Cancel editing"
-            size="sm"
-          >
-            Cancel
-          </Button>
-        </div>
-      </motion.div>
-    );
-  }
-
-  // Display mode
   return (
     <motion.div
-      className="flex w-full items-center gap-2 px-2 py-2"
-      layoutId={item._internalId}
-    >
-      {isSortable && (
-        <motion.div
-          layout
-          onPointerDown={(e) => dragControls.start(e)}
-          className="touch-none"
-        >
-          <GripVertical className="h-4 w-4 cursor-grab" />
-        </motion.div>
+      layout
+      className={cx(
+        surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
+        'min-w-lg',
+        'flex w-full flex-col border p-4',
       )}
-      <motion.div layout className="flex flex-1 items-center gap-3">
-        <code className="bg-input-contrast/10 rounded px-2 py-0.5 text-sm">
-          {item.variable}
-        </code>
-        <span className="text-sm text-current/70">=</span>
-        <span
-          className={cx(
-            'rounded px-2 py-0.5 text-sm font-medium',
-            item.value
-              ? 'bg-success/20 text-success'
-              : 'bg-destructive/20 text-destructive',
-          )}
-        >
-          {item.value ? 'true' : 'false'}
-        </span>
-      </motion.div>
-      <motion.div layout className="ml-auto flex items-center gap-1">
-        <IconButton
-          size="sm"
-          variant="textMuted"
-          color="primary"
-          onClick={onEdit}
-          aria-label="Edit attribute"
-          icon={<PencilIcon />}
-        />
-        <IconButton
-          variant="textMuted"
-          color="destructive"
-          size="sm"
-          onClick={onDelete}
-          icon={<X />}
-          aria-label="Remove attribute"
-        />
-      </motion.div>
+      initial={{ opacity: 0 }}
+      animate={
+        isBeingEdited
+          ? { opacity: 1, backgroundColor: '#e0e0e0' }
+          : { opacity: 1, backgroundColor: '#ff0000' }
+      }
+      exit={{ opacity: 0, scale: 0.6 }}
+      // transition={{ duration: 2 }}
+    >
+      <AnimatePresence mode="wait">
+        {isBeingEdited ? (
+          <motion.div key="edit" className="flex w-full flex-col gap-2">
+            <UnconnectedField
+              component={SelectField}
+              label="Variable"
+              hint="Select the variable to set"
+              name={`additional-attribute-variable-${item._internalId}`}
+              value={variable}
+              placeholder="Select a variable..."
+              onChange={(val) => setVariable(String(val))}
+              options={[...MOCK_VARIABLES]}
+              required
+            />
+            <UnconnectedField
+              component={BooleanField}
+              label="Value"
+              hint="The boolean value to assign"
+              value={value}
+              onChange={setValue}
+              noReset
+              required
+            />
+            <div className="flex gap-2">
+              <Button
+                color="primary"
+                size="sm"
+                icon={<PencilIcon />}
+                onClick={handleSave}
+                disabled={!variable || value === null}
+              >
+                {isNewItem ? 'Add' : 'Save'}
+              </Button>
+              <Button
+                type="button"
+                onClick={onCancel}
+                aria-label="Cancel editing"
+                size="sm"
+              >
+                Cancel
+              </Button>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="view"
+            className="flex w-full items-center gap-2 px-2 py-2"
+          >
+            {isSortable && (
+              <motion.div
+                onPointerDown={(e) => dragControls.start(e)}
+                className="touch-none"
+              >
+                <GripVertical className="h-4 w-4 cursor-grab" />
+              </motion.div>
+            )}
+            <motion.div className="flex flex-1 items-center gap-3">
+              <code className="bg-input-contrast/10 rounded px-2 py-0.5 text-sm">
+                {item.variable}
+              </code>
+              <span className="text-sm text-current/70">=</span>
+              <span
+                className={cx(
+                  'rounded px-2 py-0.5 text-sm font-medium',
+                  item.value
+                    ? 'bg-success/20 text-success'
+                    : 'bg-destructive/20 text-destructive',
+                )}
+              >
+                {item.value ? 'true' : 'false'}
+              </span>
+            </motion.div>
+            <motion.div className="ml-auto flex items-center gap-1">
+              <IconButton
+                size="sm"
+                variant="textMuted"
+                color="primary"
+                onClick={onEdit}
+                aria-label="Edit attribute"
+                icon={<PencilIcon />}
+              />
+              <IconButton
+                variant="textMuted"
+                color="destructive"
+                size="sm"
+                onClick={onDelete}
+                icon={<X />}
+                aria-label="Remove attribute"
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
@@ -429,19 +435,18 @@ export function FilterRuleItem({
   );
 }
 
-export const FilterRuleEditor = forwardRef<
-  HTMLDivElement,
-  ArrayFieldEditorProps<FilterRule>
->(function FilterRuleEditor(
-  { item, isEditing, isNewItem, onChange, onCancel },
-  ref,
-) {
+export function FilterRuleEditor({
+  item,
+  isNewItem,
+  onSave,
+  onCancel,
+}: ArrayFieldEditorProps<FilterRule>) {
   const handleSubmit = (values: unknown) => {
     const data = values as Record<string, unknown>;
     const operator = data.operator as FilterOperator;
     const needsValue = !['EXISTS', 'NOT_EXISTS'].includes(operator);
 
-    onChange({
+    onSave({
       id: item?.id ?? crypto.randomUUID(),
       type: data.type as EntityType,
       options: {
@@ -457,16 +462,15 @@ export const FilterRuleEditor = forwardRef<
     return { success: true as const };
   };
 
-  const formId = `filter-rule-form-${item?.id ?? 'new'}`;
+  const formId = `filter-rule-form-${item?._internalId ?? 'new'}`;
 
   return (
     <Dialog
-      ref={ref}
       title={isNewItem ? 'Add Filter Rule' : 'Edit Filter Rule'}
       description="Configure a filter rule to match network entities"
-      open={isEditing}
+      open={!!item}
       closeDialog={onCancel}
-      layoutId={item?.id}
+      layoutId={isNewItem ? undefined : item?._internalId}
       footer={
         <>
           <MotionButton type="button" onClick={onCancel}>
@@ -531,7 +535,7 @@ export const FilterRuleEditor = forwardRef<
       </Form>
     </Dialog>
   );
-});
+}
 
 // ============================================================================
 // Validation Config Item (for ValidationsSchema)
@@ -638,13 +642,12 @@ export function ValidationConfigItem({
   );
 }
 
-export const ValidationConfigEditor = forwardRef<
-  HTMLDivElement,
-  ArrayFieldEditorProps<ValidationConfig>
->(function ValidationConfigEditor(
-  { item, isEditing, isNewItem, onChange, onCancel },
-  ref,
-) {
+export function ValidationConfigEditor({
+  item,
+  isNewItem,
+  onSave,
+  onCancel,
+}: ArrayFieldEditorProps<ValidationConfig>) {
   const handleSubmit = (values: unknown) => {
     const data = values as Record<string, unknown>;
     const config: ValidationConfig = {
@@ -686,20 +689,19 @@ export const ValidationConfigEditor = forwardRef<
       }
     }
 
-    onChange(config);
+    onSave(config);
     return { success: true as const };
   };
 
-  const formId = `validation-config-form-${item?.id ?? 'new'}`;
+  const formId = `validation-config-form-${item?._internalId ?? 'new'}`;
 
   return (
     <Dialog
-      ref={ref}
       title={isNewItem ? 'Add Validation Rules' : 'Edit Validation Rules'}
       description="Configure validation rules for this field"
-      open={isEditing}
+      open={!!item}
       closeDialog={onCancel}
-      layoutId={item?.id}
+      layoutId={isNewItem ? undefined : item?._internalId}
       footer={
         <>
           <MotionButton type="button" onClick={onCancel}>
@@ -841,4 +843,4 @@ export const ValidationConfigEditor = forwardRef<
       </Form>
     </Dialog>
   );
-});
+}

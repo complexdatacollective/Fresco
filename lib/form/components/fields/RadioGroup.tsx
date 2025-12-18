@@ -1,134 +1,36 @@
+'use client';
+
 import { type HTMLAttributes } from 'react';
-import { cva, cx, type VariantProps } from '~/utils/cva';
 import {
-  backgroundStyles,
-  borderStyles,
-  cursorStyles,
-  focusRingStyles,
-  interactiveElementSizes,
-  interactiveElementStyles,
-  labelTextStyles,
-  opacityStyles,
-  sizeStyles,
-  transitionStyles,
-} from './shared';
+  controlLabelVariants,
+  controlVariants,
+  groupSpacingVariants,
+  inputControlVariants,
+  orientationVariants,
+  radioIndicatorVariants,
+  stateVariants,
+} from '~/styles/shared/controlVariants';
+import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 
-// Fieldset wrapper styles
-export const radioGroupVariants = cva({
-  base: cx(
-    'w-full',
-    transitionStyles,
-    // Disabled state styles
-    opacityStyles.disabled,
-    cursorStyles.disabled,
-    borderStyles.base,
-    borderStyles.invalid,
-    backgroundStyles.disabled,
-    backgroundStyles.readOnly,
-  ),
-  variants: {
-    orientation: {
-      vertical: 'flex flex-col gap-3',
-      horizontal: 'flex flex-row flex-wrap gap-4',
-    },
-    size: {
-      sm: cx(sizeStyles.sm.text, sizeStyles.sm.padding),
-      md: cx(sizeStyles.md.text, sizeStyles.md.padding),
-      lg: cx(sizeStyles.lg.text, sizeStyles.lg.padding),
-    },
-    useColumns: {
-      true: cx(
-        'grid gap-3',
-        '@xs:grid-cols-1',
-        '@sm:grid-cols-2',
-        '@md:grid-cols-2',
-        '@lg:grid-cols-2',
-        '@xl:grid-cols-2',
-        '@2xl:grid-cols-3',
-        '@3xl:grid-cols-3',
-        '@5xl:grid-cols-4',
-      ),
-      false: '',
-    },
-  },
-  compoundVariants: [
-    {
-      useColumns: true,
-      class: 'grid! flex-none!', // Override orientation flex styles when useColumns is enabled
-    },
-  ],
-  defaultVariants: {
-    orientation: 'vertical',
-    size: 'md',
-    useColumns: false,
-  },
-});
+const radioGroupWrapperVariants = compose(
+  controlVariants,
+  inputControlVariants,
+  groupSpacingVariants,
+  stateVariants,
+  orientationVariants,
+  cva({
+    base: 'items-start',
+  }),
+);
 
-// Individual radio option styles
-export const radioOptionVariants = cva({
-  base: cx(
-    transitionStyles,
-    'group flex cursor-pointer items-center',
-    // Disabled state
-    'has-[input:disabled]:cursor-not-allowed has-[input:disabled]:opacity-50',
-  ),
+const radioOptionVariants = cva({
+  base: 'group flex cursor-pointer items-center transition-colors duration-200',
   variants: {
     size: {
-      sm: sizeStyles.sm.gap,
-      md: sizeStyles.md.gap,
-      lg: sizeStyles.lg.gap,
-    },
-  },
-  defaultVariants: {
-    size: 'md',
-  },
-});
-
-// Radio input styles
-export const radioInputVariants = cva({
-  base: cx(
-    interactiveElementStyles.base,
-    'rounded-full',
-    transitionStyles,
-    focusRingStyles.base,
-    focusRingStyles.invalid,
-    // Checked state - using background to create the inner circle
-    'checked:border-accent checked:bg-input',
-    'checked:after:bg-accent checked:after:absolute checked:after:rounded-full checked:after:content-[""]',
-    // Invalid state
-    interactiveElementStyles.invalidBorder,
-    interactiveElementStyles.checkedInvalid,
-    // Disabled state
-    cursorStyles.disabled,
-    opacityStyles.disabled,
-    interactiveElementStyles.checkedDisabled,
-  ),
-  variants: {
-    size: {
-      sm: cx(interactiveElementSizes.sm, 'checked:after:inset-[3px]'),
-      md: cx(interactiveElementSizes.md, 'checked:after:inset-[5px]'),
-      lg: cx(interactiveElementSizes.lg, 'checked:after:inset-[7px]'),
-    },
-  },
-  defaultVariants: {
-    size: 'md',
-  },
-});
-
-// Radio label text styles
-export const radioLabelVariants = cva({
-  base: cx(
-    labelTextStyles.base,
-    transitionStyles,
-    cursorStyles.base,
-    // Group states
-    labelTextStyles.disabled,
-  ),
-  variants: {
-    size: {
-      sm: labelTextStyles.size.sm,
-      md: labelTextStyles.size.md,
-      lg: labelTextStyles.size.lg,
+      sm: 'gap-2',
+      md: 'gap-3',
+      lg: 'gap-4',
+      xl: 'gap-5',
     },
   },
   defaultVariants: {
@@ -146,7 +48,7 @@ type RadioGroupProps = Omit<
   HTMLAttributes<HTMLDivElement>,
   'size' | 'onChange'
 > &
-  VariantProps<typeof radioGroupVariants> & {
+  VariantProps<typeof radioGroupWrapperVariants> & {
     id?: string;
     name: string;
     options: RadioOption[];
@@ -154,8 +56,9 @@ type RadioGroupProps = Omit<
     defaultValue?: string | number;
     onChange?: (value: string | number) => void;
     disabled?: boolean;
+    readOnly?: boolean;
     orientation?: 'horizontal' | 'vertical';
-    size?: 'sm' | 'md' | 'lg';
+    size?: 'sm' | 'md' | 'lg' | 'xl';
     useColumns?: boolean;
   };
 
@@ -168,55 +71,78 @@ export function RadioGroupField({
   defaultValue,
   onChange,
   disabled = false,
+  readOnly = false,
   orientation = 'vertical',
   size = 'md',
   useColumns = false,
   ...divProps
 }: RadioGroupProps) {
-  return (
-    <div
-      id={id}
-      className={radioGroupVariants({
-        orientation,
-        size,
-        useColumns,
-        className: `@container ${className ?? ''}`,
-      })}
-      role="radiogroup"
-      {...divProps}
-    >
-      {options.map((option) => {
-        const optionId = `${name}-${option.value}`;
-        const isOptionDisabled = disabled || option.disabled;
-        const isChecked = value === option.value;
+  const isInvalid = divProps['aria-invalid'] === 'true';
 
-        return (
-          <label
-            key={option.value}
-            htmlFor={optionId}
-            className={radioOptionVariants({ size })}
-          >
-            <input
-              type="radio"
-              id={optionId}
-              name={name}
-              value={option.value}
-              checked={isChecked}
-              disabled={isOptionDisabled}
-              onChange={(e) => {
-                if (e.target.checked && !isOptionDisabled) {
-                  onChange?.(option.value);
-                }
-              }}
-              className={radioInputVariants({ size })}
-            />
-            <span className={radioLabelVariants({ size })}>{option.label}</span>
-          </label>
-        );
-      })}
+  const getState = () => {
+    if (disabled) return 'disabled';
+    if (readOnly) return 'readOnly';
+    if (isInvalid) return 'invalid';
+    return 'normal';
+  };
+
+  return (
+    <div className="@container">
+      <div
+        id={id}
+        className={radioGroupWrapperVariants({
+          orientation,
+          size,
+          useColumns,
+          state: getState(),
+          className,
+        })}
+        role="radiogroup"
+        {...divProps}
+      >
+        {options.map((option) => {
+          const optionId = `${name}-${option.value}`;
+          const isOptionDisabled = disabled || option.disabled;
+          const isChecked =
+            value !== undefined ? value === option.value : undefined;
+
+          return (
+            <label
+              key={option.value}
+              htmlFor={optionId}
+              className={radioOptionVariants({ size })}
+            >
+              <input
+                type="radio"
+                id={optionId}
+                name={name}
+                value={option.value}
+                checked={isChecked}
+                defaultChecked={defaultValue === option.value}
+                disabled={isOptionDisabled}
+                readOnly={readOnly}
+                onChange={(e) => {
+                  if (e.target.checked && !isOptionDisabled && !readOnly) {
+                    onChange?.(option.value);
+                  }
+                }}
+                className={radioIndicatorVariants({ size })}
+              />
+              <span
+                className={cx(
+                  controlLabelVariants({ size }),
+                  'cursor-[inherit] transition-colors duration-200',
+                  isOptionDisabled && 'opacity-50',
+                )}
+              >
+                {option.label}
+              </span>
+            </label>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
-// Declare that this component needs fieldset mode
-RadioGroupField.fieldsetMode = true as const;
+export default RadioGroupField;

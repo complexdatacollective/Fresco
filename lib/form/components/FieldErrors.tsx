@@ -12,25 +12,26 @@ export default function FieldErrors({
   errors,
   show,
 }: {
-  id: string;
+  id: string; // Used for aria labels
   errors?: string[];
   show: boolean;
 }) {
   if (!show) return null;
 
   return (
-    <div id={id} className="text-destructive animate-shake text-sm">
+    <div
+      id={id}
+      className="text-destructive animate-shake text-sm"
+      key={errors?.join('|')} // Re-render when errors change, to trigger animation
+    >
       {errors?.length === 1 ? (
         <Paragraph>{errors[0]}</Paragraph>
       ) : (
-        <>
-          <Paragraph>There are multiple problems:</Paragraph>
-          <UnorderedList>
-            {errors?.map((error, index) => (
-              <li key={index}>{error}</li>
-            ))}
-          </UnorderedList>
-        </>
+        <UnorderedList>
+          {errors?.map((error, index) => (
+            <li key={index}>{error}</li>
+          ))}
+        </UnorderedList>
       )}
     </div>
   );

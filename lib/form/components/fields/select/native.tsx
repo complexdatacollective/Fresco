@@ -1,10 +1,23 @@
 import { isEmpty } from 'es-toolkit/compat';
 import { type SelectHTMLAttributes } from 'react';
 import {
-  controlWrapperVariants,
-  selectBackgroundVariants,
+  controlVariants,
+  inlineSpacingVariants,
+  inputControlVariants,
+  nativeSelectVariants,
+  sizeVariants,
+  stateVariants,
 } from '~/styles/shared/controlVariants';
-import { cx, type VariantProps } from '~/utils/cva';
+import { compose, cx, type VariantProps } from '~/utils/cva';
+
+// Wrapper variants for select elements (shared by native and styled)
+export const selectWrapperVariants = compose(
+  sizeVariants,
+  controlVariants,
+  inputControlVariants,
+  inlineSpacingVariants,
+  stateVariants,
+);
 
 export type SelectOption = {
   value: string | number;
@@ -15,7 +28,7 @@ export type SelectProps = Omit<
   SelectHTMLAttributes<HTMLSelectElement>,
   'size' | 'onChange'
 > &
-  VariantProps<typeof controlWrapperVariants> & {
+  VariantProps<typeof selectWrapperVariants> & {
     name: string;
     value?: string | number;
     placeholder?: string;
@@ -28,37 +41,38 @@ export function SelectField({
   options,
   placeholder,
   size,
-  onChange,
-  value,
-  disabled,
   name,
   ...selectProps
 }: SelectProps) {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value;
-    onChange(selectedValue);
+    selectProps.onChange(selectedValue);
   };
 
-  const hasValue = isEmpty(value) === false;
+  const hasValue = isEmpty(selectProps.value) === false;
+
+  const getState = () => {
+    if (selectProps.disabled) return 'disabled';
+    if (selectProps['aria-invalid']) return 'invalid';
+    return 'normal';
+  };
 
   return (
     <div
-      className={controlWrapperVariants({
+      className={selectWrapperVariants({
         size,
-        className: selectProps.className,
+        className: cx('w-full', selectProps.className),
+        state: getState(),
       })}
     >
       <select
         autoComplete="off"
         {...selectProps}
         name={name}
-        value={value ?? ''}
-        disabled={disabled}
         onChange={handleChange}
         className={cx(
-          selectBackgroundVariants,
+          nativeSelectVariants(),
           !hasValue && 'text-input-contrast/50 italic',
-          selectProps.className,
         )}
       >
         {placeholder && (

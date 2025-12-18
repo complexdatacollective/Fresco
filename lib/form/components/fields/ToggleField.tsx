@@ -4,16 +4,16 @@ import { Switch } from '@base-ui/react/switch';
 import { motion } from 'motion/react';
 import { type ComponentPropsWithoutRef } from 'react';
 import {
-  controlContainerVariants,
-  controlStateVariants,
+  controlVariants,
   smallSizeVariants,
+  stateVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 
 const toggleContainerVariants = compose(
-  controlContainerVariants,
+  controlVariants,
   smallSizeVariants,
-  controlStateVariants,
+  stateVariants,
   cva({
     base: cx(
       'bg-accent/50 border-0',

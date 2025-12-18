@@ -1,5 +1,6 @@
 import { PlusIcon } from 'lucide-react';
 import {
+  AnimatePresence,
   type DragControls,
   LayoutGroup,
   motion,
@@ -16,17 +17,25 @@ import {
 import { MotionButton } from '~/components/ui/Button';
 import useDialog from '~/lib/dialogs/useDialog';
 import {
-  useManagedItems,
-  type WithManagedProperties,
-} from '~/lib/form/hooks/useManagedItems';
-import { controlGroupVariants } from '~/styles/shared/controlVariants';
+  controlVariants,
+  groupSpacingVariants,
+  inputControlVariants,
+  stateVariants,
+} from '~/styles/shared/controlVariants';
 import { compose, cva } from '~/utils/cva';
+import {
+  useArrayFieldItems,
+  type WithItemProperties,
+} from './useArrayFieldItems';
 
 // Stable empty array to prevent infinite re-renders when value is undefined
 const EMPTY_ARRAY: never[] = [];
 
 const arrayFieldVariants = compose(
-  controlGroupVariants,
+  controlVariants,
+  groupSpacingVariants,
+  inputControlVariants,
+  stateVariants,
   cva({
     base: 'w-full flex-col text-wrap',
   }),
@@ -47,7 +56,7 @@ export const itemAnimationProps = {
  * The component renders the CONTENT inside a Reorder.Item (not the Reorder.Item itself).
  */
 export type ArrayFieldItemProps<T extends object> = {
-  item: Partial<WithManagedProperties<T>>;
+  item: Partial<WithItemProperties<T>>;
   isNewItem: boolean;
   onChange?: (value: T) => void;
   onCancel?: () => void;
@@ -59,7 +68,7 @@ export type ArrayFieldItemProps<T extends object> = {
 };
 
 export type ArrayFieldEditorProps<T extends object> = {
-  item: WithManagedProperties<T> | undefined; // Undefined when no item is being edited
+  item: WithItemProperties<T> | undefined; // Undefined when no item is being edited
   isNewItem: boolean;
   // Editors get onSave to reflect the fact that this should be called once
   // the user is done editing, rather than onChange which implies continuous updates.
@@ -73,6 +82,8 @@ export type ArrayFieldProps<T extends object> = {
   value?: T[];
   onChange: (value: T[]) => void;
   sortable?: boolean;
+  disabled?: boolean;
+  readOnly?: boolean;
 
   /**
    * Optional function to extract an ID from an item.
@@ -120,7 +131,7 @@ export type ArrayFieldProps<T extends object> = {
 };
 
 type ArrayFieldItemWrapperProps<T extends object> = {
-  item: WithManagedProperties<T>;
+  item: WithItemProperties<T>;
   isSortable: boolean;
   isBeingEdited: boolean;
   isNewItem: boolean;
@@ -160,7 +171,6 @@ const ArrayFieldItemWrapper = forwardRef(function ArrayFieldItemWrapper<
       dragListener={false}
       dragControls={dragControls}
       className={itemVariants()}
-      layout={false}
       {...itemAnimationProps}
     >
       <ItemComponent
@@ -191,6 +201,9 @@ export function ArrayField<T extends object>({
   addButtonLabel = 'Add Item',
   emptyStateMessage = 'No items added yet. Click "Add Item" to get started.',
   confirmDelete = true,
+  disabled,
+  readOnly,
+  ...props
 }: ArrayFieldProps<T>) {
   const { confirm } = useDialog();
 
@@ -205,7 +218,7 @@ export function ArrayField<T extends object>({
     saveEditing,
     removeItem,
     isDraft,
-  } = useManagedItems(value, onChange, { getId });
+  } = useArrayFieldItems(value, onChange, { getId });
 
   // Handle delete with optional confirmation for non-draft items
   const requestDelete = useCallback(
@@ -230,6 +243,13 @@ export function ArrayField<T extends object>({
 
   const id = useId();
 
+  const getState = () => {
+    if (disabled) return 'disabled';
+    if (readOnly) return 'readOnly';
+    if (props['aria-invalid']) return 'invalid';
+    return 'normal';
+  };
+
   return (
     <LayoutGroup id={id}>
       <div className="flex flex-col items-start gap-4">
@@ -239,31 +259,33 @@ export function ArrayField<T extends object>({
           onReorder={setItems}
           className={arrayFieldVariants()}
         >
-          {items.length === 0 && (
-            <motion.li
-              key="no-items"
-              className="text-sm text-current/70"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1, transition: { delay: 0.3 } }}
-              exit={{ opacity: 0 }}
-            >
-              {emptyStateMessage}
-            </motion.li>
-          )}
-          {items.map((item) => (
-            <ArrayFieldItemWrapper
-              key={item._internalId}
-              item={item}
-              isSortable={sortable}
-              onDelete={() => requestDelete(item._internalId)}
-              onEdit={() => startEditing(item._internalId)}
-              onChange={saveEditing}
-              isNewItem={!!item._draft}
-              isBeingEdited={editingItem?._internalId === item._internalId}
-              onCancel={cancelEditing}
-              ItemComponent={ItemComponent}
-            />
-          ))}
+          <AnimatePresence mode="popLayout">
+            {items.length === 0 && (
+              <motion.li
+                key="no-items"
+                className="text-sm text-current/70"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, transition: { delay: 0.3 } }}
+                exit={{ opacity: 0 }}
+              >
+                {emptyStateMessage}
+              </motion.li>
+            )}
+            {items.map((item) => (
+              <ArrayFieldItemWrapper
+                key={item._internalId}
+                item={item}
+                isSortable={sortable}
+                onDelete={() => requestDelete(item._internalId)}
+                onEdit={() => startEditing(item._internalId)}
+                onChange={saveEditing}
+                isNewItem={!!item._draft}
+                isBeingEdited={editingItem?._internalId === item._internalId}
+                onCancel={cancelEditing}
+                ItemComponent={ItemComponent}
+              />
+            ))}
+          </AnimatePresence>
         </Reorder.Group>
         <MotionButton
           key="add-button"
