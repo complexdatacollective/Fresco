@@ -127,7 +127,7 @@ export const stateVariants = cva({
         'bg-input-contrast/5',
       ),
       readOnly: cx('cursor-default', 'bg-input-contrast/10'),
-      invalid: cx('border-destructive border-2'),
+      invalid: cx('border-destructive'),
       normal: '',
     },
   },
@@ -245,77 +245,5 @@ export const radioIndicatorVariants = cva({
   },
   defaultVariants: {
     size: 'md',
-  },
-});
-
-// Variants for boolean field buttons (yes/no style)
-export const booleanButtonVariants = cva({
-  base: cx(
-    'flex flex-1 items-center gap-3',
-    'rounded border-2 px-6 py-3 text-left text-base font-medium',
-    'bg-input border-transparent',
-    'transition-colors duration-200',
-    'disabled:cursor-not-allowed disabled:opacity-50',
-    'focus-visible:ring-accent focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
-  ),
-  variants: {
-    selected: {
-      true: '',
-      false: 'hover:border-accent/30',
-    },
-    positive: {
-      true: '',
-      false: '',
-    },
-  },
-  compoundVariants: [
-    {
-      selected: true,
-      positive: true,
-      class: 'border-success',
-    },
-    {
-      selected: true,
-      positive: false,
-      class: 'border-destructive',
-    },
-  ],
-  defaultVariants: {
-    selected: false,
-    positive: true,
-  },
-});
-
-// Variants for the round indicator inside boolean buttons
-export const booleanIndicatorVariants = cva({
-  base: cx(
-    'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2',
-    'transition-colors duration-200',
-  ),
-  variants: {
-    selected: {
-      true: '',
-      false: 'bg-input border-input-contrast/20',
-    },
-    positive: {
-      true: '',
-      false: '',
-    },
-  },
-  compoundVariants: [
-    {
-      selected: true,
-      positive: true,
-      class: 'bg-success border-success text-success-contrast',
-    },
-    {
-      selected: true,
-      positive: false,
-      class: 'bg-destructive border-destructive text-destructive-contrast',
-    },
-  ],
-  defaultVariants: {
-    selected: false,
-    positive: true,
   },
 });

@@ -36,9 +36,9 @@ const EMPTY_ARRAY: never[] = [];
 
 const arrayFieldVariants = compose(
   controlVariants,
-  stateVariants,
-  groupSpacingVariants,
   inputControlVariants,
+  groupSpacingVariants,
+  stateVariants,
   cva({
     base: 'relative w-full flex-col overflow-hidden text-wrap',
   }),

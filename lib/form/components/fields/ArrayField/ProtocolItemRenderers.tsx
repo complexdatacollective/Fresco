@@ -5,7 +5,6 @@ import {
 import { GripVertical, PencilIcon, Trash2, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
-import { surfaceVariants } from '~/components/layout/Surface';
 import Button, { IconButton, MotionButton } from '~/components/ui/Button';
 import { Dialog } from '~/lib/dialogs/Dialog';
 import { cx } from '~/utils/cva';
@@ -54,10 +53,7 @@ export function NameGeneratorPromptItem({
   return (
     <motion.div
       layoutId={item._internalId}
-      className={cx(
-        'flex w-full items-center gap-2 px-4 py-4',
-        'bg-surface-1 text-surface-1-contrast elevation-low rounded-sm',
-      )}
+      className={cx('flex w-full items-center gap-2')}
     >
       {isSortable && (
         <motion.div
@@ -215,11 +211,7 @@ export function AdditionalAttributeItem({
   return (
     <motion.div
       layout
-      className={cx(
-        surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
-        'min-w-lg',
-        'flex w-full flex-col border p-4',
-      )}
+      className={cx('flex w-full flex-col')}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 0.6 }}

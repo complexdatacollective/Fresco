@@ -1,6 +1,8 @@
 'use client';
 
-import { type HTMLAttributes } from 'react';
+import { Radio } from '@base-ui/react/radio';
+import { RadioGroup, type RadioGroupProps } from '@base-ui/react/radio-group';
+import { motion } from 'motion/react';
 import {
   controlLabelVariants,
   controlVariants,
@@ -8,7 +10,7 @@ import {
   inputControlVariants,
   interactiveStateVariants,
   orientationVariants,
-  radioIndicatorVariants,
+  smallSizeVariants,
   stateVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
@@ -26,19 +28,38 @@ const radioGroupWrapperVariants = compose(
 );
 
 const radioOptionVariants = cva({
-  base: 'group flex cursor-pointer items-center transition-colors duration-200',
+  base: 'group flex items-center transition-colors duration-200',
   variants: {
     size: {
-      sm: 'gap-2',
-      md: 'gap-3',
-      lg: 'gap-4',
-      xl: 'gap-5',
+      sm: 'gap-2 text-sm',
+      md: 'gap-3 text-base',
+      lg: 'gap-4 text-lg',
+      xl: 'gap-5 text-xl',
+    },
+    disabled: {
+      true: 'cursor-not-allowed',
+      false: 'cursor-pointer',
     },
   },
   defaultVariants: {
     size: 'md',
+    disabled: false,
   },
 });
+
+const radioIndicatorVariants = compose(
+  smallSizeVariants,
+  controlVariants,
+  inputControlVariants,
+  stateVariants,
+  cva({
+    base: cx(
+      'flex aspect-square shrink-0 items-center justify-center',
+      'rounded-[0.15em]',
+      'focusable',
+    ),
+  }),
+);
 
 type RadioOption = {
   value: string | number;
@@ -46,22 +67,22 @@ type RadioOption = {
   disabled?: boolean;
 };
 
-type RadioGroupProps = Omit<
-  HTMLAttributes<HTMLDivElement>,
-  'size' | 'onChange'
-> &
+type RadioGroupFieldProps = Omit<RadioGroupProps, 'size' | 'onValueChange'> &
   VariantProps<typeof radioGroupWrapperVariants> & {
-    id?: string;
-    name: string;
-    options: RadioOption[];
-    value?: string | number;
-    defaultValue?: string | number;
-    onChange?: (value: string | number) => void;
-    disabled?: boolean;
-    readOnly?: boolean;
-    orientation?: 'horizontal' | 'vertical';
-    size?: 'sm' | 'md' | 'lg' | 'xl';
-    useColumns?: boolean;
+    'id'?: string;
+    'name': string;
+    'options': RadioOption[];
+    'value'?: string | number;
+    'defaultValue'?: string | number;
+    'onChange'?: (value: string | number) => void;
+    'disabled'?: boolean;
+    'readOnly'?: boolean;
+    'orientation'?: 'horizontal' | 'vertical';
+    'size'?: 'sm' | 'md' | 'lg' | 'xl';
+    'useColumns'?: boolean;
+    'aria-invalid'?: 'true' | 'false' | boolean;
+    'aria-label'?: string;
+    'aria-describedby'?: string;
   };
 
 export function RadioGroupField({
@@ -77,21 +98,37 @@ export function RadioGroupField({
   orientation = 'vertical',
   size = 'md',
   useColumns = false,
-  ...divProps
-}: RadioGroupProps) {
-  const isInvalid = divProps['aria-invalid'] === 'true';
+  ...props
+}: RadioGroupFieldProps) {
+  const isInvalid =
+    props['aria-invalid'] === 'true' || props['aria-invalid'] === true;
 
   const getState = () => {
-    if (disabled) return 'disabled';
-    if (readOnly) return 'readOnly';
-    if (isInvalid) return 'invalid';
-    return 'normal';
+    if (disabled) return 'disabled' as const;
+    if (readOnly) return 'readOnly' as const;
+    if (isInvalid) return 'invalid' as const;
+    return 'normal' as const;
   };
+
+  const handleValueChange = (newValue: unknown) => {
+    if (readOnly) return;
+    onChange?.(newValue as string | number);
+  };
+
+  const stringValue = value === undefined ? undefined : String(value);
+  const stringDefaultValue =
+    defaultValue === undefined ? undefined : String(defaultValue);
 
   return (
     <div className="@container w-full">
-      <div
+      <RadioGroup
         id={id}
+        name={name}
+        value={stringValue}
+        defaultValue={stringDefaultValue}
+        onValueChange={handleValueChange}
+        disabled={disabled}
+        readOnly={readOnly}
         className={radioGroupWrapperVariants({
           orientation,
           size,
@@ -99,37 +136,60 @@ export function RadioGroupField({
           state: getState(),
           className,
         })}
-        role="radiogroup"
-        {...divProps}
+        aria-label={props['aria-label']}
+        aria-describedby={props['aria-describedby']}
+        aria-invalid={isInvalid || undefined}
       >
         {options.map((option) => {
-          const optionId = `${name}-${option.value}`;
           const isOptionDisabled = disabled || option.disabled;
-          const isControlled = onChange !== undefined;
-          const isChecked = value === option.value;
+          const optionValue = String(option.value);
+
+          const getOptionState = () => {
+            if (isOptionDisabled) return 'disabled' as const;
+            if (readOnly) return 'readOnly' as const;
+            return 'normal' as const;
+          };
 
           return (
             <label
-              key={option.value}
-              htmlFor={optionId}
-              className={radioOptionVariants({ size })}
+              key={optionValue}
+              className={radioOptionVariants({
+                size,
+                disabled: isOptionDisabled,
+              })}
             >
-              <input
-                type="radio"
-                id={optionId}
-                name={name}
-                value={option.value}
-                {...(isControlled
-                  ? { checked: isChecked }
-                  : { defaultChecked: defaultValue === option.value })}
+              <Radio.Root
+                value={optionValue}
                 disabled={isOptionDisabled}
-                readOnly={readOnly}
-                onChange={(e) => {
-                  if (e.target.checked && !isOptionDisabled && !readOnly) {
-                    onChange?.(option.value);
-                  }
-                }}
-                className={radioIndicatorVariants({ size })}
+                render={(renderProps, state) => (
+                  <div
+                    {...renderProps}
+                    className={radioIndicatorVariants({
+                      size,
+                      state: getOptionState(),
+                    })}
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="h-full w-full overflow-hidden rounded-[40%] p-[0.1em]"
+                    >
+                      <motion.rect
+                        x="2"
+                        y="2"
+                        width="20"
+                        height="20"
+                        initial={false}
+                        animate={{ scale: state.checked ? 1 : 0 }}
+                        transition={{
+                          type: 'spring',
+                          bounce: 0.3,
+                          duration: state.checked ? 0.3 : 0.15,
+                        }}
+                      />
+                    </svg>
+                  </div>
+                )}
               />
               <span
                 className={cx(
@@ -143,7 +203,7 @@ export function RadioGroupField({
             </label>
           );
         })}
-      </div>
+      </RadioGroup>
     </div>
   );
 }

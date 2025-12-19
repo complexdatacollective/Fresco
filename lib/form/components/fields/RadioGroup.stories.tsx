@@ -20,6 +20,9 @@ const meta = {
     disabled: {
       control: { type: 'boolean' },
     },
+    useColumns: {
+      control: { type: 'boolean' },
+    },
   },
 } satisfies Meta<typeof RadioGroupField>;
 
@@ -107,6 +110,16 @@ export const Invalid: Story = {
     'name': 'invalid',
     options,
     'aria-invalid': 'true',
+    'defaultValue': 'option1',
+  },
+};
+
+export const ReadOnly: Story = {
+  args: {
+    name: 'readonly',
+    options,
+    readOnly: true,
+    defaultValue: 'option2',
   },
 };
 
@@ -143,5 +156,31 @@ export const ManyOptionsHorizontal: Story = {
       label: `Option ${i + 1}`,
     })),
     orientation: 'horizontal',
+  },
+};
+
+export const WithColumns: Story = {
+  args: {
+    name: 'with-columns',
+    options: Array.from({ length: 8 }, (_, i) => ({
+      value: `option${i + 1}`,
+      label: `Option ${i + 1}`,
+    })),
+    useColumns: true,
+  },
+};
+
+export const WithColumnsLongLabels: Story = {
+  args: {
+    name: 'with-columns-long',
+    options: [
+      { value: 'opt1', label: 'First option with a longer description' },
+      { value: 'opt2', label: 'Second option with more text' },
+      { value: 'opt3', label: 'Third option here' },
+      { value: 'opt4', label: 'Fourth option with details' },
+      { value: 'opt5', label: 'Fifth option choice' },
+      { value: 'opt6', label: 'Sixth and final option' },
+    ],
+    useColumns: true,
   },
 };

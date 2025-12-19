@@ -6,7 +6,6 @@ import { type ComponentPropsWithoutRef, forwardRef, useState } from 'react';
 import {
   controlVariants,
   inputControlVariants,
-  interactiveStateVariants,
   smallSizeVariants,
   stateVariants,
 } from '~/styles/shared/controlVariants';
@@ -17,16 +16,15 @@ const checkboxRootVariants = compose(
   controlVariants,
   inputControlVariants,
   stateVariants,
-  interactiveStateVariants,
   cva({
-    base: 'focusable flex aspect-square items-center justify-center',
+    base: 'focusable flex aspect-square items-center justify-center rounded-full',
   }),
 );
 
 const checkboxIndicatorVariants = compose(
-  smallSizeVariants,
+  // smallSizeVariants,
   cva({
-    base: 'focusable',
+    base: '',
   }),
 );
 
@@ -90,11 +88,11 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
               state: getState(),
             })}
           >
-            <div className={checkboxIndicatorVariants({ size })}>
+            <div className={checkboxIndicatorVariants()}>
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
-                className="h-full w-full"
+                className="h-full w-full p-[0.1em]"
                 stroke="currentColor"
                 strokeWidth="3"
               >

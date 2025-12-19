@@ -10,7 +10,7 @@ const meta: Meta<typeof BooleanField> = {
   },
   tags: ['autodocs'],
   argTypes: {
-    value: {
+    'value': {
       control: 'radio',
       options: [true, false, null],
       description: 'Current value of the boolean field',
@@ -19,7 +19,7 @@ const meta: Meta<typeof BooleanField> = {
         defaultValue: { summary: 'null' },
       },
     },
-    disabled: {
+    'disabled': {
       control: 'boolean',
       description: 'Whether the field is disabled',
       table: {
@@ -27,7 +27,15 @@ const meta: Meta<typeof BooleanField> = {
         defaultValue: { summary: 'false' },
       },
     },
-    noReset: {
+    'readOnly': {
+      control: 'boolean',
+      description: 'Whether the field is read-only',
+      table: {
+        type: { summary: 'boolean' },
+        defaultValue: { summary: 'false' },
+      },
+    },
+    'noReset': {
       control: 'boolean',
       description: 'Hide the reset button',
       table: {
@@ -35,7 +43,7 @@ const meta: Meta<typeof BooleanField> = {
         defaultValue: { summary: 'false' },
       },
     },
-    options: {
+    'options': {
       control: 'object',
       description: 'Custom options for yes/no buttons',
       table: {
@@ -46,7 +54,16 @@ const meta: Meta<typeof BooleanField> = {
         },
       },
     },
-    onChange: {
+    'aria-invalid': {
+      control: 'radio',
+      options: [undefined, true, false],
+      description: 'Indicates the field has a validation error',
+      table: {
+        type: { summary: "'true' | 'false' | boolean" },
+        defaultValue: { summary: 'undefined' },
+      },
+    },
+    'onChange': {
       action: 'onChange',
       description: 'Callback when value changes',
       table: {
@@ -56,6 +73,7 @@ const meta: Meta<typeof BooleanField> = {
   },
   args: {
     disabled: false,
+    readOnly: false,
     noReset: false,
     options: [
       {
@@ -102,9 +120,141 @@ export const Default: Story = {
   },
 };
 
-export const Disabled: Story = {
-  args: {
-    value: true,
-    disabled: true,
+export const DisabledWithSelection: Story = {
+  render: () => {
+    return (
+      <div className="w-full max-w-2xl space-y-8">
+        <div>
+          <p className="mb-2 text-sm font-medium">
+            Disabled with Yes selected:
+          </p>
+          <BooleanField
+            value={true}
+            disabled={true}
+            options={[
+              { label: 'Yes', value: true },
+              { label: 'No', value: false },
+            ]}
+          />
+        </div>
+        <div>
+          <p className="mb-2 text-sm font-medium">Disabled with No selected:</p>
+          <BooleanField
+            value={false}
+            disabled={true}
+            options={[
+              { label: 'Yes', value: true },
+              { label: 'No', value: false },
+            ]}
+          />
+        </div>
+        <div>
+          <p className="mb-2 text-sm font-medium">
+            Disabled with no selection:
+          </p>
+          <BooleanField
+            value={null}
+            disabled={true}
+            options={[
+              { label: 'Yes', value: true },
+              { label: 'No', value: false },
+            ]}
+          />
+        </div>
+      </div>
+    );
+  },
+};
+
+export const Invalid: Story = {
+  render: () => {
+    const [value, setValue] = useState<boolean | null>(null);
+
+    return (
+      <div className="w-full max-w-2xl space-y-8">
+        <div>
+          <p className="mb-2 text-sm font-medium">Invalid with no selection:</p>
+          <BooleanField
+            value={value}
+            onChange={setValue}
+            aria-invalid={true}
+            options={[
+              { label: 'Yes', value: true },
+              { label: 'No', value: false },
+            ]}
+          />
+        </div>
+        <div>
+          <p className="mb-2 text-sm font-medium">Invalid with Yes selected:</p>
+          <BooleanField
+            value={true}
+            aria-invalid={true}
+            options={[
+              { label: 'Yes', value: true },
+              { label: 'No', value: false },
+            ]}
+          />
+        </div>
+        <div>
+          <p className="mb-2 text-sm font-medium">Invalid with No selected:</p>
+          <BooleanField
+            value={false}
+            aria-invalid={true}
+            options={[
+              { label: 'Yes', value: true },
+              { label: 'No', value: false },
+            ]}
+          />
+        </div>
+      </div>
+    );
+  },
+};
+
+export const ReadOnly: Story = {
+  render: () => {
+    return (
+      <div className="w-full max-w-2xl space-y-8">
+        <div>
+          <p className="mb-2 text-sm font-medium">
+            Read-only with Yes selected:
+          </p>
+          <BooleanField
+            value={true}
+            readOnly={true}
+            options={[
+              { label: 'Yes', value: true },
+              { label: 'No', value: false },
+            ]}
+          />
+        </div>
+        <div>
+          <p className="mb-2 text-sm font-medium">
+            Read-only with No selected:
+          </p>
+          <BooleanField
+            value={false}
+            readOnly={true}
+            options={[
+              { label: 'Yes', value: true },
+              { label: 'No', value: false },
+            ]}
+          />
+        </div>
+        <div>
+          <p className="mb-2 text-sm font-medium">
+            Read-only with no selection:
+          </p>
+          <BooleanField
+            value={null}
+            readOnly={true}
+            options={[
+              { label: 'Yes', value: true },
+              { label: 'No', value: false },
+            ]}
+          />
+        </div>
+      </div>
+    );
   },
 };

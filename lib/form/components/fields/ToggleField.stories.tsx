@@ -10,7 +10,7 @@ const meta: Meta<typeof ToggleField> = {
   },
   tags: ['autodocs'],
   argTypes: {
-    value: {
+    'value': {
       control: 'boolean',
       description: 'Whether the toggle is checked',
       table: {
@@ -18,7 +18,7 @@ const meta: Meta<typeof ToggleField> = {
         defaultValue: { summary: 'false' },
       },
     },
-    disabled: {
+    'disabled': {
       control: 'boolean',
       description: 'Whether the toggle is disabled',
       table: {
@@ -26,7 +26,7 @@ const meta: Meta<typeof ToggleField> = {
         defaultValue: { summary: 'false' },
       },
     },
-    readOnly: {
+    'readOnly': {
       control: 'boolean',
       description: 'Whether the toggle is read-only',
       table: {
@@ -34,7 +34,16 @@ const meta: Meta<typeof ToggleField> = {
         defaultValue: { summary: 'false' },
       },
     },
-    size: {
+    'aria-invalid': {
+      control: 'radio',
+      options: [undefined, true, false],
+      description: 'Indicates the field has a validation error',
+      table: {
+        type: { summary: "'true' | 'false' | boolean" },
+        defaultValue: { summary: 'undefined' },
+      },
+    },
+    'size': {
       control: 'select',
       options: ['sm', 'md', 'lg', 'xl'],
       description: 'Size variant of the toggle',
@@ -43,7 +52,7 @@ const meta: Meta<typeof ToggleField> = {
         defaultValue: { summary: 'md' },
       },
     },
-    onChange: {
+    'onChange': {
       action: 'onChange',
       description: 'Callback when toggle state changes',
       table: {
@@ -162,23 +171,33 @@ export const ReadOnly: Story = {
   ),
 };
 
-export const ErrorState: Story = {
-  name: 'Error State',
+export const Invalid: Story = {
+  name: 'Invalid State',
   render: () => {
-    const [value, setValue] = useState(false);
+    const [offValue, setOffValue] = useState(false);
+    const [onValue, setOnValue] = useState(true);
 
     return (
       <div className="flex flex-col gap-6">
         <div className="flex items-center gap-4">
-          <span className="text-muted-foreground w-24 text-sm">With Error</span>
-          <div className="group" data-dirty="true" data-invalid="true">
-            <ToggleField
-              value={value}
-              onChange={setValue}
-              aria-label="Toggle with error"
-              aria-invalid="true"
-            />
-          </div>
+          <span className="text-muted-foreground w-24 text-sm">
+            Invalid Off
+          </span>
+          <ToggleField
+            value={offValue}
+            onChange={setOffValue}
+            aria-label="Invalid toggle off"
+            aria-invalid={true}
+          />
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="text-muted-foreground w-24 text-sm">Invalid On</span>
+          <ToggleField
+            value={onValue}
+            onChange={setOnValue}
+            aria-label="Invalid toggle on"
+            aria-invalid={true}
+          />
         </div>
       </div>
     );
@@ -188,18 +207,25 @@ export const ErrorState: Story = {
 export const AllStates: Story = {
   name: 'All States',
   render: () => {
-    const [normalValue, setNormalValue] = useState(true);
-    const [errorValue, setErrorValue] = useState(false);
+    const [normalOff, setNormalOff] = useState(false);
+    const [normalOn, setNormalOn] = useState(true);
+    const [invalidOff, setInvalidOff] = useState(false);
+    const [invalidOn, setInvalidOn] = useState(true);
 
     return (
       <div className="flex flex-col gap-8">
         <div>
           <h3 className="mb-4 text-sm font-medium">Normal</h3>
-          <div className="flex items-center gap-4">
+          <div className="flex gap-4">
             <ToggleField
-              value={normalValue}
-              onChange={setNormalValue}
-              aria-label="Normal toggle"
+              value={normalOff}
+              onChange={setNormalOff}
+              aria-label="Normal toggle off"
+            />
+            <ToggleField
+              value={normalOn}
+              onChange={setNormalOn}
+              aria-label="Normal toggle on"
             />
           </div>
         </div>
@@ -237,17 +263,19 @@ export const AllStates: Story = {
         </div>
 
         <div>
-          <h3 className="mb-4 text-sm font-medium">Error</h3>
-          <div
-            className="group inline-block"
-            data-dirty="true"
-            data-invalid="true"
-          >
+          <h3 className="mb-4 text-sm font-medium">Invalid</h3>
+          <div className="flex gap-4">
             <ToggleField
-              value={errorValue}
-              onChange={setErrorValue}
-              aria-label="Toggle with error"
-              aria-invalid="true"
+              value={invalidOff}
+              onChange={setInvalidOff}
+              aria-label="Invalid toggle off"
+              aria-invalid={true}
+            />
+            <ToggleField
+              value={invalidOn}
+              onChange={setInvalidOn}
+              aria-label="Invalid toggle on"
+              aria-invalid={true}
             />
           </div>
         </div>
