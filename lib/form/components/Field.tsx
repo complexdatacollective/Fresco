@@ -108,7 +108,7 @@ export type FieldOwnProps<C extends React.ComponentType<any>> = {
   name: string;
   label: string;
   hint?: ReactNode;
-  initialValue?: FieldValue;
+  initialValue?: ExtractValue<C>;
   showValidationHints?: boolean;
   /**
    * Context required for context-dependent validations like unique, sameAs, etc.

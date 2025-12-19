@@ -293,14 +293,16 @@ function TagInlineItem({
       <div className="ml-auto flex items-center gap-1">
         <IconButton
           size="sm"
-          variant="textMuted"
+          variant="text"
+          className="text-current"
           color="primary"
           onClick={onEdit}
           aria-label="Edit item"
           icon={<PencilIcon />}
         />
         <IconButton
-          variant="textMuted"
+          variant="text"
+          className="text-current"
           color="destructive"
           size="sm"
           onClick={onDelete}
@@ -413,14 +415,16 @@ function ContactDisplayItem({
       <div className="ml-auto flex items-center gap-1">
         <IconButton
           size="sm"
-          variant="textMuted"
+          variant="text"
+          className="text-current"
           color="primary"
           onClick={onEdit}
           aria-label="Edit contact"
           icon={<PencilIcon />}
         />
         <IconButton
-          variant="textMuted"
+          variant="text"
+          className="text-current"
           color="destructive"
           size="sm"
           onClick={onDelete}
@@ -634,7 +638,8 @@ function DisplayOnlyItem({
       )}
       <div className="flex-1">{item.label}</div>
       <IconButton
-        variant="textMuted"
+        variant="text"
+        className="text-current"
         color="destructive"
         size="sm"
         onClick={onDelete}

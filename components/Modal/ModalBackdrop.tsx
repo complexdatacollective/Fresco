@@ -1,6 +1,15 @@
 import { Dialog } from '@base-ui/react/dialog';
 import { cx } from 'cva';
-import { motion } from 'motion/react';
+import { motion, type Variants } from 'motion/react';
+
+const backdropVariants: Variants = {
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: { delay: 0.2, duration: 0.5 },
+  },
+  exit: { opacity: 0 },
+};
 
 /**
  * A simple backdrop component for modals and dialogs using Base-UI's Dialog
@@ -11,14 +20,10 @@ export function ModalBackdrop(props: Dialog.Backdrop.Props) {
     <Dialog.Backdrop
       render={
         <motion.div
-          initial={{
-            opacity: 0,
-          }}
-          animate={{
-            opacity: 1,
-            transition: { delay: 0.2, duration: 0.5 },
-          }}
-          exit={{ opacity: 0 }}
+          variants={backdropVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
           className={cx(
             'fixed inset-0',
             'flex items-center justify-center',

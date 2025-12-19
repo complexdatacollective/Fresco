@@ -92,14 +92,16 @@ export function SimpleInlineItem({
       <motion.div layout className="ml-auto flex items-center gap-1">
         <IconButton
           size="sm"
-          variant="textMuted"
+          variant="text"
+          className="text-current"
           color="primary"
           onClick={onEdit}
           aria-label="Edit item"
           icon={<PencilIcon />}
         />
         <IconButton
-          variant="textMuted"
+          variant="text"
+          className="text-current"
           color="destructive"
           size="sm"
           onClick={onDelete}
@@ -139,14 +141,16 @@ export function SimpleItem({
       <motion.div layout className="ml-auto flex items-center gap-1">
         <IconButton
           size="sm"
-          variant="textMuted"
+          variant="text"
+          className="text-current"
           color="primary"
           onClick={onEdit}
           aria-label="Edit item"
           icon={<PencilIcon />}
         />
         <IconButton
-          variant="textMuted"
+          variant="text"
+          className="text-current"
           color="destructive"
           size="sm"
           onClick={onDelete}
@@ -203,14 +207,16 @@ export function PromptItem({
       >
         <IconButton
           size="sm"
-          variant="textMuted"
+          variant="text"
+          className="text-current"
           color="primary"
           onClick={onEdit}
           aria-label="Edit item"
           icon={<PencilIcon />}
         />
         <IconButton
-          variant="textMuted"
+          variant="text"
+          className="text-current"
           color="destructive"
           size="sm"
           onClick={onDelete}

@@ -35,7 +35,7 @@ const meta = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'outline', 'text', 'textMuted', 'dashed'],
+      options: ['default', 'outline', 'text', 'dashed', 'link'],
     },
     color: {
       control: 'select',
@@ -99,11 +99,11 @@ export const Variants: Story = {
         <Button {...args} variant="text">
           Text
         </Button>
-        <Button {...args} variant="textMuted">
-          Text Muted
-        </Button>
         <Button {...args} variant="dashed">
           Dashed
+        </Button>
+        <Button {...args} variant="link">
+          Link
         </Button>
       </div>
     </div>
@@ -198,11 +198,11 @@ export const Icons: Story = {
           <Button icon={<Check />} variant="text">
             Text
           </Button>
-          <Button icon={<Check />} variant="textMuted">
-            Text Muted
-          </Button>
           <Button icon={<Check />} variant="dashed">
             Dashed
+          </Button>
+          <Button icon={<Check />} variant="link">
+            Link
           </Button>
         </div>
       </div>
@@ -266,10 +266,10 @@ export const DisabledStates: Story = {
         Text
       </span>
       <span className="text-center text-xs font-medium text-current/70">
-        Text Muted
+        Dashed
       </span>
       <span className="text-center text-xs font-medium text-current/70">
-        Dashed
+        Link
       </span>
       {BUTTON_COLORS.map((color) => (
         <Fragment key={color}>
@@ -283,11 +283,11 @@ export const DisabledStates: Story = {
           <Button variant="text" color={color} disabled>
             Text
           </Button>
-          <Button variant="textMuted" color={color} disabled>
-            Text Muted
-          </Button>
           <Button variant="dashed" color={color} disabled>
             Dashed
+          </Button>
+          <Button variant="link" color={color} disabled>
+            Link
           </Button>
         </Fragment>
       ))}
@@ -343,10 +343,10 @@ export const ColorVariantCombinations: Story = {
         Text
       </span>
       <span className="text-center text-xs font-medium text-current/70">
-        Text Muted
+        Dashed
       </span>
       <span className="text-center text-xs font-medium text-current/70">
-        Dashed
+        Link
       </span>
       <span className="text-center text-xs font-medium text-current/70">
         Disabled
@@ -363,17 +363,110 @@ export const ColorVariantCombinations: Story = {
           <Button variant="text" color={color}>
             Text
           </Button>
-          <Button variant="textMuted" color={color}>
-            Text Muted
-          </Button>
           <Button variant="dashed" color={color}>
             Dashed
+          </Button>
+          <Button variant="link" color={color}>
+            Link
           </Button>
           <Button variant="default" color={color} disabled>
             Disabled
           </Button>
         </Fragment>
       ))}
+    </div>
+  ),
+};
+
+export const LinkVariant: Story = {
+  render: () => (
+    <div className="flex flex-col gap-8">
+      <div>
+        <h3 className="mb-4 text-lg font-semibold">Link Variant</h3>
+        <p className="text-text/70 mb-6 text-sm">
+          The link variant renders a button that visually appears like an anchor
+          tag, with an underline on hover. Useful for inline actions that should
+          look like text links.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
+          <h4 className="text-sm font-semibold">Colors</h4>
+          <div className="flex flex-wrap items-center gap-4">
+            <Button variant="link" color="default">
+              Default Link
+            </Button>
+            <Button variant="link" color="primary">
+              Primary Link
+            </Button>
+            <Button variant="link" color="secondary">
+              Secondary Link
+            </Button>
+            <Button variant="link" color="destructive">
+              Destructive Link
+            </Button>
+            <Button variant="link" color="success">
+              Success Link
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <h4 className="text-sm font-semibold">Sizes</h4>
+          <div className="flex flex-wrap items-center gap-4">
+            <Button variant="link" size="xs">
+              Extra Small
+            </Button>
+            <Button variant="link" size="sm">
+              Small
+            </Button>
+            <Button variant="link" size="md">
+              Medium
+            </Button>
+            <Button variant="link" size="lg">
+              Large
+            </Button>
+            <Button variant="link" size="xl">
+              Extra Large
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <h4 className="text-sm font-semibold">With Icons</h4>
+          <div className="flex flex-wrap items-center gap-4">
+            <Button variant="link" icon={<Download />}>
+              Download
+            </Button>
+            <Button variant="link" icon={<ChevronRight />} iconPosition="right">
+              Learn more
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <h4 className="text-sm font-semibold">Inline Usage</h4>
+          <p className="text-text/70 text-sm">
+            You can use a{' '}
+            <Button variant="link" color="primary" size="sm">
+              link button
+            </Button>{' '}
+            inline with text to create clickable actions that blend with the
+            surrounding content.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <h4 className="text-sm font-semibold">States</h4>
+          <div className="flex flex-wrap items-center gap-4">
+            <Button variant="link">Normal</Button>
+            <Button variant="link" disabled>
+              Disabled
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   ),
 };
@@ -410,8 +503,8 @@ export const AdaptiveToContext: Story = {
           <Button variant="text" color="dynamic">
             Text
           </Button>
-          <Button variant="textMuted" color="dynamic">
-            Text Muted
+          <Button variant="link" color="dynamic">
+            Link
           </Button>
         </div>
 
@@ -429,8 +522,8 @@ export const AdaptiveToContext: Story = {
           <Button variant="text" color="dynamic">
             Text
           </Button>
-          <Button variant="textMuted" color="dynamic">
-            Text Muted
+          <Button variant="link" color="dynamic">
+            Link
           </Button>
         </div>
 
@@ -448,8 +541,8 @@ export const AdaptiveToContext: Story = {
           <Button variant="text" color="dynamic">
             Text
           </Button>
-          <Button variant="textMuted" color="dynamic">
-            Text Muted
+          <Button variant="link" color="dynamic">
+            Link
           </Button>
         </div>
 
@@ -467,8 +560,8 @@ export const AdaptiveToContext: Story = {
           <Button variant="text" color="dynamic">
             Text
           </Button>
-          <Button variant="textMuted" color="dynamic">
-            Text Muted
+          <Button variant="link" color="dynamic">
+            Link
           </Button>
         </div>
 
@@ -486,8 +579,8 @@ export const AdaptiveToContext: Story = {
           <Button variant="text" color="dynamic">
             Text
           </Button>
-          <Button variant="textMuted" color="dynamic">
-            Text Muted
+          <Button variant="link" color="dynamic">
+            Link
           </Button>
         </div>
 
@@ -505,8 +598,8 @@ export const AdaptiveToContext: Story = {
           <Button variant="text" color="dynamic">
             Text
           </Button>
-          <Button variant="textMuted" color="dynamic">
-            Text Muted
+          <Button variant="link" color="dynamic">
+            Link
           </Button>
         </div>
 
@@ -524,8 +617,8 @@ export const AdaptiveToContext: Story = {
           <Button variant="text" color="dynamic">
             Text
           </Button>
-          <Button variant="textMuted" color="dynamic">
-            Text Muted
+          <Button variant="link" color="dynamic">
+            Link
           </Button>
         </div>
       </div>

@@ -12,18 +12,12 @@ import { type ComponentProps } from 'react';
  * All animation states include opacity for Base-UI's animation detection.
  */
 export const defaultPopupAnimation = {
-  initial: { opacity: 0, y: '-10%', scale: 1.1 },
+  initial: { opacity: 0, y: '-10%', scale: 1.2 },
   animate: {
     opacity: 1,
     y: 0,
     scale: 1,
     filter: 'blur(0px)',
-    transition: {
-      type: 'spring',
-      stiffness: 300,
-      damping: 20,
-      when: 'beforeChildren',
-    },
   },
   exit: {
     opacity: 0,
@@ -97,13 +91,14 @@ export default function ModalPopup({
 
   // Determine animation: layoutId gets minimal opacity so that base-ui detects it,
   // custom props used as-is, otherwise default
+  // Note: do NOT use a layout transition here, as child elements inherit it,
+  // and it ends up looking bad.
   const animation = hasLayoutId
-    ? {
+    ? ({
         initial: { opacity: 0.9999 },
         animate: { opacity: 1 },
         exit: { opacity: 0.9999 },
-        transition: { layout: { type: 'spring', stiffness: 300, damping: 25 } }, // Give layout transitions a subtle spring feel
-      }
+      } as const)
     : hasAnimationProps
       ? {}
       : {
@@ -121,6 +116,9 @@ export default function ModalPopup({
           variants={defaultPopupAnimation}
           {...props}
           {...animation}
+          // Even though the dialog uses createPortal, it will still potentially
+          // inherit motion settings from parents. Prevent that here.
+          inherit={false}
         >
           {children}
         </motion.div>

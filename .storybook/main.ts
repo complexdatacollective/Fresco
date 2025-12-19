@@ -16,7 +16,10 @@ const config: StorybookConfig = {
       },
     },
   },
-  staticDirs: ['../public'],
+  staticDirs: [
+    '../public',
+    { from: '../styles/themes', to: '/styles/themes' },
+  ],
   typescript: {
     check: false,
     // reactDocgen: 'react-docgen',

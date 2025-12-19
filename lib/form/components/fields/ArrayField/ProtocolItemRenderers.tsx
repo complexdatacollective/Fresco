@@ -93,14 +93,16 @@ export function NameGeneratorPromptItem({
       >
         <IconButton
           size="sm"
-          variant="textMuted"
+          variant="text"
+          className="text-current"
           color="default"
           onClick={onEdit}
           aria-label="Edit prompt"
           icon={<PencilIcon />}
         />
         <IconButton
-          variant="textMuted"
+          variant="text"
+          className="text-current"
           color="destructive"
           size="sm"
           onClick={onDelete}
@@ -300,14 +302,16 @@ export function AdditionalAttributeItem({
             <motion.div className="ml-auto flex items-center gap-1">
               <IconButton
                 size="sm"
-                variant="textMuted"
+                variant="text"
+                className="text-current"
                 color="primary"
                 onClick={onEdit}
                 aria-label="Edit attribute"
                 icon={<PencilIcon />}
               />
               <IconButton
-                variant="textMuted"
+                variant="text"
+                className="text-current"
                 color="destructive"
                 size="sm"
                 onClick={onDelete}
@@ -417,14 +421,16 @@ export function FilterRuleItem({
       <motion.div layout className="ml-auto flex items-center gap-1">
         <IconButton
           size="sm"
-          variant="textMuted"
+          variant="text"
+          className="text-current"
           color="primary"
           onClick={onEdit}
           aria-label="Edit rule"
           icon={<PencilIcon />}
         />
         <IconButton
-          variant="textMuted"
+          variant="text"
+          className="text-current"
           color="destructive"
           size="sm"
           onClick={onDelete}
@@ -622,14 +628,16 @@ export function ValidationConfigItem({
       <motion.div layout className="ml-auto flex items-center gap-1">
         <IconButton
           size="sm"
-          variant="textMuted"
+          variant="text"
+          className="text-current"
           color="primary"
           onClick={onEdit}
           aria-label="Edit validation"
           icon={<PencilIcon />}
         />
         <IconButton
-          variant="textMuted"
+          variant="text"
+          className="text-current"
           color="destructive"
           size="sm"
           onClick={onDelete}

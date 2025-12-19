@@ -29,10 +29,9 @@ const buttonSpecificVariants = cva({
       outline:
         'border-2 border-(--component-text) text-(--component-text) hover:enabled:bg-(--component-text) hover:enabled:text-(--component-bg)',
       text: 'text-(--component-text) hover:enabled:bg-(--component-text) hover:enabled:text-(--component-bg)',
-      textMuted:
-        'text-current hover:enabled:bg-(--component-text) hover:enabled:text-(--component-bg)',
       dashed:
         'border-2 border-dashed border-(--component-text) text-(--component-text) hover:enabled:bg-(--component-text) hover:enabled:text-(--component-bg)',
+      link: 'elevation-none hover:elevation-none! text-link h-auto! border-0! p-0! underline-offset-4 hover:translate-none! hover:enabled:underline',
     },
     color: {
       default:
@@ -79,7 +78,7 @@ const buttonSpecificVariants = cva({
       className: 'border-current',
     },
     {
-      variant: ['text', 'textMuted'],
+      variant: ['text', 'link'],
       className: 'elevation-none',
     },
   ],
