@@ -20,7 +20,6 @@ function FormInner(props: FormProps) {
   const { formProps, formErrors } = useForm({
     onSubmit,
     onSubmitInvalid: (errors) => {
-      console.error('Form submission failed:', errors);
       focusFirstError(errors);
     },
   });

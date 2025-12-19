@@ -80,7 +80,7 @@ export type FormState = {
 
 export type FieldConfig = {
   name: string;
-  initialValue?: FieldValue;
+  initialValue?: unknown;
   validation?: FieldValidation;
 };
 

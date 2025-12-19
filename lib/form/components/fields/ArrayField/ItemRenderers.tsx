@@ -3,10 +3,8 @@ import { GripVertical, PencilIcon, X } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import type z from 'zod';
-import { surfaceVariants } from '~/components/layout/Surface';
-import Button, { IconButton, MotionButton } from '~/components/ui/Button';
+import { IconButton, MotionButton } from '~/components/ui/Button';
 import { Dialog } from '~/lib/dialogs/Dialog';
-import { cx } from '~/utils/cva';
 import Field from '../../Field';
 import Form from '../../Form';
 import SubmitButton from '../../SubmitButton';
@@ -44,52 +42,56 @@ export function SimpleInlineItem({
 
   if (isBeingEdited) {
     return (
-      <motion.div
-        layout
-        className={cx(
-          surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
-          'flex w-full flex-col gap-2 border p-4',
-        )}
-      >
-        <InputField value={label} onChange={(e) => setLabel(e.target.value)} />
-        <div className="mt-2 flex gap-2">
-          <Button
+      <div className="flex gap-2">
+        <InputField
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          placeholder="Enter a label..."
+          minLength={2}
+          // Enter key saves
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              onChange?.({ id: item.id ?? '', label });
+            }
+            // Escape key cancels
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              onCancel();
+            }
+          }}
+          autoFocus
+        />
+        <div className="flex gap-2">
+          <IconButton
             color="primary"
             onClick={() => onChange?.({ id: item.id ?? '', label })}
             disabled={label.trim() === ''}
             icon={<PencilIcon />}
-            size="sm"
-          >
-            {isNewItem ? 'Add' : 'Save'}
-          </Button>
-          <Button
+            aria-label={isNewItem ? 'Add item' : 'Save changes'}
+          />
+          <IconButton
             onClick={onCancel}
             aria-label="Cancel editing"
             icon={<X />}
-            size="sm"
-          >
-            Cancel
-          </Button>
+          />
         </div>
-      </motion.div>
+      </div>
     );
   }
 
   return (
-    <div className="border-b-input-contrast/10 flex w-full items-center gap-2 border-b px-2 py-1 last:border-b-0">
+    <div className="flex w-full items-center gap-2">
       {isSortable && (
-        <motion.div
-          layout
+        <div
           onPointerDown={(e) => dragControls.start(e)}
           className="touch-none"
         >
           <GripVertical className="h-4 w-4 cursor-grab" />
-        </motion.div>
+        </div>
       )}
-      <motion.div layout className="flex-1">
-        {item.label}
-      </motion.div>
-      <motion.div layout className="ml-auto flex items-center gap-1">
+      <div className="flex-1">{item.label}</div>
+      <div className="ml-auto flex items-center gap-1">
         <IconButton
           size="sm"
           variant="text"
@@ -108,7 +110,7 @@ export function SimpleInlineItem({
           icon={<X />}
           aria-label="Remove item"
         />
-      </motion.div>
+      </div>
     </div>
   );
 }

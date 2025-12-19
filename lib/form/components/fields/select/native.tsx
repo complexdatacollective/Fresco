@@ -71,6 +71,7 @@ export function SelectField({
         name={name}
         onChange={handleChange}
         className={cx(
+          'w-full',
           nativeSelectVariants(),
           !hasValue && 'text-input-contrast/50 italic',
         )}

@@ -143,7 +143,7 @@ export function ToggleButtonGroupField({
   };
 
   return (
-    <div className="@container">
+    <div className="@container w-full">
       <fieldset
         id={id}
         {...fieldsetProps}

@@ -54,7 +54,10 @@ export function NameGeneratorPromptItem({
   return (
     <motion.div
       layoutId={item._internalId}
-      className={cx('flex w-full items-center gap-2 px-4 py-4')}
+      className={cx(
+        'flex w-full items-center gap-2 px-4 py-4',
+        'bg-surface-1 text-surface-1-contrast elevation-low rounded-sm',
+      )}
     >
       {isSortable && (
         <motion.div
@@ -85,7 +88,6 @@ export function NameGeneratorPromptItem({
         )}
       </motion.div>
       <motion.div
-        layout
         className="ml-auto flex items-center gap-1"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -219,17 +221,12 @@ export function AdditionalAttributeItem({
         'flex w-full flex-col border p-4',
       )}
       initial={{ opacity: 0 }}
-      animate={
-        isBeingEdited
-          ? { opacity: 1, backgroundColor: '#e0e0e0' }
-          : { opacity: 1, backgroundColor: '#ff0000' }
-      }
+      animate={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 0.6 }}
-      // transition={{ duration: 2 }}
     >
       <AnimatePresence mode="wait">
         {isBeingEdited ? (
-          <motion.div key="edit" className="flex w-full flex-col gap-2">
+          <motion.div layout key="edit" className="flex w-full flex-col gap-2">
             <UnconnectedField
               component={SelectField}
               label="Variable"
@@ -272,6 +269,7 @@ export function AdditionalAttributeItem({
           </motion.div>
         ) : (
           <motion.div
+            layout
             key="view"
             className="flex w-full items-center gap-2 px-2 py-2"
           >

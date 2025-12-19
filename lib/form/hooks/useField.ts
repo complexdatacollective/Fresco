@@ -73,7 +73,7 @@ export type UseFieldResult = {
 
 export type UseFieldConfig = {
   name: string;
-  initialValue?: FieldValue;
+  initialValue?: unknown;
   showValidationHints?: boolean;
   /**
    * Context required for context-dependent validations like unique, sameAs, etc.
@@ -108,7 +108,8 @@ export function useField(config: UseFieldConfig): UseFieldResult {
 
   // Memoize the validation summary (only compute if showValidationHints is true)
   const validationSummary = useMemo(
-    () => (showValidationHints ? makeValidationHints(propsWithContext) : undefined),
+    () =>
+      showValidationHints ? makeValidationHints(propsWithContext) : undefined,
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [showValidationHints, validationPropsJson, validationContext],
   );

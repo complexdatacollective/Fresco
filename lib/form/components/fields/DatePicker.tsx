@@ -114,7 +114,7 @@ export function DatePickerField({
 
   if (resolutionType === 'month') {
     return (
-      <div className="flex gap-2">
+      <div className="flex w-full gap-2">
         <SelectField
           size="md"
           name={`${name ?? 'date'}-year`}

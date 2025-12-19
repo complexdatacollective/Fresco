@@ -17,6 +17,9 @@ const inputWrapperVariants = compose(
   inlineSpacingVariants,
   proportionalLucideIconVariants,
   stateVariants,
+  cva({
+    base: 'w-full',
+  }),
 );
 
 // Input element when used with wrapper (prefix/suffix)

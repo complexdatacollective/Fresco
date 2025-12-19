@@ -87,7 +87,7 @@ export function RadioGroupField({
   };
 
   return (
-    <div className="@container">
+    <div className="@container w-full">
       <div
         id={id}
         className={radioGroupWrapperVariants({

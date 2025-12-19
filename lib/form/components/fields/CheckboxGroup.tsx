@@ -87,7 +87,7 @@ export function CheckboxGroupField({
   };
 
   return (
-    <div className="@container">
+    <div className="@container w-full">
       <fieldset
         id={id}
         {...fieldsetProps}

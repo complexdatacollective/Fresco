@@ -6,7 +6,6 @@ import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { action } from 'storybook/actions';
 import { useArgs } from 'storybook/preview-api';
-import { surfaceVariants } from '~/components/layout/Surface';
 import { Button, IconButton, MotionButton } from '~/components/ui/Button';
 import { Dialog } from '~/lib/dialogs/Dialog';
 import Field from '~/lib/form/components/Field';
@@ -51,7 +50,7 @@ ArrayField manages arrays of items with support for:
 - **Drag-and-drop reordering**: Enable with \`sortable\` prop
 - **Draft items**: New items are drafts until saved
 
-## Two Editing Patterns
+## Three Editing Patterns
 
 ### 1. Inline Editing (No editorComponent)
 The \`itemComponent\` handles both display and edit modes using \`isBeingEdited\`.
@@ -60,6 +59,10 @@ When editing, call \`onChange\` to save and exit edit mode.
 ### 2. Dialog Editing (With editorComponent)
 The \`itemComponent\` only displays items. A separate \`editorComponent\` receives
 \`item\`, \`isNewItem\`, \`onSave\`, and \`onCancel\` to handle editing in a dialog.
+### 3. Always editing (always display editing UI)
+For simple cases, the \`itemComponent\` can always show editing UI without
+needing to call \`onEdit\`. Useful for lists where all items are edited
+immediately upon creation.
         `,
       },
     },
@@ -107,7 +110,7 @@ The \`itemComponent\` only displays items. A separate \`editorComponent\` receiv
   },
   decorators: [
     (Story) => (
-      <div className="w-96">
+      <div className="w-lg">
         <Story />
       </div>
     ),
@@ -217,13 +220,7 @@ function TagInlineItem({
   // Edit mode
   if (isBeingEdited) {
     return (
-      <motion.div
-        layout
-        className={cx(
-          surfaceVariants({ level: 2, spacing: 'sm', elevation: 'none' }),
-          'flex w-full flex-col gap-4 border p-4',
-        )}
-      >
+      <motion.div layout className={cx('flex w-full flex-col gap-4 p-4')}>
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium">Label</label>
           <InputField

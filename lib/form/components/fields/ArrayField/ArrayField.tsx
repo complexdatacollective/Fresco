@@ -8,21 +8,22 @@ import {
   useDragControls,
 } from 'motion/react';
 import {
+  type ComponentProps,
   type ComponentType,
   forwardRef,
   type Ref,
   useCallback,
   useId,
 } from 'react';
+import { surfaceVariants } from '~/components/layout/Surface';
 import { MotionButton } from '~/components/ui/Button';
 import useDialog from '~/lib/dialogs/useDialog';
 import {
   controlVariants,
   groupSpacingVariants,
   inputControlVariants,
-  stateVariants,
 } from '~/styles/shared/controlVariants';
-import { compose, cva } from '~/utils/cva';
+import { compose, cva, cx } from '~/utils/cva';
 import {
   useArrayFieldItems,
   type WithItemProperties,
@@ -31,11 +32,33 @@ import {
 // Stable empty array to prevent infinite re-renders when value is undefined
 const EMPTY_ARRAY: never[] = [];
 
+// Custom state variants without hover/focus effects (items handle their own focus)
+const arrayFieldStateVariants = cva({
+  base: cx(
+    'transition-colors duration-200',
+    'border-input-contrast/10 border-2',
+  ),
+  variants: {
+    state: {
+      disabled: cx(
+        'pointer-events-none cursor-not-allowed',
+        'bg-input-contrast/5',
+      ),
+      readOnly: cx('cursor-default', 'bg-input-contrast/10'),
+      invalid: 'border-destructive',
+      normal: '',
+    },
+  },
+  defaultVariants: {
+    state: 'normal',
+  },
+});
+
 const arrayFieldVariants = compose(
   controlVariants,
   groupSpacingVariants,
   inputControlVariants,
-  stateVariants,
+  arrayFieldStateVariants,
   cva({
     base: 'w-full flex-col text-wrap',
   }),
@@ -58,8 +81,8 @@ export const itemAnimationProps = {
 export type ArrayFieldItemProps<T extends object> = {
   item: Partial<WithItemProperties<T>>;
   isNewItem: boolean;
-  onChange?: (value: T) => void;
-  onCancel?: () => void;
+  onChange: (value: T) => void;
+  onCancel: () => void;
   onDelete: () => void;
   onEdit: () => void;
   isSortable: boolean;
@@ -76,7 +99,9 @@ export type ArrayFieldEditorProps<T extends object> = {
   onCancel: () => void;
 };
 
-export type ArrayFieldProps<T extends object> = {
+export type ArrayFieldProps<T extends object> = ComponentProps<
+  typeof Reorder.Group
+> & {
   id?: string;
   name?: string;
   value?: T[];
@@ -84,6 +109,7 @@ export type ArrayFieldProps<T extends object> = {
   sortable?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
+  itemClasses?: string;
 
   /**
    * Optional function to extract an ID from an item.
@@ -136,10 +162,11 @@ type ArrayFieldItemWrapperProps<T extends object> = {
   isBeingEdited: boolean;
   isNewItem: boolean;
   onCancel: () => void;
-  onChange?: (value: T) => void;
+  onChange: (value: T) => void;
   onDelete: () => void;
   onEdit: () => void;
   ItemComponent: ComponentType<ArrayFieldItemProps<T>>;
+  itemClasses?: string;
 };
 
 /**
@@ -159,6 +186,7 @@ const ArrayFieldItemWrapper = forwardRef(function ArrayFieldItemWrapper<
     onCancel,
     onChange,
     ItemComponent,
+    itemClasses,
   }: ArrayFieldItemWrapperProps<T>,
   ref: Ref<HTMLLIElement>,
 ) {
@@ -170,7 +198,12 @@ const ArrayFieldItemWrapper = forwardRef(function ArrayFieldItemWrapper<
       value={item}
       dragListener={false}
       dragControls={dragControls}
-      className={itemVariants()}
+      className={cx(
+        itemVariants(),
+        surfaceVariants({ level: 1, spacing: 'sm' }),
+        itemClasses,
+      )}
+      inherit={false}
       {...itemAnimationProps}
     >
       <ItemComponent
@@ -203,6 +236,7 @@ export function ArrayField<T extends object>({
   confirmDelete = true,
   disabled,
   readOnly,
+  itemClasses,
   ...props
 }: ArrayFieldProps<T>) {
   const { confirm } = useDialog();
@@ -252,21 +286,28 @@ export function ArrayField<T extends object>({
 
   return (
     <LayoutGroup id={id}>
-      <div className="flex flex-col items-start gap-4">
+      <motion.div
+        layout
+        className="flex w-full min-w-sm flex-col items-start gap-4"
+      >
         <Reorder.Group
+          {...props}
           axis="y"
           values={items}
           onReorder={setItems}
           className={arrayFieldVariants({ state: getState() })}
+          style={{ borderRadius: 28 }}
+          inherit={false}
+          layout={false}
         >
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence mode="sync">
             {items.length === 0 && (
               <motion.li
                 key="no-items"
-                className="text-sm text-current/70"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1, transition: { delay: 0.3 } }}
-                exit={{ opacity: 0 }}
+                className="m-10 text-sm text-current/70"
+                initial={{ opacity: 0, scale: 0.6 }}
+                animate={{ opacity: 1, scale: 1, transition: { delay: 0.5 } }}
+                exit={{ opacity: 0, scale: 0.6 }}
               >
                 {emptyStateMessage}
               </motion.li>
@@ -283,13 +324,14 @@ export function ArrayField<T extends object>({
                 isBeingEdited={editingItem?._internalId === item._internalId}
                 onCancel={cancelEditing}
                 ItemComponent={ItemComponent}
+                itemClasses={itemClasses}
               />
             ))}
           </AnimatePresence>
         </Reorder.Group>
         <MotionButton
+          layout
           key="add-button"
-          size="sm"
           onClick={() => startAdding(itemTemplate() as T)}
           icon={<PlusIcon />}
           disabled={!!editingItem}
@@ -304,7 +346,7 @@ export function ArrayField<T extends object>({
             onCancel={cancelEditing}
           />
         )}
-      </div>
+      </motion.div>
     </LayoutGroup>
   );
 }
