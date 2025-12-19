@@ -9,12 +9,29 @@ import { FormStoreProvider } from '../store/formStoreProvider';
 import FormErrorsList from './FormErrors';
 import type { FormSubmitHandler } from './types';
 
-type FormProps = {
+export type FormProps = {
   onSubmit: FormSubmitHandler;
   children: React.ReactNode;
 } & Omit<ComponentProps<'form'>, 'onSubmit' | 'children' | 'submitButton'>;
 
-function FormInner(props: FormProps) {
+/**
+ * The form element without the store provider wrapper.
+ * Use this when you need to manually control the FormStoreProvider placement,
+ * such as when SubmitButton needs to be rendered outside the form element
+ * (e.g., in a dialog footer).
+ *
+ * @example
+ * ```tsx
+ * <FormStoreProvider>
+ *   <Dialog footer={<SubmitButton>Save</SubmitButton>}>
+ *     <FormWithoutProvider onSubmit={handleSubmit}>
+ *       <Field name="email" ... />
+ *     </FormWithoutProvider>
+ *   </Dialog>
+ * </FormStoreProvider>
+ * ```
+ */
+export function FormWithoutProvider(props: FormProps) {
   const { onSubmit, children, className, ...rest } = props;
 
   const { formProps, formErrors } = useForm({
@@ -41,10 +58,19 @@ function FormInner(props: FormProps) {
   );
 }
 
+/**
+ * A complete form component with built-in store provider.
+ * Use this for standard forms where all form-related components
+ * (including SubmitButton) are descendants of the Form element.
+ *
+ * For cases where SubmitButton needs to be outside the form element
+ * (e.g., in a dialog footer), use FormWithoutProvider with a manual
+ * FormStoreProvider wrapper.
+ */
 export default function Form(props: FormProps) {
   return (
     <FormStoreProvider>
-      <FormInner {...props} />
+      <FormWithoutProvider {...props} />
     </FormStoreProvider>
   );
 }

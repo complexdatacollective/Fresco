@@ -35,6 +35,7 @@ import { iconButtonVariants } from '~/components/ui/Button';
 import {
   controlVariants,
   inputControlVariants,
+  interactiveStateVariants,
   multilineContentVariants,
   stateVariants,
 } from '~/styles/shared/controlVariants';
@@ -140,6 +141,7 @@ const editorContainerVariants = compose(
   controlVariants,
   inputControlVariants,
   stateVariants,
+  interactiveStateVariants,
   cva({
     base: 'flex h-auto w-full flex-col',
   }),

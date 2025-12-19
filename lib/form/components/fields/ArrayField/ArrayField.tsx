@@ -8,12 +8,13 @@ import {
   useDragControls,
 } from 'motion/react';
 import {
-  type ComponentProps,
   type ComponentType,
   forwardRef,
+  type HTMLAttributes,
   type Ref,
   useCallback,
   useId,
+  useMemo,
 } from 'react';
 import { surfaceVariants } from '~/components/layout/Surface';
 import { MotionButton } from '~/components/ui/Button';
@@ -22,6 +23,7 @@ import {
   controlVariants,
   groupSpacingVariants,
   inputControlVariants,
+  stateVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx } from '~/utils/cva';
 import {
@@ -32,35 +34,13 @@ import {
 // Stable empty array to prevent infinite re-renders when value is undefined
 const EMPTY_ARRAY: never[] = [];
 
-// Custom state variants without hover/focus effects (items handle their own focus)
-const arrayFieldStateVariants = cva({
-  base: cx(
-    'transition-colors duration-200',
-    'border-input-contrast/10 border-2',
-  ),
-  variants: {
-    state: {
-      disabled: cx(
-        'pointer-events-none cursor-not-allowed',
-        'bg-input-contrast/5',
-      ),
-      readOnly: cx('cursor-default', 'bg-input-contrast/10'),
-      invalid: 'border-destructive',
-      normal: '',
-    },
-  },
-  defaultVariants: {
-    state: 'normal',
-  },
-});
-
 const arrayFieldVariants = compose(
   controlVariants,
+  stateVariants,
   groupSpacingVariants,
   inputControlVariants,
-  arrayFieldStateVariants,
   cva({
-    base: 'w-full flex-col text-wrap',
+    base: 'relative w-full flex-col overflow-hidden text-wrap',
   }),
 );
 
@@ -81,7 +61,10 @@ export const itemAnimationProps = {
 export type ArrayFieldItemProps<T extends object> = {
   item: Partial<WithItemProperties<T>>;
   isNewItem: boolean;
+  /** Save and exit editing mode. Use for inline editing pattern. */
   onChange: (value: T) => void;
+  /** Update item data without affecting editing state. Use for always-editing pattern. */
+  onUpdate: (value: Partial<T>) => void;
   onCancel: () => void;
   onDelete: () => void;
   onEdit: () => void;
@@ -99,8 +82,18 @@ export type ArrayFieldEditorProps<T extends object> = {
   onCancel: () => void;
 };
 
-export type ArrayFieldProps<T extends object> = ComponentProps<
-  typeof Reorder.Group
+export type ArrayFieldProps<T extends object> = Omit<
+  HTMLAttributes<HTMLUListElement>,
+  | 'onChange'
+  | 'onDrag'
+  | 'onDragEnd'
+  | 'onDragStart'
+  | 'onDragEnter'
+  | 'onDragExit'
+  | 'onDragLeave'
+  | 'onDrop'
+  | 'onAnimationStart'
+  | 'onAnimationComplete'
 > & {
   id?: string;
   name?: string;
@@ -109,7 +102,9 @@ export type ArrayFieldProps<T extends object> = ComponentProps<
   sortable?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
-  itemClasses?: string;
+  itemClasses?:
+    | string
+    | ((item: WithItemProperties<T>, isBeingEdited: boolean) => string);
 
   /**
    * Optional function to extract an ID from an item.
@@ -154,6 +149,15 @@ export type ArrayFieldProps<T extends object> = ComponentProps<
   addButtonLabel?: string;
   emptyStateMessage?: string;
   confirmDelete?: boolean;
+
+  /**
+   * When true, clicking "Add" immediately adds a confirmed item without entering
+   * editing mode. Use this for the "always editing" pattern where items show
+   * editable UI at all times.
+   *
+   * @default false
+   */
+  immediateAdd?: boolean;
 };
 
 type ArrayFieldItemWrapperProps<T extends object> = {
@@ -163,10 +167,13 @@ type ArrayFieldItemWrapperProps<T extends object> = {
   isNewItem: boolean;
   onCancel: () => void;
   onChange: (value: T) => void;
-  onDelete: () => void;
-  onEdit: () => void;
+  onUpdateItem: (internalId: string, value: Partial<T>) => void;
+  onDeleteItem: (internalId: string) => void;
+  onEditItem: (internalId: string) => void;
   ItemComponent: ComponentType<ArrayFieldItemProps<T>>;
-  itemClasses?: string;
+  itemClasses?:
+    | string
+    | ((item: WithItemProperties<T>, isBeingEdited: boolean) => string);
 };
 
 /**
@@ -181,16 +188,37 @@ const ArrayFieldItemWrapper = forwardRef(function ArrayFieldItemWrapper<
     isSortable,
     isBeingEdited,
     isNewItem,
-    onDelete,
-    onEdit,
+    onDeleteItem,
+    onEditItem,
     onCancel,
     onChange,
+    onUpdateItem,
     ItemComponent,
     itemClasses,
   }: ArrayFieldItemWrapperProps<T>,
   ref: Ref<HTMLLIElement>,
 ) {
   const dragControls = useDragControls();
+  const resolvedItemClasses =
+    typeof itemClasses === 'function'
+      ? itemClasses(item, isBeingEdited)
+      : itemClasses;
+
+  // Memoize item-specific callbacks to prevent re-renders
+  const onUpdate = useCallback(
+    (data: Partial<T>) => onUpdateItem(item._internalId, data),
+    [onUpdateItem, item._internalId],
+  );
+
+  const onDelete = useCallback(
+    () => onDeleteItem(item._internalId),
+    [onDeleteItem, item._internalId],
+  );
+
+  const onEdit = useCallback(
+    () => onEditItem(item._internalId),
+    [onEditItem, item._internalId],
+  );
 
   return (
     <Reorder.Item
@@ -201,7 +229,7 @@ const ArrayFieldItemWrapper = forwardRef(function ArrayFieldItemWrapper<
       className={cx(
         itemVariants(),
         surfaceVariants({ level: 1, spacing: 'sm' }),
-        itemClasses,
+        resolvedItemClasses,
       )}
       inherit={false}
       {...itemAnimationProps}
@@ -212,6 +240,7 @@ const ArrayFieldItemWrapper = forwardRef(function ArrayFieldItemWrapper<
         isBeingEdited={isBeingEdited}
         onCancel={onCancel}
         onChange={onChange}
+        onUpdate={onUpdate}
         isNewItem={isNewItem}
         onDelete={onDelete}
         onEdit={onEdit}
@@ -234,6 +263,7 @@ export function ArrayField<T extends object>({
   addButtonLabel = 'Add Item',
   emptyStateMessage = 'No items added yet. Click "Add Item" to get started.',
   confirmDelete = true,
+  immediateAdd = false,
   disabled,
   readOnly,
   itemClasses,
@@ -247,10 +277,12 @@ export function ArrayField<T extends object>({
     editingItem,
     isAddingNew,
     startAdding,
+    addItem,
     startEditing,
     cancelEditing,
     saveEditing,
     removeItem,
+    updateItem,
     isDraft,
   } = useArrayFieldItems(value, onChange, { getId });
 
@@ -273,6 +305,13 @@ export function ArrayField<T extends object>({
       }
     },
     [confirmDelete, confirm, removeItem, isDraft],
+  );
+
+  // When using an external editor, filter out draft items from the list
+  // (they're rendered in the editor instead). For inline editing, keep drafts in the list.
+  const renderableItems = useMemo(
+    () => (EditorComponent ? items.filter((item) => !item._draft) : items),
+    [EditorComponent, items],
   );
 
   const id = useId();
@@ -300,8 +339,8 @@ export function ArrayField<T extends object>({
           inherit={false}
           layout={false}
         >
-          <AnimatePresence mode="sync">
-            {items.length === 0 && (
+          <AnimatePresence mode="popLayout">
+            {renderableItems.length === 0 && (
               <motion.li
                 key="no-items"
                 className="m-10 text-sm text-current/70"
@@ -312,14 +351,15 @@ export function ArrayField<T extends object>({
                 {emptyStateMessage}
               </motion.li>
             )}
-            {items.map((item) => (
+            {renderableItems.map((item) => (
               <ArrayFieldItemWrapper
                 key={item._internalId}
                 item={item}
                 isSortable={sortable}
-                onDelete={() => requestDelete(item._internalId)}
-                onEdit={() => startEditing(item._internalId)}
+                onDeleteItem={requestDelete}
+                onEditItem={startEditing}
                 onChange={saveEditing}
+                onUpdateItem={updateItem}
                 isNewItem={!!item._draft}
                 isBeingEdited={editingItem?._internalId === item._internalId}
                 onCancel={cancelEditing}
@@ -332,9 +372,13 @@ export function ArrayField<T extends object>({
         <MotionButton
           layout
           key="add-button"
-          onClick={() => startAdding(itemTemplate() as T)}
+          onClick={() =>
+            immediateAdd
+              ? addItem(itemTemplate() as T)
+              : startAdding(itemTemplate() as T)
+          }
           icon={<PlusIcon />}
-          disabled={!!editingItem}
+          disabled={!immediateAdd && !!editingItem}
         >
           {addButtonLabel}
         </MotionButton>

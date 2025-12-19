@@ -125,14 +125,25 @@ export const stateVariants = cva({
       disabled: cx(
         'pointer-events-none cursor-not-allowed',
         'bg-input-contrast/5',
-        'focus-within:border-input-contrast/50',
       ),
-      readOnly: cx(
-        'cursor-default',
-        'bg-input-contrast/10',
-        'focus-within:border-input-contrast/70',
-      ),
+      readOnly: cx('cursor-default', 'bg-input-contrast/10'),
       invalid: cx('border-destructive border-2'),
+      normal: '',
+    },
+  },
+  defaultVariants: {
+    state: 'normal',
+  },
+});
+
+// As above, but adding focus and hover styles for interactive elements
+export const interactiveStateVariants = cva({
+  base: cx('transition-colors duration-200'),
+  variants: {
+    state: {
+      disabled: cx('focus-within:border-input-contrast/50'),
+      readOnly: cx('focus-within:border-input-contrast/70'),
+      invalid: '',
       normal:
         'not-focus-within:hover:border-accent/50 focus-within:border-accent',
     },

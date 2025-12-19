@@ -4,6 +4,7 @@ import {
   controlVariants,
   groupSpacingVariants,
   inputControlVariants,
+  interactiveStateVariants,
   orientationVariants,
   stateVariants,
 } from '~/styles/shared/controlVariants';
@@ -16,6 +17,7 @@ const checkboxGroupComposedVariants = compose(
   inputControlVariants,
   groupSpacingVariants,
   stateVariants,
+  interactiveStateVariants,
   orientationVariants,
   cva({
     base: 'items-start',

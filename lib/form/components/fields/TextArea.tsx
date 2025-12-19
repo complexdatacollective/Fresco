@@ -4,6 +4,7 @@ import { type ComponentProps, forwardRef } from 'react';
 import {
   controlVariants,
   inputControlVariants,
+  interactiveStateVariants,
   multilineContentVariants,
   placeholderVariants,
   stateVariants,
@@ -14,6 +15,7 @@ const textareaWrapperVariants = compose(
   controlVariants,
   inputControlVariants,
   stateVariants,
+  interactiveStateVariants,
   cva({
     base: 'h-auto w-full',
   }),

@@ -48,8 +48,12 @@ type UseArrayFieldItemsReturn<T extends object> = {
   saveEditing: (data: T) => void;
 
   // ─── Item Operations ─────────────────────────────────────────────────────
+  /** Add a confirmed item directly without entering editing mode. Use for always-editing pattern. */
+  addItem: (item: T) => void;
   /** Remove an item by its internal ID. */
   removeItem: (internalId: string) => void;
+  /** Update a specific item by its internal ID without affecting editing state. */
+  updateItem: (internalId: string, data: Partial<T>) => void;
   /** Check if an item is a draft by its internal ID. */
   isDraft: (internalId: string) => boolean;
 };
@@ -240,6 +244,24 @@ export function useArrayFieldItems<T extends object>(
     }));
   }, []);
 
+  // Add a confirmed item directly without entering editing mode
+  const addItem = useCallback(
+    (item: T): void => {
+      const internalId = crypto.randomUUID();
+      const newItem: WithItemProperties<T> = {
+        ...item,
+        _internalId: internalId,
+      };
+
+      setState((prev) => {
+        const newItems = [...prev.items, newItem];
+        notifyChange(newItems);
+        return { ...prev, items: newItems };
+      });
+    },
+    [notifyChange],
+  );
+
   // Start editing an existing item (sets editing ID, no draft flag)
   const startEditing = useCallback((internalId: string): void => {
     setState((prev) => {
@@ -335,6 +357,38 @@ export function useArrayFieldItems<T extends object>(
     [notifyChange],
   );
 
+  // Update a specific item without affecting editing state
+  const updateItem = useCallback(
+    (internalId: string, data: Partial<T>): void => {
+      setState((prev) => {
+        const itemIndex = prev.items.findIndex(
+          (i) => i._internalId === internalId,
+        );
+        if (itemIndex === -1) return prev;
+
+        const existingItem = prev.items[itemIndex]!;
+        const updatedItem: WithItemProperties<T> = {
+          ...existingItem,
+          ...data,
+          _internalId: existingItem._internalId,
+          _draft: existingItem._draft,
+        };
+
+        const newItems = prev.items.map((item, idx) =>
+          idx === itemIndex ? updatedItem : item,
+        );
+
+        // Only notify if updating a non-draft item
+        if (!existingItem._draft) {
+          notifyChange(newItems);
+        }
+
+        return { ...prev, items: newItems };
+      });
+    },
+    [notifyChange],
+  );
+
   // Set items - handles both draft and non-draft updates
   const setItems = useCallback(
     (newItems: WithItemProperties<T>[]): void => {
@@ -365,7 +419,9 @@ export function useArrayFieldItems<T extends object>(
     saveEditing,
 
     // Item operations
+    addItem,
     removeItem,
+    updateItem,
     isDraft,
   };
 }

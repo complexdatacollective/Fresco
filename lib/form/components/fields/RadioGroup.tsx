@@ -6,6 +6,7 @@ import {
   controlVariants,
   groupSpacingVariants,
   inputControlVariants,
+  interactiveStateVariants,
   orientationVariants,
   radioIndicatorVariants,
   stateVariants,
@@ -17,6 +18,7 @@ const radioGroupWrapperVariants = compose(
   inputControlVariants,
   groupSpacingVariants,
   stateVariants,
+  interactiveStateVariants,
   orientationVariants,
   cva({
     base: 'items-start',

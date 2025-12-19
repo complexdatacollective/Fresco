@@ -5,6 +5,7 @@ import { motion } from 'motion/react';
 import { type ComponentPropsWithoutRef } from 'react';
 import {
   controlVariants,
+  interactiveStateVariants,
   smallSizeVariants,
   stateVariants,
 } from '~/styles/shared/controlVariants';
@@ -14,6 +15,7 @@ const toggleContainerVariants = compose(
   controlVariants,
   smallSizeVariants,
   stateVariants,
+  interactiveStateVariants,
   cva({
     base: cx(
       'bg-accent/50 border-0',

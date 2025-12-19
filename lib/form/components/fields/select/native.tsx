@@ -4,6 +4,7 @@ import {
   controlVariants,
   inlineSpacingVariants,
   inputControlVariants,
+  interactiveStateVariants,
   nativeSelectVariants,
   sizeVariants,
   stateVariants,
@@ -17,6 +18,7 @@ export const selectWrapperVariants = compose(
   inputControlVariants,
   inlineSpacingVariants,
   stateVariants,
+  interactiveStateVariants,
 );
 
 export type SelectOption = {

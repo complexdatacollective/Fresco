@@ -6,6 +6,7 @@ import {
   controlVariants,
   groupSpacingVariants,
   inputControlVariants,
+  interactiveStateVariants,
   orientationVariants,
   stateVariants,
 } from '~/styles/shared/controlVariants';
@@ -17,6 +18,7 @@ const toggleButtonGroupComposedVariants = compose(
   inputControlVariants,
   groupSpacingVariants,
   stateVariants,
+  interactiveStateVariants,
   orientationVariants,
   cva({
     base: 'items-start',

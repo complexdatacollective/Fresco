@@ -3,6 +3,7 @@ import {
   controlVariants,
   inlineSpacingVariants,
   inputControlVariants,
+  interactiveStateVariants,
   placeholderVariants,
   proportionalLucideIconVariants,
   sizeVariants,
@@ -17,6 +18,7 @@ const inputWrapperVariants = compose(
   inlineSpacingVariants,
   proportionalLucideIconVariants,
   stateVariants,
+  interactiveStateVariants,
   cva({
     base: 'w-full',
   }),

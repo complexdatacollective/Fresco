@@ -10,8 +10,9 @@ import { Button, IconButton, MotionButton } from '~/components/ui/Button';
 import { Dialog } from '~/lib/dialogs/Dialog';
 import Field from '~/lib/form/components/Field';
 import { InputField } from '~/lib/form/components/fields/InputField';
-import Form from '~/lib/form/components/Form';
+import { FormWithoutProvider } from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
+import { FormStoreProvider } from '~/lib/form/store/formStoreProvider';
 import { cx } from '~/utils/cva';
 import {
   ArrayField,
@@ -220,18 +221,22 @@ function TagInlineItem({
   // Edit mode
   if (isBeingEdited) {
     return (
-      <motion.div layout className={cx('flex w-full flex-col gap-4 p-4')}>
-        <div className="flex flex-col gap-2">
+      <motion.div
+        key="edit-mode"
+        layout
+        className={cx('flex w-full flex-col gap-4 p-4')}
+      >
+        <motion.div layout className="flex flex-col gap-2">
           <label className="text-sm font-medium">Label</label>
           <InputField
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             placeholder="Enter tag label"
           />
-        </div>
-        <div className="flex flex-col gap-2">
+        </motion.div>
+        <motion.div layout className="flex flex-col gap-2">
           <label className="text-sm font-medium">Color</label>
-          <div className="flex gap-2">
+          <motion.div layout className="flex gap-2">
             {(Object.keys(TAG_COLORS) as TagItem['color'][]).map((c) => (
               <button
                 key={c}
@@ -247,9 +252,9 @@ function TagInlineItem({
                 aria-label={c}
               />
             ))}
-          </div>
-        </div>
-        <div className="flex gap-2">
+          </motion.div>
+        </motion.div>
+        <motion.div layout className="flex gap-2">
           <Button
             color="primary"
             size="sm"
@@ -261,33 +266,30 @@ function TagInlineItem({
           <Button size="sm" onClick={onCancel}>
             Cancel
           </Button>
-        </div>
+        </motion.div>
       </motion.div>
     );
   }
 
-  // Display mode
-  const colorClasses = cx([
-    'flex w-full items-center gap-2 border px-3 py-2 select-none',
-    item.color === 'node-1' && 'border-node-1/30 bg-node-1/10 text-node-1',
-    item.color === 'node-2' && 'border-node-2/30 bg-node-2/10 text-node-2',
-    item.color === 'node-3' && 'border-node-3/30 bg-node-3/10 text-node-3',
-    item.color === 'node-4' && 'border-node-4/30 bg-node-4/10 text-node-4',
-    item.color === 'node-5' && 'border-node-5/30 bg-node-5/10 text-node-5',
-  ]);
-
   return (
-    <motion.div layout className={colorClasses}>
+    <motion.div
+      key="view-mode"
+      layout
+      className="flex w-full items-center gap-2"
+    >
       {isSortable && (
-        <div
+        <motion.div
+          layout
           onPointerDown={(e) => dragControls.start(e)}
           className="touch-none"
         >
           <GripVertical className="h-4 w-4 cursor-grab" />
-        </div>
+        </motion.div>
       )}
-      <div className="flex-1">{item.label}</div>
-      <div className="ml-auto flex items-center gap-1">
+      <motion.div layout className="flex-1">
+        {item.label}
+      </motion.div>
+      <motion.div layout className="ml-auto flex items-center gap-1">
         <IconButton
           size="sm"
           variant="text"
@@ -306,7 +308,7 @@ function TagInlineItem({
           icon={<X />}
           aria-label="Remove item"
         />
-      </div>
+      </motion.div>
     </motion.div>
   );
 }
@@ -356,6 +358,23 @@ The item component handles both display and edit modes:
           color: 'node-1',
         })}
         itemComponent={TagInlineItem}
+        itemClasses={(item, isBeingEdited) =>
+          cx([
+            'flex w-full items-center gap-2 border px-3 py-2 select-none',
+            item.color === 'node-1' &&
+              'border-node-1/30 bg-node-1/10 text-node-1',
+            item.color === 'node-2' &&
+              'border-node-2/30 bg-node-2/10 text-node-2',
+            item.color === 'node-3' &&
+              'border-node-3/30 bg-node-3/10 text-node-3',
+            item.color === 'node-4' &&
+              'border-node-4/30 bg-node-4/10 text-node-4',
+            item.color === 'node-5' &&
+              'border-node-5/30 bg-node-5/10 text-node-5',
+            isBeingEdited &&
+              'bg-surface-2 text-surface-2-contrast border-inherit',
+          ])
+        }
       />
     );
   },
@@ -479,36 +498,7 @@ function ContactDialogEditor({
   const formId = `contact-form-${item?._internalId ?? 'new'}`;
 
   return (
-    <Form
-      id={formId}
-      onSubmit={async (data: unknown) => {
-        const formData = data as Record<string, string>;
-        const email = formData.email ?? '';
-
-        if (isNewItem) {
-          // Check if email already exists on server
-          const emailExists = await checkEmailExists(email, item?.email);
-
-          if (emailExists) {
-            return {
-              success: false,
-              fieldErrors: {
-                email: ['This email address is already in use'],
-              },
-            };
-          }
-        }
-
-        onSave({
-          id: item?.id ?? crypto.randomUUID(),
-          name: formData.name ?? '',
-          email,
-          phone: formData.phone,
-        });
-
-        return { success: true };
-      }}
-    >
+    <FormStoreProvider>
       <Dialog
         title={isNewItem ? 'Add Contact' : 'Edit Contact'}
         description="Enter the contact details below"
@@ -526,33 +516,64 @@ function ContactDialogEditor({
           </>
         }
       >
-        <Field
-          name="name"
-          label="Name"
-          hint="Full name of the contact"
-          component={InputField}
-          initialValue={item?.name}
-          required
-        />
-        <Field
-          name="email"
-          label="Email"
-          hint="Try 'admin@example.com' or 'test@example.com' to see validation error"
-          component={InputField}
-          type="email"
-          initialValue={item?.email}
-          required
-        />
-        <Field
-          name="phone"
-          label="Phone"
-          hint="Optional phone number"
-          component={InputField}
-          type="tel"
-          initialValue={item?.phone}
-        />
+        <FormWithoutProvider
+          id={formId}
+          onSubmit={async (data: unknown) => {
+            const formData = data as Record<string, string>;
+            const email = formData.email ?? '';
+
+            if (isNewItem) {
+              // Check if email already exists on server
+              const emailExists = await checkEmailExists(email, item?.email);
+
+              if (emailExists) {
+                return {
+                  success: false,
+                  fieldErrors: {
+                    email: ['This email address is already in use'],
+                  },
+                };
+              }
+            }
+
+            onSave({
+              id: item?.id ?? crypto.randomUUID(),
+              name: formData.name ?? '',
+              email,
+              phone: formData.phone,
+            });
+
+            return { success: true };
+          }}
+        >
+          <Field
+            name="name"
+            label="Name"
+            hint="Full name of the contact"
+            component={InputField}
+            initialValue={item?.name}
+            required
+          />
+          <Field
+            name="email"
+            label="Email"
+            hint="Try 'admin@example.com' or 'test@example.com' to see validation error"
+            component={InputField}
+            type="email"
+            initialValue={item?.email}
+            required
+          />
+          <Field
+            name="phone"
+            label="Phone"
+            hint="Optional phone number"
+            component={InputField}
+            type="tel"
+            initialValue={item?.phone}
+          />
+        </FormWithoutProvider>
       </Dialog>
-    </Form>
+    </FormStoreProvider>
   );
 }
 
@@ -690,6 +711,99 @@ For simple lists where items are added with default values:
           label: `Pre-defined item ${++counter}`,
         })}
         itemComponent={DisplayOnlyItem}
+      />
+    );
+  },
+};
+
+/**
+ * Always editing - used for situations such as configuration lists.
+ * The item component always shows editing UI without needing to call onEdit.
+ */
+
+type ConfigItem = { label: string };
+
+/**
+ * Item component for always-editing pattern.
+ * Uses onUpdate to directly update item data without affecting editing state.
+ */
+function AlwaysEditingItem({
+  item,
+  isSortable,
+  onDelete,
+  onUpdate,
+  dragControls,
+}: ArrayFieldItemProps<ConfigItem>) {
+  return (
+    <div className="flex items-center gap-2">
+      {isSortable && (
+        <div
+          onPointerDown={(e) => dragControls.start(e)}
+          className="touch-none"
+        >
+          <GripVertical className="h-4 w-4 cursor-grab" />
+        </div>
+      )}
+      <InputField
+        value={item.label ?? ''}
+        onChange={(e) => onUpdate({ label: e.target.value })}
+        placeholder="Enter a label..."
+        className="flex-1"
+      />
+      <IconButton
+        variant="text"
+        className="text-current"
+        color="destructive"
+        size="sm"
+        onClick={onDelete}
+        icon={<X />}
+        aria-label="Remove item"
+      />
+    </div>
+  );
+}
+
+export const AlwaysEditing: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**Always Editing Pattern**
+
+For lists where all items are edited immediately:
+- Set \`immediateAdd={true}\` to add items directly without entering editing mode
+- \`itemComponent\` always shows editing UI
+- Uses \`onUpdate\` to update item data without exiting editing mode
+- No need to call \`onEdit\` or manage editing state
+- Uses internal \`_internalId\` for tracking (no custom id field needed)
+
+The key difference from inline editing:
+- \`onChange\` saves and exits editing mode
+- \`onUpdate\` updates the item data without affecting editing state
+        `,
+      },
+    },
+  },
+  render: function Render() {
+    const [items, setItems] = useState<ConfigItem[]>([
+      { label: 'Config item 1' },
+      { label: 'Config item 2' },
+    ]);
+
+    return (
+      <ArrayField<ConfigItem>
+        sortable
+        confirmDelete={false}
+        immediateAdd
+        addButtonLabel="Add Config Item"
+        emptyStateMessage="No configuration items yet."
+        value={items}
+        onChange={(newValue) => {
+          setItems(newValue);
+          action('onChange')(newValue);
+        }}
+        itemTemplate={() => ({ label: '' })}
+        itemComponent={AlwaysEditingItem}
       />
     );
   },
