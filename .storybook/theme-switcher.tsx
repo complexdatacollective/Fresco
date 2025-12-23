@@ -5,8 +5,8 @@ export const THEME_KEY = 'theme';
 const STORAGE_KEY = 'storybook-theme-preference';
 
 export const themes = {
-  default: {
-    name: 'Default',
+  dashboard: {
+    name: 'Dashboard',
     path: '/styles/themes/default.css',
   },
   interview: {
@@ -85,8 +85,17 @@ function ThemeWrapper({
     });
   }, [selectedTheme]);
 
+  // Apply data-theme to the HTML element for dark mode
+  useLayoutEffect(() => {
+    document.documentElement.setAttribute('data-theme', selectedTheme);
+  }, [selectedTheme]);
+
   return (
-    <div style={{ opacity: isLoading ? 0 : 1, transition: 'opacity 150ms' }}>
+    <div
+      data-theme={selectedTheme}
+      className="bg-background text-text"
+      style={{ opacity: isLoading ? 0 : 1, transition: 'opacity 150ms' }}
+    >
       {children}
     </div>
   );
@@ -120,5 +129,5 @@ export const globalTypes = {
 };
 
 export function getInitialTheme(): ThemeKey {
-  return getStoredTheme() || 'default';
+  return getStoredTheme() || 'dashboard';
 }

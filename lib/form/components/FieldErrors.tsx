@@ -1,4 +1,5 @@
 import Paragraph from '~/components/typography/Paragraph';
+import { cx } from '~/utils/cva';
 
 /**
  * Render field errors.
@@ -20,7 +21,10 @@ export default function FieldErrors({
   return (
     <div
       id={id}
-      className="text-destructive animate-shake text-sm"
+      className={cx(
+        'interview:text-destructive-contrast interview:bg-destructive animate-shake interview:mt-2 interview:px-3 interview:py-2 rounded text-sm',
+        'text-destructive',
+      )}
       key={errors?.join('|')} // Re-render when errors change, to trigger animation
     >
       {errors && <Paragraph>{errors[0]}</Paragraph>}

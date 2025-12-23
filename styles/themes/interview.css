@@ -25,7 +25,7 @@
     --primary-contrast: color-mix(in oklab, oklch(var(--sea-green)), black 60%);
 
     /* For visual emphasis */
-    --accent: oklch(var(--sea-green));
+    --accent: oklch(var(--slate-blue));
     --accent-contrast: oklch(var(--white));
 
     --secondary: oklch(var(--slate-blue));
@@ -136,40 +136,6 @@
     --cat-10: oklch(var(--slate-blue));
 
     --radius: 2rem;
-  }
-
-  /**
-    The dark interview theme has purple background with light text.
-  */
-  [data-theme='dark'] {
-    --background: oklch(19% 0.03 var(--base-hue));
-    --contrast: oklch(97% 0.001 var(--base-hue));
-
-    /* Reduce chroma for better contrast */
-    --primary: oklch(34% 0.15 var(--base-hue));
-    --accent: oklch(50% 0.15 var(--accent-hue));
-
-    --muted-contrast: oklch(40% 0.01 var(--base-hue));
-
-    --link: oklch(65% 0.15 var(--accent-hue));
-
-    --border-color: oklch(33% 0.01 var(--base-hue));
-
-    --input: var(--background);
-    --input-contrast: var(--contrast);
-
-    /* Surfaces */
-    --surface-0: var(--background);
-    --surface-0-contrast: var(--contrast);
-
-    --surface-1: oklch(26% 0.03 var(--base-hue));
-    --surface-1-contrast: var(--contrast);
-    --surface-2: oklch(30% 0.03 var(--base-hue));
-    --surface-2-contrast: var(--contrast);
-    --surface-3: oklch(33% 0.03 var(--base-hue));
-    --surface-3-contrast: var(--contrast);
-    --surface-4: oklch(36% 0.03 var(--base-hue));
-    --surface-4-contrast: var(--contrast);
   }
 }
 

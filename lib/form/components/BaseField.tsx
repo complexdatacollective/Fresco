@@ -2,6 +2,7 @@
 
 import { type ReactNode } from 'react';
 import Paragraph from '~/components/typography/Paragraph';
+import { cx } from '~/utils/cva';
 import FieldErrors from './FieldErrors';
 import { FieldLabel } from './FieldLabel';
 import Hint from './Hint';
@@ -36,7 +37,7 @@ export function BaseField({
   containerProps,
 }: BaseFieldProps) {
   return (
-    <div {...containerProps} className="group w-full grow not-last:mb-6">
+    <div {...containerProps} className={cx('group w-full grow not-last:mb-6')}>
       <FieldLabel id={`${id}-label`} htmlFor={id} required={required}>
         {label}
       </FieldLabel>

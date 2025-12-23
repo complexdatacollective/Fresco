@@ -4,20 +4,11 @@ import type * as z from 'zod/v4';
 
 export type FieldValue = NonNullable<VariableValue> | undefined;
 
-// Type for flattened errors from Zod
-export type FlattenedErrors =
-  | {
-      formErrors: string[];
-      fieldErrors: never;
-    }
-  | {
-      formErrors: never;
-      fieldErrors: Record<string, string[]>;
-    }
-  | {
-      formErrors: string[];
-      fieldErrors: Record<string, string[]>;
-    };
+/**
+ * Flattened errors type - uses Zod's core flattened error type
+ * This ensures compatibility with z.flattenError() output for any schema
+ */
+export type FlattenedErrors = z.core.$ZodFlattenedError<unknown>;
 
 export type FieldValidation =
   | z.ZodType
@@ -101,21 +92,16 @@ export type ValidationContext = {
 };
 
 /**
- * Zod schemas for form submission results
- * These provide both type generation and runtime validation
+ * Form submission result type
+ * Designed to be compatible with Zod's flattenError output
  */
 export type FormSubmissionResult =
   | {
       success: true;
     }
-  | {
+  | ({
       success: false;
-
-      // General form errors not tied to a specific field
-      formErrors?: string[];
-      // Field-specific errors
-      fieldErrors?: Record<string, string[] | undefined>;
-    };
+    } & Partial<FlattenedErrors>);
 
 /**
  * Type for field errors object (used for scrolling to first error)

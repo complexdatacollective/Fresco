@@ -115,17 +115,30 @@ export function RadioGroupField({
     onChange?.(newValue as string | number);
   };
 
-  const stringValue = value === undefined ? undefined : String(value);
+  // Determine if controlled or uncontrolled mode
+  // Controlled: onChange prop is provided (form system always uses this pattern)
+  // We use onChange as the indicator because the form system may pass undefined
+  // value initially while the store is hydrating, but will always provide onChange
+  const isControlled = onChange !== undefined;
+  // For controlled mode, use empty string as fallback to prevent uncontrolled->controlled switch
+  const stringValue = isControlled
+    ? value !== undefined
+      ? String(value)
+      : ''
+    : undefined;
   const stringDefaultValue =
-    defaultValue === undefined ? undefined : String(defaultValue);
+    !isControlled && defaultValue !== undefined
+      ? String(defaultValue)
+      : undefined;
 
   return (
     <div className="@container w-full">
       <RadioGroup
         id={id}
         name={name}
-        value={stringValue}
-        defaultValue={stringDefaultValue}
+        {...(isControlled
+          ? { value: stringValue }
+          : { defaultValue: stringDefaultValue })}
         onValueChange={handleValueChange}
         disabled={disabled}
         readOnly={readOnly}

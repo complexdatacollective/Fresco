@@ -3,7 +3,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import type { JSONContent } from '@tiptap/react';
 import { useState } from 'react';
-import { RichTextEditorField } from './RichTextEditor';
+import { RichTextEditorField } from '../lib/form/components/fields/RichTextEditor';
 import { RichTextRenderer } from './RichTextRenderer';
 
 const meta: Meta<typeof RichTextRenderer> = {

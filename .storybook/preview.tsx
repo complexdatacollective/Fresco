@@ -12,20 +12,6 @@ const preview: Preview = {
       },
     },
 
-    backgrounds: {
-      options: {
-        light: {
-          name: 'light',
-          value: 'var(--color-background)',
-        },
-
-        dark: {
-          name: 'dark',
-          value: '#1f1f1f',
-        },
-      },
-    },
-
     a11y: {
       // 'todo' - show a11y violations in the test UI only
       // 'error' - fail CI on a11y violations
@@ -65,9 +51,6 @@ const preview: Preview = {
   globalTypes,
 
   initialGlobals: {
-    backgrounds: {
-      value: 'light',
-    },
     theme: getInitialTheme(),
   },
 };

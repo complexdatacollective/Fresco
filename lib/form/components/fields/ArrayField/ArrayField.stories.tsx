@@ -19,7 +19,156 @@ import {
   type ArrayFieldEditorProps,
   type ArrayFieldItemProps,
 } from './ArrayField';
-import { SimpleInlineItem } from './ItemRenderers';
+
+type SimpleItemBase = { id: string; label: string };
+
+/**
+ * Simple inline editor for basic label items.
+ * Demonstrates the inline editing pattern where the item component
+ * handles both display and edit modes using isBeingEdited.
+ */
+export function SimpleInlineItem({
+  item,
+  isSortable,
+  isBeingEdited,
+  isNewItem,
+  onChange,
+  onCancel,
+  onEdit,
+  onDelete,
+  dragControls,
+}: ArrayFieldItemProps<SimpleItemBase>) {
+  const [label, setLabel] = useState(item?.label ?? '');
+
+  useEffect(() => {
+    if (isBeingEdited) {
+      setLabel(item?.label ?? '');
+    }
+  }, [isBeingEdited, item]);
+
+  if (isBeingEdited) {
+    return (
+      <div className="flex gap-2">
+        <InputField
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          placeholder="Enter a label..."
+          minLength={2}
+          // Enter key saves
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              onChange?.({ id: item.id ?? '', label });
+            }
+            // Escape key cancels
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              onCancel();
+            }
+          }}
+          autoFocus
+        />
+        <div className="flex gap-2">
+          <IconButton
+            color="primary"
+            onClick={() => onChange?.({ id: item.id ?? '', label })}
+            disabled={label.trim() === ''}
+            icon={<PencilIcon />}
+            aria-label={isNewItem ? 'Add item' : 'Save changes'}
+          />
+          <IconButton
+            onClick={onCancel}
+            aria-label="Cancel editing"
+            icon={<X />}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex w-full items-center gap-2">
+      {isSortable && (
+        <div
+          onPointerDown={(e) => dragControls.start(e)}
+          className="touch-none"
+        >
+          <GripVertical className="h-4 w-4 cursor-grab" />
+        </div>
+      )}
+      <div className="flex-1">{item.label}</div>
+      <div className="ml-auto flex items-center gap-1">
+        <IconButton
+          size="sm"
+          variant="text"
+          className="text-current"
+          color="primary"
+          onClick={onEdit}
+          aria-label="Edit item"
+          icon={<PencilIcon />}
+        />
+        <IconButton
+          variant="text"
+          className="text-current"
+          color="destructive"
+          size="sm"
+          onClick={onDelete}
+          icon={<X />}
+          aria-label="Remove item"
+        />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Simple item content renderer for basic label items.
+ * Renders drag handle, label text, and edit/delete buttons.
+ */
+export function SimpleItem({
+  item,
+  isSortable,
+  onEdit,
+  onDelete,
+  dragControls,
+}: ArrayFieldItemProps<{ id: string; label: string }>) {
+  return (
+    <div className="border-b-input-contrast/10 flex w-full items-center gap-2 border-b px-2 py-1 last:border-b-0">
+      {isSortable && (
+        <motion.div
+          layout
+          onPointerDown={(e) => dragControls.start(e)}
+          className="touch-none"
+        >
+          <GripVertical className="h-4 w-4 cursor-grab" />
+        </motion.div>
+      )}
+      <motion.div layout className="flex-1">
+        {item.label}
+      </motion.div>
+      <motion.div layout className="ml-auto flex items-center gap-1">
+        <IconButton
+          size="sm"
+          variant="text"
+          className="text-current"
+          color="primary"
+          onClick={onEdit}
+          aria-label="Edit item"
+          icon={<PencilIcon />}
+        />
+        <IconButton
+          variant="text"
+          className="text-current"
+          color="destructive"
+          size="sm"
+          onClick={onDelete}
+          icon={<X />}
+          aria-label="Remove item"
+        />
+      </motion.div>
+    </div>
+  );
+}
 
 // ============================================================================
 // Sample Data Types

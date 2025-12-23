@@ -111,13 +111,14 @@ const minLength: ValidationFunction<number> = (min) => () => {
 
 /**
  * Require that a number be greater than or equal to a minimum value
+ * Uses coerce to handle string inputs from HTML number inputs
  */
 const minValue: ValidationFunction<number> = (min) => () => {
   invariant(!isNaN(Number(min)), 'Min value must be specified');
 
   const hint = `Enter a value greater than or equal to ${min}.`;
 
-  return z
+  return z.coerce
     .number()
     .gte(min, {
       message: `Too small. Value must be at least ${min}.`,
@@ -128,13 +129,14 @@ const minValue: ValidationFunction<number> = (min) => () => {
 
 /**
  * Require that a number be less than or equal to a maximum value
+ * Uses coerce to handle string inputs from HTML number inputs
  */
 const maxValue: ValidationFunction<number> = (max) => () => {
   invariant(max, 'Max value must be specified');
 
   const hint = `Enter a value less than or equal to ${max}.`;
 
-  return z
+  return z.coerce
     .number()
     .lte(max, {
       message: `Too large. Value must be at most ${max}.`,
