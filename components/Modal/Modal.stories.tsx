@@ -8,7 +8,7 @@ import Button from '../ui/Button';
 import Modal from './Modal';
 
 const meta: Meta<typeof Modal> = {
-  title: 'Systems/Modal',
+  title: 'UI/Modal',
   component: Modal,
   args: {
     onOpenChange: fn(),

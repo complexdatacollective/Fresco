@@ -5,7 +5,7 @@ import Surface, { MotionSurface, type SurfaceVariants } from './Surface';
 
 // Define the metadata for the Storybook
 const meta: Meta<typeof Surface> = {
-  title: 'Components/Surface',
+  title: 'UI/Surface',
   component: Surface,
   argTypes: {
     level: {

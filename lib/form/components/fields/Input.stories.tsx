@@ -14,22 +14,20 @@ import {
   X,
 } from 'lucide-react';
 import { useState } from 'react';
+import { expect, userEvent, within } from 'storybook/test';
 import { InputField } from './InputField';
 
 const meta: Meta<typeof InputField> = {
   title: 'Systems/Form/Fields/InputField',
   component: InputField,
-  parameters: {
-    layout: 'centered',
-  },
   tags: ['autodocs'],
   argTypes: {
     'size': {
       control: 'select',
-      options: ['sm', 'md', 'lg'],
+      options: ['sm', 'md', 'lg', 'xl'],
       description: 'Size of the input field',
       table: {
-        type: { summary: 'sm | md | lg' },
+        type: { summary: 'xs | sm | md | lg | xl' },
         defaultValue: { summary: 'md' },
       },
     },
@@ -48,292 +46,338 @@ const meta: Meta<typeof InputField> = {
     'disabled': {
       control: 'boolean',
       description: 'Whether the input is disabled',
-      table: {
-        type: { summary: 'boolean' },
-        defaultValue: { summary: 'false' },
-      },
     },
     'readOnly': {
       control: 'boolean',
       description: 'Whether the input is read-only',
-      table: {
-        type: { summary: 'boolean' },
-        defaultValue: { summary: 'false' },
-      },
     },
     'aria-invalid': {
       control: 'boolean',
       description: 'Whether the input has invalid state styling',
-      table: {
-        type: { summary: 'boolean' },
-        defaultValue: { summary: 'false' },
-      },
-    },
-    'required': {
-      control: 'boolean',
-      description: 'Whether the input is required (HTML validation)',
-      table: {
-        type: { summary: 'boolean' },
-        defaultValue: { summary: 'false' },
-      },
     },
     'placeholder': {
       control: 'text',
       description: 'Placeholder text for the input',
-      table: {
-        type: { summary: 'string' },
-      },
     },
     'prefixComponent': {
       control: false,
       description: 'ReactNode to display before the input (e.g., icons)',
-      table: {
-        type: { summary: 'ReactNode' },
-      },
     },
     'suffixComponent': {
       control: false,
       description:
         'ReactNode to display after the input (e.g., buttons, icons)',
-      table: {
-        type: { summary: 'ReactNode' },
-      },
     },
     'onChange': {
       control: false,
       description:
         'Type-safe change handler - receives number for type="number", string for others',
-      table: {
-        type: { summary: '(value: number | string) => void' },
-      },
     },
   },
   args: {
     placeholder: 'Enter text...',
     type: 'text',
+    size: 'md',
     disabled: false,
     readOnly: false,
-    required: false,
   },
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/**
+ * Default input field with interactive controls. Use the Controls panel to experiment with different configurations.
+ */
 export const Default: Story = {
+  args: {
+    'data-testid': 'default-input',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByTestId('default-input');
+
+    await expect(input).toHaveValue('');
+    await userEvent.type(input, 'Hello World');
+    await expect(input).toHaveValue('Hello World');
+  },
+};
+
+/**
+ * All available sizes from extra-small to extra-large.
+ * Use controls to change placeholder, disabled, and readOnly states for all inputs.
+ */
+export const Sizes: Story = {
+  args: {
+    placeholder: 'Type here...',
+  },
+  argTypes: {
+    size: { control: false },
+    type: { control: false },
+  },
+  render: (args) => (
+    <div className="flex w-full flex-col gap-4">
+      {(['sm', 'md', 'lg', 'xl'] as const).map((size) => (
+        <InputField
+          key={size}
+          {...args}
+          size={size}
+          placeholder={`${args.placeholder} (${size})`}
+          aria-label={`${size} size input`}
+          prefixComponent={<Search className="h-4 w-4" />}
+        />
+      ))}
+    </div>
+  ),
+};
+
+/**
+ * Input states: normal, disabled, read-only, and invalid.
+ * State priority: disabled > readOnly > invalid > normal.
+ * Use controls to change size, type, and placeholder for all inputs.
+ */
+export const States: Story = {
   args: {
     size: 'md',
   },
-};
-
-export const Small: Story = {
-  args: {
-    size: 'sm',
-    placeholder: 'Small input',
+  argTypes: {
+    'disabled': { control: false },
+    'readOnly': { control: false },
+    'aria-invalid': { control: false },
   },
-};
-
-export const Large: Story = {
-  args: {
-    size: 'lg',
-    placeholder: 'Large input',
-  },
-};
-
-export const AllSizes: Story = {
-  name: 'All Sizes Comparison',
-  render: () => (
+  render: (args) => (
     <div className="flex w-80 flex-col gap-4">
-      <InputField size="sm" placeholder="Small (sm)" />
-      <InputField size="md" placeholder="Medium (md) - default" />
-      <InputField size="lg" placeholder="Large (lg)" />
+      <div>
+        <p className="mb-1 text-xs font-medium opacity-70">Normal</p>
+        <InputField
+          {...args}
+          placeholder="Normal state"
+          aria-label="Normal state input"
+          data-testid="normal-input"
+        />
+      </div>
+      <div>
+        <p className="mb-1 text-xs font-medium opacity-70">Disabled</p>
+        <InputField
+          {...args}
+          disabled
+          defaultValue="Cannot edit this"
+          aria-label="Disabled state input"
+          data-testid="disabled-input"
+        />
+      </div>
+      <div>
+        <p className="mb-1 text-xs font-medium opacity-70">Read-Only</p>
+        <InputField
+          {...args}
+          readOnly
+          defaultValue="Read-only text"
+          aria-label="Read-only state input"
+          data-testid="readonly-input"
+        />
+      </div>
+      <div>
+        <p className="mb-1 text-xs font-medium opacity-70">Invalid</p>
+        <InputField
+          {...args}
+          aria-invalid
+          defaultValue="Invalid value"
+          aria-label="Invalid state input"
+          data-testid="invalid-input"
+          suffixComponent={<AlertCircle className="text-destructive h-4 w-4" />}
+        />
+      </div>
     </div>
   ),
-};
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
 
-export const WithValue: Story = {
-  args: {
-    defaultValue: 'This input has a default value',
+    const disabledInput = canvas.getByTestId('disabled-input');
+    await expect(disabledInput).toBeDisabled();
+    await expect(disabledInput).toHaveValue('Cannot edit this');
+    await userEvent.type(disabledInput, 'new text');
+    await expect(disabledInput).toHaveValue('Cannot edit this');
+
+    const readonlyInput = canvas.getByTestId('readonly-input');
+    await expect(readonlyInput).toHaveAttribute('readonly');
+
+    const invalidInput = canvas.getByTestId('invalid-input');
+    await expect(invalidInput).toHaveAttribute('aria-invalid', 'true');
   },
 };
 
-export const Disabled: Story = {
+/**
+ * All supported HTML input types. Number type returns number on onChange, others return string.
+ * Use controls to change size, disabled, and readOnly for all inputs.
+ */
+export const InputTypes: Story = {
   args: {
-    disabled: true,
-    defaultValue: 'Disabled input',
+    size: 'md',
   },
-};
-
-export const ReadOnly: Story = {
-  args: {
-    readOnly: true,
-    defaultValue: 'Read-only input',
+  argTypes: {
+    type: { control: false },
+    placeholder: { control: false },
   },
-};
+  render: function Render(args) {
+    const [numberValue, setNumberValue] = useState<number | undefined>();
 
-export const Required: Story = {
-  args: {
-    required: true,
-    placeholder: 'Required field',
-  },
-};
-
-export const EmailType: Story = {
-  args: {
-    type: 'email',
-    placeholder: 'user@example.com',
-  },
-};
-
-export const PasswordType: Story = {
-  args: {
-    type: 'password',
-    placeholder: 'Enter password',
-  },
-};
-
-export const NumberType: Story = {
-  name: 'Number Type',
-  render: () => {
-    const [value, setValue] = useState<number | undefined>(42);
     return (
-      <div className="w-80 space-y-2">
+      <div className="flex w-80 flex-col gap-3">
         <InputField
-          type="number"
-          placeholder="Enter a number"
-          value={value}
-          onChange={setValue}
+          {...args}
+          type="text"
+          placeholder="Text"
+          aria-label="Text input"
         />
-        <p className="text-xs text-current opacity-70">
-          Value: {value} (type: {typeof value})
+        <InputField
+          {...args}
+          type="email"
+          placeholder="email@example.com"
+          aria-label="Email input"
+          prefixComponent={<Mail className="h-4 w-4" />}
+        />
+        <InputField
+          {...args}
+          type="password"
+          placeholder="Password"
+          aria-label="Password input"
+          prefixComponent={<Lock className="h-4 w-4" />}
+        />
+        <InputField
+          {...args}
+          type="number"
+          placeholder="Enter number"
+          aria-label="Number input"
+          data-testid="number-input"
+          value={numberValue}
+          onChange={(v: number | undefined) => setNumberValue(v)}
+        />
+        <p className="text-xs opacity-70" data-testid="number-value">
+          Number value: {numberValue ?? 'undefined'} (type: {typeof numberValue}
+          )
         </p>
+        <InputField
+          {...args}
+          type="tel"
+          placeholder="+1 (555) 123-4567"
+          aria-label="Telephone input"
+        />
+        <InputField
+          {...args}
+          type="url"
+          placeholder="https://example.com"
+          aria-label="URL input"
+        />
+        <InputField
+          {...args}
+          type="search"
+          placeholder="Search..."
+          aria-label="Search input"
+          prefixComponent={<Search className="h-4 w-4" />}
+        />
+        <InputField
+          {...args}
+          type="date"
+          aria-label="Date input"
+          prefixComponent={<Calendar className="h-4 w-4" />}
+        />
       </div>
     );
   },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Number input with type-safe onChange - returns number (or undefined when cleared)',
-      },
-    },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const numberInput = canvas.getByTestId('number-input');
+
+    await userEvent.type(numberInput, '42');
+
+    const valueDisplay = canvas.getByTestId('number-value');
+    await expect(valueDisplay).toHaveTextContent('Number value: 42');
+    await expect(valueDisplay).toHaveTextContent('type: number');
   },
 };
 
-export const AllInputTypes: Story = {
-  name: 'All Input Types',
-  render: () => (
-    <div className="flex w-80 flex-col gap-3">
-      <InputField type="text" placeholder="Text" />
-      <InputField type="email" placeholder="email@example.com" />
-      <InputField type="password" placeholder="Password" />
-      <InputField type="number" placeholder="123" />
-      <InputField type="tel" placeholder="+1 (555) 123-4567" />
-      <InputField type="url" placeholder="https://example.com" />
-      <InputField type="search" placeholder="Search..." />
-    </div>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'All supported input types. Number type returns number on onChange, others return string',
-      },
-    },
-  },
-};
-
-export const SearchType: Story = {
+/**
+ * Input with prefix and suffix icons demonstrating various use cases.
+ * Use controls to change size for all inputs.
+ */
+export const WithIcons: Story = {
   args: {
-    type: 'search',
-    placeholder: 'Search...',
+    size: 'md',
   },
-};
-
-export const Invalid: Story = {
-  name: 'Invalid State',
-  args: {
-    'defaultValue': 'Invalid input',
-    'aria-invalid': true,
+  argTypes: {
+    type: { control: false },
+    placeholder: { control: false },
+    disabled: { control: false },
   },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Input with invalid state styling (uses aria-invalid). State priority: disabled > readOnly > invalid > normal',
-      },
-    },
-  },
-};
-
-export const AllStates: Story = {
-  name: 'All States Comparison',
-  render: () => (
+  render: (args) => (
     <div className="flex w-80 flex-col gap-4">
-      <div>
-        <p className="mb-1 text-xs font-medium text-current opacity-70">
-          Normal
-        </p>
-        <InputField placeholder="Normal state" />
-      </div>
-      <div>
-        <p className="mb-1 text-xs font-medium text-current opacity-70">
-          Disabled
-        </p>
-        <InputField disabled defaultValue="Disabled state" />
-      </div>
-      <div>
-        <p className="mb-1 text-xs font-medium text-current opacity-70">
-          Read-Only
-        </p>
-        <InputField readOnly defaultValue="Read-only state" />
-      </div>
-      <div>
-        <p className="mb-1 text-xs font-medium text-current opacity-70">
-          Invalid
-        </p>
-        <InputField aria-invalid defaultValue="Invalid state" />
-      </div>
+      <InputField
+        {...args}
+        placeholder="Search..."
+        aria-label="Search input"
+        prefixComponent={<Search className="h-4 w-4" />}
+      />
+      <InputField
+        {...args}
+        placeholder="Username"
+        aria-label="Username input"
+        prefixComponent={<User className="h-4 w-4" />}
+      />
+      <InputField
+        {...args}
+        type="number"
+        placeholder="0.00"
+        aria-label="Price input"
+        prefixComponent={<DollarSign className="h-4 w-4" />}
+        suffixComponent={<span className="text-sm">USD</span>}
+      />
+      <InputField
+        {...args}
+        defaultValue="Valid input"
+        aria-label="Valid input"
+        suffixComponent={<Check className="text-success h-4 w-4" />}
+      />
+      <InputField
+        {...args}
+        placeholder="Loading..."
+        aria-label="Loading input"
+        disabled
+        suffixComponent={<Loader2 className="h-4 w-4 animate-spin" />}
+      />
     </div>
   ),
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Comparison of all input states. Priority: disabled > readOnly > invalid > normal',
-      },
-    },
-  },
 };
 
-export const WithSearchIcon: Story = {
+/**
+ * Password input with visibility toggle button.
+ * Use controls to change size, disabled, and readOnly states.
+ */
+export const PasswordInput: Story = {
   args: {
-    placeholder: 'Search...',
-    prefixComponent: <Search className="h-4 w-4" />,
+    size: 'md',
+    placeholder: 'Enter password',
   },
-};
-
-export const WithEmailIcon: Story = {
-  args: {
-    type: 'email',
-    placeholder: 'user@example.com',
-    prefixComponent: <Mail className="h-4 w-4" />,
+  argTypes: {
+    type: { control: false },
   },
-};
-
-export const WithPasswordToggle: Story = {
-  render: () => {
+  render: function Render(args) {
     const [showPassword, setShowPassword] = useState(false);
+
     return (
       <InputField
+        {...args}
         type={showPassword ? 'text' : 'password'}
-        placeholder="Enter password"
+        defaultValue="secretpassword"
+        aria-label="Password input"
+        data-testid="password-input"
         prefixComponent={<Lock className="h-4 w-4" />}
         suffixComponent={
           <button
             type="button"
+            data-testid="toggle-button"
             onClick={() => setShowPassword(!showPassword)}
             className="hover:text-current"
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
             {showPassword ? (
               <EyeOff className="h-4 w-4" />
@@ -345,222 +389,160 @@ export const WithPasswordToggle: Story = {
       />
     );
   },
-};
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByTestId('password-input');
+    const toggleButton = canvas.getByTestId('toggle-button');
 
-export const WithPriceInput: Story = {
-  name: 'Price Input',
-  args: {
-    type: 'number',
-    placeholder: '0.00',
-    prefixComponent: <DollarSign className="h-4 w-4" />,
-    suffixComponent: <span className="text-sm">USD</span>,
+    await expect(input).toHaveAttribute('type', 'password');
+    await userEvent.click(toggleButton);
+    await expect(input).toHaveAttribute('type', 'text');
+    await userEvent.click(toggleButton);
+    await expect(input).toHaveAttribute('type', 'password');
   },
 };
 
-export const WithLoadingState: Story = {
-  name: 'Loading State',
+/**
+ * Input with a clear button that appears when there's text.
+ * Use controls to change size, disabled, and readOnly states.
+ */
+export const ClearableInput: Story = {
   args: {
-    placeholder: 'Loading...',
-    disabled: true,
-    suffixComponent: <Loader2 className="h-4 w-4 animate-spin" />,
+    size: 'md',
+    placeholder: 'Type something...',
   },
-};
-
-export const WithValidationIcons: Story = {
-  render: () => (
-    <div className="flex flex-col gap-4">
-      <InputField
-        defaultValue="Valid input"
-        suffixComponent={<Check className="text-success h-4 w-4" />}
-      />
-      <InputField
-        defaultValue="Invalid input"
-        aria-invalid
-        suffixComponent={<AlertCircle className="text-destructive h-4 w-4" />}
-      />
-    </div>
-  ),
-};
-
-export const WithClearButton: Story = {
-  render: () => {
+  argTypes: {
+    type: { control: false },
+  },
+  render: function Render(args) {
     const [value, setValue] = useState('Sample text');
 
     return (
       <div className="w-80 space-y-2">
         <InputField
+          {...args}
           value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="Type something..."
+          onChange={setValue}
+          aria-label="Clearable text input"
+          data-testid="clearable-input"
           suffixComponent={
             value && (
               <button
                 type="button"
+                data-testid="clear-button"
                 onClick={() => setValue('')}
                 className="hover:text-current"
+                aria-label="Clear input"
               >
                 <X className="h-4 w-4" />
               </button>
             )
           }
         />
+        <p className="text-xs opacity-70">
+          Current value: &ldquo;{value}&rdquo;
+        </p>
       </div>
     );
   },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Input with a clear button in the suffix. Demonstrates type-safe onChange handler',
-      },
-    },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByTestId('clearable-input');
+
+    await expect(input).toHaveValue('Sample text');
+    const clearButton = canvas.getByTestId('clear-button');
+    await userEvent.click(clearButton);
+    await expect(input).toHaveValue('');
   },
 };
 
-export const WithUserPrefix: Story = {
-  name: 'Username Input',
-  args: {
-    placeholder: 'Enter username',
-    prefixComponent: <User className="h-4 w-4" />,
-  },
-};
-
-export const WithDateIcon: Story = {
-  name: 'Date Input',
-  args: {
-    type: 'date',
-    prefixComponent: <Calendar className="h-4 w-4" />,
-  },
-};
-
-export const SizesWithIcons: Story = {
-  name: 'Sizes with Prefix/Suffix',
-  render: () => (
-    <div className="flex w-80 flex-col gap-4">
-      <InputField
-        size="sm"
-        placeholder="Small with icons"
-        prefixComponent={<Search className="h-3 w-3" />}
-        suffixComponent={<X className="h-3 w-3" />}
-      />
-      <InputField
-        size="md"
-        placeholder="Medium with icons"
-        prefixComponent={<Mail className="h-4 w-4" />}
-        suffixComponent={<Check className="h-4 w-4 text-green-500" />}
-      />
-      <InputField
-        size="lg"
-        placeholder="Large with icons"
-        prefixComponent={<User className="h-5 w-5" />}
-        suffixComponent={<span className="text-lg font-semibold">PRO</span>}
-      />
-    </div>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Input fields at different sizes with both prefix and suffix components. Icon sizes should scale with input size',
-      },
-    },
-  },
-};
-
-export const StatesWithIcons: Story = {
-  name: 'States with Icons',
-  render: () => (
-    <div className="flex w-80 flex-col gap-4">
-      <InputField
-        defaultValue="Normal"
-        prefixComponent={<Mail className="h-4 w-4" />}
-        suffixComponent={<Check className="h-4 w-4" />}
-      />
-      <InputField
-        disabled
-        defaultValue="Disabled"
-        prefixComponent={<Mail className="h-4 w-4" />}
-        suffixComponent={<Lock className="h-4 w-4" />}
-      />
-      <InputField
-        readOnly
-        defaultValue="Read-only"
-        prefixComponent={<Mail className="h-4 w-4" />}
-      />
-      <InputField
-        aria-invalid
-        defaultValue="Invalid"
-        prefixComponent={<Mail className="h-4 w-4" />}
-        suffixComponent={<AlertCircle className="text-destructive h-4 w-4" />}
-      />
-    </div>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Different input states with prefix/suffix components. Icons inherit state styling',
-      },
-    },
-  },
-};
-
+/**
+ * Demonstrates the type-safe onChange handler.
+ * Text inputs return string, number inputs return number (or undefined when empty).
+ * Use controls to change size for both inputs.
+ */
 export const TypeSafeOnChange: Story = {
-  name: 'Type-Safe onChange Demo',
-  render: () => {
+  args: {
+    size: 'md',
+  },
+  argTypes: {
+    type: { control: false },
+    placeholder: { control: false },
+    disabled: { control: false },
+    readOnly: { control: false },
+  },
+  render: function Render(args) {
     const [textValue, setTextValue] = useState('');
-    const [numberValue, setNumberValue] = useState<number | undefined>();
+    const [numberValue, setNumberValue] = useState<number | undefined>(42);
 
     return (
       <div className="flex w-80 flex-col gap-6">
         <div className="space-y-2">
           <label className="text-sm font-medium">Text Input</label>
           <InputField
+            {...args}
             type="text"
             value={textValue}
             onChange={setTextValue}
             placeholder="Type text..."
+            data-testid="text-input"
           />
-          <p className="text-xs text-current opacity-70">
+          <p className="text-xs opacity-70" data-testid="text-info">
             Type: {typeof textValue} | Value: &ldquo;{textValue}&rdquo;
           </p>
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">Number Input</label>
           <InputField
+            {...args}
             type="number"
             value={numberValue}
             onChange={setNumberValue}
             placeholder="Enter number..."
+            data-testid="number-input"
           />
-          <p className="text-xs text-current opacity-70">
+          <p className="text-xs opacity-70" data-testid="number-info">
             Type: {typeof numberValue} | Value: {numberValue ?? 'undefined'}
           </p>
         </div>
       </div>
     );
   },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Demonstrates type-safe onChange handler. Text inputs return string, number inputs return number (or undefined when empty)',
-      },
-    },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const textInput = canvas.getByTestId('text-input');
+    await userEvent.type(textInput, 'hello');
+    const textInfo = canvas.getByTestId('text-info');
+    await expect(textInfo).toHaveTextContent('Type: string');
+
+    const numberInput = canvas.getByTestId('number-input');
+    await userEvent.clear(numberInput);
+    await userEvent.type(numberInput, '100');
+    const numberInfo = canvas.getByTestId('number-info');
+    await expect(numberInfo).toHaveTextContent('Type: number');
+    await expect(numberInfo).toHaveTextContent('Value: 100');
   },
 };
 
-export const Playground: Story = {
+/**
+ * Tests keyboard navigation and focus behavior.
+ * All controls are connected.
+ */
+export const KeyboardNavigation: Story = {
   args: {
-    size: 'md',
-    placeholder: 'Playground - try different combinations',
+    'placeholder': 'Tab to focus, type, then tab away',
+    'data-testid': 'keyboard-input',
   },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Use the controls to experiment with different prop combinations',
-      },
-    },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByTestId('keyboard-input');
+
+    await userEvent.tab();
+    await expect(input).toHaveFocus();
+    await userEvent.type(input, 'Test');
+    await expect(input).toHaveValue('Test');
+    await userEvent.tab();
+    await expect(input).not.toHaveFocus();
   },
 };

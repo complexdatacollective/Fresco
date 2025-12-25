@@ -19,7 +19,7 @@ import { Badge } from '~/components/ui/badge';
 import { DataTable } from './data-table';
 
 const meta = {
-  title: 'Components/DataTable',
+  title: 'UI/DataTable',
   component: DataTable,
   parameters: {
     layout: 'padded',

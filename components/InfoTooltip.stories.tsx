@@ -6,7 +6,7 @@ import Heading from './typography/Heading';
 import { Button, IconButton } from './ui/Button';
 
 const meta = {
-  title: 'Components/InfoTooltip',
+  title: 'UI/InfoTooltip',
   component: InfoTooltip,
   parameters: {
     layout: 'centered',

@@ -33,15 +33,29 @@ export const controlVariants = cva({
   ),
 });
 
-// Base size variants for controls
-export const sizeVariants = cva({
+// Text size variants - can be composed with other variants for consistent text scaling
+export const textSizeVariants = cva({
   variants: {
     size: {
-      xs: 'h-8 text-xs',
-      sm: 'h-10 text-sm',
-      md: 'h-12 text-base',
-      lg: 'h-14 text-lg',
-      xl: 'h-16 text-xl',
+      sm: 'text-sm',
+      md: 'text-base',
+      lg: 'text-lg',
+      xl: 'text-xl',
+    },
+  },
+  defaultVariants: {
+    size: 'md',
+  },
+});
+
+// Height variants for controls - separated from text size for flexibility
+export const heightVariants = cva({
+  variants: {
+    size: {
+      sm: 'h-10',
+      md: 'h-12',
+      lg: 'h-13',
+      xl: 'h-14',
     },
   },
   defaultVariants: {
@@ -53,10 +67,10 @@ export const sizeVariants = cva({
 export const smallSizeVariants = cva({
   variants: {
     size: {
-      sm: 'h-5 text-sm',
-      md: 'h-6 text-base',
-      lg: 'h-8 text-lg',
-      xl: 'h-10 text-xl',
+      sm: 'h-5',
+      md: 'h-6',
+      lg: 'h-8',
+      xl: 'h-10',
     },
   },
   defaultVariants: {
@@ -66,7 +80,7 @@ export const smallSizeVariants = cva({
 
 // Set the size of any child SVG icons to slightly above 1em to match text height
 export const proportionalLucideIconVariants = cva({
-  base: '[&>.lucide]:h-[1.2em] [&>.lucide]:max-h-full [&>.lucide]:w-auto [&>.lucide]:shrink-0',
+  base: '[&>.lucide]:h-[1em] [&>.lucide]:max-h-full [&>.lucide]:w-auto [&>.lucide]:shrink-0',
 });
 
 // adds background and border styles for input-like controls
@@ -76,35 +90,16 @@ export const inputControlVariants = cva({
 
 // Spacing between elements within a wrapper, such as icons and text
 export const inlineSpacingVariants = cva({
-  variants: {
-    size: {
-      xs: 'gap-2 px-3',
-      sm: 'gap-3 px-4',
-      md: 'gap-4 px-6',
-      lg: 'gap-5 px-8',
-      xl: 'gap-6 px-10',
-    },
-  },
-  defaultVariants: {
-    size: 'md',
-  },
+  base: 'gap-4',
+});
+
+export const wrapperPaddingVariants = cva({
+  base: 'px-6',
 });
 
 // Spacing for groups of controls
 export const groupSpacingVariants = cva({
-  base: 'gap-2',
-  variants: {
-    size: {
-      xs: 'px-2 py-2',
-      sm: 'px-3 py-3',
-      md: 'px-4 py-4',
-      lg: 'px-6 py-5',
-      xl: 'px-8 py-6',
-    },
-  },
-  defaultVariants: {
-    size: 'md',
-  },
+  base: 'gap-2 p-4',
 });
 
 // Variants for placeholder text styling

@@ -90,6 +90,7 @@
     "lucide-react": "^0.554.0",
     "mapbox-gl": "^3.16.0",
     "motion": "^12.23.25",
+    "motion-plus": "https://api.motion.dev/registry?package=motion-plus&version=2.0.2&token=ee3dc79377e9bbcf77b64b6b0ef6609f4732880cfce36ca28e1bb25064134076",
     "nanoid": "^5.1.6",
     "next": "^14.2.32",
     "nuqs": "^1.20.0",

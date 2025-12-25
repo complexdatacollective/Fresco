@@ -107,10 +107,3 @@ export type FormSubmissionResult =
  * Type for field errors object (used for scrolling to first error)
  */
 export type FormFieldErrors = Record<string, string[] | null>;
-
-export type BaseFieldComponentProps<T extends FieldValue> = {
-  id: string;
-  name: string;
-  value: T;
-  onChange: (value: T) => void;
-};

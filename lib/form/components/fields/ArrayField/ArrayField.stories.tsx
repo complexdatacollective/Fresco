@@ -27,7 +27,7 @@ type SimpleItemBase = { id: string; label: string };
  * Demonstrates the inline editing pattern where the item component
  * handles both display and edit modes using isBeingEdited.
  */
-export function SimpleInlineItem({
+function SimpleInlineItem({
   item,
   isSortable,
   isBeingEdited,
@@ -125,7 +125,7 @@ export function SimpleInlineItem({
  * Simple item content renderer for basic label items.
  * Renders drag handle, label text, and edit/delete buttons.
  */
-export function SimpleItem({
+function SimpleItem({
   item,
   isSortable,
   onEdit,

@@ -7,11 +7,6 @@ import {
   useRef,
 } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import {
-  type ValidationProps,
-  makeValidationFunction,
-  makeValidationHints,
-} from '../components/Field';
 import type {
   ChangeHandler,
   FieldState,
@@ -19,6 +14,11 @@ import type {
   ValidationContext,
 } from '../components/types';
 import { useFormStore } from '../store/formStoreProvider';
+import {
+  makeValidationFunction,
+  makeValidationHints,
+  type ValidationProps,
+} from '../utils/validation';
 
 /**
  * Helper function to determine if a field should show an error message.
@@ -53,12 +53,6 @@ export type UseFieldResult = {
   };
   containerProps: {
     'data-field-name': string; // Used for scrolling to field errors
-    'data-disabled': boolean;
-    'data-valid': boolean;
-    'data-validating': boolean;
-    'data-invalid': boolean;
-    'data-dirty': boolean;
-    'data-touched': boolean;
   };
   fieldProps: {
     'value': FieldValue;
@@ -217,12 +211,6 @@ export function useField(config: UseFieldConfig): UseFieldResult {
     },
     containerProps: {
       'data-field-name': name, // Used for scrolling to field errors
-      'data-disabled': false, // TODO
-      'data-valid': fieldState?.state.isValid ?? false,
-      'data-validating': fieldState?.state.isValidating ?? false,
-      'data-invalid': showInvalid,
-      'data-dirty': fieldState?.state.isDirty ?? false,
-      'data-touched': fieldState?.state.isTouched ?? false,
     },
     fieldProps: {
       'value': fieldState?.value,

@@ -5,9 +5,10 @@ import { motion } from 'motion/react';
 import * as React from 'react';
 import {
   controlVariants,
+  heightVariants,
   inlineSpacingVariants,
   proportionalLucideIconVariants,
-  sizeVariants,
+  textSizeVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { Skeleton } from './skeleton';
@@ -21,7 +22,6 @@ const buttonSpecificVariants = cva({
     'elevation-low',
     'not-disabled:hover:elevation-medium not-disabled:active:elevation-none not-disabled:hover:translate-y-[-2px] not-disabled:active:translate-y-px',
     'transition-[background-color,border-color,color,box-shadow,opacity,translate] duration-150',
-    'data-pressed:bg-accent data-pressed:text-accent-contrast data-pressed:elevation-low',
   ),
   variants: {
     variant: {
@@ -85,7 +85,8 @@ const buttonSpecificVariants = cva({
 });
 
 const buttonVariants = compose(
-  sizeVariants,
+  heightVariants,
+  textSizeVariants,
   proportionalLucideIconVariants,
   controlVariants,
   inlineSpacingVariants,

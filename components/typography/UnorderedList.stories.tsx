@@ -4,7 +4,7 @@ import Paragraph from './Paragraph';
 import UnorderedList from './UnorderedList';
 
 const meta = {
-  title: 'UI/Typography/UnorderedList',
+  title: 'Design System/Typography/UnorderedList',
   component: UnorderedList,
   parameters: {
     layout: 'padded',

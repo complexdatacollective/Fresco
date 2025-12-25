@@ -1,5 +1,80 @@
 'use client';
 
+/**
+ * # useProtocolForm Hook
+ *
+ * The `useProtocolForm` hook bridges Network Canvas protocol definitions and the
+ * Fresco form system. It automatically generates `<Field>` components from
+ * protocol field configurations, including proper input types and validation.
+ *
+ * ## When to Use
+ *
+ * Use `useProtocolForm` when rendering forms defined in Network Canvas protocols,
+ * such as:
+ * - Name Generator node forms
+ * - Ego forms
+ * - Any interview stage that collects structured data
+ *
+ * ## How It Works
+ *
+ * 1. **Takes protocol field definitions** - Array of `{ variable, prompt }` objects
+ * 2. **Looks up variable metadata** - Uses Redux selectors to get codebook info
+ * 3. **Maps to form components** - Converts protocol types to form field components
+ * 4. **Extracts validation** - Pulls validation rules from variable definitions
+ * 5. **Returns rendered fields** - Ready-to-use `<Field>` components
+ *
+ * ## Protocol Component Mapping
+ *
+ * | Protocol Component | Form Field |
+ * |-------------------|------------|
+ * | `Text` | InputField |
+ * | `TextArea` | TextAreaField |
+ * | `Number` | InputField (number) |
+ * | `RadioGroup` | RadioGroupField |
+ * | `CheckboxGroup` | CheckboxGroupField |
+ * | `Boolean` | BooleanField |
+ * | `Toggle` | ToggleField |
+ * | `ToggleButtonGroup` | ToggleButtonGroupField |
+ * | `DatePicker` | DatePickerField |
+ * | `RelativeDatePicker` | RelativeDatePickerField |
+ * | `VisualAnalogScale` | VisualAnalogScaleField |
+ * | `LikertScale` | LikertScaleField |
+ *
+ * ## Validation Extraction
+ *
+ * The hook automatically extracts these validations from protocol definitions:
+ * - `required`, `minLength`, `maxLength`
+ * - `minValue`, `maxValue`
+ * - `minSelected`, `maxSelected`
+ * - `pattern`, `unique`, `sameAs`, `differentFrom`
+ * - `greaterThanVariable`, `lessThanVariable`
+ *
+ * ## Usage Example
+ *
+ * ```tsx
+ * function NodeForm({ fields, onSubmit }) {
+ *   const { fieldComponents } = useProtocolForm({
+ *     fields,
+ *     autoFocus: true,
+ *     initialValues: existingNode?.attributes,
+ *   });
+ *
+ *   return (
+ *     <Form onSubmit={onSubmit}>
+ *       {fieldComponents}
+ *       <SubmitButton>Save</SubmitButton>
+ *     </Form>
+ *   );
+ * }
+ * ```
+ *
+ * ## Important Notes
+ *
+ * - Requires Redux context with `protocol` and `session` slices
+ * - Context-dependent validations (unique, sameAs) need network data in store
+ * - The hook uses the protocol's codebook to determine field types and options
+ */
+
 import { action } from 'storybook/actions';
 import type { Form as TForm } from '@codaco/protocol-validation';
 import { configureStore } from '@reduxjs/toolkit';
