@@ -1,22 +1,17 @@
 'use client';
 
+import { type CreateFieldProps } from '../Field/Field';
 import { InputField } from './InputField';
 
-type RelativeDatePickerFieldProps = {
-  'anchor'?: string; // ISO date string
-  'before'?: number; // days before anchor
-  'after'?: number; // days after anchor
-  'value'?: string;
-  'onChange'?: (value: string) => void;
-  'name'?: string;
-  'size'?: 'sm' | 'md' | 'lg';
-  'disabled'?: boolean;
-  'required'?: boolean;
-  'placeholder'?: string;
-  'className'?: string;
-  'aria-label'?: string;
-  'aria-invalid'?: boolean;
-  'readOnly'?: boolean;
+type RelativeDatePickerFieldProps = CreateFieldProps & {
+  anchor?: string; // ISO date string
+  before?: number; // days before anchor
+  after?: number; // days after anchor
+  value?: string;
+  onChange?: (value: string) => void;
+  size?: 'sm' | 'md' | 'lg';
+  placeholder?: string;
+  className?: string;
 };
 
 function formatDateForInput(date: Date): string {
@@ -34,22 +29,22 @@ function addDays(date: Date, days: number): Date {
   return result;
 }
 
-export function RelativeDatePickerField({
-  anchor,
-  before = 180,
-  after = 0,
-  value,
-  onChange,
-  name,
-  size = 'md',
-  disabled,
-  required,
-  placeholder,
-  className,
-  'aria-label': ariaLabel,
-  'aria-invalid': ariaInvalid,
-  readOnly,
-}: RelativeDatePickerFieldProps) {
+export function RelativeDatePickerField(props: RelativeDatePickerFieldProps) {
+  const {
+    anchor,
+    before = 180,
+    after = 0,
+    value,
+    onChange,
+    name,
+    size = 'md',
+    placeholder,
+    className,
+    disabled,
+    readOnly,
+    ...rest
+  } = props;
+
   // Parse anchor date or default to today
   const anchorDate =
     anchor && typeof anchor === 'string' ? new Date(anchor) : new Date();
@@ -66,14 +61,14 @@ export function RelativeDatePickerField({
       max={formatDateForInput(maxDate)}
       value={value}
       onChange={(value) => onChange?.(String(value))}
-      name={name}
-      disabled={disabled}
-      required={required}
+      name={name ?? ''}
       placeholder={placeholder}
       className={className}
-      aria-label={ariaLabel}
-      aria-invalid={ariaInvalid}
+      disabled={disabled}
       readOnly={readOnly}
+      aria-invalid={rest['aria-invalid']}
+      aria-describedby={rest['aria-describedby']}
+      aria-required={rest['aria-required']}
     />
   );
 }

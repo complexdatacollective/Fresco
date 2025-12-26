@@ -13,6 +13,7 @@ import {
   stateVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx } from '~/utils/cva';
+import { type CreateFieldProps } from '../Field/Field';
 
 type BooleanOption = {
   label: string;
@@ -114,18 +115,14 @@ const booleanIndicatorVariants = compose(
   }),
 );
 
-type BooleanFieldProps = Omit<
-  RadioGroupProps,
-  'onChange' | 'value' | 'defaultValue' | 'onValueChange'
+type BooleanFieldProps = CreateFieldProps<
+  Omit<RadioGroupProps, 'onChange' | 'value' | 'defaultValue' | 'onValueChange'>
 > & {
-  'value'?: boolean | null;
-  'onChange'?: (value: boolean | null) => void;
-  'disabled'?: boolean;
-  'readOnly'?: boolean;
-  'noReset'?: boolean;
-  'label'?: string;
-  'options'?: BooleanOption[];
-  'aria-invalid'?: 'true' | 'false' | boolean;
+  value?: boolean | null;
+  onChange?: (value: boolean | null) => void;
+  noReset?: boolean;
+  label?: string;
+  options?: BooleanOption[];
 };
 
 type ButtonState = 'disabled' | 'readOnly' | 'normal';
@@ -213,22 +210,23 @@ function BooleanIndicator({
   );
 }
 
-export function BooleanField({
-  className,
-  value,
-  onChange,
-  disabled = false,
-  readOnly = false,
-  noReset = false,
-  label,
-  options = [
-    { label: 'Yes', value: true },
-    { label: 'No', value: false },
-  ],
-  ...props
-}: BooleanFieldProps) {
-  const isInvalid =
-    props['aria-invalid'] === 'true' || props['aria-invalid'] === true;
+export function BooleanField(props: BooleanFieldProps) {
+  const {
+    className,
+    value,
+    onChange,
+    noReset = false,
+    label,
+    options = [
+      { label: 'Yes', value: true },
+      { label: 'No', value: false },
+    ],
+    disabled,
+    readOnly,
+    ...rest
+  } = props;
+
+  const isInvalid = !!rest['aria-invalid'];
 
   const stringValue =
     value === null || value === undefined ? '' : String(value);
@@ -257,13 +255,13 @@ export function BooleanField({
         )}
       >
         <RadioGroup
+          {...rest}
           value={stringValue}
           onValueChange={handleValueChange}
           disabled={disabled}
           readOnly={readOnly}
           aria-invalid={isInvalid || undefined}
           className="flex gap-2"
-          {...props}
         >
           {options.map((option) => {
             const isSelected = value === option.value;
@@ -306,7 +304,7 @@ export function BooleanField({
           variant="link"
           onClick={() => onChange?.(null)}
           disabled={disabled || readOnly}
-          size="xs"
+          size="sm"
         >
           Reset answer
         </Button>

@@ -10,7 +10,16 @@ const meta: Meta<typeof VisualAnalogScaleField> = {
   },
   tags: ['autodocs'],
   argTypes: {
-    value: {
+    'aria-invalid': { control: 'boolean' },
+    'readOnly': {
+      control: 'boolean',
+      description: 'Whether the scale is read-only',
+      table: {
+        type: { summary: 'boolean' },
+        defaultValue: { summary: 'false' },
+      },
+    },
+    'value': {
       control: 'number',
       description: 'Current value of the scale',
       table: {
@@ -18,7 +27,7 @@ const meta: Meta<typeof VisualAnalogScaleField> = {
         defaultValue: { summary: '0' },
       },
     },
-    min: {
+    'min': {
       control: 'number',
       description: 'Minimum value of the scale',
       table: {
@@ -26,7 +35,7 @@ const meta: Meta<typeof VisualAnalogScaleField> = {
         defaultValue: { summary: '0' },
       },
     },
-    max: {
+    'max': {
       control: 'number',
       description: 'Maximum value of the scale',
       table: {
@@ -34,7 +43,7 @@ const meta: Meta<typeof VisualAnalogScaleField> = {
         defaultValue: { summary: '100' },
       },
     },
-    step: {
+    'step': {
       control: 'number',
       description: 'Step increment for the scale',
       table: {
@@ -42,21 +51,21 @@ const meta: Meta<typeof VisualAnalogScaleField> = {
         defaultValue: { summary: '0.1' },
       },
     },
-    minLabel: {
+    'minLabel': {
       control: 'text',
       description: 'Label for the minimum value',
       table: {
         type: { summary: 'string' },
       },
     },
-    maxLabel: {
+    'maxLabel': {
       control: 'text',
       description: 'Label for the maximum value',
       table: {
         type: { summary: 'string' },
       },
     },
-    disabled: {
+    'disabled': {
       control: 'boolean',
       description: 'Whether the scale is disabled',
       table: {
@@ -64,7 +73,7 @@ const meta: Meta<typeof VisualAnalogScaleField> = {
         defaultValue: { summary: 'false' },
       },
     },
-    onChange: {
+    'onChange': {
       action: 'onChange',
       description: 'Callback when scale value changes',
       table: {
@@ -78,6 +87,7 @@ const meta: Meta<typeof VisualAnalogScaleField> = {
     max: 100,
     step: 0.1,
     disabled: false,
+    readOnly: false,
   },
 };
 

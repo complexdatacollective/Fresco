@@ -1,4 +1,4 @@
-import { type FieldValue } from '../../components/types';
+import { type FieldValue } from '../../types';
 
 /**
  * Compares two FieldValue types to determine if they match.

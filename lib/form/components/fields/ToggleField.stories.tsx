@@ -10,6 +10,7 @@ const meta: Meta<typeof ToggleField> = {
   },
   tags: ['autodocs'],
   argTypes: {
+    'aria-invalid': { control: 'boolean' },
     'value': {
       control: 'boolean',
       description: 'Whether the toggle is checked',

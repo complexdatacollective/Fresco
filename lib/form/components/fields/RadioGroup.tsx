@@ -14,6 +14,8 @@ import {
   stateVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
+import { getInputState } from '../../utils/getInputState';
+import { type CreateFieldProps } from '../Field/Field';
 
 const radioGroupWrapperVariants = compose(
   controlVariants,
@@ -67,48 +69,37 @@ type RadioOption = {
   disabled?: boolean;
 };
 
-type RadioGroupFieldProps = Omit<RadioGroupProps, 'size' | 'onValueChange'> &
+type RadioGroupFieldProps = CreateFieldProps<
+  Omit<RadioGroupProps, 'size' | 'onValueChange'>
+> &
   VariantProps<typeof radioGroupWrapperVariants> & {
-    'id'?: string;
-    'name': string;
-    'options': RadioOption[];
-    'value'?: string | number;
-    'defaultValue'?: string | number;
-    'onChange'?: (value: string | number) => void;
-    'disabled'?: boolean;
-    'readOnly'?: boolean;
-    'orientation'?: 'horizontal' | 'vertical';
-    'size'?: 'sm' | 'md' | 'lg' | 'xl';
-    'useColumns'?: boolean;
-    'aria-invalid'?: 'true' | 'false' | boolean;
-    'aria-label'?: string;
-    'aria-describedby'?: string;
+    options: RadioOption[];
+    value?: string | number;
+    defaultValue?: string | number;
+    onChange?: (value: string | number) => void;
+    orientation?: 'horizontal' | 'vertical';
+    size?: 'sm' | 'md' | 'lg' | 'xl';
+    useColumns?: boolean;
   };
 
-export function RadioGroupField({
-  id,
-  className,
-  name,
-  options,
-  value,
-  defaultValue,
-  onChange,
-  disabled = false,
-  readOnly = false,
-  orientation = 'vertical',
-  size = 'md',
-  useColumns = false,
-  ...props
-}: RadioGroupFieldProps) {
-  const isInvalid =
-    props['aria-invalid'] === 'true' || props['aria-invalid'] === true;
+export function RadioGroupField(props: RadioGroupFieldProps) {
+  const {
+    id,
+    className,
+    name,
+    options,
+    value,
+    defaultValue,
+    onChange,
+    orientation = 'vertical',
+    size = 'md',
+    useColumns = false,
+    disabled,
+    readOnly,
+    ...rest
+  } = props;
 
-  const getState = () => {
-    if (disabled) return 'disabled' as const;
-    if (readOnly) return 'readOnly' as const;
-    if (isInvalid) return 'invalid' as const;
-    return 'normal' as const;
-  };
+  const isInvalid = !!rest['aria-invalid'];
 
   const handleValueChange = (newValue: unknown) => {
     if (readOnly) return;
@@ -144,13 +135,12 @@ export function RadioGroupField({
         readOnly={readOnly}
         className={radioGroupWrapperVariants({
           orientation,
-          size,
           useColumns,
-          state: getState(),
+          state: getInputState(props),
           className,
         })}
-        aria-label={props['aria-label']}
-        aria-describedby={props['aria-describedby']}
+        aria-label={rest['aria-label']}
+        aria-describedby={rest['aria-describedby']}
         aria-invalid={isInvalid || undefined}
       >
         {options.map((option) => {

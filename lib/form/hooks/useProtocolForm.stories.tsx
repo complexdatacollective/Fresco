@@ -75,13 +75,13 @@
  * - The hook uses the protocol's codebook to determine field types and options
  */
 
-import { action } from 'storybook/actions';
 import type { Form as TForm } from '@codaco/protocol-validation';
 import { configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Provider } from 'react-redux';
+import { action } from 'storybook/actions';
 import { Form, SubmitButton } from '../components';
-import { type FieldValue } from '../components/types';
+import { type FieldValue } from '../types';
 import useProtocolForm from './useProtocolForm';
 
 // Mock protocol data

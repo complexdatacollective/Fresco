@@ -10,20 +10,14 @@ const meta = {
   },
   tags: ['autodocs'],
   argTypes: {
-    size: {
+    'disabled': { control: 'boolean' },
+    'readOnly': { control: 'boolean' },
+    'aria-invalid': { control: 'boolean' },
+    'size': {
       control: 'select',
       options: ['sm', 'md', 'lg', 'xl'],
     },
-    disabled: {
-      control: 'boolean',
-    },
-    readOnly: {
-      control: 'boolean',
-    },
-    invalid: {
-      control: 'boolean',
-    },
-    checked: {
+    'checked': {
       control: 'boolean',
     },
   },
@@ -37,7 +31,7 @@ export const Default: Story = {
     'size': 'md',
     'disabled': false,
     'readOnly': false,
-    'invalid': false,
+    'aria-invalid': false,
     'aria-label': 'Checkbox',
   },
 };
@@ -108,12 +102,12 @@ export const InvalidState: Story = {
   render: () => (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-4">
-        <Checkbox invalid aria-label="Invalid unchecked checkbox" />
+        <Checkbox aria-invalid aria-label="Invalid unchecked checkbox" />
         <span className="text-sm">Invalid (Unchecked)</span>
       </div>
       <div className="flex items-center gap-4">
         <Checkbox
-          invalid
+          aria-invalid
           defaultChecked
           aria-label="Invalid checked checkbox"
         />
@@ -226,7 +220,7 @@ export const AllSizesAllStates: Story = {
           <div className="flex w-24 justify-center">
             <Checkbox
               size={size}
-              invalid
+              aria-invalid
               defaultChecked
               aria-label={`${size} invalid`}
             />

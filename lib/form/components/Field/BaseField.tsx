@@ -3,9 +3,9 @@
 import { type ReactNode } from 'react';
 import Paragraph from '~/components/typography/Paragraph';
 import { cx } from '~/utils/cva';
-import FieldErrors from './FieldErrors';
-import { FieldLabel } from './FieldLabel';
-import Hint from './Hint';
+import FieldErrors from '../FieldErrors';
+import { FieldLabel } from '../FieldLabel';
+import Hint from '../Hint';
 
 export type BaseFieldProps = {
   id: string;

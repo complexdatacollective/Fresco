@@ -1,6 +1,6 @@
 import { X } from 'lucide-react';
 import { type ComponentPropsWithRef, forwardRef } from 'react';
-import { IconButton } from './ui/Button';
+import { IconButton } from './Button';
 
 const CloseButton = forwardRef<
   HTMLButtonElement,

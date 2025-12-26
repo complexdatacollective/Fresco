@@ -10,6 +10,7 @@ const meta: Meta<typeof RelativeDatePickerField> = {
   },
   tags: ['autodocs'],
   argTypes: {
+    'aria-invalid': { control: 'boolean' },
     'anchor': {
       control: 'text',
       description: 'Anchor date as ISO string (defaults to today)',
@@ -75,7 +76,7 @@ const meta: Meta<typeof RelativeDatePickerField> = {
     },
     'aria-invalid': {
       control: 'boolean',
-      description: 'Whether the date picker has invalid state styling',
+      description: 'Whether the date picker has aria-invalid state styling',
       table: {
         type: { summary: 'boolean' },
         defaultValue: { summary: 'false' },
@@ -86,6 +87,7 @@ const meta: Meta<typeof RelativeDatePickerField> = {
     before: 180,
     after: 0,
     disabled: false,
+    readOnly: false,
   },
 };
 

@@ -7,7 +7,7 @@ import {
   getValidationContext,
   selectFieldMetadata,
 } from '~/lib/interviewer/selectors/forms';
-import Field, { type ValidationProps } from '../components/Field';
+import Field from '../components/Field/Field';
 import { BooleanField } from '../components/fields/Boolean';
 import { CheckboxGroupField } from '../components/fields/CheckboxGroup';
 import { DatePickerField } from '../components/fields/DatePicker';
@@ -19,7 +19,8 @@ import { TextAreaField } from '../components/fields/TextArea';
 import { ToggleButtonGroupField } from '../components/fields/ToggleButtonGroup';
 import { ToggleField } from '../components/fields/ToggleField';
 import { VisualAnalogScaleField } from '../components/fields/VisualAnalogScale';
-import { type FieldValue, type ValidationContext } from '../components/types';
+import { type FieldValue, type ValidationContext } from '../types';
+import { type ValidationProps } from '../validation/helpers';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const fieldTypeMap: Record<ComponentType, React.ComponentType<any>> = {

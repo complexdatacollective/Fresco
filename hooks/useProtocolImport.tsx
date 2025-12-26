@@ -9,12 +9,12 @@ import { hash } from 'ohash';
 import { useCallback, useReducer, useRef } from 'react';
 import { insertProtocol } from '~/actions/protocols';
 import { ErrorDetails } from '~/components/ErrorDetails';
-import Link from '~/components/Link';
 import {
   jobInitialState,
   jobReducer,
 } from '~/components/ProtocolImport/JobReducer';
 import Paragraph from '~/components/typography/Paragraph';
+import Link from '~/components/ui/Link';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
 import { uploadFiles } from '~/lib/uploadthing-client-helpers';
 import { getNewAssetIds, getProtocolByHash } from '~/queries/protocols';

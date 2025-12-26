@@ -8,7 +8,7 @@ import { action } from 'storybook/actions';
 import { useArgs } from 'storybook/preview-api';
 import { Button, IconButton, MotionButton } from '~/components/ui/Button';
 import { Dialog } from '~/lib/dialogs/Dialog';
-import Field from '~/lib/form/components/Field';
+import Field from '~/lib/form/components/Field/Field';
 import { InputField } from '~/lib/form/components/fields/InputField';
 import { FormWithoutProvider } from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
@@ -50,8 +50,9 @@ function SimpleInlineItem({
     return (
       <div className="flex gap-2">
         <InputField
+          name="label"
           value={label}
-          onChange={(e) => setLabel(e.target.value)}
+          onChange={setLabel}
           placeholder="Enter a label..."
           minLength={2}
           // Enter key saves
@@ -121,55 +122,6 @@ function SimpleInlineItem({
   );
 }
 
-/**
- * Simple item content renderer for basic label items.
- * Renders drag handle, label text, and edit/delete buttons.
- */
-function SimpleItem({
-  item,
-  isSortable,
-  onEdit,
-  onDelete,
-  dragControls,
-}: ArrayFieldItemProps<{ id: string; label: string }>) {
-  return (
-    <div className="border-b-input-contrast/10 flex w-full items-center gap-2 border-b px-2 py-1 last:border-b-0">
-      {isSortable && (
-        <motion.div
-          layout
-          onPointerDown={(e) => dragControls.start(e)}
-          className="touch-none"
-        >
-          <GripVertical className="h-4 w-4 cursor-grab" />
-        </motion.div>
-      )}
-      <motion.div layout className="flex-1">
-        {item.label}
-      </motion.div>
-      <motion.div layout className="ml-auto flex items-center gap-1">
-        <IconButton
-          size="sm"
-          variant="text"
-          className="text-current"
-          color="primary"
-          onClick={onEdit}
-          aria-label="Edit item"
-          icon={<PencilIcon />}
-        />
-        <IconButton
-          variant="text"
-          className="text-current"
-          color="destructive"
-          size="sm"
-          onClick={onDelete}
-          icon={<X />}
-          aria-label="Remove item"
-        />
-      </motion.div>
-    </div>
-  );
-}
-
 // ============================================================================
 // Sample Data Types
 // ============================================================================
@@ -218,36 +170,39 @@ immediately upon creation.
     },
   },
   argTypes: {
-    sortable: {
+    'disabled': { control: 'boolean' },
+    'readOnly': { control: 'boolean' },
+    'aria-invalid': { control: 'boolean' },
+    'sortable': {
       control: 'boolean',
       description: 'Enable drag-and-drop reordering of items',
       table: { defaultValue: { summary: 'false' } },
     },
-    confirmDelete: {
+    'confirmDelete': {
       control: 'boolean',
       description: 'Show a confirmation dialog before deleting an item',
       table: { defaultValue: { summary: 'true' } },
     },
-    addButtonLabel: {
+    'addButtonLabel': {
       control: 'text',
       description: 'Label for the "Add Item" button',
       table: { defaultValue: { summary: 'Add Item' } },
     },
-    emptyStateMessage: {
+    'emptyStateMessage': {
       control: 'text',
       description: 'Message shown when the list is empty',
     },
-    itemComponent: {
+    'itemComponent': {
       control: false,
       description:
         'Component for rendering each item. Receives ArrayFieldItemProps including isBeingEdited for inline editing.',
     },
-    editorComponent: {
+    'editorComponent': {
       control: false,
       description:
         'Optional component for dialog-based editing. Receives ArrayFieldEditorProps with onSave callback.',
     },
-    itemTemplate: {
+    'itemTemplate': {
       control: false,
       description: 'Function that returns a new item template when adding',
     },
@@ -378,6 +333,7 @@ function TagInlineItem({
         <motion.div layout className="flex flex-col gap-2">
           <label className="text-sm font-medium">Label</label>
           <InputField
+            name="label"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             placeholder="Enter tag label"

@@ -10,7 +10,8 @@ const meta: Meta<typeof ToggleButtonGroupField> = {
   },
   tags: ['autodocs'],
   argTypes: {
-    value: {
+    'aria-invalid': { control: 'boolean' },
+    'value': {
       control: false,
       description: 'Array of selected values',
       table: {
@@ -18,7 +19,7 @@ const meta: Meta<typeof ToggleButtonGroupField> = {
         defaultValue: { summary: '[]' },
       },
     },
-    disabled: {
+    'disabled': {
       control: 'boolean',
       description: 'Whether the button group is disabled',
       table: {
@@ -26,7 +27,7 @@ const meta: Meta<typeof ToggleButtonGroupField> = {
         defaultValue: { summary: 'false' },
       },
     },
-    size: {
+    'size': {
       control: 'select',
       options: ['sm', 'md', 'lg', 'xl'],
       description: 'Size of the toggle buttons',
@@ -35,7 +36,7 @@ const meta: Meta<typeof ToggleButtonGroupField> = {
         defaultValue: { summary: "'md'" },
       },
     },
-    options: {
+    'options': {
       control: false,
       description: 'Array of options with label and value',
       table: {
@@ -43,7 +44,7 @@ const meta: Meta<typeof ToggleButtonGroupField> = {
         defaultValue: { summary: '[]' },
       },
     },
-    onChange: {
+    'onChange': {
       action: 'onChange',
       description: 'Callback when selection changes',
       table: {
@@ -53,6 +54,7 @@ const meta: Meta<typeof ToggleButtonGroupField> = {
   },
   args: {
     disabled: false,
+    readOnly: false,
   },
 };
 

@@ -10,14 +10,23 @@ const meta: Meta<typeof LikertScaleField> = {
   },
   tags: ['autodocs'],
   argTypes: {
-    value: {
+    'aria-invalid': { control: 'boolean' },
+    'readOnly': {
+      control: 'boolean',
+      description: 'Whether the scale is read-only',
+      table: {
+        type: { summary: 'boolean' },
+        defaultValue: { summary: 'false' },
+      },
+    },
+    'value': {
       control: false,
       description: 'Currently selected value',
       table: {
         type: { summary: 'string | number' },
       },
     },
-    disabled: {
+    'disabled': {
       control: 'boolean',
       description: 'Whether the scale is disabled',
       table: {
@@ -25,7 +34,7 @@ const meta: Meta<typeof LikertScaleField> = {
         defaultValue: { summary: 'false' },
       },
     },
-    options: {
+    'options': {
       control: false,
       description: 'Array of scale options with labels and values',
       table: {
@@ -33,7 +42,7 @@ const meta: Meta<typeof LikertScaleField> = {
         defaultValue: { summary: '[]' },
       },
     },
-    onChange: {
+    'onChange': {
       action: 'onChange',
       description: 'Callback when scale value changes',
       table: {
@@ -43,6 +52,7 @@ const meta: Meta<typeof LikertScaleField> = {
   },
   args: {
     disabled: false,
+    readOnly: false,
   },
 };
 

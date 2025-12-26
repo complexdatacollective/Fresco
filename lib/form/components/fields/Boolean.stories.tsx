@@ -10,6 +10,7 @@ const meta: Meta<typeof BooleanField> = {
   },
   tags: ['autodocs'],
   argTypes: {
+    'aria-invalid': { control: 'boolean' },
     'value': {
       control: 'radio',
       options: [true, false, null],
@@ -130,7 +131,7 @@ export const DisabledWithSelection: Story = {
           </p>
           <BooleanField
             value={true}
-            disabled={true}
+            disabled
             options={[
               { label: 'Yes', value: true },
               { label: 'No', value: false },
@@ -141,7 +142,7 @@ export const DisabledWithSelection: Story = {
           <p className="mb-2 text-sm font-medium">Disabled with No selected:</p>
           <BooleanField
             value={false}
-            disabled={true}
+            disabled
             options={[
               { label: 'Yes', value: true },
               { label: 'No', value: false },
@@ -154,7 +155,7 @@ export const DisabledWithSelection: Story = {
           </p>
           <BooleanField
             value={null}
-            disabled={true}
+            disabled
             options={[
               { label: 'Yes', value: true },
               { label: 'No', value: false },
@@ -221,7 +222,7 @@ export const ReadOnly: Story = {
           </p>
           <BooleanField
             value={true}
-            readOnly={true}
+            readOnly
             options={[
               { label: 'Yes', value: true },
               { label: 'No', value: false },
@@ -234,7 +235,7 @@ export const ReadOnly: Story = {
           </p>
           <BooleanField
             value={false}
-            readOnly={true}
+            readOnly
             options={[
               { label: 'Yes', value: true },
               { label: 'No', value: false },
@@ -247,7 +248,7 @@ export const ReadOnly: Story = {
           </p>
           <BooleanField
             value={null}
-            readOnly={true}
+            readOnly
             options={[
               { label: 'Yes', value: true },
               { label: 'No', value: false },

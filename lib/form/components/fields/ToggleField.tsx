@@ -8,6 +8,8 @@ import {
   smallSizeVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
+import { getInputState } from '../../utils/getInputState';
+import { type CreateFieldProps } from '../Field/Field';
 
 type ToggleState = 'normal' | 'disabled' | 'readOnly' | 'invalid';
 
@@ -105,39 +107,32 @@ const toggleThumbVariants = cva({
   },
 });
 
-type ToggleFieldProps = Omit<
-  ComponentPropsWithoutRef<typeof Switch.Root>,
-  'size' | 'checked' | 'onCheckedChange' | 'value'
+type ToggleFieldProps = CreateFieldProps<
+  Omit<
+    ComponentPropsWithoutRef<typeof Switch.Root>,
+    'size' | 'checked' | 'onCheckedChange' | 'value'
+  >
 > &
   VariantProps<typeof toggleContainerVariants> & {
-    'value': boolean;
-    'onChange'?: (value: boolean) => void;
-    'readOnly'?: boolean;
-    'aria-invalid'?: 'true' | 'false' | boolean;
+    value: boolean;
+    onChange?: (value: boolean) => void;
   };
 
-export function ToggleField({
-  id,
-  name,
-  className,
-  value = false,
-  size,
-  onChange,
-  disabled,
-  readOnly,
-  ...props
-}: ToggleFieldProps) {
-  const isInvalid =
-    props['aria-invalid'] === 'true' || props['aria-invalid'] === true;
+export function ToggleField(props: ToggleFieldProps) {
+  const {
+    id,
+    name,
+    className,
+    value = false,
+    size,
+    onChange,
+    disabled,
+    readOnly,
+    ...rest
+  } = props;
 
-  const getState = (): ToggleState => {
-    if (disabled) return 'disabled';
-    if (readOnly) return 'readOnly';
-    if (isInvalid) return 'invalid';
-    return 'normal';
-  };
-
-  const state = getState();
+  const isInvalid = !!rest['aria-invalid'];
+  const state = getInputState(props) as ToggleState;
 
   return (
     <Switch.Root
@@ -149,7 +144,7 @@ export function ToggleField({
       aria-invalid={isInvalid || undefined}
       id={id}
       name={name}
-      {...props}
+      {...rest}
       render={
         <motion.button
           className={toggleContainerVariants({

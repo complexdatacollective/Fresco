@@ -10,19 +10,18 @@ import {
 } from '~/components/ui/tooltip';
 import { scaleSliderStyles } from '~/styles/shared/controlVariants';
 import { cx } from '~/utils/cva';
+import { type CreateFieldProps } from '../Field/Field';
 
 type Option = {
   label: string;
   value: string | number;
 };
 
-type LikertScaleFieldProps = Omit<
-  HTMLAttributes<HTMLDivElement>,
-  'onChange'
+type LikertScaleFieldProps = CreateFieldProps<
+  Omit<HTMLAttributes<HTMLDivElement>, 'onChange'>
 > & {
   value?: string | number;
   onChange?: (value: string | number) => void;
-  disabled?: boolean;
   options?: Option[];
 };
 
@@ -30,11 +29,13 @@ export function LikertScaleField({
   className,
   value,
   onChange,
-  disabled = false,
   options = [],
+  disabled,
+  readOnly,
   id: _id,
   ...divProps
 }: LikertScaleFieldProps) {
+  const isDisabled = disabled ?? readOnly;
   const [showTooltipState, setShowTooltipState] = React.useState(false);
 
   const handleValueChange = (newValue: number[]) => {
@@ -75,7 +76,7 @@ export function LikertScaleField({
             value={sliderValue}
             onValueChange={handleValueChange}
             onPointerDown={handlePointerDown}
-            disabled={disabled}
+            disabled={isDisabled}
             max={Math.max(0, options.length - 1)}
             min={0}
             step={1}

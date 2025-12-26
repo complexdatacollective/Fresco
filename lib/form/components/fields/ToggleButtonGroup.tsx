@@ -11,6 +11,8 @@ import {
   stateVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
+import { getInputState } from '../../utils/getInputState';
+import { type CreateFieldProps } from '../Field/Field';
 
 // Compose fieldset wrapper variants
 const toggleButtonGroupComposedVariants = compose(
@@ -101,37 +103,34 @@ type ToggleButtonOption = {
   disabled?: boolean;
 };
 
-type ToggleButtonGroupProps = Omit<
-  FieldsetHTMLAttributes<HTMLFieldSetElement>,
-  'size' | 'onChange'
+type ToggleButtonGroupProps = CreateFieldProps<
+  Omit<FieldsetHTMLAttributes<HTMLFieldSetElement>, 'size' | 'onChange'>
 > &
   VariantProps<typeof toggleButtonGroupComposedVariants> & {
-    id?: string;
-    name?: string;
     options: ToggleButtonOption[];
     value?: (string | number)[];
     defaultValue?: (string | number)[];
     onChange?: (value: (string | number)[]) => void;
-    disabled?: boolean;
-    readOnly?: boolean;
     orientation?: 'horizontal' | 'vertical';
     size?: 'sm' | 'md' | 'lg' | 'xl';
     useColumns?: boolean;
   };
 
-export function ToggleButtonGroupField({
-  id,
-  className,
-  name,
-  options = [],
-  value,
-  defaultValue,
-  onChange,
-  disabled = false,
-  readOnly = false,
-  size = 'md',
-  ...fieldsetProps
-}: ToggleButtonGroupProps) {
+export function ToggleButtonGroupField(props: ToggleButtonGroupProps) {
+  const {
+    id,
+    className,
+    name,
+    options = [],
+    value,
+    defaultValue,
+    onChange,
+    size = 'md',
+    disabled,
+    readOnly,
+    ...fieldsetProps
+  } = props;
+
   const handleToggleOption = (optionValue: string | number) => {
     if (readOnly) return;
     if (onChange) {
@@ -147,15 +146,6 @@ export function ToggleButtonGroupField({
   // Determine if this is controlled or uncontrolled
   const isControlled = value !== undefined;
   const currentValues = isControlled ? value : (defaultValue ?? []);
-  const isInvalid = fieldsetProps['aria-invalid'] === 'true';
-
-  // Work out variant state based on props
-  const getState = () => {
-    if (disabled) return 'disabled';
-    if (readOnly) return 'readOnly';
-    if (isInvalid) return 'invalid';
-    return 'normal';
-  };
 
   const getCatColorIndex = (index: number) => {
     return ((index % 10) + 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
@@ -166,7 +156,7 @@ export function ToggleButtonGroupField({
       id={id}
       {...fieldsetProps}
       className={toggleButtonGroupComposedVariants({
-        state: getState(),
+        state: getInputState(props),
         className,
       })}
       disabled={disabled}

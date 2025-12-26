@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
-import type { FieldValue } from '../components/types';
-import { validateFieldValue } from '../utils/validation';
+import type { FieldValue } from '../types';
+import { validateFieldValue } from '../validation/helpers';
 
 describe('Validation Utils', () => {
   const mockFormValues: Record<string, FieldValue> = {};

@@ -1,7 +1,7 @@
 import { PlusIcon } from 'lucide-react';
 import { forwardRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
-import Icon, { type InterviewerIconName } from '../Icon';
+import Icon, { type InterviewerIconName } from '../ui/Icon';
 
 const actionButtonVariants = cva({
   base: 'group focusable relative mt-2 mr-4 flex aspect-square h-26 rounded-full',

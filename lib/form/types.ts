@@ -1,14 +1,22 @@
 import { type Codebook, type StageSubject } from '@codaco/protocol-validation';
-import { type NcNetwork, type VariableValue } from '@codaco/shared-consts';
+import { type NcNetwork } from '@codaco/shared-consts';
 import type * as z from 'zod/v4';
 
-export type FieldValue = NonNullable<VariableValue> | undefined;
+export type FieldValue =
+  | string
+  | number
+  | boolean
+  | undefined
+  | Record<string, unknown>
+  | Record<string, unknown>[];
 
 /**
  * Flattened errors type - uses Zod's core flattened error type
  * This ensures compatibility with z.flattenError() output for any schema
  */
-export type FlattenedErrors = z.core.$ZodFlattenedError<unknown>;
+export type FlattenedErrors = z.core.$ZodFlattenedError<
+  Record<string, FieldValue>
+>;
 
 export type FieldValidation =
   | z.ZodType
@@ -41,10 +49,10 @@ export type ValidationResult<T extends z.ZodTypeAny> =
   | { success: true; data: z.infer<T> }
   | { success: false; error: z.ZodError<z.infer<T>> };
 
-export type FieldState<T extends FieldValue = FieldValue> = {
-  value: T;
-  initialValue?: T;
-  state: {
+export type FieldState = {
+  value: FieldValue;
+  initialValue?: FieldValue;
+  meta: {
     isValidating: boolean;
     isTouched: boolean;
     isBlurred: boolean;
@@ -71,7 +79,7 @@ export type FormState = {
 
 export type FieldConfig = {
   name: string;
-  initialValue?: unknown;
+  initialValue?: FieldValue;
   validation?: FieldValidation;
 };
 

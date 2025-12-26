@@ -38,6 +38,15 @@ const meta: Meta<typeof NativeSelectField> = {
   },
   tags: ['autodocs'],
   argTypes: {
+    'aria-invalid': { control: 'boolean' },
+    'readOnly': {
+      control: 'boolean',
+      description: 'Whether the select is read-only',
+      table: {
+        type: { summary: 'boolean' },
+        defaultValue: { summary: 'false' },
+      },
+    },
     'options': {
       control: false,
       description: 'Array of options to display in the select',
@@ -62,7 +71,7 @@ const meta: Meta<typeof NativeSelectField> = {
     },
     'aria-invalid': {
       control: 'boolean',
-      description: 'Whether the select has invalid state styling',
+      description: 'Whether the select has aria-invalid state styling',
       table: {
         type: { summary: 'boolean' },
         defaultValue: { summary: 'false' },
@@ -353,7 +362,7 @@ export const States: Story = {
     docs: {
       description: {
         story:
-          'All available states for both native and styled select components. State priority: disabled > invalid > normal',
+          'All available states for both native and styled select components. State priority: disabled > readOnly > invalid > normal',
       },
     },
   },

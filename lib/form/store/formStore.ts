@@ -1,4 +1,5 @@
 import { enableMapSet } from 'immer';
+import { z } from 'zod';
 import { immer } from 'zustand/middleware/immer';
 import { createStore } from 'zustand/vanilla';
 import type {
@@ -8,9 +9,9 @@ import type {
   FlattenedErrors,
   FormConfig,
   FormSubmitHandler,
-} from '../components/types';
+} from '../types';
 import { setValue } from '../utils/objectPath';
-import { validateFieldValue } from '../utils/validation';
+import { validateFieldValue } from '../validation/helpers';
 
 // Enable Map/Set support in Immer
 enableMapSet();
@@ -100,9 +101,10 @@ export const createFormStore = () => {
       registerField: (config) => {
         set((state) => {
           const fieldState: FieldState = {
-            ...config,
-            value: config.initialValue ?? undefined, // TODO: should this get default initial value for type?
-            state: {
+            initialValue: config.initialValue,
+            validation: config.validation,
+            value: undefined,
+            meta: {
               isValidating: false,
               isTouched: false,
               isBlurred: false,
@@ -141,8 +143,8 @@ export const createFormStore = () => {
           }
 
           state.fields.get(fieldName)!.value = value;
-          state.fields.get(fieldName)!.state.isDirty = true;
-          state.fields.get(fieldName)!.state.isTouched = true;
+          state.fields.get(fieldName)!.meta.isDirty = true;
+          state.fields.get(fieldName)!.meta.isTouched = true;
           state.isDirty = true;
         });
       },
@@ -151,7 +153,7 @@ export const createFormStore = () => {
         set((state) => {
           if (!state.fields.get(fieldName)) return;
 
-          state.fields.get(fieldName)!.state.isTouched = touched;
+          state.fields.get(fieldName)!.meta.isTouched = touched;
         });
       },
 
@@ -159,7 +161,7 @@ export const createFormStore = () => {
         set((state) => {
           if (!state.fields.get(fieldName)) return;
 
-          state.fields.get(fieldName)!.state.isBlurred = true;
+          state.fields.get(fieldName)!.meta.isBlurred = true;
         });
       },
 
@@ -204,7 +206,7 @@ export const createFormStore = () => {
         set((draft) => {
           const form = draft;
           if (form?.fields.get(fieldName)) {
-            form.fields.get(fieldName)!.state.isValidating = true;
+            form.fields.get(fieldName)!.meta.isValidating = true;
           }
         });
 
@@ -220,8 +222,8 @@ export const createFormStore = () => {
               const form = draft;
               const field = form?.fields.get(fieldName);
               if (field) {
-                field.state.isValidating = false;
-                field.state.isValid = false;
+                field.meta.isValidating = false;
+                field.meta.isValid = false;
 
                 const prevFormErrors = form.errors ?? {
                   formErrors: [],
@@ -240,7 +242,7 @@ export const createFormStore = () => {
 
                 // Update form-level isValid
                 form.isValid = Array.from(form.fields.values()).every(
-                  (field) => field.state.isValid,
+                  (field) => field.meta.isValid,
                 );
               }
             });
@@ -248,8 +250,8 @@ export const createFormStore = () => {
             set((draft) => {
               const form = draft;
               if (form?.fields.get(fieldName)) {
-                form.fields.get(fieldName)!.state.isValidating = false;
-                form.fields.get(fieldName)!.state.isValid = true;
+                form.fields.get(fieldName)!.meta.isValidating = false;
+                form.fields.get(fieldName)!.meta.isValid = true;
 
                 // Remove errors for this field from the unified error store
                 if (form.errors) {
@@ -273,7 +275,7 @@ export const createFormStore = () => {
 
                 // Update form-level isValid
                 form.isValid = Array.from(form.fields.values()).every(
-                  (field) => field.state.isValid,
+                  (field) => field.meta.isValid,
                 );
               }
             });
@@ -282,8 +284,8 @@ export const createFormStore = () => {
           set((draft) => {
             const form = draft;
             if (form?.fields.get(fieldName)) {
-              form.fields.get(fieldName)!.state.isValid = false;
-              form.fields.get(fieldName)!.state.isValidating = false;
+              form.fields.get(fieldName)!.meta.isValid = false;
+              form.fields.get(fieldName)!.meta.isValidating = false;
 
               // Add error to the unified error store
               const currentErrors = form.errors ?? {
@@ -301,7 +303,7 @@ export const createFormStore = () => {
 
               // Update form-level isValid
               form.isValid = Array.from(form.fields.values()).every(
-                (field) => field.state.isValid,
+                (field) => field.meta.isValid,
               );
             }
           });
@@ -334,7 +336,7 @@ export const createFormStore = () => {
         fieldResults.forEach(({ fieldName, result }) => {
           if (result && !result.success) {
             // Field has validation errors - flatten and collect
-            const flattened = result.error.flatten();
+            const flattened = z.flattenError(result.error);
             // Errors can be in formErrors (no path) or fieldErrors (with nested paths)
             // Combine them for this field
             const combinedErrors = [
@@ -349,10 +351,10 @@ export const createFormStore = () => {
             set((draft) => {
               const field = draft.fields.get(fieldName);
               if (field) {
-                field.state.isTouched = true;
-                field.state.isBlurred = true;
-                field.state.isDirty = true;
-                field.state.isValid = false;
+                field.meta.isTouched = true;
+                field.meta.isBlurred = true;
+                field.meta.isDirty = true;
+                field.meta.isValid = false;
               }
             });
           } else if (result?.success) {
@@ -360,7 +362,7 @@ export const createFormStore = () => {
             set((draft) => {
               const field = draft.fields.get(fieldName);
               if (field) {
-                field.state.isValid = true;
+                field.meta.isValid = true;
               }
             });
           }
@@ -440,12 +442,12 @@ export const createFormStore = () => {
             return;
 
           const fieldConfig = fields.get(fieldName);
-          const initialValue = fieldConfig?.initialValue ?? '';
+          const initialValue = fieldConfig?.initialValue ?? undefined;
 
           fields.set(fieldName, {
             ...fieldConfig!,
             value: initialValue,
-            state: {
+            meta: {
               isValidating: false,
               isTouched: false,
               isBlurred: false,
@@ -476,7 +478,7 @@ export const createFormStore = () => {
 
           // Update form-level isValid
           form.isValid = Array.from(form.fields.keys()).every(
-            (fieldName) => fields.get(fieldName)?.state.isValid,
+            (fieldName) => fields.get(fieldName)?.meta.isValid,
           );
         });
       },

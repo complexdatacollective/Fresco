@@ -10,6 +10,8 @@ import {
   stateVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
+import { getInputState } from '../../utils/getInputState';
+import { type CreateFieldProps } from '../Field/Field';
 
 const textareaWrapperVariants = compose(
   controlVariants,
@@ -33,42 +35,38 @@ const textareaVariants = compose(
   }),
 );
 
-type TextAreaFieldProps = Omit<ComponentProps<'textarea'>, 'onChange'> &
-  VariantProps<typeof textareaWrapperVariants> & {
-    onChange?: (value: string) => void;
-  };
+type TextAreaFieldProps = CreateFieldProps<ComponentProps<'textarea'>> & {
+  value?: string;
+  onChange?: (value: string) => void;
+  onBlur?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
+  className?: string;
+} & VariantProps<typeof textareaWrapperVariants>;
 
 export const TextAreaField = forwardRef<
   HTMLTextAreaElement,
   TextAreaFieldProps
->(function TextAreaField(
-  { className, onChange, disabled, ...textareaProps },
-  ref,
-) {
+>(function TextAreaField(props, ref) {
+  const { className, value, onChange, onBlur, disabled, readOnly, ...rest } =
+    props;
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange?.(e.target.value);
-  };
-
-  // Work out variant state based on props. Order:
-  // disabled > readOnly > invalid > normal
-  const getState = () => {
-    if (disabled) return 'disabled';
-    if (textareaProps.readOnly) return 'readOnly';
-    if (textareaProps['aria-invalid']) return 'invalid';
-    return 'normal';
   };
 
   return (
     <div
       className={textareaWrapperVariants({
         className,
-        state: getState(),
+        state: getInputState(props),
       })}
     >
       <textarea
         ref={ref}
-        {...textareaProps}
+        {...rest}
+        value={value}
+        onBlur={onBlur}
         disabled={disabled}
+        readOnly={readOnly}
         onChange={handleChange}
         className={textareaVariants()}
       />

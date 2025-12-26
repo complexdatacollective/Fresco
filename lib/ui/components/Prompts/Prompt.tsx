@@ -1,6 +1,6 @@
 import cx from 'classnames';
 import { motion } from 'motion/react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { remark } from 'remark';
 import strip from 'strip-markdown';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
@@ -112,7 +112,7 @@ const Prompt = ({
       onTap={handleTap}
     >
       <Heading level="h2" margin="none" className="font-normal">
-        <RenderMarkdown inline>{text}</RenderMarkdown>
+        <RenderMarkdown render={<Fragment />}>{text}</RenderMarkdown>
       </Heading>
     </motion.div>
   );

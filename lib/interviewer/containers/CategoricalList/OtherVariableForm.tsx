@@ -5,7 +5,7 @@ import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Button from '~/components/ui/Button';
 import { Field, Form } from '~/lib/form';
 import { InputField } from '~/lib/form/components/fields/InputField';
-import { validations } from '~/lib/form/validation';
+import { validations } from '~/lib/form/validation/functions';
 import Node from '../../components/Node';
 
 type FormValues = {

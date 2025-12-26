@@ -10,7 +10,6 @@ import {
 import {
   type ComponentType,
   forwardRef,
-  type HTMLAttributes,
   type Ref,
   useCallback,
   useId,
@@ -19,6 +18,7 @@ import {
 import { surfaceVariants } from '~/components/layout/Surface';
 import { MotionButton } from '~/components/ui/Button';
 import useDialog from '~/lib/dialogs/useDialog';
+import { getInputState } from '~/lib/form/utils/getInputState';
 import {
   controlVariants,
   groupSpacingVariants,
@@ -26,6 +26,7 @@ import {
   stateVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx } from '~/utils/cva';
+import { type CreateFieldProps } from '../../Field/Field';
 import {
   useArrayFieldItems,
   type WithItemProperties,
@@ -82,26 +83,10 @@ export type ArrayFieldEditorProps<T extends object> = {
   onCancel: () => void;
 };
 
-export type ArrayFieldProps<T extends object> = Omit<
-  HTMLAttributes<HTMLUListElement>,
-  | 'onChange'
-  | 'onDrag'
-  | 'onDragEnd'
-  | 'onDragStart'
-  | 'onDragEnter'
-  | 'onDragExit'
-  | 'onDragLeave'
-  | 'onDrop'
-  | 'onAnimationStart'
-  | 'onAnimationComplete'
-> & {
-  id?: string;
-  name?: string;
+export type ArrayFieldProps<T extends object> = CreateFieldProps & {
   value?: T[];
   onChange: (value: T[]) => void;
   sortable?: boolean;
-  disabled?: boolean;
-  readOnly?: boolean;
   itemClasses?:
     | string
     | ((item: WithItemProperties<T>, isBeingEdited: boolean) => string);
@@ -252,23 +237,25 @@ const ArrayFieldItemWrapper = forwardRef(function ArrayFieldItemWrapper<
   props: ArrayFieldItemWrapperProps<T> & { ref?: Ref<HTMLLIElement> },
 ) => JSX.Element;
 
-export function ArrayField<T extends object>({
-  value = EMPTY_ARRAY as T[],
-  onChange,
-  sortable = false,
-  getId,
-  itemComponent: ItemComponent,
-  editorComponent: EditorComponent,
-  itemTemplate,
-  addButtonLabel = 'Add Item',
-  emptyStateMessage = 'No items added yet. Click "Add Item" to get started.',
-  confirmDelete = true,
-  immediateAdd = false,
-  disabled,
-  readOnly,
-  itemClasses,
-  ...props
-}: ArrayFieldProps<T>) {
+export function ArrayField<T extends object>(propsIn: ArrayFieldProps<T>) {
+  const {
+    value = EMPTY_ARRAY as T[],
+    onChange,
+    sortable = false,
+    getId,
+    itemComponent: ItemComponent,
+    editorComponent: EditorComponent,
+    itemTemplate,
+    addButtonLabel = 'Add Item',
+    emptyStateMessage = 'No items added yet. Click "Add Item" to get started.',
+    confirmDelete = true,
+    immediateAdd = false,
+    itemClasses,
+    disabled,
+    readOnly,
+    ...props
+  } = propsIn;
+
   const { confirm } = useDialog();
 
   const {
@@ -316,13 +303,6 @@ export function ArrayField<T extends object>({
 
   const id = useId();
 
-  const getState = () => {
-    if (disabled) return 'disabled';
-    if (readOnly) return 'readOnly';
-    if (props['aria-invalid']) return 'invalid';
-    return 'normal';
-  };
-
   return (
     <LayoutGroup id={id}>
       <motion.div
@@ -334,7 +314,7 @@ export function ArrayField<T extends object>({
           axis="y"
           values={items}
           onReorder={setItems}
-          className={arrayFieldVariants({ state: getState() })}
+          className={arrayFieldVariants({ state: getInputState(props) })}
           style={{ borderRadius: 28 }}
           inherit={false}
           layout={false}
@@ -378,7 +358,11 @@ export function ArrayField<T extends object>({
               : startAdding(itemTemplate() as T)
           }
           icon={<PlusIcon />}
-          disabled={!immediateAdd && !!editingItem}
+          disabled={
+            (disabled ?? false) ||
+            (readOnly ?? false) ||
+            (!immediateAdd && !!editingItem)
+          }
         >
           {addButtonLabel}
         </MotionButton>

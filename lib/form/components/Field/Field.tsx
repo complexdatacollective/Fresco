@@ -2,28 +2,46 @@
 
 import { LayoutGroup } from 'motion/react';
 import { type ReactNode } from 'react';
-import { useField, type UseFieldResult } from '../hooks/useField';
+import { useField, type UseFieldResult } from '../../hooks/useField';
+import { type ValidationContext } from '../../types';
 import {
   filterValidationProps,
   type ValidationProps,
-} from '../utils/validation';
+} from '../../validation/helpers';
 import { BaseField } from './BaseField';
-import { type ValidationContext } from './types';
 
 /**
  * Props that Field provides to components.
- * These are excluded from FieldProps since they're always provided by Field.
+ * Excludes value, onChange, onBlur as these are defined by each component
+ * with their specific types. Field provides these via fieldProps spread.
  */
-export type FieldComponentProps = UseFieldResult['fieldProps'] & {
-  'id': string;
-  'name': string;
-  'value': unknown;
-  'onChange': (value: unknown) => void;
-  'onBlur': (e: React.FocusEvent) => void;
-  'aria-disabled': boolean;
-  'aria-readonly': boolean;
-  'className'?: string;
-} & ValidationProps;
+type FieldComponentProps = Omit<
+  Partial<UseFieldResult['fieldProps']>,
+  'value' | 'onChange' | 'onBlur'
+> & {
+  id?: string;
+  name?: string;
+  disabled?: boolean;
+  readOnly?: boolean;
+};
+
+/**
+ * Create props for an input-like field component by omitting props that are
+ * always provided by Field.
+ */
+export type CreateFieldProps<T = unknown> = T extends object
+  ? FieldComponentProps &
+      Omit<
+        T,
+        | 'value'
+        | 'onChange'
+        | 'disabled'
+        | 'readOnly'
+        | 'size'
+        | keyof ValidationProps
+      > &
+      Partial<ValidationProps>
+  : FieldComponentProps & Partial<ValidationProps>;
 
 /**
  * Extract the value type from a component's props.
@@ -59,7 +77,7 @@ export type FieldOwnProps<C extends React.ComponentType<any>> = {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FieldProps<C extends React.ComponentType<any>> = FieldOwnProps<C> &
-  Omit<ExtractProps<C>, keyof FieldComponentProps>;
+  Omit<ExtractProps<C>, keyof FieldComponentProps | keyof ValidationProps>;
 
 /**
  * Field component that connects to form context via useField hook.
@@ -76,6 +94,8 @@ export default function Field<C extends React.ComponentType<any>>({
   showValidationHints = false,
   validationContext,
   component: Component,
+  disabled,
+  readOnly,
   ...componentProps
 }: FieldProps<C>) {
   const { id, containerProps, fieldProps, meta, validationSummary } = useField({
@@ -83,6 +103,8 @@ export default function Field<C extends React.ComponentType<any>>({
     initialValue,
     showValidationHints,
     validationContext,
+    disabled,
+    readOnly,
     ...componentProps,
   });
 
@@ -101,6 +123,8 @@ export default function Field<C extends React.ComponentType<any>>({
         <Component
           id={id}
           name={name}
+          disabled={disabled}
+          readOnly={readOnly}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           {...(filterValidationProps(componentProps) as any)}
           {...fieldProps}

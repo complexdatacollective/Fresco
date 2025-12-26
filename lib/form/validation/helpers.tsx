@@ -6,12 +6,12 @@ import type {
   FieldValue,
   ValidationContext,
   ValidationResult,
-} from '../components/types';
+} from '../types';
 import {
   type ValidationFunction,
   type ValidationParameter,
   validations,
-} from '../validation';
+} from './functions';
 
 export async function validateFieldValue<T extends z.ZodTypeAny>(
   value: unknown,

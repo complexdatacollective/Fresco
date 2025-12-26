@@ -4,8 +4,8 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { setAppSetting } from '~/actions/appSettings';
 import { UploadThingTokenForm } from '~/app/(blobs)/(setup)/_components/UploadThingTokenForm';
-import Link from '~/components/Link';
 import Paragraph from '~/components/typography/Paragraph';
+import Link from '~/components/ui/Link';
 import { Dialog } from '~/lib/dialogs/Dialog';
 
 function UploadThingModal() {

@@ -6,10 +6,10 @@ import ReactMarkdown, { type Options } from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import remarkGemoji from 'remark-gemoji';
-import { NativeLink } from './Link';
 import Heading from './typography/Heading';
 import Paragraph from './typography/Paragraph';
 import UnorderedList from './typography/UnorderedList';
+import { NativeLink } from './ui/Link';
 
 const ALLOWED_MARKDOWN_LABEL_TAGS = ['em', 'strong', 'ul', 'ol', 'li'];
 
@@ -102,7 +102,7 @@ const RenderMarkdown = React.forwardRef<HTMLSpanElement, RenderMarkdownProps>(
     );
 
     return useRender({
-      defaultTagName: 'span',
+      defaultTagName: 'fragment',
       render,
       props: {
         children: markdownContent,

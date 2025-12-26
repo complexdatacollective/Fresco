@@ -1,5 +1,5 @@
-import Link from '~/components/Link';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
+import Link from '~/components/ui/Link';
 import { getAppSetting } from '~/queries/appSettings';
 
 export default async function UpdateUploadThingTokenAlert() {

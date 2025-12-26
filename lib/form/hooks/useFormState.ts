@@ -1,42 +1,7 @@
-import { type ZodType } from 'zod';
 import { useShallow } from 'zustand/react/shallow';
-import type { FieldValue, FlattenedErrors } from '../components/types';
 import { type FormStore } from '../store/formStore';
 import { useFormStore } from '../store/formStoreProvider';
-
-/**
- * Form state values with submission method
- */
-export type FormStateValues = {
-  /** Map of field states */
-  fields: Map<
-    string,
-    {
-      value: FieldValue;
-      meta: {
-        errors: string[] | null;
-        isValidating: boolean;
-        isTouched: boolean;
-        isDirty: boolean;
-        isValid: boolean;
-      };
-    }
-  >;
-  /** All errors in the form (both field and form level) */
-  errors: FlattenedErrors | null;
-  /** Whether the form is currently being submitted */
-  isSubmitting: boolean;
-  /** Whether the form is currently being validated */
-  isValidating: boolean;
-  /** Whether any field in the form has been modified */
-  isDirty: boolean;
-  /** Whether all fields in the form are valid */
-  isValid: boolean;
-  /** Additional context data for the form */
-  context: Record<string, unknown>;
-  /** Method to submit the form programmatically */
-  submitForm: () => Promise<void>;
-};
+import type { FieldValue } from '../types';
 
 /**
  * Hook to access form state values and submission method.
@@ -60,9 +25,9 @@ export type FormStateValues = {
  * await formState.submitForm();
  * ```
  */
-export default function useFormState(): FormStateValues {
+export default function useFormState() {
   return useFormStore(
-    useShallow((state: FormStore<ZodType<unknown>>) => ({
+    useShallow((state: FormStore) => ({
       fields: state.fields,
       errors: state.errors,
       isSubmitting: state.isSubmitting,
@@ -93,14 +58,13 @@ export default function useFormState(): FormStateValues {
  */
 export function useFieldState(fieldName: string) {
   return useFormStore(
-    useShallow((state: FormStore<ZodType<unknown>>) => {
+    useShallow((state: FormStore) => {
       const field = state.fields.get(fieldName);
       if (!field) return undefined;
 
       return {
         value: field.value,
         meta: {
-          errors: field.meta.errors,
           isValidating: field.meta.isValidating,
           isTouched: field.meta.isTouched,
           isDirty: field.meta.isDirty,
@@ -124,9 +88,7 @@ export function useFieldState(fieldName: string) {
  * ```
  */
 export function useFormValues(): Record<string, FieldValue> {
-  return useFormStore((state: FormStore<ZodType<unknown>>) =>
-    state.getFormValues(),
-  );
+  return useFormStore((state: FormStore) => state.getFormValues());
 }
 
 /**
@@ -146,7 +108,7 @@ export function useFormValues(): Record<string, FieldValue> {
  */
 export function useFormMeta() {
   return useFormStore(
-    useShallow((state: FormStore<ZodType<unknown>>) => ({
+    useShallow((state: FormStore) => ({
       isSubmitting: state.isSubmitting,
       isValidating: state.isValidating,
       isDirty: state.isDirty,
@@ -167,9 +129,7 @@ export function useFormMeta() {
  * ```
  */
 export function useHasField(fieldName: string): boolean {
-  return useFormStore((state: FormStore<ZodType<unknown>>) =>
-    state.fields.has(fieldName),
-  );
+  return useFormStore((state: FormStore) => state.fields.has(fieldName));
 }
 
 /**
@@ -184,9 +144,7 @@ export function useHasField(fieldName: string): boolean {
  * ```
  */
 export function useFieldCount(): number {
-  return useFormStore(
-    (state: FormStore<ZodType<unknown>>) => state.fields.size,
-  );
+  return useFormStore((state: FormStore) => state.fields.size);
 }
 
 /**
@@ -205,5 +163,5 @@ export function useFieldCount(): number {
  * ```
  */
 export function useSubmitForm(): () => Promise<void> {
-  return useFormStore((state: FormStore<ZodType<unknown>>) => state.submitForm);
+  return useFormStore((state: FormStore) => state.submitForm);
 }

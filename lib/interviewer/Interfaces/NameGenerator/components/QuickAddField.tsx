@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import ActionButton from '~/components/interview/ActionButton';
 import { useField } from '~/lib/form';
 import { InputField } from '~/lib/form/components/fields/InputField';
-import { type CustomFieldValidation } from '~/lib/form/components/types';
+import { type CustomFieldValidation } from '~/lib/form/types';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import {
   getNodeColorSelector,

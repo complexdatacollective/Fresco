@@ -1,7 +1,7 @@
 'use client';
 
 import { useId } from 'react';
-import { BaseField } from './BaseField';
+import { BaseField } from './Field/BaseField';
 
 /**
  * Props that UnconnectedField provides to components.

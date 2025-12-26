@@ -22,6 +22,8 @@ const meta: Meta<typeof InputField> = {
   component: InputField,
   tags: ['autodocs'],
   argTypes: {
+    'disabled': { control: 'boolean' },
+    'readOnly': { control: 'boolean' },
     'size': {
       control: 'select',
       options: ['sm', 'md', 'lg', 'xl'],
@@ -53,7 +55,7 @@ const meta: Meta<typeof InputField> = {
     },
     'aria-invalid': {
       control: 'boolean',
-      description: 'Whether the input has invalid state styling',
+      description: 'Whether the input has aria-invalid state styling',
     },
     'placeholder': {
       control: 'text',
@@ -112,8 +114,11 @@ export const Sizes: Story = {
     placeholder: 'Type here...',
   },
   argTypes: {
-    size: { control: false },
-    type: { control: false },
+    'disabled': { control: 'boolean' },
+    'readOnly': { control: 'boolean' },
+    'aria-invalid': { control: 'boolean' },
+    'size': { control: false },
+    'type': { control: false },
   },
   render: (args) => (
     <div className="flex w-full flex-col gap-4">
@@ -141,9 +146,9 @@ export const States: Story = {
     size: 'md',
   },
   argTypes: {
-    'disabled': { control: false },
-    'readOnly': { control: false },
-    'aria-invalid': { control: false },
+    'disabled': { control: 'boolean' },
+    'readOnly': { control: 'boolean' },
+    'aria-invalid': { control: 'boolean' },
   },
   render: (args) => (
     <div className="flex w-80 flex-col gap-4">
@@ -215,8 +220,11 @@ export const InputTypes: Story = {
     size: 'md',
   },
   argTypes: {
-    type: { control: false },
-    placeholder: { control: false },
+    'disabled': { control: 'boolean' },
+    'readOnly': { control: 'boolean' },
+    'aria-invalid': { control: 'boolean' },
+    'type': { control: false },
+    'placeholder': { control: false },
   },
   render: function Render(args) {
     const [numberValue, setNumberValue] = useState<number | undefined>();
@@ -305,9 +313,12 @@ export const WithIcons: Story = {
     size: 'md',
   },
   argTypes: {
-    type: { control: false },
-    placeholder: { control: false },
-    disabled: { control: false },
+    'disabled': { control: 'boolean' },
+    'readOnly': { control: 'boolean' },
+    'aria-invalid': { control: 'boolean' },
+    'type': { control: false },
+    'placeholder': { control: false },
+    'disabled': { control: false },
   },
   render: (args) => (
     <div className="flex w-80 flex-col gap-4">
@@ -358,7 +369,10 @@ export const PasswordInput: Story = {
     placeholder: 'Enter password',
   },
   argTypes: {
-    type: { control: false },
+    'disabled': { control: 'boolean' },
+    'readOnly': { control: 'boolean' },
+    'aria-invalid': { control: 'boolean' },
+    'type': { control: false },
   },
   render: function Render(args) {
     const [showPassword, setShowPassword] = useState(false);
@@ -412,7 +426,10 @@ export const ClearableInput: Story = {
     placeholder: 'Type something...',
   },
   argTypes: {
-    type: { control: false },
+    'disabled': { control: 'boolean' },
+    'readOnly': { control: 'boolean' },
+    'aria-invalid': { control: 'boolean' },
+    'type': { control: false },
   },
   render: function Render(args) {
     const [value, setValue] = useState('Sample text');
@@ -466,10 +483,13 @@ export const TypeSafeOnChange: Story = {
     size: 'md',
   },
   argTypes: {
-    type: { control: false },
-    placeholder: { control: false },
-    disabled: { control: false },
-    readOnly: { control: false },
+    'disabled': { control: 'boolean' },
+    'readOnly': { control: 'boolean' },
+    'aria-invalid': { control: 'boolean' },
+    'type': { control: false },
+    'placeholder': { control: false },
+    'disabled': { control: false },
+    'readOnly': { control: false },
   },
   render: function Render(args) {
     const [textValue, setTextValue] = useState('');

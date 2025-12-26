@@ -10,7 +10,16 @@ const meta: Meta<typeof DatePickerField> = {
   },
   tags: ['autodocs'],
   argTypes: {
-    type: {
+    'aria-invalid': { control: 'boolean' },
+    'disabled': {
+      control: 'boolean',
+      description: 'Whether the date picker is disabled',
+    },
+    'readOnly': {
+      control: 'boolean',
+      description: 'Whether the date picker is read-only',
+    },
+    'type': {
       control: 'select',
       options: ['full', 'month', 'year'],
       description:
@@ -20,7 +29,7 @@ const meta: Meta<typeof DatePickerField> = {
         defaultValue: { summary: 'full' },
       },
     },
-    disabled: {
+    'disabled': {
       control: 'boolean',
       description: 'Whether the date picker is disabled',
       table: {
@@ -28,7 +37,7 @@ const meta: Meta<typeof DatePickerField> = {
         defaultValue: { summary: 'false' },
       },
     },
-    required: {
+    'required': {
       control: 'boolean',
       description: 'Whether the date picker is required (HTML validation)',
       table: {
@@ -36,28 +45,28 @@ const meta: Meta<typeof DatePickerField> = {
         defaultValue: { summary: 'false' },
       },
     },
-    min: {
+    'min': {
       control: 'text',
       description: 'Minimum date (YYYY-MM-DD format) - defaults to 1920-01-01',
       table: {
         type: { summary: 'string' },
       },
     },
-    max: {
+    'max': {
       control: 'text',
       description: 'Maximum date (YYYY-MM-DD format) - defaults to today',
       table: {
         type: { summary: 'string' },
       },
     },
-    value: {
+    'value': {
       control: 'text',
       description: 'Current date value (YYYY-MM-DD or YYYY-MM format)',
       table: {
         type: { summary: 'string' },
       },
     },
-    onChange: {
+    'onChange': {
       control: false,
       description: 'Change handler - receives date string value',
       table: {
@@ -67,6 +76,7 @@ const meta: Meta<typeof DatePickerField> = {
   },
   args: {
     disabled: false,
+    readOnly: false,
     required: false,
   },
 };

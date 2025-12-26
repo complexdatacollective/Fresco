@@ -7,18 +7,18 @@ import {
   useRef,
 } from 'react';
 import { useShallow } from 'zustand/react/shallow';
+import { useFormStore } from '../store/formStoreProvider';
 import type {
   ChangeHandler,
   FieldState,
   FieldValue,
   ValidationContext,
-} from '../components/types';
-import { useFormStore } from '../store/formStoreProvider';
+} from '../types';
 import {
   makeValidationFunction,
   makeValidationHints,
   type ValidationProps,
-} from '../utils/validation';
+} from '../validation/helpers';
 
 /**
  * Helper function to determine if a field should show an error message.
@@ -32,11 +32,11 @@ function useFieldShouldShowError(
     return false;
   }
 
-  const { state } = fieldState;
+  const { meta } = fieldState;
 
   // Only show errors after the field has been blurred and is dirty
   return Boolean(
-    state.isBlurred && state.isDirty && fieldErrors && fieldErrors.length > 0,
+    meta.isBlurred && meta.isDirty && fieldErrors && fieldErrors.length > 0,
   );
 }
 
@@ -61,18 +61,22 @@ export type UseFieldResult = {
     'aria-required': boolean; // Indicates if the field is required
     'aria-invalid': boolean; // Indicates if the field is invalid
     'aria-describedby': string; // IDs of elements that provide additional information about the field
+    'aria-disabled': boolean; // Indicates if the field is disabled
+    'aria-readonly': boolean; // Indicates if the field is read-only
   };
   validationSummary?: ReactNode;
 };
 
 export type UseFieldConfig = {
   name: string;
-  initialValue?: unknown;
+  initialValue?: FieldValue;
   showValidationHints?: boolean;
   /**
    * Context required for context-dependent validations like unique, sameAs, etc.
    */
   validationContext?: ValidationContext;
+  disabled?: boolean;
+  readOnly?: boolean;
 } & Partial<ValidationProps>;
 
 export function useField(config: UseFieldConfig): UseFieldResult {
@@ -158,11 +162,11 @@ export function useField(config: UseFieldConfig): UseFieldResult {
       // Validate on change only after the field has been blurred once
       // This provides real-time feedback on subsequent edits without
       // bombarding users with errors while typing their first characters
-      if (fieldState?.state.isBlurred) {
+      if (fieldState?.meta.isBlurred) {
         void validateField(config.name);
       }
     },
-    [config.name, setFieldValue, fieldState?.state.isBlurred, validateField],
+    [config.name, setFieldValue, fieldState?.meta.isBlurred, validateField],
   );
 
   const handleBlur = useCallback(
@@ -193,9 +197,9 @@ export function useField(config: UseFieldConfig): UseFieldResult {
 
   // Only show invalid state after the field has been blurred and is dirty
   const showInvalid = Boolean(
-    fieldState?.state.isBlurred &&
-      fieldState?.state.isDirty &&
-      !fieldState?.state.isValid,
+    fieldState?.meta.isBlurred &&
+      fieldState?.meta.isDirty &&
+      !fieldState?.meta.isValid,
   );
 
   const result: UseFieldResult = {
@@ -203,11 +207,11 @@ export function useField(config: UseFieldConfig): UseFieldResult {
     meta: {
       shouldShowError,
       errors: fieldErrors ?? undefined,
-      isValid: fieldState?.state.isValid ?? false,
-      isTouched: fieldState?.state.isTouched ?? false,
-      isBlurred: fieldState?.state.isBlurred ?? false,
-      isDirty: fieldState?.state.isDirty ?? false,
-      isValidating: fieldState?.state.isValidating ?? false,
+      isValid: fieldState?.meta.isValid ?? false,
+      isTouched: fieldState?.meta.isTouched ?? false,
+      isBlurred: fieldState?.meta.isBlurred ?? false,
+      isDirty: fieldState?.meta.isDirty ?? false,
+      isValidating: fieldState?.meta.isValidating ?? false,
     },
     containerProps: {
       'data-field-name': name, // Used for scrolling to field errors
@@ -218,6 +222,8 @@ export function useField(config: UseFieldConfig): UseFieldResult {
       'onBlur': handleBlur,
       'aria-required': !!validationProps.required,
       'aria-invalid': showInvalid,
+      'aria-disabled': config.disabled ?? false,
+      'aria-readonly': config.readOnly ?? false,
       /**
        * Set this so that screen readers can properly announce the hint and error messages.
        * If either the hint or error ID is not present, it will be ignored by the screen reader.

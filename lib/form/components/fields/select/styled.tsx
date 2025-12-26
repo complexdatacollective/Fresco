@@ -2,6 +2,8 @@ import { Select } from '@base-ui/react/select';
 import { Check, ChevronDown } from 'lucide-react';
 import { type ComponentPropsWithoutRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
+import { getInputState } from '../../../utils/getInputState';
+import { type CreateFieldProps } from '../../Field/Field';
 import { selectWrapperVariants } from './native';
 
 // Size-based variants for dropdown items
@@ -31,62 +33,59 @@ export type SelectOption = {
   label: string;
 };
 
-export type SelectProps = VariantProps<typeof selectWrapperVariants> &
+export type SelectProps = CreateFieldProps<
   Omit<
     ComponentPropsWithoutRef<typeof Select.Root>,
     'onValueChange' | 'items' | 'multiple' | 'value' | 'defaultValue'
-  > & {
-    'name': string;
-    'value'?: string | number;
-    'defaultValue'?: string | number;
-    'placeholder'?: string;
-    'options': SelectOption[];
-    'onChange': (value: string | number) => void;
-    'className'?: string;
-    'disabled'?: boolean;
-    'aria-invalid'?: boolean | 'true' | 'false';
+  >
+> &
+  VariantProps<typeof selectWrapperVariants> & {
+    name: string;
+    value?: string | number;
+    defaultValue?: string | number;
+    placeholder?: string;
+    options: SelectOption[];
+    onChange: (value: string | number) => void;
+    className?: string;
   };
 
-export function SelectField({
-  options,
-  placeholder,
-  size,
-  className,
-  onChange,
-  value,
-  defaultValue,
-  disabled,
-  name,
-  ...rootProps
-}: SelectProps) {
+export function SelectField(props: SelectProps) {
+  const {
+    options,
+    placeholder,
+    size,
+    className,
+    onChange,
+    value,
+    defaultValue,
+    name,
+    disabled,
+    readOnly,
+    ...rest
+  } = props;
+
   const handleValueChange = (newValue: unknown) => {
     if (newValue !== null && newValue !== undefined) {
       onChange(newValue as string | number);
     }
   };
 
-  const getState = () => {
-    if (disabled) return 'disabled';
-    if (rootProps['aria-invalid']) return 'invalid';
-    return 'normal';
-  };
-
   return (
     <Select.Root
-      {...rootProps}
+      {...rest}
       value={value !== undefined ? String(value) : undefined}
       defaultValue={
         defaultValue !== undefined ? String(defaultValue) : undefined
       }
       onValueChange={handleValueChange}
-      disabled={disabled}
+      disabled={disabled || readOnly}
       name={name}
     >
       <Select.Trigger
         className={selectWrapperVariants({
           size,
           className: cx('w-full', className),
-          state: getState(),
+          state: getInputState(props),
         })}
       >
         <Select.Value className="flex-1 truncate text-left">

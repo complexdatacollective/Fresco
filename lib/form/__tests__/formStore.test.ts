@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { type FieldConfig, type FormConfig } from '../components/types';
 import { createFormStore } from '../store/formStore';
+import { type FieldConfig, type FormConfig } from '../types';
 
 // Mock the validation utility
 vi.mock('../utils/validation', () => ({
   validateFieldValue: vi.fn(),
 }));
 
-import { validateFieldValue } from '../utils/validation';
+import { validateFieldValue } from '../validation/helpers';
 const mockValidateFieldValue = vi.mocked(validateFieldValue);
 
 describe('FormStore', () => {

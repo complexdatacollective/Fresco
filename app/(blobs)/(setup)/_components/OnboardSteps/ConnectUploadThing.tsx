@@ -1,8 +1,8 @@
 import { submitUploadThingForm } from '~/actions/appSettings';
-import Link from '~/components/Link';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
+import Link from '~/components/ui/Link';
 import { UploadThingTokenForm } from '../UploadThingTokenForm';
 
 function ConnectUploadThing() {

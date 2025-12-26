@@ -3,10 +3,7 @@
 import { Minus, Plus } from 'lucide-react';
 import { useCallback } from 'react';
 import { IconButton } from '~/components/ui/Button';
-import {
-  Key,
-  useKeyboardShortcuts,
-} from '~/lib/form/hooks/useKeyboardShortcuts';
+import { Key, useKeyboardShortcuts } from '~/hooks/useKeyboardShortcuts';
 import {
   controlVariants,
   heightVariants,
@@ -18,8 +15,9 @@ import {
   textSizeVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
-import { AnimateNumber } from '../AnimateNumber';
-import { type FieldComponentProps } from '../Field';
+import { AnimateNumber } from '../../../../components/ui/AnimateNumber';
+import { getInputState } from '../../utils/getInputState';
+import { type CreateFieldProps } from '../Field/Field';
 
 const numberCounterWrapperVariants = compose(
   heightVariants,
@@ -42,34 +40,37 @@ const numberDisplayVariants = compose(
   }),
 );
 
-type NumberCounterFieldProps = FieldComponentProps & {
+type NumberCounterFieldProps = CreateFieldProps & {
+  value?: number;
+  onChange?: (value: number) => void;
   step?: number;
   size?: VariantProps<typeof numberCounterWrapperVariants>['size'];
+  minValue?: number;
+  maxValue?: number;
+  className?: string;
 };
 
 export function NumberCounterField(props: NumberCounterFieldProps) {
   const {
     id,
     name,
-    value: rawValue,
+    'value': rawValue,
     onChange,
     minValue = -Infinity,
     maxValue = Infinity,
     step = 1,
     size = 'md',
     className,
+    disabled,
+    readOnly,
+    'aria-required': ariaRequired,
+    'aria-invalid': ariaInvalid,
+    'aria-describedby': ariaDescribedBy,
+    ...restProps
   } = props;
 
   const value = typeof rawValue === 'number' ? rawValue : 0;
-
-  // Calculate state based on props. Order: disabled > readOnly > invalid > normal
-  const getState = () => {
-    if (props['aria-disabled']) return 'disabled';
-    if (props['aria-readonly']) return 'readOnly';
-    if (props['aria-invalid']) return 'invalid';
-    return 'normal';
-  };
-  const state = getState();
+  const state = getInputState(props);
 
   const clampValue = useCallback(
     (val: number) => Math.min(Math.max(val, minValue), maxValue),
@@ -136,18 +137,19 @@ export function NumberCounterField(props: NumberCounterFieldProps) {
 
   return (
     <div
-      {...props}
+      {...restProps}
       role="spinbutton"
       id={id}
       aria-valuenow={value}
       aria-valuemin={minValue !== -Infinity ? minValue : undefined}
       aria-valuemax={maxValue !== Infinity ? maxValue : undefined}
+      aria-required={ariaRequired}
+      aria-invalid={ariaInvalid}
+      aria-describedby={ariaDescribedBy}
       tabIndex={state === 'disabled' ? -1 : 0}
       {...keyboardHandlers}
       className={cx(numberCounterWrapperVariants({ size, state }), className)}
     >
-      <input type="hidden" name={name} value={value} />
-
       <IconButton
         size={size}
         color="default"

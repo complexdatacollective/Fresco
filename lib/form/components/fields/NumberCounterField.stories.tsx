@@ -8,7 +8,10 @@ const meta: Meta<typeof NumberCounterField> = {
   component: NumberCounterField,
   tags: ['autodocs'],
   argTypes: {
-    size: {
+    'disabled': { control: 'boolean' },
+    'readOnly': { control: 'boolean' },
+    'aria-invalid': { control: 'boolean' },
+    'size': {
       control: 'select',
       options: ['sm', 'md', 'lg', 'xl'],
       description: 'Size of the counter field',
@@ -17,7 +20,7 @@ const meta: Meta<typeof NumberCounterField> = {
         defaultValue: { summary: 'md' },
       },
     },
-    minValue: {
+    'minValue': {
       control: 'number',
       description: 'Minimum allowed value',
       table: {
@@ -25,7 +28,7 @@ const meta: Meta<typeof NumberCounterField> = {
         defaultValue: { summary: '-Infinity' },
       },
     },
-    maxValue: {
+    'maxValue': {
       control: 'number',
       description: 'Maximum allowed value',
       table: {
@@ -33,7 +36,7 @@ const meta: Meta<typeof NumberCounterField> = {
         defaultValue: { summary: 'Infinity' },
       },
     },
-    step: {
+    'step': {
       control: 'number',
       description:
         'Step increment/decrement value. Supports decimals (e.g., 0.1) and larger steps (e.g., 5)',
@@ -42,11 +45,11 @@ const meta: Meta<typeof NumberCounterField> = {
         defaultValue: { summary: '1' },
       },
     },
-    value: {
+    'value': {
       control: 'number',
       description: 'Controlled value',
     },
-    onChange: {
+    'onChange': {
       control: false,
       description: 'Callback fired when the value changes',
     },
@@ -105,7 +108,10 @@ export const Default: Story = {
  */
 export const Sizes: Story = {
   argTypes: {
-    size: { control: false },
+    'disabled': { control: 'boolean' },
+    'readOnly': { control: 'boolean' },
+    'aria-invalid': { control: 'boolean' },
+    'size': { control: false },
   },
   render: (args) => (
     <div className="flex flex-col items-start gap-4">
@@ -148,7 +154,7 @@ export const States: Story = {
         <NumberCounterField
           {...args}
           value={5}
-          aria-disabled
+          disabled
           aria-label="Disabled state counter"
           data-testid="disabled-counter"
         />
@@ -158,7 +164,7 @@ export const States: Story = {
         <NumberCounterField
           {...args}
           value={5}
-          aria-readonly
+          readOnly
           aria-label="Read-only state counter"
           data-testid="readonly-counter"
         />
@@ -190,7 +196,7 @@ export const States: Story = {
 };
 
 /**
- * Counter with min and max boundaries. Buttons are disabled when limits are reached.
+ * Counter with min and max boundaries. Buttons are aria-disabled when limits are reached.
  */
 export const WithBoundaries: Story = {
   args: {
@@ -228,7 +234,7 @@ export const WithBoundaries: Story = {
       await userEvent.click(incrementButton);
     }
 
-    // Increment button should be disabled at max
+    // Increment button should be aria-disabled at max
     await expect(incrementButton).toBeDisabled();
 
     // Click decrement until we reach min (0)
@@ -236,7 +242,7 @@ export const WithBoundaries: Story = {
       await userEvent.click(decrementButton);
     }
 
-    // Decrement button should be disabled at min
+    // Decrement button should be aria-disabled at min
     await expect(decrementButton).toBeDisabled();
   },
 };
@@ -246,7 +252,10 @@ export const WithBoundaries: Story = {
  */
 export const StepValues: Story = {
   argTypes: {
-    step: { control: false },
+    'disabled': { control: 'boolean' },
+    'readOnly': { control: 'boolean' },
+    'aria-invalid': { control: 'boolean' },
+    'step': { control: false },
   },
   render: function Render(args) {
     const [value1, setValue1] = useState(0);
@@ -314,8 +323,11 @@ export const StepValues: Story = {
  */
 export const ControlledMode: Story = {
   argTypes: {
-    value: { control: false },
-    onChange: { control: false },
+    'disabled': { control: 'boolean' },
+    'readOnly': { control: 'boolean' },
+    'aria-invalid': { control: 'boolean' },
+    'value': { control: false },
+    'onChange': { control: false },
   },
   render: function Render(args) {
     const [value, setValue] = useState(0);

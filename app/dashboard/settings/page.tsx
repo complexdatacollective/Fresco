@@ -4,12 +4,12 @@ import ApiTokenManagement from '~/components/ApiTokenManagement';
 import DisableAnalyticsSwitch from '~/components/DisableAnalyticsSwitch';
 import SettingsSection from '~/components/layout/SettingsSection';
 import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch';
-import Link from '~/components/Link';
 import PreviewModeAuthSwitch from '~/components/PreviewModeAuthSwitch';
 import ToggleSmallScreenWarning from '~/components/ToggleSmallScreenWarning';
 import PageHeader from '~/components/typography/PageHeader';
 import Paragraph from '~/components/typography/Paragraph';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
+import Link from '~/components/ui/Link';
 import VersionSection, {
   VersionSectionSkeleton,
 } from '~/components/VersionSection';

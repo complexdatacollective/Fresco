@@ -28,7 +28,7 @@ const meta: Meta<typeof TextAreaField> = {
     },
     'aria-invalid': {
       control: 'boolean',
-      description: 'Whether the textarea has invalid state styling',
+      description: 'Whether the textarea has aria-invalid state styling',
       table: {
         type: { summary: 'boolean' },
         defaultValue: { summary: 'false' },
@@ -126,7 +126,7 @@ export const Invalid: Story = {
     docs: {
       description: {
         story:
-          'Textarea with invalid state styling (uses aria-invalid). State priority: disabled > readOnly > invalid > normal',
+          'Textarea with invalid state styling. State priority: disabled > readOnly > invalid > normal',
       },
     },
   },

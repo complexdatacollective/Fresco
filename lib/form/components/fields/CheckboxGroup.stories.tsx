@@ -9,21 +9,22 @@ const meta = {
   },
   tags: ['autodocs'],
   argTypes: {
-    orientation: {
+    'aria-invalid': { control: 'boolean' },
+    'orientation': {
       control: { type: 'select' },
       options: ['vertical', 'horizontal'],
     },
-    size: {
+    'size': {
       control: { type: 'select' },
       options: ['sm', 'md', 'lg', 'xl'],
     },
-    disabled: {
+    'disabled': {
       control: { type: 'boolean' },
     },
-    readOnly: {
+    'readOnly': {
       control: { type: 'boolean' },
     },
-    useColumns: {
+    'useColumns': {
       control: { type: 'boolean' },
     },
   },

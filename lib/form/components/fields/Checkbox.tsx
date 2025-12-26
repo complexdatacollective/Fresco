@@ -10,6 +10,8 @@ import {
   stateVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, type VariantProps } from '~/utils/cva';
+import { getInputState } from '../../utils/getInputState';
+import { type CreateFieldProps } from '../Field/Field';
 
 const checkboxRootVariants = compose(
   smallSizeVariants,
@@ -22,23 +24,33 @@ const checkboxRootVariants = compose(
 );
 
 const checkboxIndicatorVariants = compose(
-  // smallSizeVariants,
   cva({
     base: '',
   }),
 );
 
-type CheckboxProps = Omit<
-  ComponentPropsWithoutRef<typeof BaseCheckbox.Root>,
-  'size'
+type CheckboxProps = CreateFieldProps<
+  Omit<ComponentPropsWithoutRef<typeof BaseCheckbox.Root>, 'size'>
 > &
   VariantProps<typeof checkboxRootVariants> & {
-    invalid?: boolean;
-    readOnly?: boolean;
+    /** HTML form value for the checkbox */
+    value?: string;
   };
 
 export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
-  ({ className, size = 'md', onCheckedChange, ...props }, ref) => {
+  (
+    {
+      className,
+      size = 'md',
+      onCheckedChange,
+      'aria-required': _ariaRequired,
+      'aria-describedby': _ariaDescribedBy,
+      disabled,
+      readOnly,
+      ...props
+    },
+    ref,
+  ) => {
     const [internalChecked, setInternalChecked] = useState(
       props.checked ?? props.defaultChecked ?? false,
     );
@@ -54,24 +66,18 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
     const handleCheckedChange: NonNullable<
       ComponentPropsWithoutRef<typeof BaseCheckbox.Root>['onCheckedChange']
     > = (newChecked, eventDetails) => {
-      if (props.readOnly) return;
+      if (readOnly) return;
       if (!isControlled) {
         setInternalChecked(newChecked);
       }
       onCheckedChange?.(newChecked, eventDetails);
     };
 
-    const getState = () => {
-      if (props.disabled) return 'disabled';
-      if (props.readOnly) return 'readOnly';
-      if (props['aria-invalid']) return 'invalid';
-      return 'normal';
-    };
-
     return (
       <BaseCheckbox.Root
         ref={ref}
         onCheckedChange={handleCheckedChange}
+        disabled={disabled ?? readOnly}
         {...props}
         render={({
           onDrag: _onDrag,
@@ -85,7 +91,7 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
             className={checkboxRootVariants({
               size,
               className,
-              state: getState(),
+              state: getInputState(props),
             })}
           >
             <div className={checkboxIndicatorVariants()}>

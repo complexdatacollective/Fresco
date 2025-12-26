@@ -9,6 +9,8 @@ import {
   stateVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
+import { getInputState } from '../../utils/getInputState';
+import { type CreateFieldProps } from '../Field/Field';
 import { Checkbox } from './Checkbox';
 
 // Compose fieldset wrapper variants
@@ -30,39 +32,38 @@ type CheckboxOption = {
   disabled?: boolean;
 };
 
-type CheckboxGroupProps = Omit<
-  FieldsetHTMLAttributes<HTMLFieldSetElement>,
-  'size' | 'onChange'
+type CheckboxGroupProps = CreateFieldProps<
+  Omit<FieldsetHTMLAttributes<HTMLFieldSetElement>, 'size' | 'onChange'>
 > &
   VariantProps<typeof checkboxGroupComposedVariants> & {
-    id?: string;
-    name: string;
     options: CheckboxOption[];
     value?: (string | number)[];
     defaultValue?: (string | number)[];
     onChange?: (value: (string | number)[]) => void;
-    disabled?: boolean;
-    readOnly?: boolean;
     orientation?: 'horizontal' | 'vertical';
     size?: 'sm' | 'md' | 'lg' | 'xl';
     useColumns?: boolean;
   };
 
-export function CheckboxGroupField({
-  id,
-  className,
-  name,
-  options,
-  value,
-  defaultValue,
-  onChange,
-  disabled = false,
-  readOnly = false,
-  orientation = 'vertical',
-  size = 'md',
-  useColumns = false,
-  ...fieldsetProps
-}: CheckboxGroupProps) {
+export function CheckboxGroupField(props: CheckboxGroupProps) {
+  const {
+    id,
+    className,
+    name,
+    options,
+    value,
+    defaultValue,
+    onChange,
+    orientation = 'vertical',
+    size = 'md',
+    useColumns = false,
+    disabled,
+    readOnly,
+    ...fieldsetProps
+  } = props;
+
+  const isInvalid = !!fieldsetProps['aria-invalid'];
+
   const handleChange = (optionValue: string | number, checked: boolean) => {
     if (readOnly) return;
     if (onChange) {
@@ -77,16 +78,6 @@ export function CheckboxGroupField({
   // Determine if this is controlled or uncontrolled
   const isControlled = value !== undefined;
   const currentValues = isControlled ? value : (defaultValue ?? []);
-  const isInvalid = fieldsetProps['aria-invalid'] === 'true';
-
-  // Work out variant state based on props. Order:
-  // disabled > readOnly > invalid > normal
-  const getState = () => {
-    if (disabled) return 'disabled';
-    if (readOnly) return 'readOnly';
-    if (isInvalid) return 'invalid';
-    return 'normal';
-  };
 
   return (
     <div className="@container w-full">
@@ -95,9 +86,8 @@ export function CheckboxGroupField({
         {...fieldsetProps}
         className={checkboxGroupComposedVariants({
           orientation,
-          size,
           useColumns,
-          state: getState(),
+          state: getInputState(props),
           className,
         })}
         disabled={disabled}
@@ -134,7 +124,7 @@ export function CheckboxGroupField({
                   }
                 }}
                 size={size}
-                invalid={isInvalid}
+                aria-invalid={isInvalid}
               />
               <span>{option.label}</span>
             </label>

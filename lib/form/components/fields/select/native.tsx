@@ -2,18 +2,22 @@ import { isEmpty } from 'es-toolkit/compat';
 import { type SelectHTMLAttributes } from 'react';
 import {
   controlVariants,
+  heightVariants,
   inlineSpacingVariants,
   inputControlVariants,
   interactiveStateVariants,
   nativeSelectVariants,
-  sizeVariants,
   stateVariants,
+  textSizeVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cx, type VariantProps } from '~/utils/cva';
+import { getInputState } from '../../../utils/getInputState';
+import { type CreateFieldProps } from '../../Field/Field';
 
 // Wrapper variants for select elements (shared by native and styled)
 export const selectWrapperVariants = compose(
-  sizeVariants,
+  textSizeVariants,
+  heightVariants,
   controlVariants,
   inputControlVariants,
   inlineSpacingVariants,
@@ -26,9 +30,8 @@ export type SelectOption = {
   label: string;
 };
 
-export type SelectProps = Omit<
-  SelectHTMLAttributes<HTMLSelectElement>,
-  'size' | 'onChange'
+export type SelectProps = CreateFieldProps<
+  Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size' | 'onChange'>
 > &
   VariantProps<typeof selectWrapperVariants> & {
     name: string;
@@ -39,38 +42,39 @@ export type SelectProps = Omit<
     className?: string;
   };
 
-export function SelectField({
-  options,
-  placeholder,
-  size,
-  name,
-  ...selectProps
-}: SelectProps) {
+export function SelectField(props: SelectProps) {
+  const {
+    options,
+    placeholder,
+    size,
+    name,
+    disabled,
+    readOnly,
+    onChange,
+    className,
+    ...rest
+  } = props;
+
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value;
-    selectProps.onChange(selectedValue);
+    onChange(selectedValue);
   };
 
-  const hasValue = isEmpty(selectProps.value) === false;
-
-  const getState = () => {
-    if (selectProps.disabled) return 'disabled';
-    if (selectProps['aria-invalid']) return 'invalid';
-    return 'normal';
-  };
+  const hasValue = isEmpty(rest.value) === false;
 
   return (
     <div
       className={selectWrapperVariants({
         size,
-        className: cx('w-full', selectProps.className),
-        state: getState(),
+        className: cx('w-full', className),
+        state: getInputState(props),
       })}
     >
       <select
         autoComplete="off"
-        {...selectProps}
+        {...rest}
         name={name}
+        disabled={disabled || readOnly}
         onChange={handleChange}
         className={cx(
           'w-full',

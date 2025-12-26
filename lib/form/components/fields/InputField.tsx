@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import React, { type ReactNode, useCallback } from 'react';
 import {
   controlVariants,
   heightVariants,
@@ -12,7 +12,8 @@ import {
   wrapperPaddingVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
-import { type FieldComponentProps } from '../Field';
+import { getInputState } from '../../utils/getInputState';
+import { type CreateFieldProps } from '../Field/Field';
 
 const inputWrapperVariants = compose(
   heightVariants,
@@ -43,22 +44,17 @@ export const inputVariants = compose(
   }),
 );
 
-type InputFieldProps = FieldComponentProps &
-  Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'onChange'> & {
-    size?: VariantProps<typeof textSizeVariants>['size'];
-    prefixComponent?: ReactNode;
-    suffixComponent?: ReactNode;
-    /**
-     * Type-safe change handler.
-     * - For type="number": receives number (or undefined when input is empty)
-     * - For all other types: receives the string value
-     * - Also accepts standard React.ChangeEvent handler for backward compatibility
-     */
-    onChange?:
-      | ((value: string) => void)
-      | ((value: number | undefined) => void)
-      | React.ChangeEventHandler<HTMLInputElement>;
-  };
+type InputFieldProps = CreateFieldProps<
+  React.InputHTMLAttributes<HTMLInputElement>
+> & {
+  type?: string;
+  size?: VariantProps<typeof textSizeVariants>['size'];
+  prefixComponent?: ReactNode;
+  suffixComponent?: ReactNode;
+  value?: string;
+  onChange?: (value: string) => void;
+  className?: string;
+};
 
 export const InputField = function InputField(props: InputFieldProps) {
   const {
@@ -68,51 +64,36 @@ export const InputField = function InputField(props: InputFieldProps) {
     className,
     value,
     onChange,
-    type,
+    type = 'text',
+    disabled,
+    readOnly,
     ...inputProps
   } = props;
 
-  // Calculate state based on props. Order: disabled > readOnly > invalid > normal
-  const getState = () => {
-    if (inputProps.disabled) return 'disabled';
-    if (inputProps['aria-invalid']) return 'invalid';
-    if (inputProps.readOnly) return 'readOnly';
-    return 'normal';
-  };
-
-  const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    if (!onChange) return;
-
-    // Check if the onChange handler expects an event (has 'target' check or takes event param)
-    // by checking if it's a function that, when called with a primitive, throws or returns undefined
-    // Simpler approach: check function length - event handlers typically expect 1 arg (event)
-    // and our value handlers also expect 1 arg, so we differentiate by type
-    if (type === 'number') {
-      const numValue =
-        e.target.value === '' ? undefined : e.target.valueAsNumber;
-      // For number inputs, call with number | undefined
-      (onChange as (value: number | undefined) => void)(numValue);
-    } else {
-      // For other inputs, call with string value
-      (onChange as (value: string) => void)(e.target.value);
-    }
-  };
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      onChange?.(event.target.value);
+    },
+    [onChange],
+  );
 
   return (
     <div
       className={cx(
-        inputWrapperVariants({ size, state: getState() }),
+        inputWrapperVariants({ size, state: getInputState(props) }),
         className,
       )}
     >
       {prefix}
       <input
-        autoComplete="off"
+        autoComplete="off" // Default to off to avoid browser autofill styles
         className={inputVariants({ className })}
         type={type}
         {...inputProps}
         onChange={handleChange}
         value={value}
+        disabled={disabled}
+        readOnly={readOnly}
       />
       {suffix}
     </div>

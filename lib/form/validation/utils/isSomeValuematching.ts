@@ -13,10 +13,7 @@ export default function isSomeValueMatching(
   otherNetworkEntities: NcNode[] | NcEdge[] | NcEgo[],
   name: string,
 ) {
-  return some(
-    otherNetworkEntities,
-    (entity) =>
-      entity[entityAttributesProperty] &&
-      isMatchingValue(value, entity[entityAttributesProperty][name]),
+  return some(otherNetworkEntities, (entity) =>
+    isMatchingValue(value, entity[entityAttributesProperty][name]),
   );
 }
