@@ -2,11 +2,11 @@
 
 import { LayoutGroup } from 'motion/react';
 import { type ReactNode } from 'react';
-import { useField, type UseFieldResult } from '../../hooks/useField';
-import { type ValidationContext } from '../../types';
+import { useField, type UseFieldResult } from '~/lib/form/hooks/useField';
+import { type FieldValue, type ValidationContext } from '~/lib/form/types';
 import {
   filterValidationProps,
-  type ValidationProps,
+  type ValidationPropsCatalogue,
 } from '../../validation/helpers';
 import { BaseField } from './BaseField';
 
@@ -15,69 +15,51 @@ import { BaseField } from './BaseField';
  * Excludes value, onChange, onBlur as these are defined by each component
  * with their specific types. Field provides these via fieldProps spread.
  */
-type FieldComponentProps = Omit<
-  Partial<UseFieldResult['fieldProps']>,
-  'value' | 'onChange' | 'onBlur'
-> & {
-  id?: string;
-  name?: string;
+export type InjectedFieldProps = UseFieldResult['fieldProps'] & {
   disabled?: boolean;
   readOnly?: boolean;
 };
 
-/**
- * Create props for an input-like field component by omitting props that are
- * always provided by Field.
- */
-export type CreateFieldProps<T = unknown> = T extends object
-  ? FieldComponentProps &
-      Omit<
-        T,
-        | 'value'
-        | 'onChange'
-        | 'disabled'
-        | 'readOnly'
-        | 'size'
-        | keyof ValidationProps
-      > &
-      Partial<ValidationProps>
-  : FieldComponentProps & Partial<ValidationProps>;
+// Utility to pick a subset of validation props (all optional)
+type ValidationProps<K extends keyof ValidationPropsCatalogue> = Partial<
+  Pick<ValidationPropsCatalogue, K>
+>;
+
+// ═══════════════════════════════════════════════════════════════
+// Combined utility for child component prop definitions
+// ═══════════════════════════════════════════════════════════════
+export type CreateFormFieldProps<
+  TElement extends keyof React.JSX.IntrinsicElements,
+  TValidationKeys extends keyof ValidationPropsCatalogue = never,
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  TCustom = {},
+> = Omit<
+  React.JSX.IntrinsicElements[TElement],
+  keyof InjectedFieldProps | TValidationKeys | keyof TCustom
+> &
+  InjectedFieldProps &
+  ValidationProps<TValidationKeys> &
+  TCustom;
 
 /**
- * Extract the value type from a component's props.
- * Works with both function components and generic components.
+ * Props for the Field component itself.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ExtractProps<C> = C extends (props: infer P) => any
-  ? P
-  : C extends React.ComponentType<infer P>
-    ? P
-    : never;
-
-type ExtractValue<C> =
-  ExtractProps<C> extends { value?: infer V }
-    ? NonNullable<V>
-    : ExtractProps<C> extends { value: infer V }
-      ? V
-      : never;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type FieldOwnProps<C extends React.ComponentType<any>> = {
+export type FieldOwnProps = {
   name: string;
   label: string;
   hint?: ReactNode;
-  initialValue?: ExtractValue<C>;
+  initialValue?: FieldValue;
   showValidationHints?: boolean;
   /**
    * Context required for context-dependent validations like unique, sameAs, etc.
    */
   validationContext?: ValidationContext;
-  component: C;
-} & Partial<ValidationProps>;
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type FieldProps<C extends React.ComponentType<any>> = FieldOwnProps<C> &
-  Omit<ExtractProps<C>, keyof FieldComponentProps | keyof ValidationProps>;
+export type FieldProps<C extends React.ComponentType<any>> = FieldOwnProps &
+  // Everything the child accepts, minus what Field provides
+  Omit<React.ComponentProps<C>, keyof InjectedFieldProps>;
 
 /**
  * Field component that connects to form context via useField hook.
@@ -97,7 +79,7 @@ export default function Field<C extends React.ComponentType<any>>({
   disabled,
   readOnly,
   ...componentProps
-}: FieldProps<C>) {
+}: FieldProps<C> & { component: C }) {
   const { id, containerProps, fieldProps, meta, validationSummary } = useField({
     name,
     initialValue,

@@ -9,7 +9,7 @@ import { useArgs } from 'storybook/preview-api';
 import { Button, IconButton, MotionButton } from '~/components/ui/Button';
 import { Dialog } from '~/lib/dialogs/Dialog';
 import Field from '~/lib/form/components/Field/Field';
-import { InputField } from '~/lib/form/components/fields/InputField';
+import InputField from '~/lib/form/components/fields/InputField';
 import { FormWithoutProvider } from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
 import { FormStoreProvider } from '~/lib/form/store/formStoreProvider';

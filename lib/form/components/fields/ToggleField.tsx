@@ -118,7 +118,7 @@ type ToggleFieldProps = CreateFieldProps<
     onChange?: (value: boolean) => void;
   };
 
-export function ToggleField(props: ToggleFieldProps) {
+function ToggleField(props: ToggleFieldProps) {
   const {
     id,
     name,
@@ -176,3 +176,6 @@ export function ToggleField(props: ToggleFieldProps) {
     </Switch.Root>
   );
 }
+
+export { ToggleField };
+export default ToggleField;

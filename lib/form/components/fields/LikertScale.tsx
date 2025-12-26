@@ -25,7 +25,7 @@ type LikertScaleFieldProps = CreateFieldProps<
   options?: Option[];
 };
 
-export function LikertScaleField({
+function LikertScaleField({
   className,
   value,
   onChange,
@@ -143,3 +143,6 @@ export function LikertScaleField({
     </div>
   );
 }
+
+export { LikertScaleField };
+export default LikertScaleField;

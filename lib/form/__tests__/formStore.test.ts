@@ -2,13 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import { createFormStore } from '../store/formStore';
 import { type FieldConfig, type FormConfig } from '../types';
+import { validateFieldValue } from '../validation/helpers';
 
 // Mock the validation utility
-vi.mock('../utils/validation', () => ({
+vi.mock('../validation/helpers', () => ({
   validateFieldValue: vi.fn(),
 }));
 
-import { validateFieldValue } from '../validation/helpers';
 const mockValidateFieldValue = vi.mocked(validateFieldValue);
 
 describe('FormStore', () => {
@@ -83,7 +83,7 @@ describe('FormStore', () => {
       expect(field?.value).toBe('test@example.com');
       expect(field?.initialValue).toBe('test@example.com');
       expect(field?.validation).toBeDefined();
-      expect(field?.state).toEqual({
+      expect(field?.meta).toEqual({
         isValidating: false,
         isTouched: false,
         isBlurred: false,
@@ -141,7 +141,7 @@ describe('FormStore', () => {
       const field = store.getState().getFieldState('email');
 
       expect(field?.value).toBe('new@example.com');
-      expect(field?.state.isDirty).toBe(true);
+      expect(field?.meta.isDirty).toBe(true);
     });
 
     it('should not update value for non-existent field', () => {
@@ -165,7 +165,7 @@ describe('FormStore', () => {
       const fieldErrors = state.getFieldErrors('email');
 
       expect(fieldErrors).toEqual(['Invalid email format']);
-      expect(field?.state.isValid).toBe(false);
+      expect(field?.meta.isValid).toBe(false);
       expect(state.isValid).toBe(false);
     });
 
@@ -190,21 +190,21 @@ describe('FormStore', () => {
       const field = store.getState().getFieldState('email');
       const fieldErrors = store.getState().getFieldErrors('email');
       expect(fieldErrors).toBeNull();
-      expect(field?.state.isValid).toBe(true);
+      expect(field?.meta.isValid).toBe(true);
     });
 
     it('should set field touched', () => {
       store.getState().setFieldTouched('email', true);
       const field = store.getState().getFieldState('email');
 
-      expect(field?.state.isTouched).toBe(true);
+      expect(field?.meta.isTouched).toBe(true);
     });
 
     it('should set field dirty when value changes', () => {
       store.getState().setFieldValue('email', 'new@example.com');
       const field = store.getState().getFieldState('email');
 
-      expect(field?.state.isDirty).toBe(true);
+      expect(field?.meta.isDirty).toBe(true);
       // Note: form-level isDirty is not automatically calculated in current implementation
     });
   });
@@ -263,12 +263,12 @@ describe('FormStore', () => {
 
       store.getState().setFieldValue('field1', 'changed_value');
       const field1 = store.getState().getFieldState('field1');
-      expect(field1?.state.isDirty).toBe(true);
+      expect(field1?.meta.isDirty).toBe(true);
 
       // Reset the field to make it not dirty
       store.getState().resetField('field1');
       const resetField1 = store.getState().getFieldState('field1');
-      expect(resetField1?.state.isDirty).toBe(false);
+      expect(resetField1?.meta.isDirty).toBe(false);
     });
 
     it('should update form validating state based on any field validating', () => {
@@ -369,8 +369,8 @@ describe('FormStore', () => {
       const state = store.getState();
       const fieldErrors = state.getFieldErrors('email');
 
-      expect(field?.state.isValidating).toBe(false);
-      expect(field?.state.isValid).toBe(true);
+      expect(field?.meta.isValidating).toBe(false);
+      expect(field?.meta.isValid).toBe(true);
       expect(fieldErrors).toBeNull();
       expect(state.isValid).toBe(true);
     });
@@ -394,7 +394,7 @@ describe('FormStore', () => {
       const fieldErrors = state.getFieldErrors('email');
 
       // Note: isValidating is not set to false in error case in current implementation
-      expect(field?.state.isValid).toBe(false);
+      expect(field?.meta.isValid).toBe(false);
       expect(fieldErrors).toEqual(['Email is required']);
       expect(state.isValid).toBe(false);
     });
@@ -406,8 +406,8 @@ describe('FormStore', () => {
       const field = store.getState().getFieldState('email');
       const fieldErrors = store.getState().getFieldErrors('email');
 
-      expect(field?.state.isValidating).toBe(false);
-      expect(field?.state.isValid).toBe(false);
+      expect(field?.meta.isValidating).toBe(false);
+      expect(field?.meta.isValid).toBe(false);
       expect(fieldErrors).toEqual(['Something went wrong during validation']);
     });
 
@@ -490,7 +490,7 @@ describe('FormStore', () => {
       const field1 = state.getFieldState('field1');
       const field1Errors = state.getFieldErrors('field1');
       expect(field1Errors).toEqual(['Field1 is required']);
-      expect(field1?.state.isValid).toBe(false);
+      expect(field1?.meta.isValid).toBe(false);
     });
   });
 
@@ -720,10 +720,10 @@ describe('FormStore', () => {
 
       expect(field?.value).toBe('initial@example.com');
       expect(fieldErrors).toBeNull();
-      expect(field?.state.isTouched).toBe(false);
-      expect(field?.state.isDirty).toBe(false);
-      expect(field?.state.isValid).toBe(true);
-      expect(field?.state.isValidating).toBe(false);
+      expect(field?.meta.isTouched).toBe(false);
+      expect(field?.meta.isDirty).toBe(false);
+      expect(field?.meta.isValid).toBe(true);
+      expect(field?.meta.isValidating).toBe(false);
     });
 
     it('should not error when resetting non-existent field', () => {
@@ -801,10 +801,10 @@ describe('FormStore', () => {
       const field = store.getState().getFieldState('test');
       const fieldErrors = store.getState().getFieldErrors('test');
       expect(field?.value).toBe('new value');
-      expect(field?.state.isTouched).toBe(true);
-      expect(field?.state.isDirty).toBe(true);
+      expect(field?.meta.isTouched).toBe(true);
+      expect(field?.meta.isDirty).toBe(true);
       expect(fieldErrors).toEqual(['validation error']);
-      expect(field?.state.isValid).toBe(false);
+      expect(field?.meta.isValid).toBe(false);
     });
   });
 });

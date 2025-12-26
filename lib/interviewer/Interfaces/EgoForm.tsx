@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import { isDirty, isValid, submit } from 'redux-form';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import useDialog from '~/lib/dialogs/useDialog';
-import { Form } from '~/lib/form';
+import Form from '~/lib/form/components/Form';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import Icon from '~/lib/ui/components/Icon';
 import Scroller from '~/lib/ui/components/Scroller';

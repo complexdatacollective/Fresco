@@ -7,7 +7,7 @@ import {
   updateApiToken,
 } from '~/actions/apiTokens';
 import { Dialog } from '~/lib/dialogs/Dialog';
-import { InputField } from '~/lib/form/components/fields/InputField';
+import InputField from '~/lib/form/components/fields/InputField';
 import { type GetApiTokensReturnType } from '~/queries/apiTokens';
 import { Alert, AlertDescription, AlertTitle } from './ui/Alert';
 import { Button } from './ui/Button';

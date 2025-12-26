@@ -18,7 +18,7 @@ type VisualAnalogScaleFieldProps = CreateFieldProps<
   maxLabel?: string;
 };
 
-export function VisualAnalogScaleField({
+function VisualAnalogScaleField({
   className,
   value = 0,
   onChange,
@@ -80,3 +80,6 @@ export function VisualAnalogScaleField({
     </div>
   );
 }
+
+export { VisualAnalogScaleField };
+export default VisualAnalogScaleField;

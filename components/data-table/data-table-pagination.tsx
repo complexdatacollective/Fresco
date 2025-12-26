@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { pageSizes } from '~/components/DataTable/types';
 import { Button } from '~/components/ui/Button';
-import { SelectField } from '~/lib/form/components/fields/Select';
+import SelectField from '~/lib/form/components/fields/Select';
 import Paragraph from '../typography/Paragraph';
 
 type DataTablePaginationProps<TData> = {

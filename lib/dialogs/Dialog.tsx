@@ -2,7 +2,6 @@
 
 import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 import { Slot } from '@radix-ui/react-slot';
-import { type motion } from 'motion/react';
 import React, { forwardRef, type ReactNode } from 'react';
 import { type SurfaceVariants } from '~/components/layout/Surface';
 import Modal from '~/components/Modal/Modal';
@@ -46,7 +45,7 @@ export type DialogProps = {
  * - Surface styling applied via className for proper elevation and spacing
  * - Backdrop click-to-close is handled by Base UI's dismissible behavior
  */
-export function Dialog({
+export default function Dialog({
   title,
   description,
   children,
@@ -153,11 +152,7 @@ const DialogDescription = forwardRef<
 
 DialogDescription.displayName = 'DialogDescription';
 
-const DialogContent = ({
-  children,
-  className,
-  ...props
-}: React.ComponentProps<typeof motion.div>) => {
+const DialogContent = ({ children }: { children: React.ReactNode }) => {
   return <ScrollArea>{children}</ScrollArea>;
 };
 

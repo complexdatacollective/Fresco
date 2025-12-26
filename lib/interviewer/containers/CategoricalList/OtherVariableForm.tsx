@@ -3,8 +3,9 @@ import { useEffect } from 'react';
 import { reduxForm, type InjectedFormProps } from 'redux-form';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Button from '~/components/ui/Button';
-import { Field, Form } from '~/lib/form';
-import { InputField } from '~/lib/form/components/fields/InputField';
+import Field from '~/lib/form/components/Field/Field';
+import Form from '~/lib/form/components/Form';
+import InputField from '~/lib/form/components/fields/InputField';
 import { validations } from '~/lib/form/validation/functions';
 import Node from '../../components/Node';
 

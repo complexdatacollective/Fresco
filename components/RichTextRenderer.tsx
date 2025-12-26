@@ -131,7 +131,7 @@ function renderNode(node: JSONContent, index: number): ReactNode {
   }
 }
 
-export function RichTextRenderer({
+export default function RichTextRenderer({
   content,
   className,
   ...props

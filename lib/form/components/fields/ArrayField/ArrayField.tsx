@@ -84,7 +84,7 @@ export type ArrayFieldEditorProps<T extends object> = {
 };
 
 export type ArrayFieldProps<T extends object> = CreateFieldProps & {
-  value?: T[];
+  value: T[];
   onChange: (value: T[]) => void;
   sortable?: boolean;
   itemClasses?:
@@ -237,7 +237,9 @@ const ArrayFieldItemWrapper = forwardRef(function ArrayFieldItemWrapper<
   props: ArrayFieldItemWrapperProps<T> & { ref?: Ref<HTMLLIElement> },
 ) => JSX.Element;
 
-export function ArrayField<T extends object>(propsIn: ArrayFieldProps<T>) {
+export default function ArrayField<T extends object>(
+  propsIn: ArrayFieldProps<T>,
+) {
   const {
     value = EMPTY_ARRAY as T[],
     onChange,

@@ -1,4 +1,4 @@
-import React, { type ReactNode, useCallback } from 'react';
+import { type ReactNode } from 'react';
 import {
   controlVariants,
   heightVariants,
@@ -13,7 +13,7 @@ import {
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { getInputState } from '../../utils/getInputState';
-import { type CreateFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/Field';
 
 const inputWrapperVariants = compose(
   heightVariants,
@@ -44,19 +44,16 @@ export const inputVariants = compose(
   }),
 );
 
-type InputFieldProps = CreateFieldProps<
-  React.InputHTMLAttributes<HTMLInputElement>
+type InputFieldProps = CreateFormFieldProps<
+  'input',
+  'custom' | 'minLength' | 'maxLength' | 'pattern' | 'required'
 > & {
-  type?: string;
   size?: VariantProps<typeof textSizeVariants>['size'];
   prefixComponent?: ReactNode;
   suffixComponent?: ReactNode;
-  value?: string;
-  onChange?: (value: string) => void;
-  className?: string;
 };
 
-export const InputField = function InputField(props: InputFieldProps) {
+function InputField(props: InputFieldProps) {
   const {
     prefixComponent: prefix,
     suffixComponent: suffix,
@@ -69,13 +66,6 @@ export const InputField = function InputField(props: InputFieldProps) {
     readOnly,
     ...inputProps
   } = props;
-
-  const handleChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      onChange?.(event.target.value);
-    },
-    [onChange],
-  );
 
   return (
     <div
@@ -90,7 +80,7 @@ export const InputField = function InputField(props: InputFieldProps) {
         className={inputVariants({ className })}
         type={type}
         {...inputProps}
-        onChange={handleChange}
+        onChange={(e) => onChange(e.target.value)}
         value={value}
         disabled={disabled}
         readOnly={readOnly}
@@ -98,4 +88,7 @@ export const InputField = function InputField(props: InputFieldProps) {
       {suffix}
     </div>
   );
-};
+}
+
+export { InputField };
+export default InputField;

@@ -116,7 +116,7 @@ type ToggleButtonGroupProps = CreateFieldProps<
     useColumns?: boolean;
   };
 
-export function ToggleButtonGroupField(props: ToggleButtonGroupProps) {
+function ToggleButtonGroupField(props: ToggleButtonGroupProps) {
   const {
     id,
     className,
@@ -217,3 +217,6 @@ export function ToggleButtonGroupField(props: ToggleButtonGroupProps) {
     </fieldset>
   );
 }
+
+export { ToggleButtonGroupField };
+export default ToggleButtonGroupField;

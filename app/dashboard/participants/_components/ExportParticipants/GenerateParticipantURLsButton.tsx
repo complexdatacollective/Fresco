@@ -6,7 +6,7 @@ import type { ProtocolWithInterviews } from '~/app/dashboard/_components/Protoco
 import { Button } from '~/components/ui/Button';
 import FancyBox from '~/components/ui/FancyBox';
 import { Dialog } from '~/lib/dialogs/Dialog';
-import { SelectField } from '~/lib/form/components/fields/Select';
+import SelectField from '~/lib/form/components/fields/Select';
 import ExportCSVParticipantURLs from './ExportCSVParticipantURLs';
 
 export const GenerateParticipantURLs = ({

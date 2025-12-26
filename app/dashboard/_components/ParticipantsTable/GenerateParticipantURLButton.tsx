@@ -11,7 +11,7 @@ import {
   PopoverTrigger,
 } from '~/components/ui/popover';
 import { useToast } from '~/components/ui/use-toast';
-import { SelectField } from '~/lib/form/components/fields/Select';
+import SelectField from '~/lib/form/components/fields/Select';
 import type { ProtocolWithInterviews } from '../ProtocolsTable/ProtocolsTableClient';
 
 export const GenerateParticipationURLButton = ({

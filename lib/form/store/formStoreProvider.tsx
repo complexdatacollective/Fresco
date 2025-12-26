@@ -1,20 +1,17 @@
 'use client';
 
-import { createContext, useContext, useRef, type ReactNode } from 'react';
-import { useStore } from 'zustand';
-import {
-  createFormStore,
-  type FormStore,
-  type FormStoreApi,
-} from './formStore';
+import { createContext, useRef, type ReactNode } from 'react';
+import { createFormStore, type FormStoreApi } from './formStore';
 
-const FormStoreContext = createContext<FormStoreApi | undefined>(undefined);
+export const FormStoreContext = createContext<FormStoreApi | undefined>(
+  undefined,
+);
 
 type FormStoreProviderProps = {
   children: ReactNode;
 };
 
-export const FormStoreProvider = ({ children }: FormStoreProviderProps) => {
+const FormStoreProvider = ({ children }: FormStoreProviderProps) => {
   const storeRef = useRef<FormStoreApi>();
 
   storeRef.current ??= createFormStore();
@@ -26,26 +23,4 @@ export const FormStoreProvider = ({ children }: FormStoreProviderProps) => {
   );
 };
 
-export const useFormStore = <T,>(selector: (store: FormStore) => T): T => {
-  const formStoreContext = useContext(FormStoreContext);
-
-  if (!formStoreContext) {
-    throw new Error('useFormStore must be used within FormStoreProvider');
-  }
-
-  return useStore(formStoreContext, selector);
-};
-
-export const useFormStoreSelector = <T,>(
-  selector: (store: FormStore) => T,
-): T => {
-  const formStoreContext = useContext(FormStoreContext);
-
-  if (!formStoreContext) {
-    throw new Error(
-      'useFormStoreSelector must be used within FormStoreProvider',
-    );
-  }
-
-  return useStore(formStoreContext, selector);
-};
+export default FormStoreProvider;

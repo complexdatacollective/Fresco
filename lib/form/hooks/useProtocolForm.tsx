@@ -8,19 +8,19 @@ import {
   selectFieldMetadata,
 } from '~/lib/interviewer/selectors/forms';
 import Field from '../components/Field/Field';
-import { BooleanField } from '../components/fields/Boolean';
-import { CheckboxGroupField } from '../components/fields/CheckboxGroup';
-import { DatePickerField } from '../components/fields/DatePicker';
-import { InputField } from '../components/fields/InputField';
-import { LikertScaleField } from '../components/fields/LikertScale';
-import { RadioGroupField } from '../components/fields/RadioGroup';
-import { RelativeDatePickerField } from '../components/fields/RelativeDatePicker';
-import { TextAreaField } from '../components/fields/TextArea';
-import { ToggleButtonGroupField } from '../components/fields/ToggleButtonGroup';
-import { ToggleField } from '../components/fields/ToggleField';
-import { VisualAnalogScaleField } from '../components/fields/VisualAnalogScale';
+import BooleanField from '../components/fields/Boolean';
+import CheckboxGroupField from '../components/fields/CheckboxGroup';
+import DatePickerField from '../components/fields/DatePicker';
+import InputField from '../components/fields/InputField';
+import LikertScaleField from '../components/fields/LikertScale';
+import RadioGroupField from '../components/fields/RadioGroup';
+import RelativeDatePickerField from '../components/fields/RelativeDatePicker';
+import TextAreaField from '../components/fields/TextArea';
+import ToggleButtonGroupField from '../components/fields/ToggleButtonGroup';
+import ToggleField from '../components/fields/ToggleField';
+import VisualAnalogScaleField from '../components/fields/VisualAnalogScale';
 import { type FieldValue, type ValidationContext } from '../types';
-import { type ValidationProps } from '../validation/helpers';
+import { type ValidationPropsCatalogue } from '../validation/helpers';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const fieldTypeMap: Record<ComponentType, React.ComponentType<any>> = {
@@ -76,7 +76,7 @@ export default function useProtocolForm({
       initialValue?: FieldValue;
       autoFocus?: boolean;
       validationContext?: ValidationContext;
-    } & Partial<ValidationProps> = {
+    } & Partial<ValidationPropsCatalogue> = {
       name: field.variable,
       label: field.label,
       component: field.component,
@@ -111,7 +111,8 @@ export default function useProtocolForm({
       if (validation.maxSelected !== undefined)
         props.maxSelected = validation.maxSelected as number;
       if (validation.pattern !== undefined)
-        props.pattern = validation.pattern as ValidationProps['pattern'];
+        props.pattern =
+          validation.pattern as ValidationPropsCatalogue['pattern'];
       // For 'unique', the protocol uses boolean but validation needs the attribute name
       if (validation.unique === true) props.unique = field.variable;
       if (validation.differentFrom !== undefined)

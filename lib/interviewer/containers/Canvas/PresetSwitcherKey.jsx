@@ -6,7 +6,7 @@ import { createPortal } from 'react-dom';
 import { connect } from 'react-redux';
 import { compose } from 'recompose';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
-import { RadioGroupField } from '~/lib/form/components/fields/RadioGroup';
+import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import Icon from '~/lib/ui/components/Icon';
 import {
   getCurrentStage,

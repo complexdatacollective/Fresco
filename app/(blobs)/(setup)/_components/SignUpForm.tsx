@@ -2,8 +2,11 @@
 
 import { useRouter } from 'next/navigation';
 import { signup } from '~/actions/auth';
-import { Field, Form, SubmitButton, useFormValue } from '~/lib/form';
-import { InputField } from '~/lib/form/components/fields/InputField';
+import Field from '~/lib/form/components/Field/Field';
+import Form from '~/lib/form/components/Form';
+import SubmitButton from '~/lib/form/components/SubmitButton';
+import { useFormValue } from '~/lib/form/hooks/useFormValue';
+import InputField from '~/lib/form/components/fields/InputField';
 import { type FormSubmitHandler } from '~/lib/form/types';
 import { createUserSchema } from '~/schemas/auth';
 

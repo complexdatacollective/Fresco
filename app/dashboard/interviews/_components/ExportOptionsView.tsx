@@ -1,7 +1,7 @@
 import { type Dispatch, type SetStateAction } from 'react';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
-import { ToggleField as Switch } from '~/lib/form/components/fields/ToggleField';
+import Switch from '~/lib/form/components/fields/ToggleField';
 import type { ExportOptions } from '~/lib/network-exporters/utils/types';
 import { cx } from '~/utils/cva';
 

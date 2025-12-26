@@ -80,9 +80,10 @@ import { configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Provider } from 'react-redux';
 import { action } from 'storybook/actions';
-import { Form, SubmitButton } from '../components';
-import { type FieldValue } from '../types';
-import useProtocolForm from './useProtocolForm';
+import Form from '~/lib/form/components/Form';
+import SubmitButton from '~/lib/form/components/SubmitButton';
+import { type FieldValue } from '~/lib/form/types';
+import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 
 // Mock protocol data
 const mockProtocol = {

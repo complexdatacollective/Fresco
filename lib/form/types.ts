@@ -4,6 +4,7 @@ import type * as z from 'zod/v4';
 
 export type FieldValue =
   | string
+  | (string | number | boolean)[]
   | number
   | boolean
   | undefined

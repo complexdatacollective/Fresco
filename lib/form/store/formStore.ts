@@ -103,7 +103,7 @@ export const createFormStore = () => {
           const fieldState: FieldState = {
             initialValue: config.initialValue,
             validation: config.validation,
-            value: undefined,
+            value: config.initialValue,
             meta: {
               isValidating: false,
               isTouched: false,

@@ -4,8 +4,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import type { JSONContent } from '@tiptap/react';
 import { action } from 'storybook/actions';
 import { z } from 'zod';
-import { Field, Form, SubmitButton } from '..';
-import { RichTextEditorField } from './RichTextEditor';
+import RichTextEditorField from './RichTextEditor';
 
 const meta: Meta<typeof RichTextEditorField> = {
   title: 'Systems/Form/Fields/RichTextEditor',

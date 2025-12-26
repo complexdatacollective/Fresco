@@ -1,5 +1,6 @@
 import { Eye, EyeOff, Lock } from 'lucide-react';
 import { useState } from 'react';
+import { IconButton } from '~/components/ui/Button';
 import { InputField } from './InputField';
 
 export default function PasswordField(
@@ -10,19 +11,14 @@ export default function PasswordField(
     <InputField
       type={showPassword ? 'text' : 'password'}
       placeholder="Enter password"
-      prefixComponent={<Lock className="h-4 w-4" />}
+      prefixComponent={<Lock />}
       suffixComponent={
-        <button
-          type="button"
+        <IconButton
+          variant="text"
           onClick={() => setShowPassword(!showPassword)}
-          className="hover:text-contrast"
-        >
-          {showPassword ? (
-            <EyeOff className="h-4 w-4" />
-          ) : (
-            <Eye className="h-4 w-4" />
-          )}
-        </button>
+          aria-label={showPassword ? 'Hide password' : 'Show password'}
+          icon={showPassword ? <EyeOff /> : <Eye />}
+        />
       }
       {...props}
     />

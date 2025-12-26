@@ -17,7 +17,7 @@ import type {
 import {
   makeValidationFunction,
   makeValidationHints,
-  type ValidationProps,
+  type ValidationPropsCatalogue,
 } from '../validation/helpers';
 
 /**
@@ -77,7 +77,7 @@ export type UseFieldConfig = {
   validationContext?: ValidationContext;
   disabled?: boolean;
   readOnly?: boolean;
-} & Partial<ValidationProps>;
+} & Partial<ValidationPropsCatalogue>;
 
 export function useField(config: UseFieldConfig): UseFieldResult {
   const {

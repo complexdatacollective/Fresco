@@ -32,7 +32,7 @@ const months: SelectOption[] = [
   { value: '12', label: 'December' },
 ];
 
-export function DatePickerField(props: DatePickerFieldProps) {
+function DatePickerField(props: DatePickerFieldProps) {
   const {
     type: resolutionType = 'full',
     min,
@@ -167,3 +167,6 @@ export function DatePickerField(props: DatePickerFieldProps) {
     />
   );
 }
+
+export { DatePickerField };
+export default DatePickerField;

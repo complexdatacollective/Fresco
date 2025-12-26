@@ -1,26 +1,9 @@
 'use client';
 
 import { useId } from 'react';
-import { BaseField } from './Field/BaseField';
-
-/**
- * Props that UnconnectedField provides to components.
- */
-type FieldComponentProps = {
-  'id': string;
-  'aria-required': boolean;
-  'aria-describedby': string;
-};
-
-/**
- * Extract props from a component type.
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ExtractProps<C> = C extends (props: infer P) => any
-  ? P
-  : C extends React.ComponentType<infer P>
-    ? P
-    : never;
+import { type ExtractProps } from '~/lib/form/validation/utils/extractProps';
+import { BaseField } from './BaseField';
+import { type InjectedFieldProps } from './Field';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type UnconnectedFieldProps<C extends React.ComponentType<any>> = {
@@ -31,7 +14,7 @@ export type UnconnectedFieldProps<C extends React.ComponentType<any>> = {
   errors?: string[];
   showErrors?: boolean;
   component: C;
-} & Omit<ExtractProps<C>, keyof FieldComponentProps>;
+} & Omit<ExtractProps<C>, keyof InjectedFieldProps>;
 
 /**
  * UnconnectedField renders a field with consistent styling but without
@@ -51,7 +34,7 @@ export type UnconnectedFieldProps<C extends React.ComponentType<any>> = {
  * ```
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function UnconnectedField<C extends React.ComponentType<any>>({
+export default function UnconnectedField<C extends React.ComponentType<any>>({
   id: providedId,
   label,
   hint,

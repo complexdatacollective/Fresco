@@ -3,9 +3,11 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { action } from 'storybook/actions';
 import { z } from 'zod';
-import { Field, Form, SubmitButton } from '../components';
-import { InputField } from '../fields/InputField';
-import { TextAreaField } from '../fields/TextArea';
+import Field from '~/lib/form/components/Field/Field';
+import Form from '~/lib/form/components/Form';
+import SubmitButton from '~/lib/form/components/SubmitButton';
+import InputField from '~/lib/form/components/fields/InputField';
+import TextAreaField from '~/lib/form/components/fields/TextArea';
 
 const meta: Meta<typeof Field> = {
   title: 'Systems/Form/Field',

@@ -10,7 +10,7 @@ import { type FieldValue } from '../../types';
  */
 export default function isMatchingValue(
   submittedValue: unknown,
-  existingValue: FieldValue,
+  existingValue: FieldValue | null,
 ): boolean {
   // If both values are strictly equal, they match
   if (submittedValue === existingValue) {

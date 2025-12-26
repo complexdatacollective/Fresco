@@ -9,7 +9,7 @@ import Surface from '~/components/layout/Surface';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
 import useDialog from '~/lib/dialogs/useDialog';
-import { useFormState } from '~/lib/form';
+import useFormState from '~/lib/form/hooks/useFormState';
 import ProgressBar from '~/lib/ui/components/ProgressBar';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 import { type BeforeNextFunction, type Direction } from '../ProtocolScreen';

@@ -32,12 +32,12 @@ export default function SlideFormEdge(props: SlideFormEdgeProps) {
   const fromNode = find(nodes, [entityPrimaryKeyProperty, props.item.from]);
   const toNode = find(nodes, [entityPrimaryKeyProperty, props.item.to]);
 
-  const handleSubmit = (formData) => {
+  const handleSubmit = (formData: Record<string, unknown>) => {
     const { id, onUpdate } = props;
     onUpdate?.({ edgeId: id, newAttributeData: formData });
   };
 
-  const initialValues = item[entityAttributesProperty];
+  const initialValues = props.item[entityAttributesProperty];
 
   return (
     <div className="swiper-slide">

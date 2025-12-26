@@ -4,7 +4,7 @@ import { type ComponentPropsWithoutRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 import { getInputState } from '../../../utils/getInputState';
 import { type CreateFieldProps } from '../../Field/Field';
-import { selectWrapperVariants } from './native';
+import { type SelectOption, selectWrapperVariants } from './shared';
 
 // Size-based variants for dropdown items
 const dropdownItemVariants = cva({
@@ -28,11 +28,6 @@ const dropdownItemVariants = cva({
   },
 });
 
-export type SelectOption = {
-  value: string | number;
-  label: string;
-};
-
 export type SelectProps = CreateFieldProps<
   Omit<
     ComponentPropsWithoutRef<typeof Select.Root>,
@@ -49,7 +44,7 @@ export type SelectProps = CreateFieldProps<
     className?: string;
   };
 
-export function SelectField(props: SelectProps) {
+export default function SelectField(props: SelectProps) {
   const {
     options,
     placeholder,

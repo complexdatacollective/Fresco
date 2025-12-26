@@ -3,11 +3,14 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { action } from 'storybook/actions';
 import { z } from 'zod';
-import { Field, FieldGroup, Form, SubmitButton } from '../components';
-import { InputField } from '../components/fields/InputField';
-import { RadioGroupField } from './fields/RadioGroup';
-import { SelectField } from './fields/Select';
-import { TextAreaField } from './fields/TextArea';
+import Field from '~/lib/form/components/Field/Field';
+import FieldGroup from '~/lib/form/components/FieldGroup';
+import Form from '~/lib/form/components/Form';
+import SubmitButton from '~/lib/form/components/SubmitButton';
+import InputField from '~/lib/form/components/fields/InputField';
+import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
+import SelectField from '~/lib/form/components/fields/Select/Native';
+import TextAreaField from '~/lib/form/components/fields/TextArea';
 
 const meta: Meta<typeof Form> = {
   title: 'Systems/Form/Form',
@@ -43,7 +46,7 @@ export const Default: Story = {
     <Form
       onSubmit={(data) => {
         action('form-submitted')(data);
-        return Promise.resolve({ success: true });
+        return { success: true };
       }}
     >
       <Field name="name" label="Name" component={InputField} />

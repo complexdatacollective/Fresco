@@ -11,7 +11,7 @@ import {
   type DataTableSearchableColumn,
 } from '~/components/DataTable/types';
 import { Button, buttonVariants } from '~/components/ui/Button';
-import { InputField } from '~/lib/form/components/fields/InputField';
+import InputField from '~/lib/form/components/fields/InputField';
 import { cx } from '~/utils/cva';
 
 type DataTableToolbarProps<TData> = {

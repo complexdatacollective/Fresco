@@ -50,7 +50,7 @@ type NumberCounterFieldProps = CreateFieldProps & {
   className?: string;
 };
 
-export function NumberCounterField(props: NumberCounterFieldProps) {
+function NumberCounterField(props: NumberCounterFieldProps) {
   const {
     id,
     name,
@@ -181,3 +181,6 @@ export function NumberCounterField(props: NumberCounterFieldProps) {
     </div>
   );
 }
+
+export { NumberCounterField };
+export default NumberCounterField;

@@ -192,7 +192,7 @@ export function makeValidationHints(props: Record<string, unknown>) {
   );
 }
 
-export type ValidationProps = {
+export type ValidationPropsCatalogue = {
   required: boolean;
   minLength: number;
   maxLength: number;
@@ -215,7 +215,7 @@ export type ValidationProps = {
   custom: CustomFieldValidation | CustomFieldValidation[];
 };
 
-const validationPropKeys: (keyof ValidationProps)[] = [
+const validationPropKeys: (keyof ValidationPropsCatalogue)[] = [
   'required',
   'minLength',
   'maxLength',
@@ -237,7 +237,7 @@ export function filterValidationProps(
 ): Record<string, unknown> {
   const filtered: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(props)) {
-    if (!validationPropKeys.includes(key as keyof ValidationProps)) {
+    if (!validationPropKeys.includes(key as keyof ValidationPropsCatalogue)) {
       filtered[key] = value;
     }
   }

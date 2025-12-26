@@ -1,34 +1,10 @@
 import { isEmpty } from 'es-toolkit/compat';
 import { type SelectHTMLAttributes } from 'react';
-import {
-  controlVariants,
-  heightVariants,
-  inlineSpacingVariants,
-  inputControlVariants,
-  interactiveStateVariants,
-  nativeSelectVariants,
-  stateVariants,
-  textSizeVariants,
-} from '~/styles/shared/controlVariants';
-import { compose, cx, type VariantProps } from '~/utils/cva';
+import { nativeSelectVariants } from '~/styles/shared/controlVariants';
+import { cx, type VariantProps } from '~/utils/cva';
 import { getInputState } from '../../../utils/getInputState';
 import { type CreateFieldProps } from '../../Field/Field';
-
-// Wrapper variants for select elements (shared by native and styled)
-export const selectWrapperVariants = compose(
-  textSizeVariants,
-  heightVariants,
-  controlVariants,
-  inputControlVariants,
-  inlineSpacingVariants,
-  stateVariants,
-  interactiveStateVariants,
-);
-
-export type SelectOption = {
-  value: string | number;
-  label: string;
-};
+import { type SelectOption, selectWrapperVariants } from './shared';
 
 export type SelectProps = CreateFieldProps<
   Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size' | 'onChange'>
@@ -42,7 +18,7 @@ export type SelectProps = CreateFieldProps<
     className?: string;
   };
 
-export function SelectField(props: SelectProps) {
+export default function SelectField(props: SelectProps) {
   const {
     options,
     placeholder,
@@ -74,7 +50,7 @@ export function SelectField(props: SelectProps) {
         autoComplete="off"
         {...rest}
         name={name}
-        disabled={disabled || readOnly}
+        disabled={disabled ?? readOnly}
         onChange={handleChange}
         className={cx(
           'w-full',

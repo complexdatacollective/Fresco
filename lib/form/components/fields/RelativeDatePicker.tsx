@@ -29,7 +29,7 @@ function addDays(date: Date, days: number): Date {
   return result;
 }
 
-export function RelativeDatePickerField(props: RelativeDatePickerFieldProps) {
+function RelativeDatePickerField(props: RelativeDatePickerFieldProps) {
   const {
     anchor,
     before = 180,
@@ -72,3 +72,6 @@ export function RelativeDatePickerField(props: RelativeDatePickerFieldProps) {
     />
   );
 }
+
+export { RelativeDatePickerField };
+export default RelativeDatePickerField;

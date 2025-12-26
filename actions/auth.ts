@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import z from 'zod';
-import { type FormSubmissionResult } from '~/lib/form';
+import { type FormSubmissionResult } from '~/lib/form/types';
 import { createUserFormDataSchema, loginSchema } from '~/schemas/auth';
 import { auth, getServerSession } from '~/utils/auth';
 import { prisma } from '~/utils/db';

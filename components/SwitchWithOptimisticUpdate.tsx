@@ -1,7 +1,7 @@
 'use client';
 
 import { useOptimistic, useTransition } from 'react';
-import { ToggleField as SwitchUI } from '~/lib/form/components/fields/ToggleField';
+import SwitchUI from '~/lib/form/components/fields/ToggleField';
 
 const SwitchWithOptimisticUpdate = ({
   initialValue,

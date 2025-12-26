@@ -5,7 +5,7 @@ import {
 import PropTypes from 'prop-types';
 import { PureComponent } from 'react';
 import { withProps } from 'recompose';
-import { Form } from '~/lib/form';
+import Form from '~/lib/form/components/Form';
 import Scroller from '~/lib/ui/components/Scroller';
 import Node from '../../components/Node';
 

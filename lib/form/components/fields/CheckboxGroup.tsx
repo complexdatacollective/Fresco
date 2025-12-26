@@ -45,7 +45,7 @@ type CheckboxGroupProps = CreateFieldProps<
     useColumns?: boolean;
   };
 
-export function CheckboxGroupField(props: CheckboxGroupProps) {
+function CheckboxGroupField(props: CheckboxGroupProps) {
   const {
     id,
     className,
@@ -134,3 +134,6 @@ export function CheckboxGroupField(props: CheckboxGroupProps) {
     </div>
   );
 }
+
+export { CheckboxGroupField };
+export default CheckboxGroupField;

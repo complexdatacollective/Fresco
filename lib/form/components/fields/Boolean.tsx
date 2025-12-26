@@ -210,7 +210,7 @@ function BooleanIndicator({
   );
 }
 
-export function BooleanField(props: BooleanFieldProps) {
+function BooleanField(props: BooleanFieldProps) {
   const {
     className,
     value,
@@ -312,3 +312,6 @@ export function BooleanField(props: BooleanFieldProps) {
     </fieldset>
   );
 }
+
+export { BooleanField };
+export default BooleanField;

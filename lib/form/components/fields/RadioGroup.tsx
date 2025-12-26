@@ -82,7 +82,7 @@ type RadioGroupFieldProps = CreateFieldProps<
     useColumns?: boolean;
   };
 
-export function RadioGroupField(props: RadioGroupFieldProps) {
+function RadioGroupField(props: RadioGroupFieldProps) {
   const {
     id,
     className,
@@ -211,4 +211,5 @@ export function RadioGroupField(props: RadioGroupFieldProps) {
   );
 }
 
+export { RadioGroupField };
 export default RadioGroupField;
