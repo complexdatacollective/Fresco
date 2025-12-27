@@ -1,7 +1,7 @@
 'use client';
 
 import * as Slider from '@radix-ui/react-slider';
-import React, { type HTMLAttributes } from 'react';
+import React from 'react';
 import {
   Tooltip,
   TooltipContent,
@@ -10,20 +10,20 @@ import {
 } from '~/components/ui/tooltip';
 import { scaleSliderStyles } from '~/styles/shared/controlVariants';
 import { cx } from '~/utils/cva';
-import { type CreateFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/Field';
 
 type Option = {
   label: string;
   value: string | number;
 };
 
-type LikertScaleFieldProps = CreateFieldProps<
-  Omit<HTMLAttributes<HTMLDivElement>, 'onChange'>
-> & {
-  value?: string | number;
-  onChange?: (value: string | number) => void;
-  options?: Option[];
-};
+type LikertScaleFieldProps = CreateFormFieldProps<
+  string | number,
+  'div',
+  {
+    options?: Option[];
+  }
+>;
 
 function LikertScaleField({
   className,

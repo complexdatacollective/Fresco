@@ -1,6 +1,6 @@
 'use client';
 
-import { type ComponentProps, forwardRef } from 'react';
+import { forwardRef } from 'react';
 import {
   controlVariants,
   inputControlVariants,
@@ -11,7 +11,7 @@ import {
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { getInputState } from '../../utils/getInputState';
-import { type CreateFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/Field';
 
 const textareaWrapperVariants = compose(
   controlVariants,
@@ -35,12 +35,8 @@ const textareaVariants = compose(
   }),
 );
 
-type TextAreaFieldProps = CreateFieldProps<ComponentProps<'textarea'>> & {
-  value?: string;
-  onChange?: (value: string) => void;
-  onBlur?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
-  className?: string;
-} & VariantProps<typeof textareaWrapperVariants>;
+type TextAreaFieldProps = CreateFormFieldProps<string, 'textarea'> &
+  VariantProps<typeof textareaWrapperVariants>;
 
 const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(
   function TextAreaField(props, ref) {
@@ -61,7 +57,7 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(
         <textarea
           ref={ref}
           {...rest}
-          value={value}
+          value={value ?? ''}
           onBlur={onBlur}
           disabled={disabled}
           readOnly={readOnly}

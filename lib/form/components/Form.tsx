@@ -5,7 +5,7 @@ import { useId, type ComponentProps } from 'react';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
 import { cx } from '~/utils/cva';
 import { useForm } from '../hooks/useForm';
-import { FormStoreProvider } from '../store/formStoreProvider';
+import FormStoreProvider from '../store/formStoreProvider';
 import type { FormSubmitHandler } from '../types';
 import FormErrorsList from './FormErrors';
 

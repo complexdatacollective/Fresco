@@ -3,7 +3,6 @@
 import { Command as CommandPrimitive } from 'cmdk';
 import { SearchIcon } from 'lucide-react';
 import * as React from 'react';
-import InputField from '~/lib/form/components/fields/InputField';
 import { cx } from '~/utils/cva';
 
 const Command = React.forwardRef<
@@ -22,11 +21,19 @@ const Command = React.forwardRef<
 Command.displayName = CommandPrimitive.displayName;
 
 const CommandInput = React.forwardRef<
-  React.ElementRef<typeof InputField>,
-  React.ComponentPropsWithoutRef<typeof InputField>
->(({ ...props }, ref) => (
-  <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
-    <InputField ref={ref} prefixComponent={<SearchIcon />} {...props} />
+  React.ElementRef<typeof CommandPrimitive.Input>,
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
+>(({ className, ...props }, ref) => (
+  <div className="flex items-center gap-2 border-b px-3" cmdk-input-wrapper="">
+    <SearchIcon className="h-4 w-4 shrink-0 opacity-50" />
+    <CommandPrimitive.Input
+      ref={ref}
+      className={cx(
+        'placeholder:text-muted-foreground flex h-10 w-full bg-transparent py-3 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50',
+        className,
+      )}
+      {...props}
+    />
   </div>
 ));
 

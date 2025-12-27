@@ -13,7 +13,7 @@ import {
   stateVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx } from '~/utils/cva';
-import { type CreateFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/Field';
 
 type BooleanOption = {
   label: string;
@@ -115,15 +115,18 @@ const booleanIndicatorVariants = compose(
   }),
 );
 
-type BooleanFieldProps = CreateFieldProps<
-  Omit<RadioGroupProps, 'onChange' | 'value' | 'defaultValue' | 'onValueChange'>
-> & {
-  value?: boolean | null;
-  onChange?: (value: boolean | null) => void;
-  noReset?: boolean;
-  label?: string;
-  options?: BooleanOption[];
-};
+type BooleanFieldProps = CreateFormFieldProps<
+  boolean | null,
+  'div',
+  Omit<
+    RadioGroupProps,
+    'onChange' | 'value' | 'defaultValue' | 'onValueChange'
+  > & {
+    noReset?: boolean;
+    label?: string;
+    options?: BooleanOption[];
+  }
+>;
 
 type ButtonState = 'disabled' | 'readOnly' | 'normal';
 

@@ -1,15 +1,34 @@
 import { type Codebook, type StageSubject } from '@codaco/protocol-validation';
 import { type NcNetwork } from '@codaco/shared-consts';
+import { type JSONContent } from '@tiptap/core';
 import type * as z from 'zod/v4';
 
 export type FieldValue =
   | string
-  | (string | number | boolean)[]
+  | (string | number | boolean | Record<string, unknown>)[]
   | number
   | boolean
-  | undefined
-  | Record<string, unknown>
-  | Record<string, unknown>[];
+  | JSONContent
+  | undefined;
+
+/**
+ * Value/onChange props for field components.
+ *
+ * These props are marked optional to support two usage patterns:
+ *
+ * 1. **Within Field** (primary pattern): Field always provides these props
+ *    via useField hook. Components receive value and onChange automatically.
+ *
+ * 2. **Standalone** (secondary pattern): Components can be used outside of
+ *    Field for simple controlled inputs. In uncontrolled mode, components
+ *    manage their own internal state when onChange is not provided.
+ *
+ * The value type V must extend FieldValue.
+ */
+export type FieldValueProps<V extends FieldValue> = {
+  value?: V | undefined;
+  onChange?: (value: V) => void;
+};
 
 /**
  * Flattened errors type - uses Zod's core flattened error type

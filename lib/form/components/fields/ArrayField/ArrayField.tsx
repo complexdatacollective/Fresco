@@ -1,6 +1,5 @@
 import { PlusIcon } from 'lucide-react';
 import {
-  AnimatePresence,
   type DragControls,
   LayoutGroup,
   motion,
@@ -26,7 +25,7 @@ import {
   stateVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx } from '~/utils/cva';
-import { type CreateFieldProps } from '../../Field/Field';
+import { type CreateFormFieldProps } from '../../Field/Field';
 import {
   useArrayFieldItems,
   type WithItemProperties,
@@ -59,7 +58,7 @@ export const itemAnimationProps = {
  * Props passed to the item content renderer component.
  * The component renders the CONTENT inside a Reorder.Item (not the Reorder.Item itself).
  */
-export type ArrayFieldItemProps<T extends object> = {
+export type ArrayFieldItemProps<T extends Record<string, unknown>> = {
   item: Partial<WithItemProperties<T>>;
   isNewItem: boolean;
   /** Save and exit editing mode. Use for inline editing pattern. */
@@ -74,7 +73,7 @@ export type ArrayFieldItemProps<T extends object> = {
   dragControls: DragControls;
 };
 
-export type ArrayFieldEditorProps<T extends object> = {
+export type ArrayFieldEditorProps<T extends Record<string, unknown>> = {
   item: WithItemProperties<T> | undefined; // Undefined when no item is being edited
   isNewItem: boolean;
   // Editors get onSave to reflect the fact that this should be called once
@@ -83,9 +82,10 @@ export type ArrayFieldEditorProps<T extends object> = {
   onCancel: () => void;
 };
 
-export type ArrayFieldProps<T extends object> = CreateFieldProps & {
-  value: T[];
-  onChange: (value: T[]) => void;
+/**
+ * Custom props specific to ArrayField (excluding value/onChange/InjectedFieldProps).
+ */
+type ArrayFieldCustomProps<T extends Record<string, unknown>> = {
   sortable?: boolean;
   itemClasses?:
     | string
@@ -118,11 +118,10 @@ export type ArrayFieldProps<T extends object> = CreateFieldProps & {
   itemComponent: ComponentType<ArrayFieldItemProps<T>>;
 
   /**
-   * Provided a dedicated component used to edit an item in the array.Useful
+   * Provided a dedicated component used to edit an item in the array. Useful
    * for complex editors such as modals or side panels.
    *
    * Accepts ArrayFieldEditorProps<T>.
-   *
    */
   editorComponent?: ComponentType<ArrayFieldEditorProps<T>>;
 
@@ -145,7 +144,10 @@ export type ArrayFieldProps<T extends object> = CreateFieldProps & {
   immediateAdd?: boolean;
 };
 
-type ArrayFieldItemWrapperProps<T extends object> = {
+export type ArrayFieldProps<T extends Record<string, unknown>> =
+  CreateFormFieldProps<T[], 'div', ArrayFieldCustomProps<T>>;
+
+type ArrayFieldItemWrapperProps<T extends Record<string, unknown>> = {
   item: WithItemProperties<T>;
   isSortable: boolean;
   isBeingEdited: boolean;
@@ -163,11 +165,9 @@ type ArrayFieldItemWrapperProps<T extends object> = {
 
 /**
  * Internal wrapper component for each item that provides drag controls.
- * Uses forwardRef to support AnimatePresence popLayout mode.
+ * Uses forwardRef to allow parent components to access the underlying li element.
  */
-const ArrayFieldItemWrapper = forwardRef(function ArrayFieldItemWrapper<
-  T extends object,
->(
+function ArrayFieldItemWrapperInner<T extends Record<string, unknown>>(
   {
     item,
     isSortable,
@@ -233,30 +233,35 @@ const ArrayFieldItemWrapper = forwardRef(function ArrayFieldItemWrapper<
       />
     </Reorder.Item>
   );
-}) as <T extends object>(
-  props: ArrayFieldItemWrapperProps<T> & { ref?: Ref<HTMLLIElement> },
-) => JSX.Element;
+}
 
-export default function ArrayField<T extends object>(
-  propsIn: ArrayFieldProps<T>,
-) {
-  const {
-    value = EMPTY_ARRAY as T[],
-    onChange,
-    sortable = false,
-    getId,
-    itemComponent: ItemComponent,
-    editorComponent: EditorComponent,
-    itemTemplate,
-    addButtonLabel = 'Add Item',
-    emptyStateMessage = 'No items added yet. Click "Add Item" to get started.',
-    confirmDelete = true,
-    immediateAdd = false,
-    itemClasses,
-    disabled,
-    readOnly,
-    ...props
-  } = propsIn;
+// Generic forwardRef wrapper that preserves the generic type parameter
+const ArrayFieldItemWrapper = forwardRef(ArrayFieldItemWrapperInner) as <
+  T extends Record<string, unknown>,
+>(
+  props: ArrayFieldItemWrapperProps<T> & { ref?: Ref<HTMLLIElement> },
+) => React.JSX.Element;
+
+export default function ArrayField<T extends Record<string, unknown>>({
+  value = EMPTY_ARRAY as T[],
+  onChange,
+  sortable = false,
+  getId,
+  itemComponent: ItemComponent,
+  editorComponent: EditorComponent,
+  itemTemplate,
+  addButtonLabel = 'Add Item',
+  emptyStateMessage = 'No items added yet. Click "Add Item" to get started.',
+  confirmDelete = true,
+  immediateAdd = false,
+  itemClasses,
+  disabled,
+  readOnly,
+  id: _id,
+  ...ariaProps
+}: ArrayFieldProps<T>) {
+  // Props for getInputState - combines disabled/readOnly with aria props
+  const inputStateProps = { disabled, readOnly, ...ariaProps };
 
   const { confirm } = useDialog();
 
@@ -312,44 +317,43 @@ export default function ArrayField<T extends object>(
         className="flex w-full min-w-sm flex-col items-start gap-4"
       >
         <Reorder.Group
-          {...props}
           axis="y"
           values={items}
           onReorder={setItems}
-          className={arrayFieldVariants({ state: getInputState(props) })}
+          className={arrayFieldVariants({
+            state: getInputState(inputStateProps),
+          })}
           style={{ borderRadius: 28 }}
           inherit={false}
           layout={false}
         >
-          <AnimatePresence mode="popLayout">
-            {renderableItems.length === 0 && (
-              <motion.li
-                key="no-items"
-                className="m-10 text-sm text-current/70"
-                initial={{ opacity: 0, scale: 0.6 }}
-                animate={{ opacity: 1, scale: 1, transition: { delay: 0.5 } }}
-                exit={{ opacity: 0, scale: 0.6 }}
-              >
-                {emptyStateMessage}
-              </motion.li>
-            )}
-            {renderableItems.map((item) => (
-              <ArrayFieldItemWrapper
-                key={item._internalId}
-                item={item}
-                isSortable={sortable}
-                onDeleteItem={requestDelete}
-                onEditItem={startEditing}
-                onChange={saveEditing}
-                onUpdateItem={updateItem}
-                isNewItem={!!item._draft}
-                isBeingEdited={editingItem?._internalId === item._internalId}
-                onCancel={cancelEditing}
-                ItemComponent={ItemComponent}
-                itemClasses={itemClasses}
-              />
-            ))}
-          </AnimatePresence>
+          {renderableItems.length === 0 && (
+            <motion.li
+              key="no-items"
+              className="m-10 text-sm text-current/70"
+              initial={{ opacity: 0, scale: 0.6 }}
+              animate={{ opacity: 1, scale: 1, transition: { delay: 0.5 } }}
+              exit={{ opacity: 0, scale: 0.6 }}
+            >
+              {emptyStateMessage}
+            </motion.li>
+          )}
+          {renderableItems.map((item) => (
+            <ArrayFieldItemWrapper
+              key={item._internalId}
+              item={item}
+              isSortable={sortable}
+              onDeleteItem={requestDelete}
+              onEditItem={startEditing}
+              onChange={saveEditing}
+              onUpdateItem={updateItem}
+              isNewItem={!!item._draft}
+              isBeingEdited={editingItem?._internalId === item._internalId}
+              onCancel={cancelEditing}
+              ItemComponent={ItemComponent}
+              itemClasses={itemClasses}
+            />
+          ))}
         </Reorder.Group>
         <MotionButton
           layout

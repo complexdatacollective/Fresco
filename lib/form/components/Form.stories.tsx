@@ -238,8 +238,8 @@ export const NestedConditionalFields: Story = {
           name="contactMethod"
           label="Preferred contact method"
           component={SelectField}
+          placeholder="Select a method..."
           options={[
-            { value: '', label: 'Select a method...' },
             { value: 'email', label: 'Email' },
             { value: 'phone', label: 'Phone' },
             { value: 'mail', label: 'Postal Mail' },
@@ -274,6 +274,7 @@ export const NestedConditionalFields: Story = {
             pattern={{
               regex: '^[0-9]{10}$',
               hint: '10-digit phone number',
+              errorMessage: 'Please enter a valid 10-digit phone number',
             }}
           />
           <Field
@@ -412,6 +413,7 @@ export const MultiFieldCondition: Story = {
           pattern={{
             regex: '^[0-9]{4}$',
             hint: '4-digit year (e.g., 2025)',
+            errorMessage: 'Please enter a valid 4-digit year',
           }}
         />
       </FieldGroup>

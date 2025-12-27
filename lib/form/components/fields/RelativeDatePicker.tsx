@@ -1,18 +1,19 @@
 'use client';
 
-import { type CreateFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/Field';
 import { InputField } from './InputField';
 
-type RelativeDatePickerFieldProps = CreateFieldProps & {
-  anchor?: string; // ISO date string
-  before?: number; // days before anchor
-  after?: number; // days after anchor
-  value?: string;
-  onChange?: (value: string) => void;
-  size?: 'sm' | 'md' | 'lg';
-  placeholder?: string;
-  className?: string;
-};
+type RelativeDatePickerFieldProps = CreateFormFieldProps<
+  string,
+  'input',
+  {
+    anchor?: string; // ISO date string
+    before?: number; // days before anchor
+    after?: number; // days after anchor
+    size?: 'sm' | 'md' | 'lg';
+    placeholder?: string;
+  }
+>;
 
 function formatDateForInput(date: Date): string {
   const isoString = date.toISOString();

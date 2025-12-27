@@ -130,7 +130,7 @@ export default function ApiTokenManagement({
                 <TableCell>
                   <Button
                     onClick={() => handleDeleteToken(token.id)}
-                    variant="destructive"
+                    color="destructive"
                     size="sm"
                   >
                     Delete
@@ -171,7 +171,7 @@ export default function ApiTokenManagement({
             id="description"
             placeholder="e.g., Development token"
             value={newTokenDescription}
-            onChange={(e) => setNewTokenDescription(e.target.value)}
+            onChange={(value) => setNewTokenDescription(value)}
           />
         </div>
       </Dialog>

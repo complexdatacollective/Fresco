@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { pageSizes } from '~/components/DataTable/types';
 import { Button } from '~/components/ui/Button';
-import SelectField from '~/lib/form/components/fields/Select';
+import SelectField from '~/lib/form/components/fields/Select/Native';
 import Paragraph from '../typography/Paragraph';
 
 type DataTablePaginationProps<TData> = {
@@ -31,8 +31,8 @@ export function DataTablePagination<TData>({
           name="pageSize"
           size="sm"
           value={`${table.getState().pagination.pageSize}`}
-          onChange={(e) => {
-            table.setPageSize(Number(e.target.value));
+          onChange={(value) => {
+            table.setPageSize(Number(value));
           }}
           options={pageSizes.map((size) => ({
             label: size.toLocaleString(),

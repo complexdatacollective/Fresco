@@ -9,6 +9,7 @@ import {
   inlineSpacingVariants,
   proportionalLucideIconVariants,
   textSizeVariants,
+  wrapperPaddingVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { Skeleton } from './skeleton';
@@ -90,6 +91,7 @@ const buttonVariants = compose(
   proportionalLucideIconVariants,
   controlVariants,
   inlineSpacingVariants,
+  wrapperPaddingVariants,
   buttonSpecificVariants,
 );
 
@@ -174,7 +176,7 @@ type IconButtonProps = Omit<
 const iconButtonVariants = compose(
   buttonVariants,
   cva({
-    base: 'aspect-square justify-center rounded-full p-0',
+    base: 'aspect-square justify-center rounded-full p-0!',
   }),
 );
 

@@ -22,8 +22,6 @@ const meta: Meta<typeof InputField> = {
   component: InputField,
   tags: ['autodocs'],
   argTypes: {
-    'disabled': { control: 'boolean' },
-    'readOnly': { control: 'boolean' },
     'size': {
       control: 'select',
       options: ['sm', 'md', 'lg', 'xl'],

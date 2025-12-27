@@ -119,7 +119,7 @@ export const Invalid: Story = {
   args: {
     'name': 'invalid',
     options,
-    'aria-invalid': 'true',
+    'aria-invalid': true,
     'aria-label': 'Invalid State Options',
   },
 };

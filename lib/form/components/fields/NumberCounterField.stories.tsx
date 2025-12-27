@@ -74,7 +74,7 @@ export const Default: Story = {
         <NumberCounterField
           {...args}
           value={value}
-          onChange={(v) => setValue(v as number)}
+          onChange={(v) => setValue(v)}
           data-testid="default-counter"
         />
         <p className="text-xs opacity-70" data-testid="counter-value">
@@ -210,7 +210,7 @@ export const WithBoundaries: Story = {
         <NumberCounterField
           {...args}
           value={value}
-          onChange={(v) => setValue(v as number)}
+          onChange={(v) => setValue(v)}
           aria-label="Bounded counter"
           data-testid="bounded-counter"
         />
@@ -273,7 +273,7 @@ export const StepValues: Story = {
             {...args}
             step={1}
             value={value1}
-            onChange={(v) => setValue1(v as number)}
+            onChange={(v) => setValue1(v)}
             aria-label="Counter with step 1"
           />
         </div>
@@ -285,7 +285,7 @@ export const StepValues: Story = {
             {...args}
             step={5}
             value={value5}
-            onChange={(v) => setValue5(v as number)}
+            onChange={(v) => setValue5(v)}
             aria-label="Counter with step 5"
           />
         </div>
@@ -297,7 +297,7 @@ export const StepValues: Story = {
             {...args}
             step={0.1}
             value={value01}
-            onChange={(v) => setValue01(v as number)}
+            onChange={(v) => setValue01(v)}
             aria-label="Counter with step 0.1"
           />
         </div>
@@ -309,7 +309,7 @@ export const StepValues: Story = {
             {...args}
             step={0.25}
             value={value025}
-            onChange={(v) => setValue025(v as number)}
+            onChange={(v) => setValue025(v)}
             aria-label="Counter with step 0.25"
           />
         </div>
@@ -337,7 +337,7 @@ export const ControlledMode: Story = {
         <NumberCounterField
           {...args}
           value={value}
-          onChange={(v) => setValue(v as number)}
+          onChange={(v) => setValue(v)}
           aria-label="Controlled counter"
           data-testid="controlled-counter"
         />
@@ -408,7 +408,7 @@ export const KeyboardNavigation: Story = {
         <NumberCounterField
           {...args}
           value={value}
-          onChange={(v) => setValue(v as number)}
+          onChange={(v) => setValue(v)}
           aria-label="Keyboard navigation counter"
           data-testid="keyboard-counter"
         />
@@ -469,7 +469,7 @@ export const QuantitySelector: Story = {
             <NumberCounterField
               {...args}
               value={quantity}
-              onChange={(v) => setQuantity(v as number)}
+              onChange={(v) => setQuantity(v)}
               aria-label="Quantity"
             />
           </div>
@@ -505,7 +505,7 @@ export const RatingCounter: Story = {
           <NumberCounterField
             {...args}
             value={rating}
-            onChange={(v) => setRating(v as number)}
+            onChange={(v) => setRating(v)}
             aria-label="Rating"
           />
           <span className="text-sm opacity-70">/ 5</span>

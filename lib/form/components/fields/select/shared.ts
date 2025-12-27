@@ -6,6 +6,7 @@ import {
   interactiveStateVariants,
   stateVariants,
   textSizeVariants,
+  wrapperPaddingVariants,
 } from '~/styles/shared/controlVariants';
 import { compose } from '~/utils/cva';
 
@@ -16,6 +17,7 @@ export const selectWrapperVariants = compose(
   controlVariants,
   inputControlVariants,
   inlineSpacingVariants,
+  wrapperPaddingVariants,
   stateVariants,
   interactiveStateVariants,
 );

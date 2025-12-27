@@ -3,7 +3,7 @@ import { Check, ChevronDown } from 'lucide-react';
 import { type ComponentPropsWithoutRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 import { getInputState } from '../../../utils/getInputState';
-import { type CreateFieldProps } from '../../Field/Field';
+import { type CreateFormFieldProps } from '../../Field/Field';
 import { type SelectOption, selectWrapperVariants } from './shared';
 
 // Size-based variants for dropdown items
@@ -28,23 +28,20 @@ const dropdownItemVariants = cva({
   },
 });
 
-export type SelectProps = CreateFieldProps<
-  Omit<
+export type SelectProps = CreateFormFieldProps<
+  string | number,
+  'div',
+  {
+    placeholder?: string;
+    options: SelectOption[];
+  } & Omit<
     ComponentPropsWithoutRef<typeof Select.Root>,
     'onValueChange' | 'items' | 'multiple' | 'value' | 'defaultValue'
   >
 > &
-  VariantProps<typeof selectWrapperVariants> & {
-    name: string;
-    value?: string | number;
-    defaultValue?: string | number;
-    placeholder?: string;
-    options: SelectOption[];
-    onChange: (value: string | number) => void;
-    className?: string;
-  };
+  VariantProps<typeof selectWrapperVariants>;
 
-export default function SelectField(props: SelectProps) {
+function SelectField(props: SelectProps) {
   const {
     options,
     placeholder,
@@ -61,7 +58,7 @@ export default function SelectField(props: SelectProps) {
 
   const handleValueChange = (newValue: unknown) => {
     if (newValue !== null && newValue !== undefined) {
-      onChange(newValue as string | number);
+      onChange?.(newValue as string | number);
     }
   };
 
@@ -73,7 +70,7 @@ export default function SelectField(props: SelectProps) {
         defaultValue !== undefined ? String(defaultValue) : undefined
       }
       onValueChange={handleValueChange}
-      disabled={disabled || readOnly}
+      disabled={disabled ?? readOnly}
       name={name}
     >
       <Select.Trigger
@@ -136,3 +133,6 @@ export default function SelectField(props: SelectProps) {
     </Select.Root>
   );
 }
+
+export { SelectField };
+export default SelectField;

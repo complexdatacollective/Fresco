@@ -2,14 +2,13 @@
 
 import { Switch } from '@base-ui/react/switch';
 import { motion } from 'motion/react';
-import { type ComponentPropsWithoutRef } from 'react';
 import {
   controlVariants,
   smallSizeVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { getInputState } from '../../utils/getInputState';
-import { type CreateFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/Field';
 
 type ToggleState = 'normal' | 'disabled' | 'readOnly' | 'invalid';
 
@@ -107,16 +106,11 @@ const toggleThumbVariants = cva({
   },
 });
 
-type ToggleFieldProps = CreateFieldProps<
-  Omit<
-    ComponentPropsWithoutRef<typeof Switch.Root>,
-    'size' | 'checked' | 'onCheckedChange' | 'value'
-  >
-> &
-  VariantProps<typeof toggleContainerVariants> & {
-    value: boolean;
-    onChange?: (value: boolean) => void;
-  };
+type ToggleFieldProps = CreateFormFieldProps<
+  boolean,
+  'button',
+  VariantProps<typeof toggleContainerVariants>
+>;
 
 function ToggleField(props: ToggleFieldProps) {
   const {

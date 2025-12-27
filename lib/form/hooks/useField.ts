@@ -7,7 +7,6 @@ import {
   useRef,
 } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import { useFormStore } from '../store/formStoreProvider';
 import type {
   ChangeHandler,
   FieldState,
@@ -19,6 +18,7 @@ import {
   makeValidationHints,
   type ValidationPropsCatalogue,
 } from '../validation/helpers';
+import useFormStore from './useFormStore';
 
 /**
  * Helper function to determine if a field should show an error message.
@@ -140,23 +140,8 @@ export function useField(config: UseFieldConfig): UseFieldResult {
     };
   }, [name, initialValue, validation, unregisterField, registerField]);
 
-  const handleChange: ChangeHandler = useCallback(
-    (valueOrEvent) => {
-      // Smart detection: if it's an event object, extract the value; otherwise use as-is
-      let value: FieldValue;
-      if (
-        valueOrEvent &&
-        typeof valueOrEvent === 'object' &&
-        'target' in valueOrEvent &&
-        valueOrEvent.target instanceof EventTarget
-      ) {
-        // It's an event object, extract the value
-        value = valueOrEvent.target.value;
-      } else {
-        // It's a direct value
-        value = valueOrEvent as FieldValue;
-      }
-
+  const handleChange = useCallback(
+    (value: FieldValue) => {
       setFieldValue(config.name, value);
 
       // Validate on change only after the field has been blurred once

@@ -15,7 +15,7 @@ import {
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { getInputState } from '../../utils/getInputState';
-import { type CreateFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/Field';
 
 const radioGroupWrapperVariants = compose(
   controlVariants,
@@ -69,18 +69,18 @@ type RadioOption = {
   disabled?: boolean;
 };
 
-type RadioGroupFieldProps = CreateFieldProps<
-  Omit<RadioGroupProps, 'size' | 'onValueChange'>
-> &
-  VariantProps<typeof radioGroupWrapperVariants> & {
-    options: RadioOption[];
-    value?: string | number;
-    defaultValue?: string | number;
-    onChange?: (value: string | number) => void;
-    orientation?: 'horizontal' | 'vertical';
-    size?: 'sm' | 'md' | 'lg' | 'xl';
-    useColumns?: boolean;
-  };
+type RadioGroupFieldProps = CreateFormFieldProps<
+  string | number,
+  'div',
+  Omit<RadioGroupProps, 'size' | 'onValueChange' | 'value'> &
+    VariantProps<typeof radioGroupWrapperVariants> & {
+      options: RadioOption[];
+      defaultValue?: string | number;
+      orientation?: 'horizontal' | 'vertical';
+      size?: 'sm' | 'md' | 'lg' | 'xl';
+      useColumns?: boolean;
+    }
+>;
 
 function RadioGroupField(props: RadioGroupFieldProps) {
   const {

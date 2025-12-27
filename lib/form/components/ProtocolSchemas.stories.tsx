@@ -240,7 +240,6 @@ function AdditionalAttributeItem({
               component={SelectField}
               label="Variable"
               hint="Select the variable to set"
-              name={`additional-attribute-variable-${item._internalId}`}
               value={variable}
               placeholder="Select a variable..."
               onChange={(val) => setVariable(String(val))}

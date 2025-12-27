@@ -10,12 +10,12 @@ import ActionError from '~/components/ActionError';
 import InfoTooltip from '~/components/InfoTooltip';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
-import { Dialog } from '~/lib/dialogs/Dialog';
+import Dialog from '~/lib/dialogs/Dialog';
 import Field from '~/lib/form/components/Field/Field';
 import Form from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
 import InputField from '~/lib/form/components/fields/InputField';
-import { useFormStore } from '~/lib/form/store/formStoreProvider';
+import useFormStore from '~/lib/form/hooks/useFormStore';
 import {
   participantIdentifierSchema,
   participantLabelSchema,

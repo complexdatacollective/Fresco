@@ -1,22 +1,21 @@
 'use client';
 
 import * as Slider from '@radix-ui/react-slider';
-import { type HTMLAttributes } from 'react';
 import { scaleSliderStyles } from '~/styles/shared/controlVariants';
 import { cx } from '~/utils/cva';
-import { type CreateFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/Field';
 
-type VisualAnalogScaleFieldProps = CreateFieldProps<
-  Omit<HTMLAttributes<HTMLDivElement>, 'onChange'>
-> & {
-  value?: number;
-  onChange?: (value: number) => void;
-  min?: number;
-  max?: number;
-  step?: number;
-  minLabel?: string;
-  maxLabel?: string;
-};
+type VisualAnalogScaleFieldProps = CreateFormFieldProps<
+  number,
+  'div',
+  {
+    min?: number;
+    max?: number;
+    step?: number;
+    minLabel?: string;
+    maxLabel?: string;
+  }
+>;
 
 function VisualAnalogScaleField({
   className,

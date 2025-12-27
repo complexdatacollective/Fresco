@@ -1,22 +1,19 @@
 import { isEmpty } from 'es-toolkit/compat';
-import { type SelectHTMLAttributes } from 'react';
 import { nativeSelectVariants } from '~/styles/shared/controlVariants';
 import { cx, type VariantProps } from '~/utils/cva';
 import { getInputState } from '../../../utils/getInputState';
-import { type CreateFieldProps } from '../../Field/Field';
+import { type CreateFormFieldProps } from '../../Field/Field';
 import { type SelectOption, selectWrapperVariants } from './shared';
 
-export type SelectProps = CreateFieldProps<
-  Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size' | 'onChange'>
-> &
-  VariantProps<typeof selectWrapperVariants> & {
-    name: string;
-    value?: string | number;
+export type SelectProps = CreateFormFieldProps<
+  string | number,
+  'select',
+  {
     placeholder?: string;
     options: SelectOption[];
-    onChange: (value: string | number) => void;
-    className?: string;
-  };
+  }
+> &
+  VariantProps<typeof selectWrapperVariants>;
 
 export default function SelectField(props: SelectProps) {
   const {
@@ -28,15 +25,19 @@ export default function SelectField(props: SelectProps) {
     readOnly,
     onChange,
     className,
+    value,
     ...rest
   } = props;
 
+  // Normalize undefined to "" so the placeholder option is selected
+  const normalizedValue = value ?? '';
+
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value;
-    onChange(selectedValue);
+    onChange?.(selectedValue);
   };
 
-  const hasValue = isEmpty(rest.value) === false;
+  const hasValue = isEmpty(value) === false;
 
   return (
     <div
@@ -50,6 +51,7 @@ export default function SelectField(props: SelectProps) {
         autoComplete="off"
         {...rest}
         name={name}
+        value={normalizedValue}
         disabled={disabled ?? readOnly}
         onChange={handleChange}
         className={cx(
@@ -59,7 +61,7 @@ export default function SelectField(props: SelectProps) {
         )}
       >
         {placeholder && (
-          <option value="" disabled>
+          <option value="">
             {placeholder}
           </option>
         )}

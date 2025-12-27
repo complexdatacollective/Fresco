@@ -54,10 +54,10 @@ export function DataTableToolbar<TData>({
                       .getColumn(String(column.id))
                       ?.getFilterValue() as string) ?? ''
                   }
-                  onChange={(event) =>
+                  onChange={(value) =>
                     table
                       .getColumn(String(column.id))
-                      ?.setFilterValue(event.target.value)
+                      ?.setFilterValue(value)
                   }
                   className="max-w-sm"
                 />

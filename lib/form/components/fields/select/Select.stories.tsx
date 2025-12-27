@@ -1,10 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
-import {
-  NativeSelectField,
-  StyledSelectField,
-  type SelectOption,
-} from './Select';
+import NativeSelectField from './Native';
+import type { SelectOption } from './shared';
+import StyledSelectField from './Styled';
 
 const sampleOptions: SelectOption[] = [
   { value: 'option1', label: 'Option 1' },
@@ -38,7 +36,6 @@ const meta: Meta<typeof NativeSelectField> = {
   },
   tags: ['autodocs'],
   argTypes: {
-    'aria-invalid': { control: 'boolean' },
     'readOnly': {
       control: 'boolean',
       description: 'Whether the select is read-only',

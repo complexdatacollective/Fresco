@@ -17,7 +17,7 @@ import {
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { AnimateNumber } from '../../../../components/ui/AnimateNumber';
 import { getInputState } from '../../utils/getInputState';
-import { type CreateFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/Field';
 
 const numberCounterWrapperVariants = compose(
   heightVariants,
@@ -40,15 +40,16 @@ const numberDisplayVariants = compose(
   }),
 );
 
-type NumberCounterFieldProps = CreateFieldProps & {
-  value?: number;
-  onChange?: (value: number) => void;
-  step?: number;
-  size?: VariantProps<typeof numberCounterWrapperVariants>['size'];
-  minValue?: number;
-  maxValue?: number;
-  className?: string;
-};
+type NumberCounterFieldProps = CreateFormFieldProps<
+  number,
+  'div',
+  {
+    step?: number;
+    size?: VariantProps<typeof numberCounterWrapperVariants>['size'];
+    minValue?: number;
+    maxValue?: number;
+  }
+>;
 
 function NumberCounterField(props: NumberCounterFieldProps) {
   const {

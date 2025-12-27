@@ -1,4 +1,3 @@
-import { type FieldsetHTMLAttributes } from 'react';
 import {
   controlLabelVariants,
   controlVariants,
@@ -10,7 +9,7 @@ import {
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { getInputState } from '../../utils/getInputState';
-import { type CreateFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/Field';
 import { Checkbox } from './Checkbox';
 
 // Compose fieldset wrapper variants
@@ -32,18 +31,18 @@ type CheckboxOption = {
   disabled?: boolean;
 };
 
-type CheckboxGroupProps = CreateFieldProps<
-  Omit<FieldsetHTMLAttributes<HTMLFieldSetElement>, 'size' | 'onChange'>
-> &
-  VariantProps<typeof checkboxGroupComposedVariants> & {
+type CheckboxGroupProps = CreateFormFieldProps<
+  (string | number)[],
+  'fieldset',
+  {
     options: CheckboxOption[];
-    value?: (string | number)[];
     defaultValue?: (string | number)[];
-    onChange?: (value: (string | number)[]) => void;
     orientation?: 'horizontal' | 'vertical';
     size?: 'sm' | 'md' | 'lg' | 'xl';
     useColumns?: boolean;
-  };
+  }
+> &
+  VariantProps<typeof checkboxGroupComposedVariants>;
 
 function CheckboxGroupField(props: CheckboxGroupProps) {
   const {
@@ -66,13 +65,11 @@ function CheckboxGroupField(props: CheckboxGroupProps) {
 
   const handleChange = (optionValue: string | number, checked: boolean) => {
     if (readOnly) return;
-    if (onChange) {
-      const currentValues = value ?? [];
-      const newValues = checked
-        ? [...currentValues, optionValue]
-        : currentValues.filter((v) => v !== optionValue);
-      onChange(newValues);
-    }
+    const currentValues = value ?? [];
+    const newValues = checked
+      ? [...currentValues, optionValue]
+      : currentValues.filter((v) => v !== optionValue);
+    onChange?.(newValues);
   };
 
   // Determine if this is controlled or uncontrolled

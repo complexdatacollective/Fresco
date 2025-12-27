@@ -1,6 +1,6 @@
 import { useCallback, useLayoutEffect, useRef, type FormEvent } from 'react';
-import { useFormStore } from '../store/formStoreProvider';
 import type { FlattenedErrors, FormConfig } from '../types';
+import useFormStore from './useFormStore';
 
 export function useForm(config: FormConfig) {
   const registeredRef = useRef(false);

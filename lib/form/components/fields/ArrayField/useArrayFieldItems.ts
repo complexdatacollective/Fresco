@@ -24,7 +24,7 @@ type UseArrayFieldItemsConfig<T> = {
 /**
  * Return type for the useArrayFieldItems hook.
  */
-type UseArrayFieldItemsReturn<T extends object> = {
+type UseArrayFieldItemsReturn<T extends Record<string, unknown>> = {
   // ─── Items ───────────────────────────────────────────────────────────────
   /** All items (both confirmed and draft) with managed properties. */
   items: WithItemProperties<T>[];
@@ -121,9 +121,9 @@ type UseArrayFieldItemsReturn<T extends object> = {
  * }
  * ```
  */
-export function useArrayFieldItems<T extends object>(
+export function useArrayFieldItems<T extends Record<string, unknown>>(
   value: T[],
-  onChange: (items: T[]) => void,
+  onChange?: (items: T[]) => void,
   config?: UseArrayFieldItemsConfig<T>,
 ): UseArrayFieldItemsReturn<T> {
   // WeakMap ties internal ID lifespan to the original object for GC
@@ -218,12 +218,12 @@ export function useArrayFieldItems<T extends object>(
       const confirmedItems = allItems
         .filter((item) => !item._draft)
         .map(({ _internalId, _draft, ...rest }) => {
-          const stripped = rest as T;
+          const stripped = rest as unknown as T;
           // Preserve the ID mapping for the stripped object so it's found on next render
           idMapRef.current.set(stripped, _internalId);
           return stripped;
         });
-      onChange(confirmedItems);
+      onChange?.(confirmedItems);
     },
     [onChange],
   );

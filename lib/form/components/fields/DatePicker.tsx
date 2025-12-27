@@ -1,21 +1,22 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { type CreateFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/Field';
 import { InputField } from './InputField';
-import type { SelectOption } from './Select';
-import { SelectField } from './Select';
+import SelectField from './Select/Native';
+import type { SelectOption } from './Select/shared';
 
-type DatePickerFieldProps = CreateFieldProps & {
-  type?: 'full' | 'month' | 'year';
-  value?: string;
-  onChange?: (value: string) => void;
-  size?: 'sm' | 'md' | 'lg';
-  min?: string;
-  max?: string;
-  placeholder?: string;
-  className?: string;
-};
+type DatePickerFieldProps = CreateFormFieldProps<
+  string,
+  'input',
+  {
+    type?: 'full' | 'month' | 'year';
+    size?: 'sm' | 'md' | 'lg';
+    min?: string;
+    max?: string;
+    placeholder?: string;
+  }
+>;
 
 const months: SelectOption[] = [
   { value: '01', label: 'January' },

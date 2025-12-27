@@ -11,7 +11,6 @@ import {
 } from '~/styles/shared/controlVariants';
 import { compose, cva, type VariantProps } from '~/utils/cva';
 import { getInputState } from '../../utils/getInputState';
-import { type CreateFieldProps } from '../Field/Field';
 
 const checkboxRootVariants = compose(
   smallSizeVariants,
@@ -29,26 +28,23 @@ const checkboxIndicatorVariants = compose(
   }),
 );
 
-type CheckboxProps = CreateFieldProps<
-  Omit<ComponentPropsWithoutRef<typeof BaseCheckbox.Root>, 'size'>
+/**
+ * Checkbox is a UI primitive component, not a form field.
+ * It uses the native checked/onCheckedChange API from @base-ui/react/checkbox.
+ * For form usage, wrap with the Field component.
+ */
+type CheckboxProps = Omit<
+  ComponentPropsWithoutRef<typeof BaseCheckbox.Root>,
+  'size'
 > &
   VariantProps<typeof checkboxRootVariants> & {
-    /** HTML form value for the checkbox */
-    value?: string;
+    disabled?: boolean;
+    readOnly?: boolean;
   };
 
-export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
+const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
   (
-    {
-      className,
-      size = 'md',
-      onCheckedChange,
-      'aria-required': _ariaRequired,
-      'aria-describedby': _ariaDescribedBy,
-      disabled,
-      readOnly,
-      ...props
-    },
+    { className, size = 'md', onCheckedChange, disabled, readOnly, ...props },
     ref,
   ) => {
     const [internalChecked, setInternalChecked] = useState(
@@ -91,7 +87,7 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
             className={checkboxRootVariants({
               size,
               className,
-              state: getInputState(props),
+              state: getInputState({ disabled, readOnly }),
             })}
           >
             <div className={checkboxIndicatorVariants()}>
@@ -126,3 +122,6 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
 );
 
 Checkbox.displayName = 'Checkbox';
+
+export { Checkbox };
+export default Checkbox;

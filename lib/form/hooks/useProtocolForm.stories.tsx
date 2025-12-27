@@ -82,8 +82,8 @@ import { Provider } from 'react-redux';
 import { action } from 'storybook/actions';
 import Form from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
-import { type FieldValue } from '~/lib/form/types';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
+import { type FieldValue } from '~/lib/form/types';
 
 // Mock protocol data
 const mockProtocol = {
@@ -213,6 +213,7 @@ const mockProtocol = {
             name: 'Preferred Contact Method',
             type: 'categorical',
             component: 'ToggleButtonGroup',
+            placeholder: 'Select a method...',
             options: [
               { label: 'Email', value: 'email' },
               { label: 'Phone', value: 'phone' },

@@ -4,7 +4,7 @@ import React, { createContext, useCallback, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Button } from '~/components/ui/Button';
 import { generatePublicId } from '~/utils/generatePublicId';
-import { Dialog } from './Dialog';
+import Dialog from './Dialog';
 
 export type BaseDialog = {
   id?: string;

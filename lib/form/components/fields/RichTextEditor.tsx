@@ -28,7 +28,7 @@ import {
   Redo,
   Undo,
 } from 'lucide-react';
-import { type ComponentPropsWithoutRef, useEffect } from 'react';
+import { useEffect } from 'react';
 import { headingVariants } from '~/components/typography/Heading';
 import { paragraphVariants } from '~/components/typography/Paragraph';
 import { iconButtonVariants } from '~/components/ui/Button';
@@ -39,7 +39,9 @@ import {
   multilineContentVariants,
   stateVariants,
 } from '~/styles/shared/controlVariants';
-import { compose, cva, cx, type VariantProps } from '~/utils/cva';
+import { compose, cva, cx } from '~/utils/cva';
+import { getInputState } from '../../utils/getInputState';
+import { type CreateFormFieldProps } from '../Field/Field';
 
 const ToolbarButton = (props: Toolbar.Button.Props) => {
   return <Toolbar.Button {...props} render={<Toggle />} />;
@@ -192,22 +194,16 @@ const defaultToolbarOptions: Required<ToolbarOptions> = {
   history: true,
 };
 
-type RichTextEditorFieldProps = Omit<
-  ComponentPropsWithoutRef<'div'>,
-  'onChange'
-> &
-  VariantProps<typeof editorContainerVariants> & {
+type RichTextEditorFieldProps = CreateFormFieldProps<
+  JSONContent,
+  'div',
+  {
+    'toolbarOptions'?: ToolbarOptions;
     'id': string;
     'name': string;
-    'value'?: JSONContent;
-    'onChange'?: (value: JSONContent) => void;
-    'placeholder'?: string;
-    'disabled'?: boolean;
-    'readOnly'?: boolean;
-    'aria-invalid'?: boolean;
     'aria-describedby': string;
-    'toolbarOptions'?: ToolbarOptions;
-  };
+  }
+>;
 
 // Helper to normalize toolbar options into a flat structure
 function normalizeToolbarOptions(options?: ToolbarOptions) {
@@ -237,7 +233,7 @@ function normalizeToolbarOptions(options?: ToolbarOptions) {
   };
 }
 
-export default function RichTextEditorField({
+function RichTextEditorField({
   id,
   name,
   value,
@@ -358,7 +354,11 @@ export default function RichTextEditorField({
   const hasToolbar = visibleGroups.length > 0;
 
   return (
-    <div className={editorContainerVariants()}>
+    <div
+      className={editorContainerVariants({
+        state: getInputState({ disabled, readOnly, ...props }),
+      })}
+    >
       <EditorContent
         editor={editor}
         className={editorContentStyles}
@@ -565,3 +565,6 @@ export default function RichTextEditorField({
     </div>
   );
 }
+
+export { RichTextEditorField };
+export default RichTextEditorField;

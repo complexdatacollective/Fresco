@@ -7,15 +7,14 @@ import { useEffect, useState } from 'react';
 import { action } from 'storybook/actions';
 import { useArgs } from 'storybook/preview-api';
 import { Button, IconButton, MotionButton } from '~/components/ui/Button';
-import { Dialog } from '~/lib/dialogs/Dialog';
+import Dialog from '~/lib/dialogs/Dialog';
 import Field from '~/lib/form/components/Field/Field';
 import InputField from '~/lib/form/components/fields/InputField';
 import { FormWithoutProvider } from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
-import { FormStoreProvider } from '~/lib/form/store/formStoreProvider';
+import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { cx } from '~/utils/cva';
-import {
-  ArrayField,
+import ArrayField, {
   type ArrayFieldEditorProps,
   type ArrayFieldItemProps,
 } from './ArrayField';
@@ -335,7 +334,7 @@ function TagInlineItem({
           <InputField
             name="label"
             value={label}
-            onChange={(e) => setLabel(e.target.value)}
+            onChange={setLabel}
             placeholder="Enter tag label"
           />
         </motion.div>
@@ -851,7 +850,7 @@ function AlwaysEditingItem({
       )}
       <InputField
         value={item.label ?? ''}
-        onChange={(e) => onUpdate({ label: e.target.value })}
+        onChange={(label) => onUpdate({ label })}
         placeholder="Enter a label..."
         className="flex-1"
       />

@@ -1,7 +1,7 @@
 import { Loader2 } from 'lucide-react';
 import React, { type ComponentProps } from 'react';
 import { MotionButton } from '~/components/ui/Button';
-import { useFormStore } from '../store/formStoreProvider';
+import useFormStore from '../hooks/useFormStore';
 
 type SubmitButtonProps = ComponentProps<typeof MotionButton> & {
   submittingText?: React.ReactNode;

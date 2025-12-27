@@ -170,10 +170,10 @@ export function DataTable<TData, TValue>({
                   .getColumn(filterColumnAccessorKey)
                   ?.getFilterValue() as string) ?? ''
               }
-              onChange={(event) =>
+              onChange={(value) =>
                 table
                   .getColumn(filterColumnAccessorKey)
-                  ?.setFilterValue(event.target.value)
+                  ?.setFilterValue(value)
               }
               className="mt-0"
             />

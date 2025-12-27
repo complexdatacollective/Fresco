@@ -45,13 +45,14 @@ export const inputVariants = compose(
 );
 
 type InputFieldProps = CreateFormFieldProps<
+  string,
   'input',
-  'custom' | 'minLength' | 'maxLength' | 'pattern' | 'required'
-> & {
-  size?: VariantProps<typeof textSizeVariants>['size'];
-  prefixComponent?: ReactNode;
-  suffixComponent?: ReactNode;
-};
+  {
+    size?: VariantProps<typeof textSizeVariants>['size'];
+    prefixComponent?: ReactNode;
+    suffixComponent?: ReactNode;
+  }
+>;
 
 function InputField(props: InputFieldProps) {
   const {
@@ -80,8 +81,8 @@ function InputField(props: InputFieldProps) {
         className={inputVariants({ className })}
         type={type}
         {...inputProps}
-        onChange={(e) => onChange(e.target.value)}
-        value={value}
+        onChange={(e) => onChange?.(e.target.value)}
+        value={value ?? ''}
         disabled={disabled}
         readOnly={readOnly}
       />
