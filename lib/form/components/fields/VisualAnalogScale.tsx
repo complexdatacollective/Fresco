@@ -1,8 +1,14 @@
 'use client';
 
-import * as Slider from '@radix-ui/react-slider';
-import { scaleSliderStyles } from '~/styles/shared/controlVariants';
+import { Slider } from '@base-ui/react/slider';
+import {
+  sliderControlVariants,
+  sliderRootVariants,
+  sliderThumbVariants,
+  sliderTrackVariants,
+} from '~/styles/shared/controlVariants';
 import { cx } from '~/utils/cva';
+import { getInputState } from '../../utils/getInputState';
 import { type CreateFormFieldProps } from '../Field/types';
 
 type VisualAnalogScaleFieldProps = CreateFormFieldProps<
@@ -17,52 +23,56 @@ type VisualAnalogScaleFieldProps = CreateFormFieldProps<
   }
 >;
 
-export default function VisualAnalogScaleField({
-  className,
-  value = 0,
-  onChange,
-  min = 0,
-  max = 100,
-  step = 0.1,
-  minLabel,
-  maxLabel,
-  disabled,
-  readOnly,
-  id: _id,
-  ...divProps
-}: VisualAnalogScaleFieldProps) {
-  const handleValueChange = (newValue: number[]) => {
-    const value = newValue[0];
-    if (value !== undefined) {
-      onChange?.(value);
+export default function VisualAnalogScaleField(
+  props: VisualAnalogScaleFieldProps,
+) {
+  const {
+    className,
+    value = 0,
+    onChange,
+    min = 0,
+    max = 100,
+    step = 0.1,
+    minLabel,
+    maxLabel,
+    disabled,
+    readOnly,
+    ...rest
+  } = props;
+
+  const state = getInputState(props);
+
+  const handleValueChange = (newValue: number | number[]) => {
+    if (readOnly) return;
+    const val = Array.isArray(newValue) ? newValue[0] : newValue;
+    if (val !== undefined) {
+      onChange?.(val);
     }
   };
 
-  const sliderValue = [value];
-
   return (
-    <div className={cx('w-full', className)} {...divProps}>
+    <div className={cx('w-full', className)} {...rest}>
       <div className="relative py-4">
-        {/* Slider container */}
-        <div className="relative flex h-10 items-center">
-          <Slider.Root
-            className={scaleSliderStyles.root}
-            value={sliderValue}
-            onValueChange={handleValueChange}
-            disabled={disabled ?? readOnly}
-            max={max}
-            min={min}
-            step={step}
-          >
-            <Slider.Track className={scaleSliderStyles.track} />
-            <Slider.Thumb
-              className={scaleSliderStyles.thumb}
-              aria-label="Visual analog scale value"
-            />
-          </Slider.Root>
-        </div>
+        <Slider.Root
+          value={value}
+          onValueChange={handleValueChange}
+          disabled={disabled}
+          min={min}
+          max={max}
+          step={step}
+          aria-invalid={rest['aria-invalid']}
+          className={sliderRootVariants({ state })}
+        >
+          <Slider.Control className={sliderControlVariants()}>
+            <Slider.Track className={sliderTrackVariants({ state })}>
+              <Slider.Thumb
+                className={sliderThumbVariants({ state })}
+                aria-label="Visual analog scale value"
+              />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>
 
-        {/* Labels positioned below slider */}
         <div className="relative mt-2 flex justify-between">
           {minLabel && (
             <div className="max-w-24 text-left text-sm leading-tight text-current/70">

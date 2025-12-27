@@ -26,10 +26,7 @@ const buttonVariants = compose(
   groupSpacingVariants,
   stateVariants,
   cva({
-    base: cx(
-      'elevation-low flex grow basis-1/2 justify-start gap-3',
-      'focusable',
-    ),
+    base: cx('elevation-low flex min-w-0 justify-start gap-3', 'focusable'),
     variants: {
       selected: {
         true: '',
@@ -65,7 +62,7 @@ const booleanIndicatorVariants = compose(
   inputControlVariants,
   cva({
     base: cx(
-      'm-2 flex aspect-square shrink-0 items-center justify-center rounded-full',
+      'flex aspect-square shrink-0 items-center justify-center rounded-full',
       'transition-colors duration-200',
     ),
     variants: {
@@ -258,59 +255,55 @@ export default function BooleanField(props: BooleanFieldProps) {
       )}
     >
       {label && <legend className="sr-only">{label}</legend>}
-      <div
+      <RadioGroup
+        {...rest}
+        value={stringValue}
+        onValueChange={handleValueChange}
+        disabled={disabled}
+        readOnly={readOnly}
+        aria-invalid={isInvalid || undefined}
         className={cx(
-          '-m-1 w-full rounded-sm p-1',
+          'grid w-full auto-cols-fr grid-flow-col gap-4 rounded-sm p-2',
           'transition-colors duration-200',
           isInvalid && 'border-destructive border-2',
         )}
       >
-        <RadioGroup
-          {...rest}
-          value={stringValue}
-          onValueChange={handleValueChange}
-          disabled={disabled}
-          readOnly={readOnly}
-          aria-invalid={isInvalid || undefined}
-          className="flex gap-4"
-        >
-          {options.map((option) => {
-            const isSelected = value === option.value;
-            const isPositive = option.value === true;
-            const optionValue = String(option.value);
+        {options.map((option) => {
+          const isSelected = value === option.value;
+          const isPositive = option.value === true;
+          const optionValue = String(option.value);
 
-            return (
-              <Radio.Root
-                key={optionValue}
-                value={optionValue}
-                disabled={disabled}
-                nativeButton
-                render={(renderProps, _state) => (
-                  <button
-                    {...renderProps}
-                    type="button"
-                    className={buttonVariants({
-                      selected: isSelected,
-                      positive: isPositive,
-                      state: buttonState,
-                      className: 'text-left',
-                    })}
-                  >
-                    <BooleanIndicator
-                      isSelected={isSelected}
-                      isPositive={isPositive}
-                      state={buttonState}
-                    />
-                    <span className={controlLabelVariants({ size: 'md' })}>
-                      {option.label}
-                    </span>
-                  </button>
-                )}
-              />
-            );
-          })}
-        </RadioGroup>
-      </div>
+          return (
+            <Radio.Root
+              key={optionValue}
+              value={optionValue}
+              disabled={disabled}
+              nativeButton
+              render={(renderProps, _state) => (
+                <button
+                  {...renderProps}
+                  type="button"
+                  className={buttonVariants({
+                    selected: isSelected,
+                    positive: isPositive,
+                    state: buttonState,
+                    className: 'gap-2 text-left', // override browser default button style
+                  })}
+                >
+                  <BooleanIndicator
+                    isSelected={isSelected}
+                    isPositive={isPositive}
+                    state={buttonState}
+                  />
+                  <span className={controlLabelVariants({ size: 'md' })}>
+                    {option.label}
+                  </span>
+                </button>
+              )}
+            />
+          );
+        })}
+      </RadioGroup>
       {!noReset && (
         <Button
           variant="link"

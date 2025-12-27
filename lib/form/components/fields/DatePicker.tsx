@@ -109,7 +109,7 @@ export default function DatePickerField(props: DatePickerFieldProps) {
 
   if (resolutionType === 'month') {
     return (
-      <div className="flex w-full gap-2">
+      <div className="flex gap-2">
         <SelectField
           size="md"
           name={`${name ?? 'date'}-year`}
@@ -119,6 +119,7 @@ export default function DatePickerField(props: DatePickerFieldProps) {
           onChange={(value) => handleChange(String(value), undefined)}
           disabled={disabled || readOnly}
           aria-invalid={rest['aria-invalid']}
+          className="w-fit"
         />
         <SelectField
           size="md"
@@ -129,6 +130,7 @@ export default function DatePickerField(props: DatePickerFieldProps) {
           onChange={(value) => handleChange(undefined, String(value))}
           disabled={disabled || readOnly || !selectedYear}
           aria-invalid={rest['aria-invalid']}
+          className="w-fit"
         />
       </div>
     );
@@ -145,6 +147,7 @@ export default function DatePickerField(props: DatePickerFieldProps) {
         name={name ?? 'year'}
         disabled={disabled || readOnly}
         aria-invalid={rest['aria-invalid']}
+        className="w-fit"
       />
     );
   }

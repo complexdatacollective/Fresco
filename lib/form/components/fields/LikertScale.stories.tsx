@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import LikertScaleField from './LikertScale';
 
 const meta: Meta<typeof LikertScaleField> = {
@@ -68,15 +68,31 @@ const agreementOptions = [
 ];
 
 export const Default: Story = {
-  render: () => {
-    const [value, setValue] = useState<string | number | undefined>(3);
+  args: {
+    'options': agreementOptions,
+    'value': 3,
+    'disabled': false,
+    'readOnly': false,
+    'aria-invalid': false,
+  },
+  render: (args) => {
+    const [value, setValue] = useState<string | number | undefined>(
+      args.value ?? 3,
+    );
+
+    useEffect(() => {
+      setValue(args.value ?? 3);
+    }, [args.value]);
 
     return (
       <div className="w-xl">
         <LikertScaleField
-          options={agreementOptions}
+          {...args}
           value={value}
-          onChange={setValue}
+          onChange={(newValue) => {
+            setValue(newValue);
+            args.onChange?.(newValue);
+          }}
         />
       </div>
     );

@@ -10,6 +10,8 @@ const meta: Meta<typeof ToggleButtonGroupField> = {
   },
   tags: ['autodocs'],
   argTypes: {
+    'disabled': { control: 'boolean' },
+    'readOnly': { control: 'boolean' },
     'aria-invalid': { control: 'boolean' },
     'value': {
       control: false,
@@ -17,14 +19,6 @@ const meta: Meta<typeof ToggleButtonGroupField> = {
       table: {
         type: { summary: '(string | number)[]' },
         defaultValue: { summary: '[]' },
-      },
-    },
-    'disabled': {
-      control: 'boolean',
-      description: 'Whether the button group is disabled',
-      table: {
-        type: { summary: 'boolean' },
-        defaultValue: { summary: 'false' },
       },
     },
     'size': {
@@ -69,9 +63,9 @@ const basicOptions = [
 
 export const Default: Story = {
   render: () => {
-    const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>(
-      [],
-    );
+    const [selectedOptions, setSelectedOptions] = useState<
+      (string | number)[] | undefined
+    >([]);
 
     return (
       <div className="w-full max-w-md">
@@ -87,9 +81,9 @@ export const Default: Story = {
 
 export const WithPreselected: Story = {
   render: () => {
-    const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>(
-      ['a', 'c'],
-    );
+    const [selectedOptions, setSelectedOptions] = useState<
+      (string | number)[] | undefined
+    >(['a', 'c']);
 
     return (
       <div className="w-full max-w-md">
@@ -118,9 +112,9 @@ export const ManyOptions: Story = {
       { label: 'Gray', value: 'gray' },
     ];
 
-    const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>(
-      [],
-    );
+    const [selectedOptions, setSelectedOptions] = useState<
+      (string | number)[] | undefined
+    >([]);
 
     return (
       <div className="w-full max-w-xl">
@@ -143,9 +137,9 @@ export const LongLabels: Story = {
       { label: 'Extremely Long Text Here', value: 'long3' },
     ];
 
-    const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>(
-      [],
-    );
+    const [selectedOptions, setSelectedOptions] = useState<
+      (string | number)[] | undefined
+    >([]);
 
     return (
       <div className="w-full max-w-md">
@@ -173,9 +167,9 @@ export const MixedLengthLabels: Story = {
       { label: 'X', value: '6' },
     ];
 
-    const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>(
-      ['4'],
-    );
+    const [selectedOptions, setSelectedOptions] = useState<
+      (string | number)[] | undefined
+    >(['4']);
 
     return (
       <div className="w-full max-w-lg">
@@ -191,10 +185,18 @@ export const MixedLengthLabels: Story = {
 
 export const Sizes: Story = {
   render: () => {
-    const [smSelected, setSmSelected] = useState<(string | number)[]>(['a']);
-    const [mdSelected, setMdSelected] = useState<(string | number)[]>(['b']);
-    const [lgSelected, setLgSelected] = useState<(string | number)[]>(['c']);
-    const [xlSelected, setXlSelected] = useState<(string | number)[]>(['a']);
+    const [smSelected, setSmSelected] = useState<
+      (string | number)[] | undefined
+    >(['a']);
+    const [mdSelected, setMdSelected] = useState<
+      (string | number)[] | undefined
+    >(['b']);
+    const [lgSelected, setLgSelected] = useState<
+      (string | number)[] | undefined
+    >(['c']);
+    const [xlSelected, setXlSelected] = useState<
+      (string | number)[] | undefined
+    >(['a']);
 
     return (
       <div className="flex w-full flex-col gap-8">
@@ -241,7 +243,9 @@ export const Sizes: Story = {
 
 export const SizeComparison: Story = {
   render: () => {
-    const [selected, setSelected] = useState<(string | number)[]>([]);
+    const [selected, setSelected] = useState<(string | number)[] | undefined>(
+      [],
+    );
     const longOptions = [
       { label: 'Very Long Label Here', value: 'long1' },
       { label: 'Another Long One', value: 'long2' },

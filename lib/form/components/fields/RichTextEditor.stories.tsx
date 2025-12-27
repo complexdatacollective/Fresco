@@ -2,6 +2,9 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import type { JSONContent } from '@tiptap/react';
 import { action } from 'storybook/actions';
 import { z } from 'zod';
+import Field from '../Field/Field';
+import Form from '../Form';
+import SubmitButton from '../SubmitButton';
 import RichTextEditorField from './RichTextEditor';
 
 const meta: Meta<typeof RichTextEditorField> = {
@@ -10,10 +13,15 @@ const meta: Meta<typeof RichTextEditorField> = {
   parameters: {
     layout: 'centered',
   },
+  tags: ['autodocs'],
+  argTypes: {
+    'disabled': { control: 'boolean' },
+    'readOnly': { control: 'boolean' },
+    'aria-invalid': { control: 'boolean' },
+  },
   args: {
-    'id': 'rich-text-editor',
-    'name': 'content',
-    'aria-describedby': 'rich-text-editor-hint',
+    id: 'rich-text-editor',
+    name: 'content',
   },
 };
 
@@ -160,11 +168,7 @@ const simpleContent: JSONContent = {
 export const Default: Story = {
   render: (args) => (
     <div className="w-[600px]">
-      <RichTextEditorField
-        {...args}
-        placeholder="Start typing here..."
-        onChange={action('onChange')}
-      />
+      <RichTextEditorField {...args} onChange={action('onChange')} />
     </div>
   ),
 };
@@ -235,7 +239,6 @@ export const InForm: Story = {
         label="Description"
         hint="Write a detailed description using rich text formatting"
         component={RichTextEditorField}
-        placeholder="Enter your description..."
         custom={{
           schema: z.object({}).passthrough(),
           hint: 'Enter rich text content',
@@ -253,7 +256,6 @@ export const NoHeadings: Story = {
     <div className="w-[600px]">
       <RichTextEditorField
         {...args}
-        placeholder="Headings are disabled..."
         toolbarOptions={{ headings: false }}
         onChange={action('onChange')}
       />
@@ -266,7 +268,6 @@ export const OnlyH2AndH3: Story = {
     <div className="w-[600px]">
       <RichTextEditorField
         {...args}
-        placeholder="Only H2 and H3 headings available..."
         toolbarOptions={{
           headings: { h1: false, h2: true, h3: true, h4: false },
         }}
@@ -281,7 +282,6 @@ export const TextFormattingOnly: Story = {
     <div className="w-[600px]">
       <RichTextEditorField
         {...args}
-        placeholder="Only bold and italic formatting..."
         toolbarOptions={{
           headings: false,
           lists: false,
@@ -298,7 +298,6 @@ export const NoLists: Story = {
     <div className="w-[600px]">
       <RichTextEditorField
         {...args}
-        placeholder="Lists are disabled..."
         toolbarOptions={{ lists: false }}
         onChange={action('onChange')}
       />
@@ -326,7 +325,6 @@ export const NoHistory: Story = {
     <div className="w-[600px]">
       <RichTextEditorField
         {...args}
-        placeholder="Undo/Redo buttons hidden..."
         toolbarOptions={{ history: false }}
         onChange={action('onChange')}
       />
@@ -339,7 +337,6 @@ export const MinimalEditor: Story = {
     <div className="w-[600px]">
       <RichTextEditorField
         {...args}
-        placeholder="Minimal editor - just bold..."
         toolbarOptions={{
           bold: true,
           italic: false,
@@ -358,7 +355,6 @@ export const NoToolbar: Story = {
     <div className="w-[600px]">
       <RichTextEditorField
         {...args}
-        placeholder="No toolbar at all..."
         toolbarOptions={{
           bold: false,
           italic: false,

@@ -3,24 +3,68 @@ import { cva, cx } from '~/utils/cva';
 // Transition styles as a simple string for inline use
 export const transitionStyles = 'transition-all duration-200';
 
-// Scale-specific Slider Styles (for VisualAnalogScale and LikertScale)
-export const scaleSliderStyles = {
-  root: cx(
-    'relative flex w-full touch-none items-center select-none',
-    'data-disabled:cursor-not-allowed data-disabled:opacity-50',
-  ),
-  track: cx('bg-input relative h-6 w-full grow overflow-hidden rounded border'),
-  thumb: cx(
-    'bg-accent block h-8 w-8 rounded-full transition-all duration-200',
+// Scale-specific Slider Variants (for VisualAnalogScale and LikertScale)
+// Uses base-ui slider which sets --slider-thumb-position CSS custom property
+export const sliderRootVariants = cva({
+  base: cx('relative flex w-full touch-none items-center select-none'),
+  variants: {
+    state: {
+      normal: 'cursor-pointer',
+      disabled: 'cursor-not-allowed opacity-50',
+      readOnly: 'cursor-default',
+      invalid: '',
+    },
+  },
+  defaultVariants: {
+    state: 'normal',
+  },
+});
+
+export const sliderControlVariants = cva({
+  base: cx('relative flex h-10 w-full items-center'),
+});
+
+export const sliderTrackVariants = cva({
+  base: cx('relative h-4 w-full border-2', 'transition-colors duration-200'),
+  variants: {
+    state: {
+      normal: 'bg-input border-transparent',
+      disabled: 'bg-input-contrast/5 border-transparent',
+      readOnly: 'bg-input-contrast/10 border-transparent',
+      invalid: 'bg-input border-destructive',
+    },
+  },
+  defaultVariants: {
+    state: 'normal',
+  },
+});
+
+export const sliderThumbVariants = cva({
+  base: cx(
+    // Positioning - base-ui sets --slider-thumb-position
+    'absolute top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2',
+    'left-(--slider-thumb-position)',
+    // Appearance
+    'block rounded-full',
     'focusable',
-    'disabled:pointer-events-none disabled:opacity-50',
-    'hover:h-9 hover:w-9 active:h-10 active:w-10',
+    'transition-colors duration-200',
   ),
-  tickContainer: cx(
-    'absolute inset-0 flex w-full grow items-center justify-between px-[10px]',
-  ),
-  tick: cx('bg-input-contrast/20 h-8 w-1'),
-} as const;
+  variants: {
+    state: {
+      normal: 'bg-accent cursor-grab active:cursor-grabbing',
+      disabled: 'bg-input-contrast/30 pointer-events-none',
+      readOnly: 'bg-input-contrast/50 pointer-events-none',
+      invalid: 'bg-accent',
+    },
+  },
+  defaultVariants: {
+    state: 'normal',
+  },
+});
+
+export const sliderTickContainerStyles = cx('absolute inset-0 w-full');
+
+export const sliderTickStyles = cx('bg-input-contrast/20 h-full w-1');
 
 // Base variants for all 'control' like components (inputs, buttons, etc)
 export const controlVariants = cva({
@@ -212,6 +256,7 @@ export const nativeSelectVariants = cva({
     'bg-[length:1.2em_1.2em]',
     "bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')]",
     'bg-right',
+    'pr-[1.5em]', // Right padding to prevent text from overlapping with dropdown arrow
   ),
 });
 

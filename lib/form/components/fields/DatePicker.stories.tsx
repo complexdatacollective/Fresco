@@ -112,7 +112,7 @@ export const FullDate: Story = {
 export const MonthYear: Story = {
   name: 'Month/Year Picker',
   render: () => {
-    const [value, setValue] = useState('');
+    const [value, setValue] = useState<string | undefined>(undefined);
 
     return (
       <div className="w-full max-w-md space-y-2">
@@ -123,7 +123,7 @@ export const MonthYear: Story = {
           name="month-year"
         />
         <p className="text-xs text-current opacity-70">
-          Selected: {value || 'none'}
+          Selected: {value ?? 'none'}
         </p>
       </div>
     );

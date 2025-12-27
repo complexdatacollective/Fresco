@@ -1,6 +1,6 @@
 'use client';
 
-import * as Tooltip from '@radix-ui/react-tooltip';
+import { Tooltip } from '@base-ui/react/tooltip';
 import {
   AnimatePresence,
   motion,
@@ -63,48 +63,50 @@ export default function PassphrasePrompter() {
         <Tooltip.Root open={showTooltip} onOpenChange={setShowTooltip}>
           <AnimatePresence>
             {showPassphrasePrompter && (
-              <Tooltip.Trigger asChild>
-                <motion.button
-                  key="lock"
-                  layout
-                  className="bg-platinum group flex h-[4.8rem] w-[4.8rem] cursor-pointer items-center justify-center rounded-full"
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{
-                    scale: 1,
-                    opacity: 1,
-                  }}
-                  exit={{ scale: 0, opacity: 0 }}
-                  transition={transition}
-                  style={{ willChange }}
-                  onClick={() => setShowPassphraseOverlay(true)}
-                >
-                  <motion.span className="animate-shake scale-90 text-4xl transition-transform group-hover:scale-100">
-                    {passphraseInvalid ? '⚠️' : '🔑'}
-                  </motion.span>
-                </motion.button>
+              <Tooltip.Trigger
+                render={
+                  <motion.button
+                    key="lock"
+                    layout
+                    className="bg-platinum group flex h-[4.8rem] w-[4.8rem] cursor-pointer items-center justify-center rounded-full"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{
+                      scale: 1,
+                      opacity: 1,
+                    }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    transition={transition}
+                    style={{ willChange }}
+                    onClick={() => setShowPassphraseOverlay(true)}
+                  />
+                }
+              >
+                <motion.span className="animate-shake scale-90 text-4xl transition-transform group-hover:scale-100">
+                  {passphraseInvalid ? '⚠️' : '🔑'}
+                </motion.span>
               </Tooltip.Trigger>
             )}
           </AnimatePresence>
           <Tooltip.Portal>
-            <Tooltip.Content sideOffset={5} side="right" asChild>
-              <motion.div
-                key="tooltip"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="bg-surface flex w-96 flex-col justify-center gap-4 rounded-xl p-6 shadow-xl"
+            <Tooltip.Positioner sideOffset={5} side="right">
+              <Tooltip.Popup
+                render={
+                  <motion.div
+                    key="tooltip"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="bg-surface flex w-96 flex-col justify-center gap-4 rounded-xl p-6 shadow-xl"
+                  />
+                }
               >
                 <div>
                   {passphraseInvalid
                     ? 'There was a problem decrypting the data. Please re-enter your passphrase.'
                     : 'Your passphrase is needed to show data on this screen. Click here to enter it.'}
                 </div>
-                <Tooltip.Arrow
-                  className="fill-surface"
-                  height={10}
-                  width={20}
-                />
-              </motion.div>
-            </Tooltip.Content>
+                <Tooltip.Arrow className="fill-surface" />
+              </Tooltip.Popup>
+            </Tooltip.Positioner>
           </Tooltip.Portal>
         </Tooltip.Root>
       </Tooltip.Provider>

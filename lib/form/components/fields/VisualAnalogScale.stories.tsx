@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import VisualAnalogScaleField from './VisualAnalogScale';
 
 const meta: Meta<typeof VisualAnalogScaleField> = {
@@ -95,19 +95,35 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  render: () => {
-    const [value, setValue] = useState(50);
+  args: {
+    'value': 50,
+    'min': 0,
+    'max': 100,
+    'step': 0.1,
+    'minLabel': 'Minimum',
+    'maxLabel': 'Maximum',
+    'disabled': false,
+    'readOnly': false,
+    'aria-invalid': false,
+  },
+  render: (args) => {
+    const [value, setValue] = useState(args.value ?? 50);
+
+    useEffect(() => {
+      setValue(args.value ?? 50);
+    }, [args.value]);
 
     return (
       <div className="w-xl">
         <VisualAnalogScaleField
+          {...args}
           value={value}
-          onChange={setValue}
-          min={0}
-          max={100}
-          step={0.1}
-          minLabel="Minimum"
-          maxLabel="Maximum"
+          onChange={(newValue) => {
+            if (newValue !== undefined) {
+              setValue(newValue);
+            }
+            args.onChange?.(newValue);
+          }}
         />
       </div>
     );

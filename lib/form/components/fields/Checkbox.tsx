@@ -44,7 +44,15 @@ type CheckboxProps = Omit<
 
 const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
   (
-    { className, size = 'md', onCheckedChange, disabled, readOnly, ...props },
+    {
+      className,
+      size = 'md',
+      onCheckedChange,
+      disabled,
+      readOnly,
+      'aria-invalid': ariaInvalid,
+      ...props
+    },
     ref,
   ) => {
     const [internalChecked, setInternalChecked] = useState(
@@ -84,10 +92,15 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
         }) => (
           <motion.button
             {...rest}
+            aria-invalid={ariaInvalid}
             className={checkboxRootVariants({
               size,
               className,
-              state: getInputState({ disabled, readOnly }),
+              state: getInputState({
+                disabled,
+                readOnly,
+                'aria-invalid': !!ariaInvalid,
+              }),
             })}
           >
             <div className={checkboxIndicatorVariants()}>

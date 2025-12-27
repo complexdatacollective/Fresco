@@ -10,7 +10,7 @@ import {
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { getInputState } from '../../utils/getInputState';
 import { type CreateFormFieldProps } from '../Field/types';
-import { Checkbox } from './Checkbox';
+import Checkbox from './Checkbox';
 
 // Compose fieldset wrapper variants
 const checkboxGroupComposedVariants = compose(
@@ -88,12 +88,6 @@ export default function CheckboxGroupField(props: CheckboxGroupProps) {
           className,
         })}
         disabled={disabled}
-        {...(fieldsetProps['aria-labelledby']
-          ? { 'aria-labelledby': fieldsetProps['aria-labelledby'] }
-          : {})}
-        {...(fieldsetProps['aria-label']
-          ? { 'aria-label': fieldsetProps['aria-label'] }
-          : {})}
       >
         {options.map((option) => {
           const isOptionDisabled = disabled || option.disabled;
@@ -121,7 +115,6 @@ export default function CheckboxGroupField(props: CheckboxGroupProps) {
                   }
                 }}
                 size={size}
-                aria-invalid={isInvalid}
               />
               <span>{option.label}</span>
             </label>

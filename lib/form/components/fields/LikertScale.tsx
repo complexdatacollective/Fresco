@@ -1,15 +1,16 @@
 'use client';
 
-import * as Slider from '@radix-ui/react-slider';
-import React from 'react';
+import { Slider } from '@base-ui/react/slider';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '~/components/ui/tooltip';
-import { scaleSliderStyles } from '~/styles/shared/controlVariants';
+  sliderControlVariants,
+  sliderRootVariants,
+  sliderThumbVariants,
+  sliderTickContainerStyles,
+  sliderTickStyles,
+  sliderTrackVariants,
+} from '~/styles/shared/controlVariants';
 import { cx } from '~/utils/cva';
+import { getInputState } from '../../utils/getInputState';
 import { type CreateFormFieldProps } from '../Field/types';
 
 type Option = {
@@ -25,21 +26,22 @@ type LikertScaleFieldProps = CreateFormFieldProps<
   }
 >;
 
-export default function LikertScaleField({
-  className,
-  value,
-  onChange,
-  options = [],
-  disabled,
-  readOnly,
-  id: _id,
-  ...divProps
-}: LikertScaleFieldProps) {
-  const isDisabled = disabled ?? readOnly;
-  const [showTooltipState, setShowTooltipState] = React.useState(false);
+export default function LikertScaleField(props: LikertScaleFieldProps) {
+  const {
+    className,
+    value,
+    onChange,
+    options = [],
+    disabled,
+    readOnly,
+    ...rest
+  } = props;
 
-  const handleValueChange = (newValue: number[]) => {
-    const index = newValue[0];
+  const state = getInputState(props);
+
+  const handleValueChange = (newValue: number | number[]) => {
+    if (readOnly) return;
+    const index = Array.isArray(newValue) ? newValue[0] : newValue;
     if (index !== undefined) {
       const selectedOption = options[index];
       if (selectedOption) {
@@ -48,66 +50,52 @@ export default function LikertScaleField({
     }
   };
 
-  const handlePointerDown = () => {
-    setShowTooltipState(true);
-  };
-
-  const handlePointerUp = React.useCallback(() => {
-    setShowTooltipState(false);
-  }, []);
-
-  React.useEffect(() => {
-    document.addEventListener('pointerup', handlePointerUp);
-    return () => {
-      document.removeEventListener('pointerup', handlePointerUp);
-    };
-  }, [handlePointerUp]);
-
   const currentIndex = options.findIndex((option) => option.value === value);
-  const sliderValue = currentIndex >= 0 ? [currentIndex] : [0];
+  const sliderValue = currentIndex >= 0 ? currentIndex : 0;
   const currentOption = options[currentIndex] ?? options[0];
 
   return (
-    <div className={cx('w-full', className)} {...divProps}>
+    <div className={cx('w-full', className)} {...rest}>
       <div className="relative py-4">
-        <div className="relative flex h-10 items-center">
-          <Slider.Root
-            className={scaleSliderStyles.root}
-            value={sliderValue}
-            onValueChange={handleValueChange}
-            onPointerDown={handlePointerDown}
-            disabled={isDisabled}
-            max={Math.max(0, options.length - 1)}
-            min={0}
-            step={1}
-          >
-            <Slider.Track className={scaleSliderStyles.track} />
-
-            {options.length > 0 && (
-              <div className={scaleSliderStyles.tickContainer}>
-                {options.map((_, index) => (
-                  <div key={index} className={scaleSliderStyles.tick} />
-                ))}
-              </div>
-            )}
-
-            <TooltipProvider>
-              <Tooltip open={showTooltipState}>
-                <TooltipTrigger asChild className="pointer-events-none">
-                  <Slider.Thumb
-                    className={scaleSliderStyles.thumb}
-                    aria-label={`Select value on scale: ${currentOption?.label ?? 'No selection'}`}
-                    onMouseEnter={() => setShowTooltipState(true)}
-                    onMouseLeave={() => setShowTooltipState(false)}
-                  />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{currentOption?.label ?? currentOption?.value ?? ''}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </Slider.Root>
-        </div>
+        <Slider.Root
+          value={sliderValue}
+          onValueChange={handleValueChange}
+          disabled={disabled}
+          min={0}
+          max={Math.max(0, options.length - 1)}
+          step={1}
+          aria-invalid={rest['aria-invalid']}
+          className={sliderRootVariants({ state })}
+        >
+          <Slider.Control className={sliderControlVariants()}>
+            <Slider.Track className={sliderTrackVariants({ state })}>
+              {options.length > 0 && (
+                <div className={sliderTickContainerStyles}>
+                  {options.map((_, index) => {
+                    const percentage =
+                      options.length > 1
+                        ? (index / (options.length - 1)) * 100
+                        : 50;
+                    return (
+                      <div
+                        key={index}
+                        className={cx(
+                          sliderTickStyles,
+                          'absolute -translate-x-1/2',
+                        )}
+                        style={{ left: `${percentage}%` }}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+              <Slider.Thumb
+                className={sliderThumbVariants({ state })}
+                aria-label={`Select value on scale: ${currentOption?.label ?? 'No selection'}`}
+              />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>
 
         <div className="relative mt-2">
           {options.map((option, index) => {

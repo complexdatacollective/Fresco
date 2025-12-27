@@ -19,7 +19,7 @@ type InfoTooltipProps = Omit<ComponentProps<typeof Popover>, 'children'> & {
  *
  * InfoTooltip component for displaying informational tooltips.
  *
- * NOTE: Do not be tempted to use the tooltip component for this. Base-ui
+ * NOTE: Do not be tempted to use the base-ui tooltip component for this. Base-ui
  * specifically says to only use tooltips for things that cause actions
  * separate from the trigger itself.
  */
