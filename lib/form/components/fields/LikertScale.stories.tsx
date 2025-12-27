@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
-import { LikertScaleField } from './LikertScale';
+import LikertScaleField from './LikertScale';
 
 const meta: Meta<typeof LikertScaleField> = {
   title: 'Systems/Form/Fields/LikertScaleField',

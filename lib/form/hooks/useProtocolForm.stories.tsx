@@ -83,7 +83,7 @@ import { action } from 'storybook/actions';
 import Form from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
-import { type FieldValue } from '~/lib/form/types';
+import { type FieldValue } from '../components/Field/types';
 
 // Mock protocol data
 const mockProtocol = {

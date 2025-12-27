@@ -8,6 +8,10 @@ import {
   selectFieldMetadata,
 } from '~/lib/interviewer/selectors/forms';
 import Field from '../components/Field/Field';
+import {
+  type FieldValue,
+  type ValidationPropsCatalogue,
+} from '../components/Field/types';
 import BooleanField from '../components/fields/Boolean';
 import CheckboxGroupField from '../components/fields/CheckboxGroup';
 import DatePickerField from '../components/fields/DatePicker';
@@ -19,8 +23,7 @@ import TextAreaField from '../components/fields/TextArea';
 import ToggleButtonGroupField from '../components/fields/ToggleButtonGroup';
 import ToggleField from '../components/fields/ToggleField';
 import VisualAnalogScaleField from '../components/fields/VisualAnalogScale';
-import { type FieldValue, type ValidationContext } from '../types';
-import { type ValidationPropsCatalogue } from '../validation/helpers';
+import { type ValidationContext } from '../store/types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const fieldTypeMap: Record<ComponentType, React.ComponentType<any>> = {

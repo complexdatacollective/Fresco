@@ -2,20 +2,55 @@ import { z } from 'zod';
 import UnorderedList from '~/components/typography/UnorderedList';
 import type {
   CustomFieldValidation,
-  FieldValidation,
+  FieldValidationFunction,
   FieldValue,
   ValidationContext,
   ValidationResult,
-} from '../types';
+} from '../store/types';
 import {
   type ValidationFunction,
   type ValidationParameter,
+  validationPropKeys,
   validations,
 } from './functions';
 
+/**
+ * Validates a field value against a validation schema.
+ *
+ * This function handles both static Zod schemas and dynamic validation functions
+ * that generate schemas based on form state. It uses Zod's `safeParseAsync` for
+ * non-throwing validation that returns a discriminated union result.
+ *
+ * @template T - The Zod schema type, defaults to `z.ZodTypeAny`
+ *
+ * @param value - The field value to validate
+ * @param validation - Either a Zod schema directly, or a function that receives
+ *   the current form values and returns a Zod schema (sync or async)
+ * @param formValues - Current values of all form fields, used when validation
+ *   depends on other field values (e.g., sameAs, differentFrom validations)
+ *
+ * @returns A promise resolving to a `ValidationResult<T>`:
+ *   - On success: `{ success: true, data: T }` where data is the parsed value
+ *   - On failure: `{ success: false, error: z.ZodError }` containing validation issues
+ *
+ * @example
+ * ```typescript
+ * const result = await validateFieldValue(
+ *   'test@example.com',
+ *   z.string().email(),
+ *   {}
+ * );
+ *
+ * if (result.success) {
+ *   console.log('Valid email:', result.data);
+ * } else {
+ *   console.log('Errors:', result.error.issues);
+ * }
+ * ```
+ */
 export async function validateFieldValue<T extends z.ZodTypeAny>(
   value: unknown,
-  validation: FieldValidation,
+  validation: FieldValidationFunction,
   formValues: Record<string, FieldValue>,
 ): Promise<ValidationResult<T>> {
   const schema =
@@ -41,7 +76,8 @@ export function makeValidationFunction(props: Record<string, unknown>) {
     z.unknown().superRefine(async (fieldValue, ctx) => {
       // Handle built-in validations from the validations object
       const validationEntries = Object.entries(props).filter(
-        ([key]) => key in validations && key !== 'validationContext',
+        ([key]) =>
+          key in validations && key !== 'validationContext' && key !== 'custom',
       );
 
       for (const [validationName, parameter] of validationEntries) {
@@ -67,8 +103,6 @@ export function makeValidationFunction(props: Record<string, unknown>) {
             });
           }
         } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log('validation error', error);
           ctx.addIssue({
             code: 'custom',
             message: 'An error occurred while validating.',
@@ -126,7 +160,8 @@ export function makeValidationHints(props: Record<string, unknown>) {
     | undefined;
 
   const validationEntries = Object.entries(props).filter(
-    ([key]) => key in validations && key !== 'validationContext',
+    ([key]) =>
+      key in validations && key !== 'validationContext' && key !== 'custom',
   );
 
   const hints: string[] = [];
@@ -192,52 +227,12 @@ export function makeValidationHints(props: Record<string, unknown>) {
   );
 }
 
-export type ValidationPropsCatalogue = {
-  required: boolean;
-  minLength: number;
-  maxLength: number;
-  pattern: { regex: string; hint: string; errorMessage: string };
-  minValue: number;
-  maxValue: number;
-  minSelected: number;
-  maxSelected: number;
-  unique: string;
-  differentFrom: string;
-  sameAs: string;
-  greaterThanVariable: string;
-  lessThanVariable: string;
-  /**
-   * Custom validation with schema and hint.
-   * Can be a single validation or an array of validations.
-   * Schema can be a Zod schema directly, or a function that receives
-   * form values and validation context and returns a schema.
-   */
-  custom: CustomFieldValidation | CustomFieldValidation[];
-};
-
-const validationPropKeys: (keyof ValidationPropsCatalogue)[] = [
-  'required',
-  'minLength',
-  'maxLength',
-  'pattern',
-  'minValue',
-  'maxValue',
-  'minSelected',
-  'maxSelected',
-  'unique',
-  'differentFrom',
-  'sameAs',
-  'greaterThanVariable',
-  'lessThanVariable',
-  'custom',
-];
-
 export function filterValidationProps(
   props: Record<string, unknown>,
 ): Record<string, unknown> {
   const filtered: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(props)) {
-    if (!validationPropKeys.includes(key as keyof ValidationPropsCatalogue)) {
+    if (!validationPropKeys.includes(key as keyof typeof validations)) {
       filtered[key] = value;
     }
   }

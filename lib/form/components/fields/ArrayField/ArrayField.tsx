@@ -25,7 +25,7 @@ import {
   stateVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx } from '~/utils/cva';
-import { type CreateFormFieldProps } from '../../Field/Field';
+import { type CreateFormFieldProps } from '../../Field/types';
 import {
   useArrayFieldItems,
   type WithItemProperties,

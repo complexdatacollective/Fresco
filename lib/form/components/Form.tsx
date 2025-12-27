@@ -6,7 +6,7 @@ import { focusFirstError } from '~/lib/form/utils/focusFirstError';
 import { cx } from '~/utils/cva';
 import { useForm } from '../hooks/useForm';
 import FormStoreProvider from '../store/formStoreProvider';
-import type { FormSubmitHandler } from '../types';
+import type { FormSubmitHandler } from '../store/types';
 import FormErrorsList from './FormErrors';
 
 export type FormProps = {

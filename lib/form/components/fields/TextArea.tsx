@@ -1,5 +1,3 @@
-'use client';
-
 import { forwardRef } from 'react';
 import {
   controlVariants,
@@ -11,7 +9,7 @@ import {
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { getInputState } from '../../utils/getInputState';
-import { type CreateFormFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/types';
 
 const textareaWrapperVariants = compose(
   controlVariants,
@@ -69,5 +67,4 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(
   },
 );
 
-export { TextAreaField };
 export default TextAreaField;

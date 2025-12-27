@@ -16,7 +16,7 @@ export default function FieldErrors({
   errors?: string[];
   show: boolean;
 }) {
-  if (!show) return null;
+  if (!show) return <div id={id} className="sr-only" aria-live="polite" />;
 
   return (
     <div
@@ -26,6 +26,7 @@ export default function FieldErrors({
         'text-destructive',
       )}
       key={errors?.join('|')} // Re-render when errors change, to trigger animation
+      aria-live="polite"
     >
       {errors && <Paragraph>{errors[0]}</Paragraph>}
     </div>

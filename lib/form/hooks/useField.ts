@@ -1,3 +1,4 @@
+import { debounce } from 'es-toolkit';
 import {
   type ReactNode,
   useCallback,
@@ -7,26 +8,30 @@ import {
   useRef,
 } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import type {
-  ChangeHandler,
-  FieldState,
-  FieldValue,
-  ValidationContext,
-} from '../types';
+import {
+  type FieldValue,
+  type ValidationPropsCatalogue,
+} from '../components/Field/types';
+import type { FieldState, ValidationContext } from '../store/types';
 import {
   makeValidationFunction,
   makeValidationHints,
-  type ValidationPropsCatalogue,
 } from '../validation/helpers';
 import useFormStore from './useFormStore';
 
 /**
  * Helper function to determine if a field should show an error message.
- * Only shows errors after the field has been blurred and is dirty (value changed).
+ *
+ * For fields with validateOnChange: shows errors as soon as the field is dirty
+ * and validation completes (no need to blur first).
+ *
+ * For fields without validateOnChange: shows errors after the field has been
+ * blurred, is dirty, and validation has completed.
  */
-function useFieldShouldShowError(
+function shouldShowFieldError(
   fieldState: FieldState | undefined,
   fieldErrors: string[] | null,
+  validateOnChange: boolean,
 ) {
   if (!fieldState) {
     return false;
@@ -34,10 +39,19 @@ function useFieldShouldShowError(
 
   const { meta } = fieldState;
 
-  // Only show errors after the field has been blurred and is dirty
-  return Boolean(
-    meta.isBlurred && meta.isDirty && fieldErrors && fieldErrors.length > 0,
-  );
+  // Don't show errors while async validation is in progress
+  if (meta.isValidating) {
+    return false;
+  }
+
+  // Must have errors and be dirty
+  if (!fieldErrors || fieldErrors.length === 0 || !meta.isDirty) {
+    return false;
+  }
+
+  // With validateOnChange, show errors immediately after validation completes
+  // Without it, wait until field has been blurred
+  return validateOnChange || meta.isBlurred;
 }
 
 export type UseFieldResult = {
@@ -56,8 +70,10 @@ export type UseFieldResult = {
   };
   fieldProps: {
     'value': FieldValue;
-    'onChange': ChangeHandler<FieldValue>; // Handles both direct value changes and event-based changes
+    'onChange': (value: FieldValue) => void;
     'onBlur': (e: React.FocusEvent) => void;
+    'disabled': boolean;
+    'readOnly': boolean;
     'aria-required': boolean; // Indicates if the field is required
     'aria-invalid': boolean; // Indicates if the field is invalid
     'aria-describedby': string; // IDs of elements that provide additional information about the field
@@ -66,6 +82,9 @@ export type UseFieldResult = {
   };
   validationSummary?: ReactNode;
 };
+
+/** Default debounce delay for validateOnChange in milliseconds */
+const DEFAULT_VALIDATE_ON_CHANGE_DELAY = 1000;
 
 export type UseFieldConfig = {
   name: string;
@@ -77,6 +96,18 @@ export type UseFieldConfig = {
   validationContext?: ValidationContext;
   disabled?: boolean;
   readOnly?: boolean;
+  /**
+   * When true, validates the field on change instead of waiting for blur.
+   * Validation is debounced to avoid excessive calls while typing.
+   * Useful for async validation where immediate feedback is desired.
+   */
+  validateOnChange?: boolean;
+  /**
+   * Debounce delay in milliseconds for validateOnChange.
+   * Only applies when validateOnChange is true.
+   * @default 300
+   */
+  validateOnChangeDelay?: number;
 } & Partial<ValidationPropsCatalogue>;
 
 export function useField(config: UseFieldConfig): UseFieldResult {
@@ -113,6 +144,7 @@ export function useField(config: UseFieldConfig): UseFieldResult {
   );
 
   const fieldState = useFormStore((state) => state.getFieldState(name));
+  const isSubmitting = useFormStore((state) => state.isSubmitting);
 
   const fieldErrors = useFormStore(
     useShallow((state) => state.getFieldErrors(name)),
@@ -123,7 +155,35 @@ export function useField(config: UseFieldConfig): UseFieldResult {
   const setFieldBlurred = useFormStore((store) => store.setFieldBlurred);
   const validateField = useFormStore((store) => store.validateField);
 
-  const shouldShowError = useFieldShouldShowError(fieldState, fieldErrors);
+  // Disable fields while form is submitting
+  const isDisabled = isSubmitting || config.disabled;
+  const isReadOnly = config.readOnly;
+
+  const validateOnChange = config.validateOnChange ?? false;
+  const validateOnChangeDelay =
+    config.validateOnChangeDelay ?? DEFAULT_VALIDATE_ON_CHANGE_DELAY;
+
+  const shouldShowError = shouldShowFieldError(
+    fieldState,
+    fieldErrors,
+    validateOnChange,
+  );
+
+  // Create a debounced validation function for validateOnChange
+  // This prevents excessive validation calls while the user is typing
+  const debouncedValidate = useMemo(() => {
+    const validate = (fieldName: string) => {
+      void validateField(fieldName);
+    };
+    return debounce(validate, validateOnChangeDelay);
+  }, [validateField, validateOnChangeDelay]);
+
+  // Cancel debounced validation on unmount
+  useEffect(() => {
+    return () => {
+      debouncedValidate.cancel();
+    };
+  }, [debouncedValidate]);
 
   // Register field on mount
   useEffect(() => {
@@ -144,21 +204,29 @@ export function useField(config: UseFieldConfig): UseFieldResult {
     (value: FieldValue) => {
       setFieldValue(config.name, value);
 
-      // Validate on change only after the field has been blurred once
-      // This provides real-time feedback on subsequent edits without
-      // bombarding users with errors while typing their first characters
-      if (fieldState?.meta.isBlurred) {
+      // If validateOnChange is enabled, use debounced validation
+      // Otherwise, only validate after the field has been blurred once
+      if (config.validateOnChange) {
+        debouncedValidate(config.name);
+      } else if (fieldState?.meta.isBlurred) {
+        // After first blur, validate immediately on change (no debounce)
         void validateField(config.name);
       }
     },
-    [config.name, setFieldValue, fieldState?.meta.isBlurred, validateField],
+    [
+      config.name,
+      config.validateOnChange,
+      setFieldValue,
+      fieldState?.meta.isBlurred,
+      validateField,
+      debouncedValidate,
+    ],
   );
 
   const handleBlur = useCallback(
     (e: React.FocusEvent) => {
       // Skip validation if clicking on a dialog close element
       const relatedTarget = e.relatedTarget;
-
       if (relatedTarget?.hasAttribute('data-dialog-close')) {
         return;
       }
@@ -171,21 +239,19 @@ export function useField(config: UseFieldConfig): UseFieldResult {
       }
 
       // Mark the field as having been blurred at least once
-      // This enables subsequent change validation
       setFieldBlurred(config.name);
 
-      // TODO: cache validation result if value hasn't changed.
-      void validateField(config.name);
+      // For validateOnChange fields, don't validate on blur - the debounced
+      // change validation handles it. For other fields, validate on blur.
+      if (!config.validateOnChange) {
+        void validateField(config.name);
+      }
     },
-    [config.name, setFieldBlurred, validateField],
+    [config.name, config.validateOnChange, setFieldBlurred, validateField],
   );
 
-  // Only show invalid state after the field has been blurred and is dirty
-  const showInvalid = Boolean(
-    fieldState?.meta.isBlurred &&
-      fieldState?.meta.isDirty &&
-      !fieldState?.meta.isValid,
-  );
+  // Show invalid styling when showing error text - keep them in sync
+  const showInvalid = shouldShowError;
 
   const result: UseFieldResult = {
     id,
@@ -205,10 +271,12 @@ export function useField(config: UseFieldConfig): UseFieldResult {
       'value': fieldState?.value,
       'onChange': handleChange,
       'onBlur': handleBlur,
+      'disabled': isDisabled ?? false,
+      'readOnly': isReadOnly ?? false,
       'aria-required': !!validationProps.required,
       'aria-invalid': showInvalid,
-      'aria-disabled': config.disabled ?? false,
-      'aria-readonly': config.readOnly ?? false,
+      'aria-disabled': isDisabled ?? false,
+      'aria-readonly': isReadOnly ?? false,
       /**
        * Set this so that screen readers can properly announce the hint and error messages.
        * If either the hint or error ID is not present, it will be ignored by the screen reader.

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
 import { expect, userEvent, within } from 'storybook/test';
-import { NumberCounterField } from './NumberCounterField';
+import NumberCounterField from './NumberCounterField';
 
 const meta: Meta<typeof NumberCounterField> = {
   title: 'Systems/Form/Fields/NumberCounterField',

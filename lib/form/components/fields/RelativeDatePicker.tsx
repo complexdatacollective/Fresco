@@ -1,7 +1,5 @@
-'use client';
-
-import { type CreateFormFieldProps } from '../Field/Field';
-import { InputField } from './InputField';
+import { type CreateFormFieldProps } from '../Field/types';
+import InputField from './InputField';
 
 type RelativeDatePickerFieldProps = CreateFormFieldProps<
   string,
@@ -30,7 +28,9 @@ function addDays(date: Date, days: number): Date {
   return result;
 }
 
-function RelativeDatePickerField(props: RelativeDatePickerFieldProps) {
+export default function RelativeDatePickerField(
+  props: RelativeDatePickerFieldProps,
+) {
   const {
     anchor,
     before = 180,
@@ -73,6 +73,3 @@ function RelativeDatePickerField(props: RelativeDatePickerFieldProps) {
     />
   );
 }
-
-export { RelativeDatePickerField };
-export default RelativeDatePickerField;

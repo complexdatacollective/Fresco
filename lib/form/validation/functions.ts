@@ -1,6 +1,6 @@
 import { invariant } from 'es-toolkit';
 import z from 'zod';
-import { type FieldValue, type ValidationContext } from '../types';
+import { type FieldValue, type ValidationContext } from '../store/types';
 import collectNetworkValues from './utils/collectNetworkValues';
 import compareVariables from './utils/compareVariables';
 import { getVariableDefinition } from './utils/getVariableDefinition';
@@ -458,6 +458,8 @@ const email = () => () => {
     .meta({ hint });
 };
 
+const custom = () => () => void 0; // Placeholder for custom validation handled elsewhere
+
 export const validations = {
   email,
   required,
@@ -473,4 +475,12 @@ export const validations = {
   sameAs,
   greaterThanVariable,
   lessThanVariable,
+  custom,
 };
+
+export const validationPropKeys = Object.keys(
+  validations,
+) as (keyof typeof validations)[];
+
+export type ValidationFunctionCatalogue = typeof validations;
+export type ValidationPropKey = (typeof validationPropKeys)[number];

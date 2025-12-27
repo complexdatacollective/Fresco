@@ -17,7 +17,7 @@ import {
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { AnimateNumber } from '../../../../components/ui/AnimateNumber';
 import { getInputState } from '../../utils/getInputState';
-import { type CreateFormFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/types';
 
 const numberCounterWrapperVariants = compose(
   heightVariants,
@@ -51,7 +51,7 @@ type NumberCounterFieldProps = CreateFormFieldProps<
   }
 >;
 
-function NumberCounterField(props: NumberCounterFieldProps) {
+export default function NumberCounterField(props: NumberCounterFieldProps) {
   const {
     id,
     name,
@@ -62,8 +62,6 @@ function NumberCounterField(props: NumberCounterFieldProps) {
     step = 1,
     size = 'md',
     className,
-    disabled,
-    readOnly,
     'aria-required': ariaRequired,
     'aria-invalid': ariaInvalid,
     'aria-describedby': ariaDescribedBy,
@@ -182,6 +180,3 @@ function NumberCounterField(props: NumberCounterFieldProps) {
     </div>
   );
 }
-
-export { NumberCounterField };
-export default NumberCounterField;

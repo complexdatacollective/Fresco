@@ -102,7 +102,6 @@
     "react-dom": "18.3.1",
     "react-dropzone": "^14.3.8",
     "react-flip-toolkit": "^7.2.4",
-    "react-hook-form": "^7.66.0",
     "react-markdown": "^10.1.0",
     "react-redux": "^9.2.0",
     "react-resize-aware": "^4.1.0",

@@ -13,7 +13,7 @@ import {
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { getInputState } from '../../utils/getInputState';
-import { type CreateFormFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/types';
 
 const inputWrapperVariants = compose(
   heightVariants,
@@ -54,7 +54,7 @@ type InputFieldProps = CreateFormFieldProps<
   }
 >;
 
-function InputField(props: InputFieldProps) {
+export default function InputField(props: InputFieldProps) {
   const {
     prefixComponent: prefix,
     suffixComponent: suffix,
@@ -90,6 +90,3 @@ function InputField(props: InputFieldProps) {
     </div>
   );
 }
-
-export { InputField };
-export default InputField;

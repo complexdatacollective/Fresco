@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
-import { ToggleButtonGroupField } from './ToggleButtonGroup';
+import ToggleButtonGroupField from './ToggleButtonGroup';
 
 const meta: Meta<typeof ToggleButtonGroupField> = {
   title: 'Systems/Form/Fields/ToggleButtonGroupField',

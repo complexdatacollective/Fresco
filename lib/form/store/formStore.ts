@@ -2,28 +2,41 @@ import { enableMapSet } from 'immer';
 import { z } from 'zod';
 import { immer } from 'zustand/middleware/immer';
 import { createStore } from 'zustand/vanilla';
+import { type FieldValue } from '../components/Field/types';
+import { setValue } from '../utils/objectPath';
+import { validateFieldValue } from '../validation/helpers';
 import type {
   FieldConfig,
   FieldState,
-  FieldValue,
   FlattenedErrors,
   FormConfig,
   FormSubmitHandler,
-} from '../types';
-import { setValue } from '../utils/objectPath';
-import { validateFieldValue } from '../validation/helpers';
+} from './types';
 
 // Enable Map/Set support in Immer
 enableMapSet();
 
+/**
+ * Helper to calculate form validity based on both field states and form-level errors.
+ * A form is valid only if all fields are valid AND there are no form-level errors.
+ */
+const calculateFormValidity = (
+  fields: Map<string, FieldState>,
+  formErrors: string[],
+): boolean => {
+  const allFieldsValid = Array.from(fields.values()).every(
+    (field) => field.meta.isValid,
+  );
+  return allFieldsValid && formErrors.length === 0;
+};
+
 export type FormStore = {
   fields: Map<string, FieldState>;
-  errors: FlattenedErrors | null;
+  errors: FlattenedErrors;
   isSubmitting: boolean;
   isValidating: boolean;
   isDirty: boolean;
   isValid: boolean;
-  context: Record<string, unknown>;
   submitHandler: FormSubmitHandler | null;
   submitInvalidHandler: ((errors: FlattenedErrors) => void) | null;
 
@@ -66,14 +79,13 @@ export const createFormStore = () => {
   return createStore<FormStore>()(
     immer((set, get, _store) => ({
       fields: new Map(),
-      errors: null,
+      errors: { formErrors: [], fieldErrors: {} },
 
       isSubmitting: false,
       isValidating: false,
       isDirty: false,
       isValid: true,
 
-      context: {},
       submitHandler: null,
       submitInvalidHandler: null,
 
@@ -87,14 +99,13 @@ export const createFormStore = () => {
       reset: () => {
         set((state) => {
           state.fields.clear();
-          state.errors = null;
+          state.errors = { formErrors: [], fieldErrors: {} };
           state.isSubmitting = false;
           state.isValidating = false;
           state.isDirty = false;
           state.isValid = true;
           state.submitHandler = null;
           state.submitInvalidHandler = null;
-          state.context = {};
         });
       },
 
@@ -109,12 +120,19 @@ export const createFormStore = () => {
               isTouched: false,
               isBlurred: false,
               isDirty: false,
-              isValid: false,
+              // Fields without validation are considered valid by default
+              isValid: !config.validation,
             },
           };
 
           // Store field state with dot notation key (flat structure)
           state.fields.set(config.name, fieldState);
+
+          // Recalculate form validity
+          state.isValid = calculateFormValidity(
+            state.fields,
+            state.errors.formErrors,
+          );
         });
       },
 
@@ -124,11 +142,35 @@ export const createFormStore = () => {
         if (currentState.fields.has(fieldName)) {
           set((state) => {
             state.fields.delete(fieldName);
+
+            // Clean up any errors for this field
+            if (state.errors.fieldErrors[fieldName]) {
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              const { [fieldName]: _removed, ...remainingFieldErrors } =
+                state.errors.fieldErrors;
+              state.errors = {
+                formErrors: state.errors.formErrors,
+                fieldErrors: remainingFieldErrors,
+              };
+            }
+
+            // Recalculate form validity
+            state.isValid = calculateFormValidity(
+              state.fields,
+              state.errors.formErrors,
+            );
           });
         }
       },
 
-      setErrors: (errors: FlattenedErrors | null) => {
+      setErrors: (errors) => {
+        if (errors === null) {
+          set((state) => {
+            state.errors = { formErrors: [], fieldErrors: {} };
+          });
+          return;
+        }
+
         set((state) => {
           state.errors = errors;
         });
@@ -231,7 +273,7 @@ export const createFormStore = () => {
                 };
 
                 form.errors = {
-                  ...prevFormErrors,
+                  formErrors: prevFormErrors.formErrors,
                   fieldErrors: {
                     ...prevFormErrors.fieldErrors,
                     [fieldName]: result.error.issues.map(
@@ -240,9 +282,10 @@ export const createFormStore = () => {
                   },
                 };
 
-                // Update form-level isValid
-                form.isValid = Array.from(form.fields.values()).every(
-                  (field) => field.meta.isValid,
+                // Update form-level isValid (considers both field and form-level errors)
+                form.isValid = calculateFormValidity(
+                  form.fields,
+                  form.errors.formErrors,
                 );
               }
             });
@@ -253,29 +296,20 @@ export const createFormStore = () => {
                 form.fields.get(fieldName)!.meta.isValidating = false;
                 form.fields.get(fieldName)!.meta.isValid = true;
 
-                // Remove errors for this field from the unified error store
-                if (form.errors) {
-                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                  const { [fieldName]: _removed, ...remainingFieldErrors } =
-                    form.errors.fieldErrors;
+                // Set empty errors array for this field (not undefined/removed)
+                // This allows consumers to distinguish "validated with no errors" from "never validated"
+                form.errors = {
+                  formErrors: form.errors.formErrors,
+                  fieldErrors: {
+                    ...form.errors.fieldErrors,
+                    [fieldName]: [],
+                  },
+                };
 
-                  // Check if there are any errors left
-                  if (
-                    Object.keys(remainingFieldErrors).length === 0 &&
-                    form.errors.formErrors.length === 0
-                  ) {
-                    form.errors = null;
-                  } else {
-                    form.errors = {
-                      formErrors: form.errors.formErrors,
-                      fieldErrors: remainingFieldErrors,
-                    };
-                  }
-                }
-
-                // Update form-level isValid
-                form.isValid = Array.from(form.fields.values()).every(
-                  (field) => field.meta.isValid,
+                // Update form-level isValid (considers both field and form-level errors)
+                form.isValid = calculateFormValidity(
+                  form.fields,
+                  form.errors.formErrors,
                 );
               }
             });
@@ -288,22 +322,18 @@ export const createFormStore = () => {
               form.fields.get(fieldName)!.meta.isValidating = false;
 
               // Add error to the unified error store
-              const currentErrors = form.errors ?? {
-                formErrors: [],
-                fieldErrors: {},
-              };
-
               form.errors = {
-                formErrors: currentErrors.formErrors,
+                formErrors: form.errors.formErrors,
                 fieldErrors: {
-                  ...currentErrors.fieldErrors,
+                  ...form.errors.fieldErrors,
                   [fieldName]: ['Something went wrong during validation'],
                 },
               };
 
-              // Update form-level isValid
-              form.isValid = Array.from(form.fields.values()).every(
-                (field) => field.meta.isValid,
+              // Update form-level isValid (considers both field and form-level errors)
+              form.isValid = calculateFormValidity(
+                form.fields,
+                form.errors.formErrors,
               );
             }
           });
@@ -314,6 +344,12 @@ export const createFormStore = () => {
         const state = get();
         const fields = state.fields;
         const fieldErrors: Record<string, string[]> = {};
+
+        // Collect field meta updates to apply in a single batch
+        const fieldMetaUpdates = new Map<
+          string,
+          { isValid: boolean; markAsTouched?: boolean }
+        >();
 
         // First validate all fields
         const fieldValidationPromises = Array.from(fields.entries()).map(
@@ -332,57 +368,67 @@ export const createFormStore = () => {
 
         const fieldResults = await Promise.all(fieldValidationPromises);
 
-        // Process validation results and collect errors
+        // Process validation results and collect errors and meta updates
         fieldResults.forEach(({ fieldName, result }) => {
           if (result && !result.success) {
             // Field has validation errors - flatten and collect
-            const flattened = z.flattenError(result.error);
+            const flattened = z.flattenError(result.error) as FlattenedErrors;
+
             // Errors can be in formErrors (no path) or fieldErrors (with nested paths)
             // Combine them for this field
             const combinedErrors = [
               ...flattened.formErrors,
               ...(flattened.fieldErrors[fieldName] ?? []),
             ] as string[];
+
             if (combinedErrors.length > 0) {
               fieldErrors[fieldName] = combinedErrors;
             }
 
-            // Mark field as touched, blurred, and dirty so errors will show
-            set((draft) => {
-              const field = draft.fields.get(fieldName);
-              if (field) {
-                field.meta.isTouched = true;
-                field.meta.isBlurred = true;
-                field.meta.isDirty = true;
-                field.meta.isValid = false;
-              }
+            // Mark for update: touched, blurred, dirty, and invalid
+            fieldMetaUpdates.set(fieldName, {
+              isValid: false,
+              markAsTouched: true,
             });
           } else if (result?.success) {
             // Field is valid
-            set((draft) => {
-              const field = draft.fields.get(fieldName);
-              if (field) {
-                field.meta.isValid = true;
-              }
-            });
+            fieldMetaUpdates.set(fieldName, { isValid: true });
           }
         });
 
-        // Update the unified error store
-        if (Object.keys(fieldErrors).length > 0) {
-          set((draft) => {
+        // Apply all updates in a single batch
+        set((draft) => {
+          // Apply field meta updates
+          fieldMetaUpdates.forEach(({ isValid, markAsTouched }, fieldName) => {
+            const field = draft.fields.get(fieldName);
+            if (field) {
+              field.meta.isValid = isValid;
+              if (markAsTouched) {
+                field.meta.isTouched = true;
+                field.meta.isBlurred = true;
+                field.meta.isDirty = true;
+              }
+            }
+          });
+
+          // Update the unified error store, preserving any existing form-level errors
+          const existingFormErrors = draft.errors.formErrors;
+
+          if (Object.keys(fieldErrors).length > 0) {
             draft.errors = {
-              formErrors: [], // Form-level validation happens separately
+              formErrors: existingFormErrors,
               fieldErrors,
             };
             draft.isValid = false;
-          });
-        } else {
-          set((draft) => {
-            draft.errors = null;
-            draft.isValid = true;
-          });
-        }
+          } else {
+            draft.errors = {
+              formErrors: existingFormErrors,
+              fieldErrors: {},
+            };
+            // Only mark as valid if there are no form-level errors either
+            draft.isValid = existingFormErrors.length === 0;
+          }
+        });
 
         return Object.keys(fieldErrors).length === 0;
       },
@@ -411,74 +457,65 @@ export const createFormStore = () => {
 
       resetForm: () => {
         set((state) => {
-          const form = state;
-          const fields = state.fields;
-
-          if (!form || !fields) return;
-
-          // Reset all fields to their initial values
-          Array.from(fields.keys()).forEach((fieldName) => {
-            state.resetField(fieldName);
+          // Reset all fields to their initial values (inline to avoid nested set calls)
+          state.fields.forEach((fieldState, fieldName) => {
+            state.fields.set(fieldName, {
+              ...fieldState,
+              value: fieldState.initialValue,
+              meta: {
+                isValidating: false,
+                isTouched: false,
+                isBlurred: false,
+                isDirty: false,
+                // Fields without validation are valid by default
+                isValid: !fieldState.validation,
+              },
+            });
           });
 
           // Reset form-level state
-          form.errors = null;
-          form.isSubmitting = false;
-          form.isValidating = false;
-          form.isValid = true;
+          state.errors = { formErrors: [], fieldErrors: {} };
+          state.isSubmitting = false;
+          state.isValidating = false;
+          state.isDirty = false;
+          state.isValid = calculateFormValidity(state.fields, []);
         });
       },
 
       resetField: (fieldName) => {
         set((state) => {
-          const form = state;
-          const fields = state.fields;
+          const fieldConfig = state.fields.get(fieldName);
+          if (!fieldConfig) return;
 
-          if (
-            !form ||
-            !fields ||
-            !Array.from(fields.keys()).includes(fieldName)
-          )
-            return;
+          const initialValue = fieldConfig.initialValue;
 
-          const fieldConfig = fields.get(fieldName);
-          const initialValue = fieldConfig?.initialValue ?? undefined;
-
-          fields.set(fieldName, {
-            ...fieldConfig!,
+          state.fields.set(fieldName, {
+            ...fieldConfig,
             value: initialValue,
             meta: {
               isValidating: false,
               isTouched: false,
               isBlurred: false,
               isDirty: false,
-              isValid: true,
+              // Fields without validation are valid by default
+              isValid: !fieldConfig.validation,
             },
           });
 
           // Remove errors for this field from the unified error store
-          if (form.errors) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { [fieldName]: _removed, ...remainingFieldErrors } =
-              form.errors.fieldErrors;
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { [fieldName]: _removed, ...remainingFieldErrors } =
+            state.errors.fieldErrors;
 
-            // Check if there are any errors left
-            if (
-              Object.keys(remainingFieldErrors).length === 0 &&
-              form.errors.formErrors.length === 0
-            ) {
-              form.errors = null;
-            } else {
-              form.errors = {
-                formErrors: form.errors.formErrors,
-                fieldErrors: remainingFieldErrors,
-              };
-            }
-          }
+          state.errors = {
+            formErrors: state.errors.formErrors,
+            fieldErrors: remainingFieldErrors,
+          };
 
-          // Update form-level isValid
-          form.isValid = Array.from(form.fields.keys()).every(
-            (fieldName) => fields.get(fieldName)?.meta.isValid,
+          // Update form-level isValid (considers both field and form-level errors)
+          state.isValid = calculateFormValidity(
+            state.fields,
+            state.errors.formErrors,
           );
         });
       },

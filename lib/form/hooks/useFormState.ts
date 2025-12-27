@@ -1,7 +1,7 @@
 import { useShallow } from 'zustand/react/shallow';
+import type { FieldValue } from '../components/Field/types';
 import { type FormStore } from '../store/formStore';
-import { useFormStore } from '../store/formStoreProvider';
-import type { FieldValue } from '../types';
+import useFormStore from './useFormStore';
 
 /**
  * Hook to access form state values and submission method.

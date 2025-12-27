@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { getValue, setValue } from '../utils/objectPath';
+import { describe, expect, it } from 'vitest';
+import { getValue, setValue } from './objectPath';
 
 describe('Object Path Utils', () => {
   describe('getValue', () => {

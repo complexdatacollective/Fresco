@@ -1,6 +1,7 @@
 'use client';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { Check, Loader2, X } from 'lucide-react';
 import { action } from 'storybook/actions';
 import { z } from 'zod';
 import Field from '~/lib/form/components/Field/Field';
@@ -11,6 +12,8 @@ import InputField from '~/lib/form/components/fields/InputField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import SelectField from '~/lib/form/components/fields/Select/Native';
 import TextAreaField from '~/lib/form/components/fields/TextArea';
+import useFormStore from '~/lib/form/hooks/useFormStore';
+import { cx } from '~/utils/cva';
 
 const meta: Meta<typeof Form> = {
   title: 'Systems/Form/Form',
@@ -56,6 +59,108 @@ export const Default: Story = {
   ),
 };
 
+// ═══════════════════════════════════════════════════════════════
+// Custom ValidatedInputField with validation state indicators
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * An InputField wrapper that shows visual validation state indicators:
+ * - Loading spinner while validating
+ * - Green check when valid (with value)
+ * - Red X when invalid (with value)
+ */
+function ValidatedInputField(props: React.ComponentProps<typeof InputField>) {
+  const { name, value } = props;
+
+  // Access field state directly from the form store
+  const fieldState = useFormStore((state) =>
+    name ? state.getFieldState(name) : undefined,
+  );
+
+  // Get field errors - null means validation hasn't run yet
+  const fieldErrors = useFormStore((state) =>
+    name ? state.getFieldErrors(name) : null,
+  );
+
+  const hasValue = Boolean(value && String(value).length > 0);
+  const isValidating = fieldState?.meta.isValidating ?? false;
+  const isValid = fieldState?.meta.isValid ?? false;
+
+  // Only show valid/invalid after validation has actually run
+  // fieldErrors is null before first validation, [] or ['error'] after
+  const hasBeenValidated = fieldErrors !== null;
+
+  // Determine which suffix to show
+  const getSuffix = () => {
+    // Show loading spinner while validating
+    if (isValidating) {
+      return (
+        <Loader2
+          className="animate-spin text-current/30"
+          aria-label="Validating..."
+        />
+      );
+    }
+
+    // Show valid/invalid indicators only after validation has run
+    if (hasValue && hasBeenValidated) {
+      if (isValid) {
+        return <Check className={cx('text-success')} aria-label="Valid" />;
+      } else {
+        return <X className={cx('text-destructive')} aria-label="Invalid" />;
+      }
+    }
+
+    return null;
+  };
+
+  return <InputField {...props} suffixComponent={getSuffix()} />;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Async validation for username availability
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Simulates an async HTTP request to check username availability.
+ * Has a 50% chance of failing to demonstrate error handling.
+ */
+const checkUsernameAvailability = async (
+  username: string,
+): Promise<boolean> => {
+  // Simulate network delay (500-1500ms)
+  await new Promise((resolve) =>
+    setTimeout(resolve, 500 + Math.random() * 1000),
+  );
+
+  // 50% chance of "username taken"
+  const isAvailable = Math.random() > 0.5;
+
+  // Log for debugging in storybook
+  // eslint-disable-next-line no-console
+  console.log(
+    `[Async Validation] Username "${username}" is ${isAvailable ? 'available ✓' : 'taken ✗'}`,
+  );
+
+  return isAvailable;
+};
+
+/**
+ * Async validation schema that combines sync validation (min length)
+ * with async validation (username availability check).
+ */
+const usernameSchema = z
+  .string()
+  .min(3, 'Username must be at least 3 characters')
+  .refine(
+    async (username) => {
+      // Skip async validation for short usernames (sync validation will catch it)
+      if (username.length < 3) return true;
+      return await checkUsernameAvailability(username);
+    },
+    { message: 'This username is already taken. Try another one.' },
+  );
+
 export const WithValidation: Story = {
   render: () => (
     <Form
@@ -64,12 +169,23 @@ export const WithValidation: Story = {
         return Promise.resolve({ success: true });
       }}
     >
+      <div className="bg-surface-1 text-text/70 mb-4 rounded-sm p-3 text-sm">
+        <strong>Async Validation Demo:</strong> The username field uses{' '}
+        <code className="bg-surface-2 rounded px-1">validateOnChange</code> to
+        validate on every keystroke. It simulates checking availability via an
+        HTTP request with a 50% chance of &quot;taken&quot;. Watch the spinner,
+        check, and X icons as you type!
+      </div>
       <Field
         name="username"
         label="Username"
-        component={InputField}
+        component={ValidatedInputField}
+        validateOnChange
         required
-        minLength={3}
+        custom={{
+          schema: usernameSchema,
+          hint: 'Must be at least 3 characters and available',
+        }}
       />
       <Field
         name="email"
@@ -106,51 +222,10 @@ export const WithValidation: Story = {
     docs: {
       description: {
         story:
-          'Form with various validation rules. Errors appear after blurring a field, then validate on subsequent changes. Try submitting with invalid data to see all errors.',
-      },
-    },
-  },
-};
-
-export const BlurThenChangeValidation: Story = {
-  render: () => (
-    <Form
-      onSubmit={(data) => {
-        action('form-submitted')(data);
-        return Promise.resolve({ success: true });
-      }}
-    >
-      <div className="bg-info/10 text-info rounded-sm p-4 text-sm">
-        <p className="font-medium">Validation Behavior:</p>
-        <ol className="mt-2 list-inside list-decimal space-y-1">
-          <li>Start typing - no errors shown yet</li>
-          <li>Click away (blur) - field validates, errors appear if invalid</li>
-          <li>Continue typing - errors update in real-time</li>
-        </ol>
-      </div>
-      <Field
-        name="email"
-        label="Email"
-        component={InputField}
-        custom={{
-          schema: z.email('Enter a valid email address'),
-          hint: 'Type something invalid, then click away to see validation',
-        }}
-      />
-      <Field
-        name="minLength"
-        label="Minimum Length Field"
-        component={InputField}
-        minLength={5}
-      />
-      <SubmitButton>Submit</SubmitButton>
-    </Form>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Demonstrates the "blur first, then validate on change" pattern. Users are not bombarded with errors while typing their first characters, but get real-time feedback on subsequent edits.',
+          'Form with various validation rules including **async validation** on the username field. ' +
+          'The username check simulates an HTTP request with a 50% chance of failing. ' +
+          'Sync validations (min length) run first, then async validation runs. ' +
+          'Errors appear after blurring a field, then validate on subsequent changes.',
       },
     },
   },
@@ -426,81 +501,6 @@ export const MultiFieldCondition: Story = {
       description: {
         story:
           'FieldGroup can watch multiple fields and show content based on combined conditions. Select "Researcher" + "Advanced" or "Student" + "Beginner" to see conditional content.',
-      },
-    },
-  },
-};
-
-export const FormWithAllFieldTypes: Story = {
-  render: () => (
-    <Form
-      onSubmit={(data) => {
-        action('form-submitted')(data);
-        return Promise.resolve({ success: true });
-      }}
-    >
-      <Field
-        name="fullName"
-        label="Full Name"
-        hint="Enter your first and last name"
-        component={InputField}
-        required
-      />
-
-      <Field
-        name="email"
-        label="Email Address"
-        component={InputField}
-        required
-        custom={{
-          schema: z.email('Invalid email format'),
-          hint: 'Enter a valid email',
-        }}
-      />
-
-      <Field
-        name="country"
-        label="Country"
-        component={SelectField}
-        options={[
-          { value: '', label: 'Select your country...' },
-          { value: 'us', label: 'United States' },
-          { value: 'uk', label: 'United Kingdom' },
-          { value: 'ca', label: 'Canada' },
-          { value: 'au', label: 'Australia' },
-          { value: 'other', label: 'Other' },
-        ]}
-        required
-      />
-
-      <Field
-        name="gender"
-        label="Gender"
-        component={RadioGroupField}
-        options={[
-          { value: 'male', label: 'Male' },
-          { value: 'female', label: 'Female' },
-          { value: 'other', label: 'Other' },
-          { value: 'prefer_not_to_say', label: 'Prefer not to say' },
-        ]}
-      />
-
-      <Field
-        name="bio"
-        label="Short Bio"
-        hint="Tell us about yourself"
-        component={TextAreaField}
-        maxLength={500}
-      />
-
-      <SubmitButton>Save Profile</SubmitButton>
-    </Form>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'A complete form example showcasing various field types: text input, email with validation, select dropdown, radio group, and textarea.',
       },
     },
   },

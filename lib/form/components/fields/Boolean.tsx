@@ -13,7 +13,7 @@ import {
   stateVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx } from '~/utils/cva';
-import { type CreateFormFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/types';
 
 type BooleanOption = {
   label: string;
@@ -26,7 +26,10 @@ const buttonVariants = compose(
   groupSpacingVariants,
   stateVariants,
   cva({
-    base: cx('elevation-low flex gap-3 text-left', 'focusable'),
+    base: cx(
+      'elevation-low flex grow basis-1/2 justify-start gap-3',
+      'focusable',
+    ),
     variants: {
       selected: {
         true: '',
@@ -62,7 +65,7 @@ const booleanIndicatorVariants = compose(
   inputControlVariants,
   cva({
     base: cx(
-      'flex aspect-square shrink-0 items-center justify-center rounded-full',
+      'm-2 flex aspect-square shrink-0 items-center justify-center rounded-full',
       'transition-colors duration-200',
     ),
     variants: {
@@ -116,7 +119,7 @@ const booleanIndicatorVariants = compose(
 );
 
 type BooleanFieldProps = CreateFormFieldProps<
-  boolean | null,
+  boolean,
   'div',
   Omit<
     RadioGroupProps,
@@ -213,7 +216,7 @@ function BooleanIndicator({
   );
 }
 
-function BooleanField(props: BooleanFieldProps) {
+export default function BooleanField(props: BooleanFieldProps) {
   const {
     className,
     value,
@@ -248,11 +251,16 @@ function BooleanField(props: BooleanFieldProps) {
   const buttonState = getButtonState();
 
   return (
-    <fieldset className={cx('w-full space-y-2 border-0 p-0', className)}>
+    <fieldset
+      className={cx(
+        'flex w-full flex-col items-start gap-2 border-0 p-0',
+        className,
+      )}
+    >
       {label && <legend className="sr-only">{label}</legend>}
       <div
         className={cx(
-          '-m-1 rounded-sm p-1',
+          '-m-1 w-full rounded-sm p-1',
           'transition-colors duration-200',
           isInvalid && 'border-destructive border-2',
         )}
@@ -264,7 +272,7 @@ function BooleanField(props: BooleanFieldProps) {
           disabled={disabled}
           readOnly={readOnly}
           aria-invalid={isInvalid || undefined}
-          className="flex gap-2"
+          className="flex gap-4"
         >
           {options.map((option) => {
             const isSelected = value === option.value;
@@ -285,6 +293,7 @@ function BooleanField(props: BooleanFieldProps) {
                       selected: isSelected,
                       positive: isPositive,
                       state: buttonState,
+                      className: 'text-left',
                     })}
                   >
                     <BooleanIndicator
@@ -305,8 +314,8 @@ function BooleanField(props: BooleanFieldProps) {
       {!noReset && (
         <Button
           variant="link"
-          onClick={() => onChange?.(null)}
-          disabled={disabled || readOnly}
+          onClick={() => onChange?.(undefined)}
+          disabled={disabled ?? readOnly}
           size="sm"
         >
           Reset answer
@@ -315,6 +324,3 @@ function BooleanField(props: BooleanFieldProps) {
     </fieldset>
   );
 }
-
-export { BooleanField };
-export default BooleanField;

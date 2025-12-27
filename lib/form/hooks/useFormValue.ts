@@ -1,5 +1,5 @@
 import { useShallow } from 'zustand/react/shallow';
-import { type FieldValue } from '../types';
+import { type FieldValue } from '../components/Field/types';
 import useFormStore from './useFormStore';
 
 /**

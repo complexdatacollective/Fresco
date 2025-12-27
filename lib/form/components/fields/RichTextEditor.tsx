@@ -1,5 +1,3 @@
-'use client';
-
 import { Toggle } from '@base-ui/react/toggle';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { Toolbar } from '@base-ui/react/toolbar';
@@ -41,7 +39,7 @@ import {
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx } from '~/utils/cva';
 import { getInputState } from '../../utils/getInputState';
-import { type CreateFormFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/types';
 
 const ToolbarButton = (props: Toolbar.Button.Props) => {
   return <Toolbar.Button {...props} render={<Toggle />} />;
@@ -233,7 +231,7 @@ function normalizeToolbarOptions(options?: ToolbarOptions) {
   };
 }
 
-function RichTextEditorField({
+export default function RichTextEditorField({
   id,
   name,
   value,
@@ -565,6 +563,3 @@ function RichTextEditorField({
     </div>
   );
 }
-
-export { RichTextEditorField };
-export default RichTextEditorField;

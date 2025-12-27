@@ -8,9 +8,7 @@ import {
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { getInputState } from '../../utils/getInputState';
-import { type CreateFormFieldProps } from '../Field/Field';
-
-type ToggleState = 'normal' | 'disabled' | 'readOnly' | 'invalid';
+import { type CreateFormFieldProps } from '../Field/types';
 
 const toggleContainerVariants = compose(
   controlVariants,
@@ -112,7 +110,7 @@ type ToggleFieldProps = CreateFormFieldProps<
   VariantProps<typeof toggleContainerVariants>
 >;
 
-function ToggleField(props: ToggleFieldProps) {
+export default function ToggleField(props: ToggleFieldProps) {
   const {
     id,
     name,
@@ -126,7 +124,7 @@ function ToggleField(props: ToggleFieldProps) {
   } = props;
 
   const isInvalid = !!rest['aria-invalid'];
-  const state = getInputState(props) as ToggleState;
+  const state = getInputState(props);
 
   return (
     <Switch.Root
@@ -170,6 +168,3 @@ function ToggleField(props: ToggleFieldProps) {
     </Switch.Root>
   );
 }
-
-export { ToggleField };
-export default ToggleField;

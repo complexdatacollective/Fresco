@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
-import { VisualAnalogScaleField } from './VisualAnalogScale';
+import VisualAnalogScaleField from './VisualAnalogScale';
 
 const meta: Meta<typeof VisualAnalogScaleField> = {
   title: 'Systems/Form/Fields/VisualAnalogScaleField',

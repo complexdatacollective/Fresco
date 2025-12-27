@@ -15,7 +15,7 @@ import {
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { getInputState } from '../../utils/getInputState';
-import { type CreateFormFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/types';
 
 const radioGroupWrapperVariants = compose(
   controlVariants,
@@ -82,7 +82,7 @@ type RadioGroupFieldProps = CreateFormFieldProps<
     }
 >;
 
-function RadioGroupField(props: RadioGroupFieldProps) {
+export default function RadioGroupField(props: RadioGroupFieldProps) {
   const {
     id,
     className,
@@ -210,6 +210,3 @@ function RadioGroupField(props: RadioGroupFieldProps) {
     </div>
   );
 }
-
-export { RadioGroupField };
-export default RadioGroupField;

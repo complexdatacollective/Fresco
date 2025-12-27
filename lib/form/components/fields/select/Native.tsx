@@ -1,8 +1,8 @@
 import { isEmpty } from 'es-toolkit/compat';
+import { getInputState } from '~/lib/form/utils/getInputState';
 import { nativeSelectVariants } from '~/styles/shared/controlVariants';
 import { cx, type VariantProps } from '~/utils/cva';
-import { getInputState } from '../../../utils/getInputState';
-import { type CreateFormFieldProps } from '../../Field/Field';
+import { type CreateFormFieldProps } from '../../Field/types';
 import { type SelectOption, selectWrapperVariants } from './shared';
 
 export type SelectProps = CreateFormFieldProps<
@@ -11,9 +11,9 @@ export type SelectProps = CreateFormFieldProps<
   {
     placeholder?: string;
     options: SelectOption[];
+    size?: VariantProps<typeof selectWrapperVariants>['size'];
   }
-> &
-  VariantProps<typeof selectWrapperVariants>;
+>;
 
 export default function SelectField(props: SelectProps) {
   const {
@@ -60,11 +60,7 @@ export default function SelectField(props: SelectProps) {
           !hasValue && 'text-input-contrast/50 italic',
         )}
       >
-        {placeholder && (
-          <option value="">
-            {placeholder}
-          </option>
-        )}
+        {placeholder && <option value="">{placeholder}</option>}
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}

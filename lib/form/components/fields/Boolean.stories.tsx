@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
-import { BooleanField } from './Boolean';
+import BooleanField from './Boolean';
 
 const meta: Meta<typeof BooleanField> = {
   title: 'Systems/Form/Fields/BooleanField',

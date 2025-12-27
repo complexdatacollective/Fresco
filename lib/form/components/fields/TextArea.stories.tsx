@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
-import { TextAreaField } from './TextArea';
+import TextAreaField from './TextArea';
 
 const meta: Meta<typeof TextAreaField> = {
   title: 'Systems/Form/Fields/TextAreaField',

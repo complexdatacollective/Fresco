@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { CheckboxGroupField } from './CheckboxGroup';
+import CheckboxGroupField from './CheckboxGroup';
 
 const meta = {
   title: 'Systems/Form/Fields/CheckboxGroup',

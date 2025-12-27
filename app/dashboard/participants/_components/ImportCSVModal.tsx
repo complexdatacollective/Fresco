@@ -2,7 +2,6 @@
 
 import { FileDown, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { ZodError } from 'zod';
 import { importParticipants } from '~/actions/participants';
 import Paragraph from '~/components/typography/Paragraph';
@@ -10,26 +9,40 @@ import UnorderedList from '~/components/typography/UnorderedList';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
-import { Dialog } from '~/lib/dialogs/Dialog';
+import Dialog from '~/lib/dialogs/Dialog';
+import { FormWithoutProvider } from '~/lib/form/components/Form';
+import { useFormMeta } from '~/lib/form/hooks/useFormState';
+import FormStoreProvider from '~/lib/form/store/formStoreProvider';
+import type { FormSubmissionResult } from '~/lib/form/store/types';
 import { FormSchema } from '~/schemas/participant';
 import DropzoneField from './DropzoneField';
 
-const ImportCSVModal = ({
+function ImportButton() {
+  const { isSubmitting, isValid } = useFormMeta();
+
+  return (
+    <Button
+      disabled={isSubmitting || !isValid}
+      form="uploadFile"
+      type="submit"
+      color="primary"
+    >
+      {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      {isSubmitting ? 'Importing...' : 'Import'}
+    </Button>
+  );
+}
+
+function ImportDialogContent({
+  onClose,
   onImportComplete,
 }: {
+  onClose: () => void;
   onImportComplete?: () => void;
-}) => {
+}) {
   const { toast } = useToast();
-  const { control, handleSubmit, reset, formState } = useForm<FormSchema>({
-    shouldUnregister: true,
-    mode: 'onChange',
-  });
 
-  const { isSubmitting, isValid } = formState;
-
-  const [showImportDialog, setShowImportDialog] = useState(false);
-
-  const onSubmit = async (data: unknown) => {
+  const handleSubmit = async (data: unknown): Promise<FormSubmissionResult> => {
     try {
       const safeData = FormSchema.parse(data);
       const result = await importParticipants(safeData.csvFile);
@@ -67,11 +80,9 @@ const ImportCSVModal = ({
       }
 
       onImportComplete?.();
-
-      reset();
-      setShowImportDialog(false);
+      onClose();
+      return { success: true };
     } catch (e) {
-      // if it's a validation error, show the error message
       if (e instanceof ZodError) {
         toast({
           title: 'Error',
@@ -80,7 +91,10 @@ const ImportCSVModal = ({
             : 'Invalid CSV file. Please check the file requirements and try again.',
           variant: 'destructive',
         });
-        return;
+        return {
+          success: false,
+          formErrors: [e.issues[0]?.message ?? 'Invalid CSV file'],
+        };
       }
       // eslint-disable-next-line no-console
       console.log(e);
@@ -89,34 +103,23 @@ const ImportCSVModal = ({
         description: 'An error occurred while importing participants',
         variant: 'destructive',
       });
+      return {
+        success: false,
+        formErrors: ['An error occurred while importing participants'],
+      };
     }
   };
 
   return (
-    <>
-      <Button className="w-full" onClick={() => setShowImportDialog(true)}>
-        <FileDown className="mr-2 h-4 w-4" />
-        Import participants
-      </Button>
-
+    <FormStoreProvider>
       <Dialog
-        open={showImportDialog}
-        closeDialog={() => setShowImportDialog(false)}
+        open={true}
+        closeDialog={onClose}
         title="Import participants"
         footer={
           <>
-            <Button onClick={() => setShowImportDialog(false)}>Cancel</Button>
-            <Button
-              disabled={isSubmitting || !isValid}
-              form="uploadFile"
-              type="submit"
-              color="primary"
-            >
-              {isSubmitting && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              {isSubmitting ? 'Importing...' : 'Import'}
-            </Button>
+            <Button onClick={onClose}>Cancel</Button>
+            <ImportButton />
           </>
         }
       >
@@ -146,14 +149,38 @@ const ImportCSVModal = ({
             </Paragraph>
           </AlertDescription>
         </Alert>
-        <form
+        <FormWithoutProvider
           id="uploadFile"
-          onSubmit={handleSubmit(async (data) => await onSubmit(data))}
+          onSubmit={handleSubmit}
           className="mt-4 flex w-full flex-col"
         >
-          <DropzoneField control={control} name="csvFile" />
-        </form>
+          <DropzoneField name="csvFile" />
+        </FormWithoutProvider>
       </Dialog>
+    </FormStoreProvider>
+  );
+}
+
+const ImportCSVModal = ({
+  onImportComplete,
+}: {
+  onImportComplete?: () => void;
+}) => {
+  const [showImportDialog, setShowImportDialog] = useState(false);
+
+  return (
+    <>
+      <Button className="w-full" onClick={() => setShowImportDialog(true)}>
+        <FileDown className="mr-2 h-4 w-4" />
+        Import participants
+      </Button>
+
+      {showImportDialog && (
+        <ImportDialogContent
+          onClose={() => setShowImportDialog(false)}
+          onImportComplete={onImportComplete}
+        />
+      )}
     </>
   );
 };

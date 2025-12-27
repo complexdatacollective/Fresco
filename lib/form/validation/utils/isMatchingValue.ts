@@ -1,4 +1,4 @@
-import { type FieldValue } from '../../types';
+import { type FieldValue } from '../../store/types';
 
 /**
  * Compares two FieldValue types to determine if they match.

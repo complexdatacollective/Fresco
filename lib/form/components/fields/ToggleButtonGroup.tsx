@@ -11,7 +11,7 @@ import {
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { getInputState } from '../../utils/getInputState';
-import { type CreateFormFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/types';
 
 // Compose fieldset wrapper variants
 const toggleButtonGroupComposedVariants = compose(
@@ -115,7 +115,7 @@ type ToggleButtonGroupProps = CreateFormFieldProps<
 > &
   VariantProps<typeof toggleButtonGroupComposedVariants>;
 
-function ToggleButtonGroupField(props: ToggleButtonGroupProps) {
+export default function ToggleButtonGroupField(props: ToggleButtonGroupProps) {
   const {
     id,
     className,
@@ -216,6 +216,3 @@ function ToggleButtonGroupField(props: ToggleButtonGroupProps) {
     </fieldset>
   );
 }
-
-export { ToggleButtonGroupField };
-export default ToggleButtonGroupField;

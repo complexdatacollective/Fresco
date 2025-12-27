@@ -3,7 +3,7 @@
 import * as Slider from '@radix-ui/react-slider';
 import { scaleSliderStyles } from '~/styles/shared/controlVariants';
 import { cx } from '~/utils/cva';
-import { type CreateFormFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/types';
 
 type VisualAnalogScaleFieldProps = CreateFormFieldProps<
   number,
@@ -17,7 +17,7 @@ type VisualAnalogScaleFieldProps = CreateFormFieldProps<
   }
 >;
 
-function VisualAnalogScaleField({
+export default function VisualAnalogScaleField({
   className,
   value = 0,
   onChange,
@@ -79,6 +79,3 @@ function VisualAnalogScaleField({
     </div>
   );
 }
-
-export { VisualAnalogScaleField };
-export default VisualAnalogScaleField;

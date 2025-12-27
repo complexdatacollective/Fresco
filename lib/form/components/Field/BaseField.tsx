@@ -41,12 +41,10 @@ export function BaseField({
       <FieldLabel id={`${id}-label`} htmlFor={id} required={required}>
         {label}
       </FieldLabel>
-      {(hint ?? validationSummary) && (
-        <Hint id={`${id}-hint`}>
-          {hint && <Paragraph>{hint}</Paragraph>}
-          {validationSummary}
-        </Hint>
-      )}
+      <Hint id={`${id}-hint`}>
+        {hint && <Paragraph>{hint}</Paragraph>}
+        {validationSummary}
+      </Hint>
       {children}
       <FieldErrors id={`${id}-error`} errors={errors} show={showErrors} />
     </div>

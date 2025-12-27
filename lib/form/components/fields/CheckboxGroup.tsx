@@ -9,7 +9,7 @@ import {
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { getInputState } from '../../utils/getInputState';
-import { type CreateFormFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/types';
 import { Checkbox } from './Checkbox';
 
 // Compose fieldset wrapper variants
@@ -44,7 +44,7 @@ type CheckboxGroupProps = CreateFormFieldProps<
 > &
   VariantProps<typeof checkboxGroupComposedVariants>;
 
-function CheckboxGroupField(props: CheckboxGroupProps) {
+export default function CheckboxGroupField(props: CheckboxGroupProps) {
   const {
     id,
     className,
@@ -131,6 +131,3 @@ function CheckboxGroupField(props: CheckboxGroupProps) {
     </div>
   );
 }
-
-export { CheckboxGroupField };
-export default CheckboxGroupField;

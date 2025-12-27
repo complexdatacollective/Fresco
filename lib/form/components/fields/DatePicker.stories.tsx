@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
-import { DatePickerField } from './DatePicker';
+import DatePickerField from './DatePicker';
 
 const meta: Meta<typeof DatePickerField> = {
   title: 'Systems/Form/Fields/DatePickerField',
@@ -11,10 +11,6 @@ const meta: Meta<typeof DatePickerField> = {
   tags: ['autodocs'],
   argTypes: {
     'aria-invalid': { control: 'boolean' },
-    'disabled': {
-      control: 'boolean',
-      description: 'Whether the date picker is disabled',
-    },
     'readOnly': {
       control: 'boolean',
       description: 'Whether the date picker is read-only',

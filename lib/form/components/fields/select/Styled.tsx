@@ -1,9 +1,9 @@
 import { Select } from '@base-ui/react/select';
 import { Check, ChevronDown } from 'lucide-react';
 import { type ComponentPropsWithoutRef } from 'react';
+import { type CreateFormFieldProps } from '~/lib/form/components/Field/Field';
+import { getInputState } from '~/lib/form/utils/getInputState';
 import { cva, cx, type VariantProps } from '~/utils/cva';
-import { getInputState } from '../../../utils/getInputState';
-import { type CreateFormFieldProps } from '../../Field/Field';
 import { type SelectOption, selectWrapperVariants } from './shared';
 
 // Size-based variants for dropdown items

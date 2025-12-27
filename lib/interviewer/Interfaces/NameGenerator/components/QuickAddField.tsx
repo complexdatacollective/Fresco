@@ -2,9 +2,9 @@ import { AnimatePresence, motion, type Variants } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ActionButton from '~/components/interview/ActionButton';
-import { useField } from '~/lib/form/hooks/useField';
 import InputField from '~/lib/form/components/fields/InputField';
-import { type CustomFieldValidation } from '~/lib/form/types';
+import { useField } from '~/lib/form/hooks/useField';
+import { type CustomFieldValidation } from '~/lib/form/store/types';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import {
   getNodeColorSelector,

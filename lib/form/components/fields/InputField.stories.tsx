@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { expect, userEvent, within } from 'storybook/test';
-import { InputField } from './InputField';
+import InputField from './InputField';
 
 const meta: Meta<typeof InputField> = {
   title: 'Systems/Form/Fields/InputField',

@@ -123,5 +123,4 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
 
 Checkbox.displayName = 'Checkbox';
 
-export { Checkbox };
 export default Checkbox;

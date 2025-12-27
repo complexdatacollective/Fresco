@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
-import { ToggleField } from './ToggleField';
+import ToggleField from './ToggleField';
 
 const meta: Meta<typeof ToggleField> = {
   title: 'Systems/Form/Fields/ToggleField',
@@ -10,7 +10,6 @@ const meta: Meta<typeof ToggleField> = {
   },
   tags: ['autodocs'],
   argTypes: {
-    'aria-invalid': { control: 'boolean' },
     'value': {
       control: 'boolean',
       description: 'Whether the toggle is checked',

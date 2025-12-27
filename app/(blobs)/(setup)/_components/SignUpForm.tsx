@@ -3,11 +3,11 @@
 import { useRouter } from 'next/navigation';
 import { signup } from '~/actions/auth';
 import Field from '~/lib/form/components/Field/Field';
+import InputField from '~/lib/form/components/fields/InputField';
 import Form from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
 import { useFormValue } from '~/lib/form/hooks/useFormValue';
-import InputField from '~/lib/form/components/fields/InputField';
-import { type FormSubmitHandler } from '~/lib/form/types';
+import { type FormSubmitHandler } from '~/lib/form/store/types';
 import { createUserSchema } from '~/schemas/auth';
 
 export const SignUpForm = () => {

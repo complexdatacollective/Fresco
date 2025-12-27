@@ -5,7 +5,7 @@ import {
   type NcNode,
 } from '@codaco/shared-consts';
 import { some } from 'es-toolkit/compat';
-import { type FieldValue } from '../../types';
+import { type FieldValue } from '../../store/types';
 import isMatchingValue from './isMatchingValue';
 
 export default function isSomeValueMatching(

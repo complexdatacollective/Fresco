@@ -3,13 +3,13 @@
 import { User2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { login } from '~/actions/auth';
+import PasswordField from '~/app/(blobs)/(setup)/_components/PasswordField';
 import { DialogFooter } from '~/lib/dialogs/Dialog';
 import Field from '~/lib/form/components/Field/Field';
 import Form from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
 import InputField from '~/lib/form/components/fields/InputField';
-import PasswordField from '~/lib/form/components/fields/PasswordField';
-import { type FormSubmitHandler } from '~/lib/form/types';
+import { type FormSubmitHandler } from '~/lib/form/store/types';
 import { loginSchema } from '~/schemas/auth';
 
 export const SignInForm = () => {

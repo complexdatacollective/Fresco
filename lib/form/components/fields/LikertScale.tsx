@@ -10,7 +10,7 @@ import {
 } from '~/components/ui/tooltip';
 import { scaleSliderStyles } from '~/styles/shared/controlVariants';
 import { cx } from '~/utils/cva';
-import { type CreateFormFieldProps } from '../Field/Field';
+import { type CreateFormFieldProps } from '../Field/types';
 
 type Option = {
   label: string;
@@ -25,7 +25,7 @@ type LikertScaleFieldProps = CreateFormFieldProps<
   }
 >;
 
-function LikertScaleField({
+export default function LikertScaleField({
   className,
   value,
   onChange,
@@ -143,6 +143,3 @@ function LikertScaleField({
     </div>
   );
 }
-
-export { LikertScaleField };
-export default LikertScaleField;

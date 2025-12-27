@@ -4,7 +4,7 @@ import {
   type NcNetwork,
 } from '@codaco/shared-consts';
 import { describe, expect, it } from 'vitest';
-import type { ValidationContext } from '../types';
+import type { ValidationContext } from '../store/types';
 import { required, validations } from './functions';
 
 describe('Validation Functions', () => {

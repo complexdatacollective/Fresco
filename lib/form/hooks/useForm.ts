@@ -1,5 +1,5 @@
 import { useCallback, useLayoutEffect, useRef, type FormEvent } from 'react';
-import type { FlattenedErrors, FormConfig } from '../types';
+import type { FlattenedErrors, FormConfig } from '../store/types';
 import useFormStore from './useFormStore';
 
 export function useForm(config: FormConfig) {
@@ -7,7 +7,11 @@ export function useForm(config: FormConfig) {
   const isUnmountingRef = useRef(false);
   const configRef = useRef(config); // Config is static, so this avoids needing to specify it in effect deps
   configRef.current = config;
-  const errorsRef = useRef<FlattenedErrors | null>(null);
+  // Store errors are always an object (never null)
+  const errorsRef = useRef<FlattenedErrors>({
+    formErrors: [],
+    fieldErrors: {},
+  });
 
   const registerForm = useFormStore((state) => state.registerForm);
   const validateForm = useFormStore((state) => state.validateForm);
@@ -26,11 +30,10 @@ export function useForm(config: FormConfig) {
   // Register form once on mount. layout effect used to ensure it runs before fields register.
   useLayoutEffect(() => {
     if (!registeredRef.current && !isUnmountingRef.current) {
-      const formConfig: FormConfig = {
+      registerForm({
         onSubmit: configRef.current.onSubmit,
         onSubmitInvalid: configRef.current.onSubmitInvalid,
-      };
-      registerForm(formConfig as unknown as Parameters<typeof registerForm>[0]);
+      });
       registeredRef.current = true;
     }
 
@@ -45,19 +48,17 @@ export function useForm(config: FormConfig) {
 
   const handleSubmit = useCallback(
     async (e: FormEvent) => {
-      e.preventDefault(); // Prevent default form submission
-      e.stopPropagation(); // Stop event propagation
+      e.preventDefault();
+      e.stopPropagation();
       setSubmitting(true);
-      setErrors(null);
 
       try {
         const isValid = await validateForm(); // Run field level validation
         if (!isValid) {
           // Wait a tick for the store to update with errors
           setTimeout(() => {
-            const currentErrors = errorsRef.current;
-            if (currentErrors && configRef.current.onSubmitInvalid) {
-              configRef.current.onSubmitInvalid(currentErrors);
+            if (configRef.current.onSubmitInvalid) {
+              configRef.current.onSubmitInvalid(errorsRef.current);
             }
           }, 0);
 
@@ -65,10 +66,8 @@ export function useForm(config: FormConfig) {
         }
 
         const values = getFormValues();
-        // The schema is passed to onSubmit which provides type safety
-        const result = await configRef.current.onSubmit?.(values);
 
-        console.log('result', result);
+        const result = await configRef.current.onSubmit?.(values);
 
         if (result.success) {
           // Clear errors on successful submission
@@ -82,8 +81,6 @@ export function useForm(config: FormConfig) {
           fieldErrors: result.fieldErrors ?? {},
         });
       } catch (error) {
-        console.log('error', error);
-        // Handle form submission errors
         setErrors({
           formErrors: ['An error occurred while submitting the form.'],
           fieldErrors: {},

@@ -6,7 +6,7 @@ export default function Hint({
   children: React.ReactNode;
 }) {
   return (
-    <div id={id} className="mb-4 text-sm text-current/70">
+    <div id={id} className="text-sm text-current/70 not-empty:mb-4">
       {children}
     </div>
   );

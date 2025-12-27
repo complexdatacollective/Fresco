@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import { createFormStore } from '../store/formStore';
-import { type FieldConfig, type FormConfig } from '../types';
+import { type FieldConfig, type FormConfig } from '../store/types';
 import { validateFieldValue } from '../validation/helpers';
 
 // Mock the validation utility
@@ -29,7 +29,7 @@ describe('FormStore', () => {
       expect(state.isValidating).toBe(false);
       expect(state.isDirty).toBe(false);
       expect(state.isValid).toBe(true);
-      expect(state.context).toEqual({});
+      expect(state.errors).toEqual({ formErrors: [], fieldErrors: {} });
       expect(state.submitHandler).toBeNull();
       expect(state.submitInvalidHandler).toBeNull();
     });
@@ -64,7 +64,6 @@ describe('FormStore', () => {
 
       expect(state.submitHandler).toBe(onSubmit);
       expect(state.submitInvalidHandler).toBeNull();
-      expect(state.context).toEqual({});
     });
   });
 
@@ -123,6 +122,66 @@ describe('FormStore', () => {
       expect(() => {
         store.getState().unregisterField('nonexistent');
       }).not.toThrow();
+    });
+
+    it('should clean up field errors when unregistering a field', async () => {
+      const fieldConfig: FieldConfig = {
+        name: 'email',
+        initialValue: 'test@example.com',
+        validation: z.string().min(1, 'Email is required'),
+      };
+
+      store.getState().registerField(fieldConfig);
+
+      // Set an error for the field
+      const mockError = new z.ZodError([
+        { code: 'custom', message: 'Invalid email', path: ['email'] },
+      ]);
+      mockValidateFieldValue.mockResolvedValue({
+        success: false,
+        error: mockError,
+      });
+      await store.getState().validateField('email');
+
+      // Verify error exists
+      expect(store.getState().getFieldErrors('email')).toEqual([
+        'Invalid email',
+      ]);
+
+      // Unregister the field
+      store.getState().unregisterField('email');
+
+      // Error should be cleaned up
+      expect(store.getState().getFieldErrors('email')).toBeNull();
+      expect(store.getState().errors.fieldErrors).toEqual({});
+    });
+
+    it('should recalculate form validity when unregistering a field', async () => {
+      // Register two fields with validation
+      store.getState().registerField({
+        name: 'field1',
+        validation: z.string().min(1),
+      });
+      store.getState().registerField({
+        name: 'field2',
+        validation: z.string().min(1),
+      });
+
+      // Validate field1 successfully
+      mockValidateFieldValue.mockResolvedValueOnce({
+        success: true,
+        data: 'value1',
+      });
+      await store.getState().validateField('field1');
+
+      // Form is still invalid because field2 hasn't been validated
+      expect(store.getState().isValid).toBe(false);
+
+      // Unregister field2 (the invalid one)
+      store.getState().unregisterField('field2');
+
+      // Now form should be valid (only field1 remains and it's valid)
+      expect(store.getState().isValid).toBe(true);
     });
   });
 
@@ -211,7 +270,7 @@ describe('FormStore', () => {
 
   describe('Form-level state updates', () => {
     it('should update form validity based on all fields', async () => {
-      // Register multiple fields
+      // Register multiple fields with validation
       store
         .getState()
         .registerField({ name: 'field1', validation: z.string().optional() });
@@ -219,11 +278,27 @@ describe('FormStore', () => {
         .getState()
         .registerField({ name: 'field2', validation: z.string().optional() });
 
-      // Form validity is only calculated when setFieldError is called
-      // Initially form should remain valid until we trigger validation checks
+      // Fields with validation start as invalid until validated
+      expect(store.getState().isValid).toBe(false);
+
+      // Validate field1 successfully
+      mockValidateFieldValue.mockResolvedValueOnce({
+        success: true,
+        data: 'field1_value',
+      });
+      await store.getState().validateField('field1');
+      // Still invalid because field2 hasn't been validated
+      expect(store.getState().isValid).toBe(false);
+
+      // Validate field2 successfully - now both are valid
+      mockValidateFieldValue.mockResolvedValueOnce({
+        success: true,
+        data: 'field2_value',
+      });
+      await store.getState().validateField('field2');
       expect(store.getState().isValid).toBe(true);
 
-      // Set one field as invalid through validation
+      // Set field1 as invalid through validation
       const mockError = new z.ZodError([
         { code: 'custom', message: 'Error', path: ['field1'] },
       ]);
@@ -233,22 +308,20 @@ describe('FormStore', () => {
       });
       await store.getState().validateField('field1');
       expect(store.getState().isValid).toBe(false);
+    });
 
-      // Fix field1 but field2 is still invalid (fields start with isValid: false)
-      mockValidateFieldValue.mockResolvedValueOnce({
-        success: true,
-        data: 'field1_value',
-      });
-      await store.getState().validateField('field1');
-      expect(store.getState().isValid).toBe(false);
+    it('should consider fields without validation as valid by default', () => {
+      // Register fields without validation
+      store.getState().registerField({ name: 'field1' });
+      store.getState().registerField({ name: 'field2' });
 
-      // Make both fields valid
-      mockValidateFieldValue.mockResolvedValueOnce({
-        success: true,
-        data: 'field2_value',
-      });
-      await store.getState().validateField('field2');
+      // Form should be valid because fields without validation are valid by default
       expect(store.getState().isValid).toBe(true);
+
+      const field1 = store.getState().getFieldState('field1');
+      const field2 = store.getState().getFieldState('field2');
+      expect(field1?.meta.isValid).toBe(true);
+      expect(field2?.meta.isValid).toBe(true);
     });
 
     it('should update form dirty state based on any field being dirty', () => {
@@ -492,6 +565,130 @@ describe('FormStore', () => {
       expect(field1Errors).toEqual(['Field1 is required']);
       expect(field1?.meta.isValid).toBe(false);
     });
+
+    it('should preserve form-level errors when validating fields', async () => {
+      // Set form-level errors first
+      store.getState().setErrors({
+        formErrors: ['Form-level error from server'],
+        fieldErrors: {},
+      });
+
+      // Validate all fields successfully
+      mockValidateFieldValue.mockResolvedValue({
+        success: true,
+        data: 'valid_value',
+      });
+
+      const result = await store.getState().validateForm();
+      const state = store.getState();
+
+      // Field validation passed but form-level errors should remain
+      expect(result).toBe(true); // validateForm returns true (no field errors)
+      expect(state.isValid).toBe(false); // But form is still invalid due to form-level errors
+      expect(state.errors.formErrors).toEqual(['Form-level error from server']);
+      expect(state.errors.fieldErrors).toEqual({});
+    });
+
+    it('should preserve form-level errors when field validation fails', async () => {
+      // Set form-level errors first
+      store.getState().setErrors({
+        formErrors: ['Form-level error'],
+        fieldErrors: {},
+      });
+
+      // Validate with field errors
+      const mockError = new z.ZodError([
+        { code: 'custom', message: 'Field error', path: ['field1'] },
+      ]);
+      mockValidateFieldValue
+        .mockResolvedValueOnce({ success: false, error: mockError })
+        .mockResolvedValueOnce({ success: true, data: 'value2' });
+
+      await store.getState().validateForm();
+      const state = store.getState();
+
+      // Both form-level and field-level errors should exist
+      expect(state.errors.formErrors).toEqual(['Form-level error']);
+      expect(state.errors.fieldErrors).toHaveProperty('field1');
+      expect(state.isValid).toBe(false);
+    });
+
+    it('should preserve form-level errors during individual field validation', async () => {
+      // Set form-level errors first
+      store.getState().setErrors({
+        formErrors: ['Server validation error'],
+        fieldErrors: { field2: ['Existing field2 error'] },
+      });
+
+      // Validate field1 with an error
+      const mockError = new z.ZodError([
+        { code: 'custom', message: 'Field1 error', path: ['field1'] },
+      ]);
+      mockValidateFieldValue.mockResolvedValue({
+        success: false,
+        error: mockError,
+      });
+
+      await store.getState().validateField('field1');
+      const state = store.getState();
+
+      // Form-level errors should be preserved
+      expect(state.errors.formErrors).toEqual(['Server validation error']);
+      // Both field errors should exist
+      expect(state.errors.fieldErrors.field1).toEqual(['Field1 error']);
+      expect(state.errors.fieldErrors.field2).toEqual([
+        'Existing field2 error',
+      ]);
+    });
+
+    it('should keep isValid false when form-level errors exist even if all fields valid', async () => {
+      // Set form-level errors
+      store.getState().setErrors({
+        formErrors: ['Server-side validation error'],
+        fieldErrors: {},
+      });
+
+      // Validate both fields successfully
+      mockValidateFieldValue.mockResolvedValue({
+        success: true,
+        data: 'valid_value',
+      });
+
+      await store.getState().validateField('field1');
+      await store.getState().validateField('field2');
+
+      const state = store.getState();
+
+      // All fields are valid
+      expect(state.getFieldState('field1')?.meta.isValid).toBe(true);
+      expect(state.getFieldState('field2')?.meta.isValid).toBe(true);
+
+      // But form is still invalid due to form-level errors
+      expect(state.errors.formErrors).toEqual(['Server-side validation error']);
+      expect(state.isValid).toBe(false);
+    });
+
+    it('should preserve form-level errors when field validation succeeds', async () => {
+      // Set both form-level and field-level errors
+      store.getState().setErrors({
+        formErrors: ['Form error'],
+        fieldErrors: { field1: ['Field1 error'] },
+      });
+
+      // Validate field1 successfully (clears field1 error)
+      mockValidateFieldValue.mockResolvedValue({
+        success: true,
+        data: 'valid_value',
+      });
+
+      await store.getState().validateField('field1');
+      const state = store.getState();
+
+      // Form-level errors should remain
+      expect(state.errors.formErrors).toEqual(['Form error']);
+      // Field1 error should be cleared
+      expect(state.errors.fieldErrors.field1).toBeUndefined();
+    });
   });
 
   describe('Form submission', () => {
@@ -533,7 +730,10 @@ describe('FormStore', () => {
           email: 'test@example.com',
         });
         expect(store.getState().isSubmitting).toBe(false);
-        expect(store.getState().errors).toBeNull();
+        expect(store.getState().errors).toEqual({
+          formErrors: [],
+          fieldErrors: {},
+        });
       });
 
       it('should submit even if form validation fails (current implementation)', async () => {
@@ -695,7 +895,17 @@ describe('FormStore', () => {
 
       expect(state.isSubmitting).toBe(false);
       expect(state.isValidating).toBe(false);
-      expect(state.isValid).toBe(true);
+      expect(state.isDirty).toBe(false);
+      expect(state.errors).toEqual({ formErrors: [], fieldErrors: {} });
+      // Fields with validation start as invalid after reset (need revalidation)
+      expect(state.isValid).toBe(false);
+
+      // Verify field states are reset
+      const emailField = state.getFieldState('email');
+      expect(emailField?.value).toBe('initial@example.com');
+      expect(emailField?.meta.isTouched).toBe(false);
+      expect(emailField?.meta.isDirty).toBe(false);
+      expect(emailField?.meta.isValid).toBe(false); // Has validation, so invalid until validated
     });
 
     it('should reset individual field', async () => {
@@ -722,7 +932,8 @@ describe('FormStore', () => {
       expect(fieldErrors).toBeNull();
       expect(field?.meta.isTouched).toBe(false);
       expect(field?.meta.isDirty).toBe(false);
-      expect(field?.meta.isValid).toBe(true);
+      // Fields with validation start as invalid after reset (need revalidation)
+      expect(field?.meta.isValid).toBe(false);
       expect(field?.meta.isValidating).toBe(false);
     });
 

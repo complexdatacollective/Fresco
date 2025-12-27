@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
-import { RelativeDatePickerField } from './RelativeDatePicker';
+import RelativeDatePickerField from './RelativeDatePicker';
 
 const meta: Meta<typeof RelativeDatePickerField> = {
   title: 'Systems/Form/Fields/RelativeDatePickerField',

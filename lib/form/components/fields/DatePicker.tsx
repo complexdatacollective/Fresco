@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { type CreateFormFieldProps } from '../Field/Field';
-import { InputField } from './InputField';
+import { type CreateFormFieldProps } from '../Field/types';
+import InputField from './InputField';
 import SelectField from './Select/Native';
 import type { SelectOption } from './Select/shared';
 
@@ -33,7 +33,7 @@ const months: SelectOption[] = [
   { value: '12', label: 'December' },
 ];
 
-function DatePickerField(props: DatePickerFieldProps) {
+export default function DatePickerField(props: DatePickerFieldProps) {
   const {
     type: resolutionType = 'full',
     min,
@@ -168,6 +168,3 @@ function DatePickerField(props: DatePickerFieldProps) {
     />
   );
 }
-
-export { DatePickerField };
-export default DatePickerField;
