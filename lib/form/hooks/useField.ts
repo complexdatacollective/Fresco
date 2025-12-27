@@ -268,7 +268,8 @@ export function useField(config: UseFieldConfig): UseFieldResult {
       'data-field-name': name, // Used for scrolling to field errors
     },
     fieldProps: {
-      'value': fieldState?.value,
+      // Use initialValue as fallback before field is registered in the store
+      'value': fieldState?.value ?? initialValue,
       'onChange': handleChange,
       'onBlur': handleBlur,
       'disabled': isDisabled ?? false,

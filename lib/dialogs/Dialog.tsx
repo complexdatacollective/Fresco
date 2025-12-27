@@ -1,7 +1,7 @@
 'use client';
 
 import { Dialog as BaseDialog } from '@base-ui/react/dialog';
-import { Slot } from '@radix-ui/react-slot';
+import { motion } from 'motion/react';
 import React, { forwardRef, type ReactNode } from 'react';
 import { type SurfaceVariants } from '~/components/layout/Surface';
 import Modal from '~/components/Modal/Modal';
@@ -110,17 +110,14 @@ export default function Dialog({
 
 Dialog.displayName = 'Dialog';
 
-type DialogHeadingProps = {
-  asChild?: boolean;
-  as?: string;
-} & React.HTMLAttributes<HTMLHeadingElement> &
+type DialogHeadingProps = React.HTMLAttributes<HTMLHeadingElement> &
   VariantProps<typeof headingVariants>;
 
 const DialogHeading = forwardRef<HTMLElement, DialogHeadingProps>(
-  ({ className, variant, level, margin, as, asChild, ...props }, ref) => {
-    const Comp = asChild ? Slot : (as ?? level ?? 'h2');
+  ({ className, variant, level, margin, ...props }, ref) => {
     return (
-      <Comp
+      <motion.h2
+        layout
         className={cx(headingVariants({ variant, level, margin, className }))}
         ref={ref}
         {...props}
@@ -131,18 +128,16 @@ const DialogHeading = forwardRef<HTMLElement, DialogHeadingProps>(
 
 DialogHeading.displayName = 'DialogHeading';
 
-type DialogDescriptionProps = {
-  asChild?: boolean;
-} & React.HTMLAttributes<HTMLParagraphElement> &
+type DialogDescriptionProps = React.HTMLAttributes<HTMLParagraphElement> &
   VariantProps<typeof paragraphVariants>;
 
 const DialogDescription = forwardRef<
   HTMLParagraphElement,
   DialogDescriptionProps
->(({ className, intent, emphasis, margin, asChild, ...props }, ref) => {
-  const Comp = asChild ? Slot : 'p';
+>(({ className, intent, emphasis, margin, ...props }, ref) => {
   return (
-    <Comp
+    <motion.p
+      layout
       className={cx(paragraphVariants({ intent, emphasis, margin, className }))}
       ref={ref}
       {...props}
@@ -162,7 +157,8 @@ const DialogFooter = ({
   ...props
 }: React.HTMLAttributes<HTMLElement>) => {
   return (
-    <footer
+    <motion.footer
+      layout
       className={cx(
         'tablet:flex-row flex-col',
         'mt-4 flex justify-end gap-4',
@@ -171,7 +167,7 @@ const DialogFooter = ({
       {...props}
     >
       {children}
-    </footer>
+    </motion.footer>
   );
 };
 

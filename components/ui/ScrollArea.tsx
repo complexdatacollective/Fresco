@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from 'motion/react';
 import {
   type CSSProperties,
   forwardRef,
@@ -25,22 +26,6 @@ type ScrollAreaProps = {
   snapAxis?: ScrollSnapAxis;
 };
 
-/**
- * Check if any ancestor element has an active CSS transform applied.
- * This indicates a layout animation (e.g., motion layoutId) is in progress.
- */
-function hasAncestorTransform(element: HTMLElement): boolean {
-  let current: HTMLElement | null = element.parentElement;
-  while (current) {
-    const transform = current.style.transform;
-    if (transform && transform !== 'none') {
-      return true;
-    }
-    current = current.parentElement;
-  }
-  return false;
-}
-
 const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
   (
     {
@@ -54,49 +39,44 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
     ref,
   ) => {
     const viewportRef = useRef<HTMLDivElement>(null);
-    const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const rafIdRef = useRef<number | null>(null);
 
     const updateScrollVariables = useCallback(() => {
       const viewport = viewportRef.current;
       if (!viewport) return;
 
-      // Cancel any pending retry to avoid stale updates
-      if (retryTimeoutRef.current !== null) {
-        clearTimeout(retryTimeoutRef.current);
-        retryTimeoutRef.current = null;
+      // Cancel any pending rAF to avoid stale updates during animations
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
       }
 
-      // Check if an ancestor has an active transform (animation in progress).
-      // During layout animations (e.g., motion layoutId), scrollHeight can
-      // return incorrect values. If animation detected, retry after a delay.
-      if (hasAncestorTransform(viewport)) {
-        retryTimeoutRef.current = setTimeout(() => {
-          retryTimeoutRef.current = null;
-          updateScrollVariables();
-        }, 50);
-        return;
-      }
+      rafIdRef.current = requestAnimationFrame(() => {
+        rafIdRef.current = null;
 
-      const { scrollTop, scrollHeight, clientHeight } = viewport;
+        // Verify viewport still exists after async callbacks
+        if (!viewportRef.current) return;
 
-      // Only show fade when there's actual overflow
-      const hasOverflow = scrollHeight > clientHeight;
+        const { scrollTop, scrollHeight, clientHeight } = viewportRef.current;
 
-      // Calculate distance from top and bottom edges
-      const overflowStart = hasOverflow ? scrollTop : 0;
-      const overflowEnd = hasOverflow
-        ? Math.max(0, scrollHeight - clientHeight - scrollTop)
-        : 0;
+        // Only show fade when there's actual overflow
+        const hasOverflow = scrollHeight > clientHeight;
 
-      // Set CSS variables for the fade effect
-      viewport.style.setProperty(
-        '--scroll-area-overflow-y-start',
-        `${overflowStart}px`,
-      );
-      viewport.style.setProperty(
-        '--scroll-area-overflow-y-end',
-        `${overflowEnd}px`,
-      );
+        // Calculate distance from top and bottom edges
+        const overflowStart = hasOverflow ? scrollTop : 0;
+        const overflowEnd = hasOverflow
+          ? Math.max(0, scrollHeight - clientHeight - scrollTop)
+          : 0;
+
+        // Set CSS variables for the fade effect
+        viewportRef.current.style.setProperty(
+          '--scroll-area-overflow-y-start',
+          `${overflowStart}px`,
+        );
+        viewportRef.current.style.setProperty(
+          '--scroll-area-overflow-y-end',
+          `${overflowEnd}px`,
+        );
+      });
     }, []);
 
     useEffect(() => {
@@ -118,8 +98,8 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
       return () => {
         viewport.removeEventListener('scroll', updateScrollVariables);
         resizeObserver.disconnect();
-        if (retryTimeoutRef.current !== null) {
-          clearTimeout(retryTimeoutRef.current);
+        if (rafIdRef.current !== null) {
+          cancelAnimationFrame(rafIdRef.current);
         }
       };
     }, [fade, updateScrollVariables]);
@@ -134,7 +114,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
     };
 
     return (
-      <div
+      <motion.div
         ref={ref}
         className={cx(
           'focusable-after relative flex min-h-0 flex-1',
@@ -143,7 +123,8 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
           className,
         )}
       >
-        <div
+        <motion.div
+          layoutScroll
           ref={viewportRef}
           tabIndex={0}
           className={cx(
@@ -170,8 +151,8 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
           }
         >
           {children}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     );
   },
 );

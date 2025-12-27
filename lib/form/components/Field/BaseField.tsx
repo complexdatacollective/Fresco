@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from 'motion/react';
 import { type ReactNode } from 'react';
 import Paragraph from '~/components/typography/Paragraph';
 import { cx } from '~/utils/cva';
@@ -37,7 +38,11 @@ export function BaseField({
   containerProps,
 }: BaseFieldProps) {
   return (
-    <div {...containerProps} className={cx('group w-full grow not-last:mb-6')}>
+    <motion.div
+      layout
+      {...containerProps}
+      className={cx('group w-full grow not-last:mb-6')}
+    >
       <FieldLabel id={`${id}-label`} htmlFor={id} required={required}>
         {label}
       </FieldLabel>
@@ -47,6 +52,6 @@ export function BaseField({
       </Hint>
       {children}
       <FieldErrors id={`${id}-error`} errors={errors} show={showErrors} />
-    </div>
+    </motion.div>
   );
 }

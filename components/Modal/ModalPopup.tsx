@@ -119,6 +119,7 @@ export default function ModalPopup({
           // Even though the dialog uses createPortal, it will still potentially
           // inherit motion settings from parents. Prevent that here.
           inherit={false}
+          style={{ borderRadius: 28, ...popupProps.style }}
         >
           {children}
         </motion.div>

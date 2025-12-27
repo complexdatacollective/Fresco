@@ -43,12 +43,32 @@ const MOCK_VARIABLES = [
   { value: 'yearsKnown', label: 'Years Known' },
 ] as const;
 
+const NameGeneratorPromptSchema = z.object({
+  id: z.uuid(),
+  text: z.custom<JSONContent>(
+    (val) => {
+      // Basic validation to ensure it's an object with 'type' and 'content' properties
+      return (
+        typeof val === 'object' &&
+        val !== null &&
+        'type' in val &&
+        'content' in val
+      );
+    },
+    { message: 'Invalid Rich Text content' },
+  ),
+  additionalAttributes: z
+    .array(
+      z.object({
+        variable: z.string(),
+        value: z.boolean(),
+      }),
+    )
+    .optional(),
+});
+
 // Simplified version of Name Generator prompt schema
-type NameGeneratorPrompt = {
-  id: string;
-  text: JSONContent;
-  additionalAttributes?: AdditionalAttributes;
-};
+type NameGeneratorPrompt = z.infer<typeof NameGeneratorPromptSchema>;
 
 function NameGeneratorPromptItem({
   item,
@@ -64,18 +84,20 @@ function NameGeneratorPromptItem({
 
   return (
     <motion.div
-      layoutId={item._internalId}
+      // layoutId={item._internalId}
       className={cx('flex w-full items-center gap-2')}
+      layout
     >
       {isSortable && (
         <motion.div
+          layout
           onPointerDown={(e) => dragControls.start(e)}
           className="touch-none"
         >
           <GripVertical className="w-8 cursor-grab" />
         </motion.div>
       )}
-      <motion.div className="flex-1">
+      <motion.div layout="position" className="flex-1">
         <RichTextRenderer content={item.text} />
         {item.additionalAttributes && item.additionalAttributes.length > 0 && (
           <div className="mt-1 flex flex-wrap gap-1">
@@ -83,9 +105,9 @@ function NameGeneratorPromptItem({
               <span
                 key={`${attr.variable}-${index}`}
                 className={cx(
-                  'rounded px-1.5 py-0.5 text-xs',
+                  'rounded p-2 text-xs',
                   attr.value
-                    ? 'bg-success/20 text-success'
+                    ? 'bg-success/10 text-success'
                     : 'bg-destructive/20 text-destructive',
                 )}
               >
@@ -95,12 +117,7 @@ function NameGeneratorPromptItem({
           </div>
         )}
       </motion.div>
-      <motion.div
-        className="ml-auto flex items-center gap-1"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
+      <motion.div layout className="ml-auto flex items-center gap-1">
         <IconButton
           size="sm"
           variant="text"
@@ -130,11 +147,29 @@ function NameGeneratorPromptEditor({
   onSave,
   item,
 }: ArrayFieldEditorProps<NameGeneratorPrompt>) {
-  const handleSubmit = (data: NameGeneratorPrompt) => {
+  const handleSubmit = (rawData: unknown) => {
+    // rawData won't contain an 'id', so we need to make it optional in the schema
+    const PartialNameGeneratorPromptSchema = NameGeneratorPromptSchema.partial({
+      id: true,
+    });
+
+    const result = PartialNameGeneratorPromptSchema.safeParse(rawData);
+
+    if (!result.success) {
+      // Log schema validation errors to console for debugging
+      // eslint-disable-next-line no-console
+      console.error(
+        'Schema validation failed:',
+        z.prettifyError(result.error),
+        z.flattenError(result.error),
+      );
+      return { success: false as const, errors: z.flattenError(result.error) };
+    }
+
     onSave({
       id: item?.id ?? crypto.randomUUID(),
-      text: data.text,
-      additionalAttributes: data.additionalAttributes,
+      text: result.data.text,
+      additionalAttributes: result.data.additionalAttributes,
     });
 
     return { success: true as const };
@@ -214,10 +249,12 @@ function AdditionalAttributeItem({
 }: ArrayFieldItemProps<AdditionalAttribute>) {
   // Local state for inline editing
   const [variable, setVariable] = useState(item?.variable);
-  const [value, setValue] = useState<boolean | null>(item.value ?? null);
+  const [value, setValue] = useState<boolean | undefined>(
+    item.value ?? undefined,
+  );
 
   const handleSave = () => {
-    if (variable && value !== null && onChange) {
+    if (variable && value !== undefined && onChange) {
       onChange({
         variable,
         value,
@@ -226,16 +263,17 @@ function AdditionalAttributeItem({
   };
 
   return (
-    <motion.div
-      layout
-      className={cx('flex w-full flex-col')}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0, scale: 0.6 }}
-    >
-      <AnimatePresence mode="wait">
+    <motion.div className={cx('flex w-full flex-col')}>
+      <AnimatePresence mode="popLayout">
         {isBeingEdited ? (
-          <motion.div layout key="edit" className="flex w-full flex-col gap-2">
+          <motion.div
+            key="editor"
+            layout
+            className="flex w-full flex-col gap-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
             <UnconnectedField
               component={SelectField}
               label="Variable"
@@ -277,19 +315,23 @@ function AdditionalAttributeItem({
           </motion.div>
         ) : (
           <motion.div
+            key="item"
             layout
-            key="view"
             className="flex w-full items-center gap-2 px-2 py-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
           >
             {isSortable && (
               <motion.div
+                layout
                 onPointerDown={(e) => dragControls.start(e)}
                 className="touch-none"
               >
                 <GripVertical className="h-4 w-4 cursor-grab" />
               </motion.div>
             )}
-            <motion.div className="flex flex-1 items-center gap-3">
+            <motion.div layout className="flex flex-1 items-center gap-3">
               <code className="bg-input-contrast/10 rounded px-2 py-0.5 text-sm">
                 {item.variable}
               </code>
@@ -305,7 +347,7 @@ function AdditionalAttributeItem({
                 {item.value ? 'true' : 'false'}
               </span>
             </motion.div>
-            <motion.div className="ml-auto flex items-center gap-1">
+            <motion.div layout className="ml-auto flex items-center gap-1">
               <IconButton
                 size="sm"
                 variant="text"
@@ -364,21 +406,6 @@ const samplePrompts: NameGeneratorPrompt[] = [
   },
 ];
 
-const nameGeneratorPromptsSchema = z.array(
-  z.object({
-    id: z.uuid(),
-    text: z.json(),
-    additionalAttributes: z
-      .array(
-        z.object({
-          variable: z.string(),
-          value: z.boolean(),
-        }),
-      )
-      .optional(),
-  }),
-);
-
 export const NameGeneratorPrompts: Story = {
   render: () => (
     <>
@@ -388,7 +415,7 @@ export const NameGeneratorPrompts: Story = {
           await new Promise((resolve) => setTimeout(resolve, 500));
 
           const formData = data as { prompts: unknown[] };
-          const result = nameGeneratorPromptsSchema.safeParse(formData.prompts);
+          const result = NameGeneratorPromptSchema.safeParse(formData.prompts);
 
           if (!result.success) {
             // Log schema validation errors to console for debugging

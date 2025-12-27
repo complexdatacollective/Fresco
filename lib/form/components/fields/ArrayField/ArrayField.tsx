@@ -1,5 +1,6 @@
 import { PlusIcon } from 'lucide-react';
 import {
+  AnimatePresence,
   type DragControls,
   LayoutGroup,
   motion,
@@ -11,8 +12,10 @@ import {
   forwardRef,
   type Ref,
   useCallback,
+  useEffect,
   useId,
   useMemo,
+  useRef,
 } from 'react';
 import { surfaceVariants } from '~/components/layout/Surface';
 import { MotionButton } from '~/components/ui/Button';
@@ -48,9 +51,17 @@ const itemVariants = cva({
   base: 'w-full select-none',
 });
 
-export const itemAnimationProps = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
+/**
+ * Returns animation props for array field items.
+ * When hasMounted is false, initial is set to false to prevent mount animations.
+ * This avoids flickering when ArrayField is rendered inside animated containers like dialogs.
+ */
+export const getItemAnimationProps = {
+  initial: (hasMounted: boolean) => ({
+    opacity: hasMounted ? 0 : 1,
+    scale: hasMounted ? 0.6 : 1,
+  }),
+  animate: { opacity: 1, scale: 1 },
   exit: { opacity: 0, scale: 0.6 },
 };
 
@@ -145,13 +156,14 @@ type ArrayFieldCustomProps<T extends Record<string, unknown>> = {
 };
 
 export type ArrayFieldProps<T extends Record<string, unknown>> =
-  CreateFormFieldProps<T[], 'div', ArrayFieldCustomProps<T>>;
+  CreateFormFieldProps<T[], 'ul', ArrayFieldCustomProps<T>>;
 
 type ArrayFieldItemWrapperProps<T extends Record<string, unknown>> = {
   item: WithItemProperties<T>;
   isSortable: boolean;
   isBeingEdited: boolean;
   isNewItem: boolean;
+  hasMounted: boolean;
   onCancel: () => void;
   onChange: (value: T) => void;
   onUpdateItem: (internalId: string, value: Partial<T>) => void;
@@ -173,6 +185,7 @@ function ArrayFieldItemWrapperInner<T extends Record<string, unknown>>(
     isSortable,
     isBeingEdited,
     isNewItem,
+    hasMounted,
     onDeleteItem,
     onEditItem,
     onCancel,
@@ -216,8 +229,14 @@ function ArrayFieldItemWrapperInner<T extends Record<string, unknown>>(
         surfaceVariants({ level: 1, spacing: 'sm' }),
         resolvedItemClasses,
       )}
-      inherit={false}
-      {...itemAnimationProps}
+      custom={hasMounted}
+      layout
+      layoutId={item._internalId}
+      variants={getItemAnimationProps}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      style={{ borderRadius: 14 }}
     >
       <ItemComponent
         item={item}
@@ -257,11 +276,18 @@ export default function ArrayField<T extends Record<string, unknown>>({
   itemClasses,
   disabled,
   readOnly,
-  id: _id,
   ...ariaProps
 }: ArrayFieldProps<T>) {
   // Props for getInputState - combines disabled/readOnly with aria props
   const inputStateProps = { disabled, readOnly, ...ariaProps };
+
+  // Track mount state to prevent initial animations when rendered inside
+  // animated containers (e.g., dialogs with layoutId animations).
+  // Using a ref instead of state to avoid triggering an extra render.
+  const hasMountedRef = useRef(false);
+  useEffect(() => {
+    hasMountedRef.current = true;
+  }, []);
 
   const { confirm } = useDialog();
 
@@ -313,7 +339,7 @@ export default function ArrayField<T extends Record<string, unknown>>({
   return (
     <LayoutGroup id={id}>
       <motion.div
-        layout
+        layoutRoot
         className="flex w-full min-w-sm flex-col items-start gap-4"
       >
         <Reorder.Group
@@ -324,36 +350,43 @@ export default function ArrayField<T extends Record<string, unknown>>({
             state: getInputState(inputStateProps),
           })}
           style={{ borderRadius: 28 }}
-          inherit={false}
-          layout={false}
+          role="list"
+          layout
+          {...ariaProps}
         >
-          {renderableItems.length === 0 && (
-            <motion.li
-              key="no-items"
-              className="m-10 text-sm text-current/70"
-              initial={{ opacity: 0, scale: 0.6 }}
-              animate={{ opacity: 1, scale: 1, transition: { delay: 0.5 } }}
-              exit={{ opacity: 0, scale: 0.6 }}
-            >
-              {emptyStateMessage}
-            </motion.li>
-          )}
-          {renderableItems.map((item) => (
-            <ArrayFieldItemWrapper
-              key={item._internalId}
-              item={item}
-              isSortable={sortable}
-              onDeleteItem={requestDelete}
-              onEditItem={startEditing}
-              onChange={saveEditing}
-              onUpdateItem={updateItem}
-              isNewItem={!!item._draft}
-              isBeingEdited={editingItem?._internalId === item._internalId}
-              onCancel={cancelEditing}
-              ItemComponent={ItemComponent}
-              itemClasses={itemClasses}
-            />
-          ))}
+          <AnimatePresence mode="popLayout">
+            {renderableItems.length === 0 && (
+              <motion.li
+                layout
+                key="no-items"
+                className="m-10 text-sm text-current/70"
+                custom={hasMountedRef.current}
+                variants={getItemAnimationProps}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+              >
+                {emptyStateMessage}
+              </motion.li>
+            )}
+            {renderableItems.map((item) => (
+              <ArrayFieldItemWrapper
+                key={item._internalId}
+                item={item}
+                isSortable={sortable}
+                hasMounted={hasMountedRef.current}
+                onDeleteItem={requestDelete}
+                onEditItem={startEditing}
+                onChange={saveEditing}
+                onUpdateItem={updateItem}
+                isNewItem={!!item._draft}
+                isBeingEdited={editingItem?._internalId === item._internalId}
+                onCancel={cancelEditing}
+                ItemComponent={ItemComponent}
+                itemClasses={itemClasses}
+              />
+            ))}
+          </AnimatePresence>
         </Reorder.Group>
         <MotionButton
           layout
