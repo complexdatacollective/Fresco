@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { type Prettify } from '~/utils/prettify';
 import { useDndStore, useDndStoreApi } from './DndStoreProvider';
 import {
   type DragItem,
@@ -8,17 +9,26 @@ import {
 } from './types';
 import { getElementBounds, rafThrottle } from './utils';
 
+export type FocusBehaviorOnDrop = 'follow-item' | 'stay-in-source' | 'none';
+
 type DropTargetOptions = {
   id: string; // Required stable ID for the drop target
   accepts: string[];
-  announcedName?: string; // Human-readable name for screen reader announcements
+  announcedName: string; // Human-readable name for screen reader announcements
   onDrop?: DropCallback;
   onDragEnter?: (metadata?: DragMetadata) => void;
   onDragLeave?: (metadata?: DragMetadata) => void;
   disabled?: boolean;
+  // Focus behavior after a successful drop:
+  // - 'follow-item': Focus moves to the dropped item in this zone (default)
+  // - 'stay-in-source': Focus stays in the source zone
+  // - 'none': No automatic focus management
+  focusBehaviorOnDrop?: FocusBehaviorOnDrop;
 };
 
-export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
+export function useDropTarget(
+  options: Prettify<DropTargetOptions>,
+): Prettify<UseDropTargetReturn> {
   const {
     id,
     accepts,
@@ -27,6 +37,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
     onDragEnter,
     onDragLeave,
     disabled = false,
+    focusBehaviorOnDrop = 'stay-in-source',
   } = options;
 
   const dropIdRef = useRef<string>(id);
@@ -44,6 +55,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
     (state) => state.unregisterDropTarget,
   );
   const updateDropTarget = useDndStore((state) => state.updateDropTarget);
+  const requestFocus = useDndStore((state) => state.requestFocus);
 
   // Use targeted selectors to prevent unnecessary re-renders
   const isOver = useDndStore((state) => {
@@ -257,16 +269,46 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
           const wasOver = state.activeDropTargetId === dropIdRef.current;
           const draggedItem = lastDragItemRef.current;
 
-          if (wasOver && draggedItem && canDrop && onDrop) {
+          if (wasOver && draggedItem && canDrop) {
             dropOccurredRef.current = true;
-            onDrop(draggedItem.metadata);
+
+            // Handle focus behavior after drop
+            if (
+              focusBehaviorOnDrop === 'follow-item' &&
+              draggedItem.metadata?.id
+            ) {
+              // Focus the dropped item in this (target) zone
+              requestFocus(
+                dropIdRef.current,
+                draggedItem.metadata.id as string,
+              );
+            } else if (focusBehaviorOnDrop === 'stay-in-source') {
+              // Focus should stay in the source zone
+              const sourceZoneId = draggedItem._sourceZone;
+              if (sourceZoneId) {
+                requestFocus(sourceZoneId, null);
+              }
+            }
+            // 'none' - no automatic focus management
+
+            // Call user's onDrop callback
+            if (onDrop) {
+              onDrop(draggedItem.metadata);
+            }
           }
         }
       },
     );
 
     return unsubscribe;
-  }, [canDrop, onDrop, updateBoundsImmediate, storeApi]);
+  }, [
+    canDrop,
+    onDrop,
+    updateBoundsImmediate,
+    storeApi,
+    focusBehaviorOnDrop,
+    requestFocus,
+  ]);
 
   // Clean up on unmount or when disabled
   useEffect(() => {

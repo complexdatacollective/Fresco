@@ -1,18 +1,37 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { useState } from 'react';
+import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
+import { createContext, useCallback, useContext, useState } from 'react';
+import { ScrollArea } from '~/components/ui/ScrollArea';
 import {
-  DndStoreProvider,
   useDragSource,
   useDropTarget,
+  useRovingTabIndex,
   type DragMetadata,
 } from '~/lib/dnd';
+import { Node } from '~/lib/ui/components';
 import { cx } from '~/utils/cva';
+
+// Context to pass roving tabindex props to draggable items
+type RovingTabIndexContextValue = {
+  getItemProps: (id: string) => {
+    ref: (element: HTMLElement | null) => void;
+    tabIndex: number;
+    onKeyDown: (e: React.KeyboardEvent) => void;
+    onFocus: () => void;
+  };
+};
+
+const RovingTabIndexContext = createContext<RovingTabIndexContextValue | null>(
+  null,
+);
 
 type Item = {
   id: string;
   name: string;
   type: 'fruit' | 'vegetable' | 'protein';
 };
+
+const MotionNode = motion.create(Node);
 
 const initialItems: Item[] = [
   { id: '1', name: 'Apple', type: 'fruit' },
@@ -28,38 +47,83 @@ const initialItems: Item[] = [
 type ItemStore = Record<string, Item[]>;
 
 function DraggableItem({ item }: { item: Item }) {
+  const rovingContext = useContext(RovingTabIndexContext);
+  const rovingProps = rovingContext?.getItemProps(item.id);
+
   const { dragProps, isDragging } = useDragSource({
     type: item.type,
     metadata: {
       ...item,
     },
-    announcedName: item.name, // For screen reader announcements
-    // Custom preview for fruits
-    preview:
-      item.type === 'fruit' ? (
-        <div className="bg-barbie-pink flex h-20 w-20 items-center justify-center rounded-full text-white shadow-lg">
-          🍎 {item.name}
-        </div>
-      ) : undefined, // Use default (cloned element) for other types
+    announcedName: item.name,
+    // preview:
+    //   item.type === 'fruit' ? (
+    //     <div className="bg-barbie-pink flex h-20 w-20 items-center justify-center rounded-full text-white shadow-lg">
+    //       🍎 {item.name}
+    //     </div>
+    //   ) : undefined,
   });
 
+  // Merge refs if roving tabindex is active
+  const mergedRef = useCallback(
+    (element: HTMLElement | null) => {
+      dragProps.ref(element);
+      rovingProps?.ref(element);
+    },
+    [dragProps, rovingProps],
+  );
+
+  // Merge keyboard handlers
+  const mergedKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      // When dragging, let drag system handle all keyboard events
+      if (isDragging) {
+        dragProps.onKeyDown(e);
+        return;
+      }
+
+      // When not dragging, use roving tabindex for arrow navigation within zone
+      if (rovingProps) {
+        rovingProps.onKeyDown(e);
+        if (e.defaultPrevented) return;
+      }
+
+      // Pass through to drag for Space/Enter to start drag
+      dragProps.onKeyDown(e);
+    },
+    [dragProps, rovingProps, isDragging],
+  );
+
+  const itemVariants = {
+    initial: { opacity: 0, y: '100%', scale: 0.8 },
+    animate: { opacity: 1, y: '0%', scale: 1 },
+    exit: { opacity: 0, scale: 0.3 },
+  };
+
   return (
-    <div
+    <MotionNode
+      layout="position"
+      variants={itemVariants}
       {...dragProps}
-      className={cx(
-        'm-2 rounded-lg px-4 py-3 text-white transition-opacity duration-200 select-none',
-        'focusable',
-        item.type === 'fruit' && 'bg-barbie-pink',
-        item.type === 'vegetable' && 'bg-kiwi',
-        item.type === 'protein' && 'bg-charcoal',
-        isDragging &&
-          'opacity-75 ring-2 ring-white ring-offset-2 ring-offset-transparent',
-      )}
+      ref={mergedRef}
+      tabIndex={rovingProps?.tabIndex ?? dragProps.tabIndex}
+      onKeyDown={mergedKeyDown}
+      onFocus={rovingProps?.onFocus}
+      label={item.name}
+      color={
+        item.type === 'fruit'
+          ? 'node-color-seq-1'
+          : item.type === 'vegetable'
+            ? 'node-color-seq-2'
+            : 'node-color-seq-3'
+      }
     >
       {item.name}
-    </div>
+    </MotionNode>
   );
 }
+
+type FocusBehaviorOnDrop = 'follow-item' | 'stay-in-source' | 'none';
 
 function DropZone({
   title,
@@ -67,34 +131,54 @@ function DropZone({
   items,
   onItemReceived,
   children,
+  className,
+  focusBehaviorOnDrop,
 }: {
   title: string;
   acceptTypes: string[];
   items: Item[];
   onItemReceived: (metadata?: DragMetadata) => void;
   children?: React.ReactNode;
+  className?: string;
+  focusBehaviorOnDrop?: FocusBehaviorOnDrop;
 }) {
+  const zoneId = `dropzone-${title.toLowerCase().replace(/\s+/g, '-')}`;
+
+  // Set up roving tabindex for items in this zone
+  // The hook automatically connects to the DnD store for focus coordination
+  const itemIds = items.map((item) => item.id);
+  const rovingTabIndex = useRovingTabIndex({ zoneId, itemIds });
+
   const { dropProps, willAccept, isOver, isDragging } = useDropTarget({
-    id: `dropzone-${title.toLowerCase().replace(/\s+/g, '-')}`,
+    id: zoneId,
     accepts: acceptTypes,
-    announcedName: title, // For screen reader announcements
+    announcedName: title,
     onDrop: onItemReceived,
-    onDragEnter: () => {
-      // Drag entered
-    },
-    onDragLeave: () => {
-      // Drag left
-    },
+    focusBehaviorOnDrop,
   });
 
+  const groupVariants = {
+    initial: { opacity: 0 },
+    animate: {
+      opacity: 1,
+      transition: {
+        when: 'beforeChildren',
+        delayChildren: 0.2,
+        staggerChildren: 0.05,
+      },
+    },
+    exit: { opacity: 0 },
+  };
+
   return (
-    <div
+    <motion.div
       {...dropProps}
       className={cx(
-        'bg-cyber-grape/50 min-h-[300px] rounded-lg border-2 border-dashed border-transparent p-5 transition-all duration-200',
+        'flex flex-col',
+        'bg-surface text-surface-contrast publish-colors min-h-[300px] rounded border-2 border-transparent p-5 transition-all duration-200',
         // Only show focus styles when drop zone is focusable (during dragging)
         isDragging && 'focusable',
-        isDragging && willAccept && 'border-success bg-cyber-grape',
+        isDragging && willAccept && 'border-success',
         isDragging &&
           !willAccept &&
           'border-destructive bg-destructive/20 opacity-60',
@@ -102,40 +186,38 @@ function DropZone({
           isOver &&
           willAccept &&
           'bg-success/20 ring-success ring-offset-background border-solid ring-2 ring-offset-2',
+        className,
       )}
+      variants={groupVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
     >
-      <h3 className="mt-0 mb-4 text-white">{title}</h3>
-      {items.length === 0 && !children ? (
-        <p className="my-10 text-center text-white/40 italic">
-          Drop {acceptTypes.join(' or ')} items here
-        </p>
-      ) : (
-        <>
-          {children}
-          <div className="flex flex-col flex-wrap">
-            {items.map((item) => (
-              <DraggableItem key={item.id} item={item} />
-            ))}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-function ScrollableContainer({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="bg-cyber-grape h-96 overflow-y-auto rounded-lg border p-4 text-white">
-      <h3 className="mt-0">Scrollable Container</h3>
-      <p className="text-white/50">
-        This demonstrates dragging from/to scrollable containers
-      </p>
-      {children}
-      <div className="h-48" />
-      <p className="text-sm text-white/50">
-        Scroll content to test auto-scroll during drag
-      </p>
-    </div>
+      <h3 className="mt-0 mb-4">{title}</h3>
+      <ScrollArea>
+        {items.length === 0 && !children ? (
+          <p className="my-10 text-center italic">
+            Drop {acceptTypes.join(' or ')} items here
+          </p>
+        ) : (
+          <AnimatePresence>
+            <LayoutGroup id={zoneId}>
+              <RovingTabIndexContext.Provider value={rovingTabIndex}>
+                <div
+                  className="flex flex-wrap gap-4"
+                  role="listbox"
+                  aria-label={`${title} items`}
+                >
+                  {items.map((item) => (
+                    <DraggableItem key={item.id} item={item} />
+                  ))}
+                </div>
+              </RovingTabIndexContext.Provider>
+            </LayoutGroup>
+          </AnimatePresence>
+        )}
+      </ScrollArea>
+    </motion.div>
   );
 }
 
@@ -198,78 +280,53 @@ function DragDropExample() {
   };
 
   return (
-    <DndStoreProvider>
-      <div className="bg-navy-taupe mx-auto max-w-7xl p-5 text-white">
-        <div className="bg-cyber-grape mb-8 rounded-lg p-4">
-          <h2 className="mt-0">Instructions</h2>
-          <ul className="m-0">
-            <li>
-              <strong>Mouse/Touch:</strong> Drag items between zones
-            </li>
-            <li>
-              <strong>Keyboard:</strong> Tab to focus items, Space/Enter to
-              start drag, Arrow keys to navigate drop zones, Space/Enter to
-              drop, Escape to cancel
-            </li>
-            <li>
-              <strong>Visual Feedback:</strong> Success borders = valid drop
-              zones, Destructive borders = invalid zones
-            </li>
-            <li>
-              <strong>Type Restrictions:</strong> Each zone accepts specific
-              item types
-            </li>
-          </ul>
+    <div className="mx-auto max-w-7xl p-5">
+      <div className="laptop:grid-cols-[1fr_2fr] grid grid-cols-1 gap-5">
+        <div className="flex flex-col gap-5">
+          <DropZone
+            title="All Items (Source)"
+            acceptTypes={['fruit', 'vegetable', 'protein']}
+            items={itemStore.source ?? []}
+            onItemReceived={handleItemReceived('source')}
+            className="max-h-[400px]"
+          />
+          <DropZone
+            title="Scrollable Drop Zone"
+            acceptTypes={['fruit', 'vegetable']}
+            items={itemStore.scrollable ?? []}
+            onItemReceived={handleItemReceived('scrollable')}
+          />
         </div>
-
-        <div className="laptop:grid-cols-[1fr_2fr] grid grid-cols-1 gap-5">
-          <div className="flex flex-col gap-5">
+        <div>
+          <div className="tablet:grid-cols-2 grid grid-cols-1 gap-4">
             <DropZone
-              title="All Items (Source)"
-              acceptTypes={['fruit', 'vegetable', 'protein']}
-              items={itemStore.source ?? []}
-              onItemReceived={handleItemReceived('source')}
+              title="Fruits Only"
+              acceptTypes={['fruit']}
+              items={itemStore.fruits ?? []}
+              onItemReceived={handleItemReceived('fruits')}
             />
-            <ScrollableContainer>
-              <DropZone
-                title="Scrollable Drop Zone"
-                acceptTypes={['fruit', 'vegetable']}
-                items={itemStore.scrollable ?? []}
-                onItemReceived={handleItemReceived('scrollable')}
-              />
-            </ScrollableContainer>
-          </div>
-          <div>
-            <div className="tablet:grid-cols-2 grid grid-cols-1 gap-4">
-              <DropZone
-                title="Fruits Only"
-                acceptTypes={['fruit']}
-                items={itemStore.fruits ?? []}
-                onItemReceived={handleItemReceived('fruits')}
-              />
-              <DropZone
-                title="Vegetables Only"
-                acceptTypes={['vegetable']}
-                items={itemStore.vegetables ?? []}
-                onItemReceived={handleItemReceived('vegetables')}
-              />
-              <DropZone
-                title="Proteins Only"
-                acceptTypes={['protein']}
-                items={itemStore.proteins ?? []}
-                onItemReceived={handleItemReceived('proteins')}
-              />
-              <DropZone
-                title="Mixed (All Types)"
-                acceptTypes={['fruit', 'vegetable', 'protein']}
-                items={itemStore.mixed ?? []}
-                onItemReceived={handleItemReceived('mixed')}
-              />
-            </div>
+            <DropZone
+              title="Vegetables Only"
+              acceptTypes={['vegetable']}
+              items={itemStore.vegetables ?? []}
+              onItemReceived={handleItemReceived('vegetables')}
+            />
+            <DropZone
+              title="Proteins Only"
+              acceptTypes={['protein']}
+              items={itemStore.proteins ?? []}
+              onItemReceived={handleItemReceived('proteins')}
+            />
+            <DropZone
+              title="Mixed (All Types)"
+              acceptTypes={['fruit', 'vegetable', 'protein']}
+              items={itemStore.mixed ?? []}
+              onItemReceived={handleItemReceived('mixed')}
+            />
           </div>
         </div>
       </div>
-    </DndStoreProvider>
+    </div>
   );
 }
 

@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 
+import { Prettify } from '~/utils/prettify';
 import { useDndStore, useDndStoreApi } from './DndStoreProvider';
 import { type DragMetadata } from './types';
 import {
@@ -43,7 +44,9 @@ type UseDragSourceReturn = {
   isDragging: boolean;
 };
 
-export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
+export function useDragSource(
+  options: Prettify<DragSourceOptions>,
+): Prettify<UseDragSourceReturn> {
   const { type, metadata, announcedName, preview, disabled = false } = options;
   const previewComponent = preview;
 
