@@ -33,8 +33,8 @@ importers:
         specifier: ^7.1.0
         version: 7.1.0
       '@prisma/adapter-pg':
-        specifier: ^7.1.0
-        version: 7.1.0
+        specifier: ^7.2.0
+        version: 7.2.0
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.15
         version: 1.1.15(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2006,8 +2006,8 @@ packages:
   '@prisma/adapter-neon@7.1.0':
     resolution: {integrity: sha512-gxxNjkFEyM9rSOCD5uBnvFabusIgcPpZFsvSVSvXJvhxr+/e1H90HJvZQYQJQFSYr6Datu2B9pZIvTdbSztSfg==}
 
-  '@prisma/adapter-pg@7.1.0':
-    resolution: {integrity: sha512-DSAnUwkKfX4bUzhkrjGN4IBQzwg0nvFw2W17H0Oa532I5w9nLtTJ9mAEGDs1nUBEGRAsa0c7qsf8CSgfJ4DsBQ==}
+  '@prisma/adapter-pg@7.2.0':
+    resolution: {integrity: sha512-euIdQ13cRB2wZ3jPsnDnFhINquo1PYFPCg6yVL8b2rp3EdinQHsX9EDdCtRr489D5uhphcRk463OdQAFlsCr0w==}
 
   '@prisma/client-runtime-utils@7.1.0':
     resolution: {integrity: sha512-39xmeBrNTN40FzF34aJMjfX1PowVCqoT3UKUWBBSP3aXV05NRqGBC3x2wCDs96ti6ZgdiVzqnRDHtbzU8X+lPQ==}
@@ -2033,11 +2033,17 @@ packages:
   '@prisma/debug@7.1.0':
     resolution: {integrity: sha512-pPAckG6etgAsEBusmZiFwM9bldLSNkn++YuC4jCTJACdK5hLOVnOzX7eSL2FgaU6Gomd6wIw21snUX2dYroMZQ==}
 
+  '@prisma/debug@7.2.0':
+    resolution: {integrity: sha512-YSGTiSlBAVJPzX4ONZmMotL+ozJwQjRmZweQNIq/ER0tQJKJynNkRB3kyvt37eOfsbMCXk3gnLF6J9OJ4QWftw==}
+
   '@prisma/dev@0.15.0':
     resolution: {integrity: sha512-KhWaipnFlS/fWEs6I6Oqjcy2S08vKGmxJ5LexqUl/3Ve0EgLUsZwdKF0MvqPM5F5ttw8GtfZarjM5y7VLwv9Ow==}
 
   '@prisma/driver-adapter-utils@7.1.0':
     resolution: {integrity: sha512-AlVLzeXkw81+47MvQ9M8DvTiHkRfJ8xzklTbYjpskb0cTTDVHboTI/OVwT6Wcep/bNvfLKJYO0nylBiM5rxgww==}
+
+  '@prisma/driver-adapter-utils@7.2.0':
+    resolution: {integrity: sha512-gzrUcbI9VmHS24Uf+0+7DNzdIw7keglJsD5m/MHxQOU68OhGVzlphQRobLiDMn8CHNA2XN8uugwKjudVtnfMVQ==}
 
   '@prisma/engines-version@7.1.0-6.ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba':
     resolution: {integrity: sha512-qZUevUh+yPhGT28rDQnV8V2kLnFjirzhVD67elRPIJHRsUV/mkII10HSrJrhK/U2GYgAxXR2VEREtq7AsfS8qw==}
@@ -9061,9 +9067,9 @@ snapshots:
       '@prisma/driver-adapter-utils': 7.1.0
       postgres-array: 3.0.4
 
-  '@prisma/adapter-pg@7.1.0':
+  '@prisma/adapter-pg@7.2.0':
     dependencies:
-      '@prisma/driver-adapter-utils': 7.1.0
+      '@prisma/driver-adapter-utils': 7.2.0
       pg: 8.16.3
       postgres-array: 3.0.4
     transitivePeerDependencies:
@@ -9091,6 +9097,8 @@ snapshots:
 
   '@prisma/debug@7.1.0': {}
 
+  '@prisma/debug@7.2.0': {}
+
   '@prisma/dev@0.15.0(typescript@5.9.3)':
     dependencies:
       '@electric-sql/pglite': 0.3.2
@@ -9116,6 +9124,10 @@ snapshots:
   '@prisma/driver-adapter-utils@7.1.0':
     dependencies:
       '@prisma/debug': 7.1.0
+
+  '@prisma/driver-adapter-utils@7.2.0':
+    dependencies:
+      '@prisma/debug': 7.2.0
 
   '@prisma/engines-version@7.1.0-6.ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba': {}
 
