@@ -39,10 +39,15 @@ COPY . .
 ENV SKIP_ENV_VALIDATION=true
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV DATABASE_URL="postgresql://user:password@localhost:5432/dbname"
 
 # Enable pnpm, generate Prisma client, and build
 # Note: prisma generate must run here because the generated client (lib/db/generated/)
 # is gitignored and not copied from deps stage (only node_modules is copied)
+# and without the client being present, the build will fail.
+#
+# The client is generated _again_ as part of migrate-and-start.sh in the final image
+# to ensure that it inherits the correct runtime environment variables.
 RUN corepack enable pnpm && pnpm exec prisma generate && pnpm run build
 
 # Production image, copy all the files and run next
