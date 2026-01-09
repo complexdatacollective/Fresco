@@ -8,7 +8,7 @@ export const metadata = {
 
 function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main className="flex h-[100vh] max-h-[100vh] flex-col bg-(--nc-background) text-(--nc-text)">
+    <main className="flex h-screen max-h-screen flex-col bg-(--nc-background) text-(--nc-text)">
       <SmallScreenOverlay />
       {children}
     </main>

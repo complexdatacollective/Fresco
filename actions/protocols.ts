@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client';
 import { safeRevalidateTag } from 'lib/cache';
 import { hash } from 'ohash';
 import { type z } from 'zod';
-import { getUTApi } from '~/lib/uploadthing-server-helpers';
+import { getUTApi } from '~/lib/uploadthing/server-helpers';
 import { type protocolInsertSchema } from '~/schemas/protocol';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';

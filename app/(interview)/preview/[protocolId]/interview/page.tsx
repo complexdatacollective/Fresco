@@ -1,0 +1,76 @@
+import {
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
+} from '@codaco/shared-consts';
+import { notFound } from 'next/navigation';
+import SuperJSON from 'superjson';
+import { v4 as uuid } from 'uuid';
+import InterviewShell from '~/app/(interview)/interview/_components/InterviewShell';
+import { env } from '~/env';
+import { getProtocolForPreview } from '~/queries/protocols';
+import { prisma } from '~/utils/db';
+
+export const dynamic = 'force-dynamic';
+
+export default async function PreviewInterviewPage({
+  params,
+}: {
+  params: { protocolId: string };
+}) {
+  const { protocolId } = params;
+
+  if (!env.PREVIEW_MODE) {
+    notFound();
+  }
+
+  if (!protocolId) {
+    notFound();
+  }
+
+  const protocol = await getProtocolForPreview(protocolId);
+
+  if (!protocol) {
+    notFound();
+  }
+
+  // Only allow preview protocols
+  if (!protocol.isPreview) {
+    notFound();
+  }
+
+  // Don't allow pending protocols (still uploading assets)
+  if (protocol.isPending) {
+    notFound();
+  }
+
+  // Update timestamp to prevent premature pruning
+  await prisma.protocol.update({
+    where: { id: protocolId },
+    data: { importedAt: new Date() },
+  });
+
+  // Create an in-memory interview object (not persisted to database)
+  const now = new Date();
+  const previewInterview = {
+    id: `preview-${uuid()}`, // Temporary ID for the preview session
+    startTime: now,
+    finishTime: null,
+    exportTime: null,
+    lastUpdated: now,
+    currentStep: 0,
+    stageMetadata: null,
+    network: {
+      ego: {
+        [entityPrimaryKeyProperty]: uuid(),
+        [entityAttributesProperty]: {},
+      },
+      nodes: [],
+      edges: [],
+    },
+    protocol,
+  };
+
+  const rawPayload = SuperJSON.stringify(previewInterview);
+
+  return <InterviewShell rawPayload={rawPayload} disableSync />;
+}

@@ -6,7 +6,7 @@ import type {
   ArchiveResult,
   ExportReturn,
 } from '~/lib/network-exporters/utils/types';
-import { getUTApi } from '~/lib/uploadthing-server-helpers';
+import { getUTApi } from '~/lib/uploadthing/server-helpers';
 import { requireApiAuth } from '~/utils/auth';
 import { ensureError } from '~/utils/ensureError';
 
