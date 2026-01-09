@@ -70,8 +70,7 @@ export const useProtocolImport = () => {
 
       const fileArrayBuffer = await fileAsArrayBuffer(file);
 
-      // TODO: check if this causes multiple fetches by importing again for each job.
-      const JSZip = (await import('jszip')).default; // Dynamic import to reduce bundle size
+      const JSZip = (await import('jszip')).default;
       const zip = await JSZip.loadAsync(fileArrayBuffer);
       const protocolJson = await getProtocolJson(zip);
 

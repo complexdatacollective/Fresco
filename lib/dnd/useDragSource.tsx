@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 
-import { Prettify } from '~/utils/prettify';
+import { type Prettify } from '~/utils/prettify';
 import { useDndStore, useDndStoreApi } from './DndStoreProvider';
 import { type DragMetadata } from './types';
 import {

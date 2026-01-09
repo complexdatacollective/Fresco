@@ -6,11 +6,15 @@ type UseRovingTabIndexOptions = {
   itemIds: string[];
 };
 
-type RovingTabIndexItemProps = {
+export type RovingTabIndexItemProps = {
   ref: (element: HTMLElement | null) => void;
   tabIndex: number;
   onKeyDown: (e: React.KeyboardEvent) => void;
   onFocus: () => void;
+};
+
+export type RovingTabIndexContextValue = {
+  getItemProps: (id: string) => RovingTabIndexItemProps;
 };
 
 export function useRovingTabIndex(options: UseRovingTabIndexOptions) {
