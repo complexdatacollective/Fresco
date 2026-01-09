@@ -1,3 +1,7 @@
+import { type Key } from 'react-aria-components';
+import { GridKeyboardDelegate } from '../keyboard/GridKeyboardDelegate';
+import { type KeyboardDelegate } from '../keyboard/types';
+import { type Collection } from '../types';
 import { Layout } from './Layout';
 import { type LayoutInfo, type LayoutOptions } from './types';
 
@@ -13,6 +17,7 @@ export class GridLayout<T = unknown> extends Layout<T> {
   private maxItemWidth?: number;
   private gap: number;
   private columns: number | 'auto';
+  private currentColumnCount = 1;
 
   constructor(options?: GridLayoutOptions) {
     super();
@@ -20,6 +25,10 @@ export class GridLayout<T = unknown> extends Layout<T> {
     this.maxItemWidth = options?.maxItemWidth;
     this.gap = options?.gap ?? 16;
     this.columns = options?.columns ?? 'auto';
+    // Initialize with configured columns if fixed
+    if (typeof this.columns === 'number') {
+      this.currentColumnCount = this.columns;
+    }
   }
 
   getContainerStyles(): React.CSSProperties {
@@ -38,6 +47,7 @@ export class GridLayout<T = unknown> extends Layout<T> {
 
     const containerWidth = layoutOptions.containerWidth;
     const columnCount = this.calculateColumnCount(containerWidth);
+    this.currentColumnCount = columnCount;
 
     if (columnCount === 0) {
       this.contentSize = { width: containerWidth, height: 0 };
@@ -106,5 +116,19 @@ export class GridLayout<T = unknown> extends Layout<T> {
     }
 
     return itemWidth;
+  }
+
+  getKeyboardDelegate(
+    collection: Collection<unknown>,
+    disabledKeys: Set<Key>,
+    containerWidth?: number,
+  ): KeyboardDelegate {
+    // Calculate column count from container width if provided, otherwise use current
+    const columnCount =
+      containerWidth !== undefined
+        ? this.calculateColumnCount(containerWidth)
+        : this.currentColumnCount;
+
+    return new GridKeyboardDelegate(collection, columnCount, disabledKeys);
   }
 }

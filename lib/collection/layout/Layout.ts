@@ -1,5 +1,6 @@
 import { type Key } from 'react-aria-components';
-import { type Node } from '../types';
+import { type KeyboardDelegate } from '../keyboard/types';
+import { type Collection, type Node } from '../types';
 import {
   type LayoutInfo,
   type LayoutOptions,
@@ -63,4 +64,18 @@ export abstract class Layout<T = unknown> {
       b.y + b.height < a.y
     );
   }
+
+  /**
+   * Creates a keyboard delegate appropriate for this layout type.
+   * Override in subclasses to provide layout-specific navigation.
+   *
+   * @param collection - The collection of items
+   * @param disabledKeys - Set of disabled item keys
+   * @param containerWidth - Optional container width for calculating grid columns
+   */
+  abstract getKeyboardDelegate(
+    collection: Collection<unknown>,
+    disabledKeys: Set<Key>,
+    containerWidth?: number,
+  ): KeyboardDelegate;
 }

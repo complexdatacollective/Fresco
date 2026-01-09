@@ -1,3 +1,7 @@
+import { type Key } from 'react-aria-components';
+import { ListKeyboardDelegate } from '../keyboard/ListKeyboardDelegate';
+import { type KeyboardDelegate } from '../keyboard/types';
+import { type Collection } from '../types';
 import { Layout } from './Layout';
 import { type LayoutInfo, type LayoutOptions, type Padding } from './types';
 
@@ -31,7 +35,6 @@ export class ListLayout<T = unknown> extends Layout<T> {
       display: 'flex',
       flexDirection: 'column',
       gap: this.gap,
-      padding: `${this.padding.top}px ${this.padding.right}px ${this.padding.bottom}px ${this.padding.left}px`,
     };
   }
 
@@ -68,5 +71,13 @@ export class ListLayout<T = unknown> extends Layout<T> {
       width: layoutOptions.containerWidth,
       height: Math.max(0, y - this.gap + this.padding.bottom),
     };
+  }
+
+  getKeyboardDelegate(
+    collection: Collection<unknown>,
+    disabledKeys: Set<Key>,
+    _containerWidth?: number,
+  ): KeyboardDelegate {
+    return new ListKeyboardDelegate(collection, disabledKeys);
   }
 }

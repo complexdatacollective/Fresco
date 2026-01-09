@@ -1,11 +1,11 @@
 'use client';
 
-import { useMemo, type RefObject } from 'react';
+import { useEffect, useMemo, useState, type RefObject } from 'react';
 import { type SelectionManager } from '../selection/SelectionManager';
 import { useCollection } from './useCollection';
 import { useSelectionState } from './useSelectionState';
-import { ListKeyboardDelegate } from '../keyboard/ListKeyboardDelegate';
 import { useSelectableCollection } from '../keyboard/useSelectableCollection';
+import { type Layout } from '../layout/Layout';
 import {
   type Collection,
   type Key,
@@ -21,6 +21,7 @@ export type UseCollectionSetupOptions = {
   disabledKeys?: Iterable<Key>;
   disallowEmptySelection?: boolean;
   dragAndDropHooks?: CollectionProps<unknown>['dragAndDropHooks'];
+  layout: Layout<unknown>;
 };
 
 export type UseCollectionSetupResult<T> = {
@@ -47,6 +48,29 @@ export function useCollectionSetup<T>(
 ): UseCollectionSetupResult<T> {
   const collection = useCollection<T>();
 
+  // Track container width for grid column calculation
+  const [containerWidth, setContainerWidth] = useState<number | undefined>(
+    undefined,
+  );
+
+  // Use ResizeObserver to track container width changes
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element) return;
+
+    // Get initial width
+    setContainerWidth(element.offsetWidth);
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setContainerWidth(entry.contentRect.width);
+      }
+    });
+
+    resizeObserver.observe(element);
+    return () => resizeObserver.disconnect();
+  }, [containerRef]);
+
   const selectionManager = useSelectionState({
     selectionMode: options.selectionMode,
     selectedKeys: options.selectedKeys,
@@ -65,10 +89,16 @@ export function useCollectionSetup<T>(
     [options.disabledKeys],
   );
 
-  // Create keyboard delegate for navigation
+  // Create keyboard delegate for navigation using layout-specific implementation
+  // Pass containerWidth so GridLayout can calculate the correct column count
   const keyboardDelegate = useMemo(
-    () => new ListKeyboardDelegate(collection, disabledKeysSet),
-    [collection, disabledKeysSet],
+    () =>
+      options.layout.getKeyboardDelegate(
+        collection,
+        disabledKeysSet,
+        containerWidth,
+      ),
+    [options.layout, collection, disabledKeysSet, containerWidth],
   );
 
   // Setup keyboard navigation

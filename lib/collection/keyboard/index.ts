@@ -5,6 +5,7 @@
  * accessible keyboard navigation with roving tabindex.
  */
 
+export { GridKeyboardDelegate } from './GridKeyboardDelegate';
 export { ListKeyboardDelegate } from './ListKeyboardDelegate';
 export {
   useSelectableCollection,

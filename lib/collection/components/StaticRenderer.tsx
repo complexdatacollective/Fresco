@@ -1,8 +1,6 @@
-'use client';
-
 import { useCollectionStore } from '../contexts';
-import { type SelectionManager } from '../selection/SelectionManager';
 import { type Layout } from '../layout/Layout';
+import { type SelectionManager } from '../selection/SelectionManager';
 import {
   type Collection,
   type CollectionProps,

@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { cx } from '~/utils/cva';
+import { ScrollArea } from '~/components/ui/ScrollArea';
 import { CollectionProvider } from '../CollectionProvider';
 import { CollectionIdContext, SelectionManagerContext } from '../contexts';
 import { useCollectionSetup } from '../hooks/useCollectionSetup';
@@ -46,6 +46,7 @@ function CollectionContent<T>({
         disabledKeys,
         disallowEmptySelection,
         dragAndDropHooks,
+        layout,
       },
       containerRef,
     );
@@ -60,30 +61,31 @@ function CollectionContent<T>({
   return (
     <SelectionManagerContext.Provider value={selectionManager}>
       <CollectionIdContext.Provider value={collectionId}>
-        <div
-          ref={containerRef}
-          role="listbox"
-          id={collectionId}
-          aria-label={ariaLabel}
-          aria-labelledby={ariaLabelledBy}
-          aria-multiselectable={selectionMode === 'multiple' || undefined}
-          aria-activedescendant={
-            selectionManager.focusedKey !== null
-              ? `${collectionId}-item-${selectionManager.focusedKey}`
-              : undefined
-          }
-          className={cx('collection', className)}
-          {...collectionProps}
-          {...dndCollectionProps}
-        >
-          <StaticRenderer
-            layout={layout}
-            collection={collection}
-            selectionManager={selectionManager}
-            renderItem={renderItem}
-            dragAndDropHooks={dragAndDropHooks}
-          />
-        </div>
+        <ScrollArea className={className}>
+          <div
+            ref={containerRef}
+            role="listbox"
+            id={collectionId}
+            aria-label={ariaLabel}
+            aria-labelledby={ariaLabelledBy}
+            aria-multiselectable={selectionMode === 'multiple' || undefined}
+            aria-activedescendant={
+              selectionManager.focusedKey !== null
+                ? `${collectionId}-item-${selectionManager.focusedKey}`
+                : undefined
+            }
+            {...collectionProps}
+            {...dndCollectionProps}
+          >
+            <StaticRenderer
+              layout={layout}
+              collection={collection}
+              selectionManager={selectionManager}
+              renderItem={renderItem}
+              dragAndDropHooks={dragAndDropHooks}
+            />
+          </div>
+        </ScrollArea>
       </CollectionIdContext.Provider>
     </SelectionManagerContext.Provider>
   );
