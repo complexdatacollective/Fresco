@@ -1,9 +1,10 @@
 /* eslint-disable no-console */
 import dotenv from 'dotenv';
+
 dotenv.config();
 
-import { execSync, spawnSync } from 'child_process';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { execSync, spawnSync } from 'child_process';
 import { PrismaClient } from '~/lib/db/generated/client';
 
 // CLI scripts must use the PG adapter directly because the Neon serverless
@@ -35,7 +36,7 @@ function checkForNeededMigrations(): boolean {
 
   if (result.error) {
     console.error('Failed to run command:', result.error);
-    return false;
+    throw result.error;
   }
 
   // Handling the exit code
@@ -46,8 +47,8 @@ function checkForNeededMigrations(): boolean {
     console.log('There are differences between the schemas.');
     return true;
   } else if (result.status === 1) {
-    console.log('An error occurred.');
-    return false;
+    console.log('An error occurred.', result.stderr);
+    throw new Error(`Command failed with exit code ${result.status}`);
   }
 
   return false;
