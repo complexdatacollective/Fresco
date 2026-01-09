@@ -35,6 +35,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
       fade = true,
       snap,
       snapAxis = 'both',
+      ...rest
     },
     ref,
   ) => {
@@ -122,6 +123,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
           '-mx-4 -my-2',
           className,
         )}
+        {...rest}
       >
         <motion.div
           layoutScroll
