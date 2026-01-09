@@ -20,9 +20,6 @@
     "typecheck": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental"
   },
   "pnpm": {
-    "overrides": {
-      "d3-force>d3-timer": "3.0.0"
-    },
     "onlyBuiltDependencies": [
       "@parcel/watcher",
       "@prisma/engines",
@@ -72,6 +69,7 @@
     "color": "^2.0.1",
     "concaveman": "^2.0.0",
     "csvtojson": "^2.0.11",
+    "d3": "^7.9.0",
     "d3-interpolate-path": "^2.3.0",
     "dotenv": "^17.2.3",
     "es-toolkit": "^1.43.0",
@@ -133,6 +131,7 @@
     "@total-typescript/ts-reset": "^0.6.1",
     "@types/archiver": "^7.0.0",
     "@types/async": "^3.2.25",
+    "@types/d3": "^7.4.3",
     "@types/d3-interpolate-path": "^2.0.3",
     "@types/eslint": "^8.56.12",
     "@types/node": "^22.13.9",
