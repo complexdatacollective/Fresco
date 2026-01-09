@@ -12,7 +12,7 @@ WORKDIR /app
 RUN corepack enable
 
 # Copy dependency files
-COPY package.json pnpm-lock.yaml* prisma.config.ts ./
+COPY package.json pnpm-lock.yaml* prisma.config.ts env.js ./
 COPY lib/db/schema.prisma ./lib/db/schema.prisma
 
 # Install pnpm and dependencies with cache mount for faster builds
@@ -39,7 +39,6 @@ COPY . .
 ENV SKIP_ENV_VALIDATION=true
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096"
-ENV DATABASE_URL="postgresql://user:password@localhost:5432/dbname"
 
 # Enable pnpm, generate Prisma client, and build
 # Note: prisma generate must run here because the generated client (lib/db/generated/)
