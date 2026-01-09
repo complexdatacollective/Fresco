@@ -3,8 +3,11 @@
   "ignore": [
     "lib/ui/components/Sprites/ExportSprite.js",
     "utils/auth.ts",
-    "load-test.js"
+    "load-test.js",
+    "lib/db/generated/**",
+    "lib/db/index.ts",
+    "scripts/*.ts"
   ],
-  "ignoreDependencies": ["server-only", "prop-types", "sharp"],
+  "ignoreDependencies": ["server-only", "prop-types", "sharp", "pg"],
   "ignoreBinaries": ["docker-compose", "playwright"]
 }
