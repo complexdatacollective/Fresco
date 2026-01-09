@@ -25,10 +25,9 @@ function checkForNeededMigrations(): boolean {
     'prisma',
     'migrate',
     'diff',
-    '--to-schema-datasource',
+    '--from-schema',
     './lib/db/schema.prisma',
-    '--from-schema-datamodel',
-    './lib/db/schema.prisma',
+    '--to-config-datasource',
     '--exit-code',
   ];
 

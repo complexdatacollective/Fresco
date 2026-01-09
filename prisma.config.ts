@@ -1,16 +1,9 @@
 import path from 'node:path';
-import type { PrismaConfig } from 'prisma';
-import { defineConfig } from 'prisma/config';
-
-// Load environment variables for Prisma CLI (migrations, etc.)
-// Note: Runtime connection is handled via adapter in lib/db/index.ts
-
-type PrismaConfigWithMigrations = PrismaConfig & {
-  migrate?: {
-    resolveUrl: () => Promise<string>;
-  };
-};
+import { defineConfig, env, type PrismaConfig } from 'prisma/config';
 
 export default defineConfig({
   schema: path.join(import.meta.dirname, 'lib', 'db', 'schema.prisma'),
-}) satisfies PrismaConfigWithMigrations;
+  datasource: {
+    url: env('DATABASE_URL'),
+  },
+}) satisfies PrismaConfig;
