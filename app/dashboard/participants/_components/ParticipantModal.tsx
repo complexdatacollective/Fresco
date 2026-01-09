@@ -58,8 +58,7 @@ function ParticipantModal({
         // Allow the current identifier if editing
         return (
           !existingParticipant ||
-          (editingParticipant &&
-            existingParticipant.id === editingParticipant.id)
+          (existingParticipant.id === editingParticipant?.id)
         );
       },
       {

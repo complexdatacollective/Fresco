@@ -1,15 +1,15 @@
-@import 'core/animation';
-@import 'core/units';
-@import 'core/bem';
-@import 'core/breakpoints';
-@import 'core/color';
-@import 'core/palette';
-@import 'core/spacing';
-@import 'core/typography';
-@import 'core/quicksand';
-@import 'core/normalize';
-@import 'core/z-index';
-@import 'core/helpers';
+@import 'core/_animation';
+@import 'core/_units';
+@import 'core/_bem';
+@import 'core/_breakpoints';
+@import 'core/_color';
+@import 'core/_palette';
+@import 'core/_spacing';
+@import 'core/_typography';
+@import 'core/_quicksand';
+@import 'core/_normalize';
+@import 'core/_z-index';
+@import 'core/_helpers';
 
 $export-ui-classes: true !default;
 
