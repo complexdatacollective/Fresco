@@ -16,31 +16,6 @@ on:
     branches:
       - main
       - 'v*'
-    # Only build when relevant files change
-    paths:
-      - 'Dockerfile'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - 'prisma/**'
-      - 'app/**'
-      - 'components/**'
-      - 'lib/**'
-      - 'actions/**'
-      - 'hooks/**'
-      - 'utils/**'
-      - 'schemas/**'
-      - 'types/**'
-      - 'public/**'
-      - 'styles/**'
-      - 'next.config.js'
-      - 'tailwind.config.ts'
-      - 'postcss.config.js'
-      - 'tsconfig.json'
-      - '.github/workflows/docker-build-pr.yml'
-      - 'postinstall.js'
-      - 'migrate-and-start.sh'
-      - 'setup-database.js'
-      - 'initialize.js'
 
 permissions:
   contents: read
@@ -86,4 +61,4 @@ jobs:
           name: ${{ steps.artifact-info.outputs.name }}
           path: /tmp/image.tar
           retention-days: 7
-          compression-level: 1  # Minimal compression for faster upload/download
+          compression-level: 1 # Minimal compression for faster upload/download

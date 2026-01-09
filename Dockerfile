@@ -11,8 +11,8 @@ WORKDIR /app
 # Enable corepack early for better caching
 RUN corepack enable
 
-# Copy dependency files and postinstall script
-COPY package.json pnpm-lock.yaml* postinstall.js prisma.config.ts ./
+# Copy dependency files
+COPY package.json pnpm-lock.yaml* prisma.config.ts ./
 COPY lib/db/schema.prisma ./lib/db/schema.prisma
 
 # Install pnpm and dependencies with cache mount for faster builds
