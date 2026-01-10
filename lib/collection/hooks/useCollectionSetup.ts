@@ -22,6 +22,7 @@ export type UseCollectionSetupOptions = {
   disallowEmptySelection?: boolean;
   dragAndDropHooks?: CollectionProps<unknown>['dragAndDropHooks'];
   layout: Layout<unknown>;
+  collectionId?: string;
 };
 
 export type UseCollectionSetupResult<T> = {
@@ -53,23 +54,52 @@ export function useCollectionSetup<T>(
     undefined,
   );
 
-  // Use ResizeObserver to track container width changes
+  // Track container width using ResizeObserver
+  // We need to track a version counter to force re-evaluation when the ref becomes available
+  const [refVersion, setRefVersion] = useState(0);
+
+  // Effect to detect when ref becomes available (runs on every render intentionally)
+  // This is needed because the ref might not be attached on first render if the
+  // collection is initially empty and the component returns early
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (containerRef.current && containerWidth === undefined) {
+      // Trigger re-evaluation by incrementing version
+      setRefVersion((v) => v + 1);
+    }
+  });
+
+  // Main effect to track container width using ResizeObserver
   useEffect(() => {
     const element = containerRef.current;
     if (!element) return;
 
-    // Get initial width
-    setContainerWidth(element.offsetWidth);
+    // Get initial width immediately
+    const initialWidth = element.offsetWidth;
+    if (initialWidth > 0) {
+      setContainerWidth(initialWidth);
+    }
 
+    // Watch for size changes
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        setContainerWidth(entry.contentRect.width);
+        const width = entry.contentRect.width;
+        if (width > 0) {
+          setContainerWidth(width);
+        }
       }
     });
 
     resizeObserver.observe(element);
     return () => resizeObserver.disconnect();
-  }, [containerRef]);
+  }, [refVersion, containerWidth, containerRef]);
+
+  // Set container ref on layout for DOM-based position queries
+  // This allows layouts like InlineGridLayout to query actual item positions
+  const collectionId = options.collectionId ?? 'collection';
+  useEffect(() => {
+    options.layout.setContainerRef(containerRef, collectionId);
+  }, [options.layout, containerRef, collectionId]);
 
   const selectionManager = useSelectionState({
     selectionMode: options.selectionMode,
@@ -88,6 +118,23 @@ export function useCollectionSetup<T>(
         : new Set<Key>(),
     [options.disabledKeys],
   );
+
+  // Update layout with current items and container width for spatial navigation
+  // This populates layoutInfos so SpatialKeyboardDelegate can use item positions
+  useMemo(() => {
+    if (containerWidth === undefined || containerWidth <= 0) return;
+
+    // Build items map and ordered keys from collection
+    const items = new Map<Key, { key: Key; value: unknown }>();
+    const orderedKeys: Key[] = [];
+    for (const node of collection) {
+      items.set(node.key, node);
+      orderedKeys.push(node.key);
+    }
+
+    options.layout.setItems(items, orderedKeys);
+    options.layout.update({ containerWidth });
+  }, [options.layout, collection, containerWidth]);
 
   // Create keyboard delegate for navigation using layout-specific implementation
   // Pass containerWidth so GridLayout can calculate the correct column count

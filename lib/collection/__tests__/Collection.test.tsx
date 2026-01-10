@@ -62,13 +62,8 @@ function ControlledCollection({
       disabledKeys={disabledKeys}
       disallowEmptySelection={disallowEmptySelection}
       aria-label="Test collection"
-      renderItem={(item, state) => (
-        <div
-          data-testid={`item-${item.id}`}
-          data-selected={state.isSelected}
-          data-focused={state.isFocused}
-          data-disabled={state.isDisabled}
-        >
+      renderItem={(item, itemProps) => (
+        <div {...itemProps} data-testid={`item-${item.id}`}>
           {item.name}
         </div>
       )}
@@ -97,7 +92,9 @@ describe('Collection', () => {
           keyExtractor={(item) => item.id}
           layout={layout}
           emptyState={<div data-testid="empty">No items</div>}
-          renderItem={(item) => <div>{item.name}</div>}
+          renderItem={(item, itemProps) => (
+            <div {...itemProps}>{item.name}</div>
+          )}
         />,
       );
 
@@ -115,9 +112,11 @@ describe('Collection', () => {
     it('should mark disabled items', () => {
       render(<ControlledCollection disabledKeys={['2']} />);
 
-      expect(screen.getByTestId('item-1').getAttribute('data-disabled')).toBe(
-        'false',
-      );
+      // Non-disabled items don't have the data-disabled attribute
+      expect(
+        screen.getByTestId('item-1').hasAttribute('data-disabled'),
+      ).toBeFalsy();
+      // Disabled items have data-disabled="true"
       expect(screen.getByTestId('item-2').getAttribute('data-disabled')).toBe(
         'true',
       );
@@ -287,9 +286,10 @@ describe('Collection', () => {
       expect(screen.getByTestId('item-2').getAttribute('data-focused')).toBe(
         'true',
       );
-      expect(screen.getByTestId('item-1').getAttribute('data-focused')).toBe(
-        'false',
-      );
+      // Previous item no longer has data-focused attribute
+      expect(
+        screen.getByTestId('item-1').hasAttribute('data-focused'),
+      ).toBeFalsy();
     });
 
     it('should select focused item with Space', async () => {
@@ -473,11 +473,8 @@ describe('Collection', () => {
           selectionMode="multiple"
           defaultSelectedKeys={['1', '3']}
           aria-label="Uncontrolled collection"
-          renderItem={(item, state) => (
-            <div
-              data-testid={`item-${item.id}`}
-              data-selected={state.isSelected}
-            >
+          renderItem={(item, itemProps) => (
+            <div {...itemProps} data-testid={`item-${item.id}`}>
               {item.name}
             </div>
           )}
@@ -487,9 +484,10 @@ describe('Collection', () => {
       expect(screen.getByTestId('item-1').getAttribute('data-selected')).toBe(
         'true',
       );
-      expect(screen.getByTestId('item-2').getAttribute('data-selected')).toBe(
-        'false',
-      );
+      // Non-selected items don't have the data-selected attribute
+      expect(
+        screen.getByTestId('item-2').hasAttribute('data-selected'),
+      ).toBeFalsy();
       expect(screen.getByTestId('item-3').getAttribute('data-selected')).toBe(
         'true',
       );

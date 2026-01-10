@@ -1,68 +1,192 @@
-import { useCollectionStore } from '../contexts';
+import { stagger, useAnimate } from 'motion/react';
+import { memo, useCallback, useEffect, useRef } from 'react';
+import {
+  CollectionItemContext,
+  useCollectionId,
+  useSelectionManager,
+} from '../contexts';
+import { useSelectableItem } from '../hooks/useSelectableItem';
 import { type Layout } from '../layout/Layout';
-import { type SelectionManager } from '../selection/SelectionManager';
 import {
   type Collection,
   type CollectionProps,
+  type ItemProps,
   type ItemRenderer,
-  type Key,
+  type Node,
 } from '../types';
-import { CollectionItem } from './CollectionItem';
 
 export type StaticRendererProps<T> = {
   layout: Layout<T>;
   collection: Collection<T>;
-  selectionManager: SelectionManager;
   renderItem: ItemRenderer<T>;
   dragAndDropHooks?: CollectionProps<T>['dragAndDropHooks'];
+  animate?: boolean;
 };
+
+const ANIMATION_CONFIG = {
+  staggerDelay: 0.03,
+  initialOpacity: 0,
+  initialY: 10,
+  duration: 0.3,
+} as const;
+
+type StaticRendererItemProps<T> = {
+  node: Node<T>;
+  renderItem: ItemRenderer<T>;
+  itemStyle?: React.CSSProperties;
+  dragAndDropHooks?: CollectionProps<T>['dragAndDropHooks'];
+  layout: Layout<T>;
+};
+
+function StaticRendererItemComponent<T>({
+  node,
+  renderItem,
+  itemStyle,
+  dragAndDropHooks,
+  layout,
+}: StaticRendererItemProps<T>) {
+  const selectionManager = useSelectionManager();
+  const collectionId = useCollectionId() ?? 'collection';
+  const localRef = useRef<HTMLElement>(null);
+
+  const { itemProps, isSelected, isFocused, isDisabled } = useSelectableItem({
+    key: node.key,
+    selectionManager,
+    ref: localRef,
+  });
+
+  // Get item-level drag props if hooks provided
+  const dndDragPropsRaw = dragAndDropHooks?.useDraggableItemProps
+    ? dragAndDropHooks.useDraggableItemProps(node.key)
+    : {};
+
+  const { ref: dragRef, ...dndDragProps } = dndDragPropsRaw as {
+    ref?: (el: HTMLElement | null) => void;
+    [key: string]: unknown;
+  };
+
+  // Combined ref callback that also registers the element with the layout
+  const combinedRef = useCallback(
+    (el: HTMLElement | null) => {
+      (localRef as React.MutableRefObject<HTMLElement | null>).current = el;
+      if (dragRef) {
+        dragRef(el);
+      }
+      // Register the element with the layout for DOM-based position queries
+      layout.registerItemRef(node.key, el);
+    },
+    [dragRef, layout, node.key],
+  );
+
+  const itemId = `${collectionId}-item-${node.key}`;
+  const contextValue = { key: node.key };
+
+  // Build ItemProps to pass to renderItem
+  const fullItemProps: ItemProps = {
+    'ref': combinedRef,
+    'tabIndex': itemProps.tabIndex,
+    'role': 'option',
+    'aria-selected': isSelected || undefined,
+    'aria-disabled': isDisabled || undefined,
+    'data-collection-item': true,
+    'data-selected': isSelected || undefined,
+    'data-focused': isFocused || undefined,
+    'data-disabled': isDisabled || undefined,
+    'data-dragging': undefined,
+    'data-drop-target': undefined,
+    'onFocus': itemProps.onFocus as React.FocusEventHandler<HTMLElement>,
+    'onClick': itemProps.onClick as React.MouseEventHandler<HTMLElement>,
+    'onKeyDown': itemProps.onKeyDown as React.KeyboardEventHandler<HTMLElement>,
+    'onPointerDown': dndDragProps.onPointerDown as
+      | React.PointerEventHandler<HTMLElement>
+      | undefined,
+    'onPointerMove': dndDragProps.onPointerMove as
+      | React.PointerEventHandler<HTMLElement>
+      | undefined,
+    'id': itemId,
+    'style': itemStyle,
+    ...dndDragProps,
+  };
+
+  return (
+    <CollectionItemContext.Provider value={contextValue}>
+      {renderItem(node.value, fullItemProps)}
+    </CollectionItemContext.Provider>
+  );
+}
+
+const StaticRendererItem = memo(
+  StaticRendererItemComponent,
+) as typeof StaticRendererItemComponent;
 
 /**
  * Non-virtualized renderer that renders all items using CSS Grid/Flexbox.
  * Uses the layout's getContainerStyles() method to determine CSS layout properties.
  * All items are rendered regardless of viewport visibility.
+ * Supports optional stagger enter animation using the imperative useAnimate API.
  */
 export function StaticRenderer<T>({
   layout,
   collection,
-  selectionManager,
   renderItem,
   dragAndDropHooks,
+  animate: shouldAnimate,
 }: StaticRendererProps<T>) {
-  // Subscribe to focusedKey from store so we re-render when focus changes
-  const focusedKey = useCollectionStore<T, Key | null>(
-    (state) => state.focusedKey,
-  );
-
   // Get CSS styles from layout (flexbox for list, CSS grid for grid)
   const containerStyle = layout.getContainerStyles();
 
+  // Setup animation using imperative useAnimate API
+  const [scope, animate] = useAnimate<HTMLDivElement>();
+  const hasAnimatedRef = useRef(false);
+
+  // Run stagger animation on mount
+  useEffect(() => {
+    if (!shouldAnimate || hasAnimatedRef.current || collection.size === 0) {
+      return;
+    }
+
+    hasAnimatedRef.current = true;
+
+    const runAnimation = async () => {
+      await animate(
+        '[data-collection-item]',
+        { opacity: 1, y: 0 },
+        {
+          duration: ANIMATION_CONFIG.duration,
+          delay: stagger(ANIMATION_CONFIG.staggerDelay),
+        },
+      );
+    };
+
+    void runAnimation();
+  }, [animate, shouldAnimate, collection.size]);
+
+  // Get layout item styles (e.g., fixed width for InlineGridLayout)
+  const layoutItemStyle = layout.getItemStyles();
+
+  // Combine layout styles with animation initial styles
+  const itemStyle = shouldAnimate
+    ? {
+        ...layoutItemStyle,
+        opacity: ANIMATION_CONFIG.initialOpacity,
+        transform: `translateY(${ANIMATION_CONFIG.initialY}px)`,
+      }
+    : Object.keys(layoutItemStyle).length > 0
+      ? layoutItemStyle
+      : undefined;
+
   return (
-    <div style={containerStyle}>
-      {Array.from(collection).map((node) => {
-        const isSelected = selectionManager.isSelected(node.key);
-        const isFocused = focusedKey === node.key;
-        const isDisabled = selectionManager.isDisabled(node.key);
-
-        const itemState = {
-          isSelected,
-          isFocused,
-          isDisabled,
-          isDragging: false,
-          isDropTarget: false,
-        };
-
-        return (
-          <CollectionItem
-            key={node.key}
-            itemKey={node.key}
-            state={itemState}
-            dragAndDropHooks={dragAndDropHooks}
-          >
-            {renderItem(node.value, itemState)}
-          </CollectionItem>
-        );
-      })}
+    <div ref={scope} style={containerStyle}>
+      {Array.from(collection).map((node) => (
+        <StaticRendererItem
+          key={node.key}
+          node={node}
+          renderItem={renderItem}
+          itemStyle={itemStyle}
+          dragAndDropHooks={dragAndDropHooks}
+          layout={layout}
+        />
+      ))}
     </div>
   );
 }

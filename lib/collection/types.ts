@@ -56,6 +56,7 @@ export type TextValueExtractor<T> = (item: T) => string;
 
 /**
  * Props passed to item render function for styling/behavior.
+ * @deprecated Use ItemProps instead with data attributes.
  */
 export type ItemRenderState = {
   /** Whether the item is currently selected */
@@ -71,11 +72,37 @@ export type ItemRenderState = {
 };
 
 /**
+ * Props to spread onto the rendered item element.
+ * Contains accessibility attributes, event handlers, and data attributes for styling.
+ * Use data attributes like data-selected:, data-focused:, etc. with Tailwind for styling.
+ */
+export type ItemProps = {
+  'ref': React.RefCallback<HTMLElement>;
+  'id'?: string;
+  'tabIndex': number;
+  'role': string;
+  'style'?: React.CSSProperties;
+  'aria-selected'?: boolean;
+  'aria-disabled'?: boolean;
+  'data-collection-item'?: boolean;
+  'data-selected'?: boolean;
+  'data-focused'?: boolean;
+  'data-disabled'?: boolean;
+  'data-dragging'?: boolean;
+  'data-drop-target'?: boolean;
+  'onFocus'?: React.FocusEventHandler<HTMLElement>;
+  'onClick'?: React.MouseEventHandler<HTMLElement>;
+  'onKeyDown'?: React.KeyboardEventHandler<HTMLElement>;
+  'onPointerDown'?: React.PointerEventHandler<HTMLElement>;
+  'onPointerMove'?: React.PointerEventHandler<HTMLElement>;
+};
+
+/**
  * Render function for collection items.
  */
 export type ItemRenderer<T> = (
   item: T,
-  state: ItemRenderState,
+  itemProps: ItemProps,
 ) => React.ReactNode;
 
 /**
@@ -185,6 +212,10 @@ export type CollectionProps<T> = {
   'disabledKeys'?: Iterable<Key>;
   /** Whether empty selection is allowed (default: true) */
   'disallowEmptySelection'?: boolean;
+
+  // Animation props
+  /** Enable stagger enter animation for items */
+  'animate'?: boolean;
 
   // Drag and drop props
   /** Optional drag and drop hooks */

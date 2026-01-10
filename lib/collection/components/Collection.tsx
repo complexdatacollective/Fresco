@@ -31,6 +31,7 @@ function CollectionContent<T>({
   onSelectionChange,
   disabledKeys,
   disallowEmptySelection,
+  animate,
   dragAndDropHooks,
 }: CollectionContentProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -80,8 +81,8 @@ function CollectionContent<T>({
             <StaticRenderer
               layout={layout}
               collection={collection}
-              selectionManager={selectionManager}
               renderItem={renderItem}
+              animate={animate}
               dragAndDropHooks={dragAndDropHooks}
             />
           </div>
@@ -140,6 +141,7 @@ export function Collection<T>({
   onSelectionChange,
   disabledKeys,
   disallowEmptySelection,
+  animate,
   dragAndDropHooks,
 }: CollectionProps<T>) {
   return (
@@ -162,6 +164,7 @@ export function Collection<T>({
         onSelectionChange={onSelectionChange}
         disabledKeys={disabledKeys}
         disallowEmptySelection={disallowEmptySelection}
+        animate={animate}
         dragAndDropHooks={dragAndDropHooks}
       />
     </CollectionProvider>

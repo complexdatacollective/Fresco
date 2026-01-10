@@ -194,6 +194,9 @@ importers:
       react-aria-components:
         specifier: ^1.14.0
         version: 1.14.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-best-merge-refs:
+        specifier: ^1.0.2
+        version: 1.0.2(react@18.3.1)
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
@@ -6300,6 +6303,11 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
       react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+
+  react-best-merge-refs@1.0.2:
+    resolution: {integrity: sha512-L8UHTNEBTLCCHbF92Me/CVGFaNS/yJch7JwyE1PlnE5zJYRVgrHeqaXO50E8V4KObybpk1fnt4miQkoIKKHaVQ==}
+    peerDependencies:
+      react: ^19
 
   react-docgen-typescript@2.4.0:
     resolution: {integrity: sha512-ZtAp5XTO5HRzQctjPU0ybY0RRCQO19X/8fxn3w7y2VVTUbGHDKULPTL4ky3vB05euSgG5NpALhEhDPvQ56wvXg==}
@@ -14304,6 +14312,10 @@ snapshots:
       '@react-types/shared': 3.32.1(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+
+  react-best-merge-refs@1.0.2(react@18.3.1):
+    dependencies:
+      react: 18.3.1
 
   react-docgen-typescript@2.4.0(typescript@5.9.3):
     dependencies:

@@ -1,4 +1,10 @@
-import { type Key } from '../types';
+import type React from 'react';
+
+/**
+ * Unique identifier for items in a collection.
+ * Duplicated here to avoid circular dependency with ../types.ts
+ */
+type Key = string | number;
 
 /**
  * Position where an item can be dropped relative to another item.
@@ -39,6 +45,23 @@ export type ReorderEvent = {
 };
 
 /**
+ * Props returned by useDraggableItemProps hook.
+ */
+export type DraggableItemProps = {
+  'ref': (el: HTMLElement | null) => void;
+  'onPointerDown': (e: React.PointerEvent) => void;
+  'onKeyDown': (e: React.KeyboardEvent) => void;
+  'isDragging': boolean;
+  'role'?: string;
+  'tabIndex'?: number;
+  'aria-grabbed'?: boolean;
+  'aria-dropeffect'?: 'none' | 'copy' | 'execute' | 'link' | 'move' | 'popup';
+  'aria-label'?: string;
+  'style'?: React.CSSProperties;
+  'data-dragging'?: true;
+};
+
+/**
  * Props returned by useDroppableItemProps hook.
  */
 export type DroppableItemProps = {
@@ -61,7 +84,7 @@ export type DragAndDropHooks = {
   /** Hook called at collection level to get container DnD props */
   useDraggableCollectionProps?: () => Record<string, unknown>;
   /** Hook called for each item to get draggable props */
-  useDraggableItemProps?: (key: Key) => Record<string, unknown>;
+  useDraggableItemProps?: (key: Key) => DraggableItemProps;
   /** Hook called for each item to get droppable props */
   useDroppableItemProps?: (
     key: Key,

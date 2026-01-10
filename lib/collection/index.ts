@@ -73,6 +73,7 @@ export type {
   Collection as CollectionType,
   CollectionProps,
   CollectionState,
+  ItemProps,
   ItemRenderer,
   ItemRenderState,
   Key,
@@ -100,6 +101,8 @@ export type { CollectionStoreApi } from './store';
 export {
   GridLayout,
   type GridLayoutOptions,
+  InlineGridLayout,
+  type InlineGridLayoutOptions,
   Layout,
   ListLayout,
   type ListLayoutOptions,

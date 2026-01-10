@@ -9,7 +9,19 @@ import {
 } from '../contexts';
 import { type DroppableItemProps } from '../dnd/types';
 import { useSelectableItem } from '../hooks/useSelectableItem';
-import { type ItemRenderState, type Key } from '../types';
+import { type Key } from '../types';
+
+/**
+ * Render state passed to CollectionItem wrapper component.
+ * @deprecated Use data attributes on itemProps instead.
+ */
+export type ItemRenderState = {
+  isSelected: boolean;
+  isFocused: boolean;
+  isDisabled: boolean;
+  isDragging: boolean;
+  isDropTarget: boolean;
+};
 
 export type CollectionItemProps = {
   /** Unique key for this item */
@@ -20,6 +32,8 @@ export type CollectionItemProps = {
   children: ReactNode;
   /** Additional CSS class names */
   className?: string;
+  /** Inline styles (used for animation initial state) */
+  style?: React.CSSProperties;
   /** Optional drag and drop hooks */
   dragAndDropHooks?: {
     useDraggableCollectionProps?: () => Record<string, unknown>;
@@ -45,6 +59,7 @@ function SelectableItemWrapper({
   state,
   children,
   className,
+  style,
   selectionManager,
   dragAndDropHooks,
 }: CollectionItemProps & {
@@ -109,6 +124,7 @@ function SelectableItemWrapper({
         ref={combinedRef}
         id={itemId}
         role="option"
+        data-collection-item
         data-key={itemKey}
         data-selected={isSelected ? true : undefined}
         data-focused={isFocused ? true : undefined}
@@ -116,6 +132,7 @@ function SelectableItemWrapper({
         data-dragging={state.isDragging ? true : undefined}
         data-drop-target={isDropTarget ? true : undefined}
         className={cx('relative', className)}
+        style={style}
         onPointerMove={dndDropProps?.onPointerMove}
         {...itemProps}
         {...dndDragProps}
@@ -146,6 +163,7 @@ function CollectionItemComponent({
   state,
   children,
   className,
+  style,
   dragAndDropHooks,
 }: CollectionItemProps) {
   const selectionManager = useOptionalSelectionManager();
@@ -159,6 +177,7 @@ function CollectionItemComponent({
         itemKey={itemKey}
         state={state}
         className={className}
+        style={style}
         selectionManager={selectionManager}
         dragAndDropHooks={dragAndDropHooks}
       >
@@ -219,6 +238,7 @@ function CollectionItemComponent({
         id={itemId}
         role="option"
         aria-selected={state.isSelected}
+        data-collection-item
         data-key={itemKey}
         data-selected={state.isSelected ? true : undefined}
         data-focused={state.isFocused ? true : undefined}
@@ -226,6 +246,7 @@ function CollectionItemComponent({
         data-dragging={state.isDragging ? true : undefined}
         data-drop-target={isDropTarget ? true : undefined}
         className={cx('relative', className)}
+        style={style}
         onPointerMove={dndDropProps?.onPointerMove}
         {...dndDragProps}
       >

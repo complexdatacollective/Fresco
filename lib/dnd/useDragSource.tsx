@@ -20,6 +20,9 @@ import {
 } from './useAccessibilityAnnouncements';
 import { findSourceZone, rafThrottle } from './utils';
 
+// Default threshold in pixels - drag won't start until cursor moves this far
+const DEFAULT_DRAG_THRESHOLD = 5;
+
 // Hook-specific types
 type DragSourceOptions = {
   type: string;
@@ -27,6 +30,13 @@ type DragSourceOptions = {
   announcedName?: string;
   preview?: ReactNode;
   disabled?: boolean;
+  dragThreshold?: number;
+};
+
+type PendingDrag = {
+  startPosition: { x: number; y: number };
+  element: HTMLElement;
+  pointerId: number;
 };
 
 type UseDragSourceReturn = {
@@ -47,7 +57,14 @@ type UseDragSourceReturn = {
 export function useDragSource(
   options: Prettify<DragSourceOptions>,
 ): Prettify<UseDragSourceReturn> {
-  const { type, metadata, announcedName, preview, disabled = false } = options;
+  const {
+    type,
+    metadata,
+    announcedName,
+    preview,
+    disabled = false,
+    dragThreshold = DEFAULT_DRAG_THRESHOLD,
+  } = options;
   const previewComponent = preview;
 
   const { announce } = useAccessibilityAnnouncements();
@@ -58,6 +75,7 @@ export function useDragSource(
   const [currentDropTargetIndex, setCurrentDropTargetIndex] = useState(-1);
   const dragId = useId();
   const elementRef = useRef<HTMLElement | null>(null);
+  const pendingDragRef = useRef<PendingDrag | null>(null);
 
   const startDrag = useDndStore((state) => state.startDrag);
   const updateDragPosition = useDndStore((state) => state.updateDragPosition);
@@ -70,12 +88,32 @@ export function useDragSource(
       if (previewComponent !== undefined) return previewComponent;
       if (!element) return null;
 
+      // Capture the element's exact computed size
+      const rect = element.getBoundingClientRect();
+      const computedStyle = window.getComputedStyle(element);
+
       const clonedElement = element.cloneNode(true) as HTMLElement;
       clonedElement.style.pointerEvents = 'none';
+
+      // Ensure the preview shows the dragging state
+      clonedElement.setAttribute('data-dragging', 'true');
+
+      // Apply the exact computed dimensions to ensure visual consistency
+      clonedElement.style.width = `${rect.width}px`;
+      clonedElement.style.height = `${rect.height}px`;
+      clonedElement.style.minWidth = `${rect.width}px`;
+      clonedElement.style.minHeight = `${rect.height}px`;
+      clonedElement.style.maxWidth = `${rect.width}px`;
+      clonedElement.style.maxHeight = `${rect.height}px`;
+
+      // Preserve box-sizing to ensure dimensions are applied correctly
+      clonedElement.style.boxSizing = computedStyle.boxSizing;
+
       clonedElement.removeAttribute('id');
       clonedElement
         .querySelectorAll('[id]')
         .forEach((el) => el.removeAttribute('id'));
+
       return createElement('div', {
         dangerouslySetInnerHTML: { __html: clonedElement.outerHTML },
       });
@@ -150,9 +188,27 @@ export function useDragSource(
   const handlePointerMove = useCallback(
     (e: PointerEvent) => {
       e.preventDefault();
+
+      // Check if we have a pending drag that hasn't met the threshold yet
+      if (pendingDragRef.current && dragMode === 'none') {
+        const { startPosition, element } = pendingDragRef.current;
+        const distance = Math.hypot(
+          e.clientX - startPosition.x,
+          e.clientY - startPosition.y,
+        );
+
+        if (distance >= dragThreshold) {
+          // Threshold met - initialize the drag
+          initializeDrag(element, startPosition, 'pointer');
+          pendingDragRef.current = null;
+        }
+        return;
+      }
+
+      // Normal drag position update
       updatePosition(e.clientX, e.clientY);
     },
-    [updatePosition],
+    [updatePosition, dragThreshold, dragMode, initializeDrag],
   );
 
   const handlePointerUp = useCallback(
@@ -161,10 +217,31 @@ export function useDragSource(
       document.removeEventListener('pointerup', handlePointerUp);
       document.removeEventListener('pointercancel', handlePointerUp);
 
+      // Check if we have a pending drag that never met the threshold
+      if (pendingDragRef.current) {
+        const { element, pointerId } = pendingDragRef.current;
+        if (element.hasPointerCapture(pointerId)) {
+          element.releasePointerCapture(pointerId);
+        }
+        pendingDragRef.current = null;
+        // Don't call finishDrag - let the click event fire for selection
+        return;
+      }
+
       const element = elementRef.current;
       if (element?.hasPointerCapture(e.pointerId)) {
         element.releasePointerCapture(e.pointerId);
       }
+
+      // Suppress the click event that follows pointer up after a real drag
+      // This prevents selection from triggering after drag-and-drop
+      const suppressClick = (clickEvent: MouseEvent) => {
+        clickEvent.stopPropagation();
+        clickEvent.preventDefault();
+        document.removeEventListener('click', suppressClick, true);
+      };
+      document.addEventListener('click', suppressClick, true);
+
       finishDrag(true);
     },
     [handlePointerMove, finishDrag],
@@ -175,17 +252,22 @@ export function useDragSource(
       if (disabled || e.button !== 0) return;
       const element = e.currentTarget as HTMLElement;
 
-      initializeDrag(element, { x: e.clientX, y: e.clientY }, 'pointer');
+      // Store pending drag - actual drag starts when threshold is exceeded
+      pendingDragRef.current = {
+        startPosition: { x: e.clientX, y: e.clientY },
+        element,
+        pointerId: e.pointerId,
+      };
 
       element.setPointerCapture(e.pointerId);
       document.addEventListener('pointermove', handlePointerMove);
       document.addEventListener('pointerup', handlePointerUp);
       document.addEventListener('pointercancel', handlePointerUp);
 
-      // Prevent default to avoid text selection
+      // Prevent default to avoid text selection during potential drag
       e.preventDefault();
     },
-    [disabled, initializeDrag, handlePointerMove, handlePointerUp],
+    [disabled, handlePointerMove, handlePointerUp],
   );
 
   const startKeyboardDrag = useCallback(
@@ -254,8 +336,11 @@ export function useDragSource(
     (e: React.KeyboardEvent) => {
       if (disabled) return;
 
+      // During keyboard drag mode, handle navigation and stop propagation
+      // to prevent selection handlers from firing
       if (dragMode === 'keyboard') {
         e.preventDefault();
+        e.stopPropagation();
         switch (e.key) {
           case 'ArrowDown':
           case 'ArrowRight':
@@ -269,8 +354,17 @@ export function useDragSource(
           case 'Escape':
             return finishDrag(false);
         }
-      } else if (e.key === ' ' || e.key === 'Enter') {
+        return;
+      }
+
+      // Initiate keyboard drag with Ctrl+D or Alt+Space
+      // This avoids conflicts with Space/Enter used for selection
+      const isCtrlD = e.ctrlKey && e.key.toLowerCase() === 'd';
+      const isAltSpace = e.altKey && e.key === ' ';
+
+      if (isCtrlD || isAltSpace) {
         e.preventDefault();
+        e.stopPropagation();
         startKeyboardDrag(e.currentTarget as HTMLElement);
       }
     },

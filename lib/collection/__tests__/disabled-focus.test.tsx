@@ -32,13 +32,8 @@ describe('Collection - Disabled Item Focus', () => {
         selectionMode="single"
         disabledKeys={['2', '4']}
         defaultSelectedKeys={['1']}
-        renderItem={(item, state) => (
-          <div
-            data-testid={`item-${item.id}`}
-            data-selected={state.isSelected}
-            data-focused={state.isFocused}
-            data-disabled={state.isDisabled}
-          >
+        renderItem={(item, itemProps) => (
+          <div {...itemProps} data-testid={`item-${item.id}`}>
             {item.name}
           </div>
         )}
@@ -59,11 +54,11 @@ describe('Collection - Disabled Item Focus', () => {
 
     await user.keyboard('{ArrowDown}');
     expect(item3.getAttribute('data-focused')).toBe('true');
-    expect(item2.getAttribute('data-focused')).toBe('false');
+    expect(item2.hasAttribute('data-focused')).toBeFalsy();
 
     await user.keyboard('{ArrowDown}');
     expect(item5.getAttribute('data-focused')).toBe('true');
-    expect(item4.getAttribute('data-focused')).toBe('false');
+    expect(item4.hasAttribute('data-focused')).toBeFalsy();
   });
 
   it('should skip disabled items when navigating backwards', async () => {
@@ -78,13 +73,8 @@ describe('Collection - Disabled Item Focus', () => {
         selectionMode="single"
         disabledKeys={['2', '4']}
         defaultSelectedKeys={['5']}
-        renderItem={(item, state) => (
-          <div
-            data-testid={`item-${item.id}`}
-            data-selected={state.isSelected}
-            data-focused={state.isFocused}
-            data-disabled={state.isDisabled}
-          >
+        renderItem={(item, itemProps) => (
+          <div {...itemProps} data-testid={`item-${item.id}`}>
             {item.name}
           </div>
         )}
@@ -102,11 +92,11 @@ describe('Collection - Disabled Item Focus', () => {
 
     await user.keyboard('{ArrowUp}');
     expect(item3.getAttribute('data-focused')).toBe('true');
-    expect(item4.getAttribute('data-focused')).toBe('false');
+    expect(item4.hasAttribute('data-focused')).toBeFalsy();
 
     await user.keyboard('{ArrowUp}');
     expect(item1.getAttribute('data-focused')).toBe('true');
-    expect(item2.getAttribute('data-focused')).toBe('false');
+    expect(item2.hasAttribute('data-focused')).toBeFalsy();
   });
 
   it('should navigate to first enabled item when pressing Home', async () => {
@@ -121,13 +111,8 @@ describe('Collection - Disabled Item Focus', () => {
         selectionMode="single"
         disabledKeys={['1', '2']}
         defaultSelectedKeys={['5']}
-        renderItem={(item, state) => (
-          <div
-            data-testid={`item-${item.id}`}
-            data-selected={state.isSelected}
-            data-focused={state.isFocused}
-            data-disabled={state.isDisabled}
-          >
+        renderItem={(item, itemProps) => (
+          <div {...itemProps} data-testid={`item-${item.id}`}>
             {item.name}
           </div>
         )}
@@ -144,8 +129,8 @@ describe('Collection - Disabled Item Focus', () => {
 
     await user.keyboard('{Home}');
     expect(item3.getAttribute('data-focused')).toBe('true');
-    expect(item1.getAttribute('data-focused')).toBe('false');
-    expect(item2.getAttribute('data-focused')).toBe('false');
+    expect(item1.hasAttribute('data-focused')).toBeFalsy();
+    expect(item2.hasAttribute('data-focused')).toBeFalsy();
   });
 
   it('should navigate to last enabled item when pressing End', async () => {
@@ -160,13 +145,8 @@ describe('Collection - Disabled Item Focus', () => {
         selectionMode="single"
         disabledKeys={['4', '5']}
         defaultSelectedKeys={['1']}
-        renderItem={(item, state) => (
-          <div
-            data-testid={`item-${item.id}`}
-            data-selected={state.isSelected}
-            data-focused={state.isFocused}
-            data-disabled={state.isDisabled}
-          >
+        renderItem={(item, itemProps) => (
+          <div {...itemProps} data-testid={`item-${item.id}`}>
             {item.name}
           </div>
         )}
@@ -183,8 +163,8 @@ describe('Collection - Disabled Item Focus', () => {
 
     await user.keyboard('{End}');
     expect(item3.getAttribute('data-focused')).toBe('true');
-    expect(item4.getAttribute('data-focused')).toBe('false');
-    expect(item5.getAttribute('data-focused')).toBe('false');
+    expect(item4.hasAttribute('data-focused')).toBeFalsy();
+    expect(item5.hasAttribute('data-focused')).toBeFalsy();
   });
 
   it('should not allow clicking on disabled items', async () => {
@@ -199,12 +179,8 @@ describe('Collection - Disabled Item Focus', () => {
         selectionMode="single"
         disabledKeys={['2']}
         defaultSelectedKeys={['1']}
-        renderItem={(item, state) => (
-          <div
-            data-testid={`item-${item.id}`}
-            data-selected={state.isSelected}
-            data-disabled={state.isDisabled}
-          >
+        renderItem={(item, itemProps) => (
+          <div {...itemProps} data-testid={`item-${item.id}`}>
             {item.name}
           </div>
         )}
@@ -220,7 +196,7 @@ describe('Collection - Disabled Item Focus', () => {
     await user.click(item2);
 
     expect(item1.getAttribute('data-selected')).toBe('true');
-    expect(item2.getAttribute('data-selected')).toBe('false');
+    expect(item2.hasAttribute('data-selected')).toBeFalsy();
   });
 
   it('should skip disabled items when using type-ahead search', async () => {
@@ -242,13 +218,8 @@ describe('Collection - Disabled Item Focus', () => {
         selectionMode="single"
         disabledKeys={['1']}
         defaultSelectedKeys={['3']}
-        renderItem={(item, state) => (
-          <div
-            data-testid={`item-${item.id}`}
-            data-selected={state.isSelected}
-            data-focused={state.isFocused}
-            data-disabled={state.isDisabled}
-          >
+        renderItem={(item, itemProps) => (
+          <div {...itemProps} data-testid={`item-${item.id}`}>
             {item.name}
           </div>
         )}
@@ -265,7 +236,7 @@ describe('Collection - Disabled Item Focus', () => {
     await user.keyboard('a');
 
     expect(item2.getAttribute('data-focused')).toBe('true');
-    expect(item1.getAttribute('data-focused')).toBe('false');
+    expect(item1.hasAttribute('data-focused')).toBeFalsy();
   });
 
   it('should handle all items disabled scenario gracefully', () => {
@@ -277,8 +248,8 @@ describe('Collection - Disabled Item Focus', () => {
         layout={layout}
         selectionMode="single"
         disabledKeys={['1', '2', '3', '4', '5']}
-        renderItem={(item, state) => (
-          <div data-testid={`item-${item.id}`} data-disabled={state.isDisabled}>
+        renderItem={(item, itemProps) => (
+          <div {...itemProps} data-testid={`item-${item.id}`}>
             {item.name}
           </div>
         )}

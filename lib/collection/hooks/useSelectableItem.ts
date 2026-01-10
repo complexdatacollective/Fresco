@@ -140,6 +140,10 @@ export function useSelectableItem(
         return;
       }
 
+      // Skip Ctrl+D and Alt+Space - reserved for drag initiation
+      if (e.ctrlKey && e.key.toLowerCase() === 'd') return;
+      if (e.altKey && e.key === ' ') return;
+
       switch (e.key) {
         case ' ':
         case 'Enter': {

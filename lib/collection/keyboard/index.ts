@@ -7,6 +7,7 @@
 
 export { GridKeyboardDelegate } from './GridKeyboardDelegate';
 export { ListKeyboardDelegate } from './ListKeyboardDelegate';
+export { SpatialKeyboardDelegate } from './SpatialKeyboardDelegate';
 export {
   useSelectableCollection,
   type UseSelectableCollectionOptions,

@@ -15,16 +15,22 @@ type ScrollSnapType = 'mandatory' | 'proximity';
 type ScrollSnapAxis = 'x' | 'y' | 'both';
 
 type ScrollAreaProps = {
-  className?: string;
   viewportClassName?: string;
-  children: React.ReactNode;
   /** Whether to show gradient fade at scroll edges. Defaults to true. */
   fade?: boolean;
   /** Enable scroll-snap behavior. Children should use 'snap-start', 'snap-center', or 'snap-end' classes. */
   snap?: ScrollSnapType;
   /** Axis for scroll-snap. Defaults to 'both'. Only applies when snap is set. */
   snapAxis?: ScrollSnapAxis;
-};
+} & Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  | 'onDrag'
+  | 'onDragEnd'
+  | 'onDragStart'
+  | 'onAnimationStart'
+  | 'onAnimationEnd'
+  | 'onAnimationIteration'
+>;
 
 const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
   (

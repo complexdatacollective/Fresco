@@ -100,6 +100,7 @@
     "prop-types": "^15.8.1",
     "react": "18.3.1",
     "react-aria-components": "^1.14.0",
+    "react-best-merge-refs": "^1.0.2",
     "react-dom": "18.3.1",
     "react-dropzone": "^14.3.8",
     "react-flip-toolkit": "^7.2.4",

@@ -51,42 +51,12 @@ describe('ListLayout', () => {
       const layout = new ListLayout();
 
       expect(layout.getGap()).toBe(0);
-      expect(layout.getPadding()).toEqual({
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
-      });
     });
 
     it('should accept gap option', () => {
       const layout = new ListLayout({ gap: 16 });
 
       expect(layout.getGap()).toBe(16);
-    });
-
-    it('should accept numeric padding', () => {
-      const layout = new ListLayout({ padding: 20 });
-
-      expect(layout.getPadding()).toEqual({
-        top: 20,
-        right: 20,
-        bottom: 20,
-        left: 20,
-      });
-    });
-
-    it('should accept object padding', () => {
-      const layout = new ListLayout({
-        padding: { top: 10, right: 20, bottom: 30, left: 40 },
-      });
-
-      expect(layout.getPadding()).toEqual({
-        top: 10,
-        right: 20,
-        bottom: 30,
-        left: 40,
-      });
     });
   });
 
@@ -98,20 +68,6 @@ describe('ListLayout', () => {
       expect(styles.display).toBe('flex');
       expect(styles.flexDirection).toBe('column');
       expect(styles.gap).toBe(8);
-    });
-
-    it('should not include padding in container styles (padding is handled separately)', () => {
-      const layout = new ListLayout({ padding: 16 });
-      const styles = layout.getContainerStyles();
-
-      // Padding is accessed via getPadding(), not in container styles
-      expect(styles.padding).toBeUndefined();
-      expect(layout.getPadding()).toEqual({
-        top: 16,
-        right: 16,
-        bottom: 16,
-        left: 16,
-      });
     });
   });
 
@@ -165,7 +121,7 @@ describe('ListLayout', () => {
 
   describe('update', () => {
     it('should calculate layout positions', () => {
-      const layout = new ListLayout({ gap: 10, padding: 20 });
+      const layout = new ListLayout({ gap: 10 });
       layout.setItems(
         new Map([
           ['a', { key: 'a', value: 'A', type: 'item', textValue: 'A' }],
@@ -180,13 +136,13 @@ describe('ListLayout', () => {
       const infoB = layout.getLayoutInfo('b');
 
       expect(infoA).not.toBeNull();
-      expect(infoA?.rect.x).toBe(20); // left padding
-      expect(infoA?.rect.y).toBe(20); // top padding
-      expect(infoA?.rect.width).toBe(360); // 400 - 20 - 20 (padding)
+      expect(infoA?.rect.x).toBe(0);
+      expect(infoA?.rect.y).toBe(0);
+      expect(infoA?.rect.width).toBe(400);
 
       expect(infoB).not.toBeNull();
-      expect(infoB?.rect.x).toBe(20);
-      expect(infoB?.rect.y).toBe(30); // top padding + gap
+      expect(infoB?.rect.x).toBe(0);
+      expect(infoB?.rect.y).toBe(10); // gap
     });
 
     it('should handle empty collection', () => {

@@ -88,6 +88,9 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const selectionManager = useOptionalSelectionManager();
 
+        // Check if item is disabled - disabled items should not be draggable
+        const isDisabled = selectionManager?.isDisabled(key) ?? false;
+
         // If the item being dragged is selected and we have multiple selection,
         // include all selected keys in the drag operation
         const isSelected = selectionManager?.isSelected(key) ?? false;
@@ -110,10 +113,12 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
           metadata,
           announcedName:
             dragKeys.size > 1 ? `${dragKeys.size} items` : `Item ${key}`,
+          disabled: isDisabled,
         });
 
         return {
           ...dragProps,
+          isDragging,
           'data-dragging': isDragging || undefined,
         };
       },
