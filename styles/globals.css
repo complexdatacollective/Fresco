@@ -393,19 +393,24 @@ This custom variant lets you target only elements with the readonly attribute.
 
 /**
  * Utility classes for focus styles:
-  * - focusable: applies focus styles on :focus-visible
-  * - focusable-within: applies focus styles on :focus-within + :focus-visible
-  * - focus-styles: the actual focus styles
-*/
+ * - focusable: applies focus styles on :focus-visible (default color: currentColor)
+ * - focusable-within: applies focus styles on :focus-within + :focus-visible
+ * - focus-styles: the actual focus styles (sizing only, no color)
+ *
+ * To override the focus ring color, add outline-[color] to your element.
+ * The color is set in normal state so it can be overridden by other utilities.
+ */
 @utility focus-styles {
-  @apply outline-4 outline-offset-3 outline-current transition-all duration-200 ease-in-out;
+  @apply outline-4 outline-offset-3 transition-all duration-200 ease-in-out;
 }
 
 @utility focusable {
+  outline-color: currentColor; /* Default - override with outline-[color] */
   @apply focus-visible:focus-styles;
 }
 
 @utility focusable-within {
+  outline-color: currentColor;
   @apply focus-visible-within:focus-styles;
 }
 
@@ -418,7 +423,8 @@ This custom variant lets you target only elements with the readonly attribute.
 @utility focusable-after {
   @apply relative;
   &::after {
-    @apply pointer-events-none absolute inset-0 outline-transparent content-[''];
+    @apply pointer-events-none absolute inset-0 content-[''];
+    outline-color: currentColor;
   }
   &:has(.focusable-after-trigger:focus-visible)::after {
     @apply focus-styles z-1 rounded-sm;

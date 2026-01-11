@@ -129,7 +129,6 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
           '-mx-4 -my-2',
           className,
         )}
-        {...rest}
       >
         <motion.div
           layoutScroll
@@ -157,6 +156,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
               '--scroll-area-overflow-y-end': '0px',
             } as CSSProperties
           }
+          {...rest}
         >
           {children}
         </motion.div>

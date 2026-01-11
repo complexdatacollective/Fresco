@@ -28,6 +28,8 @@ type Item = {
   color: NodeColor;
 };
 
+const collectionClasses = 'bg-surface text-surface-contrast publish-colors';
+
 const sampleItems: Item[] = [
   {
     id: '1',
@@ -146,8 +148,6 @@ function NodeItem({ item, itemProps }: { item: Item; itemProps: ItemProps }) {
       color={item.color}
       selected={isSelected}
       disabled={isDisabled}
-      size="sm"
-      className="transition-all data-dragging:opacity-50"
     />
   );
 }
@@ -242,25 +242,20 @@ function CollectionDemo({
             </button>
           )}
         </div>
-        <div
-          className={
-            layoutMode === 'list' ? 'w-full max-w-md' : 'w-full max-w-3xl'
-          }
-        >
-          <Collection
-            items={items}
-            keyExtractor={(item) => item.id}
-            textValueExtractor={(item) => item.name}
-            layout={layout}
-            selectionMode={selectionMode}
-            selectedKeys={selectedKeys}
-            onSelectionChange={setSelectedKeys}
-            disabledKeys={disabledKeysSet}
-            dragAndDropHooks={dragEnabled ? dragAndDropHooks : undefined}
-            aria-label="Demo collection"
-            renderItem={renderItem}
-          />
-        </div>
+        <Collection
+          items={items}
+          keyExtractor={(item) => item.id}
+          textValueExtractor={(item) => item.name}
+          layout={layout}
+          selectionMode={selectionMode}
+          selectedKeys={selectedKeys}
+          onSelectionChange={setSelectedKeys}
+          disabledKeys={disabledKeysSet}
+          dragAndDropHooks={dragEnabled ? dragAndDropHooks : undefined}
+          aria-label="Demo collection"
+          renderItem={renderItem}
+          className={collectionClasses}
+        />
       </div>
     </>
   );
@@ -587,19 +582,18 @@ function InlineGridDemo({
           </button>
         )}
       </div>
-      <div className="w-full max-w-2xl">
-        <Collection
-          items={sampleItems}
-          keyExtractor={(item) => item.id}
-          textValueExtractor={(item) => item.name}
-          layout={layout}
-          selectionMode={selectionMode}
-          selectedKeys={selectedKeys}
-          onSelectionChange={setSelectedKeys}
-          aria-label="Inline grid collection"
-          renderItem={renderItem}
-        />
-      </div>
+      <Collection
+        items={sampleItems}
+        keyExtractor={(item) => item.id}
+        textValueExtractor={(item) => item.name}
+        layout={layout}
+        selectionMode={selectionMode}
+        selectedKeys={selectedKeys}
+        onSelectionChange={setSelectedKeys}
+        aria-label="Inline grid collection"
+        renderItem={renderItem}
+        className={collectionClasses}
+      />
     </div>
   );
 }
@@ -679,21 +673,20 @@ function AnimationDemo() {
       >
         Replay Animation
       </button>
-      <div className="w-full max-w-2xl">
-        <Collection
-          key={key}
-          items={sampleItems}
-          keyExtractor={(item) => item.id}
-          textValueExtractor={(item) => item.name}
-          layout={layout}
-          selectionMode="single"
-          aria-label="Animated collection"
-          animate
-          renderItem={(item, itemProps) => (
-            <CardItem item={item} itemProps={itemProps} />
-          )}
-        />
-      </div>
+      <Collection
+        key={key}
+        items={sampleItems}
+        keyExtractor={(item) => item.id}
+        textValueExtractor={(item) => item.name}
+        layout={layout}
+        selectionMode="single"
+        aria-label="Animated collection"
+        animate
+        renderItem={(item, itemProps) => (
+          <CardItem item={item} itemProps={itemProps} />
+        )}
+      />
+      className={collectionClasses}
     </div>
   );
 }

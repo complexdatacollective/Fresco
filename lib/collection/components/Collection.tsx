@@ -62,30 +62,29 @@ function CollectionContent<T>({
   return (
     <SelectionManagerContext.Provider value={selectionManager}>
       <CollectionIdContext.Provider value={collectionId}>
-        <ScrollArea className={className}>
-          <div
-            ref={containerRef}
-            role="listbox"
-            id={collectionId}
-            aria-label={ariaLabel}
-            aria-labelledby={ariaLabelledBy}
-            aria-multiselectable={selectionMode === 'multiple' || undefined}
-            aria-activedescendant={
-              selectionManager.focusedKey !== null
-                ? `${collectionId}-item-${selectionManager.focusedKey}`
-                : undefined
-            }
-            {...collectionProps}
-            {...dndCollectionProps}
-          >
-            <StaticRenderer
-              layout={layout}
-              collection={collection}
-              renderItem={renderItem}
-              animate={animate}
-              dragAndDropHooks={dragAndDropHooks}
-            />
-          </div>
+        <ScrollArea
+          className={className}
+          ref={containerRef}
+          role="listbox"
+          id={collectionId}
+          aria-label={ariaLabel}
+          aria-labelledby={ariaLabelledBy}
+          aria-multiselectable={selectionMode === 'multiple' || undefined}
+          aria-activedescendant={
+            selectionManager.focusedKey !== null
+              ? `${collectionId}-item-${selectionManager.focusedKey}`
+              : undefined
+          }
+          {...collectionProps}
+          {...dndCollectionProps}
+        >
+          <StaticRenderer
+            layout={layout}
+            collection={collection}
+            renderItem={renderItem}
+            animate={animate}
+            dragAndDropHooks={dragAndDropHooks}
+          />
         </ScrollArea>
       </CollectionIdContext.Provider>
     </SelectionManagerContext.Provider>
