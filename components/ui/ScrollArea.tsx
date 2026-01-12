@@ -8,11 +8,18 @@ import {
   useEffect,
   useRef,
 } from 'react';
+import { useMergeRefs } from 'react-best-merge-refs';
 import { cx } from '~/utils/cva';
 
 type ScrollSnapType = 'mandatory' | 'proximity';
 
 type ScrollSnapAxis = 'x' | 'y' | 'both';
+
+// Props that should go on the viewport (inner scrollable element) rather than the container
+type ViewportProps = Pick<
+  React.HTMLAttributes<HTMLDivElement>,
+  'onKeyDown' | 'onKeyUp' | 'onFocus' | 'onBlur' | 'tabIndex'
+>;
 
 type ScrollAreaProps = {
   viewportClassName?: string;
@@ -22,15 +29,22 @@ type ScrollAreaProps = {
   snap?: ScrollSnapType;
   /** Axis for scroll-snap. Defaults to 'both'. Only applies when snap is set. */
   snapAxis?: ScrollSnapAxis;
-} & Omit<
-  React.HTMLAttributes<HTMLDivElement>,
-  | 'onDrag'
-  | 'onDragEnd'
-  | 'onDragStart'
-  | 'onAnimationStart'
-  | 'onAnimationEnd'
-  | 'onAnimationIteration'
->;
+} & ViewportProps &
+  Omit<
+    React.HTMLAttributes<HTMLDivElement>,
+    | 'onDrag'
+    | 'onDragEnd'
+    | 'onDragStart'
+    | 'onAnimationStart'
+    | 'onAnimationEnd'
+    | 'onAnimationIteration'
+    // Viewport props - handled separately
+    | 'onKeyDown'
+    | 'onKeyUp'
+    | 'onFocus'
+    | 'onBlur'
+    | 'tabIndex'
+  >;
 
 const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
   (
@@ -41,6 +55,12 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
       fade = true,
       snap,
       snapAxis = 'both',
+      // Viewport props - these go on the inner scrollable element
+      onKeyDown,
+      onKeyUp,
+      onFocus,
+      onBlur,
+      tabIndex,
       ...rest
     },
     ref,
@@ -122,21 +142,25 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
 
     return (
       <motion.div
-        ref={ref}
         className={cx(
-          'focusable-after relative flex min-h-0 flex-1',
+          'focusable-within relative flex min-h-0 flex-1',
           // Negative margin to offset the Viewport's internal padding
           '-mx-4 -my-2',
           className,
         )}
+        {...rest}
       >
         <motion.div
           layoutScroll
-          ref={viewportRef}
-          tabIndex={0}
+          ref={useMergeRefs({ viewportRef, ref })}
+          tabIndex={tabIndex ?? 0}
+          onKeyDown={onKeyDown}
+          onKeyUp={onKeyUp}
+          onFocus={onFocus}
+          onBlur={onBlur}
           className={cx(
             // Required by focusable-after
-            'focusable-after-trigger',
+            'focusable',
             // Layout
             'min-h-0 flex-1 overflow-auto overscroll-contain',
             // Padding to prevent animated elements from clipping (inside scroll bounds)
@@ -156,7 +180,6 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
               '--scroll-area-overflow-y-end': '0px',
             } as CSSProperties
           }
-          {...rest}
         >
           {children}
         </motion.div>
