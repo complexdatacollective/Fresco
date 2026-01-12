@@ -1,17 +1,22 @@
 'use client';
 
 import { useEffect, useMemo, useState, type RefObject } from 'react';
-import { type SelectionManager } from '../selection/SelectionManager';
-import { useCollection } from './useCollection';
-import { useSelectionState } from './useSelectionState';
 import { useSelectableCollection } from '../keyboard/useSelectableCollection';
 import { type Layout } from '../layout/Layout';
+import { type SelectionManager } from '../selection/SelectionManager';
+import {
+  type DroppableCollectionResult,
+  type DroppableCollectionState,
+} from '../dnd/types';
 import {
   type Collection,
-  type Key,
-  type SelectionMode,
   type CollectionProps,
+  type Key,
+  type Node,
+  type SelectionMode,
 } from '../types';
+import { useCollection } from './useCollection';
+import { useSelectionState } from './useSelectionState';
 
 export type UseCollectionSetupOptions = {
   selectionMode?: SelectionMode;
@@ -33,6 +38,8 @@ export type UseCollectionSetupResult<T> = {
     typeof useSelectableCollection
   >['collectionProps'];
   dndCollectionProps: Record<string, unknown>;
+  /** Drop state for collection container styling (when onDrop is configured) */
+  dropState: DroppableCollectionState | null;
 };
 
 /**
@@ -45,7 +52,7 @@ export type UseCollectionSetupResult<T> = {
  */
 export function useCollectionSetup<T>(
   options: UseCollectionSetupOptions,
-  containerRef: RefObject<HTMLElement | null>,
+  containerRef: RefObject<HTMLElement> | null,
 ): UseCollectionSetupResult<T> {
   const collection = useCollection<T>();
 
@@ -63,7 +70,7 @@ export function useCollectionSetup<T>(
   // collection is initially empty and the component returns early
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (containerRef.current && containerWidth === undefined) {
+    if (containerRef?.current && containerWidth === undefined) {
       // Trigger re-evaluation by incrementing version
       setRefVersion((v) => v + 1);
     }
@@ -71,7 +78,7 @@ export function useCollectionSetup<T>(
 
   // Main effect to track container width using ResizeObserver
   useEffect(() => {
-    const element = containerRef.current;
+    const element = containerRef?.current;
     if (!element) return;
 
     // Get initial width immediately
@@ -98,8 +105,10 @@ export function useCollectionSetup<T>(
   // This allows layouts like InlineGridLayout to query actual item positions
   const collectionId = options.collectionId ?? 'collection';
   useEffect(() => {
+    if (!containerRef?.current) return;
+
     options.layout.setContainerRef(containerRef, collectionId);
-  }, [options.layout, containerRef, collectionId]);
+  }, [options.layout, containerRef, collectionId, refVersion]);
 
   const selectionManager = useSelectionState({
     selectionMode: options.selectionMode,
@@ -125,10 +134,11 @@ export function useCollectionSetup<T>(
     if (containerWidth === undefined || containerWidth <= 0) return;
 
     // Build items map and ordered keys from collection
-    const items = new Map<Key, { key: Key; value: unknown }>();
+    // Collection nodes are already Node<T> objects with all required properties
+    const items = new Map<Key, Node<unknown>>();
     const orderedKeys: Key[] = [];
     for (const node of collection) {
-      items.set(node.key, node);
+      items.set(node.key, node as Node<unknown>);
       orderedKeys.push(node.key);
     }
 
@@ -152,22 +162,23 @@ export function useCollectionSetup<T>(
   const { collectionProps } = useSelectableCollection({
     selectionManager,
     keyboardDelegate,
-    ref: containerRef as RefObject<HTMLElement>,
+    ref: containerRef,
     disallowEmptySelection: options.disallowEmptySelection,
   });
 
-  // Get collection-level DnD props if hooks provided
-  const dndCollectionProps = options.dragAndDropHooks
-    ?.useDraggableCollectionProps
+  // Get collection-level drop state and props if hooks provided (for onDrop)
+  const dropResult: DroppableCollectionResult | null = options.dragAndDropHooks
+    ?.useDroppableCollectionState
     ? // eslint-disable-next-line react-hooks/rules-of-hooks
-      options.dragAndDropHooks.useDraggableCollectionProps()
-    : {};
+      options.dragAndDropHooks.useDroppableCollectionState(collectionId)
+    : null;
 
   return {
     collection,
     selectionManager,
     disabledKeysSet,
     collectionProps,
-    dndCollectionProps,
+    dndCollectionProps: dropResult?.dropProps ?? {},
+    dropState: dropResult?.state ?? null,
   };
 }
