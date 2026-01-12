@@ -24,10 +24,9 @@ export type StaticRendererProps<T> = {
 };
 
 const ANIMATION_CONFIG = {
-  staggerDelay: 0.03,
-  initialOpacity: 0,
-  initialY: 10,
-  duration: 0.3,
+  staggerDelay: 0.05,
+  initialOpacity: 1,
+  initialY: '20%',
 } as const;
 
 type StaticRendererItemProps<T> = {
@@ -150,9 +149,11 @@ export function StaticRenderer<T>({
     const runAnimation = async () => {
       await animate(
         '[data-collection-item]',
-        { opacity: 1, y: 0 },
+        { opacity: [0, 1], y: ['20%', '0%'] },
         {
-          duration: ANIMATION_CONFIG.duration,
+          type: 'spring',
+          stiffness: 500,
+          damping: 20,
           delay: stagger(ANIMATION_CONFIG.staggerDelay),
         },
       );
@@ -164,17 +165,6 @@ export function StaticRenderer<T>({
   // Get layout item styles (e.g., fixed width for InlineGridLayout)
   const layoutItemStyle = layout.getItemStyles();
 
-  // Combine layout styles with animation initial styles
-  const itemStyle = shouldAnimate
-    ? {
-        ...layoutItemStyle,
-        opacity: ANIMATION_CONFIG.initialOpacity,
-        transform: `translateY(${ANIMATION_CONFIG.initialY}px)`,
-      }
-    : Object.keys(layoutItemStyle).length > 0
-      ? layoutItemStyle
-      : undefined;
-
   return (
     <div ref={scope} style={containerStyle}>
       {Array.from(collection).map((node) => (
@@ -182,7 +172,7 @@ export function StaticRenderer<T>({
           key={node.key}
           node={node}
           renderItem={renderItem}
-          itemStyle={itemStyle}
+          itemStyle={layoutItemStyle}
           dragAndDropHooks={dragAndDropHooks}
           layout={layout}
         />

@@ -29,7 +29,7 @@ export type NodeColorSequence = (typeof NodeColors)[number];
 
 const nodeVariants = cva({
   base: [
-    'focusable relative inline-flex items-center justify-center shadow-xl outline-offset-6!',
+    'focusable relative inline-flex items-center justify-center outline-offset-6',
     'aspect-square',
     'text-white',
     '[--base:var(--node-1)] [--dark:oklch(from_var(--base)_calc(l-0.05)_c_h)]',
@@ -233,6 +233,8 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
       )}
       onPointerCancel={nodeProps.onPointerCancel}
       onPointerLeave={nodeProps.onPointerLeave}
+      onKeyDown={nodeProps.onKeyDown}
+      onKeyUp={nodeProps.onKeyUp}
       onClick={onClick}
       {...buttonProps}
     >

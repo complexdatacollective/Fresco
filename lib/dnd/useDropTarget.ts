@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { type Prettify } from '~/utils/prettify';
 import { useDndStore, useDndStoreApi } from './DndStoreProvider';
 import {
@@ -88,140 +95,158 @@ export function useDropTarget(
   ).current;
 
   // Smart bounds update that chooses throttled or immediate based on drag state
-  const updateBounds = useCallback(() => {
+  // Use a ref to store the callback to avoid re-triggering registration effects
+  const updateBoundsRef = useRef(() => {
     if (isDragging) {
-      // During drag operations, update immediately to ensure accurate hit detection
       updateBoundsImmediate();
     } else {
-      // Outside of drag operations, use throttled updates for performance
       updateBoundsThrottled();
     }
-  }, [isDragging, updateBoundsImmediate, updateBoundsThrottled]);
+  });
 
-  // Handle element ref
-  const setRef = useCallback(
-    (element: HTMLElement | null) => {
-      // Clean up previous element
-      if (elementRef.current && elementRef.current !== element) {
-        resizeObserverRef.current?.disconnect();
-        intersectionObserverRef.current?.disconnect();
+  // Keep the ref updated with latest values
+  updateBoundsRef.current = () => {
+    if (isDragging) {
+      updateBoundsImmediate();
+    } else {
+      updateBoundsThrottled();
+    }
+  };
 
-        // Clean up previous scroll listeners
-        const previousElement = elementRef.current as HTMLElement & {
-          __dndCleanup?: () => void;
-        };
-        if (previousElement.__dndCleanup) {
-          previousElement.__dndCleanup();
-          delete previousElement.__dndCleanup;
-        }
+  // Stable callback that uses the ref
+  const updateBounds = useCallback(() => {
+    updateBoundsRef.current();
+  }, []);
+
+  // Track element changes for deferred registration
+  const pendingElementRef = useRef<HTMLElement | null>(null);
+  const [elementVersion, setElementVersion] = useState(0);
+
+  // Handle element ref - just store the element, don't register synchronously
+  const setRef = useCallback((element: HTMLElement | null) => {
+    // Clean up previous element
+    if (elementRef.current && elementRef.current !== element) {
+      resizeObserverRef.current?.disconnect();
+      intersectionObserverRef.current?.disconnect();
+
+      // Clean up previous scroll listeners
+      const previousElement = elementRef.current as HTMLElement & {
+        __dndCleanup?: () => void;
+      };
+      if (previousElement.__dndCleanup) {
+        previousElement.__dndCleanup();
+        delete previousElement.__dndCleanup;
       }
+    }
 
-      elementRef.current = element;
+    elementRef.current = element;
+    pendingElementRef.current = element;
 
-      if (element && !disabled) {
-        // Initial registration
-        const bounds = getElementBounds(element);
-        registerDropTarget({
-          id: dropIdRef.current,
-          ...bounds,
-          accepts: acceptsRef.current,
-          announcedName,
-        });
+    // Trigger effect to register the drop target (deferred to avoid state update during render)
+    if (element !== null) {
+      setElementVersion((v) => v + 1);
+    }
+  }, []);
 
-        // Set up ResizeObserver for size changes
-        resizeObserverRef.current = new ResizeObserver(() => {
+  // Register drop target in useLayoutEffect to avoid state updates during render
+  useLayoutEffect(() => {
+    const element = pendingElementRef.current;
+    if (!element || disabled) return;
+
+    // Initial registration
+    const bounds = getElementBounds(element);
+    registerDropTarget({
+      id: dropIdRef.current,
+      ...bounds,
+      accepts: acceptsRef.current,
+      announcedName,
+    });
+
+    // Set up ResizeObserver for size changes
+    resizeObserverRef.current = new ResizeObserver(() => {
+      updateBounds();
+    });
+    resizeObserverRef.current.observe(element);
+
+    // Set up IntersectionObserver for visibility changes
+    intersectionObserverRef.current = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry?.isIntersecting) {
           updateBounds();
-        });
-        resizeObserverRef.current.observe(element);
-
-        // Set up IntersectionObserver for visibility changes
-        intersectionObserverRef.current = new IntersectionObserver(
-          (entries) => {
-            const entry = entries[0];
-            if (entry?.isIntersecting) {
-              updateBounds();
-            }
-          },
-          { threshold: 0.1 },
-        );
-        intersectionObserverRef.current.observe(element);
-
-        // Listen for scroll events on the document and scrollable parents
-        const scrollListeners: {
-          element: Element | Document;
-          handler: () => void;
-          options: AddEventListenerOptions;
-        }[] = [];
-        const handleScroll = () => updateBounds();
-        const handleResize = () => updateBounds();
-
-        // Add document scroll listener
-        const documentScrollOptions: AddEventListenerOptions = {
-          passive: true,
-          capture: true,
-        };
-        document.addEventListener(
-          'scroll',
-          handleScroll,
-          documentScrollOptions,
-        );
-        scrollListeners.push({
-          element: document,
-          handler: handleScroll,
-          options: documentScrollOptions,
-        });
-
-        // Add window resize listener
-        const windowResizeOptions: AddEventListenerOptions = {
-          passive: true,
-        };
-        window.addEventListener('resize', handleResize, windowResizeOptions);
-
-        // Find and listen to all scrollable parents
-        let parent = element.parentElement;
-        while (parent) {
-          const style = getComputedStyle(parent);
-          const hasScrollableContent =
-            style.overflowY === 'auto' ||
-            style.overflowY === 'scroll' ||
-            style.overflowX === 'auto' ||
-            style.overflowX === 'scroll';
-
-          if (hasScrollableContent) {
-            const parentScrollOptions: AddEventListenerOptions = {
-              passive: true,
-              capture: false,
-            };
-            parent.addEventListener(
-              'scroll',
-              handleScroll,
-              parentScrollOptions,
-            );
-            scrollListeners.push({
-              element: parent,
-              handler: handleScroll,
-              options: parentScrollOptions,
-            });
-          }
-          parent = parent.parentElement;
         }
+      },
+      { threshold: 0.1 },
+    );
+    intersectionObserverRef.current.observe(element);
 
-        // Store cleanup function with proper event listener removal
-        (element as HTMLElement & { __dndCleanup?: () => void }).__dndCleanup =
-          () => {
-            scrollListeners.forEach(({ element: el, handler, options }) => {
-              el.removeEventListener('scroll', handler, options);
-            });
-            window.removeEventListener(
-              'resize',
-              handleResize,
-              windowResizeOptions,
-            );
-          };
+    // Listen for scroll events on the document and scrollable parents
+    const scrollListeners: {
+      element: Element | Document;
+      handler: () => void;
+      options: AddEventListenerOptions;
+    }[] = [];
+    const handleScroll = () => updateBounds();
+    const handleResize = () => updateBounds();
+
+    // Add document scroll listener
+    const documentScrollOptions: AddEventListenerOptions = {
+      passive: true,
+      capture: true,
+    };
+    document.addEventListener('scroll', handleScroll, documentScrollOptions);
+    scrollListeners.push({
+      element: document,
+      handler: handleScroll,
+      options: documentScrollOptions,
+    });
+
+    // Add window resize listener
+    const windowResizeOptions: AddEventListenerOptions = {
+      passive: true,
+    };
+    window.addEventListener('resize', handleResize, windowResizeOptions);
+
+    // Find and listen to all scrollable parents
+    let parent = element.parentElement;
+    while (parent) {
+      const style = getComputedStyle(parent);
+      const hasScrollableContent =
+        style.overflowY === 'auto' ||
+        style.overflowY === 'scroll' ||
+        style.overflowX === 'auto' ||
+        style.overflowX === 'scroll';
+
+      if (hasScrollableContent) {
+        const parentScrollOptions: AddEventListenerOptions = {
+          passive: true,
+          capture: false,
+        };
+        parent.addEventListener('scroll', handleScroll, parentScrollOptions);
+        scrollListeners.push({
+          element: parent,
+          handler: handleScroll,
+          options: parentScrollOptions,
+        });
       }
-    },
-    [disabled, registerDropTarget, updateBounds, dropIdRef, announcedName],
-  );
+      parent = parent.parentElement;
+    }
+
+    // Store cleanup function with proper event listener removal
+    (element as HTMLElement & { __dndCleanup?: () => void }).__dndCleanup =
+      () => {
+        scrollListeners.forEach(({ element: el, handler, options }) => {
+          el.removeEventListener('scroll', handler, options);
+        });
+        window.removeEventListener('resize', handleResize, windowResizeOptions);
+      };
+  }, [
+    elementVersion,
+    disabled,
+    registerDropTarget,
+    updateBounds,
+    announcedName,
+  ]);
 
   // Handle drag enter/leave callbacks
   const prevIsOverRef = useRef(isOver);

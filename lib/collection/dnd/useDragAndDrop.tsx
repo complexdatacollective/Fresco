@@ -10,6 +10,8 @@ import { DropIndicator } from './DropIndicator';
 import {
   type DragAndDropHooks,
   type DragAndDropOptions,
+  type DropEvent,
+  type DroppableCollectionResult,
   type DropPosition,
   type DropTarget,
   type ReorderEvent,
@@ -39,6 +41,8 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
   const {
     getItems,
     onReorder,
+    onDrop,
+    acceptTypes,
     allowedDropPositions = ['before', 'after'],
     getItemMetadata,
   } = options;
@@ -63,6 +67,9 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
   const onReorderRef = useRef(onReorder);
   onReorderRef.current = onReorder;
 
+  const onDropRef = useRef(onDrop);
+  onDropRef.current = onDrop;
+
   // Handle drop completion
   const handleDrop = useCallback(
     (target: DropTarget, draggedKeys: Set<Key>) => {
@@ -80,8 +87,48 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
 
   const dragAndDropHooks = useMemo<DragAndDropHooks>(
     () => ({
-      useDraggableCollectionProps: () => {
-        return {};
+      useDroppableCollectionState: (
+        collectionId: string,
+      ): DroppableCollectionResult => {
+        // If no onDrop handler, return inactive state with empty props
+        if (!onDropRef.current) {
+          return {
+            state: { isOver: false, willAccept: false, isDragging: false },
+            dropProps: {},
+          };
+        }
+
+        // Determine accept types (from options or derived from getItems)
+        const accepts = acceptTypes ?? itemTypesRef.current;
+
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const { dropProps, isOver, willAccept, isDragging } = useDropTarget({
+          id: `${collectionId}-container`,
+          accepts,
+          announcedName: `Drop zone for collection`,
+          onDrop: (metadata) => {
+            if (!metadata || !onDropRef.current) return;
+
+            const keys = metadata.keys as Set<Key> | undefined;
+            const key = metadata.key as Key | undefined;
+            const type = (metadata.type as string | undefined) ?? 'unknown';
+
+            if (!keys && !key) return;
+
+            const dropEvent: DropEvent = {
+              keys: keys ?? new Set([key!]),
+              type,
+              metadata,
+            };
+
+            onDropRef.current(dropEvent);
+          },
+        });
+
+        return {
+          state: { isOver, willAccept, isDragging },
+          dropProps,
+        };
       },
 
       useDraggableItemProps: (key: Key) => {
@@ -107,9 +154,11 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
           ...(getItemMetadata ? getItemMetadata(key) : {}),
         };
 
+        const dragType = firstItem?.type ?? 'collection-item';
+
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const { dragProps, isDragging } = useDragSource({
-          type: firstItem?.type ?? 'collection-item',
+          type: dragType,
           metadata,
           announcedName:
             dragKeys.size > 1 ? `${dragKeys.size} items` : `Item ${key}`,
@@ -118,7 +167,6 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
 
         return {
           ...dragProps,
-          isDragging,
           'data-dragging': isDragging || undefined,
         };
       },
@@ -156,7 +204,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
                 : 'before';
             }
           },
-          [allowedDropPositions],
+          [],
         );
 
         // Handle drop on this item - use ref to get latest position
@@ -182,7 +230,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
             hoverPositionRef.current = null;
             setHoverPositionState(null);
           },
-          [key, handleDrop],
+          [key],
         );
 
         // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -228,7 +276,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
               dropProps.ref(el);
             }
           },
-          [dropProps.ref, key],
+          [dropProps],
         );
 
         // Check if this is the dragged item itself
@@ -258,7 +306,14 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
 
       getDropTarget: () => dropTarget,
     }),
-    [getItems, getItemMetadata, handleDrop, dropTarget, allowedDropPositions],
+    [
+      getItems,
+      getItemMetadata,
+      handleDrop,
+      dropTarget,
+      allowedDropPositions,
+      acceptTypes,
+    ],
   );
 
   return { dragAndDropHooks };

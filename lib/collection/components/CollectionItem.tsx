@@ -11,10 +11,6 @@ import { type DroppableItemProps } from '../dnd/types';
 import { useSelectableItem } from '../hooks/useSelectableItem';
 import { type Key } from '../types';
 
-/**
- * Render state passed to CollectionItem wrapper component.
- * @deprecated Use data attributes on itemProps instead.
- */
 export type ItemRenderState = {
   isSelected: boolean;
   isFocused: boolean;
@@ -70,10 +66,10 @@ function SelectableItemWrapper({
   const collectionId = useCollectionId() ?? 'collection';
 
   const { itemProps, isSelected, isDisabled } = useSelectableItem({
-      key: itemKey,
-      selectionManager,
-      ref: localRef,
-    });
+    key: itemKey,
+    selectionManager,
+    ref: localRef,
+  });
 
   // Get item-level drag props if hooks provided
   const dndDragPropsRaw = dragAndDropHooks?.useDraggableItemProps
@@ -123,7 +119,6 @@ function SelectableItemWrapper({
       <div
         ref={combinedRef}
         id={itemId}
-        role="option"
         data-collection-item
         data-key={itemKey}
         data-selected={isSelected ? true : undefined}

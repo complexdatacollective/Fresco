@@ -10,7 +10,7 @@ export type UseSelectableCollectionOptions = {
   /** Keyboard delegate for navigation */
   keyboardDelegate: KeyboardDelegate;
   /** Ref to the collection container element */
-  ref: RefObject<HTMLElement>;
+  ref: RefObject<HTMLElement> | null;
   /** Whether empty selection is disallowed */
   disallowEmptySelection?: boolean;
   /** Whether select all (Ctrl+A) is disabled */
@@ -88,7 +88,7 @@ export function useSelectableCollection(
       switch (e.key) {
         case 'ArrowDown': {
           e.preventDefault();
-                    const nextKey = focusedKey
+          const nextKey = focusedKey
             ? keyboardDelegate.getKeyBelow(focusedKey)
             : keyboardDelegate.getFirstKey();
 
@@ -104,7 +104,7 @@ export function useSelectableCollection(
 
         case 'ArrowUp': {
           e.preventDefault();
-                    const prevKey = focusedKey
+          const prevKey = focusedKey
             ? keyboardDelegate.getKeyAbove(focusedKey)
             : keyboardDelegate.getLastKey();
 
@@ -121,7 +121,7 @@ export function useSelectableCollection(
         case 'ArrowLeft': {
           if (keyboardDelegate.getKeyLeftOf && focusedKey) {
             e.preventDefault();
-                        const leftKey = keyboardDelegate.getKeyLeftOf(focusedKey);
+            const leftKey = keyboardDelegate.getKeyLeftOf(focusedKey);
             if (leftKey !== null) {
               if (e.shiftKey && selectionManager.selectionMode === 'multiple') {
                 selectionManager.extendSelection(leftKey);
@@ -135,7 +135,7 @@ export function useSelectableCollection(
         case 'ArrowRight': {
           if (keyboardDelegate.getKeyRightOf && focusedKey) {
             e.preventDefault();
-                        const rightKey = keyboardDelegate.getKeyRightOf(focusedKey);
+            const rightKey = keyboardDelegate.getKeyRightOf(focusedKey);
             if (rightKey !== null) {
               if (e.shiftKey && selectionManager.selectionMode === 'multiple') {
                 selectionManager.extendSelection(rightKey);
@@ -148,7 +148,7 @@ export function useSelectableCollection(
 
         case 'Home': {
           e.preventDefault();
-                    const firstKey = keyboardDelegate.getFirstKey();
+          const firstKey = keyboardDelegate.getFirstKey();
           if (firstKey !== null) {
             if (e.shiftKey && selectionManager.selectionMode === 'multiple') {
               selectionManager.extendSelection(firstKey);
@@ -160,7 +160,7 @@ export function useSelectableCollection(
 
         case 'End': {
           e.preventDefault();
-                    const lastKey = keyboardDelegate.getLastKey();
+          const lastKey = keyboardDelegate.getLastKey();
           if (lastKey !== null) {
             if (e.shiftKey && selectionManager.selectionMode === 'multiple') {
               selectionManager.extendSelection(lastKey);
@@ -173,7 +173,7 @@ export function useSelectableCollection(
         case 'PageUp': {
           if (keyboardDelegate.getKeyPageAbove && focusedKey) {
             e.preventDefault();
-                        const pageUpKey = keyboardDelegate.getKeyPageAbove(focusedKey);
+            const pageUpKey = keyboardDelegate.getKeyPageAbove(focusedKey);
             if (pageUpKey !== null) {
               if (e.shiftKey && selectionManager.selectionMode === 'multiple') {
                 selectionManager.extendSelection(pageUpKey);
@@ -187,7 +187,7 @@ export function useSelectableCollection(
         case 'PageDown': {
           if (keyboardDelegate.getKeyPageBelow && focusedKey) {
             e.preventDefault();
-                        const pageDownKey = keyboardDelegate.getKeyPageBelow(focusedKey);
+            const pageDownKey = keyboardDelegate.getKeyPageBelow(focusedKey);
             if (pageDownKey !== null) {
               if (e.shiftKey && selectionManager.selectionMode === 'multiple') {
                 selectionManager.extendSelection(pageDownKey);
@@ -254,7 +254,7 @@ export function useSelectableCollection(
     (e: React.FocusEvent) => {
       // Only handle focus if it's entering the collection from outside
       // (not when focus moves between items within the collection)
-      if (ref.current?.contains(e.relatedTarget as Node)) {
+      if (ref?.current?.contains(e.relatedTarget as Node)) {
         return;
       }
 
@@ -275,7 +275,7 @@ export function useSelectableCollection(
   const handleBlur = useCallback(
     (e: React.FocusEvent) => {
       // Only handle blur if focus is leaving the collection entirely
-      if (ref.current?.contains(e.relatedTarget as Node)) {
+      if (ref?.current?.contains(e.relatedTarget as Node)) {
         return;
       }
 
@@ -298,8 +298,7 @@ export function useSelectableCollection(
       onKeyDown: handleKeyDown,
       onFocus: handleFocus,
       onBlur: handleBlur,
-      // Container is always tabbable - items have tabIndex=-1
-      tabIndex: 0,
+      tabIndex: 0, // Container is always tabbable - items have tabIndex=-1
     },
   };
 }

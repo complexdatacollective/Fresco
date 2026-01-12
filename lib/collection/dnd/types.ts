@@ -45,13 +45,48 @@ export type ReorderEvent = {
 };
 
 /**
+ * Event fired when items are dropped onto a collection container.
+ */
+export type DropEvent = {
+  /** Keys of items being dropped */
+  keys: Set<Key>;
+  /** Type identifier of the dragged items */
+  type: string;
+  /** Full metadata from the drag source */
+  metadata?: Record<string, unknown>;
+};
+
+/**
+ * Drop state for collection container styling.
+ */
+export type DroppableCollectionState = {
+  /** Whether a drag item is currently over the collection container */
+  isOver: boolean;
+  /** Whether the current drag item would be accepted by this collection */
+  willAccept: boolean;
+  /** Whether any drag is in progress */
+  isDragging: boolean;
+};
+
+/**
+ * Full result from useDroppableCollectionState including props for the container.
+ */
+export type DroppableCollectionResult = {
+  /** State values for styling */
+  state: DroppableCollectionState;
+  /** Props to spread onto the container element */
+  dropProps: Record<string, unknown>;
+};
+
+/**
  * Props returned by useDraggableItemProps hook.
+ * Note: isDragging is not included as it's not a valid DOM attribute.
+ * Use the data-dragging attribute for styling instead.
  */
 export type DraggableItemProps = {
   'ref': (el: HTMLElement | null) => void;
   'onPointerDown': (e: React.PointerEvent) => void;
   'onKeyDown': (e: React.KeyboardEvent) => void;
-  'isDragging': boolean;
   'role'?: string;
   'tabIndex'?: number;
   'aria-grabbed'?: boolean;
@@ -81,15 +116,17 @@ export type DroppableItemProps = {
  * This pattern keeps DnD logic external and optional.
  */
 export type DragAndDropHooks = {
-  /** Hook called at collection level to get container DnD props */
-  useDraggableCollectionProps?: () => Record<string, unknown>;
   /** Hook called for each item to get draggable props */
   useDraggableItemProps?: (key: Key) => DraggableItemProps;
-  /** Hook called for each item to get droppable props */
+  /** Hook called for each item to get droppable props (for reordering) */
   useDroppableItemProps?: (
     key: Key,
     collectionId: string,
   ) => DroppableItemProps;
+  /** Hook called to get droppable state and props for the collection container */
+  useDroppableCollectionState?: (
+    collectionId: string,
+  ) => DroppableCollectionResult;
   /** Render function for drop indicators */
   renderDropIndicator?: (target: {
     key: Key;
@@ -101,14 +138,23 @@ export type DragAndDropHooks = {
 
 /**
  * Configuration for drag and drop behavior in a collection.
+ *
+ * Behavior is determined by which callbacks are provided:
+ * - onDrop only: Collection container becomes a drop zone
+ * - onReorder only: Individual items become drop targets for reordering
+ * - Both: Items for positioning, container for receiving from other collections
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export type DragAndDropOptions<_T = unknown> = {
   /** Function to create drag items from selected keys */
   getItems: (keys: Set<Key>) => DragItem[];
-  /** Callback when items are reordered */
+  /** Callback when items are reordered within the collection (enables item-level drop targets) */
   onReorder?: (e: ReorderEvent) => void;
-  /** Which drop positions are allowed (default: all) */
+  /** Callback when items are dropped onto the collection container (enables collection-level drop zone) */
+  onDrop?: (e: DropEvent) => void;
+  /** Types accepted for collection-level drop (defaults to types from getItems) */
+  acceptTypes?: string[];
+  /** Which drop positions are allowed for reordering (default: ['before', 'after']) */
   allowedDropPositions?: DropPosition[];
   /** Additional data to include with drag operations */
   getItemMetadata?: (key: Key) => Record<string, unknown>;

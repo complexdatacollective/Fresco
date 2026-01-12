@@ -7,6 +7,7 @@
  * - Set-based Lookups: O(1) operations for selection/disabled checks
  */
 
+import { type DragAndDropHooks } from './dnd/types';
 import { type Layout } from './layout/Layout';
 
 /**
@@ -219,15 +220,5 @@ export type CollectionProps<T> = {
 
   // Drag and drop props
   /** Optional drag and drop hooks */
-  'dragAndDropHooks'?: {
-    /** Hook called at collection level to get container DnD props */
-    useDraggableCollectionProps?: () => Record<string, unknown>;
-    /** Hook called for each item to get draggable props */
-    useDraggableItemProps?: (key: Key) => Record<string, unknown>;
-    /** Render function for drop indicators */
-    renderDropIndicator?: (target: {
-      key: Key;
-      position: string;
-    }) => React.ReactNode;
-  };
+  'dragAndDropHooks'?: DragAndDropHooks;
 };

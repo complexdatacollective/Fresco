@@ -1,8 +1,6 @@
-'use client';
-
 import { useRef } from 'react';
+import { useMergeRefs } from 'react-best-merge-refs';
 import { ScrollArea } from '~/components/ui/ScrollArea';
-import { cx } from '~/utils/cva';
 import { CollectionProvider } from '../CollectionProvider';
 import { CollectionIdContext, SelectionManagerContext } from '../contexts';
 import { useCollectionSetup } from '../hooks/useCollectionSetup';
@@ -36,37 +34,47 @@ function CollectionContent<T>({
   dragAndDropHooks,
 }: CollectionContentProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const collectionId = id ?? crypto.randomUUID();
 
   // Use shared setup hook for selection, keyboard, DnD
-  const { collection, selectionManager, collectionProps, dndCollectionProps } =
-    useCollectionSetup<T>(
-      {
-        selectionMode,
-        selectedKeys,
-        defaultSelectedKeys,
-        onSelectionChange,
-        disabledKeys,
-        disallowEmptySelection,
-        dragAndDropHooks,
-        layout,
-      },
-      containerRef,
-    );
+  const {
+    collection,
+    selectionManager,
+    collectionProps,
+    dndCollectionProps,
+    dropState,
+  } = useCollectionSetup<T>(
+    {
+      selectionMode,
+      selectedKeys,
+      defaultSelectedKeys,
+      onSelectionChange,
+      disabledKeys,
+      disallowEmptySelection,
+      dragAndDropHooks,
+      layout,
+      collectionId,
+    },
+    containerRef,
+  );
+
+  // Extract ref from dndCollectionProps and merge with containerRef
+  const { ref: dndRef, ...restDndProps } = dndCollectionProps as {
+    ref?: (el: HTMLElement | null) => void;
+  };
+  const mergedRef = useMergeRefs({ containerRef, dndRef });
 
   // Render empty state if collection is empty
   if (collection.size === 0) {
     return emptyState ? <>{emptyState}</> : null;
   }
 
-  const collectionId = id ?? 'collection';
-
   return (
     <SelectionManagerContext.Provider value={selectionManager}>
       <CollectionIdContext.Provider value={collectionId}>
         <ScrollArea
-          className={cx('focusable-after-within', className)}
-          ref={containerRef}
-          role="listbox"
+          className={className}
+          ref={mergedRef}
           id={collectionId}
           aria-label={ariaLabel}
           aria-labelledby={ariaLabelledBy}
@@ -76,8 +84,11 @@ function CollectionContent<T>({
               ? `${collectionId}-item-${selectionManager.focusedKey}`
               : undefined
           }
+          data-drop-target-over={dropState?.isOver}
+          data-drop-target-valid={dropState?.willAccept}
+          data-dragging={dropState?.isDragging}
           {...collectionProps}
-          {...dndCollectionProps}
+          {...restDndProps}
         >
           <StaticRenderer
             layout={layout}

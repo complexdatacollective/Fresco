@@ -1,15 +1,17 @@
 'use client';
 
-import { useMemo } from 'react';
+import { faker } from '@faker-js/faker';
+import { useCallback, useMemo, useState } from 'react';
 import preview from '~/.storybook/preview';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import Node, { type NodeColorSequence } from '~/lib/ui/components/Node';
 import { cx } from '~/utils/cva';
 import { Collection } from '../components/Collection';
+import { useDragAndDrop, type DropEvent } from '../dnd';
 import { GridLayout, InlineGridLayout, ListLayout } from '../layout';
 import { type Layout } from '../layout/Layout';
-import { type ItemProps, type SelectionMode } from '../types';
+import { type ItemProps, type Key, type SelectionMode } from '../types';
 
 type Item = {
   id: string;
@@ -19,7 +21,7 @@ type Item = {
 };
 
 const collectionClasses =
-  'w-full flex flex-col gap-8 bg-surface text-surface-contrast publish-colors';
+  'w-full flex flex-col gap-8 bg-surface text-surface-contrast publish-colors p-6 rounded';
 
 const sampleItems: Item[] = [
   {
@@ -78,7 +80,7 @@ function CardItem({ item, itemProps }: { item: Item; itemProps: ItemProps }) {
     <div
       {...itemProps}
       className={cx(
-        'bg-surface-1 text-surface-1-contrast rounded border-2 border-transparent p-4 transition-all duration-300',
+        'bg-surface-1 text-surface-1-contrast rounded border-2 border-transparent p-4 transition-colors',
         'data-dragging:opacity-50 data-dragging:shadow-2xl',
         'data-selected:bg-accent data-selected:text-accent-contrast data-selected:outline-accent',
         'focusable',
@@ -352,4 +354,189 @@ export const NodeItems = meta.story({
     itemComponent: 'node',
     gap: 16,
   },
+});
+
+// =========================================
+// Drag and Drop Between Collections Story
+// =========================================
+
+type Person = {
+  id: string;
+  name: string;
+  color: NodeColorSequence;
+};
+
+// Use a fixed seed to ensure consistent names across renders
+faker.seed(42);
+
+function generatePeople(count: number, idPrefix: string): Person[] {
+  return Array.from({ length: count }, (_, i) => ({
+    id: `${idPrefix}${i + 1}`,
+    name: faker.person.fullName(),
+    color: 'node-color-seq-1',
+  }));
+}
+
+const initialLeftItems: Person[] = generatePeople(15, 'left-');
+const initialRightItems: Person[] = generatePeople(12, 'right-');
+
+function PersonNode({
+  item,
+  itemProps,
+}: {
+  item: Person;
+  itemProps: ItemProps;
+}) {
+  const isSelected = itemProps['data-selected'] === true;
+  const isDisabled = itemProps['data-disabled'] === true;
+
+  const {
+    ref,
+    onFocus,
+    onClick,
+    onKeyDown,
+    onPointerDown,
+    onPointerMove,
+    ...restProps
+  } = itemProps;
+
+  const nodeProps = {
+    ...restProps,
+    ref,
+    onFocus,
+    onClick,
+    onKeyDown,
+    onPointerDown,
+    onPointerMove,
+  } as React.ComponentProps<typeof Node>;
+
+  return (
+    <Node
+      {...nodeProps}
+      label={item.name}
+      color={item.color}
+      selected={isSelected}
+      disabled={isDisabled}
+    />
+  );
+}
+
+function DragDropBetweenCollections() {
+  const [leftItems, setLeftItems] = useState<Person[]>(initialLeftItems);
+  const [rightItems, setRightItems] = useState<Person[]>(initialRightItems);
+
+  // Shared item type allows dragging between collections
+  const ITEM_TYPE = 'person';
+
+  // Handle items dropped onto the left collection
+  const handleLeftDrop = useCallback(
+    (e: DropEvent) => {
+      // Find items being dropped from right collection
+      const itemsToMove = rightItems.filter((item) => e.keys.has(item.id));
+      if (itemsToMove.length === 0) return;
+
+      // Remove from right, add to left
+      setRightItems((prev) => prev.filter((item) => !e.keys.has(item.id)));
+      setLeftItems((prev) => [...prev, ...itemsToMove]);
+    },
+    [rightItems],
+  );
+
+  // Handle items dropped onto the right collection
+  const handleRightDrop = useCallback(
+    (e: DropEvent) => {
+      // Find items being dropped from left collection
+      const itemsToMove = leftItems.filter((item) => e.keys.has(item.id));
+      if (itemsToMove.length === 0) return;
+
+      // Remove from left, add to right
+      setLeftItems((prev) => prev.filter((item) => !e.keys.has(item.id)));
+      setRightItems((prev) => [...prev, ...itemsToMove]);
+    },
+    [leftItems],
+  );
+
+  const { dragAndDropHooks: leftDndHooks } = useDragAndDrop<Person>({
+    getItems: () => [{ type: ITEM_TYPE, keys: new Set<Key>() }],
+    onDrop: handleLeftDrop,
+  });
+
+  const { dragAndDropHooks: rightDndHooks } = useDragAndDrop<Person>({
+    getItems: () => [{ type: ITEM_TYPE, keys: new Set<Key>() }],
+    onDrop: handleRightDrop,
+  });
+
+  const leftLayout = useMemo(
+    () =>
+      new InlineGridLayout<Person>({
+        gap: 16,
+        itemWidth: 100,
+        itemHeight: 100,
+      }),
+    [],
+  );
+
+  const rightLayout = useMemo(
+    () =>
+      new InlineGridLayout<Person>({
+        gap: 16,
+        itemWidth: 100,
+        itemHeight: 100,
+      }),
+    [],
+  );
+
+  const renderItem = (item: Person, itemProps: ItemProps) => (
+    <PersonNode item={item} itemProps={itemProps} />
+  );
+
+  // Collection container classes with drop target styling
+  const dropZoneClasses = cx(
+    'transition-colors',
+    // Highlight when a valid drop target (use bracket notation for hyphenated data attributes)
+    'data-[drop-target-valid=true]:bg-accent/10 data-[drop-target-over=true]:bg-accent/20! data-[drop-target-over=true]:ring-accent data-[drop-target-over=true]:ring-2',
+  );
+
+  return (
+    <div className="flex h-screen w-screen gap-8 p-8">
+      <div className={collectionClasses}>
+        <Heading level="h2">Team A ({leftItems.length} people)</Heading>
+        <Paragraph>Drag people to move them to the other team.</Paragraph>
+        <Collection
+          id="team-a-collection"
+          className={dropZoneClasses}
+          items={leftItems}
+          layout={leftLayout}
+          keyExtractor={(item: Person) => item.id}
+          renderItem={renderItem}
+          selectionMode="multiple"
+          animate
+          dragAndDropHooks={leftDndHooks}
+          aria-label="Team A collection"
+        />
+      </div>
+
+      <div className={collectionClasses}>
+        <Heading level="h2">Team B ({rightItems.length} people)</Heading>
+        <Paragraph>Drag people to move them to the other team.</Paragraph>
+        <Collection
+          id="team-b-collection"
+          className={dropZoneClasses}
+          items={rightItems}
+          layout={rightLayout}
+          keyExtractor={(item: Person) => item.id}
+          renderItem={renderItem}
+          selectionMode="multiple"
+          animate
+          dragAndDropHooks={rightDndHooks}
+          aria-label="Team B collection"
+        />
+      </div>
+    </div>
+  );
+}
+
+export const DragDropBetweenCollectionsStory = meta.story({
+  name: 'Drag Drop Between Collections',
+  render: () => <DragDropBetweenCollections />,
 });

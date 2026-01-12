@@ -17,6 +17,8 @@ export type UseNodeInteractionsReturn = {
     onPointerUp: (e: React.PointerEvent) => void;
     onPointerCancel: (e: React.PointerEvent) => void;
     onPointerLeave: (e: React.PointerEvent) => void;
+    onKeyDown: (e: React.KeyboardEvent) => void;
+    onKeyUp: (e: React.KeyboardEvent) => void;
     style: CSSProperties;
   };
   /** Whether the node is currently being pressed */
@@ -106,6 +108,29 @@ export function useNodeInteractions(
     [resetPress],
   );
 
+  // Keyboard handlers for Enter and Space (keys that trigger button clicks)
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (disabled) return;
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      if (e.repeat) return; // Prevent repeated animation from key repeat
+
+      if (enablePressAnimation && scope.current) {
+        setIsPressed(true);
+        animate(scope.current, { scale: 0.92 });
+      }
+    },
+    [disabled, enablePressAnimation, animate, scope],
+  );
+
+  const handleKeyUp = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      resetPress();
+    },
+    [resetPress],
+  );
+
   return {
     scope,
     nodeProps: {
@@ -113,6 +138,8 @@ export function useNodeInteractions(
       onPointerUp: handlePointerUp,
       onPointerCancel: handlePointerCancel,
       onPointerLeave: handlePointerLeave,
+      onKeyDown: handleKeyDown,
+      onKeyUp: handleKeyUp,
       style: {
         touchAction: 'manipulation',
         userSelect: 'none',
