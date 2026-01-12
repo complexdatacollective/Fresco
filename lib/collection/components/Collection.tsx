@@ -95,6 +95,7 @@ function CollectionContent<T>({
             collection={collection}
             renderItem={renderItem}
             animate={animate}
+            collectionId={collectionId}
             dragAndDropHooks={dragAndDropHooks}
           />
         </ScrollArea>

@@ -188,19 +188,7 @@ function CollectionStoryRender(args: CollectionStoryArgs) {
   const { layoutType, itemComponent, selectionMode, animate } = args;
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const layout = useMemo(
-    () => createLayout(args),
-    [
-      args.layoutType,
-      args.gap,
-      args.minItemWidth,
-      args.maxItemWidth,
-      args.columns,
-      args.autoColumns,
-      args.itemWidth,
-      args.itemHeight,
-    ],
-  );
+  const layout = useMemo(() => createLayout(args), [args]);
 
   const renderItem = (item: Item, itemProps: ItemProps) => {
     switch (itemComponent) {
@@ -539,4 +527,138 @@ function DragDropBetweenCollections() {
 export const DragDropBetweenCollectionsStory = meta.story({
   name: 'Drag Drop Between Collections',
   render: () => <DragDropBetweenCollections />,
+});
+
+// =========================================
+// Dynamic Items Story (Layout Animations)
+// =========================================
+
+function DynamicItemsDemo() {
+  const [items, setItems] = useState<Item[]>(sampleItems.slice(0, 4));
+  const [nextId, setNextId] = useState(100);
+
+  const addItem = useCallback(() => {
+    const colors: NodeColorSequence[] = [
+      'node-color-seq-1',
+      'node-color-seq-2',
+      'node-color-seq-3',
+      'node-color-seq-4',
+      'node-color-seq-5',
+      'node-color-seq-6',
+      'node-color-seq-7',
+      'node-color-seq-8',
+    ];
+    const newItem: Item = {
+      id: `item-${nextId}`,
+      name: faker.commerce.productName(),
+      description: faker.commerce.productDescription().slice(0, 50),
+      color: colors[nextId % colors.length]!,
+    };
+    setItems((prev) => [...prev, newItem]);
+    setNextId((prev) => prev + 1);
+  }, [nextId]);
+
+  const removeItem = useCallback((id: string) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
+  }, []);
+
+  const shuffleItems = useCallback(() => {
+    setItems((prev) => [...prev].sort(() => Math.random() - 0.5));
+  }, []);
+
+  const layout = useMemo(
+    () =>
+      new InlineGridLayout<Item>({
+        gap: 16,
+        itemWidth: 120,
+        itemHeight: 120,
+      }),
+    [],
+  );
+
+  const renderItem = (item: Item, itemProps: ItemProps) => {
+    const isSelected = itemProps['data-selected'] === true;
+    const isDisabled = itemProps['data-disabled'] === true;
+
+    const {
+      ref,
+      onFocus,
+      onClick,
+      onKeyDown,
+      onPointerDown,
+      onPointerMove,
+      ...restProps
+    } = itemProps;
+
+    const nodeProps = {
+      ...restProps,
+      ref,
+      onFocus,
+      onClick: (e: React.MouseEvent) => {
+        // Remove on click unless shift is held (for selection)
+        if (!e.shiftKey) {
+          removeItem(item.id);
+        } else {
+          onClick?.(e as React.MouseEvent<HTMLElement>);
+        }
+      },
+      onKeyDown,
+      onPointerDown,
+      onPointerMove,
+    } as React.ComponentProps<typeof Node>;
+
+    return (
+      <Node
+        {...nodeProps}
+        label={item.name}
+        color={item.color}
+        selected={isSelected}
+        disabled={isDisabled}
+      />
+    );
+  };
+
+  return (
+    <div className="flex h-screen w-screen flex-col gap-4 p-8">
+      <div className="flex gap-4">
+        <button
+          onClick={addItem}
+          className="focusable bg-surface-1 rounded px-4 py-2"
+        >
+          Add Item
+        </button>
+        <button
+          onClick={shuffleItems}
+          className="focusable bg-surface-1 rounded px-4 py-2"
+        >
+          Shuffle Items
+        </button>
+        <span className="text-surface-contrast/60 self-center">
+          Click an item to remove it
+        </span>
+      </div>
+
+      <div className={cx(collectionClasses, 'flex-1')}>
+        <Heading level="h2">Dynamic Items ({items.length})</Heading>
+        <Paragraph>
+          Items animate smoothly when added, removed, or reordered.
+        </Paragraph>
+        <Collection
+          id="dynamic-items-collection"
+          items={items}
+          layout={layout}
+          keyExtractor={(item: Item) => item.id}
+          renderItem={renderItem}
+          selectionMode="none"
+          animate
+          aria-label="Dynamic items collection"
+        />
+      </div>
+    </div>
+  );
+}
+
+export const DynamicItemsStory = meta.story({
+  name: 'Dynamic Items (Layout Animations)',
+  render: () => <DynamicItemsDemo />,
 });

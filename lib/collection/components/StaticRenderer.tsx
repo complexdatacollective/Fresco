@@ -1,4 +1,10 @@
-import { stagger, useAnimate } from 'motion/react';
+import {
+  AnimatePresence,
+  LayoutGroup,
+  motion,
+  stagger,
+  useAnimate,
+} from 'motion/react';
 import { memo, useCallback, useEffect, useRef } from 'react';
 import {
   CollectionItemContext,
@@ -21,6 +27,7 @@ export type StaticRendererProps<T> = {
   renderItem: ItemRenderer<T>;
   dragAndDropHooks?: CollectionProps<T>['dragAndDropHooks'];
   animate?: boolean;
+  collectionId: string;
 };
 
 const ANIMATION_CONFIG = {
@@ -32,7 +39,6 @@ const ANIMATION_CONFIG = {
 type StaticRendererItemProps<T> = {
   node: Node<T>;
   renderItem: ItemRenderer<T>;
-  itemStyle?: React.CSSProperties;
   dragAndDropHooks?: CollectionProps<T>['dragAndDropHooks'];
   layout: Layout<T>;
 };
@@ -40,7 +46,6 @@ type StaticRendererItemProps<T> = {
 function StaticRendererItemComponent<T>({
   node,
   renderItem,
-  itemStyle,
   dragAndDropHooks,
   layout,
 }: StaticRendererItemProps<T>) {
@@ -103,7 +108,6 @@ function StaticRendererItemComponent<T>({
       | React.PointerEventHandler<HTMLElement>
       | undefined,
     'id': itemId,
-    'style': itemStyle,
     ...dndDragProps,
   };
 
@@ -130,6 +134,7 @@ export function StaticRenderer<T>({
   renderItem,
   dragAndDropHooks,
   animate: shouldAnimate,
+  collectionId,
 }: StaticRendererProps<T>) {
   // Get CSS styles from layout (flexbox for list, CSS grid for grid)
   const containerStyle = layout.getContainerStyles();
@@ -166,17 +171,25 @@ export function StaticRenderer<T>({
   const layoutItemStyle = layout.getItemStyles();
 
   return (
-    <div ref={scope} style={containerStyle}>
-      {Array.from(collection).map((node) => (
-        <StaticRendererItem
-          key={node.key}
-          node={node}
-          renderItem={renderItem}
-          itemStyle={layoutItemStyle}
-          dragAndDropHooks={dragAndDropHooks}
-          layout={layout}
-        />
-      ))}
-    </div>
+    <LayoutGroup id={collectionId}>
+      <div ref={scope} style={containerStyle}>
+        <AnimatePresence mode="popLayout">
+          {Array.from(collection).map((node) => (
+            <motion.div
+              key={node.key}
+              layout="position"
+              style={layoutItemStyle}
+            >
+              <StaticRendererItem
+                node={node}
+                renderItem={renderItem}
+                dragAndDropHooks={dragAndDropHooks}
+                layout={layout}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+    </LayoutGroup>
   );
 }
