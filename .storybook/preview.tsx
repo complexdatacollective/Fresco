@@ -1,9 +1,19 @@
-import type { Preview } from '@storybook/nextjs-vite';
+// import addonChromatic from '@chromatic-com/storybook';
+import addonA11y from '@storybook/addon-a11y';
+import addonDocs from '@storybook/addon-docs';
+import addonVitest from '@storybook/addon-vitest';
+import { definePreview } from '@storybook/nextjs-vite';
 import Providers from '../components/Providers';
 import '../styles/globals.css';
 import { getInitialTheme, globalTypes, withTheme } from './theme-switcher';
 
-const preview: Preview = {
+export default definePreview({
+  addons: [
+    addonDocs(),
+    addonA11y(),
+    addonVitest(),
+    // addonChromatic()
+  ],
   parameters: {
     options: {
       storySort: {
@@ -65,6 +75,4 @@ const preview: Preview = {
   initialGlobals: {
     theme: getInitialTheme(),
   },
-};
-
-export default preview;
+});
