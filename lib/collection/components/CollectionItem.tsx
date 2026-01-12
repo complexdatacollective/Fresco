@@ -69,11 +69,11 @@ function SelectableItemWrapper({
   const contextValue = { key: itemKey };
   const collectionId = useCollectionId() ?? 'collection';
 
-  const { itemProps, isSelected, isFocused, isDisabled } = useSelectableItem({
-    key: itemKey,
-    selectionManager,
-    ref: localRef,
-  });
+  const { itemProps, isSelected, isDisabled } = useSelectableItem({
+      key: itemKey,
+      selectionManager,
+      ref: localRef,
+    });
 
   // Get item-level drag props if hooks provided
   const dndDragPropsRaw = dragAndDropHooks?.useDraggableItemProps
@@ -127,7 +127,6 @@ function SelectableItemWrapper({
         data-collection-item
         data-key={itemKey}
         data-selected={isSelected ? true : undefined}
-        data-focused={isFocused ? true : undefined}
         data-disabled={isDisabled ? true : undefined}
         data-dragging={state.isDragging ? true : undefined}
         data-drop-target={isDropTarget ? true : undefined}
@@ -241,7 +240,6 @@ function CollectionItemComponent({
         data-collection-item
         data-key={itemKey}
         data-selected={state.isSelected ? true : undefined}
-        data-focused={state.isFocused ? true : undefined}
         data-disabled={state.isDisabled ? true : undefined}
         data-dragging={state.isDragging ? true : undefined}
         data-drop-target={isDropTarget ? true : undefined}

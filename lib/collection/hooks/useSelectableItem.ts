@@ -178,7 +178,7 @@ export function useSelectableItem(
 
   return {
     itemProps: {
-      'tabIndex': isFocused ? 0 : -1,
+      'tabIndex': -1,
       'onFocus': handleFocus,
       'onClick': handleClick,
       'onKeyDown': handleKeyDown,

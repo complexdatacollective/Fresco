@@ -652,7 +652,7 @@ describe('useSelectableCollection', () => {
   });
 
   describe('tabIndex', () => {
-    it('should return tabIndex 0 when no item is focused', () => {
+    it('should always return tabIndex 0 for container', () => {
       const { getByTestId } = render(
         <TestComponent
           selectionManager={selectionManager}
@@ -663,7 +663,7 @@ describe('useSelectableCollection', () => {
       expect(getByTestId('collection').getAttribute('tabIndex')).toBe('0');
     });
 
-    it('should return tabIndex -1 when an item is focused', () => {
+    it('should keep tabIndex 0 even when an item is focused', () => {
       selectionManager = createMockSelectionManager({ focusedKey: '2' });
 
       const { getByTestId } = render(
@@ -673,7 +673,8 @@ describe('useSelectableCollection', () => {
         />,
       );
 
-      expect(getByTestId('collection').getAttribute('tabIndex')).toBe('-1');
+      // Container always has tabIndex 0 - items have tabIndex -1
+      expect(getByTestId('collection').getAttribute('tabIndex')).toBe('0');
     });
   });
 });

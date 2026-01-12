@@ -436,6 +436,17 @@ This custom variant lets you target only elements with the readonly attribute.
 }
 
 /**
+ * focusable-after-within: extends focusable-after to also trigger when ANY
+ * descendant has :focus-visible. Use this for Collection components where
+ * items receive actual DOM focus instead of the trigger element.
+ */
+@utility focusable-after-within {
+  &:has(:focus-visible)::after {
+    @apply focus-styles z-1 rounded-sm;
+  }
+}
+
+/**
  * Gradient scroll fade for ScrollArea viewport.
  * Uses CSS variables set by ScrollArea component to create fade effects at scroll edges.
  * --scroll-area-overflow-y-start: distance scrolled from top

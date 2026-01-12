@@ -2,6 +2,7 @@
 
 import { useRef } from 'react';
 import { ScrollArea } from '~/components/ui/ScrollArea';
+import { cx } from '~/utils/cva';
 import { CollectionProvider } from '../CollectionProvider';
 import { CollectionIdContext, SelectionManagerContext } from '../contexts';
 import { useCollectionSetup } from '../hooks/useCollectionSetup';
@@ -63,7 +64,7 @@ function CollectionContent<T>({
     <SelectionManagerContext.Provider value={selectionManager}>
       <CollectionIdContext.Provider value={collectionId}>
         <ScrollArea
-          className={className}
+          className={cx('focusable-after-within', className)}
           ref={containerRef}
           role="listbox"
           id={collectionId}
