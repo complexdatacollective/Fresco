@@ -154,7 +154,7 @@ export function StaticRenderer<T>({
     const runAnimation = async () => {
       await animate(
         '[data-collection-item]',
-        { opacity: [0, 1], y: ['20%', '0%'] },
+        { opacity: [0, 1], y: ['20%', '0%'], scale: [0.6, 1] },
         {
           type: 'spring',
           stiffness: 500,
@@ -178,6 +178,7 @@ export function StaticRenderer<T>({
             <motion.div
               key={node.key}
               layout="position"
+              exit={{ scale: 0.6, opacity: 0 }}
               style={layoutItemStyle}
             >
               <StaticRendererItem
