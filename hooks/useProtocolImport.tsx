@@ -1,3 +1,7 @@
+import {
+  CURRENT_SCHEMA_VERSION,
+  getMigrationInfo,
+} from '@codaco/protocol-validation';
 import { queue } from 'async';
 import { XCircle } from 'lucide-react';
 import { hash } from 'ohash';
@@ -142,6 +146,23 @@ function createValidationErrorPayload(
         },
       };
     }
+
+    case 'missing-dependencies': {
+      const missingDeps = validationError.missingDependencies as string[];
+      return {
+        id: fileName,
+        rawError: new Error('Migration dependencies missing'),
+        error: {
+          title: 'Migration failed',
+          description: (
+            <AlertDialogDescription>
+              The protocol requires migration but is missing required
+              information: {missingDeps.join(', ')}.
+            </AlertDialogDescription>
+          ),
+        },
+      };
+    }
   }
 }
 
@@ -181,7 +202,25 @@ export const useProtocolImport = () => {
         },
       });
 
-      const validationResult = await validateAndMigrateProtocol(protocolJson);
+      // Build migration dependencies based on what's required
+      const dependencies: Record<string, unknown> = {};
+      if (protocolJson.schemaVersion < CURRENT_SCHEMA_VERSION) {
+        const migrationInfo = getMigrationInfo(
+          protocolJson.schemaVersion,
+          CURRENT_SCHEMA_VERSION,
+        );
+        for (const dep of migrationInfo.dependencies) {
+          if (dep === 'name') {
+            // Derive protocol name from filename (remove .netcanvas extension)
+            dependencies.name = fileName.replace(/\.netcanvas$/i, '');
+          }
+        }
+      }
+
+      const validationResult = await validateAndMigrateProtocol(
+        protocolJson,
+        dependencies,
+      );
 
       if (!validationResult.success) {
         dispatch({

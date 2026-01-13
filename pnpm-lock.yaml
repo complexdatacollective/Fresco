@@ -15,8 +15,8 @@ importers:
         specifier: 8.0.0
         version: 8.0.0(next@14.2.32(@babel/core@7.28.5)(@playwright/test@1.57.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.94.2))
       '@codaco/protocol-validation':
-        specifier: 8.0.2
-        version: 8.0.2
+        specifier: 9.0.0
+        version: 9.0.0
       '@codaco/shared-consts':
         specifier: 5.0.0
         version: 5.0.0
@@ -1070,8 +1070,8 @@ packages:
     peerDependencies:
       next: 15.4.7
 
-  '@codaco/protocol-validation@8.0.2':
-    resolution: {integrity: sha512-1d5GyEsZqNdiVXe2FlkPahce8VDFy51rAhugGqfVwu3YdvYRwPoI0/A9GDE89DzdQ4uuybWVloJ27AsNzM+kaA==}
+  '@codaco/protocol-validation@9.0.0':
+    resolution: {integrity: sha512-UhW5rHPMFV4IRzalyjz9/5L7i+73qoyAatveRxG/uBJjEQYEytK/VJL1H5XuzHWgcUQccsZi3euOZAjretd5tA==}
     hasBin: true
 
   '@codaco/shared-consts@5.0.0':
@@ -1460,8 +1460,8 @@ packages:
     resolution: {integrity: sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
-  '@faker-js/faker@10.1.0':
-    resolution: {integrity: sha512-C3mrr3b5dRVlKPJdfrAXS8+dq+rq8Qm5SNRazca0JKgw1HQERFmrVb0towvMmw5uu8hHKNiQasMaR/tydf3Zsg==}
+  '@faker-js/faker@10.2.0':
+    resolution: {integrity: sha512-rTXwAsIxpCqzUnZvrxVh3L0QA0NzToqWBLAhV+zDV3MIIwiQhAZHMdPCIaj5n/yADu/tyk12wIPgL6YHGXJP+g==}
     engines: {node: ^20.19.0 || ^22.13.0 || ^23.5.0 || >=24.0.0, npm: '>=10'}
 
   '@floating-ui/core@1.7.3':
@@ -7629,8 +7629,8 @@ packages:
   zod@4.1.12:
     resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
 
-  zod@4.1.13:
-    resolution: {integrity: sha512-AvvthqfqrAhNH9dnfmrfKzX5upOdjUVJYFqNSlkmGf64gRaTzlPwz99IHYnVs28qYAybvAlBV+H7pn0saFY4Ig==}
+  zod@4.3.5:
+    resolution: {integrity: sha512-k7Nwx6vuWx1IJ9Bjuf4Zt1PEllcwe7cls3VNzm4CQ1/hgtFUK2bRNG3rvnpPUhFjmqJKAKtjV576KnUkHocg/g==}
 
   zustand@5.0.9:
     resolution: {integrity: sha512-ALBtUj0AfjJt3uNRQoL1tL2tMvj6Gp/6e39dnfT6uzpelGru8v1tPOGBzayOWbPJvujM8JojDk3E1LxeFisBNg==}
@@ -8491,11 +8491,11 @@ snapshots:
       next: 14.2.32(@babel/core@7.28.5)(@playwright/test@1.57.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.94.2)
       zod: 4.1.12
 
-  '@codaco/protocol-validation@8.0.2':
+  '@codaco/protocol-validation@9.0.0':
     dependencies:
       '@codaco/shared-consts': 5.0.0
-      '@faker-js/faker': 10.1.0
-      zod: 4.1.13
+      '@faker-js/faker': 10.2.0
+      zod: 4.3.5
 
   '@codaco/shared-consts@5.0.0':
     dependencies:
@@ -8732,7 +8732,7 @@ snapshots:
 
   '@eslint/js@8.57.1': {}
 
-  '@faker-js/faker@10.1.0': {}
+  '@faker-js/faker@10.2.0': {}
 
   '@floating-ui/core@1.7.3':
     dependencies:
@@ -15601,7 +15601,7 @@ snapshots:
 
   zod@4.1.12: {}
 
-  zod@4.1.13: {}
+  zod@4.3.5: {}
 
   zustand@5.0.9(@types/react@18.3.18)(immer@10.2.0)(react@18.3.1)(use-sync-external-store@1.6.0(react@18.3.1)):
     optionalDependencies:

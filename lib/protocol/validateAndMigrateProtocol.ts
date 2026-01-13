@@ -1,5 +1,7 @@
 import {
+  CURRENT_SCHEMA_VERSION,
   type CurrentProtocol,
+  getMigrationInfo,
   migrateProtocol,
   validateProtocol,
   type VersionedProtocol,
@@ -14,7 +16,12 @@ export type ProtocolValidationSuccess = {
 export type ProtocolValidationError =
   | { success: false; error: 'invalid-object' }
   | { success: false; error: 'unsupported-version'; version: unknown }
-  | { success: false; error: 'validation-failed'; validationResult: unknown };
+  | { success: false; error: 'validation-failed'; validationResult: unknown }
+  | {
+      success: false;
+      error: 'missing-dependencies';
+      missingDependencies: string[];
+    };
 
 export type ProtocolValidationResult =
   | ProtocolValidationSuccess
@@ -27,14 +34,18 @@ export type ProtocolValidationResult =
  * and the preview API route. It handles:
  * 1. Basic object validation
  * 2. Schema version checking against APP_SUPPORTED_SCHEMA_VERSIONS
- * 3. Migration from older schema versions to v8
+ * 3. Migration from older schema versions to v8 (with dependency checking)
  * 4. Full protocol validation
  *
  * Returns a discriminated union so consumers can handle errors appropriately
  * for their context (e.g., JSON responses for preview vs UI error states for useProtocolImport hook).
+ *
+ * @param protocolJson - The protocol JSON to validate
+ * @param dependencies - Dependencies required for migration (e.g., { name: 'Protocol Name' } for v7→v8)
  */
 export async function validateAndMigrateProtocol(
   protocolJson: VersionedProtocol,
+  dependencies: Record<string, unknown> = {},
 ): Promise<ProtocolValidationResult> {
   // Check protocol object exists
   if (!protocolJson || typeof protocolJson !== 'object') {
@@ -52,11 +63,31 @@ export async function validateAndMigrateProtocol(
   }
 
   // Migrate if needed
-  const protocolToValidate = (
-    protocolJson.schemaVersion < 8
-      ? migrateProtocol(protocolJson, 8)
-      : protocolJson
-  ) as CurrentProtocol;
+  let protocolToValidate: CurrentProtocol;
+
+  if (protocolVersion < CURRENT_SCHEMA_VERSION) {
+    // Check required dependencies for migration
+    const migrationInfo = getMigrationInfo(protocolVersion, CURRENT_SCHEMA_VERSION);
+    const missingDependencies = migrationInfo.dependencies.filter(
+      (dep) => !(dep in dependencies),
+    );
+
+    if (missingDependencies.length > 0) {
+      return {
+        success: false,
+        error: 'missing-dependencies',
+        missingDependencies,
+      };
+    }
+
+    protocolToValidate = migrateProtocol(
+      protocolJson,
+      CURRENT_SCHEMA_VERSION,
+      dependencies,
+    );
+  } else {
+    protocolToValidate = protocolJson as CurrentProtocol;
+  }
 
   // Validate
   const validationResult = await validateProtocol(protocolToValidate);

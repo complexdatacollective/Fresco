@@ -57,12 +57,14 @@ const createPrismaClient = () =>
       protocol: {
         stages: {
           needs: {
+            name: true,
             schemaVersion: true,
             stages: true,
             codebook: true,
           },
-          compute: ({ schemaVersion, stages, codebook }) => {
+          compute: ({ name, schemaVersion, stages, codebook }) => {
             const protocolSchema = VersionedProtocolSchema.parse({
+              name,
               schemaVersion,
               stages,
               codebook,
@@ -73,14 +75,17 @@ const createPrismaClient = () =>
         },
         codebook: {
           needs: {
+            name: true,
             schemaVersion: true,
             codebook: true,
           },
           compute: ({
+            name,
             schemaVersion,
             codebook,
           }): VersionedProtocol['codebook'] => {
             const protocolSchema = VersionedProtocolSchema.parse({
+              name,
               schemaVersion,
               stages: [],
               codebook,
@@ -91,15 +96,17 @@ const createPrismaClient = () =>
         },
         experiments: {
           needs: {
+            name: true,
             schemaVersion: true,
             experiments: true,
           },
-          compute: ({ schemaVersion, experiments }) => {
+          compute: ({ name, schemaVersion, experiments }) => {
             if (schemaVersion < 8 || !experiments) {
               return {};
             }
 
             const protocolSchema = CurrentProtocolSchema.parse({
+              name,
               schemaVersion,
               stages: [],
               codebook: {},
