@@ -155,7 +155,7 @@
     "prisma": "^7.1.0",
     "sass": "^1.96.0",
     "storybook": "^10.0.8",
-    "tailwindcss": "4.1.17",
+    "tailwindcss": "4.1.18",
     "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.21.0",
     "typescript": "5.9.3",
