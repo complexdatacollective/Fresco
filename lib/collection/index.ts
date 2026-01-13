@@ -12,10 +12,7 @@
 
 // Main component
 export { Collection } from './components/Collection';
-export {
-  CollectionItem,
-  defaultItemRenderState,
-} from './components/CollectionItem';
+export { CollectionItem } from './components/CollectionItem';
 
 // Provider (for advanced use cases)
 export { CollectionProvider } from './CollectionProvider';

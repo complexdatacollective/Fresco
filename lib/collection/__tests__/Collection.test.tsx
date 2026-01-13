@@ -40,7 +40,7 @@ function ControlledCollection({
 
   const layout = useMemo(() => {
     if (layoutType === 'grid') {
-      return new GridLayout<Item>({ columns: 3, gap: 8 });
+      return new GridLayout<Item>({ minItemWidth: 100, gap: 8 });
     }
     return new ListLayout<Item>({ gap: 8 });
   }, [layoutType]);

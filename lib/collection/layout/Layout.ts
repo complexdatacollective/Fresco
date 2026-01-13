@@ -5,8 +5,10 @@ import { type Collection, type Node } from '../types';
 import {
   type LayoutInfo,
   type LayoutOptions,
+  type MeasurementInfo,
   type Padding,
   type Rect,
+  type RowInfo,
   type Size,
 } from './types';
 
@@ -22,6 +24,28 @@ export abstract class Layout<T = unknown> {
   abstract update(options: LayoutOptions): void;
 
   abstract getContainerStyles(): React.CSSProperties;
+
+  /**
+   * Returns measurement requirements for virtualization.
+   * - 'none': No measurement needed (fixed sizes)
+   * - 'height-only': Measure height with constrained width
+   * - 'intrinsic': Measure full intrinsic size
+   */
+  abstract getMeasurementInfo(): MeasurementInfo;
+
+  /**
+   * Updates layout with measured item dimensions.
+   * For 'height-only' mode: measurements contain heights only.
+   * For 'intrinsic' mode: measurements contain full Size objects.
+   */
+  abstract updateWithMeasurements(measurements: Map<Key, Size | number>): void;
+
+  /**
+   * Returns items grouped into rows for virtualization.
+   * Each row contains items that share the same Y position.
+   * For list layouts, each item is its own row.
+   */
+  abstract getRows(): RowInfo[];
 
   getItemStyles(): React.CSSProperties {
     return {};

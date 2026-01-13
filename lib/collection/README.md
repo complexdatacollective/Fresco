@@ -5,7 +5,7 @@ A high-performance, accessible collection component for React with virtualizatio
 ## Features
 
 - **Unified API**: Single `Collection` component with virtualization controlled by layout
-- **Virtualization**: Efficiently render lists with 10,000+ items using `@tanstack/react-virtual`
+- **Virtualization**: Efficiently render lists with 10,000+ items using custom measurement-based virtualization
 - **Selection**: Single, multiple, or no selection with keyboard and mouse support
 - **Keyboard Navigation**: Full arrow key navigation with roving tabindex pattern
 - **Accessibility**: WCAG-compliant with proper ARIA attributes and screen reader support
@@ -57,7 +57,6 @@ function LargeUserList({ users }: { users: User[] }) {
   const layout = useMemo(
     () =>
       new ListLayout<User>({
-        estimatedRowHeight: 64,
         gap: 8,
         virtualized: true,
       }),
@@ -70,6 +69,7 @@ function LargeUserList({ users }: { users: User[] }) {
         items={users}
         keyExtractor={(user) => user.id}
         layout={layout}
+        overscan={5} // Render 5 extra rows beyond viewport
         renderItem={(user) => (
           <div className="p-2">
             <div>{user.name}</div>
@@ -231,7 +231,7 @@ Layouts control both positioning strategy and virtualization. Set `virtualized: 
 
 ### List Layout
 
-Vertical list layout with CSS flexbox (non-virtualized) or absolute positioning (virtualized):
+Vertical list layout with CSS flexbox (non-virtualized) or measurement-based virtualization:
 
 ```tsx
 import { ListLayout } from '~/lib/collection';
@@ -239,9 +239,8 @@ import { ListLayout } from '~/lib/collection';
 // Non-virtualized (CSS flexbox)
 const layout = new ListLayout<Item>({ gap: 8 });
 
-// Virtualized (absolute positioning, 10k+ items)
+// Virtualized (measures items automatically, 10k+ items)
 const virtualizedLayout = new ListLayout<Item>({
-  estimatedRowHeight: 48,  // Required for virtualization
   gap: 8,
   virtualized: true,
 });
@@ -251,21 +250,20 @@ const virtualizedLayout = new ListLayout<Item>({
 
 ### Grid Layout
 
-Responsive grid layout with CSS grid (non-virtualized) or absolute positioning (virtualized):
+Responsive grid layout with CSS grid (non-virtualized) or measurement-based virtualization:
 
 ```tsx
 import { GridLayout } from '~/lib/collection';
 
-// Non-virtualized (CSS grid)
+// Non-virtualized (CSS grid with auto-fill)
 const layout = new GridLayout<Item>({
-  minItemWidth: 200,  // Responsive columns
+  minItemWidth: 200,  // Responsive columns calculated automatically
   gap: 16,
 });
 
-// Virtualized (absolute positioning, 1k+ items)
+// Virtualized (measures items automatically, 1k+ items)
 const virtualizedLayout = new GridLayout<Item>({
   minItemWidth: 200,
-  estimatedItemHeight: 150,
   gap: 16,
   virtualized: true,
 });
@@ -363,11 +361,11 @@ For lists with 1,000+ items, enable virtualization on the layout:
 
 ```tsx
 const layout = useMemo(
-  () => new ListLayout<Item>({ estimatedRowHeight: 48, virtualized: true }),
+  () => new ListLayout<Item>({ gap: 8, virtualized: true }),
   []
 );
 
-<Collection items={largeArray} layout={layout} ... />
+<Collection items={largeArray} layout={layout} overscan={5} ... />
 ```
 
 ### Memoization
@@ -433,7 +431,7 @@ The separate `VirtualizedCollection` component has been merged into `Collection`
 // After
 const layout = useMemo(
   () =>
-    new ListLayout<Item>({ estimatedRowHeight: 48, gap: 8, virtualized: true }),
+    new ListLayout<Item>({ gap: 8, virtualized: true }),
   [],
 );
 
@@ -590,9 +588,9 @@ Ensure you're providing all required props:
 ### Virtualization issues
 
 1. Ensure parent container has explicit height
-2. Provide accurate `estimatedRowHeight` in layout options
-3. Set `virtualized: true` on the layout
-4. Check that items have consistent structure
+2. Set `virtualized: true` on the layout
+3. Check that items have content that gives them measurable dimensions
+4. For InlineGridLayout, ensure items have explicit or intrinsic width/height
 
 ### Performance issues
 

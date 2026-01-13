@@ -6,6 +6,7 @@ import { CollectionIdContext, SelectionManagerContext } from '../contexts';
 import { useCollectionSetup } from '../hooks/useCollectionSetup';
 import { type CollectionProps, type ItemRenderer } from '../types';
 import { StaticRenderer } from './StaticRenderer';
+import { VirtualizedRenderer } from './VirtualizedRenderer';
 
 type CollectionContentProps<T> = Omit<
   CollectionProps<T>,
@@ -32,6 +33,8 @@ function CollectionContent<T>({
   disallowEmptySelection,
   animate,
   dragAndDropHooks,
+  virtualized,
+  overscan,
 }: CollectionContentProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const collectionId = id ?? crypto.randomUUID();
@@ -90,14 +93,27 @@ function CollectionContent<T>({
           {...collectionProps}
           {...restDndProps}
         >
-          <StaticRenderer
-            layout={layout}
-            collection={collection}
-            renderItem={renderItem}
-            animate={animate}
-            collectionId={collectionId}
-            dragAndDropHooks={dragAndDropHooks}
-          />
+          {virtualized ? (
+            <VirtualizedRenderer
+              layout={layout}
+              collection={collection}
+              renderItem={renderItem}
+              animate={animate}
+              collectionId={collectionId}
+              dragAndDropHooks={dragAndDropHooks}
+              scrollRef={containerRef}
+              overscan={overscan}
+            />
+          ) : (
+            <StaticRenderer
+              layout={layout}
+              collection={collection}
+              renderItem={renderItem}
+              animate={animate}
+              collectionId={collectionId}
+              dragAndDropHooks={dragAndDropHooks}
+            />
+          )}
         </ScrollArea>
       </CollectionIdContext.Provider>
     </SelectionManagerContext.Provider>
@@ -155,6 +171,8 @@ export function Collection<T>({
   disallowEmptySelection,
   animate,
   dragAndDropHooks,
+  virtualized,
+  overscan,
 }: CollectionProps<T>) {
   return (
     <CollectionProvider
@@ -178,6 +196,8 @@ export function Collection<T>({
         disallowEmptySelection={disallowEmptySelection}
         animate={animate}
         dragAndDropHooks={dragAndDropHooks}
+        virtualized={virtualized}
+        overscan={overscan}
       />
     </CollectionProvider>
   );

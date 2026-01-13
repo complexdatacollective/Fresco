@@ -5,4 +5,13 @@ export {
   type InlineGridLayoutOptions,
 } from './InlineGridLayout';
 export { ListLayout, type ListLayoutOptions } from './ListLayout';
-export type { LayoutInfo, LayoutOptions, Padding, Rect, Size } from './types';
+export type {
+  LayoutInfo,
+  LayoutOptions,
+  MeasurementInfo,
+  MeasurementMode,
+  Padding,
+  Rect,
+  RowInfo,
+  Size,
+} from './types';

@@ -142,40 +142,21 @@ type CollectionStoryArgs = {
   gap: number;
   // Grid-specific options
   minItemWidth: number;
-  maxItemWidth: number;
-  columns: number;
-  autoColumns: boolean;
-  // InlineGrid-specific options
-  itemWidth: number;
-  itemHeight: number;
 };
 
 // Helper to create layout from args
 function createLayout(args: CollectionStoryArgs): Layout<Item> {
-  const {
-    layoutType,
-    gap,
-    minItemWidth,
-    maxItemWidth,
-    columns,
-    autoColumns,
-    itemWidth,
-    itemHeight,
-  } = args;
+  const { layoutType, gap, minItemWidth } = args;
 
   switch (layoutType) {
     case 'grid':
       return new GridLayout<Item>({
         gap,
         minItemWidth,
-        maxItemWidth: maxItemWidth > 0 ? maxItemWidth : undefined,
-        columns: autoColumns ? 'auto' : columns,
       });
     case 'inlineGrid':
       return new InlineGridLayout<Item>({
         gap,
-        itemWidth,
-        itemHeight,
       });
     case 'list':
     default:
@@ -232,66 +213,36 @@ function CollectionStoryRender(args: CollectionStoryArgs) {
 // Shared argTypes with conditional controls
 const collectionArgTypes = {
   layoutType: {
-    control: 'select',
+    control: 'select' as const,
     options: ['list', 'grid', 'inlineGrid'],
     description: 'The layout algorithm to use',
     table: { category: 'Layout' },
   },
   gap: {
-    control: { type: 'range', min: 0, max: 48, step: 4 },
+    control: { type: 'range' as const, min: 0, max: 48, step: 4 },
     description: 'Gap between items in pixels',
     table: { category: 'Layout' },
   },
   minItemWidth: {
-    control: { type: 'range', min: 100, max: 400, step: 20 },
-    description: 'Minimum item width for Grid layout',
+    control: { type: 'range' as const, min: 100, max: 400, step: 20 },
+    description: 'Minimum item width for Grid layout (columns auto-calculated)',
     table: { category: 'Layout - Grid' },
     if: { arg: 'layoutType', eq: 'grid' },
-  },
-  maxItemWidth: {
-    control: { type: 'range', min: 0, max: 600, step: 20 },
-    description: 'Maximum item width for Grid layout (0 = no max)',
-    table: { category: 'Layout - Grid' },
-    if: { arg: 'layoutType', eq: 'grid' },
-  },
-  columns: {
-    control: { type: 'range', min: 1, max: 6, step: 1 },
-    description: 'Number of columns (when autoColumns is false)',
-    table: { category: 'Layout - Grid' },
-    if: { arg: 'layoutType', eq: 'grid' },
-  },
-  autoColumns: {
-    control: 'boolean',
-    description: 'Auto-calculate columns based on container width',
-    table: { category: 'Layout - Grid' },
-    if: { arg: 'layoutType', eq: 'grid' },
-  },
-  itemWidth: {
-    control: { type: 'range', min: 50, max: 300, step: 10 },
-    description: 'Item width for InlineGrid layout',
-    table: { category: 'Layout - InlineGrid' },
-    if: { arg: 'layoutType', eq: 'inlineGrid' },
-  },
-  itemHeight: {
-    control: { type: 'range', min: 30, max: 200, step: 10 },
-    description: 'Item height for InlineGrid layout',
-    table: { category: 'Layout - InlineGrid' },
-    if: { arg: 'layoutType', eq: 'inlineGrid' },
   },
   itemComponent: {
-    control: 'select',
+    control: 'select' as const,
     options: ['card', 'node'],
     description: 'The component to render for each item',
     table: { category: 'Rendering' },
   },
   selectionMode: {
-    control: 'select',
+    control: 'select' as const,
     options: ['none', 'single', 'multiple'],
     description: 'Selection behavior',
     table: { category: 'Behavior' },
   },
   animate: {
-    control: 'boolean',
+    control: 'boolean' as const,
     description: 'Enable layout animations',
     table: { category: 'Behavior' },
   },
@@ -305,11 +256,6 @@ const defaultArgs: CollectionStoryArgs = {
   animate: true,
   gap: 12,
   minItemWidth: 200,
-  maxItemWidth: 0,
-  columns: 3,
-  autoColumns: true,
-  itemWidth: 100,
-  itemHeight: 100,
 };
 
 const meta = preview.meta({
@@ -458,8 +404,6 @@ function DragDropBetweenCollections() {
     () =>
       new InlineGridLayout<Person>({
         gap: 16,
-        itemWidth: 100,
-        itemHeight: 100,
       }),
     [],
   );
@@ -468,8 +412,6 @@ function DragDropBetweenCollections() {
     () =>
       new InlineGridLayout<Person>({
         gap: 16,
-        itemWidth: 100,
-        itemHeight: 100,
       }),
     [],
   );
@@ -570,8 +512,6 @@ function DynamicItemsDemo() {
     () =>
       new InlineGridLayout<Item>({
         gap: 16,
-        itemWidth: 120,
-        itemHeight: 120,
       }),
     [],
   );
@@ -661,4 +601,201 @@ function DynamicItemsDemo() {
 export const DynamicItemsStory = meta.story({
   name: 'Dynamic Items (Layout Animations)',
   render: () => <DynamicItemsDemo />,
+});
+
+// =========================================
+// Virtualized Renderer Story (Large Lists)
+// =========================================
+
+type VirtualizedItem = {
+  id: string;
+  name: string;
+  description: string;
+  color: NodeColorSequence;
+};
+
+// Generate a large list of items for virtualization demo
+function generateLargeItemList(count: number): VirtualizedItem[] {
+  const colors: NodeColorSequence[] = [
+    'node-color-seq-1',
+    'node-color-seq-2',
+    'node-color-seq-3',
+    'node-color-seq-4',
+    'node-color-seq-5',
+    'node-color-seq-6',
+    'node-color-seq-7',
+    'node-color-seq-8',
+  ];
+
+  // Reset faker seed for consistent generation
+  faker.seed(123);
+
+  return Array.from({ length: count }, (_, i) => ({
+    id: `item-${i}`,
+    name: faker.commerce.productName(),
+    description: faker.commerce.productDescription().slice(0, 60),
+    color: colors[i % colors.length]!,
+  }));
+}
+
+type VirtualizedStoryArgs = {
+  itemCount: number;
+  layoutType: 'list' | 'grid' | 'inlineGrid';
+  virtualized: boolean;
+  overscan: number;
+  gap: number;
+};
+
+function VirtualizedStoryRender({
+  itemCount,
+  layoutType,
+  virtualized,
+  overscan,
+  gap,
+}: VirtualizedStoryArgs) {
+  const items = useMemo(() => generateLargeItemList(itemCount), [itemCount]);
+
+  const layout = useMemo(() => {
+    switch (layoutType) {
+      case 'grid':
+        return new GridLayout<VirtualizedItem>({
+          gap,
+          minItemWidth: 200,
+        });
+      case 'inlineGrid':
+        return new InlineGridLayout<VirtualizedItem>({
+          gap,
+        });
+      case 'list':
+      default:
+        return new ListLayout<VirtualizedItem>({ gap });
+    }
+  }, [layoutType, gap]);
+
+  const renderItem = useCallback(
+    (item: VirtualizedItem, itemProps: ItemProps) => {
+      if (layoutType === 'inlineGrid') {
+        const isSelected = itemProps['data-selected'] === true;
+        const isDisabled = itemProps['data-disabled'] === true;
+
+        const {
+          ref,
+          onFocus,
+          onClick,
+          onKeyDown,
+          onPointerDown,
+          onPointerMove,
+          ...restProps
+        } = itemProps;
+
+        const nodeProps = {
+          ...restProps,
+          ref,
+          onFocus,
+          onClick,
+          onKeyDown,
+          onPointerDown,
+          onPointerMove,
+        } as React.ComponentProps<typeof Node>;
+
+        return (
+          <Node
+            {...nodeProps}
+            label={item.name.split(' ')[0]}
+            color={item.color}
+            selected={isSelected}
+            disabled={isDisabled}
+          />
+        );
+      }
+
+      return (
+        <div
+          {...itemProps}
+          className={cx(
+            'bg-surface-1 text-surface-1-contrast rounded border-2 border-transparent p-3 transition-colors',
+            'data-selected:bg-accent data-selected:text-accent-contrast',
+            'focusable',
+          )}
+        >
+          <Heading level="label">{item.name}</Heading>
+          <Paragraph className="text-sm">{item.description}</Paragraph>
+        </div>
+      );
+    },
+    [layoutType],
+  );
+
+  return (
+    <div className="flex h-screen w-screen flex-col p-8">
+      <div
+        className={cx(collectionClasses, 'max-h-[calc(100vh-100px)] flex-1')}
+      >
+        <Heading level="h2">
+          Virtualized Collection ({items.length.toLocaleString()} items)
+        </Heading>
+        <Paragraph>
+          {virtualized
+            ? `Scroll through ${items.length.toLocaleString()} items with smooth performance. Only visible items are rendered (check DevTools).`
+            : `All ${items.length.toLocaleString()} items rendered (may be slow with large counts).`}
+        </Paragraph>
+        <Collection
+          id="virtualized-collection"
+          items={items}
+          layout={layout}
+          keyExtractor={(item: VirtualizedItem) => item.id}
+          renderItem={renderItem}
+          selectionMode="multiple"
+          virtualized={virtualized}
+          overscan={overscan}
+          aria-label="Virtualized collection"
+        />
+      </div>
+    </div>
+  );
+}
+
+export const VirtualizedRendererStory = meta.story({
+  name: 'Virtualized (Large Lists)',
+  args: {
+    itemCount: 1000,
+    layoutType: 'list',
+    virtualized: true,
+    overscan: 5,
+    gap: 8,
+  },
+  argTypes: {
+    itemCount: {
+      control: 'select' as const,
+      options: [100, 500, 1000, 5000, 10000],
+      description: 'Number of items to generate',
+      table: { category: 'Data' },
+    },
+    layoutType: {
+      control: 'select' as const,
+      options: ['list', 'grid', 'inlineGrid'],
+      description: 'The layout algorithm to use',
+      table: { category: 'Layout' },
+    },
+    gap: {
+      control: { type: 'range' as const, min: 0, max: 24, step: 4 },
+      description: 'Gap between items in pixels',
+      table: { category: 'Layout' },
+    },
+    virtualized: {
+      control: 'boolean' as const,
+      description: 'Enable virtualization (only render visible items)',
+      table: { category: 'Performance' },
+    },
+    overscan: {
+      control: 'select' as const,
+      options: [1, 3, 5, 10],
+      description: 'Number of rows to render beyond the viewport',
+      table: { category: 'Performance' },
+      if: { arg: 'virtualized', eq: true },
+    },
+  },
+  render: (args) => (
+    <VirtualizedStoryRender {...(args as unknown as VirtualizedStoryArgs)} />
+  ),
 });

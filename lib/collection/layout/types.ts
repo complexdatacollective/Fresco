@@ -16,3 +16,31 @@ export type LayoutOptions = {
   containerWidth: number;
   containerHeight?: number;
 };
+
+/**
+ * Measurement mode for virtualization.
+ * - 'none': No measurement needed (fixed sizes)
+ * - 'height-only': Measure height with constrained width (GridLayout, ListLayout)
+ * - 'intrinsic': Measure full intrinsic size (InlineGridLayout)
+ */
+export type MeasurementMode = 'none' | 'height-only' | 'intrinsic';
+
+/**
+ * Information about how items should be measured for virtualization.
+ */
+export type MeasurementInfo = {
+  mode: MeasurementMode;
+  /** For 'height-only' mode: the width to constrain items to during measurement */
+  constrainedWidth?: number;
+};
+
+/**
+ * Row information for virtualization.
+ * Groups items that share the same Y position into rows.
+ */
+export type RowInfo = {
+  rowIndex: number;
+  yStart: number;
+  height: number;
+  itemKeys: Key[];
+};

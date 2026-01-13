@@ -58,7 +58,6 @@
     "@reduxjs/toolkit": "^2.11.0",
     "@tanstack/react-form": "^1.26.0",
     "@tanstack/react-table": "^8.21.3",
-    "@tanstack/react-virtual": "^3.13.17",
     "@tiptap/core": "^3.11.0",
     "@tiptap/extension-bullet-list": "^3.11.0",
     "@tiptap/extension-heading": "^3.11.0",

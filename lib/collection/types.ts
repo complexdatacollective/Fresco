@@ -218,6 +218,22 @@ export type CollectionProps<T> = {
   /** Enable stagger enter animation for items */
   'animate'?: boolean;
 
+  // Rendering props
+  /**
+   * Enable virtualization for large collections.
+   * When true, only items visible in the viewport are rendered.
+   * Note: Layout animations are not supported in virtualized mode.
+   */
+  'virtualized'?: boolean;
+
+  /**
+   * Number of rows to render beyond the visible viewport.
+   * Higher values provide smoother scrolling but use more memory.
+   * Only applies when `virtualized` is true.
+   * @default 5
+   */
+  'overscan'?: number;
+
   // Drag and drop props
   /** Optional drag and drop hooks */
   'dragAndDropHooks'?: DragAndDropHooks;
