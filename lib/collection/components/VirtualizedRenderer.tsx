@@ -65,8 +65,9 @@ export function VirtualizedRenderer<T>({
   scrollRef,
   overscan = 5,
 }: VirtualizedRendererProps<T>) {
-  // Track container width for layout calculations
+  // Track container width and font-size for layout calculations
   const [containerWidth, setContainerWidth] = useState(0);
+  const [fontSize, setFontSize] = useState<string | undefined>(undefined);
 
   // Track the scroll element in state to trigger effects when ref becomes available
   const [scrollElement, setScrollElement] = useState<HTMLElement | null>(null);
@@ -104,8 +105,17 @@ export function VirtualizedRenderer<T>({
       });
     });
 
-    // Initial width
-    setContainerWidth(scrollElement.clientWidth);
+    // Initial width - use content width (excluding padding) to match ResizeObserver's contentRect
+    const computedStyle = getComputedStyle(scrollElement);
+    const paddingX =
+      parseFloat(computedStyle.paddingLeft) +
+      parseFloat(computedStyle.paddingRight);
+    const initialWidth = scrollElement.clientWidth - paddingX;
+    setContainerWidth(initialWidth);
+
+    // Capture font-size for accurate em-based measurements
+    // This ensures the measurement container uses the same font-size as the scroll container
+    setFontSize(computedStyle.fontSize);
 
     observer.observe(scrollElement);
     return () => {
@@ -116,17 +126,6 @@ export function VirtualizedRenderer<T>({
     };
   }, [scrollElement]);
 
-  // Create a stable key for collection identity to avoid unnecessary layout updates
-  // when collection reference changes but items remain the same
-  const collectionSize = collection.size;
-
-  // Update layout when container width changes
-  useLayoutEffect(() => {
-    if (containerWidth > 0) {
-      layout.update({ containerWidth });
-    }
-  }, [layout, containerWidth, collectionSize]);
-
   // Measure items in hidden container
   const { measurements, isComplete, measurementContainer } = useMeasureItems({
     collection,
@@ -134,18 +133,23 @@ export function VirtualizedRenderer<T>({
     renderItem,
     containerWidth,
     skip: containerWidth === 0,
+    fontSize,
   });
 
-  // Get rows from layout (will update after measurements)
+  // Get rows from layout after measurements complete
+  // Must update layout with containerWidth BEFORE calling updateWithMeasurements
+  // because updateWithMeasurements uses this.containerWidth internally
   const rows = useMemo(() => {
-    // Only return rows after measurements are complete
-    if (!isComplete) return [];
-    // Update layout with measurements before getting rows
+    // Wait for measurements to complete and container to have width
+    if (!isComplete || containerWidth === 0) return [];
+    // Update layout with current container width first
+    layout.update({ containerWidth });
+    // Then apply measurements (which uses containerWidth internally)
     if (measurements.size > 0) {
       layout.updateWithMeasurements(measurements);
     }
     return layout.getRows();
-  }, [layout, isComplete, measurements]);
+  }, [layout, isComplete, measurements, containerWidth]);
 
   // Virtualize rows
   const { virtualItems, totalHeight, scrollToKey } = useVirtualization({

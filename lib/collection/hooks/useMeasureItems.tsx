@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { type Layout } from '../layout/Layout';
 import { type Size } from '../layout/types';
 import { type Collection, type ItemRenderer, type Key } from '../types';
@@ -18,6 +12,12 @@ export type UseMeasureItemsOptions<T> = {
   containerWidth: number;
   /** Set to true to skip measurement (for non-virtualized rendering) */
   skip?: boolean;
+  /**
+   * Font size to use for measurement container.
+   * Important: Spacing uses em units, so measurements must use the same font-size
+   * as the actual render container to get accurate results.
+   */
+  fontSize?: string;
 };
 
 export type UseMeasureItemsResult = {
@@ -45,6 +45,7 @@ export function useMeasureItems<T>({
   renderItem,
   containerWidth,
   skip = false,
+  fontSize,
 }: UseMeasureItemsOptions<T>): UseMeasureItemsResult {
   const [measurements, setMeasurements] = useState<Map<Key, Size>>(new Map());
   const [isComplete, setIsComplete] = useState(false);
@@ -165,9 +166,9 @@ export function useMeasureItems<T>({
           top: 0,
           // For height-only mode, constrain container width
           width:
-            measurementInfo.mode === 'height-only'
-              ? containerWidth
-              : undefined,
+            measurementInfo.mode === 'height-only' ? containerWidth : undefined,
+          // Match the font-size of the scroll container for accurate em-based measurements
+          fontSize,
         }}
       >
         {orderedKeys.map((key) => {
@@ -202,6 +203,7 @@ export function useMeasureItems<T>({
     createItemRef,
     isComplete,
     needsRemeasurement,
+    fontSize,
   ]);
 
   return {

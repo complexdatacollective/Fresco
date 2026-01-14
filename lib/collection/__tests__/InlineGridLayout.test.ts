@@ -264,4 +264,131 @@ describe('InlineGridLayout', () => {
       expect(layout.getGap()).toBe(16);
     });
   });
+
+  describe('items per row calculation (regression tests)', () => {
+    it('should calculate exact number of items that fit in container width', () => {
+      // This test documents the exact calculation to prevent regressions
+      // The bug was that containerWidth was incorrectly including padding,
+      // causing more items to appear per row than should fit.
+      const layout = new InlineGridLayout({ gap: 8 });
+      const collection = createMockCollection(21);
+
+      const items = new Map<Key, Node<unknown>>();
+      for (const node of collection) {
+        items.set(node.key, node);
+      }
+      layout.setItems(items, Array.from(items.keys()));
+
+      // Container content width: 890px (this should NOT include padding)
+      // Item width: 120px, Gap: 8px
+      // Math: 7 items = 7*120 + 6*8 = 840 + 48 = 888px <= 890px ✓
+      //       8 items = 8*120 + 7*8 = 960 + 56 = 1016px > 890px ✗
+      layout.update({ containerWidth: 890 });
+
+      // Create measurements for all items (120px wide each)
+      const measurements = new Map<Key, { width: number; height: number }>();
+      for (let i = 1; i <= 21; i++) {
+        measurements.set(String(i), { width: 120, height: 120 });
+      }
+      layout.updateWithMeasurements(measurements);
+
+      const rows = layout.getRows();
+
+      // Should have 3 rows with 7 items each
+      expect(rows.length).toBe(3);
+      expect(rows[0]?.itemKeys.length).toBe(7);
+      expect(rows[1]?.itemKeys.length).toBe(7);
+      expect(rows[2]?.itemKeys.length).toBe(7);
+    });
+
+    it('should not fit more items than mathematically possible', () => {
+      // If this test fails, it means the layout is incorrectly calculating
+      // that 8 items fit in a space where only 7 should fit.
+      const layout = new InlineGridLayout({ gap: 8 });
+      const collection = createMockCollection(16);
+
+      const items = new Map<Key, Node<unknown>>();
+      for (const node of collection) {
+        items.set(node.key, node);
+      }
+      layout.setItems(items, Array.from(items.keys()));
+
+      // Container width that fits exactly 4 items
+      // 4 items: 4*100 + 3*8 = 400 + 24 = 424px
+      // 5 items: 5*100 + 4*8 = 500 + 32 = 532px
+      // So container width of 424 should fit exactly 4 items
+      layout.update({ containerWidth: 424 });
+
+      const measurements = new Map<Key, { width: number; height: number }>();
+      for (let i = 1; i <= 16; i++) {
+        measurements.set(String(i), { width: 100, height: 100 });
+      }
+      layout.updateWithMeasurements(measurements);
+
+      const rows = layout.getRows();
+
+      expect(rows.length).toBe(4);
+      expect(rows[0]?.itemKeys.length).toBe(4);
+      expect(rows[1]?.itemKeys.length).toBe(4);
+      expect(rows[2]?.itemKeys.length).toBe(4);
+      expect(rows[3]?.itemKeys.length).toBe(4);
+    });
+
+    it('should handle tight fit where items exactly fill container', () => {
+      const layout = new InlineGridLayout({ gap: 10 });
+      const collection = createMockCollection(6);
+
+      const items = new Map<Key, Node<unknown>>();
+      for (const node of collection) {
+        items.set(node.key, node);
+      }
+      layout.setItems(items, Array.from(items.keys()));
+
+      // Container width that exactly fits 3 items
+      // 3 items: 3*100 + 2*10 = 300 + 20 = 320px (exact fit)
+      layout.update({ containerWidth: 320 });
+
+      const measurements = new Map<Key, { width: number; height: number }>();
+      for (let i = 1; i <= 6; i++) {
+        measurements.set(String(i), { width: 100, height: 50 });
+      }
+      layout.updateWithMeasurements(measurements);
+
+      const rows = layout.getRows();
+
+      // With exact fit, 3 items per row
+      expect(rows.length).toBe(2);
+      expect(rows[0]?.itemKeys.length).toBe(3);
+      expect(rows[1]?.itemKeys.length).toBe(3);
+    });
+
+    it('should wrap to next row when one more item would overflow', () => {
+      const layout = new InlineGridLayout({ gap: 8 });
+      const collection = createMockCollection(5);
+
+      const items = new Map<Key, Node<unknown>>();
+      for (const node of collection) {
+        items.set(node.key, node);
+      }
+      layout.setItems(items, Array.from(items.keys()));
+
+      // Container width: 319px
+      // 3 items: 3*100 + 2*8 = 300 + 16 = 316px <= 319px ✓
+      // 4 items: 4*100 + 3*8 = 400 + 24 = 424px > 319px ✗
+      layout.update({ containerWidth: 319 });
+
+      const measurements = new Map<Key, { width: number; height: number }>();
+      for (let i = 1; i <= 5; i++) {
+        measurements.set(String(i), { width: 100, height: 50 });
+      }
+      layout.updateWithMeasurements(measurements);
+
+      const rows = layout.getRows();
+
+      // 3 items per row, last row has 2
+      expect(rows.length).toBe(2);
+      expect(rows[0]?.itemKeys.length).toBe(3);
+      expect(rows[1]?.itemKeys.length).toBe(2);
+    });
+  });
 });
