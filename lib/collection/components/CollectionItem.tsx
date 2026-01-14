@@ -45,19 +45,41 @@ function CollectionItemComponent<T>({
   // - tabIndex: Collection uses roving tabindex (-1), DnD sets 0
   // - role: Collection uses 'option', DnD sets 'button'
   // - aria-label: Should come from rendered item (e.g., Node's label), not DnD's announcedName
+  // - onKeyDown: Must be composed with Collection's handler (extracted separately below)
   const {
     'ref': dragRef,
     'tabIndex': _dndTabIndex,
     'role': _dndRole,
     'aria-label': _dndAriaLabel,
+    'onKeyDown': dndOnKeyDown,
     ...dndDragProps
   } = dndDragPropsRaw as {
     'ref'?: (el: HTMLElement | null) => void;
     'tabIndex'?: number;
     'role'?: string;
     'aria-label'?: string;
+    'onKeyDown'?: React.KeyboardEventHandler<HTMLElement>;
     [key: string]: unknown;
   };
+
+  // Compose keyboard handlers: DnD handler runs first to handle drag operations,
+  // then Collection's handler for selection (if not handled by DnD).
+  // This order is important because:
+  // - During drag mode: DnD handles Enter/Space for drop, arrow keys for navigation
+  // - Normal mode: DnD only handles Ctrl+D/Alt+Space, Collection handles Enter/Space for selection
+  const composedOnKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLElement>) => {
+      // DnD handler first - it will preventDefault/stopPropagation if it handles the event
+      if (dndOnKeyDown) {
+        dndOnKeyDown(e);
+      }
+      // Only call Collection handler if DnD didn't handle the event
+      if (!e.defaultPrevented) {
+        itemProps.onKeyDown?.(e);
+      }
+    },
+    [itemProps.onKeyDown, dndOnKeyDown],
+  );
 
   // Combined ref callback that also registers the element with the layout
   const combinedRef = useCallback(
@@ -90,7 +112,7 @@ function CollectionItemComponent<T>({
     'data-drop-target': undefined,
     'onFocus': itemProps.onFocus as React.FocusEventHandler<HTMLElement>,
     'onClick': itemProps.onClick as React.MouseEventHandler<HTMLElement>,
-    'onKeyDown': itemProps.onKeyDown as React.KeyboardEventHandler<HTMLElement>,
+    'onKeyDown': composedOnKeyDown,
     'onPointerDown': dndDragProps.onPointerDown as
       | React.PointerEventHandler<HTMLElement>
       | undefined,

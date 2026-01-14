@@ -61,9 +61,17 @@ function CollectionContent<T>({
     containerRef,
   );
 
-  // Extract ref from dndCollectionProps and merge with containerRef
-  const { ref: dndRef, ...restDndProps } = dndCollectionProps as {
+  // Extract ref and tabIndex from dndCollectionProps
+  // - ref: merged with containerRef
+  // - tabIndex: excluded - Collection's collectionProps.tabIndex (0) takes precedence
+  //   over drop target's tabIndex (-1 when not dragging)
+  const {
+    ref: dndRef,
+    tabIndex: _dndTabIndex,
+    ...restDndProps
+  } = dndCollectionProps as {
     ref?: (el: HTMLElement | null) => void;
+    tabIndex?: number;
   };
   const mergedRef = useMergeRefs({ containerRef, dndRef });
 

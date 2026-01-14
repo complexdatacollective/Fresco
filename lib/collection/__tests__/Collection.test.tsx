@@ -38,9 +38,11 @@ function ControlledCollection({
 }) {
   const [selectedKeys, setSelectedKeys] = useState<Set<Key>>(new Set());
 
+  // Use minItemWidth=250 to get 3 columns with 800px mock container width
+  // Calculation: (800 + 8) / (250 + 8) = 3.13 → 3 columns
   const layout = useMemo(() => {
     if (layoutType === 'grid') {
-      return new GridLayout<Item>({ minItemWidth: 100, gap: 8 });
+      return new GridLayout<Item>({ minItemWidth: 250, gap: 8 });
     }
     return new ListLayout<Item>({ gap: 8 });
   }, [layoutType]);
@@ -104,9 +106,9 @@ describe('Collection', () => {
     it('should apply ARIA attributes', () => {
       render(<ControlledCollection />);
 
-      const listbox = screen.getByRole('listbox');
-      expect(listbox.getAttribute('aria-label')).toBe('Test collection');
-      expect(listbox.getAttribute('aria-multiselectable')).toBe('true');
+      const collection = screen.getByLabelText('Test collection');
+      expect(collection).toBeDefined();
+      expect(collection.getAttribute('aria-multiselectable')).toBe('true');
     });
 
     it('should mark disabled items', () => {
@@ -429,8 +431,8 @@ describe('Collection', () => {
     it('should render with grid layout', () => {
       render(<ControlledCollection layoutType="grid" />);
 
-      const listbox = screen.getByRole('listbox');
-      expect(listbox).toBeDefined();
+      const collection = screen.getByLabelText('Test collection');
+      expect(collection).toBeDefined();
 
       // All items should be rendered
       expect(screen.getByText('Apple')).toBeDefined();
