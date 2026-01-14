@@ -17,7 +17,7 @@ const mockDeleteFiles = vi.fn();
 const mockGetUTApi = vi.fn();
 
 // Mock the db module
-vi.mock('~/utils/db', () => ({
+vi.mock('~/lib/db', () => ({
   prisma: mockPrisma,
 }));
 
@@ -37,9 +37,8 @@ describe('prunePreviewProtocols', () => {
 
   it('should delete protocols older than 24 hours', async () => {
     // Dynamic import to ensure mocks are set up
-    const { prunePreviewProtocols } = await import(
-      '../preview-protocol-pruning'
-    );
+    const { prunePreviewProtocols } =
+      await import('../preview-protocol-pruning');
 
     const oldProtocol = {
       id: 'old-protocol',
@@ -65,9 +64,8 @@ describe('prunePreviewProtocols', () => {
   });
 
   it('should not delete protocols newer than 24 hours', async () => {
-    const { prunePreviewProtocols } = await import(
-      '../preview-protocol-pruning'
-    );
+    const { prunePreviewProtocols } =
+      await import('../preview-protocol-pruning');
 
     mockPrisma.protocol.findMany.mockResolvedValue([]);
 
@@ -78,9 +76,8 @@ describe('prunePreviewProtocols', () => {
   });
 
   it('should delete associated assets from UploadThing', async () => {
-    const { prunePreviewProtocols } = await import(
-      '../preview-protocol-pruning'
-    );
+    const { prunePreviewProtocols } =
+      await import('../preview-protocol-pruning');
 
     const oldProtocol = {
       id: 'old-protocol',
@@ -103,9 +100,8 @@ describe('prunePreviewProtocols', () => {
   });
 
   it('should handle errors gracefully', async () => {
-    const { prunePreviewProtocols } = await import(
-      '../preview-protocol-pruning'
-    );
+    const { prunePreviewProtocols } =
+      await import('../preview-protocol-pruning');
 
     mockPrisma.protocol.findMany.mockRejectedValue(new Error('Database error'));
 
@@ -116,9 +112,8 @@ describe('prunePreviewProtocols', () => {
   });
 
   it('should only query for preview protocols with pending/completed cutoffs', async () => {
-    const { prunePreviewProtocols } = await import(
-      '../preview-protocol-pruning'
-    );
+    const { prunePreviewProtocols } =
+      await import('../preview-protocol-pruning');
 
     mockPrisma.protocol.findMany.mockResolvedValue([]);
 
