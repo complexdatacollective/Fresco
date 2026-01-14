@@ -173,9 +173,6 @@ importers:
       papaparse:
         specifier: ^5.5.3
         version: 5.5.3
-      pg:
-        specifier: ^8.16.3
-        version: 8.16.3
       postcss:
         specifier: ^8.5.6
         version: 8.5.6

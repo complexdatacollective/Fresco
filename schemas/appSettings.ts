@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
 
-export const appSettingsSchema = z
+const appSettingsSchema = z
   .object({
     initializedAt: z.date(),
     configured: z.boolean(),
