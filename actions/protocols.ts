@@ -1,7 +1,7 @@
 'use server';
 
 import { Prisma } from '~/lib/db/generated/client';
-import { safeRevalidateTag } from 'lib/cache';
+import { safeRevalidateTag } from '~/lib/cache';
 import { hash } from 'ohash';
 import { type z } from 'zod';
 import { getUTApi } from '~/lib/uploadthing/server-helpers';
