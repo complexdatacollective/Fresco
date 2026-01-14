@@ -41,8 +41,21 @@ function CollectionItemComponent<T>({
     ? dragAndDropHooks.useDraggableItemProps(node.key)
     : {};
 
-  const { ref: dragRef, ...dndDragProps } = dndDragPropsRaw as {
-    ref?: (el: HTMLElement | null) => void;
+  // Extract DnD props, excluding ones that would override Collection's accessibility semantics:
+  // - tabIndex: Collection uses roving tabindex (-1), DnD sets 0
+  // - role: Collection uses 'option', DnD sets 'button'
+  // - aria-label: Should come from rendered item (e.g., Node's label), not DnD's announcedName
+  const {
+    'ref': dragRef,
+    'tabIndex': _dndTabIndex,
+    'role': _dndRole,
+    'aria-label': _dndAriaLabel,
+    ...dndDragProps
+  } = dndDragPropsRaw as {
+    'ref'?: (el: HTMLElement | null) => void;
+    'tabIndex'?: number;
+    'role'?: string;
+    'aria-label'?: string;
     [key: string]: unknown;
   };
 

@@ -412,6 +412,15 @@ This custom variant lets you target only elements with the readonly attribute.
 @utility focusable-within {
   outline-color: currentColor;
   @apply focus-visible-within:focus-styles;
+
+  /*
+   * When a Collection item has focus (data-focused="true"), hide the container's
+   * focus ring to prevent visual flash during keyboard navigation.
+   * The focused item shows its own focus indicator.
+   */
+  &:has([data-focused='true']) {
+    @apply outline-none;
+  }
 }
 
 /**
