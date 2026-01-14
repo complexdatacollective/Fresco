@@ -644,6 +644,7 @@ type VirtualizedStoryArgs = {
   virtualized: boolean;
   overscan: number;
   gap: number;
+  animate: boolean;
 };
 
 function VirtualizedStoryRender({
@@ -652,6 +653,7 @@ function VirtualizedStoryRender({
   virtualized,
   overscan,
   gap,
+  animate,
 }: VirtualizedStoryArgs) {
   const items = useMemo(() => generateLargeItemList(itemCount), [itemCount]);
 
@@ -748,6 +750,7 @@ function VirtualizedStoryRender({
           selectionMode="multiple"
           virtualized={virtualized}
           overscan={overscan}
+          animate={animate}
           aria-label="Virtualized collection"
         />
       </div>
@@ -763,6 +766,7 @@ export const VirtualizedRendererStory = meta.story({
     virtualized: true,
     overscan: 5,
     gap: 8,
+    animate: true,
   },
   argTypes: {
     itemCount: {
@@ -793,6 +797,11 @@ export const VirtualizedRendererStory = meta.story({
       description: 'Number of rows to render beyond the viewport',
       table: { category: 'Performance' },
       if: { arg: 'virtualized', eq: true },
+    },
+    animate: {
+      control: 'boolean' as const,
+      description: 'Enable stagger enter animation for items',
+      table: { category: 'Animation' },
     },
   },
   render: (args) => (
