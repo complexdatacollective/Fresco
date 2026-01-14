@@ -46,7 +46,14 @@ const config = {
     'prettier',
     'plugin:storybook/recommended',
   ],
-  ignorePatterns: ['node_modules', '*.stories.*', 'public'],
+  ignorePatterns: [
+    'node_modules',
+    '*.stories.*',
+    '*.test.*',
+    'public',
+    '.eslintrc.cjs',
+    'storybook-static',
+  ],
   rules: {
     '@typescript-eslint/switch-exhaustiveness-check': 'error',
     '@next/next/no-img-element': 'off',

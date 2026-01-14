@@ -8,7 +8,7 @@ import { v4 as uuid } from 'uuid';
 import InterviewShell from '~/app/(interview)/interview/_components/InterviewShell';
 import { env } from '~/env';
 import { getProtocolForPreview } from '~/queries/protocols';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 
 export const dynamic = 'force-dynamic';
 

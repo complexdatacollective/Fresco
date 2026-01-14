@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { env } from '~/env';
 import trackEvent from '~/lib/analytics';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 
 export const dynamic = 'force-dynamic';
 

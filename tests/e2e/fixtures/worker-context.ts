@@ -1,5 +1,5 @@
 import type { TestInfo } from '@playwright/test';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '~/lib/db/generated/client';
 import { loadContextData, type SerializedContext } from './context-storage';
 
 export type WorkerContext = {

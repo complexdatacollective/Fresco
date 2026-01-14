@@ -2,7 +2,7 @@
 
 import { stringify } from 'superjson';
 import { createCachedFunction } from '~/lib/cache';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 
 async function prisma_getProtocols() {
   return prisma.protocol.findMany({

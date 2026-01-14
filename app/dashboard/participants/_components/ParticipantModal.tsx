@@ -1,7 +1,7 @@
 'use client';
 
 import { createId } from '@paralleldrive/cuid2';
-import type { Participant } from '@prisma/client';
+import type { Participant } from '~/lib/db/generated/client';
 import { HelpCircle, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
@@ -58,8 +58,7 @@ function ParticipantModal({
         // Allow the current identifier if editing
         return (
           !existingParticipant ||
-          (editingParticipant &&
-            existingParticipant.id === editingParticipant.id)
+          (existingParticipant.id === editingParticipant?.id)
         );
       },
       {

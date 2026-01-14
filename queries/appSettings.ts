@@ -11,7 +11,7 @@ import {
   type AppSetting,
   appSettingPreprocessedSchema,
 } from '~/schemas/appSettings';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 
 export const getAppSetting = <Key extends AppSetting>(
   key: Key,

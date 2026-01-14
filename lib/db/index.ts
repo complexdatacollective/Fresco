@@ -4,12 +4,19 @@ import {
   VersionedProtocolSchema,
 } from '@codaco/protocol-validation';
 import { NcNetworkSchema } from '@codaco/shared-consts';
-import { PrismaClient } from '@prisma/client';
+import { PrismaNeon } from '@prisma/adapter-neon';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '~/lib/db/generated/client';
 import { env } from '~/env';
 import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
 
-const createPrismaClient = () =>
-  new PrismaClient({
+const createPrismaClient = () => {
+  const adapter = env.USE_NEON_POSTGRES_ADAPTER
+    ? new PrismaNeon({ connectionString: env.DATABASE_URL })
+    : new PrismaPg({ connectionString: env.DATABASE_URL });
+
+  return new PrismaClient({
+    adapter,
     log: env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
   }).$extends({
     query: {
@@ -118,6 +125,7 @@ const createPrismaClient = () =>
       },
     },
   });
+};
 
 const globalForPrisma = globalThis as unknown as {
   prisma: ReturnType<typeof createPrismaClient> | undefined;

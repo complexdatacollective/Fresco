@@ -3,7 +3,7 @@ import {
   CurrentProtocolSchema,
 } from '@codaco/protocol-validation';
 import { createId } from '@paralleldrive/cuid2';
-import { type PrismaClient } from '@prisma/client';
+import { type PrismaClient } from '~/lib/db/generated/client';
 import { generateLuciaPasswordHash } from 'lucia/utils';
 import { hash as objectHash } from 'ohash';
 import { type z } from 'zod';

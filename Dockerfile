@@ -11,17 +11,14 @@ WORKDIR /app
 # Enable corepack early for better caching
 RUN corepack enable
 
-# Copy dependency files, Prisma schema, and postinstall script
-COPY package.json pnpm-lock.yaml* postinstall.js ./
-COPY prisma ./prisma
+# Copy dependency files
+COPY package.json pnpm-lock.yaml* prisma.config.ts env.js ./
+COPY lib/db/schema.prisma ./lib/db/schema.prisma
 
 # Install pnpm and dependencies with cache mount for faster builds
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
     --mount=type=cache,target=/root/.cache/pnpm \
     corepack enable pnpm && pnpm i --frozen-lockfile --prefer-offline
-
-# Copy remaining setup scripts
-COPY migrate-and-start.sh setup-database.js initialize.js ./
 
 # ---------
 
@@ -32,9 +29,8 @@ WORKDIR /app
 # Install git for version info
 RUN apk add --no-cache git
 
-# Copy node_modules and Prisma files from deps stage
+# Copy node_modules from deps stage
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/prisma ./prisma
 
 # Copy source code
 COPY . .
@@ -48,8 +44,14 @@ ENV SKIP_ENV_VALIDATION=true
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096 --no-network-family-autoselection"
 
-# Enable pnpm and build
-RUN corepack enable pnpm && pnpm run build
+# Enable pnpm, generate Prisma client, and build
+# Note: prisma generate must run here because the generated client (lib/db/generated/)
+# is gitignored and not copied from deps stage (only node_modules is copied)
+# and without the client being present, the build will fail.
+#
+# The client is generated _again_ as part of migrate-and-start.sh in the final image
+# to ensure that it inherits the correct runtime environment variables.
+RUN corepack enable pnpm && pnpm exec prisma generate && pnpm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
@@ -74,11 +76,14 @@ RUN mkdir .next && chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy runtime scripts and database schema
-COPY --from=builder --chown=nextjs:nodejs /app/initialize.js ./
-COPY --from=builder --chown=nextjs:nodejs /app/setup-database.js ./
-COPY --from=builder --chown=nextjs:nodejs /app/migrate-and-start.sh ./
-COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+# Copy runtime scripts, database files, and dependencies needed for tsx
+COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
+COPY --from=builder --chown=nextjs:nodejs /app/lib/db ./lib/db
+COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./
+COPY --from=builder --chown=nextjs:nodejs /app/env.js ./
+COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./
 
 # Install Prisma CLI for database migrations (required for setup-database.js)
 # The standalone build doesn't include node_modules, so we install prisma via pnpm
@@ -96,4 +101,4 @@ USER nextjs
 EXPOSE 3000
 
 # Use exec form for better signal handling
-CMD ["sh", "migrate-and-start.sh"]
+CMD ["sh", "scripts/migrate-and-start.sh"]

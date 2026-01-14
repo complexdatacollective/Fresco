@@ -1,6 +1,6 @@
 import 'server-only';
 import { stringify } from 'superjson';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 
 /**
  * Define the Prisma query logic for fetching all interviews separately

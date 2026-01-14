@@ -1,4 +1,4 @@
-import { type Participant, type Protocol } from '@prisma/client';
+import { type Participant, type Protocol } from '~/lib/db/generated/client';
 
 export type DeleteInterviews = {
   id: string;

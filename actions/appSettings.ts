@@ -8,7 +8,7 @@ import {
   appSettingPreprocessedSchema,
 } from '~/schemas/appSettings';
 import { requireApiAuth } from '~/utils/auth';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 import { ensureError } from '~/utils/ensureError';
 import { getStringValue } from '~/utils/getStringValue';
 

@@ -2,7 +2,7 @@
 
 import { type NcNetwork } from '@codaco/shared-consts';
 import { createId } from '@paralleldrive/cuid2';
-import { type Interview } from '@prisma/client';
+import { type Interview } from '~/lib/db/generated/client';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import superjson from 'superjson';
@@ -27,7 +27,7 @@ import {
 } from '~/queries/interviews';
 import type { CreateInterview, DeleteInterviews } from '~/schemas/interviews';
 import { requireApiAuth } from '~/utils/auth';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 import { ensureError } from '~/utils/ensureError';
 import { addEvent } from './activityFeed';
 import { uploadZipToUploadThing } from './uploadThing';

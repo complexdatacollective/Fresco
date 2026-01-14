@@ -1,34 +1,41 @@
 /* eslint-disable no-console */
-import { PrismaClient } from '@prisma/client';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+import { PrismaPg } from '@prisma/adapter-pg';
 import { execSync, spawnSync } from 'child_process';
+import { PrismaClient } from '~/lib/db/generated/client';
 
-const prisma = new PrismaClient();
+// CLI scripts must use the PG adapter directly because the Neon serverless
+// adapter doesn't work in CLI/Node.js context (only in serverless runtimes)
+const adapter = new PrismaPg({
+  // eslint-disable-next-line no-process-env
+  connectionString: process.env.DATABASE_URL,
+});
+const prisma = new PrismaClient({ adapter });
 
-function checkForNeededMigrations() {
-  // Use local prisma binary directly to avoid npx downloading a different version
-  const command = './node_modules/.bin/prisma';
+type TableRow = {
+  table_name: string;
+};
+
+function checkForNeededMigrations(): boolean {
+  const command = 'npx';
   const args = [
+    'prisma',
     'migrate',
     'diff',
-    '--to-schema-datasource',
-    './prisma/schema.prisma',
-    '--from-schema-datamodel',
-    './prisma/schema.prisma',
+    '--from-schema',
+    './lib/db/schema.prisma',
+    '--to-config-datasource',
     '--exit-code',
   ];
 
   const result = spawnSync(command, args, { encoding: 'utf-8' });
 
-  console.log('Migration diff result:', {
-    status: result.status,
-    stdout: result.stdout,
-    stderr: result.stderr,
-    ...(result.error && { error: result.error }),
-  });
-
   if (result.error) {
     console.error('Failed to run command:', result.error);
-    return false;
+    throw result.error;
   }
 
   // Handling the exit code
@@ -39,16 +46,11 @@ function checkForNeededMigrations() {
     console.log('There are differences between the schemas.');
     return true;
   } else if (result.status === 1) {
-    console.log('An error occurred:', result.stderr);
-    process.exit(1);
-    return false;
+    console.log('An error occurred.', result.stderr);
+    throw new Error(`Command failed with exit code ${result.status}`);
   }
 
-  // If we get an unexpected status code, log it and assume migrations are needed
-  console.log(
-    `Unexpected exit code: ${result.status}, assuming migrations needed`,
-  );
-  return true;
+  return false;
 }
 
 /**
@@ -57,10 +59,10 @@ function checkForNeededMigrations() {
  * The workaround is needed when the database is not empty and the _prisma_migrations
  * table does not exist.
  */
-async function shouldApplyWorkaround() {
-  const tables = await prisma.$queryRaw`
-    SELECT table_name 
-    FROM information_schema.tables 
+async function shouldApplyWorkaround(): Promise<boolean> {
+  const tables = await prisma.$queryRaw<TableRow[]>`
+    SELECT table_name
+    FROM information_schema.tables
     WHERE table_schema = 'public' AND table_type = 'BASE TABLE'`;
 
   const databaseNotEmpty = tables.length > 0;
@@ -71,26 +73,23 @@ async function shouldApplyWorkaround() {
   return !migrationsTableExists && databaseNotEmpty;
 }
 
-async function handleMigrations() {
+async function handleMigrations(): Promise<void> {
   try {
-    // Use local prisma binary directly to avoid npx downloading a different version
-    const prismaBin = './node_modules/.bin/prisma';
-
     if (await shouldApplyWorkaround()) {
       console.log(
         'Workaround needed! Running: prisma migrate resolve --applied 0_init',
       );
-      execSync(`${prismaBin} migrate resolve --applied 0_init`, {
+      execSync('npx prisma migrate resolve --applied 0_init', {
         stdio: 'inherit',
       });
     }
 
-    // Determine if there are any migrations to run, by comparing the local schema with the database schema using prisma migrate diff
+    // Determine if there are any migrations to run
     const needsMigrations = checkForNeededMigrations();
 
     if (needsMigrations) {
       console.log('Migrations needed! Running: prisma migrate deploy');
-      execSync(`${prismaBin} migrate deploy`, { stdio: 'inherit' });
+      execSync('npx prisma migrate deploy', { stdio: 'inherit' });
     } else {
       console.log('No migrations needed.');
     }
@@ -102,6 +101,4 @@ async function handleMigrations() {
   }
 }
 
-(async () => {
-  await handleMigrations();
-})();
+await handleMigrations();

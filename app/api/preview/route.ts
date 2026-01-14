@@ -11,7 +11,7 @@ import {
   parseUploadThingToken,
 } from '~/lib/uploadthing/presigned';
 import { getExistingAssets } from '~/queries/protocols';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 import { ensureError } from '~/utils/ensureError';
 import { compareSemver, semverSchema } from '~/utils/semVer';
 import { checkPreviewAuth, corsHeaders, jsonResponse } from './helpers';

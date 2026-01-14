@@ -1,5 +1,5 @@
 import type { TestInfo } from '@playwright/test';
-import type { Participant } from '@prisma/client';
+import type { Participant } from '~/lib/db/generated/client';
 import { getWorkerContextInfo, type WorkerContext } from './worker-context';
 
 type ParticipantSnapshot = {

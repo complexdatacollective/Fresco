@@ -1,5 +1,5 @@
 import { getUTApi } from '~/lib/uploadthing/server-helpers';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 
 // Completed previews: 24 hours
 const MAX_COMPLETED_PREVIEW_AGE_MS = 24 * 60 * 60 * 1000;
