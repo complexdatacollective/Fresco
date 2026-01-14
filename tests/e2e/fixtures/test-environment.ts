@@ -59,14 +59,14 @@ export class TestEnvironment {
       });
 
       // Initialize Prisma client
-      const { PrismaClient } = await import('@prisma/client');
-      const prisma = new PrismaClient({
-        datasources: {
-          db: {
-            url: dbContainer.getConnectionUri(),
-          },
-        },
+      const { PrismaPg } = await import('@prisma/adapter-pg');
+      const { PrismaClient: GeneratedPrismaClient } = await import(
+        '~/lib/db/generated/client'
+      );
+      const adapter = new PrismaPg({
+        connectionString: dbContainer.getConnectionUri(),
       });
+      const prisma = new GeneratedPrismaClient({ adapter }) as PrismaClient;
 
       await prisma.$connect();
 

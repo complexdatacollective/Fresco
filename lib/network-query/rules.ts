@@ -10,8 +10,11 @@ import {
 import predicate, { operators } from './predicate';
 
 const singleEdgeRule =
-  ({ type, attribute, operator, value: other }: FilterRule['options']) =>
+  (options: FilterRule['options']) =>
   (node: NcNode, edges: NcEdge[]) => {
+    const { type, operator, value: other } = options;
+    const attribute = 'attribute' in options ? options.attribute : undefined;
+
     const nodeEdges = edges.filter(
       (edge) =>
         edge.from === node[entityPrimaryKeyProperty] ||
@@ -47,8 +50,11 @@ const singleEdgeRule =
 export type SingleEdgeRule = typeof singleEdgeRule;
 
 const singleNodeRule =
-  ({ type, attribute, operator, value: other }: FilterRule['options']) =>
+  (options: FilterRule['options']) =>
   (node: NcNode) => {
+    const { type, operator, value: other } = options;
+    const attribute = 'attribute' in options ? options.attribute : undefined;
+
     if (!attribute) {
       // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
       switch (operator) {
@@ -73,8 +79,11 @@ type SingleNodeRule = typeof singleNodeRule;
 // Reduce edges to any that match the rule
 // Filter nodes by the resulting edges
 const edgeRule =
-  ({ attribute, operator, type, value: other }: FilterRule['options']) =>
+  (options: FilterRule['options']) =>
   (nodes: NcNetwork['nodes'], edges: NcNetwork['edges']) => {
+    const { operator, type, value: other } = options;
+    const attribute = 'attribute' in options ? options.attribute : undefined;
+
     let filteredEdges;
     // If there is no attribute, we just care about filtering by type
     if (!attribute) {
@@ -140,8 +149,11 @@ type EdgeRule = typeof edgeRule;
  * ```
  */
 const nodeRule =
-  ({ attribute, operator, type, value: other }: FilterRule['options']) =>
+  (options: FilterRule['options']) =>
   (nodes: NcNetwork['nodes'] = [], edges: NcNetwork['edges'] = []) => {
+    const { operator, type, value: other } = options;
+    const attribute = 'attribute' in options ? options.attribute : undefined;
+
     let filteredNodes: NcNode[] = [];
     // If there is no attribute, we just care about filtering by type
     if (!attribute) {
@@ -188,12 +200,16 @@ type NodeRule = typeof nodeRule;
  * @param {string} options.value Value to compare the ego attribute with
  */
 const egoRule =
-  ({ attribute, operator, value: other }: FilterRule['options']) =>
-  (ego: NcEgo) =>
-    predicate(operator)({
+  (options: FilterRule['options']) =>
+  (ego: NcEgo) => {
+    const { operator, value: other } = options;
+    const attribute = 'attribute' in options ? options.attribute : undefined;
+
+    return predicate(operator)({
       value: ego[entityAttributesProperty][attribute!],
       other,
     });
+  };
 
 export type EgoRule = typeof egoRule;
 

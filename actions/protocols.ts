@@ -140,7 +140,7 @@ export async function insertProtocol(
         description: protocol.description,
         assets: {
           create: newAssets,
-          connect: existingAssetIds.map((assetId) => ({ assetId })),
+          connect: existingAssetIds.map((assetId: string) => ({ assetId })),
         },
         experiments: protocol.experiments ?? Prisma.JsonNull,
       },
@@ -155,7 +155,9 @@ export async function insertProtocol(
   } catch (e) {
     // Attempt to delete any assets we uploaded to storage
     if (newAssets.length > 0) {
-      void deleteFilesFromUploadThing(newAssets.map((a) => a.key));
+      void deleteFilesFromUploadThing(
+        newAssets.map((a: { key: string }) => a.key),
+      );
     }
     // Check for protocol already existing
     if (e instanceof Prisma.PrismaClientKnownRequestError) {

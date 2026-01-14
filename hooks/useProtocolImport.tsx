@@ -148,7 +148,7 @@ function createValidationErrorPayload(
     }
 
     case 'missing-dependencies': {
-      const missingDeps = validationError.missingDependencies as string[];
+      const missingDeps = validationError.missingDependencies;
       return {
         id: fileName,
         rawError: new Error('Migration dependencies missing'),

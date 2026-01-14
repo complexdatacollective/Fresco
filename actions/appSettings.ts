@@ -29,6 +29,10 @@ export async function setAppSetting<
     }
 
     // Convert the typed value to a database string
+    // Filter out undefined values as they're not supported by getStringValue
+    if (value === undefined) {
+      throw new Error('Cannot set app setting to undefined');
+    }
     const stringValue = getStringValue(value);
 
     await prisma.appSettings.upsert({

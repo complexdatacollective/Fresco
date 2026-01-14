@@ -17,7 +17,8 @@ const getGroup = (
     return 'ego' as const;
   }
 
-  if (options.operator === 'NOT_EXISTS' && !options.attribute) {
+  const attribute = 'attribute' in options ? options.attribute : undefined;
+  if (options.operator === 'NOT_EXISTS' && !attribute) {
     return `${type}_not_exists` as const;
   }
 

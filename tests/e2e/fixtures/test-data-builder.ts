@@ -45,6 +45,7 @@ export class TestDataBuilder {
    */
   async createProtocol() {
     const testProtocol: CurrentProtocol = {
+      name: 'Test Protocol',
       description: 'A test protocol for e2e testing',
       schemaVersion: 8,
       stages: [
@@ -105,7 +106,6 @@ export class TestDataBuilder {
 
     const protocol = await this.prisma.protocol.create({
       data: {
-        name: `Test Protocol`,
         hash: objectHash(safeProtocol),
         lastModified: new Date(),
         ...safeProtocol,

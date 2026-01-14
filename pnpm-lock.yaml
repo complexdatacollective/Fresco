@@ -354,6 +354,9 @@ importers:
       '@types/redux-form':
         specifier: ^8.3.11
         version: 8.3.11
+      '@types/redux-logger':
+        specifier: ^3.0.13
+        version: 3.0.13
       '@types/validator':
         specifier: ^13.15.10
         version: 13.15.10
@@ -3136,6 +3139,9 @@ packages:
 
   '@types/redux-form@8.3.11':
     resolution: {integrity: sha512-aHZgvDt9rg6C/8IHVgooCABxrWzQxJlVP47b6draiMLXKfWbyhYOVf8AV8+UPujRTnVxp1mWb57kL+r/Rl3wNQ==}
+
+  '@types/redux-logger@3.0.13':
+    resolution: {integrity: sha512-jylqZXQfMxahkuPcO8J12AKSSCQngdEWQrw7UiLUJzMBcv1r4Qg77P6mjGLjM27e5gFQDPD8vwUMJ9AyVxFSsg==}
 
   '@types/resolve@1.20.6':
     resolution: {integrity: sha512-A4STmOXPhMUtHH+S6ymgE2GiBSMqf4oTvcQZMcHzokuTLVYzXTB8ttjcgxOVaAp2lGwEdzZ0J+cRbbeevQj1UQ==}
@@ -10605,6 +10611,10 @@ snapshots:
     dependencies:
       '@types/react': 18.3.18
       redux: 4.2.1
+
+  '@types/redux-logger@3.0.13':
+    dependencies:
+      redux: 5.0.1
 
   '@types/resolve@1.20.6': {}
 

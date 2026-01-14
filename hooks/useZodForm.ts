@@ -4,7 +4,7 @@ import {
   type FieldValues,
   type UseFormProps,
 } from 'react-hook-form';
-import type { ZodType } from 'zod';
+import type { ZodType, ZodTypeDef } from 'zod/v3';
 
 /**
  * Reusable hook for zod + react-hook-form
@@ -14,7 +14,7 @@ export default function useForm<
   TIn extends FieldValues,
 >(
   props: Omit<UseFormProps<TIn, unknown, TOut>, 'resolver'> & {
-    schema: ZodType<TOut, TIn>;
+    schema: ZodType<TOut, ZodTypeDef, TIn>;
   },
 ) {
   const form = __useForm<TIn, unknown, TOut>({

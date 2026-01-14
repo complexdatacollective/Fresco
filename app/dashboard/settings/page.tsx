@@ -70,7 +70,7 @@ export default async function Settings() {
             for information about how to obtain this key.
           </Paragraph>
           <UpdateUploadThingTokenAlert />
-          <UpdateUploadThingToken uploadThingKey={uploadThingKey} />
+          <UpdateUploadThingToken uploadThingKey={uploadThingKey ?? null} />
         </SettingsSection>
         <SettingsSection
           heading="Anonymous Recruitment"
