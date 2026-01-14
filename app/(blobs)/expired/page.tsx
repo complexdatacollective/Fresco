@@ -3,7 +3,7 @@ import { containerClasses } from '~/components/ContainerClasses';
 import SubmitButton from '~/components/ui/SubmitButton';
 import { env } from '~/env';
 
-export default async function Page() {
+export default function Page() {
   return (
     <div className={containerClasses}>
       <h1 className="mb-4 text-2xl font-bold">Installation expired</h1>

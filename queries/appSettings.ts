@@ -7,11 +7,11 @@ import type { z } from 'zod';
 import { env } from '~/env';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { createCachedFunction } from '~/lib/cache';
+import { prisma } from '~/lib/db';
 import {
   type AppSetting,
   appSettingPreprocessedSchema,
 } from '~/schemas/appSettings';
-import { prisma } from '~/lib/db';
 
 export const getAppSetting = <Key extends AppSetting>(
   key: Key,
@@ -57,7 +57,7 @@ export async function requireAppNotExpired(isSetupRoute = false) {
   return;
 }
 
-export async function isAppExpired() {
+async function isAppExpired() {
   unstable_noStore();
   const isConfigured = await getAppSetting('configured');
   const initializedAt = await getAppSetting('initializedAt');
