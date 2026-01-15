@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import { useCallback, useRef, useState } from 'react';
-import { DndStoreProvider, useDragSource, useDropTarget } from '~/lib/dnd';
+import {
+  DndStoreProvider,
+  useDragSource,
+  useDropTarget,
+  type DragMetadata,
+} from '~/lib/dnd';
 import { useAccessibilityAnnouncements } from '~/lib/dnd/useAccessibilityAnnouncements';
-
-type DragMetadata = {
-  type: string;
-  id: string;
-};
 
 // Demo components for accessibility testing
 function AccessibleDragItem({
@@ -81,7 +81,7 @@ function AccessibleDropZone({
   accepts: string[];
   announcedName?: string;
   children: React.ReactNode;
-  onDrop?: (metadata: DragMetadata) => void;
+  onDrop?: (metadata?: DragMetadata) => void;
   onDragEnter?: () => void;
   onDragLeave?: () => void;
   style?: React.CSSProperties;
@@ -286,7 +286,13 @@ export const KeyboardNavigation: Story = {
                 id="archive-zone"
                 accepts={['document']}
                 announcedName="Archive Folder"
-                onDrop={(metadata) => moveItem(metadata.id, 'archive')}
+                onDrop={(metadata) => {
+                  if (metadata) {
+                    const id =
+                      typeof metadata.id === 'string' ? metadata.id : '';
+                    moveItem(id, 'archive');
+                  }
+                }}
                 onDragEnter={() =>
                   setInstructions(
                     'Over Archive folder - press Space or Enter to drop',
@@ -302,7 +308,13 @@ export const KeyboardNavigation: Story = {
                 id="trash-zone"
                 accepts={['document']}
                 announcedName="Trash Can"
-                onDrop={(metadata) => moveItem(metadata.id, 'trash')}
+                onDrop={(metadata) => {
+                  if (metadata) {
+                    const id =
+                      typeof metadata.id === 'string' ? metadata.id : '';
+                    moveItem(id, 'trash');
+                  }
+                }}
                 onDragEnter={() =>
                   setInstructions('Over Trash - press Space or Enter to delete')
                 }
@@ -414,7 +426,7 @@ function LoggingDropZone({
   accepts: string[];
   announcedName?: string;
   children: React.ReactNode;
-  onDrop?: (metadata: DragMetadata) => void;
+  onDrop?: (metadata?: DragMetadata) => void;
   onDragEnter?: () => void;
   onDragLeave?: () => void;
   onAnnounce: (message: string) => void;
@@ -423,11 +435,10 @@ function LoggingDropZone({
     id,
     accepts,
     announcedName: announcedName ?? `Drop Zone ${id}`,
-    onDrop: (metadata: DragMetadata) => {
+    onDrop: (metadata?: DragMetadata) => {
       if (metadata) {
-        onAnnounce(
-          `Dropped ${metadata.id ?? 'item'} in ${announcedName ?? id}`,
-        );
+        const itemId = typeof metadata.id === 'string' ? metadata.id : 'item';
+        onAnnounce(`Dropped ${itemId} in ${announcedName ?? id}`);
         onDrop?.(metadata);
       }
     },
@@ -772,7 +783,11 @@ export const AriaAttributes: Story = {
                 accepts={['aria-test']}
                 announcedName="Primary Drop Zone with ARIA support"
                 onDrop={(metadata) => {
-                  setSelectedItem(metadata.id);
+                  if (metadata) {
+                    const id =
+                      typeof metadata.id === 'string' ? metadata.id : '';
+                    setSelectedItem(id);
+                  }
                 }}
               >
                 Primary Zone
@@ -1086,9 +1101,13 @@ export const AccessibilityPlayground: Story = {
                 id="test-drop-zone"
                 accepts={['playground']}
                 announcedName="Accessibility Test Drop Zone"
-                onDrop={(metadata) =>
-                  runAccessibilityTest(`Drop of ${metadata.id}`)
-                }
+                onDrop={(metadata) => {
+                  if (metadata) {
+                    const id =
+                      typeof metadata.id === 'string' ? metadata.id : 'unknown';
+                    runAccessibilityTest(`Drop of ${id}`);
+                  }
+                }}
               >
                 Test Drop Zone
               </AccessibleDropZone>

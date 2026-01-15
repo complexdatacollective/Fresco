@@ -1,6 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import { useState } from 'react';
-import { DndStoreProvider, useDragSource, useDropTarget } from '..';
+import {
+  DndStoreProvider,
+  useDragSource,
+  useDropTarget,
+  type DragMetadata,
+} from '..';
 
 // Simple draggable item component
 function DraggableItem({
@@ -43,11 +48,6 @@ function DraggableItem({
   );
 }
 
-type DragMetadata = {
-  type: string;
-  id: string;
-};
-
 // Simple drop zone
 function DropZone({
   accepts,
@@ -56,7 +56,7 @@ function DropZone({
 }: {
   accepts: string[];
   children: React.ReactNode;
-  onDrop?: (metadata: DragMetadata) => void;
+  onDrop?: (metadata?: DragMetadata) => void;
 }) {
   const { dropProps, isOver, willAccept } = useDropTarget({
     id: `drop-zone-${Math.random().toString(36).substr(2, 9)}`,
@@ -226,19 +226,31 @@ export const TypeRestrictions: Story = {
               <h4>Drop Zones</h4>
               <DropZone
                 accepts={['fruit']}
-                onDrop={(metadata) => setLastDrop(`Fruit: ${metadata.id}`)}
+                onDrop={(metadata) => {
+                  const id =
+                    typeof metadata?.id === 'string' ? metadata.id : 'unknown';
+                  setLastDrop(`Fruit: ${id}`);
+                }}
               >
                 Fruits Only
               </DropZone>
               <DropZone
                 accepts={['vegetable']}
-                onDrop={(metadata) => setLastDrop(`Vegetable: ${metadata.id}`)}
+                onDrop={(metadata) => {
+                  const id =
+                    typeof metadata?.id === 'string' ? metadata.id : 'unknown';
+                  setLastDrop(`Vegetable: ${id}`);
+                }}
               >
                 Vegetables Only
               </DropZone>
               <DropZone
                 accepts={['fruit', 'vegetable', 'protein']}
-                onDrop={(metadata) => setLastDrop(`Any: ${metadata.id}`)}
+                onDrop={(metadata) => {
+                  const id =
+                    typeof metadata?.id === 'string' ? metadata.id : 'unknown';
+                  setLastDrop(`Any: ${id}`);
+                }}
               >
                 All Types
               </DropZone>

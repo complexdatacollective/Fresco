@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import { useState } from 'react';
-import { DndStoreProvider, useDragSource, useDropTarget } from '..';
-
-type DragMetadata = {
-  type: string;
-  id: string;
-};
+import {
+  DndStoreProvider,
+  useDragSource,
+  useDropTarget,
+  type DragMetadata,
+} from '..';
 
 // Simple drag source for testing
 function DraggableItem({
@@ -59,7 +59,7 @@ function DropTargetExample({
 }: {
   accepts: string[];
   name?: string;
-  onDrop?: (metadata: DragMetadata) => void;
+  onDrop?: (metadata?: DragMetadata) => void;
   onDragEnter?: () => void;
   onDragLeave?: () => void;
   children?: React.ReactNode;
@@ -172,8 +172,10 @@ export const MultipleTypes: Story = {
   render: () => {
     const [dropLog, setDropLog] = useState<string[]>([]);
 
-    const handleDrop = (zone: string) => (metadata: DragMetadata) => {
-      const message = `${metadata.type} dropped in ${zone}`;
+    const handleDrop = (zone: string) => (metadata?: DragMetadata) => {
+      const type =
+        typeof metadata?.type === 'string' ? metadata.type : 'unknown';
+      const message = `${type} dropped in ${zone}`;
       setDropLog((prev) => [...prev.slice(-4), message]);
     };
 
@@ -378,8 +380,9 @@ export const NestedDropTargets: Story = {
   render: () => {
     const [drops, setDrops] = useState<{ zone: string; item: string }[]>([]);
 
-    const handleDrop = (zoneName: string) => (metadata: DragMetadata) => {
-      setDrops((prev) => [...prev, { zone: zoneName, item: metadata.id }]);
+    const handleDrop = (zoneName: string) => (metadata?: DragMetadata) => {
+      const id = typeof metadata?.id === 'string' ? metadata.id : 'unknown';
+      setDrops((prev) => [...prev, { zone: zoneName, item: id }]);
     };
 
     return (

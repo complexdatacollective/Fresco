@@ -10,7 +10,7 @@ import React, {
 import { flushSync } from 'react-dom';
 import { generatePublicId } from '~/utils/generatePublicId';
 import { Button } from '../ui/components';
-import Dialog from './Dialog';
+import { Dialog } from './Dialog';
 
 type ConfirmDialog = {
   type: 'confirm';

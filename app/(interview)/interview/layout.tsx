@@ -1,11 +1,9 @@
 import type { ReactNode } from 'react';
-import SmallScreenOverlay from './_components/SmallScreenOverlay';
 
 export default function InterviewLayout({ children }: { children: ReactNode }) {
   return (
-    <>
-      <SmallScreenOverlay />
+    <main data-theme="dark" className="flex h-screen max-h-screen flex-col">
       {children}
-    </>
+    </main>
   );
 }
