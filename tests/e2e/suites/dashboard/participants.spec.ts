@@ -4,7 +4,9 @@ import { expect, SNAPSHOT_CONFIGS, test } from '../../fixtures/test';
 
 test.describe.parallel('Participants page - parallel', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/dashboard/participants');
+    await page.goto('/dashboard/participants', {
+      waitUntil: 'domcontentloaded',
+    });
   });
 
   // Visual snapshot of this page
@@ -222,7 +224,9 @@ test.describe.parallel('Participants page - parallel', () => {
 // Mutations allowed here. Use database snapshots to return to initial state.
 test.describe.serial('Participants page - serial', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/dashboard/participants');
+    await page.goto('/dashboard/participants', {
+      waitUntil: 'domcontentloaded',
+    });
   });
 
   test('should be able to upload participant csv', async ({ page }) => {
