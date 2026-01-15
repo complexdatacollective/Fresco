@@ -18,6 +18,8 @@ import FamilyTreeNode, {
 import FamilyTreeNodeForm from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/FamilyTreeNodeForm';
 import { useFamilyTreeStore } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
 import type { Relationship } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/store';
+import { getRelationshipTypeVariable } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/edgeUtils';
+import { getNameVariable } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/nodeUtils';
 import {
   type FamilyTreeCensusStageMetadata,
   updateNode as updateNetworkNode,
@@ -59,6 +61,8 @@ export const FamilyTreeShells = (props: {
   const { toast } = useToast();
   const dispatch = useAppDispatch();
   const stageMetadata = useSelector(getStageMetadata);
+  const nameVariable = useSelector(getNameVariable);
+  const relationshipVariable = useSelector(getRelationshipTypeVariable);
   const [hydratedOnce, setHydratedOnce] = useState(false);
 
   const shouldHydrate = useMemo(() => {
@@ -134,14 +138,14 @@ export const FamilyTreeShells = (props: {
         isEgo,
         readOnly,
         interviewNetworkId: id,
-        name: (fields.name as string) ?? label,
+        name: (fields[nameVariable] as string) ?? label,
         fields,
         diseases,
       });
     }
 
     for (const edge of networkEdges) {
-      const relationship = (edge.attributes.relationship ?? '') as Relationship;
+      const relationship = (edge.attributes[relationshipVariable] ?? '') as Relationship;
       const id = `${edge.from}-${edge.to}-${relationship}`;
       addShellEdge({
         id,
@@ -164,6 +168,8 @@ export const FamilyTreeShells = (props: {
     clearNetwork,
     stage.diseaseNominationStep,
     hydratedOnce,
+    nameVariable,
+    relationshipVariable,
   ]);
 
   const updateNode = useCallback(
