@@ -381,7 +381,7 @@ export const getNetworkEdgesForType = createSelector(
   getNetworkEdges,
   getStageSubject,
   (edges, subject) => {
-    if (!subject) {
+    if (!subject || subject.entity === 'ego') {
       return [];
     }
 
@@ -393,7 +393,7 @@ export const getNetworkNodesForType = createSelector(
   getNetworkNodes,
   getStageSubject,
   (nodes, subject) => {
-    if (!subject || !nodes) {
+    if (!subject || !nodes || subject.entity === 'ego') {
       return [];
     }
 

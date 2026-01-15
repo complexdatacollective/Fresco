@@ -1,7 +1,7 @@
 import type { StoryObj } from '@storybook/nextjs-vite';
 import { fn } from 'storybook/test';
 import Button from '~/components/ui/Button';
-import { Dialog, STATE_VARIANTS, type DialogProps } from './Dialog';
+import Dialog, { STATE_VARIANTS, type DialogProps } from './Dialog';
 
 const meta = {
   title: 'Systems/Dialogs/Dialog',

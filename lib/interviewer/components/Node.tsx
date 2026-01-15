@@ -14,8 +14,10 @@ const Node = memo(
   >((props: NcNode & React.ComponentProps<typeof UINode>, ref) => {
     const color = useSelector(getNodeColorSelector);
     const label = useNodeLabel(props);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { type, ...nodeProps } = props;
 
-    return <UINode color={color} {...props} label={label} ref={ref} />;
+    return <UINode color={color} {...nodeProps} label={label} ref={ref} />;
   }),
   (prevProps, nextProps) => {
     if (!isEqual(prevProps, nextProps)) {

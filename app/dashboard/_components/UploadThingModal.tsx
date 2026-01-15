@@ -6,7 +6,7 @@ import { setAppSetting } from '~/actions/appSettings';
 import { UploadThingTokenForm } from '~/app/(blobs)/(setup)/_components/UploadThingTokenForm';
 import Paragraph from '~/components/typography/Paragraph';
 import Link from '~/components/ui/Link';
-import { Dialog } from '~/lib/dialogs/Dialog';
+import Dialog from '~/lib/dialogs/Dialog';
 
 function UploadThingModal() {
   const [open, setOpen] = useState(true);

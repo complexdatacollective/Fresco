@@ -124,7 +124,7 @@ export const Overview: Story = {
               options={sampleOptions}
               placeholder="Select an option..."
               value={nativeValue}
-              onChange={setNativeValue}
+              onChange={(v) => setNativeValue(v ?? '')}
             />
           </div>
           <p className="text-xs opacity-70">
@@ -149,7 +149,7 @@ export const Overview: Story = {
               options={sampleOptions}
               placeholder="Select an option..."
               value={styledValue}
-              onChange={setStyledValue}
+              onChange={(v) => setStyledValue(v ?? '')}
             />
           </div>
           <p className="text-xs opacity-70">
@@ -191,7 +191,7 @@ export const Sizes: Story = {
               options={sampleOptions}
               placeholder="Small (sm)"
               value={nativeSm}
-              onChange={setNativeSm}
+              onChange={(v) => setNativeSm(v ?? '')}
             />
             <NativeSelectField
               name="native-md-size"
@@ -199,7 +199,7 @@ export const Sizes: Story = {
               options={sampleOptions}
               placeholder="Medium (md) - default"
               value={nativeMd}
-              onChange={setNativeMd}
+              onChange={(v) => setNativeMd(v ?? '')}
             />
             <NativeSelectField
               name="native-lg-size"
@@ -207,7 +207,7 @@ export const Sizes: Story = {
               options={sampleOptions}
               placeholder="Large (lg)"
               value={nativeLg}
-              onChange={setNativeLg}
+              onChange={(v) => setNativeLg(v ?? '')}
             />
           </div>
         </div>
@@ -221,7 +221,7 @@ export const Sizes: Story = {
               options={sampleOptions}
               placeholder="Small (sm)"
               value={styledSm}
-              onChange={setStyledSm}
+              onChange={(v) => setStyledSm(v ?? '')}
             />
             <StyledSelectField
               name="styled-md-size"
@@ -229,7 +229,7 @@ export const Sizes: Story = {
               options={sampleOptions}
               placeholder="Medium (md) - default"
               value={styledMd}
-              onChange={setStyledMd}
+              onChange={(v) => setStyledMd(v ?? '')}
             />
             <StyledSelectField
               name="styled-lg-size"
@@ -237,7 +237,7 @@ export const Sizes: Story = {
               options={sampleOptions}
               placeholder="Large (lg)"
               value={styledLg}
-              onChange={setStyledLg}
+              onChange={(v) => setStyledLg(v ?? '')}
             />
           </div>
         </div>
@@ -383,7 +383,7 @@ export const UsageExamples: Story = {
                 options={countryOptions}
                 placeholder="Select your country"
                 value={country}
-                onChange={setCountry}
+                onChange={(v) => setCountry(v ?? '')}
               />
             </div>
             <div className="space-y-2">
@@ -393,7 +393,7 @@ export const UsageExamples: Story = {
                 options={countryOptions}
                 placeholder="Select your country"
                 value={country}
-                onChange={setCountry}
+                onChange={(v) => setCountry(v ?? '')}
               />
             </div>
           </div>
@@ -409,7 +409,7 @@ export const UsageExamples: Story = {
                 options={priorityOptions}
                 placeholder="Select priority level"
                 value={priority}
-                onChange={setPriority}
+                onChange={(v) => setPriority(v ?? 'medium')}
               />
             </div>
             <div className="space-y-2">
@@ -419,7 +419,7 @@ export const UsageExamples: Story = {
                 options={priorityOptions}
                 placeholder="Select priority level"
                 value={priority}
-                onChange={setPriority}
+                onChange={(v) => setPriority(v ?? 'medium')}
               />
             </div>
           </div>
@@ -468,7 +468,7 @@ export const LongOptionList: Story = {
             options={longOptions}
             placeholder="Select a country"
             value={value}
-            onChange={setValue}
+            onChange={(v) => setValue(v ?? '')}
           />
         </div>
         <div className="space-y-3">
@@ -478,7 +478,7 @@ export const LongOptionList: Story = {
             options={longOptions}
             placeholder="Select a country"
             value={value}
-            onChange={setValue}
+            onChange={(v) => setValue(v ?? '')}
           />
         </div>
       </div>
@@ -515,7 +515,7 @@ export const NumericValues: Story = {
             options={numericOptions}
             placeholder="Select a number"
             value={value}
-            onChange={setValue}
+            onChange={(v) => setValue(v ?? '')}
           />
           <p className="text-xs opacity-70">
             Value: {value} (type: {typeof value})
@@ -528,7 +528,7 @@ export const NumericValues: Story = {
             options={numericOptions}
             placeholder="Select a number"
             value={value}
-            onChange={setValue}
+            onChange={(v) => setValue(v ?? '')}
           />
           <p className="text-xs opacity-70">
             Value: {value} (type: {typeof value})

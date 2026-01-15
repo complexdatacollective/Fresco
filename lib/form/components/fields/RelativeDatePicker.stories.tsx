@@ -10,7 +10,6 @@ const meta: Meta<typeof RelativeDatePickerField> = {
   },
   tags: ['autodocs'],
   argTypes: {
-    'aria-invalid': { control: 'boolean' },
     'anchor': {
       control: 'text',
       description: 'Anchor date as ISO string (defaults to today)',
@@ -104,7 +103,7 @@ export const Default: Story = {
           before={30}
           after={30}
           value={value}
-          onChange={setValue}
+          onChange={(v) => setValue(v ?? '')}
           name="relative-date"
         />
         <p className="text-xs text-current opacity-70">
@@ -139,7 +138,7 @@ export const AllSizes: Story = {
             before={30}
             after={30}
             value={small}
-            onChange={setSmall}
+            onChange={(v) => setSmall(v ?? '')}
             name="small-date"
           />
         </div>
@@ -150,7 +149,7 @@ export const AllSizes: Story = {
             before={30}
             after={30}
             value={medium}
-            onChange={setMedium}
+            onChange={(v) => setMedium(v ?? '')}
             name="medium-date"
           />
         </div>
@@ -161,7 +160,7 @@ export const AllSizes: Story = {
             before={30}
             after={30}
             value={large}
-            onChange={setLarge}
+            onChange={(v) => setLarge(v ?? '')}
             name="large-date"
           />
         </div>
@@ -258,7 +257,7 @@ export const PastOnly: Story = {
           before={365}
           after={0}
           value={value}
-          onChange={setValue}
+          onChange={(v) => setValue(v ?? '')}
           name="past-date"
         />
         <p className="text-xs text-current opacity-70">
@@ -288,7 +287,7 @@ export const FutureOnly: Story = {
           before={0}
           after={90}
           value={value}
-          onChange={setValue}
+          onChange={(v) => setValue(v ?? '')}
           name="future-date"
         />
         <p className="text-xs text-current opacity-70">
@@ -320,7 +319,7 @@ export const WithCustomAnchor: Story = {
           before={7}
           after={7}
           value={value}
-          onChange={setValue}
+          onChange={(v) => setValue(v ?? '')}
           name="anchor-date"
         />
         <p className="text-xs text-current opacity-70">

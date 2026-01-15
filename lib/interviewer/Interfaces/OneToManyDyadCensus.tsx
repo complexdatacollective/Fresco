@@ -132,13 +132,18 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
             exit={{ opacity: 0 }}
             key={promptIndex}
           >
-            {source && (
-              <MotionNode
-                {...source}
-                layoutId={source[entityPrimaryKeyProperty]}
-                key={`${source[entityPrimaryKeyProperty]}-${promptIndex}`}
-              />
-            )}
+            {source &&
+              (() => {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { type, ...sourceProps } = source;
+                return (
+                  <MotionNode
+                    {...sourceProps}
+                    layoutId={source[entityPrimaryKeyProperty]}
+                    key={`${source[entityPrimaryKeyProperty]}-${promptIndex}`}
+                  />
+                );
+              })()}
             {!source && (
               <div
                 key="missing"
@@ -189,9 +194,11 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
                     createEdge,
                   );
 
+                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                  const { type, ...nodeProps } = node;
                   return (
                     <MotionNode
-                      {...node}
+                      {...nodeProps}
                       selected={selected}
                       onClick={handleNodeClick(source, node)}
                       layoutId={node[entityPrimaryKeyProperty]}

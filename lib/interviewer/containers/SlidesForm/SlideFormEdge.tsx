@@ -43,7 +43,8 @@ export default function SlideFormEdge(props: SlideFormEdgeProps) {
   const fromNode = find(nodes, [entityPrimaryKeyProperty, item.from]);
   const toNode = find(nodes, [entityPrimaryKeyProperty, item.to]);
 
-  const handleSubmit = (formData: { value: Record<string, unknown> }) => {
+  const handleSubmit = (values: unknown) => {
+    const formData = values as { value: Record<string, unknown> };
     onUpdate?.({ edgeId: id, newAttributeData: formData.value });
   };
 
@@ -54,18 +55,20 @@ export default function SlideFormEdge(props: SlideFormEdgeProps) {
   return (
     <div className="swiper-slide">
       <div className="slide-content">
-        <Node {...fromNode} />
+        {fromNode && <Node {...fromNode} />}
         <div
           className="fake-edge"
           style={{ backgroundColor: `var(--nc-${edgeColor})` }}
         />
-        <Node {...toNode} />
+        {toNode && <Node {...toNode} />}
         <div className="alter-form__form-container alter-edge-form__form-container">
           <Scroller onScroll={() => onScroll?.()}>
             <Form
               fields={form.fields}
               handleSubmit={handleSubmit}
-              getInitialValues={() => initialValues as Record<string, unknown>}
+              getInitialValues={() =>
+                initialValues as Record<string, unknown>
+              }
               className="alter-form__form alter-edge-form__form"
               autoFocus={false}
               subject={subject}

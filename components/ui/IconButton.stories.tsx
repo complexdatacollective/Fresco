@@ -132,7 +132,6 @@ export const Colors: Story = {
 export const Sizes: Story = {
   render: () => (
     <div className="flex items-center gap-4">
-      <IconButton size="xs" icon={<Plus />} aria-label="Add (Extra Small)" />
       <IconButton size="sm" icon={<Plus />} aria-label="Add (Small)" />
       <IconButton size="md" icon={<Plus />} aria-label="Add (Medium)" />
       <IconButton size="lg" icon={<Plus />} aria-label="Add (Large)" />
@@ -267,12 +266,6 @@ export const SizeComparison: Story = {
         <div key={variant} className="flex flex-col gap-4">
           <span className="text-sm font-medium capitalize">{variant}:</span>
           <div className="flex items-end gap-4">
-            <IconButton
-              variant={variant}
-              size="xs"
-              icon={<Plus />}
-              aria-label={`${variant} xs`}
-            />
             <IconButton
               variant={variant}
               size="sm"

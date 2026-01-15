@@ -8,6 +8,7 @@ import {
 } from '@codaco/shared-consts';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
+import Button from '~/components/ui/Button';
 import Form from '~/lib/form/components/Form';
 import Overlay from '~/lib/interviewer/containers/Overlay';
 import {
@@ -16,7 +17,7 @@ import {
 } from '~/lib/interviewer/ducks/modules/session';
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import { useAppDispatch } from '~/lib/interviewer/store';
-import { Button, Scroller } from '~/lib/ui/components';
+import { Scroller } from '~/lib/ui/components';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
 import { getSexVariable } from '../utils/nodeUtils';
 import { type FamilyTreeNodeType } from './FamilyTreeNode';
@@ -147,7 +148,8 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
   }, [selectedNode, form.fields]);
 
   const handleSubmit = useCallback(
-    ({ value }: { value: Record<string, VariableValue> }) => {
+    (values: unknown) => {
+      const { value } = values as { value: Record<string, VariableValue> };
       if (!selectedNode || !selectedNode.id) return;
 
       if (selectedNode.interviewNetworkId) {
@@ -188,7 +190,7 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
     <>
       <Overlay
         show={show}
-        title={form.title}
+        title={form.title ?? ''}
         onClose={handleClose}
         className="node-form"
         footer={
@@ -202,7 +204,6 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
             Finished
           </Button>
         }
-        allowMaximize={false}
       >
         <Scroller>
           <Form

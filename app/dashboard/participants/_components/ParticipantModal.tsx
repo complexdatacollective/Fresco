@@ -208,7 +208,7 @@ function IdentifierField({
         <Button
           type="button"
           variant="outline"
-          size="xs"
+          size="sm"
           onClick={() => {
             setFieldValue('identifier', `p-${createId()}`);
           }}

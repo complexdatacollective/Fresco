@@ -130,33 +130,18 @@ without needing explicit mode flags.
     linking: false,
     loading: false,
     disabled: false,
-    passClickHandler: false,
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof Node & { passClickHandler?: boolean }>;
+type Story = StoryObj<typeof Node>;
 
 /**
  * The default node with standard settings.
  * Use the controls panel to experiment with different props.
  */
 export const Default: Story = {
-  argTypes: {
-    passClickHandler: {
-      control: 'boolean',
-      description:
-        'When true, passes an onClick handler to enable press animation and pointer cursor.',
-      table: {
-        type: { summary: 'boolean' },
-        defaultValue: { summary: 'false' },
-        category: 'Demo Controls',
-      },
-    },
-  },
-  render: ({ passClickHandler, ...args }) => (
-    <Node {...args} onClick={passClickHandler ? () => undefined : undefined} />
-  ),
+  render: (args) => <Node {...args} />,
 };
 
 /**

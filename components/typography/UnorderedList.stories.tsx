@@ -22,40 +22,47 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  render: () => (
-    <UnorderedList>
-      <li>First item in the list</li>
-      <li>Second item in the list</li>
-      <li>Third item in the list</li>
-      <li>Fourth item in the list</li>
-    </UnorderedList>
-  ),
+  args: {
+    children: (
+      <>
+        <li>First item in the list</li>
+        <li>Second item in the list</li>
+        <li>Third item in the list</li>
+        <li>Fourth item in the list</li>
+      </>
+    ),
+  },
+  render: (args) => <UnorderedList {...args} />,
 };
 
 export const NestedLists: Story = {
-  render: () => (
-    <UnorderedList>
-      <li>Top-level item one</li>
-      <li>
-        Top-level item two with nested items
-        <UnorderedList>
-          <li>Nested item one</li>
-          <li>Nested item two</li>
-          <li>
-            Nested item three with deeper nesting
-            <UnorderedList>
-              <li>Deeply nested item one</li>
-              <li>Deeply nested item two</li>
-            </UnorderedList>
-          </li>
-        </UnorderedList>
-      </li>
-      <li>Top-level item three</li>
-    </UnorderedList>
-  ),
+  args: {
+    children: (
+      <>
+        <li>Top-level item one</li>
+        <li>
+          Top-level item two with nested items
+          <UnorderedList>
+            <li>Nested item one</li>
+            <li>Nested item two</li>
+            <li>
+              Nested item three with deeper nesting
+              <UnorderedList>
+                <li>Deeply nested item one</li>
+                <li>Deeply nested item two</li>
+              </UnorderedList>
+            </li>
+          </UnorderedList>
+        </li>
+        <li>Top-level item three</li>
+      </>
+    ),
+  },
+  render: (args) => <UnorderedList {...args} />,
 };
 
 export const LongContent: Story = {
+  args: { children: <li>Item</li> },
   render: () => (
     <div className="max-w-2xl">
       <UnorderedList>
@@ -83,6 +90,7 @@ export const LongContent: Story = {
 };
 
 export const CustomStyling: Story = {
+  args: { children: <li>Item</li> },
   render: () => (
     <div className="max-w-2xl">
       <Paragraph intent="smallText">Custom className with text-sm</Paragraph>
@@ -103,6 +111,7 @@ export const CustomStyling: Story = {
 };
 
 export const WithOtherTypography: Story = {
+  args: { children: <li>Item</li> },
   render: () => (
     <div className="max-w-2xl">
       <Heading level="h2">Design System Principles</Heading>
@@ -137,6 +146,7 @@ export const WithOtherTypography: Story = {
 };
 
 export const RealWorldExample: Story = {
+  args: { children: <li>Item</li> },
   render: () => (
     <div className="max-w-2xl">
       <Heading level="h1">Getting Started with Fresco</Heading>
@@ -179,6 +189,7 @@ export const RealWorldExample: Story = {
 };
 
 export const ComplexNestedStructure: Story = {
+  args: { children: <li>Item</li> },
   render: () => (
     <div className="max-w-2xl">
       <Heading level="h2">Project Structure</Heading>
@@ -227,6 +238,7 @@ export const ComplexNestedStructure: Story = {
 };
 
 export const MixedListContent: Story = {
+  args: { children: <li>Item</li> },
   render: () => (
     <div className="max-w-2xl">
       <Heading level="h2">Typography Best Practices</Heading>

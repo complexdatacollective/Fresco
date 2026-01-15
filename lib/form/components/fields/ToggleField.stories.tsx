@@ -79,7 +79,7 @@ export const Default: Story = {
       <div className="w-full max-w-md">
         <ToggleField
           value={value}
-          onChange={setValue}
+          onChange={(v) => setValue(v ?? false)}
           aria-label="Enable Option"
         />
       </div>
@@ -103,7 +103,7 @@ export const SizeVariants: Story = {
           <ToggleField
             size="sm"
             value={values.sm}
-            onChange={(v) => setValues((prev) => ({ ...prev, sm: v }))}
+            onChange={(v) => setValues((prev) => ({ ...prev, sm: v ?? false }))}
             aria-label="Small toggle"
           />
         </div>
@@ -112,7 +112,7 @@ export const SizeVariants: Story = {
           <ToggleField
             size="md"
             value={values.md}
-            onChange={(v) => setValues((prev) => ({ ...prev, md: v }))}
+            onChange={(v) => setValues((prev) => ({ ...prev, md: v ?? false }))}
             aria-label="Medium toggle"
           />
         </div>
@@ -121,7 +121,7 @@ export const SizeVariants: Story = {
           <ToggleField
             size="lg"
             value={values.lg}
-            onChange={(v) => setValues((prev) => ({ ...prev, lg: v }))}
+            onChange={(v) => setValues((prev) => ({ ...prev, lg: v ?? false }))}
             aria-label="Large toggle"
           />
         </div>
@@ -130,7 +130,7 @@ export const SizeVariants: Story = {
           <ToggleField
             size="xl"
             value={values.xl}
-            onChange={(v) => setValues((prev) => ({ ...prev, xl: v }))}
+            onChange={(v) => setValues((prev) => ({ ...prev, xl: v ?? false }))}
             aria-label="Extra large toggle"
           />
         </div>
@@ -191,7 +191,7 @@ export const Invalid: Story = {
           </span>
           <ToggleField
             value={offValue}
-            onChange={setOffValue}
+            onChange={(v) => setOffValue(v ?? false)}
             aria-label="Invalid toggle off"
             aria-invalid={true}
           />
@@ -202,7 +202,7 @@ export const Invalid: Story = {
           </span>
           <ToggleField
             value={onValue}
-            onChange={setOnValue}
+            onChange={(v) => setOnValue(v ?? false)}
             aria-label="Invalid toggle on"
             aria-invalid={true}
           />
@@ -226,12 +226,12 @@ export const AllStates: Story = {
           <div className="flex gap-4">
             <ToggleField
               value={normalOff}
-              onChange={setNormalOff}
+              onChange={(v) => setNormalOff(v ?? false)}
               aria-label="Normal toggle off"
             />
             <ToggleField
               value={normalOn}
-              onChange={setNormalOn}
+              onChange={(v) => setNormalOn(v ?? false)}
               aria-label="Normal toggle on"
             />
           </div>
@@ -274,13 +274,13 @@ export const AllStates: Story = {
           <div className="flex gap-4">
             <ToggleField
               value={invalidOff}
-              onChange={setInvalidOff}
+              onChange={(v) => setInvalidOff(v ?? false)}
               aria-label="Invalid toggle off"
               aria-invalid={true}
             />
             <ToggleField
               value={invalidOn}
-              onChange={setInvalidOn}
+              onChange={(v) => setInvalidOn(v ?? false)}
               aria-label="Invalid toggle on"
               aria-invalid={true}
             />

@@ -46,6 +46,7 @@ function List({
     getItems: () => [{ type: 'fruit', keys: new Set() }],
     acceptTypes,
     onDrop: (metadata) => {
+      // eslint-disable-next-line no-console
       console.log('Dropped on', title, metadata);
       onItemReceived(metadata);
     },
@@ -70,19 +71,24 @@ function List({
 const renderItem = (
   item: Item,
   itemProps: React.HTMLAttributes<HTMLElement>,
-) => (
-  <Node
-    label={item.name}
-    {...itemProps}
-    color={
-      item.type === 'fruit'
-        ? 'node-color-seq-1'
-        : item.type === 'vegetable'
-          ? 'node-color-seq-2'
-          : 'node-color-seq-3'
-    }
-  />
-);
+) => {
+  const { onPointerDown, onPointerUp, ...restProps } = itemProps;
+  return (
+    <Node
+      label={item.name}
+      {...restProps}
+      onPointerDown={onPointerDown as (e: React.PointerEvent) => void}
+      onPointerUp={onPointerUp as (e: React.PointerEvent) => void}
+      color={
+        item.type === 'fruit'
+          ? 'node-color-seq-1'
+          : item.type === 'vegetable'
+            ? 'node-color-seq-2'
+            : 'node-color-seq-3'
+      }
+    />
+  );
+};
 
 function DragDropExample() {
   // State to track items in different zones

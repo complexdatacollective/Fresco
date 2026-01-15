@@ -2,7 +2,7 @@
 
 import { useRender } from '@base-ui/react/use-render';
 import * as React from 'react';
-import ReactMarkdown, { type Options } from 'react-markdown';
+import ReactMarkdown, { type Components, type Options } from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import remarkGemoji from 'remark-gemoji';
@@ -29,10 +29,10 @@ const externalLinkRenderer = ({
   href,
   children,
 }: {
-  href: string;
+  href?: string;
   children?: React.ReactNode;
 }) => (
-  <NativeLink href={href} target="_blank" rel="noopener noreferrer">
+  <NativeLink href={href ?? '#'} target="_blank" rel="noopener noreferrer">
     {children}
   </NativeLink>
 );
@@ -79,7 +79,7 @@ const RenderMarkdown = React.forwardRef<HTMLSpanElement, RenderMarkdownProps>(
         typeof processedChildren === 'string' ? (
           <ReactMarkdown
             allowedElements={allowedElements ?? ALLOWED_MARKDOWN_LABEL_TAGS}
-            components={components ?? defaultMarkdownRenderers}
+            components={(components ?? defaultMarkdownRenderers) as Components}
             remarkPlugins={remarkPlugins ?? [remarkGemoji]}
             rehypePlugins={rehypePlugins ?? [rehypeRaw, rehypeSanitize]}
             unwrapDisallowed={unwrapDisallowed ?? true}
@@ -102,7 +102,6 @@ const RenderMarkdown = React.forwardRef<HTMLSpanElement, RenderMarkdownProps>(
     );
 
     return useRender({
-      defaultTagName: 'fragment',
       render,
       props: {
         children: markdownContent,

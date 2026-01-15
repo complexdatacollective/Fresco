@@ -4,9 +4,7 @@ import { reduxForm, type InjectedFormProps } from 'redux-form';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Button from '~/components/ui/Button';
 import Field from '~/lib/form/components/Field/Field';
-import Form from '~/lib/form/components/Form';
 import InputField from '~/lib/form/components/fields/InputField';
-import { validations } from '~/lib/form/validation/functions';
 import Node from '../../components/Node';
 
 type FormValues = {
@@ -40,7 +38,7 @@ const OtherVariableForm = ({
 
   return (
     <div className="other-variable-form" onClick={(e) => e.stopPropagation()}>
-      <Form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         <div className="other-variable-form__content">
           <div className="other-variable-form__content-left">
             <Node {...node} />
@@ -52,9 +50,9 @@ const OtherVariableForm = ({
             <Field
               label=""
               placeholder="Enter your response here..."
-              Component={InputField}
+              component={InputField}
               name="otherVariable"
-              validation={validations.required()}
+              required
             />
           </div>
         </div>
@@ -66,7 +64,7 @@ const OtherVariableForm = ({
             Continue
           </Button>
         </div>
-      </Form>
+      </form>
     </div>
   );
 };

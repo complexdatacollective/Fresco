@@ -1,13 +1,13 @@
 import { type Stage } from '@codaco/protocol-validation';
 import { useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
+import Button from '~/components/ui/Button';
+import InputField from '~/lib/form/components/fields/InputField';
+import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
 import { updateEgo } from '~/lib/interviewer/ducks/modules/session';
 import { getNetworkEgo } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
-import { Button } from '~/lib/ui/components';
-import InputField from '~/lib/form/components/fields/InputField';
-import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import Overlay from '../../../Overlay';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
 import { getSexVariable } from '../utils/nodeUtils';
@@ -173,7 +173,6 @@ export const CensusForm = ({
       show={show}
       title="Family Tree Census"
       onClose={() => setShow(false)}
-      forceDisableFullscreen
       className="w-auto!"
     >
       <div className="flex flex-col">
@@ -200,7 +199,9 @@ export const CensusForm = ({
                 name={variable}
                 type="number"
                 value={value}
-                onChange={(newValue) => handleSetFieldValue(variable)(newValue)}
+                onChange={(newValue) =>
+                  handleSetFieldValue(variable)(newValue ?? 0)
+                }
                 placeholder="0"
                 aria-invalid={!!error}
                 className={error ? 'border-destructive' : ''}

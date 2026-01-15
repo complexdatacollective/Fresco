@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { HelpCircle, Star } from 'lucide-react';
-import { type ComponentPropsWithoutRef } from 'react';
 import { FieldLabel } from '~/lib/form/components/FieldLabel';
 import InfoTooltip from './InfoTooltip';
 import Heading from './typography/Heading';
@@ -136,9 +135,7 @@ export const DifferentTriggerIcons: Story = {
       <InfoTooltip
         title="Star Icon"
         description="This uses a star icon for something special."
-        trigger={(props) => (
-          <Star className="text-warning h-5 w-5" {...props} />
-        )}
+        trigger={<Star className="text-warning h-5 w-5" />}
       />
     </div>
   ),
@@ -188,18 +185,13 @@ export const InContext: Story = {
           <InfoTooltip
             title="Advanced Mode"
             description="Enabling advanced mode unlocks additional configuration options for power users."
-            trigger={(
-              props: Omit<ComponentPropsWithoutRef<'button'>, 'color'>,
-            ) => {
-              return (
-                <IconButton
-                  variant="text"
-                  aria-label="Help"
-                  icon={<HelpCircle />}
-                  {...props}
-                />
-              );
-            }}
+            trigger={
+              <IconButton
+                variant="text"
+                aria-label="Help"
+                icon={<HelpCircle />}
+              />
+            }
           />
         </div>
         <p className="text-sm text-current/70">

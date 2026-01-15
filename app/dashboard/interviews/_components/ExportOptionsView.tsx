@@ -86,7 +86,7 @@ const ExportOptionsView = ({
         <div>
           <Switch
             value={exportOptions.exportGraphML}
-            onChange={handleGraphMLSwitch}
+            onChange={(v) => handleGraphMLSwitch(v ?? false)}
           />
         </div>
       </div>
@@ -105,7 +105,10 @@ const ExportOptionsView = ({
           </Paragraph>
         </div>
         <div>
-          <Switch value={exportOptions.exportCSV} onChange={handleCSVSwitch} />
+          <Switch
+            value={exportOptions.exportCSV}
+            onChange={(v) => handleCSVSwitch(v ?? false)}
+          />
         </div>
       </div>
       <div className={sectionClasses}>
@@ -123,7 +126,7 @@ const ExportOptionsView = ({
         <div>
           <Switch
             value={exportOptions.globalOptions.useScreenLayoutCoordinates}
-            onChange={handleScreenLayoutCoordinatesSwitch}
+            onChange={(v) => handleScreenLayoutCoordinatesSwitch(v ?? false)}
           />
         </div>
       </div>

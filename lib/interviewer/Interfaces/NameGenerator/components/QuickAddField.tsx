@@ -2,6 +2,7 @@ import { AnimatePresence, motion, type Variants } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ActionButton from '~/components/interview/ActionButton';
+import { type InterviewerIconName } from '~/components/ui/Icon';
 import InputField from '~/lib/form/components/fields/InputField';
 import { useField } from '~/lib/form/hooks/useField';
 import { type CustomFieldValidation } from '~/lib/form/store/types';
@@ -70,7 +71,7 @@ export default function QuickAddField({
   const subject = useSelector(getStageSubject);
   const nodeColor = useSelector(getNodeColorSelector);
   const nodeType = useSelector(
-    getNodeTypeLabel(subject.type as string | undefined),
+    getNodeTypeLabel(subject.entity !== 'ego' ? subject.type : ''),
   );
   const icon = useSelector(getNodeIconName);
 
@@ -164,7 +165,7 @@ export default function QuickAddField({
                     setChecked(true);
                   }
                 }}
-                icon={icon}
+                iconName={icon as InterviewerIconName}
                 title={`Add ${nodeType}...`}
               />
             </motion.div>
@@ -208,32 +209,35 @@ export default function QuickAddField({
             </motion.div>
           )}
           {checked && (
-            <InputField
+            <motion.div
               layout="position"
-              id={inputId}
               key="quick-add-input"
-              autoFocus
-              disabled={disabled}
-              placeholder={placeholder}
-              type="text"
-              {...fieldProps}
-              onKeyDown={(e) => {
-                if (e.key === 'Escape') {
-                  setChecked(false);
-                  // Move focus back to the toggle
-                  const toggleElement = document.getElementById(toggleId);
-                  if (toggleElement) {
-                    toggleElement.focus();
-                  }
-                }
-              }}
-              onBlur={() => setChecked(false)}
-              value={fieldProps.value as string}
               variants={inputVariants}
               initial="initial"
               animate="animate"
               exit="exit"
-            />
+            >
+              <InputField
+                id={inputId}
+                autoFocus
+                placeholder={placeholder}
+                type="text"
+                {...fieldProps}
+                disabled={disabled}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') {
+                    setChecked(false);
+                    // Move focus back to the toggle
+                    const toggleElement = document.getElementById(toggleId);
+                    if (toggleElement) {
+                      toggleElement.focus();
+                    }
+                  }
+                }}
+                onBlur={() => setChecked(false)}
+                value={fieldProps.value as string}
+              />
+            </motion.div>
           )}
           {meta.shouldShowError && checked && (
             <motion.div
@@ -245,7 +249,7 @@ export default function QuickAddField({
               <span>
                 {typeof meta.errors?.[0] === 'string'
                   ? meta.errors[0]
-                  : meta.errors?.[0]?.message}
+                  : String(meta.errors?.[0] ?? '')}
               </span>
             </motion.div>
           )}

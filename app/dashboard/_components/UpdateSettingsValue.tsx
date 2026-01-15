@@ -23,8 +23,8 @@ export default function UpdateSettingsValue({
   const [isSaving, setSaving] = useState(false);
 
   // If key is empty or invalid, set the error state
-  const handleChange = (value: string) => {
-    const result = schema.safeParse(value);
+  const handleChange = (value: string | undefined) => {
+    const result = schema.safeParse(value ?? initialValue ?? '');
 
     if (!result.success) {
       setError(

@@ -7,6 +7,7 @@ import {
   useContext,
   useState,
   type ComponentProps,
+  type ComponentPropsWithoutRef,
   type ReactNode,
 } from 'react';
 import { cx } from '~/utils/cva';
@@ -97,7 +98,10 @@ function PopoverContent({
   const { mounted } = usePopoverContext();
 
   return (
-    <BasePopover.Portal keepMounted={keepMounted} {...props}>
+    <BasePopover.Portal
+      keepMounted={keepMounted}
+      {...(props as ComponentPropsWithoutRef<typeof BasePopover.Portal>)}
+    >
       <AnimatePresence>
         {mounted && (
           <BasePopover.Positioner sideOffset={sideOffset} align={align}>

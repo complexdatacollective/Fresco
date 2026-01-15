@@ -130,7 +130,6 @@ export const Colors: Story = {
 export const Sizes: Story = {
   render: () => (
     <div className="flex items-center gap-4">
-      <Button size="xs">Extra Small</Button>
       <Button size="sm">Small</Button>
       <Button size="md">Medium</Button>
       <Button size="lg">Large</Button>
@@ -167,9 +166,6 @@ export const Icons: Story = {
       <div className="flex flex-col gap-4">
         <h3 className="text-sm font-semibold">Sizes</h3>
         <div className="flex items-end gap-2">
-          <Button icon={<Download />} size="xs">
-            XS
-          </Button>
           <Button icon={<Download />} size="sm">
             SM
           </Button>
@@ -415,9 +411,6 @@ export const LinkVariant: Story = {
         <div className="flex flex-col gap-4">
           <h4 className="text-sm font-semibold">Sizes</h4>
           <div className="flex flex-wrap items-center gap-4">
-            <Button variant="link" size="xs">
-              Extra Small
-            </Button>
             <Button variant="link" size="sm">
               Small
             </Button>

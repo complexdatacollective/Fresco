@@ -289,7 +289,7 @@ function AdditionalAttributeItem({
               label="Value"
               hint="The boolean value to assign"
               value={value}
-              onChange={setValue}
+              onChange={(v) => setValue(v ?? undefined)}
               noReset
               required
             />

@@ -90,7 +90,7 @@ export const FullDate: Story = {
         <DatePickerField
           type="full"
           value={value}
-          onChange={setValue}
+          onChange={(v) => setValue(v ?? '')}
           name="full-date"
         />
         <p className="text-xs text-current opacity-70">
@@ -119,7 +119,7 @@ export const MonthYear: Story = {
         <DatePickerField
           type="month"
           value={value}
-          onChange={setValue}
+          onChange={(v) => setValue(v ?? '')}
           name="month-year"
         />
         <p className="text-xs text-current opacity-70">
@@ -148,7 +148,7 @@ export const YearOnly: Story = {
         <DatePickerField
           type="year"
           value={value}
-          onChange={setValue}
+          onChange={(v) => setValue(v ?? '')}
           name="year-only"
         />
         <p className="text-xs text-current opacity-70">
@@ -181,7 +181,7 @@ export const AllTypes: Story = {
           <DatePickerField
             type="full"
             value={fullDate}
-            onChange={setFullDate}
+            onChange={(v) => setFullDate(v ?? '')}
             name="full-comparison"
           />
           <p className="mt-1 text-xs text-current opacity-70">
@@ -193,7 +193,7 @@ export const AllTypes: Story = {
           <DatePickerField
             type="month"
             value={monthYear}
-            onChange={setMonthYear}
+            onChange={(v) => setMonthYear(v ?? '')}
             name="month-comparison"
           />
           <p className="mt-1 text-xs text-current opacity-70">
@@ -205,7 +205,7 @@ export const AllTypes: Story = {
           <DatePickerField
             type="year"
             value={year}
-            onChange={setYear}
+            onChange={(v) => setYear(v ?? '')}
             name="year-comparison"
           />
           <p className="mt-1 text-xs text-current opacity-70">
@@ -240,7 +240,7 @@ export const WithConstraints: Story = {
             min="2024-01-01"
             max="2024-12-31"
             value={fullDate}
-            onChange={setFullDate}
+            onChange={(v) => setFullDate(v ?? '')}
             name="constrained-full"
           />
           <p className="mt-1 text-xs text-current opacity-70">
@@ -254,7 +254,7 @@ export const WithConstraints: Story = {
             min="2022-01-01"
             max="2023-12-31"
             value={monthYear}
-            onChange={setMonthYear}
+            onChange={(v) => setMonthYear(v ?? '')}
             name="constrained-month"
           />
           <p className="mt-1 text-xs text-current opacity-70">
@@ -268,7 +268,7 @@ export const WithConstraints: Story = {
             min="1990-01-01"
             max="2000-12-31"
             value={year}
-            onChange={setYear}
+            onChange={(v) => setYear(v ?? '')}
             name="constrained-year"
           />
           <p className="mt-1 text-xs text-current opacity-70">
@@ -505,7 +505,7 @@ export const BirthDateExample: Story = {
           <DatePickerField
             type="full"
             value={birthDate}
-            onChange={setBirthDate}
+            onChange={(v) => setBirthDate(v ?? '')}
             min={minDate}
             max={maxDate}
             required

@@ -51,7 +51,7 @@ export default function DropzoneField<T>({
   const { id, fieldProps, meta, containerProps } = useField({
     name,
     required: true,
-    customValidation: {
+    custom: {
       schema: csvDataSchema,
       hint: 'File must be a valid CSV with label or identifier columns',
     },

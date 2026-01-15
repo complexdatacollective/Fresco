@@ -21,6 +21,7 @@ const { motionMockModule } = vi.hoisted(() => {
     if (typeof ref === 'function') {
       // Return a wrapper that calls the original but ignores return value
       return (element: HTMLElement | null) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-confusing-void-expression
         ref(element);
         // Intentionally not returning the cleanup function
       };
@@ -81,10 +82,9 @@ const { motionMockModule } = vi.hoisted(() => {
     Component: T,
   ) =>
     ReactModule.forwardRef<HTMLElement, Record<string, unknown>>(
-      (props, ref) => {
+      (props, _ref) => {
         return ReactModule.createElement(Component, {
           ...filterMotionProps(props),
-          ref: wrapRef(ref),
         });
       },
     );

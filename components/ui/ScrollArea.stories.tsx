@@ -47,7 +47,7 @@ Add \`publish-colors\` along with a \`bg-*\` class to the ScrollArea's className
 Enable scroll snapping by setting the \`snap\` prop. Children should include snap alignment classes:
 
 \`\`\`tsx
-<ScrollArea snap="mandatory" orientation="vertical">
+<ScrollArea snap="mandatory" >
   <div className="snap-start">Snaps to top</div>
   <div className="snap-center">Snaps to center</div>
   <div className="snap-end">Snaps to bottom</div>
@@ -59,15 +59,6 @@ Enable scroll snapping by setting the \`snap\` prop. Children should include sna
   },
   tags: ['autodocs'],
   argTypes: {
-    orientation: {
-      control: 'select',
-      options: ['vertical', 'horizontal', 'both'],
-      description:
-        'Controls scroll direction. Use "vertical" for up/down, "horizontal" for left/right, or "both" for bidirectional scrolling.',
-      table: {
-        defaultValue: { summary: 'vertical' },
-      },
-    },
     fade: {
       control: 'boolean',
       description:
@@ -159,7 +150,6 @@ const BothContent = () => (
 
 export const Default: Story = {
   args: {
-    orientation: 'vertical',
     fade: true,
   },
   render: (args) => (
@@ -173,6 +163,7 @@ export const Default: Story = {
 };
 
 export const Vertical: Story = {
+  args: {},
   parameters: {
     docs: {
       description: {
@@ -181,16 +172,14 @@ export const Vertical: Story = {
     },
   },
   render: () => (
-    <ScrollArea
-      orientation="vertical"
-      className="bg-background publish-colors h-80 w-96 border"
-    >
+    <ScrollArea className="bg-background publish-colors h-80 w-96 border">
       <VerticalContent />
     </ScrollArea>
   ),
 };
 
 export const Horizontal: Story = {
+  args: {},
   parameters: {
     docs: {
       description: {
@@ -200,16 +189,14 @@ export const Horizontal: Story = {
     },
   },
   render: () => (
-    <ScrollArea
-      orientation="horizontal"
-      className="bg-background publish-colors h-40 w-96 border"
-    >
+    <ScrollArea className="bg-background publish-colors h-40 w-96 border">
       <HorizontalContent />
     </ScrollArea>
   ),
 };
 
 export const Both: Story = {
+  args: {},
   parameters: {
     docs: {
       description: {
@@ -219,16 +206,14 @@ export const Both: Story = {
     },
   },
   render: () => (
-    <ScrollArea
-      orientation="both"
-      className="bg-background publish-colors h-80 w-96 border"
-    >
+    <ScrollArea className="bg-background publish-colors h-80 w-96 border">
       <BothContent />
     </ScrollArea>
   ),
 };
 
 export const WithFade: Story = {
+  args: {},
   parameters: {
     docs: {
       description: {
@@ -262,6 +247,7 @@ export const WithFade: Story = {
 };
 
 export const Orientations: Story = {
+  args: {},
   parameters: {
     docs: {
       description: {
@@ -273,28 +259,19 @@ export const Orientations: Story = {
     <div className="flex flex-col gap-8">
       <div className="flex h-48 w-80 flex-col gap-2">
         <span className="text-sm font-medium">Vertical</span>
-        <ScrollArea
-          orientation="vertical"
-          className="bg-background publish-colors border"
-        >
+        <ScrollArea className="bg-background publish-colors border">
           <VerticalContent />
         </ScrollArea>
       </div>
       <div className="flex h-36 w-80 flex-col gap-2">
         <span className="text-sm font-medium">Horizontal</span>
-        <ScrollArea
-          orientation="horizontal"
-          className="bg-background publish-colors border"
-        >
+        <ScrollArea className="bg-background publish-colors border">
           <HorizontalContent />
         </ScrollArea>
       </div>
       <div className="flex h-64 w-80 flex-col gap-2">
         <span className="text-sm font-medium">Both</span>
-        <ScrollArea
-          orientation="both"
-          className="bg-background publish-colors border"
-        >
+        <ScrollArea className="bg-background publish-colors border">
           <BothContent />
         </ScrollArea>
       </div>
@@ -303,6 +280,7 @@ export const Orientations: Story = {
 };
 
 export const CustomViewportClass: Story = {
+  args: {},
   parameters: {
     docs: {
       description: {
@@ -313,7 +291,6 @@ export const CustomViewportClass: Story = {
   },
   render: () => (
     <ScrollArea
-      orientation="vertical"
       className="bg-background publish-colors h-64 w-80 border"
       viewportClassName="bg-surface-2"
     >
@@ -362,6 +339,7 @@ const SnapHorizontalContent = () => (
 );
 
 export const ScrollSnapVertical: Story = {
+  args: {},
   parameters: {
     docs: {
       description: {
@@ -377,7 +355,6 @@ export const ScrollSnapVertical: Story = {
       <div className="flex h-96 flex-col gap-2">
         <span className="text-sm font-medium">Mandatory (snaps always)</span>
         <ScrollArea
-          orientation="vertical"
           snap="mandatory"
           className="publish-colors bg-background w-80 border"
         >
@@ -389,7 +366,6 @@ export const ScrollSnapVertical: Story = {
           Proximity (snaps when close)
         </span>
         <ScrollArea
-          orientation="vertical"
           snap="proximity"
           className="publish-colors bg-background w-80 border"
         >
@@ -401,6 +377,7 @@ export const ScrollSnapVertical: Story = {
 };
 
 export const ScrollSnapHorizontal: Story = {
+  args: {},
   parameters: {
     docs: {
       description: {
@@ -416,7 +393,6 @@ export const ScrollSnapHorizontal: Story = {
           Horizontal Snap (center, mandatory)
         </span>
         <ScrollArea
-          orientation="horizontal"
           snap="mandatory"
           className="bg-background publish-colors h-44 w-96 border"
         >
@@ -428,7 +404,6 @@ export const ScrollSnapHorizontal: Story = {
           Horizontal Snap (center, proximity)
         </span>
         <ScrollArea
-          orientation="horizontal"
           snap="proximity"
           className="bg-background publish-colors h-44 w-96 border"
         >
@@ -440,6 +415,7 @@ export const ScrollSnapHorizontal: Story = {
 };
 
 export const FadeWithDifferentBackgrounds: Story = {
+  args: {},
   parameters: {
     docs: {
       description: {

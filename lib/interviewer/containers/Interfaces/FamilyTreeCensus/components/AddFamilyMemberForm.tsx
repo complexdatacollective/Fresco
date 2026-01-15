@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ActionButton from '~/components/interview/ActionButton';
 import Button from '~/components/ui/Button';
+import { type InterviewerIconName } from '~/components/ui/Icon';
 import Form from '~/lib/form/components/Form';
 import { useDynamicFields } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useDynamicFields';
 import { useRelatives } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useRelatives';
@@ -19,7 +20,7 @@ import { useFamilyTreeStore } from '../FamilyTreeProvider';
 const AddFamilyMemberForm = () => {
   const subject = useSelector(getStageSubject);
   const nodeType = useSelector(
-    getNodeTypeLabel(subject.type as string | undefined),
+    getNodeTypeLabel(subject.entity !== 'ego' ? subject.type : ''),
   );
   const icon = useSelector(getNodeIconName);
   const nodesMap = useFamilyTreeStore((state) => state.network.nodes);
@@ -65,7 +66,7 @@ const AddFamilyMemberForm = () => {
         <motion.div className="name-generator-interface__add-button">
           <ActionButton
             onClick={() => setShow(true)}
-            icon={icon}
+            iconName={icon as InterviewerIconName}
             title={`Add ${nodeType}...`}
           />
         </motion.div>

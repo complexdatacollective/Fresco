@@ -90,9 +90,7 @@ type Story = StoryObj<typeof meta>;
  * Default input field with interactive controls. Use the Controls panel to experiment with different configurations.
  */
 export const Default: Story = {
-  args: {
-    'data-testid': 'default-input',
-  },
+  args: {},
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const input = canvas.getByTestId('default-input');
@@ -255,8 +253,8 @@ export const InputTypes: Story = {
           placeholder="Enter number"
           aria-label="Number input"
           data-testid="number-input"
-          value={numberValue}
-          onChange={(v: number | undefined) => setNumberValue(v)}
+          value={numberValue as unknown as string}
+          onChange={(v: unknown) => setNumberValue(v as number | undefined)}
         />
         <p className="text-xs opacity-70" data-testid="number-value">
           Number value: {numberValue ?? 'undefined'} (type: {typeof numberValue}
@@ -316,7 +314,6 @@ export const WithIcons: Story = {
     'aria-invalid': { control: 'boolean' },
     'type': { control: false },
     'placeholder': { control: false },
-    'disabled': { control: false },
   },
   render: (args) => (
     <div className="flex w-80 flex-col gap-4">
@@ -437,7 +434,7 @@ export const ClearableInput: Story = {
         <InputField
           {...args}
           value={value}
-          onChange={setValue}
+          onChange={(v) => setValue(v ?? '')}
           aria-label="Clearable text input"
           data-testid="clearable-input"
           suffixComponent={
@@ -481,13 +478,9 @@ export const TypeSafeOnChange: Story = {
     size: 'md',
   },
   argTypes: {
-    'disabled': { control: 'boolean' },
-    'readOnly': { control: 'boolean' },
     'aria-invalid': { control: 'boolean' },
     'type': { control: false },
     'placeholder': { control: false },
-    'disabled': { control: false },
-    'readOnly': { control: false },
   },
   render: function Render(args) {
     const [textValue, setTextValue] = useState('');
@@ -501,7 +494,7 @@ export const TypeSafeOnChange: Story = {
             {...args}
             type="text"
             value={textValue}
-            onChange={setTextValue}
+            onChange={(v) => setTextValue(v ?? '')}
             placeholder="Type text..."
             data-testid="text-input"
           />
@@ -514,8 +507,8 @@ export const TypeSafeOnChange: Story = {
           <InputField
             {...args}
             type="number"
-            value={numberValue}
-            onChange={setNumberValue}
+            value={numberValue as unknown as string}
+            onChange={(v: unknown) => setNumberValue(v as number | undefined)}
             placeholder="Enter number..."
             data-testid="number-input"
           />
@@ -550,7 +543,6 @@ export const TypeSafeOnChange: Story = {
 export const KeyboardNavigation: Story = {
   args: {
     'placeholder': 'Tab to focus, type, then tab away',
-    'data-testid': 'keyboard-input',
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

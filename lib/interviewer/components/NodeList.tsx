@@ -42,8 +42,11 @@ const DraggableMotionNode = memo(
       disabled: !allowDrag,
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { type, ...safeNodeProps } = node;
+
     return (
-      <MotionNode {...node} {...nodeProps} {...dragProps} size={nodeSize} />
+      <MotionNode {...safeNodeProps} {...nodeProps} {...dragProps} size={nodeSize} />
     );
   },
 );

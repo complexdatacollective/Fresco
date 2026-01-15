@@ -27,10 +27,10 @@ const deriveAttributeTypeFromData = (
   nodeList: NcNode[],
 ) =>
   nodeList.reduce((previousType, node) => {
-    const currentValue: FieldValue = get(
+    const currentValue = get(
       node,
       `[${entityAttributesProperty}][${attributeKey}]`,
-    );
+    ) as FieldValue | null;
 
     // if the value is null or undefined, defer to the previous type
     if (!currentValue || previousType === VariableTypes.text) {

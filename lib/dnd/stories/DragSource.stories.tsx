@@ -56,6 +56,7 @@ function DropZone({
   const { dropProps, isOver, willAccept } = useDropTarget({
     id: `drop-zone-${Math.random().toString(36).slice(2, 11)}`,
     accepts,
+    announcedName: 'Drop zone',
     onDrop,
   });
 

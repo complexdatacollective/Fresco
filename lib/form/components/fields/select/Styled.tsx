@@ -56,14 +56,13 @@ function SelectField(props: SelectProps) {
     className,
     onChange,
     value,
-    defaultValue,
     name,
     disabled,
     readOnly,
     ...rest
   } = props;
 
-  const handleValueChange = (newValue: string | number | null) => {
+  const handleValueChange = (newValue: unknown) => {
     if (newValue !== null && newValue !== undefined) {
       const convertedValue =
         typeof newValue === 'string' || typeof newValue === 'number'
@@ -77,9 +76,6 @@ function SelectField(props: SelectProps) {
     <Select.Root
       {...rest}
       value={value !== undefined ? String(value) : undefined}
-      defaultValue={
-        defaultValue !== undefined ? String(defaultValue) : undefined
-      }
       onValueChange={handleValueChange}
       disabled={disabled ?? readOnly}
       name={name}

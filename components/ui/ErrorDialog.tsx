@@ -26,7 +26,7 @@ const ErrorDialog = ({
   return (
     <Dialog
       open={open}
-      closeDialog={onOpenChange}
+      closeDialog={() => onOpenChange?.(false)}
       title={title}
       description={description}
       footer={<Button onClick={onConfirm}>{confirmLabel}</Button>}

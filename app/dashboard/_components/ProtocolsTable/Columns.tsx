@@ -8,7 +8,7 @@ import Paragraph from '~/components/typography/Paragraph';
 import { buttonVariants } from '~/components/ui/Button';
 import Link from '~/components/ui/Link';
 import TimeAgo from '~/components/ui/TimeAgo';
-import { Checkbox } from '~/lib/form/components/fields/Checkbox';
+import Checkbox from '~/lib/form/components/fields/Checkbox';
 import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';
 import type { ProtocolWithInterviews } from './ProtocolsTableClient';
 
@@ -21,14 +21,16 @@ export const getProtocolColumns = (
       header: ({ table }) => (
         <Checkbox
           checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          onCheckedChange={(value: boolean) =>
+            table.toggleAllPageRowsSelected(!!value)
+          }
           aria-label="Select all"
         />
       ),
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          onCheckedChange={(value: boolean) => row.toggleSelected(!!value)}
           aria-label="Select row"
         />
       ),

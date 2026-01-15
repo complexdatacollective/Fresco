@@ -6,7 +6,7 @@ import {
   deleteApiToken,
   updateApiToken,
 } from '~/actions/apiTokens';
-import { Dialog } from '~/lib/dialogs/Dialog';
+import Dialog from '~/lib/dialogs/Dialog';
 import InputField from '~/lib/form/components/fields/InputField';
 import { type GetApiTokensReturnType } from '~/queries/apiTokens';
 import { Alert, AlertDescription, AlertTitle } from './ui/Alert';
@@ -171,7 +171,7 @@ export default function ApiTokenManagement({
             id="description"
             placeholder="e.g., Development token"
             value={newTokenDescription}
-            onChange={(value) => setNewTokenDescription(value)}
+            onChange={(value) => setNewTokenDescription(value ?? '')}
           />
         </div>
       </Dialog>

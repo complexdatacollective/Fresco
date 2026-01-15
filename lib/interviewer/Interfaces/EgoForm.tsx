@@ -8,6 +8,7 @@ import { RenderMarkdown } from '~/components/RenderMarkdown';
 import useDialog from '~/lib/dialogs/useDialog';
 import Form from '~/lib/form/components/Form';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
+import { type FieldValue } from '~/lib/form/store/types';
 import Icon from '~/lib/ui/components/Icon';
 import Scroller from '~/lib/ui/components/Scroller';
 import { type BeforeNextFunction } from '../containers/ProtocolScreen';
@@ -84,7 +85,7 @@ const EgoForm = (props: EgoFormProps) => {
           title: 'Discard changes?',
           description:
             'This form contains invalid data, so it cannot be saved. If you continue it will be reset and your changes will be lost. Do you want to discard your changes?',
-          intent: 'danger',
+          intent: 'destructive',
           actions: {
             primary: { label: 'Discard changes', value: true },
             cancel: { label: 'Go back', value: false },
@@ -147,7 +148,9 @@ const EgoForm = (props: EgoFormProps) => {
 
   const { fieldComponents } = useProtocolForm({
     fields: form.fields,
-    initialValues: egoAttributes,
+    initialValues: Object.fromEntries(
+      Object.entries(egoAttributes).filter(([, value]) => value !== null),
+    ) as Record<string, FieldValue>,
   });
 
   return (
