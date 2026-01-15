@@ -36,7 +36,10 @@
       "esbuild",
       "prisma",
       "sharp"
-    ]
+    ],
+    "patchedDependencies": {
+      "react-best-merge-refs@1.0.2": "patches/react-best-merge-refs@1.0.2.patch"
+    }
   },
   "dependencies": {
     "@base-ui/react": "1.0.0",

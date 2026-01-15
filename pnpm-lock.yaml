@@ -7,6 +7,11 @@ settings:
 overrides:
   d3-force>d3-timer: 3.0.0
 
+patchedDependencies:
+  react-best-merge-refs@1.0.2:
+    hash: 469dfbaa03c158d70d3588a72c8d8cd96e54c22d37f6fe62535c0b33fd21adc8
+    path: patches/react-best-merge-refs@1.0.2.patch
+
 importers:
 
   .:
@@ -193,7 +198,7 @@ importers:
         version: 1.14.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-best-merge-refs:
         specifier: ^1.0.2
-        version: 1.0.2(react@18.3.1)
+        version: 1.0.2(patch_hash=469dfbaa03c158d70d3588a72c8d8cd96e54c22d37f6fe62535c0b33fd21adc8)(react@18.3.1)
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
@@ -14296,7 +14301,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  react-best-merge-refs@1.0.2(react@18.3.1):
+  react-best-merge-refs@1.0.2(patch_hash=469dfbaa03c158d70d3588a72c8d8cd96e54c22d37f6fe62535c0b33fd21adc8)(react@18.3.1):
     dependencies:
       react: 18.3.1
 
