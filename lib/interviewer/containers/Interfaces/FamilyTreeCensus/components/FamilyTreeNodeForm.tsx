@@ -9,7 +9,6 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Form from '~/lib/form/components/Form';
-import { useProtocolFieldProcessor } from '~/lib/form/hooks/useProtocolFieldProcessor';
 import Overlay from '~/lib/interviewer/containers/Overlay';
 import {
   addNode as addNetworkNode,
@@ -116,13 +115,6 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
     [dispatch, getShellIdByNetworkId, syncMetadata, updateShellNode],
   );
 
-  const processedFields = useProtocolFieldProcessor({
-    fields: form.fields,
-    validationMeta: {
-      entityId: selectedNode?.id,
-    },
-  });
-
   const getInitialValues = useCallback(() => {
     const values: Record<string, VariableValue> = {};
 
@@ -130,10 +122,12 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
 
     form.fields.forEach((field: { variable: string }) => {
       // Check in fields first (updated values), then fall back to top-level
-      const fieldValue = (
-        selectedNode.fields as Record<string, unknown> | undefined
-      )?.[field.variable];
-      let topValue;
+      const fields = selectedNode.fields;
+      const fieldValue =
+        fields && typeof fields === 'object'
+          ? (fields[field.variable] as VariableValue | undefined)
+          : undefined;
+      let topValue: VariableValue | undefined;
       switch (field.variable) {
         case 'name':
           topValue = selectedNode.name;
@@ -145,7 +139,7 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
       const value = fieldValue ?? topValue;
 
       if (value !== undefined) {
-        values[field.variable] = value as VariableValue;
+        values[field.variable] = value;
       }
     });
 
@@ -213,7 +207,7 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
         <Scroller>
           <Form
             ref={formRef}
-            fields={processedFields}
+            fields={form.fields}
             handleSubmit={handleSubmit}
             getInitialValues={getInitialValues}
             focusFirstInput={true}

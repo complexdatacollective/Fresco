@@ -54,7 +54,6 @@ type NumberCounterFieldProps = CreateFormFieldProps<
 export default function NumberCounterField(props: NumberCounterFieldProps) {
   const {
     id,
-    name,
     'value': rawValue,
     onChange,
     minValue = -Infinity,

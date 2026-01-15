@@ -167,7 +167,7 @@ export default function ToggleButtonGroupField(props: ToggleButtonGroupProps) {
         : {})}
     >
       {options.map((option, index) => {
-        const isOptionDisabled = disabled || option.disabled;
+        const isOptionDisabled = disabled ?? option.disabled;
         const isChecked = currentValues.includes(option.value);
         const catColor = getCatColorIndex(index);
 

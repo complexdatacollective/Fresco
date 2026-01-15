@@ -66,31 +66,38 @@ export const roundTo = (value: number, places = 0) =>
 export const roundToNearest = (value: number, step: number) =>
   Math.round(value / step) * step;
 
-export const debounce =
-  (callback: any, wait: number, timeoutId: Timeout | null = null) =>
-  (...args: any[]) => {
+export const debounce = <T extends unknown[], R>(
+  callback: (...args: T) => R,
+  wait: number,
+  timeoutId: Timeout | null = null,
+) => {
+  return (...args: T) => {
     if (typeof timeoutId === 'number') {
       window.clearTimeout(timeoutId);
     }
 
     timeoutId = setTimeout(() => {
-      callback.apply(null, args);
+      callback(...args);
     }, wait);
   };
+};
 
-export const throttle = (func: Function, limit: number) => {
+export const throttle = <T extends unknown[], R>(
+  func: (...args: T) => R,
+  limit: number,
+) => {
   let lastFunc: Timeout;
   let lastRan: number;
-  return function (...args: any) {
+  return (...args: T) => {
     if (!lastRan) {
-      func.apply(null, args);
+      func(...args);
       lastRan = Date.now();
     } else {
       clearTimeout(lastFunc);
       lastFunc = setTimeout(
-        function () {
+        () => {
           if (Date.now() - lastRan >= limit) {
-            func.apply(null, args);
+            func(...args);
             lastRan = Date.now();
           }
         },
@@ -102,19 +109,22 @@ export const throttle = (func: Function, limit: number) => {
 
 // This version of `throttle` returns a `cancel` function I can call if I want to cancel the throttle.
 // NOTE: I don't *need* to use this to avoid memory leaks. Even if a component unmounts mid-throttle, it will only trigger 1 more time, and won't set a new `setTimeout`. So it should be used only when I really want to prevent the throttle from running 1 more time.
-export const throttleV2 = (func: Function, limit: number) => {
+export const throttleV2 = <T extends unknown[], R>(
+  func: (...args: T) => R,
+  limit: number,
+): [(...args: T) => void, () => void] => {
   let timeoutId: Timeout;
   let lastRan: number;
-  const wrappedFunc = function (...args: any) {
+  const wrappedFunc = (...args: T) => {
     if (!lastRan) {
-      func.apply(null, args);
+      func(...args);
       lastRan = Date.now();
     } else {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(
-        function () {
+        () => {
           if (Date.now() - lastRan >= limit) {
-            func.apply(null, args);
+            func(...args);
             lastRan = Date.now();
           }
         },
@@ -156,7 +166,9 @@ export const camelToDashCase = (val: string) =>
   val.replace(/[A-Z0-9]/g, (letter: string) => `-${letter.toLowerCase()}`);
 
 export const dashToCamelCase = (val: string) => {
-  return val.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+  return val.replace(/-([a-z])/g, (_match: string, letter: string) =>
+    letter.toUpperCase(),
+  );
 };
 
 export const pick = (obj: PlainObject, keys: string[]) => {
@@ -186,28 +198,32 @@ export const omit = function (obj: PlainObject, key: string) {
   return newObj;
 };
 
-export const convertArrayToMap = (arr: any[]) =>
+export const convertArrayToMap = <T extends { id: string | number }>(
+  arr: T[],
+): Record<string | number, T> =>
   arr.reduce(
     (acc, item) => ({
       ...acc,
       [item.id]: item,
     }),
-    {},
+    {} as Record<string | number, T>,
   );
 
 // Either removes or adds an item to an array
 // EXAMPLE: toggleInArray([1, 2], 3) -> [1, 2, 3]
 // EXAMPLE: toggleInArray([1, 2], 2) -> [1]
-export const toggleInArray = (arr: any[], item: any) =>
+export const toggleInArray = <T>(arr: T[], item: T): T[] =>
   arr.includes(item) ? arr.filter((i) => i !== item) : [...arr, item];
 
 // Combines 2 arrays, removing duplicates.
 // EXAMPLE: mergeUnique([1, 2], [2, 3]) -> [1, 2, 3]
-export const mergeUnique = (arr1: any[], arr2: any[]) =>
+export const mergeUnique = <T>(arr1: T[], arr2: T[]): T[] =>
   arr1.concat(arr2.filter((item) => !arr1.includes(item)));
 
-export const findRight = (arr: any[], predicate: (val: any) => boolean) =>
-  arr.slice().reverse().find(predicate);
+export const findRight = <T>(
+  arr: T[],
+  predicate: (val: T) => boolean,
+): T | undefined => arr.slice().reverse().find(predicate);
 
 export function requestAnimationFramePromise() {
   return new Promise((resolve) => window.requestAnimationFrame(resolve));
@@ -511,11 +527,15 @@ export function moveCursorWithinInput(
   input.setSelectionRange(position, position);
 }
 
-export async function copyToClipboard(content: string) {
+export async function copyToClipboard(content: string): Promise<{
+  success: boolean;
+  error?: unknown;
+}> {
   try {
     await navigator.clipboard.writeText(content);
+    return { success: true };
   } catch (err) {
-    console.error('Failed to copy: ', err);
+    return { success: false, error: err };
   }
 }
 
@@ -525,38 +545,44 @@ export async function copyToClipboard(content: string) {
  * This is useful if, eg., you need to capitalize every value in
  * a dictionary-style object with string values.
  */
-export const transformValues = (
-  obj: PlainObject,
-  callback: (key: string, value: any) => any,
-) => {
+export const transformValues = <T extends PlainObject, R>(
+  obj: T,
+  callback: (key: string, value: T[keyof T]) => R,
+): Record<string, R> => {
   if (typeof obj !== 'object') {
-    return obj;
+    return obj as unknown as Record<string, R>;
   }
 
-  return Object.entries(obj).reduce((acc, [key, value]) => {
-    return {
-      ...acc,
-      [key]: callback(key, value),
-    };
-  }, {});
+  return Object.entries(obj).reduce(
+    (acc, [key, value]) => {
+      return {
+        ...acc,
+        [key]: callback(key, value as T[keyof T]),
+      };
+    },
+    {} as Record<string, R>,
+  );
 };
 
 // This method is like `transformValues`, except we can change both the value *and* keys.
-export const transformObject = (
-  obj: PlainObject,
-  callback: (key: string, value: any) => [string, any],
-) => {
+export const transformObject = <T extends PlainObject, R>(
+  obj: T,
+  callback: (key: string, value: T[keyof T]) => [string, R],
+): Record<string, R> => {
   if (typeof obj !== 'object') {
-    return obj;
+    return obj as unknown as Record<string, R>;
   }
 
-  return Object.entries(obj).reduce((acc, [key, value]) => {
-    const [newKey, newValue] = callback(key, value);
-    return {
-      ...acc,
-      [newKey]: newValue,
-    };
-  }, {});
+  return Object.entries(obj).reduce(
+    (acc, [key, value]) => {
+      const [newKey, newValue] = callback(key, value as T[keyof T]);
+      return {
+        ...acc,
+        [newKey]: newValue,
+      };
+    },
+    {} as Record<string, R>,
+  );
 };
 
 // In a string, turn digits (1) into spelled words (one)

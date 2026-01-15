@@ -31,7 +31,7 @@ const DraggableMotionNode = memo(
     node,
     itemType,
     allowDrag,
-    onClick,
+    onClick: _onClick,
     nodeSize,
     ...nodeProps
   }: DraggableMotionNodeProps & { onClick?: () => void }) => {
@@ -105,7 +105,7 @@ const NodeList = memo(
     disableDragNew,
     items = [],
     itemType = 'NODE',
-    hoverColor,
+    hoverColor: _hoverColor,
     onItemClick = () => undefined,
     id,
     accepts = ['node'],

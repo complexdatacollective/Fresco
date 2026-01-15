@@ -18,7 +18,9 @@ import { useFamilyTreeStore } from '../FamilyTreeProvider';
 
 const AddFamilyMemberForm = () => {
   const subject = useSelector(getStageSubject);
-  const nodeType = useSelector(getNodeTypeLabel(subject.type));
+  const nodeType = useSelector(
+    getNodeTypeLabel(subject.type as string | undefined),
+  );
   const icon = useSelector(getNodeIconName);
   const nodesMap = useFamilyTreeStore((state) => state.network.nodes);
   const nodes = Array.from(
@@ -47,7 +49,9 @@ const AddFamilyMemberForm = () => {
     const { value } = formData;
     const relation = value.relation;
     const relationId =
-      typeof relation === 'string' ? value[`${relation}Relation`] : undefined;
+      typeof relation === 'string'
+        ? (value[`${relation}Relation`] as string | undefined)
+        : undefined;
     const anchorId = typeof relationId === 'string' ? relationId : undefined;
     if (typeof relation === 'string') {
       addPlaceholderNode(relation, anchorId);

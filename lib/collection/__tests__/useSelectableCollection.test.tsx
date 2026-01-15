@@ -25,14 +25,30 @@ function createMockSelectionManager(
     isDisabled: vi.fn(() => false),
     canSelectItem: vi.fn(() => true),
     canFocusItem: vi.fn(() => true),
-    setFocusedKey: vi.fn(),
-    setFocused: vi.fn(),
-    toggleSelection: vi.fn(),
-    replaceSelection: vi.fn(),
-    extendSelection: vi.fn(),
-    selectAll: vi.fn(),
-    clearSelection: vi.fn(),
-    selectRange: vi.fn(),
+    setFocusedKey: vi.fn(() => {
+      // no-op
+    }),
+    setFocused: vi.fn(() => {
+      // no-op
+    }),
+    toggleSelection: vi.fn(() => {
+      // no-op
+    }),
+    replaceSelection: vi.fn(() => {
+      // no-op
+    }),
+    extendSelection: vi.fn(() => {
+      // no-op
+    }),
+    selectAll: vi.fn(() => {
+      // no-op
+    }),
+    clearSelection: vi.fn(() => {
+      // no-op
+    }),
+    selectRange: vi.fn(() => {
+      // no-op
+    }),
     ...overrides,
   } as unknown as SelectionManager;
 }

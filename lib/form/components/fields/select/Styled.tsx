@@ -1,7 +1,10 @@
 import { Select } from '@base-ui/react/select';
 import { Check, ChevronDown } from 'lucide-react';
 import { type ComponentPropsWithoutRef } from 'react';
-import { type CreateFormFieldProps } from '~/lib/form/components/Field/Field';
+import {
+  type FieldValueProps,
+  type InjectedFieldProps,
+} from '~/lib/form/components/Field/types';
 import { getInputState } from '~/lib/form/utils/getInputState';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 import { type SelectOption, selectWrapperVariants } from './shared';
@@ -28,17 +31,21 @@ const dropdownItemVariants = cva({
   },
 });
 
-export type SelectProps = CreateFormFieldProps<
-  string | number,
-  'div',
-  {
+export type SelectProps = FieldValueProps<string | number> &
+  InjectedFieldProps & {
     placeholder?: string;
     options: SelectOption[];
+    className?: string;
   } & Omit<
     ComponentPropsWithoutRef<typeof Select.Root>,
-    'onValueChange' | 'items' | 'multiple' | 'value' | 'defaultValue'
-  >
-> &
+    | 'onValueChange'
+    | 'items'
+    | 'multiple'
+    | 'value'
+    | 'defaultValue'
+    | 'name'
+    | 'disabled'
+  > &
   VariantProps<typeof selectWrapperVariants>;
 
 function SelectField(props: SelectProps) {
@@ -56,9 +63,13 @@ function SelectField(props: SelectProps) {
     ...rest
   } = props;
 
-  const handleValueChange = (newValue: unknown) => {
+  const handleValueChange = (newValue: string | number | null) => {
     if (newValue !== null && newValue !== undefined) {
-      onChange?.(newValue as string | number);
+      const convertedValue =
+        typeof newValue === 'string' || typeof newValue === 'number'
+          ? newValue
+          : undefined;
+      onChange?.(convertedValue);
     }
   };
 

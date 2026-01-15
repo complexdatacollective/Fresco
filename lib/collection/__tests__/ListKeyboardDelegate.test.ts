@@ -11,11 +11,15 @@ function createMockCollection(items: Map<Key, unknown>): Collection<unknown> {
     getItem: (key: Key) => {
       const value = items.get(key);
       if (!value) return undefined;
+      const textValue =
+        typeof value === 'string' || typeof value === 'number'
+          ? String(value)
+          : JSON.stringify(value);
       return {
         key,
         value,
         type: 'item',
-        textValue: String(value),
+        textValue,
         index: keys.indexOf(key),
         level: 0,
       } as Node<unknown>;

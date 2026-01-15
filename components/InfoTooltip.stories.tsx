@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { HelpCircle, Star } from 'lucide-react';
+import { type ComponentPropsWithoutRef } from 'react';
 import { FieldLabel } from '~/lib/form/components/FieldLabel';
 import InfoTooltip from './InfoTooltip';
 import Heading from './typography/Heading';
@@ -187,15 +188,15 @@ export const InContext: Story = {
           <InfoTooltip
             title="Advanced Mode"
             description="Enabling advanced mode unlocks additional configuration options for power users."
-            trigger={(props) => {
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              const { color, ...buttonProps } = props;
+            trigger={(
+              props: Omit<ComponentPropsWithoutRef<'button'>, 'color'>,
+            ) => {
               return (
                 <IconButton
                   variant="text"
                   aria-label="Help"
                   icon={<HelpCircle />}
-                  {...buttonProps}
+                  {...props}
                 />
               );
             }}

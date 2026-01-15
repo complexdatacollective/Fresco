@@ -34,7 +34,6 @@ export default function useFormState() {
       isValidating: state.isValidating,
       isDirty: state.isDirty,
       isValid: state.isValid,
-      context: state.context,
       submitForm: state.submitForm,
     })),
   );

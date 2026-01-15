@@ -180,14 +180,14 @@ export const CensusForm = ({
         {shouldAskSex && variableDef?.options && (
           <div className="mb-6 w-full *:mb-0!">
             <RadioGroup
-              optionComponent={Radio}
+              optionComponent={Radio as unknown}
               input={{
                 name: sexVariable,
                 value: sexValue,
                 onChange: (value: string) => setSexValue(value as Sex),
               }}
               label={'What is your sex?'}
-              options={variableDef.options}
+              options={variableDef.options satisfies SexOption[]}
             />
           </div>
         )}

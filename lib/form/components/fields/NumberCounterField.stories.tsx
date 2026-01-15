@@ -514,7 +514,7 @@ export const RatingCounter: Story = {
           {[1, 2, 3, 4, 5].map((star) => (
             <span
               key={star}
-              className={`text-2xl ${rating >= star ? 'text-yellow-500' : rating >= star - 0.5 ? 'text-yellow-500/50' : 'text-gray-300'}`}
+              className={`text-2xl ${rating >= star ? 'text-warning' : rating >= star - 0.5 ? 'text-warning/50' : 'text-neutral/30'}`}
             >
               ★
             </span>

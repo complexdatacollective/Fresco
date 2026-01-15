@@ -48,9 +48,9 @@ function CollectionItemComponent<T>({
   // - onKeyDown: Must be composed with Collection's handler (extracted separately below)
   const {
     'ref': dragRef,
-    'tabIndex': _dndTabIndex,
-    'role': _dndRole,
-    'aria-label': _dndAriaLabel,
+    'tabIndex': dndTabIndex,
+    'role': dndRole,
+    'aria-label': dndAriaLabel,
     'onKeyDown': dndOnKeyDown,
     ...dndDragProps
   } = dndDragPropsRaw as {
@@ -61,6 +61,10 @@ function CollectionItemComponent<T>({
     'onKeyDown'?: React.KeyboardEventHandler<HTMLElement>;
     [key: string]: unknown;
   };
+  // These DnD props are intentionally unused - Collection overrides them
+  void dndTabIndex;
+  void dndRole;
+  void dndAriaLabel;
 
   // Compose keyboard handlers: DnD handler runs first to handle drag operations,
   // then Collection's handler for selection (if not handled by DnD).
@@ -78,7 +82,7 @@ function CollectionItemComponent<T>({
         itemProps.onKeyDown?.(e);
       }
     },
-    [itemProps.onKeyDown, dndOnKeyDown],
+    [dndOnKeyDown, itemProps],
   );
 
   // Combined ref callback that also registers the element with the layout

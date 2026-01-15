@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import type { JSONContent } from '@tiptap/react';
 import { useState } from 'react';
 import { RichTextEditorField } from '../lib/form/components/fields/RichTextEditor';
-import { RichTextRenderer } from './RichTextRenderer';
+import RichTextRenderer from './RichTextRenderer';
 
 const meta: Meta<typeof RichTextRenderer> = {
   title: 'UI/RichTextRenderer',

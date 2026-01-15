@@ -99,7 +99,7 @@ export const SizeVariants: Story = {
     return (
       <div className="flex flex-col gap-6">
         <div className="flex items-center gap-4">
-          <span className="text-muted-foreground w-12 text-sm">sm</span>
+          <span className="w-12 text-sm text-current opacity-70">sm</span>
           <ToggleField
             size="sm"
             value={values.sm}
@@ -108,7 +108,7 @@ export const SizeVariants: Story = {
           />
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-muted-foreground w-12 text-sm">md</span>
+          <span className="w-12 text-sm text-current opacity-70">md</span>
           <ToggleField
             size="md"
             value={values.md}
@@ -117,7 +117,7 @@ export const SizeVariants: Story = {
           />
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-muted-foreground w-12 text-sm">lg</span>
+          <span className="w-12 text-sm text-current opacity-70">lg</span>
           <ToggleField
             size="lg"
             value={values.lg}
@@ -126,7 +126,7 @@ export const SizeVariants: Story = {
           />
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-muted-foreground w-12 text-sm">xl</span>
+          <span className="w-12 text-sm text-current opacity-70">xl</span>
           <ToggleField
             size="xl"
             value={values.xl}
@@ -143,11 +143,15 @@ export const Disabled: Story = {
   render: () => (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-4">
-        <span className="text-muted-foreground w-24 text-sm">Disabled Off</span>
+        <span className="w-24 text-sm text-current opacity-70">
+          Disabled Off
+        </span>
         <ToggleField disabled value={false} aria-label="Disabled toggle off" />
       </div>
       <div className="flex items-center gap-4">
-        <span className="text-muted-foreground w-24 text-sm">Disabled On</span>
+        <span className="w-24 text-sm text-current opacity-70">
+          Disabled On
+        </span>
         <ToggleField disabled value={true} aria-label="Disabled toggle on" />
       </div>
     </div>
@@ -158,13 +162,15 @@ export const ReadOnly: Story = {
   render: () => (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-4">
-        <span className="text-muted-foreground w-28 text-sm">
+        <span className="w-28 text-sm text-current opacity-70">
           Read-only Off
         </span>
         <ToggleField readOnly value={false} aria-label="Read-only toggle off" />
       </div>
       <div className="flex items-center gap-4">
-        <span className="text-muted-foreground w-28 text-sm">Read-only On</span>
+        <span className="w-28 text-sm text-current opacity-70">
+          Read-only On
+        </span>
         <ToggleField readOnly value={true} aria-label="Read-only toggle on" />
       </div>
     </div>
@@ -180,7 +186,7 @@ export const Invalid: Story = {
     return (
       <div className="flex flex-col gap-6">
         <div className="flex items-center gap-4">
-          <span className="text-muted-foreground w-24 text-sm">
+          <span className="w-24 text-sm text-current opacity-70">
             Invalid Off
           </span>
           <ToggleField
@@ -191,7 +197,9 @@ export const Invalid: Story = {
           />
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-muted-foreground w-24 text-sm">Invalid On</span>
+          <span className="w-24 text-sm text-current opacity-70">
+            Invalid On
+          </span>
           <ToggleField
             value={onValue}
             onChange={setOnValue}
@@ -205,7 +213,6 @@ export const Invalid: Story = {
 };
 
 export const AllStates: Story = {
-  name: 'All States',
   render: () => {
     const [normalOff, setNormalOff] = useState(false);
     const [normalOn, setNormalOn] = useState(true);

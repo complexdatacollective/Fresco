@@ -99,8 +99,6 @@ export default function RadioGroupField(props: RadioGroupFieldProps) {
     ...rest
   } = props;
 
-  const isInvalid = !!rest['aria-invalid'];
-
   const handleValueChange = (newValue: unknown) => {
     if (readOnly) return;
     onChange?.(newValue as string | number);
@@ -141,10 +139,10 @@ export default function RadioGroupField(props: RadioGroupFieldProps) {
         })}
         aria-label={rest['aria-label']}
         aria-describedby={rest['aria-describedby']}
-        aria-invalid={isInvalid || undefined}
+        aria-invalid={rest['aria-invalid'] ?? undefined}
       >
         {options.map((option) => {
-          const isOptionDisabled = disabled || option.disabled;
+          const isOptionDisabled = disabled ?? option.disabled;
           const optionValue = String(option.value);
 
           const getOptionState = () => {

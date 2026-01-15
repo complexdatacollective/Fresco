@@ -4,6 +4,13 @@ import { Selection } from '../selection/Selection';
 import { type SelectionState } from '../selection/types';
 import { type Collection, type Key, type Node } from '../types';
 
+type SelectionUpdate = {
+  selectedKeys: Selection | 'all';
+  focusedKey?: Key | null;
+  childFocusStrategy?: 'first' | 'last';
+  isFocused?: boolean;
+};
+
 function createMockCollection(keys: Key[]): Collection<unknown> {
   const items = new Map<Key, string>();
   for (const key of keys) {
@@ -69,7 +76,11 @@ describe('SelectionManager', () => {
         const state = createDefaultState({
           selectedKeys: new Selection(['a', 'b']),
         });
-        const manager = new SelectionManager(collection, state, () => {});
+        const manager = new SelectionManager(
+          collection,
+          state,
+          () => undefined,
+        );
 
         expect(manager.isSelected('a')).toBe(true);
         expect(manager.isSelected('b')).toBe(true);
@@ -82,7 +93,11 @@ describe('SelectionManager', () => {
           selectionMode: 'none',
           selectedKeys: new Selection(['a']),
         });
-        const manager = new SelectionManager(collection, state, () => {});
+        const manager = new SelectionManager(
+          collection,
+          state,
+          () => undefined,
+        );
 
         expect(manager.isSelected('a')).toBe(false);
       });
@@ -92,7 +107,11 @@ describe('SelectionManager', () => {
         const state = createDefaultState({
           selectedKeys: 'all',
         });
-        const manager = new SelectionManager(collection, state, () => {});
+        const manager = new SelectionManager(
+          collection,
+          state,
+          () => undefined,
+        );
 
         expect(manager.isSelected('a')).toBe(true);
         expect(manager.isSelected('b')).toBe(true);
@@ -105,7 +124,11 @@ describe('SelectionManager', () => {
           selectedKeys: 'all',
           disabledKeys: new Set(['b']),
         });
-        const manager = new SelectionManager(collection, state, () => {});
+        const manager = new SelectionManager(
+          collection,
+          state,
+          () => undefined,
+        );
 
         expect(manager.isSelected('a')).toBe(true);
         expect(manager.isSelected('b')).toBe(false);
@@ -119,7 +142,11 @@ describe('SelectionManager', () => {
         const state = createDefaultState({
           disabledKeys: new Set(['b']),
         });
-        const manager = new SelectionManager(collection, state, () => {});
+        const manager = new SelectionManager(
+          collection,
+          state,
+          () => undefined,
+        );
 
         expect(manager.isDisabled('a')).toBe(false);
         expect(manager.isDisabled('b')).toBe(true);
@@ -133,7 +160,11 @@ describe('SelectionManager', () => {
         const state = createDefaultState({
           disabledKeys: new Set(['b']),
         });
-        const manager = new SelectionManager(collection, state, () => {});
+        const manager = new SelectionManager(
+          collection,
+          state,
+          () => undefined,
+        );
 
         expect(manager.canSelectItem('a')).toBe(true);
         expect(manager.canSelectItem('b')).toBe(false);
@@ -144,7 +175,11 @@ describe('SelectionManager', () => {
         const state = createDefaultState({
           selectionMode: 'none',
         });
-        const manager = new SelectionManager(collection, state, () => {});
+        const manager = new SelectionManager(
+          collection,
+          state,
+          () => undefined,
+        );
 
         expect(manager.canSelectItem('a')).toBe(false);
       });
@@ -156,7 +191,11 @@ describe('SelectionManager', () => {
         const state = createDefaultState({
           selectedKeys: new Selection(['a', 'b']),
         });
-        const manager = new SelectionManager(collection, state, () => {});
+        const manager = new SelectionManager(
+          collection,
+          state,
+          () => undefined,
+        );
 
         const keys = manager.selectedKeys;
         expect(keys.size).toBe(2);
@@ -169,7 +208,11 @@ describe('SelectionManager', () => {
         const state = createDefaultState({
           selectedKeys: 'all',
         });
-        const manager = new SelectionManager(collection, state, () => {});
+        const manager = new SelectionManager(
+          collection,
+          state,
+          () => undefined,
+        );
 
         const keys = manager.selectedKeys;
         expect(keys.size).toBe(3);
@@ -185,7 +228,11 @@ describe('SelectionManager', () => {
         const state = createDefaultState({
           selectedKeys: new Selection(),
         });
-        const manager = new SelectionManager(collection, state, () => {});
+        const manager = new SelectionManager(
+          collection,
+          state,
+          () => undefined,
+        );
 
         expect(manager.isEmpty).toBe(true);
       });
@@ -195,7 +242,11 @@ describe('SelectionManager', () => {
         const state = createDefaultState({
           selectedKeys: new Selection(['a']),
         });
-        const manager = new SelectionManager(collection, state, () => {});
+        const manager = new SelectionManager(
+          collection,
+          state,
+          () => undefined,
+        );
 
         expect(manager.isEmpty).toBe(false);
       });
@@ -205,7 +256,11 @@ describe('SelectionManager', () => {
         const state = createDefaultState({
           selectedKeys: 'all',
         });
-        const manager = new SelectionManager(collection, state, () => {});
+        const manager = new SelectionManager(
+          collection,
+          state,
+          () => undefined,
+        );
 
         expect(manager.isEmpty).toBe(false);
       });
@@ -217,7 +272,11 @@ describe('SelectionManager', () => {
         const state = createDefaultState({
           selectedKeys: new Selection(['a', 'b', 'c']),
         });
-        const manager = new SelectionManager(collection, state, () => {});
+        const manager = new SelectionManager(
+          collection,
+          state,
+          () => undefined,
+        );
 
         expect(manager.isSelectAll).toBe(true);
       });
@@ -227,7 +286,11 @@ describe('SelectionManager', () => {
         const state = createDefaultState({
           selectedKeys: 'all',
         });
-        const manager = new SelectionManager(collection, state, () => {});
+        const manager = new SelectionManager(
+          collection,
+          state,
+          () => undefined,
+        );
 
         expect(manager.isSelectAll).toBe(true);
       });
@@ -237,7 +300,11 @@ describe('SelectionManager', () => {
         const state = createDefaultState({
           selectedKeys: new Selection(['a', 'b']),
         });
-        const manager = new SelectionManager(collection, state, () => {});
+        const manager = new SelectionManager(
+          collection,
+          state,
+          () => undefined,
+        );
 
         expect(manager.isSelectAll).toBe(false);
       });
@@ -248,7 +315,11 @@ describe('SelectionManager', () => {
           selectedKeys: new Selection(['a', 'c']),
           disabledKeys: new Set(['b']),
         });
-        const manager = new SelectionManager(collection, state, () => {});
+        const manager = new SelectionManager(
+          collection,
+          state,
+          () => undefined,
+        );
 
         // Only a and c are selectable, and both are selected
         expect(manager.isSelectAll).toBe(true);
@@ -261,7 +332,11 @@ describe('SelectionManager', () => {
         const state = createDefaultState({
           selectedKeys: new Selection(['b', 'c']),
         });
-        const manager = new SelectionManager(collection, state, () => {});
+        const manager = new SelectionManager(
+          collection,
+          state,
+          () => undefined,
+        );
 
         expect(manager.firstSelectedKey).toBe('b');
         expect(manager.lastSelectedKey).toBe('c');
@@ -272,7 +347,11 @@ describe('SelectionManager', () => {
         const state = createDefaultState({
           selectedKeys: new Selection(),
         });
-        const manager = new SelectionManager(collection, state, () => {});
+        const manager = new SelectionManager(
+          collection,
+          state,
+          () => undefined,
+        );
 
         expect(manager.firstSelectedKey).toBe(null);
         expect(manager.lastSelectedKey).toBe(null);
@@ -296,9 +375,11 @@ describe('SelectionManager', () => {
         manager.toggleSelection('b');
 
         expect(setState).toHaveBeenCalled();
-        const newSelection = setState.mock.calls[0]![0].selectedKeys;
-        expect(newSelection.has('a')).toBe(true);
-        expect(newSelection.has('b')).toBe(true);
+        const newSelection = (setState.mock.calls[0]![0] as SelectionUpdate)
+          .selectedKeys;
+        expect(newSelection).toBeInstanceOf(Selection);
+        expect((newSelection as Selection).has('a')).toBe(true);
+        expect((newSelection as Selection).has('b')).toBe(true);
         expect(onChange).toHaveBeenCalled();
       });
 
@@ -312,9 +393,11 @@ describe('SelectionManager', () => {
 
         manager.toggleSelection('b');
 
-        const newSelection = setState.mock.calls[0]![0].selectedKeys;
-        expect(newSelection.has('a')).toBe(true);
-        expect(newSelection.has('b')).toBe(false);
+        const newSelection = (setState.mock.calls[0]![0] as SelectionUpdate)
+          .selectedKeys;
+        expect(newSelection).toBeInstanceOf(Selection);
+        expect((newSelection as Selection).has('a')).toBe(true);
+        expect((newSelection as Selection).has('b')).toBe(false);
       });
 
       it('should not deselect when disallowEmptySelection and only one selected', () => {
@@ -342,10 +425,12 @@ describe('SelectionManager', () => {
 
         manager.toggleSelection('b');
 
-        const newSelection = setState.mock.calls[0]![0].selectedKeys;
-        expect(newSelection.has('a')).toBe(false);
-        expect(newSelection.has('b')).toBe(true);
-        expect(newSelection.size).toBe(1);
+        const newSelection = (setState.mock.calls[0]![0] as SelectionUpdate)
+          .selectedKeys;
+        expect(newSelection).toBeInstanceOf(Selection);
+        expect((newSelection as Selection).has('a')).toBe(false);
+        expect((newSelection as Selection).has('b')).toBe(true);
+        expect((newSelection as Selection).size).toBe(1);
       });
 
       it('should not toggle disabled keys', () => {
@@ -386,9 +471,11 @@ describe('SelectionManager', () => {
 
         manager.replaceSelection('c');
 
-        const newSelection = setState.mock.calls[0]![0].selectedKeys;
-        expect(newSelection.size).toBe(1);
-        expect(newSelection.has('c')).toBe(true);
+        const newSelection = (setState.mock.calls[0]![0] as SelectionUpdate)
+          .selectedKeys;
+        expect(newSelection).toBeInstanceOf(Selection);
+        expect((newSelection as Selection).size).toBe(1);
+        expect((newSelection as Selection).has('c')).toBe(true);
       });
 
       it('should not replace with disabled key', () => {
@@ -402,8 +489,10 @@ describe('SelectionManager', () => {
 
         manager.replaceSelection('b');
 
-        const newSelection = setState.mock.calls[0]![0].selectedKeys;
-        expect(newSelection.size).toBe(0);
+        const newSelection = (setState.mock.calls[0]![0] as SelectionUpdate)
+          .selectedKeys;
+        expect(newSelection).toBeInstanceOf(Selection);
+        expect((newSelection as Selection).size).toBe(0);
       });
 
       it('should not clear when disallowEmptySelection', () => {
@@ -435,10 +524,12 @@ describe('SelectionManager', () => {
 
         manager.extendSelection('d');
 
-        const newSelection = setState.mock.calls[0]![0].selectedKeys;
-        expect(newSelection.has('b')).toBe(true);
-        expect(newSelection.has('c')).toBe(true);
-        expect(newSelection.has('d')).toBe(true);
+        const newSelection = (setState.mock.calls[0]![0] as SelectionUpdate)
+          .selectedKeys;
+        expect(newSelection).toBeInstanceOf(Selection);
+        expect((newSelection as Selection).has('b')).toBe(true);
+        expect((newSelection as Selection).has('c')).toBe(true);
+        expect((newSelection as Selection).has('d')).toBe(true);
       });
 
       it('should replace in single mode', () => {
@@ -452,9 +543,11 @@ describe('SelectionManager', () => {
 
         manager.extendSelection('c');
 
-        const newSelection = setState.mock.calls[0]![0].selectedKeys;
-        expect(newSelection.size).toBe(1);
-        expect(newSelection.has('c')).toBe(true);
+        const newSelection = (setState.mock.calls[0]![0] as SelectionUpdate)
+          .selectedKeys;
+        expect(newSelection).toBeInstanceOf(Selection);
+        expect((newSelection as Selection).size).toBe(1);
+        expect((newSelection as Selection).has('c')).toBe(true);
       });
 
       it('should skip disabled keys in range', () => {
@@ -470,11 +563,13 @@ describe('SelectionManager', () => {
 
         manager.extendSelection('d');
 
-        const newSelection = setState.mock.calls[0]![0].selectedKeys;
-        expect(newSelection.has('a')).toBe(true);
-        expect(newSelection.has('b')).toBe(false);
-        expect(newSelection.has('c')).toBe(true);
-        expect(newSelection.has('d')).toBe(true);
+        const newSelection = (setState.mock.calls[0]![0] as SelectionUpdate)
+          .selectedKeys;
+        expect(newSelection).toBeInstanceOf(Selection);
+        expect((newSelection as Selection).has('a')).toBe(true);
+        expect((newSelection as Selection).has('b')).toBe(false);
+        expect((newSelection as Selection).has('c')).toBe(true);
+        expect((newSelection as Selection).has('d')).toBe(true);
       });
     });
 
@@ -524,8 +619,9 @@ describe('SelectionManager', () => {
         manager.clearSelection();
 
         expect(setState).toHaveBeenCalledWith({ focusedKey: null });
-        const secondCall = setState.mock.calls[1]![0];
-        expect(secondCall.selectedKeys.size).toBe(0);
+        const secondCall = setState.mock.calls[1]![0] as SelectionUpdate;
+        expect(secondCall.selectedKeys).toBeInstanceOf(Selection);
+        expect((secondCall.selectedKeys as Selection).size).toBe(0);
       });
 
       it('should not clear when disallowEmptySelection', () => {
@@ -555,12 +651,14 @@ describe('SelectionManager', () => {
 
         manager.selectRange('b', 'd');
 
-        const newSelection = setState.mock.calls[0]![0].selectedKeys;
-        expect(newSelection.has('a')).toBe(false);
-        expect(newSelection.has('b')).toBe(true);
-        expect(newSelection.has('c')).toBe(true);
-        expect(newSelection.has('d')).toBe(true);
-        expect(newSelection.has('e')).toBe(false);
+        const newSelection = (setState.mock.calls[0]![0] as SelectionUpdate)
+          .selectedKeys;
+        expect(newSelection).toBeInstanceOf(Selection);
+        expect((newSelection as Selection).has('a')).toBe(false);
+        expect((newSelection as Selection).has('b')).toBe(true);
+        expect((newSelection as Selection).has('c')).toBe(true);
+        expect((newSelection as Selection).has('d')).toBe(true);
+        expect((newSelection as Selection).has('e')).toBe(false);
       });
 
       it('should do nothing in single mode', () => {

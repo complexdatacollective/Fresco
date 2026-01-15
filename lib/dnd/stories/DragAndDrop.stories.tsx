@@ -1,12 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { motion } from 'motion/react';
-import { useCallback, useState } from 'react';
-import {
-  List,
-  useDragSource,
-  useRovingTabIndexContext,
-  type DragMetadata,
-} from '~/lib/dnd';
+import { useState } from 'react';
+import Heading from '~/components/typography/Heading';
+import { Collection, InlineGridLayout, useDragAndDrop } from '~/lib/collection';
+import { useDragSource, type DragMetadata } from '~/lib/dnd';
 import { Node } from '~/lib/ui/components';
 
 type Item = {
@@ -31,52 +28,13 @@ const initialItems: Item[] = [
 type ItemStore = Record<string, Item[]>;
 
 function DraggableItem({ item }: { item: Item }) {
-  const rovingContext = useRovingTabIndexContext();
-  const rovingProps = rovingContext?.getItemProps(item.id);
-
-  const { dragProps, isDragging } = useDragSource({
+  const { dragProps } = useDragSource({
     type: item.type,
     metadata: {
       ...item,
     },
     announcedName: item.name,
-    // preview:
-    //   item.type === 'fruit' ? (
-    //     <div className="bg-barbie-pink flex h-20 w-20 items-center justify-center rounded-full text-white shadow-lg">
-    //       🍎 {item.name}
-    //     </div>
-    //   ) : undefined,
   });
-
-  // Merge refs if roving tabindex is active
-  const mergedRef = useCallback(
-    (element: HTMLElement | null) => {
-      dragProps.ref(element);
-      rovingProps?.ref(element);
-    },
-    [dragProps, rovingProps],
-  );
-
-  // Merge keyboard handlers
-  const mergedKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      // When dragging, let drag system handle all keyboard events
-      if (isDragging) {
-        dragProps.onKeyDown(e);
-        return;
-      }
-
-      // When not dragging, use roving tabindex for arrow navigation within zone
-      if (rovingProps) {
-        rovingProps.onKeyDown(e);
-        if (e.defaultPrevented) return;
-      }
-
-      // Pass through to drag for Space/Enter to start drag
-      dragProps.onKeyDown(e);
-    },
-    [dragProps, rovingProps, isDragging],
-  );
 
   const itemVariants = {
     initial: { opacity: 0, y: '100%', scale: 0.8 },
@@ -89,10 +47,6 @@ function DraggableItem({ item }: { item: Item }) {
       layout="position"
       variants={itemVariants}
       {...dragProps}
-      ref={mergedRef}
-      tabIndex={rovingProps?.tabIndex ?? dragProps.tabIndex}
-      onKeyDown={mergedKeyDown}
-      onFocus={rovingProps?.onFocus}
       label={item.name}
       color={
         item.type === 'fruit'
@@ -104,6 +58,42 @@ function DraggableItem({ item }: { item: Item }) {
     >
       {item.name}
     </MotionNode>
+  );
+}
+
+function List({
+  title,
+  acceptTypes,
+  items,
+  onItemReceived,
+  renderItem,
+  className,
+}: {
+  title: string;
+  acceptTypes: string[];
+  items: Item[];
+  onItemReceived: (metadata?: DragMetadata) => void;
+  renderItem: (item: Item) => React.ReactNode;
+  className?: string;
+}) {
+  const { dragAndDropHooks } = useDragAndDrop<Item>({
+    getItems: () => items,
+    acceptTypes,
+    onDrop: onItemReceived,
+  });
+
+  return (
+    <div className="bg-surface text-surface-contrast flex flex-col gap-2 rounded border p-4">
+      <Heading level="h4">{title}</Heading>
+      <Collection<Item>
+        items={items}
+        dragAndDropHooks={dragAndDropHooks}
+        renderItem={renderItem}
+        className={className}
+        keyExtractor={(item) => item.id}
+        layout={new InlineGridLayout()}
+      />
+    </div>
   );
 }
 
@@ -131,11 +121,9 @@ function DragDropExample() {
     setItemStore((prev) => {
       const newStore = { ...prev };
 
-      // Remove from source zone
       const sourceItems = newStore[fromZone] ?? [];
       newStore[fromZone] = sourceItems.filter((i) => i.id !== item.id);
 
-      // Add to target zone
       newStore[toZone] ??= [];
       const targetItems = newStore[toZone];
       newStore[toZone] = [...targetItems, item];
@@ -147,11 +135,11 @@ function DragDropExample() {
   const handleItemReceived =
     (targetZone: string) => (metadata?: DragMetadata) => {
       if (!metadata) return;
-      const item = findItemById(metadata.id as string);
+      const itemId = metadata.id as string;
+      const item = findItemById(itemId);
 
-      // Find source zone by id
       const sourceZone = Object.keys(itemStore).find((zone) =>
-        itemStore[zone]?.some((i) => i.id === metadata.id),
+        itemStore[zone]?.some((i) => i.id === itemId),
       );
 
       if (item && sourceZone && sourceZone !== targetZone) {

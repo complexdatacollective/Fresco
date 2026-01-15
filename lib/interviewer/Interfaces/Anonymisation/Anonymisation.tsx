@@ -23,7 +23,7 @@ export default function Anonymisation(props: AnonymisationProps) {
   const { updateReady } = useReadyForNextStage();
   const {
     registerBeforeNext,
-    stage: { explanationText, validation: passphraseValidation },
+    stage: { explanationText },
   } = props;
   const { passphrase, setPassphrase } = usePassphrase();
 
@@ -107,7 +107,11 @@ export default function Anonymisation(props: AnonymisationProps) {
                     name="passphrase-2"
                     placeholder="Re-enter your passphrase..."
                     label="Confirm Passphrase"
-                    validation={({ formValues }) => {
+                    validation={({
+                      formValues,
+                    }: {
+                      formValues?: Record<string, unknown>;
+                    }) => {
                       const schema = z.string().nonempty();
                       const result = schema.safeParse(
                         formValues?.['passphrase-2'],

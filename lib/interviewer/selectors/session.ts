@@ -266,7 +266,7 @@ export const getNodeTypeDefinition = createSelector(
   getCodebook,
   getStageSubject,
   (codebook, subject) => {
-    if (!subject) {
+    if (!subject || subject.entity === 'ego') {
       return null;
     }
     return codebook.node?.[subject.type] ?? null;
@@ -281,7 +281,7 @@ export const getNodeColorSelector = createSelector(
       return 'node-color-seq-1';
     }
 
-    return codebook.node?.[nodeType]?.color! ?? 'node-color-seq-1';
+    return codebook.node?.[nodeType]?.color ?? 'node-color-seq-1';
   },
 );
 

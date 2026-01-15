@@ -7,14 +7,6 @@ export type Option = {
   icon?: React.ComponentType<{ className?: string }>;
 };
 
-type DataTableFilterOption<TData> = {
-  id?: string;
-  label: string;
-  value: keyof TData | string;
-  items: Option[];
-  isMulti?: boolean;
-};
-
 export type DataTableSearchableColumn<TData> = {
   id: keyof TData;
   title: string;

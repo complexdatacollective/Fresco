@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 
 // Import React at the top level so it's available for mocks
-import * as React from 'react';
+import { type default as React } from 'react';
 
 // Use vi.hoisted to define mock factories that are available when mocks are hoisted
 const { motionMockModule } = vi.hoisted(() => {
@@ -12,35 +12,37 @@ const { motionMockModule } = vi.hoisted(() => {
 
   // Filter out framer-motion specific props from HTML elements
   const filterMotionProps = (props: Record<string, unknown>) => {
-    const {
-      initial: _initial,
-      animate: _animate,
-      exit: _exit,
-      transition: _transition,
-      variants: _variants,
-      whileHover: _whileHover,
-      whileTap: _whileTap,
-      whileFocus: _whileFocus,
-      whileDrag: _whileDrag,
-      whileInView: _whileInView,
-      layout: _layout,
-      layoutId: _layoutId,
-      layoutScroll: _layoutScroll,
-      layoutDependency: _layoutDependency,
-      onAnimationStart: _onAnimationStart,
-      onAnimationComplete: _onAnimationComplete,
-      onLayoutAnimationStart: _onLayoutAnimationStart,
-      onLayoutAnimationComplete: _onLayoutAnimationComplete,
-      drag: _drag,
-      dragConstraints: _dragConstraints,
-      dragElastic: _dragElastic,
-      dragMomentum: _dragMomentum,
-      onDragStart: _onDragStart,
-      onDragEnd: _onDragEnd,
-      onDrag: _onDrag,
-      ...htmlProps
-    } = props;
-    return htmlProps;
+    const motionPropKeys = new Set([
+      'initial',
+      'animate',
+      'exit',
+      'transition',
+      'variants',
+      'whileHover',
+      'whileTap',
+      'whileFocus',
+      'whileDrag',
+      'whileInView',
+      'layout',
+      'layoutId',
+      'layoutScroll',
+      'layoutDependency',
+      'onAnimationStart',
+      'onAnimationComplete',
+      'onLayoutAnimationStart',
+      'onLayoutAnimationComplete',
+      'drag',
+      'dragConstraints',
+      'dragElastic',
+      'dragMomentum',
+      'onDragStart',
+      'onDragEnd',
+      'onDrag',
+    ]);
+
+    return Object.fromEntries(
+      Object.entries(props).filter(([key]) => !motionPropKeys.has(key)),
+    );
   };
 
   // Create explicit motion components for common HTML elements
@@ -88,8 +90,8 @@ const { motionMockModule } = vi.hoisted(() => {
   // No-op animation controls
   const useAnimation = () => ({
     start: () => Promise.resolve(),
-    stop: () => {},
-    set: () => {},
+    stop: () => undefined,
+    set: () => undefined,
   });
 
   // useAnimate returns [scope ref, animate function]
@@ -103,11 +105,7 @@ const { motionMockModule } = vi.hoisted(() => {
   const stagger = () => 0;
 
   // AnimatePresence and LayoutGroup are passthrough components
-  const AnimatePresence = ({
-    children,
-  }: {
-    children: unknown;
-  }) => children;
+  const AnimatePresence = ({ children }: { children: unknown }) => children;
   const LayoutGroup = ({ children }: { children: unknown }) => children;
 
   const motionMockModule = {
@@ -119,7 +117,7 @@ const { motionMockModule } = vi.hoisted(() => {
     stagger,
     useMotionValue: (initial: number) => ({
       get: () => initial,
-      set: () => {},
+      set: () => undefined,
     }),
     useTransform: () => ({ get: () => 0 }),
     useSpring: (initial: number) => ({ get: () => initial }),
@@ -128,7 +126,7 @@ const { motionMockModule } = vi.hoisted(() => {
       scrollY: { get: () => 0 },
       scrollX: { get: () => 0 },
     }),
-    useDragControls: () => ({ start: () => {} }),
+    useDragControls: () => ({ start: () => undefined }),
     useReducedMotion: () => false,
   };
 
@@ -146,22 +144,31 @@ vi.mock('motion-dom', () => ({
   frame: {
     read: (callback: () => void) => {
       callback();
-      return () => {};
+      return () => undefined;
     },
     render: (callback: () => void) => {
       callback();
-      return () => {};
+      return () => undefined;
     },
     postRender: (callback: () => void) => {
       callback();
-      return () => {};
+      return () => undefined;
     },
   },
-  cancelFrame: () => {},
+  cancelFrame: () => undefined,
   steps: {
-    read: { schedule: () => () => {}, cancel: () => {} },
-    render: { schedule: () => () => {}, cancel: () => {} },
-    postRender: { schedule: () => () => {}, cancel: () => {} },
+    read: {
+      schedule: () => () => undefined,
+      cancel: () => undefined,
+    },
+    render: {
+      schedule: () => () => undefined,
+      cancel: () => undefined,
+    },
+    postRender: {
+      schedule: () => () => undefined,
+      cancel: () => undefined,
+    },
   },
   time: { now: () => 0 },
 }));

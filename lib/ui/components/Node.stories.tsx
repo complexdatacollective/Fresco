@@ -155,7 +155,7 @@ export const Default: Story = {
     },
   },
   render: ({ passClickHandler, ...args }) => (
-    <Node {...args} onClick={passClickHandler ? () => {} : undefined} />
+    <Node {...args} onClick={passClickHandler ? () => undefined : undefined} />
   ),
 };
 

@@ -55,7 +55,8 @@ function SlidesForm({
 
   const { openDialog } = useDialog();
 
-  const { submitForm, isValid, isDirty } = useFormState();
+  const formState = useFormState();
+  const { submitForm, isValid, isDirty } = formState;
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -220,7 +221,8 @@ function SlidesForm({
           item={items[itemIndex]}
           onUpdate={handleUpdate}
           onScroll={handleScroll}
-          form={form}
+          form={formState as Record<string, unknown>}
+          subject={stage.subject as Record<string, unknown>}
           submitButton={
             <button
               type="submit"

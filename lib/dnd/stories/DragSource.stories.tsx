@@ -51,10 +51,10 @@ function DropZone({
 }: {
   accepts: string[];
   children: React.ReactNode;
-  onDrop?: (metadata: any) => void;
+  onDrop?: (metadata: unknown) => void;
 }) {
   const { dropProps, isOver, willAccept } = useDropTarget({
-    id: `drop-zone-${Math.random().toString(36).substr(2, 9)}`,
+    id: `drop-zone-${Math.random().toString(36).slice(2, 11)}`,
     accepts,
     onDrop,
   });
@@ -221,19 +221,28 @@ export const TypeRestrictions: Story = {
               <h4>Drop Zones</h4>
               <DropZone
                 accepts={['fruit']}
-                onDrop={(metadata) => setLastDrop(`Fruit: ${metadata.id}`)}
+                onDrop={(metadata) => {
+                  const data = metadata as { id: string };
+                  setLastDrop(`Fruit: ${data.id}`);
+                }}
               >
                 Fruits Only
               </DropZone>
               <DropZone
                 accepts={['vegetable']}
-                onDrop={(metadata) => setLastDrop(`Vegetable: ${metadata.id}`)}
+                onDrop={(metadata) => {
+                  const data = metadata as { id: string };
+                  setLastDrop(`Vegetable: ${data.id}`);
+                }}
               >
                 Vegetables Only
               </DropZone>
               <DropZone
                 accepts={['fruit', 'vegetable', 'protein']}
-                onDrop={(metadata) => setLastDrop(`Any: ${metadata.id}`)}
+                onDrop={(metadata) => {
+                  const data = metadata as { id: string };
+                  setLastDrop(`Any: ${data.id}`);
+                }}
               >
                 All Types
               </DropZone>

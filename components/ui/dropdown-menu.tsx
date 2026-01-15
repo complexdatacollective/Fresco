@@ -84,39 +84,44 @@ const DropdownMenuSubContent = React.forwardRef<
     sideOffset?: number;
     keepMounted?: boolean;
   }
->(({ className, sideOffset = 8, keepMounted = true, ...props }, ref) => {
-  const { mounted } = useDropdownMenuContext();
+>(
+  (
+    { className: _className, sideOffset = 8, keepMounted = true, ...props },
+    ref,
+  ) => {
+    const { mounted } = useDropdownMenuContext();
 
-  return (
-    <Menu.Portal keepMounted={keepMounted}>
-      <AnimatePresence>
-        {mounted && (
-          <Menu.Positioner sideOffset={sideOffset}>
-            <Menu.Popup
-              ref={ref}
-              // render={
-              //   <MotionSurface
-              //     level="popover"
-              //     elevation="none"
-              //     spacing="none"
-              //     className={cx(
-              //       'min-w-[8rem] p-1 text-sm shadow-xl',
-              //       className,
-              //     )}
-              //     initial={{ opacity: 0, scale: 0.96 }}
-              //     animate={{ opacity: 1, scale: 1 }}
-              //     exit={{ opacity: 0, scale: 0.96 }}
-              //     transition={{ type: 'spring', duration: 0.5 }}
-              //   />
-              // }
-              {...props}
-            />
-          </Menu.Positioner>
-        )}
-      </AnimatePresence>
-    </Menu.Portal>
-  );
-});
+    return (
+      <Menu.Portal keepMounted={keepMounted}>
+        <AnimatePresence>
+          {mounted && (
+            <Menu.Positioner sideOffset={sideOffset}>
+              <Menu.Popup
+                ref={ref}
+                // render={
+                //   <MotionSurface
+                //     level="popover"
+                //     elevation="none"
+                //     spacing="none"
+                //     className={cx(
+                //       'min-w-[8rem] p-1 text-sm shadow-xl',
+                //       className,
+                //     )}
+                //     initial={{ opacity: 0, scale: 0.96 }}
+                //     animate={{ opacity: 1, scale: 1 }}
+                //     exit={{ opacity: 0, scale: 0.96 }}
+                //     transition={{ type: 'spring', duration: 0.5 }}
+                //   />
+                // }
+                {...props}
+              />
+            </Menu.Positioner>
+          )}
+        </AnimatePresence>
+      </Menu.Portal>
+    );
+  },
+);
 DropdownMenuSubContent.displayName = 'DropdownMenuSubContent';
 
 const DropdownMenuContent = React.forwardRef<

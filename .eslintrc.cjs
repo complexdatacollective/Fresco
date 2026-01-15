@@ -12,6 +12,20 @@ const config = {
       },
     },
     {
+      // Permit unregistered tailwind classes in interviewer and UI libraries
+      files: ['lib/interviewer/**/*', 'lib/ui/**/*'],
+      rules: {
+        'better-tailwindcss/no-unregistered-classes': 'off',
+      },
+    },
+    {
+      // Disable unbound-method rule in test files where mocked methods are commonly used
+      files: ['**/*.test.ts', '**/*.test.tsx'],
+      rules: {
+        '@typescript-eslint/unbound-method': 'off',
+      },
+    },
+    {
       files: ['*.js', '*.jsx'],
       extends: [
         'plugin:import/recommended',

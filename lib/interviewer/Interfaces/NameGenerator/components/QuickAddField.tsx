@@ -69,7 +69,9 @@ export default function QuickAddField({
 
   const subject = useSelector(getStageSubject);
   const nodeColor = useSelector(getNodeColorSelector);
-  const nodeType = useSelector(getNodeTypeLabel(subject.type));
+  const nodeType = useSelector(
+    getNodeTypeLabel(subject.type as string | undefined),
+  );
   const icon = useSelector(getNodeIconName);
 
   // Close form when disabled
@@ -100,12 +102,6 @@ export default function QuickAddField({
       clearTimeout(tooltipTimer.current);
     };
   }, [fieldProps.value, meta.isValid]);
-
-  const inputClasses = cx(
-    'mr-2 w-full rounded-(--nc-border-radius) bg-(--nc-input-background) px-6 py-4 text-lg font-bold text-(--nc-input-text)',
-    meta.shouldShowError &&
-      'mr-0 rounded-t-(--nc-border-radius) border-4 border-(--nc-error)',
-  );
 
   const buttonClasses = cx(
     'flex items-center justify-center',

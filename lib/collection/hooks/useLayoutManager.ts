@@ -37,7 +37,7 @@ export function useLayoutManager<T>(
   // Track the scroll element - this handles HMR and ref changes properly
   useLayoutEffect(() => {
     setScrollElement(scrollRef.current);
-  });
+  }, [scrollRef]);
 
   // Observe container resize
   useLayoutEffect(() => {

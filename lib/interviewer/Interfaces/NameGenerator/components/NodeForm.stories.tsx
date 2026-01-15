@@ -238,7 +238,7 @@ const mockSession = {
 };
 
 // Create mock Redux store with proper structure
-const createMockStore = (overrides = {}) => {
+const createMockStore = (overrides: Record<string, unknown> = {}) => {
   const mockProtocolState = {
     id: 'test-protocol-id',
     codebook: mockProtocol.codebook,
@@ -257,10 +257,10 @@ const createMockStore = (overrides = {}) => {
 
   return configureStore({
     reducer: {
-      session: (state = mockSessionState) => state,
-      protocol: (state = mockProtocolState) => state,
-      form: (state = {}) => state,
-      ui: (state = {}) => state,
+      session: (state: unknown = mockSessionState): unknown => state,
+      protocol: (state: unknown = mockProtocolState): unknown => state,
+      form: (state: unknown = {}): unknown => state,
+      ui: (state: unknown = {}): unknown => state,
     },
     preloadedState: {
       protocol: mockProtocolState,
@@ -271,8 +271,13 @@ const createMockStore = (overrides = {}) => {
 };
 
 // Story decorator to provide Redux store
-const ReduxDecorator = (Story, context) => {
-  const store = createMockStore(context.parameters?.reduxState);
+const ReduxDecorator = (
+  Story: React.ComponentType,
+  context: { parameters?: { reduxState?: unknown } },
+) => {
+  const store = createMockStore(
+    context.parameters?.reduxState as Record<string, unknown> | undefined,
+  );
   return (
     <Provider store={store}>
       <Story />

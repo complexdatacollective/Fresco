@@ -367,7 +367,6 @@ export const States: Story = {
 
 // Real-world usage examples
 export const UsageExamples: Story = {
-  name: 'Usage Examples',
   render: () => {
     const [country, setCountry] = useState<string | number>('');
     const [priority, setPriority] = useState<string | number>('medium');
@@ -376,7 +375,7 @@ export const UsageExamples: Story = {
       <div className="flex flex-col gap-8">
         <div className="space-y-3">
           <h3 className="text-lg font-semibold">Country Selector</h3>
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="tablet:grid-cols-2 grid gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium">Native</label>
               <NativeSelectField
@@ -402,7 +401,7 @@ export const UsageExamples: Story = {
 
         <div className="space-y-3">
           <h3 className="text-lg font-semibold">Priority Selector</h3>
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="tablet:grid-cols-2 grid gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium">Native</label>
               <NativeSelectField
@@ -439,7 +438,6 @@ export const UsageExamples: Story = {
 };
 
 export const LongOptionList: Story = {
-  name: 'Long Option List',
   render: () => {
     const [value, setValue] = useState<string | number>('');
 
@@ -497,7 +495,6 @@ export const LongOptionList: Story = {
 };
 
 export const NumericValues: Story = {
-  name: 'Numeric Values',
   render: () => {
     const [value, setValue] = useState<string | number>(3);
 

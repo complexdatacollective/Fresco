@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { useMergeRefs } from 'react-best-merge-refs';
 import { ScrollArea } from '~/components/ui/ScrollArea';
+import { cx } from '~/utils/cva';
 import { CollectionProvider } from '../CollectionProvider';
 import { CollectionIdContext, SelectionManagerContext } from '../contexts';
 import { useCollectionSetup } from '../hooks/useCollectionSetup';
@@ -20,7 +21,7 @@ type CollectionContentProps<T> = Omit<
 function CollectionContent<T>({
   layout,
   renderItem,
-  emptyState,
+  emptyState = <>Nothing to display</>,
   className,
   id,
   'aria-label': ariaLabel,
@@ -67,24 +68,21 @@ function CollectionContent<T>({
   //   over drop target's tabIndex (-1 when not dragging)
   const {
     ref: dndRef,
-    tabIndex: _dndTabIndex,
+    tabIndex,
     ...restDndProps
   } = dndCollectionProps as {
     ref?: (el: HTMLElement | null) => void;
     tabIndex?: number;
   };
+  // tabIndex is intentionally unused - Collection's tabIndex takes precedence
+  void tabIndex;
   const mergedRef = useMergeRefs({ containerRef, dndRef });
-
-  // Render empty state if collection is empty
-  if (collection.size === 0) {
-    return emptyState ? <>{emptyState}</> : null;
-  }
 
   return (
     <SelectionManagerContext.Provider value={selectionManager}>
       <CollectionIdContext.Provider value={collectionId}>
         <ScrollArea
-          className={className}
+          className={cx('min-h-40', className)}
           ref={mergedRef}
           id={collectionId}
           aria-label={ariaLabel}
@@ -121,6 +119,9 @@ function CollectionContent<T>({
               collectionId={collectionId}
               dragAndDropHooks={dragAndDropHooks}
             />
+          )}
+          {collection.size === 0 && (
+            <div className="text-center text-current/70">{emptyState}</div>
           )}
         </ScrollArea>
       </CollectionIdContext.Provider>

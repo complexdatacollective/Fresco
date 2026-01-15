@@ -2,6 +2,7 @@
 
 import type { AlertDialogProps } from '@radix-ui/react-alert-dialog';
 import React from 'react';
+import Dialog from '~/lib/dialogs/Dialog';
 import Button from './Button';
 import { Divider } from './Divider';
 
