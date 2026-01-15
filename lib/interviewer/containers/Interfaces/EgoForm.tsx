@@ -97,7 +97,7 @@ const EgoForm = (props: EgoFormProps) => {
     if (direction === 'backwards') {
       if (isFormDirty && !isFormValid) {
         const result =
-          // eslint-disable-next-line @typescript-eslint/await-thenable
+           
           (await checkShouldProceed()) as unknown as Promise<boolean>;
         return result;
       }

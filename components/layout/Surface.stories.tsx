@@ -1,6 +1,6 @@
 // src/components/Surface.stories.tsx
 
-import type { Meta, StoryFn } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/nextjs';
 import { type ElementType } from 'react';
 import { Button } from '../ui/Button';
 import Surface, { MotionSurface, type SurfaceVariants } from './Surface';

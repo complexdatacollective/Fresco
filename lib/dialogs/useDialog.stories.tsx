@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import type { StoryObj } from '@storybook/react';
+import type { StoryObj } from '@storybook/nextjs';
 import { fn } from 'storybook/test';
 import { Button } from '../ui/components';
 import { useDialog } from './DialogProvider';

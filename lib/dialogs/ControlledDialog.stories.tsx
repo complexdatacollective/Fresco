@@ -1,4 +1,4 @@
-import { type Meta, type StoryObj } from '@storybook/react';
+import { type Meta, type StoryObj } from '@storybook/nextjs';
 import { ControlledDialog } from './ControlledDialog';
 import Paragraph from '~/components/typography/Paragraph';
 

@@ -1,7 +1,9 @@
-import { type Meta, type StoryFn } from '@storybook/react';
+import { type Meta, type StoryFn } from '@storybook/nextjs';
 import NodeIcons from 'lucide-react/dynamicIconImports';
-import ActionButton, { NodeIcon } from '~/components/interview/ActionButton';
-import { NodeColors, NodeColorSequence } from '~/lib/ui/components/Node';
+import ActionButton, {
+  type NodeIcon,
+} from '~/components/interview/ActionButton';
+import { NodeColors, type NodeColorSequence } from '~/lib/ui/components/Node';
 
 export default {
   title: 'Interview/ActionButton',

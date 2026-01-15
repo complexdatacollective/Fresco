@@ -1,7 +1,12 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { useCallback, useRef, useState } from 'react';
 import { DndStoreProvider, useDragSource, useDropTarget } from '~/lib/dnd';
 import { useAccessibilityAnnouncements } from '~/lib/dnd/useAccessibilityAnnouncements';
+
+type DragMetadata = {
+  type: string;
+  id: string;
+};
 
 // Demo components for accessibility testing
 function AccessibleDragItem({
@@ -20,7 +25,7 @@ function AccessibleDragItem({
   const { dragProps, isDragging } = useDragSource({
     type,
     metadata: { type, id },
-    announcedName: announcedName || `${type} ${id}`,
+    announcedName: announcedName ?? `${type} ${id}`,
   });
 
   return (
@@ -76,7 +81,7 @@ function AccessibleDropZone({
   accepts: string[];
   announcedName?: string;
   children: React.ReactNode;
-  onDrop?: (metadata: any) => void;
+  onDrop?: (metadata: DragMetadata) => void;
   onDragEnter?: () => void;
   onDragLeave?: () => void;
   style?: React.CSSProperties;
@@ -84,7 +89,7 @@ function AccessibleDropZone({
   const { dropProps, isOver, willAccept, isDragging } = useDropTarget({
     id,
     accepts,
-    announcedName: announcedName || `Drop Zone ${id}`,
+    announcedName: announcedName ?? `Drop Zone ${id}`,
     onDrop,
     onDragEnter,
     onDragLeave,
@@ -333,7 +338,7 @@ function LoggingDragItem({
   const { dragProps, isDragging } = useDragSource({
     type,
     metadata: { type, id },
-    announcedName: announcedName || `${type} ${id}`,
+    announcedName: announcedName ?? `${type} ${id}`,
   });
 
   // Custom announcement wrapper
@@ -343,7 +348,7 @@ function LoggingDragItem({
       // Also call the real announce for screen readers
       announce(message);
     },
-    [onAnnounce],
+    [onAnnounce, announce],
   );
 
   return (
@@ -381,7 +386,7 @@ function LoggingDragItem({
 
         // Add our custom logging for keyboard start
         if ((e.key === ' ' || e.key === 'Enter') && !isDragging) {
-          customAnnounce(`Started dragging ${announcedName || id}`);
+          customAnnounce(`Started dragging ${announcedName ?? id}`);
         }
       }}
     >
@@ -409,7 +414,7 @@ function LoggingDropZone({
   accepts: string[];
   announcedName?: string;
   children: React.ReactNode;
-  onDrop?: (metadata: any) => void;
+  onDrop?: (metadata: DragMetadata) => void;
   onDragEnter?: () => void;
   onDragLeave?: () => void;
   onAnnounce: (message: string) => void;
@@ -417,21 +422,21 @@ function LoggingDropZone({
   const { dropProps, isOver, willAccept, isDragging } = useDropTarget({
     id,
     accepts,
-    announcedName: announcedName || `Drop Zone ${id}`,
-    onDrop: (metadata) => {
+    announcedName: announcedName ?? `Drop Zone ${id}`,
+    onDrop: (metadata: DragMetadata) => {
       if (metadata) {
         onAnnounce(
-          `Dropped ${metadata.id || 'item'} in ${announcedName || id}`,
+          `Dropped ${metadata.id ?? 'item'} in ${announcedName ?? id}`,
         );
         onDrop?.(metadata);
       }
     },
     onDragEnter: () => {
-      onAnnounce(`Entered ${announcedName || id}`);
+      onAnnounce(`Entered ${announcedName ?? id}`);
       onDragEnter?.();
     },
     onDragLeave: () => {
-      onAnnounce(`Left ${announcedName || id}`);
+      onAnnounce(`Left ${announcedName ?? id}`);
       onDragLeave?.();
     },
   });
@@ -691,7 +696,8 @@ export const AriaAttributes: Story = {
             </p>
             <ul style={{ fontSize: '14px', margin: 0, paddingLeft: '20px' }}>
               <li>
-                <code>role="button"</code> - Makes items keyboard focusable
+                <code>role=&quot;button&quot;</code> - Makes items keyboard
+                focusable
               </li>
               <li>
                 <code>aria-label</code> - Provides accessible name
@@ -700,11 +706,12 @@ export const AriaAttributes: Story = {
                 <code>aria-grabbed</code> - Indicates if item is being dragged
               </li>
               <li>
-                <code>aria-dropeffect="move"</code> - Describes the drag
-                operation
+                <code>aria-dropeffect=&quot;move&quot;</code> - Describes the
+                drag operation
               </li>
               <li>
-                <code>tabIndex="0"</code> - Enables keyboard navigation
+                <code>tabIndex=&quot;0&quot;</code> - Enables keyboard
+                navigation
               </li>
             </ul>
           </div>
@@ -765,7 +772,7 @@ export const AriaAttributes: Story = {
                 accepts={['aria-test']}
                 announcedName="Primary Drop Zone with ARIA support"
                 onDrop={(metadata) => {
-                  setSelectedItem(metadata.id as string);
+                  setSelectedItem(metadata.id);
                 }}
               >
                 Primary Zone
@@ -985,7 +992,7 @@ export const AccessibilityPlayground: Story = {
                       fontSize: '10px',
                     }}
                   >
-                    aria-label: "Accessibility Test Element 1"
+                    aria-label: &quot;Accessibility Test Element 1&quot;
                   </div>
                 )}
               </AccessibleDragItem>
@@ -1018,7 +1025,7 @@ export const AccessibilityPlayground: Story = {
                       fontSize: '10px',
                     }}
                   >
-                    aria-label: "Accessibility Test Element 2"
+                    aria-label: &quot;Accessibility Test Element 2&quot;
                   </div>
                 )}
               </AccessibleDragItem>

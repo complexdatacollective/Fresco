@@ -136,7 +136,7 @@ function ParticipantModal({
         )}
         <form
           id="participant-form"
-          // eslint-disable-next-line @typescript-eslint/no-misused-promises
+           
           onSubmit={handleSubmit(async (data) => await onSubmit(data))}
           className="flex flex-col gap-2"
         >

@@ -165,7 +165,7 @@ const PassphraseOverlay = ({
           subject={{ entity: 'ego' }}
           autoFocus
           onSubmit={onSubmitForm}
-          {...formConfig} // eslint-disable-line react/jsx-props-no-spreading
+          {...formConfig}  
         >
           <div className="mb-4 flex items-center justify-end">
             <Button aria-label="Submit" type="submit">

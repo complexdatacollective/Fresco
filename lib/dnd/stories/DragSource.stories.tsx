@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { useState } from 'react';
 import { DndStoreProvider, useDragSource, useDropTarget } from '..';
 
@@ -43,6 +43,11 @@ function DraggableItem({
   );
 }
 
+type DragMetadata = {
+  type: string;
+  id: string;
+};
+
 // Simple drop zone
 function DropZone({
   accepts,
@@ -51,7 +56,7 @@ function DropZone({
 }: {
   accepts: string[];
   children: React.ReactNode;
-  onDrop?: (metadata: any) => void;
+  onDrop?: (metadata: DragMetadata) => void;
 }) {
   const { dropProps, isOver, willAccept } = useDropTarget({
     id: `drop-zone-${Math.random().toString(36).substr(2, 9)}`,
