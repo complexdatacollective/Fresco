@@ -148,5 +148,3 @@ export function useNodeInteractions(
     isPressed,
   };
 }
-
-export default useNodeInteractions;

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
 import { SuperJSON } from 'superjson';
 import { Button } from '~/components/ui/Button';
-import SelectField from '~/lib/form/components/fields/Select';
+import SelectField from '~/lib/form/components/fields/Select/Styled';
 import {
   type GetParticipantsQuery,
   type GetParticipantsReturnType,

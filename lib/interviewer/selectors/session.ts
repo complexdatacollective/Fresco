@@ -389,27 +389,6 @@ export const getNetworkEdgesForType = createSelector(
   },
 );
 
-/**
- * makeNetworkEntitiesForType()
- * Get the current prompt/stage subject, and filter the network by this entity type.
- */
-export const getNetworkEntitiesForType = createSelector(
-  getNetwork,
-  getStageSubject,
-  (network, subject) => {
-    if (!subject || !network) {
-      return [];
-    }
-    if (subject.entity === 'node') {
-      return filter(network.nodes, ['type', subject.type]);
-    }
-    if (subject.entity === 'edge') {
-      return filter(network.edges, ['type', subject.type]);
-    }
-    return [network.ego];
-  },
-);
-
 export const getNetworkNodesForType = createSelector(
   getNetworkNodes,
   getStageSubject,

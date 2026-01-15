@@ -1,9 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { motion } from 'motion/react';
 import { useState } from 'react';
 import Heading from '~/components/typography/Heading';
 import { Collection, InlineGridLayout, useDragAndDrop } from '~/lib/collection';
-import { useDragSource, type DragMetadata } from '~/lib/dnd';
+import { type DragMetadata } from '~/lib/dnd';
 import { Node } from '~/lib/ui/components';
 
 type Item = {
@@ -11,8 +10,6 @@ type Item = {
   name: string;
   type: 'fruit' | 'vegetable' | 'protein';
 };
-
-const MotionNode = motion.create(Node);
 
 const initialItems: Item[] = [
   { id: '1', name: 'Apple', type: 'fruit' },
@@ -27,40 +24,6 @@ const initialItems: Item[] = [
 
 type ItemStore = Record<string, Item[]>;
 
-function DraggableItem({ item }: { item: Item }) {
-  const { dragProps } = useDragSource({
-    type: item.type,
-    metadata: {
-      ...item,
-    },
-    announcedName: item.name,
-  });
-
-  const itemVariants = {
-    initial: { opacity: 0, y: '100%', scale: 0.8 },
-    animate: { opacity: 1, y: '0%', scale: 1 },
-    exit: { opacity: 0, scale: 0.3 },
-  };
-
-  return (
-    <MotionNode
-      layout="position"
-      variants={itemVariants}
-      {...dragProps}
-      label={item.name}
-      color={
-        item.type === 'fruit'
-          ? 'node-color-seq-1'
-          : item.type === 'vegetable'
-            ? 'node-color-seq-2'
-            : 'node-color-seq-3'
-      }
-    >
-      {item.name}
-    </MotionNode>
-  );
-}
-
 function List({
   title,
   acceptTypes,
@@ -73,17 +36,23 @@ function List({
   acceptTypes: string[];
   items: Item[];
   onItemReceived: (metadata?: DragMetadata) => void;
-  renderItem: (item: Item) => React.ReactNode;
+  renderItem: (
+    item: Item,
+    itemProps: React.HTMLAttributes<HTMLElement>,
+  ) => React.ReactNode;
   className?: string;
 }) {
   const { dragAndDropHooks } = useDragAndDrop<Item>({
-    getItems: () => items,
+    getItems: () => [{ type: 'fruit', keys: new Set() }],
     acceptTypes,
-    onDrop: onItemReceived,
+    onDrop: (metadata) => {
+      console.log('Dropped on', title, metadata);
+      onItemReceived(metadata);
+    },
   });
 
   return (
-    <div className="bg-surface text-surface-contrast flex flex-col gap-2 rounded border p-4">
+    <div className="bg-surface publish-colors text-surface-contrast flex flex-col gap-2 rounded border p-4 pb-8">
       <Heading level="h4">{title}</Heading>
       <Collection<Item>
         items={items}
@@ -92,12 +61,28 @@ function List({
         className={className}
         keyExtractor={(item) => item.id}
         layout={new InlineGridLayout()}
+        animate
       />
     </div>
   );
 }
 
-const renderItem = (item: Item) => <DraggableItem key={item.id} item={item} />;
+const renderItem = (
+  item: Item,
+  itemProps: React.HTMLAttributes<HTMLElement>,
+) => (
+  <Node
+    label={item.name}
+    {...itemProps}
+    color={
+      item.type === 'fruit'
+        ? 'node-color-seq-1'
+        : item.type === 'vegetable'
+          ? 'node-color-seq-2'
+          : 'node-color-seq-3'
+    }
+  />
+);
 
 function DragDropExample() {
   // State to track items in different zones

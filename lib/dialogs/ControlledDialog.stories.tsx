@@ -1,6 +1,6 @@
 import { type StoryObj } from '@storybook/nextjs-vite';
 import Paragraph from '~/components/typography/Paragraph';
-import { Dialog } from './Dialog';
+import Dialog from './Dialog';
 
 const meta = {
   title: 'Systems/Dialogs/Controlled',

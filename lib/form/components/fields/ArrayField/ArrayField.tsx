@@ -56,7 +56,7 @@ const itemVariants = cva({
  * When hasMounted is false, initial is set to false to prevent mount animations.
  * This avoids flickering when ArrayField is rendered inside animated containers like dialogs.
  */
-export const getItemAnimationProps = {
+const getItemAnimationProps = {
   initial: (hasMounted: boolean) => ({
     opacity: hasMounted ? 0 : 1,
     scale: hasMounted ? 0.6 : 1,

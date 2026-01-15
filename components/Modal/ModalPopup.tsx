@@ -11,7 +11,7 @@ import { type ComponentProps } from 'react';
  * Default animation parameters loosely based on iOS dialog animations.
  * All animation states include opacity for Base-UI's animation detection.
  */
-export const defaultPopupAnimation = {
+const defaultPopupAnimation = {
   initial: { opacity: 0, y: '-10%', scale: 1.2 },
   animate: {
     opacity: 1,

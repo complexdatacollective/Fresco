@@ -54,26 +54,6 @@ export type SelectionState = {
 };
 
 /**
- * Actions for mutating selection state.
- */
-export type SelectionActions = {
-  /** Set the selection mode */
-  setSelectionMode: (mode: SelectionMode) => void;
-  /** Set the selected keys */
-  setSelectedKeys: (keys: Set<Key> | 'all') => void;
-  /** Set the focused key */
-  setFocusedKey: (key: Key | null, childFocusStrategy?: FocusStrategy) => void;
-  /** Set whether the collection is focused */
-  setFocused: (isFocused: boolean) => void;
-  /** Set the disabled keys */
-  setDisabledKeys: (keys: Set<Key>) => void;
-  /** Set the selection behavior */
-  setSelectionBehavior: (behavior: SelectionBehavior) => void;
-  /** Set whether empty selection is allowed */
-  setDisallowEmptySelection: (disallow: boolean) => void;
-};
-
-/**
  * Props for controlling selection from outside the component.
  */
 export type SelectionProps = {

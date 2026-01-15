@@ -10,7 +10,7 @@ import {
   type NcNode,
 } from '@codaco/shared-consts';
 import { get, includes, toNumber } from 'es-toolkit/compat';
-import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
+import { type FieldValue } from '~/lib/form/store/types';
 
 /**
  * Try to determine the type of an attribute based on data across all nodes

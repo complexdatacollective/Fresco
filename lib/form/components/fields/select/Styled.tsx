@@ -145,5 +145,4 @@ function SelectField(props: SelectProps) {
   );
 }
 
-export { SelectField };
 export default SelectField;

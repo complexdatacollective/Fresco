@@ -58,7 +58,9 @@ export { SelectionManager } from './selection/SelectionManager';
 
 // Keyboard navigation
 export {
+  GridKeyboardDelegate,
   ListKeyboardDelegate,
+  SpatialKeyboardDelegate,
   useSelectableCollection,
   type KeyboardDelegate,
   type UseSelectableCollectionOptions,

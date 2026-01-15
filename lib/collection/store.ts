@@ -51,7 +51,7 @@ export type FullCollectionStore<T> = CollectionStore<T> & {
 /**
  * Default initial state for the collection store.
  */
-export const defaultInitState = <T>(): FullCollectionState<T> => ({
+const defaultInitState = <T>(): FullCollectionState<T> => ({
   // Collection state
   items: new Map(),
   orderedKeys: [],

@@ -2,7 +2,6 @@ import {
   clamp,
   getValuesForBezierCurve,
   normalize,
-  range,
   roundTo,
 } from './utils';
 
@@ -42,29 +41,6 @@ type SpreadParams = {
   layerIndex: number;
   numOfLayers: number;
 };
-
-type GenerateShadowsParams = {
-  lightSource: { x: number; y: number };
-  resolution: number;
-  oomph: number;
-  crispy: number;
-};
-
-export function formatOklchValues(
-  lightness: number,
-  chroma: number,
-  hue: number,
-) {
-  return `${lightness} ${chroma} ${hue}`;
-}
-
-export function formatOklchString(
-  lightness: number,
-  chroma: number,
-  hue: number,
-) {
-  return `oklch(${formatOklchValues(lightness, chroma, hue)})`;
-}
 
 function calculateShadowOffsets({
   elevation,
@@ -208,118 +184,6 @@ function calculateSpread({
   return roundTo(actualReduction, 1);
 }
 
-/**
- * We'll generate a set of 3 shadows: low, medium, high elevation.
- * Each shadow will have multiple layers, depending on the elevation.
- * A low elevation shadow might only have 2 layers, a high elevation might have 6.
- * Though, this is affected by the `resolution` parameter
- */
-export function generateShadows({
-  lightSource,
-  resolution,
-  oomph,
-  crispy,
-}: GenerateShadowsParams) {
-  const output: string[][][] = [];
-
-  const SHADOW_LAYER_LIMITS: Record<Elevation, { min: number; max: number }> = {
-    low: {
-      min: 2,
-      max: 3,
-    },
-    medium: {
-      min: 3,
-      max: 5,
-    },
-    high: {
-      min: 3,
-      max: 8,
-    },
-  };
-
-  const elevations: Elevation[] = ['low', 'medium', 'high'];
-  for (const elevation of elevations) {
-    const numOfLayers = Math.round(
-      normalize(
-        resolution,
-        0,
-        1,
-        SHADOW_LAYER_LIMITS[elevation].min,
-        SHADOW_LAYER_LIMITS[elevation].max,
-      ),
-    );
-
-    const layersForElevation: string[][] = [];
-
-    range(numOfLayers).map((layerIndex) => {
-      const opacity = calculateShadowOpacity({
-        oomph,
-        crispy,
-        layerIndex,
-        numOfLayers,
-        minLayers: SHADOW_LAYER_LIMITS[elevation].min,
-        maxLayers: SHADOW_LAYER_LIMITS[elevation].max,
-      });
-
-      const { x, y } = calculateShadowOffsets({
-        elevation,
-        oomph,
-        crispy,
-        lightSource,
-        layerIndex,
-        numOfLayers,
-      });
-
-      const blurRadius = calculateBlurRadius({
-        x,
-        y,
-        elevation,
-        oomph,
-        crispy,
-        layerIndex,
-        numOfLayers,
-      });
-
-      const spread = calculateSpread({
-        oomph,
-        crispy,
-        layerIndex,
-        numOfLayers,
-      });
-      const spreadString = spread !== 0 ? `${spread}px ` : '';
-
-      layersForElevation.push([
-        `${x}px ${y}px ${blurRadius}px ${spreadString}oklch(var(--shadow-color) / ${opacity})`,
-      ]);
-    });
-
-    output.push(layersForElevation);
-  }
-
-  return output;
-}
-
-export function getShadowBackgroundOklchValues(
-  oomph: number,
-  backgroundOklch: [number, number, number],
-) {
-  const [initialLightness, initialChroma, hue] = backgroundOklch;
-  let lightness = initialLightness;
-  let chroma = initialChroma;
-
-  const maxLightness = normalize(oomph, 0, 1, 0.85, 0.5);
-
-  const chromaEnhancement = normalize(lightness, 0.5, 1, 1, 0.25);
-
-  chroma = roundTo(clamp(chroma * chromaEnhancement, 0, 0.4), 3);
-  lightness = roundTo(
-    clamp(normalize(lightness, 0, 1, 0, maxLightness) - 0.05, 0, 1),
-    3,
-  );
-
-  return formatOklchValues(lightness, chroma, hue);
-}
-
 export function generateShadowLayers(
   elevation: Elevation,
   oomph: number,
@@ -416,55 +280,3 @@ export function generateShadowLayers(
   return layers;
 }
 
-export function formatShadowsAsDropShadow(shadows: string[][]) {
-  return shadows.map((shadowsForSize) => {
-    const reducedString = shadowsForSize.reduce(
-      (acc: string, shadowString: string) =>
-        `${acc} drop-shadow(${shadowString})`,
-      '',
-    );
-
-    return reducedString.trim();
-  });
-}
-
-export function formatShadowsAsBoxShadow(shadows: string[][]) {
-  return shadows.map((shadowsForSize) => {
-    const reducedString = shadowsForSize.reduce(
-      (acc: string, shadowString: string) => {
-        if (!acc) {
-          return shadowString;
-        }
-        return `${acc},\n${shadowString}`;
-      },
-      '',
-    );
-
-    return reducedString.trim();
-  });
-}
-
-export function generateCode(
-  shadows: string[][],
-  shadowBackgroundValues: string,
-) {
-  const [low, medium, high] = shadows;
-
-  function renderShadowLayers(layers: string[]) {
-    return layers.join(',\n    ');
-  }
-
-  let code = `
-:root {
-  --shadow-color: ${shadowBackgroundValues};
-  --shadow-elevation-low:
-    ${renderShadowLayers(low ?? [])};
-  --shadow-elevation-medium:
-    ${renderShadowLayers(medium ?? [])};
-  --shadow-elevation-high:
-    ${renderShadowLayers(high ?? [])};
-}`;
-
-  code = code.trim();
-  return code;
-}

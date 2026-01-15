@@ -173,4 +173,4 @@ const DialogFooter = ({
 
 DialogFooter.displayName = 'DialogFooter';
 
-export { DialogContent, DialogDescription, DialogFooter, DialogHeading };
+export { DialogFooter };

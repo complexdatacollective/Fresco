@@ -84,25 +84,3 @@ export default function SummaryStatistics() {
     </ResponsiveContainer>
   );
 }
-
-export const SummaryStatisticsSkeleton = () => (
-  <ResponsiveContainer
-    className="tablet:grid-cols-3 laptop:gap-6 grid grid-cols-1 gap-4"
-    maxWidth="6xl"
-  >
-    <StatCardSkeleton title="Protocols" icon={<ProtocolIcon />} />
-    <StatCardSkeleton
-      title="Participants"
-      icon={
-        <Image
-          src="/images/participant.svg"
-          width={50}
-          height={50}
-          alt="Participant icon"
-          className="max-w-none"
-        />
-      }
-    />
-    <StatCardSkeleton title="Interviews" icon={<InterviewIcon />} />
-  </ResponsiveContainer>
-);

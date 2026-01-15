@@ -1,8 +1,5 @@
 import { cva, cx } from '~/utils/cva';
 
-// Transition styles as a simple string for inline use
-export const transitionStyles = 'transition-all duration-200';
-
 // Scale-specific Slider Variants (for VisualAnalogScale and LikertScale)
 // Uses base-ui slider which sets --slider-thumb-position CSS custom property
 export const sliderRootVariants = cva({
@@ -258,32 +255,4 @@ export const nativeSelectVariants = cva({
     'bg-right',
     'pr-[1.5em]', // Right padding to prevent text from overlapping with dropdown arrow
   ),
-});
-
-// Variants for radio input indicator (the circle)
-export const radioIndicatorVariants = cva({
-  base: cx(
-    'relative appearance-none',
-    'rounded-full border-2',
-    'bg-input border-input-contrast/20',
-    'transition-colors duration-200',
-    // Checked state
-    'checked:border-accent checked:bg-input',
-    'checked:after:bg-accent checked:after:absolute checked:after:rounded-full checked:after:content-[""]',
-    // Hover states
-    'not-checked:not-disabled:hover:border-accent/50',
-    // Disabled state
-    'disabled:cursor-not-allowed disabled:opacity-50',
-  ),
-  variants: {
-    size: {
-      sm: 'h-5 w-5 checked:after:inset-[3px]',
-      md: 'h-6 w-6 checked:after:inset-[4px]',
-      lg: 'h-8 w-8 checked:after:inset-[5px]',
-      xl: 'h-10 w-10 checked:after:inset-[7px]',
-    },
-  },
-  defaultVariants: {
-    size: 'md',
-  },
 });

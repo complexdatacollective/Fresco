@@ -31,7 +31,7 @@ const inputWrapperVariants = compose(
 );
 
 // Input element when used with wrapper (prefix/suffix)
-export const inputVariants = compose(
+const inputVariants = compose(
   placeholderVariants,
   cva({
     base: cx(

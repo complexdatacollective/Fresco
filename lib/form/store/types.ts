@@ -75,13 +75,6 @@ export type FieldState = {
   validation?: FieldValidationFunction;
 };
 
-export type FormState = {
-  fields: Map<string, FieldState>;
-  isSubmitting: boolean;
-  isValidating: boolean;
-  isValid: boolean;
-};
-
 export type FieldConfig = {
   name: string;
   initialValue?: FieldValue;

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 import Button from '~/components/ui/Button';
-import { Dialog } from './Dialog';
+import Dialog from './Dialog';
 import { DialogTrigger } from './DialogTrigger';
 import useDialog from './useDialog';
 

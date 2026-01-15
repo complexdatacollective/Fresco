@@ -10,6 +10,25 @@ const { motionMockModule } = vi.hoisted(() => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const ReactModule = require('react') as typeof React;
 
+  // Wrap refs to handle callback refs that return cleanup functions
+  // This is needed because some libraries (like @base-ui/react) use the React 19
+  // pattern where callback refs can return cleanup functions, but React 18
+  // warns when callback refs return values. Our wrapper ignores the return value.
+  const wrapRef = (ref: unknown) => {
+    if (ref === null || ref === undefined) {
+      return ref;
+    }
+    if (typeof ref === 'function') {
+      // Return a wrapper that calls the original but ignores return value
+      return (element: HTMLElement | null) => {
+        ref(element);
+        // Intentionally not returning the cleanup function
+      };
+    }
+    // RefObject - pass through as-is
+    return ref;
+  };
+
   // Filter out framer-motion specific props from HTML elements
   const filterMotionProps = (props: Record<string, unknown>) => {
     const motionPropKeys = new Set([
@@ -51,7 +70,21 @@ const { motionMockModule } = vi.hoisted(() => {
       (props, ref) => {
         return ReactModule.createElement(tag, {
           ...filterMotionProps(props),
-          ref,
+          ref: wrapRef(ref),
+        });
+      },
+    );
+
+  // Create a motion-wrapped version of a custom React component
+  // This handles motion.create(Component) calls
+  const createMotionFromComponent = <T extends React.ComponentType>(
+    Component: T,
+  ) =>
+    ReactModule.forwardRef<HTMLElement, Record<string, unknown>>(
+      (props, ref) => {
+        return ReactModule.createElement(Component, {
+          ...filterMotionProps(props),
+          ref: wrapRef(ref),
         });
       },
     );
@@ -85,6 +118,8 @@ const { motionMockModule } = vi.hoisted(() => {
     th: createMotionComponent('th'),
     tbody: createMotionComponent('tbody'),
     thead: createMotionComponent('thead'),
+    // Add the create method for motion.create(Component) API
+    create: createMotionFromComponent,
   };
 
   // No-op animation controls
