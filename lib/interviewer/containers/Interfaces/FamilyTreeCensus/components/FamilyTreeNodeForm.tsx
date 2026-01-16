@@ -127,7 +127,12 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
     }) => {
       const nameValue = payload.newAttributeData[nameVariable];
       const { [nameVariable]: _, ...attributes } = payload.newAttributeData;
-      void dispatch(updateNetworkNode(payload)).then(() => {
+      void dispatch(
+        updateNetworkNode({
+          ...payload,
+          newAttributeData: attributes,
+        }),
+      ).then(() => {
         // find shell node by interviewNetworkId
         const shellId = getShellIdByNetworkId(payload.nodeId);
         if (shellId) {
