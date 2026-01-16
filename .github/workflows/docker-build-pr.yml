@@ -3,6 +3,11 @@ name: Build Docker Image (PR)
 on:
   # Allow other workflows to call this one
   workflow_call:
+    inputs:
+      disable-image-optimization:
+        description: 'Disable Next.js image optimization for testing'
+        type: boolean
+        default: false
     outputs:
       artifact-name:
         description: 'Name of the uploaded Docker image artifact'
@@ -11,11 +16,8 @@ on:
         description: 'Name to use when loading the image'
         value: ${{ jobs.build.outputs.image-name }}
 
-  # Also run directly on PRs
+  # Also run directly on PRs (all branches)
   pull_request:
-    branches:
-      - main
-      - 'v*'
 
 permissions:
   contents: read
@@ -54,6 +56,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           outputs: type=docker,dest=/tmp/image.tar
+          build-args: |
+            DISABLE_IMAGE_OPTIMIZATION=${{ inputs.disable-image-optimization || false }}
 
       - name: Upload Docker image artifact
         uses: actions/upload-artifact@v4
