@@ -58,7 +58,14 @@ export const getNodeIsEgoVariable = createSelector(getCurrentStage, (stage) => {
  */
 export const getNameVariable = createSelector(
   getNodeVariables,
-  (variables) => getNameVariableFromCodebook(variables) ?? '',
+  (variables) => {
+    const nameVariable = getNameVariableFromCodebook(variables);
+    invariant(
+      nameVariable != null && nameVariable !== '',
+      'Name variable could not be determined from codebook',
+    );
+    return nameVariable;
+  },
 );
 
 export const normalizeRelationshipToEgoLabel = (str: string): string =>
