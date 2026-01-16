@@ -149,7 +149,13 @@ export const CensusForm = ({
     if (egoNodeId != null) {
       updateNode(egoNodeId, { [egoSexVariable]: sexValue });
     }
-  }, [dispatch, sexValue, updateNode, getNodeIdFromRelationship, egoSexVariable]);
+  }, [
+    dispatch,
+    sexValue,
+    updateNode,
+    getNodeIdFromRelationship,
+    egoSexVariable,
+  ]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -174,7 +180,7 @@ export const CensusForm = ({
       title="Family Tree Census"
       onClose={() => setShow(false)}
       forceDisableFullscreen
-      className="!w-auto"
+      className="w-auto!"
     >
       <div className="flex flex-col">
         {shouldAskSex && variableDef?.options && (

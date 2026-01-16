@@ -145,7 +145,8 @@ export const FamilyTreeShells = (props: {
     }
 
     for (const edge of networkEdges) {
-      const relationship = (edge.attributes[relationshipVariable] ?? '') as Relationship;
+      const relationship = (edge.attributes[relationshipVariable] ??
+        '') as Relationship;
       const id = `${edge.from}-${edge.to}-${relationship}`;
       addShellEdge({
         id,

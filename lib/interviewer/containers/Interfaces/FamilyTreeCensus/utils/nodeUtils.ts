@@ -4,10 +4,6 @@ import { getNodeVariables } from '~/lib/interviewer/selectors/interface';
 import { getCurrentStage } from '~/lib/interviewer/selectors/session';
 import { getNameVariableFromCodebook } from '~/lib/interviewer/utils/getNodeLabelAttribute';
 
-/**
- * Gets the variable used for the ego's sex from the stage config.
- * Used when reading/writing ego attributes.
- */
 export const getEgoSexVariable = createSelector(getCurrentStage, (stage) => {
   invariant(
     stage.type === 'FamilyTreeCensus',
@@ -17,10 +13,6 @@ export const getEgoSexVariable = createSelector(getCurrentStage, (stage) => {
   return stage.egoSexVariable;
 });
 
-/**
- * Gets the variable used for node/alter sex from the stage config.
- * Used when reading/writing alter node attributes.
- */
 export const getNodeSexVariable = createSelector(getCurrentStage, (stage) => {
   invariant(
     stage.type === 'FamilyTreeCensus',
@@ -56,17 +48,14 @@ export const getNodeIsEgoVariable = createSelector(getCurrentStage, (stage) => {
  * getNodeLabelAttribute: first looks for a variable with name === "name",
  * then falls back to first text variable.
  */
-export const getNameVariable = createSelector(
-  getNodeVariables,
-  (variables) => {
-    const nameVariable = getNameVariableFromCodebook(variables);
-    invariant(
-      nameVariable != null && nameVariable !== '',
-      'Name variable could not be determined from codebook',
-    );
-    return nameVariable;
-  },
-);
+export const getNameVariable = createSelector(getNodeVariables, (variables) => {
+  const nameVariable = getNameVariableFromCodebook(variables);
+  invariant(
+    nameVariable != null && nameVariable !== '',
+    'Name variable could not be determined from codebook',
+  );
+  return nameVariable;
+});
 
 export const normalizeRelationshipToEgoLabel = (str: string): string =>
   str.toLowerCase().replace(/'/g, '').replace(/\s+/g, '-');

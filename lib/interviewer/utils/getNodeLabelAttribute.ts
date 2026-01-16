@@ -48,8 +48,6 @@ const isValidLabelCandidate = (
  * 2. Variable with name property containing "name"
  * 3. First text variable
  *
- * This is the codebook-only portion of the node labeling logic.
- * See: https://github.com/complexdatacollective/Network-Canvas/wiki/Node-Labeling
  */
 export const getNameVariableFromCodebook = (
   codebookVariables: NodeDefinition['variables'],

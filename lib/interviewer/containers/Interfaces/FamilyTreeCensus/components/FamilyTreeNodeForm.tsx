@@ -144,7 +144,13 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
         }
       });
     },
-    [dispatch, getShellIdByNetworkId, syncMetadata, updateShellNode, nameVariable],
+    [
+      dispatch,
+      getShellIdByNetworkId,
+      syncMetadata,
+      updateShellNode,
+      nameVariable,
+    ],
   );
 
   const processedFields = useProtocolFieldProcessor({
