@@ -56,7 +56,7 @@ const itemVariants = cva({
  * When hasMounted is false, initial is set to false to prevent mount animations.
  * This avoids flickering when ArrayField is rendered inside animated containers like dialogs.
  */
-export const getItemAnimationProps = {
+const getItemAnimationProps = {
   initial: (hasMounted: boolean) => ({
     opacity: hasMounted ? 0 : 1,
     scale: hasMounted ? 0.6 : 1,
@@ -336,6 +336,25 @@ export default function ArrayField<T extends Record<string, unknown>>({
 
   const id = useId();
 
+  // Extract conflicting event handlers and ref before spreading to motion component
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  const {
+    onAnimationStart,
+    onAnimationEnd,
+    onAnimationIteration,
+    onDrag,
+    onDragEnd,
+    onDragEnter,
+    onDragExit,
+    onDragLeave,
+    onDragOver,
+    onDragStart,
+    onDrop,
+    ref,
+    ...safeAriaProps
+  } = ariaProps;
+  /* eslint-enable @typescript-eslint/no-unused-vars */
+
   return (
     <LayoutGroup id={id}>
       <motion.div
@@ -352,7 +371,7 @@ export default function ArrayField<T extends Record<string, unknown>>({
           style={{ borderRadius: 28 }}
           role="list"
           layout
-          {...ariaProps}
+          {...safeAriaProps}
         >
           <AnimatePresence mode="popLayout">
             {renderableItems.length === 0 && (

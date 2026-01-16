@@ -482,5 +482,4 @@ export const validationPropKeys = Object.keys(
   validations,
 ) as (keyof typeof validations)[];
 
-export type ValidationFunctionCatalogue = typeof validations;
 export type ValidationPropKey = (typeof validationPropKeys)[number];

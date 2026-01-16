@@ -62,7 +62,7 @@
     );
     --info-contrast: oklch(var(--white));
 
-    --selected: oklch(var(--mustard));
+    --selected: oklch(91% 0.21 80);
     --selected-contrast: var(--accent-contrast);
 
     --link: oklch(from var(--accent) calc(l - 0.2) calc(c + 0.05) h);

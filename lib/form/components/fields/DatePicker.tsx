@@ -117,7 +117,7 @@ export default function DatePickerField(props: DatePickerFieldProps) {
           placeholder="Year"
           value={selectedYear}
           onChange={(value) => handleChange(String(value), undefined)}
-          disabled={disabled || readOnly}
+          disabled={disabled ?? readOnly}
           aria-invalid={rest['aria-invalid']}
           className="w-fit"
         />
@@ -128,7 +128,7 @@ export default function DatePickerField(props: DatePickerFieldProps) {
           placeholder="Month"
           value={selectedMonth}
           onChange={(value) => handleChange(undefined, String(value))}
-          disabled={disabled || readOnly || !selectedYear}
+          disabled={disabled ?? readOnly ?? !selectedYear}
           aria-invalid={rest['aria-invalid']}
           className="w-fit"
         />
@@ -145,7 +145,7 @@ export default function DatePickerField(props: DatePickerFieldProps) {
         value={value}
         onChange={(value) => onChange?.(String(value))}
         name={name ?? 'year'}
-        disabled={disabled || readOnly}
+        disabled={disabled ?? readOnly}
         aria-invalid={rest['aria-invalid']}
         className="w-fit"
       />

@@ -28,12 +28,6 @@ export default defineConfig({
           name: 'units',
           setupFiles: ['./vitest.setup.ts'],
         },
-        // resolve: {
-        //   alias: {
-        //     // Reference the internal react package shipped in next.js
-        //     react: 'next/dist/compiled/react/cjs/react.development.js',
-        //   },
-        // },
       },
       {
         extends: true,
@@ -48,6 +42,7 @@ export default defineConfig({
             provider: playwright(),
             enabled: true,
             instances: [{ browser: 'chromium' }],
+            headless: true,
           },
           exclude: [
             '**/*.test.ts', // Exclude regular test files from Storybook tests

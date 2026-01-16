@@ -16,6 +16,9 @@ type DndState = {
   dropTargets: Map<string, DropTargetWithState>;
   activeDropTargetId: string | null;
   isDragging: boolean;
+  // Focus coordination after drop
+  pendingFocusZoneId: string | null;
+  pendingFocusItemId: string | null;
 };
 
 // Action types
@@ -38,6 +41,9 @@ type DndActions = {
   getDropTargetState: (
     id: string,
   ) => { canDrop: boolean; isOver: boolean } | null;
+  // Focus coordination after drop
+  requestFocus: (zoneId: string, itemId: string | null) => void;
+  clearPendingFocus: (zoneId: string) => void;
 };
 
 // Combined store type
@@ -51,6 +57,8 @@ export const defaultInitState: DndState = {
   dropTargets: new Map(),
   activeDropTargetId: null,
   isDragging: false,
+  pendingFocusZoneId: null,
+  pendingFocusItemId: null,
 };
 
 // Helper function to check if target accepts drag item
@@ -263,6 +271,26 @@ export const createDndStore = (initState: DndState = defaultInitState) => {
         const target = get().dropTargets.get(id);
         if (!target) return null;
         return { canDrop: target.canDrop, isOver: target.isOver };
+      },
+
+      // Focus coordination after drop
+      requestFocus: (zoneId, itemId) => {
+        set({
+          pendingFocusZoneId: zoneId,
+          pendingFocusItemId: itemId,
+        });
+      },
+
+      clearPendingFocus: (zoneId) => {
+        set((state) => {
+          if (state.pendingFocusZoneId === zoneId) {
+            return {
+              pendingFocusZoneId: null,
+              pendingFocusItemId: null,
+            };
+          }
+          return state;
+        });
       },
     })),
   );

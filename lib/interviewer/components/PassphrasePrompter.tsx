@@ -8,7 +8,6 @@ import {
   useWillChange,
 } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
-import z from 'zod';
 import Button from '~/components/ui/Button';
 import Field from '~/lib/form/components/Field/Field';
 import Form from '~/lib/form/components/Form';
@@ -130,8 +129,10 @@ const PassphraseOverlay = ({
 }) => {
   const { passphraseInvalid } = usePassphrase();
 
-  const onSubmitForm = (fields: { passphrase: string }) => {
+  const onSubmitForm = (values: unknown) => {
+    const fields = values as { passphrase: string };
     handleSubmit(fields.passphrase);
+    return { success: true };
   };
 
   return (
@@ -151,11 +152,11 @@ const PassphraseOverlay = ({
         <Form className="mt-6" onSubmit={onSubmitForm}>
           <div className="mb-4 flex items-center justify-end">
             <Field
-              Component={InputField}
+              component={InputField}
               name="passphrase"
               label="Passphrase"
               placeholder="Enter your passphrase..."
-              validation={z.string().nonempty()}
+              required
               autoFocus
             />
             <Button aria-label="Submit" type="submit">

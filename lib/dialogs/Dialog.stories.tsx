@@ -1,11 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import type { StoryObj } from '@storybook/nextjs-vite';
 import { fn } from 'storybook/test';
 import Button from '~/components/ui/Button';
-import { Dialog, STATE_VARIANTS, type DialogProps } from './Dialog';
+import Dialog, { STATE_VARIANTS, type DialogProps } from './Dialog';
 
-const meta: Meta<typeof Dialog> = {
+const meta = {
   title: 'Systems/Dialogs/Dialog',
-  component: Dialog,
+  component: Dialog as never,
   args: {
     closeDialog: fn(),
   },

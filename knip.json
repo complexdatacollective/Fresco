@@ -1,5 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["lib/collection/index.ts"],
   "ignore": [
     "public/scripts/d3-dispatch.v3.min.js",
     "public/scripts/d3-force.v3.min.js",

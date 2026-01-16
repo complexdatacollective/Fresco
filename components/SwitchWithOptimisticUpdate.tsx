@@ -27,7 +27,9 @@ const SwitchWithOptimisticUpdate = ({
     <SwitchUI
       disabled={readOnly ?? isTransitioning}
       value={optimisticIsActive}
-      onChange={(checked) => startTransition(() => updateIsActive(checked))}
+      onChange={(checked) =>
+        startTransition(() => updateIsActive(checked ?? false))
+      }
     />
   );
 };

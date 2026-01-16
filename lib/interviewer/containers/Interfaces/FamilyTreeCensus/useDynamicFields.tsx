@@ -58,8 +58,8 @@ export function useDynamicFields({
       Component: (props) => (
         <RadioGroup
           {...props}
-          onChange={(val: string) => {
-            setRelationValue(val);
+          onChange={(val) => {
+            setRelationValue(val as string);
           }}
         />
       ),

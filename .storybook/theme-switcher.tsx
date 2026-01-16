@@ -1,10 +1,10 @@
 import type { Decorator } from '@storybook/nextjs-vite';
 import { useLayoutEffect, useState } from 'react';
 
-export const THEME_KEY = 'theme';
+const THEME_KEY = 'theme';
 const STORAGE_KEY = 'storybook-theme-preference';
 
-export const themes = {
+const themes = {
   dashboard: {
     name: 'Dashboard',
     path: '/styles/themes/default.css',

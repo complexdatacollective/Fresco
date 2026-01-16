@@ -5,7 +5,7 @@ import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import InfoTooltip from '~/components/InfoTooltip';
 import { buttonVariants } from '~/components/ui/Button';
 import { Badge } from '~/components/ui/badge';
-import { Checkbox } from '~/lib/form/components/fields/Checkbox';
+import Checkbox from '~/lib/form/components/fields/Checkbox';
 import type { ProtocolWithInterviews } from '../ProtocolsTable/ProtocolsTableClient';
 import { GenerateParticipationURLButton } from './GenerateParticipantURLButton';
 import type { ParticipantWithInterviews } from './ParticipantsTableClient';
@@ -19,14 +19,16 @@ export function getParticipantColumns(
       header: ({ table }) => (
         <Checkbox
           checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          onCheckedChange={(value: boolean) =>
+            table.toggleAllPageRowsSelected(!!value)
+          }
           aria-label="Select all"
         />
       ),
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          onCheckedChange={(value: boolean) => row.toggleSelected(!!value)}
           aria-label="Select row"
         />
       ),

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { deleteProtocols } from '~/actions/protocols';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
-import { Dialog } from '~/lib/dialogs/Dialog';
+import Dialog from '~/lib/dialogs/Dialog';
 import type { ProtocolWithInterviews } from '../../_components/ProtocolsTable/ProtocolsTableClient';
 
 type DeleteProtocolsDialogProps = {

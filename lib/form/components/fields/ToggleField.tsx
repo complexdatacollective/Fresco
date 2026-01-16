@@ -120,10 +120,15 @@ export default function ToggleField(props: ToggleFieldProps) {
     onChange,
     disabled,
     readOnly,
-    ...rest
+    onBlur,
+    'aria-required': ariaRequired,
+    'aria-invalid': ariaInvalid,
+    'aria-describedby': ariaDescribedBy,
+    'aria-disabled': ariaDisabled,
+    'aria-readonly': ariaReadonly,
   } = props;
 
-  const isInvalid = !!rest['aria-invalid'];
+  const isInvalid = !!ariaInvalid;
   const state = getInputState(props);
 
   return (
@@ -134,9 +139,13 @@ export default function ToggleField(props: ToggleFieldProps) {
       readOnly={readOnly}
       aria-checked={!!value}
       aria-invalid={isInvalid || undefined}
+      aria-required={ariaRequired}
+      aria-describedby={ariaDescribedBy}
+      aria-disabled={ariaDisabled}
+      aria-readonly={ariaReadonly}
+      onBlur={onBlur}
       id={id}
       name={name}
-      {...rest}
       render={
         <motion.button
           className={toggleContainerVariants({

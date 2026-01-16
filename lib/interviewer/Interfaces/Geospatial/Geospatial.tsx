@@ -311,7 +311,9 @@ export default function GeospatialInterface({
               exit="exit"
               className="[--base-node-size:calc(var(--nc-base-font-size)*6.6)]"
             >
-              <Node {...stageNodes[navState.activeIndex]!} />
+              {stageNodes[navState.activeIndex] && (
+                <Node {...stageNodes[navState.activeIndex]!} />
+              )}
             </motion.div>
             <Button
               size="sm"

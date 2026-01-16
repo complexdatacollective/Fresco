@@ -61,8 +61,6 @@ export default function CheckboxGroupField(props: CheckboxGroupProps) {
     ...fieldsetProps
   } = props;
 
-  const isInvalid = !!fieldsetProps['aria-invalid'];
-
   const handleChange = (optionValue: string | number, checked: boolean) => {
     if (readOnly) return;
     const currentValues = value ?? [];
@@ -90,7 +88,7 @@ export default function CheckboxGroupField(props: CheckboxGroupProps) {
         disabled={disabled}
       >
         {options.map((option) => {
-          const isOptionDisabled = disabled || option.disabled;
+          const isOptionDisabled = disabled ?? option.disabled;
           const isChecked = currentValues.includes(option.value);
 
           return (

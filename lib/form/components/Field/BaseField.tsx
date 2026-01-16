@@ -8,6 +8,22 @@ import FieldErrors from '../FieldErrors';
 import { FieldLabel } from '../FieldLabel';
 import Hint from '../Hint';
 
+// Exclude event handlers that conflict with Framer Motion
+type ExcludeMotionConflicts<T> = Omit<
+  T,
+  | 'onAnimationStart'
+  | 'onAnimationEnd'
+  | 'onAnimationIteration'
+  | 'onDrag'
+  | 'onDragEnd'
+  | 'onDragEnter'
+  | 'onDragExit'
+  | 'onDragLeave'
+  | 'onDragOver'
+  | 'onDragStart'
+  | 'onDrop'
+>;
+
 export type BaseFieldProps = {
   id: string;
   label: string;
@@ -18,7 +34,9 @@ export type BaseFieldProps = {
   showErrors?: boolean;
   children: ReactNode;
   // TODO: the data attributes should be typed based on the return value of useField.
-  containerProps?: Omit<React.HTMLAttributes<HTMLDivElement>, 'className'> &
+  containerProps?: ExcludeMotionConflicts<
+    Omit<React.HTMLAttributes<HTMLDivElement>, 'className'>
+  > &
     Record<`data-${string}`, string | boolean | undefined>;
 };
 

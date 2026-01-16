@@ -8,6 +8,7 @@ import { action } from 'storybook/actions';
 import { useArgs } from 'storybook/preview-api';
 import { Button, IconButton, MotionButton } from '~/components/ui/Button';
 import Dialog from '~/lib/dialogs/Dialog';
+import DialogProvider from '~/lib/dialogs/DialogProvider';
 import Field from '~/lib/form/components/Field/Field';
 import InputField from '~/lib/form/components/fields/InputField';
 import { FormWithoutProvider } from '~/lib/form/components/Form';
@@ -51,7 +52,7 @@ function SimpleInlineItem({
         <InputField
           name="label"
           value={label}
-          onChange={setLabel}
+          onChange={(v) => setLabel(v ?? '')}
           placeholder="Enter a label..."
           minLength={2}
           // Enter key saves
@@ -214,9 +215,11 @@ immediately upon creation.
   },
   decorators: [
     (Story) => (
-      <div className="w-lg">
-        <Story />
-      </div>
+      <DialogProvider>
+        <div className="w-lg">
+          <Story />
+        </div>
+      </DialogProvider>
     ),
   ],
 };
@@ -334,7 +337,7 @@ function TagInlineItem({
           <InputField
             name="label"
             value={label}
-            onChange={setLabel}
+            onChange={(v) => setLabel(v ?? '')}
             placeholder="Enter tag label"
           />
         </motion.div>
@@ -453,7 +456,7 @@ The item component handles both display and edit modes:
         emptyStateMessage="No tags yet. Create one!"
         value={tags}
         onChange={(newValue) => {
-          setTags(newValue);
+          setTags(newValue ?? []);
           action('onChange')(newValue);
         }}
         itemTemplate={() => ({
@@ -720,7 +723,7 @@ For complex forms, use a separate \`editorComponent\`:
         emptyStateMessage="No contacts yet. Add your first contact!"
         value={contacts}
         onChange={(newValue) => {
-          setContacts(newValue);
+          setContacts(newValue ?? []);
           action('onChange')(newValue);
         }}
         itemTemplate={() => ({
@@ -807,7 +810,7 @@ For simple lists where items are added with default values:
         emptyStateMessage="No items yet."
         value={items}
         onChange={(newValue) => {
-          setItems(newValue);
+          setItems(newValue ?? []);
           action('onChange')(newValue);
         }}
         itemTemplate={() => ({
@@ -903,7 +906,7 @@ The key difference from inline editing:
         emptyStateMessage="No configuration items yet."
         value={items}
         onChange={(newValue) => {
-          setItems(newValue);
+          setItems(newValue ?? []);
           action('onChange')(newValue);
         }}
         itemTemplate={() => ({ label: '' })}

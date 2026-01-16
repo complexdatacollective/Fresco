@@ -1,13 +1,13 @@
 import { type Stage } from '@codaco/protocol-validation';
 import { useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
+import Button from '~/components/ui/Button';
+import InputField from '~/lib/form/components/fields/InputField';
+import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
 import { updateEgo } from '~/lib/interviewer/ducks/modules/session';
 import { getNetworkEgo } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
-import { Button } from '~/lib/ui/components';
-import { Radio, RadioGroup } from '~/lib/ui/components/Fields';
-import NumberInput from '~/lib/ui/components/Fields/Number';
 import Overlay from '../../../Overlay';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
 import { getSexVariable } from '../utils/nodeUtils';
@@ -173,43 +173,43 @@ export const CensusForm = ({
       show={show}
       title="Family Tree Census"
       onClose={() => setShow(false)}
-      forceDisableFullscreen
       className="w-auto!"
     >
       <div className="flex flex-col">
         {shouldAskSex && variableDef?.options && (
           <div className="mb-6 w-full *:mb-0!">
-            <RadioGroup
-              optionComponent={Radio}
-              input={{
-                name: sexVariable,
-                value: sexValue,
-                onChange: (value: string) => setSexValue(value as Sex),
-              }}
-              label={'What is your sex?'}
-              options={variableDef.options}
+            <RadioGroupField
+              name={sexVariable}
+              value={sexValue}
+              onChange={(value) => setSexValue(value as Sex)}
+              aria-label="What is your sex?"
+              options={variableDef.options satisfies SexOption[]}
             />
           </div>
         )}
 
         <div className="w-full gap-6 *:mb-0! md:grid md:grid-cols-2">
           {fields.map(({ variable, label, error, value }) => (
-            <NumberInput
-              tabIndex={0}
-              key={variable}
-              placeholder="0"
-              input={{
-                name: variable,
-                value: value,
-                onChange: handleSetFieldValue(variable),
-                onBlur: () => {
-                  // No-op
-                },
-              }}
-              meta={{ error, invalid: !!error, touched: !!error }}
-              label={label}
-              className="mb-4"
-            />
+            <div key={variable} className="mb-4 flex flex-col gap-1">
+              <label htmlFor={variable} className="text-sm font-medium">
+                {label}
+              </label>
+              <InputField
+                id={variable}
+                name={variable}
+                type="number"
+                value={value}
+                onChange={(newValue) =>
+                  handleSetFieldValue(variable)(newValue ?? 0)
+                }
+                placeholder="0"
+                aria-invalid={!!error}
+                className={error ? 'border-destructive' : ''}
+              />
+              {error && (
+                <span className="text-destructive text-sm">{error}</span>
+              )}
+            </div>
           ))}
         </div>
         <div className="mb-8 flex items-center justify-end">

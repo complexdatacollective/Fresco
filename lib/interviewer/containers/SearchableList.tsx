@@ -285,7 +285,7 @@ const SearchableList = memo(
               name="search"
               value={query}
               onChange={(value) => {
-                setQuery(value);
+                setQuery(value ?? '');
               }}
               placeholder="Enter a search term..."
             />

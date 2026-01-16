@@ -47,7 +47,8 @@ const QuickNodeForm = ({
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
 
   const handleSubmit: FormSubmitHandler = useCallback(
-    async (value) => {
+    async (values) => {
+      const value = values as Record<string, unknown>;
       if (!disabled) {
         if (!value[targetVariable]) {
           return {

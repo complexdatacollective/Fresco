@@ -5,8 +5,8 @@ import type { ParticipantWithInterviews } from '~/app/dashboard/_components/Part
 import type { ProtocolWithInterviews } from '~/app/dashboard/_components/ProtocolsTable/ProtocolsTableClient';
 import { Button } from '~/components/ui/Button';
 import FancyBox from '~/components/ui/FancyBox';
-import { Dialog } from '~/lib/dialogs/Dialog';
-import SelectField from '~/lib/form/components/fields/Select';
+import Dialog from '~/lib/dialogs/Dialog';
+import SelectField from '~/lib/form/components/fields/Select/Styled';
 import ExportCSVParticipantURLs from './ExportCSVParticipantURLs';
 
 export const GenerateParticipantURLs = ({

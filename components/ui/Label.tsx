@@ -10,27 +10,47 @@ const Label = React.forwardRef<
   React.ComponentPropsWithoutRef<'label'> & {
     required?: boolean;
   }
->(({ className, required, ...props }, ref) => (
-  <motion.label
-    layout
-    ref={ref}
-    className={cx(
-      'inline-block',
-      headingVariants({ level: 'label' }),
-      'peer-disabled:opacity-70',
+>(
+  (
+    {
       className,
-    )}
-    {...props}
-  >
-    {props.children}
-    {required && (
-      <span className="text-destructive" aria-hidden="true">
-        {' '}
-        *
-      </span>
-    )}
-  </motion.label>
-));
+      required,
+      onAnimationStart: _onAnimationStart,
+      onAnimationEnd: _onAnimationEnd,
+      onAnimationIteration: _onAnimationIteration,
+      onDrag: _onDrag,
+      onDragEnd: _onDragEnd,
+      onDragEnter: _onDragEnter,
+      onDragExit: _onDragExit,
+      onDragLeave: _onDragLeave,
+      onDragOver: _onDragOver,
+      onDragStart: _onDragStart,
+      onDrop: _onDrop,
+      ...props
+    },
+    ref,
+  ) => (
+    <motion.label
+      layout
+      ref={ref}
+      className={cx(
+        'inline-block',
+        headingVariants({ level: 'label' }),
+        'peer-disabled:opacity-70',
+        className,
+      )}
+      {...props}
+    >
+      {props.children}
+      {required && (
+        <span className="text-destructive" aria-hidden="true">
+          {' '}
+          *
+        </span>
+      )}
+    </motion.label>
+  ),
+);
 Label.displayName = 'Label';
 
 export { Label };

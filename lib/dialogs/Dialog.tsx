@@ -113,8 +113,27 @@ Dialog.displayName = 'Dialog';
 type DialogHeadingProps = React.HTMLAttributes<HTMLHeadingElement> &
   VariantProps<typeof headingVariants>;
 
-const DialogHeading = forwardRef<HTMLElement, DialogHeadingProps>(
-  ({ className, variant, level, margin, ...props }, ref) => {
+const DialogHeading = forwardRef<HTMLHeadingElement, DialogHeadingProps>(
+  (
+    {
+      className,
+      variant,
+      level,
+      margin,
+      onAnimationStart: _onAnimationStart,
+      onAnimationEnd: _onAnimationEnd,
+      onDrag: _onDrag,
+      onDragEnd: _onDragEnd,
+      onDragEnter: _onDragEnter,
+      onDragExit: _onDragExit,
+      onDragLeave: _onDragLeave,
+      onDragOver: _onDragOver,
+      onDragStart: _onDragStart,
+      onDrop: _onDrop,
+      ...props
+    },
+    ref,
+  ) => {
     return (
       <motion.h2
         layout
@@ -134,16 +153,39 @@ type DialogDescriptionProps = React.HTMLAttributes<HTMLParagraphElement> &
 const DialogDescription = forwardRef<
   HTMLParagraphElement,
   DialogDescriptionProps
->(({ className, intent, emphasis, margin, ...props }, ref) => {
-  return (
-    <motion.p
-      layout
-      className={cx(paragraphVariants({ intent, emphasis, margin, className }))}
-      ref={ref}
-      {...props}
-    />
-  );
-});
+>(
+  (
+    {
+      className,
+      intent,
+      emphasis,
+      margin,
+      onAnimationStart: _onAnimationStart,
+      onAnimationEnd: _onAnimationEnd,
+      onDrag: _onDrag,
+      onDragEnd: _onDragEnd,
+      onDragEnter: _onDragEnter,
+      onDragExit: _onDragExit,
+      onDragLeave: _onDragLeave,
+      onDragOver: _onDragOver,
+      onDragStart: _onDragStart,
+      onDrop: _onDrop,
+      ...props
+    },
+    ref,
+  ) => {
+    return (
+      <motion.p
+        layout
+        className={cx(
+          paragraphVariants({ intent, emphasis, margin, className }),
+        )}
+        ref={ref}
+        {...props}
+      />
+    );
+  },
+);
 
 DialogDescription.displayName = 'DialogDescription';
 
@@ -154,6 +196,16 @@ const DialogContent = ({ children }: { children: React.ReactNode }) => {
 const DialogFooter = ({
   children,
   className,
+  onAnimationStart: _onAnimationStart,
+  onAnimationEnd: _onAnimationEnd,
+  onDrag: _onDrag,
+  onDragEnd: _onDragEnd,
+  onDragEnter: _onDragEnter,
+  onDragExit: _onDragExit,
+  onDragLeave: _onDragLeave,
+  onDragOver: _onDragOver,
+  onDragStart: _onDragStart,
+  onDrop: _onDrop,
   ...props
 }: React.HTMLAttributes<HTMLElement>) => {
   return (
@@ -173,4 +225,4 @@ const DialogFooter = ({
 
 DialogFooter.displayName = 'DialogFooter';
 
-export { DialogContent, DialogDescription, DialogFooter, DialogHeading };
+export { DialogFooter };

@@ -237,8 +237,9 @@ export const createFormStore = () => {
         if (!state.errors) return null;
 
         // Return field errors from flattened structure
+        // Return null if no errors or empty array (consistent API)
         const fieldErrors = state.errors.fieldErrors[fieldName];
-        return fieldErrors ?? null;
+        return fieldErrors && fieldErrors.length > 0 ? fieldErrors : null;
       },
       validateField: async (fieldName) => {
         const state = get();
@@ -296,14 +297,13 @@ export const createFormStore = () => {
                 form.fields.get(fieldName)!.meta.isValidating = false;
                 form.fields.get(fieldName)!.meta.isValid = true;
 
-                // Set empty errors array for this field (not undefined/removed)
-                // This allows consumers to distinguish "validated with no errors" from "never validated"
+                // Remove errors for this field when validation succeeds
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { [fieldName]: _removed, ...remainingFieldErrors } =
+                  form.errors.fieldErrors;
                 form.errors = {
                   formErrors: form.errors.formErrors,
-                  fieldErrors: {
-                    ...form.errors.fieldErrors,
-                    [fieldName]: [],
-                  },
+                  fieldErrors: remainingFieldErrors,
                 };
 
                 // Update form-level isValid (considers both field and form-level errors)

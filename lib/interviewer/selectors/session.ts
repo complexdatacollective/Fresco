@@ -266,7 +266,7 @@ export const getNodeTypeDefinition = createSelector(
   getCodebook,
   getStageSubject,
   (codebook, subject) => {
-    if (!subject) {
+    if (!subject || subject.entity === 'ego') {
       return null;
     }
     return codebook.node?.[subject.type] ?? null;
@@ -281,7 +281,7 @@ export const getNodeColorSelector = createSelector(
       return 'node-color-seq-1';
     }
 
-    return codebook.node?.[nodeType]?.color! ?? 'node-color-seq-1';
+    return codebook.node?.[nodeType]?.color ?? 'node-color-seq-1';
   },
 );
 
@@ -381,7 +381,7 @@ export const getNetworkEdgesForType = createSelector(
   getNetworkEdges,
   getStageSubject,
   (edges, subject) => {
-    if (!subject) {
+    if (!subject || subject.entity === 'ego') {
       return [];
     }
 
@@ -389,32 +389,11 @@ export const getNetworkEdgesForType = createSelector(
   },
 );
 
-/**
- * makeNetworkEntitiesForType()
- * Get the current prompt/stage subject, and filter the network by this entity type.
- */
-export const getNetworkEntitiesForType = createSelector(
-  getNetwork,
-  getStageSubject,
-  (network, subject) => {
-    if (!subject || !network) {
-      return [];
-    }
-    if (subject.entity === 'node') {
-      return filter(network.nodes, ['type', subject.type]);
-    }
-    if (subject.entity === 'edge') {
-      return filter(network.edges, ['type', subject.type]);
-    }
-    return [network.ego];
-  },
-);
-
 export const getNetworkNodesForType = createSelector(
   getNetworkNodes,
   getStageSubject,
   (nodes, subject) => {
-    if (!subject || !nodes) {
+    if (!subject || !nodes || subject.entity === 'ego') {
       return [];
     }
 

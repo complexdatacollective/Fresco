@@ -54,7 +54,7 @@ function DropTargetExample({
 }: {
   accepts: string[];
   name?: string;
-  onDrop?: (metadata: any) => void;
+  onDrop?: (metadata: unknown) => void;
   onDragEnter?: () => void;
   onDragLeave?: () => void;
   children?: React.ReactNode;
@@ -62,9 +62,9 @@ function DropTargetExample({
   minHeight?: number;
 }) {
   const { dropProps, isOver, willAccept, isDragging } = useDropTarget({
-    id: `drop-${Math.random().toString(36).substr(2, 9)}`,
+    id: `drop-${Math.random().toString(36).slice(2, 11)}`,
     accepts,
-    announcedName: name || 'Drop Target',
+    announcedName: name ?? 'Drop Target',
     onDrop,
     onDragEnter,
     onDragLeave,
@@ -167,8 +167,9 @@ export const MultipleTypes: Story = {
   render: () => {
     const [dropLog, setDropLog] = useState<string[]>([]);
 
-    const handleDrop = (zone: string) => (metadata: any) => {
-      const message = `${metadata.type} dropped in ${zone}`;
+    const handleDrop = (zone: string) => (metadata: unknown) => {
+      const data = metadata as { type: string };
+      const message = `${data.type} dropped in ${zone}`;
       setDropLog((prev) => [...prev.slice(-4), message]);
     };
 
@@ -373,8 +374,9 @@ export const NestedDropTargets: Story = {
   render: () => {
     const [drops, setDrops] = useState<{ zone: string; item: string }[]>([]);
 
-    const handleDrop = (zoneName: string) => (metadata: any) => {
-      setDrops((prev) => [...prev, { zone: zoneName, item: metadata.id }]);
+    const handleDrop = (zoneName: string) => (metadata: unknown) => {
+      const data = metadata as { id: string };
+      setDrops((prev) => [...prev, { zone: zoneName, item: data.id }]);
     };
 
     return (

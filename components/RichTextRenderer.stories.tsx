@@ -3,8 +3,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import type { JSONContent } from '@tiptap/react';
 import { useState } from 'react';
-import { RichTextEditorField } from '../lib/form/components/fields/RichTextEditor';
-import { RichTextRenderer } from './RichTextRenderer';
+import RichTextEditorField from '../lib/form/components/fields/RichTextEditor';
+import RichTextRenderer from './RichTextRenderer';
 
 const meta: Meta<typeof RichTextRenderer> = {
   title: 'UI/RichTextRenderer',
@@ -155,9 +155,11 @@ function LivePreviewComponent() {
       <div className="flex-1">
         <h2 className="mb-4 text-lg font-semibold">Editor</h2>
         <RichTextEditorField
+          id="preview-editor"
+          name="content"
+          aria-describedby=""
           value={content}
-          onChange={setContent}
-          placeholder="Start typing..."
+          onChange={(v) => setContent(v ?? content)}
         />
       </div>
       <div className="flex-1">
@@ -186,9 +188,11 @@ function WithJsonPreviewComponent() {
       <div className="shrink-0">
         <h2 className="mb-4 text-lg font-semibold">Editor</h2>
         <RichTextEditorField
+          id="json-editor"
+          name="content"
+          aria-describedby=""
           value={content}
-          onChange={setContent}
-          placeholder="Start typing..."
+          onChange={(v) => setContent(v ?? content)}
         />
       </div>
       <div className="shrink-0">

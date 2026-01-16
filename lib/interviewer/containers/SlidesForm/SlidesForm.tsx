@@ -55,7 +55,8 @@ function SlidesForm({
 
   const { openDialog } = useDialog();
 
-  const { submitForm, isValid, isDirty } = useFormState();
+  const formState = useFormState();
+  const { submitForm, isValid, isDirty } = formState;
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -104,7 +105,7 @@ function SlidesForm({
           title: 'Discard changes?',
           description:
             'This form contains invalid data, so it cannot be saved. If you continue it will be reset, and your changes will be lost. Do you want to discard your changes?',
-          intent: 'danger',
+          intent: 'destructive',
           actions: {
             primary: { label: 'Discard changes', value: true },
             cancel: { label: 'Go back', value: false },
@@ -220,7 +221,12 @@ function SlidesForm({
           item={items[itemIndex]}
           onUpdate={handleUpdate}
           onScroll={handleScroll}
-          form={form}
+          form={formState as Record<string, unknown>}
+          subject={
+            (stage.type === 'EgoForm'
+              ? { entity: 'ego' }
+              : stage.subject) as Record<string, unknown>
+          }
           submitButton={
             <button
               type="submit"

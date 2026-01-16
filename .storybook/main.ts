@@ -1,6 +1,6 @@
-import type { StorybookConfig } from '@storybook/nextjs-vite';
+import { defineMain } from '@storybook/nextjs-vite/node';
 
-const config: StorybookConfig = {
+export default defineMain({
   addons: [
     '@storybook/addon-docs',
     '@storybook/addon-a11y',
@@ -16,10 +16,7 @@ const config: StorybookConfig = {
       },
     },
   },
-  staticDirs: [
-    '../public',
-    { from: '../styles/themes', to: '/styles/themes' },
-  ],
+  staticDirs: ['../public', { from: '../styles/themes', to: '/styles/themes' }],
   typescript: {
     check: false,
     // reactDocgen: 'react-docgen',
@@ -30,5 +27,4 @@ const config: StorybookConfig = {
     // },
   },
   stories: ['../**/*.stories.@(js|jsx|mjs|ts|tsx|mdx)'],
-};
-export default config;
+});

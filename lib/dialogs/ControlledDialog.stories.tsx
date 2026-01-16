@@ -1,10 +1,10 @@
-import { type Meta, type StoryObj } from '@storybook/nextjs-vite';
+import { type StoryObj } from '@storybook/nextjs-vite';
 import Paragraph from '~/components/typography/Paragraph';
-import { Dialog } from './Dialog';
+import Dialog from './Dialog';
 
-const meta: Meta<typeof Dialog> = {
+const meta = {
   title: 'Systems/Dialogs/Controlled',
-  component: Dialog,
+  component: Dialog as never,
   argTypes: {
     open: {
       control: 'boolean',

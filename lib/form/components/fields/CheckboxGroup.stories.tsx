@@ -199,6 +199,10 @@ export const WithColumns: Story = {
 };
 
 export const AllSizes: Story = {
+  args: {
+    name: 'sizes',
+    options: options,
+  },
   render: () => (
     <div className="flex flex-col gap-8">
       {(['sm', 'md', 'lg', 'xl'] as const).map((size) => (
@@ -221,6 +225,10 @@ export const AllSizes: Story = {
 };
 
 export const AllStates: Story = {
+  args: {
+    name: 'states',
+    options: options,
+  },
   render: () => (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
@@ -269,7 +277,7 @@ export const AllStates: Story = {
         <CheckboxGroupField
           name="state-invalid"
           options={options}
-          aria-invalid="true"
+          aria-invalid={true}
           defaultValue={['option1']}
           aria-label="Invalid state"
           onChange={() => {
@@ -282,6 +290,10 @@ export const AllStates: Story = {
 };
 
 export const AllOrientations: Story = {
+  args: {
+    name: 'orientations',
+    options: options,
+  },
   render: () => (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">

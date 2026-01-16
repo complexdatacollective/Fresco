@@ -1,7 +1,6 @@
 import type { Stage } from '@codaco/protocol-validation';
 import { motion } from 'motion/react';
 import { useCallback, useEffect, useRef } from 'react';
-import z from 'zod';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Button from '~/components/ui/Button';
 import Field from '~/lib/form/components/Field/Field';
@@ -23,7 +22,7 @@ export default function Anonymisation(props: AnonymisationProps) {
   const { updateReady } = useReadyForNextStage();
   const {
     registerBeforeNext,
-    stage: { explanationText, validation: passphraseValidation },
+    stage: { explanationText },
   } = props;
   const { passphrase, setPassphrase } = usePassphrase();
 
@@ -53,9 +52,11 @@ export default function Anonymisation(props: AnonymisationProps) {
   }, [registerBeforeNext, preventNavigationWithoutPassphrase]);
 
   const handleSetPassphrase = useCallback(
-    (fields: { passphrase: string }) => {
+    (values: unknown) => {
+      const fields = values as { passphrase: string };
       setPassphrase(fields.passphrase);
       updateReady(true);
+      return { success: true };
     },
     [setPassphrase, updateReady],
   );
@@ -95,33 +96,20 @@ export default function Anonymisation(props: AnonymisationProps) {
               <div>
                 <Form onSubmit={handleSetPassphrase} ref={formRef}>
                   <Field
-                    Component={InputField}
+                    component={InputField}
                     name="passphrase"
                     placeholder="Enter your passphrase..."
                     label="Passphrase"
-                    validation={z.string().nonempty()}
+                    required
                     autoFocus
                   />
                   <Field
-                    Component={InputField}
+                    component={InputField}
                     name="passphrase-2"
                     placeholder="Re-enter your passphrase..."
                     label="Confirm Passphrase"
-                    validation={({ formValues }) => {
-                      const schema = z.string().nonempty();
-                      const result = schema.safeParse(
-                        formValues?.['passphrase-2'],
-                      );
-                      if (!result.success) {
-                        return 'You must re-enter your passphrase';
-                      }
-                      if (
-                        formValues?.passphrase !== formValues?.['passphrase-2']
-                      ) {
-                        return 'Passphrases do not match';
-                      }
-                      return undefined;
-                    }}
+                    required
+                    sameAs="passphrase"
                   />
                   <Button
                     key="submit"

@@ -181,7 +181,7 @@ export const WithMaxLength: Story = {
       <div className="w-full max-w-md space-y-2">
         <TextAreaField
           value={value}
-          onChange={setValue}
+          onChange={(v) => setValue(v ?? '')}
           placeholder="Type something... (max 200 characters)"
           maxLength={maxLength}
           rows={4}
@@ -230,7 +230,7 @@ export const TypeSafeOnChange: Story = {
       <div className="w-full max-w-md space-y-2">
         <TextAreaField
           value={value}
-          onChange={setValue}
+          onChange={(v) => setValue(v ?? '')}
           placeholder="Type something..."
           rows={5}
         />

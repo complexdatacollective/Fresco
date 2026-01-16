@@ -3,7 +3,8 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 import Button from '~/components/ui/Button';
-import { Dialog } from './Dialog';
+import Dialog from './Dialog';
+import DialogProvider from './DialogProvider';
 import { DialogTrigger } from './DialogTrigger';
 import useDialog from './useDialog';
 
@@ -126,6 +127,13 @@ const meta: Meta = {
       toc: true,
     },
   },
+  decorators: [
+    (Story) => (
+      <DialogProvider>
+        <Story />
+      </DialogProvider>
+    ),
+  ],
 };
 
 export default meta;
@@ -584,7 +592,7 @@ export const LowLevelDialog: StoryObj<Meta<LowLevelDialogArgs>> = {
             </>
           }
         >
-          <p className="text-muted-foreground">
+          <p className="text-current/60">
             Use this component when you need direct control over dialog state.
           </p>
         </Dialog>

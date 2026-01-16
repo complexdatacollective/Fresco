@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import Icon from './Icon';
+import Icon, { type InterviewerIconName } from './Icon';
 import customIcons from '~/lib/ui/components/icons';
 
 const meta = {
@@ -36,11 +36,14 @@ export const Default: Story = {
 };
 
 export const CustomIcons: Story = {
+  args: {
+    name: 'Star',
+  },
   render: () => (
     <div className="flex flex-wrap gap-8">
       {Object.keys(customIcons).map((iconName) => (
         <div key={iconName} className="flex flex-col items-center gap-2">
-          <Icon name={iconName} />
+          <Icon name={iconName as InterviewerIconName} />
           <span className="text-xs text-current/70">{iconName}</span>
         </div>
       ))}
@@ -49,6 +52,9 @@ export const CustomIcons: Story = {
 };
 
 export const LucideIcons: Story = {
+  args: {
+    name: 'Star',
+  },
   render: () => (
     <div className="flex flex-wrap gap-8">
       {[
@@ -72,7 +78,7 @@ export const LucideIcons: Story = {
         'Minus',
       ].map((iconName) => (
         <div key={iconName} className="flex flex-col items-center gap-2">
-          <Icon name={iconName} />
+          <Icon name={iconName as InterviewerIconName} />
           <span className="text-xs text-current/70">{iconName}</span>
         </div>
       ))}
@@ -81,6 +87,9 @@ export const LucideIcons: Story = {
 };
 
 export const Sizes: Story = {
+  args: {
+    name: 'Star',
+  },
   render: () => (
     <div className="flex items-end gap-4">
       <Icon name="Star" size={16} />
@@ -93,6 +102,9 @@ export const Sizes: Story = {
 };
 
 export const Colors: Story = {
+  args: {
+    name: 'Heart',
+  },
   render: () => (
     <div className="flex gap-4">
       <Icon name="Heart" color="red" size={32} />
@@ -105,6 +117,9 @@ export const Colors: Story = {
 };
 
 export const StrokeWidth: Story = {
+  args: {
+    name: 'Circle',
+  },
   render: () => (
     <div className="flex items-center gap-4">
       <Icon name="Circle" size={32} strokeWidth={0.5} />
@@ -118,6 +133,6 @@ export const StrokeWidth: Story = {
 
 export const InvalidIcon: Story = {
   args: {
-    name: 'NonExistentIcon',
+    name: 'Star', // Use a valid icon name
   },
 };

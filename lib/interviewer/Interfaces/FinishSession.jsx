@@ -2,7 +2,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { finishInterview } from '~/actions/interviews';
-import Button from '~/components/ui/Button';
+import { default as Button } from '~/components/ui/Button';
 import useDialog from '~/lib/dialogs/useDialog';
 import Loading from '~/lib/interviewer/components/Loading';
 

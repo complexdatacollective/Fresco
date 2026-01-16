@@ -1,3 +1,5 @@
+import Dialog from '~/lib/dialogs/Dialog';
+
 type OverlayProps = {
   children: React.ReactNode;
   onClose: () => void;

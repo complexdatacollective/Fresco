@@ -46,7 +46,7 @@ export const AnonymousRecruitmentURLButton = ({
   };
 
   return (
-    <Button size="xs" onClick={handleCopyClick} color="primary">
+    <Button size="sm" onClick={handleCopyClick} color="primary">
       <Copy className="mr-2 h-4 w-4" />
       <span className="w-36 truncate">{url}</span>
     </Button>

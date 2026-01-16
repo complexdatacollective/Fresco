@@ -12,7 +12,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ActionButton from '~/components/interview/ActionButton';
 import Button from '~/components/ui/Button';
-import { Dialog } from '~/lib/dialogs/Dialog';
+import { type InterviewerIconName } from '~/components/ui/Icon';
+import Dialog from '~/lib/dialogs/Dialog';
 import Form from '~/lib/form/components/Form';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import { type FormSubmitHandler } from '~/lib/form/store/types';
@@ -119,7 +120,7 @@ const NodeForm = (props: NodeFormProps) => {
           <ActionButton
             disabled={disabled}
             onClick={() => setShow(true)}
-            iconName={icon}
+            iconName={icon as InterviewerIconName}
             title={`Add...`}
           />
         </motion.div>

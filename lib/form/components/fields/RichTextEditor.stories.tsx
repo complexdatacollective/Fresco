@@ -310,7 +310,6 @@ export const BulletListOnly: Story = {
     <div className="w-[600px]">
       <RichTextEditorField
         {...args}
-        placeholder="Only bullet lists available..."
         toolbarOptions={{
           lists: { bullet: true, ordered: false },
         }}
