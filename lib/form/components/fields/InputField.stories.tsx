@@ -91,6 +91,17 @@ type Story = StoryObj<typeof meta>;
  */
 export const Default: Story = {
   args: {},
+  render: function Render(args) {
+    const [value, setValue] = useState('');
+    return (
+      <InputField
+        {...args}
+        value={value}
+        onChange={(v) => setValue(v ?? '')}
+        data-testid="default-input"
+      />
+    );
+  },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const input = canvas.getByTestId('default-input');
@@ -146,50 +157,66 @@ export const States: Story = {
     'readOnly': { control: 'boolean' },
     'aria-invalid': { control: 'boolean' },
   },
-  render: (args) => (
-    <div className="flex w-80 flex-col gap-4">
-      <div>
-        <p className="mb-1 text-xs font-medium opacity-70">Normal</p>
-        <InputField
-          {...args}
-          placeholder="Normal state"
-          aria-label="Normal state input"
-          data-testid="normal-input"
-        />
+  render: function Render(args) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { value: _value, onChange: _onChange, ...restArgs } = args;
+    const [normalValue, setNormalValue] = useState('');
+    const [disabledValue, setDisabledValue] = useState('Cannot edit this');
+    const [readonlyValue, setReadonlyValue] = useState('Read-only text');
+    const [invalidValue, setInvalidValue] = useState('Invalid value');
+
+    return (
+      <div className="flex w-80 flex-col gap-4">
+        <div>
+          <p className="mb-1 text-xs font-medium opacity-70">Normal</p>
+          <InputField
+            {...restArgs}
+            value={normalValue}
+            onChange={(v) => setNormalValue(v ?? '')}
+            placeholder="Normal state"
+            aria-label="Normal state input"
+            data-testid="normal-input"
+          />
+        </div>
+        <div>
+          <p className="mb-1 text-xs font-medium opacity-70">Disabled</p>
+          <InputField
+            {...restArgs}
+            disabled
+            value={disabledValue}
+            onChange={(v) => setDisabledValue(v ?? '')}
+            aria-label="Disabled state input"
+            data-testid="disabled-input"
+          />
+        </div>
+        <div>
+          <p className="mb-1 text-xs font-medium opacity-70">Read-Only</p>
+          <InputField
+            {...restArgs}
+            readOnly
+            value={readonlyValue}
+            onChange={(v) => setReadonlyValue(v ?? '')}
+            aria-label="Read-only state input"
+            data-testid="readonly-input"
+          />
+        </div>
+        <div>
+          <p className="mb-1 text-xs font-medium opacity-70">Invalid</p>
+          <InputField
+            {...restArgs}
+            aria-invalid
+            value={invalidValue}
+            onChange={(v) => setInvalidValue(v ?? '')}
+            aria-label="Invalid state input"
+            data-testid="invalid-input"
+            suffixComponent={
+              <AlertCircle className="text-destructive h-4 w-4" />
+            }
+          />
+        </div>
       </div>
-      <div>
-        <p className="mb-1 text-xs font-medium opacity-70">Disabled</p>
-        <InputField
-          {...args}
-          disabled
-          defaultValue="Cannot edit this"
-          aria-label="Disabled state input"
-          data-testid="disabled-input"
-        />
-      </div>
-      <div>
-        <p className="mb-1 text-xs font-medium opacity-70">Read-Only</p>
-        <InputField
-          {...args}
-          readOnly
-          defaultValue="Read-only text"
-          aria-label="Read-only state input"
-          data-testid="readonly-input"
-        />
-      </div>
-      <div>
-        <p className="mb-1 text-xs font-medium opacity-70">Invalid</p>
-        <InputField
-          {...args}
-          aria-invalid
-          defaultValue="Invalid value"
-          aria-label="Invalid state input"
-          data-testid="invalid-input"
-          suffixComponent={<AlertCircle className="text-destructive h-4 w-4" />}
-        />
-      </div>
-    </div>
-  ),
+    );
+  },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
@@ -223,64 +250,66 @@ export const InputTypes: Story = {
     'placeholder': { control: false },
   },
   render: function Render(args) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { value: _value, onChange: _onChange, ...restArgs } = args;
     const [numberValue, setNumberValue] = useState<number | undefined>();
 
     return (
       <div className="flex w-80 flex-col gap-3">
         <InputField
-          {...args}
+          {...restArgs}
           type="text"
           placeholder="Text"
           aria-label="Text input"
         />
         <InputField
-          {...args}
+          {...restArgs}
           type="email"
           placeholder="email@example.com"
           aria-label="Email input"
           prefixComponent={<Mail className="h-4 w-4" />}
         />
         <InputField
-          {...args}
+          {...restArgs}
           type="password"
           placeholder="Password"
           aria-label="Password input"
           prefixComponent={<Lock className="h-4 w-4" />}
         />
         <InputField
-          {...args}
+          {...restArgs}
           type="number"
           placeholder="Enter number"
           aria-label="Number input"
           data-testid="number-input"
-          value={numberValue as unknown as string}
-          onChange={(v: unknown) => setNumberValue(v as number | undefined)}
+          value={numberValue?.toString() ?? ''}
+          onChange={(v) => setNumberValue(v ? Number(v) : undefined)}
         />
         <p className="text-xs opacity-70" data-testid="number-value">
           Number value: {numberValue ?? 'undefined'} (type: {typeof numberValue}
           )
         </p>
         <InputField
-          {...args}
+          {...restArgs}
           type="tel"
           placeholder="+1 (555) 123-4567"
           aria-label="Telephone input"
         />
         <InputField
-          {...args}
+          {...restArgs}
           type="url"
           placeholder="https://example.com"
           aria-label="URL input"
         />
         <InputField
-          {...args}
+          {...restArgs}
           type="search"
           placeholder="Search..."
           aria-label="Search input"
           prefixComponent={<Search className="h-4 w-4" />}
         />
         <InputField
-          {...args}
+          {...restArgs}
           type="date"
           aria-label="Date input"
           prefixComponent={<Calendar className="h-4 w-4" />}
@@ -483,6 +512,8 @@ export const TypeSafeOnChange: Story = {
     'placeholder': { control: false },
   },
   render: function Render(args) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { value: _value, onChange: _onChange, ...restArgs } = args;
     const [textValue, setTextValue] = useState('');
     const [numberValue, setNumberValue] = useState<number | undefined>(42);
 
@@ -491,7 +522,7 @@ export const TypeSafeOnChange: Story = {
         <div className="space-y-2">
           <label className="text-sm font-medium">Text Input</label>
           <InputField
-            {...args}
+            {...restArgs}
             type="text"
             value={textValue}
             onChange={(v) => setTextValue(v ?? '')}
@@ -505,10 +536,10 @@ export const TypeSafeOnChange: Story = {
         <div className="space-y-2">
           <label className="text-sm font-medium">Number Input</label>
           <InputField
-            {...args}
+            {...restArgs}
             type="number"
-            value={numberValue as unknown as string}
-            onChange={(v: unknown) => setNumberValue(v as number | undefined)}
+            value={numberValue?.toString() ?? ''}
+            onChange={(v) => setNumberValue(v ? Number(v) : undefined)}
             placeholder="Enter number..."
             data-testid="number-input"
           />
@@ -542,7 +573,18 @@ export const TypeSafeOnChange: Story = {
  */
 export const KeyboardNavigation: Story = {
   args: {
-    'placeholder': 'Tab to focus, type, then tab away',
+    placeholder: 'Tab to focus, type, then tab away',
+  },
+  render: function Render(args) {
+    const [value, setValue] = useState('');
+    return (
+      <InputField
+        {...args}
+        value={value}
+        onChange={(v) => setValue(v ?? '')}
+        data-testid="keyboard-input"
+      />
+    );
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

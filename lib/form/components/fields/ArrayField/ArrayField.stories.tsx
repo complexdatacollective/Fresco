@@ -8,6 +8,7 @@ import { action } from 'storybook/actions';
 import { useArgs } from 'storybook/preview-api';
 import { Button, IconButton, MotionButton } from '~/components/ui/Button';
 import Dialog from '~/lib/dialogs/Dialog';
+import DialogProvider from '~/lib/dialogs/DialogProvider';
 import Field from '~/lib/form/components/Field/Field';
 import InputField from '~/lib/form/components/fields/InputField';
 import { FormWithoutProvider } from '~/lib/form/components/Form';
@@ -214,9 +215,11 @@ immediately upon creation.
   },
   decorators: [
     (Story) => (
-      <div className="w-lg">
-        <Story />
-      </div>
+      <DialogProvider>
+        <div className="w-lg">
+          <Story />
+        </div>
+      </DialogProvider>
     ),
   ],
 };

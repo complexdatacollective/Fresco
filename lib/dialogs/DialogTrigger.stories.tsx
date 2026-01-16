@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { CheckCircle, Trash2 } from 'lucide-react';
+import DialogProvider from './DialogProvider';
 import { DialogTrigger } from './DialogTrigger';
 
 const meta: Meta<typeof DialogTrigger> = {
@@ -10,6 +11,13 @@ const meta: Meta<typeof DialogTrigger> = {
   parameters: {
     layout: 'centered',
   },
+  decorators: [
+    (Story) => (
+      <DialogProvider>
+        <Story />
+      </DialogProvider>
+    ),
+  ],
 };
 
 export default meta;

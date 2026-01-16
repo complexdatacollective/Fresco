@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { fn } from 'storybook/test';
 import Button from '~/components/ui/Button';
 import Dialog from './Dialog';
+import DialogProvider from './DialogProvider';
 import { DialogTrigger } from './DialogTrigger';
 import useDialog from './useDialog';
 
@@ -126,6 +127,13 @@ const meta: Meta = {
       toc: true,
     },
   },
+  decorators: [
+    (Story) => (
+      <DialogProvider>
+        <Story />
+      </DialogProvider>
+    ),
+  ],
 };
 
 export default meta;

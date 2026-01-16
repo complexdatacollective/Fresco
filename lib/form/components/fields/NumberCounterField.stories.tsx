@@ -229,20 +229,20 @@ export const WithBoundaries: Story = {
       name: /decrease/i,
     });
 
-    // Click increment until we reach max (10)
-    for (let i = 0; i < 6; i++) {
+    // Click increment until we reach max (10) - starts at 5, so 5 clicks
+    for (let i = 0; i < 5; i++) {
       await userEvent.click(incrementButton);
     }
 
-    // Increment button should be aria-disabled at max
+    // Increment button should be disabled at max
     await expect(incrementButton).toBeDisabled();
 
-    // Click decrement until we reach min (0)
-    for (let i = 0; i < 11; i++) {
+    // Click decrement until we reach min (0) - starts at 10, so 10 clicks
+    for (let i = 0; i < 10; i++) {
       await userEvent.click(decrementButton);
     }
 
-    // Decrement button should be aria-disabled at min
+    // Decrement button should be disabled at min
     await expect(decrementButton).toBeDisabled();
   },
 };

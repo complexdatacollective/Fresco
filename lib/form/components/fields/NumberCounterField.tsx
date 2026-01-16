@@ -61,9 +61,13 @@ export default function NumberCounterField(props: NumberCounterFieldProps) {
     step = 1,
     size = 'md',
     className,
+    disabled,
+    readOnly,
     'aria-required': ariaRequired,
     'aria-invalid': ariaInvalid,
     'aria-describedby': ariaDescribedBy,
+    'aria-disabled': ariaDisabled,
+    'aria-readonly': ariaReadonly,
     ...restProps
   } = props;
 
@@ -144,6 +148,8 @@ export default function NumberCounterField(props: NumberCounterFieldProps) {
       aria-required={ariaRequired}
       aria-invalid={ariaInvalid}
       aria-describedby={ariaDescribedBy}
+      aria-disabled={ariaDisabled ?? (disabled ? true : undefined)}
+      aria-readonly={ariaReadonly ?? (readOnly ? true : undefined)}
       tabIndex={state === 'disabled' ? -1 : 0}
       {...keyboardHandlers}
       className={cx(numberCounterWrapperVariants({ size, state }), className)}

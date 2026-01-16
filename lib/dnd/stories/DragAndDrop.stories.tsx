@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
 import Heading from '~/components/typography/Heading';
 import { Collection, InlineGridLayout, useDragAndDrop } from '~/lib/collection';
-import { type DragMetadata } from '~/lib/dnd';
+import { type DragMetadata, DndStoreProvider } from '~/lib/dnd';
 import { Node } from '~/lib/ui/components';
 
 type Item = {
@@ -257,6 +257,13 @@ const { dropProps, isOver, willAccept } = useDropTarget({
     },
   },
   tags: ['autodocs'],
+  decorators: [
+    (Story) => (
+      <DndStoreProvider>
+        <Story />
+      </DndStoreProvider>
+    ),
+  ],
 };
 
 export default meta;

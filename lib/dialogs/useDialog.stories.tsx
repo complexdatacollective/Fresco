@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import React from 'react';
 import { fn } from 'storybook/test';
 import Button from '~/components/ui/Button';
+import DialogProvider from './DialogProvider';
 import useDialog from './useDialog';
 
 // Component that opens a nested confirmation dialog
@@ -56,6 +57,13 @@ const meta = {
   parameters: {
     layout: 'fullscreen',
   },
+  decorators: [
+    (Story) => (
+      <DialogProvider>
+        <Story />
+      </DialogProvider>
+    ),
+  ],
 } satisfies Meta;
 
 export default meta;

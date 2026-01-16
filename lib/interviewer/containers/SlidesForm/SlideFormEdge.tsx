@@ -64,17 +64,18 @@ export default function SlideFormEdge(props: SlideFormEdgeProps) {
         <div className="alter-form__form-container alter-edge-form__form-container">
           <Scroller onScroll={() => onScroll?.()}>
             <Form
-              fields={form.fields}
-              handleSubmit={handleSubmit}
-              getInitialValues={() =>
-                initialValues as Record<string, unknown>
-              }
-              className="alter-form__form alter-edge-form__form"
-              autoFocus={false}
-              subject={subject}
-              submitButton={submitButton}
-              validationMeta={{ entityId: id.toString() }}
-              otherNetworkEntities={otherNetworkEntities}
+              {...({
+                fields: form.fields,
+                handleSubmit,
+                getInitialValues: () =>
+                  initialValues as Record<string, unknown>,
+                className: 'alter-form__form alter-edge-form__form',
+                autoFocus: false,
+                subject,
+                submitButton,
+                validationMeta: { entityId: id.toString() },
+                otherNetworkEntities,
+              } as unknown as React.ComponentProps<typeof Form>)}
             />
           </Scroller>
         </div>

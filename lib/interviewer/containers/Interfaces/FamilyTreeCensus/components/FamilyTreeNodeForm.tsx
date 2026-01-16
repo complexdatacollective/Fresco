@@ -207,11 +207,13 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
       >
         <Scroller>
           <Form
-            ref={formRef}
-            fields={form.fields}
-            handleSubmit={handleSubmit}
-            getInitialValues={getInitialValues}
-            focusFirstInput={true}
+            {...({
+              ref: formRef,
+              fields: form.fields,
+              handleSubmit,
+              getInitialValues,
+              focusFirstInput: true,
+            } as unknown as React.ComponentProps<typeof Form>)}
           />
         </Scroller>
       </Overlay>
