@@ -2,11 +2,19 @@ name: E2E Tests
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
+  pull-requests: write
 
 on:
   push:
     branches: [main, next]
   pull_request:
+
+# Only allow one deployment at a time for GitHub Pages
+concurrency:
+  group: e2e-pages-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # Build Docker image for PRs - calls reusable workflow
@@ -57,6 +65,8 @@ jobs:
     timeout-minutes: 30
     needs: [build-image-pr, build-image-push]
     if: always() && (needs.build-image-pr.result == 'success' || needs.build-image-push.result == 'success')
+    outputs:
+      test-result: ${{ steps.test.outcome }}
 
     steps:
       - name: Checkout code
@@ -106,6 +116,7 @@ jobs:
         run: docker load --input /tmp/image.tar
 
       - name: Run E2E tests
+        id: test
         run: pnpm test:e2e
         env:
           CI: true
@@ -127,3 +138,44 @@ jobs:
           name: test-videos
           path: tests/e2e/test-results/**/*.webm
           retention-days: 7
+
+      # Prepare report for GitHub Pages deployment (only on failure)
+      - name: Upload Pages artifact
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: tests/e2e/playwright-report/
+
+  # Deploy report to GitHub Pages on test failure
+  deploy-report:
+    if: failure() && github.event_name == 'pull_request' && needs.e2e.outputs.test-result == 'failure'
+    needs: e2e
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Comment on PR with report link
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## 🎭 Playwright E2E Test Report
+
+            ❌ **Tests failed.** View the full report here:
+
+            👉 **[${{ steps.deployment.outputs.page_url }}](${{ steps.deployment.outputs.page_url }})**
+
+            <details>
+            <summary>Report details</summary>
+
+            - **Workflow run:** [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            - **Commit:** ${{ github.event.pull_request.head.sha }}
+            - **Branch:** `${{ github.head_ref }}`
+
+            </details>
