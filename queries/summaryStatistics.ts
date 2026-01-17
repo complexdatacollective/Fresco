@@ -1,11 +1,13 @@
 import 'server-only';
 import { createCachedFunction } from '~/lib/cache';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 
 export const getSummaryStatistics = createCachedFunction(async () => {
   const counts = await prisma.$transaction([
     prisma.interview.count(),
-    prisma.protocol.count(),
+    prisma.protocol.count({
+      where: { isPreview: false },
+    }),
     prisma.participant.count(),
   ]);
 

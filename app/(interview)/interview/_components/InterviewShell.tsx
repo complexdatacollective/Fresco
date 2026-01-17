@@ -2,6 +2,7 @@
 
 import { Provider } from 'react-redux';
 import SuperJSON from 'superjson';
+import { DndStoreProvider } from '~/lib/dnd/DndStoreProvider';
 import ProtocolScreen from '~/lib/interviewer/containers/ProtocolScreen';
 import { store } from '~/lib/interviewer/store';
 import { type GetInterviewByIdQuery } from '~/queries/interviews';
@@ -11,14 +12,17 @@ import { type GetInterviewByIdQuery } from '~/queries/interviews';
 // Eventually it will handle syncing this data back.
 const InterviewShell = (props: {
   rawPayload: string; // superjson encoded interview
+  disableSync?: boolean; // Disable syncing to database (for preview mode)
 }) => {
   const decodedPayload = SuperJSON.parse<NonNullable<GetInterviewByIdQuery>>(
     props.rawPayload,
   );
 
   return (
-    <Provider store={store(decodedPayload)}>
-      <ProtocolScreen isPreview={decodedPayload.protocol.isPreview} />
+    <Provider store={store(decodedPayload, { disableSync: props.disableSync })}>
+      <DndStoreProvider>
+        <ProtocolScreen />
+      </DndStoreProvider>
     </Provider>
   );
 };

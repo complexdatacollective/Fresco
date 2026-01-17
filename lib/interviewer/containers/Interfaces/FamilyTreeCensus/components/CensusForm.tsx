@@ -4,13 +4,13 @@ import { useSelector } from 'react-redux';
 import Button from '~/components/ui/Button';
 import InputField from '~/lib/form/components/fields/InputField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
+import { useFamilyTreeStore } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
+import { getSexVariable } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/nodeUtils';
+import Overlay from '~/lib/interviewer/containers/Overlay';
 import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
 import { updateEgo } from '~/lib/interviewer/ducks/modules/session';
 import { getNetworkEgo } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
-import Overlay from '../../../Overlay';
-import { useFamilyTreeStore } from '../FamilyTreeProvider';
-import { getSexVariable } from '../utils/nodeUtils';
 
 export const CensusForm = ({
   showForm = true,

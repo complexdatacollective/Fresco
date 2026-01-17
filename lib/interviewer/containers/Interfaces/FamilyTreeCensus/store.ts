@@ -2,16 +2,54 @@ import { invariant } from 'es-toolkit';
 import { enableMapSet } from 'immer';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import { type FamilyTreeNodeType } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
+import { layoutFamilyTree } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/layoutFamilyTree';
 import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
 import type { AppDispatch } from '~/lib/interviewer/store';
-import { type FamilyTreeNodeType } from './components/FamilyTreeNode';
-import { layoutFamilyTree } from './layoutFamilyTree';
 
 enableMapSet();
 
 export type Sex = 'male' | 'female';
 
+export type NodeIsEgo = true | false;
+
 export type Relationship = 'parent' | 'partner' | 'ex-partner';
+
+export type RelationshipToEgo =
+  | 'maternal-grandmother'
+  | 'maternal-grandfather'
+  | 'paternal-grandmother'
+  | 'paternal-grandfather'
+  | 'maternal-aunt'
+  | 'maternal-uncle'
+  | 'maternal-aunts-partner'
+  | 'maternal-uncles-partner'
+  | 'paternal-aunt'
+  | 'paternal-uncle'
+  | 'paternal-aunts-partner'
+  | 'paternal-uncles-partner'
+  | 'fathers-ex-partner'
+  | 'mothers-ex-partner'
+  | 'mother'
+  | 'father'
+  | 'ego'
+  | 'sister'
+  | 'brother'
+  | 'sisters-partner'
+  | 'brothers-partner'
+  | 'half-sister'
+  | 'half-brother'
+  | 'your-partner'
+  | 'paternal-first-cousin'
+  | 'maternal-first-cousin'
+  | 'niece'
+  | 'nephew'
+  | 'daughter'
+  | 'son'
+  | 'daughters-partner'
+  | 'sons-partner'
+  | 'granddaughter'
+  | 'grandson';
 
 export type Edge = {
   id?: string;
@@ -393,7 +431,11 @@ export const createFamilyTreeStore = (
             if (state.network.edges.has(edgeId)) {
               return; // Edge already exists
             }
-            state.network.edges.set(edgeId, { source, target, relationship });
+            state.network.edges.set(edgeId, {
+              source,
+              target,
+              relationship,
+            });
           });
 
           // if this edge is a parent–child connection, mark the parents readOnly
@@ -712,19 +754,29 @@ export const createFamilyTreeStore = (
             relation: string,
             anchorId?: string,
           ): string => {
-            const rel = relation
+            let rel = relation
               .replace(/([a-z])([A-Z])/g, '$1 $2')
-              .toLowerCase();
+              .toLowerCase()
+              .trim();
 
-            if (!anchorId || (!rel.includes('aunt') && !rel.includes('uncle')))
-              return rel;
+            rel = rel.replace(/\s+(male|female)$/i, '');
+
+            const sideRelations = /(aunt|uncle|cousin)/;
+
+            if (!anchorId || !sideRelations.test(rel)) return rel;
 
             const anchorLabel =
-              network.nodes.get(anchorId)?.label?.toLowerCase() ?? '';
-            if (anchorLabel.includes('mother')) return `maternal ${rel}`;
-            if (anchorLabel.includes('father')) return `paternal ${rel}`;
+              get().network.nodes.get(anchorId)?.label?.toLowerCase() ?? '';
 
-            return rel;
+            const prefix =
+              anchorLabel.includes('mother') || anchorLabel.includes('maternal')
+                ? 'maternal'
+                : anchorLabel.includes('father') ||
+                    anchorLabel.includes('paternal')
+                  ? 'paternal'
+                  : '';
+
+            return prefix ? `${prefix} ${rel}` : rel;
           };
 
           const ensurePartner = (nodeId: string): string | null => {
@@ -798,6 +850,8 @@ export const createFamilyTreeStore = (
           };
 
           const connectAsChild = (parentId: string) => {
+            const parent = get().network.nodes.get(parentId);
+            if (!parent) return;
             addEdge({
               source: parentId,
               target: newNodeId,

@@ -4,12 +4,19 @@ import {
   VersionedProtocolSchema,
 } from '@codaco/protocol-validation';
 import { NcNetworkSchema } from '@codaco/shared-consts';
-import { PrismaClient } from '@prisma/client';
+import { PrismaNeon } from '@prisma/adapter-neon';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '~/lib/db/generated/client';
 import { env } from '~/env';
 import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
 
-const createPrismaClient = () =>
-  new PrismaClient({
+const createPrismaClient = () => {
+  const adapter = env.USE_NEON_POSTGRES_ADAPTER
+    ? new PrismaNeon({ connectionString: env.DATABASE_URL })
+    : new PrismaPg({ connectionString: env.DATABASE_URL });
+
+  return new PrismaClient({
+    adapter,
     log: env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
   }).$extends({
     /**
@@ -70,12 +77,14 @@ const createPrismaClient = () =>
       protocol: {
         stages: {
           needs: {
+            name: true,
             schemaVersion: true,
             stages: true,
             codebook: true,
           },
-          compute: ({ schemaVersion, stages, codebook }) => {
+          compute: ({ name, schemaVersion, stages, codebook }) => {
             const protocolSchema = VersionedProtocolSchema.parse({
+              name,
               schemaVersion,
               stages,
               codebook,
@@ -86,14 +95,17 @@ const createPrismaClient = () =>
         },
         codebook: {
           needs: {
+            name: true,
             schemaVersion: true,
             codebook: true,
           },
           compute: ({
+            name,
             schemaVersion,
             codebook,
           }): VersionedProtocol['codebook'] => {
             const protocolSchema = VersionedProtocolSchema.parse({
+              name,
               schemaVersion,
               stages: [],
               codebook,
@@ -104,15 +116,17 @@ const createPrismaClient = () =>
         },
         experiments: {
           needs: {
+            name: true,
             schemaVersion: true,
             experiments: true,
           },
-          compute: ({ schemaVersion, experiments }) => {
+          compute: ({ name, schemaVersion, experiments }) => {
             if (schemaVersion < 8 || !experiments) {
               return {};
             }
 
             const protocolSchema = CurrentProtocolSchema.parse({
+              name,
               schemaVersion,
               stages: [],
               codebook: {},
@@ -124,6 +138,7 @@ const createPrismaClient = () =>
       },
     },
   });
+};
 
 const globalForPrisma = globalThis as unknown as {
   prisma: ReturnType<typeof createPrismaClient> | undefined;

@@ -8,7 +8,7 @@ import {
   appSettingPreprocessedSchema,
 } from '~/schemas/appSettings';
 import { requireApiAuth } from '~/utils/auth';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 import { ensureError } from '~/utils/ensureError';
 import { getStringValue } from '~/utils/getStringValue';
 
@@ -29,6 +29,10 @@ export async function setAppSetting<
     }
 
     // Convert the typed value to a database string
+    // Filter out undefined values as they're not supported by getStringValue
+    if (value === undefined) {
+      throw new Error('Cannot set app setting to undefined');
+    }
     const stringValue = getStringValue(value);
 
     await prisma.appSettings.upsert({

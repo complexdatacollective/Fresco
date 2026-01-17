@@ -1,4 +1,4 @@
-import type { Interview } from '@prisma/client';
+import type { Interview } from '~/lib/db/generated/client';
 import { FileWarning, Loader2, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import superjson from 'superjson';

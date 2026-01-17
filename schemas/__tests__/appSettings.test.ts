@@ -71,7 +71,6 @@ describe('App Settings Schema Validators', () => {
         disableAnalytics: true,
         disableSmallScreenOverlay: false,
         previewModeRequireAuth: true,
-        uploadThingToken: null,
       });
     });
 
@@ -94,7 +93,6 @@ describe('App Settings Schema Validators', () => {
         disableAnalytics: true,
         disableSmallScreenOverlay: false,
         previewModeRequireAuth: true,
-        uploadThingToken: null,
       });
     });
   });

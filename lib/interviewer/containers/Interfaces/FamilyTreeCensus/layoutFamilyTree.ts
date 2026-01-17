@@ -1,4 +1,4 @@
-import { FAMILY_TREE_CONFIG } from './config';
+import { FAMILY_TREE_CONFIG } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/config';
 
 type Relationship = 'parent' | 'partner' | 'ex-partner';
 

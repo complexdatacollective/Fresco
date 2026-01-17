@@ -2,7 +2,7 @@
 
 import type { Activity, ActivityType } from '~/components/DataTable/types';
 import { safeRevalidateTag } from '~/lib/cache';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 
 export async function addEvent(
   type: ActivityType,

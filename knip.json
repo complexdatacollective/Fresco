@@ -1,18 +1,33 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "entry": ["lib/collection/index.ts"],
+  "project": [
+    "**/*.{js,jsx,ts,tsx}",
+    "!**/*.scss"
+  ],
   "ignore": [
-    "public/scripts/d3-dispatch.v3.min.js",
-    "public/scripts/d3-force.v3.min.js",
-    "public/scripts/d3-quadtree.v3.min.js",
-    "public/scripts/d3-timer.v3.min.js",
-    "lib/interviewer/hooks/forceSimulation.worker.js",
     "utils/auth.ts",
     "load-test.js",
-    "styles/tailwind-motion-spring.ts",
+    "styles/plugins/tailwind-motion-spring.ts",
+    "styles/plugins/tailwind-elevation/index.ts",
     "tests/e2e/scripts/analyze-test-isolation.ts"
   ],
-  "ignoreDependencies": ["sharp", "esbuild", "sass-embedded"],
+  "ignoreDependencies": [
+    "sharp",
+    "esbuild",
+    "sass-embedded",
+    "luxon",
+    "react-hook-form",
+    "@tailwindcss/aspect-ratio",
+    "@tailwindcss/container-queries",
+    "@tailwindcss/typography",
+    "@tailwindcss/forms",
+    "tailwindcss-animate",
+    "@types/luxon",
+    "@typescript-eslint/eslint-plugin",
+    "@typescript-eslint/parser",
+    "eslint-plugin-better-tailwindcss"
+  ],
   "ignoreExportsUsedInFile": {
     "type": true
   },

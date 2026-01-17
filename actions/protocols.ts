@@ -1,13 +1,13 @@
 'use server';
 
-import { Prisma } from '@prisma/client';
-import { safeRevalidateTag } from 'lib/cache';
+import { Prisma } from '~/lib/db/generated/client';
+import { safeRevalidateTag } from '~/lib/cache';
 import { hash } from 'ohash';
 import { type z } from 'zod';
-import { getUTApi } from '~/lib/uploadthing-server-helpers';
+import { getUTApi } from '~/lib/uploadthing/server-helpers';
 import { type protocolInsertSchema } from '~/schemas/protocol';
 import { requireApiAuth } from '~/utils/auth';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 import { addEvent } from './activityFeed';
 
 // When deleting protocols we must first delete the assets associated with them
@@ -140,7 +140,7 @@ export async function insertProtocol(
         description: protocol.description,
         assets: {
           create: newAssets,
-          connect: existingAssetIds.map((assetId) => ({ assetId })),
+          connect: existingAssetIds.map((assetId: string) => ({ assetId })),
         },
         experiments: protocol.experiments ?? Prisma.JsonNull,
       },
@@ -155,7 +155,9 @@ export async function insertProtocol(
   } catch (e) {
     // Attempt to delete any assets we uploaded to storage
     if (newAssets.length > 0) {
-      void deleteFilesFromUploadThing(newAssets.map((a) => a.key));
+      void deleteFilesFromUploadThing(
+        newAssets.map((a: { key: string }) => a.key),
+      );
     }
     // Check for protocol already existing
     if (e instanceof Prisma.PrismaClientKnownRequestError) {

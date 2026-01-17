@@ -3,8 +3,7 @@ import { invariant } from 'es-toolkit';
 import { createContext, useContext, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useStore } from 'zustand';
-import { useAppDispatch } from '~/lib/interviewer/store';
-import { type FamilyTreeNodeType } from './components/FamilyTreeNode';
+import { type FamilyTreeNodeType } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
 import {
   createFamilyTreeStore,
   type Edge,
@@ -12,8 +11,9 @@ import {
   type FamilyTreeStoreApi,
   type Relationship,
   type Sex,
-} from './store';
-import { getRelationshipTypeVariable } from './utils/edgeUtils';
+} from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/store';
+import { getRelationshipTypeVariable } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/edgeUtils';
+import { useAppDispatch } from '~/lib/interviewer/store';
 
 const FamilyTreeContext = createContext<FamilyTreeStoreApi | undefined>(
   undefined,
@@ -61,7 +61,6 @@ export const FamilyTreeProvider = ({
       sex: ego.attributes.sex === 'male' ? 'male' : 'female',
       readOnly: true,
       isEgo: true,
-      // interviewNetworkId: ego._uid,
     });
   }
   const relationshipVariable = useSelector(getRelationshipTypeVariable);

@@ -1,5 +1,6 @@
 import type { TestInfo } from '@playwright/test';
-import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '~/lib/db/generated/client';
 import { loadContextData, type SerializedContext } from './context-storage';
 
 export type WorkerContext = {
@@ -22,13 +23,10 @@ function createWorkerContext(serialized: SerializedContext): WorkerContext {
   let prisma = prismaCache.get(serialized.databaseUrl);
 
   if (!prisma) {
-    prisma = new PrismaClient({
-      datasources: {
-        db: {
-          url: serialized.databaseUrl,
-        },
-      },
+    const adapter = new PrismaPg({
+      connectionString: serialized.databaseUrl,
     });
+    prisma = new PrismaClient({ adapter });
     prismaCache.set(serialized.databaseUrl, prisma);
   }
 

@@ -1,7 +1,7 @@
 import { bindActionCreators } from '@reduxjs/toolkit';
 import { get } from 'es-toolkit/compat';
 import PropTypes from 'prop-types';
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { connect, useSelector } from 'react-redux';
 import { compose, withHandlers } from 'recompose';
 import useTimeout from '~/lib/ui/hooks/useTimeout';
@@ -55,7 +55,13 @@ const withResetInterfaceHandler = withHandlers({
  * @extends Component
  */
 const Sociogram = (props) => {
-  const { prompt, stage, handleResetInterface, promptIndex } = props;
+  const {
+    prompt,
+    stage,
+    handleResetInterface,
+    promptIndex,
+    registerBeforeNext,
+  } = props;
 
   const interfaceRef = useRef(null);
   const dragSafeRef = useRef(null);
@@ -107,6 +113,25 @@ const Sociogram = (props) => {
     setReady(true);
   }, 750); // This value is just a guess based on the animation duration!
 
+  /**
+   * When using automatic layout, the layout is only stored when it completely
+   * 'settles'. If the user clicks next before this, there is no layout
+   * variable. Aside from data issues, this creates a particularly problem
+   * where the narrative interface is blank, because it requires a layout and
+   * doesn't create one itself.
+   *
+   * To prevent this, we block progression until the layout is complete.
+   */
+  const [layoutReady, setLayoutReady] = useState(
+    allowAutomaticLayout ? false : true,
+  );
+
+  const onLayoutComplete = useCallback(() => {
+    setLayoutReady(true);
+  }, []);
+
+  registerBeforeNext(() => layoutReady);
+
   return (
     <div className="interface" ref={interfaceRef}>
       <div className="sociogram-interface__drag-safe" ref={dragSafeRef} />
@@ -126,6 +151,7 @@ const Sociogram = (props) => {
           nodes={nodes}
           edges={edges}
           allowAutomaticLayout={allowAutomaticLayout}
+          onLayoutComplete={onLayoutComplete}
         >
           <Canvas className="concentric-circles" id="concentric-circles">
             <Background

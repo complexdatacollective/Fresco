@@ -580,8 +580,7 @@ async function checkEmailExists(
 
   // If we're editing and the email hasn't changed, it's valid
   if (
-    currentItemEmail &&
-    email.toLowerCase() === currentItemEmail.toLowerCase()
+    email.toLowerCase() === currentItemEmail?.toLowerCase()
   ) {
     return false;
   }

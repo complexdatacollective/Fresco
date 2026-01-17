@@ -1,7 +1,7 @@
-import { execFile } from 'child_process';
-import * as path from 'path';
-import { fileURLToPath } from 'url';
-import { promisify } from 'util';
+import { execFile } from 'node:child_process';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 import { ADMIN_CREDENTIALS } from './config/test-config';
 import {
   saveContextData,

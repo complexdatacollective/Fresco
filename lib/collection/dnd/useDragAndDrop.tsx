@@ -132,7 +132,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
       },
 
       useDraggableItemProps: (key: Key) => {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
+         
         const selectionManager = useOptionalSelectionManager();
 
         // Check if item is disabled - disabled items should not be draggable
@@ -156,7 +156,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
 
         const dragType = firstItem?.type ?? 'collection-item';
 
-        // eslint-disable-next-line react-hooks/rules-of-hooks
+         
         const { dragProps, isDragging } = useDragSource({
           type: dragType,
           metadata,
@@ -172,19 +172,19 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
       },
 
       useDroppableItemProps: (key: Key, collectionId: string) => {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
+         
         const dragItem = useDndStore((state) => state.dragItem);
         // Use refs instead of state to avoid stale closures in callbacks
-        // eslint-disable-next-line react-hooks/rules-of-hooks
+         
         const hoverPositionRef = useRef<DropPosition | null>(null);
-        // eslint-disable-next-line react-hooks/rules-of-hooks
+         
         const [hoverPositionState, setHoverPositionState] =
           useState<DropPosition | null>(null);
-        // eslint-disable-next-line react-hooks/rules-of-hooks
+         
         const elementRef = useRef<HTMLElement | null>(null);
 
         // Calculate drop position based on cursor position
-        // eslint-disable-next-line react-hooks/rules-of-hooks
+         
         const calculateDropPosition = useCallback(
           (e: PointerEvent | MouseEvent): DropPosition => {
             const element = elementRef.current;
@@ -208,7 +208,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
         );
 
         // Handle drop on this item - use ref to get latest position
-        // eslint-disable-next-line react-hooks/rules-of-hooks
+         
         const handleItemDrop = useCallback(
           (metadata?: Record<string, unknown>) => {
             if (!metadata) return;
@@ -233,7 +233,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
           [key],
         );
 
-        // eslint-disable-next-line react-hooks/rules-of-hooks
+         
         const { dropProps, isOver, willAccept } = useDropTarget({
           id: `${collectionId}-item-${key}`,
           accepts: itemTypesRef.current,
@@ -252,7 +252,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
         });
 
         // Track pointer movement to update drop position
-        // eslint-disable-next-line react-hooks/rules-of-hooks
+         
         const handlePointerMove = useCallback(
           (e: React.PointerEvent) => {
             if (!isOver || !willAccept) return;
@@ -267,7 +267,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
         );
 
         // Memoize the ref callback to avoid triggering useEffect re-runs in CollectionItem
-        // eslint-disable-next-line react-hooks/rules-of-hooks
+         
         const combinedRef = useCallback(
           (el: HTMLElement | null) => {
             elementRef.current = el;

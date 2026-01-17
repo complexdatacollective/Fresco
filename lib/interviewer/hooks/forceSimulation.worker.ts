@@ -1,36 +1,30 @@
-/* eslint-disable no-undef */
-/* eslint-disable no-console, func-names */
-// import {
-//   forceSimulation,
-//   forceX,
-//   forceY,
-//   forceManyBody,
-//   forceLink,
-// } from 'd3-force';
-
-importScripts('/scripts/d3-dispatch.v3.min.js');
-importScripts('/scripts/d3-quadtree.v3.min.js');
-importScripts('/scripts/d3-timer.v3.min.js');
-importScripts('/scripts/d3-force.v3.min.js');
+/* eslint-disable no-console */
+import * as d3 from 'd3';
 
 const DEFAULT_OPTIONS = {
-  decay: 0.1,
+  alphaDecay: 1 - Math.pow(0.001, 1 / 300),
+  velocityDecay: 0.1,
   charge: -30,
   linkDistance: 30,
   center: 0.1,
-};
+} as const;
 
-let simulation;
-let links;
+type ForceSimulationOptions = typeof DEFAULT_OPTIONS;
+
+let simulation: d3.Simulation<d3.SimulationNodeDatum, undefined>;
+let links: d3.SimulationLinkDatum<d3.SimulationNodeDatum>[];
 let options = { ...DEFAULT_OPTIONS };
 
-const cloneLinks = (ls) => ls.map((link) => ({ ...link }));
+const cloneLinks = (ls: d3.SimulationLinkDatum<d3.SimulationNodeDatum>[]) =>
+  ls.map((link) => ({ ...link }));
 
-const updateOptions = function (newOptions) {
-  Object.keys(newOptions).forEach((option) => {
-    const value = newOptions[option];
+const updateOptions = function (newOptions: Partial<ForceSimulationOptions>) {
+  Object.entries(newOptions).forEach(([option, value]) => {
     switch (option) {
-      case 'decay':
+      case 'alphaDecay':
+        simulation.alphaDecay(value);
+        break;
+      case 'velocityDecay':
         simulation.velocityDecay(value);
         break;
       case 'charge':
@@ -55,7 +49,57 @@ const updateOptions = function (newOptions) {
   simulation.alpha(0.3).restart();
 };
 
-onmessage = function ({ data }) {
+type InitializeMessage = {
+  type: 'initialize';
+  network: {
+    nodes: d3.SimulationNodeDatum[];
+    links: d3.SimulationLinkDatum<d3.SimulationNodeDatum>[];
+  };
+  options?: ForceSimulationOptions;
+};
+
+type UpdateOptionsMessage = {
+  type: 'update_options';
+  options: ForceSimulationOptions;
+};
+
+type StopMessage = {
+  type: 'stop';
+};
+
+type StartMessage = {
+  type: 'start';
+};
+
+type ReheatMessage = {
+  type: 'reheat';
+};
+
+type UpdateNetworkMessage = {
+  type: 'update_network';
+  network: {
+    nodes: d3.SimulationNodeDatum[];
+    links: d3.SimulationLinkDatum<d3.SimulationNodeDatum>[];
+  };
+  restart: boolean;
+};
+
+type UpdateNodeMessage = {
+  type: 'update_node';
+  index: number;
+  node: Partial<d3.SimulationNodeDatum>;
+};
+
+type Message =
+  | InitializeMessage
+  | UpdateOptionsMessage
+  | StopMessage
+  | StartMessage
+  | ReheatMessage
+  | UpdateNetworkMessage
+  | UpdateNodeMessage;
+
+onmessage = function ({ data }: { data: Message }) {
   switch (data.type) {
     case 'initialize': {
       const { network } = data;

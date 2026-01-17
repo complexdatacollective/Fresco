@@ -2,10 +2,13 @@
 
 import { stringify } from 'superjson';
 import { createCachedFunction } from '~/lib/cache';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 
 async function prisma_getProtocols() {
   return prisma.protocol.findMany({
+    where: {
+      isPreview: false,
+    },
     include: {
       interviews: true,
     },
@@ -35,15 +38,40 @@ export const getProtocolByHash = createCachedFunction(
   ['getProtocolsByHash', 'getProtocols'],
 );
 
-export const getNewAssetIds = async (assetIds: string[]) => {
-  const assets = await prisma.asset.findMany({
+export const getExistingAssets = async (assetIds: string[]) => {
+  return prisma.asset.findMany({
     where: {
       assetId: {
         in: assetIds,
       },
     },
+    select: {
+      assetId: true,
+      key: true,
+      url: true,
+      type: true,
+    },
   });
-  const existingAssets = assets.map((asset) => asset.assetId);
-  // Return the assetIds that are not in the database
-  return assetIds.filter((assetId) => !existingAssets.includes(assetId));
 };
+
+export const getNewAssetIds = async (assetIds: string[]) => {
+  const existingAssets = await getExistingAssets(assetIds);
+  // Return the assetIds that are not in the database
+  return assetIds.filter(
+    (assetId) => !existingAssets.some((asset) => asset.assetId === assetId),
+  );
+};
+
+/**
+ * Fetches the preview protocol with assets for preview mode.
+ */
+export async function getProtocolForPreview(protocolId: string) {
+  return prisma.protocol.findUnique({
+    where: { id: protocolId },
+    include: { assets: true },
+    omit: {
+      lastModified: true,
+      hash: true,
+    },
+  });
+}

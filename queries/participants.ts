@@ -1,7 +1,7 @@
 import 'server-only';
 import { stringify } from 'superjson';
 import { createCachedFunction } from '~/lib/cache';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 
 async function prisma_getParticipants() {
   return prisma.participant.findMany({

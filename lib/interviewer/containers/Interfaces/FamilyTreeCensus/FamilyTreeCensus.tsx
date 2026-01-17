@@ -6,6 +6,13 @@ import { useSelector } from 'react-redux';
 import { Toaster } from '~/components/ui/toaster';
 import { useToast } from '~/components/ui/use-toast';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
+import { getEdgeType } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/EdgeRenderer';
+import { FamilyTreeShells } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/FamilyTreeShells';
+import {
+  FamilyTreeProvider,
+  useFamilyTreeStore,
+} from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
+import { getRelationshipTypeVariable } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/edgeUtils';
 import { type StageProps } from '~/lib/interviewer/containers/Stage';
 import { addEdge, deleteNode } from '~/lib/interviewer/ducks/modules/session';
 import {
@@ -16,10 +23,6 @@ import {
 import { useAppDispatch } from '~/lib/interviewer/store';
 import Prompts from '~/lib/ui/components/Prompts/Prompts';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
-import { getEdgeType } from './components/EdgeRenderer';
-import { FamilyTreeShells } from './components/FamilyTreeShells';
-import { FamilyTreeProvider, useFamilyTreeStore } from './FamilyTreeProvider';
-import { getRelationshipTypeVariable } from './utils/edgeUtils';
 
 type FamilyTreeCensusProps = StageProps & {
   stage: Extract<Stage, { type: 'FamilyTreeCensus' }>;
@@ -109,7 +112,9 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           from: edge.source,
           to: edge.target,
           type: edgeType,
-          attributeData: { [relationshipVariable]: edge.relationship },
+          attributeData: {
+            [relationshipVariable]: edge.relationship,
+          },
         }),
       );
     });

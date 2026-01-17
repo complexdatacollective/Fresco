@@ -8,7 +8,7 @@ import {
   updateApiTokenSchema,
 } from '~/schemas/apiTokens';
 import { requireApiAuth } from '~/utils/auth';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 import { addEvent } from './activityFeed';
 
 // Generate a secure random token

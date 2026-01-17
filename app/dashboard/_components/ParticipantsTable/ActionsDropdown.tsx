@@ -1,4 +1,4 @@
-import type { Participant } from '@prisma/client';
+import type { Participant } from '~/lib/db/generated/client';
 import type { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 import { useState } from 'react';

@@ -10,6 +10,18 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Button from '~/components/ui/Button';
 import Form from '~/lib/form/components/Form';
+import { type FamilyTreeNodeType } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
+import { useFamilyTreeStore } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
+import {
+  type NodeIsEgo,
+  type RelationshipToEgo,
+} from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/store';
+import {
+  getNodeIsEgoVariable,
+  getRelationshipToEgoVariable,
+  getSexVariable,
+  normalizeRelationshipToEgoLabel,
+} from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/nodeUtils';
 import Overlay from '~/lib/interviewer/containers/Overlay';
 import {
   addNode as addNetworkNode,
@@ -18,9 +30,6 @@ import {
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { Scroller } from '~/lib/ui/components';
-import { useFamilyTreeStore } from '../FamilyTreeProvider';
-import { getSexVariable } from '../utils/nodeUtils';
-import { type FamilyTreeNodeType } from './FamilyTreeNode';
 
 type FamilyTreeNodeFormProps = {
   nodeType: string;
@@ -35,6 +44,8 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
 
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
   const sexVariable = useSelector(getSexVariable);
+  const nodeIsEgoVariable = useSelector(getNodeIsEgoVariable);
+  const relationshipToEgoVariable = useSelector(getRelationshipToEgoVariable);
 
   const [show, setShow] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -57,6 +68,15 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
         if (sexVariable != null && node.sex != null) {
           attributes[sexVariable] = node.sex;
         }
+        if (nodeIsEgoVariable != null) {
+          attributes[nodeIsEgoVariable] = (node.isEgo ?? false) as NodeIsEgo;
+        }
+        if (relationshipToEgoVariable != null && node.label != null) {
+          attributes[relationshipToEgoVariable] = (
+            node.isEgo ? 'ego' : normalizeRelationshipToEgoLabel(node.label)
+          ) as RelationshipToEgo;
+        }
+
         // set default disease values
         diseaseVars.forEach((disease) => {
           attributes[disease] = false;
@@ -87,11 +107,13 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
     },
     [
       sexVariable,
+      nodeIsEgoVariable,
+      relationshipToEgoVariable,
       diseaseVars,
       dispatch,
       nodeType,
-      syncMetadata,
       updateShellNode,
+      syncMetadata,
     ],
   );
 

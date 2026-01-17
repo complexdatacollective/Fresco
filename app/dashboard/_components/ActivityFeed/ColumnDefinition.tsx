@@ -1,6 +1,6 @@
 'use client';
 
-import type { Events } from '@prisma/client';
+import type { Events } from '~/lib/db/generated/client';
 import { type ColumnDef } from '@tanstack/react-table';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import {

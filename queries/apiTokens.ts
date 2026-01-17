@@ -1,7 +1,7 @@
 'use server';
 
 import { createCachedFunction } from '~/lib/cache';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 
 export const getApiTokens = createCachedFunction(async () => {
   const tokens = await prisma.apiToken.findMany({

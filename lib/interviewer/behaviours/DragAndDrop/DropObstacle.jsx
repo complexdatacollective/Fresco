@@ -1,4 +1,4 @@
-/* eslint-disable react/no-find-dom-node, react/jsx-props-no-spreading */
+/* eslint-disable react/no-find-dom-node */
 
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';

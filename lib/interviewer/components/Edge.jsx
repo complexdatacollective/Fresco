@@ -34,7 +34,7 @@ Edge.propTypes = {
   from: PropTypes.object.isRequired,
   to: PropTypes.object.isRequired,
   viewBoxScale: PropTypes.number.isRequired,
-  /* eslint-disable react/no-unused-prop-types */
+   
   type: PropTypes.string.isRequired,
 };
 

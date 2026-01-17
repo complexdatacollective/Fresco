@@ -258,9 +258,9 @@ function SlidesForm({
           maxWidth="3xl"
         >
           <Heading level="h1" className="text-center">
-            {stage.introductionPanel!.title}
+            {stage.introductionPanel.title}
           </Heading>
-          <RenderMarkdown>{stage.introductionPanel!.text}</RenderMarkdown>
+          <RenderMarkdown>{stage.introductionPanel.text}</RenderMarkdown>
         </Surface>
       </motion.div>
     ),

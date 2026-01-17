@@ -168,7 +168,7 @@ function createLayout(args: CollectionStoryArgs): Layout<Item> {
 function CollectionStoryRender(args: CollectionStoryArgs) {
   const { layoutType, itemComponent, selectionMode, animate } = args;
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+   
   const layout = useMemo(() => createLayout(args), [args]);
 
   const renderItem = (item: Item, itemProps: ItemProps) => {

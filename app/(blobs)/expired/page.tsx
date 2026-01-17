@@ -1,19 +1,11 @@
-import { redirect } from 'next/navigation';
 import { resetAppSettings } from '~/actions/reset';
 import { containerClasses } from '~/components/ContainerClasses';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import SubmitButton from '~/components/ui/SubmitButton';
 import { env } from '~/env';
-import { isAppExpired } from '~/queries/appSettings';
 
-export default async function Page() {
-  const isExpired = await isAppExpired();
-
-  if (!isExpired) {
-    redirect('/');
-  }
-
+export default function Page() {
   return (
     <div className={containerClasses}>
       <Heading level="h1">Installation expired</Heading>
@@ -26,7 +18,7 @@ export default async function Page() {
       </Paragraph>
       {env.NODE_ENV === 'development' && (
         <form action={() => void resetAppSettings()}>
-          <SubmitButton className="mt-6 max-w-xs" type="submit">
+          <SubmitButton className="mt-6 max-w-80" type="submit">
             Dev mode: Reset Configuration
           </SubmitButton>
         </form>

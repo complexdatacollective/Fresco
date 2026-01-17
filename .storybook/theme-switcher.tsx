@@ -26,6 +26,7 @@ function getStoredTheme(): ThemeKey | null {
       return stored as ThemeKey;
     }
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.warn('Failed to read theme from localStorage:', error);
   }
   return null;
@@ -35,6 +36,7 @@ function setStoredTheme(theme: ThemeKey) {
   try {
     localStorage.setItem(STORAGE_KEY, theme);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.warn('Failed to save theme to localStorage:', error);
   }
 }
@@ -79,7 +81,7 @@ function ThemeWrapper({
 
   useLayoutEffect(() => {
     setIsLoading(true);
-    loadTheme(selectedTheme).then(() => {
+    void loadTheme(selectedTheme).then(() => {
       setStoredTheme(selectedTheme);
       setIsLoading(false);
     });
@@ -102,7 +104,7 @@ function ThemeWrapper({
 }
 
 export const withTheme: Decorator = (Story, context) => {
-  const selectedTheme = (context.globals[THEME_KEY] as ThemeKey) || 'default';
+  const selectedTheme = (context.globals[THEME_KEY] as ThemeKey) ?? 'default';
 
   return (
     <ThemeWrapper selectedTheme={selectedTheme}>
@@ -115,7 +117,7 @@ export const globalTypes = {
   [THEME_KEY]: {
     name: 'Theme',
     description: 'Global theme for components',
-    defaultValue: getStoredTheme() || 'default',
+    defaultValue: getStoredTheme() ?? 'default',
     toolbar: {
       icon: 'paintbrush',
       items: Object.entries(themes).map(([key, { name }]) => ({
@@ -129,5 +131,5 @@ export const globalTypes = {
 };
 
 export function getInitialTheme(): ThemeKey {
-  return getStoredTheme() || 'dashboard';
+  return getStoredTheme() ?? 'dashboard';
 }

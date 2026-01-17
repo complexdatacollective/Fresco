@@ -1,8 +1,8 @@
-import { NcNetworkSchema } from '@codaco/shared-consts';
+import { NcNetworkSchema, type NcNetwork } from '@codaco/shared-consts';
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 import { ensureError } from '~/utils/ensureError';
 
 /**
@@ -16,9 +16,10 @@ const routeHandler = async (
 
   const rawPayload = await request.json();
 
+  // Cast NcNetworkSchema to handle Zod version compatibility
   const Schema = z.object({
     id: z.string(),
-    network: NcNetworkSchema,
+    network: NcNetworkSchema as unknown as z.ZodType<NcNetwork>,
     currentStep: z.number(),
     stageMetadata: StageMetadataSchema.optional(),
     lastUpdated: z.string(),

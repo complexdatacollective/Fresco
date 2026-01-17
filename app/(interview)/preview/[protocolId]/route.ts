@@ -1,8 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createInterview } from '~/actions/interviews';
 import { env } from '~/env';
 import trackEvent from '~/lib/analytics';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,7 +29,7 @@ const handler = async (
   // Verify that this is actually a preview protocol
   const protocol = await prisma.protocol.findUnique({
     where: { id: protocolId },
-    select: { isPreview: true, name: true },
+    select: { isPreview: true, isPending: true, name: true },
   });
 
   if (!protocol) {
@@ -44,32 +43,15 @@ const handler = async (
     return NextResponse.redirect(url);
   }
 
-  // Create a new interview for preview
-  // We use a fixed participant identifier for preview sessions
-  const participantIdentifier = `preview-${Date.now()}`;
-
-  const { createdInterviewId, error } = await createInterview({
-    participantIdentifier,
-    protocolId,
-  });
-
-  if (error) {
-    void trackEvent({
-      type: 'Error',
-      name: error,
-      message: 'Failed to create preview interview',
-      metadata: {
-        path: '/preview/[protocolId]/route.ts',
-      },
-    });
-
+  if (protocol.isPending) {
+    // Protocol assets are still being uploaded
     url.pathname = '/onboard/error';
     return NextResponse.redirect(url);
   }
 
   // eslint-disable-next-line no-console
   console.log(
-    `🎨 Created preview interview with ID ${createdInterviewId} using preview protocol ${protocol.name}...`,
+    `🎨 Starting preview interview using preview protocol ${protocol.name}...`,
   );
 
   void trackEvent({
@@ -80,8 +62,8 @@ const handler = async (
     },
   });
 
-  // Redirect to the interview
-  url.pathname = `/interview/${createdInterviewId}`;
+  // Redirect to the preview interview page (no database persistence)
+  url.pathname = `/preview/${protocolId}/interview`;
   return NextResponse.redirect(url);
 };
 

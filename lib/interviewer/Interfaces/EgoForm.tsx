@@ -161,8 +161,8 @@ const EgoForm = (props: EgoFormProps) => {
           onScroll={handleScroll}
         >
           <div className="ego-form__introduction">
-            <h1>{introductionPanel!.title}</h1>
-            <RenderMarkdown>{introductionPanel!.text}</RenderMarkdown>
+            <h1>{introductionPanel.title}</h1>
+            <RenderMarkdown>{introductionPanel.text}</RenderMarkdown>
           </div>
           <Form onSubmit={handleSubmitForm}>{fieldComponents}</Form>
         </Scroller>

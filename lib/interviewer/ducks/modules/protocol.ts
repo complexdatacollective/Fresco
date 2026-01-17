@@ -2,7 +2,7 @@ import {
   type Stage,
   type VersionedProtocol,
 } from '@codaco/protocol-validation';
-import { type Asset } from '@prisma/client';
+import { type Asset } from '~/lib/db/generated/client';
 import { createSelector, createSlice } from '@reduxjs/toolkit';
 import { v4 } from 'uuid';
 import { type GetInterviewByIdQuery } from '~/queries/interviews';

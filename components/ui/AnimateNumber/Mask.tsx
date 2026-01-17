@@ -25,7 +25,7 @@ const maskSize =
   `${correctedMaskWidth} ${maskHeight}`;
 
 // Type assertion needed for motion's addScaleCorrector API
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+ 
 (addScaleCorrector as (correctors: Record<string, unknown>) => void)({
   '--invert-x': {
     correct: (

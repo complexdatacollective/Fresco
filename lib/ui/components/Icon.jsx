@@ -25,7 +25,7 @@ const Icon = (props) => {
     <IconComponent
       className={iconClassNames}
       name={name}
-      // eslint-disable-next-line react/jsx-props-no-spreading
+       
       {...rest}
     />
   );
@@ -35,7 +35,7 @@ Icon.propTypes = {
   name: PropTypes.string.isRequired,
   className: PropTypes.string,
   color: PropTypes.string,
-  // eslint-disable-next-line
+   
   style: PropTypes.object,
 };
 

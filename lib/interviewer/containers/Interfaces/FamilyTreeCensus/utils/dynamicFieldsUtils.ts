@@ -1,7 +1,7 @@
 import RadioGroup from '~/lib/form/components/fields/RadioGroup';
+import { type FamilyTreeNodeType } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
 import type { FieldConfig } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useDynamicFields';
 import type { RelativeOption } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useRelatives';
-import { type FamilyTreeNodeType } from '../components/FamilyTreeNode';
 
 export function getRelationFlags(nodes: FamilyTreeNodeType[]) {
   const hasAuntOrUncle = nodes.some((n) => /\b(aunt|uncle)\b/i.test(n.label));

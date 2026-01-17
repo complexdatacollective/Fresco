@@ -1,4 +1,4 @@
-import type { Interview } from '@prisma/client';
+import type { Interview } from '~/lib/db/generated/client';
 import { Loader2, Trash2 } from 'lucide-react';
 import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 import { deleteInterviews } from '~/actions/interviews';

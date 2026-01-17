@@ -1,17 +1,72 @@
 name: E2E Tests
+
 permissions:
   contents: read
+  pages: write
+  id-token: write
+  pull-requests: write
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, next]
   pull_request:
-    branches: [main, develop]
+
+# Only allow one deployment at a time for GitHub Pages
+concurrency:
+  group: e2e-pages-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
+  # Build Docker image for PRs - calls reusable workflow
+  build-image-pr:
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/docker-build-pr.yml
+    with:
+      disable-image-optimization: true
+
+  # Build Docker image for push events - builds inline
+  build-image-push:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-name: docker-image-push-${{ github.run_id }}
+      image-name: fresco-test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          push: false
+          tags: fresco-test:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          outputs: type=docker,dest=/tmp/image.tar
+          build-args: |
+            DISABLE_IMAGE_OPTIMIZATION=true
+
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image-push-${{ github.run_id }}
+          path: /tmp/image.tar
+          retention-days: 1
+          compression-level: 1
+
+  # Run E2E tests using whichever image was built
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    needs: [build-image-pr, build-image-push]
+    if: always() && (needs.build-image-pr.result == 'success' || needs.build-image-push.result == 'success')
+    outputs:
+      test-result: ${{ steps.test.outcome }}
 
     steps:
       - name: Checkout code
@@ -40,20 +95,31 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Generate Prisma Client
-        run: pnpm prisma generate
-
       - name: Install Playwright browsers
         run: pnpm playwright install --with-deps
 
-      - name: Build Docker image for testing
-        run: docker build --build-arg DISABLE_IMAGE_OPTIMIZATION=true -t fresco:test .
+      - name: Download Docker image (PR)
+        if: github.event_name == 'pull_request'
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build-image-pr.outputs.artifact-name }}
+          path: /tmp
+
+      - name: Download Docker image (Push)
+        if: github.event_name == 'push'
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build-image-push.outputs.artifact-name }}
+          path: /tmp
+
+      - name: Load Docker image
+        run: docker load --input /tmp/image.tar
 
       - name: Run E2E tests
+        id: test
         run: pnpm test:e2e
         env:
           CI: true
-          TEST_IMAGE_NAME: fresco:test
 
       - name: Upload test results
         if: always()
@@ -72,3 +138,44 @@ jobs:
           name: test-videos
           path: tests/e2e/test-results/**/*.webm
           retention-days: 7
+
+      # Prepare report for GitHub Pages deployment (only on failure)
+      - name: Upload Pages artifact
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: tests/e2e/playwright-report/
+
+  # Deploy report to GitHub Pages on test failure
+  deploy-report:
+    if: failure() && github.event_name == 'pull_request' && needs.e2e.outputs.test-result == 'failure'
+    needs: e2e
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Comment on PR with report link
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## 🎭 Playwright E2E Test Report
+
+            ❌ **Tests failed.** View the full report here:
+
+            👉 **[${{ steps.deployment.outputs.page_url }}](${{ steps.deployment.outputs.page_url }})**
+
+            <details>
+            <summary>Report details</summary>
+
+            - **Workflow run:** [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            - **Commit:** ${{ github.event.pull_request.head.sha }}
+            - **Branch:** `${{ github.head_ref }}`
+
+            </details>

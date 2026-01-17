@@ -6,6 +6,7 @@ import ActionButton from '~/components/interview/ActionButton';
 import Button from '~/components/ui/Button';
 import { type InterviewerIconName } from '~/components/ui/Icon';
 import Form from '~/lib/form/components/Form';
+import { useFamilyTreeStore } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
 import { useDynamicFields } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useDynamicFields';
 import { useRelatives } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useRelatives';
 import Overlay from '~/lib/interviewer/containers/Overlay';
@@ -15,7 +16,6 @@ import {
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
 import { Scroller } from '~/lib/ui/components';
-import { useFamilyTreeStore } from '../FamilyTreeProvider';
 
 const AddFamilyMemberForm = () => {
   const subject = useSelector(getStageSubject);

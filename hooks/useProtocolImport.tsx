@@ -1,7 +1,6 @@
 import {
-  type CurrentProtocol,
-  migrateProtocol,
-  validateProtocol,
+  CURRENT_SCHEMA_VERSION,
+  getMigrationInfo,
 } from '@codaco/protocol-validation';
 import { queue } from 'async';
 import { XCircle } from 'lucide-react';
@@ -16,7 +15,11 @@ import {
 import Paragraph from '~/components/typography/Paragraph';
 import Link from '~/components/ui/Link';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
-import { uploadFiles } from '~/lib/uploadthing-client-helpers';
+import {
+  validateAndMigrateProtocol,
+  type ProtocolValidationError,
+} from '~/lib/protocol/validateAndMigrateProtocol';
+import { uploadFiles } from '~/lib/uploadthing/client-helpers';
 import { getNewAssetIds, getProtocolByHash } from '~/queries/protocols';
 import { type AssetInsertType } from '~/schemas/protocol';
 import { DatabaseError } from '~/utils/databaseError';
@@ -46,6 +49,121 @@ function formatNumberList(numbers: number[]): string {
   const formattedList = numbers.join(', ') + `, and ${lastNumber}`;
 
   return formattedList;
+}
+
+/**
+ * Creates error payload for protocol validation failures.
+ */
+function createValidationErrorPayload(
+  fileName: string,
+  validationError: ProtocolValidationError,
+) {
+  switch (validationError.error) {
+    case 'invalid-object':
+      return {
+        id: fileName,
+        rawError: new Error('Invalid protocol object'),
+        error: {
+          title: 'Invalid protocol file',
+          description: (
+            <>
+              The uploaded file does not contain a valid protocol.
+            </>
+          ),
+        },
+      };
+
+    case 'unsupported-version':
+      return {
+        id: fileName,
+        rawError: new Error('Protocol version not supported'),
+        error: {
+          title: 'Protocol version not supported',
+          description: (
+            <>
+              The protocol you uploaded is not compatible with this version of
+              the app. Fresco supports protocols using version number
+              {APP_SUPPORTED_SCHEMA_VERSIONS.length > 1 ? 's' : ''}{' '}
+              {formatNumberList([...APP_SUPPORTED_SCHEMA_VERSIONS])}.
+            </>
+          ),
+        },
+      };
+
+    case 'validation-failed': {
+      const resultAsString = JSON.stringify(
+        validationError.validationResult,
+        null,
+        2,
+      );
+      const validationResult = validationError.validationResult as {
+        error: { issues: { message: string; path: string[] }[] };
+      };
+
+      return {
+        id: fileName,
+        rawError: new Error('Protocol validation failed', {
+          cause: validationError.validationResult,
+        }),
+        error: {
+          title: 'The protocol is invalid!',
+          description: (
+            <>
+              <Paragraph>
+                The protocol you uploaded is invalid. See the details below for
+                specific validation errors that were found.
+              </Paragraph>
+              <Paragraph>
+                If you believe that your protocol should be valid please ask for
+                help via our{' '}
+                <Link
+                  href="https://community.networkcanvas.com"
+                  target="_blank"
+                >
+                  community forum
+                </Link>
+                .
+              </Paragraph>
+            </>
+          ),
+          additionalContent: (
+            <ErrorDetails errorText={resultAsString}>
+              <ul className="max-w-md list-inside space-y-2">
+                {validationResult.error.issues.map(({ message, path }, i) => (
+                  <li className="flex capitalize" key={i}>
+                    <XCircle className="text-destructive mr-2 h-4 w-4" />
+                    <span>
+                      {message}{' '}
+                      <span className="text-xs italic">
+                        ({path.join(' > ')})
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </ErrorDetails>
+          ),
+        },
+      };
+    }
+
+    case 'missing-dependencies': {
+      const missingDeps = validationError.missingDependencies;
+      return {
+        id: fileName,
+        rawError: new Error('Migration dependencies missing'),
+        error: {
+          title: 'Migration failed',
+          description: (
+            <>
+              The protocol requires migration but is missing required
+              information: {missingDeps.join(', ')}.
+            </>
+          ),
+        },
+      };
+    }
+  }
 }
 
 export const useProtocolImport = () => {
@@ -83,111 +201,37 @@ export const useProtocolImport = () => {
         },
       });
 
-      // Check if the protocol version is compatible with the app.
-      const protocolVersion = protocolJson.schemaVersion;
-      if (
-        !protocolVersion ||
-        !APP_SUPPORTED_SCHEMA_VERSIONS.includes(protocolVersion)
-      ) {
-        dispatch({
-          type: 'UPDATE_ERROR',
-          payload: {
-            id: fileName,
-            rawError: new Error('Protocol version not supported'),
-            error: {
-              title: 'Protocol version not supported',
-              description: (
-                <>
-                  The protocol you uploaded is not compatible with this version
-                  of the app. Fresco supports protocols using version number
-                  {APP_SUPPORTED_SCHEMA_VERSIONS.length > 1 ? 's' : ''}{' '}
-                  {formatNumberList(APP_SUPPORTED_SCHEMA_VERSIONS)}.
-                </>
-              ),
-            },
-          },
-        });
-
-        return;
+      // Build migration dependencies based on what's required
+      const dependencies: Record<string, unknown> = {};
+      if (protocolJson.schemaVersion < CURRENT_SCHEMA_VERSION) {
+        const migrationInfo = getMigrationInfo(
+          protocolJson.schemaVersion,
+          CURRENT_SCHEMA_VERSION,
+        );
+        for (const dep of migrationInfo.dependencies) {
+          if (dep === 'name') {
+            // Derive protocol name from filename (remove .netcanvas extension)
+            dependencies.name = fileName.replace(/\.netcanvas$/i, '');
+          }
+        }
       }
 
-      // Migrate v7 to v8
-      let protocolToValidate = protocolJson;
-
-      if (protocolVersion !== 8) {
-        dispatch({
-          type: 'UPDATE_STATUS',
-          payload: {
-            id: fileName,
-            status: 'Migrating protocol',
-          },
-        });
-        // eslint-disable-next-line no-console
-        console.warn('Migrating protocol from v7 to v8...');
-        protocolToValidate = migrateProtocol(protocolJson, 8);
-      }
-
-      const validationResult = await validateProtocol(protocolToValidate);
+      const validationResult = await validateAndMigrateProtocol(
+        protocolJson,
+        dependencies,
+      );
 
       if (!validationResult.success) {
-        const resultAsString = JSON.stringify(validationResult, null, 2);
-
         dispatch({
           type: 'UPDATE_ERROR',
-          payload: {
-            id: fileName,
-            rawError: new Error('Protocol validation failed', {
-              cause: validationResult,
-            }),
-            error: {
-              title: 'The protocol is invalid!',
-              description: (
-                <>
-                  <Paragraph>
-                    The protocol you uploaded is invalid. See the details below
-                    for specific validation errors that were found.
-                  </Paragraph>
-                  <Paragraph>
-                    If you believe that your protocol should be valid please ask
-                    for help via our{' '}
-                    <Link
-                      href="https://community.networkcanvas.com"
-                      target="_blank"
-                    >
-                      community forum
-                    </Link>
-                    .
-                  </Paragraph>
-                </>
-              ),
-              additionalContent: (
-                <ErrorDetails errorText={resultAsString}>
-                  <ul className="max-w-md list-inside space-y-2">
-                    {validationResult.error.issues.map(
-                      ({ message, path }, i) => (
-                        <li className="flex capitalize" key={i}>
-                          <XCircle className="text-destructive mr-2 h-4 w-4" />
-                          <span>
-                            {message}{' '}
-                            <span className="text-xs italic">
-                              ({path.join(' > ')})
-                            </span>
-                          </span>
-                        </li>
-                      ),
-                    )}
-                  </ul>
-                </ErrorDetails>
-              ),
-            },
-          },
+          payload: createValidationErrorPayload(fileName, validationResult),
         });
 
         return;
       }
 
       // After this point, assume the protocol is valid.
-      const validatedProtocol = validationResult.data as CurrentProtocol;
+      const validatedProtocol = validationResult.protocol;
 
       // Check if the protocol already exists in the database
       const protocolHash = hash(validatedProtocol);

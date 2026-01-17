@@ -169,7 +169,7 @@ export function useCollectionSetup<T>(
   // Get collection-level drop state and props if hooks provided (for onDrop)
   const dropResult: DroppableCollectionResult | null = options.dragAndDropHooks
     ?.useDroppableCollectionState
-    ? // eslint-disable-next-line react-hooks/rules-of-hooks
+    ?  
       options.dragAndDropHooks.useDroppableCollectionState(collectionId)
     : null;
 

@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import React from 'react';
 import { fn } from 'storybook/test';
 import Button from '~/components/ui/Button';
 import DialogProvider from './DialogProvider';
