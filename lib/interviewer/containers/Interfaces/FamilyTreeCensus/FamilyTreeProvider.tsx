@@ -13,6 +13,11 @@ import {
   type Sex,
 } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/store';
 import { getRelationshipTypeVariable } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/edgeUtils';
+import {
+  getEgoSexVariable,
+  getNameVariable,
+  getNodeSexVariable,
+} from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/nodeUtils';
 import { useAppDispatch } from '~/lib/interviewer/store';
 
 const FamilyTreeContext = createContext<FamilyTreeStoreApi | undefined>(
@@ -34,6 +39,9 @@ export const FamilyTreeProvider = ({
 }) => {
   const storeRef = useRef<FamilyTreeStoreApi>();
   const dispatch = useAppDispatch();
+  const nameVariable = useSelector(getNameVariable);
+  const egoSexVariable = useSelector(getEgoSexVariable);
+  const nodeSexVariable = useSelector(getNodeSexVariable);
   const initialNodes = new Map<string, Omit<FamilyTreeNodeType, 'id'>>(
     nodes.map((node) => {
       const diseases = new Map(
@@ -45,8 +53,8 @@ export const FamilyTreeProvider = ({
       return [
         node._uid,
         {
-          label: node.attributes.name as string,
-          sex: node.attributes.sex as Sex,
+          label: node.attributes[nameVariable] as string,
+          sex: node.attributes[nodeSexVariable] as Sex,
           readOnly: false,
           isEgo: false,
           interviewNetworkId: node._uid,
@@ -58,7 +66,7 @@ export const FamilyTreeProvider = ({
   if (ego != null) {
     initialNodes.set(ego._uid, {
       label: 'You',
-      sex: ego.attributes.sex === 'male' ? 'male' : 'female',
+      sex: ego.attributes[egoSexVariable] === 'male' ? 'male' : 'female',
       readOnly: true,
       isEgo: true,
     });
