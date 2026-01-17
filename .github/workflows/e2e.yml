@@ -1,12 +1,12 @@
 name: E2E Tests
+
 permissions:
   contents: read
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, next]
   pull_request:
-    branches: [main, develop]
 
 jobs:
   # Build Docker image for PRs - calls reusable workflow
@@ -84,9 +84,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Generate Prisma Client
-        run: pnpm prisma generate
 
       - name: Install Playwright browsers
         run: pnpm playwright install --with-deps
