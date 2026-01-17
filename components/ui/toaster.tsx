@@ -25,7 +25,7 @@ export function Toaster() {
       }) {
         return (
           <Toast key={id} {...props}>
-            <div className="flex-shrink-1 flex grow-0 basis-auto items-center justify-center">
+            <div className="flex flex-shrink-1 grow-0 basis-auto items-center justify-center">
               {icon}
             </div>
             <div className="grid flex-1 gap-1">

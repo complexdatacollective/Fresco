@@ -46,7 +46,8 @@
   align-items: center;
 
   .icon {
-    margin: 0.5rem;
+    margin: 0.75rem;
+    flex-shrink: 0;
   }
 
   &__radio {

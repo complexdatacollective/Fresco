@@ -37,6 +37,7 @@ export const env = createEnv({
       .enum(['development', 'test', 'production'])
       .default('development'),
     SANDBOX_MODE: strictBooleanSchema,
+    PREVIEW_MODE: strictBooleanSchema,
     APP_VERSION: z.string().optional(),
     COMMIT_HASH: z.string().optional(),
   },
@@ -52,6 +53,7 @@ export const env = createEnv({
     DISABLE_ANALYTICS: process.env.DISABLE_ANALYTICS,
     INSTALLATION_ID: process.env.INSTALLATION_ID,
     SANDBOX_MODE: process.env.SANDBOX_MODE,
+    PREVIEW_MODE: process.env.PREVIEW_MODE,
     APP_VERSION: process.env.APP_VERSION,
     COMMIT_HASH: process.env.COMMIT_HASH,
     USE_NEON_POSTGRES_ADAPTER: process.env.USE_NEON_POSTGRES_ADAPTER,

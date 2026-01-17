@@ -1,6 +1,15 @@
-
-$light-color-list: (color('sea-serpent'), color('mustard'), color('neon-coral'), color('sea-green'));
-$dark-color-list: (color('sea-serpent--dark'), color('mustard--dark'), color('neon-coral--dark'), color('sea-green--dark'));
+$light-color-list: (
+  color('sea-serpent'),
+  color('mustard'),
+  color('neon-coral'),
+  color('sea-green')
+);
+$dark-color-list: (
+  color('sea-serpent--dark'),
+  color('mustard--dark'),
+  color('neon-coral--dark'),
+  color('sea-green--dark')
+);
 
 .spinner {
   --circle-size: 2rem;
@@ -65,7 +74,6 @@ $dark-color-list: (color('sea-serpent--dark'), color('mustard--dark'), color('ne
   }
 
   @each $color in $light-color-list {
-
     $color-index: index($light-color-list, $color);
 
     @keyframes circle-color-#{$color-index} {
@@ -84,7 +92,11 @@ $dark-color-list: (color('sea-serpent--dark'), color('mustard--dark'), color('ne
       &:nth-child(#{$color-index}) {
         :nth-child(1) {
           background: nth($dark-color-list, $color-index);
-          animation: circle-color-#{$color-index} calc(var(--animation-duration)/2) var(--circle-easing) alternate infinite;
+          animation: circle-color-#{$color-index}
+            calc(var(--animation-duration) / 2)
+            var(--circle-easing)
+            alternate
+            infinite;
         }
 
         :nth-child(2) {
@@ -93,7 +105,6 @@ $dark-color-list: (color('sea-serpent--dark'), color('mustard--dark'), color('ne
       }
     }
   }
-
 }
 
 @keyframes nc-spin {
@@ -113,5 +124,3 @@ $dark-color-list: (color('sea-serpent--dark'), color('mustard--dark'), color('ne
     transform: rotate(405deg) scale(0.8);
   }
 }
-
-

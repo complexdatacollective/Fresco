@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ZodError } from 'zod';
 import { importParticipants } from '~/actions/participants';
+import Paragraph from '~/components/typography/Paragraph';
+import UnorderedList from '~/components/typography/UnorderedList';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
 import {
@@ -16,8 +18,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import UnorderedList from '~/components/ui/typography/UnorderedList';
 import { useToast } from '~/components/ui/use-toast';
 import { FormSchema } from '~/schemas/participant';
 import DropzoneField from './DropzoneField';
@@ -83,8 +83,8 @@ const ImportCSVModal = ({
       if (e instanceof ZodError) {
         toast({
           title: 'Error',
-          description: e.errors[0]
-            ? `Invalid CSV File: ${e.errors[0].message}`
+          description: e.message
+            ? `Invalid CSV File: ${e.message}`
             : 'Invalid CSV file. Please check the file requirements and try again.',
           variant: 'destructive',
         });

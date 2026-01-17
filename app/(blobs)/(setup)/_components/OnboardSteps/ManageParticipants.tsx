@@ -2,8 +2,8 @@ import ImportCSVModal from '~/app/dashboard/participants/_components/ImportCSVMo
 import AnonymousRecruitmentSwitchClient from '~/components/AnonymousRecruitmentSwitchClient';
 import SettingsSection from '~/components/layout/SettingsSection';
 import LimitInterviewsSwitchClient from '~/components/LimitInterviewsSwitchClient';
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import OnboardContinue from '../OnboardContinue';
 
 function ManageParticipants({
