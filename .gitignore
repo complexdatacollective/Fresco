@@ -60,3 +60,4 @@ storybook-static
 
 # Serena
 .serena
+.pnpm-store
