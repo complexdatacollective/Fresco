@@ -23,7 +23,7 @@ permissions:
   contents: read
 
 env:
-  IMAGE_NAME: fresco-pr
+  IMAGE_NAME: fresco-test
 
 jobs:
   build:
