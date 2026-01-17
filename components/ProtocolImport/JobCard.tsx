@@ -1,11 +1,11 @@
 import { CheckCircle, Loader2, XCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { forwardRef, useEffect, useState } from 'react';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import Heading from '../typography/Heading';
 import Paragraph from '../typography/Paragraph';
 import { Button } from '../ui/Button';
-import { CloseButton } from '../ui/CloseButton';
+import CloseButton from '../ui/CloseButton';
 import ErrorDialog from '../ui/ErrorDialog';
 import { type ImportJob } from './JobReducer';
 
@@ -37,8 +37,8 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
     return (
       <li
         ref={ref}
-        className={cn(
-          'background-card bg-card shadow-primary/30 relative flex gap-4 rounded-xl border p-4 shadow-xl',
+        className={cx(
+          'bg-surface-1 shadow-primary/30 relative flex gap-4 rounded-xl border p-4 shadow-xl',
           error && 'animate-shake border-destructive',
           isComplete && 'border-success',
         )}
@@ -55,13 +55,10 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
           {error && <XCircle className="text-destructive h-6 w-6" />}
         </motion.div>
         <motion.div className="w-72" layout>
-          <Heading
-            className="text-md text-balance-['unset'] flex-1 truncate"
-            variant="h4"
-          >
+          <Heading className="flex-1 truncate" level="h4">
             {id}
           </Heading>
-          <Paragraph variant="smallText" key={status} title={status}>
+          <Paragraph intent="smallText" key={status} title={status}>
             {!error
               ? `${status}...`
               : 'There was an error importing this protocol.'}
@@ -70,7 +67,7 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
           {error && (
             <Button
               size="sm"
-              className="hover:bg-destructive-dark hover:text-destructive-foreground-dark bg-destructive text-destructive-foreground"
+              color="destructive"
               variant="outline"
               onClick={(e) => {
                 e.preventDefault();
@@ -101,4 +98,4 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
 
 JobCard.displayName = 'JobCard';
 
-export default motion(JobCard);
+export default motion.create(JobCard);

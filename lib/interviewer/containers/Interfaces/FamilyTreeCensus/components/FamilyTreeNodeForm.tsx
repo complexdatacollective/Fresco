@@ -8,8 +8,8 @@ import {
 } from '@codaco/shared-consts';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
+import Button from '~/components/ui/Button';
 import Form from '~/lib/form/components/Form';
-import { useProtocolFieldProcessor } from '~/lib/form/hooks/useProtocolFieldProcessor';
 import { type FamilyTreeNodeType } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
 import { useFamilyTreeStore } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
 import {
@@ -29,7 +29,7 @@ import {
 } from '~/lib/interviewer/ducks/modules/session';
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import { useAppDispatch } from '~/lib/interviewer/store';
-import { Button, Scroller } from '~/lib/ui/components';
+import { Scroller } from '~/lib/ui/components';
 
 type FamilyTreeNodeFormProps = {
   nodeType: string;
@@ -138,13 +138,6 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
     [dispatch, getShellIdByNetworkId, syncMetadata, updateShellNode],
   );
 
-  const processedFields = useProtocolFieldProcessor({
-    fields: form.fields,
-    validationMeta: {
-      entityId: selectedNode?.id,
-    },
-  });
-
   const getInitialValues = useCallback(() => {
     const values: Record<string, VariableValue> = {};
 
@@ -152,10 +145,12 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
 
     form.fields.forEach((field: { variable: string }) => {
       // Check in fields first (updated values), then fall back to top-level
-      const fieldValue = (
-        selectedNode.fields as Record<string, unknown> | undefined
-      )?.[field.variable];
-      let topValue;
+      const fields = selectedNode.fields;
+      const fieldValue =
+        fields && typeof fields === 'object'
+          ? (fields[field.variable] as VariableValue | undefined)
+          : undefined;
+      let topValue: VariableValue | undefined;
       switch (field.variable) {
         case 'name':
           topValue = selectedNode.name;
@@ -167,7 +162,7 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
       const value = fieldValue ?? topValue;
 
       if (value !== undefined) {
-        values[field.variable] = value as VariableValue;
+        values[field.variable] = value;
       }
     });
 
@@ -175,7 +170,8 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
   }, [selectedNode, form.fields]);
 
   const handleSubmit = useCallback(
-    ({ value }: { value: Record<string, VariableValue> }) => {
+    (values: unknown) => {
+      const { value } = values as { value: Record<string, VariableValue> };
       if (!selectedNode || !selectedNode.id) return;
 
       if (selectedNode.interviewNetworkId) {
@@ -216,7 +212,7 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
     <>
       <Overlay
         show={show}
-        title={form.title}
+        title={form.title ?? ''}
         onClose={handleClose}
         className="node-form"
         footer={
@@ -230,15 +226,16 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
             Finished
           </Button>
         }
-        allowMaximize={false}
       >
         <Scroller>
           <Form
-            ref={formRef}
-            fields={processedFields}
-            handleSubmit={handleSubmit}
-            getInitialValues={getInitialValues}
-            focusFirstInput={true}
+            {...({
+              ref: formRef,
+              fields: form.fields,
+              handleSubmit,
+              getInitialValues,
+              focusFirstInput: true,
+            } as unknown as React.ComponentProps<typeof Form>)}
           />
         </Scroller>
       </Overlay>

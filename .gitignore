@@ -60,4 +60,8 @@ storybook-static
 
 # Serena
 .serena
+
+# playwright MCP
+./playwright-mcp
+
 .pnpm-store

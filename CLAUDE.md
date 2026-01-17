@@ -6,7 +6,7 @@ This document provides guidance for AI assistants working with the Fresco codeba
 
 Fresco is a web-based interview platform that brings Network Canvas interviews to the browser. It's built with Next.js 14 (App Router), TypeScript, and PostgreSQL. Version 3.0.0.
 
-**Documentation**: https://documentation.networkcanvas.com/en/fresco
+**Documentation**: <https://documentation.networkcanvas.com/en/fresco>
 
 ## Quick Reference
 
@@ -74,6 +74,64 @@ styles/                # Global CSS/SCSS
 
 ### TypeScript
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+- Strict mode enabled with `noUncheckedIndexedAccess`
+- Use `type` over `interface` for type definitions
+- Prefer inline type imports: `import { type Foo }`
+
+### Component Structure
+
+- Functional components with TypeScript
+- Props typed with explicit types
+- Default exports for pages, named exports for utilities
+
+### File Naming
+
+- `.tsx` for React components
+- `.ts` for utilities and non-React code
+- camelCase for files, PascalCase for components
+
+### Database
+
+- Use `cuid()` for generating IDs
+- Complex data stored as Json fields (protocols, networks)
+- Proper indexing on foreign keys
+
+## Environment Configuration
+
+Environment variables are validated using `env.js` with Zod schemas. Key variables:
+
+- `POSTGRES_PRISMA_URL` - Database connection URL
+- `POSTGRES_URL_NON_POOLING` - Non-pooling database URL
+- `PUBLIC_URL` - Public URL for the application
+- `DISABLE_ANALYTICS` - Disable analytics (default: false)
+- `SANDBOX_MODE` - Enable sandbox mode (default: false)
+
+## Protocol Support
+
+- Supported schema versions: 7, 8
+- Protocol files use `.netcanvas` extension
+- Validation handled by `@codaco/protocol-validation`
+
+## Development Workflow
+
+1. Start development with `pnpm dev` (includes Docker database)
+2. Make changes following the existing patterns
+3. Run `pnpm lint` and `pnpm typecheck` before committing
+4. Test with `pnpm test` for unit tests
+
+## Best Practices
+
+- Always run lint and format tasks after your work
+
+## Debugging and Development Tips
+
+- # Use the playwright mcp to debug errors and view console output directly. Do NOT start the development server or the storybook server. Instead, prompt the user to start these for you
+
+=======
+>>>>>>> v4
 - **Strict mode enabled** with `noUncheckedIndexedAccess`
 - Use `type` for type definitions (not `interface`) - enforced by ESLint
 - Prefer inline type imports: `import { type Foo } from './bar'`
@@ -83,7 +141,7 @@ styles/                # Global CSS/SCSS
 ```typescript
 // Correct
 import { type Protocol } from '@prisma/client';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
 // Type definition
 export type CreateInterview = {
@@ -338,3 +396,5 @@ pnpm storybook      # Component testing
 ## Debugging and Development Tips
 
 - Use the Playwright MCP to debug errors and view console output directly. Do NOT start the development server or the storybook server. Instead, prompt the user to start these for you.
+- NEVER disable linting rules unless you have asked permission from the user. This applies particularly to no-explicit-any which should only be disabled in truly exceptional circumstances.
+- when editing a component, look for a storybook story and ensure that any new features are documented and any changes to the component API are accurately reflected in the storybook

@@ -4,5 +4,6 @@
   "quoteProps": "consistent",
   "singleQuote": true,
   "tabWidth": 2,
-  "useTabs": false
+  "useTabs": false,
+  "tailwindFunctions": ["cva", "cx"]
 }

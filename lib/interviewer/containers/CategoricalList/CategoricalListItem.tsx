@@ -132,10 +132,9 @@ const CategoricalListItem = (props: Props) => {
       />
       {isOtherVariable && (
         <Overlay
-          style={{ maxWidth: '85ch' }}
-          show={showOther}
+          show={showOther !== null}
           onClose={() => setShowOther(null)}
-          onBlur={() => setShowOther(null)}
+          title={bin.otherVariablePrompt ?? 'Other'}
         >
           {showOther && (
             <OtherVariableForm

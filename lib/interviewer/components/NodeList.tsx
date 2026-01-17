@@ -1,10 +1,11 @@
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { noop } from 'es-toolkit';
 import { find } from 'es-toolkit/compat';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import { isEqual } from 'ohash';
 import { memo, type ComponentProps, type ReactNode } from 'react';
 import { useSelector } from 'react-redux';
+import { ScrollArea } from '~/components/ui/ScrollArea';
 import {
   useDndStore,
   useDragSource,
@@ -12,7 +13,7 @@ import {
   type DndStore,
 } from '~/lib/dnd';
 import { type DropCallback } from '~/lib/dnd/types';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import { getCurrentStageId } from '../selectors/session';
 import { MotionNode } from './Node';
 
@@ -30,9 +31,10 @@ const DraggableMotionNode = memo(
     node,
     itemType,
     allowDrag,
+    onClick: _onClick,
     nodeSize,
     ...nodeProps
-  }: DraggableMotionNodeProps) => {
+  }: DraggableMotionNodeProps & { onClick?: () => void }) => {
     const { dragProps } = useDragSource({
       type: 'node',
       metadata: { ...node, itemType },
@@ -40,10 +42,11 @@ const DraggableMotionNode = memo(
       disabled: !allowDrag,
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { type, ...safeNodeProps } = node;
+
     return (
-      <div {...dragProps}>
-        <MotionNode {...node} {...nodeProps} size={nodeSize} />
-      </div>
+      <MotionNode {...safeNodeProps} {...nodeProps} {...dragProps} size={nodeSize} />
     );
   },
 );
@@ -105,7 +108,7 @@ const NodeList = memo(
     disableDragNew,
     items = [],
     itemType = 'NODE',
-    hoverColor,
+    hoverColor: _hoverColor,
     onItemClick = () => undefined,
     id,
     accepts = ['node'],
@@ -134,44 +137,55 @@ const NodeList = memo(
     const isValidTarget = !isSource && willAccept;
     const isHovering = isValidTarget && isOver;
 
-    const classNames = cn(
-      'flex flex-wrap justify-center grow shrink-0 transition-background duration-300 content-start rounded-md gap-6 basis-full overflow-y-auto',
+    const classNames = cx(
+      'flex h-full shrink-0 grow basis-full flex-col rounded transition-colors duration-300',
       // Fix: Empty NodeLists need minimum dimensions for proper drop zone bounds
-      items.length === 0 && 'min-h-[800px] min-w-[300px]',
-      willAccept && 'bg-[var(--nc-node-list-action-bg)]',
-      isHovering && (hoverColor ? `bg-[var(${hoverColor})]` : 'bg-accent'),
+      items.length === 0 && 'min-w-[300px]',
+      willAccept && 'bg-accent',
+      isHovering && 'bg-success',
       className,
     );
 
+    const itemsClassName = cx(
+      'flex flex-row flex-wrap content-start items-start justify-start gap-4',
+    );
+
     return (
-      <motion.div
-        {...dropProps}
-        className={classNames}
-        variants={nodeListVariants}
-        layout
-        key="node-list"
-      >
-        <AnimatePresence mode="sync">
-          {items.map((node: NcNode) => {
-            const isDraggable = !disableDragNew || node.stageId === stageId; // Always allow dragging if the node was created on this stage
-            return (
-              <motion.div
-                key={node[entityPrimaryKeyProperty]}
-                variants={nodeVariants}
-              >
-                <DraggableMotionNode
-                  node={node}
-                  itemType={itemType}
-                  allowDrag={isDraggable}
-                  layout
-                  onClick={() => onItemClick(node)}
-                  nodeSize={nodeSize}
-                />
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
-      </motion.div>
+      <LayoutGroup id={id}>
+        <motion.div
+          {...dropProps}
+          className={classNames}
+          variants={nodeListVariants}
+          layout
+          key="node-list"
+        >
+          <ScrollArea>
+            <motion.div className={itemsClassName} layout role="listbox">
+              <AnimatePresence>
+                {items.map((node: NcNode) => {
+                  const isDraggable =
+                    !disableDragNew || node.stageId === stageId; // Always allow dragging if the node was created on this stage
+                  return (
+                    <motion.div
+                      key={node[entityPrimaryKeyProperty]}
+                      variants={nodeVariants}
+                    >
+                      <DraggableMotionNode
+                        node={node}
+                        layout
+                        itemType={itemType}
+                        allowDrag={isDraggable}
+                        onClick={() => onItemClick(node)}
+                        nodeSize={nodeSize}
+                      />
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </motion.div>
+          </ScrollArea>
+        </motion.div>
+      </LayoutGroup>
     );
   },
   (prevProps: NodeListProps, nextProps: NodeListProps) => {

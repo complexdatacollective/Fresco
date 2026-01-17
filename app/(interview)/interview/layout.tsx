@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import '~/styles/interview.scss';
+import '~/styles/themes/interview.css';
 
 export default function InterviewLayout({ children }: { children: ReactNode }) {
   return (

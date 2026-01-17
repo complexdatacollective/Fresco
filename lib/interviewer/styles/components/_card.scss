@@ -1,3 +1,5 @@
+@use '../../../ui/styles/global/core/palette';
+
 .card {
   align-items: center;
   border: 0.2rem solid transparent;
@@ -31,16 +33,16 @@
   }
 
   &--selected {
-    border-color: palette('primary');
+    border-color: palette.palette('primary');
 
     .card__indicator {
       padding: 0;
       animation: bounce var(--animation-duration-standard)
         var(--animation-easing);
-      fill: palette('primary');
+      fill: palette.palette('primary');
 
       .tick {
-        fill: palette('primary');
+        fill: palette.palette('primary');
       }
     }
   }

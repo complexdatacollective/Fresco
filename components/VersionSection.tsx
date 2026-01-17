@@ -1,9 +1,9 @@
-import { AlertTriangle, CheckCircle2, Info, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { unstable_noStore } from 'next/cache';
 import Markdown from 'react-markdown';
 import { z } from 'zod';
-import Link from '~/components/Link';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
+import Link from '~/components/ui/Link';
 import { env } from '~/env';
 import trackEvent from '~/lib/analytics';
 import { ensureError } from '~/utils/ensureError';
@@ -82,7 +82,6 @@ export default async function VersionSection() {
 
       {error && (
         <Alert variant="destructive" className="mt-4">
-          <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Error fetching update information</AlertTitle>
           <AlertDescription>
             An error occurred while fetching the latest version information.
@@ -92,7 +91,6 @@ export default async function VersionSection() {
 
       {!error && !updateType && (
         <Alert variant="success" className="mt-4">
-          <CheckCircle2 className="h-4 w-4" />
           <AlertTitle>You are up to date</AlertTitle>
           <AlertDescription>
             You are running the latest version of Fresco.
@@ -103,11 +101,9 @@ export default async function VersionSection() {
       {updateType && (
         <>
           <Alert variant="info" className="mt-4">
-            <Info className="h-4 w-4" />
             <AlertTitle>{latestVersion} of Fresco is available!</AlertTitle>
             {updateType === 'major' && (
               <Alert variant="destructive" className="my-4 ml-6 w-fit">
-                <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Major update</AlertTitle>
                 <AlertDescription>
                   This update is a major version bump. A new major version may
@@ -130,12 +126,12 @@ export default async function VersionSection() {
                 upgrade documentation.
               </Link>
             </AlertDescription>
-            <article className="prose-headings:foreground prose text-foreground prose-headings:text-sm prose-headings:font-extrabold prose-headings:uppercase prose-headings:tracking-widest prose-headings:text-foreground prose-a:text-link my-4 max-w-full text-sm">
+            <article className="text-text [&_a]:text-link my-4 max-w-full text-sm [&_h1]:text-sm [&_h1]:font-extrabold [&_h1]:tracking-widest [&_h1]:uppercase [&_h2]:text-sm [&_h2]:font-extrabold [&_h2]:tracking-widest [&_h2]:uppercase [&_h3]:text-sm [&_h3]:font-extrabold [&_h3]:tracking-widest [&_h3]:uppercase [&_h4]:text-sm [&_h4]:font-extrabold [&_h4]:tracking-widest [&_h4]:uppercase [&_h5]:text-sm [&_h5]:font-extrabold [&_h5]:tracking-widest [&_h5]:uppercase [&_h6]:text-sm [&_h6]:font-extrabold [&_h6]:tracking-widest [&_h6]:uppercase">
               <Markdown>{releaseNotes}</Markdown>
             </article>
             <div className="text-right">
               <a href={releaseUrl} target="_blank">
-                <Button variant="info">View Full Release Notes</Button>
+                <Button color="info">View Full Release Notes</Button>
               </a>
             </div>
           </Alert>

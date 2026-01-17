@@ -8,12 +8,12 @@ import { hash } from 'ohash';
 import { useCallback, useReducer, useRef } from 'react';
 import { insertProtocol } from '~/actions/protocols';
 import { ErrorDetails } from '~/components/ErrorDetails';
-import Link from '~/components/Link';
 import {
   jobInitialState,
   jobReducer,
 } from '~/components/ProtocolImport/JobReducer';
-import { AlertDialogDescription } from '~/components/ui/AlertDialog';
+import Paragraph from '~/components/typography/Paragraph';
+import Link from '~/components/ui/Link';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
 import {
   validateAndMigrateProtocol,
@@ -66,9 +66,9 @@ function createValidationErrorPayload(
         error: {
           title: 'Invalid protocol file',
           description: (
-            <AlertDialogDescription>
+            <>
               The uploaded file does not contain a valid protocol.
-            </AlertDialogDescription>
+            </>
           ),
         },
       };
@@ -80,12 +80,12 @@ function createValidationErrorPayload(
         error: {
           title: 'Protocol version not supported',
           description: (
-            <AlertDialogDescription>
+            <>
               The protocol you uploaded is not compatible with this version of
               the app. Fresco supports protocols using version number
               {APP_SUPPORTED_SCHEMA_VERSIONS.length > 1 ? 's' : ''}{' '}
               {formatNumberList([...APP_SUPPORTED_SCHEMA_VERSIONS])}.
-            </AlertDialogDescription>
+            </>
           ),
         },
       };
@@ -109,11 +109,11 @@ function createValidationErrorPayload(
           title: 'The protocol is invalid!',
           description: (
             <>
-              <AlertDialogDescription>
+              <Paragraph>
                 The protocol you uploaded is invalid. See the details below for
                 specific validation errors that were found.
-              </AlertDialogDescription>
-              <AlertDialogDescription>
+              </Paragraph>
+              <Paragraph>
                 If you believe that your protocol should be valid please ask for
                 help via our{' '}
                 <Link
@@ -123,7 +123,7 @@ function createValidationErrorPayload(
                   community forum
                 </Link>
                 .
-              </AlertDialogDescription>
+              </Paragraph>
             </>
           ),
           additionalContent: (
@@ -155,10 +155,10 @@ function createValidationErrorPayload(
         error: {
           title: 'Migration failed',
           description: (
-            <AlertDialogDescription>
+            <>
               The protocol requires migration but is missing required
               information: {missingDeps.join(', ')}.
-            </AlertDialogDescription>
+            </>
           ),
         },
       };
@@ -188,8 +188,7 @@ export const useProtocolImport = () => {
 
       const fileArrayBuffer = await fileAsArrayBuffer(file);
 
-      // TODO: check if this causes multiple fetches by importing again for each job.
-      const JSZip = (await import('jszip')).default; // Dynamic import to reduce bundle size
+      const JSZip = (await import('jszip')).default;
       const zip = await JSZip.loadAsync(fileArrayBuffer);
       const protocolJson = await getProtocolJson(zip);
 
@@ -246,11 +245,11 @@ export const useProtocolImport = () => {
             error: {
               title: 'Protocol already exists',
               description: (
-                <AlertDialogDescription>
+                <Paragraph>
                   The protocol you attempted to import already exists in the
                   database. Delete the existing protocol first before attempting
                   to import it again.
-                </AlertDialogDescription>
+                </Paragraph>
               ),
             },
           },
@@ -428,9 +427,7 @@ export const useProtocolImport = () => {
             rawError: error,
             error: {
               title: 'Database error during protocol import',
-              description: (
-                <AlertDialogDescription>{error.message}</AlertDialogDescription>
-              ),
+              description: <Paragraph>{error.message}</Paragraph>,
               additionalContent: (
                 <ErrorDetails errorText={error.originalError.toString()}>
                   <pre>{error.originalError.toString()}</pre>
@@ -448,10 +445,10 @@ export const useProtocolImport = () => {
             error: {
               title: 'Error importing protocol',
               description: (
-                <AlertDialogDescription>
+                <Paragraph>
                   There was an unknown error while importing your protocol. The
                   information below might help us to debug the issue.
-                </AlertDialogDescription>
+                </Paragraph>
               ),
               additionalContent: (
                 <ErrorDetails errorText={JSON.stringify(error, null, 2)}>

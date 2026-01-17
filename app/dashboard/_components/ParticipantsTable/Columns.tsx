@@ -3,11 +3,9 @@ import { InfoIcon } from 'lucide-react';
 import Image from 'next/image';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import InfoTooltip from '~/components/InfoTooltip';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
 import { buttonVariants } from '~/components/ui/Button';
 import { Badge } from '~/components/ui/badge';
-import { Checkbox } from '~/components/ui/checkbox';
+import Checkbox from '~/lib/form/components/fields/Checkbox';
 import type { ProtocolWithInterviews } from '../ProtocolsTable/ProtocolsTableClient';
 import { GenerateParticipationURLButton } from './GenerateParticipantURLButton';
 import type { ParticipantWithInterviews } from './ParticipantsTableClient';
@@ -21,14 +19,16 @@ export function getParticipantColumns(
       header: ({ table }) => (
         <Checkbox
           checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          onCheckedChange={(value: boolean) =>
+            table.toggleAllPageRowsSelected(!!value)
+          }
           aria-label="Select all"
         />
       ),
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          onCheckedChange={(value: boolean) => row.toggleSelected(!!value)}
           aria-label="Select row"
         />
       ),
@@ -94,11 +94,10 @@ export function getParticipantColumns(
       header: () => {
         return (
           <InfoTooltip
-            triggerClasses="whitespace-nowrap flex"
             trigger={
               <div
                 className={buttonVariants({
-                  variant: 'tableHeader',
+                  variant: 'text',
                   size: 'sm',
                 })}
               >
@@ -106,17 +105,12 @@ export function getParticipantColumns(
                 <InfoIcon className="mx-2 h-4 w-4" />
               </div>
             }
-            content={
-              <>
-                <Heading variant="h4-all-caps">Unique Participant URL</Heading>
-                <Paragraph>
-                  A unique participant URL allows a participant to take an
-                  interview simply by visiting a URL. A participation URL is
-                  specific to each participant, and should only be shared with
-                  them.
-                </Paragraph>
-              </>
-            }
+            title="Unique Participant URL"
+            description="A unique participant URL allows a participant to take an
+                interview simply by visiting a URL. A participation URL is
+                specific to each participant, and should only be shared with
+                them.
+              "
           />
         );
       },

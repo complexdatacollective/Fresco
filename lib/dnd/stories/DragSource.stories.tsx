@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
 import {
   DndStoreProvider,
@@ -59,8 +59,9 @@ function DropZone({
   onDrop?: (metadata?: DragMetadata) => void;
 }) {
   const { dropProps, isOver, willAccept } = useDropTarget({
-    id: `drop-zone-${Math.random().toString(36).substr(2, 9)}`,
+    id: `drop-zone-${Math.random().toString(36).slice(2, 11)}`,
     accepts,
+    announcedName: 'Drop zone',
     onDrop,
   });
 

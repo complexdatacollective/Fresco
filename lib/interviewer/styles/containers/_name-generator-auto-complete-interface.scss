@@ -1,9 +1,12 @@
+@use '../../../ui/styles/global/core/spacing';
+@use '../mixins';
+
 $search-icon-offset-x: 0;
 $search-icon-offset-y: 1.8rem; // match stage menu button
 $search-z-index: var(--z-global-ui);
 
 .name-generator-auto-complete-interface {
-  @include interface-centering;
+  @include mixins.interface-centering;
 
   display: flex;
   flex-direction: column;
@@ -11,7 +14,7 @@ $search-z-index: var(--z-global-ui);
   padding: 1rem 0;
 
   &__prompt {
-    @include interface-prompt;
+    @include mixins.interface-prompt;
   }
 
   &__search {
@@ -42,7 +45,7 @@ $search-z-index: var(--z-global-ui);
 
   &__node-bin {
     position: absolute;
-    bottom: spacing(large);
+    bottom: spacing.spacing(large);
     left: 50%;
     transform: translateX(-50%);
   }

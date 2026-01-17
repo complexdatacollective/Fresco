@@ -1,15 +1,15 @@
 import { submitUploadThingForm } from '~/actions/appSettings';
-import Link from '~/components/Link';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
+import Link from '~/components/ui/Link';
 import { UploadThingTokenForm } from '../UploadThingTokenForm';
 
 function ConnectUploadThing() {
   return (
     <div className="w-[30rem]">
       <div className="mb-4">
-        <Heading variant="h2">Connect UploadThing</Heading>
+        <Heading level="h2">Connect UploadThing</Heading>
         <Paragraph>
           Fresco uses a third-party service called UploadThing to store media
           files, including protocol assets. In order to use this service, you

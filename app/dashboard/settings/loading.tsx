@@ -25,7 +25,7 @@ export default function Loading() {
         {!env.SANDBOX_MODE && (
           <SettingsSectionSkeleton
             controlAreaSkelton={
-              <ButtonSkeleton variant="destructive" className="w-full" />
+              <ButtonSkeleton color="destructive" className="w-full" />
             }
           />
         )}

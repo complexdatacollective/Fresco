@@ -6,7 +6,7 @@ import UpdateSettingsValue from '../../_components/UpdateSettingsValue';
 export default function UpdateUploadThingToken({
   uploadThingKey,
 }: {
-  uploadThingKey: string | null;
+  uploadThingKey: string | null | undefined;
 }) {
   return (
     <UpdateSettingsValue

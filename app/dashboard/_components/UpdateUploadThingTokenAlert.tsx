@@ -1,6 +1,5 @@
-import { AlertTriangleIcon } from 'lucide-react';
-import Link from '~/components/Link';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
+import Link from '~/components/ui/Link';
 import { getAppSetting } from '~/queries/appSettings';
 
 export default async function UpdateUploadThingTokenAlert() {
@@ -9,8 +8,7 @@ export default async function UpdateUploadThingTokenAlert() {
   if (uploadThingToken) return null;
 
   return (
-    <Alert variant="destructive" className="mt-4">
-      <AlertTriangleIcon className="h-4 w-4" />
+    <Alert variant="destructive">
       <AlertTitle>Configuration update required</AlertTitle>
       <AlertDescription>
         You need to add a new UploadThing API key before you can upload

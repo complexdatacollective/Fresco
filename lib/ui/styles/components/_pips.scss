@@ -1,8 +1,8 @@
 $block: pips;
 
 .#{$block} {
-  --local-pip-size: var(--pip-size, #{unit(1.2)});
-  --local-pip-size-flex: calc(var(--local-pip-size) + #{unit(1)});
+  --local-pip-size: var(--pip-size, 1.2rem);
+  --local-pip-size-flex: calc(var(--local-pip-size) + 1rem);
   --local-pip-border-color: var(--pip-border-color, hsla(0, 0%, 100%, 0.15));
 
   width: 100%;
@@ -20,7 +20,7 @@ $block: pips;
     transition: background-color var(--animation-duration-fast) ease-in;
 
     &:not(:last-child):not(:only-child) {
-      margin-right: unit(0.5);
+      margin-right: 0.5rem;
     }
 
     &--active {
@@ -29,7 +29,7 @@ $block: pips;
   }
 
   &--large {
-    --local-pip-size: var(--pip-size, #{unit(2)});
-    --local-pip-size-flex: calc(var(--local-pip-size) + #{unit(1)});
+    --local-pip-size: var(--pip-size, 2rem);
+    --local-pip-size-flex: calc(var(--local-pip-size) + 1rem);
   }
 }

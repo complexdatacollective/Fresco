@@ -1,33 +1,26 @@
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { type ComponentProps } from 'react';
+import Surface from '~/components/layout/Surface';
+import { IconButton } from '~/components/ui/Button';
 import ProgressBar from '~/lib/ui/components/ProgressBar';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import PassphrasePrompter from './PassphrasePrompter';
 
 const NavigationButton = ({
   disabled,
   onClick,
   className,
-  children,
-}: {
-  disabled?: boolean;
-  onClick?: React.MouseEventHandler<HTMLDivElement>;
-  className?: string;
-  children: React.ReactNode;
-}) => {
+  ...props
+}: ComponentProps<typeof IconButton> & {}) => {
   return (
-    <div
-      className={cn(
-        `session-navigation__button m-4 flex h-[4.8rem] w-[4.8rem] basis-[4.8rem] cursor-pointer items-center justify-center rounded-full transition-all`,
-        'hover:bg-[#4a4677]',
-        disabled && 'cursor-not-allowed opacity-50 hover:bg-transparent',
-        className,
-      )}
-      role="button"
-      tabIndex={0}
+    <IconButton
+      variant="text"
+      className={cx('m-2 [&>.lucide]:h-[2em]', className)}
       onClick={!disabled ? onClick : undefined}
-    >
-      {children}
-    </div>
+      disabled={disabled}
+      {...props}
+      size="lg"
+    ></IconButton>
   );
 };
 
@@ -49,29 +42,31 @@ const Navigation = ({
   progress,
 }: NavigationProps) => {
   return (
-    <div
+    <Surface
+      level={2}
       role="navigation"
-      className="flex shrink-0 grow-0 flex-col items-center justify-between bg-[#36315f] [--nc-light-background:#4a4677]"
+      elevation="none"
+      className="flex max-h-none w-auto shrink-0 grow-0 flex-col items-center justify-between rounded-none p-0!"
+      noContainer
     >
-      <NavigationButton onClick={moveBackward} disabled={disableMoveBackward}>
-        <ChevronUp className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
-      </NavigationButton>
+      <NavigationButton
+        onClick={moveBackward}
+        disabled={disableMoveBackward}
+        icon={<ChevronUp />}
+        aria-label="Previous Step"
+      />
       <PassphrasePrompter />
       <div className="m-6 flex grow">
         <ProgressBar percentProgress={progress} />
       </div>
       <NavigationButton
-        className={cn(
-          'bg-[var(--nc-light-background)]',
-          'hover:bg-[var(--nc-primary)]',
-          pulseNext && 'bg-success animate-pulse-glow',
-        )}
+        className={cx(pulseNext && 'bg-success animate-pulse-glow')}
         onClick={moveForward}
         disabled={disableMoveForward}
-      >
-        <ChevronDown className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
-      </NavigationButton>
-    </div>
+        icon={<ChevronDown className="h-8 w-8" strokeWidth="3px" />}
+        aria-label="Next Step"
+      />
+    </Surface>
   );
 };
 

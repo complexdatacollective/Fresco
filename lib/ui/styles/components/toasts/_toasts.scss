@@ -6,8 +6,8 @@
 
   .toast-container-list {
     position: fixed;
-    bottom: unit(4);
-    right: unit(2);
+    bottom: 4rem;
+    right: 2rem;
     display: flex;
     flex-direction: column;
     list-style: none;
@@ -21,11 +21,11 @@
 .toast {
   width: 40rem;
   background: var(--color-platinum);
-  margin: unit(2) unit(6);
-  padding: unit(4);
+  margin: 2rem 6rem;
+  padding: 4rem;
   border-radius: var(--nc-border-radius);
   border-bottom: 0.5rem solid tomato;
-  box-shadow: 0 unit(1) unit(3) unit(0.5) rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1rem 3rem 0.5rem rgba(0, 0, 0, 0.4);
   flex: 0 0 auto;
   position: relative;
   display: flex;
@@ -52,7 +52,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: unit(4);
+    margin-right: 4rem;
 
     > .icon {
       width: 100% !important;
@@ -82,7 +82,7 @@
 
   .toast-content {
     flex: 1;
-    margin-right: unit(2);
+    margin-right: 2rem;
     font-weight: 500;
 
     &__title {
@@ -97,8 +97,8 @@
     align-items: center;
 
     svg {
-      width: unit(2);
-      height: unit(2);
+      width: 2rem;
+      height: 2rem;
     }
   }
 }
