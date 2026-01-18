@@ -1,4 +1,4 @@
-import type { Meta, StoryFn } from '@storybook/nextjs';
+import type { Meta, StoryFn } from '@storybook/nextjs-vite';
 import Node, { NodeColors } from './Node';
 
 const meta: Meta<typeof Node> = {

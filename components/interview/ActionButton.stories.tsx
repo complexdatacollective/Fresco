@@ -1,4 +1,4 @@
-import { type Meta, type StoryFn } from '@storybook/nextjs';
+import { type Meta, type StoryFn } from '@storybook/nextjs-vite';
 import NodeIcons from 'lucide-react/dynamicIconImports';
 import ActionButton, {
   type NodeIcon,

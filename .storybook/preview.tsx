@@ -1,4 +1,4 @@
-import type { Preview } from '@storybook/nextjs';
+import type { Preview } from '@storybook/nextjs-vite';
 import Providers from '../components/Providers';
 import '../styles/globals.css';
 
@@ -11,19 +11,20 @@ const preview: Preview = {
       },
     },
     backgrounds: {
-      default: 'light',
-      values: [
-        {
+      options: {
+        light: {
           name: 'light',
           value: '#ffffff',
         },
-        {
+
+        dark: {
           name: 'dark',
           value: '#1f1f1f',
-        },
-      ],
+        }
+      }
     },
   },
+
   decorators: [
     (Story) => (
       <Providers>
@@ -31,6 +32,12 @@ const preview: Preview = {
       </Providers>
     ),
   ],
+
+  initialGlobals: {
+    backgrounds: {
+      value: 'light'
+    }
+  }
 };
 
 export default preview;
