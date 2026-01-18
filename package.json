@@ -17,7 +17,8 @@
     "load-test": "docker run -i grafana/k6 run - <load-test.js",
     "storybook": "SKIP_ENV_VALIDATION=true storybook dev -p 6006",
     "build-storybook": "SKIP_ENV_VALIDATION=true storybook build",
-    "typecheck": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental"
+    "typecheck": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental",
+    "chromatic": "npx chromatic --project-token=chpt_54d6831d4ddd5cc"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
