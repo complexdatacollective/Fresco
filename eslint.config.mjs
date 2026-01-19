@@ -165,6 +165,19 @@ export default tseslint.config(
     },
   },
 
+  // Disable unbound-method for test files (mock functions don't use `this`)
+  {
+    files: [
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/__tests__/**/*.ts',
+      '**/__tests__/**/*.tsx',
+    ],
+    rules: {
+      '@typescript-eslint/unbound-method': 'off',
+    },
+  },
+
   // Custom rules for all files (non-type-checked rules)
   {
     rules: {
