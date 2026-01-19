@@ -10,6 +10,11 @@ const { motionMockModule } = vi.hoisted(() => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const ReactModule = require('react') as typeof React;
 
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { isValidMotionProp } = require('motion/react') as {
+    isValidMotionProp: (key: string) => boolean;
+  };
+
   // Wrap refs to handle callback refs that return cleanup functions
   // This is needed because some libraries (like @base-ui/react) use the React 19
   // pattern where callback refs can return cleanup functions, but React 18
@@ -30,38 +35,15 @@ const { motionMockModule } = vi.hoisted(() => {
     return ref;
   };
 
-  // Filter out framer-motion specific props from HTML elements
-  const filterMotionProps = (props: Record<string, unknown>) => {
-    const motionPropKeys = new Set([
-      'initial',
-      'animate',
-      'exit',
-      'transition',
-      'variants',
-      'whileHover',
-      'whileTap',
-      'whileFocus',
-      'whileDrag',
-      'whileInView',
-      'layout',
-      'layoutId',
-      'layoutScroll',
-      'layoutDependency',
-      'onAnimationStart',
-      'onAnimationComplete',
-      'onLayoutAnimationStart',
-      'onLayoutAnimationComplete',
-      'drag',
-      'dragConstraints',
-      'dragElastic',
-      'dragMomentum',
-      'onDragStart',
-      'onDragEnd',
-      'onDrag',
-    ]);
+  // Props that motion considers valid but should still be passed to DOM elements
+  const domPassthroughProps = new Set(['style']);
 
+  // Filter out motion-specific props from HTML elements using motion's own detection
+  const filterMotionProps = (props: Record<string, unknown>) => {
     return Object.fromEntries(
-      Object.entries(props).filter(([key]) => !motionPropKeys.has(key)),
+      Object.entries(props).filter(
+        ([key]) => !isValidMotionProp(key) || domPassthroughProps.has(key),
+      ),
     );
   };
 

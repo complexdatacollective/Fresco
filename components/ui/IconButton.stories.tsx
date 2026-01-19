@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { Fragment } from 'react';
 import {
   Check,
   ChevronRight,
@@ -210,50 +211,40 @@ export const ColorVariantCombinations: Story = {
         Disabled
       </span>
       {ICON_BUTTON_COLORS.map((color) => (
-        <>
-          <span
-            key={`${color}-label`}
-            className="text-sm font-medium capitalize"
-          >
-            {color}:
-          </span>
+        <Fragment key={color}>
+          <span className="text-sm font-medium capitalize">{color}:</span>
           <IconButton
-            key={`${color}-default`}
             variant="default"
             color={color}
             icon={<Plus />}
             aria-label={`${color} default`}
           />
           <IconButton
-            key={`${color}-outline`}
             variant="outline"
             color={color}
             icon={<Plus />}
             aria-label={`${color} outline`}
           />
           <IconButton
-            key={`${color}-text`}
             variant="text"
             color={color}
             icon={<Plus />}
             aria-label={`${color} text`}
           />
           <IconButton
-            key={`${color}-dashed`}
             variant="dashed"
             color={color}
             icon={<Plus />}
             aria-label={`${color} dashed`}
           />
           <IconButton
-            key={`${color}-disabled`}
             variant="default"
             color={color}
             icon={<Plus />}
             aria-label={`${color} disabled`}
             disabled
           />
-        </>
+        </Fragment>
       ))}
     </div>
   ),
