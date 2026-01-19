@@ -16,7 +16,7 @@ import {
 } from './types';
 import { getElementBounds, rafThrottle } from './utils';
 
-export type FocusBehaviorOnDrop = 'follow-item' | 'stay-in-source' | 'none';
+type FocusBehaviorOnDrop = 'follow-item' | 'stay-in-source' | 'none';
 
 type DropTargetOptions = {
   id: string; // Required stable ID for the drop target

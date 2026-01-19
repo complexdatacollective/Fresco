@@ -14,18 +14,29 @@ const config: KnipConfig = {
   project: ['**/*.{js,jsx,ts,tsx}', '**/*.scss'],
   ignore: [
     // Tailwind plugins cannot be detected by knip
-    // 'styles/plugins/tailwind-motion-spring.ts',
-    // 'styles/plugins/tailwind-elevation/index.ts',
+    'styles/plugins/tailwind-motion-spring.ts',
+    'styles/plugins/tailwind-elevation/index.ts',
   ],
   ignoreDependencies: [
     'sharp', // Used by next/image but not directly imported
     'esbuild', // Used by Vite but not directly imported
     'sass-embedded', // Used in next.js config but not detected as used
     '@vitest/coverage-v8', // Dependency of chromatic falsely detected as unused
+    '@tailwindcss/forms', // Used in globals.css but not detected as used
+    'tailwindcss-animate', // Used in globals.css but not detected as used
   ],
   ignoreBinaries: [
     'docker-compose', // Should be installed by developers if needed, not a project dependency
   ],
+  ignoreIssues: {
+    // TestFixtures is used by Playwright via base.extend<TestFixtures>() generic type parameter
+    // Knip cannot detect usage through TypeScript generic type inference
+    'tests/e2e/fixtures/test.ts': ['types'],
+
+    // Auth type is used in auth.d.ts for Lucia module augmentation (declare module 'lucia')
+    // Knip cannot detect usage in ambient module declarations
+    'utils/auth.ts': ['types'],
+  },
   // Our playwright config uses non-standard locations, so knip cannot auto-detect it
   playwright: {
     config: 'tests/e2e/playwright.config.ts',

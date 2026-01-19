@@ -155,8 +155,11 @@ type ArrayFieldCustomProps<T extends Record<string, unknown>> = {
   immediateAdd?: boolean;
 };
 
-export type ArrayFieldProps<T extends Record<string, unknown>> =
-  CreateFormFieldProps<T[], 'ul', ArrayFieldCustomProps<T>>;
+type ArrayFieldProps<T extends Record<string, unknown>> = CreateFormFieldProps<
+  T[],
+  'ul',
+  ArrayFieldCustomProps<T>
+>;
 
 type ArrayFieldItemWrapperProps<T extends Record<string, unknown>> = {
   item: WithItemProperties<T>;

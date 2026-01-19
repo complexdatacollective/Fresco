@@ -174,7 +174,7 @@ const editorContentStyles = cx(
   '[&_.tiptap_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]',
 );
 
-export type ToolbarOptions = {
+type ToolbarOptions = {
   bold?: boolean;
   italic?: boolean;
   headings?:

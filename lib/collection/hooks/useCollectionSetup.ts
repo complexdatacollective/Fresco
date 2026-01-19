@@ -169,8 +169,7 @@ export function useCollectionSetup<T>(
   // Get collection-level drop state and props if hooks provided (for onDrop)
   const dropResult: DroppableCollectionResult | null = options.dragAndDropHooks
     ?.useDroppableCollectionState
-    ?  
-      options.dragAndDropHooks.useDroppableCollectionState(collectionId)
+    ? options.dragAndDropHooks.useDroppableCollectionState(collectionId)
     : null;
 
   return {

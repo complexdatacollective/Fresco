@@ -31,7 +31,7 @@ const dropdownItemVariants = cva({
   },
 });
 
-export type SelectProps = FieldValueProps<string | number> &
+type SelectProps = FieldValueProps<string | number> &
   InjectedFieldProps & {
     placeholder?: string;
     options: SelectOption[];

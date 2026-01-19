@@ -6,7 +6,7 @@ import { Button } from '~/components/ui/Button';
 import { generatePublicId } from '~/utils/generatePublicId';
 import Dialog from './Dialog';
 
-export type BaseDialog = {
+type BaseDialog = {
   id?: string;
   title: string;
   description: string;

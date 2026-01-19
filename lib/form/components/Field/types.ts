@@ -193,7 +193,7 @@ export type FieldValueProps<V extends FieldValue> = {
  * Props for the Field component itself.
  * Generic over C (the component type) to enable type inference.
  */
-export type FieldOwnProps<C extends ValidFieldComponent> = {
+type FieldOwnProps<C extends ValidFieldComponent> = {
   name: string;
   label: string;
   hint?: ReactNode;

@@ -13,7 +13,7 @@ import {
   type Node,
 } from '../types';
 
-export type CollectionItemProps<T> = {
+type CollectionItemProps<T> = {
   node: Node<T>;
   renderItem: ItemRenderer<T>;
   dragAndDropHooks?: CollectionProps<T>['dragAndDropHooks'];

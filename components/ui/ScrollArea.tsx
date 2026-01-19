@@ -190,9 +190,4 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
 
 ScrollArea.displayName = 'ScrollArea';
 
-export {
-  ScrollArea,
-  type ScrollAreaProps,
-  type ScrollSnapAxis,
-  type ScrollSnapType,
-};
+export { ScrollArea, type ScrollAreaProps };

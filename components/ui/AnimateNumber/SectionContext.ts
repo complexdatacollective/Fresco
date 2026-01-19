@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 
-export type SectionContextValue = {
+type SectionContextValue = {
   justify: 'left' | 'right';
 };
 

@@ -27,7 +27,7 @@ const DEFAULT_TRANSITION = {
   y: { type: 'spring', duration: 1, bounce: 0 },
 } as const;
 
-export type AnimateNumberProps = Omit<HTMLMotionProps<'div'>, 'children'> & {
+type AnimateNumberProps = Omit<HTMLMotionProps<'div'>, 'children'> & {
   children: number | bigint | string;
   locales?: Intl.LocalesArgument;
   format?: Omit<Intl.NumberFormatOptions, 'notation'> & {

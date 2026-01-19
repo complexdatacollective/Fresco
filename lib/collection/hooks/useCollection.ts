@@ -86,7 +86,7 @@ export function useCollection<T>(): Collection<T> {
  * @param key - Key of the item to retrieve
  * @returns Node or undefined
  */
-export function useCollectionItem<T>(key: Key): Node<T> | undefined {
+function _useCollectionItem<T>(key: Key): Node<T> | undefined {
   return useCollectionStore<T, Node<T> | undefined>((state) =>
     state.items.get(key),
   );
@@ -97,7 +97,7 @@ export function useCollectionItem<T>(key: Key): Node<T> | undefined {
  *
  * @returns Number of items
  */
-export function useCollectionSize(): number {
+function _useCollectionSize(): number {
   return useCollectionStore<unknown, number>((state) => state.size);
 }
 
@@ -106,6 +106,6 @@ export function useCollectionSize(): number {
  *
  * @returns Array of keys
  */
-export function useCollectionKeys(): Key[] {
+function _useCollectionKeys(): Key[] {
   return useCollectionStore<unknown, Key[]>((state) => state.orderedKeys);
 }

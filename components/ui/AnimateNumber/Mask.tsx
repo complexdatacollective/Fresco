@@ -25,7 +25,7 @@ const maskSize =
   `${correctedMaskWidth} ${maskHeight}`;
 
 // Type assertion needed for motion's addScaleCorrector API
- 
+
 (addScaleCorrector as (correctors: Record<string, unknown>) => void)({
   '--invert-x': {
     correct: (

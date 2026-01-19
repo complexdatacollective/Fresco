@@ -59,7 +59,7 @@ export type TextValueExtractor<T> = (item: T) => string;
  * Props passed to item render function for styling/behavior.
  * @deprecated Use ItemProps instead with data attributes.
  */
-export type ItemRenderState = {
+type ItemRenderState = {
   /** Whether the item is currently selected */
   isSelected: boolean;
   /** Whether the item is currently focused */
@@ -121,7 +121,7 @@ export type CollectionState<T> = {
 /**
  * Actions for mutating collection state.
  */
-export type CollectionActions<T> = {
+type CollectionActions<T> = {
   /** Set the entire items collection */
   setItems: (
     items: T[],

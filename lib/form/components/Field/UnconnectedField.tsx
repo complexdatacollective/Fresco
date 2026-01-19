@@ -6,7 +6,7 @@ import { BaseField } from './BaseField';
 import { type InjectedFieldProps } from './types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type UnconnectedFieldProps<C extends React.ComponentType<any>> = {
+type UnconnectedFieldProps<C extends React.ComponentType<any>> = {
   id?: string;
   label: string;
   hint?: string;

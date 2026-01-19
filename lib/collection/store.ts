@@ -20,7 +20,7 @@ import {
 /**
  * Combined state including collection and selection.
  */
-export type FullCollectionState<T> = CollectionState<T> & SelectionState;
+type FullCollectionState<T> = CollectionState<T> & SelectionState;
 
 /**
  * Combined store type including collection and selection actions.
@@ -210,7 +210,6 @@ export const createCollectionStore = <T>(
       setFocused: (isFocused: boolean) => {
         set({ isFocused });
       },
-
 
       setDisabledKeys: (keys: Set<Key>) => {
         set({ disabledKeys: keys });

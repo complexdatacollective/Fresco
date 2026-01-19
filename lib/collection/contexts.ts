@@ -54,7 +54,7 @@ export function useCollectionStoreApi<T>(): CollectionStoreApi<T> {
  * Context for item-specific state.
  * Used by CollectionItem to access its key without prop drilling.
  */
-export type CollectionItemContextValue = {
+type CollectionItemContextValue = {
   key: Key;
 };
 
@@ -64,7 +64,7 @@ export const CollectionItemContext =
 /**
  * Hook to access the current item's context.
  */
-export function useCollectionItemContext(): CollectionItemContextValue {
+function useCollectionItemContext(): CollectionItemContextValue {
   const context = useContext(CollectionItemContext);
 
   if (!context) {

@@ -197,7 +197,14 @@ export function useVirtualization({
     }
 
     return items;
-  }, [rows, scrollTop, viewportHeight, overscan, findFirstVisibleRow, findLastVisibleRow]);
+  }, [
+    rows,
+    scrollTop,
+    viewportHeight,
+    overscan,
+    findFirstVisibleRow,
+    findLastVisibleRow,
+  ]);
 
   // Scroll to bring a specific key into view
   const scrollToKey = useCallback(

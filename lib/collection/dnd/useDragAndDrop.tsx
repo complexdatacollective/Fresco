@@ -132,7 +132,6 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
       },
 
       useDraggableItemProps: (key: Key) => {
-         
         const selectionManager = useOptionalSelectionManager();
 
         // Check if item is disabled - disabled items should not be draggable
@@ -156,7 +155,6 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
 
         const dragType = firstItem?.type ?? 'collection-item';
 
-         
         const { dragProps, isDragging } = useDragSource({
           type: dragType,
           metadata,
@@ -172,19 +170,18 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
       },
 
       useDroppableItemProps: (key: Key, collectionId: string) => {
-         
         const dragItem = useDndStore((state) => state.dragItem);
         // Use refs instead of state to avoid stale closures in callbacks
-         
+
         const hoverPositionRef = useRef<DropPosition | null>(null);
-         
+
         const [hoverPositionState, setHoverPositionState] =
           useState<DropPosition | null>(null);
-         
+
         const elementRef = useRef<HTMLElement | null>(null);
 
         // Calculate drop position based on cursor position
-         
+
         const calculateDropPosition = useCallback(
           (e: PointerEvent | MouseEvent): DropPosition => {
             const element = elementRef.current;
@@ -208,7 +205,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
         );
 
         // Handle drop on this item - use ref to get latest position
-         
+
         const handleItemDrop = useCallback(
           (metadata?: Record<string, unknown>) => {
             if (!metadata) return;
@@ -233,7 +230,6 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
           [key],
         );
 
-         
         const { dropProps, isOver, willAccept } = useDropTarget({
           id: `${collectionId}-item-${key}`,
           accepts: itemTypesRef.current,
@@ -252,7 +248,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
         });
 
         // Track pointer movement to update drop position
-         
+
         const handlePointerMove = useCallback(
           (e: React.PointerEvent) => {
             if (!isOver || !willAccept) return;
@@ -267,7 +263,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
         );
 
         // Memoize the ref callback to avoid triggering useEffect re-runs in CollectionItem
-         
+
         const combinedRef = useCallback(
           (el: HTMLElement | null) => {
             elementRef.current = el;
@@ -323,7 +319,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
  * Hook for individual collection items to enable drop target behavior.
  * This is used internally by Collection when dragAndDropHooks is provided.
  */
-export function useCollectionItemDropTarget(options: {
+function useCollectionItemDropTarget(options: {
   key: Key;
   collectionId: string;
   allowedDropPositions: DropPosition[];

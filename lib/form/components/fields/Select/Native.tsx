@@ -5,7 +5,7 @@ import { cx, type VariantProps } from '~/utils/cva';
 import { type CreateFormFieldProps } from '../../Field/types';
 import { type SelectOption, selectWrapperVariants } from './shared';
 
-export type SelectProps = CreateFormFieldProps<
+type SelectProps = CreateFormFieldProps<
   string | number,
   'select',
   {

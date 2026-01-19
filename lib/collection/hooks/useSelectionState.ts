@@ -180,7 +180,7 @@ export function useSelectionState(
  * @param key - Key to check
  * @returns Whether the key is selected
  */
-export function useIsSelected(key: Key): boolean {
+function _useIsSelected(key: Key): boolean {
   const selectedKeys = useCollectionStore<unknown, Set<Key> | 'all'>(
     (state) => state.selectedKeys,
   );
@@ -200,7 +200,7 @@ export function useIsSelected(key: Key): boolean {
  * @param key - Key to check
  * @returns Whether the key is focused
  */
-export function useIsFocused(key: Key): boolean {
+function _useIsFocused(key: Key): boolean {
   return useCollectionStore<unknown, boolean>(
     (state) => state.focusedKey === key,
   );
@@ -212,7 +212,7 @@ export function useIsFocused(key: Key): boolean {
  * @param key - Key to check
  * @returns Whether the key is disabled
  */
-export function useIsDisabled(key: Key): boolean {
+function _useIsDisabled(key: Key): boolean {
   return useCollectionStore<unknown, boolean>((state) =>
     state.disabledKeys.has(key),
   );
