@@ -73,7 +73,7 @@
     "d3": "^7.9.0",
     "d3-interpolate-path": "^2.3.0",
     "dotenv": "^17.2.3",
-    "es-toolkit": "^1.43.0",
+    "es-toolkit": "^1.44.0",
     "fuse.js": "^7.1.0",
     "jssha": "^3.3.1",
     "jszip": "^3.10.1",
