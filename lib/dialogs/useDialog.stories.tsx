@@ -2,7 +2,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { fn } from 'storybook/test';
 import Button from '~/components/ui/Button';
-import DialogProvider from './DialogProvider';
 import useDialog from './useDialog';
 
 // Component that opens a nested confirmation dialog
@@ -56,13 +55,6 @@ const meta = {
   parameters: {
     layout: 'fullscreen',
   },
-  decorators: [
-    (Story) => (
-      <DialogProvider>
-        <Story />
-      </DialogProvider>
-    ),
-  ],
 } satisfies Meta;
 
 export default meta;
@@ -103,7 +95,9 @@ export const Default: Story = {
     };
 
     return (
-      <div className="flex h-screen items-center justify-center gap-4 [background-image:linear-gradient(90deg,oklch(var(--surface-1))_20%,transparent_10%)] bg-size-[25px]">
+      <div
+        className={`flex h-screen items-center justify-center gap-4 [background-image:linear-gradient(90deg,oklch(var(--surface-1))_20%,transparent_10%)] bg-size-[25px]`}
+      >
         <Button onClick={acknowledgeDialog}>Acknowledge Dialog</Button>
         <Button onClick={choiceDialog}>Choice Dialog</Button>
       </div>
@@ -144,7 +138,9 @@ export const NestedDialogs: Story = {
     };
 
     return (
-      <div className="flex h-screen items-center justify-center gap-4 [background-image:linear-gradient(90deg,oklch(var(--surface-1))_20%,transparent_10%)] bg-size-[25px]">
+      <div
+        className={`flex h-screen items-center justify-center gap-4 [background-image:linear-gradient(90deg,oklch(var(--surface-1))_20%,transparent_10%)] bg-size-[25px]`}
+      >
         <Button onClick={handleDelete} color="destructive">
           Delete Item
         </Button>
@@ -179,7 +175,9 @@ export const ConfirmUtility: StoryObj<Meta<ConfirmUtilityArgs>> = {
     };
 
     return (
-      <div className="flex h-screen items-center justify-center gap-4 [background-image:linear-gradient(90deg,oklch(var(--surface-1))_20%,transparent_10%)] bg-size-[25px]">
+      <div
+        className={`flex h-screen items-center justify-center gap-4 [background-image:linear-gradient(90deg,oklch(var(--surface-1))_20%,transparent_10%)] bg-size-[25px]`}
+      >
         <Button onClick={handleDelete} color="destructive">
           Delete Item
         </Button>

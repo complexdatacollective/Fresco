@@ -19,12 +19,6 @@ export default defineMain({
   staticDirs: ['../public', { from: '../styles/themes', to: '/styles/themes' }],
   typescript: {
     check: false,
-    // reactDocgen: 'react-docgen',
-    // reactDocgenTypescriptOptions: {
-    //   shouldExtractLiteralValuesFromEnum: true,
-    //   propFilter: (prop) =>
-    //     prop.parent ? !/node_modules/.test(prop.parent.fileName) : true,
-    // },
   },
   stories: ['../**/*.stories.@(js|jsx|mjs|ts|tsx|mdx)'],
 });

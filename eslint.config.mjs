@@ -1,21 +1,21 @@
+import { fixupPluginRules } from '@eslint/compat';
 import eslint from '@eslint/js';
-import tseslint from 'typescript-eslint';
 import nextPlugin from '@next/eslint-plugin-next';
 import eslintConfigPrettier from 'eslint-config-prettier/flat';
-import storybookPlugin from 'eslint-plugin-storybook';
+import eslintPluginBetterTailwindcss from 'eslint-plugin-better-tailwindcss';
 import importPlugin from 'eslint-plugin-import';
+import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
-import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
-import { fixupPluginRules } from '@eslint/compat';
+import storybookPlugin from 'eslint-plugin-storybook';
 import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   // Global ignores
   {
     ignores: [
       'node_modules/**',
-      '**/*.test.*',
       'public/**',
       'storybook-static/**',
       '.next/**',
@@ -70,10 +70,7 @@ export default tseslint.config(
     },
     rules: {
       ...reactPlugin.configs.recommended.rules,
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
       'react/react-in-jsx-scope': 'off',
-      'react/prop-types': 'off',
       'react/no-unknown-property': 'off',
       'react/jsx-no-target-blank': 'off',
     },
@@ -186,6 +183,26 @@ export default tseslint.config(
         },
       ],
       'no-unreachable': 'error',
+    },
+  },
+
+  // Better TailwindCSS plugin
+  {
+    plugins: {
+      'better-tailwindcss': eslintPluginBetterTailwindcss,
+    },
+    rules: {
+      ...eslintPluginBetterTailwindcss.configs.recommended.rules,
+      'better-tailwindcss/enforce-consistent-line-wrapping': [
+        'warn',
+        { printWidth: 100, strictness: 'loose' },
+      ],
+    },
+    settings: {
+      'better-tailwindcss': {
+        // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
+        entryPoint: 'styles/global.css',
+      },
     },
   },
 

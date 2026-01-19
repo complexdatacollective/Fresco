@@ -1,4 +1,3 @@
-// import addonChromatic from '@chromatic-com/storybook';
 import addonA11y from '@storybook/addon-a11y';
 import addonDocs from '@storybook/addon-docs';
 import addonVitest from '@storybook/addon-vitest';
@@ -7,13 +6,13 @@ import Providers from '../components/Providers';
 import '../styles/globals.css';
 import { getInitialTheme, globalTypes, withTheme } from './theme-switcher';
 
+// @chromatic-com/storybook is not included here because it doesn't export a
+// CSF Next compatible preview addon. It only provides server-side preset
+// functionality and manager UI, so it's configured in main.ts only.
+// See: https://github.com/chromaui/addon-visual-tests/pull/404
+
 export default definePreview({
-  addons: [
-    addonDocs(),
-    addonA11y(),
-    addonVitest(),
-    // addonChromatic()
-  ],
+  addons: [addonDocs(), addonA11y(), addonVitest()],
   parameters: {
     options: {
       storySort: {
