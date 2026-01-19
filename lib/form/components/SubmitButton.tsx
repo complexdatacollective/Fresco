@@ -14,13 +14,12 @@ export default function SubmitButton({
   ...props
 }: SubmitButtonProps) {
   const isSubmitting = useFormStore((state) => state.isSubmitting);
-  const isValid = useFormStore((state) => state.isValid);
 
   return (
     <MotionButton
       color="primary"
       type="submit"
-      disabled={isSubmitting || !isValid}
+      disabled={isSubmitting}
       {...props}
     >
       {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
