@@ -17,6 +17,7 @@ import {
   makeValidationFunction,
   makeValidationHints,
 } from '../validation/helpers';
+import { validationPropKeys } from '../validation/functions';
 import useFormStore from './useFormStore';
 
 /**
@@ -123,8 +124,16 @@ export function useField(config: UseFieldConfig): UseFieldResult {
   const isUnmountingRef = useRef(false);
 
   // Memoize the validation function based on validation props
-  // We serialize the props to create a stable dependency
-  const validationPropsJson = JSON.stringify(validationProps);
+  // We serialize only the actual validation props (not component props like prefixComponent)
+  // to create a stable dependency and avoid circular reference errors from React elements
+  const validationOnlyProps: Record<string, unknown> = {};
+  for (const key of validationPropKeys) {
+    if (key in validationProps) {
+      validationOnlyProps[key] =
+        validationProps[key as keyof typeof validationProps];
+    }
+  }
+  const validationPropsJson = JSON.stringify(validationOnlyProps);
 
   // Include validationContext in the props passed to makeValidationFunction
   const propsWithContext = { ...validationProps, validationContext };

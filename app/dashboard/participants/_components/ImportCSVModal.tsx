@@ -34,9 +34,11 @@ function ImportButton() {
 }
 
 function ImportDialogContent({
+  open,
   onClose,
   onImportComplete,
 }: {
+  open: boolean;
   onClose: () => void;
   onImportComplete?: () => void;
 }) {
@@ -113,7 +115,7 @@ function ImportDialogContent({
   return (
     <FormStoreProvider>
       <Dialog
-        open={true}
+        open={open}
         closeDialog={onClose}
         title="Import participants"
         footer={
@@ -122,6 +124,7 @@ function ImportDialogContent({
             <ImportButton />
           </>
         }
+        className="tablet:min-w-3xl"
       >
         <Alert variant="info" className="m-0">
           <AlertTitle>CSV file requirements</AlertTitle>
@@ -170,17 +173,19 @@ const ImportCSVModal = ({
 
   return (
     <>
-      <Button className="w-full" onClick={() => setShowImportDialog(true)}>
-        <FileDown className="mr-2 h-4 w-4" />
+      <Button
+        className="w-full"
+        onClick={() => setShowImportDialog(true)}
+        icon={<FileDown />}
+      >
         Import participants
       </Button>
 
-      {showImportDialog && (
-        <ImportDialogContent
-          onClose={() => setShowImportDialog(false)}
-          onImportComplete={onImportComplete}
-        />
-      )}
+      <ImportDialogContent
+        open={showImportDialog}
+        onClose={() => setShowImportDialog(false)}
+        onImportComplete={onImportComplete}
+      />
     </>
   );
 };

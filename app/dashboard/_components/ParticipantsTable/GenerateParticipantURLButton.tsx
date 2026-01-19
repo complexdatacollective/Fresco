@@ -1,8 +1,7 @@
 'use client';
 
-import type { Participant, Protocol } from '~/lib/db/generated/client';
 import { Check, Copy } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import {
@@ -11,7 +10,8 @@ import {
   PopoverTrigger,
 } from '~/components/ui/popover';
 import { useToast } from '~/components/ui/use-toast';
-import SelectField from '~/lib/form/components/fields/Select/Styled';
+import type { Participant, Protocol } from '~/lib/db/generated/client';
+import SelectField from '~/lib/form/components/fields/Select/Native';
 import type { ProtocolWithInterviews } from '../ProtocolsTable/ProtocolsTableClient';
 
 export const GenerateParticipationURLButton = ({
@@ -48,15 +48,12 @@ export const GenerateParticipationURLButton = ({
     }
   };
 
-  const ref = useRef<HTMLButtonElement>(null);
-
   return (
     <Popover>
-      <PopoverTrigger>
-        <Button size="sm" ref={ref} color="primary">
-          <Copy className="mr-2 h-4 w-4" />
-          Copy Unique URL
-        </Button>
+      <PopoverTrigger
+        render={<Button size="sm" color="primary" icon={<Copy />} />}
+      >
+        Copy Unique URL
       </PopoverTrigger>
       <PopoverContent className="flex flex-col gap-2">
         <Paragraph intent="smallText">

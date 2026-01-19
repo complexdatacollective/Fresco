@@ -1,4 +1,5 @@
 import { execFile } from 'node:child_process';
+import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
@@ -7,6 +8,7 @@ import {
   saveContextData,
   type SerializedContext,
 } from './fixtures/context-storage';
+import { NativeAppEnvironment } from './fixtures/native-app-environment';
 import { TestDataBuilder } from './fixtures/test-data-builder';
 import {
   TestEnvironment,
@@ -15,15 +17,19 @@ import {
 import { logger } from './utils/logger';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const projectRoot = path.join(__dirname, '../..');
 const execFileAsync = promisify(execFile);
 
 async function globalSetup() {
   logger.setup.start();
 
+  // Reset port allocation at the start of each test run
+  NativeAppEnvironment.resetPortAllocation();
+
   const testEnv = new TestEnvironment();
 
-  // Build Docker image once if not provided
-  await ensureDockerImage();
+  // Ensure standalone build exists
+  await ensureStandaloneBuild();
 
   // Setup parallel environments
   const [setupContext, dashboardContext, interviewsContext] = await Promise.all(
@@ -36,6 +42,9 @@ async function globalSetup() {
 
   // Store the test environment instance globally for teardown
   globalThis.__TEST_ENVIRONMENT__ = testEnv;
+
+  // Setup signal handlers for graceful cleanup
+  setupSignalHandlers(testEnv);
 
   // Save serializable context data to file for test workers
   const contextData: Record<string, SerializedContext> = {};
@@ -175,44 +184,89 @@ async function setupInterviewsEnvironment(testEnv: TestEnvironment) {
   return context;
 }
 
-async function ensureDockerImage() {
-  // If TEST_IMAGE_NAME is already set (e.g., in CI), use that
+async function ensureStandaloneBuild() {
+  logger.build.checking();
+
+  const nativeEnv = new NativeAppEnvironment();
+
+  // Skip if valid build exists and FORCE_REBUILD != true
   // eslint-disable-next-line no-process-env
-  if (process.env.TEST_IMAGE_NAME) {
-    // eslint-disable-next-line no-process-env
-    logger.docker.usingExisting(process.env.TEST_IMAGE_NAME);
+  const forceRebuild = process.env.FORCE_REBUILD === 'true';
+
+  if (!forceRebuild && (await nativeEnv.isBuildValid())) {
+    logger.build.valid();
+    // Always clear the cache even when reusing the build
+    await clearStandaloneCache();
     return;
   }
 
-  // Build the image locally
-  const projectRoot = path.join(__dirname, '../..');
-  const dockerfile = path.join(projectRoot, 'Dockerfile');
-  const imageName = 'fresco-test:latest';
-
-  logger.docker.building(imageName);
+  logger.build.building();
 
   try {
-    await execFileAsync('docker', [
-      'build',
-      '--build-arg',
-      'DISABLE_IMAGE_OPTIMIZATION=true',
-      '-t',
-      imageName,
-      '-f',
-      dockerfile,
-      projectRoot,
-    ]);
+    // Run: pnpm build with SKIP_ENV_VALIDATION=true
+    await execFileAsync('pnpm', ['build'], {
+      cwd: projectRoot,
+      env: {
+        // eslint-disable-next-line no-process-env
+        ...process.env,
+        SKIP_ENV_VALIDATION: 'true',
+      },
+      maxBuffer: 50 * 1024 * 1024, // 50MB buffer for build output
+    });
 
-    // Set the environment variable for all test environments to use
-    // Note: This is needed for runtime communication between setup and test files
-    // eslint-disable-next-line no-process-env
-    process.env.TEST_IMAGE_NAME = imageName;
+    // Copy static assets to standalone directory
+    logger.build.copyingAssets();
 
-    logger.docker.buildSuccess(imageName);
+    const staticSrc = path.join(projectRoot, '.next/static');
+    const staticDest = path.join(projectRoot, '.next/standalone/.next/static');
+    const publicSrc = path.join(projectRoot, 'public');
+    const publicDest = path.join(projectRoot, '.next/standalone/public');
+
+    await fs.cp(staticSrc, staticDest, { recursive: true });
+    await fs.cp(publicSrc, publicDest, { recursive: true });
+
+    logger.build.assetsCopied();
+
+    // Clear the cache after a fresh build
+    await clearStandaloneCache();
+
+    logger.build.success();
   } catch (error) {
-    logger.docker.buildError(error);
+    logger.build.error(error);
     throw error;
   }
+}
+
+/**
+ * Clear the Next.js cache in the standalone build directory.
+ * This prevents stale data from previous runs and avoids race conditions
+ * when multiple test instances share the same cache directory.
+ */
+async function clearStandaloneCache() {
+  const cacheDir = path.join(projectRoot, '.next/standalone/.next/cache');
+
+  try {
+    await fs.rm(cacheDir, { recursive: true, force: true });
+    logger.build.cacheCleared();
+  } catch {
+    // Cache directory might not exist, which is fine
+  }
+}
+
+function setupSignalHandlers(testEnv: TestEnvironment) {
+  const cleanup = async () => {
+    logger.info('\nReceived interrupt signal, cleaning up...');
+    await testEnv.cleanupAll();
+    process.exit(130);
+  };
+
+  process.on('SIGINT', () => {
+    void cleanup();
+  });
+
+  process.on('SIGTERM', () => {
+    void cleanup();
+  });
 }
 
 export default globalSetup;

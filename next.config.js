@@ -2,7 +2,11 @@
 
 import('./env.js');
 import ChildProcess from 'node:child_process';
+import { createRequire } from 'node:module';
+import { env } from './env.js';
 import pkg from './package.json' with { type: 'json' };
+
+const require = createRequire(import.meta.url);
 
 let commitHash = 'Unknown commit hash';
 
@@ -27,6 +31,10 @@ try {
 const config = {
   output: 'standalone',
   reactStrictMode: true,
+  cacheHandler:
+    env.NODE_ENV === 'production'
+      ? require.resolve('./lib/cache-handler.cjs')
+      : undefined,
   experimental: {
     typedRoutes: true,
     webpackBuildWorker: true,

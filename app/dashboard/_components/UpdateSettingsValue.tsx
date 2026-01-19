@@ -8,12 +8,12 @@ import { type AppSetting } from '~/schemas/appSettings';
 import ReadOnlyEnvAlert from '../settings/ReadOnlyEnvAlert';
 
 export default function UpdateSettingsValue({
-  key,
+  settingsKey,
   initialValue,
   readOnly,
   schema,
 }: {
-  key: AppSetting;
+  settingsKey: AppSetting;
   initialValue?: string;
   readOnly?: boolean;
   schema: z.ZodType<string>;
@@ -22,7 +22,7 @@ export default function UpdateSettingsValue({
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setSaving] = useState(false);
 
-  // If key is empty or invalid, set the error state
+  // If settingsKey is empty or invalid, set the error state
   const handleChange = (value: string | undefined) => {
     const result = schema.safeParse(value ?? initialValue ?? '');
 
@@ -47,7 +47,7 @@ export default function UpdateSettingsValue({
     if (!newValue) return;
 
     setSaving(true);
-    await setAppSetting(key, newValue);
+    await setAppSetting(settingsKey, newValue);
     setSaving(false);
   };
 
@@ -65,11 +65,7 @@ export default function UpdateSettingsValue({
       {error && <p className="text-destructive mt-2 text-sm">{error}</p>}
       {newValue !== initialValue && (
         <div className="mt-4 flex justify-end gap-2">
-          {!isSaving && (
-            <Button variant="outline" onClick={handleReset}>
-              Reset
-            </Button>
-          )}
+          {!isSaving && <Button onClick={handleReset}>Reset</Button>}
           <Button disabled={!!error} onClick={handleSave}>
             {isSaving && <Loader2 className="mr-2 animate-spin" />}
             {isSaving ? 'Saving...' : 'Save'}

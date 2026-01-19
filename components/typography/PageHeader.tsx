@@ -8,7 +8,7 @@ const PageHeader = ({
   headerText: string;
   subHeaderText: string;
 }) => (
-  <div className="mx-auto w-[60%] max-w-3xl">
+  <div className="mx-auto max-w-3xl">
     <Heading level="h1" variant="page-heading" margin="none">
       {headerText}
     </Heading>

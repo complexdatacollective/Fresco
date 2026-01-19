@@ -16,17 +16,17 @@
     "test": "SKIP_ENV_VALIDATION=true vitest",
     "test:unit": "SKIP_ENV_VALIDATION=true vitest --run --project=units",
     "test:storybook": "vitest --project=storybook",
-    "test:e2e": "TEST_IMAGE_NAME=fresco-test:latest playwright test --config=tests/e2e/playwright.config.ts",
-    "test:e2e:ui": "TEST_IMAGE_NAME=fresco-test:latest playwright test --config=tests/e2e/playwright.config.ts --ui",
-    "test:e2e:debug": "TEST_IMAGE_NAME=fresco-test:latest playwright test --config=tests/e2e/playwright.config.ts --debug",
+    "test:e2e": "playwright test --config=tests/e2e/playwright.config.ts",
+    "test:e2e:ui": "playwright test --config=tests/e2e/playwright.config.ts --ui",
+    "test:e2e:debug": "playwright test --config=tests/e2e/playwright.config.ts --debug",
+    "test:e2e:rebuild": "FORCE_REBUILD=true playwright test --config=tests/e2e/playwright.config.ts",
     "test:e2e:update-snapshots": "./scripts/update-e2e-snapshots.sh",
     "load-test": "docker run -i grafana/k6 run - <load-test.js",
     "typecheck": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental",
     "storybook": "SKIP_ENV_VALIDATION=true storybook dev -p 6006",
     "build-storybook": "SKIP_ENV_VALIDATION=true storybook build",
     "chromatic": "SKIP_ENV_VALIDATION=true pnpx chromatic --project-token=chpt_54d6831d4ddd5cc",
-    "docker-build": "docker build -t fresco:latest .",
-    "docker-build:test": "docker build -t fresco-test:latest ."
+    "docker-build": "docker build -t fresco:latest ."
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -196,7 +196,6 @@
     "storybook": "^10.1.11",
     "tailwindcss": "4.1.18",
     "tailwindcss-animate": "^1.0.7",
-    "testcontainers": "^11.9.0",
     "tsx": "^4.21.0",
     "typescript": "5.9.3",
     "typescript-eslint": "^8.53.0",

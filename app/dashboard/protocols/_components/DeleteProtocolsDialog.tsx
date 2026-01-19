@@ -1,4 +1,4 @@
-import { Loader2, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import { useEffect, useState } from 'react';
 import { deleteProtocols } from '~/actions/protocols';
@@ -64,16 +64,13 @@ export const DeleteProtocolsDialog = ({
           <Button disabled={isDeleting} onClick={handleCancelDialog}>
             Cancel
           </Button>
-          <Button disabled={isDeleting} onClick={() => void handleConfirm()}>
-            {isDeleting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...
-              </>
-            ) : (
-              <>
-                <Trash2 className="mr-2 h-4 w-4" /> Permanently Delete
-              </>
-            )}
+          <Button
+            disabled={isDeleting}
+            onClick={() => void handleConfirm()}
+            icon={<Trash2 />}
+            color="destructive"
+          >
+            {isDeleting ? 'Deleting...' : 'Permanently Delete'}
           </Button>
         </>
       }

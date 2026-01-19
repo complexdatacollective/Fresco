@@ -24,7 +24,7 @@ const IMPORTANT_PATTERNS = [
     pattern: /All migrations have been successfully applied/,
     type: 'success' as const,
   },
-  { pattern: /Ready on/, type: 'ready' as const },
+  { pattern: /Ready (on|in)/, type: 'ready' as const },
   { pattern: /error/i, type: 'error' as const },
   { pattern: /listening on/i, type: 'ready' as const },
   { pattern: /started/i, type: 'info' as const },
@@ -367,6 +367,153 @@ export const logger = {
 
     complete: () => {
       logger.success(`${icons.success} Seed data created`);
+    },
+  },
+
+  build: {
+    checking: () => {
+      logger.info(`${icons.build} Checking standalone build...`);
+    },
+
+    valid: () => {
+      logger.success(`${icons.success} Standalone build is valid and fresh`);
+    },
+
+    building: () => {
+      logger.info(`${icons.build} Building Next.js standalone...`);
+    },
+
+    success: () => {
+      logger.success(`${icons.success} Standalone build complete`);
+      process.stdout.write('\n');
+    },
+
+    copyingAssets: () => {
+      logger.info(`  ${icons.memo} Copying static assets...`);
+    },
+
+    assetsCopied: () => {
+      logger.success(`  ${icons.success} Static assets copied`);
+    },
+
+    cacheCleared: () => {
+      logger.info(`  ${icons.cleanup} Cleared standalone cache`);
+    },
+
+    error: (error: unknown) => {
+      logger.error('Failed to build standalone:', error);
+    },
+  },
+
+  nativeApp: {
+    starting: (suiteId: string, port: number) => {
+      logger.info(
+        `  ${icons.rocket} Starting native app for ${chalk.cyan(suiteId)} on port ${chalk.cyan(String(port))}...`,
+      );
+    },
+
+    started: (suiteId: string, port: number, url: string) => {
+      logger.success(
+        `  ${icons.success} Native app ${chalk.cyan(suiteId)} started on port ${chalk.cyan(String(port))}`,
+      );
+      logger.debug(`  ${icons.link} URL: ${chalk.underline(url)}`);
+    },
+
+    runningMigrations: (suiteId: string) => {
+      logger.info(
+        `  ${icons.database} Running migrations for ${chalk.cyan(suiteId)}...`,
+      );
+    },
+
+    migrationsComplete: (suiteId: string) => {
+      logger.success(
+        `  ${icons.success} Migrations complete for ${chalk.cyan(suiteId)}`,
+      );
+    },
+
+    migrationsError: (suiteId: string, error: unknown) => {
+      logger.error(`Failed to run migrations for ${suiteId}:`, error);
+    },
+
+    log: (suiteId: string, message: string) => {
+      const trimmed = message.trim();
+
+      // Skip suppressed patterns
+      if (shouldSuppressLog(trimmed)) {
+        return;
+      }
+
+      const logType = getImportantLogType(trimmed);
+
+      if (logType === 'ready') {
+        process.stdout.write(
+          chalk.gray(`    [${suiteId}] `) +
+            chalk.green(`${icons.success} ${trimmed}`) +
+            '\n',
+        );
+        return;
+      }
+
+      if (logType === 'error') {
+        process.stderr.write(
+          chalk.gray(`    [${suiteId}] `) + chalk.red(trimmed) + '\n',
+        );
+        return;
+      }
+
+      // For other important messages, show them in gray
+      if (logType === 'info') {
+        process.stdout.write(chalk.gray(`    [${suiteId}] ${trimmed}`) + '\n');
+      }
+    },
+
+    errorLog: (suiteId: string, message: string) => {
+      const trimmed = message.trim();
+      if (trimmed) {
+        process.stderr.write(
+          chalk.gray(`    [${suiteId}] `) +
+            chalk.red(`${icons.error} ${trimmed}`) +
+            '\n',
+        );
+      }
+    },
+
+    processError: (suiteId: string, error: Error) => {
+      logger.error(`Native app process error for ${suiteId}:`, error);
+    },
+
+    processExit: (
+      suiteId: string,
+      code: number | null,
+      signal: NodeJS.Signals | null,
+    ) => {
+      if (signal) {
+        logger.debug(
+          `  ${icons.info} Native app ${chalk.cyan(suiteId)} exited with signal ${signal}`,
+        );
+      } else if (code !== null && code !== 0) {
+        logger.warn(
+          `${icons.warn} Native app ${chalk.cyan(suiteId)} exited with code ${code}`,
+        );
+      }
+    },
+
+    stopping: (suiteId: string) => {
+      logger.info(
+        `  ${icons.cleanup} Stopping native app ${chalk.cyan(suiteId)}...`,
+      );
+    },
+
+    forceKilling: (suiteId: string) => {
+      logger.warn(
+        `${icons.warn} Force killing native app ${chalk.cyan(suiteId)} after timeout`,
+      );
+    },
+
+    stopped: (suiteId: string) => {
+      logger.success(
+        `  ${icons.success} Native app ${chalk.cyan(suiteId)} stopped`,
+      );
     },
   },
 };

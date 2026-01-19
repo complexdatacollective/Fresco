@@ -67,8 +67,8 @@ function ExportParticipants({
       disabled={participants?.length === 0}
       onClick={handleExport}
       className="w-full"
+      icon={<FileUp />}
     >
-      <FileUp className="mr-2 h-4 w-4" />
       {isExporting ? 'Exporting...' : 'Export Participant List'}
     </Button>
   );

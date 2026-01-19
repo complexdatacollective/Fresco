@@ -45,6 +45,7 @@ export const ActionsDropdown = ({
               icon={<MoreHorizontal />}
             />
           }
+          nativeButton
         />
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>

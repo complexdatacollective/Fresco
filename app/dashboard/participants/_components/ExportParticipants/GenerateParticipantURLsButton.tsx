@@ -1,13 +1,20 @@
 'use client';
 import { FileUp } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { unparse } from 'papaparse';
+import { useState } from 'react';
+import { type FormSubmitHandler } from 'redux-form';
 import type { ParticipantWithInterviews } from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTableClient';
 import type { ProtocolWithInterviews } from '~/app/dashboard/_components/ProtocolsTable/ProtocolsTableClient';
 import { Button } from '~/components/ui/Button';
-import FancyBox from '~/components/ui/FancyBox';
+import ComboboxField from '~/lib/form/components/fields/Combobox/Combobox';
+import { useDownload } from '~/hooks/useDownload';
 import Dialog from '~/lib/dialogs/Dialog';
-import SelectField from '~/lib/form/components/fields/Select/Styled';
-import ExportCSVParticipantURLs from './ExportCSVParticipantURLs';
+import useDialog from '~/lib/dialogs/useDialog';
+import Field from '~/lib/form/components/Field/Field';
+import SelectField from '~/lib/form/components/fields/Select/Native';
+import Form from '~/lib/form/components/Form';
+import SubmitButton from '~/lib/form/components/SubmitButton';
+import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 
 export const GenerateParticipantURLs = ({
   protocols,
@@ -16,24 +23,60 @@ export const GenerateParticipantURLs = ({
   protocols: ProtocolWithInterviews[];
   participants: ParticipantWithInterviews[];
 }) => {
-  const [selectedParticipants, setSelectedParticipants] = useState<string[]>(
-    [],
-  );
-
-  const [selectedProtocol, setSelectedProtocol] =
-    useState<ProtocolWithInterviews>();
-
-  // Default to all participants selected
-  useEffect(() => {
-    if (participants) {
-      setSelectedParticipants(participants.map((p) => p.id));
-    }
-  }, [participants]);
-
   const [open, setOpen] = useState(false);
 
   const handleOpenChange = () => {
     setOpen(!open);
+  };
+
+  const download = useDownload();
+
+  const { openDialog } = useDialog();
+
+  const handleSubmit: FormSubmitHandler = (data: {
+    protocol: string;
+    participants: string[];
+  }) => {
+    try {
+      const { protocol: protocolId, participants: participantIds } = data;
+
+      // CSV file format
+      const csvData = participants
+        .filter((participant) => participantIds.includes(participant.id))
+        .map((participant) => ({
+          id: participant.id,
+          identifier: participant.identifier,
+          interview_url: `${window.location.origin}/onboard/${protocolId}/?participantId=${participant.id}`,
+        }));
+
+      const csv = unparse(csvData, { header: true });
+
+      // Create a download link
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      // trigger the download
+      const protocolNameWithoutExtension =
+        protocols.find((p) => p.id === protocolId)?.name.split('.')[0] ??
+        'protocol';
+      const fileName = `participation_urls_${protocolNameWithoutExtension}.csv`;
+      download(url, fileName);
+      // Clean up the URL object
+      URL.revokeObjectURL(url);
+
+      // Close dialog
+      setOpen(false);
+    } catch (error) {
+      // Show error dialog.
+      void openDialog({
+        type: 'acknowledge',
+        intent: 'destructive',
+        title: 'Error',
+        description: 'An error occurred while exporting participation URLs',
+        actions: {
+          primary: { label: 'OK', value: true },
+        },
+      });
+    }
   };
 
   return (
@@ -45,56 +88,51 @@ export const GenerateParticipantURLs = ({
       >
         Export Participation URLs
       </Button>
-      <Dialog
-        open={open}
-        closeDialog={handleOpenChange}
-        title="Generate Participation URLs"
-        description="Generate a CSV that contains unique participation URLs for all participants by protocol. These URLs can be shared with participants to allow them to take your interview."
-        footer={
-          <>
-            <Button onClick={handleOpenChange} variant="outline">
-              Cancel
-            </Button>
-            <ExportCSVParticipantURLs
-              protocol={selectedProtocol}
-              participants={selectedParticipants.map(
-                (id) => participants.find((p) => p.id === id)!,
-              )}
+      <FormStoreProvider>
+        <Dialog
+          open={open}
+          closeDialog={handleOpenChange}
+          title="Generate Participation URLs"
+          description="Generate a CSV that contains unique participation URLs for all participants by protocol. These URLs can be shared with participants to allow them to take your interview."
+          footer={
+            <>
+              <Button onClick={handleOpenChange}>Cancel</Button>
+              <SubmitButton color="primary" form="generate-urls">
+                Generate
+              </SubmitButton>
+            </>
+          }
+        >
+          <Form id="generate-urls" onSubmit={handleSubmit}>
+            <Field
+              label="Protocol"
+              name="protocol"
+              required
+              component={SelectField}
+              options={protocols.map((protocol) => ({
+                value: protocol.id,
+                label: protocol.name,
+              }))}
             />
-          </>
-        }
-      >
-        <div className="flex flex-col items-center justify-end gap-4">
-          <SelectField
-            name="Protocol"
-            onChange={(value) => {
-              const protocol = protocols.find(
-                (protocol) => protocol.id === value,
-              );
-
-              setSelectedProtocol(protocol);
-            }}
-            value={selectedProtocol?.id}
-            options={protocols.map((protocol) => ({
-              value: protocol.id,
-              label: protocol.name,
-            }))}
-            placeholder="Select a Protocol..."
-          />
-          <FancyBox
-            items={participants.map((participant) => ({
-              id: participant.id,
-              label: participant.identifier,
-              value: participant.id,
-            }))}
-            placeholder="Select Participants..."
-            singular="Participant"
-            plural="Participants"
-            value={selectedParticipants}
-            onValueChange={setSelectedParticipants}
-          />
-        </div>
-      </Dialog>
+            <Field
+              label="Participants"
+              name="participants"
+              required
+              component={ComboboxField}
+              options={participants.map((participant) => ({
+                value: participant.id,
+                label: participant.identifier,
+              }))}
+              placeholder="Select Participants..."
+              singular="Participant"
+              plural="Participants"
+              showSelectAll
+              showDeselectAll
+              initialValue={participants.map((p) => p.id)}
+            />
+          </Form>
+        </Dialog>
+      </FormStoreProvider>
     </>
   );
 };

@@ -83,6 +83,7 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
         onCheckedChange={handleCheckedChange}
         disabled={disabled ?? readOnly}
         {...props}
+        nativeButton
         render={({
           onDrag: _onDrag,
           onDragEnd: _onDragEnd,

@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
 import { cx } from '~/utils/cva';
-import Button, { buttonVariants } from '../ui/Button';
+import { buttonVariants } from '../ui/Button';
 
 const MotionArrow = motion.create(ArrowUp);
 
@@ -36,28 +36,18 @@ export function DataTableColumnHeader<TData, TValue>({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button
-            variant="text"
-            iconPosition="right"
-            className="-mx-6!" // Adjust for padding in Button
-            icon={
-              column.getIsSorted() !== false ? (
-                <MotionArrow
-                  className="text-success h-4 w-4"
-                  animate={
-                    column.getIsSorted() === 'asc' ? { rotate: 180 } : {}
-                  }
-                />
-              ) : (
-                <ArrowUpDown className="h-4 w-4" />
-              )
-            }
-          />
-        }
-      >
-        <div className={cx(headerClasses, 'cursor-pointer')}>{title}</div>
+      <DropdownMenuTrigger>
+        <div className={cx(headerClasses, 'cursor-pointer')}>
+          {title}
+          {column.getIsSorted() !== false ? (
+            <MotionArrow
+              className="text-success h-4 w-4"
+              animate={column.getIsSorted() === 'asc' ? { rotate: 180 } : {}}
+            />
+          ) : (
+            <ArrowUpDown className="h-4 w-4" />
+          )}
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
         <DropdownMenuItem

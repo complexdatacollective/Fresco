@@ -58,11 +58,7 @@ ${error.stack}`;
         </Paragraph>
         <hr className="tablet:block hidden" />
         <div className="tablet:flex-row tablet:justify-between flex flex-col gap-2">
-          <Button
-            onClick={copyDebugInfoToClipboard}
-            variant="outline"
-            icon={<ClipboardCopy />}
-          >
+          <Button onClick={copyDebugInfoToClipboard} icon={<ClipboardCopy />}>
             Copy Debug Information
           </Button>
           <Button onClick={handleReset} variant="default" className="flex">

@@ -3,10 +3,6 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import Image from 'next/image';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import InfoTooltip from '~/components/InfoTooltip';
-import Paragraph from '~/components/typography/Paragraph';
-import { buttonVariants } from '~/components/ui/Button';
-import Link from '~/components/ui/Link';
 import TimeAgo from '~/components/ui/TimeAgo';
 import Checkbox from '~/lib/form/components/fields/Checkbox';
 import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';
@@ -75,33 +71,12 @@ export const getProtocolColumns = (
   if (allowAnonRecruitment) {
     columns.push({
       id: 'participant-url',
-      header: () => {
+      header: ({ column }) => {
         return (
-          <div className="flex items-center gap-2 font-semibold">
-            <span
-              className={buttonVariants({ variant: 'text', className: 'p-0' })}
-            >
-              Anonymous Participation URL
-            </span>
-            <InfoTooltip
-              title="Anonymous Participation URLs"
-              description={
-                <div>
-                  <Paragraph>
-                    Anonymous recruitment is enabled, so you can generate
-                    anonymous participation URLs for your protocols from the
-                    &quot;Anonymous Participation URL&quot; column in the table
-                    below.. These URLs can be shared with participants to allow
-                    them to self-enroll in your study.
-                  </Paragraph>
-                  <Paragraph>
-                    To disable anonymous recruitment, visit the{' '}
-                    <Link href="/dashboard/settings">settings page</Link>.
-                  </Paragraph>
-                </div>
-              }
-            />
-          </div>
+          <DataTableColumnHeader
+            column={column}
+            title="Anonymous Participation URL"
+          />
         );
       },
       cell: ({ row }) => {

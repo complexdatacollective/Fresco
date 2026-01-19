@@ -66,9 +66,7 @@ export const GenerateInterviewURLs = ({
         description="Generate a CSV that contains unique interview URLs for all incomplete interviews by protocol."
         footer={
           <>
-            <Button onClick={handleOpenChange} variant="outline">
-              Cancel
-            </Button>
+            <Button onClick={handleOpenChange}>Cancel</Button>
             <ExportCSVInterviewURLs
               protocol={selectedProtocol}
               interviews={interviewsToExport}

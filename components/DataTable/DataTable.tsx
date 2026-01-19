@@ -1,3 +1,5 @@
+'use client';
+
 import {
   flexRender,
   getCoreRowModel,
@@ -19,7 +21,7 @@ import {
   Search,
   Trash,
 } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { makeDefaultColumns } from '~/components/DataTable/DefaultColumns';
 import { Button } from '~/components/ui/Button';
@@ -79,6 +81,12 @@ export function DataTable<TData, TValue>({
   const [isDeleting, setIsDeleting] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [mounted, setMounted] = useState(false);
+
+  // To avoid hydration mismatches, we only render the table on the client.
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (columns.length === 0) {
     columns = makeDefaultColumns(data);
@@ -171,9 +179,7 @@ export function DataTable<TData, TValue>({
                   ?.getFilterValue() as string) ?? ''
               }
               onChange={(value) =>
-                table
-                  .getColumn(filterColumnAccessorKey)
-                  ?.setFilterValue(value)
+                table.getColumn(filterColumnAccessorKey)?.setFilterValue(value)
               }
               className="mt-0"
             />
@@ -261,46 +267,48 @@ export function DataTable<TData, TValue>({
          * state. See the other data-table for an example.
          */}
 
-        {createPortal(
-          <>
-            <MotionSurface
-              className="tablet:w-auto fixed bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center justify-between gap-4"
-              initial={{ opacity: 0, y: 50 }}
-              animate={
-                hasSelectedRows ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }
-              }
-            >
-              <Heading level="h4" className="shrink-0" margin="none">
-                With selected:
-              </Heading>
-              <Button
-                onClick={() => void deleteHandler()}
-                color="destructive"
-                disabled={isDeleting}
-                icon={
-                  isDeleting ? (
-                    <Loader className="h-4 w-4" />
-                  ) : (
-                    <Trash className="h-4 w-4" />
-                  )
+        {mounted &&
+          createPortal(
+            <>
+              <MotionSurface
+                className="tablet:w-auto fixed bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center justify-between gap-4"
+                initial={{ opacity: 0, y: 50 }}
+                animate={
+                  hasSelectedRows ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }
                 }
+                spacing="sm"
               >
-                {isDeleting ? 'Deleting...' : 'Delete Selected'}
-              </Button>
-              {handleExportSelected && (
+                <Heading level="h4" className="shrink-0" margin="none">
+                  With selected:
+                </Heading>
                 <Button
-                  onClick={exportHandler}
-                  color="primary"
-                  className="mx-2 gap-x-2.5"
-                  icon={<FileUp className="h-4 w-4" />}
+                  onClick={() => void deleteHandler()}
+                  color="destructive"
+                  disabled={isDeleting}
+                  icon={
+                    isDeleting ? (
+                      <Loader className="h-4 w-4" />
+                    ) : (
+                      <Trash className="h-4 w-4" />
+                    )
+                  }
                 >
-                  Export Selected
+                  {isDeleting ? 'Deleting...' : 'Delete Selected'}
                 </Button>
-              )}
-            </MotionSurface>
-          </>,
-          document.body,
-        )}
+                {handleExportSelected && (
+                  <Button
+                    onClick={exportHandler}
+                    color="primary"
+                    className="mx-2 gap-x-2.5"
+                    icon={<FileUp className="h-4 w-4" />}
+                  >
+                    Export Selected
+                  </Button>
+                )}
+              </MotionSurface>
+            </>,
+            document.body,
+          )}
       </div>
     </>
   );

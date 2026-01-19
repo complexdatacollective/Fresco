@@ -73,9 +73,7 @@ function ProtocolUploader({
         Import protocols
       </Button>
       {!hideCancelButton && jobs.length > 0 && (
-        <Button variant="outline" onClick={cancelAllJobs}>
-          Cancel all
-        </Button>
+        <Button onClick={cancelAllJobs}>Cancel all</Button>
       )}
       <Portal>
         <motion.div layout className="fixed right-6 bottom-4 z-10 w-[400px]">

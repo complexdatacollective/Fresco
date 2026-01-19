@@ -1,4 +1,4 @@
-import { Loader2, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
@@ -93,16 +93,9 @@ export const DeleteParticipantsDialog = ({
               setIsDeleting(false);
             }}
             color="destructive"
+            icon={<Trash2 />}
           >
-            {isDeleting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...
-              </>
-            ) : (
-              <>
-                <Trash2 className="mr-2 h-4 w-4" /> Permanently Delete
-              </>
-            )}
+            {isDeleting ? 'Deleting...' : 'Permanently Delete'}
           </Button>
         </>
       }

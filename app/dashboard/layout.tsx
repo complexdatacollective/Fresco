@@ -18,7 +18,7 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
   const uploadThingToken = await getAppSetting('uploadThingToken');
 
   return (
-    <div className="mt-34 mb-10">
+    <div className="mt-34 mb-10 px-2">
       <NavigationBar />
       {!uploadThingToken && <UploadThingModal />}
       <ResponsiveContainer className="flex gap-10">

@@ -143,7 +143,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
     return (
       <motion.div
         className={cx(
-          'focusable-within relative flex min-h-0 flex-1',
+          'relative flex min-h-0 flex-1',
           // Negative margin to offset the Viewport's internal padding
           '-mx-4 -my-2',
           className,
@@ -159,7 +159,6 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
           onFocus={onFocus}
           onBlur={onBlur}
           className={cx(
-            // Required by focusable-after
             'focusable',
             // Layout
             'min-h-0 flex-1 overflow-auto overscroll-contain',

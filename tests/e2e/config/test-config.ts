@@ -10,13 +10,6 @@ const TEST_CONFIG = {
     password: 'TestAdmin123!',
   },
 
-  // Test timeouts
-  timeouts: {
-    containerStartup: 180000, // 3 minutes
-    appInitialization: 10000, // 10 seconds
-    navigation: 30000, // 30 seconds
-  },
-
   // Test environment settings
   environment: {
     // Whether to skip environment validation in containers
@@ -24,9 +17,23 @@ const TEST_CONFIG = {
     // Test UploadThing token
     uploadThingToken: 'sk_test_dummy_token_for_testing',
   },
+
+  // Native app settings for running Next.js without Docker
+  nativeApp: {
+    // Starting port for native app instances
+    basePort: 3100,
+    // Maximum age of standalone build before rebuilding (1 hour)
+    maxBuildAgeMs: 3600000,
+    // Interval between health check polls
+    healthCheckPollMs: 500,
+    // Timeout waiting for app to be ready
+    healthCheckTimeoutMs: 60000,
+    // Timeout waiting for graceful shutdown before force kill
+    shutdownTimeoutMs: 5000,
+  },
 } as const;
 
 // Export individual parts for convenience
 export const ADMIN_CREDENTIALS = TEST_CONFIG.admin;
-export const TEST_TIMEOUTS = TEST_CONFIG.timeouts;
 export const TEST_ENVIRONMENT = TEST_CONFIG.environment;
+export const NATIVE_APP_CONFIG = TEST_CONFIG.nativeApp;

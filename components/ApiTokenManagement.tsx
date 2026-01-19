@@ -151,7 +151,6 @@ export default function ApiTokenManagement({
         footer={
           <>
             <Button
-              variant="outline"
               onClick={() => {
                 setIsCreating(false);
                 setNewTokenDescription('');

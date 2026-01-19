@@ -5,12 +5,11 @@ import { setAppSetting } from '~/actions/appSettings';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
-import { IconButton } from '~/components/ui/Button';
-import SubmitButton from '~/components/ui/SubmitButton';
+import Button, { IconButton } from '~/components/ui/Button';
 import trackEvent from '~/lib/analytics';
 import { getInstallationId } from '~/queries/appSettings';
 
-function Documentation() {
+export default function Documentation() {
   const handleAppConfigured = async () => {
     const installationId = await getInstallationId();
     if (!installationId) {
@@ -82,12 +81,10 @@ function Documentation() {
       </div>
 
       <div className="flex justify-end pt-12">
-        <form action={handleAppConfigured}>
-          <SubmitButton variant="default">Go to the dashboard!</SubmitButton>
-        </form>
+        <Button onClick={handleAppConfigured} color="primary">
+          Go to the dashboard!
+        </Button>
       </div>
     </div>
   );
 }
-
-export default Documentation;

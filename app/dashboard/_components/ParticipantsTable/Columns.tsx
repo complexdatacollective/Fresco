@@ -1,9 +1,6 @@
 import { type ColumnDef } from '@tanstack/react-table';
-import { InfoIcon } from 'lucide-react';
 import Image from 'next/image';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import InfoTooltip from '~/components/InfoTooltip';
-import { buttonVariants } from '~/components/ui/Button';
 import { Badge } from '~/components/ui/badge';
 import Checkbox from '~/lib/form/components/fields/Checkbox';
 import type { ProtocolWithInterviews } from '../ProtocolsTable/ProtocolsTableClient';
@@ -91,26 +88,11 @@ export function getParticipantColumns(
     },
     {
       id: 'participant-url',
-      header: () => {
+      header: ({ column }) => {
         return (
-          <InfoTooltip
-            trigger={
-              <div
-                className={buttonVariants({
-                  variant: 'text',
-                  size: 'sm',
-                })}
-              >
-                <span>Unique Participant URL</span>
-                <InfoIcon className="mx-2 h-4 w-4" />
-              </div>
-            }
+          <DataTableColumnHeader
+            column={column}
             title="Unique Participant URL"
-            description="A unique participant URL allows a participant to take an
-                interview simply by visiting a URL. A participation URL is
-                specific to each participant, and should only be shared with
-                them.
-              "
           />
         );
       },
