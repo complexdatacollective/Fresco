@@ -20,8 +20,7 @@ export default function SubmitButton({
     <MotionButton
       color="primary"
       type="submit"
-      aria-label="Submit"
-      disabled={isSubmitting ?? !isValid}
+      disabled={isSubmitting || !isValid}
       {...props}
     >
       {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
