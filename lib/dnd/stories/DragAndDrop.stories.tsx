@@ -1,9 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
 import Heading from '~/components/typography/Heading';
-import { Collection, InlineGridLayout, useDragAndDrop } from '~/lib/collection';
+import { Collection } from '~/lib/collection/components/Collection';
+import { useDragAndDrop } from '~/lib/collection/dnd/useDragAndDrop';
+import { InlineGridLayout } from '~/lib/collection/layout/InlineGridLayout';
 import { type DragMetadata, DndStoreProvider } from '~/lib/dnd';
-import { Node } from '~/lib/ui/components';
+import { Node } from '~/lib/legacy-ui/components';
 
 type Item = {
   id: string;

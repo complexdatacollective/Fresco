@@ -4,7 +4,7 @@ import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import trackEvent from '~/lib/analytics';
-import Icon from '~/lib/ui/components/Icon';
+import Icon from '~/lib/legacy-ui/components/Icon';
 
 type StageErrorBoundaryProps = {
   children: ReactNode;

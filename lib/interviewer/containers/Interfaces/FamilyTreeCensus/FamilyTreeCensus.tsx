@@ -21,7 +21,7 @@ import {
   getNetworkNodes,
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
-import Prompts from '~/lib/ui/components/Prompts/Prompts';
+import Prompts from '~/lib/legacy-ui/components/Prompts/Prompts';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 
 type FamilyTreeCensusProps = StageProps & {

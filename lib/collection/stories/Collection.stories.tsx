@@ -5,12 +5,15 @@ import { useCallback, useMemo, useState } from 'react';
 import preview from '~/.storybook/preview';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
-import Node, { type NodeColorSequence } from '~/lib/ui/components/Node';
+import Node, { type NodeColorSequence } from '~/lib/legacy-ui/components/Node';
 import { cx } from '~/utils/cva';
 import { Collection } from '../components/Collection';
-import { useDragAndDrop, type DropEvent } from '../dnd';
-import { GridLayout, InlineGridLayout, ListLayout } from '../layout';
+import { type DropEvent } from '../dnd/types';
+import { useDragAndDrop } from '../dnd/useDragAndDrop';
+import { GridLayout } from '../layout/GridLayout';
+import { InlineGridLayout } from '../layout/InlineGridLayout';
 import { type Layout } from '../layout/Layout';
+import { ListLayout } from '../layout/ListLayout';
 import { type ItemProps, type Key, type SelectionMode } from '../types';
 
 type Item = {

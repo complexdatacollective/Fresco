@@ -73,6 +73,9 @@ export default tseslint.config(
       'react/react-in-jsx-scope': 'off',
       'react/no-unknown-property': 'off',
       'react/jsx-no-target-blank': 'off',
+      'react/prop-types': 'off',
+      'react-hooks/exhaustive-deps': 'error',
+      'react-hooks/rules-of-hooks': 'error',
     },
   },
 
@@ -188,21 +191,21 @@ export default tseslint.config(
 
   // Better TailwindCSS plugin
   {
-    plugins: {
-      'better-tailwindcss': eslintPluginBetterTailwindcss,
-    },
-    rules: {
-      ...eslintPluginBetterTailwindcss.configs.recommended.rules,
-      'better-tailwindcss/enforce-consistent-line-wrapping': [
-        'warn',
-        { printWidth: 100, strictness: 'loose' },
-      ],
-    },
+    extends: [eslintPluginBetterTailwindcss.configs.correctness],
+    rules: {},
     settings: {
       'better-tailwindcss': {
-        // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
-        entryPoint: 'styles/global.css',
+        // Use the full path via meta.url to avoid issues with CWD when running ESLint from different directories
+        entryPoint: import.meta.dirname + '/styles/globals.css',
       },
+    },
+  },
+
+  // Disable no-unknown-classes for legacy/special directories
+  {
+    files: ['**/lib/legacy-ui/**', '**/lib/interviewer/**'],
+    rules: {
+      'better-tailwindcss/no-unknown-classes': 'off',
     },
   },
 

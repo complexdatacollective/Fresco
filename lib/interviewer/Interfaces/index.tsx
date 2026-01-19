@@ -2,7 +2,7 @@
 import { type StageType } from '@codaco/protocol-validation';
 import { Loader2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import Icon from '~/lib/ui/components/Icon';
+import Icon from '~/lib/legacy-ui/components/Icon';
 
 const StageLoading = () => (
   <div className="flex h-full w-full items-center justify-center">
@@ -100,8 +100,9 @@ const getInterface = (interfaceType: InterfaceType) => {
         () =>
           import('../containers/Interfaces/FamilyTreeCensus/FamilyTreeCensus'),
         {
-        loading: StageLoading,
-      });
+          loading: StageLoading,
+        },
+      );
     default:
       return () => <NotFoundInterface interfaceType={interfaceType} />;
   }

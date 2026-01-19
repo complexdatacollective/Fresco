@@ -6,7 +6,7 @@ import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import remarkGemoji from 'remark-gemoji';
 import { Label as UILabel } from '~/components/ui/Label';
-import { useRender, type RenderProp } from '~/lib/ui/utils/useRender';
+import { useRender, type RenderProp } from '~/lib/legacy-ui/utils/useRender';
 
 const ALLOWED_MARKDOWN_LABEL_TAGS = ['em', 'strong', 'ul', 'ol', 'li'];
 

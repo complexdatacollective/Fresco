@@ -1,4 +1,4 @@
-import UIPrompts from '~/lib/ui/components/Prompts/Prompts';
+import UIPrompts from '~/lib/legacy-ui/components/Prompts/Prompts';
 import { usePrompts } from '../behaviours/withPrompt';
 
 const Prompts = () => {

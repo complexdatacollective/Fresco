@@ -62,21 +62,6 @@ export const CollectionItemContext =
   createContext<CollectionItemContextValue | null>(null);
 
 /**
- * Hook to access the current item's context.
- */
-function useCollectionItemContext(): CollectionItemContextValue {
-  const context = useContext(CollectionItemContext);
-
-  if (!context) {
-    throw new Error(
-      'useCollectionItemContext must be used within a CollectionItem',
-    );
-  }
-
-  return context;
-}
-
-/**
  * Context for the SelectionManager.
  * Provides access to selection operations throughout the component tree.
  */

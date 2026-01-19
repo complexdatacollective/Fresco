@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import Icon from '~/lib/ui/components/Icon';
+import PropTypes from 'prop-types';
+import { Component } from 'react';
+import Icon from '~/lib/legacy-ui/components/Icon';
 
 class Accordion extends Component {
   constructor(props) {

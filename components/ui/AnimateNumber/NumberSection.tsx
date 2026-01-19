@@ -1,22 +1,22 @@
 'use client';
 
+import { AnimatePresence, motion, type HTMLMotionProps } from 'motion/react';
 import {
   forwardRef,
-  useRef,
+  useEffect,
   useImperativeHandle,
   useMemo,
+  useRef,
   useState,
-  useEffect,
   type CSSProperties,
 } from 'react';
-import { motion, AnimatePresence, type HTMLMotionProps } from 'motion/react';
 import { useIsInitialRender } from './hooks/useIsInitialRender';
 import { NumberDigit } from './NumberDigit';
 import { NumberSymbol } from './NumberSymbol';
 import { SectionContext } from './SectionContext';
+import { type NumberPart } from './utils/formatParts';
 import { getWidthInEm } from './utils/getWidthInEms';
 import { targetWidths } from './utils/targetWidths';
-import { type NumberPart } from './utils/formatParts';
 
 type NumberSectionProps = Omit<HTMLMotionProps<'span'>, 'children'> & {
   parts: NumberPart[];

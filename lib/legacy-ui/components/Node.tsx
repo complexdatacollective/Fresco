@@ -8,8 +8,8 @@ import {
 } from 'react';
 import { useMergeRefs } from 'react-best-merge-refs';
 import usePrevious from '~/hooks/usePrevious';
-import { useNodeInteractions } from '~/lib/ui/hooks/useNodeInteractions';
-import { composeEventHandlers } from '~/lib/ui/utils/composeEventHandlers';
+import { useNodeInteractions } from '~/lib/legacy-ui/hooks/useNodeInteractions';
+import { composeEventHandlers } from '~/lib/legacy-ui/utils/composeEventHandlers';
 import { cva, type VariantProps } from '~/utils/cva';
 
 // TODO: should be part of protocol-validation

@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { memo, useEffect, useId, useMemo } from 'react';
 import { useDndStore, type DndStore } from '~/lib/dnd';
 import InputField from '~/lib/form/components/fields/InputField';
-import { getCSSVariableAsNumber } from '~/lib/ui/utils/CSSVariables';
+import { getCSSVariableAsNumber } from '~/lib/legacy-ui/utils/CSSVariables';
 import { cx } from '~/utils/cva';
 import Loading from '../components/Loading';
 import Panel from '../components/Panel';

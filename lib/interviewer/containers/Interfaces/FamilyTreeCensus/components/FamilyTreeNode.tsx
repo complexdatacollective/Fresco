@@ -4,7 +4,7 @@ import { useDragSource } from '~/lib/dnd';
 import { FAMILY_TREE_CONFIG } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/config';
 import { useClickUnlessDragged } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useClickUnlessDragged';
 import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
-import { Node } from '~/lib/ui/components';
+import { Node } from '~/lib/legacy-ui/components';
 
 export type FamilyTreeNodeType = {
   id: string;

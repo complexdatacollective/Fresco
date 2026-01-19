@@ -4,7 +4,7 @@ import mapboxgl from 'mapbox-gl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { makeGetApiKeyAssetValue } from '~/lib/interviewer/selectors/protocol';
-import { getCSSVariableAsString } from '~/lib/ui/utils/CSSVariables';
+import { getCSSVariableAsString } from '~/lib/legacy-ui/utils/CSSVariables';
 
 const MAP_CONSTS = {
   FILL_OPACITY: 0.5,

@@ -21,8 +21,8 @@ import {
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import getParentKeyByNameValue from '~/lib/interviewer/utils/getParentKeyByNameValue';
-import { DataCard } from '~/lib/ui/components/Cards';
-import UINode from '~/lib/ui/components/Node';
+import { DataCard } from '~/lib/legacy-ui/components/Cards';
+import UINode from '~/lib/legacy-ui/components/Node';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import SearchableList from '../../containers/SearchableList';
 import { usePassphrase } from '../Anonymisation/usePassphrase';

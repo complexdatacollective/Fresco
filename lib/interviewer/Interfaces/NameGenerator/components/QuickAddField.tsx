@@ -12,7 +12,7 @@ import {
   getNodeTypeLabel,
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
-import Icon from '~/lib/ui/components/Icon';
+import Icon from '~/lib/legacy-ui/components/Icon';
 import { cx } from '~/utils/cva';
 
 type QuickAddFieldProps = {

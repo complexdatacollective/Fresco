@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import UINode from '~/lib/ui/components/Node';
+import UINode from '~/lib/legacy-ui/components/Node';
 
 const variants = {
   visible: { opacity: 1 },

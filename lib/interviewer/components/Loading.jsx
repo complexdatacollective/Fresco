@@ -1,7 +1,7 @@
 import cx from 'classnames';
 import { motion } from 'motion/react';
 import PropTypes from 'prop-types';
-import { Spinner } from '~/lib/ui/components';
+import { Spinner } from '~/lib/legacy-ui/components';
 
 const Loading = ({ message, className, small = false }) => (
   <motion.div

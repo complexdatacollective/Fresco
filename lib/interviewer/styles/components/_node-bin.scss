@@ -1,4 +1,4 @@
-@use '../../../ui/styles/global/core/animation';
+@use '../../../legacy-ui/styles/global/core/animation';
 
 .node-bin {
   @include animation.transition-properties(

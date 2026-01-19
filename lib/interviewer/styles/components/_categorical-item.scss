@@ -1,6 +1,6 @@
-@use '../../../ui/styles/global/core/spacing';
-@use '../../../ui/styles/global/core/animation';
-@use '../../../ui/styles/global/core/helpers' as ui-helpers;
+@use '../../../legacy-ui/styles/global/core/spacing';
+@use '../../../legacy-ui/styles/global/core/animation';
+@use '../../../legacy-ui/styles/global/core/helpers' as ui-helpers;
 @use '../helpers/scrollable';
 @mixin clip {
   border-radius: 50%;

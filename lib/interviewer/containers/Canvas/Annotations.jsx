@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import ReactDOM from 'react-dom';
-import Fade from '~/lib/ui/components/Transitions/Fade';
+import Fade from '~/lib/legacy-ui/components/Transitions/Fade';
 import DragManager, {
   NO_SCROLL,
 } from '../../behaviours/DragAndDrop/DragManager';

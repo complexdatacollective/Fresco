@@ -29,7 +29,7 @@ import {
 } from '~/lib/interviewer/ducks/modules/session';
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import { useAppDispatch } from '~/lib/interviewer/store';
-import { Scroller } from '~/lib/ui/components';
+import { Scroller } from '~/lib/legacy-ui/components';
 
 type FamilyTreeNodeFormProps = {
   nodeType: string;

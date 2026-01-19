@@ -1,7 +1,7 @@
 // Import all UI core helpers
-@use '../../ui/styles/global/core/helpers' as ui-helpers;
-@use '../../ui/styles/global/core/animation' as ui-animation;
-@use '../../ui/styles/components/scrollable' as ui-scrollable;
+@use '../../legacy-ui/styles/global/core/helpers' as ui-helpers;
+@use '../../legacy-ui/styles/global/core/animation' as ui-animation;
+@use '../../legacy-ui/styles/components/scrollable' as ui-scrollable;
 
 // Re-export mixins for easy access
 @mixin clickable($depth: 1) {

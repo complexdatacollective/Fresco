@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect } from 'vitest';
 import { Collection } from '../components/Collection';
-import { ListLayout } from '../layout';
+import { ListLayout } from '../layout/ListLayout';
 
 type TestItem = {
   id: string;

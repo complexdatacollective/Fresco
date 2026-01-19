@@ -9,7 +9,7 @@ import {
   useState,
 } from 'react';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
-import Icon from '~/lib/ui/components/Icon';
+import Icon from '~/lib/legacy-ui/components/Icon';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './constants';
 
 /**

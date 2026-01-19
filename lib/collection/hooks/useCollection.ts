@@ -78,34 +78,3 @@ export function useCollection<T>(): Collection<T> {
 
   return collection;
 }
-
-/**
- * Hook to get a specific item by key.
- * Returns undefined if the item doesn't exist.
- *
- * @param key - Key of the item to retrieve
- * @returns Node or undefined
- */
-function _useCollectionItem<T>(key: Key): Node<T> | undefined {
-  return useCollectionStore<T, Node<T> | undefined>((state) =>
-    state.items.get(key),
-  );
-}
-
-/**
- * Hook to get the total number of items in the collection.
- *
- * @returns Number of items
- */
-function _useCollectionSize(): number {
-  return useCollectionStore<unknown, number>((state) => state.size);
-}
-
-/**
- * Hook to get all keys in order.
- *
- * @returns Array of keys
- */
-function _useCollectionKeys(): Key[] {
-  return useCollectionStore<unknown, Key[]>((state) => state.orderedKeys);
-}

@@ -1,7 +1,13 @@
 import { useSelector } from 'react-redux';
 import { getAssetManifest } from '../ducks/modules/protocol';
 
-const AssetMetaProvider = ({ children, assetId }) => {
+const AssetMetaProvider = ({
+  children,
+  assetId,
+}: {
+  children: (asset: unknown) => React.ReactNode;
+  assetId: string;
+}) => {
   const codebookAssets = useSelector(getAssetManifest);
 
   const asset = codebookAssets[assetId];

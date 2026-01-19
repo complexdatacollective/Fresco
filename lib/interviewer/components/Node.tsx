@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import React, { forwardRef, memo } from 'react';
 import { useSelector } from 'react-redux';
 import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
-import UINode from '~/lib/ui/components/Node';
+import UINode from '~/lib/legacy-ui/components/Node';
 import { useNodeLabel } from '../Interfaces/Anonymisation/useNodeLabel';
 
 type NodeProps = NcNode & Omit<React.ComponentProps<typeof UINode>, 'type'>;

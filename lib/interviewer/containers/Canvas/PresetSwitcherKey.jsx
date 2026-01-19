@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { compose } from 'recompose';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
-import Icon from '~/lib/ui/components/Icon';
+import Icon from '~/lib/legacy-ui/components/Icon';
 import {
   getCurrentStage,
   makeGetCategoricalOptions,

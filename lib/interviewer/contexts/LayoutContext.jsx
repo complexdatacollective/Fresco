@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { clamp, noop } from 'es-toolkit';
 import { get } from 'es-toolkit/compat';
@@ -88,6 +87,7 @@ export const LayoutProvider = ({
     });
 
     onLayoutComplete();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, nodes, layout, onLayoutComplete]);
 
   const {
@@ -126,6 +126,7 @@ export const LayoutProvider = ({
       );
       return get(nodes, [index, 'attributes', layoutVariable]);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodes, simulationEnabled, allowAutomaticLayout, layout, twoMode]);
 
   useEffect(() => {
@@ -154,6 +155,7 @@ export const LayoutProvider = ({
     setTimeout(() => {
       setSimulationEnabled(false);
     }, 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [simulationEnabled, setSimulationEnabled, updateNetworkInStore]);
 
   useEffect(() => {
@@ -171,6 +173,7 @@ export const LayoutProvider = ({
     const network = {};
     initialize(network, SIMULATION_OPTIONS);
     start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allowAutomaticLayout]);
 
   useEffect(() => {
@@ -184,6 +187,7 @@ export const LayoutProvider = ({
     });
 
     updateNetwork({ nodes: simulationNodes });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allowAutomaticLayout, simulationEnabled, nodes, layout, twoMode]);
 
   useEffect(() => {
@@ -192,6 +196,7 @@ export const LayoutProvider = ({
     }
 
     updateNetwork({ links });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allowAutomaticLayout, simulationEnabled, links]);
 
   const simulation = allowAutomaticLayout

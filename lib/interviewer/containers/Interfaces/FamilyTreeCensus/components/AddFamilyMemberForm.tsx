@@ -15,7 +15,7 @@ import {
   getNodeTypeLabel,
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
-import { Scroller } from '~/lib/ui/components';
+import { Scroller } from '~/lib/legacy-ui/components';
 
 const AddFamilyMemberForm = () => {
   const subject = useSelector(getStageSubject);

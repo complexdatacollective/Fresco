@@ -1,8 +1,8 @@
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { PureComponent } from 'react';
-import HoverMarquee from '~/lib/ui/components/HoverMarquee';
-import Icon from '~/lib/ui/components/Icon';
+import HoverMarquee from '~/lib/legacy-ui/components/HoverMarquee';
+import Icon from '~/lib/legacy-ui/components/Icon';
 import PresetSwitcherKey from './PresetSwitcherKey';
 
 class PresetSwitcher extends PureComponent {

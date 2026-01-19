@@ -13,7 +13,7 @@ import {
   getNetworkEdges as getEdges,
   getNetworkNodesForType,
 } from '~/lib/interviewer/selectors/session';
-import BooleanOption from '~/lib/ui/components/Boolean/BooleanOption';
+import BooleanOption from '~/lib/legacy-ui/components/Boolean/BooleanOption';
 import useAutoAdvance from '../DyadCensus/useAutoAdvance';
 import useEdgeState from '../DyadCensus/useEdgeState';
 import useSteps from '../DyadCensus/useSteps';

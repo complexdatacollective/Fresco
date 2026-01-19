@@ -9,7 +9,7 @@ import {
 import { find } from 'es-toolkit/compat';
 import { useSelector } from 'react-redux';
 import Form from '~/lib/form/components/Form';
-import Scroller from '~/lib/ui/components/Scroller';
+import Scroller from '~/lib/legacy-ui/components/Scroller';
 import Node from '../../components/Node';
 import { getEdgeColor, getNetworkNodes } from '../../selectors/session';
 

@@ -12,7 +12,7 @@ import {
   getNetworkEdges,
   getNetworkNodesForType,
 } from '~/lib/interviewer/selectors/session';
-import BooleanOption from '~/lib/ui/components/Boolean/BooleanOption';
+import BooleanOption from '~/lib/legacy-ui/components/Boolean/BooleanOption';
 import { getNodePair, getPairs } from './helpers';
 import Pair from './Pair';
 import useAutoAdvance from './useAutoAdvance';

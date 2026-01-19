@@ -3,16 +3,10 @@ import cx from 'classnames';
 import color from 'color';
 import { throttle } from 'es-toolkit';
 import PropTypes from 'prop-types';
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Flipper } from 'react-flip-toolkit';
 import { connect } from 'react-redux';
-import { getCSSVariableAsString } from '~/lib/ui/utils/CSSVariables';
+import { getCSSVariableAsString } from '~/lib/legacy-ui/utils/CSSVariables';
 import { makeGetVariableOptions } from '../../selectors/interface';
 import {
   getPromptOtherVariable,

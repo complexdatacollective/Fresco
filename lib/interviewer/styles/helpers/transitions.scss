@@ -1,6 +1,6 @@
 // Transition helpers
 @use '../mixins';
-@use '../../../ui/styles/global/core/animation' as ui-animation;
+@use '../../../legacy-ui/styles/global/core/animation' as ui-animation;
 
 // Re-export transition mixins for easy access
 @mixin transition-properties($properties, $easing, $duration) {

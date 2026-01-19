@@ -2,7 +2,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { type ComponentProps } from 'react';
 import Surface from '~/components/layout/Surface';
 import { IconButton } from '~/components/ui/Button';
-import ProgressBar from '~/lib/ui/components/ProgressBar';
+import ProgressBar from '~/lib/legacy-ui/components/ProgressBar';
 import { cx } from '~/utils/cva';
 import PassphrasePrompter from './PassphrasePrompter';
 

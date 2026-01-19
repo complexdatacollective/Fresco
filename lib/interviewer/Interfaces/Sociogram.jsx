@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { connect, useSelector } from 'react-redux';
 import { compose, withHandlers } from 'recompose';
-import useTimeout from '~/lib/ui/hooks/useTimeout';
+import useTimeout from '~/lib/legacy-ui/hooks/useTimeout';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import withPrompt from '../behaviours/withPrompt';
 import Canvas from '../components/Canvas/Canvas';
