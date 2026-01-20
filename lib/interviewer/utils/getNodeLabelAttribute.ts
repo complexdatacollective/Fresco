@@ -42,49 +42,6 @@ const isValidLabelCandidate = (
   return false;
 };
 
-/**
- * Finds the name variable from codebook using heuristics:
- * 1. Variable with name property === "name" (case insensitive)
- * 2. Variable with name property containing "name"
- * 3. First text variable
- *
- */
-export const getNameVariableFromCodebook = (
-  codebookVariables: NodeDefinition['variables'],
-): string | null => {
-  if (!codebookVariables) return null;
-
-  // 1. Look for variable with name property === "name"
-  const variableCalledName = Object.entries(codebookVariables).find(
-    ([, variable]) => variable.name.toLowerCase() === 'name',
-  );
-
-  if (variableCalledName) {
-    return variableCalledName[0];
-  }
-
-  // 2. Look for variable with name containing "name"
-  const nameRegex = /name/i;
-  const variableContainingName = Object.entries(codebookVariables).find(
-    ([, variable]) => nameRegex.test(variable.name),
-  );
-
-  if (variableContainingName) {
-    return variableContainingName[0];
-  }
-
-  // 3. Fall back to first text variable
-  const firstTextVariable = Object.entries(codebookVariables).find(
-    ([, variable]) => variable.type === 'text',
-  );
-
-  if (firstTextVariable) {
-    return firstTextVariable[0];
-  }
-
-  return null;
-};
-
 // See: https://github.com/complexdatacollective/Network-Canvas/wiki/Node-Labeling
 export const getNodeLabelAttribute = (
   codebookVariables: NodeDefinition['variables'],

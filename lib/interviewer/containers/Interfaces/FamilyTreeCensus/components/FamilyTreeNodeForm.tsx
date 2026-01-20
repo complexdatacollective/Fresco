@@ -6,7 +6,7 @@ import {
   type NcNode,
   type VariableValue,
 } from '@codaco/shared-consts';
-import { omit } from 'es-toolkit';
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Form from '~/lib/form/components/Form';
@@ -18,7 +18,6 @@ import {
   type RelationshipToEgo,
 } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/store';
 import {
-  getNameVariable,
   getNodeIsEgoVariable,
   getNodeSexVariable,
   getRelationshipToEgoVariable,
@@ -45,7 +44,6 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
   const { nodeType, selectedNode, form, diseaseVars, onClose } = props;
 
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
-  const nameVariable = useSelector(getNameVariable);
   const nodeSexVariable = useSelector(getNodeSexVariable);
   const nodeIsEgoVariable = useSelector(getNodeIsEgoVariable);
   const relationshipToEgoVariable = useSelector(getRelationshipToEgoVariable);
@@ -95,7 +93,6 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
         if (addNetworkNode.fulfilled.match(resultAction)) {
           updateShellNode(node.id, {
             interviewNetworkId: node.id,
-            name: attributes[nameVariable] as string,
             fields: attributes,
           });
           syncMetadata();
@@ -109,7 +106,6 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
       }
     },
     [
-      nameVariable,
       nodeSexVariable,
       nodeIsEgoVariable,
       relationshipToEgoVariable,
@@ -126,32 +122,18 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
       nodeId: NcNode[EntityPrimaryKey]; // network ID
       newAttributeData: NcNode[EntityAttributesProperty];
     }) => {
-      const nameValue = payload.newAttributeData[nameVariable];
-      const attributes = omit(payload.newAttributeData, [nameVariable]);
-      void dispatch(
-        updateNetworkNode({
-          ...payload,
-          newAttributeData: attributes,
-        }),
-      ).then(() => {
+      void dispatch(updateNetworkNode(payload)).then(() => {
         // find shell node by interviewNetworkId
         const shellId = getShellIdByNetworkId(payload.nodeId);
         if (shellId) {
           updateShellNode(shellId, {
-            name: nameValue as string,
-            fields: attributes,
+            fields: payload.newAttributeData,
           });
           syncMetadata();
         }
       });
     },
-    [
-      dispatch,
-      getShellIdByNetworkId,
-      syncMetadata,
-      updateShellNode,
-      nameVariable,
-    ],
+    [dispatch, getShellIdByNetworkId, syncMetadata, updateShellNode],
   );
 
   const processedFields = useProtocolFieldProcessor({
@@ -172,9 +154,7 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
         selectedNode.fields as Record<string, unknown> | undefined
       )?.[field.variable];
       let topValue;
-      if (field.variable === nameVariable) {
-        topValue = selectedNode.name;
-      } else if (field.variable === nodeSexVariable) {
+      if (field.variable === nodeSexVariable) {
         topValue = selectedNode.sex;
       }
       const value = fieldValue ?? topValue;
@@ -185,7 +165,7 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
     });
 
     return values;
-  }, [selectedNode, form.fields, nameVariable, nodeSexVariable]);
+  }, [selectedNode, form.fields, nodeSexVariable]);
 
   const handleSubmit = useCallback(
     ({ value }: { value: Record<string, VariableValue> }) => {

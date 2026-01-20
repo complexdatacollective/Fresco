@@ -15,7 +15,6 @@ import {
 import { getRelationshipTypeVariable } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/edgeUtils';
 import {
   getEgoSexVariable,
-  getNameVariable,
   getNodeSexVariable,
 } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/nodeUtils';
 import { useAppDispatch } from '~/lib/interviewer/store';
@@ -39,7 +38,6 @@ export const FamilyTreeProvider = ({
 }) => {
   const storeRef = useRef<FamilyTreeStoreApi>();
   const dispatch = useAppDispatch();
-  const nameVariable = useSelector(getNameVariable);
   const egoSexVariable = useSelector(getEgoSexVariable);
   const nodeSexVariable = useSelector(getNodeSexVariable);
   const initialNodes = new Map<string, Omit<FamilyTreeNodeType, 'id'>>(
@@ -53,7 +51,7 @@ export const FamilyTreeProvider = ({
       return [
         node._uid,
         {
-          label: node.attributes[nameVariable] as string,
+          label: '',
           sex: node.attributes[nodeSexVariable] as Sex,
           readOnly: false,
           isEgo: false,
