@@ -6,6 +6,7 @@ import {
   type NcNode,
   type VariableValue,
 } from '@codaco/shared-consts';
+import { omit } from 'es-toolkit';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Form from '~/lib/form/components/Form';
@@ -126,7 +127,7 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
       newAttributeData: NcNode[EntityAttributesProperty];
     }) => {
       const nameValue = payload.newAttributeData[nameVariable];
-      const { [nameVariable]: _, ...attributes } = payload.newAttributeData;
+      const attributes = omit(payload.newAttributeData, [nameVariable]);
       void dispatch(
         updateNetworkNode({
           ...payload,
