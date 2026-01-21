@@ -15,8 +15,8 @@ importers:
         specifier: 10.0.0
         version: 10.0.0
       '@codaco/shared-consts':
-        specifier: 5.0.0
-        version: 5.0.0
+        specifier: 4.0.0
+        version: 4.0.0
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.70.0(react@18.3.1))
@@ -584,6 +584,10 @@ packages:
   '@codaco/protocol-validation@10.0.0':
     resolution: {integrity: sha512-mLkBgaMDvt28yWkL9wU5NnYpo/7vp/wZRw7tggVgTria6DZfJBPm2Gr+uKF7dfbZ6rIaJcM0dbiG4/SOPsp05w==}
     hasBin: true
+
+  '@codaco/shared-consts@4.0.0':
+    resolution: {integrity: sha512-j39tdNf93FlZ4R2ycZ+FpHNjzgAXcz92fVpC59Cg7k0loWkuMpoEfArzaZyI0mXGT0BEned5BJ+kG7hBu77wDw==}
+    engines: {node: '>=20.0.0'}
 
   '@codaco/shared-consts@5.0.0':
     resolution: {integrity: sha512-7neTWHNjw6Y7FdVOU8htO2OshADlpS9vI+5mQEDWOdtlL8BdHmBflqQlZE8lFjzBin8tUI9jIlxsLlMYOpjm/w==}
@@ -6692,6 +6696,10 @@ snapshots:
       '@codaco/shared-consts': 5.0.0
       '@faker-js/faker': 10.2.0
       zod: 4.3.5
+
+  '@codaco/shared-consts@4.0.0':
+    dependencies:
+      zod: 3.25.76
 
   '@codaco/shared-consts@5.0.0':
     dependencies:
