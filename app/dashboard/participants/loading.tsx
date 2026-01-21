@@ -1,8 +1,7 @@
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
-import { SettingsSectionSkeleton } from '~/components/layout/SettingsSection';
+import { SettingsCardSkeleton } from '~/components/settings/SettingsCard';
 import PageHeader from '~/components/typography/PageHeader';
-import { ButtonSkeleton } from '~/components/ui/Button';
 
 export default function Loading() {
   return (
@@ -14,14 +13,7 @@ export default function Loading() {
         />
       </ResponsiveContainer>
       <ResponsiveContainer>
-        <SettingsSectionSkeleton
-          controlAreaSkelton={
-            <div className="flex w-72 flex-col items-center justify-end gap-4">
-              <ButtonSkeleton className="w-full" />
-              <ButtonSkeleton className="w-full" />
-            </div>
-          }
-        />
+        <SettingsCardSkeleton hasControlArea />
       </ResponsiveContainer>
 
       <ResponsiveContainer maxWidth="6xl">

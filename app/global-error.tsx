@@ -8,7 +8,7 @@ import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import Link from '~/components/ui/Link';
-import { useToast } from '~/components/ui/Toast';
+import { useToast } from '~/components/ui/Toast-test';
 import { cx } from '~/utils/cva';
 
 export default function Error({

@@ -8,6 +8,8 @@ type SettingsCardProps = {
   id?: string;
   title: string;
   children: ReactNode;
+  controlArea?: ReactNode;
+  divideChildren?: boolean;
   variant?: 'default' | 'destructive';
   className?: string;
 };
@@ -16,6 +18,8 @@ export default function SettingsCard({
   id,
   title,
   children,
+  controlArea,
+  divideChildren = false,
   variant = 'default',
   className,
 }: SettingsCardProps) {
@@ -23,31 +27,66 @@ export default function SettingsCard({
     <Surface
       id={id}
       spacing="sm"
-      maxWidth="3xl"
       className={cx(
-        'scroll-mt-6',
+        'w-3xl scroll-mt-32',
+        controlArea && 'flex gap-10',
         className,
         variant === 'destructive' &&
-          'border border-destructive bg-destructive/5 text-destructive',
+          'border-destructive bg-destructive/5 text-destructive border',
       )}
+      maxWidth="none"
+      baseSize="content"
+      noContainer
     >
-      <Heading level="h4" variant="all-caps" margin="none" className="mb-4">
-        {title}
-      </Heading>
-      <div className="divide-y divide-current/10">{children}</div>
+      <div className={cx(controlArea && 'flex-1')}>
+        <Heading
+          level="h4"
+          variant="all-caps"
+          margin="none"
+          className={cx(divideChildren ? 'mb-4' : 'mb-2')}
+        >
+          {title}
+        </Heading>
+        {divideChildren ? (
+          <div className="divide-y divide-current/10">{children}</div>
+        ) : (
+          children
+        )}
+      </div>
+      {controlArea && (
+        <div className="flex shrink-0 flex-col items-end justify-center">
+          {controlArea}
+        </div>
+      )}
     </Surface>
   );
 }
 
 export function SettingsCardSkeleton({
   rows = 2,
+  hasControlArea = false,
   className,
 }: {
   rows?: number;
+  hasControlArea?: boolean;
   className?: string;
 }) {
+  if (hasControlArea) {
+    return (
+      <Surface spacing="sm" className={cx('flex gap-10', className)}>
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-5 w-1/3" />
+          <Skeleton className="h-4 w-3/4" />
+        </div>
+        <div className="flex min-w-32 shrink-0 flex-col items-end justify-center">
+          <Skeleton className="h-10 w-24" />
+        </div>
+      </Surface>
+    );
+  }
+
   return (
-    <Surface spacing="sm" maxWidth="3xl" className={className}>
+    <Surface spacing="sm" className={className}>
       <Skeleton className="mb-4 h-5 w-32" />
       <div className="divide-y divide-current/10">
         {Array.from({ length: rows }).map((_, i) => (

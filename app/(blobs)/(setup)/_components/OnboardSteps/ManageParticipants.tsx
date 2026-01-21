@@ -1,7 +1,7 @@
 import ImportCSVModal from '~/app/dashboard/participants/_components/ImportCSVModal';
 import AnonymousRecruitmentSwitchClient from '~/components/AnonymousRecruitmentSwitchClient';
-import SettingsSection from '~/components/layout/SettingsSection';
 import LimitInterviewsSwitchClient from '~/components/LimitInterviewsSwitchClient';
+import SettingsCard from '~/components/settings/SettingsCard';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import OnboardContinue from '../OnboardContinue';
@@ -25,14 +25,14 @@ function ManageParticipants({
         </Paragraph>
       </div>
       <div className="mb-6 flex flex-col gap-2">
-        <SettingsSection
-          heading="Import Participants"
+        <SettingsCard
+          title="Import Participants"
           controlArea={<ImportCSVModal />}
         >
           <Paragraph>Upload a CSV file of participants.</Paragraph>
-        </SettingsSection>
-        <SettingsSection
-          heading="Anonymous Recruitment"
+        </SettingsCard>
+        <SettingsCard
+          title="Anonymous Recruitment"
           controlArea={
             <AnonymousRecruitmentSwitchClient
               allowAnonymousRecruitment={allowAnonymousRecruitment}
@@ -42,9 +42,9 @@ function ManageParticipants({
           <Paragraph>
             Allow participants to join your study by visiting a URL.
           </Paragraph>
-        </SettingsSection>
-        <SettingsSection
-          heading="Limit Interviews"
+        </SettingsCard>
+        <SettingsCard
+          title="Limit Interviews"
           controlArea={
             <LimitInterviewsSwitchClient limitInterviews={limitInterviews} />
           }
@@ -53,7 +53,7 @@ function ManageParticipants({
             Limit each participant to being allowed to complete one interview
             per protocol.
           </Paragraph>
-        </SettingsSection>
+        </SettingsCard>
       </div>
       <div className="flex justify-end">
         <OnboardContinue />

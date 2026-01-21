@@ -1,5 +1,4 @@
 import { Loader2 } from 'lucide-react';
-import { unstable_noStore } from 'next/cache';
 import Markdown from 'react-markdown';
 import { z } from 'zod';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
@@ -8,7 +7,7 @@ import { env } from '~/env';
 import trackEvent from '~/lib/analytics';
 import { ensureError } from '~/utils/ensureError';
 import { getSemverUpdateType, semverSchema } from '~/utils/semVer';
-import SettingsSection from './layout/SettingsSection';
+import SettingsCard from './settings/SettingsCard';
 import Heading from './typography/Heading';
 import Paragraph from './typography/Paragraph';
 import { Button } from './ui/Button';
@@ -27,8 +26,6 @@ const GithubApiResponseSchema = z
   }));
 
 async function checkForUpdate() {
-  unstable_noStore();
-
   if (!env.APP_VERSION) {
     return {
       error: true,
@@ -40,7 +37,7 @@ async function checkForUpdate() {
 
     const response = await fetch(
       'https://api.github.com/repos/complexdatacollective/fresco/releases/latest',
-      { cache: 'no-store' },
+      { next: { revalidate: 3600 } },
     );
     const data = await response.json();
     const { latestVersion, releaseNotes, releaseUrl } =
@@ -74,7 +71,7 @@ export default async function VersionSection() {
     await checkForUpdate();
 
   return (
-    <SettingsSection id="app-version" heading="App Version">
+    <SettingsCard id="app-version" title="App Version">
       <Paragraph>
         You are currently running Fresco {env.APP_VERSION} ({env.COMMIT_HASH}
         ).
@@ -137,14 +134,14 @@ export default async function VersionSection() {
           </Alert>
         </>
       )}
-    </SettingsSection>
+    </SettingsCard>
   );
 }
 
 // Skeleton
 export function VersionSectionSkeleton() {
   return (
-    <SettingsSection heading="App Version">
+    <SettingsCard title="App Version">
       <Paragraph>
         You are currently running Fresco {env.APP_VERSION} ({env.COMMIT_HASH}
         ).
@@ -153,6 +150,6 @@ export function VersionSectionSkeleton() {
         <Loader2 className="animate-spin" />
         <Heading>Checking for updates...</Heading>
       </div>
-    </SettingsSection>
+    </SettingsCard>
   );
 }

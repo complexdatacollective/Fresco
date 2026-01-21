@@ -5,6 +5,7 @@ import { useDropzone } from 'react-dropzone';
 import { Button, type ButtonProps } from '~/components/ui/Button';
 import { PROTOCOL_EXTENSION } from '~/fresco.config';
 import { useProtocolImport } from '~/hooks/useProtocolImport';
+import { useProtocolImportStore } from '~/lib/protocol-import/useProtocolImportStore';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { cx } from '~/utils/cva';
 
@@ -21,7 +22,8 @@ function ProtocolUploader({
   hideCancelButton?: boolean;
   buttonDisabled?: boolean;
 }) {
-  const { importProtocols, cancelAllJobs, hasActiveJobs } = useProtocolImport();
+  const { importProtocols, cancelAllJobs } = useProtocolImport();
+  const hasActiveJobs = useProtocolImportStore((s) => s.hasActiveJobs());
 
   const { getInputProps, open } = useDropzone({
     noClick: true,

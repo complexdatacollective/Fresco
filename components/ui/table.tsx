@@ -36,7 +36,11 @@ const TableBody = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tbody
     ref={ref}
-    className={cx('[&_tr:last-child]:border-0', className)}
+    className={cx(
+      '[&_tr:last-child]:border-0',
+      '[&_tr:not(:only-child)]:hover:bg-current/3', // Hover effect only on body rows, disabled when empty (single row)
+      className,
+    )}
     {...props}
   />
 ));
@@ -64,8 +68,8 @@ const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cx(
-      'h-12', // Height works the same as min-h for table rows https://stackoverflow.com/questions/19432092/can-i-use-a-min-height-for-table-tr-or-td
-      'data-[state=selected]:bg-selected/15 border-b transition-colors duration-300 hover:bg-current/3',
+      'h-14', // Height works the same as min-h for table rows https://stackoverflow.com/questions/19432092/can-i-use-a-min-height-for-table-tr-or-td
+      'data-[state=selected]:bg-selected/15 border-b transition-colors duration-300',
       className,
     )}
     {...props}
@@ -80,7 +84,7 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cx(
-      'px-4 whitespace-nowrap',
+      'px-2 whitespace-nowrap',
       'text-left font-medium first:pl-12 last:pr-12',
       className,
     )}

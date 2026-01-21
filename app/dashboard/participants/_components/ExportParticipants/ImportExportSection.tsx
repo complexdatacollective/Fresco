@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
-import SettingsSection from '~/components/layout/SettingsSection';
+import SettingsCard from '~/components/settings/SettingsCard';
 import Paragraph from '~/components/typography/Paragraph';
 import { ButtonSkeleton } from '~/components/ui/Button';
 import { getParticipants } from '~/queries/participants';
@@ -11,8 +11,8 @@ export default function ImportExportSection() {
   const participantsPromise = getParticipants();
   return (
     <ResponsiveContainer>
-      <SettingsSection
-        heading="Import/Export Participants in Bulk"
+      <SettingsCard
+        title="Import/Export Participants in Bulk"
         controlArea={
           <div className="flex w-72 flex-col items-center justify-end gap-4">
             <ImportCSVModal />
@@ -26,7 +26,7 @@ export default function ImportExportSection() {
           Import or export participants in bulk using the options to the right.
           Refer to our documentation for information about the formats used.
         </Paragraph>
-      </SettingsSection>
+      </SettingsCard>
     </ResponsiveContainer>
   );
 }
