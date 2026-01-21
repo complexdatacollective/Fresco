@@ -18,6 +18,8 @@ import FamilyTreeNode, {
 import FamilyTreeNodeForm from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/FamilyTreeNodeForm';
 import { useFamilyTreeStore } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
 import type { Relationship } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/store';
+import { getRelationshipTypeVariable } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/edgeUtils';
+
 import {
   type FamilyTreeCensusStageMetadata,
   updateNode as updateNetworkNode,
@@ -53,12 +55,22 @@ export const FamilyTreeShells = (props: {
   const nodes: FamilyTreeNodeType[] = Array.from(
     nodesMap.entries().map(([id, node]) => ({ id, ...node })),
   );
+
+  // Create a lookup map from network ID to NcNode for label derivation
+  const networkNodeMap = useMemo(() => {
+    const map = new Map<string, NcNode>();
+    for (const node of networkNodes) {
+      map.set(node._uid, node);
+    }
+    return map;
+  }, [networkNodes]);
   const [selectedNode, setSelectedNode] = useState<FamilyTreeNodeType | void>(
     undefined,
   );
   const { toast } = useToast();
   const dispatch = useAppDispatch();
   const stageMetadata = useSelector(getStageMetadata);
+  const relationshipVariable = useSelector(getRelationshipTypeVariable);
   const [hydratedOnce, setHydratedOnce] = useState(false);
 
   const shouldHydrate = useMemo(() => {
@@ -134,14 +146,14 @@ export const FamilyTreeShells = (props: {
         isEgo,
         readOnly,
         interviewNetworkId: id,
-        name: (fields.name as string) ?? label,
         fields,
         diseases,
       });
     }
 
     for (const edge of networkEdges) {
-      const relationship = (edge.attributes.relationship ?? '') as Relationship;
+      const relationship = (edge.attributes[relationshipVariable] ??
+        '') as Relationship;
       const id = `${edge.from}-${edge.to}-${relationship}`;
       addShellEdge({
         id,
@@ -164,6 +176,7 @@ export const FamilyTreeShells = (props: {
     clearNetwork,
     stage.diseaseNominationStep,
     hydratedOnce,
+    relationshipVariable,
   ]);
 
   const updateNode = useCallback(
@@ -235,11 +248,14 @@ export const FamilyTreeShells = (props: {
             <FamilyTreeNode
               key={node.id}
               placeholderId={node.id}
-              name={node.name}
+              networkNode={
+                node.interviewNetworkId
+                  ? networkNodeMap.get(node.interviewNetworkId)
+                  : undefined
+              }
               label={node.label}
               isEgo={node.isEgo}
               allowDrag={node.readOnly !== true && stepIndex < 2}
-              interviewNetworkId={node.interviewNetworkId}
               shape={node.sex === 'female' ? 'circle' : 'square'}
               x={node.x ?? 0}
               y={node.y ?? 0}

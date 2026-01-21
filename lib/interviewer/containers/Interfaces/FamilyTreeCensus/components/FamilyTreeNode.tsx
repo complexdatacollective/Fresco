@@ -1,6 +1,7 @@
-import { type VariableValue } from '@codaco/shared-consts';
+import { type NcNode, type VariableValue } from '@codaco/shared-consts';
 import { useSelector } from 'react-redux';
 import { useDragSource } from '~/lib/dnd';
+import { useNodeLabel } from '~/lib/interviewer/containers/Interfaces/Anonymisation/useNodeLabel';
 import { FAMILY_TREE_CONFIG } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/config';
 import { useClickUnlessDragged } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useClickUnlessDragged';
 import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
@@ -16,17 +17,15 @@ export type FamilyTreeNodeType = {
   y?: number;
   shape?: 'circle' | 'square';
   selected?: boolean;
-  name?: string;
   sex?: 'male' | 'female';
   diseases?: Map<string, boolean>;
   fields?: Record<string, VariableValue>;
   readOnly: boolean;
 };
 
-export default function FamilyTreeNode(props: {
-  interviewNetworkId?: string;
+type FamilyTreeNodeProps = {
+  networkNode?: NcNode;
   placeholderId: string;
-  name?: string;
   label: string;
   shape: 'circle' | 'square';
   allowDrag: boolean;
@@ -35,27 +34,38 @@ export default function FamilyTreeNode(props: {
   y: number;
   selected?: boolean;
   handleClick?: () => void;
-}) {
+};
+
+/**
+ * Renders the node label for nodes linked to the network.
+ * Uses the standard useNodeLabel hook for label derivation.
+ */
+function NetworkNodeLabel({ node }: { node: NcNode }) {
+  const label = useNodeLabel(node);
+  return <h4>{label}</h4>;
+}
+
+export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
   const {
+    networkNode,
     placeholderId,
-    name,
     label,
     allowDrag,
     x,
     y,
     shape,
     isEgo,
-    interviewNetworkId,
     selected,
     handleClick,
   } = props;
+
   const nodeTypeColor = useSelector(getNodeColorSelector);
 
   const { handlePointerDown, handlePointerUp, shouldHandleClick } =
     useClickUnlessDragged();
 
   const nodeColor = () => {
-    if (interviewNetworkId)
+    if (networkNode)
       return {
         '--base': `var(--${nodeTypeColor})`,
         '--dark': `var(--${nodeTypeColor}-dark)`,
@@ -95,13 +105,15 @@ export default function FamilyTreeNode(props: {
       >
         <Node
           className="shrink-0"
-          style={{
-            width: FAMILY_TREE_CONFIG.nodeWidth,
-            height: FAMILY_TREE_CONFIG.nodeHeight,
-            ...nodeColor(),
-          }}
+          style={
+            {
+              width: FAMILY_TREE_CONFIG.nodeWidth,
+              height: FAMILY_TREE_CONFIG.nodeHeight,
+              ...nodeColor(),
+            } as React.CSSProperties
+          }
           color="custom"
-          label={isEgo ? `You` : ''}
+          label={isEgo ? 'You' : ''}
           shape={shape}
           selected={selected}
         />
@@ -135,12 +147,18 @@ export default function FamilyTreeNode(props: {
             ></line>
           </svg>
         )}
-        {/* 
+        {/*
           Position anchor would be ideal for this but no FF support:
-          https://developer.mozilla.org/en-US/docs/Web/CSS/position-anchor 
+          https://developer.mozilla.org/en-US/docs/Web/CSS/position-anchor
         */}
         <div className="family-tree-node-label-container flex flex-col gap-0.5 text-white">
-          <h4>{name ?? label}</h4>
+          {isEgo ? (
+            <h4>You</h4>
+          ) : networkNode ? (
+            <NetworkNodeLabel node={networkNode} />
+          ) : (
+            <h4>{label}</h4>
+          )}
           <h5 className="family-tree-node-label !font-normal">{label}</h5>
         </div>
       </div>
