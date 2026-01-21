@@ -3,6 +3,7 @@
 import { createContext, useContext } from 'react';
 import { useStore } from 'zustand';
 import { type SelectionManager } from './selection/SelectionManager';
+import { type SortManager } from './sorting/SortManager';
 import { type CollectionStoreApi, type FullCollectionStore } from './store';
 import { type Key } from './types';
 
@@ -103,4 +104,33 @@ export const CollectionIdContext = createContext<string | undefined>(undefined);
  */
 export function useCollectionId(): string | undefined {
   return useContext(CollectionIdContext);
+}
+
+/**
+ * Context for the SortManager.
+ * Provides access to sort operations throughout the component tree.
+ */
+export const SortManagerContext = createContext<SortManager | null>(null);
+
+/**
+ * Hook to access the SortManager from context.
+ */
+export function useSortManager(): SortManager {
+  const manager = useContext(SortManagerContext);
+
+  if (!manager) {
+    throw new Error(
+      'useSortManager must be used within a Collection with sorting enabled',
+    );
+  }
+
+  return manager;
+}
+
+/**
+ * Hook to optionally access the SortManager.
+ * Returns null if sorting context is not available.
+ */
+export function useOptionalSortManager(): SortManager | null {
+  return useContext(SortManagerContext);
 }

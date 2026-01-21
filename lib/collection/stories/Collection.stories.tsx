@@ -5,9 +5,13 @@ import { useCallback, useMemo, useState } from 'react';
 import preview from '~/.storybook/preview';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
+import { Button } from '~/components/ui/Button';
 import Node, { type NodeColorSequence } from '~/lib/legacy-ui/components/Node';
 import { cx } from '~/utils/cva';
 import { Collection } from '../components/Collection';
+import { CollectionSortButton } from '../components/CollectionSortButton';
+import { CollectionSortSelect } from '../components/CollectionSortSelect';
+import { useSortManager } from '../contexts';
 import { type DropEvent } from '../dnd/types';
 import { useDragAndDrop } from '../dnd/useDragAndDrop';
 import { GridLayout } from '../layout/GridLayout';
@@ -184,30 +188,28 @@ function CollectionStoryRender(args: CollectionStoryArgs) {
   };
 
   return (
-    <div className="flex h-screen w-screen p-8">
-      <div className={cx(collectionClasses, 'p-4')}>
-        <Heading level="h2">Collection Demo</Heading>
-        <Paragraph>
-          Layout: <strong>{layoutType}</strong> | Item:{' '}
-          <strong>{itemComponent}</strong> | Selection:{' '}
-          <strong>{selectionMode}</strong>
-        </Paragraph>
+    <div className={cx(collectionClasses, 'h-full p-4')}>
+      <Heading level="h2">Collection Demo</Heading>
+      <Paragraph>
+        Layout: <strong>{layoutType}</strong> | Item:{' '}
+        <strong>{itemComponent}</strong> | Selection:{' '}
+        <strong>{selectionMode}</strong>
+      </Paragraph>
 
-        <button className="focusable bg-surface-1 rounded px-3 py-1">
-          previous item for testing focus
-        </button>
-        <Collection
-          items={sampleItems}
-          layout={layout}
-          keyExtractor={(item: Item) => item.id}
-          renderItem={renderItem}
-          selectionMode={selectionMode}
-          animate={animate}
-        />
-        <button className="focusable bg-surface-1 rounded px-3 py-1">
-          next item for testing focus
-        </button>
-      </div>
+      <button className="focusable bg-surface-1 rounded px-3 py-1">
+        previous item for testing focus
+      </button>
+      <Collection
+        items={sampleItems}
+        layout={layout}
+        keyExtractor={(item: Item) => item.id}
+        renderItem={renderItem}
+        selectionMode={selectionMode}
+        animate={animate}
+      />
+      <button className="focusable bg-surface-1 rounded px-3 py-1">
+        next item for testing focus
+      </button>
     </div>
   );
 }
@@ -430,8 +432,8 @@ function DragDropBetweenCollections() {
   );
 
   return (
-    <div className="flex h-screen w-screen gap-8 p-8">
-      <div className={collectionClasses}>
+    <div className="flex h-full gap-8">
+      <div className={cx(collectionClasses, 'flex-1')}>
         <Heading level="h2">Team A ({leftItems.length} people)</Heading>
         <Paragraph>Drag people to move them to the other team.</Paragraph>
         <Collection
@@ -448,7 +450,7 @@ function DragDropBetweenCollections() {
         />
       </div>
 
-      <div className={collectionClasses}>
+      <div className={cx(collectionClasses, 'flex-1')}>
         <Heading level="h2">Team B ({rightItems.length} people)</Heading>
         <Paragraph>Drag people to move them to the other team.</Paragraph>
         <Collection
@@ -561,7 +563,7 @@ function DynamicItemsDemo() {
   };
 
   return (
-    <div className="flex h-screen w-screen flex-col gap-4 p-8">
+    <div className="flex h-full flex-col gap-4">
       <div className="flex gap-4">
         <button
           onClick={addItem}
@@ -580,7 +582,7 @@ function DynamicItemsDemo() {
         </span>
       </div>
 
-      <div className={cx(collectionClasses, 'flex-1')}>
+      <div className={cx(collectionClasses, 'flex-1 overflow-hidden')}>
         <Heading level="h2">Dynamic Items ({items.length})</Heading>
         <Paragraph>
           Items animate smoothly when added, removed, or reordered.
@@ -731,31 +733,27 @@ function VirtualizedStoryRender({
   );
 
   return (
-    <div className="flex h-screen w-screen flex-col p-8">
-      <div
-        className={cx(collectionClasses, 'max-h-[calc(100vh-100px)] flex-1')}
-      >
-        <Heading level="h2">
-          Virtualized Collection ({items.length.toLocaleString()} items)
-        </Heading>
-        <Paragraph>
-          {virtualized
-            ? `Scroll through ${items.length.toLocaleString()} items with smooth performance. Only visible items are rendered (check DevTools).`
-            : `All ${items.length.toLocaleString()} items rendered (may be slow with large counts).`}
-        </Paragraph>
-        <Collection
-          id="virtualized-collection"
-          items={items}
-          layout={layout}
-          keyExtractor={(item: VirtualizedItem) => item.id}
-          renderItem={renderItem}
-          selectionMode="multiple"
-          virtualized={virtualized}
-          overscan={overscan}
-          animate={animate}
-          aria-label="Virtualized collection"
-        />
-      </div>
+    <div className={cx(collectionClasses, 'h-full')}>
+      <Heading level="h2">
+        Virtualized Collection ({items.length.toLocaleString()} items)
+      </Heading>
+      <Paragraph>
+        {virtualized
+          ? `Scroll through ${items.length.toLocaleString()} items with smooth performance. Only visible items are rendered (check DevTools).`
+          : `All ${items.length.toLocaleString()} items rendered (may be slow with large counts).`}
+      </Paragraph>
+      <Collection
+        id="virtualized-collection"
+        items={items}
+        layout={layout}
+        keyExtractor={(item: VirtualizedItem) => item.id}
+        renderItem={renderItem}
+        selectionMode="multiple"
+        virtualized={virtualized}
+        overscan={overscan}
+        animate={animate}
+        aria-label="Virtualized collection"
+      />
     </div>
   );
 }
@@ -809,4 +807,413 @@ export const VirtualizedRendererStory = meta.story({
   render: (args) => (
     <VirtualizedStoryRender {...(args as unknown as VirtualizedStoryArgs)} />
   ),
+});
+
+// =========================================
+// Sorting Stories
+// =========================================
+
+type SortableItem = {
+  id: string;
+  name: string;
+  createdAt: Date;
+  priority: number;
+  completed: boolean;
+};
+
+// Generate sample data with varied properties
+faker.seed(456);
+const sortableItems: SortableItem[] = Array.from({ length: 10 }, (_, i) => ({
+  id: `item-${i + 1}`,
+  name: faker.commerce.productName(),
+  createdAt: faker.date.between({
+    from: new Date('2024-01-01'),
+    to: new Date('2024-12-31'),
+  }),
+  priority: faker.number.int({ min: 1, max: 5 }),
+  completed: faker.datatype.boolean(),
+}));
+
+function SortableItemCard({
+  item,
+  itemProps,
+}: {
+  item: SortableItem;
+  itemProps: ItemProps;
+}) {
+  return (
+    <div
+      {...itemProps}
+      className={cx(
+        'bg-surface-1 text-surface-1-contrast rounded border-2 border-transparent p-4 transition-colors',
+        'data-selected:bg-accent data-selected:text-accent-contrast data-selected:outline-accent',
+        'focusable',
+      )}
+    >
+      <div className="flex items-center justify-between">
+        <Heading level="label">{item.name}</Heading>
+        <span
+          className={cx(
+            'rounded-full px-2 py-0.5 text-xs',
+            item.completed
+              ? 'bg-success/20 text-success'
+              : 'bg-warning/20 text-warning',
+          )}
+        >
+          {item.completed ? 'Done' : 'Pending'}
+        </span>
+      </div>
+      <div className="text-surface-1-contrast/70 mt-2 flex gap-4 text-sm">
+        <span>Priority: {item.priority}</span>
+        <span>Created: {item.createdAt.toLocaleDateString()}</span>
+      </div>
+    </div>
+  );
+}
+
+function SortingWithButtonsDemo() {
+  const layout = useMemo(() => new ListLayout<SortableItem>({ gap: 8 }), []);
+
+  const renderItem = useCallback(
+    (item: SortableItem, itemProps: ItemProps) => (
+      <SortableItemCard item={item} itemProps={itemProps} />
+    ),
+    [],
+  );
+
+  return (
+    <div className={cx(collectionClasses, 'h-full')}>
+      <Heading level="h2">Sorting with Buttons</Heading>
+      <Paragraph>
+        Click sort buttons to sort the collection. Click again to toggle
+        direction.
+      </Paragraph>
+
+      <Collection
+        items={sortableItems}
+        layout={layout}
+        keyExtractor={(item: SortableItem) => item.id}
+        renderItem={renderItem}
+        selectionMode="multiple"
+        animate
+        aria-label="Sortable collection"
+      >
+        <div className="mb-4 flex flex-wrap gap-2">
+          <CollectionSortButton property="name" type="string" label="Name" />
+          <CollectionSortButton
+            property="createdAt"
+            type="date"
+            label="Date Created"
+          />
+          <CollectionSortButton
+            property="priority"
+            type="number"
+            label="Priority"
+          />
+          <CollectionSortButton
+            property="completed"
+            type="boolean"
+            label="Status"
+          />
+          <CollectionSortButton
+            property="*"
+            type="number"
+            label="Original Order"
+          />
+        </div>
+      </Collection>
+    </div>
+  );
+}
+
+export const SortingWithButtonsStory = meta.story({
+  name: 'Sorting - With Buttons',
+  render: () => <SortingWithButtonsDemo />,
+});
+
+function SortingWithSelectDemo() {
+  const layout = useMemo(() => new ListLayout<SortableItem>({ gap: 8 }), []);
+
+  const renderItem = useCallback(
+    (item: SortableItem, itemProps: ItemProps) => (
+      <SortableItemCard item={item} itemProps={itemProps} />
+    ),
+    [],
+  );
+
+  return (
+    <div className={cx(collectionClasses, 'h-full')}>
+      <Heading level="h2">Sorting with Select Dropdown</Heading>
+      <Paragraph>
+        Use the dropdown to select a sort field and toggle direction.
+      </Paragraph>
+
+      <Collection
+        items={sortableItems}
+        layout={layout}
+        keyExtractor={(item: SortableItem) => item.id}
+        renderItem={renderItem}
+        selectionMode="multiple"
+        animate
+        aria-label="Sortable collection"
+      >
+        <div className="mb-4">
+          <CollectionSortSelect
+            options={[
+              { property: 'name', label: 'Name', type: 'string' },
+              { property: 'createdAt', label: 'Date Created', type: 'date' },
+              { property: 'priority', label: 'Priority', type: 'number' },
+              { property: 'completed', label: 'Status', type: 'boolean' },
+              { property: '*', label: 'Original Order', type: 'number' },
+            ]}
+            placeholder="Sort by..."
+            showClearOption
+            showDirectionToggle
+          />
+        </div>
+      </Collection>
+    </div>
+  );
+}
+
+export const SortingWithSelectStory = meta.story({
+  name: 'Sorting - With Select',
+  render: () => <SortingWithSelectDemo />,
+});
+
+function CustomSortControlsDemo() {
+  const layout = useMemo(() => new ListLayout<SortableItem>({ gap: 8 }), []);
+
+  const renderItem = useCallback(
+    (item: SortableItem, itemProps: ItemProps) => (
+      <SortableItemCard item={item} itemProps={itemProps} />
+    ),
+    [],
+  );
+
+  // Custom sort controls using useSortManager hook
+  function CustomSortControls() {
+    const sortManager = useSortManager();
+
+    return (
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <span className="text-surface-contrast/70 text-sm">Custom UI:</span>
+        <Button
+          size="sm"
+          variant={sortManager.isSortedBy('name') ? 'default' : 'outline'}
+          onClick={() => sortManager.sortBy('name', 'string')}
+        >
+          Name{' '}
+          {sortManager.isSortedBy('name') &&
+            (sortManager.sortDirection === 'asc' ? '↑' : '↓')}
+        </Button>
+        <Button
+          size="sm"
+          variant={sortManager.isSortedBy('priority') ? 'default' : 'outline'}
+          onClick={() => sortManager.sortBy('priority', 'number')}
+        >
+          Priority{' '}
+          {sortManager.isSortedBy('priority') &&
+            (sortManager.sortDirection === 'asc' ? '↑' : '↓')}
+        </Button>
+        <Button
+          size="sm"
+          variant={sortManager.isSortedBy('*') ? 'default' : 'outline'}
+          onClick={() => sortManager.sortBy('*', 'number', 'desc')}
+        >
+          Newest First
+        </Button>
+        {sortManager.isSorted && (
+          <Button
+            size="sm"
+            variant="text"
+            onClick={() => sortManager.clearSort()}
+          >
+            Clear
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className={cx(collectionClasses, 'h-full')}>
+      <Heading level="h2">Custom Sort Controls</Heading>
+      <Paragraph>
+        Build your own sort UI using the useSortManager hook.
+      </Paragraph>
+
+      <Collection
+        items={sortableItems}
+        layout={layout}
+        keyExtractor={(item: SortableItem) => item.id}
+        renderItem={renderItem}
+        selectionMode="multiple"
+        animate
+        aria-label="Sortable collection"
+      >
+        <CustomSortControls />
+      </Collection>
+    </div>
+  );
+}
+
+export const CustomSortControlsStory = meta.story({
+  name: 'Sorting - Custom Controls',
+  render: () => <CustomSortControlsDemo />,
+});
+
+function DefaultSortDemo() {
+  const layout = useMemo(() => new ListLayout<SortableItem>({ gap: 8 }), []);
+
+  const renderItem = useCallback(
+    (item: SortableItem, itemProps: ItemProps) => (
+      <SortableItemCard item={item} itemProps={itemProps} />
+    ),
+    [],
+  );
+
+  return (
+    <div className={cx(collectionClasses, 'h-full')}>
+      <Heading level="h2">Default Sort (Uncontrolled)</Heading>
+      <Paragraph>
+        Collection starts sorted by priority descending (highest first).
+      </Paragraph>
+
+      <Collection
+        items={sortableItems}
+        layout={layout}
+        keyExtractor={(item: SortableItem) => item.id}
+        renderItem={renderItem}
+        selectionMode="multiple"
+        animate
+        aria-label="Sortable collection"
+        defaultSortBy="priority"
+        defaultSortDirection="desc"
+        defaultSortType="number"
+      >
+        <div className="mb-4 flex flex-wrap gap-2">
+          <CollectionSortButton property="name" type="string" label="Name" />
+          <CollectionSortButton
+            property="priority"
+            type="number"
+            label="Priority"
+          />
+          <CollectionSortButton property="createdAt" type="date" label="Date" />
+        </div>
+      </Collection>
+    </div>
+  );
+}
+
+export const DefaultSortStory = meta.story({
+  name: 'Sorting - Default Sort',
+  render: () => <DefaultSortDemo />,
+});
+
+function ControlledSortDemo() {
+  const layout = useMemo(() => new ListLayout<SortableItem>({ gap: 8 }), []);
+  const [sortState, setSortState] = useState<{
+    property: string | string[] | null;
+    direction: 'asc' | 'desc';
+    type: 'string' | 'number' | 'date' | 'boolean';
+  }>({
+    property: 'name',
+    direction: 'asc',
+    type: 'string',
+  });
+
+  const renderItem = useCallback(
+    (item: SortableItem, itemProps: ItemProps) => (
+      <SortableItemCard item={item} itemProps={itemProps} />
+    ),
+    [],
+  );
+
+  return (
+    <div className={cx(collectionClasses, 'h-full')}>
+      <Heading level="h2">Controlled Sort</Heading>
+      <Paragraph>
+        Sort state is managed externally. Current: {String(sortState.property)}{' '}
+        ({sortState.direction})
+      </Paragraph>
+
+      <div className="bg-surface-1 mb-4 rounded p-4">
+        <Heading level="label" className="mb-2">
+          External Controls
+        </Heading>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            size="sm"
+            variant={sortState.property === 'name' ? 'default' : 'outline'}
+            onClick={() =>
+              setSortState({
+                property: 'name',
+                direction: 'asc',
+                type: 'string',
+              })
+            }
+          >
+            Sort by Name
+          </Button>
+          <Button
+            size="sm"
+            variant={sortState.property === 'priority' ? 'default' : 'outline'}
+            onClick={() =>
+              setSortState({
+                property: 'priority',
+                direction: 'desc',
+                type: 'number',
+              })
+            }
+          >
+            Sort by Priority
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setSortState((prev) => ({
+                ...prev,
+                direction: prev.direction === 'asc' ? 'desc' : 'asc',
+              }))
+            }
+          >
+            Toggle Direction
+          </Button>
+        </div>
+      </div>
+
+      <Collection
+        items={sortableItems}
+        layout={layout}
+        keyExtractor={(item: SortableItem) => item.id}
+        renderItem={renderItem}
+        selectionMode="multiple"
+        animate
+        aria-label="Sortable collection"
+        sortBy={sortState.property ?? undefined}
+        sortDirection={sortState.direction}
+        sortType={sortState.type}
+        onSortChange={setSortState}
+      >
+        <div className="mb-4 flex flex-wrap gap-2">
+          <span className="text-surface-contrast/70 self-center text-sm">
+            Internal buttons (sync with external state):
+          </span>
+          <CollectionSortButton property="name" type="string" label="Name" />
+          <CollectionSortButton
+            property="priority"
+            type="number"
+            label="Priority"
+          />
+        </div>
+      </Collection>
+    </div>
+  );
+}
+
+export const ControlledSortStory = meta.story({
+  name: 'Sorting - Controlled',
+  render: () => <ControlledSortDemo />,
 });

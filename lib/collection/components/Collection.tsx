@@ -3,8 +3,13 @@ import { useMergeRefs } from 'react-best-merge-refs';
 import { ScrollArea } from '~/components/ui/ScrollArea';
 import { cx } from '~/utils/cva';
 import { CollectionProvider } from '../CollectionProvider';
-import { CollectionIdContext, SelectionManagerContext } from '../contexts';
+import {
+  CollectionIdContext,
+  SelectionManagerContext,
+  SortManagerContext,
+} from '../contexts';
 import { useCollectionSetup } from '../hooks/useCollectionSetup';
+import { useSortState } from '../hooks/useSortState';
 import { type CollectionProps, type ItemRenderer } from '../types';
 import { StaticRenderer } from './StaticRenderer';
 import { VirtualizedRenderer } from './VirtualizedRenderer';
@@ -36,6 +41,17 @@ function CollectionContent<T>({
   dragAndDropHooks,
   virtualized,
   overscan,
+  // Sort props
+  sortBy,
+  sortDirection,
+  sortType,
+  defaultSortBy,
+  defaultSortDirection,
+  defaultSortType,
+  onSortChange,
+  sortRules,
+  // Children for sort UI
+  children,
 }: CollectionContentProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const collectionId = id ?? crypto.randomUUID();
@@ -62,6 +78,18 @@ function CollectionContent<T>({
     containerRef,
   );
 
+  // Use sort state hook for sorting
+  const sortManager = useSortState({
+    sortBy,
+    sortDirection,
+    sortType,
+    defaultSortBy,
+    defaultSortDirection,
+    defaultSortType,
+    onSortChange,
+    sortRules,
+  });
+
   // Extract ref and tabIndex from dndCollectionProps
   // - ref: merged with containerRef
   // - tabIndex: excluded - Collection's collectionProps.tabIndex (0) takes precedence
@@ -80,51 +108,54 @@ function CollectionContent<T>({
 
   return (
     <SelectionManagerContext.Provider value={selectionManager}>
-      <CollectionIdContext.Provider value={collectionId}>
-        <ScrollArea
-          className={cx('min-h-40', className)}
-          ref={mergedRef}
-          id={collectionId}
-          aria-label={ariaLabel}
-          aria-labelledby={ariaLabelledBy}
-          aria-multiselectable={selectionMode === 'multiple' || undefined}
-          aria-activedescendant={
-            selectionManager.focusedKey !== null
-              ? `${collectionId}-item-${selectionManager.focusedKey}`
-              : undefined
-          }
-          data-drop-target-over={dropState?.isOver}
-          data-drop-target-valid={dropState?.willAccept}
-          data-dragging={dropState?.isDragging}
-          {...collectionProps}
-          {...restDndProps}
-        >
-          {virtualized ? (
-            <VirtualizedRenderer
-              layout={layout}
-              collection={collection}
-              renderItem={renderItem}
-              animate={animate}
-              collectionId={collectionId}
-              dragAndDropHooks={dragAndDropHooks}
-              scrollRef={containerRef}
-              overscan={overscan}
-            />
-          ) : (
-            <StaticRenderer
-              layout={layout}
-              collection={collection}
-              renderItem={renderItem}
-              animate={animate}
-              collectionId={collectionId}
-              dragAndDropHooks={dragAndDropHooks}
-            />
-          )}
-          {collection.size === 0 && (
-            <div className="text-center text-current/70">{emptyState}</div>
-          )}
-        </ScrollArea>
-      </CollectionIdContext.Provider>
+      <SortManagerContext.Provider value={sortManager}>
+        <CollectionIdContext.Provider value={collectionId}>
+          {children}
+          <ScrollArea
+            className={cx('min-h-40', className)}
+            ref={mergedRef}
+            id={collectionId}
+            aria-label={ariaLabel}
+            aria-labelledby={ariaLabelledBy}
+            aria-multiselectable={selectionMode === 'multiple' || undefined}
+            aria-activedescendant={
+              selectionManager.focusedKey !== null
+                ? `${collectionId}-item-${selectionManager.focusedKey}`
+                : undefined
+            }
+            data-drop-target-over={dropState?.isOver}
+            data-drop-target-valid={dropState?.willAccept}
+            data-dragging={dropState?.isDragging}
+            {...collectionProps}
+            {...restDndProps}
+          >
+            {virtualized ? (
+              <VirtualizedRenderer
+                layout={layout}
+                collection={collection}
+                renderItem={renderItem}
+                animate={animate}
+                collectionId={collectionId}
+                dragAndDropHooks={dragAndDropHooks}
+                scrollRef={containerRef}
+                overscan={overscan}
+              />
+            ) : (
+              <StaticRenderer
+                layout={layout}
+                collection={collection}
+                renderItem={renderItem}
+                animate={animate}
+                collectionId={collectionId}
+                dragAndDropHooks={dragAndDropHooks}
+              />
+            )}
+            {collection.size === 0 && (
+              <div className="text-center text-current/70">{emptyState}</div>
+            )}
+          </ScrollArea>
+        </CollectionIdContext.Provider>
+      </SortManagerContext.Provider>
     </SelectionManagerContext.Provider>
   );
 }
@@ -182,6 +213,17 @@ export function Collection<T>({
   dragAndDropHooks,
   virtualized,
   overscan,
+  // Sort props
+  sortBy,
+  sortDirection,
+  sortType,
+  defaultSortBy,
+  defaultSortDirection,
+  defaultSortType,
+  onSortChange,
+  sortRules,
+  // Children for sort UI
+  children,
 }: CollectionProps<T>) {
   return (
     <CollectionProvider
@@ -207,7 +249,18 @@ export function Collection<T>({
         dragAndDropHooks={dragAndDropHooks}
         virtualized={virtualized}
         overscan={overscan}
-      />
+        // Sort props
+        sortBy={sortBy}
+        sortDirection={sortDirection}
+        sortType={sortType}
+        defaultSortBy={defaultSortBy}
+        defaultSortDirection={defaultSortDirection}
+        defaultSortType={defaultSortType}
+        onSortChange={onSortChange}
+        sortRules={sortRules}
+      >
+        {children}
+      </CollectionContent>
     </CollectionProvider>
   );
 }

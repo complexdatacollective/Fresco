@@ -8,6 +8,15 @@ import {
   type SelectionMode,
   type SelectionState,
 } from './selection/types';
+import createCollectionSorter from './sorting/createCollectionSorter';
+import {
+  defaultSortState,
+  type SortDirection,
+  type SortProperty,
+  type SortRule,
+  type SortState,
+  type SortType,
+} from './sorting/types';
 import {
   type CollectionState,
   type CollectionStore,
@@ -18,12 +27,12 @@ import {
 } from './types';
 
 /**
- * Combined state including collection and selection.
+ * Combined state including collection, selection, and sort.
  */
-type FullCollectionState<T> = CollectionState<T> & SelectionState;
+type FullCollectionState<T> = CollectionState<T> & SelectionState & SortState;
 
 /**
- * Combined store type including collection and selection actions.
+ * Combined store type including collection, selection, and sort actions.
  */
 export type FullCollectionStore<T> = CollectionStore<T> & {
   // Selection state (already in SelectionState)
@@ -46,12 +55,48 @@ export type FullCollectionStore<T> = CollectionStore<T> & {
   setSelectionBehavior: (behavior: SelectionBehavior) => void;
   setDisallowEmptySelection: (disallow: boolean) => void;
   updateSelectionState: (updates: Partial<SelectionState>) => void;
+
+  // Sort state (already in SortState)
+  sortProperty: SortProperty | null;
+  sortDirection: SortDirection;
+  sortType: SortType;
+  sortRules: SortRule[];
+
+  // Sort actions
+  setSortProperty: (property: SortProperty | null) => void;
+  setSortDirection: (direction: SortDirection) => void;
+  setSortType: (type: SortType) => void;
+  setSortRules: (rules: SortRule[]) => void;
+  updateSortState: (updates: Partial<SortState>) => void;
+
+  // Internal state for re-sorting (not part of public API)
+  _originalItems: T[];
+  _keyExtractor: KeyExtractor<T> | null;
+  _textValueExtractor: TextValueExtractor<T> | undefined;
+
+  // Re-sort items using current sort rules
+  resortItems: () => void;
 };
+
+/**
+ * Internal state for re-sorting
+ */
+type InternalSortState<T> = {
+  _originalItems: T[];
+  _keyExtractor: KeyExtractor<T> | null;
+  _textValueExtractor: TextValueExtractor<T> | undefined;
+};
+
+/**
+ * Full collection state including internal sort state
+ */
+type FullCollectionStateWithInternal<T> = FullCollectionState<T> &
+  InternalSortState<T>;
 
 /**
  * Default initial state for the collection store.
  */
-const defaultInitState = <T>(): FullCollectionState<T> => ({
+const defaultInitState = <T>(): FullCollectionStateWithInternal<T> => ({
   // Collection state
   items: new Map(),
   orderedKeys: [],
@@ -66,6 +111,12 @@ const defaultInitState = <T>(): FullCollectionState<T> => ({
   disabledBehavior: 'selection',
   selectionBehavior: 'toggle',
   disallowEmptySelection: false,
+  // Sort state
+  ...defaultSortState,
+  // Internal state for re-sorting
+  _originalItems: [],
+  _keyExtractor: null,
+  _textValueExtractor: undefined,
 });
 
 /**
@@ -105,7 +156,7 @@ function buildNodes<T>(
  * @returns Zustand store with collection state and actions
  */
 export const createCollectionStore = <T>(
-  initState: FullCollectionState<T> = defaultInitState<T>(),
+  initState: FullCollectionStateWithInternal<T> = defaultInitState<T>(),
 ) => {
   return createStore<FullCollectionStore<T>>()(
     subscribeWithSelector((set, get) => ({
@@ -120,14 +171,29 @@ export const createCollectionStore = <T>(
         keyExtractor: KeyExtractor<T>,
         textValueExtractor?: TextValueExtractor<T>,
       ) => {
+        const state = get();
+
+        // Store original items and extractors for re-sorting
+        const originalItems = items;
+        const storedKeyExtractor = keyExtractor;
+        const storedTextValueExtractor = textValueExtractor;
+
+        // Apply sorting if sort rules exist
+        let sortedItems = items;
+        if (state.sortRules.length > 0) {
+          const sorter = createCollectionSorter<T & Record<string, unknown>>(
+            state.sortRules,
+          );
+          sortedItems = sorter(items as (T & Record<string, unknown>)[]) as T[];
+        }
+
         const { itemsMap, orderedKeys } = buildNodes(
-          items,
+          sortedItems,
           keyExtractor,
           textValueExtractor,
         );
 
         // Clean up selection state for removed items
-        const state = get();
         let newSelectedKeys = state.selectedKeys;
         let newFocusedKey = state.focusedKey;
 
@@ -153,6 +219,10 @@ export const createCollectionStore = <T>(
           size: items.length,
           selectedKeys: newSelectedKeys,
           focusedKey: newFocusedKey,
+          // Store for re-sorting
+          _originalItems: originalItems,
+          _keyExtractor: storedKeyExtractor,
+          _textValueExtractor: storedTextValueExtractor,
         });
       },
 
@@ -225,6 +295,67 @@ export const createCollectionStore = <T>(
 
       updateSelectionState: (updates: Partial<SelectionState>) => {
         set(updates);
+      },
+
+      // ============================================================
+      // Sort Actions
+      // ============================================================
+
+      setSortProperty: (property: SortProperty | null) => {
+        set({ sortProperty: property });
+      },
+
+      setSortDirection: (direction: SortDirection) => {
+        set({ sortDirection: direction });
+      },
+
+      setSortType: (type: SortType) => {
+        set({ sortType: type });
+      },
+
+      setSortRules: (rules: SortRule[]) => {
+        set({ sortRules: rules });
+      },
+
+      updateSortState: (updates: Partial<SortState>) => {
+        set(updates);
+      },
+
+      resortItems: () => {
+        const state = get();
+        const {
+          _originalItems,
+          _keyExtractor,
+          _textValueExtractor,
+          sortRules,
+        } = state;
+
+        // Can't re-sort if we don't have the original data
+        if (!_keyExtractor || _originalItems.length === 0) {
+          return;
+        }
+
+        // Apply sorting
+        let sortedItems = _originalItems;
+        if (sortRules.length > 0) {
+          const sorter = createCollectionSorter<T & Record<string, unknown>>(
+            sortRules,
+          );
+          sortedItems = sorter(
+            _originalItems as (T & Record<string, unknown>)[],
+          ) as T[];
+        }
+
+        const { itemsMap, orderedKeys } = buildNodes(
+          sortedItems,
+          _keyExtractor,
+          _textValueExtractor,
+        );
+
+        set({
+          items: itemsMap,
+          orderedKeys,
+        });
       },
     })),
   );

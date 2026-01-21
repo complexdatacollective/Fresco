@@ -9,6 +9,7 @@
 
 import { type DragAndDropHooks } from './dnd/types';
 import { type Layout } from './layout/Layout';
+import { type SortProps } from './sorting/types';
 
 /**
  * Unique identifier for items in a collection.
@@ -161,7 +162,7 @@ export type SelectionMode = 'none' | 'single' | 'multiple';
 /**
  * Props for the main Collection component.
  */
-export type CollectionProps<T> = {
+export type CollectionProps<T> = SortProps & {
   /** Array of items to display */
   'items': T[];
   /** Function to extract unique key from each item */
@@ -219,4 +220,10 @@ export type CollectionProps<T> = {
 
   /** Optional drag and drop hooks */
   'dragAndDropHooks'?: DragAndDropHooks;
+
+  /**
+   * Children for sort UI components.
+   * Use with CollectionSortButton, CollectionSortSelect, or custom UI via useSortManager hook.
+   */
+  'children'?: React.ReactNode;
 };
