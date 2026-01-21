@@ -5,7 +5,7 @@ import { unparse } from 'papaparse';
 import { use, useState } from 'react';
 import superjson from 'superjson';
 import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/use-toast';
+import { useToast } from '~/components/ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
 import type {
   GetParticipantsQuery,

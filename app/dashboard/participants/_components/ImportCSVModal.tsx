@@ -8,7 +8,7 @@ import Paragraph from '~/components/typography/Paragraph';
 import UnorderedList from '~/components/typography/UnorderedList';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/use-toast';
+import { useToast } from '~/components/ui/Toast';
 import Dialog from '~/lib/dialogs/Dialog';
 import { FormWithoutProvider } from '~/lib/form/components/Form';
 import { useFormMeta } from '~/lib/form/hooks/useFormState';

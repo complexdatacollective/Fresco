@@ -3,8 +3,7 @@ import { type NcNode } from '@codaco/shared-consts';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useSelector } from 'react-redux';
-import { Toaster } from '~/components/ui/toaster';
-import { useToast } from '~/components/ui/use-toast';
+import { useToast } from '~/components/ui/Toast';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import { getEdgeType } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/EdgeRenderer';
 import { FamilyTreeShells } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/FamilyTreeShells';
@@ -231,7 +230,6 @@ export default withNoSSRWrapper((props: FamilyTreeCensusProps) => {
       diseaseVariables={diseaseVariables}
     >
       <FamilyTreeCensus {...props} />
-      <Toaster />
     </FamilyTreeProvider>
   );
 });

@@ -88,13 +88,12 @@ export const InterviewsTable = ({
         headerItems={
           <>
             <DropdownMenu>
-              <DropdownMenuTrigger>
-                <Button
-                  disabled={interviews.length === 0}
-                  icon={<HardDriveUpload />}
-                >
-                  Export Interview Data
-                </Button>
+              <DropdownMenuTrigger
+                render={<Button icon={<HardDriveUpload />} />}
+                disabled={interviews.length === 0}
+                nativeButton
+              >
+                Export Interview Data
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={handleExportAll}>

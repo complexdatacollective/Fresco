@@ -8,6 +8,7 @@ const statCardClasses = cx(
   'flex flex-col gap-4 transition-all',
   '@3xs:flex-row @3xs:items-center @lg:gap-6',
   'hover:scale-[102%]',
+  'w-full rounded outline-none',
 );
 function StatCard({
   title,
@@ -23,7 +24,7 @@ function StatCard({
   const data = use(dataPromise);
 
   return (
-    <Surface className={statCardClasses}>
+    <Surface className={statCardClasses} spacing="xl" noContainer>
       <div className="hidden @3xs:block">{icon}</div>
       <div>
         <Heading level="h4" variant="all-caps" margin="none">

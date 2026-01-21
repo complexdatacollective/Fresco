@@ -3,7 +3,6 @@
 @import './colors.css';
 
 @plugin '@tailwindcss/forms';
-@plugin 'tailwindcss-animate';
 @plugin './plugins/tailwind-motion-spring.ts';
 @plugin './plugins/tailwind-elevation/index.ts';
 
@@ -246,7 +245,7 @@
   */
   --breakpoint-*: initial;
 
-  --breakpoint-mobile: 20rem; /* 320px - minimum mobile */
+  --breakpoint-phone: 20rem; /* 320px - minimum mobile */
   --breakpoint-tablet: 48rem; /* 768px - small tablets, iPad Mini */
   --breakpoint-tablet-portrait: 64rem; /* 1024px - iPad Pro 11" */
   --breakpoint-laptop: 80rem; /* 1280px - small laptops, iPad Pro 12.9" */

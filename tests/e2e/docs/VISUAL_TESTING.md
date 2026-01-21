@@ -106,19 +106,44 @@ test('should match modal snapshot', async ({ page, snapshots }) => {
 
 ## Generating Baselines
 
+### Docker Requirement for Snapshot Generation
+
+**Important**: Visual snapshots must be generated in a Linux environment using Docker to ensure consistency with CI. This is because:
+
+- CI runs on Linux, so font rendering, anti-aliasing, and pixel-level details differ from macOS/Windows
+- The official Playwright Docker image provides a consistent environment across all machines
+- Snapshots generated locally on macOS will not match CI and tests will fail
+
+**Prerequisites**:
+
+- Docker must be installed and running
+- Run `pnpm build` first to create the standalone build (if not already done)
+
+### Generating or Updating Snapshots (Recommended)
+
+Use the Docker-based script to generate snapshots that match CI:
+
+```bash
+# Update all visual snapshots using Docker (matches CI environment)
+pnpm test:e2e:update-snapshots
+```
+
+This command:
+
+1. Runs Playwright inside a Linux Docker container
+2. Mounts the Docker socket so testcontainers can create PostgreSQL databases
+3. Generates `-linux.png` snapshot files that match CI
+
 ### Initial Setup
 
 When creating new visual tests, you need to generate baseline screenshots:
 
 ```bash
-# Generate baselines for all visual tests
-./scripts/generate-baselines.sh
+# Generate baselines using Docker (recommended)
+pnpm test:e2e:update-snapshots
 
-# Generate baselines for specific test file
-./scripts/generate-baselines.sh "participants.spec.ts"
-
-# Or use Playwright directly
-npx playwright test --update-snapshots --grep "visual snapshot"
+# Or if you only need to generate specific test snapshots:
+./scripts/update-e2e-snapshots.sh
 ```
 
 ### Updating Existing Baselines
@@ -126,11 +151,24 @@ npx playwright test --update-snapshots --grep "visual snapshot"
 When UI changes are intentional and you need to update baselines:
 
 ```bash
-# Update all baselines
-npx playwright test --update-snapshots
+# Update all baselines using Docker (recommended)
+pnpm test:e2e:update-snapshots
+```
 
-# Update specific test baselines
-npx playwright test participants.spec.ts --update-snapshots
+### Local Development (macOS/Windows)
+
+For local development and debugging, you can run tests directly, but be aware that:
+
+- Visual snapshots will use platform-specific baselines (`-darwin.png` or `-win32.png`)
+- These local baselines won't exist unless you create them
+- For CI compatibility, always use the Docker-based approach above
+
+```bash
+# Run tests locally (may fail visual comparisons without local baselines)
+pnpm test:e2e
+
+# Update local baselines (not recommended for CI compatibility)
+npx playwright test --update-snapshots
 ```
 
 ## Best Practices

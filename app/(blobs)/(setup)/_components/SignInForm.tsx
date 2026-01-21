@@ -27,7 +27,7 @@ export const SignInForm = () => {
   };
 
   return (
-    <Form onSubmit={handleSubmit} className="w-full min-w-sm">
+    <Form onSubmit={handleSubmit} className="w-full">
       <Field
         key="username"
         name="username"

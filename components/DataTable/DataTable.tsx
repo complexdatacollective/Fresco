@@ -34,7 +34,8 @@ import {
   TableRow,
 } from '~/components/ui/table';
 import InputField from '~/lib/form/components/fields/InputField';
-import { MotionSurface } from '../layout/Surface';
+import ResponsiveContainer from '../layout/ResponsiveContainer';
+import Surface, { MotionSurface } from '../layout/Surface';
 import Heading from '../typography/Heading';
 
 type CustomTable<TData> = TTable<TData> & {
@@ -165,74 +166,90 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      {(filterColumnAccessorKey || headerItems) && (
-        <div className="flex items-center gap-2 pt-1 pb-4">
-          {filterColumnAccessorKey && (
-            <InputField
-              type="search"
-              prefixComponent={<Search />}
-              name="filter"
-              placeholder={`Filter by ${filterColumnAccessorKey}...`}
-              value={
-                (table
-                  .getColumn(filterColumnAccessorKey)
-                  ?.getFilterValue() as string) ?? ''
-              }
-              onChange={(value) =>
-                table.getColumn(filterColumnAccessorKey)?.setFilterValue(value)
-              }
-              className="mt-0"
-            />
-          )}
-          {headerItems}
-        </div>
-      )}
-
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && 'selected'}
-                className={table.options.meta?.getRowClasses?.(row)}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+      <ResponsiveContainer>
+        {(filterColumnAccessorKey || headerItems) && (
+          <div className="flex items-center gap-2 pt-1 pb-4">
+            {filterColumnAccessorKey && (
+              <InputField
+                type="search"
+                prefixComponent={<Search />}
+                name="filter"
+                placeholder={`Filter by ${filterColumnAccessorKey}...`}
+                value={
+                  (table
+                    .getColumn(filterColumnAccessorKey)
+                    ?.getFilterValue() as string) ?? ''
+                }
+                onChange={(value) =>
+                  table
+                    .getColumn(filterColumnAccessorKey)
+                    ?.setFilterValue(value)
+                }
+                className="mt-0"
+              />
+            )}
+            {headerItems}
+          </div>
+        )}
+      </ResponsiveContainer>
+      <Surface
+        maxWidth="none"
+        spacing="none"
+        noContainer
+        className="mx-auto w-fit max-w-full overflow-x-auto rounded-lg"
+      >
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </TableHead>
+                  );
+                })}
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                  className={table.options.meta?.getRowClasses?.(row)}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </Surface>
       <div>
-        <div className="flex justify-between py-4">
+        <div className="mx-auto flex max-w-6xl justify-between py-4">
           <div className="text-sm text-current/70">
             {table.getFilteredSelectedRowModel().rows.length} of{' '}
             {table.getFilteredRowModel().rows.length} row(s) selected.

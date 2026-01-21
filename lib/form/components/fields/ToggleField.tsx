@@ -43,7 +43,7 @@ const toggleContainerVariants = compose(
       {
         checked: true,
         state: 'normal',
-        class: 'bg-current',
+        class: 'bg-success',
       },
       // Disabled states
       {

@@ -31,7 +31,7 @@ const Label = React.forwardRef<
     ref,
   ) => (
     <motion.label
-      layout
+      layout="position"
       ref={ref}
       className={cx(
         'inline-block',

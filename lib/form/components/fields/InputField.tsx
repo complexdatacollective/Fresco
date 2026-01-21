@@ -1,3 +1,4 @@
+import { motion } from 'motion/react';
 import { type ReactNode } from 'react';
 import {
   controlVariants,
@@ -26,7 +27,11 @@ const inputWrapperVariants = compose(
   stateVariants,
   interactiveStateVariants,
   cva({
-    base: 'w-full',
+    base: cx(
+      'w-full',
+      // Child buttons should have reduced height, but their icons should stay the same size
+      '[&_button]:h-10',
+    ),
   }),
 );
 
@@ -69,7 +74,8 @@ export default function InputField(props: InputFieldProps) {
   } = props;
 
   return (
-    <div
+    <motion.div
+      layout="position"
       className={cx(
         inputWrapperVariants({ size, state: getInputState(props) }),
         className,
@@ -87,6 +93,6 @@ export default function InputField(props: InputFieldProps) {
         readOnly={readOnly}
       />
       {suffix}
-    </div>
+    </motion.div>
   );
 }

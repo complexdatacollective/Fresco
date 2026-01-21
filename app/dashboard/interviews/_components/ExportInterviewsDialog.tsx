@@ -11,7 +11,7 @@ import {
 import { deleteZipFromUploadThing } from '~/actions/uploadThing';
 import Heading from '~/components/typography/Heading';
 import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/use-toast';
+import { useToast } from '~/components/ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
 import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
 import trackEvent from '~/lib/analytics';

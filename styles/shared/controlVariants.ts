@@ -180,8 +180,7 @@ export const interactiveStateVariants = cva({
       disabled: cx('focus-within:border-input-contrast/50'),
       readOnly: cx('focus-within:border-input-contrast/70'),
       invalid: '',
-      normal:
-        'not-focus-within:hover:border-accent/50 focus-within:border-accent',
+      normal: 'has-[input:focus-visible]:focus-styles outline-current',
     },
   },
   defaultVariants: {

@@ -1,6 +1,6 @@
 'use client';
 import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/use-toast';
+import { useToast } from '~/components/ui/Toast';
 import trackEvent from '~/lib/analytics';
 import { ensureError } from '~/utils/ensureError';
 

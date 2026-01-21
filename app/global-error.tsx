@@ -8,7 +8,7 @@ import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import Link from '~/components/ui/Link';
-import { useToast } from '~/components/ui/use-toast';
+import { useToast } from '~/components/ui/Toast';
 import { cx } from '~/utils/cva';
 
 export default function Error({
@@ -77,7 +77,7 @@ ${error.stack}`;
             Copy Debug Information
             <ClipboardCopy className="ml-2" />
           </Button>
-          <Button onClick={handleReset} variant="default" className="flex">
+          <Button onClick={handleReset} color="primary" className="flex">
             Try Again
           </Button>
         </div>

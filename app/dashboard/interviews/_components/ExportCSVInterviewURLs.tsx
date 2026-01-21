@@ -4,7 +4,7 @@ import { Download } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/use-toast';
+import { useToast } from '~/components/ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import type { ProtocolWithInterviews } from '../../_components/ProtocolsTable/ProtocolsTableClient';

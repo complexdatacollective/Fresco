@@ -76,7 +76,7 @@ export default plugin.withOptions<PluginConfig>(
         opacityScaleFactor = 0.65,
       } = options;
 
-      const defaultShadowColor = 'oklch(10% 1 0)';
+      const defaultShadowColor = 'oklch(10% 1 180)';
 
       const generateShadow = (elevation: Elevation) => {
         return generateShadowLayers(

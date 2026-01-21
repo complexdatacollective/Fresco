@@ -3,7 +3,7 @@
 import { Check, Copy } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/use-toast';
+import { useToast } from '~/components/ui/Toast';
 
 export const AnonymousRecruitmentURLButton = ({
   protocolId,

@@ -74,7 +74,7 @@ export default async function VersionSection() {
     await checkForUpdate();
 
   return (
-    <SettingsSection heading="App Version">
+    <SettingsSection id="app-version" heading="App Version">
       <Paragraph>
         You are currently running Fresco {env.APP_VERSION} ({env.COMMIT_HASH}
         ).

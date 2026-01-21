@@ -36,6 +36,12 @@ export const createUserSchema = z
 export const createUserFormDataSchema = zfd.formData(createUserSchema);
 
 export const loginSchema = z.object({
-  username: z.string().min(1, { error: 'Username cannot be empty' }),
-  password: z.string().min(1, { error: 'Password cannot be empty' }),
+  username: z
+    .string()
+    .min(1, { error: 'Username cannot be empty' })
+    .prefault(''),
+  password: z
+    .string()
+    .min(1, { error: 'Password cannot be empty' })
+    .prefault(''),
 });

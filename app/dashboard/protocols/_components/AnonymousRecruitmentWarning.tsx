@@ -10,7 +10,7 @@ export default async function AnonymousRecruitmentWarning() {
   if (!allowAnonymousRecruitment) return null;
 
   return (
-    <Alert variant="info">
+    <Alert variant="info" className="m-0">
       <AlertTitle>Please Note</AlertTitle>
       <AlertDescription>
         Anonymous recruitment is enabled. This means that participants can

@@ -6,9 +6,9 @@ import type { Route } from 'next';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { UrlObject } from 'url';
-import Surface from '~/components/layout/Surface';
+import { MotionSurface } from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
-import { IconButton } from '~/components/ui/Button';
+import { Spinner } from '~/lib/legacy-ui/components';
 import { cx } from '~/utils/cva';
 import UserMenu from './UserMenu';
 
@@ -22,13 +22,13 @@ const NavButton = ({
   isActive?: boolean;
 }) => {
   return (
-    <motion.li
-      layout
-      className="focusable relative flex flex-col justify-start"
-    >
+    <motion.li layout className="relative flex flex-col justify-start">
       <Link
         href={href}
-        className={cx('font-semibold', !isActive && 'hover:text-link')}
+        className={cx(
+          'focusable rounded-sm font-semibold outline-offset-10!',
+          !isActive && 'hover:text-sea-green',
+        )}
       >
         {label}
       </Link>
@@ -46,16 +46,23 @@ export function NavigationBar() {
   const pathname = usePathname();
 
   return (
-    <>
-      <Surface
+    <div className="sticky top-4 z-50 flex w-full items-center justify-center">
+      <MotionSurface
         as="nav"
         spacing="none"
-        className="bg-primary text-primary-contrast fixed top-2 left-1/2 z-10 flex -translate-x-1/2 items-center justify-between gap-4 rounded-full px-6 py-4"
+        className={cx(
+          'text-primary-contrast sticky top-4 flex max-w-6xl items-center justify-between gap-4 rounded-full bg-[oklch(20%_0.3_260/0.8)] px-6 py-2 backdrop-blur-sm',
+        )}
+        initial={{ y: '-150%' }}
+        animate={{ y: 0 }}
+        transition={{ type: 'spring' }}
+        elevation="high"
       >
-        <Link href="/" className="focusable flex items-center space-x-2">
+        <Link href="/" className="focusable flex items-center gap-2 rounded-sm">
+          <Spinner size="sm" animationMode="hover" playOnMount />
           <Heading
-            level="h3"
-            className="tablet:block mx-4 hidden font-extrabold"
+            level="h4"
+            className="tablet:block hidden font-extrabold"
             margin="none"
           >
             Fresco
@@ -83,19 +90,21 @@ export function NavigationBar() {
             isActive={pathname === '/dashboard/interviews'}
           />
         </ul>
-        <div className="flex items-center gap-4">
-          <Link href="/dashboard/settings">
-            <IconButton
-              variant="text"
-              aria-label="Settings"
-              color="accent"
-              className="text-current"
-              icon={<Settings size={20} />}
-            />
-          </Link>
+        <div className="flex items-center gap-8">
+          <NavButton
+            label={
+              <div className="flex items-center gap-2">
+                <Settings className="inline-block" />
+                Settings
+              </div>
+            }
+            href="/dashboard/settings"
+            isActive={pathname === '/settings'}
+          />
+
           <UserMenu />
         </div>
-      </Surface>
-    </>
+      </MotionSurface>
+    </div>
   );
 }

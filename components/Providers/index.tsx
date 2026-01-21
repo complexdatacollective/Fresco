@@ -5,16 +5,18 @@ import { MotionConfig } from 'motion/react';
 import { type ReactNode } from 'react';
 import DialogProvider from '~/lib/dialogs/DialogProvider';
 import { DndStoreProvider } from '~/lib/dnd';
-import { Toaster } from '../ui/toaster';
+import { Toaster, ToastProvider } from '../ui/Toast';
 
 export default function Providers({ children }: { children: ReactNode }) {
   return (
     <MotionConfig reducedMotion="user">
       <DirectionProvider direction="ltr">
-        <DndStoreProvider>
-          <DialogProvider>{children}</DialogProvider>
-        </DndStoreProvider>
-        <Toaster />
+        <ToastProvider>
+          <DndStoreProvider>
+            <DialogProvider>{children}</DialogProvider>
+          </DndStoreProvider>
+          <Toaster />
+        </ToastProvider>
       </DirectionProvider>
     </MotionConfig>
   );

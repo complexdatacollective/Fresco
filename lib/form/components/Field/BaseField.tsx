@@ -57,7 +57,7 @@ export function BaseField({
 }: BaseFieldProps) {
   return (
     <motion.div
-      layout
+      layout="position"
       {...containerProps}
       className={cx('group w-full grow not-last:mb-6')}
     >

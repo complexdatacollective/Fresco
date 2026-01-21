@@ -5,12 +5,14 @@ import { Skeleton } from '../ui/skeleton';
 import Surface from './Surface';
 
 export default function SettingsSection({
+  id,
   heading,
   children,
   controlArea,
   classNames,
   devOnly,
 }: {
+  id?: string;
   heading: string;
   children: ReactNode;
   controlArea?: ReactNode;
@@ -19,7 +21,9 @@ export default function SettingsSection({
 }) {
   return (
     <Surface
+      id={id}
       className={cx(
+        'scroll-mt-6',
         classNames,
         'flex gap-10',
         devOnly && 'border-destructive bg-destructive/5 text-destructive',

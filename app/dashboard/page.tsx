@@ -23,14 +23,16 @@ export default async function Home({
 
   return (
     <>
+      <ResponsiveContainer maxWidth="3xl">
+        <Suspense fallback={null}>
+          <AnonymousRecruitmentWarning />
+        </Suspense>
+      </ResponsiveContainer>
       <PageHeader
         headerText="Dashboard"
         subHeaderText="Welcome to Fresco! This page provides an overview of your recent activity and key metrics."
       />
 
-      <Suspense fallback={null}>
-        <AnonymousRecruitmentWarning />
-      </Suspense>
       <Suspense fallback={null}>
         <UpdateUploadThingTokenAlert />
       </Suspense>

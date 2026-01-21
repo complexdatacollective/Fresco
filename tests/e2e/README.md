@@ -24,15 +24,14 @@ npx playwright test --debug
 
 The system includes a comprehensive visual snapshot system. See [VISUAL_TESTING.md](./docs/VISUAL_TESTING.md) for detailed documentation.
 
+**Important**: Visual snapshots must be generated using Docker to match CI (Linux environment).
+
 ```bash
-# Generate baseline screenshots
-./tests/e2e/scripts/generate-baselines.sh
+# Generate/update baseline screenshots using Docker (recommended)
+pnpm test:e2e:update-snapshots
 
 # Run visual regression tests
 npx playwright test --grep "visual snapshot"
-
-# Update specific baselines
-npx playwright test participants.spec.ts --update-snapshots
 ```
 
 ## Directory Structure
@@ -100,11 +99,19 @@ Each suite can run independently with appropriate database seeding and environme
 - Snapshot and restore capabilities for state management
 - Direct Prisma client access for database operations
 
-### 🐳 Containerized Testing
+### 🐳 Test Architecture
 
-- Docker-based test environments for consistency
-- Automatic PostgreSQL database provisioning
-- Network isolation between test suites
+The e2e tests use a hybrid architecture:
+
+- **PostgreSQL databases**: Provisioned via [testcontainers](https://testcontainers.com/) (requires Docker)
+- **Next.js app**: Runs as native Node.js processes from the standalone build
+- **Visual snapshots**: Generated in Docker (Playwright image) to match CI environment
+
+This approach provides:
+
+- Fast test startup (no Docker image build for the app)
+- Isolated databases per test suite (setup, dashboard, interviews)
+- Consistent snapshot generation across platforms
 
 ### 📊 Comprehensive Coverage
 
@@ -120,13 +127,19 @@ The system uses several configuration files:
 - `config/test-config.ts`: Test-specific settings and credentials
 - `global.d.ts`: TypeScript global type definitions
 
+## Prerequisites
+
+- **Docker**: Required for PostgreSQL containers (testcontainers) and visual snapshot generation
+- **Node.js 20+**: As specified in `.nvmrc`
+- **pnpm**: Package manager
+
 ## Environment Variables
 
 Key environment variables (automatically managed):
 
-- `TEST_IMAGE_NAME`: Docker image for containerized tests
 - `SETUP_URL`, `DASHBOARD_URL`, `INTERVIEW_URL`: Generated test environment URLs
 - `CI`: Enables CI-specific optimizations
+- `FORCE_REBUILD`: Set to `true` to force a fresh Next.js build before tests
 
 ## Best Practices
 
@@ -161,14 +174,14 @@ test('admin functionality', async ({ authenticatedPage, snapshots }) => {
 // For tests that need database isolation
 test('database mutations with isolation', async ({ database }) => {
   const cleanup = await database.isolate('test-state');
-  
+
   // Make database changes
   await database.prisma.participant.deleteMany();
-  
+
   // Test with modified state
   const count = await database.prisma.participant.count();
   expect(count).toBe(0);
-  
+
   // Restore original state
   await cleanup();
 });

@@ -60,7 +60,7 @@ export default definePreview({
       /**
        * required by base-ui: https://base-ui.com/react/overview/quick-start#portals
        */
-      <div className="root">
+      <div className="root h-screen">
         <Providers>
           <Story />
         </Providers>

@@ -14,17 +14,17 @@ import Heading from '../typography/Heading';
 import { paragraphVariants } from '../typography/Paragraph';
 
 const alertVariants = cva({
-  base: 'text-contrast my-6 flex w-full gap-3 border',
+  base: 'text-contrast my-6 flex w-full gap-3 border border-black/10 inset-shadow-[0_3px_5px_0_rgb(0_0_0/0.15),0_-1px_2px_0_rgb(255_255_255/0.5)] last:mb-0',
   variants: {
     variant: {
       default: '',
-      info: 'border-info text-info [&>svg]:text-info bg-[color-mix(in_oklab,var(--color-info)_1%,var(--color-neutral))] [--color-link:var(--color-info)]',
+      info: 'text-info-contrast [&>svg]:text-info-contrast bg-info [--color-link:var(--color-info-contrast)]',
       destructive:
-        'border-destructive-contrast text-destructive-contrast [&>svg]:text-destructive-contrast bg-destructive [--color-link:var(--color-destructive-contrast)]',
+        'text-destructive-contrast [&>svg]:text-destructive-contrast bg-destructive [--color-link:var(--color-destructive-contrast)]',
       success:
-        'border-success-contrast text-success-contrast [&>svg]:text-success-contrast bg-success [--color-link:var(--color-success-contrast)]',
+        'text-success-contrast [&>svg]:text-success-contrast bg-success [--color-link:var(--color-success-contrast)]',
       warning:
-        'border-warning-contrast text-warning-contrast [&>svg]:text-warning-contrast bg-warning [--color-link:var(--color-warning-contrast)]',
+        'text-warning-contrast [&>svg]:text-warning-contrast bg-warning [--color-link:var(--color-warning-contrast)]',
     },
   },
   defaultVariants: {
@@ -75,7 +75,9 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
         aria-label={ariaLabel}
         spacing="sm"
         className={cx(alertVariants({ variant }), className)}
+        noContainer
         maxWidth="3xl"
+        elevation="none"
         {...props}
       >
         {IconComponent && (

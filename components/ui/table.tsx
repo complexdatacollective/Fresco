@@ -1,20 +1,17 @@
 import * as React from 'react';
 import { cx } from '~/utils/cva';
-import Surface from '../layout/Surface';
 
 const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
-  <Surface spacing="none">
-    <div className="max-w-full overflow-x-auto">
-      <table
-        ref={ref}
-        className={cx('w-full caption-bottom border-collapse', className)}
-        {...props}
-      />
-    </div>
-  </Surface>
+  <div className="max-w-full overflow-x-auto">
+    <table
+      ref={ref}
+      className={cx('caption-bottom border-collapse', className)}
+      {...props}
+    />
+  </div>
 ));
 Table.displayName = 'Table';
 
@@ -67,7 +64,7 @@ const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cx(
-      'h-16', // Height works the same as min-h for table rows https://stackoverflow.com/questions/19432092/can-i-use-a-min-height-for-table-tr-or-td
+      'h-12', // Height works the same as min-h for table rows https://stackoverflow.com/questions/19432092/can-i-use-a-min-height-for-table-tr-or-td
       'data-[state=selected]:bg-selected/15 border-b transition-colors duration-300 hover:bg-current/3',
       className,
     )}

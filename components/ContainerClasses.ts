@@ -1,6 +1,6 @@
 import { cx } from '~/utils/cva';
 
 export const containerClasses = cx(
-  'bg-surface text-surface-contrast relative mt-[-60px] flex min-w-[30rem] flex-col rounded p-8',
-  'after:bg-surface-1/30 after:absolute after:inset-[-20px] after:z-[-1] after:rounded-lg after:shadow-2xl after:backdrop-blur-sm',
+  'tablet:mx-0 relative mx-4 mt-[-60px] overflow-visible',
+  'tablet:before:bg-surface-1/30 tablet:before:absolute tablet:before:inset-[-20px] tablet:before:z-[-1] tablet:before:rounded-lg tablet:before:shadow-2xl tablet:before:backdrop-blur-sm',
 );

@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { containerClasses } from '~/components/ContainerClasses';
+import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import { getServerSession } from '~/utils/auth';
 import { cx } from '~/utils/cva';
@@ -22,10 +23,10 @@ export default async function Page() {
   }
 
   return (
-    <div className={cx(containerClasses)}>
+    <Surface className={cx(containerClasses)} elevation="none" maxWidth="md">
       <Heading level="h2">Sign In To Fresco</Heading>
       <SandboxCredentials />
       <SignInForm />
-    </div>
+    </Surface>
   );
 }
