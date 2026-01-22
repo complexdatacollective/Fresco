@@ -15,7 +15,16 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { expect, userEvent, within } from 'storybook/test';
+import { type FormChangeEvent } from '../Field/types';
 import InputField from './InputField';
+
+/**
+ * Helper to extract the value from an InputField onChange event.
+ * InputField passes the native ChangeEvent directly, but the TypeScript
+ * type signature says it accepts values. Cast through unknown to bridge
+ * the type gap for standalone usage in stories.
+ */
+const getInputValue = (e: unknown) => (e as FormChangeEvent).target.value;
 
 const meta: Meta<typeof InputField> = {
   title: 'Systems/Form/Fields/InputField',
@@ -71,7 +80,7 @@ const meta: Meta<typeof InputField> = {
     'onChange': {
       control: false,
       description:
-        'Type-safe change handler - receives number for type="number", string for others',
+        'Change handler that receives the native React.ChangeEvent. Access the value via event.target.value.',
     },
   },
   args: {
@@ -97,7 +106,7 @@ export const Default: Story = {
       <InputField
         {...args}
         value={value}
-        onChange={(v) => setValue(v ?? '')}
+        onChange={(e) => setValue(getInputValue(e))}
         data-testid="default-input"
       />
     );
@@ -172,7 +181,7 @@ export const States: Story = {
           <InputField
             {...restArgs}
             value={normalValue}
-            onChange={(v) => setNormalValue(v ?? '')}
+            onChange={(e) => setNormalValue(getInputValue(e))}
             placeholder="Normal state"
             aria-label="Normal state input"
             data-testid="normal-input"
@@ -184,7 +193,7 @@ export const States: Story = {
             {...restArgs}
             disabled
             value={disabledValue}
-            onChange={(v) => setDisabledValue(v ?? '')}
+            onChange={(e) => setDisabledValue(getInputValue(e))}
             aria-label="Disabled state input"
             data-testid="disabled-input"
           />
@@ -195,7 +204,7 @@ export const States: Story = {
             {...restArgs}
             readOnly
             value={readonlyValue}
-            onChange={(v) => setReadonlyValue(v ?? '')}
+            onChange={(e) => setReadonlyValue(getInputValue(e))}
             aria-label="Read-only state input"
             data-testid="readonly-input"
           />
@@ -206,7 +215,7 @@ export const States: Story = {
             {...restArgs}
             aria-invalid
             value={invalidValue}
-            onChange={(v) => setInvalidValue(v ?? '')}
+            onChange={(e) => setInvalidValue(getInputValue(e))}
             aria-label="Invalid state input"
             data-testid="invalid-input"
             suffixComponent={
@@ -283,7 +292,10 @@ export const InputTypes: Story = {
           aria-label="Number input"
           data-testid="number-input"
           value={numberValue?.toString() ?? ''}
-          onChange={(v) => setNumberValue(v ? Number(v) : undefined)}
+          onChange={(e) => {
+            const val = getInputValue(e);
+            setNumberValue(val ? Number(val) : undefined);
+          }}
         />
         <p className="text-xs opacity-70" data-testid="number-value">
           Number value: {numberValue ?? 'undefined'} (type: {typeof numberValue}
@@ -463,7 +475,7 @@ export const ClearableInput: Story = {
         <InputField
           {...args}
           value={value}
-          onChange={(v) => setValue(v ?? '')}
+          onChange={(e) => setValue(getInputValue(e))}
           aria-label="Clearable text input"
           data-testid="clearable-input"
           suffixComponent={
@@ -525,7 +537,7 @@ export const TypeSafeOnChange: Story = {
             {...restArgs}
             type="text"
             value={textValue}
-            onChange={(v) => setTextValue(v ?? '')}
+            onChange={(e) => setTextValue(getInputValue(e))}
             placeholder="Type text..."
             data-testid="text-input"
           />
@@ -539,7 +551,10 @@ export const TypeSafeOnChange: Story = {
             {...restArgs}
             type="number"
             value={numberValue?.toString() ?? ''}
-            onChange={(v) => setNumberValue(v ? Number(v) : undefined)}
+            onChange={(e) => {
+              const val = getInputValue(e);
+              setNumberValue(val ? Number(val) : undefined);
+            }}
             placeholder="Enter number..."
             data-testid="number-input"
           />
@@ -581,7 +596,7 @@ export const KeyboardNavigation: Story = {
       <InputField
         {...args}
         value={value}
-        onChange={(v) => setValue(v ?? '')}
+        onChange={(e) => setValue(getInputValue(e))}
         data-testid="keyboard-input"
       />
     );

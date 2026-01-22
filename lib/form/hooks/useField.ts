@@ -13,6 +13,7 @@ import {
   type ValidationPropsCatalogue,
 } from '../components/Field/types';
 import type { FieldState, ValidationContext } from '../store/types';
+import { extractValue } from '../utils/isChangeEvent';
 import {
   makeValidationFunction,
   makeValidationHints,
@@ -71,7 +72,13 @@ export type UseFieldResult = {
   };
   fieldProps: {
     'value': FieldValue;
-    'onChange': (value: FieldValue) => void;
+    'onChange': (
+      valueOrEvent:
+        | FieldValue
+        | React.ChangeEvent<
+            HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+          >,
+    ) => void;
     'onBlur': (e: React.FocusEvent) => void;
     'disabled': boolean;
     'readOnly': boolean;
@@ -210,7 +217,14 @@ export function useField(config: UseFieldConfig): UseFieldResult {
   }, [name, initialValue, validation, unregisterField, registerField]);
 
   const handleChange = useCallback(
-    (value: FieldValue) => {
+    (
+      valueOrEvent:
+        | FieldValue
+        | React.ChangeEvent<
+            HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+          >,
+    ) => {
+      const value = extractValue<FieldValue>(valueOrEvent);
       setFieldValue(config.name, value);
 
       // If validateOnChange is enabled, use debounced validation

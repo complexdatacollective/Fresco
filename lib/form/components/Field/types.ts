@@ -181,6 +181,13 @@ export type InjectedFieldProps = {
 };
 
 /**
+ * React ChangeEvent type for form elements.
+ */
+export type FormChangeEvent = React.ChangeEvent<
+  HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+>;
+
+/**
  * Value/onChange props for field components. Must be implemented by all
  * field components (ensured via CreateFormFieldProps utility type).
  */

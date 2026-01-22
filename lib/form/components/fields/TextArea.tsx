@@ -41,10 +41,6 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(
     const { className, value, onChange, onBlur, disabled, readOnly, ...rest } =
       props;
 
-    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      onChange?.(e.target.value);
-    };
-
     return (
       <div
         className={textareaWrapperVariants({
@@ -59,7 +55,11 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(
           onBlur={onBlur}
           disabled={disabled}
           readOnly={readOnly}
-          onChange={handleChange}
+          onChange={
+            onChange as
+              | React.ChangeEventHandler<HTMLTextAreaElement>
+              | undefined
+          }
           className={textareaVariants()}
         />
       </div>
