@@ -1,8 +1,14 @@
 'use client';
 
 import { Combobox } from '@base-ui/react/combobox';
-import { Check, ChevronsUpDown } from 'lucide-react';
-import { useMemo, useState, type ComponentPropsWithoutRef } from 'react';
+import { Check, ChevronsUpDown, Search } from 'lucide-react';
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  type ComponentPropsWithoutRef,
+} from 'react';
+import Button from '~/components/ui/Button';
 import {
   type FieldValueProps,
   type InjectedFieldProps,
@@ -10,11 +16,9 @@ import {
 import { getInputState } from '~/lib/form/utils/getInputState';
 import { cx, type VariantProps } from '~/utils/cva';
 import {
-  type ComboboxOption,
-  comboboxActionVariants,
-  comboboxInputVariants,
   comboboxItemVariants,
   comboboxTriggerVariants,
+  type ComboboxOption,
 } from './shared';
 
 type ComboboxFieldProps = FieldValueProps<(string | number)[]> &
@@ -61,8 +65,6 @@ function ComboboxField(props: ComboboxFieldProps) {
     ...rest
   } = props;
 
-  const [inputValue, setInputValue] = useState('');
-
   const handleValueChange = (
     newValue: unknown[] | null,
     _event: Combobox.Root.ChangeEventDetails,
@@ -84,15 +86,6 @@ function ComboboxField(props: ComboboxFieldProps) {
     onChange?.([]);
   };
 
-  // Filter options based on input value
-  const filteredOptions = useMemo(() => {
-    if (!inputValue) return options;
-    const query = inputValue.toLowerCase();
-    return options.filter((option) =>
-      option.label.toLowerCase().includes(query),
-    );
-  }, [options, inputValue]);
-
   // Convert value array to selected options
   const selectedOptions = useMemo(() => {
     return options.filter((opt) => value.includes(opt.value));
@@ -112,10 +105,47 @@ function ComboboxField(props: ComboboxFieldProps) {
 
   const state = getInputState(props);
 
+  // Use callback ref to set up MutationObserver when list element mounts
+  const observerRef = useRef<MutationObserver | null>(null);
+
+  const listCallbackRef = useCallback((node: HTMLDivElement | null) => {
+    // Cleanup previous observer
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+      observerRef.current = null;
+    }
+
+    if (!node) return;
+
+    // Create new observer for scroll-into-view behavior
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (
+          mutation.type === 'attributes' &&
+          mutation.attributeName === 'data-highlighted'
+        ) {
+          const target = mutation.target as HTMLElement;
+          if (target.hasAttribute('data-highlighted')) {
+            target.scrollIntoView({ block: 'nearest' });
+          }
+        }
+      }
+    });
+
+    observer.observe(node, {
+      attributes: true,
+      attributeFilter: ['data-highlighted'],
+      subtree: true,
+    });
+
+    observerRef.current = observer;
+  }, []);
+
   return (
     <Combobox.Root
       {...rest}
       multiple
+      items={options}
       value={selectedOptions}
       onValueChange={handleValueChange}
       disabled={disabled ?? readOnly}
@@ -147,45 +177,54 @@ function ComboboxField(props: ComboboxFieldProps) {
         <Combobox.Positioner className="z-50" align="start">
           <Combobox.Popup
             className={cx(
-              'elevation-high rounded-sm border-2 border-transparent',
+              'max-h-96 rounded-sm shadow-lg',
               'bg-surface-popover text-surface-popover-contrast',
-              'max-h-96 overflow-auto',
               'min-w-(--anchor-width)',
             )}
           >
             {showSearch && (
-              <Combobox.Input
-                className={comboboxInputVariants({ size })}
-                placeholder={searchPlaceholder}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-              />
+              <div className="border-surface-popover-contrast/10 flex items-center gap-2 border-b p-2">
+                <Search className="h-4 w-4 shrink-0 opacity-50" />
+                <Combobox.Input
+                  placeholder={searchPlaceholder}
+                  className="placeholder:text-surface-popover-contrast/50 h-8 w-full border-none bg-transparent text-sm outline-none"
+                />
+              </div>
             )}
-            <Combobox.List className="p-1">
-              {(showSelectAll || showDeselectAll) && (
-                <>
+            {(showSelectAll || showDeselectAll) && (
+              <div className="border-surface-popover-contrast/10 border-b px-2 pb-2">
+                <div className="flex gap-2">
                   {showSelectAll && (
-                    <button
-                      type="button"
-                      className={comboboxActionVariants({ size })}
+                    <Button
                       onClick={handleSelectAll}
+                      size="sm"
+                      variant="link"
+                      className="flex grow"
                     >
                       Select All
-                    </button>
+                    </Button>
                   )}
                   {showDeselectAll && (
-                    <button
-                      type="button"
-                      className={comboboxActionVariants({ size })}
+                    <Button
                       onClick={handleDeselectAll}
+                      size="sm"
+                      variant="link"
+                      className="flex grow"
                     >
                       Deselect All
-                    </button>
+                    </Button>
                   )}
-                  <div className="bg-input-contrast/10 my-1 h-px" />
-                </>
-              )}
-              {filteredOptions.map((option) => (
+                </div>
+              </div>
+            )}
+            <Combobox.Empty className="text-surface-popover-contrast/50 px-4 py-3 text-center text-sm italic">
+              {emptyMessage}
+            </Combobox.Empty>
+            <Combobox.List
+              ref={listCallbackRef}
+              className="max-h-64 scroll-py-2 overflow-y-auto overscroll-contain p-2"
+            >
+              {(option: ComboboxOption) => (
                 <Combobox.Item
                   key={option.value}
                   value={option}
@@ -204,13 +243,8 @@ function ComboboxField(props: ComboboxFieldProps) {
                     {option.label}
                   </span>
                 </Combobox.Item>
-              ))}
+              )}
             </Combobox.List>
-            {filteredOptions.length === 0 && (
-              <Combobox.Empty className="text-surface-popover-contrast/50 px-3 py-2 text-sm">
-                {emptyMessage}
-              </Combobox.Empty>
-            )}
           </Combobox.Popup>
         </Combobox.Positioner>
       </Combobox.Portal>
