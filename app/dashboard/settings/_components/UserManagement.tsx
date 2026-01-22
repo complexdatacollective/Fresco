@@ -1,26 +1,32 @@
 'use client';
 
-import { User } from 'lucide-react';
-import { useState } from 'react';
+import { type ColumnDef } from '@tanstack/react-table';
+import { Plus, User } from 'lucide-react';
+import { useCallback, useState } from 'react';
 import { z } from 'zod';
-import { changePassword, createUser, deleteUser } from '~/actions/users';
-import { Button } from '~/components/ui/Button';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '~/components/ui/table';
+  changePassword,
+  checkUsernameAvailable,
+  createUser,
+  deleteUsers,
+} from '~/actions/users';
+import { DataTable } from '~/components/DataTable/DataTable';
+import Surface from '~/components/layout/Surface';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
+import { Button } from '~/components/ui/Button';
 import Dialog from '~/lib/dialogs/Dialog';
+import useDialog from '~/lib/dialogs/useDialog';
 import Field from '~/lib/form/components/Field/Field';
 import { FormWithoutProvider } from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
+import Checkbox from '~/lib/form/components/fields/Checkbox';
 import InputField from '~/lib/form/components/fields/InputField';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { type FormSubmissionResult } from '~/lib/form/store/types';
 import { type GetUsersReturnType } from '~/queries/users';
+
+type UserRow = GetUsersReturnType[number];
 
 type UserManagementProps = {
   users: GetUsersReturnType;
@@ -33,6 +39,17 @@ const usernameSchema = z
   .min(4, 'Username must be at least 4 characters')
   .refine((s) => !s.includes(' '), 'Username cannot contain spaces');
 
+const usernameUniqueSchema = z.string().refine(
+  async (username) => {
+    if (!username || username.length < 4 || username.includes(' ')) {
+      return true; // Let the basic validation handle these cases
+    }
+    const result = await checkUsernameAvailable(username);
+    return result.available;
+  },
+  { message: 'Username is already taken' },
+);
+
 const passwordSchema = z
   .string()
   .min(8, 'Password must be at least 8 characters')
@@ -40,6 +57,74 @@ const passwordSchema = z
   .regex(/[A-Z]/, 'Password must contain at least 1 uppercase letter')
   .regex(/[0-9]/, 'Password must contain at least 1 number')
   .regex(/[^a-zA-Z0-9]/, 'Password must contain at least 1 symbol');
+
+function makeUserColumns(
+  currentUserId: string,
+  userCount: number,
+  onDeleteUser: (user: UserRow) => void,
+): ColumnDef<UserRow>[] {
+  return [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(value: boolean) =>
+            table.toggleAllPageRowsSelected(!!value)
+          }
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => {
+        const isCurrentUser = row.original.id === currentUserId;
+        return (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value: boolean) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+            disabled={isCurrentUser}
+          />
+        );
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      id: 'username',
+      accessorKey: 'username',
+      header: 'Username',
+      cell: ({ row }) => {
+        const isCurrentUser = row.original.id === currentUserId;
+        return (
+          <div className="flex items-center gap-2">
+            <span>{row.original.username}</span>
+            {isCurrentUser && (
+              <span className="text-sm text-current/50">(you)</span>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => {
+        const isCurrentUser = row.original.id === currentUserId;
+        const isLastUser = userCount <= 1;
+        return (
+          <Button
+            onClick={() => onDeleteUser(row.original)}
+            color="destructive"
+            size="sm"
+            disabled={isCurrentUser || isLastUser}
+          >
+            Delete
+          </Button>
+        );
+      },
+    },
+  ];
+}
 
 export default function UserManagement({
   users: initialUsers,
@@ -50,11 +135,38 @@ export default function UserManagement({
   const [isCreating, setIsCreating] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(false);
-  const [isConfirmingDelete, setIsConfirmingDelete] = useState<string | null>(
-    null,
-  );
-  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { confirm } = useDialog();
+
+  const doDeleteUsers = useCallback(
+    async (usersToDelete: UserRow[]) => {
+      const ids = usersToDelete.map((u) => u.id);
+      const result = await deleteUsers({ ids });
+
+      if (result.error) {
+        setError(result.error);
+      } else {
+        setUsers((prev) => prev.filter((user) => !ids.includes(user.id)));
+      }
+    },
+    [setUsers],
+  );
+
+  const handleDeleteUser = useCallback(
+    (user: UserRow) => {
+      void confirm({
+        title: 'Delete User',
+        description: `Are you sure you want to delete the user "${user.username}"? This action cannot be undone.`,
+        confirmLabel: 'Delete User',
+        intent: 'destructive',
+        onConfirm: () => doDeleteUsers([user]),
+      });
+    },
+    [confirm, doDeleteUsers],
+  );
+
+  const columns = makeUserColumns(currentUserId, users.length, handleDeleteUser);
 
   const handleCreateUser = async (
     values: unknown,
@@ -131,98 +243,78 @@ export default function UserManagement({
     return { success: true };
   };
 
-  const handleDeleteUser = async (id: string) => {
-    setIsDeleting(true);
-    setError(null);
+  const handleDeleteSelected = useCallback(
+    (selectedUsers: UserRow[]) => {
+      // Filter out current user - they can't delete themselves
+      const deletableUsers = selectedUsers.filter(
+        (user) => user.id !== currentUserId,
+      );
 
-    const result = await deleteUser({ id });
+      if (deletableUsers.length === 0) {
+        setError('You cannot delete your own account');
+        return;
+      }
 
-    if (result.error) {
-      setError(result.error);
-    } else {
-      setUsers(users.filter((user) => user.id !== id));
-    }
-
-    setIsConfirmingDelete(null);
-    setIsDeleting(false);
-  };
-
-  const userToDelete = users.find((u) => u.id === isConfirmingDelete);
+      const isSingle = deletableUsers.length === 1;
+      void confirm({
+        title: isSingle ? 'Delete User' : 'Delete Multiple Users',
+        description: isSingle
+          ? `Are you sure you want to delete the user "${deletableUsers[0]?.username}"? This action cannot be undone.`
+          : `Are you sure you want to delete ${deletableUsers.length} users? This action cannot be undone.`,
+        confirmLabel: isSingle
+          ? 'Delete User'
+          : `Delete ${deletableUsers.length} Users`,
+        intent: 'destructive',
+        onConfirm: () => doDeleteUsers(deletableUsers),
+      });
+    },
+    [currentUserId, confirm, doDeleteUsers],
+  );
 
   return (
     <div className="space-y-6">
       {/* Current User Card */}
-      <div className="bg-surface-1 flex items-center justify-between rounded-lg border p-4">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-full">
-            <User className="h-5 w-5" />
+      <Surface
+        level={1}
+        className="flex items-center justify-between gap-4 p-6"
+        spacing="sm"
+      >
+        <div className="flex items-center gap-6">
+          <div className="bg-primary/10 text-primary flex h-14 w-14 items-center justify-center rounded-full">
+            <User className="h-8 w-8" />
           </div>
           <div>
-            <p className="text-sm text-current/50">Logged in as</p>
-            <p className="font-medium">{currentUsername}</p>
+            <Paragraph intent="smallText" margin="none">
+              Logged in as:
+            </Paragraph>
+            <Paragraph className="font-medium">{currentUsername}</Paragraph>
           </div>
         </div>
-        <Button
-          onClick={() => setIsChangingPassword(true)}
-          variant="outline"
-          size="sm"
-        >
+        <Button onClick={() => setIsChangingPassword(true)} size="sm">
           Change Password
         </Button>
-      </div>
+      </Surface>
 
       {/* All Users Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-current/70">All Users</h3>
+          <Heading level="label">All Users</Heading>
           <Button
             onClick={() => setIsCreating(true)}
-            variant="outline"
             size="sm"
+            color="primary"
+            icon={<Plus />}
           >
             Add User
           </Button>
         </div>
 
-        {users.length === 0 ? (
-          <p className="text-sm text-current/70">No users found.</p>
-        ) : (
-          <Table
-            surfaceProps={{ className: 'w-full rounded!' }}
-            className="w-full"
-          >
-            <TableHeader>
-              <TableRow>
-                <TableHead>Username</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>
-                    {user.username}
-                    {user.id === currentUserId && (
-                      <span className="ml-2 text-sm text-current/50">
-                        (you)
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      onClick={() => setIsConfirmingDelete(user.id)}
-                      color="destructive"
-                      size="sm"
-                      disabled={user.id === currentUserId || users.length <= 1}
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
+        <DataTable
+          columns={columns}
+          data={users}
+          handleDeleteSelected={handleDeleteSelected}
+          surfaceLevel={1}
+        />
       </div>
 
       {/* Change Password Dialog */}
@@ -247,7 +339,9 @@ export default function UserManagement({
                 >
                   Cancel
                 </Button>
-                <SubmitButton>Update Password</SubmitButton>
+                <SubmitButton form="changePasswordForm">
+                  Update Password
+                </SubmitButton>
               </>
             )
           }
@@ -257,7 +351,10 @@ export default function UserManagement({
               Password updated successfully!
             </div>
           ) : (
-            <FormWithoutProvider onSubmit={handleChangePassword}>
+            <FormWithoutProvider
+              onSubmit={handleChangePassword}
+              id="changePasswordForm"
+            >
               <input
                 type="text"
                 name="username"
@@ -322,11 +419,11 @@ export default function UserManagement({
               >
                 Cancel
               </Button>
-              <SubmitButton>Create User</SubmitButton>
+              <SubmitButton form="createUserForm">Create User</SubmitButton>
             </>
           }
         >
-          <FormWithoutProvider onSubmit={handleCreateUser}>
+          <FormWithoutProvider onSubmit={handleCreateUser} id="createUserForm">
             {error && (
               <div className="text-destructive mb-4 text-sm">{error}</div>
             )}
@@ -336,10 +433,19 @@ export default function UserManagement({
               component={InputField}
               required
               autoComplete="username"
-              custom={{
-                schema: usernameSchema,
-                hint: 'At least 4 characters, no spaces',
-              }}
+              validateOnChange
+              validateOnChangeDelay={500}
+              custom={[
+                {
+                  schema: usernameSchema,
+                  hint: 'At least 4 characters, no spaces',
+                },
+                {
+                  schema: usernameUniqueSchema,
+                  hint: 'Must be unique',
+                },
+              ]}
+              autoFocus
             />
             <Field
               name="password"
@@ -365,28 +471,6 @@ export default function UserManagement({
         </Dialog>
       </FormStoreProvider>
 
-      {/* Confirm Delete Dialog */}
-      <Dialog
-        open={!!isConfirmingDelete}
-        closeDialog={() => setIsConfirmingDelete(null)}
-        title="Delete User"
-        description={`Are you sure you want to delete the user "${userToDelete?.username}"? This action cannot be undone.`}
-        accent="destructive"
-        footer={
-          <>
-            <Button onClick={() => setIsConfirmingDelete(null)}>Cancel</Button>
-            <Button
-              onClick={() =>
-                isConfirmingDelete && handleDeleteUser(isConfirmingDelete)
-              }
-              color="destructive"
-              disabled={isDeleting}
-            >
-              {isDeleting ? 'Deleting...' : 'Delete User'}
-            </Button>
-          </>
-        }
-      />
     </div>
   );
 }

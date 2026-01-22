@@ -54,6 +54,7 @@ type DataTableProps<TData, TValue> = {
   calculateRowClasses?: (row: Row<TData>) => string | undefined;
   headerItems?: React.ReactNode;
   defaultSortBy?: SortingState[0];
+  surfaceLevel?: 0 | 1 | 2 | 3;
 };
 
 export function DataTable<TData, TValue>({
@@ -67,6 +68,7 @@ export function DataTable<TData, TValue>({
   calculateRowClasses,
   headerItems,
   defaultSortBy,
+  surfaceLevel = 0,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>(
     defaultSortBy ? [{ ...defaultSortBy }] : [],
@@ -181,7 +183,7 @@ export function DataTable<TData, TValue>({
         </div>
       )}
 
-      <Table>
+      <Table surfaceProps={{ level: surfaceLevel }}>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>

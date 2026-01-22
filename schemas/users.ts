@@ -1,8 +1,10 @@
 import { isStrongPassword } from 'validator';
 import { z } from 'zod';
 
-export const deleteUserSchema = z.object({
-  id: z.string().min(1, { error: 'User ID is required' }),
+export const deleteUsersSchema = z.object({
+  ids: z
+    .array(z.string().min(1))
+    .min(1, { error: 'At least one user ID is required' }),
 });
 
 export const changePasswordSchema = z

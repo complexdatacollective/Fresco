@@ -31,7 +31,7 @@ export default function SettingsCard({
         controlArea && 'flex gap-10',
         className,
         variant === 'destructive' && 'border-destructive border',
-        'tablet:flex-row flex-col',
+        'tablet:flex-row flex-col rounded',
       )}
       maxWidth="none"
       baseSize="content"
@@ -76,7 +76,7 @@ export function SettingsCardSkeleton({
         className={cx(
           'w-full max-w-3xl scroll-mt-32',
           className,
-          'tablet:flex-row flex-col',
+          'tablet:flex-row flex-col rounded',
         )}
         maxWidth="none"
         baseSize="content"
@@ -98,7 +98,7 @@ export function SettingsCardSkeleton({
       className={cx(
         'w-full max-w-3xl scroll-mt-32',
         className,
-        'tablet:flex-row flex-col',
+        'tablet:flex-row flex-col rounded',
       )}
       maxWidth="none"
       baseSize="content"

@@ -3,7 +3,7 @@
 import { safeRevalidateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { createUserFormDataSchema } from '~/schemas/auth';
-import { changePasswordSchema, deleteUserSchema } from '~/schemas/users';
+import { changePasswordSchema, deleteUsersSchema } from '~/schemas/users';
 import { auth, requireApiAuth } from '~/utils/auth';
 import { addEvent } from './activityFeed';
 
@@ -45,10 +45,27 @@ export async function createUser(data: unknown) {
   }
 }
 
-export async function deleteUser(data: unknown) {
+export async function checkUsernameAvailable(
+  username: string,
+): Promise<{ available: boolean }> {
+  await requireApiAuth();
+
+  if (!username || username.length < 4 || username.includes(' ')) {
+    return { available: false };
+  }
+
+  const existingUser = await prisma.user.findUnique({
+    where: { username },
+    select: { id: true },
+  });
+
+  return { available: !existingUser };
+}
+
+export async function deleteUsers(data: unknown) {
   const session = await requireApiAuth();
 
-  const parsedData = deleteUserSchema.safeParse(data);
+  const parsedData = deleteUsersSchema.safeParse(data);
 
   if (!parsedData.success) {
     return {
@@ -57,47 +74,48 @@ export async function deleteUser(data: unknown) {
     };
   }
 
-  const { id } = parsedData.data;
+  const { ids } = parsedData.data;
 
-  // Prevent self-deletion
-  if (id === session.user.userId) {
+  // Filter out current user from deletion
+  const idsToDelete = ids.filter((id) => id !== session.user.userId);
+
+  if (idsToDelete.length === 0) {
     return {
-      error: 'You cannot delete your own account',
+      error: 'No valid users to delete',
       data: null,
     };
   }
 
-  // Check if this is the last user
+  // Check if this would delete all users
   const userCount = await prisma.user.count();
-  if (userCount <= 1) {
+  if (userCount - idsToDelete.length < 1) {
     return {
-      error: 'Cannot delete the last user',
+      error: 'Cannot delete all users. At least one user must remain.',
       data: null,
     };
   }
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { id },
-      select: { username: true },
+    const usersToDelete = await prisma.user.findMany({
+      where: { id: { in: idsToDelete } },
+      select: { id: true, username: true },
     });
 
-    if (!user) {
-      return {
-        error: 'User not found',
-        data: null,
-      };
+    const deletedIds: string[] = [];
+
+    for (const user of usersToDelete) {
+      await auth.deleteUser(user.id);
+      deletedIds.push(user.id);
     }
 
-    await auth.deleteUser(id);
-
-    void addEvent('User Deleted', `Deleted user: ${user.username}`);
+    const usernames = usersToDelete.map((u) => u.username).join(', ');
+    void addEvent('User Deleted', `Deleted user(s): ${usernames}`);
     safeRevalidateTag('getUsers');
 
-    return { error: null, data: { id } };
+    return { error: null, data: { deletedIds } };
   } catch (_error) {
     return {
-      error: 'Failed to delete user',
+      error: 'Failed to delete users',
       data: null,
     };
   }

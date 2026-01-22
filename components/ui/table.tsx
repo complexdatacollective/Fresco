@@ -114,7 +114,7 @@ const TableCell = React.forwardRef<
   <td
     ref={ref}
     className={cx(
-      'px-4 align-middle whitespace-nowrap',
+      'px-8 align-middle whitespace-nowrap',
       'first:pl-12 last:pr-12',
       className,
     )}

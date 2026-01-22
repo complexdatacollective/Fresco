@@ -2,7 +2,7 @@ import { type Column } from '@tanstack/react-table';
 import { ArrowUp, ArrowUpDown } from 'lucide-react';
 
 import { motion } from 'motion/react';
-import React, { type ReactElement } from 'react';
+import React, { type ReactNode } from 'react';
 import { cx } from '~/utils/cva';
 import Button, { buttonVariants } from '../ui/Button';
 
@@ -10,8 +10,8 @@ const MotionArrow = motion.create(ArrowUp);
 
 type DataTableColumnHeaderProps<TData, TValue> = {
   column: Column<TData, TValue>;
-  title: ReactElement | string;
-} & React.HTMLAttributes<HTMLDivElement>;
+  title: ReactNode;
+} & Omit<React.HTMLAttributes<HTMLDivElement>, 'title'>;
 
 /**
  * A column header component for a data table that supports sorting.

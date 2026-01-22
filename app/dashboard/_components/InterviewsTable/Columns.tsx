@@ -42,19 +42,21 @@ export const InterviewColumns = (): ColumnDef<
     accessorKey: 'participant.identifier',
     header: ({ column }) => {
       return (
-        <div className="flex items-center gap-2">
-          <DataTableColumnHeader
-            column={column}
-            title="Participant Identifier"
-          />
-          <Image
-            src="/images/participant.svg"
-            alt="Participant icon"
-            className="h-[24px] w-[24px]"
-            width={24}
-            height={24}
-          />
-        </div>
+        <DataTableColumnHeader
+          column={column}
+          title={
+            <div className="flex items-center gap-2">
+              <Image
+                src="/images/participant.svg"
+                alt="Participant icon"
+                className="h-[24px] w-[24px]"
+                width={24}
+                height={24}
+              />
+              Participant Identifier
+            </div>
+          }
+        />
       );
     },
     cell: ({ row }) => {
@@ -77,16 +79,21 @@ export const InterviewColumns = (): ColumnDef<
     accessorKey: 'protocol.name',
     header: ({ column }) => {
       return (
-        <div className="flex items-center gap-2">
-          <DataTableColumnHeader column={column} title="Protocol Name" />
-          <Image
-            src="/images/protocol-icon.png"
-            alt="Protocol icon"
-            className="h-[24px] w-[24px]"
-            width={24}
-            height={24}
-          />
-        </div>
+        <DataTableColumnHeader
+          column={column}
+          title={
+            <div className="flex items-center gap-2">
+              <Image
+                src="/images/protocol-icon.png"
+                alt="Protocol icon"
+                className="h-[24px] w-[24px]"
+                width={24}
+                height={24}
+              />
+              Protocol Name
+            </div>
+          }
+        />
       );
     },
     cell: ({ row }) => {
