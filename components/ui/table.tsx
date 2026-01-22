@@ -1,17 +1,25 @@
 import * as React from 'react';
 import { cx } from '~/utils/cva';
+import Surface from '../layout/Surface';
 
 const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
-  <div className="max-w-full overflow-x-auto">
-    <table
-      ref={ref}
-      className={cx('caption-bottom border-collapse', className)}
-      {...props}
-    />
-  </div>
+  <Surface
+    maxWidth="none"
+    spacing="none"
+    noContainer
+    className="mx-auto w-fit max-w-full overflow-x-auto rounded-lg"
+  >
+    <div className="max-w-full overflow-x-auto">
+      <table
+        ref={ref}
+        className={cx('caption-bottom border-collapse', className)}
+        {...props}
+      />
+    </div>
+  </Surface>
 ));
 Table.displayName = 'Table';
 

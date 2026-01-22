@@ -1,19 +1,18 @@
 'use client';
 
+import { setAppSetting } from '~/actions/appSettings';
 import Field from '~/lib/form/components/Field/Field';
 import Form from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
 import InputField from '~/lib/form/components/fields/InputField';
 import { createUploadThingTokenSchema } from '~/schemas/appSettings';
 
-export const UploadThingTokenForm = ({
-  action,
-}: {
-  action: (token: string) => Promise<string | void>;
-}) => {
+export const UploadThingTokenForm = () => {
   const handleSubmit = async (data: unknown) => {
     const typedData = data as { uploadThingToken: string };
-    await action(typedData.uploadThingToken);
+
+    console.log('Submitting UploadThing token:', typedData.uploadThingToken);
+    await setAppSetting('uploadThingToken', typedData.uploadThingToken);
     return {
       success: true,
     };

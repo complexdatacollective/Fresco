@@ -12,7 +12,7 @@ function OnboardSteps({ steps }: { steps: string[] }) {
   );
 
   return (
-    <div className="flex shrink-0 grow-0 flex-col gap-6 rounded-xl bg-white px-8 py-12">
+    <div className="flex shrink-0 grow-0 flex-col gap-6 rounded bg-white px-8 py-12">
       {steps.map((step, index) => (
         <div
           key={index}

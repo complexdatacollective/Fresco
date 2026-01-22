@@ -21,7 +21,21 @@ type FieldGroupProps<T extends readonly string[]> = {
   children: ReactNode;
 };
 
-// Component with proper type inference using const type parameter
+/**
+ * A component that conditionally renders its children based on the values of specified form fields.
+ *
+ * @param watch - An array of form field names to watch for changes.
+ * @param condition - A function that takes the current values of the watched fields and returns a boolean indicating whether to render the children.
+ * @param children - The form fields or components to conditionally render.
+ *
+ * @example
+ * <FieldGroup
+ *   watch={['hasNickname']}
+ *   condition={(values) => values.hasNickname === true}
+ * >
+ *   <Field name="nickname" label="Nickname" component={InputField} />
+ * </FieldGroup>
+ */
 function FieldGroup<const T extends readonly string[]>({
   watch,
   condition,

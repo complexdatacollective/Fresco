@@ -1,14 +1,13 @@
 'use server';
 
-import { redirect } from 'next/navigation';
 import { type z } from 'zod';
 import { safeRevalidateTag } from '~/lib/cache';
+import { prisma } from '~/lib/db';
 import {
   type AppSetting,
   appSettingPreprocessedSchema,
 } from '~/schemas/appSettings';
 import { requireApiAuth } from '~/utils/auth';
-import { prisma } from '~/lib/db';
 import { ensureError } from '~/utils/ensureError';
 import { getStringValue } from '~/utils/getStringValue';
 
@@ -48,9 +47,4 @@ export async function setAppSetting<
     const e = ensureError(error);
     throw new Error(`Failed to update appSettings: ${key}: ${e.message}`);
   }
-}
-
-export async function submitUploadThingForm(token: string) {
-  await setAppSetting('uploadThingToken', token);
-  redirect('/setup?step=3');
 }

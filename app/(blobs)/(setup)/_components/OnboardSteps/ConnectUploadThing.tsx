@@ -1,4 +1,3 @@
-import { submitUploadThingForm } from '~/actions/appSettings';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
@@ -50,7 +49,7 @@ function ConnectUploadThing() {
           </Link>{' '}
           in the Fresco documentation.
         </Paragraph>
-        <UploadThingTokenForm action={submitUploadThingForm} />
+        <UploadThingTokenForm />
       </div>
     </div>
   );

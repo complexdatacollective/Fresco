@@ -5,7 +5,7 @@ import { setAppSetting } from '~/actions/appSettings';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
-import Button, { IconButton } from '~/components/ui/Button';
+import Button from '~/components/ui/Button';
 import trackEvent from '~/lib/analytics';
 import { getInstallationId } from '~/queries/appSettings';
 
@@ -27,8 +27,8 @@ export default function Documentation() {
   };
 
   return (
-    <div className="max-w-[30rem]">
-      <div className="mb-4">
+    <div className="max-w-[40rem]">
+      <div className="mb-12">
         <Heading level="h2">Documentation</Heading>
         <Paragraph>
           This is the end of the onboarding process. You are now ready to use
@@ -36,48 +36,40 @@ export default function Documentation() {
           below.
         </Paragraph>
       </div>
-      <div className="flex flex-col gap-2">
-        <Surface className="flex gap-10">
-          <div className="flex-1">
-            <Heading level="h4" variant="all-caps" className="mb-2">
-              About Fresco
-            </Heading>
-            Visit our documentation site to learn more about Fresco.
-          </div>
-          <div className="flex min-w-32 shrink-0 flex-col items-end justify-center">
-            <a
-              href="https://documentation.networkcanvas.com/en/fresco"
-              target="_blank"
-            >
-              <IconButton
-                variant="outline"
-                aria-label="View Fresco documentation"
-                icon={<FileText />}
-              />
-            </a>
-          </div>
-        </Surface>
-        <Surface className="flex gap-10">
-          <div className="flex-1">
-            <Heading level="h4" variant="all-caps" className="mb-2">
-              Using Fresco
-            </Heading>
-            Read our guide on the basic workflow for using Fresco to conduct
-            your study.
-          </div>
-          <div className="flex min-w-32 shrink-0 flex-col items-end justify-center">
-            <a
-              href="https://documentation.networkcanvas.com/en/fresco/using-fresco"
-              target="_blank"
-            >
-              <IconButton
-                variant="outline"
-                aria-label="View Using Fresco guide"
-                icon={<FileText />}
-              />
-            </a>
-          </div>
-        </Surface>
+      <div className="flex flex-col gap-8">
+        <a
+          href="https://documentation.networkcanvas.com/en/fresco"
+          target="_blank"
+        >
+          <Surface className="flex gap-8" level={1}>
+            <div className="flex-1">
+              <Heading level="h4" variant="all-caps" className="mb-2">
+                About Fresco
+              </Heading>
+              Visit our documentation site to learn more about Fresco.
+            </div>
+            <div className="flex min-w-32 shrink-0 flex-col items-end justify-center">
+              <FileText />
+            </div>
+          </Surface>
+        </a>
+        <a
+          href="https://documentation.networkcanvas.com/en/fresco/using-fresco"
+          target="_blank"
+        >
+          <Surface className="flex gap-10" level={1}>
+            <div className="flex-1">
+              <Heading level="h4" variant="all-caps" className="mb-2">
+                Using Fresco
+              </Heading>
+              Read our guide on the basic workflow for using Fresco to conduct
+              your study.
+            </div>
+            <div className="flex min-w-32 shrink-0 flex-col items-end justify-center">
+              <FileText />
+            </div>
+          </Surface>
+        </a>
       </div>
 
       <div className="flex justify-end pt-12">

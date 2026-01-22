@@ -557,7 +557,7 @@ describe('Validation Functions', () => {
   describe('greaterThanVariable', () => {
     it('should reject values less than the comparison field', () => {
       const validator = validations.greaterThanVariable(
-        'numberAttribute',
+        { attribute: 'numberAttribute', type: 'number' },
         createMockContext(),
       )({ numberAttribute: 10 });
 
@@ -572,7 +572,7 @@ describe('Validation Functions', () => {
 
     it('should accept values greater than the comparison field', () => {
       const validator = validations.greaterThanVariable(
-        'numberAttribute',
+        { attribute: 'numberAttribute', type: 'number' },
         createMockContext(),
       )({ numberAttribute: 10 });
 
@@ -582,7 +582,7 @@ describe('Validation Functions', () => {
 
     it('should work with datetime fields', () => {
       const validator = validations.greaterThanVariable(
-        'dateAttribute',
+        { attribute: 'dateAttribute', type: 'datetime' },
         createMockContext(),
       )({ dateAttribute: '2024-01-01T00:00:00Z' });
 
@@ -597,7 +597,10 @@ describe('Validation Functions', () => {
       expect(() => {
         validations
           .greaterThanVariable(
-            null as unknown as string,
+            { attribute: null, type: 'number' } as unknown as {
+              attribute: string;
+              type: 'number';
+            },
             createMockContext(),
           )({})
           .safeParse(10);
@@ -610,7 +613,7 @@ describe('Validation Functions', () => {
       // When the comparison attribute is not in formValues, validation is skipped
       // This allows hint generation to work without requiring formValues
       const validator = validations.greaterThanVariable(
-        'numberAttribute',
+        { attribute: 'numberAttribute', type: 'number' },
         createMockContext(),
       )({});
 
@@ -622,7 +625,7 @@ describe('Validation Functions', () => {
   describe('lessThanVariable', () => {
     it('should reject values greater than the comparison field', () => {
       const validator = validations.lessThanVariable(
-        'numberAttribute',
+        { attribute: 'numberAttribute', type: 'number' },
         createMockContext(),
       )({ numberAttribute: 10 });
 
@@ -637,7 +640,7 @@ describe('Validation Functions', () => {
 
     it('should accept values less than the comparison field', () => {
       const validator = validations.lessThanVariable(
-        'numberAttribute',
+        { attribute: 'numberAttribute', type: 'number' },
         createMockContext(),
       )({ numberAttribute: 10 });
 
@@ -647,7 +650,7 @@ describe('Validation Functions', () => {
 
     it('should work with datetime fields', () => {
       const validator = validations.lessThanVariable(
-        'dateAttribute',
+        { attribute: 'dateAttribute', type: 'datetime' },
         createMockContext(),
       )({ dateAttribute: '2024-01-01T00:00:00Z' });
 
@@ -662,7 +665,10 @@ describe('Validation Functions', () => {
       expect(() => {
         validations
           .lessThanVariable(
-            null as unknown as string,
+            { attribute: null, type: 'number' } as unknown as {
+              attribute: string;
+              type: 'number';
+            },
             createMockContext(),
           )({})
           .safeParse(10);
@@ -672,7 +678,10 @@ describe('Validation Functions', () => {
     it('should throw error when attribute is not in codebook', () => {
       expect(() => {
         validations
-          .lessThanVariable('missingAttribute', createMockContext())({})
+          .lessThanVariable({
+              attribute: 'missingAttribute',
+              type: 'number',
+            }, createMockContext())({})
           .safeParse(10);
       }).toThrow('Comparison variable not found in codebook');
     });
@@ -681,7 +690,7 @@ describe('Validation Functions', () => {
       // When the comparison attribute is not in formValues, validation is skipped
       // This allows hint generation to work without requiring formValues
       const validator = validations.lessThanVariable(
-        'numberAttribute',
+        { attribute: 'numberAttribute', type: 'number' },
         createMockContext(),
       )({});
 

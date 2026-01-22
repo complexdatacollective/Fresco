@@ -2,6 +2,7 @@ import { type Column } from '@tanstack/react-table';
 import { ArrowUp, ArrowUpDown } from 'lucide-react';
 
 import { motion } from 'motion/react';
+import React, { type ReactElement } from 'react';
 import { cx } from '~/utils/cva';
 import Button, { buttonVariants } from '../ui/Button';
 
@@ -9,7 +10,7 @@ const MotionArrow = motion.create(ArrowUp);
 
 type DataTableColumnHeaderProps<TData, TValue> = {
   column: Column<TData, TValue>;
-  title: string;
+  title: ReactElement | string;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 /**

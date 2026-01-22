@@ -3,10 +3,10 @@
 import { useRouter } from 'next/navigation';
 import { signup } from '~/actions/auth';
 import Field from '~/lib/form/components/Field/Field';
+import FieldGroup from '~/lib/form/components/FieldGroup';
 import InputField from '~/lib/form/components/fields/InputField';
 import Form from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
-import { useFormValue } from '~/lib/form/hooks/useFormValue';
 import { type FormSubmitHandler } from '~/lib/form/store/types';
 import { createUserSchema } from '~/schemas/auth';
 
@@ -60,35 +60,24 @@ export const SignUpForm = () => {
         type="password"
         autoComplete="do-not-autofill"
       />
-      <PasswordConfirmField />
+      <FieldGroup
+        watch={['password']}
+        condition={(values) => !!values.password}
+      >
+        <Field
+          key="confirmPassword"
+          name="confirmPassword"
+          label="Confirm password"
+          placeholder="******************"
+          sameAs="password"
+          component={InputField}
+          type="password"
+          autoComplete="do-not-autofill"
+        />
+      </FieldGroup>
       <SubmitButton key="submit" className="mt-6">
         Create account
       </SubmitButton>
     </Form>
   );
 };
-
-// Separate component to handle conditional rendering based on password value
-function PasswordConfirmField() {
-  const { password } = useFormValue(['password']);
-
-  if (!password || password === '') {
-    return null;
-  }
-
-  return (
-    <Field
-      key="confirmPassword"
-      name="confirmPassword"
-      label="Confirm password"
-      placeholder="******************"
-      custom={{
-        schema: createUserSchema.shape.confirmPassword,
-        hint: 'Must match the password above',
-      }}
-      component={InputField}
-      type="password"
-      autoComplete="do-not-autofill"
-    />
-  );
-}

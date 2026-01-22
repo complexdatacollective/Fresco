@@ -1,3 +1,4 @@
+import { type Variable } from '@codaco/protocol-validation';
 import { invariant } from 'es-toolkit';
 import z from 'zod';
 import { type FieldValue, type ValidationContext } from '../store/types';
@@ -225,32 +226,33 @@ const unique: ValidationFunction<string> = (attribute, context) => () => {
 /**
  * Require that a value is different from another variable in the same form
  *
- * Note: although we are comparing with the *current form only*, we still
- * need to get the comparison variable from the codebook, because we need to
- * know its name.
+ * Note: although we are comparing with the *current form only*, we can
+ * optionally get the comparison variable name from the codebook when context
+ * is provided. When context is not available, the attribute string is used
+ * as the display name.
  */
 const differentFrom: ValidationFunction<string> =
   (attribute, context) => (formValues) => {
-    invariant(
-      context,
-      'Validation context must be provided when using differentFrom validation',
-    );
-
     invariant(
       typeof attribute === 'string',
       'Attribute must be specified for differentFrom validation',
     );
 
-    const { stageSubject, codebook } = context;
-
-    // Get the codebook definition for the variable we are comparing to
-    const comparisonVariable = getVariableDefinition(
-      codebook,
-      stageSubject,
-      attribute,
-    );
-
-    invariant(comparisonVariable, 'Comparison variable not found in codebook');
+    // Resolve the display name - use codebook name if context available, otherwise use attribute
+    let displayName = attribute;
+    if (context) {
+      const { stageSubject, codebook } = context;
+      const comparisonVariable = getVariableDefinition(
+        codebook,
+        stageSubject,
+        attribute,
+      );
+      invariant(
+        comparisonVariable,
+        'Comparison variable not found in codebook',
+      );
+      displayName = comparisonVariable.name;
+    }
 
     return z
       .unknown()
@@ -262,12 +264,12 @@ const differentFrom: ValidationFunction<string> =
         if (isMatchingValue(value, formValues[attribute])) {
           ctx.addIssue({
             code: 'custom',
-            message: `Your answer must be different from '${comparisonVariable.name}'.`,
+            message: `Your answer must be different from '${displayName}'.`,
             path: [],
           });
         }
       })
-      .meta({ hint: `Must be different from '${comparisonVariable.name}'.` });
+      .meta({ hint: `Must be different from '${displayName}'.` });
   };
 
 /**
@@ -278,25 +280,25 @@ const differentFrom: ValidationFunction<string> =
 const sameAs: ValidationFunction<string> =
   (attribute, context) => (formValues) => {
     invariant(
-      context,
-      'Validation context must be provided when using sameAs validation',
-    );
-
-    invariant(
       typeof attribute === 'string',
       'Attribute must be specified for sameAs validation',
     );
 
-    const { stageSubject, codebook } = context;
-
-    // Get the codebook definition for the variable we are comparing to
-    const comparisonVariable = getVariableDefinition(
-      codebook,
-      stageSubject,
-      attribute,
-    );
-
-    invariant(comparisonVariable, 'Comparison variable not found in codebook');
+    // Resolve the display name - use codebook name if context available, otherwise use attribute
+    let displayName = attribute;
+    if (context) {
+      const { stageSubject, codebook } = context;
+      const comparisonVariable = getVariableDefinition(
+        codebook,
+        stageSubject,
+        attribute,
+      );
+      invariant(
+        comparisonVariable,
+        'Comparison variable not found in codebook',
+      );
+      displayName = comparisonVariable.name;
+    }
 
     return z
       .unknown()
@@ -308,68 +310,68 @@ const sameAs: ValidationFunction<string> =
         if (!isMatchingValue(value, formValues[attribute])) {
           ctx.addIssue({
             code: 'custom',
-            message: `Your answer must be the same as '${comparisonVariable.name}'.`,
+            message: `Your answer must be the same as '${displayName}'.`,
             path: [],
           });
         }
       })
-      .meta({ hint: `Must match the value of '${comparisonVariable.name}'.` });
+      .meta({ hint: `Must match the value of '${displayName}'.` });
   };
 
 /**
  * Require that a value be greater than another variable in the same form
  */
-const greaterThanVariable: ValidationFunction<string> =
-  (attribute, context) => (formValues) => {
-    invariant(
-      typeof attribute === 'string',
-      'Attribute must be specified for greaterThanVariable validation',
-    );
+const greaterThanVariable: ValidationFunction<{
+  attribute: string;
+  type: Variable['type'];
+}> = (parameter, context) => (formValues) => {
+  const { attribute, type } = parameter;
 
-    invariant(
-      context,
-      'Validation context must be provided when using greaterThanVariable validation',
-    );
+  invariant(
+    typeof attribute === 'string',
+    'Attribute must be specified for greaterThanVariable validation',
+  );
 
+  invariant(
+    typeof type === 'string',
+    'Type must be specified for greaterThanVariable validation',
+  );
+
+  // Resolve the display name - use codebook name if context available, otherwise use attribute
+  let displayName = attribute;
+  if (context) {
     const { stageSubject, codebook } = context;
-
-    // Get the codebook definition for the variable we are comparing to
     const comparisonVariable = getVariableDefinition(
       codebook,
       stageSubject,
       attribute,
     );
-
     invariant(comparisonVariable, 'Comparison variable not found in codebook');
+    displayName = comparisonVariable.name;
+  }
 
-    return z
-      .unknown()
-      .superRefine((value, ctx) => {
-        // Only validate if the comparison attribute exists in formValues
-        if (!(attribute in formValues)) {
-          return;
-        }
-        if (
-          compareVariables(
-            value,
-            formValues[attribute],
-            comparisonVariable.type,
-          ) < 0
-        ) {
-          ctx.addIssue({
-            code: 'too_small',
-            minimum: Number(formValues[attribute]),
-            inclusive: false,
-            origin: comparisonVariable.type === 'datetime' ? 'date' : 'number',
-            message: `Your answer must be greater than the value of '${comparisonVariable.name}'.`,
-            path: [],
-          });
-        }
-      })
-      .meta({
-        hint: `Must be greater than the value of '${comparisonVariable.name}'.`,
-      });
-  };
+  return z
+    .unknown()
+    .superRefine((value, ctx) => {
+      // Only validate if the comparison attribute exists in formValues
+      if (!(attribute in formValues)) {
+        return;
+      }
+      if (compareVariables(value, formValues[attribute], type) < 0) {
+        ctx.addIssue({
+          code: 'too_small',
+          minimum: Number(formValues[attribute]),
+          inclusive: false,
+          origin: type === 'datetime' ? 'date' : 'number',
+          message: `Your answer must be greater than the value of '${displayName}'.`,
+          path: [],
+        });
+      }
+    })
+    .meta({
+      hint: `Must be greater than the value of '${displayName}'.`,
+    });
+};
 
 /**
  * Require that a value matches a pattern. Designed to mirror the 'pattern'
@@ -397,57 +399,58 @@ const pattern: ValidationFunction<{
 /**
  * Require that a value be less than another variable in the same form
  */
-const lessThanVariable: ValidationFunction<string> =
-  (attribute, context) => (formValues) => {
-    invariant(
-      context,
-      'Validation context must be provided when using lessThanVariable validation',
-    );
+const lessThanVariable: ValidationFunction<{
+  attribute: string;
+  type: Variable['type'];
+}> = (parameter, context) => (formValues) => {
+  const { attribute, type } = parameter;
+
+  invariant(
+    typeof attribute === 'string',
+    'Attribute must be specified for lessThanVariable validation',
+  );
+
+  invariant(
+    typeof type === 'string',
+    'Type must be specified for lessThanVariable validation',
+  );
+
+  // Resolve the display name - use codebook name if context available, otherwise use attribute
+  let displayName = attribute;
+  if (context) {
     const { stageSubject, codebook } = context;
-
-    invariant(
-      typeof attribute === 'string',
-      'Attribute must be specified for lessThanVariable validation',
-    );
-
-    // Get the codebook definition for the variable we are comparing to
     const comparisonVariable = getVariableDefinition(
       codebook,
       stageSubject,
       attribute,
     );
-
     invariant(comparisonVariable, 'Comparison variable not found in codebook');
+    displayName = comparisonVariable.name;
+  }
 
-    return z
-      .unknown()
-      .superRefine((value, ctx) => {
-        // Only validate if the comparison attribute exists in formValues
-        if (!(attribute in formValues)) {
-          return;
-        }
+  return z
+    .unknown()
+    .superRefine((value, ctx) => {
+      // Only validate if the comparison attribute exists in formValues
+      if (!(attribute in formValues)) {
+        return;
+      }
 
-        if (
-          compareVariables(
-            value,
-            formValues[attribute],
-            comparisonVariable.type,
-          ) > 0
-        ) {
-          ctx.addIssue({
-            code: 'too_big',
-            maximum: Number(formValues[attribute]),
-            inclusive: false,
-            origin: comparisonVariable.type === 'datetime' ? 'date' : 'number',
-            message: `Your answer must be less than the value of '${comparisonVariable.name}'.`,
-            path: [],
-          });
-        }
-      })
-      .meta({
-        hint: `Must be less than the value of '${comparisonVariable.name}'.`,
-      });
-  };
+      if (compareVariables(value, formValues[attribute], type) > 0) {
+        ctx.addIssue({
+          code: 'too_big',
+          maximum: Number(formValues[attribute]),
+          inclusive: false,
+          origin: type === 'datetime' ? 'date' : 'number',
+          message: `Your answer must be less than the value of '${displayName}'.`,
+          path: [],
+        });
+      }
+    })
+    .meta({
+      hint: `Must be less than the value of '${displayName}'.`,
+    });
+};
 
 const email = () => () => {
   const hint = 'Must be a valid email address.';

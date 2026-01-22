@@ -26,13 +26,11 @@ export default function SettingsCard({
   return (
     <Surface
       id={id}
-      spacing="sm"
       className={cx(
-        'w-3xl scroll-mt-32',
+        'w-full max-w-3xl scroll-mt-32',
         controlArea && 'flex gap-10',
         className,
-        variant === 'destructive' &&
-          'border-destructive bg-destructive/5 text-destructive border',
+        variant === 'destructive' && 'border-destructive border',
       )}
       maxWidth="none"
       baseSize="content"

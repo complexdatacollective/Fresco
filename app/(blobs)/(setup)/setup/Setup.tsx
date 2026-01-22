@@ -44,8 +44,11 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
     },
   ];
 
-  const cardClasses = cx(containerClasses, 'flex-row bg-transparent p-0 gap-6');
-  const mainClasses = cx('bg-white flex w-full p-12 rounded-xl');
+  const cardClasses = cx(
+    containerClasses,
+    'flex flex-row gap-6 bg-transparent p-0',
+  );
+  const mainClasses = cx('flex w-full rounded bg-white p-12');
 
   useEffect(() => {
     if (!setupData.hasAuth && step > 1) {

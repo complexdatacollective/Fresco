@@ -14,7 +14,7 @@ function ManageParticipants({
   limitInterviews: boolean;
 }) {
   return (
-    <div className="max-w-[30rem]">
+    <div className="max-w-[40rem]">
       <div className="mb-6">
         <Heading level="h2">Configure Participation</Heading>
         <Paragraph>
@@ -28,6 +28,7 @@ function ManageParticipants({
         <SettingsCard
           title="Import Participants"
           controlArea={<ImportCSVModal />}
+          className="bg-surface-1 text-surface-1-contrast"
         >
           <Paragraph>Upload a CSV file of participants.</Paragraph>
         </SettingsCard>
@@ -38,6 +39,7 @@ function ManageParticipants({
               allowAnonymousRecruitment={allowAnonymousRecruitment}
             />
           }
+          className="bg-surface-1 text-surface-1-contrast"
         >
           <Paragraph>
             Allow participants to join your study by visiting a URL.
@@ -48,6 +50,7 @@ function ManageParticipants({
           controlArea={
             <LimitInterviewsSwitchClient limitInterviews={limitInterviews} />
           }
+          className="bg-surface-1 text-surface-1-contrast"
         >
           <Paragraph>
             Limit each participant to being allowed to complete one interview

@@ -103,6 +103,8 @@ export function makeValidationFunction(props: Record<string, unknown>) {
             });
           }
         } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error('Error while validating:', error);
           ctx.addIssue({
             code: 'custom',
             message: 'An error occurred while validating.',
