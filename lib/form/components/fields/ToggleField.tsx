@@ -146,6 +146,7 @@ export default function ToggleField(props: ToggleFieldProps) {
       onBlur={onBlur}
       id={id}
       name={name}
+      nativeButton
       render={
         <motion.button
           className={toggleContainerVariants({

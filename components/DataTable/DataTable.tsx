@@ -13,14 +13,7 @@ import {
   type SortingState,
   type Table as TTable,
 } from '@tanstack/react-table';
-import {
-  ChevronLeft,
-  ChevronRight,
-  FileUp,
-  Loader,
-  Search,
-  Trash,
-} from 'lucide-react';
+import { FileUp, Loader, Search, Trash } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { makeDefaultColumns } from '~/components/DataTable/DefaultColumns';
@@ -34,9 +27,8 @@ import {
   TableRow,
 } from '~/components/ui/table';
 import InputField from '~/lib/form/components/fields/InputField';
-import ResponsiveContainer from '../layout/ResponsiveContainer';
 import { MotionSurface } from '../layout/Surface';
-import Heading from '../typography/Heading';
+import { DataTablePagination } from './Pagination';
 
 type CustomTable<TData> = TTable<TData> & {
   options?: {
@@ -165,33 +157,29 @@ export function DataTable<TData, TValue>({
   }, [handleExportSelected, table, setRowSelection]);
 
   return (
-    <>
-      <ResponsiveContainer>
-        {(filterColumnAccessorKey || headerItems) && (
-          <div className="flex items-center gap-2 pt-1 pb-4">
-            {filterColumnAccessorKey && (
-              <InputField
-                type="search"
-                prefixComponent={<Search />}
-                name="filter"
-                placeholder={`Filter by ${filterColumnAccessorKey}...`}
-                value={
-                  (table
-                    .getColumn(filterColumnAccessorKey)
-                    ?.getFilterValue() as string) ?? ''
-                }
-                onChange={(value) =>
-                  table
-                    .getColumn(filterColumnAccessorKey)
-                    ?.setFilterValue(value)
-                }
-                className="mt-0"
-              />
-            )}
-            {headerItems}
-          </div>
-        )}
-      </ResponsiveContainer>
+    <div className="flex flex-col gap-6">
+      {(filterColumnAccessorKey || headerItems) && (
+        <div className="mx-auto flex max-w-6xl items-center gap-2">
+          {filterColumnAccessorKey && (
+            <InputField
+              type="search"
+              prefixComponent={<Search />}
+              name="filter"
+              placeholder={`Filter by ${filterColumnAccessorKey}...`}
+              value={
+                (table
+                  .getColumn(filterColumnAccessorKey)
+                  ?.getFilterValue() as string) ?? ''
+              }
+              onChange={(value) =>
+                table.getColumn(filterColumnAccessorKey)?.setFilterValue(value)
+              }
+              className="mt-0 w-fit shrink-0"
+            />
+          )}
+          {headerItems}
+        </div>
+      )}
 
       <Table>
         <TableHeader>
@@ -237,32 +225,7 @@ export function DataTable<TData, TValue>({
         </TableBody>
       </Table>
       <div>
-        <div className="mx-auto flex max-w-6xl justify-between py-4">
-          <div className="text-sm text-current/70">
-            {table.getFilteredSelectedRowModel().rows.length} of{' '}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
-          </div>
-          <div className="flex space-x-2">
-            <Button
-              variant="text"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <ChevronLeft />
-              Previous
-            </Button>
-            <Button
-              variant="text"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              Next
-              <ChevronRight />
-            </Button>
-          </div>
-        </div>
+        <DataTablePagination table={table} />
 
         {/**
          * TODO: This is garbage.
@@ -283,9 +246,6 @@ export function DataTable<TData, TValue>({
                 }
                 spacing="sm"
               >
-                <Heading level="h4" className="shrink-0" margin="none">
-                  With selected:
-                </Heading>
                 <Button
                   onClick={() => void deleteHandler()}
                   color="destructive"
@@ -315,6 +275,6 @@ export function DataTable<TData, TValue>({
             document.body,
           )}
       </div>
-    </>
+    </div>
   );
 }

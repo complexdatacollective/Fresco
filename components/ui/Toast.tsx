@@ -11,8 +11,6 @@ import Heading from '../typography/Heading';
 import Paragraph from '../typography/Paragraph';
 import CloseButton from './CloseButton';
 
-export const ToastProvider = Toast.Provider;
-
 const toastVariants = cva({
   base: 'border bg-clip-padding',
   variants: {
@@ -42,16 +40,19 @@ const variantIcons: Record<ToastVariant, LucideIcon | null> = {
 
 type ToastData = {
   title: string;
-  description?: string;
+  description?: string | React.ReactNode;
   variant?: ToastVariant;
+  icon?: React.ReactNode;
+  type?: ToastVariant;
+  timeout?: number;
 };
 
 type ToastItemProps = {
-  toast: ToastObject<{ icon: string }> & { type?: ToastVariant };
+  toast: ToastObject<{ variant?: ToastVariant }>;
 };
 
 function ToastItem({ toast }: ToastItemProps) {
-  const variant = toast.type ?? 'default';
+  const variant = toast.data?.variant ?? 'default';
   const IconComponent = variantIcons[variant];
 
   return (
@@ -95,18 +96,22 @@ function ToastItem({ toast }: ToastItemProps) {
   );
 }
 
-type TypedUseToastManager = UseToastManagerReturnValue & {
-  add: (
-    data: ToastData & {
-      type?: ToastVariant;
-    },
-  ) => void;
+type TypedUseToastManager = Omit<UseToastManagerReturnValue, 'add'> & {
+  add: (data: ToastData) => void;
+  toast: (data: ToastData) => void;
 };
 
 export function useToast(): TypedUseToastManager {
   const toastManager = Toast.useToastManager();
 
-  return toastManager as TypedUseToastManager;
+  const toast = (data: ToastData) => {
+    toastManager.add(data);
+  };
+
+  return {
+    ...toastManager,
+    toast,
+  } as TypedUseToastManager;
 }
 
 export function Toaster() {

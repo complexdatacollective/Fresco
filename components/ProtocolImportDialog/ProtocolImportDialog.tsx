@@ -153,7 +153,7 @@ export default function ProtocolImportDialog() {
                       )}
                     </div>
                   </div>
-                  <BaseDialog.Close render={<CloseButton />} />
+                  <BaseDialog.Close nativeButton render={<CloseButton />} />
                 </div>
               </DialogHeading>
             )}

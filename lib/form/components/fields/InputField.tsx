@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { type ReactNode } from 'react';
+import { forwardRef, type ReactNode } from 'react';
 import {
   controlVariants,
   heightVariants,
@@ -56,43 +56,50 @@ type InputFieldProps = CreateFormFieldProps<
     size?: VariantProps<typeof textSizeVariants>['size'];
     prefixComponent?: ReactNode;
     suffixComponent?: ReactNode;
+    layout?: 'position' | 'size' | false;
   }
 >;
 
-export default function InputField(props: InputFieldProps) {
-  const {
-    prefixComponent: prefix,
-    suffixComponent: suffix,
-    size = 'md',
-    className,
-    value,
-    onChange,
-    type = 'text',
-    disabled,
-    readOnly,
-    ...inputProps
-  } = props;
+const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
+  function InputField(props, ref) {
+    const {
+      prefixComponent: prefix,
+      suffixComponent: suffix,
+      size = 'md',
+      className,
+      value,
+      onChange,
+      type = 'text',
+      disabled,
+      readOnly,
+      layout = 'position',
+      ...inputProps
+    } = props;
 
-  return (
-    <motion.div
-      layout="position"
-      className={cx(
-        inputWrapperVariants({ size, state: getInputState(props) }),
-        className,
-      )}
-    >
-      {prefix}
-      <input
-        autoComplete="off" // Default to off to avoid browser autofill styles
-        className={inputVariants({ className })}
-        type={type}
-        {...inputProps}
-        onChange={(e) => onChange?.(e.target.value)}
-        value={value ?? ''}
-        disabled={disabled}
-        readOnly={readOnly}
-      />
-      {suffix}
-    </motion.div>
-  );
-}
+    return (
+      <motion.div
+        layout={layout}
+        className={cx(
+          inputWrapperVariants({ size, state: getInputState(props) }),
+          className,
+        )}
+      >
+        {prefix}
+        <input
+          ref={ref}
+          autoComplete="off" // Default to off to avoid browser autofill styles
+          className={inputVariants({ className })}
+          type={type}
+          {...inputProps}
+          onChange={(e) => onChange?.(e.target.value)}
+          value={value ?? ''}
+          disabled={disabled}
+          readOnly={readOnly}
+        />
+        {suffix}
+      </motion.div>
+    );
+  },
+);
+
+export default InputField;

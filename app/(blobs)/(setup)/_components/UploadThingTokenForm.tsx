@@ -11,7 +11,6 @@ export const UploadThingTokenForm = () => {
   const handleSubmit = async (data: unknown) => {
     const typedData = data as { uploadThingToken: string };
 
-    console.log('Submitting UploadThing token:', typedData.uploadThingToken);
     await setAppSetting('uploadThingToken', typedData.uploadThingToken);
     return {
       success: true,

@@ -77,13 +77,13 @@ export default function PassphrasePrompter() {
                     transition={transition}
                     style={{ willChange }}
                     onClick={() => setShowPassphraseOverlay(true)}
-                  />
+                  >
+                    <motion.span className="animate-shake scale-90 text-4xl transition-transform group-hover:scale-100">
+                      {passphraseInvalid ? '⚠️' : '🔑'}
+                    </motion.span>
+                  </motion.button>
                 }
-              >
-                <motion.span className="animate-shake scale-90 text-4xl transition-transform group-hover:scale-100">
-                  {passphraseInvalid ? '⚠️' : '🔑'}
-                </motion.span>
-              </Tooltip.Trigger>
+              />
             )}
           </AnimatePresence>
           <Tooltip.Portal>

@@ -43,6 +43,7 @@ export const ActionsDropdown = ({
               variant="text"
               aria-label="Open menu"
               icon={<MoreHorizontal />}
+              size="sm"
             />
           }
           nativeButton

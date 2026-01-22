@@ -31,6 +31,10 @@ export const activityTypes = [
   'API Token Updated',
   'API Token Deleted',
   'Preview Mode',
+  'User Login',
+  'User Created',
+  'User Deleted',
+  'Password Changed',
 ] as const;
 
 export type ActivityType = (typeof activityTypes)[number];

@@ -1,4 +1,3 @@
-import type { Participant } from '~/lib/db/generated/client';
 import type { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 import { useState } from 'react';
@@ -12,6 +11,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
+import type { Participant } from '~/lib/db/generated/client';
 import type { ParticipantWithInterviews } from './ParticipantsTableClient';
 
 export const ActionsDropdown = ({
@@ -48,6 +48,7 @@ export const ActionsDropdown = ({
               variant="text"
               aria-label="Open menu"
               icon={<MoreHorizontal />}
+              size="sm"
             />
           }
         />

@@ -31,6 +31,7 @@ export default function SettingsCard({
         controlArea && 'flex gap-10',
         className,
         variant === 'destructive' && 'border-destructive border',
+        'tablet:flex-row flex-col',
       )}
       maxWidth="none"
       baseSize="content"
@@ -71,7 +72,16 @@ export function SettingsCardSkeleton({
 }) {
   if (hasControlArea) {
     return (
-      <Surface spacing="sm" className={cx('flex gap-10', className)}>
+      <Surface
+        className={cx(
+          'w-full max-w-3xl scroll-mt-32',
+          className,
+          'tablet:flex-row flex-col',
+        )}
+        maxWidth="none"
+        baseSize="content"
+        noContainer
+      >
         <div className="flex-1 space-y-2">
           <Skeleton className="h-5 w-1/3" />
           <Skeleton className="h-4 w-3/4" />
@@ -84,7 +94,16 @@ export function SettingsCardSkeleton({
   }
 
   return (
-    <Surface spacing="sm" className={className}>
+    <Surface
+      className={cx(
+        'w-full max-w-3xl scroll-mt-32',
+        className,
+        'tablet:flex-row flex-col',
+      )}
+      maxWidth="none"
+      baseSize="content"
+      noContainer
+    >
       <Skeleton className="mb-4 h-5 w-32" />
       <div className="divide-y divide-current/10">
         {Array.from({ length: rows }).map((_, i) => (

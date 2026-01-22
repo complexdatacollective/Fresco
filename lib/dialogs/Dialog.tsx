@@ -83,7 +83,7 @@ export default function Dialog({
               className="flex items-center justify-between gap-2"
               {...props}
             >
-              {title} <BaseDialog.Close render={<CloseButton />} />
+              {title} <BaseDialog.Close nativeButton render={<CloseButton />} />
             </DialogHeading>
           )}
         />

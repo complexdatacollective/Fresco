@@ -135,7 +135,7 @@ export function DataTable<TData, TValue>({
           )}
         </TableBody>
       </Table>
-      <div className="space-y-2.5 overflow-visible">
+      <div className="mx-auto w-fit space-y-2.5 overflow-visible">
         <DataTablePagination table={dataTable} />
         {floatingBarContent ? (
           <DataTableFloatingBar table={dataTable}>

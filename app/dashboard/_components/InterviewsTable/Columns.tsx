@@ -45,18 +45,14 @@ export const InterviewColumns = (): ColumnDef<
         <div className="flex items-center gap-2">
           <DataTableColumnHeader
             column={column}
-            title={
-              <span className="flex gap-2">
-                <Image
-                  src="/images/participant.svg"
-                  alt="Participant icon"
-                  className="h-[24px] w-[24px]"
-                  width={24}
-                  height={24}
-                />
-                Participant Identifier
-              </span>
-            }
+            title="Participant Identifier"
+          />
+          <Image
+            src="/images/participant.svg"
+            alt="Participant icon"
+            className="h-[24px] w-[24px]"
+            width={24}
+            height={24}
           />
         </div>
       );
@@ -82,20 +78,13 @@ export const InterviewColumns = (): ColumnDef<
     header: ({ column }) => {
       return (
         <div className="flex items-center gap-2">
-          <DataTableColumnHeader
-            column={column}
-            title={
-              <span className="flex gap-2">
-                <Image
-                  src="/images/protocol-icon.png"
-                  alt="Protocol icon"
-                  className="h-[24px] w-[24px]"
-                  width={24}
-                  height={24}
-                />
-                Protocol Name
-              </span>
-            }
+          <DataTableColumnHeader column={column} title="Protocol Name" />
+          <Image
+            src="/images/protocol-icon.png"
+            alt="Protocol icon"
+            className="h-[24px] w-[24px]"
+            width={24}
+            height={24}
           />
         </div>
       );

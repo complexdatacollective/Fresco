@@ -17,8 +17,11 @@ type DataTablePaginationProps<TData> = {
 export function DataTablePagination<TData>({
   table,
 }: DataTablePaginationProps<TData>) {
+  const pageCount = table.getPageCount();
+  const showPageCount = pageCount > 0;
+
   return (
-    <div className="tablet:flex-row tablet:gap-6 laptop:gap-8 flex grow flex-col items-center justify-between gap-4">
+    <div className="tablet:flex-row tablet:gap-6 laptop:gap-8 flex flex-col items-center justify-between gap-4">
       <div className="flex items-center space-x-2">
         <Paragraph
           intent="smallText"
@@ -41,10 +44,11 @@ export function DataTablePagination<TData>({
           placeholder={table.getState().pagination.pageSize.toLocaleString()}
         />
       </div>
-      <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-        Page {table.getState().pagination.pageIndex + 1} of{' '}
-        {table.getPageCount()}
-      </div>
+      {showPageCount && (
+        <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+          Page {table.getState().pagination.pageIndex + 1} of {pageCount}
+        </div>
+      )}
       <div className="flex items-center space-x-2">
         <Button
           aria-label="Go to first page"

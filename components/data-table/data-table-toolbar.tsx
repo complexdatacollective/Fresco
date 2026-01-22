@@ -37,7 +37,7 @@ export function DataTableToolbar<TData>({
   }
 
   return (
-    <div className="flex w-full items-center justify-between">
+    <div className="mx-auto flex w-fit items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
         {searchableColumns.length > 0 &&
           searchableColumns.map(
@@ -55,11 +55,9 @@ export function DataTableToolbar<TData>({
                       ?.getFilterValue() as string) ?? ''
                   }
                   onChange={(value) =>
-                    table
-                      .getColumn(String(column.id))
-                      ?.setFilterValue(value)
+                    table.getColumn(String(column.id))?.setFilterValue(value)
                   }
-                  className="max-w-sm"
+                  // className="w-fit"
                 />
               ),
           )}
@@ -81,7 +79,7 @@ export function DataTableToolbar<TData>({
             onClick={() => table.resetColumnFilters()}
             icon={<X className="size-4" aria-hidden="true" />}
           >
-            Reset
+            Clear Filters
           </Button>
         )}
       </div>

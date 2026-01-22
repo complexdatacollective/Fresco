@@ -43,6 +43,7 @@ function ExportCSVInterviewURLs({
       // Clean up the URL object
       URL.revokeObjectURL(url);
       add({
+        title: 'Success',
         description: 'Incomplete interview URLs CSV exported successfully',
         type: 'success',
       });

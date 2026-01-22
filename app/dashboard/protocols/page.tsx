@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import PageHeader from '~/components/typography/PageHeader';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
@@ -18,7 +19,9 @@ export default async function ProtocolsPage() {
       <Suspense fallback={null}>
         <UpdateUploadThingTokenAlert />
       </Suspense>
-      <ProtocolsTable />
+      <ResponsiveContainer maxWidth="6xl" baseSize="content" container={false}>
+        <ProtocolsTable />
+      </ResponsiveContainer>
     </>
   );
 }

@@ -8,14 +8,14 @@ import { prisma } from '~/lib/db';
 import { getUTApi } from '~/lib/uploadthing/server-helpers';
 import { requireApiAuth } from '~/utils/auth';
 
-export const resetAppSettings = async () => {
+export const resetAppSettings = async (): Promise<void> => {
   if (env.NODE_ENV !== 'development') {
     await requireApiAuth();
   }
 
   try {
     // Delete all data:
-    const result = await Promise.all([
+    await Promise.all([
       prisma.user.deleteMany(), // Deleting a user will cascade to Session and Key
       prisma.participant.deleteMany(),
       prisma.protocol.deleteMany(), // Deleting protocol will cascade to Interviews

@@ -24,6 +24,7 @@ import {
   getInstallationId,
   requireAppNotExpired,
 } from '~/queries/appSettings';
+import { getUsers } from '~/queries/users';
 import { requirePageAuth } from '~/utils/auth';
 import AnalyticsButton from '../_components/AnalyticsButton';
 import RecruitmentTestSectionServer from '../_components/RecruitmentTestSectionServer';
@@ -31,11 +32,13 @@ import ResetButton from '../_components/ResetButton';
 import UpdateUploadThingTokenAlert from '../_components/UpdateUploadThingTokenAlert';
 import UpdateInstallationId from './_components/UpdateInstallationId';
 import UpdateUploadThingToken from './_components/UpdateUploadThingToken';
+import UserManagement from './_components/UserManagement';
 import ReadOnlyEnvAlert from './ReadOnlyEnvAlert';
 
 function getSettingsSections(): SettingsSection[] {
   const sections: SettingsSection[] = [
     { id: 'app-version', title: 'App Version' },
+    { id: 'user-management', title: 'User Management' },
     { id: 'configuration', title: 'Configuration' },
     { id: 'interview-settings', title: 'Interview Settings' },
     { id: 'privacy', title: 'Privacy' },
@@ -58,11 +61,12 @@ function getSettingsSections(): SettingsSection[] {
 
 export default async function Settings() {
   await requireAppNotExpired();
-  await requirePageAuth();
+  const session = await requirePageAuth();
 
   const installationId = await getInstallationId();
   const uploadThingKey = await getAppSetting('uploadThingToken');
   const apiTokens = env.PREVIEW_MODE ? await getApiTokens() : [];
+  const users = await getUsers();
   const sections = getSettingsSections();
 
   return (
@@ -78,6 +82,14 @@ export default async function Settings() {
             <Suspense fallback={<VersionSectionSkeleton />}>
               <VersionSection />
             </Suspense>
+
+            <SettingsCard id="user-management" title="User Management">
+              <UserManagement
+                users={users}
+                currentUserId={session.user.userId}
+                currentUsername={session.user.username}
+              />
+            </SettingsCard>
 
             <SettingsCard
               id="configuration"

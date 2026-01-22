@@ -10,13 +10,13 @@ export default async function InterviewPage() {
 
   return (
     <>
-      <ResponsiveContainer>
-        <PageHeader
-          headerText="Interviews"
-          subHeaderText="View and manage your interview data."
-        />
+      <PageHeader
+        headerText="Interviews"
+        subHeaderText="View and manage your interview data."
+      />
+      <ResponsiveContainer maxWidth="full" baseSize="content" container={false}>
+        <InterviewsTableServer />
       </ResponsiveContainer>
-      <InterviewsTableServer />
     </>
   );
 }

@@ -46,7 +46,7 @@ export default async function Home({
           to keep track of new protocols, interviews, and participants.
         </Paragraph>
       </ResponsiveContainer>
-      <ResponsiveContainer maxWidth="6xl">
+      <ResponsiveContainer maxWidth="4xl" baseSize="100%" container={false}>
         <ActivityFeed />
       </ResponsiveContainer>
     </>

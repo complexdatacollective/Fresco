@@ -1,6 +1,5 @@
 'use client';
 
-import type { Interview } from '~/lib/db/generated/client';
 import type { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
@@ -17,6 +16,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
+import type { Interview } from '~/lib/db/generated/client';
 
 export const ActionsDropdown = ({ row }: { row: Row<Interview> }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -58,6 +58,7 @@ export const ActionsDropdown = ({ row }: { row: Row<Interview> }) => {
               variant="text"
               aria-label="Open menu"
               icon={<MoreHorizontal />}
+              size="sm"
             />
           }
         />

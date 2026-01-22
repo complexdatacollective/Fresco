@@ -2,6 +2,7 @@ import addonA11y from '@storybook/addon-a11y';
 import addonDocs from '@storybook/addon-docs';
 import addonVitest from '@storybook/addon-vitest';
 import { definePreview } from '@storybook/nextjs-vite';
+import { StrictMode } from 'react';
 import Providers from '../components/Providers';
 import '../styles/globals.css';
 import { getInitialTheme, globalTypes, withTheme } from './theme-switcher';
@@ -57,14 +58,17 @@ export default definePreview({
 
   decorators: [
     (Story) => (
-      /**
-       * required by base-ui: https://base-ui.com/react/overview/quick-start#portals
-       */
-      <div className="root h-screen">
-        <Providers>
-          <Story />
-        </Providers>
-      </div>
+      // nextjs-vite doesn't seem to pick up the strict mode setting from next config
+      <StrictMode>
+        {/**
+         * required by base-ui: https://base-ui.com/react/overview/quick-start#portals
+         */}
+        <div className="root h-screen">
+          <Providers>
+            <Story />
+          </Providers>
+        </div>
+      </StrictMode>
     ),
     withTheme,
   ],

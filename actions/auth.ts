@@ -8,6 +8,7 @@ import { type FormSubmissionResult } from '~/lib/form/store/types';
 import { createUserFormDataSchema, loginSchema } from '~/schemas/auth';
 import { auth, getServerSession } from '~/utils/auth';
 import { prisma } from '~/lib/db';
+import { addEvent } from './activityFeed';
 
 export async function signup(formData: unknown) {
   const parsedFormData = createUserFormDataSchema.safeParse(formData);
@@ -123,6 +124,8 @@ export const login = async (data: unknown): Promise<FormSubmissionResult> => {
     sessionCookie.value,
     sessionCookie.attributes,
   );
+
+  void addEvent('User Login', `User ${username} logged in`);
 
   return {
     success: true,

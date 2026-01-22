@@ -2,7 +2,6 @@
 import { FileUp } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { useState } from 'react';
-import { type FormSubmitHandler } from 'redux-form';
 import type { ParticipantWithInterviews } from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTableClient';
 import type { ProtocolWithInterviews } from '~/app/dashboard/_components/ProtocolsTable/ProtocolsTableClient';
 import { Button } from '~/components/ui/Button';
@@ -15,6 +14,7 @@ import SelectField from '~/lib/form/components/fields/Select/Native';
 import Form from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
+import { type FormSubmitHandler } from '~/lib/form/store/types';
 
 export const GenerateParticipantURLs = ({
   protocols,
@@ -33,12 +33,13 @@ export const GenerateParticipantURLs = ({
 
   const { openDialog } = useDialog();
 
-  const handleSubmit: FormSubmitHandler = (data: {
-    protocol: string;
-    participants: string[];
-  }) => {
+  const handleSubmit: FormSubmitHandler = (data: unknown) => {
+    const typedData = data as {
+      protocol: string;
+      participants: string[];
+    };
     try {
-      const { protocol: protocolId, participants: participantIds } = data;
+      const { protocol: protocolId, participants: participantIds } = typedData;
 
       // CSV file format
       const csvData = participants
@@ -65,6 +66,7 @@ export const GenerateParticipantURLs = ({
 
       // Close dialog
       setOpen(false);
+      return { success: true };
     } catch (error) {
       // Show error dialog.
       void openDialog({
@@ -76,6 +78,7 @@ export const GenerateParticipantURLs = ({
           primary: { label: 'OK', value: true },
         },
       });
+      return { success: false };
     }
   };
 

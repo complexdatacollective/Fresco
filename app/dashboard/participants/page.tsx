@@ -11,14 +11,12 @@ export default async function ParticipantPage() {
 
   return (
     <>
-      <ResponsiveContainer>
-        <PageHeader
-          headerText="Participants"
-          subHeaderText="View and manage your participants."
-        />
-      </ResponsiveContainer>
+      <PageHeader
+        headerText="Participants"
+        subHeaderText="View and manage your participants."
+      />
       <ImportExportSection />
-      <ResponsiveContainer maxWidth="6xl">
+      <ResponsiveContainer maxWidth="6xl" baseSize="content" container={false}>
         <ParticipantsTable />
       </ResponsiveContainer>
     </>

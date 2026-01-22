@@ -4,18 +4,24 @@ import Surface from '../layout/Surface';
 
 const Table = React.forwardRef<
   HTMLTableElement,
-  React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => (
+  React.HTMLAttributes<HTMLTableElement> & {
+    surfaceProps?: React.ComponentProps<typeof Surface>;
+  }
+>(({ className, surfaceProps, ...props }, ref) => (
   <Surface
     maxWidth="none"
     spacing="none"
+    {...surfaceProps}
+    className={cx(
+      'mx-auto w-full max-w-full overflow-x-auto rounded',
+      surfaceProps?.className,
+    )}
     noContainer
-    className="mx-auto w-fit max-w-full overflow-x-auto rounded-lg"
   >
-    <div className="max-w-full overflow-x-auto">
+    <div className="w-full max-w-full overflow-x-auto">
       <table
         ref={ref}
-        className={cx('caption-bottom border-collapse', className)}
+        className={cx('w-full caption-bottom border-collapse', className)}
         {...props}
       />
     </div>

@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import { setAppSetting } from '~/actions/appSettings';
 import { UploadThingTokenForm } from '~/app/(blobs)/(setup)/_components/UploadThingTokenForm';
 import Paragraph from '~/components/typography/Paragraph';
 import Link from '~/components/ui/Link';
@@ -49,9 +48,7 @@ function UploadThingModal() {
           continue&quot;.
         </li>
       </ol>
-      <UploadThingTokenForm
-        action={(token) => setAppSetting('uploadThingToken', token)}
-      />
+      <UploadThingTokenForm />
     </Dialog>
   );
 }
