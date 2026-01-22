@@ -10,6 +10,7 @@ import { MotionSurface } from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import { Spinner } from '~/lib/legacy-ui/components';
 import { cx } from '~/utils/cva';
+import { MobileNavDrawer } from './MobileNavDrawer';
 import UserMenu from './UserMenu';
 
 const NavButton = ({
@@ -62,13 +63,13 @@ export function NavigationBar() {
           <Spinner size="sm" animationMode="hover" playOnMount />
           <Heading
             level="h4"
-            className="tablet:block hidden font-extrabold"
+            className="laptop:block hidden font-extrabold"
             margin="none"
           >
             Fresco
           </Heading>
         </Link>
-        <ul className="flex items-center gap-10">
+        <ul className="tablet:flex hidden items-center gap-10">
           <NavButton
             href="/dashboard"
             isActive={pathname === '/dashboard'}
@@ -90,19 +91,23 @@ export function NavigationBar() {
             isActive={pathname === '/dashboard/interviews'}
           />
         </ul>
-        <div className="flex items-center gap-8">
+        <div className="tablet:flex hidden items-center gap-8">
           <NavButton
             label={
               <div className="flex items-center gap-2">
                 <Settings className="inline-block" />
-                Settings
+                <span className="laptop:inline hidden">Settings</span>
               </div>
             }
             href="/dashboard/settings"
-            isActive={pathname === '/settings'}
+            isActive={pathname === '/dashboard/settings'}
           />
 
           <UserMenu />
+        </div>
+
+        <div className="tablet:hidden">
+          <MobileNavDrawer />
         </div>
       </MotionSurface>
     </div>
