@@ -8,7 +8,7 @@ import type {
 } from '@codaco/shared-consts';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useToast } from '~/components/ui/Toast-test';
+import { useToast } from '~/components/ui/Toast';
 import AddFamilyMemberForm from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/AddFamilyMemberForm';
 import { CensusForm } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/CensusForm';
 import EdgeRenderer from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/EdgeRenderer';
@@ -56,7 +56,7 @@ export const FamilyTreeShells = (props: {
   const [selectedNode, setSelectedNode] = useState<FamilyTreeNodeType | void>(
     undefined,
   );
-  const { toast } = useToast();
+  const { add } = useToast();
   const dispatch = useAppDispatch();
   const stageMetadata = useSelector(getStageMetadata);
   const [hydratedOnce, setHydratedOnce] = useState(false);
@@ -190,11 +190,11 @@ export const FamilyTreeShells = (props: {
             updateShellNode(shellId, { diseases: mergedDiseases });
           }
         } else {
-          toast({
+          add({
             title: 'Error',
             description:
               'There was an issue updating the node. Please try again.',
-            variant: 'destructive',
+            type: 'destructive',
           });
         }
       } catch (err) {
@@ -208,7 +208,7 @@ export const FamilyTreeShells = (props: {
       getShellIdByNetworkId,
       nodesMap,
       updateShellNode,
-      toast,
+      add,
     ],
   );
 

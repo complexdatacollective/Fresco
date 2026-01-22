@@ -4,7 +4,9 @@ import {
   CheckCircle,
   Clock,
   Database,
+  FileArchive,
   FileSearch,
+  Loader2,
   Package,
   RefreshCw,
   Search,
@@ -14,47 +16,78 @@ import {
   XCircle,
 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { forwardRef } from 'react';
 import {
   type ImportJob,
   type ImportPhase,
 } from '~/lib/protocol-import/protocolImportStore';
 import { cx } from '~/utils/cva';
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/Button';
+import Surface from '../layout/Surface';
+import { IconButton } from '../ui/Button';
 import { Progress } from '../ui/progress';
 
 type PhaseConfig = {
   label: string;
   icon: React.ElementType;
-  variant: 'default' | 'secondary' | 'destructive' | 'outline';
+  color: string;
+  bgColor: string;
 };
 
 const phaseConfig: Record<ImportPhase, PhaseConfig> = {
-  'queued': { label: 'Waiting...', icon: Clock, variant: 'outline' },
-  'parsing': { label: 'Reading file...', icon: FileSearch, variant: 'default' },
+  'queued': {
+    label: 'Waiting...',
+    icon: Clock,
+    color: 'text-surface-contrast/50',
+    bgColor: 'bg-surface-contrast/5',
+  },
+  'parsing': {
+    label: 'Reading file',
+    icon: FileSearch,
+    color: 'text-info',
+    bgColor: 'bg-info/10',
+  },
   'validating': {
-    label: 'Validating...',
+    label: 'Validating',
     icon: ShieldCheck,
-    variant: 'default',
+    color: 'text-info',
+    bgColor: 'bg-info/10',
   },
   'checking-duplicates': {
-    label: 'Checking duplicates...',
+    label: 'Checking duplicates',
     icon: Search,
-    variant: 'default',
+    color: 'text-info',
+    bgColor: 'bg-info/10',
   },
   'extracting-assets': {
-    label: 'Extracting assets...',
+    label: 'Extracting assets',
     icon: Package,
-    variant: 'default',
+    color: 'text-info',
+    bgColor: 'bg-info/10',
   },
   'uploading-assets': {
-    label: 'Uploading assets...',
+    label: 'Uploading assets',
     icon: Upload,
-    variant: 'default',
+    color: 'text-accent',
+    bgColor: 'bg-accent/10',
   },
-  'saving': { label: 'Saving...', icon: Database, variant: 'default' },
-  'complete': { label: 'Complete', icon: CheckCircle, variant: 'secondary' },
-  'error': { label: 'Failed', icon: XCircle, variant: 'destructive' },
+  'saving': {
+    label: 'Saving to database',
+    icon: Database,
+    color: 'text-accent',
+    bgColor: 'bg-accent/10',
+  },
+  'complete': {
+    label: 'Import complete',
+    icon: CheckCircle,
+    color: 'text-success',
+    bgColor: 'bg-success/10',
+  },
+  'error': {
+    label: 'Import failed',
+    icon: XCircle,
+    color: 'text-destructive',
+    bgColor: 'bg-destructive/10',
+  },
 };
 
 type ImportJobItemProps = {
@@ -63,93 +96,116 @@ type ImportJobItemProps = {
   onDismiss: (id: string) => void;
 };
 
-export default function ImportJobItem({
-  job,
-  onRetry,
-  onDismiss,
-}: ImportJobItemProps) {
-  const config = phaseConfig[job.phase];
-  const Icon = config.icon;
-  const isActive = job.phase !== 'complete' && job.phase !== 'error';
-  const showProgress = job.phase === 'uploading-assets';
+const ImportJobItem = forwardRef<HTMLDivElement, ImportJobItemProps>(
+  ({ job, onRetry, onDismiss }, ref) => {
+    const config = phaseConfig[job.phase];
+    const Icon = config.icon;
+    const isActive = job.phase !== 'complete' && job.phase !== 'error';
+    const showProgress = job.phase === 'uploading-assets';
 
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 10 }}
-      className={cx(
-        'border-input-contrast/10 border-b py-3 last:border-b-0',
-        job.phase === 'error' && 'bg-destructive/5',
-        job.phase === 'complete' && 'bg-success/5',
-      )}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <div className="mb-1 flex items-center gap-2">
-            <span className="truncate text-sm font-medium">{job.fileName}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge
-              variant={config.variant}
+    return (
+      <motion.div
+        ref={ref}
+        layout
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ duration: 0.2 }}
+      >
+        <Surface
+          level={1}
+          spacing="sm"
+          elevation="none"
+          noContainer
+          className={cx(
+            'mb-3 last:mb-0',
+            job.phase === 'error' && 'border-destructive/20 border',
+            job.phase === 'complete' && 'border-success/20 border',
+          )}
+        >
+          <div className="flex items-center gap-4">
+            {/* Icon indicator */}
+            <div
               className={cx(
-                'flex items-center gap-1',
-                isActive && 'animate-pulse',
+                'flex h-12 w-12 shrink-0 items-center justify-center rounded-full',
+                config.bgColor,
               )}
             >
-              <Icon className="h-3 w-3" />
-              <span>{config.label}</span>
-            </Badge>
-          </div>
-        </div>
-        {job.phase === 'error' && (
-          <div className="flex shrink-0 gap-1">
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => onRetry(job)}
-              title="Retry import"
-            >
-              <RefreshCw className="h-3 w-3" />
-              Retry
-            </Button>
-            <Button
-              variant="text"
-              size="sm"
-              onClick={() => onDismiss(job.id)}
-              title="Dismiss"
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          </div>
-        )}
-        {job.phase === 'complete' && (
-          <Button
-            variant="text"
-            size="sm"
-            onClick={() => onDismiss(job.id)}
-            title="Dismiss"
-          >
-            <X className="h-3 w-3" />
-          </Button>
-        )}
-      </div>
+              {isActive && job.phase !== 'queued' ? (
+                <Loader2 className={cx('h-6 w-6 animate-spin', config.color)} />
+              ) : (
+                <Icon className={cx('h-6 w-6', config.color)} />
+              )}
+            </div>
 
-      {showProgress && (
-        <div className="mt-2">
-          <Progress value={job.progress} className="h-2" />
-          <span className="text-surface-contrast/50 mt-1 block text-right text-xs">
-            {Math.round(job.progress)}%
-          </span>
-        </div>
-      )}
+            {/* File info and status */}
+            <div className="min-w-0 flex-1">
+              <div className="mb-1 flex items-center gap-2">
+                <FileArchive className="text-surface-contrast/30 h-4 w-4 shrink-0" />
+                <span className="truncate font-medium">{job.fileName}</span>
+              </div>
+              <div className={cx('text-sm', config.color)}>{config.label}</div>
+            </div>
 
-      {job.phase === 'error' && job.error && (
-        <div className="bg-destructive/10 text-destructive mt-2 rounded p-2 text-sm">
-          {job.error}
-        </div>
-      )}
-    </motion.div>
-  );
-}
+            {/* Actions */}
+            {job.phase === 'error' && (
+              <div className="flex shrink-0 items-center gap-2">
+                <IconButton
+                  icon={<RefreshCw className="h-4 w-4" />}
+                  aria-label="Retry import"
+                  color="primary"
+                  size="sm"
+                  onClick={() => onRetry(job)}
+                />
+                <IconButton
+                  icon={<X className="h-4 w-4" />}
+                  aria-label="Dismiss"
+                  variant="text"
+                  size="sm"
+                  onClick={() => onDismiss(job.id)}
+                />
+              </div>
+            )}
+            {job.phase === 'complete' && (
+              <IconButton
+                icon={<X className="h-4 w-4" />}
+                aria-label="Dismiss"
+                variant="text"
+                size="sm"
+                onClick={() => onDismiss(job.id)}
+              />
+            )}
+          </div>
+
+          {/* Progress bar for upload phase */}
+          {showProgress && (
+            <div className="mt-4">
+              <div className="mb-1 flex items-center justify-between text-sm">
+                <span className="text-surface-contrast/70">Uploading...</span>
+                <span className="text-accent font-medium">
+                  {Math.round(job.progress)}%
+                </span>
+              </div>
+              <Progress
+                value={job.progress}
+                className="h-2"
+                indicatorClasses="bg-accent"
+              />
+            </div>
+          )}
+
+          {/* Error message */}
+          {job.phase === 'error' && job.error && (
+            <div className="border-destructive/20 bg-destructive/5 mt-4 rounded border p-3">
+              <p className="text-destructive text-sm">{job.error}</p>
+            </div>
+          )}
+        </Surface>
+      </motion.div>
+    );
+  },
+);
+
+ImportJobItem.displayName = 'ImportJobItem';
+
+export default ImportJobItem;

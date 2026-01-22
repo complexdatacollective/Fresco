@@ -8,7 +8,7 @@ import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import Link from '~/components/ui/Link';
-import { useToast } from '~/components/ui/Toast-test';
+import { useToast } from '~/components/ui/Toast';
 import { cx } from '~/utils/cva';
 
 export default function Error({
@@ -19,7 +19,7 @@ export default function Error({
   reset: () => void;
   heading?: string;
 }) {
-  const { toast } = useToast();
+  const { add } = useToast();
 
   const handleReset = () => {
     reset();
@@ -34,11 +34,10 @@ Stack Trace:
 ${error.stack}`;
 
     await navigator.clipboard.writeText(debugInfo);
-    toast({
+    add({
       title: 'Success',
       description: 'Debug information copied to clipboard',
-      variant: 'success',
-      duration: 3000,
+      type: 'success',
     });
   };
 

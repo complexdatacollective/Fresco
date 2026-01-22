@@ -3,7 +3,7 @@ import { type NcNode } from '@codaco/shared-consts';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useSelector } from 'react-redux';
-import { useToast } from '~/components/ui/Toast-test';
+import { useToast } from '~/components/ui/Toast';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import { getEdgeType } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/EdgeRenderer';
 import { FamilyTreeShells } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/components/FamilyTreeShells';
@@ -123,7 +123,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const missingNames = () => {
     return nodesMap.values().some((value) => value.interviewNetworkId == null);
   };
-  const { toast } = useToast();
+  const { add } = useToast();
 
   /**
    * Steps:
@@ -139,11 +139,11 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     if (direction === 'forwards') {
       const isNameGenerationStep = currentStepIndex === 1;
       if (isNameGenerationStep && missingNames()) {
-        toast({
+        add({
           title: 'Error',
           description:
             'Please enter information for all nodes in the tree before continuing.',
-          variant: 'destructive',
+          type: 'destructive',
         });
         return false;
       }

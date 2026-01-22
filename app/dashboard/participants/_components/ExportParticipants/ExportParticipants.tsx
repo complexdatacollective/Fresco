@@ -1,11 +1,11 @@
 'use client';
 
-import { Check, FileUp } from 'lucide-react';
+import { FileUp } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { use, useState } from 'react';
 import superjson from 'superjson';
 import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/Toast-test';
+import { useToast } from '~/components/ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
 import type {
   GetParticipantsQuery,
@@ -22,7 +22,7 @@ function ExportParticipants({
 
   const download = useDownload();
   const [isExporting, setIsExporting] = useState(false);
-  const { toast } = useToast();
+  const { add } = useToast();
 
   const handleExport = () => {
     try {
@@ -44,17 +44,16 @@ function ExportParticipants({
       download(url, 'participants.csv');
       // Clean up the URL object
       URL.revokeObjectURL(url);
-      toast({
+      add({
         title: 'Success',
-        icon: <Check />,
         description: 'Participant CSV exported successfully',
-        variant: 'success',
+        type: 'success',
       });
     } catch (error) {
-      toast({
+      add({
         title: 'Error',
         description: 'An error occurred while exporting participants',
-        variant: 'destructive',
+        type: 'destructive',
       });
       throw new Error('An error occurred while exporting participants');
     }

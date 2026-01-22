@@ -3,7 +3,7 @@
 import { Check, ClipboardCopy } from 'lucide-react';
 import { cx } from '~/utils/cva';
 import { Button } from './ui/Button';
-import { useToast } from './ui/Toast-test';
+import { useToast } from './ui/Toast';
 
 export default function CopyDebugInfoButton({
   debugInfo,

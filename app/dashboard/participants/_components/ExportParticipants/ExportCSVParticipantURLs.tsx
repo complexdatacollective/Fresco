@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { type ParticipantWithInterviews } from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTableClient';
 import type { ProtocolWithInterviews } from '~/app/dashboard/_components/ProtocolsTable/ProtocolsTableClient';
 import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/Toast-test';
+import { useToast } from '~/components/ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
 
 function ExportCSVParticipantURLs({
@@ -18,7 +18,7 @@ function ExportCSVParticipantURLs({
 }) {
   const download = useDownload();
   const [isExporting, setIsExporting] = useState(false);
-  const { toast } = useToast();
+  const { add } = useToast();
 
   const handleExport = () => {
     try {
@@ -44,16 +44,15 @@ function ExportCSVParticipantURLs({
       download(url, fileName);
       // Clean up the URL object
       URL.revokeObjectURL(url);
-      toast({
+      add({
         description: 'Participation URLs CSV exported successfully',
-        variant: 'success',
-        duration: 3000,
+        type: 'success',
       });
     } catch (error) {
-      toast({
+      add({
         title: 'Error',
         description: 'An error occurred while exporting participation URLs',
-        variant: 'destructive',
+        type: 'destructive',
       });
       throw new Error('An error occurred while exporting participation URLs');
     }

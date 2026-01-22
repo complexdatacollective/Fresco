@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useRef } from 'react';
 import { Button } from './Button';
-import { useToast, type ToastVariant } from './Toast-test';
+import { useToast, type ToastVariant } from './Toast';
 
 const meta = {
   title: 'UI/Toast',

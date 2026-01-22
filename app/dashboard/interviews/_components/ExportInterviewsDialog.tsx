@@ -1,4 +1,4 @@
-import { FileWarning, Loader2, XCircle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import superjson from 'superjson';
 import {
@@ -10,7 +10,7 @@ import {
 import { deleteZipFromUploadThing } from '~/actions/uploadThing';
 import Heading from '~/components/typography/Heading';
 import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/Toast-test';
+import { useToast } from '~/components/ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
 import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
 import trackEvent from '~/lib/analytics';
@@ -49,7 +49,7 @@ export const ExportInterviewsDialog = ({
   interviewsToExport: Interview[];
 }) => {
   const download = useDownload();
-  const { toast } = useToast();
+  const { add } = useToast();
   const [isExporting, setIsExporting] = useState(false);
 
   const [exportOptions, setExportOptions] = useSafeLocalStorage(
@@ -117,12 +117,11 @@ export const ExportInterviewsDialog = ({
     } catch (error) {
       const e = ensureError(error);
 
-      toast({
-        icon: <XCircle />,
+      add({
         title: 'Error',
         description:
           'Failed to export, please try again. The error was: ' + e.message,
-        variant: 'destructive',
+        type: 'destructive',
       });
 
       void trackEvent({
@@ -153,10 +152,9 @@ export const ExportInterviewsDialog = ({
             },
           });
 
-          toast({
-            icon: <FileWarning />,
-            duration: Infinity,
-            variant: 'default',
+          add({
+            timeout: Infinity,
+            type: 'destructive',
             title: 'Could not delete temporary file',
             description:
               'We were unable to delete the temporary file containing your exported data, which is stored on your UploadThing account. Although extremely unlikely, it is possible that this file could be accessed by someone else. You can delete the file manually by visiting uploadthing.com and logging in with your GitHub account. Please contact us to report this issue.',

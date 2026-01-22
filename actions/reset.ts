@@ -1,11 +1,12 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { env } from 'process';
 import { CacheTags, safeRevalidateTag } from '~/lib/cache';
+import { prisma } from '~/lib/db';
 import { getUTApi } from '~/lib/uploadthing/server-helpers';
 import { requireApiAuth } from '~/utils/auth';
-import { prisma } from '~/lib/db';
 
 export const resetAppSettings = async () => {
   if (env.NODE_ENV !== 'development') {
@@ -14,7 +15,7 @@ export const resetAppSettings = async () => {
 
   try {
     // Delete all data:
-    await Promise.all([
+    const result = await Promise.all([
       prisma.user.deleteMany(), // Deleting a user will cascade to Session and Key
       prisma.participant.deleteMany(),
       prisma.protocol.deleteMany(), // Deleting protocol will cascade to Interviews
@@ -41,9 +42,11 @@ export const resetAppSettings = async () => {
       const keys = files.map((file) => file.key);
       return utapi.deleteFiles(keys);
     });
-
-    return { error: null, appSettings: null };
   } catch (error) {
-    return { error: 'Failed to reset appSettings', appSettings: null };
+    throw new Error(
+      'Failed to reset app settings: ' + (error as Error).message,
+    );
+  } finally {
+    redirect('/setup');
   }
 };

@@ -8,7 +8,7 @@ import Paragraph from '~/components/typography/Paragraph';
 import UnorderedList from '~/components/typography/UnorderedList';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/Toast-test';
+import { useToast } from '~/components/ui/Toast';
 import Dialog from '~/lib/dialogs/Dialog';
 import { FormWithoutProvider } from '~/lib/form/components/Form';
 import { useFormMeta } from '~/lib/form/hooks/useFormState';
@@ -42,7 +42,7 @@ function ImportDialogContent({
   onClose: () => void;
   onImportComplete?: () => void;
 }) {
-  const { toast } = useToast();
+  const { add } = useToast();
 
   const handleSubmit = async (data: unknown): Promise<FormSubmissionResult> => {
     try {
@@ -53,7 +53,7 @@ function ImportDialogContent({
         result.existingParticipants &&
         result.existingParticipants.length > 0
       ) {
-        toast({
+        add({
           title: 'Import completed with collisions',
           description: (
             <>
@@ -71,13 +71,13 @@ function ImportDialogContent({
               )}
             </>
           ),
-          variant: 'destructive',
+          type: 'destructive',
         });
       } else {
-        toast({
+        add({
           title: 'Participants imported',
           description: 'Participants have been imported successfully',
-          variant: 'success',
+          type: 'success',
         });
       }
 
@@ -86,12 +86,12 @@ function ImportDialogContent({
       return { success: true };
     } catch (e) {
       if (e instanceof ZodError) {
-        toast({
+        add({
           title: 'Error',
           description: e.issues[0]
             ? `Invalid CSV File: ${e.issues[0].message}`
             : 'Invalid CSV file. Please check the file requirements and try again.',
-          variant: 'destructive',
+          type: 'destructive',
         });
         return {
           success: false,
@@ -100,10 +100,10 @@ function ImportDialogContent({
       }
       // eslint-disable-next-line no-console
       console.log(e);
-      toast({
+      add({
         title: 'Error',
         description: 'An error occurred while importing participants',
-        variant: 'destructive',
+        type: 'destructive',
       });
       return {
         success: false,

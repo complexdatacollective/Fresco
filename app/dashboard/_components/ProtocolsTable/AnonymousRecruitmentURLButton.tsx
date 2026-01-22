@@ -1,16 +1,16 @@
 'use client';
 
-import { Check, Copy } from 'lucide-react';
+import { Copy } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/Toast-test';
+import { useToast } from '~/components/ui/Toast';
 
 export const AnonymousRecruitmentURLButton = ({
   protocolId,
 }: {
   protocolId: string;
 }) => {
-  const { toast } = useToast();
+  const { promise } = useToast();
   const [url, setUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -24,25 +24,11 @@ export const AnonymousRecruitmentURLButton = ({
       return;
     }
 
-    navigator.clipboard
-      .writeText(url)
-      .then(() => {
-        toast({
-          title: 'Success!',
-          description: 'URL copied to clipboard',
-          variant: 'success',
-          icon: <Check />,
-        });
-      })
-      .catch((error) => {
-        // eslint-disable-next-line no-console
-        console.error('Could not copy text: ', error);
-        toast({
-          title: 'Error',
-          description: 'Could not copy text',
-          variant: 'destructive',
-        });
-      });
+    void promise(navigator.clipboard.writeText(url), {
+      loading: 'Copying URL to clipboard...',
+      success: 'URL copied to clipboard!',
+      error: 'Failed to copy URL to clipboard.',
+    });
   };
 
   return (

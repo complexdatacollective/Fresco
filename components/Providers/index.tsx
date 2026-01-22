@@ -7,7 +7,7 @@ import { type ReactNode } from 'react';
 import DialogProvider from '~/lib/dialogs/DialogProvider';
 import { DndStoreProvider } from '~/lib/dnd';
 import ProtocolImportProvider from '~/lib/protocol-import/ProtocolImportProvider';
-import { Toaster } from '../ui/Toast-test';
+import { Toaster } from '../ui/Toast';
 
 export default function Providers({ children }: { children: ReactNode }) {
   return (
