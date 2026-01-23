@@ -6,7 +6,6 @@ import { motion, type Variants } from 'motion/react';
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 
-import { z } from 'zod';
 import Form from '~/lib/form/components/Form';
 import { type FormSubmitHandler } from '~/lib/form/store/types';
 import { getAdditionalAttributesSelector } from '../../../selectors/prop';
@@ -93,10 +92,8 @@ const QuickNodeForm = ({
           disabled={disabled}
           placeholder="Type a label and press enter..."
           onShowInput={onShowForm}
-          custom={{
-            schema: z.string().min(2, 'Must be 2 or more characters'),
-            hint: 'Enter at least 2 characters',
-          }}
+          required
+          minLength={1}
         />
       </Form>
     </motion.div>

@@ -1,11 +1,12 @@
 import { AnimatePresence, motion, type Variants } from 'motion/react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ActionButton from '~/components/interview/ActionButton';
 import { type InterviewerIconName } from '~/components/ui/Icon';
+import { type ValidationPropsCatalogue } from '~/lib/form/components/Field/types';
 import InputField from '~/lib/form/components/fields/InputField';
 import { useField } from '~/lib/form/hooks/useField';
-import { type CustomFieldValidation } from '~/lib/form/store/types';
+import useFormStore from '~/lib/form/hooks/useFormStore';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import {
   getNodeColorSelector,
@@ -20,8 +21,7 @@ type QuickAddFieldProps = {
   placeholder: string;
   disabled: boolean;
   onShowInput: () => void;
-  custom?: CustomFieldValidation;
-};
+} & Partial<ValidationPropsCatalogue>;
 
 const inputVariants: Variants = {
   initial: {
@@ -55,18 +55,66 @@ export default function QuickAddField({
   name: targetVariable,
   disabled,
   onShowInput,
-  custom,
+  ...validationProps
 }: QuickAddFieldProps) {
   const [checked, setChecked] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
 
   const { id, meta, fieldProps, containerProps } = useField({
     name: targetVariable,
     initialValue: '',
-    custom,
+    ...validationProps,
   });
 
+  const isFormSubmitting = useFormStore((state) => state.isSubmitting);
+  const wasSubmittingRef = useRef(false);
+
   const tooltipTimer = useRef<NodeJS.Timeout | undefined>(undefined);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Focus the input when the animation completes
+  const handleInputAnimationComplete = useCallback(() => {
+    if (checked) {
+      inputRef.current?.focus();
+    }
+  }, [checked]);
+
+  // Reset submission state when form opens
+  useEffect(() => {
+    if (checked) {
+      setHasAttemptedSubmit(false);
+    }
+  }, [checked]);
+
+  // Reset field (but stay open) when form submission succeeds
+  useEffect(() => {
+    // Detect transition from submitting to not submitting
+    if (wasSubmittingRef.current && !isFormSubmitting) {
+      // If we were submitting and the field is now valid, submission succeeded
+      if (meta.isValid && fieldProps.value) {
+        setHasAttemptedSubmit(false);
+        fieldProps.onChange('');
+        // Re-focus the input for quick successive additions
+        inputRef.current?.focus();
+      }
+    }
+    wasSubmittingRef.current = isFormSubmitting;
+  }, [isFormSubmitting, meta.isValid, fieldProps]);
+
+  // Only show error after submission attempt and if there are errors
+  const shouldShowValidationError =
+    hasAttemptedSubmit &&
+    !meta.isValid &&
+    meta.errors &&
+    meta.errors.length > 0;
+
+  const resetField = () => {
+    setChecked(false);
+    setHasAttemptedSubmit(false);
+    fieldProps.onChange('');
+  };
 
   const subject = useSelector(getStageSubject);
   const nodeColor = useSelector(getNodeColorSelector);
@@ -116,6 +164,7 @@ export default function QuickAddField({
 
   return (
     <motion.div
+      ref={containerRef}
       layout
       className="flex flex-row-reverse items-center"
       {...containerProps}
@@ -216,30 +265,47 @@ export default function QuickAddField({
               initial="initial"
               animate="animate"
               exit="exit"
+              onAnimationComplete={handleInputAnimationComplete}
             >
               <InputField
+                ref={inputRef}
                 id={inputId}
-                autoFocus
                 placeholder={placeholder}
                 type="text"
                 {...fieldProps}
                 disabled={disabled}
                 onKeyDown={(e) => {
                   if (e.key === 'Escape') {
-                    setChecked(false);
+                    resetField();
                     // Move focus back to the toggle
                     const toggleElement = document.getElementById(toggleId);
                     if (toggleElement) {
                       toggleElement.focus();
                     }
+                  } else if (e.key === 'Enter') {
+                    // Mark that submission was attempted (for error display)
+                    // The actual form submission is handled by the Form component
+                    setHasAttemptedSubmit(true);
                   }
                 }}
-                onBlur={() => setChecked(false)}
+                onBlur={(e) => {
+                  // Don't close if focus is moving within our component
+                  const relatedTarget = e.relatedTarget as HTMLElement | null;
+                  if (
+                    relatedTarget &&
+                    containerRef.current?.contains(relatedTarget)
+                  ) {
+                    return;
+                  }
+
+                  fieldProps.onBlur(e);
+                  resetField();
+                }}
                 value={fieldProps.value as string}
               />
             </motion.div>
           )}
-          {meta.shouldShowError && checked && (
+          {shouldShowValidationError && checked && (
             <motion.div
               layout="position"
               id="error-message"
