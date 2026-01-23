@@ -27,18 +27,18 @@ const NavButton = ({
       <Link
         href={href}
         className={cx(
-          'focusable rounded-sm font-semibold outline-offset-10!',
+          'focusable relative rounded-full px-3 py-1 font-semibold outline-offset-10!',
           !isActive && 'hover:text-sea-green',
         )}
       >
-        {label}
+        {isActive && (
+          <motion.div
+            layoutId="active-outline"
+            className="absolute inset-0 rounded-full ring-2 ring-current/20"
+          />
+        )}
+        <span className="relative">{label}</span>
       </Link>
-      {isActive && (
-        <motion.div
-          layoutId="underline"
-          className="absolute top-[105%] right-0 left-0 h-[2px] rounded-full bg-[currentColor]"
-        />
-      )}
     </motion.li>
   );
 };
