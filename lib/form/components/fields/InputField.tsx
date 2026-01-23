@@ -91,9 +91,7 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
           className={inputVariants({ className })}
           type={type}
           {...inputProps}
-          onChange={
-            onChange as React.ChangeEventHandler<HTMLInputElement> | undefined
-          }
+          onChange={(e) => onChange?.(e.target.value)}
           value={value ?? ''}
           disabled={disabled}
           readOnly={readOnly}

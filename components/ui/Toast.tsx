@@ -12,7 +12,7 @@ import Paragraph from '../typography/Paragraph';
 import CloseButton from './CloseButton';
 
 const toastVariants = cva({
-  base: 'border bg-clip-padding',
+  base: 'publish-colors border bg-clip-padding',
   variants: {
     variant: {
       default: 'bg-surface text-surface-contrast border-outline',
@@ -52,7 +52,7 @@ type ToastItemProps = {
 };
 
 function ToastItem({ toast }: ToastItemProps) {
-  const variant = toast.data?.variant ?? 'default';
+  const variant = (toast.type ?? 'default') as ToastVariant;
   const IconComponent = variantIcons[variant];
 
   return (
@@ -61,20 +61,25 @@ function ToastItem({ toast }: ToastItemProps) {
       toast={toast}
       className={cx(
         'focusable',
-        '[--peek:0.75rem] [--scale:calc(max(0,1-(var(--toast-index)*0.1)))] [--shrink:calc(1-var(--scale))]',
-        '[--gap:0.75rem] [--height:var(--toast-frontmost-height,var(--toast-height))] [--offset-y:calc(var(--toast-offset-y)*-1+calc(var(--toast-index)*var(--gap)*-1)+var(--toast-swipe-movement-y))]',
+        '[--peek:calc(var(--spacing)*4)]', // space between toasts when stacked
+        '[--gap:calc(var(--spacing)*4)]', // space between toasts when expanded, and swipe area
+        '[--scale:calc(max(0,1-(var(--toast-index)*0.1)))]', // scale factor for stacked toasts (10% smaller per position)
+        '[--shrink:calc(1-var(--scale))]', // inverse of scale, used for height offset
+        '[--stack-opacity:calc(1-(var(--toast-index)*0.2))]', // opacity for stacked toasts (20% more transparent per position)
+        '[--height:var(--toast-frontmost-height,var(--toast-height))]', // toast height (matches frontmost when stacked)
+        '[--offset-y:calc(var(--toast-offset-y)*-1+calc(var(--toast-index)*var(--gap)*-1)+var(--toast-swipe-movement-y))]', // vertical offset when expanded
         'after:absolute after:top-full after:left-0 after:h-[calc(var(--gap)+1px)] after:w-full after:content-[""]',
         'mr-0 rounded p-4 shadow-lg select-none',
         'absolute right-0 bottom-0 left-auto',
         'z-[calc(1000-var(--toast-index))]',
         'h-(--height) w-full origin-bottom',
-        '[transition:transform_0.5s_cubic-bezier(0.22,1,0.36,1),opacity_0.5s,height_0.15s] data-[ending-style]:opacity-0 data-[expanded]:[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--offset-y)))] data-[limited]:opacity-0 data-[starting-style]:[transform:translateY(150%)] data-[ending-style]:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-movement-y)+150%))] data-[expanded]:data-[ending-style]:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-movement-y)+150%))] data-[ending-style]:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-movement-x)-150%))_translateY(var(--offset-y))] data-[expanded]:data-[ending-style]:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-movement-x)-150%))_translateY(var(--offset-y))] data-[ending-style]:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))_translateY(var(--offset-y))] data-[expanded]:data-[ending-style]:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))_translateY(var(--offset-y))] data-[ending-style]:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))] data-[expanded]:data-[ending-style]:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))] [&[data-ending-style]:not([data-limited]):not([data-swipe-direction])]:[transform:translateY(150%)]',
+        '[transition:transform_0.5s_cubic-bezier(0.22,1,0.36,1),opacity_0.5s,height_0.15s] data-ending-style:opacity-0 data-expanded:[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--offset-y)))] data-limited:opacity-0 data-starting-style:[transform:translateY(150%)] data-ending-style:data-swipe-direction-down:[transform:translateY(calc(var(--toast-swipe-movement-y)+150%))] data-expanded:data-ending-style:data-swipe-direction-down:[transform:translateY(calc(var(--toast-swipe-movement-y)+150%))] data-ending-style:data-swipe-direction-left:[transform:translateX(calc(var(--toast-swipe-movement-x)-150%))_translateY(var(--offset-y))] data-expanded:data-ending-style:data-swipe-direction-left:[transform:translateX(calc(var(--toast-swipe-movement-x)-150%))_translateY(var(--offset-y))] data-ending-style:data-swipe-direction-right:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))_translateY(var(--offset-y))] data-expanded:data-ending-style:data-swipe-direction-right:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))_translateY(var(--offset-y))] data-ending-style:data-swipe-direction-up:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))] data-expanded:data-ending-style:data-swipe-direction-up:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))] [&[data-ending-style]:not([data-limited]):not([data-swipe-direction])]:[transform:translateY(150%)]',
         '[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)-(var(--toast-index)*var(--peek))-(var(--shrink)*var(--height))))_scale(var(--scale))]',
-        'data-[expanded]:h-[var(--toast-height)]',
+        'opacity-(--stack-opacity) data-expanded:h-[var(--toast-height)] data-expanded:opacity-100',
         toastVariants({ variant }),
       )}
     >
-      <Toast.Content className="flex gap-3 overflow-hidden transition-opacity duration-250 data-behind:pointer-events-none data-behind:opacity-0 data-[expanded]:pointer-events-auto data-[expanded]:opacity-100">
+      <Toast.Content className="flex gap-3 overflow-hidden transition-opacity duration-250 data-behind:pointer-events-none data-behind:opacity-0 data-expanded:pointer-events-auto data-expanded:opacity-100">
         {IconComponent && (
           <IconComponent
             className="mt-[0.1em] h-5 w-5 shrink-0"
@@ -121,8 +126,8 @@ export function Toaster() {
     <Toast.Portal>
       <Toast.Viewport
         className={cx(
-          'fixed top-auto right-[1rem] bottom-[1rem]',
-          'phone:right-[2rem] phone:bottom-[2rem] phone:w-[300px] z-10 mx-auto flex w-[250px]',
+          'fixed top-auto right-4 bottom-4',
+          'phone:right-8 phone:bottom-8 phone:w-72 z-10 mx-auto flex w-64',
         )}
       >
         {toasts.map((toast) => (
