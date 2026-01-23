@@ -195,13 +195,23 @@ export const createCollectionStore = <T>(
         const storedKeyExtractor = keyExtractor;
         const storedTextValueExtractor = textValueExtractor;
 
-        // Apply sorting if sort rules exist
-        let sortedItems = items;
+        // First, apply filter if active
+        let itemsToProcess = items;
+        if (state.filterMatchingKeys !== null) {
+          itemsToProcess = items.filter((item) =>
+            state.filterMatchingKeys!.has(keyExtractor(item)),
+          );
+        }
+
+        // Then apply sorting if sort rules exist
+        let sortedItems = itemsToProcess;
         if (state.sortRules.length > 0) {
           const sorter = createCollectionSorter<T & Record<string, unknown>>(
             state.sortRules,
           );
-          sortedItems = sorter(items as (T & Record<string, unknown>)[]) as T[];
+          sortedItems = sorter(
+            itemsToProcess as (T & Record<string, unknown>)[],
+          ) as T[];
         }
 
         const { itemsMap, orderedKeys } = buildNodes(
@@ -233,7 +243,7 @@ export const createCollectionStore = <T>(
         set({
           items: itemsMap,
           orderedKeys,
-          size: items.length,
+          size: sortedItems.length,
           selectedKeys: newSelectedKeys,
           focusedKey: newFocusedKey,
           // Store for re-sorting

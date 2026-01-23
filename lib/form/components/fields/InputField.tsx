@@ -45,6 +45,9 @@ const inputVariants = compose(
       'p-0',
       'h-full w-full shrink-0 grow basis-0 border-none bg-transparent outline-none focus:ring-0',
       'transition-none',
+      // Hide browser's native clear button on search inputs (we provide our own)
+      '[&::-webkit-search-cancel-button]:hidden',
+      '[&::-webkit-search-decoration]:hidden',
     ),
   }),
 );

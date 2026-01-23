@@ -284,3 +284,33 @@ Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
     return 600;
   },
 });
+
+// Mock Web Worker for jsdom environment
+// The worker mock provides a minimal implementation that supports the search worker API
+class WorkerMock implements Worker {
+  onmessage: ((this: Worker, ev: MessageEvent) => unknown) | null = null;
+  onmessageerror: ((this: Worker, ev: MessageEvent) => unknown) | null = null;
+  onerror: ((this: AbstractWorker, ev: ErrorEvent) => unknown) | null = null;
+
+  postMessage() {
+    // No-op - Comlink will handle the communication
+  }
+
+  terminate() {
+    // No-op
+  }
+
+  addEventListener() {
+    // No-op
+  }
+
+  removeEventListener() {
+    // No-op
+  }
+
+  dispatchEvent(): boolean {
+    return true;
+  }
+}
+
+global.Worker = WorkerMock as unknown as typeof Worker;
