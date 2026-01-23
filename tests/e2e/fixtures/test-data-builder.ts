@@ -3,12 +3,12 @@ import {
   CurrentProtocolSchema,
 } from '@codaco/protocol-validation';
 import { createId } from '@paralleldrive/cuid2';
-import { type PrismaClient } from '~/lib/db/generated/client';
 import { generateLuciaPasswordHash } from 'lucia/utils';
 import { hash as objectHash } from 'ohash';
 import { type z } from 'zod';
+import { type PrismaClient } from '~/lib/db/generated/client';
 import { type appSettingPreprocessedSchema } from '~/schemas/appSettings';
-import { getStringValue } from '~/utils/getStringValue';
+import { getStringValue } from '~/utils/serializeHelpers';
 
 export class TestDataBuilder {
   constructor(private prisma: PrismaClient) {}

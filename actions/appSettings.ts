@@ -9,7 +9,7 @@ import {
 } from '~/schemas/appSettings';
 import { requireApiAuth } from '~/utils/auth';
 import { ensureError } from '~/utils/ensureError';
-import { getStringValue } from '~/utils/getStringValue';
+import { getStringValue } from '~/utils/serializeHelpers';
 
 export async function setAppSetting<
   Key extends AppSetting,

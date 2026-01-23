@@ -1,44 +1,38 @@
 import { type NcNode } from '@codaco/shared-consts';
-import { useEffect } from 'react';
-import { reduxForm, type InjectedFormProps } from 'redux-form';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Button from '~/components/ui/Button';
 import Field from '~/lib/form/components/Field/Field';
 import InputField from '~/lib/form/components/fields/InputField';
+import Form from '~/lib/form/components/Form';
 import Node from '../../components/Node';
 
 type FormValues = {
   otherVariable: string;
 };
 
-type OtherVariableFormOwnProps = {
+type OtherVariableFormProps = {
   node: NcNode;
   prompt: string;
+  onSubmit: (values: FormValues) => void;
   onCancel: () => void;
   initialValues: FormValues;
 };
 
-type OtherVariableFormProps = OtherVariableFormOwnProps &
-  InjectedFormProps<FormValues, OtherVariableFormOwnProps>;
-
 const OtherVariableForm = ({
   node,
   prompt,
-  handleSubmit,
+  onSubmit,
   onCancel,
   initialValues,
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  initialize,
 }: OtherVariableFormProps) => {
-  useEffect(() => {
-    initialize(initialValues);
-    // Causes infinite loop if deps are included
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const handleSubmit = (data: unknown) => {
+    onSubmit(data as FormValues);
+    return { success: true as const };
+  };
 
   return (
     <div className="other-variable-form" onClick={(e) => e.stopPropagation()}>
-      <form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit}>
         <div className="other-variable-form__content">
           <div className="other-variable-form__content-left">
             <Node {...node} />
@@ -52,6 +46,7 @@ const OtherVariableForm = ({
               placeholder="Enter your response here..."
               component={InputField}
               name="otherVariable"
+              initialValue={initialValues.otherVariable}
               required
             />
           </div>
@@ -64,11 +59,9 @@ const OtherVariableForm = ({
             Continue
           </Button>
         </div>
-      </form>
+      </Form>
     </div>
   );
 };
 
-export default reduxForm<FormValues, OtherVariableFormOwnProps>({
-  form: 'otherVariableForm',
-})(OtherVariableForm);
+export default OtherVariableForm;

@@ -2,7 +2,6 @@
 
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { useDispatch } from 'react-redux';
-import { reducer as form } from 'redux-form';
 import protocol from '~/lib/interviewer/ducks/modules/protocol';
 import session from '~/lib/interviewer/ducks/modules/session';
 import ui from '~/lib/interviewer/ducks/modules/ui';
@@ -13,7 +12,6 @@ import { createSyncMiddleware } from './middleware/syncMiddleware';
 const syncMiddleware = createSyncMiddleware();
 
 const rootReducer = combineReducers({
-  form,
   session,
   protocol,
   ui, // don't do it - this is used for FORM_IS_READY
@@ -29,7 +27,6 @@ export const store = (
       getDefaultMiddleware({
         serializableCheck: {
           ignoredActions: [
-            '@@redux-form/INITIALIZE', // Redux form stores functions for validation in the store
             'dialogs/addDialog', // Dialogs store callback functions
             'dialogs/open/pending', // Dialogs store callback functions
           ],
@@ -49,7 +46,11 @@ export const store = (
         network: session.network,
         stageMetadata: session.stageMetadata ?? undefined,
       },
-      protocol,
+      protocol: {
+        ...protocol,
+        // Convert date strings to Date objects
+        importedAt: protocol.importedAt.toISOString(),
+      },
     },
   });
 

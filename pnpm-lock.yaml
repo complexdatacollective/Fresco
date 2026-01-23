@@ -211,9 +211,6 @@ importers:
       recompose:
         specifier: npm:react-recompose@^0.33.0
         version: react-recompose@0.33.0(react@18.3.1)
-      redux-form:
-        specifier: ^8.3.10
-        version: 8.3.10(react-redux@9.2.0(@types/react@18.3.18)(react@18.3.1)(redux@5.0.1))(react@18.3.1)(redux@5.0.1)
       redux-logger:
         specifier: ^3.0.6
         version: 3.0.6
@@ -356,9 +353,6 @@ importers:
       '@types/recompose':
         specifier: ^0.30.15
         version: 0.30.15
-      '@types/redux-form':
-        specifier: ^8.3.11
-        version: 8.3.11
       '@types/redux-logger':
         specifier: ^3.0.13
         version: 3.0.13
@@ -3238,9 +3232,6 @@ packages:
   '@types/recompose@0.30.15':
     resolution: {integrity: sha512-glX9JbRTG4WSaWxDrsHlinoRC1YRb0vNr+ocPBgBTJgMawkYx8fqwuduahzy25XBSc3xfG/k9b5XPyW6FuHVkw==}
 
-  '@types/redux-form@8.3.11':
-    resolution: {integrity: sha512-aHZgvDt9rg6C/8IHVgooCABxrWzQxJlVP47b6draiMLXKfWbyhYOVf8AV8+UPujRTnVxp1mWb57kL+r/Rl3wNQ==}
-
   '@types/redux-logger@3.0.13':
     resolution: {integrity: sha512-jylqZXQfMxahkuPcO8J12AKSSCQngdEWQrw7UiLUJzMBcv1r4Qg77P6mjGLjM27e5gFQDPD8vwUMJ9AyVxFSsg==}
 
@@ -4447,9 +4438,6 @@ packages:
   es-toolkit@1.44.0:
     resolution: {integrity: sha512-6penXeZalaV88MM3cGkFZZfOoLGWshWWfdy0tWw/RlVVyhvMaWSBTOvXNeiW3e5FwdS5ePW0LGEu17zT139ktg==}
 
-  es6-error@4.1.1:
-    resolution: {integrity: sha512-Um/+FxMr9CISWh0bi5Zv0iOD+4cFh5qLeks1qhAopKVAJw3drgKbKySikp7wGhDL0HPeaja0P5ULZrxLkniUVg==}
-
   esbuild@0.27.2:
     resolution: {integrity: sha512-HyNQImnsOC7X9PMNaCIeAm4ISCQXs5a5YasTXVliKv4uuBo1dKrG0A+uQS8M5eXjVMnLg3WgXaKvprHlFJQffw==}
     engines: {node: '>=18'}
@@ -4947,9 +4935,6 @@ packages:
   hoist-non-react-statics@2.5.5:
     resolution: {integrity: sha512-rqcy4pJo55FTTLWt+bU8ukscqHeE/e9KWvsOW2b/a3afxQZhwkQdT1rPPCJ0rYXdj4vNcasY8zHTH+jF/qStxw==}
 
-  hoist-non-react-statics@3.3.2:
-    resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
-
   hono@4.10.6:
     resolution: {integrity: sha512-BIdolzGpDO9MQ4nu3AUuDwHZZ+KViNm+EZ75Ae55eMXMqLVhDFqEMXxtUe9Qh8hjL+pIna/frs2j6Y2yD5Ua/g==}
     engines: {node: '>=16.9.0'}
@@ -5038,9 +5023,6 @@ packages:
 
   intl-messageformat@10.7.18:
     resolution: {integrity: sha512-m3Ofv/X/tV8Y3tHXLohcuVuhWKo7BBq62cqY15etqmLxg2DZ34AGGgQDeR+SCta2+zICb1NX83af0GJmbQ1++g==}
-
-  invariant@2.2.4:
-    resolution: {integrity: sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==}
 
   is-alphabetical@2.0.1:
     resolution: {integrity: sha512-FWyyY60MeTNyeSRpkM2Iry0G9hpr7/9kD40mD/cGQEuilcZYS4okz8SN2Q6rLCJ8gbCt6fN+rC+6tMGS99LaxQ==}
@@ -5144,9 +5126,6 @@ packages:
 
   is-potential-custom-element-name@1.0.1:
     resolution: {integrity: sha512-bCYeRA2rVibKZd+s2625gGnGF/t7DSqDs4dP7CrLA1m7jKWz6pps0LpYLJN8Q64HtmPKJ1hrN3nzPNKFEKOUiQ==}
-
-  is-promise@2.2.2:
-    resolution: {integrity: sha512-+lP4/6lKUBfQjZ2pdxThZvLUAafmZb8OAxFb8XXtiQmS35INgr85hdOGoEs124ez1FCnZJt6jau/T+alh58QFQ==}
 
   is-property@1.0.2:
     resolution: {integrity: sha512-Ks/IoX00TtClbGQr4TWXemAnktAQvYB7HzcCxDGqEZU6oCmb2INHuOoKxbtR+HFkmYWBKv/dOZtGRiAjDhj92g==}
@@ -6339,18 +6318,6 @@ packages:
     resolution: {integrity: sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg==}
     engines: {node: '>=8'}
 
-  redux-form@8.3.10:
-    resolution: {integrity: sha512-Eeog8dJYUxCSZI/oBoy7VkprvMjj1lpUnHa3LwjVNZvYDNeiRZMoZoaAT+6nlK2YQ4aiBopKUMiLe4ihUOHCGg==}
-    engines: {node: '>=8.10'}
-    peerDependencies:
-      immutable: ^3.8.2 || ^4.0.0
-      react: ^16.4.2 || ^17.0.0 || ^18.0.0
-      react-redux: ^6.0.1 || ^7.0.0 || ^8.0.0
-      redux: ^3.7.2 || ^4.0.0
-    peerDependenciesMeta:
-      immutable:
-        optional: true
-
   redux-logger@3.0.6:
     resolution: {integrity: sha512-JoCIok7bg/XpqA1JqCqXFypuqBbQzGQySrhFzewB7ThcnysTO30l4VCst86AuB9T9tuT03MAA56Jw2PNhRSNCg==}
 
@@ -6358,9 +6325,6 @@ packages:
     resolution: {integrity: sha512-NW2r5T6ksUKXCabzhL9z+h206HQw/NJkcLm1GPImRQ8IzfXwRGqjVhKJGauHirT0DAuyy6hjdnMZaRoAcy0Klw==}
     peerDependencies:
       redux: ^5.0.0
-
-  redux@4.2.1:
-    resolution: {integrity: sha512-LAUYz4lc+Do8/g7aeRa8JkyDErK6ekstQaqWQrNRW//MY1TvCEpMtpTWvlQ+FPbWCx+Xixu/6SHt5N0HR+SB4w==}
 
   redux@5.0.1:
     resolution: {integrity: sha512-M9/ELqF6fy8FwmkpnF0S3YKOqMyoWJ4+CS5Efg2ct3oY9daQvd/Pc71FpGZsVsbl3Cpb+IIcjBDUnnyBdQbq4w==}
@@ -10602,11 +10566,6 @@ snapshots:
       '@types/prop-types': 15.7.15
       '@types/react': 18.3.18
 
-  '@types/redux-form@8.3.11':
-    dependencies:
-      '@types/react': 18.3.18
-      redux: 4.2.1
-
   '@types/redux-logger@3.0.13':
     dependencies:
       redux: 5.0.1
@@ -12000,8 +11959,6 @@ snapshots:
 
   es-toolkit@1.44.0: {}
 
-  es6-error@4.1.1: {}
-
   esbuild@0.27.2:
     optionalDependencies:
       '@esbuild/aix-ppc64': 0.27.2
@@ -12631,10 +12588,6 @@ snapshots:
 
   hoist-non-react-statics@2.5.5: {}
 
-  hoist-non-react-statics@3.3.2:
-    dependencies:
-      react-is: 16.13.1
-
   hono@4.10.6: {}
 
   html-encoding-sniffer@6.0.0:
@@ -12714,10 +12667,6 @@ snapshots:
       '@formatjs/fast-memoize': 2.2.7
       '@formatjs/icu-messageformat-parser': 2.11.4
       tslib: 2.8.1
-
-  invariant@2.2.4:
-    dependencies:
-      loose-envify: 1.4.0
 
   is-alphabetical@2.0.1: {}
 
@@ -12816,8 +12765,6 @@ snapshots:
   is-plain-obj@4.1.0: {}
 
   is-potential-custom-element-name@1.0.1: {}
-
-  is-promise@2.2.2: {}
 
   is-property@1.0.2: {}
 
@@ -14325,20 +14272,6 @@ snapshots:
       indent-string: 4.0.0
       strip-indent: 3.0.0
 
-  redux-form@8.3.10(react-redux@9.2.0(@types/react@18.3.18)(react@18.3.1)(redux@5.0.1))(react@18.3.1)(redux@5.0.1):
-    dependencies:
-      '@babel/runtime': 7.28.4
-      es6-error: 4.1.1
-      hoist-non-react-statics: 3.3.2
-      invariant: 2.2.4
-      is-promise: 2.2.2
-      lodash: 4.17.21
-      prop-types: 15.8.1
-      react: 18.3.1
-      react-is: 16.13.1
-      react-redux: 9.2.0(@types/react@18.3.18)(react@18.3.1)(redux@5.0.1)
-      redux: 5.0.1
-
   redux-logger@3.0.6:
     dependencies:
       deep-diff: 0.3.8
@@ -14346,10 +14279,6 @@ snapshots:
   redux-thunk@3.1.0(redux@5.0.1):
     dependencies:
       redux: 5.0.1
-
-  redux@4.2.1:
-    dependencies:
-      '@babel/runtime': 7.28.4
 
   redux@5.0.1: {}
 

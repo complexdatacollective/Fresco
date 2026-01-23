@@ -3,11 +3,13 @@ import { type VariableValue } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { isDirty, isValid, submit } from 'redux-form';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import useDialog from '~/lib/dialogs/useDialog';
-import Form from '~/lib/form/components/Form';
+import { FormWithoutProvider } from '~/lib/form/components/Form';
+import { useFormMeta } from '~/lib/form/hooks/useFormState';
+import useFormStore from '~/lib/form/hooks/useFormStore';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
+import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { type FieldValue } from '~/lib/form/store/types';
 import Icon from '~/lib/legacy-ui/components/Icon';
 import Scroller from '~/lib/legacy-ui/components/Scroller';
@@ -31,23 +33,21 @@ const elementHasOverflow = ({
   scrollHeight: number;
 }) => scrollHeight > clientHeight || scrollWidth > clientWidth;
 
-const getFormName = (index: string) => `EGO_FORM_${index}`;
-
 type EgoFormProps = StageProps & {
   stage: Extract<Stage, { type: 'EgoForm' }>;
 };
 
-const EgoForm = (props: EgoFormProps) => {
+const EgoFormInner = (props: EgoFormProps) => {
   const { registerBeforeNext, stage } = props;
 
   const { form, introductionPanel } = stage;
 
   const dispatch = useAppDispatch();
   const { openDialog } = useDialog();
-  const submitFormRedux = useCallback(
-    (formName: string) => dispatch(submit(formName)),
-    [dispatch],
-  );
+
+  const { isDirty: isFormDirty, isValid: isFormValid } = useFormMeta();
+  const submitForm = useFormStore((s) => s.submitForm);
+  const validateForm = useFormStore((s) => s.validateForm);
 
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showScrollStatus, setShowScrollStatus] = useFlipflop(
@@ -58,10 +58,6 @@ const EgoForm = (props: EgoFormProps) => {
   const [isOverflowing, setIsOverflowing] = useState(false);
   const { updateReady: setIsReadyForNext } = useReadyForNextStage();
   const egoAttributes = useSelector(getEgoAttributes);
-
-  const formName = getFormName(props.stage.id);
-  const isFormValid = useSelector(isValid(formName));
-  const isFormDirty = useSelector(isDirty(formName));
 
   // Detect if the scrollable element has overflowing content
   useEffect(() => {
@@ -96,17 +92,16 @@ const EgoForm = (props: EgoFormProps) => {
 
       // if form is valid submit the form and proceed backwards
       if (isFormDirty && isFormValid) {
-        submitFormRedux(formName);
+        await submitForm();
       }
 
       return true;
     }
 
-    // Submit the form to trigger validation
-    submitFormRedux(formName);
-
-    // If the form is valid, proceed to the next stage
-    if (isFormValid) {
+    // Validate form and submit if valid
+    const formIsValid = await validateForm();
+    if (formIsValid) {
+      await submitForm();
       return true;
     }
 
@@ -164,7 +159,9 @@ const EgoForm = (props: EgoFormProps) => {
             <h1>{introductionPanel.title}</h1>
             <RenderMarkdown>{introductionPanel.text}</RenderMarkdown>
           </div>
-          <Form onSubmit={handleSubmitForm}>{fieldComponents}</Form>
+          <FormWithoutProvider onSubmit={handleSubmitForm}>
+            {fieldComponents}
+          </FormWithoutProvider>
         </Scroller>
       </div>
       <AnimatePresence>
@@ -192,6 +189,14 @@ const EgoForm = (props: EgoFormProps) => {
         )}
       </AnimatePresence>
     </div>
+  );
+};
+
+const EgoForm = (props: EgoFormProps) => {
+  return (
+    <FormStoreProvider>
+      <EgoFormInner {...props} />
+    </FormStoreProvider>
   );
 };
 

@@ -14,11 +14,20 @@ const Node = memo(
     (props: NodeProps, ref) => {
       const color = useSelector(getNodeColorSelector);
       const label = useNodeLabel(props);
-      // Exclude NcNode's `type` to avoid conflict with button's type attribute
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { type: _nodeType, ...nodeProps } = props;
+      // Exclude NcNode data properties that aren't valid HTML attributes
+      /* eslint-disable @typescript-eslint/no-unused-vars */
+      const {
+        type: _nodeType,
+        _uid,
+        attributes: _attributes,
+        _secureAttributes,
+        stageId: _stageId,
+        promptIDs: _promptIDs,
+        ...uiNodeProps
+      } = props;
+      /* eslint-enable @typescript-eslint/no-unused-vars */
 
-      return <UINode color={color} {...nodeProps} label={label} ref={ref} />;
+      return <UINode color={color} {...uiNodeProps} label={label} ref={ref} />;
     },
   ),
   (prevProps, nextProps) => {
