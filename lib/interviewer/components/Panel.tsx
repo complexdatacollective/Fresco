@@ -32,11 +32,10 @@ const Panel = ({
   }, [setCollapsed, noCollapse]);
 
   const panelClasses = cx(
-    'flex flex-col grow shrink-0 basis-[5rem] border-b-[0.5rem] mb-4 overflow-hidden',
-    'transition-all ease-in-out duration-500',
-    'last:mb-0',
+    'flex shrink-0 grow flex-col overflow-hidden rounded border-b-10',
+    'transition-all duration-500 ease-in-out',
     highlight === null && 'border-b-0',
-    minimize && 'border-b-0 basis-0 grow-0 mb-0 opacity-0',
+    minimize && 'mb-0 grow-0 basis-0 border-b-0 opacity-0',
     collapsed && !minimize && 'grow-0',
     highlight === '--primary' && 'border-b-sea-green',
     highlight === '--nc-primary-color-seq-1' &&
@@ -50,12 +49,18 @@ const Panel = ({
   );
 
   const panelContentClasses = cx(
-    'flex flex-col grow shrink-0 basis-auto overflow-hidden',
+    'flex shrink-0 grow basis-auto flex-col overflow-hidden',
     collapsed && !minimize && 'h-0',
   );
 
   return (
-    <Surface className={panelClasses} elevation="high" spacing="none" level={2}>
+    <Surface
+      className={panelClasses}
+      elevation="high"
+      level={2}
+      spacing="none"
+      noContainer
+    >
       <div
         className="border-background flex shrink-0 grow-0 flex-col justify-center border-b-[3px] px-4 py-2 text-center"
         onClick={toggleCollapsed}

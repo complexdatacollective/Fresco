@@ -10,6 +10,7 @@ import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
 import useDialog from '~/lib/dialogs/useDialog';
 import useFormState from '~/lib/form/hooks/useFormState';
+import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import ProgressBar from '~/lib/legacy-ui/components/ProgressBar';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 import { type BeforeNextFunction, type Direction } from '../ProtocolScreen';
@@ -42,7 +43,7 @@ const slideVariants = {
   },
 };
 
-function SlidesForm({
+function SlidesFormInner({
   stage,
   getNavigationHelpers,
   items = [],
@@ -301,5 +302,13 @@ function SlidesForm({
     </div>
   );
 }
+
+const SlidesForm = (props: SlidesFormProps) => {
+  return (
+    <FormStoreProvider>
+      <SlidesFormInner {...props} />
+    </FormStoreProvider>
+  );
+};
 
 export default SlidesForm;

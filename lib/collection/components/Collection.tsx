@@ -1,7 +1,6 @@
 import { useRef } from 'react';
 import { useMergeRefs } from 'react-best-merge-refs';
 import { ScrollArea } from '~/components/ui/ScrollArea';
-import { cx } from '~/utils/cva';
 import { CollectionProvider } from '../CollectionProvider';
 import {
   CollectionIdContext,
@@ -146,7 +145,7 @@ function CollectionContent<T extends Record<string, unknown>>({
           <CollectionIdContext.Provider value={collectionId}>
             {children}
             <ScrollArea
-              className={cx('min-h-40', className)}
+              className={className}
               ref={mergedRef}
               id={collectionId}
               aria-label={ariaLabel}

@@ -142,12 +142,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
 
     return (
       <motion.div
-        className={cx(
-          'relative flex min-h-0 flex-1',
-          // Negative margin to offset the Viewport's internal padding
-          '-mx-4 -my-2',
-          className,
-        )}
+        className={cx('relative flex min-h-0 flex-1', className)}
         {...rest}
       >
         <motion.div

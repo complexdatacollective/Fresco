@@ -1,9 +1,11 @@
 import { type Stage } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
+import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
+import Heading from '~/components/typography/Heading';
 import useDialog from '~/lib/dialogs/useDialog';
 import { FormWithoutProvider } from '~/lib/form/components/Form';
 import { useFormMeta } from '~/lib/form/hooks/useFormState';
@@ -11,7 +13,6 @@ import useFormStore from '~/lib/form/hooks/useFormStore';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { type FieldValue } from '~/lib/form/store/types';
-import Icon from '~/lib/legacy-ui/components/Icon';
 import Scroller from '~/lib/legacy-ui/components/Scroller';
 import { type BeforeNextFunction } from '../containers/ProtocolScreen';
 import { type StageProps } from '../containers/Stage';
@@ -167,12 +168,14 @@ const EgoFormInner = (props: EgoFormProps) => {
       <AnimatePresence>
         {showScrollNudge && (
           <motion.div
-            className="scroll-nudge"
+            className="scroll-nudge gap-2"
             initial={{ opacity: 0, y: '100%' }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: '100%' }}
           >
-            <h5>Scroll to see more questions</h5>
+            <Heading level="h4" margin="none">
+              Scroll to see more questions
+            </Heading>
             <motion.div
               animate={{
                 y: [0, 7, 0, 7, 0],
@@ -183,7 +186,7 @@ const EgoFormInner = (props: EgoFormProps) => {
                 repeat: Infinity,
               }}
             >
-              <Icon name="chevron-down" />
+              <ChevronDown size="24" />
             </motion.div>
           </motion.div>
         )}

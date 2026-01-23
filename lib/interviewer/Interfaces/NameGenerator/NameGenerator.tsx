@@ -249,26 +249,19 @@ const NameGenerator = (props: NameGeneratorProps) => {
 
   return (
     <>
-      <div className="interface flex-col gap-5" ref={interfaceRef}>
-        <div className="flex shrink-0 grow-0 basis-auto items-center justify-center text-center">
-          <Prompts />
-        </div>
-        <div className="flex min-h-0 w-full flex-1 basis-full gap-5">
-          {panels && (
-            <div className="mb-5 flex shrink-0 grow-0 basis-1/3">
-              <NodePanels disableAddNew={maxNodesReached} />
-            </div>
-          )}
-          <div className="flex flex-1">
-            <NodeList
-              items={nodesForPrompt}
-              id="MAIN_NODE_LIST"
-              accepts={['NEW_NODE']}
-              itemType="EXISTING_NODE"
-              onDrop={handleDropNode}
-              onItemClick={handleSelectNode}
-            />
-          </div>
+      <div className="interface flex-col gap-6" ref={interfaceRef}>
+        <Prompts />
+        <div className="mb-5 flex min-h-0 w-full flex-1 basis-full gap-4">
+          {panels && <NodePanels disableAddNew={maxNodesReached} />}
+          <NodeList
+            items={nodesForPrompt}
+            id="MAIN_NODE_LIST"
+            accepts={['NEW_NODE']}
+            itemType="EXISTING_NODE"
+            onDrop={handleDropNode}
+            onItemClick={handleSelectNode}
+            className="flex flex-1 rounded"
+          />
         </div>
       </div>
       {stageElement &&

@@ -69,7 +69,6 @@ function NodePanel(props: NodePanelProps) {
         onDrop={onDrop}
         accepts={accepts}
         nodeSize="sm"
-        className="gap-4 p-4"
       />
     </Panel>
   );

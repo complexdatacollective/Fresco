@@ -127,9 +127,9 @@ const NodeList = memo(
 
     // Styling classes including drop state styling via data attributes
     const containerClasses = cx(
-      'min-w-[300px] transition-colors duration-300',
+      'transition-colors duration-300',
       // data-drop-target-valid corresponds to willAccept
-      'data-[drop-target-valid=true]:bg-accent',
+      'data-[drop-target-valid=true]:bg-success/30',
       // data-drop-target-over corresponds to isOver
       'data-[drop-target-over=true]:data-[drop-target-valid=true]:bg-success',
       className,
