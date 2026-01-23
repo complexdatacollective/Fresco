@@ -114,7 +114,7 @@ const NodeForm = (props: NodeFormProps) => {
       <AnimatePresence>
         <motion.div
           key="add-button"
-          className="name-generator-interface__add-button"
+          className="absolute right-14 bottom-5 z-20"
           variants={variants}
         >
           <ActionButton

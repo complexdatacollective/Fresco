@@ -234,7 +234,7 @@ export function DataTable<TData, TValue>({
          * state. See the other data-table for an example.
          */}
 
-        {mounted &&
+        {mounted() &&
           createPortal(
             <>
               <MotionSurface

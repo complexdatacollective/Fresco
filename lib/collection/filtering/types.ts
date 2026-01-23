@@ -71,14 +71,6 @@ export type FilterProps = {
 };
 
 /**
- * Result from a search operation.
- */
-type SearchResult = {
-  key: Key;
-  score: number; // 0 = perfect match, 1 = worst match
-};
-
-/**
  * Result from the worker's search operation.
  * Uses arrays instead of Maps/Sets for structured clone transfer.
  */

@@ -249,17 +249,17 @@ const NameGenerator = (props: NameGeneratorProps) => {
 
   return (
     <>
-      <div className="interface name-generator-interface" ref={interfaceRef}>
-        <div className="name-generator-interface__prompt">
+      <div className="interface flex-col gap-5" ref={interfaceRef}>
+        <div className="flex shrink-0 grow-0 basis-auto items-center justify-center text-center">
           <Prompts />
         </div>
-        <div className="name-generator-interface__main">
+        <div className="flex min-h-0 w-full flex-1 basis-full gap-5">
           {panels && (
-            <div className="name-generator-interface__panels">
+            <div className="mb-5 flex shrink-0 grow-0 basis-1/3">
               <NodePanels disableAddNew={maxNodesReached} />
             </div>
           )}
-          <div className="name-generator-interface__nodes">
+          <div className="flex flex-1">
             <NodeList
               items={nodesForPrompt}
               id="MAIN_NODE_LIST"

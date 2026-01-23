@@ -119,8 +119,9 @@ export default plugin.withOptions<PluginConfig>(
           'box-shadow': generateShadow('high'),
         },
         '.publish-colors': {
-          '--published-bg': 'var(--scoped-bg, --color-background)',
-          '--published-text': 'var(--scoped-text, currentColor)',
+          // These need to be css Color values
+          '--published-bg': 'var(oklch(var(--scoped-bg)), --color-background)',
+          '--published-text': 'var(oklch(var(--scoped-text)), currentColor)',
         },
       });
 

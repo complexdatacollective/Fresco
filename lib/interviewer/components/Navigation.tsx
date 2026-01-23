@@ -8,19 +8,17 @@ import PassphrasePrompter from './PassphrasePrompter';
 
 const NavigationButton = ({
   disabled,
-  onClick,
   className,
   ...props
 }: ComponentProps<typeof IconButton> & {}) => {
   return (
     <IconButton
       variant="text"
-      className={cx('m-2 [&>.lucide]:h-[2em]', className)}
-      onClick={!disabled ? onClick : undefined}
+      className={cx('[&>.lucide]:h-[2em]', className)}
       disabled={disabled}
       {...props}
       size="lg"
-    ></IconButton>
+    />
   );
 };
 
@@ -46,7 +44,8 @@ const Navigation = ({
       level={2}
       role="navigation"
       elevation="none"
-      className="flex max-h-none w-auto shrink-0 grow-0 flex-col items-center justify-between rounded-none p-0!"
+      className="flex max-h-none w-auto shrink-0 grow-0 flex-col items-center justify-between rounded-none"
+      spacing="sm"
       noContainer
     >
       <NavigationButton
