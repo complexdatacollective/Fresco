@@ -73,7 +73,7 @@ export type FilterProps = {
 /**
  * Result from a search operation.
  */
-export type SearchResult = {
+type SearchResult = {
   key: Key;
   score: number; // 0 = perfect match, 1 = worst match
 };

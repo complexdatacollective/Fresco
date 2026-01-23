@@ -14,8 +14,9 @@ import {
   type Table as TTable,
 } from '@tanstack/react-table';
 import { FileUp, Loader, Search, Trash } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useIsMounted } from 'usehooks-ts';
 import { makeDefaultColumns } from '~/components/DataTable/DefaultColumns';
 import { Button } from '~/components/ui/Button';
 import {
@@ -76,12 +77,8 @@ export function DataTable<TData, TValue>({
   const [isDeleting, setIsDeleting] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [mounted, setMounted] = useState(false);
 
-  // To avoid hydration mismatches, we only render the table on the client.
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useIsMounted();
 
   if (columns.length === 0) {
     columns = makeDefaultColumns(data);

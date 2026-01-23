@@ -1222,8 +1222,21 @@ export const ControlledSortStory = meta.story({
 // Filtering Stories
 // =========================================
 
+import { expect, userEvent, within } from 'storybook/test';
 import { CollectionFilterInput } from '../components/CollectionFilterInput';
 import { useFilterManager } from '../contexts';
+
+// Filter story args type
+type FilterStoryArgs = {
+  layoutType: 'list' | 'grid';
+  gap: number;
+  itemCount: number;
+  filterDebounceMs: number;
+  filterThreshold: number;
+  showResultCount: boolean;
+  showClearButton: boolean;
+  virtualized: boolean;
+};
 
 type FilterableItem = {
   id: string;
@@ -1288,8 +1301,14 @@ function FilterableItemCard({
   );
 }
 
-function BasicFilteringDemo() {
-  const layout = useMemo(() => new ListLayout<FilterableItem>({ gap: 8 }), []);
+function BasicFilteringDemo({
+  gap = 8,
+  filterDebounceMs = 300,
+  filterThreshold = 0.4,
+  showResultCount = true,
+  showClearButton = true,
+}: Partial<FilterStoryArgs>) {
+  const layout = useMemo(() => new ListLayout<FilterableItem>({ gap }), [gap]);
 
   const renderItem = useCallback(
     (item: FilterableItem, itemProps: ItemProps) => (
@@ -1315,9 +1334,16 @@ function BasicFilteringDemo() {
         animate
         aria-label="Filterable collection"
         filterKeys={['name', 'email', 'department', 'role']}
+        filterDebounceMs={filterDebounceMs}
+        filterFuseOptions={{ threshold: filterThreshold }}
       >
         <div className="mb-4">
-          <CollectionFilterInput placeholder="Search users..." />
+          <CollectionFilterInput
+            placeholder="Search users..."
+            showResultCount={showResultCount}
+            showClearButton={showClearButton}
+            data-testid="filter-input"
+          />
         </div>
       </Collection>
     </div>
@@ -1326,11 +1352,75 @@ function BasicFilteringDemo() {
 
 export const BasicFilteringStory = meta.story({
   name: 'Filtering - Basic',
-  render: () => <BasicFilteringDemo />,
+  args: {
+    gap: 8,
+    filterDebounceMs: 300,
+    filterThreshold: 0.4,
+    showResultCount: true,
+    showClearButton: true,
+  },
+  argTypes: {
+    gap: {
+      control: { type: 'range' as const, min: 0, max: 24, step: 4 },
+      description: 'Gap between items in pixels',
+      table: { category: 'Layout' },
+    },
+    filterDebounceMs: {
+      control: { type: 'range' as const, min: 0, max: 1000, step: 50 },
+      description: 'Debounce delay before search triggers (ms)',
+      table: { category: 'Filtering' },
+    },
+    filterThreshold: {
+      control: { type: 'range' as const, min: 0, max: 1, step: 0.1 },
+      description: 'Fuzzy matching threshold (0 = exact, 1 = match all)',
+      table: { category: 'Filtering' },
+    },
+    showResultCount: {
+      control: 'boolean' as const,
+      description: 'Show result count in filter input',
+      table: { category: 'Filter Input' },
+    },
+    showClearButton: {
+      control: 'boolean' as const,
+      description: 'Show clear button in filter input',
+      table: { category: 'Filter Input' },
+    },
+  },
+  render: (args) => <BasicFilteringDemo {...(args as Partial<FilterStoryArgs>)} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for collection to render
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Find the filter input
+    const filterInput = canvas.getByPlaceholderText('Search users...');
+    await expect(filterInput).toBeInTheDocument();
+
+    // Type a search query
+    await userEvent.type(filterInput, 'Engineering');
+
+    // Wait for debounce and results
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Verify filtering worked - should show fewer items
+    const resultText = canvas.queryByText(/results?/i);
+    await expect(resultText).toBeInTheDocument();
+
+    // Clear the filter
+    const clearButton = canvas.getByLabelText('Clear search');
+    await userEvent.click(clearButton);
+
+    // Verify input is cleared
+    await expect(filterInput).toHaveValue('');
+  },
 });
 
-function FilteringWithSortingDemo() {
-  const layout = useMemo(() => new ListLayout<FilterableItem>({ gap: 8 }), []);
+function FilteringWithSortingDemo({
+  gap = 8,
+  filterDebounceMs = 300,
+}: Partial<FilterStoryArgs>) {
+  const layout = useMemo(() => new ListLayout<FilterableItem>({ gap }), [gap]);
 
   const renderItem = useCallback(
     (item: FilterableItem, itemProps: ItemProps) => (
@@ -1356,10 +1446,11 @@ function FilteringWithSortingDemo() {
         animate
         aria-label="Filterable and sortable collection"
         filterKeys={['name', 'email', 'department', 'role']}
+        filterDebounceMs={filterDebounceMs}
       >
         <div className="mb-4 flex flex-wrap items-center gap-4">
           <CollectionFilterInput placeholder="Search..." className="flex-1" />
-          <div className="flex gap-2">
+          <div className="flex gap-2" data-testid="sort-buttons">
             <CollectionSortButton property="name" type="string" label="Name" />
             <CollectionSortButton
               property="department"
@@ -1376,7 +1467,50 @@ function FilteringWithSortingDemo() {
 
 export const FilteringWithSortingStory = meta.story({
   name: 'Filtering - With Sorting',
-  render: () => <FilteringWithSortingDemo />,
+  args: {
+    gap: 8,
+    filterDebounceMs: 300,
+  },
+  argTypes: {
+    gap: {
+      control: { type: 'range' as const, min: 0, max: 24, step: 4 },
+      description: 'Gap between items in pixels',
+      table: { category: 'Layout' },
+    },
+    filterDebounceMs: {
+      control: { type: 'range' as const, min: 0, max: 1000, step: 50 },
+      description: 'Debounce delay before search triggers (ms)',
+      table: { category: 'Filtering' },
+    },
+  },
+  render: (args) => <FilteringWithSortingDemo {...(args as Partial<FilterStoryArgs>)} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for collection to render
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Find the filter input and type a search query
+    const filterInput = canvas.getByPlaceholderText('Search...');
+    await userEvent.type(filterInput, 'Design');
+
+    // Wait for debounce and results
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Click the Name sort button
+    const nameButton = canvas.getByRole('button', { name: /name/i });
+    await userEvent.click(nameButton);
+
+    // Wait for sort animation
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    // Click again to toggle direction
+    await userEvent.click(nameButton);
+
+    // Verify both filter and sort are active
+    const resultText = canvas.queryByText(/results?/i);
+    await expect(resultText).toBeInTheDocument();
+  },
 });
 
 // Generate a large list for performance testing
@@ -1411,10 +1545,16 @@ function generateLargeFilterList(count: number): FilterableItem[] {
   }));
 }
 
-function LargeListFilteringDemo() {
-  const items = useMemo(() => generateLargeFilterList(5000), []);
+function LargeListFilteringDemo({
+  gap = 4,
+  itemCount = 5000,
+  filterDebounceMs = 300,
+  filterThreshold = 0.4,
+  virtualized = true,
+}: Partial<FilterStoryArgs>) {
+  const items = useMemo(() => generateLargeFilterList(itemCount), [itemCount]);
 
-  const layout = useMemo(() => new ListLayout<FilterableItem>({ gap: 4 }), []);
+  const layout = useMemo(() => new ListLayout<FilterableItem>({ gap }), [gap]);
 
   const renderItem = useCallback(
     (item: FilterableItem, itemProps: ItemProps) => (
@@ -1430,7 +1570,8 @@ function LargeListFilteringDemo() {
       </Heading>
       <Paragraph>
         Fuzzy search runs in a Web Worker to keep the UI responsive. Try typing
-        quickly - the debounce is set to 300ms. The entire list is virtualized.
+        quickly - the debounce is set to {filterDebounceMs}ms.
+        {virtualized ? ' The entire list is virtualized.' : ''}
       </Paragraph>
 
       <Collection
@@ -1439,12 +1580,12 @@ function LargeListFilteringDemo() {
         keyExtractor={(item: FilterableItem) => item.id}
         renderItem={renderItem}
         selectionMode="multiple"
-        virtualized
+        virtualized={virtualized}
         animate
         aria-label="Large filterable collection"
         filterKeys={['name', 'email', 'department', 'role']}
-        filterDebounceMs={300}
-        filterFuseOptions={{ threshold: 0.4 }}
+        filterDebounceMs={filterDebounceMs}
+        filterFuseOptions={{ threshold: filterThreshold }}
       >
         <div className="mb-4">
           <CollectionFilterInput
@@ -1459,11 +1600,80 @@ function LargeListFilteringDemo() {
 
 export const LargeListFilteringStory = meta.story({
   name: 'Filtering - Large List (Web Worker)',
-  render: () => <LargeListFilteringDemo />,
+  args: {
+    gap: 4,
+    itemCount: 5000,
+    filterDebounceMs: 300,
+    filterThreshold: 0.4,
+    virtualized: true,
+  },
+  argTypes: {
+    gap: {
+      control: { type: 'range' as const, min: 0, max: 16, step: 2 },
+      description: 'Gap between items in pixels',
+      table: { category: 'Layout' },
+    },
+    itemCount: {
+      control: 'select' as const,
+      options: [100, 500, 1000, 5000, 10000],
+      description: 'Number of items to generate',
+      table: { category: 'Data' },
+    },
+    filterDebounceMs: {
+      control: { type: 'range' as const, min: 0, max: 1000, step: 50 },
+      description: 'Debounce delay before search triggers (ms)',
+      table: { category: 'Filtering' },
+    },
+    filterThreshold: {
+      control: { type: 'range' as const, min: 0, max: 1, step: 0.1 },
+      description: 'Fuzzy matching threshold (0 = exact, 1 = match all)',
+      table: { category: 'Filtering' },
+    },
+    virtualized: {
+      control: 'boolean' as const,
+      description: 'Enable virtualization (only render visible items)',
+      table: { category: 'Performance' },
+    },
+  },
+  render: (args) => <LargeListFilteringDemo {...(args as Partial<FilterStoryArgs>)} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for collection and worker to initialize
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Find the filter input
+    const filterInput = canvas.getByPlaceholderText('Search thousands of users...');
+    await expect(filterInput).toBeInTheDocument();
+
+    // Type a department name to filter
+    await userEvent.type(filterInput, 'Engineering');
+
+    // Wait for debounce and worker to process
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    // Verify result count is displayed
+    const resultText = canvas.queryByText(/results?/i);
+    await expect(resultText).toBeInTheDocument();
+
+    // Clear and try another search
+    await userEvent.clear(filterInput);
+    await userEvent.type(filterInput, 'Manager');
+
+    // Wait for results
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    // Verify filtering still works
+    const newResultText = canvas.queryByText(/results?/i);
+    await expect(newResultText).toBeInTheDocument();
+  },
 });
 
-function CustomFilterControlsDemo() {
-  const layout = useMemo(() => new ListLayout<FilterableItem>({ gap: 8 }), []);
+function CustomFilterControlsDemo({
+  gap = 8,
+  filterDebounceMs = 300,
+}: Partial<FilterStoryArgs>) {
+  const layout = useMemo(() => new ListLayout<FilterableItem>({ gap }), [gap]);
 
   const renderItem = useCallback(
     (item: FilterableItem, itemProps: ItemProps) => (
@@ -1484,20 +1694,24 @@ function CustomFilterControlsDemo() {
           onChange={(e) => filterManager.setQuery(e.target.value)}
           placeholder="Custom input..."
           className="bg-input text-input-contrast focusable rounded px-4 py-2"
+          data-testid="custom-filter-input"
         />
         {filterManager.hasActiveFilter && (
-          <span className="text-sm opacity-70">
+          <span className="text-sm opacity-70" data-testid="match-count">
             Found {filterManager.matchCount} matches
           </span>
         )}
         {filterManager.isFiltering && (
-          <span className="text-sm opacity-50">Searching...</span>
+          <span className="text-sm opacity-50" data-testid="searching-indicator">
+            Searching...
+          </span>
         )}
         {filterManager.hasActiveFilter && (
           <Button
             size="sm"
             variant="text"
             onClick={() => filterManager.clearFilter()}
+            data-testid="custom-clear-button"
           >
             Clear
           </Button>
@@ -1522,6 +1736,7 @@ function CustomFilterControlsDemo() {
         animate
         aria-label="Custom filtered collection"
         filterKeys={['name', 'email', 'department', 'role']}
+        filterDebounceMs={filterDebounceMs}
       >
         <CustomFilterControls />
       </Collection>
@@ -1531,11 +1746,57 @@ function CustomFilterControlsDemo() {
 
 export const CustomFilterControlsStory = meta.story({
   name: 'Filtering - Custom Controls',
-  render: () => <CustomFilterControlsDemo />,
+  args: {
+    gap: 8,
+    filterDebounceMs: 300,
+  },
+  argTypes: {
+    gap: {
+      control: { type: 'range' as const, min: 0, max: 24, step: 4 },
+      description: 'Gap between items in pixels',
+      table: { category: 'Layout' },
+    },
+    filterDebounceMs: {
+      control: { type: 'range' as const, min: 0, max: 1000, step: 50 },
+      description: 'Debounce delay before search triggers (ms)',
+      table: { category: 'Filtering' },
+    },
+  },
+  render: (args) => <CustomFilterControlsDemo {...(args as Partial<FilterStoryArgs>)} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for collection to render
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Find the custom filter input
+    const filterInput = canvas.getByTestId('custom-filter-input');
+    await expect(filterInput).toBeInTheDocument();
+
+    // Type a search query
+    await userEvent.type(filterInput, 'Marketing');
+
+    // Wait for debounce
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Verify match count is displayed
+    const matchCount = canvas.getByTestId('match-count');
+    await expect(matchCount).toBeInTheDocument();
+    await expect(matchCount).toHaveTextContent(/found \d+ matches/i);
+
+    // Click the clear button
+    const clearButton = canvas.getByTestId('custom-clear-button');
+    await userEvent.click(clearButton);
+
+    // Verify filter is cleared
+    await expect(filterInput).toHaveValue('');
+  },
 });
 
-function ControlledFilterDemo() {
-  const layout = useMemo(() => new ListLayout<FilterableItem>({ gap: 8 }), []);
+function ControlledFilterDemo({
+  gap = 8,
+}: Partial<FilterStoryArgs>) {
+  const layout = useMemo(() => new ListLayout<FilterableItem>({ gap }), [gap]);
 
   const [filterQuery, setFilterQuery] = useState('');
   const [matchCount, setMatchCount] = useState<number | null>(null);
@@ -1557,7 +1818,7 @@ function ControlledFilterDemo() {
   return (
     <div className={cx(collectionClasses, 'h-full')}>
       <Heading level="h2">Controlled Filter</Heading>
-      <Paragraph>
+      <Paragraph data-testid="current-query-display">
         Filter state is managed externally. Current query: &quot;{filterQuery}
         &quot;
         {matchCount !== null && ` (${matchCount} results)`}
@@ -1567,11 +1828,12 @@ function ControlledFilterDemo() {
         <Heading level="label" className="mb-2">
           External Controls
         </Heading>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" data-testid="external-controls">
           <Button
             size="sm"
             variant={filterQuery === '' ? 'default' : 'outline'}
             onClick={() => setFilterQuery('')}
+            data-testid="filter-all"
           >
             All
           </Button>
@@ -1579,6 +1841,7 @@ function ControlledFilterDemo() {
             size="sm"
             variant={filterQuery === 'Engineering' ? 'default' : 'outline'}
             onClick={() => setFilterQuery('Engineering')}
+            data-testid="filter-engineering"
           >
             Engineering
           </Button>
@@ -1586,6 +1849,7 @@ function ControlledFilterDemo() {
             size="sm"
             variant={filterQuery === 'Design' ? 'default' : 'outline'}
             onClick={() => setFilterQuery('Design')}
+            data-testid="filter-design"
           >
             Design
           </Button>
@@ -1593,6 +1857,7 @@ function ControlledFilterDemo() {
             size="sm"
             variant={filterQuery === 'Manager' ? 'default' : 'outline'}
             onClick={() => setFilterQuery('Manager')}
+            data-testid="filter-managers"
           >
             Managers
           </Button>
@@ -1622,5 +1887,67 @@ function ControlledFilterDemo() {
 
 export const ControlledFilterStory = meta.story({
   name: 'Filtering - Controlled',
-  render: () => <ControlledFilterDemo />,
+  args: {
+    gap: 8,
+  },
+  argTypes: {
+    gap: {
+      control: { type: 'range' as const, min: 0, max: 24, step: 4 },
+      description: 'Gap between items in pixels',
+      table: { category: 'Layout' },
+    },
+  },
+  render: (args) => <ControlledFilterDemo {...(args as Partial<FilterStoryArgs>)} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for collection to render
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Get the current query display
+    const queryDisplay = canvas.getByTestId('current-query-display');
+    await expect(queryDisplay).toHaveTextContent('Current query: ""');
+
+    // Click the Engineering button
+    const engineeringButton = canvas.getByTestId('filter-engineering');
+    await userEvent.click(engineeringButton);
+
+    // Wait for filter to apply
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Verify query changed
+    await expect(queryDisplay).toHaveTextContent('Current query: "Engineering"');
+    await expect(queryDisplay).toHaveTextContent(/\d+ results/);
+
+    // Click the Design button
+    const designButton = canvas.getByTestId('filter-design');
+    await userEvent.click(designButton);
+
+    // Wait for filter to apply
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Verify query changed to Design
+    await expect(queryDisplay).toHaveTextContent('Current query: "Design"');
+
+    // Type in the input field to test bidirectional sync
+    const filterInput = canvas.getByPlaceholderText('Or type here...');
+    await userEvent.clear(filterInput);
+    await userEvent.type(filterInput, 'Sales');
+
+    // Wait for debounce
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Verify query synced from input
+    await expect(queryDisplay).toHaveTextContent('Current query: "Sales"');
+
+    // Click All to reset
+    const allButton = canvas.getByTestId('filter-all');
+    await userEvent.click(allButton);
+
+    // Wait for filter to clear
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Verify filter is cleared
+    await expect(queryDisplay).toHaveTextContent('Current query: ""');
+  },
 });
