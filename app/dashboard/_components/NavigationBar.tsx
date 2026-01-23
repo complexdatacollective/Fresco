@@ -1,7 +1,7 @@
 'use client';
 
 import { Settings } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, type Variants } from 'motion/react';
 import type { Route } from 'next';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -13,6 +13,31 @@ import { cx } from '~/utils/cva';
 import { MobileNavDrawer } from './MobileNavDrawer';
 import UserMenu from './UserMenu';
 
+const containerVariants: Variants = {
+  hidden: {
+    y: '-150%',
+  },
+  visible: {
+    y: 0,
+    transition: {
+      type: 'spring',
+      delayChildren: 0.5,
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: '-100%' },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+    },
+  },
+};
+
 const NavButton = ({
   label,
   href,
@@ -23,18 +48,22 @@ const NavButton = ({
   isActive?: boolean;
 }) => {
   return (
-    <motion.li layout className="relative flex flex-col justify-start">
+    <motion.li
+      layout
+      variants={itemVariants}
+      className="relative flex flex-col justify-start"
+    >
       <Link
         href={href}
         className={cx(
-          'focusable relative rounded-full px-3 py-1 font-semibold outline-offset-10!',
+          'focusable relative rounded-full font-semibold outline-offset-10!',
           !isActive && 'hover:text-sea-green',
         )}
       >
         {isActive && (
           <motion.div
             layoutId="active-outline"
-            className="absolute inset-0 rounded-full ring-2 ring-current/20"
+            className="absolute -inset-2 rounded-full ring-2 ring-current/20"
           />
         )}
         <span className="relative">{label}</span>
@@ -47,17 +76,18 @@ export function NavigationBar() {
   const pathname = usePathname();
 
   return (
-    <div className="sticky top-4 z-50 flex w-full items-center justify-center">
+    <div className="sticky top-4 z-50 flex items-center justify-center">
       <MotionSurface
         as="nav"
         spacing="none"
         className={cx(
-          'text-primary-contrast sticky top-4 flex max-w-6xl items-center justify-between gap-4 rounded-full bg-[oklch(20%_0.3_260/0.8)] px-6 py-2 backdrop-blur-sm',
+          'text-primary-contrast tablet-portrait:gap-4 sticky top-4 flex max-w-5xl items-center justify-between gap-2 rounded-full bg-[oklch(20%_0.3_260/0.8)] px-6 py-2 backdrop-blur-sm',
         )}
-        initial={{ y: '-150%' }}
-        animate={{ y: 0 }}
-        transition={{ type: 'spring' }}
         elevation="high"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        noContainer
       >
         <Link href="/" className="focusable flex items-center gap-2 rounded-sm">
           <Spinner size="sm" animationMode="hover" playOnMount />
@@ -69,7 +99,7 @@ export function NavigationBar() {
             Fresco
           </Heading>
         </Link>
-        <ul className="tablet:flex hidden items-center gap-10">
+        <ul className="tablet:flex tablet-portrait:gap-10 hidden items-center gap-4">
           <NavButton
             href="/dashboard"
             isActive={pathname === '/dashboard'}
@@ -91,7 +121,7 @@ export function NavigationBar() {
             isActive={pathname === '/dashboard/interviews'}
           />
         </ul>
-        <div className="tablet:flex hidden items-center gap-8">
+        <div className="tablet:flex hidden items-center gap-6">
           <NavButton
             label={
               <div className="flex items-center gap-2">
@@ -103,7 +133,9 @@ export function NavigationBar() {
             isActive={pathname === '/dashboard/settings'}
           />
 
-          <UserMenu />
+          <motion.div variants={itemVariants}>
+            <UserMenu />
+          </motion.div>
         </div>
 
         <div className="tablet:hidden">

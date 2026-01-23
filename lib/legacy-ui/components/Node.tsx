@@ -37,7 +37,7 @@ const nodeVariants = cva({
   ],
   variants: {
     size: {
-      xxs: 'h-12 w-12',
+      xxs: 'h-8 w-8',
       xs: 'h-18 w-18',
       sm: 'h-24 w-24',
       md: 'h-30 w-30',

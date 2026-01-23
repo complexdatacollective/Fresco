@@ -48,10 +48,8 @@ const Prompts = ({
       className={cx('prompts text-balance', className)}
       variants={variants}
     >
-      {prompts.length > 1 ? (
+      {prompts.length > 1 && (
         <Pips count={prompts.length} currentIndex={currentIndex} />
-      ) : (
-        <div className="prompts__spacer" />
       )}
       <AnimatePresence custom={backwards} mode="wait" initial={false}>
         {prompts.map(
@@ -68,7 +66,6 @@ const Prompts = ({
             ),
         )}
       </AnimatePresence>
-      <div className="prompts__spacer" />
     </motion.div>
   );
 };

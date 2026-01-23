@@ -64,6 +64,9 @@ export default async function Settings() {
   const session = await requirePageAuth();
 
   const installationId = await getInstallationId();
+  const disableSmallScreenOverlay = await getAppSetting(
+    'disableSmallScreenOverlay',
+  );
   const uploadThingKey = await getAppSetting('uploadThingToken');
   const apiTokens = env.PREVIEW_MODE ? await getApiTokens() : [];
   const users = await getUsers();
@@ -164,14 +167,17 @@ export default async function Settings() {
                   </Suspense>
                 }
               >
-                <Alert variant="warning">
-                  <AlertDescription>
-                    Ensure that you test your interview thoroughly on a small
-                    screen before disabling this warning. Fresco is designed to
-                    work best on larger screens, and using it on a small screen
-                    may lead to a poor user experience for participants.
-                  </AlertDescription>
-                </Alert>
+                {disableSmallScreenOverlay && (
+                  <Alert variant="warning">
+                    <AlertDescription>
+                      Ensure that you test your interview thoroughly on a small
+                      screen when disabling this warning. Fresco is designed to
+                      work best on larger screens, and using it on a small
+                      screen may lead to a poor user experience for
+                      participants.
+                    </AlertDescription>
+                  </Alert>
+                )}
               </SettingsField>
             </SettingsCard>
 

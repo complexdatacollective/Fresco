@@ -1,4 +1,4 @@
-import type { CurrentProtocol, Stage } from '@codaco/protocol-validation';
+import type { Stage } from '@codaco/protocol-validation';
 import {
   entityPrimaryKeyProperty,
   type VariableValue,
@@ -21,9 +21,8 @@ import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { type RootState } from '~/lib/interviewer/store';
+import { type Direction } from '../../containers/ProtocolScreen';
 import { useMapbox } from './useMapbox';
-
-type NavDirection = 'forwards' | 'backwards';
 
 const introVariants = {
   show: { opacity: 1, scale: 1 },
@@ -36,7 +35,7 @@ const fadeVariants = {
 };
 
 const nodeAnimationVariants: Variants = {
-  initial: (navDirection: NavDirection) => ({
+  initial: (navDirection: Direction) => ({
     opacity: 0,
     y: navDirection === 'backwards' ? '-10%' : '10%',
   }),
@@ -48,7 +47,7 @@ const nodeAnimationVariants: Variants = {
       duration: 0.3,
     },
   },
-  exit: (navDirection: NavDirection) => ({
+  exit: (navDirection: Direction) => ({
     opacity: 0,
     y: navDirection === 'backwards' ? '10%' : '-10%',
     transition: {
@@ -58,16 +57,9 @@ const nodeAnimationVariants: Variants = {
   }),
 };
 
-type GeospatialStage = Extract<
-  CurrentProtocol['stages'][number],
-  { type: 'Geospatial' }
->;
-
 type GeospatialInterfaceProps = Stage & {
-  stage: GeospatialStage;
-  registerBeforeNext: (
-    beforeNext: (direction: NavDirection) => boolean,
-  ) => void;
+  stage: Extract<Stage, { type: 'GeospatialInterface' }>;
+  registerBeforeNext: (beforeNext: (direction: Direction) => boolean) => void;
 };
 
 export default function GeospatialInterface({
@@ -77,9 +69,12 @@ export default function GeospatialInterface({
   const dispatch = useDispatch<ThunkDispatch<RootState, unknown, Action>>();
   const dragSafeRef = useRef(null);
 
-  const [navState, setNavState] = useState({
+  const [navState, setNavState] = useState<{
+    activeIndex: number;
+    direction: Direction | null;
+  }>({
     activeIndex: 0,
-    direction: null as NavDirection | null,
+    direction: null,
   });
   const [isIntroduction, setIsIntroduction] = useState(true);
 

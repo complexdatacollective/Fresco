@@ -148,7 +148,7 @@ export default function ToggleField(props: ToggleFieldProps) {
       name={name}
       nativeButton
       render={
-        <motion.button
+        <button
           className={toggleContainerVariants({
             size,
             checked: value,
@@ -158,7 +158,6 @@ export default function ToggleField(props: ToggleFieldProps) {
           style={{
             justifyContent: value ? 'flex-end' : 'flex-start',
           }}
-          initial={false}
         />
       }
     >
@@ -167,6 +166,7 @@ export default function ToggleField(props: ToggleFieldProps) {
           <motion.span
             className={toggleThumbVariants({ state })}
             layout
+            layoutDependency={value}
             transition={{
               type: 'spring',
               stiffness: 500,

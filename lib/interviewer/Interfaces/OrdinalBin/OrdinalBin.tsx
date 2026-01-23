@@ -41,18 +41,18 @@ const OrdinalBin = (props: OrdinalBinStageProps) => {
   );
 
   return (
-    <div className="ordinal-bin-interface">
-      <div className="ordinal-bin-interface__prompt">
+    <div className="interface flex h-full flex-col overflow-hidden">
+      <div className="shrink-0">
         <Prompts />
       </div>
-      <div className="ordinal-bin-interface__bucket">
+      <div className="flex-1 overflow-hidden">
         <MultiNodeBucket
           nodes={nodesForPrompt}
           listId={`${stage.id}_${prompt?.id ?? 'unknown'}_NODE_BUCKET`}
           sortOrder={prompt?.bucketSortOrder}
         />
       </div>
-      <div className="ordinal-bin-interface__bins">
+      <div className="flex h-64 shrink-0 gap-2 px-4 pb-4">
         <OrdinalBins stage={stage} prompt={prompt ?? null} />
       </div>
     </div>

@@ -30,8 +30,8 @@ export function DataTableColumnHeader<TData, TValue>({
   className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
   const headerClasses = cx(
-    buttonVariants({ variant: 'text' }),
-    'pointer-events-none',
+    buttonVariants({ variant: 'text', size: 'sm' }),
+    'pointer-events-none text-base',
     className,
   );
 
@@ -43,6 +43,8 @@ export function DataTableColumnHeader<TData, TValue>({
 
   return (
     <Button
+      size="sm"
+      className="text-base"
       variant={isActive ? 'default' : 'text'}
       onClick={() => column.toggleSorting()}
       color={isActive ? 'primary' : 'default'}
