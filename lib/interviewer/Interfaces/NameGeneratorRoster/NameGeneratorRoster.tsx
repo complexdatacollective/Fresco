@@ -7,7 +7,6 @@ import { motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
-import Node from '~/lib/interviewer/components/Node';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import Panel from '~/lib/interviewer/components/Panel';
 import Prompts from '~/lib/interviewer/components/Prompts';
@@ -159,7 +158,10 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
     setShowMinWarning(false);
   }, [stageNodeCount, promptIndex]);
 
-  const handleAddNode = ({ meta }: { meta: UseItemElement }) => {
+  const handleAddNode = (metadata?: Record<string, unknown>) => {
+    const meta = metadata as UseItemElement | undefined;
+    if (!meta) return;
+
     const { id, data } = meta;
     const attributeData = {
       ...newNodeAttributes,
@@ -265,10 +267,9 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
                   className={nodeListClasses}
                   itemType="ADDED_NODES"
                   accepts={['ADDED_NODES']}
-                  // @ts-expect-error not yet implemented
                   onDrop={handleAddNode}
                   items={nodesForPrompt}
-                  itemComponent={Node}
+                  virtualized
                 />
               </div>
             </Panel>

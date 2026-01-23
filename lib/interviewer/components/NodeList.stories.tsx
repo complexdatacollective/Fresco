@@ -172,11 +172,6 @@ const meta: Meta<typeof NodeList> = {
       options: ['sm', 'md', 'lg'],
       description: 'Size of the nodes',
     },
-    disableDragNew: {
-      control: 'boolean',
-      description:
-        'When true, only nodes created on the current stage can be dragged',
-    },
     accepts: {
       control: 'object',
       description: 'Array of item types this list accepts for drops',
@@ -269,22 +264,6 @@ export const ManyNodes: Story = {
     docs: {
       description: {
         story: 'NodeList with many nodes to demonstrate wrapping behavior.',
-      },
-    },
-  },
-};
-
-export const DragDisabledForExistingNodes: Story = {
-  args: {
-    items: createMockNodes(5, 'different-stage'),
-    nodeSize: 'md',
-    disableDragNew: true,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'When disableDragNew is true, nodes created on other stages cannot be dragged. Only nodes created on the current stage remain draggable.',
       },
     },
   },

@@ -80,7 +80,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
 
   const interfaceRef = useRef(null);
 
-  const { isLastPrompt, promptIndex } = usePrompts();
+  const { isLastPrompt } = usePrompts();
   const { requirePassphrase, passphrase } = usePassphrase();
 
   const [selectedNode, setSelectedNode] = useState<NcNode | null>(null);
@@ -182,8 +182,10 @@ const NameGenerator = (props: NameGeneratorProps) => {
    * Drop node handler
    * Adds prompt attributes to existing nodes, or adds new nodes to the network.
    */
-  const handleDropNode = (item: { meta: NcNode; target: NcNode }) => {
-    const node = { ...item.meta };
+  const handleDropNode = (metadata?: Record<string, unknown>) => {
+    const node = metadata as NcNode | undefined;
+    if (!node) return;
+
     // Test if we are updating an existing network node, or adding it to the network
     if (has(node, 'promptIDs')) {
       void addNodeToPrompt(node[entityPrimaryKeyProperty], newNodeAttributes);
@@ -260,11 +262,9 @@ const NameGenerator = (props: NameGeneratorProps) => {
           <div className="name-generator-interface__nodes">
             <NodeList
               items={nodesForPrompt}
-              listId={`${stage.id}_${promptIndex}_MAIN_NODE_LIST`}
               id="MAIN_NODE_LIST"
               accepts={['NEW_NODE']}
               itemType="EXISTING_NODE"
-              // @ts-expect-error not yet implemented
               onDrop={handleDropNode}
               onItemClick={handleSelectNode}
             />

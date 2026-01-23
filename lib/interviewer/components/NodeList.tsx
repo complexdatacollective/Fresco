@@ -1,58 +1,17 @@
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
-import { noop } from 'es-toolkit';
-import { find } from 'es-toolkit/compat';
-import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
-import { isEqual } from 'ohash';
-import { memo, type ComponentProps, type ReactNode } from 'react';
-import { useSelector } from 'react-redux';
-import { ScrollArea } from '~/components/ui/ScrollArea';
-import {
-  useDndStore,
-  useDragSource,
-  useDropTarget,
-  type DndStore,
-} from '~/lib/dnd';
+import { motion } from 'motion/react';
+import { memo, useCallback, useMemo, type ReactNode } from 'react';
+import { Collection } from '~/lib/collection/components/Collection';
+import { useDragAndDrop } from '~/lib/collection/dnd/useDragAndDrop';
+import { InlineGridLayout } from '~/lib/collection/layout/InlineGridLayout';
+import { type ItemProps } from '~/lib/collection/types';
 import { type DropCallback } from '~/lib/dnd/types';
 import { cx } from '~/utils/cva';
-import { getCurrentStageId } from '../selectors/session';
 import { MotionNode } from './Node';
 
-type DraggableMotionNodeProps = ComponentProps<typeof MotionNode> & {
-  node: NcNode;
-  itemType: string;
-  allowDrag: boolean;
-  nodeSize?: 'sm' | 'md' | 'lg';
-  [key: string]: unknown;
-};
-
-// DraggableMotionNode component that wraps MotionNode with drag functionality
-const DraggableMotionNode = memo(
-  ({
-    node,
-    itemType,
-    allowDrag,
-    onClick: _onClick,
-    nodeSize,
-    ...nodeProps
-  }: DraggableMotionNodeProps & { onClick?: () => void }) => {
-    const { dragProps } = useDragSource({
-      type: 'node',
-      metadata: { ...node, itemType },
-      announcedName: `Node ${node.type}`,
-      disabled: !allowDrag,
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { type, ...safeNodeProps } = node;
-
-    return (
-      <MotionNode {...safeNodeProps} {...nodeProps} {...dragProps} size={nodeSize} />
-    );
-  },
-);
-
-DraggableMotionNode.displayName = 'DraggableMotionNode';
-
+/**
+ * @deprecated Use Collection's built-in animations instead
+ */
 export const NodeTransition = ({
   children,
   delay,
@@ -72,6 +31,9 @@ export const NodeTransition = ({
   </motion.div>
 );
 
+/**
+ * @deprecated Use Collection animations instead
+ */
 export const nodeListVariants = {
   initial: { opacity: 0 },
   animate: {
@@ -85,119 +47,110 @@ export const nodeListVariants = {
   exit: { opacity: 0 },
 };
 
-const nodeVariants = {
-  initial: { opacity: 0, y: '-20%', scale: 0 },
-  animate: { opacity: 1, y: 0, scale: 1 },
-};
-
 type NodeListProps = {
-  disableDragNew?: boolean;
   items?: NcNode[];
-  itemType?: string;
-  hoverColor?: string;
-  onItemClick?: (node: NcNode) => void;
   id?: string;
+  itemType?: string;
   accepts?: string[];
   onDrop?: DropCallback;
+  onItemClick?: (node: NcNode) => void;
   nodeSize?: 'sm' | 'md' | 'lg';
   className?: string;
+  animate?: boolean;
+  virtualized?: boolean;
+  overscan?: number;
 };
 
 const NodeList = memo(
   ({
-    disableDragNew,
     items = [],
-    itemType = 'NODE',
-    hoverColor: _hoverColor,
-    onItemClick = () => undefined,
     id,
-    accepts = ['node'],
-    onDrop = noop,
+    itemType = 'NODE',
+    accepts,
+    onDrop,
+    onItemClick,
     nodeSize = 'md',
     className,
+    animate = true,
+    virtualized,
+    overscan,
   }: NodeListProps) => {
-    const stageId = useSelector(getCurrentStageId);
+    const layout = useMemo(() => new InlineGridLayout<NcNode>({ gap: 16 }), []);
 
-    // Use new DND hooks
-    const { dropProps, isOver, willAccept } = useDropTarget({
-      id: id ?? 'node-list',
-      accepts,
-      announcedName: 'Node list',
-      onDrop,
+    // Build drag and drop hooks if accepts or onDrop is provided
+    const { dragAndDropHooks } = useDragAndDrop<NcNode>({
+      getItems: (keys) => [{ type: itemType, keys }],
+      acceptTypes: accepts,
+      onDrop: onDrop
+        ? (e) => {
+            // Map Collection's DropEvent to the old metadata format
+            onDrop(e.metadata);
+          }
+        : undefined,
+      getItemMetadata: (key) => {
+        const node = items.find(
+          (n) => n[entityPrimaryKeyProperty] === String(key),
+        );
+        return node ? { ...node, itemType } : { itemType };
+      },
     });
 
-    const dragItem = useDndStore((state: DndStore) => state.dragItem);
-    const meta = (dragItem?.metadata as NcNode) ?? ({} as NcNode);
+    const renderItem = useCallback(
+      (node: NcNode, itemProps: ItemProps) => {
+        // Extract NcNode type to avoid passing it to MotionNode
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { type, ...safeNodeProps } = node;
 
-    const isSource = !!find(items, [
-      entityPrimaryKeyProperty,
-      meta[entityPrimaryKeyProperty] ?? null,
-    ]);
+        // Cast itemProps to match button element types
+        // The Collection provides HTMLElement handlers, but Node is a button
+        const buttonProps = itemProps as unknown as Omit<
+          React.ComponentProps<typeof MotionNode>,
+          'size' | 'onClick'
+        >;
 
-    const isValidTarget = !isSource && willAccept;
-    const isHovering = isValidTarget && isOver;
+        return (
+          <MotionNode
+            {...safeNodeProps}
+            {...buttonProps}
+            size={nodeSize}
+            onClick={() => onItemClick?.(node)}
+          />
+        );
+      },
+      [nodeSize, onItemClick],
+    );
 
-    const classNames = cx(
-      'flex h-full shrink-0 grow basis-full flex-col rounded transition-colors duration-300',
-      // Fix: Empty NodeLists need minimum dimensions for proper drop zone bounds
-      items.length === 0 && 'min-w-[300px]',
-      willAccept && 'bg-accent',
-      isHovering && 'bg-success',
+    const keyExtractor = useCallback(
+      (node: NcNode) => node[entityPrimaryKeyProperty],
+      [],
+    );
+
+    // Styling classes including drop state styling via data attributes
+    const containerClasses = cx(
+      'min-w-[300px] transition-colors duration-300',
+      // data-drop-target-valid corresponds to willAccept
+      'data-[drop-target-valid=true]:bg-accent',
+      // data-drop-target-over corresponds to isOver
+      'data-[drop-target-over=true]:data-[drop-target-valid=true]:bg-success',
       className,
     );
 
-    const itemsClassName = cx(
-      'flex flex-row flex-wrap content-start items-start justify-start gap-4',
-    );
-
     return (
-      <LayoutGroup id={id}>
-        <motion.div
-          {...dropProps}
-          className={classNames}
-          variants={nodeListVariants}
-          layout
-          key="node-list"
-        >
-          <ScrollArea>
-            <motion.div className={itemsClassName} layout role="listbox">
-              <AnimatePresence>
-                {items.map((node: NcNode) => {
-                  const isDraggable =
-                    !disableDragNew || node.stageId === stageId; // Always allow dragging if the node was created on this stage
-                  return (
-                    <motion.div
-                      key={node[entityPrimaryKeyProperty]}
-                      variants={nodeVariants}
-                    >
-                      <DraggableMotionNode
-                        node={node}
-                        layout
-                        itemType={itemType}
-                        allowDrag={isDraggable}
-                        onClick={() => onItemClick(node)}
-                        nodeSize={nodeSize}
-                      />
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
-            </motion.div>
-          </ScrollArea>
-        </motion.div>
-      </LayoutGroup>
+      <Collection
+        id={id ?? 'node-list'}
+        items={items}
+        keyExtractor={keyExtractor}
+        layout={layout}
+        renderItem={renderItem}
+        dragAndDropHooks={(accepts ?? onDrop) ? dragAndDropHooks : undefined}
+        className={containerClasses}
+        animate={animate}
+        virtualized={virtualized}
+        overscan={overscan}
+        aria-label="Node list"
+        emptyState={null}
+      />
     );
-  },
-  (prevProps: NodeListProps, nextProps: NodeListProps) => {
-    // only re-render if items change, or click handler changes
-    if (prevProps.onItemClick !== nextProps.onItemClick) {
-      return false;
-    }
-    if (!isEqual(prevProps.items, nextProps.items)) {
-      return false;
-    }
-
-    return true;
   },
 );
 

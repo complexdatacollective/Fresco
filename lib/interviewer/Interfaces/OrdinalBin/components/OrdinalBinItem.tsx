@@ -2,6 +2,7 @@ import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import color from 'color';
 import { memo, useMemo } from 'react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
+import Heading from '~/components/typography/Heading';
 import { useDropTarget } from '~/lib/dnd';
 import { getCSSVariableAsString } from '~/lib/legacy-ui/utils/CSSVariables';
 import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
@@ -65,15 +66,6 @@ const OrdinalBinItem = memo((props: OrdinalBinItemProps) => {
       .toString();
   }, [missingValue, backgroundColor, totalBins, index]);
 
-  const highlightColor = useMemo(() => {
-    if (missingValue) {
-      return backgroundColor.toString();
-    }
-    return color(getCSSVariableAsString('--nc-panel-bg-muted'))
-      .mix(promptColor, 0.2)
-      .toString();
-  }, [missingValue, backgroundColor, promptColor]);
-
   const handleDrop = (metadata?: Record<string, unknown>) => {
     const meta = metadata as NcNode | undefined;
     if (!meta) return;
@@ -103,18 +95,20 @@ const OrdinalBinItem = memo((props: OrdinalBinItemProps) => {
   });
 
   const contentClassNames = cx(
-    'ordinal-bin--content',
-    'flex h-full flex-1 flex-col transition-colors duration-200',
-    isDragging && willAccept && 'ring-2 ring-inset ring-accent',
+    'flex flex-1 grow-[5] flex-col items-center overflow-hidden p-2 transition-colors duration-200',
+    isDragging && willAccept && 'ring-accent ring-2 ring-inset',
     isOver && willAccept && 'bg-success',
   );
 
   return (
-    <div className="ordinal-bin" key={index}>
-      <div className="ordinal-bin--title" style={{ background: accentColor }}>
-        <h3 className="ordinal-bin--title h3">
+    <div className="flex min-w-0 flex-1 flex-col" key={index}>
+      <div
+        className="flex min-h-14 items-center justify-center px-2 text-center"
+        style={{ background: accentColor }}
+      >
+        <Heading level="h4" variant="default" margin="none">
           <RenderMarkdown>{bin.label}</RenderMarkdown>
-        </h3>
+        </Heading>
       </div>
       <div
         {...dropProps}
@@ -124,12 +118,7 @@ const OrdinalBinItem = memo((props: OrdinalBinItemProps) => {
           background: isOver && willAccept ? undefined : panelColor,
         }}
       >
-        <NodeList
-          id={listId}
-          items={sortedNodes}
-          nodeSize="sm"
-          hoverColor={highlightColor}
-        />
+        <NodeList id={listId} items={sortedNodes} nodeSize="sm" />
       </div>
     </div>
   );
