@@ -1,6 +1,5 @@
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
-import CopyDebugInfoButton from './CopyDebugInfoButton';
 import Heading from './typography/Heading';
 import {
   Collapsible,
@@ -8,13 +7,7 @@ import {
   CollapsibleTrigger,
 } from './ui/collapsible';
 
-export const ErrorDetails = ({
-  errorText,
-  children,
-}: {
-  errorText: string;
-  children: ReactNode;
-}) => {
+export const ErrorDetails = ({ children }: { children: ReactNode }) => {
   const [showStackTrace, setShowStackTrace] = useState(false);
 
   return (
@@ -33,9 +26,10 @@ export const ErrorDetails = ({
           <ChevronDown className="h-4 w-4" />
         )}
       </CollapsibleTrigger>
-      <CollapsibleContent className="bg-background relative max-h-52 flex-1 overflow-y-auto rounded-lg px-6 py-3 text-sm [&_pre]:inline-block [&_pre]:whitespace-pre-wrap">
-        {children}
-        <CopyDebugInfoButton debugInfo={errorText} className="mt-4 p-0" />
+      <CollapsibleContent className="bg-background relative flex-1 rounded px-6 py-3 text-sm">
+        <div className="font-monospace max-h-52 overflow-y-auto break-all whitespace-pre-wrap [&_pre]:inline-block [&_pre]:whitespace-pre-wrap">
+          {children}
+        </div>
       </CollapsibleContent>
     </Collapsible>
   );

@@ -13,7 +13,7 @@ export default function Providers({ children }: { children: ReactNode }) {
   return (
     <MotionConfig reducedMotion="user">
       <DirectionProvider direction="ltr">
-        <Toast.Provider>
+        <Toast.Provider limit={7}>
           <DndStoreProvider>
             <ProtocolImportProvider>
               <DialogProvider>{children}</DialogProvider>

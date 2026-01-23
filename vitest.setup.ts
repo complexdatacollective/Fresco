@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
 
 // Import React at the top level so it's available for mocks

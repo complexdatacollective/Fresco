@@ -69,7 +69,7 @@ function VariantsDemo() {
 
     add({
       ...messages[variant],
-      variant,
+      type: variant,
     });
   };
 

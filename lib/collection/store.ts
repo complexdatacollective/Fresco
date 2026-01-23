@@ -1,5 +1,6 @@
 import { subscribeWithSelector } from 'zustand/middleware';
 import { createStore } from 'zustand/vanilla';
+import { defaultFilterState, type FilterState } from './filtering/types';
 import { Selection } from './selection/Selection';
 import {
   type DisabledBehavior,
@@ -27,12 +28,15 @@ import {
 } from './types';
 
 /**
- * Combined state including collection, selection, and sort.
+ * Combined state including collection, selection, sort, and filter.
  */
-type FullCollectionState<T> = CollectionState<T> & SelectionState & SortState;
+type FullCollectionState<T> = CollectionState<T> &
+  SelectionState &
+  SortState &
+  FilterState;
 
 /**
- * Combined store type including collection, selection, and sort actions.
+ * Combined store type including collection, selection, sort, and filter actions.
  */
 export type FullCollectionStore<T> = CollectionStore<T> & {
   // Selection state (already in SelectionState)
@@ -69,12 +73,23 @@ export type FullCollectionStore<T> = CollectionStore<T> & {
   setSortRules: (rules: SortRule[]) => void;
   updateSortState: (updates: Partial<SortState>) => void;
 
+  // Filter state (already in FilterState)
+  filterQuery: string;
+  filterDebouncedQuery: string;
+  filterIsFiltering: boolean;
+  filterIsIndexing: boolean;
+  filterMatchCount: number | null;
+  filterMatchingKeys: Set<Key> | null;
+
+  // Filter actions
+  updateFilterState: (updates: Partial<FilterState>) => void;
+
   // Internal state for re-sorting (not part of public API)
   _originalItems: T[];
   _keyExtractor: KeyExtractor<T> | null;
   _textValueExtractor: TextValueExtractor<T> | undefined;
 
-  // Re-sort items using current sort rules
+  // Re-sort and filter items using current rules
   resortItems: () => void;
 };
 
@@ -113,6 +128,8 @@ const defaultInitState = <T>(): FullCollectionStateWithInternal<T> => ({
   disallowEmptySelection: false,
   // Sort state
   ...defaultSortState,
+  // Filter state
+  ...defaultFilterState,
   // Internal state for re-sorting
   _originalItems: [],
   _keyExtractor: null,
@@ -321,6 +338,18 @@ export const createCollectionStore = <T>(
         set(updates);
       },
 
+      // ============================================================
+      // Filter Actions
+      // ============================================================
+
+      updateFilterState: (updates: Partial<FilterState>) => {
+        set(updates);
+      },
+
+      // ============================================================
+      // Combined Re-sort/Re-filter
+      // ============================================================
+
       resortItems: () => {
         const state = get();
         const {
@@ -328,6 +357,7 @@ export const createCollectionStore = <T>(
           _keyExtractor,
           _textValueExtractor,
           sortRules,
+          filterMatchingKeys,
         } = state;
 
         // Can't re-sort if we don't have the original data
@@ -335,14 +365,22 @@ export const createCollectionStore = <T>(
           return;
         }
 
-        // Apply sorting
-        let sortedItems = _originalItems;
+        // First, filter items if a filter is active
+        let itemsToProcess = _originalItems;
+        if (filterMatchingKeys !== null) {
+          itemsToProcess = _originalItems.filter((item) =>
+            filterMatchingKeys.has(_keyExtractor(item)),
+          );
+        }
+
+        // Then apply sorting
+        let sortedItems = itemsToProcess;
         if (sortRules.length > 0) {
           const sorter = createCollectionSorter<T & Record<string, unknown>>(
             sortRules,
           );
           sortedItems = sorter(
-            _originalItems as (T & Record<string, unknown>)[],
+            itemsToProcess as (T & Record<string, unknown>)[],
           ) as T[];
         }
 
@@ -355,6 +393,7 @@ export const createCollectionStore = <T>(
         set({
           items: itemsMap,
           orderedKeys,
+          size: sortedItems.length,
         });
       },
     })),

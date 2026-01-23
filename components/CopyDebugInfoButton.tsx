@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, ClipboardCopy } from 'lucide-react';
+import { ClipboardCopy } from 'lucide-react';
 import { cx } from '~/utils/cva';
 import { Button } from './ui/Button';
 import { useToast } from './ui/Toast';
@@ -14,17 +14,15 @@ export default function CopyDebugInfoButton({
   showToast?: boolean;
   className?: string;
 }) {
-  const { toast } = useToast();
+  const { add } = useToast();
 
   const copyDebugInfoToClipboard = async () => {
     await navigator.clipboard.writeText(debugInfo);
 
     if (showToast) {
-      toast({
-        icon: <Check />,
-        title: 'Success',
-        description: 'Debug information copied to clipboard',
-        variant: 'success',
+      add({
+        title: 'Debug information copied to clipboard',
+        type: 'success',
       });
     }
   };
@@ -38,9 +36,9 @@ export default function CopyDebugInfoButton({
         className,
       )}
       title="Copy to clipboard"
-      variant="text"
+      color="primary"
+      icon={<ClipboardCopy />}
     >
-      <ClipboardCopy className="mr-2 h-4 w-4" />
       Copy Debug Info
     </Button>
   );

@@ -5,25 +5,35 @@ import { cx } from '~/utils/cva';
 import { CollectionProvider } from '../CollectionProvider';
 import {
   CollectionIdContext,
+  FilterManagerContext,
   SelectionManagerContext,
   SortManagerContext,
 } from '../contexts';
 import { useCollectionSetup } from '../hooks/useCollectionSetup';
+import { useFilterState } from '../hooks/useFilterState';
 import { useSortState } from '../hooks/useSortState';
-import { type CollectionProps, type ItemRenderer } from '../types';
+import {
+  type CollectionProps,
+  type ItemRenderer,
+  type KeyExtractor,
+} from '../types';
 import { StaticRenderer } from './StaticRenderer';
 import { VirtualizedRenderer } from './VirtualizedRenderer';
 
 type CollectionContentProps<T> = Omit<
   CollectionProps<T>,
-  'items' | 'keyExtractor' | 'textValueExtractor'
->;
+  'items' | 'textValueExtractor'
+> & {
+  items: T[];
+};
 
 /**
  * Internal component that renders the collection items.
  * Separated to use hooks within the provider context.
  */
-function CollectionContent<T>({
+function CollectionContent<T extends Record<string, unknown>>({
+  items,
+  keyExtractor,
   layout,
   renderItem,
   emptyState,
@@ -50,7 +60,16 @@ function CollectionContent<T>({
   defaultSortType,
   onSortChange,
   sortRules,
-  // Children for sort UI
+  // Filter props
+  filterQuery,
+  defaultFilterQuery,
+  onFilterChange,
+  onFilterResultsChange,
+  filterKeys,
+  filterFuseOptions,
+  filterDebounceMs,
+  filterMinQueryLength,
+  // Children for sort/filter UI
   children,
 }: CollectionContentProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -90,6 +109,20 @@ function CollectionContent<T>({
     sortRules,
   });
 
+  // Use filter state hook for filtering (only if filterKeys is provided)
+  const filterManager = useFilterState({
+    filterQuery,
+    defaultFilterQuery,
+    onFilterChange,
+    onFilterResultsChange,
+    filterKeys,
+    filterFuseOptions,
+    filterDebounceMs,
+    filterMinQueryLength,
+    items,
+    keyExtractor: keyExtractor as KeyExtractor<Record<string, unknown>>,
+  });
+
   // Extract ref and tabIndex from dndCollectionProps
   // - ref: merged with containerRef
   // - tabIndex: excluded - Collection's collectionProps.tabIndex (0) takes precedence
@@ -109,52 +142,54 @@ function CollectionContent<T>({
   return (
     <SelectionManagerContext.Provider value={selectionManager}>
       <SortManagerContext.Provider value={sortManager}>
-        <CollectionIdContext.Provider value={collectionId}>
-          {children}
-          <ScrollArea
-            className={cx('min-h-40', className)}
-            ref={mergedRef}
-            id={collectionId}
-            aria-label={ariaLabel}
-            aria-labelledby={ariaLabelledBy}
-            aria-multiselectable={selectionMode === 'multiple' || undefined}
-            aria-activedescendant={
-              selectionManager.focusedKey !== null
-                ? `${collectionId}-item-${selectionManager.focusedKey}`
-                : undefined
-            }
-            data-drop-target-over={dropState?.isOver}
-            data-drop-target-valid={dropState?.willAccept}
-            data-dragging={dropState?.isDragging}
-            {...collectionProps}
-            {...restDndProps}
-          >
-            {virtualized ? (
-              <VirtualizedRenderer
-                layout={layout}
-                collection={collection}
-                renderItem={renderItem}
-                animate={animate}
-                collectionId={collectionId}
-                dragAndDropHooks={dragAndDropHooks}
-                scrollRef={containerRef}
-                overscan={overscan}
-              />
-            ) : (
-              <StaticRenderer
-                layout={layout}
-                collection={collection}
-                renderItem={renderItem}
-                animate={animate}
-                collectionId={collectionId}
-                dragAndDropHooks={dragAndDropHooks}
-              />
-            )}
-            {collection.size === 0 && (
-              <div className="text-center text-current/70">{emptyState}</div>
-            )}
-          </ScrollArea>
-        </CollectionIdContext.Provider>
+        <FilterManagerContext.Provider value={filterManager}>
+          <CollectionIdContext.Provider value={collectionId}>
+            {children}
+            <ScrollArea
+              className={cx('min-h-40', className)}
+              ref={mergedRef}
+              id={collectionId}
+              aria-label={ariaLabel}
+              aria-labelledby={ariaLabelledBy}
+              aria-multiselectable={selectionMode === 'multiple' || undefined}
+              aria-activedescendant={
+                selectionManager.focusedKey !== null
+                  ? `${collectionId}-item-${selectionManager.focusedKey}`
+                  : undefined
+              }
+              data-drop-target-over={dropState?.isOver}
+              data-drop-target-valid={dropState?.willAccept}
+              data-dragging={dropState?.isDragging}
+              {...collectionProps}
+              {...restDndProps}
+            >
+              {virtualized ? (
+                <VirtualizedRenderer
+                  layout={layout}
+                  collection={collection}
+                  renderItem={renderItem}
+                  animate={animate}
+                  collectionId={collectionId}
+                  dragAndDropHooks={dragAndDropHooks}
+                  scrollRef={containerRef}
+                  overscan={overscan}
+                />
+              ) : (
+                <StaticRenderer
+                  layout={layout}
+                  collection={collection}
+                  renderItem={renderItem}
+                  animate={animate}
+                  collectionId={collectionId}
+                  dragAndDropHooks={dragAndDropHooks}
+                />
+              )}
+              {collection.size === 0 && (
+                <div className="text-center text-current/70">{emptyState}</div>
+              )}
+            </ScrollArea>
+          </CollectionIdContext.Provider>
+        </FilterManagerContext.Provider>
       </SortManagerContext.Provider>
     </SelectionManagerContext.Provider>
   );
@@ -192,7 +227,7 @@ function CollectionContent<T>({
  * />
  * ```
  */
-export function Collection<T>({
+export function Collection<T extends Record<string, unknown>>({
   items,
   keyExtractor,
   textValueExtractor,
@@ -222,7 +257,16 @@ export function Collection<T>({
   defaultSortType,
   onSortChange,
   sortRules,
-  // Children for sort UI
+  // Filter props
+  filterQuery,
+  defaultFilterQuery,
+  onFilterChange,
+  onFilterResultsChange,
+  filterKeys,
+  filterFuseOptions,
+  filterDebounceMs,
+  filterMinQueryLength,
+  // Children for sort/filter UI
   children,
 }: CollectionProps<T>) {
   return (
@@ -232,8 +276,10 @@ export function Collection<T>({
       textValueExtractor={textValueExtractor}
     >
       <CollectionContent
+        items={items}
+        keyExtractor={keyExtractor}
         layout={layout}
-        renderItem={renderItem as ItemRenderer<unknown>}
+        renderItem={renderItem as ItemRenderer<Record<string, unknown>>}
         emptyState={emptyState}
         className={className}
         id={id}
@@ -258,6 +304,15 @@ export function Collection<T>({
         defaultSortType={defaultSortType}
         onSortChange={onSortChange}
         sortRules={sortRules}
+        // Filter props
+        filterQuery={filterQuery}
+        defaultFilterQuery={defaultFilterQuery}
+        onFilterChange={onFilterChange}
+        onFilterResultsChange={onFilterResultsChange}
+        filterKeys={filterKeys}
+        filterFuseOptions={filterFuseOptions}
+        filterDebounceMs={filterDebounceMs}
+        filterMinQueryLength={filterMinQueryLength}
       >
         {children}
       </CollectionContent>

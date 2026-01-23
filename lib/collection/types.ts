@@ -8,6 +8,7 @@
  */
 
 import { type DragAndDropHooks } from './dnd/types';
+import { type FilterProps } from './filtering/types';
 import { type Layout } from './layout/Layout';
 import { type SortProps } from './sorting/types';
 
@@ -162,68 +163,69 @@ export type SelectionMode = 'none' | 'single' | 'multiple';
 /**
  * Props for the main Collection component.
  */
-export type CollectionProps<T> = SortProps & {
-  /** Array of items to display */
-  'items': T[];
-  /** Function to extract unique key from each item */
-  'keyExtractor': KeyExtractor<T>;
-  /** Function to render each item */
-  'renderItem': ItemRenderer<T>;
-  /** Layout instance that controls positioning */
-  'layout': Layout<T>;
-  /** Function to extract text value for search/accessibility */
-  'textValueExtractor'?: TextValueExtractor<T>;
-  /** Component to render when collection is empty */
-  'emptyState'?: React.ReactNode;
-  /** Additional CSS class names */
-  'className'?: string;
-  /** ID for the collection element */
-  'id'?: string;
-  /** ARIA label for accessibility */
-  'aria-label'?: string;
-  /** ARIA labelledby for accessibility */
-  'aria-labelledby'?: string;
+export type CollectionProps<T> = SortProps &
+  FilterProps & {
+    /** Array of items to display */
+    'items': T[];
+    /** Function to extract unique key from each item */
+    'keyExtractor': KeyExtractor<T>;
+    /** Function to render each item */
+    'renderItem': ItemRenderer<T>;
+    /** Layout instance that controls positioning */
+    'layout': Layout<T>;
+    /** Function to extract text value for search/accessibility */
+    'textValueExtractor'?: TextValueExtractor<T>;
+    /** Component to render when collection is empty */
+    'emptyState'?: React.ReactNode;
+    /** Additional CSS class names */
+    'className'?: string;
+    /** ID for the collection element */
+    'id'?: string;
+    /** ARIA label for accessibility */
+    'aria-label'?: string;
+    /** ARIA labelledby for accessibility */
+    'aria-labelledby'?: string;
 
-  // Selection props
-  /** Selection mode: 'none', 'single', or 'multiple' */
-  'selectionMode'?: SelectionMode;
-  /** Controlled selected keys */
-  'selectedKeys'?: Iterable<Key>;
-  /** Default selected keys (uncontrolled) */
-  'defaultSelectedKeys'?: Iterable<Key>;
-  /** Callback when selection changes */
-  'onSelectionChange'?: (keys: Set<Key>) => void;
-  /** Keys that are disabled */
-  'disabledKeys'?: Iterable<Key>;
-  /** Whether empty selection is allowed (default: true) */
-  'disallowEmptySelection'?: boolean;
+    // Selection props
+    /** Selection mode: 'none', 'single', or 'multiple' */
+    'selectionMode'?: SelectionMode;
+    /** Controlled selected keys */
+    'selectedKeys'?: Iterable<Key>;
+    /** Default selected keys (uncontrolled) */
+    'defaultSelectedKeys'?: Iterable<Key>;
+    /** Callback when selection changes */
+    'onSelectionChange'?: (keys: Set<Key>) => void;
+    /** Keys that are disabled */
+    'disabledKeys'?: Iterable<Key>;
+    /** Whether empty selection is allowed (default: true) */
+    'disallowEmptySelection'?: boolean;
 
-  // Animation props
-  /** Enable stagger enter animation for items */
-  'animate'?: boolean;
+    // Animation props
+    /** Enable stagger enter animation for items */
+    'animate'?: boolean;
 
-  // Rendering props
-  /**
-   * Enable virtualization for large collections.
-   * When true, only items visible in the viewport are rendered.
-   * Note: Layout animations are not supported in virtualized mode.
-   */
-  'virtualized'?: boolean;
+    // Rendering props
+    /**
+     * Enable virtualization for large collections.
+     * When true, only items visible in the viewport are rendered.
+     * Note: Layout animations are not supported in virtualized mode.
+     */
+    'virtualized'?: boolean;
 
-  /**
-   * Number of rows to render beyond the visible viewport.
-   * Higher values provide smoother scrolling but use more memory.
-   * Only applies when `virtualized` is true.
-   * @default 5
-   */
-  'overscan'?: number;
+    /**
+     * Number of rows to render beyond the visible viewport.
+     * Higher values provide smoother scrolling but use more memory.
+     * Only applies when `virtualized` is true.
+     * @default 5
+     */
+    'overscan'?: number;
 
-  /** Optional drag and drop hooks */
-  'dragAndDropHooks'?: DragAndDropHooks;
+    /** Optional drag and drop hooks */
+    'dragAndDropHooks'?: DragAndDropHooks;
 
-  /**
-   * Children for sort UI components.
-   * Use with CollectionSortButton, CollectionSortSelect, or custom UI via useSortManager hook.
-   */
-  'children'?: React.ReactNode;
-};
+    /**
+     * Children for sort UI components.
+     * Use with CollectionSortButton, CollectionSortSelect, or custom UI via useSortManager hook.
+     */
+    'children'?: React.ReactNode;
+  };

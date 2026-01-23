@@ -1217,3 +1217,410 @@ export const ControlledSortStory = meta.story({
   name: 'Sorting - Controlled',
   render: () => <ControlledSortDemo />,
 });
+
+// =========================================
+// Filtering Stories
+// =========================================
+
+import { CollectionFilterInput } from '../components/CollectionFilterInput';
+import { useFilterManager } from '../contexts';
+
+type FilterableItem = {
+  id: string;
+  name: string;
+  email: string;
+  department: string;
+  role: string;
+};
+
+// Generate sample data for filtering
+faker.seed(789);
+const filterableItems: FilterableItem[] = Array.from(
+  { length: 50 },
+  (_, i) => ({
+    id: `user-${i + 1}`,
+    name: faker.person.fullName(),
+    email: faker.internet.email(),
+    department: faker.helpers.arrayElement([
+      'Engineering',
+      'Design',
+      'Marketing',
+      'Sales',
+      'Support',
+    ]),
+    role: faker.helpers.arrayElement([
+      'Manager',
+      'Senior',
+      'Junior',
+      'Lead',
+      'Intern',
+    ]),
+  }),
+);
+
+function FilterableItemCard({
+  item,
+  itemProps,
+}: {
+  item: FilterableItem;
+  itemProps: ItemProps;
+}) {
+  return (
+    <div
+      {...itemProps}
+      className={cx(
+        'bg-surface-1 text-surface-1-contrast rounded border-2 border-transparent p-4 transition-colors',
+        'data-selected:bg-accent data-selected:text-accent-contrast data-selected:outline-accent',
+        'focusable',
+      )}
+    >
+      <div className="flex items-center justify-between">
+        <Heading level="label">{item.name}</Heading>
+        <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs">
+          {item.role}
+        </span>
+      </div>
+      <div className="text-surface-1-contrast/70 mt-2 text-sm">
+        <div>{item.email}</div>
+        <div className="mt-1">{item.department}</div>
+      </div>
+    </div>
+  );
+}
+
+function BasicFilteringDemo() {
+  const layout = useMemo(() => new ListLayout<FilterableItem>({ gap: 8 }), []);
+
+  const renderItem = useCallback(
+    (item: FilterableItem, itemProps: ItemProps) => (
+      <FilterableItemCard item={item} itemProps={itemProps} />
+    ),
+    [],
+  );
+
+  return (
+    <div className={cx(collectionClasses, 'h-full')}>
+      <Heading level="h2">Filtering Collection</Heading>
+      <Paragraph>
+        Search by name, email, department, or role. Uses fuzzy matching powered
+        by fuse.js in a Web Worker.
+      </Paragraph>
+
+      <Collection
+        items={filterableItems}
+        layout={layout}
+        keyExtractor={(item: FilterableItem) => item.id}
+        renderItem={renderItem}
+        selectionMode="multiple"
+        animate
+        aria-label="Filterable collection"
+        filterKeys={['name', 'email', 'department', 'role']}
+      >
+        <div className="mb-4">
+          <CollectionFilterInput placeholder="Search users..." />
+        </div>
+      </Collection>
+    </div>
+  );
+}
+
+export const BasicFilteringStory = meta.story({
+  name: 'Filtering - Basic',
+  render: () => <BasicFilteringDemo />,
+});
+
+function FilteringWithSortingDemo() {
+  const layout = useMemo(() => new ListLayout<FilterableItem>({ gap: 8 }), []);
+
+  const renderItem = useCallback(
+    (item: FilterableItem, itemProps: ItemProps) => (
+      <FilterableItemCard item={item} itemProps={itemProps} />
+    ),
+    [],
+  );
+
+  return (
+    <div className={cx(collectionClasses, 'h-full')}>
+      <Heading level="h2">Filtering + Sorting</Heading>
+      <Paragraph>
+        Combine filtering and sorting. Filter narrows results, then sort orders
+        them.
+      </Paragraph>
+
+      <Collection
+        items={filterableItems}
+        layout={layout}
+        keyExtractor={(item: FilterableItem) => item.id}
+        renderItem={renderItem}
+        selectionMode="multiple"
+        animate
+        aria-label="Filterable and sortable collection"
+        filterKeys={['name', 'email', 'department', 'role']}
+      >
+        <div className="mb-4 flex flex-wrap items-center gap-4">
+          <CollectionFilterInput placeholder="Search..." className="flex-1" />
+          <div className="flex gap-2">
+            <CollectionSortButton property="name" type="string" label="Name" />
+            <CollectionSortButton
+              property="department"
+              type="string"
+              label="Department"
+            />
+            <CollectionSortButton property="role" type="string" label="Role" />
+          </div>
+        </div>
+      </Collection>
+    </div>
+  );
+}
+
+export const FilteringWithSortingStory = meta.story({
+  name: 'Filtering - With Sorting',
+  render: () => <FilteringWithSortingDemo />,
+});
+
+// Generate a large list for performance testing
+function generateLargeFilterList(count: number): FilterableItem[] {
+  faker.seed(999);
+  return Array.from({ length: count }, (_, i) => ({
+    id: `user-${i}`,
+    name: faker.person.fullName(),
+    email: faker.internet.email(),
+    department: faker.helpers.arrayElement([
+      'Engineering',
+      'Design',
+      'Marketing',
+      'Sales',
+      'Support',
+      'HR',
+      'Finance',
+      'Legal',
+      'Operations',
+      'Product',
+    ]),
+    role: faker.helpers.arrayElement([
+      'Manager',
+      'Senior',
+      'Junior',
+      'Lead',
+      'Intern',
+      'Director',
+      'VP',
+      'Associate',
+    ]),
+  }));
+}
+
+function LargeListFilteringDemo() {
+  const items = useMemo(() => generateLargeFilterList(5000), []);
+
+  const layout = useMemo(() => new ListLayout<FilterableItem>({ gap: 4 }), []);
+
+  const renderItem = useCallback(
+    (item: FilterableItem, itemProps: ItemProps) => (
+      <FilterableItemCard item={item} itemProps={itemProps} />
+    ),
+    [],
+  );
+
+  return (
+    <div className={cx(collectionClasses, 'h-full')}>
+      <Heading level="h2">
+        Large List Filtering ({items.length.toLocaleString()} items)
+      </Heading>
+      <Paragraph>
+        Fuzzy search runs in a Web Worker to keep the UI responsive. Try typing
+        quickly - the debounce is set to 300ms. The entire list is virtualized.
+      </Paragraph>
+
+      <Collection
+        items={items}
+        layout={layout}
+        keyExtractor={(item: FilterableItem) => item.id}
+        renderItem={renderItem}
+        selectionMode="multiple"
+        virtualized
+        animate
+        aria-label="Large filterable collection"
+        filterKeys={['name', 'email', 'department', 'role']}
+        filterDebounceMs={300}
+        filterFuseOptions={{ threshold: 0.4 }}
+      >
+        <div className="mb-4">
+          <CollectionFilterInput
+            placeholder="Search thousands of users..."
+            showResultCount
+          />
+        </div>
+      </Collection>
+    </div>
+  );
+}
+
+export const LargeListFilteringStory = meta.story({
+  name: 'Filtering - Large List (Web Worker)',
+  render: () => <LargeListFilteringDemo />,
+});
+
+function CustomFilterControlsDemo() {
+  const layout = useMemo(() => new ListLayout<FilterableItem>({ gap: 8 }), []);
+
+  const renderItem = useCallback(
+    (item: FilterableItem, itemProps: ItemProps) => (
+      <FilterableItemCard item={item} itemProps={itemProps} />
+    ),
+    [],
+  );
+
+  // Custom filter controls using useFilterManager hook
+  function CustomFilterControls() {
+    const filterManager = useFilterManager();
+
+    return (
+      <div className="mb-4 flex flex-wrap items-center gap-4">
+        <input
+          type="text"
+          value={filterManager.query}
+          onChange={(e) => filterManager.setQuery(e.target.value)}
+          placeholder="Custom input..."
+          className="bg-input text-input-contrast focusable rounded px-4 py-2"
+        />
+        {filterManager.hasActiveFilter && (
+          <span className="text-sm opacity-70">
+            Found {filterManager.matchCount} matches
+          </span>
+        )}
+        {filterManager.isFiltering && (
+          <span className="text-sm opacity-50">Searching...</span>
+        )}
+        {filterManager.hasActiveFilter && (
+          <Button
+            size="sm"
+            variant="text"
+            onClick={() => filterManager.clearFilter()}
+          >
+            Clear
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className={cx(collectionClasses, 'h-full')}>
+      <Heading level="h2">Custom Filter Controls</Heading>
+      <Paragraph>
+        Build your own filter UI using the useFilterManager hook.
+      </Paragraph>
+
+      <Collection
+        items={filterableItems}
+        layout={layout}
+        keyExtractor={(item: FilterableItem) => item.id}
+        renderItem={renderItem}
+        selectionMode="multiple"
+        animate
+        aria-label="Custom filtered collection"
+        filterKeys={['name', 'email', 'department', 'role']}
+      >
+        <CustomFilterControls />
+      </Collection>
+    </div>
+  );
+}
+
+export const CustomFilterControlsStory = meta.story({
+  name: 'Filtering - Custom Controls',
+  render: () => <CustomFilterControlsDemo />,
+});
+
+function ControlledFilterDemo() {
+  const layout = useMemo(() => new ListLayout<FilterableItem>({ gap: 8 }), []);
+
+  const [filterQuery, setFilterQuery] = useState('');
+  const [matchCount, setMatchCount] = useState<number | null>(null);
+
+  const handleFilterResultsChange = useCallback(
+    (_matchingKeys: Set<string | number>, count: number) => {
+      setMatchCount(count);
+    },
+    [],
+  );
+
+  const renderItem = useCallback(
+    (item: FilterableItem, itemProps: ItemProps) => (
+      <FilterableItemCard item={item} itemProps={itemProps} />
+    ),
+    [],
+  );
+
+  return (
+    <div className={cx(collectionClasses, 'h-full')}>
+      <Heading level="h2">Controlled Filter</Heading>
+      <Paragraph>
+        Filter state is managed externally. Current query: &quot;{filterQuery}
+        &quot;
+        {matchCount !== null && ` (${matchCount} results)`}
+      </Paragraph>
+
+      <div className="bg-surface-1 mb-4 rounded p-4">
+        <Heading level="label" className="mb-2">
+          External Controls
+        </Heading>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            size="sm"
+            variant={filterQuery === '' ? 'default' : 'outline'}
+            onClick={() => setFilterQuery('')}
+          >
+            All
+          </Button>
+          <Button
+            size="sm"
+            variant={filterQuery === 'Engineering' ? 'default' : 'outline'}
+            onClick={() => setFilterQuery('Engineering')}
+          >
+            Engineering
+          </Button>
+          <Button
+            size="sm"
+            variant={filterQuery === 'Design' ? 'default' : 'outline'}
+            onClick={() => setFilterQuery('Design')}
+          >
+            Design
+          </Button>
+          <Button
+            size="sm"
+            variant={filterQuery === 'Manager' ? 'default' : 'outline'}
+            onClick={() => setFilterQuery('Manager')}
+          >
+            Managers
+          </Button>
+        </div>
+      </div>
+
+      <Collection
+        items={filterableItems}
+        layout={layout}
+        keyExtractor={(item: FilterableItem) => item.id}
+        renderItem={renderItem}
+        selectionMode="multiple"
+        animate
+        aria-label="Controlled filtered collection"
+        filterKeys={['name', 'email', 'department', 'role']}
+        filterQuery={filterQuery}
+        onFilterChange={setFilterQuery}
+        onFilterResultsChange={handleFilterResultsChange}
+      >
+        <div className="mb-4">
+          <CollectionFilterInput placeholder="Or type here..." />
+        </div>
+      </Collection>
+    </div>
+  );
+}
+
+export const ControlledFilterStory = meta.story({
+  name: 'Filtering - Controlled',
+  render: () => <ControlledFilterDemo />,
+});

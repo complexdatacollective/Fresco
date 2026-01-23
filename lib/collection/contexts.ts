@@ -2,6 +2,7 @@
 
 import { createContext, useContext } from 'react';
 import { useStore } from 'zustand';
+import { type FilterManager } from './filtering/FilterManager';
 import { type SelectionManager } from './selection/SelectionManager';
 import { type SortManager } from './sorting/SortManager';
 import { type CollectionStoreApi, type FullCollectionStore } from './store';
@@ -133,4 +134,34 @@ export function useSortManager(): SortManager {
  */
 export function useOptionalSortManager(): SortManager | null {
   return useContext(SortManagerContext);
+}
+
+/**
+ * Context for the FilterManager.
+ * Provides access to filter operations throughout the component tree.
+ * Value is null when filterKeys is not configured.
+ */
+export const FilterManagerContext = createContext<FilterManager | null>(null);
+
+/**
+ * Hook to access the FilterManager from context.
+ */
+export function useFilterManager(): FilterManager {
+  const manager = useContext(FilterManagerContext);
+
+  if (!manager) {
+    throw new Error(
+      'useFilterManager must be used within a Collection with filterKeys configured',
+    );
+  }
+
+  return manager;
+}
+
+/**
+ * Hook to optionally access the FilterManager.
+ * Returns null if filtering is not configured.
+ */
+export function useOptionalFilterManager(): FilterManager | null {
+  return useContext(FilterManagerContext);
 }

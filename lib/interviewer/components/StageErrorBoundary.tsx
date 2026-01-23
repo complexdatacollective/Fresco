@@ -1,4 +1,5 @@
 import React, { Component, type ReactNode } from 'react';
+import CopyDebugInfoButton from '~/components/CopyDebugInfoButton';
 import { ErrorDetails } from '~/components/ErrorDetails';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
@@ -40,7 +41,7 @@ class StageErrorBoundary extends Component<
     if (error) {
       return (
         <div className="interface">
-          <Surface className="max-w-2xl">
+          <Surface noContainer className="h-fit max-w-2xl grow-0">
             <div className="flex items-center justify-center">
               <Icon name="error" />
             </div>
@@ -52,7 +53,10 @@ class StageErrorBoundary extends Component<
               information below. You may be able to continue your interview by
               clicking the next button.
             </Paragraph>
-            <ErrorDetails errorText={error.message}>{error.stack}</ErrorDetails>
+            <ErrorDetails>{error.stack}</ErrorDetails>
+            <div className="mt-4 flex justify-end">
+              <CopyDebugInfoButton debugInfo={error.stack ?? error.message} />
+            </div>
           </Surface>
         </div>
       );
