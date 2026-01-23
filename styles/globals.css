@@ -287,15 +287,15 @@
 
   @keyframes animate-pulse-glow {
     0% {
-      box-shadow: 0 0 0 0 oklch(from var(--color-primary) l c h / 0.8);
+      box-shadow: 0 0 0 0 oklch(from var(--color-success) l c h / 0.8);
     }
 
     70% {
-      box-shadow: 0 0 0 2rem oklch(from var(--color-primary) l c h / 0);
+      box-shadow: 0 0 0 2rem oklch(from var(--color-success) l c h / 0);
     }
 
     100% {
-      box-shadow: 0 0 0 0 oklch(from var(--color-primary) l c h / 0);
+      box-shadow: 0 0 0 0 oklch(from var(--color-success) l c h / 0);
     }
   }
 
