@@ -1,3 +1,5 @@
+'use client';
+
 import { type Prompt as TPrompt } from '@codaco/protocol-validation';
 import { findIndex } from 'es-toolkit/compat';
 import { AnimatePresence, motion } from 'motion/react';
@@ -13,7 +15,8 @@ type PromptsProps = {
 };
 
 /**
- * Displays prompts
+ * Displays prompts with navigation pips and animations.
+ * Uses aria-live region to announce prompt changes to screen readers.
  */
 const Prompts = ({
   currentPromptId = '0',
@@ -36,15 +39,23 @@ const Prompts = ({
     [currentIndex],
   );
 
-  const variants = {
+  const promptsClasses = cx(
+    'text-surface-contrast flex w-full flex-col items-center overflow-hidden leading-tight font-normal text-balance',
+    className,
+  );
+
+  const containerVariants = {
     initial: { opacity: 0 },
     animate: { opacity: 1, transition: { when: 'beforeChildren' as const } },
   };
 
   return (
     <motion.div
-      className={cx('prompts text-balance', className)}
-      variants={variants}
+      className={promptsClasses}
+      variants={containerVariants}
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
     >
       {prompts.length > 1 && (
         <Pips count={prompts.length} currentIndex={currentIndex} />

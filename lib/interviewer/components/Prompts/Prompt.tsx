@@ -1,9 +1,11 @@
-import cx from 'classnames';
+'use client';
+
 import { motion } from 'motion/react';
 import { Fragment } from 'react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
+import { cx } from '~/utils/cva';
 
 const variants = {
   enter: (backwards: boolean) => ({
@@ -27,10 +29,12 @@ type PromptProps = {
 };
 
 /**
- * Renders a single prompt.
+ * Renders a single prompt with animation support.
  */
 const Prompt = ({ id, text, backwards = false }: PromptProps) => {
-  const classes = cx('prompt');
+  const promptClasses = cx(
+    'font-heading line-clamp-3 overflow-hidden pb-[0.1em] text-center text-2xl',
+  );
 
   return (
     <motion.div
@@ -38,7 +42,7 @@ const Prompt = ({ id, text, backwards = false }: PromptProps) => {
       key={id}
       custom={backwards}
       variants={variants}
-      className={classes}
+      className={promptClasses}
       initial="enter"
       animate="center"
       exit="exit"

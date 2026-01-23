@@ -1,4 +1,6 @@
-import UIPrompts from '~/lib/legacy-ui/components/Prompts/Prompts';
+'use client';
+
+import UIPrompts from '~/lib/interviewer/components/Prompts/Prompts';
 import { usePrompts } from '../behaviours/withPrompt';
 
 const Prompts = () => {
