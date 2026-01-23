@@ -48,7 +48,7 @@ const getInterface = (interfaceType: InterfaceType) => {
         loading: StageLoading,
       });
     case 'OrdinalBin':
-      return dynamic(() => import('./OrdinalBin'), {
+      return dynamic(() => import('./OrdinalBin/OrdinalBin'), {
         loading: StageLoading,
       });
     case 'CategoricalBin':

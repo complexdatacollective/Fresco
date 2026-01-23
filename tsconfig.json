@@ -30,6 +30,7 @@
   "include": [
     ".eslintrc.cjs",
     "next-env.d.ts",
+    "types/**/*.d.ts",
     "**/*.js",
     "**/*.ts",
     "**/*.tsx",
