@@ -100,7 +100,7 @@ export default plugin.withOptions<PluginConfig>(
       // Reset --scoped-bg on elements with bg-* but not publish-colors
       // This prevents child elements from overriding the published background
       api.addBase({
-        '[class*="elevation-"]:where(:not(.publish-colors))': {
+        '[class*="bg-"]:where(:not(.publish-colors))': {
           '--scoped-bg': 'inherit !important',
         },
       });
@@ -119,17 +119,23 @@ export default plugin.withOptions<PluginConfig>(
           'box-shadow': generateShadow('high'),
         },
         '.publish-colors': {
-          // These need to be css Color values
-          '--published-bg': 'var(oklch(var(--scoped-bg)), --color-background)',
-          '--published-text': 'var(oklch(var(--scoped-text)), currentColor)',
+          // These need to be css Color values.
+          '--published-bg': 'var(--scoped-bg, --color-background)',
+          '--published-text': 'var(--scoped-text, currentColor)',
         },
       });
 
       // Use matchUtilities to create bg utilities that set --scoped-bg
+      // Transform var(--foo) to var(--color-foo) to match Tailwind's generated color variables
+      const toColorVar = (value: string) =>
+        typeof value === 'string' && value.startsWith('var(--')
+          ? value.replace(/^var\(--/, 'var(--color-')
+          : value;
+
       api.matchUtilities(
         {
           bg: (value) => ({
-            '--scoped-bg': value,
+            '--scoped-bg': toColorVar(value),
           }),
         },
         {
@@ -142,7 +148,7 @@ export default plugin.withOptions<PluginConfig>(
       api.matchUtilities(
         {
           text: (value) => ({
-            '--scoped-text': value,
+            '--scoped-text': toColorVar(value),
           }),
         },
         {
