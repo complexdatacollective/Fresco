@@ -9,7 +9,6 @@ import Prompt from './Prompt';
 type PromptsProps = {
   prompts: TPrompt[];
   currentPromptId?: string;
-  speakable?: boolean;
   className?: string;
 };
 
@@ -19,7 +18,6 @@ type PromptsProps = {
 const Prompts = ({
   currentPromptId = '0',
   prompts,
-  speakable = false,
   className,
 }: PromptsProps) => {
   const prevPromptRef = useRef<number>();
@@ -56,13 +54,7 @@ const Prompts = ({
           ({ id, text }) =>
             currentIndex >= 0 &&
             prompts[currentIndex]?.id === id && (
-              <Prompt
-                key={id}
-                id={id}
-                text={text}
-                backwards={backwards}
-                speakable={speakable}
-              />
+              <Prompt key={id} id={id} text={text} backwards={backwards} />
             ),
         )}
       </AnimatePresence>

@@ -1,12 +1,10 @@
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import cx from 'classnames';
-import color from 'color';
 import { throttle } from 'es-toolkit';
 import PropTypes from 'prop-types';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Flipper } from 'react-flip-toolkit';
 import { connect } from 'react-redux';
-import { getCSSVariableAsString } from '~/lib/legacy-ui/utils/CSSVariables';
 import { makeGetVariableOptions } from '../../selectors/interface';
 import {
   getPromptOtherVariable,
@@ -31,6 +29,19 @@ const isSpecialValue = (value) => {
   return false;
 };
 
+const CAT_COLOR_VARS = [
+  'var(--color-cat-1)',
+  'var(--color-cat-2)',
+  'var(--color-cat-3)',
+  'var(--color-cat-4)',
+  'var(--color-cat-5)',
+  'var(--color-cat-6)',
+  'var(--color-cat-7)',
+  'var(--color-cat-8)',
+  'var(--color-cat-9)',
+  'var(--color-cat-10)',
+];
+
 /**
  * CategoricalList: Renders a list of categorical bin items
  */
@@ -45,22 +56,6 @@ const CategoricalList = ({
 }) => {
   const categoricalListElement = useRef();
   const [, forceUpdate] = useState();
-
-  const colorPresets = useMemo(
-    () => [
-      getCSSVariableAsString('--nc-cat-color-seq-1'),
-      getCSSVariableAsString('--nc-cat-color-seq-2'),
-      getCSSVariableAsString('--nc-cat-color-seq-3'),
-      getCSSVariableAsString('--nc-cat-color-seq-4'),
-      getCSSVariableAsString('--nc-cat-color-seq-5'),
-      getCSSVariableAsString('--nc-cat-color-seq-6'),
-      getCSSVariableAsString('--nc-cat-color-seq-7'),
-      getCSSVariableAsString('--nc-cat-color-seq-8'),
-      getCSSVariableAsString('--nc-cat-color-seq-9'),
-      getCSSVariableAsString('--nc-cat-color-seq-10'),
-    ],
-    [],
-  );
 
   const onResize = useCallback(
     () =>
@@ -95,21 +90,20 @@ const CategoricalList = ({
     };
   }, [bins.length, expandedBinIndex]);
 
-  const getCatColor = useCallback(
-    (itemNumber, bin) => {
-      if (itemNumber < 0) {
-        return null;
-      }
-      const categoryColor = colorPresets[itemNumber % colorPresets.length];
+  const getCatColor = useCallback((itemNumber, bin) => {
+    if (itemNumber < 0) {
+      return null;
+    }
+    const colorVar = CAT_COLOR_VARS[itemNumber % CAT_COLOR_VARS.length];
 
-      if (isSpecialValue(bin.value)) {
-        return color(categoryColor).desaturate(0.6).darken(0.5).toString();
-      }
+    if (isSpecialValue(bin.value)) {
+      // Darken and desaturate for special values using oklch relative color syntax
+      // oklch() with 'from' syntax: reduce lightness (l*0.5) and chroma (c*0.4)
+      return `oklch(from ${colorVar} calc(l*0.5) calc(c*0.4) h)`;
+    }
 
-      return categoryColor;
-    },
-    [colorPresets],
-  );
+    return colorVar;
+  }, []);
 
   const getBinSize = useCallback(
     (index) => {

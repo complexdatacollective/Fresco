@@ -58,7 +58,7 @@ const nodeAnimationVariants: Variants = {
 };
 
 type GeospatialInterfaceProps = Stage & {
-  stage: Extract<Stage, { type: 'GeospatialInterface' }>;
+  stage: Extract<Stage, { type: 'Geospatial' }>;
   registerBeforeNext: (beforeNext: (direction: Direction) => boolean) => void;
 };
 
@@ -174,7 +174,7 @@ export default function GeospatialInterface({
     handleResetSelection();
   }, [handleResetSelection, navState.activeIndex]);
 
-  const beforeNext = (direction: NavDirection) => {
+  const beforeNext = (direction: Direction) => {
     // Leave the stage if there are no nodes
     if (stageNodes.length === 0) {
       return true;
