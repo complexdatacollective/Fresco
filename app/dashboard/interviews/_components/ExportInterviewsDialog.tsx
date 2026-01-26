@@ -30,7 +30,7 @@ const ExportingStateAnimation = () => {
       <div
         className={cx('flex flex-col items-center justify-center gap-4 p-10')}
       >
-        <Loader2 className="h-20 w-20 animate-spin" />
+        <Loader2 className="size-20 animate-spin" />
         <Heading level="h4">
           Exporting and zipping files. Please wait...
         </Heading>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { setAppSetting } from '~/actions/appSettings';
 import Field from '~/lib/form/components/Field/Field';
 import Form from '~/lib/form/components/Form';
@@ -8,10 +9,16 @@ import InputField from '~/lib/form/components/fields/InputField';
 import { createUploadThingTokenSchema } from '~/schemas/appSettings';
 
 export const UploadThingTokenForm = () => {
+  const router = useRouter();
+
   const handleSubmit = async (data: unknown) => {
     const typedData = data as { uploadThingToken: string };
 
     await setAppSetting('uploadThingToken', typedData.uploadThingToken);
+
+    // Navigate to step 3 (Upload Protocol)
+    router.push('/setup?step=3');
+
     return {
       success: true,
     };

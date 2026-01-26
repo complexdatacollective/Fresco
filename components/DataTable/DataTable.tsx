@@ -251,9 +251,9 @@ export function DataTable<TData, TValue>({
                   disabled={isDeleting}
                   icon={
                     isDeleting ? (
-                      <Loader className="h-4 w-4" />
+                      <Loader className="size-4" />
                     ) : (
-                      <Trash className="h-4 w-4" />
+                      <Trash className="size-4" />
                     )
                   }
                 >
@@ -264,7 +264,7 @@ export function DataTable<TData, TValue>({
                     onClick={exportHandler}
                     color="primary"
                     className="mx-2 gap-x-2.5"
-                    icon={<FileUp className="h-4 w-4" />}
+                    icon={<FileUp className="size-4" />}
                   >
                     Export Selected
                   </Button>

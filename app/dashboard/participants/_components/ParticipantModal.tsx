@@ -175,7 +175,7 @@ function IdentifierField({
       This could be a study ID, a number, or any other unique identifier. It
       should be unique for each participant, and should not be easy to guess{' '}
       <InfoTooltip
-        trigger={<HelpCircle className="inline-block h-4 w-4" />}
+        trigger={<HelpCircle className="inline-block size-4" />}
         title="Participant Identifiers"
         description={(props) => (
           <Paragraph {...props}>

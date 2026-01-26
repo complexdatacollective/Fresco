@@ -130,12 +130,12 @@ export const DifferentTriggerIcons: Story = {
       <InfoTooltip
         title="Help Circle"
         description="This uses a help circle icon."
-        trigger={<HelpCircle className="text-info h-5 w-5" />}
+        trigger={<HelpCircle className="text-info size-5" />}
       />
       <InfoTooltip
         title="Star Icon"
         description="This uses a star icon for something special."
-        trigger={<Star className="text-warning h-5 w-5" />}
+        trigger={<Star className="text-warning size-5" />}
       />
     </div>
   ),

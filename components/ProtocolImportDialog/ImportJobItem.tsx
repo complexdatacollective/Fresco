@@ -132,9 +132,9 @@ const ImportJobItem = forwardRef<HTMLDivElement, ImportJobItemProps>(
               )}
             >
               {isActive && job.phase !== 'queued' ? (
-                <Loader2 className={cx('h-6 w-6 animate-spin', config.color)} />
+                <Loader2 className={cx('size-6 animate-spin', config.color)} />
               ) : (
-                <Icon className={cx('h-6 w-6', config.color)} />
+                <Icon className={cx('size-6', config.color)} />
               )}
             </div>
 

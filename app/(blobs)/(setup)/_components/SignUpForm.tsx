@@ -17,7 +17,10 @@ export const SignUpForm = () => {
     const result = await signup(data);
 
     if (result.success === true) {
-      router.push('/dashboard');
+      // Continue with the setup flow - step 2 is UploadThing configuration
+      // Use refresh to ensure server state is updated before navigation
+      router.refresh();
+      router.push('/setup?step=2');
       return {
         success: true,
       };
