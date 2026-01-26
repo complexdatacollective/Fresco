@@ -16,8 +16,8 @@ import FamilyTreeNode, {
   type FamilyTreeNodeType,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
 import FamilyTreeNodeForm from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNodeForm';
-import { useFamilyTreeStore } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
-import type { Relationship } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/store';
+import { useFamilyTreeStore } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
+import type { Relationship } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import {
   type FamilyTreeCensusStageMetadata,
   updateNode as updateNetworkNode,

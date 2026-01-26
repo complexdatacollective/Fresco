@@ -10,7 +10,7 @@ import Background from '../components/Canvas/Background';
 import Canvas from '../components/Canvas/Canvas';
 import NarrativeEdgeLayout from '../components/Canvas/NarrativeEdgeLayout';
 import PresetSwitcher from '../components/Canvas/PresetSwitcher';
-import Annotations from '../containers/Canvas/Annotations';
+import Annotations from '~/lib/interviewer/components/Canvas/Annotations';
 import { LayoutProvider } from '../contexts/LayoutContext';
 import { edgesToCoords } from '../selectors/canvas';
 import { getNetworkEdges, getNetworkNodes } from '../selectors/session';

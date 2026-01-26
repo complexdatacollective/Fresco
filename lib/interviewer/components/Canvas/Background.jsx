@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { PureComponent } from 'react';
-import Radar from '../../containers/Canvas/Radar';
+import Radar from '~/lib/interviewer/components/Canvas/Radar';
 import BackgroundImage from '../BackgroundImage';
 
 class Background extends PureComponent {
