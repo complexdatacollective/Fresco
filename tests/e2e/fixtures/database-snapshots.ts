@@ -302,4 +302,11 @@ export class DatabaseSnapshots {
   get suiteId() {
     return this.context.suiteId;
   }
+
+  /**
+   * Get the test data for this context (only available for interview suite)
+   */
+  get testData() {
+    return this.context.testData;
+  }
 }

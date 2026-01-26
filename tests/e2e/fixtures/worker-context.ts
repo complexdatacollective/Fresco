@@ -1,13 +1,18 @@
 import type { TestInfo } from '@playwright/test';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '~/lib/db/generated/client';
-import { loadContextData, type SerializedContext } from './context-storage';
+import {
+  loadContextData,
+  type InterviewTestData,
+  type SerializedContext,
+} from './context-storage';
 
 export type WorkerContext = {
   suiteId: string;
   appUrl: string;
   databaseUrl: string;
   prisma: PrismaClient;
+  testData?: InterviewTestData;
   cleanup: () => Promise<void>;
 };
 
@@ -35,6 +40,7 @@ function createWorkerContext(serialized: SerializedContext): WorkerContext {
     appUrl: serialized.appUrl,
     databaseUrl: serialized.databaseUrl,
     prisma,
+    testData: serialized.testData,
     cleanup: async () => {
       // Don't disconnect here - let the process handle it on exit
       // This avoids issues with shared Prisma clients
@@ -82,9 +88,9 @@ export async function resolveWorkerContext(
     return createWorkerContext(contextFromBaseURL);
   }
 
-  // Method 4: Fall back to interviews context (most feature-rich)
-  if (contextData.contexts.interviews) {
-    return createWorkerContext(contextData.contexts.interviews);
+  // Method 4: Fall back to interview context (most feature-rich)
+  if (contextData.contexts.interview) {
+    return createWorkerContext(contextData.contexts.interview);
   }
 
   return null;
@@ -111,7 +117,7 @@ function inferContextFromTestPath(
     const suiteToContextMap: Record<string, string> = {
       setup: 'setup',
       dashboard: 'dashboard',
-      interview: 'interviews',
+      interview: 'interview',
       auth: 'dashboard',
     };
 
@@ -139,7 +145,7 @@ function inferContextFromProject(
     'setup': 'setup',
     'auth-dashboard': 'dashboard',
     'dashboard': 'dashboard',
-    'interview': 'interviews',
+    'interview': 'interview',
   };
 
   const contextKey = projectToContextMap[testInfo.project.name];
@@ -239,9 +245,9 @@ export async function getWorkerContextInfo(testInfo: TestInfo): Promise<{
   }
 
   return {
-    resolvedContext: contextData.contexts.interviews ? 'interviews' : null,
+    resolvedContext: contextData.contexts.interview ? 'interview' : null,
     availableContexts,
-    detectionMethod: 'fallback to interviews',
+    detectionMethod: 'fallback to interview',
     testFile: testInfo.file,
     projectName: testInfo.project?.name,
     baseURL: testInfo.project?.use?.baseURL,

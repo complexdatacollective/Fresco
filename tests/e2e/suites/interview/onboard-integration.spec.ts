@@ -1,33 +1,15 @@
 import { expect, test } from '../../fixtures/test';
 
-type InterviewsTestData = {
-  admin: {
-    user: { id: string; username: string };
-    username: string;
-    password: string;
-  };
-  protocol: { id: string; name: string };
-  participants: { id: string; identifier: string; label: string | null }[];
-};
-
 test.describe.serial('Onboard Integration', () => {
-  let testData: InterviewsTestData;
-  let protocolId: string;
-
-  test.beforeAll(() => {
-    // Get test data from global setup
-    testData = (
-      globalThis as unknown as { __INTERVIEWS_TEST_DATA__: InterviewsTestData }
-    ).__INTERVIEWS_TEST_DATA__;
-    if (!testData) {
-      throw new Error('Test data not found. Ensure global setup has run.');
-    }
-    protocolId = testData.protocol.id;
-  });
-
   test('GET with participantIdentifier creates new participant and redirects to interview', async ({
     page,
+    database,
   }) => {
+    const protocolId = database.testData?.protocol.id;
+    if (!protocolId) {
+      throw new Error('Test data not found. Ensure global setup has run.');
+    }
+
     const newParticipantIdentifier = `NEW-GET-${Date.now()}`;
 
     // Navigate using GET with query parameter
@@ -46,7 +28,13 @@ test.describe.serial('Onboard Integration', () => {
 
   test('GET with existing participantIdentifier links to existing participant', async ({
     page,
+    database,
   }) => {
+    const testData = database.testData;
+    if (!testData) {
+      throw new Error('Test data not found. Ensure global setup has run.');
+    }
+
     // Use an existing participant from test data (P011-P020 don't have interviews)
     const existingParticipant = testData.participants.find(
       (p) => p.identifier === 'P011',
@@ -58,7 +46,7 @@ test.describe.serial('Onboard Integration', () => {
 
     // Navigate using GET with existing participant identifier
     await page.goto(
-      `/onboard/${protocolId}?participantIdentifier=${existingParticipant.identifier}`,
+      `/onboard/${testData.protocol.id}?participantIdentifier=${existingParticipant.identifier}`,
       { waitUntil: 'domcontentloaded' },
     );
 
@@ -69,7 +57,13 @@ test.describe.serial('Onboard Integration', () => {
 
   test('POST with participantIdentifier in body creates interview', async ({
     page,
+    database,
   }) => {
+    const protocolId = database.testData?.protocol.id;
+    if (!protocolId) {
+      throw new Error('Test data not found. Ensure global setup has run.');
+    }
+
     const newParticipantIdentifier = `NEW-POST-${Date.now()}`;
 
     // Use page.request to make a POST request
@@ -89,7 +83,13 @@ test.describe.serial('Onboard Integration', () => {
 
   test('POST with existing participantIdentifier links to existing participant', async ({
     page,
+    database,
   }) => {
+    const testData = database.testData;
+    if (!testData) {
+      throw new Error('Test data not found. Ensure global setup has run.');
+    }
+
     // Use an existing participant from test data
     const existingParticipant = testData.participants.find(
       (p) => p.identifier === 'P012',
@@ -99,11 +99,14 @@ test.describe.serial('Onboard Integration', () => {
       throw new Error('Test participant P012 not found');
     }
 
-    const response = await page.request.post(`/onboard/${protocolId}`, {
-      data: { participantIdentifier: existingParticipant.identifier },
-      headers: { 'Content-Type': 'application/json' },
-      maxRedirects: 0,
-    });
+    const response = await page.request.post(
+      `/onboard/${testData.protocol.id}`,
+      {
+        data: { participantIdentifier: existingParticipant.identifier },
+        headers: { 'Content-Type': 'application/json' },
+        maxRedirects: 0,
+      },
+    );
 
     expect(response.status()).toBe(307);
     const location = response.headers().location;
@@ -112,7 +115,13 @@ test.describe.serial('Onboard Integration', () => {
 
   test('GET without participantIdentifier creates anonymous participant', async ({
     page,
+    database,
   }) => {
+    const protocolId = database.testData?.protocol.id;
+    if (!protocolId) {
+      throw new Error('Test data not found. Ensure global setup has run.');
+    }
+
     // Navigate without participantIdentifier (anonymous recruitment is enabled in test setup)
     await page.goto(`/onboard/${protocolId}`, {
       waitUntil: 'domcontentloaded',
@@ -125,7 +134,13 @@ test.describe.serial('Onboard Integration', () => {
 
   test('POST without participantIdentifier creates anonymous participant', async ({
     page,
+    database,
   }) => {
+    const protocolId = database.testData?.protocol.id;
+    if (!protocolId) {
+      throw new Error('Test data not found. Ensure global setup has run.');
+    }
+
     const response = await page.request.post(`/onboard/${protocolId}`, {
       data: {},
       headers: { 'Content-Type': 'application/json' },
@@ -163,23 +178,15 @@ test.describe.serial('Onboard Integration', () => {
 });
 
 test.describe('Onboard Integration - Limit Interviews', () => {
-  let testData: InterviewsTestData;
-  let protocolId: string;
-
-  test.beforeAll(() => {
-    testData = (
-      globalThis as unknown as { __INTERVIEWS_TEST_DATA__: InterviewsTestData }
-    ).__INTERVIEWS_TEST_DATA__;
-    if (!testData) {
-      throw new Error('Test data not found. Ensure global setup has run.');
-    }
-    protocolId = testData.protocol.id;
-  });
-
   test('with limitInterviews enabled, redirects to finished when cookie exists', async ({
     page,
     database,
   }) => {
+    const protocolId = database.testData?.protocol.id;
+    if (!protocolId) {
+      throw new Error('Test data not found. Ensure global setup has run.');
+    }
+
     // Use withSnapshot to automatically restore state after test
     await database.withSnapshot('limitInterviews', async () => {
       // Enable limitInterviews setting
@@ -218,6 +225,11 @@ test.describe('Onboard Integration - Limit Interviews', () => {
     page,
     database,
   }) => {
+    const protocolId = database.testData?.protocol.id;
+    if (!protocolId) {
+      throw new Error('Test data not found. Ensure global setup has run.');
+    }
+
     await database.withSnapshot('limitInterviewsNoCookie', async () => {
       // Enable limitInterviews setting
       await database.prisma.appSettings.upsert({
@@ -251,6 +263,11 @@ test.describe('Onboard Integration - Limit Interviews', () => {
     page,
     database,
   }) => {
+    const protocolId = database.testData?.protocol.id;
+    if (!protocolId) {
+      throw new Error('Test data not found. Ensure global setup has run.');
+    }
+
     await database.withSnapshot('limitInterviewsDisabled', async () => {
       // Ensure limitInterviews is disabled (should be default, but be explicit)
       await database.prisma.appSettings.upsert({

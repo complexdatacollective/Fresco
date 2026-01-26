@@ -6,6 +6,7 @@ import { promisify } from 'node:util';
 import { ADMIN_CREDENTIALS } from './config/test-config';
 import {
   saveContextData,
+  type InterviewTestData,
   type SerializedContext,
 } from './fixtures/context-storage';
 import { NativeAppEnvironment } from './fixtures/native-app-environment';
@@ -32,13 +33,11 @@ async function globalSetup() {
   await ensureStandaloneBuild();
 
   // Setup parallel environments
-  const [setupContext, dashboardContext, interviewsContext] = await Promise.all(
-    [
-      setupInitialSetupEnvironment(testEnv),
-      setupDashboardEnvironment(testEnv),
-      setupInterviewsEnvironment(testEnv),
-    ],
-  );
+  const [setupContext, dashboardContext, interviewsResult] = await Promise.all([
+    setupInitialSetupEnvironment(testEnv),
+    setupDashboardEnvironment(testEnv),
+    setupInterviewsEnvironment(testEnv),
+  ]);
 
   // Store the test environment instance globally for teardown
   globalThis.__TEST_ENVIRONMENT__ = testEnv;
@@ -52,15 +51,21 @@ async function globalSetup() {
   const serializeContext = (
     suiteId: string,
     ctx: TestEnvironmentContext,
+    testData?: InterviewTestData,
   ): SerializedContext => ({
     suiteId,
     appUrl: ctx.appUrl,
     databaseUrl: ctx.dbContainer.getConnectionUri(),
+    testData,
   });
 
   contextData.setup = serializeContext('setup', setupContext);
   contextData.dashboard = serializeContext('dashboard', dashboardContext);
-  contextData.interviews = serializeContext('interviews', interviewsContext);
+  contextData.interview = serializeContext(
+    'interview',
+    interviewsResult.context,
+    interviewsResult.testData,
+  );
 
   await saveContextData(contextData);
 
@@ -80,6 +85,15 @@ async function globalSetup() {
 async function setupInitialSetupEnvironment(testEnv: TestEnvironment) {
   const context = await testEnv.create({
     suiteId: 'setup',
+    setupData: async (prisma) => {
+      const dataBuilder = new TestDataBuilder(prisma);
+
+      // Set initializedAt to match production behavior (initialize.ts runs before server)
+      // but keep configured=false so the setup flow is tested
+      await dataBuilder.setupAppSettings({
+        configured: false,
+      });
+    },
   });
 
   // Store setup context globally for easy access
@@ -121,9 +135,14 @@ async function setupDashboardEnvironment(testEnv: TestEnvironment) {
   return context;
 }
 
-async function setupInterviewsEnvironment(testEnv: TestEnvironment) {
+async function setupInterviewsEnvironment(testEnv: TestEnvironment): Promise<{
+  context: TestEnvironmentContext;
+  testData: InterviewTestData;
+}> {
+  let testData: InterviewTestData | undefined;
+
   const context = await testEnv.create({
-    suiteId: 'interviews',
+    suiteId: 'interview',
     setupData: async (prisma) => {
       const dataBuilder = new TestDataBuilder(prisma);
 
@@ -161,13 +180,17 @@ async function setupInterviewsEnvironment(testEnv: TestEnvironment) {
         participants.push(participant);
       }
 
-      globalThis.__INTERVIEWS_TEST_DATA__ = {
+      testData = {
         admin: adminData,
         protocol,
         participants,
       };
     },
   });
+
+  if (!testData) {
+    throw new Error('Test data was not initialized during setup');
+  }
 
   // Disconnect Prisma before creating snapshot to avoid connection issues
   await context.prisma.$disconnect();
@@ -179,9 +202,9 @@ async function setupInterviewsEnvironment(testEnv: TestEnvironment) {
   await context.prisma.$connect();
 
   // Store context for use in tests
-  globalThis.__INTERVIEWS_CONTEXT__ = context;
+  globalThis.__INTERVIEW_CONTEXT__ = context;
 
-  return context;
+  return { context, testData };
 }
 
 async function ensureStandaloneBuild() {
@@ -203,13 +226,15 @@ async function ensureStandaloneBuild() {
   logger.build.building();
 
   try {
-    // Run: pnpm build with SKIP_ENV_VALIDATION=true
+    // Run: pnpm build with test-specific env vars
+    // DISABLE_NEXT_CACHE enables the no-op cache handler for test isolation
     await execFileAsync('pnpm', ['build'], {
       cwd: projectRoot,
       env: {
         // eslint-disable-next-line no-process-env
         ...process.env,
         SKIP_ENV_VALIDATION: 'true',
+        DISABLE_NEXT_CACHE: 'true',
       },
       maxBuffer: 50 * 1024 * 1024, // 50MB buffer for build output
     });

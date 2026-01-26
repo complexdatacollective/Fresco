@@ -1,4 +1,7 @@
 import { revalidateTag, unstable_cache } from 'next/cache';
+import { env } from '~/env';
+
+const disableNextCache = env.DISABLE_NEXT_CACHE;
 
 export const CacheTags = [
   'activityFeed',
@@ -40,6 +43,11 @@ export function createCachedFunction<T extends UnstableCacheParams[0]>(
     revalidate?: number | false;
   },
 ): T {
+  // In test mode, bypass caching entirely for proper isolation
+  if (disableNextCache) {
+    return func;
+  }
+
   return unstable_cache(func, options?.keyParts, {
     tags,
     revalidate: options?.revalidate,

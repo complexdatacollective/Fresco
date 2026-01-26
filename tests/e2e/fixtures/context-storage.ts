@@ -5,10 +5,21 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CONTEXT_FILE = path.join(__dirname, '../.context-data.json');
 
+export type InterviewTestData = {
+  admin: {
+    user: { id: string; username: string };
+    username: string;
+    password: string;
+  };
+  protocol: { id: string; name: string };
+  participants: { id: string; identifier: string; label: string | null }[];
+};
+
 export type SerializedContext = {
   suiteId: string;
   appUrl: string;
   databaseUrl: string;
+  testData?: InterviewTestData;
 };
 
 export type StoredContextData = {
