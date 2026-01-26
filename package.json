@@ -149,7 +149,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-storybook": "^10.0.8",
     "jsdom": "^27.0.1",
-    "knip": "^5.76.3",
+    "knip": "^5.82.1",
     "prettier": "^3.6.0",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "prisma": "^7.1.0",
