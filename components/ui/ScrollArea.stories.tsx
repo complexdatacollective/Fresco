@@ -113,7 +113,7 @@ const HorizontalContent = () => (
       <div
         key={i}
         className={cx(
-          'flex-shrink-0 border p-4',
+          'shrink-0 border p-4',
           'bg-surface-1 text-surface-1-contrast',
           'w-48',
         )}

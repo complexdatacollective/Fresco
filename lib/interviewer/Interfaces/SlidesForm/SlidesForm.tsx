@@ -216,7 +216,7 @@ function SlidesFormInner({
     return (
       <motion.div
         key={itemIndex}
-        className="absolute flex h-full w-full max-w-[80rem] items-center justify-center [&_.scrollable]:h-full [&_.scrollable]:px-5"
+        className="absolute flex h-full w-full max-w-7xl items-center justify-center [&_.scrollable]:h-full [&_.scrollable]:px-5"
         variants={slideVariants}
         animate="show"
         initial={pendingDirection === 'forwards' ? 'hideBottom' : 'hideTop'}

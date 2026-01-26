@@ -77,14 +77,14 @@ const Pair = ({
       }
     >
       <div className="flex items-center justify-center">
-        <Node {...fromNode} className="relative z-[2]" />
+        <Node {...fromNode} className="relative z-2" />
         <motion.div
-          className="relative z-[1] mx-[-1.5rem] h-2 w-44 bg-[linear-gradient(to_right,transparent_50%,var(--nc-background)_50%)] bg-[length:200%_100%] transition-[background_var(--animation-duration-standard)_var(--animation-easing)]"
+          className="relative z-1 mx-[-1.5rem] h-2 w-44 bg-[linear-gradient(to_right,transparent_50%,var(--nc-background)_50%)] bg-[length:200%_100%] transition-[background_var(--animation-duration-standard)_var(--animation-easing)]"
           variants={edgeVariants}
           initial="hideEdge"
           animate={!hasEdge ? 'hideEdge' : 'showEdge'}
         />
-        <Node {...toNode} className="relative z-[2]" />
+        <Node {...toNode} className="relative z-2" />
       </div>
     </motion.div>
   );

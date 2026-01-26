@@ -163,9 +163,9 @@ const TieStrengthCensus = (props: TieStrengthCensusProps) => {
   };
 
   const choiceClasses = cx(
-    'relative z-[var(--z-panel)] flex w-full min-w-[65vmin] flex-grow-0 flex-col rounded-[var(--nc-border-radius)] border-8 border-transparent p-5',
+    'relative z-(--z-panel) flex w-full min-w-[65vmin] grow-0 flex-col rounded-(--nc-border-radius) border-8 border-transparent p-5',
     {
-      'animate-[shake_0.82s_cubic-bezier(0.36,0.07,0.19,0.97)_both] border-[var(--nc-error)] [outline-offset:0.75rem]':
+      'animate-shake border-(--nc-error) outline-offset-[0.75rem]':
         !isValid,
     },
   );
@@ -175,7 +175,7 @@ const TieStrengthCensus = (props: TieStrengthCensusProps) => {
       <AnimatePresence initial={false} mode="wait">
         {isIntroduction && (
           <motion.div
-            className="max-h-full max-w-[80ch] rounded-[var(--nc-border-radius)] bg-[var(--nc-panel-bg-muted)] px-16 py-5"
+            className="max-h-full max-w-[80ch] rounded-(--nc-border-radius) bg-(--nc-panel-bg-muted) px-16 py-5"
             variants={introVariants}
             initial="hide"
             exit="hide"
@@ -208,7 +208,7 @@ const TieStrengthCensus = (props: TieStrengthCensusProps) => {
                 animate="show"
               >
                 <div className="absolute top-0 left-0 flex h-full w-full flex-col items-center justify-center">
-                  <div className="relative flex w-full flex-grow items-center justify-center">
+                  <div className="relative flex w-full grow items-center justify-center">
                     <AnimatePresence custom={[isForwards]} initial={false}>
                       <Pair
                         key={`${stepsState.step}_${stepsState.substep}`}

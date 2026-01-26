@@ -67,7 +67,7 @@ export function MobileNavDrawer() {
         aria-expanded={open}
         className="focusable rounded-lg p-2 hover:bg-white/10"
       >
-        <Menu className="h-6 w-6" />
+        <Menu className="size-6" />
       </button>
 
       <Modal open={open} onOpenChange={setOpen}>
@@ -89,7 +89,7 @@ export function MobileNavDrawer() {
                 aria-label="Close navigation menu"
                 className="focusable hover:bg-surface-1-contrast/10 rounded-lg p-2"
               >
-                <X className="h-6 w-6" />
+                <X className="size-6" />
               </button>
             </div>
 
@@ -111,7 +111,7 @@ export function MobileNavDrawer() {
                   item={{
                     label: 'Settings',
                     href: '/dashboard/settings',
-                    icon: <Settings className="h-5 w-5" />,
+                    icon: <Settings className="size-5" />,
                   }}
                   isActive={pathname === '/dashboard/settings'}
                   onClick={handleClose}

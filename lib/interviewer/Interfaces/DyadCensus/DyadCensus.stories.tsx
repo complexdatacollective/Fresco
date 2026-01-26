@@ -6,8 +6,8 @@ import {
 } from '@codaco/shared-consts';
 import { configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { Provider } from 'react-redux';
+import { expect, waitFor, within } from 'storybook/test';
 import DyadCensus from './DyadCensus';
 
 const mockProtocol = {
@@ -234,7 +234,7 @@ export const WithNodePairs: Story = {
       });
     });
 
-    await step('Verify introduction text is displayed', async () => {
+    await step('Verify introduction text is displayed', () => {
       const introText = canvas.getByText(/For each pair of people/i);
       void expect(introText).toBeInTheDocument();
     });

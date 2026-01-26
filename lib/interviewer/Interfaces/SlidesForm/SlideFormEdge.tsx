@@ -66,11 +66,11 @@ export default function SlideFormEdge(props: SlideFormEdgeProps) {
         {fromNode && (
           <Node
             {...fromNode}
-            className="absolute top-[calc(var(--base-node-size)*-0.5)] left-[calc(-8rem+50%-var(--base-node-size)/2)] rounded-full bg-[--nc-panel-bg-muted] [&>*]:z-[2]"
+            className="absolute top-[calc(var(--base-node-size)*-0.5)] left-[calc(-8rem+50%-var(--base-node-size)/2)] rounded-full bg-[--nc-panel-bg-muted] *:z-2"
           />
         )}
         <div
-          className="absolute top-[-1rem] left-[calc(50%-5rem)] z-[1] h-2 w-[10rem]"
+          className="absolute top-[-1rem] left-[calc(50%-5rem)] z-1 h-2 w-[10rem]"
           style={{ backgroundColor: `var(--nc-${edgeColor})` }}
         />
         {toNode && (

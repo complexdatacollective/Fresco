@@ -39,7 +39,7 @@ export const SignInForm = () => {
         }}
         component={InputField}
         autoComplete="username"
-        prefixComponent={<User2 className="h-4 w-4" />}
+        prefixComponent={<User2 className="size-4" />}
       />
       <Field
         key="password"

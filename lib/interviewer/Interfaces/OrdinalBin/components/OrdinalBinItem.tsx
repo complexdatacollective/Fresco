@@ -98,7 +98,7 @@ const OrdinalBinItem = memo((props: OrdinalBinItemProps) => {
   );
 
   const panelClasses = cx(
-    'flex flex-1 grow-[5] flex-col items-center overflow-hidden p-2 transition-colors duration-200',
+    'flex flex-1 grow-5 flex-col items-center overflow-hidden p-2 transition-colors duration-200',
     promptColorClass,
     isDragging && willAccept && 'ring-accent ring-2 ring-inset',
     isOver && willAccept && 'bg-success',

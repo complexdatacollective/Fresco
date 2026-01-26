@@ -73,17 +73,17 @@ export default function Pair({
       }}
     >
       <div className="flex items-center justify-center">
-        <Node {...fromNode} className="relative z-[2]" />
+        <Node {...fromNode} className="relative z-2" />
         <motion.div
           className={cx(
-            'relative z-[1] mx-[-1.5rem] h-2 w-44 transition-[background] duration-[var(--animation-duration-standard)] ease-[var(--animation-easing)]',
+            'relative z-1 mx-[-1.5rem] h-2 w-44 transition-[background] duration-(--animation-duration-standard) ease-(--animation-easing)',
             'bg-[linear-gradient(to_right,var(--edge-color)_50%,var(--nc-background)_50%)] bg-[length:200%_100%]',
           )}
           variants={edgeVariants}
           initial="hideEdge"
           animate={!hasEdge ? 'hideEdge' : 'showEdge'}
         />
-        <Node {...toNode} className="relative z-[2]" />
+        <Node {...toNode} className="relative z-2" />
       </div>
     </motion.div>
   );

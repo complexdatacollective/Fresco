@@ -18,6 +18,7 @@ import { useAppDispatch } from '~/lib/interviewer/store';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { type StageProps } from '../../components/Stage';
 import { FamilyTreeProvider, useFamilyTreeStore } from './FamilyTreeProvider';
+import { getRelationshipTypeVariable } from './utils/edgeUtils';
 
 type FamilyTreeCensusProps = StageProps & {
   stage: Extract<Stage, { type: 'FamilyTreeCensus' }>;

@@ -156,9 +156,9 @@ export default function DyadCensus(props: StageProps) {
   };
 
   const choiceClasses = cx(
-    'relative z-[var(--z-panel)] flex w-[70vmin] shrink-0 grow-0 flex-col rounded-[var(--nc-border-radius)] border-[0.5rem] border-transparent p-5 text-center',
+    'relative z-(--z-panel) flex w-[70vmin] shrink-0 grow-0 flex-col rounded-(--nc-border-radius) border-[0.5rem] border-transparent p-5 text-center',
     {
-      'animate-[shake_0.82s_cubic-bezier(0.36,0.07,0.19,0.97)_both] border-[var(--nc-error)] outline-offset-[0.75rem]':
+      'animate-shake border-(--nc-error) outline-offset-[0.75rem]':
         !isValid,
     },
   );
@@ -168,7 +168,7 @@ export default function DyadCensus(props: StageProps) {
       <AnimatePresence initial={false} mode="wait">
         {isIntroduction && (
           <motion.div
-            className="max-w-[80ch] rounded-[var(--nc-border-radius)] bg-[var(--nc-panel-bg-muted)] px-16 py-5"
+            className="max-w-[80ch] rounded-(--nc-border-radius) bg-(--nc-panel-bg-muted) px-16 py-5"
             variants={introVariants}
             initial="hide"
             exit="hide"

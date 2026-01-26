@@ -12,8 +12,8 @@ const Panels = ({ children, minimize = false }: PanelsProps) => {
         'flex flex-col',
         'w-96 max-w-[30vw]',
         'transition-[opacity,width,margin-right]',
-        'duration-[var(--animation-duration-standard)]',
-        'ease-[var(--animation-easing)]',
+        'duration-(--animation-duration-standard)',
+        'ease-(--animation-easing)',
         'transform-gpu will-change-transform',
         minimize ? 'block w-0 opacity-0' : 'opacity-100',
       )}
