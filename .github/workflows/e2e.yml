@@ -95,8 +95,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install Playwright browsers
-        run: pnpm playwright install --with-deps
+      # Note: Playwright browsers are not installed here because tests run inside
+      # the Playwright Docker container via scripts/run-e2e-docker.sh
 
       - name: Download Docker image (PR)
         if: github.event_name == 'pull_request'

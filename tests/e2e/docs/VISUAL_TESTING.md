@@ -139,11 +139,11 @@ This command:
 When creating new visual tests, you need to generate baseline screenshots:
 
 ```bash
-# Generate baselines using Docker (recommended)
+# Generate baselines using Docker (runs all tests with --update-snapshots)
 pnpm test:e2e:update-snapshots
 
-# Or if you only need to generate specific test snapshots:
-./scripts/update-e2e-snapshots.sh
+# Or update specific test snapshots:
+pnpm test:e2e:update-snapshots tests/e2e/suites/dashboard/visual-snapshots.spec.ts
 ```
 
 ### Updating Existing Baselines
@@ -151,25 +151,26 @@ pnpm test:e2e:update-snapshots
 When UI changes are intentional and you need to update baselines:
 
 ```bash
-# Update all baselines using Docker (recommended)
+# Update all baselines using Docker
 pnpm test:e2e:update-snapshots
 ```
 
 ### Local Development (macOS/Windows)
 
-For local development and debugging, you can run tests directly, but be aware that:
-
-- Visual snapshots will use platform-specific baselines (`-darwin.png` or `-win32.png`)
-- These local baselines won't exist unless you create them
-- For CI compatibility, always use the Docker-based approach above
+For debugging and development, you can run tests natively on your machine:
 
 ```bash
-# Run tests locally (may fail visual comparisons without local baselines)
-pnpm test:e2e
+# Run tests locally without Docker (visual snapshots may differ from CI)
+pnpm test:e2e:local
 
-# Update local baselines (not recommended for CI compatibility)
-npx playwright test --update-snapshots
+# Use Playwright UI for interactive debugging
+pnpm test:e2e:local:ui
+
+# Step-through debugging mode
+pnpm test:e2e:local:debug
 ```
+
+Note: When running locally without Docker, visual snapshots will use platform-specific baselines (`-darwin.png` or `-win32.png`) which may not exist. For consistent visual testing, always use the Docker-based `pnpm test:e2e` command.
 
 ## Best Practices
 
@@ -320,13 +321,14 @@ test.describe('Dashboard Visual Tests', () => {
 
 ## Integration with CI/CD
 
-Add visual regression testing to your CI pipeline:
+Visual regression tests run automatically as part of the e2e test suite in CI. Both local development and CI use the same Playwright Docker image, ensuring consistent results.
 
 ```yaml
-# .github/workflows/visual-tests.yml
-- name: Run Visual Regression Tests
-  run: |
-    npx playwright test --grep "visual snapshot" --reporter=github
+# .github/workflows/e2e.yml
+- name: Run E2E Tests
+  run: pnpm test:e2e
+  env:
+    CI: true
 
 - name: Upload Test Results
   uses: actions/upload-artifact@v3

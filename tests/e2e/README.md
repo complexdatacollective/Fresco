@@ -6,32 +6,50 @@ This directory contains the end-to-end testing system for Fresco, including comp
 
 ### Running Tests
 
+All e2e tests run inside a Docker container (the official Playwright image) to ensure consistent visual snapshots across all environments. This matches the CI environment exactly.
+
 ```bash
-# Run all e2e tests
-npx playwright test --config tests/e2e/playwright.config.ts
+# Run all e2e tests (in Docker)
+pnpm test:e2e
 
 # Run specific test suite
-npx playwright test tests/e2e/suites/dashboard/participants.spec.ts
+pnpm test:e2e tests/e2e/suites/dashboard/participants.spec.ts
 
-# Run tests in headed mode (with browser UI)
-npx playwright test --headed
+# Run with specific Playwright options
+pnpm test:e2e --project=dashboard
+pnpm test:e2e --grep "visual snapshot"
 
-# Run tests with debug mode
-npx playwright test --debug
+# Force rebuild the Next.js standalone build
+FORCE_REBUILD=true pnpm test:e2e
+```
+
+### Local Development (Native)
+
+For debugging and development, you can run tests natively on your machine. Note that visual snapshots may differ from CI when running locally due to OS-specific font rendering.
+
+```bash
+# Run tests locally (without Docker)
+pnpm test:e2e:local
+
+# Run with Playwright UI for debugging
+pnpm test:e2e:local:ui
+
+# Run in step-through debug mode
+pnpm test:e2e:local:debug
 ```
 
 ### Visual Regression Testing
 
 The system includes a comprehensive visual snapshot system. See [VISUAL_TESTING.md](./docs/VISUAL_TESTING.md) for detailed documentation.
 
-**Important**: Visual snapshots must be generated using Docker to match CI (Linux environment).
+Visual snapshots are always generated using the Linux Playwright Docker image to match CI.
 
 ```bash
-# Generate/update baseline screenshots using Docker (recommended)
+# Generate/update baseline screenshots
 pnpm test:e2e:update-snapshots
 
 # Run visual regression tests
-npx playwright test --grep "visual snapshot"
+pnpm test:e2e --grep "visual snapshot"
 ```
 
 ## Directory Structure
@@ -42,12 +60,15 @@ tests/e2e/
 │   ├── DATABASE_SNAPSHOTS.md
 │   └── VISUAL_TESTING.md
 ├── fixtures/           # Reusable test utilities
-│   ├── database-snapshots.ts
-│   ├── page-helpers.ts
-│   ├── test-data-builder.ts
-│   ├── test-environment.ts
-│   ├── test.ts         # Main test fixture with visual snapshots, auth & database
-│   └── visual-snapshots.ts
+│   ├── context-storage.ts      # Serializes context for worker processes
+│   ├── database-snapshots.ts   # Test fixture for database isolation
+│   ├── native-app-environment.ts # Next.js process management
+│   ├── snapshot-server.ts      # HTTP server for snapshot/restore coordination
+│   ├── test-data-builder.ts    # Test data creation utilities
+│   ├── test-environment.ts     # PostgreSQL container management
+│   ├── test.ts                 # Main test fixture with visual snapshots, auth & database
+│   ├── visual-snapshots.ts     # Visual regression testing utilities
+│   └── worker-context.ts       # Worker process context resolution
 ├── scripts/           # Utility scripts
 │   └── generate-baselines.sh
 ├── suites/            # Test suites organized by area
@@ -93,10 +114,11 @@ Each suite can run independently with appropriate database seeding and environme
 ### 🗄️ Database Management
 
 - **Integrated fixture system**: `database` available for snapshot operations
+- **Container-level snapshots**: Uses testcontainers to capture and restore entire PostgreSQL state
+- **Automatic Next.js restart**: Restoring a snapshot also restarts Next.js for clean connections
 - **Context-aware**: Automatically detects the correct database context per test suite
 - Isolated test environments per suite (setup, dashboard, interviews)
 - Automatic seeding with realistic test data
-- Snapshot and restore capabilities for state management
 - Direct Prisma client access for database operations
 
 ### 🐳 Test Architecture
@@ -105,12 +127,14 @@ The e2e tests use a hybrid architecture:
 
 - **PostgreSQL databases**: Provisioned via [testcontainers](https://testcontainers.com/) (requires Docker)
 - **Next.js app**: Runs as native Node.js processes from the standalone build
+- **Snapshot server**: HTTP server in global setup that coordinates database snapshots and Next.js restarts
 - **Visual snapshots**: Generated in Docker (Playwright image) to match CI environment
 
 This approach provides:
 
 - Fast test startup (no Docker image build for the app)
 - Isolated databases per test suite (setup, dashboard, interviews)
+- Container-level database snapshots with automatic Next.js restart
 - Consistent snapshot generation across platforms
 
 ### 📊 Comprehensive Coverage
@@ -204,8 +228,9 @@ test('database mutations with isolation', async ({ database }) => {
 
 ### Debugging
 
-- Use `--headed` mode to see tests running in real browsers
-- Use `--debug` mode to step through tests interactively
+- Use `pnpm test:e2e:local:ui` for the interactive Playwright UI
+- Use `pnpm test:e2e:local:debug` to step through tests interactively
+- Use `pnpm test:e2e:local --headed` to see tests running in real browsers
 - Check the `test-results/` directory for failure artifacts
 - Review the HTML report generated after test runs
 
