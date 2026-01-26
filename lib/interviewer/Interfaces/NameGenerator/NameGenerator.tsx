@@ -16,8 +16,8 @@ import NodeList from '~/lib/interviewer/components/NodeList';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { usePrompts } from '../../behaviours/withPrompt';
 import Prompts from '../../components/Prompts';
-import { type Direction } from '../../containers/ProtocolScreen';
-import { type StageProps } from '../../containers/Stage';
+import { type Direction } from '../../components/ProtocolScreen';
+import { type StageProps } from '../../components/Stage';
 import {
   addNode as addNodeAction,
   addNodeToPrompt as addNodeToPromptAction,

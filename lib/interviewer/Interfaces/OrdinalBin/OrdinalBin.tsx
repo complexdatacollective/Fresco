@@ -6,7 +6,7 @@ import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { usePrompts } from '../../behaviours/withPrompt';
 import MultiNodeBucket from '../../components/MultiNodeBucket';
 import Prompts from '../../components/Prompts';
-import { type StageProps } from '../../containers/Stage';
+import { type StageProps } from '../../components/Stage';
 import { getPromptVariable } from '../../selectors/prop';
 import { getNetworkNodesForType } from '../../selectors/session';
 import { type ProcessedSortRule } from '../../utils/createSorter';

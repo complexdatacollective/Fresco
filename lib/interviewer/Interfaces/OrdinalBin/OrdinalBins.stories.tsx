@@ -9,6 +9,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { motion } from 'motion/react';
 import { Provider } from 'react-redux';
+import { expect, within } from 'storybook/test';
 import { DndStoreProvider } from '~/lib/dnd';
 import OrdinalBins from './components/OrdinalBins';
 import { type OrdinalBinPrompt } from './useOrdinalBins';
@@ -28,6 +29,11 @@ const frequencyOptions = [
   { label: 'Often', value: 3 },
   { label: 'Very Often', value: 4 },
   { label: 'Always', value: 5 },
+];
+
+const yesNoOptions = [
+  { label: 'No', value: 1 },
+  { label: 'Yes', value: 2 },
 ];
 
 const mockProtocol = {
@@ -52,6 +58,11 @@ const mockProtocol = {
             name: 'Frequency',
             type: 'ordinal',
             options: frequencyOptions,
+          },
+          yesNo: {
+            name: 'Yes/No',
+            type: 'ordinal',
+            options: yesNoOptions,
           },
         },
       },
@@ -223,6 +234,21 @@ export const Empty: Story = {
       },
     },
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const allBinLabels = [
+      'Strongly Disagree',
+      'Disagree',
+      'Neutral',
+      'Agree',
+      'Strongly Agree',
+    ];
+
+    for (const label of allBinLabels) {
+      await expect(canvas.getByText(label)).toBeInTheDocument();
+    }
+  },
 };
 
 export const WithDistributedNodes: Story = {
@@ -242,6 +268,18 @@ export const WithDistributedNodes: Story = {
       },
     },
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByText('Strongly Disagree')).toBeInTheDocument();
+    await expect(canvas.getByText('Disagree')).toBeInTheDocument();
+    await expect(canvas.getByText('Neutral')).toBeInTheDocument();
+    await expect(canvas.getByText('Agree')).toBeInTheDocument();
+    await expect(canvas.getByText('Strongly Agree')).toBeInTheDocument();
+
+    await expect(canvas.getAllByText('Alice')).toHaveLength(2);
+    await expect(canvas.getAllByText('Charlie')).toHaveLength(2);
+  },
 };
 
 export const AllInOneBin: Story = {
@@ -260,6 +298,14 @@ export const AllInOneBin: Story = {
         story: 'OrdinalBins with all nodes in the Neutral bin.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByText('Neutral')).toBeInTheDocument();
+
+    const aliceNodes = canvas.getAllByText('Alice');
+    await expect(aliceNodes.length).toBeGreaterThan(0);
   },
 };
 
@@ -313,6 +359,15 @@ export const WithMissingValueBin: Story = {
       },
     },
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByText('Never')).toBeInTheDocument();
+    await expect(canvas.getByText('Rarely')).toBeInTheDocument();
+    await expect(canvas.getByText('Always')).toBeInTheDocument();
+
+    await expect(canvas.getByText('Alice')).toBeInTheDocument();
+  },
 };
 
 export const CustomColor: Story = {
@@ -352,6 +407,88 @@ export const ManyNodes: Story = {
       description: {
         story:
           'OrdinalBins with many nodes to demonstrate how multiple nodes appear in each bin.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const allBinLabels = [
+      'Strongly Disagree',
+      'Disagree',
+      'Neutral',
+      'Agree',
+      'Strongly Agree',
+    ];
+
+    for (const label of allBinLabels) {
+      await expect(canvas.getByText(label)).toBeInTheDocument();
+    }
+
+    await expect(canvas.getAllByText('Alice')).toHaveLength(2);
+    await expect(canvas.getAllByText('Bob')).toHaveLength(2);
+  },
+};
+
+export const SkewedDistribution: Story = {
+  args: {
+    stage: mockStage,
+    prompt: mockPrompt,
+  },
+  decorators: [
+    ReduxDecoratorFactory({
+      nodes: createMockNodes(
+        12,
+        'agreement',
+        [5, 5, 5, 5, 5, 4, 4, 3, 2, 1, 1, 1],
+      ),
+    }),
+  ],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'OrdinalBins with nodes heavily skewed toward the Strongly Agree end of the scale.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByText('Strongly Agree')).toBeInTheDocument();
+
+    const aliceNodes = canvas.getAllByText('Alice');
+    await expect(aliceNodes.length).toBeGreaterThan(0);
+  },
+};
+
+export const TwoBinScale: Story = {
+  args: {
+    stage: {
+      ...mockStage,
+      prompts: [
+        {
+          id: 'prompt-1',
+          text: 'Do you work with this person?',
+          variable: 'yesNo',
+        },
+      ],
+    } as typeof mockStage,
+    prompt: {
+      ...mockPrompt,
+      id: 'prompt-1',
+    },
+  },
+  decorators: [
+    ReduxDecoratorFactory({
+      nodes: createMockNodes(6, 'yesNo', [1, 1, 1, 2, 2, 2]),
+    }),
+  ],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'OrdinalBins with only two bins for a binary choice (e.g., Yes/No).',
       },
     },
   },

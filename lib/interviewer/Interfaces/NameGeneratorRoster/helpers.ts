@@ -1,7 +1,7 @@
 import { type Stage } from '@codaco/protocol-validation';
 import { type getNodeVariables } from '~/lib/interviewer/selectors/interface';
 import getParentKeyByNameValue from '~/lib/interviewer/utils/getParentKeyByNameValue';
-import { type StageProps } from '../../containers/Stage';
+import { type StageProps } from '../../components/Stage';
 
 export const convertNamesToUUIDs = (
   variables: ReturnType<typeof getNodeVariables>,

@@ -257,20 +257,26 @@ export const ClickToRevealInput: Story = {
   render: (args) => (
     <QuickAddFieldWrapper {...args} onFormSubmit={formSubmitAction} />
   ),
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Initially, we should see the "Add Person..." button
-    const addButton = canvas.getByRole('button', { name: /add person/i });
-    await expect(addButton).toBeInTheDocument();
+    await step('Initially show the add button', async () => {
+      const addButton = canvas.getByRole('button', { name: /add a person/i });
+      await expect(addButton).toBeInTheDocument();
+    });
 
-    // Click the button to reveal the input
-    await userEvent.click(addButton);
+    await step('Click the button to reveal the input', async () => {
+      const addButton = canvas.getByRole('button', { name: /add a person/i });
+      await userEvent.click(addButton);
+    });
 
-    // Now the input should be visible
-    const input = canvas.getByPlaceholderText('Type a name...');
-    await expect(input).toBeInTheDocument();
-    await expect(input).toHaveFocus();
+    await step('Input should be visible and focused', async () => {
+      const input = canvas.getByPlaceholderText('Type a name...');
+      await expect(input).toBeInTheDocument();
+      // Focus happens after animation completes, so we need to wait
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      await expect(input).toHaveFocus();
+    });
   },
   parameters: {
     docs: {
@@ -291,28 +297,39 @@ export const TypeAndSubmit: Story = {
   render: (args) => (
     <QuickAddFieldWrapper {...args} onFormSubmit={formSubmitAction} />
   ),
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Click to reveal input
-    const addButton = canvas.getByRole('button', { name: /add person/i });
-    await userEvent.click(addButton);
+    await step('Click to reveal input', async () => {
+      const addButton = canvas.getByRole('button', {
+        name: /add a person/i,
+      });
+      await userEvent.click(addButton);
+    });
 
-    // Type a value
-    const input = canvas.getByPlaceholderText('Type a name and press Enter...');
-    await userEvent.type(input, 'Alice');
-    await expect(input).toHaveValue('Alice');
+    await step('Type a value', async () => {
+      const input = canvas.getByPlaceholderText(
+        'Type a name and press Enter...',
+      );
+      await userEvent.type(input, 'Alice');
+      await expect(input).toHaveValue('Alice');
+    });
 
-    // Submit with Enter
-    await userEvent.keyboard('{Enter}');
+    await step('Submit with Enter', async () => {
+      await userEvent.keyboard('{Enter}');
 
-    // Check the submitted value appears
-    const submittedValue = await canvas.findByTestId('submitted-value');
-    await expect(submittedValue).toHaveTextContent('Submitted: Alice');
+      // Wait for form submission to complete and check the submitted value appears
+      const submittedValue = await canvas.findByTestId('submitted-value', {}, { timeout: 3000 });
+      await expect(submittedValue).toHaveTextContent('Submitted: Alice');
+    });
 
-    // Form should stay open with cleared input, ready for next entry
-    await expect(input).toBeInTheDocument();
-    await expect(input).toHaveValue('');
+    await step('Form should stay open with cleared input', async () => {
+      const input = canvas.getByPlaceholderText(
+        'Type a name and press Enter...',
+      );
+      await expect(input).toBeInTheDocument();
+      await expect(input).toHaveValue('');
+    });
   },
   parameters: {
     docs: {
@@ -339,7 +356,7 @@ export const ValidationError: Story = {
     const canvas = within(canvasElement);
 
     // Click to reveal input
-    const addButton = canvas.getByRole('button', { name: /add person/i });
+    const addButton = canvas.getByRole('button', { name: /add a person/i });
     await userEvent.click(addButton);
 
     // Type a value that's too short
@@ -379,7 +396,7 @@ export const EscapeToClose: Story = {
     const canvas = within(canvasElement);
 
     // Click to reveal input
-    const addButton = canvas.getByRole('button', { name: /add person/i });
+    const addButton = canvas.getByRole('button', { name: /add a person/i });
     await userEvent.click(addButton);
 
     // Type something in the input
@@ -392,7 +409,7 @@ export const EscapeToClose: Story = {
 
     // The add button should be visible again
     const addButtonAgain = await canvas.findByRole('button', {
-      name: /add person/i,
+      name: /add a person/i,
     });
     await expect(addButtonAgain).toBeInTheDocument();
 
@@ -424,7 +441,7 @@ export const BlurToCloseAndReset: Story = {
     const canvas = within(canvasElement);
 
     // Click to reveal input
-    const addButton = canvas.getByRole('button', { name: /add person/i });
+    const addButton = canvas.getByRole('button', { name: /add a person/i });
     await userEvent.click(addButton);
 
     // Type something
@@ -437,7 +454,7 @@ export const BlurToCloseAndReset: Story = {
 
     // The add button should be visible again (input closed)
     const addButtonAgain = await canvas.findByRole('button', {
-      name: /add person/i,
+      name: /add a person/i,
     });
     await expect(addButtonAgain).toBeInTheDocument();
 
@@ -465,16 +482,20 @@ export const DisabledPreventsInteraction: Story = {
   render: (args) => (
     <QuickAddFieldWrapper {...args} onFormSubmit={formSubmitAction} />
   ),
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // The add button should be disabled
-    const addButton = canvas.getByRole('button', { name: /add person/i });
-    await expect(addButton).toBeDisabled();
+    await step('Check the hidden checkbox is disabled', async () => {
+      const checkbox = canvas.getByRole('checkbox');
+      await expect(checkbox).toBeDisabled();
+    });
 
-    // Also check the hidden checkbox is disabled
-    const checkbox = canvas.getByRole('checkbox');
-    await expect(checkbox).toBeDisabled();
+    await step('The add button should have disabled styling', async () => {
+      const addButton = canvas.getByRole('button', { name: /add a person/i });
+      // Check for disabled styling (opacity-50 and pointer-events-none)
+      await expect(addButton).toHaveClass('opacity-50');
+      await expect(addButton).toHaveClass('pointer-events-none');
+    });
   },
   parameters: {
     docs: {

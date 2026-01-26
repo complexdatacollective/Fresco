@@ -5,15 +5,15 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { compose } from 'recompose';
 import ConvexHulls from '~/lib/interviewer/components/Canvas/ConvexHulls';
-import NodeLayout from '~/lib/interviewer/containers/Canvas/NodeLayout';
+import NodeLayout from '~/lib/interviewer/components/Canvas/NodeLayout';
+import Background from '../components/Canvas/Background';
 import Canvas from '../components/Canvas/Canvas';
 import NarrativeEdgeLayout from '../components/Canvas/NarrativeEdgeLayout';
+import PresetSwitcher from '../components/Canvas/PresetSwitcher';
+import Annotations from '../containers/Canvas/Annotations';
 import { LayoutProvider } from '../contexts/LayoutContext';
 import { edgesToCoords } from '../selectors/canvas';
 import { getNetworkEdges, getNetworkNodes } from '../selectors/session';
-import Annotations from '../containers/Canvas/Annotations';
-import Background from '../containers/Canvas/Background';
-import PresetSwitcher from '../containers/Canvas/PresetSwitcher';
 
 /**
  * Narrative Interface

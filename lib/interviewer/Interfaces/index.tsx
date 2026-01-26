@@ -76,7 +76,7 @@ const getInterface = (interfaceType: InterfaceType) => {
         loading: StageLoading,
       });
     case 'TieStrengthCensus':
-      return dynamic(() => import('./TieStrengthCensus'), {
+      return dynamic(() => import('./TieStrengthCensus/TieStrengthCensus'), {
         loading: StageLoading,
       });
     case 'Anonymisation':
@@ -96,13 +96,9 @@ const getInterface = (interfaceType: InterfaceType) => {
         loading: StageLoading,
       });
     case 'FamilyTreeCensus':
-      return dynamic(
-        () =>
-          import('../containers/Interfaces/FamilyTreeCensus/FamilyTreeCensus'),
-        {
-          loading: StageLoading,
-        },
-      );
+      return dynamic(() => import('./FamilyTreeCensus/FamilyTreeCensus'), {
+        loading: StageLoading,
+      });
     default:
       return () => <NotFoundInterface interfaceType={interfaceType} />;
   }

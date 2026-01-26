@@ -1,8 +1,8 @@
 import { connect } from 'react-redux';
 import { updateNode } from '../ducks/modules/session';
 import { makeNetworkNodesForType } from '../selectors/session';
-import SlideFormNode from '../containers/SlidesForm/SlideFormNode';
-import SlidesForm from '../containers/SlidesForm/SlidesForm';
+import SlideFormNode from './SlidesForm/SlideFormNode';
+import SlidesForm from './SlidesForm/SlidesForm';
 
 const AlterForm = (props) => (
   <SlidesForm itemName="alter" slideForm={SlideFormNode} {...props} />

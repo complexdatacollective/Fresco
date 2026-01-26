@@ -8,12 +8,12 @@ import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { MotionNode } from '../components/Node';
 import { nodeListVariants } from '../components/NodeList';
 import Prompts from '../components/Prompts';
+import { type StageProps } from '../components/Stage';
 import { edgeExists, toggleEdge } from '../ducks/modules/session';
 import useSortedNodeList from '../hooks/useSortedNodeList';
 import { getNetworkEdges, getNetworkNodesForType } from '../selectors/session';
 import { useAppDispatch } from '../store';
 import { type ProtocolSortRule } from '../utils/createSorter';
-import { type StageProps } from '../containers/Stage';
 
 type OneToManyDyadCensusProps = StageProps & {
   stage: Extract<Stage, { type: 'OneToManyDyadCensus' }>;

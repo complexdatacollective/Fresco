@@ -2,7 +2,6 @@ import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
 } from '@codaco/shared-consts';
-import cx from 'classnames';
 import { motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -22,8 +21,9 @@ import { useAppDispatch } from '~/lib/interviewer/store';
 import getParentKeyByNameValue from '~/lib/interviewer/utils/getParentKeyByNameValue';
 import { DataCard } from '~/lib/legacy-ui/components/Cards';
 import UINode from '~/lib/legacy-ui/components/Node';
+import { cx } from '~/utils/cva';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
-import SearchableList from '../../containers/SearchableList';
+import SearchableList from '../../components/SearchableList';
 import { usePassphrase } from '../Anonymisation/usePassphrase';
 import { nameGeneratorHandleBeforeLeaving } from '../NameGenerator/NameGenerator';
 import {
@@ -39,15 +39,7 @@ const countColumns = (width: number) =>
   width < 140 ? 1 : Math.floor(width / 450);
 
 const ErrorMessage = (props: { error: Error }) => (
-  <div
-    style={{
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}
-  >
+  <div className="flex flex-1 flex-col items-center justify-center">
     <h1>Something went wrong</h1>
     <p>External data could not be loaded.</p>
     <p>
@@ -187,10 +179,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
     [dispatch],
   );
 
-  const nodeListClasses = cx('name-generator-roster-interface__node-list', {
-    'name-generator-roster-interface__node-list--empty':
-      nodesForPrompt.length === 0,
-  });
+  const nodeListClasses = cx('relative flex flex-1');
 
   const disabled = useMemo(() => {
     if (!passphrase && useEncryption) {
@@ -221,13 +210,19 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
   );
 
   return (
-    <div className="interface" ref={interfaceRef}>
-      <div className="name-generator-roster-interface__prompt" key="prompts">
+    <div
+      className="flex h-full flex-1 flex-col items-center justify-center overflow-hidden"
+      ref={interfaceRef}
+    >
+      <div
+        className="flex flex-[0_0_var(--interface-prompt-flex-basis)] items-center justify-center text-center"
+        key="prompts"
+      >
         <Prompts />
       </div>
       <div className="flex h-full w-full grow">
         <motion.div
-          className="name-generator-roster-interface__panels"
+          className="flex flex-1"
           key="panels"
           initial="hidden"
           animate="visible"
@@ -235,7 +230,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
           variants={variants}
           style={{ transitionDuration: '--animation-duration-standard' }}
         >
-          <div className="name-generator-roster-interface__search-panel">
+          <div className="flex h-full min-w-[30rem] flex-1 pr-[1.8rem] [&_.card]:cursor-grab">
             <SearchableList
               key={String(disabled)}
               loading={itemsStatus.isLoading}
@@ -245,7 +240,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
               placeholder={
                 itemsStatus.error && <ErrorMessage error={itemsStatus.error} />
               }
-              itemType="SOURCE_NODES" // drop type
+              itemType="SOURCE_NODES"
               excludeItems={excludeItems}
               itemComponent={DataCard}
               dragComponent={DragPreviewNode}
@@ -259,9 +254,9 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
               disabled={disabled}
             />
           </div>
-          <div className="name-generator-roster-interface__node-panel">
+          <div className="flex h-full flex-1 flex-col [&_.node-list]:flex-1 [&_.node-list.node-list--drag]:bg-transparent [&_.node-list.node-list--hover]:bg-transparent">
             <Panel title="Added" noCollapse>
-              <div className="name-generator-roster-interface__node-list">
+              <div className={nodeListClasses}>
                 <NodeList
                   id="node-list"
                   className={nodeListClasses}

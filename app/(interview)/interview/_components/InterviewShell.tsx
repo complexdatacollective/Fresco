@@ -3,7 +3,7 @@
 import { Provider } from 'react-redux';
 import SuperJSON from 'superjson';
 import { DndStoreProvider } from '~/lib/dnd/DndStoreProvider';
-import ProtocolScreen from '~/lib/interviewer/containers/ProtocolScreen';
+import ProtocolScreen from '~/lib/interviewer/components/ProtocolScreen';
 import { store } from '~/lib/interviewer/store';
 import { type GetInterviewByIdQuery } from '~/queries/interviews';
 

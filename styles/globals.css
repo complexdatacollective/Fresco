@@ -6,6 +6,29 @@
 @plugin './plugins/tailwind-motion-spring.ts';
 @plugin './plugins/tailwind-elevation/index.ts';
 
+@keyframes shake {
+  10%,
+  90% {
+    transform: translate3d(-0.1rem, 0, 0);
+  }
+
+  20%,
+  80% {
+    transform: translate3d(0.2rem, 0, 0);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-0.4rem, 0, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate3d(0.4rem, 0, 0);
+  }
+}
+
 @theme {
   /*****************************************************************************
   *                                  TYPOGRAPHY

@@ -13,7 +13,7 @@ import Field from '~/lib/form/components/Field/Field';
 import Form from '~/lib/form/components/Form';
 import InputField from '~/lib/form/components/fields/InputField';
 import { usePassphrase } from '../Interfaces/Anonymisation/usePassphrase';
-import Overlay from '../containers/Overlay';
+import Overlay from './Overlay';
 
 const transition: Transition = {
   type: 'spring',

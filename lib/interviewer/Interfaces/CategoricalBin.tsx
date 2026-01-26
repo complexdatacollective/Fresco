@@ -3,12 +3,12 @@ import { useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { usePrompts } from '../behaviours/withPrompt';
+import CategoricalList from '../components/CategoricalList';
 import MultiNodeBucket from '../components/MultiNodeBucket';
 import Prompts from '../components/Prompts';
+import { type StageProps } from '../components/Stage';
 import { getUncategorisedNodes } from '../selectors/interface';
 import { type ProcessedSortRule } from '../utils/createSorter';
-import CategoricalList from '../containers/CategoricalList';
-import { type StageProps } from '../containers/Stage';
 
 type CategoricalBinStageProps = StageProps & {
   stage: Extract<

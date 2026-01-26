@@ -4,13 +4,13 @@ import { useCallback, useEffect, useRef } from 'react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Button from '~/components/ui/Button';
 import Field from '~/lib/form/components/Field/Field';
+import InputField from '~/lib/form/components/fields/InputField';
 import Form from '~/lib/form/components/Form';
 import useFormState from '~/lib/form/hooks/useFormState';
-import InputField from '~/lib/form/components/fields/InputField';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import EncryptionBackground from '../../components/EncryptedBackground';
-import type { BeforeNextFunction } from '../../containers/ProtocolScreen';
-import type { StageProps } from '../../containers/Stage';
+import type { BeforeNextFunction } from '../../components/ProtocolScreen';
+import type { StageProps } from '../../components/Stage';
 import { usePassphrase } from './usePassphrase';
 
 type AnonymisationProps = StageProps & {

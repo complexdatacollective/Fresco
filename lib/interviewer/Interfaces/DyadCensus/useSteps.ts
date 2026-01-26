@@ -44,7 +44,7 @@ export default function useSteps(steps: Steps) {
     },
     next, // move to the next step or substep
     back, // move to the previous step or substep
-  ];
+  ] as const;
 
   return value;
 }

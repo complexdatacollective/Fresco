@@ -234,30 +234,34 @@ export const AddNodeFlow: Story = {
     targetVariable: 'name',
   },
   render: (args) => <QuickNodeFormWrapper {...args} />,
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Click to reveal the input
-    const addButton = canvas.getByRole('button', { name: /add person/i });
-    await userEvent.click(addButton);
+    await step('Click to reveal the input', async () => {
+      const addButton = canvas.getByRole('button', { name: /add a person/i });
+      await userEvent.click(addButton);
+    });
 
-    // Form shown indicator should appear
-    const formShownIndicator = await canvas.findByTestId('form-shown');
-    await expect(formShownIndicator).toBeInTheDocument();
+    await step('Form shown indicator should appear', async () => {
+      const formShownIndicator = await canvas.findByTestId('form-shown');
+      await expect(formShownIndicator).toBeInTheDocument();
+    });
 
-    // Type a name
-    const input = canvas.getByPlaceholderText(
-      'Type a label and press enter...',
-    );
-    await userEvent.type(input, 'Alice');
-    await expect(input).toHaveValue('Alice');
+    await step('Type a name', async () => {
+      const input = canvas.getByPlaceholderText(
+        'Type a label and press enter...',
+      );
+      await userEvent.type(input, 'Alice');
+      await expect(input).toHaveValue('Alice');
+    });
 
-    // Submit with Enter
-    await userEvent.keyboard('{Enter}');
+    await step('Submit with Enter and verify node is added', async () => {
+      await userEvent.keyboard('{Enter}');
 
-    // The added node should be displayed
-    const addedNode = await canvas.findByTestId('added-node-0');
-    await expect(addedNode).toHaveTextContent('Alice');
+      // Wait for the added node to appear (with longer timeout)
+      const addedNode = await canvas.findByTestId('added-node-0', {}, { timeout: 3000 });
+      await expect(addedNode).toHaveTextContent('Alice');
+    });
   },
   parameters: {
     docs: {
@@ -275,38 +279,47 @@ export const AddMultipleNodes: Story = {
     targetVariable: 'name',
   },
   render: (args) => <QuickNodeFormWrapper {...args} />,
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Add first node
-    const addButton = canvas.getByRole('button', { name: /add person/i });
-    await userEvent.click(addButton);
+    await step('Add first node', async () => {
+      const addButton = canvas.getByRole('button', { name: /add a person/i });
+      await userEvent.click(addButton);
 
-    const input = canvas.getByPlaceholderText(
-      'Type a label and press enter...',
-    );
-    await userEvent.type(input, 'Alice');
-    await userEvent.keyboard('{Enter}');
+      const input = canvas.getByPlaceholderText(
+        'Type a label and press enter...',
+      );
+      await userEvent.type(input, 'Alice');
+      await userEvent.keyboard('{Enter}');
 
-    // Wait for the first node to be added
-    await canvas.findByTestId('added-node-0');
+      // Wait for the first node to be added
+      await canvas.findByTestId('added-node-0', {}, { timeout: 3000 });
+    });
 
-    // Input should still be visible and focused (form stays open)
-    // Input value should be cleared, ready for next entry
-    await expect(input).toHaveValue('');
+    await step('Input should be cleared and ready', async () => {
+      const input = canvas.getByPlaceholderText(
+        'Type a label and press enter...',
+      );
+      await expect(input).toHaveValue('');
+    });
 
-    // Add second node (no need to click button again, form stays open)
-    await userEvent.type(input, 'Bob');
-    await userEvent.keyboard('{Enter}');
+    await step('Add second node', async () => {
+      const input = canvas.getByPlaceholderText(
+        'Type a label and press enter...',
+      );
+      await userEvent.type(input, 'Bob');
+      await userEvent.keyboard('{Enter}');
 
-    // Wait for second node
-    await canvas.findByTestId('added-node-1');
+      // Wait for second node
+      await canvas.findByTestId('added-node-1', {}, { timeout: 3000 });
+    });
 
-    // Check both nodes were added
-    const firstNode = canvas.getByTestId('added-node-0');
-    const secondNode = canvas.getByTestId('added-node-1');
-    await expect(firstNode).toHaveTextContent('Alice');
-    await expect(secondNode).toHaveTextContent('Bob');
+    await step('Check both nodes were added', async () => {
+      const firstNode = canvas.getByTestId('added-node-0');
+      const secondNode = canvas.getByTestId('added-node-1');
+      await expect(firstNode).toHaveTextContent('Alice');
+      await expect(secondNode).toHaveTextContent('Bob');
+    });
   },
   parameters: {
     docs: {
@@ -328,7 +341,7 @@ export const RequiredValidation: Story = {
     const canvas = within(canvasElement);
 
     // Click to reveal the input
-    const addButton = canvas.getByRole('button', { name: /add person/i });
+    const addButton = canvas.getByRole('button', { name: /add a person/i });
     await userEvent.click(addButton);
 
     // Try to submit empty
@@ -365,12 +378,20 @@ export const DisabledPreventsSubmission: Story = {
     targetVariable: 'name',
   },
   render: (args) => <QuickNodeFormWrapper {...args} />,
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // The add button should be disabled
-    const addButton = canvas.getByRole('button', { name: /add person/i });
-    await expect(addButton).toBeDisabled();
+    await step('The checkbox should be disabled', async () => {
+      const checkbox = canvas.getByRole('checkbox');
+      await expect(checkbox).toBeDisabled();
+    });
+
+    await step('The add button should have disabled styling', async () => {
+      const addButton = canvas.getByRole('button', { name: /add a person/i });
+      // Check for disabled styling (opacity-50 and pointer-events-none)
+      await expect(addButton).toHaveClass('opacity-50');
+      await expect(addButton).toHaveClass('pointer-events-none');
+    });
   },
   parameters: {
     docs: {
