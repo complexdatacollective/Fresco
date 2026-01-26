@@ -74,7 +74,7 @@ export function SettingsCardSkeleton({
     return (
       <Surface
         className={cx(
-          'w-full max-w-3xl scroll-mt-32',
+          'w-full max-w-3xl min-w-3xl scroll-mt-32',
           className,
           'tablet:flex-row flex-col rounded',
         )}
@@ -96,7 +96,7 @@ export function SettingsCardSkeleton({
   return (
     <Surface
       className={cx(
-        'w-full max-w-3xl scroll-mt-32',
+        'w-full max-w-3xl min-w-3xl scroll-mt-32',
         className,
         'tablet:flex-row flex-col rounded',
       )}

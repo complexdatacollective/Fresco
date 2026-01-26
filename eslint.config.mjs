@@ -206,7 +206,13 @@ export default tseslint.config(
   // Better TailwindCSS plugin
   {
     extends: [eslintPluginBetterTailwindcss.configs.correctness],
-    rules: {},
+    rules: {
+      'better-tailwindcss/enforce-canonical-classes': 'warn',
+      'better-tailwindcss/no-unnecessary-whitespace': 'error',
+      'better-tailwindcss/no-duplicate-classes': 'error',
+      'better-tailwindcss/no-unknown-classes': 'error',
+      'better-tailwindcss/no-conflicting-classes': 'warn',
+    },
     settings: {
       'better-tailwindcss': {
         // Use the full path via meta.url to avoid issues with CWD when running ESLint from different directories

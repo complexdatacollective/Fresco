@@ -5,14 +5,16 @@ import PageHeader from '~/components/typography/PageHeader';
 export default function Loading() {
   return (
     <>
-      <ResponsiveContainer>
-        <PageHeader
-          headerText="Interviews"
-          subHeaderText="View and manage your interview data."
+      <PageHeader
+        headerText="Interviews"
+        subHeaderText="View and manage your interview data."
+      />
+      <ResponsiveContainer maxWidth="full" baseSize="content" container={false}>
+        <DataTableSkeleton
+          columnCount={6}
+          searchableColumnCount={1}
+          headerItemsCount={2}
         />
-      </ResponsiveContainer>
-      <ResponsiveContainer maxWidth="7xl">
-        <DataTableSkeleton columnCount={6} filterableColumnCount={2} />
       </ResponsiveContainer>
     </>
   );
