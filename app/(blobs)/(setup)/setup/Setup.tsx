@@ -51,31 +51,16 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
   const mainClasses = cx('flex w-full rounded bg-white p-12');
 
   useEffect(() => {
+    // Redirect to step 1 if we aren't authenticated
     if (!setupData.hasAuth && step > 1) {
       void setStep(1);
       return;
     }
 
+    // Don't show the user creation step if we _are_ authenticated
     if (setupData.hasAuth && step === 1) {
       void setStep(2);
       return;
-    }
-
-    if (setupData.hasAuth && step === 2 && setupData.hasUploadThingToken) {
-      void setStep(3);
-      return;
-    }
-
-    //  if we're past step 2 but we still have null values, go back to step 2
-    if (setupData.hasAuth && step > 2) {
-      if (
-        !setupData.hasUploadThingToken ||
-        setupData.allowAnonymousRecruitment === null ||
-        setupData.limitInterviews === null
-      ) {
-        void setStep(2);
-        return;
-      }
     }
   }, [step, setStep, setupData]);
 

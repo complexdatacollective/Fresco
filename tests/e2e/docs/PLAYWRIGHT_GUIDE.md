@@ -399,7 +399,7 @@ expect(download.suggestedFilename()).toMatch(/\.csv$/);
 
 ```typescript
 await page.getByRole('button', { name: 'Delete' }).click();
-const dialog = page.getByRole('alertdialog');
+const dialog = page.getByRole('dialog');
 await expect(dialog).toBeVisible();
 await dialog.getByRole('button', { name: 'Confirm' }).click();
 ```
