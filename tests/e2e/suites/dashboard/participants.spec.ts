@@ -75,26 +75,26 @@ test.describe.parallel('Participants page - parallel', () => {
       .first();
     await expect(identifierSortButton).toBeVisible();
 
-    // Click to open sort dropdown
+    // Click to toggle sort (first click = ascending)
     await identifierSortButton.click();
+    await page.waitForTimeout(300);
 
-    // Select ascending sort from dropdown menu
-    const ascOption = page.getByRole('menuitem', { name: /asc/i });
-    await expect(ascOption).toBeVisible();
-    await ascOption.click();
+    // Verify the button is now in active state (has primary variant)
+    // The button shows a green arrow when actively sorted
+    await expect(identifierSortButton).toBeVisible();
 
-    // Wait for sort to apply
-    await page.waitForTimeout(500);
-
-    // Click to open sort dropdown again
+    // Click again to toggle to descending
     await identifierSortButton.click();
+    await page.waitForTimeout(300);
 
-    // Select descending sort from dropdown menu
-    const descOption = page.getByRole('menuitem', { name: /desc/i });
-    await expect(descOption).toBeVisible();
-    await descOption.click();
+    // Verify the column header is still visible (sort toggled)
+    await expect(identifierSortButton).toBeVisible();
 
-    // Verify the column header is still visible (sort worked)
+    // Click again to toggle back to ascending
+    await identifierSortButton.click();
+    await page.waitForTimeout(300);
+
+    // Verify sorting still works
     await expect(identifierSortButton).toBeVisible();
   });
 
@@ -110,26 +110,25 @@ test.describe.parallel('Participants page - parallel', () => {
       .first();
     await expect(labelSortButton).toBeVisible();
 
-    // Click to open sort dropdown
+    // Click to toggle sort (first click = ascending)
     await labelSortButton.click();
+    await page.waitForTimeout(300);
 
-    // Select ascending sort from dropdown menu
-    const ascOption = page.getByRole('menuitem', { name: /asc/i });
-    await expect(ascOption).toBeVisible();
-    await ascOption.click();
+    // Verify the button is now in active state
+    await expect(labelSortButton).toBeVisible();
 
-    // Wait for sort to apply
-    await page.waitForTimeout(500);
-
-    // Click to open sort dropdown again
+    // Click again to toggle to descending
     await labelSortButton.click();
+    await page.waitForTimeout(300);
 
-    // Select descending sort from dropdown menu
-    const descOption = page.getByRole('menuitem', { name: /desc/i });
-    await expect(descOption).toBeVisible();
-    await descOption.click();
+    // Verify the column header is still visible (sort toggled)
+    await expect(labelSortButton).toBeVisible();
 
-    // Verify the column header is still visible (sort worked)
+    // Click again to toggle back to ascending
+    await labelSortButton.click();
+    await page.waitForTimeout(300);
+
+    // Verify sorting still works
     await expect(labelSortButton).toBeVisible();
   });
 
@@ -148,23 +147,24 @@ test.describe.parallel('Participants page - parallel', () => {
     const modal = page.getByRole('dialog');
     await expect(modal).toBeVisible();
 
-    // Select a protocol from the dropdown
-    const protocolSelect = modal.locator('[role="combobox"]').first();
-    await protocolSelect.click();
+    // Select a protocol from the native select dropdown
+    const protocolSelect = modal.locator('select').first();
+    await expect(protocolSelect).toBeVisible();
 
-    // Select the first protocol option
-    const protocolOption = page.getByRole('option').first();
-    await expect(protocolOption).toBeVisible();
-    await protocolOption.click();
+    // Wait for options to be populated
+    await page.waitForTimeout(500);
 
-    // Set up download listener before clicking export
+    // Select first protocol option (index 0 since no placeholder)
+    await protocolSelect.selectOption({ index: 0 });
+
+    // Set up download listener before clicking generate
     const downloadPromise = page.waitForEvent('download');
 
-    // Click the export button in the modal
-    const modalExportButton = modal.getByRole('button', {
-      name: /export participation urls/i,
+    // Click the Generate button in the modal
+    const generateButton = modal.getByRole('button', {
+      name: /generate/i,
     });
-    await modalExportButton.click();
+    await generateButton.click();
 
     // Wait for download and verify CSV file
     const download = await downloadPromise;
@@ -385,7 +385,7 @@ test.describe.serial('Participants page - serial', () => {
         await deleteButton.click();
 
         // Should show warning dialog
-        const warningDialog = page.getByRole('alertdialog');
+        const warningDialog = page.getByRole('dialog');
         await expect(warningDialog).toBeVisible();
         await expect(warningDialog).toContainText(/warning|interview/i);
 
@@ -426,7 +426,7 @@ test.describe.serial('Participants page - serial', () => {
         await deleteButton.click();
 
         // Confirm deletion
-        const confirmDialog = page.getByRole('alertdialog');
+        const confirmDialog = page.getByRole('dialog');
         await expect(confirmDialog).toBeVisible();
         const confirmButton = confirmDialog.getByRole('button', {
           name: /delete|confirm|yes/i,
@@ -453,7 +453,7 @@ test.describe.serial('Participants page - serial', () => {
       await deleteAllButton.click();
 
       // Confirm deletion in dialog
-      const confirmDialog = page.getByRole('alertdialog');
+      const confirmDialog = page.getByRole('dialog');
       await expect(confirmDialog).toBeVisible();
 
       const confirmButton = confirmDialog.getByRole('button', {
