@@ -10,6 +10,7 @@ import {
   type SerializedContext,
 } from './fixtures/context-storage';
 import { NativeAppEnvironment } from './fixtures/native-app-environment';
+import { SnapshotServer } from './fixtures/snapshot-server';
 import { TestDataBuilder } from './fixtures/test-data-builder';
 import {
   TestEnvironment,
@@ -28,6 +29,13 @@ async function globalSetup() {
   NativeAppEnvironment.resetPortAllocation();
 
   const testEnv = new TestEnvironment();
+  const snapshotServer = new SnapshotServer();
+
+  // Give the snapshot server access to the NativeAppEnvironment for restarting apps
+  snapshotServer.setNativeAppEnvironment(testEnv.getNativeAppEnvironment());
+
+  // Start the snapshot server first so it's ready when environments are created
+  const snapshotServerUrl = await snapshotServer.start();
 
   // Ensure standalone build exists
   await ensureStandaloneBuild();
@@ -39,11 +47,100 @@ async function globalSetup() {
     setupInterviewsEnvironment(testEnv),
   ]);
 
-  // Store the test environment instance globally for teardown
+  // Register all suites with the snapshot server (container + Next.js port)
+  snapshotServer.registerSuite(
+    'setup',
+    setupContext.dbContainer,
+    setupContext.appContext.port,
+  );
+  snapshotServer.registerSuite(
+    'dashboard',
+    dashboardContext.dbContainer,
+    dashboardContext.appContext.port,
+  );
+  snapshotServer.registerSuite(
+    'interview',
+    interviewsResult.context.dbContainer,
+    interviewsResult.context.appContext.port,
+  );
+
+  // Create initial snapshots for each environment
+  // PostgreSQL's CREATE DATABASE WITH TEMPLATE requires no active connections.
+  // We must stop Next.js and disconnect Prisma before creating snapshots.
+  const nativeApp = testEnv.getNativeAppEnvironment();
+
+  logger.info('Stopping Next.js servers for initial snapshot creation...');
+  await Promise.all([
+    nativeApp.stop('setup'),
+    nativeApp.stop('dashboard'),
+    // Interview context already handles this in setupInterviewsEnvironment
+  ]);
+
+  await Promise.all([
+    setupContext.prisma.$disconnect(),
+    dashboardContext.prisma.$disconnect(),
+  ]);
+
+  logger.info('Creating initial snapshots...');
+  await Promise.all([
+    setupContext.createSnapshot('initial'),
+    dashboardContext.createSnapshot('initial'),
+    // Interview context already creates 'initial' snapshot in setupInterviewsEnvironment
+  ]);
+
+  // Restart Next.js servers after snapshots are created
+  logger.info('Restarting Next.js servers...');
+  await Promise.all([
+    nativeApp.start({
+      suiteId: 'setup',
+      port: setupContext.appContext.port,
+      databaseUrl: setupContext.dbContainer.getConnectionUri(),
+    }),
+    nativeApp.start({
+      suiteId: 'dashboard',
+      port: dashboardContext.appContext.port,
+      databaseUrl: dashboardContext.dbContainer.getConnectionUri(),
+    }),
+  ]);
+
+  // Reconnect Prisma after snapshots are created
+  await Promise.all([
+    setupContext.prisma.$connect(),
+    dashboardContext.prisma.$connect(),
+  ]);
+
+  // Create SQL-based 'initial' snapshots via the snapshot server
+  // These are used by the test isolation mechanism (database.isolate())
+  // and are separate from the container snapshots created above
+  logger.info('Creating SQL-based initial snapshots for test isolation...');
+  const snapshotResults = await Promise.all([
+    fetch(`${snapshotServerUrl}/snapshot/setup/initial`, {
+      method: 'POST',
+    }).then((r) => r.json()),
+    fetch(`${snapshotServerUrl}/snapshot/dashboard/initial`, {
+      method: 'POST',
+    }).then((r) => r.json()),
+    fetch(`${snapshotServerUrl}/snapshot/interview/initial`, {
+      method: 'POST',
+    }).then((r) => r.json()),
+  ]);
+
+  // Verify all snapshots were created successfully
+  for (const result of snapshotResults) {
+    if (!result.success) {
+      throw new Error(`Failed to create initial snapshot: ${result.error}`);
+    }
+    logger.info(
+      `Created initial SQL snapshot for ${result.suiteId} (${result.size} bytes, ${result.tables} tables)`,
+    );
+  }
+
+  // Store the test environment and snapshot server globally for teardown
   globalThis.__TEST_ENVIRONMENT__ = testEnv;
+  globalThis.__SNAPSHOT_SERVER__ = snapshotServer;
 
   // Setup signal handlers for graceful cleanup
-  setupSignalHandlers(testEnv);
+  setupSignalHandlers(testEnv, snapshotServer);
 
   // Save serializable context data to file for test workers
   const contextData: Record<string, SerializedContext> = {};
@@ -67,7 +164,7 @@ async function globalSetup() {
     interviewsResult.testData,
   );
 
-  await saveContextData(contextData);
+  await saveContextData(contextData, snapshotServerUrl);
 
   logger.setup.complete();
 
@@ -117,15 +214,56 @@ async function setupDashboardEnvironment(testEnv: TestEnvironment) {
         ADMIN_CREDENTIALS.password,
       );
 
-      await dataBuilder.createProtocol();
+      const protocol = await dataBuilder.createProtocol();
 
       // Create participants for database example tests
+      const participants = [];
       for (let i = 1; i <= 10; i++) {
-        await dataBuilder.createParticipant({
+        const participant = await dataBuilder.createParticipant({
           identifier: `P${String(i).padStart(3, '0')}`,
           label: `Participant ${i}`,
         });
+        participants.push(participant);
       }
+
+      // Create interviews for participants P001-P005
+      // P001: Completed and exported
+      await dataBuilder.createInterview(participants[0]!.id, protocol.id, {
+        currentStep: 2,
+        finishTime: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+        exportTime: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+      });
+
+      // P002: Completed but not exported
+      await dataBuilder.createInterview(participants[1]!.id, protocol.id, {
+        currentStep: 2,
+        finishTime: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+      });
+
+      // P003-P005: In progress at different stages
+      await dataBuilder.createInterview(participants[2]!.id, protocol.id, {
+        currentStep: 0,
+      });
+      await dataBuilder.createInterview(participants[3]!.id, protocol.id, {
+        currentStep: 1,
+      });
+      await dataBuilder.createInterview(participants[4]!.id, protocol.id, {
+        currentStep: 1,
+      });
+
+      // Create some activity events
+      await dataBuilder.createEvent(
+        'Protocol Imported',
+        JSON.stringify({ name: 'Test Protocol' }),
+      );
+      await dataBuilder.createEvent(
+        'Interview Started',
+        JSON.stringify({ participant: 'P001' }),
+      );
+      await dataBuilder.createEvent(
+        'Interview Completed',
+        JSON.stringify({ participant: 'P001' }),
+      );
     },
   });
 
@@ -192,11 +330,21 @@ async function setupInterviewsEnvironment(testEnv: TestEnvironment): Promise<{
     throw new Error('Test data was not initialized during setup');
   }
 
-  // Disconnect Prisma before creating snapshot to avoid connection issues
+  // Stop Next.js and disconnect Prisma before creating snapshot
+  // PostgreSQL's CREATE DATABASE WITH TEMPLATE requires no active connections
+  const nativeApp = testEnv.getNativeAppEnvironment();
+  await nativeApp.stop('interview');
   await context.prisma.$disconnect();
 
   // Create snapshot for restoration between interview tests
   await context.createSnapshot('initial');
+
+  // Restart Next.js after snapshot
+  await nativeApp.start({
+    suiteId: 'interview',
+    port: context.appContext.port,
+    databaseUrl: context.dbContainer.getConnectionUri(),
+  });
 
   // Reconnect Prisma after snapshot
   await context.prisma.$connect();
@@ -212,14 +360,16 @@ async function ensureStandaloneBuild() {
 
   const nativeEnv = new NativeAppEnvironment();
 
+  // Always clear the cache even when reusing the build
+  await clearStandaloneCache();
+
   // Skip if valid build exists and FORCE_REBUILD != true
   // eslint-disable-next-line no-process-env
   const forceRebuild = process.env.FORCE_REBUILD === 'true';
 
   if (!forceRebuild && (await nativeEnv.isBuildValid())) {
     logger.build.valid();
-    // Always clear the cache even when reusing the build
-    await clearStandaloneCache();
+
     return;
   }
 
@@ -278,10 +428,13 @@ async function clearStandaloneCache() {
   }
 }
 
-function setupSignalHandlers(testEnv: TestEnvironment) {
+function setupSignalHandlers(
+  testEnv: TestEnvironment,
+  snapshotServer: SnapshotServer,
+) {
   const cleanup = async () => {
     logger.info('\nReceived interrupt signal, cleaning up...');
-    await testEnv.cleanupAll();
+    await Promise.all([testEnv.cleanupAll(), snapshotServer.stop()]);
     process.exit(130);
   };
 

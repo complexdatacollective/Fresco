@@ -145,20 +145,47 @@ export class TestDataBuilder {
       currentStep?: number;
       network?: unknown;
       finishTime?: Date | null;
+      exportTime?: Date | null;
     } = {},
   ) {
+    // Default network structure that matches NcNetworkSchema
+    const defaultNetwork = {
+      nodes: [],
+      edges: [],
+      ego: {
+        _uid: createId(),
+        attributes: {},
+      },
+    };
+
     const interview = await this.prisma.interview.create({
       data: {
         id: createId(),
         participantId,
         protocolId,
         currentStep: overrides.currentStep ?? 0,
-        network: overrides.network ?? { nodes: [], edges: [], ego: {} },
+        network: overrides.network ?? defaultNetwork,
         finishTime: overrides.finishTime ?? null,
+        exportTime: overrides.exportTime ?? null,
       },
     });
 
     return interview;
+  }
+
+  /**
+   * Create an activity feed event
+   */
+  async createEvent(type: string, message: string) {
+    const event = await this.prisma.events.create({
+      data: {
+        type,
+        message,
+        timestamp: new Date(),
+      },
+    });
+
+    return event;
   }
 
   /**

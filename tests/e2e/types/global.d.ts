@@ -30,6 +30,8 @@ declare global {
     // eslint-disable-next-line no-var
     var __INTERVIEWS_CONTEXT__: TestEnvironmentContext | undefined;
     // eslint-disable-next-line no-var
+    var __INTERVIEW_CONTEXT__: TestEnvironmentContext | undefined;
+    // eslint-disable-next-line no-var
     var __INTERVIEWS_TEST_DATA__:
       | {
           admin: TestDataUser;

@@ -83,29 +83,40 @@ export class DatabaseSnapshots {
   }
 
   /**
-   * Create an isolation context for tracking test modifications.
+   * Create an isolation context for test data modifications.
    *
-   * NOTE: The cleanup function currently does NOT restore the database because
-   * restoring to 'initial' would invalidate browser auth sessions (the initial
-   * snapshot was created before login). Serial tests that modify data should
-   * be designed to either:
-   * 1. Not depend on initial state (use their own assertions)
-   * 2. Run in a specific order that accounts for data changes
-   * 3. Use explicit cleanup actions within the test
+   * Restores to the 'initial' snapshot BEFORE the test runs, ensuring
+   * the test starts with a clean, known state regardless of what
+   * previous tests may have done. Also restores after the test completes.
    *
-   * @param _name - Identifier for logging purposes
-   * @returns A cleanup function that decrements isolation tracking
+   * The 'initial' snapshot is created in global-setup after seeding data
+   * and contains the full test data set.
+   *
+   * @param name - Identifier for logging purposes
+   * @returns A cleanup function that restores to the initial snapshot
    */
-  isolate(_name?: string): Promise<() => Promise<void>> {
+  async isolate(name?: string): Promise<() => Promise<void>> {
     this.isolationDepth++;
+    const isolateName = name ?? 'isolate';
 
-    return Promise.resolve(() => {
-      // NOTE: Not restoring snapshot to preserve browser auth sessions.
-      // The 'initial' snapshot was created before login, so restoring
-      // would invalidate all session cookies.
+    // Restore to initial state BEFORE the test runs
+    // This ensures the test always starts with clean, seeded data
+    // eslint-disable-next-line no-console
+    console.log(
+      `[DB] Restoring to initial snapshot before test '${isolateName}' (suite: ${this.context.suiteId})`,
+    );
+    await this.restoreSnapshot('initial');
+    // eslint-disable-next-line no-console
+    console.log(`[DB] Restore complete for test '${isolateName}'`);
+
+    return async () => {
+      // Also restore to initial after the test completes
+      // This is a safety net in case cleanup is called without error handling
+      // eslint-disable-next-line no-console
+      console.log(`[DB] Cleaning up after test '${isolateName}'`);
+      await this.restoreSnapshot('initial');
       this.isolationDepth--;
-      return Promise.resolve();
-    });
+    };
   }
 
   /**

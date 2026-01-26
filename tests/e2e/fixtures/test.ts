@@ -64,7 +64,7 @@ export const test = base.extend<TestFixtures>({
     await run(database);
 
     // Check for unrestored database changes
-    const warning = await database.checkForUnrestoredChanges();
+    const warning = database.checkForUnrestoredChanges();
     if (warning) {
       // Log warning but don't fail the test - this is informational
       // eslint-disable-next-line no-console

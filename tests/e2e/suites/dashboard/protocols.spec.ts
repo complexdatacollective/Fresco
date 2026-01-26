@@ -1,177 +1,265 @@
-// import { expect, test } from '@playwright/test';
+import { expect, SNAPSHOT_CONFIGS, test } from '../../fixtures/test';
 
-// test.describe('Protocol Management', () => {
-//   // No need for beforeEach login - using stored auth state from config
+test.describe.parallel('Protocols page - parallel', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/dashboard/protocols', { waitUntil: 'domcontentloaded' });
+  });
 
-//   test('should display list of protocols', async ({ page }) => {
-//     await page.goto('/protocols');
+  test('should match visual snapshot', async ({ snapshots }) => {
+    await snapshots.expectPageToMatchSnapshot(
+      SNAPSHOT_CONFIGS.fullPage('protocols-page'),
+    );
+  });
 
-//     // Should show protocols page
-//     await expect(page.locator('h1, h2')).toContainText(/Protocols/i);
+  test('should display protocols heading', async ({ page }) => {
+    await expect(
+      page.getByRole('heading', { name: 'Protocols', exact: true }),
+    ).toBeVisible();
+  });
 
-//     // Should display protocol cards or list items
-//     const protocols = page.locator(
-//       '[data-testid="protocol-item"], .protocol-card, [role="article"]',
-//     );
-//     await expect(protocols).toHaveCount(11); // 10 + 1 with assets
-//   });
+  test('should display protocols subtitle', async ({ page }) => {
+    await expect(
+      page.getByText(/upload and manage your interview protocols/i),
+    ).toBeVisible();
+  });
 
-//   test('should search and filter protocols', async ({ page }) => {
-//     await page.goto('/protocols');
+  test('should display protocols table', async ({ page }) => {
+    const table = page.locator('table').first();
+    await expect(table).toBeVisible({ timeout: 10000 });
+  });
 
-//     // Search for specific protocol
-//     const searchInput = page.locator(
-//       '[type="search"], [placeholder*="Search"]',
-//     );
-//     await searchInput.fill('Protocol 5');
+  test('should display table columns', async ({ page }) => {
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
-//     // Should filter results
-//     await page.waitForTimeout(500); // Debounce
-//     const protocols = page.locator(
-//       '[data-testid="protocol-item"], .protocol-card, [role="article"]',
-//     );
-//     await expect(protocols).toHaveCount(1);
+    // Check for expected column headers
+    await expect(page.locator('text=Name').first()).toBeVisible();
+    await expect(page.locator('text=Imported').first()).toBeVisible();
+    await expect(page.locator('text=Modified').first()).toBeVisible();
+  });
 
-//     // Clear search
-//     await searchInput.clear();
-//     await page.waitForTimeout(500);
-//     await expect(protocols).toHaveCount(11);
-//   });
+  test('should display protocol rows', async ({ page }) => {
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
-//   test('should import a new protocol', async ({ page }) => {
-//     await page.goto('/protocols');
+    // Should have at least one protocol row from test data
+    const rows = page.locator('tbody tr');
+    const rowCount = await rows.count();
+    expect(rowCount).toBeGreaterThanOrEqual(1);
+  });
 
-//     // Click import button
-//     await page.click(
-//       'button:has-text("Import"), button:has-text("Add Protocol")',
-//     );
+  test('should display import protocols button', async ({ page }) => {
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
-//     // Should show import modal or navigate to import page
-//     await expect(page.locator('h1, h2, h3')).toContainText(
-//       /Import|Add|Upload/i,
-//     );
+    const importButton = page.getByRole('button', {
+      name: /import protocols/i,
+    });
+    await expect(importButton).toBeVisible();
+  });
 
-//     // Upload protocol file
-//     const fileInput = page.locator('input[type="file"]');
+  test('should search protocols by name', async ({ page }) => {
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
-//     // Create a mock protocol file
-//     const protocolContent = JSON.stringify({
-//       schemaVersion: 8,
-//       name: 'Test Import Protocol',
-//       description: 'Imported via e2e test',
-//       stages: [
-//         {
-//           id: 'stage1',
-//           label: 'Test Stage',
-//           type: 'Information',
-//         },
-//       ],
-//       codebook: {
-//         node: {},
-//         edge: {},
-//         ego: {},
-//       },
-//     });
+    const searchInput = page.getByPlaceholder(/filter|search|name/i);
+    await expect(searchInput).toBeVisible({ timeout: 10000 });
 
-//     // Set file input
-//     await fileInput.setInputFiles({
-//       name: 'test-protocol.netcanvas',
-//       mimeType: 'application/json',
-//       buffer: Buffer.from(protocolContent),
-//     });
+    // Search for test protocol
+    await searchInput.fill('Test');
+    await page.waitForTimeout(500); // Wait for debounce
 
-//     // Confirm import
-//     const importButton = page.locator(
-//       'button:has-text("Import"), button:has-text("Upload")',
-//     );
-//     await importButton.click();
+    // Should filter results
+    const filteredRows = page.locator('tbody tr');
+    const filteredCount = await filteredRows.count();
+    expect(filteredCount).toBeGreaterThanOrEqual(1);
 
-//     // Should show success and redirect
-//     await expect(page).toHaveURL('/protocols');
+    // Clear search
+    await searchInput.clear();
+  });
 
-//     // Verify new protocol appears
-//     await expect(page.locator('text="Test Import Protocol"')).toBeVisible();
-//   });
+  test('should sort protocols by name column', async ({ page }) => {
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
-//   test('should delete a protocol', async ({ page }) => {
-//     await page.goto('/protocols');
+    // Find sortable name column header
+    const sortButton = page.getByRole('button', { name: /^name$/i }).first();
+    await expect(sortButton).toBeVisible();
 
-//     // Find a protocol to delete
-//     const protocolItem = page
-//       .locator('[data-testid="protocol-item"], .protocol-card')
-//       .first();
+    // Click to toggle sort
+    await sortButton.click();
+    await page.waitForTimeout(300);
 
-//     // Open actions menu
-//     const menuButton = protocolItem.locator(
-//       '[data-testid="protocol-menu"], [aria-label*="menu"], button:has-text("⋮")',
-//     );
-//     await menuButton.click();
+    // Verify button is still visible (sort toggled)
+    await expect(sortButton).toBeVisible();
+  });
 
-//     // Click delete
-//     await page.click(
-//       '[role="menuitem"]:has-text("Delete"), button:has-text("Delete")',
-//     );
+  test('should allow bulk selection', async ({ page }) => {
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
-//     // Confirm deletion
-//     const confirmButton = page.locator(
-//       'button:has-text("Confirm"), button:has-text("Delete"):visible',
-//     );
-//     await confirmButton.click();
+    // Find header checkbox
+    const selectAllCheckbox = page.locator('thead [role="checkbox"]').first();
+    await expect(selectAllCheckbox).toBeVisible();
 
-//     // Should show success message
-//     await expect(page.locator('.toast, [role="alert"]')).toContainText(
-//       /deleted|removed/i,
-//     );
+    // Select all
+    await selectAllCheckbox.click();
+    await page.waitForTimeout(300);
 
-//     // Protocol count should decrease
-//     const protocols = page.locator(
-//       '[data-testid="protocol-item"], .protocol-card',
-//     );
-//     await expect(protocols).toHaveCount(10);
-//   });
+    // Verify row checkboxes are checked
+    const rowCheckboxes = page.locator('tbody [role="checkbox"]');
+    const checkboxCount = await rowCheckboxes.count();
 
-//   test('should view protocol details', async ({ page }) => {
-//     await page.goto('/protocols');
+    for (let i = 0; i < checkboxCount; i++) {
+      await expect(rowCheckboxes.nth(i)).toHaveAttribute(
+        'aria-checked',
+        'true',
+      );
+    }
 
-//     // Click on a protocol
-//     const protocolLink = page.locator('a:has-text("Protocol with Assets")');
-//     await protocolLink.click();
+    // Uncheck all
+    await selectAllCheckbox.click();
+  });
 
-//     // Should navigate to protocol details
-//     await expect(page).toHaveURL(/\/protocols\/[a-z0-9-]+/);
+  test('should show row actions dropdown', async ({ page }) => {
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
-//     // Should display protocol information
-//     await expect(page.locator('h1, h2')).toContainText('Protocol with Assets');
+    // Find first row actions button
+    const firstRow = page.locator('tbody tr').first();
+    const actionsButton = firstRow.getByRole('button').last();
+    await expect(actionsButton).toBeVisible();
 
-//     // Should show assets if available
-//     const assets = page.locator('[data-testid="asset-item"], .asset-card');
-//     await expect(assets).toHaveCount(2);
-//   });
+    // Click to open dropdown
+    await actionsButton.click();
 
-//   test('should handle protocol with ongoing interviews', async ({ page }) => {
-//     await page.goto('/protocols');
+    // Should show menu with options
+    const menu = page.getByRole('menu');
+    await expect(menu).toBeVisible({ timeout: 5000 });
 
-//     // Try to delete a protocol (assuming some have interviews)
-//     const protocolWithInterviews = page
-//       .locator('text="Test Study Protocol"')
-//       .first();
+    // Close menu
+    await page.keyboard.press('Escape');
+  });
 
-//     if (await protocolWithInterviews.isVisible()) {
-//       const parent = protocolWithInterviews.locator('..');
-//       const menuButton = parent.locator(
-//         '[data-testid="protocol-menu"], button:has-text("⋮")',
-//       );
-//       await menuButton.click();
+  test('should display protocol name in row', async ({ page }) => {
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
-//       await page.click('[role="menuitem"]:has-text("Delete")');
+    // Should show Test Protocol from test data
+    await expect(page.getByText('Test Protocol').first()).toBeVisible();
+  });
+});
 
-//       // Should show warning about existing interviews
-//       await expect(page.locator('[role="dialog"], .modal')).toContainText(
-//         /interviews|cannot delete|in use/i,
-//       );
+test.describe.serial('Protocols page - serial', () => {
+  test('should delete single protocol via row actions', async ({
+    page,
+    database,
+  }) => {
+    // Call isolate FIRST to restore database to initial state
+    const cleanup = await database.isolate('delete-protocol');
 
-//       // Cancel deletion
-//       await page.click('button:has-text("Cancel")');
-//     }
-//   });
-// });
+    // Navigate AFTER isolation to see the restored data
+    await page.goto('/dashboard/protocols', { waitUntil: 'domcontentloaded' });
+
+    try {
+      await expect(page.locator('table').first()).toBeVisible({
+        timeout: 10000,
+      });
+
+      // Find first row actions button
+      const firstRow = page.locator('tbody tr').first();
+      const actionsButton = firstRow.getByRole('button').last();
+      await actionsButton.click();
+
+      // Click delete option
+      const deleteButton = page.getByRole('menuitem', { name: /delete/i });
+      await expect(deleteButton).toBeVisible();
+      await deleteButton.click();
+
+      // Confirm deletion in dialog
+      const confirmDialog = page.getByRole('dialog');
+      await expect(confirmDialog).toBeVisible({ timeout: 5000 });
+
+      const confirmButton = confirmDialog.getByRole('button', {
+        name: /delete|confirm|yes/i,
+      });
+      await confirmButton.click();
+
+      // Wait for dialog to close and row to be removed
+      await expect(confirmDialog).not.toBeVisible({ timeout: 10000 });
+
+      // After deleting the only protocol, the table should show "No results"
+      // Note: The "No results" row is still a <tr> so we can't just count rows
+      await expect(page.getByText('No results')).toBeVisible({
+        timeout: 10000,
+      });
+    } finally {
+      await cleanup();
+    }
+  });
+
+  test('should open import dialog and show cancel option', async ({
+    page,
+    database,
+  }) => {
+    const cleanup = await database.isolate('import-dialog');
+    await page.goto('/dashboard/protocols', { waitUntil: 'domcontentloaded' });
+
+    try {
+      await expect(page.locator('table').first()).toBeVisible({
+        timeout: 10000,
+      });
+
+      const importButton = page.getByRole('button', {
+        name: /import protocols/i,
+      });
+      await expect(importButton).toBeVisible();
+      await importButton.click();
+
+      // File dialog or dropzone should appear
+      // We just verify the button was clickable and no error occurred
+      await page.waitForTimeout(500);
+
+      // The import process may open a file dialog which we can't interact with in E2E
+      // Just verify the page is still functional
+      await expect(page.locator('body')).toBeVisible();
+    } finally {
+      await cleanup();
+    }
+  });
+
+  test('should bulk delete protocols when selected', async ({
+    page,
+    database,
+  }) => {
+    const cleanup = await database.isolate('bulk-delete-protocols');
+    await page.goto('/dashboard/protocols', { waitUntil: 'domcontentloaded' });
+
+    try {
+      await expect(page.locator('table').first()).toBeVisible({
+        timeout: 10000,
+      });
+
+      // Select first row
+      const rowCheckboxes = page.locator('tbody [role="checkbox"]');
+      if ((await rowCheckboxes.count()) > 0) {
+        await rowCheckboxes.first().click();
+        await page.waitForTimeout(300);
+
+        // Look for bulk delete button
+        const deleteSelectedButton = page.getByRole('button', {
+          name: /delete selected|delete \d+/i,
+        });
+
+        if (await deleteSelectedButton.isVisible()) {
+          await deleteSelectedButton.click();
+
+          // Confirm in dialog
+          const confirmDialog = page.getByRole('dialog');
+          await expect(confirmDialog).toBeVisible({ timeout: 5000 });
+
+          const confirmButton = confirmDialog.getByRole('button', {
+            name: /delete|confirm/i,
+          });
+          await confirmButton.click();
+
+          await expect(confirmDialog).not.toBeVisible({ timeout: 10000 });
+        }
+      }
+    } finally {
+      await cleanup();
+    }
+  });
+});

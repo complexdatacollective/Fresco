@@ -11,6 +11,7 @@ export type WorkerContext = {
   suiteId: string;
   appUrl: string;
   databaseUrl: string;
+  snapshotServerUrl: string;
   prisma: PrismaClient;
   testData?: InterviewTestData;
   cleanup: () => Promise<void>;
@@ -23,7 +24,10 @@ const prismaCache = new Map<string, PrismaClient>();
  * Create a worker context from serialized data.
  * This creates a new Prisma client that connects to the database container.
  */
-function createWorkerContext(serialized: SerializedContext): WorkerContext {
+function createWorkerContext(
+  serialized: SerializedContext,
+  snapshotServerUrl: string,
+): WorkerContext {
   // Reuse cached Prisma client for the same database URL
   let prisma = prismaCache.get(serialized.databaseUrl);
 
@@ -39,6 +43,7 @@ function createWorkerContext(serialized: SerializedContext): WorkerContext {
     suiteId: serialized.suiteId,
     appUrl: serialized.appUrl,
     databaseUrl: serialized.databaseUrl,
+    snapshotServerUrl,
     prisma,
     testData: serialized.testData,
     cleanup: async () => {
@@ -61,13 +66,15 @@ export async function resolveWorkerContext(
     return null;
   }
 
+  const { snapshotServerUrl } = contextData;
+
   // Method 1: Try to infer from test file path
   const contextFromPath = inferContextFromTestPath(
     testInfo,
     contextData.contexts,
   );
   if (contextFromPath) {
-    return createWorkerContext(contextFromPath);
+    return createWorkerContext(contextFromPath, snapshotServerUrl);
   }
 
   // Method 2: Try to infer from Playwright project name
@@ -76,7 +83,7 @@ export async function resolveWorkerContext(
     contextData.contexts,
   );
   if (contextFromProject) {
-    return createWorkerContext(contextFromProject);
+    return createWorkerContext(contextFromProject, snapshotServerUrl);
   }
 
   // Method 3: Try to infer from base URL
@@ -85,12 +92,15 @@ export async function resolveWorkerContext(
     contextData.contexts,
   );
   if (contextFromBaseURL) {
-    return createWorkerContext(contextFromBaseURL);
+    return createWorkerContext(contextFromBaseURL, snapshotServerUrl);
   }
 
   // Method 4: Fall back to interview context (most feature-rich)
   if (contextData.contexts.interview) {
-    return createWorkerContext(contextData.contexts.interview);
+    return createWorkerContext(
+      contextData.contexts.interview,
+      snapshotServerUrl,
+    );
   }
 
   return null;

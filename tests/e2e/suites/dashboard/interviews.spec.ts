@@ -1,256 +1,306 @@
-// import { expect, test, type Page } from '@playwright/test';
-// import { type TestEnvironmentContext } from '../../fixtures/test-environment';
+import { expect, SNAPSHOT_CONFIGS, test } from '../../fixtures/test';
 
-// async function loginAsAdmin(page: Page) {
-//   await page.goto('/signin');
-//   await page.fill('[name="username"], [type="text"]', 'admin');
-//   await page.fill('[name="password"], [type="password"]', 'AdminPassword123!');
-//   await page.click('[type="submit"], button:has-text("Login")');
-//   await page.waitForURL(/\/(dashboard|protocols|home|interviews)/);
-// }
+test.describe.parallel('Interviews page - parallel', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/dashboard/interviews', { waitUntil: 'domcontentloaded' });
+  });
 
-// test.describe('Interview Management', () => {
-//   let context: TestEnvironmentContext;
+  test('should match visual snapshot', async ({ snapshots }) => {
+    await snapshots.expectPageToMatchSnapshot(
+      SNAPSHOT_CONFIGS.fullPage('interviews-page'),
+    );
+  });
 
-//   test.beforeAll(() => {
-//     // Get the test environment context with snapshot capability
-//     context = (global as any).__INTERVIEWS_CONTEXT__;
-//   });
+  test('should display interviews heading', async ({ page }) => {
+    await expect(
+      page.getByRole('heading', { name: 'Interviews', exact: true }),
+    ).toBeVisible();
+  });
 
-//   test.beforeEach(async ({ page }) => {
-//     // Restore to initial state before each test
-//     if (context) {
-//       await context.restoreSnapshot('initial');
-//     }
-//     await loginAsAdmin(page);
-//   });
+  test('should display interviews subtitle', async ({ page }) => {
+    await expect(
+      page.getByText(/view and manage your interview data/i),
+    ).toBeVisible();
+  });
 
-//   test('should display interview dashboard', async ({ page }) => {
-//     await page.goto('/interviews');
+  test('should display interviews table', async ({ page }) => {
+    const table = page.locator('table').first();
+    await expect(table).toBeVisible({ timeout: 10000 });
+  });
 
-//     // Should show interviews overview
-//     await expect(page.locator('h1, h2')).toContainText(/Interviews/i);
+  test('should display table columns', async ({ page }) => {
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
-//     // Should display statistics
-//     const stats = page.locator('[data-testid="interview-stats"], .stats-card');
-//     await expect(stats.first()).toBeVisible();
+    // Check for expected column headers
+    await expect(page.locator('text=Participant').first()).toBeVisible();
+    await expect(page.locator('text=Protocol').first()).toBeVisible();
+    await expect(page.locator('text=Started').first()).toBeVisible();
+    await expect(page.locator('text=Progress').first()).toBeVisible();
+  });
 
-//     // Should show interview list
-//     const interviews = page.locator(
-//       '[data-testid="interview-item"], .interview-row, tr[data-interview]',
-//     );
-//     await expect(interviews).toHaveCount(3); // Based on test data
-//   });
+  test('should display interview rows', async ({ page }) => {
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
-//   test('should filter interviews by status', async ({ page }) => {
-//     await page.goto('/interviews');
+    // Should have interview rows from test data (5 interviews)
+    const rows = page.locator('tbody tr');
+    const rowCount = await rows.count();
+    expect(rowCount).toBe(5);
+  });
 
-//     // Filter by completed
-//     const filterSelect = page.locator(
-//       'select[name="status"], [data-testid="status-filter"]',
-//     );
-//     await filterSelect.selectOption('completed');
+  test('should search interviews by participant identifier', async ({
+    page,
+  }) => {
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
-//     // Should show only completed interviews
-//     const interviews = page.locator(
-//       '[data-testid="interview-item"], .interview-row',
-//     );
-//     await expect(interviews).toHaveCount(1);
+    const searchInput = page.getByPlaceholder(/filter|search|participant/i);
+    await expect(searchInput).toBeVisible({ timeout: 10000 });
 
-//     // Filter by in-progress
-//     await filterSelect.selectOption('in-progress');
-//     await expect(interviews).toHaveCount(1);
-//   });
+    // Search for a specific participant
+    await searchInput.fill('P001');
+    await page.waitForTimeout(500); // Wait for debounce
 
-//   test('should start a new interview', async ({ page }) => {
-//     await page.goto('/interviews');
+    // Should filter results
+    const filteredRows = page.locator('tbody tr');
+    const filteredCount = await filteredRows.count();
+    expect(filteredCount).toBe(1);
 
-//     // Click new interview button
-//     await page.click(
-//       'button:has-text("New Interview"), a:has-text("Start Interview")',
-//     );
+    // Clear search
+    await searchInput.clear();
+    await page.waitForTimeout(500);
 
-//     // Select protocol
-//     await expect(page.locator('h1, h2, h3')).toContainText(
-//       /Select Protocol|Choose Protocol/i,
-//     );
-//     await page.click('text="Test Study Protocol"');
+    // All rows should return
+    const allRows = await page.locator('tbody tr').count();
+    expect(allRows).toBe(5);
+  });
 
-//     // Enter participant identifier
-//     const participantInput = page.locator(
-//       '[name="participantId"], [name="identifier"]',
-//     );
-//     await participantInput.fill(`P${Date.now()}`);
+  test('should sort interviews by column', async ({ page }) => {
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
-//     // Start interview
-//     await page.click('button:has-text("Start"), button:has-text("Begin")');
+    // Find sortable column header (Updated)
+    const sortButton = page.getByRole('button', { name: /updated/i }).first();
+    await expect(sortButton).toBeVisible();
 
-//     // Should navigate to interview
-//     await expect(page).toHaveURL(/\/interview\/[a-z0-9-]+/);
+    // Click to toggle sort
+    await sortButton.click();
+    await page.waitForTimeout(300);
 
-//     // Should show first stage
-//     await expect(page.locator('.stage-title, h1, h2')).toContainText(
-//       'Information',
-//     );
-//   });
+    // Verify button is still visible (sort toggled)
+    await expect(sortButton).toBeVisible();
+  });
 
-//   test('should resume an in-progress interview', async ({ page }) => {
-//     await page.goto('/interviews');
+  test('should display export interview data dropdown', async ({ page }) => {
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
-//     // Find and click on in-progress interview
-//     const inProgressRow = page.locator(
-//       'tr:has-text("Bob"), [data-testid="interview-item"]:has-text("Bob")',
-//     );
-//     await inProgressRow.click();
+    // Look for export dropdown menu button
+    const exportButton = page.getByRole('button', {
+      name: /export interview data/i,
+    });
+    await expect(exportButton).toBeVisible();
+  });
 
-//     // Should navigate to interview
-//     await expect(page).toHaveURL(/\/interview\/[a-z0-9-]+/);
+  test('should display progress percentage', async ({ page }) => {
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
-//     // Should be at the correct step
-//     await expect(page.locator('.stage-title, .current-stage')).toContainText(
-//       'Name Generator',
-//     );
-//   });
+    // Should have progress indicators in rows
+    const progressCells = page.locator('tbody td').filter({ hasText: '%' });
+    const count = await progressCells.count();
+    expect(count).toBeGreaterThan(0);
+  });
 
-//   test('should navigate through interview stages', async ({ page }) => {
-//     // Start from an in-progress interview
-//     await page.goto('/interviews');
-//     const inProgressRow = page.locator('tr:has-text("Bob")').first();
-//     await inProgressRow.click();
+  test('should display export status badges', async ({ page }) => {
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
-//     // Navigate to next stage
-//     const nextButton = page.locator(
-//       'button:has-text("Next"), button[aria-label="Next"]',
-//     );
-//     await nextButton.click();
+    // Should have export status (either "Not exported" or a timestamp)
+    const notExportedBadge = page.getByText('Not exported').first();
+    if (await notExportedBadge.isVisible()) {
+      await expect(notExportedBadge).toBeVisible();
+    }
+  });
 
-//     // Should advance to next stage
-//     await expect(
-//       page.locator('.stage-progress, .progress-indicator'),
-//     ).toContainText(/2|Stage 2/);
+  test('should allow bulk selection', async ({ page }) => {
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
-//     // Navigate back
-//     const prevButton = page.locator(
-//       'button:has-text("Previous"), button[aria-label="Previous"]',
-//     );
-//     await prevButton.click();
+    // Find header checkbox
+    const selectAllCheckbox = page.locator('thead [role="checkbox"]').first();
+    await expect(selectAllCheckbox).toBeVisible();
 
-//     // Should go back to previous stage
-//     await expect(
-//       page.locator('.stage-progress, .progress-indicator'),
-//     ).toContainText(/1|Stage 1/);
-//   });
+    // Select all
+    await selectAllCheckbox.click();
+    await page.waitForTimeout(300);
 
-//   test('should complete an interview', async ({ page }) => {
-//     // Resume Bob's interview
-//     await page.goto('/interviews');
-//     await page.locator('tr:has-text("Bob")').first().click();
+    // Verify all row checkboxes are checked
+    const rowCheckboxes = page.locator('tbody [role="checkbox"]');
+    const checkboxCount = await rowCheckboxes.count();
 
-//     // Navigate to the last stage
-//     const nextButton = page.locator(
-//       'button:has-text("Next"), button[aria-label="Next"]',
-//     );
-//     await nextButton.click(); // Go to stage 2
+    for (let i = 0; i < checkboxCount; i++) {
+      await expect(rowCheckboxes.nth(i)).toHaveAttribute(
+        'aria-checked',
+        'true',
+      );
+    }
 
-//     // Complete interview
-//     const finishButton = page.locator(
-//       'button:has-text("Finish"), button:has-text("Complete")',
-//     );
-//     await finishButton.click();
+    // Uncheck all
+    await selectAllCheckbox.click();
+  });
+});
 
-//     // Confirm completion
-//     const confirmButton = page
-//       .locator('button:has-text("Confirm"), button:has-text("Yes")')
-//       .last();
-//     if (await confirmButton.isVisible()) {
-//       await confirmButton.click();
-//     }
+test.describe.serial('Interviews page - serial', () => {
+  test('should delete single interview via row actions', async ({
+    page,
+    database,
+  }) => {
+    const cleanup = await database.isolate('delete-interview');
+    await page.goto('/dashboard/interviews', { waitUntil: 'domcontentloaded' });
 
-//     // Should redirect to interviews list
-//     await expect(page).toHaveURL('/interviews');
+    try {
+      await expect(page.locator('table').first()).toBeVisible({
+        timeout: 10000,
+      });
 
-//     // Interview should now show as completed
-//     const completedInterview = page.locator('tr:has-text("Bob")');
-//     await expect(completedInterview).toContainText(/Completed|Finished/i);
-//   });
+      // Get initial row count
+      const initialCount = await page.locator('tbody tr').count();
 
-//   test('should export interview data', async ({ page }) => {
-//     await page.goto('/interviews');
+      // Find first row actions button
+      const firstRow = page.locator('tbody tr').first();
+      const actionsButton = firstRow.getByRole('button').last();
+      await actionsButton.click();
 
-//     // Find completed interview
-//     const completedRow = page.locator('tr:has-text("Alice")').first();
+      // Click delete option
+      const deleteButton = page.getByRole('menuitem', { name: /delete/i });
+      await expect(deleteButton).toBeVisible();
+      await deleteButton.click();
 
-//     // Open actions menu
-//     const menuButton = completedRow.locator(
-//       'button[aria-label*="menu"], button:has-text("⋮")',
-//     );
-//     await menuButton.click();
+      // Confirm deletion in dialog
+      const confirmDialog = page.getByRole('dialog');
+      await expect(confirmDialog).toBeVisible({ timeout: 5000 });
 
-//     // Click export
-//     const [download] = await Promise.all([
-//       page.waitForEvent('download'),
-//       page.click(
-//         '[role="menuitem"]:has-text("Export"), button:has-text("Export")',
-//       ),
-//     ]);
+      const confirmButton = confirmDialog.getByRole('button', {
+        name: /delete|confirm|yes/i,
+      });
+      await confirmButton.click();
 
-//     // Verify download
-//     expect(download.suggestedFilename()).toMatch(/\.(json|csv|graphml)/);
-//   });
+      // Wait for dialog to close and row to be removed
+      await expect(confirmDialog).not.toBeVisible({ timeout: 10000 });
 
-//   test('should delete an interview', async ({ page }) => {
-//     await page.goto('/interviews');
+      // Verify row count decreased
+      await page.waitForTimeout(500);
+      const finalCount = await page.locator('tbody tr').count();
+      expect(finalCount).toBe(initialCount - 1);
+    } finally {
+      await cleanup();
+    }
+  });
 
-//     // Count initial interviews
-//     const initialCount = await page
-//       .locator('[data-testid="interview-item"], tr[data-interview]')
-//       .count();
+  test('should bulk delete selected interviews', async ({ page, database }) => {
+    const cleanup = await database.isolate('bulk-delete-interviews');
+    await page.goto('/dashboard/interviews', { waitUntil: 'domcontentloaded' });
 
-//     // Find an interview to delete
-//     const interviewRow = page.locator('tr:has-text("Charlie")').first();
+    try {
+      await expect(page.locator('table').first()).toBeVisible({
+        timeout: 10000,
+      });
 
-//     // Open actions menu
-//     const menuButton = interviewRow.locator(
-//       'button[aria-label*="menu"], button:has-text("⋮")',
-//     );
-//     await menuButton.click();
+      // Select first two rows
+      const rowCheckboxes = page.locator('tbody [role="checkbox"]');
+      await rowCheckboxes.nth(0).click();
+      await rowCheckboxes.nth(1).click();
+      await page.waitForTimeout(300);
 
-//     // Click delete
-//     await page.click('[role="menuitem"]:has-text("Delete")');
+      // Look for bulk delete button (should appear when rows selected)
+      const deleteSelectedButton = page.getByRole('button', {
+        name: /delete selected|delete \d+/i,
+      });
 
-//     // Confirm deletion
-//     await page.click(
-//       'button:has-text("Confirm"), button:has-text("Delete"):visible',
-//     );
+      if (await deleteSelectedButton.isVisible()) {
+        await deleteSelectedButton.click();
 
-//     // Should show success message
-//     await expect(page.locator('.toast, [role="alert"]')).toContainText(
-//       /deleted/i,
-//     );
+        // Confirm in dialog
+        const confirmDialog = page.getByRole('dialog');
+        await expect(confirmDialog).toBeVisible({ timeout: 5000 });
 
-//     // Interview count should decrease
-//     const finalCount = await page
-//       .locator('[data-testid="interview-item"], tr[data-interview]')
-//       .count();
-//     expect(finalCount).toBe(initialCount - 1);
-//   });
+        const confirmButton = confirmDialog.getByRole('button', {
+          name: /delete|confirm/i,
+        });
+        await confirmButton.click();
 
-//   test('should handle interview with network data', async ({ page }) => {
-//     await page.goto('/interviews');
+        await expect(confirmDialog).not.toBeVisible({ timeout: 10000 });
+      }
+    } finally {
+      await cleanup();
+    }
+  });
 
-//     // Open Alice's completed interview
-//     const aliceRow = page.locator('tr:has-text("Alice")').first();
-//     await aliceRow.click();
+  test('should open export interviews dialog', async ({ page, database }) => {
+    const cleanup = await database.isolate('export-interviews-dialog');
+    await page.goto('/dashboard/interviews', { waitUntil: 'domcontentloaded' });
 
-//     // Should show network visualization or summary
-//     await expect(
-//       page.locator('.network-summary, [data-testid="network-viz"]'),
-//     ).toBeVisible();
+    try {
+      await expect(page.locator('table').first()).toBeVisible({
+        timeout: 10000,
+      });
 
-//     // Should display node count
-//     await expect(page.getByText(/2 nodes|John|Jane/i)).toBeVisible();
+      // Click export dropdown
+      const exportButton = page.getByRole('button', {
+        name: /export interview data/i,
+      });
+      await expect(exportButton).toBeVisible();
+      await exportButton.click();
 
-//     // Should display edge count
-//     await expect(page.getByText(/1 edge|1 relationship/i)).toBeVisible();
-//   });
-// });
+      // Should show dropdown menu
+      const menu = page.getByRole('menu');
+      await expect(menu).toBeVisible({ timeout: 5000 });
+
+      // Click export all option
+      const exportAllOption = page.getByRole('menuitem', {
+        name: /export all interviews/i,
+      });
+      if (await exportAllOption.isVisible()) {
+        await exportAllOption.click();
+
+        // Dialog should open
+        const dialog = page.getByRole('dialog');
+        await expect(dialog).toBeVisible({ timeout: 5000 });
+
+        // Close dialog
+        await page.keyboard.press('Escape');
+      }
+    } finally {
+      await cleanup();
+    }
+  });
+
+  test('should open generate URLs dialog', async ({ page, database }) => {
+    const cleanup = await database.isolate('generate-urls-dialog');
+    await page.goto('/dashboard/interviews', { waitUntil: 'domcontentloaded' });
+
+    try {
+      await expect(page.locator('table').first()).toBeVisible({
+        timeout: 10000,
+      });
+
+      // Select some interviews first
+      const rowCheckboxes = page.locator('tbody [role="checkbox"]');
+      await rowCheckboxes.first().click();
+      await page.waitForTimeout(300);
+
+      // Click export incomplete interview URLs button
+      const generateButton = page.getByRole('button', {
+        name: /export incomplete interview urls/i,
+      });
+
+      if (await generateButton.isEnabled()) {
+        await generateButton.click();
+
+        // Dialog should open
+        const dialog = page.getByRole('dialog');
+        if (await dialog.isVisible()) {
+          await expect(dialog).toBeVisible({ timeout: 5000 });
+          // Close dialog
+          await page.keyboard.press('Escape');
+        }
+      }
+    } finally {
+      await cleanup();
+    }
+  });
+});

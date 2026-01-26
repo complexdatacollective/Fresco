@@ -55,11 +55,25 @@ export default defineConfig({
       },
     },
 
-    // Dashboard tests - depend on auth setup
+    // Visual snapshot tests - run first to capture initial state before data modifications
+    {
+      name: 'dashboard-visual',
+      testMatch: '**/dashboard/visual-snapshots.spec.ts',
+      dependencies: ['auth-dashboard'],
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: getEnvVar('DASHBOARD_URL'),
+        storageState: 'tests/e2e/.auth/admin.json',
+      },
+      fullyParallel: true,
+    },
+
+    // Dashboard tests - depend on visual tests completing first
     {
       name: 'dashboard',
       testMatch: '**/dashboard/*.spec.ts',
-      dependencies: ['auth-dashboard'],
+      testIgnore: '**/dashboard/visual-snapshots.spec.ts', // Handled by dashboard-visual
+      dependencies: ['dashboard-visual'],
       use: {
         ...devices['Desktop Chrome'],
         baseURL: getEnvVar('DASHBOARD_URL'),

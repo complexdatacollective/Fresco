@@ -24,6 +24,7 @@ export type SerializedContext = {
 
 export type StoredContextData = {
   contexts: Record<string, SerializedContext>;
+  snapshotServerUrl: string;
   createdAt: string;
 };
 
@@ -34,9 +35,11 @@ export type StoredContextData = {
  */
 export async function saveContextData(
   contexts: Record<string, SerializedContext>,
+  snapshotServerUrl: string,
 ): Promise<void> {
   const data: StoredContextData = {
     contexts,
+    snapshotServerUrl,
     createdAt: new Date().toISOString(),
   };
   await fs.writeFile(CONTEXT_FILE, JSON.stringify(data, null, 2));

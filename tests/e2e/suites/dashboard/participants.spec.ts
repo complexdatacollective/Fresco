@@ -10,10 +10,24 @@ test.describe.parallel('Participants page - parallel', () => {
   });
 
   // Visual snapshot of this page
-  test('should match visual snapshot', async ({ snapshots }) => {
-    await snapshots.expectPageToMatchSnapshot(
-      SNAPSHOT_CONFIGS.fullPage('participants-page'),
-    );
+  // Uses database isolation to ensure consistent state regardless of test execution order
+  test('should match visual snapshot', async ({ page, database, snapshots }) => {
+    const cleanup = await database.isolate('visual-snapshot');
+    await page.goto('/dashboard/participants', {
+      waitUntil: 'networkidle',
+    });
+    // Wait for table to be fully rendered
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('tbody tr').first()).toBeVisible({
+      timeout: 10000,
+    });
+    try {
+      await snapshots.expectPageToMatchSnapshot(
+        SNAPSHOT_CONFIGS.fullPage('participants-page'),
+      );
+    } finally {
+      await cleanup();
+    }
   });
 
   test('should display participants list', async ({ page }) => {
@@ -223,13 +237,13 @@ test.describe.parallel('Participants page - parallel', () => {
 
 // Mutations allowed here. Use database snapshots to return to initial state.
 test.describe.serial('Participants page - serial', () => {
-  test.beforeEach(async ({ page }) => {
+  test('should be able to upload participant csv', async ({ page, database }) => {
+    const cleanup = await database.isolate('upload-csv');
     await page.goto('/dashboard/participants', {
       waitUntil: 'domcontentloaded',
     });
-  });
 
-  test('should be able to upload participant csv', async ({ page }) => {
+    try {
     // Look for import participants button
     const importButton = page.getByRole('button', { name: /import/i }).first();
     await expect(importButton).toBeVisible();
@@ -268,9 +282,18 @@ test.describe.serial('Participants page - serial', () => {
     // Verify participants appear in table (may need to wait for refresh)
     await page.waitForTimeout(1000);
     // Note: Import may require additional confirmation steps depending on UI
+    } finally {
+      await cleanup();
+    }
   });
 
-  test('should add a new participant', async ({ page }) => {
+  test('should add a new participant', async ({ page, database }) => {
+    const cleanup = await database.isolate('add-participant');
+    await page.goto('/dashboard/participants', {
+      waitUntil: 'domcontentloaded',
+    });
+
+    try {
     // Wait for table to load
     await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
@@ -316,9 +339,18 @@ test.describe.serial('Participants page - serial', () => {
     await expect(page.getByText(`NEW${timestamp}`)).toBeVisible({
       timeout: 10000,
     });
+    } finally {
+      await cleanup();
+    }
   });
 
-  test('should edit participant information', async ({ page }) => {
+  test('should edit participant information', async ({ page, database }) => {
+    const cleanup = await database.isolate('edit-participant');
+    await page.goto('/dashboard/participants', {
+      waitUntil: 'domcontentloaded',
+    });
+
+    try {
     // Wait for table to load
     await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
@@ -361,9 +393,21 @@ test.describe.serial('Participants page - serial', () => {
     await expect(page.locator(`text=${newLabel}`)).toBeVisible({
       timeout: 10000,
     });
+    } finally {
+      await cleanup();
+    }
   });
 
-  test('should delete single participant with interviews', async ({ page }) => {
+  test('should delete single participant with interviews', async ({
+    page,
+    database,
+  }) => {
+    const cleanup = await database.isolate('delete-participant-with-interviews');
+    await page.goto('/dashboard/participants', {
+      waitUntil: 'domcontentloaded',
+    });
+
+    try {
     // Wait for table to load
     await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
@@ -398,11 +442,21 @@ test.describe.serial('Participants page - serial', () => {
         break;
       }
     }
+    } finally {
+      await cleanup();
+    }
   });
 
   test('should delete single participant with no interviews', async ({
     page,
+    database,
   }) => {
+    const cleanup = await database.isolate('delete-participant-no-interviews');
+    await page.goto('/dashboard/participants', {
+      waitUntil: 'domcontentloaded',
+    });
+
+    try {
     // Wait for table to load
     await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
@@ -440,38 +494,100 @@ test.describe.serial('Participants page - serial', () => {
         break;
       }
     }
+    } finally {
+      await cleanup();
+    }
   });
 
-  test('should allow all participants to be deleted', async ({ page }) => {
+  test('should allow all participants to be deleted', async ({
+    page,
+    database,
+  }) => {
+    const cleanup = await database.isolate('delete-all-participants');
+    await page.goto('/dashboard/participants', {
+      waitUntil: 'domcontentloaded',
+    });
+
+    try {
     // Wait for table to load
     await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
-    // Look for delete all button
-    const deleteAllButton = page.getByRole('button', { name: /delete all/i });
+    // Check if there are any rows to delete
+    const rows = page.locator('tbody tr');
+    const rowCount = await rows.count();
 
-    if (await deleteAllButton.isVisible()) {
-      await deleteAllButton.click();
+    if (rowCount === 0) {
+      // No participants to delete, verify empty state already shown
+      await expect(page.getByText('No results.')).toBeVisible();
+      return;
+    }
 
-      // Confirm deletion in dialog
-      const confirmDialog = page.getByRole('dialog');
-      await expect(confirmDialog).toBeVisible();
+    // Select all rows using the header checkbox
+    const selectAllCheckbox = page.locator('thead [role="checkbox"]').first();
+    await selectAllCheckbox.click();
 
-      const confirmButton = confirmDialog.getByRole('button', {
-        name: /delete|confirm|yes/i,
-      });
-      await confirmButton.click();
+    // Wait for selection to register
+    await page.waitForTimeout(300);
 
-      // Wait for deletion to complete
-      await page.waitForTimeout(2000);
+    // Click the "Delete Selected" button
+    const deleteSelectedButton = page.getByRole('button', {
+      name: /delete selected/i,
+    });
+    await expect(deleteSelectedButton).toBeVisible();
+    await deleteSelectedButton.click();
 
-      // Verify table shows empty state (shows "No results." when empty)
-      const emptyState = page.getByText('No results.');
-      await expect(emptyState).toBeVisible({ timeout: 10000 });
+    // Confirm deletion in dialog
+    const confirmDialog = page.getByRole('dialog');
+    await expect(confirmDialog).toBeVisible();
+
+    const confirmButton = confirmDialog.getByRole('button', {
+      name: /delete|confirm|yes/i,
+    });
+    await confirmButton.click();
+
+    // Wait for deletion to complete
+    await page.waitForTimeout(2000);
+
+    // Verify table shows empty state (shows "No results." when empty)
+    const emptyState = page.getByText('No results.');
+    await expect(emptyState).toBeVisible({ timeout: 10000 });
+    } finally {
+      await cleanup();
     }
   });
 
   // Visual snapshot of empty state should match
-  test('should match visual snapshot of empty state', async ({ snapshots }) => {
+  test('should match visual snapshot of empty state', async ({
+    page,
+    database,
+    snapshots,
+  }) => {
+    // Restore to initial state, then delete all to get empty state
+    const cleanup = await database.isolate('empty-state-snapshot');
+    await page.goto('/dashboard/participants', {
+      waitUntil: 'domcontentloaded',
+    });
+
+    try {
+    // First delete all participants to get empty state
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    const selectAllCheckbox = page.locator('thead [role="checkbox"]').first();
+    await selectAllCheckbox.click();
+    await page.waitForTimeout(300);
+
+    const deleteSelectedButton = page.getByRole('button', {
+      name: /delete selected/i,
+    });
+    if (await deleteSelectedButton.isVisible()) {
+      await deleteSelectedButton.click();
+      const confirmDialog = page.getByRole('dialog');
+      await expect(confirmDialog).toBeVisible();
+      const confirmButton = confirmDialog.getByRole('button', {
+        name: /delete|confirm|yes/i,
+      });
+      await confirmButton.click();
+      await page.waitForTimeout(2000);
+    }
     // Wait for empty state to be stable
     await snapshots.waitForStablePage();
 
@@ -479,5 +595,8 @@ test.describe.serial('Participants page - serial', () => {
     await snapshots.expectPageToMatchSnapshot(
       SNAPSHOT_CONFIGS.emptyState('participants-empty-state'),
     );
+    } finally {
+      await cleanup();
+    }
   });
 });
