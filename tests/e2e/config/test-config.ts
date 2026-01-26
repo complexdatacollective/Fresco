@@ -9,15 +9,6 @@ const TEST_CONFIG = {
     username: 'testadmin',
     password: 'TestAdmin123!',
   },
-
-  // Test environment settings
-  environment: {
-    // Whether to skip environment validation in containers
-    skipEnvValidation: true,
-    // Test UploadThing token
-    uploadThingToken: 'sk_test_dummy_token_for_testing',
-  },
-
   // Native app settings for running Next.js without Docker
   nativeApp: {
     // Starting port for native app instances
@@ -35,5 +26,4 @@ const TEST_CONFIG = {
 
 // Export individual parts for convenience
 export const ADMIN_CREDENTIALS = TEST_CONFIG.admin;
-export const TEST_ENVIRONMENT = TEST_CONFIG.environment;
 export const NATIVE_APP_CONFIG = TEST_CONFIG.nativeApp;

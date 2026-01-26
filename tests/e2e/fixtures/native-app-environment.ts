@@ -1,9 +1,9 @@
-import { spawn, type ChildProcess, execFile } from 'node:child_process';
+import { execFile, spawn, type ChildProcess } from 'node:child_process';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
-import { NATIVE_APP_CONFIG, TEST_ENVIRONMENT } from '../config/test-config';
+import { NATIVE_APP_CONFIG } from '../config/test-config';
 import { logger } from '../utils/logger';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -127,7 +127,6 @@ export class NativeAppEnvironment {
         DATABASE_URL: databaseUrl,
         DATABASE_URL_UNPOOLED: databaseUrl,
         SKIP_ENV_VALIDATION: 'true',
-        UPLOADTHING_TOKEN: TEST_ENVIRONMENT.uploadThingToken,
         // Disable analytics in test
         DISABLE_ANALYTICS: 'true',
         // Disable Next.js cache for test isolation (handled by custom cache handler)
