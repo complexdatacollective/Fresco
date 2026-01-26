@@ -10,20 +10,22 @@ test.describe.serial('Onboard Integration', () => {
       throw new Error('Test data not found. Ensure global setup has run.');
     }
 
-    const newParticipantIdentifier = `NEW-GET-${Date.now()}`;
+    await database.withSnapshot('getNewParticipant', async () => {
+      const newParticipantIdentifier = `NEW-GET-${Date.now()}`;
 
-    // Navigate using GET with query parameter
-    await page.goto(
-      `/onboard/${protocolId}?participantIdentifier=${newParticipantIdentifier}`,
-      { waitUntil: 'domcontentloaded' },
-    );
+      // Navigate using GET with query parameter
+      await page.goto(
+        `/onboard/${protocolId}?participantIdentifier=${newParticipantIdentifier}`,
+        { waitUntil: 'domcontentloaded' },
+      );
 
-    // Should redirect to interview page
-    await page.waitForURL(/\/interview\/[a-z0-9-]+/, { timeout: 10000 });
-    expect(page.url()).toMatch(/\/interview\/[a-z0-9-]+/);
+      // Should redirect to interview page
+      await page.waitForURL(/\/interview\/[a-z0-9-]+/, { timeout: 10000 });
+      expect(page.url()).toMatch(/\/interview\/[a-z0-9-]+/);
 
-    // The interview page should be visible
-    await expect(page.locator('body')).toBeVisible();
+      // The interview page should be visible
+      await expect(page.locator('body')).toBeVisible();
+    });
   });
 
   test('GET with existing participantIdentifier links to existing participant', async ({
@@ -35,24 +37,26 @@ test.describe.serial('Onboard Integration', () => {
       throw new Error('Test data not found. Ensure global setup has run.');
     }
 
-    // Use an existing participant from test data (P011-P020 don't have interviews)
-    const existingParticipant = testData.participants.find(
-      (p) => p.identifier === 'P011',
-    );
+    await database.withSnapshot('getExistingParticipant', async () => {
+      // Use an existing participant from test data (P011-P020 don't have interviews)
+      const existingParticipant = testData.participants.find(
+        (p) => p.identifier === 'P011',
+      );
 
-    if (!existingParticipant) {
-      throw new Error('Test participant P011 not found');
-    }
+      if (!existingParticipant) {
+        throw new Error('Test participant P011 not found');
+      }
 
-    // Navigate using GET with existing participant identifier
-    await page.goto(
-      `/onboard/${testData.protocol.id}?participantIdentifier=${existingParticipant.identifier}`,
-      { waitUntil: 'domcontentloaded' },
-    );
+      // Navigate using GET with existing participant identifier
+      await page.goto(
+        `/onboard/${testData.protocol.id}?participantIdentifier=${existingParticipant.identifier}`,
+        { waitUntil: 'domcontentloaded' },
+      );
 
-    // Should redirect to interview page
-    await page.waitForURL(/\/interview\/[a-z0-9-]+/, { timeout: 10000 });
-    expect(page.url()).toMatch(/\/interview\/[a-z0-9-]+/);
+      // Should redirect to interview page
+      await page.waitForURL(/\/interview\/[a-z0-9-]+/, { timeout: 10000 });
+      expect(page.url()).toMatch(/\/interview\/[a-z0-9-]+/);
+    });
   });
 
   test('POST with participantIdentifier in body creates interview', async ({
@@ -64,21 +68,23 @@ test.describe.serial('Onboard Integration', () => {
       throw new Error('Test data not found. Ensure global setup has run.');
     }
 
-    const newParticipantIdentifier = `NEW-POST-${Date.now()}`;
+    await database.withSnapshot('postNewParticipant', async () => {
+      const newParticipantIdentifier = `NEW-POST-${Date.now()}`;
 
-    // Use page.request to make a POST request
-    const response = await page.request.post(`/onboard/${protocolId}`, {
-      data: { participantIdentifier: newParticipantIdentifier },
-      headers: { 'Content-Type': 'application/json' },
-      maxRedirects: 0, // Don't follow redirects to check the response
+      // Use page.request to make a POST request
+      const response = await page.request.post(`/onboard/${protocolId}`, {
+        data: { participantIdentifier: newParticipantIdentifier },
+        headers: { 'Content-Type': 'application/json' },
+        maxRedirects: 0, // Don't follow redirects to check the response
+      });
+
+      // Should get a redirect response (307)
+      expect(response.status()).toBe(307);
+
+      // The redirect location should be to an interview
+      const location = response.headers().location;
+      expect(location).toMatch(/\/interview\/[a-z0-9-]+/);
     });
-
-    // Should get a redirect response (307)
-    expect(response.status()).toBe(307);
-
-    // The redirect location should be to an interview
-    const location = response.headers().location;
-    expect(location).toMatch(/\/interview\/[a-z0-9-]+/);
   });
 
   test('POST with existing participantIdentifier links to existing participant', async ({
@@ -90,27 +96,29 @@ test.describe.serial('Onboard Integration', () => {
       throw new Error('Test data not found. Ensure global setup has run.');
     }
 
-    // Use an existing participant from test data
-    const existingParticipant = testData.participants.find(
-      (p) => p.identifier === 'P012',
-    );
+    await database.withSnapshot('postExistingParticipant', async () => {
+      // Use an existing participant from test data
+      const existingParticipant = testData.participants.find(
+        (p) => p.identifier === 'P012',
+      );
 
-    if (!existingParticipant) {
-      throw new Error('Test participant P012 not found');
-    }
+      if (!existingParticipant) {
+        throw new Error('Test participant P012 not found');
+      }
 
-    const response = await page.request.post(
-      `/onboard/${testData.protocol.id}`,
-      {
-        data: { participantIdentifier: existingParticipant.identifier },
-        headers: { 'Content-Type': 'application/json' },
-        maxRedirects: 0,
-      },
-    );
+      const response = await page.request.post(
+        `/onboard/${testData.protocol.id}`,
+        {
+          data: { participantIdentifier: existingParticipant.identifier },
+          headers: { 'Content-Type': 'application/json' },
+          maxRedirects: 0,
+        },
+      );
 
-    expect(response.status()).toBe(307);
-    const location = response.headers().location;
-    expect(location).toMatch(/\/interview\/[a-z0-9-]+/);
+      expect(response.status()).toBe(307);
+      const location = response.headers().location;
+      expect(location).toMatch(/\/interview\/[a-z0-9-]+/);
+    });
   });
 
   test('GET without participantIdentifier creates anonymous participant', async ({
@@ -122,14 +130,16 @@ test.describe.serial('Onboard Integration', () => {
       throw new Error('Test data not found. Ensure global setup has run.');
     }
 
-    // Navigate without participantIdentifier (anonymous recruitment is enabled in test setup)
-    await page.goto(`/onboard/${protocolId}`, {
-      waitUntil: 'domcontentloaded',
-    });
+    await database.withSnapshot('getAnonymousParticipant', async () => {
+      // Navigate without participantIdentifier (anonymous recruitment is enabled in test setup)
+      await page.goto(`/onboard/${protocolId}`, {
+        waitUntil: 'domcontentloaded',
+      });
 
-    // Should redirect to interview page
-    await page.waitForURL(/\/interview\/[a-z0-9-]+/, { timeout: 10000 });
-    expect(page.url()).toMatch(/\/interview\/[a-z0-9-]+/);
+      // Should redirect to interview page
+      await page.waitForURL(/\/interview\/[a-z0-9-]+/, { timeout: 10000 });
+      expect(page.url()).toMatch(/\/interview\/[a-z0-9-]+/);
+    });
   });
 
   test('POST without participantIdentifier creates anonymous participant', async ({
@@ -141,15 +151,17 @@ test.describe.serial('Onboard Integration', () => {
       throw new Error('Test data not found. Ensure global setup has run.');
     }
 
-    const response = await page.request.post(`/onboard/${protocolId}`, {
-      data: {},
-      headers: { 'Content-Type': 'application/json' },
-      maxRedirects: 0,
-    });
+    await database.withSnapshot('postAnonymousParticipant', async () => {
+      const response = await page.request.post(`/onboard/${protocolId}`, {
+        data: {},
+        headers: { 'Content-Type': 'application/json' },
+        maxRedirects: 0,
+      });
 
-    expect(response.status()).toBe(307);
-    const location = response.headers().location;
-    expect(location).toMatch(/\/interview\/[a-z0-9-]+/);
+      expect(response.status()).toBe(307);
+      const location = response.headers().location;
+      expect(location).toMatch(/\/interview\/[a-z0-9-]+/);
+    });
   });
 
   test('GET with invalid protocolId redirects to error page', async ({
