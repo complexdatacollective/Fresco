@@ -105,31 +105,21 @@ export const createDndStore = (initState: DndState = defaultInitState) => {
         const state = get();
         if (!state.dragItem || !state.dragPosition) return;
 
-        // Find the best drop target at current position
-        // When multiple targets overlap, prefer the smallest one (area-based priority)
-        // This allows smaller targets like NodeBin to take priority over larger containers
-        let foundTarget: DropTargetWithState | null = null;
-        let smallestArea = Infinity;
+        // Find the best drop target at current position using visual stacking order.
+        // elementsFromPoint returns elements in visual order (topmost first),
         let newActiveDropTargetId: string | null = null;
 
-        for (const target of state.dropTargets.values()) {
-          const isHit =
-            x >= target.x &&
-            x <= target.x + target.width &&
-            y >= target.y &&
-            y <= target.y + target.height;
+        const elementsAtPoint = document.elementsFromPoint(x, y);
 
-          if (isHit && target.canDrop) {
-            const area = target.width * target.height;
-            if (area < smallestArea) {
-              foundTarget = target;
-              smallestArea = area;
+        for (const element of elementsAtPoint) {
+          const zoneId = (element as HTMLElement).dataset?.zoneId;
+          if (zoneId) {
+            const target = state.dropTargets.get(zoneId);
+            if (target?.canDrop) {
+              newActiveDropTargetId = zoneId;
+              break; // Stop at first valid target in stacking order
             }
           }
-        }
-
-        if (foundTarget) {
-          newActiveDropTargetId = foundTarget.id;
         }
 
         // Only update if position or active drop target changed
