@@ -1,4 +1,4 @@
-import { expect, test } from '../../fixtures/test';
+import { expect, test } from '../../fixtures/fixtures';
 
 test.describe.serial('Onboard Integration', () => {
   test('GET with participantIdentifier creates new participant and redirects to interview', async ({

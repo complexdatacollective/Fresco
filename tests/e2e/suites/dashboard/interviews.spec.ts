@@ -1,4 +1,24 @@
-import { expect, SNAPSHOT_CONFIGS, test } from '../../fixtures/test';
+import { expect, SNAPSHOT_CONFIGS, test } from '../../fixtures/fixtures';
+import {
+  confirmDeletion,
+  getDialog,
+  waitForDialog,
+} from '../../utils/dialog-helpers';
+import {
+  clickMenuItem,
+  deleteSingleItem,
+  getFirstRow,
+  openRowActions,
+} from '../../utils/row-actions-helpers';
+import {
+  clearSearch,
+  expectAllRowsSelected,
+  getRowCheckboxes,
+  getTableRowCount,
+  searchTable,
+  selectAllRows,
+  waitForTable,
+} from '../../utils/table-helpers';
 
 test.describe.parallel('Interviews page - parallel', () => {
   test.beforeEach(async ({ page }) => {
@@ -24,12 +44,11 @@ test.describe.parallel('Interviews page - parallel', () => {
   });
 
   test('should display interviews table', async ({ page }) => {
-    const table = page.locator('table').first();
-    await expect(table).toBeVisible({ timeout: 10000 });
+    await waitForTable(page);
   });
 
   test('should display table columns', async ({ page }) => {
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await waitForTable(page);
 
     // Check for expected column headers
     await expect(page.locator('text=Participant').first()).toBeVisible();
@@ -39,42 +58,35 @@ test.describe.parallel('Interviews page - parallel', () => {
   });
 
   test('should display interview rows', async ({ page }) => {
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await waitForTable(page);
 
     // Should have interview rows from test data (5 interviews)
-    const rows = page.locator('tbody tr');
-    const rowCount = await rows.count();
+    const rowCount = await getTableRowCount(page);
     expect(rowCount).toBe(5);
   });
 
   test('should search interviews by participant identifier', async ({
     page,
   }) => {
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
-
-    const searchInput = page.getByPlaceholder(/filter|search|participant/i);
-    await expect(searchInput).toBeVisible({ timeout: 10000 });
+    await waitForTable(page);
 
     // Search for a specific participant
-    await searchInput.fill('P001');
-    await page.waitForTimeout(500); // Wait for debounce
+    await searchTable(page, 'P001');
 
     // Should filter results
-    const filteredRows = page.locator('tbody tr');
-    const filteredCount = await filteredRows.count();
+    const filteredCount = await getTableRowCount(page);
     expect(filteredCount).toBe(1);
 
     // Clear search
-    await searchInput.clear();
-    await page.waitForTimeout(500);
+    await clearSearch(page);
 
     // All rows should return
-    const allRows = await page.locator('tbody tr').count();
+    const allRows = await getTableRowCount(page);
     expect(allRows).toBe(5);
   });
 
   test('should sort interviews by column', async ({ page }) => {
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await waitForTable(page);
 
     // Find sortable column header (Updated)
     const sortButton = page.getByRole('button', { name: /updated/i }).first();
@@ -89,7 +101,7 @@ test.describe.parallel('Interviews page - parallel', () => {
   });
 
   test('should display export interview data dropdown', async ({ page }) => {
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await waitForTable(page);
 
     // Look for export dropdown menu button
     const exportButton = page.getByRole('button', {
@@ -99,7 +111,7 @@ test.describe.parallel('Interviews page - parallel', () => {
   });
 
   test('should display progress percentage', async ({ page }) => {
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await waitForTable(page);
 
     // Should have progress indicators in rows
     const progressCells = page.locator('tbody td').filter({ hasText: '%' });
@@ -108,7 +120,7 @@ test.describe.parallel('Interviews page - parallel', () => {
   });
 
   test('should display export status badges', async ({ page }) => {
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await waitForTable(page);
 
     // Should have export status (either "Not exported" or a timestamp)
     const notExportedBadge = page.getByText('Not exported').first();
@@ -118,33 +130,89 @@ test.describe.parallel('Interviews page - parallel', () => {
   });
 
   test('should allow bulk selection', async ({ page }) => {
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
-
-    // Find header checkbox
-    const selectAllCheckbox = page.locator('thead [role="checkbox"]').first();
-    await expect(selectAllCheckbox).toBeVisible();
+    await waitForTable(page);
 
     // Select all
-    await selectAllCheckbox.click();
-    await page.waitForTimeout(300);
+    await selectAllRows(page);
 
     // Verify all row checkboxes are checked
-    const rowCheckboxes = page.locator('tbody [role="checkbox"]');
-    const checkboxCount = await rowCheckboxes.count();
-
-    for (let i = 0; i < checkboxCount; i++) {
-      await expect(rowCheckboxes.nth(i)).toHaveAttribute(
-        'aria-checked',
-        'true',
-      );
-    }
+    await expectAllRowsSelected(page);
 
     // Uncheck all
-    await selectAllCheckbox.click();
+    await selectAllRows(page);
   });
 });
 
 test.describe.serial('Interviews page - serial', () => {
+  test('visual: export dialog', async ({ page, database, snapshots }) => {
+    const cleanup = await database.isolate('interviews-export-dialog');
+    await page.goto('/dashboard/interviews', { waitUntil: 'domcontentloaded' });
+
+    try {
+      await waitForTable(page);
+
+      // Click export dropdown
+      const exportButton = page.getByRole('button', {
+        name: /export interview data/i,
+      });
+      await exportButton.click();
+
+      // Should show dropdown menu
+      const menu = page.getByRole('menu');
+      await expect(menu).toBeVisible({ timeout: 5000 });
+
+      // Click export all option
+      const exportAllOption = page.getByRole('menuitem', {
+        name: /export all interviews/i,
+      });
+      await exportAllOption.click();
+
+      // Dialog should open
+      const dialog = getDialog(page);
+      await expect(dialog).toBeVisible({ timeout: 5000 });
+
+      await snapshots.expectPageToMatchSnapshot(
+        SNAPSHOT_CONFIGS.modal('interviews-export-dialog'),
+      );
+
+      // Close dialog
+      await page.keyboard.press('Escape');
+    } finally {
+      await cleanup();
+    }
+  });
+
+  test('visual: delete confirmation dialog', async ({
+    page,
+    database,
+    snapshots,
+  }) => {
+    const cleanup = await database.isolate('interviews-delete-dialog');
+    await page.goto('/dashboard/interviews', { waitUntil: 'domcontentloaded' });
+
+    try {
+      await waitForTable(page);
+
+      // Open delete dialog for first row
+      const firstRow = getFirstRow(page);
+      await openRowActions(firstRow);
+      await clickMenuItem(page, /delete/i);
+
+      // Wait for dialog
+      const dialog = await waitForDialog(page);
+      await expect(dialog).toBeVisible();
+
+      await snapshots.expectPageToMatchSnapshot(
+        SNAPSHOT_CONFIGS.modal('interviews-delete-confirmation'),
+      );
+
+      // Close dialog
+      await page.keyboard.press('Escape');
+    } finally {
+      await cleanup();
+    }
+  });
+
   test('should delete single interview via row actions', async ({
     page,
     database,
@@ -153,38 +221,18 @@ test.describe.serial('Interviews page - serial', () => {
     await page.goto('/dashboard/interviews', { waitUntil: 'domcontentloaded' });
 
     try {
-      await expect(page.locator('table').first()).toBeVisible({
-        timeout: 10000,
-      });
+      await waitForTable(page);
 
       // Get initial row count
-      const initialCount = await page.locator('tbody tr').count();
+      const initialCount = await getTableRowCount(page);
 
-      // Find first row actions button
-      const firstRow = page.locator('tbody tr').first();
-      const actionsButton = firstRow.getByRole('button').last();
-      await actionsButton.click();
-
-      // Click delete option
-      const deleteButton = page.getByRole('menuitem', { name: /delete/i });
-      await expect(deleteButton).toBeVisible();
-      await deleteButton.click();
-
-      // Confirm deletion in dialog
-      const confirmDialog = page.getByRole('dialog');
-      await expect(confirmDialog).toBeVisible({ timeout: 5000 });
-
-      const confirmButton = confirmDialog.getByRole('button', {
-        name: /delete|confirm|yes/i,
-      });
-      await confirmButton.click();
-
-      // Wait for dialog to close and row to be removed
-      await expect(confirmDialog).not.toBeVisible({ timeout: 10000 });
+      // Delete the first row
+      const firstRow = getFirstRow(page);
+      await deleteSingleItem(page, firstRow);
 
       // Verify row count decreased
       await page.waitForTimeout(500);
-      const finalCount = await page.locator('tbody tr').count();
+      const finalCount = await getTableRowCount(page);
       expect(finalCount).toBe(initialCount - 1);
     } finally {
       await cleanup();
@@ -196,12 +244,10 @@ test.describe.serial('Interviews page - serial', () => {
     await page.goto('/dashboard/interviews', { waitUntil: 'domcontentloaded' });
 
     try {
-      await expect(page.locator('table').first()).toBeVisible({
-        timeout: 10000,
-      });
+      await waitForTable(page);
 
       // Select first two rows
-      const rowCheckboxes = page.locator('tbody [role="checkbox"]');
+      const rowCheckboxes = getRowCheckboxes(page);
       await rowCheckboxes.nth(0).click();
       await rowCheckboxes.nth(1).click();
       await page.waitForTimeout(300);
@@ -215,15 +261,8 @@ test.describe.serial('Interviews page - serial', () => {
         await deleteSelectedButton.click();
 
         // Confirm in dialog
-        const confirmDialog = page.getByRole('dialog');
-        await expect(confirmDialog).toBeVisible({ timeout: 5000 });
-
-        const confirmButton = confirmDialog.getByRole('button', {
-          name: /delete|confirm/i,
-        });
-        await confirmButton.click();
-
-        await expect(confirmDialog).not.toBeVisible({ timeout: 10000 });
+        await waitForDialog(page);
+        await confirmDeletion(page);
       }
     } finally {
       await cleanup();
@@ -235,9 +274,7 @@ test.describe.serial('Interviews page - serial', () => {
     await page.goto('/dashboard/interviews', { waitUntil: 'domcontentloaded' });
 
     try {
-      await expect(page.locator('table').first()).toBeVisible({
-        timeout: 10000,
-      });
+      await waitForTable(page);
 
       // Click export dropdown
       const exportButton = page.getByRole('button', {
@@ -274,12 +311,10 @@ test.describe.serial('Interviews page - serial', () => {
     await page.goto('/dashboard/interviews', { waitUntil: 'domcontentloaded' });
 
     try {
-      await expect(page.locator('table').first()).toBeVisible({
-        timeout: 10000,
-      });
+      await waitForTable(page);
 
       // Select some interviews first
-      const rowCheckboxes = page.locator('tbody [role="checkbox"]');
+      const rowCheckboxes = getRowCheckboxes(page);
       await rowCheckboxes.first().click();
       await page.waitForTimeout(300);
 

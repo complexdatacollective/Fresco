@@ -3,15 +3,19 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
-import { ADMIN_CREDENTIALS } from './config/test-config';
+import {
+  seedDashboardEnvironment,
+  seedInterviewEnvironment,
+  seedSetupEnvironment,
+} from './fixtures/environment-configs';
 import {
   saveContextData,
   type InterviewTestData,
   type SerializedContext,
 } from './fixtures/context-storage';
 import { NativeAppEnvironment } from './fixtures/native-app-environment';
+import { createInitialSnapshot } from './fixtures/snapshot-client';
 import { SnapshotServer } from './fixtures/snapshot-server';
-import { TestDataBuilder } from './fixtures/test-data-builder';
 import {
   TestEnvironment,
   type TestEnvironmentContext,
@@ -64,74 +68,32 @@ async function globalSetup() {
     interviewsResult.context.appContext.port,
   );
 
-  // Create initial snapshots for each environment
-  // PostgreSQL's CREATE DATABASE WITH TEMPLATE requires no active connections.
-  // We must stop Next.js and disconnect Prisma before creating snapshots.
-  const nativeApp = testEnv.getNativeAppEnvironment();
-
-  logger.info('Stopping Next.js servers for initial snapshot creation...');
-  await Promise.all([
-    nativeApp.stop('setup'),
-    nativeApp.stop('dashboard'),
-    // Interview context already handles this in setupInterviewsEnvironment
-  ]);
-
-  await Promise.all([
-    setupContext.prisma.$disconnect(),
-    dashboardContext.prisma.$disconnect(),
-  ]);
-
-  logger.info('Creating initial snapshots...');
-  await Promise.all([
-    setupContext.createSnapshot('initial'),
-    dashboardContext.createSnapshot('initial'),
-    // Interview context already creates 'initial' snapshot in setupInterviewsEnvironment
-  ]);
-
-  // Restart Next.js servers after snapshots are created
-  logger.info('Restarting Next.js servers...');
-  await Promise.all([
-    nativeApp.start({
-      suiteId: 'setup',
-      port: setupContext.appContext.port,
-      databaseUrl: setupContext.dbContainer.getConnectionUri(),
-    }),
-    nativeApp.start({
-      suiteId: 'dashboard',
-      port: dashboardContext.appContext.port,
-      databaseUrl: dashboardContext.dbContainer.getConnectionUri(),
-    }),
-  ]);
-
-  // Reconnect Prisma after snapshots are created
-  await Promise.all([
-    setupContext.prisma.$connect(),
-    dashboardContext.prisma.$connect(),
-  ]);
-
-  // Create SQL-based 'initial' snapshots via the snapshot server
+  // Create SQL-based 'initial' snapshots as JSON files
   // These are used by the test isolation mechanism (database.isolate())
-  // and are separate from the container snapshots created above
+  // and are stored in tests/e2e/.snapshots/<suiteId>/initial.json
   logger.info('Creating SQL-based initial snapshots for test isolation...');
   const snapshotResults = await Promise.all([
-    fetch(`${snapshotServerUrl}/snapshot/setup/initial`, {
-      method: 'POST',
-    }).then((r) => r.json()),
-    fetch(`${snapshotServerUrl}/snapshot/dashboard/initial`, {
-      method: 'POST',
-    }).then((r) => r.json()),
-    fetch(`${snapshotServerUrl}/snapshot/interview/initial`, {
-      method: 'POST',
-    }).then((r) => r.json()),
+    createInitialSnapshot('setup', setupContext.dbContainer.getConnectionUri()),
+    createInitialSnapshot(
+      'dashboard',
+      dashboardContext.dbContainer.getConnectionUri(),
+    ),
+    createInitialSnapshot(
+      'interview',
+      interviewsResult.context.dbContainer.getConnectionUri(),
+    ),
   ]);
 
-  // Verify all snapshots were created successfully
-  for (const result of snapshotResults) {
+  // Log snapshot creation results
+  const suiteIds = ['setup', 'dashboard', 'interview'];
+  for (let i = 0; i < snapshotResults.length; i++) {
+    const result = snapshotResults[i]!;
+    const suiteId = suiteIds[i]!;
     if (!result.success) {
-      throw new Error(`Failed to create initial snapshot: ${result.error}`);
+      throw new Error(`Failed to create initial snapshot for ${suiteId}`);
     }
     logger.info(
-      `Created initial SQL snapshot for ${result.suiteId} (${result.size} bytes, ${result.tables} tables)`,
+      `Created initial SQL snapshot for ${suiteId} (${result.size} bytes, ${result.tables} tables)`,
     );
   }
 
@@ -182,94 +144,20 @@ async function globalSetup() {
 async function setupInitialSetupEnvironment(testEnv: TestEnvironment) {
   const context = await testEnv.create({
     suiteId: 'setup',
-    setupData: async (prisma) => {
-      const dataBuilder = new TestDataBuilder(prisma);
-
-      // Set initializedAt to match production behavior (initialize.ts runs before server)
-      // but keep configured=false so the setup flow is tested
-      await dataBuilder.setupAppSettings({
-        configured: false,
-      });
-    },
+    setupData: seedSetupEnvironment,
   });
 
-  // Store setup context globally for easy access
   globalThis.__SETUP_CONTEXT__ = context;
-
   return context;
 }
 
 async function setupDashboardEnvironment(testEnv: TestEnvironment) {
   const context = await testEnv.create({
     suiteId: 'dashboard',
-    setupData: async (prisma) => {
-      const dataBuilder = new TestDataBuilder(prisma);
-
-      // Setup app as configured
-      await dataBuilder.setupAppSettings();
-
-      // Create admin user with standardized credentials
-      await dataBuilder.createUser(
-        ADMIN_CREDENTIALS.username,
-        ADMIN_CREDENTIALS.password,
-      );
-
-      const protocol = await dataBuilder.createProtocol();
-
-      // Create participants for database example tests
-      const participants = [];
-      for (let i = 1; i <= 10; i++) {
-        const participant = await dataBuilder.createParticipant({
-          identifier: `P${String(i).padStart(3, '0')}`,
-          label: `Participant ${i}`,
-        });
-        participants.push(participant);
-      }
-
-      // Create interviews for participants P001-P005
-      // P001: Completed and exported
-      await dataBuilder.createInterview(participants[0]!.id, protocol.id, {
-        currentStep: 2,
-        finishTime: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-        exportTime: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-      });
-
-      // P002: Completed but not exported
-      await dataBuilder.createInterview(participants[1]!.id, protocol.id, {
-        currentStep: 2,
-        finishTime: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-      });
-
-      // P003-P005: In progress at different stages
-      await dataBuilder.createInterview(participants[2]!.id, protocol.id, {
-        currentStep: 0,
-      });
-      await dataBuilder.createInterview(participants[3]!.id, protocol.id, {
-        currentStep: 1,
-      });
-      await dataBuilder.createInterview(participants[4]!.id, protocol.id, {
-        currentStep: 1,
-      });
-
-      // Create some activity events
-      await dataBuilder.createEvent(
-        'Protocol Imported',
-        JSON.stringify({ name: 'Test Protocol' }),
-      );
-      await dataBuilder.createEvent(
-        'Interview Started',
-        JSON.stringify({ participant: 'P001' }),
-      );
-      await dataBuilder.createEvent(
-        'Interview Completed',
-        JSON.stringify({ participant: 'P001' }),
-      );
-    },
+    setupData: seedDashboardEnvironment,
   });
 
-  // Store dashboard context globally for easy access
   globalThis.__DASHBOARD_CONTEXT__ = context;
-
   return context;
 }
 
@@ -282,47 +170,7 @@ async function setupInterviewsEnvironment(testEnv: TestEnvironment): Promise<{
   const context = await testEnv.create({
     suiteId: 'interview',
     setupData: async (prisma) => {
-      const dataBuilder = new TestDataBuilder(prisma);
-
-      // Setup app settings
-      await dataBuilder.setupAppSettings({
-        configured: true,
-        allowAnonymousRecruitment: true,
-      });
-
-      // Create admin user with standardized credentials
-      const adminData = await dataBuilder.createUser(
-        ADMIN_CREDENTIALS.username,
-        ADMIN_CREDENTIALS.password,
-      );
-
-      // Create a protocol for interviews
-      const protocol = await dataBuilder.createProtocol();
-
-      // Create various participants with different states
-      const participants = [];
-      for (let i = 1; i <= 20; i++) {
-        const participant = await dataBuilder.createParticipant({
-          identifier: `P${String(i).padStart(3, '0')}`,
-          label: `Participant ${i}`,
-        });
-
-        // Create interviews for some participants
-        if (i <= 10) {
-          await dataBuilder.createInterview(participant.id, protocol.id, {
-            currentStep: i % 3,
-            finishTime: i % 3 === 2 ? new Date() : null,
-          });
-        }
-
-        participants.push(participant);
-      }
-
-      testData = {
-        admin: adminData,
-        protocol,
-        participants,
-      };
+      testData = await seedInterviewEnvironment(prisma);
     },
   });
 
@@ -330,26 +178,6 @@ async function setupInterviewsEnvironment(testEnv: TestEnvironment): Promise<{
     throw new Error('Test data was not initialized during setup');
   }
 
-  // Stop Next.js and disconnect Prisma before creating snapshot
-  // PostgreSQL's CREATE DATABASE WITH TEMPLATE requires no active connections
-  const nativeApp = testEnv.getNativeAppEnvironment();
-  await nativeApp.stop('interview');
-  await context.prisma.$disconnect();
-
-  // Create snapshot for restoration between interview tests
-  await context.createSnapshot('initial');
-
-  // Restart Next.js after snapshot
-  await nativeApp.start({
-    suiteId: 'interview',
-    port: context.appContext.port,
-    databaseUrl: context.dbContainer.getConnectionUri(),
-  });
-
-  // Reconnect Prisma after snapshot
-  await context.prisma.$connect();
-
-  // Store context for use in tests
   globalThis.__INTERVIEW_CONTEXT__ = context;
 
   return { context, testData };

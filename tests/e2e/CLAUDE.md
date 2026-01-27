@@ -43,15 +43,14 @@ FORCE_REBUILD=true pnpm test:e2e
 │  │ :3001           │   │ :3002           │   │ :3003           │            │
 │  └─────────────────┘   └─────────────────┘   └─────────────────┘            │
 │                                                                              │
-│  ┌──────────────────────────────────────────────────────────────────────┐   │
-│  │                    SNAPSHOT SERVER (HTTP)                             │   │
-│  │  - POST /snapshot/:suiteId/:name  → Create SQL snapshot               │   │
-│  │  - POST /restore/:suiteId/:name   → Restore from snapshot             │   │
-│  │  - POST /clear-cache/:suiteId     → Restart Next.js                   │   │
-│  └──────────────────────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ SNAPSHOT SERVER (HTTP)  │  FILE-BASED SNAPSHOTS                     │    │
+│  │ - POST /clear-cache/:id │  - .snapshots/<suiteId>/initial.json      │    │
+│  │   (Restart Next.js)     │  - Created at setup, read/written by tests│    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────────────────────┘
                                       │
-                                      │ HTTP API
+                    HTTP (clear-cache only) │ File I/O (snapshots)
                                       ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                         PLAYWRIGHT WORKER PROCESSES                          │
@@ -63,20 +62,22 @@ FORCE_REBUILD=true pnpm test:e2e
 │  └─────────────────┘   4. Fallback to interview                             │
 │                                                                              │
 │  Workers read .context-data.json for connection details                      │
+│  Workers read/write .snapshots/ for SQL snapshots (direct DB access)        │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Design Decisions & Justifications
 
-| Decision | Implementation | Why | Alternatives Rejected |
-|----------|----------------|-----|----------------------|
-| **SQL-based snapshots** | TRUNCATE + INSERT with JSON storage | Fast (~100ms), no external dependencies, debuggable data format | pg_dump requires binaries; container snapshots are slow (seconds) |
-| **Auth table exclusion** | User, Session, Key excluded from snapshots | Browser sessions remain valid across restores; no re-authentication needed | Including auth would invalidate cookies after every restore |
-| **HTTP server coordination** | Snapshot server in global setup | Global setup runs in separate process from workers; globalThis not shared | File-based locking is slow and error-prone |
-| **Native Next.js** | Standalone build on host | Faster startup (~2s vs ~30s), easier debugging, simpler stack | Docker app container adds latency and complexity |
-| **Separate PostgreSQL containers** | One per test context | Complete isolation, independent data, parallel execution | Shared database requires complex cleanup and is error-prone |
-| **Docker visual snapshots** | Playwright runs in Linux container | CI runs Linux; macOS font rendering differs → snapshot mismatches | Platform-specific baselines multiply maintenance burden |
-| **No Next.js restart on restore** | SQL restore preserves connections | Fast restores; database connections remain valid | Container snapshots break connections, requiring restart |
+| Decision                           | Implementation                             | Why                                                                        | Alternatives Rejected                                             |
+| ---------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **SQL-based snapshots**            | TRUNCATE + INSERT with JSON file storage   | Fast (~100ms), no external dependencies, debuggable JSON files             | pg_dump requires binaries; container snapshots are slow (seconds) |
+| **Auth table exclusion**           | User, Session, Key excluded from snapshots | Browser sessions remain valid across restores; no re-authentication needed | Including auth would invalidate cookies after every restore       |
+| **File-based snapshot storage**    | JSON files in .snapshots/ directory        | Workers execute SQL directly, no HTTP overhead for common operations       | HTTP-based storage requires server coordination, adds latency     |
+| **HTTP server (cache clear only)** | Only /clear-cache endpoint remains         | Next.js restart requires process management from global setup              | Full HTTP API was over-engineered for simple file operations      |
+| **Native Next.js**                 | Standalone build on host                   | Faster startup (~2s vs ~30s), easier debugging, simpler stack              | Docker app container adds latency and complexity                  |
+| **Separate PostgreSQL containers** | One per test context                       | Complete isolation, independent data, parallel execution                   | Shared database requires complex cleanup and is error-prone       |
+| **Docker visual snapshots**        | Playwright runs in Linux container         | CI runs Linux; macOS font rendering differs → snapshot mismatches          | Platform-specific baselines multiply maintenance burden           |
+| **No Next.js restart on restore**  | SQL restore preserves connections          | Fast restores; database connections remain valid                           | Container snapshots break connections, requiring restart          |
 
 ## Directory Structure
 
@@ -91,18 +92,23 @@ tests/e2e/
 │
 ├── .context-data.json          # Generated: serialized context for workers
 │
+├── .snapshots/                 # Generated: SQL snapshots as JSON files
+│   ├── setup/initial.json
+│   ├── dashboard/initial.json
+│   └── interview/initial.json
+│
 ├── config/
-│   └── test-config.ts          # Credentials, timeouts, constants
+│   └── test-config.ts          # Credentials, timeouts, context mappings
 │
 ├── fixtures/
-│   ├── test.ts                 # Main import: extended test with fixtures
-│   ├── database-snapshots.ts   # DatabaseSnapshots class
+│   ├── fixtures.ts             # Main import: extended test with fixtures
+│   ├── snapshot-client.ts      # DatabaseSnapshots class (file-based snapshots + direct DB)
 │   ├── visual-snapshots.ts     # VisualSnapshots class, SNAPSHOT_CONFIGS
-│   ├── snapshot-server.ts      # HTTP server for snapshot coordination
+│   ├── snapshot-server.ts      # HTTP server for cache clearing only
 │   ├── native-app-environment.ts  # Next.js process management
 │   ├── test-environment.ts     # PostgreSQL container management
 │   ├── test-data-builder.ts    # Data seeding utilities
-│   ├── worker-context.ts       # Context resolution for workers
+│   ├── context-resolver.ts     # Context resolution for workers
 │   └── context-storage.ts      # Serialization helpers
 │
 ├── suites/
@@ -120,13 +126,14 @@ tests/e2e/
 
 ## Test Contexts & Pre-seeded Data
 
-| Context | Suite ID | Purpose | Pre-seeded Data |
-|---------|----------|---------|-----------------|
-| **setup** | `setup` | Initial app configuration | App initialized but not configured |
-| **dashboard** | `dashboard` | Admin dashboard features | Admin user, 1 protocol, 10 participants (P001-P010), 5 interviews |
-| **interview** | `interview` | Interview flow testing | Admin user, 1 protocol, 20 participants (P001-P020), 10 interviews, anonymous recruitment enabled |
+| Context       | Suite ID    | Purpose                   | Pre-seeded Data                                                                                   |
+| ------------- | ----------- | ------------------------- | ------------------------------------------------------------------------------------------------- |
+| **setup**     | `setup`     | Initial app configuration | App initialized but not configured                                                                |
+| **dashboard** | `dashboard` | Admin dashboard features  | Admin user, 1 protocol, 10 participants (P001-P010), 5 interviews                                 |
+| **interview** | `interview` | Interview flow testing    | Admin user, 1 protocol, 20 participants (P001-P020), 10 interviews, anonymous recruitment enabled |
 
 **Admin Credentials** (all contexts except setup):
+
 - Username: `testadmin`
 - Password: `TestAdmin123!`
 
@@ -135,7 +142,7 @@ tests/e2e/
 ### Import Statement
 
 ```typescript
-import { expect, test, SNAPSHOT_CONFIGS } from '../../fixtures/test';
+import { expect, test, SNAPSHOT_CONFIGS } from '../../fixtures/fixtures';
 ```
 
 ### Pattern 1: Read-Only Tests (Parallel)
@@ -170,7 +177,10 @@ test.describe.serial('Delete participant', () => {
     const cleanup = await database.isolate('delete-participant');
 
     await page.goto('/dashboard/participants');
-    await page.getByRole('row', { name: /P001/ }).getByRole('button', { name: 'Delete' }).click();
+    await page
+      .getByRole('row', { name: /P001/ })
+      .getByRole('button', { name: 'Delete' })
+      .click();
     await page.getByRole('button', { name: 'Confirm' }).click();
 
     await expect(page.getByText('P001')).not.toBeVisible();
@@ -220,37 +230,37 @@ test('verify data setup', async ({ database }) => {
 
 ### DatabaseSnapshots Fixture
 
-| Method | Description |
-|--------|-------------|
-| `isolate(name?)` | Restores to 'initial' snapshot, returns cleanup function that restores again |
-| `createSnapshot(name)` | Creates a named SQL snapshot |
-| `restoreSnapshot(name)` | Restores to a named snapshot |
-| `withSnapshot(name, fn)` | Runs function with automatic restore after |
-| `clearNextCache()` | Restarts Next.js server to clear in-memory caches |
-| `prisma` | Direct Prisma client access |
-| `appUrl` | The Next.js URL for this context |
-| `suiteId` | The context identifier (setup/dashboard/interview) |
-| `testData` | Pre-seeded test data (interview context only) |
-| `getContextInfo()` | Debug info about context resolution |
+| Method                   | Description                                                                  |
+| ------------------------ | ---------------------------------------------------------------------------- |
+| `isolate(name?)`         | Restores to 'initial' snapshot, returns cleanup function that restores again |
+| `createSnapshot(name)`   | Creates a named SQL snapshot                                                 |
+| `restoreSnapshot(name)`  | Restores to a named snapshot                                                 |
+| `withSnapshot(name, fn)` | Runs function with automatic restore after                                   |
+| `clearNextCache()`       | Restarts Next.js server to clear in-memory caches                            |
+| `prisma`                 | Direct Prisma client access                                                  |
+| `appUrl`                 | The Next.js URL for this context                                             |
+| `suiteId`                | The context identifier (setup/dashboard/interview)                           |
+| `testData`               | Pre-seeded test data (interview context only)                                |
+| `getContextInfo()`       | Debug info about context resolution                                          |
 
 ### VisualSnapshots Fixture
 
-| Method | Description |
-|--------|-------------|
-| `expectPageToMatchSnapshot(options)` | Compare full page to baseline |
-| `expectElementToMatchSnapshot(locator, options)` | Compare element to baseline |
-| `waitForStablePage()` | Wait for page to be ready for screenshot |
+| Method                                           | Description                              |
+| ------------------------------------------------ | ---------------------------------------- |
+| `expectPageToMatchSnapshot(options)`             | Compare full page to baseline            |
+| `expectElementToMatchSnapshot(locator, options)` | Compare element to baseline              |
+| `waitForStablePage()`                            | Wait for page to be ready for screenshot |
 
 ### SNAPSHOT_CONFIGS Presets
 
-| Preset | Use Case | Settings |
-|--------|----------|----------|
-| `page(name)` | Standard viewport | threshold: 0.1, maxDiffPixels: 100, waitTime: 1000 |
-| `fullPage(name)` | Full scrollable page | threshold: 0.2, maxDiffPixels: 2000, waitTime: 2000 |
-| `component(name)` | Specific element | threshold: 0.05, maxDiffPixels: 50, waitTime: 500 |
-| `table(name)` | Data tables | threshold: 0.1, waitForSelector: 'table' |
-| `modal(name)` | Dialogs | threshold: 0.05, waitForSelector: '[role="dialog"]' |
-| `emptyState(name)` | Empty states | threshold: 0.2, waitTime: 2000 |
+| Preset             | Use Case             | Settings                                            |
+| ------------------ | -------------------- | --------------------------------------------------- |
+| `page(name)`       | Standard viewport    | threshold: 0.1, maxDiffPixels: 100, waitTime: 1000  |
+| `fullPage(name)`   | Full scrollable page | threshold: 0.2, maxDiffPixels: 2000, waitTime: 2000 |
+| `component(name)`  | Specific element     | threshold: 0.05, maxDiffPixels: 50, waitTime: 500   |
+| `table(name)`      | Data tables          | threshold: 0.1, waitForSelector: 'table'            |
+| `modal(name)`      | Dialogs              | threshold: 0.05, waitForSelector: '[role="dialog"]' |
+| `emptyState(name)` | Empty states         | threshold: 0.2, waitTime: 2000                      |
 
 ### VisualSnapshotOptions
 
@@ -271,13 +281,13 @@ test('verify data setup', async ({ database }) => {
 
 ## Playwright Projects
 
-| Project | Test Match | Dependencies | Auth | Parallel |
-|---------|------------|--------------|------|----------|
-| `setup` | `**/setup/*.spec.ts` | - | None | No |
-| `auth-dashboard` | `**/auth/dashboard-setup.spec.ts` | - | None | No |
-| `dashboard-visual` | `**/dashboard/visual-snapshots.spec.ts` | auth-dashboard | Stored | Yes |
-| `dashboard` | `**/dashboard/*.spec.ts` (except visual) | dashboard-visual | Stored | Yes |
-| `interview` | `**/interview/*.spec.ts` | - | None | No |
+| Project            | Test Match                               | Dependencies     | Auth   | Parallel |
+| ------------------ | ---------------------------------------- | ---------------- | ------ | -------- |
+| `setup`            | `**/setup/*.spec.ts`                     | -                | None   | No       |
+| `auth-dashboard`   | `**/auth/dashboard-setup.spec.ts`        | -                | None   | No       |
+| `dashboard-visual` | `**/dashboard/visual-snapshots.spec.ts`  | auth-dashboard   | Stored | Yes      |
+| `dashboard`        | `**/dashboard/*.spec.ts` (except visual) | dashboard-visual | Stored | Yes      |
+| `interview`        | `**/interview/*.spec.ts`                 | -                | None   | No       |
 
 ## Common Tasks
 
@@ -286,7 +296,7 @@ test('verify data setup', async ({ database }) => {
 1. Create file in `suites/dashboard/my-feature.spec.ts`
 2. Import fixtures:
    ```typescript
-   import { expect, test, SNAPSHOT_CONFIGS } from '../../fixtures/test';
+   import { expect, test, SNAPSHOT_CONFIGS } from '../../fixtures/fixtures';
    ```
 3. Use `test.describe.parallel()` for read-only tests
 4. Use `test.describe.serial()` + `database.isolate()` for mutations
@@ -316,7 +326,7 @@ test('verify data setup', async ({ database }) => {
    - Create initial SQL snapshot
 2. Update `playwright.config.ts`:
    - Add new project with `testMatch` and `baseURL`
-3. Update `worker-context.ts`:
+3. Update `context-resolver.ts`:
    - Add mapping in `suiteToContextMap`
    - Add mapping in `projectToContextMap`
 4. Create test directory: `suites/mycontext/`
@@ -354,6 +364,7 @@ test('verify data setup', async ({ database }) => {
 **Cause**: Snapshots generated locally on macOS differ from Linux CI.
 
 **Fix**: Always generate snapshots with Docker:
+
 ```bash
 pnpm test:e2e:update-snapshots
 ```
@@ -363,6 +374,7 @@ pnpm test:e2e:update-snapshots
 **Cause**: Mutation test didn't call cleanup.
 
 **Fix**: Always use try/finally or `withSnapshot`:
+
 ```typescript
 test('mutation', async ({ database }) => {
   const cleanup = await database.isolate('my-test');
@@ -379,6 +391,7 @@ test('mutation', async ({ database }) => {
 **Cause**: Next.js data cache not updated.
 
 **Fix**:
+
 ```typescript
 await database.clearNextCache();
 await page.reload();
@@ -389,6 +402,7 @@ await page.reload();
 **Cause**: Container startup or snapshot operations taking too long.
 
 **Fix**: Increase test timeout:
+
 ```typescript
 test('slow test', async ({ database }) => {
   test.setTimeout(60000);
@@ -406,17 +420,21 @@ test('slow test', async ({ database }) => {
 
 ### How SQL Snapshots Work
 
-**Creating a snapshot:**
-1. Query all table names (excluding User, Session, Key, _prisma_migrations)
-2. SELECT all rows from each table
-3. Store as JSON in memory (Map<suiteId, Map<snapshotName, data>>)
+**Creating a snapshot (file-based):**
 
-**Restoring a snapshot:**
-1. Parse stored JSON
+1. Query all table names (excluding User, Session, Key, \_prisma_migrations)
+2. SELECT all rows from each table
+3. Write as JSON to `.snapshots/<suiteId>/<name>.json`
+
+**Restoring a snapshot (direct DB access):**
+
+1. Read JSON from `.snapshots/<suiteId>/<name>.json`
 2. Begin SERIALIZABLE transaction
 3. TRUNCATE all snapshot tables (CASCADE)
 4. INSERT all rows from snapshot
 5. Commit transaction
+
+Workers execute SQL directly using the `pg` library, eliminating HTTP overhead for snapshot operations. Only `clearNextCache()` uses the HTTP server (to restart Next.js processes managed by global setup).
 
 **Why exclude auth tables**: Browser sessions use cookies that reference Session table rows. If we restore Session table, the cookies become invalid, requiring re-authentication after every restore.
 
@@ -431,11 +449,12 @@ Workers need to know which database to connect to. Resolution order:
 
 ### Generated Files
 
-| File | Purpose | Created By |
-|------|---------|------------|
-| `.auth/admin.json` | Playwright storage state with auth cookies | `auth/dashboard-setup.spec.ts` |
-| `.context-data.json` | Database URLs, app URLs, snapshot server URL | `global-setup.ts` |
-| `*.spec.ts-snapshots/` | Visual baseline images | Playwright with `--update-snapshots` |
+| File                   | Purpose                                        | Created By                               |
+| ---------------------- | ---------------------------------------------- | ---------------------------------------- |
+| `.auth/admin.json`     | Playwright storage state with auth cookies     | `auth/dashboard-setup.spec.ts`           |
+| `.context-data.json`   | Database URLs, app URLs, snapshot server URL   | `global-setup.ts`                        |
+| `.snapshots/`          | SQL snapshots as JSON files for test isolation | `global-setup.ts` + `snapshot-client.ts` |
+| `*.spec.ts-snapshots/` | Visual baseline images                         | Playwright with `--update-snapshots`     |
 
 ## Notes for AI Assistants
 

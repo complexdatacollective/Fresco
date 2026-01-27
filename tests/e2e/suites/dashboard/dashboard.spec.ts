@@ -1,4 +1,5 @@
-import { expect, SNAPSHOT_CONFIGS, test } from '../../fixtures/test';
+import { expect, SNAPSHOT_CONFIGS, test } from '../../fixtures/fixtures';
+import { waitForSearchDebounce, waitForTable } from '../../utils/table-helpers';
 
 test.describe.parallel('Dashboard page - parallel', () => {
   test.beforeEach(async ({ page }) => {
@@ -86,8 +87,7 @@ test.describe.parallel('Dashboard page - parallel', () => {
 
   test('should display activity feed table', async ({ page }) => {
     // Wait for activity feed table to load
-    const table = page.locator('table').first();
-    await expect(table).toBeVisible({ timeout: 10000 });
+    await waitForTable(page);
 
     // Should have table headers
     await expect(page.locator('text=Time').first()).toBeVisible();
@@ -97,7 +97,7 @@ test.describe.parallel('Dashboard page - parallel', () => {
 
   test('should show activity events in table', async ({ page }) => {
     // Wait for table to load
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await waitForTable(page);
 
     // Should have activity rows from test data
     const rows = page.locator('tbody tr');
@@ -107,13 +107,13 @@ test.describe.parallel('Dashboard page - parallel', () => {
 
   test('should allow searching activity feed', async ({ page }) => {
     // Wait for table to load
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await waitForTable(page);
 
     // Look for search input
     const searchInput = page.getByPlaceholder(/filter|search/i);
     if (await searchInput.isVisible()) {
       await searchInput.fill('Protocol');
-      await page.waitForTimeout(500); // Wait for debounce
+      await waitForSearchDebounce(page);
 
       // Search results should be filtered (or show no results if no match)
       await searchInput.clear();

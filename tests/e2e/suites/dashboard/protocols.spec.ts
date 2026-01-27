@@ -1,4 +1,18 @@
-import { expect, SNAPSHOT_CONFIGS, test } from '../../fixtures/test';
+import { expect, SNAPSHOT_CONFIGS, test } from '../../fixtures/fixtures';
+import { confirmDeletion, waitForDialog } from '../../utils/dialog-helpers';
+import {
+  deleteSingleItem,
+  getFirstRow,
+  openRowActions,
+} from '../../utils/row-actions-helpers';
+import {
+  clearSearch,
+  expectAllRowsSelected,
+  getRowCheckboxes,
+  searchTable,
+  selectAllRows,
+  waitForTable,
+} from '../../utils/table-helpers';
 
 test.describe.parallel('Protocols page - parallel', () => {
   test.beforeEach(async ({ page }) => {
@@ -24,12 +38,11 @@ test.describe.parallel('Protocols page - parallel', () => {
   });
 
   test('should display protocols table', async ({ page }) => {
-    const table = page.locator('table').first();
-    await expect(table).toBeVisible({ timeout: 10000 });
+    await waitForTable(page);
   });
 
   test('should display table columns', async ({ page }) => {
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await waitForTable(page);
 
     // Check for expected column headers
     await expect(page.locator('text=Name').first()).toBeVisible();
@@ -38,16 +51,11 @@ test.describe.parallel('Protocols page - parallel', () => {
   });
 
   test('should display protocol rows', async ({ page }) => {
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
-
-    // Should have at least one protocol row from test data
-    const rows = page.locator('tbody tr');
-    const rowCount = await rows.count();
-    expect(rowCount).toBeGreaterThanOrEqual(1);
+    await waitForTable(page, { minRows: 1 });
   });
 
   test('should display import protocols button', async ({ page }) => {
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await waitForTable(page);
 
     const importButton = page.getByRole('button', {
       name: /import protocols/i,
@@ -56,14 +64,10 @@ test.describe.parallel('Protocols page - parallel', () => {
   });
 
   test('should search protocols by name', async ({ page }) => {
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
-
-    const searchInput = page.getByPlaceholder(/filter|search|name/i);
-    await expect(searchInput).toBeVisible({ timeout: 10000 });
+    await waitForTable(page);
 
     // Search for test protocol
-    await searchInput.fill('Test');
-    await page.waitForTimeout(500); // Wait for debounce
+    await searchTable(page, 'Test');
 
     // Should filter results
     const filteredRows = page.locator('tbody tr');
@@ -71,11 +75,11 @@ test.describe.parallel('Protocols page - parallel', () => {
     expect(filteredCount).toBeGreaterThanOrEqual(1);
 
     // Clear search
-    await searchInput.clear();
+    await clearSearch(page);
   });
 
   test('should sort protocols by name column', async ({ page }) => {
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await waitForTable(page);
 
     // Find sortable name column header
     const sortButton = page.getByRole('button', { name: /^name$/i }).first();
@@ -90,41 +94,24 @@ test.describe.parallel('Protocols page - parallel', () => {
   });
 
   test('should allow bulk selection', async ({ page }) => {
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
-
-    // Find header checkbox
-    const selectAllCheckbox = page.locator('thead [role="checkbox"]').first();
-    await expect(selectAllCheckbox).toBeVisible();
+    await waitForTable(page);
 
     // Select all
-    await selectAllCheckbox.click();
-    await page.waitForTimeout(300);
+    await selectAllRows(page);
 
     // Verify row checkboxes are checked
-    const rowCheckboxes = page.locator('tbody [role="checkbox"]');
-    const checkboxCount = await rowCheckboxes.count();
-
-    for (let i = 0; i < checkboxCount; i++) {
-      await expect(rowCheckboxes.nth(i)).toHaveAttribute(
-        'aria-checked',
-        'true',
-      );
-    }
+    await expectAllRowsSelected(page);
 
     // Uncheck all
-    await selectAllCheckbox.click();
+    await selectAllRows(page);
   });
 
   test('should show row actions dropdown', async ({ page }) => {
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await waitForTable(page);
 
-    // Find first row actions button
-    const firstRow = page.locator('tbody tr').first();
-    const actionsButton = firstRow.getByRole('button').last();
-    await expect(actionsButton).toBeVisible();
-
-    // Click to open dropdown
-    await actionsButton.click();
+    // Find first row and open actions
+    const firstRow = getFirstRow(page);
+    await openRowActions(firstRow);
 
     // Should show menu with options
     const menu = page.getByRole('menu');
@@ -135,7 +122,7 @@ test.describe.parallel('Protocols page - parallel', () => {
   });
 
   test('should display protocol name in row', async ({ page }) => {
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await waitForTable(page);
 
     // Should show Test Protocol from test data
     await expect(page.getByText('Test Protocol').first()).toBeVisible();
@@ -143,6 +130,63 @@ test.describe.parallel('Protocols page - parallel', () => {
 });
 
 test.describe.serial('Protocols page - serial', () => {
+  test('visual: empty state', async ({ page, database, snapshots }) => {
+    const cleanup = await database.isolate('protocols-empty-state');
+    await page.goto('/dashboard/protocols', { waitUntil: 'domcontentloaded' });
+
+    try {
+      await waitForTable(page);
+
+      // Delete all protocols to get empty state
+      const firstRow = getFirstRow(page);
+      await deleteSingleItem(page, firstRow);
+
+      // Wait for empty state
+      await expect(page.getByText('No results')).toBeVisible({
+        timeout: 10000,
+      });
+
+      await snapshots.expectPageToMatchSnapshot(
+        SNAPSHOT_CONFIGS.emptyState('protocols-empty-state'),
+      );
+    } finally {
+      await cleanup();
+    }
+  });
+
+  test('visual: delete confirmation dialog', async ({
+    page,
+    database,
+    snapshots,
+  }) => {
+    const cleanup = await database.isolate('protocols-delete-dialog');
+    await page.goto('/dashboard/protocols', { waitUntil: 'domcontentloaded' });
+
+    try {
+      await waitForTable(page);
+
+      // Open delete dialog
+      const firstRow = getFirstRow(page);
+      await openRowActions(firstRow);
+
+      const deleteMenuItem = page.getByRole('menuitem', { name: /delete/i });
+      await deleteMenuItem.click();
+
+      // Wait for dialog
+      const dialog = await waitForDialog(page);
+      await expect(dialog).toBeVisible();
+
+      await snapshots.expectPageToMatchSnapshot(
+        SNAPSHOT_CONFIGS.modal('protocols-delete-confirmation'),
+      );
+
+      // Close dialog
+      await page.keyboard.press('Escape');
+    } finally {
+      await cleanup();
+    }
+  });
+
   test('should delete single protocol via row actions', async ({
     page,
     database,
@@ -154,34 +198,13 @@ test.describe.serial('Protocols page - serial', () => {
     await page.goto('/dashboard/protocols', { waitUntil: 'domcontentloaded' });
 
     try {
-      await expect(page.locator('table').first()).toBeVisible({
-        timeout: 10000,
-      });
+      await waitForTable(page);
 
-      // Find first row actions button
-      const firstRow = page.locator('tbody tr').first();
-      const actionsButton = firstRow.getByRole('button').last();
-      await actionsButton.click();
-
-      // Click delete option
-      const deleteButton = page.getByRole('menuitem', { name: /delete/i });
-      await expect(deleteButton).toBeVisible();
-      await deleteButton.click();
-
-      // Confirm deletion in dialog
-      const confirmDialog = page.getByRole('dialog');
-      await expect(confirmDialog).toBeVisible({ timeout: 5000 });
-
-      const confirmButton = confirmDialog.getByRole('button', {
-        name: /delete|confirm|yes/i,
-      });
-      await confirmButton.click();
-
-      // Wait for dialog to close and row to be removed
-      await expect(confirmDialog).not.toBeVisible({ timeout: 10000 });
+      // Delete the first row
+      const firstRow = getFirstRow(page);
+      await deleteSingleItem(page, firstRow);
 
       // After deleting the only protocol, the table should show "No results"
-      // Note: The "No results" row is still a <tr> so we can't just count rows
       await expect(page.getByText('No results')).toBeVisible({
         timeout: 10000,
       });
@@ -198,9 +221,7 @@ test.describe.serial('Protocols page - serial', () => {
     await page.goto('/dashboard/protocols', { waitUntil: 'domcontentloaded' });
 
     try {
-      await expect(page.locator('table').first()).toBeVisible({
-        timeout: 10000,
-      });
+      await waitForTable(page);
 
       const importButton = page.getByRole('button', {
         name: /import protocols/i,
@@ -228,12 +249,10 @@ test.describe.serial('Protocols page - serial', () => {
     await page.goto('/dashboard/protocols', { waitUntil: 'domcontentloaded' });
 
     try {
-      await expect(page.locator('table').first()).toBeVisible({
-        timeout: 10000,
-      });
+      await waitForTable(page);
 
       // Select first row
-      const rowCheckboxes = page.locator('tbody [role="checkbox"]');
+      const rowCheckboxes = getRowCheckboxes(page);
       if ((await rowCheckboxes.count()) > 0) {
         await rowCheckboxes.first().click();
         await page.waitForTimeout(300);
@@ -247,15 +266,8 @@ test.describe.serial('Protocols page - serial', () => {
           await deleteSelectedButton.click();
 
           // Confirm in dialog
-          const confirmDialog = page.getByRole('dialog');
-          await expect(confirmDialog).toBeVisible({ timeout: 5000 });
-
-          const confirmButton = confirmDialog.getByRole('button', {
-            name: /delete|confirm/i,
-          });
-          await confirmButton.click();
-
-          await expect(confirmDialog).not.toBeVisible({ timeout: 10000 });
+          await waitForDialog(page);
+          await confirmDeletion(page);
         }
       }
     } finally {

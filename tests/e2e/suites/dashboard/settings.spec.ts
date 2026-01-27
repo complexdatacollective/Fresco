@@ -1,4 +1,9 @@
-import { expect, SNAPSHOT_CONFIGS, test } from '../../fixtures/test';
+import { expect, SNAPSHOT_CONFIGS, test } from '../../fixtures/fixtures';
+import {
+  closeDialog,
+  openDialog,
+  waitForDialogToClose,
+} from '../../utils/dialog-helpers';
 
 test.describe.parallel('Settings page - parallel', () => {
   test.beforeEach(async ({ page }) => {
@@ -109,6 +114,44 @@ test.describe.parallel('Settings page - parallel', () => {
 });
 
 test.describe.serial('Settings page - serial', () => {
+  test('visual: add user dialog', async ({ page, database, snapshots }) => {
+    const cleanup = await database.isolate('add-user-dialog-visual');
+    await page.goto('/dashboard/settings', { waitUntil: 'domcontentloaded' });
+
+    try {
+      await openDialog(page, /add user/i);
+
+      await snapshots.expectPageToMatchSnapshot(
+        SNAPSHOT_CONFIGS.modal('settings-add-user-dialog'),
+      );
+
+      await closeDialog(page);
+    } finally {
+      await cleanup();
+    }
+  });
+
+  test('visual: change password dialog', async ({
+    page,
+    database,
+    snapshots,
+  }) => {
+    const cleanup = await database.isolate('change-password-dialog-visual');
+    await page.goto('/dashboard/settings', { waitUntil: 'domcontentloaded' });
+
+    try {
+      await openDialog(page, /change password/i);
+
+      await snapshots.expectPageToMatchSnapshot(
+        SNAPSHOT_CONFIGS.modal('settings-change-password-dialog'),
+      );
+
+      await closeDialog(page);
+    } finally {
+      await cleanup();
+    }
+  });
+
   test('should toggle anonymous recruitment switch', async ({
     page,
     database,
@@ -147,24 +190,10 @@ test.describe.serial('Settings page - serial', () => {
     await page.goto('/dashboard/settings', { waitUntil: 'domcontentloaded' });
 
     try {
-      const addUserButton = page.getByRole('button', { name: /add user/i });
-      await expect(addUserButton).toBeVisible({ timeout: 10000 });
-      await addUserButton.click();
-
-      // Dialog should open
-      const dialog = page.getByRole('dialog');
-      await expect(dialog).toBeVisible({ timeout: 5000 });
+      await openDialog(page, /add user/i);
 
       // Close dialog
-      const closeButton = dialog
-        .getByRole('button', { name: /close|cancel/i })
-        .first();
-      if (await closeButton.isVisible()) {
-        await closeButton.click();
-      } else {
-        // Try clicking outside or pressing escape
-        await page.keyboard.press('Escape');
-      }
+      await closeDialog(page);
     } finally {
       await cleanup();
     }
@@ -175,21 +204,13 @@ test.describe.serial('Settings page - serial', () => {
     await page.goto('/dashboard/settings', { waitUntil: 'domcontentloaded' });
 
     try {
-      const changePasswordButton = page.getByRole('button', {
-        name: /change password/i,
-      });
-      await expect(changePasswordButton).toBeVisible({ timeout: 10000 });
-      await changePasswordButton.click();
-
-      // Dialog should open
-      const dialog = page.getByRole('dialog');
-      await expect(dialog).toBeVisible({ timeout: 5000 });
+      const dialog = await openDialog(page, /change password/i);
 
       // Should have password fields (they use labels, not placeholders)
       await expect(dialog.getByLabel(/current password/i)).toBeVisible();
 
       // Close dialog
-      await page.keyboard.press('Escape');
+      await closeDialog(page);
     } finally {
       await cleanup();
     }
@@ -200,13 +221,7 @@ test.describe.serial('Settings page - serial', () => {
     await page.goto('/dashboard/settings', { waitUntil: 'domcontentloaded' });
 
     try {
-      const addUserButton = page.getByRole('button', { name: /add user/i });
-      await expect(addUserButton).toBeVisible({ timeout: 10000 });
-      await addUserButton.click();
-
-      // Dialog should open
-      const dialog = page.getByRole('dialog');
-      await expect(dialog).toBeVisible({ timeout: 5000 });
+      const dialog = await openDialog(page, /add user/i);
 
       // Fill in user details
       const timestamp = Date.now();
@@ -230,12 +245,244 @@ test.describe.serial('Settings page - serial', () => {
       await submitButton.click();
 
       // Wait for dialog to close
-      await expect(dialog).not.toBeVisible({ timeout: 10000 });
+      await waitForDialogToClose(page);
 
       // Verify user appears in the list
       await expect(page.getByText(`testuser${timestamp}`)).toBeVisible({
         timeout: 10000,
       });
+    } finally {
+      await cleanup();
+    }
+  });
+
+  test('should validate username requirements when creating user', async ({
+    page,
+    database,
+  }) => {
+    const cleanup = await database.isolate('validate-username');
+    await page.goto('/dashboard/settings', { waitUntil: 'domcontentloaded' });
+
+    try {
+      const dialog = await openDialog(page, /add user/i);
+
+      // Try username that's too short (less than 4 characters)
+      const usernameInput = dialog.getByLabel(/username/i);
+      await usernameInput.fill('abc');
+      await usernameInput.blur();
+
+      // Wait for validation message
+      await page.waitForTimeout(600); // Wait for validation delay
+      await expect(dialog.getByText(/at least 4 characters/i)).toBeVisible({
+        timeout: 5000,
+      });
+
+      // Try username with spaces
+      await usernameInput.fill('test user');
+      await usernameInput.blur();
+      await page.waitForTimeout(600);
+      await expect(dialog.getByText(/cannot contain spaces/i)).toBeVisible({
+        timeout: 5000,
+      });
+
+      // Close dialog
+      await closeDialog(page);
+    } finally {
+      await cleanup();
+    }
+  });
+
+  test('should validate password requirements when creating user', async ({
+    page,
+    database,
+  }) => {
+    const cleanup = await database.isolate('validate-password');
+    await page.goto('/dashboard/settings', { waitUntil: 'domcontentloaded' });
+
+    try {
+      const dialog = await openDialog(page, /add user/i);
+
+      // Fill valid username first
+      const usernameInput = dialog.getByLabel(/username/i);
+      await usernameInput.fill('testuser123');
+
+      // Get password input (index 1 after username)
+      const dialogInputs = dialog.locator('input');
+      const passwordInput = dialogInputs.nth(1);
+
+      // Try password that's too short
+      await passwordInput.fill('short');
+      await passwordInput.blur();
+      await expect(dialog.getByText(/at least 8 characters/i)).toBeVisible({
+        timeout: 5000,
+      });
+
+      // Close dialog
+      await closeDialog(page);
+    } finally {
+      await cleanup();
+    }
+  });
+
+  test('should show delete button disabled for current user', async ({
+    page,
+    database,
+  }) => {
+    const cleanup = await database.isolate('delete-current-user');
+    await page.goto('/dashboard/settings', { waitUntil: 'domcontentloaded' });
+
+    try {
+      // Find the current user row (marked with "(you)")
+      const currentUserRow = page.locator('tr', { hasText: '(you)' });
+      await expect(currentUserRow).toBeVisible({ timeout: 10000 });
+
+      // The delete button for the current user should be disabled
+      const deleteButton = currentUserRow.getByRole('button', {
+        name: /delete/i,
+      });
+      await expect(deleteButton).toBeDisabled();
+    } finally {
+      await cleanup();
+    }
+  });
+
+  test('should show delete button disabled when only one user exists', async ({
+    page,
+    database,
+  }) => {
+    const cleanup = await database.isolate('delete-last-user');
+    await page.goto('/dashboard/settings', { waitUntil: 'domcontentloaded' });
+
+    try {
+      // Get all user rows in the table
+      const userRows = page.locator('tbody tr');
+      const rowCount = await userRows.count();
+
+      // If there's only one user, all delete buttons should be disabled
+      if (rowCount === 1) {
+        const deleteButton = userRows
+          .first()
+          .getByRole('button', { name: /delete/i });
+        await expect(deleteButton).toBeDisabled();
+      }
+    } finally {
+      await cleanup();
+    }
+  });
+
+  test('should enable delete button for non-current users when multiple exist', async ({
+    page,
+    database,
+  }) => {
+    const cleanup = await database.isolate('delete-other-user');
+    await page.goto('/dashboard/settings', { waitUntil: 'domcontentloaded' });
+
+    try {
+      // First create a second user
+      const dialog = await openDialog(page, /add user/i);
+
+      const timestamp = Date.now();
+      const usernameInput = dialog.getByLabel(/username/i);
+      await usernameInput.fill(`tempuser${timestamp}`);
+
+      const dialogInputs = dialog.locator('input');
+      await dialogInputs.nth(1).fill('TestPassword123!');
+      await dialogInputs.nth(2).fill('TestPassword123!');
+
+      const submitButton = dialog.getByRole('button', { name: /add|create/i });
+      await submitButton.click();
+      await waitForDialogToClose(page);
+
+      // Now find the new user's row (not marked with "(you)")
+      const newUserRow = page.locator('tr', {
+        hasText: `tempuser${timestamp}`,
+      });
+      await expect(newUserRow).toBeVisible({ timeout: 10000 });
+
+      // The delete button for the new user should be enabled
+      const deleteButton = newUserRow.getByRole('button', { name: /delete/i });
+      await expect(deleteButton).toBeEnabled();
+    } finally {
+      await cleanup();
+    }
+  });
+
+  test('should show confirmation dialog when deleting user', async ({
+    page,
+    database,
+  }) => {
+    const cleanup = await database.isolate('delete-user-confirmation');
+    await page.goto('/dashboard/settings', { waitUntil: 'domcontentloaded' });
+
+    try {
+      // First create a second user
+      const addDialog = await openDialog(page, /add user/i);
+
+      const timestamp = Date.now();
+      const usernameInput = addDialog.getByLabel(/username/i);
+      await usernameInput.fill(`deletetest${timestamp}`);
+
+      const dialogInputs = addDialog.locator('input');
+      await dialogInputs.nth(1).fill('TestPassword123!');
+      await dialogInputs.nth(2).fill('TestPassword123!');
+
+      const submitButton = addDialog.getByRole('button', {
+        name: /add|create/i,
+      });
+      await submitButton.click();
+      await waitForDialogToClose(page);
+
+      // Find the new user's row and click delete
+      const newUserRow = page.locator('tr', {
+        hasText: `deletetest${timestamp}`,
+      });
+      await expect(newUserRow).toBeVisible({ timeout: 10000 });
+
+      const deleteButton = newUserRow.getByRole('button', { name: /delete/i });
+      await deleteButton.click();
+
+      // Confirmation dialog should appear
+      const confirmDialog = page.getByRole('alertdialog');
+      await expect(confirmDialog).toBeVisible({ timeout: 5000 });
+      await expect(confirmDialog).toContainText(/delete user/i);
+      await expect(confirmDialog).toContainText(`deletetest${timestamp}`);
+
+      // Cancel the deletion
+      const cancelButton = confirmDialog.getByRole('button', {
+        name: /cancel/i,
+      });
+      await cancelButton.click();
+
+      // Dialog should close and user should still exist
+      await expect(confirmDialog).not.toBeVisible();
+      await expect(page.getByText(`deletetest${timestamp}`)).toBeVisible();
+    } finally {
+      await cleanup();
+    }
+  });
+
+  test('should validate change password form', async ({ page, database }) => {
+    const cleanup = await database.isolate('change-password-validation');
+    await page.goto('/dashboard/settings', { waitUntil: 'domcontentloaded' });
+
+    try {
+      const dialog = await openDialog(page, /change password/i);
+
+      // Get the new password input
+      const newPasswordInput = dialog.getByLabel(/new password/i).first();
+      await expect(newPasswordInput).toBeVisible({ timeout: 5000 });
+
+      // Try a password that doesn't meet requirements (too short)
+      await newPasswordInput.fill('short');
+      await newPasswordInput.blur();
+
+      // Should show validation error
+      await expect(dialog.getByText(/at least 8 characters/i)).toBeVisible({
+        timeout: 5000,
+      });
+
+      // Close dialog
+      await closeDialog(page);
     } finally {
       await cleanup();
     }

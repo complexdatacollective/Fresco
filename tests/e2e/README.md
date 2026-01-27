@@ -60,15 +60,15 @@ tests/e2e/
 │   ├── DATABASE_SNAPSHOTS.md
 │   └── VISUAL_TESTING.md
 ├── fixtures/           # Reusable test utilities
+│   ├── context-resolver.ts     # Worker process context resolution
 │   ├── context-storage.ts      # Serializes context for worker processes
-│   ├── database-snapshots.ts   # Test fixture for database isolation
+│   ├── fixtures.ts             # Main test fixture with visual snapshots & database
 │   ├── native-app-environment.ts # Next.js process management
+│   ├── snapshot-client.ts      # Test fixture for database isolation (HTTP client)
 │   ├── snapshot-server.ts      # HTTP server for snapshot/restore coordination
 │   ├── test-data-builder.ts    # Test data creation utilities
 │   ├── test-environment.ts     # PostgreSQL container management
-│   ├── test.ts                 # Main test fixture with visual snapshots, auth & database
-│   ├── visual-snapshots.ts     # Visual regression testing utilities
-│   └── worker-context.ts       # Worker process context resolution
+│   └── visual-snapshots.ts     # Visual regression testing utilities
 ├── scripts/           # Utility scripts
 │   └── generate-baselines.sh
 ├── suites/            # Test suites organized by area
@@ -176,7 +176,7 @@ Key environment variables (automatically managed):
 
 ```typescript
 // Import the integrated test fixture
-import { expect, test, SNAPSHOT_CONFIGS } from '../../fixtures/test';
+import { expect, test, SNAPSHOT_CONFIGS } from '../../fixtures/fixtures';
 
 test('page functionality and visuals', async ({ page, snapshots }) => {
   await page.goto('/my-page');

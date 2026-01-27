@@ -1,6 +1,7 @@
 import type { TestInfo } from '@playwright/test';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '~/lib/db/generated/client';
+import { CONTEXT_MAPPINGS } from '../config/test-config';
 import {
   loadContextData,
   type InterviewTestData,
@@ -121,19 +122,15 @@ function inferContextFromTestPath(
   const suitesIndex = pathParts.findIndex((part) => part === 'suites');
 
   if (suitesIndex >= 0 && pathParts.length > suitesIndex + 1) {
-    const suiteName = pathParts[suitesIndex + 1];
+    const suiteName = pathParts[suitesIndex + 1] as
+      | keyof typeof CONTEXT_MAPPINGS.suiteToContext
+      | undefined;
 
-    // Map suite directory names to context keys
-    const suiteToContextMap: Record<string, string> = {
-      setup: 'setup',
-      dashboard: 'dashboard',
-      interview: 'interview',
-      auth: 'dashboard',
-    };
-
-    const contextKey = suiteToContextMap[suiteName!];
-    if (contextKey && contexts[contextKey]) {
-      return contexts[contextKey];
+    if (suiteName && suiteName in CONTEXT_MAPPINGS.suiteToContext) {
+      const contextKey = CONTEXT_MAPPINGS.suiteToContext[suiteName];
+      if (contexts[contextKey]) {
+        return contexts[contextKey];
+      }
     }
   }
 
@@ -151,16 +148,14 @@ function inferContextFromProject(
     return null;
   }
 
-  const projectToContextMap: Record<string, string> = {
-    'setup': 'setup',
-    'auth-dashboard': 'dashboard',
-    'dashboard': 'dashboard',
-    'interview': 'interview',
-  };
+  const projectName = testInfo.project
+    .name as keyof typeof CONTEXT_MAPPINGS.projectToContext;
 
-  const contextKey = projectToContextMap[testInfo.project.name];
-  if (contextKey && contexts[contextKey]) {
-    return contexts[contextKey];
+  if (projectName in CONTEXT_MAPPINGS.projectToContext) {
+    const contextKey = CONTEXT_MAPPINGS.projectToContext[projectName];
+    if (contexts[contextKey]) {
+      return contexts[contextKey];
+    }
   }
 
   return null;
