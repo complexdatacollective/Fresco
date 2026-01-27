@@ -98,6 +98,7 @@ type NodeListProps = {
   onDrop?: DropCallback;
   nodeSize?: 'sm' | 'md' | 'lg';
   className?: string;
+  showAcceptHighlight?: boolean;
 };
 
 const NodeList = memo(
@@ -112,6 +113,7 @@ const NodeList = memo(
     onDrop = noop,
     nodeSize = 'md',
     className,
+    showAcceptHighlight = true,
   }: NodeListProps) => {
     const stageId = useSelector(getCurrentStageId);
 
@@ -138,15 +140,20 @@ const NodeList = memo(
       'flex flex-wrap justify-center grow shrink-0 transition-background duration-300 content-start rounded-md gap-6 basis-full overflow-y-auto',
       // Fix: Empty NodeLists need minimum dimensions for proper drop zone bounds
       items.length === 0 && 'min-h-[800px] min-w-[300px]',
-      willAccept && 'bg-[var(--nc-node-list-action-bg)]',
-      isHovering && (hoverColor ? `bg-[var(${hoverColor})]` : 'bg-accent'),
+      showAcceptHighlight && willAccept && 'bg-[var(--nc-node-list-action-bg)]',
+      isHovering && !hoverColor && 'bg-accent',
       className,
     );
+
+    // Use inline styles for hover colors (Tailwind arbitrary values don't handle rgb() with spaces)
+    const hoverStyles =
+      isHovering && hoverColor ? { backgroundColor: hoverColor } : undefined;
 
     return (
       <motion.div
         {...dropProps}
         className={classNames}
+        style={hoverStyles}
         variants={nodeListVariants}
         layout
         key="node-list"
