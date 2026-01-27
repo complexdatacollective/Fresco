@@ -45,8 +45,26 @@ export const createSyncMiddleware = (): Middleware<{}, RootState> => {
   // Track if we're currently syncing to avoid loops
   let isSyncing = false;
 
-  // Track timer for debouncing
-  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  const debouncedSync = debounce(
+    (interviewId: string, session: SessionState) => {
+      // Set flag to prevent recursive syncing
+      isSyncing = true;
+
+      // Perform the sync
+      syncFn(interviewId, session)
+        .catch((e) => {
+          const error = ensureError(e);
+          // eslint-disable-next-line no-console
+          console.error('Failed to sync state with backend:', error);
+        })
+        .finally(() => {
+          // Reset syncing flag
+          isSyncing = false;
+        });
+    },
+    3000,
+    { edges: ['leading', 'trailing'] },
+  );
 
   // Middleware implementation
   return (store) => (next) => (action: unknown) => {
@@ -67,37 +85,13 @@ export const createSyncMiddleware = (): Middleware<{}, RootState> => {
     // Update previous state
     previousState = state.session;
 
-    // Get the current interview id to send to the sync function
-    const interviewId = state.session.id;
-
     // Skip if we're already in the process of syncing
     // This prevents infinite loops where sync triggers actions
     if (isSyncing) {
       return result;
     }
 
-    // Clear any existing debounce timer
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
-
-    // Set a new debounce timer
-    debounceTimer = setTimeout(() => {
-      // Set flag to prevent recursive syncing
-      isSyncing = true;
-
-      // Perform the sync
-      syncFn(interviewId, state.session)
-        .catch((e) => {
-          const error = ensureError(e);
-          // eslint-disable-next-line no-console
-          console.error('Failed to sync state with backend:', error);
-        })
-        .finally(() => {
-          // Reset syncing flag
-          isSyncing = false;
-        });
-    }, 3000);
+    debouncedSync(state.session.id, state.session);
 
     return result;
   };
