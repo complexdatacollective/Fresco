@@ -1,7 +1,7 @@
 'use client';
 
 import { type Middleware } from '@reduxjs/toolkit';
-import { isEqual, omit } from 'es-toolkit';
+import { debounce, isEqual, omit } from 'es-toolkit';
 import { type RootState } from '~/lib/interviewer/store';
 import { ensureError } from '~/utils/ensureError';
 import { type SessionState } from '../ducks/modules/session';
