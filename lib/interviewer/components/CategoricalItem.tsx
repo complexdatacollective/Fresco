@@ -47,7 +47,7 @@ const CategoricalItem = ({
 }: CategoricalItemProps) => {
   const { dropProps, isOver, willAccept } = useDropTarget({
     id,
-    accepts: ['node'],
+    accepts: ['NODE'],
     announcedName: `Category: ${label}`,
     onDrop: (metadata) => {
       onDrop({ meta: metadata as NcNode });
@@ -95,6 +95,7 @@ const CategoricalItem = ({
                 id={`CATBIN_NODE_LIST_${label}`}
                 onItemClick={onClickItem}
                 items={sortedNodes}
+                itemType="NODE"
               />
             </div>
           )}
