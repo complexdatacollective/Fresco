@@ -5,6 +5,7 @@ import { get } from 'es-toolkit/compat';
 import { useCallback, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useDndStore, type DndStore } from '~/lib/dnd';
+import { type DragMetadata } from '~/lib/dnd/types';
 import { usePrompts } from '../behaviours/withPrompt';
 import Panels from '../components/Panels';
 import {
@@ -67,19 +68,13 @@ function NodePanels(props: NodePanelsProps) {
     [dispatch],
   );
 
-  const handleDrop = useCallback(
-    (
-      {
-        meta,
-      }: {
-        meta: NcNode;
-      },
-      dataSource: string,
-    ) => {
+  const createDropHandler = useCallback(
+    (dataSource: string) => (metadata: DragMetadata) => {
+      const meta = metadata as NcNode;
       /**
        * Handle a node being dropped into a panel
        * If this panel is showing the interview network, remove the node from the current prompt.
-       * If it is an external data panel, remove the node form the interview network.
+       * If it is an external data panel, remove the node from the interview network.
        */
       if (dataSource === 'existing') {
         void removeNodeFromPrompt(meta[entityPrimaryKeyProperty]);
@@ -167,11 +162,9 @@ function NodePanels(props: NodePanelsProps) {
         accepts={['EXISTING_NODE']} // TODO: needs to adapt based on panel source
         highlightColor={getHighlight(index)}
         minimize={!isPanelOpen(index)}
-        // @ts-expect-error not yet implemented
-        onDrop={handleDrop}
+        onDrop={createDropHandler(panel.dataSource)}
         onUpdate={handlePanelUpdate(index)}
-        id={`PANEL_NODE_LIST_${index}`}
-        listId={`PANEL_NODE_LIST_${stage.id}_${prompt.id}_${index}`}
+        id={`PANEL_NODE_LIST_${stage.id}_${prompt.id}_${index}`}
       />
     );
   };

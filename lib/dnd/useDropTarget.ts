@@ -8,17 +8,19 @@ import {
 } from './types';
 import { getElementBounds, rafThrottle } from './utils';
 
-type DropTargetOptions = {
+type DropTargetOptions<T extends DragMetadata = DragMetadata> = {
   id: string; // Required stable ID for the drop target
   accepts: string[];
   announcedName?: string; // Human-readable name for screen reader announcements
-  onDrop?: DropCallback;
-  onDragEnter?: (metadata?: DragMetadata) => void;
-  onDragLeave?: (metadata?: DragMetadata) => void;
+  onDrop?: DropCallback<T>;
+  onDragEnter?: (metadata?: T) => void;
+  onDragLeave?: (metadata?: T) => void;
   disabled?: boolean;
 };
 
-export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
+export function useDropTarget<T extends DragMetadata = DragMetadata>(
+  options: DropTargetOptions<T>,
+): UseDropTargetReturn {
   const {
     id,
     accepts,
@@ -217,16 +219,16 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
     const prevIsOver = prevIsOverRef.current;
     prevIsOverRef.current = isOver;
 
-    if (isOver && !prevIsOver && onDragEnter && dragItem) {
-      onDragEnter(dragItem.metadata);
+    if (isOver && !prevIsOver && onDragEnter && dragItem?.metadata) {
+      onDragEnter(dragItem.metadata as T);
     } else if (
       !isOver &&
       prevIsOver &&
       onDragLeave &&
-      lastDragItemRef.current &&
+      lastDragItemRef.current?.metadata &&
       !dropOccurredRef.current // Don't announce leave if a drop just occurred
     ) {
-      onDragLeave(lastDragItemRef.current.metadata);
+      onDragLeave(lastDragItemRef.current.metadata as T);
     }
   }, [isOver, onDragEnter, onDragLeave, dragItem]);
 
@@ -257,9 +259,9 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
           const wasOver = state.activeDropTargetId === dropIdRef.current;
           const draggedItem = lastDragItemRef.current;
 
-          if (wasOver && draggedItem && canDrop && onDrop) {
+          if (wasOver && draggedItem?.metadata && canDrop && onDrop) {
             dropOccurredRef.current = true;
-            onDrop(draggedItem.metadata);
+            onDrop(draggedItem.metadata as T);
           }
         }
       },

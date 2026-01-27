@@ -22,7 +22,7 @@
   }
 
   &__panels {
-    flex: 0 0 33%;
+    flex: 0 0 auto;
     display: flex;
     margin-bottom: units.unit(2);
   }

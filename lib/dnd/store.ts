@@ -55,18 +55,15 @@ export const defaultInitState: DndState = {
 
 // Helper function to check if target accepts drag item
 function doesTargetAccept(target: DropTarget, dragItem: DragItem): boolean {
-  const itemType = dragItem.type;
+  const dragType = dragItem.type;
   const sourceZone = dragItem._sourceZone;
-
-  // Check if the target accepts the item type
-  const acceptsType = target.accepts.includes(itemType);
 
   // Prevent dropping back into the same zone
   if (sourceZone && target.id === sourceZone) {
     return false;
   }
 
-  return acceptsType;
+  return target.accepts.includes(dragType);
 }
 
 // Helper to update canDrop for all targets
@@ -108,23 +105,30 @@ export const createDndStore = (initState: DndState = defaultInitState) => {
         const state = get();
         if (!state.dragItem || !state.dragPosition) return;
 
-        // Find drop target at current position
+        // Find the best drop target at current position
+        // When multiple targets overlap, prefer the smallest one (area-based priority)
+        // This allows smaller targets like NodeBin to take priority over larger containers
         let foundTarget: DropTargetWithState | null = null;
+        let smallestArea = Infinity;
         let newActiveDropTargetId: string | null = null;
 
         for (const target of state.dropTargets.values()) {
-          if (
+          const isHit =
             x >= target.x &&
             x <= target.x + target.width &&
             y >= target.y &&
-            y <= target.y + target.height
-          ) {
-            foundTarget = target;
-            break;
+            y <= target.y + target.height;
+
+          if (isHit && target.canDrop) {
+            const area = target.width * target.height;
+            if (area < smallestArea) {
+              foundTarget = target;
+              smallestArea = area;
+            }
           }
         }
 
-        if (foundTarget && foundTarget.canDrop) {
+        if (foundTarget) {
           newActiveDropTargetId = foundTarget.id;
         }
 

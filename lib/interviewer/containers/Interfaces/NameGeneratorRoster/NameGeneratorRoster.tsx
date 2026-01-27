@@ -6,8 +6,8 @@ import cx from 'classnames';
 import { motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { type DragMetadata } from '~/lib/dnd/types';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
-import Node from '~/lib/interviewer/components/Node';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import Panel from '~/lib/interviewer/components/Panel';
 import Prompts from '~/lib/interviewer/components/Prompts';
@@ -159,11 +159,12 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
     setShowMinWarning(false);
   }, [stageNodeCount, promptIndex]);
 
-  const handleAddNode = ({ meta }: { meta: UseItemElement }) => {
-    const { id, data } = meta;
+  const handleAddNode = (metadata: DragMetadata) => {
+    const { id, data } = metadata as UseItemElement;
+
     const attributeData = {
       ...newNodeAttributes,
-      ...data.attributes,
+      ...data[entityAttributesProperty],
     };
 
     void dispatch(
@@ -246,9 +247,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
             excludeItems={excludeItems}
             itemComponent={DataCard}
             dragComponent={DragPreviewNode}
-            accepts={({ meta: { itemType } }: { meta: { itemType: string } }) =>
-              itemType !== 'SOURCE_NODES'
-            }
+            accepts={['ADDED_NODES']}
             onDrop={handleRemoveNode}
             dropNodeColor={dropNodeColor}
             disabled={disabled}
@@ -261,11 +260,9 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
                 id="node-list"
                 className={nodeListClasses}
                 itemType="ADDED_NODES"
-                accepts={['ADDED_NODES']}
-                // @ts-expect-error not yet implemented
+                accepts={['SOURCE_NODES']}
                 onDrop={handleAddNode}
                 items={nodesForPrompt}
-                itemComponent={Node}
               />
             </div>
           </Panel>

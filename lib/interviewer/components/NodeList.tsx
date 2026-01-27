@@ -34,7 +34,7 @@ const DraggableMotionNode = memo(
     ...nodeProps
   }: DraggableMotionNodeProps) => {
     const { dragProps } = useDragSource({
-      type: 'node',
+      type: itemType,
       metadata: { ...node, itemType },
       announcedName: `Node ${node.type}`,
       disabled: !allowDrag,

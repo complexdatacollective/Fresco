@@ -11,6 +11,7 @@ import { has } from 'es-toolkit/compat';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useSelector } from 'react-redux';
+import { type DragMetadata } from '~/lib/dnd/types';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
@@ -182,8 +183,8 @@ const NameGenerator = (props: NameGeneratorProps) => {
    * Drop node handler
    * Adds prompt attributes to existing nodes, or adds new nodes to the network.
    */
-  const handleDropNode = (item: { meta: NcNode; target: NcNode }) => {
-    const node = { ...item.meta };
+  const handleDropNode = (item: DragMetadata) => {
+    const node = { ...(item as NcNode) };
     // Test if we are updating an existing network node, or adding it to the network
     if (has(node, 'promptIDs')) {
       void addNodeToPrompt(node[entityPrimaryKeyProperty], newNodeAttributes);
@@ -258,11 +259,9 @@ const NameGenerator = (props: NameGeneratorProps) => {
           <div className="name-generator-interface__nodes">
             <NodeList
               items={nodesForPrompt}
-              listId={`${stage.id}_${promptIndex}_MAIN_NODE_LIST`}
-              id="MAIN_NODE_LIST"
+              id={`${stage.id}_${promptIndex}_MAIN_NODE_LIST`}
               accepts={['NEW_NODE']}
               itemType="EXISTING_NODE"
-              // @ts-expect-error not yet implemented
               onDrop={handleDropNode}
               onItemClick={handleSelectNode}
             />

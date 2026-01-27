@@ -78,7 +78,7 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
   };
 
   const { dragProps } = useDragSource({
-    type: 'node',
+    type: 'FAMILY_TREE_NODE',
     metadata: { itemType: 'FAMILY_TREE_NODE', placeholderId: placeholderId },
     announcedName: label,
     disabled: !allowDrag,
