@@ -4,6 +4,7 @@ import { loadContext, type SuiteContext } from '../helpers/context.js';
 
 type TestFixtures = {
   database: DatabaseIsolation;
+  _visual: void;
 };
 
 function resolveSuiteFromPath(filePath: string): string {
@@ -47,6 +48,18 @@ export const test = base.extend<TestFixtures>({
     // eslint-disable-next-line react-hooks/rules-of-hooks
     await use(db);
   },
+
+  _visual: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use, testInfo) => {
+      // eslint-disable-next-line no-process-env
+      if (!process.env.CI) {
+        testInfo.skip(true, 'Visual snapshots only run in Docker');
+      }
+      await use();
+    },
+    { scope: 'test' },
+  ],
 });
 
 export { expect };

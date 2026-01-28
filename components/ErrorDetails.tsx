@@ -21,9 +21,9 @@ export const ErrorDetails = ({ children }: { children: ReactNode }) => {
           {showStackTrace ? 'Hide' : 'Show'} debug information
         </Heading>
         {showStackTrace ? (
-          <ChevronUp className="h-4 w-4" />
+          <ChevronUp className="size-4" />
         ) : (
-          <ChevronDown className="h-4 w-4" />
+          <ChevronDown className="size-4" />
         )}
       </CollapsibleTrigger>
       <CollapsibleContent className="bg-background relative flex-1 rounded px-6 py-3 text-sm">

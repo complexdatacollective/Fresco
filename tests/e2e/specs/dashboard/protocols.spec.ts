@@ -83,7 +83,7 @@ test.describe('Protocols Page', () => {
       await expect(headerCheckbox).toBeChecked();
     });
 
-    test('visual snapshot', async ({ page }) => {
+    test('visual snapshot', async ({ page, _visual }) => {
       await waitForTable(page, { minRows: 1 });
       await page.addStyleTag({
         content:
@@ -124,7 +124,11 @@ test.describe('Protocols Page', () => {
       }
     });
 
-    test('visual: delete confirmation dialog', async ({ page, database }) => {
+    test('visual: delete confirmation dialog', async ({
+      page,
+      database,
+      _visual,
+    }) => {
       const cleanup = await database.isolate(page);
       try {
         await waitForTable(page, { minRows: 1 });
@@ -169,6 +173,7 @@ test.describe('Protocols Page', () => {
     test('visual: empty state after deleting all', async ({
       page,
       database,
+      _visual,
     }) => {
       const cleanup = await database.isolate(page);
       try {

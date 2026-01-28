@@ -108,8 +108,10 @@ test.describe('Mutations', () => {
 
 ### Visual snapshots
 
+Visual tests require Docker for consistent font rendering (`pnpm test:e2e` sets `CI=true`). They are automatically skipped when `CI` is not set by using the `visual` fixture.
+
 ```ts
-test('visual snapshot', async ({ page }) => {
+test('visual snapshot', async ({ page, _visual }) => {
   await page.addStyleTag({
     content:
       '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
@@ -118,6 +120,8 @@ test('visual snapshot', async ({ page }) => {
   await expect(page).toHaveScreenshot('page-name.png', { fullPage: true });
 });
 ```
+
+Destructuring `_visual` activates the fixture which calls `testInfo.skip()` when not in CI. The underscore prefix satisfies the `no-unused-vars` lint rule. For mutation visual tests, include all needed fixtures: `async ({ page, database, _visual })`.
 
 ## Helpers API
 

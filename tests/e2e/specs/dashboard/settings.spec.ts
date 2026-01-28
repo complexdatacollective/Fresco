@@ -72,7 +72,7 @@ test.describe('Settings Page', () => {
       await expect(page.getByText(/disable analytics/i)).toBeVisible();
     });
 
-    test('visual snapshot', async ({ page }) => {
+    test('visual snapshot', async ({ page, _visual }) => {
       await page.addStyleTag({
         content:
           '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
@@ -90,7 +90,7 @@ test.describe('Settings Page', () => {
   test.describe('Mutations', () => {
     test.describe.configure({ mode: 'serial' });
 
-    test('visual: add user dialog', async ({ page, database }) => {
+    test('visual: add user dialog', async ({ page, database, _visual }) => {
       const cleanup = await database.isolate(page);
       try {
         await page.getByRole('button', { name: /add user/i }).click();
@@ -107,7 +107,11 @@ test.describe('Settings Page', () => {
       }
     });
 
-    test('visual: change password dialog', async ({ page, database }) => {
+    test('visual: change password dialog', async ({
+      page,
+      database,
+      _visual,
+    }) => {
       const cleanup = await database.isolate(page);
       try {
         await page.getByRole('button', { name: /change password/i }).click();

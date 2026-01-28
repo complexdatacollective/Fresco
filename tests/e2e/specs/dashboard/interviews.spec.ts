@@ -63,7 +63,7 @@ test.describe('Interviews Page', () => {
       await expect(page.getByText('Not exported').first()).toBeVisible();
     });
 
-    test('visual snapshot', async ({ page }) => {
+    test('visual snapshot', async ({ page, _visual }) => {
       await waitForTable(page, { minRows: 5 });
       await page.addStyleTag({
         content:
@@ -98,7 +98,11 @@ test.describe('Interviews Page', () => {
       }
     });
 
-    test('visual: delete confirmation dialog', async ({ page, database }) => {
+    test('visual: delete confirmation dialog', async ({
+      page,
+      database,
+      _visual,
+    }) => {
       const cleanup = await database.isolate(page);
       try {
         await waitForTable(page, { minRows: 1 });
@@ -139,7 +143,7 @@ test.describe('Interviews Page', () => {
       }
     });
 
-    test('visual: export dialog', async ({ page, database }) => {
+    test('visual: export dialog', async ({ page, database, _visual }) => {
       const cleanup = await database.isolate(page);
       try {
         await waitForTable(page, { minRows: 1 });

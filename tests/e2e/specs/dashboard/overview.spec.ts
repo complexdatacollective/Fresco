@@ -63,7 +63,7 @@ test.describe('Dashboard Overview', () => {
     await expect(page.locator('table')).toBeVisible();
   });
 
-  test('visual snapshot', async ({ page }) => {
+  test('visual snapshot', async ({ page, _visual }) => {
     await page.addStyleTag({
       content:
         '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',

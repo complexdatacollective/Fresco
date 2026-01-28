@@ -69,7 +69,7 @@ test.describe('Participants Page', () => {
       await expect(page.getByRole('button', { name: /import/i })).toBeVisible();
     });
 
-    test('visual snapshot', async ({ page }) => {
+    test('visual snapshot', async ({ page, _visual }) => {
       await waitForTable(page, { minRows: 10 });
       await page.addStyleTag({
         content:
@@ -112,7 +112,11 @@ test.describe('Participants Page', () => {
       }
     });
 
-    test('visual: add participant dialog', async ({ page, database }) => {
+    test('visual: add participant dialog', async ({
+      page,
+      database,
+      _visual,
+    }) => {
       const cleanup = await database.isolate(page);
       try {
         await page.getByRole('button', { name: /add/i }).click();
@@ -175,7 +179,7 @@ test.describe('Participants Page', () => {
       }
     });
 
-    test('visual: empty state', async ({ page, database }) => {
+    test('visual: empty state', async ({ page, database, _visual }) => {
       const cleanup = await database.isolate(page);
       try {
         await waitForTable(page, { minRows: 10 });
