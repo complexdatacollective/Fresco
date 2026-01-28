@@ -25,6 +25,7 @@ import {
 } from '~/lib/interviewer/ducks/modules/session';
 import { getStageMetadata } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
+import { getNodeSexVariable } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/utils/nodeUtils';
 
 const isFamilyTreeStageMetadata = (
   stageMetadata: unknown,
@@ -70,6 +71,7 @@ export const FamilyTreeShells = (props: {
   const dispatch = useAppDispatch();
   const stageMetadata = useSelector(getStageMetadata);
   const relationshipVariable = useSelector(getRelationshipTypeVariable);
+  const nodeSexVariable = useSelector(getNodeSexVariable);
   const [hydratedOnce, setHydratedOnce] = useState(false);
 
   const shouldHydrate = useMemo(() => {
@@ -119,7 +121,12 @@ export const FamilyTreeShells = (props: {
       const id = netNode._uid;
       const metadataNode = metadataByNetworkId.get(id);
       const label = metadataNode?.label ?? '';
-      const sex = metadataNode?.sex ?? 'female';
+      // Use sex from node attributes (primary source), fall back to metadata, then 'female'
+      const attrSex = netNode.attributes?.[nodeSexVariable] as
+        | 'male'
+        | 'female'
+        | undefined;
+      const sex = attrSex ?? metadataNode?.sex ?? 'female';
       const isEgo = metadataNode?.isEgo;
       const readOnly = metadataNode?.readOnly ?? false;
       const attributes = netNode.attributes ?? {};
@@ -176,6 +183,7 @@ export const FamilyTreeShells = (props: {
     stage.diseaseNominationStep,
     hydratedOnce,
     relationshipVariable,
+    nodeSexVariable,
   ]);
 
   const updateNode = useCallback(

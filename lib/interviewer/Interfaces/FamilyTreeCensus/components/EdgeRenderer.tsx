@@ -4,11 +4,15 @@ import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { FAMILY_TREE_CONFIG } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/config';
 import { useFamilyTreeStore } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
-import { type Edge } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import {
   getCurrentStage,
   getEdgeColorForType,
 } from '~/lib/interviewer/selectors/session';
+import {
+  type LineSegment,
+  type ParentChildConnector,
+  type SpouseConnector,
+} from '~/lib/pedigree-layout/types';
 
 const EDGE_WIDTH = 5;
 
@@ -21,272 +25,196 @@ export const getEdgeType = createSelector(getCurrentStage, (stage) => {
   return stage.edgeType.type;
 });
 
+function renderLine(
+  seg: LineSegment,
+  color: string,
+  key: string,
+  extra?: React.SVGAttributes<SVGLineElement>,
+) {
+  return (
+    <line
+      key={key}
+      x1={seg.x1}
+      y1={seg.y1}
+      x2={seg.x2}
+      y2={seg.y2}
+      stroke={color}
+      strokeWidth={EDGE_WIDTH}
+      {...extra}
+    />
+  );
+}
+
+function renderSpouse(
+  conn: SpouseConnector,
+  idx: number,
+  color: string,
+  isExPartner: boolean,
+) {
+  const seg = conn.segment;
+
+  if (isExPartner) {
+    const midX = (seg.x1 + seg.x2) / 2;
+    return (
+      <g key={`ex-partner-${idx}`}>
+        {renderLine(seg, color, `ex-line-${idx}`)}
+        <line
+          x1={midX}
+          y1={seg.y1 - 10}
+          x2={midX - 15}
+          y2={seg.y2 + 10}
+          stroke={color}
+          strokeWidth={EDGE_WIDTH}
+        />
+        <line
+          x1={midX + 15}
+          y1={seg.y1 - 10}
+          x2={midX - 5}
+          y2={seg.y2 + 10}
+          stroke={color}
+          strokeWidth={EDGE_WIDTH}
+        />
+      </g>
+    );
+  }
+
+  if (conn.double) {
+    return (
+      <g key={`consang-${idx}`}>
+        {renderLine(conn.segment, color, `consang-line1-${idx}`)}
+        {conn.doubleSegment &&
+          renderLine(conn.doubleSegment, color, `consang-line2-${idx}`)}
+      </g>
+    );
+  }
+
+  // Regular partner: double horizontal lines
+  const offset = EDGE_WIDTH;
+  return (
+    <g key={`partner-${idx}`}>
+      <line
+        x1={seg.x1}
+        y1={seg.y1 - offset}
+        x2={seg.x2}
+        y2={seg.y2 - offset}
+        stroke={color}
+        strokeWidth={EDGE_WIDTH}
+      />
+      <line
+        x1={seg.x1}
+        y1={seg.y1 + offset}
+        x2={seg.x2}
+        y2={seg.y2 + offset}
+        stroke={color}
+        strokeWidth={EDGE_WIDTH}
+      />
+    </g>
+  );
+}
+
+function renderParentChild(
+  conn: ParentChildConnector,
+  idx: number,
+  color: string,
+) {
+  return (
+    <g key={`pc-${idx}`}>
+      {conn.uplines.map((ul, i) =>
+        renderLine(ul, color, `pc-${idx}-up-${i}`, { strokeLinecap: 'round' }),
+      )}
+      {renderLine(conn.siblingBar, color, `pc-${idx}-bar`, {
+        strokeLinecap: 'round',
+      })}
+      {conn.parentLink.map((pl, i) =>
+        renderLine(pl, color, `pc-${idx}-pl-${i}`, {
+          strokeLinecap: 'round',
+        }),
+      )}
+    </g>
+  );
+}
+
 export default function EdgeRenderer() {
   const nodeMap = useFamilyTreeStore((state) => state.network.nodes);
-  const edgesMap = useFamilyTreeStore((state) => state.network.edges);
+  const connectorData = useFamilyTreeStore((state) => state.connectorData);
 
   const edgeType = useSelector(getEdgeType);
   const edgeColor = useSelector(getEdgeColorForType(edgeType));
 
-  const safeNumber = (n: unknown): n is number =>
-    typeof n === 'number' && !Number.isNaN(n);
+  const color = `var(--${edgeColor})`;
 
-  // More useful data structures for the things we need to do in this component
-  const { parentEdgesByChild, parentEdgesByParent, partnershipEdges } =
-    useMemo(() => {
-      const edges = Array.from(edgesMap.entries()).map(([id, edge]) => ({
-        id,
-        ...edge,
-      }));
-
-      const parentByChild = new Map<string, Edge[]>();
-      const parentByParent = new Map<string, Edge[]>();
-      const partnerships: Edge[] = [];
-
-      for (const edge of edges) {
-        if (edge.relationship === 'parent') {
-          // Index by child
-          const childEdges = parentByChild.get(edge.target) ?? [];
-          childEdges.push(edge);
-          parentByChild.set(edge.target, childEdges);
-
-          // Index by parent
-          const parentEdges = parentByParent.get(edge.source) ?? [];
-          parentEdges.push(edge);
-          parentByParent.set(edge.source, parentEdges);
-        } else if (
-          edge.relationship === 'partner' ||
-          edge.relationship === 'ex-partner'
-        ) {
-          partnerships.push(edge);
-        }
-      }
-
-      return {
-        parentEdgesByChild: parentByChild,
-        parentEdgesByParent: parentByParent,
-        partnershipEdges: partnerships,
-      };
-    }, [edgesMap]);
-
-  // Process all edge types in a single pass to improve performance
   const svgElements = useMemo(() => {
+    if (!connectorData) return [];
+
+    const { connectors } = connectorData;
     const elements: JSX.Element[] = [];
 
-    // 1. Partner and ex-partner edges
-    for (const edge of partnershipEdges) {
-      const sourceNode = nodeMap.get(edge.source);
-      const targetNode = nodeMap.get(edge.target);
-      if (
-        !sourceNode ||
-        !targetNode ||
-        typeof sourceNode.x !== 'number' ||
-        typeof sourceNode.y !== 'number' ||
-        typeof targetNode.x !== 'number' ||
-        typeof targetNode.y !== 'number'
-      ) {
-        continue;
-      }
+    // Spouse / ex-partner lines
+    // The pedigree-layout library treats ex-partners same as partners for
+    // layout purposes; we distinguish visually using exPartnerPairs.
+    // However, the abstract connector doesn't carry node IDs, so we use
+    // a heuristic: we render all spouse connectors as partner lines.
+    // For ex-partner visual distinction, the adapter tracks ex-partner
+    // pairs but the connector doesn't map back to node IDs easily.
+    // For now, render all spouse connectors as standard partner double-lines.
+    for (let i = 0; i < connectors.spouseLines.length; i++) {
+      const sp = connectors.spouseLines[i]!;
+      elements.push(renderSpouse(sp, i, color, false));
+    }
 
-      const coords = {
-        x1: targetNode.x + FAMILY_TREE_CONFIG.nodeContainerWidth / 2,
-        y1: sourceNode.y + FAMILY_TREE_CONFIG.nodeHeight / 2,
-        x2: targetNode.x + FAMILY_TREE_CONFIG.nodeContainerWidth * 1.5,
-        y2: targetNode.y + FAMILY_TREE_CONFIG.nodeHeight / 2,
-      };
+    // Parent-child connectors
+    for (let i = 0; i < connectors.parentChildLines.length; i++) {
+      elements.push(
+        renderParentChild(connectors.parentChildLines[i]!, i, color),
+      );
+    }
 
-      if (edge.relationship === 'partner') {
+    // Twin indicators
+    for (let i = 0; i < connectors.twinIndicators.length; i++) {
+      const ti = connectors.twinIndicators[i]!;
+      if (ti.segment) {
         elements.push(
-          <g key={`partner-${edge.source}-${edge.target}`}>
-            <line
-              x1={coords.x1}
-              y1={coords.y1 - EDGE_WIDTH}
-              x2={coords.x2}
-              y2={coords.y2 - EDGE_WIDTH}
-              stroke={`var(--${edgeColor})`}
-              strokeWidth={EDGE_WIDTH}
-            />
-            <line
-              x1={coords.x1}
-              y1={coords.y1 + EDGE_WIDTH}
-              x2={coords.x2}
-              y2={coords.y2 + EDGE_WIDTH}
-              stroke={`var(--${edgeColor})`}
-              strokeWidth={EDGE_WIDTH}
-            />
-          </g>,
+          renderLine(ti.segment, color, `twin-${i}`, {
+            strokeWidth: EDGE_WIDTH / 2,
+          }),
         );
-      } else if (edge.relationship === 'ex-partner') {
+      }
+      if (ti.label) {
         elements.push(
-          <g key={`ex-partner-${edge.source}-${edge.target}`}>
-            <line
-              x1={coords.x1}
-              y1={coords.y1}
-              x2={coords.x2}
-              y2={coords.y2}
-              stroke={`var(--${edgeColor})`}
-              strokeWidth={EDGE_WIDTH}
-            />
-            <line
-              x1={(coords.x1 + coords.x2) / 2}
-              y1={coords.y1 - 10}
-              x2={(coords.x1 + coords.x2) / 2 - 15}
-              y2={coords.y2 + 10}
-              stroke={`var(--${edgeColor})`}
-              strokeWidth={EDGE_WIDTH}
-            />
-            <line
-              x1={(coords.x1 + coords.x2) / 2 + 15}
-              y1={coords.y1 - 10}
-              x2={(coords.x1 + coords.x2) / 2 - 5}
-              y2={coords.y2 + 10}
-              stroke={`var(--${edgeColor})`}
-              strokeWidth={EDGE_WIDTH}
-            />
-          </g>,
+          <text
+            key={`twin-label-${i}`}
+            x={ti.label.x}
+            y={ti.label.y}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fill={color}
+            fontSize={14}
+          >
+            ?
+          </text>,
         );
       }
     }
 
-    // 2. Offspring connectors (vertical lines from parent couples)
-    const processedPairs = new Set<string>();
-
-    for (const partnerEdge of partnershipEdges) {
-      const pairKey = [partnerEdge.source, partnerEdge.target].sort().join('-');
-      if (processedPairs.has(pairKey)) continue;
-      processedPairs.add(pairKey);
-
-      const node1 = nodeMap.get(partnerEdge.source);
-      const node2 = nodeMap.get(partnerEdge.target);
-      if (
-        !node1 ||
-        !node2 ||
-        !safeNumber(node1.x) ||
-        !safeNumber(node1.y) ||
-        !safeNumber(node2.x) ||
-        !safeNumber(node2.y)
-      ) {
-        continue;
-      }
-
-      // Get children for both partners
-      const node1Children =
-        parentEdgesByParent.get(partnerEdge.source)?.map((e) => e.target) ?? [];
-      const node2Children =
-        parentEdgesByParent.get(partnerEdge.target)?.map((e) => e.target) ?? [];
-
-      // Find shared children using Set for O(1) lookup
-      const node2ChildSet = new Set(node2Children);
-      const sharedChildren = node1Children.filter((child) =>
-        node2ChildSet.has(child),
-      );
-
-      if (sharedChildren.length === 0) continue;
-
-      // Calculate midpoint between partners
-      const xPos =
-        (node1.x + (node2.x ?? 0)) / 2 + FAMILY_TREE_CONFIG.partnerSpacing / 2;
-
-      // For ex-partners, start slightly above the connector line
-      const yStartPos =
-        partnerEdge.relationship === 'ex-partner'
-          ? node1.y + FAMILY_TREE_CONFIG.nodeHeight / 2 - 5
-          : node1.y + FAMILY_TREE_CONFIG.nodeHeight / 2 + 5;
-
-      const yEndPos =
-        node1.y +
-        FAMILY_TREE_CONFIG.nodeContainerHeight +
-        FAMILY_TREE_CONFIG.padding / 2;
-
+    // Duplicate arcs
+    for (let i = 0; i < connectors.duplicateArcs.length; i++) {
+      const da = connectors.duplicateArcs[i]!;
+      const points = da.path.points.map((p) => `${p.x},${p.y}`).join(' ');
       elements.push(
-        <line
-          key={`offspring-${pairKey}`}
-          x1={xPos}
-          y1={yStartPos}
-          x2={xPos}
-          y2={yEndPos}
-          stroke={`var(--${edgeColor})`}
-          strokeWidth={EDGE_WIDTH}
+        <polyline
+          key={`dup-arc-${i}`}
+          points={points}
+          fill="none"
+          stroke={color}
+          strokeWidth={EDGE_WIDTH / 2}
+          strokeDasharray={da.path.dashed ? '6 4' : undefined}
         />,
       );
     }
 
-    // 3. Child connectors (L-shaped paths from children)
-    for (const [childId, parentEdges] of parentEdgesByChild) {
-      if (parentEdges.length < 2) continue; // Need at least 2 parents
-
-      const childNode = nodeMap.get(childId);
-      const parent1 = nodeMap.get(parentEdges[0]!.source);
-      const parent2 = nodeMap.get(parentEdges[1]!.source);
-      if (
-        !childNode ||
-        !parent1 ||
-        !parent2 ||
-        !safeNumber(childNode.x) ||
-        !safeNumber(childNode.y) ||
-        !safeNumber(parent1.x) ||
-        !safeNumber(parent1.y) ||
-        !safeNumber(parent2.x) ||
-        !safeNumber(parent2.y)
-      ) {
-        continue;
-      }
-
-      // Check if parents are partners or ex-partners
-      const parent1Id = parentEdges[0]!.source;
-      const parent2Id = parentEdges[1]!.source;
-      const hasPartnerRelationship = partnershipEdges.some(
-        (edge) =>
-          (edge.source === parent1Id && edge.target === parent2Id) ||
-          (edge.target === parent1Id && edge.source === parent2Id),
-      );
-
-      if (!hasPartnerRelationship) continue;
-
-      // Calculate positions
-      const xStartPos = childNode.x + FAMILY_TREE_CONFIG.nodeContainerWidth / 2;
-      const xEndPos =
-        (parent1.x + parent2.x) / 2 + FAMILY_TREE_CONFIG.partnerSpacing / 2;
-      const yPos = childNode.y - FAMILY_TREE_CONFIG.padding / 2;
-      const height =
-        FAMILY_TREE_CONFIG.nodeHeight / 2 + FAMILY_TREE_CONFIG.padding / 2 - 5;
-
-      elements.push(
-        <g key={`child-connector-${childId}`}>
-          {/* Vertical line from child upward */}
-          <line
-            x1={xStartPos}
-            y1={yPos}
-            x2={xStartPos}
-            y2={yPos + height}
-            stroke={`var(--${edgeColor})`}
-            strokeWidth={EDGE_WIDTH}
-            strokeLinecap="round"
-          />
-          {/* Horizontal line to offspring connector */}
-          <line
-            x1={xStartPos}
-            y1={yPos}
-            x2={xEndPos}
-            y2={yPos}
-            stroke={`var(--${edgeColor})`}
-            strokeWidth={EDGE_WIDTH}
-            strokeLinecap="round"
-          />
-        </g>,
-      );
-    }
-
     return elements;
-  }, [
-    nodeMap,
-    parentEdgesByChild,
-    parentEdgesByParent,
-    partnershipEdges,
-    edgeColor,
-  ]);
+  }, [connectorData, color]);
 
-  // Determine SVG dimensions to encompass all nodes and edges
   const svgDimensions = useMemo(() => {
     let maxX = 0;
     let maxY = 0;

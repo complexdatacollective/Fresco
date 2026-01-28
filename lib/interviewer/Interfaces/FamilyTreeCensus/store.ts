@@ -3,7 +3,13 @@ import { enableMapSet } from 'immer';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { type FamilyTreeNodeType } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
-import { layoutFamilyTree } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/layoutFamilyTree';
+import {
+  buildConnectorData,
+  type ConnectorRenderData,
+  pedigreeLayoutToPositions,
+  storeToPedigreeInput,
+} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/pedigreeAdapter';
+import { alignPedigree } from '~/lib/pedigree-layout/alignPedigree';
 import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
 import type { AppDispatch } from '~/lib/interviewer/store';
 
@@ -67,6 +73,7 @@ type NetworkState = {
 type FamilyTreeState = {
   step: 'scaffoldingStep' | 'nameGenerationStep' | 'diseaseNominationStep';
   network: NetworkState;
+  connectorData: ConnectorRenderData | null;
 };
 
 type NetworkActions = {
@@ -104,6 +111,7 @@ const initialState: FamilyTreeState = {
     nodes: new Map(),
     edges: new Map(),
   },
+  connectorData: null,
 };
 
 const arrayFromRelationCount = (
@@ -957,20 +965,24 @@ export const createFamilyTreeStore = (
         },
 
         runLayout: () => {
-          const positions = layoutFamilyTree(
-            get().network.nodes,
-            get().network.edges,
-          );
+          const { nodes, edges } = get().network;
+          const { input, indexToId } = storeToPedigreeInput(nodes, edges);
 
-          // Update node positions in the store
+          if (input.id.length === 0) return;
+
+          const layout = alignPedigree(input);
+          const positions = pedigreeLayoutToPositions(layout, indexToId);
+          const connData = buildConnectorData(layout, edges);
+
           set((draft) => {
-            for (const [nodeId, position] of Array.from(positions.entries())) {
+            for (const [nodeId, position] of positions) {
               const node = draft.network.nodes.get(nodeId);
               if (node) {
                 node.x = position.x;
                 node.y = position.y;
               }
             }
+            draft.connectorData = connData;
           });
         },
 
