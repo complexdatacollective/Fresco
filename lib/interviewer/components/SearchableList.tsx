@@ -63,7 +63,7 @@ const EmptyComponent = () => (
 );
 
 type SearchableListProps = {
-  accepts: ({ meta: { itemType } }: { meta: { itemType: string } }) => boolean;
+  accepts: string[];
   columns: number | ((width: number) => number);
   title: string;
   dynamicProperties?: Record<string, unknown>;
@@ -185,14 +185,9 @@ const SearchableList = memo(
     const dragItem = useDndStore((state: DndStore) => state.dragItem);
 
     const listId = `hyper-list-${id}`;
+    const dragItemType = (dragItem?.metadata as { itemType?: string })?.itemType;
     const willAccept =
-      isDragging &&
-      dragItem?.metadata &&
-      accepts({
-        meta: {
-          itemType: (dragItem.metadata as { itemType?: string }).itemType ?? '',
-        },
-      });
+      isDragging && dragItemType && accepts.includes(dragItemType);
     const isOver = activeDropTargetId === listId;
 
     return (
@@ -260,7 +255,7 @@ const SearchableList = memo(
                   emptyComponent={EmptyComponent}
                   placeholder={hyperListPlaceholder}
                   itemType={itemType} // drop type
-                  accepts={undefined}
+                  accepts={accepts}
                   onDrop={onDrop}
                   showTooMany={showTooMany}
                   allowDragging={!disabled}

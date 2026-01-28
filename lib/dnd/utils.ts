@@ -1,3 +1,41 @@
+import { type HitDetector } from './types';
+
+// Hit detection strategies
+
+// Production: uses elementsFromPoint for correct visual stacking order
+export const domHitDetector: HitDetector = (x, y, dropTargets) => {
+  const elementsAtPoint = document.elementsFromPoint(x, y);
+
+  for (const element of elementsAtPoint) {
+    const zoneId = (element as HTMLElement).dataset?.zoneId;
+    if (zoneId) {
+      const target = dropTargets.get(zoneId);
+      if (target?.canDrop) {
+        return zoneId;
+      }
+    }
+  }
+
+  return null;
+};
+
+// Testing: uses geometric bounds checking (no DOM required)
+export const boundsHitDetector: HitDetector = (x, y, dropTargets) => {
+  for (const [id, target] of dropTargets) {
+    if (
+      target.canDrop &&
+      x >= target.x &&
+      x <= target.x + target.width &&
+      y >= target.y &&
+      y <= target.y + target.height
+    ) {
+      return id;
+    }
+  }
+
+  return null;
+};
+
 // Performance utilities for drag and drop
 
 // Throttle function using requestAnimationFrame

@@ -5,7 +5,7 @@ import Button from '~/components/ui/Button';
 import InputField from '~/lib/form/components/fields/InputField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import { useFamilyTreeStore } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
-import { getSexVariable } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/utils/nodeUtils';
+import { getEgoSexVariable } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/utils/nodeUtils';
 import Overlay from '~/lib/interviewer/components/Overlay';
 import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
 import { updateEgo } from '~/lib/interviewer/ducks/modules/session';
@@ -80,14 +80,14 @@ export const CensusForm = ({
 
   const ego = useSelector(getNetworkEgo);
   const codebook = useSelector(getCodebook);
-  const sexVariable = useSelector(getSexVariable);
-  const existingSex = sexVariable
-    ? (ego?.attributes?.[sexVariable] as string | undefined)
+  const egoSexVariable = useSelector(getEgoSexVariable);
+  const existingSex = egoSexVariable
+    ? (ego?.attributes?.[egoSexVariable] as string | undefined)
     : undefined;
 
   type SexOption = { value: string; label: string };
-  const variableDef = sexVariable
-    ? (codebook?.ego?.variables?.[sexVariable] as {
+  const variableDef = egoSexVariable
+    ? (codebook?.ego?.variables?.[egoSexVariable] as {
         name?: string;
         options?: SexOption[];
       })
@@ -97,7 +97,7 @@ export const CensusForm = ({
   const [sexValue, setSexValue] = useState<Sex>(
     (existingSex as Sex) ?? 'female',
   );
-  const shouldAskSex = sexVariable && existingSex == null;
+  const shouldAskSex = egoSexVariable && existingSex == null;
 
   const generatePlaceholderNetwork = useFamilyTreeStore(
     (state) => state.generatePlaceholderNetwork,
@@ -143,13 +143,19 @@ export const CensusForm = ({
   );
   const updateNode = useFamilyTreeStore((state) => state.updateNode);
   const saveEgoSex = useCallback(() => {
-    if (!sexVariable) return;
-    void dispatch(updateEgo({ [sexVariable]: sexValue }));
+    if (!egoSexVariable) return;
+    void dispatch(updateEgo({ [egoSexVariable]: sexValue }));
     const egoNodeId = getNodeIdFromRelationship('ego');
     if (egoNodeId != null) {
-      updateNode(egoNodeId, { [sexVariable]: sexValue });
+      updateNode(egoNodeId, { [egoSexVariable]: sexValue });
     }
-  }, [dispatch, sexValue, updateNode, getNodeIdFromRelationship, sexVariable]);
+  }, [
+    dispatch,
+    sexValue,
+    updateNode,
+    getNodeIdFromRelationship,
+    egoSexVariable,
+  ]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -179,7 +185,7 @@ export const CensusForm = ({
         {shouldAskSex && variableDef?.options && (
           <div className="mb-6 w-full *:mb-0!">
             <RadioGroupField
-              name={sexVariable}
+              name={egoSexVariable}
               value={sexValue}
               onChange={(value) => setSexValue(value as Sex)}
               aria-label="What is your sex?"

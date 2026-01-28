@@ -93,7 +93,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     const existingEdges = new Set(
       networkEdges.map(
         (edge) =>
-          `${edge.from}-${edge.to}-${(edge.attributes.relationship as string) ?? ''}`,
+          `${edge.from}-${edge.to}-${(edge.attributes[relationshipVariable] as string) ?? ''}`,
       ),
     );
 

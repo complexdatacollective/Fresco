@@ -79,7 +79,7 @@ const DraggableItemComponent = memo(
     ...props
   }: DraggableItemComponentProps) => {
     const { dragProps } = useDragSource({
-      type: 'node',
+      type: itemType,
       metadata: { data: item.data, id: item.id, itemType },
       announcedName: `Item ${item.id}`,
       disabled: !allowDrag || disabled,
@@ -207,13 +207,13 @@ const HyperList = <
   showTooMany,
   allowDragging,
   id,
-  accepts: _accepts,
+  accepts,
   onDrop,
 }: HyperListProps<TProps, TData>) => {
   // Add drop target functionality
   const { dropProps } = useDropTarget({
     id: id ?? `hyper-list-${itemType}`,
-    accepts: ['node'],
+    accepts: accepts ?? [],
     announcedName: 'List',
     onDrop: (metadata) => {
       if (onDrop) {

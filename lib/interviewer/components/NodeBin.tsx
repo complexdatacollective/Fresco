@@ -13,7 +13,7 @@ type NodeBinProps = {
 const NodeBin = ({ accepts, dropHandler }: NodeBinProps) => {
   const { dropProps, isOver, willAccept } = useDropTarget({
     id: 'node-bin',
-    accepts: ['node'],
+    accepts: ['EXISTING_NODE', 'FAMILY_TREE_NODE'],
     announcedName: 'Delete bin',
     onDrop: (metadata) => {
       const node = metadata as NcNode;

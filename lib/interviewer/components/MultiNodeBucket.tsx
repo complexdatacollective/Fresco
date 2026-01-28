@@ -22,7 +22,7 @@ const DraggableNode = memo(
     [key: string]: unknown;
   }) => {
     const { dragProps } = useDragSource({
-      type: 'node',
+      type: itemType,
       metadata: { ...node, itemType },
       announcedName: `Node ${node.type}`,
       disabled: !allowDrag,

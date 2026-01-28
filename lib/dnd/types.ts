@@ -33,3 +33,14 @@ export type UseDropTargetReturn = {
 };
 
 export type DropCallback = (metadata?: DragMetadata) => void;
+
+export type DropTargetState = DropTarget & {
+  canDrop: boolean;
+  isOver: boolean;
+};
+
+export type HitDetector = (
+  x: number,
+  y: number,
+  dropTargets: Map<string, DropTargetState>,
+) => string | null;

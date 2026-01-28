@@ -157,7 +157,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
     const { id, data } = meta;
     const attributeData = {
       ...newNodeAttributes,
-      ...data.attributes,
+      ...data[entityAttributesProperty],
     };
 
     void dispatch(
@@ -244,11 +244,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
               excludeItems={excludeItems}
               itemComponent={DataCard}
               dragComponent={DragPreviewNode}
-              accepts={({
-                meta: { itemType },
-              }: {
-                meta: { itemType: string };
-              }) => itemType !== 'SOURCE_NODES'}
+              accepts={['ADDED_NODES']}
               onDrop={handleRemoveNode}
               dropNodeColor={dropNodeColor}
               disabled={disabled}

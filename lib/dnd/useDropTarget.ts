@@ -254,13 +254,13 @@ export function useDropTarget(
     const prevIsOver = prevIsOverRef.current;
     prevIsOverRef.current = isOver;
 
-    if (isOver && !prevIsOver && onDragEnter && dragItem) {
+    if (isOver && !prevIsOver && onDragEnter && dragItem?.metadata) {
       onDragEnter(dragItem.metadata);
     } else if (
       !isOver &&
       prevIsOver &&
       onDragLeave &&
-      lastDragItemRef.current &&
+      lastDragItemRef.current?.metadata &&
       !dropOccurredRef.current // Don't announce leave if a drop just occurred
     ) {
       onDragLeave(lastDragItemRef.current.metadata);

@@ -62,11 +62,6 @@ function NodePanels(props: NodePanelsProps) {
     [dispatch],
   );
 
-  /**
-   * Create a drop handler for a specific panel's data source.
-   * If this panel is showing the interview network, remove the node from the current prompt.
-   * If it is an external data panel, remove the node from the interview network.
-   */
   const createDropHandler = useCallback(
     (dataSource: string) => (metadata?: Record<string, unknown>) => {
       const meta = metadata as NcNode | undefined;
