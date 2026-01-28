@@ -46,8 +46,8 @@ export function autohint(
   // Build relation matrix
   const relation: Relation[] = ped.relation ?? [];
 
-  // Twin processing
-  const twinset = new Array<number>(n).fill(0);
+  // Twin processing (-1 = not in a twin set, >= 0 = twin set ID)
+  const twinset = new Array<number>(n).fill(-1);
   const twinord = new Array<number>(n).fill(1);
   let twinrel: Relation[] | null = null;
 
@@ -56,7 +56,7 @@ export function autohint(
     twinrel = twinRelations;
     const twinlist = [...new Set(twinRelations.flatMap((r) => [r.id1, r.id2]))];
 
-    // Iteratively assign twin set IDs
+    // Iteratively assign twin set IDs (using min person index as set ID)
     for (let iter = 1; iter < twinlist.length; iter++) {
       for (const rel of twinRelations) {
         const newid = Math.min(rel.id1, rel.id2);
@@ -93,9 +93,9 @@ export function autohint(
   }
 
   // Cluster twins using fractional hints
-  if (twinset.some((v) => v > 0)) {
+  if (twinset.some((v) => v >= 0)) {
     for (const setId of [...new Set(twinset)]) {
-      if (setId === 0) continue;
+      if (setId < 0) continue;
       const who: number[] = [];
       for (let i = 0; i < n; i++) {
         if (twinset[i] === setId) who.push(i);
@@ -172,7 +172,7 @@ export function autohint(
     tr: Relation[] | null,
     ts: number[],
   ): number[] {
-    if (ts[id]! > 0) {
+    if (ts[id]! >= 0) {
       const sibHorders = sibs.map((s) => ho[s]!);
       const shiftAmt = 1 + Math.max(...sibHorders) - Math.min(...sibHorders);
       const twins = sibs.filter((s) => ts[s] === ts[id]);
