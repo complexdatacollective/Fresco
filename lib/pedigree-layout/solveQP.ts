@@ -1,3 +1,5 @@
+import qp from 'quadprog';
+
 /**
  * Wrapper around the quadprog npm package (1-indexed Goldfarb-Idnani QP solver).
  * Provides a 0-indexed TypeScript interface.
@@ -15,20 +17,6 @@ export function solveQP(
   Amat: number[][],
   bvec: number[],
 ): { solution: number[]; value: number } {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const qp = require('quadprog') as {
-    solveQP: (
-      Dmat: number[][],
-      dvec: number[],
-      Amat: number[][],
-      bvec: number[],
-    ) => {
-      solution: number[];
-      value: number[];
-      message: string;
-    };
-  };
-
   const n = Dmat.length;
   const m = Amat[0]?.length ?? 0;
 

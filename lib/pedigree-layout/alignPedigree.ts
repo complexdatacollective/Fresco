@@ -240,13 +240,17 @@ export function alignPedigree(
     }
   }
 
-  // Run position optimization
+  // Run position optimization (fall back to unoptimized if QP solver fails)
   let pos: number[][];
   const doAlign = align === true || (Array.isArray(align) && align.length > 0);
   const maxLevel = Math.max(...level);
   if (doAlign && maxLevel > 1) {
-    const spouseBool = spouseMat.map((row) => row.map((v) => v > 0));
-    pos = alignped4(rval, spouseBool, level, width, align);
+    try {
+      const spouseBool = spouseMat.map((row) => row.map((v) => v > 0));
+      pos = alignped4(rval, spouseBool, level, width, align);
+    } catch {
+      pos = rval.pos.map((row) => [...row]);
+    }
   } else {
     pos = rval.pos.map((row) => [...row]);
   }
