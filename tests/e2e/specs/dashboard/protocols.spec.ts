@@ -10,11 +10,23 @@ import { getFirstRow, openRowActions } from '../../helpers/row-actions.js';
 import { confirmDeletion, waitForDialog } from '../../helpers/dialog.js';
 
 test.describe('Protocols Page', () => {
+  // Acquire shared lock and restore database - protects read-only tests from
+  // concurrent mutations in other workers
+  test.beforeAll(async ({ database }) => {
+    await database.restoreSnapshot();
+  });
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/dashboard/protocols');
   });
 
   test.describe('Read-only', () => {
+    // Release shared lock after read-only tests complete, before mutations start.
+    // This reduces wait time for mutation tests that need exclusive locks.
+    test.afterAll(async ({ database }) => {
+      await database.releaseReadLock();
+    });
+
     test('displays page heading', async ({ page }) => {
       await expect(
         page.getByRole('heading', { name: 'Protocols' }).first(),

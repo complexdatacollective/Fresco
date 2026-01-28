@@ -3,11 +3,23 @@ import { waitForDialog } from '../../helpers/dialog.js';
 import { fillField } from '../../helpers/form.js';
 
 test.describe('Settings Page', () => {
+  // Acquire shared lock and restore database - protects read-only tests from
+  // concurrent mutations in other workers
+  test.beforeAll(async ({ database }) => {
+    await database.restoreSnapshot();
+  });
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/dashboard/settings');
   });
 
   test.describe('Read-only', () => {
+    // Release shared lock after read-only tests complete, before mutations start.
+    // This reduces wait time for mutation tests that need exclusive locks.
+    test.afterAll(async ({ database }) => {
+      await database.releaseReadLock();
+    });
+
     test('displays page heading', async ({ page }) => {
       await expect(
         page.getByRole('heading', { name: 'Settings' }).first(),

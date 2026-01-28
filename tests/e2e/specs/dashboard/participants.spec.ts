@@ -11,11 +11,23 @@ import {
 } from '../../helpers/table.js';
 
 test.describe('Participants Page', () => {
+  // Acquire shared lock and restore database - protects read-only tests from
+  // concurrent mutations in other workers
+  test.beforeAll(async ({ database }) => {
+    await database.restoreSnapshot();
+  });
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/dashboard/participants');
   });
 
   test.describe('Read-only', () => {
+    // Release shared lock after read-only tests complete, before mutations start.
+    // This reduces wait time for mutation tests that need exclusive locks.
+    test.afterAll(async ({ database }) => {
+      await database.releaseReadLock();
+    });
+
     test('displays page heading', async ({ page }) => {
       await expect(
         page.getByRole('heading', { name: 'Participants' }).first(),
@@ -91,98 +103,88 @@ test.describe('Participants Page', () => {
     });
 
     test('add new participant', async ({ page, database }) => {
-        await page
-          .getByRole('button', { name: /add single participant/i })
-          .click();
-        const dialog = await waitForDialog(page);
+      await page
+        .getByRole('button', { name: /add single participant/i })
+        .click();
+      const dialog = await waitForDialog(page);
 
-        const identifierInput = dialog.getByLabel(/participant identifier/i);
-        await identifierInput.fill('P011');
-        const labelInput = dialog.getByLabel(/^label/i);
-        await labelInput.fill('New Participant');
+      const identifierInput = dialog.getByLabel(/participant identifier/i);
+      await identifierInput.fill('P011');
+      const labelInput = dialog.getByLabel(/^label/i);
+      await labelInput.fill('New Participant');
 
-        await dialog.getByRole('button', { name: /submit/i }).click();
-        await dialog.waitFor({ state: 'hidden' });
+      await dialog.getByRole('button', { name: /submit/i }).click();
+      await dialog.waitFor({ state: 'hidden' });
 
-        await page.reload();
-        await waitForTable(page, { minRows: 1 });
-        await searchTable(page, 'P011');
-        await expect(page.getByText('P011')).toBeVisible();
+      await page.reload();
+      await waitForTable(page, { minRows: 1 });
+      await searchTable(page, 'P011');
+      await expect(page.getByText('P011')).toBeVisible();
     });
 
-    test('visual: add participant dialog', async ({
-      page,
-      visual,
-    }) => {
+    test('visual: add participant dialog', async ({ page, visual }) => {
+      await page.getByRole('button', { name: /add/i }).click();
+      const dialog = await waitForDialog(page);
 
-        await page.getByRole('button', { name: /add/i }).click();
-        const dialog = await waitForDialog(page);
-
-        await visual();
-        await expect(dialog).toHaveScreenshot('participants-add-dialog.png');
-
+      await visual();
+      await expect(dialog).toHaveScreenshot('participants-add-dialog.png');
     });
 
     test('delete participant via row actions', async ({ page }) => {
+      await waitForTable(page, { minRows: 10 });
+      const initialCount = await getTableRowCount(page);
 
-        await waitForTable(page, { minRows: 10 });
-        const initialCount = await getTableRowCount(page);
+      const row = getFirstRow(page);
+      await openRowActions(row);
+      await page.getByRole('menuitem', { name: /delete/i }).click();
+      await confirmDeletion(page);
 
-        const row = getFirstRow(page);
-        await openRowActions(row);
-        await page.getByRole('menuitem', { name: /delete/i }).click();
-        await confirmDeletion(page);
-
-        const newCount = await getTableRowCount(page);
-        expect(newCount).toBe(initialCount - 1);
-
+      const newCount = await getTableRowCount(page);
+      expect(newCount).toBe(initialCount - 1);
     });
 
     test('delete all participants', async ({ page }) => {
+      await waitForTable(page, { minRows: 10 });
 
-        await waitForTable(page, { minRows: 10 });
+      await page.getByRole('button', { name: /delete all/i }).click();
+      // First dialog: confirm "Delete All"
+      await page.getByRole('dialog').waitFor({ state: 'visible' });
+      await page
+        .getByRole('dialog')
+        .getByRole('button', { name: /^delete all$/i })
+        .click();
+      // Second dialog: confirm "Permanently Delete"
+      await page
+        .getByRole('button', { name: /permanently delete/i })
+        .waitFor({ state: 'visible' });
+      await page.getByRole('button', { name: /permanently delete/i }).click();
+      await page.getByRole('dialog').waitFor({ state: 'hidden' });
 
-        await page.getByRole('button', { name: /delete all/i }).click();
-        // First dialog: confirm "Delete All"
-        await page.getByRole('dialog').waitFor({ state: 'visible' });
-        await page
-          .getByRole('dialog')
-          .getByRole('button', { name: /^delete all$/i })
-          .click();
-        // Second dialog: confirm "Permanently Delete"
-        await page
-          .getByRole('button', { name: /permanently delete/i })
-          .waitFor({ state: 'visible' });
-        await page.getByRole('button', { name: /permanently delete/i }).click();
-        await page.getByRole('dialog').waitFor({ state: 'hidden' });
-
-        const count = await getTableRowCount(page);
-        expect(count).toBe(0);
-
+      const count = await getTableRowCount(page);
+      expect(count).toBe(0);
     });
 
     test('visual: empty state', async ({ page, visual }) => {
+      await waitForTable(page, { minRows: 10 });
 
-        await waitForTable(page, { minRows: 10 });
+      await page.getByRole('button', { name: /delete all/i }).click();
+      // First dialog: confirm "Delete All"
+      await page.getByRole('dialog').waitFor({ state: 'visible' });
+      await page
+        .getByRole('dialog')
+        .getByRole('button', { name: /^delete all$/i })
+        .click();
+      // Second dialog: confirm "Permanently Delete"
+      await page
+        .getByRole('button', { name: /permanently delete/i })
+        .waitFor({ state: 'visible' });
+      await page.getByRole('button', { name: /permanently delete/i }).click();
+      await page.getByRole('dialog').waitFor({ state: 'hidden' });
 
-        await page.getByRole('button', { name: /delete all/i }).click();
-        // First dialog: confirm "Delete All"
-        await page.getByRole('dialog').waitFor({ state: 'visible' });
-        await page
-          .getByRole('dialog')
-          .getByRole('button', { name: /^delete all$/i })
-          .click();
-        // Second dialog: confirm "Permanently Delete"
-        await page
-          .getByRole('button', { name: /permanently delete/i })
-          .waitFor({ state: 'visible' });
-        await page.getByRole('button', { name: /permanently delete/i }).click();
-        await page.getByRole('dialog').waitFor({ state: 'hidden' });
-
-        await visual();
-        await expect(page).toHaveScreenshot('participants-empty-state.png', {
-          fullPage: true,
-        });
+      await visual();
+      await expect(page).toHaveScreenshot('participants-empty-state.png', {
+        fullPage: true,
+      });
     });
   });
 });

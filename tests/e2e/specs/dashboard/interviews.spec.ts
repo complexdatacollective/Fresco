@@ -10,11 +10,23 @@ import {
 } from '../../helpers/table.js';
 
 test.describe('Interviews Page', () => {
+  // Acquire shared lock and restore database - protects read-only tests from
+  // concurrent mutations in other workers
+  test.beforeAll(async ({ database }) => {
+    await database.restoreSnapshot();
+  });
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/dashboard/interviews');
   });
 
   test.describe('Read-only', () => {
+    // Release shared lock after read-only tests complete, before mutations start.
+    // This reduces wait time for mutation tests that need exclusive locks.
+    test.afterAll(async ({ database }) => {
+      await database.releaseReadLock();
+    });
+
     test('displays page heading', async ({ page }) => {
       await expect(
         page.getByRole('heading', { name: 'Interviews' }).first(),
@@ -85,17 +97,17 @@ test.describe('Interviews Page', () => {
     });
 
     test('delete single interview', async ({ page, database }) => {
-        await waitForTable(page, { minRows: 5 });
-        const initialCount = await getTableRowCount(page);
+      await waitForTable(page, { minRows: 5 });
+      const initialCount = await getTableRowCount(page);
 
-        const row = getFirstRow(page);
-        await openRowActions(row);
-        await page.getByRole('menuitem', { name: /delete/i }).click();
-        await confirmDeletion(page);
+      const row = getFirstRow(page);
+      await openRowActions(row);
+      await page.getByRole('menuitem', { name: /delete/i }).click();
+      await confirmDeletion(page);
 
-        await page.waitForTimeout(1000);
-        const newCount = await getTableRowCount(page);
-        expect(newCount).toBe(initialCount - 1);
+      await page.waitForTimeout(1000);
+      const newCount = await getTableRowCount(page);
+      expect(newCount).toBe(initialCount - 1);
     });
 
     test('visual: delete confirmation dialog', async ({
@@ -103,45 +115,42 @@ test.describe('Interviews Page', () => {
       database,
       visual,
     }) => {
-        await waitForTable(page, { minRows: 1 });
+      await waitForTable(page, { minRows: 1 });
 
-        const row = getFirstRow(page);
-        await openRowActions(row);
-        await page.getByRole('menuitem', { name: /delete/i }).click();
+      const row = getFirstRow(page);
+      await openRowActions(row);
+      await page.getByRole('menuitem', { name: /delete/i }).click();
 
-        const dialog = await waitForDialog(page);
-        await visual();
-        await expect(dialog).toHaveScreenshot(
-          'interviews-delete-confirmation.png',
-        );
+      const dialog = await waitForDialog(page);
+      await visual();
+      await expect(dialog).toHaveScreenshot(
+        'interviews-delete-confirmation.png',
+      );
     });
 
     test('bulk delete interviews', async ({ page, database }) => {
+      await waitForTable(page, { minRows: 5 });
+      await selectAllRows(page);
 
-        await waitForTable(page, { minRows: 5 });
-        await selectAllRows(page);
+      const deleteButton = page.getByRole('button', { name: /delete/i });
+      await deleteButton.click();
+      await confirmDeletion(page);
 
-        const deleteButton = page.getByRole('button', { name: /delete/i });
-        await deleteButton.click();
-        await confirmDeletion(page);
-
-        await page.waitForTimeout(1000);
-        const count = await getTableRowCount(page);
-        expect(count).toBe(0);
-
+      await page.waitForTimeout(1000);
+      const count = await getTableRowCount(page);
+      expect(count).toBe(0);
     });
 
     test('visual: export dialog', async ({ page, database, visual }) => {
+      await waitForTable(page, { minRows: 1 });
 
-        await waitForTable(page, { minRows: 1 });
+      await page
+        .getByRole('button', { name: /export/i })
+        .first()
+        .click();
 
-        await page
-          .getByRole('button', { name: /export/i })
-          .first()
-          .click();
-
-        await visual();
-        await expect(page).toHaveScreenshot('interviews-export-dialog.png');
+      await visual();
+      await expect(page).toHaveScreenshot('interviews-export-dialog.png');
     });
   });
 });

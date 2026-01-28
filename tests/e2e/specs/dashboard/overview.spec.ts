@@ -1,6 +1,16 @@
 import { test, expect } from '../../fixtures/test.js';
 
 test.describe('Dashboard Overview', () => {
+  // Acquire shared lock and restore database - protects read-only tests from
+  // concurrent mutations in other workers
+  test.beforeAll(async ({ database }) => {
+    await database.restoreSnapshot();
+  });
+
+  test.afterAll(async ({ database }) => {
+    await database.releaseReadLock();
+  });
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/dashboard');
   });

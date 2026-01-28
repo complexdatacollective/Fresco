@@ -20,10 +20,12 @@ Global Setup
 │   └── Create initial DB snapshot (JSON)
 └── Save context file for workers
 
-Test Workers
-├── Read-only tests: parallel, no DB changes
-├── Mutation tests: serial, database.isolate(page) per test
+Test Workers (parallel via shared/exclusive locks)
+├── beforeAll: acquire shared lock, restore snapshot
+├── Read-only tests: run with shared lock held (parallel across files)
+├── Mutation tests: release shared → acquire exclusive → run → release exclusive → re-acquire shared
 │   └── TRUNCATE + INSERT from snapshot before/after
+├── afterAll: release shared lock
 └── Visual snapshots: toHaveScreenshot() with animation disabling
 
 Global Teardown
@@ -76,18 +78,51 @@ Dashboard depends on auth project completing first.
 
 ## Test Patterns
 
-### Read-only tests (parallel)
+### File-level isolation with shared/exclusive locks
+
+Each spec file acquires a **shared lock** at the start to protect read-only tests from concurrent mutations in other workers. This enables parallel execution of read-only tests across files.
 
 ```ts
 import { test, expect } from '../../fixtures/test.js';
 
+test.describe('My Feature', () => {
+  // Acquire shared lock and restore database
+  test.beforeAll(async ({ database }) => {
+    await database.restoreSnapshot();
+  });
+
+  test.describe('Read-only', () => {
+    // Release shared lock after read-only tests, before mutations start
+    test.afterAll(async ({ database }) => {
+      await database.releaseReadLock();
+    });
+
+    test('displays heading', async ({ page }) => {
+      await page.goto('/dashboard');
+      await expect(
+        page.getByRole('heading', { name: 'Dashboard' }),
+      ).toBeVisible();
+    });
+  });
+
+  test.describe('Mutations', () => {
+    // Mutation tests use isolate() which handles its own locking
+  });
+});
+```
+
+### Read-only tests (parallel within file)
+
+```ts
 test('displays heading', async ({ page }) => {
   await page.goto('/dashboard');
   await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
 });
 ```
 
-### Mutation tests (serial, with isolation)
+### Mutation tests (serial, with exclusive lock)
+
+Mutation tests acquire an **exclusive lock** that waits for all shared locks to release, then blocks all other readers and writers. This ensures mutations are fully isolated.
 
 ```ts
 test.describe('Mutations', () => {
@@ -104,7 +139,7 @@ test.describe('Mutations', () => {
 });
 ```
 
-`database.isolate(page)` restores the DB snapshot and reloads the page so the UI matches the restored state.
+`database.isolate(page)` acquires an exclusive lock, restores the DB snapshot, and reloads the page. The cleanup function restores the snapshot again and releases the exclusive lock.
 
 ### Visual snapshots
 
@@ -155,7 +190,9 @@ The `visual` fixture skips the test when not in CI. Calling `await visual()` inj
 
 The `database` fixture provides direct database access without passing `databaseUrl`:
 
-- `database.isolate(page)` — Restore snapshot and reload; returns cleanup function
+- `database.restoreSnapshot(name?)` — Acquire shared lock and restore snapshot (call in `beforeAll`)
+- `database.releaseReadLock()` — Release the shared lock (call in `afterAll`)
+- `database.isolate(page)` — Acquire exclusive lock, restore snapshot, reload page; returns cleanup function
 - `database.getProtocolId()` — Get first protocol's ID from database
 - `database.updateAppSetting(key, value)` — Update an AppSettings row
 - `database.getParticipantCount(identifier?)` — Count participants (optionally filter by identifier)

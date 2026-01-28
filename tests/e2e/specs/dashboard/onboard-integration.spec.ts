@@ -1,7 +1,19 @@
 import { expect, test } from '../../fixtures/test.js';
 
 test.describe('Onboard Integration', () => {
+  // Acquire shared lock and restore database - protects read-only tests from
+  // concurrent mutations in other workers
+  test.beforeAll(async ({ database }) => {
+    await database.restoreSnapshot();
+  });
+
   test.describe('Read-only', () => {
+    // Release shared lock after read-only tests complete, before mutations start.
+    // This reduces wait time for mutation tests that need exclusive locks.
+    test.afterAll(async ({ database }) => {
+      await database.releaseReadLock();
+    });
+
     test('invalid protocol ID redirects to error page', async ({ page }) => {
       await page.goto('/onboard/nonexistent-id');
       await page.waitForURL('**/onboard/error');
