@@ -25,7 +25,11 @@ import {
 } from '~/lib/interviewer/ducks/modules/session';
 import { getStageMetadata } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
-import { getNodeSexVariable } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/utils/nodeUtils';
+import {
+  getEgoSexVariable,
+  getNodeSexVariable,
+} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/utils/nodeUtils';
+import { getNetworkEgo } from '~/lib/interviewer/selectors/session';
 
 const isFamilyTreeStageMetadata = (
   stageMetadata: unknown,
@@ -72,6 +76,8 @@ export const FamilyTreeShells = (props: {
   const stageMetadata = useSelector(getStageMetadata);
   const relationshipVariable = useSelector(getRelationshipTypeVariable);
   const nodeSexVariable = useSelector(getNodeSexVariable);
+  const ego = useSelector(getNetworkEgo);
+  const egoSexVariable = useSelector(getEgoSexVariable);
   const [hydratedOnce, setHydratedOnce] = useState(false);
 
   const shouldHydrate = useMemo(() => {
@@ -116,6 +122,17 @@ export const FamilyTreeShells = (props: {
     if (!shouldHydrate || hydratedOnce) return;
 
     clearNetwork();
+
+    // Re-add the ego node after clearing the network
+    if (ego) {
+      addShellNode({
+        id: ego._uid,
+        label: 'You',
+        sex: ego.attributes[egoSexVariable] === 'male' ? 'male' : 'female',
+        readOnly: true,
+        isEgo: true,
+      });
+    }
 
     for (const netNode of networkNodes) {
       const id = netNode._uid;
@@ -184,6 +201,8 @@ export const FamilyTreeShells = (props: {
     hydratedOnce,
     relationshipVariable,
     nodeSexVariable,
+    ego,
+    egoSexVariable,
   ]);
 
   const updateNode = useCallback(
