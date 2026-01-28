@@ -3,6 +3,7 @@ import trackEvent from '~/lib/analytics';
 type ImportStatus =
   | 'Queued'
   | 'Extracting protocol'
+  | 'Migrating protocol'
   | 'Validating protocol'
   | 'Uploading assets'
   | 'Writing to database'

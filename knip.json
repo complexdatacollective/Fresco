@@ -1,13 +1,22 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "ignore": [
-    "lib/ui/components/Sprites/ExportSprite.js",
     "utils/auth.ts",
     "load-test.js",
-    "lib/db/generated/**",
-    "lib/db/index.ts",
-    "scripts/*.ts"
+    "styles/tailwind-motion-spring.ts",
+    "tests/e2e/scripts/analyze-test-isolation.ts"
   ],
-  "ignoreDependencies": ["server-only", "prop-types", "sharp", "pg"],
-  "ignoreBinaries": ["docker-compose", "playwright"]
+  "ignoreExportsUsedInFile": {
+    "type": true
+  },
+  "ignoreDependencies": ["sharp", "esbuild"],
+  "ignoreBinaries": ["docker-compose"],
+  "playwright": {
+    "config": "tests/e2e/playwright.config.ts",
+    "entry": [
+      "tests/e2e/global-setup.ts",
+      "tests/e2e/global-teardown.ts",
+      "tests/e2e/suites/**/*.spec.ts"
+    ]
+  }
 }

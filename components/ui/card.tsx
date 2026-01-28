@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { cn } from '~/utils/shadcn';
-import Heading from './typography/Heading';
+import Heading from '../typography/Heading';
 
 export const cardClasses =
   'rounded-xl border border-[hsl(var(--platinum--dark))] bg-card text-card-foreground';
@@ -36,7 +36,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn('text-sm text-muted-foreground', className)}
+    className={cn('text-muted-foreground text-sm', className)}
     {...props}
   />
 ));

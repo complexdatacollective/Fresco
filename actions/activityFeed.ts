@@ -1,7 +1,7 @@
 'use server';
 
+import type { Activity, ActivityType } from '~/components/DataTable/types';
 import { safeRevalidateTag } from '~/lib/cache';
-import type { Activity, ActivityType } from '~/lib/data-table/types';
 import { prisma } from '~/lib/db';
 
 export async function addEvent(

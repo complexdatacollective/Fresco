@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import ResponsiveContainer from '~/components/ResponsiveContainer';
+import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import { getSummaryStatistics } from '~/queries/summaryStatistics';
 import { InterviewIcon, ProtocolIcon } from './Icons';
 import StatCard, { StatCardSkeleton } from './StatCard';

@@ -1,3 +1,7 @@
+import {
+  CURRENT_SCHEMA_VERSION,
+  getMigrationInfo,
+} from '@codaco/protocol-validation';
 import { queue } from 'async';
 import { XCircle } from 'lucide-react';
 import { hash } from 'ohash';
@@ -11,20 +15,156 @@ import {
 } from '~/components/ProtocolImport/JobReducer';
 import { AlertDialogDescription } from '~/components/ui/AlertDialog';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
-import { uploadFiles } from '~/lib/uploadthing-client-helpers';
-import { getExistingAssetIds, getProtocolByHash } from '~/queries/protocols';
+import {
+  validateAndMigrateProtocol,
+  type ProtocolValidationError,
+} from '~/lib/protocol/validateAndMigrateProtocol';
+import { uploadFiles } from '~/lib/uploadthing/client-helpers';
+import { getNewAssetIds, getProtocolByHash } from '~/queries/protocols';
 import { type AssetInsertType } from '~/schemas/protocol';
 import { DatabaseError } from '~/utils/databaseError';
 import { ensureError } from '~/utils/ensureError';
-import { formatNumberList } from '~/utils/general';
 import {
   fileAsArrayBuffer,
   getProtocolAssets,
   getProtocolJson,
 } from '~/utils/protocolImport';
 
-// Utility helper for adding artificial delay to async functions
-// const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+/**
+ * Formats a list of numbers into a human-readable string.
+ */
+function formatNumberList(numbers: number[]): string {
+  // "1"
+  if (numbers.length === 1) {
+    return numbers[0]!.toString();
+  }
+
+  // "1 and 2"
+  if (numbers.length === 2) {
+    return numbers.join(' and ');
+  }
+
+  // "1, 2, and 3"
+  const lastNumber = numbers.pop();
+  const formattedList = numbers.join(', ') + `, and ${lastNumber}`;
+
+  return formattedList;
+}
+
+/**
+ * Creates error payload for protocol validation failures.
+ */
+function createValidationErrorPayload(
+  fileName: string,
+  validationError: ProtocolValidationError,
+) {
+  switch (validationError.error) {
+    case 'invalid-object':
+      return {
+        id: fileName,
+        rawError: new Error('Invalid protocol object'),
+        error: {
+          title: 'Invalid protocol file',
+          description: (
+            <AlertDialogDescription>
+              The uploaded file does not contain a valid protocol.
+            </AlertDialogDescription>
+          ),
+        },
+      };
+
+    case 'unsupported-version':
+      return {
+        id: fileName,
+        rawError: new Error('Protocol version not supported'),
+        error: {
+          title: 'Protocol version not supported',
+          description: (
+            <AlertDialogDescription>
+              The protocol you uploaded is not compatible with this version of
+              the app. Fresco supports protocols using version number
+              {APP_SUPPORTED_SCHEMA_VERSIONS.length > 1 ? 's' : ''}{' '}
+              {formatNumberList([...APP_SUPPORTED_SCHEMA_VERSIONS])}.
+            </AlertDialogDescription>
+          ),
+        },
+      };
+
+    case 'validation-failed': {
+      const resultAsString = JSON.stringify(
+        validationError.validationResult,
+        null,
+        2,
+      );
+      const validationResult = validationError.validationResult as {
+        error: { issues: { message: string; path: string[] }[] };
+      };
+
+      return {
+        id: fileName,
+        rawError: new Error('Protocol validation failed', {
+          cause: validationError.validationResult,
+        }),
+        error: {
+          title: 'The protocol is invalid!',
+          description: (
+            <>
+              <AlertDialogDescription>
+                The protocol you uploaded is invalid. See the details below for
+                specific validation errors that were found.
+              </AlertDialogDescription>
+              <AlertDialogDescription>
+                If you believe that your protocol should be valid please ask for
+                help via our{' '}
+                <Link
+                  href="https://community.networkcanvas.com"
+                  target="_blank"
+                >
+                  community forum
+                </Link>
+                .
+              </AlertDialogDescription>
+            </>
+          ),
+          additionalContent: (
+            <ErrorDetails errorText={resultAsString}>
+              <ul className="max-w-md list-inside space-y-2">
+                {validationResult.error.issues.map(({ message, path }, i) => (
+                  <li className="flex capitalize" key={i}>
+                    <XCircle className="text-destructive mr-2 h-4 w-4" />
+                    <span>
+                      {message}{' '}
+                      <span className="text-xs italic">
+                        ({path.join(' > ')})
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </ErrorDetails>
+          ),
+        },
+      };
+    }
+
+    case 'missing-dependencies': {
+      const missingDeps = validationError.missingDependencies;
+      return {
+        id: fileName,
+        rawError: new Error('Migration dependencies missing'),
+        error: {
+          title: 'Migration failed',
+          description: (
+            <AlertDialogDescription>
+              The protocol requires migration but is missing required
+              information: {missingDeps.join(', ')}.
+            </AlertDialogDescription>
+          ),
+        },
+      };
+    }
+  }
+}
 
 export const useProtocolImport = () => {
   const [jobs, dispatch] = useReducer(jobReducer, jobInitialState);
@@ -62,97 +202,40 @@ export const useProtocolImport = () => {
         },
       });
 
-      // Check if the protocol version is compatible with the app.
-      const protocolVersion = protocolJson.schemaVersion;
-      if (!APP_SUPPORTED_SCHEMA_VERSIONS.includes(protocolVersion)) {
-        dispatch({
-          type: 'UPDATE_ERROR',
-          payload: {
-            id: fileName,
-            rawError: new Error('Protocol version not supported'),
-            error: {
-              title: 'Protocol version not supported',
-              description: (
-                <AlertDialogDescription>
-                  The protocol you uploaded is not compatible with this version
-                  of the app. Fresco supports protocols using version number
-                  {APP_SUPPORTED_SCHEMA_VERSIONS.length > 1 ? 's' : ''}{' '}
-                  {formatNumberList(APP_SUPPORTED_SCHEMA_VERSIONS)}.
-                </AlertDialogDescription>
-              ),
-            },
-          },
-        });
-
-        return;
+      // Build migration dependencies based on what's required
+      const dependencies: Record<string, unknown> = {};
+      if (protocolJson.schemaVersion < CURRENT_SCHEMA_VERSION) {
+        const migrationInfo = getMigrationInfo(
+          protocolJson.schemaVersion,
+          CURRENT_SCHEMA_VERSION,
+        );
+        for (const dep of migrationInfo.dependencies) {
+          if (dep === 'name') {
+            // Derive protocol name from filename (remove .netcanvas extension)
+            dependencies.name = fileName.replace(/\.netcanvas$/i, '');
+          }
+        }
       }
 
-      const { validateProtocol } = await import('@codaco/protocol-validation');
+      const validationResult = await validateAndMigrateProtocol(
+        protocolJson,
+        dependencies,
+      );
 
-      const validationResult = await validateProtocol(protocolJson);
-
-      if (!validationResult.isValid) {
-        const resultAsString = JSON.stringify(validationResult, null, 2);
-
+      if (!validationResult.success) {
         dispatch({
           type: 'UPDATE_ERROR',
-          payload: {
-            id: fileName,
-            rawError: new Error('Protocol validation failed', {
-              cause: validationResult,
-            }),
-            error: {
-              title: 'The protocol is invalid!',
-              description: (
-                <>
-                  <AlertDialogDescription>
-                    The protocol you uploaded is invalid. See the details below
-                    for specific validation errors that were found.
-                  </AlertDialogDescription>
-                  <AlertDialogDescription>
-                    If you believe that your protocol should be valid please ask
-                    for help via our{' '}
-                    <Link
-                      href="https://community.networkcanvas.com"
-                      target="_blank"
-                    >
-                      community forum
-                    </Link>
-                    .
-                  </AlertDialogDescription>
-                </>
-              ),
-              additionalContent: (
-                <ErrorDetails errorText={resultAsString}>
-                  <ul className="max-w-md list-inside space-y-2">
-                    {[
-                      ...validationResult.schemaErrors,
-                      ...validationResult.logicErrors,
-                    ].map((validationError, i) => (
-                      <li className="flex capitalize" key={i}>
-                        <XCircle className="text-destructive mr-2 h-4 w-4" />
-                        <span>
-                          {validationError.message}{' '}
-                          <span className="text-xs italic">
-                            ({validationError.path})
-                          </span>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </ErrorDetails>
-              ),
-            },
-          },
+          payload: createValidationErrorPayload(fileName, validationResult),
         });
 
         return;
       }
 
       // After this point, assume the protocol is valid.
+      const validatedProtocol = validationResult.protocol;
 
       // Check if the protocol already exists in the database
-      const protocolHash = hash(protocolJson);
+      const protocolHash = hash(validatedProtocol);
       const exists = await getProtocolByHash(protocolHash);
       if (exists) {
         dispatch({
@@ -176,28 +259,42 @@ export const useProtocolImport = () => {
         return;
       }
 
-      const assets = await getProtocolAssets(protocolJson, zip);
+      const { fileAssets, apikeyAssets } = await getProtocolAssets(
+        validatedProtocol,
+        zip,
+      );
 
-      const newAssets: typeof assets = [];
-
+      const newAssets: typeof fileAssets = [];
       const existingAssetIds: string[] = [];
-
-      let newAssetsWithCombinedMetadata: AssetInsertType = [];
+      let newAssetsWithCombinedMetadata: AssetInsertType[] = [];
+      const newApikeyAssets: typeof apikeyAssets = [];
 
       // Check if the assets are already in the database.
       // If yes, add them to existingAssetIds to be connected to the protocol.
-      // If not, add them to newAssets to be uploaded.
-
+      // If not, add files to newAssets to be uploaded
+      // and add apikeys to newApikeyAssets to be created in the database with the protocol
       try {
-        const newAssetIds = await getExistingAssetIds(
-          assets.map((asset) => asset.assetId),
+        const newFileAssetIds = await getNewAssetIds(
+          fileAssets.map((asset) => asset.assetId),
         );
 
-        assets.forEach((asset) => {
-          if (newAssetIds.includes(asset.assetId)) {
+        fileAssets.forEach((asset) => {
+          if (newFileAssetIds.includes(asset.assetId)) {
             newAssets.push(asset);
           } else {
             existingAssetIds.push(asset.assetId);
+          }
+        });
+
+        const newApikeyAssetIds = await getNewAssetIds(
+          apikeyAssets.map((apiKey) => apiKey.assetId),
+        );
+
+        apikeyAssets.forEach((apiKey) => {
+          if (newApikeyAssetIds.includes(apiKey.assetId)) {
+            newApikeyAssets.push(apiKey);
+          } else {
+            existingAssetIds.push(apiKey.assetId);
           }
         });
       } catch (e) {
@@ -300,9 +397,9 @@ export const useProtocolImport = () => {
       });
 
       const result = await insertProtocol({
-        protocol: protocolJson,
+        protocol: validatedProtocol,
         protocolName: fileName,
-        newAssets: newAssetsWithCombinedMetadata,
+        newAssets: [...newAssetsWithCombinedMetadata, ...newApikeyAssets],
         existingAssetIds: existingAssetIds,
       });
 

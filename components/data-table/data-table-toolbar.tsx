@@ -6,12 +6,12 @@ import Link from 'next/link';
 import * as React from 'react';
 import { type UrlObject } from 'url';
 import { DataTableFacetedFilter } from '~/components/data-table/data-table-faceted-filter';
-import { Button, buttonVariants } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
 import {
   type DataTableFilterableColumn,
   type DataTableSearchableColumn,
-} from '~/lib/data-table/types';
+} from '~/components/DataTable/types';
+import { Button, buttonVariants } from '~/components/ui/Button';
+import { Input } from '~/components/ui/Input';
 import { cn } from '~/utils/shadcn';
 
 type DataTableToolbarProps<TData> = {
@@ -33,7 +33,7 @@ export function DataTableToolbar<TData>({
   const [isPending, startTransition] = React.useTransition();
 
   return (
-    <div className="flex w-full items-center justify-between space-x-2 overflow-auto p-1">
+    <div className="flex w-full items-center justify-between space-y-4 overflow-auto">
       <div className="flex flex-1 items-center space-x-2">
         {searchableColumns.length > 0 &&
           searchableColumns.map(

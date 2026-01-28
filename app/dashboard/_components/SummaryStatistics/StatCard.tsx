@@ -1,6 +1,6 @@
 import { use } from 'react';
+import Heading from '~/components/typography/Heading';
 import { Skeleton } from '~/components/ui/skeleton';
-import Heading from '~/components/ui/typography/Heading';
 import { cn } from '~/utils/shadcn';
 
 const statCardClasses = cn(

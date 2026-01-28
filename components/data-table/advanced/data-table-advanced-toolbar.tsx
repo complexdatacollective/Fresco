@@ -1,17 +1,17 @@
 'use client';
 
-import * as React from 'react';
 import type { Table } from '@tanstack/react-table';
+import * as React from 'react';
 
-import { Button } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
+import { ChevronsUpDown, Plus } from 'lucide-react';
 import { DataTableAdvancedFilter } from '~/components/data-table/advanced/data-table-advanced-filter';
 import type {
   DataTableFilterOption,
   DataTableFilterableColumn,
   DataTableSearchableColumn,
-} from '~/lib/data-table/types';
-import { ChevronsUpDown, Plus } from 'lucide-react';
+} from '~/components/DataTable/types';
+import { Button } from '~/components/ui/Button';
+import { Input } from '~/components/ui/Input';
 
 type DataTableAdvancedToolbarProps<TData> = {
   dataTable: Table<TData>;
@@ -53,7 +53,7 @@ export function DataTableAdvancedToolbar<TData>({
   }, [filterableColumns, searchableColumns]);
 
   return (
-    <div className="w-full space-y-2.5 overflow-auto p-1">
+    <>
       <div className="flex items-center justify-between space-x-2">
         <div className="flex flex-1 items-center space-x-2">
           {searchableColumns.length > 0 &&
@@ -126,6 +126,6 @@ export function DataTableAdvancedToolbar<TData>({
           </DataTableAdvancedFilter>
         </div>
       ) : null}
-    </div>
+    </>
   );
 }
