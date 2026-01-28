@@ -39,7 +39,7 @@ export function alignped4(
   for (let i = 0; i < maxlev; i++) {
     let count = 0;
     for (let j = 0; j < rval.nid[i]!.length; j++) {
-      if (rval.nid[i]![j]! > 0) {
+      if (j < rval.n[i]!) {
         myid[i]![j] = cumN + count + 1; // 1-based numbering
         count++;
       }
@@ -51,7 +51,7 @@ export function alignped4(
   let npenal = 0;
   for (let i = 0; i < maxlev; i++) {
     for (let j = 0; j < rval.nid[i]!.length; j++) {
-      if (rval.nid[i]![j]! > 0 && spouse[i]?.[j]) npenal++;
+      if (j < rval.n[i]! && spouse[i]?.[j]) npenal++;
       if (rval.fam[i]![j]! > 0) npenal++;
     }
   }

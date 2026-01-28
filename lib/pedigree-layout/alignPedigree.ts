@@ -248,7 +248,12 @@ export function alignPedigree(
     try {
       const spouseBool = spouseMat.map((row) => row.map((v) => v > 0));
       pos = alignped4(rval, spouseBool, level, width, align);
-    } catch {
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        'alignped4 QP optimization failed, using unoptimized positions',
+        e,
+      );
       pos = rval.pos.map((row) => [...row]);
     }
   } else {
