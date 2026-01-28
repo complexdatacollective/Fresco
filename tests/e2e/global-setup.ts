@@ -9,9 +9,7 @@ import {
 import { TestDatabase } from './helpers/TestDatabase.js';
 
 declare global {
-   
   var __TEST_DBS__: TestDatabase[];
-   
   var __APP_SERVERS__: AppServer[];
 }
 

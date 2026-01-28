@@ -7,24 +7,16 @@ export default defineConfig({
   testDir: './specs',
   outputDir: './test-results',
 
-  retries: CI ? 2 : 0,
+  retries: 0,
   // Multiple workers coordinate via shared/exclusive advisory locks:
   // - Read-only tests hold shared locks (parallel reads allowed)
   // - Mutation tests acquire exclusive locks (serialized writes)
-  workers: CI ? 4 : undefined,
   fullyParallel: false,
 
-  reporter: CI
-    ? [
-        ['line'],
-        ['html', { outputFolder: './playwright-report', open: 'never' }],
-        ['github'],
-      ]
-    : [
-        ['line'],
-        ['html', { outputFolder: './playwright-report', open: 'never' }],
-      ],
-
+  reporter: [
+    ['line'],
+    ['html', { outputFolder: './playwright-report', open: 'never' }],
+  ],
   expect: {
     toHaveScreenshot: {
       maxDiffPixelRatio: 0.01,
@@ -40,6 +32,9 @@ export default defineConfig({
     video: 'retain-on-failure',
     actionTimeout: 15_000,
     navigationTimeout: 30_000,
+    contextOptions: {
+      reducedMotion: 'reduce',
+    },
   },
 
   globalSetup: './global-setup.ts',
@@ -53,7 +48,6 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         baseURL: process.env.SETUP_URL,
       },
-      fullyParallel: false,
     },
     {
       name: 'auth',
@@ -72,9 +66,6 @@ export default defineConfig({
         baseURL: process.env.DASHBOARD_URL,
         storageState: './tests/e2e/.auth/admin.json',
       },
-      // fullyParallel disabled because mutation tests use database isolation
-      // which conflicts with parallel page requests from other workers
-      fullyParallel: false,
     },
   ],
 });

@@ -17,54 +17,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Build Docker image for PRs - calls reusable workflow
-  build-image-pr:
-    if: github.event_name == 'pull_request'
-    uses: ./.github/workflows/docker-build-pr.yml
-    with:
-      disable-image-optimization: true
-
-  # Build Docker image for push events - builds inline
-  build-image-push:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    outputs:
-      artifact-name: docker-image-push-${{ github.run_id }}
-      image-name: fresco-test
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          platforms: linux/amd64
-          push: false
-          tags: fresco-test:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          outputs: type=docker,dest=/tmp/image.tar
-          build-args: |
-            DISABLE_IMAGE_OPTIMIZATION=true
-
-      - name: Upload Docker image artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: docker-image-push-${{ github.run_id }}
-          path: /tmp/image.tar
-          retention-days: 1
-          compression-level: 1
-
-  # Run E2E tests using whichever image was built
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: [build-image-pr, build-image-push]
-    if: always() && (needs.build-image-pr.result == 'success' || needs.build-image-push.result == 'success')
     outputs:
       test-result: ${{ steps.test.outcome }}
 
@@ -94,26 +49,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      # Note: Playwright browsers are not installed here because tests run inside
-      # the Playwright Docker container via scripts/run-e2e-docker.sh
-
-      - name: Download Docker image (PR)
-        if: github.event_name == 'pull_request'
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ needs.build-image-pr.outputs.artifact-name }}
-          path: /tmp
-
-      - name: Download Docker image (Push)
-        if: github.event_name == 'push'
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ needs.build-image-push.outputs.artifact-name }}
-          path: /tmp
-
-      - name: Load Docker image
-        run: docker load --input /tmp/image.tar
 
       - name: Run E2E tests
         id: test
