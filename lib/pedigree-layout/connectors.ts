@@ -240,7 +240,7 @@ export function computeConnectors(
   for (let i = 0; i < maxlev; i++) {
     for (let j = 0; j < (layout.n[i] ?? 0); j++) {
       const nid = layout.nid[i]![j]!;
-      if (nid > 0) allIds.add(nid);
+      allIds.add(nid);
     }
   }
 

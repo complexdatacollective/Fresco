@@ -424,6 +424,92 @@ export const SimpleCouple: StoryFn = () => {
   return <PedigreeVisualization storeRef={storeRef} />;
 };
 
+// ── Story: Complex multi-generational pedigree with ex-partners and half-siblings ──
+
+export const ComplexMultiGenerational: StoryFn = () => {
+  const storeRef = useRef<FamilyTreeStoreApi | null>(null);
+  const [, setReady] = useState(false);
+
+  useEffect(() => {
+    const store = buildStore(
+      [
+        // Gen 0: Great-grandparents
+        { id: 'ggf', label: 'Great-Grandfather', sex: 'male' },
+        { id: 'ggm', label: 'Great-Grandmother', sex: 'female' },
+        // Gen 1: Grandparents + ex-partner
+        { id: 'pgf', label: 'Pat. Grandfather', sex: 'male' },
+        { id: 'pgm', label: 'Pat. Grandmother', sex: 'female' },
+        { id: 'pgf-ex', label: 'PGF Ex-Wife', sex: 'female' },
+        { id: 'mgf', label: 'Mat. Grandfather', sex: 'male' },
+        { id: 'mgm', label: 'Mat. Grandmother', sex: 'female' },
+        // Gen 2: Parents, half-uncle, aunt
+        { id: 'father', label: 'Father', sex: 'male' },
+        { id: 'father-ex', label: "Father's Ex", sex: 'female' },
+        { id: 'mother', label: 'Mother', sex: 'female' },
+        { id: 'half-uncle', label: 'Pat. Half-Uncle', sex: 'male' },
+        { id: 'aunt', label: 'Mat. Aunt', sex: 'female' },
+        { id: 'aunt-h', label: "Aunt's Husband", sex: 'male' },
+        // Gen 3: Ego, siblings, half-siblings, cousins
+        { id: 'ego', label: 'You', sex: 'male', isEgo: true },
+        { id: 'partner', label: 'Partner', sex: 'female' },
+        { id: 'sister', label: 'Sister', sex: 'female' },
+        { id: 'half-sis', label: 'Half-Sister', sex: 'female' },
+        { id: 'cousin-f', label: 'Cousin (F)', sex: 'female' },
+        { id: 'cousin-m', label: 'Cousin (M)', sex: 'male' },
+        // Gen 4: Ego's children
+        { id: 'son', label: 'Son', sex: 'male' },
+        { id: 'daughter', label: 'Daughter', sex: 'female' },
+      ],
+      [
+        // Gen 0 → Gen 1
+        { source: 'ggf', target: 'ggm', relationship: 'partner' },
+        { source: 'ggf', target: 'pgf', relationship: 'parent' },
+        { source: 'ggm', target: 'pgf', relationship: 'parent' },
+        // Gen 1 partnerships
+        { source: 'pgf', target: 'pgm', relationship: 'partner' },
+        { source: 'pgf', target: 'pgf-ex', relationship: 'ex-partner' },
+        { source: 'mgf', target: 'mgm', relationship: 'partner' },
+        // Gen 1 → Gen 2
+        { source: 'pgf', target: 'father', relationship: 'parent' },
+        { source: 'pgm', target: 'father', relationship: 'parent' },
+        { source: 'pgf', target: 'half-uncle', relationship: 'parent' },
+        { source: 'pgf-ex', target: 'half-uncle', relationship: 'parent' },
+        { source: 'mgf', target: 'mother', relationship: 'parent' },
+        { source: 'mgm', target: 'mother', relationship: 'parent' },
+        { source: 'mgf', target: 'aunt', relationship: 'parent' },
+        { source: 'mgm', target: 'aunt', relationship: 'parent' },
+        // Gen 2 partnerships
+        { source: 'father', target: 'mother', relationship: 'partner' },
+        { source: 'father', target: 'father-ex', relationship: 'ex-partner' },
+        { source: 'aunt', target: 'aunt-h', relationship: 'partner' },
+        // Gen 2 → Gen 3
+        { source: 'father', target: 'ego', relationship: 'parent' },
+        { source: 'mother', target: 'ego', relationship: 'parent' },
+        { source: 'father', target: 'sister', relationship: 'parent' },
+        { source: 'mother', target: 'sister', relationship: 'parent' },
+        { source: 'father', target: 'half-sis', relationship: 'parent' },
+        { source: 'father-ex', target: 'half-sis', relationship: 'parent' },
+        { source: 'aunt', target: 'cousin-f', relationship: 'parent' },
+        { source: 'aunt-h', target: 'cousin-f', relationship: 'parent' },
+        { source: 'aunt', target: 'cousin-m', relationship: 'parent' },
+        { source: 'aunt-h', target: 'cousin-m', relationship: 'parent' },
+        // Gen 3 partnerships
+        { source: 'ego', target: 'partner', relationship: 'partner' },
+        // Gen 3 → Gen 4
+        { source: 'ego', target: 'son', relationship: 'parent' },
+        { source: 'partner', target: 'son', relationship: 'parent' },
+        { source: 'ego', target: 'daughter', relationship: 'parent' },
+        { source: 'partner', target: 'daughter', relationship: 'parent' },
+      ],
+    );
+    store.getState().runLayout();
+    storeRef.current = store;
+    setReady(true);
+  }, []);
+
+  return <PedigreeVisualization storeRef={storeRef} />;
+};
+
 // ── Story: Full scaffolded pedigree (matches generatePlaceholderNetwork) ──
 
 export const FullScaffoldedPedigree: StoryFn = () => {

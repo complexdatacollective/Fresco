@@ -27,11 +27,9 @@ export function computeScaling(
   let xmax = -Infinity;
   for (let i = 0; i < layout.nid.length; i++) {
     for (let j = 0; j < (layout.n[i] ?? 0); j++) {
-      if (layout.nid[i]![j]! > 0) {
-        const p = layout.pos[i]![j]!;
-        if (p < xmin) xmin = p;
-        if (p > xmax) xmax = p;
-      }
+      const p = layout.pos[i]![j]!;
+      if (p < xmin) xmin = p;
+      if (p > xmax) xmax = p;
     }
   }
 

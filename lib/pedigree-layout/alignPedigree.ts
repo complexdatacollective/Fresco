@@ -213,7 +213,7 @@ export function alignPedigree(
 
     // ntemp: only show nid where connected to parents (fam > 0)
     const ntemp: number[][] = rval.fam.map((famRow, i) =>
-      famRow.map((f, j) => (f > 0 ? nid[i]![j]! : 0)),
+      famRow.map((f, j) => (f > 0 ? nid[i]![j]! : -1)),
     );
 
     for (const rel of twinRelations) {
