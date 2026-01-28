@@ -12,10 +12,6 @@ import {
  * from relationFlagsUtils.ts.
  */
 
-// ============================================================================
-// Issue 1 Tests: Ex-Partner Option Support
-// ============================================================================
-
 describe('buildBaseOptions - ex-partner support', () => {
   test('includes ex-partner option in base options', () => {
     /**
@@ -47,10 +43,6 @@ describe('buildBaseOptions - ex-partner support', () => {
   });
 });
 
-// ============================================================================
-// Issue 2 Tests: Conditional Half-Sibling Options
-// ============================================================================
-
 describe('getRelationFlags - ex-partner detection', () => {
   test('detects when father has ex-partner', () => {
     /**
@@ -73,7 +65,10 @@ describe('getRelationFlags - ex-partner detection', () => {
       ],
     ]);
 
-    const flags = getRelationFlags(nodes, edges, { fatherId: 'father', motherId: 'mother' });
+    const flags = getRelationFlags(nodes, edges, {
+      fatherId: 'father',
+      motherId: 'mother',
+    });
 
     expect(flags.hasParentExPartner).toBe(true);
   });
@@ -84,7 +79,10 @@ describe('getRelationFlags - ex-partner detection', () => {
     ];
     const edges = new Map<string, Edge>();
 
-    const flags = getRelationFlags(nodes, edges, { fatherId: 'father', motherId: 'mother' });
+    const flags = getRelationFlags(nodes, edges, {
+      fatherId: 'father',
+      motherId: 'mother',
+    });
 
     expect(flags.hasParentExPartner).toBe(false);
   });
@@ -105,7 +103,10 @@ describe('getRelationFlags - ex-partner detection', () => {
       ],
     ]);
 
-    const flags = getRelationFlags(nodes, edges, { fatherId: 'father', motherId: 'mother' });
+    const flags = getRelationFlags(nodes, edges, {
+      fatherId: 'father',
+      motherId: 'mother',
+    });
 
     expect(flags.hasParentExPartner).toBe(true);
   });
@@ -130,7 +131,10 @@ describe('getRelationFlags - ex-partner detection', () => {
       ],
     ]);
 
-    const flags = getRelationFlags(nodes, edges, { fatherId: 'father', motherId: 'mother' });
+    const flags = getRelationFlags(nodes, edges, {
+      fatherId: 'father',
+      motherId: 'mother',
+    });
 
     expect(flags.hasParentExPartner).toBe(false);
   });
@@ -183,10 +187,6 @@ describe('buildBaseOptions - conditional half-siblings', () => {
     expect(halfBrother?.label).toBe('Half Brother');
   });
 });
-
-// ============================================================================
-// Existing behavior tests (these test the expected final behavior)
-// ============================================================================
 
 describe('getRelationFlags - existing behavior', () => {
   test('detects aunts/uncles correctly', () => {
@@ -267,5 +267,73 @@ describe('buildBaseOptions - existing conditional options', () => {
     expect(options.some((opt) => opt.value === 'son')).toBe(true);
     expect(options.some((opt) => opt.value === 'brother')).toBe(true);
     expect(options.some((opt) => opt.value === 'sister')).toBe(true);
+  });
+});
+
+describe('getRelationFlags - half-sibling detection', () => {
+  test('detects full siblings correctly', () => {
+    const nodes: FamilyTreeNodeType[] = [
+      { id: '1', label: 'brother', sex: 'male', readOnly: false },
+      { id: '2', label: 'sister', sex: 'female', readOnly: false },
+    ];
+
+    const flags = getRelationFlags(nodes);
+
+    expect(flags.hasSiblings).toBe(true);
+  });
+
+  test('detects half-siblings with space-separated labels', () => {
+    /**
+     * When nodes are created, formatRelationLabel() converts camelCase to
+     * space-separated lowercase (e.g., 'halfBrother' -> 'half brother').
+     * The hasSiblings check must match these actual label values.
+     */
+    const nodes: FamilyTreeNodeType[] = [
+      { id: '1', label: 'half brother', sex: 'male', readOnly: false },
+    ];
+
+    const flags = getRelationFlags(nodes);
+
+    expect(flags.hasSiblings).toBe(true);
+  });
+
+  test('detects half sister with space-separated label', () => {
+    const nodes: FamilyTreeNodeType[] = [
+      { id: '1', label: 'half sister', sex: 'female', readOnly: false },
+    ];
+
+    const flags = getRelationFlags(nodes);
+
+    expect(flags.hasSiblings).toBe(true);
+  });
+
+  test('hasSiblings is false when no siblings exist', () => {
+    const nodes: FamilyTreeNodeType[] = [
+      { id: '1', label: 'father', sex: 'male', readOnly: false },
+      { id: '2', label: 'mother', sex: 'female', readOnly: false },
+    ];
+
+    const flags = getRelationFlags(nodes);
+
+    expect(flags.hasSiblings).toBe(false);
+  });
+});
+
+describe('buildBaseOptions - niece/nephew with half-siblings', () => {
+  test('includes niece/nephew when only half-siblings exist', () => {
+    /**
+     * This is the key test for the bug fix: niece/nephew options
+     * should appear when half-siblings exist, not just full siblings.
+     */
+    const flags: RelationFlags = {
+      hasAuntOrUncle: false,
+      hasSiblings: true, // This should be true when half-siblings exist
+      hasChildren: false,
+      hasParentExPartner: true,
+    };
+    const options = buildBaseOptions(flags);
+
+    expect(options.some((opt) => opt.value === 'niece')).toBe(true);
+    expect(options.some((opt) => opt.value === 'nephew')).toBe(true);
   });
 });

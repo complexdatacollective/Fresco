@@ -9,6 +9,18 @@ export type RelationFlags = {
 };
 
 /**
+ * Node labels for sibling relationships.
+ * Uses space-separated lowercase format to match how formatRelationLabel()
+ * in store.ts transforms relation types (e.g., 'halfBrother' -> 'half brother').
+ */
+const SIBLING_LABELS = [
+  'brother',
+  'sister',
+  'half brother',
+  'half sister',
+] as const;
+
+/**
  * Analyzes nodes and edges to determine what relationship options should be available.
  *
  * @param nodes - Array of family tree nodes
@@ -23,7 +35,7 @@ export function getRelationFlags(
 ): RelationFlags {
   const hasAuntOrUncle = nodes.some((n) => /\b(aunt|uncle)\b/i.test(n.label));
   const hasSiblings = nodes.some((n) =>
-    ['brother', 'sister', 'halfBrother', 'halfSister'].includes(n.label),
+    SIBLING_LABELS.includes(n.label as (typeof SIBLING_LABELS)[number]),
   );
   const hasChildren = nodes.some((n) => ['son', 'daughter'].includes(n.label));
 
