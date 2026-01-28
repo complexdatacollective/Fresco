@@ -8,12 +8,24 @@ import {
 import { kindepth } from '~/lib/pedigree-layout/kindepth';
 import { rank } from '~/lib/pedigree-layout/utils';
 
+type LayoutFn = (
+  ped: PedigreeInput,
+  options: {
+    packed?: boolean;
+    width?: number;
+    align?: boolean | number[];
+    hints?: Hints;
+  },
+) => PedigreeLayout;
+
 /**
  * Automatically generate layout hints for a pedigree.
  * Port of kinship2::autohint (autohint.R)
  *
  * Computes sibling order and spouse pairing hints to resolve
  * duplicate appearances and layout ambiguities.
+ *
+ * @param layoutFn - layout function injected to break circular dependency
  */
 export function autohint(
   ped: PedigreeInput,
@@ -22,6 +34,7 @@ export function autohint(
     packed?: boolean;
     align?: boolean | number[];
   } = {},
+  layoutFn?: LayoutFn,
 ): Hints {
   // If pedigree already has hints, return them
   if (ped.hints) return ped.hints;
@@ -111,22 +124,11 @@ export function autohint(
     ? [...options.hints.spouse]
     : undefined;
 
-  // Lazy import to break circular dependency - alignPedigree calls autohint,
-  // autohint calls alignPedigree with explicit hints (preventing recursion)
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { alignPedigree } = require('~/lib/pedigree-layout/alignPedigree') as {
-    alignPedigree: (
-      ped: PedigreeInput,
-      options: {
-        packed?: boolean;
-        width?: number;
-        align?: boolean | number[];
-        hints?: Hints;
-      },
-    ) => PedigreeLayout;
-  };
+  if (!layoutFn) {
+    throw new Error('autohint requires a layoutFn parameter');
+  }
 
-  let plist = alignPedigree(ped, {
+  let plist = layoutFn(ped, {
     packed,
     align,
     hints: { order: horder, spouse: sptemp },
@@ -411,7 +413,7 @@ export function autohint(
     }
 
     // Recompute layout after processing this level
-    plist = alignPedigree(ped, {
+    plist = layoutFn(ped, {
       packed,
       align,
       hints: { order: horder, spouse: sptemp },

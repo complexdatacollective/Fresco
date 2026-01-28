@@ -46,7 +46,7 @@ export function alignPedigree(
   // Generate or validate hints
   if (!hints) {
     try {
-      hints = autohint(ped, { packed, align: false });
+      hints = autohint(ped, { packed, align: false }, alignPedigree);
     } catch {
       hints = { order: Array.from({ length: n }, (_, i) => i + 1) };
     }
