@@ -1,6 +1,6 @@
+import { type Page } from '@playwright/test';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { type Page } from '@playwright/test';
 import pg from 'pg';
 import { log } from '../helpers/logger.js';
 
@@ -18,6 +18,55 @@ export class DatabaseIsolation {
   constructor(databaseUrl: string, suiteId: string) {
     this.databaseUrl = databaseUrl;
     this.suiteId = suiteId;
+  }
+
+  getDatabaseUrl(): string {
+    return this.databaseUrl;
+  }
+
+  async getProtocolId(): Promise<string> {
+    const pool = new pg.Pool({ connectionString: this.databaseUrl, max: 1 });
+    try {
+      const result = await pool.query<{ id: string }>(
+        `SELECT id FROM "Protocol" LIMIT 1`,
+      );
+      const row = result.rows[0];
+      if (!row) {
+        throw new Error('No protocol found in database');
+      }
+      return row.id;
+    } finally {
+      await pool.end();
+    }
+  }
+
+  async updateAppSetting(key: string, value: string): Promise<void> {
+    const pool = new pg.Pool({ connectionString: this.databaseUrl, max: 1 });
+    try {
+      await pool.query(`UPDATE "AppSettings" SET value = $2 WHERE key = $1`, [
+        key,
+        value,
+      ]);
+    } finally {
+      await pool.end();
+    }
+  }
+
+  async getParticipantCount(identifier?: string): Promise<number> {
+    const pool = new pg.Pool({ connectionString: this.databaseUrl, max: 1 });
+    try {
+      const result = identifier
+        ? await pool.query<{ count: string }>(
+            `SELECT COUNT(*) as count FROM "Participant" WHERE identifier = $1`,
+            [identifier],
+          )
+        : await pool.query<{ count: string }>(
+            `SELECT COUNT(*) as count FROM "Participant"`,
+          );
+      return Number(result.rows[0]?.count ?? 0);
+    } finally {
+      await pool.end();
+    }
   }
 
   private async restoreWith(
@@ -72,7 +121,7 @@ export class DatabaseIsolation {
     log('test', `Restoring snapshot "${name}" for suite "${this.suiteId}"...`);
     await this.restoreWith(client, name);
     await page.reload();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     return async () => {
       try {

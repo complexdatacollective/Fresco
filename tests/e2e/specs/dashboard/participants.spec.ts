@@ -1,14 +1,14 @@
-import { test, expect } from '../../fixtures/test.js';
-import {
-  waitForTable,
-  searchTable,
-  clearSearch,
-  selectAllRows,
-  getTableRowCount,
-  clickSortColumn,
-} from '../../helpers/table.js';
-import { getFirstRow, openRowActions } from '../../helpers/row-actions.js';
+import { expect, test } from '../../fixtures/test.js';
 import { confirmDeletion, waitForDialog } from '../../helpers/dialog.js';
+import { getFirstRow, openRowActions } from '../../helpers/row-actions.js';
+import {
+  clearSearch,
+  clickSortColumn,
+  getTableRowCount,
+  searchTable,
+  selectAllRows,
+  waitForTable,
+} from '../../helpers/table.js';
 
 test.describe('Participants Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -69,13 +69,9 @@ test.describe('Participants Page', () => {
       await expect(page.getByRole('button', { name: /import/i })).toBeVisible();
     });
 
-    test('visual snapshot', async ({ page, _visual }) => {
+    test('visual snapshot', async ({ page, visual }) => {
       await waitForTable(page, { minRows: 10 });
-      await page.addStyleTag({
-        content:
-          '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
-      });
-      await page.waitForTimeout(500);
+      await visual();
       await expect(page).toHaveScreenshot('participants-page.png', {
         fullPage: true,
       });
@@ -84,12 +80,17 @@ test.describe('Participants Page', () => {
 
   test.describe('Mutations', () => {
     test.describe.configure({ mode: 'serial' });
+    let cleanup: () => Promise<void>;
+
+    test.beforeEach(async ({ page, database }) => {
+      cleanup = await database.isolate(page);
+    });
+
+    test.afterEach(async () => {
+      await cleanup();
+    });
 
     test('add new participant', async ({ page, database }) => {
-      const cleanup = await database.isolate(page);
-      try {
-        await waitForTable(page, { minRows: 10 });
-
         await page
           .getByRole('button', { name: /add single participant/i })
           .click();
@@ -107,35 +108,23 @@ test.describe('Participants Page', () => {
         await waitForTable(page, { minRows: 1 });
         await searchTable(page, 'P011');
         await expect(page.getByText('P011')).toBeVisible();
-      } finally {
-        await cleanup();
-      }
     });
 
     test('visual: add participant dialog', async ({
       page,
-      database,
-      _visual,
+      visual,
     }) => {
-      const cleanup = await database.isolate(page);
-      try {
+
         await page.getByRole('button', { name: /add/i }).click();
         const dialog = await waitForDialog(page);
 
-        await page.addStyleTag({
-          content:
-            '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
-        });
-        await page.waitForTimeout(500);
+        await visual();
         await expect(dialog).toHaveScreenshot('participants-add-dialog.png');
-      } finally {
-        await cleanup();
-      }
+
     });
 
-    test('delete participant via row actions', async ({ page, database }) => {
-      const cleanup = await database.isolate(page);
-      try {
+    test('delete participant via row actions', async ({ page }) => {
+
         await waitForTable(page, { minRows: 10 });
         const initialCount = await getTableRowCount(page);
 
@@ -144,17 +133,13 @@ test.describe('Participants Page', () => {
         await page.getByRole('menuitem', { name: /delete/i }).click();
         await confirmDeletion(page);
 
-        await page.waitForTimeout(1000);
         const newCount = await getTableRowCount(page);
         expect(newCount).toBe(initialCount - 1);
-      } finally {
-        await cleanup();
-      }
+
     });
 
-    test('delete all participants', async ({ page, database }) => {
-      const cleanup = await database.isolate(page);
-      try {
+    test('delete all participants', async ({ page }) => {
+
         await waitForTable(page, { minRows: 10 });
 
         await page.getByRole('button', { name: /delete all/i }).click();
@@ -171,17 +156,13 @@ test.describe('Participants Page', () => {
         await page.getByRole('button', { name: /permanently delete/i }).click();
         await page.getByRole('dialog').waitFor({ state: 'hidden' });
 
-        await page.waitForTimeout(1000);
         const count = await getTableRowCount(page);
         expect(count).toBe(0);
-      } finally {
-        await cleanup();
-      }
+
     });
 
-    test('visual: empty state', async ({ page, database, _visual }) => {
-      const cleanup = await database.isolate(page);
-      try {
+    test('visual: empty state', async ({ page, visual }) => {
+
         await waitForTable(page, { minRows: 10 });
 
         await page.getByRole('button', { name: /delete all/i }).click();
@@ -197,19 +178,11 @@ test.describe('Participants Page', () => {
           .waitFor({ state: 'visible' });
         await page.getByRole('button', { name: /permanently delete/i }).click();
         await page.getByRole('dialog').waitFor({ state: 'hidden' });
-        await page.waitForTimeout(1000);
 
-        await page.addStyleTag({
-          content:
-            '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
-        });
-        await page.waitForTimeout(500);
+        await visual();
         await expect(page).toHaveScreenshot('participants-empty-state.png', {
           fullPage: true,
         });
-      } finally {
-        await cleanup();
-      }
     });
   });
 });

@@ -1,13 +1,13 @@
-import { test, expect } from '../../fixtures/test.js';
+import { expect, test } from '../../fixtures/test.js';
+import { confirmDeletion, waitForDialog } from '../../helpers/dialog.js';
+import { getFirstRow, openRowActions } from '../../helpers/row-actions.js';
 import {
-  waitForTable,
+  clickSortColumn,
+  getTableRowCount,
   searchTable,
   selectAllRows,
-  getTableRowCount,
-  clickSortColumn,
+  waitForTable,
 } from '../../helpers/table.js';
-import { getFirstRow, openRowActions } from '../../helpers/row-actions.js';
-import { confirmDeletion, waitForDialog } from '../../helpers/dialog.js';
 
 test.describe('Interviews Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -63,13 +63,9 @@ test.describe('Interviews Page', () => {
       await expect(page.getByText('Not exported').first()).toBeVisible();
     });
 
-    test('visual snapshot', async ({ page, _visual }) => {
+    test('visual snapshot', async ({ page, visual }) => {
       await waitForTable(page, { minRows: 5 });
-      await page.addStyleTag({
-        content:
-          '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
-      });
-      await page.waitForTimeout(500);
+      await visual();
       await expect(page).toHaveScreenshot('interviews-page.png', {
         fullPage: true,
       });
@@ -78,10 +74,17 @@ test.describe('Interviews Page', () => {
 
   test.describe('Mutations', () => {
     test.describe.configure({ mode: 'serial' });
+    let cleanup: () => Promise<void>;
+
+    test.beforeEach(async ({ page, database }) => {
+      cleanup = await database.isolate(page);
+    });
+
+    test.afterEach(async () => {
+      await cleanup();
+    });
 
     test('delete single interview', async ({ page, database }) => {
-      const cleanup = await database.isolate(page);
-      try {
         await waitForTable(page, { minRows: 5 });
         const initialCount = await getTableRowCount(page);
 
@@ -93,18 +96,13 @@ test.describe('Interviews Page', () => {
         await page.waitForTimeout(1000);
         const newCount = await getTableRowCount(page);
         expect(newCount).toBe(initialCount - 1);
-      } finally {
-        await cleanup();
-      }
     });
 
     test('visual: delete confirmation dialog', async ({
       page,
       database,
-      _visual,
+      visual,
     }) => {
-      const cleanup = await database.isolate(page);
-      try {
         await waitForTable(page, { minRows: 1 });
 
         const row = getFirstRow(page);
@@ -112,22 +110,14 @@ test.describe('Interviews Page', () => {
         await page.getByRole('menuitem', { name: /delete/i }).click();
 
         const dialog = await waitForDialog(page);
-        await page.addStyleTag({
-          content:
-            '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
-        });
-        await page.waitForTimeout(500);
+        await visual();
         await expect(dialog).toHaveScreenshot(
           'interviews-delete-confirmation.png',
         );
-      } finally {
-        await cleanup();
-      }
     });
 
     test('bulk delete interviews', async ({ page, database }) => {
-      const cleanup = await database.isolate(page);
-      try {
+
         await waitForTable(page, { minRows: 5 });
         await selectAllRows(page);
 
@@ -138,14 +128,11 @@ test.describe('Interviews Page', () => {
         await page.waitForTimeout(1000);
         const count = await getTableRowCount(page);
         expect(count).toBe(0);
-      } finally {
-        await cleanup();
-      }
+
     });
 
-    test('visual: export dialog', async ({ page, database, _visual }) => {
-      const cleanup = await database.isolate(page);
-      try {
+    test('visual: export dialog', async ({ page, database, visual }) => {
+
         await waitForTable(page, { minRows: 1 });
 
         await page
@@ -153,15 +140,8 @@ test.describe('Interviews Page', () => {
           .first()
           .click();
 
-        await page.addStyleTag({
-          content:
-            '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
-        });
-        await page.waitForTimeout(500);
+        await visual();
         await expect(page).toHaveScreenshot('interviews-export-dialog.png');
-      } finally {
-        await cleanup();
-      }
     });
   });
 });

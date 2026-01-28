@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/test.js';
+import { expect, test } from '../../fixtures/test.js';
 import { waitForDialog } from '../../helpers/dialog.js';
 import { fillField } from '../../helpers/form.js';
 
@@ -72,12 +72,8 @@ test.describe('Settings Page', () => {
       await expect(page.getByText(/disable analytics/i)).toBeVisible();
     });
 
-    test('visual snapshot', async ({ page, _visual }) => {
-      await page.addStyleTag({
-        content:
-          '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
-      });
-      await page.waitForTimeout(500);
+    test('visual snapshot', async ({ page, visual }) => {
+      await visual();
       await expect(page).toHaveScreenshot('settings-page.png', {
         fullPage: true,
         mask: [
@@ -90,17 +86,13 @@ test.describe('Settings Page', () => {
   test.describe('Mutations', () => {
     test.describe.configure({ mode: 'serial' });
 
-    test('visual: add user dialog', async ({ page, database, _visual }) => {
+    test('visual: add user dialog', async ({ page, database, visual }) => {
       const cleanup = await database.isolate(page);
       try {
         await page.getByRole('button', { name: /add user/i }).click();
         const dialog = await waitForDialog(page);
 
-        await page.addStyleTag({
-          content:
-            '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
-        });
-        await page.waitForTimeout(500);
+        await visual();
         await expect(dialog).toHaveScreenshot('settings-add-user-dialog.png');
       } finally {
         await cleanup();
@@ -110,18 +102,14 @@ test.describe('Settings Page', () => {
     test('visual: change password dialog', async ({
       page,
       database,
-      _visual,
+      visual,
     }) => {
       const cleanup = await database.isolate(page);
       try {
         await page.getByRole('button', { name: /change password/i }).click();
         const dialog = await waitForDialog(page);
 
-        await page.addStyleTag({
-          content:
-            '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
-        });
-        await page.waitForTimeout(500);
+        await visual();
         await expect(dialog).toHaveScreenshot(
           'settings-change-password-dialog.png',
         );
@@ -218,7 +206,7 @@ test.describe('Settings Page', () => {
         await responsePromise;
 
         await page.reload();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
 
         const reloadedSection = page
           .getByText('Anonymous Recruitment')

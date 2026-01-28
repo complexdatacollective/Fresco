@@ -36,6 +36,23 @@ const yesNoOptions = [
   { label: 'Yes', value: 2 },
 ];
 
+const mockStageConfig = {
+  id: 'ordinal-stage',
+  type: 'OrdinalBin',
+  label: 'Rate Agreement',
+  subject: {
+    entity: 'node',
+    type: 'person',
+  },
+  prompts: [
+    {
+      id: 'prompt-1',
+      text: 'How much do you agree with each person?',
+      variable: 'agreement',
+    },
+  ],
+};
+
 const mockProtocol = {
   id: 'test-protocol',
   codebook: {
@@ -68,24 +85,7 @@ const mockProtocol = {
       },
     },
   },
-  stages: [
-    {
-      id: 'ordinal-stage',
-      type: 'OrdinalBin',
-      label: 'Rate Agreement',
-      subject: {
-        entity: 'node',
-        type: 'person',
-      },
-      prompts: [
-        {
-          id: 'prompt-1',
-          text: 'How much do you agree with each person?',
-          variable: 'agreement',
-        },
-      ],
-    },
-  ],
+  stages: [mockStageConfig],
   experiments: {
     encryptedVariables: false,
   },
@@ -141,16 +141,19 @@ const mockUiState = {
   showPassphrasePrompter: false,
 };
 
-const createMockStore = (nodes: NcNode[]) => {
+const createMockStore = (
+  nodes: NcNode[],
+  protocol: typeof mockProtocol = mockProtocol,
+) => {
   const session = createMockSession(nodes);
   return configureStore({
     reducer: {
       session: (state: typeof session = session) => state,
-      protocol: (state: typeof mockProtocol = mockProtocol) => state,
+      protocol: (state: typeof protocol = protocol) => state,
       ui: (state: typeof mockUiState = mockUiState) => state,
     },
     preloadedState: {
-      protocol: mockProtocol,
+      protocol,
       session,
       ui: mockUiState,
     },
@@ -159,11 +162,12 @@ const createMockStore = (nodes: NcNode[]) => {
 
 type DecoratorProps = {
   nodes: NcNode[];
+  protocol?: typeof mockProtocol;
 };
 
-function ReduxDecoratorFactory({ nodes }: DecoratorProps) {
+function ReduxDecoratorFactory({ nodes, protocol }: DecoratorProps) {
   return function ReduxDecorator(Story: React.ComponentType) {
-    const store = createMockStore(nodes);
+    const store = createMockStore(nodes, protocol);
 
     const decoratorVariants = {
       initial: { opacity: 0 },
@@ -189,6 +193,22 @@ function ReduxDecoratorFactory({ nodes }: DecoratorProps) {
     );
   };
 }
+
+const createProtocolWithVariable = (variable: string, promptText: string) => ({
+  ...mockProtocol,
+  stages: [
+    {
+      ...mockStageConfig,
+      prompts: [
+        {
+          id: 'prompt-1',
+          text: promptText,
+          variable,
+        },
+      ],
+    },
+  ],
+});
 
 const mockStage = mockProtocol.stages[0] as unknown as Parameters<
   typeof OrdinalBins
@@ -277,8 +297,9 @@ export const WithDistributedNodes: Story = {
     await expect(canvas.getByText('Agree')).toBeInTheDocument();
     await expect(canvas.getByText('Strongly Agree')).toBeInTheDocument();
 
-    await expect(canvas.getAllByText('Alice')).toHaveLength(2);
-    await expect(canvas.getAllByText('Charlie')).toHaveLength(2);
+    // Alice (value 1) and Frank (value 1) share the "Strongly Disagree" bin
+    await expect(canvas.getByText('Alice')).toBeInTheDocument();
+    await expect(canvas.getByText('Frank')).toBeInTheDocument();
   },
 };
 
@@ -349,6 +370,10 @@ export const WithMissingValueBin: Story = {
   decorators: [
     ReduxDecoratorFactory({
       nodes: createMockNodes(6, 'frequency', [-1, 1, 2, 3, 4, 5]),
+      protocol: createProtocolWithVariable(
+        'frequency',
+        'How often do you see each person?',
+      ),
     }),
   ],
   parameters: {
@@ -425,8 +450,9 @@ export const ManyNodes: Story = {
       await expect(canvas.getByText(label)).toBeInTheDocument();
     }
 
-    await expect(canvas.getAllByText('Alice')).toHaveLength(2);
-    await expect(canvas.getAllByText('Bob')).toHaveLength(2);
+    // Alice (value 1) and Bob (value 1) share the "Strongly Disagree" bin
+    await expect(canvas.getByText('Alice')).toBeInTheDocument();
+    await expect(canvas.getByText('Bob')).toBeInTheDocument();
   },
 };
 
@@ -482,6 +508,10 @@ export const TwoBinScale: Story = {
   decorators: [
     ReduxDecoratorFactory({
       nodes: createMockNodes(6, 'yesNo', [1, 1, 1, 2, 2, 2]),
+      protocol: createProtocolWithVariable(
+        'yesNo',
+        'Do you work with this person?',
+      ),
     }),
   ],
   parameters: {

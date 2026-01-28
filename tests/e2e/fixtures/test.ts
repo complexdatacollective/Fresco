@@ -1,11 +1,10 @@
 import { test as base, expect } from '@playwright/test';
-import { DatabaseIsolation } from './db-fixture.js';
 import { loadContext, type SuiteContext } from '../helpers/context.js';
+import { DatabaseIsolation } from './db-fixture.js';
 
 type TestFixtures = {
   database: DatabaseIsolation;
-  databaseUrl: string;
-  _visual: void;
+  visual: () => Promise<void>;
 };
 
 function resolveSuiteFromPath(filePath: string): string {
@@ -50,22 +49,18 @@ export const test = base.extend<TestFixtures>({
     await use(db);
   },
 
-  // eslint-disable-next-line no-empty-pattern
-  databaseUrl: async ({}, use, testInfo) => {
-    const suiteId = resolveSuiteFromPath(testInfo.file);
-    const context = await getContext(suiteId);
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    await use(context.databaseUrl);
-  },
-
-  _visual: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use, testInfo) => {
+  visual: [
+    async ({ page }, use, testInfo) => {
       // eslint-disable-next-line no-process-env
       if (!process.env.CI) {
         testInfo.skip(true, 'Visual snapshots only run in Docker');
       }
-      await use();
+      await use(async () => {
+        await page.addStyleTag({
+          content:
+            '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
+        });
+      });
     },
     { scope: 'test' },
   ],

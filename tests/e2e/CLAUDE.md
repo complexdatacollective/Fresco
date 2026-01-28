@@ -111,17 +111,13 @@ test.describe('Mutations', () => {
 Visual tests require Docker for consistent font rendering (`pnpm test:e2e` sets `CI=true`). They are automatically skipped when `CI` is not set by using the `visual` fixture.
 
 ```ts
-test('visual snapshot', async ({ page, _visual }) => {
-  await page.addStyleTag({
-    content:
-      '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
-  });
-  await page.waitForTimeout(500);
+test('visual snapshot', async ({ page, visual }) => {
+  await visual();
   await expect(page).toHaveScreenshot('page-name.png', { fullPage: true });
 });
 ```
 
-Destructuring `_visual` activates the fixture which calls `testInfo.skip()` when not in CI. The underscore prefix satisfies the `no-unused-vars` lint rule. For mutation visual tests, include all needed fixtures: `async ({ page, database, _visual })`.
+The `visual` fixture skips the test when not in CI. Calling `await visual()` injects a CSS style tag to disable all animations/transitions and waits for JS animations to settle. For mutation visual tests, include all needed fixtures: `async ({ page, database, visual })`.
 
 ## Helpers API
 
@@ -154,6 +150,16 @@ Destructuring `_visual` activates the fixture which calls `testInfo.skip()` when
 - `openRowActions(row)` — Open the actions dropdown
 - `deleteSingleItem(page, row)` — Delete via row actions
 - `bulkDeleteSelected(page)` — Delete selected rows
+
+### Database fixture methods
+
+The `database` fixture provides direct database access without passing `databaseUrl`:
+
+- `database.isolate(page)` — Restore snapshot and reload; returns cleanup function
+- `database.getProtocolId()` — Get first protocol's ID from database
+- `database.updateAppSetting(key, value)` — Update an AppSettings row
+- `database.getParticipantCount(identifier?)` — Count participants (optionally filter by identifier)
+- `database.getDatabaseUrl()` — Get raw connection string (rarely needed)
 
 ## Adding New Tests
 

@@ -27,11 +27,19 @@ test.describe('Dashboard Overview', () => {
     await expect(protocolCard).toContainText('1');
   });
 
-  test('shows correct participant count', async ({ page }) => {
-    const participantCard = page.locator('a[href="/dashboard/participants"]', {
-      has: page.getByRole('heading', { level: 1 }),
-    });
-    await expect(participantCard).toContainText('10');
+  test('shows correct participant count', async ({ page, database }) => {
+    const cleanup = await database.isolate(page);
+    try {
+      const participantCard = page.locator(
+        'a[href="/dashboard/participants"]',
+        {
+          has: page.getByRole('heading', { level: 1 }),
+        },
+      );
+      await expect(participantCard).toContainText('10');
+    } finally {
+      await cleanup();
+    }
   });
 
   test('shows correct interview count', async ({ page }) => {
@@ -63,12 +71,8 @@ test.describe('Dashboard Overview', () => {
     await expect(page.locator('table')).toBeVisible();
   });
 
-  test('visual snapshot', async ({ page, _visual }) => {
-    await page.addStyleTag({
-      content:
-        '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
-    });
-    await page.waitForTimeout(500);
+  test('visual snapshot', async ({ page, visual }) => {
+    await visual();
     await expect(page).toHaveScreenshot('dashboard-page.png');
   });
 });

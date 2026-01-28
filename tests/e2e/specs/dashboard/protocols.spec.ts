@@ -83,13 +83,9 @@ test.describe('Protocols Page', () => {
       await expect(headerCheckbox).toBeChecked();
     });
 
-    test('visual snapshot', async ({ page, _visual }) => {
+    test('visual snapshot', async ({ page, visual }) => {
       await waitForTable(page, { minRows: 1 });
-      await page.addStyleTag({
-        content:
-          '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
-      });
-      await page.waitForTimeout(500);
+      await visual();
       await expect(page).toHaveScreenshot('protocols-page.png', {
         fullPage: true,
       });
@@ -127,7 +123,7 @@ test.describe('Protocols Page', () => {
     test('visual: delete confirmation dialog', async ({
       page,
       database,
-      _visual,
+      visual,
     }) => {
       const cleanup = await database.isolate(page);
       try {
@@ -138,11 +134,7 @@ test.describe('Protocols Page', () => {
         await page.getByRole('menuitem', { name: /delete/i }).click();
 
         const dialog = await waitForDialog(page);
-        await page.addStyleTag({
-          content:
-            '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
-        });
-        await page.waitForTimeout(500);
+        await visual();
         await expect(dialog).toHaveScreenshot(
           'protocols-delete-confirmation.png',
         );
@@ -173,7 +165,7 @@ test.describe('Protocols Page', () => {
     test('visual: empty state after deleting all', async ({
       page,
       database,
-      _visual,
+      visual,
     }) => {
       const cleanup = await database.isolate(page);
       try {
@@ -185,11 +177,7 @@ test.describe('Protocols Page', () => {
         await confirmDeletion(page);
         await page.waitForTimeout(1000);
 
-        await page.addStyleTag({
-          content:
-            '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
-        });
-        await page.waitForTimeout(500);
+        await visual();
         await expect(page).toHaveScreenshot('protocols-empty-state.png', {
           fullPage: true,
         });
