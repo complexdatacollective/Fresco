@@ -1,19 +1,14 @@
 import { subscribeWithSelector } from 'zustand/middleware';
 import { createStore } from 'zustand/vanilla';
-import { type DragItem, type DropTarget } from './types';
-
-// Extended drop target with state
-type DropTargetWithState = DropTarget & {
-  canDrop: boolean;
-  isOver: boolean;
-};
+import { type DragItem, type DropTarget, type DropTargetState } from './types';
+import { domHitDetector } from './utils';
 
 // State types
 type DndState = {
   dragItem: DragItem | null;
   dragPosition: { x: number; y: number; width: number; height: number } | null;
   dragPreview: React.ReactNode | null;
-  dropTargets: Map<string, DropTargetWithState>;
+  dropTargets: Map<string, DropTargetState>;
   activeDropTargetId: string | null;
   isDragging: boolean;
 };
@@ -34,7 +29,7 @@ type DndActions = {
     bounds: { x: number; y: number; width: number; height: number },
   ) => void;
   setActiveDropTarget: (id: string | null) => void;
-  getCompatibleTargets: () => DropTargetWithState[];
+  getCompatibleTargets: () => DropTargetState[];
   getDropTargetState: (
     id: string,
   ) => { canDrop: boolean; isOver: boolean } | null;
@@ -68,9 +63,9 @@ function doesTargetAccept(target: DropTarget, dragItem: DragItem): boolean {
 
 // Helper to update canDrop for all targets
 function updateCanDropStates(
-  targets: Map<string, DropTargetWithState>,
+  targets: Map<string, DropTargetState>,
   dragItem: DragItem | null,
-): Map<string, DropTargetWithState> {
+): Map<string, DropTargetState> {
   const newTargets = new Map(targets);
 
   for (const [id, target] of newTargets) {
@@ -82,7 +77,10 @@ function updateCanDropStates(
 }
 
 // Factory function to create DnD store
-export const createDndStore = (initState: DndState = defaultInitState) => {
+export const createDndStore = (
+  initState: DndState = defaultInitState,
+  hitDetector = domHitDetector,
+) => {
   return createStore<DndStore>()(
     subscribeWithSelector((set, get) => ({
       ...initState,
@@ -105,22 +103,8 @@ export const createDndStore = (initState: DndState = defaultInitState) => {
         const state = get();
         if (!state.dragItem || !state.dragPosition) return;
 
-        // Find the best drop target at current position using visual stacking order.
-        // elementsFromPoint returns elements in visual order (topmost first),
-        let newActiveDropTargetId: string | null = null;
-
-        const elementsAtPoint = document.elementsFromPoint(x, y);
-
-        for (const element of elementsAtPoint) {
-          const zoneId = (element as HTMLElement).dataset?.zoneId;
-          if (zoneId) {
-            const target = state.dropTargets.get(zoneId);
-            if (target?.canDrop) {
-              newActiveDropTargetId = zoneId;
-              break; // Stop at first valid target in stacking order
-            }
-          }
-        }
+        // Find the best drop target at current position
+        const newActiveDropTargetId = hitDetector(x, y, state.dropTargets);
 
         // Only update if position or active drop target changed
         const positionChanged =
@@ -172,7 +156,7 @@ export const createDndStore = (initState: DndState = defaultInitState) => {
         const currentTargets = get().dropTargets;
 
         // Clear all canDrop and isOver states
-        const clearedTargets = new Map<string, DropTargetWithState>();
+        const clearedTargets = new Map<string, DropTargetState>();
         for (const [id, target] of currentTargets) {
           clearedTargets.set(id, { ...target, canDrop: false, isOver: false });
         }
@@ -203,7 +187,7 @@ export const createDndStore = (initState: DndState = defaultInitState) => {
             : false;
           const isOver = state.activeDropTargetId === target.id;
 
-          const targetWithState: DropTargetWithState = {
+          const targetWithState: DropTargetState = {
             ...target,
             canDrop,
             isOver,
@@ -233,7 +217,7 @@ export const createDndStore = (initState: DndState = defaultInitState) => {
           const target = state.dropTargets.get(id);
           if (!target) return state;
 
-          const updatedTarget: DropTargetWithState = { ...target, ...bounds };
+          const updatedTarget: DropTargetState = { ...target, ...bounds };
           const newTargets = new Map(state.dropTargets);
           newTargets.set(id, updatedTarget);
 

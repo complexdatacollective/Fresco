@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createDndStore, defaultInitState } from '../store';
 import type { DropTarget } from '../types';
+import { boundsHitDetector } from '../utils';
 
 // Import setup
 import './setup';
@@ -10,7 +11,7 @@ describe('Drag and Drop Hooks Integration', () => {
 
   beforeEach(() => {
     // Create a fresh store instance for each test
-    store = createDndStore(defaultInitState);
+    store = createDndStore(defaultInitState, boundsHitDetector);
     vi.clearAllMocks();
   });
 

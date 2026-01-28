@@ -1,13 +1,14 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createDndStore, defaultInitState } from '../store';
 import type { DropTarget } from '../types';
+import { boundsHitDetector } from '../utils';
 
 describe('DnD Store', () => {
   let store: ReturnType<typeof createDndStore>;
 
   beforeEach(() => {
     // Create a fresh store instance for each test
-    store = createDndStore(defaultInitState);
+    store = createDndStore(defaultInitState, boundsHitDetector);
   });
 
   describe('startDrag', () => {
