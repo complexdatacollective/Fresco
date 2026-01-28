@@ -182,6 +182,9 @@ importers:
       prop-types:
         specifier: ^15.8.1
         version: 15.8.1
+      quadprog:
+        specifier: ^1.6.1
+        version: 1.6.1
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -5383,6 +5386,10 @@ packages:
 
   pure-rand@6.1.0:
     resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
+
+  quadprog@1.6.1:
+    resolution: {integrity: sha512-fN5Jkcjlln/b3pJkseDKREf89JkKIyu6cKIVXisgL6ocKPQ0yTp9n6NZUAq3otEPPw78WZMG9K0o9WsfKyMWJw==}
+    engines: {node: '>=8.x'}
 
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
@@ -11718,6 +11725,8 @@ snapshots:
   punycode@2.3.1: {}
 
   pure-rand@6.1.0: {}
+
+  quadprog@1.6.1: {}
 
   queue-microtask@1.2.3: {}
 
