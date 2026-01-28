@@ -46,6 +46,12 @@ describe('Onboard Route Handler', () => {
     mockGetAppSetting.mockResolvedValue(false);
     mockCookies.mockReturnValue({
       get: vi.fn().mockReturnValue(undefined),
+      has: vi.fn().mockReturnValue(false),
+      getAll: vi.fn().mockReturnValue([]),
+      set: vi.fn(),
+      delete: vi.fn(),
+      size: 0,
+      [Symbol.iterator]: vi.fn(),
     } as ReturnType<typeof cookies>);
   });
 

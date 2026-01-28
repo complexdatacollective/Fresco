@@ -119,7 +119,7 @@ export const globalTypes = {
     description: 'Global theme for components',
     defaultValue: getStoredTheme() ?? 'default',
     toolbar: {
-      icon: 'paintbrush',
+      icon: 'paintbrush' as const,
       items: Object.entries(themes).map(([key, { name }]) => ({
         value: key,
         title: name,

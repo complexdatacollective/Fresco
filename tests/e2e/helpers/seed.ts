@@ -2,7 +2,7 @@ import { TestDataBuilder } from './TestDataBuilder.js';
 import { log } from './logger.js';
 
 // Admin credentials used across all seeded environments
-export const ADMIN_CREDENTIALS = {
+const ADMIN_CREDENTIALS = {
   username: 'testadmin',
   password: 'TestAdmin123!',
 };

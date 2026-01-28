@@ -2,7 +2,7 @@ import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 
 type Pair = [string, string];
 
-export type PairAccumulator = {
+type PairAccumulator = {
   result: Pair[];
   pool: string[];
 };

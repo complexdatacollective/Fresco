@@ -34,7 +34,7 @@ export async function selectAllRows(page: Page): Promise<void> {
   await headerCheckbox.click();
 }
 
-export function getTableRows(page: Page): Locator {
+function getTableRows(page: Page): Locator {
   return page.locator('tbody tr');
 }
 
