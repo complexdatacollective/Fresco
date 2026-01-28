@@ -4,6 +4,7 @@ import { loadContext, type SuiteContext } from '../helpers/context.js';
 
 type TestFixtures = {
   database: DatabaseIsolation;
+  databaseUrl: string;
   _visual: void;
 };
 
@@ -47,6 +48,14 @@ export const test = base.extend<TestFixtures>({
     const db = new DatabaseIsolation(context.databaseUrl, suiteId);
     // eslint-disable-next-line react-hooks/rules-of-hooks
     await use(db);
+  },
+
+  // eslint-disable-next-line no-empty-pattern
+  databaseUrl: async ({}, use, testInfo) => {
+    const suiteId = resolveSuiteFromPath(testInfo.file);
+    const context = await getContext(suiteId);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    await use(context.databaseUrl);
   },
 
   _visual: [

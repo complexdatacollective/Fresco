@@ -191,6 +191,28 @@ describe('Onboard Route Handler', () => {
         'http://localhost:3000/onboard/error',
       );
     });
+
+    it('should redirect to no-anonymous-recruitment page when anonymous recruitment is disabled', async () => {
+      const protocolId = 'test-protocol-id';
+
+      mockCreateInterview.mockResolvedValue({
+        createdInterviewId: null,
+        error: 'Anonymous recruitment is not enabled',
+        errorType: 'no-anonymous-recruitment',
+      });
+
+      const request = new NextRequest(
+        `http://localhost:3000/onboard/${protocolId}`,
+      );
+      const params = { protocolId };
+
+      const response = await GET(request, { params });
+
+      expect(response.status).toBe(307);
+      expect(response.headers.get('location')).toBe(
+        'http://localhost:3000/onboard/no-anonymous-recruitment',
+      );
+    });
   });
 
   describe('POST handler', () => {
@@ -286,6 +308,35 @@ describe('Onboard Route Handler', () => {
         participantIdentifier: undefined,
         protocolId,
       });
+    });
+
+    it('should redirect to no-anonymous-recruitment page when anonymous recruitment is disabled', async () => {
+      const protocolId = 'test-protocol-id';
+
+      mockCreateInterview.mockResolvedValue({
+        createdInterviewId: null,
+        error: 'Anonymous recruitment is not enabled',
+        errorType: 'no-anonymous-recruitment',
+      });
+
+      const request = new NextRequest(
+        `http://localhost:3000/onboard/${protocolId}`,
+        {
+          method: 'POST',
+          body: JSON.stringify({}),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const params = { protocolId };
+
+      const response = await POST(request, { params });
+
+      expect(response.status).toBe(307);
+      expect(response.headers.get('location')).toBe(
+        'http://localhost:3000/onboard/no-anonymous-recruitment',
+      );
     });
 
     it('should check limitInterviews for POST requests too', async () => {
