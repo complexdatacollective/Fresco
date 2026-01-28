@@ -34,30 +34,31 @@ export class AppServer {
 
     if (serverExists && !forceRebuild) {
       log('setup', 'Standalone build already exists, skipping build');
-      return;
+    } else {
+      log('setup', 'Building standalone Next.js app...');
+      execSync('pnpm build', {
+        cwd: PROJECT_ROOT,
+        env: {
+          ...process.env,
+          SKIP_ENV_VALIDATION: 'true',
+          DISABLE_NEXT_CACHE: 'true',
+        },
+        stdio: 'pipe',
+      });
     }
 
-    log('setup', 'Building standalone Next.js app...');
-    execSync('pnpm build', {
-      cwd: PROJECT_ROOT,
-      env: {
-        ...process.env,
-        SKIP_ENV_VALIDATION: 'true',
-        DISABLE_NEXT_CACHE: 'true',
-      },
-      stdio: 'pipe',
-    });
-
-    // Copy static files into standalone dir
+    // Copy static and public files into standalone dir.
+    // Always run this even when the build was skipped, because a manual
+    // `pnpm build` won't copy these files into the standalone directory.
     const staticSrc = path.join(PROJECT_ROOT, '.next/static');
     const staticDest = path.join(PROJECT_ROOT, '.next/standalone/.next/static');
-    if (fs.existsSync(staticSrc)) {
+    if (fs.existsSync(staticSrc) && !fs.existsSync(staticDest)) {
       execSync(`cp -r "${staticSrc}" "${staticDest}"`, { stdio: 'pipe' });
     }
 
     const publicSrc = path.join(PROJECT_ROOT, 'public');
     const publicDest = path.join(PROJECT_ROOT, '.next/standalone/public');
-    if (fs.existsSync(publicSrc)) {
+    if (fs.existsSync(publicSrc) && !fs.existsSync(publicDest)) {
       execSync(`cp -r "${publicSrc}" "${publicDest}"`, { stdio: 'pipe' });
     }
 

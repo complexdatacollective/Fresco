@@ -24,7 +24,7 @@
 
 set -e
 
-PLAYWRIGHT_VERSION="v1.57.0-noble"
+PLAYWRIGHT_VERSION="v1.58.0-noble"
 IMAGE="mcr.microsoft.com/playwright:${PLAYWRIGHT_VERSION}"
 
 # Check if Docker is running
@@ -60,10 +60,12 @@ docker run --rm \
   $FORCE_REBUILD_ENV \
   -v "$(pwd)":/work \
   -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /work/node_modules \
+  -v /work/.next \
   -w /work \
   --network host \
   "${IMAGE}" \
-  sh -c "npm i -g pnpm && pnpm install --frozen-lockfile && $PLAYWRIGHT_CMD"
+  sh -c "npm i -g pnpm && pnpm install && $PLAYWRIGHT_CMD"
 
 echo ""
 echo "✅ Tests completed."
