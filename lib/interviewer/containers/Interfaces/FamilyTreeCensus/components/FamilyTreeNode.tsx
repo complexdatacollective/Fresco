@@ -151,7 +151,7 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
           Position anchor would be ideal for this but no FF support:
           https://developer.mozilla.org/en-US/docs/Web/CSS/position-anchor
         */}
-        <div className="family-tree-node-label-container flex flex-col gap-0.5 text-white">
+        <div className="family-tree-node-label-container bg-cyber-grape/80 m-1 flex flex-col gap-0.5 rounded-md px-2 py-1 text-white">
           {isEgo ? (
             <h4>You</h4>
           ) : networkNode ? (
