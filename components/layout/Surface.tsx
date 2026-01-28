@@ -1,31 +1,51 @@
 'use client';
 
-import { cva, type VariantProps } from 'class-variance-authority';
 import { motion, type MotionProps } from 'motion/react';
-import { type ElementType } from 'react';
-import { cn } from '~/utils/shadcn';
+import { type ElementType, forwardRef } from 'react';
+import { cva, cx, type VariantProps } from '~/utils/cva';
+import ResponsiveContainer, {
+  type ResponsiveContainerProps,
+} from './ResponsiveContainer';
 
-const surfaceVariants = cva('', {
+export const surfaceVariants = cva({
+  base: 'publish-colors relative grow overflow-hidden rounded-sm @xl:rounded @4xl:rounded-lg',
   variants: {
     level: {
-      // Level 0 is for dialogs and popovers
-      0: 'bg-surface-0 text-surface-0-foreground [--background:var(--surface-0)] [--foreground:var(--surface-0-foreground)]',
-      1: 'bg-surface-1 text-surface-1-foreground [--background:var(--surface-1)] [--foreground:var(--surface-1-foreground)]',
-      2: 'bg-surface-2 text-surface-2-foreground [--background:var(--surface-2)] [--foreground:var(--surface-2-foreground)]',
-      3: 'bg-surface-3 text-surface-3-foreground [--background:var(--surface-3)] [--foreground:var(--surface-3-foreground)]',
-      4: 'bg-surface-4 text-surface-4-foreground [--background:var(--surface-4)] [--foreground:var(--surface-4-foreground)]',
+      0: 'text-surface-contrast bg-surface',
+      1: 'text-surface-1-contrast bg-surface-1',
+      2: 'text-surface-2-contrast bg-surface-2',
+      3: 'text-surface-3-contrast bg-surface-3',
+      popover: 'text-surface-popover-contrast bg-surface-popover',
     },
     spacing: {
       none: '',
-      xs: 'px-2 py-1 sm:px-2 sm:py-1 md:px-4 md:py-2 lg:px-4 lg:py-2',
-      sm: 'px-4 py-2 sm:px-4 sm:py-2 md:px-6 md:py-4 lg:px-8 lg:py-6',
-      md: 'px-8 py-6 md:px-10 md:py-8 lg:px-12 lg:py-8',
-      lg: 'px-8 py-6 sm:px-10 sm:py-8 md:px-12 md:py-10 lg:px-16 lg:py-10',
-      xl: 'px-10 py-8 sm:px-12 sm:py-10 md:px-16 md:py-12 lg:px-20 lg:py-12',
+      xs: 'px-4 py-2 @xl:px-6 @xl:py-4',
+      sm: 'px-6 py-4 @xl:px-8 @xl:py-6 @4xl:px-10 @4xl:py-6',
+      md: 'px-8 py-6 @xl:px-10 @xl:py-8 @4xl:px-12 @4xl:py-8',
+      lg: 'px-10 py-8 @xl:px-16 @xl:py-12 @4xl:px-20 @4xl:py-16',
+      xl: 'px-12 py-10 @xl:px-20 @xl:py-16 @4xl:px-28 @4xl:py-20',
+    },
+    bleed: {
+      none: '',
+      xs: '-mx-2 @xl:-mx-4',
+      sm: '-mx-4 @xl:-mx-6 @4xl:-mx-8',
+      md: '-mx-8 @xl:-mx-10 @4xl:-mx-12',
+      lg: '-mx-10 @xl:-mx-16 @4xl:-mx-20',
+      xl: '-mx-10 @xl:-mx-20 @4xl:-mx-28',
+    },
+    elevation: {
+      dynamic: 'elevation-low @xl:elevation-medium @4xl:elevation-high',
+      low: 'elevation-low',
+      medium: 'elevation-medium',
+      high: 'elevation-high',
+      none: '',
     },
   },
   defaultVariants: {
+    level: 0,
     spacing: 'md',
+    elevation: 'low',
+    bleed: 'none',
   },
 });
 
@@ -33,8 +53,16 @@ export type SurfaceVariants = VariantProps<typeof surfaceVariants>;
 
 type SurfaceProps<T extends ElementType = 'div'> = {
   as?: T;
+  noContainer?: boolean;
 } & SurfaceVariants &
-  Omit<React.ComponentPropsWithRef<T>, keyof SurfaceVariants | 'as'>;
+  ResponsiveContainerProps &
+  Omit<
+    React.ComponentPropsWithoutRef<T>,
+    | keyof SurfaceVariants
+    | keyof ResponsiveContainerProps
+    | 'as'
+    | 'noContainer'
+  >;
 
 /**
  * Surface is a layout component that provides a background and foreground color
@@ -42,28 +70,61 @@ type SurfaceProps<T extends ElementType = 'div'> = {
  * to construct hierarchical layouts, and is explicitly designed to support
  * being nested.
  *
- * Note that Surface level '0' is a special case that is used for dialogs and popovers.
+ * Implementation note: Uses a ::before pseudo-element for the background layer
+ * to ensure elevation shadows correctly reference the parent's background color
+ * while keeping a single DOM element for clean layout control.
+ *
+ * To override the background color, use `before:bg-*` classes in className:
+ * <Surface className="before:bg-primary text-primary-contrast">
  */
-const Surface = <T extends ElementType = 'div'>({
-  as,
-  children,
-  ref,
-  level,
-  spacing,
-  className,
-  ...rest
-}: SurfaceProps<T>) => {
-  const Component = as ?? 'div'; // Default to 'div' if `as` is not provided
-  return (
-    <Component
-      ref={ref}
-      {...rest}
-      className={cn(surfaceVariants({ level, spacing }), className)}
-    >
-      {children}
-    </Component>
-  );
-};
+const SurfaceComponent = forwardRef<HTMLDivElement, SurfaceProps>(
+  (
+    {
+      as,
+      children,
+      level,
+      spacing,
+      elevation,
+      bleed,
+      className,
+      maxWidth,
+      baseSize,
+      noContainer = false,
+      ...rest
+    },
+    ref,
+  ) => {
+    const Component = as ?? 'div';
+    const surfaceElement = (
+      <Component
+        ref={ref}
+        {...rest}
+        className={cx(
+          surfaceVariants({ level, spacing, elevation, bleed }),
+          className,
+        )}
+      >
+        {children}
+      </Component>
+    );
+
+    if (noContainer) {
+      return surfaceElement;
+    }
+
+    return (
+      <ResponsiveContainer maxWidth={maxWidth} baseSize={baseSize}>
+        {surfaceElement}
+      </ResponsiveContainer>
+    );
+  },
+);
+
+SurfaceComponent.displayName = 'Surface';
+
+const Surface = SurfaceComponent as <T extends ElementType = 'div'>(
+  props: SurfaceProps<T> & { ref?: React.Ref<React.ElementRef<T>> },
+) => React.ReactElement | null;
 
 export default Surface;
 

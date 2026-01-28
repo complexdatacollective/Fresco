@@ -1,12 +1,12 @@
 import { Loader2 } from 'lucide-react';
 import { Suspense } from 'react';
+import { prisma } from '~/lib/db';
 import {
   getAppSetting,
   requireAppNotConfigured,
   requireAppNotExpired,
 } from '~/queries/appSettings';
 import { getServerSession } from '~/utils/auth';
-import { prisma } from '~/lib/db';
 import Setup from './Setup';
 
 async function getSetupData() {
@@ -44,7 +44,7 @@ export default async function Page() {
 
   return (
     <Suspense
-      fallback={<Loader2 className="text-background h-10 w-10 animate-spin" />}
+      fallback={<Loader2 className="text-background size-10 animate-spin" />}
     >
       <Setup setupData={setupData} />
     </Suspense>

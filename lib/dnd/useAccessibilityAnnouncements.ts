@@ -80,7 +80,7 @@ export function getDropTargetDescription(
 }
 
 function getDragInstructions(): string {
-  return 'Press Space or Enter to start dragging. Use arrow keys to navigate between drop targets. Press Space or Enter to drop. Press Escape to cancel.';
+  return 'Use arrow keys to navigate between drop targets. Press Space or Enter to drop. Press Escape to cancel.';
 }
 
 export function getKeyboardDragAnnouncement(

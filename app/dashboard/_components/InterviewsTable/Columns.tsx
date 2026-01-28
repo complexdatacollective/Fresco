@@ -4,9 +4,9 @@ import { type ColumnDef } from '@tanstack/react-table';
 import Image from 'next/image';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { Badge } from '~/components/ui/badge';
-import { Checkbox } from '~/components/ui/checkbox';
 import { Progress } from '~/components/ui/progress';
 import TimeAgo from '~/components/ui/TimeAgo';
+import Checkbox from '~/lib/form/components/fields/Checkbox';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import NetworkSummary from './NetworkSummary';
 
@@ -21,14 +21,16 @@ export const InterviewColumns = (): ColumnDef<
     header: ({ table }) => (
       <Checkbox
         checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        onCheckedChange={(value: boolean) =>
+          table.toggleAllPageRowsSelected(!!value)
+        }
         aria-label="Select all"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onCheckedChange={(value: boolean) => row.toggleSelected(!!value)}
         aria-label="Select row"
       />
     ),
@@ -40,19 +42,21 @@ export const InterviewColumns = (): ColumnDef<
     accessorKey: 'participant.identifier',
     header: ({ column }) => {
       return (
-        <div className="flex items-center gap-2">
-          <Image
-            src="/images/participant.svg"
-            alt="Participant icon"
-            className="max-w-none"
-            width={24}
-            height={24}
-          />
-          <DataTableColumnHeader
-            column={column}
-            title="Participant Identifier"
-          />
-        </div>
+        <DataTableColumnHeader
+          column={column}
+          title={
+            <div className="flex items-center gap-2">
+              <Image
+                src="/images/participant.svg"
+                alt="Participant icon"
+                className="h-[24px] w-[24px]"
+                width={24}
+                height={24}
+              />
+              Participant Identifier
+            </div>
+          }
+        />
       );
     },
     cell: ({ row }) => {
@@ -75,16 +79,21 @@ export const InterviewColumns = (): ColumnDef<
     accessorKey: 'protocol.name',
     header: ({ column }) => {
       return (
-        <div className="flex items-center gap-2">
-          <Image
-            src="/images/protocol-icon.png"
-            alt="Protocol icon"
-            className="max-w-none"
-            width={24}
-            height={24}
-          />
-          <DataTableColumnHeader column={column} title="Protocol Name" />
-        </div>
+        <DataTableColumnHeader
+          column={column}
+          title={
+            <div className="flex items-center gap-2">
+              <Image
+                src="/images/protocol-icon.png"
+                alt="Protocol icon"
+                className="h-[24px] w-[24px]"
+                width={24}
+                height={24}
+              />
+              Protocol Name
+            </div>
+          }
+        />
       );
     },
     cell: ({ row }) => {
@@ -135,7 +144,7 @@ export const InterviewColumns = (): ColumnDef<
       const stages = row.original.protocol.stages;
       const progress = (row.original.currentStep / stages.length) * 100;
       return (
-        <div className="flex whitespace-nowrap">
+        <div className="flex items-center whitespace-nowrap">
           <Progress value={progress} className="w-12" />
           <div className="ml-2 text-center">{progress.toFixed(0)}%</div>
         </div>

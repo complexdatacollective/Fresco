@@ -1,0 +1,364 @@
+import { AnimatePresence, motion, type Variants } from 'motion/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
+import ActionButton from '~/components/interview/ActionButton';
+import { type InterviewerIconName } from '~/components/ui/Icon';
+import { type ValidationPropsCatalogue } from '~/lib/form/components/Field/types';
+import InputField from '~/lib/form/components/fields/InputField';
+import { useField } from '~/lib/form/hooks/useField';
+import useFormStore from '~/lib/form/hooks/useFormStore';
+import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
+import {
+  getNodeColorSelector,
+  getNodeTypeLabel,
+  getStageSubject,
+} from '~/lib/interviewer/selectors/session';
+import Icon from '~/lib/legacy-ui/components/Icon';
+import { cx } from '~/utils/cva';
+
+type QuickAddFieldProps = {
+  name: string;
+  placeholder: string;
+  disabled: boolean;
+  onShowInput: () => void;
+} & Partial<ValidationPropsCatalogue>;
+
+const inputVariants: Variants = {
+  initial: {
+    opacity: 0,
+    x: '2rem',
+  },
+  animate: {
+    opacity: 1,
+    x: '0px',
+  },
+  exit: {
+    opacity: 0,
+    x: '2rem',
+  },
+};
+
+const buttonVariants: Variants = {
+  initial: {
+    rotateY: 180,
+  },
+  animate: {
+    rotateY: 0,
+    transition: {
+      duration: 0.3,
+    },
+  },
+};
+
+export default function QuickAddField({
+  placeholder,
+  name: targetVariable,
+  disabled,
+  onShowInput,
+  ...validationProps
+}: QuickAddFieldProps) {
+  const [checked, setChecked] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+
+  const { id, meta, fieldProps, containerProps } = useField({
+    name: targetVariable,
+    initialValue: '',
+    ...validationProps,
+  });
+
+  const isFormSubmitting = useFormStore((state) => state.isSubmitting);
+  const wasSubmittingRef = useRef(false);
+
+  const tooltipTimer = useRef<NodeJS.Timeout | undefined>(undefined);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Focus the input when the animation completes
+  const handleInputAnimationComplete = useCallback(() => {
+    if (checked) {
+      inputRef.current?.focus();
+    }
+  }, [checked]);
+
+  // Reset submission state when form opens
+  useEffect(() => {
+    if (checked) {
+      setHasAttemptedSubmit(false);
+    }
+  }, [checked]);
+
+  // Reset field (but stay open) when form submission succeeds
+  useEffect(() => {
+    // Detect transition from submitting to not submitting
+    if (wasSubmittingRef.current && !isFormSubmitting) {
+      // If we were submitting and the field is now valid, submission succeeded
+      if (meta.isValid && fieldProps.value) {
+        setHasAttemptedSubmit(false);
+        fieldProps.onChange('');
+        // Re-focus the input for quick successive additions
+        inputRef.current?.focus();
+      }
+    }
+    wasSubmittingRef.current = isFormSubmitting;
+  }, [isFormSubmitting, meta.isValid, fieldProps]);
+
+  // Only show error after submission attempt and if there are errors
+  const shouldShowValidationError =
+    hasAttemptedSubmit &&
+    !meta.isValid &&
+    meta.errors &&
+    meta.errors.length > 0;
+
+  const resetField = () => {
+    setChecked(false);
+    setHasAttemptedSubmit(false);
+    fieldProps.onChange('');
+  };
+
+  const subject = useSelector(getStageSubject);
+  const nodeColor = useSelector(getNodeColorSelector);
+  const nodeType = useSelector(
+    getNodeTypeLabel(subject.entity !== 'ego' ? subject.type : ''),
+  );
+  const icon = useSelector(getNodeIconName);
+
+  // Close form when disabled
+  useEffect(() => {
+    if (disabled) {
+      setChecked(false);
+    }
+  }, [disabled]);
+
+  useEffect(() => {
+    // If the state becomes invalid, cancel the tooltip
+    if (!meta.isValid && tooltipTimer.current) {
+      clearTimeout(tooltipTimer.current);
+    }
+
+    // If there's already a tooltip timer
+    if (tooltipTimer.current) {
+      return;
+    }
+
+    // Set a new timer: input is valid, the form is open, and there's no
+    // existing timer
+    tooltipTimer.current = setTimeout(() => {
+      setShowTooltip(true);
+    }, 5000);
+
+    return () => {
+      clearTimeout(tooltipTimer.current);
+    };
+  }, [fieldProps.value, meta.isValid]);
+
+  const buttonClasses = cx(
+    'flex items-center justify-center',
+    'h-[130px] w-[130px]',
+    'perspective-dramatic',
+    'backface-hidden',
+  );
+
+  const toggleId = `quick-add-toggle-${id}`;
+  const inputId = `quick-add-input-${id}`;
+
+  return (
+    <motion.div
+      ref={containerRef}
+      layout
+      className="flex flex-row-reverse items-center"
+      {...containerProps}
+    >
+      {/* Semantic checkbox control: visually hidden but accessible */}
+      <input
+        type="checkbox"
+        id={toggleId}
+        className="sr-only"
+        aria-controls={inputId}
+        aria-expanded={checked}
+        checked={checked}
+        onChange={(e) => {
+          setChecked(e.target.checked);
+          if (e.target.checked) {
+            onShowInput();
+          }
+        }}
+        disabled={disabled}
+      />
+
+      <label htmlFor={toggleId} className="sr-only">
+        Quick Add {nodeType}
+      </label>
+
+      <motion.div className="ml-6 w-[130px] basis-[130px]" layout>
+        <AnimatePresence mode="popLayout">
+          {!checked ? (
+            <motion.div
+              key="add-button"
+              className={buttonClasses}
+              onClick={() => {
+                if (!disabled) {
+                  setChecked(true);
+                  onShowInput();
+                }
+              }}
+              variants={buttonVariants}
+              initial="initial"
+              animate="animate"
+              exit="initial"
+            >
+              <ActionButton
+                disabled={disabled}
+                onClick={() => {
+                  if (!disabled) {
+                    setChecked(true);
+                  }
+                }}
+                iconName={icon as InterviewerIconName}
+                title={`Add ${nodeType}...`}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="node"
+              className={buttonClasses}
+              variants={buttonVariants}
+              initial="initial"
+              animate="animate"
+              exit="initial"
+            >
+              <SimpleNode
+                label={(fieldProps.value as string | undefined) ?? ''}
+                selected={meta.isValid && !!fieldProps.value}
+                color={nodeColor}
+                onClick={() => {
+                  // submit the form
+                }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      <motion.div layout="size" className="flex w-[40ch] flex-col">
+        <AnimatePresence>
+          {showTooltip && checked && (
+            <motion.div
+              layout="position"
+              key="tool-tip"
+              className="absolute -top-8 left-1/2 mb-4 h-8 -translate-x-1/2 transform whitespace-nowrap"
+              initial={{
+                opacity: 0,
+              }}
+              animate={{
+                opacity: 1,
+              }}
+            >
+              <span>Press enter to add...</span>
+            </motion.div>
+          )}
+          {checked && (
+            <motion.div
+              layout="position"
+              key="quick-add-input"
+              variants={inputVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              onAnimationComplete={handleInputAnimationComplete}
+            >
+              <InputField
+                ref={inputRef}
+                id={inputId}
+                placeholder={placeholder}
+                type="text"
+                {...fieldProps}
+                disabled={disabled}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') {
+                    resetField();
+                    // Move focus back to the toggle
+                    const toggleElement = document.getElementById(toggleId);
+                    if (toggleElement) {
+                      toggleElement.focus();
+                    }
+                  } else if (e.key === 'Enter') {
+                    // Mark that submission was attempted (for error display)
+                    // The actual form submission is handled by the Form component
+                    setHasAttemptedSubmit(true);
+                  }
+                }}
+                onBlur={(e) => {
+                  // Don't close if focus is moving within our component
+                  const relatedTarget = e.relatedTarget as HTMLElement | null;
+                  if (
+                    relatedTarget &&
+                    containerRef.current?.contains(relatedTarget)
+                  ) {
+                    return;
+                  }
+
+                  fieldProps.onBlur(e);
+                  resetField();
+                }}
+                value={fieldProps.value as string}
+              />
+            </motion.div>
+          )}
+          {shouldShowValidationError && checked && (
+            <motion.div
+              layout="position"
+              id="error-message"
+              className="flex w-full items-start rounded-b-(--nc-border-radius) bg-(--nc-error) py-2 pr-4 text-(--form-error-text)"
+            >
+              <Icon name="warning" className="mr-2 max-h-5" />
+              <span>
+                {typeof meta.errors?.[0] === 'string'
+                  ? meta.errors[0]
+                  : String(meta.errors?.[0] ?? '')}
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/**
+ * Temporary component until we replace the current Node properly
+ */
+function SimpleNode({
+  label,
+  color,
+  onClick,
+  selected,
+}: {
+  label: string;
+  color: string;
+  onClick: () => void;
+  selected: boolean;
+}) {
+  const nodeClasses = cx(
+    'h-[130px] w-[130px] rounded-full transition-all',
+    'bg-[linear-gradient(145deg,var(--bg)_50%,var(--bg-dark)_50%)]',
+    'flex items-center justify-center',
+    'text-base',
+    selected && 'outline-5 outline-white/50',
+  );
+
+  return (
+    <div
+      className={nodeClasses}
+      onClick={onClick}
+      style={
+        {
+          '--bg': `var(--nc-${color})`,
+          '--bg-dark': `var(--nc-${color}--dark)`,
+        } as React.CSSProperties
+      }
+    >
+      {label}
+    </div>
+  );
+}

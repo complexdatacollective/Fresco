@@ -6,7 +6,7 @@ This document provides guidance for AI assistants working with the Fresco codeba
 
 Fresco is a web-based interview platform that brings Network Canvas interviews to the browser. It's built with Next.js 14 (App Router), TypeScript, and PostgreSQL. Version 3.0.0.
 
-**Documentation**: https://documentation.networkcanvas.com/en/fresco
+**Documentation**: <https://documentation.networkcanvas.com/en/fresco>
 
 ## Quick Reference
 
@@ -75,15 +75,20 @@ styles/                # Global CSS/SCSS
 ### TypeScript
 
 - **Strict mode enabled** with `noUncheckedIndexedAccess`
+- **Do not use type assertions (`as`)** to fix type errors unless absolutely necessary. Find the root cause of the typing issue and refactor to resolve it. Type assertions should ALWAYS be confirmed with the user first.
 - Use `type` for type definitions (not `interface`) - enforced by ESLint
 - Prefer inline type imports: `import { type Foo } from './bar'`
 - Unused variables must start with underscore: `_unusedVar`
-- Path alias: `~/` maps to project root
+- **Always use path aliases** (`~/`) for imports - never use relative paths like `../` or `./`
 
 ```typescript
-// Correct
+// Correct - use path aliases
 import { type Protocol } from '@prisma/client';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
+import { Button } from '~/components/ui/Button';
+
+// Incorrect - never use relative paths
+// import { Button } from '../components/ui/Button';
 
 // Type definition
 export type CreateInterview = {
@@ -317,6 +322,7 @@ pnpm storybook      # Component testing
 4. **Server Components are default** - add `'use client'` only when needed
 5. **AppSettings enum** must sync between Prisma schema and `schemas/appSettings.ts`
 6. **Cache invalidation** - use `safeRevalidateTag()` after mutations
+7. **Always use path aliases** - use `~/components/Button` not `../components/Button`
 
 ## Dependencies to Know
 
@@ -338,3 +344,5 @@ pnpm storybook      # Component testing
 ## Debugging and Development Tips
 
 - Use the Playwright MCP to debug errors and view console output directly. Do NOT start the development server or the storybook server. Instead, prompt the user to start these for you.
+- NEVER disable linting rules unless you have asked permission from the user. This applies particularly to no-explicit-any which should only be disabled in truly exceptional circumstances.
+- when editing a component, look for a storybook story and ensure that any new features are documented and any changes to the component API are accurately reflected in the storybook

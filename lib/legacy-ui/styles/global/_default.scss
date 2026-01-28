@@ -1,0 +1,410 @@
+@use 'sass:list';
+@use 'sass:color' as sass-color;
+@use 'core/animation';
+@use 'core/units';
+@use 'core/breakpoints';
+@use 'core/color';
+@use 'core/palette';
+@use 'core/spacing';
+@use 'core/typography';
+@use 'core/normalize';
+@use 'core/z-index';
+@use 'core/helpers';
+
+$export-ui-classes: true !default;
+
+// Default Color Settings
+// =============================================================================
+@include color.color-set('neon-coral', '226, 33, 91');
+@include color.color-set('neon-coral--dark', '206, 28, 84');
+@include color.color-set('mustard', '242, 183, 0');
+@include color.color-set('mustard--dark', '219, 165, 0');
+@include color.color-set('sea-green', '0, 201, 162');
+@include color.color-set('sea-green--dark', '0, 160, 129');
+@include color.color-set('white', '255, 255, 255');
+@include color.color-set('slate-blue', '107, 114, 236');
+@include color.color-set('slate-blue--dark', '85, 91, 188');
+@include color.color-set('navy-taupe', '45, 41, 85');
+@include color.color-set('cyber-grape', '58, 58, 117');
+@include color.color-set('rich-black', '22, 21, 43');
+@include color.color-set('charcoal', '109, 111, 118');
+@include color.color-set('platinum', '242, 246, 247');
+@include color.color-set('platinum--dark', '218, 227, 229');
+@include color.color-set('sea-serpent', '15, 178, 226');
+@include color.color-set('sea-serpent--dark', '15, 163, 206');
+@include color.color-set('purple-pizazz', '211, 15, 239');
+@include color.color-set('purple-pizazz--dark', '191, 12, 216');
+@include color.color-set('paradise-pink', '255, 58, 140');
+@include color.color-set('paradise-pink--dark', '232, 53, 124');
+@include color.color-set('cerulean-blue', '15, 112, 255');
+@include color.color-set('cerulean-blue--dark', '15, 102, 232');
+@include color.color-set('kiwi', '112, 191, 84');
+@include color.color-set('kiwi--dark', '102, 173, 76');
+@include color.color-set('neon-carrot', '247, 137, 30');
+@include color.color-set('neon-carrot--dark', '224, 124, 28');
+@include color.color-set('barbie-pink', '237, 0, 140');
+@include color.color-set('barbie-pink--dark', '214, 0, 127');
+@include color.color-set('tomato', '232, 45, 63');
+@include color.color-set('tomato--dark', '211, 43, 58');
+
+$PREFIX: 'nc-';
+
+// Palettes
+@include palette.palette-set($PREFIX + 'primary', var(--color-sea-green));
+@include palette.palette-set(
+  $PREFIX + 'menu-panel--active',
+  var(--color-white)
+);
+@include palette.palette-set($PREFIX + 'menu-panel', var(--color-cyber-grape));
+@include palette.palette-set($PREFIX + 'selected', var(--color-white));
+@include palette.palette-set($PREFIX + 'settings', var(--color-mustard));
+@include palette.palette-set($PREFIX + 'background', var(--color-navy-taupe));
+@include palette.palette-set($PREFIX + 'text', var(--color-white));
+@include palette.palette-set($PREFIX + 'text-dark', var(--color-charcoal));
+@include palette.palette-set(
+  $PREFIX + 'text-current/70',
+  var(--color-cyber-grape)
+);
+@include palette.palette-set($PREFIX + 'link', var(--color-neon-coral));
+@include palette.palette-set(
+  $PREFIX + 'light-background',
+  var(--color-cyber-grape)
+);
+@include palette.palette-set(
+  $PREFIX + 'dark-background',
+  var(--color-rich-black)
+);
+@include palette.palette-set(
+  $PREFIX + 'modal-main-panel',
+  var(--color-navy-taupe)
+);
+@include palette.palette-set(
+  $PREFIX + 'modal-background',
+  var(--color-cyber-grape)
+);
+@include palette.palette-set($PREFIX + 'info', var(--color-sea-serpent));
+@include palette.palette-set($PREFIX + 'notice', var(--color-sea-green));
+@include palette.palette-set($PREFIX + 'warning', var(--color-mustard));
+@include palette.palette-set($PREFIX + 'error', var(--color-neon-coral));
+@include palette.palette-set($PREFIX + 'headings', var(--color-white));
+@include palette.palette-set($PREFIX + 'menu-headings', var(--color-charcoal));
+@include palette.palette-set($PREFIX + 'divider', var(--color-platinum-dark));
+@include palette.palette-set(
+  $PREFIX + 'ring--background',
+  var(--nc-background)
+);
+@include palette.palette-set(
+  $PREFIX + 'ring--accent',
+  var(--color-cyber-grape)
+);
+@include palette.palette-set($PREFIX + 'graph-tooltip', var(--color-charcoal));
+@include palette.palette-set($PREFIX + 'graph-data-1', var(--color-sea-green));
+@include palette.palette-set($PREFIX + 'graph-data-2', var(--color-slate-blue));
+@include palette.palette-set(
+  $PREFIX + 'graph-data-3',
+  var(--color-neon-carrot)
+);
+@include palette.palette-set(
+  $PREFIX + 'graph-data-4',
+  var(--color-sea-serpent)
+);
+@include palette.palette-set(
+  $PREFIX + 'graph-data-5',
+  var(--color-barbie-pink-dark)
+);
+@include palette.palette-set(
+  $PREFIX + 'graph-data-6',
+  var(--color-cyber-grape)
+);
+@include palette.palette-set($PREFIX + 'graph-data-7', var(--color-kiwi));
+@include palette.palette-set(
+  $PREFIX + 'graph-data-8',
+  var(--color-tomato-dark)
+);
+@include palette.palette-set($PREFIX + 'graph-data-9', var(--color-mustard));
+@include palette.palette-set(
+  $PREFIX + 'graph-data-10',
+  var(--color-purple-pizazz)
+);
+@include palette.palette-set(
+  $PREFIX + 'graph-data-11',
+  var(--color-paradise-pink)
+);
+@include palette.palette-set(
+  $PREFIX + 'graph-data-12',
+  var(--color-cerulean-blue)
+);
+@include palette.palette-set(
+  $PREFIX + 'graph-data-13',
+  var(--color-platinum-dark)
+);
+@include palette.palette-set($PREFIX + 'graph-data-14', var(--color-charcoal));
+@include palette.palette-set(
+  $PREFIX + 'graph-data-15',
+  var(--color-navy-taupe)
+);
+
+// Form elements and inputs
+@include palette.palette-set($PREFIX + 'input-border', palette.palette('text'));
+@include palette.palette-set($PREFIX + 'input-text', palette.palette('text'));
+@include palette.palette-set(
+  $PREFIX + 'input-accent',
+  palette.palette('primary')
+);
+@include palette.palette-set($PREFIX + 'input-disabled', var(--color-charcoal));
+@include palette.palette-set($PREFIX + 'form-error-text', var(--color-white));
+
+// Text inputs
+
+// Checknox/radio
+@include palette.palette-set(
+  $PREFIX + 'input-radio--fill',
+  palette.palette('input-accent')
+);
+
+// Color sequences
+@mixin color-sequence($name, $color-list, $with-dark: true) {
+  @each $current-color in $color-list {
+    $i: list.index($color-list, $current-color);
+    @include palette.palette-set(
+      $PREFIX + '#{$name}-#{$i}',
+      var(--color-#{$current-color})
+    );
+    @if $with-dark {
+      @include palette.palette-set(
+        $PREFIX + '#{$name}-#{$i}--dark',
+        var(--color-#{$current-color}-dark)
+      );
+    }
+  }
+}
+
+// vertical align, horizontal align
+@mixin vcjc {
+  justify-content: center;
+  align-items: center;
+}
+
+// Root sequence
+$root-colors: (
+  'neon-coral',
+  'sea-serpent',
+  'purple-pizazz',
+  'neon-carrot',
+  'kiwi',
+  'cerulean-blue',
+  'paradise-pink',
+  'mustard'
+);
+
+@include color-sequence('primary-color-seq', $root-colors, true);
+
+// Edge sequence
+$edge-colors: (
+  'mustard',
+  'purple-pizazz',
+  'neon-coral',
+  'kiwi',
+  'paradise-pink',
+  'tomato',
+  'sea-serpent',
+  'slate-blue',
+  'sea-green',
+  'cerulean-blue'
+);
+
+@include color-sequence('edge-color-seq', $edge-colors, false);
+
+// Node Sequence
+@include palette.palette-set($PREFIX + 'node-label', var(--color-white));
+
+$node-colors: (
+  'neon-coral',
+  'sea-serpent',
+  'purple-pizazz',
+  'neon-carrot',
+  'kiwi',
+  'cerulean-blue',
+  'paradise-pink',
+  'mustard'
+);
+
+@include color-sequence('node-color-seq', $node-colors, true);
+
+// Ordinal Bin Sequence
+$ordinal-colors: (
+  'sea-green',
+  'sea-serpent',
+  'tomato',
+  'neon-carrot',
+  'kiwi',
+  'cerulean-blue',
+  'paradise-pink',
+  'mustard'
+);
+
+@include color-sequence('ord-color-seq', $ordinal-colors, true);
+
+// Categorical Bin Sequence
+$categorical-colors: (
+  'sea-serpent',
+  'purple-pizazz',
+  'mustard',
+  'paradise-pink',
+  'kiwi',
+  'cerulean-blue',
+  'neon-carrot',
+  'barbie-pink',
+  'tomato',
+  'slate-blue'
+);
+
+@include color-sequence('cat-color-seq', $categorical-colors, true);
+
+// Protocol Schema Sequence
+$schema-colors: (
+  'platinum--dark',
+  'cyber-grape',
+  'slate-blue',
+  'sea-serpent',
+  'cerulean-blue',
+  'mustard',
+  'neon-carrot',
+  'barbie-pink',
+  'tomato'
+);
+
+@include color-sequence('schema-color-seq', $schema-colors, true);
+
+:root {
+  // Typographic base styles
+  --interface-prompt-flex-basis: 8rem;
+  --nc-base-font-size: 16px --nc-border-radius: 0.75rem;
+
+  // Link color
+  --nc-link-color: var(--color-neon-coral);
+
+  // each item in color map
+  @each $name, $color in color.$color-map {
+    #{'--'}color-#{$name}: #{'rgb('}#{$color}#{')'};
+    #{'--'}color-#{$name}---rgb: #{$color};
+  }
+
+  // each item in palette
+  @each $name, $palette in palette.$palette-map {
+    #{'--'}#{$name}: #{$palette};
+  }
+
+  // Top level transparentised values
+  --nc-transparent-light: #{rgba(255, 255, 255, 0.3)};
+  --nc-transparent-md: #{rgba(128, 128, 128, 0.3)};
+
+  --nc-narrative-heading-bg-hover: #{rgba(22, 21, 43, 0.15)};
+  --nc-narrative-border-bottom-color: #{rgba(22, 21, 43, 0.15)};
+
+  --nc-node-outer-trim-stroke: #{rgba(255, 255, 255, 0.25)};
+  --nc-node-bucket-bg: #{radial-gradient(
+      ellipse at center,
+      rgba(45, 41, 85, 0.5) 0%,
+      rgba(58, 58, 117, 0.5) 100%
+    )};
+  --nc-node-list-action-bg: #{rgba(58, 58, 117, 0.5)};
+
+  --nc-drop-shadow-color: #{rgba(22, 21, 43, 0.75)};
+
+  // Inputs
+  --nc-input-background: #{rgba(0, 0, 0, 0.33)};
+  --nc-input-label: #{rgba(255, 255, 255, 1)};
+  --nc-input-placeholder: #{rgba(255, 255, 255, 0.25)};
+  --nc-input-panel-bg: var(--color-rich-black);
+
+  --nc-modal-overlay: #{rgba(39, 32, 76, 0.9)};
+  --nc-modal-window-box-shadow: #{rgba(22, 21, 43, 0.75)};
+
+  --nc-panel-selected-node-bg-color: #{rgba(255, 255, 255, 0.05)};
+
+  --nc-panel-bg-muted: #36315f; //sass-lint:disable-line no-color-literals
+
+  --nc-menu-item-hover: #{sass-color.adjust(rgb(0, 201, 162), $lightness: -5%)};
+  --nc-menu-item-hover-settings: #{sass-color.adjust(
+      rgb(107, 114, 236),
+      $lightness: -5%
+    )};
+}
+
+// to export out into css modules for js
+:export {
+  @each $name, $color in color.$color-map {
+    #{$name}: #{$color};
+  }
+}
+
+// Default Breakpoint Settings
+// =============================================================================
+// Replaced breakpoint mixins with explicit responsive classes
+
+.base-hide {
+  display: none;
+}
+
+@media (max-aspect-ratio: 0.625) {
+  .small-hide {
+    display: none;
+  }
+}
+
+@media (min-aspect-ratio: 0.625) {
+  .full-hide {
+    display: none;
+  }
+}
+
+.base-show--flex {
+  display: flex;
+}
+
+@media (max-aspect-ratio: 0.625) {
+  .small-show--flex {
+    display: flex;
+  }
+}
+
+@media (min-aspect-ratio: 0.625) {
+  .full-show--flex {
+    display: flex;
+  }
+}
+
+a {
+  color: var(--nc-link-color);
+}
+
+// Headings
+
+// Based of px sizes in style guide (em values were inconsistent)
+$headings: (
+  h1: (
+    1.75rem,
+    var(--nc-heading-font-family),
+  ),
+  h2: (
+    1.25rem,
+    var(--nc-heading-font-family),
+  ),
+  h3: (
+    1.1625rem,
+    var(--nc-heading-font-family),
+  ),
+  h4: (
+    1rem,
+    var(--nc-heading-font-family),
+  ),
+  h5: (
+    0.75rem,
+    var(--nc-heading-font-family),
+  ),
+);
+
+@if $export-ui-classes {
+  // @include typography.typography-classes; // Removed - use Tailwind text utilities instead
+}

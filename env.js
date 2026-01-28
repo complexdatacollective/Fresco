@@ -33,6 +33,25 @@ export const env = createEnv({
     PUBLIC_URL: z.string().url().optional(),
     INSTALLATION_ID: z.string().optional(),
     DISABLE_ANALYTICS: strictBooleanSchema,
+    /**
+     * DISABLE_NEXT_CACHE Environment Variable
+     *
+     * When set to 'true', completely disables Next.js caching for test isolation.
+     * This variable controls two caching layers:
+     *
+     * 1. File-based Data Cache (next.config.js + lib/cache-handler.cjs)
+     *    - Build time: Includes no-op cache handler in standalone build
+     *    - Runtime: Handler returns cache misses for all operations
+     *
+     * 2. In-memory request deduplication (this file)
+     *    - Runtime: Bypasses unstable_cache entirely
+     *    - Returns unwrapped functions that hit the database directly
+     *
+     * Usage:
+     * - E2E tests: Set at build time (tests/e2e/global-setup.ts) AND runtime
+     * - Production: Not set - uses Next.js default caching
+     */
+    DISABLE_NEXT_CACHE: strictBooleanSchema,
     NODE_ENV: z
       .enum(['development', 'test', 'production'])
       .default('development'),
@@ -51,6 +70,7 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     PUBLIC_URL: process.env.PUBLIC_URL,
     DISABLE_ANALYTICS: process.env.DISABLE_ANALYTICS,
+    DISABLE_NEXT_CACHE: process.env.DISABLE_NEXT_CACHE,
     INSTALLATION_ID: process.env.INSTALLATION_ID,
     SANDBOX_MODE: process.env.SANDBOX_MODE,
     PREVIEW_MODE: process.env.PREVIEW_MODE,

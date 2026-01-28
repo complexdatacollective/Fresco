@@ -4,7 +4,7 @@ import { Download } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/use-toast';
+import { useToast } from '~/components/ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import type { ProtocolWithInterviews } from '../../_components/ProtocolsTable/ProtocolsTableClient';
@@ -18,7 +18,7 @@ function ExportCSVInterviewURLs({
 }) {
   const download = useDownload();
   const [isExporting, setIsExporting] = useState(false);
-  const { toast } = useToast();
+  const { add } = useToast();
 
   const handleExport = () => {
     try {
@@ -42,17 +42,17 @@ function ExportCSVInterviewURLs({
       download(url, fileName);
       // Clean up the URL object
       URL.revokeObjectURL(url);
-      toast({
+      add({
+        title: 'Success',
         description: 'Incomplete interview URLs CSV exported successfully',
-        variant: 'success',
-        duration: 3000,
+        type: 'success',
       });
     } catch (error) {
-      toast({
+      add({
         title: 'Error',
         description:
           'An error occurred while exporting incomplete interview URLs',
-        variant: 'destructive',
+        type: 'destructive',
       });
       throw new Error(
         'An error occurred while exporting incomplete interview URLs',
@@ -68,7 +68,7 @@ function ExportCSVInterviewURLs({
       onClick={handleExport}
       className="w-full"
     >
-      <Download className="mr-2 h-4 w-4" />
+      <Download className="mr-2 size-4" />
       {isExporting ? 'Exporting...' : 'Export Incomplete Interview URLs'}
     </Button>
   );

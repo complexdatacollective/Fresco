@@ -1,0 +1,55 @@
+// Transition helpers
+@use '../mixins';
+@use '../../../legacy-ui/styles/global/core/animation' as ui-animation;
+
+// Re-export transition mixins for easy access
+@mixin transition-properties($properties, $easing, $duration) {
+  @include mixins.transition-properties($properties, $easing, $duration);
+}
+
+@mixin transition-properties-with-delay(
+  $properties,
+  $easing,
+  $duration,
+  $delay: 0s
+) {
+  @include mixins.transition-properties-with-delay(
+    $properties,
+    $easing,
+    $duration,
+    $delay
+  );
+}
+
+@mixin group-transition-with-delay($transition-name, $duration, $delay) {
+  @include ui-animation.group-transition-with-delay(
+    $transition-name,
+    $duration,
+    $delay
+  );
+}
+
+@mixin group-transition-enter {
+  @include ui-animation.group-transition-enter {
+    @content;
+  }
+}
+
+@mixin group-transition-appear {
+  @include ui-animation.group-transition-appear {
+    @content;
+  }
+}
+
+@mixin group-transition-leave {
+  @include ui-animation.group-transition-leave {
+    @content;
+  }
+}
+
+@mixin group-transition(
+  $transition-name,
+  $duration: var(--animation-duration-standard)
+) {
+  @include ui-animation.group-transition($transition-name, $duration);
+}

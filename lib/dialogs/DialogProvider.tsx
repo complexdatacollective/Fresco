@@ -1,49 +1,89 @@
 'use client';
 
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useState,
-  type RefObject,
-} from 'react';
+import React, { createContext, useCallback, useState } from 'react';
 import { flushSync } from 'react-dom';
+import { Button } from '~/components/ui/Button';
 import { generatePublicId } from '~/utils/generatePublicId';
-import { Button } from '../ui/components';
-import { Dialog } from './Dialog';
+import Dialog from './Dialog';
 
-type ConfirmDialog = {
-  type: 'confirm';
-  hideCancel?: boolean;
-  confirmText?: string;
-  cancelText?: string;
-  children?: React.ReactNode;
-};
-
-type CustomDialog<T> = {
-  type: 'custom';
-  renderContent: (resolve: (value: T | null) => void) => React.ReactNode;
-};
-
-type Dialog<T> = {
+type BaseDialog = {
   id?: string;
   title: string;
   description: string;
-  accent?: 'default' | 'danger' | 'success' | 'warning' | 'info';
-} & (ConfirmDialog | CustomDialog<T>);
+  intent?: 'default' | 'destructive' | 'success' | 'info';
+  children?: React.ReactNode;
+};
 
-type DialogState = Dialog<unknown> & {
+export type AcknowledgeDialog = BaseDialog & {
+  type: 'acknowledge';
+  actions: {
+    primary: {
+      label: string;
+      value: true;
+    };
+  };
+};
+
+// Make a choice - no is a valid option
+export type ChoiceDialog<P = unknown, S = unknown, C = null> = BaseDialog & {
+  type: 'choice';
+  intent: 'default' | 'destructive' | 'success' | 'info';
+  actions: {
+    primary: {
+      label: string;
+      value: P;
+    };
+    secondary?: {
+      label: string;
+      value: S;
+    };
+    cancel: {
+      label: string;
+      value: C;
+    };
+  };
+};
+
+export type CustomDialog = BaseDialog & {
+  type: 'custom';
+};
+
+// Helper type to extract return type from a dialog
+export type DialogReturnType<D> = D extends AcknowledgeDialog
+  ? true | null
+  : D extends ChoiceDialog<infer P, infer S, infer C>
+    ? P | S | C | null
+    : unknown;
+
+export type AnyDialog =
+  | AcknowledgeDialog
+  | ChoiceDialog<unknown, unknown, unknown>
+  | CustomDialog;
+
+type DialogState = AnyDialog & {
   id: string;
   resolveCallback: (value: unknown) => void;
-  ref: RefObject<HTMLDialogElement>;
+  open: boolean;
 };
 
-type DialogContextType = {
+export type ConfirmOptions = {
+  onConfirm: () => void | Promise<void>;
+  title?: string;
+  description?: string;
+  confirmLabel: string;
+  cancelLabel?: string;
+  intent?: 'default' | 'destructive';
+};
+
+export type DialogContextType = {
   closeDialog: <T = boolean>(id: string, value: T | null) => Promise<void>;
-  openDialog: <T = boolean>(dialogProps: Dialog<T>) => Promise<T | null>;
+  openDialog: <D extends AnyDialog>(
+    dialogProps: D,
+  ) => Promise<DialogReturnType<D>>;
+  confirm: (options: ConfirmOptions) => Promise<void>;
 };
 
-const DialogContext = createContext<DialogContextType | null>(null);
+export const DialogContext = createContext<DialogContextType | null>(null);
 
 const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -51,9 +91,7 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
   const [dialogs, setDialogs] = useState<DialogState[]>([]);
 
   const openDialog = useCallback(
-    async <T = boolean,>(dialogProps: Dialog<T>): Promise<T | null> => {
-      const dialogRef = React.createRef<HTMLDialogElement>();
-
+    <D extends AnyDialog>(dialogProps: D): Promise<DialogReturnType<D>> => {
       return new Promise((resolveCallback) => {
         flushSync(() =>
           setDialogs((prevDialogs) => [
@@ -62,31 +100,39 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
               ...dialogProps,
               id: dialogProps.id ?? generatePublicId(),
               resolveCallback,
-              ref: dialogRef,
+              open: true,
             } as DialogState,
           ]),
         );
-
-        if (dialogRef.current) {
-          dialogRef.current.showModal();
-        }
       });
     },
     [setDialogs],
   );
 
   const closeDialog = useCallback(
-    async <T = boolean,>(id: string, value: T | null) => {
-      const dialog = dialogs.find((dialog) => dialog.id === id);
+    async <T = boolean,>(id: string, value: T | null = null) => {
+      // Use functional update to access current dialogs state
+      // This avoids stale closure issues when closeDialog is captured in children
+      let dialogToResolve: DialogState | undefined;
 
-      if (!dialog) {
+      setDialogs((prevDialogs) => {
+        dialogToResolve = prevDialogs.find((dialog) => dialog.id === id);
+
+        if (!dialogToResolve) {
+          return prevDialogs; // No change if dialog not found
+        }
+
+        // Set open to false to trigger exit animation
+        return prevDialogs.map((d) =>
+          d.id === id ? { ...d, open: false } : d,
+        );
+      });
+
+      if (!dialogToResolve) {
         throw new Error(`Dialog with ID ${id} does not exist`);
       }
 
-      if (dialog.ref.current) {
-        dialog.ref.current.close();
-        dialog.resolveCallback(value);
-      }
+      dialogToResolve.resolveCallback(value);
 
       // Wait for the animation to finish before removing from state
       await new Promise((resolve) => setTimeout(resolve, 500));
@@ -95,70 +141,111 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
         prevDialogs.filter((dialog) => dialog.id !== id),
       );
     },
-    [dialogs, setDialogs],
+    [setDialogs],
+  );
+
+  const confirm = useCallback(
+    async (options: ConfirmOptions): Promise<void> => {
+      const result = await openDialog({
+        type: 'choice',
+        title: options.title ?? 'Are you sure?',
+        description: options.description ?? 'This action cannot be undone.',
+        intent: options.intent ?? 'destructive',
+        actions: {
+          primary: { label: options.confirmLabel, value: true },
+          cancel: { label: options.cancelLabel ?? 'Cancel', value: false },
+        },
+      });
+      if (result === true) {
+        await options.onConfirm();
+      }
+    },
+    [openDialog],
   );
 
   const contextValue: DialogContextType = {
     closeDialog,
     openDialog,
+    confirm,
+  };
+
+  const renderDialogActions = (dialog: DialogState) => {
+    if (dialog.type === 'acknowledge') {
+      return (
+        <Button
+          color="primary"
+          onClick={() => closeDialog(dialog.id, dialog.actions.primary.value)}
+        >
+          {dialog.actions.primary.label}
+        </Button>
+      );
+    }
+
+    if (dialog.type === 'choice') {
+      // Calculate which button should be auto-focused based on the dialog intent
+      // Aim: least destructive action
+      // If destructive, focus cancel
+      // Otherwise, focus primary
+      const autoFocusButton: 'primary' | 'cancel' =
+        dialog.intent === 'destructive' ? 'cancel' : 'primary';
+
+      // Render buttons in order: secondary, cancel, primary
+      // Primary is visually highlighted
+      // Cancel is not always present
+      // Secondary is optional
+      return (
+        <>
+          {dialog.actions.secondary && (
+            <Button
+              onClick={() =>
+                closeDialog(dialog.id, dialog.actions.secondary!.value)
+              }
+            >
+              {dialog.actions.secondary.label}
+            </Button>
+          )}
+          {dialog.actions.cancel && (
+            <Button
+              onClick={() =>
+                closeDialog(dialog.id, dialog.actions.cancel.value)
+              }
+              autoFocus={autoFocusButton === 'cancel'}
+            >
+              {dialog.actions.cancel.label}
+            </Button>
+          )}
+          <Button
+            color="primary"
+            onClick={() => closeDialog(dialog.id, dialog.actions.primary.value)}
+            autoFocus={autoFocusButton === 'primary'}
+          >
+            {dialog.actions.primary.label}
+          </Button>
+        </>
+      );
+    }
+
+    return null;
   };
 
   return (
     <DialogContext.Provider value={contextValue}>
       {children}
-      {dialogs.map((dialog) => {
-        if (dialog.type === 'confirm') {
-          return (
-            <Dialog
-              key={dialog.id}
-              title={dialog.title}
-              description={dialog.description}
-              closeDialog={() => closeDialog(dialog.id, null)}
-              accent={dialog.accent}
-              ref={dialog.ref}
-            >
-              {dialog.children}
-              <Button
-                onClick={() => closeDialog(dialog.id, true)}
-                color="primary"
-              >
-                {dialog.confirmText ?? 'Acknowledge'}
-              </Button>
-              {!dialog.hideCancel && (
-                <Button onClick={() => closeDialog(dialog.id, null)}>
-                  {dialog.cancelText ?? 'Cancel'}
-                </Button>
-              )}
-            </Dialog>
-          );
-        }
-
-        if (dialog.type === 'custom') {
-          return (
-            <Dialog
-              key={dialog.id}
-              title={dialog.title}
-              description={dialog.description}
-              closeDialog={() => closeDialog(dialog.id, null)}
-              accent={dialog.accent}
-              ref={dialog.ref}
-            >
-              {dialog.renderContent((value) => closeDialog(dialog.id, value))}
-            </Dialog>
-          );
-        }
-      })}
+      {dialogs.map((dialog) => (
+        <Dialog
+          key={dialog.id}
+          title={dialog.title}
+          description={dialog.description}
+          closeDialog={() => closeDialog(dialog.id)}
+          accent={dialog.intent}
+          open={dialog.open}
+          footer={renderDialogActions(dialog)}
+        >
+          {dialog.children}
+        </Dialog>
+      ))}
     </DialogContext.Provider>
   );
-};
-
-export const useDialog = (): DialogContextType => {
-  const context = useContext(DialogContext);
-  if (!context) {
-    throw new Error('useDialog must be used within a DialogProvider');
-  }
-
-  return context;
 };
 
 export default DialogProvider;

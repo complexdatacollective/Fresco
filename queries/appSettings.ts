@@ -1,9 +1,8 @@
 'use server';
 
-import { unstable_noStore } from 'next/cache';
 import { redirect } from 'next/navigation';
 import 'server-only';
-import type { z } from 'zod';
+import { type z } from 'zod';
 import { env } from '~/env';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { createCachedFunction } from '~/lib/cache';
@@ -58,7 +57,6 @@ export async function requireAppNotExpired(isSetupRoute = false) {
 }
 
 async function isAppExpired() {
-  unstable_noStore();
   const isConfigured = await getAppSetting('configured');
   const initializedAt = await getAppSetting('initializedAt');
 

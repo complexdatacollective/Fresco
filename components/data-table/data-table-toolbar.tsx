@@ -1,7 +1,7 @@
 'use client';
 
 import type { Table } from '@tanstack/react-table';
-import { PlusCircle, Trash, X } from 'lucide-react';
+import { PlusCircle, Search, Trash, X } from 'lucide-react';
 import Link from 'next/link';
 import * as React from 'react';
 import { type UrlObject } from 'url';
@@ -11,8 +11,8 @@ import {
   type DataTableSearchableColumn,
 } from '~/components/DataTable/types';
 import { Button, buttonVariants } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
-import { cn } from '~/utils/shadcn';
+import InputField from '~/lib/form/components/fields/InputField';
+import { cx } from '~/utils/cva';
 
 type DataTableToolbarProps<TData> = {
   table: Table<TData>;
@@ -32,14 +32,20 @@ export function DataTableToolbar<TData>({
   const isFiltered = table.getState().columnFilters?.length > 0;
   const [isPending, startTransition] = React.useTransition();
 
+  if (searchableColumns.length === 0 && filterableColumns.length === 0) {
+    return null;
+  }
+
   return (
-    <div className="flex w-full items-center justify-between space-y-4 overflow-auto">
+    <div className="mx-auto flex w-fit items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
         {searchableColumns.length > 0 &&
           searchableColumns.map(
             (column) =>
               table.getColumn(column.id ? String(column.id) : '') && (
-                <Input
+                <InputField
+                  type="search"
+                  prefixComponent={<Search />}
                   name="Filter"
                   key={String(column.id)}
                   placeholder={`Filter ${column.title}...`}
@@ -48,12 +54,10 @@ export function DataTableToolbar<TData>({
                       .getColumn(String(column.id))
                       ?.getFilterValue() as string) ?? ''
                   }
-                  onChange={(event) =>
-                    table
-                      .getColumn(String(column.id))
-                      ?.setFilterValue(event.target.value)
+                  onChange={(value) =>
+                    table.getColumn(String(column.id))?.setFilterValue(value)
                   }
-                  className="mt-0"
+                  // className="w-fit"
                 />
               ),
           )}
@@ -71,13 +75,11 @@ export function DataTableToolbar<TData>({
           )}
         {isFiltered && (
           <Button
-            aria-label="Reset filters"
-            variant="ghost"
-            className="h-10 px-2 lg:px-3"
+            variant="text"
             onClick={() => table.resetColumnFilters()}
+            icon={<X className="size-4" aria-hidden="true" />}
           >
-            Reset
-            <X className="ml-2 size-4" aria-hidden="true" />
+            Clear Filters
           </Button>
         )}
       </div>
@@ -86,8 +88,6 @@ export function DataTableToolbar<TData>({
           <Button
             aria-label="Delete selected rows"
             variant="outline"
-            size="sm"
-            className="h-10"
             onClick={(event) => {
               startTransition(() => {
                 table.toggleAllPageRowsSelected(false);
@@ -102,11 +102,10 @@ export function DataTableToolbar<TData>({
         ) : newRowLink ? (
           <Link aria-label="Create new row" href={newRowLink}>
             <div
-              className={cn(
+              className={cx(
                 buttonVariants({
                   variant: 'outline',
                   size: 'sm',
-                  className: 'h-10',
                 }),
               )}
             >
@@ -115,7 +114,6 @@ export function DataTableToolbar<TData>({
             </div>
           </Link>
         ) : null}
-        {/* <DataTableViewOptions table={table} /> */}
       </div>
     </div>
   );

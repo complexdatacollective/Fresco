@@ -17,7 +17,13 @@ export type GetData = ReturnType<typeof getData>;
 export default function ProtocolsTable() {
   return (
     <Suspense
-      fallback={<DataTableSkeleton columnCount={4} filterableColumnCount={1} />}
+      fallback={
+        <DataTableSkeleton
+          columnCount={4}
+          searchableColumnCount={1}
+          headerItemsCount={1}
+        />
+      }
     >
       <ProtocolsTableClient dataPromise={getData()} />
     </Suspense>

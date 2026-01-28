@@ -1,17 +1,12 @@
-@use '../../ui/styles/global/core/_units';
-@import '../../ui/styles/_all';
-@import 'helpers/_all';
-@import 'components/_all';
-@import 'containers/_all';
-@import '_transitions';
+@use '../../legacy-ui/styles/global/core/units';
+@use '../../legacy-ui/styles/all' as ui;
+@use 'helpers/all' as helpers;
+@use 'components/all' as components;
+@use 'containers/all' as containers;
+@use 'transitions';
 
-$font-path: '~~/lib/ui/assets/fonts';
-$image-path: '~~/lib/ui/assets/images';
-
-body,
-html {
-  overflow: hidden;
-}
+$font-path: '~/lib/legacy-ui/assets/fonts';
+$image-path: '~/lib/legacy-ui/assets/images';
 
 // Override UI toast style for now (make wider)
 .toast-container-list {

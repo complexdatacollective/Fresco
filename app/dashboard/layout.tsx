@@ -17,12 +17,11 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
   const uploadThingToken = await getAppSetting('uploadThingToken');
 
   return (
-    <>
+    <div className="tablet:gap-16 mb-10 flex flex-col gap-10 px-2">
       <NavigationBar />
       {!uploadThingToken && <UploadThingModal />}
-
       {children}
-    </>
+    </div>
   );
 };
 

@@ -1,93 +1,63 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
+import { User2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { login } from '~/actions/auth';
-import UnorderedList from '~/components/typography/UnorderedList';
-import { Button } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
-import { useToast } from '~/components/ui/use-toast';
-import useZodForm from '~/hooks/useZodForm';
+import PasswordField from '~/app/(blobs)/(setup)/_components/PasswordField';
+import { DialogFooter } from '~/lib/dialogs/Dialog';
+import Field from '~/lib/form/components/Field/Field';
+import Form from '~/lib/form/components/Form';
+import SubmitButton from '~/lib/form/components/SubmitButton';
+import InputField from '~/lib/form/components/fields/InputField';
+import { type FormSubmitHandler } from '~/lib/form/store/types';
 import { loginSchema } from '~/schemas/auth';
 
 export const SignInForm = () => {
-  const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors, isSubmitting },
-  } = useZodForm({
-    schema: loginSchema,
-  });
-
-  const { toast } = useToast();
   const router = useRouter();
 
-  const onSubmit = async (data: unknown) => {
+  const handleSubmit: FormSubmitHandler = async (data) => {
     const result = await login(data);
 
     if (result.success === true) {
       router.push('/dashboard');
-      return;
+      return result;
     }
 
-    // Handle formErrors
-    if (result.formErrors.length > 0) {
-      toast({
-        variant: 'destructive',
-        title: 'Login failed',
-        description: (
-          <>
-            <UnorderedList>
-              {result.formErrors.map((error) => (
-                <li key={error}>{error}</li>
-              ))}
-            </UnorderedList>
-          </>
-        ),
-      });
-    }
-
-    // Handle field errors
-    if (result.fieldErrors) {
-      for (const [field, message] of Object.entries(result.fieldErrors)) {
-        setError(`root.${field}`, { types: { type: 'manual', message } });
-      }
-    }
+    return result;
   };
 
   return (
-    <form
-      onSubmit={(event) => void handleSubmit(onSubmit)(event)}
-      className="flex w-full flex-col"
-    >
-      <div className="mb-6 flex flex-wrap">
-        <Input
-          label="Username"
-          autoComplete="username"
-          error={errors.username?.message}
-          className="w-full"
-          {...register('username')}
-          autoCapitalize="none"
-          autoCorrect="off"
-        />
-      </div>
-      <div className="mb-6 flex flex-wrap">
-        <Input
-          type="password"
-          label="Password"
-          autoComplete="current-password"
-          className="w-full"
-          error={errors.password?.message}
-          {...register('password')}
-        />
-      </div>
-      <div className="flex flex-wrap">
-        <Button disabled={isSubmitting} type="submit">
-          {isSubmitting && <Loader2 className="mr-2 animate-spin" />}
-          {isSubmitting ? 'Signing in...' : 'Sign In'}
-        </Button>
-      </div>
-    </form>
+    <Form onSubmit={handleSubmit} className="w-full">
+      <Field
+        key="username"
+        name="username"
+        label="Username"
+        placeholder="Enter your username"
+        custom={{
+          schema: loginSchema.shape.username,
+          hint: 'Enter your username',
+        }}
+        component={InputField}
+        autoComplete="username"
+        prefixComponent={<User2 className="size-4" />}
+      />
+      <Field
+        key="password"
+        name="password"
+        label="Password"
+        placeholder="Enter your password"
+        component={PasswordField}
+        custom={{
+          schema: loginSchema.shape.password,
+          hint: 'Enter your password',
+        }}
+        autoComplete="current-password"
+      />
+      <DialogFooter>
+        <SubmitButton key="submit" submittingText="Signing in...">
+          Sign In
+        </SubmitButton>
+      </DialogFooter>
+    </Form>
   );
 };

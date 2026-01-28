@@ -6,8 +6,10 @@ import { type Asset } from '~/lib/db/generated/client';
 import { createSelector, createSlice } from '@reduxjs/toolkit';
 import { v4 } from 'uuid';
 import { type GetInterviewByIdQuery } from '~/queries/interviews';
+import { type Serialize } from '~/utils/serializeHelpers';
 
-type ProtocolState = NonNullable<GetInterviewByIdQuery>['protocol'];
+// Redux stores dates as ISO strings to ensure serializability
+type ProtocolState = Serialize<NonNullable<GetInterviewByIdQuery>['protocol']>;
 
 const initialState = {} as ProtocolState;
 

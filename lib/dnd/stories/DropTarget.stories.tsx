@@ -67,7 +67,7 @@ function DropTargetExample({
   minHeight?: number;
 }) {
   const { dropProps, isOver, willAccept, isDragging } = useDropTarget({
-    id: `drop-${Math.random().toString(36).substr(2, 9)}`,
+    id: `drop-${Math.random().toString(36).slice(2, 11)}`,
     accepts,
     announcedName: name ?? 'Drop Target',
     onDrop,

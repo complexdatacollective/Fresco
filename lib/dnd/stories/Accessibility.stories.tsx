@@ -141,7 +141,6 @@ function AccessibleDropZone({
           e.currentTarget.style.borderStyle = 'dashed';
           e.currentTarget.style.boxShadow = 'none';
           e.currentTarget.style.transform = 'scale(1)';
-          // Restore original border color based on state
           const originalColor = willAccept
             ? isOver
               ? '#4caf50'
@@ -353,11 +352,9 @@ function LoggingDragItem({
     announcedName: announcedName ?? `${type} ${id}`,
   });
 
-  // Custom announcement wrapper
   const customAnnounce = useCallback(
     (message: string) => {
       onAnnounce(message);
-      // Also call the real announce for screen readers
       announce(message);
     },
     [onAnnounce, announce],
@@ -391,12 +388,10 @@ function LoggingDragItem({
         e.currentTarget.style.transform = 'none';
       }}
       onKeyDown={(e) => {
-        // Call the original drag source key handler first
         if (dragProps.onKeyDown) {
           dragProps.onKeyDown(e);
         }
 
-        // Add our custom logging for keyboard start
         if ((e.key === ' ' || e.key === 'Enter') && !isDragging) {
           customAnnounce(`Started dragging ${announcedName ?? id}`);
         }
@@ -1019,7 +1014,6 @@ export const AccessibilityPlayground: Story = {
                 style={{
                   position: 'relative',
                   pointerEvents: config.keyboardOnly ? 'none' : 'auto',
-                  // Enhanced focus ring when option is enabled
                   ...(config.showFocusRings && {
                     borderWidth: '3px',
                     borderColor: '#2196f3',

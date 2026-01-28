@@ -3,9 +3,12 @@
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import z from 'zod';
+import { type FormSubmissionResult } from '~/lib/form/store/types';
 import { createUserFormDataSchema, loginSchema } from '~/schemas/auth';
 import { auth, getServerSession } from '~/utils/auth';
 import { prisma } from '~/lib/db';
+import { addEvent } from './activityFeed';
 
 export async function signup(formData: unknown) {
   const parsedFormData = createUserFormDataSchema.safeParse(formData);
@@ -63,24 +66,13 @@ export async function signup(formData: unknown) {
   }
 }
 
-export const login = async (
-  data: unknown,
-): Promise<
-  | {
-      success: true;
-    }
-  | {
-      success: false;
-      formErrors: string[];
-      fieldErrors?: Record<string, string[]>;
-    }
-> => {
+export const login = async (data: unknown): Promise<FormSubmissionResult> => {
   const parsedFormData = loginSchema.safeParse(data);
 
   if (!parsedFormData.success) {
     return {
       success: false,
-      ...parsedFormData.error.flatten(),
+      ...z.flattenError(parsedFormData.error),
     };
   }
 
@@ -132,6 +124,8 @@ export const login = async (
     sessionCookie.value,
     sessionCookie.attributes,
   );
+
+  void addEvent('User Login', `User ${username} logged in`);
 
   return {
     success: true,

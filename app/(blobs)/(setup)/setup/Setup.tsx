@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { useEffect } from 'react';
 import { containerClasses } from '~/components/ContainerClasses';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import ConnectUploadThing from '../_components/OnboardSteps/ConnectUploadThing';
 import CreateAccount from '../_components/OnboardSteps/CreateAccount';
 import Documentation from '../_components/OnboardSteps/Documentation';
@@ -44,35 +44,23 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
     },
   ];
 
-  const cardClasses = cn(containerClasses, 'flex-row bg-transparent p-0 gap-6');
-  const mainClasses = cn('bg-white flex w-full p-12 rounded-xl');
+  const cardClasses = cx(
+    containerClasses,
+    'flex flex-row gap-6 bg-transparent p-0',
+  );
+  const mainClasses = cx('flex w-full rounded bg-white p-12');
 
   useEffect(() => {
+    // Redirect to step 1 if we aren't authenticated
     if (!setupData.hasAuth && step > 1) {
       void setStep(1);
       return;
     }
 
+    // Don't show the user creation step if we _are_ authenticated
     if (setupData.hasAuth && step === 1) {
       void setStep(2);
       return;
-    }
-
-    if (setupData.hasAuth && step === 2 && setupData.hasUploadThingToken) {
-      void setStep(3);
-      return;
-    }
-
-    //  if we're past step 2 but we still have null values, go back to step 2
-    if (setupData.hasAuth && step > 2) {
-      if (
-        !setupData.hasUploadThingToken ||
-        setupData.allowAnonymousRecruitment === null ||
-        setupData.limitInterviews === null
-      ) {
-        void setStep(2);
-        return;
-      }
     }
   }, [step, setStep, setupData]);
 

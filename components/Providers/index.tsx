@@ -1,18 +1,30 @@
 'use client';
 
-import { MotionConfig } from 'motion/react';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import { Toast } from '@base-ui/react/toast';
+import { MotionConfig, MotionGlobalConfig } from 'motion/react';
 import { type ReactNode } from 'react';
 import DialogProvider from '~/lib/dialogs/DialogProvider';
-import { Toaster } from '../ui/toaster';
-import RadixDirectionProvider from './RadixDirectionProvider';
+import { DndStoreProvider } from '~/lib/dnd';
+import ProtocolImportProvider from '~/lib/protocol-import/ProtocolImportProvider';
+import { Toaster } from '../ui/Toast';
+
+// eslint-disable-next-line no-process-env
+MotionGlobalConfig.skipAnimations = !!process.env.CI;
 
 export default function Providers({ children }: { children: ReactNode }) {
   return (
     <MotionConfig reducedMotion="user">
-      <RadixDirectionProvider dir="ltr">
-        <DialogProvider>{children}</DialogProvider>
-        <Toaster />
-      </RadixDirectionProvider>
+      <DirectionProvider direction="ltr">
+        <Toast.Provider limit={7}>
+          <DndStoreProvider>
+            <ProtocolImportProvider>
+              <DialogProvider>{children}</DialogProvider>
+            </ProtocolImportProvider>
+          </DndStoreProvider>
+          <Toaster />
+        </Toast.Provider>
+      </DirectionProvider>
     </MotionConfig>
   );
 }

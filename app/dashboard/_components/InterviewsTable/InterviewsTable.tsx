@@ -1,7 +1,6 @@
 'use client';
 
 import { HardDriveUpload } from 'lucide-react';
-import { hash as objectHash } from 'ohash';
 import { use, useMemo, useState } from 'react';
 import superjson from 'superjson';
 import { ActionsDropdown } from '~/app/dashboard/_components/InterviewsTable/ActionsDropdown';
@@ -66,7 +65,6 @@ export const InterviewsTable = ({
   return (
     <>
       <ExportInterviewsDialog
-        key={objectHash(selectedInterviews)}
         open={showExportModal}
         handleCancel={handleResetExport}
         interviewsToExport={selectedInterviews!}
@@ -90,11 +88,12 @@ export const InterviewsTable = ({
         headerItems={
           <>
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button disabled={interviews.length === 0}>
-                  <HardDriveUpload className="mr-2 inline-block h-4 w-4" />
-                  Export Interview Data
-                </Button>
+              <DropdownMenuTrigger
+                render={<Button icon={<HardDriveUpload />} />}
+                disabled={interviews.length === 0}
+                nativeButton
+              >
+                Export Interview Data
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={handleExportAll}>

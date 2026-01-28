@@ -2,7 +2,10 @@
 
 import('./env.js');
 import ChildProcess from 'node:child_process';
+import { createRequire } from 'node:module';
 import pkg from './package.json' with { type: 'json' };
+
+const require = createRequire(import.meta.url);
 
 let commitHash = 'Unknown commit hash';
 
@@ -23,13 +26,24 @@ try {
   }
 }
 
+// eslint-disable-next-line no-process-env
+const disableNextCache = process.env.DISABLE_NEXT_CACHE === 'true';
+
 /** @type {import("next").NextConfig} */
 const config = {
   output: 'standalone',
   reactStrictMode: true,
+  // Use no-op cache handler for E2E tests, otherwise use Next.js default
+  // See lib/cache-handler.cjs and lib/cache.ts for caching strategy docs
+  cacheHandler: disableNextCache
+    ? require.resolve('./lib/cache-handler.cjs')
+    : undefined,
   experimental: {
     typedRoutes: true,
     webpackBuildWorker: true,
+  },
+  sassOptions: {
+    implementation: 'sass-embedded',
   },
   images: {
     // Disable image optimization when DISABLE_IMAGE_OPTIMIZATION is set.

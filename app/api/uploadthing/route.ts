@@ -1,3 +1,4 @@
+import { invariant } from 'es-toolkit';
 import { type NextRequest } from 'next/server';
 import { createRouteHandler } from 'uploadthing/next';
 import { getAppSetting } from '~/queries/appSettings';
@@ -15,6 +16,11 @@ import { ourFileRouter } from './core';
  */
 const routeHandler = async () => {
   const uploadThingToken = await getAppSetting('uploadThingToken');
+
+  invariant(
+    uploadThingToken,
+    'UploadThing token is not set. Please set it in the app settings.',
+  );
 
   const handler = createRouteHandler({
     router: ourFileRouter,

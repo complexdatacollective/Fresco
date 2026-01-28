@@ -1,5 +1,7 @@
+@use '../../../legacy-ui/styles/global/core/animation';
+
 .node-bin {
-  @include transition-properties(
+  @include animation.transition-properties(
     (opacity transform),
     var(--animation-easing),
     var(--animation-duration-fast)

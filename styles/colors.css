@@ -1,0 +1,141 @@
+/*
+ * Color values use unitless lightness (0-1) instead of percentages (0%-100%)
+ * because CSS relative color syntax requires unitless values in calc().
+ * e.g., oklch(from var(--color) calc(l - var(--dark-mod)) c h)
+ * See: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_colors/Relative_colors
+ */
+:root {
+  --white: 1 0 0;
+  --black: 0 0 0;
+
+  --dark-mod: 0.05;
+
+  /* Neon Coral */
+  --neon-coral-lightness: 0.5733;
+  --neon-coral-chroma: 0.2584;
+  --neon-coral-hue: 11.57;
+  --neon-coral: var(--neon-coral-lightness) var(--neon-coral-chroma)
+    var(--neon-coral-hue);
+  --neon-coral--dark: calc(var(--neon-coral-lightness) - var(--dark-mod))
+    var(--neon-coral-chroma) var(--neon-coral-hue);
+
+  /* Mustard */
+  --mustard-lightness: 0.81;
+  --mustard-chroma: 0.17;
+  --mustard-hue: 86.39;
+  --mustard: var(--mustard-lightness) var(--mustard-chroma) var(--mustard-hue);
+  --mustard--dark: calc(var(--mustard-lightness) - var(--dark-mod))
+    var(--mustard-chroma) var(--mustard-hue);
+
+  /* Sea Green */
+  --sea-green-lightness: 0.7;
+  --sea-green-chroma: 0.2;
+  --sea-green-hue: 171.52;
+  --sea-green: var(--sea-green-lightness) var(--sea-green-chroma)
+    var(--sea-green-hue);
+  --sea-green--dark: calc(var(--sea-green-lightness) - var(--dark-mod))
+    var(--sea-green-chroma) var(--sea-green-hue);
+
+  /* Cyber Grape */
+  --cyber-grape-lightness: 0.3;
+  --cyber-grape-chroma: 0.09;
+  --cyber-grape-hue: 281;
+  --cyber-grape: var(--cyber-grape-lightness) var(--cyber-grape-chroma)
+    var(--cyber-grape-hue);
+  --cyber-grape--dark: calc(var(--cyber-grape-lightness) - var(--dark-mod))
+    var(--cyber-grape-chroma) var(--cyber-grape-hue);
+
+  /* Sea Serpent */
+  --sea-serpent-lightness: 0.7383;
+  --sea-serpent-chroma: 0.13;
+  --sea-serpent-hue: 217.55;
+  --sea-serpent: var(--sea-serpent-lightness) var(--sea-serpent-chroma)
+    var(--sea-serpent-hue);
+  --sea-serpent--dark: calc(var(--sea-serpent-lightness) - var(--dark-mod))
+    var(--sea-serpent-chroma) var(--sea-serpent-hue);
+
+  /* Purple pizzazz */
+  --purple-pizazz-lightness: 0.6249;
+  --purple-pizazz-chroma: 0.288;
+  --purple-pizazz-hue: 320.46;
+  --purple-pizazz: var(--purple-pizazz-lightness) var(--purple-pizazz-chroma)
+    var(--purple-pizazz-hue);
+  --purple-pizazz--dark: calc(var(--purple-pizazz-lightness) - var(--dark-mod))
+    var(--purple-pizazz-chroma) var(--purple-pizazz-hue);
+
+  /* Paradise Pink */
+  --paradise-pink-lightness: 0.6586;
+  --paradise-pink-chroma: 0.253;
+  --paradise-pink-hue: 359.2;
+  --paradise-pink: var(--paradise-pink-lightness) var(--paradise-pink-chroma)
+    var(--paradise-pink-hue);
+  --paradise-pink--dark: calc(var(--paradise-pink-lightness) - var(--dark-mod))
+    var(--paradise-pink-chroma) var(--paradise-pink-hue);
+
+  /* Cerulean Blue */
+  --cerulean-blue-lightness: 0.5824;
+  --cerulean-blue-chroma: 0.229;
+  --cerulean-blue-hue: 260.09;
+  --cerulean-blue: var(--cerulean-blue-lightness) var(--cerulean-blue-chroma)
+    var(--cerulean-blue-hue);
+  --cerulean-blue--dark: calc(var(--cerulean-blue-lightness) - var(--dark-mod))
+    var(--cerulean-blue-chroma) var(--cerulean-blue-hue);
+
+  /* Kiwi */
+  --kiwi-lightness: 0.7436;
+  --kiwi-chroma: 0.157;
+  --kiwi-hue: 137.61;
+  --kiwi: var(--kiwi-lightness) var(--kiwi-chroma) var(--kiwi-hue);
+  --kiwi--dark: calc(var(--kiwi-lightness) - var(--dark-mod)) var(--kiwi-chroma)
+    var(--kiwi-hue);
+
+  /* Neon Carrot */
+  --neon-carrot-lightness: 0.7487;
+  --neon-carrot-chroma: 0.161;
+  --neon-carrot-hue: 62.61;
+  --neon-carrot: var(--neon-carrot-lightness) var(--neon-carrot-chroma)
+    var(--neon-carrot-hue);
+  --neon-carrot--dark: calc(var(--neon-carrot-lightness) - var(--dark-mod))
+    var(--neon-carrot-chroma) var(--neon-carrot-hue);
+
+  /* Barbie Pink */
+  --barbie-pink-lightness: 0.6182;
+  --barbie-pink-chroma: 0.251;
+  --barbie-pink-hue: 359.853;
+  --barbie-pink: var(--barbie-pink-lightness) var(--barbie-pink-chroma)
+    var(--barbie-pink-hue);
+  --barbie-pink--dark: calc(var(--barbie-pink-lightness) - var(--dark-mod))
+    var(--barbie-pink-chroma) var(--barbie-pink-hue);
+
+  /* Tomato */
+  --tomato-lightness: 0.5599;
+  --tomato-chroma: 0.25;
+  --tomato-hue: 23.69;
+  --tomato: var(--tomato-lightness) var(--tomato-chroma) var(--tomato-hue);
+  --tomato--dark: calc(var(--tomato-lightness) - var(--dark-mod))
+    var(--tomato-chroma) var(--tomato-hue);
+
+  /* Charcoal */
+  --charcoal-lightness: 0.3;
+  --charcoal-chroma: 0.02;
+  --charcoal-hue: 210;
+  --charcoal: var(--charcoal-lightness) var(--charcoal-chroma)
+    var(--charcoal-hue);
+  --charcoal--dark: calc(var(--charcoal-lightness) - var(--dark-mod))
+    var(--charcoal-chroma) var(--charcoal-hue);
+
+  /*
+  These colors are essentially variations of cyber grape:
+  */
+  --navy-taupe: 0.28 var(--cyber-grape-chroma) var(--cyber-grape-hue);
+  --navy-taupe--dark: calc(0.28 - var(--dark-mod)) var(--cyber-grape-chroma)
+    var(--cyber-grape-hue);
+  --rich-black: 0.02 var(--cyber-grape-chroma) var(--cyber-grape-hue);
+  --rich-black--dark: calc(0.02 - var(--dark-mod)) var(--cyber-grape-chroma)
+    var(--cyber-grape-hue);
+  --platinum: 0.9593 0.009 var(--cyber-grape-hue);
+  --platinum--dark: calc(0.9593 - var(--dark-mod)) 0.009 var(--cyber-grape-hue);
+  --slate-blue: 0.55 calc(var(--cyber-grape-chroma) * 2.2) var(--cyber-grape-hue);
+  --slate-blue--dark: calc(0.55 - var(--dark-mod))
+    calc(var(--cyber-grape-chroma) * 2.2) var(--cyber-grape-hue);
+}

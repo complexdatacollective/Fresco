@@ -1,16 +1,10 @@
 'use client';
 
 import { type ColumnDef } from '@tanstack/react-table';
-import { InfoIcon } from 'lucide-react';
 import Image from 'next/image';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import InfoTooltip from '~/components/InfoTooltip';
-import Link from '~/components/Link';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
-import { buttonVariants } from '~/components/ui/Button';
-import { Checkbox } from '~/components/ui/checkbox';
 import TimeAgo from '~/components/ui/TimeAgo';
+import Checkbox from '~/lib/form/components/fields/Checkbox';
 import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';
 import type { ProtocolWithInterviews } from './ProtocolsTableClient';
 
@@ -23,14 +17,16 @@ export const getProtocolColumns = (
       header: ({ table }) => (
         <Checkbox
           checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          onCheckedChange={(value: boolean) =>
+            table.toggleAllPageRowsSelected(!!value)
+          }
           aria-label="Select all"
         />
       ),
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          onCheckedChange={(value: boolean) => row.toggleSelected(!!value)}
           aria-label="Select row"
         />
       ),
@@ -75,38 +71,11 @@ export const getProtocolColumns = (
   if (allowAnonRecruitment) {
     columns.push({
       id: 'participant-url',
-      header: () => {
+      header: ({ column }) => {
         return (
-          <InfoTooltip
-            trigger={
-              <div
-                className={buttonVariants({
-                  variant: 'tableHeader',
-                  size: 'sm',
-                })}
-              >
-                <span>Anonymous Participation URL</span>
-                <InfoIcon className="mx-2 h-4 w-4" />
-              </div>
-            }
-            content={
-              <>
-                <Heading variant="h4-all-caps">
-                  Anonymous Participation URLs
-                </Heading>
-                <Paragraph>
-                  Anonymous recruitment is enabled, so you can generate
-                  anonymous participation URLs for your protocols from the
-                  &quot;Anonymous Participation URL&quot; column in the table
-                  below.. These URLs can be shared with participants to allow
-                  them to self-enroll in your study.
-                </Paragraph>
-                <Paragraph>
-                  To disable anonymous recruitment, visit the{' '}
-                  <Link href="/dashboard/settings">settings page</Link>.
-                </Paragraph>
-              </>
-            }
+          <DataTableColumnHeader
+            column={column}
+            title="Anonymous Participation URL"
           />
         );
       },

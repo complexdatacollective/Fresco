@@ -8,11 +8,11 @@ const PageHeader = ({
   headerText: string;
   subHeaderText: string;
 }) => (
-  <div>
-    <Heading variant="h1" className="mb-2">
+  <div className="mx-auto max-w-3xl">
+    <Heading level="h1" variant="page-heading" margin="none">
       {headerText}
     </Heading>
-    <Paragraph variant="lead">{subHeaderText}</Paragraph>
+    <Paragraph intent="lead">{subHeaderText}</Paragraph>
   </div>
 );
 

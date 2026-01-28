@@ -7,14 +7,6 @@ export type Option = {
   icon?: React.ComponentType<{ className?: string }>;
 };
 
-export type DataTableFilterOption<TData> = {
-  id?: string;
-  label: string;
-  value: keyof TData | string;
-  items: Option[];
-  isMulti?: boolean;
-};
-
 export type DataTableSearchableColumn<TData> = {
   id: keyof TData;
   title: string;
@@ -39,6 +31,10 @@ export const activityTypes = [
   'API Token Updated',
   'API Token Deleted',
   'Preview Mode',
+  'User Login',
+  'User Created',
+  'User Deleted',
+  'Password Changed',
 ] as const;
 
 export type ActivityType = (typeof activityTypes)[number];

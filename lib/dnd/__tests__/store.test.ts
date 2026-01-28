@@ -324,4 +324,55 @@ describe('DnD Store', () => {
       expect(storedTarget?.isOver).toBe(false);
     });
   });
+
+  describe('focus coordination after drop', () => {
+    it('should have null focus state by default', () => {
+      const state = store.getState();
+      expect(state.pendingFocusZoneId).toBe(null);
+      expect(state.pendingFocusItemId).toBe(null);
+    });
+
+    it('should set pending focus with zone and item id', () => {
+      store.getState().requestFocus('zone-1', 'item-1');
+
+      const state = store.getState();
+      expect(state.pendingFocusZoneId).toBe('zone-1');
+      expect(state.pendingFocusItemId).toBe('item-1');
+    });
+
+    it('should set pending focus with zone id and null item (stay-in-source)', () => {
+      store.getState().requestFocus('zone-1', null);
+
+      const state = store.getState();
+      expect(state.pendingFocusZoneId).toBe('zone-1');
+      expect(state.pendingFocusItemId).toBe(null);
+    });
+
+    it('should clear pending focus for matching zone', () => {
+      store.getState().requestFocus('zone-1', 'item-1');
+      store.getState().clearPendingFocus('zone-1');
+
+      const state = store.getState();
+      expect(state.pendingFocusZoneId).toBe(null);
+      expect(state.pendingFocusItemId).toBe(null);
+    });
+
+    it('should not clear pending focus for non-matching zone', () => {
+      store.getState().requestFocus('zone-1', 'item-1');
+      store.getState().clearPendingFocus('zone-2');
+
+      const state = store.getState();
+      expect(state.pendingFocusZoneId).toBe('zone-1');
+      expect(state.pendingFocusItemId).toBe('item-1');
+    });
+
+    it('should overwrite previous focus request with new one', () => {
+      store.getState().requestFocus('zone-1', 'item-1');
+      store.getState().requestFocus('zone-2', 'item-2');
+
+      const state = store.getState();
+      expect(state.pendingFocusZoneId).toBe('zone-2');
+      expect(state.pendingFocusItemId).toBe('item-2');
+    });
+  });
 });

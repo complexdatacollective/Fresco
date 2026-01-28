@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
-import SettingsSection from '~/components/layout/SettingsSection';
-import Paragraph from '~/components/typography/Paragraph';
+import SettingsField from '~/components/settings/SettingsField';
 import { getAppSetting } from '~/queries/appSettings';
 import { getParticipants } from '~/queries/participants';
 import { getProtocols } from '~/queries/protocols';
@@ -14,15 +13,17 @@ export default function RecruitmentTestSectionServer() {
   );
 
   return (
-    <SettingsSection devOnly heading="Recruitment Test Section">
-      <Paragraph>This section allows you to test recruitment.</Paragraph>
-      <Suspense fallback="Loading">
+    <SettingsField
+      label="Recruitment Test"
+      description="This section allows you to test recruitment."
+    >
+      <Suspense fallback="Loading...">
         <RecruitmentTestSection
           protocolsPromise={protocolsPromise}
           participantsPromise={participantsPromise}
           allowAnonymousRecruitmentPromise={allowAnonymousRecruitmentPromise}
         />
       </Suspense>
-    </SettingsSection>
+    </SettingsField>
   );
 }

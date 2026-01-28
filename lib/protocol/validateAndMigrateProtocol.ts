@@ -8,7 +8,7 @@ import {
 } from '@codaco/protocol-validation';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
 
-export type ProtocolValidationSuccess = {
+type ProtocolValidationSuccess = {
   success: true;
   protocol: CurrentProtocol;
 };
@@ -67,7 +67,10 @@ export async function validateAndMigrateProtocol(
 
   if (protocolVersion < CURRENT_SCHEMA_VERSION) {
     // Check required dependencies for migration
-    const migrationInfo = getMigrationInfo(protocolVersion, CURRENT_SCHEMA_VERSION);
+    const migrationInfo = getMigrationInfo(
+      protocolVersion,
+      CURRENT_SCHEMA_VERSION,
+    );
     const missingDependencies = migrationInfo.dependencies.filter(
       (dep) => !(dep in dependencies),
     );

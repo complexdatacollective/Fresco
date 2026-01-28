@@ -54,10 +54,15 @@ storybook-static
 /tests/e2e/screenshots/
 /tests/e2e/.auth/
 /tests/e2e/.context-data.json
+/tests/e2e/.snapshots/
 /playwright-report/
 /test-results/
 /playwright/.cache/
 
 # Serena
 .serena
+
+# playwright MCP
+./playwright-mcp
+
 .pnpm-store
