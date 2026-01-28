@@ -52,7 +52,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       const suiteId = projectName === 'setup' ? 'setup' : 'dashboard';
       const context = await getContext(suiteId);
       const db = new DatabaseIsolation(context.databaseUrl, suiteId);
-      // eslint-disable-next-line react-hooks/rules-of-hooks
+
       await use(db);
     },
     { scope: 'worker' },
@@ -65,6 +65,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         testInfo.skip(true, 'Visual snapshots only run in Docker');
       }
       await use(async () => {
+        // Disable CSS animations and transitions
         await page.addStyleTag({
           content:
             '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',

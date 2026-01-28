@@ -96,7 +96,7 @@ test.describe('Interviews Page', () => {
       await cleanup();
     });
 
-    test('delete single interview', async ({ page, database }) => {
+    test('delete single interview', async ({ page }) => {
       await waitForTable(page, { minRows: 5 });
       const initialCount = await getTableRowCount(page);
 
@@ -110,11 +110,7 @@ test.describe('Interviews Page', () => {
       expect(newCount).toBe(initialCount - 1);
     });
 
-    test('visual: delete confirmation dialog', async ({
-      page,
-      database,
-      visual,
-    }) => {
+    test('visual: delete confirmation dialog', async ({ page, visual }) => {
       await waitForTable(page, { minRows: 1 });
 
       const row = getFirstRow(page);
@@ -128,7 +124,7 @@ test.describe('Interviews Page', () => {
       );
     });
 
-    test('bulk delete interviews', async ({ page, database }) => {
+    test('bulk delete interviews', async ({ page }) => {
       await waitForTable(page, { minRows: 5 });
       await selectAllRows(page);
 
@@ -141,7 +137,7 @@ test.describe('Interviews Page', () => {
       expect(count).toBe(0);
     });
 
-    test('visual: export dialog', async ({ page, database, visual }) => {
+    test('visual: export dialog', async ({ page, visual }) => {
       await waitForTable(page, { minRows: 1 });
 
       await page
