@@ -547,3 +547,90 @@ export const FullScaffoldedPedigree: StoryFn = () => {
 
   return <PedigreeVisualization storeRef={storeRef} />;
 };
+
+// ── Story: Simulated Redux hydration (mirrors FamilyTreeCensus interface) ──
+// This story simulates the scenario where an interview is reloaded and the
+// family tree must be reconstructed from Redux state. It tests that the
+// adapter correctly handles sex attributes for parent edge assignment.
+
+export const SimulatedHydration: StoryFn = () => {
+  const storeRef = useRef<FamilyTreeStoreApi | null>(null);
+  const [, setReady] = useState(false);
+
+  useEffect(() => {
+    // Simulate what FamilyTreeProvider + FamilyTreeShells hydration does:
+    // 1. Create empty store
+    // 2. Add nodes from "Redux" with sex from attributes
+    // 3. Add edges from "Redux"
+    // 4. Run layout
+
+    const store = createFamilyTreeStore(new Map(), new Map());
+    const state = store.getState();
+
+    // Simulate Redux nodes with sex in attributes (like real interview data)
+    const reduxLikeNodes = [
+      { id: 'mgm', label: 'Mat. Grandmother', sex: 'female' as const },
+      { id: 'mgf', label: 'Mat. Grandfather', sex: 'male' as const },
+      { id: 'pgm', label: 'Pat. Grandmother', sex: 'female' as const },
+      { id: 'pgf', label: 'Pat. Grandfather', sex: 'male' as const },
+      { id: 'mother', label: 'Mother', sex: 'female' as const },
+      { id: 'father', label: 'Father', sex: 'male' as const },
+      { id: 'uncle', label: 'Maternal Uncle', sex: 'male' as const },
+      { id: 'aunt', label: 'Paternal Aunt', sex: 'female' as const },
+      { id: 'ego', label: 'You', sex: 'male' as const, isEgo: true },
+      { id: 'sister', label: 'Sister', sex: 'female' as const },
+      { id: 'brother', label: 'Brother', sex: 'male' as const },
+    ];
+
+    // Add nodes (simulating clearNetwork + addShellNode loop in FamilyTreeShells)
+    for (const node of reduxLikeNodes) {
+      state.addNode({
+        id: node.id,
+        label: node.label,
+        sex: node.sex,
+        isEgo: node.isEgo,
+        readOnly: false,
+        interviewNetworkId: node.id,
+      });
+    }
+
+    // Simulate Redux edges
+    const reduxLikeEdges = [
+      { source: 'mgf', target: 'mgm', relationship: 'partner' as const },
+      { source: 'pgf', target: 'pgm', relationship: 'partner' as const },
+      { source: 'mgf', target: 'mother', relationship: 'parent' as const },
+      { source: 'mgm', target: 'mother', relationship: 'parent' as const },
+      { source: 'mgf', target: 'uncle', relationship: 'parent' as const },
+      { source: 'mgm', target: 'uncle', relationship: 'parent' as const },
+      { source: 'pgf', target: 'father', relationship: 'parent' as const },
+      { source: 'pgm', target: 'father', relationship: 'parent' as const },
+      { source: 'pgf', target: 'aunt', relationship: 'parent' as const },
+      { source: 'pgm', target: 'aunt', relationship: 'parent' as const },
+      { source: 'father', target: 'mother', relationship: 'partner' as const },
+      { source: 'father', target: 'ego', relationship: 'parent' as const },
+      { source: 'mother', target: 'ego', relationship: 'parent' as const },
+      { source: 'father', target: 'sister', relationship: 'parent' as const },
+      { source: 'mother', target: 'sister', relationship: 'parent' as const },
+      { source: 'father', target: 'brother', relationship: 'parent' as const },
+      { source: 'mother', target: 'brother', relationship: 'parent' as const },
+    ];
+
+    for (let i = 0; i < reduxLikeEdges.length; i++) {
+      const edge = reduxLikeEdges[i]!;
+      state.addEdge({
+        id: `edge-${i}`,
+        source: edge.source,
+        target: edge.target,
+        relationship: edge.relationship,
+      });
+    }
+
+    // Run layout (same as FamilyTreeShells hydration ending)
+    state.runLayout();
+
+    storeRef.current = store;
+    setReady(true);
+  }, []);
+
+  return <PedigreeVisualization storeRef={storeRef} />;
+};
