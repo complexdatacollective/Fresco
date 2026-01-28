@@ -125,14 +125,21 @@ export function pedigreeLayoutToPositions(
     }
   }
 
-  // Normalize so min x = 0
+  // Normalize so min x = 0 and min y = 0
   let minX = Infinity;
+  let minY = Infinity;
   for (const pos of positions.values()) {
     if (pos.x < minX) minX = pos.x;
+    if (pos.y < minY) minY = pos.y;
   }
   if (Number.isFinite(minX) && minX !== 0) {
     for (const pos of positions.values()) {
       pos.x -= minX;
+    }
+  }
+  if (Number.isFinite(minY) && minY !== 0) {
+    for (const pos of positions.values()) {
+      pos.y -= minY;
     }
   }
 
@@ -228,20 +235,49 @@ export function buildConnectorData(
 
   if (Number.isFinite(rawMinX) && rawMinX !== 0) {
     for (const sp of connectors.spouseLines) {
-      shiftSegment(sp.segment, -rawMinX);
-      if (sp.doubleSegment) shiftSegment(sp.doubleSegment, -rawMinX);
+      shiftSegment(sp.segment, -rawMinX, 0);
+      if (sp.doubleSegment) shiftSegment(sp.doubleSegment, -rawMinX, 0);
     }
     for (const pc of connectors.parentChildLines) {
-      for (const ul of pc.uplines) shiftSegment(ul, -rawMinX);
-      shiftSegment(pc.siblingBar, -rawMinX);
-      for (const pl of pc.parentLink) shiftSegment(pl, -rawMinX);
+      for (const ul of pc.uplines) shiftSegment(ul, -rawMinX, 0);
+      shiftSegment(pc.siblingBar, -rawMinX, 0);
+      for (const pl of pc.parentLink) shiftSegment(pl, -rawMinX, 0);
     }
     for (const ti of connectors.twinIndicators) {
-      if (ti.segment) shiftSegment(ti.segment, -rawMinX);
+      if (ti.segment) shiftSegment(ti.segment, -rawMinX, 0);
       if (ti.label) ti.label.x += -rawMinX;
     }
     for (const da of connectors.duplicateArcs) {
       for (const pt of da.path.points) pt.x += -rawMinX;
+    }
+  }
+
+  // Find first generation with data to compute rawMinY
+  let rawMinY = 0;
+  for (let gen = 0; gen < layout.nid.length; gen++) {
+    const genN = layout.n[gen] ?? 0;
+    if (genN > 0) {
+      rawMinY = gen * sy;
+      break;
+    }
+  }
+
+  if (rawMinY !== 0) {
+    for (const sp of connectors.spouseLines) {
+      shiftSegment(sp.segment, 0, -rawMinY);
+      if (sp.doubleSegment) shiftSegment(sp.doubleSegment, 0, -rawMinY);
+    }
+    for (const pc of connectors.parentChildLines) {
+      for (const ul of pc.uplines) shiftSegment(ul, 0, -rawMinY);
+      shiftSegment(pc.siblingBar, 0, -rawMinY);
+      for (const pl of pc.parentLink) shiftSegment(pl, 0, -rawMinY);
+    }
+    for (const ti of connectors.twinIndicators) {
+      if (ti.segment) shiftSegment(ti.segment, 0, -rawMinY);
+      if (ti.label) ti.label.y += -rawMinY;
+    }
+    for (const da of connectors.duplicateArcs) {
+      for (const pt of da.path.points) pt.y += -rawMinY;
     }
   }
 
@@ -271,7 +307,10 @@ function transformSegment(
 function shiftSegment(
   seg: { x1: number; y1: number; x2: number; y2: number },
   dx: number,
+  dy: number,
 ) {
   seg.x1 += dx;
   seg.x2 += dx;
+  seg.y1 += dy;
+  seg.y2 += dy;
 }
