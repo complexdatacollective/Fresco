@@ -40,6 +40,7 @@ const AddFamilyMemberForm = () => {
 
   const { processedFields } = useDynamicFields({
     nodes,
+    edges: edgesMap ?? new Map(),
     firstCousinOptions,
     nieceOptions,
     grandchildrenOptions,
@@ -54,8 +55,13 @@ const AddFamilyMemberForm = () => {
         ? (value[`${relation}Relation`] as string | undefined)
         : undefined;
     const anchorId = typeof relationId === 'string' ? relationId : undefined;
+    // Get second parent if selected (for cousins, nieces, nephews, grandchildren)
+    const secondParentId =
+      typeof value.secondParentRelation === 'string'
+        ? value.secondParentRelation
+        : undefined;
     if (typeof relation === 'string') {
-      addPlaceholderNode(relation, anchorId);
+      addPlaceholderNode(relation, anchorId, secondParentId);
     }
     setShow(false);
   };

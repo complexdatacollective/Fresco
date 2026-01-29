@@ -70,7 +70,7 @@ export const useRelatives = (
       return siblings;
     };
 
-    // Ego’s siblings
+    // Ego's siblings
     const egoSiblings = getSiblingsByParent(
       [motherKey, fatherKey],
       edgesMap,

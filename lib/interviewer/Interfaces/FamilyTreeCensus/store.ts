@@ -94,7 +94,7 @@ type NetworkActions = {
     formData: Record<string, number>,
     egoSex: Sex,
   ) => void;
-  addPlaceholderNode: (relation: string, anchorId?: string) => void;
+  addPlaceholderNode: (relation: string, anchorId?: string, secondParentId?: string) => string;
   runLayout: () => void;
   syncMetadata: () => void;
 };
@@ -739,7 +739,7 @@ export const createFamilyTreeStore = (
           store.runLayout();
         },
 
-        addPlaceholderNode: (relation: string, anchorId?: string) => {
+        addPlaceholderNode: (relation: string, anchorId?: string, secondParentId?: string) => {
           const store = get();
           const { addNode, addEdge, network, getNodeIdFromRelationship } =
             store;
@@ -826,11 +826,8 @@ export const createFamilyTreeStore = (
             return partnerId;
           };
 
-          const ensureExPartner = (nodeId: string): string | null => {
-            const node = network.nodes.get(nodeId);
-            if (!node) return null;
-
-            // Check if an ex-partner already exists
+          // Find an existing ex-partner (does NOT auto-create)
+          const findExPartner = (nodeId: string): string | null => {
             for (const [, edge] of network.edges) {
               if (
                 edge.relationship === 'ex-partner' &&
@@ -839,22 +836,7 @@ export const createFamilyTreeStore = (
                 return edge.source === nodeId ? edge.target : edge.source;
               }
             }
-
-            // Otherwise create a new ex-partner
-            const exPartnerSex = node.sex === 'male' ? 'female' : 'male';
-            const exPartnerId = addNode({
-              label: `${node.label}'s ex-partner`,
-              sex: exPartnerSex,
-              readOnly: true,
-            });
-
-            addEdge({
-              source: node.sex === 'male' ? exPartnerId : nodeId,
-              target: node.sex === 'male' ? nodeId : exPartnerId,
-              relationship: 'ex-partner',
-            });
-
-            return exPartnerId;
+            return null;
           };
 
           const connectAsChild = (parentId: string) => {
@@ -877,16 +859,48 @@ export const createFamilyTreeStore = (
 
           const rel = relation.toLowerCase();
 
-          // half siblings
-          if (rel.includes('half')) {
+          // ex-partner creation
+          if (rel === 'expartner' || rel === 'ex-partner') {
+            if (!anchorId) {
+              // eslint-disable-next-line no-console
+              console.warn(`Ex-partner relation requires anchorId`);
+              return newNodeId;
+            }
+            const anchorNode = network.nodes.get(anchorId);
+            if (!anchorNode) {
+              // eslint-disable-next-line no-console
+              console.warn(`Ex-partner anchor node not found: ${anchorId}`);
+              return newNodeId;
+            }
+
+            // Update the new node's sex to be opposite of anchor
+            const exPartnerSex = anchorNode.sex === 'male' ? 'female' : 'male';
+            get().updateNode(newNodeId, {
+              sex: exPartnerSex,
+              label: `${anchorNode.label}'s ex-partner`,
+              readOnly: true,
+            });
+
+            // Create ex-partner edge
+            addEdge({
+              source: anchorNode.sex === 'male' ? anchorId : newNodeId,
+              target: anchorNode.sex === 'male' ? newNodeId : anchorId,
+              relationship: 'ex-partner',
+            });
+          }
+
+          // half siblings - connect to parent and their ex-partner
+          else if (rel.includes('half')) {
             if (!anchorId) {
               // eslint-disable-next-line no-console
               console.warn(`half relation requires anchorId`);
               return newNodeId;
             }
-            const exPartnerId = ensureExPartner(anchorId);
-            if (exPartnerId) connectAsChild(exPartnerId);
+
+            // Use provided second parent, or fall back to finding first ex-partner
+            const exPartnerId = secondParentId ?? findExPartner(anchorId);
             connectAsChild(anchorId);
+            if (exPartnerId) connectAsChild(exPartnerId);
           }
 
           // ego’s children
@@ -910,14 +924,15 @@ export const createFamilyTreeStore = (
               connectAsChild(fatherId);
           }
 
-          // nieces and nephews (child of ego’s sibling)
+          // nieces and nephews (child of ego's sibling)
           else if (rel.includes('niece') || rel.includes('nephew')) {
             if (!anchorId) {
               // eslint-disable-next-line no-console
               console.warn(`Niece/nephew relation requires anchorId`);
               return newNodeId;
             }
-            const partnerId = ensurePartner(anchorId);
+            // Use provided second parent, or fall back to ensuring partner exists
+            const partnerId = secondParentId ?? ensurePartner(anchorId);
             connectAsChild(anchorId);
             if (partnerId) connectAsChild(partnerId);
           }
@@ -929,7 +944,8 @@ export const createFamilyTreeStore = (
               console.warn(`Cousin relation requires anchorId`);
               return newNodeId;
             }
-            const partnerId = ensurePartner(anchorId);
+            // Use provided second parent, or fall back to ensuring partner exists
+            const partnerId = secondParentId ?? ensurePartner(anchorId);
             connectAsChild(anchorId);
             if (partnerId) connectAsChild(partnerId);
           }
@@ -941,7 +957,8 @@ export const createFamilyTreeStore = (
               console.warn(`Grandchild relation requires anchorId`);
               return newNodeId;
             }
-            const partnerId = ensurePartner(anchorId);
+            // Use provided second parent, or fall back to ensuring partner exists
+            const partnerId = secondParentId ?? ensurePartner(anchorId);
             connectAsChild(anchorId);
             if (partnerId) connectAsChild(partnerId);
           }
