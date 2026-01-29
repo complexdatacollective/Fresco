@@ -108,7 +108,7 @@ const ReduxDecorator = (Story: React.ComponentType) => {
   const store = createMockStore();
   return (
     <Provider store={store}>
-      <div className="relative flex h-[400px] w-[800px] items-end justify-end bg-slate-900 p-6">
+      <div className="relative flex h-[400px] w-[800px] items-end justify-end p-6">
         <Story />
       </div>
     </Provider>
@@ -175,7 +175,7 @@ function QuickNodeFormWrapper(
         onShowForm={handleShowForm}
       />
       {formShown && (
-        <div className="text-xs text-slate-400" data-testid="form-shown">
+        <div className="text-xs text-current/70" data-testid="form-shown">
           Form revealed
         </div>
       )}
@@ -185,7 +185,7 @@ function QuickNodeFormWrapper(
           {addedNodes.map((node, index) => (
             <div
               key={index}
-              className="rounded bg-slate-700 px-3 py-2 text-sm text-white"
+              className="bg-surface-1 text-surface-1-contrast rounded px-3 py-2 text-sm"
               data-testid={`added-node-${index}`}
             >
               {JSON.stringify(node)}
@@ -259,7 +259,11 @@ export const AddNodeFlow: Story = {
       await userEvent.keyboard('{Enter}');
 
       // Wait for the added node to appear (with longer timeout)
-      const addedNode = await canvas.findByTestId('added-node-0', {}, { timeout: 3000 });
+      const addedNode = await canvas.findByTestId(
+        'added-node-0',
+        {},
+        { timeout: 3000 },
+      );
       await expect(addedNode).toHaveTextContent('Alice');
     });
   },

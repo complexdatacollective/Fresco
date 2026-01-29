@@ -11,6 +11,8 @@ import {
   getRelationFlags,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/utils/relationFlagsUtils';
 
+// TODO: This should be refactored out - the existing types from the field component
+// should be used.
 export type FieldConfig<Props = Record<string, unknown>> = {
   fieldLabel: string;
   options: { label: string; value: VariableValue }[];
@@ -27,10 +29,12 @@ export type FieldConfig<Props = Record<string, unknown>> = {
 type RadioGroupConfig = FieldConfig<React.ComponentProps<typeof RadioGroup>>;
 
 // Refs to hold setters - allows stable components to call dynamic setters
-const relationSetterRef: React.MutableRefObject<((val: string) => void) | null> =
-  { current: null };
-const firstParentSetterRef: React.MutableRefObject<((val: string) => void) | null> =
-  { current: null };
+const relationSetterRef: React.MutableRefObject<
+  ((val: string) => void) | null
+> = { current: null };
+const firstParentSetterRef: React.MutableRefObject<
+  ((val: string) => void) | null
+> = { current: null };
 
 // Stable component that calls the relation setter via ref
 const RelationRadioGroup = (props: React.ComponentProps<typeof RadioGroup>) => (
@@ -45,7 +49,9 @@ const RelationRadioGroup = (props: React.ComponentProps<typeof RadioGroup>) => (
 );
 
 // Stable component that calls the first parent setter via ref
-const FirstParentRadioGroup = (props: React.ComponentProps<typeof RadioGroup>) => (
+const FirstParentRadioGroup = (
+  props: React.ComponentProps<typeof RadioGroup>,
+) => (
   <RadioGroup
     {...props}
     onChange={(val) => {
@@ -94,6 +100,7 @@ function createFirstParentField(
   };
 }
 
+// TODO: Replace this whole thing with <FieldGroup />
 export function useDynamicFields({
   nodes,
   edges,
@@ -123,10 +130,18 @@ export function useDynamicFields({
   );
   const fatherKey = getNodeIdFromRelationship('father')!;
   const motherKey = getNodeIdFromRelationship('mother')!;
-  const maternalGrandmotherKey = getNodeIdFromRelationship('maternal-grandmother');
-  const maternalGrandfatherKey = getNodeIdFromRelationship('maternal-grandfather');
-  const paternalGrandmotherKey = getNodeIdFromRelationship('paternal-grandmother');
-  const paternalGrandfatherKey = getNodeIdFromRelationship('paternal-grandfather');
+  const maternalGrandmotherKey = getNodeIdFromRelationship(
+    'maternal-grandmother',
+  );
+  const maternalGrandfatherKey = getNodeIdFromRelationship(
+    'maternal-grandfather',
+  );
+  const paternalGrandmotherKey = getNodeIdFromRelationship(
+    'paternal-grandmother',
+  );
+  const paternalGrandfatherKey = getNodeIdFromRelationship(
+    'paternal-grandfather',
+  );
 
   useEffect(() => {
     if (!show) {
@@ -169,16 +184,28 @@ export function useDynamicFields({
 
     // Add grandparents (if they exist)
     if (maternalGrandmotherKey) {
-      exPartnerOfOptions.push({ label: 'Maternal Grandmother', value: maternalGrandmotherKey });
+      exPartnerOfOptions.push({
+        label: 'Maternal Grandmother',
+        value: maternalGrandmotherKey,
+      });
     }
     if (maternalGrandfatherKey) {
-      exPartnerOfOptions.push({ label: 'Maternal Grandfather', value: maternalGrandfatherKey });
+      exPartnerOfOptions.push({
+        label: 'Maternal Grandfather',
+        value: maternalGrandfatherKey,
+      });
     }
     if (paternalGrandmotherKey) {
-      exPartnerOfOptions.push({ label: 'Paternal Grandmother', value: paternalGrandmotherKey });
+      exPartnerOfOptions.push({
+        label: 'Paternal Grandmother',
+        value: paternalGrandmotherKey,
+      });
     }
     if (paternalGrandfatherKey) {
-      exPartnerOfOptions.push({ label: 'Paternal Grandfather', value: paternalGrandfatherKey });
+      exPartnerOfOptions.push({
+        label: 'Paternal Grandfather',
+        value: paternalGrandfatherKey,
+      });
     }
 
     // Add parents
@@ -223,7 +250,10 @@ export function useDynamicFields({
       if (!node) return partners;
 
       for (const edge of edges.values()) {
-        if (edge.relationship === 'partner' || edge.relationship === 'ex-partner') {
+        if (
+          edge.relationship === 'partner' ||
+          edge.relationship === 'ex-partner'
+        ) {
           let partnerId: string | null = null;
           if (edge.source === nodeId) partnerId = edge.target;
           else if (edge.target === nodeId) partnerId = edge.source;
