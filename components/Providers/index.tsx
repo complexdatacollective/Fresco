@@ -12,10 +12,10 @@ import { Toaster } from '../ui/Toast';
 
 export default function Providers({
   children,
-  disableAnimations = false,
+  disableAnimations,
 }: {
   children: ReactNode;
-  disableAnimations: boolean;
+  disableAnimations?: boolean;
 }) {
   /**
    * This is the documented way to turn of all animations
@@ -23,7 +23,7 @@ export default function Providers({
    *
    * Used in CI environments to prevent issues with visual snapshots.
    */
-  MotionGlobalConfig.skipAnimations = disableAnimations;
+  MotionGlobalConfig.skipAnimations = !!disableAnimations;
 
   return (
     <MotionConfig reducedMotion="user">

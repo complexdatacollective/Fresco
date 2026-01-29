@@ -14,7 +14,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <body className="bg-background publish-colors antialiased">
         <div className="root">
-          <Providers disableAnimations={env.CI}>{children}</Providers>
+          <Providers disableAnimations={env.CI ?? false}>{children}</Providers>
           {env.SANDBOX_MODE && (
             <ResponsiveContainer>
               <footer className="z-1 flex justify-center py-4">
