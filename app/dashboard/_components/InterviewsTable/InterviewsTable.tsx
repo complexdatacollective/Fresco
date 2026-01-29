@@ -92,6 +92,7 @@ export const InterviewsTable = ({
                 render={<Button icon={<HardDriveUpload />} />}
                 disabled={interviews.length === 0}
                 nativeButton
+                data-testid="export-interviews-button"
               >
                 Export Interview Data
               </DropdownMenuTrigger>

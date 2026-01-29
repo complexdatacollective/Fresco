@@ -8,7 +8,6 @@ import {
   updateExportTime,
 } from '~/actions/interviews';
 import { deleteZipFromUploadThing } from '~/actions/uploadThing';
-import Heading from '~/components/typography/Heading';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
@@ -20,24 +19,8 @@ import {
   ExportOptionsSchema,
   type FormattedSession,
 } from '~/lib/network-exporters/utils/types';
-import { cx } from '~/utils/cva';
 import { ensureError } from '~/utils/ensureError';
 import ExportOptionsView from './ExportOptionsView';
-
-const ExportingStateAnimation = () => {
-  return (
-    <div className="bg-background/80 text-primary fixed inset-0 z-99 flex flex-col items-center justify-center gap-3">
-      <div
-        className={cx('flex flex-col items-center justify-center gap-4 p-10')}
-      >
-        <Loader2 className="size-20 animate-spin" />
-        <Heading level="h4">
-          Exporting and zipping files. Please wait...
-        </Heading>
-      </div>
-    </div>
-  );
-};
 
 export const ExportInterviewsDialog = ({
   open,
@@ -114,6 +97,11 @@ export const ExportInterviewsDialog = ({
       download(url, 'Network Canvas Export.zip');
       // clean up the URL object
       URL.revokeObjectURL(url);
+
+      add({
+        title: 'Export complete!',
+        type: 'success',
+      });
     } catch (error) {
       const e = ensureError(error);
 
@@ -169,16 +157,26 @@ export const ExportInterviewsDialog = ({
 
   return (
     <>
-      {isExporting && <ExportingStateAnimation />}
       <Dialog
         open={open}
-        closeDialog={handleCancel}
+        closeDialog={() => {
+          if (!isExporting) {
+            handleCancel();
+          }
+        }}
         title="Confirm File Export Options"
         description="Before exporting, please confirm the export options that you wish to use. These options are identical to those found in Interviewer."
         footer={
           <>
-            <Button onClick={handleCancel}>Cancel</Button>
-            <Button onClick={handleConfirm} color="primary">
+            <Button onClick={handleCancel} disabled={isExporting}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirm}
+              color="primary"
+              disabled={isExporting}
+              icon={isExporting ? <Loader2 className="animate-spin" /> : null}
+            >
               {isExporting ? 'Exporting...' : 'Start export process'}
             </Button>
           </>

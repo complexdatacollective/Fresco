@@ -4,13 +4,13 @@ import { DatabaseIsolation } from './db-fixture.js';
 
 // NOTE: Keep in sync with --breakpoint-* values in styles/globals.css
 const DEFAULT_PAGE_VIEWPORTS = [
-  { name: 'phone', width: 320, height: null }, // --breakpoint-phone: 20rem
-  { name: 'tablet', width: 768, height: null }, // --breakpoint-tablet: 48rem
-  { name: 'tablet-portrait', width: 1024, height: null }, // --breakpoint-tablet-portrait: 64rem
-  { name: 'laptop', width: 1280, height: null }, // --breakpoint-laptop: 80rem
-  { name: 'desktop', width: 1920, height: null }, // --breakpoint-desktop: 120rem
-  { name: 'desktop-lg', width: 2560, height: null }, // --breakpoint-desktop-lg: 160rem
-  { name: 'full', width: 1920, height: null }, // desktop width, fullPage: true
+  { name: 'phone', width: 320 }, // --breakpoint-phone: 20rem
+  { name: 'tablet', width: 768 }, // --breakpoint-tablet: 48rem
+  { name: 'tablet-portrait', width: 1024 }, // --breakpoint-tablet-portrait: 64rem
+  { name: 'laptop', width: 1280 }, // --breakpoint-laptop: 80rem
+  { name: 'desktop', width: 1920 }, // --breakpoint-desktop: 120rem
+  { name: 'desktop-lg', width: 2560 }, // --breakpoint-desktop-lg: 160rem
+  { name: 'full', width: 1920 }, // desktop width, fullPage: true
 ] as const;
 
 const VISUAL_STYLES = `
@@ -98,14 +98,11 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         await page.addStyleTag({ content: VISUAL_STYLES });
 
         for (const viewport of viewports) {
-          const isFullHeight = viewport.height === null;
-          const height = viewport.height ?? 800;
-
-          await page.setViewportSize({ width: viewport.width, height });
+          await page.setViewportSize({ width: viewport.width, height: 1080 });
           await page.waitForTimeout(100);
 
           await expect(page).toHaveScreenshot(`${name}-${viewport.name}.png`, {
-            fullPage: isFullHeight,
+            fullPage: true,
             mask: options.mask,
           });
         }

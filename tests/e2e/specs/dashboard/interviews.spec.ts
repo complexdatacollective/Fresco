@@ -137,9 +137,9 @@ test.describe('Interviews Page', () => {
     test('visual: export dialog', async ({ page, captureElement }) => {
       await waitForTable(page, { minRows: 1 });
 
+      await page.getByTestId('export-interviews-button').click();
       await page
-        .getByRole('button', { name: /export/i })
-        .first()
+        .getByRole('menuitem', { name: /export all interviews/i })
         .click();
 
       const dialog = await waitForDialog(page);
