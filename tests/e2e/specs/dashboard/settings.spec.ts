@@ -84,10 +84,8 @@ test.describe('Settings Page', () => {
       await expect(page.getByText(/disable analytics/i)).toBeVisible();
     });
 
-    test('visual snapshot', async ({ page, visual }) => {
-      await visual();
-      await expect(page).toHaveScreenshot('settings-page.png', {
-        fullPage: true,
+    test('visual snapshot', async ({ page, capturePage }) => {
+      await capturePage('settings-page', {
         mask: [
           page.getByRole('heading', { name: /app version/i }).locator('..'),
         ],
@@ -98,14 +96,17 @@ test.describe('Settings Page', () => {
   test.describe('Mutations', () => {
     test.describe.configure({ mode: 'serial' });
 
-    test('visual: add user dialog', async ({ page, database, visual }) => {
+    test('visual: add user dialog', async ({
+      page,
+      database,
+      captureElement,
+    }) => {
       const cleanup = await database.isolate(page);
       try {
         await page.getByRole('button', { name: /add user/i }).click();
         const dialog = await waitForDialog(page);
 
-        await visual();
-        await expect(dialog).toHaveScreenshot('settings-add-user-dialog.png');
+        await captureElement(dialog, 'settings-add-user-dialog');
       } finally {
         await cleanup();
       }
@@ -114,17 +115,14 @@ test.describe('Settings Page', () => {
     test('visual: change password dialog', async ({
       page,
       database,
-      visual,
+      captureElement,
     }) => {
       const cleanup = await database.isolate(page);
       try {
         await page.getByRole('button', { name: /change password/i }).click();
         const dialog = await waitForDialog(page);
 
-        await visual();
-        await expect(dialog).toHaveScreenshot(
-          'settings-change-password-dialog.png',
-        );
+        await captureElement(dialog, 'settings-change-password-dialog');
       } finally {
         await cleanup();
       }

@@ -81,8 +81,7 @@ test.describe('Dashboard Overview', () => {
     await expect(page.locator('table')).toBeVisible();
   });
 
-  test('visual snapshot', async ({ page, visual }) => {
-    await visual();
-    await expect(page).toHaveScreenshot('dashboard-page.png');
+  test('visual snapshot', async ({ capturePage }) => {
+    await capturePage('dashboard-page');
   });
 });

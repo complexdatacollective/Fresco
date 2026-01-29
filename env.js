@@ -55,6 +55,7 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(['development', 'test', 'production'])
       .default('development'),
+    CI: strictBooleanSchema,
     SANDBOX_MODE: strictBooleanSchema,
     PREVIEW_MODE: strictBooleanSchema,
     APP_VERSION: z.string().optional(),
@@ -68,6 +69,7 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     DATABASE_URL_UNPOOLED: process.env.DATABASE_URL_UNPOOLED,
     NODE_ENV: process.env.NODE_ENV,
+    CI: process.env.CI,
     PUBLIC_URL: process.env.PUBLIC_URL,
     DISABLE_ANALYTICS: process.env.DISABLE_ANALYTICS,
     DISABLE_NEXT_CACHE: process.env.DISABLE_NEXT_CACHE,

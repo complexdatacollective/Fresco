@@ -2,6 +2,7 @@
 
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Toast } from '@base-ui/react/toast';
+import 'dotenv/config';
 import { MotionConfig, MotionGlobalConfig } from 'motion/react';
 import { type ReactNode } from 'react';
 import DialogProvider from '~/lib/dialogs/DialogProvider';
@@ -9,10 +10,21 @@ import { DndStoreProvider } from '~/lib/dnd';
 import ProtocolImportProvider from '~/lib/protocol-import/ProtocolImportProvider';
 import { Toaster } from '../ui/Toast';
 
-// eslint-disable-next-line no-process-env
-MotionGlobalConfig.skipAnimations = !!process.env.CI;
+export default function Providers({
+  children,
+  disableAnimations = false,
+}: {
+  children: ReactNode;
+  disableAnimations: boolean;
+}) {
+  /**
+   * This is the documented way to turn of all animations
+   * (cannot be done via MotionConfig: https://github.com/motiondivision/motion/issues/3514)
+   *
+   * Used in CI environments to prevent issues with visual snapshots.
+   */
+  MotionGlobalConfig.skipAnimations = disableAnimations;
 
-export default function Providers({ children }: { children: ReactNode }) {
   return (
     <MotionConfig reducedMotion="user">
       <DirectionProvider direction="ltr">

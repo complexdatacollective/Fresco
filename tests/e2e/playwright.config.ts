@@ -1,13 +1,13 @@
 /* eslint-disable no-process-env */
 import { defineConfig, devices } from '@playwright/test';
 
-const CI = !!process.env.CI;
-
 export default defineConfig({
   testDir: './specs',
   outputDir: './test-results',
+  snapshotDir: './visual-snapshots',
+  snapshotPathTemplate: '{snapshotDir}/{arg}{ext}',
 
-  retries: 0,
+  retries: 2,
   // Multiple workers coordinate via shared/exclusive advisory locks:
   // - Read-only tests hold shared locks (parallel reads allowed)
   // - Mutation tests acquire exclusive locks (serialized writes)

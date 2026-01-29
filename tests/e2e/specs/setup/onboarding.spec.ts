@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '../../fixtures/test.js';
 import { fillField } from '../../helpers/form.js';
 
 test.describe('Setup Flow', () => {
@@ -9,7 +9,16 @@ test.describe('Setup Flow', () => {
     await expect(page).toHaveURL(/\/setup/);
   });
 
-  test('completes the onboarding wizard', async ({ page }) => {
+  test('visual: step 1 - create account', async ({ page, capturePage }) => {
+    await page.goto('/setup');
+    await expect(
+      page.getByRole('heading', { name: 'Create an Admin Account', level: 2 }),
+    ).toBeVisible();
+
+    await capturePage('setup-step-1-create-account');
+  });
+
+  test('completes the onboarding wizard', async ({ page, capturePage }) => {
     await page.goto('/setup');
 
     // Step 1: Create Account
@@ -25,6 +34,9 @@ test.describe('Setup Flow', () => {
     await expect(
       page.getByRole('heading', { name: 'Connect UploadThing', level: 2 }),
     ).toBeVisible();
+
+    await capturePage('setup-step-2-connect-uploadthing');
+
     await fillField(
       page,
       'uploadThingToken',
@@ -36,6 +48,9 @@ test.describe('Setup Flow', () => {
     await expect(
       page.getByRole('heading', { name: 'Import Protocols', level: 2 }),
     ).toBeVisible();
+
+    await capturePage('setup-step-3-import-protocols');
+
     await page.getByRole('button', { name: /continue/i }).click();
 
     // Step 4: Configure Participation - skip
@@ -45,12 +60,18 @@ test.describe('Setup Flow', () => {
         level: 2,
       }),
     ).toBeVisible();
+
+    await capturePage('setup-step-4-configure-participation');
+
     await page.getByRole('button', { name: /continue/i }).click();
 
     // Step 5: Documentation - complete
     await expect(
       page.getByRole('heading', { name: 'Documentation', level: 2 }),
     ).toBeVisible();
+
+    await capturePage('setup-step-5-documentation');
+
     await page.getByRole('button', { name: 'Go to the dashboard!' }).click();
 
     // Should redirect to dashboard

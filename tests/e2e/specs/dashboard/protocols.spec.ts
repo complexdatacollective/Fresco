@@ -95,12 +95,9 @@ test.describe('Protocols Page', () => {
       await expect(headerCheckbox).toBeChecked();
     });
 
-    test('visual snapshot', async ({ page, visual }) => {
+    test('visual snapshot', async ({ page, capturePage }) => {
       await waitForTable(page, { minRows: 1 });
-      await visual();
-      await expect(page).toHaveScreenshot('protocols-page.png', {
-        fullPage: true,
-      });
+      await capturePage('protocols-page');
     });
   });
 
@@ -135,7 +132,7 @@ test.describe('Protocols Page', () => {
     test('visual: delete confirmation dialog', async ({
       page,
       database,
-      visual,
+      captureElement,
     }) => {
       const cleanup = await database.isolate(page);
       try {
@@ -146,10 +143,7 @@ test.describe('Protocols Page', () => {
         await page.getByRole('menuitem', { name: /delete/i }).click();
 
         const dialog = await waitForDialog(page);
-        await visual();
-        await expect(dialog).toHaveScreenshot(
-          'protocols-delete-confirmation.png',
-        );
+        await captureElement(dialog, 'protocols-delete-confirmation');
       } finally {
         await cleanup();
       }
@@ -177,7 +171,7 @@ test.describe('Protocols Page', () => {
     test('visual: empty state after deleting all', async ({
       page,
       database,
-      visual,
+      capturePage,
     }) => {
       const cleanup = await database.isolate(page);
       try {
@@ -189,10 +183,7 @@ test.describe('Protocols Page', () => {
         await confirmDeletion(page);
         await page.waitForTimeout(1000);
 
-        await visual();
-        await expect(page).toHaveScreenshot('protocols-empty-state.png', {
-          fullPage: true,
-        });
+        await capturePage('protocols-empty-state');
       } finally {
         await cleanup();
       }

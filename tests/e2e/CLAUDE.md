@@ -143,16 +143,66 @@ test.describe('Mutations', () => {
 
 ### Visual snapshots
 
-Visual tests require Docker for consistent font rendering (`pnpm test:e2e` sets `CI=true`). They are automatically skipped when `CI` is not set by using the `visual` fixture.
+Visual tests require Docker for consistent font rendering (`pnpm test:e2e` sets `CI=true`). They are automatically skipped when `CI` is not set. All visual snapshots are stored in `tests/e2e/visual-snapshots/`.
+
+#### `capturePage(name, options?)` - Full page at multiple viewports
+
+Captures the page at all Tailwind breakpoint sizes plus a full-height capture:
 
 ```ts
-test('visual snapshot', async ({ page, visual }) => {
-  await visual();
-  await expect(page).toHaveScreenshot('page-name.png', { fullPage: true });
+test('dashboard page', async ({ page, capturePage }) => {
+  await page.goto('/dashboard');
+  await capturePage('dashboard');
+  // Creates 7 snapshots: dashboard-phone.png, dashboard-tablet.png,
+  // dashboard-tablet-portrait.png, dashboard-laptop.png, dashboard-desktop.png,
+  // dashboard-desktop-lg.png, dashboard-full.png
 });
 ```
 
-The `visual` fixture skips the test when not in CI. Calling `await visual()` injects a CSS style tag to disable all animations/transitions and waits for JS animations to settle. For mutation visual tests, include all needed fixtures: `async ({ page, database, visual })`.
+Options:
+
+- `viewports?: Viewport[]` - Override default viewports
+- `mask?: Locator[]` - Elements to mask in all captures
+
+```ts
+// With masking
+await capturePage('settings', {
+  mask: [page.getByTestId('app-version')],
+});
+```
+
+Default viewports (synced with `--breakpoint-*` in `styles/globals.css`):
+
+| Name            | Width | Height   | Notes                      |
+| --------------- | ----- | -------- | -------------------------- |
+| phone           | 320   | 568      | Minimum mobile             |
+| tablet          | 768   | 1024     | iPad Mini                  |
+| tablet-portrait | 1024  | 768      | iPad Pro 11"               |
+| laptop          | 1280  | 800      | Small laptops              |
+| desktop         | 1920  | 1080     | Full HD                    |
+| desktop-lg      | 2560  | 1440     | 2K/4K displays             |
+| full            | 1920  | fullPage | Desktop width, full height |
+
+#### `captureElement(element, name, options?)` - Single element capture
+
+Captures a specific element (dialogs, components) at current viewport:
+
+```ts
+test('add user dialog', async ({ page, captureElement }) => {
+  await page.getByRole('button', { name: /add user/i }).click();
+  const dialog = page.getByRole('dialog');
+  await captureElement(dialog, 'add-user-dialog');
+  // Creates: add-user-dialog.png
+});
+```
+
+Options:
+
+- `mask?: Locator[]` - Elements to mask within the element
+
+#### Snapshot naming
+
+Since all snapshots go into a shared directory, names must be unique across all tests. Use descriptive names like `settings-add-user-dialog.png` rather than just `dialog.png`.
 
 ## Helpers API
 

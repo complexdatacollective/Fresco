@@ -1,24 +1,50 @@
-import { test as base, expect } from '@playwright/test';
+import { test as base, expect, type Locator } from '@playwright/test';
 import { loadContext, type SuiteContext } from '../helpers/context.js';
 import { DatabaseIsolation } from './db-fixture.js';
 
+// NOTE: Keep in sync with --breakpoint-* values in styles/globals.css
+const DEFAULT_PAGE_VIEWPORTS = [
+  { name: 'phone', width: 320, height: null }, // --breakpoint-phone: 20rem
+  { name: 'tablet', width: 768, height: null }, // --breakpoint-tablet: 48rem
+  { name: 'tablet-portrait', width: 1024, height: null }, // --breakpoint-tablet-portrait: 64rem
+  { name: 'laptop', width: 1280, height: null }, // --breakpoint-laptop: 80rem
+  { name: 'desktop', width: 1920, height: null }, // --breakpoint-desktop: 120rem
+  { name: 'desktop-lg', width: 2560, height: null }, // --breakpoint-desktop-lg: 160rem
+  { name: 'full', width: 1920, height: null }, // desktop width, fullPage: true
+] as const;
+
+const VISUAL_STYLES = `
+  *, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }
+  [data-testid="background-blobs"] { visibility: hidden !important; }
+`;
+
+type Viewport = {
+  name: string;
+  width: number;
+  height: number | null;
+};
+
+type CapturePageOptions = {
+  viewports?: Viewport[];
+  mask?: Locator[];
+};
+
+type CaptureElementOptions = {
+  mask?: Locator[];
+};
+
 type TestFixtures = {
-  visual: () => Promise<void>;
+  capturePage: (name: string, options?: CapturePageOptions) => Promise<void>;
+  captureElement: (
+    element: Locator,
+    name: string,
+    options?: CaptureElementOptions,
+  ) => Promise<void>;
 };
 
 type WorkerFixtures = {
   database: DatabaseIsolation;
 };
-
-function resolveSuiteFromPath(filePath: string): string {
-  // specs/setup/*.spec.ts -> setup suite
-  if (filePath.includes('/specs/setup/')) return 'setup';
-  // specs/auth/*.spec.ts -> dashboard suite (auth uses dashboard env)
-  if (filePath.includes('/specs/auth/')) return 'dashboard';
-  // specs/dashboard/*.spec.ts -> dashboard suite
-  if (filePath.includes('/specs/dashboard/')) return 'dashboard';
-  return 'dashboard';
-}
 
 let contextCache: Record<string, SuiteContext> | null = null;
 
@@ -58,19 +84,60 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     { scope: 'worker' },
   ],
 
-  visual: [
+  capturePage: [
     async ({ page }, use, testInfo) => {
       // eslint-disable-next-line no-process-env
       if (!process.env.CI) {
         testInfo.skip(true, 'Visual snapshots only run in Docker');
       }
-      await use(async () => {
-        // Disable CSS animations and transitions
-        await page.addStyleTag({
-          content:
-            '*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }',
-        });
+
+      await use(async (name: string, options: CapturePageOptions = {}) => {
+        const viewports = options.viewports ?? DEFAULT_PAGE_VIEWPORTS;
+        const originalViewport = page.viewportSize();
+
+        await page.addStyleTag({ content: VISUAL_STYLES });
+
+        for (const viewport of viewports) {
+          const isFullHeight = viewport.height === null;
+          const height = viewport.height ?? 800;
+
+          await page.setViewportSize({ width: viewport.width, height });
+          await page.waitForTimeout(100);
+
+          await expect(page).toHaveScreenshot(`${name}-${viewport.name}.png`, {
+            fullPage: isFullHeight,
+            mask: options.mask,
+          });
+        }
+
+        if (originalViewport) {
+          await page.setViewportSize(originalViewport);
+        }
       });
+    },
+    { scope: 'test' },
+  ],
+
+  captureElement: [
+    async ({ page }, use, testInfo) => {
+      // eslint-disable-next-line no-process-env
+      if (!process.env.CI) {
+        testInfo.skip(true, 'Visual snapshots only run in Docker');
+      }
+
+      await use(
+        async (
+          element: Locator,
+          name: string,
+          options: CaptureElementOptions = {},
+        ) => {
+          await page.addStyleTag({ content: VISUAL_STYLES });
+
+          await expect(element).toHaveScreenshot(`${name}.png`, {
+            mask: options.mask,
+          });
+        },
+      );
     },
     { scope: 'test' },
   ],

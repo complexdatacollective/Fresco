@@ -54,7 +54,7 @@ storybook-static
 /tests/e2e/screenshots/
 /tests/e2e/.auth/
 /tests/e2e/.context-data.json
-/tests/e2e/.snapshots/
+/tests/e2e/.db-snapshots/
 /playwright-report/
 /test-results/
 /playwright/.cache/
@@ -66,3 +66,4 @@ storybook-static
 ./playwright-mcp
 
 .pnpm-store
+.pnpm-docker-store

@@ -83,7 +83,7 @@ export class DatabaseIsolation {
   ): Promise<void> {
     const snapshotFile = path.resolve(
       import.meta.dirname,
-      `../.snapshots/${this.suiteId}/${name}.json`,
+      `../.db-snapshots/${this.suiteId}/${name}.json`,
     );
 
     const data = await fs.readFile(snapshotFile, 'utf-8');
@@ -119,7 +119,9 @@ export class DatabaseIsolation {
       await client.query('SET session_replication_role = DEFAULT');
       await client.query('COMMIT');
     } catch (error) {
-      await client.query('ROLLBACK').catch(() => {});
+      await client.query('ROLLBACK').catch(() => {
+        // Ignore rollback errors - we're already handling the original error
+      });
       throw error;
     } finally {
       await client.query('SET lock_timeout = 0');

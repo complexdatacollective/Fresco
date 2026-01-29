@@ -9,7 +9,7 @@ import path from 'node:path';
 import pg from 'pg';
 import { log, logError } from './logger.js';
 
-const SNAPSHOTS_DIR = path.resolve(import.meta.dirname, '../.snapshots');
+const SNAPSHOTS_DIR = path.resolve(import.meta.dirname, '../.db-snapshots');
 
 // Tables excluded from snapshots (auth tables must survive restores so browser sessions stay valid)
 const EXCLUDED_TABLES = ['User', 'Session', 'Key', '_prisma_migrations'];

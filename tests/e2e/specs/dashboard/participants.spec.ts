@@ -81,12 +81,9 @@ test.describe('Participants Page', () => {
       await expect(page.getByRole('button', { name: /import/i })).toBeVisible();
     });
 
-    test('visual snapshot', async ({ page, visual }) => {
+    test('visual snapshot', async ({ page, capturePage }) => {
       await waitForTable(page, { minRows: 10 });
-      await visual();
-      await expect(page).toHaveScreenshot('participants-page.png', {
-        fullPage: true,
-      });
+      await capturePage('participants-page');
     });
   });
 
@@ -102,7 +99,7 @@ test.describe('Participants Page', () => {
       await cleanup();
     });
 
-    test('add new participant', async ({ page, database }) => {
+    test('add new participant', async ({ page }) => {
       await page
         .getByRole('button', { name: /add single participant/i })
         .click();
@@ -122,12 +119,11 @@ test.describe('Participants Page', () => {
       await expect(page.getByText('P011')).toBeVisible();
     });
 
-    test('visual: add participant dialog', async ({ page, visual }) => {
+    test('visual: add participant dialog', async ({ page, captureElement }) => {
       await page.getByRole('button', { name: /add/i }).click();
       const dialog = await waitForDialog(page);
 
-      await visual();
-      await expect(dialog).toHaveScreenshot('participants-add-dialog.png');
+      await captureElement(dialog, 'participants-add-dialog');
     });
 
     test('delete participant via row actions', async ({ page }) => {
@@ -164,7 +160,7 @@ test.describe('Participants Page', () => {
       expect(count).toBe(0);
     });
 
-    test('visual: empty state', async ({ page, visual }) => {
+    test('visual: empty state', async ({ page, capturePage }) => {
       await waitForTable(page, { minRows: 10 });
 
       await page.getByRole('button', { name: /delete all/i }).click();
@@ -181,10 +177,7 @@ test.describe('Participants Page', () => {
       await page.getByRole('button', { name: /permanently delete/i }).click();
       await page.getByRole('dialog').waitFor({ state: 'hidden' });
 
-      await visual();
-      await expect(page).toHaveScreenshot('participants-empty-state.png', {
-        fullPage: true,
-      });
+      await capturePage('participants-empty-state');
     });
   });
 });

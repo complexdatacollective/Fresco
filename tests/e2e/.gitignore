@@ -1,5 +1,5 @@
 .context/
-.snapshots/
+.db-snapshots/
 .auth/
 playwright-report/
 test-results/

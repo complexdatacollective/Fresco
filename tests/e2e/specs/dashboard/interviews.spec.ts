@@ -75,12 +75,9 @@ test.describe('Interviews Page', () => {
       await expect(page.getByText('Not exported').first()).toBeVisible();
     });
 
-    test('visual snapshot', async ({ page, visual }) => {
+    test('visual snapshot', async ({ page, capturePage }) => {
       await waitForTable(page, { minRows: 5 });
-      await visual();
-      await expect(page).toHaveScreenshot('interviews-page.png', {
-        fullPage: true,
-      });
+      await capturePage('interviews-page');
     });
   });
 
@@ -110,7 +107,10 @@ test.describe('Interviews Page', () => {
       expect(newCount).toBe(initialCount - 1);
     });
 
-    test('visual: delete confirmation dialog', async ({ page, visual }) => {
+    test('visual: delete confirmation dialog', async ({
+      page,
+      captureElement,
+    }) => {
       await waitForTable(page, { minRows: 1 });
 
       const row = getFirstRow(page);
@@ -118,10 +118,7 @@ test.describe('Interviews Page', () => {
       await page.getByRole('menuitem', { name: /delete/i }).click();
 
       const dialog = await waitForDialog(page);
-      await visual();
-      await expect(dialog).toHaveScreenshot(
-        'interviews-delete-confirmation.png',
-      );
+      await captureElement(dialog, 'interviews-delete-confirmation');
     });
 
     test('bulk delete interviews', async ({ page }) => {
@@ -137,7 +134,7 @@ test.describe('Interviews Page', () => {
       expect(count).toBe(0);
     });
 
-    test('visual: export dialog', async ({ page, visual }) => {
+    test('visual: export dialog', async ({ page, captureElement }) => {
       await waitForTable(page, { minRows: 1 });
 
       await page
@@ -145,8 +142,8 @@ test.describe('Interviews Page', () => {
         .first()
         .click();
 
-      await visual();
-      await expect(page).toHaveScreenshot('interviews-export-dialog.png');
+      const dialog = await waitForDialog(page);
+      await captureElement(dialog, 'interviews-export-dialog');
     });
   });
 });

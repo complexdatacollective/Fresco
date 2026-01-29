@@ -16,11 +16,22 @@ set -e
 
 PLAYWRIGHT_VERSION="v1.58.0-noble"
 IMAGE="mcr.microsoft.com/playwright:${PLAYWRIGHT_VERSION}"
+PNPM_STORE_VOLUME="fresco-e2e-pnpm-store"
 
 # Check if Docker is running
 if ! docker info >/dev/null 2>&1; then
   echo "❌ Docker is not running. Please start Docker and try again."
   exit 1
+fi
+
+# Configure pnpm store mount based on environment
+# In GitHub Actions, use a host directory that can be cached by actions/cache
+# Locally, use a named Docker volume for persistence across runs
+if [ "$GITHUB_ACTIONS" = "true" ]; then
+  mkdir -p .pnpm-docker-store
+  PNPM_STORE_MOUNT="-v $(pwd)/.pnpm-docker-store:/root/.local/share/pnpm/store"
+else
+  PNPM_STORE_MOUNT="-v ${PNPM_STORE_VOLUME}:/root/.local/share/pnpm/store"
 fi
 
 echo "🐳 Running Playwright tests in Docker container..."
@@ -40,6 +51,7 @@ docker run --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /work/node_modules \
   -v /work/.next \
+  ${PNPM_STORE_MOUNT} \
   -w /work \
   --add-host=host.docker.internal:host-gateway \
   "${IMAGE}" \
