@@ -2,7 +2,6 @@
 
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Toast } from '@base-ui/react/toast';
-import 'dotenv/config';
 import { MotionConfig, MotionGlobalConfig } from 'motion/react';
 import { type ReactNode } from 'react';
 import DialogProvider from '~/lib/dialogs/DialogProvider';
