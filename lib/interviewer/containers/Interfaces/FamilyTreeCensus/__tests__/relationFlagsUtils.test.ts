@@ -12,42 +12,46 @@ import {
  * from relationFlagsUtils.ts.
  */
 
-describe('buildBaseOptions - ex-partner support', () => {
-  test('includes ex-partner option in base options', () => {
+describe('buildBaseOptions - additional partner support', () => {
+  test('includes additional partner option in base options', () => {
     /**
-     * Users should be able to create ex-partners for family members.
+     * Users should be able to create additional partners for family members.
      * This option should always be available in the base options.
      */
     const flags: RelationFlags = {
       hasAuntOrUncle: false,
       hasSiblings: false,
       hasChildren: false,
-      hasParentExPartner: false,
+      hasParentWithMultiplePartners: false,
+      hasGrandparentWithMultiplePartners: false,
     };
     const options = buildBaseOptions(flags);
 
-    expect(options.some((opt) => opt.value === 'exPartner')).toBe(true);
+    expect(options.some((opt) => opt.value === 'additionalPartner')).toBe(true);
   });
 
-  test('ex-partner option has correct label', () => {
+  test('additional partner option has correct label', () => {
     const flags: RelationFlags = {
       hasAuntOrUncle: false,
       hasSiblings: false,
       hasChildren: false,
-      hasParentExPartner: false,
+      hasParentWithMultiplePartners: false,
+      hasGrandparentWithMultiplePartners: false,
     };
     const options = buildBaseOptions(flags);
 
-    const exPartnerOption = options.find((opt) => opt.value === 'exPartner');
-    expect(exPartnerOption?.label).toBe('Ex-Partner');
+    const additionalPartnerOption = options.find(
+      (opt) => opt.value === 'additionalPartner',
+    );
+    expect(additionalPartnerOption?.label).toBe('Additional Partner');
   });
 });
 
-describe('getRelationFlags - ex-partner detection', () => {
-  test('detects when father has ex-partner', () => {
+describe('getRelationFlags - multiple partner detection', () => {
+  test('detects when father has multiple partners', () => {
     /**
-     * The flags should include hasParentExPartner to indicate
-     * whether Father or Mother has an ex-partner.
+     * The flags should include hasParentWithMultiplePartners to indicate
+     * whether Father or Mother has more than one partner.
      */
     const nodes: FamilyTreeNodeType[] = [
       { id: 'ego', label: 'ego', sex: 'male', isEgo: true, readOnly: false },
@@ -59,8 +63,17 @@ describe('getRelationFlags - ex-partner detection', () => {
         {
           id: 'e1',
           source: 'father',
-          target: 'ex',
-          relationship: 'ex-partner',
+          target: 'mother',
+          relationship: 'partner',
+        },
+      ],
+      [
+        'e2',
+        {
+          id: 'e2',
+          source: 'father',
+          target: 'partner2',
+          relationship: 'partner',
         },
       ],
     ]);
@@ -70,24 +83,34 @@ describe('getRelationFlags - ex-partner detection', () => {
       motherId: 'mother',
     });
 
-    expect(flags.hasParentExPartner).toBe(true);
+    expect(flags.hasParentWithMultiplePartners).toBe(true);
   });
 
-  test('returns false when no ex-partners exist', () => {
+  test('returns false when parents have only one partner each', () => {
     const nodes: FamilyTreeNodeType[] = [
       { id: 'ego', label: 'ego', sex: 'male', isEgo: true, readOnly: false },
     ];
-    const edges = new Map<string, Edge>();
+    const edges = new Map<string, Edge>([
+      [
+        'e1',
+        {
+          id: 'e1',
+          source: 'father',
+          target: 'mother',
+          relationship: 'partner',
+        },
+      ],
+    ]);
 
     const flags = getRelationFlags(nodes, edges, {
       fatherId: 'father',
       motherId: 'mother',
     });
 
-    expect(flags.hasParentExPartner).toBe(false);
+    expect(flags.hasParentWithMultiplePartners).toBe(false);
   });
 
-  test('detects ex-partner when mother has ex-partner', () => {
+  test('detects when mother has multiple partners', () => {
     const nodes: FamilyTreeNodeType[] = [
       { id: 'mother', label: 'mother', sex: 'female', readOnly: false },
     ];
@@ -96,9 +119,18 @@ describe('getRelationFlags - ex-partner detection', () => {
         'e1',
         {
           id: 'e1',
-          source: 'ex-husband',
+          source: 'father',
           target: 'mother',
-          relationship: 'ex-partner',
+          relationship: 'partner',
+        },
+      ],
+      [
+        'e2',
+        {
+          id: 'e2',
+          source: 'partner2',
+          target: 'mother',
+          relationship: 'partner',
         },
       ],
     ]);
@@ -108,13 +140,13 @@ describe('getRelationFlags - ex-partner detection', () => {
       motherId: 'mother',
     });
 
-    expect(flags.hasParentExPartner).toBe(true);
+    expect(flags.hasParentWithMultiplePartners).toBe(true);
   });
 
-  test('returns false when ex-partner exists but not for father or mother', () => {
+  test('returns false when multiple partners exist but not for father or mother', () => {
     /**
-     * If an aunt has an ex-partner, half-sibling option should NOT show.
-     * Only father/mother ex-partners matter for half-siblings.
+     * If an aunt has multiple partners, half-sibling option should NOT show.
+     * Only father/mother partners matter for half-siblings.
      */
     const nodes: FamilyTreeNodeType[] = [
       { id: 'aunt', label: 'maternal aunt', sex: 'female', readOnly: false },
@@ -125,8 +157,17 @@ describe('getRelationFlags - ex-partner detection', () => {
         {
           id: 'e1',
           source: 'aunt',
-          target: 'aunts-ex',
-          relationship: 'ex-partner',
+          target: 'aunts-partner1',
+          relationship: 'partner',
+        },
+      ],
+      [
+        'e2',
+        {
+          id: 'e2',
+          source: 'aunt',
+          target: 'aunts-partner2',
+          relationship: 'partner',
         },
       ],
     ]);
@@ -136,21 +177,22 @@ describe('getRelationFlags - ex-partner detection', () => {
       motherId: 'mother',
     });
 
-    expect(flags.hasParentExPartner).toBe(false);
+    expect(flags.hasParentWithMultiplePartners).toBe(false);
   });
 });
 
 describe('buildBaseOptions - conditional half-siblings', () => {
-  test('excludes half-sibling options when no parent has ex-partner', () => {
+  test('excludes half-sibling options when no parent has multiple partners', () => {
     /**
-     * Half-sibling options should only appear when an ex-partner exists.
-     * Users should create an ex-partner first before adding half-siblings.
+     * Half-sibling options should only appear when a parent has multiple partners.
+     * Users should create an additional partner first before adding half-siblings.
      */
     const flags: RelationFlags = {
       hasAuntOrUncle: false,
       hasSiblings: false,
       hasChildren: false,
-      hasParentExPartner: false,
+      hasParentWithMultiplePartners: false,
+      hasGrandparentWithMultiplePartners: false,
     };
     const options = buildBaseOptions(flags);
 
@@ -158,12 +200,13 @@ describe('buildBaseOptions - conditional half-siblings', () => {
     expect(options.some((opt) => opt.value === 'halfBrother')).toBe(false);
   });
 
-  test('includes half-sibling options when parent has ex-partner', () => {
+  test('includes half-sibling options when parent has multiple partners', () => {
     const flags: RelationFlags = {
       hasAuntOrUncle: false,
       hasSiblings: false,
       hasChildren: false,
-      hasParentExPartner: true,
+      hasParentWithMultiplePartners: true,
+      hasGrandparentWithMultiplePartners: false,
     };
     const options = buildBaseOptions(flags);
 
@@ -176,7 +219,8 @@ describe('buildBaseOptions - conditional half-siblings', () => {
       hasAuntOrUncle: false,
       hasSiblings: false,
       hasChildren: false,
-      hasParentExPartner: true,
+      hasParentWithMultiplePartners: true,
+      hasGrandparentWithMultiplePartners: false,
     };
     const options = buildBaseOptions(flags);
 
@@ -218,7 +262,8 @@ describe('buildBaseOptions - existing conditional options', () => {
       hasAuntOrUncle: true,
       hasSiblings: false,
       hasChildren: false,
-      hasParentExPartner: false,
+      hasParentWithMultiplePartners: false,
+      hasGrandparentWithMultiplePartners: false,
     };
     const options = buildBaseOptions(flags);
 
@@ -231,7 +276,8 @@ describe('buildBaseOptions - existing conditional options', () => {
       hasAuntOrUncle: false,
       hasSiblings: true,
       hasChildren: false,
-      hasParentExPartner: false,
+      hasParentWithMultiplePartners: false,
+      hasGrandparentWithMultiplePartners: false,
     };
     const options = buildBaseOptions(flags);
 
@@ -244,7 +290,8 @@ describe('buildBaseOptions - existing conditional options', () => {
       hasAuntOrUncle: false,
       hasSiblings: false,
       hasChildren: true,
-      hasParentExPartner: false,
+      hasParentWithMultiplePartners: false,
+      hasGrandparentWithMultiplePartners: false,
     };
     const options = buildBaseOptions(flags);
 
@@ -257,7 +304,8 @@ describe('buildBaseOptions - existing conditional options', () => {
       hasAuntOrUncle: false,
       hasSiblings: false,
       hasChildren: false,
-      hasParentExPartner: false,
+      hasParentWithMultiplePartners: false,
+      hasGrandparentWithMultiplePartners: false,
     };
     const options = buildBaseOptions(flags);
 
@@ -319,6 +367,126 @@ describe('getRelationFlags - half-sibling detection', () => {
   });
 });
 
+describe('getRelationFlags - grandparent multiple partner detection', () => {
+  test('detects when grandparent has multiple partners', () => {
+    const nodes: FamilyTreeNodeType[] = [
+      {
+        id: 'maternal-grandmother',
+        label: 'maternal grandmother',
+        sex: 'female',
+        readOnly: false,
+      },
+    ];
+    const edges = new Map<string, Edge>([
+      [
+        'e1',
+        {
+          id: 'e1',
+          source: 'maternal-grandfather',
+          target: 'maternal-grandmother',
+          relationship: 'partner',
+        },
+      ],
+      [
+        'e2',
+        {
+          id: 'e2',
+          source: 'additional-partner',
+          target: 'maternal-grandmother',
+          relationship: 'partner',
+        },
+      ],
+    ]);
+
+    const flags = getRelationFlags(
+      nodes,
+      edges,
+      { fatherId: 'father', motherId: 'mother' },
+      { maternalGrandmotherId: 'maternal-grandmother' },
+    );
+
+    expect(flags.hasGrandparentWithMultiplePartners).toBe(true);
+  });
+
+  test('returns false when grandparents have only one partner each', () => {
+    const nodes: FamilyTreeNodeType[] = [
+      {
+        id: 'maternal-grandmother',
+        label: 'maternal grandmother',
+        sex: 'female',
+        readOnly: false,
+      },
+    ];
+    const edges = new Map<string, Edge>([
+      [
+        'e1',
+        {
+          id: 'e1',
+          source: 'maternal-grandfather',
+          target: 'maternal-grandmother',
+          relationship: 'partner',
+        },
+      ],
+    ]);
+
+    const flags = getRelationFlags(
+      nodes,
+      edges,
+      { fatherId: 'father', motherId: 'mother' },
+      { maternalGrandmotherId: 'maternal-grandmother' },
+    );
+
+    expect(flags.hasGrandparentWithMultiplePartners).toBe(false);
+  });
+});
+
+describe('buildBaseOptions - conditional half-aunt/uncle', () => {
+  test('excludes half-aunt/uncle options when no grandparent has multiple partners', () => {
+    const flags: RelationFlags = {
+      hasAuntOrUncle: false,
+      hasSiblings: false,
+      hasChildren: false,
+      hasParentWithMultiplePartners: false,
+      hasGrandparentWithMultiplePartners: false,
+    };
+    const options = buildBaseOptions(flags);
+
+    expect(options.some((opt) => opt.value === 'halfAunt')).toBe(false);
+    expect(options.some((opt) => opt.value === 'halfUncle')).toBe(false);
+  });
+
+  test('includes half-aunt/uncle options when grandparent has multiple partners', () => {
+    const flags: RelationFlags = {
+      hasAuntOrUncle: false,
+      hasSiblings: false,
+      hasChildren: false,
+      hasParentWithMultiplePartners: false,
+      hasGrandparentWithMultiplePartners: true,
+    };
+    const options = buildBaseOptions(flags);
+
+    expect(options.some((opt) => opt.value === 'halfAunt')).toBe(true);
+    expect(options.some((opt) => opt.value === 'halfUncle')).toBe(true);
+  });
+
+  test('half-aunt/uncle options have correct labels', () => {
+    const flags: RelationFlags = {
+      hasAuntOrUncle: false,
+      hasSiblings: false,
+      hasChildren: false,
+      hasParentWithMultiplePartners: false,
+      hasGrandparentWithMultiplePartners: true,
+    };
+    const options = buildBaseOptions(flags);
+
+    const halfAunt = options.find((opt) => opt.value === 'halfAunt');
+    const halfUncle = options.find((opt) => opt.value === 'halfUncle');
+
+    expect(halfAunt?.label).toBe('Half Aunt');
+    expect(halfUncle?.label).toBe('Half Uncle');
+  });
+});
+
 describe('buildBaseOptions - niece/nephew with half-siblings', () => {
   test('includes niece/nephew when only half-siblings exist', () => {
     /**
@@ -329,7 +497,8 @@ describe('buildBaseOptions - niece/nephew with half-siblings', () => {
       hasAuntOrUncle: false,
       hasSiblings: true, // This should be true when half-siblings exist
       hasChildren: false,
-      hasParentExPartner: true,
+      hasParentWithMultiplePartners: true,
+      hasGrandparentWithMultiplePartners: false,
     };
     const options = buildBaseOptions(flags);
 

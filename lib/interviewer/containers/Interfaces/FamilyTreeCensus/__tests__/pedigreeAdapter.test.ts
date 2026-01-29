@@ -122,7 +122,7 @@ describe('storeToPedigreeInput', () => {
     expect(input.motherIndex[childIdx]).toBe(idToIndex.get('mother')!);
   });
 
-  test('partner and ex-partner edges produce Relation entries with code 4', () => {
+  test('partner edges produce Relation entries with code 4', () => {
     const nodes = makeNodes([
       { id: 'a', sex: 'male' },
       { id: 'b', sex: 'female' },
@@ -130,7 +130,7 @@ describe('storeToPedigreeInput', () => {
     ]);
     const edges = makeEdges([
       { source: 'a', target: 'b', relationship: 'partner' },
-      { source: 'a', target: 'c', relationship: 'ex-partner' },
+      { source: 'a', target: 'c', relationship: 'partner' },
     ]);
 
     const { input } = storeToPedigreeInput(nodes, edges);
@@ -247,27 +247,7 @@ describe('buildConnectorData', () => {
     }
   });
 
-  test('identifies ex-partner pairs', () => {
-    const nodes = makeNodes([
-      { id: 'a', sex: 'male' },
-      { id: 'b', sex: 'female' },
-      { id: 'c', sex: 'female' },
-    ]);
-    const edges = makeEdges([
-      { source: 'a', target: 'b', relationship: 'partner' },
-      { source: 'a', target: 'c', relationship: 'ex-partner' },
-    ]);
-
-    const { input } = storeToPedigreeInput(nodes, edges);
-    const layout = alignPedigree(input);
-    const { exPartnerPairs } = buildConnectorData(layout, edges);
-
-    // Should contain the ex-partner pair
-    expect(exPartnerPairs.size).toBe(1);
-    // Check one of the pair orderings is present
-    const hasAC = exPartnerPairs.has('a|c') || exPartnerPairs.has('c|a');
-    expect(hasAC).toBe(true);
-  });
+  
 });
 
 describe('end-to-end: store → layout → positions', () => {

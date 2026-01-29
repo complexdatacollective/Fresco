@@ -150,76 +150,118 @@ export function useDynamicFields({
       },
     };
 
-    const flags = getRelationFlags(nodes, edges, {
-      fatherId: fatherKey,
-      motherId: motherKey,
-    });
+    const flags = getRelationFlags(
+      nodes,
+      edges,
+      {
+        fatherId: fatherKey,
+        motherId: motherKey,
+      },
+      {
+        maternalGrandmotherId: maternalGrandmotherKey ?? undefined,
+        maternalGrandfatherId: maternalGrandfatherKey ?? undefined,
+        paternalGrandmotherId: paternalGrandmotherKey ?? undefined,
+        paternalGrandfatherId: paternalGrandfatherKey ?? undefined,
+      },
+    );
 
     const dynamicBaseField = {
       ...baseField,
       options: buildBaseOptions(flags),
     };
 
-    // Build ex-partner options (grandparents, parents, aunts/uncles, siblings)
-    const exPartnerOfOptions: RelativeOption[] = [];
+    // Build additional partner options (grandparents, parents, aunts/uncles, siblings)
+    const additionalPartnerOfOptions: RelativeOption[] = [];
 
     // Add grandparents (if they exist)
     if (maternalGrandmotherKey) {
-      exPartnerOfOptions.push({ label: 'Maternal Grandmother', value: maternalGrandmotherKey });
+      additionalPartnerOfOptions.push({ label: 'Maternal Grandmother', value: maternalGrandmotherKey });
     }
     if (maternalGrandfatherKey) {
-      exPartnerOfOptions.push({ label: 'Maternal Grandfather', value: maternalGrandfatherKey });
+      additionalPartnerOfOptions.push({ label: 'Maternal Grandfather', value: maternalGrandfatherKey });
     }
     if (paternalGrandmotherKey) {
-      exPartnerOfOptions.push({ label: 'Paternal Grandmother', value: paternalGrandmotherKey });
+      additionalPartnerOfOptions.push({ label: 'Paternal Grandmother', value: paternalGrandmotherKey });
     }
     if (paternalGrandfatherKey) {
-      exPartnerOfOptions.push({ label: 'Paternal Grandfather', value: paternalGrandfatherKey });
+      additionalPartnerOfOptions.push({ label: 'Paternal Grandfather', value: paternalGrandfatherKey });
     }
 
     // Add parents
-    exPartnerOfOptions.push(
+    additionalPartnerOfOptions.push(
       { label: 'Father', value: fatherKey },
       { label: 'Mother', value: motherKey },
     );
 
     // Add aunts/uncles from firstCousinOptions
     firstCousinOptions.forEach((auntOrUncle) => {
-      exPartnerOfOptions.push(auntOrUncle);
+      additionalPartnerOfOptions.push(auntOrUncle);
     });
 
     // Add siblings from nieceOptions
     nieceOptions.forEach((sibling) => {
-      exPartnerOfOptions.push(sibling);
+      additionalPartnerOfOptions.push(sibling);
     });
 
-    // Find which parents have ex-partners (for filtering half-sibling options)
-    const parentsWithExPartner: RelativeOption[] = [];
-    for (const edge of edges.values()) {
-      if (edge.relationship === 'ex-partner') {
-        // Check if father is involved in this ex-partner edge
-        if (edge.source === fatherKey || edge.target === fatherKey) {
-          if (!parentsWithExPartner.some((p) => p.value === fatherKey)) {
-            parentsWithExPartner.push({ label: 'Father', value: fatherKey });
-          }
-        }
-        // Check if mother is involved in this ex-partner edge
-        if (edge.source === motherKey || edge.target === motherKey) {
-          if (!parentsWithExPartner.some((p) => p.value === motherKey)) {
-            parentsWithExPartner.push({ label: 'Mother', value: motherKey });
+    // Find which parents have multiple partners (for filtering half-sibling options)
+    const parentsWithMultiplePartners: RelativeOption[] = [];
+    
+    // Count partners for each parent
+    const getPartnerCount = (nodeId: string): number => {
+      let count = 0;
+      for (const edge of edges.values()) {
+        if (edge.relationship === 'partner') {
+          if (edge.source === nodeId || edge.target === nodeId) {
+            count++;
           }
         }
       }
+      return count;
+    };
+    
+    // Add parents that have multiple partners
+    if (getPartnerCount(fatherKey) > 1) {
+      parentsWithMultiplePartners.push({ label: 'Father', value: fatherKey });
+    }
+    if (getPartnerCount(motherKey) > 1) {
+      parentsWithMultiplePartners.push({ label: 'Mother', value: motherKey });
     }
 
-    // Helper to get all partners (current + ex) for a given node
+    // Find which grandparents have multiple partners (for half-aunt/uncle options)
+    const grandparentsWithMultiplePartners: RelativeOption[] = [];
+    if (maternalGrandmotherKey && getPartnerCount(maternalGrandmotherKey) > 1) {
+      grandparentsWithMultiplePartners.push({
+        label: 'Maternal Grandmother',
+        value: maternalGrandmotherKey,
+      });
+    }
+    if (maternalGrandfatherKey && getPartnerCount(maternalGrandfatherKey) > 1) {
+      grandparentsWithMultiplePartners.push({
+        label: 'Maternal Grandfather',
+        value: maternalGrandfatherKey,
+      });
+    }
+    if (paternalGrandmotherKey && getPartnerCount(paternalGrandmotherKey) > 1) {
+      grandparentsWithMultiplePartners.push({
+        label: 'Paternal Grandmother',
+        value: paternalGrandmotherKey,
+      });
+    }
+    if (paternalGrandfatherKey && getPartnerCount(paternalGrandfatherKey) > 1) {
+      grandparentsWithMultiplePartners.push({
+        label: 'Paternal Grandfather',
+        value: paternalGrandfatherKey,
+      });
+    }
+
+    // Helper to get all partners for a given node
     const getAllPartnersForNode = (nodeId: string): RelativeOption[] => {
       const partners: RelativeOption[] = [];
       const node = nodes.find((n) => n.id === nodeId);
       if (!node) return partners;
 
       for (const edge of edges.values()) {
-        if (edge.relationship === 'partner' || edge.relationship === 'ex-partner') {
+        if (edge.relationship === 'partner') {
           let partnerId: string | null = null;
           if (edge.source === nodeId) partnerId = edge.target;
           else if (edge.target === nodeId) partnerId = edge.source;
@@ -227,9 +269,8 @@ export function useDynamicFields({
           if (partnerId) {
             const partnerNode = nodes.find((n) => n.id === partnerId);
             if (partnerNode) {
-              const isEx = edge.relationship === 'ex-partner';
               partners.push({
-                label: isEx ? `${partnerNode.label} (ex)` : partnerNode.label,
+                label: partnerNode.label,
                 value: partnerId,
               });
             }
@@ -244,11 +285,57 @@ export function useDynamicFields({
       ? getAllPartnersForNode(firstParentValue)
       : [];
 
+    // For half-siblings, exclude the primary spouse (ego's other parent)
+    // Half-siblings share only ONE parent with ego, so the other parent must be
+    // an additional partner, not the primary spouse
+    const getHalfSiblingSecondParentOptions = (): RelativeOption[] => {
+      if (!firstParentValue) return [];
+
+      // Determine the primary spouse (ego's other parent)
+      const primarySpouseId = firstParentValue === fatherKey ? motherKey : fatherKey;
+
+      // Filter out the primary spouse from the partner options
+      return firstParentPartners.filter(
+        (partner) => partner.value !== primarySpouseId,
+      );
+    };
+
+    const halfSiblingSecondParentOptions = getHalfSiblingSecondParentOptions();
+
+    // For half-aunt/uncle, exclude the primary spouse grandparent
+    // Half-aunt/uncle share only ONE grandparent with the parent, so the other parent
+    // must be an additional partner, not the primary spouse grandparent
+    const getHalfAuntUncleSecondParentOptions = (): RelativeOption[] => {
+      if (!firstParentValue) return [];
+
+      // Determine which grandparent pair the selected grandparent belongs to
+      // and get the primary spouse ID
+      let primarySpouseId: string | null | undefined = null;
+      if (firstParentValue === maternalGrandmotherKey) {
+        primarySpouseId = maternalGrandfatherKey;
+      } else if (firstParentValue === maternalGrandfatherKey) {
+        primarySpouseId = maternalGrandmotherKey;
+      } else if (firstParentValue === paternalGrandmotherKey) {
+        primarySpouseId = paternalGrandfatherKey;
+      } else if (firstParentValue === paternalGrandfatherKey) {
+        primarySpouseId = paternalGrandmotherKey;
+      }
+
+      // Filter out the primary spouse from the partner options
+      return firstParentPartners.filter(
+        (partner) => partner.value !== primarySpouseId,
+      );
+    };
+
+    const halfAuntUncleSecondParentOptions = getHalfAuntUncleSecondParentOptions();
+
     // Relations that need parent selection (and potentially second parent)
     // These use createFirstParentField which tracks selection via FirstParentRadioGroup
     const firstParentRelations = new Set([
       'halfSister',
       'halfBrother',
+      'halfAunt',
+      'halfUncle',
       'firstCousinMale',
       'firstCousinFemale',
       'niece',
@@ -257,11 +344,17 @@ export function useDynamicFields({
       'grandson',
     ]);
 
+    // Half-sibling relations need special handling for second parent
+    const halfSiblingRelations = new Set(['halfSister', 'halfBrother']);
+
+    // Half-aunt/uncle relations need special handling for second parent
+    const halfAuntUncleRelations = new Set(['halfAunt', 'halfUncle']);
+
     const additionalFieldsMap: Record<string, RadioGroupConfig> = {
-      exPartner: createRelationField(
-        'Who is this person an ex-partner of?',
-        'exPartnerRelation',
-        exPartnerOfOptions,
+      additionalPartner: createRelationField(
+        'Who is this person a partner of?',
+        'additionalPartnerRelation',
+        additionalPartnerOfOptions,
       ),
       aunt: createRelationField('Who is the aunt related to?', 'auntRelation', [
         { label: 'Father', value: fatherKey },
@@ -279,12 +372,23 @@ export function useDynamicFields({
       halfSister: createFirstParentField(
         'Who is the parent of your half sister?',
         'halfSisterRelation',
-        parentsWithExPartner,
+        parentsWithMultiplePartners,
       ),
       halfBrother: createFirstParentField(
         'Who is the parent of your half brother?',
         'halfBrotherRelation',
-        parentsWithExPartner,
+        parentsWithMultiplePartners,
+      ),
+      // Half-aunt/uncle use createFirstParentField to track selection for second parent
+      halfAunt: createFirstParentField(
+        'Who is the biological grandparent of your half aunt?',
+        'halfAuntRelation',
+        grandparentsWithMultiplePartners,
+      ),
+      halfUncle: createFirstParentField(
+        'Who is the biological grandparent of your half uncle?',
+        'halfUncleRelation',
+        grandparentsWithMultiplePartners,
       ),
       // These use createFirstParentField to track selection for potential second parent
       firstCousinMale: createFirstParentField(
@@ -324,17 +428,29 @@ export function useDynamicFields({
       : null;
 
     // Build second parent field if first parent has multiple partners
+    // For half-siblings and half-aunt/uncle, we use filtered options that exclude the primary spouse
+    const isHalfSiblingRelation =
+      relationValue && halfSiblingRelations.has(relationValue);
+    const isHalfAuntUncleRelation =
+      relationValue && halfAuntUncleRelations.has(relationValue);
+
+    const secondParentOptions = isHalfSiblingRelation
+      ? halfSiblingSecondParentOptions
+      : isHalfAuntUncleRelation
+        ? halfAuntUncleSecondParentOptions
+        : firstParentPartners;
+
     const needsSecondParent =
       relationValue &&
       firstParentRelations.has(relationValue) &&
       firstParentValue &&
-      firstParentPartners.length > 1;
+      secondParentOptions.length > 0;
 
     const secondParentField = needsSecondParent
       ? createRelationField(
           'Who is the other parent?',
           'secondParentRelation',
-          firstParentPartners,
+          secondParentOptions,
         )
       : null;
 

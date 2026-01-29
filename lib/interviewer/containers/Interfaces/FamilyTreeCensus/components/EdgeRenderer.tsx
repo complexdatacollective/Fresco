@@ -45,38 +45,8 @@ function renderLine(
   );
 }
 
-function renderSpouse(
-  conn: SpouseConnector,
-  idx: number,
-  color: string,
-  isExPartner: boolean,
-) {
+function renderSpouse(conn: SpouseConnector, idx: number, color: string) {
   const seg = conn.segment;
-
-  if (isExPartner) {
-    const midX = (seg.x1 + seg.x2) / 2;
-    return (
-      <g key={`ex-partner-${idx}`}>
-        {renderLine(seg, color, `ex-line-${idx}`)}
-        <line
-          x1={midX}
-          y1={seg.y1 - 10}
-          x2={midX - 15}
-          y2={seg.y2 + 10}
-          stroke={color}
-          strokeWidth={EDGE_WIDTH}
-        />
-        <line
-          x1={midX + 15}
-          y1={seg.y1 - 10}
-          x2={midX - 5}
-          y2={seg.y2 + 10}
-          stroke={color}
-          strokeWidth={EDGE_WIDTH}
-        />
-      </g>
-    );
-  }
 
   if (conn.double) {
     return (
@@ -149,17 +119,10 @@ export default function EdgeRenderer() {
     const { connectors } = connectorData;
     const elements: JSX.Element[] = [];
 
-    // Spouse / ex-partner lines
-    // The pedigree-layout library treats ex-partners same as partners for
-    // layout purposes; we distinguish visually using exPartnerPairs.
-    // However, the abstract connector doesn't carry node IDs, so we use
-    // a heuristic: we render all spouse connectors as partner lines.
-    // For ex-partner visual distinction, the adapter tracks ex-partner
-    // pairs but the connector doesn't map back to node IDs easily.
-    // For now, render all spouse connectors as standard partner double-lines.
+    // Spouse/partner lines - render as double horizontal lines
     for (let i = 0; i < connectors.spouseLines.length; i++) {
       const sp = connectors.spouseLines[i]!;
-      elements.push(renderSpouse(sp, i, color, false));
+      elements.push(renderSpouse(sp, i, color));
     }
 
     // Parent-child connectors
