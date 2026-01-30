@@ -35,13 +35,13 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Cache pnpm store for Docker
-        uses: actions/cache@v4
+      - name: Restore pnpm cache
+        id: cache
+        uses: ./.github/actions/pnpm-cache
         with:
+          mode: restore
           path: .pnpm-docker-store
-          key: pnpm-docker-store-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            pnpm-docker-store-
+          key-prefix: pnpm-docker-store
 
       - name: Run E2E tests
         id: test
@@ -73,6 +73,15 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: tests/e2e/playwright-report/
+
+      - name: Save pnpm cache
+        if: always()
+        uses: ./.github/actions/pnpm-cache
+        with:
+          mode: save
+          path: .pnpm-docker-store
+          cache-hit: ${{ steps.cache.outputs.cache-hit }}
+          cache-key: ${{ steps.cache.outputs.cache-key }}
 
   # Deploy report to GitHub Pages on test failure
   deploy-report:
