@@ -1,6 +1,17 @@
-import { test as base, expect, type Locator } from '@playwright/test';
+import {
+  test as base,
+  expect,
+  type Locator,
+  type Page,
+} from '@playwright/test';
 import { loadContext, type SuiteContext } from '../helpers/context.js';
 import { DatabaseIsolation } from './db-fixture.js';
+
+/**
+ * Default timeout for URL navigation assertions (toHaveURL).
+ * CI environments may be slower, so we use a longer timeout than the default 5s.
+ */
+const URL_ASSERTION_TIMEOUT = 15_000;
 
 // NOTE: Keep in sync with --breakpoint-* values in styles/globals.css
 const DEFAULT_PAGE_VIEWPORTS = [
@@ -141,3 +152,27 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 });
 
 export { expect };
+
+/**
+ * Assert that the page URL matches the given pattern.
+ *
+ * IMPORTANT: Always use this helper instead of `expect(page).toHaveURL()` directly.
+ * This ensures consistent timeout handling across all tests, especially in CI
+ * environments where navigation may be slower.
+ *
+ * Uses URL_ASSERTION_TIMEOUT (15s) as the default timeout.
+ *
+ * @example
+ * await expectURL(page, /\/dashboard\/protocols/);
+ * await expectURL(page, '/dashboard/settings');
+ * await expectURL(page, /\/interviews\/\d+/, { timeout: 30_000 }); // custom timeout
+ */
+export async function expectURL(
+  page: Page,
+  urlOrRegex: string | RegExp,
+  options?: { timeout?: number },
+) {
+  await expect(page).toHaveURL(urlOrRegex, {
+    timeout: options?.timeout ?? URL_ASSERTION_TIMEOUT,
+  });
+}

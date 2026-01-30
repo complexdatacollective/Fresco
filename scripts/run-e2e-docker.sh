@@ -45,9 +45,13 @@ if [ $# -gt 0 ]; then
   PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD $*"
 fi
 
+# Exclude .env file from container to prevent local config from affecting tests.
+# Required env vars are set explicitly via -e flags for consistency.
 docker run --rm \
   -e CI=true \
+  -e INSTALLATION_ID=e2e-test-env \
   -v "$(pwd)":/work \
+  -v /dev/null:/work/.env:ro \ 
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /work/node_modules \
   -v /work/.next \

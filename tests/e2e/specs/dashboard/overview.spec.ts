@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/test.js';
+import { test, expect, expectURL } from '../../fixtures/test.js';
 
 test.describe('Dashboard Overview', () => {
   // Acquire shared lock and restore database - protects read-only tests from
@@ -61,17 +61,17 @@ test.describe('Dashboard Overview', () => {
 
   test('navigates to protocols from card', async ({ page }) => {
     await page.locator('a[href="/dashboard/protocols"]').first().click();
-    await expect(page).toHaveURL(/\/dashboard\/protocols/);
+    await expectURL(page, /\/dashboard\/protocols/);
   });
 
   test('navigates to participants from card', async ({ page }) => {
     await page.locator('a[href="/dashboard/participants"]').first().click();
-    await expect(page).toHaveURL(/\/dashboard\/participants/);
+    await expectURL(page, /\/dashboard\/participants/);
   });
 
   test('navigates to interviews from card', async ({ page }) => {
     await page.locator('a[href="/dashboard/interviews"]').first().click();
-    await expect(page).toHaveURL(/\/dashboard\/interviews/);
+    await expectURL(page, /\/dashboard\/interviews/);
   });
 
   test('displays recent activity section', async ({ page }) => {

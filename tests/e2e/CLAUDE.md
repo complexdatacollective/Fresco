@@ -206,6 +206,20 @@ Since all snapshots go into a shared directory, names must be unique across all 
 
 ## Helpers API
 
+### URL assertions (`fixtures/test.ts`)
+
+**Always use `expectURL()` instead of `expect(page).toHaveURL()`** for URL assertions. This helper provides a consistent timeout (15s) that works reliably in CI environments where navigation may be slower.
+
+```ts
+import { expectURL } from '../../fixtures/test.js';
+
+// Use this:
+await expectURL(page, /\/dashboard\/protocols/);
+
+// NOT this:
+await expect(page).toHaveURL(/\/dashboard\/protocols/);
+```
+
 ### Form helpers (`helpers/form.ts`)
 
 - `fillField(page, fieldName, value)` — Fill a field by `data-field-name`
