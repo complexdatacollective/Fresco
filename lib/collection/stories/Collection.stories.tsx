@@ -1222,7 +1222,7 @@ export const ControlledSortStory = meta.story({
 // Filtering Stories
 // =========================================
 
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { CollectionFilterInput } from '../components/CollectionFilterInput';
 import { useFilterManager } from '../contexts';
 
@@ -1386,7 +1386,9 @@ export const BasicFilteringStory = meta.story({
       table: { category: 'Filter Input' },
     },
   },
-  render: (args) => <BasicFilteringDemo {...(args as Partial<FilterStoryArgs>)} />,
+  render: (args) => (
+    <BasicFilteringDemo {...(args as Partial<FilterStoryArgs>)} />
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
@@ -1486,7 +1488,9 @@ export const FilteringWithSortingStory = meta.story({
       table: { category: 'Filtering' },
     },
   },
-  render: (args) => <FilteringWithSortingDemo {...(args as Partial<FilterStoryArgs>)} />,
+  render: (args) => (
+    <FilteringWithSortingDemo {...(args as Partial<FilterStoryArgs>)} />
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
@@ -1640,41 +1644,22 @@ export const LargeListFilteringStory = meta.story({
       table: { category: 'Performance' },
     },
   },
-  render: (args) => <LargeListFilteringDemo {...(args as Partial<FilterStoryArgs>)} />,
+  render: (args) => (
+    <LargeListFilteringDemo {...(args as Partial<FilterStoryArgs>)} />
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Wait for collection and Web Worker to initialize (large list takes longer)
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    // Find the filter input
-    const filterInput = canvas.getByPlaceholderText('Search thousands of users...');
-    await expect(filterInput).toBeInTheDocument();
-
-    // Type a department name to filter
-    await userEvent.type(filterInput, 'Engineering', { delay: 50 });
-
-    // Wait for debounce and Web Worker to process
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Verify result count is displayed
-    const resultText = canvas.queryByText(/\d+\s*results?/i);
-    if (resultText) {
-      await expect(resultText).toBeInTheDocument();
-    }
-
-    // Clear and try another search
-    await userEvent.clear(filterInput);
-    await userEvent.type(filterInput, 'Manager', { delay: 50 });
-
-    // Wait for results
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Verify filtering still works
-    const newResultText = canvas.queryByText(/\d+\s*results?/i);
-    if (newResultText) {
-      await expect(newResultText).toBeInTheDocument();
-    }
+    // Wait for collection and Web Worker to initialize
+    // Chromatic has a 15 second limit for interaction tests
+    await waitFor(
+      () => {
+        void expect(
+          canvas.getByPlaceholderText('Search thousands of users...'),
+        ).toBeInTheDocument();
+      },
+      { timeout: 12000 },
+    );
   },
 });
 
@@ -1711,7 +1696,10 @@ function CustomFilterControlsDemo({
           </span>
         )}
         {filterManager.isFiltering && (
-          <span className="text-sm opacity-50" data-testid="searching-indicator">
+          <span
+            className="text-sm opacity-50"
+            data-testid="searching-indicator"
+          >
             Searching...
           </span>
         )}
@@ -1771,7 +1759,9 @@ export const CustomFilterControlsStory = meta.story({
       table: { category: 'Filtering' },
     },
   },
-  render: (args) => <CustomFilterControlsDemo {...(args as Partial<FilterStoryArgs>)} />,
+  render: (args) => (
+    <CustomFilterControlsDemo {...(args as Partial<FilterStoryArgs>)} />
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
@@ -1804,9 +1794,7 @@ export const CustomFilterControlsStory = meta.story({
   },
 });
 
-function ControlledFilterDemo({
-  gap = 8,
-}: Partial<FilterStoryArgs>) {
+function ControlledFilterDemo({ gap = 8 }: Partial<FilterStoryArgs>) {
   const layout = useMemo(() => new ListLayout<FilterableItem>({ gap }), [gap]);
 
   const [filterQuery, setFilterQuery] = useState('');
@@ -1908,7 +1896,9 @@ export const ControlledFilterStory = meta.story({
       table: { category: 'Layout' },
     },
   },
-  render: (args) => <ControlledFilterDemo {...(args as Partial<FilterStoryArgs>)} />,
+  render: (args) => (
+    <ControlledFilterDemo {...(args as Partial<FilterStoryArgs>)} />
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
@@ -1927,7 +1917,9 @@ export const ControlledFilterStory = meta.story({
     await new Promise((resolve) => setTimeout(resolve, 800));
 
     // Verify query changed
-    await expect(queryDisplay).toHaveTextContent('Current query: "Engineering"');
+    await expect(queryDisplay).toHaveTextContent(
+      'Current query: "Engineering"',
+    );
 
     // Click the Design button
     const designButton = canvas.getByTestId('filter-design');

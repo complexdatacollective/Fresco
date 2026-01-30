@@ -9,7 +9,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { motion } from 'motion/react';
 import { Provider } from 'react-redux';
-import { expect, within } from 'storybook/test';
+import { expect, waitFor, within } from 'storybook/test';
 import { DndStoreProvider } from '~/lib/dnd';
 import OrdinalBins from './components/OrdinalBins';
 import { type OrdinalBinPrompt } from './useOrdinalBins';
@@ -266,7 +266,9 @@ export const Empty: Story = {
     ];
 
     for (const label of allBinLabels) {
-      await expect(canvas.getByText(label)).toBeInTheDocument();
+      await waitFor(() => {
+        void expect(canvas.getByText(label)).toBeInTheDocument();
+      });
     }
   },
 };
@@ -291,15 +293,29 @@ export const WithDistributedNodes: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getByText('Strongly Disagree')).toBeInTheDocument();
-    await expect(canvas.getByText('Disagree')).toBeInTheDocument();
-    await expect(canvas.getByText('Neutral')).toBeInTheDocument();
-    await expect(canvas.getByText('Agree')).toBeInTheDocument();
-    await expect(canvas.getByText('Strongly Agree')).toBeInTheDocument();
+    await waitFor(() => {
+      void expect(canvas.getByText('Strongly Disagree')).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      void expect(canvas.getByText('Disagree')).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      void expect(canvas.getByText('Neutral')).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      void expect(canvas.getByText('Agree')).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      void expect(canvas.getByText('Strongly Agree')).toBeInTheDocument();
+    });
 
     // Alice (value 1) and Frank (value 1) share the "Strongly Disagree" bin
-    await expect(canvas.getByText('Alice')).toBeInTheDocument();
-    await expect(canvas.getByText('Frank')).toBeInTheDocument();
+    await waitFor(() => {
+      void expect(canvas.getByText('Alice')).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      void expect(canvas.getByText('Frank')).toBeInTheDocument();
+    });
   },
 };
 
@@ -323,10 +339,14 @@ export const AllInOneBin: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getByText('Neutral')).toBeInTheDocument();
+    await waitFor(() => {
+      void expect(canvas.getByText('Neutral')).toBeInTheDocument();
+    });
 
-    const aliceNodes = canvas.getAllByText('Alice');
-    await expect(aliceNodes.length).toBeGreaterThan(0);
+    await waitFor(() => {
+      const aliceNodes = canvas.getAllByText('Alice');
+      void expect(aliceNodes.length).toBeGreaterThan(0);
+    });
   },
 };
 
@@ -387,11 +407,19 @@ export const WithMissingValueBin: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getByText('Never')).toBeInTheDocument();
-    await expect(canvas.getByText('Rarely')).toBeInTheDocument();
-    await expect(canvas.getByText('Always')).toBeInTheDocument();
+    await waitFor(() => {
+      void expect(canvas.getByText('Never')).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      void expect(canvas.getByText('Rarely')).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      void expect(canvas.getByText('Always')).toBeInTheDocument();
+    });
 
-    await expect(canvas.getByText('Alice')).toBeInTheDocument();
+    await waitFor(() => {
+      void expect(canvas.getByText('Alice')).toBeInTheDocument();
+    });
   },
 };
 
@@ -447,12 +475,18 @@ export const ManyNodes: Story = {
     ];
 
     for (const label of allBinLabels) {
-      await expect(canvas.getByText(label)).toBeInTheDocument();
+      await waitFor(() => {
+        void expect(canvas.getByText(label)).toBeInTheDocument();
+      });
     }
 
     // Alice (value 1) and Bob (value 1) share the "Strongly Disagree" bin
-    await expect(canvas.getByText('Alice')).toBeInTheDocument();
-    await expect(canvas.getByText('Bob')).toBeInTheDocument();
+    await waitFor(() => {
+      void expect(canvas.getByText('Alice')).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      void expect(canvas.getByText('Bob')).toBeInTheDocument();
+    });
   },
 };
 
@@ -481,10 +515,14 @@ export const SkewedDistribution: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getByText('Strongly Agree')).toBeInTheDocument();
+    await waitFor(() => {
+      void expect(canvas.getByText('Strongly Agree')).toBeInTheDocument();
+    });
 
-    const aliceNodes = canvas.getAllByText('Alice');
-    await expect(aliceNodes.length).toBeGreaterThan(0);
+    await waitFor(() => {
+      const aliceNodes = canvas.getAllByText('Alice');
+      void expect(aliceNodes.length).toBeGreaterThan(0);
+    });
   },
 };
 
