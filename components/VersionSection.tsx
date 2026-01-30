@@ -72,9 +72,8 @@ export default async function VersionSection() {
 
   return (
     <SettingsCard id="app-version" title="App Version">
-      <Paragraph>
-        You are currently running Fresco {env.APP_VERSION} ({env.COMMIT_HASH}
-        ).
+      <Paragraph data-testid="app-version-info">
+        You are currently running Fresco {env.APP_VERSION} ({env.COMMIT_HASH}).
       </Paragraph>
 
       {error && (

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run Playwright e2e tests inside a Linux Docker container
 #
-# This runs the exact same tests as `pnpm test:e2e:local` but inside the
+# This runs the tests in
 # Playwright Docker image for consistent visual snapshots across environments.
 #
 # Prerequisites:

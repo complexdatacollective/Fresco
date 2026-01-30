@@ -10,6 +10,22 @@ test.describe('Settings Page', () => {
   });
 
   test.beforeEach(async ({ page }) => {
+    // Mock GitHub API to return consistent version info for visual snapshots
+    await page.route(
+      'https://api.github.com/repos/complexdatacollective/fresco/releases/latest',
+      (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            html_url:
+              'https://github.com/complexdatacollective/fresco/releases/tag/v3.0.0',
+            tag_name: 'v3.0.0',
+            body: 'Mocked release notes for testing.',
+          }),
+        }),
+    );
+
     await page.goto('/dashboard/settings');
   });
 
@@ -86,9 +102,8 @@ test.describe('Settings Page', () => {
 
     test('visual snapshot', async ({ page, capturePage }) => {
       await capturePage('settings-page', {
-        mask: [
-          page.getByRole('heading', { name: /app version/i }).locator('..'),
-        ],
+        // Mask the version/commit text which varies between environments
+        mask: [page.getByTestId('app-version-info')],
       });
     });
   });
