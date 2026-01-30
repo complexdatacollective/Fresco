@@ -13,7 +13,7 @@ import {
 
 // TODO: This should be refactored out - the existing types from the field component
 // should be used.
-export type FieldConfig<Props = Record<string, unknown>> = {
+type FieldConfig<Props = Record<string, unknown>> = {
   fieldLabel: string;
   options: { label: string; value: VariableValue }[];
   type: VariableType;

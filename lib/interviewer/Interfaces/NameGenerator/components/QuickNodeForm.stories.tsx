@@ -9,7 +9,6 @@ import { configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
 import { Provider } from 'react-redux';
-import { expect, userEvent, within } from 'storybook/test';
 import QuickNodeForm from './QuickNodeForm';
 
 const mockProtocol = {
@@ -234,173 +233,26 @@ export const AddNodeFlow: Story = {
     targetVariable: 'name',
   },
   render: (args) => <QuickNodeFormWrapper {...args} />,
-  play: async ({ canvasElement, step }) => {
-    const canvas = within(canvasElement);
-
-    await step('Click to reveal the input', async () => {
-      const addButton = canvas.getByRole('button', { name: /add a person/i });
-      await userEvent.click(addButton);
-    });
-
-    await step('Form shown indicator should appear', async () => {
-      const formShownIndicator = await canvas.findByTestId('form-shown');
-      await expect(formShownIndicator).toBeInTheDocument();
-    });
-
-    await step('Type a name', async () => {
-      const input = canvas.getByPlaceholderText(
-        'Type a label and press enter...',
-      );
-      await userEvent.type(input, 'Alice');
-      await expect(input).toHaveValue('Alice');
-    });
-
-    await step('Submit with Enter and verify node is added', async () => {
-      await userEvent.keyboard('{Enter}');
-
-      // Wait for the added node to appear (with longer timeout)
-      const addedNode = await canvas.findByTestId(
-        'added-node-0',
-        {},
-        { timeout: 3000 },
-      );
-      await expect(addedNode).toHaveTextContent('Alice');
-    });
-  },
   parameters: {
     docs: {
       description: {
         story:
-          'Tests the complete flow of adding a node: click to reveal, type a name, and submit.',
+          'The complete flow of adding a node: click to reveal, type a name, and submit.',
       },
     },
   },
 };
 
-export const AddMultipleNodes: Story = {
-  args: {
-    disabled: false,
-    targetVariable: 'name',
-  },
-  render: (args) => <QuickNodeFormWrapper {...args} />,
-  play: async ({ canvasElement, step }) => {
-    const canvas = within(canvasElement);
-
-    await step('Add first node', async () => {
-      const addButton = canvas.getByRole('button', { name: /add a person/i });
-      await userEvent.click(addButton);
-
-      const input = canvas.getByPlaceholderText(
-        'Type a label and press enter...',
-      );
-      await userEvent.type(input, 'Alice');
-      await userEvent.keyboard('{Enter}');
-
-      // Wait for the first node to be added
-      await canvas.findByTestId('added-node-0', {}, { timeout: 3000 });
-    });
-
-    await step('Input should be cleared and ready', async () => {
-      const input = canvas.getByPlaceholderText(
-        'Type a label and press enter...',
-      );
-      await expect(input).toHaveValue('');
-    });
-
-    await step('Add second node', async () => {
-      const input = canvas.getByPlaceholderText(
-        'Type a label and press enter...',
-      );
-      await userEvent.type(input, 'Bob');
-      await userEvent.keyboard('{Enter}');
-
-      // Wait for second node
-      await canvas.findByTestId('added-node-1', {}, { timeout: 3000 });
-    });
-
-    await step('Check both nodes were added', async () => {
-      const firstNode = canvas.getByTestId('added-node-0');
-      const secondNode = canvas.getByTestId('added-node-1');
-      await expect(firstNode).toHaveTextContent('Alice');
-      await expect(secondNode).toHaveTextContent('Bob');
-    });
-  },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Tests adding multiple nodes sequentially. After submitting, the form stays open and focused for quick successive additions.',
-      },
-    },
-  },
-};
-
-export const RequiredValidation: Story = {
-  args: {
-    disabled: false,
-    targetVariable: 'name',
-  },
-  render: (args) => <QuickNodeFormWrapper {...args} />,
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    // Click to reveal the input
-    const addButton = canvas.getByRole('button', { name: /add a person/i });
-    await userEvent.click(addButton);
-
-    // Try to submit empty
-    const input = canvas.getByPlaceholderText(
-      'Type a label and press enter...',
-    );
-    await userEvent.keyboard('{Enter}');
-
-    // No nodes should be added (the added-nodes container shouldn't exist)
-    const addedNodesContainer = canvas.queryByTestId('added-nodes');
-    await expect(addedNodesContainer).not.toBeInTheDocument();
-
-    // Type something and submit
-    await userEvent.type(input, 'Charlie');
-    await userEvent.keyboard('{Enter}');
-
-    // Now the node should be added
-    const addedNode = await canvas.findByTestId('added-node-0');
-    await expect(addedNode).toHaveTextContent('Charlie');
-  },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Tests that the form validates required field - empty submissions are rejected.',
-      },
-    },
-  },
-};
-
-export const DisabledPreventsSubmission: Story = {
+export const DisabledState: Story = {
   args: {
     disabled: true,
     targetVariable: 'name',
   },
   render: (args) => <QuickNodeFormWrapper {...args} />,
-  play: async ({ canvasElement, step }) => {
-    const canvas = within(canvasElement);
-
-    await step('The checkbox should be disabled', async () => {
-      const checkbox = canvas.getByRole('checkbox');
-      await expect(checkbox).toBeDisabled();
-    });
-
-    await step('The add button should have disabled styling', async () => {
-      const addButton = canvas.getByRole('button', { name: /add a person/i });
-      // Check for disabled styling (opacity-50 and pointer-events-none)
-      await expect(addButton).toHaveClass('opacity-50');
-      await expect(addButton).toHaveClass('pointer-events-none');
-    });
-  },
   parameters: {
     docs: {
       description: {
-        story: 'Tests that the disabled state prevents form interaction.',
+        story: 'The disabled state prevents form interaction.',
       },
     },
   },

@@ -110,7 +110,7 @@ describe('addPlaceholderNode - additional partner creation', () => {
   });
 
   test('additional partner requires anchorId', () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(vi.fn());
 
     // Try to create additional partner without anchor
     store.getState().addPlaceholderNode('additionalPartner');

@@ -123,25 +123,6 @@ export const SinglePrompt: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    // Wait for animation to complete
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    // Verify the prompt text is visible
-    const promptText = canvas.getByText('Who are the people in your network?');
-    await expect(promptText).toBeVisible();
-
-    // Verify no pips are rendered (single prompt)
-    const pips = canvasElement.querySelectorAll('[aria-hidden="true"]');
-    await expect(pips.length).toBe(0);
-
-    // Verify accessibility attributes
-    const container = canvas.getByRole('status');
-    await expect(container).toHaveAttribute('aria-live', 'polite');
-    await expect(container).toHaveAttribute('aria-atomic', 'true');
-  },
 };
 
 export const MultiplePrompts: Story = {

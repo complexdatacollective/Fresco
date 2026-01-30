@@ -87,6 +87,11 @@ const mockProtocol = {
       edgeType: {
         type: 'family',
       },
+      nodeSexVariable: 'sex',
+      egoSexVariable: 'sex',
+      edgeRelationshipVariable: 'relationship',
+      relationshipToEgoVariable: 'relationshipToEgo',
+      nodeIsEgoVariable: 'isEgo',
       scaffoldingStep: {
         text: 'Please create your family tree by adding family members.',
       },
@@ -132,20 +137,6 @@ const createMockNodes = (count: number): NcNode[] => {
   }));
 };
 
-const createMockEdges = (
-  relationships: [number, number, string][],
-): NcEdge[] => {
-  return relationships.map(([from, to, relationship], i) => ({
-    [entityPrimaryKeyProperty]: `edge-${i + 1}`,
-    type: 'family',
-    from: `node-${from}`,
-    to: `node-${to}`,
-    [entityAttributesProperty]: {
-      relationship,
-    },
-  }));
-};
-
 const createMockSession = (nodes: NcNode[], edges: NcEdge[]) => ({
   id: 'test-session',
   currentStep: 0,
@@ -161,14 +152,17 @@ const createMockSession = (nodes: NcNode[], edges: NcEdge[]) => ({
     },
   },
   stageMetadata: {
-    nodes: nodes.map((node, i) => ({
-      interviewNetworkId: node[entityPrimaryKeyProperty],
-      label: (node[entityAttributesProperty].name as string) ?? '',
-      sex:
-        (node[entityAttributesProperty].sex as 'male' | 'female') ?? 'female',
-      isEgo: i === 0,
-      readOnly: false,
-    })),
+    0: {
+      hasSeenScaffoldPrompt: true,
+      nodes: nodes.map((node, i) => ({
+        interviewNetworkId: node[entityPrimaryKeyProperty],
+        label: (node[entityAttributesProperty].name as string) ?? '',
+        sex:
+          (node[entityAttributesProperty].sex as 'male' | 'female') ?? 'female',
+        isEgo: i === 0,
+        readOnly: false,
+      })),
+    },
   },
 });
 
@@ -299,11 +293,8 @@ export const ScaffoldingStep: Story = {
   },
   decorators: [
     ReduxDecoratorFactory({
-      nodes: createMockNodes(3),
-      edges: createMockEdges([
-        [1, 2, 'partner'],
-        [1, 3, 'parent'],
-      ]),
+      nodes: createMockNodes(2),
+      edges: [],
     }),
   ],
   parameters: {
@@ -325,11 +316,7 @@ export const NameGenerationStep: Story = {
   decorators: [
     ReduxDecoratorFactory({
       nodes: createMockNodes(4),
-      edges: createMockEdges([
-        [1, 2, 'partner'],
-        [1, 3, 'parent'],
-        [1, 4, 'parent'],
-      ]),
+      edges: [],
     }),
   ],
   parameters: {
@@ -351,12 +338,7 @@ export const DiseaseNominationStep: Story = {
   decorators: [
     ReduxDecoratorFactory({
       nodes: createMockNodes(5),
-      edges: createMockEdges([
-        [1, 2, 'partner'],
-        [1, 3, 'parent'],
-        [1, 4, 'parent'],
-        [2, 5, 'parent'],
-      ]),
+      edges: [],
     }),
   ],
   parameters: {
@@ -378,21 +360,14 @@ export const LargeFamily: Story = {
   decorators: [
     ReduxDecoratorFactory({
       nodes: createMockNodes(6),
-      edges: createMockEdges([
-        [1, 2, 'partner'],
-        [1, 3, 'parent'],
-        [1, 4, 'parent'],
-        [2, 5, 'parent'],
-        [3, 4, 'sibling'],
-        [5, 6, 'sibling'],
-      ]),
+      edges: [],
     }),
   ],
   parameters: {
     docs: {
       description: {
         story:
-          'Shows a larger family tree with multiple generations and relationships.',
+          'Shows a larger family tree with multiple family members (relationships tested in unit tests).',
       },
     },
   },

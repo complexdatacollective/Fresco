@@ -34,6 +34,12 @@ export function CollectionProvider<T>({
   children,
 }: CollectionProviderProps<T>) {
   const storeRef = useRef<CollectionStoreApi<T> | null>(null);
+  const keyExtractorRef = useRef(keyExtractor);
+  const textValueExtractorRef = useRef(textValueExtractor);
+
+  // Update refs when functions change
+  keyExtractorRef.current = keyExtractor;
+  textValueExtractorRef.current = textValueExtractor;
 
   // Create store once
   storeRef.current ??= createCollectionStore<T>();
@@ -42,8 +48,8 @@ export function CollectionProvider<T>({
   useEffect(() => {
     storeRef.current
       ?.getState()
-      .setItems(items, keyExtractor, textValueExtractor);
-  }, [items, keyExtractor, textValueExtractor]);
+      .setItems(items, keyExtractorRef.current, textValueExtractorRef.current);
+  }, [items]);
 
   return (
     <CollectionStoreContext.Provider

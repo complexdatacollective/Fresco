@@ -65,16 +65,15 @@ export function useCollectionSetup<T>(
   // We need to track a version counter to force re-evaluation when the ref becomes available
   const [refVersion, setRefVersion] = useState(0);
 
-  // Effect to detect when ref becomes available (runs on every render intentionally)
+  // Effect to detect when ref becomes available
   // This is needed because the ref might not be attached on first render if the
   // collection is initially empty and the component returns early
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (containerRef?.current && containerWidth === undefined) {
       // Trigger re-evaluation by incrementing version
       setRefVersion((v) => v + 1);
     }
-  });
+  }, [containerRef, containerWidth]);
 
   // Main effect to track container width using ResizeObserver
   useEffect(() => {
