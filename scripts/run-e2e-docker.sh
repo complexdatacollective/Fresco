@@ -51,7 +51,7 @@ docker run --rm \
   -e CI=true \
   -e INSTALLATION_ID=e2e-test-env \
   -v "$(pwd)":/work \
-  -v /dev/null:/work/.env:ro \ 
+  -v /dev/null:/work/.env:ro \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /work/node_modules \
   -v /work/.next \
