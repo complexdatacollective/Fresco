@@ -367,9 +367,9 @@ export const ExtendedFamily: StoryFn = () => {
   return <PedigreeVisualization storeRef={storeRef} />;
 };
 
-// ── Story: Ex-partner with half-siblings ──
+// ── Story: Multiple partners with half-siblings ──
 
-export const ExPartnerWithHalfSiblings: StoryFn = () => {
+export const MultiplePartnersWithHalfSiblings: StoryFn = () => {
   const storeRef = useRef<FamilyTreeStoreApi | null>(null);
   const [, setReady] = useState(false);
 
@@ -378,20 +378,20 @@ export const ExPartnerWithHalfSiblings: StoryFn = () => {
       [
         { id: 'mother', label: 'Mother', sex: 'female' },
         { id: 'father', label: 'Father', sex: 'male' },
-        { id: 'ex-partner', label: "Father's Ex", sex: 'female' },
+        { id: 'additional-partner', label: "Father's Partner", sex: 'female' },
         { id: 'ego', label: 'You', sex: 'female', isEgo: true },
         { id: 'brother', label: 'Brother', sex: 'male' },
         { id: 'half-sister', label: 'Half-sister', sex: 'female' },
       ],
       [
         { source: 'father', target: 'mother', relationship: 'partner' },
-        { source: 'father', target: 'ex-partner', relationship: 'ex-partner' },
+        { source: 'father', target: 'additional-partner', relationship: 'partner' },
         { source: 'father', target: 'ego', relationship: 'parent' },
         { source: 'mother', target: 'ego', relationship: 'parent' },
         { source: 'father', target: 'brother', relationship: 'parent' },
         { source: 'mother', target: 'brother', relationship: 'parent' },
         { source: 'father', target: 'half-sister', relationship: 'parent' },
-        { source: 'ex-partner', target: 'half-sister', relationship: 'parent' },
+        { source: 'additional-partner', target: 'half-sister', relationship: 'parent' },
       ],
     );
     store.getState().runLayout();
@@ -424,7 +424,7 @@ export const SimpleCouple: StoryFn = () => {
   return <PedigreeVisualization storeRef={storeRef} />;
 };
 
-// ── Story: Complex multi-generational pedigree with ex-partners and half-siblings ──
+// ── Story: Complex multi-generational pedigree with multiple partners and half-siblings ──
 
 export const ComplexMultiGenerational: StoryFn = () => {
   const storeRef = useRef<FamilyTreeStoreApi | null>(null);
@@ -436,15 +436,15 @@ export const ComplexMultiGenerational: StoryFn = () => {
         // Gen 0: Great-grandparents
         { id: 'ggf', label: 'Great-Grandfather', sex: 'male' },
         { id: 'ggm', label: 'Great-Grandmother', sex: 'female' },
-        // Gen 1: Grandparents + ex-partner
+        // Gen 1: Grandparents + additional partners
         { id: 'pgf', label: 'Pat. Grandfather', sex: 'male' },
         { id: 'pgm', label: 'Pat. Grandmother', sex: 'female' },
-        { id: 'pgf-ex', label: 'PGF Ex-Wife', sex: 'female' },
+        { id: 'pgf-partner2', label: "PGF's Partner 2", sex: 'female' },
         { id: 'mgf', label: 'Mat. Grandfather', sex: 'male' },
         { id: 'mgm', label: 'Mat. Grandmother', sex: 'female' },
         // Gen 2: Parents, half-uncle, aunt
         { id: 'father', label: 'Father', sex: 'male' },
-        { id: 'father-ex', label: "Father's Ex", sex: 'female' },
+        { id: 'father-partner2', label: "Father's Partner 2", sex: 'female' },
         { id: 'mother', label: 'Mother', sex: 'female' },
         { id: 'half-uncle', label: 'Pat. Half-Uncle', sex: 'male' },
         { id: 'aunt', label: 'Mat. Aunt', sex: 'female' },
@@ -467,20 +467,20 @@ export const ComplexMultiGenerational: StoryFn = () => {
         { source: 'ggm', target: 'pgf', relationship: 'parent' },
         // Gen 1 partnerships
         { source: 'pgf', target: 'pgm', relationship: 'partner' },
-        { source: 'pgf', target: 'pgf-ex', relationship: 'ex-partner' },
+        { source: 'pgf', target: 'pgf-partner2', relationship: 'partner' },
         { source: 'mgf', target: 'mgm', relationship: 'partner' },
         // Gen 1 → Gen 2
         { source: 'pgf', target: 'father', relationship: 'parent' },
         { source: 'pgm', target: 'father', relationship: 'parent' },
         { source: 'pgf', target: 'half-uncle', relationship: 'parent' },
-        { source: 'pgf-ex', target: 'half-uncle', relationship: 'parent' },
+        { source: 'pgf-partner2', target: 'half-uncle', relationship: 'parent' },
         { source: 'mgf', target: 'mother', relationship: 'parent' },
         { source: 'mgm', target: 'mother', relationship: 'parent' },
         { source: 'mgf', target: 'aunt', relationship: 'parent' },
         { source: 'mgm', target: 'aunt', relationship: 'parent' },
         // Gen 2 partnerships
         { source: 'father', target: 'mother', relationship: 'partner' },
-        { source: 'father', target: 'father-ex', relationship: 'ex-partner' },
+        { source: 'father', target: 'father-partner2', relationship: 'partner' },
         { source: 'aunt', target: 'aunt-h', relationship: 'partner' },
         // Gen 2 → Gen 3
         { source: 'father', target: 'ego', relationship: 'parent' },
@@ -488,7 +488,7 @@ export const ComplexMultiGenerational: StoryFn = () => {
         { source: 'father', target: 'sister', relationship: 'parent' },
         { source: 'mother', target: 'sister', relationship: 'parent' },
         { source: 'father', target: 'half-sis', relationship: 'parent' },
-        { source: 'father-ex', target: 'half-sis', relationship: 'parent' },
+        { source: 'father-partner2', target: 'half-sis', relationship: 'parent' },
         { source: 'aunt', target: 'cousin-f', relationship: 'parent' },
         { source: 'aunt-h', target: 'cousin-f', relationship: 'parent' },
         { source: 'aunt', target: 'cousin-m', relationship: 'parent' },

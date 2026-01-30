@@ -13,7 +13,6 @@ import {
 
 export type ConnectorRenderData = {
   connectors: PedigreeConnectors;
-  exPartnerPairs: Set<string>;
 };
 
 type ConversionResult = {
@@ -26,10 +25,6 @@ function mapSex(sex: 'male' | 'female' | undefined): Sex {
   if (sex === 'male') return 'male';
   if (sex === 'female') return 'female';
   return 'unknown';
-}
-
-function pairKey(a: string, b: string): string {
-  return a < b ? `${a}|${b}` : `${b}|${a}`;
 }
 
 export function storeToPedigreeInput(
@@ -80,10 +75,9 @@ export function storeToPedigreeInput(
     }
   }
 
-  // Build relations from partner/ex-partner edges (code 4 = spouse)
+  // Build relations from partner edges (code 4 = spouse)
   for (const edge of edges.values()) {
-    if (edge.relationship !== 'partner' && edge.relationship !== 'ex-partner')
-      continue;
+    if (edge.relationship !== 'partner') continue;
     const i1 = idToIndex.get(edge.source);
     const i2 = idToIndex.get(edge.target);
     if (i1 === undefined || i2 === undefined) continue;
@@ -148,7 +142,7 @@ export function pedigreeLayoutToPositions(
 
 export function buildConnectorData(
   layout: PedigreeLayout,
-  edges: Map<string, Omit<Edge, 'id'>>,
+  _edges: Map<string, Omit<Edge, 'id'>>,
 ): ConnectorRenderData {
   const scaling: ScalingParams = {
     boxWidth: FAMILY_TREE_CONFIG.nodeWidth / FAMILY_TREE_CONFIG.siblingSpacing,
@@ -281,15 +275,7 @@ export function buildConnectorData(
     }
   }
 
-  // Build ex-partner pair set
-  const exPartnerPairs = new Set<string>();
-  for (const edge of edges.values()) {
-    if (edge.relationship === 'ex-partner') {
-      exPartnerPairs.add(pairKey(edge.source, edge.target));
-    }
-  }
-
-  return { connectors, exPartnerPairs };
+  return { connectors };
 }
 
 function transformSegment(

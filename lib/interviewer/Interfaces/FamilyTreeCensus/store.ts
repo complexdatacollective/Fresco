@@ -19,7 +19,7 @@ export type Sex = 'male' | 'female';
 
 export type NodeIsEgo = true | false;
 
-export type Relationship = 'parent' | 'partner' | 'ex-partner';
+export type Relationship = 'parent' | 'partner';
 
 export type RelationshipToEgo =
   | 'maternal-grandmother'
@@ -34,8 +34,8 @@ export type RelationshipToEgo =
   | 'paternal-uncle'
   | 'paternal-aunts-partner'
   | 'paternal-uncles-partner'
-  | 'fathers-ex-partner'
-  | 'mothers-ex-partner'
+  | 'fathers-partner'
+  | 'mothers-partner'
   | 'mother'
   | 'father'
   | 'ego'
@@ -135,10 +135,7 @@ export const createFamilyTreeStore = (
       // Network traversal utilities
       const getNodeById = (id: string) => get().network.nodes.get(id);
 
-      const getRelationship = (
-        nodeId: string,
-        type: 'partner' | 'ex-partner',
-      ) => {
+      const getRelationship = (nodeId: string, type: 'partner') => {
         for (const edge of get().network.edges.values()) {
           if (edge.relationship === type) {
             if (edge.source === nodeId) return edge.target;
@@ -149,7 +146,18 @@ export const createFamilyTreeStore = (
       };
 
       const getPartner = (id: string) => getRelationship(id, 'partner');
-      const getExPartner = (id: string) => getRelationship(id, 'ex-partner');
+
+      // Get all partners of a node (returns array of partner node IDs)
+      const getAllPartners = (nodeId: string): string[] => {
+        const partners: string[] = [];
+        for (const edge of get().network.edges.values()) {
+          if (edge.relationship === 'partner') {
+            if (edge.source === nodeId) partners.push(edge.target);
+            if (edge.target === nodeId) partners.push(edge.source);
+          }
+        }
+        return partners;
+      };
 
       const getParents = (nodeId: string): string[] => {
         const edges = get().network.edges;
@@ -171,15 +179,13 @@ export const createFamilyTreeStore = (
 
       // marks both parents of a newly added child node readOnly
       const markParentAndPartnersReadOnly = (parentId: string) => {
-        const partnerId = getPartner?.(parentId);
-        const exPartnerId = getExPartner?.(parentId);
-
         updateReadOnly(parentId);
-        updateReadOnly(partnerId);
-        updateReadOnly(exPartnerId);
+        // Mark all partners as read-only
+        const partners = getAllPartners(parentId);
+        partners.forEach((partnerId) => updateReadOnly(partnerId));
       };
 
-      // unlock a parent (and its partner) if they have no children left
+      // unlock a parent (and its partners) if they have no children left
       const unlockParentIfNoChildren = (parentId: string) => {
         const network = get().network;
         const parentNode = network.nodes.get(parentId);
@@ -202,27 +208,19 @@ export const createFamilyTreeStore = (
               parent.readOnly = false;
             }
 
-            // unlock partner (if present)
-            const partnerId: string | null = getPartner(parentId);
-            if (partnerId) {
+            // unlock all partners (if present)
+            const partners = getAllPartners(parentId);
+            for (const partnerId of partners) {
               const partnerNode = draft.network.nodes.get(partnerId);
-              if (partnerNode && !partnerNode.isEgo) {
-                partnerNode.readOnly = false;
-              }
-            }
-
-            // unlock ex-partner (if present)
-            const exPartnerId = getExPartner(parentId);
-            if (exPartnerId) {
-              const exNode = draft.network.nodes.get(exPartnerId);
-              // do not unlock ego parents
+              // do not unlock ego parents (Mother/Father)
               if (
-                exNode &&
-                typeof exNode.label === 'string' &&
-                exNode.label.toLowerCase() !== 'mother' &&
-                exNode.label.toLowerCase() !== 'father'
+                partnerNode &&
+                !partnerNode.isEgo &&
+                typeof partnerNode.label === 'string' &&
+                partnerNode.label.toLowerCase() !== 'mother' &&
+                partnerNode.label.toLowerCase() !== 'father'
               ) {
-                exNode.readOnly = false;
+                partnerNode.readOnly = false;
               }
             }
           });
@@ -405,9 +403,8 @@ export const createFamilyTreeStore = (
           // track parents before deletion
           const parents = getParents(id);
 
-          // track potential partners before deletion
-          const partnerId = getPartner(id);
-          const exPartnerId = getExPartner(id);
+          // track all partners before deletion
+          const partnerIds = getAllPartners(id);
 
           set((state) => {
             const { nodes, edges } = state.network;
@@ -426,8 +423,8 @@ export const createFamilyTreeStore = (
           // check if parents should be unlocked
           parents.forEach((parentId) => unlockParentIfNoChildren(parentId));
 
-          maybeDeletePartner(partnerId);
-          maybeDeletePartner(exPartnerId);
+          // maybe delete partners if they have no other connections
+          partnerIds.forEach((partnerId) => maybeDeletePartner(partnerId));
 
           get().runLayout();
           get().syncMetadata();
@@ -736,6 +733,38 @@ export const createFamilyTreeStore = (
             });
           });
 
+          // Father's additional partners
+          arrayFromRelationCount(formData, 'fathers-additional-partners').forEach(
+            (_, index) => {
+              const additionalPartnerId = addNode({
+                label: `father's partner ${index + 2}`,
+                sex: 'female',
+                readOnly: true,
+              });
+              addEdge({
+                source: fatherId,
+                target: additionalPartnerId,
+                relationship: 'partner',
+              });
+            },
+          );
+
+          // Mother's additional partners
+          arrayFromRelationCount(formData, 'mothers-additional-partners').forEach(
+            (_, index) => {
+              const additionalPartnerId = addNode({
+                label: `mother's partner ${index + 2}`,
+                sex: 'male',
+                readOnly: true,
+              });
+              addEdge({
+                source: additionalPartnerId,
+                target: motherId,
+                relationship: 'partner',
+              });
+            },
+          );
+
           store.runLayout();
         },
 
@@ -826,16 +855,31 @@ export const createFamilyTreeStore = (
             return partnerId;
           };
 
-          // Find an existing ex-partner (does NOT auto-create)
-          const findExPartner = (nodeId: string): string | null => {
+          // Find all partners of a node (returns array of partner node IDs)
+          const findAllPartners = (nodeId: string): string[] => {
+            const partners: string[] = [];
             for (const [, edge] of network.edges) {
               if (
-                edge.relationship === 'ex-partner' &&
+                edge.relationship === 'partner' &&
                 (edge.source === nodeId || edge.target === nodeId)
               ) {
-                return edge.source === nodeId ? edge.target : edge.source;
+                const partnerId = edge.source === nodeId ? edge.target : edge.source;
+                partners.push(partnerId);
               }
             }
+            return partners;
+          };
+
+          // Find an additional partner (not the primary spouse) for half-sibling creation
+          const findAdditionalPartner = (nodeId: string, excludeId?: string): string | null => {
+            const partners = findAllPartners(nodeId);
+            // Return first partner that isn't the excluded one (usually the primary spouse)
+            for (const partnerId of partners) {
+              if (partnerId !== excludeId) {
+                return partnerId;
+              }
+            }
+            // No additional partners found (only the primary spouse exists)
             return null;
           };
 
@@ -859,37 +903,37 @@ export const createFamilyTreeStore = (
 
           const rel = relation.toLowerCase();
 
-          // ex-partner creation
-          if (rel === 'expartner' || rel === 'ex-partner') {
+          // additional partner creation
+          if (rel === 'additionalpartner' || rel === 'additional-partner') {
             if (!anchorId) {
               // eslint-disable-next-line no-console
-              console.warn(`Ex-partner relation requires anchorId`);
+              console.warn(`Additional partner relation requires anchorId`);
               return newNodeId;
             }
             const anchorNode = network.nodes.get(anchorId);
             if (!anchorNode) {
               // eslint-disable-next-line no-console
-              console.warn(`Ex-partner anchor node not found: ${anchorId}`);
+              console.warn(`Additional partner anchor node not found: ${anchorId}`);
               return newNodeId;
             }
 
             // Update the new node's sex to be opposite of anchor
-            const exPartnerSex = anchorNode.sex === 'male' ? 'female' : 'male';
+            const partnerSex = anchorNode.sex === 'male' ? 'female' : 'male';
             get().updateNode(newNodeId, {
-              sex: exPartnerSex,
-              label: `${anchorNode.label}'s ex-partner`,
+              sex: partnerSex,
+              label: `${anchorNode.label}'s partner`,
               readOnly: true,
             });
 
-            // Create ex-partner edge
+            // Create partner edge
             addEdge({
               source: anchorNode.sex === 'male' ? anchorId : newNodeId,
               target: anchorNode.sex === 'male' ? newNodeId : anchorId,
-              relationship: 'ex-partner',
+              relationship: 'partner',
             });
           }
 
-          // half siblings - connect to parent and their ex-partner
+          // half siblings - connect to parent and their additional partner
           else if (rel.includes('half')) {
             if (!anchorId) {
               // eslint-disable-next-line no-console
@@ -897,10 +941,15 @@ export const createFamilyTreeStore = (
               return newNodeId;
             }
 
-            // Use provided second parent, or fall back to finding first ex-partner
-            const exPartnerId = secondParentId ?? findExPartner(anchorId);
+            // Use provided second parent, or fall back to finding an additional partner
+            // For half-siblings, we want a partner that isn't ego's other parent
+            const egoId = getNodeIdFromRelationship('ego');
+            const egoParents = egoId ? getParents(egoId) : [];
+            const primaryPartnerId = egoParents.find((id) => id !== anchorId);
+            const additionalPartnerId = secondParentId ?? findAdditionalPartner(anchorId, primaryPartnerId);
+            
             connectAsChild(anchorId);
-            if (exPartnerId) connectAsChild(exPartnerId);
+            if (additionalPartnerId) connectAsChild(additionalPartnerId);
           }
 
           // ego’s children
@@ -963,7 +1012,23 @@ export const createFamilyTreeStore = (
             if (partnerId) connectAsChild(partnerId);
           }
 
-          // aunt/uncle
+          // half aunt/uncle (sibling of parent with different grandparent partner)
+          // Must be checked BEFORE regular aunt/uncle since 'halfaunt'.includes('aunt') is true
+          else if (rel.includes('halfaunt') || rel.includes('halfuncle')) {
+            if (!anchorId) {
+              // eslint-disable-next-line no-console
+              console.warn(`Half aunt/uncle relation requires anchorId (grandparent)`);
+              return newNodeId;
+            }
+            // anchorId is the biological grandparent
+            // secondParentId is the additional partner of that grandparent
+            connectAsChild(anchorId);
+            if (secondParentId) {
+              connectAsChild(secondParentId);
+            }
+          }
+
+          // aunt/uncle (full sibling of parent)
           else if (rel.includes('aunt') || rel.includes('uncle')) {
             if (!anchorId) {
               // eslint-disable-next-line no-console

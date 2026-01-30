@@ -76,6 +76,18 @@ export const CensusForm = ({
       value: '',
       error: null,
     },
+    {
+      variable: 'fathers-additional-partners',
+      label: 'How many other partners (current or past) does your father have?',
+      value: '',
+      error: null,
+    },
+    {
+      variable: 'mothers-additional-partners',
+      label: 'How many other partners (current or past) does your mother have?',
+      value: '',
+      error: null,
+    },
   ]);
 
   const ego = useSelector(getNetworkEgo);

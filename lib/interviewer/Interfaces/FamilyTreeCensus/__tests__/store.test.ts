@@ -7,28 +7,27 @@ import {
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 
 /**
- * Test Suite 3: store.test.ts
+ * Test Suite: store.test.ts
  *
- * Tests for store actions related to ex-partners and half-siblings.
- * These tests are written to fail initially, demonstrating TDD approach.
+ * Tests for store actions related to additional partners and half-siblings.
  */
 
 type NodeData = Omit<FamilyTreeNodeType, 'id'>;
 type EdgeData = Omit<Edge, 'id'>;
 
-describe('addPlaceholderNode - ex-partner creation (Issue 1)', () => {
+describe('addPlaceholderNode - additional partner creation', () => {
   let store: FamilyTreeStoreApi;
 
   beforeEach(() => {
     store = createFamilyTreeStore(new Map(), new Map());
   });
 
-  test('creates ex-partner with correct edge when relation is exPartner', () => {
+  test('creates additional partner with correct edge when relation is additionalPartner', () => {
     /**
-     * Users should be able to create ex-partners for family members.
-     * When 'exPartner' relation is passed with an anchorId, it should:
-     * 1. Create a new node for the ex-partner
-     * 2. Create an 'ex-partner' edge between them
+     * Users should be able to create additional partners for family members.
+     * When 'additionalPartner' relation is passed with an anchorId, it should:
+     * 1. Create a new node for the partner
+     * 2. Create a 'partner' edge between them
      */
 
     // Setup: Create a father node
@@ -38,86 +37,86 @@ describe('addPlaceholderNode - ex-partner creation (Issue 1)', () => {
       readOnly: false,
     });
 
-    // Act: Add ex-partner for father
-    const exPartnerId = store.getState().addPlaceholderNode('exPartner', fatherId);
+    // Act: Add additional partner for father
+    const partnerId = store
+      .getState()
+      .addPlaceholderNode('additionalPartner', fatherId);
 
-    // Assert: Ex-partner was created with ex-partner edge
+    // Assert: Partner was created with partner edge
     const edges = store.getState().network.edges;
-    const exPartnerEdge = Array.from(edges.values()).find(
+    const partnerEdge = Array.from(edges.values()).find(
       (e) =>
-        e.relationship === 'ex-partner' &&
+        e.relationship === 'partner' &&
         (e.source === fatherId || e.target === fatherId),
     );
 
-    expect(exPartnerId).toBeDefined();
-    expect(exPartnerEdge).toBeDefined();
-    expect(exPartnerEdge?.relationship).toBe('ex-partner');
+    expect(partnerId).toBeDefined();
+    expect(partnerEdge).toBeDefined();
+    expect(partnerEdge?.relationship).toBe('partner');
   });
 
-  test('ex-partner has opposite sex to anchor node (male anchor)', () => {
-    // Male parent should get female ex-partner
+  test('additional partner has opposite sex to anchor node (male anchor)', () => {
+    // Male parent should get female partner
     const fatherId = store.getState().addNode({
       label: 'father',
       sex: 'male',
       readOnly: false,
     });
 
-    store.getState().addPlaceholderNode('exPartner', fatherId);
+    store.getState().addPlaceholderNode('additionalPartner', fatherId);
 
-    // Find the ex-partner node (not the father)
+    // Find the partner node (not the father)
     const nodes = store.getState().network.nodes;
-    const exPartnerNode = Array.from(nodes.entries()).find(
+    const partnerNode = Array.from(nodes.entries()).find(
       ([id]) => id !== fatherId,
     )?.[1];
 
-    expect(exPartnerNode?.sex).toBe('female');
+    expect(partnerNode?.sex).toBe('female');
   });
 
-  test('ex-partner has opposite sex to anchor node (female anchor)', () => {
-    // Female parent should get male ex-partner
+  test('additional partner has opposite sex to anchor node (female anchor)', () => {
+    // Female parent should get male partner
     const motherId = store.getState().addNode({
       label: 'mother',
       sex: 'female',
       readOnly: false,
     });
 
-    store.getState().addPlaceholderNode('exPartner', motherId);
+    store.getState().addPlaceholderNode('additionalPartner', motherId);
 
     const nodes = store.getState().network.nodes;
-    const exPartnerNode = Array.from(nodes.entries()).find(
+    const partnerNode = Array.from(nodes.entries()).find(
       ([id]) => id !== motherId,
     )?.[1];
 
-    expect(exPartnerNode?.sex).toBe('male');
+    expect(partnerNode?.sex).toBe('male');
   });
 
-  test('ex-partner label includes anchor name', () => {
+  test('additional partner label includes anchor name and partner', () => {
     const fatherId = store.getState().addNode({
       label: 'father',
       sex: 'male',
       readOnly: false,
     });
 
-    store.getState().addPlaceholderNode('exPartner', fatherId);
+    store.getState().addPlaceholderNode('additionalPartner', fatherId);
 
     const nodes = store.getState().network.nodes;
-    const exPartnerNode = Array.from(nodes.entries()).find(
+    const partnerNode = Array.from(nodes.entries()).find(
       ([id]) => id !== fatherId,
     )?.[1];
 
-    expect(exPartnerNode?.label).toContain('ex');
+    expect(partnerNode?.label).toContain('partner');
   });
 
-  test('ex-partner requires anchorId', () => {
+  test('additional partner requires anchorId', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    // Try to create ex-partner without anchor
-    store.getState().addPlaceholderNode('exPartner');
+    // Try to create additional partner without anchor
+    store.getState().addPlaceholderNode('additionalPartner');
 
     // Should warn about missing anchorId
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('anchorId'),
-    );
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('anchorId'));
 
     warnSpy.mockRestore();
   });
@@ -129,34 +128,41 @@ describe('addPlaceholderNode - ex-partner creation (Issue 1)', () => {
       readOnly: false,
     });
 
-    store.getState().addPlaceholderNode('exPartner', fatherId);
+    store.getState().addPlaceholderNode('additionalPartner', fatherId);
 
     const edges = store.getState().network.edges;
-    const exPartnerEdge = Array.from(edges.values()).find(
-      (e) => e.relationship === 'ex-partner',
+    // Find the edge that includes father
+    const partnerEdges = Array.from(edges.values()).filter(
+      (e) =>
+        e.relationship === 'partner' &&
+        (e.source === fatherId || e.target === fatherId),
+    );
+    // Find the edge where father is source (added by additionalPartner, not primary partner)
+    const partnerEdge = partnerEdges.find(
+      (e) => e.source === fatherId || e.target === fatherId,
     );
 
     // Convention: male is source, female is target
     // Father is male, so father should be the source
-    expect(exPartnerEdge?.source).toBe(fatherId);
+    expect(partnerEdge?.source).toBe(fatherId);
   });
 });
 
-describe('addPlaceholderNode - half-sibling behavior (Issue 2)', () => {
+describe('addPlaceholderNode - half-sibling behavior with multiple partners', () => {
   let store: FamilyTreeStoreApi;
 
   beforeEach(() => {
     store = createFamilyTreeStore(new Map(), new Map());
   });
 
-  test('half-sibling connects only to parent when no ex-partner exists', () => {
+  test('half-sibling connects only to parent when no additional partner exists', () => {
     /**
-     * If somehow a half-sibling is created without an ex-partner,
+     * If somehow a half-sibling is created without an additional partner,
      * it should connect only to the specified parent.
      * (Note: UI prevents this scenario via conditional options)
      */
 
-    // Setup: Create basic family without ex-partner
+    // Setup: Create basic family without additional partner
     const motherId = store.getState().addNode({
       label: 'mother',
       sex: 'female',
@@ -190,10 +196,12 @@ describe('addPlaceholderNode - half-sibling behavior (Issue 2)', () => {
       relationship: 'partner',
     });
 
-    // Act: Add half-sibling (mother has no ex-partner)
-    const halfSibId = store.getState().addPlaceholderNode('halfSister', motherId);
+    // Act: Add half-sibling (mother has no additional partner)
+    const halfSibId = store
+      .getState()
+      .addPlaceholderNode('halfSister', motherId);
 
-    // Assert: Half-sibling connected only to mother (no ex-partner to connect to)
+    // Assert: Half-sibling connected only to mother (no additional partner to connect to)
     const edges = store.getState().network.edges;
     const parentEdges = Array.from(edges.values()).filter(
       (e) => e.relationship === 'parent' && e.target === halfSibId,
@@ -201,35 +209,42 @@ describe('addPlaceholderNode - half-sibling behavior (Issue 2)', () => {
 
     expect(parentEdges.length).toBe(1);
     expect(parentEdges[0]?.source).toBe(motherId);
-
-    // Verify no ex-partner edge was auto-created
-    const exPartnerEdge = Array.from(edges.values()).find(
-      (e) => e.relationship === 'ex-partner',
-    );
-    expect(exPartnerEdge).toBeUndefined();
   });
 
-  test('half-sibling creation succeeds with existing ex-partner', () => {
+  test('half-sibling creation succeeds with existing additional partner', () => {
     /**
-     * When an ex-partner already exists for a parent, half-sibling creation
-     * should succeed and connect to both the parent and their ex-partner.
+     * When an additional partner already exists for a parent, half-sibling creation
+     * should succeed and connect to both the parent and their additional partner.
      */
 
-    // Setup: mother with ex-partner
+    // Setup: mother with additional partner
     const motherId = store.getState().addNode({
       label: 'mother',
       sex: 'female',
       readOnly: false,
     });
-    const exPartnerId = store.getState().addNode({
-      label: 'ex',
+    const fatherId = store.getState().addNode({
+      label: 'father',
       sex: 'male',
       readOnly: false,
     });
+    const additionalPartnerId = store.getState().addNode({
+      label: "mother's partner",
+      sex: 'male',
+      readOnly: false,
+    });
+
+    // Primary partner edge
     store.getState().addEdge({
-      source: exPartnerId,
+      source: fatherId,
       target: motherId,
-      relationship: 'ex-partner',
+      relationship: 'partner',
+    });
+    // Additional partner edge
+    store.getState().addEdge({
+      source: additionalPartnerId,
+      target: motherId,
+      relationship: 'partner',
     });
 
     // Also need ego for the store to work properly
@@ -244,11 +259,18 @@ describe('addPlaceholderNode - half-sibling behavior (Issue 2)', () => {
       target: egoId,
       relationship: 'parent',
     });
+    store.getState().addEdge({
+      source: fatherId,
+      target: egoId,
+      relationship: 'parent',
+    });
 
-    // Act: Add half-sibling
-    const halfSibId = store.getState().addPlaceholderNode('halfSister', motherId);
+    // Act: Add half-sibling with explicit secondParentId
+    const halfSibId = store
+      .getState()
+      .addPlaceholderNode('halfSister', motherId, additionalPartnerId);
 
-    // Assert: Half-sibling connected to both mother and ex-partner
+    // Assert: Half-sibling connected to both mother and additional partner
     const edges = store.getState().network.edges;
     const parentEdges = Array.from(edges.values()).filter(
       (e) => e.relationship === 'parent' && e.target === halfSibId,
@@ -256,13 +278,15 @@ describe('addPlaceholderNode - half-sibling behavior (Issue 2)', () => {
 
     expect(parentEdges.length).toBe(2);
     expect(parentEdges.some((e) => e.source === motherId)).toBe(true);
-    expect(parentEdges.some((e) => e.source === exPartnerId)).toBe(true);
+    expect(parentEdges.some((e) => e.source === additionalPartnerId)).toBe(
+      true,
+    );
   });
 
-  test('half-sibling uses correct ex-partner when multiple exist', () => {
+  test('half-sibling uses correct additional partner when multiple exist', () => {
     /**
-     * If a parent has multiple ex-partners (edge case), the half-sibling
-     * should be connected to the first one found.
+     * If a parent has multiple additional partners, the half-sibling
+     * should be connected to the specified one via secondParentId.
      */
 
     const motherId = store.getState().addNode({
@@ -270,26 +294,38 @@ describe('addPlaceholderNode - half-sibling behavior (Issue 2)', () => {
       sex: 'female',
       readOnly: false,
     });
-    const exPartner1Id = store.getState().addNode({
-      label: 'ex1',
+    const fatherId = store.getState().addNode({
+      label: 'father',
       sex: 'male',
       readOnly: false,
     });
-    const exPartner2Id = store.getState().addNode({
-      label: 'ex2',
+    const partner1Id = store.getState().addNode({
+      label: 'partner1',
+      sex: 'male',
+      readOnly: false,
+    });
+    const partner2Id = store.getState().addNode({
+      label: 'partner2',
       sex: 'male',
       readOnly: false,
     });
 
+    // Primary partner edge (father)
     store.getState().addEdge({
-      source: exPartner1Id,
+      source: fatherId,
       target: motherId,
-      relationship: 'ex-partner',
+      relationship: 'partner',
+    });
+    // Additional partner edges
+    store.getState().addEdge({
+      source: partner1Id,
+      target: motherId,
+      relationship: 'partner',
     });
     store.getState().addEdge({
-      source: exPartner2Id,
+      source: partner2Id,
       target: motherId,
-      relationship: 'ex-partner',
+      relationship: 'partner',
     });
 
     const egoId = store.getState().addNode({
@@ -303,24 +339,32 @@ describe('addPlaceholderNode - half-sibling behavior (Issue 2)', () => {
       target: egoId,
       relationship: 'parent',
     });
+    store.getState().addEdge({
+      source: fatherId,
+      target: egoId,
+      relationship: 'parent',
+    });
 
-    store.getState().addPlaceholderNode('halfBrother', motherId);
+    // Specify partner2 as second parent
+    const halfSibId = store
+      .getState()
+      .addPlaceholderNode('halfBrother', motherId, partner2Id);
 
-    // Should use one of the ex-partners (first found)
+    // Should use partner2
     const edges = store.getState().network.edges;
     const halfSibParentEdges = Array.from(edges.values()).filter(
-      (e) =>
-        e.relationship === 'parent' &&
-        (e.source === exPartner1Id || e.source === exPartner2Id),
+      (e) => e.relationship === 'parent' && e.target === halfSibId,
     );
 
-    expect(halfSibParentEdges.length).toBe(1);
+    expect(halfSibParentEdges.length).toBe(2);
+    expect(halfSibParentEdges.some((e) => e.source === motherId)).toBe(true);
+    expect(halfSibParentEdges.some((e) => e.source === partner2Id)).toBe(true);
   });
 
-  test('does not create duplicate ex-partner edges', () => {
+  test('does not create duplicate partner edges', () => {
     /**
-     * When creating a half-sibling with existing ex-partner,
-     * no new ex-partner edges should be created.
+     * When creating a half-sibling with existing additional partner,
+     * no new partner edges should be created.
      */
 
     const motherId = store.getState().addNode({
@@ -328,16 +372,26 @@ describe('addPlaceholderNode - half-sibling behavior (Issue 2)', () => {
       sex: 'female',
       readOnly: false,
     });
-    const exPartnerId = store.getState().addNode({
-      label: 'ex',
+    const fatherId = store.getState().addNode({
+      label: 'father',
+      sex: 'male',
+      readOnly: false,
+    });
+    const additionalPartnerId = store.getState().addNode({
+      label: "mother's partner",
       sex: 'male',
       readOnly: false,
     });
 
     store.getState().addEdge({
-      source: exPartnerId,
+      source: fatherId,
       target: motherId,
-      relationship: 'ex-partner',
+      relationship: 'partner',
+    });
+    store.getState().addEdge({
+      source: additionalPartnerId,
+      target: motherId,
+      relationship: 'partner',
     });
 
     const egoId = store.getState().addNode({
@@ -351,18 +405,26 @@ describe('addPlaceholderNode - half-sibling behavior (Issue 2)', () => {
       target: egoId,
       relationship: 'parent',
     });
+    store.getState().addEdge({
+      source: fatherId,
+      target: egoId,
+      relationship: 'parent',
+    });
 
-    const edgesBeforeCount = store.getState().network.edges.size;
+    const partnerEdgesBefore = Array.from(
+      store.getState().network.edges.values(),
+    ).filter((e) => e.relationship === 'partner');
 
-    store.getState().addPlaceholderNode('halfSister', motherId);
+    store
+      .getState()
+      .addPlaceholderNode('halfSister', motherId, additionalPartnerId);
 
-    const edges = store.getState().network.edges;
-    const exPartnerEdges = Array.from(edges.values()).filter(
-      (e) => e.relationship === 'ex-partner',
-    );
+    const partnerEdgesAfter = Array.from(
+      store.getState().network.edges.values(),
+    ).filter((e) => e.relationship === 'partner');
 
-    // Should still have only 1 ex-partner edge
-    expect(exPartnerEdges.length).toBe(1);
+    // Should still have same number of partner edges
+    expect(partnerEdgesAfter.length).toBe(partnerEdgesBefore.length);
   });
 });
 
@@ -469,6 +531,265 @@ describe('addPlaceholderNode - existing behavior preservation', () => {
   });
 });
 
+describe('generatePlaceholderNetwork - additional partners', () => {
+  let store: FamilyTreeStoreApi;
+
+  beforeEach(() => {
+    const egoId = crypto.randomUUID();
+    const initialNodes = new Map<string, NodeData>([
+      [egoId, { label: 'ego', sex: 'male', isEgo: true, readOnly: false }],
+    ]);
+    store = createFamilyTreeStore(initialNodes, new Map());
+  });
+
+  test('creates additional partners for father when specified', () => {
+    store.getState().generatePlaceholderNetwork(
+      {
+        brothers: 0,
+        sisters: 0,
+        sons: 0,
+        daughters: 0,
+        'maternal-uncles': 0,
+        'maternal-aunts': 0,
+        'paternal-uncles': 0,
+        'paternal-aunts': 0,
+        'fathers-additional-partners': 2,
+        'mothers-additional-partners': 0,
+      },
+      'male',
+    );
+
+    const nodes = store.getState().network.nodes;
+    const edges = store.getState().network.edges;
+
+    // Find father
+    const fatherEntry = Array.from(nodes.entries()).find(
+      ([, n]) => n.label === 'father',
+    );
+    expect(fatherEntry).toBeDefined();
+    const fatherId = fatherEntry![0];
+
+    // Count partner edges for father
+    const fatherPartnerEdges = Array.from(edges.values()).filter(
+      (e) =>
+        e.relationship === 'partner' &&
+        (e.source === fatherId || e.target === fatherId),
+    );
+
+    // Should have 3 partners: mother + 2 additional partners
+    expect(fatherPartnerEdges.length).toBe(3);
+  });
+
+  test('creates additional partners for mother when specified', () => {
+    store.getState().generatePlaceholderNetwork(
+      {
+        brothers: 0,
+        sisters: 0,
+        sons: 0,
+        daughters: 0,
+        'maternal-uncles': 0,
+        'maternal-aunts': 0,
+        'paternal-uncles': 0,
+        'paternal-aunts': 0,
+        'fathers-additional-partners': 0,
+        'mothers-additional-partners': 1,
+      },
+      'female',
+    );
+
+    const nodes = store.getState().network.nodes;
+    const edges = store.getState().network.edges;
+
+    // Find mother
+    const motherEntry = Array.from(nodes.entries()).find(
+      ([, n]) => n.label === 'mother',
+    );
+    expect(motherEntry).toBeDefined();
+    const motherId = motherEntry![0];
+
+    // Count partner edges for mother
+    const motherPartnerEdges = Array.from(edges.values()).filter(
+      (e) =>
+        e.relationship === 'partner' &&
+        (e.source === motherId || e.target === motherId),
+    );
+
+    // Should have 2 partners: father + 1 additional partner
+    expect(motherPartnerEdges.length).toBe(2);
+  });
+
+  test('additional partners have correct labels', () => {
+    store.getState().generatePlaceholderNetwork(
+      {
+        brothers: 0,
+        sisters: 0,
+        sons: 0,
+        daughters: 0,
+        'maternal-uncles': 0,
+        'maternal-aunts': 0,
+        'paternal-uncles': 0,
+        'paternal-aunts': 0,
+        'fathers-additional-partners': 1,
+        'mothers-additional-partners': 0,
+      },
+      'male',
+    );
+
+    const nodes = store.getState().network.nodes;
+
+    // Find father's additional partner
+    const additionalPartner = Array.from(nodes.values()).find((n) =>
+      n.label.includes("father's partner"),
+    );
+    expect(additionalPartner).toBeDefined();
+    expect(additionalPartner?.sex).toBe('female');
+  });
+});
+
+describe('addPlaceholderNode - half-aunt/uncle creation', () => {
+  let store: FamilyTreeStoreApi;
+  let maternalGrandmotherId: string;
+  let maternalGrandfatherId: string;
+  let additionalGrandparentPartnerId: string;
+
+  beforeEach(() => {
+    store = createFamilyTreeStore(new Map(), new Map());
+
+    // Create grandparents
+    maternalGrandmotherId = store.getState().addNode({
+      label: 'maternal grandmother',
+      sex: 'female',
+      readOnly: false,
+    });
+    maternalGrandfatherId = store.getState().addNode({
+      label: 'maternal grandfather',
+      sex: 'male',
+      readOnly: false,
+    });
+
+    // Primary grandparent partner edge
+    store.getState().addEdge({
+      source: maternalGrandfatherId,
+      target: maternalGrandmotherId,
+      relationship: 'partner',
+    });
+
+    // Add an additional partner for grandmother
+    additionalGrandparentPartnerId = store.getState().addNode({
+      label: "grandmother's other partner",
+      sex: 'male',
+      readOnly: false,
+    });
+    store.getState().addEdge({
+      source: additionalGrandparentPartnerId,
+      target: maternalGrandmotherId,
+      relationship: 'partner',
+    });
+
+    // Create mother
+    const motherId = store.getState().addNode({
+      label: 'mother',
+      sex: 'female',
+      readOnly: false,
+    });
+    store.getState().addEdge({
+      source: maternalGrandfatherId,
+      target: motherId,
+      relationship: 'parent',
+    });
+    store.getState().addEdge({
+      source: maternalGrandmotherId,
+      target: motherId,
+      relationship: 'parent',
+    });
+
+    // Create ego
+    const egoId = store.getState().addNode({
+      label: 'ego',
+      sex: 'male',
+      isEgo: true,
+      readOnly: false,
+    });
+    store.getState().addEdge({
+      source: motherId,
+      target: egoId,
+      relationship: 'parent',
+    });
+  });
+
+  test('half-aunt connects to grandparent and additional partner', () => {
+    const halfAuntId = store
+      .getState()
+      .addPlaceholderNode(
+        'halfAunt',
+        maternalGrandmotherId,
+        additionalGrandparentPartnerId,
+      );
+
+    const edges = store.getState().network.edges;
+    const parentEdges = Array.from(edges.values()).filter(
+      (e) => e.relationship === 'parent' && e.target === halfAuntId,
+    );
+
+    expect(parentEdges.length).toBe(2);
+    expect(parentEdges.some((e) => e.source === maternalGrandmotherId)).toBe(
+      true,
+    );
+    expect(
+      parentEdges.some((e) => e.source === additionalGrandparentPartnerId),
+    ).toBe(true);
+  });
+
+  test('half-uncle connects to grandparent and additional partner', () => {
+    const halfUncleId = store
+      .getState()
+      .addPlaceholderNode(
+        'halfUncle',
+        maternalGrandmotherId,
+        additionalGrandparentPartnerId,
+      );
+
+    const edges = store.getState().network.edges;
+    const parentEdges = Array.from(edges.values()).filter(
+      (e) => e.relationship === 'parent' && e.target === halfUncleId,
+    );
+
+    expect(parentEdges.length).toBe(2);
+    expect(parentEdges.some((e) => e.source === maternalGrandmotherId)).toBe(
+      true,
+    );
+    expect(
+      parentEdges.some((e) => e.source === additionalGrandparentPartnerId),
+    ).toBe(true);
+  });
+
+  test('half-aunt has correct sex', () => {
+    const halfAuntId = store
+      .getState()
+      .addPlaceholderNode(
+        'halfAunt',
+        maternalGrandmotherId,
+        additionalGrandparentPartnerId,
+      );
+
+    const halfAunt = store.getState().network.nodes.get(halfAuntId);
+    expect(halfAunt?.sex).toBe('female');
+  });
+
+  test('half-uncle has correct sex', () => {
+    const halfUncleId = store
+      .getState()
+      .addPlaceholderNode(
+        'halfUncle',
+        maternalGrandmotherId,
+        additionalGrandparentPartnerId,
+      );
+
+    const halfUncle = store.getState().network.nodes.get(halfUncleId);
+    expect(halfUncle?.sex).toBe('male');
+  });
+});
+
 describe('store initialization', () => {
   test('creates store with empty network', () => {
     const store = createFamilyTreeStore(new Map(), new Map());
@@ -499,37 +820,47 @@ describe('addPlaceholderNode - secondParentId support', () => {
     store = createFamilyTreeStore(new Map(), new Map());
   });
 
-  test('half-sibling uses explicit secondParentId instead of first ex-partner', () => {
+  test('half-sibling uses explicit secondParentId instead of first additional partner', () => {
     /**
      * When secondParentId is provided, the half-sibling should be connected
-     * to that specific ex-partner, not just the first one found.
+     * to that specific partner, not just the first one found.
      */
     const motherId = store.getState().addNode({
       label: 'mother',
       sex: 'female',
       readOnly: false,
     });
-    const exPartner1Id = store.getState().addNode({
-      label: 'ex1',
+    const fatherId = store.getState().addNode({
+      label: 'father',
       sex: 'male',
       readOnly: false,
     });
-    const exPartner2Id = store.getState().addNode({
-      label: 'ex2',
+    const partner1Id = store.getState().addNode({
+      label: 'partner1',
+      sex: 'male',
+      readOnly: false,
+    });
+    const partner2Id = store.getState().addNode({
+      label: 'partner2',
       sex: 'male',
       readOnly: false,
     });
 
-    // Add ex-partner edges (ex1 added first)
+    // Add partner edges
     store.getState().addEdge({
-      source: exPartner1Id,
+      source: fatherId,
       target: motherId,
-      relationship: 'ex-partner',
+      relationship: 'partner',
     });
     store.getState().addEdge({
-      source: exPartner2Id,
+      source: partner1Id,
       target: motherId,
-      relationship: 'ex-partner',
+      relationship: 'partner',
+    });
+    store.getState().addEdge({
+      source: partner2Id,
+      target: motherId,
+      relationship: 'partner',
     });
 
     const egoId = store.getState().addNode({
@@ -543,20 +874,27 @@ describe('addPlaceholderNode - secondParentId support', () => {
       target: egoId,
       relationship: 'parent',
     });
+    store.getState().addEdge({
+      source: fatherId,
+      target: egoId,
+      relationship: 'parent',
+    });
 
-    // Explicitly specify ex2 as second parent
-    const halfSibId = store.getState().addPlaceholderNode('halfSister', motherId, exPartner2Id);
+    // Explicitly specify partner2 as second parent
+    const halfSibId = store
+      .getState()
+      .addPlaceholderNode('halfSister', motherId, partner2Id);
 
     const edges = store.getState().network.edges;
     const parentEdges = Array.from(edges.values()).filter(
       (e) => e.relationship === 'parent' && e.target === halfSibId,
     );
 
-    // Should be connected to mother + ex2 (not ex1)
+    // Should be connected to mother + partner2 (not partner1)
     expect(parentEdges.length).toBe(2);
     expect(parentEdges.some((e) => e.source === motherId)).toBe(true);
-    expect(parentEdges.some((e) => e.source === exPartner2Id)).toBe(true);
-    expect(parentEdges.some((e) => e.source === exPartner1Id)).toBe(false);
+    expect(parentEdges.some((e) => e.source === partner2Id)).toBe(true);
+    expect(parentEdges.some((e) => e.source === partner1Id)).toBe(false);
   });
 
   test('niece uses explicit secondParentId instead of auto-created partner', () => {
@@ -614,14 +952,14 @@ describe('addPlaceholderNode - secondParentId support', () => {
       relationship: 'parent',
     });
 
-    // Sister has a partner and an ex-partner
+    // Sister has two partners
     const sistersPartnerId = store.getState().addNode({
       label: "sister's partner",
       sex: 'male',
       readOnly: false,
     });
-    const sistersExId = store.getState().addNode({
-      label: "sister's ex",
+    const sistersOtherPartnerId = store.getState().addNode({
+      label: "sister's other partner",
       sex: 'male',
       readOnly: false,
     });
@@ -631,23 +969,27 @@ describe('addPlaceholderNode - secondParentId support', () => {
       relationship: 'partner',
     });
     store.getState().addEdge({
-      source: sistersExId,
+      source: sistersOtherPartnerId,
       target: sisterId,
-      relationship: 'ex-partner',
+      relationship: 'partner',
     });
 
-    // Add niece with explicit secondParentId = sister's ex
-    const nieceId = store.getState().addPlaceholderNode('niece', sisterId, sistersExId);
+    // Add niece with explicit secondParentId = sister's other partner
+    const nieceId = store
+      .getState()
+      .addPlaceholderNode('niece', sisterId, sistersOtherPartnerId);
 
     const edges = store.getState().network.edges;
     const parentEdges = Array.from(edges.values()).filter(
       (e) => e.relationship === 'parent' && e.target === nieceId,
     );
 
-    // Niece should be connected to sister + sister's ex (not sister's partner)
+    // Niece should be connected to sister + sister's other partner (not sister's partner)
     expect(parentEdges.length).toBe(2);
     expect(parentEdges.some((e) => e.source === sisterId)).toBe(true);
-    expect(parentEdges.some((e) => e.source === sistersExId)).toBe(true);
+    expect(parentEdges.some((e) => e.source === sistersOtherPartnerId)).toBe(
+      true,
+    );
     expect(parentEdges.some((e) => e.source === sistersPartnerId)).toBe(false);
   });
 
@@ -717,14 +1059,14 @@ describe('addPlaceholderNode - secondParentId support', () => {
       relationship: 'parent',
     });
 
-    // Aunt has partner and ex
+    // Aunt has two partners
     const auntsPartnerId = store.getState().addNode({
       label: "aunt's partner",
       sex: 'male',
       readOnly: false,
     });
-    const auntsExId = store.getState().addNode({
-      label: "aunt's ex",
+    const auntsOtherPartnerId = store.getState().addNode({
+      label: "aunt's other partner",
       sex: 'male',
       readOnly: false,
     });
@@ -734,23 +1076,27 @@ describe('addPlaceholderNode - secondParentId support', () => {
       relationship: 'partner',
     });
     store.getState().addEdge({
-      source: auntsExId,
+      source: auntsOtherPartnerId,
       target: auntId,
-      relationship: 'ex-partner',
+      relationship: 'partner',
     });
 
-    // Add cousin with explicit secondParentId = aunt's ex
-    const cousinId = store.getState().addPlaceholderNode('firstCousinMale', auntId, auntsExId);
+    // Add cousin with explicit secondParentId = aunt's other partner
+    const cousinId = store
+      .getState()
+      .addPlaceholderNode('firstCousinMale', auntId, auntsOtherPartnerId);
 
     const edges = store.getState().network.edges;
     const parentEdges = Array.from(edges.values()).filter(
       (e) => e.relationship === 'parent' && e.target === cousinId,
     );
 
-    // Cousin should be connected to aunt + aunt's ex
+    // Cousin should be connected to aunt + aunt's other partner
     expect(parentEdges.length).toBe(2);
     expect(parentEdges.some((e) => e.source === auntId)).toBe(true);
-    expect(parentEdges.some((e) => e.source === auntsExId)).toBe(true);
+    expect(parentEdges.some((e) => e.source === auntsOtherPartnerId)).toBe(
+      true,
+    );
     expect(parentEdges.some((e) => e.source === auntsPartnerId)).toBe(false);
   });
 
@@ -778,14 +1124,14 @@ describe('addPlaceholderNode - secondParentId support', () => {
       relationship: 'parent',
     });
 
-    // Daughter has partner and ex
+    // Daughter has two partners
     const daughtersPartnerId = store.getState().addNode({
       label: "daughter's partner",
       sex: 'male',
       readOnly: false,
     });
-    const daughtersExId = store.getState().addNode({
-      label: "daughter's ex",
+    const daughtersOtherPartnerId = store.getState().addNode({
+      label: "daughter's other partner",
       sex: 'male',
       readOnly: false,
     });
@@ -795,23 +1141,29 @@ describe('addPlaceholderNode - secondParentId support', () => {
       relationship: 'partner',
     });
     store.getState().addEdge({
-      source: daughtersExId,
+      source: daughtersOtherPartnerId,
       target: daughterId,
-      relationship: 'ex-partner',
+      relationship: 'partner',
     });
 
-    // Add grandchild with explicit secondParentId = daughter's ex
-    const grandchildId = store.getState().addPlaceholderNode('grandson', daughterId, daughtersExId);
+    // Add grandchild with explicit secondParentId = daughter's other partner
+    const grandchildId = store
+      .getState()
+      .addPlaceholderNode('grandson', daughterId, daughtersOtherPartnerId);
 
     const edges = store.getState().network.edges;
     const parentEdges = Array.from(edges.values()).filter(
       (e) => e.relationship === 'parent' && e.target === grandchildId,
     );
 
-    // Grandchild should be connected to daughter + daughter's ex
+    // Grandchild should be connected to daughter + daughter's other partner
     expect(parentEdges.length).toBe(2);
     expect(parentEdges.some((e) => e.source === daughterId)).toBe(true);
-    expect(parentEdges.some((e) => e.source === daughtersExId)).toBe(true);
-    expect(parentEdges.some((e) => e.source === daughtersPartnerId)).toBe(false);
+    expect(parentEdges.some((e) => e.source === daughtersOtherPartnerId)).toBe(
+      true,
+    );
+    expect(parentEdges.some((e) => e.source === daughtersPartnerId)).toBe(
+      false,
+    );
   });
 });
