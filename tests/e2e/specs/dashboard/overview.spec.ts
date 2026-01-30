@@ -1,4 +1,4 @@
-import { test, expect, expectURL } from '../../fixtures/test.js';
+import { expect, expectURL, test } from '../../fixtures/test.js';
 
 test.describe('Dashboard Overview', () => {
   // Acquire shared lock and restore database - protects read-only tests from
@@ -26,51 +26,52 @@ test.describe('Dashboard Overview', () => {
   });
 
   test('displays summary statistics cards', async ({ page }) => {
-    const statsGrid = page.locator('.grid a[href^="/dashboard/"]');
-    await expect(statsGrid).toHaveCount(3);
+    await expect(page.getByTestId('stat-card-protocols')).toBeVisible();
+    await expect(page.getByTestId('stat-card-participants')).toBeVisible();
+    await expect(page.getByTestId('stat-card-interviews')).toBeVisible();
   });
 
   test('shows correct protocol count', async ({ page }) => {
-    const protocolCard = page.locator('a[href="/dashboard/protocols"]', {
-      has: page.getByRole('heading', { level: 1 }),
-    });
-    await expect(protocolCard).toContainText('1');
+    const card = page.getByTestId('stat-card-protocols');
+    const count = card.getByRole('heading', { level: 1 });
+    await expect(count).toHaveText('1');
   });
 
   test('shows correct participant count', async ({ page, database }) => {
     const cleanup = await database.isolate(page);
     try {
-      const participantCard = page.locator(
-        'a[href="/dashboard/participants"]',
-        {
-          has: page.getByRole('heading', { level: 1 }),
-        },
-      );
-      await expect(participantCard).toContainText('10');
+      const card = page.getByTestId('stat-card-participants');
+      const count = card.getByRole('heading', { level: 1 });
+      await expect(count).toHaveText('10');
     } finally {
       await cleanup();
     }
   });
 
   test('shows correct interview count', async ({ page }) => {
-    const interviewCard = page.locator('a[href="/dashboard/interviews"]', {
-      has: page.getByRole('heading', { level: 1 }),
-    });
-    await expect(interviewCard).toContainText('5');
+    const card = page.getByTestId('stat-card-interviews');
+    const count = card.getByRole('heading', { level: 1 });
+    await expect(count).toHaveText('5');
   });
 
   test('navigates to protocols from card', async ({ page }) => {
-    await page.locator('a[href="/dashboard/protocols"]').first().click();
+    const card = page.getByTestId('stat-card-protocols');
+    await expect(card.getByRole('heading', { level: 1 })).toBeVisible();
+    await card.click();
     await expectURL(page, /\/dashboard\/protocols/);
   });
 
   test('navigates to participants from card', async ({ page }) => {
-    await page.locator('a[href="/dashboard/participants"]').first().click();
+    const card = page.getByTestId('stat-card-participants');
+    await expect(card.getByRole('heading', { level: 1 })).toBeVisible();
+    await card.click();
     await expectURL(page, /\/dashboard\/participants/);
   });
 
   test('navigates to interviews from card', async ({ page }) => {
-    await page.locator('a[href="/dashboard/interviews"]').first().click();
+    const card = page.getByTestId('stat-card-interviews');
+    await expect(card.getByRole('heading', { level: 1 })).toBeVisible();
+    await card.click();
     await expectURL(page, /\/dashboard\/interviews/);
   });
 

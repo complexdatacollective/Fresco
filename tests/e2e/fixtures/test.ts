@@ -27,6 +27,7 @@ const DEFAULT_PAGE_VIEWPORTS = [
 const VISUAL_STYLES = `
   *, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }
   [data-testid="background-blobs"] { visibility: hidden !important; }
+  [data-testid="time-ago"] { visibility: hidden !important; }
 `;
 
 type Viewport = {

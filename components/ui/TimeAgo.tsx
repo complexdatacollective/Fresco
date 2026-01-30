@@ -49,7 +49,12 @@ const TimeAgo: React.FC<TimeAgoProps> = ({ date: dateProp, ...props }) => {
   }, [date, localisedDate]);
 
   return (
-    <time {...props} dateTime={localisedDate} title={localisedDate}>
+    <time
+      {...props}
+      data-testid="time-ago"
+      dateTime={localisedDate}
+      title={localisedDate}
+    >
       {timeAgo}
     </time>
   );

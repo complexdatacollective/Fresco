@@ -17,6 +17,7 @@ export default function SummaryStatistics() {
       <Link
         className="focusable @container rounded"
         href="/dashboard/protocols"
+        data-testid="stat-card-protocols"
       >
         <Suspense
           fallback={
@@ -34,6 +35,7 @@ export default function SummaryStatistics() {
       <Link
         className="focusable @container rounded"
         href="/dashboard/participants"
+        data-testid="stat-card-participants"
       >
         <Suspense
           fallback={
@@ -70,6 +72,7 @@ export default function SummaryStatistics() {
       <Link
         className="focusable @container rounded"
         href="/dashboard/interviews"
+        data-testid="stat-card-interviews"
       >
         <Suspense
           fallback={
