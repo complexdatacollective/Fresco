@@ -37,7 +37,7 @@ async function fetchActivities(rawSearchParams: unknown) {
     prisma.events.findMany({
       take: perPage,
       skip: offset,
-      orderBy: { [sortField]: sort },
+      orderBy: [{ [sortField]: sort }, { id: sort }],
       where: {
         ...queryFilterParams,
       },
