@@ -11,11 +11,6 @@ on:
     branches: [main, next]
   pull_request:
 
-# Only allow one deployment at a time for GitHub Pages
-concurrency:
-  group: e2e-pages-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   e2e:
     runs-on: ubuntu-latest
@@ -67,13 +62,6 @@ jobs:
           path: tests/e2e/test-results/**/*.webm
           retention-days: 7
 
-      # Prepare report for GitHub Pages deployment (only on failure)
-      - name: Upload Pages artifact
-        if: failure() && github.event_name == 'pull_request'
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: tests/e2e/playwright-report/
-
       - name: Save pnpm cache
         if: always()
         uses: ./.github/actions/pnpm-cache
@@ -83,16 +71,120 @@ jobs:
           cache-hit: ${{ steps.cache.outputs.cache-hit }}
           cache-key: ${{ steps.cache.outputs.cache-key }}
 
-  # Deploy report to GitHub Pages on test failure
+  # Deploy report to GitHub Pages on test failure (PR-specific subdirectory)
   deploy-report:
     if: failure() && github.event_name == 'pull_request' && needs.e2e.outputs.test-result == 'failure'
     needs: e2e
     runs-on: ubuntu-latest
+    # Single concurrency group for all Pages deployments to prevent race conditions
+    concurrency:
+      group: e2e-pages-deploy
+      cancel-in-progress: false
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: https://complexdatacollective.github.io/Fresco/pr-${{ github.event.pull_request.number }}/
 
     steps:
+      - name: Download playwright report
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-report
+          path: new-report
+
+      - name: Fetch existing GitHub Pages content
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: existing-pages
+        continue-on-error: true
+
+      - name: Merge reports into PR subdirectory
+        run: |
+          mkdir -p merged
+
+          # Copy existing pages content if it exists
+          if [ -d existing-pages ] && [ "$(ls -A existing-pages 2>/dev/null)" ]; then
+            cp -r existing-pages/* merged/ 2>/dev/null || true
+            # Remove git files
+            rm -rf merged/.git
+          fi
+
+          # Create PR-specific subdirectory with new report
+          mkdir -p merged/pr-${{ github.event.pull_request.number }}
+          cp -r new-report/playwright-report/* merged/pr-${{ github.event.pull_request.number }}/
+
+          # Generate index page listing all reports
+          cat > merged/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Fresco E2E Test Reports</title>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+              h1 { color: #333; }
+              ul { list-style: none; padding: 0; }
+              li { padding: 10px 0; border-bottom: 1px solid #eee; }
+              a { color: #0066cc; text-decoration: none; }
+              a:hover { text-decoration: underline; }
+              .timestamp { color: #666; font-size: 0.9em; }
+            </style>
+          </head>
+          <body>
+            <h1>🎭 Fresco E2E Test Reports</h1>
+            <p>Failed test reports by PR:</p>
+            <ul id="reports"></ul>
+            <script>
+              const reportsEl = document.getElementById('reports');
+              const prDirs = Array.from(document.querySelectorAll('a[href^="pr-"]')).map(a => a.getAttribute('href'));
+              // This will be populated by the directory listing
+            </script>
+          </body>
+          </html>
+          EOF
+
+          # Create a simple directory listing
+          echo "<ul>" > merged/index.html.tmp
+          for dir in merged/pr-*/; do
+            if [ -d "$dir" ]; then
+              pr_num=$(basename "$dir")
+              echo "  <li><a href=\"$pr_num/\">$pr_num</a></li>" >> merged/index.html.tmp
+            fi
+          done
+          echo "</ul>" >> merged/index.html.tmp
+
+          # Build final index
+          cat > merged/index.html << EOF
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Fresco E2E Test Reports</title>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+              h1 { color: #333; }
+              ul { list-style: none; padding: 0; }
+              li { padding: 10px 0; border-bottom: 1px solid #eee; }
+              a { color: #0066cc; text-decoration: none; font-size: 1.1em; }
+              a:hover { text-decoration: underline; }
+            </style>
+          </head>
+          <body>
+            <h1>🎭 Fresco E2E Test Reports</h1>
+            <p>Failed test reports by PR:</p>
+          $(cat merged/index.html.tmp)
+          </body>
+          </html>
+          EOF
+          rm merged/index.html.tmp
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: merged/
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
@@ -106,7 +198,7 @@ jobs:
 
             ❌ **Tests failed.** View the full report here:
 
-            👉 **[${{ steps.deployment.outputs.page_url }}](${{ steps.deployment.outputs.page_url }})**
+            👉 **[https://complexdatacollective.github.io/Fresco/pr-${{ github.event.pull_request.number }}/](https://complexdatacollective.github.io/Fresco/pr-${{ github.event.pull_request.number }}/)**
 
             <details>
             <summary>Report details</summary>
