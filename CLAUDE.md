@@ -352,3 +352,30 @@ pnpm storybook      # Component testing
 - Use the Playwright MCP to debug errors and view console output directly. Do NOT start the development server or the storybook server. Instead, prompt the user to start these for you.
 - NEVER disable linting rules unless you have asked permission from the user. This applies particularly to no-explicit-any which should only be disabled in truly exceptional circumstances.
 - when editing a component, look for a storybook story and ensure that any new features are documented and any changes to the component API are accurately reflected in the storybook
+
+## E2E Test Selector Best Practices
+
+When writing Playwright e2e tests, follow this selector hierarchy:
+
+1. **Prefer semantic `getByRole()` queries** - These are resilient and accessible:
+   - `getByRole('button', { name: /submit/i })`
+   - `getByRole('heading', { name: 'Settings', level: 1 })`
+   - `getByRole('switch')`, `getByRole('dialog')`, `getByRole('table')`
+
+2. **Use `getByTestId()` for non-semantic elements** - Add `data-testid` attributes to components:
+   - `getByTestId('user-row-testadmin')`
+   - `getByTestId('anonymous-recruitment-field')`
+
+3. **Avoid these fragile patterns:**
+   - `getByText()` - Breaks with text changes, i18n
+   - `.first()` - Tied to DOM order
+   - `.locator('..')` - Parent traversal is fragile
+   - `.locator('#id')` - Prefer getByTestId for consistency
+
+4. **For form fields with switches/toggles**, combine testId with role:
+
+   ```typescript
+   page.getByTestId('anonymous-recruitment-field').getByRole('switch');
+   ```
+
+5. **Add testIds to reusable components** (SettingsField, SettingsCard, DataTable rows, etc.) to enable targeted selection without DOM traversal.

@@ -141,6 +141,81 @@ test.describe('Mutations', () => {
 
 `database.isolate(page)` acquires an exclusive lock, restores the DB snapshot, and reloads the page. The cleanup function restores the snapshot again and releases the exclusive lock.
 
+### Element Selectors
+
+Use resilient selectors that won't break with minor UI changes. Follow this priority order:
+
+#### 1. Semantic `getByRole()` queries (preferred)
+
+Role-based queries are accessible and resilient to text/styling changes:
+
+```ts
+// Buttons, links, inputs
+page.getByRole('button', { name: /add user/i });
+page.getByRole('link', { name: 'Dashboard' });
+
+// Headings with level
+page.getByRole('heading', { name: 'Settings', level: 1 });
+
+// Form controls
+page.getByRole('switch');
+page.getByRole('checkbox');
+page.getByRole('dialog');
+page.getByRole('table');
+```
+
+#### 2. `getByTestId()` for non-semantic elements
+
+When there's no semantic role, use `data-testid` attributes:
+
+```ts
+// Good - stable testId
+page.getByTestId('user-row-testadmin');
+page.getByTestId('anonymous-recruitment-field');
+
+// Combine with role for nested elements
+page.getByTestId('anonymous-recruitment-field').getByRole('switch');
+```
+
+#### 3. Avoid these fragile patterns
+
+**Never use in tests:**
+
+| Pattern                    | Problem                           | Alternative                                  |
+| -------------------------- | --------------------------------- | -------------------------------------------- |
+| `getByText('Settings')`    | Breaks with text changes, i18n    | `getByRole('heading', { name: 'Settings' })` |
+| `.first()`                 | Tied to DOM order                 | Add unique testId                            |
+| `.locator('..')`           | Parent traversal is fragile       | Add testId to parent                         |
+| `.locator('#id')`          | Inconsistent with other selectors | `getByTestId()`                              |
+| `page.locator('text=...')` | Same issues as getByText          | Use role or testId                           |
+
+**Example refactoring:**
+
+```ts
+// ❌ Bad - fragile, tied to DOM structure
+const toggle = page
+  .getByText('Anonymous Recruitment')
+  .locator('..')
+  .locator('..')
+  .getByRole('switch');
+
+// ✅ Good - stable, semantic
+const toggle = page
+  .getByTestId('anonymous-recruitment-field')
+  .getByRole('switch');
+```
+
+#### Adding testIds to components
+
+When adding testIds, follow these patterns used in the codebase:
+
+- **SettingsCard**: `data-testid="{id}-card"` (e.g., `user-management-card`)
+- **SettingsField**: `testId` prop → `data-testid` (e.g., `anonymous-recruitment-field`)
+- **User rows**: `data-testid="user-row-{username}"`
+- **Token rows**: `data-testid="token-row-{description}"`
+- **Delete buttons**: `data-testid="delete-user-{username}"` or `delete-token-{description}`
+- **Field errors**: Auto-generated as `{fieldName}-field-error`
+
 ### Visual snapshots
 
 Visual tests require Docker for consistent font rendering (`pnpm test:e2e` sets `CI=true`). They are automatically skipped when `CI` is not set. All visual snapshots are stored in `tests/e2e/visual-snapshots/`.
