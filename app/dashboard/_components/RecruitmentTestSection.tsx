@@ -54,7 +54,7 @@ export default function RecruitmentTestSection({
 
   return (
     <>
-      <div className="flex flex-col gap-4 tablet:flex-row">
+      <div className="tablet:flex-row flex flex-col gap-4">
         <SelectField
           name="Protocol"
           options={protocols.map((p) => ({ value: p.id, label: p.name }))}
@@ -85,7 +85,7 @@ export default function RecruitmentTestSection({
           placeholder="Select a Participant..."
         />
       </div>
-      <div className="mt-4 flex flex-col gap-2 tablet:flex-row">
+      <div className="tablet:flex-row mt-4 flex flex-col gap-2">
         <Button
           disabled={buttonDisabled}
           onClick={() => router.push(getInterviewURL())}
