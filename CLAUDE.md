@@ -268,6 +268,12 @@ pnpm test           # Unit tests
 pnpm storybook      # Component testing
 ```
 
+### E2E Testing Conventions
+
+- **Prefer `data-testid` attributes** over text matching for element selection in e2e tests. This makes tests more resilient to text changes and internationalization.
+- Add `data-testid` attributes to interactive elements and key UI components that need to be targeted in tests.
+- See `tests/e2e/CLAUDE.md` for detailed e2e testing patterns and fixtures.
+
 ## Important Files
 
 - `fresco.config.ts` - App-specific constants (protocol extensions, timeouts)

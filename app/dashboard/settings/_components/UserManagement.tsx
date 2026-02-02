@@ -285,21 +285,27 @@ export default function UserManagement({
       <Heading level="label">Current User</Heading>
       <Surface
         level={1}
-        className="mt-2 flex items-center justify-between gap-4 p-6"
+        className="tablet:flex-row tablet:items-center tablet:justify-between mt-2 flex flex-col gap-4 p-6"
         spacing="sm"
       >
-        <div className="flex items-center gap-6">
-          <div className="bg-primary/10 text-primary flex size-14 items-center justify-center rounded-full">
-            <User className="size-8" />
+        <div className="tablet:gap-6 flex items-center gap-4">
+          <div className="bg-primary/10 text-primary tablet:size-14 flex size-10 shrink-0 items-center justify-center rounded-full">
+            <User className="tablet:size-8 size-5" />
           </div>
-          <div>
+          <div className="min-w-0">
             <Paragraph intent="smallText" margin="none">
               Logged in as:
             </Paragraph>
-            <Paragraph className="font-medium">{currentUsername}</Paragraph>
+            <Paragraph className="truncate font-medium">
+              {currentUsername}
+            </Paragraph>
           </div>
         </div>
-        <Button onClick={() => setIsChangingPassword(true)} size="sm">
+        <Button
+          onClick={() => setIsChangingPassword(true)}
+          size="sm"
+          className="tablet:w-auto w-full"
+        >
           Change Password
         </Button>
       </Surface>

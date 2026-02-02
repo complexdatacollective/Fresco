@@ -592,7 +592,7 @@ export const LowLevelDialog: StoryObj<Meta<LowLevelDialogArgs>> = {
             </>
           }
         >
-          <p className="text-current/60">
+          <p className="text-current/70">
             Use this component when you need direct control over dialog state.
           </p>
         </Dialog>

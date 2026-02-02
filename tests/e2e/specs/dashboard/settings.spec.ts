@@ -422,9 +422,7 @@ test.describe('Settings Page', () => {
         }
 
         // Click create token button
-        const createTokenButton = page.getByRole('button', {
-          name: /create new token/i,
-        });
+        const createTokenButton = page.getByTestId('create-token-button');
         await expect(createTokenButton).toBeEnabled();
         await createTokenButton.click();
 
@@ -438,9 +436,7 @@ test.describe('Settings Page', () => {
         await fillField(page, 'description', 'Test Token');
 
         // Click create
-        const createButton = createDialog.getByRole('button', {
-          name: /create token/i,
-        });
+        const createButton = page.getByTestId('confirm-create-token-button');
         await createButton.click();
 
         // Wait for success dialog with token
@@ -450,9 +446,7 @@ test.describe('Settings Page', () => {
         await expect(page.getByText(/your api token/i)).toBeVisible();
 
         // Close the success dialog
-        const closeButton = page
-          .getByRole('dialog')
-          .getByRole('button', { name: /close/i });
+        const closeButton = page.getByTestId('close-token-dialog-button');
         await closeButton.click();
 
         // Verify token appears in table
@@ -487,7 +481,7 @@ test.describe('Settings Page', () => {
           await page.waitForLoadState('domcontentloaded');
         }
 
-        await page.getByRole('button', { name: /create new token/i }).click();
+        await page.getByTestId('create-token-button').click();
         const dialog = await waitForDialog(page);
 
         await captureElement(dialog, 'settings-create-api-token-dialog');
@@ -522,11 +516,9 @@ test.describe('Settings Page', () => {
         }
 
         // Create token
-        await page.getByRole('button', { name: /create new token/i }).click();
-        const createDialog = await waitForDialog(page);
-        await createDialog
-          .getByRole('button', { name: /create token/i })
-          .click();
+        await page.getByTestId('create-token-button').click();
+        await waitForDialog(page);
+        await page.getByTestId('confirm-create-token-button').click();
 
         // Wait for success dialog
         await expect(page.getByText(/api token created/i)).toBeVisible({
@@ -573,28 +565,23 @@ test.describe('Settings Page', () => {
         }
 
         // Create a token first
-        await page.getByRole('button', { name: /create new token/i }).click();
-        const createDialog = await waitForDialog(page);
+        await page.getByTestId('create-token-button').click();
+        await waitForDialog(page);
         await fillField(page, 'description', 'Token to Delete');
-        await createDialog
-          .getByRole('button', { name: /create token/i })
-          .click();
+        await page.getByTestId('confirm-create-token-button').click();
 
         // Wait for success dialog and close it
         await expect(page.getByText(/api token created/i)).toBeVisible({
           timeout: 10000,
         });
-        await page
-          .getByRole('dialog')
-          .getByRole('button', { name: /close/i })
-          .click();
+        await page.getByTestId('close-token-dialog-button').click();
 
         // Click delete on the token
         const tokenRow = page
           .getByText('Token to Delete')
           .locator('..')
           .locator('..');
-        await tokenRow.getByRole('button', { name: /delete/i }).click();
+        await tokenRow.getByTestId('delete-token-button').click();
 
         const deleteDialog = await waitForDialog(page);
         await captureElement(deleteDialog, 'settings-delete-api-token-dialog');
@@ -625,21 +612,16 @@ test.describe('Settings Page', () => {
         }
 
         // Create a token first
-        await page.getByRole('button', { name: /create new token/i }).click();
-        const createDialog = await waitForDialog(page);
+        await page.getByTestId('create-token-button').click();
+        await waitForDialog(page);
         await fillField(page, 'description', 'Token to Delete');
-        await createDialog
-          .getByRole('button', { name: /create token/i })
-          .click();
+        await page.getByTestId('confirm-create-token-button').click();
 
         // Wait for success dialog and close it
         await expect(page.getByText(/api token created/i)).toBeVisible({
           timeout: 10000,
         });
-        await page
-          .getByRole('dialog')
-          .getByRole('button', { name: /close/i })
-          .click();
+        await page.getByTestId('close-token-dialog-button').click();
 
         // Verify token exists
         await expect(page.getByText('Token to Delete')).toBeVisible();
@@ -649,17 +631,14 @@ test.describe('Settings Page', () => {
           .getByText('Token to Delete')
           .locator('..')
           .locator('..');
-        const deleteButton = tokenRow.getByRole('button', { name: /delete/i });
-        await deleteButton.click();
+        await tokenRow.getByTestId('delete-token-button').click();
 
         // Wait for delete confirmation dialog
         const deleteDialog = await waitForDialog(page);
         await expect(deleteDialog.getByText(/delete api token/i)).toBeVisible();
 
         // Confirm deletion
-        await deleteDialog
-          .getByRole('button', { name: /delete token/i })
-          .click();
+        await page.getByTestId('confirm-delete-token-button').click();
 
         // Wait for dialog to close and deletion to complete
         await deleteDialog.waitFor({ state: 'hidden' });

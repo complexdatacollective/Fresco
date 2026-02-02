@@ -90,7 +90,7 @@ export function CollectionFilterInput({
     showLoadingIndicator && isLoading ? (
       <div className="flex items-center gap-1.5">
         {loadingIndicator ?? defaultLoadingIndicator}
-        <span className="text-sm text-current/60">{statusText}</span>
+        <span className="text-sm text-current/70">{statusText}</span>
       </div>
     ) : (
       <Search className="h-4 w-4" aria-hidden="true" />
@@ -99,7 +99,7 @@ export function CollectionFilterInput({
   const suffixContent = (
     <div className="flex items-center gap-2">
       {showResultCount && filterManager.hasActiveFilter && (
-        <span className="text-sm text-current/60">
+        <span className="text-sm text-current/70">
           {filterManager.matchCount} result
           {filterManager.matchCount !== 1 ? 's' : ''}
         </span>
@@ -110,7 +110,7 @@ export function CollectionFilterInput({
           size="sm"
           onClick={handleClear}
           aria-label="Clear search"
-          icon={<X className="h-3.5 w-3.5" />}
+          icon={<X className="size-3.5" />}
         />
       )}
     </div>

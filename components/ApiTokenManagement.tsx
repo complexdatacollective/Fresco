@@ -95,15 +95,10 @@ export default function ApiTokenManagement({
     setIsDeleting(false);
   };
 
-  const handleDeleteSelected = async (data: ApiToken[]) => {
+  const handleDeleteSelected = (data: ApiToken[]) => {
     const token = data[0];
     if (!token) return;
     setTokenToDelete(token);
-  };
-
-  const formatDate = (date: Date | null) => {
-    if (!date) return 'Never';
-    return new Date(date).toLocaleString();
   };
 
   const columns: ColumnDef<ApiToken>[] = [
@@ -169,18 +164,20 @@ export default function ApiTokenManagement({
       color="destructive"
       size="sm"
       disabled={disabled}
+      data-testid="delete-token-button"
     >
       Delete
     </Button>
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-testid="api-token-management">
       <Button
         onClick={() => setIsCreating(true)}
         color="primary"
         size="sm"
         disabled={disabled}
+        data-testid="create-token-button"
       >
         Create New Token
       </Button>
@@ -213,6 +210,7 @@ export default function ApiTokenManagement({
               onClick={handleCreateToken}
               disabled={isLoading}
               color="primary"
+              data-testid="confirm-create-token-button"
             >
               {isLoading ? 'Creating...' : 'Create Token'}
             </Button>
@@ -239,7 +237,12 @@ export default function ApiTokenManagement({
         description="Your token has been created and is displayed below. Save this token somewhere safe now - you won't be able to see it again after you close this dialog."
         footer={
           <>
-            <Button onClick={() => setCreatedToken(null)}>Close</Button>
+            <Button
+              onClick={() => setCreatedToken(null)}
+              data-testid="close-token-dialog-button"
+            >
+              Close
+            </Button>
             <Button
               onClick={() => {
                 void navigator.clipboard.writeText(createdToken!);
@@ -281,6 +284,7 @@ export default function ApiTokenManagement({
               onClick={() => tokenToDelete && handleDeleteToken(tokenToDelete)}
               disabled={isDeleting}
               color="destructive"
+              data-testid="confirm-delete-token-button"
             >
               {isDeleting ? 'Deleting...' : 'Delete Token'}
             </Button>
