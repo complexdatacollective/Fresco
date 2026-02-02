@@ -31,7 +31,7 @@ export function DataTableColumnHeader<TData, TValue>({
 }: DataTableColumnHeaderProps<TData, TValue>) {
   const headerClasses = cx(
     buttonVariants({ variant: 'text', size: 'sm' }),
-    'pointer-events-none min-w-max text-base',
+    'pointer-events-none -mx-4 min-w-max px-4! text-base',
     className,
   );
 
@@ -44,7 +44,7 @@ export function DataTableColumnHeader<TData, TValue>({
   return (
     <Button
       size="sm"
-      className="min-w-max text-base"
+      className="-mx-4 min-w-max px-4! text-base"
       variant={isActive ? 'default' : 'text'}
       onClick={() => column.toggleSorting()}
       color={isActive ? 'primary' : 'default'}
@@ -52,11 +52,11 @@ export function DataTableColumnHeader<TData, TValue>({
       icon={
         column.getIsSorted() !== false ? (
           <MotionArrow
-            className="text-success h-4 w-4"
+            className="text-success size-4"
             animate={column.getIsSorted() === 'asc' ? { rotate: 180 } : {}}
           />
         ) : (
-          <ArrowUpDown className="h-4 w-4" />
+          <ArrowUpDown className="size-4" />
         )
       }
     >

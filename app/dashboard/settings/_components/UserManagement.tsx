@@ -10,6 +10,7 @@ import {
   createUser,
   deleteUsers,
 } from '~/actions/users';
+import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { DataTable } from '~/components/DataTable/DataTable';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
@@ -92,7 +93,9 @@ function makeUserColumns(
     {
       id: 'username',
       accessorKey: 'username',
-      header: 'Username',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Username" />
+      ),
       cell: ({ row }) => {
         const isCurrentUser = row.original.id === currentUserId;
         return (
@@ -107,7 +110,9 @@ function makeUserColumns(
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Actions" />
+      ),
       cell: ({ row }) => {
         const isCurrentUser = row.original.id === currentUserId;
         const isLastUser = userCount <= 1;
@@ -166,7 +171,11 @@ export default function UserManagement({
     [confirm, doDeleteUsers],
   );
 
-  const columns = makeUserColumns(currentUserId, users.length, handleDeleteUser);
+  const columns = makeUserColumns(
+    currentUserId,
+    users.length,
+    handleDeleteUser,
+  );
 
   const handleCreateUser = async (
     values: unknown,
@@ -273,14 +282,14 @@ export default function UserManagement({
 
   return (
     <div className="space-y-6">
-      {/* Current User Card */}
+      <Heading level="label">Current User</Heading>
       <Surface
         level={1}
-        className="flex items-center justify-between gap-4 p-6"
+        className="mt-2 flex items-center justify-between gap-4 p-6"
         spacing="sm"
       >
         <div className="flex items-center gap-6">
-          <div className="bg-primary/10 text-primary flex h-14 w-14 items-center justify-center rounded-full">
+          <div className="bg-primary/10 text-primary flex size-14 items-center justify-center rounded-full">
             <User className="size-8" />
           </div>
           <div>
@@ -294,8 +303,6 @@ export default function UserManagement({
           Change Password
         </Button>
       </Surface>
-
-      {/* All Users Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <Heading level="label">All Users</Heading>
@@ -314,10 +321,9 @@ export default function UserManagement({
           data={users}
           handleDeleteSelected={handleDeleteSelected}
           surfaceLevel={1}
+          emptyText="No users created yet."
         />
       </div>
-
-      {/* Change Password Dialog */}
       <FormStoreProvider>
         <Dialog
           open={isChangingPassword}
@@ -397,7 +403,6 @@ export default function UserManagement({
           )}
         </Dialog>
       </FormStoreProvider>
-
       {/* Create User Dialog */}
       <FormStoreProvider>
         <Dialog
@@ -470,7 +475,6 @@ export default function UserManagement({
           </FormWithoutProvider>
         </Dialog>
       </FormStoreProvider>
-
     </div>
   );
 }

@@ -104,6 +104,7 @@ enum AppSetting {
   disableAnalytics
   disableSmallScreenOverlay
   uploadThingToken
+  previewMode
   previewModeRequireAuth
 }
 

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { env } from '~/env';
 import trackEvent from '~/lib/analytics';
 import { prisma } from '~/lib/db';
+import { getPreviewMode } from '~/queries/appSettings';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,7 +13,8 @@ const handler = async (
   const protocolId = params.protocolId;
 
   // Check if preview mode is enabled
-  if (!env.PREVIEW_MODE) {
+  const previewMode = await getPreviewMode();
+  if (!previewMode) {
     const url = new URL(env.PUBLIC_URL ?? req.nextUrl.clone());
     url.pathname = '/onboard/error';
     return NextResponse.redirect(url);

@@ -1,7 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { verifyApiToken } from '~/actions/apiTokens';
-import { env } from '~/env';
-import { getAppSetting } from '~/queries/appSettings';
+import { getAppSetting, getPreviewMode } from '~/queries/appSettings';
 import { getServerSession } from '~/utils/auth';
 import type { AuthError, PreviewResponse } from './types';
 
@@ -23,7 +22,8 @@ export async function checkPreviewAuth(
   req: NextRequest,
 ): Promise<AuthError | null> {
   // Check if preview mode is enabled
-  if (!env.PREVIEW_MODE) {
+  const previewMode = await getPreviewMode();
+  if (!previewMode) {
     return {
       response: {
         status: 'error',

@@ -12,11 +12,8 @@ function getSettingsSections(): SettingsSection[] {
     { id: 'configuration', title: 'Configuration' },
     { id: 'interview-settings', title: 'Interview Settings' },
     { id: 'privacy', title: 'Privacy' },
+    { id: 'preview-mode', title: 'Preview Mode' },
   ];
-
-  if (env.PREVIEW_MODE) {
-    sections.push({ id: 'preview-mode', title: 'Preview Mode' });
-  }
 
   if (env.NODE_ENV === 'development' || !env.SANDBOX_MODE) {
     sections.push({
@@ -52,7 +49,7 @@ export default function Loading() {
 
             <SettingsCardSkeleton rows={1} />
 
-            {env.PREVIEW_MODE && <SettingsCardSkeleton rows={2} />}
+            <SettingsCardSkeleton rows={3} />
 
             {(env.NODE_ENV === 'development' || !env.SANDBOX_MODE) && (
               <SettingsCardSkeleton rows={3} />

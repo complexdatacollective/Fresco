@@ -4,6 +4,7 @@ import ApiTokenManagement from '~/components/ApiTokenManagement';
 import DisableAnalyticsSwitch from '~/components/DisableAnalyticsSwitch';
 import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch';
 import PreviewModeAuthSwitch from '~/components/PreviewModeAuthSwitch';
+import PreviewModeSwitch from '~/components/PreviewModeSwitch';
 import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
 import SettingsNavigation, {
@@ -22,6 +23,7 @@ import { getApiTokens } from '~/queries/apiTokens';
 import {
   getAppSetting,
   getInstallationId,
+  getPreviewMode,
   requireAppNotExpired,
 } from '~/queries/appSettings';
 import { getUsers } from '~/queries/users';
@@ -42,11 +44,8 @@ function getSettingsSections(): SettingsSection[] {
     { id: 'configuration', title: 'Configuration' },
     { id: 'interview-settings', title: 'Interview Settings' },
     { id: 'privacy', title: 'Privacy' },
+    { id: 'preview-mode', title: 'Preview Mode' },
   ];
-
-  if (env.PREVIEW_MODE) {
-    sections.push({ id: 'preview-mode', title: 'Preview Mode' });
-  }
 
   if (env.NODE_ENV === 'development' || !env.SANDBOX_MODE) {
     sections.push({
@@ -68,9 +67,11 @@ export default async function Settings() {
     'disableSmallScreenOverlay',
   );
   const uploadThingKey = await getAppSetting('uploadThingToken');
-  const apiTokens = env.PREVIEW_MODE ? await getApiTokens() : [];
+  const previewMode = await getPreviewMode();
+  const apiTokens = previewMode ? await getApiTokens() : [];
   const users = await getUsers();
   const sections = getSettingsSections();
+  const previewModeIsReadOnly = env.PREVIEW_MODE !== undefined;
 
   return (
     <>
@@ -195,44 +196,51 @@ export default async function Settings() {
               </SettingsField>
             </SettingsCard>
 
-            {env.PREVIEW_MODE && (
-              <SettingsCard
-                id="preview-mode"
-                title="Preview Mode"
-                divideChildren
+            <SettingsCard id="preview-mode" title="Preview Mode" divideChildren>
+              <SettingsField
+                label="Enable Preview Mode"
+                description="Enable preview mode to allow uploading and testing protocols directly from Architect Web on your private instance of Fresco."
+                control={
+                  <Suspense fallback={<SwitchSkeleton />}>
+                    <PreviewModeSwitch />
+                  </Suspense>
+                }
               >
-                <SettingsField
-                  label="Authentication"
-                  description="When enabled, the preview protocol upload endpoint requires authentication via API token or user session. When disabled, anyone can upload preview protocols."
-                  control={
-                    <Suspense fallback={<SwitchSkeleton />}>
-                      <PreviewModeAuthSwitch />
-                    </Suspense>
-                  }
-                >
-                  <Alert variant="warning">
-                    <AlertTitle>Security Warning</AlertTitle>
-                    <AlertDescription>
-                      Disabling authentication allows anyone to upload protocols
-                      to this instance. Only disable this in trusted
-                      environments.
-                    </AlertDescription>
-                  </Alert>
-                </SettingsField>
-                <SettingsField
-                  label="API Tokens"
-                  description={
-                    <>
-                      API tokens can be used to authenticate preview protocol
-                      uploads. Use these tokens in the Authorization header as{' '}
-                      <code>Bearer {'<token>'}</code>.
-                    </>
-                  }
-                >
-                  <ApiTokenManagement tokens={apiTokens} />
-                </SettingsField>
-              </SettingsCard>
-            )}
+                {previewModeIsReadOnly && <ReadOnlyEnvAlert />}
+              </SettingsField>
+              <SettingsField
+                label="Authentication"
+                description="When enabled, the preview protocol upload endpoint requires authentication via API token or user session. When disabled, anyone can upload preview protocols."
+                control={
+                  <Suspense fallback={<SwitchSkeleton />}>
+                    <PreviewModeAuthSwitch disabled={!previewMode} />
+                  </Suspense>
+                }
+              >
+                <Alert variant="warning">
+                  <AlertTitle>Security Warning</AlertTitle>
+                  <AlertDescription>
+                    Disabling authentication allows anyone with the URL of your
+                    study to upload protocols. Only disable this in trusted
+                    environments.
+                  </AlertDescription>
+                </Alert>
+              </SettingsField>
+              <SettingsField
+                label="API Tokens"
+                description={
+                  <>
+                    API tokens are used to authenticate preview protocol uploads
+                    from Architect Web.
+                  </>
+                }
+              >
+                <ApiTokenManagement
+                  tokens={apiTokens}
+                  disabled={!previewMode}
+                />
+              </SettingsField>
+            </SettingsCard>
 
             {(env.NODE_ENV === 'development' || !env.SANDBOX_MODE) && (
               <SettingsCard

@@ -100,3 +100,13 @@ export async function getDisableAnalytics() {
 
   return getAppSetting('disableAnalytics');
 }
+
+// Unique fetcher for previewMode, which defers to the environment variable
+// if set, and otherwise fetches from the database
+export async function getPreviewMode() {
+  if (env.PREVIEW_MODE !== undefined) {
+    return env.PREVIEW_MODE;
+  }
+
+  return getAppSetting('previewMode');
+}

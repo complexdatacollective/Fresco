@@ -16,7 +16,7 @@ import { Skeleton } from './skeleton';
 
 const buttonSpecificVariants = cva({
   base: cx(
-    'inline-flex shrink-0 cursor-pointer font-semibold tracking-wide',
+    'inline-flex shrink-0 cursor-pointer border-0 font-semibold tracking-wide',
     'items-center justify-center',
     'disabled:cursor-not-allowed disabled:opacity-50',
     'focusable',
@@ -32,7 +32,7 @@ const buttonSpecificVariants = cva({
       text: 'text-(--component-text) hover:enabled:bg-(--component-text) hover:enabled:text-(--component-bg)',
       dashed:
         'border-2 border-dashed border-(--component-text) text-(--component-text) hover:enabled:bg-(--component-text) hover:enabled:text-(--component-bg)',
-      link: 'elevation-none hover:elevation-none! text-link h-auto! border-0! p-0! underline-offset-4 hover:translate-none! hover:enabled:underline',
+      link: 'elevation-none hover:elevation-none! text-link h-auto! p-0! underline-offset-4 hover:translate-none! hover:enabled:underline',
     },
     color: {
       default:

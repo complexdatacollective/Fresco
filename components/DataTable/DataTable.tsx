@@ -56,6 +56,7 @@ type DataTableProps<TData, TValue> = {
   headerItems?: React.ReactNode;
   defaultSortBy?: SortingState[0];
   surfaceLevel?: 0 | 1 | 2 | 3;
+  emptyText?: string;
 };
 
 export function DataTable<TData, TValue>({
@@ -65,11 +66,11 @@ export function DataTable<TData, TValue>({
   handleExportSelected,
   filterColumnAccessorKey = '',
   actions,
-  actionsHeader,
   calculateRowClasses,
   headerItems,
   defaultSortBy,
   surfaceLevel = 0,
+  emptyText = 'No results.',
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>(
     defaultSortBy ? [{ ...defaultSortBy }] : [],
@@ -106,7 +107,6 @@ export function DataTable<TData, TValue>({
   if (actions) {
     const actionsColumn = {
       id: 'actions',
-      header: () => actionsHeader ?? null,
       cell: ({ row }: { row: Row<TData> }) => {
         const cellDeleteHandler = async (item: TData) => {
           await handleDeleteSelected?.([item]);
@@ -217,7 +217,7 @@ export function DataTable<TData, TValue>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+                {emptyText}
               </TableCell>
             </TableRow>
           )}
