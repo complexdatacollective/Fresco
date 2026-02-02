@@ -12,7 +12,7 @@ export default function ImportExportSection() {
     <SettingsCard
       title="Import/Export Participants in Bulk"
       controlArea={
-        <div className="flex w-72 flex-col items-center justify-end gap-4">
+        <div className="tablet:w-72 flex w-full flex-col items-center justify-end gap-4">
           <ImportCSVModal />
           <Suspense fallback={<ButtonSkeleton className="w-full" />}>
             <ExportParticipants participantsPromise={participantsPromise} />

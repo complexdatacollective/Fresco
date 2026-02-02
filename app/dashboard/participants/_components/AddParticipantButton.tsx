@@ -15,13 +15,17 @@ function AddParticipantButton({
   const [isOpen, setOpen] = useState(false);
 
   return (
-    <div>
+    <div className="tablet:w-auto w-full">
       <ParticipantModal
         open={isOpen}
         setOpen={setOpen}
         existingParticipants={existingParticipants}
       />
-      <Button onClick={() => setOpen(true)} icon={<Plus />}>
+      <Button
+        onClick={() => setOpen(true)}
+        icon={<Plus />}
+        className="tablet:w-auto w-full"
+      >
         Add Single Participant
       </Button>
     </div>

@@ -158,7 +158,7 @@ export function DataTable<TData, TValue>({
   return (
     <div className="flex flex-col gap-6">
       {(filterColumnAccessorKey || headerItems) && (
-        <div className="mx-auto flex max-w-6xl items-center gap-2">
+        <div className="tablet:flex-row tablet:flex-wrap flex w-full flex-col items-center justify-center gap-2">
           {filterColumnAccessorKey && (
             <InputField
               type="search"
@@ -173,7 +173,7 @@ export function DataTable<TData, TValue>({
               onChange={(value) =>
                 table.getColumn(filterColumnAccessorKey)?.setFilterValue(value)
               }
-              className="mt-0 w-fit shrink-0"
+              className="tablet:flex-1 tablet:max-w-xl w-full min-w-fit"
             />
           )}
           {headerItems}

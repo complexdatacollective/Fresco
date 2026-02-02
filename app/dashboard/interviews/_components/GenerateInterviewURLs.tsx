@@ -17,9 +17,11 @@ import ExportCSVInterviewURLs from './ExportCSVInterviewURLs';
 export const GenerateInterviewURLs = ({
   interviews,
   protocolsPromise,
+  className,
 }: {
   interviews: Awaited<GetInterviewsQuery>;
   protocolsPromise: GetProtocolsReturnType;
+  className?: string;
 }) => {
   const rawProtocols = use(protocolsPromise);
   const protocols = superjson.parse<GetProtocolsQuery>(rawProtocols);
@@ -56,6 +58,7 @@ export const GenerateInterviewURLs = ({
         disabled={interviews?.length === 0}
         onClick={handleOpenChange}
         icon={<FileUp />}
+        className={className}
       >
         Export Incomplete Interview URLs
       </Button>

@@ -93,6 +93,7 @@ export const InterviewsTable = ({
                 disabled={interviews.length === 0}
                 nativeButton
                 data-testid="export-interviews-button"
+                className="tablet:w-auto w-full"
               >
                 Export Interview Data
               </DropdownMenuTrigger>
@@ -111,6 +112,7 @@ export const InterviewsTable = ({
             <GenerateInterviewURLs
               interviews={interviews}
               protocolsPromise={protocolsPromise}
+              className="tablet:w-auto w-full"
             />
           </>
         }

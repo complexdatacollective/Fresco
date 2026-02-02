@@ -4,7 +4,7 @@ function Skeleton({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  const classes = cx('animate-pulse rounded bg-current opacity-20', className);
+  const classes = cx('animate-pulse rounded bg-current opacity-50', className);
   return <div className={classes} {...props} />;
 }
 

@@ -88,6 +88,7 @@ export const GenerateParticipantURLs = ({
         disabled={participants?.length === 0}
         onClick={handleOpenChange}
         icon={<FileUp />}
+        className="tablet:w-auto w-full"
       >
         Export Participation URLs
       </Button>

@@ -118,13 +118,11 @@ export const ParticipantsTableClient = ({
         actions={ActionsDropdown}
         headerItems={
           <>
-            <div className="flex flex-1 justify-start gap-2">
-              <AddParticipantButton existingParticipants={participants} />
-              <GenerateParticipantURLs
-                participants={participants}
-                protocols={protocols}
-              />
-            </div>
+            <AddParticipantButton existingParticipants={participants} />
+            <GenerateParticipantURLs
+              participants={participants}
+              protocols={protocols}
+            />
             <DialogTrigger
               color="destructive"
               icon={<Trash />}
@@ -144,6 +142,7 @@ export const ParticipantsTableClient = ({
                   handleDeleteAll();
                 }
               }}
+              className="tablet:w-auto w-full"
             >
               Delete All
             </DialogTrigger>
