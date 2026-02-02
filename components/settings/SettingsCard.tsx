@@ -76,6 +76,7 @@ export function SettingsCardSkeleton({
       <Surface
         className={cx(
           'w-full max-w-3xl scroll-mt-32',
+          'tablet:gap-10 flex gap-6',
           className,
           'tablet:flex-row flex-col rounded',
         )}
@@ -83,11 +84,11 @@ export function SettingsCardSkeleton({
         baseSize="content"
         noContainer
       >
-        <div className="flex-1 space-y-2">
+        <div className="min-w-0 flex-1 space-y-2">
           <Skeleton className="h-5 w-1/3" />
           <Skeleton className="h-4 w-3/4" />
         </div>
-        <div className="tablet:mt-0 tablet:min-w-32 tablet:items-end tablet:justify-center mt-4 flex shrink-0 flex-col items-start">
+        <div className="tablet:items-end tablet:justify-center flex shrink-0 flex-col items-start">
           <Skeleton className="h-10 w-24" />
         </div>
       </Surface>
@@ -105,20 +106,22 @@ export function SettingsCardSkeleton({
       baseSize="content"
       noContainer
     >
-      <Skeleton className="mb-4 h-5 w-32" />
-      <div className="divide-y divide-current/10">
-        {Array.from({ length: rows }).map((_, i) => (
-          <div
-            key={i}
-            className="tablet:flex-row tablet:items-center tablet:justify-between tablet:gap-4 flex flex-col gap-3 py-4"
-          >
-            <div className="flex-1 space-y-2">
-              <Skeleton className="h-4 w-1/3" />
-              <Skeleton className="h-3 w-2/3" />
+      <div className="w-full">
+        <Skeleton className="mb-4 h-5 w-32" />
+        <div className="divide-y divide-current/10">
+          {Array.from({ length: rows }).map((_, i) => (
+            <div
+              key={i}
+              className="tablet:flex-row tablet:items-center tablet:justify-between tablet:gap-4 flex w-full flex-col gap-3 py-4"
+            >
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-1/3" />
+                <Skeleton className="h-3 w-2/3" />
+              </div>
+              <Skeleton className="h-6 w-12" />
             </div>
-            <Skeleton className="h-6 w-12" />
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </Surface>
   );

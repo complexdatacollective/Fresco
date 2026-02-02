@@ -1,5 +1,5 @@
-import { type Prisma } from '~/lib/db/generated/client';
 import * as z from 'zod';
+import { type Prisma } from '~/lib/db/generated/client';
 
 export type Option = {
   label: string;

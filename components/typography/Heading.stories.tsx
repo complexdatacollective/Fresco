@@ -12,7 +12,7 @@ const meta = {
   argTypes: {
     level: {
       control: 'select',
-      options: ['h1', 'h2', 'h3', 'h4'],
+      options: ['h1', 'h2', 'h3', 'h4', 'label'],
       description: 'The heading level, which determines the text size',
     },
     variant: {
@@ -24,10 +24,6 @@ const meta = {
       control: 'select',
       options: ['default', 'none'],
       description: 'Margin behavior for the heading',
-    },
-    asChild: {
-      control: 'boolean',
-      description: 'Use Radix Slot for composition',
     },
   },
 } satisfies Meta<typeof Heading>;
@@ -49,6 +45,7 @@ export const Levels: Story = {
       <Heading level="h2">Heading Level 2 (text-2xl)</Heading>
       <Heading level="h3">Heading Level 3 (text-xl)</Heading>
       <Heading level="h4">Heading Level 4 (text-lg)</Heading>
+      <Heading level="label">Label (text-base, renders as h4)</Heading>
     </div>
   ),
 };
@@ -102,20 +99,34 @@ export const LevelCombinations: Story = {
   ),
 };
 
-export const AsChildPattern: Story = {
+export const LabelLevel: Story = {
   render: () => (
     <div className="space-y-6">
       <div>
-        <p className="mb-2 text-xs">Using asChild to render as a link</p>
-        <Heading level="h2" asChild>
-          <a href="#" className="hover:underline">
-            Clickable Heading Link
-          </a>
-        </Heading>
+        <p className="mb-2 text-xs">Label level (renders as h4)</p>
+        <Heading level="label">Label Heading</Heading>
+      </div>
+    </div>
+  ),
+};
+
+export const RenderPropPattern: Story = {
+  render: () => (
+    <div className="space-y-6">
+      <div>
+        <p className="mb-2 text-xs">Using render prop to render as a link</p>
+        <Heading
+          level="h2"
+          render={({ className, children }) => (
+            <a href="#" className={`${className ?? ''} hover:underline`}>
+              {children ?? 'Clickable Heading Link'}
+            </a>
+          )}
+        />
       </div>
       <div>
-        <p className="mb-2 text-xs">Using custom element with as prop</p>
-        <Heading level="h2" as="div">
+        <p className="mb-2 text-xs">Using render prop with element</p>
+        <Heading level="h2" render={<div />}>
           Non-semantic heading (div)
         </Heading>
       </div>

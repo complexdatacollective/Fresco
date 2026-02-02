@@ -1,6 +1,5 @@
 'use client';
 
-import type { Events } from '~/lib/db/generated/client';
 import { type ColumnDef } from '@tanstack/react-table';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import {
@@ -12,6 +11,7 @@ import {
 } from '~/components/DataTable/types';
 import { Badge } from '~/components/ui/badge';
 import TimeAgo from '~/components/ui/TimeAgo';
+import type { Events } from '~/lib/db/generated/client';
 import { getBadgeColorsForActivityType } from './utils';
 
 export function fetchActivityFeedTableColumnDefs(): ColumnDef<

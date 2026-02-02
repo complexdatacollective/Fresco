@@ -142,7 +142,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
 
     return (
       <motion.div
-        className={cx('relative flex min-h-0 flex-1', className)}
+        className={cx('relative -mx-4 -my-2 flex min-h-0 flex-1', className)}
         {...rest}
       >
         <motion.div

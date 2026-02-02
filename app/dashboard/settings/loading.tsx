@@ -35,7 +35,7 @@ export default function Loading() {
         headerText="Settings"
         subHeaderText="Here you can configure your installation of Fresco."
       />
-      <div className="mx-auto">
+      <div className="mx-auto max-w-full">
         <div className="flex gap-8">
           <SettingsNavigation sections={sections} />
           <div className="min-w-0 flex-1 space-y-6">

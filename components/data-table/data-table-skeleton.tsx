@@ -30,7 +30,7 @@ export function DataTableSkeleton({
     headerItemsCount > 0;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex w-full flex-col gap-6">
       {/* Toolbar skeleton */}
       {hasToolbar && (
         <div className="mx-auto flex w-fit items-center gap-2">

@@ -1,7 +1,7 @@
 'use client';
 
-import { Slot } from '@radix-ui/react-slot';
-import React from 'react';
+import * as React from 'react';
+import { useRender, type RenderProp } from '~/lib/legacy-ui/utils/useRender';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 
 export const headingVariants = cva({
@@ -34,22 +34,34 @@ export const headingVariants = cva({
   ],
 });
 
+const levelToElement = {
+  h1: <h1 />,
+  h2: <h2 />,
+  h3: <h3 />,
+  h4: <h4 />,
+  label: <h4 />,
+} as const;
+
+type HeadingRenderProps = React.HTMLAttributes<HTMLHeadingElement> &
+  React.RefAttributes<HTMLHeadingElement> &
+  Record<string, unknown>;
+
 type HeadingProps = {
-  asChild?: boolean;
-  as?: string;
+  render?: RenderProp<HeadingRenderProps>;
 } & React.HTMLAttributes<HTMLHeadingElement> &
   VariantProps<typeof headingVariants>;
 
-const Heading = React.forwardRef<HTMLElement, HeadingProps>(
-  ({ className, variant, level, margin, as, asChild, ...props }, ref) => {
-    const Comp = asChild ? Slot : (as ?? level ?? 'div');
-    return (
-      <Comp
-        className={cx(headingVariants({ variant, level, margin, className }))}
-        ref={ref}
-        {...props}
-      />
-    );
+const Heading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
+  ({ className, variant, level = 'h2', margin, render, ...props }, ref) => {
+    const defaultElement = levelToElement[level];
+
+    const headingProps: HeadingRenderProps = {
+      className: cx(headingVariants({ variant, level, margin, className })),
+      ref,
+      ...props,
+    };
+
+    return useRender(render, defaultElement, headingProps);
   },
 );
 
