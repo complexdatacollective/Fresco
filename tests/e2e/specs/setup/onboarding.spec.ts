@@ -1,4 +1,4 @@
-import { expect, test } from '../../fixtures/test.js';
+import { expect, expectURL, test } from '../../fixtures/test.js';
 import { fillField } from '../../helpers/form.js';
 
 test.describe('Setup Flow', () => {
@@ -6,7 +6,7 @@ test.describe('Setup Flow', () => {
 
   test('redirects to setup page on first visit', async ({ page }) => {
     await page.goto('/');
-    await expect(page).toHaveURL(/\/setup/);
+    await expectURL(page, /\/setup/);
   });
 
   test('visual: step 1 - create account', async ({ page, capturePage }) => {
@@ -75,7 +75,7 @@ test.describe('Setup Flow', () => {
     await page.getByRole('button', { name: 'Go to the dashboard!' }).click();
 
     // Should redirect to dashboard
-    await expect(page).toHaveURL(/\/dashboard/);
+    await expectURL(page, /\/dashboard/);
     // Verify dashboard heading is visible
     await expect(
       page.getByRole('heading', { name: 'Dashboard' }),

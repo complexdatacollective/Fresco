@@ -175,6 +175,7 @@ Using shadcn/ui with Tailwind. Follow the pattern:
 - Use `cva` (class-variance-authority) for variants
 - Use `cn()` utility from `~/utils/shadcn` for class merging
 - Export component + variants + skeleton when applicable
+- **Spread HTML props onto root element** - Components should accept all valid HTML attributes for their root element and spread them. This allows consumers to pass `data-testid`, `aria-*`, event handlers, etc. without the component needing explicit props for each.
 
 ```typescript
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -194,7 +195,18 @@ const buttonVariants = cva('base-classes', {
 export type ButtonProps = {
   variant?: VariantProps<typeof buttonVariants>['variant'];
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
+
+// Example: spreading props onto root element
+const Button = ({ variant, className, ...props }: ButtonProps) => (
+  <button className={cn(buttonVariants({ variant }), className)} {...props} />
+);
 ```
+
+**Why spread props?** Instead of adding specific props like `testId`, accept all HTML attributes and spread them. This:
+
+- Keeps the component API minimal
+- Allows any valid HTML attribute (`data-testid`, `aria-label`, `onClick`, etc.)
+- Follows React best practices for wrapper components
 
 ### Forms with Zod
 
@@ -368,14 +380,17 @@ When writing Playwright e2e tests, follow this selector hierarchy:
 
 3. **Avoid these fragile patterns:**
    - `getByText()` - Breaks with text changes, i18n
+   - `toContainText()` / `toHaveText()` - Ties tests to specific copy, prevents refactoring
    - `.first()` - Tied to DOM order
    - `.locator('..')` - Parent traversal is fragile
    - `.locator('#id')` - Prefer getByTestId for consistency
 
-4. **For form fields with switches/toggles**, combine testId with role:
+4. **Test element presence, not text content** - Avoid assertions on specific text. Instead, test that elements exist using `toBeVisible()`. This allows copy changes without breaking tests.
+
+5. **For form fields with switches/toggles**, combine testId with role:
 
    ```typescript
    page.getByTestId('anonymous-recruitment-field').getByRole('switch');
    ```
 
-5. **Add testIds to reusable components** (SettingsField, SettingsCard, DataTable rows, etc.) to enable targeted selection without DOM traversal.
+6. **Add testIds to reusable components** (SettingsField, SettingsCard, DataTable rows, etc.) to enable targeted selection without DOM traversal.

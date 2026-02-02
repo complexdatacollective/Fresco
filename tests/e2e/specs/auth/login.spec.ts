@@ -1,4 +1,4 @@
-import { expect, test } from '../../fixtures/test.js';
+import { expect, expectURL, test } from '../../fixtures/test.js';
 import { fillField } from '../../helpers/form.js';
 
 test.describe('Sign In Page', () => {
@@ -20,7 +20,7 @@ test.describe('Sign In Page', () => {
 
     // Wait for redirect to dashboard
     await page.waitForURL('**/dashboard', { timeout: 15_000 });
-    await expect(page).toHaveURL(/\/dashboard/);
+    await expectURL(page, /\/dashboard/);
 
     // Save authentication state for use by dashboard tests
     await page.context().storageState({ path: './tests/e2e/.auth/admin.json' });

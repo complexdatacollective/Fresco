@@ -13,6 +13,7 @@ export default async function InterviewPage() {
       <PageHeader
         headerText="Interviews"
         subHeaderText="View and manage your interview data."
+        data-testid="interviews-page-header"
       />
       <ResponsiveContainer maxWidth="full" baseSize="content" container={false}>
         <InterviewsTableServer />

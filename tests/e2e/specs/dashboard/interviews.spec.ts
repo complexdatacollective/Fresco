@@ -29,14 +29,12 @@ test.describe('Interviews Page', () => {
 
     test('displays page heading', async ({ page }) => {
       await expect(
-        page.getByRole('heading', { name: 'Interviews' }).first(),
+        page.getByRole('heading', { name: 'Interviews', level: 1 }),
       ).toBeVisible();
     });
 
-    test('displays subtitle', async ({ page }) => {
-      await expect(
-        page.getByText(/View and manage your interview data/),
-      ).toBeVisible();
+    test('displays page header', async ({ page }) => {
+      await expect(page.getByTestId('interviews-page-header')).toBeVisible();
     });
 
     test('displays correct number of interviews', async ({ page }) => {
@@ -58,9 +56,7 @@ test.describe('Interviews Page', () => {
     });
 
     test('export dropdown visible', async ({ page }) => {
-      await expect(
-        page.getByRole('button', { name: /export/i }).first(),
-      ).toBeVisible();
+      await expect(page.getByTestId('export-interviews-button')).toBeVisible();
     });
 
     test('bulk selection', async ({ page }) => {
@@ -72,7 +68,9 @@ test.describe('Interviews Page', () => {
 
     test('shows export status badges', async ({ page }) => {
       await waitForTable(page, { minRows: 5 });
-      await expect(page.getByText('Not exported').first()).toBeVisible();
+      await expect(
+        page.getByRole('cell', { name: /not exported/i }).first(),
+      ).toBeVisible();
     });
 
     test('visual snapshot', async ({ page, capturePage }) => {

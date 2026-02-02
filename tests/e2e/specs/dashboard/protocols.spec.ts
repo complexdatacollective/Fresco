@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/test.js';
+import { expect, test } from '../../fixtures/test.js';
 import {
   waitForTable,
   searchTable,
@@ -29,19 +29,17 @@ test.describe('Protocols Page', () => {
 
     test('displays page heading', async ({ page }) => {
       await expect(
-        page.getByRole('heading', { name: 'Protocols' }).first(),
+        page.getByRole('heading', { name: 'Protocols', level: 1 }),
       ).toBeVisible();
     });
 
-    test('displays subtitle', async ({ page }) => {
-      await expect(
-        page.getByText(/Upload and manage your interview protocols/),
-      ).toBeVisible();
+    test('displays page header', async ({ page }) => {
+      await expect(page.getByTestId('protocols-page-header')).toBeVisible();
     });
 
     test('displays protocols table', async ({ page }) => {
       await waitForTable(page);
-      await expect(page.locator('table')).toBeVisible();
+      await expect(page.getByRole('table')).toBeVisible();
     });
 
     test('shows import button', async ({ page }) => {
@@ -58,7 +56,9 @@ test.describe('Protocols Page', () => {
 
     test('shows Test Protocol in table', async ({ page }) => {
       await waitForTable(page, { minRows: 1 });
-      await expect(page.getByText('Test Protocol')).toBeVisible();
+      await expect(
+        page.getByRole('cell', { name: 'Test Protocol' }),
+      ).toBeVisible();
     });
 
     test('search protocols by name', async ({ page }) => {
@@ -72,7 +72,7 @@ test.describe('Protocols Page', () => {
       await waitForTable(page, { minRows: 1 });
       await searchTable(page, 'nonexistent protocol xyz');
       await expect(
-        page.getByText(/no.*result|no.*found|no.*data/i),
+        page.getByRole('cell', { name: /no.*result|no.*found|no.*data/i }),
       ).toBeVisible();
     });
 

@@ -15,6 +15,7 @@ export default async function ProtocolsPage() {
       <PageHeader
         headerText="Protocols"
         subHeaderText="Upload and manage your interview protocols."
+        data-testid="protocols-page-header"
       />
       <Suspense fallback={null}>
         <UpdateUploadThingTokenAlert />

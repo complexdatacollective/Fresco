@@ -184,10 +184,28 @@ page.getByTestId('anonymous-recruitment-field').getByRole('switch');
 | Pattern                    | Problem                           | Alternative                                  |
 | -------------------------- | --------------------------------- | -------------------------------------------- |
 | `getByText('Settings')`    | Breaks with text changes, i18n    | `getByRole('heading', { name: 'Settings' })` |
+| `toContainText()`          | Ties tests to specific copy       | `toBeVisible()` on element                   |
+| `toHaveText()`             | Ties tests to specific copy       | `toBeVisible()` on element                   |
 | `.first()`                 | Tied to DOM order                 | Add unique testId                            |
 | `.locator('..')`           | Parent traversal is fragile       | Add testId to parent                         |
 | `.locator('#id')`          | Inconsistent with other selectors | `getByTestId()`                              |
 | `page.locator('text=...')` | Same issues as getByText          | Use role or testId                           |
+
+#### 4. Test element presence, not text content
+
+Avoid assertions on specific text content. This ties tests to copy and prevents refactoring:
+
+```ts
+// ❌ Bad - breaks when copy changes
+await expect(page.getByTestId('welcome-message')).toContainText(
+  'Welcome to Fresco',
+);
+await expect(page.getByRole('heading')).toHaveText('Dashboard');
+
+// ✅ Good - tests structure, not content
+await expect(page.getByTestId('page-header')).toBeVisible();
+await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+```
 
 **Example refactoring:**
 
@@ -205,7 +223,7 @@ const toggle = page
   .getByRole('switch');
 ```
 
-#### Adding testIds to components
+#### 5. Adding testIds to components
 
 When adding testIds, follow these patterns used in the codebase:
 

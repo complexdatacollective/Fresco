@@ -30,14 +30,12 @@ test.describe('Participants Page', () => {
 
     test('displays page heading', async ({ page }) => {
       await expect(
-        page.getByRole('heading', { name: 'Participants' }).first(),
+        page.getByRole('heading', { name: 'Participants', level: 1 }),
       ).toBeVisible();
     });
 
-    test('displays subtitle', async ({ page }) => {
-      await expect(
-        page.getByText(/View and manage your participants/),
-      ).toBeVisible();
+    test('displays page header', async ({ page }) => {
+      await expect(page.getByTestId('participants-page-header')).toBeVisible();
     });
 
     test('displays participants table with correct row count', async ({
@@ -116,7 +114,7 @@ test.describe('Participants Page', () => {
       await page.reload();
       await waitForTable(page, { minRows: 1 });
       await searchTable(page, 'P011');
-      await expect(page.getByText('P011')).toBeVisible();
+      await expect(page.getByRole('cell', { name: 'P011' })).toBeVisible();
     });
 
     test('visual: add participant dialog', async ({ page, captureElement }) => {

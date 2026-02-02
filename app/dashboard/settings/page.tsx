@@ -78,6 +78,7 @@ export default async function Settings() {
       <PageHeader
         headerText="Settings"
         subHeaderText="Here you can configure your installation of Fresco."
+        data-testid="settings-page-header"
       />
       <div className="mx-auto max-w-full">
         <div className="flex gap-8">

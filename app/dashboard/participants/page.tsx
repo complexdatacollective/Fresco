@@ -14,6 +14,7 @@ export default async function ParticipantPage() {
       <PageHeader
         headerText="Participants"
         subHeaderText="View and manage your participants."
+        data-testid="participants-page-header"
       />
       <ImportExportSection />
       <ResponsiveContainer maxWidth="6xl" baseSize="content" container={false}>
