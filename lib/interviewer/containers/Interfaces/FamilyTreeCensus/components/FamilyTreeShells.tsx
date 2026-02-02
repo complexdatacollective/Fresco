@@ -28,6 +28,7 @@ import { getStageMetadata } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import {
   getEgoSexVariable,
+  getNodeIsEgoVariable,
   getNodeSexVariable,
 } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/nodeUtils';
 import { getNetworkEgo } from '~/lib/interviewer/selectors/session';
@@ -56,6 +57,9 @@ export const FamilyTreeShells = (props: {
     (state) => state.getShellIdByNetworkId,
   );
   const clearNetwork = useFamilyTreeStore((state) => state.clearNetwork);
+  const initializeMinimalNetwork = useFamilyTreeStore(
+    (state) => state.initializeMinimalNetwork,
+  );
   const existingNodes = networkNodes.length > 0;
   const nodes: FamilyTreeNodeType[] = Array.from(
     nodesMap.entries().map(([id, node]) => ({ id, ...node })),
@@ -77,6 +81,7 @@ export const FamilyTreeShells = (props: {
   const stageMetadata = useSelector(getStageMetadata);
   const relationshipVariable = useSelector(getRelationshipTypeVariable);
   const nodeSexVariable = useSelector(getNodeSexVariable);
+  const nodeIsEgoVariable = useSelector(getNodeIsEgoVariable);
   const ego = useSelector(getNetworkEgo);
   const egoSexVariable = useSelector(getEgoSexVariable);
   const [hydratedOnce, setHydratedOnce] = useState(false);
@@ -87,6 +92,13 @@ export const FamilyTreeShells = (props: {
 
     return haveReduxNodes && haveReduxEdges;
   }, [networkNodes.length, networkEdges.length]);
+
+  // Initialize minimal network when there are no existing nodes
+  useEffect(() => {
+    if (!existingNodes) {
+      initializeMinimalNetwork();
+    }
+  }, [existingNodes, initializeMinimalNetwork]);
 
   useEffect(() => {
     setHydratedOnce(false);
@@ -124,8 +136,14 @@ export const FamilyTreeShells = (props: {
 
     clearNetwork();
 
-    // Re-add the ego node after clearing the network
-    if (ego) {
+    // Check if ego has been committed as a network node (has isEgo attribute set to true)
+    const egoExistsAsNetworkNode =
+      nodeIsEgoVariable &&
+      networkNodes.some((n) => n.attributes?.[nodeIsEgoVariable] === true);
+
+    // Only add ego separately if it hasn't been committed as a network node
+    // (if committed, the loop below will add it with the form data)
+    if (ego && !egoExistsAsNetworkNode) {
       addShellNode({
         id: ego._uid,
         label: 'You',
@@ -202,6 +220,7 @@ export const FamilyTreeShells = (props: {
     hydratedOnce,
     relationshipVariable,
     nodeSexVariable,
+    nodeIsEgoVariable,
     ego,
     egoSexVariable,
   ]);
@@ -316,7 +335,10 @@ export const FamilyTreeShells = (props: {
           ))}
         </div>
       </div>
-      <CensusForm stage={stage} showForm={!existingNodes} />
+      <CensusForm
+        stage={stage}
+        showForm={!existingNodes && stage.scaffoldingStep.showQuickStartModal}
+      />
     </>
   );
 };

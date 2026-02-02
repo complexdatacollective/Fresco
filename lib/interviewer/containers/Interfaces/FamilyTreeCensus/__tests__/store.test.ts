@@ -540,6 +540,8 @@ describe('generatePlaceholderNetwork - additional partners', () => {
       [egoId, { label: 'ego', sex: 'male', isEgo: true, readOnly: false }],
     ]);
     store = createFamilyTreeStore(initialNodes, new Map());
+    // Initialize minimal network first (grandparents, parents, ego connections)
+    store.getState().initializeMinimalNetwork();
   });
 
   test('creates additional partners for father when specified', () => {
