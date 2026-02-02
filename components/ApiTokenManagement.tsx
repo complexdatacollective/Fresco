@@ -36,6 +36,8 @@ export default function ApiTokenManagement({
   const [newTokenDescription, setNewTokenDescription] = useState('');
   const [createdToken, setCreatedToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [tokenToDelete, setTokenToDelete] = useState<ApiToken | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { add } = useToast();
 
@@ -80,17 +82,23 @@ export default function ApiTokenManagement({
     }
   };
 
-  const handleDeleteToken = async (data: ApiToken[]) => {
-    const token = data[0];
-    if (!token) return;
-
+  const handleDeleteToken = async (token: ApiToken) => {
+    setIsDeleting(true);
     const result = await deleteApiToken({ id: token.id });
 
     if (result.error) {
-      alert(result.error);
+      add({ title: result.error, type: 'destructive' });
     } else {
       setTokens(tokens.filter((t) => t.id !== token.id));
+      setTokenToDelete(null);
     }
+    setIsDeleting(false);
+  };
+
+  const handleDeleteSelected = async (data: ApiToken[]) => {
+    const token = data[0];
+    if (!token) return;
+    setTokenToDelete(token);
   };
 
   const formatDate = (date: Date | null) => {
@@ -155,20 +163,9 @@ export default function ApiTokenManagement({
     },
   ];
 
-  const ActionsCell = ({
-    row,
-    deleteHandler,
-  }: {
-    row: Row<ApiToken>;
-    data: ApiToken[];
-    deleteHandler: (item: ApiToken) => void;
-  }) => (
+  const ActionsCell = ({ row }: { row: Row<ApiToken>; data: ApiToken[] }) => (
     <Button
-      onClick={() => {
-        if (confirm('Are you sure you want to delete this API token?')) {
-          deleteHandler(row.original);
-        }
-      }}
+      onClick={() => setTokenToDelete(row.original)}
       color="destructive"
       size="sm"
       disabled={disabled}
@@ -191,7 +188,7 @@ export default function ApiTokenManagement({
         data={tokens}
         columns={columns}
         actions={ActionsCell}
-        handleDeleteSelected={handleDeleteToken}
+        handleDeleteSelected={handleDeleteSelected}
         surfaceLevel={1}
         emptyText="No API tokens created yet."
       />
@@ -264,6 +261,40 @@ export default function ApiTokenManagement({
             </code>
           </AlertDescription>
         </Alert>
+      </Dialog>
+      {/* Delete Token Confirmation Dialog */}
+      <Dialog
+        accent="destructive"
+        open={!!tokenToDelete}
+        closeDialog={() => setTokenToDelete(null)}
+        title="Delete API Token"
+        description="Are you sure you want to delete this API token? Any applications using this token will no longer be able to authenticate."
+        footer={
+          <>
+            <Button
+              onClick={() => setTokenToDelete(null)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => tokenToDelete && handleDeleteToken(tokenToDelete)}
+              disabled={isDeleting}
+              color="destructive"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete Token'}
+            </Button>
+          </>
+        }
+      >
+        {tokenToDelete && (
+          <Alert variant="destructive">
+            <AlertTitle>Token to delete</AlertTitle>
+            <AlertDescription>
+              {tokenToDelete.description ?? <em>Untitled</em>}
+            </AlertDescription>
+          </Alert>
+        )}
       </Dialog>
     </div>
   );

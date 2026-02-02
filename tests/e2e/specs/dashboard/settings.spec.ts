@@ -100,6 +100,27 @@ test.describe('Settings Page', () => {
       await expect(page.getByText(/disable analytics/i)).toBeVisible();
     });
 
+    test('displays preview mode section', async ({ page }) => {
+      await expect(
+        page.getByRole('heading', { name: /preview mode/i }),
+      ).toBeVisible();
+    });
+
+    test('enable preview mode toggle visible', async ({ page }) => {
+      await expect(page.getByText(/enable preview mode/i)).toBeVisible();
+    });
+
+    test('authentication toggle visible', async ({ page }) => {
+      const previewModeSection = page.locator('#preview-mode');
+      await expect(
+        previewModeSection.getByText(/authentication/i).first(),
+      ).toBeVisible();
+    });
+
+    test('api tokens section visible', async ({ page }) => {
+      await expect(page.getByText(/api tokens/i).first()).toBeVisible();
+    });
+
     test('visual snapshot', async ({ page, capturePage }) => {
       await capturePage('settings-page', {
         // Mask the version/commit text which varies between environments
@@ -288,6 +309,363 @@ test.describe('Settings Page', () => {
           await page.waitForTimeout(1000);
           await expect(page.getByText('tempuser')).not.toBeVisible();
         }
+      } finally {
+        await cleanup();
+      }
+    });
+
+    test('toggle preview mode', async ({ page, database }) => {
+      const cleanup = await database.isolate(page);
+      try {
+        const previewModeField = page
+          .getByText('Enable Preview Mode')
+          .locator('..')
+          .locator('..');
+        const toggle = previewModeField.getByRole('switch');
+        const initialState = await toggle.isChecked();
+
+        const responsePromise = page.waitForResponse(
+          (resp) => resp.request().method() === 'POST',
+          { timeout: 10000 },
+        );
+        await toggle.click();
+        await responsePromise;
+
+        await page.reload();
+        await page.waitForLoadState('domcontentloaded');
+
+        const reloadedField = page
+          .getByText('Enable Preview Mode')
+          .locator('..')
+          .locator('..');
+        const reloadedToggle = reloadedField.getByRole('switch');
+        const newState = await reloadedToggle.isChecked();
+        expect(newState).toBe(!initialState);
+      } finally {
+        await cleanup();
+      }
+    });
+
+    test('toggle preview mode authentication', async ({ page, database }) => {
+      const cleanup = await database.isolate(page);
+      try {
+        // First enable preview mode
+        const previewModeField = page
+          .getByText('Enable Preview Mode')
+          .locator('..')
+          .locator('..');
+        const previewToggle = previewModeField.getByRole('switch');
+
+        if (!(await previewToggle.isChecked())) {
+          const responsePromise = page.waitForResponse(
+            (resp) => resp.request().method() === 'POST',
+            { timeout: 10000 },
+          );
+          await previewToggle.click();
+          await responsePromise;
+        }
+
+        // Now toggle authentication
+        const previewModeSection = page.locator('#preview-mode');
+        const authField = previewModeSection
+          .getByText('Authentication')
+          .first()
+          .locator('..')
+          .locator('..');
+        const authToggle = authField.getByRole('switch');
+        const initialAuthState = await authToggle.isChecked();
+
+        const authResponsePromise = page.waitForResponse(
+          (resp) => resp.request().method() === 'POST',
+          { timeout: 10000 },
+        );
+        await authToggle.click();
+        await authResponsePromise;
+
+        await page.reload();
+        await page.waitForLoadState('domcontentloaded');
+
+        const reloadedAuthField = page
+          .locator('#preview-mode')
+          .getByText('Authentication')
+          .first()
+          .locator('..')
+          .locator('..');
+        const reloadedAuthToggle = reloadedAuthField.getByRole('switch');
+        const newAuthState = await reloadedAuthToggle.isChecked();
+        expect(newAuthState).toBe(!initialAuthState);
+      } finally {
+        await cleanup();
+      }
+    });
+
+    test('create api token', async ({ page, database }) => {
+      const cleanup = await database.isolate(page);
+      try {
+        // First enable preview mode
+        const previewModeField = page
+          .getByText('Enable Preview Mode')
+          .locator('..')
+          .locator('..');
+        const previewToggle = previewModeField.getByRole('switch');
+
+        if (!(await previewToggle.isChecked())) {
+          const responsePromise = page.waitForResponse(
+            (resp) => resp.request().method() === 'POST',
+            { timeout: 10000 },
+          );
+          await previewToggle.click();
+          await responsePromise;
+          // Wait for the page to reflect changes
+          await page.reload();
+          await page.waitForLoadState('domcontentloaded');
+        }
+
+        // Click create token button
+        const createTokenButton = page.getByRole('button', {
+          name: /create new token/i,
+        });
+        await expect(createTokenButton).toBeEnabled();
+        await createTokenButton.click();
+
+        // Wait for create dialog
+        const createDialog = await waitForDialog(page);
+        await expect(
+          createDialog.getByText(/create api token/i).first(),
+        ).toBeVisible();
+
+        // Fill description
+        await fillField(page, 'description', 'Test Token');
+
+        // Click create
+        const createButton = createDialog.getByRole('button', {
+          name: /create token/i,
+        });
+        await createButton.click();
+
+        // Wait for success dialog with token
+        await expect(page.getByText(/api token created/i)).toBeVisible({
+          timeout: 10000,
+        });
+        await expect(page.getByText(/your api token/i)).toBeVisible();
+
+        // Close the success dialog
+        const closeButton = page
+          .getByRole('dialog')
+          .getByRole('button', { name: /close/i });
+        await closeButton.click();
+
+        // Verify token appears in table
+        await expect(page.getByText('Test Token')).toBeVisible();
+      } finally {
+        await cleanup();
+      }
+    });
+
+    test('visual: create api token dialog', async ({
+      page,
+      database,
+      captureElement,
+    }) => {
+      const cleanup = await database.isolate(page);
+      try {
+        // Enable preview mode first
+        const previewModeField = page
+          .getByText('Enable Preview Mode')
+          .locator('..')
+          .locator('..');
+        const previewToggle = previewModeField.getByRole('switch');
+
+        if (!(await previewToggle.isChecked())) {
+          const responsePromise = page.waitForResponse(
+            (resp) => resp.request().method() === 'POST',
+            { timeout: 10000 },
+          );
+          await previewToggle.click();
+          await responsePromise;
+          await page.reload();
+          await page.waitForLoadState('domcontentloaded');
+        }
+
+        await page.getByRole('button', { name: /create new token/i }).click();
+        const dialog = await waitForDialog(page);
+
+        await captureElement(dialog, 'settings-create-api-token-dialog');
+      } finally {
+        await cleanup();
+      }
+    });
+
+    test('visual: api token created success dialog', async ({
+      page,
+      database,
+      captureElement,
+    }) => {
+      const cleanup = await database.isolate(page);
+      try {
+        // Enable preview mode first
+        const previewModeField = page
+          .getByText('Enable Preview Mode')
+          .locator('..')
+          .locator('..');
+        const previewToggle = previewModeField.getByRole('switch');
+
+        if (!(await previewToggle.isChecked())) {
+          const responsePromise = page.waitForResponse(
+            (resp) => resp.request().method() === 'POST',
+            { timeout: 10000 },
+          );
+          await previewToggle.click();
+          await responsePromise;
+          await page.reload();
+          await page.waitForLoadState('domcontentloaded');
+        }
+
+        // Create token
+        await page.getByRole('button', { name: /create new token/i }).click();
+        const createDialog = await waitForDialog(page);
+        await createDialog
+          .getByRole('button', { name: /create token/i })
+          .click();
+
+        // Wait for success dialog
+        await expect(page.getByText(/api token created/i)).toBeVisible({
+          timeout: 10000,
+        });
+        const successDialog = page.getByRole('dialog');
+
+        await captureElement(
+          successDialog,
+          'settings-api-token-created-success-dialog',
+          {
+            // Mask the token value since it changes each time
+            mask: [successDialog.locator('code')],
+          },
+        );
+      } finally {
+        await cleanup();
+      }
+    });
+
+    test('visual: delete api token dialog', async ({
+      page,
+      database,
+      captureElement,
+    }) => {
+      const cleanup = await database.isolate(page);
+      try {
+        // Enable preview mode first
+        const previewModeField = page
+          .getByText('Enable Preview Mode')
+          .locator('..')
+          .locator('..');
+        const previewToggle = previewModeField.getByRole('switch');
+
+        if (!(await previewToggle.isChecked())) {
+          const responsePromise = page.waitForResponse(
+            (resp) => resp.request().method() === 'POST',
+            { timeout: 10000 },
+          );
+          await previewToggle.click();
+          await responsePromise;
+          await page.reload();
+          await page.waitForLoadState('domcontentloaded');
+        }
+
+        // Create a token first
+        await page.getByRole('button', { name: /create new token/i }).click();
+        const createDialog = await waitForDialog(page);
+        await fillField(page, 'description', 'Token to Delete');
+        await createDialog
+          .getByRole('button', { name: /create token/i })
+          .click();
+
+        // Wait for success dialog and close it
+        await expect(page.getByText(/api token created/i)).toBeVisible({
+          timeout: 10000,
+        });
+        await page
+          .getByRole('dialog')
+          .getByRole('button', { name: /close/i })
+          .click();
+
+        // Click delete on the token
+        const tokenRow = page
+          .getByText('Token to Delete')
+          .locator('..')
+          .locator('..');
+        await tokenRow.getByRole('button', { name: /delete/i }).click();
+
+        const deleteDialog = await waitForDialog(page);
+        await captureElement(deleteDialog, 'settings-delete-api-token-dialog');
+      } finally {
+        await cleanup();
+      }
+    });
+
+    test('delete api token', async ({ page, database }) => {
+      const cleanup = await database.isolate(page);
+      try {
+        // First enable preview mode
+        const previewModeField = page
+          .getByText('Enable Preview Mode')
+          .locator('..')
+          .locator('..');
+        const previewToggle = previewModeField.getByRole('switch');
+
+        if (!(await previewToggle.isChecked())) {
+          const responsePromise = page.waitForResponse(
+            (resp) => resp.request().method() === 'POST',
+            { timeout: 10000 },
+          );
+          await previewToggle.click();
+          await responsePromise;
+          await page.reload();
+          await page.waitForLoadState('domcontentloaded');
+        }
+
+        // Create a token first
+        await page.getByRole('button', { name: /create new token/i }).click();
+        const createDialog = await waitForDialog(page);
+        await fillField(page, 'description', 'Token to Delete');
+        await createDialog
+          .getByRole('button', { name: /create token/i })
+          .click();
+
+        // Wait for success dialog and close it
+        await expect(page.getByText(/api token created/i)).toBeVisible({
+          timeout: 10000,
+        });
+        await page
+          .getByRole('dialog')
+          .getByRole('button', { name: /close/i })
+          .click();
+
+        // Verify token exists
+        await expect(page.getByText('Token to Delete')).toBeVisible();
+
+        // Find and click the delete button for our token
+        const tokenRow = page
+          .getByText('Token to Delete')
+          .locator('..')
+          .locator('..');
+        const deleteButton = tokenRow.getByRole('button', { name: /delete/i });
+        await deleteButton.click();
+
+        // Wait for delete confirmation dialog
+        const deleteDialog = await waitForDialog(page);
+        await expect(deleteDialog.getByText(/delete api token/i)).toBeVisible();
+
+        // Confirm deletion
+        await deleteDialog
+          .getByRole('button', { name: /delete token/i })
+          .click();
+
+        // Wait for dialog to close and deletion to complete
+        await deleteDialog.waitFor({ state: 'hidden' });
+
+        // Verify token is removed
+        await expect(page.getByText('Token to Delete')).not.toBeVisible();
       } finally {
         await cleanup();
       }
