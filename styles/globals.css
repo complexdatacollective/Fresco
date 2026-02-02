@@ -281,11 +281,13 @@
     This is a PITA, because motion doesn't work with css variables for border
     radius, for some reason. So, approximate pixel values are provided next to
     each of these, based on the default radius of 1.75rem (28px).
+
+    Use the pixel values in motion animations, and the variables elsewhere.
   */
   --radius-*: initial;
   --radius-none: 0px; /* 0px */
   --radius-sm: calc(var(--radius) * 0.5); /* 14px */
-  --radius: var(--radius); /* 28px */
+  --radius: 1.75rem; /* default - overridden by theme files */
   --radius-lg: calc(var(--radius) * 1.5); /* 42px */
   --radius-xl: calc(var(--radius) * 2); /* 56px */
   --radius-2xl: calc(var(--radius) * 3); /* 84px */
