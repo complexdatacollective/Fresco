@@ -75,7 +75,7 @@ export function SettingsCardSkeleton({
     return (
       <Surface
         className={cx(
-          'w-full max-w-3xl scroll-mt-32',
+          'w-3xl max-w-3xl scroll-mt-32',
           'tablet:gap-10 flex gap-6',
           className,
           'tablet:flex-row flex-col rounded',
@@ -85,8 +85,8 @@ export function SettingsCardSkeleton({
         noContainer
       >
         <div className="min-w-0 flex-1 space-y-2">
-          <Skeleton className="h-5 w-1/3" />
-          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-5 w-48" />
+          <Skeleton className="h-4 w-80" />
         </div>
         <div className="tablet:items-end tablet:justify-center flex shrink-0 flex-col items-start">
           <Skeleton className="h-10 w-24" />
@@ -98,7 +98,7 @@ export function SettingsCardSkeleton({
   return (
     <Surface
       className={cx(
-        'w-full max-w-3xl scroll-mt-32',
+        'w-3xl max-w-3xl scroll-mt-32',
         className,
         'tablet:flex-row flex-col rounded',
       )}
@@ -106,7 +106,7 @@ export function SettingsCardSkeleton({
       baseSize="content"
       noContainer
     >
-      <div className="w-full">
+      <div className="w-full min-w-0">
         <Skeleton className="mb-4 h-5 w-32" />
         <div className="divide-y divide-current/10">
           {Array.from({ length: rows }).map((_, i) => (
@@ -114,9 +114,9 @@ export function SettingsCardSkeleton({
               key={i}
               className="tablet:flex-row tablet:items-center tablet:justify-between tablet:gap-4 flex w-full flex-col gap-3 py-4"
             >
-              <div className="flex-1 space-y-2">
-                <Skeleton className="h-4 w-1/3" />
-                <Skeleton className="h-3 w-2/3" />
+              <div className="min-w-0 flex-1 space-y-2">
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-3 w-80" />
               </div>
               <Skeleton className="h-6 w-12" />
             </div>

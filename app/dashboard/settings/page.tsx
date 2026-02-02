@@ -62,14 +62,23 @@ export default async function Settings() {
   await requireAppNotExpired();
   const session = await requirePageAuth();
 
-  const installationId = await getInstallationId();
-  const disableSmallScreenOverlay = await getAppSetting(
-    'disableSmallScreenOverlay',
-  );
-  const uploadThingKey = await getAppSetting('uploadThingToken');
-  const previewMode = await getPreviewMode();
+  // Fetch all independent data in parallel
+  const [
+    installationId,
+    disableSmallScreenOverlay,
+    uploadThingKey,
+    previewMode,
+    users,
+  ] = await Promise.all([
+    getInstallationId(),
+    getAppSetting('disableSmallScreenOverlay'),
+    getAppSetting('uploadThingToken'),
+    getPreviewMode(),
+    getUsers(),
+  ]);
+
+  // API tokens depend on previewMode, so fetch conditionally after
   const apiTokens = previewMode ? await getApiTokens() : [];
-  const users = await getUsers();
   const sections = getSettingsSections();
   const previewModeIsReadOnly = env.PREVIEW_MODE !== undefined;
 

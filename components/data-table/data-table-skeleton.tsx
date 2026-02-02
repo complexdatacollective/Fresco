@@ -1,4 +1,3 @@
-import { ButtonSkeleton } from '~/components/ui/Button';
 import { Skeleton } from '~/components/ui/skeleton';
 import {
   Table,
@@ -49,19 +48,19 @@ export function DataTableSkeleton({
             : null}
           {headerItemsCount > 0
             ? Array.from({ length: headerItemsCount }).map((_, i) => (
-                <ButtonSkeleton key={`header-${i}`} />
+                <Skeleton key={`header-${i}`} className="h-9 w-24" />
               ))
             : null}
         </div>
       )}
 
       {/* Table skeleton */}
-      <Table>
+      <Table surfaceProps={{ className: 'min-w-fit' }}>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             {Array.from({ length: columnCount }).map((_, i) => (
-              <TableHead key={i}>
-                <Skeleton className="h-6 w-full" />
+              <TableHead key={i} className="min-w-32">
+                <Skeleton className="h-6 w-24" />
               </TableHead>
             ))}
           </TableRow>
@@ -70,8 +69,8 @@ export function DataTableSkeleton({
           {Array.from({ length: rowCount }).map((_, i) => (
             <TableRow key={i} className="hover:bg-transparent">
               {Array.from({ length: columnCount }).map((_, j) => (
-                <TableCell key={j}>
-                  <Skeleton className="h-6 w-full" />
+                <TableCell key={j} className="min-w-32">
+                  <Skeleton className="h-6 w-24" />
                 </TableCell>
               ))}
             </TableRow>

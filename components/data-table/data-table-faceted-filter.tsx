@@ -10,12 +10,14 @@ type DataTableFacetedFilterProps<TData, TValue> = {
   column?: Column<TData, TValue>;
   title?: string;
   options: Option[];
+  className?: string;
 };
 
 export function DataTableFacetedFilter<TData, TValue>({
   column,
   title,
   options,
+  className,
 }: DataTableFacetedFilterProps<TData, TValue>) {
   const selectedValues = (column?.getFilterValue() as string[]) ?? [];
 
@@ -48,6 +50,7 @@ export function DataTableFacetedFilter<TData, TValue>({
       onChange={handleChange}
       showSelectAll
       showDeselectAll
+      className={className}
     />
   );
 }

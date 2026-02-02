@@ -17,6 +17,7 @@ import { useState } from 'react';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { Badge } from '~/components/ui/badge';
 import { DataTable } from './data-table';
+import { DataTableSkeleton } from './data-table-skeleton';
 
 const meta = {
   title: 'UI/DataTable',
@@ -538,5 +539,17 @@ export const FullyFeatured: Story = {
       />
     );
   },
+  args: {} as never,
+};
+
+export const Skeleton: Story = {
+  render: () => (
+    <DataTableSkeleton
+      columnCount={4}
+      rowCount={5}
+      searchableColumnCount={1}
+      headerItemsCount={1}
+    />
+  ),
   args: {} as never,
 };

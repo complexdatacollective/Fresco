@@ -3,7 +3,9 @@ import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import Heading from '~/components/typography/Heading';
 import PageHeader from '~/components/typography/PageHeader';
 import Paragraph from '~/components/typography/Paragraph';
+import { getActivities } from '~/queries/activityFeed';
 import { requireAppNotExpired } from '~/queries/appSettings';
+import { getSummaryStatistics } from '~/queries/summaryStatistics';
 import { requirePageAuth } from '~/utils/auth';
 import ActivityFeed from './_components/ActivityFeed/ActivityFeed';
 import { searchParamsCache } from './_components/ActivityFeed/SearchParams';
@@ -16,10 +18,15 @@ export default async function Home({
 }: {
   searchParams: Record<string, string | string[] | undefined>;
 }) {
-  await requireAppNotExpired();
-  await requirePageAuth();
-
+  // Parse search params first (synchronous)
   searchParamsCache.parse(searchParams);
+
+  // Pre-warm data fetches - start them immediately so they run in parallel with auth
+  const summaryPromise = getSummaryStatistics();
+  const activitiesPromise = getActivities(searchParamsCache.all());
+
+  // Run auth checks in parallel (both can redirect independently)
+  await Promise.all([requireAppNotExpired(), requirePageAuth()]);
 
   return (
     <>
@@ -38,7 +45,7 @@ export default async function Home({
         <UpdateUploadThingTokenAlert />
       </Suspense>
 
-      <SummaryStatistics />
+      <SummaryStatistics dataPromise={summaryPromise} />
 
       <ResponsiveContainer maxWidth="3xl">
         <Heading level="h2">Recent Activity</Heading>
@@ -48,7 +55,7 @@ export default async function Home({
         </Paragraph>
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="4xl" baseSize="100%" container={false}>
-        <ActivityFeed />
+        <ActivityFeed activitiesPromise={activitiesPromise} />
       </ResponsiveContainer>
     </>
   );

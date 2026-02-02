@@ -36,7 +36,17 @@ export const getAppSetting = <Key extends AppSetting>(
   });
 
 export async function requireAppNotExpired(isSetupRoute = false) {
-  const expired = await isAppExpired();
+  // Fetch both settings in parallel to avoid sequential database calls
+  const [isConfigured, initializedAt] = await Promise.all([
+    getAppSetting('configured'),
+    getAppSetting('initializedAt'),
+  ]);
+
+  // Check if app is expired (unconfigured and past timeout)
+  const expired =
+    !isConfigured &&
+    initializedAt !== null &&
+    initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
 
   if (expired) {
     redirect('/expired');
@@ -47,27 +57,11 @@ export async function requireAppNotExpired(isSetupRoute = false) {
     return;
   }
 
-  const isConfigured = await getAppSetting('configured');
-
   if (!isConfigured) {
     redirect('/setup');
   }
 
   return;
-}
-
-async function isAppExpired() {
-  const isConfigured = await getAppSetting('configured');
-  const initializedAt = await getAppSetting('initializedAt');
-
-  // If initializedAt is null, app can't be expired
-  if (!initializedAt) {
-    return false;
-  }
-
-  return (
-    !isConfigured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT
-  );
 }
 
 // Used to prevent user account creation after the app has been configured

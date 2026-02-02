@@ -86,7 +86,7 @@ export function DataTable<TData, TValue>({
   deleteRowsAction,
 }: DataTableProps<TData, TValue>) {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mx-auto flex w-full flex-col gap-6">
       <DataTableToolbar
         table={dataTable}
         filterableColumns={filterableColumns}

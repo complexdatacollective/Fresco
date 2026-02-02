@@ -2,13 +2,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
-import { getSummaryStatistics } from '~/queries/summaryStatistics';
+import { type getSummaryStatistics } from '~/queries/summaryStatistics';
 import { InterviewIcon, ProtocolIcon } from './Icons';
 import StatCard, { StatCardSkeleton } from './StatCard';
 
-export default function SummaryStatistics() {
-  const data = getSummaryStatistics();
+type SummaryStatisticsProps = {
+  dataPromise: ReturnType<typeof getSummaryStatistics>;
+};
 
+export default function SummaryStatistics({
+  dataPromise,
+}: SummaryStatisticsProps) {
   return (
     <ResponsiveContainer
       className="tablet:grid-cols-3 desktop:gap-6 grid grid-cols-1 gap-4"
@@ -26,7 +30,7 @@ export default function SummaryStatistics() {
         >
           <StatCard
             title="Protocols"
-            dataPromise={data}
+            dataPromise={dataPromise}
             render="protocolCount"
             icon={<ProtocolIcon />}
           />
@@ -55,7 +59,7 @@ export default function SummaryStatistics() {
         >
           <StatCard
             title="Participants"
-            dataPromise={data}
+            dataPromise={dataPromise}
             render="participantCount"
             icon={
               <Image
@@ -81,7 +85,7 @@ export default function SummaryStatistics() {
         >
           <StatCard
             title="Interviews"
-            dataPromise={data}
+            dataPromise={dataPromise}
             render="interviewCount"
             icon={<InterviewIcon />}
           />
