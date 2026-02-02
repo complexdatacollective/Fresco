@@ -1,3 +1,5 @@
+'use client';
+
 import {
   CURRENT_SCHEMA_VERSION,
   getMigrationInfo,
@@ -5,16 +7,19 @@ import {
 import { queue } from 'async';
 import { hash } from 'ohash';
 import { useCallback, useEffect, useRef } from 'react';
-import { insertProtocol } from '~/actions/protocols';
+import {
+  getNewAssetIds,
+  getProtocolByHash,
+  insertProtocol,
+} from '~/actions/protocols';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
 import trackEvent from '~/lib/analytics';
+import { useProtocolImportStoreApi } from '~/lib/protocol-import/useProtocolImportStore';
 import {
   validateAndMigrateProtocol,
   type ProtocolValidationError,
 } from '~/lib/protocol/validateAndMigrateProtocol';
-import { useProtocolImportStoreApi } from '~/lib/protocol-import/useProtocolImportStore';
 import { uploadFiles } from '~/lib/uploadthing/client-helpers';
-import { getNewAssetIds, getProtocolByHash } from '~/queries/protocols';
 import { type AssetInsertType } from '~/schemas/protocol';
 import { DatabaseError } from '~/utils/databaseError';
 import { ensureError } from '~/utils/ensureError';

@@ -47,7 +47,16 @@ export function createCachedFunction<T extends UnstableCacheParams[0]>(
     return func;
   }
 
-  return unstable_cache(func, options?.keyParts, {
+  // Include deployment ID in cache key to prevent cache pollution across
+  // Vercel deployments. Without this, different deployments could read
+  // stale or incompatible cached values from each other.
+  // eslint-disable-next-line no-process-env
+  const VERCEL_DEPLOYMENT_ID = process.env.VERCEL_DEPLOYMENT_ID;
+  const keyParts = options?.keyParts?.concat(
+    VERCEL_DEPLOYMENT_ID ? [VERCEL_DEPLOYMENT_ID] : [],
+  );
+
+  return unstable_cache(func, keyParts, {
     tags,
     revalidate: options?.revalidate,
   });

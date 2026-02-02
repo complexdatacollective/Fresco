@@ -1,5 +1,3 @@
-'use server';
-
 import { stringify } from 'superjson';
 import { createCachedFunction } from '~/lib/cache';
 import { prisma } from '~/lib/db';

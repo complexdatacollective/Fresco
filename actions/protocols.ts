@@ -10,6 +10,41 @@ import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/lib/db';
 import { addEvent } from './activityFeed';
 
+/**
+ * Check if a protocol with the given hash already exists.
+ * Used during protocol import to detect duplicates.
+ */
+export async function getProtocolByHash(protocolHash: string) {
+  await requireApiAuth();
+
+  return prisma.protocol.findFirst({
+    where: { hash: protocolHash },
+  });
+}
+
+/**
+ * Get asset IDs that don't already exist in the database.
+ * Used during protocol import to determine which assets need uploading.
+ */
+export async function getNewAssetIds(assetIds: string[]) {
+  await requireApiAuth();
+
+  const existingAssets = await prisma.asset.findMany({
+    where: {
+      assetId: {
+        in: assetIds,
+      },
+    },
+    select: {
+      assetId: true,
+    },
+  });
+
+  return assetIds.filter(
+    (assetId) => !existingAssets.some((asset) => asset.assetId === assetId),
+  );
+}
+
 // When deleting protocols we must first delete the assets associated with them
 // from the cloud storage.
 export async function deleteProtocols(hashes: string[]) {
