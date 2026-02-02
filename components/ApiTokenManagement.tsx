@@ -217,7 +217,7 @@ export default function ApiTokenManagement({
           </>
         }
       >
-        <div>
+        <div data-field-name="description">
           <Label htmlFor="description">Description (optional)</Label>
           <InputField
             id="description"

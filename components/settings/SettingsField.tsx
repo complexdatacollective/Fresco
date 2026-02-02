@@ -9,6 +9,7 @@ type SettingsFieldProps = {
   control?: ReactNode;
   children?: ReactNode;
   className?: string;
+  testId?: string;
 };
 
 export default function SettingsField({
@@ -17,9 +18,13 @@ export default function SettingsField({
   control,
   children,
   className,
+  testId,
 }: SettingsFieldProps) {
   return (
-    <div className={cx('py-4 first:pt-0 last:pb-0', className)}>
+    <div
+      className={cx('py-4 first:pt-0 last:pb-0', className)}
+      data-testid={testId}
+    >
       <div className="tablet:flex-row tablet:items-start tablet:justify-between tablet:gap-8 flex flex-col gap-3">
         <div className="min-w-0 flex-1">
           <Heading level="label">{label}</Heading>

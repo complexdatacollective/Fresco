@@ -200,6 +200,7 @@ export default async function Settings() {
               <SettingsField
                 label="Enable Preview Mode"
                 description="Enable preview mode to allow uploading and testing protocols directly from Architect Web on your private instance of Fresco."
+                testId="enable-preview-mode-field"
                 control={
                   <Suspense fallback={<SwitchSkeleton />}>
                     <PreviewModeSwitch />

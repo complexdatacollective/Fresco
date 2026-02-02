@@ -107,7 +107,7 @@ test.describe('Settings Page', () => {
     });
 
     test('enable preview mode toggle visible', async ({ page }) => {
-      await expect(page.getByText(/enable preview mode/i)).toBeVisible();
+      await expect(page.getByTestId('enable-preview-mode-field')).toBeVisible();
     });
 
     test('authentication toggle visible', async ({ page }) => {
