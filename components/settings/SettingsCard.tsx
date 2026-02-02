@@ -26,6 +26,7 @@ export default function SettingsCard({
   return (
     <Surface
       id={id}
+      data-testid={id ? `${id}-card` : undefined}
       className={cx(
         'w-full max-w-3xl scroll-mt-32',
         controlArea && 'tablet:gap-10 flex gap-6',

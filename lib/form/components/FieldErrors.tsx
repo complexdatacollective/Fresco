@@ -9,10 +9,12 @@ import { cx } from '~/utils/cva';
  */
 export default function FieldErrors({
   id,
+  name,
   errors,
   show,
 }: {
   id: string; // Used for aria labels
+  name?: string; // Field name for testId
   errors?: string[];
   show: boolean;
 }) {
@@ -21,6 +23,7 @@ export default function FieldErrors({
   return (
     <div
       id={id}
+      data-testid={name ? `${name}-field-error` : undefined}
       className={cx(
         'interview:text-destructive-contrast interview:bg-destructive animate-shake interview:mt-2 interview:px-3 interview:py-2 rounded text-sm',
         'text-destructive',

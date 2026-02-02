@@ -135,6 +135,7 @@ export default async function Settings() {
               <SettingsField
                 label="Anonymous Recruitment"
                 description="If anonymous recruitment is enabled, you may generate an anonymous participation URL. This URL can be shared with participants to allow them to self-enroll in your study."
+                testId="anonymous-recruitment-field"
                 control={
                   <Suspense fallback={<SwitchSkeleton />}>
                     <AnonymousRecruitmentSwitch />
@@ -143,6 +144,7 @@ export default async function Settings() {
               />
               <SettingsField
                 label="Limit Interviews"
+                testId="limit-interviews-field"
                 description={
                   <>
                     If this option is enabled, each participant will only be
@@ -185,6 +187,7 @@ export default async function Settings() {
             <SettingsCard id="privacy" title="Privacy" divideChildren>
               <SettingsField
                 label="Disable Analytics"
+                testId="disable-analytics-field"
                 description="If this option is enabled, no anonymous analytics data will be sent to the Network Canvas team."
                 control={
                   <Suspense fallback={<SwitchSkeleton />}>
@@ -211,6 +214,7 @@ export default async function Settings() {
               </SettingsField>
               <SettingsField
                 label="Authentication"
+                testId="preview-mode-auth-field"
                 description="When enabled, the preview protocol upload endpoint requires authentication via API token or user session. When disabled, anyone can upload preview protocols."
                 control={
                   <Suspense fallback={<SwitchSkeleton />}>
@@ -229,6 +233,7 @@ export default async function Settings() {
               </SettingsField>
               <SettingsField
                 label="API Tokens"
+                testId="api-tokens-field"
                 description={
                   <>
                     API tokens are used to authenticate preview protocol uploads

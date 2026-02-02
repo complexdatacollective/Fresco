@@ -26,6 +26,7 @@ type ExcludeMotionConflicts<T> = Omit<
 
 export type BaseFieldProps = {
   id: string;
+  name?: string;
   label: string;
   hint?: ReactNode;
   validationSummary?: ReactNode;
@@ -46,6 +47,7 @@ export type BaseFieldProps = {
  */
 export function BaseField({
   id,
+  name,
   label,
   hint,
   validationSummary,
@@ -69,7 +71,12 @@ export function BaseField({
         {validationSummary}
       </Hint>
       {children}
-      <FieldErrors id={`${id}-error`} errors={errors} show={showErrors} />
+      <FieldErrors
+        id={`${id}-error`}
+        name={name}
+        errors={errors}
+        show={showErrors}
+      />
     </motion.div>
   );
 }

@@ -38,26 +38,16 @@ test.describe('Settings Page', () => {
 
     test('displays page heading', async ({ page }) => {
       await expect(
-        page.getByRole('heading', { name: 'Settings' }).first(),
-      ).toBeVisible();
-    });
-
-    test('displays subtitle', async ({ page }) => {
-      await expect(
-        page.getByText(/configure your installation/i),
+        page.getByRole('heading', { name: 'Settings', level: 1 }),
       ).toBeVisible();
     });
 
     test('displays user management section', async ({ page }) => {
-      await expect(
-        page.getByRole('heading', { name: /user management/i }),
-      ).toBeVisible();
+      await expect(page.getByTestId('user-management-card')).toBeVisible();
     });
 
     test('shows admin user', async ({ page }) => {
-      await expect(
-        page.getByRole('table').getByText('testadmin'),
-      ).toBeVisible();
+      await expect(page.getByTestId('user-row-testadmin')).toBeVisible();
     });
 
     test('add user button visible', async ({ page }) => {
@@ -73,37 +63,33 @@ test.describe('Settings Page', () => {
     });
 
     test('displays configuration section', async ({ page }) => {
-      await expect(page.getByText(/configuration/i).first()).toBeVisible();
+      await expect(page.getByTestId('configuration-card')).toBeVisible();
     });
 
     test('displays interview settings section', async ({ page }) => {
-      await expect(
-        page.getByRole('heading', { name: /interview settings/i }),
-      ).toBeVisible();
+      await expect(page.getByTestId('interview-settings-card')).toBeVisible();
     });
 
     test('anonymous recruitment toggle visible', async ({ page }) => {
       await expect(
-        page.getByText(/anonymous recruitment/i).first(),
+        page.getByTestId('anonymous-recruitment-field'),
       ).toBeVisible();
     });
 
     test('limit interviews toggle visible', async ({ page }) => {
-      await expect(page.getByText(/limit interviews/i)).toBeVisible();
+      await expect(page.getByTestId('limit-interviews-field')).toBeVisible();
     });
 
     test('displays privacy section', async ({ page }) => {
-      await expect(page.getByText(/privacy/i).first()).toBeVisible();
+      await expect(page.getByTestId('privacy-card')).toBeVisible();
     });
 
     test('disable analytics toggle visible', async ({ page }) => {
-      await expect(page.getByText(/disable analytics/i)).toBeVisible();
+      await expect(page.getByTestId('disable-analytics-field')).toBeVisible();
     });
 
     test('displays preview mode section', async ({ page }) => {
-      await expect(
-        page.getByRole('heading', { name: /preview mode/i }),
-      ).toBeVisible();
+      await expect(page.getByTestId('preview-mode-card')).toBeVisible();
     });
 
     test('enable preview mode toggle visible', async ({ page }) => {
@@ -111,14 +97,11 @@ test.describe('Settings Page', () => {
     });
 
     test('authentication toggle visible', async ({ page }) => {
-      const previewModeSection = page.locator('#preview-mode');
-      await expect(
-        previewModeSection.getByText(/authentication/i).first(),
-      ).toBeVisible();
+      await expect(page.getByTestId('preview-mode-auth-field')).toBeVisible();
     });
 
     test('api tokens section visible', async ({ page }) => {
-      await expect(page.getByText(/api tokens/i).first()).toBeVisible();
+      await expect(page.getByTestId('api-tokens-field')).toBeVisible();
     });
 
     test('visual snapshot', async ({ page, capturePage }) => {
@@ -182,7 +165,7 @@ test.describe('Settings Page', () => {
         await dialog.waitFor({ state: 'hidden' });
         await page.waitForTimeout(1000);
 
-        await expect(page.getByText('newuser1')).toBeVisible();
+        await expect(page.getByTestId('user-row-newuser1')).toBeVisible();
       } finally {
         await cleanup();
       }
@@ -204,7 +187,7 @@ test.describe('Settings Page', () => {
         });
         await submitButton.click();
 
-        await expect(page.getByText(/at least 4 characters/i)).toBeVisible();
+        await expect(page.getByTestId('username-field-error')).toBeVisible();
       } finally {
         await cleanup();
       }
@@ -226,9 +209,7 @@ test.describe('Settings Page', () => {
         });
         await submitButton.click();
 
-        await expect(
-          page.getByText(/Password must be at least 8 characters/),
-        ).toBeVisible();
+        await expect(page.getByTestId('password-field-error')).toBeVisible();
       } finally {
         await cleanup();
       }
@@ -237,11 +218,9 @@ test.describe('Settings Page', () => {
     test('toggle anonymous recruitment', async ({ page, database }) => {
       const cleanup = await database.isolate(page);
       try {
-        const section = page
-          .getByText('Anonymous Recruitment')
-          .locator('..')
-          .locator('..');
-        const toggle = section.getByRole('switch');
+        const toggle = page
+          .getByTestId('anonymous-recruitment-field')
+          .getByRole('switch');
         const initialState = await toggle.isChecked();
 
         const responsePromise = page.waitForResponse(
@@ -254,11 +233,9 @@ test.describe('Settings Page', () => {
         await page.reload();
         await page.waitForLoadState('domcontentloaded');
 
-        const reloadedSection = page
-          .getByText('Anonymous Recruitment')
-          .locator('..')
-          .locator('..');
-        const reloadedToggle = reloadedSection.getByRole('switch');
+        const reloadedToggle = page
+          .getByTestId('anonymous-recruitment-field')
+          .getByRole('switch');
         const newState = await reloadedToggle.isChecked();
         expect(newState).toBe(!initialState);
       } finally {
@@ -286,12 +263,9 @@ test.describe('Settings Page', () => {
         await dialog.waitFor({ state: 'hidden' });
         await page.waitForTimeout(1000);
 
-        await expect(page.getByText('tempuser')).toBeVisible();
+        await expect(page.getByTestId('user-row-tempuser')).toBeVisible();
 
-        const tempUserRow = page.locator('text=tempuser').locator('..');
-        const deleteButton = tempUserRow.getByRole('button', {
-          name: /delete/i,
-        });
+        const deleteButton = page.getByTestId('delete-user-tempuser');
 
         if (await deleteButton.isVisible()) {
           await deleteButton.click();
@@ -307,7 +281,7 @@ test.describe('Settings Page', () => {
           }
 
           await page.waitForTimeout(1000);
-          await expect(page.getByText('tempuser')).not.toBeVisible();
+          await expect(page.getByTestId('user-row-tempuser')).not.toBeVisible();
         }
       } finally {
         await cleanup();
@@ -317,11 +291,9 @@ test.describe('Settings Page', () => {
     test('toggle preview mode', async ({ page, database }) => {
       const cleanup = await database.isolate(page);
       try {
-        const previewModeField = page
-          .getByText('Enable Preview Mode')
-          .locator('..')
-          .locator('..');
-        const toggle = previewModeField.getByRole('switch');
+        const toggle = page
+          .getByTestId('enable-preview-mode-field')
+          .getByRole('switch');
         const initialState = await toggle.isChecked();
 
         const responsePromise = page.waitForResponse(
@@ -334,11 +306,9 @@ test.describe('Settings Page', () => {
         await page.reload();
         await page.waitForLoadState('domcontentloaded');
 
-        const reloadedField = page
-          .getByText('Enable Preview Mode')
-          .locator('..')
-          .locator('..');
-        const reloadedToggle = reloadedField.getByRole('switch');
+        const reloadedToggle = page
+          .getByTestId('enable-preview-mode-field')
+          .getByRole('switch');
         const newState = await reloadedToggle.isChecked();
         expect(newState).toBe(!initialState);
       } finally {
@@ -350,11 +320,9 @@ test.describe('Settings Page', () => {
       const cleanup = await database.isolate(page);
       try {
         // First enable preview mode
-        const previewModeField = page
-          .getByText('Enable Preview Mode')
-          .locator('..')
-          .locator('..');
-        const previewToggle = previewModeField.getByRole('switch');
+        const previewToggle = page
+          .getByTestId('enable-preview-mode-field')
+          .getByRole('switch');
 
         if (!(await previewToggle.isChecked())) {
           const responsePromise = page.waitForResponse(
@@ -366,13 +334,9 @@ test.describe('Settings Page', () => {
         }
 
         // Now toggle authentication
-        const previewModeSection = page.locator('#preview-mode');
-        const authField = previewModeSection
-          .getByText('Authentication')
-          .first()
-          .locator('..')
-          .locator('..');
-        const authToggle = authField.getByRole('switch');
+        const authToggle = page
+          .getByTestId('preview-mode-auth-field')
+          .getByRole('switch');
         const initialAuthState = await authToggle.isChecked();
 
         const authResponsePromise = page.waitForResponse(
@@ -385,13 +349,9 @@ test.describe('Settings Page', () => {
         await page.reload();
         await page.waitForLoadState('domcontentloaded');
 
-        const reloadedAuthField = page
-          .locator('#preview-mode')
-          .getByText('Authentication')
-          .first()
-          .locator('..')
-          .locator('..');
-        const reloadedAuthToggle = reloadedAuthField.getByRole('switch');
+        const reloadedAuthToggle = page
+          .getByTestId('preview-mode-auth-field')
+          .getByRole('switch');
         const newAuthState = await reloadedAuthToggle.isChecked();
         expect(newAuthState).toBe(!initialAuthState);
       } finally {
@@ -403,11 +363,9 @@ test.describe('Settings Page', () => {
       const cleanup = await database.isolate(page);
       try {
         // First enable preview mode
-        const previewModeField = page
-          .getByText('Enable Preview Mode')
-          .locator('..')
-          .locator('..');
-        const previewToggle = previewModeField.getByRole('switch');
+        const previewToggle = page
+          .getByTestId('enable-preview-mode-field')
+          .getByRole('switch');
 
         if (!(await previewToggle.isChecked())) {
           const responsePromise = page.waitForResponse(
@@ -429,7 +387,7 @@ test.describe('Settings Page', () => {
         // Wait for create dialog
         const createDialog = await waitForDialog(page);
         await expect(
-          createDialog.getByText(/create api token/i).first(),
+          createDialog.getByRole('heading', { name: /create api token/i }),
         ).toBeVisible();
 
         // Fill description
@@ -440,17 +398,16 @@ test.describe('Settings Page', () => {
         await createButton.click();
 
         // Wait for success dialog with token
-        await expect(page.getByText(/api token created/i)).toBeVisible({
+        await expect(page.getByTestId('created-token-alert')).toBeVisible({
           timeout: 10000,
         });
-        await expect(page.getByText(/your api token/i)).toBeVisible();
 
         // Close the success dialog
         const closeButton = page.getByTestId('close-token-dialog-button');
         await closeButton.click();
 
         // Verify token appears in table
-        await expect(page.getByText('Test Token')).toBeVisible();
+        await expect(page.getByTestId('token-row-Test Token')).toBeVisible();
       } finally {
         await cleanup();
       }
@@ -464,11 +421,9 @@ test.describe('Settings Page', () => {
       const cleanup = await database.isolate(page);
       try {
         // Enable preview mode first
-        const previewModeField = page
-          .getByText('Enable Preview Mode')
-          .locator('..')
-          .locator('..');
-        const previewToggle = previewModeField.getByRole('switch');
+        const previewToggle = page
+          .getByTestId('enable-preview-mode-field')
+          .getByRole('switch');
 
         if (!(await previewToggle.isChecked())) {
           const responsePromise = page.waitForResponse(
@@ -498,11 +453,9 @@ test.describe('Settings Page', () => {
       const cleanup = await database.isolate(page);
       try {
         // Enable preview mode first
-        const previewModeField = page
-          .getByText('Enable Preview Mode')
-          .locator('..')
-          .locator('..');
-        const previewToggle = previewModeField.getByRole('switch');
+        const previewToggle = page
+          .getByTestId('enable-preview-mode-field')
+          .getByRole('switch');
 
         if (!(await previewToggle.isChecked())) {
           const responsePromise = page.waitForResponse(
@@ -521,7 +474,7 @@ test.describe('Settings Page', () => {
         await page.getByTestId('confirm-create-token-button').click();
 
         // Wait for success dialog
-        await expect(page.getByText(/api token created/i)).toBeVisible({
+        await expect(page.getByTestId('created-token-alert')).toBeVisible({
           timeout: 10000,
         });
         const successDialog = page.getByRole('dialog');
@@ -531,7 +484,7 @@ test.describe('Settings Page', () => {
           'settings-api-token-created-success-dialog',
           {
             // Mask the token value since it changes each time
-            mask: [successDialog.locator('code')],
+            mask: [page.getByTestId('created-token-alert')],
           },
         );
       } finally {
@@ -547,11 +500,9 @@ test.describe('Settings Page', () => {
       const cleanup = await database.isolate(page);
       try {
         // Enable preview mode first
-        const previewModeField = page
-          .getByText('Enable Preview Mode')
-          .locator('..')
-          .locator('..');
-        const previewToggle = previewModeField.getByRole('switch');
+        const previewToggle = page
+          .getByTestId('enable-preview-mode-field')
+          .getByRole('switch');
 
         if (!(await previewToggle.isChecked())) {
           const responsePromise = page.waitForResponse(
@@ -571,17 +522,13 @@ test.describe('Settings Page', () => {
         await page.getByTestId('confirm-create-token-button').click();
 
         // Wait for success dialog and close it
-        await expect(page.getByText(/api token created/i)).toBeVisible({
+        await expect(page.getByTestId('created-token-alert')).toBeVisible({
           timeout: 10000,
         });
         await page.getByTestId('close-token-dialog-button').click();
 
         // Click delete on the token
-        const tokenRow = page
-          .getByText('Token to Delete')
-          .locator('..')
-          .locator('..');
-        await tokenRow.getByTestId('delete-token-button').click();
+        await page.getByTestId('delete-token-Token to Delete').click();
 
         const deleteDialog = await waitForDialog(page);
         await captureElement(deleteDialog, 'settings-delete-api-token-dialog');
@@ -594,11 +541,9 @@ test.describe('Settings Page', () => {
       const cleanup = await database.isolate(page);
       try {
         // First enable preview mode
-        const previewModeField = page
-          .getByText('Enable Preview Mode')
-          .locator('..')
-          .locator('..');
-        const previewToggle = previewModeField.getByRole('switch');
+        const previewToggle = page
+          .getByTestId('enable-preview-mode-field')
+          .getByRole('switch');
 
         if (!(await previewToggle.isChecked())) {
           const responsePromise = page.waitForResponse(
@@ -618,24 +563,24 @@ test.describe('Settings Page', () => {
         await page.getByTestId('confirm-create-token-button').click();
 
         // Wait for success dialog and close it
-        await expect(page.getByText(/api token created/i)).toBeVisible({
+        await expect(page.getByTestId('created-token-alert')).toBeVisible({
           timeout: 10000,
         });
         await page.getByTestId('close-token-dialog-button').click();
 
         // Verify token exists
-        await expect(page.getByText('Token to Delete')).toBeVisible();
+        await expect(
+          page.getByTestId('token-row-Token to Delete'),
+        ).toBeVisible();
 
         // Find and click the delete button for our token
-        const tokenRow = page
-          .getByText('Token to Delete')
-          .locator('..')
-          .locator('..');
-        await tokenRow.getByTestId('delete-token-button').click();
+        await page.getByTestId('delete-token-Token to Delete').click();
 
         // Wait for delete confirmation dialog
         const deleteDialog = await waitForDialog(page);
-        await expect(deleteDialog.getByText(/delete api token/i)).toBeVisible();
+        await expect(
+          deleteDialog.getByRole('heading', { name: /delete api token/i }),
+        ).toBeVisible();
 
         // Confirm deletion
         await page.getByTestId('confirm-delete-token-button').click();
@@ -644,7 +589,9 @@ test.describe('Settings Page', () => {
         await deleteDialog.waitFor({ state: 'hidden' });
 
         // Verify token is removed
-        await expect(page.getByText('Token to Delete')).not.toBeVisible();
+        await expect(
+          page.getByTestId('token-row-Token to Delete'),
+        ).not.toBeVisible();
       } finally {
         await cleanup();
       }

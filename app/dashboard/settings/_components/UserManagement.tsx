@@ -99,7 +99,10 @@ function makeUserColumns(
       cell: ({ row }) => {
         const isCurrentUser = row.original.id === currentUserId;
         return (
-          <div className="flex items-center gap-2">
+          <div
+            className="flex items-center gap-2"
+            data-testid={`user-row-${row.original.username}`}
+          >
             <span>{row.original.username}</span>
             {isCurrentUser && (
               <span className="text-sm text-current/50">(you)</span>
@@ -122,6 +125,7 @@ function makeUserColumns(
             color="destructive"
             size="sm"
             disabled={isCurrentUser || isLastUser}
+            data-testid={`delete-user-${row.original.username}`}
           >
             Delete
           </Button>

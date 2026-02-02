@@ -107,7 +107,13 @@ export default function ApiTokenManagement({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Description" />
       ),
-      cell: ({ row }) => row.original.description ?? <em>Untitled</em>,
+      cell: ({ row }) => (
+        <span
+          data-testid={`token-row-${row.original.description ?? 'Untitled'}`}
+        >
+          {row.original.description ?? <em>Untitled</em>}
+        </span>
+      ),
       enableSorting: false,
       enableHiding: false,
     },
@@ -164,7 +170,7 @@ export default function ApiTokenManagement({
       color="destructive"
       size="sm"
       disabled={disabled}
-      data-testid="delete-token-button"
+      data-testid={`delete-token-${row.original.description ?? 'Untitled'}`}
     >
       Delete
     </Button>
@@ -256,7 +262,7 @@ export default function ApiTokenManagement({
           </>
         }
       >
-        <Alert variant="success">
+        <Alert variant="success" data-testid="created-token-alert">
           <AlertTitle>Your API Token</AlertTitle>
           <AlertDescription>
             <code className="font-monospace relative rounded px-[0.3rem] py-[0.2rem] text-sm">
@@ -283,23 +289,14 @@ export default function ApiTokenManagement({
             <Button
               onClick={() => tokenToDelete && handleDeleteToken(tokenToDelete)}
               disabled={isDeleting}
-              color="destructive"
+              color="primary"
               data-testid="confirm-delete-token-button"
             >
               {isDeleting ? 'Deleting...' : 'Delete Token'}
             </Button>
           </>
         }
-      >
-        {tokenToDelete && (
-          <Alert variant="destructive">
-            <AlertTitle>Token to delete</AlertTitle>
-            <AlertDescription>
-              {tokenToDelete.description ?? <em>Untitled</em>}
-            </AlertDescription>
-          </Alert>
-        )}
-      </Dialog>
+      />
     </div>
   );
 }

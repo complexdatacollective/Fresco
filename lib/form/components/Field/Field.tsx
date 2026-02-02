@@ -47,6 +47,7 @@ export default function Field<C extends ValidFieldComponent>({
     <LayoutGroup id={id}>
       <BaseField
         id={id}
+        name={name}
         label={label}
         hint={hint}
         validationSummary={validationSummary}
