@@ -18,7 +18,7 @@ pnpm storybook                  # Component library at :6006
 
 # Quality Checks
 pnpm lint                       # ESLint
-pnpm ts-lint                    # TypeScript type checking
+pnpm typecheck                    # TypeScript type checking
 pnpm test                       # Vitest unit tests
 pnpm knip                       # Find unused code
 
