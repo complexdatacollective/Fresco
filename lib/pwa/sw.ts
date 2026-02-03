@@ -47,6 +47,7 @@ import type { PrecacheEntry, SerwistGlobalConfig } from 'serwist';
 import {
   CacheFirst,
   NetworkFirst,
+  NetworkOnly,
   Serwist,
   StaleWhileRevalidate,
 } from 'serwist';
@@ -80,6 +81,18 @@ const serwist = new Serwist({
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching: [
+    /**
+     * Cross-origin requests - Pass through to network
+     *
+     * Don't cache cross-origin requests (e.g., UploadThing file storage).
+     * These requests are handled directly by the browser to avoid CORS issues.
+     * The offline system stores these assets in IndexedDB instead.
+     */
+    {
+      matcher: ({ sameOrigin }) => !sameOrigin,
+      handler: new NetworkOnly(),
+    },
+
     /**
      * Dashboard Pages - NetworkFirst with 10s timeout
      *
