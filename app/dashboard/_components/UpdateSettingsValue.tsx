@@ -66,7 +66,7 @@ export default function UpdateSettingsValue({
       {newValue !== initialValue && (
         <div className="mt-4 flex justify-end gap-2">
           {!isSaving && <Button onClick={handleReset}>Reset</Button>}
-          <Button disabled={!!error} onClick={handleSave}>
+          <Button disabled={!!error} onClick={handleSave} color="primary">
             {isSaving && <Loader2 className="mr-2 animate-spin" />}
             {isSaving ? 'Saving...' : 'Save'}
           </Button>
