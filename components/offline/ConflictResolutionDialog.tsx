@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Dialog, { DialogFooter } from '~/lib/dialogs/Dialog';
 import Button from '~/components/ui/Button';
-import { Checkbox } from '~/components/ui/Checkbox';
+import Checkbox from '~/lib/form/components/fields/Checkbox';
 import { Label } from '~/components/ui/Label';
 import {
   conflictResolver,
@@ -186,7 +186,7 @@ export default function ConflictResolutionDialog({
             <Checkbox
               id="apply-to-all"
               checked={applyToAll}
-              onCheckedChange={(checked) => setApplyToAll(Boolean(checked))}
+              onCheckedChange={(checked: boolean) => setApplyToAll(checked)}
             />
             <Label htmlFor="apply-to-all">
               Apply this resolution to all {conflicts.length} conflicts

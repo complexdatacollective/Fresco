@@ -8,14 +8,19 @@ type TimeAgoProps = React.TimeHTMLAttributes<HTMLTimeElement> & {
 
 const TimeAgo: React.FC<TimeAgoProps> = ({ date: dateProp, ...props }) => {
   const date = useMemo(() => new Date(dateProp), [dateProp]);
-  const localisedDate = new Intl.DateTimeFormat(
-    navigator.language,
-    dateOptions,
-  ).format(date);
+  const isValidDate = !isNaN(date.getTime());
+  const localisedDate = isValidDate
+    ? new Intl.DateTimeFormat(navigator.language, dateOptions).format(date)
+    : 'Unknown';
 
   const [timeAgo, setTimeAgo] = useState<string>('');
 
   useEffect(() => {
+    if (!isValidDate) {
+      setTimeAgo('Unknown');
+      return;
+    }
+
     const calculateTimeAgo = () => {
       const now = new Date();
       const distance = now.getTime() - date.getTime();
@@ -46,7 +51,7 @@ const TimeAgo: React.FC<TimeAgoProps> = ({ date: dateProp, ...props }) => {
     const interval = setInterval(calculateTimeAgo, 60000);
 
     return () => clearInterval(interval);
-  }, [date, localisedDate]);
+  }, [date, localisedDate, isValidDate]);
 
   return (
     <time
