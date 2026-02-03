@@ -34,7 +34,7 @@ describe('OfflineDatabase', () => {
     });
 
     it('should have correct version', () => {
-      expect(offlineDb.verno).toBe(1);
+      expect(offlineDb.verno).toBe(2);
     });
   });
 
