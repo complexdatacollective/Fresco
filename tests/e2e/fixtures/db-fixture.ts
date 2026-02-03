@@ -216,8 +216,8 @@ export class DatabaseIsolation {
     log('test', `Restoring snapshot "${name}" for suite "${this.suiteId}"...`);
     await this.restoreWith(client, name);
 
-    // Navigate back after restore
-    await page.goto(currentUrl, { waitUntil: 'load' });
+    // Navigate back after restore - use networkidle to ensure React hydration completes
+    await page.goto(currentUrl, { waitUntil: 'networkidle' });
 
     return async () => {
       // Navigate away before cleanup restore to prevent deadlocks
@@ -226,15 +226,15 @@ export class DatabaseIsolation {
 
       try {
         await this.restoreWith(client, name);
+        // Navigate back BEFORE releasing lock to ensure page is fully loaded
+        // before other workers can acquire exclusive lock and TRUNCATE
+        await page.goto(cleanupUrl, { waitUntil: 'networkidle' });
       } finally {
         this.isolationClient = null;
         await client.query(`SELECT pg_advisory_unlock(${LOCK_ID})`);
         log('test', `Released exclusive lock after mutation test`);
         client.release();
         await pool.end();
-
-        // Navigate back after cleanup
-        await page.goto(cleanupUrl, { waitUntil: 'load' });
 
         // Re-acquire shared lock so subsequent read-only tests are protected
         if (hadReadLock && this.readLockClient) {

@@ -32,6 +32,15 @@ async function checkForUpdate() {
     };
   }
 
+  // In CI environments, skip the API call and return "up to date" to ensure
+  // consistent visual snapshots (server-side fetch can't be mocked by Playwright)
+  if (env.CI) {
+    return {
+      updateType: null,
+      error: false,
+    };
+  }
+
   try {
     const currentVersion = semverSchema.parse(env.APP_VERSION);
 
