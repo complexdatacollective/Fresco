@@ -94,6 +94,7 @@ type NetworkActions = {
     formData: Record<string, number>,
     egoSex: Sex,
   ) => void;
+  initializeMinimalNetwork: () => void;
   addPlaceholderNode: (relation: string, anchorId?: string, secondParentId?: string) => string;
   runLayout: () => void;
   syncMetadata: () => void;
@@ -474,100 +475,40 @@ export const createFamilyTreeStore = (
         generatePlaceholderNetwork: (formData, egoSex) => {
           const store = get();
 
-          // Use the existing addNode and addEdge actions
-          const { addNode, addEdge, updateNode } = store;
+          // Use the existing structure from initializeMinimalNetwork
+          const {
+            addNode,
+            addEdge,
+            updateNode,
+            getNodeIdFromRelationship,
+          } = store;
 
-          // Maternal grandparents
-          const maternalGrandmotherId = addNode({
-            label: 'maternal grandmother',
-            sex: 'female',
-            readOnly: true,
-          });
-          const maternalGrandfatherId = addNode({
-            label: 'maternal grandfather',
-            sex: 'male',
-            readOnly: true,
-          });
-          addEdge({
-            source: maternalGrandfatherId,
-            target: maternalGrandmotherId,
-            relationship: 'partner',
-          });
+          // Get existing nodes from the minimal network
+          const egoId = getNodeIdFromRelationship('ego');
+          const motherId = getNodeIdFromRelationship('mother');
+          const fatherId = getNodeIdFromRelationship('father');
+          const maternalGrandfatherId = getNodeIdFromRelationship('maternal-grandfather');
+          const maternalGrandmotherId = getNodeIdFromRelationship('maternal-grandmother');
+          const paternalGrandfatherId = getNodeIdFromRelationship('paternal-grandfather');
+          const paternalGrandmotherId = getNodeIdFromRelationship('paternal-grandmother');
 
-          // Paternal grandparents
-          const paternalGrandmotherId = addNode({
-            label: 'paternal grandmother',
-            sex: 'female',
-            readOnly: true,
-          });
-          const paternalGrandfatherId = addNode({
-            label: 'paternal grandfather',
-            sex: 'male',
-            readOnly: true,
-          });
-          addEdge({
-            source: paternalGrandfatherId,
-            target: paternalGrandmotherId,
-            relationship: 'partner',
-          });
-
-          // Mother
-          const motherId = addNode({
-            label: 'mother',
-            sex: 'female',
-            readOnly: true,
-          });
-          addEdge({
-            source: maternalGrandfatherId,
-            target: motherId,
-            relationship: 'parent',
-          });
-          addEdge({
-            source: maternalGrandmotherId,
-            target: motherId,
-            relationship: 'parent',
-          });
-
-          // Father
-          const fatherId = addNode({
-            label: 'father',
-            sex: 'male',
-            readOnly: true,
-          });
-          addEdge({
-            source: paternalGrandfatherId,
-            target: fatherId,
-            relationship: 'parent',
-          });
-          addEdge({
-            source: paternalGrandmotherId,
-            target: fatherId,
-            relationship: 'parent',
-          });
-          addEdge({
-            source: fatherId,
-            target: motherId,
-            relationship: 'partner',
-          });
-
-          // Ego (self)
-          const nodes = get().network.nodes;
-          const egoId = Array.from(nodes.entries()).find(
-            ([, node]) => node.isEgo,
-          )?.[0];
-          if (egoId) {
-            updateNode(egoId, { sex: egoSex });
-            addEdge({
-              source: fatherId,
-              target: egoId,
-              relationship: 'parent',
-            });
-            addEdge({
-              source: motherId,
-              target: egoId,
-              relationship: 'parent',
-            });
+          // Guard: minimal network must exist
+          if (
+            !egoId ||
+            !motherId ||
+            !fatherId ||
+            !maternalGrandfatherId ||
+            !maternalGrandmotherId ||
+            !paternalGrandfatherId ||
+            !paternalGrandmotherId
+          ) {
+            // eslint-disable-next-line no-console
+            console.warn('generatePlaceholderNetwork: minimal network not initialized');
+            return;
           }
+
+          // Update ego's sex
+          updateNode(egoId, { sex: egoSex });
 
           // Add siblings
           arrayFromRelationCount(formData, 'brothers').forEach(() => {
@@ -764,6 +705,117 @@ export const createFamilyTreeStore = (
               });
             },
           );
+
+          store.runLayout();
+        },
+
+        /**
+         * Initialize a minimal family tree structure without census form data.
+         * Creates grandparents, parents, and connects ego.
+         * Used when showQuickStartModal is false.
+         */
+        initializeMinimalNetwork: () => {
+          const store = get();
+          const { addNode, addEdge, updateNode, network } = store;
+
+          // Check if network already has structure (more than just ego)
+          const hasStructure = network.nodes.size > 1;
+          if (hasStructure) return;
+
+          // Find ego node
+          const egoEntry = Array.from(network.nodes.entries()).find(
+            ([, node]) => node.isEgo,
+          );
+          if (!egoEntry) return;
+
+          const [egoId, egoNode] = egoEntry;
+          const egoSex = egoNode.sex ?? 'female';
+
+          // Maternal grandparents
+          const maternalGrandmotherId = addNode({
+            label: 'maternal grandmother',
+            sex: 'female',
+            readOnly: true,
+          });
+          const maternalGrandfatherId = addNode({
+            label: 'maternal grandfather',
+            sex: 'male',
+            readOnly: true,
+          });
+          addEdge({
+            source: maternalGrandfatherId,
+            target: maternalGrandmotherId,
+            relationship: 'partner',
+          });
+
+          // Paternal grandparents
+          const paternalGrandmotherId = addNode({
+            label: 'paternal grandmother',
+            sex: 'female',
+            readOnly: true,
+          });
+          const paternalGrandfatherId = addNode({
+            label: 'paternal grandfather',
+            sex: 'male',
+            readOnly: true,
+          });
+          addEdge({
+            source: paternalGrandfatherId,
+            target: paternalGrandmotherId,
+            relationship: 'partner',
+          });
+
+          // Mother
+          const motherId = addNode({
+            label: 'mother',
+            sex: 'female',
+            readOnly: true,
+          });
+          addEdge({
+            source: maternalGrandfatherId,
+            target: motherId,
+            relationship: 'parent',
+          });
+          addEdge({
+            source: maternalGrandmotherId,
+            target: motherId,
+            relationship: 'parent',
+          });
+
+          // Father
+          const fatherId = addNode({
+            label: 'father',
+            sex: 'male',
+            readOnly: true,
+          });
+          addEdge({
+            source: paternalGrandfatherId,
+            target: fatherId,
+            relationship: 'parent',
+          });
+          addEdge({
+            source: paternalGrandmotherId,
+            target: fatherId,
+            relationship: 'parent',
+          });
+          addEdge({
+            source: fatherId,
+            target: motherId,
+            relationship: 'partner',
+          });
+
+          // Connect ego to parents
+          updateNode(egoId, { sex: egoSex });
+          addEdge({
+            source: fatherId,
+            target: egoId,
+            relationship: 'parent',
+          });
+          addEdge({
+            source: motherId,
+            target: egoId,
+            relationship: 'parent',
+          });
 
           store.runLayout();
         },
