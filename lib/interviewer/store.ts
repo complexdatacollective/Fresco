@@ -7,9 +7,11 @@ import session from '~/lib/interviewer/ducks/modules/session';
 import ui from '~/lib/interviewer/ducks/modules/ui';
 import { type GetInterviewByIdQuery } from '~/queries/interviews';
 import logger from './ducks/middleware/logger';
+import { createOfflineMiddleware } from '../offline/offlineMiddleware';
 import { createSyncMiddleware } from './middleware/syncMiddleware';
 
 const syncMiddleware = createSyncMiddleware();
+const offlineMiddleware = createOfflineMiddleware();
 
 const rootReducer = combineReducers({
   session,
@@ -31,7 +33,11 @@ export const store = (
             'dialogs/open/pending', // Dialogs store callback functions
           ],
         },
-      }).concat(options?.disableSync ? [logger] : [logger, syncMiddleware]),
+      }).concat(
+        options?.disableSync
+          ? [logger]
+          : [logger, offlineMiddleware, syncMiddleware],
+      ),
     preloadedState: {
       session: {
         // Important to manually pass only the required state items to the session

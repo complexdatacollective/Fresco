@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { UrlObject } from 'url';
 import { MotionSurface } from '~/components/layout/Surface';
+import { SyncStatusIndicator } from '~/components/offline/SyncStatusIndicator';
 import Heading from '~/components/typography/Heading';
 import { Spinner } from '~/lib/legacy-ui/components';
 import { cx } from '~/utils/cva';
@@ -132,6 +133,10 @@ export function NavigationBar() {
             href="/dashboard/settings"
             isActive={pathname === '/dashboard/settings'}
           />
+
+          <motion.div variants={itemVariants}>
+            <SyncStatusIndicator />
+          </motion.div>
 
           <motion.div variants={itemVariants}>
             <UserMenu />

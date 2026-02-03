@@ -5,6 +5,8 @@ import DisableAnalyticsSwitch from '~/components/DisableAnalyticsSwitch';
 import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch';
 import PreviewModeAuthSwitch from '~/components/PreviewModeAuthSwitch';
 import PreviewModeSwitch from '~/components/PreviewModeSwitch';
+import { OfflineModeSwitch } from '~/components/offline/OfflineModeSwitch';
+import { StorageUsage } from '~/components/offline/StorageUsage';
 import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
 import SettingsNavigation, {
@@ -43,6 +45,7 @@ function getSettingsSections(): SettingsSection[] {
     { id: 'user-management', title: 'User Management' },
     { id: 'configuration', title: 'Configuration' },
     { id: 'interview-settings', title: 'Interview Settings' },
+    { id: 'offline-mode', title: 'Offline Mode' },
     { id: 'privacy', title: 'Privacy' },
     { id: 'preview-mode', title: 'Preview Mode' },
   ];
@@ -191,6 +194,21 @@ export default async function Settings() {
                     </AlertDescription>
                   </Alert>
                 )}
+              </SettingsField>
+            </SettingsCard>
+
+            <SettingsCard id="offline-mode" title="Offline Mode" divideChildren>
+              <SettingsField
+                label="Enable Offline Mode"
+                description="When enabled, protocols can be downloaded for offline use. Interviews can be conducted without an internet connection, and data will sync when connection is restored."
+                testId="offline-mode-field"
+                control={<OfflineModeSwitch />}
+              />
+              <SettingsField
+                label="Storage Usage"
+                description="View how much storage is being used for offline protocols and interview data."
+              >
+                <StorageUsage />
               </SettingsField>
             </SettingsCard>
 

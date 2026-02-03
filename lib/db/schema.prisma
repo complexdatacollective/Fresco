@@ -38,20 +38,21 @@ model Key {
 }
 
 model Protocol {
-  id            String      @id @default(cuid())
-  hash          String      @unique
-  name          String
-  schemaVersion Int
-  description   String?
-  importedAt    DateTime    @default(now())
-  lastModified  DateTime
-  stages        Json
-  codebook      Json
-  assets        Asset[]
-  interviews    Interview[]
-  experiments   Json?
-  isPreview     Boolean     @default(false)
-  isPending     Boolean     @default(false)
+  id               String      @id @default(cuid())
+  hash             String      @unique
+  name             String
+  schemaVersion    Int
+  description      String?
+  importedAt       DateTime    @default(now())
+  lastModified     DateTime
+  stages           Json
+  codebook         Json
+  assets           Asset[]
+  interviews       Interview[]
+  experiments      Json?
+  isPreview        Boolean     @default(false)
+  isPending        Boolean     @default(false)
+  availableOffline Boolean     @default(false)
 
   @@index([isPreview, importedAt])
 }
@@ -82,6 +83,7 @@ model Interview {
   protocolId    String      @map("protocolId")
   currentStep   Int         @default(0)
   stageMetadata Json? // Used to store negative responses in tiestrength census and dyadcensus
+  version       Int         @default(0)
 
   @@index(fields: [protocolId])
   @@index([participantId])

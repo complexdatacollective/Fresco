@@ -1,0 +1,16 @@
+{
+  "name": "Fresco",
+  "short_name": "Fresco",
+  "description": "Web-based interview platform for Network Canvas",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0066cc",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}

@@ -68,5 +68,15 @@ export default defineConfig({
         storageState: './tests/e2e/.auth/admin.json',
       },
     },
+    {
+      name: 'offline',
+      testMatch: '**/offline/*.spec.ts',
+      dependencies: ['auth'],
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: process.env.DASHBOARD_URL,
+        storageState: './tests/e2e/.auth/admin.json',
+      },
+    },
   ],
 });

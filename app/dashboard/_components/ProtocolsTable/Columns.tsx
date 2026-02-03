@@ -3,6 +3,7 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import Image from 'next/image';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+import { OfflineStatusBadge } from '~/components/offline/OfflineStatusBadge';
 import TimeAgo from '~/components/ui/TimeAgo';
 import Checkbox from '~/lib/form/components/fields/Checkbox';
 import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';
@@ -65,6 +66,18 @@ export const getProtocolColumns = (
         return <DataTableColumnHeader column={column} title="Modified" />;
       },
       cell: ({ row }) => <TimeAgo date={row.original.lastModified} />,
+    },
+    {
+      accessorKey: 'availableOffline',
+      header: ({ column }) => {
+        return <DataTableColumnHeader column={column} title="Offline Status" />;
+      },
+      cell: ({ row }) => {
+        const status = row.original.availableOffline
+          ? 'available-offline'
+          : 'online-only';
+        return <OfflineStatusBadge status={status} />;
+      },
     },
   ];
 

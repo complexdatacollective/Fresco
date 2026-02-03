@@ -3,7 +3,16 @@
 import('./env.js');
 import ChildProcess from 'node:child_process';
 import { createRequire } from 'node:module';
+import withSerwistInit from '@serwist/next';
 import pkg from './package.json' with { type: 'json' };
+
+const withSerwist = withSerwistInit({
+  swSrc: 'lib/pwa/sw.ts',
+  swDest: 'public/sw.js',
+  // Enable in production, or in development when ENABLE_SW=true
+  // eslint-disable-next-line no-process-env
+  disable: process.env.NODE_ENV !== 'production' && process.env.ENABLE_SW !== 'true',
+});
 
 const require = createRequire(import.meta.url);
 
@@ -76,4 +85,4 @@ const config = {
     ignoreBuildErrors: true,
   },
 };
-export default config;
+export default withSerwist(config);

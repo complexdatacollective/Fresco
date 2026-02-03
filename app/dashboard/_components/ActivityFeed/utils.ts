@@ -6,6 +6,10 @@ export const getBadgeColorsForActivityType = (type: ActivityType) => {
       return 'bg-slate-blue hover:bg-slate-blue-dark';
     case 'Protocol Uninstalled':
       return 'bg-neon-carrot hover:bg-neon-carrot-dark';
+    case 'Protocol Available Offline':
+      return 'bg-sea-serpent hover:bg-sea-serpent-dark';
+    case 'Protocol Offline Disabled':
+      return 'bg-neon-carrot hover:bg-neon-carrot-dark';
     case 'Participant(s) Added':
       return 'bg-sea-green hover:bg-sea-green';
     case 'Participant(s) Removed':
@@ -34,5 +38,7 @@ export const getBadgeColorsForActivityType = (type: ActivityType) => {
       return 'bg-tomato hover:bg-tomato-dark';
     case 'User Deleted':
       return 'bg-charcoal hover:bg-charcoal-dark';
+    case 'Conflict Resolved':
+      return 'bg-kiwi hover:bg-kiwi-dark';
   }
 };

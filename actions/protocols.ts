@@ -216,3 +216,43 @@ export async function insertProtocol(
     throw e;
   }
 }
+
+export async function getProtocolById(protocolId: string) {
+  await requireApiAuth();
+
+  return prisma.protocol.findUnique({
+    where: { id: protocolId },
+    include: { assets: true },
+  });
+}
+
+export async function setProtocolOfflineStatus(
+  protocolId: string,
+  availableOffline: boolean,
+) {
+  await requireApiAuth();
+
+  try {
+    const protocol = await prisma.protocol.update({
+      where: { id: protocolId },
+      data: { availableOffline },
+      select: { name: true },
+    });
+
+    void addEvent(
+      availableOffline
+        ? 'Protocol Available Offline'
+        : 'Protocol Offline Disabled',
+      `Protocol "${protocol.name}" ${availableOffline ? 'enabled' : 'disabled'} for offline use`,
+    );
+
+    safeRevalidateTag('getProtocols');
+
+    return { error: null, success: true };
+  } catch (error) {
+    return {
+      error: 'Failed to update protocol offline status',
+      success: false,
+    };
+  }
+}

@@ -1,4 +1,5 @@
 import Providers from '~/components/Providers';
+import { ServiceWorkerRegistration } from '~/components/pwa/ServiceWorkerRegistration';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import { env } from '~/env';
 import '~/styles/globals.css';
@@ -7,12 +8,14 @@ import '~/styles/themes/default.css';
 export const metadata = {
   title: 'Network Canvas Fresco',
   description: 'Fresco.',
+  manifest: '/manifest.json',
 };
 
 function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className="bg-background publish-colors antialiased">
+        <ServiceWorkerRegistration />
         <div className="root">
           <Providers disableAnimations={env.CI ?? false}>{children}</Providers>
           {env.SANDBOX_MODE && (

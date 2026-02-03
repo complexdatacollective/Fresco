@@ -77,9 +77,9 @@ export function CollectionSortButton({
       {showDirectionIndicator && isActive && (
         <span className="ml-1">
           {direction === 'asc' ? (
-            <ArrowUpIcon className="h-3.5 w-3.5" />
+            <ArrowUpIcon className="size-3.5" />
           ) : (
-            <ArrowDownIcon className="h-3.5 w-3.5" />
+            <ArrowDownIcon className="size-3.5" />
           )}
         </span>
       )}

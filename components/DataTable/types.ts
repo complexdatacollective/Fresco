@@ -21,6 +21,8 @@ export type DataTableFilterableColumn<TData> = {
 export const activityTypes = [
   'Protocol Installed',
   'Protocol Uninstalled',
+  'Protocol Available Offline',
+  'Protocol Offline Disabled',
   'Participant(s) Added',
   'Participant(s) Removed',
   'Interview Started',
@@ -35,6 +37,7 @@ export const activityTypes = [
   'User Created',
   'User Deleted',
   'Password Changed',
+  'Conflict Resolved',
 ] as const;
 
 export type ActivityType = (typeof activityTypes)[number];

@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
+import 'fake-indexeddb/auto';
 
 // Import React at the top level so it's available for mocks
 import { type default as React } from 'react';
