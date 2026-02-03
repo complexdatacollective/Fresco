@@ -53,12 +53,8 @@ const EgoFormInner = (props: EgoFormProps) => {
   const submitForm = useFormStore((s) => s.submitForm);
   const validateForm = useFormStore((s) => s.validateForm);
 
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [showScrollStatus, setShowScrollStatus] = useFlipflop(
-    true,
-    7000,
-    false,
-  );
+  const [scrollProgress] = useState(0);
+  const [showScrollStatus] = useFlipflop(true, 7000, false);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const { updateReady: setIsReadyForNext } = useReadyForNextStage();
   const egoAttributes = useSelector(getEgoAttributes);
@@ -121,14 +117,6 @@ const EgoFormInner = (props: EgoFormProps) => {
       return { success: true };
     },
     [dispatch],
-  );
-
-  const handleScroll = useCallback(
-    (_: number, progress: number) => {
-      setShowScrollStatus(false);
-      setScrollProgress(progress);
-    },
-    [setShowScrollStatus, setScrollProgress],
   );
 
   useEffect(() => {
