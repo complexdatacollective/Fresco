@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import UnorderedList from '~/components/typography/UnorderedList';
+import { UnorderedList } from '~/components/typography/UnorderedList';
 import type {
   CustomFieldValidation,
   FieldValidationFunction,

@@ -3,6 +3,7 @@
 import { Radio } from '@base-ui/react/radio';
 import { RadioGroup, type RadioGroupProps } from '@base-ui/react/radio-group';
 import { motion, useMotionValue, useTransform } from 'motion/react';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Button from '~/components/ui/Button';
 import {
   controlLabelVariants,
@@ -155,7 +156,7 @@ function BooleanIndicator({
       <svg
         viewBox="0 0 24 24"
         fill="none"
-        className="h-full w-full p-[0.15em]"
+        className="size-full p-[0.15em]"
         stroke="currentColor"
         strokeWidth="3"
       >
@@ -295,9 +296,9 @@ export default function BooleanField(props: BooleanFieldProps) {
                     isPositive={isPositive}
                     state={buttonState}
                   />
-                  <span className={controlLabelVariants({ size: 'md' })}>
-                    {option.label}
-                  </span>
+                  <div className={controlLabelVariants({ size: 'md' })}>
+                    <RenderMarkdown>{option.label}</RenderMarkdown>
+                  </div>
                 </button>
               )}
             />

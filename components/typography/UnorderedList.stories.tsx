@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import Heading from './Heading';
 import Paragraph from './Paragraph';
-import UnorderedList from './UnorderedList';
+import { UnorderedList } from './UnorderedList';
 
 const meta = {
   title: 'Design System/Typography/UnorderedList',

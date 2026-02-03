@@ -8,22 +8,21 @@ import rehypeSanitize from 'rehype-sanitize';
 import remarkGemoji from 'remark-gemoji';
 import Heading from './typography/Heading';
 import Paragraph from './typography/Paragraph';
-import UnorderedList from './typography/UnorderedList';
+import { OrderedList, UnorderedList } from './typography/UnorderedList';
 import { NativeLink } from './ui/Link';
 
 const ALLOWED_MARKDOWN_LABEL_TAGS = ['em', 'strong', 'ul', 'ol', 'li'];
-
-/**
- * Hack for `>` characters that already exist in some protocols
- * and will be interpreted as block quotes on first load
- * Encoding this way forces slate to treat them as paragraphs.
- *
- * This was implemented as two successive 'replace' operations
- * rather than a single regex, because Safari does not support
- * lookbehind.
- */
-const escapeAngleBracket = (value = '') =>
-  value.replace(/>/g, '&gt;').replace(/<br&gt;/g, '<br>');
+export const ALLOWED_MARKDOWN_SECTION_TAGS = [
+  ...ALLOWED_MARKDOWN_LABEL_TAGS,
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'p',
+  'br',
+  'hr',
+  'a',
+];
 
 const externalLinkRenderer = ({
   href,
@@ -47,6 +46,7 @@ const defaultMarkdownRenderers = {
   h6: Heading,
   p: Paragraph,
   ul: UnorderedList,
+  ol: OrderedList,
 };
 
 type RenderMarkdownProps = Options & {
@@ -67,42 +67,32 @@ const RenderMarkdown = React.forwardRef<HTMLSpanElement, RenderMarkdownProps>(
     },
     ref,
   ) => {
-    const processedChildren = React.useMemo(() => {
-      if (typeof children === 'string') {
-        return escapeAngleBracket(children);
-      }
-      return children;
-    }, [children]);
-
     const markdownContent = React.useMemo(
-      () =>
-        typeof processedChildren === 'string' ? (
-          <ReactMarkdown
-            allowedElements={allowedElements ?? ALLOWED_MARKDOWN_LABEL_TAGS}
-            components={(components ?? defaultMarkdownRenderers) as Components}
-            remarkPlugins={remarkPlugins ?? [remarkGemoji]}
-            rehypePlugins={rehypePlugins ?? [rehypeRaw, rehypeSanitize]}
-            unwrapDisallowed={unwrapDisallowed ?? true}
-            {...props}
-          >
-            {processedChildren}
-          </ReactMarkdown>
-        ) : (
-          processedChildren
-        ),
+      () => (
+        <ReactMarkdown
+          allowedElements={allowedElements ?? ALLOWED_MARKDOWN_LABEL_TAGS}
+          components={(components ?? defaultMarkdownRenderers) as Components}
+          remarkPlugins={remarkPlugins ?? [remarkGemoji]}
+          rehypePlugins={rehypePlugins ?? [rehypeRaw, rehypeSanitize]}
+          unwrapDisallowed={unwrapDisallowed ?? true}
+          {...props}
+        >
+          {children}
+        </ReactMarkdown>
+      ),
       [
-        processedChildren,
         allowedElements,
+        children,
         components,
-        remarkPlugins,
-        rehypePlugins,
-        unwrapDisallowed,
         props,
+        rehypePlugins,
+        remarkPlugins,
+        unwrapDisallowed,
       ],
     );
 
     return useRender({
-      render,
+      render: render ?? <React.Fragment />,
       props: {
         children: markdownContent,
       },

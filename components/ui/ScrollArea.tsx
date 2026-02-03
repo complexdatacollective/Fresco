@@ -142,7 +142,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
 
     return (
       <motion.div
-        className={cx('relative -mx-4 -my-2 flex min-h-0 flex-1', className)}
+        className={cx('relative flex min-h-0 flex-1', className)}
         {...rest}
       >
         <motion.div
@@ -156,11 +156,8 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
           className={cx(
             'focusable',
             // Layout
+            '[scrollbar-gutter:stable_both-edges]', // Prevent layout shift when scrollbar appears
             'min-h-0 flex-1 overflow-auto overscroll-contain',
-            // Padding to prevent animated elements from clipping (inside scroll bounds)
-            'px-4',
-            // Extra padding at bottom to prevent clipping of shadows/effects
-            'py-2',
             // Gradient fade effect
             fade && 'scroll-area-viewport',
             // Scroll snap
