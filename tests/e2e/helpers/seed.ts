@@ -77,22 +77,34 @@ export async function seedDashboardEnvironment(
       });
     }
 
-    // Create activity events with sequential timestamps for deterministic ordering
+    // Create activity events with sequential timestamps AND deterministic IDs.
+    // IDs are ordered so that when sorted by "timestamp DESC, id DESC", the
+    // most recent event (highest timestamp) also has the highest-sorting ID.
+    // This ensures deterministic ordering even if timestamps were somehow equal.
     const eventTimestamps = new TimestampGenerator();
     await builder.createEvent(
       'Protocol Installed',
       'Protocol "Test Protocol" installed',
-      eventTimestamps.next(),
+      {
+        timestamp: eventTimestamps.next(),
+        id: 'event-001-protocol-installed',
+      },
     );
     await builder.createEvent(
       'User Login',
       `User ${ADMIN_CREDENTIALS.username} logged in`,
-      eventTimestamps.next(),
+      {
+        timestamp: eventTimestamps.next(),
+        id: 'event-002-user-login',
+      },
     );
     await builder.createEvent(
       'Participant Added',
       'Added 10 participants via CSV import',
-      eventTimestamps.next(),
+      {
+        timestamp: eventTimestamps.next(),
+        id: 'event-003-participant-added',
+      },
     );
 
     log('setup', 'Dashboard environment seeded');

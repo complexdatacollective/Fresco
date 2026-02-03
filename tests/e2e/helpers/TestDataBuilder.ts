@@ -218,10 +218,10 @@ export class TestDataBuilder {
   async createEvent(
     type: string,
     message: string,
-    timestamp?: Date,
+    options?: { timestamp?: Date; id?: string },
   ): Promise<{ id: string }> {
-    const id = createId();
-    const ts = timestamp ?? new Date();
+    const id = options?.id ?? createId();
+    const ts = options?.timestamp ?? new Date();
     await this.pool.query(
       `INSERT INTO "Events" (id, timestamp, type, message) VALUES ($1, $2, $3, $4)`,
       [id, ts, type, message],
