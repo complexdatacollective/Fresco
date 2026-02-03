@@ -48,6 +48,47 @@ function DraggableItem({
   );
 }
 
+// Draggable item with click handler (tests click vs drag threshold)
+function ClickableDraggableItem({
+  id,
+  type,
+  children,
+  onClick,
+  isSelected,
+}: {
+  id: string;
+  type: string;
+  children: React.ReactNode;
+  onClick: () => void;
+  isSelected: boolean;
+}) {
+  const { dragProps, isDragging } = useDragSource({
+    type,
+    metadata: { type, id },
+    announcedName: `${type} item ${id}`,
+  });
+
+  return (
+    <div
+      {...dragProps}
+      onClick={onClick}
+      style={{
+        padding: '16px',
+        margin: '8px',
+        backgroundColor: isSelected ? '#bbdefb' : isDragging ? '#e3f2fd' : '#f5f5f5',
+        border: isSelected ? '2px solid #1976d2' : '2px solid #ddd',
+        borderRadius: '8px',
+        cursor: 'grab',
+        opacity: isDragging ? 0.5 : 1,
+        transition: 'all 0.2s',
+      }}
+    >
+      {children}
+      {isSelected && <span style={{ marginLeft: '8px' }}>✓</span>}
+    </div>
+  );
+}
+
 // Simple drop zone
 function DropZone({
   accepts,
@@ -172,6 +213,70 @@ export const WithPreview: Story = {
       </div>
     </DndStoreProvider>
   ),
+};
+
+export const ClickAndDrag: Story = {
+  render: () => {
+    const [clickedItem, setClickedItem] = useState<string | null>(null);
+    const [dropCount, setDropCount] = useState(0);
+
+    return (
+      <DndStoreProvider>
+        <div style={{ padding: '20px' }}>
+          <h3>Click vs Drag Behavior</h3>
+          <p style={{ marginBottom: '16px', color: '#666' }}>
+            <strong>Mouse/Touch:</strong> Click to select (opens form in real
+            usage), drag to move. Threshold is 4px.
+            <br />
+            <strong>Keyboard:</strong> Enter = click/select, Space = start drag,
+            Arrow keys = navigate drop targets, Escape = cancel.
+          </p>
+
+          <div
+            style={{
+              padding: '12px',
+              marginBottom: '16px',
+              backgroundColor: '#f5f5f5',
+              borderRadius: '8px',
+            }}
+          >
+            <div>
+              Clicked item:{' '}
+              <strong>{clickedItem ?? 'None (click an item)'}</strong>
+            </div>
+            <div>
+              Drop count: <strong>{dropCount}</strong>
+            </div>
+          </div>
+
+          <div
+            style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}
+          >
+            <div>
+              <h4>Clickable & Draggable Items</h4>
+              {['Item A', 'Item B', 'Item C'].map((name) => (
+                <ClickableDraggableItem
+                  key={name}
+                  id={name}
+                  type="clickable"
+                  onClick={() => setClickedItem(name)}
+                  isSelected={clickedItem === name}
+                >
+                  {name}
+                </ClickableDraggableItem>
+              ))}
+            </div>
+            <DropZone
+              accepts={['clickable']}
+              onDrop={() => setDropCount((c) => c + 1)}
+            >
+              Drop items here
+            </DropZone>
+          </div>
+        </div>
+      </DndStoreProvider>
+    );
+  },
 };
 
 export const TypeRestrictions: Story = {

@@ -16,11 +16,12 @@ import { cn } from '~/utils/shadcn';
 import { getCurrentStageId } from '../selectors/session';
 import { MotionNode } from './Node';
 
-type DraggableMotionNodeProps = ComponentProps<typeof MotionNode> & {
+type DraggableMotionNodeProps = Omit<ComponentProps<typeof MotionNode>, 'onClick'> & {
   node: NcNode;
   itemType: string;
   allowDrag: boolean;
   nodeSize?: 'sm' | 'md' | 'lg';
+  onClick?: () => void;
   [key: string]: unknown;
 };
 
@@ -31,6 +32,7 @@ const DraggableMotionNode = memo(
     itemType,
     allowDrag,
     nodeSize,
+    onClick,
     ...nodeProps
   }: DraggableMotionNodeProps) => {
     const { dragProps } = useDragSource({
@@ -41,7 +43,7 @@ const DraggableMotionNode = memo(
     });
 
     return (
-      <div {...dragProps}>
+      <div {...dragProps} onClick={onClick}>
         <MotionNode {...node} {...nodeProps} size={nodeSize} />
       </div>
     );
