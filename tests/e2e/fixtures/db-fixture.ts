@@ -195,6 +195,11 @@ export class DatabaseIsolation {
       log('test', `Released shared lock before acquiring exclusive lock`);
     }
 
+    // Navigate away BEFORE acquiring lock to stop app DB queries.
+    // This prevents deadlocks where TRUNCATE waits for active Next.js queries.
+    const currentUrl = page.url();
+    await page.goto('about:blank');
+
     const pool = new pg.Pool({
       connectionString: this.databaseUrl,
       max: 1,
@@ -210,12 +215,15 @@ export class DatabaseIsolation {
 
     log('test', `Restoring snapshot "${name}" for suite "${this.suiteId}"...`);
     await this.restoreWith(client, name);
-    // Navigate away and back to bust Next.js router cache
-    const currentUrl = page.url();
-    await page.goto('about:blank');
+
+    // Navigate back after restore
     await page.goto(currentUrl, { waitUntil: 'load' });
 
     return async () => {
+      // Navigate away before cleanup restore to prevent deadlocks
+      const cleanupUrl = page.url();
+      await page.goto('about:blank');
+
       try {
         await this.restoreWith(client, name);
       } finally {
@@ -224,6 +232,9 @@ export class DatabaseIsolation {
         log('test', `Released exclusive lock after mutation test`);
         client.release();
         await pool.end();
+
+        // Navigate back after cleanup
+        await page.goto(cleanupUrl, { waitUntil: 'load' });
 
         // Re-acquire shared lock so subsequent read-only tests are protected
         if (hadReadLock && this.readLockClient) {

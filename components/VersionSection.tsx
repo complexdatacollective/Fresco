@@ -73,7 +73,8 @@ export default async function VersionSection() {
   return (
     <SettingsCard id="app-version" title="App Version">
       <Paragraph data-testid="app-version-info">
-        You are currently running Fresco {env.APP_VERSION} ({env.COMMIT_HASH}).
+        You are currently running Fresco {env.APP_VERSION} (
+        {env.CI ? 'ci-build' : env.COMMIT_HASH}).
       </Paragraph>
 
       {error && (
@@ -142,8 +143,8 @@ export function VersionSectionSkeleton() {
   return (
     <SettingsCard title="App Version">
       <Paragraph>
-        You are currently running Fresco {env.APP_VERSION} ({env.COMMIT_HASH}
-        ).
+        You are currently running Fresco {env.APP_VERSION} (
+        {env.CI ? 'ci-build' : env.COMMIT_HASH}).
       </Paragraph>
       <div className="my-4 flex h-24 items-center justify-center gap-4">
         <Loader2 className="animate-spin" />

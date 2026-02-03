@@ -1,4 +1,4 @@
-import { TestDataBuilder } from './TestDataBuilder.js';
+import { TestDataBuilder, TimestampGenerator } from './TestDataBuilder.js';
 import { log } from './logger.js';
 
 // Admin credentials used across all seeded environments
@@ -77,18 +77,22 @@ export async function seedDashboardEnvironment(
       });
     }
 
-    // Create activity events
+    // Create activity events with sequential timestamps for deterministic ordering
+    const eventTimestamps = new TimestampGenerator();
     await builder.createEvent(
       'Protocol Installed',
       'Protocol "Test Protocol" installed',
+      eventTimestamps.next(),
     );
     await builder.createEvent(
       'User Login',
       `User ${ADMIN_CREDENTIALS.username} logged in`,
+      eventTimestamps.next(),
     );
     await builder.createEvent(
       'Participant Added',
       'Added 10 participants via CSV import',
+      eventTimestamps.next(),
     );
 
     log('setup', 'Dashboard environment seeded');

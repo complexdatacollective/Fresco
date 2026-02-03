@@ -3,6 +3,26 @@ import { hash } from 'ohash';
 import pg from 'pg';
 import { log } from './logger.js';
 
+/**
+ * Utility for generating sequential timestamps with guaranteed ordering.
+ * Useful for seeding events that need deterministic ordering by timestamp.
+ */
+export class TimestampGenerator {
+  private current: Date;
+  private incrementMs: number;
+
+  constructor(startTime = new Date(), incrementMs = 1000) {
+    this.current = new Date(startTime.getTime());
+    this.incrementMs = incrementMs;
+  }
+
+  next(): Date {
+    const timestamp = new Date(this.current.getTime());
+    this.current = new Date(this.current.getTime() + this.incrementMs);
+    return timestamp;
+  }
+}
+
 // Pre-computed scrypt hash for 'TestAdmin123!' using lucia/utils generateLuciaPasswordHash().
 // This avoids importing lucia/utils at runtime which pulls in the full app dependency tree.
 const TEST_PASSWORD = 'TestAdmin123!';
@@ -195,11 +215,16 @@ export class TestDataBuilder {
     return { id };
   }
 
-  async createEvent(type: string, message: string): Promise<{ id: string }> {
+  async createEvent(
+    type: string,
+    message: string,
+    timestamp?: Date,
+  ): Promise<{ id: string }> {
     const id = createId();
+    const ts = timestamp ?? new Date();
     await this.pool.query(
-      `INSERT INTO "Events" (id, timestamp, type, message) VALUES ($1, NOW(), $2, $3)`,
-      [id, type, message],
+      `INSERT INTO "Events" (id, timestamp, type, message) VALUES ($1, $2, $3, $4)`,
+      [id, ts, type, message],
     );
     return { id };
   }
