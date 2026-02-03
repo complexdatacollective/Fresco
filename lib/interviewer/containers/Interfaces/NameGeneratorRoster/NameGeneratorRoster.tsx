@@ -175,6 +175,8 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
         },
         attributeData,
         useEncryption,
+        // External roster data may contain attributes not in the codebook
+        allowUnknownAttributes: true,
       }),
     );
   };

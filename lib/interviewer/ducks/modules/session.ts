@@ -163,12 +163,24 @@ type AddNodeArgs = {
     [entityPrimaryKeyProperty]: NcNode[EntityPrimaryKey];
   };
   useEncryption?: boolean;
+  /**
+   * When true, allows attributes that don't exist in the codebook.
+   * Use this for external data (e.g., roster CSVs) where columns may not
+   * have corresponding codebook variables.
+   */
+  allowUnknownAttributes?: boolean;
 };
 
 export const addNode = createAsyncThunk(
   actionTypes.addNode,
   async (args: AddNodeArgs, thunkApi) => {
-    const { type, attributeData, modelData, useEncryption } = args;
+    const {
+      type,
+      attributeData,
+      modelData,
+      useEncryption,
+      allowUnknownAttributes,
+    } = args;
     const state = thunkApi.getState() as RootState;
 
     const getCodebookVariablesForNodeType =
@@ -176,8 +188,8 @@ export const addNode = createAsyncThunk(
 
     const variablesForType = getCodebookVariablesForNodeType(type);
 
-    // Validate that all attribute keys exist in the codebook
-    if (attributeData) {
+    // Validate that all attribute keys exist in the codebook, unless explicitly allowed.
+    if (attributeData && !allowUnknownAttributes) {
       const invalidKeys = Object.keys(attributeData).filter(
         (key) => !(key in variablesForType),
       );
@@ -247,18 +259,6 @@ export const addEdge = createAsyncThunk(
       makeGetCodebookVariablesForEdgeType(state);
 
     const variablesForType = getCodebookVariablesForEdgeType(type);
-
-    // Validate that all attribute keys exist in the codebook
-    if (attributeData) {
-      const invalidKeys = Object.keys(attributeData).filter(
-        (key) => !(key in variablesForType),
-      );
-
-      invariant(
-        invalidKeys.length === 0,
-        `Invalid edge attributes for type "${type}": ${invalidKeys.join(', ')} do not exist in protocol codebook`,
-      );
-    }
 
     // Validate that all attribute keys exist in the codebook
     if (attributeData) {
