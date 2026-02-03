@@ -47,7 +47,6 @@ import type { PrecacheEntry, SerwistGlobalConfig } from 'serwist';
 import {
   CacheFirst,
   NetworkFirst,
-  NetworkOnly,
   Serwist,
   StaleWhileRevalidate,
 } from 'serwist';
@@ -81,18 +80,6 @@ const serwist = new Serwist({
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching: [
-    /**
-     * Cross-origin requests - Pass through to network
-     *
-     * Don't cache cross-origin requests (e.g., UploadThing file storage).
-     * These requests are handled directly by the browser to avoid CORS issues.
-     * The offline system stores these assets in IndexedDB instead.
-     */
-    {
-      matcher: ({ sameOrigin }) => !sameOrigin,
-      handler: new NetworkOnly(),
-    },
-
     /**
      * Dashboard Pages - NetworkFirst with 10s timeout
      *
@@ -219,6 +206,33 @@ const serwist = new Serwist({
     // Default caching from Serwist
     ...defaultCache,
   ],
+});
+
+/**
+ * Cross-origin fetch handler
+ *
+ * Intercept cross-origin requests BEFORE Serwist handles them.
+ * This bypasses Serwist's caching machinery which can cause CORS issues
+ * with external resources like UploadThing file storage.
+ *
+ * The offline system stores protocol assets in IndexedDB, not the SW cache.
+ */
+type FetchEventLike = Event & {
+  request: Request;
+  respondWith: (response: Promise<Response>) => void;
+};
+
+self.addEventListener('fetch', (event) => {
+  const fetchEvent = event as FetchEventLike;
+  const url = new URL(fetchEvent.request.url);
+
+  // Only intercept cross-origin requests
+  if (url.origin === self.location.origin) {
+    return; // Let Serwist handle same-origin requests
+  }
+
+  // For cross-origin requests, do a direct fetch without caching
+  fetchEvent.respondWith(fetch(fetchEvent.request));
 });
 
 serwist.addEventListeners();
