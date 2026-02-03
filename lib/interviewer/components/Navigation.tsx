@@ -1,16 +1,21 @@
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+} from 'lucide-react';
 import { type ComponentProps } from 'react';
 import Surface from '~/components/layout/Surface';
 import { IconButton } from '~/components/ui/Button';
 import ProgressBar from '~/lib/legacy-ui/components/ProgressBar';
-import { cx } from '~/utils/cva';
+import { cva, cx } from '~/utils/cva';
 import PassphrasePrompter from './PassphrasePrompter';
 
 const NavigationButton = ({
   disabled,
   className,
   ...props
-}: ComponentProps<typeof IconButton> & {}) => {
+}: ComponentProps<typeof IconButton>) => {
   return (
     <IconButton
       variant="text"
@@ -22,6 +27,32 @@ const NavigationButton = ({
   );
 };
 
+const navigationVariants = cva({
+  base: 'flex max-h-none shrink-0 grow-0 items-center justify-between overflow-visible rounded-none',
+  variants: {
+    orientation: {
+      vertical: 'w-auto flex-col',
+      horizontal: 'h-auto w-full flex-row',
+    },
+  },
+  defaultVariants: {
+    orientation: 'vertical',
+  },
+});
+
+const progressContainerVariants = cva({
+  base: 'm-6 flex grow',
+  variants: {
+    orientation: {
+      vertical: '',
+      horizontal: 'mx-4',
+    },
+  },
+  defaultVariants: {
+    orientation: 'vertical',
+  },
+});
+
 type NavigationProps = {
   moveBackward: () => void;
   moveForward: () => void;
@@ -29,6 +60,7 @@ type NavigationProps = {
   disableMoveBackward?: boolean;
   pulseNext: boolean;
   progress: number;
+  orientation?: 'horizontal' | 'vertical';
 };
 
 const Navigation = ({
@@ -38,31 +70,35 @@ const Navigation = ({
   disableMoveBackward,
   pulseNext,
   progress,
+  orientation = 'vertical',
 }: NavigationProps) => {
+  const BackIcon = orientation === 'vertical' ? ChevronUp : ChevronLeft;
+  const ForwardIcon = orientation === 'vertical' ? ChevronDown : ChevronRight;
+
   return (
     <Surface
       level={2}
       role="navigation"
       elevation="none"
-      className="flex max-h-none w-auto shrink-0 grow-0 flex-col items-center justify-between overflow-visible rounded-none"
+      className={navigationVariants({ orientation })}
       spacing="sm"
       noContainer
     >
       <NavigationButton
         onClick={moveBackward}
         disabled={disableMoveBackward}
-        icon={<ChevronUp />}
+        icon={<BackIcon />}
         aria-label="Previous Step"
       />
-      <PassphrasePrompter />
-      <div className="m-6 flex grow">
-        <ProgressBar percentProgress={progress} />
+      {orientation === 'vertical' && <PassphrasePrompter />}
+      <div className={progressContainerVariants({ orientation })}>
+        <ProgressBar percentProgress={progress} orientation={orientation} />
       </div>
       <NavigationButton
         className={cx(pulseNext && 'bg-success animate-pulse-glow')}
         onClick={moveForward}
         disabled={disableMoveForward}
-        icon={<ChevronDown className="h-8 w-8" strokeWidth="3px" />}
+        icon={<ForwardIcon className="size-8" strokeWidth="3px" />}
         aria-label="Next Step"
       />
     </Surface>

@@ -19,10 +19,10 @@ const responsiveContainerVariants = cva({
       'full': 'max-w-full',
     },
     baseSize: {
-      '60%': 'tablet:w-[60%]',
-      '80%': 'tablet:w-[80%]',
-      '90%': 'tablet:w-[90%]',
-      '100%': 'tablet:w-full',
+      '60%': 'w-[60%]',
+      '80%': 'w-[80%]',
+      '90%': 'w-[90%]',
+      '100%': 'w-full',
       'content': 'w-fit max-w-full',
     },
     container: {

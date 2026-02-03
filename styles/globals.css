@@ -494,7 +494,7 @@ This custom variant lets you target only elements with the readonly attribute.
 
 /* Replacement for interface centering mixin */
 @utility interface {
-  @apply relative mx-4 flex shrink grow basis-auto items-center justify-center;
+  @apply relative flex shrink grow basis-auto items-center justify-center gap-8 p-4;
 }
 
 /* Required for base-ui components that use portals: https://base-ui.com/react/overview/quick-start#portals */
@@ -511,13 +511,8 @@ This custom variant lets you target only elements with the readonly attribute.
     @apply border-outline;
   }
 
-  html {
-    /* Prevent layout shift when scrollbar appears */
-    scrollbar-gutter: stable both-edges;
-  }
-
   body {
-    @apply bg-background text-text publish-colors font-body;
+    @apply bg-background text-text publish-colors font-body overflow-hidden;
     position: relative; /* https://base-ui.com/react/overview/quick-start#ios-26-safari */
   }
 

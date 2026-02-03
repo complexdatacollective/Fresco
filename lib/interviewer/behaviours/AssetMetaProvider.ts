@@ -1,18 +1,19 @@
 import { useSelector } from 'react-redux';
+import { type Asset } from '~/lib/db/generated/client';
 import { getAssetManifest } from '../ducks/modules/protocol';
 
 const AssetMetaProvider = ({
   children,
   assetId,
 }: {
-  children: (asset: unknown) => React.ReactNode;
+  children: (asset: Asset) => React.ReactNode;
   assetId: string;
 }) => {
   const codebookAssets = useSelector(getAssetManifest);
 
   const asset = codebookAssets[assetId];
 
-  if (!codebookAssets) {
+  if (!codebookAssets || !asset) {
     // eslint-disable-next-line no-console
     console.log('error loading asset!', assetId);
     return null;

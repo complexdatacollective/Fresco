@@ -4,7 +4,11 @@ import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { RenderMarkdown } from '~/components/RenderMarkdown';
+import Surface from '~/components/layout/Surface';
+import {
+  ALLOWED_MARKDOWN_SECTION_TAGS,
+  RenderMarkdown,
+} from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
 import useDialog from '~/lib/dialogs/useDialog';
 import { FormWithoutProvider } from '~/lib/form/components/Form';
@@ -13,7 +17,6 @@ import useFormStore from '~/lib/form/hooks/useFormStore';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { type FieldValue } from '~/lib/form/store/types';
-import Scroller from '~/lib/legacy-ui/components/Scroller';
 import { type BeforeNextFunction } from '../components/ProtocolScreen';
 import { type StageProps } from '../components/Stage';
 import { updateEgo } from '../ducks/modules/session';
@@ -115,7 +118,7 @@ const EgoFormInner = (props: EgoFormProps) => {
   const handleSubmitForm = useCallback(
     async (formData: unknown) => {
       await dispatch(updateEgo(formData as Record<string, VariableValue>));
-      return { success: true as const };
+      return { success: true };
     },
     [dispatch],
   );
@@ -150,21 +153,18 @@ const EgoFormInner = (props: EgoFormProps) => {
   });
 
   return (
-    <div className="ego-form alter-form">
-      <div className="ego-form__form-container">
-        <Scroller
-          className="ego-form__form-container-scroller"
-          onScroll={handleScroll}
-        >
-          <div className="ego-form__introduction">
-            <h1>{introductionPanel.title}</h1>
-            <RenderMarkdown>{introductionPanel.text}</RenderMarkdown>
-          </div>
-          <FormWithoutProvider onSubmit={handleSubmitForm}>
-            {fieldComponents}
-          </FormWithoutProvider>
-        </Scroller>
-      </div>
+    <div className="interface mx-auto max-w-[80ch] flex-col">
+      <Surface>
+        <Heading level="h1">{introductionPanel.title}</Heading>
+        <RenderMarkdown allowedElements={ALLOWED_MARKDOWN_SECTION_TAGS}>
+          {introductionPanel.text}
+        </RenderMarkdown>
+      </Surface>
+      <Surface>
+        <FormWithoutProvider onSubmit={handleSubmitForm}>
+          {fieldComponents}
+        </FormWithoutProvider>
+      </Surface>
       <AnimatePresence>
         {showScrollNudge && (
           <motion.div

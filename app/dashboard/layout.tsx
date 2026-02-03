@@ -15,9 +15,8 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
   await requirePageAuth();
 
   const uploadThingToken = await getAppSetting('uploadThingToken');
-
   return (
-    <div className="tablet:gap-16 mb-10 flex flex-col gap-10 px-2">
+    <div className="tablet:gap-16 tablet:px-6 laptop:px-12 mb-10 flex max-h-screen flex-col gap-10 overflow-y-auto px-2 [scrollbar-gutter:stable_both-edges]">
       <NavigationBar />
       {!uploadThingToken && <UploadThingModal />}
       {children}

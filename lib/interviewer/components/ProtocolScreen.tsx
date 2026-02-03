@@ -8,6 +8,7 @@ import {
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import useMediaQuery from '~/hooks/useMediaQuery';
 import usePrevious from '~/hooks/usePrevious';
 import { updatePrompt, updateStage } from '../ducks/modules/session';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
@@ -261,29 +262,38 @@ export default function ProtocolScreen() {
 
   const { canMoveForward, canMoveBackward } = useSelector(getNavigationInfo);
 
+  const isPortraitAspectRatio = useMediaQuery('(max-aspect-ratio: 3/4)');
+  const navigationOrientation = isPortraitAspectRatio ? 'horizontal' : 'vertical';
+
   return (
     <>
       <motion.div
-        className="relative flex h-full w-full flex-1 flex-row overflow-hidden"
+        className={
+          isPortraitAspectRatio
+            ? 'relative flex size-full flex-1 flex-col overflow-hidden'
+            : 'relative flex size-full flex-1 flex-row overflow-hidden'
+        }
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <Navigation
-          moveBackward={moveBackward}
-          moveForward={moveForward}
-          disableMoveForward={forceNavigationDisabled || !canMoveForward}
-          // If we have a beforenextfunction, we are always allowed to go back
-          disableMoveBackward={
-            forceNavigationDisabled ||
-            (!canMoveBackward && !beforeNextFunction.current)
-          }
-          pulseNext={isReadyForNextStage}
-          progress={progress}
-        />
+        {!isPortraitAspectRatio && (
+          <Navigation
+            moveBackward={moveBackward}
+            moveForward={moveForward}
+            disableMoveForward={forceNavigationDisabled || !canMoveForward}
+            disableMoveBackward={
+              forceNavigationDisabled ||
+              (!canMoveBackward && !beforeNextFunction.current)
+            }
+            pulseNext={isReadyForNextStage}
+            progress={progress}
+            orientation={navigationOrientation}
+          />
+        )}
         <motion.div
           key={currentStep}
           ref={scope}
-          className="flex h-full w-full"
+          className="flex min-h-0 flex-1"
           initial="initial"
           animate="animate"
           variants={variants}
@@ -297,6 +307,20 @@ export default function ProtocolScreen() {
             />
           )}
         </motion.div>
+        {isPortraitAspectRatio && (
+          <Navigation
+            moveBackward={moveBackward}
+            moveForward={moveForward}
+            disableMoveForward={forceNavigationDisabled || !canMoveForward}
+            disableMoveBackward={
+              forceNavigationDisabled ||
+              (!canMoveBackward && !beforeNextFunction.current)
+            }
+            pulseNext={isReadyForNextStage}
+            progress={progress}
+            orientation={navigationOrientation}
+          />
+        )}
       </motion.div>
     </>
   );
