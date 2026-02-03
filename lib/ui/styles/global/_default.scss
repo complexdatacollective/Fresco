@@ -234,6 +234,9 @@ $system-font-stack: 'system-ui', sans-serif;
     --nc-base-font-size: 18px;
   }
 
+  // Base node size - used by various CSS for sizing calculations
+  --base-node-size: calc(var(--nc-base-font-size) * 10);
+
   --nc-border-radius: 0.75rem;
 
   font-size: var(--nc-base-font-size);
