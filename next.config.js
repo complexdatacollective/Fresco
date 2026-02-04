@@ -61,7 +61,7 @@ const config = {
     unoptimized: process.env.DISABLE_IMAGE_OPTIMIZATION === 'true',
   },
   transpilePackages: ['@codaco/shared-consts'],
-  webpack: (config, { dev }) => {
+  webpack: (config) => {
     config.module.rules.push({
       test: /\.(jpe?g|png|svg|gif|ico|eot|ttf|woff|woff2|mp4|pdf|webm|txt|mp3)$/,
       type: 'asset/resource',
@@ -69,26 +69,6 @@ const config = {
         filename: 'static/chunks/[path][name].[hash][ext]',
       },
     });
-
-    // Prevent infinite recompile loop in dev mode by ignoring generated service worker
-    if (dev) {
-      const existing = config.watchOptions?.ignored;
-      const swIgnore = ['**/public/sw.js', '**/public/sw.js.map'];
-
-      let ignored;
-      if (!existing) {
-        ignored = swIgnore;
-      } else if (Array.isArray(existing)) {
-        ignored = [...existing, ...swIgnore];
-      } else {
-        ignored = [existing, ...swIgnore];
-      }
-
-      config.watchOptions = {
-        ...config.watchOptions,
-        ignored,
-      };
-    }
 
     return config;
   },
