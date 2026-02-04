@@ -5,6 +5,30 @@ import {
 import type Zip from 'jszip';
 import { type AssetInsertType } from '~/schemas/protocol';
 
+/**
+ * Extract apikey assets from a protocol's asset manifest.
+ */
+export function extractApikeyAssetsFromManifest(
+  assetManifest: CurrentProtocol['assetManifest'],
+): AssetInsertType[] {
+  if (!assetManifest) return [];
+
+  return Object.entries(assetManifest).flatMap(([key, entry]) => {
+    if (entry.type !== 'apikey') return [];
+    return [
+      {
+        assetId: key,
+        key: key,
+        name: entry.name,
+        type: entry.type,
+        url: '',
+        size: 0,
+        value: entry.value,
+      },
+    ];
+  });
+}
+
 // Fetch protocol.json as a parsed object from the protocol zip.
 export const getProtocolJson = async (protocolZip: Zip) => {
   const protocolString = await protocolZip
@@ -58,45 +82,33 @@ export const getProtocolAssets = async (
    * Assets with type 'apikey' are handled differently:
    *   - They are not actually files. The key itself is stored in the value field.
    */
+  const apikeyAssets = extractApikeyAssetsFromManifest(assetManifest);
+
   const fileAssets: FetchedFileAsset[] = [];
-  const apikeyAssets: AssetInsertType[] = [];
 
   await Promise.all(
-    Object.keys(assetManifest).map(async (key) => {
-      const asset = assetManifest[key]!;
+    Object.entries(assetManifest)
+      .filter(([_, asset]) => asset.type !== 'apikey')
+      .map(async ([key, asset]) => {
+        if (!('source' in asset)) return;
 
-      // apikey assets are not actually files, so we skip uploading them.
-      if (asset.type === 'apikey') {
-        const apikeyAsset = {
-          assetId: asset.id,
-          key: asset.id,
-          name: asset.name,
+        const file = await protocolZip
+          ?.file(`assets/${asset.source}`)
+          ?.async('blob');
+
+        if (!file) {
+          throw new Error(
+            `Asset "${asset.source}" was not found in asset folder!`,
+          );
+        }
+
+        fileAssets.push({
+          assetId: key,
+          name: asset.source,
           type: asset.type,
-          value: asset.value,
-          size: 0,
-          url: '',
-        } as AssetInsertType;
-        apikeyAssets.push(apikeyAsset);
-        return;
-      }
-
-      const file = await protocolZip
-        ?.file(`assets/${asset.source}`)
-        ?.async('blob');
-
-      if (!file) {
-        throw new Error(
-          `Asset "${asset.source}" was not found in asset folder!`,
-        );
-      }
-
-      fileAssets.push({
-        assetId: key,
-        name: asset.source,
-        type: asset.type,
-        file: new File([file], asset.source), // Convert Blob to File with filename
-      });
-    }),
+          file: new File([file], asset.source), // Convert Blob to File with filename
+        });
+      }),
   );
 
   return { fileAssets, apikeyAssets };

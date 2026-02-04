@@ -4,6 +4,7 @@ import { addEvent } from '~/actions/activityFeed';
 import { env } from '~/env';
 import { MIN_ARCHITECT_VERSION_FOR_PREVIEW } from '~/fresco.config';
 import trackEvent from '~/lib/analytics';
+import { prisma } from '~/lib/db';
 import { prunePreviewProtocols } from '~/lib/preview-protocol-pruning';
 import { validateAndMigrateProtocol } from '~/lib/protocol/validateAndMigrateProtocol';
 import {
@@ -11,8 +12,8 @@ import {
   parseUploadThingToken,
 } from '~/lib/uploadthing/presigned';
 import { getExistingAssets } from '~/queries/protocols';
-import { prisma } from '~/lib/db';
 import { ensureError } from '~/utils/ensureError';
+import { extractApikeyAssetsFromManifest } from '~/utils/protocolImport';
 import { compareSemver, semverSchema } from '~/utils/semVer';
 import { checkPreviewAuth, corsHeaders, jsonResponse } from './helpers';
 import type {
@@ -104,27 +105,28 @@ export async function POST(
           };
           return jsonResponse(response);
         }
-
-        // Check which assets already exist in the database
-        const assetIds = assetMeta.map((a) => a.assetId);
-        const existingDbAssets = await getExistingAssets(assetIds);
-
-        const existingAssetMap = new Map(
-          existingDbAssets.map((a) => [
-            a.assetId,
-            { key: a.key, url: a.url, type: a.type },
-          ]),
-        );
-
-        // Get asset manifest from protocol to look up asset types
         const assetManifest = protocolToValidate.assetManifest ?? {};
 
-        const existingAssetIds = assetMeta
-          .filter((a) => existingAssetMap.has(a.assetId))
-          .map((a) => a.assetId);
+        // Extract apikey assets from the manifest — they store a value
+        const apikeyAssets = extractApikeyAssetsFromManifest(assetManifest);
 
+        const allAssetIds = [
+          ...assetMeta.map((a) => a.assetId),
+          ...apikeyAssets.map((a) => a.assetId),
+        ];
+        const existingDbAssets = await getExistingAssets(allAssetIds);
+        const existingAssetIdSet = new Set(
+          existingDbAssets.map((a) => a.assetId),
+        );
+
+        const existingAssetIds = allAssetIds.filter((id) =>
+          existingAssetIdSet.has(id),
+        );
+        const newApikeyAssets = apikeyAssets.filter(
+          (a) => !existingAssetIdSet.has(a.assetId),
+        );
         const newAssets = assetMeta.filter(
-          (a) => !existingAssetMap.has(a.assetId),
+          (a) => !existingAssetIdSet.has(a.assetId),
         );
 
         const tokenData = await parseUploadThingToken();
@@ -183,7 +185,7 @@ export async function POST(
             isPreview: true,
             isPending: presignedUrls.length > 0,
             assets: {
-              create: assetsToCreate,
+              create: [...assetsToCreate, ...newApikeyAssets],
               connect: existingAssetIds.map((assetId) => ({ assetId })),
             },
           },

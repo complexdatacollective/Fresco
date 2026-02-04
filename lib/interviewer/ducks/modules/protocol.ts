@@ -74,23 +74,7 @@ const protocolSlice = createSlice({
           if (!asset) {
             return undefined;
           }
-          const { url, type } = asset;
-          if (type === 'image') {
-            return url;
-          }
-          if (type === 'video') {
-            return url;
-          }
-          if (type === 'audio') {
-            return url;
-          }
-          if (type === 'document') {
-            return url;
-          }
-          if (type === 'other') {
-            return url;
-          }
-          return undefined;
+          return asset.url || undefined;
         };
       },
     ),
