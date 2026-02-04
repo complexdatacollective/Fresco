@@ -42,7 +42,9 @@
  * @see https://developer.chrome.com/docs/workbox/ - Workbox documentation
  */
 
-import { defaultCache } from '@serwist/next/worker';
+// NOTE: We intentionally don't use defaultCache from @serwist/next/worker
+// to avoid caching login/auth pages. Only dashboard and interview routes
+// should be cached for offline use.
 import type { PrecacheEntry, SerwistGlobalConfig } from 'serwist';
 import {
   CacheFirst,
@@ -160,18 +162,23 @@ const serwist = new Serwist({
     },
 
     /**
-     * Static Assets - CacheFirst
+     * Static Assets for Dashboard/Interview - CacheFirst
      *
-     * Images, fonts, and stylesheets rarely change.
-     * Serve from cache when available, only fetch if not cached.
+     * Only cache static assets (images, fonts, styles) when requested
+     * from dashboard or interview pages. This prevents caching assets
+     * for login/auth pages which should always work without the SW.
      * Cache name: 'static-assets'
      */
     {
-      matcher: ({ request }) => {
+      matcher: ({ request, url }) => {
+        const isOfflinePath =
+          url.pathname.startsWith('/dashboard') ||
+          url.pathname.startsWith('/interview');
         return (
-          request.destination === 'image' ||
-          request.destination === 'font' ||
-          request.destination === 'style'
+          isOfflinePath &&
+          (request.destination === 'image' ||
+            request.destination === 'font' ||
+            request.destination === 'style')
         );
       },
       handler: new CacheFirst({
@@ -193,6 +200,7 @@ const serwist = new Serwist({
      * Next.js Static Files - CacheFirst
      *
      * JS/CSS bundles from /_next/static/ are immutable (hashed filenames).
+     * These are safe to cache globally as they're content-addressed.
      * Cache name: 'next-static'
      */
     {
@@ -203,8 +211,7 @@ const serwist = new Serwist({
         cacheName: 'next-static',
       }),
     },
-    // Default caching from Serwist
-    ...defaultCache,
+    // NOTE: No defaultCache - only dashboard/interview routes should be cached
   ],
 });
 
