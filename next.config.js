@@ -72,18 +72,22 @@ const config = {
 
     // Prevent infinite recompile loop in dev mode by ignoring generated service worker
     if (dev) {
-      config.watchOptions = config.watchOptions ?? {};
-      const existing = config.watchOptions.ignored;
+      const existing = config.watchOptions?.ignored;
       const swIgnore = ['**/public/sw.js', '**/public/sw.js.map'];
 
+      let ignored;
       if (!existing) {
-        config.watchOptions.ignored = swIgnore;
+        ignored = swIgnore;
       } else if (Array.isArray(existing)) {
-        config.watchOptions.ignored = [...existing, ...swIgnore];
+        ignored = [...existing, ...swIgnore];
       } else {
-        // existing is a string or RegExp
-        config.watchOptions.ignored = [existing, ...swIgnore];
+        ignored = [existing, ...swIgnore];
       }
+
+      config.watchOptions = {
+        ...config.watchOptions,
+        ignored,
+      };
     }
 
     return config;
