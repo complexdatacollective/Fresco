@@ -152,7 +152,10 @@ const NameGenerator = (props: NameGeneratorProps) => {
   const addNode = useCallback(
     (
       attributes: NcNode[EntityAttributesProperty],
-      options?: { allowUnknownAttributes?: boolean },
+      options?: {
+        allowUnknownAttributes?: boolean;
+        modelData?: { [entityPrimaryKeyProperty]: NcNode[EntityPrimaryKey] };
+      },
     ) => {
       void dispatch(
         addNodeAction({
@@ -160,6 +163,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
           attributeData: attributes,
           useEncryption,
           allowUnknownAttributes: options?.allowUnknownAttributes,
+          modelData: options?.modelData,
         }),
       );
     },
@@ -196,7 +200,12 @@ const NameGenerator = (props: NameGeneratorProps) => {
       // Panel nodes may come from external data with attributes not in the codebook
       addNode(
         { ...node[entityAttributesProperty], ...newNodeAttributes },
-        { allowUnknownAttributes: true },
+        {
+          allowUnknownAttributes: true,
+          modelData: {
+            [entityPrimaryKeyProperty]: node[entityPrimaryKeyProperty],
+          },
+        },
       );
     }
   };

@@ -3,7 +3,6 @@ import {
   type StageSubject,
 } from '@codaco/protocol-validation';
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
-import { get } from 'es-toolkit/compat';
 import { useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { type DropCallback } from '~/lib/dnd/types';
@@ -51,9 +50,8 @@ function NodePanel(props: NodePanelProps) {
   // Because the index is used to determine whether node originated in this list
   // we need to supply an index for the unfiltered list for externalData.
   const fullNodeIndex = useMemo(() => {
-    const externalNodes = get(externalData, 'nodes', []);
     const allNodes =
-      panelConfig.dataSource === 'existing' ? nodes : externalNodes;
+      panelConfig.dataSource === 'existing' ? nodes : (externalData ?? []);
 
     return new Set(allNodes.map((node) => node[entityPrimaryKeyProperty]));
   }, [externalData, nodes, panelConfig.dataSource]);
