@@ -169,6 +169,7 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
                 variants={nodeListVariants}
                 key={promptIndex}
                 exit={{ opacity: 0 }}
+              className="flex flex-wrap justify-center content-start gap-4"
               >
                 {sortedTargets.map((node) => {
                   /**

@@ -283,7 +283,7 @@ export default function ProtocolScreen() {
         <motion.div
           key={currentStep}
           ref={scope}
-          className="flex h-full w-full"
+          className="flex h-full w-full min-w-0"
           initial="initial"
           animate="animate"
           variants={variants}

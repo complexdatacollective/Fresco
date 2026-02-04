@@ -141,7 +141,7 @@
   .fake-edge {
     position: absolute;
     left: calc(50% - 5rem);
-    top: -1rem;
+    top: -0.25rem;
     height: 0.5rem;
     width: 10rem;
     z-index: 1;
@@ -151,11 +151,7 @@
     position: absolute;
     left: calc(8rem + 50% - var(--base-node-size) / 2);
     border-radius: 50%;
-
-    > * {
-      // Render first node on top of fake edge
-      z-index: 2;
-    }
+    z-index: 2;
 
     &:first-of-type {
       left: calc(-8rem + 50% - var(--base-node-size) / 2);
