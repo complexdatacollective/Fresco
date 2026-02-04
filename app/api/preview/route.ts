@@ -5,6 +5,7 @@ import { env } from '~/env';
 import { MIN_ARCHITECT_VERSION_FOR_PREVIEW } from '~/fresco.config';
 import trackEvent from '~/lib/analytics';
 import { prisma } from '~/lib/db';
+import { Prisma } from '~/lib/db/generated/client';
 import { prunePreviewProtocols } from '~/lib/preview-protocol-pruning';
 import { validateAndMigrateProtocol } from '~/lib/protocol/validateAndMigrateProtocol';
 import {
@@ -175,13 +176,14 @@ export async function POST(
           data: {
             hash: protocolHash,
             name: `preview-${Date.now()}`,
-            schemaVersion: protocolJson.schemaVersion,
-            description: protocolJson.description,
-            lastModified: protocolJson.lastModified
-              ? new Date(protocolJson.lastModified)
+            schemaVersion: protocolToValidate.schemaVersion,
+            description: protocolToValidate.description,
+            lastModified: protocolToValidate.lastModified
+              ? new Date(protocolToValidate.lastModified)
               : new Date(),
-            stages: protocolJson.stages as never,
-            codebook: protocolJson.codebook as never,
+            stages: protocolToValidate.stages,
+            codebook: protocolToValidate.codebook,
+            experiments: protocolToValidate.experiments ?? Prisma.JsonNull,
             isPreview: true,
             isPending: presignedUrls.length > 0,
             assets: {
