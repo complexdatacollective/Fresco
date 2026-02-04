@@ -71,10 +71,10 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     color === 'node-color-seq-8' &&
       '[--base:var(--node-color-seq-8)] [--dark:var(--node-color-seq-8-dark)]',
     'bg-[linear-gradient(145deg,var(--base)_0%,var(--base)_50%,var(--dark)_50%,var(--dark)_100%)]',
-    selected && 'border-7 border-selected',
+    selected && 'border-4 border-white ring-6 ring-white/25',
     // Linking state uses the ::before pseudo-element
     linking &&
-      'shadow-none border-5 border-selected before:content-[""] before:absolute before:-inset-4 before:-z-10 before:bg-selected before:rounded-full before:animate-linking before:origin-center before:opacity-50 before:shadow-lg',
+      'shadow-none border-5 border-white before:content-[""] before:absolute before:-inset-4 before:-z-10 before:bg-white/25 before:rounded-full before:animate-linking before:origin-center before:opacity-50 before:shadow-lg',
     className,
   );
 

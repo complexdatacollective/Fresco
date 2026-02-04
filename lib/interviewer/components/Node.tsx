@@ -5,6 +5,7 @@ import React, { forwardRef, memo } from 'react';
 import { useSelector } from 'react-redux';
 import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
 import UINode from '~/lib/ui/components/Node';
+import { cn } from '~/utils/shadcn';
 import { useNodeLabel } from '../containers/Interfaces/Anonymisation/useNodeLabel';
 
 const Node = memo(
@@ -15,7 +16,15 @@ const Node = memo(
     const color = useSelector(getNodeColorSelector);
     const label = useNodeLabel(props);
 
-    return <UINode color={color} {...props} label={label} ref={ref} />;
+    return (
+      <UINode
+        color={color}
+        {...props}
+        className={cn('node', props.className)}
+        label={label}
+        ref={ref}
+      />
+    );
   }),
   (prevProps, nextProps) => {
     if (!isEqual(prevProps, nextProps)) {

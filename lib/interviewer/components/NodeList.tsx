@@ -20,7 +20,7 @@ type DraggableMotionNodeProps = Omit<ComponentProps<typeof MotionNode>, 'onClick
   node: NcNode;
   itemType: string;
   allowDrag: boolean;
-  nodeSize?: 'sm' | 'md' | 'lg';
+  nodeSize?: 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
   onClick?: () => void;
   [key: string]: unknown;
 };
@@ -98,7 +98,7 @@ type NodeListProps = {
   id?: string;
   accepts?: string[];
   onDrop?: DropCallback;
-  nodeSize?: 'sm' | 'md' | 'lg';
+  nodeSize?: 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
   className?: string;
   showAcceptHighlight?: boolean;
 };

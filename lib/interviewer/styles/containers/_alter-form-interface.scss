@@ -66,7 +66,7 @@
     height: 100%;
 
     .slide-content {
-      --base-node-size: #{units.unit(13)};
+      --base-node-size: 10rem;
 
       display: flex;
       max-height: 80%;
@@ -84,7 +84,6 @@
     position: absolute;
     top: calc(var(--base-node-size) * -0.5);
     left: calc(50% - (var(--base-node-size) / 2));
-    background: var(--nc-panel-bg-muted);
     border-radius: 50%;
   }
 
@@ -151,7 +150,6 @@
   .node {
     position: absolute;
     left: calc(8rem + 50% - var(--base-node-size) / 2);
-    background: var(--nc-panel-bg-muted);
     border-radius: 50%;
 
     > * {
