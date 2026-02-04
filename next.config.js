@@ -71,12 +71,19 @@ const config = {
     });
 
     // Prevent infinite recompile loop in dev mode by ignoring generated service worker
-    if (dev && config.watchOptions) {
-      config.watchOptions.ignored = [
-        ...(config.watchOptions.ignored ?? []),
-        '**/public/sw.js',
-        '**/public/sw.js.map',
-      ];
+    if (dev) {
+      config.watchOptions = config.watchOptions ?? {};
+      const existing = config.watchOptions.ignored;
+      const swIgnore = ['**/public/sw.js', '**/public/sw.js.map'];
+
+      if (!existing) {
+        config.watchOptions.ignored = swIgnore;
+      } else if (Array.isArray(existing)) {
+        config.watchOptions.ignored = [...existing, ...swIgnore];
+      } else {
+        // existing is a string or RegExp
+        config.watchOptions.ignored = [existing, ...swIgnore];
+      }
     }
 
     return config;
