@@ -149,12 +149,20 @@ const NameGenerator = (props: NameGeneratorProps) => {
   );
 
   const addNode = useCallback(
-    async (attributes: NcNode[EntityAttributesProperty]) => {
+    async (
+      attributes: NcNode[EntityAttributesProperty],
+      options?: {
+        allowUnknownAttributes?: boolean;
+        modelData?: { [entityPrimaryKeyProperty]: NcNode[EntityPrimaryKey] };
+      },
+    ) => {
       await dispatch(
         addNodeAction({
           type: stage.subject.type,
           attributeData: attributes,
           useEncryption,
+          allowUnknownAttributes: options?.allowUnknownAttributes,
+          modelData: options?.modelData,
         }),
       );
     },
@@ -190,7 +198,16 @@ const NameGenerator = (props: NameGeneratorProps) => {
     if (has(node, 'promptIDs')) {
       void addNodeToPrompt(node[entityPrimaryKeyProperty], newNodeAttributes);
     } else {
-      void addNode({ ...node[entityAttributesProperty], ...newNodeAttributes });
+      // Panel nodes may come from external data with attributes not in the codebook
+      void addNode(
+        { ...node[entityAttributesProperty], ...newNodeAttributes },
+        {
+          allowUnknownAttributes: true,
+          modelData: {
+            [entityPrimaryKeyProperty]: node[entityPrimaryKeyProperty],
+          },
+        },
+      );
     }
   };
 

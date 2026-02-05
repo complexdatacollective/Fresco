@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import { makeGetEdgeColor } from '../selectors/session';
+import { getEdgeColorForType } from '../selectors/session';
 
 class Edge extends PureComponent {
   render() {
@@ -22,10 +22,8 @@ class Edge extends PureComponent {
 }
 
 function mapStateToProps(state, props) {
-  const getEdgeColor = makeGetEdgeColor();
-
   return {
-    color: getEdgeColor(state, props),
+    color: getEdgeColorForType(props.type)(state),
   };
 }
 

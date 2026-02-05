@@ -7,11 +7,12 @@ import {
   type NcNode,
 } from '@codaco/shared-consts';
 import { find } from 'es-toolkit/compat';
+import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import Form from '~/lib/form/components/Form';
 import Scroller from '~/lib/legacy-ui/components/Scroller';
 import Node from '../../components/Node';
-import { getEdgeColor, getNetworkNodes } from '../../selectors/session';
+import { makeGetEdgeColor, getNetworkNodes } from '../../selectors/session';
 
 type SlideFormEdgeProps = {
   form: TForm;
@@ -37,6 +38,7 @@ export default function SlideFormEdge(props: SlideFormEdgeProps) {
     onScroll,
   } = props;
 
+  const getEdgeColor = useMemo(() => makeGetEdgeColor(), []);
   const edgeColor = useSelector(getEdgeColor);
   const nodes = useSelector(getNetworkNodes);
 

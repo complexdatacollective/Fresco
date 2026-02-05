@@ -248,7 +248,7 @@ export default function GeospatialInterface({
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        className="w-full items-center justify-center"
+        className="flex h-full w-full flex-col"
         ref={dragSafeRef}
         variants={fadeVariants}
         initial="hide"

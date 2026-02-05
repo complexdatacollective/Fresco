@@ -366,6 +366,9 @@ export function useDragSource(
         e.preventDefault();
         e.stopPropagation();
         startKeyboardDrag(e.currentTarget as HTMLElement);
+      } else if (e.key === 'Enter') {
+        // Trigger click for selection - role="button" elements need this
+        (e.currentTarget as HTMLElement).click();
       }
     },
     [disabled, dragMode, navigateDropTargets, finishDrag, startKeyboardDrag],

@@ -1,13 +1,14 @@
 import { type Stage as TStage } from '@codaco/protocol-validation';
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import Prompts from '~/lib/interviewer/components/Prompts';
 import { type StageProps } from '~/lib/interviewer/components/Stage';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import {
-  getEdgeColor,
+  getEdgeColorForType,
   getNetworkEdges,
   getNetworkNodesForType,
 } from '~/lib/interviewer/selectors/session';
@@ -69,9 +70,7 @@ export default function DyadCensus(props: StageProps) {
 
   const nodes = usePropSelector(getNetworkNodesForType, props);
   const edges = usePropSelector(getNetworkEdges, props);
-  const edgeColor = usePropSelector(getEdgeColor, {
-    type: createEdge,
-  });
+  const edgeColor = useSelector(getEdgeColorForType(createEdge));
 
   const pairsData = getPairs(nodes);
   const pairs = pairsData.result;

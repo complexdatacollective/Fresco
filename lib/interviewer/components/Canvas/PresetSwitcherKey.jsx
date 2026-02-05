@@ -10,8 +10,8 @@ import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import Icon from '~/lib/legacy-ui/components/Icon';
 import {
   getCurrentStage,
+  getEdgeColorForType,
   makeGetCategoricalOptions,
-  makeGetEdgeColor,
   makeGetEdgeLabel,
   makeGetNodeAttributeLabel,
 } from '../../selectors/session';
@@ -122,7 +122,6 @@ PresetSwitcherKey.propTypes = {
 };
 
 const makeMapStateToProps = () => {
-  const getEdgeColor = makeGetEdgeColor();
   const getEdgeLabel = makeGetEdgeLabel();
   const getNodeAttributeLabel = makeGetNodeAttributeLabel();
   const getCategoricalOptions = makeGetCategoricalOptions();
@@ -138,7 +137,7 @@ const makeMapStateToProps = () => {
     );
     const edges = get(props, 'preset.edges.display', []).map((type) => ({
       label: getEdgeLabel(state, { type }),
-      color: getEdgeColor(state, { type }),
+      color: getEdgeColorForType(type)(state),
     }));
     const convexOptions = getCategoricalOptions(state, {
       stage: getCurrentStage(state),

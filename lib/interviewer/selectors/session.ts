@@ -303,7 +303,7 @@ export const makeGetEdgeLabel = () =>
     },
   );
 
-export const getEdgeColor = createSelector(
+const getEdgeColor = createSelector(
   getCodebook,
   getStageSubject,
   (codebook, stageSubject) => {

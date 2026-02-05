@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { ZodError } from 'zod';
 import { importParticipants } from '~/actions/participants';
 import Paragraph from '~/components/typography/Paragraph';
-import UnorderedList from '~/components/typography/UnorderedList';
+import { UnorderedList } from '~/components/typography/UnorderedList';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/Toast';

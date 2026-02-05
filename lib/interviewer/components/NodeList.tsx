@@ -54,7 +54,7 @@ type NodeListProps = {
   accepts?: string[];
   onDrop?: DropCallback;
   onItemClick?: (node: NcNode) => void;
-  nodeSize?: 'sm' | 'md' | 'lg';
+  nodeSize?: 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
   className?: string;
   animate?: boolean;
   virtualized?: boolean;

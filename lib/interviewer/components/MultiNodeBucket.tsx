@@ -43,11 +43,12 @@ type MultiNodeBucketProps = {
   itemType?: string;
   listId: string;
   sortOrder?: ProcessedSortRule[];
+  nodeSize?: 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
 };
 
 const MultiNodeBucket = memo(
   (props: MultiNodeBucketProps) => {
-    const { nodes = [], sortOrder = [], itemType = 'NODE' } = props;
+    const { nodes = [], sortOrder = [], itemType = 'NODE', nodeSize } = props;
 
     const [stagger] = useState(true);
 
@@ -82,6 +83,7 @@ const MultiNodeBucket = memo(
                 node={node}
                 itemType={itemType}
                 allowDrag={index === 0}
+                size={nodeSize}
               />
             </NodeTransition>
           ))}

@@ -3,13 +3,14 @@
 import { get } from 'es-toolkit/compat';
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import Prompts from '~/lib/interviewer/components/Prompts';
 import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import {
-  getEdgeColor,
+  getEdgeColorForType,
   getNetworkEdges as getEdges,
   getNetworkNodesForType,
 } from '~/lib/interviewer/selectors/session';
@@ -67,9 +68,7 @@ const TieStrengthCensus = (props: TieStrengthCensusProps) => {
 
   const nodes = usePropSelector(getNetworkNodesForType, props);
   const edges = usePropSelector(getEdges, props);
-  const edgeColor = usePropSelector(getEdgeColor, {
-    type: createEdge,
-  });
+  const edgeColor = useSelector(getEdgeColorForType(createEdge));
 
   const codebook = usePropSelector(getCodebook, props);
   const edgeVariableOptions = (

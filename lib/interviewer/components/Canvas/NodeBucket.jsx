@@ -43,6 +43,7 @@ const NodeBucket = React.forwardRef((props, ref) => {
                 <EnhancedNode
                   meta={() => ({ ...node, itemType: 'POSITIONED_NODE' })}
                   scrollDirection={NO_SCROLL}
+                  size="xs"
                   {...node}
                 />
               </motion.div>

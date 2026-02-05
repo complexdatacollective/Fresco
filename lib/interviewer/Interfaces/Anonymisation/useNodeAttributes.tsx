@@ -3,7 +3,6 @@ import {
   type NcNode,
   type VariableValue,
 } from '@codaco/shared-consts';
-import { invariant } from 'es-toolkit';
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { makeGetCodebookVariablesForNodeType } from '~/lib/interviewer/selectors/protocol';
@@ -43,7 +42,12 @@ export const useNodeAttributes = (node: NcNode) => {
 
       const secureAttributes = node[entitySecureAttributesMeta]?.[attributeId];
 
-      invariant(secureAttributes, 'Secure attributes missing!');
+      // If the codebook says this variable is encrypted but the node doesn't
+      // have secure attributes metadata (e.g. external data nodes that haven't
+      // been encrypted yet), return the raw value directly.
+      if (!secureAttributes) {
+        return nodeAttributes[attributeId] as T | undefined;
+      }
 
       try {
         const passphrase = requirePassphrase();
