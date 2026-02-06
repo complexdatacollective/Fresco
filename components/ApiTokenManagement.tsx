@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import SuperJSON from 'superjson';
 import {
   createApiToken,
   deleteApiToken,
   updateApiToken,
 } from '~/actions/apiTokens';
-import { type GetApiTokensReturnType } from '~/queries/apiTokens';
+import { type GetApiTokensQuery } from '~/queries/apiTokens';
+import { Alert, AlertDescription, AlertTitle } from './ui/Alert';
 import { Button } from './ui/Button';
 import {
   Dialog,
@@ -27,16 +29,20 @@ import {
   TableHeader,
   TableRow,
 } from './ui/table';
-import { Alert, AlertDescription, AlertTitle } from './ui/Alert';
+
+type ApiToken = GetApiTokensQuery[number];
 
 type ApiTokenManagementProps = {
-  tokens: GetApiTokensReturnType;
+  rawTokens: string | null;
 };
 
 export default function ApiTokenManagement({
-  tokens: initialTokens,
+  rawTokens,
 }: ApiTokenManagementProps) {
-  const [tokens, setTokens] = useState(initialTokens);
+  const initialTokens: ApiToken[] = rawTokens
+    ? SuperJSON.parse<ApiToken[]>(rawTokens)
+    : [];
+  const [tokens, setTokens] = useState<ApiToken[]>(initialTokens);
   const [isCreating, setIsCreating] = useState(false);
   const [newTokenDescription, setNewTokenDescription] = useState('');
   const [createdToken, setCreatedToken] = useState<string | null>(null);
@@ -103,16 +109,12 @@ export default function ApiTokenManagement({
 
   return (
     <div className="space-y-4">
-      <Button
-        onClick={() => setIsCreating(true)}
-        variant="outline"
-        size="sm"
-      >
+      <Button onClick={() => setIsCreating(true)} size="sm">
         Create New Token
       </Button>
 
       {tokens.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           No API tokens created yet.
         </p>
       ) : (
@@ -129,7 +131,7 @@ export default function ApiTokenManagement({
           <TableBody>
             {tokens.map((token) => (
               <TableRow key={token.id}>
-                <TableCell>
+                <TableCell className="whitespace-normal">
                   {token.description ?? <em>Untitled</em>}
                 </TableCell>
                 <TableCell>{formatDate(token.createdAt)}</TableCell>
@@ -207,7 +209,7 @@ export default function ApiTokenManagement({
           <Alert>
             <AlertTitle>Your API Token</AlertTitle>
             <AlertDescription>
-              <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
+              <code className="bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm">
                 {createdToken}
               </code>
             </AlertDescription>

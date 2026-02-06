@@ -10,7 +10,7 @@ export default function UpdateUploadThingToken({
 }) {
   return (
     <UpdateSettingsValue
-      key="uploadThingToken"
+      settingKey="uploadThingToken"
       initialValue={uploadThingKey ?? undefined}
       schema={createUploadThingTokenSchema}
     />

@@ -15,12 +15,12 @@ import VersionSection, {
   VersionSectionSkeleton,
 } from '~/components/VersionSection';
 import { env } from '~/env';
+import { getApiTokens } from '~/queries/apiTokens';
 import {
   getAppSetting,
   getInstallationId,
   requireAppNotExpired,
 } from '~/queries/appSettings';
-import { getApiTokens } from '~/queries/apiTokens';
 import { requirePageAuth } from '~/utils/auth';
 import AnalyticsButton from '../_components/AnalyticsButton';
 import RecruitmentTestSectionServer from '../_components/RecruitmentTestSectionServer';
@@ -36,7 +36,7 @@ export default async function Settings() {
 
   const installationId = await getInstallationId();
   const uploadThingKey = await getAppSetting('uploadThingToken');
-  const apiTokens = env.PREVIEW_MODE ? await getApiTokens() : [];
+  const rawApiTokens = env.PREVIEW_MODE ? await getApiTokens() : null;
 
   return (
     <>
@@ -168,7 +168,7 @@ export default async function Settings() {
                 Use these tokens in the Authorization header as{' '}
                 <code>Bearer {'<token>'}</code>.
               </Paragraph>
-              <ApiTokenManagement tokens={apiTokens} />
+              <ApiTokenManagement rawTokens={rawApiTokens} />
             </SettingsSection>
           </>
         )}

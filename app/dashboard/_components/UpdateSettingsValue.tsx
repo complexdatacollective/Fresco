@@ -8,12 +8,12 @@ import { type AppSetting } from '~/schemas/appSettings';
 import ReadOnlyEnvAlert from '../settings/ReadOnlyEnvAlert';
 
 export default function UpdateSettingsValue({
-  key,
+  settingKey,
   initialValue,
   readOnly,
   schema,
 }: {
-  key: AppSetting;
+  settingKey: AppSetting;
   initialValue?: string;
   readOnly?: boolean;
   schema: z.ZodType<string>;
@@ -49,7 +49,7 @@ export default function UpdateSettingsValue({
     if (!newValue) return;
 
     setSaving(true);
-    await setAppSetting(key, newValue);
+    await setAppSetting(settingKey, newValue);
     setSaving(false);
   };
 

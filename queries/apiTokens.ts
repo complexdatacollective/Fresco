@@ -1,10 +1,11 @@
 'use server';
 
+import { stringify } from 'superjson';
 import { createCachedFunction } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 
-export const getApiTokens = createCachedFunction(async () => {
-  const tokens = await prisma.apiToken.findMany({
+async function prisma_getApiTokens() {
+  return prisma.apiToken.findMany({
     select: {
       id: true,
       description: true,
@@ -17,8 +18,14 @@ export const getApiTokens = createCachedFunction(async () => {
       createdAt: 'desc',
     },
   });
+}
 
-  return tokens;
+export type GetApiTokensQuery = Awaited<ReturnType<typeof prisma_getApiTokens>>;
+
+export const getApiTokens = createCachedFunction(async () => {
+  const tokens = await prisma_getApiTokens();
+  const safeTokens = stringify(tokens);
+  return safeTokens;
 }, ['getApiTokens']);
 
-export type GetApiTokensReturnType = Awaited<ReturnType<typeof getApiTokens>>;
+export type GetApiTokensReturnType = ReturnType<typeof getApiTokens>;
