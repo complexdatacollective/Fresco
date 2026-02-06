@@ -50,7 +50,6 @@ const CategoricalBin = (props: CategoricalBinStageProps) => {
           nodes={uncategorizedNodes}
           listId={`${stage.id}_${prompt?.id}_CAT_BUCKET`}
           sortOrder={prompt?.bucketSortOrder}
-          nodeSize="xs"
         />
       </div>
       <CategoricalList
