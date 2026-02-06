@@ -46,15 +46,21 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
   const classes = cn(
     'inline-flex items-center justify-center shadow-lg relative transition-all duration-300',
     'disabled:saturate-50 disabled:cursor-not-allowed',
-    'text-white text-lg font-semibold',
+    'text-white font-semibold',
     shape === 'square' ? 'rounded-md' : 'rounded-full',
-    size === 'xxs' && 'h-18 w-18',
-    size === 'xs' && 'h-24 w-24',
-    size === 'sm' && 'h-32 w-32',
-    size === 'md' && 'h-40 w-40',
-    size === 'lg' && 'h-48 w-48',
-    '[--base:var(--node-color-seq-1)] [--dark:var(--node-color-seq-1-dark)]',
-    color === 'node-color-seq-1' &&
+    // Responsive node sizes - scale with viewport width
+    size === 'xxs' &&
+      'h-[var(--node-size-xxs)] w-[var(--node-size-xxs)] text-[length:var(--node-font-size-xxs)]',
+    size === 'xs' &&
+      'h-[var(--node-size-xs)] w-[var(--node-size-xs)] text-[length:var(--node-font-size-xs)]',
+    size === 'sm' &&
+      'h-[var(--node-size-sm)] w-[var(--node-size-sm)] text-[length:var(--node-font-size-sm)]',
+    size === 'md' &&
+      'h-[var(--node-size-md)] w-[var(--node-size-md)] text-[length:var(--node-font-size-md)]',
+    size === 'lg' &&
+      'h-[var(--node-size-lg)] w-[var(--node-size-lg)] text-[length:var(--node-font-size-lg)]',
+    // Color CSS custom properties - default to seq-1 for 'custom' color
+    (color === 'node-color-seq-1' || color === 'custom') &&
       '[--base:var(--node-color-seq-1)] [--dark:var(--node-color-seq-1-dark)]',
     color === 'node-color-seq-2' &&
       '[--base:var(--node-color-seq-2)] [--dark:var(--node-color-seq-2-dark)]',
@@ -82,8 +88,17 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     'whitespace-pre-line overflow-hidden text-center hyphens-auto text-wrap break-all px-2',
   );
 
+  // Size-aware label truncation - smaller nodes get shorter labels
+  const maxLabelLength: Record<NonNullable<UINodeProps['size']>, number> = {
+    xxs: 8,
+    xs: 12,
+    sm: 16,
+    md: 22,
+    lg: 28,
+  };
+  const maxChars = maxLabelLength[size];
   const labelWithEllipsis =
-    label.length < 22 ? label : `${label.substring(0, 18)}\u{AD}...`; // Add ellipsis for really long labels
+    label.length <= maxChars ? label : `${label.substring(0, maxChars - 3)}\u{AD}...`;
 
   return (
     <button className={classes} ref={ref} aria-label={label} {...buttonProps}>
