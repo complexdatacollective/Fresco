@@ -27,5 +27,3 @@ export const getApiTokens = createCachedFunction(async () => {
   const safeTokens = stringify(tokens);
   return safeTokens;
 }, ['getApiTokens']);
-
-export type GetApiTokensReturnType = ReturnType<typeof getApiTokens>;
