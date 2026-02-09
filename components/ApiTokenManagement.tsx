@@ -31,7 +31,7 @@ export default function ApiTokenManagement({
   tokens: initialTokens,
   disabled,
 }: ApiTokenManagementProps) {
-  const [tokens, setTokens] = useState(initialTokens);
+  const [tokens, setTokens] = useState<ApiToken[]>(initialTokens);
   const [isCreating, setIsCreating] = useState(false);
   const [newTokenDescription, setNewTokenDescription] = useState('');
   const [createdToken, setCreatedToken] = useState<string | null>(null);

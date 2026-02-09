@@ -96,7 +96,6 @@ const CategoricalItem = ({
                 onItemClick={onClickItem}
                 items={sortedNodes}
                 itemType="NODE"
-                nodeSize="xs"
               />
             </div>
           )}

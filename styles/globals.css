@@ -284,6 +284,22 @@
 
     Use the pixel values in motion animations, and the variables elsewhere.
   */
+
+  /* Responsive node sizes using clamp() for fluid scaling */
+  /* These scale smoothly between min and max based on viewport width */
+  /* The middle value (preferred) uses vw units for responsiveness */
+  --node-size-xxs: clamp(3rem, 4vw, 4.5rem); /* 48px - 72px */
+  --node-size-xs: clamp(4rem, 5.5vw, 6rem); /* 64px - 96px */
+  --node-size-sm: clamp(5rem, 7vw, 8rem); /* 80px - 128px */
+  --node-size-md: clamp(6.5rem, 9vw, 10rem); /* 104px - 160px */
+  --node-size-lg: clamp(8rem, 11vw, 12rem); /* 128px - 192px */
+
+  /* Responsive node label font sizes */
+  --node-font-size-xxs: clamp(0.5rem, 0.7vw, 0.75rem);
+  --node-font-size-xs: clamp(0.625rem, 0.9vw, 0.875rem);
+  --node-font-size-sm: clamp(0.75rem, 1vw, 1rem);
+  --node-font-size-md: clamp(0.875rem, 1.2vw, 1.125rem);
+  --node-font-size-lg: clamp(1rem, 1.4vw, 1.25rem);
   --radius-*: initial;
   --radius-none: 0px; /* 0px */
   --radius-sm: calc(var(--radius) * 0.5); /* 14px */
