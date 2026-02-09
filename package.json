@@ -132,7 +132,7 @@
     "validator": "^13.15.26",
     "zod": "^3.25.76",
     "zod-form-data": "^2.0.7",
-    "zustand": "^5.0.8"
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@eslint/compat": "^2.0.1",
