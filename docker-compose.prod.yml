@@ -1,10 +1,5 @@
 services:
   fresco:
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres
-      - DATABASE_URL_UNPOOLED=postgresql://postgres:postgres@postgres:5432/postgres
-      - PUBLIC_URL=https://mywebsite.com
-      - UPLOADTHING_TOKEN='token'
     image: 'ghcr.io/complexdatacollective/fresco:latest'
     depends_on:
       postgres:
@@ -19,6 +14,8 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/fresco
       DATABASE_URL_UNPOOLED: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/fresco
+      PUBLIC_URL: https://mywebsite.com
+      UPLOADTHING_TOKEN: token
     env_file:
       - .env
 
