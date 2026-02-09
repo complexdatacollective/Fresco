@@ -28,12 +28,16 @@ export async function setAppSetting<
       throw new Error('Cannot set app setting to null');
     }
 
-    // Convert the typed value to a database string
+    // Validate and preprocess the value using the setting-specific schema
+    const parsedValue =
+      appSettingPreprocessedSchema.shape[key].parse(value);
+
+    // Convert the validated value to a database string
     // Filter out undefined values as they're not supported by getStringValue
-    if (value === undefined) {
+    if (parsedValue === undefined) {
       throw new Error('Cannot set app setting to undefined');
     }
-    const stringValue = getStringValue(value);
+    const stringValue = getStringValue(parsedValue);
 
     await prisma.appSettings.upsert({
       where: { key },
