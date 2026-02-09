@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       artifact-name: docker-image-push-${{ github.run_id }}
-      image-name: fresco-test
+      image-name: fresco
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -44,7 +44,7 @@ jobs:
           context: .
           platforms: linux/amd64
           push: false
-          tags: fresco-test:latest
+          tags: fresco:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
           outputs: type=docker,dest=/tmp/image.tar
@@ -120,6 +120,7 @@ jobs:
         run: pnpm test:e2e
         env:
           CI: true
+          TEST_IMAGE_NAME: ${{ github.event_name == 'pull_request' && format('{0}:latest', needs.build-image-pr.outputs.image-name) || 'fresco:test' }}
 
       - name: Upload test results
         if: always()
