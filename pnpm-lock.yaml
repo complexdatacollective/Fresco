@@ -345,6 +345,9 @@ importers:
       '@types/papaparse':
         specifier: ^5.5.1
         version: 5.5.2
+      '@types/pg':
+        specifier: ^8.16.0
+        version: 8.16.0
       '@types/react':
         specifier: 18.3.18
         version: 18.3.18
@@ -408,6 +411,9 @@ importers:
       knip:
         specifier: ^5.83.1
         version: 5.83.1(@types/node@22.19.10)(typescript@5.9.3)
+      pg:
+        specifier: ^8.18.0
+        version: 8.18.0
       prettier:
         specifier: ^3.8.1
         version: 3.8.1

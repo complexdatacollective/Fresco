@@ -2,7 +2,10 @@
 
 import('./env.js');
 import ChildProcess from 'node:child_process';
+import { createRequire } from 'node:module';
 import pkg from './package.json' with { type: 'json' };
+
+const require = createRequire(import.meta.url);
 
 let commitHash = 'Unknown commit hash';
 
@@ -23,10 +26,16 @@ try {
   }
 }
 
+// eslint-disable-next-line no-process-env
+const disableNextCache = process.env.DISABLE_NEXT_CACHE === 'true';
+
 /** @type {import("next").NextConfig} */
 const config = {
   output: 'standalone',
   reactStrictMode: true,
+  cacheHandler: disableNextCache
+    ? require.resolve('./lib/cache-handler.cjs')
+    : undefined,
   experimental: {
     typedRoutes: true,
     webpackBuildWorker: true,

@@ -33,6 +33,7 @@ export const env = createEnv({
     PUBLIC_URL: z.string().url().optional(),
     INSTALLATION_ID: z.string().optional(),
     DISABLE_ANALYTICS: strictBooleanSchema,
+    DISABLE_NEXT_CACHE: strictBooleanSchema,
     NODE_ENV: z
       .enum(['development', 'test', 'production'])
       .default('development'),
@@ -51,6 +52,7 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     PUBLIC_URL: process.env.PUBLIC_URL,
     DISABLE_ANALYTICS: process.env.DISABLE_ANALYTICS,
+    DISABLE_NEXT_CACHE: process.env.DISABLE_NEXT_CACHE,
     INSTALLATION_ID: process.env.INSTALLATION_ID,
     SANDBOX_MODE: process.env.SANDBOX_MODE,
     PREVIEW_MODE: process.env.PREVIEW_MODE,

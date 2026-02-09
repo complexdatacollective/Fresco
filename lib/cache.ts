@@ -1,4 +1,5 @@
 import { revalidateTag, unstable_cache } from 'next/cache';
+import { env } from '~/env';
 
 export const CacheTags = [
   'activityFeed',
@@ -39,10 +40,12 @@ export function createCachedFunction<T extends UnstableCacheParams[0]>(
     revalidate?: number | false;
   },
 ): T {
+  if (env.DISABLE_NEXT_CACHE) {
+    return func;
+  }
+
   // eslint-disable-next-line no-process-env
   const VERCEL_DEPLOYMENT_ID = process.env.VERCEL_DEPLOYMENT_ID;
-  // eslint-disable-next-line no-console
-  console.log('VERCEL_DEPLOYMENT_ID', VERCEL_DEPLOYMENT_ID);
   const keyParts = options?.keyParts?.concat(
     VERCEL_DEPLOYMENT_ID ? [VERCEL_DEPLOYMENT_ID] : [],
   );
