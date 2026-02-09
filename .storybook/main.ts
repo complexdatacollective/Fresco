@@ -11,5 +11,18 @@ const config: StorybookConfig = {
     options: {},
   },
   staticDirs: ['../public'],
+  viteFinal(config) {
+    if (config.optimizeDeps) {
+      config.optimizeDeps.esbuildOptions = {
+        ...config.optimizeDeps.esbuildOptions,
+        loader: {
+          ...config.optimizeDeps.esbuildOptions?.loader,
+          '.js': 'jsx',
+        },
+      };
+    }
+
+    return config;
+  },
 };
 export default config;
