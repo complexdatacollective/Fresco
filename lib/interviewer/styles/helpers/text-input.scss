@@ -1,0 +1,7 @@
+// Text input helper
+@use '../mixins';
+
+// Re-export text-input mixin for easy access
+@mixin text-input($class-name: 'text-input') {
+  @include mixins.text-input($class-name);
+}

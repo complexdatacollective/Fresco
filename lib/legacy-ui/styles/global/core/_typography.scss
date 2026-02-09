@@ -1,0 +1,40 @@
+// Typography setter, mixins and classes based on breakpoints
+// ==========================================================
+@use 'sass:map';
+
+// NEW system!
+$font-sizes: (
+  6: 3.815rem,
+  5: 3.052rem,
+  4: 2.441rem,
+  3: 1.953rem,
+  2: 1.563rem,
+  1: 1.25rem,
+  body: 1rem,
+  small: 0.8rem,
+);
+
+@function type-scale($name) {
+  @return map.get($font-sizes, $name);
+}
+
+// OLD system! To be refactored/removed
+$-type-map: () !default;
+
+@mixin type-set($type-name, $breakpoint-name, $type-properties) {
+  $type-group: map.get($-type-map, $type-name) or ();
+  $type-group: map.merge(
+    $type-group,
+    (
+      $breakpoint-name: $type-properties,
+    )
+  );
+  $-type-map: map.merge(
+    $-type-map,
+    (
+      $type-name: $type-group,
+    )
+  ) !global;
+}
+
+/* Typography mixins removed - use Tailwind text utilities instead */

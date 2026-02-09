@@ -1,18 +1,10 @@
-import { type Prisma } from '~/lib/db/generated/client';
 import * as z from 'zod';
+import { type Prisma } from '~/lib/db/generated/client';
 
 export type Option = {
   label: string;
   value: ActivityType;
   icon?: React.ComponentType<{ className?: string }>;
-};
-
-export type DataTableFilterOption<TData> = {
-  id?: string;
-  label: string;
-  value: keyof TData | string;
-  items: Option[];
-  isMulti?: boolean;
 };
 
 export type DataTableSearchableColumn<TData> = {
@@ -39,6 +31,10 @@ export const activityTypes = [
   'API Token Updated',
   'API Token Deleted',
   'Preview Mode',
+  'User Login',
+  'User Created',
+  'User Deleted',
+  'Password Changed',
 ] as const;
 
 export type ActivityType = (typeof activityTypes)[number];

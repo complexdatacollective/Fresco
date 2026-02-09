@@ -1,0 +1,192 @@
+import { expect, test } from '../../fixtures/test.js';
+import {
+  waitForTable,
+  searchTable,
+  selectAllRows,
+  getTableRowCount,
+  clickSortColumn,
+} from '../../helpers/table.js';
+import { getFirstRow, openRowActions } from '../../helpers/row-actions.js';
+import { confirmDeletion, waitForDialog } from '../../helpers/dialog.js';
+
+test.describe('Protocols Page', () => {
+  // Acquire shared lock and restore database - protects read-only tests from
+  // concurrent mutations in other workers
+  test.beforeAll(async ({ database }) => {
+    await database.restoreSnapshot();
+  });
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/dashboard/protocols');
+  });
+
+  test.describe('Read-only', () => {
+    // Release shared lock after read-only tests complete, before mutations start.
+    // This reduces wait time for mutation tests that need exclusive locks.
+    test.afterAll(async ({ database }) => {
+      await database.releaseReadLock();
+    });
+
+    test('displays page heading', async ({ page }) => {
+      await expect(
+        page.getByRole('heading', { name: 'Protocols', level: 1 }),
+      ).toBeVisible();
+    });
+
+    test('displays page header', async ({ page }) => {
+      await expect(page.getByTestId('protocols-page-header')).toBeVisible();
+    });
+
+    test('displays protocols table', async ({ page }) => {
+      await waitForTable(page);
+      await expect(page.getByRole('table')).toBeVisible();
+    });
+
+    test('shows import button', async ({ page }) => {
+      await expect(
+        page.getByRole('button', { name: /import protocols/i }),
+      ).toBeVisible();
+    });
+
+    test('displays protocol rows', async ({ page }) => {
+      await waitForTable(page, { minRows: 1 });
+      const count = await getTableRowCount(page);
+      expect(count).toBeGreaterThanOrEqual(1);
+    });
+
+    test('shows Test Protocol in table', async ({ page }) => {
+      await waitForTable(page, { minRows: 1 });
+      await expect(
+        page.getByRole('cell', { name: 'Test Protocol' }),
+      ).toBeVisible();
+    });
+
+    test('search protocols by name', async ({ page }) => {
+      await waitForTable(page, { minRows: 1 });
+      await searchTable(page, 'Test Protocol');
+      const count = await getTableRowCount(page);
+      expect(count).toBe(1);
+    });
+
+    test('search with no results', async ({ page }) => {
+      await waitForTable(page, { minRows: 1 });
+      await searchTable(page, 'nonexistent protocol xyz');
+      await expect(
+        page.getByRole('cell', { name: /no.*result|no.*found|no.*data/i }),
+      ).toBeVisible();
+    });
+
+    test('sort by name', async ({ page }) => {
+      await waitForTable(page, { minRows: 1 });
+      await clickSortColumn(page, 'Name');
+    });
+
+    test('row actions dropdown opens', async ({ page }) => {
+      await waitForTable(page, { minRows: 1 });
+      const row = getFirstRow(page);
+      await openRowActions(row);
+      await expect(page.getByRole('menuitem').first()).toBeVisible();
+    });
+
+    test('bulk selection toggle', async ({ page }) => {
+      await waitForTable(page, { minRows: 1 });
+      await selectAllRows(page);
+      const headerCheckbox = page.locator('thead').getByRole('checkbox');
+      await expect(headerCheckbox).toBeChecked();
+    });
+
+    test('visual snapshot', async ({ page, capturePage }) => {
+      await waitForTable(page, { minRows: 1 });
+      await capturePage('protocols-page');
+    });
+  });
+
+  test.describe('Mutations', () => {
+    test.describe.configure({ mode: 'serial' });
+
+    test('delete single protocol via row actions', async ({
+      page,
+      database,
+    }) => {
+      const cleanup = await database.isolate(page);
+      try {
+        await waitForTable(page, { minRows: 1 });
+        const initialCount = await getTableRowCount(page);
+
+        const row = getFirstRow(page);
+        await openRowActions(row);
+        await page.getByRole('menuitem', { name: /delete/i }).click();
+
+        const dialog = await waitForDialog(page);
+        await expect(dialog).toContainText(/delete/i);
+        await confirmDeletion(page);
+
+        await page.waitForTimeout(1000);
+        const newCount = await getTableRowCount(page);
+        expect(newCount).toBe(initialCount - 1);
+      } finally {
+        await cleanup();
+      }
+    });
+
+    test('visual: delete confirmation dialog', async ({
+      page,
+      database,
+      captureElement,
+    }) => {
+      const cleanup = await database.isolate(page);
+      try {
+        await waitForTable(page, { minRows: 1 });
+
+        const row = getFirstRow(page);
+        await openRowActions(row);
+        await page.getByRole('menuitem', { name: /delete/i }).click();
+
+        const dialog = await waitForDialog(page);
+        await captureElement(dialog, 'protocols-delete-confirmation');
+      } finally {
+        await cleanup();
+      }
+    });
+
+    test('bulk delete protocols', async ({ page, database }) => {
+      const cleanup = await database.isolate(page);
+      try {
+        await waitForTable(page, { minRows: 1 });
+        await selectAllRows(page);
+
+        const deleteButton = page.getByRole('button', { name: /delete/i });
+        await deleteButton.click();
+
+        await confirmDeletion(page);
+        await page.waitForTimeout(1000);
+
+        const count = await getTableRowCount(page);
+        expect(count).toBe(0);
+      } finally {
+        await cleanup();
+      }
+    });
+
+    test('visual: empty state after deleting all', async ({
+      page,
+      database,
+      capturePage,
+    }) => {
+      const cleanup = await database.isolate(page);
+      try {
+        await waitForTable(page, { minRows: 1 });
+        await selectAllRows(page);
+
+        const deleteButton = page.getByRole('button', { name: /delete/i });
+        await deleteButton.click();
+        await confirmDeletion(page);
+        await page.waitForTimeout(1000);
+
+        await capturePage('protocols-empty-state');
+      } finally {
+        await cleanup();
+      }
+    });
+  });
+});

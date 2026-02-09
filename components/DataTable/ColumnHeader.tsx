@@ -1,71 +1,66 @@
 import { type Column } from '@tanstack/react-table';
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
+import { ArrowUp, ArrowUpDown } from 'lucide-react';
 
-import { Button, buttonVariants } from '~/components/ui/Button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { cn } from '~/utils/shadcn';
+import { motion } from 'motion/react';
+import React, { type ReactNode } from 'react';
+import { cx } from '~/utils/cva';
+import Button, { buttonVariants } from '../ui/Button';
+
+const MotionArrow = motion.create(ArrowUp);
 
 type DataTableColumnHeaderProps<TData, TValue> = {
   column: Column<TData, TValue>;
-  title: string;
-} & React.HTMLAttributes<HTMLDivElement>;
+  title: ReactNode;
+} & Omit<React.HTMLAttributes<HTMLDivElement>, 'title'>;
 
+/**
+ * A column header component for a data table that supports sorting.
+ *
+ * If the column is sortable, and the current column is the active sort column,
+ * it displays a green arrow indicating the sort direction (ascending or descending).
+ *
+ * If the column is sortable but not the active sort column, it displays a neutral
+ * dual arrow icon.
+ *
+ * If the column is not sortable, it simply displays the title.
+ */
 export function DataTableColumnHeader<TData, TValue>({
   column,
   title,
   className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
+  const headerClasses = cx(
+    buttonVariants({ variant: 'text', size: 'sm' }),
+    'pointer-events-none -mx-4 min-w-max px-4! text-base',
+    className,
+  );
+
   if (!column.getCanSort()) {
-    return (
-      <div
-        className={cn(
-          buttonVariants({ size: 'sm', variant: 'tableHeader' }),
-          'pointer-events-none p-0',
-          className,
-        )}
-      >
-        {title}
-      </div>
-    );
+    return <div className={headerClasses}>{title}</div>;
   }
 
+  const isActive = column.getIsSorted() !== false;
+
   return (
-    <div className={cn('flex items-center', className)}>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="tableHeader" size="sm" className="p-0">
-            <span>{title}</span>
-            {column.getIsSorted() === 'desc' ? (
-              <ArrowDown className="text-success ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === 'asc' ? (
-              <ArrowUp className="text-success ml-2 h-4 w-4" />
-            ) : (
-              <ArrowUpDown className="w-4 ml-2 h-4" />
-            )}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
-          <DropdownMenuItem
-            aria-label="Sort ascending"
-            onClick={() => column.toggleSorting(false)}
-          >
-            <ArrowUp className="text-foreground/70 mr-2 h-3.5 w-3.5" />
-            Asc
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            aria-label="Sort descending"
-            onClick={() => column.toggleSorting(true)}
-          >
-            <ArrowDown className="text-foreground/70 mr-2 h-3.5 w-3.5" />
-            Desc
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+    <Button
+      size="sm"
+      className="-mx-4 min-w-max px-4! text-base"
+      variant={isActive ? 'default' : 'text'}
+      onClick={() => column.toggleSorting()}
+      color={isActive ? 'primary' : 'default'}
+      iconPosition="right"
+      icon={
+        column.getIsSorted() !== false ? (
+          <MotionArrow
+            className="text-success size-4"
+            animate={column.getIsSorted() === 'asc' ? { rotate: 180 } : {}}
+          />
+        ) : (
+          <ArrowUpDown className="size-4" />
+        )
+      }
+    >
+      {title}
+    </Button>
   );
 }

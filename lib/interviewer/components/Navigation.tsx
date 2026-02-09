@@ -1,35 +1,57 @@
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import ProgressBar from '~/lib/ui/components/ProgressBar';
-import { cn } from '~/utils/shadcn';
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+} from 'lucide-react';
+import { type ComponentProps } from 'react';
+import Surface from '~/components/layout/Surface';
+import { IconButton } from '~/components/ui/Button';
+import ProgressBar from '~/lib/legacy-ui/components/ProgressBar';
+import { cva, cx } from '~/utils/cva';
 import PassphrasePrompter from './PassphrasePrompter';
 
 const NavigationButton = ({
   disabled,
-  onClick,
   className,
-  children,
-}: {
-  disabled?: boolean;
-  onClick?: React.MouseEventHandler<HTMLDivElement>;
-  className?: string;
-  children: React.ReactNode;
-}) => {
+  ...props
+}: ComponentProps<typeof IconButton>) => {
   return (
-    <div
-      className={cn(
-        `session-navigation__button m-4 flex h-[4.8rem] w-[4.8rem] basis-[4.8rem] cursor-pointer items-center justify-center rounded-full transition-all`,
-        'hover:bg-[#4a4677]',
-        disabled && 'cursor-not-allowed opacity-50 hover:bg-transparent',
-        className,
-      )}
-      role="button"
-      tabIndex={0}
-      onClick={!disabled ? onClick : undefined}
-    >
-      {children}
-    </div>
+    <IconButton
+      variant="text"
+      className={cx('[&>.lucide]:h-[2em]', className)}
+      disabled={disabled}
+      {...props}
+      size="lg"
+    />
   );
 };
+
+const navigationVariants = cva({
+  base: 'flex max-h-none shrink-0 grow-0 items-center justify-between overflow-visible rounded-none',
+  variants: {
+    orientation: {
+      vertical: 'w-auto flex-col',
+      horizontal: 'h-auto w-full flex-row',
+    },
+  },
+  defaultVariants: {
+    orientation: 'vertical',
+  },
+});
+
+const progressContainerVariants = cva({
+  base: 'm-6 flex grow',
+  variants: {
+    orientation: {
+      vertical: '',
+      horizontal: 'mx-4',
+    },
+  },
+  defaultVariants: {
+    orientation: 'vertical',
+  },
+});
 
 type NavigationProps = {
   moveBackward: () => void;
@@ -38,6 +60,7 @@ type NavigationProps = {
   disableMoveBackward?: boolean;
   pulseNext: boolean;
   progress: number;
+  orientation?: 'horizontal' | 'vertical';
 };
 
 const Navigation = ({
@@ -47,31 +70,38 @@ const Navigation = ({
   disableMoveBackward,
   pulseNext,
   progress,
+  orientation = 'vertical',
 }: NavigationProps) => {
+  const BackIcon = orientation === 'vertical' ? ChevronUp : ChevronLeft;
+  const ForwardIcon = orientation === 'vertical' ? ChevronDown : ChevronRight;
+
   return (
-    <div
+    <Surface
+      level={2}
       role="navigation"
-      className="flex shrink-0 grow-0 flex-col items-center justify-between bg-[#36315f] [--nc-light-background:#4a4677]"
+      elevation="none"
+      className={navigationVariants({ orientation })}
+      spacing="sm"
+      noContainer
     >
-      <NavigationButton onClick={moveBackward} disabled={disableMoveBackward}>
-        <ChevronUp className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
-      </NavigationButton>
-      <PassphrasePrompter />
-      <div className="m-6 flex grow">
-        <ProgressBar percentProgress={progress} />
+      <NavigationButton
+        onClick={moveBackward}
+        disabled={disableMoveBackward}
+        icon={<BackIcon />}
+        aria-label="Previous Step"
+      />
+      {orientation === 'vertical' && <PassphrasePrompter />}
+      <div className={progressContainerVariants({ orientation })}>
+        <ProgressBar percentProgress={progress} orientation={orientation} />
       </div>
       <NavigationButton
-        className={cn(
-          'bg-[var(--nc-light-background)]',
-          'hover:bg-[var(--nc-primary)]',
-          pulseNext && 'bg-success animate-pulse-glow',
-        )}
+        className={cx(pulseNext && 'bg-success animate-pulse-glow')}
         onClick={moveForward}
         disabled={disableMoveForward}
-      >
-        <ChevronDown className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
-      </NavigationButton>
-    </div>
+        icon={<ForwardIcon className="size-8" strokeWidth="3px" />}
+        aria-label="Next Step"
+      />
+    </Surface>
   );
 };
 

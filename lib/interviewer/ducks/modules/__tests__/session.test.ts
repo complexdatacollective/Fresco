@@ -16,20 +16,28 @@ function createTestStore(options: {
   const nodeTypeId = 'test-node-type-uuid';
   const { codebookVariables = {}, nodeTypeName = 'Person' } = options;
 
+  const sessionState = createTestSessionState();
+  const protocolState = createTestProtocolState(
+    nodeTypeId,
+    nodeTypeName,
+    codebookVariables,
+  );
+  const uiState = { passphrase: null };
+
+  type SessionState = ReturnType<typeof createTestSessionState>;
+  type ProtocolState = ReturnType<typeof createTestProtocolState>;
+  type UIState = typeof uiState;
+
   return configureStore({
     reducer: {
-      session: (state = createTestSessionState()) => state,
-      protocol: (state = createTestProtocolState()) => state,
-      ui: (state = { passphrase: null }) => state,
+      session: (state: SessionState = sessionState): SessionState => state,
+      protocol: (state: ProtocolState = protocolState): ProtocolState => state,
+      ui: (state: UIState = uiState): UIState => state,
     },
     preloadedState: {
-      session: createTestSessionState(),
-      protocol: createTestProtocolState(
-        nodeTypeId,
-        nodeTypeName,
-        codebookVariables,
-      ),
-      ui: { passphrase: null },
+      session: sessionState,
+      protocol: protocolState,
+      ui: uiState,
     },
   });
 
@@ -89,13 +97,13 @@ describe('addNode', () => {
 
       // Verify
       expect(result.type).toBe('NETWORK/ADD_NODE/fulfilled');
-      expect(result.payload).toMatchObject({
-        type: 'test-node-type-uuid',
-        attributeData: expect.objectContaining({
-          'var-uuid-1': 'John',
-          'var-uuid-2': 'Doe',
-        }),
-      });
+      const payload = result.payload as {
+        type: string;
+        attributeData: Record<string, unknown>;
+      };
+      expect(payload.type).toBe('test-node-type-uuid');
+      expect(payload.attributeData['var-uuid-1']).toBe('John');
+      expect(payload.attributeData['var-uuid-2']).toBe('Doe');
     });
 
     it('succeeds with empty attributeData', async () => {
@@ -156,7 +164,7 @@ describe('addNode', () => {
             type: 'test-node-type-uuid',
             attributeData: {
               'var-uuid-1': 'John',
-              unknownKey: 'value',
+              'unknownKey': 'value',
             },
           }),
         );
@@ -185,8 +193,8 @@ describe('addNode', () => {
             type: 'test-node-type-uuid',
             attributeData: {
               'var-uuid-1': 'John', // Known attribute
-              name: 'John Doe', // Unknown - from CSV column
-              first_language: 'English', // Unknown - from CSV column
+              'name': 'John Doe', // Unknown - from CSV column
+              'first_language': 'English', // Unknown - from CSV column
             },
             allowUnknownAttributes: true,
           }),
@@ -199,8 +207,8 @@ describe('addNode', () => {
             .attributeData,
         ).toMatchObject({
           'var-uuid-1': 'John',
-          name: 'John Doe',
-          first_language: 'English',
+          'name': 'John Doe',
+          'first_language': 'English',
         });
       });
 
@@ -218,8 +226,8 @@ describe('addNode', () => {
             type: 'test-node-type-uuid',
             attributeData: {
               'var-uuid-1': 'John',
-              externalField: 'external value',
-              anotherField: 123,
+              'externalField': 'external value',
+              'anotherField': 123,
             },
             allowUnknownAttributes: true,
           }),
@@ -231,8 +239,8 @@ describe('addNode', () => {
           attributeData: Record<string, unknown>;
         };
         expect(payload.attributeData['var-uuid-1']).toBe('John');
-        expect(payload.attributeData['externalField']).toBe('external value');
-        expect(payload.attributeData['anotherField']).toBe(123);
+        expect(payload.attributeData.externalField).toBe('external value');
+        expect(payload.attributeData.anotherField).toBe(123);
       });
     });
   });

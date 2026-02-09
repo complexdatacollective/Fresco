@@ -1,57 +1,67 @@
 'use client';
 
-import { cva, type VariantProps } from 'class-variance-authority';
-import React from 'react';
-import { cn } from '~/utils/shadcn';
-import { Slot } from '@radix-ui/react-slot';
+import * as React from 'react';
+import { useRender, type RenderProp } from '~/lib/legacy-ui/utils/useRender';
+import { cva, cx, type VariantProps } from '~/utils/cva';
 
-export const headingVariants = cva('text-balance', {
+export const headingVariants = cva({
+  base: 'font-heading scroll-m-20 text-balance',
   variants: {
+    level: {
+      h1: 'text-3xl font-semibold',
+      h2: 'text-2xl font-semibold',
+      h3: 'text-xl font-semibold',
+      h4: 'text-lg font-bold',
+      label: 'text-base font-bold',
+    },
     variant: {
-      'h1': 'scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl',
-      'h2': 'scroll-m-20 text-3xl font-semibold tracking-tight',
-      'h3': 'scroll-m-20 text-2xl font-semibold tracking-tight',
-      'h4': 'scroll-m-20 text-xl font-semibold tracking-tight',
-      'h4-all-caps':
-        'scroll-m-20 text-sm font-extrabold tracking-widest uppercase',
-      'label':
-        'scroll-m-20 text-sm font-extrabold tracking-normal peer-disabled:opacity-70 peer-disabled:cursor-not-allowed',
+      'default': '',
+      'all-caps': 'tracking-widest uppercase',
+      'page-heading': 'text-4xl',
+    },
+    margin: {
+      default: 'not-first:mt-4 not-last:mb-2',
+      none: 'mb-0',
     },
   },
+  defaultVariants: {
+    level: 'h2',
+    variant: 'default',
+    margin: 'default',
+  },
+  compoundVariants: [
+    { level: 'h4', variant: 'all-caps', className: 'text-base font-extrabold' },
+  ],
 });
 
-type VariantPropType = VariantProps<typeof headingVariants>;
+const levelToElement = {
+  h1: <h1 />,
+  h2: <h2 />,
+  h3: <h3 />,
+  h4: <h4 />,
+  label: <h4 />,
+} as const;
 
-const variantElementMap: Record<
-  NonNullable<VariantPropType['variant']>,
-  string
-> = {
-  'h1': 'h1',
-  'h2': 'h2',
-  'h3': 'h3',
-  'h4': 'h4',
-  'h4-all-caps': 'h4',
-  'label': 'label',
-};
+type HeadingRenderProps = React.HTMLAttributes<HTMLHeadingElement> &
+  React.RefAttributes<HTMLHeadingElement> &
+  Record<string, unknown>;
 
 type HeadingProps = {
-  asChild?: boolean;
-  as?: string;
+  render?: RenderProp<HeadingRenderProps>;
 } & React.HTMLAttributes<HTMLHeadingElement> &
   VariantProps<typeof headingVariants>;
 
-const Heading = React.forwardRef<HTMLElement, HeadingProps>(
-  ({ className, variant, as, asChild, ...props }, ref) => {
-    const Comp = asChild
-      ? Slot
-      : (as ?? (variant ? variantElementMap[variant] : undefined) ?? 'div');
-    return (
-      <Comp
-        className={cn(headingVariants({ variant, className }))}
-        ref={ref}
-        {...props}
-      />
-    );
+const Heading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
+  ({ className, variant, level = 'h2', margin, render, ...props }, ref) => {
+    const defaultElement = levelToElement[level];
+
+    const headingProps: HeadingRenderProps = {
+      className: cx(headingVariants({ variant, level, margin, className })),
+      ref,
+      ...props,
+    };
+
+    return useRender(render, defaultElement, headingProps);
   },
 );
 

@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 
+import { type Prettify } from '~/utils/prettify';
 import { useDndStore, useDndStoreApi } from './DndStoreProvider';
 import { type DragMetadata } from './types';
 import {
@@ -53,7 +54,9 @@ type UseDragSourceReturn = {
   isDragging: boolean;
 };
 
-export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
+export function useDragSource(
+  options: Prettify<DragSourceOptions>,
+): Prettify<UseDragSourceReturn> {
   const {
     type,
     metadata,
@@ -333,7 +336,8 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
     (e: React.KeyboardEvent) => {
       if (disabled) return;
 
-      // During keyboard drag mode, handle navigation and drop
+      // During keyboard drag mode, handle navigation and stop propagation
+      // to prevent selection handlers from firing
       if (dragMode === 'keyboard') {
         e.preventDefault();
         e.stopPropagation();
@@ -353,10 +357,12 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
         return;
       }
 
-      // Not in drag mode:
-      // Space = start drag
-      // Enter = click/select (let the click handler fire)
-      if (e.key === ' ') {
+      // Initiate keyboard drag with Ctrl+D or Alt+Space
+      // This avoids conflicts with Space/Enter used for selection
+      const isCtrlD = e.ctrlKey && e.key.toLowerCase() === 'd';
+      const isAltSpace = e.altKey && e.key === ' ';
+
+      if (isCtrlD || isAltSpace) {
         e.preventDefault();
         e.stopPropagation();
         startKeyboardDrag(e.currentTarget as HTMLElement);

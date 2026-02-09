@@ -1,11 +1,11 @@
 'use client';
 import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/use-toast';
+import { useToast } from '~/components/ui/Toast';
 import trackEvent from '~/lib/analytics';
 import { ensureError } from '~/utils/ensureError';
 
 const AnalyticsButton = () => {
-  const { toast } = useToast();
+  const { add } = useToast();
   const sendEvent = () =>
     trackEvent({
       type: 'ProtocolInstalled',
@@ -15,20 +15,20 @@ const AnalyticsButton = () => {
       },
     })
       .then(() => {
-        toast({
+        add({
           title: 'Success',
           description: 'Test event sent',
-          variant: 'success',
+          type: 'success',
         });
       })
       .catch((e) => {
         const error = ensureError(e);
         // eslint-disable-next-line no-console
         console.log(error);
-        toast({
+        add({
           title: 'Error',
           description: 'Sending event failed',
-          variant: 'destructive',
+          type: 'destructive',
         });
       });
 

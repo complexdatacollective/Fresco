@@ -1,46 +1,62 @@
-import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
-import { SettingsSectionSkeleton } from '~/components/layout/SettingsSection';
+import { SettingsCardSkeleton } from '~/components/settings/SettingsCard';
+import SettingsNavigation, {
+  type SettingsSection,
+} from '~/components/settings/SettingsNavigation';
 import PageHeader from '~/components/typography/PageHeader';
-import { ButtonSkeleton } from '~/components/ui/Button';
-import { Skeleton } from '~/components/ui/skeleton';
-import { SwitchSkeleton } from '~/components/ui/switch';
 import { env } from '~/env';
 
+function getSettingsSections(): SettingsSection[] {
+  const sections: SettingsSection[] = [
+    { id: 'app-version', title: 'App Version' },
+    { id: 'user-management', title: 'User Management' },
+    { id: 'configuration', title: 'Configuration' },
+    { id: 'interview-settings', title: 'Interview Settings' },
+    { id: 'privacy', title: 'Privacy' },
+    { id: 'preview-mode', title: 'Preview Mode' },
+  ];
+
+  if (env.NODE_ENV === 'development' || !env.SANDBOX_MODE) {
+    sections.push({
+      id: 'developer-tools',
+      title: 'Developer Tools',
+      variant: 'destructive',
+    });
+  }
+
+  return sections;
+}
+
 export default function Loading() {
+  const sections = getSettingsSections();
+
   return (
     <>
-      <ResponsiveContainer>
-        <PageHeader
-          headerText="Settings"
-          subHeaderText="Here you can configure your installation of Fresco."
-        />
-      </ResponsiveContainer>
+      <PageHeader
+        headerText="Settings"
+        subHeaderText="Here you can configure your installation of Fresco."
+      />
+      <div className="mx-auto max-w-full">
+        <div className="flex gap-8">
+          <SettingsNavigation sections={sections} />
+          <div className="min-w-0 flex-1 space-y-6">
+            <SettingsCardSkeleton rows={1} />
 
-      <ResponsiveContainer className="gap-4">
-        <SettingsSectionSkeleton
-          controlAreaSkelton={<Skeleton className="h-12 w-full" />}
-        />
-        <SettingsSectionSkeleton controlAreaSkelton={<SwitchSkeleton />} />
-        <SettingsSectionSkeleton controlAreaSkelton={<SwitchSkeleton />} />
-        {!env.SANDBOX_MODE && (
-          <SettingsSectionSkeleton
-            controlAreaSkelton={
-              <ButtonSkeleton variant="destructive" className="w-full" />
-            }
-          />
-        )}
+            <SettingsCardSkeleton rows={1} />
 
-        {env.NODE_ENV === 'development' && (
-          <>
-            <SettingsSectionSkeleton
-              controlAreaSkelton={<ButtonSkeleton className="w-full" />}
-            />
-            <SettingsSectionSkeleton
-              controlAreaSkelton={<Skeleton className="h-12 w-full" />}
-            />
-          </>
-        )}
-      </ResponsiveContainer>
+            <SettingsCardSkeleton rows={2} />
+
+            <SettingsCardSkeleton rows={3} />
+
+            <SettingsCardSkeleton rows={1} />
+
+            <SettingsCardSkeleton rows={3} />
+
+            {(env.NODE_ENV === 'development' || !env.SANDBOX_MODE) && (
+              <SettingsCardSkeleton rows={3} />
+            )}
+          </div>
+        </div>
+      </div>
     </>
   );
 }

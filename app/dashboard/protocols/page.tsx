@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
-import Section from '~/components/layout/Section';
 import PageHeader from '~/components/typography/PageHeader';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
@@ -13,19 +12,16 @@ export default async function ProtocolsPage() {
 
   return (
     <>
-      <ResponsiveContainer>
-        <PageHeader
-          headerText="Protocols"
-          subHeaderText="Upload and manage your interview protocols."
-        />
-        <Suspense fallback={null}>
-          <UpdateUploadThingTokenAlert />
-        </Suspense>
-      </ResponsiveContainer>
-      <ResponsiveContainer maxWidth="6xl">
-        <Section>
-          <ProtocolsTable />
-        </Section>
+      <PageHeader
+        headerText="Protocols"
+        subHeaderText="Upload and manage your interview protocols."
+        data-testid="protocols-page-header"
+      />
+      <Suspense fallback={null}>
+        <UpdateUploadThingTokenAlert />
+      </Suspense>
+      <ResponsiveContainer maxWidth="6xl" baseSize="content" container={false}>
+        <ProtocolsTable />
       </ResponsiveContainer>
     </>
   );

@@ -1,31 +1,151 @@
-'use client';
+import { Popover as BasePopover } from '@base-ui/react/popover';
+import { AnimatePresence } from 'motion/react';
+import {
+  cloneElement,
+  createContext,
+  isValidElement,
+  useContext,
+  useState,
+  type ComponentProps,
+  type ComponentPropsWithoutRef,
+  type ReactNode,
+} from 'react';
+import { cx } from '~/utils/cva';
+import { MotionSurface } from '../layout/Surface';
 
-import * as React from 'react';
-import * as PopoverPrimitive from '@radix-ui/react-popover';
+type PopoverContextValue = {
+  mounted: boolean;
+  setMounted: (mounted: boolean) => void;
+};
 
-import { cn } from '~/utils/shadcn';
+const PopoverContext = createContext<PopoverContextValue | null>(null);
 
-const Popover = PopoverPrimitive.Root;
+function usePopoverContext() {
+  const context = useContext(PopoverContext);
+  if (!context) {
+    throw new Error('Popover components must be used within a Popover');
+  }
+  return context;
+}
 
-const PopoverTrigger = PopoverPrimitive.Trigger;
+type PopoverProps = ComponentProps<typeof BasePopover.Root> & {
+  children: ReactNode;
+};
 
-const PopoverContent = React.forwardRef<
-  React.ElementRef<typeof PopoverPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
->(({ className, align = 'center', sideOffset = 4, ...props }, ref) => (
-  <PopoverPrimitive.Portal>
-    <PopoverPrimitive.Content
-      ref={ref}
-      align={align}
-      sideOffset={sideOffset}
-      className={cn(
-        'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-72 rounded-md border p-4 shadow-md outline-hidden',
-        className,
-      )}
-      {...props}
-    />
-  </PopoverPrimitive.Portal>
-));
-PopoverContent.displayName = PopoverPrimitive.Content.displayName;
+function Popover({ children, ...props }: PopoverProps) {
+  const [mounted, setMounted] = useState(false);
 
-export { Popover, PopoverTrigger, PopoverContent };
+  const handleOpenChange = (
+    nextOpen: boolean,
+    event: BasePopover.Root.ChangeEventDetails,
+  ) => {
+    setMounted(nextOpen);
+    props.onOpenChange?.(nextOpen, event);
+  };
+
+  return (
+    <PopoverContext.Provider value={{ mounted, setMounted }}>
+      <BasePopover.Root
+        {...props}
+        open={props.open ?? mounted}
+        onOpenChange={handleOpenChange}
+      >
+        {children}
+      </BasePopover.Root>
+    </PopoverContext.Provider>
+  );
+}
+
+type PopoverTriggerProps = ComponentProps<typeof BasePopover.Trigger> & {
+  asChild?: boolean;
+};
+
+function PopoverTrigger({ children, asChild, ...props }: PopoverTriggerProps) {
+  if (asChild && isValidElement(children)) {
+    return (
+      <BasePopover.Trigger
+        render={(triggerProps) =>
+          cloneElement(children, {
+            ...triggerProps,
+            ...children.props,
+          } as Parameters<typeof cloneElement>[1])
+        }
+        {...props}
+      />
+    );
+  }
+
+  return <BasePopover.Trigger {...props}>{children}</BasePopover.Trigger>;
+}
+
+type PopoverContentProps = ComponentProps<typeof BasePopover.Popup> & {
+  children: ReactNode;
+  sideOffset?: number;
+  showArrow?: boolean;
+  keepMounted?: boolean;
+  align?: 'start' | 'center' | 'end';
+};
+
+function PopoverContent({
+  children,
+  sideOffset = 10,
+  showArrow = true,
+  keepMounted = true,
+  className,
+  align = 'center',
+  ...props
+}: PopoverContentProps) {
+  const { mounted } = usePopoverContext();
+
+  return (
+    <BasePopover.Portal
+      keepMounted={keepMounted}
+      {...(props as ComponentPropsWithoutRef<typeof BasePopover.Portal>)}
+    >
+      <AnimatePresence>
+        {mounted && (
+          <BasePopover.Positioner sideOffset={sideOffset} align={align}>
+            <BasePopover.Popup
+              render={
+                <MotionSurface
+                  level="popover"
+                  elevation="none"
+                  className={cx(
+                    '@container-normal max-w-(--available-width) overflow-visible text-sm shadow-xl',
+                    className,
+                  )}
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  noContainer
+                  transition={{ type: 'spring', duration: 0.5 }}
+                />
+              }
+              {...props}
+            >
+              {showArrow && (
+                <BasePopover.Arrow className="data-[side=bottom]:top-[-15px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-14px] data-[side=top]:rotate-180">
+                  <ArrowSvg />
+                </BasePopover.Arrow>
+              )}
+              {children}
+            </BasePopover.Popup>
+          </BasePopover.Positioner>
+        )}
+      </AnimatePresence>
+    </BasePopover.Portal>
+  );
+}
+
+function ArrowSvg(props: ComponentProps<'svg'>) {
+  return (
+    <svg width="30" height="20" viewBox="0 0 20 10" fill="none" {...props}>
+      <path
+        d="M9.66437 2.60207L4.80758 6.97318C4.07308 7.63423 3.11989 8 2.13172 8H0V10H20V8H18.5349C17.5468 8 16.5936 7.63423 15.8591 6.97318L11.0023 2.60207C10.622 2.2598 10.0447 2.25979 9.66437 2.60207Z"
+        className="fill-surface-popover"
+      />
+    </svg>
+  );
+}
+
+export { Popover, PopoverContent, PopoverTrigger };

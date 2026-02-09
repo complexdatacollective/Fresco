@@ -49,6 +49,11 @@ yarn-error.log*
 storybook-static
 
 # e2e testing
+/tests/e2e/playwright-report/
+/tests/e2e/test-results/
+/tests/e2e/screenshots/
+/tests/e2e/.auth/
+/tests/e2e/.context-data.json
 /tests/e2e/.db-snapshots/
 /playwright-report/
 /test-results/
@@ -56,4 +61,9 @@ storybook-static
 
 # Serena
 .serena
+
+# playwright MCP
+./playwright-mcp
+
 .pnpm-store
+.pnpm-docker-store

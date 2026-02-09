@@ -1,5 +1,3 @@
-// src/components/Surface.stories.tsx
-
 import type { Meta, StoryFn } from '@storybook/nextjs-vite';
 import { type ElementType } from 'react';
 import { Button } from '../ui/Button';
@@ -7,13 +5,13 @@ import Surface, { MotionSurface, type SurfaceVariants } from './Surface';
 
 // Define the metadata for the Storybook
 const meta: Meta<typeof Surface> = {
-  title: 'Components/Surface',
+  title: 'UI/Surface',
   component: Surface,
   argTypes: {
     level: {
       control: {
         type: 'select',
-        options: [0, 1, 2, 3, 4],
+        options: [0, 1, 2, 3, 'popover'],
       },
       description: 'Defines the background and foreground levels.',
       defaultValue: 1,
@@ -59,11 +57,12 @@ export default meta;
 // Surface with Different Levels
 export const DifferentLevels: StoryFn<typeof Surface> = () => (
   <div className="space-y-4">
-    {[0, 1, 2, 3, 4].map((level) => (
+    {[0, 1, 2, 3, 'popover'].map((level) => (
       <Surface
         key={level}
         level={level as SurfaceVariants['level']}
         spacing="md"
+        className="flex items-center gap-10"
       >
         Surface Level {level}
         <Button color="default">Default Button</Button>
@@ -107,7 +106,7 @@ export const AsDifferentElements: StoryFn<typeof Surface> = () => (
 
 // Surface with Additional Class Names
 export const WithAdditionalClassName: StoryFn<typeof Surface> = () => (
-  <Surface level={1} spacing="md" className="border-danger border-2">
+  <Surface level={1} spacing="md" className="border-destructive border-2">
     Surface with additional border classes
   </Surface>
 );
@@ -127,34 +126,21 @@ export const MotionSurfaceExample: StoryFn<typeof Surface> = () => (
 
 // **New Story: Nested Surfaces**
 export const NestedSurfaces: StoryFn<typeof Surface> = () => (
-  <div className="bg-background text-foreground p-10">
-    <div className="flex items-center gap-10">
-      Background
-      <Button color="default">Default Button</Button>
-    </div>
-    <Surface level={1} className="m-10">
-      <div className="flex items-center gap-10">
+  <div className="bg-background text-text @container p-10">
+    Background
+    <Button color="default">Default Button</Button>
+    <Surface level={0} className="mt-4 flex flex-col space-y-4">
+      This is Surface Level 0<Button color="default">Default Button</Button>
+      <Surface level={1} className="mt-4 flex flex-col space-y-4">
         This is Surface Level 1<Button color="default">Default Button</Button>
-      </div>
-      <Surface level={2} className="m-10">
-        <div className="flex items-center gap-10">
+        <Surface level={2} className="mt-4 flex flex-col space-y-4">
           This is Surface Level 2<Button color="default">Default Button</Button>
-        </div>
-        <Surface level={3} className="m-10">
-          <div className="flex items-center gap-10">
+          <Surface level={3} className="mt-4 flex flex-col space-y-4">
             This is Surface Level 3
             <Button color="default">Default Button</Button>
-          </div>
-          <Surface level={4} className="m-10">
-            <div className="flex items-center gap-10">
-              This is Surface Level 4
+            <Surface level="popover" className="mt-4 flex flex-col space-y-4">
+              This is Surface Level Popover
               <Button color="default">Default Button</Button>
-            </div>
-            <Surface level={0} className="m-10">
-              <div className="flex items-center gap-10">
-                This is the innermost Surface (Level 0)
-                <Button color="default">Default Button</Button>
-              </div>
             </Surface>
           </Surface>
         </Surface>

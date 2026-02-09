@@ -1,5 +1,8 @@
+@use '../../../legacy-ui/styles/global/core/units';
+@use '../mixins';
+
 .finish-session-interface {
-  @include interface-centering;
+  @include mixins.interface-centering;
 
   align-items: center;
   display: flex;

@@ -1,6 +1,6 @@
 'use client';
 
-import * as Tooltip from '@radix-ui/react-tooltip';
+import { Tooltip } from '@base-ui/react/tooltip';
 import {
   AnimatePresence,
   motion,
@@ -8,11 +8,12 @@ import {
   useWillChange,
 } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
-import { required } from '~/lib/interviewer/utils/field-validation';
-import { Button } from '~/lib/ui/components';
-import Form from '../containers/Form';
-import { usePassphrase } from '../containers/Interfaces/Anonymisation/usePassphrase';
-import Overlay from '../containers/Overlay';
+import Button from '~/components/ui/Button';
+import Field from '~/lib/form/components/Field/Field';
+import Form from '~/lib/form/components/Form';
+import InputField from '~/lib/form/components/fields/InputField';
+import { usePassphrase } from '../Interfaces/Anonymisation/usePassphrase';
+import Overlay from './Overlay';
 
 const transition: Transition = {
   type: 'spring',
@@ -61,44 +62,50 @@ export default function PassphrasePrompter() {
         <Tooltip.Root open={showTooltip} onOpenChange={setShowTooltip}>
           <AnimatePresence>
             {showPassphrasePrompter && (
-              <Tooltip.Trigger asChild>
-                <motion.button
-                  key="lock"
-                  layout
-                  className="bg-platinum group flex h-[4.8rem] w-[4.8rem] cursor-pointer items-center justify-center rounded-full"
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{
-                    scale: 1,
-                    opacity: 1,
-                  }}
-                  exit={{ scale: 0, opacity: 0 }}
-                  transition={transition}
-                  style={{ willChange }}
-                  onClick={() => setShowPassphraseOverlay(true)}
-                >
-                  <motion.span className="animate-shake scale-90 text-4xl transition-transform group-hover:scale-100">
-                    {passphraseInvalid ? '⚠️' : '🔑'}
-                  </motion.span>
-                </motion.button>
-              </Tooltip.Trigger>
+              <Tooltip.Trigger
+                render={
+                  <motion.button
+                    key="lock"
+                    layout
+                    className="bg-platinum group flex h-[4.8rem] w-[4.8rem] cursor-pointer items-center justify-center rounded-full"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{
+                      scale: 1,
+                      opacity: 1,
+                    }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    transition={transition}
+                    style={{ willChange }}
+                    onClick={() => setShowPassphraseOverlay(true)}
+                  >
+                    <motion.span className="animate-shake scale-90 text-4xl transition-transform group-hover:scale-100">
+                      {passphraseInvalid ? '⚠️' : '🔑'}
+                    </motion.span>
+                  </motion.button>
+                }
+              />
             )}
           </AnimatePresence>
           <Tooltip.Portal>
-            <Tooltip.Content sideOffset={5} side="right" asChild>
-              <motion.div
-                key="tooltip"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="bg-panel flex w-96 flex-col justify-center gap-4 rounded-xl p-6 shadow-xl"
+            <Tooltip.Positioner sideOffset={5} side="right">
+              <Tooltip.Popup
+                render={
+                  <motion.div
+                    key="tooltip"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="bg-surface flex w-96 flex-col justify-center gap-4 rounded-xl p-6 shadow-xl"
+                  />
+                }
               >
                 <div>
                   {passphraseInvalid
                     ? 'There was a problem decrypting the data. Please re-enter your passphrase.'
                     : 'Your passphrase is needed to show data on this screen. Click here to enter it.'}
                 </div>
-                <Tooltip.Arrow className="fill-panel" height={10} width={20} />
-              </motion.div>
-            </Tooltip.Content>
+                <Tooltip.Arrow className="fill-surface" />
+              </Tooltip.Popup>
+            </Tooltip.Positioner>
           </Tooltip.Portal>
         </Tooltip.Root>
       </Tooltip.Provider>
@@ -122,34 +129,17 @@ const PassphraseOverlay = ({
 }) => {
   const { passphraseInvalid } = usePassphrase();
 
-  const formConfig = {
-    formName: 'paassphrase',
-    fields: [
-      {
-        label: null,
-        name: 'passphrase',
-        component: 'Text',
-        placeholder: 'Enter your passphrase...',
-        validate: [required('You must enter a value.')],
-      },
-    ],
-  };
-
-  const onSubmitForm = (fields: { passphrase: string }) => {
+  const onSubmitForm = (values: unknown) => {
+    const fields = values as { passphrase: string };
     handleSubmit(fields.passphrase);
+    return { success: true };
   };
 
   return (
-    <Overlay
-      show={show}
-      title="Enter your Passphrase"
-      onClose={onClose}
-      forceDisableFullscreen
-      className="!max-w-[65ch]"
-    >
+    <Overlay show={show} title="Enter your Passphrase" onClose={onClose}>
       <div className="flex flex-col">
         {passphraseInvalid && (
-          <p className="bg-accent/50 rounded-md p-6 text-white">
+          <p className="bg-accent/50 rounded p-6 text-white">
             There was an error decrypting the data with the passphrase entered.
             Please try again.
           </p>
@@ -159,15 +149,16 @@ const PassphraseOverlay = ({
           you cannot remember your passphrase, please contact the person who
           recruited you to this study.
         </p>
-        <Form
-          className="mt-6"
-          form={formConfig.formName}
-          subject={{ entity: 'ego' }}
-          autoFocus
-          onSubmit={onSubmitForm}
-          {...formConfig}  
-        >
+        <Form className="mt-6" onSubmit={onSubmitForm}>
           <div className="mb-4 flex items-center justify-end">
+            <Field
+              component={InputField}
+              name="passphrase"
+              label="Passphrase"
+              placeholder="Enter your passphrase..."
+              required
+              autoFocus
+            />
             <Button aria-label="Submit" type="submit">
               Submit passphrase
             </Button>

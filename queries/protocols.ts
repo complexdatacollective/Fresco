@@ -1,5 +1,3 @@
-'use server';
-
 import { stringify } from 'superjson';
 import { createCachedFunction } from '~/lib/cache';
 import { prisma } from '~/lib/db';
@@ -25,19 +23,6 @@ export const getProtocols = createCachedFunction(async () => {
 
 export type GetProtocolsReturnType = ReturnType<typeof getProtocols>;
 
-export const getProtocolByHash = createCachedFunction(
-  async (hash: string) => {
-    const protocol = await prisma.protocol.findFirst({
-      where: {
-        hash,
-      },
-    });
-
-    return protocol;
-  },
-  ['getProtocolsByHash', 'getProtocols'],
-);
-
 export const getExistingAssets = async (assetIds: string[]) => {
   return prisma.asset.findMany({
     where: {
@@ -52,14 +37,6 @@ export const getExistingAssets = async (assetIds: string[]) => {
       type: true,
     },
   });
-};
-
-export const getNewAssetIds = async (assetIds: string[]) => {
-  const existingAssets = await getExistingAssets(assetIds);
-  // Return the assetIds that are not in the database
-  return assetIds.filter(
-    (assetId) => !existingAssets.some((asset) => asset.assetId === assetId),
-  );
 };
 
 /**

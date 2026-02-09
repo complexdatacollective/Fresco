@@ -100,8 +100,9 @@ function DropZone({
   onDrop?: (metadata?: DragMetadata) => void;
 }) {
   const { dropProps, isOver, willAccept } = useDropTarget({
-    id: `drop-zone-${Math.random().toString(36).substr(2, 9)}`,
+    id: `drop-zone-${Math.random().toString(36).slice(2, 11)}`,
     accepts,
+    announcedName: 'Drop zone',
     onDrop,
   });
 

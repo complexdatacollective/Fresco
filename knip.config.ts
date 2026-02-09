@@ -3,19 +3,25 @@ import type { KnipConfig } from 'knip';
 // NOTE: This file is named knip.config.ts rather than knip.ts (as the docs suggest)
 // because of a TS resolution bug: https://github.com/webpro-nl/knip/issues/649
 
+/**
+ * Knip configuration file
+ *
+ * Please make sure to document any exceptions or ignores added here, so future
+ * maintainers understand the reasoning behind them!
+ */
+
 const config: KnipConfig = {
   project: ['**/*.{js,jsx,ts,tsx}', '**/*.scss'],
   ignore: [
-    // Tailwind plugin cannot be detected by knip
-    'styles/tailwind-motion-spring.ts',
-    // E2E helper modules used by future test specs (not yet ported from new-form-system)
-    'tests/e2e/helpers/dialog.ts',
-    'tests/e2e/helpers/form.ts',
-    'tests/e2e/helpers/row-actions.ts',
+    // Tailwind plugins cannot be detected by knip
+    'styles/plugins/tailwind-motion-spring.ts',
+    'styles/plugins/tailwind-elevation/index.ts',
   ],
   ignoreDependencies: [
     'sharp', // Used by next/image but not directly imported
     'esbuild', // Used by Vite but not directly imported
+    'sass-embedded', // Used in next.js config but not detected as used
+    '@vitest/coverage-v8', // Dependency of chromatic falsely detected as unused
     '@tailwindcss/forms', // Used in globals.css but not detected as used
     'tailwindcss-animate', // Used in globals.css but not detected as used
     '@tailwindcss/aspect-ratio', // Used in globals.css but not detected as used
@@ -27,9 +33,8 @@ const config: KnipConfig = {
     'docker-compose', // Should be installed by developers if needed, not a project dependency
   ],
   ignoreIssues: {
-    // TestFixtures/WorkerFixtures are used by Playwright via base.extend<>() generic type parameter.
-    // expectURL is part of the public test API used by future specs.
-    // Knip cannot detect usage through TypeScript generic type inference.
+    // TestFixtures is used by Playwright via base.extend<TestFixtures>() generic type parameter
+    // Knip cannot detect usage through TypeScript generic type inference
     'tests/e2e/fixtures/test.ts': ['types', 'exports'],
 
     // Table helpers are part of the public test API used by future specs

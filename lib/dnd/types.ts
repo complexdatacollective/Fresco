@@ -32,7 +32,7 @@ export type UseDropTargetReturn = {
   isDragging: boolean;
 };
 
-export type DropCallback<T = DragMetadata> = (metadata: T) => void;
+export type DropCallback = (metadata?: DragMetadata) => void;
 
 export type DropTargetState = DropTarget & {
   canDrop: boolean;

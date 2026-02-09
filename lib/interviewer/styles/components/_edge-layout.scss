@@ -1,7 +1,9 @@
+@use '../mixins';
+
 .edge-layout {
   --border: calc(var(--base-node-size) * 0.275);
 
-  @include gpu;
+  @include mixins.gpu;
 
   position: absolute;
   width: 100%;

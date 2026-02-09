@@ -14,6 +14,7 @@ export const CacheTags = [
   'protocolCount',
   'participantCount',
   'getApiTokens',
+  'getUsers',
 ] as const satisfies string[];
 
 type StaticTag = (typeof CacheTags)[number];
@@ -40,10 +41,15 @@ export function createCachedFunction<T extends UnstableCacheParams[0]>(
     revalidate?: number | false;
   },
 ): T {
+  // In test mode, bypass caching entirely for proper isolation.
+  // Check dynamically to ensure runtime env var is respected.
   if (env.DISABLE_NEXT_CACHE) {
     return func;
   }
 
+  // Include deployment ID in cache key to prevent cache pollution across
+  // Vercel deployments. Without this, different deployments could read
+  // stale or incompatible cached values from each other.
   // eslint-disable-next-line no-process-env
   const VERCEL_DEPLOYMENT_ID = process.env.VERCEL_DEPLOYMENT_ID;
   const keyParts = options?.keyParts?.concat(

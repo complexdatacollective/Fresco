@@ -1,26 +1,25 @@
+'use client';
+
 import {
   CURRENT_SCHEMA_VERSION,
   getMigrationInfo,
 } from '@codaco/protocol-validation';
 import { queue } from 'async';
-import { XCircle } from 'lucide-react';
 import { hash } from 'ohash';
-import { useCallback, useReducer, useRef } from 'react';
-import { insertProtocol } from '~/actions/protocols';
-import { ErrorDetails } from '~/components/ErrorDetails';
-import Link from '~/components/Link';
+import { useCallback, useEffect, useRef } from 'react';
 import {
-  jobInitialState,
-  jobReducer,
-} from '~/components/ProtocolImport/JobReducer';
-import { AlertDialogDescription } from '~/components/ui/AlertDialog';
+  getNewAssetIds,
+  getProtocolByHash,
+  insertProtocol,
+} from '~/actions/protocols';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
+import trackEvent from '~/lib/analytics';
+import { useProtocolImportStoreApi } from '~/lib/protocol-import/useProtocolImportStore';
 import {
   validateAndMigrateProtocol,
   type ProtocolValidationError,
 } from '~/lib/protocol/validateAndMigrateProtocol';
 import { uploadFiles } from '~/lib/uploadthing/client-helpers';
-import { getNewAssetIds, getProtocolByHash } from '~/queries/protocols';
 import { type AssetInsertType } from '~/schemas/protocol';
 import { DatabaseError } from '~/utils/databaseError';
 import { ensureError } from '~/utils/ensureError';
@@ -30,179 +29,57 @@ import {
   getProtocolJson,
 } from '~/utils/protocolImport';
 
-/**
- * Formats a list of numbers into a human-readable string.
- */
 function formatNumberList(numbers: number[]): string {
-  // "1"
   if (numbers.length === 1) {
     return numbers[0]!.toString();
   }
 
-  // "1 and 2"
   if (numbers.length === 2) {
     return numbers.join(' and ');
   }
 
-  // "1, 2, and 3"
   const lastNumber = numbers.pop();
   const formattedList = numbers.join(', ') + `, and ${lastNumber}`;
 
   return formattedList;
 }
 
-/**
- * Creates error payload for protocol validation failures.
- */
-function createValidationErrorPayload(
-  fileName: string,
+function getValidationErrorMessage(
   validationError: ProtocolValidationError,
-) {
+): string {
   switch (validationError.error) {
     case 'invalid-object':
-      return {
-        id: fileName,
-        rawError: new Error('Invalid protocol object'),
-        error: {
-          title: 'Invalid protocol file',
-          description: (
-            <AlertDialogDescription>
-              The uploaded file does not contain a valid protocol.
-            </AlertDialogDescription>
-          ),
-        },
-      };
-
+      return 'The uploaded file does not contain a valid protocol.';
     case 'unsupported-version':
-      return {
-        id: fileName,
-        rawError: new Error('Protocol version not supported'),
-        error: {
-          title: 'Protocol version not supported',
-          description: (
-            <AlertDialogDescription>
-              The protocol you uploaded is not compatible with this version of
-              the app. Fresco supports protocols using version number
-              {APP_SUPPORTED_SCHEMA_VERSIONS.length > 1 ? 's' : ''}{' '}
-              {formatNumberList([...APP_SUPPORTED_SCHEMA_VERSIONS])}.
-            </AlertDialogDescription>
-          ),
-        },
-      };
-
-    case 'validation-failed': {
-      const resultAsString = JSON.stringify(
-        validationError.validationResult,
-        null,
-        2,
-      );
-      const validationResult = validationError.validationResult as {
-        error: { issues: { message: string; path: string[] }[] };
-      };
-
-      return {
-        id: fileName,
-        rawError: new Error('Protocol validation failed', {
-          cause: validationError.validationResult,
-        }),
-        error: {
-          title: 'The protocol is invalid!',
-          description: (
-            <>
-              <AlertDialogDescription>
-                The protocol you uploaded is invalid. See the details below for
-                specific validation errors that were found.
-              </AlertDialogDescription>
-              <AlertDialogDescription>
-                If you believe that your protocol should be valid please ask for
-                help via our{' '}
-                <Link
-                  href="https://community.networkcanvas.com"
-                  target="_blank"
-                >
-                  community forum
-                </Link>
-                .
-              </AlertDialogDescription>
-            </>
-          ),
-          additionalContent: (
-            <ErrorDetails errorText={resultAsString}>
-              <ul className="max-w-md list-inside space-y-2">
-                {validationResult.error.issues.map(({ message, path }, i) => (
-                  <li className="flex capitalize" key={i}>
-                    <XCircle className="text-destructive mr-2 h-4 w-4" />
-                    <span>
-                      {message}{' '}
-                      <span className="text-xs italic">
-                        ({path.join(' > ')})
-                      </span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </ErrorDetails>
-          ),
-        },
-      };
-    }
-
-    case 'missing-dependencies': {
-      const missingDeps = validationError.missingDependencies;
-      return {
-        id: fileName,
-        rawError: new Error('Migration dependencies missing'),
-        error: {
-          title: 'Migration failed',
-          description: (
-            <AlertDialogDescription>
-              The protocol requires migration but is missing required
-              information: {missingDeps.join(', ')}.
-            </AlertDialogDescription>
-          ),
-        },
-      };
-    }
+      return `Protocol version not supported. Fresco supports version${APP_SUPPORTED_SCHEMA_VERSIONS.length > 1 ? 's' : ''} ${formatNumberList([...APP_SUPPORTED_SCHEMA_VERSIONS])}.`;
+    case 'validation-failed':
+      return 'The protocol is invalid. Please check the protocol structure.';
+    case 'missing-dependencies':
+      return `Migration failed: missing ${validationError.missingDependencies.join(', ')}.`;
   }
 }
 
+function generateJobId(): string {
+  return `import-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+}
+
 export const useProtocolImport = () => {
-  const [jobs, dispatch] = useReducer(jobReducer, jobInitialState);
+  const store = useProtocolImportStoreApi();
+  const activeJobs = useRef<Set<string>>(new Set());
 
-  /**
-   * This is the main job processing function. Takes a file, and handles all
-   * the steps required to import it into the database, updating the job
-   * status as it goes.
-   */
-  const processJob = async (file: File) => {
+  const processJob = async ({ file, jobId }: { file: File; jobId: string }) => {
+    const fileName = file.name;
+    const state = store.getState();
+
     try {
-      const fileName = file.name;
-
-      dispatch({
-        type: 'UPDATE_STATUS',
-        payload: {
-          id: fileName,
-          status: 'Extracting protocol',
-        },
-      });
-
+      // Phase: Parsing
+      state.updateJobPhase(jobId, 'parsing');
       const fileArrayBuffer = await fileAsArrayBuffer(file);
 
-      // TODO: check if this causes multiple fetches by importing again for each job.
-      const JSZip = (await import('jszip')).default; // Dynamic import to reduce bundle size
+      const JSZip = (await import('jszip')).default;
       const zip = await JSZip.loadAsync(fileArrayBuffer);
       const protocolJson = await getProtocolJson(zip);
 
-      // Validating protocol...
-      dispatch({
-        type: 'UPDATE_STATUS',
-        payload: {
-          id: fileName,
-          status: 'Validating protocol',
-        },
-      });
-
-      // Build migration dependencies based on what's required
       const dependencies: Record<string, unknown> = {};
       if (protocolJson.schemaVersion < CURRENT_SCHEMA_VERSION) {
         const migrationInfo = getMigrationInfo(
@@ -211,54 +88,40 @@ export const useProtocolImport = () => {
         );
         for (const dep of migrationInfo.dependencies) {
           if (dep === 'name') {
-            // Derive protocol name from filename (remove .netcanvas extension)
             dependencies.name = fileName.replace(/\.netcanvas$/i, '');
           }
         }
       }
 
+      // Phase: Validating
+      state.updateJobPhase(jobId, 'validating');
       const validationResult = await validateAndMigrateProtocol(
         protocolJson,
         dependencies,
       );
 
       if (!validationResult.success) {
-        dispatch({
-          type: 'UPDATE_ERROR',
-          payload: createValidationErrorPayload(fileName, validationResult),
-        });
-
+        const errorMessage = getValidationErrorMessage(validationResult);
+        state.setJobError(jobId, errorMessage);
         return;
       }
 
-      // After this point, assume the protocol is valid.
       const validatedProtocol = validationResult.protocol;
 
-      // Check if the protocol already exists in the database
+      // Phase: Checking duplicates
+      state.updateJobPhase(jobId, 'checking-duplicates');
       const protocolHash = hash(validatedProtocol);
       const exists = await getProtocolByHash(protocolHash);
       if (exists) {
-        dispatch({
-          type: 'UPDATE_ERROR',
-          payload: {
-            id: file.name,
-            rawError: new Error('Protocol already exists'),
-            error: {
-              title: 'Protocol already exists',
-              description: (
-                <AlertDialogDescription>
-                  The protocol you attempted to import already exists in the
-                  database. Delete the existing protocol first before attempting
-                  to import it again.
-                </AlertDialogDescription>
-              ),
-            },
-          },
-        });
-
+        state.setJobError(
+          jobId,
+          'Protocol already exists. Delete the existing protocol first before importing again.',
+        );
         return;
       }
 
+      // Phase: Extracting assets
+      state.updateJobPhase(jobId, 'extracting-assets');
       const { fileAssets, apikeyAssets } = await getProtocolAssets(
         validatedProtocol,
         zip,
@@ -269,10 +132,6 @@ export const useProtocolImport = () => {
       let newAssetsWithCombinedMetadata: AssetInsertType[] = [];
       const newApikeyAssets: typeof apikeyAssets = [];
 
-      // Check if the assets are already in the database.
-      // If yes, add them to existingAssetIds to be connected to the protocol.
-      // If not, add files to newAssets to be uploaded
-      // and add apikeys to newApikeyAssets to be created in the database with the protocol
       try {
         const newFileAssetIds = await getNewAssetIds(
           fileAssets.map((asset) => asset.assetId),
@@ -297,75 +156,22 @@ export const useProtocolImport = () => {
             existingAssetIds.push(apiKey.assetId);
           }
         });
-      } catch (e) {
+      } catch (_e) {
         throw new Error('Error checking for existing assets');
       }
 
-      // Upload the new assets
-
       if (newAssets.length > 0) {
-        dispatch({
-          type: 'UPDATE_STATUS',
-          payload: {
-            id: fileName,
-            status: 'Uploading assets',
-          },
-        });
-
-        /**
-         * To track overall upload progress we need to create two variables in
-         * the upper scope, one to track the total bytes to upload, and one to
-         * track the current bytes uploaded per file (uploads are done in
-         * parallel).
-         */
-        const totalBytesToUpload = newAssets.reduce((acc, asset) => {
-          return acc + asset.file.size;
-        }, 0);
-
-        const currentBytesUploaded: Record<string, number> = {};
-
+        // Phase: Uploading assets
+        state.updateJobPhase(jobId, 'uploading-assets');
         const files = newAssets.map((asset) => asset.file);
 
         const uploadedFiles = await uploadFiles('assetRouter', {
           files,
-          onUploadProgress({ progress, file }) {
-            const thisFileSize = newAssets.find(
-              (asset) => asset.name === file.name,
-            )!.file.size; // eg. 1000
-
-            const thisCompletedBytes = thisFileSize * (progress / 100);
-
-            currentBytesUploaded[file.name] ??= 0;
-
-            currentBytesUploaded[file.name] = thisCompletedBytes;
-
-            // Sum all totals for all files to calculate overall progress
-            const totalUploadedBytes = Object.values(
-              currentBytesUploaded,
-            ).reduce((acc, cur) => acc + cur, 0);
-
-            const progressPercent = Math.round(
-              (totalUploadedBytes / totalBytesToUpload) * 100,
-            );
-
-            dispatch({
-              type: 'UPDATE_STATUS',
-              payload: {
-                id: fileName,
-                status: 'Uploading assets',
-                progress: progressPercent,
-              },
-            });
+          onUploadProgress: ({ progress }) => {
+            state.updateJobProgress(jobId, progress);
           },
         });
 
-        /**
-         * We now need to merge the metadata from the uploaded files with the
-         * asset metadata from the protocol json, so that we can insert the
-         * newassets into the database.
-         *
-         * The 'name' prop matches across both - we can use that to merge them.
-         */
         newAssetsWithCombinedMetadata = newAssets.map((asset) => {
           const uploadedAsset = uploadedFiles.find(
             (uploadedFile) => uploadedFile.name === asset.name,
@@ -375,8 +181,6 @@ export const useProtocolImport = () => {
             throw new Error('Asset upload failed');
           }
 
-          // Ensure this matches the input schema in the protocol router by
-          // manually constructing the object.
           return {
             key: uploadedAsset.key,
             assetId: asset.assetId,
@@ -388,14 +192,8 @@ export const useProtocolImport = () => {
         });
       }
 
-      dispatch({
-        type: 'UPDATE_STATUS',
-        payload: {
-          id: fileName,
-          status: 'Writing to database',
-        },
-      });
-
+      // Phase: Saving
+      state.updateJobPhase(jobId, 'saving');
       const result = await insertProtocol({
         protocol: validatedProtocol,
         protocolName: fileName,
@@ -407,128 +205,110 @@ export const useProtocolImport = () => {
         throw new DatabaseError(result.error, result.errorDetails);
       }
 
-      // Complete! 🚀
-      dispatch({
-        type: 'UPDATE_STATUS',
-        payload: {
-          id: fileName,
-          status: 'Complete',
+      void trackEvent({
+        type: 'ProtocolInstalled',
+        metadata: {
+          protocol: fileName,
         },
       });
+
+      // Phase: Complete
+      state.updateJobPhase(jobId, 'complete');
 
       return;
     } catch (e) {
       const error = ensureError(e);
 
-      if (error instanceof DatabaseError) {
-        dispatch({
-          type: 'UPDATE_ERROR',
-          payload: {
-            id: file.name,
-            rawError: error,
-            error: {
-              title: 'Database error during protocol import',
-              description: (
-                <AlertDialogDescription>{error.message}</AlertDialogDescription>
-              ),
-              additionalContent: (
-                <ErrorDetails errorText={error.originalError.toString()}>
-                  <pre>{error.originalError.toString()}</pre>
-                </ErrorDetails>
-              ),
-            },
-          },
-        });
-      } else {
-        dispatch({
-          type: 'UPDATE_ERROR',
-          payload: {
-            id: file.name,
-            rawError: error,
-            error: {
-              title: 'Error importing protocol',
-              description: (
-                <AlertDialogDescription>
-                  There was an unknown error while importing your protocol. The
-                  information below might help us to debug the issue.
-                </AlertDialogDescription>
-              ),
-              additionalContent: (
-                <ErrorDetails errorText={JSON.stringify(error, null, 2)}>
-                  <pre>{error.message}</pre>
-                </ErrorDetails>
-              ),
-            },
-          },
-        });
-      }
-
-      return;
-    }
-  };
-
-  /**
-   * Create an async processing que for import jobs, to allow for multiple
-   * protocols to be imported with a nice UX.
-   *
-   * Concurrency set to 2 for now. We can increase this because unzipping and
-   * validation are basically instant, but the asset upload and db insertion
-   * need a separate queue to avoid consuming too much bandwidth or overloading
-   * the database.
-   */
-  const jobQueue = useRef(queue(processJob, 2));
-
-  const importProtocols = (files: File[]) => {
-    files.forEach((file) => {
-      // Test if there is already a job in the jobQueue with this name
-      const jobAlreadyExists = jobs.find((job) => job.id === file.name);
-
-      if (jobAlreadyExists) {
-        // eslint-disable-next-line no-console
-        console.warn(`Skipping duplicate job: ${file.name}`);
-        return;
-      }
-
-      dispatch({
-        type: 'ADD_JOB',
-        payload: {
-          file,
+      void trackEvent({
+        type: 'Error',
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        metadata: {
+          path: '/hooks/useProtocolImport.tsx',
         },
       });
 
-      jobQueue.current.push(file).catch((error) => {
-        // eslint-disable-next-line no-console
-        console.log('jobQueue error', error);
-      });
-    });
+      state.setJobError(jobId, error.message);
+
+      return;
+    } finally {
+      activeJobs.current.delete(fileName);
+    }
   };
+
+  const jobQueue = useRef(queue(processJob, 2));
+
+  const importProtocols = useCallback(
+    (files: File[]) => {
+      const state = store.getState();
+
+      // Open the dialog when import starts
+      state.openDialog();
+
+      files.forEach((file) => {
+        const jobAlreadyExists = activeJobs.current.has(file.name);
+
+        if (jobAlreadyExists) {
+          // eslint-disable-next-line no-console
+          console.warn(`Skipping duplicate job: ${file.name}`);
+          return;
+        }
+
+        activeJobs.current.add(file.name);
+
+        const jobId = generateJobId();
+        state.addJob(jobId, file.name, file);
+
+        jobQueue.current.push({ file, jobId }).catch((error) => {
+          // eslint-disable-next-line no-console
+          console.log('jobQueue error', error);
+        });
+      });
+    },
+    [store],
+  );
+
+  // Listen for retry events from the dialog
+  useEffect(() => {
+    const handleRetry = (event: CustomEvent<{ file: File }>) => {
+      importProtocols([event.detail.file]);
+    };
+
+    window.addEventListener(
+      'protocol-import-retry',
+      handleRetry as EventListener,
+    );
+    return () => {
+      window.removeEventListener(
+        'protocol-import-retry',
+        handleRetry as EventListener,
+      );
+    };
+  }, [importProtocols]);
 
   const cancelAllJobs = useCallback(() => {
     jobQueue.current.pause();
     jobQueue.current.remove(() => true);
-    dispatch({
-      type: 'CLEAR_JOBS',
-    });
+    activeJobs.current.clear();
     jobQueue.current.resume();
   }, []);
 
   const cancelJob = useCallback((id: string) => {
     jobQueue.current.remove(({ data }) => {
-      return data.name === id;
+      return data.file.name === id;
     });
-
-    dispatch({
-      type: 'REMOVE_JOB',
-      payload: {
-        id,
-      },
-    });
+    activeJobs.current.delete(id);
   }, []);
 
+  const hasActiveJobs = useCallback(() => {
+    return store.getState().hasActiveJobs();
+  }, [store]);
+
   return {
-    jobs,
     importProtocols,
     cancelJob,
     cancelAllJobs,
+    hasActiveJobs,
   };
 };

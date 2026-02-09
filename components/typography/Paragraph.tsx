@@ -1,43 +1,50 @@
 'use client';
 
-import { cva, type VariantProps } from 'class-variance-authority';
 import { forwardRef } from 'react';
-import { cn } from '~/utils/shadcn';
+import { cva, cx, type VariantProps } from '~/utils/cva';
 
-export const paragraphVariants = cva('text-pretty font-normal', {
+export const paragraphVariants = cva({
+  base: 'font-body text-pretty',
   variants: {
-    variant: {
+    intent: {
       default: '',
-      blockquote: 'mt-6 border-l-2 pl-6 italic',
+      blockquote: 'mt-4 border-l-2 pl-6 italic',
       inlineCode:
-        'relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold',
-      lead: 'mb-3 text-lg text-opacity-70 font-semibold md:text-xl leading-6',
-      mutedText: 'text-muted',
+        'bg-background/50 font-monospace relative rounded px-[0.3rem] py-[0.2rem] font-semibold',
+      lead: 'text-lg',
       smallText: 'text-sm',
     },
+    emphasis: {
+      default: 'opacity-100',
+      muted: 'text-current/70',
+    },
     margin: {
-      default: 'not-first:mt-4',
+      default: 'not-last:mb-4',
       none: 'mt-0',
     },
   },
   defaultVariants: {
-    variant: 'default',
+    intent: 'default',
     margin: 'default',
+    emphasis: 'default',
   },
 });
 
 type ParagraphProps = {
-  variant?: VariantProps<typeof paragraphVariants>['variant'];
+  intent?: VariantProps<typeof paragraphVariants>['intent'];
   margin?: VariantProps<typeof paragraphVariants>['margin'];
+  emphasis?: VariantProps<typeof paragraphVariants>['emphasis'];
   asChild?: boolean;
 } & React.HTMLAttributes<HTMLParagraphElement>;
 
 const Paragraph = forwardRef<HTMLParagraphElement, ParagraphProps>(
-  ({ className, variant, margin, ...props }, ref) => {
+  ({ className, intent, margin, emphasis, ...props }, ref) => {
     return (
       <p
         ref={ref}
-        className={cn(paragraphVariants({ variant, margin, className }))}
+        className={cx(
+          paragraphVariants({ intent, margin, emphasis, className }),
+        )}
         {...props}
       />
     );

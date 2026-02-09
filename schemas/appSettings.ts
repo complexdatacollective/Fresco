@@ -11,6 +11,7 @@ const appSettingsSchema = z
     installationId: z.string(),
     disableAnalytics: z.boolean(),
     disableSmallScreenOverlay: z.boolean(),
+    previewMode: z.boolean(),
     previewModeRequireAuth: z.boolean(),
   })
   .strict();
@@ -38,6 +39,7 @@ export const appSettingPreprocessedSchema = appSettingsSchema.extend({
     parseBoolean,
     z.boolean().default(false),
   ),
+  previewMode: z.preprocess(parseBoolean, z.boolean().default(false)),
   previewModeRequireAuth: z.preprocess(parseBoolean, z.boolean().default(true)),
   uploadThingToken: z.string().optional(),
   installationId: z.string().optional(),

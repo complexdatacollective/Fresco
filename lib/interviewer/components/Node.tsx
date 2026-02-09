@@ -4,28 +4,32 @@ import { motion } from 'motion/react';
 import React, { forwardRef, memo } from 'react';
 import { useSelector } from 'react-redux';
 import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
-import UINode from '~/lib/ui/components/Node';
-import { cn } from '~/utils/shadcn';
-import { useNodeLabel } from '../containers/Interfaces/Anonymisation/useNodeLabel';
+import UINode from '~/lib/legacy-ui/components/Node';
+import { useNodeLabel } from '../Interfaces/Anonymisation/useNodeLabel';
+
+type NodeProps = NcNode & Omit<React.ComponentProps<typeof UINode>, 'type'>;
 
 const Node = memo(
-  forwardRef<
-    React.ElementRef<typeof UINode>,
-    NcNode & React.ComponentProps<typeof UINode>
-  >((props: NcNode & React.ComponentProps<typeof UINode>, ref) => {
-    const color = useSelector(getNodeColorSelector);
-    const label = useNodeLabel(props);
+  forwardRef<React.ElementRef<typeof UINode>, NodeProps>(
+    (props: NodeProps, ref) => {
+      const color = useSelector(getNodeColorSelector);
+      const label = useNodeLabel(props);
+      // Exclude NcNode data properties that aren't valid HTML attributes
+      /* eslint-disable @typescript-eslint/no-unused-vars */
+      const {
+        type: _nodeType,
+        _uid,
+        attributes: _attributes,
+        _secureAttributes,
+        stageId: _stageId,
+        promptIDs: _promptIDs,
+        ...uiNodeProps
+      } = props;
+      /* eslint-enable @typescript-eslint/no-unused-vars */
 
-    return (
-      <UINode
-        color={color}
-        {...props}
-        className={cn('node', props.className)}
-        label={label}
-        ref={ref}
-      />
-    );
-  }),
+      return <UINode color={color} {...uiNodeProps} label={label} ref={ref} />;
+    },
+  ),
   (prevProps, nextProps) => {
     if (!isEqual(prevProps, nextProps)) {
       return false;

@@ -30,16 +30,18 @@
   "include": [
     ".eslintrc.cjs",
     "next-env.d.ts",
+    "types/**/*.d.ts",
     "**/*.js",
     "**/*.ts",
     "**/*.tsx",
     "**/*.jsx",
     "**/*.cjs",
     "**/*.mjs",
+    ".storybook/**/*",
     ".next/types/**/*.ts",
     "eslint-local-rules/index.js",
     "actions/auth.ts",
     "env.js"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "storybook-static"]
 }

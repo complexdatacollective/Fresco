@@ -32,6 +32,7 @@ export const getNodeIconName = createSelector(
     const nodeIcon = nodeType
       ? (codebook?.node?.[nodeType]?.iconVariant ?? 'add-a-person')
       : 'add-a-person';
+
     return nodeIcon;
   },
 );

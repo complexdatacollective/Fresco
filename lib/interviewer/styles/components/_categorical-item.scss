@@ -1,3 +1,7 @@
+@use '../../../legacy-ui/styles/global/core/spacing';
+@use '../../../legacy-ui/styles/global/core/animation';
+@use '../../../legacy-ui/styles/global/core/helpers' as ui-helpers;
+@use '../helpers/scrollable';
 @mixin clip {
   border-radius: 50%;
   overflow: hidden;
@@ -18,7 +22,7 @@
     height: 100%;
 
     .scrollable {
-      @include scrollable;
+      @include scrollable.scrollable;
 
       height: 100%;
     }
@@ -29,7 +33,7 @@
 
   .categorical-item__disk {
     @include clip;
-    @include transition-properties(
+    @include animation.transition-properties(
       (background-color transform border-radius),
       var(--animation-easing),
       var(--animation-duration-standard)
@@ -58,7 +62,7 @@
     flex-direction: column;
   }
 
-  @include platform-not-ios {
+  @include ui-helpers.platform-not-ios {
     &:hover {
       &:not(.categorical-item--hover) {
         &:not(.categorical-item--expanded) {
@@ -86,7 +90,7 @@
     flex-direction: column;
     justify-content: center;
     overflow: hidden;
-    padding: spacing(0.5) spacing(1);
+    padding: spacing.spacing(0.5) spacing.spacing(1);
     text-align: center;
 
     h3,
@@ -124,7 +128,7 @@
     }
 
     &.categorical-item--hover {
-      @include transition-properties(
+      @include animation.transition-properties(
         (width height margin),
         var(--animation-easing),
         var(--animation-duration-standard)

@@ -1,3 +1,5 @@
+'use client';
+
 import {
   flexRender,
   getCoreRowModel,
@@ -11,11 +13,12 @@ import {
   type SortingState,
   type Table as TTable,
 } from '@tanstack/react-table';
-import { FileUp, Loader } from 'lucide-react';
+import { FileUp, Loader, Search, Trash } from 'lucide-react';
 import { useCallback, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useIsMounted } from 'usehooks-ts';
 import { makeDefaultColumns } from '~/components/DataTable/DefaultColumns';
 import { Button } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
 import {
   Table,
   TableBody,
@@ -24,6 +27,9 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
+import InputField from '~/lib/form/components/fields/InputField';
+import { MotionSurface } from '../layout/Surface';
+import { DataTablePagination } from './Pagination';
 
 type CustomTable<TData> = TTable<TData> & {
   options?: {
@@ -49,6 +55,8 @@ type DataTableProps<TData, TValue> = {
   calculateRowClasses?: (row: Row<TData>) => string | undefined;
   headerItems?: React.ReactNode;
   defaultSortBy?: SortingState[0];
+  surfaceLevel?: 0 | 1 | 2 | 3;
+  emptyText?: string;
 };
 
 export function DataTable<TData, TValue>({
@@ -58,10 +66,11 @@ export function DataTable<TData, TValue>({
   handleExportSelected,
   filterColumnAccessorKey = '',
   actions,
-  actionsHeader,
   calculateRowClasses,
   headerItems,
   defaultSortBy,
+  surfaceLevel = 0,
+  emptyText = 'No results.',
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>(
     defaultSortBy ? [{ ...defaultSortBy }] : [],
@@ -69,6 +78,8 @@ export function DataTable<TData, TValue>({
   const [isDeleting, setIsDeleting] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
+  const mounted = useIsMounted();
 
   if (columns.length === 0) {
     columns = makeDefaultColumns(data);
@@ -96,7 +107,6 @@ export function DataTable<TData, TValue>({
   if (actions) {
     const actionsColumn = {
       id: 'actions',
-      header: () => actionsHeader ?? null,
       cell: ({ row }: { row: Row<TData> }) => {
         const cellDeleteHandler = async (item: TData) => {
           await handleDeleteSelected?.([item]);
@@ -146,11 +156,13 @@ export function DataTable<TData, TValue>({
   }, [handleExportSelected, table, setRowSelection]);
 
   return (
-    <>
+    <div className="flex flex-col gap-6">
       {(filterColumnAccessorKey || headerItems) && (
-        <div className="flex items-center gap-2 pt-1 pb-4">
+        <div className="tablet:flex-row tablet:flex-wrap flex w-full flex-col items-center justify-center gap-2">
           {filterColumnAccessorKey && (
-            <Input
+            <InputField
+              type="search"
+              prefixComponent={<Search />}
               name="filter"
               placeholder={`Filter by ${filterColumnAccessorKey}...`}
               value={
@@ -158,19 +170,17 @@ export function DataTable<TData, TValue>({
                   .getColumn(filterColumnAccessorKey)
                   ?.getFilterValue() as string) ?? ''
               }
-              onChange={(event) =>
-                table
-                  .getColumn(filterColumnAccessorKey)
-                  ?.setFilterValue(event.target.value)
+              onChange={(value) =>
+                table.getColumn(filterColumnAccessorKey)?.setFilterValue(value)
               }
-              className="mt-0"
+              className="tablet:flex-1 tablet:max-w-xl w-full min-w-fit"
             />
           )}
           {headerItems}
         </div>
       )}
 
-      <Table>
+      <Table surfaceProps={{ level: surfaceLevel }}>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
@@ -207,37 +217,15 @@ export function DataTable<TData, TValue>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+                {emptyText}
               </TableCell>
             </TableRow>
           )}
         </TableBody>
       </Table>
       <div>
-        <div className="flex justify-between py-4">
-          <div className="text-muted-foreground text-sm">
-            {table.getFilteredSelectedRowModel().rows.length} of{' '}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
-          </div>
-          <div className="space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              Next
-            </Button>
-          </div>
-        </div>
+        <DataTablePagination table={table} />
+
         {/**
          * TODO: This is garbage.
          *
@@ -245,36 +233,47 @@ export function DataTable<TData, TValue>({
          * that is passed in to the table that gets given access to the table
          * state. See the other data-table for an example.
          */}
-        {hasSelectedRows && (
-          <Button
-            onClick={() => void deleteHandler()}
-            variant="destructive"
-            size="sm"
-            disabled={isDeleting}
-          >
-            {isDeleting ? (
-              <span className="flex items-center gap-2">
-                Deleting...
-                <Loader className="h-4 w-4 animate-spin text-white" />
-              </span>
-            ) : (
-              'Delete Selected'
-            )}
-          </Button>
-        )}
 
-        {hasSelectedRows && handleExportSelected && (
-          <Button
-            onClick={exportHandler}
-            variant="default"
-            size="sm"
-            className="mx-2 gap-x-2.5"
-          >
-            Export Selected
-            <FileUp className="h-5 w-5" />
-          </Button>
-        )}
+        {mounted() &&
+          createPortal(
+            <>
+              <MotionSurface
+                className="tablet:w-auto fixed bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center justify-between gap-4"
+                initial={{ opacity: 0, y: 50 }}
+                animate={
+                  hasSelectedRows ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }
+                }
+                spacing="sm"
+              >
+                <Button
+                  onClick={() => void deleteHandler()}
+                  color="destructive"
+                  disabled={isDeleting}
+                  icon={
+                    isDeleting ? (
+                      <Loader className="size-4" />
+                    ) : (
+                      <Trash className="size-4" />
+                    )
+                  }
+                >
+                  {isDeleting ? 'Deleting...' : 'Delete Selected'}
+                </Button>
+                {handleExportSelected && (
+                  <Button
+                    onClick={exportHandler}
+                    color="primary"
+                    className="mx-2 gap-x-2.5"
+                    icon={<FileUp className="size-4" />}
+                  >
+                    Export Selected
+                  </Button>
+                )}
+              </MotionSurface>
+            </>,
+            document.body,
+          )}
       </div>
-    </>
+    </div>
   );
 }

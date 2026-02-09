@@ -4,22 +4,9 @@ import { FileUp } from 'lucide-react';
 import { use, useEffect, useState } from 'react';
 import superjson from 'superjson';
 import { Button } from '~/components/ui/Button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select';
 import { Skeleton } from '~/components/ui/skeleton';
+import Dialog from '~/lib/dialogs/Dialog';
+import SelectField from '~/lib/form/components/fields/Select/Styled';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import type {
   GetProtocolsQuery,
@@ -30,9 +17,11 @@ import ExportCSVInterviewURLs from './ExportCSVInterviewURLs';
 export const GenerateInterviewURLs = ({
   interviews,
   protocolsPromise,
+  className,
 }: {
   interviews: Awaited<GetInterviewsQuery>;
   protocolsPromise: GetProtocolsReturnType;
+  className?: string;
 }) => {
   const rawProtocols = use(protocolsPromise);
   const protocols = superjson.parse<GetProtocolsQuery>(rawProtocols);
@@ -68,59 +57,45 @@ export const GenerateInterviewURLs = ({
       <Button
         disabled={interviews?.length === 0}
         onClick={handleOpenChange}
-        variant="outline"
+        icon={<FileUp />}
+        className={className}
       >
-        <FileUp className="mr-2 inline-block h-4 w-4" />
         Export Incomplete Interview URLs
       </Button>
-      <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Generate Incomplete Interview URLs</DialogTitle>
-            <DialogDescription>
-              Generate a CSV that contains unique interview URLs for all{' '}
-              <strong>incomplete interviews </strong> by protocol. These URLs
-              can be shared with participants to allow them to finish their
-              interviews.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col items-center justify-end gap-4">
-            {!protocols ? (
-              <Skeleton className="rounded-input h-10 w-full" />
-            ) : (
-              <Select
-                onValueChange={(value) => {
-                  const protocol = protocols.find(
-                    (protocol) => protocol.id === value,
-                  );
-
-                  setSelectedProtocol(protocol);
-                }}
-                value={selectedProtocol?.id}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a Protocol..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {protocols?.map((protocol) => (
-                    <SelectItem key={protocol.id} value={protocol.id}>
-                      {protocol.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
-          <DialogFooter>
-            <Button onClick={handleOpenChange} variant="outline">
-              Cancel
-            </Button>
+      <Dialog
+        open={open}
+        closeDialog={handleOpenChange}
+        title="Generate URLs for Incomplete Interviews"
+        description="Generate a CSV that contains unique interview URLs for all incomplete interviews by protocol."
+        footer={
+          <>
+            <Button onClick={handleOpenChange}>Cancel</Button>
             <ExportCSVInterviewURLs
               protocol={selectedProtocol}
               interviews={interviewsToExport}
             />
-          </DialogFooter>
-        </DialogContent>
+          </>
+        }
+      >
+        <div className="flex flex-col items-center justify-end gap-4">
+          {!protocols ? (
+            <Skeleton className="h-10 w-full rounded" />
+          ) : (
+            <SelectField
+              name="Protocol"
+              options={protocols?.map((p) => ({ value: p.id, label: p.name }))}
+              onChange={(value) => {
+                const protocol = protocols.find(
+                  (protocol) => protocol.id === value,
+                );
+
+                setSelectedProtocol(protocol);
+              }}
+              value={selectedProtocol?.id}
+              placeholder="Select a Protocol..."
+            />
+          )}
+        </div>
       </Dialog>
     </>
   );

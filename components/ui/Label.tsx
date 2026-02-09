@@ -1,32 +1,56 @@
 'use client';
 
-import * as LabelPrimitive from '@radix-ui/react-label';
-import { type VariantProps } from 'class-variance-authority';
+import { motion } from 'motion/react';
 import * as React from 'react';
-
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import { headingVariants } from '../typography/Heading';
 
 const Label = React.forwardRef<
-  React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & {
+  React.ElementRef<'label'>,
+  React.ComponentPropsWithoutRef<'label'> & {
     required?: boolean;
-  } & VariantProps<typeof headingVariants>
->(({ className, required, ...props }, ref) => (
-  <LabelPrimitive.Root
-    ref={ref}
-    className={cn(headingVariants({ variant: 'label' }), className)}
-    {...props}
-  >
-    {props.children}
-    {required && (
-      <span className="text-destructive" aria-hidden="true">
-        {' '}
-        *
-      </span>
-    )}
-  </LabelPrimitive.Root>
-));
-Label.displayName = LabelPrimitive.Root.displayName;
+  }
+>(
+  (
+    {
+      className,
+      required,
+      onAnimationStart: _onAnimationStart,
+      onAnimationEnd: _onAnimationEnd,
+      onAnimationIteration: _onAnimationIteration,
+      onDrag: _onDrag,
+      onDragEnd: _onDragEnd,
+      onDragEnter: _onDragEnter,
+      onDragExit: _onDragExit,
+      onDragLeave: _onDragLeave,
+      onDragOver: _onDragOver,
+      onDragStart: _onDragStart,
+      onDrop: _onDrop,
+      ...props
+    },
+    ref,
+  ) => (
+    <motion.label
+      layout="position"
+      ref={ref}
+      className={cx(
+        'inline-block',
+        headingVariants({ level: 'label' }),
+        'peer-disabled:opacity-70',
+        className,
+      )}
+      {...props}
+    >
+      {props.children}
+      {required && (
+        <span className="text-destructive" aria-hidden="true">
+          {' '}
+          *
+        </span>
+      )}
+    </motion.label>
+  ),
+);
+Label.displayName = 'Label';
 
 export { Label };

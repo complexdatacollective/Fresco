@@ -5,13 +5,13 @@ import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 
 function CreateAccount() {
   return (
-    <div className="w-[30rem]">
+    <div className="w-full max-w-[30rem]">
       <div className="mb-4">
-        <Heading variant="h2">Create an Account</Heading>
+        <Heading level="h2">Create an Admin Account</Heading>
         <Paragraph>
           To use Fresco, you need to set up an administrator account which will
-          enable to you access the protected parts of the app. Only one
-          administrator account can be created.
+          enable to you access the protected parts of the app. You can create
+          more administrator accounts later on from the settings page.
         </Paragraph>
       </div>
       <Alert variant="warning">

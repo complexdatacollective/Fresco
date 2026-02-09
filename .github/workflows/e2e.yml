@@ -114,6 +114,37 @@ jobs:
           cp -r new-report/playwright-report/* merged/pr-${{ github.event.pull_request.number }}/
 
           # Generate index page listing all reports
+          cat > merged/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Fresco E2E Test Reports</title>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+              h1 { color: #333; }
+              ul { list-style: none; padding: 0; }
+              li { padding: 10px 0; border-bottom: 1px solid #eee; }
+              a { color: #0066cc; text-decoration: none; }
+              a:hover { text-decoration: underline; }
+              .timestamp { color: #666; font-size: 0.9em; }
+            </style>
+          </head>
+          <body>
+            <h1>🎭 Fresco E2E Test Reports</h1>
+            <p>Failed test reports by PR:</p>
+            <ul id="reports"></ul>
+            <script>
+              const reportsEl = document.getElementById('reports');
+              const prDirs = Array.from(document.querySelectorAll('a[href^="pr-"]')).map(a => a.getAttribute('href'));
+              // This will be populated by the directory listing
+            </script>
+          </body>
+          </html>
+          EOF
+
+          # Create a simple directory listing
           echo "<ul>" > merged/index.html.tmp
           for dir in merged/pr-*/; do
             if [ -d "$dir" ]; then
@@ -141,7 +172,7 @@ jobs:
             </style>
           </head>
           <body>
-            <h1>Fresco E2E Test Reports</h1>
+            <h1>🎭 Fresco E2E Test Reports</h1>
             <p>Failed test reports by PR:</p>
           $(cat merged/index.html.tmp)
           </body>
@@ -163,11 +194,11 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            ## Playwright E2E Test Report
+            ## 🎭 Playwright E2E Test Report
 
-            Tests failed. View the full report here:
+            ❌ **Tests failed.** View the full report here:
 
-            **[https://complexdatacollective.github.io/Fresco/pr-${{ github.event.pull_request.number }}/](https://complexdatacollective.github.io/Fresco/pr-${{ github.event.pull_request.number }}/)**
+            👉 **[https://complexdatacollective.github.io/Fresco/pr-${{ github.event.pull_request.number }}/](https://complexdatacollective.github.io/Fresco/pr-${{ github.event.pull_request.number }}/)**
 
             <details>
             <summary>Report details</summary>

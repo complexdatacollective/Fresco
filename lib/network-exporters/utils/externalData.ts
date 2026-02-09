@@ -10,7 +10,7 @@ import {
   type NcNode,
 } from '@codaco/shared-consts';
 import { get, includes, toNumber } from 'es-toolkit/compat';
-import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
+import { type FieldValue } from '~/lib/form/store/types';
 
 /**
  * Try to determine the type of an attribute based on data across all nodes
@@ -27,10 +27,10 @@ const deriveAttributeTypeFromData = (
   nodeList: NcNode[],
 ) =>
   nodeList.reduce((previousType, node) => {
-    const currentValue: FieldValue = get(
+    const currentValue = get(
       node,
       `[${entityAttributesProperty}][${attributeKey}]`,
-    );
+    ) as FieldValue | null;
 
     // if the value is null or undefined, defer to the previous type
     if (!currentValue || previousType === VariableTypes.text) {

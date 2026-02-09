@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
 import { type Table } from '@tanstack/react-table';
-import { Button } from '~/components/ui/Button';
-import { cn } from '~/utils/shadcn';
 import { CrossIcon } from 'lucide-react';
+import React from 'react';
+import { Button } from '~/components/ui/Button';
+import { cx } from '~/utils/cva';
+import Surface from '../layout/Surface';
 
 type DataTableFloatingBarProps<TData> = {
   table: Table<TData>;
@@ -19,23 +20,19 @@ export function DataTableFloatingBar<TData>({
   if (table.getFilteredSelectedRowModel().rows.length <= 0) return null;
 
   return (
-    <div
-      className={cn(
-        'mx-auto flex w-fit items-center gap-2 rounded-md bg-zinc-900 px-4 py-2 text-white',
-        className,
-      )}
+    <Surface
+      className={cx('mx-auto flex w-fit items-center gap-2 rounded', className)}
       {...props}
     >
       <Button
         aria-label="Clear selection"
         title="Clear"
-        className="h-auto bg-transparent p-1 text-white hover:bg-zinc-700"
         onClick={() => table.toggleAllRowsSelected(false)}
       >
         <CrossIcon className="size-4" aria-hidden="true" />
       </Button>
       {table.getFilteredSelectedRowModel().rows.length} row(s) selected
       {children}
-    </div>
+    </Surface>
   );
 }

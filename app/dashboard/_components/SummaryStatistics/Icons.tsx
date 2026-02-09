@@ -1,5 +1,5 @@
 export const ProtocolIcon = () => (
-  <div className="bg-platinum flex aspect-4/3 h-[40px] flex-col overflow-hidden rounded-[8px]">
+  <div className="bg-platinum flex aspect-4/3 h-[50px] flex-col overflow-hidden rounded-[8px]">
     <div className="flex h-2/3 w-full flex-col justify-center gap-[3px] px-[6px]">
       <div className="bg-platinum-dark h-[4.5px] w-10/12 rounded-full" />
       <div className="bg-platinum-dark h-[2.5px] w-3/12 rounded-full" />
@@ -11,7 +11,7 @@ export const ProtocolIcon = () => (
 );
 
 export const InterviewIcon = () => (
-  <div className="bg-platinum flex aspect-4/3 h-[40px] flex-col overflow-hidden rounded-[8px]">
+  <div className="bg-platinum flex aspect-4/3 h-[50px] flex-col overflow-hidden rounded-[8px]">
     <div className="flex h-2/4 w-full flex-col justify-center gap-[3px] px-[6px]">
       <div className="bg-platinum-dark h-[4.5px] w-10/12 rounded-full" />
       <div className="bg-platinum-dark h-[2.5px] w-3/12 rounded-full" />

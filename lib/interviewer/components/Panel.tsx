@@ -1,6 +1,8 @@
 import React, { useCallback, useState } from 'react';
-import { cn } from '~/utils/shadcn';
-import { type HighlightColor } from '../containers/NodePanels';
+import Surface from '~/components/layout/Surface';
+import Heading from '~/components/typography/Heading';
+import { cx } from '~/utils/cva';
+import { type HighlightColor } from '../Interfaces/NameGenerator/components/NodePanels';
 
 type PanelProps = React.HTMLAttributes<HTMLDivElement> & {
   title: string;
@@ -29,40 +31,46 @@ const Panel = ({
     setCollapsed((value) => !value);
   }, [setCollapsed, noCollapse]);
 
-  const panelClasses = cn(
-    'panel shadow-xl',
-    'flex flex-col grow shrink-0 basis-[5rem] bg-[var(--nc-panel-bg-muted)] border-b-[0.5rem] rounded-[var(--nc-border-radius)] mb-4 overflow-hidden',
-    'transition-all easing-in-out duration-500',
-    'last:mb-0',
+  const panelClasses = cx(
+    'flex shrink-0 grow flex-col overflow-hidden rounded border-b-10',
+    'transition-all duration-500 ease-in-out',
     highlight === null && 'border-b-0',
-    minimize && 'border-b-0 basis-0 grow-0 mb-0 opacity-0',
+    minimize && 'mb-0 grow-0 basis-0 border-b-0 opacity-0',
     collapsed && !minimize && 'grow-0',
     highlight === '--primary' && 'border-b-sea-green',
     highlight === '--nc-primary-color-seq-1' &&
-      'border-[var(--nc-primary-color-seq-1)]',
+      'border-(--nc-primary-color-seq-1)',
     highlight === '--nc-primary-color-seq-2' &&
-      'border-[var(--nc-primary-color-seq-2)]',
+      'border-(--nc-primary-color-seq-2)',
     highlight === '--nc-primary-color-seq-3' &&
-      'border-[var(--nc-primary-color-seq-3)]',
+      'border-(--nc-primary-color-seq-3)',
     highlight === '--nc-primary-color-seq-4' &&
-      'border-[var(--nc-primary-color-seq-4)]',
+      'border-(--nc-primary-color-seq-4)',
   );
 
-  const panelContentClasses = cn(
-    'flex flex-col grow shrink-0 basis-auto overflow-hidden',
+  const panelContentClasses = cx(
+    'flex shrink-0 grow basis-auto flex-col overflow-hidden',
     collapsed && !minimize && 'h-0',
   );
 
   return (
-    <div className={panelClasses}>
+    <Surface
+      className={panelClasses}
+      elevation="high"
+      level={2}
+      spacing="none"
+      noContainer
+    >
       <div
-        className="flex shrink-0 grow-0 basis-[5rem] flex-col justify-center border-b-[0.1rem] border-[var(--nc-background)] px-4 py-2 text-center"
+        className="border-background flex shrink-0 grow-0 flex-col justify-center border-b-[3px] px-4 py-2 text-center"
         onClick={toggleCollapsed}
       >
-        <h3 className="m-0">{title}</h3>
+        <Heading level="h3" margin="none">
+          {title}
+        </Heading>
       </div>
       <div className={panelContentClasses}>{children}</div>
-    </div>
+    </Surface>
   );
 };
 

@@ -18,7 +18,6 @@ import type {
   DataTableFilterableColumn,
   DataTableSearchableColumn,
 } from '~/components/DataTable/types';
-import { DataTableAdvancedToolbar } from './advanced/data-table-advanced-toolbar';
 import { DataTableFloatingBar } from './data-table-floating-bar';
 import { DataTablePagination } from './data-table-pagination';
 import { DataTableToolbar } from './data-table-toolbar';
@@ -83,26 +82,17 @@ export function DataTable<TData, TValue>({
   columns,
   searchableColumns = [],
   filterableColumns = [],
-  advancedFilter = false,
   floatingBarContent,
   deleteRowsAction,
 }: DataTableProps<TData, TValue>) {
   return (
-    <>
-      {advancedFilter ? (
-        <DataTableAdvancedToolbar
-          dataTable={dataTable}
-          filterableColumns={filterableColumns}
-          searchableColumns={searchableColumns}
-        />
-      ) : (
-        <DataTableToolbar
-          table={dataTable}
-          filterableColumns={filterableColumns}
-          searchableColumns={searchableColumns}
-          deleteRowsAction={deleteRowsAction}
-        />
-      )}
+    <div className="mx-auto flex w-full flex-col gap-6">
+      <DataTableToolbar
+        table={dataTable}
+        filterableColumns={filterableColumns}
+        searchableColumns={searchableColumns}
+        deleteRowsAction={deleteRowsAction}
+      />
       <Table>
         <TableHeader>
           {dataTable.getHeaderGroups().map((headerGroup) => (
@@ -145,7 +135,7 @@ export function DataTable<TData, TValue>({
           )}
         </TableBody>
       </Table>
-      <div className="space-y-2.5">
+      <div className="mx-auto w-fit space-y-2.5 overflow-visible">
         <DataTablePagination table={dataTable} />
         {floatingBarContent ? (
           <DataTableFloatingBar table={dataTable}>
@@ -153,6 +143,6 @@ export function DataTable<TData, TValue>({
           </DataTableFloatingBar>
         ) : null}
       </div>
-    </>
+    </div>
   );
 }
