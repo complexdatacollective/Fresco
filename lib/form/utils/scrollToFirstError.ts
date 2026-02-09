@@ -6,6 +6,8 @@ export const scrollToFirstError = (errors: FormErrors) => {
   // vertical position to ensure it is actually the "first" in page order (topmost).
   if (!errors) return;
 
+  if (Object.keys(errors).length === 0) return;
+
   const firstError = Object.keys(errors)[0];
   const el: HTMLElement | null = document.querySelector(
     `[name="${firstError}"]`,
