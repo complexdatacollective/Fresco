@@ -25,23 +25,25 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
+      - name: Restore pnpm cache
+        id: cache
+        uses: ./.github/actions/pnpm-cache
         with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          mode: restore
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Lint
         run: pnpm lint
+
+      - name: Save pnpm cache
+        if: always()
+        uses: ./.github/actions/pnpm-cache
+        with:
+          mode: save
+          cache-hit: ${{ steps.cache.outputs.cache-hit }}
+          cache-key: ${{ steps.cache.outputs.cache-key }}
 
   typecheck:
     runs-on: ubuntu-latest
@@ -57,23 +59,25 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
+      - name: Restore pnpm cache
+        id: cache
+        uses: ./.github/actions/pnpm-cache
         with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          mode: restore
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Type check
         run: pnpm typecheck
+
+      - name: Save pnpm cache
+        if: always()
+        uses: ./.github/actions/pnpm-cache
+        with:
+          mode: save
+          cache-hit: ${{ steps.cache.outputs.cache-hit }}
+          cache-key: ${{ steps.cache.outputs.cache-key }}
 
   test:
     runs-on: ubuntu-latest
@@ -89,23 +93,25 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
+      - name: Restore pnpm cache
+        id: cache
+        uses: ./.github/actions/pnpm-cache
         with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          mode: restore
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run tests
-        run: pnpm test
+      - name: Run unit tests
+        run: pnpm test:unit
+
+      - name: Save pnpm cache
+        if: always()
+        uses: ./.github/actions/pnpm-cache
+        with:
+          mode: save
+          cache-hit: ${{ steps.cache.outputs.cache-hit }}
+          cache-key: ${{ steps.cache.outputs.cache-key }}
 
   knip:
     env:
@@ -123,20 +129,22 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
+      - name: Restore pnpm cache
+        id: cache
+        uses: ./.github/actions/pnpm-cache
         with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          mode: restore
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Run knip
         run: pnpm knip
+
+      - name: Save pnpm cache
+        if: always()
+        uses: ./.github/actions/pnpm-cache
+        with:
+          mode: save
+          cache-hit: ${{ steps.cache.outputs.cache-hit }}
+          cache-key: ${{ steps.cache.outputs.cache-key }}

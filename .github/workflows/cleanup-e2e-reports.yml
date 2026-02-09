@@ -1,0 +1,183 @@
+name: Cleanup E2E Reports
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+on:
+  schedule:
+    # Run weekly on Sunday at 3am UTC
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (do not delete anything)'
+        type: boolean
+        default: false
+      max_age_days:
+        description: 'Delete reports older than this many days (0 = use PR status only)'
+        type: number
+        default: 0
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: e2e-pages-deploy
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+
+    steps:
+      - name: Fetch GitHub Pages content
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: pages
+        continue-on-error: true
+
+      - name: Check if gh-pages exists
+        id: check
+        run: |
+          if [ ! -d pages ] || [ ! "$(ls -A pages 2>/dev/null)" ]; then
+            echo "No gh-pages content found, nothing to clean up"
+            echo "has_content=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_content=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Cleanup old reports
+        if: steps.check.outputs.has_content == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+          MAX_AGE_DAYS: ${{ inputs.max_age_days || '0' }}
+        run: |
+          cd pages
+          rm -rf .git
+
+          cleaned=0
+          kept=0
+
+          for dir in pr-*/; do
+            if [ ! -d "$dir" ]; then
+              continue
+            fi
+
+            pr_num=$(echo "$dir" | sed 's/pr-\([0-9]*\)\//\1/')
+            echo "Checking PR #$pr_num..."
+
+            # Get PR state from GitHub API
+            pr_state=$(gh pr view "$pr_num" --repo "${{ github.repository }}" --json state --jq '.state' 2>/dev/null || echo "UNKNOWN")
+
+            should_delete=false
+            reason=""
+
+            # Check if PR is closed/merged
+            if [ "$pr_state" = "CLOSED" ] || [ "$pr_state" = "MERGED" ]; then
+              should_delete=true
+              reason="PR is $pr_state"
+            fi
+
+            # Check age if max_age_days is set
+            if [ "$MAX_AGE_DAYS" != "0" ] && [ -f "$dir/index.html" ]; then
+              file_age_days=$(( ($(date +%s) - $(stat -c %Y "$dir/index.html" 2>/dev/null || stat -f %m "$dir/index.html" 2>/dev/null || echo 0)) / 86400 ))
+              if [ "$file_age_days" -gt "$MAX_AGE_DAYS" ]; then
+                should_delete=true
+                reason="Report is $file_age_days days old (max: $MAX_AGE_DAYS)"
+              fi
+            fi
+
+            if [ "$should_delete" = "true" ]; then
+              if [ "$DRY_RUN" = "true" ]; then
+                echo "  [DRY RUN] Would delete $dir ($reason)"
+              else
+                echo "  Deleting $dir ($reason)"
+                rm -rf "$dir"
+              fi
+              cleaned=$((cleaned + 1))
+            else
+              echo "  Keeping $dir (PR state: $pr_state)"
+              kept=$((kept + 1))
+            fi
+          done
+
+          echo ""
+          echo "Summary: $cleaned reports to clean up, $kept reports kept"
+          echo "cleaned=$cleaned" >> $GITHUB_OUTPUT
+          echo "kept=$kept" >> $GITHUB_OUTPUT
+
+      - name: Regenerate index page
+        if: steps.check.outputs.has_content == 'true' && inputs.dry_run != true
+        run: |
+          cd pages
+
+          # Check if any pr-* directories remain
+          if ! ls -d pr-*/ 2>/dev/null | head -1 > /dev/null; then
+            # No reports left, create empty index
+            cat > index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Fresco E2E Test Reports</title>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+              h1 { color: #333; }
+              p { color: #666; }
+            </style>
+          </head>
+          <body>
+            <h1>Fresco E2E Test Reports</h1>
+            <p>No failed test reports available.</p>
+          </body>
+          </html>
+          EOF
+          else
+            # Generate index with remaining reports
+            echo "<ul>" > index.html.tmp
+            for dir in pr-*/; do
+              if [ -d "$dir" ]; then
+                pr_num=$(basename "$dir")
+                echo "  <li><a href=\"$pr_num/\">$pr_num</a></li>" >> index.html.tmp
+              fi
+            done
+            echo "</ul>" >> index.html.tmp
+
+            cat > index.html << EOF
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Fresco E2E Test Reports</title>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+              h1 { color: #333; }
+              ul { list-style: none; padding: 0; }
+              li { padding: 10px 0; border-bottom: 1px solid #eee; }
+              a { color: #0066cc; text-decoration: none; font-size: 1.1em; }
+              a:hover { text-decoration: underline; }
+            </style>
+          </head>
+          <body>
+            <h1>Fresco E2E Test Reports</h1>
+            <p>Failed test reports by PR:</p>
+          $(cat index.html.tmp)
+          </body>
+          </html>
+          EOF
+            rm index.html.tmp
+          fi
+
+      - name: Upload Pages artifact
+        if: steps.check.outputs.has_content == 'true' && inputs.dry_run != true
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages/
+
+      - name: Deploy to GitHub Pages
+        if: steps.check.outputs.has_content == 'true' && inputs.dry_run != true
+        uses: actions/deploy-pages@v4
