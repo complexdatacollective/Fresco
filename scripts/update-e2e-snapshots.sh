@@ -4,7 +4,7 @@
 
 set -e
 
-PLAYWRIGHT_VERSION="v1.57.0-noble"
+PLAYWRIGHT_VERSION="v1.58.0-noble"
 IMAGE="mcr.microsoft.com/playwright:${PLAYWRIGHT_VERSION}"
 
 echo "🐳 Running Playwright in Linux container to update snapshots..."

@@ -1,14 +1,17 @@
 'use server';
 
+import { createId } from '@paralleldrive/cuid2';
 import { redirect } from 'next/navigation';
 import { type z } from 'zod';
+import trackEvent from '~/lib/analytics';
 import { safeRevalidateTag } from '~/lib/cache';
+import { prisma } from '~/lib/db';
+import { getInstallationId } from '~/queries/appSettings';
 import {
   type AppSetting,
   appSettingPreprocessedSchema,
 } from '~/schemas/appSettings';
 import { requireApiAuth } from '~/utils/auth';
-import { prisma } from '~/lib/db';
 import { ensureError } from '~/utils/ensureError';
 import { getStringValue } from '~/utils/getStringValue';
 
@@ -29,8 +32,7 @@ export async function setAppSetting<
     }
 
     // Validate and preprocess the value using the setting-specific schema
-    const parsedValue =
-      appSettingPreprocessedSchema.shape[key].parse(value);
+    const parsedValue = appSettingPreprocessedSchema.shape[key].parse(value);
 
     // Convert the validated value to a database string
     // Filter out undefined values as they're not supported by getStringValue
@@ -57,4 +59,22 @@ export async function setAppSetting<
 export async function submitUploadThingForm(token: string) {
   await setAppSetting('uploadThingToken', token);
   redirect('/setup?step=3');
+}
+
+export async function completeOnboarding() {
+  await requireApiAuth();
+
+  const installationId = await getInstallationId();
+  if (!installationId) {
+    await setAppSetting('installationId', createId());
+  }
+  await setAppSetting('configured', true);
+  void trackEvent({
+    type: 'AppSetup',
+    metadata: {
+      installationId,
+    },
+  });
+
+  redirect('/dashboard');
 }

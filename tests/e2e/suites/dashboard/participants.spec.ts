@@ -182,8 +182,8 @@ test.describe.parallel('Participants page - parallel', () => {
     // Select all participants
     await selectAllCheckbox.click();
 
-    // Wait for selection to propagate
-    await page.waitForTimeout(300);
+    // Verify header checkbox is now checked
+    await expect(selectAllCheckbox).toHaveAttribute('aria-checked', 'true');
 
     // Verify all row checkboxes are checked (aria-checked="true")
     const rowCheckboxes = page.locator('tbody [role="checkbox"]');
