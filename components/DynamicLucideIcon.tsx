@@ -30,7 +30,7 @@ export default function DynamicLucideIcon({ name, ...props }: IconProps) {
     return null;
   }
 
-  // lucide-react/dynamicIconImports makes makes NextJS development server very slow
+  // lucide-react/dynamicIconImports makes NextJS development server very slow
   // https://github.com/lucide-icons/lucide/issues/1576
   const Icon = icons[componentName];
 
