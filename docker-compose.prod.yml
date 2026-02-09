@@ -1,6 +1,11 @@
 services:
   fresco:
-    image: "ghcr.io/complexdatacollective/fresco:latest"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres
+      - DATABASE_URL_UNPOOLED=postgresql://postgres:postgres@postgres:5432/postgres
+      - PUBLIC_URL=https://mywebsite.com
+      - UPLOADTHING_TOKEN='token'
+    image: 'ghcr.io/complexdatacollective/fresco:latest'
     depends_on:
       postgres:
         condition: service_healthy
@@ -8,7 +13,7 @@ services:
       - .:/app/next-app
     restart: always
     ports:
-      - 0:3000
+      - 3000:3000
     networks:
       - fresco_network
     environment:
@@ -21,13 +26,13 @@ services:
     image: postgres:16-alpine
     restart: always
     environment:
-      POSTGRES_DB: fresco
-    env_file:
-      - .env
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
     volumes:
-      - postgres:/var/lib/postgresql/fresco_data
+      - postgres:/var/lib/postgresql/data:Z
     healthcheck:
-      test: ["CMD", "pg_isready", '-U', '${POSTGRES_USER}']
+      test: ['CMD', 'pg_isready', '-U', 'postgres']
       interval: 5s
       timeout: 10s
       retries: 5

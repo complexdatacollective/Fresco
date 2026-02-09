@@ -49,6 +49,11 @@ model Protocol {
   codebook      Json
   assets        Asset[]
   interviews    Interview[]
+  experiments   Json?
+  isPreview     Boolean     @default(false)
+  isPending     Boolean     @default(false)
+
+  @@index([isPreview, importedAt])
 }
 
 model Asset {
@@ -59,6 +64,7 @@ model Asset {
   url       String
   size      Int
   protocols Protocol[]
+  value     String?
 
   @@index(fields: [assetId, key])
 }
@@ -98,6 +104,7 @@ enum AppSetting {
   disableAnalytics
   disableSmallScreenOverlay
   uploadThingToken
+  previewModeRequireAuth
 }
 
 model AppSettings {
@@ -110,4 +117,13 @@ model Events {
   timestamp DateTime @default(now())
   type      String
   message   String
+}
+
+model ApiToken {
+  id          String   @id @default(cuid())
+  token       String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  lastUsedAt  DateTime?
+  isActive    Boolean  @default(true)
 }

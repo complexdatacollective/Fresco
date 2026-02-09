@@ -3,38 +3,38 @@
 import { unstable_noStore } from 'next/cache';
 import { redirect } from 'next/navigation';
 import 'server-only';
-import { type z } from 'zod';
+import type { z } from 'zod';
 import { env } from '~/env';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { createCachedFunction } from '~/lib/cache';
+import { prisma } from '~/lib/db';
 import {
   type AppSetting,
   appSettingPreprocessedSchema,
 } from '~/schemas/appSettings';
-import { prisma } from '~/lib/db';
 
-export const getAppSetting = <Key extends AppSetting>(key: Key) =>
+export const getAppSetting = <Key extends AppSetting>(
+  key: Key,
+): Promise<z.infer<typeof appSettingPreprocessedSchema>[Key]> =>
   createCachedFunction(
-    async (key: AppSetting) => {
-      const keyValue = await prisma.appSettings.findUnique({
+    async (key: AppSetting): Promise<string | null> => {
+      const result = await prisma.appSettings.findUnique({
         where: { key },
       });
 
-      // If the key does not exist, return the default value
-      if (!keyValue) {
-        const value = appSettingPreprocessedSchema.shape[key].parse(
-          undefined,
-        ) as z.infer<typeof appSettingPreprocessedSchema>[Key];
-        return value;
-      }
-
-      // Parse the value using the preprocessed schema
-      return appSettingPreprocessedSchema.shape[key].parse(
-        keyValue.value,
-      ) as z.infer<typeof appSettingPreprocessedSchema>[Key];
+      // Return raw value (string or null) for caching
+      return result?.value ?? null;
     },
     [`appSettings-${key}`, 'appSettings'],
-  )(key);
+  )(key).then((rawValue) => {
+    // Parse the cached raw value to the correct type
+    // Convert null to undefined so schema defaults work correctly
+    const parsedValue = appSettingPreprocessedSchema.shape[key].parse(
+      rawValue ?? undefined,
+    );
+
+    return parsedValue as z.infer<typeof appSettingPreprocessedSchema>[Key];
+  });
 
 export async function requireAppNotExpired(isSetupRoute = false) {
   const expired = await isAppExpired();
@@ -57,14 +57,18 @@ export async function requireAppNotExpired(isSetupRoute = false) {
   return;
 }
 
-export async function isAppExpired() {
+async function isAppExpired() {
   unstable_noStore();
   const isConfigured = await getAppSetting('configured');
   const initializedAt = await getAppSetting('initializedAt');
 
+  // If initializedAt is null, app can't be expired
+  if (!initializedAt) {
+    return false;
+  }
+
   return (
-    !isConfigured &&
-    new Date(initializedAt).getTime() < Date.now() - UNCONFIGURED_TIMEOUT
+    !isConfigured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT
   );
 }
 

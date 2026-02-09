@@ -1,11 +1,14 @@
 'use server';
 
+import { type NcNetwork } from '@codaco/shared-consts';
 import { createId } from '@paralleldrive/cuid2';
-import { Prisma, type Interview, type Protocol } from '~/lib/db/generated/client';
+import { type Interview } from '~/lib/db/generated/client';
+import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
+import superjson from 'superjson';
 import trackEvent from '~/lib/analytics';
 import { safeRevalidateTag } from '~/lib/cache';
-import type { InstalledProtocols } from '~/lib/interviewer/store';
+import { createInitialNetwork } from '~/lib/interviewer/ducks/modules/session';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
 import archive from '~/lib/network-exporters/formatters/session/archive';
 import { generateOutputFiles } from '~/lib/network-exporters/formatters/session/generateOutputFiles';
@@ -18,13 +21,11 @@ import type {
   FormattedSession,
 } from '~/lib/network-exporters/utils/types';
 import { getAppSetting } from '~/queries/appSettings';
-import { getInterviewsForExport } from '~/queries/interviews';
-import type {
-  CreateInterview,
-  DeleteInterviews,
-  SyncInterview,
-} from '~/schemas/interviews';
-import { type NcNetwork } from '~/schemas/network-canvas';
+import {
+  getInterviewsForExport,
+  type GetInterviewsForExportQuery,
+} from '~/queries/interviews';
+import type { CreateInterview, DeleteInterviews } from '~/schemas/interviews';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/lib/db';
 import { ensureError } from '~/utils/ensureError';
@@ -86,26 +87,36 @@ export const updateExportTime = async (interviewIds: Interview['id'][]) => {
   }
 };
 
+export type ExportedProtocol =
+  Awaited<GetInterviewsForExportQuery>[number]['protocol'];
+
 export const prepareExportData = async (interviewIds: Interview['id'][]) => {
   await requireApiAuth();
 
-  const interviewsSessions = await getInterviewsForExport(interviewIds);
+  const interviewsSessionsRaw = await getInterviewsForExport(interviewIds);
+  const interviewsSessions = superjson.parse<GetInterviewsForExportQuery>(
+    interviewsSessionsRaw,
+  );
 
-  const protocolsMap = new Map<string, Protocol>();
+  const protocolsMap = new Map<string, ExportedProtocol>();
   interviewsSessions.forEach((session) => {
     protocolsMap.set(session.protocol.hash, session.protocol);
   });
 
-  const formattedProtocols: InstalledProtocols =
-    Object.fromEntries(protocolsMap);
+  const formattedProtocols = Object.fromEntries(protocolsMap);
+
   const formattedSessions = formatExportableSessions(interviewsSessions);
 
-  return { formattedSessions, formattedProtocols };
+  return {
+    formattedSessions: superjson.stringify(formattedSessions),
+    formattedProtocols: superjson.stringify(formattedProtocols),
+  };
 };
+export type FormattedProtocols = Record<string, ExportedProtocol>;
 
 export const exportSessions = async (
   formattedSessions: FormattedSession[],
-  formattedProtocols: InstalledProtocols,
+  formattedProtocols: FormattedProtocols,
   interviewIds: Interview['id'][],
   exportOptions: ExportOptions,
 ): Promise<ExportReturn> => {
@@ -200,7 +211,7 @@ export async function createInterview(data: CreateInterview) {
         id: true,
       },
       data: {
-        network: Prisma.JsonNull,
+        network: createInitialNetwork(),
         participant: participantStatement,
         protocol: {
           connect: {
@@ -248,35 +259,6 @@ export async function createInterview(data: CreateInterview) {
   }
 }
 
-export async function syncInterview(data: SyncInterview) {
-  const { id, network, currentStep, stageMetadata } = data;
-
-  try {
-    await prisma.interview.update({
-      where: {
-        id,
-      },
-      data: {
-        network,
-        currentStep,
-        stageMetadata,
-        lastUpdated: new Date(),
-      },
-    });
-
-    safeRevalidateTag(`getInterviewById-${id}`);
-
-    // eslint-disable-next-line no-console
-    console.log(`🚀 Interview synced with server! (${id})`);
-    return { success: true };
-  } catch (error) {
-    const message = ensureError(error).message;
-    return { success: false, error: message };
-  }
-}
-
-export type SyncInterviewType = typeof syncInterview;
-
 export async function finishInterview(interviewId: Interview['id']) {
   try {
     const updatedInterview = await prisma.interview.update({
@@ -309,6 +291,8 @@ export async function finishInterview(interviewId: Interview['id']) {
 
     safeRevalidateTag('getInterviews');
     safeRevalidateTag('summaryStatistics');
+    safeRevalidateTag('activityFeed');
+    revalidatePath('/dashboard');
 
     return { error: null };
   } catch (error) {

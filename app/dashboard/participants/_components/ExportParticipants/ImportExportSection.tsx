@@ -1,8 +1,8 @@
 import { Suspense } from 'react';
-import ResponsiveContainer from '~/components/ResponsiveContainer';
+import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import SettingsSection from '~/components/layout/SettingsSection';
+import Paragraph from '~/components/typography/Paragraph';
 import { ButtonSkeleton } from '~/components/ui/Button';
-import Paragraph from '~/components/ui/typography/Paragraph';
 import { getParticipants } from '~/queries/participants';
 import ImportCSVModal from '../ImportCSVModal';
 import ExportParticipants from './ExportParticipants';

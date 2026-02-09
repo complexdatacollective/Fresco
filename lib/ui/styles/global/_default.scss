@@ -58,7 +58,7 @@ $PREFIX: 'nc-';
 @include palette-set($PREFIX + 'background', color('navy-taupe'));
 @include palette-set($PREFIX + 'text', color('white'));
 @include palette-set($PREFIX + 'text-dark', color('charcoal'));
-@include palette-set($PREFIX + 'tex-muted', color('cyber-grape'));
+@include palette-set($PREFIX + 'text-muted', color('cyber-grape'));
 @include palette-set($PREFIX + 'link', color('neon-coral'));
 @include palette-set($PREFIX + 'light-background', color('cyber-grape'));
 @include palette-set($PREFIX + 'dark-background', color('rich-black'));
@@ -223,13 +223,21 @@ $system-font-stack: 'system-ui', sans-serif;
   --nc-body-font-family: #{$system-font-stack};
   --code-font: courier;
   --interface-prompt-flex-basis: 8rem;
-  --nc-base-font-size: min(
-    max(14px, calc(0.875rem + ((1vw - 6.4px) * 0.3125))),
-    18px
-  );
+  // --nc-base-font-size: min(
+  //   max(14px, calc(0.875rem + ((1vw - 6.4px) * 0.3125))),
+  //   18px
+  // );
+
+  // Base font size is 16px unless screen is very large, at which point it becomes 18px
+  --nc-base-font-size: 16px;
+  @media (min-width: 1200px) {
+    --nc-base-font-size: 18px;
+  }
+
+  // Base node size - used by various CSS for sizing calculations
+  --base-node-size: calc(var(--nc-base-font-size) * 10);
+
   --nc-border-radius: 0.75rem;
-  --padding-unit: 1rem;
-  --form-intro-panel-background: var(--color-cyber-grape);
 
   font-size: var(--nc-base-font-size);
 

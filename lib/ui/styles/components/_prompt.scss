@@ -30,7 +30,8 @@
 
   &__text {
     display: inline;
-    background: linear-gradient(to right, transparent, transparent),
+    background:
+      linear-gradient(to right, transparent, transparent),
       linear-gradient(to right, var(--local-text), var(--local-text));
     background-size:
       100% 0.1em,

@@ -13,7 +13,7 @@ import {
   AlertDialogTitle,
 } from '~/components/ui/AlertDialog';
 import { Button } from '~/components/ui/Button';
-import type { ProtocolWithInterviews } from '~/types/types';
+import type { ProtocolWithInterviews } from '../../_components/ProtocolsTable/ProtocolsTableClient';
 
 type DeleteProtocolsDialogProps = {
   open: boolean;
@@ -75,19 +75,22 @@ export const DeleteProtocolsDialog = ({
           </AlertDialogDescription>
           {protocolsInfo.hasInterviews &&
             !protocolsInfo.hasUnexportedInterviews && (
-              <Alert>
+              <Alert variant="info">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Warning</AlertTitle>
                 <AlertDescription>
                   {protocolsToDelete.length > 1 ? (
                     <>
                       One or more of the selected protocols have interview data
-                      that will also be deleted.
+                      that will also be deleted. This data is marked as having
+                      been exported, but you may wish to confirm this before
+                      proceeding.
                     </>
                   ) : (
                     <>
                       The selected protocol has interview data that will also be
-                      deleted.
+                      deleted. This data is marked as having been exported, but
+                      you may wish to confirm this before proceeding.
                     </>
                   )}
                 </AlertDescription>

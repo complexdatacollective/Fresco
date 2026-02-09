@@ -2,12 +2,15 @@ import type { Interview } from '~/lib/db/generated/client';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { FileWarning, Loader2, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import superjson from 'superjson';
 import {
   exportSessions,
+  type FormattedProtocols,
   prepareExportData,
   updateExportTime,
 } from '~/actions/interviews';
 import { deleteZipFromUploadThing } from '~/actions/uploadThing';
+import Heading from '~/components/typography/Heading';
 import { Button } from '~/components/ui/Button';
 import { cardClasses } from '~/components/ui/card';
 import {
@@ -17,19 +20,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog';
-import Heading from '~/components/ui/typography/Heading';
 import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
 import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
 import trackEvent from '~/lib/analytics';
-import { ExportOptionsSchema } from '~/lib/network-exporters/utils/types';
+import {
+  ExportOptionsSchema,
+  type FormattedSession,
+} from '~/lib/network-exporters/utils/types';
 import { ensureError } from '~/utils/ensureError';
 import { cn } from '~/utils/shadcn';
 import ExportOptionsView from './ExportOptionsView';
 
 const ExportingStateAnimation = () => {
   return (
-    <div className="fixed inset-0 z-99 flex flex-col items-center justify-center gap-3 bg-background/80 text-primary">
+    <div className="bg-background/80 text-primary fixed inset-0 z-99 flex flex-col items-center justify-center gap-3">
       <div
         className={cn(
           cardClasses,
@@ -84,10 +89,15 @@ export const ExportInterviewsDialog = ({
       const { formattedSessions, formattedProtocols } =
         await prepareExportData(interviewIds);
 
+      const parsedFormattedSessions =
+        superjson.parse<FormattedSession[]>(formattedSessions);
+      const parsedFormattedProtocols =
+        superjson.parse<FormattedProtocols>(formattedProtocols);
+
       // export the data
       const { zipUrl, zipKey, status, error } = await exportSessions(
-        formattedSessions,
-        formattedProtocols,
+        parsedFormattedSessions,
+        parsedFormattedProtocols,
         interviewIds,
         exportOptions,
       );

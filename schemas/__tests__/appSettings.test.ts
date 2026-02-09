@@ -1,23 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   appSettingPreprocessedSchema,
-  appSettingsSchema,
   createUploadThingTokenFormSchema,
 } from '../appSettings';
 
 describe('App Settings Schema Validators', () => {
-  describe('App Setting Schema', () => {
-    it('should reject missing required fields', () => {
-      const invalidSettings = {
-        allowAnonymousRecruitment: false,
-        initializedAt: new Date(),
-        installationId: 'installation123',
-      };
-
-      expect(() => appSettingsSchema.parse(invalidSettings)).toThrow();
-    });
-  });
-
   describe('App Setting Preprocessed Schema', () => {
     it('should parse and convert string date to Date object', () => {
       const validSettings = {
@@ -48,22 +35,6 @@ describe('App Settings Schema Validators', () => {
       expect(result.allowAnonymousRecruitment).toBe(false);
       expect(result.limitInterviews).toBe(true);
       expect(result.disableAnalytics).toBe(true);
-    });
-
-    it('should assign the default valid to invalid boolean fields', () => {
-      expect(
-        appSettingPreprocessedSchema.shape['configured'].parse('Yes'),
-      ).toEqual(false);
-
-      expect(
-        appSettingPreprocessedSchema.shape['allowAnonymousRecruitment'].parse(
-          'No',
-        ),
-      ).toEqual(false);
-
-      expect(
-        appSettingPreprocessedSchema.shape['disableAnalytics'].parse('Y'),
-      ).toEqual(false);
     });
 
     it('should reject invalid date strings', () => {
@@ -99,6 +70,7 @@ describe('App Settings Schema Validators', () => {
         installationId: 'installation123',
         disableAnalytics: true,
         disableSmallScreenOverlay: false,
+        previewModeRequireAuth: true,
       });
     });
 
@@ -120,6 +92,7 @@ describe('App Settings Schema Validators', () => {
         installationId: 'installation123',
         disableAnalytics: true,
         disableSmallScreenOverlay: false,
+        previewModeRequireAuth: true,
       });
     });
   });

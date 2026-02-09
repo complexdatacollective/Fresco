@@ -4,7 +4,7 @@ export const CloseButton = ({
   onClick,
   className,
 }: {
-  onClick: () => void;
+  onClick?: () => void;
   className?: string;
 }) => {
   return (
@@ -12,7 +12,7 @@ export const CloseButton = ({
       type="button"
       onClick={onClick}
       className={cn(
-        'rounded-sm ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted',
+        'ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted rounded-sm transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none',
         className,
       )}
     >

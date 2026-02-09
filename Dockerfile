@@ -35,10 +35,14 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy source code
 COPY . .
 
+# Build arg to disable image optimization (useful for test environments)
+ARG DISABLE_IMAGE_OPTIMIZATION=false
+ENV DISABLE_IMAGE_OPTIMIZATION=$DISABLE_IMAGE_OPTIMIZATION
+
 # Set environment variables for build - they are provided at runtime
 ENV SKIP_ENV_VALIDATION=true
 ENV NODE_ENV=production
-ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV NODE_OPTIONS="--max-old-space-size=4096 --no-network-family-autoselection"
 
 # Enable pnpm, generate Prisma client, and build
 # Note: prisma generate must run here because the generated client (lib/db/generated/)
@@ -80,6 +84,16 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./
 COPY --from=builder --chown=nextjs:nodejs /app/env.js ./
 COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./
+
+# Install Prisma CLI for database migrations (required for setup-database.js)
+# The standalone build doesn't include node_modules, so we install prisma via pnpm
+# Read version from package.json to stay in sync
+COPY --from=builder /app/package.json /tmp/package.json
+RUN corepack enable pnpm && \
+    PRISMA_VERSION=$(node -p "require('/tmp/package.json').devDependencies?.prisma || require('/tmp/package.json').dependencies?.prisma") && \
+    echo "Installing prisma@$PRISMA_VERSION" && \
+    pnpm add --force "prisma@$PRISMA_VERSION" && \
+    rm /tmp/package.json
 
 # Switch to non-root user
 USER nextjs

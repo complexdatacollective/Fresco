@@ -127,7 +127,7 @@ $module-name: form-field-slider;
       justify-content: center;
       width: max-content;
       min-height: $touch-height;
-      max-width: $align-margin * 1.75;
+      max-width: 6rem;
       text-align: center;
     }
 
@@ -167,8 +167,9 @@ $module-name: form-field-slider;
     border-radius: 100%;
     background-color: var(--active-color);
     transition-property: transform, opacity, filter;
-    transition-duration: var(--animation-duration-fast),
-      var(--animation-duration-fast), var(--animation-duration-fast);
+    transition-duration:
+      var(--animation-duration-fast), var(--animation-duration-fast),
+      var(--animation-duration-fast);
 
     &--is-disabled {
       background-color: var(--disabled-color);

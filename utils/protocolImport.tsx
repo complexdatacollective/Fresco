@@ -1,5 +1,33 @@
-import type { Protocol } from '@codaco/shared-consts';
+import {
+  type CurrentProtocol,
+  type VersionedProtocol,
+} from '@codaco/protocol-validation';
 import type Zip from 'jszip';
+import { type AssetInsertType } from '~/schemas/protocol';
+
+/**
+ * Extract apikey assets from a protocol's asset manifest.
+ */
+export function extractApikeyAssetsFromManifest(
+  assetManifest: CurrentProtocol['assetManifest'],
+): AssetInsertType[] {
+  if (!assetManifest) return [];
+
+  return Object.entries(assetManifest).flatMap(([key, entry]) => {
+    if (entry.type !== 'apikey') return [];
+    return [
+      {
+        assetId: key,
+        key: key,
+        name: entry.name,
+        type: entry.type,
+        url: '',
+        size: 0,
+        value: entry.value,
+      },
+    ];
+  });
+}
 
 // Fetch protocol.json as a parsed object from the protocol zip.
 export const getProtocolJson = async (protocolZip: Zip) => {
@@ -11,7 +39,7 @@ export const getProtocolJson = async (protocolZip: Zip) => {
     throw new Error('protocol.json not found in zip');
   }
 
-  const protocolJson = (await JSON.parse(protocolString)) as Protocol;
+  const protocolJson = (await JSON.parse(protocolString)) as VersionedProtocol;
 
   return protocolJson;
 };
@@ -21,14 +49,25 @@ export const getProtocolJson = async (protocolZip: Zip) => {
  * return them as a collection of ProtocolAsset objects, which includes useful
  * metadata about the asset.
  */
+
+type FetchedFileAsset = Omit<
+  AssetInsertType,
+  'value' | 'key' | 'size' | 'url'
+> & { file: File };
+
+type ProtocolAssetsResult = {
+  fileAssets: FetchedFileAsset[];
+  apikeyAssets: AssetInsertType[];
+};
+
 export const getProtocolAssets = async (
-  protocolJson: Protocol,
+  protocolJson: CurrentProtocol,
   protocolZip: Zip,
-) => {
+): Promise<ProtocolAssetsResult> => {
   const assetManifest = protocolJson?.assetManifest;
 
   if (!assetManifest) {
-    return [];
+    return { fileAssets: [], apikeyAssets: [] };
   }
 
   /**
@@ -40,38 +79,39 @@ export const getProtocolAssets = async (
    *     separate UID + file extension.
    *   - The type property is one of the NC asset types (e.g. 'image', 'video',
    *     etc.)
+   * Assets with type 'apikey' are handled differently:
+   *   - They are not actually files. The key itself is stored in the value field.
    */
-  const files: {
-    assetId: string;
-    name: string;
-    type: string;
-    file: File;
-  }[] = [];
+  const apikeyAssets = extractApikeyAssetsFromManifest(assetManifest);
+
+  const fileAssets: FetchedFileAsset[] = [];
 
   await Promise.all(
-    Object.keys(assetManifest).map(async (key) => {
-      const asset = assetManifest[key]!;
+    Object.entries(assetManifest)
+      .filter(([_, asset]) => asset.type !== 'apikey')
+      .map(async ([key, asset]) => {
+        if (!('source' in asset)) return;
 
-      const file = await protocolZip
-        ?.file(`assets/${asset.source}`)
-        ?.async('blob');
+        const file = await protocolZip
+          ?.file(`assets/${asset.source}`)
+          ?.async('blob');
 
-      if (!file) {
-        throw new Error(
-          `Asset "${asset.source}" was not found in asset folder!`,
-        );
-      }
+        if (!file) {
+          throw new Error(
+            `Asset "${asset.source}" was not found in asset folder!`,
+          );
+        }
 
-      files.push({
-        assetId: key,
-        name: asset.source,
-        type: asset.type,
-        file: new File([file], asset.source), // Convert Blob to File with filename
-      });
-    }),
+        fileAssets.push({
+          assetId: key,
+          name: asset.source,
+          type: asset.type,
+          file: new File([file], asset.source), // Convert Blob to File with filename
+        });
+      }),
   );
 
-  return files;
+  return { fileAssets, apikeyAssets };
 };
 
 // Helper method for reading a file as an ArrayBuffer. Useful for preparing a

@@ -13,12 +13,12 @@ type ReportStates = 'idle' | 'loading' | 'success' | 'error';
 
 function ReportNotifier({ state = 'idle' }: { state?: ReportStates }) {
   return (
-    <div className="absolute right-10 top-10">
+    <div className="absolute top-10 right-10">
       <AnimatePresence mode="wait" initial={false}>
         {state === 'loading' && (
           <motion.div
             key="loading"
-            className="flex items-center text-sm text-muted-foreground"
+            className="text-muted-foreground flex items-center text-sm"
             variants={labelAnimationVariants}
             initial="hidden"
             animate="visible"
@@ -37,7 +37,7 @@ function ReportNotifier({ state = 'idle' }: { state?: ReportStates }) {
             animate="visible"
             exit="exit"
           >
-            <CheckIcon className="mr-2 text-success" />
+            <CheckIcon className="text-success mr-2" />
             Sent analytics data!
           </motion.div>
         )}
@@ -50,7 +50,7 @@ function ReportNotifier({ state = 'idle' }: { state?: ReportStates }) {
             animate="visible"
             exit="exit"
           >
-            <XCircle className="mr-2 text-destructive" />
+            <XCircle className="text-destructive mr-2" />
             Error sending analytics data.
           </motion.div>
         )}

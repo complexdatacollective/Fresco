@@ -13,9 +13,9 @@
   &__bucket {
     display: flex;
     flex: 0 0 8rem;
+    justify-content: center;
 
     .node {
-      font-size: calc(var(--base-node-size) * 0.66);
     }
 
     .node-list {

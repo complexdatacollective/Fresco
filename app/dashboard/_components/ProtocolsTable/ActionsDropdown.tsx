@@ -1,6 +1,9 @@
 'use client';
 
+import type { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
+import { useState } from 'react';
+import { DeleteProtocolsDialog } from '~/app/dashboard/protocols/_components/DeleteProtocolsDialog';
 import { Button } from '~/components/ui/Button';
 import {
   DropdownMenu,
@@ -9,10 +12,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import type { Row } from '@tanstack/react-table';
-import { useState } from 'react';
-import type { ProtocolWithInterviews } from '~/types/types';
-import { DeleteProtocolsDialog } from '~/app/dashboard/protocols/_components/DeleteProtocolsDialog';
+import type { ProtocolWithInterviews } from './ProtocolsTableClient';
 
 export const ActionsDropdown = ({
   row,

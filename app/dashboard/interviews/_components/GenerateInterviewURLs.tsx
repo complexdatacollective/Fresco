@@ -2,6 +2,7 @@
 
 import { FileUp } from 'lucide-react';
 import { use, useEffect, useState } from 'react';
+import superjson from 'superjson';
 import { Button } from '~/components/ui/Button';
 import {
   Dialog,
@@ -19,18 +20,22 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 import { Skeleton } from '~/components/ui/skeleton';
-import type { GetInterviewsReturnType } from '~/queries/interviews';
-import type { GetProtocolsReturnType } from '~/queries/protocols';
+import type { GetInterviewsQuery } from '~/queries/interviews';
+import type {
+  GetProtocolsQuery,
+  GetProtocolsReturnType,
+} from '~/queries/protocols';
 import ExportCSVInterviewURLs from './ExportCSVInterviewURLs';
 
 export const GenerateInterviewURLs = ({
   interviews,
   protocolsPromise,
 }: {
-  interviews: Awaited<GetInterviewsReturnType>;
+  interviews: Awaited<GetInterviewsQuery>;
   protocolsPromise: GetProtocolsReturnType;
 }) => {
-  const protocols = use(protocolsPromise);
+  const rawProtocols = use(protocolsPromise);
+  const protocols = superjson.parse<GetProtocolsQuery>(rawProtocols);
 
   const [interviewsToExport, setInterviewsToExport] = useState<
     typeof interviews
@@ -81,7 +86,7 @@ export const GenerateInterviewURLs = ({
           </DialogHeader>
           <div className="flex flex-col items-center justify-end gap-4">
             {!protocols ? (
-              <Skeleton className="h-10 w-full rounded-input" />
+              <Skeleton className="rounded-input h-10 w-full" />
             ) : (
               <Select
                 onValueChange={(value) => {

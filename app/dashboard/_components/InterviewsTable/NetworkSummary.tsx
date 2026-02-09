@@ -1,15 +1,7 @@
-import type { Codebook, NcNetwork } from '@codaco/shared-consts';
+import { type Codebook } from '@codaco/protocol-validation';
+import type { NcNetwork } from '@codaco/shared-consts';
+import { type NodeColorSequence } from '~/lib/ui/components/Node';
 import { cn } from '~/utils/shadcn';
-
-type NodeColorSequence =
-  | 'node-color-seq-1'
-  | 'node-color-seq-2'
-  | 'node-color-seq-3'
-  | 'node-color-seq-4'
-  | 'node-color-seq-5'
-  | 'node-color-seq-6'
-  | 'node-color-seq-7'
-  | 'node-color-seq-8';
 
 type EdgeColorSequence =
   | 'edge-color-seq-1'
@@ -33,7 +25,11 @@ type EdgeSummaryProps = {
   count: number;
   typeName: string;
 };
-function NodeSummary({ color, count, typeName }: NodeSummaryProps) {
+function NodeSummary({
+  color = 'node-color-seq-1',
+  count,
+  typeName,
+}: NodeSummaryProps) {
   const classes = cn(
     'flex items-center h-8 w-8 justify-center rounded-full',
     'bg-linear-145 from-50% to-50%',
@@ -93,13 +89,12 @@ function EdgeSummary({ color, count, typeName }: EdgeSummaryProps) {
   );
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="flex items-center justify-center">
+    <div className="flex shrink-0 flex-col items-center">
+      <div className="flex h-8 w-8 shrink-0 grow-0 items-center justify-center">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 60 60"
-          width="24"
-          height="24"
+          className="aspect-square h-full w-full"
         >
           <g id="Links">
             <circle cx="49" cy="11" r="11" className={darkColorClass} />
@@ -136,9 +131,9 @@ function EdgeSummary({ color, count, typeName }: EdgeSummaryProps) {
           </g>
         </svg>
       </div>
-      <span className="pt-1 text-xs">
+      <div className="pt-1 text-xs">
         {typeName} ({count})
-      </span>
+      </div>
     </div>
   );
 }
@@ -159,12 +154,18 @@ const NetworkSummary = ({
       return acc;
     }, {}) ?? {},
   ).map(([nodeType, count]) => {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-    const nodeInfo = codebook.node?.[nodeType]!;
+    const nodeInfo = codebook.node?.[nodeType];
+
+    if (!nodeInfo) {
+      // eslint-disable-next-line no-console
+      console.warn(`Node type ${nodeType} not found in codebook`);
+      return null;
+    }
+
     return (
       <NodeSummary
         key={nodeType}
-        color={nodeInfo.color as NodeColorSequence}
+        color={nodeInfo.color}
         count={count}
         typeName={nodeInfo.name}
       />
@@ -177,8 +178,14 @@ const NetworkSummary = ({
       return acc;
     }, {}) ?? {},
   ).map(([edgeType, count]) => {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-    const edgeInfo = codebook.edge?.[edgeType]!;
+    const edgeInfo = codebook.edge?.[edgeType];
+
+    if (!edgeInfo) {
+      // eslint-disable-next-line no-console
+      console.warn(`Edge type ${edgeType} not found in codebook`);
+      return null;
+    }
+
     return (
       <EdgeSummary
         key={edgeType}
@@ -194,9 +201,9 @@ const NetworkSummary = ({
   }
 
   return (
-    <div className="flex min-w-[150px] flex-col gap-4">
-      <div className="grid grid-cols-3 gap-8">{nodeSummaries}</div>
-      <div className="grid grid-cols-3 gap-12">{edgeSummaries}</div>
+    <div className="flex gap-2">
+      {nodeSummaries}
+      {edgeSummaries}
     </div>
   );
 };

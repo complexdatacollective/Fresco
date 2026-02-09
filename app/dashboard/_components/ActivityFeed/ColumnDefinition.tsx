@@ -1,17 +1,17 @@
 'use client';
 
+import type { Events } from '~/lib/db/generated/client';
 import { type ColumnDef } from '@tanstack/react-table';
-import { Badge } from '~/components/ui/badge';
+import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import {
+  type Activity,
   type ActivityType,
+  activityTypes,
   type DataTableFilterableColumn,
   type DataTableSearchableColumn,
-  type Activity,
-  activityTypes,
-} from '~/lib/data-table/types';
-import type { Events } from '~/lib/db/generated/client';
+} from '~/components/DataTable/types';
+import { Badge } from '~/components/ui/badge';
 import TimeAgo from '~/components/ui/TimeAgo';
-import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { getBadgeColorsForActivityType } from './utils';
 
 export function fetchActivityFeedTableColumnDefs(): ColumnDef<
@@ -27,9 +27,10 @@ export function fetchActivityFeedTableColumnDefs(): ColumnDef<
       cell: ({ row }) => {
         const timestamp: string = row.getValue('timestamp');
         return (
-          <div className="flex space-x-2 truncate font-medium">
-            <TimeAgo date={timestamp} />
-          </div>
+          <TimeAgo
+            date={timestamp}
+            className="flex space-x-2 truncate font-medium"
+          />
         );
       },
     },
@@ -41,11 +42,7 @@ export function fetchActivityFeedTableColumnDefs(): ColumnDef<
       cell: ({ row }) => {
         const activityType: ActivityType = row.getValue('type');
         const color = getBadgeColorsForActivityType(activityType);
-        return (
-          <div className="flex min-w-[140px] space-x-2">
-            <Badge className={color}>{activityType}</Badge>
-          </div>
-        );
+        return <Badge className={color}>{activityType}</Badge>;
       },
       enableSorting: false,
       enableHiding: false,

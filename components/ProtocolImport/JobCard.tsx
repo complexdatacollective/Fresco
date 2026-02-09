@@ -2,11 +2,11 @@ import { CheckCircle, Loader2, XCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { forwardRef, useEffect, useState } from 'react';
 import { cn } from '~/utils/shadcn';
+import Heading from '../typography/Heading';
+import Paragraph from '../typography/Paragraph';
 import { Button } from '../ui/Button';
 import { CloseButton } from '../ui/CloseButton';
 import ErrorDialog from '../ui/ErrorDialog';
-import Heading from '../ui/typography/Heading';
-import Paragraph from '../ui/typography/Paragraph';
 import { type ImportJob } from './JobReducer';
 
 type JobCardProps = {
@@ -38,7 +38,7 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
       <li
         ref={ref}
         className={cn(
-          'background-card relative flex gap-4 rounded-xl border bg-card p-4 shadow-xl shadow-primary/30',
+          'background-card bg-card shadow-primary/30 relative flex gap-4 rounded-xl border p-4 shadow-xl',
           error && 'animate-shake border-destructive',
           isComplete && 'border-success',
         )}
@@ -51,8 +51,8 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
           {!(isComplete || error) && (
             <Loader2 className="h-6 w-6 animate-spin" />
           )}
-          {isComplete && <CheckCircle className="h-6 w-6 text-success" />}
-          {error && <XCircle className="h-6 w-6 text-destructive" />}
+          {isComplete && <CheckCircle className="text-success h-6 w-6" />}
+          {error && <XCircle className="text-destructive h-6 w-6" />}
         </motion.div>
         <motion.div className="w-72" layout>
           <Heading

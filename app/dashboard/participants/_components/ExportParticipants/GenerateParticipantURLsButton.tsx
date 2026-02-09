@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   Select,
@@ -9,8 +9,9 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 
-import ExportCSVParticipantURLs from './ExportCSVParticipantURLs';
-import FancyBox from '~/components/ui/FancyBox';
+import { FileUp } from 'lucide-react';
+import type { ParticipantWithInterviews } from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTableClient';
+import type { ProtocolWithInterviews } from '~/app/dashboard/_components/ProtocolsTable/ProtocolsTableClient';
 import { Button } from '~/components/ui/Button';
 import {
   Dialog,
@@ -20,23 +21,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog';
-import { FileUp } from 'lucide-react';
-import type { GetProtocolsReturnType } from '~/queries/protocols';
-import type { GetParticipantsReturnType } from '~/queries/participants';
+import FancyBox from '~/components/ui/FancyBox';
+import ExportCSVParticipantURLs from './ExportCSVParticipantURLs';
 
 export const GenerateParticipantURLs = ({
   protocols,
   participants,
 }: {
-  protocols: Awaited<GetProtocolsReturnType>;
-  participants: Awaited<GetParticipantsReturnType>;
+  protocols: ProtocolWithInterviews[];
+  participants: ParticipantWithInterviews[];
 }) => {
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>(
     [],
   );
 
   const [selectedProtocol, setSelectedProtocol] =
-    useState<Awaited<GetProtocolsReturnType>[0]>();
+    useState<ProtocolWithInterviews>();
 
   // Default to all participants selected
   useEffect(() => {

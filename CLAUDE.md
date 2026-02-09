@@ -106,6 +106,7 @@ const dbUrl = env.DATABASE_URL;
 
 - `no-console` ESLint rule is enforced
 - Must disable ESLint for intentional logs:
+
 ```typescript
 // eslint-disable-next-line no-console
 console.log('Debug info');
@@ -114,6 +115,7 @@ console.log('Debug info');
 ### Server Actions
 
 Located in `/actions/`. Pattern:
+
 - Mark with `'use server'` directive
 - Use `requireApiAuth()` for authentication
 - Return `{ error, data }` pattern
@@ -164,6 +166,7 @@ export default async function DashboardPage() {
 ### UI Components
 
 Using shadcn/ui with Tailwind. Follow the pattern:
+
 - Use `cva` (class-variance-authority) for variants
 - Use `cn()` utility from `~/utils/shadcn` for class merging
 - Export component + variants + skeleton when applicable
@@ -234,11 +237,13 @@ const interviews = await prisma.interview.findMany({
 ## Formatting
 
 Prettier configuration (`.prettierrc`):
+
 - Single quotes
 - 80 character print width
 - Tailwind class sorting plugin
 
 ESLint:
+
 - TypeScript strict type checking
 - Next.js Core Web Vitals
 - No unused variables (except `_` prefix)
@@ -252,6 +257,7 @@ ESLint:
 - **Load Tests**: k6 (`pnpm load-test`)
 
 Run tests:
+
 ```bash
 pnpm test           # Unit tests
 pnpm storybook      # Component testing
@@ -328,3 +334,7 @@ pnpm storybook      # Component testing
 - [shadcn/ui](https://ui.shadcn.com/)
 - [Prisma](https://www.prisma.io/docs)
 - [Tailwind CSS](https://tailwindcss.com/docs)
+
+## Debugging and Development Tips
+
+- Use the Playwright MCP to debug errors and view console output directly. Do NOT start the development server or the storybook server. Instead, prompt the user to start these for you.

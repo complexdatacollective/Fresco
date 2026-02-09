@@ -1,5 +1,5 @@
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { type Column } from '@tanstack/react-table';
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 
 import { Button, buttonVariants } from '~/components/ui/Button';
 import {
@@ -25,7 +25,7 @@ export function DataTableColumnHeader<TData, TValue>({
       <div
         className={cn(
           buttonVariants({ size: 'sm', variant: 'tableHeader' }),
-          'pointer-events-none',
+          'pointer-events-none p-0',
           className,
         )}
       >
@@ -35,15 +35,15 @@ export function DataTableColumnHeader<TData, TValue>({
   }
 
   return (
-    <div className={cn('flex items-center space-x-2', className)}>
+    <div className={cn('flex items-center', className)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="tableHeader" size="sm">
+          <Button variant="tableHeader" size="sm" className="p-0">
             <span>{title}</span>
             {column.getIsSorted() === 'desc' ? (
-              <ArrowDown className="ml-2 h-4 w-4 text-success" />
+              <ArrowDown className="text-success ml-2 h-4 w-4" />
             ) : column.getIsSorted() === 'asc' ? (
-              <ArrowUp className="ml-2 h-4 w-4 text-success" />
+              <ArrowUp className="text-success ml-2 h-4 w-4" />
             ) : (
               <ArrowUpDown className="w-4t ml-2 h-4" />
             )}
@@ -54,26 +54,16 @@ export function DataTableColumnHeader<TData, TValue>({
             aria-label="Sort ascending"
             onClick={() => column.toggleSorting(false)}
           >
-            <ArrowUp className="mr-2 h-3.5 w-3.5 text-foreground/70" />
+            <ArrowUp className="text-foreground/70 mr-2 h-3.5 w-3.5" />
             Asc
           </DropdownMenuItem>
           <DropdownMenuItem
             aria-label="Sort descending"
             onClick={() => column.toggleSorting(true)}
           >
-            <ArrowDown className="mr-2 h-3.5 w-3.5 text-foreground/70" />
+            <ArrowDown className="text-foreground/70 mr-2 h-3.5 w-3.5" />
             Desc
           </DropdownMenuItem>
-          {/* <DropdownMenuItem
-            aria-label="Hide column"
-            onClick={() => column.toggleVisibility(false)}
-          >
-            <EyeOff
-              className="mr-2 size-3.5 text-muted-foreground/70"
-              aria-hidden="true"
-            />
-            Hide
-          </DropdownMenuItem> */}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

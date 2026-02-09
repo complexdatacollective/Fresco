@@ -1,12 +1,12 @@
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
+import CopyDebugInfoButton from './CopyDebugInfoButton';
+import Heading from './typography/Heading';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from './ui/collapsible';
-import Heading from './ui/typography/Heading';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import CopyDebugInfoButton from './CopyDebugInfoButton';
 
 export const ErrorDetails = ({
   errorText,
@@ -33,7 +33,7 @@ export const ErrorDetails = ({
           <ChevronDown className="h-4 w-4" />
         )}
       </CollapsibleTrigger>
-      <CollapsibleContent className="relative max-h-52 flex-1 overflow-y-auto rounded-lg bg-background px-6 py-3 text-sm [&_pre]:inline-block [&_pre]:whitespace-pre-wrap">
+      <CollapsibleContent className="bg-background relative max-h-52 flex-1 overflow-y-auto rounded-lg px-6 py-3 text-sm [&_pre]:inline-block [&_pre]:whitespace-pre-wrap">
         {children}
         <CopyDebugInfoButton debugInfo={errorText} className="mt-4 p-0" />
       </CollapsibleContent>

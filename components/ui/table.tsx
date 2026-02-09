@@ -5,10 +5,10 @@ const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
-  <div className="w-full overflow-auto">
+  <div className="max-w-full overflow-x-auto rounded-md border">
     <table
       ref={ref}
-      className={cn('w-full caption-bottom text-sm', className)}
+      className={cn('w-full caption-bottom border-collapse text-sm', className)}
       {...props}
     />
   </div>
@@ -19,7 +19,11 @@ const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn('[&_tr]:border-b', className)} {...props} />
+  <thead
+    ref={ref}
+    className={cn('border-collapse [&_tr]:border-b', className)}
+    {...props}
+  />
 ));
 TableHeader.displayName = 'TableHeader';
 
@@ -41,7 +45,7 @@ const TableFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tfoot
     ref={ref}
-    className={cn('bg-primary font-medium text-primary-foreground', className)}
+    className={cn('bg-primary text-primary-foreground font-medium', className)}
     {...props}
   />
 ));
@@ -54,7 +58,7 @@ const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cn(
-      'border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted',
+      'hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors',
       className,
     )}
     {...props}
@@ -69,7 +73,7 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      'h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0',
+      'text-muted-foreground px-4 py-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0',
       className,
     )}
     {...props}
@@ -84,7 +88,7 @@ const TableCell = React.forwardRef<
   <td
     ref={ref}
     className={cn(
-      'whitespace-nowrap p-4 align-middle [&:has([role=checkbox])]:pr-0',
+      'px-4 py-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0',
       className,
     )}
     {...props}
@@ -98,10 +102,10 @@ const TableCaption = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <caption
     ref={ref}
-    className={cn('mt-4 text-sm text-muted-foreground', className)}
+    className={cn('text-muted-foreground mt-4 text-sm', className)}
     {...props}
   />
 ));
 TableCaption.displayName = 'TableCaption';
 
-export { Table, TableHeader, TableBody, TableHead, TableRow, TableCell };
+export { Table, TableBody, TableCell, TableHead, TableHeader, TableRow };
