@@ -24,6 +24,10 @@ const config: KnipConfig = {
     '@vitest/coverage-v8', // Dependency of chromatic falsely detected as unused
     '@tailwindcss/forms', // Used in globals.css but not detected as used
     'tailwindcss-animate', // Used in globals.css but not detected as used
+    '@tailwindcss/aspect-ratio', // Used in globals.css but not detected as used
+    '@tailwindcss/container-queries', // Used in globals.css but not detected as used
+    '@tailwindcss/typography', // Used in globals.css but not detected as used
+    'testcontainers', // Peer dependency of @testcontainers/postgresql
   ],
   ignoreBinaries: [
     'docker-compose', // Should be installed by developers if needed, not a project dependency
@@ -31,11 +35,20 @@ const config: KnipConfig = {
   ignoreIssues: {
     // TestFixtures is used by Playwright via base.extend<TestFixtures>() generic type parameter
     // Knip cannot detect usage through TypeScript generic type inference
-    'tests/e2e/fixtures/test.ts': ['types'],
+    'tests/e2e/fixtures/test.ts': ['types', 'exports'],
+
+    // Table helpers are part of the public test API used by future specs
+    'tests/e2e/helpers/table.ts': ['exports'],
 
     // Auth type is used in auth.d.ts for Lucia module augmentation (declare module 'lucia')
     // Knip cannot detect usage in ambient module declarations
     'utils/auth.ts': ['types'],
+
+    // Pre-existing unused type exports (not related to e2e migration)
+    'lib/interviewer/containers/Interfaces/FamilyTreeCensus/useDynamicFields.tsx':
+      ['types'],
+    'lib/protocol/validateAndMigrateProtocol.ts': ['types'],
+    'lib/uploadthing/presigned.ts': ['types'],
   },
   // Our playwright config uses non-standard locations, so knip cannot auto-detect it
   playwright: {
@@ -43,7 +56,7 @@ const config: KnipConfig = {
     entry: [
       'tests/e2e/global-setup.ts',
       'tests/e2e/global-teardown.ts',
-      'tests/e2e/suites/**/*.spec.ts',
+      'tests/e2e/specs/**/*.spec.ts',
     ],
   },
 };

@@ -229,6 +229,16 @@ export class TestDataBuilder {
     return { id };
   }
 
+  async insertSettings(settings: Record<string, string>): Promise<void> {
+    for (const [key, value] of Object.entries(settings)) {
+      await this.pool.query(
+        `INSERT INTO "AppSettings" (key, value) VALUES ($1, $2)
+         ON CONFLICT (key) DO UPDATE SET value = $2`,
+        [key, value],
+      );
+    }
+  }
+
   async setupAppSettings(
     overrides?: Partial<Record<string, string>>,
   ): Promise<void> {

@@ -1,3 +1,4 @@
+import { createId } from '@paralleldrive/cuid2';
 import { TestDataBuilder, TimestampGenerator } from './TestDataBuilder.js';
 import { log } from './logger.js';
 
@@ -14,8 +15,14 @@ export async function seedSetupEnvironment(
   const builder = new TestDataBuilder(connectionUri);
 
   try {
-    await builder.setupAppSettings({
+    // Insert only the minimal settings for an unconfigured app.
+    // Do NOT use setupAppSettings() here — its defaults include uploadThingToken
+    // which causes the setup wizard to auto-advance past the UploadThing step.
+    await builder.insertSettings({
       configured: 'false',
+      disableAnalytics: 'true',
+      installationId: `test-${createId()}`,
+      initializedAt: new Date().toISOString(),
     });
     log('setup', 'Setup environment seeded');
   } finally {
