@@ -2,7 +2,7 @@
   Types that cover the preview message exchange
   Lives here and in Architect (/architect-vite/src/utils/preview/types.ts).
   This must be kept in sync and updated in both places.
-  TODO: Move to shared pacakge when in the monorepo
+  TODO: Move to shared package when in the monorepo
 */
 
 import { type VersionedProtocol } from '@codaco/protocol-validation';

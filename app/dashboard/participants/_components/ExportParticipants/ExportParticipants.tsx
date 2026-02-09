@@ -17,8 +17,8 @@ function ExportParticipants({
 }: {
   participantsPromise: GetParticipantsReturnType;
 }) {
-  const rawParticiapnts = use(participantsPromise);
-  const participants = superjson.parse<GetParticipantsQuery>(rawParticiapnts);
+  const rawParticipants = use(participantsPromise);
+  const participants = superjson.parse<GetParticipantsQuery>(rawParticipants);
 
   const download = useDownload();
   const [isExporting, setIsExporting] = useState(false);

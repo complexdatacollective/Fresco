@@ -33,9 +33,9 @@ export const ParticipantsTableClient = ({
   participantsPromise: GetParticipantsReturnType;
   protocolsPromise: GetProtocolsReturnType;
 }) => {
-  const rawParticiapnts = use(participantsPromise);
+  const rawParticipants = use(participantsPromise);
   const rawProtocols = use(protocolsPromise);
-  const participants = SuperJSON.parse<GetParticipantsQuery>(rawParticiapnts);
+  const participants = SuperJSON.parse<GetParticipantsQuery>(rawParticipants);
   const protocols = SuperJSON.parse<GetProtocolsQuery>(rawProtocols);
 
   // Memoize the columns so they don't re-render on every render

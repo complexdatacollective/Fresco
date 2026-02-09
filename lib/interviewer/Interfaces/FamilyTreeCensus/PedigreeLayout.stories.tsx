@@ -385,13 +385,21 @@ export const MultiplePartnersWithHalfSiblings: StoryFn = () => {
       ],
       [
         { source: 'father', target: 'mother', relationship: 'partner' },
-        { source: 'father', target: 'additional-partner', relationship: 'partner' },
+        {
+          source: 'father',
+          target: 'additional-partner',
+          relationship: 'partner',
+        },
         { source: 'father', target: 'ego', relationship: 'parent' },
         { source: 'mother', target: 'ego', relationship: 'parent' },
         { source: 'father', target: 'brother', relationship: 'parent' },
         { source: 'mother', target: 'brother', relationship: 'parent' },
         { source: 'father', target: 'half-sister', relationship: 'parent' },
-        { source: 'additional-partner', target: 'half-sister', relationship: 'parent' },
+        {
+          source: 'additional-partner',
+          target: 'half-sister',
+          relationship: 'parent',
+        },
       ],
     );
     store.getState().runLayout();
@@ -473,14 +481,22 @@ export const ComplexMultiGenerational: StoryFn = () => {
         { source: 'pgf', target: 'father', relationship: 'parent' },
         { source: 'pgm', target: 'father', relationship: 'parent' },
         { source: 'pgf', target: 'half-uncle', relationship: 'parent' },
-        { source: 'pgf-partner2', target: 'half-uncle', relationship: 'parent' },
+        {
+          source: 'pgf-partner2',
+          target: 'half-uncle',
+          relationship: 'parent',
+        },
         { source: 'mgf', target: 'mother', relationship: 'parent' },
         { source: 'mgm', target: 'mother', relationship: 'parent' },
         { source: 'mgf', target: 'aunt', relationship: 'parent' },
         { source: 'mgm', target: 'aunt', relationship: 'parent' },
         // Gen 2 partnerships
         { source: 'father', target: 'mother', relationship: 'partner' },
-        { source: 'father', target: 'father-partner2', relationship: 'partner' },
+        {
+          source: 'father',
+          target: 'father-partner2',
+          relationship: 'partner',
+        },
         { source: 'aunt', target: 'aunt-h', relationship: 'partner' },
         // Gen 2 → Gen 3
         { source: 'father', target: 'ego', relationship: 'parent' },
@@ -488,7 +504,11 @@ export const ComplexMultiGenerational: StoryFn = () => {
         { source: 'father', target: 'sister', relationship: 'parent' },
         { source: 'mother', target: 'sister', relationship: 'parent' },
         { source: 'father', target: 'half-sis', relationship: 'parent' },
-        { source: 'father-partner2', target: 'half-sis', relationship: 'parent' },
+        {
+          source: 'father-partner2',
+          target: 'half-sis',
+          relationship: 'parent',
+        },
         { source: 'aunt', target: 'cousin-f', relationship: 'parent' },
         { source: 'aunt-h', target: 'cousin-f', relationship: 'parent' },
         { source: 'aunt', target: 'cousin-m', relationship: 'parent' },
@@ -527,6 +547,7 @@ export const FullScaffoldedPedigree: StoryFn = () => {
 
     const store = createFamilyTreeStore(nodes, new Map());
 
+    store.getState().initializeMinimalNetwork();
     store.getState().generatePlaceholderNetwork(
       {
         'brothers': 2,
