@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '~/lib/db';
 import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
+import trackEvent from '~/lib/analytics';
 import { ensureError } from '~/utils/ensureError';
 
 /**
@@ -27,8 +28,16 @@ const routeHandler = async (
   const validatedRequest = Schema.safeParse(rawPayload);
 
   if (!validatedRequest.success) {
-    // eslint-disable-next-line no-console
-    console.log(validatedRequest.error);
+    void trackEvent({
+      type: 'Error',
+      name: 'SyncValidationError',
+      message: validatedRequest.error.message,
+      stack: validatedRequest.error.stack,
+      metadata: {
+        interviewId,
+      },
+    });
+
     return NextResponse.json(
       {
         error: validatedRequest.error,
