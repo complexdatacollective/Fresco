@@ -16,7 +16,7 @@ function ConfigureStudy() {
   };
 
   return (
-    <div className="flex max-w-[30rem] flex-col items-stretch justify-between">
+    <div className="flex w-full max-w-[30rem] flex-col items-stretch justify-between">
       <Heading level="h2">Import Protocols</Heading>
       <Paragraph>
         If you have already created a Network Canvas protocol (

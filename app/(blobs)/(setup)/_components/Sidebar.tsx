@@ -2,6 +2,7 @@
 
 import { Check } from 'lucide-react';
 import { parseAsInteger, useQueryState } from 'nuqs';
+import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import { cx } from '~/utils/cva';
 
@@ -12,7 +13,7 @@ function OnboardSteps({ steps }: { steps: string[] }) {
   );
 
   return (
-    <div className="flex shrink-0 grow-0 flex-col gap-6 rounded bg-white px-8 py-12">
+    <Surface noContainer className="flex flex-col gap-4">
       {steps.map((step, index) => (
         <div
           key={index}
@@ -25,7 +26,7 @@ function OnboardSteps({ steps }: { steps: string[] }) {
         >
           <div
             className={cx(
-              'border-primary/6 flex h-10 w-10 items-center justify-center rounded-full border text-sm font-bold',
+              'border-primary/6 laptop:size-10 flex h-8 w-8 items-center justify-center rounded-full border text-sm font-bold',
               index < currentStep - 1 && 'bg-success border-success text-white',
               index === currentStep - 1 &&
                 'border-primary bg-primary text-white',
@@ -44,7 +45,7 @@ function OnboardSteps({ steps }: { steps: string[] }) {
           </div>
         </div>
       ))}
-    </div>
+    </Surface>
   );
 }
 

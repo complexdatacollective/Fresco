@@ -66,6 +66,11 @@ export async function requireAppNotExpired(isSetupRoute = false) {
 
 // Used to prevent user account creation after the app has been configured
 export async function requireAppNotConfigured() {
+  // Allow visiting /setup in development even after configuration
+  if (env.NODE_ENV === 'development') {
+    return;
+  }
+
   const configured = await getAppSetting('configured');
 
   if (configured) {

@@ -14,7 +14,7 @@ function ManageParticipants({
   limitInterviews: boolean;
 }) {
   return (
-    <div className="max-w-[40rem]">
+    <div className="w-full max-w-[40rem]">
       <div className="mb-6">
         <Heading level="h2">Configure Participation</Heading>
         <Paragraph>

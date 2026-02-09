@@ -27,7 +27,7 @@ export default function Documentation() {
   };
 
   return (
-    <div className="max-w-[40rem]">
+    <div className="w-full max-w-[40rem]">
       <div className="mb-12">
         <Heading level="h2">Documentation</Heading>
         <Paragraph>

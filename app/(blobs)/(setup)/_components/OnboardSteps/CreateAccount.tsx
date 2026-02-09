@@ -5,7 +5,7 @@ import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 
 function CreateAccount() {
   return (
-    <div className="w-[30rem]">
+    <div className="w-full max-w-[30rem]">
       <div className="mb-4">
         <Heading level="h2">Create an Admin Account</Heading>
         <Paragraph>

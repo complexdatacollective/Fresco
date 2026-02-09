@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { useEffect } from 'react';
 import { containerClasses } from '~/components/ContainerClasses';
+import Surface from '~/components/layout/Surface';
 import { cx } from '~/utils/cva';
 import ConnectUploadThing from '../_components/OnboardSteps/ConnectUploadThing';
 import CreateAccount from '../_components/OnboardSteps/CreateAccount';
@@ -46,9 +47,8 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
 
   const cardClasses = cx(
     containerClasses,
-    'flex flex-row gap-6 bg-transparent p-0',
+    'tablet:flex-row tablet:gap-6 mx-4 flex flex-col gap-4',
   );
-  const mainClasses = cx('flex w-full rounded bg-white p-12');
 
   useEffect(() => {
     // Redirect to step 1 if we aren't authenticated
@@ -69,9 +69,9 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
   return (
     <motion.div className={cardClasses}>
       <OnboardSteps steps={steps.map((step) => step.label)} />
-      <div className={mainClasses}>
+      <Surface noContainer>
         <StepComponent />
-      </div>
+      </Surface>
     </motion.div>
   );
 }
