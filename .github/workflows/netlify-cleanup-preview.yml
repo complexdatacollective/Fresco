@@ -2,6 +2,8 @@ name: Delete Preview Branch on Neon
 on:
   pull_request:
     types: [closed]
+permissions:
+  contents: read
 jobs:
   delete-preview:
     runs-on: ubuntu-latest
