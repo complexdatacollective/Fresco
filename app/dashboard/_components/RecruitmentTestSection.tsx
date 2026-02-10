@@ -3,7 +3,7 @@ import type { Participant, Protocol } from '~/lib/db/generated/client';
 import { type Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
-import { SuperJSON } from 'superjson';
+import SuperJSON from 'superjson';
 import { Button } from '~/components/ui/Button';
 import {
   Select,
