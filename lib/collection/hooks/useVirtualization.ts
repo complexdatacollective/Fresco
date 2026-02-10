@@ -12,19 +12,19 @@ import { rafThrottle } from '~/lib/dnd/utils';
 import { type RowInfo } from '../layout/types';
 import { type Key } from '../types';
 
-export type UseVirtualizationOptions = {
+type UseVirtualizationOptions = {
   rows: RowInfo[];
   scrollRef: React.RefObject<HTMLElement | null>;
   /** Number of rows to render beyond the visible viewport. Default: 5 */
   overscan?: number;
 };
 
-export type VirtualItem = {
+type VirtualItem = {
   row: RowInfo;
   offsetTop: number;
 };
 
-export type UseVirtualizationResult = {
+type UseVirtualizationResult = {
   /** Items currently visible (including overscan) */
   virtualItems: VirtualItem[];
   /** Total height of all content */

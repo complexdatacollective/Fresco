@@ -74,7 +74,7 @@ type ShortcutBinding = [ShortcutKeys, ShortcutHandler];
  * ]
  * ```
  */
-export type KeyboardShortcuts = ShortcutBinding[];
+type KeyboardShortcuts = ShortcutBinding[];
 
 type UseKeyboardShortcutsOptions = {
   /**

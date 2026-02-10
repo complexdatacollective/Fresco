@@ -3,7 +3,7 @@
 import { cx } from '~/utils/cva';
 import { type DropTarget } from './types';
 
-export type DropIndicatorProps = {
+type DropIndicatorProps = {
   /** Target describing where items will be dropped */
   target: DropTarget;
   /** Additional CSS classes */

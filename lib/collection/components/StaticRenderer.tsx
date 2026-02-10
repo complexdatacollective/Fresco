@@ -14,7 +14,7 @@ import {
 } from '../types';
 import { CollectionItem } from './CollectionItem';
 
-export type StaticRendererProps<T> = {
+type StaticRendererProps<T> = {
   layout: Layout<T>;
   collection: Collection<T>;
   renderItem: ItemRenderer<T>;

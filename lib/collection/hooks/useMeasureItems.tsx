@@ -5,7 +5,7 @@ import { type Layout } from '../layout/Layout';
 import { type Size } from '../layout/types';
 import { type Collection, type ItemRenderer, type Key } from '../types';
 
-export type UseMeasureItemsOptions<T> = {
+type UseMeasureItemsOptions<T> = {
   collection: Collection<T>;
   layout: Layout<T>;
   renderItem: ItemRenderer<T>;
@@ -20,7 +20,7 @@ export type UseMeasureItemsOptions<T> = {
   fontSize?: string;
 };
 
-export type UseMeasureItemsResult = {
+type UseMeasureItemsResult = {
   /** Map of item key to measured size */
   measurements: Map<Key, Size>;
   /** Whether all items have been measured */

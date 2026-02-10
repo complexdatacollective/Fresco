@@ -24,7 +24,7 @@ type ExcludeMotionConflicts<T> = Omit<
   | 'onDrop'
 >;
 
-export type BaseFieldProps = {
+type BaseFieldProps = {
   id: string;
   name?: string;
   label: string;

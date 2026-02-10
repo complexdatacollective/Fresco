@@ -11,7 +11,7 @@ import {
   type Size,
 } from './types';
 
-export type InlineGridLayoutOptions = {
+type InlineGridLayoutOptions = {
   /** Gap between items in pixels. Default: 16 */
   gap?: number;
 };

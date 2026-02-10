@@ -4,7 +4,7 @@ import { type FilterState } from './types';
 /**
  * Options for creating a FilterManager.
  */
-export type FilterManagerOptions = {
+type FilterManagerOptions = {
   /** Callback when filter query changes */
   onFilterChange?: (query: string) => void;
   /** Callback when filter results change */
