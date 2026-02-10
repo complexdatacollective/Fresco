@@ -8,7 +8,7 @@ type NodeBinProps = {
 };
 
 /**
- * Renders a droppable NodeBin which accepts `EXISTING_NODE`.
+ * Renders a droppable NodeBin which accepts `EXISTING_NODE` and `FAMILY_TREE_NODE`.
  */
 const NodeBin = ({ accepts, dropHandler }: NodeBinProps) => {
   const { dropProps, isOver, willAccept } = useDropTarget({
