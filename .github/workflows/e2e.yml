@@ -19,24 +19,13 @@ jobs:
       test-result: ${{ steps.test.outcome }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup
+        id: setup
+        uses: ./.github/actions/setup-pnpm
         with:
-          node-version-file: '.nvmrc'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Restore pnpm cache
-        id: cache
-        uses: ./.github/actions/pnpm-cache
-        with:
-          mode: restore
-          path: .pnpm-docker-store
-          key-prefix: pnpm-docker-store
+          install: 'false'
+          cache-path: .pnpm-docker-store
+          cache-key-prefix: pnpm-docker-store
 
       - name: Run E2E tests
         id: test
@@ -63,13 +52,13 @@ jobs:
           retention-days: 7
 
       - name: Save pnpm cache
-        if: always()
+        if: always() && steps.setup.outputs.cache-hit != 'true'
         uses: ./.github/actions/pnpm-cache
         with:
           mode: save
           path: .pnpm-docker-store
-          cache-hit: ${{ steps.cache.outputs.cache-hit }}
-          cache-key: ${{ steps.cache.outputs.cache-key }}
+          cache-hit: ${{ steps.setup.outputs.cache-hit }}
+          cache-key: ${{ steps.setup.outputs.cache-key }}
 
   # Deploy report to GitHub Pages on test failure (PR-specific subdirectory)
   deploy-report:
@@ -190,7 +179,7 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: Comment on PR with report link
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@v5
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |

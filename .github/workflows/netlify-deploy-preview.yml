@@ -1,0 +1,51 @@
+name: Deploy Preview
+
+on: [pull_request]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    env:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+    steps:
+      - name: Setup
+        uses: ./.github/actions/setup-pnpm
+
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v9
+
+      - name: Create Neon Branch
+        id: create-branch
+        uses: neondatabase/create-branch-action@v6
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch_name: preview/pr-${{ github.event.number }}-${{ steps.branch-name.outputs.current_branch }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+
+      - name: Install Netlify CLI
+        run: pnpm add -g netlify-cli
+
+      - name: Deploy Preview to Netlify
+        id: deploy
+        run: |
+          netlify deploy --build --alias="pr-${{ github.event.number }}" --context=deploy-preview --json > netlify-deploy.json
+          echo "deploy_url=$(jq -r '.deploy_url' netlify-deploy.json)" >> "$GITHUB_OUTPUT"
+        env:
+          DATABASE_URL: ${{ steps.create-branch.outputs.db_url_with_pooler }}
+          DATABASE_URL_UNPOOLED: ${{ steps.create-branch.outputs.db_url }}
+
+      - name: Comment on Pull Request
+        uses: peter-evans/create-or-update-comment@v5
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            | Resource | Link |
+            |----------|------|
+            | Netlify Preview | ${{ steps.deploy.outputs.deploy_url }} |
+            | Neon branch | https://console.neon.tech/app/projects/${{ vars.NEON_PROJECT_ID }}/branches/${{ steps.create-branch.outputs.branch_id }} |

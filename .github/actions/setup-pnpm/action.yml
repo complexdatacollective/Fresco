@@ -1,0 +1,64 @@
+name: 'Setup pnpm'
+description: 'Checkout, setup Node.js, install pnpm, restore cache, and install dependencies'
+
+inputs:
+  fetch-depth:
+    description: 'Number of commits to fetch (0 for full history)'
+    required: false
+    default: '1'
+  install:
+    description: 'Whether to run pnpm install --frozen-lockfile'
+    required: false
+    default: 'true'
+  cache-path:
+    description: 'Custom pnpm cache path (defaults to pnpm store path)'
+    required: false
+  cache-key-prefix:
+    description: 'Custom cache key prefix (defaults to {runner.os}-pnpm-store)'
+    required: false
+
+outputs:
+  cache-hit:
+    description: 'Whether the pnpm cache was restored'
+    value: ${{ steps.cache.outputs.cache-hit }}
+  cache-key:
+    description: 'Cache key for use in manual save step'
+    value: ${{ steps.cache.outputs.cache-key }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: ${{ inputs.fetch-depth }}
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version-file: '.nvmrc'
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+
+    - name: Restore pnpm cache
+      id: cache
+      uses: ./.github/actions/pnpm-cache
+      with:
+        mode: restore
+        path: ${{ inputs.cache-path }}
+        key-prefix: ${{ inputs.cache-key-prefix }}
+
+    - name: Install dependencies
+      if: inputs.install == 'true'
+      shell: bash
+      run: pnpm install --frozen-lockfile
+
+    - name: Save pnpm cache
+      if: inputs.install == 'true' && steps.cache.outputs.cache-hit != 'true'
+      uses: ./.github/actions/pnpm-cache
+      with:
+        mode: save
+        path: ${{ inputs.cache-path }}
+        cache-hit: ${{ steps.cache.outputs.cache-hit }}
+        cache-key: ${{ steps.cache.outputs.cache-key }}
