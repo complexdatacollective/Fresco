@@ -26,8 +26,8 @@ jobs:
         with:
           project_id: ${{ vars.NEON_PROJECT_ID }}
           branch_name: preview/pr-${{ github.event.number }}-${{ steps.branch-name.outputs.current_branch }}
-          database: ${{ secrets.NEON_DATABASE_NAME }}
-          role: ${{ secrets.NEON_DATABASE_USERNAME }}
+          database: ${{ vars.NEON_DATABASE_NAME }}
+          role: ${{ vars.NEON_DATABASE_USERNAME }}
           api_key: ${{ secrets.NEON_API_KEY }}
 
       - name: Install Netlify CLI
