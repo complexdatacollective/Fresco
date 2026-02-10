@@ -11,140 +11,24 @@ on:
       - '*'
 
 jobs:
-  lint:
+  check:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Lint
+            command: pnpm lint
+          - name: Type check
+            command: pnpm typecheck
+          - name: Unit tests
+            command: pnpm test:unit
+          - name: Knip
+            command: pnpm knip
+    name: ${{ matrix.name }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Setup
+        uses: complexdatacollective/github-actions/setup-pnpm@v1
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Restore pnpm cache
-        id: cache
-        uses: ./.github/actions/pnpm-cache
-        with:
-          mode: restore
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Save pnpm cache
-        if: always()
-        uses: ./.github/actions/pnpm-cache
-        with:
-          mode: save
-          cache-hit: ${{ steps.cache.outputs.cache-hit }}
-          cache-key: ${{ steps.cache.outputs.cache-key }}
-
-  typecheck:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Restore pnpm cache
-        id: cache
-        uses: ./.github/actions/pnpm-cache
-        with:
-          mode: restore
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Type check
-        run: pnpm typecheck
-
-      - name: Save pnpm cache
-        if: always()
-        uses: ./.github/actions/pnpm-cache
-        with:
-          mode: save
-          cache-hit: ${{ steps.cache.outputs.cache-hit }}
-          cache-key: ${{ steps.cache.outputs.cache-key }}
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Restore pnpm cache
-        id: cache
-        uses: ./.github/actions/pnpm-cache
-        with:
-          mode: restore
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run unit tests
-        run: pnpm test:unit
-
-      - name: Save pnpm cache
-        if: always()
-        uses: ./.github/actions/pnpm-cache
-        with:
-          mode: save
-          cache-hit: ${{ steps.cache.outputs.cache-hit }}
-          cache-key: ${{ steps.cache.outputs.cache-key }}
-
-  knip:
-    env:
-      SKIP_ENV_VALIDATION: true
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Restore pnpm cache
-        id: cache
-        uses: ./.github/actions/pnpm-cache
-        with:
-          mode: restore
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run knip
-        run: pnpm knip
-
-      - name: Save pnpm cache
-        if: always()
-        uses: ./.github/actions/pnpm-cache
-        with:
-          mode: save
-          cache-hit: ${{ steps.cache.outputs.cache-hit }}
-          cache-key: ${{ steps.cache.outputs.cache-key }}
+      - name: ${{ matrix.name }}
+        run: ${{ matrix.command }}
