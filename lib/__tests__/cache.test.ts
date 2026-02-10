@@ -60,6 +60,26 @@ describe('createCachedFunction', () => {
     expect(keyParts).toContain('dpl_test456');
   });
 
+  it('should include VERCEL_DEPLOYMENT_ID in keyParts when options is provided without keyParts', async () => {
+    vi.stubEnv('VERCEL_DEPLOYMENT_ID', 'dpl_test789');
+
+    vi.resetModules();
+    const { createCachedFunction } = await import('../cache');
+
+    const testFn = () => Promise.resolve('result');
+    createCachedFunction(testFn, ['appSettings'], { revalidate: 60 });
+
+    const call = mockUnstableCache.mock.calls[0] as [
+      () => Promise<string>,
+      string[] | undefined,
+      object,
+    ];
+    const keyParts = call[1];
+
+    expect(keyParts).not.toBeUndefined();
+    expect(keyParts).toContain('dpl_test789');
+  });
+
   it('should pass empty array keyParts when VERCEL_DEPLOYMENT_ID is not set and no options provided', async () => {
     vi.stubEnv('VERCEL_DEPLOYMENT_ID', '');
 
