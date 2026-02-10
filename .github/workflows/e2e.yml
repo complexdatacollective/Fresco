@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Setup
         id: setup
-        uses: ./.github/actions/setup-pnpm
+        uses: complexdatacollective/github-actions/setup-pnpm@v1
         with:
           install: 'false'
           cache-path: .pnpm-docker-store
@@ -53,12 +53,10 @@ jobs:
 
       - name: Save pnpm cache
         if: always() && steps.setup.outputs.cache-hit != 'true'
-        uses: ./.github/actions/pnpm-cache
+        uses: actions/cache/save@v4
         with:
-          mode: save
           path: .pnpm-docker-store
-          cache-hit: ${{ steps.setup.outputs.cache-hit }}
-          cache-key: ${{ steps.setup.outputs.cache-key }}
+          key: ${{ steps.setup.outputs.cache-key }}
 
   # Deploy report to GitHub Pages on test failure (PR-specific subdirectory)
   deploy-report:

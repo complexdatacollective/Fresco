@@ -14,7 +14,7 @@ jobs:
       NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
     steps:
       - name: Setup
-        uses: ./.github/actions/setup-pnpm
+        uses: complexdatacollective/github-actions/setup-pnpm@v1
 
       - name: Get branch name
         id: branch-name
