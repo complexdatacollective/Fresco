@@ -10,17 +10,11 @@ jobs:
     name: Run Chromatic
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Setup
+        uses: complexdatacollective/github-actions/setup-pnpm@v1
         with:
-          fetch-depth: 0
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+          fetch-depth: '0'
+
       - name: Run Chromatic
         uses: chromaui/action@latest
         with:
