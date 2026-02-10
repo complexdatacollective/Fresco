@@ -34,14 +34,17 @@ jobs:
       - name: Install Netlify CLI
         run: pnpm add -g netlify-cli
 
-      - name: Deploy Preview to Netlify
-        id: deploy
-        run: |
-          netlify deploy --build --alias="pr-${{ github.event.number }}" --context=deploy-preview --json > netlify-deploy.json
-          echo "deploy_url=$(jq -r '.deploy_url' netlify-deploy.json)" >> "$GITHUB_OUTPUT"
+      - name: Build
+        run: netlify build --context=deploy-preview
         env:
           DATABASE_URL: ${{ steps.create-branch.outputs.db_url_with_pooler }}
           DATABASE_URL_UNPOOLED: ${{ steps.create-branch.outputs.db_url }}
+
+      - name: Deploy Preview to Netlify
+        id: deploy
+        run: |
+          netlify deploy --alias="pr-${{ github.event.number }}" --json > netlify-deploy.json
+          echo "deploy_url=$(jq -r '.deploy_url' netlify-deploy.json)" >> "$GITHUB_OUTPUT"
 
       - name: Comment on Pull Request
         uses: peter-evans/create-or-update-comment@v5
