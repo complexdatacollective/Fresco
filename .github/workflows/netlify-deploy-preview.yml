@@ -29,6 +29,7 @@ jobs:
           database: ${{ vars.NEON_DATABASE_NAME }}
           role: ${{ vars.NEON_DATABASE_USERNAME }}
           api_key: ${{ secrets.NEON_API_KEY }}
+          prisma: true
 
       - name: Install Netlify CLI
         run: pnpm add -g netlify-cli
