@@ -57,3 +57,7 @@ storybook-static
 # Serena
 .serena
 .pnpm-store
+.pnpm-docker-store
+
+# Local Netlify folder
+.netlify

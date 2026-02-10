@@ -1,0 +1,15 @@
+name: Delete Preview Branch on Neon
+on:
+  pull_request:
+    types: [closed]
+permissions:
+  contents: read
+jobs:
+  delete-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: oven-sh/setup-bun@v2
+      - name: Delete Neon Branch
+        run: bunx neonctl branches delete preview/pr-${{ github.event.number }}-${{ github.event.pull_request.head.ref }} --project-id ${{ vars.NEON_PROJECT_ID }}
+        env:
+          api_key: ${{ secrets.NEON_API_KEY }}
