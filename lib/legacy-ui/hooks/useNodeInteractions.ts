@@ -1,14 +1,14 @@
 import { useAnimate } from 'motion/react';
 import { useCallback, useState, type CSSProperties } from 'react';
 
-export type UseNodeInteractionsOptions = {
+type UseNodeInteractionsOptions = {
   /** Whether the node has a click handler (enables press animation) */
   hasClickHandler?: boolean;
   /** Whether the node is disabled */
   disabled?: boolean;
 };
 
-export type UseNodeInteractionsReturn = {
+type UseNodeInteractionsReturn = {
   /** Ref callback to attach to the node element (for motion scope) */
   scope: React.RefObject<HTMLElement | null>;
   /** Props to spread on the node element */

@@ -6,7 +6,7 @@ import { type SelectionManager } from '../selection/SelectionManager';
 import { type SelectableItemResult } from '../selection/types';
 import { type Key } from '../types';
 
-export type UseSelectableItemOptions = {
+type UseSelectableItemOptions = {
   /** The key of this item */
   key: Key;
   /** Selection manager instance */

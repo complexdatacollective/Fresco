@@ -11,7 +11,7 @@ import {
   type Size,
 } from './types';
 
-export type ListLayoutOptions = {
+type ListLayoutOptions = {
   gap?: number;
 };
 

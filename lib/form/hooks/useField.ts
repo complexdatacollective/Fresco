@@ -55,7 +55,7 @@ function shouldShowFieldError(
   return validateOnChange || meta.isBlurred;
 }
 
-export type UseFieldResult = {
+type UseFieldResult = {
   id: string;
   meta: {
     shouldShowError: boolean;
@@ -87,7 +87,7 @@ export type UseFieldResult = {
 /** Default debounce delay for validateOnChange in milliseconds */
 const DEFAULT_VALIDATE_ON_CHANGE_DELAY = 1000;
 
-export type UseFieldConfig = {
+type UseFieldConfig = {
   name: string;
   initialValue?: FieldValue;
   showValidationHints?: boolean;

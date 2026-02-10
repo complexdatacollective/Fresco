@@ -7,7 +7,7 @@ import InputField from '~/lib/form/components/fields/InputField';
 import { cx } from '~/utils/cva';
 import { useOptionalFilterManager } from '../contexts';
 
-export type CollectionFilterInputProps = {
+type CollectionFilterInputProps = {
   /** Placeholder text for the input. Default: "Search..." */
   placeholder?: string;
   /** Show a clear button when there's a query. Default: true */

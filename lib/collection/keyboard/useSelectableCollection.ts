@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, type RefObject } from 'react';
 import { type SelectionManager } from '../selection/SelectionManager';
 import { type KeyboardDelegate } from './types';
 
-export type UseSelectableCollectionOptions = {
+type UseSelectableCollectionOptions = {
   /** Selection manager for the collection */
   selectionManager: SelectionManager;
   /** Keyboard delegate for navigation */
@@ -19,7 +19,7 @@ export type UseSelectableCollectionOptions = {
   disallowTypeAhead?: boolean;
 };
 
-export type UseSelectableCollectionResult = {
+type UseSelectableCollectionResult = {
   /** Props to spread on the collection container */
   collectionProps: {
     onKeyDown: (e: React.KeyboardEvent) => void;

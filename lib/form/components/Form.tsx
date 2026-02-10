@@ -9,7 +9,7 @@ import FormStoreProvider from '../store/formStoreProvider';
 import type { FormSubmitHandler } from '../store/types';
 import FormErrorsList from './FormErrors';
 
-export type FormProps = {
+type FormProps = {
   onSubmit: FormSubmitHandler;
   children: React.ReactNode;
 } & Omit<ComponentProps<'form'>, 'onSubmit' | 'children' | 'submitButton'>;

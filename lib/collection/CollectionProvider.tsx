@@ -5,7 +5,7 @@ import { CollectionStoreContext } from './contexts';
 import { createCollectionStore, type CollectionStoreApi } from './store';
 import { type KeyExtractor, type TextValueExtractor } from './types';
 
-export type CollectionProviderProps<T> = {
+type CollectionProviderProps<T> = {
   /** Items to populate the collection with */
   items: T[];
   /** Function to extract unique key from each item */

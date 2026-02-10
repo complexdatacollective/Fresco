@@ -11,7 +11,7 @@ import {
   type Size,
 } from './types';
 
-export type GridLayoutOptions = {
+type GridLayoutOptions = {
   /** Minimum width for items. Columns are calculated to fit items of at least this width. Default: 200 */
   minItemWidth?: number;
   /** Gap between items. Default: 16 */

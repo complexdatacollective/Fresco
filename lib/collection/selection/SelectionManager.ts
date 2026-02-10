@@ -11,7 +11,7 @@ import {
 /**
  * Options for creating a SelectionManager.
  */
-export type SelectionManagerOptions = {
+type SelectionManagerOptions = {
   /** Callback when selection changes */
   onSelectionChange?: (keys: Set<Key>) => void;
 };

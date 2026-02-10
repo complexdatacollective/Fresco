@@ -4,7 +4,7 @@ export type NumberPart = {
   key?: string;
 };
 
-export type FormattedParts = {
+type FormattedParts = {
   pre: NumberPart[];
   integer: NumberPart[];
   fraction: NumberPart[];

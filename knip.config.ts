@@ -24,13 +24,10 @@ const config: KnipConfig = {
     '@vitest/coverage-v8', // Dependency of chromatic falsely detected as unused
     '@tailwindcss/forms', // Used in globals.css but not detected as used
     'tailwindcss-animate', // Used in globals.css but not detected as used
-    '@tailwindcss/aspect-ratio', // Used in globals.css but not detected as used
-    '@tailwindcss/container-queries', // Used in globals.css but not detected as used
-    '@tailwindcss/typography', // Used in globals.css but not detected as used
-    'testcontainers', // Peer dependency of @testcontainers/postgresql
   ],
   ignoreBinaries: [
     'docker-compose', // Should be installed by developers if needed, not a project dependency
+    'netlify', // Installed during CI via pnpm add -g netlify-cli
   ],
   ignoreIssues: {
     // TestFixtures is used by Playwright via base.extend<TestFixtures>() generic type parameter
