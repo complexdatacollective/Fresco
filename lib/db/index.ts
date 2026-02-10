@@ -59,6 +59,13 @@ const createPrismaClient = () => {
             network: true,
           },
           compute: ({ network }) => {
+            if (!network) {
+              return NcNetworkSchema.parse({
+                nodes: [],
+                edges: [],
+                ego: { _uid: 'empty', attributes: {} },
+              });
+            }
             return NcNetworkSchema.parse(network);
           },
         },
