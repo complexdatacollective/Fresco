@@ -18,7 +18,7 @@ import {
 import { useCollection } from './useCollection';
 import { useSelectionState } from './useSelectionState';
 
-export type UseCollectionSetupOptions = {
+type UseCollectionSetupOptions = {
   selectionMode?: SelectionMode;
   selectedKeys?: Iterable<Key>;
   defaultSelectedKeys?: Iterable<Key>;
@@ -30,7 +30,7 @@ export type UseCollectionSetupOptions = {
   collectionId?: string;
 };
 
-export type UseCollectionSetupResult<T> = {
+type UseCollectionSetupResult<T> = {
   collection: Collection<T>;
   selectionManager: SelectionManager;
   disabledKeysSet: Set<Key>;

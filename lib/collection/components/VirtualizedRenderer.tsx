@@ -29,7 +29,7 @@ const ANIMATION_CONFIG = {
   staggerDelay: 0.05,
 } as const;
 
-export type VirtualizedRendererProps<T> = {
+type VirtualizedRendererProps<T> = {
   layout: Layout<T>;
   collection: Collection<T>;
   renderItem: ItemRenderer<T>;

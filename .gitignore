@@ -67,3 +67,6 @@ storybook-static
 
 .pnpm-store
 .pnpm-docker-store
+
+# Local Netlify folder
+.netlify

@@ -6,7 +6,7 @@ import { cx } from '~/utils/cva';
 import { useOptionalSortManager } from '../contexts';
 import { type SortProperty, type SortType } from '../sorting/types';
 
-export type CollectionSortButtonProps = {
+type CollectionSortButtonProps = {
   /** Property to sort by when clicked */
   property: SortProperty;
   /** Type of comparison to use */

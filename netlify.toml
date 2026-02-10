@@ -1,2 +1,3 @@
 [build]
+  publish = ".next"
   command = "pnpm build:platform"

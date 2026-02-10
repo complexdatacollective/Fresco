@@ -52,7 +52,7 @@ export function createCachedFunction<T extends UnstableCacheParams[0]>(
   // stale or incompatible cached values from each other.
   // eslint-disable-next-line no-process-env
   const VERCEL_DEPLOYMENT_ID = process.env.VERCEL_DEPLOYMENT_ID;
-  const keyParts = options?.keyParts?.concat(
+  const keyParts = (options?.keyParts ?? []).concat(
     VERCEL_DEPLOYMENT_ID ? [VERCEL_DEPLOYMENT_ID] : [],
   );
 

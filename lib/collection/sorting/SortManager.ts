@@ -9,7 +9,7 @@ import {
 /**
  * Options for creating a SortManager.
  */
-export type SortManagerOptions = {
+type SortManagerOptions = {
   /** Callback when sort changes */
   onSortChange?: (state: {
     property: SortProperty | null;

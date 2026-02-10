@@ -13,7 +13,7 @@ import { cx } from '~/utils/cva';
 import { useOptionalSortManager } from '../contexts';
 import { type SortableProperty, type SortProperty } from '../sorting/types';
 
-export type CollectionSortSelectProps = {
+type CollectionSortSelectProps = {
   /** Array of sortable properties to display in the dropdown */
   options: SortableProperty[];
   /** Placeholder text when no sort is active */
