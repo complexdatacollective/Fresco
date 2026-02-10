@@ -1,13 +1,16 @@
 import { hash } from 'ohash';
 import { Suspense } from 'react';
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
-import { getActivities } from '~/queries/activityFeed';
+import { type getActivities } from '~/queries/activityFeed';
 import ActivityFeedTable from './ActivityFeedTable';
 import { searchParamsCache } from './SearchParams';
 
-export default function ActivityFeed() {
+type ActivityFeedProps = {
+  activitiesPromise: ReturnType<typeof getActivities>;
+};
+
+export default function ActivityFeed({ activitiesPromise }: ActivityFeedProps) {
   const searchParams = searchParamsCache.all();
-  const activitiesPromise = getActivities(searchParams);
 
   return (
     <Suspense

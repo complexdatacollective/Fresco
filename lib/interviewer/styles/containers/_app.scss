@@ -1,3 +1,5 @@
+@use '../../../legacy-ui/styles/global/core/palette';
+
 #root {
   // sass-lint:disable-line no-ids
   height: 100%;
@@ -11,7 +13,7 @@
 
 // container for menus and content
 .app {
-  background: palette('primary');
+  background: palette.palette('primary');
   height: 100%;
   width: 100vw;
 
@@ -40,7 +42,7 @@
     justify-content: center;
     align-items: center;
 
-    background: palette('background');
+    background: palette.palette('background');
     box-sizing: border-box;
     height: 100%;
     overflow: hidden;

@@ -1,7 +1,9 @@
+@use '../mixins';
+
 .node-layout {
   --border: calc(var(--base-node-size) * 0.275);
 
-  @include gpu;
+  @include mixins.gpu;
 
   position: absolute;
   width: 100%;
@@ -10,7 +12,7 @@
   left: 0;
 
   &__node {
-    @include gpu;
+    @include mixins.gpu;
 
     position: absolute;
     transform: translate(-50%, -50%);

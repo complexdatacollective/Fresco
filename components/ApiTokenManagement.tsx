@@ -1,52 +1,45 @@
 'use client';
 
+import { type ColumnDef, type Row } from '@tanstack/react-table';
+import { Clipboard } from 'lucide-react';
 import { useState } from 'react';
-import SuperJSON from 'superjson';
 import {
   createApiToken,
   deleteApiToken,
   updateApiToken,
 } from '~/actions/apiTokens';
-import { type GetApiTokensQuery } from '~/queries/apiTokens';
+import { DataTable } from '~/components/DataTable/DataTable';
+import Dialog from '~/lib/dialogs/Dialog';
+import InputField from '~/lib/form/components/fields/InputField';
+import { type GetApiTokensReturnType } from '~/queries/apiTokens';
+import { DataTableColumnHeader } from './DataTable/ColumnHeader';
 import { Alert, AlertDescription, AlertTitle } from './ui/Alert';
 import { Button } from './ui/Button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from './ui/dialog';
-import { Input } from './ui/Input';
 import { Label } from './ui/Label';
 import { Switch } from './ui/switch';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from './ui/table';
+import TimeAgo from './ui/TimeAgo';
+import { useToast } from './ui/Toast';
 
-type ApiToken = GetApiTokensQuery[number];
+type ApiToken = GetApiTokensReturnType[number];
 
 type ApiTokenManagementProps = {
-  rawTokens: string | null;
+  tokens: GetApiTokensReturnType;
+  disabled?: boolean;
 };
 
 export default function ApiTokenManagement({
-  rawTokens,
+  tokens: initialTokens,
+  disabled,
 }: ApiTokenManagementProps) {
-  const initialTokens: ApiToken[] = rawTokens
-    ? SuperJSON.parse<ApiToken[]>(rawTokens)
-    : [];
   const [tokens, setTokens] = useState<ApiToken[]>(initialTokens);
   const [isCreating, setIsCreating] = useState(false);
   const [newTokenDescription, setNewTokenDescription] = useState('');
   const [createdToken, setCreatedToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [tokenToDelete, setTokenToDelete] = useState<ApiToken | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const { add } = useToast();
 
   const handleCreateToken = async () => {
     setIsLoading(true);
@@ -69,6 +62,7 @@ export default function ApiTokenManagement({
       ]);
       setCreatedToken(result.data.token);
       setNewTokenDescription('');
+      setIsCreating(false);
     }
 
     setIsLoading(false);
@@ -88,101 +82,129 @@ export default function ApiTokenManagement({
     }
   };
 
-  const handleDeleteToken = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this API token?')) {
-      return;
-    }
-
-    const result = await deleteApiToken({ id });
+  const handleDeleteToken = async (token: ApiToken) => {
+    setIsDeleting(true);
+    const result = await deleteApiToken({ id: token.id });
 
     if (result.error) {
-      alert(result.error);
+      add({ title: result.error, type: 'destructive' });
     } else {
-      setTokens(tokens.filter((token) => token.id !== id));
+      setTokens(tokens.filter((t) => t.id !== token.id));
+      setTokenToDelete(null);
     }
+    setIsDeleting(false);
   };
 
-  const formatDate = (date: Date | null) => {
-    if (!date) return 'Never';
-    return new Date(date).toLocaleString();
+  const handleDeleteSelected = (data: ApiToken[]) => {
+    const token = data[0];
+    if (!token) return;
+    setTokenToDelete(token);
   };
+
+  const columns: ColumnDef<ApiToken>[] = [
+    {
+      accessorKey: 'description',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Description" />
+      ),
+      cell: ({ row }) => (
+        <span
+          data-testid={`token-row-${row.original.description ?? 'Untitled'}`}
+        >
+          {row.original.description ?? <em>Untitled</em>}
+        </span>
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: 'createdAt',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Created" />
+      ),
+      cell: ({ row }) => (
+        <TimeAgo
+          date={row.original.createdAt}
+          className="flex space-x-2 truncate"
+        />
+      ),
+    },
+    {
+      accessorKey: 'lastUsedAt',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Last Used" />
+      ),
+      cell: ({ row }) => {
+        if (!row.original.lastUsedAt) {
+          return 'Never';
+        }
+
+        return (
+          <TimeAgo
+            date={row.original.lastUsedAt}
+            className="flex space-x-2 truncate"
+          />
+        );
+      },
+    },
+    {
+      accessorKey: 'isActive',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Status" />
+      ),
+      cell: ({ row }) => (
+        <Switch
+          checked={row.original.isActive}
+          disabled={disabled}
+          onCheckedChange={() =>
+            handleToggleActive(row.original.id, row.original.isActive)
+          }
+        />
+      ),
+    },
+  ];
+
+  const ActionsCell = ({ row }: { row: Row<ApiToken>; data: ApiToken[] }) => (
+    <Button
+      onClick={() => setTokenToDelete(row.original)}
+      color="destructive"
+      size="sm"
+      disabled={disabled}
+      data-testid={`delete-token-${row.original.description ?? 'Untitled'}`}
+    >
+      Delete
+    </Button>
+  );
 
   return (
-    <div className="space-y-4">
-      <Button onClick={() => setIsCreating(true)} size="sm">
+    <div className="space-y-4" data-testid="api-token-management">
+      <Button
+        onClick={() => setIsCreating(true)}
+        color="primary"
+        size="sm"
+        disabled={disabled}
+        data-testid="create-token-button"
+      >
         Create New Token
       </Button>
-
-      {tokens.length === 0 ? (
-        <p className="text-muted-foreground text-sm">
-          No API tokens created yet.
-        </p>
-      ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Description</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead>Last Used</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {tokens.map((token) => (
-              <TableRow key={token.id}>
-                <TableCell className="whitespace-normal">
-                  {token.description ?? <em>Untitled</em>}
-                </TableCell>
-                <TableCell>{formatDate(token.createdAt)}</TableCell>
-                <TableCell>{formatDate(token.lastUsedAt)}</TableCell>
-                <TableCell>
-                  <Switch
-                    checked={token.isActive}
-                    onCheckedChange={() =>
-                      handleToggleActive(token.id, token.isActive)
-                    }
-                  />
-                </TableCell>
-                <TableCell>
-                  <Button
-                    onClick={() => handleDeleteToken(token.id)}
-                    variant="destructive"
-                    size="sm"
-                  >
-                    Delete
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
+      <DataTable
+        data={tokens}
+        columns={columns}
+        actions={ActionsCell}
+        handleDeleteSelected={handleDeleteSelected}
+        surfaceLevel={1}
+        emptyText="No API tokens created yet."
+      />
 
       {/* Create Token Dialog */}
-      <Dialog open={isCreating} onOpenChange={setIsCreating}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create API Token</DialogTitle>
-            <DialogDescription>
-              Create a new API token for authenticating preview protocol
-              uploads.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="description">Description (optional)</Label>
-              <Input
-                id="description"
-                placeholder="e.g., Development token"
-                value={newTokenDescription}
-                onChange={(e) => setNewTokenDescription(e.target.value)}
-              />
-            </div>
-          </div>
-          <DialogFooter>
+      <Dialog
+        open={isCreating}
+        closeDialog={() => setIsCreating(false)}
+        title="Create API Token"
+        description="Create a new API token for authenticating preview protocol uploads."
+        footer={
+          <>
             <Button
-              variant="outline"
               onClick={() => {
                 setIsCreating(false);
                 setNewTokenDescription('');
@@ -190,43 +212,91 @@ export default function ApiTokenManagement({
             >
               Cancel
             </Button>
-            <Button onClick={handleCreateToken} disabled={isLoading}>
+            <Button
+              onClick={handleCreateToken}
+              disabled={isLoading}
+              color="primary"
+              data-testid="confirm-create-token-button"
+            >
               {isLoading ? 'Creating...' : 'Create Token'}
             </Button>
-          </DialogFooter>
-        </DialogContent>
+          </>
+        }
+      >
+        <div data-field-name="description">
+          <Label htmlFor="description">Description (optional)</Label>
+          <InputField
+            id="description"
+            placeholder="e.g., Development token"
+            value={newTokenDescription}
+            onChange={(value) => setNewTokenDescription(value ?? '')}
+          />
+        </div>
       </Dialog>
 
       {/* Show Created Token Dialog */}
-      <Dialog open={!!createdToken} onOpenChange={() => setCreatedToken(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>API Token Created</DialogTitle>
-            <DialogDescription>
-              Save this token securely. You won&apos;t be able to see it again.
-            </DialogDescription>
-          </DialogHeader>
-          <Alert>
-            <AlertTitle>Your API Token</AlertTitle>
-            <AlertDescription>
-              <code className="bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm">
-                {createdToken}
-              </code>
-            </AlertDescription>
-          </Alert>
-          <DialogFooter>
+      <Dialog
+        accent="success"
+        open={!!createdToken}
+        closeDialog={() => setCreatedToken(null)}
+        title="API Token Created"
+        description="Your token has been created and is displayed below. Save this token somewhere safe now - you won't be able to see it again after you close this dialog."
+        footer={
+          <>
+            <Button
+              onClick={() => setCreatedToken(null)}
+              data-testid="close-token-dialog-button"
+            >
+              Close
+            </Button>
             <Button
               onClick={() => {
                 void navigator.clipboard.writeText(createdToken!);
+                add({ title: 'Copied to clipboard', type: 'success' });
               }}
-              variant="outline"
+              icon={<Clipboard />}
+              color="primary"
             >
               Copy to Clipboard
             </Button>
-            <Button onClick={() => setCreatedToken(null)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
+          </>
+        }
+      >
+        <Alert variant="success" data-testid="created-token-alert">
+          <AlertTitle>Your API Token</AlertTitle>
+          <AlertDescription>
+            <code className="font-monospace relative rounded px-[0.3rem] py-[0.2rem] text-sm">
+              {createdToken}
+            </code>
+          </AlertDescription>
+        </Alert>
       </Dialog>
+      {/* Delete Token Confirmation Dialog */}
+      <Dialog
+        accent="destructive"
+        open={!!tokenToDelete}
+        closeDialog={() => setTokenToDelete(null)}
+        title="Delete API Token"
+        description="Are you sure you want to delete this API token? Any applications using this token will no longer be able to authenticate."
+        footer={
+          <>
+            <Button
+              onClick={() => setTokenToDelete(null)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => tokenToDelete && handleDeleteToken(tokenToDelete)}
+              disabled={isDeleting}
+              color="primary"
+              data-testid="confirm-delete-token-button"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete Token'}
+            </Button>
+          </>
+        }
+      />
     </div>
   );
 }

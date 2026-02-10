@@ -1,5 +1,4 @@
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
-import Section from '~/components/layout/Section';
 import PageHeader from '~/components/typography/PageHeader';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
@@ -11,16 +10,13 @@ export default async function InterviewPage() {
 
   return (
     <>
-      <ResponsiveContainer>
-        <PageHeader
-          headerText="Interviews"
-          subHeaderText="View and manage your interview data."
-        />
-      </ResponsiveContainer>
-      <ResponsiveContainer maxWidth="8xl" baseSize="content">
-        <Section>
-          <InterviewsTableServer />
-        </Section>
+      <PageHeader
+        headerText="Interviews"
+        subHeaderText="View and manage your interview data."
+        data-testid="interviews-page-header"
+      />
+      <ResponsiveContainer maxWidth="full" baseSize="content" container={false}>
+        <InterviewsTableServer />
       </ResponsiveContainer>
     </>
   );

@@ -2,19 +2,27 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
-import { getSummaryStatistics } from '~/queries/summaryStatistics';
+import { type getSummaryStatistics } from '~/queries/summaryStatistics';
 import { InterviewIcon, ProtocolIcon } from './Icons';
 import StatCard, { StatCardSkeleton } from './StatCard';
 
-export default function SummaryStatistics() {
-  const data = getSummaryStatistics();
+type SummaryStatisticsProps = {
+  dataPromise: ReturnType<typeof getSummaryStatistics>;
+};
 
+export default function SummaryStatistics({
+  dataPromise,
+}: SummaryStatisticsProps) {
   return (
     <ResponsiveContainer
-      className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:gap-6"
+      className="tablet:grid-cols-3 desktop:gap-6 grid grid-cols-1 gap-4"
       maxWidth="6xl"
     >
-      <Link href="/dashboard/protocols">
+      <Link
+        className="focusable @container rounded"
+        href="/dashboard/protocols"
+        data-testid="stat-card-protocols"
+      >
         <Suspense
           fallback={
             <StatCardSkeleton title="Protocols" icon={<ProtocolIcon />} />
@@ -22,13 +30,17 @@ export default function SummaryStatistics() {
         >
           <StatCard
             title="Protocols"
-            dataPromise={data}
+            dataPromise={dataPromise}
             render="protocolCount"
             icon={<ProtocolIcon />}
           />
         </Suspense>
       </Link>
-      <Link href="/dashboard/participants">
+      <Link
+        className="focusable @container rounded"
+        href="/dashboard/participants"
+        data-testid="stat-card-participants"
+      >
         <Suspense
           fallback={
             <StatCardSkeleton
@@ -47,7 +59,7 @@ export default function SummaryStatistics() {
         >
           <StatCard
             title="Participants"
-            dataPromise={data}
+            dataPromise={dataPromise}
             render="participantCount"
             icon={
               <Image
@@ -61,7 +73,11 @@ export default function SummaryStatistics() {
           />
         </Suspense>
       </Link>
-      <Link href="/dashboard/interviews">
+      <Link
+        className="focusable @container rounded"
+        href="/dashboard/interviews"
+        data-testid="stat-card-interviews"
+      >
         <Suspense
           fallback={
             <StatCardSkeleton title="Interviews" icon={<InterviewIcon />} />
@@ -69,7 +85,7 @@ export default function SummaryStatistics() {
         >
           <StatCard
             title="Interviews"
-            dataPromise={data}
+            dataPromise={dataPromise}
             render="interviewCount"
             icon={<InterviewIcon />}
           />
@@ -78,25 +94,3 @@ export default function SummaryStatistics() {
     </ResponsiveContainer>
   );
 }
-
-export const SummaryStatisticsSkeleton = () => (
-  <ResponsiveContainer
-    className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:gap-6"
-    maxWidth="6xl"
-  >
-    <StatCardSkeleton title="Protocols" icon={<ProtocolIcon />} />
-    <StatCardSkeleton
-      title="Participants"
-      icon={
-        <Image
-          src="/images/participant.svg"
-          width={50}
-          height={50}
-          alt="Participant icon"
-          className="max-w-none"
-        />
-      }
-    />
-    <StatCardSkeleton title="Interviews" icon={<InterviewIcon />} />
-  </ResponsiveContainer>
-);

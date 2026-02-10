@@ -1,6 +1,6 @@
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
-export default function UnorderedList({
+export function UnorderedList({
   children,
   className,
 }: {
@@ -8,8 +8,22 @@ export default function UnorderedList({
   className?: string;
 }) {
   return (
-    <ul className={cn('my-2 ml-8 list-disc [&>li]:mt-1', className)}>
+    <ul className={cx('ml-8 list-disc not-last:mb-4', className)}>
       {children}
     </ul>
+  );
+}
+
+export function OrderedList({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <ol className={cx('ml-8 list-decimal not-last:mb-4', className)}>
+      {children}
+    </ol>
   );
 }

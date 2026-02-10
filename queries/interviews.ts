@@ -1,5 +1,6 @@
 import 'server-only';
 import { stringify } from 'superjson';
+import { createCachedFunction } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 
 /**
@@ -18,16 +19,11 @@ export type GetInterviewsQuery = Awaited<
   ReturnType<typeof prisma_getInterviews>
 >;
 
-/*export const getInterviews = createCachedFunction(async () => {
+export const getInterviews = createCachedFunction(async () => {
   const interviews = await prisma_getInterviews();
   const safeInterviews = stringify(interviews);
   return safeInterviews;
-}, ['getInterviews']);*/
-export const getInterviews = async () => {
-  const interviews = await prisma_getInterviews();
-  const safeInterviews = stringify(interviews);
-  return safeInterviews;
-};
+}, ['getInterviews']);
 
 export type GetInterviewsReturnType = ReturnType<typeof getInterviews>;
 async function prisma_getInterviewsForExport(interviewIds: string[]) {

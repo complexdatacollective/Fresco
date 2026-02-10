@@ -1,0 +1,320 @@
+'use client';
+
+import { Radio } from '@base-ui/react/radio';
+import { RadioGroup, type RadioGroupProps } from '@base-ui/react/radio-group';
+import { motion, useMotionValue, useTransform } from 'motion/react';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
+import Button from '~/components/ui/Button';
+import {
+  controlLabelVariants,
+  controlVariants,
+  groupSpacingVariants,
+  inputControlVariants,
+  smallSizeVariants,
+  stateVariants,
+} from '~/styles/shared/controlVariants';
+import { compose, cva, cx } from '~/utils/cva';
+import { type CreateFormFieldProps } from '../Field/types';
+
+type BooleanOption = {
+  label: string;
+  value: boolean;
+};
+
+const buttonVariants = compose(
+  controlVariants,
+  inputControlVariants,
+  groupSpacingVariants,
+  stateVariants,
+  cva({
+    base: cx('elevation-low flex min-w-0 justify-start gap-3', 'focusable'),
+    variants: {
+      selected: {
+        true: '',
+        false: 'hover:border-accent/30',
+      },
+      positive: {
+        true: 'outline-success!',
+        false: 'outline-destructive!',
+      },
+    },
+    compoundVariants: [
+      {
+        selected: true,
+        positive: true,
+        class: 'border-success',
+      },
+      {
+        selected: true,
+        positive: false,
+        class: 'border-destructive',
+      },
+    ],
+    defaultVariants: {
+      selected: false,
+      positive: true,
+    },
+  }),
+);
+
+const booleanIndicatorVariants = compose(
+  smallSizeVariants,
+  controlVariants,
+  inputControlVariants,
+  cva({
+    base: cx(
+      'flex aspect-square shrink-0 items-center justify-center rounded-full',
+      'transition-colors duration-200',
+    ),
+    variants: {
+      selected: {
+        true: '',
+        false: 'border-input-contrast/20',
+      },
+      positive: {
+        true: '',
+        false: '',
+      },
+      state: {
+        disabled: '',
+        readOnly: '',
+        normal: '',
+      },
+    },
+    compoundVariants: [
+      {
+        selected: true,
+        positive: true,
+        class: 'bg-success border-success text-success-contrast',
+      },
+      {
+        selected: true,
+        positive: false,
+        class: 'bg-destructive border-destructive text-destructive-contrast',
+      },
+      {
+        selected: false,
+        state: 'normal',
+        class: 'bg-input',
+      },
+      {
+        selected: false,
+        state: 'disabled',
+        class: 'bg-input-contrast/5',
+      },
+      {
+        selected: false,
+        state: 'readOnly',
+        class: 'bg-input-contrast/10',
+      },
+    ],
+    defaultVariants: {
+      selected: false,
+      positive: true,
+      state: 'normal',
+    },
+  }),
+);
+
+type BooleanFieldProps = CreateFormFieldProps<
+  boolean,
+  'div',
+  Omit<
+    RadioGroupProps,
+    'onChange' | 'value' | 'defaultValue' | 'onValueChange'
+  > & {
+    noReset?: boolean;
+    label?: string;
+    options?: BooleanOption[];
+  }
+>;
+
+type ButtonState = 'disabled' | 'readOnly' | 'normal';
+
+function BooleanIndicator({
+  isSelected,
+  isPositive,
+  state = 'normal',
+}: {
+  isSelected: boolean;
+  isPositive: boolean;
+  state?: ButtonState;
+}) {
+  const pathLength = useMotionValue(isSelected ? 1 : 0);
+  const strokeLinecap = useTransform(() =>
+    pathLength.get() === 0 ? 'butt' : 'round',
+  );
+
+  return (
+    <div
+      className={booleanIndicatorVariants({
+        selected: isSelected,
+        positive: isPositive,
+        state,
+      })}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        className="size-full p-[0.15em]"
+        stroke="currentColor"
+        strokeWidth="3"
+      >
+        {isPositive ? (
+          <motion.path
+            d="M4 12L10 18L20 6"
+            initial={false}
+            animate={{ pathLength: isSelected ? 1 : 0 }}
+            transition={{
+              type: 'spring',
+              bounce: 0,
+              duration: isSelected ? 0.3 : 0.1,
+            }}
+            style={{
+              pathLength,
+              strokeLinecap,
+            }}
+          />
+        ) : (
+          <>
+            <motion.path
+              d="M6 6L18 18"
+              initial={false}
+              animate={{ pathLength: isSelected ? 1 : 0 }}
+              transition={{
+                type: 'spring',
+                bounce: 0,
+                duration: isSelected ? 0.3 : 0.1,
+                delay: isSelected ? 0 : 0.05,
+              }}
+              style={{
+                pathLength,
+                strokeLinecap,
+              }}
+            />
+            <motion.path
+              d="M18 6L6 18"
+              initial={false}
+              animate={{ pathLength: isSelected ? 1 : 0 }}
+              transition={{
+                type: 'spring',
+                bounce: 0,
+                duration: isSelected ? 0.3 : 0.1,
+                delay: isSelected ? 0.1 : 0,
+              }}
+              style={{
+                pathLength,
+                strokeLinecap,
+              }}
+            />
+          </>
+        )}
+      </svg>
+    </div>
+  );
+}
+
+export default function BooleanField(props: BooleanFieldProps) {
+  const {
+    className,
+    value,
+    onChange,
+    noReset = false,
+    label,
+    options = [
+      { label: 'Yes', value: true },
+      { label: 'No', value: false },
+    ],
+    disabled,
+    readOnly,
+    ...rest
+  } = props;
+
+  const isInvalid = !!rest['aria-invalid'];
+
+  const stringValue =
+    value === null || value === undefined ? '' : String(value);
+
+  const handleValueChange = (newValue: unknown) => {
+    if (readOnly) return;
+    onChange?.(newValue === 'true');
+  };
+
+  const getButtonState = (): ButtonState => {
+    if (disabled) return 'disabled';
+    if (readOnly) return 'readOnly';
+    return 'normal';
+  };
+
+  const buttonState = getButtonState();
+
+  return (
+    <fieldset
+      className={cx(
+        'flex w-full flex-col items-start gap-2 border-0 p-0',
+        className,
+      )}
+    >
+      {label && <legend className="sr-only">{label}</legend>}
+      <RadioGroup
+        {...rest}
+        value={stringValue}
+        onValueChange={handleValueChange}
+        disabled={disabled}
+        readOnly={readOnly}
+        aria-invalid={isInvalid || undefined}
+        className={cx(
+          'grid w-full auto-cols-fr grid-flow-col gap-4 rounded-sm p-2',
+          'transition-colors duration-200',
+          isInvalid && 'border-destructive border-2',
+        )}
+      >
+        {options.map((option) => {
+          const isSelected = value === option.value;
+          const isPositive = option.value === true;
+          const optionValue = String(option.value);
+
+          return (
+            <Radio.Root
+              key={optionValue}
+              value={optionValue}
+              disabled={disabled}
+              nativeButton
+              render={(renderProps, _state) => (
+                <button
+                  {...renderProps}
+                  type="button"
+                  className={buttonVariants({
+                    selected: isSelected,
+                    positive: isPositive,
+                    state: buttonState,
+                    className: 'gap-2 text-left', // override browser default button style
+                  })}
+                >
+                  <BooleanIndicator
+                    isSelected={isSelected}
+                    isPositive={isPositive}
+                    state={buttonState}
+                  />
+                  <div className={controlLabelVariants({ size: 'md' })}>
+                    <RenderMarkdown>{option.label}</RenderMarkdown>
+                  </div>
+                </button>
+              )}
+            />
+          );
+        })}
+      </RadioGroup>
+      {!noReset && (
+        <Button
+          variant="link"
+          onClick={() => onChange?.(undefined)}
+          disabled={disabled ?? readOnly}
+          size="sm"
+        >
+          Reset answer
+        </Button>
+      )}
+    </fieldset>
+  );
+}

@@ -9,25 +9,32 @@ import Node from './Node';
 import { NodeTransition } from './NodeList';
 
 // Draggable wrapper for Node component
-const DraggableNode = memo(({ node, itemType, allowDrag, ...nodeProps }: { 
-  node: NcNode; 
-  itemType: string; 
-  allowDrag: boolean;
-  [key: string]: unknown;
-}) => {
-  const { dragProps } = useDragSource({
-    type: itemType,
-    metadata: { ...node, itemType },
-    announcedName: `Node ${node.type}`,
-    disabled: !allowDrag,
-  });
+const DraggableNode = memo(
+  ({
+    node,
+    itemType,
+    allowDrag,
+    ...nodeProps
+  }: {
+    node: NcNode;
+    itemType: string;
+    allowDrag: boolean;
+    [key: string]: unknown;
+  }) => {
+    const { dragProps } = useDragSource({
+      type: itemType,
+      metadata: { ...node, itemType },
+      announcedName: `Node ${node.type}`,
+      disabled: !allowDrag,
+    });
 
-  return (
-    <div {...dragProps}>
-      <Node {...node} {...nodeProps} />
-    </div>
-  );
-});
+    return (
+      <div {...dragProps}>
+        <Node {...node} {...nodeProps} />
+      </div>
+    );
+  },
+);
 
 DraggableNode.displayName = 'DraggableNode';
 

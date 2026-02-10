@@ -63,7 +63,7 @@ function DragPreview() {
   return createPortal(
     <div
       style={previewStyles}
-      className="pointer-events-none fixed top-0 left-0 z-[9999] select-none"
+      className="pointer-events-none fixed top-0 left-0 z-9999 select-none"
     >
       {dragPreview}
     </div>,

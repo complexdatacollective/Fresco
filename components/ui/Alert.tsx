@@ -1,43 +1,96 @@
 'use client';
 
-import { cva, type VariantProps } from 'class-variance-authority';
+import {
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle,
+  Info,
+  type LucideIcon,
+} from 'lucide-react';
 import * as React from 'react';
-import { cn } from '~/utils/shadcn';
+import { cva, cx, type VariantProps } from '~/utils/cva';
+import Surface from '../layout/Surface';
 import Heading from '../typography/Heading';
 import { paragraphVariants } from '../typography/Paragraph';
 
-const alertVariants = cva(
-  'relative w-full bg-card text-foreground rounded-lg border p-4 [&>svg~*]:pl-6 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground gap-2 grid my-6',
-  {
-    variants: {
-      variant: {
-        default: '',
-        info: 'bg-info/5 border-info text-info [--color-link:var(--color-info)] [&>svg]:text-info',
-        destructive:
-          'bg-destructive/5 border-destructive text-destructive [&>svg]:text-destructive [--color-link:var(--color-destructive)]',
-        success:
-          'bg-success/5 border-success text-success [&>svg]:text-success [--color-link:var(--color-success)]',
-        warning:
-          'bg-warning/2 border-warning text-warning [--color-link:var(--color-warning)]',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
+const alertVariants = cva({
+  base: 'text-contrast my-6 flex w-full gap-3 rounded border border-black/10 inset-shadow-[0_3px_5px_0_rgb(0_0_0/0.15),0_-1px_2px_0_rgb(255_255_255/0.5)] last:mb-0',
+  variants: {
+    variant: {
+      default: '',
+      info: 'text-info-contrast [&>svg]:text-info-contrast bg-info [--color-link:var(--color-info-contrast)]',
+      destructive:
+        'text-destructive-contrast [&>svg]:text-destructive-contrast bg-destructive [--color-link:var(--color-destructive-contrast)]',
+      success:
+        'text-success-contrast [&>svg]:text-success-contrast bg-success [--color-link:var(--color-success-contrast)]',
+      warning:
+        'text-warning-contrast [&>svg]:text-warning-contrast bg-warning [--color-link:var(--color-warning-contrast)]',
     },
   },
-);
+  defaultVariants: {
+    variant: 'default',
+  },
+});
 
-const Alert = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof alertVariants>
->(({ className, variant, ...props }, ref) => (
-  <div
-    ref={ref}
-    role="alert"
-    className={cn(alertVariants({ variant }), className)}
-    {...props}
-  />
-));
+const variantIcons: Record<
+  NonNullable<VariantProps<typeof alertVariants>['variant']>,
+  LucideIcon | null
+> = {
+  default: null,
+  info: Info,
+  destructive: AlertCircle,
+  success: CheckCircle,
+  warning: AlertTriangle,
+};
+
+const variantAriaLabels: Record<
+  NonNullable<VariantProps<typeof alertVariants>['variant']>,
+  string
+> = {
+  default: 'Notice',
+  info: 'Information',
+  destructive: 'Error',
+  success: 'Success',
+  warning: 'Warning',
+};
+
+type AlertProps = React.HTMLAttributes<HTMLDivElement> &
+  VariantProps<typeof alertVariants> & {
+    icon?: LucideIcon | null | false;
+  };
+
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
+  ({ className, variant = 'default', icon, children, ...props }, ref) => {
+    const IconComponent =
+      icon === false ? null : (icon ?? variantIcons[variant]);
+    const ariaLabel = variantAriaLabels[variant];
+    const ariaLive = variant === 'destructive' ? 'assertive' : 'polite';
+
+    return (
+      <Surface
+        ref={ref}
+        role="alert"
+        aria-live={ariaLive}
+        aria-atomic="true"
+        aria-label={ariaLabel}
+        spacing="sm"
+        className={cx(alertVariants({ variant }), className)}
+        noContainer
+        maxWidth="3xl"
+        elevation="none"
+        {...props}
+      >
+        {IconComponent && (
+          <IconComponent
+            className="tablet:block mt-[0.33em] hidden h-4 w-4 shrink-0" // mt is optical adjustment so that the SVG aligns with the heading
+            aria-hidden="true"
+          />
+        )}
+        <div>{children}</div>
+      </Surface>
+    );
+  },
+);
 Alert.displayName = 'Alert';
 
 const AlertTitle = React.forwardRef<
@@ -45,9 +98,10 @@ const AlertTitle = React.forwardRef<
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => (
   <Heading
-    variant="h4-all-caps"
+    level="h4"
+    variant="all-caps"
     ref={ref}
-    className={cn(className)}
+    className={className}
     {...props}
   />
 ));
@@ -57,14 +111,7 @@ const AlertDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      paragraphVariants({ variant: 'smallText', margin: 'none' }),
-      className,
-    )}
-    {...props}
-  />
+  <div ref={ref} className={cx(paragraphVariants(), className)} {...props} />
 ));
 AlertDescription.displayName = 'AlertDescription';
 

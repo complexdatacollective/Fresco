@@ -1,14 +1,16 @@
+@use '../helpers/transitions';
+
 .stage {
   flex: 1 auto;
 
   &--transition {
-    @include group-transition-with-delay(
+    @include transitions.group-transition-with-delay(
       fade,
       var(--animation-duration-slow),
       var(--animation-duration-slow)
     );
 
-    @include group-transition-leave {
+    @include transitions.group-transition-leave {
       .node-list,
       .panels {
         opacity: 0;

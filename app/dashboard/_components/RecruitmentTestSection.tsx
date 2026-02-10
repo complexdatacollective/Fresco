@@ -5,13 +5,7 @@ import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
 import { SuperJSON } from 'superjson';
 import { Button } from '~/components/ui/Button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select';
+import SelectField from '~/lib/form/components/fields/Select/Styled';
 import {
   type GetParticipantsQuery,
   type GetParticipantsReturnType,
@@ -60,9 +54,11 @@ export default function RecruitmentTestSection({
 
   return (
     <>
-      <div className="mt-6 flex gap-4">
-        <Select
-          onValueChange={(value) => {
+      <div className="tablet:flex-row flex flex-col gap-4">
+        <SelectField
+          name="Protocol"
+          options={protocols.map((p) => ({ value: p.id, label: p.name }))}
+          onChange={(value) => {
             const protocol = protocols.find(
               (protocol) => protocol.id === value,
             ) as Protocol;
@@ -70,20 +66,15 @@ export default function RecruitmentTestSection({
             setSelectedProtocol(protocol);
           }}
           value={selectedProtocol?.id}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select a Protocol..." />
-          </SelectTrigger>
-          <SelectContent>
-            {protocols?.map((protocol) => (
-              <SelectItem key={protocol.id} value={protocol.id}>
-                {protocol.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select
-          onValueChange={(value) => {
+          placeholder="Select a Protocol..."
+        />
+        <SelectField
+          name="Participant"
+          options={participants.map((p) => ({
+            value: p.id,
+            label: p.identifier,
+          }))}
+          onChange={(value) => {
             const participant = participants?.find(
               (participant) => participant.id === value,
             );
@@ -91,20 +82,10 @@ export default function RecruitmentTestSection({
             setSelectedParticipant(participant);
           }}
           value={selectedParticipant?.id}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select a Participant..." />
-          </SelectTrigger>
-          <SelectContent>
-            {participants?.map((participant) => (
-              <SelectItem key={participant.id} value={participant.id}>
-                {participant.identifier}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          placeholder="Select a Participant..."
+        />
       </div>
-      <div className="mt-6 flex gap-2">
+      <div className="tablet:flex-row mt-4 flex flex-col gap-2">
         <Button
           disabled={buttonDisabled}
           onClick={() => router.push(getInterviewURL())}

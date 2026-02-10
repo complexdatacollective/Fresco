@@ -1,15 +1,19 @@
+@use '../../../legacy-ui/styles/global/core/palette';
+@use '../../../legacy-ui/styles/global/core/spacing';
+@use '../helpers/text-input';
+
 $content-padding: 1rem 2rem;
-$module-name: search;
+$_module-name: search;
 $results-height: calc(100vh - 23rem);
 
 // Base input on global styling; override as needed below.
-@include text-input('#{$module-name}__input');
+@include text-input.text-input('#{$_module-name}__input');
 
-.#{$module-name} {
+.#{$_module-name} {
   --collapsed-square-size-js: 6.5rem;
   --content-padding: 1rem;
 
-  background-color: color('cyber-grape');
+  background-color: var(--color-cyber-grape);
   border-radius: var(--nc-border-radius);
   max-height: 100%;
   position: absolute;
@@ -79,12 +83,12 @@ $results-height: calc(100vh - 23rem);
   }
 
   &__input {
-    background-color: color('white');
-    border-radius: spacing(small);
+    background-color: var(--color-white);
+    border-radius: spacing.spacing(small);
     bottom: var(--content-padding);
-    color: palette('text-dark');
+    color: palette.palette('text-dark');
     left: var(--content-padding);
-    padding: spacing(medium);
+    padding: spacing.spacing(medium);
     height: auto;
     width: calc(100% - 2 * var(--content-padding));
   }
@@ -100,7 +104,7 @@ $results-height: calc(100vh - 23rem);
     // hiding the prompt question. min-height ensures results are readable,
     // even if prompt is hidden at very short viewport heights.
     height: $results-height;
-    margin: spacing(small) 0;
+    margin: spacing.spacing(small) 0;
     min-height: 8em;
     overflow: hidden;
     transition: height var(--animation-duration-fast) var(--animation-easing);
@@ -124,8 +128,8 @@ $results-height: calc(100vh - 23rem);
 
   &__result {
     &--selected {
-      background-color: color('white', 0.15);
-      border: 1px solid color('white');
+      background-color: rgba(255, 255, 255, 0.15);
+      border: 1px solid var(--color-white);
     }
   }
 

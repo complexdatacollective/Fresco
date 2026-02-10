@@ -1,116 +1,76 @@
-import type { VariableValue } from '@codaco/shared-consts';
-import { forwardRef, useEffect, useMemo, useState } from 'react';
-import { useTanStackForm } from '~/lib/form/hooks/useTanStackForm';
-import type { FormErrors, ProcessedFormField } from '~/lib/form/types';
-import { scrollToFirstError } from '~/lib/form/utils/scrollToFirstError';
+'use client';
+
+import { LayoutGroup } from 'motion/react';
+import { useId, type ComponentProps } from 'react';
+import { focusFirstError } from '~/lib/form/utils/focusFirstError';
+import { cx } from '~/utils/cva';
+import { useForm } from '../hooks/useForm';
+import FormStoreProvider from '../store/formStoreProvider';
+import type { FormSubmitHandler } from '../store/types';
+import FormErrorsList from './FormErrors';
 
 type FormProps = {
-  fields: ProcessedFormField[];
-  handleSubmit: (data: { value: Record<string, VariableValue> }) => void;
-  getInitialValues?: () =>
-    | Record<string, VariableValue>
-    | Promise<Record<string, VariableValue>>;
-  submitButton?: React.ReactNode;
-  disabled?: boolean;
-  focusFirstInput?: boolean;
-} & React.FormHTMLAttributes<HTMLFormElement>;
+  onSubmit: FormSubmitHandler;
+  children: React.ReactNode;
+} & Omit<ComponentProps<'form'>, 'onSubmit' | 'children' | 'submitButton'>;
 
-const Form = forwardRef<HTMLFormElement, FormProps>(
-  (
-    {
-      fields,
-      id,
-      handleSubmit,
-      getInitialValues,
-      submitButton = <button type="submit" key="submit" aria-label="Submit" />,
-      disabled,
-      focusFirstInput,
-      children,
-      ...rest
+/**
+ * The form element without the store provider wrapper.
+ * Use this when you need to manually control the FormStoreProvider placement,
+ * such as when SubmitButton needs to be rendered outside the form element
+ * (e.g., in a dialog footer).
+ *
+ * @example
+ * ```tsx
+ * <FormStoreProvider>
+ *   <Dialog footer={<SubmitButton>Save</SubmitButton>}>
+ *     <FormWithoutProvider onSubmit={handleSubmit}>
+ *       <Field name="email" ... />
+ *     </FormWithoutProvider>
+ *   </Dialog>
+ * </FormStoreProvider>
+ * ```
+ */
+export function FormWithoutProvider(props: FormProps) {
+  const { onSubmit, children, className, ...rest } = props;
+
+  const { formProps, formErrors } = useForm({
+    onSubmit,
+    onSubmitInvalid: (errors) => {
+      focusFirstError(errors);
     },
-    ref,
-  ) => {
-    const [initialValues, setInitialValues] = useState<
-      Record<string, VariableValue>
-    >({});
+  });
 
-    // Handle initial values loading
-    useEffect(() => {
-      if (!getInitialValues) return;
+  const id = useId();
 
-      const loadInitialValues = async () => {
-        try {
-          const values = await getInitialValues();
-          setInitialValues(values);
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error('Failed to load initial values:', error);
-          setInitialValues({});
-        }
-      };
-
-      void loadInitialValues();
-    }, [getInitialValues]);
-
-    // Create default values from fields and initial values
-    const defaultValues = useMemo(() => {
-      return fields.reduce<Record<string, VariableValue>>((acc, field) => {
-        acc[field.variable] = initialValues[field.variable] ?? '';
-        return acc;
-      }, {});
-    }, [fields, initialValues]);
-
-    const form = useTanStackForm({
-      defaultValues,
-      onSubmit: handleSubmit,
-      onSubmitInvalid: ({ formApi }) => {
-        const errors = formApi.getAllErrors().fields as FormErrors;
-        scrollToFirstError(errors);
-      },
-    });
-
-    // Reset form with new values when initial values change
-    useEffect(() => {
-      if (Object.keys(initialValues).length > 0) {
-        form.reset(defaultValues);
-      }
-    }, [initialValues, defaultValues, form]);
-
-    return (
-      <form
-        ref={ref}
-        onSubmit={async (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          await form.handleSubmit();
-        }}
-        id={id}
-        {...rest}
-      >
-        {fields.map((field, index) => {
-          return (
-            <form.AppField
-              name={field.variable}
-              key={`${field.variable}`}
-              validators={field.validation}
-            >
-              {() => (
-                <field.Component
-                  {...field}
-                  disabled={disabled}
-                  autoFocus={focusFirstInput && index === 0}
-                />
-              )}
-            </form.AppField>
-          );
-        })}
-        {submitButton}
+  return (
+    <form
+      noValidate // Don't show native HTML validation UI
+      className={cx('w-full', className)}
+      onSubmit={formProps.onSubmit}
+      {...rest}
+    >
+      <LayoutGroup id={id}>
+        {formErrors && <FormErrorsList key="form-errors" errors={formErrors} />}
         {children}
-      </form>
-    );
-  },
-);
+      </LayoutGroup>
+    </form>
+  );
+}
 
-Form.displayName = 'Form';
-
-export default Form;
+/**
+ * A complete form component with built-in store provider.
+ * Use this for standard forms where all form-related components
+ * (including SubmitButton) are descendants of the Form element.
+ *
+ * For cases where SubmitButton needs to be outside the form element
+ * (e.g., in a dialog footer), use FormWithoutProvider with a manual
+ * FormStoreProvider wrapper.
+ */
+export default function Form(props: FormProps) {
+  return (
+    <FormStoreProvider>
+      <FormWithoutProvider {...props} />
+    </FormStoreProvider>
+  );
+}

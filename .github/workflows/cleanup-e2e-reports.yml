@@ -130,7 +130,7 @@ jobs:
             </style>
           </head>
           <body>
-            <h1>Fresco E2E Test Reports</h1>
+            <h1>🎭 Fresco E2E Test Reports</h1>
             <p>No failed test reports available.</p>
           </body>
           </html>
@@ -163,7 +163,7 @@ jobs:
             </style>
           </head>
           <body>
-            <h1>Fresco E2E Test Reports</h1>
+            <h1>🎭 Fresco E2E Test Reports</h1>
             <p>Failed test reports by PR:</p>
           $(cat index.html.tmp)
           </body>

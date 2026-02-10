@@ -1,19 +1,15 @@
 'use server';
 
-import { createId } from '@paralleldrive/cuid2';
-import { redirect } from 'next/navigation';
 import { type z } from 'zod';
-import trackEvent from '~/lib/analytics';
 import { safeRevalidateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
-import { getInstallationId } from '~/queries/appSettings';
 import {
   type AppSetting,
   appSettingPreprocessedSchema,
 } from '~/schemas/appSettings';
 import { requireApiAuth } from '~/utils/auth';
 import { ensureError } from '~/utils/ensureError';
-import { getStringValue } from '~/utils/getStringValue';
+import { getStringValue } from '~/utils/serializeHelpers';
 
 export async function setAppSetting<
   Key extends AppSetting,
@@ -31,15 +27,12 @@ export async function setAppSetting<
       throw new Error('Cannot set app setting to null');
     }
 
-    // Validate and preprocess the value using the setting-specific schema
-    const parsedValue = appSettingPreprocessedSchema.shape[key].parse(value);
-
-    // Convert the validated value to a database string
+    // Convert the typed value to a database string
     // Filter out undefined values as they're not supported by getStringValue
-    if (parsedValue === undefined) {
+    if (value === undefined) {
       throw new Error('Cannot set app setting to undefined');
     }
-    const stringValue = getStringValue(parsedValue);
+    const stringValue = getStringValue(value);
 
     await prisma.appSettings.upsert({
       where: { key },
@@ -54,27 +47,4 @@ export async function setAppSetting<
     const e = ensureError(error);
     throw new Error(`Failed to update appSettings: ${key}: ${e.message}`);
   }
-}
-
-export async function submitUploadThingForm(token: string) {
-  await setAppSetting('uploadThingToken', token);
-  redirect('/setup?step=3');
-}
-
-export async function completeOnboarding() {
-  await requireApiAuth();
-
-  const installationId = await getInstallationId();
-  if (!installationId) {
-    await setAppSetting('installationId', createId());
-  }
-  await setAppSetting('configured', true);
-  void trackEvent({
-    type: 'AppSetup',
-    metadata: {
-      installationId,
-    },
-  });
-
-  redirect('/dashboard');
 }

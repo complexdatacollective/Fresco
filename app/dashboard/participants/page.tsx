@@ -1,6 +1,5 @@
 import ParticipantsTable from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTable';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
-import Section from '~/components/layout/Section';
 import PageHeader from '~/components/typography/PageHeader';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
@@ -12,17 +11,14 @@ export default async function ParticipantPage() {
 
   return (
     <>
-      <ResponsiveContainer>
-        <PageHeader
-          headerText="Participants"
-          subHeaderText="View and manage your participants."
-        />
-      </ResponsiveContainer>
+      <PageHeader
+        headerText="Participants"
+        subHeaderText="View and manage your participants."
+        data-testid="participants-page-header"
+      />
       <ImportExportSection />
-      <ResponsiveContainer maxWidth="6xl">
-        <Section>
-          <ParticipantsTable />
-        </Section>
+      <ResponsiveContainer maxWidth="6xl" baseSize="content" container={false}>
+        <ParticipantsTable />
       </ResponsiveContainer>
     </>
   );

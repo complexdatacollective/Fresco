@@ -51,7 +51,7 @@ const handler = async (
   }
 
   // Create a new interview given the protocolId and participantId
-  const { createdInterviewId, error } = await createInterview({
+  const { createdInterviewId, error, errorType } = await createInterview({
     participantIdentifier,
     protocolId,
   });
@@ -65,6 +65,11 @@ const handler = async (
         path: '/onboard/[protocolId]/route.ts',
       },
     });
+
+    if (errorType === 'no-anonymous-recruitment') {
+      url.pathname = '/onboard/no-anonymous-recruitment';
+      return NextResponse.redirect(url);
+    }
 
     url.pathname = '/onboard/error';
     return NextResponse.redirect(url);

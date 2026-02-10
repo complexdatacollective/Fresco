@@ -1,24 +1,25 @@
+import { fixupPluginRules } from '@eslint/compat';
 import eslint from '@eslint/js';
-import tseslint from 'typescript-eslint';
 import nextPlugin from '@next/eslint-plugin-next';
 import eslintConfigPrettier from 'eslint-config-prettier/flat';
-import storybookPlugin from 'eslint-plugin-storybook';
+import eslintPluginBetterTailwindcss from 'eslint-plugin-better-tailwindcss';
 import importPlugin from 'eslint-plugin-import';
+import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
-import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
-import { fixupPluginRules } from '@eslint/compat';
+import storybookPlugin from 'eslint-plugin-storybook';
 import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   // Global ignores
   {
     ignores: [
       'node_modules/**',
-      '**/*.test.*',
       'public/**',
       'storybook-static/**',
       '.next/**',
+      'tests/e2e/playwright-report/**',
     ],
   },
 
@@ -33,9 +34,7 @@ export default tseslint.config(
   {
     languageOptions: {
       parserOptions: {
-        projectService: {
-          allowDefaultProject: ['.storybook/*.ts', '.storybook/*.tsx'],
-        },
+        projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
       globals: {
@@ -72,12 +71,12 @@ export default tseslint.config(
     },
     rules: {
       ...reactPlugin.configs.recommended.rules,
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
       'react/react-in-jsx-scope': 'off',
-      'react/prop-types': 'off',
       'react/no-unknown-property': 'off',
       'react/jsx-no-target-blank': 'off',
+      'react/prop-types': 'off',
+      'react-hooks/exhaustive-deps': 'error',
+      'react-hooks/rules-of-hooks': 'error',
     },
   },
 
@@ -167,6 +166,19 @@ export default tseslint.config(
     },
   },
 
+  // Disable unbound-method for test files (mock functions don't use `this`)
+  {
+    files: [
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/__tests__/**/*.ts',
+      '**/__tests__/**/*.tsx',
+    ],
+    rules: {
+      '@typescript-eslint/unbound-method': 'off',
+    },
+  },
+
   // Custom rules for all files (non-type-checked rules)
   {
     rules: {
@@ -188,6 +200,32 @@ export default tseslint.config(
         },
       ],
       'no-unreachable': 'error',
+    },
+  },
+
+  // Better TailwindCSS plugin
+  {
+    extends: [eslintPluginBetterTailwindcss.configs.correctness],
+    rules: {
+      'better-tailwindcss/enforce-canonical-classes': 'warn',
+      'better-tailwindcss/no-unnecessary-whitespace': 'error',
+      'better-tailwindcss/no-duplicate-classes': 'error',
+      'better-tailwindcss/no-unknown-classes': 'error',
+      'better-tailwindcss/no-conflicting-classes': 'warn',
+    },
+    settings: {
+      'better-tailwindcss': {
+        // Use the full path via meta.url to avoid issues with CWD when running ESLint from different directories
+        entryPoint: import.meta.dirname + '/styles/globals.css',
+      },
+    },
+  },
+
+  // Disable no-unknown-classes for legacy/special directories
+  {
+    files: ['**/lib/legacy-ui/**', '**/lib/interviewer/**'],
+    rules: {
+      'better-tailwindcss/no-unknown-classes': 'off',
     },
   },
 

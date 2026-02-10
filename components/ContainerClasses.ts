@@ -1,6 +1,6 @@
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
-export const containerClasses = cn(
-  'relative mt-[-60px] flex flex-col rounded-xl min-w-full-[30rem] bg-card p-8',
-  'after:absolute after:inset-[-20px] after:z-[-1] after:rounded-3xl after:bg-panel/30 after:shadow-2xl after:backdrop-blur-sm',
+export const containerClasses = cx(
+  'tablet:mx-0 tablet:mt-[-60px] relative mx-2 mt-0 overflow-visible',
+  'tablet:before:bg-surface-1/30 tablet:before:absolute tablet:before:inset-[-20px] tablet:before:z-[-1] tablet:before:rounded-lg tablet:before:shadow-2xl tablet:before:backdrop-blur-sm',
 );

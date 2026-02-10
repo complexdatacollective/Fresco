@@ -1,49 +1,115 @@
-import { type Meta, type StoryFn } from '@storybook/nextjs-vite';
-import NodeIcons from 'lucide-react/dynamicIconImports';
-import ActionButton, {
-  type NodeIcon,
-} from '~/components/interview/ActionButton';
-import { NodeColors, type NodeColorSequence } from '~/lib/ui/components/Node';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { icons } from 'lucide-react';
+import ActionButton from '~/components/interview/ActionButton';
 
-export default {
+const meta: Meta<typeof ActionButton> = {
   title: 'Interview/ActionButton',
   component: ActionButton,
   parameters: {
     forceTheme: 'interview',
     layout: 'centered',
   },
+  tags: ['autodocs'],
   argTypes: {
     iconName: {
-      control: {
-        type: 'select',
+      control: 'select',
+      options: Object.keys(icons),
+      description: 'The icon to display in the button',
+      table: {
+        type: { summary: 'InterviewerIconName' },
       },
-      options: Object.keys(NodeIcons),
     },
-    color: {
-      control: {
-        type: 'select',
+    disabled: {
+      control: 'boolean',
+      description: 'Whether the button is disabled',
+      table: {
+        type: { summary: 'boolean' },
+        defaultValue: { summary: 'false' },
       },
-      options: NodeColors,
     },
-    onClick: { action: 'clicked' }, // Action logger for click events
+    onClick: {
+      action: 'clicked',
+      description: 'Click handler',
+    },
   },
-  decorators: [
-    (Story) => (
-      <div className="bg-primary-background flex h-screen w-screen items-center justify-center">
-        <Story />
+  args: {
+    iconName: 'UserRound',
+    disabled: false,
+  },
+};
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {
+  args: {
+    iconName: 'UserRound',
+  },
+};
+
+export const Disabled: Story = {
+  args: {
+    iconName: 'UserRound',
+    disabled: true,
+  },
+};
+
+export const DifferentIcons: Story = {
+  render: () => (
+    <div className="flex flex-wrap gap-8">
+      <div className="flex flex-col items-center gap-2">
+        <ActionButton iconName="UserRound" />
+        <span className="text-sm">UserRound</span>
       </div>
-    ),
-  ],
-} as Meta;
+      <div className="flex flex-col items-center gap-2">
+        <ActionButton iconName="Users" />
+        <span className="text-sm">Users</span>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <ActionButton iconName="House" />
+        <span className="text-sm">House</span>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <ActionButton iconName="Building" />
+        <span className="text-sm">Building</span>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <ActionButton iconName="Heart" />
+        <span className="text-sm">Heart</span>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <ActionButton iconName="Star" />
+        <span className="text-sm">Star</span>
+      </div>
+    </div>
+  ),
+};
 
-const Template: StoryFn<{
-  iconName: NodeIcon;
-  color: NodeColorSequence;
-  onClick: () => void;
-}> = (args) => <ActionButton {...args} />;
+export const Interactive: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <h3 className="text-lg font-semibold">
+        Hover over the button to see the animation
+      </h3>
+      <ActionButton
+        iconName="UserRound"
+        onClick={() => alert('Button clicked!')}
+      />
+    </div>
+  ),
+};
 
-export const Default = Template.bind({});
-Default.args = {
-  iconName: 'user-round',
-  color: 'node-color-seq-1',
+export const DisabledStates: Story = {
+  render: () => (
+    <div className="flex gap-8">
+      <div className="flex flex-col items-center gap-2">
+        <ActionButton iconName="UserRound" disabled={false} />
+        <span className="text-sm">Enabled</span>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <ActionButton iconName="UserRound" disabled={true} />
+        <span className="text-sm">Disabled</span>
+      </div>
+    </div>
+  ),
 };

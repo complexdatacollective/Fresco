@@ -1,11 +1,13 @@
+@use '../../../legacy-ui/styles/global/core/spacing';
+@use '../../../legacy-ui/styles/global/core/units';
 .simulation-panel {
   position: absolute;
   z-index: var(--z-panel);
   background: var(--nc-panel-bg-muted);
   width: units.unit(26);
   height: units.unit(10);
-  top: spacing(large);
-  right: spacing(large);
+  top: spacing.spacing(large);
+  right: spacing.spacing(large);
   border-bottom: 5px solid var(--nc-primary);
   border-radius: var(--nc-border-radius);
   box-shadow: 0 0 4rem 0 var(--nc-modal-window-box-shadow);

@@ -1,6 +1,5 @@
-import { AlertCircle } from 'lucide-react';
-import Link from '~/components/Link';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
+import Link from '~/components/ui/Link';
 import { getAppSetting } from '~/queries/appSettings';
 
 export default async function AnonymousRecruitmentWarning() {
@@ -11,8 +10,7 @@ export default async function AnonymousRecruitmentWarning() {
   if (!allowAnonymousRecruitment) return null;
 
   return (
-    <Alert variant="info">
-      <AlertCircle className="h-4 w-4" />
+    <Alert variant="info" className="m-0">
       <AlertTitle>Please Note</AlertTitle>
       <AlertDescription>
         Anonymous recruitment is enabled. This means that participants can

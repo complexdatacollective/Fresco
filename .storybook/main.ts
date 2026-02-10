@@ -1,28 +1,24 @@
-import type { StorybookConfig } from '@storybook/nextjs-vite';
+import { defineMain } from '@storybook/nextjs-vite/node';
 
-const config: StorybookConfig = {
-  stories: [
-    '../{app,components,lib}/**/*.mdx',
-    '../{app,components,lib}/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+export default defineMain({
+  addons: [
+    '@storybook/addon-docs',
+    '@storybook/addon-a11y',
+    '@storybook/addon-vitest',
+    '@chromatic-com/storybook',
   ],
-  addons: [],
   framework: {
     name: '@storybook/nextjs-vite',
-    options: {},
+    options: {
+      builder: {
+        // Customize the Vite builder options here
+        viteConfigPath: './vitest.config.ts',
+      },
+    },
   },
-  staticDirs: ['../public'],
-  viteFinal(config) {
-    if (config.optimizeDeps) {
-      config.optimizeDeps.esbuildOptions = {
-        ...config.optimizeDeps.esbuildOptions,
-        loader: {
-          ...config.optimizeDeps.esbuildOptions?.loader,
-          '.js': 'jsx',
-        },
-      };
-    }
-
-    return config;
+  staticDirs: ['../public', { from: '../styles/themes', to: '/styles/themes' }],
+  typescript: {
+    check: false,
   },
-};
-export default config;
+  stories: ['../**/*.stories.@(js|jsx|mjs|ts|tsx|mdx)'],
+});

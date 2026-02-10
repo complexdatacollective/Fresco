@@ -1,0 +1,10 @@
+// Breakpoint mixins removed - use Tailwind responsive utilities or custom media queries
+// =============================================================================
+
+/* 
+  Legacy breakpoint system replaced with:
+  - Tailwind responsive utilities (sm:, md:, lg:, xl:, 2xl:)
+  - Custom media queries for aspect-ratio breakpoints:
+    - @media (max-aspect-ratio: 0.625) for 'small'
+    - @media (min-aspect-ratio: 0.625) for 'full'
+*/

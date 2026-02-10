@@ -33,12 +33,17 @@ const disableNextCache = process.env.DISABLE_NEXT_CACHE === 'true';
 const config = {
   output: 'standalone',
   reactStrictMode: true,
+  // Use no-op cache handler for E2E tests, otherwise use Next.js default
+  // See lib/cache-handler.cjs and lib/cache.ts for caching strategy docs
   cacheHandler: disableNextCache
     ? require.resolve('./lib/cache-handler.cjs')
     : undefined,
   experimental: {
     typedRoutes: true,
     webpackBuildWorker: true,
+  },
+  sassOptions: {
+    implementation: 'sass-embedded',
   },
   images: {
     // Disable image optimization when DISABLE_IMAGE_OPTIMIZATION is set.

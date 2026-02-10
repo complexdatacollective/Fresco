@@ -12,7 +12,7 @@ export default function UpdateInstallationId({
 }) {
   return (
     <UpdateSettingsValue
-      settingKey="installationId"
+      settingsKey="installationId"
       initialValue={installationId}
       readOnly={readOnly}
       schema={z.string().min(1, 'Installation ID cannot be empty')}

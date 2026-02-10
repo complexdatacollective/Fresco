@@ -1,9 +1,8 @@
 'use server';
 
-import { unstable_noStore } from 'next/cache';
 import { redirect } from 'next/navigation';
 import 'server-only';
-import type { z } from 'zod';
+import { type z } from 'zod';
 import { env } from '~/env';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { createCachedFunction } from '~/lib/cache';
@@ -37,7 +36,17 @@ export const getAppSetting = <Key extends AppSetting>(
   });
 
 export async function requireAppNotExpired(isSetupRoute = false) {
-  const expired = await isAppExpired();
+  // Fetch both settings in parallel to avoid sequential database calls
+  const [isConfigured, initializedAt] = await Promise.all([
+    getAppSetting('configured'),
+    getAppSetting('initializedAt'),
+  ]);
+
+  // Check if app is expired (unconfigured and past timeout)
+  const expired =
+    !isConfigured &&
+    initializedAt !== null &&
+    initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
 
   if (expired) {
     redirect('/expired');
@@ -48,8 +57,6 @@ export async function requireAppNotExpired(isSetupRoute = false) {
     return;
   }
 
-  const isConfigured = await getAppSetting('configured');
-
   if (!isConfigured) {
     redirect('/setup');
   }
@@ -57,23 +64,13 @@ export async function requireAppNotExpired(isSetupRoute = false) {
   return;
 }
 
-async function isAppExpired() {
-  unstable_noStore();
-  const isConfigured = await getAppSetting('configured');
-  const initializedAt = await getAppSetting('initializedAt');
-
-  // If initializedAt is null, app can't be expired
-  if (!initializedAt) {
-    return false;
-  }
-
-  return (
-    !isConfigured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT
-  );
-}
-
 // Used to prevent user account creation after the app has been configured
 export async function requireAppNotConfigured() {
+  // Allow visiting /setup in development even after configuration
+  if (env.NODE_ENV === 'development') {
+    return;
+  }
+
   const configured = await getAppSetting('configured');
 
   if (configured) {
@@ -101,4 +98,14 @@ export async function getDisableAnalytics() {
   }
 
   return getAppSetting('disableAnalytics');
+}
+
+// Unique fetcher for previewMode, which defers to the environment variable
+// if set, and otherwise fetches from the database
+export async function getPreviewMode() {
+  if (env.PREVIEW_MODE !== undefined) {
+    return env.PREVIEW_MODE;
+  }
+
+  return getAppSetting('previewMode');
 }

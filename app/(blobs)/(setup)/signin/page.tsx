@@ -1,7 +1,9 @@
 import { redirect } from 'next/navigation';
 import { containerClasses } from '~/components/ContainerClasses';
+import Surface from '~/components/layout/Surface';
+import Heading from '~/components/typography/Heading';
 import { getServerSession } from '~/utils/auth';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import SandboxCredentials from '../_components/SandboxCredentials';
 import { SignInForm } from '../_components/SignInForm';
 
@@ -21,10 +23,10 @@ export default async function Page() {
   }
 
   return (
-    <div className={cn(containerClasses, 'w-[25rem]')}>
-      <h1 className="mb-6 text-2xl font-bold">Sign In To Fresco</h1>
+    <Surface className={cx(containerClasses)} elevation="none" maxWidth="md">
+      <Heading level="h2">Sign In To Fresco</Heading>
       <SandboxCredentials />
       <SignInForm />
-    </div>
+    </Surface>
   );
 }

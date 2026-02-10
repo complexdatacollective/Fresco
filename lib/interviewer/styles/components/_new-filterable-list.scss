@@ -1,4 +1,5 @@
-@use '../../../ui/styles/global/core/_units';
+@use '../../../legacy-ui/styles/global/core/units';
+@use '../helpers/scrollable';
 
 .new-filterable-list {
   /* stylelint-disable-next-line color-function-notation */
@@ -71,7 +72,7 @@
   }
 
   &__main {
-    @include scrollable(units.unit(1));
+    @include scrollable.scrollable(0.6rem);
 
     flex: 1 1 auto;
     padding: 0 units.unit(1);

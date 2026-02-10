@@ -1,17 +1,31 @@
 import * as React from 'react';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
+import Surface from '../layout/Surface';
 
 const Table = React.forwardRef<
   HTMLTableElement,
-  React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => (
-  <div className="max-w-full overflow-x-auto rounded-md border">
-    <table
-      ref={ref}
-      className={cn('w-full caption-bottom border-collapse text-sm', className)}
-      {...props}
-    />
-  </div>
+  React.HTMLAttributes<HTMLTableElement> & {
+    surfaceProps?: React.ComponentProps<typeof Surface>;
+  }
+>(({ className, surfaceProps, ...props }, ref) => (
+  <Surface
+    maxWidth="none"
+    spacing="none"
+    {...surfaceProps}
+    className={cx(
+      'mx-auto w-full max-w-full overflow-x-auto rounded',
+      surfaceProps?.className,
+    )}
+    noContainer
+  >
+    <div className="w-full max-w-full overflow-x-auto">
+      <table
+        ref={ref}
+        className={cx('w-full caption-bottom border-collapse', className)}
+        {...props}
+      />
+    </div>
+  </Surface>
 ));
 Table.displayName = 'Table';
 
@@ -21,7 +35,10 @@ const TableHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <thead
     ref={ref}
-    className={cn('border-collapse [&_tr]:border-b', className)}
+    className={cx(
+      'publish-colors border-collapse bg-current/10 [&_tr]:border-b',
+      className,
+    )}
     {...props}
   />
 ));
@@ -33,7 +50,11 @@ const TableBody = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tbody
     ref={ref}
-    className={cn('[&_tr:last-child]:border-0', className)}
+    className={cx(
+      '[&_tr:last-child]:border-0',
+      '[&_tr:not(:only-child)]:hover:bg-current/3', // Hover effect only on body rows, disabled when empty (single row)
+      className,
+    )}
     {...props}
   />
 ));
@@ -45,7 +66,10 @@ const TableFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tfoot
     ref={ref}
-    className={cn('bg-primary text-primary-foreground font-medium', className)}
+    className={cx(
+      'bg-primary publish-colors text-primary-contrast font-medium',
+      className,
+    )}
     {...props}
   />
 ));
@@ -57,8 +81,9 @@ const TableRow = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tr
     ref={ref}
-    className={cn(
-      'hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors',
+    className={cx(
+      'h-14', // Height works the same as min-h for table rows https://stackoverflow.com/questions/19432092/can-i-use-a-min-height-for-table-tr-or-td
+      'data-[state=selected]:bg-selected/15 border-b transition-colors duration-300',
       className,
     )}
     {...props}
@@ -72,8 +97,9 @@ const TableHead = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <th
     ref={ref}
-    className={cn(
-      'text-muted-foreground px-4 py-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0',
+    className={cx(
+      'px-6 whitespace-nowrap',
+      'text-left font-medium first:pl-12 last:pr-12',
       className,
     )}
     {...props}
@@ -87,8 +113,9 @@ const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
-    className={cn(
-      'px-4 py-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0',
+    className={cx(
+      'px-6 align-middle whitespace-nowrap',
+      'first:pl-12 last:pr-12',
       className,
     )}
     {...props}
@@ -102,7 +129,7 @@ const TableCaption = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <caption
     ref={ref}
-    className={cn('text-muted-foreground mt-4 text-sm', className)}
+    className={cx('mt-4 text-sm text-current/70', className)}
     {...props}
   />
 ));
