@@ -1,7 +1,7 @@
 'use client';
 
 import { use, useState } from 'react';
-import { SuperJSON } from 'superjson';
+import SuperJSON from 'superjson';
 import { DataTable } from '~/components/DataTable/DataTable';
 import type { GetProtocolsQuery } from '~/queries/protocols';
 import { DeleteProtocolsDialog } from '../../protocols/_components/DeleteProtocolsDialog';
