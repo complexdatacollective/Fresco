@@ -15,7 +15,7 @@ async function getSetupData() {
     'allowAnonymousRecruitment',
   );
   const limitInterviews = await getAppSetting('limitInterviews');
-  const otherData = await prisma.$transaction([
+  const otherData = await Promise.all([
     prisma.protocol.count(),
     prisma.participant.count(),
   ]);

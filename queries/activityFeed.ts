@@ -30,8 +30,7 @@ export const getActivities = (rawSearchParams: unknown) =>
           }
         : {};
 
-      // Transaction is used to ensure both queries are executed in a single transaction
-      const [count, events] = await prisma.$transaction([
+      const [count, events] = await Promise.all([
         prisma.events.count({
           where: {
             ...queryFilterParams,
@@ -40,7 +39,7 @@ export const getActivities = (rawSearchParams: unknown) =>
         prisma.events.findMany({
           take: perPage,
           skip: offset,
-          orderBy: { [sortField]: sort },
+          orderBy: [{ [sortField]: sort }, { id: sort }],
           where: {
             ...queryFilterParams,
           },

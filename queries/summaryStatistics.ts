@@ -3,7 +3,7 @@ import { createCachedFunction } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 
 export const getSummaryStatistics = createCachedFunction(async () => {
-  const counts = await prisma.$transaction([
+  const [interviewCount, protocolCount, participantCount] = await Promise.all([
     prisma.interview.count(),
     prisma.protocol.count({
       where: { isPreview: false },
@@ -12,9 +12,9 @@ export const getSummaryStatistics = createCachedFunction(async () => {
   ]);
 
   return {
-    interviewCount: counts[0],
-    protocolCount: counts[1],
-    participantCount: counts[2],
+    interviewCount,
+    protocolCount,
+    participantCount,
   };
 }, [
   'summaryStatistics',
