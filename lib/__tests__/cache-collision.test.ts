@@ -8,16 +8,20 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 // Track all calls to unstable_cache with their keyParts
-const capturedCacheCalls: Array<{
+const capturedCacheCalls: {
   keyParts: string[] | undefined;
   tags: string[] | undefined;
   functionName: string;
-}> = [];
+}[] = [];
 
 // Mock unstable_cache to capture keyParts from all cached functions
 vi.mock('next/cache', () => ({
   unstable_cache: vi.fn(
-    (fn: () => Promise<unknown>, keyParts: string[] | undefined, options?: { tags?: string[] }) => {
+    (
+      fn: () => Promise<unknown>,
+      keyParts: string[] | undefined,
+      options?: { tags?: string[] },
+    ) => {
       capturedCacheCalls.push({
         keyParts,
         tags: options?.tags,
@@ -41,7 +45,10 @@ vi.mock('~/env', () => ({
 vi.mock('~/lib/db', () => ({
   prisma: {
     apiToken: { findMany: vi.fn().mockResolvedValue([]) },
-    protocol: { findMany: vi.fn().mockResolvedValue([]), findFirst: vi.fn().mockResolvedValue(null) },
+    protocol: {
+      findMany: vi.fn().mockResolvedValue([]),
+      findFirst: vi.fn().mockResolvedValue(null),
+    },
     participant: { findMany: vi.fn().mockResolvedValue([]) },
     interview: { count: vi.fn().mockResolvedValue(0) },
     $transaction: vi.fn().mockResolvedValue([0, 0, 0]),
@@ -84,7 +91,7 @@ describe('Cache Key Collision Prevention', () => {
     }
 
     // Find collisions (keyParts with multiple functions)
-    const collisions: Array<{ keyParts: string; functions: string[] }> = [];
+    const collisions: { keyParts: string; functions: string[] }[] = [];
 
     for (const [keyParts, functions] of keyPartsToFunctions) {
       if (functions.length > 1) {
@@ -115,8 +122,10 @@ describe('Cache Key Collision Prevention', () => {
     const apiTokensCall = capturedCacheCalls.find((call) =>
       call.tags?.includes('getApiTokens'),
     );
-    const protocolsCall = capturedCacheCalls.find((call) =>
-      call.tags?.includes('getProtocols') && !call.tags?.includes('getProtocolsByHash'),
+    const protocolsCall = capturedCacheCalls.find(
+      (call) =>
+        call.tags?.includes('getProtocols') &&
+        !call.tags?.includes('getProtocolsByHash'),
     );
 
     expect(apiTokensCall).toBeDefined();
