@@ -1,8 +1,9 @@
 /**
- * Tests to verify that all cached query functions produce unique cache keys.
+ * Tests to verify that cached query functions exercised by this suite produce
+ * unique cache keys.
  *
- * This prevents cache key collisions where different functions return each
- * other's data due to minification making function bodies identical.
+ * This helps prevent cache key collisions where different functions return
+ * each other's data due to minification making function bodies identical.
  */
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
