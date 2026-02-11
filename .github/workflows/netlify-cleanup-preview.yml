@@ -12,4 +12,4 @@ jobs:
       - name: Delete Neon Branch
         run: bunx neonctl branches delete preview/pr-${{ github.event.number }}-${{ github.event.pull_request.head.ref }} --project-id ${{ vars.NEON_PROJECT_ID }}
         env:
-          api_key: ${{ secrets.NEON_API_KEY }}
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
