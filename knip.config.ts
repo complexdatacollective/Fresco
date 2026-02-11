@@ -16,6 +16,8 @@ const config: KnipConfig = {
     // Tailwind plugins cannot be detected by knip
     'styles/plugins/tailwind-motion-spring.ts',
     'styles/plugins/tailwind-elevation/index.ts',
+    // SCSS files linked via @use/@forward directives that knip cannot resolve
+    'lib/legacy-ui/styles/**/*.scss',
   ],
   ignoreDependencies: [
     'sharp', // Used by next/image but not directly imported
@@ -24,6 +26,7 @@ const config: KnipConfig = {
     '@vitest/coverage-v8', // Dependency of chromatic falsely detected as unused
     '@tailwindcss/forms', // Used in globals.css but not detected as used
     'tailwindcss-animate', // Used in globals.css but not detected as used
+    '@prisma/client', // Used at runtime by Prisma generated client (imports @prisma/client/runtime/client)
   ],
   ignoreBinaries: [
     'docker-compose', // Should be installed by developers if needed, not a project dependency
