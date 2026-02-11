@@ -25,6 +25,7 @@ const config: KnipConfig = {
   ],
   ignoreBinaries: [
     'docker-compose', // Should be installed by developers if needed, not a project dependency
+    'netlify', // Installed globally in CI workflow, not a project dependency
   ],
   ignoreIssues: {
     // TestFixtures/WorkerFixtures are used by Playwright via base.extend<>() generic type parameter.
