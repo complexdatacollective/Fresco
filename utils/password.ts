@@ -17,11 +17,20 @@ const SALT_ALPHABET = 'abcdefghijklmnopqrstuvwxyz1234567890';
 const SALT_LENGTH = 16;
 
 function generateSalt(): string {
-  const bytes = randomBytes(SALT_LENGTH);
   let result = '';
-  for (let i = 0; i < SALT_LENGTH; i++) {
-    result += SALT_ALPHABET[bytes[i]! % SALT_ALPHABET.length];
+  const alphabetLength = SALT_ALPHABET.length;
+  const maxByte = 256 - (256 % alphabetLength);
+
+  while (result.length < SALT_LENGTH) {
+    const bytes = randomBytes(SALT_LENGTH);
+    for (let i = 0; i < bytes.length && result.length < SALT_LENGTH; i++) {
+      const byte = bytes[i]!;
+      if (byte >= maxByte) continue;
+      const index = byte % alphabetLength;
+      result += SALT_ALPHABET[index]!;
+    }
   }
+
   return result;
 }
 
