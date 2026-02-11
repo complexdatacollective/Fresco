@@ -46,7 +46,13 @@ export function createCachedFunction<T extends UnstableCacheParams[0]>(
 
   // eslint-disable-next-line no-process-env
   const VERCEL_DEPLOYMENT_ID = process.env.VERCEL_DEPLOYMENT_ID;
-  const keyParts = (options?.keyParts ?? []).concat(
+
+  // Always include tags in keyParts to prevent cache key collisions between
+  // functions with similar structure after minification.
+  const keyParts = [
+    ...tags,
+    ...(options?.keyParts ?? []),
+  ].concat(
     VERCEL_DEPLOYMENT_ID ? [VERCEL_DEPLOYMENT_ID] : [],
   );
 

@@ -40,7 +40,8 @@ describe('createCachedFunction', () => {
 
     expect(mockUnstableCache).toHaveBeenCalledWith(
       testFn,
-      expect.arrayContaining(['custom-key', 'dpl_test123']),
+      // Tags + explicit keyParts + deployment ID
+      expect.arrayContaining(['appSettings', 'custom-key', 'dpl_test123']),
       expect.any(Object),
     );
   });
@@ -84,7 +85,7 @@ describe('createCachedFunction', () => {
     expect(keyParts).toContain('dpl_test789');
   });
 
-  it('should pass empty array keyParts when VERCEL_DEPLOYMENT_ID is not set and no options provided', async () => {
+  it('should use tags as default keyParts when VERCEL_DEPLOYMENT_ID is not set and no options provided', async () => {
     vi.stubEnv('VERCEL_DEPLOYMENT_ID', '');
 
     vi.resetModules();
@@ -99,7 +100,52 @@ describe('createCachedFunction', () => {
     ];
     const keyParts = call[1];
 
-    expect(keyParts).toEqual([]);
+    // Tags should be used as default keyParts to prevent cache collisions
+    expect(keyParts).toEqual(['appSettings']);
+  });
+
+  it('should use tags as default keyParts and append VERCEL_DEPLOYMENT_ID when set', async () => {
+    vi.stubEnv('VERCEL_DEPLOYMENT_ID', 'dpl_collision_test');
+
+    vi.resetModules();
+    const { createCachedFunction } = await import('../cache');
+
+    const testFn = () => Promise.resolve('result');
+    createCachedFunction(testFn, ['getProtocols', 'summaryStatistics']);
+
+    const call = mockUnstableCache.mock.calls[0] as [
+      () => Promise<string>,
+      string[] | undefined,
+    ];
+    const keyParts = call[1];
+
+    // Should include all tags plus deployment ID
+    expect(keyParts).toEqual([
+      'getProtocols',
+      'summaryStatistics',
+      'dpl_collision_test',
+    ]);
+  });
+
+  it('should combine tags with explicit keyParts when provided', async () => {
+    vi.stubEnv('VERCEL_DEPLOYMENT_ID', '');
+
+    vi.resetModules();
+    const { createCachedFunction } = await import('../cache');
+
+    const testFn = () => Promise.resolve('result');
+    createCachedFunction(testFn, ['appSettings'], {
+      keyParts: ['custom-key'],
+    });
+
+    const call = mockUnstableCache.mock.calls[0] as [
+      () => Promise<string>,
+      string[] | undefined,
+    ];
+    const keyParts = call[1];
+
+    // Tags should always be included, with explicit keyParts appended
+    expect(keyParts).toEqual(['appSettings', 'custom-key']);
   });
 
   it('should bypass cache entirely when DISABLE_NEXT_CACHE is true', async () => {
