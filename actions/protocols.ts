@@ -185,6 +185,7 @@ export async function insertProtocol(
 
     safeRevalidateTag('getProtocols');
     safeRevalidateTag('summaryStatistics');
+    safeRevalidateTag('activityFeed');
 
     return { error: null, success: true };
   } catch (e) {

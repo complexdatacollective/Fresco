@@ -61,7 +61,7 @@ type PopoverTriggerProps = ComponentProps<typeof BasePopover.Trigger> & {
 };
 
 function PopoverTrigger({ children, asChild, ...props }: PopoverTriggerProps) {
-  if (asChild && isValidElement(children)) {
+  if (asChild && isValidElement<Record<string, unknown>>(children)) {
     return (
       <BasePopover.Trigger
         render={(triggerProps) =>

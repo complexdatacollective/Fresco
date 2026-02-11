@@ -10,8 +10,8 @@ const useAutoAdvance = (
   isTouched: boolean,
   isChanged: boolean,
 ) => {
-  const timer = useRef<ReturnType<typeof setTimeout> | undefined>();
-  const nextRef = useRef<() => void>();
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const nextRef = useRef<() => void>(undefined);
 
   nextRef.current = next;
 

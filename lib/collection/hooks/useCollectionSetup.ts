@@ -52,7 +52,7 @@ type UseCollectionSetupResult<T> = {
  */
 export function useCollectionSetup<T>(
   options: UseCollectionSetupOptions,
-  containerRef: RefObject<HTMLElement> | null,
+  containerRef: RefObject<HTMLElement | null> | null,
 ): UseCollectionSetupResult<T> {
   const collection = useCollection<T>();
 

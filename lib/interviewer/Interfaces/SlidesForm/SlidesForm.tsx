@@ -30,7 +30,7 @@ type SlidesFormProps = StageProps & {
     onUpdate: (...args: unknown[]) => void;
     onScroll: () => void;
     form: Record<string, unknown>;
-    submitButton: ReactElement;
+    submitButton: ReactElement<Record<string, unknown>>;
   }>;
 };
 

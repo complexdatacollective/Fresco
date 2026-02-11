@@ -36,7 +36,7 @@ export const FamilyTreeProvider = ({
   diseaseVariables: string[];
   children: React.ReactNode;
 }) => {
-  const storeRef = useRef<FamilyTreeStoreApi>();
+  const storeRef = useRef<FamilyTreeStoreApi>(undefined);
   const dispatch = useAppDispatch();
   const egoSexVariable = useSelector(getEgoSexVariable);
   const nodeSexVariable = useSelector(getNodeSexVariable);

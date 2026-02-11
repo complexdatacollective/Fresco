@@ -12,10 +12,10 @@ import {
   appSettingPreprocessedSchema,
 } from '~/schemas/appSettings';
 
-export const getAppSetting = <Key extends AppSetting>(
+export async function getAppSetting<Key extends AppSetting>(
   key: Key,
-): Promise<z.infer<typeof appSettingPreprocessedSchema>[Key]> =>
-  createCachedFunction(
+): Promise<z.infer<typeof appSettingPreprocessedSchema>[Key]> {
+  const rawValue = await createCachedFunction(
     async (key: AppSetting): Promise<string | null> => {
       const result = await prisma.appSettings.findUnique({
         where: { key },
@@ -25,15 +25,16 @@ export const getAppSetting = <Key extends AppSetting>(
       return result?.value ?? null;
     },
     [`appSettings-${key}`, 'appSettings'],
-  )(key).then((rawValue) => {
-    // Parse the cached raw value to the correct type
-    // Convert null to undefined so schema defaults work correctly
-    const parsedValue = appSettingPreprocessedSchema.shape[key].parse(
-      rawValue ?? undefined,
-    );
+  )(key);
 
-    return parsedValue as z.infer<typeof appSettingPreprocessedSchema>[Key];
-  });
+  // Parse the cached raw value to the correct type
+  // Convert null to undefined so schema defaults work correctly
+  const parsedValue = appSettingPreprocessedSchema.shape[key].parse(
+    rawValue ?? undefined,
+  );
+
+  return parsedValue as z.infer<typeof appSettingPreprocessedSchema>[Key];
+}
 
 export async function requireAppNotExpired(isSetupRoute = false) {
   // Fetch both settings in parallel to avoid sequential database calls

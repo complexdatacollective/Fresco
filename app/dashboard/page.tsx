@@ -13,11 +13,12 @@ import SummaryStatistics from './_components/SummaryStatistics/SummaryStatistics
 import UpdateUploadThingTokenAlert from './_components/UpdateUploadThingTokenAlert';
 import AnonymousRecruitmentWarning from './protocols/_components/AnonymousRecruitmentWarning';
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Record<string, string | string[] | undefined>;
-}) {
+export default async function Home(
+  props: {
+    searchParams: Promise<Record<string, string | string[] | undefined>>;
+  }
+) {
+  const searchParams = await props.searchParams;
   // Parse search params first (synchronous)
   searchParamsCache.parse(searchParams);
 

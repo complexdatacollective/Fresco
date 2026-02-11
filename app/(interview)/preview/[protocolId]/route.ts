@@ -8,9 +8,9 @@ export const dynamic = 'force-dynamic';
 
 const handler = async (
   req: NextRequest,
-  { params }: { params: { protocolId: string } },
+  { params }: { params: Promise<{ protocolId: string }> },
 ) => {
-  const protocolId = params.protocolId;
+  const { protocolId } = await params;
 
   // Check if preview mode is enabled
   const previewMode = await getPreviewMode();

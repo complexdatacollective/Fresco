@@ -9,9 +9,9 @@ type InfoTooltipProps = Omit<ComponentProps<typeof Popover>, 'children'> & {
   title: string;
   description:
     | string
-    | ((props: ComponentProps<'p'>) => ReactElement)
-    | ReactElement;
-  trigger?: ReactElement;
+    | ((props: ComponentProps<'p'>) => ReactElement<Record<string, unknown>>)
+    | ReactElement<Record<string, unknown>>;
+  trigger?: ReactElement<Record<string, unknown>>;
   sideOffset?: number;
 };
 

@@ -1,4 +1,4 @@
-import { revalidateTag, unstable_cache } from 'next/cache';
+import { unstable_cache, updateTag } from 'next/cache';
 import { env } from '~/env';
 
 export const CacheTags = [
@@ -25,10 +25,10 @@ type CacheTag = StaticTag | DynamicTag;
 
 export function safeRevalidateTag(tag: CacheTag | CacheTag[]) {
   if (Array.isArray(tag)) {
-    tag.forEach((t) => revalidateTag(t));
+    tag.forEach((t) => updateTag(t));
     return;
   }
-  revalidateTag(tag);
+  updateTag(tag);
 }
 
 type UnstableCacheParams = Parameters<typeof unstable_cache>;

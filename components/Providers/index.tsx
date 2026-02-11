@@ -3,6 +3,7 @@
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Toast } from '@base-ui/react/toast';
 import { MotionConfig, MotionGlobalConfig } from 'motion/react';
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { type ReactNode } from 'react';
 import DialogProvider from '~/lib/dialogs/DialogProvider';
 import { DndStoreProvider } from '~/lib/dnd';
@@ -25,17 +26,19 @@ export default function Providers({
   MotionGlobalConfig.skipAnimations = !!disableAnimations;
 
   return (
-    <MotionConfig reducedMotion="user">
-      <DirectionProvider direction="ltr">
-        <Toast.Provider limit={7}>
-          <DndStoreProvider>
-            <ProtocolImportProvider>
-              <DialogProvider>{children}</DialogProvider>
-            </ProtocolImportProvider>
-          </DndStoreProvider>
-          <Toaster />
-        </Toast.Provider>
-      </DirectionProvider>
-    </MotionConfig>
+    <NuqsAdapter>
+      <MotionConfig reducedMotion="user">
+        <DirectionProvider direction="ltr">
+          <Toast.Provider limit={7}>
+            <DndStoreProvider>
+              <ProtocolImportProvider>
+                <DialogProvider>{children}</DialogProvider>
+              </ProtocolImportProvider>
+            </DndStoreProvider>
+            <Toaster />
+          </Toast.Provider>
+        </DirectionProvider>
+      </MotionConfig>
+    </NuqsAdapter>
   );
 }

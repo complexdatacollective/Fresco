@@ -188,7 +188,7 @@ const EncryptionBackground = ({
   thresholdPosition,
 }: EncryptionBackgroundProps) => {
   const [streams, setStreams] = useState<Stream[]>([]);
-  const animationFrameRef = useRef<number>();
+  const animationFrameRef = useRef<number>(undefined);
   const lastUpdateTimeRef = useRef<number>(0);
 
   useEffect(() => {

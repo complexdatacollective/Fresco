@@ -1,7 +1,7 @@
 'use client';
 
 import { type JSONContent } from '@tiptap/react';
-import { Fragment, type ComponentPropsWithoutRef, type ReactNode } from 'react';
+import { Fragment, type ComponentPropsWithoutRef, type ReactNode, type JSX } from 'react';
 import { headingVariants } from '~/components/typography/Heading';
 import { paragraphVariants } from '~/components/typography/Paragraph';
 

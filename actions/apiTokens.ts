@@ -35,6 +35,7 @@ export async function createApiToken(data: unknown) {
       `Created API token: ${description ?? 'Untitled'}`,
     );
     safeRevalidateTag('getApiTokens');
+    safeRevalidateTag('activityFeed');
 
     // Return the token only once, on creation
     return { error: null, data: { ...apiToken, token } };
@@ -63,6 +64,7 @@ export async function updateApiToken(data: unknown) {
 
     void addEvent('API Token Updated', `Updated API token: ${id}`);
     safeRevalidateTag('getApiTokens');
+    safeRevalidateTag('activityFeed');
 
     return { error: null, data: apiToken };
   } catch (error) {
@@ -82,6 +84,7 @@ export async function deleteApiToken(data: unknown) {
 
     void addEvent('API Token Deleted', `Deleted API token: ${id}`);
     safeRevalidateTag('getApiTokens');
+    safeRevalidateTag('activityFeed');
 
     return { error: null, data: { id } };
   } catch (error) {

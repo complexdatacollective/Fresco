@@ -1,14 +1,44 @@
 'use server';
 
+import { createId } from '@paralleldrive/cuid2';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
+import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { redirect } from 'next/navigation';
 import z from 'zod';
+import { prisma } from '~/lib/db';
 import { type FormSubmissionResult } from '~/lib/form/store/types';
 import { createUserFormDataSchema, loginSchema } from '~/schemas/auth';
-import { auth, getServerSession } from '~/utils/auth';
-import { prisma } from '~/lib/db';
+import { hashPassword, verifyPassword } from '~/utils/password';
+import { getServerSession } from '~/utils/auth';
+import { safeRevalidateTag } from '~/lib/cache';
 import { addEvent } from './activityFeed';
+
+const SESSION_COOKIE_NAME = 'auth_session';
+const SESSION_ACTIVE_PERIOD_MS = 1000 * 60 * 60 * 24; // 24 hours
+const SESSION_IDLE_PERIOD_MS = 1000 * 60 * 60 * 24 * 14; // 2 weeks
+
+async function createSessionCookie(userId: string) {
+  const sessionId = createId();
+  const now = Date.now();
+
+  await prisma.session.create({
+    data: {
+      id: sessionId,
+      user_id: userId,
+      active_expires: BigInt(now + SESSION_ACTIVE_PERIOD_MS),
+      idle_expires: BigInt(now + SESSION_IDLE_PERIOD_MS),
+    },
+  });
+
+  const cookieStore = await cookies();
+  cookieStore.set(SESSION_COOKIE_NAME, sessionId, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    path: '/',
+  });
+}
 
 export async function signup(formData: unknown) {
   const parsedFormData = createUserFormDataSchema.safeParse(formData);
@@ -22,43 +52,27 @@ export async function signup(formData: unknown) {
 
   try {
     const { username, password } = parsedFormData.data;
+    const hashedPassword = await hashPassword(password);
 
-    const user = await auth.createUser({
-      key: {
-        providerId: 'username', // auth method
-        providerUserId: username, // unique id when using "username" auth method
-        password, // hashed by Lucia
-      },
-      attributes: {
+    const user = await prisma.user.create({
+      data: {
         username,
+        key: {
+          create: {
+            id: `username:${username}`,
+            hashed_password: hashedPassword,
+          },
+        },
       },
     });
 
-    const session = await auth.createSession({
-      userId: user.userId,
-      attributes: {},
-    });
-
-    if (!session) {
-      return {
-        success: false,
-        error: 'Failed to create session',
-      };
-    }
-
-    // set session cookie
-
-    const sessionCookie = auth.createSessionCookie(session);
-
-    cookies().set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes,
-    );
+    await createSessionCookie(user.id);
 
     redirect('/setup?step=2');
   } catch (error) {
-    // db error, email taken, etc
+    if (isRedirectError(error)) {
+      throw error;
+    }
     return {
       success: false,
       error: 'Username already taken',
@@ -78,23 +92,11 @@ export const login = async (data: unknown): Promise<FormSubmissionResult> => {
 
   const { username, password } = parsedFormData.data;
 
-  // get user by userId
   const existingUser = await prisma.user.findFirst({
-    where: {
-      username,
-    },
+    where: { username },
   });
 
   if (!existingUser) {
-    // NOTE:
-    // Returning immediately allows malicious actors to figure out valid usernames from response times,
-    // allowing them to only focus on guessing passwords in brute-force attacks.
-    // As a preventive measure, you may want to hash passwords even for invalid usernames.
-    // However, valid usernames can be already be revealed with the signup page among other methods.
-    // It will also be much more resource intensive.
-    // Since protecting against this is non-trivial,
-    // it is crucial your implementation is protected against brute-force attacks with login throttling etc.
-    // If usernames are public, you may outright tell the user that the username is invalid.
     // eslint-disable-next-line no-console
     console.log('invalid username');
     return {
@@ -103,29 +105,30 @@ export const login = async (data: unknown): Promise<FormSubmissionResult> => {
     };
   }
 
-  let key;
-  try {
-    key = await auth.useKey('username', username, password);
-  } catch (e) {
+  const key = await prisma.key.findUnique({
+    where: { id: `username:${username}` },
+  });
+
+  if (!key?.hashed_password) {
     return {
       success: false,
       formErrors: ['Incorrect username or password'],
     };
   }
 
-  const session = await auth.createSession({
-    userId: key.userId,
-    attributes: {},
-  });
+  const validPassword = await verifyPassword(password, key.hashed_password);
 
-  const sessionCookie = auth.createSessionCookie(session);
-  cookies().set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes,
-  );
+  if (!validPassword) {
+    return {
+      success: false,
+      formErrors: ['Incorrect username or password'],
+    };
+  }
+
+  await createSessionCookie(key.user_id);
 
   void addEvent('User Login', `User ${username} logged in`);
+  safeRevalidateTag('activityFeed');
 
   return {
     success: true,
@@ -140,7 +143,7 @@ export async function logout() {
     };
   }
 
-  await auth.invalidateSession(session.sessionId);
+  await prisma.session.delete({ where: { id: session.sessionId } });
 
   revalidatePath('/');
 }

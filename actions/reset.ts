@@ -42,10 +42,6 @@ export const resetAppSettings = async (): Promise<void> => {
       const keys = files.map((file) => file.key);
       return utapi.deleteFiles(keys);
     });
-  } catch (error) {
-    throw new Error(
-      'Failed to reset app settings: ' + (error as Error).message,
-    );
   } finally {
     redirect('/setup');
   }

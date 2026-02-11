@@ -27,6 +27,7 @@ export async function deleteParticipants(participantIds: string[]) {
   safeRevalidateTag('getParticipants');
   safeRevalidateTag('getInterviews');
   safeRevalidateTag('summaryStatistics');
+  safeRevalidateTag('activityFeed');
 }
 
 export async function deleteAllParticipants() {
@@ -42,6 +43,7 @@ export async function deleteAllParticipants() {
   safeRevalidateTag('getParticipants');
   safeRevalidateTag('getInterviews');
   safeRevalidateTag('summaryStatistics');
+  safeRevalidateTag('activityFeed');
 }
 
 export async function importParticipants(rawInput: unknown) {
@@ -86,6 +88,7 @@ export async function importParticipants(rawInput: unknown) {
 
     safeRevalidateTag('getParticipants');
     safeRevalidateTag('summaryStatistics');
+    safeRevalidateTag('activityFeed');
 
     return {
       error: null,
@@ -158,6 +161,7 @@ export async function createParticipant(rawInput: unknown) {
 
     safeRevalidateTag('getParticipants');
     safeRevalidateTag('summaryStatistics');
+    safeRevalidateTag('activityFeed');
 
     return {
       error: null,

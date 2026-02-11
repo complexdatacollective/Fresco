@@ -12,11 +12,12 @@ import { getProtocolForPreview } from '~/queries/protocols';
 
 export const dynamic = 'force-dynamic';
 
-export default async function PreviewInterviewPage({
-  params,
-}: {
-  params: { protocolId: string };
-}) {
+export default async function PreviewInterviewPage(
+  props: {
+    params: Promise<{ protocolId: string }>;
+  }
+) {
+  const params = await props.params;
   const { protocolId } = params;
 
   const previewMode = await getPreviewMode();

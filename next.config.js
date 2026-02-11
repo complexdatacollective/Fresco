@@ -38,10 +38,8 @@ const config = {
   cacheHandler: disableNextCache
     ? require.resolve('./lib/cache-handler.cjs')
     : undefined,
-  experimental: {
-    typedRoutes: true,
-    webpackBuildWorker: true,
-  },
+  typedRoutes: true,
+  turbopack: {},
   sassOptions: {
     implementation: 'sass-embedded',
   },
@@ -67,10 +65,6 @@ const config = {
     // add the package.json version and git hash to the environment
     APP_VERSION: `v${pkg.version}`,
     COMMIT_HASH: commitHash,
-  },
-  eslint: {
-    dirs: ['./'],
-    ignoreDuringBuilds: true,
   },
   typescript: {
     ignoreBuildErrors: true,

@@ -7,8 +7,8 @@ import * as React from 'react';
  * - A function that receives props and returns a React element
  */
 export type RenderProp<Props extends Record<string, unknown>> =
-  | React.ReactElement
-  | ((props: Props) => React.ReactElement);
+  | React.ReactElement<Record<string, unknown>>
+  | ((props: Props) => React.ReactElement<Record<string, unknown>>);
 
 /**
  * Hook that implements the render prop pattern from base-ui.
@@ -32,9 +32,9 @@ export type RenderProp<Props extends Record<string, unknown>> =
  */
 export function useRender<Props extends Record<string, unknown>>(
   render: RenderProp<Props> | undefined,
-  defaultElement: React.ReactElement,
+  defaultElement: React.ReactElement<Record<string, unknown>>,
   props: Props,
-): React.ReactElement {
+): React.ReactElement<Record<string, unknown>> {
   if (render === undefined) {
     // No render prop provided, use default element
     return React.cloneElement(defaultElement, props);

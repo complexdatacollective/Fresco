@@ -1,7 +1,4 @@
-/* eslint-disable react/no-find-dom-node */
-
 import React, { Component } from 'react';
-import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import getAbsoluteBoundingRect from '../../utils/getAbsoluteBoundingRect';
 import { actionCreators as actions } from './reducer';
@@ -10,11 +7,15 @@ import { maxFramesPerSecond } from './DropTarget';
 
 const dropObstacle = (WrappedComponent) =>
   class DropObstacle extends Component {
+    constructor(props) {
+      super(props);
+      this.nodeRef = React.createRef();
+    }
+
     componentDidMount() {
-      if (!this.component) {
+      if (!this.nodeRef.current) {
         return;
       }
-      this.node = findDOMNode(this.component);
       this.update();
     }
 
@@ -38,13 +39,14 @@ const dropObstacle = (WrappedComponent) =>
     };
 
     updateObstacle = () => {
-      if (!this.node) {
+      const node = this.nodeRef.current;
+      if (!node) {
         return;
       }
 
       const { id } = this.props;
 
-      const boundingClientRect = getAbsoluteBoundingRect(this.node);
+      const boundingClientRect = getAbsoluteBoundingRect(node);
 
       store.dispatch(
         actions.upsertObstacle({
@@ -59,12 +61,9 @@ const dropObstacle = (WrappedComponent) =>
 
     render() {
       return (
-        <WrappedComponent
-          ref={(component) => {
-            this.component = component;
-          }}
-          {...this.props}
-        />
+        <div ref={this.nodeRef} style={{ display: 'contents' }}>
+          <WrappedComponent {...this.props} />
+        </div>
       );
     }
   };

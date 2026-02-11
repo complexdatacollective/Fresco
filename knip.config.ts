@@ -37,10 +37,6 @@ const config: KnipConfig = {
     // Table helpers are part of the public test API used by future specs
     'tests/e2e/helpers/table.ts': ['exports'],
 
-    // Auth type is used in auth.d.ts for Lucia module augmentation (declare module 'lucia')
-    // Knip cannot detect usage in ambient module declarations
-    'utils/auth.ts': ['types'],
-
     // Pre-existing unused type exports (not related to e2e migration)
     'lib/interviewer/containers/Interfaces/FamilyTreeCensus/useDynamicFields.tsx':
       ['types'],

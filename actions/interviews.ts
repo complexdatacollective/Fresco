@@ -53,6 +53,7 @@ export async function deleteInterviews(data: DeleteInterviews) {
 
     safeRevalidateTag('getInterviews');
     safeRevalidateTag('summaryStatistics');
+    safeRevalidateTag('activityFeed');
 
     return { error: null, interview: deletedInterviews };
   } catch (error) {
@@ -75,6 +76,7 @@ export const updateExportTime = async (interviewIds: Interview['id'][]) => {
     });
 
     safeRevalidateTag('getInterviews');
+    safeRevalidateTag('activityFeed');
 
     void addEvent(
       'Data Exported',
@@ -232,6 +234,7 @@ export async function createInterview(data: CreateInterview) {
     safeRevalidateTag('getInterviews');
     safeRevalidateTag('getParticipants');
     safeRevalidateTag('summaryStatistics');
+    safeRevalidateTag('activityFeed');
 
     return {
       error: null,
@@ -287,7 +290,7 @@ export async function finishInterview(interviewId: Interview['id']) {
       },
     });
 
-    cookies().set(updatedInterview.protocolId, 'completed');
+    (await cookies()).set(updatedInterview.protocolId, 'completed');
 
     safeRevalidateTag('getInterviews');
     safeRevalidateTag('summaryStatistics');

@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { invariant } from 'es-toolkit';
-import { useMemo } from 'react';
+import { useMemo, type JSX } from 'react';
 import { useSelector } from 'react-redux';
 import { FAMILY_TREE_CONFIG } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/config';
 import { useFamilyTreeStore } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/FamilyTreeProvider';

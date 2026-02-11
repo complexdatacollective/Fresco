@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, type MotionProps } from 'motion/react';
-import { type ElementType, forwardRef } from 'react';
+import { type ElementType, forwardRef, type JSX } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 import ResponsiveContainer, {
   type ResponsiveContainerProps,
@@ -123,7 +123,7 @@ const SurfaceComponent = forwardRef<HTMLDivElement, SurfaceProps>(
 SurfaceComponent.displayName = 'Surface';
 
 const Surface = SurfaceComponent as <T extends ElementType = 'div'>(
-  props: SurfaceProps<T> & { ref?: React.Ref<React.ElementRef<T>> },
+  props: SurfaceProps<T> & { ref?: React.Ref<HTMLElement> },
 ) => React.ReactElement | null;
 
 export default Surface;

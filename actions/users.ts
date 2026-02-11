@@ -4,7 +4,8 @@ import { safeRevalidateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { createUserFormDataSchema } from '~/schemas/auth';
 import { changePasswordSchema, deleteUsersSchema } from '~/schemas/users';
-import { auth, requireApiAuth } from '~/utils/auth';
+import { requireApiAuth } from '~/utils/auth';
+import { hashPassword, verifyPassword } from '~/utils/password';
 import { addEvent } from './activityFeed';
 
 export async function createUser(data: unknown) {
@@ -22,19 +23,23 @@ export async function createUser(data: unknown) {
   const { username, password } = parsedData.data;
 
   try {
-    await auth.createUser({
-      key: {
-        providerId: 'username',
-        providerUserId: username,
-        password,
-      },
-      attributes: {
+    const hashedPassword = await hashPassword(password);
+
+    await prisma.user.create({
+      data: {
         username,
+        key: {
+          create: {
+            id: `username:${username}`,
+            hashed_password: hashedPassword,
+          },
+        },
       },
     });
 
     void addEvent('User Created', `Created user: ${username}`);
     safeRevalidateTag('getUsers');
+    safeRevalidateTag('activityFeed');
 
     return { error: null, data: { username } };
   } catch (_error) {
@@ -101,16 +106,16 @@ export async function deleteUsers(data: unknown) {
       select: { id: true, username: true },
     });
 
-    const deletedIds: string[] = [];
+    // Cascade delete handles sessions and keys via Prisma schema
+    await prisma.user.deleteMany({
+      where: { id: { in: idsToDelete } },
+    });
 
-    for (const user of usersToDelete) {
-      await auth.deleteUser(user.id);
-      deletedIds.push(user.id);
-    }
-
+    const deletedIds = usersToDelete.map((u) => u.id);
     const usernames = usersToDelete.map((u) => u.username).join(', ');
     void addEvent('User Deleted', `Deleted user(s): ${usernames}`);
     safeRevalidateTag('getUsers');
+    safeRevalidateTag('activityFeed');
 
     return { error: null, data: { deletedIds } };
   } catch (_error) {
@@ -137,8 +142,24 @@ export async function changePassword(data: unknown) {
   const { currentPassword, newPassword } = parsedData.data;
 
   try {
-    // Verify current password
-    await auth.useKey('username', session.user.username, currentPassword);
+    const key = await prisma.key.findUnique({
+      where: { id: `username:${session.user.username}` },
+    });
+
+    if (!key?.hashed_password) {
+      return {
+        error: 'Current password is incorrect',
+        data: null,
+      };
+    }
+
+    const valid = await verifyPassword(currentPassword, key.hashed_password);
+    if (!valid) {
+      return {
+        error: 'Current password is incorrect',
+        data: null,
+      };
+    }
   } catch (_error) {
     return {
       error: 'Current password is incorrect',
@@ -147,17 +168,18 @@ export async function changePassword(data: unknown) {
   }
 
   try {
-    // Update password
-    await auth.updateKeyPassword(
-      'username',
-      session.user.username,
-      newPassword,
-    );
+    const newHash = await hashPassword(newPassword);
+
+    await prisma.key.update({
+      where: { id: `username:${session.user.username}` },
+      data: { hashed_password: newHash },
+    });
 
     void addEvent(
       'Password Changed',
       `User ${session.user.username} changed their password`,
     );
+    safeRevalidateTag('activityFeed');
 
     return { error: null, data: { success: true } };
   } catch (_error) {

@@ -44,7 +44,7 @@ describe('Onboard Route Handler', () => {
 
     // Default mock implementations
     mockGetAppSetting.mockResolvedValue(false);
-    mockCookies.mockReturnValue({
+    mockCookies.mockResolvedValue({
       get: vi.fn().mockReturnValue(undefined),
       has: vi.fn().mockReturnValue(false),
       getAll: vi.fn().mockReturnValue([]),
@@ -52,7 +52,7 @@ describe('Onboard Route Handler', () => {
       delete: vi.fn(),
       size: 0,
       [Symbol.iterator]: vi.fn(),
-    } as ReturnType<typeof cookies>);
+    } as Awaited<ReturnType<typeof cookies>>);
   });
 
   describe('GET handler', () => {
@@ -60,7 +60,7 @@ describe('Onboard Route Handler', () => {
       const request = new NextRequest(
         'http://localhost:3000/onboard/undefined',
       );
-      const params = { protocolId: 'undefined' };
+      const params = Promise.resolve({ protocolId: 'undefined' });
 
       const response = await GET(request, { params });
 
@@ -84,7 +84,7 @@ describe('Onboard Route Handler', () => {
       const request = new NextRequest(
         `http://localhost:3000/onboard/${protocolId}?participantIdentifier=${participantIdentifier}`,
       );
-      const params = { protocolId };
+      const params = Promise.resolve({ protocolId });
 
       const response = await GET(request, { params });
 
@@ -111,7 +111,7 @@ describe('Onboard Route Handler', () => {
       const request = new NextRequest(
         `http://localhost:3000/onboard/${protocolId}`,
       );
-      const params = { protocolId };
+      const params = Promise.resolve({ protocolId });
 
       await GET(request, { params });
 
@@ -125,14 +125,14 @@ describe('Onboard Route Handler', () => {
       const protocolId = 'test-protocol-id';
 
       mockGetAppSetting.mockResolvedValue(true);
-      mockCookies.mockReturnValue({
+      mockCookies.mockResolvedValue({
         get: vi.fn().mockReturnValue({ value: 'completed' }),
-      } as unknown as ReturnType<typeof cookies>);
+      } as unknown as Awaited<ReturnType<typeof cookies>>);
 
       const request = new NextRequest(
         `http://localhost:3000/onboard/${protocolId}`,
       );
-      const params = { protocolId };
+      const params = Promise.resolve({ protocolId });
 
       const response = await GET(request, { params });
 
@@ -148,9 +148,9 @@ describe('Onboard Route Handler', () => {
       const createdInterviewId = 'interview-789';
 
       mockGetAppSetting.mockResolvedValue(true);
-      mockCookies.mockReturnValue({
+      mockCookies.mockResolvedValue({
         get: vi.fn().mockReturnValue(undefined),
-      } as unknown as ReturnType<typeof cookies>);
+      } as unknown as Awaited<ReturnType<typeof cookies>>);
       mockCreateInterview.mockResolvedValue({
         createdInterviewId,
         error: null,
@@ -160,7 +160,7 @@ describe('Onboard Route Handler', () => {
       const request = new NextRequest(
         `http://localhost:3000/onboard/${protocolId}`,
       );
-      const params = { protocolId };
+      const params = Promise.resolve({ protocolId });
 
       const response = await GET(request, { params });
 
@@ -182,7 +182,7 @@ describe('Onboard Route Handler', () => {
       const request = new NextRequest(
         `http://localhost:3000/onboard/${protocolId}`,
       );
-      const params = { protocolId };
+      const params = Promise.resolve({ protocolId });
 
       const response = await GET(request, { params });
 
@@ -204,7 +204,7 @@ describe('Onboard Route Handler', () => {
       const request = new NextRequest(
         `http://localhost:3000/onboard/${protocolId}`,
       );
-      const params = { protocolId };
+      const params = Promise.resolve({ protocolId });
 
       const response = await GET(request, { params });
 
@@ -237,7 +237,7 @@ describe('Onboard Route Handler', () => {
           },
         },
       );
-      const params = { protocolId };
+      const params = Promise.resolve({ protocolId });
 
       const response = await POST(request, { params });
 
@@ -271,7 +271,7 @@ describe('Onboard Route Handler', () => {
           },
         },
       );
-      const params = { protocolId };
+      const params = Promise.resolve({ protocolId });
 
       await POST(request, { params });
 
@@ -300,7 +300,7 @@ describe('Onboard Route Handler', () => {
           },
         },
       );
-      const params = { protocolId };
+      const params = Promise.resolve({ protocolId });
 
       await POST(request, { params });
 
@@ -329,7 +329,7 @@ describe('Onboard Route Handler', () => {
           },
         },
       );
-      const params = { protocolId };
+      const params = Promise.resolve({ protocolId });
 
       const response = await POST(request, { params });
 
@@ -343,9 +343,9 @@ describe('Onboard Route Handler', () => {
       const protocolId = 'test-protocol-id';
 
       mockGetAppSetting.mockResolvedValue(true);
-      mockCookies.mockReturnValue({
+      mockCookies.mockResolvedValue({
         get: vi.fn().mockReturnValue({ value: 'completed' }),
-      } as unknown as ReturnType<typeof cookies>);
+      } as unknown as Awaited<ReturnType<typeof cookies>>);
 
       const request = new NextRequest(
         `http://localhost:3000/onboard/${protocolId}`,
@@ -357,7 +357,7 @@ describe('Onboard Route Handler', () => {
           },
         },
       );
-      const params = { protocolId };
+      const params = Promise.resolve({ protocolId });
 
       const response = await POST(request, { params });
 
@@ -382,7 +382,7 @@ describe('Onboard Route Handler', () => {
       const request = new NextRequest(
         `http://localhost:3000/onboard/${protocolId}`,
       );
-      const params = { protocolId };
+      const params = Promise.resolve({ protocolId });
 
       const response = await GET(request, { params });
 
@@ -409,7 +409,7 @@ describe('Onboard Route Handler', () => {
       const request = new NextRequest(
         `http://localhost:3000/onboard/${protocolId}?participantIdentifier=${encodeURIComponent(participantIdentifier)}`,
       );
-      const params = { protocolId };
+      const params = Promise.resolve({ protocolId });
 
       await GET(request, { params });
 

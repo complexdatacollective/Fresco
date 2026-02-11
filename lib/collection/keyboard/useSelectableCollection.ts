@@ -10,7 +10,7 @@ type UseSelectableCollectionOptions = {
   /** Keyboard delegate for navigation */
   keyboardDelegate: KeyboardDelegate;
   /** Ref to the collection container element */
-  ref: RefObject<HTMLElement> | null;
+  ref: RefObject<HTMLElement | null> | null;
   /** Whether empty selection is disallowed */
   disallowEmptySelection?: boolean;
   /** Whether select all (Ctrl+A) is disabled */
@@ -46,7 +46,7 @@ export function useSelectableCollection(
 
   // Type-ahead search state
   const searchRef = useRef('');
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchTimeoutRef = useRef<NodeJS.Timeout>(undefined);
 
   const handleTypeAhead = useCallback(
     (char: string) => {

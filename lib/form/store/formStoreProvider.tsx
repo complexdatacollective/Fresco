@@ -12,7 +12,7 @@ type FormStoreProviderProps = {
 };
 
 const FormStoreProvider = ({ children }: FormStoreProviderProps) => {
-  const storeRef = useRef<FormStoreApi>();
+  const storeRef = useRef<FormStoreApi>(undefined);
 
   storeRef.current ??= createFormStore();
 
