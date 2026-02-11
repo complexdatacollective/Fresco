@@ -12,6 +12,7 @@ import { createUserFormDataSchema, loginSchema } from '~/schemas/auth';
 import { hashPassword, verifyPassword } from '~/utils/password';
 import { getServerSession } from '~/utils/auth';
 import { safeRevalidateTag } from '~/lib/cache';
+import { env } from '~/env';
 import { addEvent } from './activityFeed';
 
 const SESSION_COOKIE_NAME = 'auth_session';
@@ -34,7 +35,7 @@ async function createSessionCookie(userId: string) {
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE_NAME, sessionId, {
     httpOnly: true,
-    secure: true,
+    secure: env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
   });
@@ -144,6 +145,9 @@ export async function logout() {
   }
 
   await prisma.session.delete({ where: { id: session.sessionId } });
+
+  const cookieStore = await cookies();
+  cookieStore.delete(SESSION_COOKIE_NAME);
 
   revalidatePath('/');
 }

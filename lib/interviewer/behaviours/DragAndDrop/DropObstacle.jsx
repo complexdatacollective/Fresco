@@ -13,7 +13,7 @@ const dropObstacle = (WrappedComponent) =>
     }
 
     componentDidMount() {
-      if (!this.nodeRef.current) {
+      if (!this.nodeRef.current?.firstElementChild) {
         return;
       }
       this.update();
@@ -39,7 +39,7 @@ const dropObstacle = (WrappedComponent) =>
     };
 
     updateObstacle = () => {
-      const node = this.nodeRef.current;
+      const node = this.nodeRef.current?.firstElementChild;
       if (!node) {
         return;
       }

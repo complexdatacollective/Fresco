@@ -18,7 +18,7 @@ export const getServerSession = cache(async () => {
 
   if (!session) return null;
 
-  if (session.active_expires < BigInt(Date.now())) {
+  if (session.idle_expires < BigInt(Date.now())) {
     // Session already expired; delete is best-effort (may already be removed)
     await prisma.session
       .delete({ where: { id: sessionId } })

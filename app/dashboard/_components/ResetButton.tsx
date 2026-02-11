@@ -32,8 +32,11 @@ const ResetButton = () => {
               disabled={isResetting}
               onClick={async () => {
                 setIsResetting(true);
-                await resetAppSettings();
-                setIsResetting(false);
+                try {
+                  await resetAppSettings();
+                } catch {
+                  setIsResetting(false);
+                }
               }}
               color="primary"
             >
