@@ -63,7 +63,7 @@ const NavButton = ({
         {isActive && (
           <motion.div
             layoutId="active-outline"
-            className="absolute -inset-2 rounded-full ring-2 ring-current/20"
+            className="absolute -inset-x-4 -inset-y-2 rounded-full ring-2 ring-current/20"
           />
         )}
         <span className="relative">{label}</span>

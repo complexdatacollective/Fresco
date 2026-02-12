@@ -1,3 +1,5 @@
+'use client';
+
 import cx from 'classnames';
 import { clamp } from 'es-toolkit';
 import React, { forwardRef, useCallback, type ReactNode } from 'react';

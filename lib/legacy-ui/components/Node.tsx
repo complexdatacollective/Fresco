@@ -1,3 +1,5 @@
+'use client';
+
 import { Loader2 } from 'lucide-react';
 import { AnimatePresence, motion, useAnimate } from 'motion/react';
 import {
