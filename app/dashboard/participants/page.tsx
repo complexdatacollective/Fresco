@@ -23,7 +23,8 @@ export default function ParticipantPage() {
 }
 
 async function AuthenticatedParticipants() {
-  await Promise.all([requireAppNotExpired(), requirePageAuth()]);
+  await requireAppNotExpired();
+  await requirePageAuth();
   return (
     <>
       <ImportExportSection />

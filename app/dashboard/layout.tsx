@@ -1,10 +1,11 @@
+import { type Metadata } from 'next';
 import { connection } from 'next/server';
 import { Suspense } from 'react';
 import { getAppSetting } from '~/queries/appSettings';
 import { NavigationBar } from './_components/NavigationBar';
 import UploadThingModal from './_components/UploadThingModal';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Network Canvas Fresco - Dashboard',
   description: 'Fresco.',
 };

@@ -23,7 +23,8 @@ export default function ProtocolsPage() {
 }
 
 async function AuthenticatedProtocols() {
-  await Promise.all([requireAppNotExpired(), requirePageAuth()]);
+  await requireAppNotExpired();
+  await requirePageAuth();
   return (
     <>
       <Suspense fallback={null}>

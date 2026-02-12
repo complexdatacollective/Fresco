@@ -1,3 +1,4 @@
+import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import Link from '~/components/ui/Link';
 import { getAppSetting } from '~/queries/appSettings';
@@ -10,14 +11,17 @@ export default async function AnonymousRecruitmentWarning() {
   if (!allowAnonymousRecruitment) return null;
 
   return (
-    <Alert variant="info" className="m-0">
-      <AlertTitle>Please Note</AlertTitle>
-      <AlertDescription>
-        Anonymous recruitment is enabled. This means that participants can
-        self-enroll in your study without needing to be invited, by visiting the
-        protocol-specific onboarding link. To disable anonymous recruitment,
-        visit <Link href="/dashboard/settings">the settings page</Link>.
-      </AlertDescription>
-    </Alert>
+    <ResponsiveContainer maxWidth="3xl">
+      <Alert variant="info" className="m-0">
+        <AlertTitle>Please Note</AlertTitle>
+        <AlertDescription>
+          Anonymous recruitment is enabled. This means that participants can
+          self-enroll in your study without needing to be invited, by visiting
+          the protocol-specific onboarding link. To disable anonymous
+          recruitment, visit{' '}
+          <Link href="/dashboard/settings">the settings page</Link>.
+        </AlertDescription>
+      </Alert>
+    </ResponsiveContainer>
   );
 }

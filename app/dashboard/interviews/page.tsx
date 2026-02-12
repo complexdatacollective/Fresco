@@ -24,6 +24,7 @@ export default function InterviewPage() {
 }
 
 async function AuthenticatedInterviews() {
-  await Promise.all([requireAppNotExpired(), requirePageAuth()]);
+  await requireAppNotExpired();
+  await requirePageAuth();
   return <InterviewsTableServer />;
 }

@@ -12,11 +12,11 @@ import { getSummaryStatistics } from '~/queries/summaryStatistics';
 import { requirePageAuth } from '~/utils/auth';
 import ActivityFeed from './_components/ActivityFeed/ActivityFeed';
 import { searchParamsCache } from './_components/ActivityFeed/SearchParams';
-import { StatCardSkeleton } from './_components/SummaryStatistics/StatCard';
 import {
   InterviewIcon,
   ProtocolIcon,
 } from './_components/SummaryStatistics/Icons';
+import { StatCardSkeleton } from './_components/SummaryStatistics/StatCard';
 import SummaryStatistics from './_components/SummaryStatistics/SummaryStatistics';
 import UpdateUploadThingTokenAlert from './_components/UpdateUploadThingTokenAlert';
 import AnonymousRecruitmentWarning from './protocols/_components/AnonymousRecruitmentWarning';
@@ -86,15 +86,14 @@ async function DashboardContent({
   const summaryPromise = getSummaryStatistics();
   const activitiesPromise = getActivities(searchParamsCache.all());
 
-  await Promise.all([requireAppNotExpired(), requirePageAuth()]);
+  await requireAppNotExpired();
+  await requirePageAuth();
 
   return (
     <>
-      <ResponsiveContainer maxWidth="3xl">
-        <Suspense fallback={<Skeleton className="h-20 w-full rounded" />}>
-          <AnonymousRecruitmentWarning />
-        </Suspense>
-      </ResponsiveContainer>
+      <Suspense fallback={<Skeleton className="h-20 w-full rounded" />}>
+        <AnonymousRecruitmentWarning />
+      </Suspense>
 
       <Suspense fallback={<Skeleton className="h-20 w-full rounded" />}>
         <UpdateUploadThingTokenAlert />
