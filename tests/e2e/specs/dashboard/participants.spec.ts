@@ -69,7 +69,10 @@ test.describe('Participants Page', () => {
     test('bulk select and deselect', async ({ page }) => {
       await waitForTable(page, { minRows: 1 });
       await selectAllRows(page);
-      const headerCheckbox = page.locator('thead').getByRole('checkbox');
+      const headerCheckbox = page
+        .getByTestId('data-table')
+        .locator('thead')
+        .getByRole('checkbox');
       await expect(headerCheckbox).toBeChecked();
       await selectAllRows(page);
       await expect(headerCheckbox).not.toBeChecked();

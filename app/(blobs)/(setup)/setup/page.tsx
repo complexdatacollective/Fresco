@@ -1,4 +1,5 @@
 import { Loader2 } from 'lucide-react';
+import { connection } from 'next/server';
 import { Suspense } from 'react';
 import { prisma } from '~/lib/db';
 import {
@@ -45,6 +46,7 @@ export default function Page() {
 }
 
 async function SetupContent() {
+  await connection();
   await requireAppNotExpired(true);
   await requireAppNotConfigured();
   const setupData = await getSetupData();

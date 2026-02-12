@@ -4,11 +4,11 @@ export async function waitForTable(
   page: Page,
   options?: { minRows?: number; timeout?: number },
 ): Promise<Locator> {
-  const table = page.locator('table');
+  const table = page.getByTestId('data-table');
   await table.waitFor({ state: 'visible', timeout: options?.timeout });
 
   if (options?.minRows) {
-    await page
+    await table
       .locator('tbody tr')
       .nth(options.minRows - 1)
       .waitFor({ state: 'visible', timeout: options?.timeout });
@@ -30,16 +30,18 @@ export async function clearSearch(page: Page): Promise<void> {
 }
 
 export async function selectAllRows(page: Page): Promise<void> {
-  const headerCheckbox = page.locator('thead').getByRole('checkbox');
+  const table = page.getByTestId('data-table');
+  const headerCheckbox = table.locator('thead').getByRole('checkbox');
   await headerCheckbox.click();
 }
 
 function getTableRows(page: Page): Locator {
-  return page.locator('tbody tr');
+  return page.getByTestId('data-table').locator('tbody tr');
 }
 
 export async function getTableRowCount(page: Page): Promise<number> {
-  const noResults = page.locator('tbody').getByText('No results.');
+  const table = page.getByTestId('data-table');
+  const noResults = table.locator('tbody').getByText('No results.');
   if (await noResults.isVisible().catch(() => false)) {
     return 0;
   }
@@ -47,6 +49,7 @@ export async function getTableRowCount(page: Page): Promise<number> {
 }
 
 export async function clickSortColumn(page: Page, name: string): Promise<void> {
-  const header = page.locator('thead').getByRole('button', { name });
+  const table = page.getByTestId('data-table');
+  const header = table.locator('thead').getByRole('button', { name });
   await header.click();
 }

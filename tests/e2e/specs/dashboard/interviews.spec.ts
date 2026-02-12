@@ -62,7 +62,10 @@ test.describe('Interviews Page', () => {
     test('bulk selection', async ({ page }) => {
       await waitForTable(page, { minRows: 1 });
       await selectAllRows(page);
-      const headerCheckbox = page.locator('thead').getByRole('checkbox');
+      const headerCheckbox = page
+        .getByTestId('data-table')
+        .locator('thead')
+        .getByRole('checkbox');
       await expect(headerCheckbox).toBeChecked();
     });
 
