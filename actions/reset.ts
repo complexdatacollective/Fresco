@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { env } from 'process';
-import { CacheTags, safeRevalidateTag } from '~/lib/cache';
+import { CacheTags, safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { getUTApi } from '~/lib/uploadthing/server-helpers';
 import { requireApiAuth } from '~/utils/auth';
@@ -33,7 +33,7 @@ export const resetAppSettings = async (): Promise<void> => {
     });
 
     revalidatePath('/');
-    safeRevalidateTag(CacheTags);
+    safeUpdateTag(CacheTags);
 
     const utapi = await getUTApi();
 

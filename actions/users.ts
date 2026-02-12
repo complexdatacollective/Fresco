@@ -1,6 +1,6 @@
 'use server';
 
-import { safeRevalidateTag } from '~/lib/cache';
+import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { createUserFormDataSchema } from '~/schemas/auth';
 import { changePasswordSchema, deleteUsersSchema } from '~/schemas/users';
@@ -38,8 +38,8 @@ export async function createUser(data: unknown) {
     });
 
     void addEvent('User Created', `Created user: ${username}`);
-    safeRevalidateTag('getUsers');
-    safeRevalidateTag('activityFeed');
+    safeUpdateTag('getUsers');
+    safeUpdateTag('activityFeed');
 
     return { error: null, data: { username } };
   } catch (_error) {
@@ -114,8 +114,8 @@ export async function deleteUsers(data: unknown) {
     const deletedIds = usersToDelete.map((u) => u.id);
     const usernames = usersToDelete.map((u) => u.username).join(', ');
     void addEvent('User Deleted', `Deleted user(s): ${usernames}`);
-    safeRevalidateTag('getUsers');
-    safeRevalidateTag('activityFeed');
+    safeUpdateTag('getUsers');
+    safeUpdateTag('activityFeed');
 
     return { error: null, data: { deletedIds } };
   } catch (_error) {
@@ -179,7 +179,7 @@ export async function changePassword(data: unknown) {
       'Password Changed',
       `User ${session.user.username} changed their password`,
     );
-    safeRevalidateTag('activityFeed');
+    safeUpdateTag('activityFeed');
 
     return { error: null, data: { success: true } };
   } catch (_error) {

@@ -38,6 +38,7 @@ const config = {
   cacheHandler: disableNextCache
     ? require.resolve('./lib/cache-handler.cjs')
     : undefined,
+  cacheComponents: true,
   typedRoutes: true,
   turbopack: {},
   transpilePackages: ['@codaco/shared-consts'],

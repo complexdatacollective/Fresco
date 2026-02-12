@@ -7,7 +7,7 @@ import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import superjson from 'superjson';
 import trackEvent from '~/lib/analytics';
-import { safeRevalidateTag } from '~/lib/cache';
+import { safeUpdateTag } from '~/lib/cache';
 import { createInitialNetwork } from '~/lib/interviewer/ducks/modules/session';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
 import archive from '~/lib/network-exporters/formatters/session/archive';
@@ -51,9 +51,9 @@ export async function deleteInterviews(data: DeleteInterviews) {
       `Deleted ${deletedInterviews.count} interview(s)`,
     );
 
-    safeRevalidateTag('getInterviews');
-    safeRevalidateTag('summaryStatistics');
-    safeRevalidateTag('activityFeed');
+    safeUpdateTag('getInterviews');
+    safeUpdateTag('summaryStatistics');
+    safeUpdateTag('activityFeed');
 
     return { error: null, interview: deletedInterviews };
   } catch (error) {
@@ -75,8 +75,8 @@ export const updateExportTime = async (interviewIds: Interview['id'][]) => {
       },
     });
 
-    safeRevalidateTag('getInterviews');
-    safeRevalidateTag('activityFeed');
+    safeUpdateTag('getInterviews');
+    safeUpdateTag('activityFeed');
 
     void addEvent(
       'Data Exported',
@@ -143,7 +143,7 @@ export const exportSessions = async (
       },
     });
 
-    safeRevalidateTag('getInterviews');
+    safeUpdateTag('getInterviews');
 
     return result;
   } catch (error) {
@@ -231,10 +231,10 @@ export async function createInterview(data: CreateInterview) {
       }" started an interview`,
     );
 
-    safeRevalidateTag('getInterviews');
-    safeRevalidateTag('getParticipants');
-    safeRevalidateTag('summaryStatistics');
-    safeRevalidateTag('activityFeed');
+    safeUpdateTag('getInterviews');
+    safeUpdateTag('getParticipants');
+    safeUpdateTag('summaryStatistics');
+    safeUpdateTag('activityFeed');
 
     return {
       error: null,
@@ -292,9 +292,9 @@ export async function finishInterview(interviewId: Interview['id']) {
 
     (await cookies()).set(updatedInterview.protocolId, 'completed');
 
-    safeRevalidateTag('getInterviews');
-    safeRevalidateTag('summaryStatistics');
-    safeRevalidateTag('activityFeed');
+    safeUpdateTag('getInterviews');
+    safeUpdateTag('summaryStatistics');
+    safeUpdateTag('activityFeed');
     revalidatePath('/dashboard');
 
     return { error: null };

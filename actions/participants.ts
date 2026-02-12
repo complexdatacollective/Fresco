@@ -2,7 +2,7 @@
 
 import { createId } from '@paralleldrive/cuid2';
 import { addEvent } from '~/actions/activityFeed';
-import { safeRevalidateTag } from '~/lib/cache';
+import { safeUpdateTag } from '~/lib/cache';
 import {
   participantListInputSchema,
   updateSchema,
@@ -24,10 +24,10 @@ export async function deleteParticipants(participantIds: string[]) {
     `Deleted ${result.count} participant(s)`,
   );
 
-  safeRevalidateTag('getParticipants');
-  safeRevalidateTag('getInterviews');
-  safeRevalidateTag('summaryStatistics');
-  safeRevalidateTag('activityFeed');
+  safeUpdateTag('getParticipants');
+  safeUpdateTag('getInterviews');
+  safeUpdateTag('summaryStatistics');
+  safeUpdateTag('activityFeed');
 }
 
 export async function deleteAllParticipants() {
@@ -40,10 +40,10 @@ export async function deleteAllParticipants() {
     `Deleted ${result.count} participant(s)`,
   );
 
-  safeRevalidateTag('getParticipants');
-  safeRevalidateTag('getInterviews');
-  safeRevalidateTag('summaryStatistics');
-  safeRevalidateTag('activityFeed');
+  safeUpdateTag('getParticipants');
+  safeUpdateTag('getInterviews');
+  safeUpdateTag('summaryStatistics');
+  safeUpdateTag('activityFeed');
 }
 
 export async function importParticipants(rawInput: unknown) {
@@ -86,9 +86,9 @@ export async function importParticipants(rawInput: unknown) {
       `Added ${createdParticipants.count} participant(s)`,
     );
 
-    safeRevalidateTag('getParticipants');
-    safeRevalidateTag('summaryStatistics');
-    safeRevalidateTag('activityFeed');
+    safeUpdateTag('getParticipants');
+    safeUpdateTag('summaryStatistics');
+    safeUpdateTag('activityFeed');
 
     return {
       error: null,
@@ -115,8 +115,8 @@ export async function updateParticipant(rawInput: unknown) {
       data: formData,
     });
 
-    safeRevalidateTag('getParticipants');
-    safeRevalidateTag('summaryStatistics');
+    safeUpdateTag('getParticipants');
+    safeUpdateTag('summaryStatistics');
 
     return { error: null, participant: updatedParticipant };
   } catch (error) {
@@ -159,9 +159,9 @@ export async function createParticipant(rawInput: unknown) {
       `Added ${createdParticipants.count} participant(s)`,
     );
 
-    safeRevalidateTag('getParticipants');
-    safeRevalidateTag('summaryStatistics');
-    safeRevalidateTag('activityFeed');
+    safeUpdateTag('getParticipants');
+    safeUpdateTag('summaryStatistics');
+    safeUpdateTag('activityFeed');
 
     return {
       error: null,

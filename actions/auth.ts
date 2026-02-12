@@ -11,7 +11,7 @@ import { type FormSubmissionResult } from '~/lib/form/store/types';
 import { createUserFormDataSchema, loginSchema } from '~/schemas/auth';
 import { hashPassword, verifyPassword } from '~/utils/password';
 import { getServerSession } from '~/utils/auth';
-import { safeRevalidateTag } from '~/lib/cache';
+import { safeUpdateTag } from '~/lib/cache';
 import { env } from '~/env';
 import { addEvent } from './activityFeed';
 
@@ -129,7 +129,7 @@ export const login = async (data: unknown): Promise<FormSubmissionResult> => {
   await createSessionCookie(key.user_id);
 
   void addEvent('User Login', `User ${username} logged in`);
-  safeRevalidateTag('activityFeed');
+  safeUpdateTag('activityFeed');
 
   return {
     success: true,

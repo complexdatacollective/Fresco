@@ -1,7 +1,7 @@
 'use server';
 
 import type { Activity, ActivityType } from '~/components/DataTable/types';
-import { safeRevalidateTag } from '~/lib/cache';
+import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 
 export async function addEvent(
@@ -16,7 +16,7 @@ export async function addEvent(
       },
     });
 
-    safeRevalidateTag('activityFeed');
+    safeUpdateTag('activityFeed');
 
     return { success: true, error: null };
   } catch (_error) {

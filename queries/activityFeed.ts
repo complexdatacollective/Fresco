@@ -1,10 +1,12 @@
-import { hash } from 'ohash';
 import 'server-only';
 import { type SearchParams } from '~/components/DataTable/types';
-import { createCachedFunction } from '~/lib/cache';
+import { safeCacheTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 
 async function fetchActivities(rawSearchParams: unknown) {
+  'use cache';
+  safeCacheTag('activityFeed');
+
   const searchParams = rawSearchParams as SearchParams;
 
   const { page, perPage, sort, sortField, filterParams } = searchParams;
@@ -48,8 +50,6 @@ async function fetchActivities(rawSearchParams: unknown) {
 }
 
 export const getActivities = (rawSearchParams: unknown) =>
-  createCachedFunction(fetchActivities, ['activityFeed'], {
-    keyParts: ['activityFeed', hash(rawSearchParams)],
-  })(rawSearchParams);
+  fetchActivities(rawSearchParams);
 
 export type ActivitiesFeed = ReturnType<typeof getActivities>;

@@ -16,8 +16,9 @@ vi.mock('react', async (importOriginal) => {
 
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
-  unstable_cache: <T extends (...args: unknown[]) => unknown>(fn: T) => fn,
-  unstable_noStore: vi.fn(),
+  cacheTag: vi.fn(),
+  updateTag: vi.fn(),
+  revalidateTag: vi.fn(),
 }));
 
 vi.mock('next/headers', () => ({
@@ -42,11 +43,11 @@ vi.mock('~/utils/auth', () => ({
 }));
 
 // Use vi.hoisted to define mocks that can be referenced before module execution
-const { mockPrismaCreate, mockGetAppSetting, mockSafeRevalidateTag } =
+const { mockPrismaCreate, mockGetAppSetting, mockSafeUpdateTag } =
   vi.hoisted(() => ({
     mockPrismaCreate: vi.fn(),
     mockGetAppSetting: vi.fn(),
-    mockSafeRevalidateTag: vi.fn(),
+    mockSafeUpdateTag: vi.fn(),
   }));
 
 // Mock dependencies before importing
@@ -63,9 +64,8 @@ vi.mock('~/queries/appSettings', () => ({
 }));
 
 vi.mock('~/lib/cache', () => ({
-  safeRevalidateTag: mockSafeRevalidateTag,
-  createCachedFunction: <T extends (...args: unknown[]) => unknown>(fn: T) =>
-    fn,
+  safeUpdateTag: mockSafeUpdateTag,
+  safeCacheTag: vi.fn(),
 }));
 
 vi.mock('~/actions/activityFeed', () => ({
@@ -195,9 +195,9 @@ describe('createInterview', () => {
         protocolId,
       });
 
-      expect(mockSafeRevalidateTag).toHaveBeenCalledWith('getInterviews');
-      expect(mockSafeRevalidateTag).toHaveBeenCalledWith('getParticipants');
-      expect(mockSafeRevalidateTag).toHaveBeenCalledWith('summaryStatistics');
+      expect(mockSafeUpdateTag).toHaveBeenCalledWith('getInterviews');
+      expect(mockSafeUpdateTag).toHaveBeenCalledWith('getParticipants');
+      expect(mockSafeUpdateTag).toHaveBeenCalledWith('summaryStatistics');
     });
   });
 
@@ -335,7 +335,7 @@ describe('createInterview', () => {
         protocolId,
       });
 
-      expect(mockSafeRevalidateTag).not.toHaveBeenCalled();
+      expect(mockSafeUpdateTag).not.toHaveBeenCalled();
     });
   });
 

@@ -1,9 +1,10 @@
-'use server';
-
-import { createCachedFunction } from '~/lib/cache';
+import { safeCacheTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 
-export const getApiTokens = createCachedFunction(async () => {
+export async function getApiTokens() {
+  'use cache';
+  safeCacheTag('getApiTokens');
+
   const tokens = await prisma.apiToken.findMany({
     select: {
       id: true,
@@ -19,6 +20,6 @@ export const getApiTokens = createCachedFunction(async () => {
   });
 
   return tokens;
-}, ['getApiTokens']);
+}
 
 export type GetApiTokensReturnType = Awaited<ReturnType<typeof getApiTokens>>;

@@ -6,13 +6,9 @@ import { getBaseUrl } from '~/utils/getBaseUrl';
 import { ourFileRouter } from './core';
 
 /**
- * Tricky problem here: getAppSetting uses unstable_cache, which can't be
- * called at the top level of a route handler, but _can_ be called inside
- * a function that is called by the route handler. So we need to wrap the
- * route handler in a function that calls getAppSetting.
- *
- * Better solutions welcome!
- *
+ * getAppSetting uses 'use cache', which can't be called at the top level of
+ * a route handler. We wrap the route handler in a function that calls
+ * getAppSetting to work around this limitation.
  */
 const routeHandler = async () => {
   const uploadThingToken = await getAppSetting('uploadThingToken');

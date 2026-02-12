@@ -1,7 +1,7 @@
 'use server';
 
 import { type z } from 'zod';
-import { safeRevalidateTag } from '~/lib/cache';
+import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import {
   type AppSetting,
@@ -40,7 +40,7 @@ export async function setAppSetting<
       update: { value: stringValue },
     });
 
-    safeRevalidateTag(`appSettings-${key}`);
+    safeUpdateTag(`appSettings-${key}`);
 
     return value;
   } catch (error) {

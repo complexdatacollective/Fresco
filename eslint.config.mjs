@@ -200,6 +200,24 @@ export default tseslint.config(
         },
       ],
       'no-unreachable': 'error',
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'next/cache',
+              importNames: [
+                'cacheTag',
+                'updateTag',
+                'revalidateTag',
+                'unstable_cache',
+              ],
+              message:
+                'Use safeCacheTag, safeUpdateTag, or safeRevalidateTag from ~/lib/cache for type-safe cache tags.',
+            },
+          ],
+        },
+      ],
     },
   },
 

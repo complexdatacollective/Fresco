@@ -1,31 +1,30 @@
-'use server';
-
 import { redirect } from 'next/navigation';
 import 'server-only';
 import { type z } from 'zod';
 import { env } from '~/env';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
-import { createCachedFunction } from '~/lib/cache';
+import { safeCacheTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import {
   type AppSetting,
   appSettingPreprocessedSchema,
 } from '~/schemas/appSettings';
 
+async function getCachedAppSettingRaw(key: AppSetting): Promise<string | null> {
+  'use cache';
+  safeCacheTag([`appSettings-${key}`, 'appSettings']);
+
+  const result = await prisma.appSettings.findUnique({
+    where: { key },
+  });
+
+  return result?.value ?? null;
+}
+
 export async function getAppSetting<Key extends AppSetting>(
   key: Key,
 ): Promise<z.infer<typeof appSettingPreprocessedSchema>[Key]> {
-  const rawValue = await createCachedFunction(
-    async (key: AppSetting): Promise<string | null> => {
-      const result = await prisma.appSettings.findUnique({
-        where: { key },
-      });
-
-      // Return raw value (string or null) for caching
-      return result?.value ?? null;
-    },
-    [`appSettings-${key}`, 'appSettings'],
-  )(key);
+  const rawValue = await getCachedAppSettingRaw(key);
 
   // Parse the cached raw value to the correct type
   // Convert null to undefined so schema defaults work correctly

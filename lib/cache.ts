@@ -1,5 +1,5 @@
-import { unstable_cache, updateTag } from 'next/cache';
-import { env } from '~/env';
+// eslint-disable-next-line no-restricted-imports
+import { cacheTag, revalidateTag, updateTag } from 'next/cache';
 
 export const CacheTags = [
   'activityFeed',
@@ -23,41 +23,33 @@ type DynamicTag = `${StaticTag}-${string}`;
 
 type CacheTag = StaticTag | DynamicTag;
 
-export function safeRevalidateTag(tag: CacheTag | CacheTag[]) {
-  if (Array.isArray(tag)) {
-    tag.forEach((t) => updateTag(t));
-    return;
+/**
+ * Invalidate cache tags from Server Actions using `updateTag` for
+ * read-your-own-writes semantics (the next request waits for fresh data).
+ */
+export function safeUpdateTag(tag: CacheTag | CacheTag[]) {
+  const tags = Array.isArray(tag) ? tag : [tag];
+  for (const t of tags) {
+    updateTag(t);
   }
-  updateTag(tag);
 }
 
-type UnstableCacheParams = Parameters<typeof unstable_cache>;
-
-export function createCachedFunction<T extends UnstableCacheParams[0]>(
-  func: T,
-  tags: CacheTag[],
-  options?: {
-    keyParts?: string[];
-    revalidate?: number | false;
-  },
-): T {
-  // In test mode, bypass caching entirely for proper isolation.
-  // Check dynamically to ensure runtime env var is respected.
-  if (env.DISABLE_NEXT_CACHE) {
-    return func;
+/**
+ * Invalidate cache tags from Route Handlers using `revalidateTag` with the
+ * `'max'` profile (stale-while-revalidate). Cannot use `updateTag` here
+ * because it is only available in Server Actions.
+ */
+export function safeRevalidateTag(tag: CacheTag | CacheTag[]) {
+  const tags = Array.isArray(tag) ? tag : [tag];
+  for (const t of tags) {
+    revalidateTag(t, 'max');
   }
+}
 
-  // Include deployment ID in cache key to prevent cache pollution across
-  // Vercel deployments. Without this, different deployments could read
-  // stale or incompatible cached values from each other.
-  // eslint-disable-next-line no-process-env
-  const VERCEL_DEPLOYMENT_ID = process.env.VERCEL_DEPLOYMENT_ID;
-  const keyParts = (options?.keyParts ?? []).concat(
-    VERCEL_DEPLOYMENT_ID ? [VERCEL_DEPLOYMENT_ID] : [],
-  );
-
-  return unstable_cache(func, keyParts, {
-    tags,
-    revalidate: options?.revalidate,
-  });
+export function safeCacheTag(tag: CacheTag | CacheTag[]) {
+  if (Array.isArray(tag)) {
+    tag.forEach((t) => cacheTag(t));
+    return;
+  }
+  cacheTag(tag);
 }
