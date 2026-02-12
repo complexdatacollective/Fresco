@@ -43,11 +43,11 @@ vi.mock('~/utils/auth', () => ({
 }));
 
 // Use vi.hoisted to define mocks that can be referenced before module execution
-const { mockPrismaCreate, mockGetAppSetting, mockSafeUpdateTag } =
+const { mockPrismaCreate, mockGetAppSetting, mockSafeRevalidateTag } =
   vi.hoisted(() => ({
     mockPrismaCreate: vi.fn(),
     mockGetAppSetting: vi.fn(),
-    mockSafeUpdateTag: vi.fn(),
+    mockSafeRevalidateTag: vi.fn(),
   }));
 
 // Mock dependencies before importing
@@ -64,7 +64,8 @@ vi.mock('~/queries/appSettings', () => ({
 }));
 
 vi.mock('~/lib/cache', () => ({
-  safeUpdateTag: mockSafeUpdateTag,
+  safeUpdateTag: vi.fn(),
+  safeRevalidateTag: mockSafeRevalidateTag,
   safeCacheTag: vi.fn(),
 }));
 
@@ -195,9 +196,9 @@ describe('createInterview', () => {
         protocolId,
       });
 
-      expect(mockSafeUpdateTag).toHaveBeenCalledWith('getInterviews');
-      expect(mockSafeUpdateTag).toHaveBeenCalledWith('getParticipants');
-      expect(mockSafeUpdateTag).toHaveBeenCalledWith('summaryStatistics');
+      expect(mockSafeRevalidateTag).toHaveBeenCalledWith('getInterviews');
+      expect(mockSafeRevalidateTag).toHaveBeenCalledWith('getParticipants');
+      expect(mockSafeRevalidateTag).toHaveBeenCalledWith('summaryStatistics');
     });
   });
 
@@ -335,7 +336,7 @@ describe('createInterview', () => {
         protocolId,
       });
 
-      expect(mockSafeUpdateTag).not.toHaveBeenCalled();
+      expect(mockSafeRevalidateTag).not.toHaveBeenCalled();
     });
   });
 
