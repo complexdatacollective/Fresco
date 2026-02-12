@@ -40,27 +40,7 @@ const config = {
     : undefined,
   typedRoutes: true,
   turbopack: {},
-  sassOptions: {
-    implementation: 'sass-embedded',
-  },
-  images: {
-    // Disable image optimization when DISABLE_IMAGE_OPTIMIZATION is set.
-    // This is useful for Docker test environments where Sharp may have issues.
-    // eslint-disable-next-line no-process-env
-    unoptimized: process.env.DISABLE_IMAGE_OPTIMIZATION === 'true',
-  },
   transpilePackages: ['@codaco/shared-consts'],
-  webpack: (config) => {
-    config.module.rules.push({
-      test: /\.(jpe?g|png|svg|gif|ico|eot|ttf|woff|woff2|mp4|pdf|webm|txt|mp3)$/,
-      type: 'asset/resource',
-      generator: {
-        filename: 'static/chunks/[path][name].[hash][ext]',
-      },
-    });
-
-    return config;
-  },
   env: {
     // add the package.json version and git hash to the environment
     APP_VERSION: `v${pkg.version}`,

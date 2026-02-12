@@ -36,10 +36,6 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy source code
 COPY . .
 
-# Build arg to disable image optimization (useful for test environments)
-ARG DISABLE_IMAGE_OPTIMIZATION=false
-ENV DISABLE_IMAGE_OPTIMIZATION=$DISABLE_IMAGE_OPTIMIZATION
-
 # Set environment variables for build - they are provided at runtime
 ENV SKIP_ENV_VALIDATION=true
 ENV NODE_ENV=production
