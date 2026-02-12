@@ -3,16 +3,15 @@
 import { createId } from '@paralleldrive/cuid2';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
-import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { redirect } from 'next/navigation';
 import z from 'zod';
+import { env } from '~/env';
+import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { type FormSubmissionResult } from '~/lib/form/store/types';
 import { createUserFormDataSchema, loginSchema } from '~/schemas/auth';
-import { hashPassword, verifyPassword } from '~/utils/password';
 import { getServerSession } from '~/utils/auth';
-import { safeUpdateTag } from '~/lib/cache';
-import { env } from '~/env';
+import { hashPassword, verifyPassword } from '~/utils/password';
 import { addEvent } from './activityFeed';
 
 const SESSION_COOKIE_NAME = 'auth_session';
@@ -51,11 +50,12 @@ export async function signup(formData: unknown) {
     };
   }
 
-  try {
-    const { username, password } = parsedFormData.data;
-    const hashedPassword = await hashPassword(password);
+  const { username, password } = parsedFormData.data;
+  const hashedPassword = await hashPassword(password);
 
-    const user = await prisma.user.create({
+  let user;
+  try {
+    user = await prisma.user.create({
       data: {
         username,
         key: {
@@ -66,19 +66,16 @@ export async function signup(formData: unknown) {
         },
       },
     });
-
-    await createSessionCookie(user.id);
-
-    redirect('/setup?step=2');
-  } catch (error) {
-    if (isRedirectError(error)) {
-      throw error;
-    }
+  } catch {
     return {
       success: false,
       error: 'Username already taken',
     };
   }
+
+  await createSessionCookie(user.id);
+
+  redirect('/setup?step=2');
 }
 
 export const login = async (data: unknown): Promise<FormSubmissionResult> => {
@@ -92,19 +89,6 @@ export const login = async (data: unknown): Promise<FormSubmissionResult> => {
   }
 
   const { username, password } = parsedFormData.data;
-
-  const existingUser = await prisma.user.findFirst({
-    where: { username },
-  });
-
-  if (!existingUser) {
-    // eslint-disable-next-line no-console
-    console.log('invalid username');
-    return {
-      success: false,
-      formErrors: ['Incorrect username or password'],
-    };
-  }
 
   const key = await prisma.key.findUnique({
     where: { id: `username:${username}` },
@@ -144,7 +128,9 @@ export async function logout() {
     };
   }
 
-  await prisma.session.delete({ where: { id: session.sessionId } });
+  await prisma.session
+    .delete({ where: { id: session.sessionId } })
+    .catch((_error: unknown) => undefined);
 
   const cookieStore = await cookies();
   cookieStore.delete(SESSION_COOKIE_NAME);

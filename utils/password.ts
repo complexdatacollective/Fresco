@@ -92,7 +92,10 @@ export async function verifyPassword(
     );
     const derivedHex = toHex(key);
     if (derivedHex.length !== storedKey.length) return false;
-    return timingSafeEqual(Buffer.from(derivedHex), Buffer.from(storedKey));
+    return timingSafeEqual(
+      Buffer.from(derivedHex, 'hex'),
+      Buffer.from(storedKey, 'hex'),
+    );
   }
 
   // Legacy format (pre-s2): "salt:key" with r=8
@@ -107,7 +110,10 @@ export async function verifyPassword(
     );
     const derivedHex = toHex(key);
     if (derivedHex.length !== storedKey.length) return false;
-    return timingSafeEqual(Buffer.from(derivedHex), Buffer.from(storedKey));
+    return timingSafeEqual(
+      Buffer.from(derivedHex, 'hex'),
+      Buffer.from(storedKey, 'hex'),
+    );
   }
 
   return false;
