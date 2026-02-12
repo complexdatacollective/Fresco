@@ -1,12 +1,12 @@
+'use client';
+
 import { bindActionCreators } from '@reduxjs/toolkit';
 import { get } from 'es-toolkit/compat';
-import PropTypes from 'prop-types';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { connect, useSelector } from 'react-redux';
-import { compose, withHandlers } from 'recompose';
+import { useSelector } from 'react-redux';
 import useTimeout from '~/lib/legacy-ui/hooks/useTimeout';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
-import withPrompt from '../behaviours/withPrompt';
+import { usePrompts } from '../behaviours/withPrompt';
 import Background from '../components/Canvas/Background';
 import Canvas from '../components/Canvas/Canvas';
 import EdgeLayout from '../components/Canvas/EdgeLayout';
@@ -14,10 +14,12 @@ import NodeBucket from '../components/Canvas/NodeBucket';
 import NodeLayout from '../components/Canvas/NodeLayout';
 import SimulationPanel from '../components/Canvas/SimulationPanel';
 import CollapsablePrompts from '../components/CollapsablePrompts';
+import { type StageProps } from '../components/Stage';
 import { LayoutProvider } from '../contexts/LayoutContext';
 import { getAssetUrlFromId } from '../ducks/modules/protocol';
 import { actionCreators as resetActions } from '../ducks/modules/reset';
 import usePropSelector from '../hooks/usePropSelector';
+import { useAppDispatch } from '../store';
 import {
   getEdges,
   getNextUnplacedNode,
@@ -25,54 +27,60 @@ import {
   getPlacedNodes,
 } from '../selectors/canvas';
 
-const withResetInterfaceHandler = withHandlers({
-  handleResetInterface:
-    ({ resetPropertyForAllNodes, resetEdgesOfType, prompts }) =>
-    () => {
-      prompts.forEach((prompt) => {
-        if (prompt.edges) {
-          resetEdgesOfType(prompt.edges.creates);
-        }
+const Sociogram = (stageProps: StageProps) => {
+  const { stage, registerBeforeNext } = stageProps;
+  const { prompt, prompts, promptIndex } = usePrompts();
+  const dispatch = useAppDispatch();
 
-        const layoutVariable = get(prompt, 'layout.layoutVariable', null);
-        if (!layoutVariable) {
-          return;
-        }
+  const { resetEdgesOfType, resetPropertyForAllNodes } = useMemo(
+    () =>
+      bindActionCreators(
+        {
+          resetEdgesOfType: resetActions.resetEdgesOfType,
+          resetPropertyForAllNodes: resetActions.resetPropertyForAllNodes,
+        },
+        dispatch,
+      ),
+    [dispatch],
+  );
 
-        if (typeof layoutVariable === 'string') {
-          resetPropertyForAllNodes(layoutVariable);
-        } else {
-          Object.keys(layoutVariable).forEach((type) => {
-            resetPropertyForAllNodes(layoutVariable[type]);
-          });
-        }
-      });
-    },
-});
+  const handleResetInterface = useCallback(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    prompts.forEach((p: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (p.edges) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        resetEdgesOfType(p.edges.creates);
+      }
 
-/**
- * Sociogram Interface
- * @extends Component
- */
-const Sociogram = (props) => {
-  const {
-    prompt,
-    stage,
-    handleResetInterface,
-    promptIndex,
-    registerBeforeNext,
-  } = props;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const layoutVariable = get(p, 'layout.layoutVariable', null);
+      if (!layoutVariable) {
+        return;
+      }
+
+      if (typeof layoutVariable === 'string') {
+        resetPropertyForAllNodes(layoutVariable);
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        Object.keys(layoutVariable).forEach((type) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          resetPropertyForAllNodes(layoutVariable[type]);
+        });
+      }
+    });
+  }, [prompts, resetEdgesOfType, resetPropertyForAllNodes]);
 
   const interfaceRef = useRef(null);
   const dragSafeRef = useRef(null);
-  const twoMode = useMemo(() => Array.isArray(stage.subject), [stage.subject]);
+  const twoMode = useMemo(() => Array.isArray(get(stage, 'subject')), [stage]);
 
   const getAssetUrl = useSelector(getAssetUrlFromId);
 
   // Behaviour Configuration
-  const allowHighlighting = prompt?.highlight?.allowHighlighting ?? false;
-  const createEdge = prompt?.edges?.create ?? null;
-  const allowPositioning = prompt?.layout?.allowPositioning ?? true;
+  const allowHighlighting = get(prompt, 'highlight.allowHighlighting', false);
+  const createEdge = get(prompt, 'edges.create', null);
+  const allowPositioning = get(prompt, 'layout.allowPositioning', true);
 
   const allowAutomaticLayout = get(
     stage,
@@ -91,16 +99,23 @@ const Sociogram = (props) => {
   const highlightAttribute = get(prompt, 'highlight.variable');
 
   // Background Configuration
-  const backgroundImage = getAssetUrl(stage.background.image) ?? null;
+  const bgImageId = get(stage, 'background.image', '');
+  const backgroundImage = bgImageId ? (getAssetUrl(bgImageId) ?? null) : null;
   const concentricCircles = get(stage, 'background.concentricCircles');
   const skewedTowardCenter = get(stage, 'background.skewedTowardCenter');
 
-  const allNodes = usePropSelector(getNodes, props);
-  const placedNodes = usePropSelector(getPlacedNodes, props);
-  const nextUnplacedNode = usePropSelector(getNextUnplacedNode, props);
+  // Build props object for legacy selectors that require (state, props)
+  const selectorProps = useMemo(
+    () => ({ ...stageProps, prompt, prompts, promptIndex }),
+    [stageProps, prompt, prompts, promptIndex],
+  );
+
+  const allNodes = usePropSelector(getNodes, selectorProps);
+  const placedNodes = usePropSelector(getPlacedNodes, selectorProps);
+  const nextUnplacedNode = usePropSelector(getNextUnplacedNode, selectorProps);
 
   const nodes = allowAutomaticLayout ? allNodes : placedNodes;
-  const edges = useSelector((state) => getEdges(state, props));
+  const edges = usePropSelector(getEdges, selectorProps);
 
   /**
    * Hack to force the node layout to re-render after the interface has finished
@@ -111,16 +126,12 @@ const Sociogram = (props) => {
   const [ready, setReady] = useState(false);
   useTimeout(() => {
     setReady(true);
-  }, 750); // This value is just a guess based on the animation duration!
+  }, 750);
 
   /**
    * When using automatic layout, the layout is only stored when it completely
    * 'settles'. If the user clicks next before this, there is no layout
-   * variable. Aside from data issues, this creates a particularly problem
-   * where the narrative interface is blank, because it requires a layout and
-   * doesn't create one itself.
-   *
-   * To prevent this, we block progression until the layout is complete.
+   * variable. To prevent this, we block progression until the layout is complete.
    */
   const [layoutReady, setLayoutReady] = useState(
     allowAutomaticLayout ? false : true,
@@ -136,7 +147,7 @@ const Sociogram = (props) => {
     <div className="interface" ref={interfaceRef}>
       <div className="sociogram-interface__drag-safe" ref={dragSafeRef} />
       <CollapsablePrompts
-        prompts={stage.prompts}
+        prompts={get(stage, 'prompts', [])}
         currentPromptIndex={promptIndex}
         handleResetInterface={handleResetInterface}
         dragConstraints={dragSafeRef}
@@ -153,7 +164,7 @@ const Sociogram = (props) => {
           allowAutomaticLayout={allowAutomaticLayout}
           onLayoutComplete={onLayoutComplete}
         >
-          <Canvas className="concentric-circles" id="concentric-circles">
+          <Canvas className="concentric-circles">
             <Background
               concentricCircles={concentricCircles}
               skewedTowardCenter={skewedTowardCenter}
@@ -161,7 +172,7 @@ const Sociogram = (props) => {
             />
             <EdgeLayout />
             <NodeLayout
-              key={ready}
+              key={String(ready)}
               id="NODE_LAYOUT"
               highlightAttribute={highlightAttribute}
               layout={layoutVariable}
@@ -187,25 +198,4 @@ const Sociogram = (props) => {
 
 Sociogram.displayName = 'Sociogram';
 
-Sociogram.propTypes = {
-  stage: PropTypes.object.isRequired,
-  prompt: PropTypes.object.isRequired,
-  prompts: PropTypes.array.isRequired,
-  handleResetInterface: PropTypes.func.isRequired,
-};
-
-const mapDispatchToProps = (dispatch) => ({
-  resetEdgesOfType: bindActionCreators(resetActions.resetEdgesOfType, dispatch),
-  resetPropertyForAllNodes: bindActionCreators(
-    resetActions.resetPropertyForAllNodes,
-    dispatch,
-  ),
-});
-
-export default withNoSSRWrapper(
-  compose(
-    withPrompt,
-    connect(null, mapDispatchToProps),
-    withResetInterfaceHandler,
-  )(Sociogram),
-);
+export default withNoSSRWrapper(Sociogram);
