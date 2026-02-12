@@ -150,6 +150,11 @@ test.describe('Settings Page', () => {
     test('create new user', async ({ page, database }) => {
       const cleanup = await database.isolate(page);
       try {
+        // Clean up user from previous retries (User table excluded from snapshots)
+        await database.deleteUser('newuser1');
+        await page.reload();
+        await page.waitForLoadState('domcontentloaded');
+
         await page.getByRole('button', { name: /add user/i }).click();
         const dialog = await waitForDialog(page);
 
@@ -163,9 +168,10 @@ test.describe('Settings Page', () => {
         await submitButton.click();
 
         await dialog.waitFor({ state: 'hidden' });
-        await page.waitForTimeout(1000);
 
-        await expect(page.getByTestId('user-row-newuser1')).toBeVisible();
+        await expect(page.getByTestId('user-row-newuser1')).toBeVisible({
+          timeout: 10000,
+        });
       } finally {
         await cleanup();
       }
@@ -249,6 +255,11 @@ test.describe('Settings Page', () => {
     }) => {
       const cleanup = await database.isolate(page);
       try {
+        // Clean up user from previous retries (User table excluded from snapshots)
+        await database.deleteUser('tempuser');
+        await page.reload();
+        await page.waitForLoadState('domcontentloaded');
+
         await page.getByRole('button', { name: /add user/i }).click();
         const dialog = await waitForDialog(page);
 
@@ -261,9 +272,10 @@ test.describe('Settings Page', () => {
         });
         await submitButton.click();
         await dialog.waitFor({ state: 'hidden' });
-        await page.waitForTimeout(1000);
 
-        await expect(page.getByTestId('user-row-tempuser')).toBeVisible();
+        await expect(page.getByTestId('user-row-tempuser')).toBeVisible({
+          timeout: 10000,
+        });
 
         const deleteButton = page.getByTestId('delete-user-tempuser');
 
@@ -331,12 +343,17 @@ test.describe('Settings Page', () => {
           );
           await previewToggle.click();
           await responsePromise;
+          // Reload so the server re-renders with previewMode=true,
+          // which enables the auth toggle (disabled={!previewMode})
+          await page.reload();
+          await page.waitForLoadState('domcontentloaded');
         }
 
         // Now toggle authentication
         const authToggle = page
           .getByTestId('preview-mode-auth-field')
           .getByRole('switch');
+        await expect(authToggle).toBeEnabled();
         const initialAuthState = await authToggle.isChecked();
 
         const authResponsePromise = page.waitForResponse(

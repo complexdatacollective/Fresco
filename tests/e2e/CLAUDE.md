@@ -353,6 +353,7 @@ The `database` fixture provides direct database access without passing `database
 - `database.getProtocolId()` — Get first protocol's ID from database
 - `database.updateAppSetting(key, value)` — Update an AppSettings row
 - `database.getParticipantCount(identifier?)` — Count participants (optionally filter by identifier)
+- `database.deleteUser(username)` — Delete a user by username (cascades to Session/Key). Use at the start of mutation tests that create users, to handle retries since the User table is excluded from snapshots
 - `database.getDatabaseUrl()` — Get raw connection string (rarely needed)
 
 ## Adding New Tests

@@ -155,7 +155,13 @@ test.describe('Participants Page', () => {
         .getByRole('button', { name: /permanently delete/i })
         .waitFor({ state: 'visible' });
       await page.getByRole('button', { name: /permanently delete/i }).click();
-      await page.getByRole('dialog').waitFor({ state: 'hidden' });
+
+      // Wait for the table to reflect the deletion rather than the dialog
+      // close animation, which can race with the RSC re-fetch
+      await page
+        .getByTestId('data-table')
+        .getByText('No results.')
+        .waitFor({ state: 'visible' });
 
       const count = await getTableRowCount(page);
       expect(count).toBe(0);
@@ -176,6 +182,12 @@ test.describe('Participants Page', () => {
         .getByRole('button', { name: /permanently delete/i })
         .waitFor({ state: 'visible' });
       await page.getByRole('button', { name: /permanently delete/i }).click();
+
+      // Wait for the deletion to complete and any dialogs to fully close
+      await page
+        .getByTestId('data-table')
+        .getByText('No results.')
+        .waitFor({ state: 'visible' });
       await page.getByRole('dialog').waitFor({ state: 'hidden' });
 
       await capturePage('participants-empty-state');

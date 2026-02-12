@@ -65,6 +65,10 @@ export class DatabaseIsolation {
     ]);
   }
 
+  async deleteUser(username: string): Promise<void> {
+    await this.query(`DELETE FROM "User" WHERE "username" = $1`, [username]);
+  }
+
   async getParticipantCount(identifier?: string): Promise<number> {
     const result = identifier
       ? await this.query<{ count: string }>(
@@ -220,15 +224,16 @@ export class DatabaseIsolation {
     await page.goto(currentUrl, { waitUntil: 'networkidle' });
 
     return async () => {
-      // Navigate away before cleanup restore to prevent deadlocks
-      const cleanupUrl = page.url();
-      await page.goto('about:blank');
+      // Navigate away before cleanup restore to prevent deadlocks.
+      // Wrap in try/catch because the page may have crashed during the test.
+      try {
+        await page.goto('about:blank');
+      } catch {
+        // Page crashed during the test - still need to restore DB and release lock
+      }
 
       try {
         await this.restoreWith(client, name);
-        // Navigate back BEFORE releasing lock to ensure page is fully loaded
-        // before other workers can acquire exclusive lock and TRUNCATE
-        await page.goto(cleanupUrl, { waitUntil: 'networkidle' });
       } finally {
         this.isolationClient = null;
         await client.query(`SELECT pg_advisory_unlock(${LOCK_ID})`);
