@@ -32,7 +32,6 @@
       "@tailwindcss/oxide",
       "core-js-pure",
       "esbuild",
-      "msgpackr-extract",
       "prisma",
       "sharp",
       "unrs-resolver"
