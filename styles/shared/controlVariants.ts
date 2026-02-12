@@ -242,7 +242,7 @@ export const controlLabelVariants = cva({
 // Icon is Lucide chevron-down with stroke-width 2.5, using currentColor
 export const nativeSelectVariants = cva({
   base: cx(
-    'h-full w-full',
+    'size-full',
     'cursor-[inherit]',
     '[font-size:inherit]',
     'appearance-none border-none bg-transparent bg-none p-0 outline-none focus:ring-0',

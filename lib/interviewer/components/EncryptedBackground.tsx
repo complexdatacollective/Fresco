@@ -296,7 +296,7 @@ const EncryptionBackground = ({
 
   return (
     <div
-      className="preserve-3d pointer-events-none absolute inset-0 h-full w-full overflow-hidden text-white/30 select-none"
+      className="preserve-3d pointer-events-none absolute inset-0 size-full overflow-hidden text-white/30 select-none"
       style={{ perspective: '1000px' }}
     >
       {streams.map((stream) => (

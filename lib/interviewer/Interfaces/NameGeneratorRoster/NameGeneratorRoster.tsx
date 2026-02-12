@@ -222,7 +222,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
       >
         <Prompts />
       </div>
-      <div className="flex h-full w-full grow">
+      <div className="flex size-full grow">
         <motion.div
           className="flex flex-1"
           key="panels"

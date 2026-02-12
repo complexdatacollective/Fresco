@@ -26,7 +26,7 @@ const textareaVariants = compose(
   multilineContentVariants,
   cva({
     base: cx(
-      'h-full w-full resize-y',
+      'size-full resize-y',
       'border-none bg-transparent outline-none focus:ring-0',
       'cursor-[inherit]',
     ),

@@ -248,7 +248,7 @@ export default function GeospatialInterface({
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        className="flex h-full w-full flex-col"
+        className="flex size-full flex-col"
         ref={dragSafeRef}
         variants={fadeVariants}
         initial="hide"
@@ -277,11 +277,7 @@ export default function GeospatialInterface({
           </div>
         )}
 
-        <div
-          id="map-container"
-          className="h-full w-full"
-          ref={mapContainerRef}
-        />
+        <div id="map-container" className="size-full" ref={mapContainerRef} />
 
         <div className="absolute bottom-10 left-14 z-5">
           <Button

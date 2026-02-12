@@ -28,7 +28,7 @@ const ProgressBar = ({
       onClick={onClick}
       className={cx(
         // Base styles
-        'relative h-full w-full grow overflow-hidden',
+        'relative size-full grow overflow-hidden',
         'rounded-full',
         // Background using color-mix
         '[background-color:color-mix(in_oklch,currentColor_10%,transparent)]',
@@ -42,7 +42,7 @@ const ProgressBar = ({
       )}
       data-orientation={orientation}
     >
-      <Progress.Track className="h-full w-full">
+      <Progress.Track className="size-full">
         <Progress.Indicator
           className={cx(
             'absolute rounded-[inherit]',

@@ -173,7 +173,7 @@ export default function RadioGroupField(props: RadioGroupFieldProps) {
                     <svg
                       viewBox="0 0 24 24"
                       fill="currentColor"
-                      className="h-full w-full overflow-hidden rounded-[40%] p-[0.1em]"
+                      className="size-full overflow-hidden rounded-[40%] p-[0.1em]"
                     >
                       <motion.rect
                         x="2"

@@ -108,7 +108,7 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
-                className="h-full w-full p-[0.1em]"
+                className="size-full p-[0.1em]"
                 stroke="currentColor"
                 strokeWidth="3"
               >

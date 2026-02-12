@@ -24,7 +24,7 @@ import {
 import { cx } from '~/utils/cva';
 import Surface from '../layout/Surface';
 import { IconButton } from '../ui/Button';
-import { Progress } from '../ui/progress';
+import ProgressBar from '../ui/ProgressBar';
 
 type PhaseConfig = {
   label: string;
@@ -186,11 +186,7 @@ const ImportJobItem = forwardRef<HTMLDivElement, ImportJobItemProps>(
                   {Math.round(job.progress)}%
                 </span>
               </div>
-              <Progress
-                value={job.progress}
-                className="h-2"
-                indicatorClasses="bg-accent"
-              />
+              <ProgressBar percentProgress={job.progress} />
             </div>
           )}
 

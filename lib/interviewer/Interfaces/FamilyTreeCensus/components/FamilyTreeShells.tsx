@@ -9,6 +9,10 @@ import type {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useToast } from '~/components/ui/Toast';
+import {
+  type FamilyTreeCensusStageMetadata,
+  updateNode as updateNetworkNode,
+} from '~/lib/interviewer/ducks/modules/session';
 import AddFamilyMemberForm from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/AddFamilyMemberForm';
 import { CensusForm } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/CensusForm';
 import EdgeRenderer from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/EdgeRenderer';
@@ -20,17 +24,15 @@ import { useFamilyTreeStore } from '~/lib/interviewer/Interfaces/FamilyTreeCensu
 import type { Relationship } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import { getRelationshipTypeVariable } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/utils/edgeUtils';
 import {
-  type FamilyTreeCensusStageMetadata,
-  updateNode as updateNetworkNode,
-} from '~/lib/interviewer/ducks/modules/session';
-import { getStageMetadata } from '~/lib/interviewer/selectors/session';
-import { useAppDispatch } from '~/lib/interviewer/store';
-import {
   getEgoSexVariable,
   getNodeIsEgoVariable,
   getNodeSexVariable,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/utils/nodeUtils';
-import { getNetworkEgo } from '~/lib/interviewer/selectors/session';
+import {
+  getNetworkEgo,
+  getStageMetadata,
+} from '~/lib/interviewer/selectors/session';
+import { useAppDispatch } from '~/lib/interviewer/store';
 
 const isFamilyTreeStageMetadata = (
   stageMetadata: unknown,
@@ -286,8 +288,8 @@ export const FamilyTreeShells = (props: {
           }}
         />
       )}
-      <div className="census-node-canvas relative h-full w-full overflow-x-auto">
-        <div className="relative h-full w-full">
+      <div className="census-node-canvas relative size-full overflow-x-auto">
+        <div className="relative size-full">
           <EdgeRenderer />
           {nodes.map((node) => (
             <FamilyTreeNode

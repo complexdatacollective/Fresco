@@ -12,7 +12,7 @@ const Canvas = (props: CanvasProps) => {
   const { draw, predraw, postdraw } = props;
   const canvasRef = useCanvas(draw, predraw, postdraw);
 
-  return <canvas ref={canvasRef} className="h-full w-full" />;
+  return <canvas ref={canvasRef} className="size-full" />;
 };
 
 export default Canvas;

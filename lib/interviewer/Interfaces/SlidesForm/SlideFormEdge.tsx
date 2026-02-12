@@ -9,10 +9,10 @@ import {
 import { find } from 'es-toolkit/compat';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
+import { ScrollArea } from '~/components/ui/ScrollArea';
 import Form from '~/lib/form/components/Form';
-import Scroller from '~/lib/legacy-ui/components/Scroller';
 import Node from '../../components/Node';
-import { makeGetEdgeColor, getNetworkNodes } from '../../selectors/session';
+import { getNetworkNodes, makeGetEdgeColor } from '../../selectors/session';
 
 type SlideFormEdgeProps = {
   form: TForm;
@@ -55,7 +55,7 @@ export default function SlideFormEdge(props: SlideFormEdgeProps) {
   const subject = { entity: 'edge' as const, type: item.type };
 
   return (
-    <div className="flex h-full w-full items-center justify-center">
+    <div className="flex size-full items-center justify-center">
       <div
         className="relative flex min-h-5 w-full max-w-[65rem] rounded-[--nc-border-radius] bg-[--nc-panel-bg-muted] px-5 pt-2.5 pb-5"
         style={
@@ -81,8 +81,8 @@ export default function SlideFormEdge(props: SlideFormEdgeProps) {
             className="absolute top-[calc(var(--base-node-size)*-0.5)] left-[calc(8rem+50%-var(--base-node-size)/2)] rounded-full bg-[--nc-panel-bg-muted]"
           />
         )}
-        <div className="mt-[calc(var(--base-node-size)*0.4)] h-full w-full">
-          <Scroller onScroll={() => onScroll?.()}>
+        <div className="mt-[calc(var(--base-node-size)*0.4)] size-full">
+          <ScrollArea>
             <Form
               {...({
                 fields: form.fields,
@@ -97,7 +97,7 @@ export default function SlideFormEdge(props: SlideFormEdgeProps) {
                 otherNetworkEntities,
               } as unknown as React.ComponentProps<typeof Form>)}
             />
-          </Scroller>
+          </ScrollArea>
         </div>
       </div>
     </div>

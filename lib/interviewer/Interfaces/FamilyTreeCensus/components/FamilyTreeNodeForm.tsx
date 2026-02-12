@@ -10,8 +10,8 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Button from '~/components/ui/Button';
+import Dialog from '~/lib/dialogs/Dialog';
 import Form from '~/lib/form/components/Form';
-import Overlay from '~/lib/interviewer/components/Overlay';
 import {
   addNode as addNetworkNode,
   updateNode as updateNetworkNode,
@@ -30,7 +30,6 @@ import {
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/utils/nodeUtils';
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import { useAppDispatch } from '~/lib/interviewer/store';
-import { Scroller } from '~/lib/legacy-ui/components';
 
 type FamilyTreeNodeFormProps = {
   nodeType: string;
@@ -203,10 +202,10 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
 
   return (
     <>
-      <Overlay
-        show={show}
+      <Dialog
+        open={show}
         title={form.title ?? ''}
-        onClose={handleClose}
+        closeDialog={handleClose}
         className="node-form"
         footer={
           <Button
@@ -215,23 +214,22 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
             onClick={() => {
               formRef.current?.requestSubmit();
             }}
+            color="primary"
           >
             Finished
           </Button>
         }
       >
-        <Scroller>
-          <Form
-            {...({
-              ref: formRef,
-              fields: form.fields,
-              handleSubmit,
-              getInitialValues,
-              focusFirstInput: true,
-            } as unknown as React.ComponentProps<typeof Form>)}
-          />
-        </Scroller>
-      </Overlay>
+        <Form
+          {...({
+            ref: formRef,
+            fields: form.fields,
+            handleSubmit,
+            getInitialValues,
+            focusFirstInput: true,
+          } as unknown as React.ComponentProps<typeof Form>)}
+        />
+      </Dialog>
     </>
   );
 };

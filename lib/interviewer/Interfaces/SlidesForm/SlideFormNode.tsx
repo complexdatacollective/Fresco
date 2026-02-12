@@ -1,13 +1,13 @@
+import type { Form as TForm } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
-  type NcNode,
   type NcEdge,
   type NcEgo,
+  type NcNode,
 } from '@codaco/shared-consts';
-import type { Form as TForm } from '@codaco/protocol-validation';
+import { ScrollArea } from '~/components/ui/ScrollArea';
 import Form from '~/lib/form/components/Form';
-import Scroller from '~/lib/legacy-ui/components/Scroller';
 import Node from '../../components/Node';
 
 type SlideFormNodeProps = {
@@ -46,7 +46,7 @@ export default function SlideFormNode({
   };
 
   return (
-    <div className="flex h-full w-full items-center justify-center">
+    <div className="flex size-full items-center justify-center">
       <div
         className="relative flex min-h-5 w-full max-w-[65rem] rounded-[--nc-border-radius] bg-[--nc-panel-bg-muted] px-5 pt-2.5 pb-5"
         style={
@@ -60,8 +60,8 @@ export default function SlideFormNode({
           {...item}
           className="absolute top-[calc(var(--base-node-size)*-0.5)] left-[calc(50%-var(--base-node-size)/2)] rounded-full bg-[--nc-panel-bg-muted]"
         />
-        <div className="mt-[calc(var(--base-node-size)*0.4)] h-full w-full">
-          <Scroller onScroll={onScroll?.()}>
+        <div className="mt-[calc(var(--base-node-size)*0.4)] size-full">
+          <ScrollArea>
             <Form
               {...({
                 ...form,
@@ -75,7 +75,7 @@ export default function SlideFormNode({
                 otherNetworkEntities,
               } as unknown as React.ComponentProps<typeof Form>)}
             />
-          </Scroller>
+          </ScrollArea>
         </div>
       </div>
     </div>

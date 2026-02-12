@@ -5,17 +5,16 @@ import { useSelector } from 'react-redux';
 import ActionButton from '~/components/interview/ActionButton';
 import Button from '~/components/ui/Button';
 import { type InterviewerIconName } from '~/components/ui/Icon';
+import Dialog from '~/lib/dialogs/Dialog';
 import Form from '~/lib/form/components/Form';
 import { useFamilyTreeStore } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
 import { useDynamicFields } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/useDynamicFields';
 import { useRelatives } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/useRelatives';
-import Overlay from '~/lib/interviewer/components/Overlay';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import {
   getNodeTypeLabel,
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
-import { Scroller } from '~/lib/legacy-ui/components';
 
 const AddFamilyMemberForm = () => {
   const subject = useSelector(getStageSubject);
@@ -77,10 +76,10 @@ const AddFamilyMemberForm = () => {
           />
         </motion.div>
       </AnimatePresence>
-      <Overlay
-        show={show}
+      <Dialog
+        open={show}
         title="Add Relative"
-        onClose={() => setShow(false)}
+        closeDialog={() => setShow(false)}
         className="node-form"
         footer={
           <Button
@@ -89,23 +88,22 @@ const AddFamilyMemberForm = () => {
             onClick={() => {
               formRef.current?.requestSubmit();
             }}
+            color="primary"
           >
             Finished
           </Button>
         }
       >
-        <Scroller>
-          <Form
-            ref={formRef}
-            // FieldComponentProps expects options of type FieldConfig[] but RadioGroup is JavaScript and options is an untyped array
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            fields={processedFields}
-            handleSubmit={handleSubmit}
-            focusFirstInput={true}
-          />
-        </Scroller>
-      </Overlay>
+        <Form
+          ref={formRef}
+          // FieldComponentProps expects options of type FieldConfig[] but RadioGroup is JavaScript and options is an untyped array
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          fields={processedFields}
+          handleSubmit={handleSubmit}
+          focusFirstInput={true}
+        />
+      </Dialog>
     </>
   );
 };
