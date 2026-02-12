@@ -1,10 +1,12 @@
 import 'server-only';
+import { cacheLife } from 'next/cache';
 import { type SearchParams } from '~/components/DataTable/types';
 import { safeCacheTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 
 async function fetchActivities(rawSearchParams: unknown) {
   'use cache';
+  cacheLife('max');
   safeCacheTag('activityFeed');
 
   const searchParams = rawSearchParams as SearchParams;

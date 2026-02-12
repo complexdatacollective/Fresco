@@ -5,8 +5,6 @@ import { env } from '~/env';
 import trackEvent from '~/lib/analytics';
 import { getAppSetting } from '~/queries/appSettings';
 
-export const dynamic = 'force-dynamic';
-
 const handler = async (
   req: NextRequest,
   { params }: { params: Promise<{ protocolId: string }> },

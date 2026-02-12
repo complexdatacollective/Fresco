@@ -1,3 +1,4 @@
+import { cacheLife } from 'next/cache';
 import { redirect } from 'next/navigation';
 import 'server-only';
 import { type z } from 'zod';
@@ -12,6 +13,7 @@ import {
 
 async function getCachedAppSettingRaw(key: AppSetting): Promise<string | null> {
   'use cache';
+  cacheLife('max');
   safeCacheTag([`appSettings-${key}`, 'appSettings']);
 
   const result = await prisma.appSettings.findUnique({

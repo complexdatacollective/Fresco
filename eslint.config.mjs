@@ -206,12 +206,7 @@ export default tseslint.config(
           paths: [
             {
               name: 'next/cache',
-              importNames: [
-                'cacheTag',
-                'updateTag',
-                'revalidateTag',
-                'unstable_cache',
-              ],
+              importNames: ['cacheTag', 'updateTag', 'revalidateTag'],
               message:
                 'Use safeCacheTag, safeUpdateTag, or safeRevalidateTag from ~/lib/cache for type-safe cache tags.',
             },

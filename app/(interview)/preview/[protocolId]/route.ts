@@ -4,8 +4,6 @@ import trackEvent from '~/lib/analytics';
 import { prisma } from '~/lib/db';
 import { getPreviewMode } from '~/queries/appSettings';
 
-export const dynamic = 'force-dynamic';
-
 const handler = async (
   req: NextRequest,
   { params }: { params: Promise<{ protocolId: string }> },

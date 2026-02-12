@@ -1,8 +1,12 @@
 'use server';
 
+import { createId } from '@paralleldrive/cuid2';
+import { redirect } from 'next/navigation';
 import { type z } from 'zod';
+import trackEvent from '~/lib/analytics';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
+import { getInstallationId } from '~/queries/appSettings';
 import {
   type AppSetting,
   appSettingPreprocessedSchema,
@@ -47,4 +51,20 @@ export async function setAppSetting<
     const e = ensureError(error);
     throw new Error(`Failed to update appSettings: ${key}: ${e.message}`);
   }
+}
+
+export async function completeSetup() {
+  const installationId = await getInstallationId();
+  if (!installationId) {
+    await setAppSetting('installationId', createId());
+  }
+  await setAppSetting('configured', true);
+  void trackEvent({
+    type: 'AppSetup',
+    metadata: {
+      installationId,
+    },
+  });
+
+  redirect('/dashboard');
 }

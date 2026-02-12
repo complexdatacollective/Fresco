@@ -1,31 +1,13 @@
-import { createId } from '@paralleldrive/cuid2';
+'use client';
+
 import { FileText } from 'lucide-react';
-import { redirect } from 'next/navigation';
-import { setAppSetting } from '~/actions/appSettings';
+import { completeSetup } from '~/actions/appSettings';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import Button from '~/components/ui/Button';
-import trackEvent from '~/lib/analytics';
-import { getInstallationId } from '~/queries/appSettings';
 
 export default function Documentation() {
-  const handleAppConfigured = async () => {
-    const installationId = await getInstallationId();
-    if (!installationId) {
-      await setAppSetting('installationId', createId());
-    }
-    await setAppSetting('configured', true);
-    void trackEvent({
-      type: 'AppSetup',
-      metadata: {
-        installationId,
-      },
-    });
-
-    redirect('/dashboard');
-  };
-
   return (
     <div className="w-full max-w-[40rem]">
       <div className="mb-12">
@@ -73,7 +55,7 @@ export default function Documentation() {
       </div>
 
       <div className="flex justify-end pt-12">
-        <Button onClick={handleAppConfigured} color="primary">
+        <Button onClick={completeSetup} color="primary">
           Go to the dashboard!
         </Button>
       </div>

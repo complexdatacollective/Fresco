@@ -8,8 +8,6 @@ export const CacheTags = [
   'summaryStatistics',
   'getParticipants',
   'getProtocols',
-  'getProtocolsByHash',
-  'getExistingAssetIds',
   'interviewCount',
   'protocolCount',
   'participantCount',

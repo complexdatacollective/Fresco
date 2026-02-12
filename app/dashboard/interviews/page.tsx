@@ -1,13 +1,12 @@
+import { Suspense } from 'react';
+import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import PageHeader from '~/components/typography/PageHeader';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
 import InterviewsTableServer from '../_components/InterviewsTable/InterviewsTableServer';
 
-export default async function InterviewPage() {
-  await requireAppNotExpired();
-  await requirePageAuth();
-
+export default function InterviewPage() {
   return (
     <>
       <PageHeader
@@ -16,8 +15,15 @@ export default async function InterviewPage() {
         data-testid="interviews-page-header"
       />
       <ResponsiveContainer maxWidth="full" baseSize="content" container={false}>
-        <InterviewsTableServer />
+        <Suspense fallback={<DataTableSkeleton columnCount={6} />}>
+          <AuthenticatedInterviews />
+        </Suspense>
       </ResponsiveContainer>
     </>
   );
+}
+
+async function AuthenticatedInterviews() {
+  await Promise.all([requireAppNotExpired(), requirePageAuth()]);
+  return <InterviewsTableServer />;
 }

@@ -1,5 +1,7 @@
+import { Loader2 } from 'lucide-react';
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
+import { Suspense } from 'react';
 import SuperJSON from 'superjson';
 import { getAppSetting } from '~/queries/appSettings';
 import {
@@ -9,15 +11,28 @@ import {
 import { getServerSession } from '~/utils/auth';
 import InterviewShell from '../_components/InterviewShell';
 
-export const dynamic = 'force-dynamic'; // Force dynamic rendering for this page
+export default function Page(props: {
+  params: Promise<{ interviewId: string }>;
+}) {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex h-screen items-center justify-center">
+          <Loader2 size={64} className="animate-spin" />
+        </main>
+      }
+    >
+      <InterviewContent params={props.params} />
+    </Suspense>
+  );
+}
 
-export default async function Page(
-  props: {
-    params: Promise<{ interviewId: string }>;
-  }
-) {
-  const params = await props.params;
-  const { interviewId } = params;
+async function InterviewContent({
+  params: paramsPromise,
+}: {
+  params: Promise<{ interviewId: string }>;
+}) {
+  const { interviewId } = await paramsPromise;
 
   if (!interviewId) {
     return 'No interview id found';
@@ -25,7 +40,6 @@ export default async function Page(
 
   const rawInterview = await getInterviewById(interviewId);
 
-  // If the interview is not found, redirect to the 404 page
   if (!rawInterview) {
     notFound();
   }
@@ -34,17 +48,12 @@ export default async function Page(
     SuperJSON.parse<NonNullable<GetInterviewByIdQuery>>(rawInterview);
   const session = await getServerSession();
 
-  // if limitInterviews is enabled
-  // Check cookies for interview already completed for this user for this protocol
-  // and redirect to finished page
   const limitInterviews = await getAppSetting('limitInterviews');
 
   if (limitInterviews && (await cookies()).get(interview.protocol.id)) {
     redirect('/interview/finished');
   }
 
-  // If the interview is finished, redirect to the finish page, unless we are
-  // logged in as an admin
   if (!session && interview?.finishTime) {
     redirect('/interview/finished');
   }

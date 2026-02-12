@@ -1,4 +1,5 @@
 import 'server-only';
+import { cacheLife } from 'next/cache';
 import { stringify } from 'superjson';
 import { safeCacheTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
@@ -20,6 +21,7 @@ export type GetParticipantsQuery = Awaited<
 
 export async function getParticipants() {
   'use cache';
+  cacheLife('max');
   safeCacheTag('getParticipants');
 
   const participants = await prisma_getParticipants();

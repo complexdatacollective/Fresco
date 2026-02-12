@@ -1,4 +1,5 @@
 import 'server-only';
+import { cacheLife } from 'next/cache';
 import { stringify } from 'superjson';
 import { safeCacheTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
@@ -21,6 +22,7 @@ export type GetInterviewsQuery = Awaited<
 
 export async function getInterviews() {
   'use cache';
+  cacheLife('max');
   safeCacheTag('getInterviews');
 
   const interviews = await prisma_getInterviews();
