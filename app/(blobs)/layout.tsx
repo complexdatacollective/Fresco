@@ -9,7 +9,7 @@ export default function Layout({ children }: PropsWithChildren) {
       <div className="relative z-10 flex min-h-dvh w-dvw flex-col">
         <Link href="/">
           <Image
-            src="/images/NC-Type and Mark Wide Pos_LRG@4x.png"
+            src="/images/NC-Type and Mark Wide Pos_LRG-4x.png"
             width={300}
             height={84.05}
             priority
