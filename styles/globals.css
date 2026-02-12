@@ -5,6 +5,7 @@
 @plugin '@tailwindcss/forms';
 @plugin './plugins/tailwind-motion-spring.ts';
 @plugin './plugins/tailwind-elevation/index.ts';
+@plugin './plugins/tailwind-inset-surface/index.ts';
 
 @keyframes shake {
   10%,

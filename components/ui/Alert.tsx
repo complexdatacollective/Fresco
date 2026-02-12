@@ -14,7 +14,7 @@ import Heading from '../typography/Heading';
 import { paragraphVariants } from '../typography/Paragraph';
 
 const alertVariants = cva({
-  base: 'text-contrast my-6 flex w-full gap-3 rounded border border-black/10 inset-shadow-[0_3px_5px_0_rgb(0_0_0/0.15),0_-1px_2px_0_rgb(255_255_255/0.5)] last:mb-0',
+  base: 'text-contrast inset-surface my-6 flex w-full gap-3 rounded last:mb-0',
   variants: {
     variant: {
       default: '',

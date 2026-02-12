@@ -293,7 +293,7 @@ export default function UserManagement({
         spacing="sm"
       >
         <div className="tablet:gap-6 flex items-center gap-4">
-          <div className="bg-primary/10 text-primary tablet:size-14 flex size-10 shrink-0 items-center justify-center rounded-full">
+          <div className="bg-primary/10 text-primary tablet:size-14 inset-surface flex size-10 shrink-0 items-center justify-center rounded-full">
             <User className="tablet:size-8 size-5" />
           </div>
           <div className="min-w-0">
