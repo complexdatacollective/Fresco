@@ -19,7 +19,7 @@ export default function ImportExportSection() {
           </Suspense>
         </div>
       }
-      className="mx-auto"
+      className="mx-auto overflow-visible"
     >
       <Paragraph>
         Import or export participants in bulk using the options to the right.

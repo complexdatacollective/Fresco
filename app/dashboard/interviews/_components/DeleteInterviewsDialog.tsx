@@ -1,9 +1,9 @@
-import type { Interview } from '~/lib/db/generated/client';
 import { Loader2, Trash2 } from 'lucide-react';
 import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 import { deleteInterviews } from '~/actions/interviews';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
+import type { Interview } from '~/lib/db/generated/client';
 import Dialog from '~/lib/dialogs/Dialog';
 
 type DeleteInterviewsDialog = {
@@ -60,21 +60,17 @@ export const DeleteInterviewsDialog = ({
           </Button>
           <Button
             disabled={isDeleting}
+            color="primary"
             onClick={async () => {
               setIsDeleting(true);
               await handleConfirm();
               setIsDeleting(false);
             }}
+            icon={
+              isDeleting ? <Loader2 className="animate-spin" /> : <Trash2 />
+            }
           >
-            {isDeleting ? (
-              <>
-                <Loader2 className="mr-2 size-4 animate-spin" /> Deleting...
-              </>
-            ) : (
-              <>
-                <Trash2 className="mr-2 size-4" /> Delete
-              </>
-            )}
+            {isDeleting ? 'Deleting...' : 'Delete interview(s)'}
           </Button>
         </>
       }
