@@ -266,7 +266,7 @@ export async function getItems() {
 
 Both accept a single tag or an array. All tags are typesafe against the `CacheTags` array in `lib/cache.ts`.
 
-**Disabling cache for tests**: Set `DISABLE_NEXT_CACHE=true` which activates the no-op `cacheHandler` in `next.config.js` (`lib/cache-handler.cjs`). This returns cache misses for all `'use cache'` functions.
+**Disabling cache for tests**: Set `DISABLE_NEXT_CACHE=true` which activates the no-op `cacheHandlers` in `next.config.ts` (`lib/cache-handler.cjs`). This returns cache misses for all `'use cache'` functions.
 
 ### Naming Conventions
 
@@ -315,7 +315,7 @@ pnpm storybook      # Component testing
 
 - `fresco.config.ts` - App-specific constants (protocol extensions, timeouts)
 - `env.js` - Environment variable validation
-- `next.config.js` - Next.js configuration
+- `next.config.ts` - Next.js configuration
 - `components.json` - shadcn/ui configuration
 - `.nvmrc` - Node.js version (20)
 - `docker-compose.dev.yml` - Development database

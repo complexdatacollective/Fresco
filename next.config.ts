@@ -1,8 +1,7 @@
-// @ts-check
-
-import('./env.js');
+import './env.js';
 import ChildProcess from 'node:child_process';
 import { createRequire } from 'node:module';
+import type { NextConfig } from 'next';
 import pkg from './package.json' with { type: 'json' };
 
 const require = createRequire(import.meta.url);
@@ -29,14 +28,14 @@ try {
 // eslint-disable-next-line no-process-env
 const disableNextCache = process.env.DISABLE_NEXT_CACHE === 'true';
 
-/** @type {import("next").NextConfig} */
-const config = {
+const config: NextConfig = {
   output: 'standalone',
   reactStrictMode: true,
-  // Use no-op cache handler for E2E tests, otherwise use Next.js default
-  // See lib/cache-handler.cjs and lib/cache.ts for caching strategy docs
-  cacheHandler: disableNextCache
-    ? require.resolve('./lib/cache-handler.cjs')
+  // Use no-op cache handler for E2E tests, otherwise use Next.js default.
+  // cacheHandlers (plural) intercepts 'use cache' directives.
+  // See lib/cache-handler.cjs and lib/cache.ts for caching strategy docs.
+  cacheHandlers: disableNextCache
+    ? { default: require.resolve('./lib/cache-handler.cjs') }
     : undefined,
   cacheComponents: true,
   typedRoutes: true,

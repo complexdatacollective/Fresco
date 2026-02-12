@@ -28,7 +28,7 @@ export const env = createEnv({
      * DISABLE_NEXT_CACHE Environment Variable
      *
      * When set to 'true', completely disables Next.js caching for test isolation.
-     * This works via the no-op cacheHandler in next.config.js (lib/cache-handler.cjs),
+     * This works via the no-op cacheHandlers in next.config.ts (lib/cache-handler.cjs),
      * which returns cache misses for all operations. All 'use cache' functions
      * route through this handler, so no additional bypass logic is needed.
      *
