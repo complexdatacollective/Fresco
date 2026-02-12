@@ -36,7 +36,7 @@ export default function SlideFormNode({
   ),
   onUpdate,
   otherNetworkEntities,
-  onScroll,
+  onScroll: _onScroll,
 }: SlideFormNodeProps) {
   const id = item[entityPrimaryKeyProperty];
   const initialValues = item[entityAttributesProperty];

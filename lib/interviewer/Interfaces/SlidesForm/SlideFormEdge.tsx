@@ -28,15 +28,8 @@ type SlideFormEdgeProps = {
 };
 
 export default function SlideFormEdge(props: SlideFormEdgeProps) {
-  const {
-    form,
-    id,
-    item,
-    submitButton,
-    onUpdate,
-    otherNetworkEntities,
-    onScroll,
-  } = props;
+  const { form, id, item, submitButton, onUpdate, otherNetworkEntities } =
+    props;
 
   const getEdgeColor = useMemo(() => makeGetEdgeColor(), []);
   const edgeColor = useSelector(getEdgeColor);
