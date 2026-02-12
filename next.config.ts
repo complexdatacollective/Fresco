@@ -1,7 +1,7 @@
-import './env.js';
+import type { NextConfig } from 'next';
 import ChildProcess from 'node:child_process';
 import { createRequire } from 'node:module';
-import type { NextConfig } from 'next';
+import './env.js';
 import pkg from './package.json' with { type: 'json' };
 
 const require = createRequire(import.meta.url);
@@ -31,6 +31,7 @@ const disableNextCache = process.env.DISABLE_NEXT_CACHE === 'true';
 const config: NextConfig = {
   output: 'standalone',
   reactStrictMode: true,
+  reactCompiler: true,
   // Use no-op cache handler for E2E tests, otherwise use Next.js default.
   // cacheHandlers (plural) intercepts 'use cache' directives.
   // See lib/cache-handler.cjs and lib/cache.ts for caching strategy docs.

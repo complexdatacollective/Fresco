@@ -1,9 +1,9 @@
-import { Loader2 } from 'lucide-react';
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 import { connection } from 'next/server';
 import { Suspense } from 'react';
 import SuperJSON from 'superjson';
+import { Spinner } from '~/lib/legacy-ui/components';
 import { getAppSetting } from '~/queries/appSettings';
 import {
   getInterviewById,
@@ -19,7 +19,7 @@ export default function Page(props: {
     <Suspense
       fallback={
         <main className="flex h-screen items-center justify-center">
-          <Loader2 size={64} className="animate-spin" />
+          <Spinner size="lg" />
         </main>
       }
     >
