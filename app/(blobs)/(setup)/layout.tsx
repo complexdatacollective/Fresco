@@ -1,5 +1,4 @@
 import { Loader2 } from 'lucide-react';
-import { connection } from 'next/server';
 import { type ReactNode, Suspense } from 'react';
 import { requireAppNotExpired } from '~/queries/appSettings';
 
@@ -14,7 +13,6 @@ export default function Layout({ children }: { children: ReactNode }) {
 }
 
 async function SetupLayoutContent({ children }: { children: ReactNode }) {
-  await connection();
   await requireAppNotExpired(true);
   return children;
 }

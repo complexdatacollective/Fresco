@@ -4,6 +4,7 @@ import {
 } from '@codaco/shared-consts';
 import { Loader2 } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import { connection } from 'next/server';
 import { Suspense } from 'react';
 import SuperJSON from 'superjson';
 import { v4 as uuid } from 'uuid';
@@ -33,6 +34,7 @@ async function PreviewContent({
 }: {
   params: Promise<{ protocolId: string }>;
 }) {
+  await connection();
   const { protocolId } = await paramsPromise;
 
   const previewMode = await getPreviewMode();

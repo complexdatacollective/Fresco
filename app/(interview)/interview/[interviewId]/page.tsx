@@ -1,6 +1,7 @@
 import { Loader2 } from 'lucide-react';
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
+import { connection } from 'next/server';
 import { Suspense } from 'react';
 import SuperJSON from 'superjson';
 import { getAppSetting } from '~/queries/appSettings';
@@ -32,6 +33,7 @@ async function InterviewContent({
 }: {
   params: Promise<{ interviewId: string }>;
 }) {
+  await connection();
   const { interviewId } = await paramsPromise;
 
   if (!interviewId) {

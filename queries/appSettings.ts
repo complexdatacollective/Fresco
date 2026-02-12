@@ -1,5 +1,6 @@
 import { cacheLife } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 import 'server-only';
 import { type z } from 'zod';
 import { env } from '~/env';
@@ -38,6 +39,8 @@ export async function getAppSetting<Key extends AppSetting>(
 }
 
 export async function requireAppNotExpired(isSetupRoute = false) {
+  await connection();
+
   // Fetch both settings in parallel to avoid sequential database calls
   const [isConfigured, initializedAt] = await Promise.all([
     getAppSetting('configured'),
@@ -68,6 +71,8 @@ export async function requireAppNotExpired(isSetupRoute = false) {
 
 // Used to prevent user account creation after the app has been configured
 export async function requireAppNotConfigured() {
+  await connection();
+
   // Allow visiting /setup in development even after configuration
   if (env.NODE_ENV === 'development') {
     return;
