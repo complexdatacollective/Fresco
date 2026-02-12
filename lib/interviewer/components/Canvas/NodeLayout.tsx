@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument */
 'use client';
 
 import {
@@ -18,12 +17,57 @@ import {
 import { useAppDispatch } from '~/lib/interviewer/store';
 import LayoutContext from '../../contexts/LayoutContext';
 import LayoutNode from './LayoutNode';
-import { getTwoModeLayoutVariable } from './utils';
+
+type Position = { x: number; y: number };
+
+type ScreenManager = {
+  initialize: (el: HTMLElement) => void;
+  destroy: () => void;
+  measureScreen: () => void;
+  calculateScreenCoords: (coords: Position) => Position;
+  calculateRelativeCoords: (coords: Position) => Position;
+};
+
+type LayoutSimulation = {
+  simulationEnabled: boolean;
+  moveNode: (coords: Position, nodeIndex: number) => void;
+  releaseNode: (nodeIndex: number) => void;
+};
+
+type LayoutContextValue = {
+  network: {
+    nodes: NcNode[];
+  };
+  screen: { current: ScreenManager };
+  getPosition: { current: (index: number) => Position | undefined };
+  allowAutomaticLayout: boolean;
+  simulation?: LayoutSimulation;
+};
+
+type DragSource = {
+  x: number;
+  y: number;
+  meta: Record<string, unknown>;
+};
+
+function isDragSource(source: unknown): source is DragSource {
+  return (
+    typeof source === 'object' &&
+    source !== null &&
+    'x' in source &&
+    'y' in source &&
+    'meta' in source &&
+    typeof source.x === 'number' &&
+    typeof source.y === 'number' &&
+    typeof source.meta === 'object' &&
+    source.meta !== null
+  );
+}
 
 type NodeLayoutProps = {
   id: string;
   highlightAttribute?: string | null;
-  layout?: string;
+  layout?: string | Record<string, string>;
   twoMode?: boolean;
   destinationRestriction?: string | null;
   originRestriction?: string | null;
@@ -33,6 +77,16 @@ type NodeLayoutProps = {
   createEdge?: string | null;
   layoutVariable?: string;
 };
+
+function resolveLayoutVariable(
+  twoMode: boolean,
+  nodeType: string,
+  layout: string | Record<string, string> | undefined,
+): string | undefined {
+  if (!twoMode) return typeof layout === 'string' ? layout : undefined;
+  if (typeof layout === 'object') return layout[nodeType];
+  return undefined;
+}
 
 const relativeCoords = (
   container: { x: number; y: number; width: number; height: number },
@@ -62,8 +116,8 @@ const NodeLayout = ({
   const isDragging = useRef(false);
   const [connectFrom, setConnectFrom] = useState<string | null>(null);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const context = useContext(LayoutContext) as any;
+  // LayoutContext is defined in untyped .jsx — assert the runtime shape
+  const context = useContext(LayoutContext) as unknown as LayoutContextValue;
   const {
     network: { nodes },
     getPosition,
@@ -76,30 +130,40 @@ const NodeLayout = ({
   const bounds = useBounds(boundsRef);
 
   // Drop target: accepts positioned nodes being dropped
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const accepts = useCallback(
-    ({ meta }: any) => meta.itemType === 'POSITIONED_NODE',
+    (source: unknown) =>
+      isDragSource(source) && source.meta.itemType === 'POSITIONED_NODE',
     [],
   );
 
   const onDrop = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (item: any) => {
-      const layoutVariable = twoMode ? layout?.[item.meta.type] : layout;
-      if (!layoutVariable) return;
+    (source: unknown) => {
+      if (!isDragSource(source)) return;
+
+      const nodeType = source.meta.type;
+      const layoutVar =
+        twoMode && typeof nodeType === 'string' && typeof layout === 'object'
+          ? layout[nodeType]
+          : typeof layout === 'string'
+            ? layout
+            : undefined;
+      if (!layoutVar) return;
+
+      const nodeId = source.meta[entityPrimaryKeyProperty];
+      if (typeof nodeId !== 'string') return;
 
       void dispatch(
         updateNode({
-          nodeId: item.meta[entityPrimaryKeyProperty],
+          nodeId,
           newAttributeData: {
-            [layoutVariable]: relativeCoords(
+            [layoutVar]: relativeCoords(
               {
                 width: bounds.width,
                 height: bounds.height,
                 x: bounds.x,
                 y: bounds.y,
               },
-              item,
+              source,
             ),
           },
         }),
@@ -294,8 +358,7 @@ const NodeLayout = ({
       clearTimeout(timeout);
       screenRef.destroy();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [screen]);
 
   // --- Drag handlers ---
   const handleDragStart = useCallback(
@@ -312,12 +375,10 @@ const NodeLayout = ({
         }
       }
 
-      const nodeType = get(nodes, [index, 'type']);
-      const layoutVariable = getTwoModeLayoutVariable(
-        twoMode,
-        nodeType,
-        layout,
-      );
+      const node = nodes[index];
+      if (!node) return;
+      const layoutVariable = resolveLayoutVariable(twoMode, node.type, layout);
+      if (!layoutVariable) return;
 
       void dispatch(
         updateNode({
@@ -354,12 +415,10 @@ const NodeLayout = ({
         }
       }
 
-      const nodeType = get(nodes, [index, 'type']);
-      const layoutVariable = getTwoModeLayoutVariable(
-        twoMode,
-        nodeType,
-        layout,
-      );
+      const node = nodes[index];
+      if (!node) return;
+      const layoutVariable = resolveLayoutVariable(twoMode, node.type, layout);
+      if (!layoutVariable) return;
 
       void dispatch(
         updateNode({
@@ -394,12 +453,10 @@ const NodeLayout = ({
         }
       }
 
-      const nodeType = get(nodes, [index, 'type']);
-      const layoutVariable = getTwoModeLayoutVariable(
-        twoMode,
-        nodeType,
-        layout,
-      );
+      const node = nodes[index];
+      if (!node) return;
+      const layoutVariable = resolveLayoutVariable(twoMode, node.type, layout);
+      if (!layoutVariable) return;
 
       void dispatch(
         updateNode({
