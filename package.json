@@ -37,8 +37,7 @@
       "unrs-resolver"
     ],
     "patchedDependencies": {
-      "react-best-merge-refs@1.0.2": "patches/react-best-merge-refs@1.0.2.patch",
-      "@base-ui/react@1.1.0": "patches/@base-ui__react@1.1.0.patch"
+      "react-best-merge-refs@1.0.2": "patches/react-best-merge-refs@1.0.2.patch"
     },
     "overrides": {
       "@types/react": "19.2.13",
@@ -49,7 +48,7 @@
     }
   },
   "dependencies": {
-    "@base-ui/react": "1.1.0",
+    "@base-ui/react": "1.2.0",
     "@codaco/analytics": "8.0.0",
     "@codaco/protocol-validation": "10.0.0",
     "@codaco/shared-consts": "5.0.0",
