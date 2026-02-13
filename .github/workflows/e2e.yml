@@ -7,9 +7,9 @@ permissions:
   pull-requests: write
 
 on:
+  workflow_dispatch:
   push:
     branches: [main, next]
-  pull_request:
 
 jobs:
   e2e:
@@ -58,10 +58,38 @@ jobs:
           path: .pnpm-docker-store
           key: ${{ steps.setup.outputs.cache-key }}
 
+  # Resolve PR context for both pull_request and workflow_dispatch events
+  resolve-pr:
+    if: failure() && needs.e2e.outputs.test-result == 'failure'
+    needs: e2e
+    runs-on: ubuntu-latest
+    outputs:
+      pr-number: ${{ steps.pr.outputs.number }}
+      head-sha: ${{ steps.pr.outputs.head_sha }}
+      branch: ${{ steps.pr.outputs.branch }}
+    steps:
+      - name: Resolve PR context
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+            echo "head_sha=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
+            echo "branch=${{ github.head_ref }}" >> "$GITHUB_OUTPUT"
+          else
+            PR_NUMBER=$(gh pr list --repo "${{ github.repository }}" --head "${{ github.ref_name }}" --json number --jq '.[0].number')
+            if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
+              echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+            fi
+            echo "head_sha=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+            echo "branch=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          fi
+
   # Deploy report to GitHub Pages on test failure (PR-specific subdirectory)
   deploy-report:
-    if: failure() && github.event_name == 'pull_request' && needs.e2e.outputs.test-result == 'failure'
-    needs: e2e
+    if: failure() && needs.resolve-pr.outputs.pr-number != ''
+    needs: [e2e, resolve-pr]
     runs-on: ubuntu-latest
     # Single concurrency group for all Pages deployments to prevent race conditions
     concurrency:
@@ -69,7 +97,7 @@ jobs:
       cancel-in-progress: false
     environment:
       name: github-pages
-      url: https://complexdatacollective.github.io/Fresco/pr-${{ github.event.pull_request.number }}/
+      url: https://complexdatacollective.github.io/Fresco/pr-${{ needs.resolve-pr.outputs.pr-number }}/
 
     steps:
       - name: Download playwright report
@@ -97,8 +125,8 @@ jobs:
           fi
 
           # Create PR-specific subdirectory with new report
-          mkdir -p merged/pr-${{ github.event.pull_request.number }}
-          cp -r new-report/playwright-report/* merged/pr-${{ github.event.pull_request.number }}/
+          mkdir -p merged/pr-${{ needs.resolve-pr.outputs.pr-number }}
+          cp -r new-report/playwright-report/* merged/pr-${{ needs.resolve-pr.outputs.pr-number }}/
 
           # Generate index page listing all reports
           cat > merged/index.html << 'EOF'
@@ -179,19 +207,19 @@ jobs:
       - name: Comment on PR with report link
         uses: peter-evans/create-or-update-comment@v5
         with:
-          issue-number: ${{ github.event.pull_request.number }}
+          issue-number: ${{ needs.resolve-pr.outputs.pr-number }}
           body: |
             ## 🎭 Playwright E2E Test Report
 
             ❌ **Tests failed.** View the full report here:
 
-            👉 **[https://complexdatacollective.github.io/Fresco/pr-${{ github.event.pull_request.number }}/](https://complexdatacollective.github.io/Fresco/pr-${{ github.event.pull_request.number }}/)**
+            👉 **[https://complexdatacollective.github.io/Fresco/pr-${{ needs.resolve-pr.outputs.pr-number }}/](https://complexdatacollective.github.io/Fresco/pr-${{ needs.resolve-pr.outputs.pr-number }}/)**
 
             <details>
             <summary>Report details</summary>
 
             - **Workflow run:** [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            - **Commit:** ${{ github.event.pull_request.head.sha }}
-            - **Branch:** `${{ github.head_ref }}`
+            - **Commit:** ${{ needs.resolve-pr.outputs.head-sha }}
+            - **Branch:** `${{ needs.resolve-pr.outputs.branch }}`
 
             </details>
