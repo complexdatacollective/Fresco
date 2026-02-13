@@ -13,7 +13,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className="bg-background publish-colors antialiased">
-        <div className="root h-dvh overflow-y-auto [scrollbar-gutter:stable]">
+        <div className="root h-dvh overflow-y-auto [scrollbar-gutter:stable_both-edges]">
           <Providers disableAnimations={env.CI ?? false}>{children}</Providers>
           {env.SANDBOX_MODE && (
             <ResponsiveContainer>
