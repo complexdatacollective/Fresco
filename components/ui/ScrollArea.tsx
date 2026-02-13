@@ -103,6 +103,14 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
           '--scroll-area-overflow-y-end',
           `${overflowEnd}px`,
         );
+
+        // Inset fade pseudo-elements to avoid covering the scrollbar
+        const scrollbarWidth =
+          viewportRef.current.offsetWidth - viewportRef.current.clientWidth;
+        viewportRef.current.style.setProperty(
+          '--scrollbar-width',
+          `${scrollbarWidth}px`,
+        );
       });
     }, []);
 
@@ -169,6 +177,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
               // Initialize CSS variables for fade effect
               '--scroll-area-overflow-y-start': '0px',
               '--scroll-area-overflow-y-end': '0px',
+              '--scrollbar-width': '0px',
             } as CSSProperties
           }
         >

@@ -497,7 +497,8 @@ This custom variant lets you target only elements with the readonly attribute.
   --fade-height: max(2.5rem, 10%);
   &::before,
   &::after {
-    @apply pointer-events-none absolute left-0 block w-full transition-[height] duration-100 ease-out content-[''];
+    @apply pointer-events-none absolute left-0 block transition-[height] duration-100 ease-out content-[''];
+    right: var(--scrollbar-width, 0px);
   }
   &::before {
     @apply top-0 z-1 bg-linear-to-b from-(--published-bg,var(--background)) to-transparent;
