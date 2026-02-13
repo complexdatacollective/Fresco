@@ -1,4 +1,5 @@
 'use client';
+'use no memo';
 
 import {
   motion,
@@ -263,7 +264,9 @@ export default function ProtocolScreen() {
   const { canMoveForward, canMoveBackward } = useSelector(getNavigationInfo);
 
   const isPortraitAspectRatio = useMediaQuery('(max-aspect-ratio: 3/4)');
-  const navigationOrientation = isPortraitAspectRatio ? 'horizontal' : 'vertical';
+  const navigationOrientation = isPortraitAspectRatio
+    ? 'horizontal'
+    : 'vertical';
 
   return (
     <>

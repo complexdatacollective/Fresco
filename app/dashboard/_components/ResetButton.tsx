@@ -34,13 +34,8 @@ const ResetButton = () => {
                 setIsResetting(true);
                 try {
                   await resetAppSettings();
-                } catch (error) {
+                } catch {
                   setIsResetting(false);
-                  // eslint-disable-next-line no-console
-                  console.log(error);
-                  alert(
-                    'Failed to reset app settings. See console for details.',
-                  );
                 }
               }}
               color="primary"

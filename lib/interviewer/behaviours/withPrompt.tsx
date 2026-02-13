@@ -133,17 +133,3 @@ export const usePrompts = <T extends object = Prompt>() => {
     updatePrompt,
   };
 };
-
-const withPrompt = <P extends object>(
-  WrappedComponent: React.ComponentType<P & ReturnType<typeof usePrompts>>,
-) => {
-  const WithPrompt = (props: P) => {
-    const prompts = usePrompts();
-
-    return <WrappedComponent {...prompts} {...props} />;
-  };
-
-  return WithPrompt;
-};
-
-export default withPrompt;

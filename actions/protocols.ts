@@ -1,7 +1,7 @@
 'use server';
 
 import { Prisma } from '~/lib/db/generated/client';
-import { safeRevalidateTag } from '~/lib/cache';
+import { safeUpdateTag } from '~/lib/cache';
 import { hash } from 'ohash';
 import { type z } from 'zod';
 import { getUTApi } from '~/lib/uploadthing/server-helpers';
@@ -117,11 +117,11 @@ export async function deleteProtocols(hashes: string[]) {
       data: events,
     });
 
-    safeRevalidateTag('activityFeed');
-    safeRevalidateTag('summaryStatistics');
-    safeRevalidateTag('getProtocols');
-    safeRevalidateTag('getInterviews');
-    safeRevalidateTag('getParticipants');
+    safeUpdateTag('activityFeed');
+    safeUpdateTag('summaryStatistics');
+    safeUpdateTag('getProtocols');
+    safeUpdateTag('getInterviews');
+    safeUpdateTag('getParticipants');
 
     return { error: null, deletedProtocols: deletedProtocols };
   } catch (error) {
@@ -183,8 +183,9 @@ export async function insertProtocol(
 
     void addEvent('Protocol Installed', `Protocol "${protocolName}" installed`);
 
-    safeRevalidateTag('getProtocols');
-    safeRevalidateTag('summaryStatistics');
+    safeUpdateTag('getProtocols');
+    safeUpdateTag('summaryStatistics');
+    safeUpdateTag('activityFeed');
 
     return { error: null, success: true };
   } catch (e) {

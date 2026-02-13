@@ -123,7 +123,7 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="one-to-many-dyad-census flex h-full w-full flex-col gap-4 px-[2.4rem] py-[1.2rem]">
+    <div className="one-to-many-dyad-census flex size-full flex-col gap-4 px-[2.4rem] py-[1.2rem]">
       <div className="flex flex-col items-center">
         <Prompts />
         <AnimatePresence mode="wait">
@@ -161,7 +161,7 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
           <h4>Click/tap all that apply:</h4>
         </div>
         {sortedTargets.length === 0 ? (
-          <div className="flex h-full w-full grow items-center justify-center">
+          <div className="flex size-full grow items-center justify-center">
             <h3>No nodes to display.</h3>
           </div>
         ) : (
@@ -171,7 +171,7 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
                 variants={nodeListVariants}
                 key={promptIndex}
                 exit={{ opacity: 0 }}
-              className="flex flex-wrap justify-center content-start gap-4"
+                className="flex flex-wrap content-start justify-center gap-4"
               >
                 {sortedTargets.map((node) => {
                   /**

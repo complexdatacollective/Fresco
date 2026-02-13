@@ -1,10 +1,12 @@
 import Image from 'next/image';
 import { env } from 'node:process';
+import { connection } from 'next/server';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { getAppSetting } from '~/queries/appSettings';
 
 const SmallScreenOverlay = async () => {
+  await connection();
   const disableSmallScreenOverlay = await getAppSetting(
     'disableSmallScreenOverlay',
   );

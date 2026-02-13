@@ -180,7 +180,7 @@ export function DataTable<TData, TValue>({
         </div>
       )}
 
-      <Table surfaceProps={{ level: surfaceLevel }}>
+      <Table surfaceProps={{ level: surfaceLevel }} data-testid="data-table">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>

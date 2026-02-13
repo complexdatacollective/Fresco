@@ -7,10 +7,10 @@ import { flushSync } from 'react-dom';
 import Surface from '~/components/layout/Surface';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
+import ProgressBar from '~/components/ui/ProgressBar';
 import useDialog from '~/lib/dialogs/useDialog';
 import useFormState from '~/lib/form/hooks/useFormState';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
-import ProgressBar from '~/lib/legacy-ui/components/ProgressBar';
 import { cx } from '~/utils/cva';
 import {
   type BeforeNextFunction,
@@ -30,7 +30,7 @@ type SlidesFormProps = StageProps & {
     onUpdate: (...args: unknown[]) => void;
     onScroll: () => void;
     form: Record<string, unknown>;
-    submitButton: ReactElement;
+    submitButton: ReactElement<Record<string, unknown>>;
   }>;
 };
 
@@ -216,7 +216,7 @@ function SlidesFormInner({
     return (
       <motion.div
         key={itemIndex}
-        className="absolute flex h-full w-full max-w-7xl items-center justify-center [&_.scrollable]:h-full [&_.scrollable]:px-5"
+        className="absolute flex size-full max-w-7xl items-center justify-center [&_.scrollable]:h-full [&_.scrollable]:px-5"
         variants={slideVariants}
         animate="show"
         initial={pendingDirection === 'forwards' ? 'hideBottom' : 'hideTop'}
@@ -252,7 +252,7 @@ function SlidesFormInner({
     () => (
       <motion.div
         key="introduction-wrapper"
-        className="flex h-full w-full items-center justify-center"
+        className="flex size-full items-center justify-center"
         variants={slideVariants}
         animate="show"
         initial={pendingDirection === 'forwards' ? 'hideBottom' : 'hideTop'}
@@ -294,9 +294,9 @@ function SlidesFormInner({
             }}
             exit={{ opacity: 0, y: 100 }}
           >
-            <h6 className="m-0 mb-2.5">
+            <Heading level="label">
               <strong>{activeIndex}</strong> of <strong>{items.length}</strong>
-            </h6>
+            </Heading>
             <ProgressBar
               orientation="horizontal"
               percentProgress={(activeIndex / items.length) * 100}

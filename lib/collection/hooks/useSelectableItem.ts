@@ -12,7 +12,7 @@ type UseSelectableItemOptions = {
   /** Selection manager instance */
   selectionManager: SelectionManager;
   /** Ref to the item element (for focus management) */
-  ref: React.RefObject<HTMLElement>;
+  ref: React.RefObject<HTMLElement | null>;
   /** Whether selection should happen on focus */
   selectOnFocus?: boolean;
 };

@@ -103,6 +103,14 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
           '--scroll-area-overflow-y-end',
           `${overflowEnd}px`,
         );
+
+        // Inset fade pseudo-elements to avoid covering the scrollbar
+        const scrollbarWidth =
+          viewportRef.current.offsetWidth - viewportRef.current.clientWidth;
+        viewportRef.current.style.setProperty(
+          '--scrollbar-width',
+          `${scrollbarWidth}px`,
+        );
       });
     }, []);
 
@@ -142,7 +150,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
 
     return (
       <motion.div
-        className={cx('relative flex min-h-0 flex-1', className)}
+        className={cx('relative -m-2 flex min-h-0 flex-1', className)}
         {...rest}
       >
         <motion.div
@@ -155,8 +163,8 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
           onBlur={onBlur}
           className={cx(
             'focusable',
+            'p-2',
             // Layout
-            '[scrollbar-gutter:stable_both-edges]', // Prevent layout shift when scrollbar appears
             'min-h-0 flex-1 overflow-auto overscroll-contain',
             // Gradient fade effect
             fade && 'scroll-area-viewport',
@@ -169,6 +177,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
               // Initialize CSS variables for fade effect
               '--scroll-area-overflow-y-start': '0px',
               '--scroll-area-overflow-y-end': '0px',
+              '--scrollbar-width': '0px',
             } as CSSProperties
           }
         >

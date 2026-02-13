@@ -2,12 +2,13 @@
 
 import { type NcNetwork } from '@codaco/shared-consts';
 import { createId } from '@paralleldrive/cuid2';
-import { type Interview } from '~/lib/db/generated/client';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import superjson from 'superjson';
 import trackEvent from '~/lib/analytics';
-import { safeRevalidateTag } from '~/lib/cache';
+import { safeRevalidateTag, safeUpdateTag } from '~/lib/cache';
+import { prisma } from '~/lib/db';
+import { type Interview } from '~/lib/db/generated/client';
 import { createInitialNetwork } from '~/lib/interviewer/ducks/modules/session';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
 import archive from '~/lib/network-exporters/formatters/session/archive';
@@ -27,7 +28,6 @@ import {
 } from '~/queries/interviews';
 import type { CreateInterview, DeleteInterviews } from '~/schemas/interviews';
 import { requireApiAuth } from '~/utils/auth';
-import { prisma } from '~/lib/db';
 import { ensureError } from '~/utils/ensureError';
 import { addEvent } from './activityFeed';
 import { uploadZipToUploadThing } from './uploadThing';
@@ -51,8 +51,9 @@ export async function deleteInterviews(data: DeleteInterviews) {
       `Deleted ${deletedInterviews.count} interview(s)`,
     );
 
-    safeRevalidateTag('getInterviews');
-    safeRevalidateTag('summaryStatistics');
+    safeUpdateTag('getInterviews');
+    safeUpdateTag('summaryStatistics');
+    safeUpdateTag('activityFeed');
 
     return { error: null, interview: deletedInterviews };
   } catch (error) {
@@ -74,7 +75,8 @@ export const updateExportTime = async (interviewIds: Interview['id'][]) => {
       },
     });
 
-    safeRevalidateTag('getInterviews');
+    safeUpdateTag('getInterviews');
+    safeUpdateTag('activityFeed');
 
     void addEvent(
       'Data Exported',
@@ -141,7 +143,7 @@ export const exportSessions = async (
       },
     });
 
-    safeRevalidateTag('getInterviews');
+    safeUpdateTag('getInterviews');
 
     return result;
   } catch (error) {
@@ -229,9 +231,14 @@ export async function createInterview(data: CreateInterview) {
       }" started an interview`,
     );
 
+    /**
+     * NOTE: this function is called from a route handler, so it has to use
+     * revalidateTag rather than updateTag!
+     */
     safeRevalidateTag('getInterviews');
     safeRevalidateTag('getParticipants');
     safeRevalidateTag('summaryStatistics');
+    safeRevalidateTag('activityFeed');
 
     return {
       error: null,
@@ -287,11 +294,11 @@ export async function finishInterview(interviewId: Interview['id']) {
       },
     });
 
-    cookies().set(updatedInterview.protocolId, 'completed');
+    (await cookies()).set(updatedInterview.protocolId, 'completed');
 
-    safeRevalidateTag('getInterviews');
-    safeRevalidateTag('summaryStatistics');
-    safeRevalidateTag('activityFeed');
+    safeUpdateTag('getInterviews');
+    safeUpdateTag('summaryStatistics');
+    safeUpdateTag('activityFeed');
     revalidatePath('/dashboard');
 
     return { error: null };

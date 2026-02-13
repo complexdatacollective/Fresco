@@ -164,8 +164,7 @@ const TieStrengthCensus = (props: TieStrengthCensusProps) => {
   const choiceClasses = cx(
     'relative z-(--z-panel) flex w-full min-w-[65vmin] grow-0 flex-col rounded-(--nc-border-radius) border-8 border-transparent p-5',
     {
-      'animate-shake border-(--nc-error) outline-offset-[0.75rem]':
-        !isValid,
+      'animate-shake border-(--nc-error) outline-offset-[0.75rem]': !isValid,
     },
   );
 
@@ -192,7 +191,7 @@ const TieStrengthCensus = (props: TieStrengthCensusProps) => {
             initial="hide"
             exit="hide"
             animate="show"
-            className="flex h-full w-full flex-col"
+            className="flex size-full flex-col"
           >
             <div className="flex flex-[0_0_var(--interface-prompt-flex-basis)] items-center justify-center text-center">
               <Prompts />
@@ -206,7 +205,7 @@ const TieStrengthCensus = (props: TieStrengthCensusProps) => {
                 exit="hide"
                 animate="show"
               >
-                <div className="absolute top-0 left-0 flex h-full w-full flex-col items-center justify-center">
+                <div className="absolute top-0 left-0 flex size-full flex-col items-center justify-center">
                   <div className="relative flex w-full grow items-center justify-center">
                     <AnimatePresence custom={[isForwards]} initial={false}>
                       <Pair

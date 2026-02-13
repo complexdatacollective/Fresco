@@ -2,7 +2,10 @@ import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
 } from '@codaco/shared-consts';
+import { Loader2 } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import { connection } from 'next/server';
+import { Suspense } from 'react';
 import SuperJSON from 'superjson';
 import { v4 as uuid } from 'uuid';
 import InterviewShell from '~/app/(interview)/interview/_components/InterviewShell';
@@ -10,14 +13,29 @@ import { prisma } from '~/lib/db';
 import { getPreviewMode } from '~/queries/appSettings';
 import { getProtocolForPreview } from '~/queries/protocols';
 
-export const dynamic = 'force-dynamic';
-
-export default async function PreviewInterviewPage({
-  params,
-}: {
-  params: { protocolId: string };
+export default function PreviewInterviewPage(props: {
+  params: Promise<{ protocolId: string }>;
 }) {
-  const { protocolId } = params;
+  return (
+    <Suspense
+      fallback={
+        <main className="flex h-screen items-center justify-center">
+          <Loader2 size={64} className="animate-spin" />
+        </main>
+      }
+    >
+      <PreviewContent params={props.params} />
+    </Suspense>
+  );
+}
+
+async function PreviewContent({
+  params: paramsPromise,
+}: {
+  params: Promise<{ protocolId: string }>;
+}) {
+  await connection();
+  const { protocolId } = await paramsPromise;
 
   const previewMode = await getPreviewMode();
   if (!previewMode) {
@@ -34,26 +52,22 @@ export default async function PreviewInterviewPage({
     notFound();
   }
 
-  // Only allow preview protocols
   if (!protocol.isPreview) {
     notFound();
   }
 
-  // Don't allow pending protocols (still uploading assets)
   if (protocol.isPending) {
     notFound();
   }
 
-  // Update timestamp to prevent premature pruning
   await prisma.protocol.update({
     where: { id: protocolId },
     data: { importedAt: new Date() },
   });
 
-  // Create an in-memory interview object (not persisted to database)
   const now = new Date();
   const previewInterview = {
-    id: `preview-${uuid()}`, // Temporary ID for the preview session
+    id: `preview-${uuid()}`,
     startTime: now,
     finishTime: null,
     exportTime: null,

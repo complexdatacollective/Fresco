@@ -1,7 +1,0 @@
-// Scrollable helper
-@use '../mixins';
-
-// Re-export scrollable mixin for easy access
-@mixin scrollable($top-height: 2rem) {
-  @include mixins.scrollable($top-height);
-}

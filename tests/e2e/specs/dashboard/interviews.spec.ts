@@ -62,7 +62,10 @@ test.describe('Interviews Page', () => {
     test('bulk selection', async ({ page }) => {
       await waitForTable(page, { minRows: 1 });
       await selectAllRows(page);
-      const headerCheckbox = page.locator('thead').getByRole('checkbox');
+      const headerCheckbox = page
+        .getByTestId('data-table')
+        .locator('thead')
+        .getByRole('checkbox');
       await expect(headerCheckbox).toBeChecked();
     });
 
@@ -70,6 +73,19 @@ test.describe('Interviews Page', () => {
       await waitForTable(page, { minRows: 5 });
       await expect(
         page.getByRole('cell', { name: /not exported/i }).first(),
+      ).toBeVisible();
+    });
+
+    test('export incomplete urls popover opens', async ({ page }) => {
+      await waitForTable(page, { minRows: 1 });
+      const trigger = page.getByTestId('export-incomplete-urls-button');
+      await expect(trigger).toBeVisible();
+      await trigger.click();
+
+      const popover = page.getByRole('dialog');
+      await expect(popover).toBeVisible();
+      await expect(
+        popover.getByRole('button', { name: /export incomplete/i }),
       ).toBeVisible();
     });
 

@@ -11,9 +11,9 @@ import { ensureError } from '~/utils/ensureError';
  */
 const routeHandler = async (
   request: NextRequest,
-  { params }: { params: { interviewId: string } },
+  { params }: { params: Promise<{ interviewId: string }> },
 ) => {
-  const interviewId = params.interviewId;
+  const { interviewId } = await params;
 
   const rawPayload = await request.json();
 

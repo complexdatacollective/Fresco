@@ -41,7 +41,7 @@ export const uploadZipToUploadThing = async (
     if (data) {
       void unlink(zipLocation); // Delete the zip file after successful upload
       return {
-        zipUrl: data.url,
+        zipUrl: data.ufsUrl,
         zipKey: data.key,
         status: rejected.length ? 'partial' : 'success',
         error: rejected.length ? 'Some exports failed' : null,

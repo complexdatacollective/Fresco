@@ -28,15 +28,9 @@ export const env = createEnv({
      * DISABLE_NEXT_CACHE Environment Variable
      *
      * When set to 'true', completely disables Next.js caching for test isolation.
-     * This variable controls two caching layers:
-     *
-     * 1. File-based Data Cache (next.config.js + lib/cache-handler.cjs)
-     *    - Build time: Includes no-op cache handler in standalone build
-     *    - Runtime: Handler returns cache misses for all operations
-     *
-     * 2. In-memory request deduplication (this file)
-     *    - Runtime: Bypasses unstable_cache entirely
-     *    - Returns unwrapped functions that hit the database directly
+     * This works via the no-op cacheHandlers in next.config.ts (lib/cache-handler.cjs),
+     * which returns cache misses for all operations. All 'use cache' functions
+     * route through this handler, so no additional bypass logic is needed.
      *
      * Usage:
      * - E2E tests: Set at build time (tests/e2e/global-setup.ts) AND runtime

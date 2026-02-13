@@ -42,7 +42,7 @@ const SelfDismissingNote = <P extends object>(
   } & P) => {
     const [visible, setVisible] = useState(show);
     const [mouseOver, setMouseOver] = useState(false);
-    const timeout = useRef<NodeJS.Timeout>();
+    const timeout = useRef<NodeJS.Timeout>(undefined);
     const key = useId();
 
     const handleHide = useCallback(() => {

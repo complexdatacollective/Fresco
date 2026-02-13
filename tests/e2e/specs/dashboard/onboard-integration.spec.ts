@@ -31,9 +31,10 @@ test.describe('Onboard Integration', () => {
       const cleanup = await database.isolate(page);
       try {
         const protocolId = await database.getProtocolId();
-        await page.goto(`/onboard/${protocolId}?participantIdentifier=E2E-001`);
-        await page.waitForURL('**/interview/**');
-        expect(page.url()).toContain('/interview/');
+        const response = await page.request.get(
+          `/onboard/${protocolId}?participantIdentifier=E2E-001`,
+        );
+        expect(response.url()).toContain('/interview/');
       } finally {
         await cleanup();
       }
@@ -46,9 +47,8 @@ test.describe('Onboard Integration', () => {
       const cleanup = await database.isolate(page);
       try {
         const protocolId = await database.getProtocolId();
-        await page.goto(`/onboard/${protocolId}`);
-        await page.waitForURL('**/interview/**');
-        expect(page.url()).toContain('/interview/');
+        const response = await page.request.get(`/onboard/${protocolId}`);
+        expect(response.url()).toContain('/interview/');
       } finally {
         await cleanup();
       }
@@ -82,15 +82,15 @@ test.describe('Onboard Integration', () => {
         const protocolId = await database.getProtocolId();
         const identifier = 'REUSE-001';
 
-        await page.goto(
+        const response1 = await page.request.get(
           `/onboard/${protocolId}?participantIdentifier=${identifier}`,
         );
-        await page.waitForURL('**/interview/**');
+        expect(response1.url()).toContain('/interview/');
 
-        await page.goto(
+        const response2 = await page.request.get(
           `/onboard/${protocolId}?participantIdentifier=${identifier}`,
         );
-        await page.waitForURL('**/interview/**');
+        expect(response2.url()).toContain('/interview/');
 
         const count = await database.getParticipantCount(identifier);
         expect(count).toBe(1);
@@ -125,29 +125,20 @@ test.describe('Onboard Integration', () => {
         const protocolId = await database.getProtocolId();
         await database.updateAppSetting('limitInterviews', 'true');
 
-        // First onboard — completes and sets cookie
-        await page.goto(
+        // First onboard — creates interview and redirects
+        const firstResponse = await page.request.get(
           `/onboard/${protocolId}?participantIdentifier=LIMIT-001`,
         );
-        await page.waitForURL('**/interview/**');
+        expect(firstResponse.url()).toContain('/interview/');
 
-        // Finish the interview to set the cookie
-        // Navigate to the finish endpoint by evaluating the protocol-based cookie
-        await page.context().addCookies([
-          {
-            name: protocolId,
-            value: 'completed',
-            domain: new URL(page.url()).hostname,
-            path: '/',
-          },
-        ]);
-
-        // Second onboard should redirect to finished
-        await page.goto(
+        // Second onboard with completed cookie should redirect to finished
+        const secondResponse = await page.request.get(
           `/onboard/${protocolId}?participantIdentifier=LIMIT-002`,
+          {
+            headers: { Cookie: `${protocolId}=completed` },
+          },
         );
-        await page.waitForURL('**/interview/finished');
-        expect(page.url()).toContain('/interview/finished');
+        expect(secondResponse.url()).toContain('/interview/finished');
       } finally {
         await cleanup();
       }

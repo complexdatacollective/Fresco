@@ -124,14 +124,14 @@ Located in `/actions/`. Pattern:
 - Mark with `'use server'` directive
 - Use `requireApiAuth()` for authentication
 - Return `{ error, data }` pattern
-- Use `safeRevalidateTag()` for cache invalidation
+- Use `safeUpdateTag()` for cache invalidation (read-your-own-writes)
 - Track events with `addEvent()` for activity feed
 
 ```typescript
 'use server';
 
 import { requireApiAuth } from '~/utils/auth';
-import { safeRevalidateTag } from '~/lib/cache';
+import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/utils/db';
 
 export async function deleteItem(id: string) {
@@ -139,7 +139,7 @@ export async function deleteItem(id: string) {
 
   try {
     const result = await prisma.item.delete({ where: { id } });
-    safeRevalidateTag('getItems');
+    safeUpdateTag('getItems');
     return { error: null, data: result };
   } catch (error) {
     return { error: 'Failed to delete', data: null };
@@ -243,6 +243,31 @@ const interviews = await prisma.interview.findMany({
 });
 ```
 
+### Caching
+
+Query functions in `/queries/` use the `'use cache'` directive with typesafe tag wrappers from `~/lib/cache`. Do not import `cacheTag`, `updateTag`, `revalidateTag`, or `unstable_cache` directly from `next/cache` - an ESLint `no-restricted-imports` rule enforces this.
+
+**Cached queries** use `safeCacheTag()` inside `'use cache'` functions:
+
+```typescript
+import { safeCacheTag } from '~/lib/cache';
+
+export async function getItems() {
+  'use cache';
+  safeCacheTag('getItems');
+  return prisma.item.findMany();
+}
+```
+
+**Cache invalidation** uses two different functions depending on context:
+
+- **`safeUpdateTag(tag)`** - Server Actions only. Uses `updateTag` for read-your-own-writes semantics (the next request waits for fresh data, so the user sees their change immediately).
+- **`safeRevalidateTag(tag)`** - Route Handlers only. Uses `revalidateTag(tag, 'max')` for stale-while-revalidate semantics (`updateTag` is not available in Route Handlers).
+
+Both accept a single tag or an array. All tags are typesafe against the `CacheTags` array in `lib/cache.ts`.
+
+**Disabling cache for tests**: Set `DISABLE_NEXT_CACHE=true` which activates the no-op `cacheHandlers` in `next.config.ts` (`lib/cache-handler.cjs`). This returns cache misses for all `'use cache'` functions.
+
 ### Naming Conventions
 
 - **Files**: PascalCase for components (`Button.tsx`), camelCase for utils (`shadcn.ts`)
@@ -290,7 +315,7 @@ pnpm storybook      # Component testing
 
 - `fresco.config.ts` - App-specific constants (protocol extensions, timeouts)
 - `env.js` - Environment variable validation
-- `next.config.js` - Next.js configuration
+- `next.config.ts` - Next.js configuration
 - `components.json` - shadcn/ui configuration
 - `.nvmrc` - Node.js version (20)
 - `docker-compose.dev.yml` - Development database
@@ -303,7 +328,7 @@ pnpm storybook      # Component testing
 2. Add `'use server'` directive
 3. Add auth check with `requireApiAuth()`
 4. Define input types in `/schemas/`
-5. Invalidate cache with `safeRevalidateTag()`
+5. Invalidate cache with `safeUpdateTag()`
 
 ### Adding a New Page
 
@@ -339,7 +364,7 @@ pnpm storybook      # Component testing
 3. **Use `type` not `interface`** for type definitions
 4. **Server Components are default** - add `'use client'` only when needed
 5. **AppSettings enum** must sync between Prisma schema and `schemas/appSettings.ts`
-6. **Cache invalidation** - use `safeRevalidateTag()` after mutations
+6. **Cache invalidation** - use `safeUpdateTag()` in Server Actions, `safeRevalidateTag()` in Route Handlers (see Caching section)
 7. **Always use path aliases** - use `~/components/Button` not `../components/Button`
 
 ## Dependencies to Know

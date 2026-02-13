@@ -63,7 +63,7 @@ export default function Anonymisation(props: AnonymisationProps) {
 
   return (
     <>
-      <motion.div className="anonymisation flex h-full w-full flex-col items-center justify-center">
+      <motion.div className="anonymisation flex size-full flex-col items-center justify-center">
         <motion.div
           className="z-10 max-w-[80ch] rounded-(--nc-border-radius) bg-(--nc-panel-bg-muted) px-[2.4rem] py-[2.4rem]"
           initial={{

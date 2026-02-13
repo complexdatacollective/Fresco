@@ -1,5 +1,6 @@
+import { cacheLife } from 'next/cache';
 import { stringify } from 'superjson';
-import { createCachedFunction } from '~/lib/cache';
+import { safeCacheTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 
 async function prisma_getProtocols() {
@@ -15,11 +16,15 @@ async function prisma_getProtocols() {
 
 export type GetProtocolsQuery = Awaited<ReturnType<typeof prisma_getProtocols>>;
 
-export const getProtocols = createCachedFunction(async () => {
+export async function getProtocols() {
+  'use cache';
+  cacheLife('max');
+  safeCacheTag('getProtocols');
+
   const protocols = await prisma_getProtocols();
   const safeProtocols = stringify(protocols);
   return safeProtocols;
-}, ['getProtocols']);
+}
 
 export type GetProtocolsReturnType = ReturnType<typeof getProtocols>;
 

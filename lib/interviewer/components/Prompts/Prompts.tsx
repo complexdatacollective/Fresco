@@ -23,7 +23,7 @@ const Prompts = ({
   prompts,
   className,
 }: PromptsProps) => {
-  const prevPromptRef = useRef<number>();
+  const prevPromptRef = useRef<number>(undefined);
 
   const currentIndex = findIndex(
     prompts,

@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import type { PropsWithChildren } from 'react';
+import { type PropsWithChildren, Suspense } from 'react';
 import BackgroundBlobs from '~/components/BackgroundBlobs/BackgroundBlobs';
 
 export default function Layout({ children }: PropsWithChildren) {
@@ -9,7 +9,7 @@ export default function Layout({ children }: PropsWithChildren) {
       <div className="relative z-10 flex min-h-dvh w-dvw flex-col">
         <Link href="/">
           <Image
-            src="/images/NC-Type and Mark Wide Pos_LRG@4x.png"
+            src="/images/NC-Type and Mark Wide Pos_LRG-4x.png"
             width={300}
             height={84.05}
             priority
@@ -25,7 +25,9 @@ export default function Layout({ children }: PropsWithChildren) {
         data-testid="background-blobs"
         className="text-background bg-navy-taupe fixed top-0 left-0 h-dvh w-dvw"
       >
-        <BackgroundBlobs large={0} medium={3} small={4} />
+        <Suspense>
+          <BackgroundBlobs large={0} medium={3} small={4} />
+        </Suspense>
       </div>
     </>
   );

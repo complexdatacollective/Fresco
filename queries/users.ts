@@ -1,9 +1,14 @@
 import 'server-only';
+import { cacheLife } from 'next/cache';
 
-import { createCachedFunction } from '~/lib/cache';
+import { safeCacheTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 
-export const getUsers = createCachedFunction(async () => {
+export async function getUsers() {
+  'use cache';
+  cacheLife('max');
+  safeCacheTag('getUsers');
+
   const users = await prisma.user.findMany({
     select: {
       id: true,
@@ -15,6 +20,6 @@ export const getUsers = createCachedFunction(async () => {
   });
 
   return users;
-}, ['getUsers']);
+}
 
 export type GetUsersReturnType = Awaited<ReturnType<typeof getUsers>>;

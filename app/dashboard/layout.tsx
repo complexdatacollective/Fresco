@@ -1,27 +1,32 @@
-import { getAppSetting, requireAppNotExpired } from '~/queries/appSettings';
-import { requirePageAuth } from '~/utils/auth';
+import { type Metadata } from 'next';
+import { connection } from 'next/server';
+import { Suspense } from 'react';
+import { getAppSetting } from '~/queries/appSettings';
 import { NavigationBar } from './_components/NavigationBar';
 import UploadThingModal from './_components/UploadThingModal';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Network Canvas Fresco - Dashboard',
   description: 'Fresco.',
 };
 
-export const dynamic = 'force-dynamic';
-
-const Layout = async ({ children }: { children: React.ReactNode }) => {
-  await requireAppNotExpired();
-  await requirePageAuth();
-
-  const uploadThingToken = await getAppSetting('uploadThingToken');
+const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="tablet:gap-16 tablet:px-6 laptop:px-12 mb-10 flex max-h-screen flex-col gap-10 overflow-y-auto px-2 [scrollbar-gutter:stable_both-edges]">
+    <div className="tablet:gap-16 tablet:px-6 laptop:px-12 mb-10 flex flex-col gap-10 px-2 pb-10">
       <NavigationBar />
-      {!uploadThingToken && <UploadThingModal />}
+      <Suspense fallback={null}>
+        <UploadThingTokenGate />
+      </Suspense>
       {children}
     </div>
   );
 };
+
+async function UploadThingTokenGate() {
+  await connection();
+  const uploadThingToken = await getAppSetting('uploadThingToken');
+  if (!uploadThingToken) return <UploadThingModal />;
+  return null;
+}
 
 export default Layout;

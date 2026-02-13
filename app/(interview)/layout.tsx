@@ -1,5 +1,3 @@
-import '~/styles/interview.scss';
-
 export const metadata = {
   title: 'Network Canvas Fresco - Interview',
   description: 'Interview',

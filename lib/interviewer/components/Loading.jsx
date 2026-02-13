@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import PropTypes from 'prop-types';
 import { Spinner } from '~/lib/legacy-ui/components';
 
-const Loading = ({ message, className, small = false }) => (
+const Loading = ({ message, className = '', small = false }) => (
   <motion.div
     className={cx('loading', className)}
     key="loading"

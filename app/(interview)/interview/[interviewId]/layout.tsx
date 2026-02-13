@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, Suspense } from 'react';
 import SmallScreenOverlay from '../_components/SmallScreenOverlay';
 
 export default function InterviewSessionLayout({
@@ -8,7 +8,9 @@ export default function InterviewSessionLayout({
 }) {
   return (
     <>
-      <SmallScreenOverlay />
+      <Suspense fallback={null}>
+        <SmallScreenOverlay />
+      </Suspense>
       {children}
     </>
   );

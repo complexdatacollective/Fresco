@@ -1,6 +1,7 @@
 import 'server-only';
+import { cacheLife } from 'next/cache';
 import { stringify } from 'superjson';
-import { createCachedFunction } from '~/lib/cache';
+import { safeCacheTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 
 /**
@@ -19,11 +20,15 @@ export type GetInterviewsQuery = Awaited<
   ReturnType<typeof prisma_getInterviews>
 >;
 
-export const getInterviews = createCachedFunction(async () => {
+export async function getInterviews() {
+  'use cache';
+  cacheLife('max');
+  safeCacheTag('getInterviews');
+
   const interviews = await prisma_getInterviews();
   const safeInterviews = stringify(interviews);
   return safeInterviews;
-}, ['getInterviews']);
+}
 
 export type GetInterviewsReturnType = ReturnType<typeof getInterviews>;
 async function prisma_getInterviewsForExport(interviewIds: string[]) {
@@ -83,10 +88,7 @@ export const getInterviewById = async (interviewId: string) => {
     return null;
   }
   // We need to superjsonify the result, because we pass it to the client
-  // and it contains a Date object. We should look into if this could be
-  // implemented in the Prisma client instead, or the createCachedFunction
-  // helper (could be generalised to `createServerFunction`).
-  // return safeInterview;
+  // and it contains a Date object.
   return stringify({
     ...interview,
   });

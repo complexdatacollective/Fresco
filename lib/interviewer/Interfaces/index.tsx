@@ -1,17 +1,18 @@
 /* eslint-disable react/display-name */
 import { type StageType } from '@codaco/protocol-validation';
-import { Loader2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import Surface from '~/components/layout/Surface';
+import { Spinner } from '~/lib/legacy-ui/components';
 import Icon from '~/lib/legacy-ui/components/Icon';
 
 const StageLoading = () => (
-  <div className="flex h-full w-full items-center justify-center">
-    <Loader2 className="animate-spin" size={48} />
+  <div className="flex size-full items-center justify-center">
+    <Spinner size="lg" />
   </div>
 );
 
 const NotFoundInterface = ({ interfaceType }: { interfaceType: string }) => (
-  <div className="flex h-full w-full items-center justify-center">
+  <Surface>
     <div className="flex flex-col items-center">
       <Icon name="warning" />
       <h1 style={{ marginTop: '1rem' }}>
@@ -20,7 +21,7 @@ const NotFoundInterface = ({ interfaceType }: { interfaceType: string }) => (
         &quot; interface found.
       </h1>
     </div>
-  </div>
+  </Surface>
 );
 
 type InterfaceType = StageType | 'FinishSession';

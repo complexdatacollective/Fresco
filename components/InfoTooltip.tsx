@@ -9,9 +9,9 @@ type InfoTooltipProps = Omit<ComponentProps<typeof Popover>, 'children'> & {
   title: string;
   description:
     | string
-    | ((props: ComponentProps<'p'>) => ReactElement)
-    | ReactElement;
-  trigger?: ReactElement;
+    | ((props: ComponentProps<'p'>) => ReactElement<Record<string, unknown>>)
+    | ReactElement<Record<string, unknown>>;
+  trigger?: ReactElement<Record<string, unknown>>;
   sideOffset?: number;
 };
 
@@ -26,7 +26,7 @@ type InfoTooltipProps = Omit<ComponentProps<typeof Popover>, 'children'> & {
 export default function InfoTooltip({
   title,
   description,
-  trigger = <InfoIcon className="inline-block h-4 w-4" />,
+  trigger = <InfoIcon className="inline-block size-4" />,
   sideOffset = 10,
   ...rest
 }: InfoTooltipProps) {

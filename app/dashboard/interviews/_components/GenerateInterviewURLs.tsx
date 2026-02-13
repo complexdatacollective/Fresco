@@ -3,9 +3,14 @@
 import { FileUp } from 'lucide-react';
 import { use, useEffect, useState } from 'react';
 import superjson from 'superjson';
+import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '~/components/ui/popover';
 import { Skeleton } from '~/components/ui/skeleton';
-import Dialog from '~/lib/dialogs/Dialog';
 import SelectField from '~/lib/form/components/fields/Select/Styled';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import type {
@@ -33,7 +38,6 @@ export const GenerateInterviewURLs = ({
   const [selectedProtocol, setSelectedProtocol] =
     useState<(typeof protocols)[number]>();
 
-  // Only export interviews that are 1. incomplete and 2. belong to the selected protocol
   useEffect(() => {
     if (interviews) {
       setInterviewsToExport(
@@ -46,38 +50,27 @@ export const GenerateInterviewURLs = ({
     }
   }, [interviews, selectedProtocol]);
 
-  const [open, setOpen] = useState(false);
-
-  const handleOpenChange = () => {
-    setOpen(!open);
-  };
-
   return (
-    <>
-      <Button
-        disabled={interviews?.length === 0}
-        onClick={handleOpenChange}
-        icon={<FileUp />}
-        className={className}
-      >
-        Export Incomplete Interview URLs
-      </Button>
-      <Dialog
-        open={open}
-        closeDialog={handleOpenChange}
-        title="Generate URLs for Incomplete Interviews"
-        description="Generate a CSV that contains unique interview URLs for all incomplete interviews by protocol."
-        footer={
-          <>
-            <Button onClick={handleOpenChange}>Cancel</Button>
-            <ExportCSVInterviewURLs
-              protocol={selectedProtocol}
-              interviews={interviewsToExport}
-            />
-          </>
+    <Popover>
+      <PopoverTrigger
+        render={
+          <Button
+            disabled={interviews?.length === 0}
+            icon={<FileUp />}
+            className={className}
+            data-testid="export-incomplete-urls-button"
+          />
         }
       >
-        <div className="flex flex-col items-center justify-end gap-4">
+        Export Incomplete Interview URLs
+      </PopoverTrigger>
+      <PopoverContent>
+        <Paragraph>
+          Generate a CSV that contains unique interview URLs for all incomplete
+          interviews by protocol.
+        </Paragraph>
+
+        <div className="flex flex-col gap-4">
           {!protocols ? (
             <Skeleton className="h-10 w-full rounded" />
           ) : (
@@ -95,8 +88,12 @@ export const GenerateInterviewURLs = ({
               placeholder="Select a Protocol..."
             />
           )}
+          <ExportCSVInterviewURLs
+            protocol={selectedProtocol}
+            interviews={interviewsToExport}
+          />
         </div>
-      </Dialog>
-    </>
+      </PopoverContent>
+    </Popover>
   );
 };

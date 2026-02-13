@@ -10,8 +10,8 @@ const BooleanOption = ({
   selected = false,
   label,
   onClick,
-  customIcon,
-  negative,
+  customIcon = null,
+  negative = false,
 }) => {
   const [resizeListener, sizes] = useResizeAware();
 

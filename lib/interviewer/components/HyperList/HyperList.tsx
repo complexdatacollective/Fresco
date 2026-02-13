@@ -1,7 +1,6 @@
 import cx from 'classnames';
 import { AnimatePresence, motion } from 'motion/react';
-// @ts-expect-error - Next.js internal import
-import { renderToString } from 'next/dist/compiled/react-dom/cjs/react-dom-server-legacy.browser.production';
+import { renderToString } from 'react-dom/server';
 import React, { memo, useCallback, useContext, useMemo } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 // @ts-expect-error - Missing types for react-window
@@ -265,7 +264,6 @@ const HyperList = <
     newHiddenSizingEl.style.visibility = 'hidden';
 
     document.body.appendChild(newHiddenSizingEl);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     newHiddenSizingEl.innerHTML = renderToString(<SizeRenderer {...props} />);
     const height = newHiddenSizingEl.clientHeight;
     document.body.removeChild(newHiddenSizingEl);

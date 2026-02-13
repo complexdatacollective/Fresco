@@ -13,9 +13,12 @@ import type { KnipConfig } from 'knip';
 const config: KnipConfig = {
   project: ['**/*.{js,jsx,ts,tsx}', '**/*.scss'],
   ignore: [
-    // Tailwind plugins cannot be detected by knip
+    // Tailwind plugins loaded via @plugin in CSS cannot be detected by knip
     'styles/plugins/tailwind-motion-spring.ts',
     'styles/plugins/tailwind-elevation/index.ts',
+    'styles/plugins/tailwind-inset-surface/index.ts',
+    // SCSS files linked via @use/@forward directives that knip cannot resolve
+    'lib/legacy-ui/styles/**/*.scss',
   ],
   ignoreDependencies: [
     'sharp', // Used by next/image but not directly imported
@@ -24,6 +27,7 @@ const config: KnipConfig = {
     '@vitest/coverage-v8', // Dependency of chromatic falsely detected as unused
     '@tailwindcss/forms', // Used in globals.css but not detected as used
     'tailwindcss-animate', // Used in globals.css but not detected as used
+    '@prisma/client', // Used at runtime by Prisma generated client (imports @prisma/client/runtime/client)
   ],
   ignoreBinaries: [
     'docker-compose', // Should be installed by developers if needed, not a project dependency
@@ -36,10 +40,6 @@ const config: KnipConfig = {
 
     // Table helpers are part of the public test API used by future specs
     'tests/e2e/helpers/table.ts': ['exports'],
-
-    // Auth type is used in auth.d.ts for Lucia module augmentation (declare module 'lucia')
-    // Knip cannot detect usage in ambient module declarations
-    'utils/auth.ts': ['types'],
 
     // Pre-existing unused type exports (not related to e2e migration)
     'lib/interviewer/containers/Interfaces/FamilyTreeCensus/useDynamicFields.tsx':

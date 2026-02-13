@@ -97,7 +97,7 @@ const TypeScaleDemo = () => (
 );
 
 const meta = {
-  title: 'Design System/Type Scale',
+  title: 'Design System/Typography/Type Scale',
   component: TypeScaleDemo,
   parameters: {
     layout: 'fullscreen',

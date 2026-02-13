@@ -1,8 +1,18 @@
 import 'server-only';
-import { createCachedFunction } from '~/lib/cache';
+import { cacheLife } from 'next/cache';
+import { safeCacheTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 
-export const getSummaryStatistics = createCachedFunction(async () => {
+export async function getSummaryStatistics() {
+  'use cache';
+  cacheLife('max');
+  safeCacheTag([
+    'summaryStatistics',
+    'interviewCount',
+    'protocolCount',
+    'participantCount',
+  ]);
+
   const [interviewCount, protocolCount, participantCount] = await Promise.all([
     prisma.interview.count(),
     prisma.protocol.count({
@@ -16,9 +26,4 @@ export const getSummaryStatistics = createCachedFunction(async () => {
     protocolCount,
     participantCount,
   };
-}, [
-  'summaryStatistics',
-  'interviewCount',
-  'protocolCount',
-  'participantCount',
-]);
+}

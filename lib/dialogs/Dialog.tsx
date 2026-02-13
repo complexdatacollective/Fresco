@@ -213,7 +213,7 @@ const DialogFooter = ({
       layout
       className={cx(
         'tablet:flex-row flex-col',
-        'mt-4 flex justify-end gap-4',
+        'mt-6 flex justify-end gap-4',
         className,
       )}
       {...props}

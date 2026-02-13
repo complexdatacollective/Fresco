@@ -1,6 +1,6 @@
 'use client';
 
-import { wrap, type Remote } from 'comlink';
+import { releaseProxy, wrap, type Remote } from 'comlink';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   type FilterProperty,
@@ -72,8 +72,12 @@ export function useSearchWorker<T extends Record<string, unknown>>({
   const fuseOptionsRef = useRef(fuseOptions);
   fuseOptionsRef.current = fuseOptions;
 
+  const isUnmountedRef = useRef(false);
+
   // Initialize worker
   useEffect(() => {
+    isUnmountedRef.current = false;
+
     const worker = new Worker(
       new URL('../filtering/search.worker.ts', import.meta.url),
       { type: 'module' },
@@ -82,8 +86,12 @@ export function useSearchWorker<T extends Record<string, unknown>>({
     workerRef.current = worker;
     apiRef.current = wrap<SearchEngine>(worker);
 
-    // Cleanup on unmount
+    // Cleanup on unmount - release Comlink proxy before terminating worker
     return () => {
+      isUnmountedRef.current = true;
+      if (apiRef.current) {
+        apiRef.current[releaseProxy]();
+      }
       worker.terminate();
       workerRef.current = null;
       apiRef.current = null;
@@ -93,13 +101,19 @@ export function useSearchWorker<T extends Record<string, unknown>>({
 
   // Initialize/update index when items change
   useEffect(() => {
+    let cancelled = false;
+
     const initIndex = async () => {
       if (!apiRef.current || items.length === 0) {
-        setIsReady(items.length === 0);
+        if (!cancelled && !isUnmountedRef.current) {
+          setIsReady(items.length === 0);
+        }
         return;
       }
 
-      setIsIndexing(true);
+      if (!cancelled && !isUnmountedRef.current) {
+        setIsIndexing(true);
+      }
       try {
         // Serialize items for worker (add _key for tracking)
         const serializedItems = items.map((item) => ({
@@ -112,18 +126,28 @@ export function useSearchWorker<T extends Record<string, unknown>>({
           fuseKeysRef.current,
           fuseOptionsRef.current,
         );
-        setIsReady(true);
+        if (!cancelled && !isUnmountedRef.current) {
+          setIsReady(true);
+        }
+      } catch {
+        // Worker was terminated during init - ignore
       } finally {
-        setIsIndexing(false);
+        if (!cancelled && !isUnmountedRef.current) {
+          setIsIndexing(false);
+        }
       }
     };
 
     void initIndex();
+
+    return () => {
+      cancelled = true;
+    };
   }, [items, keyExtractor]);
 
   // Search function
   const search = useCallback(async (query: string, minQueryLength = 1) => {
-    if (!apiRef.current) {
+    if (!apiRef.current || isUnmountedRef.current) {
       return {
         matchingKeys: new Set<Key>(),
         matchCount: 0,
@@ -131,13 +155,22 @@ export function useSearchWorker<T extends Record<string, unknown>>({
       };
     }
 
-    const result = await apiRef.current.search(query, minQueryLength);
+    try {
+      const result = await apiRef.current.search(query, minQueryLength);
 
-    return {
-      matchingKeys: new Set<Key>(result.matchingKeys),
-      matchCount: result.matchCount,
-      scores: new Map<Key, number>(result.scores),
-    };
+      return {
+        matchingKeys: new Set<Key>(result.matchingKeys),
+        matchCount: result.matchCount,
+        scores: new Map<Key, number>(result.scores),
+      };
+    } catch {
+      // Worker was terminated during search - return empty results
+      return {
+        matchingKeys: new Set<Key>(),
+        matchCount: 0,
+        scores: new Map<Key, number>(),
+      };
+    }
   }, []);
 
   return {

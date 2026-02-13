@@ -69,7 +69,10 @@ test.describe('Participants Page', () => {
     test('bulk select and deselect', async ({ page }) => {
       await waitForTable(page, { minRows: 1 });
       await selectAllRows(page);
-      const headerCheckbox = page.locator('thead').getByRole('checkbox');
+      const headerCheckbox = page
+        .getByTestId('data-table')
+        .locator('thead')
+        .getByRole('checkbox');
       await expect(headerCheckbox).toBeChecked();
       await selectAllRows(page);
       await expect(headerCheckbox).not.toBeChecked();
@@ -77,6 +80,19 @@ test.describe('Participants Page', () => {
 
     test('import participants button visible', async ({ page }) => {
       await expect(page.getByRole('button', { name: /import/i })).toBeVisible();
+    });
+
+    test('export participation urls popover opens', async ({ page }) => {
+      await waitForTable(page, { minRows: 1 });
+      const trigger = page.getByTestId('export-participation-urls-button');
+      await expect(trigger).toBeVisible();
+      await trigger.click();
+
+      const popover = page.getByRole('dialog');
+      await expect(popover).toBeVisible();
+      await expect(
+        popover.getByRole('button', { name: /generate/i }),
+      ).toBeVisible();
     });
 
     test('visual snapshot', async ({ page, capturePage }) => {
@@ -152,7 +168,13 @@ test.describe('Participants Page', () => {
         .getByRole('button', { name: /permanently delete/i })
         .waitFor({ state: 'visible' });
       await page.getByRole('button', { name: /permanently delete/i }).click();
-      await page.getByRole('dialog').waitFor({ state: 'hidden' });
+
+      // Wait for the table to reflect the deletion rather than the dialog
+      // close animation, which can race with the RSC re-fetch
+      await page
+        .getByTestId('data-table')
+        .getByText('No results.')
+        .waitFor({ state: 'visible' });
 
       const count = await getTableRowCount(page);
       expect(count).toBe(0);
@@ -173,6 +195,12 @@ test.describe('Participants Page', () => {
         .getByRole('button', { name: /permanently delete/i })
         .waitFor({ state: 'visible' });
       await page.getByRole('button', { name: /permanently delete/i }).click();
+
+      // Wait for the deletion to complete and any dialogs to fully close
+      await page
+        .getByTestId('data-table')
+        .getByText('No results.')
+        .waitFor({ state: 'visible' });
       await page.getByRole('dialog').waitFor({ state: 'hidden' });
 
       await capturePage('participants-empty-state');

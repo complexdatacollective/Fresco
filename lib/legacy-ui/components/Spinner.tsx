@@ -1,3 +1,5 @@
+'use client';
+
 import { motion, useAnimationControls } from 'motion/react';
 import { useEffect, useRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';

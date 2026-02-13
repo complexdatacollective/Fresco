@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { hash } from 'ohash';
 import { addEvent } from '~/actions/activityFeed';
 import { env } from '~/env';
+import { safeRevalidateTag } from '~/lib/cache';
 import { MIN_ARCHITECT_VERSION_FOR_PREVIEW } from '~/fresco.config';
 import trackEvent from '~/lib/analytics';
 import { prisma } from '~/lib/db';
@@ -194,6 +195,7 @@ export async function POST(
         });
 
         void addEvent('Preview Mode', `Preview protocol upload initiated`);
+        safeRevalidateTag('activityFeed');
 
         // If no new assets to upload, return ready immediately
         if (presignedUrls.length === 0) {
@@ -238,6 +240,7 @@ export async function POST(
         });
 
         void addEvent('Preview Mode', `Preview protocol upload completed`);
+        safeRevalidateTag('activityFeed');
 
         const url = new URL(env.PUBLIC_URL ?? req.nextUrl.clone());
         url.pathname = `/preview/${protocol.id}`;
@@ -274,6 +277,7 @@ export async function POST(
           'Protocol Uninstalled',
           `Preview protocol "${protocol.name}" was aborted and removed`,
         );
+        safeRevalidateTag('activityFeed');
 
         const response: AbortResponse = {
           status: 'removed',

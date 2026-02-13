@@ -1,6 +1,7 @@
 import 'server-only';
+import { cacheLife } from 'next/cache';
 import { stringify } from 'superjson';
-import { createCachedFunction } from '~/lib/cache';
+import { safeCacheTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 
 async function prisma_getParticipants() {
@@ -18,11 +19,15 @@ export type GetParticipantsQuery = Awaited<
   ReturnType<typeof prisma_getParticipants>
 >;
 
-export const getParticipants = createCachedFunction(async () => {
+export async function getParticipants() {
+  'use cache';
+  cacheLife('max');
+  safeCacheTag('getParticipants');
+
   const participants = await prisma_getParticipants();
   const safeParticipants = stringify(participants);
   return safeParticipants;
-}, ['getParticipants']);
+}
 
 type GetParticipantsType = typeof getParticipants;
 export type GetParticipantsReturnType = ReturnType<GetParticipantsType>;

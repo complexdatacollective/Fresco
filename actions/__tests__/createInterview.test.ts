@@ -16,8 +16,9 @@ vi.mock('react', async (importOriginal) => {
 
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
-  unstable_cache: <T extends (...args: unknown[]) => unknown>(fn: T) => fn,
-  unstable_noStore: vi.fn(),
+  cacheTag: vi.fn(),
+  updateTag: vi.fn(),
+  revalidateTag: vi.fn(),
 }));
 
 vi.mock('next/headers', () => ({
@@ -63,9 +64,9 @@ vi.mock('~/queries/appSettings', () => ({
 }));
 
 vi.mock('~/lib/cache', () => ({
+  safeUpdateTag: vi.fn(),
   safeRevalidateTag: mockSafeRevalidateTag,
-  createCachedFunction: <T extends (...args: unknown[]) => unknown>(fn: T) =>
-    fn,
+  safeCacheTag: vi.fn(),
 }));
 
 vi.mock('~/actions/activityFeed', () => ({

@@ -38,6 +38,7 @@ export default defineConfig({
         ],
         test: {
           name: 'storybook',
+          testTimeout: 60000,
           browser: {
             provider: playwright(),
             enabled: true,

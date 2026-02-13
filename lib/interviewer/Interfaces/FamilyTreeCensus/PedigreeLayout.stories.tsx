@@ -1,6 +1,7 @@
 import type { Meta, StoryFn } from '@storybook/nextjs-vite';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type JSX } from 'react';
 import { useStore } from 'zustand';
+import { type FamilyTreeNodeType } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
 import { FAMILY_TREE_CONFIG } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/config';
 import { type ConnectorRenderData } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/pedigreeAdapter';
 import {
@@ -8,7 +9,6 @@ import {
   type Edge,
   type FamilyTreeStoreApi,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
-import { type FamilyTreeNodeType } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
 import Node from '~/lib/legacy-ui/components/Node';
 import {
   type LineSegment,
@@ -191,7 +191,7 @@ function PedigreeVisualization({
   }
 
   return (
-    <div className="relative h-full w-full overflow-auto bg-[#1a1a2e] p-8">
+    <div className="relative size-full overflow-auto bg-[#1a1a2e] p-8">
       <div
         className="relative"
         style={{ minWidth: svgWidth, minHeight: svgHeight }}
