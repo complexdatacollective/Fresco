@@ -529,7 +529,7 @@ This custom variant lets you target only elements with the readonly attribute.
   }
 
   body {
-    @apply bg-background text-text publish-colors font-body overflow-y-auto [scrollbar-gutter:stable_both-edges];
+    @apply bg-background text-text publish-colors font-body;
     position: relative; /* https://base-ui.com/react/overview/quick-start#ios-26-safari */
   }
 

@@ -110,14 +110,14 @@ function PopoverContent({
                 <MotionSurface
                   level="popover"
                   elevation="none"
+                  noContainer
                   className={cx(
-                    '@container-normal max-w-(--available-width) overflow-visible text-sm shadow-xl',
+                    'max-w-(--available-width) overflow-visible shadow-xl',
                     className,
                   )}
                   initial={{ opacity: 0, scale: 0.96 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.96 }}
-                  noContainer
                   transition={{ type: 'spring', duration: 0.5 }}
                 />
               }
