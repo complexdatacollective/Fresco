@@ -48,7 +48,7 @@ jobs:
       - name: Build and deploy preview
         id: deploy
         run: |
-          netlify deploy --build --alias="pr-${{ github.event.number }}" --context branch:${{ steps.branch-name.outputs.current_branch }} --json > netlify-deploy.json
+          netlify deploy --build --alias="pr-${{ github.event.number }}" --context branch:${{ steps.branch-name.outputs.current_branch }} --json | tee netlify-deploy.json
           echo "deploy_url=$(jq -r '.deploy_url' netlify-deploy.json)" >> "$GITHUB_OUTPUT"
 
       - name: Comment on Pull Request
