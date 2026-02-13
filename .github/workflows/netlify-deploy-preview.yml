@@ -45,10 +45,13 @@ jobs:
           echo "DATABASE_URL=${{ steps.create-branch.outputs.db_url_pooled }}" > .env
           echo "DATABASE_URL_UNPOOLED=${{ steps.create-branch.outputs.db_url }}" >> .env
 
-      - name: Build and deploy preview
+      - name: Build
+        run: netlify build --context branch:${{ steps.branch-name.outputs.current_branch }}
+
+      - name: Deploy preview
         id: deploy
         run: |
-          netlify deploy --build --debug --alias="pr-${{ github.event.number }}" --context branch:${{ steps.branch-name.outputs.current_branch }} --json > netlify-deploy.json
+          netlify deploy --alias="pr-${{ github.event.number }}" --json > netlify-deploy.json
           echo "deploy_url=$(jq -r '.deploy_url' netlify-deploy.json)" >> "$GITHUB_OUTPUT"
 
       - name: Comment on Pull Request
