@@ -6,16 +6,7 @@ import {
   LoggerProvider,
 } from '@opentelemetry/sdk-logs';
 import type { Instrumentation } from 'next';
-import { PostHog } from 'posthog-node';
 import { APP_NAME, POSTHOG_HOST, POSTHOG_KEY } from './fresco.config';
-import { getAppSetting } from './queries/appSettings';
-
-let posthog: PostHog | null = null;
-
-function getPostHog() {
-  posthog ??= new PostHog(POSTHOG_KEY, { host: POSTHOG_HOST });
-  return posthog;
-}
 
 // Create LoggerProvider outside register() so it can be exported and flushed in route handlers
 export const loggerProvider = new LoggerProvider({
@@ -45,21 +36,10 @@ export const onRequestError: Instrumentation.onRequestError = async (
   request,
   context,
 ) => {
-  const installationId = await getAppSetting('installationId');
+  // eslint-disable-next-line no-process-env
+  if (process.env.NEXT_RUNTIME !== 'nodejs') return;
 
-  if (!installationId) return;
-
-  const ph = getPostHog();
-
-  ph.captureException(err, 'server', {
-    app: APP_NAME,
-    installationId,
-    request_path: request.path,
-    request_method: request.method,
-    route_path: context.routePath,
-    route_type: context.routeType,
-    render_source: context.renderSource,
-  });
-
-  await ph.flush();
+  const { handleRequestError } =
+    await import('./lib/analytics/handleRequestError');
+  await handleRequestError(err, request, context);
 };
