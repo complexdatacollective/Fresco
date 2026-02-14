@@ -1,4 +1,5 @@
 import { type Metadata } from 'next';
+import { Suspense } from 'react';
 import Providers from '~/components/Providers';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import { env } from '~/env';
@@ -12,19 +13,27 @@ export const metadata: Metadata = {
   description: 'Fresco.',
 };
 
-async function RootLayout({ children }: { children: React.ReactNode }) {
+async function Analytics() {
   const [installationId, disableAnalytics] = await Promise.all([
     getAppSetting('installationId'),
     getDisableAnalytics(),
   ]);
 
   return (
+    <PostHogIdentifier
+      installationId={installationId}
+      disableAnalytics={disableAnalytics}
+    />
+  );
+}
+
+async function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
     <html lang="en">
       <body className="bg-background publish-colors antialiased">
-        <PostHogIdentifier
-          installationId={installationId}
-          disableAnalytics={disableAnalytics}
-        />
+        <Suspense>
+          <Analytics />
+        </Suspense>
         <div className="root h-dvh overflow-y-auto [scrollbar-gutter:stable_both-edges]">
           <Providers disableAnimations={env.CI ?? false}>{children}</Providers>
           {env.SANDBOX_MODE && (

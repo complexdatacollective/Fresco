@@ -8,18 +8,18 @@ export default function PostHogIdentifier({
   installationId,
   disableAnalytics,
 }: {
-  installationId: string;
+  installationId?: string;
   disableAnalytics: boolean;
 }) {
   useEffect(() => {
+    if (!installationId) return;
+
     posthog.register({
       app: APP_NAME,
       installation_id: installationId,
     });
 
-    posthog.identify(
-      installationId, // Replace 'distinct_id' with your user's unique identifier
-    );
+    posthog.identify(installationId);
   }, [installationId]);
 
   useEffect(() => {

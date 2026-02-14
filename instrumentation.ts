@@ -45,8 +45,11 @@ export const onRequestError: Instrumentation.onRequestError = async (
   request,
   context,
 ) => {
-  const ph = getPostHog();
   const installationId = await getAppSetting('installationId');
+
+  if (!installationId) return;
+
+  const ph = getPostHog();
 
   ph.captureException(err, 'server', {
     app: APP_NAME,

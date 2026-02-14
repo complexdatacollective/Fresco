@@ -10,6 +10,8 @@ export async function trackServerEvent(
   try {
     const installationId = await getAppSetting('installationId');
 
+    if (!installationId) return;
+
     posthog.capture({
       distinctId: installationId,
       event,

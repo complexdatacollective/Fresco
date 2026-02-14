@@ -8,6 +8,8 @@ export async function trackServerException(
 ) {
   const installationId = await getAppSetting('installationId');
 
+  if (!installationId) return;
+
   posthog.captureException(error, installationId, {
     app: APP_NAME,
     installation_id: installationId,
