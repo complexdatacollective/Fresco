@@ -1,4 +1,5 @@
 import { Loader2 } from 'lucide-react';
+import posthog from 'posthog-js';
 import { useState } from 'react';
 import superjson from 'superjson';
 import {
@@ -12,7 +13,6 @@ import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
 import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
-import trackEvent from '~/lib/analytics';
 import type { Interview } from '~/lib/db/generated/client';
 import Dialog from '~/lib/dialogs/Dialog';
 import {
@@ -112,32 +112,16 @@ export const ExportInterviewsDialog = ({
         type: 'destructive',
       });
 
-      void trackEvent({
-        type: 'Error',
-        name: 'FailedToExportInterviews',
-        message: e.message,
-        stack: e.stack,
-        metadata: {
-          error: e.name,
-          string: e.toString(),
-          path: '/dashboard/interviews/_components/ExportInterviewsDialog.tsx',
-        },
+      posthog.captureException(e, {
+        path: '/dashboard/interviews/_components/ExportInterviewsDialog.tsx',
       });
     } finally {
       if (exportFilename) {
         // Attempt to delete the zip file from UploadThing.
         void deleteZipFromUploadThing(exportFilename).catch((error) => {
           const e = ensureError(error);
-          void trackEvent({
-            type: 'Error',
-            name: 'FailedToDeleteTempFile',
-            message: e.message,
-            stack: e.stack,
-            metadata: {
-              error: e.name,
-              string: e.toString(),
-              path: '/dashboard/interviews/_components/ExportInterviewsDialog.tsx',
-            },
+          posthog.captureException(e, {
+            path: '/dashboard/interviews/_components/ExportInterviewsDialog.tsx',
           });
 
           add({

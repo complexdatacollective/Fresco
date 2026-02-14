@@ -22,7 +22,6 @@ export const env = createEnv({
   client: {},
   shared: {
     PUBLIC_URL: z.string().url().optional(),
-    INSTALLATION_ID: z.string().optional(),
     DISABLE_ANALYTICS: z.stringbool().optional(),
     /**
      * DISABLE_NEXT_CACHE Environment Variable
@@ -58,7 +57,6 @@ export const env = createEnv({
     PUBLIC_URL: process.env.PUBLIC_URL,
     DISABLE_ANALYTICS: process.env.DISABLE_ANALYTICS,
     DISABLE_NEXT_CACHE: process.env.DISABLE_NEXT_CACHE,
-    INSTALLATION_ID: process.env.INSTALLATION_ID,
     SANDBOX_MODE: process.env.SANDBOX_MODE,
     PREVIEW_MODE: process.env.PREVIEW_MODE,
     APP_VERSION: process.env.APP_VERSION,

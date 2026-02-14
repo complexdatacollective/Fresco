@@ -2,7 +2,8 @@ import { cookies } from 'next/headers';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createInterview } from '~/actions/interviews';
 import { env } from '~/env';
-import trackEvent from '~/lib/analytics';
+import { trackServerEvent } from '~/lib/analytics/trackServerEvent';
+import { trackServerException } from '~/lib/analytics/trackServerException';
 import { getAppSetting } from '~/queries/appSettings';
 
 const handler = async (
@@ -55,19 +56,15 @@ const handler = async (
   });
 
   if (error) {
-    void trackEvent({
-      type: 'Error',
-      name: error,
-      message: 'Failed to create interview',
-      metadata: {
-        path: '/onboard/[protocolId]/route.ts',
-      },
-    });
-
     if (errorType === 'no-anonymous-recruitment') {
       url.pathname = '/onboard/no-anonymous-recruitment';
       return NextResponse.redirect(url);
     }
+
+    void trackServerException(new Error(error), {
+      path: '/onboard/[protocolId]/route.ts',
+      errorType,
+    });
 
     url.pathname = '/onboard/error';
     return NextResponse.redirect(url);
@@ -80,11 +77,8 @@ const handler = async (
     }...`,
   );
 
-  void trackEvent({
-    type: 'InterviewStarted',
-    metadata: {
-      usingAnonymousParticipant: !participantIdentifier,
-    },
+  void trackServerEvent('InterviewStarted', {
+    usingAnonymousParticipant: !participantIdentifier,
   });
 
   // Redirect to the interview

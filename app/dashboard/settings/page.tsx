@@ -5,8 +5,9 @@ import DisableAnalyticsSwitch from '~/components/DisableAnalyticsSwitch';
 import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch';
 import PreviewModeAuthSwitch from '~/components/PreviewModeAuthSwitch';
 import PreviewModeSwitch from '~/components/PreviewModeSwitch';
-import SettingsCard from '~/components/settings/SettingsCard';
-import { SettingsCardSkeleton } from '~/components/settings/SettingsCard';
+import SettingsCard, {
+  SettingsCardSkeleton,
+} from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
 import SettingsNavigation, {
   type SettingsSection,
@@ -23,7 +24,6 @@ import { env } from '~/env';
 import { getApiTokens } from '~/queries/apiTokens';
 import {
   getAppSetting,
-  getInstallationId,
   getPreviewMode,
   requireAppNotExpired,
 } from '~/queries/appSettings';
@@ -108,7 +108,7 @@ async function SettingsContent() {
     previewMode,
     users,
   ] = await Promise.all([
-    getInstallationId(),
+    getAppSetting('installationId'),
     getAppSetting('disableSmallScreenOverlay'),
     getAppSetting('uploadThingToken'),
     getPreviewMode(),
@@ -141,10 +141,7 @@ async function SettingsContent() {
               label="Installation ID"
               description="This is the unique identifier for your installation of Fresco. This ID is used to track analytics data and for other internal purposes."
             >
-              <UpdateInstallationId
-                installationId={installationId ?? undefined}
-                readOnly={!!env.INSTALLATION_ID}
-              />
+              <UpdateInstallationId installationId={installationId} />
             </SettingsField>
             <SettingsField
               label="UploadThing API Key"

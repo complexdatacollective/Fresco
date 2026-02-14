@@ -1,6 +1,9 @@
 export const PROTOCOL_EXTENSION = '.netcanvas';
 export const APP_SUPPORTED_SCHEMA_VERSIONS = [7, 8];
 export const MIN_ARCHITECT_VERSION_FOR_PREVIEW = '7.0.1';
+export const POSTHOG_KEY = 'phc_OThPUolJumHmf142W78TKWtjoYYAxGlF0ZZmhcV7J3c';
+export const POSTHOG_HOST = 'https://ph-proxy.networkcanvas.com';
+export const APP_NAME = 'Fresco';
 
 // If unconfigured, the app will shut down after 2 hours (7200000 ms)
 export const UNCONFIGURED_TIMEOUT = 7200000;

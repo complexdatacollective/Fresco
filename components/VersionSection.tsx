@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import Link from '~/components/ui/Link';
 import { env } from '~/env';
-import trackEvent from '~/lib/analytics';
+import { trackServerException } from '~/lib/analytics/trackServerException';
 import { ensureError } from '~/utils/ensureError';
 import { getSemverUpdateType, semverSchema } from '~/utils/semVer';
 import SettingsCard from './settings/SettingsCard';
@@ -63,11 +63,7 @@ async function checkForUpdate() {
     };
   } catch (e) {
     const error = ensureError(e);
-    void trackEvent({
-      type: 'Error',
-      message: error.message,
-      name: 'VersionSection',
-    });
+    void trackServerException(error);
 
     return {
       error: true,

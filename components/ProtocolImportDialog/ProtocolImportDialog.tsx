@@ -118,7 +118,7 @@ export default function ProtocolImportDialog() {
                 <div className="mb-6 flex items-start justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <div className="bg-primary/10 flex h-14 w-14 items-center justify-center rounded-full">
-                      <FileDown className="text-primary h-7 w-7" />
+                      <FileDown className="text-primary size-7" />
                     </div>
                     <div>
                       <Heading level="h3" margin="none">

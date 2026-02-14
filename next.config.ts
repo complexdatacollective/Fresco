@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 import ChildProcess from 'node:child_process';
 import { createRequire } from 'node:module';
+import { withPostHogConfig } from '@posthog/nextjs-config';
 import './env.js';
 import pkg from './package.json' with { type: 'json' };
 
@@ -50,5 +51,35 @@ const config: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  rewrites: () => [
+    {
+      source: '/ingest/static/:path*',
+      destination: 'https://ph-proxy.networkcanvas.com/static/:path*',
+    },
+    {
+      source: '/ingest/decide',
+      destination: 'https://ph-proxy.networkcanvas.com/decide',
+    },
+    {
+      source: '/ingest/:path*',
+      destination: 'https://ph-proxy.networkcanvas.com/:path*',
+    },
+  ],
+  skipTrailingSlashRedirect: true,
 };
-export default config;
+
+// eslint-disable-next-line no-process-env
+const posthogPersonalApiKey = process.env.POSTHOG_PERSONAL_API_KEY;
+
+export default posthogPersonalApiKey
+  ? withPostHogConfig(config, {
+      personalApiKey: posthogPersonalApiKey,
+      host: 'https://us.posthog.com',
+      sourcemaps: {
+        enabled: true,
+        releaseName: 'fresco',
+        releaseVersion: `v${pkg.version}`,
+        deleteAfterUpload: true,
+      },
+    })
+  : config;

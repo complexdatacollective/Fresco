@@ -5,7 +5,8 @@ import { createId } from '@paralleldrive/cuid2';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import superjson from 'superjson';
-import trackEvent from '~/lib/analytics';
+import { trackServerEvent } from '~/lib/analytics/trackServerEvent';
+import { trackServerException } from '~/lib/analytics/trackServerException';
 import { safeRevalidateTag, safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { type Interview } from '~/lib/db/generated/client';
@@ -133,14 +134,11 @@ export const exportSessions = async (
       .then(archive)
       .then(uploadZipToUploadThing);
 
-    void trackEvent({
-      type: 'DataExported',
-      metadata: {
-        status: result.status,
-        sessions: interviewIds.length,
-        exportOptions,
-        result: result,
-      },
+    void trackServerEvent('DataExported', {
+      status: result.status,
+      sessions: interviewIds.length,
+      exportOptions,
+      result: result,
     });
 
     safeUpdateTag('getInterviews');
@@ -150,15 +148,7 @@ export const exportSessions = async (
     // eslint-disable-next-line no-console
     console.error(error);
     const e = ensureError(error);
-    void trackEvent({
-      type: 'Error',
-      name: e.name,
-      message: e.message,
-      stack: e.stack,
-      metadata: {
-        path: '~/actions/interviews.ts',
-      },
-    });
+    void trackServerException(error, { path: '~/actions/interviews.ts' });
 
     return {
       status: 'error',
@@ -248,15 +238,7 @@ export async function createInterview(data: CreateInterview) {
   } catch (error) {
     const e = ensureError(error);
 
-    void trackEvent({
-      type: 'Error',
-      name: e.name,
-      message: e.message,
-      stack: e.stack,
-      metadata: {
-        path: '/routers/interview.ts',
-      },
-    });
+    void trackServerException(e, { path: '/routers/interview.ts' });
 
     return {
       errorType: e.message,
@@ -286,12 +268,9 @@ export async function finishInterview(interviewId: Interview['id']) {
       JSON.stringify(updatedInterview.network),
     ) as NcNetwork;
 
-    void trackEvent({
-      type: 'InterviewCompleted',
-      metadata: {
-        nodeCount: network?.nodes?.length ?? 0,
-        edgeCount: network?.edges?.length ?? 0,
-      },
+    void trackServerEvent('InterviewCompleted', {
+      nodeCount: network?.nodes?.length ?? 0,
+      edgeCount: network?.edges?.length ?? 0,
     });
 
     (await cookies()).set(updatedInterview.protocolId, 'completed');
@@ -303,6 +282,7 @@ export async function finishInterview(interviewId: Interview['id']) {
 
     return { error: null };
   } catch (error) {
+    void trackServerException(error, { path: '~/actions/interviews.ts' });
     return { error: 'Failed to finish interview' };
   }
 }

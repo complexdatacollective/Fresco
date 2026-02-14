@@ -42,7 +42,7 @@ export const appSettingPreprocessedSchema = appSettingsSchema.extend({
   previewMode: z.preprocess(parseBoolean, z.boolean().default(false)),
   previewModeRequireAuth: z.preprocess(parseBoolean, z.boolean().default(true)),
   uploadThingToken: z.string().optional(),
-  installationId: z.string().optional(),
+  installationId: z.string(),
 });
 
 // Custom parser for UPLOADTHING_TOKEN to remove token name and quotes

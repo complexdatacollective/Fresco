@@ -13,7 +13,7 @@ import {
   insertProtocol,
 } from '~/actions/protocols';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
-import trackEvent from '~/lib/analytics';
+import posthog from 'posthog-js';
 import { useProtocolImportStoreApi } from '~/lib/protocol-import/useProtocolImportStore';
 import {
   validateAndMigrateProtocol,
@@ -205,12 +205,7 @@ export const useProtocolImport = () => {
         throw new DatabaseError(result.error, result.errorDetails);
       }
 
-      void trackEvent({
-        type: 'ProtocolInstalled',
-        metadata: {
-          protocol: fileName,
-        },
-      });
+      posthog.capture('ProtocolInstalled', { protocol: fileName });
 
       // Phase: Complete
       state.updateJobPhase(jobId, 'complete');
@@ -219,14 +214,8 @@ export const useProtocolImport = () => {
     } catch (e) {
       const error = ensureError(e);
 
-      void trackEvent({
-        type: 'Error',
-        name: error.name,
-        message: error.message,
-        stack: error.stack,
-        metadata: {
-          path: '/hooks/useProtocolImport.tsx',
-        },
+      posthog.captureException(error, {
+        path: '/hooks/useProtocolImport.tsx',
       });
 
       state.setJobError(jobId, error.message);

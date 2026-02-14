@@ -1,18 +1,30 @@
+import { type Metadata } from 'next';
 import Providers from '~/components/Providers';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import { env } from '~/env';
+import PostHogIdentifier from '~/lib/analytics/PostHogIdentifier';
+import { getAppSetting, getDisableAnalytics } from '~/queries/appSettings';
 import '~/styles/globals.css';
 import '~/styles/themes/default.css';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Network Canvas Fresco',
   description: 'Fresco.',
 };
 
-function RootLayout({ children }: { children: React.ReactNode }) {
+async function RootLayout({ children }: { children: React.ReactNode }) {
+  const [installationId, disableAnalytics] = await Promise.all([
+    getAppSetting('installationId'),
+    getDisableAnalytics(),
+  ]);
+
   return (
     <html lang="en">
       <body className="bg-background publish-colors antialiased">
+        <PostHogIdentifier
+          installationId={installationId}
+          disableAnalytics={disableAnalytics}
+        />
         <div className="root h-dvh overflow-y-auto [scrollbar-gutter:stable_both-edges]">
           <Providers disableAnimations={env.CI ?? false}>{children}</Providers>
           {env.SANDBOX_MODE && (
