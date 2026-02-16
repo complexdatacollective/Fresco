@@ -78,7 +78,7 @@ const NodeList = memo(
 
     // Styling classes including drop state styling via data attributes
     const containerClasses = cx(
-      'h-full w-full grow',
+      'm-0 size-full grow before:rounded',
       'transition-colors duration-300',
       // data-drop-target-valid corresponds to willAccept
       'data-[drop-target-valid=true]:bg-success/30',
@@ -93,7 +93,7 @@ const NodeList = memo(
         items={items}
         keyExtractor={keyExtractor}
         layout={layout}
-        renderItem={Node}
+        renderItem={(node) => <Node {...node} size={nodeSize} />}
         dragAndDropHooks={(accepts ?? onDrop) ? dragAndDropHooks : undefined}
         className={containerClasses}
         animate={animate}

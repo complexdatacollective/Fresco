@@ -10,7 +10,7 @@ import { useNodeLabel } from '../Interfaces/Anonymisation/useNodeLabel';
 type NodeProps = NcNode & Omit<React.ComponentProps<typeof UINode>, 'type'>;
 
 const Node = memo(
-  forwardRef<React.ElementRef<typeof UINode>, NodeProps>(
+  forwardRef<React.ComponentRef<typeof UINode>, NodeProps>(
     (props: NodeProps, ref) => {
       const color = useSelector(getNodeColorSelector);
       const label = useNodeLabel(props);

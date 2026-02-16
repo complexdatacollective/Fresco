@@ -57,7 +57,6 @@ const Panel = ({
     <Surface
       className={panelClasses}
       elevation="high"
-      level={2}
       spacing="none"
       noContainer
     >
