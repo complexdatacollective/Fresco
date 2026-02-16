@@ -22,7 +22,7 @@ export default function Icon({ name, ...props }: IconProps) {
   // Check custom icons first
   if (isCustomIcon(name)) {
     const CustomIcon = customIcons[name];
-    return <CustomIcon {...props} />;
+    return <CustomIcon className="size-32" name={name} {...props} />;
   }
 
   // Fall back to Lucide icons

@@ -1,35 +1,11 @@
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
-import { motion } from 'motion/react';
-import { memo, useCallback, useMemo, type ReactNode } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { Collection } from '~/lib/collection/components/Collection';
 import { useDragAndDrop } from '~/lib/collection/dnd/useDragAndDrop';
 import { InlineGridLayout } from '~/lib/collection/layout/InlineGridLayout';
-import { type ItemProps } from '~/lib/collection/types';
 import { type DropCallback } from '~/lib/dnd/types';
 import { cx } from '~/utils/cva';
-import { MotionNode } from './Node';
-
-/**
- * @deprecated Use Collection's built-in animations instead
- */
-export const NodeTransition = ({
-  children,
-  delay,
-  exit = false,
-}: {
-  children: ReactNode;
-  delay: number;
-  exit?: boolean;
-}) => (
-  <motion.div
-    layout
-    initial={{ opacity: 0, y: '20%' }}
-    animate={{ opacity: 1, y: 0, scale: 1, transition: { delay } }}
-    exit={{ opacity: 0, scale: 0, transition: { duration: exit ? 0.4 : 0 } }}
-  >
-    {children}
-  </motion.div>
-);
+import Node from './Node';
 
 /**
  * @deprecated Use Collection animations instead
@@ -95,31 +71,6 @@ const NodeList = memo(
       },
     });
 
-    const renderItem = useCallback(
-      (node: NcNode, itemProps: ItemProps) => {
-        // Extract NcNode type to avoid passing it to MotionNode
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { type, ...safeNodeProps } = node;
-
-        // Cast itemProps to match button element types
-        // The Collection provides HTMLElement handlers, but Node is a button
-        const buttonProps = itemProps as unknown as Omit<
-          React.ComponentProps<typeof MotionNode>,
-          'size' | 'onClick'
-        >;
-
-        return (
-          <MotionNode
-            {...safeNodeProps}
-            {...buttonProps}
-            size={nodeSize}
-            onClick={() => onItemClick?.(node)}
-          />
-        );
-      },
-      [nodeSize, onItemClick],
-    );
-
     const keyExtractor = useCallback(
       (node: NcNode) => node[entityPrimaryKeyProperty],
       [],
@@ -127,6 +78,7 @@ const NodeList = memo(
 
     // Styling classes including drop state styling via data attributes
     const containerClasses = cx(
+      'h-full w-full grow',
       'transition-colors duration-300',
       // data-drop-target-valid corresponds to willAccept
       'data-[drop-target-valid=true]:bg-success/30',
@@ -141,7 +93,7 @@ const NodeList = memo(
         items={items}
         keyExtractor={keyExtractor}
         layout={layout}
-        renderItem={renderItem}
+        renderItem={Node}
         dragAndDropHooks={(accepts ?? onDrop) ? dragAndDropHooks : undefined}
         className={containerClasses}
         animate={animate}

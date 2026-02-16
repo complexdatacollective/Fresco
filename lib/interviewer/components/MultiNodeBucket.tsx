@@ -6,7 +6,6 @@ import { useDragSource } from '~/lib/dnd';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import createSorter, { type ProcessedSortRule } from '../utils/createSorter';
 import Node from './Node';
-import { NodeTransition } from './NodeList';
 
 // Draggable wrapper for Node component
 const DraggableNode = memo(
@@ -75,17 +74,13 @@ const MultiNodeBucket = memo(
             </div>
           )}
           {sortedNodes.slice(0, 1).map((node, index) => (
-            <NodeTransition
-              key={`${node[entityPrimaryKeyProperty]}_${index}`}
-              delay={stagger ? index * 0.05 : 0}
-            >
-              <DraggableNode
-                node={node}
-                itemType={itemType}
-                allowDrag={index === 0}
-                size={nodeSize}
-              />
-            </NodeTransition>
+            <DraggableNode
+              key={node[entityPrimaryKeyProperty]}
+              node={node}
+              itemType={itemType}
+              allowDrag={index === 0}
+              size={nodeSize}
+            />
           ))}
         </AnimatePresence>
       </motion.div>

@@ -1,11 +1,11 @@
+import posthog from 'posthog-js';
 import React, { Component, type ReactNode } from 'react';
 import CopyDebugInfoButton from '~/components/CopyDebugInfoButton';
 import { ErrorDetails } from '~/components/ErrorDetails';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
-import posthog from 'posthog-js';
-import Icon from '~/lib/legacy-ui/components/Icon';
+import Icon from '~/components/ui/Icon';
 
 type StageErrorBoundaryProps = {
   children: ReactNode;
