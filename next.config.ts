@@ -3,7 +3,7 @@ import type { NextConfig } from 'next';
 import ChildProcess from 'node:child_process';
 import { createRequire } from 'node:module';
 import './env.js';
-import { POSTHOG_APP_NAME, POSTHOG_PROXY_HOST } from './fresco.config';
+import { POSTHOG_APP_NAME } from './fresco.config';
 import pkg from './package.json' with { type: 'json' };
 
 const require = createRequire(import.meta.url);
@@ -67,7 +67,6 @@ const posthogProjectId = process.env.POSTHOG_PROJECT_ID;
 export default withPostHogConfig(config, {
   personalApiKey: posthogPersonalApiKey ?? 'none',
   projectId: posthogProjectId ?? 'none',
-  host: POSTHOG_PROXY_HOST,
   sourcemaps: {
     enabled:
       // eslint-disable-next-line no-process-env
