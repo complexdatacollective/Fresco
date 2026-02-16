@@ -1,10 +1,10 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { after, NextResponse, type NextRequest } from 'next/server';
 import { hash } from 'ohash';
 import { addEvent } from '~/actions/activityFeed';
 import { env } from '~/env';
 import { safeRevalidateTag } from '~/lib/cache';
 import { MIN_ARCHITECT_VERSION_FOR_PREVIEW } from '~/fresco.config';
-import trackEvent from '~/lib/analytics';
+import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { prisma } from '~/lib/db';
 import { Prisma } from '~/lib/db/generated/client';
 import { prunePreviewProtocols } from '~/lib/preview-protocol-pruning';
@@ -288,10 +288,9 @@ export async function POST(
     }
   } catch (e) {
     const error = ensureError(e);
-    void trackEvent({
-      type: 'Error',
-      message: error.message,
-      name: 'Preview API Error',
+    after(async () => {
+      await captureException(error);
+      await shutdownPostHog();
     });
 
     return jsonResponse(

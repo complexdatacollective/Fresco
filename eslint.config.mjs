@@ -20,6 +20,7 @@ export default tseslint.config(
       'storybook-static/**',
       '.next/**',
       'tests/e2e/playwright-report/**',
+      'lib/db/generated/**',
     ],
   },
 

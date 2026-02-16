@@ -4,8 +4,13 @@ import { type NcNetwork } from '@codaco/shared-consts';
 import { createId } from '@paralleldrive/cuid2';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
+import { after } from 'next/server';
 import superjson from 'superjson';
-import trackEvent from '~/lib/analytics';
+import {
+  captureEvent,
+  captureException,
+  shutdownPostHog,
+} from '~/lib/posthog-server';
 import { safeRevalidateTag, safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { type Interview } from '~/lib/db/generated/client';
@@ -133,14 +138,14 @@ export const exportSessions = async (
       .then(archive)
       .then(uploadZipToUploadThing);
 
-    void trackEvent({
-      type: 'DataExported',
-      metadata: {
+    after(async () => {
+      await captureEvent('DataExported', {
         status: result.status,
         sessions: interviewIds.length,
         exportOptions,
-        result: result,
-      },
+        result,
+      });
+      await shutdownPostHog();
     });
 
     safeUpdateTag('getInterviews');
@@ -150,14 +155,9 @@ export const exportSessions = async (
     // eslint-disable-next-line no-console
     console.error(error);
     const e = ensureError(error);
-    void trackEvent({
-      type: 'Error',
-      name: e.name,
-      message: e.message,
-      stack: e.stack,
-      metadata: {
-        path: '~/actions/interviews.ts',
-      },
+    after(async () => {
+      await captureException(e);
+      await shutdownPostHog();
     });
 
     return {
@@ -248,14 +248,9 @@ export async function createInterview(data: CreateInterview) {
   } catch (error) {
     const e = ensureError(error);
 
-    void trackEvent({
-      type: 'Error',
-      name: e.name,
-      message: e.message,
-      stack: e.stack,
-      metadata: {
-        path: '/routers/interview.ts',
-      },
+    after(async () => {
+      await captureException(e);
+      await shutdownPostHog();
     });
 
     return {
@@ -277,22 +272,18 @@ export async function finishInterview(interviewId: Interview['id']) {
       },
     });
 
-    void addEvent(
-      'Interview Completed',
-      `Interview with ID ${interviewId} has been completed`,
-    );
-
     const network = JSON.parse(
       JSON.stringify(updatedInterview.network),
     ) as NcNetwork;
 
-    void trackEvent({
-      type: 'InterviewCompleted',
-      metadata: {
+    void addEvent(
+      'Interview Completed',
+      `Interview with ID ${interviewId} has been completed`,
+      {
         nodeCount: network?.nodes?.length ?? 0,
         edgeCount: network?.edges?.length ?? 0,
       },
-    });
+    );
 
     (await cookies()).set(updatedInterview.protocolId, 'completed');
 

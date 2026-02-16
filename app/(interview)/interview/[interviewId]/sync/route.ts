@@ -1,9 +1,9 @@
 import { NcNetworkSchema } from '@codaco/shared-consts';
-import { NextResponse, type NextRequest } from 'next/server';
+import { after, NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '~/lib/db';
 import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
-import trackEvent from '~/lib/analytics';
+import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { ensureError } from '~/utils/ensureError';
 
 /**
@@ -28,14 +28,11 @@ const routeHandler = async (
   const validatedRequest = Schema.safeParse(rawPayload);
 
   if (!validatedRequest.success) {
-    void trackEvent({
-      type: 'Error',
-      name: 'SyncValidationError',
-      message: validatedRequest.error.message,
-      stack: validatedRequest.error.stack,
-      metadata: {
+    after(async () => {
+      await captureException(validatedRequest.error, {
         interviewId,
-      },
+      });
+      await shutdownPostHog();
     });
 
     return NextResponse.json(

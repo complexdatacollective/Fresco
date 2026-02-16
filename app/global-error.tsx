@@ -2,7 +2,8 @@
 
 import { ClipboardCopy } from 'lucide-react';
 import Image from 'next/image';
-import ErrorReportNotifier from '~/components/ErrorReportNotifier';
+import posthog from 'posthog-js';
+import { useEffect } from 'react';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
@@ -41,9 +42,12 @@ ${error.stack}`;
     });
   };
 
+  useEffect(() => {
+    posthog.captureException(error);
+  }, [error]);
+
   return (
     <div className="flex h-screen items-center justify-center">
-      <ErrorReportNotifier error={error} />
       <ResponsiveContainer
         baseSize="60%"
         className={cx('shadow-platinum-dark m-10 w-[30rem] p-10 shadow-xl')}

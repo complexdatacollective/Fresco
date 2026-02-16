@@ -9,13 +9,18 @@ import DialogProvider from '~/lib/dialogs/DialogProvider';
 import { DndStoreProvider } from '~/lib/dnd';
 import ProtocolImportProvider from '~/lib/protocol-import/ProtocolImportProvider';
 import { Toaster } from '../ui/Toast';
+import { PostHogIdentify } from './PosthogIdentify';
 
 export default function Providers({
   children,
   disableAnimations,
+  installationId,
+  disableAnalytics,
 }: {
   children: ReactNode;
   disableAnimations?: boolean;
+  installationId?: string;
+  disableAnalytics?: boolean;
 }) {
   /**
    * This is the documented way to turn of all animations
@@ -32,6 +37,10 @@ export default function Providers({
           <Toast.Provider limit={7}>
             <DndStoreProvider>
               <ProtocolImportProvider>
+                <PostHogIdentify
+                  installationId={installationId}
+                  disableAnalytics={disableAnalytics}
+                />
                 <DialogProvider>{children}</DialogProvider>
               </ProtocolImportProvider>
             </DndStoreProvider>

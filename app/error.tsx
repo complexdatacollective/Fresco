@@ -1,7 +1,8 @@
 'use client';
 
 import { ClipboardCopy } from 'lucide-react';
-import ErrorReportNotifier from '~/components/ErrorReportNotifier';
+import posthog from 'posthog-js';
+import { useEffect } from 'react';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
@@ -38,9 +39,12 @@ ${error.stack}`;
     });
   };
 
+  useEffect(() => {
+    posthog.captureException(error);
+  }, [error]);
+
   return (
     <div className="flex h-screen items-center justify-center">
-      <ErrorReportNotifier error={error} />
       <Surface baseSize="60%" maxWidth="3xl">
         <Heading level="h1" className="text-destructive">
           Something went wrong.

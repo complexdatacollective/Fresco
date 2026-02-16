@@ -1,8 +1,8 @@
 import { cookies } from 'next/headers';
-import { NextResponse, type NextRequest } from 'next/server';
+import { after, NextResponse, type NextRequest } from 'next/server';
 import { createInterview } from '~/actions/interviews';
 import { env } from '~/env';
-import trackEvent from '~/lib/analytics';
+import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
 
 const handler = async (
@@ -55,13 +55,13 @@ const handler = async (
   });
 
   if (error) {
-    void trackEvent({
-      type: 'Error',
-      name: error,
-      message: 'Failed to create interview',
-      metadata: {
+    after(async () => {
+      await captureEvent('Error', {
+        name: error,
+        message: 'Failed to create interview',
         path: '/onboard/[protocolId]/route.ts',
-      },
+      });
+      await shutdownPostHog();
     });
 
     if (errorType === 'no-anonymous-recruitment') {
@@ -80,11 +80,11 @@ const handler = async (
     }...`,
   );
 
-  void trackEvent({
-    type: 'InterviewStarted',
-    metadata: {
+  after(async () => {
+    await captureEvent('InterviewStarted', {
       usingAnonymousParticipant: !participantIdentifier,
-    },
+    });
+    await shutdownPostHog();
   });
 
   // Redirect to the interview
