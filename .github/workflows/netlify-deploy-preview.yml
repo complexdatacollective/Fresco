@@ -1,7 +1,9 @@
 name: Deploy Preview
 
 on:
-  pull_request:
+  push:
+    branches-ignore:
+      - main
 
 permissions:
   contents: read
@@ -14,29 +16,32 @@ jobs:
       NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
       NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
     steps:
-      - name: Checkout PR head
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Get PR number
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_NUMBER=$(gh pr list --repo "${{ github.repository }}" --head "${{ github.ref_name }}" --json number --jq '.[0].number')
+          if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
+            echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          else
+            echo "No open PR for branch ${{ github.ref_name }}, skipping deploy"
+            exit 0
+          fi
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Setup
+        uses: complexdatacollective/github-actions/setup-pnpm@v1
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v9
 
       - name: Create Neon Branch
         id: create-branch
         uses: neondatabase/create-branch-action@v6
         with:
           project_id: ${{ vars.NEON_PROJECT_ID }}
-          branch_name: preview/pr-${{ github.event.pull_request.number }}-${{ github.head_ref }}
+          branch_name: preview/pr-${{ steps.pr.outputs.number }}-${{ steps.branch-name.outputs.current_branch }}
           database: ${{ vars.NEON_DATABASE_NAME }}
           role: ${{ vars.NEON_DATABASE_USERNAME }}
           api_key: ${{ secrets.NEON_API_KEY }}
@@ -47,8 +52,8 @@ jobs:
 
       - name: Set Neon database URLs in Netlify
         run: |
-          netlify env:set DATABASE_URL "${{ steps.create-branch.outputs.db_url_pooled }}" --context branch:${{ github.head_ref }}
-          netlify env:set DATABASE_URL_UNPOOLED "${{ steps.create-branch.outputs.db_url }}" --context branch:${{ github.head_ref }}
+          netlify env:set DATABASE_URL "${{ steps.create-branch.outputs.db_url_pooled }}" --context branch:${{ steps.branch-name.outputs.current_branch }}
+          netlify env:set DATABASE_URL_UNPOOLED "${{ steps.create-branch.outputs.db_url }}" --context branch:${{ steps.branch-name.outputs.current_branch }}
 
       - name: Create .env for build
         run: |
@@ -56,18 +61,18 @@ jobs:
           echo "DATABASE_URL_UNPOOLED=${{ steps.create-branch.outputs.db_url }}" >> .env
 
       - name: Build
-        run: netlify build --context branch:${{ github.head_ref }}
+        run: netlify build --context branch:${{ steps.branch-name.outputs.current_branch }}
 
       - name: Deploy preview
         id: deploy
         run: |
-          netlify deploy --alias="pr-${{ github.event.pull_request.number }}" --json > netlify-deploy.json
+          netlify deploy --alias="pr-${{ steps.pr.outputs.number }}" --json > netlify-deploy.json
           echo "deploy_url=$(jq -r '.deploy_url' netlify-deploy.json)" >> "$GITHUB_OUTPUT"
 
       - name: Comment on Pull Request
         uses: peter-evans/create-or-update-comment@v5
         with:
-          issue-number: ${{ github.event.pull_request.number }}
+          issue-number: ${{ steps.pr.outputs.number }}
           body: |
             | Resource | Link |
             |----------|------|
