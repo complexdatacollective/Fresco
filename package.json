@@ -87,7 +87,7 @@
     "fuse.js": "^7.1.0",
     "immer": "^11.1.4",
     "jszip": "^3.10.1",
-    "lucide-react": "^0.563.0",
+    "lucide-react": "^0.564.0",
     "mapbox-gl": "^3.18.1",
     "motion": "^12.34.0",
     "nanoid": "^5.1.6",
