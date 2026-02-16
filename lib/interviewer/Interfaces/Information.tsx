@@ -6,6 +6,7 @@ import {
   RenderMarkdown,
 } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
+import { ScrollArea } from '~/components/ui/ScrollArea';
 import { cx } from '~/utils/cva';
 import AssetMetaProvider from '../behaviours/AssetMetaProvider';
 import { type StageProps } from '../components/Stage';
@@ -67,18 +68,20 @@ type InformationProps = StageProps & {
  */
 const Information = ({ stage: { title, items } }: InformationProps) => {
   return (
-    <div className="interface allow-text-selection mx-auto flex min-h-full max-w-[80ch] flex-col justify-center">
-      <Surface className="grow-0" noContainer>
-        <Heading level="h1" className="text-center">
-          {title}
-        </Heading>
-        {items.map((item) => (
-          <React.Fragment key={item.id}>
-            {getItemComponent(item)}
-          </React.Fragment>
-        ))}
-      </Surface>
-    </div>
+    <ScrollArea className="m-0 size-full">
+      <div className="interface allow-text-selection mx-auto flex min-h-full max-w-[80ch] flex-col justify-center">
+        <Surface className="grow-0" noContainer>
+          <Heading level="h1" className="text-center">
+            {title}
+          </Heading>
+          {items.map((item) => (
+            <React.Fragment key={item.id}>
+              {getItemComponent(item)}
+            </React.Fragment>
+          ))}
+        </Surface>
+      </div>
+    </ScrollArea>
   );
 };
 
