@@ -4,7 +4,7 @@ import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Toast } from '@base-ui/react/toast';
 import { MotionConfig, MotionGlobalConfig } from 'motion/react';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
-import { Suspense, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import DialogProvider from '~/lib/dialogs/DialogProvider';
 import { DndStoreProvider } from '~/lib/dnd';
 import ProtocolImportProvider from '~/lib/protocol-import/ProtocolImportProvider';
@@ -15,10 +15,12 @@ export default function Providers({
   children,
   disableAnimations,
   installationId,
+  disableAnalytics,
 }: {
   children: ReactNode;
   disableAnimations?: boolean;
-  installationId?: Promise<string | undefined>;
+  installationId?: string;
+  disableAnalytics?: boolean;
 }) {
   /**
    * This is the documented way to turn of all animations
@@ -35,9 +37,10 @@ export default function Providers({
           <Toast.Provider limit={7}>
             <DndStoreProvider>
               <ProtocolImportProvider>
-                <Suspense>
-                  <PostHogIdentify installationId={installationId} />
-                </Suspense>
+                <PostHogIdentify
+                  installationId={installationId}
+                  disableAnalytics={disableAnalytics}
+                />
                 <DialogProvider>{children}</DialogProvider>
               </ProtocolImportProvider>
             </DndStoreProvider>

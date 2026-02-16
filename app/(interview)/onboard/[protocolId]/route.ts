@@ -55,12 +55,12 @@ const handler = async (
   });
 
   if (error) {
-    void captureEvent('Error', {
-      name: error,
-      message: 'Failed to create interview',
-      path: '/onboard/[protocolId]/route.ts',
-    });
     after(async () => {
+      await captureEvent('Error', {
+        name: error,
+        message: 'Failed to create interview',
+        path: '/onboard/[protocolId]/route.ts',
+      });
       await shutdownPostHog();
     });
 
@@ -80,10 +80,10 @@ const handler = async (
     }...`,
   );
 
-  void captureEvent('InterviewStarted', {
-    usingAnonymousParticipant: !participantIdentifier,
-  });
   after(async () => {
+    await captureEvent('InterviewStarted', {
+      usingAnonymousParticipant: !participantIdentifier,
+    });
     await shutdownPostHog();
   });
 

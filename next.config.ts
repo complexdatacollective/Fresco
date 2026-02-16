@@ -54,20 +54,26 @@ const config: NextConfig = {
   },
 };
 
+// eslint-disable-next-line no-process-env
+const posthogPersonalApiKey = process.env.POSTHOG_PERSONAL_API_KEY;
+// eslint-disable-next-line no-process-env
+const posthogProjectId = process.env.POSTHOG_PROJECT_ID;
+
 /**
  * posthog requires personalApiKey and projectId to be set at build time, but
  * we don't want to require them for local development or CI. If they're not
  * set, we provide dummy values and the posthog client will be a no-op.
  */
 export default withPostHogConfig(config, {
-  // eslint-disable-next-line no-process-env
-  personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY ?? 'none',
-  // eslint-disable-next-line no-process-env
-  projectId: process.env.POSTHOG_PROJECT_ID ?? 'none',
+  personalApiKey: posthogPersonalApiKey ?? 'none',
+  projectId: posthogProjectId ?? 'none',
   host: POSTHOG_PROXY_HOST,
   sourcemaps: {
-    // eslint-disable-next-line no-process-env
-    enabled: process.env.CI === 'true', // Only upload sourcemaps in CI
+    enabled:
+      // eslint-disable-next-line no-process-env
+      process.env.CI === 'true' &&
+      !!posthogPersonalApiKey &&
+      !!posthogProjectId,
     releaseName: POSTHOG_APP_NAME,
     deleteAfterUpload: true,
   },

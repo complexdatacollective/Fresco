@@ -60,10 +60,10 @@ export async function completeSetup() {
     await setAppSetting('installationId', createId());
   }
   await setAppSetting('configured', true);
-  void captureEvent('AppSetup', {
-    installationId,
-  });
   after(async () => {
+    await captureEvent('AppSetup', {
+      installationId,
+    });
     await shutdownPostHog();
   });
 

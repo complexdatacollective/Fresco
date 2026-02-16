@@ -21,8 +21,8 @@ export async function addEvent(
 
     safeUpdateTag('activityFeed');
 
-    void captureEvent(type, { message, ...properties });
     after(async () => {
+      await captureEvent(type, { message, ...properties });
       await shutdownPostHog();
     });
 

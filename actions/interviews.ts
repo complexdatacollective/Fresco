@@ -138,13 +138,13 @@ export const exportSessions = async (
       .then(archive)
       .then(uploadZipToUploadThing);
 
-    void captureEvent('DataExported', {
-      status: result.status,
-      sessions: interviewIds.length,
-      exportOptions,
-      result,
-    });
     after(async () => {
+      await captureEvent('DataExported', {
+        status: result.status,
+        sessions: interviewIds.length,
+        exportOptions,
+        result,
+      });
       await shutdownPostHog();
     });
 
@@ -155,8 +155,8 @@ export const exportSessions = async (
     // eslint-disable-next-line no-console
     console.error(error);
     const e = ensureError(error);
-    void captureException(e);
     after(async () => {
+      await captureException(e);
       await shutdownPostHog();
     });
 
@@ -248,8 +248,8 @@ export async function createInterview(data: CreateInterview) {
   } catch (error) {
     const e = ensureError(error);
 
-    void captureException(e);
     after(async () => {
+      await captureException(e);
       await shutdownPostHog();
     });
 

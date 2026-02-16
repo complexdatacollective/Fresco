@@ -2,7 +2,7 @@ import { type Metadata } from 'next';
 import Providers from '~/components/Providers';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import { env } from '~/env';
-import { getInstallationId } from '~/queries/appSettings';
+import { getDisableAnalytics, getInstallationId } from '~/queries/appSettings';
 import '~/styles/globals.css';
 import '~/styles/themes/default.css';
 
@@ -11,14 +11,20 @@ export const metadata: Metadata = {
   description: 'Fresco.',
 };
 
-function RootLayout({ children }: { children: React.ReactNode }) {
+async function RootLayout({ children }: { children: React.ReactNode }) {
+  const [installationId, disableAnalytics] = await Promise.all([
+    getInstallationId(),
+    getDisableAnalytics(),
+  ]);
+
   return (
     <html lang="en">
       <body className="bg-background publish-colors antialiased">
         <div className="root h-dvh overflow-y-auto [scrollbar-gutter:stable_both-edges]">
           <Providers
             disableAnimations={env.CI ?? false}
-            installationId={getInstallationId()}
+            installationId={installationId}
+            disableAnalytics={disableAnalytics}
           >
             {children}
           </Providers>

@@ -288,8 +288,8 @@ export async function POST(
     }
   } catch (e) {
     const error = ensureError(e);
-    void captureException(error);
     after(async () => {
+      await captureException(error);
       await shutdownPostHog();
     });
 

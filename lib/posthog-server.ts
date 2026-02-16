@@ -8,7 +8,7 @@ import {
 
 let client: PostHog | null = null;
 
-export function getPosthogServer() {
+export function getPostHogServer() {
   client ??= new PostHog(POSTHOG_API_KEY, {
     host: POSTHOG_PROXY_HOST,
     flushAt: 1,
@@ -18,19 +18,26 @@ export function getPosthogServer() {
   return client;
 }
 
-// Dynamic import to avoid pulling Prisma (node:path, node:url, etc.)
+// Dynamic imports to avoid pulling Prisma (node:path, node:url, etc.)
 // into Edge-compatible bundles that import this module
 async function resolveInstallationId() {
   const { getInstallationId } = await import('~/queries/appSettings');
   return getInstallationId();
 }
 
+async function isAnalyticsDisabled() {
+  const { getDisableAnalytics } = await import('~/queries/appSettings');
+  return getDisableAnalytics();
+}
+
 export async function captureEvent(
   event: string,
   properties?: Record<string, unknown>,
 ) {
+  if (await isAnalyticsDisabled()) return;
+
   const distinctId = await resolveInstallationId();
-  const client = getPosthogServer();
+  const client = getPostHogServer();
 
   client.capture({
     distinctId,
@@ -48,8 +55,10 @@ export async function captureException(
   error: unknown,
   properties?: Record<string, unknown>,
 ) {
+  if (await isAnalyticsDisabled()) return;
+
   const distinctId = await resolveInstallationId();
-  const client = getPosthogServer();
+  const client = getPostHogServer();
 
   client.captureException(error, distinctId, properties);
 }

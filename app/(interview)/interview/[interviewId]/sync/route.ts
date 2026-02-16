@@ -28,10 +28,10 @@ const routeHandler = async (
   const validatedRequest = Schema.safeParse(rawPayload);
 
   if (!validatedRequest.success) {
-    void captureException(validatedRequest.error, {
-      interviewId,
-    });
     after(async () => {
+      await captureException(validatedRequest.error, {
+        interviewId,
+      });
       await shutdownPostHog();
     });
 

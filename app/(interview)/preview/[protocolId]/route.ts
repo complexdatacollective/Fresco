@@ -54,11 +54,11 @@ const handler = async (
     `🎨 Starting preview interview using preview protocol ${protocol.name}...`,
   );
 
-  void captureEvent('InterviewStarted', {
-    protocolId,
-    isPreview: true,
-  });
   after(async () => {
+    await captureEvent('InterviewStarted', {
+      protocolId,
+      isPreview: true,
+    });
     await shutdownPostHog();
   });
 

@@ -12,11 +12,11 @@ export const onRequestError: Instrumentation.onRequestError = async (
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     // Dynamic imports to avoid pulling Prisma (node:path, node:url, etc.)
     // into the Edge Instrumentation bundle
-    const { getPosthogServer, shutdownPostHog } =
+    const { getPostHogServer, shutdownPostHog } =
       await import('./lib/posthog-server');
     const { getInstallationId } = await import('./queries/appSettings');
 
-    const posthog = getPosthogServer();
+    const posthog = getPostHogServer();
     const distinctId = await getInstallationId();
 
     posthog.captureException(err, distinctId, {
