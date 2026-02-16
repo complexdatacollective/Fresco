@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import useMediaQuery from '~/hooks/useMediaQuery';
 import usePrevious from '~/hooks/usePrevious';
+import { cx } from '~/utils/cva';
 import { updatePrompt, updateStage } from '../ducks/modules/session';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import {
@@ -270,29 +271,12 @@ export default function ProtocolScreen() {
 
   return (
     <>
-      <motion.div
-        className={
-          isPortraitAspectRatio
-            ? 'relative flex size-full flex-1 flex-col overflow-hidden'
-            : 'relative flex size-full flex-1 flex-row overflow-hidden'
-        }
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
-        {!isPortraitAspectRatio && (
-          <Navigation
-            moveBackward={moveBackward}
-            moveForward={moveForward}
-            disableMoveForward={forceNavigationDisabled || !canMoveForward}
-            disableMoveBackward={
-              forceNavigationDisabled ||
-              (!canMoveBackward && !beforeNextFunction.current)
-            }
-            pulseNext={isReadyForNextStage}
-            progress={progress}
-            orientation={navigationOrientation}
-          />
+      <div
+        className={cx(
+          'relative flex size-full flex-1 overflow-hidden',
+          isPortraitAspectRatio ? 'flex-col' : 'flex-row-reverse',
         )}
+      >
         <motion.div
           key={currentStep}
           ref={scope}
@@ -310,21 +294,19 @@ export default function ProtocolScreen() {
             />
           )}
         </motion.div>
-        {isPortraitAspectRatio && (
-          <Navigation
-            moveBackward={moveBackward}
-            moveForward={moveForward}
-            disableMoveForward={forceNavigationDisabled || !canMoveForward}
-            disableMoveBackward={
-              forceNavigationDisabled ||
-              (!canMoveBackward && !beforeNextFunction.current)
-            }
-            pulseNext={isReadyForNextStage}
-            progress={progress}
-            orientation={navigationOrientation}
-          />
-        )}
-      </motion.div>
+        <Navigation
+          moveBackward={moveBackward}
+          moveForward={moveForward}
+          disableMoveForward={forceNavigationDisabled || !canMoveForward}
+          disableMoveBackward={
+            forceNavigationDisabled ||
+            (!canMoveBackward && !beforeNextFunction.current)
+          }
+          pulseNext={isReadyForNextStage}
+          progress={progress}
+          orientation={navigationOrientation}
+        />
+      </div>
     </>
   );
 }

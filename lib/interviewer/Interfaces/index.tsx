@@ -2,18 +2,17 @@
 import { type StageType } from '@codaco/protocol-validation';
 import { lazy } from 'react';
 import Surface from '~/components/layout/Surface';
+import Heading from '~/components/typography/Heading';
 import Icon from '~/lib/legacy-ui/components/Icon';
 
 const NotFoundInterface = ({ interfaceType }: { interfaceType: string }) => (
   <Surface>
-    <div className="flex flex-col items-center">
-      <Icon name="warning" />
-      <h1 style={{ marginTop: '1rem' }}>
-        No &quot;
-        {interfaceType}
-        &quot; interface found.
-      </h1>
-    </div>
+    <Icon name="warning" />
+    <Heading level="h2" className="mt-4">
+      No &quot;
+      {interfaceType}
+      &quot; interface found.
+    </Heading>
   </Surface>
 );
 

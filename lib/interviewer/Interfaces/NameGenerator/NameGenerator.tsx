@@ -1,3 +1,5 @@
+'use client';
+
 import { type Form, type Stage } from '@codaco/protocol-validation';
 import {
   type EntityAttributesProperty,
@@ -11,9 +13,9 @@ import { has } from 'es-toolkit/compat';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useSelector } from 'react-redux';
+import usePortalTarget from '~/hooks/usePortalTarget';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import NodeList from '~/lib/interviewer/components/NodeList';
-import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { usePrompts } from '../../behaviours/withPrompt';
 import Prompts from '../../components/Prompts';
 import { type Direction } from '../../components/ProtocolScreen';
@@ -262,7 +264,8 @@ const NameGenerator = (props: NameGeneratorProps) => {
     },
     [form, passphrase, useEncryption, codebookForNodeType],
   );
-  const stageElement = document.getElementById('stage');
+
+  const stageElement = usePortalTarget('stage');
 
   return (
     <>
@@ -328,4 +331,4 @@ const NameGenerator = (props: NameGeneratorProps) => {
   );
 };
 
-export default withNoSSRWrapper(NameGenerator);
+export default NameGenerator;
