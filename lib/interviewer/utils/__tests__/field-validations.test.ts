@@ -777,4 +777,236 @@ describe('TanStack Validations', () => {
       ).toBe(errorMessage('String Variable'));
     });
   });
+
+  describe('greaterThanOrEqualToVariable()', () => {
+    const errorMessage = (value: string) =>
+      `Your answer must be greater than or equal to the value of "${value}"`;
+
+    it('fails for null or undefined', () => {
+      const subject1 = tanStackValidations.greaterThanOrEqualToVariable('uid1');
+      expect(
+        subject1(
+          createMockValidatorParams(null, 'testField', mockOtherFormValues),
+        ),
+      ).toBe(errorMessage('Variable 1'));
+      expect(
+        subject1(
+          createMockValidatorParams(
+            undefined,
+            'testField',
+            mockOtherFormValues,
+          ),
+        ),
+      ).toBe(errorMessage('Variable 1'));
+    });
+
+    it('passes if number is greater than', () => {
+      const subject1 = tanStackValidations.greaterThanOrEqualToVariable('uid1');
+      expect(
+        subject1(
+          createMockValidatorParams(3, 'testField', mockOtherFormValues),
+        ),
+      ).toBe(undefined);
+    });
+
+    it('passes if number is equal to', () => {
+      const subject1 = tanStackValidations.greaterThanOrEqualToVariable('uid1');
+      expect(
+        subject1(
+          createMockValidatorParams(1, 'testField', mockOtherFormValues),
+        ),
+      ).toBe(undefined);
+    });
+
+    it('fails if number is less than', () => {
+      const subject1 = tanStackValidations.greaterThanOrEqualToVariable('uid1');
+      expect(
+        subject1(
+          createMockValidatorParams(0, 'testField', mockOtherFormValues),
+        ),
+      ).toBe(errorMessage('Variable 1'));
+    });
+
+    it('passes if date is greater than', () => {
+      const subject2 = tanStackValidations.greaterThanOrEqualToVariable('uid2');
+      expect(
+        subject2(
+          createMockValidatorParams(
+            '2012-11-07',
+            'testField',
+            mockOtherFormValues,
+          ),
+        ),
+      ).toBe(undefined);
+    });
+
+    it('passes if date is equal to', () => {
+      const subject2 = tanStackValidations.greaterThanOrEqualToVariable('uid2');
+      expect(
+        subject2(
+          createMockValidatorParams(
+            '2012-10-07',
+            'testField',
+            mockOtherFormValues,
+          ),
+        ),
+      ).toBe(undefined);
+    });
+
+    it('fails if date is less than', () => {
+      const subject2 = tanStackValidations.greaterThanOrEqualToVariable('uid2');
+      expect(
+        subject2(
+          createMockValidatorParams(
+            '2012-09-07',
+            'testField',
+            mockOtherFormValues,
+          ),
+        ),
+      ).toBe(errorMessage('Date Variable'));
+    });
+
+    it('passes if string is greater than', () => {
+      const subject3 = tanStackValidations.greaterThanOrEqualToVariable('uid3');
+      expect(
+        subject3(
+          createMockValidatorParams('zebra', 'testField', mockOtherFormValues),
+        ),
+      ).toBe(undefined);
+    });
+
+    it('passes if string is equal to', () => {
+      const subject3 = tanStackValidations.greaterThanOrEqualToVariable('uid3');
+      expect(
+        subject3(
+          createMockValidatorParams('word', 'testField', mockOtherFormValues),
+        ),
+      ).toBe(undefined);
+    });
+
+    it('fails if string is less than', () => {
+      const subject3 = tanStackValidations.greaterThanOrEqualToVariable('uid3');
+      expect(
+        subject3(
+          createMockValidatorParams('diff', 'testField', mockOtherFormValues),
+        ),
+      ).toBe(errorMessage('String Variable'));
+    });
+  });
+
+  describe('lessThanOrEqualToVariable()', () => {
+    const errorMessage = (value: string) =>
+      `Your answer must be less than or equal to the value of "${value}"`;
+
+    it('fails for null or undefined', () => {
+      const subject1 = tanStackValidations.lessThanOrEqualToVariable('uid1');
+      expect(
+        subject1(
+          createMockValidatorParams(null, 'testField', mockOtherFormValues),
+        ),
+      ).toBe(errorMessage('Variable 1'));
+      expect(
+        subject1(
+          createMockValidatorParams(
+            undefined,
+            'testField',
+            mockOtherFormValues,
+          ),
+        ),
+      ).toBe(errorMessage('Variable 1'));
+    });
+
+    it('passes if number is less than', () => {
+      const subject1 = tanStackValidations.lessThanOrEqualToVariable('uid1');
+      expect(
+        subject1(
+          createMockValidatorParams(0, 'testField', mockOtherFormValues),
+        ),
+      ).toBe(undefined);
+    });
+
+    it('passes if number is equal to', () => {
+      const subject1 = tanStackValidations.lessThanOrEqualToVariable('uid1');
+      expect(
+        subject1(
+          createMockValidatorParams(1, 'testField', mockOtherFormValues),
+        ),
+      ).toBe(undefined);
+    });
+
+    it('fails if number is greater than', () => {
+      const subject1 = tanStackValidations.lessThanOrEqualToVariable('uid1');
+      expect(
+        subject1(
+          createMockValidatorParams(2, 'testField', mockOtherFormValues),
+        ),
+      ).toBe(errorMessage('Variable 1'));
+    });
+
+    it('passes if date is less than', () => {
+      const subject2 = tanStackValidations.lessThanOrEqualToVariable('uid2');
+      expect(
+        subject2(
+          createMockValidatorParams(
+            '2012-09-07',
+            'testField',
+            mockOtherFormValues,
+          ),
+        ),
+      ).toBe(undefined);
+    });
+
+    it('passes if date is equal to', () => {
+      const subject2 = tanStackValidations.lessThanOrEqualToVariable('uid2');
+      expect(
+        subject2(
+          createMockValidatorParams(
+            '2012-10-07',
+            'testField',
+            mockOtherFormValues,
+          ),
+        ),
+      ).toBe(undefined);
+    });
+
+    it('fails if date is greater than', () => {
+      const subject2 = tanStackValidations.lessThanOrEqualToVariable('uid2');
+      expect(
+        subject2(
+          createMockValidatorParams(
+            '2012-11-07',
+            'testField',
+            mockOtherFormValues,
+          ),
+        ),
+      ).toBe(errorMessage('Date Variable'));
+    });
+
+    it('passes if string is less than', () => {
+      const subject3 = tanStackValidations.lessThanOrEqualToVariable('uid3');
+      expect(
+        subject3(
+          createMockValidatorParams('less', 'testField', mockOtherFormValues),
+        ),
+      ).toBe(undefined);
+    });
+
+    it('passes if string is equal to', () => {
+      const subject3 = tanStackValidations.lessThanOrEqualToVariable('uid3');
+      expect(
+        subject3(
+          createMockValidatorParams('word', 'testField', mockOtherFormValues),
+        ),
+      ).toBe(undefined);
+    });
+
+    it('fails if string is greater than', () => {
+      const subject3 = tanStackValidations.lessThanOrEqualToVariable('uid3');
+      expect(
+        subject3(
+          createMockValidatorParams('zebra', 'testField', mockOtherFormValues),
+        ),
+      ).toBe(errorMessage('String Variable'));
+    });
+  });
 });

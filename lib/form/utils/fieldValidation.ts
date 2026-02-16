@@ -376,6 +376,52 @@ export const tanStackValidations = {
         ? `Your answer must be less than the value of "${variableName}"`
         : undefined;
     },
+
+  greaterThanOrEqualToVariable:
+    (variableId: string): TanStackValidator =>
+    ({ value, fieldApi, validationContext }) => {
+      const variable = getVariable(variableId, validationContext);
+
+      if (!variable) {
+        return 'Variable not found in codebook';
+      }
+
+      const { name: variableName, type: variableType } = variable;
+
+      if (!variableName || !variableType) {
+        return 'Variable not found in codebook';
+      }
+
+      const allValues = fieldApi.form.store.state.values;
+
+      return isNil(value) ||
+        compareVariables(value, allValues[variableId], variableType) < 0
+        ? `Your answer must be greater than or equal to the value of "${variableName}"`
+        : undefined;
+    },
+
+  lessThanOrEqualToVariable:
+    (variableId: string): TanStackValidator =>
+    ({ value, fieldApi, validationContext }) => {
+      const variable = getVariable(variableId, validationContext);
+
+      if (!variable) {
+        return 'Variable not found in codebook';
+      }
+
+      const { name: variableName, type: variableType } = variable;
+
+      if (!variableName || !variableType) {
+        return 'Variable not found in codebook';
+      }
+
+      const allValues = fieldApi.form.store.state.values;
+
+      return isNil(value) ||
+        compareVariables(value, allValues[variableId], variableType) > 0
+        ? `Your answer must be less than or equal to the value of "${variableName}"`
+        : undefined;
+    },
 };
 
 // TanStack-native validator function

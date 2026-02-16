@@ -355,6 +355,46 @@ const lessThanVariable = (variableId: string, store: AppStore) => {
       : undefined;
 };
 
+const greaterThanOrEqualToVariable = (variableId: string, store: AppStore) => {
+  const variable = getVariable(variableId, store);
+
+  if (!variable) {
+    return () => 'Variable not found in codebook';
+  }
+
+  const { name: variableName, type: variableType } = variable;
+
+  if (!variableName || !variableType) {
+    return () => 'Variable not found in codebook';
+  }
+
+  return (value: FieldValue, allValues: Record<string, FieldValue>) =>
+    isNil(value) ||
+    compareVariables(value, allValues[variableId], variableType) < 0
+      ? `Your answer must be greater than or equal to the value of "${variableName}"`
+      : undefined;
+};
+
+const lessThanOrEqualToVariable = (variableId: string, store: AppStore) => {
+  const variable = getVariable(variableId, store);
+
+  if (!variable) {
+    return () => 'Variable not found in codebook';
+  }
+
+  const { name: variableName, type: variableType } = variable;
+
+  if (!variableName || !variableType) {
+    return () => 'Variable not found in codebook';
+  }
+
+  return (value: FieldValue, allValues: Record<string, FieldValue>) =>
+    isNil(value) ||
+    compareVariables(value, allValues[variableId], variableType) > 0
+      ? `Your answer must be less than or equal to the value of "${variableName}"`
+      : undefined;
+};
+
 // Type representing a variable with a validation object
 type VariableWithValidation = Extract<Variable, { validation?: unknown }>;
 export type VariableValidation = NonNullable<
@@ -375,6 +415,8 @@ const validations = {
   sameAs,
   greaterThanVariable,
   lessThanVariable,
+  greaterThanOrEqualToVariable,
+  lessThanOrEqualToVariable,
 };
 
 /**
