@@ -56,12 +56,8 @@
       black 60%
     );
 
-    --success: color-mix(
-      in oklch,
-      oklch(from var(--color-kiwi) l calc(c + 0.2) h),
-      white 30%
-    );
-    --success-contrast: color-mix(in oklab, oklch(var(--kiwi)), black 60%);
+    --success: oklch(var(--sea-green));
+    --success-contrast: oklch(var(--white));
 
     --info: color-mix(
       in oklch,
