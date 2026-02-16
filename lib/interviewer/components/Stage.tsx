@@ -1,6 +1,5 @@
 import type { Stage as TStage } from '@codaco/protocol-validation';
 import { type ElementType, Suspense, memo } from 'react';
-import { ScrollArea } from '~/components/ui/ScrollArea';
 import { Spinner } from '~/lib/legacy-ui/components';
 import getInterface from '../Interfaces';
 import type { BeforeNextFunction } from './ProtocolScreen';
@@ -21,7 +20,7 @@ function Stage(props: StageProps) {
   const CurrentInterface = getInterface(stage.type) as ElementType<StageProps>;
 
   return (
-    <ScrollArea className="size-full overflow-y-auto" id="stage" key={stage.id}>
+    <div className="size-full" id="stage" key={stage.id}>
       <StageErrorBoundary>
         <Suspense
           fallback={
@@ -40,7 +39,7 @@ function Stage(props: StageProps) {
           )}
         </Suspense>
       </StageErrorBoundary>
-    </ScrollArea>
+    </div>
   );
 }
 

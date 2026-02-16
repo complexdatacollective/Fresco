@@ -2,14 +2,15 @@ import { type Stage } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
 import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import Surface from '~/components/layout/Surface';
+import Surface, { MotionSurface } from '~/components/layout/Surface';
 import {
   ALLOWED_MARKDOWN_SECTION_TAGS,
   RenderMarkdown,
 } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
+import { ScrollArea } from '~/components/ui/ScrollArea';
 import useDialog from '~/lib/dialogs/useDialog';
 import { FormWithoutProvider } from '~/lib/form/components/Form';
 import { useFormMeta } from '~/lib/form/hooks/useFormState';
@@ -49,27 +50,20 @@ const EgoFormInner = (props: EgoFormProps) => {
   const dispatch = useAppDispatch();
   const { openDialog } = useDialog();
 
+  const [hasReachedBottom, setHasReachedBottom] = useState(false);
+  const [showScrollStatus, setShowScrollStatus] = useFlipflop(
+    true,
+    7000,
+    false,
+  );
+
   const { isDirty: isFormDirty, isValid: isFormValid } = useFormMeta();
   const submitForm = useFormStore((s) => s.submitForm);
   const validateForm = useFormStore((s) => s.validateForm);
 
-  const [scrollProgress] = useState(0);
-  const [showScrollStatus] = useFlipflop(true, 7000, false);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const { updateReady: setIsReadyForNext } = useReadyForNextStage();
   const egoAttributes = useSelector(getEgoAttributes);
-
-  // Detect if the scrollable element has overflowing content
-  useEffect(() => {
-    const element = document.querySelector(
-      '.ego-form__form-container-scroller',
-    );
-    if (!element) {
-      return;
-    }
-
-    setIsOverflowing(elementHasOverflow(element));
-  }, []);
 
   const beforeNext: BeforeNextFunction = async (direction) => {
     // If direction is backwards, and the form is invalid, check if the user
@@ -128,9 +122,27 @@ const EgoFormInner = (props: EgoFormProps) => {
     setIsReadyForNext(true);
   }, [isFormValid, setIsReadyForNext]);
 
-  const showScrollNudge = useMemo(
-    () => scrollProgress !== 1 && showScrollStatus && isOverflowing,
-    [scrollProgress, showScrollStatus, isOverflowing],
+  const showScrollNudge =
+    !hasReachedBottom && showScrollStatus && isOverflowing;
+
+  const scrollRafRef = useRef<number | null>(null);
+
+  const handleScroll = useCallback(
+    (event: React.UIEvent<HTMLDivElement>) => {
+      const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
+
+      if (scrollRafRef.current !== null) {
+        cancelAnimationFrame(scrollRafRef.current);
+      }
+
+      scrollRafRef.current = requestAnimationFrame(() => {
+        scrollRafRef.current = null;
+        const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
+        setHasReachedBottom(atBottom);
+        setShowScrollStatus(false);
+      });
+    },
+    [setShowScrollStatus],
   );
 
   const { fieldComponents } = useProtocolForm({
@@ -140,46 +152,105 @@ const EgoFormInner = (props: EgoFormProps) => {
     ) as Record<string, FieldValue>,
   });
 
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const viewport = scrollAreaRef.current;
+    if (!viewport) return;
+
+    const checkOverflow = () => setIsOverflowing(elementHasOverflow(viewport));
+
+    const observer = new ResizeObserver(checkOverflow);
+    observer.observe(viewport);
+
+    if (contentRef.current) {
+      observer.observe(contentRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (scrollRafRef.current !== null) {
+        cancelAnimationFrame(scrollRafRef.current);
+      }
+    };
+  }, []);
+
+  const scrollToBottom = useCallback(() => {
+    scrollAreaRef.current?.scrollTo({
+      top: scrollAreaRef.current.scrollHeight,
+      behavior: 'smooth',
+    });
+  }, []);
+
   return (
-    <div className="interface mx-auto max-w-[80ch] flex-col">
-      <Surface>
-        <Heading level="h1">{introductionPanel.title}</Heading>
-        <RenderMarkdown allowedElements={ALLOWED_MARKDOWN_SECTION_TAGS}>
-          {introductionPanel.text}
-        </RenderMarkdown>
-      </Surface>
-      <Surface>
-        <FormWithoutProvider onSubmit={handleSubmitForm}>
-          {fieldComponents}
-        </FormWithoutProvider>
-      </Surface>
+    <>
+      <ScrollArea
+        className="m-0 size-full"
+        onScroll={handleScroll}
+        ref={scrollAreaRef}
+      >
+        <div
+          ref={contentRef}
+          className="interface mx-auto max-w-[80ch] flex-col"
+        >
+          <Surface>
+            <Heading level="h1">{introductionPanel.title}</Heading>
+            <RenderMarkdown allowedElements={ALLOWED_MARKDOWN_SECTION_TAGS}>
+              {introductionPanel.text}
+            </RenderMarkdown>
+          </Surface>
+          <Surface>
+            <FormWithoutProvider onSubmit={handleSubmitForm}>
+              {fieldComponents}
+            </FormWithoutProvider>
+          </Surface>
+        </div>
+      </ScrollArea>
       <AnimatePresence>
         {showScrollNudge && (
-          <motion.div
-            className="scroll-nudge gap-2"
-            initial={{ opacity: 0, y: '100%' }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: '100%' }}
+          <MotionSurface
+            level="popover"
+            spacing="xs"
+            role="status"
+            aria-live="polite"
+            className="scroll-nudge absolute bottom-4 left-1/2 z-10 flex translate-x-[-50%]"
+            initial={{ y: '100%' }}
+            animate={{
+              y: 0,
+              transition: { type: 'spring', stiffness: 200, damping: 15 },
+            }}
+            exit={{ y: '200%' }}
           >
-            <Heading level="h4" margin="none">
-              Scroll to see more questions
-            </Heading>
-            <motion.div
-              animate={{
-                y: [0, 7, 0, 7, 0],
-              }}
-              transition={{
-                duration: 2,
-                ease: 'easeInOut',
-                repeat: Infinity,
-              }}
+            <button
+              type="button"
+              onClick={scrollToBottom}
+              className="flex items-center gap-2"
             >
-              <ChevronDown size="24" />
-            </motion.div>
-          </motion.div>
+              <Heading level="h4" margin="none">
+                Scroll to see more questions
+              </Heading>
+              <motion.div
+                aria-hidden="true"
+                animate={{
+                  y: [0, 7, 0, 7, 0],
+                }}
+                transition={{
+                  duration: 2,
+                  ease: 'easeInOut',
+                  repeat: Infinity,
+                }}
+              >
+                <ChevronDown size="24" />
+              </motion.div>
+            </button>
+          </MotionSurface>
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 };
 

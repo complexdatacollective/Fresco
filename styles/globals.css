@@ -494,7 +494,7 @@ This custom variant lets you target only elements with the readonly attribute.
  * --scroll-area-overflow-y-end: distance remaining to scroll
  */
 @utility scroll-area-viewport {
-  --fade-height: max(2.5rem, 10%);
+  --fade-height: max(1.5rem, 8%);
   &::before,
   &::after {
     @apply pointer-events-none absolute left-0 block transition-[height] duration-100 ease-out content-[''];

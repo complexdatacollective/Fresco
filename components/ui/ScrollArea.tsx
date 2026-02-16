@@ -151,7 +151,6 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
     return (
       <motion.div
         className={cx('relative -m-2 flex min-h-0 flex-1', className)}
-        {...rest}
       >
         <motion.div
           layoutScroll
@@ -180,6 +179,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
               '--scrollbar-width': '0px',
             } as CSSProperties
           }
+          {...rest}
         >
           {children}
         </motion.div>
