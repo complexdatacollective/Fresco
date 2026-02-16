@@ -3,7 +3,7 @@ import type { NextConfig } from 'next';
 import ChildProcess from 'node:child_process';
 import { createRequire } from 'node:module';
 import './env.js';
-import { POSTHOG_APP_NAME, POSTHOG_PROXY_HOST } from './fresco.config.js';
+import { POSTHOG_APP_NAME, POSTHOG_PROXY_HOST } from './fresco.config';
 import pkg from './package.json' with { type: 'json' };
 
 const require = createRequire(import.meta.url);
@@ -54,14 +54,23 @@ const config: NextConfig = {
   },
 };
 
+// eslint-disable-next-line no-process-env
+const posthogProjectId = process.env.POSTHOG_PROJECT_ID;
+
+/**
+ * posthog requires personalApiKey and projectId to be set at build time, but
+ * we don't want to require them for local development or CI. If they're not
+ * set, we provide dummy values and the posthog client will be a no-op.
+ */
 export default withPostHogConfig(config, {
   // eslint-disable-next-line no-process-env
-  personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY!,
-  // eslint-disable-next-line no-process-env
-  projectId: process.env.POSTHOG_PROJECT_ID,
+  personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY ?? 'none',
+  projectId: posthogProjectId ?? 'none',
   host: POSTHOG_PROXY_HOST,
   sourcemaps: {
-    releaseName: POSTHOG_APP_NAME, // (optional) Release name, defaults to repository name
-    deleteAfterUpload: true, // (optional) Delete sourcemaps after upload, defaults to true
+    // eslint-disable-next-line no-process-env
+    enabled: process.env.CI === 'true', // Only upload sourcemaps in CI
+    releaseName: POSTHOG_APP_NAME,
+    deleteAfterUpload: true,
   },
 });

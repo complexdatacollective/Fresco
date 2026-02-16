@@ -5,7 +5,6 @@ import {
   POSTHOG_APP_NAME,
   POSTHOG_PROXY_HOST,
 } from '~/fresco.config';
-import { getInstallationId } from '~/queries/appSettings';
 
 let client: PostHog | null = null;
 
@@ -19,11 +18,18 @@ export function getPosthogServer() {
   return client;
 }
 
+// Dynamic import to avoid pulling Prisma (node:path, node:url, etc.)
+// into Edge-compatible bundles that import this module
+async function resolveInstallationId() {
+  const { getInstallationId } = await import('~/queries/appSettings');
+  return getInstallationId();
+}
+
 export async function captureEvent(
   event: string,
   properties?: Record<string, unknown>,
 ) {
-  const distinctId = await getInstallationId();
+  const distinctId = await resolveInstallationId();
   const client = getPosthogServer();
 
   client.capture({
@@ -42,7 +48,7 @@ export async function captureException(
   error: unknown,
   properties?: Record<string, unknown>,
 ) {
-  const distinctId = await getInstallationId();
+  const distinctId = await resolveInstallationId();
   const client = getPosthogServer();
 
   client.captureException(error, distinctId, properties);
