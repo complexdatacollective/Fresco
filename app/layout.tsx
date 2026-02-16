@@ -20,7 +20,7 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className="bg-background publish-colors antialiased">
-        <div className="root h-dvh overflow-y-auto [scrollbar-gutter:stable_both-edges]">
+        <div className="root h-dvh">
           <Providers
             disableAnimations={env.CI ?? false}
             installationId={installationId}
