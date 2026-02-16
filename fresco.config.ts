@@ -4,7 +4,7 @@ export const MIN_ARCHITECT_VERSION_FOR_PREVIEW = '7.0.1';
 
 // Analytics
 export const POSTHOG_APP_NAME = 'Fresco';
-export const POSTHOG_PROXY_HOST = 'https://ph-proxy.networkcanvas.com';
+export const POSTHOG_PROXY_HOST = 'https://ph-relay.networkcanvas.com';
 export const POSTHOG_API_KEY =
   'phc_OThPUolJumHmf142W78TKWtjoYYAxGlF0ZZmhcV7J3c';
 
