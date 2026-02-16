@@ -1,6 +1,5 @@
 import { type Metadata } from 'next';
 import Providers from '~/components/Providers';
-import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import { env } from '~/env';
 import { getDisableAnalytics, getInstallationId } from '~/queries/appSettings';
 import '~/styles/globals.css';
@@ -28,18 +27,6 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
           >
             {children}
           </Providers>
-          {env.SANDBOX_MODE && (
-            <ResponsiveContainer>
-              <footer className="z-1 flex justify-center py-4">
-                <a href="https://www.netlify.com">
-                  <img
-                    src="https://www.netlify.com/assets/badges/netlify-badge-color-accent.svg"
-                    alt="Deploys by Netlify"
-                  />
-                </a>
-              </footer>
-            </ResponsiveContainer>
-          )}
         </div>
       </body>
     </html>

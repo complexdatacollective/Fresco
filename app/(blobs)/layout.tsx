@@ -2,6 +2,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { type PropsWithChildren, Suspense } from 'react';
 import BackgroundBlobs from '~/components/BackgroundBlobs/BackgroundBlobs';
+import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
+import { env } from '~/env';
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
@@ -20,6 +22,18 @@ export default function Layout({ children }: PropsWithChildren) {
         <main className="tablet:items-center tablet:py-0 flex grow items-start justify-center overflow-y-auto py-4">
           {children}
         </main>
+        {env.SANDBOX_MODE && (
+          <ResponsiveContainer>
+            <footer className="z-1 flex justify-center py-4">
+              <a href="https://www.netlify.com">
+                <img
+                  src="https://www.netlify.com/assets/badges/netlify-badge-color-accent.svg"
+                  alt="Deploys by Netlify"
+                />
+              </a>
+            </footer>
+          </ResponsiveContainer>
+        )}
       </div>
       <div
         data-testid="background-blobs"

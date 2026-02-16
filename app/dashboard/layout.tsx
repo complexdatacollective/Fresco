@@ -1,6 +1,8 @@
 import { type Metadata } from 'next';
 import { connection } from 'next/server';
 import { Suspense } from 'react';
+import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
+import { env } from '~/env';
 import { getAppSetting } from '~/queries/appSettings';
 import { NavigationBar } from './_components/NavigationBar';
 import UploadThingModal from './_components/UploadThingModal';
@@ -18,6 +20,18 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <UploadThingTokenGate />
       </Suspense>
       {children}
+      {env.SANDBOX_MODE && (
+        <ResponsiveContainer>
+          <footer className="z-1 flex justify-center py-4">
+            <a href="https://www.netlify.com">
+              <img
+                src="https://www.netlify.com/assets/badges/netlify-badge-color-accent.svg"
+                alt="Deploys by Netlify"
+              />
+            </a>
+          </footer>
+        </ResponsiveContainer>
+      )}
     </div>
   );
 };
