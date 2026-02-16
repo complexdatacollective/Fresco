@@ -31,11 +31,11 @@
     --secondary: oklch(var(--slate-blue));
     --secondary-contrast: oklch(var(--white));
 
-    --surface: oklch(from var(--background) calc(l + 0.1) calc(c + 0.005) h);
+    --surface: oklch(from var(--background) calc(l + 0.05) calc(c + 0.005) h);
     --surface-contrast: var(--text);
-    --surface-1: oklch(from var(--background) calc(l + 0.15) c h);
+    --surface-1: oklch(from var(--background) calc(l + 0.09) c h);
     --surface-1-contrast: var(--text);
-    --surface-2: oklch(from var(--background) calc(l + 0.03) c h);
+    --surface-2: oklch(from var(--background) calc(l + 0.13) c h);
     --surface-2-contrast: var(--text);
     --surface-3: oklch(from var(--background) calc(l + 0.05) c h);
     --surface-3-contrast: var(--text);

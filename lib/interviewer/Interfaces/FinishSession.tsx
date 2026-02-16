@@ -33,8 +33,8 @@ const FinishSession = () => {
     });
 
   return (
-    <div className="interface flex flex-col items-center justify-center">
-      <Surface>
+    <div className="interface">
+      <Surface className="w-full max-w-2xl" noContainer>
         <Heading level="h1">Finish Interview</Heading>
         <Paragraph>
           You have reached the end of the interview. If you are satisfied with

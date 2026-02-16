@@ -20,7 +20,11 @@ function Stage(props: StageProps) {
   const CurrentInterface = getInterface(stage.type) as ElementType<StageProps>;
 
   return (
-    <div className="flex size-full items-center" id="stage" key={stage.id}>
+    <div
+      className="flex size-full flex-col items-center"
+      id="stage"
+      key={stage.id}
+    >
       <StageErrorBoundary>
         <Suspense
           fallback={

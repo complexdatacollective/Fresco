@@ -5,7 +5,7 @@ export default function Icon(props: SVGProps<SVGSVGElement>) {
     <svg
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 111.2 126"
+      viewBox="-21.4 -24.2 153.9 174.4"
       {...props}
     >
       <polygon

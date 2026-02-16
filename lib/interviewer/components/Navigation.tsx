@@ -77,7 +77,6 @@ const Navigation = ({
 
   return (
     <Surface
-      level={2}
       role="navigation"
       elevation="none"
       className={navigationVariants({ orientation })}
