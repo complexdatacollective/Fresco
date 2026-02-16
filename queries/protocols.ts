@@ -38,11 +38,26 @@ export const getProtocolByHash = createCachedFunction(
   ['getProtocolsByHash', 'getProtocols'],
 );
 
+/**
+ * Find existing assets by assetId that are safe to reuse.
+ * Excludes assets that are ONLY associated with pending preview protocols,
+ * as these may have failed/stuck uploads with invalid URLs.
+ */
 export const getExistingAssets = async (assetIds: string[]) => {
   return prisma.asset.findMany({
     where: {
       assetId: {
         in: assetIds,
+      },
+      // Exclude assets that are ONLY associated with pending preview protocols
+      // An asset is safe to reuse if it has at least one non-pending protocol
+      protocols: {
+        some: {
+          OR: [
+            { isPending: false },
+            { isPreview: false },
+          ],
+        },
       },
     },
     select: {
