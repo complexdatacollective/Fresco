@@ -121,7 +121,7 @@
     "sharp": "^0.34.5",
     "sqids": "^0.3.0",
     "superjson": "^2.2.5",
-    "tailwind-merge": "^3.4.0",
+    "tailwind-merge": "^3.4.1",
     "uploadthing": "^7.7.4",
     "usehooks-ts": "^3.1.1",
     "uuid": "^13.0.0",
