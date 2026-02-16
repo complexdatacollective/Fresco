@@ -1,16 +1,16 @@
 'use client';
 'use no memo';
 
+import { invariant } from 'es-toolkit';
 import {
+  AnimatePresence,
   motion,
-  useAnimate,
   type ValueAnimationTransition,
 } from 'motion/react';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import useMediaQuery from '~/hooks/useMediaQuery';
-import usePrevious from '~/hooks/usePrevious';
 import { cx } from '~/utils/cva';
 import { updatePrompt, updateStage } from '../ducks/modules/session';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
@@ -39,33 +39,20 @@ const animationOptions: ValueAnimationTransition = {
 };
 
 const variants = {
-  initial: ({
-    current,
-    previous,
-  }: {
-    current: number;
-    previous: number | undefined;
-  }) => {
-    if (previous) {
-      return current > previous
-        ? { opacity: 1, y: '100%' }
-        : { opacity: 1, y: '-100%' };
-    }
-
-    return {
-      opacity: 0,
-      y: '100%',
-    };
+  initial: {
+    opacity: 0,
   },
   animate: {
     opacity: 1,
-    y: '0',
-    transition: { when: 'beforeChildren', ...animationOptions },
+    transition: { when: 'beforeChildren' },
+  },
+  exit: {
+    opacity: 0,
+    transition: { when: 'afterChildren' },
   },
 };
 
 export default function ProtocolScreen() {
-  const [scope, animate] = useAnimate();
   const dispatch = useDispatch();
 
   // State
@@ -78,7 +65,6 @@ export default function ProtocolScreen() {
   const { isReady: isReadyForNextStage } = useReadyForNextStage();
   const { currentStep, isLastPrompt, isFirstPrompt, promptIndex } =
     useSelector(getNavigationInfo);
-  const prevCurrentStep = usePrevious(currentStep);
   const { nextValidStageIndex, previousValidStageIndex, isCurrentStepValid } =
     useSelector(getNavigableStages);
   const stageCount = useSelector(getStageCount);
@@ -126,15 +112,12 @@ export default function ProtocolScreen() {
     const beforeNextResult = await beforeNextFunction.current(direction);
 
     // Throw an error if beforeNextFunction returns an invalid value
-    if (
-      beforeNextResult !== true &&
-      beforeNextResult !== false &&
-      beforeNextResult !== 'FORCE'
-    ) {
-      throw new Error(
-        `beforeNextFunction must return a boolean or the string 'FORCE'`,
-      );
-    }
+    invariant(
+      beforeNextResult === true ||
+        beforeNextResult === false ||
+        beforeNextResult === 'FORCE',
+      `beforeNextFunction must return a boolean or the string 'FORCE'`,
+    );
 
     return beforeNextResult;
   };
@@ -163,7 +146,6 @@ export default function ProtocolScreen() {
         promptCount,
       );
       setProgress(fakeProgress);
-      await animate(scope.current, { y: '-100vh' }, animationOptions);
       // If the result is true or 'FORCE' we can reset the function here:
       registerBeforeNext(null);
 
@@ -172,12 +154,10 @@ export default function ProtocolScreen() {
 
     setForceNavigationDisabled(false);
   }, [
-    animate,
     dispatch,
     isLastPrompt,
     promptIndex,
     registerBeforeNext,
-    scope,
     stageCount,
     promptCount,
     setQueryStep,
@@ -206,22 +186,17 @@ export default function ProtocolScreen() {
         promptCount,
       );
       setProgress(fakeProgress);
-
-      // from this point on we are definitely navigating, so set up the animation
-      await animate(scope.current, { y: '100vh' }, animationOptions);
       registerBeforeNext(null);
       void setQueryStep(previousValidStageIndexRef.current);
     })();
 
     setForceNavigationDisabled(false);
   }, [
-    animate,
     setQueryStep,
     dispatch,
     isFirstPrompt,
     promptIndex,
     registerBeforeNext,
-    scope,
     stageCount,
     promptCount,
   ]);
@@ -277,23 +252,24 @@ export default function ProtocolScreen() {
           isPortraitAspectRatio ? 'flex-col' : 'flex-row-reverse',
         )}
       >
-        <motion.div
-          key={currentStep}
-          ref={scope}
-          className="flex min-h-0 flex-1"
-          initial="initial"
-          animate="animate"
-          variants={variants}
-          custom={{ current: currentStep, previous: prevCurrentStep }}
-        >
+        <AnimatePresence mode="wait">
           {stage && (
-            <Stage
-              stage={stage}
-              registerBeforeNext={registerBeforeNext}
-              getNavigationHelpers={getNavigationHelpers}
-            />
+            <motion.div
+              key={currentStep}
+              className="flex min-h-0 flex-1"
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              variants={variants}
+            >
+              <Stage
+                stage={stage}
+                registerBeforeNext={registerBeforeNext}
+                getNavigationHelpers={getNavigationHelpers}
+              />
+            </motion.div>
           )}
-        </motion.div>
+        </AnimatePresence>
         <Navigation
           moveBackward={moveBackward}
           moveForward={moveForward}

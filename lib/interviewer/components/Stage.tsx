@@ -1,5 +1,5 @@
 import type { Stage as TStage } from '@codaco/protocol-validation';
-import { type ElementType, Suspense, memo } from 'react';
+import { type ElementType, Suspense } from 'react';
 import { Spinner } from '~/lib/legacy-ui/components';
 import getInterface from '../Interfaces';
 import type { BeforeNextFunction } from './ProtocolScreen';
@@ -43,4 +43,4 @@ function Stage(props: StageProps) {
   );
 }
 
-export default memo(Stage);
+export default Stage;
