@@ -40,7 +40,7 @@ const Prompts = ({
   );
 
   const promptsClasses = cx(
-    'text-surface-contrast flex w-full flex-col items-center overflow-hidden leading-tight font-normal text-balance',
+    'text-surface-contrast flex w-full flex-col items-center leading-tight font-normal text-balance',
     className,
   );
 
