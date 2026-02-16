@@ -9,7 +9,7 @@ import { getInstallationId } from '~/queries/appSettings';
 
 let client: PostHog | null = null;
 
-function getClient() {
+export function getPosthogServer() {
   client ??= new PostHog(POSTHOG_API_KEY, {
     host: POSTHOG_PROXY_HOST,
     flushAt: 1,
@@ -24,7 +24,9 @@ export async function captureEvent(
   properties?: Record<string, unknown>,
 ) {
   const distinctId = await getInstallationId();
-  getClient().capture({
+  const client = getPosthogServer();
+
+  client.capture({
     distinctId,
     event,
     properties: {
@@ -40,16 +42,12 @@ export async function captureException(
   error: unknown,
   properties?: Record<string, unknown>,
 ) {
-  await captureEvent('$exception', {
-    ...properties,
-    $exception_message: error instanceof Error ? error.message : String(error),
-    $exception_type:
-      error instanceof Error ? error.constructor.name : 'Unknown',
-    $exception_stack_trace_raw:
-      error instanceof Error ? error.stack : undefined,
-  });
+  const distinctId = await getInstallationId();
+  const client = getPosthogServer();
+
+  client.captureException(error, distinctId, properties);
 }
 
 export async function shutdownPostHog() {
-  await getClient().shutdown();
+  await getPosthogServer().shutdown();
 }
