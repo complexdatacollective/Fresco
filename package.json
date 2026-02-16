@@ -178,7 +178,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-storybook": "^10.2.8",
     "globals": "^17.3.0",
-    "jsdom": "^28.0.0",
+    "jsdom": "^28.1.0",
     "knip": "^5.83.1",
     "pg": "^8.18.0",
     "playwright": "^1.58.2",
