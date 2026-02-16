@@ -54,9 +54,6 @@ const config: NextConfig = {
   },
 };
 
-// eslint-disable-next-line no-process-env
-const posthogProjectId = process.env.POSTHOG_PROJECT_ID;
-
 /**
  * posthog requires personalApiKey and projectId to be set at build time, but
  * we don't want to require them for local development or CI. If they're not
@@ -65,7 +62,8 @@ const posthogProjectId = process.env.POSTHOG_PROJECT_ID;
 export default withPostHogConfig(config, {
   // eslint-disable-next-line no-process-env
   personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY ?? 'none',
-  projectId: posthogProjectId ?? 'none',
+  // eslint-disable-next-line no-process-env
+  projectId: process.env.POSTHOG_PROJECT_ID ?? 'none',
   host: POSTHOG_PROXY_HOST,
   sourcemaps: {
     // eslint-disable-next-line no-process-env

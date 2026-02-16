@@ -1,10 +1,11 @@
 import { Loader2 } from 'lucide-react';
+import { after } from 'next/server';
 import Markdown from 'react-markdown';
 import { z } from 'zod';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import Link from '~/components/ui/Link';
 import { env } from '~/env';
-import { captureException } from '~/lib/posthog-server';
+import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { ensureError } from '~/utils/ensureError';
 import { getSemverUpdateType, semverSchema } from '~/utils/semVer';
 import SettingsCard from './settings/SettingsCard';
@@ -64,6 +65,9 @@ async function checkForUpdate() {
   } catch (e) {
     const error = ensureError(e);
     void captureException(error);
+    after(async () => {
+      await shutdownPostHog();
+    });
 
     return {
       error: true,

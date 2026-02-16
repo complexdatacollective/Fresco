@@ -1,12 +1,15 @@
 'use server';
 
+import { after } from 'next/server';
 import type { Activity, ActivityType } from '~/components/DataTable/types';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
+import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
 
 export async function addEvent(
   type: ActivityType,
   message: Activity['message'],
+  properties?: Record<string, unknown>,
 ) {
   try {
     await prisma.events.create({
@@ -17,6 +20,11 @@ export async function addEvent(
     });
 
     safeUpdateTag('activityFeed');
+
+    void captureEvent(type, { message, ...properties });
+    after(async () => {
+      await shutdownPostHog();
+    });
 
     return { success: true, error: null };
   } catch (_error) {

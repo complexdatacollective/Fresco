@@ -22,9 +22,18 @@ vi.mock('~/env', () => ({
   },
 }));
 
+vi.mock('next/server', async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  return {
+    ...actual,
+    after: vi.fn(),
+  };
+});
+
 vi.mock('~/lib/posthog-server', () => ({
   captureEvent: vi.fn(),
   captureException: vi.fn(),
+  shutdownPostHog: vi.fn(),
 }));
 
 // Import after mocks are set up

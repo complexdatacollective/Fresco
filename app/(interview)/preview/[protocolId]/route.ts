@@ -1,6 +1,6 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { after, NextResponse, type NextRequest } from 'next/server';
 import { env } from '~/env';
-import { captureEvent } from '~/lib/posthog-server';
+import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
 import { prisma } from '~/lib/db';
 import { getPreviewMode } from '~/queries/appSettings';
 
@@ -57,6 +57,9 @@ const handler = async (
   void captureEvent('InterviewStarted', {
     protocolId,
     isPreview: true,
+  });
+  after(async () => {
+    await shutdownPostHog();
   });
 
   // Redirect to the preview interview page (no database persistence)

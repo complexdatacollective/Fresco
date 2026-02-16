@@ -73,9 +73,18 @@ vi.mock('~/actions/activityFeed', () => ({
   addEvent: vi.fn(),
 }));
 
+vi.mock('next/server', async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  return {
+    ...actual,
+    after: vi.fn(),
+  };
+});
+
 vi.mock('~/lib/posthog-server', () => ({
   captureEvent: vi.fn(),
   captureException: vi.fn(),
+  shutdownPostHog: vi.fn(),
 }));
 
 vi.mock('~/lib/interviewer/ducks/modules/session', () => ({

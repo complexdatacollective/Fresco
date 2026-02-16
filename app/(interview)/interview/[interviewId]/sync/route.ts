@@ -1,9 +1,9 @@
 import { NcNetworkSchema } from '@codaco/shared-consts';
-import { NextResponse, type NextRequest } from 'next/server';
+import { after, NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '~/lib/db';
 import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
-import { captureException } from '~/lib/posthog-server';
+import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { ensureError } from '~/utils/ensureError';
 
 /**
@@ -30,6 +30,9 @@ const routeHandler = async (
   if (!validatedRequest.success) {
     void captureException(validatedRequest.error, {
       interviewId,
+    });
+    after(async () => {
+      await shutdownPostHog();
     });
 
     return NextResponse.json(

@@ -55,5 +55,8 @@ export async function captureException(
 }
 
 export async function shutdownPostHog() {
-  await getPosthogServer().shutdown();
+  if (client) {
+    await client.shutdown();
+    client = null;
+  }
 }

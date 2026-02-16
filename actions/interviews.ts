@@ -4,8 +4,13 @@ import { type NcNetwork } from '@codaco/shared-consts';
 import { createId } from '@paralleldrive/cuid2';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
+import { after } from 'next/server';
 import superjson from 'superjson';
-import { captureEvent, captureException } from '~/lib/posthog-server';
+import {
+  captureEvent,
+  captureException,
+  shutdownPostHog,
+} from '~/lib/posthog-server';
 import { safeRevalidateTag, safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { type Interview } from '~/lib/db/generated/client';
@@ -139,6 +144,9 @@ export const exportSessions = async (
       exportOptions,
       result,
     });
+    after(async () => {
+      await shutdownPostHog();
+    });
 
     safeUpdateTag('getInterviews');
 
@@ -148,6 +156,9 @@ export const exportSessions = async (
     console.error(error);
     const e = ensureError(error);
     void captureException(e);
+    after(async () => {
+      await shutdownPostHog();
+    });
 
     return {
       status: 'error',
@@ -238,6 +249,9 @@ export async function createInterview(data: CreateInterview) {
     const e = ensureError(error);
 
     void captureException(e);
+    after(async () => {
+      await shutdownPostHog();
+    });
 
     return {
       errorType: e.message,
@@ -258,19 +272,18 @@ export async function finishInterview(interviewId: Interview['id']) {
       },
     });
 
-    void addEvent(
-      'Interview Completed',
-      `Interview with ID ${interviewId} has been completed`,
-    );
-
     const network = JSON.parse(
       JSON.stringify(updatedInterview.network),
     ) as NcNetwork;
 
-    void captureEvent('InterviewCompleted', {
-      nodeCount: network?.nodes?.length ?? 0,
-      edgeCount: network?.edges?.length ?? 0,
-    });
+    void addEvent(
+      'Interview Completed',
+      `Interview with ID ${interviewId} has been completed`,
+      {
+        nodeCount: network?.nodes?.length ?? 0,
+        edgeCount: network?.edges?.length ?? 0,
+      },
+    );
 
     (await cookies()).set(updatedInterview.protocolId, 'completed');
 
