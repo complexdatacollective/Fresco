@@ -1,10 +1,12 @@
+import { Metadata } from 'next';
 import Providers from '~/components/Providers';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import { env } from '~/env';
+import { getAppSetting } from '~/queries/appSettings';
 import '~/styles/globals.css';
 import '~/styles/themes/default.css';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Network Canvas Fresco',
   description: 'Fresco.',
 };
@@ -14,7 +16,12 @@ function RootLayout({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <body className="bg-background publish-colors antialiased">
         <div className="root h-dvh overflow-y-auto [scrollbar-gutter:stable_both-edges]">
-          <Providers disableAnimations={env.CI ?? false}>{children}</Providers>
+          <Providers
+            disableAnimations={env.CI ?? false}
+            installationId={getAppSetting('installationId')}
+          >
+            {children}
+          </Providers>
           {env.SANDBOX_MODE && (
             <ResponsiveContainer>
               <footer className="z-1 flex justify-center py-4">
