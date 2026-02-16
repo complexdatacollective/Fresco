@@ -58,7 +58,7 @@ export function StaticRenderer<T>({
 
     const runAnimation = async () => {
       await animate(
-        '[data-collection-item]',
+        '[data-stagger-item]',
         { opacity: [0, 1], y: ['20%', '0%'], scale: [0.6, 1] },
         {
           type: 'spring',
@@ -86,12 +86,14 @@ export function StaticRenderer<T>({
               exit={{ scale: 0.6, opacity: 0 }}
               style={layoutItemStyle}
             >
-              <CollectionItem
-                node={node}
-                renderItem={renderItem}
-                dragAndDropHooks={dragAndDropHooks}
-                layout={layout}
-              />
+              <div data-stagger-item>
+                <CollectionItem
+                  node={node}
+                  renderItem={renderItem}
+                  dragAndDropHooks={dragAndDropHooks}
+                  layout={layout}
+                />
+              </div>
             </motion.div>
           ))}
         </AnimatePresence>
