@@ -1,25 +1,23 @@
 // lib/posthog-server.ts
-import { POSTHOG_API_KEY, POSTHOG_PROXY_HOST } from '@/fresco.config';
-import { getInstallationId } from '@/lib/installation'; // your DB call
 import { PostHog } from 'posthog-node';
+import {
+  POSTHOG_API_KEY,
+  POSTHOG_APP_NAME,
+  POSTHOG_PROXY_HOST,
+} from '~/fresco.config';
+import { getInstallationId } from '~/queries/appSettings';
 
 let client: PostHog | null = null;
 
-function getClient(): PostHog {
-  if (!client) {
-    client = new PostHog(POSTHOG_API_KEY, {
-      host: POSTHOG_PROXY_HOST,
-      flushAt: 1,
-      flushInterval: 0,
-    });
-  }
+function getClient() {
+  client ??= new PostHog(POSTHOG_API_KEY, {
+    host: POSTHOG_PROXY_HOST,
+    flushAt: 1,
+    flushInterval: 0,
+    enableExceptionAutocapture: true,
+  });
   return client;
 }
-
-const SUPER_PROPERTIES = {
-  app_name: 'fresco',
-  // etc.
-};
 
 export async function captureEvent(
   event: string,
@@ -30,7 +28,8 @@ export async function captureEvent(
     distinctId,
     event,
     properties: {
-      ...SUPER_PROPERTIES,
+      app: POSTHOG_APP_NAME,
+      installation_id: distinctId,
       ...properties,
       $source: 'server',
     },
