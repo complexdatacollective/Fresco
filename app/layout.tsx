@@ -1,8 +1,8 @@
-import { Metadata } from 'next';
+import { type Metadata } from 'next';
 import Providers from '~/components/Providers';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import { env } from '~/env';
-import { getAppSetting } from '~/queries/appSettings';
+import { getInstallationId } from '~/queries/appSettings';
 import '~/styles/globals.css';
 import '~/styles/themes/default.css';
 
@@ -18,7 +18,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
         <div className="root h-dvh overflow-y-auto [scrollbar-gutter:stable_both-edges]">
           <Providers
             disableAnimations={env.CI ?? false}
-            installationId={getAppSetting('installationId')}
+            installationId={getInstallationId()}
           >
             {children}
           </Providers>

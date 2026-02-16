@@ -1,7 +1,9 @@
+import { withPostHogConfig } from '@posthog/nextjs-config';
 import type { NextConfig } from 'next';
 import ChildProcess from 'node:child_process';
 import { createRequire } from 'node:module';
 import './env.js';
+import { POSTHOG_APP_NAME, POSTHOG_PROXY_HOST } from './fresco.config.js';
 import pkg from './package.json' with { type: 'json' };
 
 const require = createRequire(import.meta.url);
@@ -51,4 +53,15 @@ const config: NextConfig = {
     ignoreBuildErrors: true,
   },
 };
-export default config;
+
+export default withPostHogConfig(config, {
+  // eslint-disable-next-line no-process-env
+  personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY!,
+  // eslint-disable-next-line no-process-env
+  projectId: process.env.POSTHOG_PROJECT_ID,
+  host: POSTHOG_PROXY_HOST,
+  sourcemaps: {
+    releaseName: POSTHOG_APP_NAME, // (optional) Release name, defaults to repository name
+    deleteAfterUpload: true, // (optional) Delete sourcemaps after upload, defaults to true
+  },
+});
