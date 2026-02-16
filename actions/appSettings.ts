@@ -3,7 +3,7 @@
 import { createId } from '@paralleldrive/cuid2';
 import { redirect } from 'next/navigation';
 import { type z } from 'zod';
-import trackEvent from '~/lib/analytics';
+import { captureEvent } from '~/lib/posthog-server';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { getInstallationId } from '~/queries/appSettings';
@@ -59,11 +59,8 @@ export async function completeSetup() {
     await setAppSetting('installationId', createId());
   }
   await setAppSetting('configured', true);
-  void trackEvent({
-    type: 'AppSetup',
-    metadata: {
-      installationId,
-    },
+  void captureEvent('AppSetup', {
+    installationId,
   });
 
   redirect('/dashboard');

@@ -5,7 +5,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import superjson from 'superjson';
-import trackEvent from '~/lib/analytics';
+import { captureEvent, captureException } from '~/lib/posthog-server';
 import { safeRevalidateTag, safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { type Interview } from '~/lib/db/generated/client';
@@ -133,14 +133,11 @@ export const exportSessions = async (
       .then(archive)
       .then(uploadZipToUploadThing);
 
-    void trackEvent({
-      type: 'DataExported',
-      metadata: {
-        status: result.status,
-        sessions: interviewIds.length,
-        exportOptions,
-        result: result,
-      },
+    void captureEvent('DataExported', {
+      status: result.status,
+      sessions: interviewIds.length,
+      exportOptions,
+      result,
     });
 
     safeUpdateTag('getInterviews');
@@ -150,15 +147,7 @@ export const exportSessions = async (
     // eslint-disable-next-line no-console
     console.error(error);
     const e = ensureError(error);
-    void trackEvent({
-      type: 'Error',
-      name: e.name,
-      message: e.message,
-      stack: e.stack,
-      metadata: {
-        path: '~/actions/interviews.ts',
-      },
-    });
+    void captureException(e);
 
     return {
       status: 'error',
@@ -248,15 +237,7 @@ export async function createInterview(data: CreateInterview) {
   } catch (error) {
     const e = ensureError(error);
 
-    void trackEvent({
-      type: 'Error',
-      name: e.name,
-      message: e.message,
-      stack: e.stack,
-      metadata: {
-        path: '/routers/interview.ts',
-      },
-    });
+    void captureException(e);
 
     return {
       errorType: e.message,
@@ -286,12 +267,9 @@ export async function finishInterview(interviewId: Interview['id']) {
       JSON.stringify(updatedInterview.network),
     ) as NcNetwork;
 
-    void trackEvent({
-      type: 'InterviewCompleted',
-      metadata: {
-        nodeCount: network?.nodes?.length ?? 0,
-        edgeCount: network?.edges?.length ?? 0,
-      },
+    void captureEvent('InterviewCompleted', {
+      nodeCount: network?.nodes?.length ?? 0,
+      edgeCount: network?.edges?.length ?? 0,
     });
 
     (await cookies()).set(updatedInterview.protocolId, 'completed');

@@ -73,8 +73,9 @@ vi.mock('~/actions/activityFeed', () => ({
   addEvent: vi.fn(),
 }));
 
-vi.mock('~/lib/analytics', () => ({
-  default: vi.fn(),
+vi.mock('~/lib/posthog-server', () => ({
+  captureEvent: vi.fn(),
+  captureException: vi.fn(),
 }));
 
 vi.mock('~/lib/interviewer/ducks/modules/session', () => ({

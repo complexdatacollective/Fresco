@@ -22,8 +22,9 @@ vi.mock('~/env', () => ({
   },
 }));
 
-vi.mock('~/lib/analytics', () => ({
-  default: vi.fn(),
+vi.mock('~/lib/posthog-server', () => ({
+  captureEvent: vi.fn(),
+  captureException: vi.fn(),
 }));
 
 // Import after mocks are set up

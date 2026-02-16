@@ -18,7 +18,7 @@ export default function Providers({
 }: {
   children: ReactNode;
   disableAnimations?: boolean;
-  installationId: Promise<string | undefined>;
+  installationId?: Promise<string | undefined>;
 }) {
   /**
    * This is the documented way to turn of all animations

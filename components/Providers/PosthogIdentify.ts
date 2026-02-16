@@ -11,9 +11,9 @@ import { POSTHOG_APP_NAME } from '~/fresco.config';
 export function PostHogIdentify({
   installationId,
 }: {
-  installationId: Promise<string | undefined>;
+  installationId?: Promise<string | undefined>;
 }) {
-  const resolvedId = use(installationId);
+  const resolvedId = use(installationId ?? Promise.resolve(undefined));
 
   useEffect(() => {
     if (!resolvedId) return;

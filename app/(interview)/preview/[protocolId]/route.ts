@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { env } from '~/env';
-import trackEvent from '~/lib/analytics';
+import { captureEvent } from '~/lib/posthog-server';
 import { prisma } from '~/lib/db';
 import { getPreviewMode } from '~/queries/appSettings';
 
@@ -54,12 +54,9 @@ const handler = async (
     `🎨 Starting preview interview using preview protocol ${protocol.name}...`,
   );
 
-  void trackEvent({
-    type: 'InterviewStarted',
-    metadata: {
-      protocolId,
-      isPreview: true,
-    },
+  void captureEvent('InterviewStarted', {
+    protocolId,
+    isPreview: true,
   });
 
   // Redirect to the preview interview page (no database persistence)

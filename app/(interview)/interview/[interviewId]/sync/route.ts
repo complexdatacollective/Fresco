@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '~/lib/db';
 import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
-import trackEvent from '~/lib/analytics';
+import { captureException } from '~/lib/posthog-server';
 import { ensureError } from '~/utils/ensureError';
 
 /**
@@ -28,14 +28,8 @@ const routeHandler = async (
   const validatedRequest = Schema.safeParse(rawPayload);
 
   if (!validatedRequest.success) {
-    void trackEvent({
-      type: 'Error',
-      name: 'SyncValidationError',
-      message: validatedRequest.error.message,
-      stack: validatedRequest.error.stack,
-      metadata: {
-        interviewId,
-      },
+    void captureException(validatedRequest.error, {
+      interviewId,
     });
 
     return NextResponse.json(

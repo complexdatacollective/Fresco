@@ -4,7 +4,7 @@ import { ErrorDetails } from '~/components/ErrorDetails';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
-import trackEvent from '~/lib/analytics';
+import posthog from 'posthog-js';
 import Icon from '~/lib/legacy-ui/components/Icon';
 
 type StageErrorBoundaryProps = {
@@ -25,11 +25,8 @@ class StageErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    void trackEvent({
-      name: 'Stage Error',
-      type: 'Error',
-      message: error.message,
-      stack: error.stack + '\n' + info.componentStack,
+    posthog.captureException(error, {
+      componentStack: info.componentStack,
     });
     this.setState({ error });
   }
