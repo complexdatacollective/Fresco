@@ -59,6 +59,8 @@ jobs:
         run: |
           echo "DATABASE_URL=${{ steps.create-branch.outputs.db_url_pooled }}" > .env
           echo "DATABASE_URL_UNPOOLED=${{ steps.create-branch.outputs.db_url }}" >> .env
+          echo "POSTHOG_PERSONAL_API_KEY=${{ secrets.POSTHOG_PERSONAL_API_KEY }}" >> .env
+          echo "POSTHOG_PROJECT_ID=${{ secrets.POSTHOG_PROJECT_ID }}" >> .env
 
       - name: Build
         run: netlify build --context branch:${{ steps.branch-name.outputs.current_branch }}
