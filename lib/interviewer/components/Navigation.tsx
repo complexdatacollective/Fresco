@@ -95,7 +95,10 @@ const Navigation = ({
         <ProgressBar percentProgress={progress} orientation={orientation} />
       </div>
       <NavigationButton
-        className={cx(pulseNext && 'bg-success animate-pulse-glow')}
+        className={cx(
+          pulseNext &&
+            'bg-success animate-pulse-glow hover:enabled:bg-success outline-success',
+        )}
         onClick={moveForward}
         disabled={disableMoveForward}
         icon={<ForwardIcon className="size-8" strokeWidth="3px" />}
