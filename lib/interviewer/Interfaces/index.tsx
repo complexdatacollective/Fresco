@@ -1,15 +1,8 @@
 /* eslint-disable react/display-name */
 import { type StageType } from '@codaco/protocol-validation';
-import dynamic from 'next/dynamic';
+import { lazy } from 'react';
 import Surface from '~/components/layout/Surface';
-import { Spinner } from '~/lib/legacy-ui/components';
 import Icon from '~/lib/legacy-ui/components/Icon';
-
-const StageLoading = () => (
-  <div className="flex size-full items-center justify-center">
-    <Spinner size="lg" />
-  </div>
-);
 
 const NotFoundInterface = ({ interfaceType }: { interfaceType: string }) => (
   <Surface>
@@ -26,106 +19,69 @@ const NotFoundInterface = ({ interfaceType }: { interfaceType: string }) => (
 
 type InterfaceType = StageType | 'FinishSession';
 
-const DynamicNameGenerator = dynamic(
-  () => import('./NameGenerator/NameGenerator'),
-  { loading: StageLoading },
-);
-const DynamicNameGeneratorQuickAdd = dynamic(
+const LazyNameGenerator = lazy(() => import('./NameGenerator/NameGenerator'));
+const LazyNameGeneratorQuickAdd = lazy(
   () => import('./NameGenerator/NameGeneratorQuickAdd'),
-  { loading: StageLoading },
 );
-const DynamicNameGeneratorRoster = dynamic(
-  () => import('./NameGeneratorRoster'),
-  { loading: StageLoading },
-);
-const DynamicSociogram = dynamic(() => import('./Sociogram'), {
-  loading: StageLoading,
-});
-const DynamicInformation = dynamic(() => import('./Information'), {
-  loading: StageLoading,
-});
-const DynamicOrdinalBin = dynamic(() => import('./OrdinalBin/OrdinalBin'), {
-  loading: StageLoading,
-});
-const DynamicCategoricalBin = dynamic(() => import('./CategoricalBin'), {
-  loading: StageLoading,
-});
-const DynamicNarrative = dynamic(() => import('./Narrative'), {
-  loading: StageLoading,
-});
-const DynamicAlterForm = dynamic(() => import('./AlterForm'), {
-  loading: StageLoading,
-});
-const DynamicEgoForm = dynamic(() => import('./EgoForm'), {
-  loading: StageLoading,
-});
-const DynamicAlterEdgeForm = dynamic(() => import('./AlterEdgeForm'), {
-  loading: StageLoading,
-});
-const DynamicDyadCensus = dynamic(() => import('./DyadCensus/DyadCensus'), {
-  loading: StageLoading,
-});
-const DynamicTieStrengthCensus = dynamic(
+const LazyNameGeneratorRoster = lazy(() => import('./NameGeneratorRoster'));
+const LazySociogram = lazy(() => import('./Sociogram'));
+const LazyInformation = lazy(() => import('./Information'));
+const LazyOrdinalBin = lazy(() => import('./OrdinalBin/OrdinalBin'));
+const LazyCategoricalBin = lazy(() => import('./CategoricalBin'));
+const LazyNarrative = lazy(() => import('./Narrative'));
+const LazyAlterForm = lazy(() => import('./AlterForm'));
+const LazyEgoForm = lazy(() => import('./EgoForm'));
+const LazyAlterEdgeForm = lazy(() => import('./AlterEdgeForm'));
+const LazyDyadCensus = lazy(() => import('./DyadCensus/DyadCensus'));
+const LazyTieStrengthCensus = lazy(
   () => import('./TieStrengthCensus/TieStrengthCensus'),
-  { loading: StageLoading },
 );
-const DynamicAnonymisation = dynamic(
-  () => import('./Anonymisation/Anonymisation'),
-  { loading: StageLoading },
-);
-const DynamicOneToManyDyadCensus = dynamic(
-  () => import('./OneToManyDyadCensus'),
-  { loading: StageLoading },
-);
-const DynamicGeospatial = dynamic(() => import('./Geospatial/Geospatial'), {
-  loading: StageLoading,
-});
-const DynamicFinishSession = dynamic(() => import('./FinishSession'), {
-  loading: StageLoading,
-});
-const DynamicFamilyTreeCensus = dynamic(
+const LazyAnonymisation = lazy(() => import('./Anonymisation/Anonymisation'));
+const LazyOneToManyDyadCensus = lazy(() => import('./OneToManyDyadCensus'));
+const LazyGeospatial = lazy(() => import('./Geospatial/Geospatial'));
+const LazyFinishSession = lazy(() => import('./FinishSession'));
+const LazyFamilyTreeCensus = lazy(
   () => import('./FamilyTreeCensus/FamilyTreeCensus'),
-  { loading: StageLoading },
 );
 
 const getInterface = (interfaceType: InterfaceType) => {
   switch (interfaceType) {
     case 'NameGenerator':
-      return DynamicNameGenerator;
+      return LazyNameGenerator;
     case 'NameGeneratorQuickAdd':
-      return DynamicNameGeneratorQuickAdd;
+      return LazyNameGeneratorQuickAdd;
     case 'NameGeneratorRoster':
-      return DynamicNameGeneratorRoster;
+      return LazyNameGeneratorRoster;
     case 'Sociogram':
-      return DynamicSociogram;
+      return LazySociogram;
     case 'Information':
-      return DynamicInformation;
+      return LazyInformation;
     case 'OrdinalBin':
-      return DynamicOrdinalBin;
+      return LazyOrdinalBin;
     case 'CategoricalBin':
-      return DynamicCategoricalBin;
+      return LazyCategoricalBin;
     case 'Narrative':
-      return DynamicNarrative;
+      return LazyNarrative;
     case 'AlterForm':
-      return DynamicAlterForm;
+      return LazyAlterForm;
     case 'EgoForm':
-      return DynamicEgoForm;
+      return LazyEgoForm;
     case 'AlterEdgeForm':
-      return DynamicAlterEdgeForm;
+      return LazyAlterEdgeForm;
     case 'DyadCensus':
-      return DynamicDyadCensus;
+      return LazyDyadCensus;
     case 'TieStrengthCensus':
-      return DynamicTieStrengthCensus;
+      return LazyTieStrengthCensus;
     case 'Anonymisation':
-      return DynamicAnonymisation;
+      return LazyAnonymisation;
     case 'OneToManyDyadCensus':
-      return DynamicOneToManyDyadCensus;
+      return LazyOneToManyDyadCensus;
     case 'Geospatial':
-      return DynamicGeospatial;
+      return LazyGeospatial;
     case 'FinishSession':
-      return DynamicFinishSession;
+      return LazyFinishSession;
     case 'FamilyTreeCensus':
-      return DynamicFamilyTreeCensus;
+      return LazyFamilyTreeCensus;
     default:
       return () => <NotFoundInterface interfaceType={interfaceType} />;
   }

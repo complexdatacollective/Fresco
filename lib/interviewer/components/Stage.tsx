@@ -1,6 +1,7 @@
 import type { Stage as TStage } from '@codaco/protocol-validation';
-import { type ElementType, memo } from 'react';
+import { type ElementType, Suspense, memo } from 'react';
 import { ScrollArea } from '~/components/ui/ScrollArea';
+import { Spinner } from '~/lib/legacy-ui/components';
 import getInterface from '../Interfaces';
 import type { BeforeNextFunction } from './ProtocolScreen';
 import StageErrorBoundary from './StageErrorBoundary';
@@ -22,14 +23,22 @@ function Stage(props: StageProps) {
   return (
     <ScrollArea className="size-full overflow-y-auto" id="stage" key={stage.id}>
       <StageErrorBoundary>
-        {CurrentInterface && (
-          <CurrentInterface
-            key={stage.id}
-            registerBeforeNext={registerBeforeNext}
-            stage={stage}
-            getNavigationHelpers={getNavigationHelpers}
-          />
-        )}
+        <Suspense
+          fallback={
+            <div className="flex size-full items-center justify-center">
+              <Spinner size="lg" />
+            </div>
+          }
+        >
+          {CurrentInterface && (
+            <CurrentInterface
+              key={stage.id}
+              registerBeforeNext={registerBeforeNext}
+              stage={stage}
+              getNavigationHelpers={getNavigationHelpers}
+            />
+          )}
+        </Suspense>
       </StageErrorBoundary>
     </ScrollArea>
   );
