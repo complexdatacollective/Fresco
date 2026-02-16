@@ -2,11 +2,7 @@
 'use no memo';
 
 import { invariant } from 'es-toolkit';
-import {
-  AnimatePresence,
-  motion,
-  type ValueAnimationTransition,
-} from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -31,13 +27,6 @@ export type BeforeNextFunction = (
   direction: Direction,
 ) => Promise<boolean | 'FORCE'> | boolean | 'FORCE';
 
-const animationOptions: ValueAnimationTransition = {
-  type: 'spring',
-  damping: 20,
-  stiffness: 150,
-  mass: 1,
-};
-
 const variants = {
   initial: {
     opacity: 0,
@@ -56,8 +45,16 @@ export default function ProtocolScreen() {
   const dispatch = useDispatch();
 
   // State
-  const [queryStep, setQueryStep] = useQueryState('step', parseAsInteger);
+  const [queryStep, setQueryStep] = useQueryState(
+    'step',
+    parseAsInteger.withOptions({ history: 'push' }),
+  );
   const [forceNavigationDisabled, setForceNavigationDisabled] = useState(false);
+
+  // Two-phase navigation state
+  const [showStage, setShowStage] = useState(true);
+  const pendingStepRef = useRef<number | null>(null);
+  const isTransitioningRef = useRef(false);
 
   // Selectors
   const stage = useSelector(getCurrentStage); // null = loading, undefined = not found
@@ -123,6 +120,7 @@ export default function ProtocolScreen() {
   };
 
   const moveForward = useCallback(async () => {
+    if (isTransitioningRef.current) return;
     setForceNavigationDisabled(true);
 
     await (async () => {
@@ -164,6 +162,7 @@ export default function ProtocolScreen() {
   ]);
 
   const moveBackward = useCallback(async () => {
+    if (isTransitioningRef.current) return;
     setForceNavigationDisabled(true);
 
     await (async () => {
@@ -209,17 +208,34 @@ export default function ProtocolScreen() {
     [moveForward, moveBackward],
   );
 
+  const handleExitComplete = useCallback(() => {
+    const target = pendingStepRef.current;
+    if (target === null) return;
+
+    dispatch(updateStage(target));
+    pendingStepRef.current = null;
+    setShowStage(true);
+    isTransitioningRef.current = false;
+  }, [dispatch]);
+
+  // Initialize URL step param on first load
   useEffect(() => {
     if (queryStep === null) {
-      void setQueryStep(currentStep);
+      void setQueryStep(currentStep, { history: 'replace' });
     }
   }, [queryStep, currentStep, setQueryStep]);
 
+  // Two-phase navigation: when URL changes, start exit animation
+  // Redux currentStep is NOT updated here — it's deferred to handleExitComplete
   useEffect(() => {
     if (queryStep !== null && queryStep !== currentStep) {
-      dispatch(updateStage(queryStep));
+      pendingStepRef.current = queryStep;
+      if (!isTransitioningRef.current) {
+        isTransitioningRef.current = true;
+        setShowStage(false);
+      }
     }
-  }, [currentStep, queryStep, dispatch]);
+  }, [queryStep, currentStep]);
 
   // Check if the current stage is valid for us to be on.
   useEffect(() => {
@@ -232,8 +248,7 @@ export default function ProtocolScreen() {
       );
       // This should always return a valid stage, because we know that the
       // first stage is always valid.
-      // dispatch(updateStage(previousValidStageIndex));
-      void setQueryStep(previousValidStageIndex);
+      void setQueryStep(previousValidStageIndex, { history: 'replace' });
     }
   }, [setQueryStep, isCurrentStepValid, previousValidStageIndex]);
 
@@ -252,8 +267,8 @@ export default function ProtocolScreen() {
           isPortraitAspectRatio ? 'flex-col' : 'flex-row-reverse',
         )}
       >
-        <AnimatePresence mode="wait">
-          {stage && (
+        <AnimatePresence mode="wait" onExitComplete={handleExitComplete}>
+          {showStage && stage && (
             <motion.div
               key={currentStep}
               className="flex min-h-0 flex-1"
@@ -273,9 +288,12 @@ export default function ProtocolScreen() {
         <Navigation
           moveBackward={moveBackward}
           moveForward={moveForward}
-          disableMoveForward={forceNavigationDisabled || !canMoveForward}
+          disableMoveForward={
+            forceNavigationDisabled || !showStage || !canMoveForward
+          }
           disableMoveBackward={
             forceNavigationDisabled ||
+            !showStage ||
             (!canMoveBackward && !beforeNextFunction.current)
           }
           pulseNext={isReadyForNextStage}
