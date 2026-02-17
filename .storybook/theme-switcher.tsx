@@ -104,7 +104,10 @@ function ThemeWrapper({
 }
 
 export const withTheme: Decorator = (Story, context) => {
-  const selectedTheme = (context.globals[THEME_KEY] as ThemeKey) ?? 'default';
+  const selectedTheme =
+    (context.parameters.forceTheme as ThemeKey) ??
+    (context.globals[THEME_KEY] as ThemeKey) ??
+    'default';
 
   return (
     <ThemeWrapper selectedTheme={selectedTheme}>

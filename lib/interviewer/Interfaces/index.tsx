@@ -23,7 +23,7 @@ const LazyNameGeneratorQuickAdd = lazy(
   () => import('./NameGenerator/NameGeneratorQuickAdd'),
 );
 const LazyNameGeneratorRoster = lazy(() => import('./NameGeneratorRoster'));
-const LazySociogram = lazy(() => import('./Sociogram'));
+const LazySociogram = lazy(() => import('./Sociogram/Sociogram'));
 const LazyInformation = lazy(() => import('./Information'));
 const LazyOrdinalBin = lazy(() => import('./OrdinalBin/OrdinalBin'));
 const LazyCategoricalBin = lazy(() => import('./CategoricalBin'));

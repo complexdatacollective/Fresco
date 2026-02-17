@@ -4,7 +4,6 @@ import { motion } from 'motion/react';
 import { Fragment } from 'react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
-import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { cx } from '~/utils/cva';
 
 const variants = {
@@ -26,12 +25,13 @@ type PromptProps = {
   id: string;
   text: string;
   backwards?: boolean;
+  small?: boolean;
 };
 
 /**
  * Renders a single prompt with animation support.
  */
-const Prompt = ({ id, text, backwards = false }: PromptProps) => {
+const Prompt = ({ id, text, backwards = false, small }: PromptProps) => {
   const promptClasses = cx(
     'font-heading line-clamp-3 overflow-hidden pb-[0.1em] text-center text-2xl',
   );
@@ -51,11 +51,15 @@ const Prompt = ({ id, text, backwards = false }: PromptProps) => {
         opacity: { duration: 0.2 },
       }}
     >
-      <Heading level="h2" margin="none" className="font-normal">
+      <Heading
+        level={small ? 'h4' : 'h2'}
+        margin="none"
+        className="font-normal"
+      >
         <RenderMarkdown render={<Fragment />}>{text}</RenderMarkdown>
       </Heading>
     </motion.div>
   );
 };
 
-export default withNoSSRWrapper(Prompt);
+export default Prompt;

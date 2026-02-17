@@ -12,6 +12,7 @@ type PromptsProps = {
   prompts: TPrompt[];
   currentPromptId?: string;
   className?: string;
+  small?: boolean;
 };
 
 /**
@@ -22,6 +23,7 @@ const Prompts = ({
   currentPromptId = '0',
   prompts,
   className,
+  small,
 }: PromptsProps) => {
   const prevPromptRef = useRef<number>(undefined);
 
@@ -58,14 +60,24 @@ const Prompts = ({
       aria-atomic="true"
     >
       {prompts.length > 1 && (
-        <Pips count={prompts.length} currentIndex={currentIndex} />
+        <Pips
+          count={prompts.length}
+          currentIndex={currentIndex}
+          small={small}
+        />
       )}
       <AnimatePresence custom={backwards} mode="wait" initial={false}>
         {prompts.map(
           ({ id, text }) =>
             currentIndex >= 0 &&
             prompts[currentIndex]?.id === id && (
-              <Prompt key={id} id={id} text={text} backwards={backwards} />
+              <Prompt
+                key={id}
+                id={id}
+                text={text}
+                backwards={backwards}
+                small={small}
+              />
             ),
         )}
       </AnimatePresence>

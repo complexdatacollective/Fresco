@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { type ThunkDispatch } from 'redux-thunk';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Button from '~/components/ui/Button';
-import CollapsablePrompts from '~/lib/interviewer/components/CollapsablePrompts';
+import CollapsablePrompts from '~/lib/interviewer/Interfaces/Sociogram/CollapsablePrompts';
 import Node from '~/lib/interviewer/components/Node';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { getAssetUrlFromId } from '~/lib/interviewer/ducks/modules/protocol';

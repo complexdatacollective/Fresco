@@ -196,7 +196,7 @@ export const getNetwork = createSelector(
   (session) => session.network,
 );
 
-const getPropStageFilter = createSelector(getCurrentStage, (stage) => {
+const getStageFilter = createSelector(getCurrentStage, (stage) => {
   if (!stage) {
     return null;
   }
@@ -213,7 +213,7 @@ type FilterFunction = (network: NcNetwork) => NcNetwork;
 // Filtered network
 const getFilteredNetwork = createSelector(
   getNetwork,
-  getPropStageFilter,
+  getStageFilter,
   (network, nodeFilter) => {
     if (!network) {
       return null;

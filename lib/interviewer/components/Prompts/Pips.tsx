@@ -21,7 +21,7 @@ const itemVariants = {
 };
 
 type PipsProps = {
-  large?: boolean;
+  small?: boolean;
   count?: number;
   currentIndex?: number;
 };
@@ -30,16 +30,16 @@ type PipsProps = {
  * Renders a set of pips indicating the current prompt position.
  * Hidden from assistive technology since navigation is handled externally.
  */
-const Pips = ({ large = false, count = 0, currentIndex = 0 }: PipsProps) => {
+const Pips = ({ small = false, count = 0, currentIndex = 0 }: PipsProps) => {
   const pipsClasses = cx(
     'flex w-full shrink-0 grow-0 items-center justify-center gap-2',
-    large ? 'basis-12' : 'basis-9',
+    small ? 'basis-5' : 'basis-9',
   );
 
   const getPipClasses = (isActive: boolean) =>
     cx(
-      'rounded-full border-2 border-current bg-transparent transition-colors duration-200',
-      large ? 'size-8' : 'size-5',
+      'rounded-full border-current bg-transparent transition-colors duration-200',
+      small ? 'size-3 border' : 'size-5 border-2',
       isActive && 'bg-current/30',
     );
 
