@@ -20,6 +20,7 @@ type SociogramActions = {
   setPosition: (nodeId: string, position: Position) => void;
   setBatchPositions: (entries: [string, Position][]) => void;
   syncFromNodes: (nodes: NcNode[], layoutVariable: string) => void;
+  syncNewFromNodes: (nodes: NcNode[], layoutVariable: string) => void;
   selectNode: (nodeId: string | null) => void;
   syncToRedux: (dispatch: AppDispatch, layoutVariable: string) => void;
 };
@@ -75,6 +76,43 @@ export const createSociogramStore = () =>
           }
         }
         set({ positions: next });
+      },
+
+      // Only add positions for new nodes and remove stale ones.
+      // Preserves existing positions managed by the force simulation.
+      syncNewFromNodes: (nodes, layoutVariable) => {
+        set((state) => {
+          const next = new Map(state.positions);
+          const currentNodeIds = new Set(
+            nodes.map((n) => n[entityPrimaryKeyProperty]),
+          );
+
+          for (const nodeId of next.keys()) {
+            if (!currentNodeIds.has(nodeId)) {
+              next.delete(nodeId);
+            }
+          }
+
+          for (const node of nodes) {
+            const nodeId = node[entityPrimaryKeyProperty];
+            if (!next.has(nodeId)) {
+              const attrs = node[entityAttributesProperty];
+              const layoutValue = attrs[layoutVariable] as
+                | Position
+                | null
+                | undefined;
+              if (
+                layoutValue &&
+                typeof layoutValue.x === 'number' &&
+                typeof layoutValue.y === 'number'
+              ) {
+                next.set(nodeId, clampPosition(layoutValue));
+              }
+            }
+          }
+
+          return { positions: next };
+        });
       },
 
       selectNode: (nodeId) => {

@@ -4,9 +4,9 @@ import * as d3 from 'd3';
 const DEFAULT_OPTIONS = {
   alphaDecay: 1 - Math.pow(0.001, 1 / 300),
   velocityDecay: 0.4,
-  charge: -300,
+  charge: -500,
   linkDistance: 80,
-  center: 0.03,
+  center: 0.2,
   collideRadius: 20,
 };
 
@@ -17,6 +17,7 @@ type SimNode = d3.SimulationNodeDatum & { nodeId?: string };
 let simulation: d3.Simulation<SimNode, undefined>;
 let links: d3.SimulationLinkDatum<SimNode>[];
 let options = { ...DEFAULT_OPTIONS };
+let running = false;
 
 const cloneLinks = (ls: d3.SimulationLinkDatum<SimNode>[]) =>
   ls.map((link) => ({ ...link }));
@@ -143,6 +144,7 @@ onmessage = ({ data }: { data: Message }) => {
     case 'stop': {
       if (!simulation) return;
       console.debug('worker:stop');
+      running = false;
       simulation.stop();
       postMessage({ type: 'end', nodes: simulation.nodes() });
       break;
@@ -150,6 +152,7 @@ onmessage = ({ data }: { data: Message }) => {
     case 'start': {
       if (!simulation) return;
       console.debug('worker:start');
+      running = true;
       simulation.alpha(1).restart();
       break;
     }
@@ -193,7 +196,12 @@ onmessage = ({ data }: { data: Message }) => {
 
       const nodes = simulation.nodes().map((node) => {
         if (node.nodeId !== data.nodeId) return node;
-        return { ...node, ...data.node };
+        // When clearing fx/fy, snap x/y to the fixed position to prevent
+        // a flicker as the node jumps from fx/fy to its drifted internal x/y
+        const patched = { ...data.node };
+        if (patched.fx === null && node.fx != null) patched.x = node.fx;
+        if (patched.fy === null && node.fy != null) patched.y = node.fy;
+        return { ...node, ...patched };
       });
 
       simulation.nodes(nodes);
@@ -202,7 +210,9 @@ onmessage = ({ data }: { data: Message }) => {
         d3.forceLink(cloneLinks(links)).distance(options.linkDistance),
       );
 
-      simulation.alpha(0.3).restart();
+      if (running) {
+        simulation.alpha(0.3).restart();
+      }
       break;
     }
     default:

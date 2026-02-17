@@ -74,10 +74,15 @@ const Sociogram = (stageProps: SociogramProps) => {
   const storeRef = useRef(createSociogramStore());
   const store = storeRef.current;
 
-  // Sync positions from Redux when nodes or layout variable change
+  // Sync positions from Redux when nodes or layout variable change.
+  // In automatic mode, only initialize new nodes — the simulation owns positions.
   useEffect(() => {
-    store.getState().syncFromNodes(canvasNodes, layoutVariable);
-  }, [canvasNodes, layoutVariable, store]);
+    if (layoutMode === 'AUTOMATIC') {
+      store.getState().syncNewFromNodes(canvasNodes, layoutVariable);
+    } else {
+      store.getState().syncFromNodes(canvasNodes, layoutVariable);
+    }
+  }, [canvasNodes, layoutVariable, store, layoutMode]);
 
   // Force simulation (only active in AUTOMATIC mode)
   const simulation = useForceSimulation({
