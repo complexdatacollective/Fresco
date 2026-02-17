@@ -14,7 +14,7 @@ export function OPTIONS() {
 type Handler = (request: Request) => Response | Promise<Response>;
 
 const handlers: Record<string, Record<string, Handler>> = {
-  v1: { GET: v1 },
+  v1: { POST: v1 },
 };
 
 function createVersionedHandler(method: HTTP_METHOD) {
