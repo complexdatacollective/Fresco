@@ -2,6 +2,9 @@ import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import useSortedNodeList from '~/lib/interviewer/hooks/useSortedNodeList';
+import { getPromptSortOrder } from '~/lib/interviewer/selectors/session';
 import DrawerNode from './DrawerNode';
 
 type NodeDrawerProps = {
@@ -10,11 +13,13 @@ type NodeDrawerProps = {
 
 export default function NodeDrawer({ nodes }: NodeDrawerProps) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const sortOrder = useSelector(getPromptSortOrder);
+  const sortedNodes = useSortedNodeList(nodes, sortOrder);
 
   if (nodes.length === 0) return null;
 
   return (
-    <div className="absolute right-0 bottom-0 left-0 z-10">
+    <div className="absolute inset-x-0 bottom-0 z-10">
       {/* Toggle button */}
       <div className="flex justify-center">
         <button
@@ -42,7 +47,7 @@ export default function NodeDrawer({ nodes }: NodeDrawerProps) {
             className="bg-surface/80 overflow-hidden backdrop-blur-md"
           >
             <div className="flex gap-4 overflow-x-auto p-4">
-              {nodes.map((node) => (
+              {sortedNodes.map((node) => (
                 <DrawerNode key={node[entityPrimaryKeyProperty]} node={node} />
               ))}
             </div>

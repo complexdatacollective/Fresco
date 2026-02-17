@@ -120,6 +120,13 @@ export const getCurrentPrompt = createSelector(
   },
 );
 
+export const getPromptSortOrder = createSelector(getCurrentPrompt, (prompt) => {
+  if (prompt && 'sortOrder' in prompt) {
+    return prompt.sortOrder;
+  }
+  return undefined;
+});
+
 export const getPromptCount = createSelector(
   getPrompts,
   (prompts) => prompts?.length ?? 1, // If there are no prompts we have "1" prompt
