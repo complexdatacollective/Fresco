@@ -40,7 +40,7 @@ function AnnotationLine({
         d={pathData}
         fill="none"
         stroke="white"
-        strokeWidth="0.004"
+        strokeWidth="3"
         strokeLinecap="round"
         strokeLinejoin="round"
         vectorEffect="non-scaling-stroke"
@@ -55,7 +55,7 @@ function AnnotationLine({
           d={pathData}
           fill="none"
           stroke="white"
-          strokeWidth="0.004"
+          strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"
           vectorEffect="non-scaling-stroke"
