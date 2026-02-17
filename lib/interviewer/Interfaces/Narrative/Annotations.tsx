@@ -15,7 +15,7 @@ type AnnotationsHandle = {
 
 type AnnotationsProps = {
   isFrozen: boolean;
-  onChangeActiveAnnotations: (active: boolean) => void;
+  onChangeActiveAnnotations?: (active: boolean) => void;
 };
 
 type AnnotationLineProps = {
@@ -84,7 +84,7 @@ const Annotations = forwardRef<AnnotationsHandle, AnnotationsProps>(
         setLinesToFade((prev) => [...prev, false]);
         activeLinesRef.current += 1;
         setIsDrawing(true);
-        onChangeActiveAnnotations(true);
+        onChangeActiveAnnotations?.(true);
       },
       [relativeCoords, onChangeActiveAnnotations],
     );
@@ -125,7 +125,7 @@ const Annotations = forwardRef<AnnotationsHandle, AnnotationsProps>(
         });
         activeLinesRef.current -= 1;
         if (activeLinesRef.current === 0) {
-          onChangeActiveAnnotations(false);
+          onChangeActiveAnnotations?.(false);
         }
       },
       [onChangeActiveAnnotations],
@@ -139,7 +139,7 @@ const Annotations = forwardRef<AnnotationsHandle, AnnotationsProps>(
         activeLinesRef.current = 0;
         activeLineIndexRef.current = -1;
         setIsDrawing(false);
-        onChangeActiveAnnotations(false);
+        onChangeActiveAnnotations?.(false);
       },
     }));
 

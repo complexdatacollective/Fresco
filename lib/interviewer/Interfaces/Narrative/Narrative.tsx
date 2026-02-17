@@ -14,6 +14,7 @@ import Annotations, {
   type AnnotationsHandle,
 } from '~/lib/interviewer/Interfaces/Narrative/Annotations';
 import ConvexHullLayer from '~/lib/interviewer/Interfaces/Narrative/ConvexHullLayer';
+import DrawingControls from '~/lib/interviewer/Interfaces/Narrative/DrawingControls';
 import PresetSwitcher from '~/lib/interviewer/Interfaces/Narrative/PresetSwitcher';
 import {
   getCategoricalOptions,
@@ -39,8 +40,7 @@ const Narrative = ({ stage }: NarrativeProps) => {
   const [showEdges, setShowEdges] = useState(true);
   const [showHighlightedNodes, setShowHighlightedNodes] = useState(true);
   const [highlightIndex, setHighlightIndex] = useState(0);
-  const [activeAnnotations, setActiveAnnotations] = useState(false);
-  const [activeFocusNodes, setActiveFocusNodes] = useState(false);
+  const [isDrawingEnabled, setIsDrawingEnabled] = useState(false);
   const [isFrozen, setIsFrozen] = useState(false);
 
   const annotationLayer = useRef<AnnotationsHandle>(null);
@@ -49,8 +49,8 @@ const Narrative = ({ stage }: NarrativeProps) => {
   const storeRef = useRef(createCanvasStore());
   const store = storeRef.current;
 
-  const handleChangeActiveAnnotations = useCallback((status: boolean) => {
-    setActiveAnnotations(status);
+  const handleToggleDrawing = useCallback(() => {
+    setIsDrawingEnabled((prev) => !prev);
   }, []);
 
   const handleToggleHulls = useCallback(() => {
@@ -85,8 +85,6 @@ const Narrative = ({ stage }: NarrativeProps) => {
         setShowHighlightedNodes(true);
         setHighlightIndex(0);
         setPresetIndex(index);
-        setActiveAnnotations(false);
-        setActiveFocusNodes(false);
       }
     },
     [presetIndex],
@@ -99,7 +97,6 @@ const Narrative = ({ stage }: NarrativeProps) => {
   // Behaviour Configuration
   const allowRepositioning = get(stage, 'behaviours.allowRepositioning', false);
   const freeDraw = get(stage, 'behaviours.freeDraw', false);
-  const shouldShowResetButton = activeAnnotations || activeFocusNodes;
 
   // Display Properties
   const layoutVariable = currentPreset?.layoutVariable ?? '';
@@ -177,12 +174,8 @@ const Narrative = ({ stage }: NarrativeProps) => {
           categoricalOptions={categoricalOptions}
         />
       )}
-      {freeDraw && (
-        <Annotations
-          ref={annotationLayer}
-          isFrozen={isFrozen}
-          onChangeActiveAnnotations={handleChangeActiveAnnotations}
-        />
+      {freeDraw && isDrawingEnabled && (
+        <Annotations ref={annotationLayer} isFrozen={isFrozen} />
       )}
     </>
   );
@@ -211,18 +204,22 @@ const Narrative = ({ stage }: NarrativeProps) => {
         showHighlighting={showHighlightedNodes}
         showEdges={showEdges}
         showHulls={showConvexHulls}
-        isFrozen={isFrozen}
-        shouldShowResetButton={shouldShowResetButton}
-        shouldShowFreezeButton={freeDraw}
-        onResetInteractions={handleResetInteractions}
         onChangePreset={handleChangePreset}
-        onToggleFreeze={handleToggleFreeze}
         onToggleHulls={handleToggleHulls}
         onToggleEdges={handleToggleEdges}
         onChangeHighlightIndex={handleChangeHighlightIndex}
         onToggleHighlighting={handleToggleHighlighting}
         dragConstraints={interfaceRef}
       />
+      {freeDraw && (
+        <DrawingControls
+          isDrawingEnabled={isDrawingEnabled}
+          isFrozen={isFrozen}
+          onToggleDrawing={handleToggleDrawing}
+          onToggleFreeze={handleToggleFreeze}
+          onReset={handleResetInteractions}
+        />
+      )}
     </div>
   );
 };
