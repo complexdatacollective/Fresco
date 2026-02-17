@@ -168,9 +168,9 @@ export default function PresetSwitcher({
         />
       </Popover.Trigger>
       <Popover.Portal>
-        <Popover.Positioner sideOffset={40} align="center">
+        <Popover.Positioner align="center" sideOffset={14}>
           <Popover.Popup
-            className="bg-surface/80 overflow-visible rounded-lg shadow-xl backdrop-blur-md"
+            className="bg-surface/80 max-w-sm min-w-3xs overflow-visible rounded-lg shadow-xl backdrop-blur-md"
             render={<Surface noContainer />}
           >
             <Popover.Arrow className="data-[side=bottom]:top-[-15px] data-[side=top]:bottom-[-14px] data-[side=top]:rotate-180">
@@ -180,12 +180,12 @@ export default function PresetSwitcher({
               multiple
               value={accordionValue}
               onValueChange={handleAccordionValueChange}
-              className="flex flex-col"
+              className="flex flex-col gap-4"
             >
               {hasHighlights && (
                 <Accordion.Item value={SECTION_ATTRIBUTES}>
-                  <Accordion.Header>
-                    <Accordion.Trigger className="focusable flex w-full items-center gap-2">
+                  <Accordion.Header className="mb-2">
+                    <Accordion.Trigger className="focusable flex w-full items-center gap-4">
                       <Heading
                         level="h4"
                         variant="all-caps"
@@ -197,16 +197,16 @@ export default function PresetSwitcher({
                       <ChevronDown className="opacity-60 transition-transform [[data-panel-open]>&]:rotate-180" />
                     </Accordion.Trigger>
                   </Accordion.Header>
-                  <Accordion.Panel className="px-3 py-2">
+                  <Accordion.Panel>
                     <RadioGroup
                       value={String(highlightIndex)}
                       onValueChange={(v) => onChangeHighlightIndex(Number(v))}
-                      className="flex flex-col gap-1"
+                      className="flex flex-col gap-2"
                     >
                       {highlightLabels.map((label, index) => (
                         <label
                           key={index}
-                          className="flex cursor-pointer items-center gap-2 text-sm"
+                          className="flex cursor-pointer items-center gap-4 text-sm"
                         >
                           <Radio.Root
                             value={String(index)}
@@ -224,8 +224,8 @@ export default function PresetSwitcher({
 
               {hasEdges && (
                 <Accordion.Item value={SECTION_LINKS}>
-                  <Accordion.Header>
-                    <Accordion.Trigger className="focusable flex w-full items-center gap-2">
+                  <Accordion.Header className="mb-2">
+                    <Accordion.Trigger className="focusable flex w-full items-center gap-4">
                       <Heading
                         level="h4"
                         variant="all-caps"
@@ -237,12 +237,12 @@ export default function PresetSwitcher({
                       <ChevronDown className="opacity-60 transition-transform [[data-panel-open]>&]:rotate-180" />
                     </Accordion.Trigger>
                   </Accordion.Header>
-                  <Accordion.Panel className="px-3 py-2">
-                    <div className="flex flex-col gap-1">
+                  <Accordion.Panel>
+                    <div className="flex flex-col gap-2">
                       {edges.map((edge, index) => (
                         <div
                           key={index}
-                          className="flex items-center gap-2 text-sm"
+                          className="flex items-center gap-4 text-sm"
                         >
                           <EdgeSwatch color={edge.color} />
                           {edge.label}
@@ -255,8 +255,8 @@ export default function PresetSwitcher({
 
               {hasGroups && (
                 <Accordion.Item value={SECTION_GROUPS}>
-                  <Accordion.Header>
-                    <Accordion.Trigger className="focusable flex w-full items-center gap-2">
+                  <Accordion.Header className="mb-2">
+                    <Accordion.Trigger className="focusable flex w-full items-center gap-4">
                       <Heading
                         level="h4"
                         variant="all-caps"
@@ -268,12 +268,12 @@ export default function PresetSwitcher({
                       <ChevronDown className="opacity-60 transition-transform [[data-panel-open]>&]:rotate-180" />
                     </Accordion.Trigger>
                   </Accordion.Header>
-                  <Accordion.Panel className="px-3 py-2">
-                    <div className="flex flex-col gap-1">
+                  <Accordion.Panel>
+                    <div className="flex flex-col gap-2">
                       {categoricalOptions.map((option, index) => (
                         <div
                           key={index}
-                          className="flex items-center gap-2 text-sm"
+                          className="flex items-center gap-4 text-sm"
                         >
                           <span
                             className="inline-block size-3 rounded-full"
