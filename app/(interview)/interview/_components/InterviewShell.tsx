@@ -2,7 +2,6 @@
 
 import { Provider } from 'react-redux';
 import SuperJSON from 'superjson';
-import { DndStoreProvider } from '~/lib/dnd/DndStoreProvider';
 import ProtocolScreen from '~/lib/interviewer/components/ProtocolScreen';
 import { store } from '~/lib/interviewer/store';
 import { type GetInterviewByIdQuery } from '~/queries/interviews';
@@ -20,9 +19,7 @@ const InterviewShell = (props: {
 
   return (
     <Provider store={store(decodedPayload, { disableSync: props.disableSync })}>
-      <DndStoreProvider>
-        <ProtocolScreen />
-      </DndStoreProvider>
+      <ProtocolScreen />
     </Provider>
   );
 };

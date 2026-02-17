@@ -8,7 +8,6 @@ import {
 import { get } from 'es-toolkit/compat';
 import { useCallback, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { DndStoreProvider } from '~/lib/dnd';
 import ConcentricCircles from '~/lib/interviewer/components/ConcentricCircles';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { type StageProps } from '~/lib/interviewer/components/Stage';
@@ -192,31 +191,30 @@ const Sociogram = (stageProps: SociogramProps) => {
       : null;
 
   return (
-    <DndStoreProvider>
-      <div className="relative h-dvh overflow-hidden" ref={interfaceRef}>
-        <Canvas
-          background={background}
-          nodes={canvasNodes}
-          edges={edges}
-          store={store}
-          selectedNodeId={selectedNodeId}
-          onNodeSelect={handleNodeSelect}
-          onNodeDragEnd={handleNodeDragEnd}
-          onDrop={handleDrop}
-          allowRepositioning={allowPositioning}
-          simulation={simulationHandlers}
+    <div className="relative h-dvh overflow-hidden" ref={interfaceRef}>
+      <Canvas
+        background={background}
+        nodes={canvasNodes}
+        edges={edges}
+        store={store}
+        selectedNodeId={selectedNodeId}
+        onNodeSelect={handleNodeSelect}
+        onNodeDragEnd={handleNodeDragEnd}
+        onDrop={handleDrop}
+        allowRepositioning={allowPositioning}
+        simulation={simulationHandlers}
+      />
+      {layoutMode === 'MANUAL' ? (
+        <NodeDrawer nodes={unplacedNodes} />
+      ) : (
+        <SimulationPanel
+          simulationEnabled={simulation.simulationEnabled}
+          onToggle={simulation.toggleSimulation}
+          dragConstraints={interfaceRef}
         />
-        {layoutMode === 'MANUAL' && <NodeDrawer nodes={unplacedNodes} />}
-        {layoutMode === 'AUTOMATIC' && (
-          <SimulationPanel
-            simulationEnabled={simulation.simulationEnabled}
-            onToggle={simulation.toggleSimulation}
-            dragConstraints={interfaceRef}
-          />
-        )}
-        <CollapsablePrompts dragConstraints={interfaceRef} />
-      </div>
-    </DndStoreProvider>
+      )}
+      <CollapsablePrompts dragConstraints={interfaceRef} />
+    </div>
   );
 };
 

@@ -10,7 +10,6 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { motion } from 'motion/react';
 import { Provider } from 'react-redux';
 import { expect, waitFor, within } from 'storybook/test';
-import { DndStoreProvider } from '~/lib/dnd';
 import OrdinalBins from './components/OrdinalBins';
 import { type OrdinalBinPrompt } from './useOrdinalBins';
 
@@ -177,18 +176,16 @@ function ReduxDecoratorFactory({ nodes, protocol }: DecoratorProps) {
 
     return (
       <Provider store={store}>
-        <DndStoreProvider>
-          <motion.div
-            variants={decoratorVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-          >
-            <div className="flex h-[500px] gap-4 p-4">
-              <Story />
-            </div>
-          </motion.div>
-        </DndStoreProvider>
+        <motion.div
+          variants={decoratorVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+        >
+          <div className="flex h-[500px] gap-4 p-4">
+            <Story />
+          </div>
+        </motion.div>
       </Provider>
     );
   };

@@ -1,11 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
-import {
-  DndStoreProvider,
-  useDragSource,
-  useDropTarget,
-  type DragMetadata,
-} from '..';
+import { useDragSource, useDropTarget, type DragMetadata } from '..';
 
 // Simple draggable item component
 function DraggableItem({
@@ -75,7 +70,11 @@ function ClickableDraggableItem({
       style={{
         padding: '16px',
         margin: '8px',
-        backgroundColor: isSelected ? '#bbdefb' : isDragging ? '#e3f2fd' : '#f5f5f5',
+        backgroundColor: isSelected
+          ? '#bbdefb'
+          : isDragging
+            ? '#e3f2fd'
+            : '#f5f5f5',
         border: isSelected ? '2px solid #1976d2' : '2px solid #ddd',
         borderRadius: '8px',
         cursor: 'grab',
@@ -159,7 +158,7 @@ type Story = StoryObj;
 
 export const Basic: Story = {
   render: () => (
-    <DndStoreProvider>
+    <>
       <div style={{ padding: '20px' }}>
         <h3>Basic Draggable Items</h3>
         <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
@@ -174,13 +173,13 @@ export const Basic: Story = {
           <DropZone accepts={['card']}>Drop cards here</DropZone>
         </div>
       </div>
-    </DndStoreProvider>
+    </>
   ),
 };
 
 export const WithPreview: Story = {
   render: () => (
-    <DndStoreProvider>
+    <>
       <div style={{ padding: '20px' }}>
         <h3>Custom Preview</h3>
         <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
@@ -212,7 +211,7 @@ export const WithPreview: Story = {
           <DropZone accepts={['fancy', 'regular']}>Drop items here</DropZone>
         </div>
       </div>
-    </DndStoreProvider>
+    </>
   ),
 };
 
@@ -222,7 +221,7 @@ export const ClickAndDrag: Story = {
     const [dropCount, setDropCount] = useState(0);
 
     return (
-      <DndStoreProvider>
+      <>
         <div style={{ padding: '20px' }}>
           <h3>Click vs Drag Behavior</h3>
           <p style={{ marginBottom: '16px', color: '#666' }}>
@@ -275,7 +274,7 @@ export const ClickAndDrag: Story = {
             </DropZone>
           </div>
         </div>
-      </DndStoreProvider>
+      </>
     );
   },
 };
@@ -285,7 +284,7 @@ export const TypeRestrictions: Story = {
     const [lastDrop, setLastDrop] = useState<string>('');
 
     return (
-      <DndStoreProvider>
+      <>
         <div style={{ padding: '20px' }}>
           <h3>Type Restrictions</h3>
           {lastDrop && (
@@ -363,7 +362,7 @@ export const TypeRestrictions: Story = {
             </div>
           </div>
         </div>
-      </DndStoreProvider>
+      </>
     );
   },
 };

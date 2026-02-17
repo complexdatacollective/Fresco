@@ -1,11 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useCallback, useRef, useState } from 'react';
-import {
-  DndStoreProvider,
-  useDragSource,
-  useDropTarget,
-  type DragMetadata,
-} from '~/lib/dnd';
+import { useDragSource, useDropTarget, type DragMetadata } from '~/lib/dnd';
 import { useAccessibilityAnnouncements } from '~/lib/dnd/useAccessibilityAnnouncements';
 
 // Demo components for accessibility testing
@@ -221,7 +216,7 @@ export const KeyboardNavigation: Story = {
     };
 
     return (
-      <DndStoreProvider>
+      <>
         <div style={{ padding: '20px' }}>
           <h2>Keyboard Navigation Demo</h2>
 
@@ -325,7 +320,7 @@ export const KeyboardNavigation: Story = {
             </div>
           </div>
         </div>
-      </DndStoreProvider>
+      </>
     );
   },
 };
@@ -535,7 +530,7 @@ export const ScreenReaderAnnouncements: Story = {
     ];
 
     return (
-      <DndStoreProvider>
+      <>
         <div style={{ padding: '20px' }}>
           <h2>Screen Reader Announcements</h2>
 
@@ -655,7 +650,7 @@ export const ScreenReaderAnnouncements: Story = {
             </div>
           </div>
         </div>
-      </DndStoreProvider>
+      </>
     );
   },
 };
@@ -683,7 +678,7 @@ export const AriaAttributes: Story = {
     ];
 
     return (
-      <DndStoreProvider>
+      <>
         <div style={{ padding: '20px' }}>
           <h2>ARIA Attributes Demo</h2>
 
@@ -854,7 +849,7 @@ export const AriaAttributes: Story = {
             </div>
           </div>
         </div>
-      </DndStoreProvider>
+      </>
     );
   },
 };
@@ -879,7 +874,7 @@ export const AccessibilityPlayground: Story = {
     };
 
     return (
-      <DndStoreProvider>
+      <>
         <div style={{ padding: '20px' }}>
           <h2>Accessibility Testing Playground</h2>
 
@@ -1126,7 +1121,7 @@ export const AccessibilityPlayground: Story = {
             </div>
           </div>
         </div>
-      </DndStoreProvider>
+      </>
     );
   },
 };

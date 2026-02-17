@@ -4,7 +4,7 @@ import Heading from '~/components/typography/Heading';
 import { Collection } from '~/lib/collection/components/Collection';
 import { useDragAndDrop } from '~/lib/collection/dnd/useDragAndDrop';
 import { InlineGridLayout } from '~/lib/collection/layout/InlineGridLayout';
-import { type DragMetadata, DndStoreProvider } from '~/lib/dnd';
+import { type DragMetadata } from '~/lib/dnd';
 import { Node } from '~/lib/legacy-ui/components';
 
 type Item = {
@@ -259,13 +259,6 @@ const { dropProps, isOver, willAccept } = useDropTarget({
     },
   },
   tags: ['autodocs'],
-  decorators: [
-    (Story) => (
-      <DndStoreProvider>
-        <Story />
-      </DndStoreProvider>
-    ),
-  ],
 };
 
 export default meta;

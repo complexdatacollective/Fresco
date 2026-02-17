@@ -9,7 +9,6 @@ import { configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { motion } from 'motion/react';
 import { Provider } from 'react-redux';
-import { DndStoreProvider } from '~/lib/dnd';
 import NameGeneratorRoster from './NameGeneratorRoster';
 
 const mockProtocol = {
@@ -166,17 +165,15 @@ function ReduxDecoratorFactory({ nodes }: DecoratorProps) {
 
     return (
       <Provider store={store}>
-        <DndStoreProvider>
-          <motion.div
-            variants={decoratorVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            className="h-screen w-screen"
-          >
-            <Story />
-          </motion.div>
-        </DndStoreProvider>
+        <motion.div
+          variants={decoratorVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          className="h-screen w-screen"
+        >
+          <Story />
+        </motion.div>
       </Provider>
     );
   };

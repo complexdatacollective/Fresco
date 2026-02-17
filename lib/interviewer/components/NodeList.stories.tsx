@@ -10,7 +10,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import { Provider } from 'react-redux';
-import { DndStoreProvider, type DragMetadata } from '~/lib/dnd';
+import { type DragMetadata } from '~/lib/dnd';
 import NodeList from './NodeList';
 
 const mockProtocol = {
@@ -109,16 +109,14 @@ const ReduxDecorator = (Story: React.ComponentType) => {
 
   return (
     <Provider store={store}>
-      <DndStoreProvider>
-        <motion.div
-          variants={decoratorVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-        >
-          <Story />
-        </motion.div>
-      </DndStoreProvider>
+      <motion.div
+        variants={decoratorVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+      >
+        <Story />
+      </motion.div>
     </Provider>
   );
 };

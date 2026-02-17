@@ -1,11 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
-import {
-  DndStoreProvider,
-  useDragSource,
-  useDropTarget,
-  type DragMetadata,
-} from '..';
+import { useDragSource, useDropTarget, type DragMetadata } from '..';
 
 // Simple drag source for testing
 function DraggableItem({
@@ -143,7 +138,7 @@ type Story = StoryObj;
 
 export const Basic: Story = {
   render: () => (
-    <DndStoreProvider>
+    <>
       <div style={{ padding: '20px' }}>
         <h3>Basic Drop Target</h3>
         <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
@@ -164,7 +159,7 @@ export const Basic: Story = {
           </div>
         </div>
       </div>
-    </DndStoreProvider>
+    </>
   ),
 };
 
@@ -180,7 +175,7 @@ export const MultipleTypes: Story = {
     };
 
     return (
-      <DndStoreProvider>
+      <>
         <div style={{ padding: '20px' }}>
           <h3>Multiple Drop Zones</h3>
 
@@ -260,7 +255,7 @@ export const MultipleTypes: Story = {
             </div>
           </div>
         </div>
-      </DndStoreProvider>
+      </>
     );
   },
 };
@@ -278,7 +273,7 @@ export const VisualFeedback: Story = {
     };
 
     return (
-      <DndStoreProvider>
+      <>
         <div style={{ padding: '20px' }}>
           <h3>Visual Feedback States</h3>
 
@@ -371,7 +366,7 @@ export const VisualFeedback: Story = {
             </ul>
           </div>
         </div>
-      </DndStoreProvider>
+      </>
     );
   },
 };
@@ -386,7 +381,7 @@ export const NestedDropTargets: Story = {
     };
 
     return (
-      <DndStoreProvider>
+      <>
         <div style={{ padding: '20px' }}>
           <h3>Nested Drop Targets</h3>
 
@@ -429,7 +424,7 @@ export const NestedDropTargets: Story = {
             </div>
           </div>
         </div>
-      </DndStoreProvider>
+      </>
     );
   },
 };
