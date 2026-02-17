@@ -1,8 +1,7 @@
-import { AnimatePresence, motion } from 'motion/react';
+import { motion } from 'motion/react';
 import {
   forwardRef,
   useCallback,
-  useEffect,
   useImperativeHandle,
   useRef,
   useState,
@@ -21,51 +20,29 @@ type AnnotationsProps = {
 
 type AnnotationLineProps = {
   line: Point[];
-  showLine: boolean;
-  freezeLine: boolean;
+  isFading: boolean;
   onLineFaded: () => void;
 };
 
-function AnnotationLine({
-  line,
-  showLine,
-  freezeLine,
-  onLineFaded,
-}: AnnotationLineProps) {
+function AnnotationLine({ line, isFading, onLineFaded }: AnnotationLineProps) {
   const pathData = `M ${line.map((p) => `${p.x} ${p.y}`).join(' L ')}`;
-
-  if (freezeLine) {
-    return (
-      <path
-        d={pathData}
-        fill="none"
-        stroke="white"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-      />
-    );
-  }
+  const fadeDuration = 3 * Math.log10(Math.max(line.length, 2) ** 2);
 
   return (
-    <AnimatePresence initial={false} onExitComplete={onLineFaded}>
-      {showLine && (
-        <motion.path
-          d={pathData}
-          fill="none"
-          stroke="white"
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
-          exit={{ opacity: 0 }}
-          transition={{
-            duration: (3000 * Math.log10(line.length ** 2)) / 1000,
-          }}
-        />
-      )}
-    </AnimatePresence>
+    <motion.path
+      d={pathData}
+      fill="none"
+      stroke="white"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      vectorEffect="non-scaling-stroke"
+      animate={{ opacity: isFading ? 0 : 1 }}
+      transition={{ duration: isFading ? fadeDuration : 0 }}
+      onAnimationComplete={() => {
+        if (isFading) onLineFaded();
+      }}
+    />
   );
 }
 
@@ -76,54 +53,8 @@ const Annotations = forwardRef<AnnotationsHandle, AnnotationsProps>(
     const [linesShowing, setLinesShowing] = useState<boolean[]>([]);
     const [linesToFade, setLinesToFade] = useState<boolean[]>([]);
     const activeLinesRef = useRef(0);
+    const activeLineIndexRef = useRef(-1);
     const [isDrawing, setIsDrawing] = useState(false);
-    const removeLineTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-    const isFrozenRef = useRef(isFrozen);
-
-    useEffect(() => {
-      isFrozenRef.current = isFrozen;
-    }, [isFrozen]);
-
-    // Handle freeze/unfreeze transitions
-    useEffect(() => {
-      if (isFrozen) {
-        // Freeze: clear all pending fade timers
-        for (const timer of removeLineTimersRef.current) {
-          clearTimeout(timer);
-        }
-        removeLineTimersRef.current = [];
-      } else {
-        // Unfreeze: start fading all currently showing lines
-        setLinesShowing((current) => {
-          setLinesToFade([...current]);
-
-          current.forEach((showing, index) => {
-            if (showing) {
-              removeLineTimersRef.current.push(
-                setTimeout(() => {
-                  setLinesToFade((prev) => {
-                    const next = [...prev];
-                    next[index] = false;
-                    return next;
-                  });
-                }, 1000),
-              );
-            }
-          });
-
-          return current;
-        });
-      }
-    }, [isFrozen]);
-
-    // Cleanup timers on unmount
-    useEffect(() => {
-      return () => {
-        for (const timer of removeLineTimersRef.current) {
-          clearTimeout(timer);
-        }
-      };
-    }, []);
 
     const relativeCoords = useCallback(
       (clientX: number, clientY: number): Point => {
@@ -145,8 +76,12 @@ const Annotations = forwardRef<AnnotationsHandle, AnnotationsProps>(
         e.preventDefault();
 
         const point = relativeCoords(e.clientX, e.clientY);
-        setLines((prev) => [...prev, [point]]);
+        setLines((prev) => {
+          activeLineIndexRef.current = prev.length;
+          return [...prev, [point]];
+        });
         setLinesShowing((prev) => [...prev, true]);
+        setLinesToFade((prev) => [...prev, false]);
         activeLinesRef.current += 1;
         setIsDrawing(true);
         onChangeActiveAnnotations(true);
@@ -172,20 +107,12 @@ const Annotations = forwardRef<AnnotationsHandle, AnnotationsProps>(
 
     const handlePointerUp = useCallback(() => {
       setIsDrawing(false);
-      if (isFrozenRef.current) return;
 
-      setLines((currentLines) => {
-        const lineIndex = currentLines.length - 1;
-        removeLineTimersRef.current.push(
-          setTimeout(() => {
-            setLinesToFade((prev) => {
-              const next = [...prev];
-              next[lineIndex] = false;
-              return next;
-            });
-          }, 1000),
-        );
-        return currentLines;
+      const lineIndex = activeLineIndexRef.current;
+      setLinesToFade((prev) => {
+        const next = [...prev];
+        next[lineIndex] = true;
+        return next;
       });
     }, []);
 
@@ -210,11 +137,8 @@ const Annotations = forwardRef<AnnotationsHandle, AnnotationsProps>(
         setLinesShowing([]);
         setLinesToFade([]);
         activeLinesRef.current = 0;
+        activeLineIndexRef.current = -1;
         setIsDrawing(false);
-        for (const timer of removeLineTimersRef.current) {
-          clearTimeout(timer);
-        }
-        removeLineTimersRef.current = [];
         onChangeActiveAnnotations(false);
       },
     }));
@@ -236,16 +160,15 @@ const Annotations = forwardRef<AnnotationsHandle, AnnotationsProps>(
           className="absolute inset-0 size-full"
         >
           {lines.map((line, index) => {
-            const showLine =
-              (isDrawing && index === lines.length - 1) || !!linesToFade[index];
-            const freezeLine = isFrozen && !!linesShowing[index];
+            if (!linesShowing[index]) return null;
+
+            const isFading = !!linesToFade[index] && !isFrozen;
 
             return (
               <AnnotationLine
                 key={index}
                 line={line}
-                showLine={showLine}
-                freezeLine={freezeLine}
+                isFading={isFading}
                 onLineFaded={() => handleLineFaded(index)}
               />
             );

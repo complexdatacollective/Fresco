@@ -10,17 +10,17 @@ import { createCanvasStore } from '~/lib/interviewer/canvas/useCanvasStore';
 import ConcentricCircles from '~/lib/interviewer/components/ConcentricCircles';
 import { type StageProps } from '~/lib/interviewer/components/Stage';
 import { updateNode } from '~/lib/interviewer/ducks/modules/session';
+import Annotations, {
+  type AnnotationsHandle,
+} from '~/lib/interviewer/Interfaces/Narrative/Annotations';
+import ConvexHullLayer from '~/lib/interviewer/Interfaces/Narrative/ConvexHullLayer';
+import PresetSwitcher from '~/lib/interviewer/Interfaces/Narrative/PresetSwitcher';
 import {
   getCategoricalOptions,
   getNetworkEdges,
   getNetworkNodes,
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch, type RootState } from '~/lib/interviewer/store';
-import Annotations, {
-  type AnnotationsHandle,
-} from '~/lib/interviewer/Interfaces/Narrative/Annotations';
-import ConvexHullLayer from '~/lib/interviewer/Interfaces/Narrative/ConvexHullLayer';
-import PresetSwitcher from '~/lib/interviewer/Interfaces/Narrative/PresetSwitcher';
 
 type NarrativeStage = Extract<Stage, { type: 'Narrative' }>;
 
@@ -188,7 +188,10 @@ const Narrative = ({ stage }: NarrativeProps) => {
   );
 
   return (
-    <div className="relative h-dvh overflow-hidden" ref={interfaceRef}>
+    <div
+      className="interface relative h-dvh overflow-hidden"
+      ref={interfaceRef}
+    >
       <Canvas
         background={background}
         overlays={overlays}
@@ -205,6 +208,9 @@ const Narrative = ({ stage }: NarrativeProps) => {
         presets={presets}
         activePreset={presetIndex}
         highlightIndex={highlightIndex}
+        showHighlighting={showHighlightedNodes}
+        showEdges={showEdges}
+        showHulls={showConvexHulls}
         isFrozen={isFrozen}
         shouldShowResetButton={shouldShowResetButton}
         shouldShowFreezeButton={freeDraw}

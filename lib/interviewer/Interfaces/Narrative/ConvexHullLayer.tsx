@@ -102,11 +102,13 @@ export default function ConvexHullLayer({
         'polygon',
       ) as SVGPolygonElement;
       el.setAttribute('fill', `var(--color-cat-${group.colorIndex})`);
-      el.setAttribute('fill-opacity', '0.15');
       el.setAttribute('stroke', `var(--color-cat-${group.colorIndex})`);
-      el.setAttribute('stroke-opacity', '0.5');
-      el.setAttribute('stroke-width', '0.008');
+      el.setAttribute('opacity', '0.15');
+      el.setAttribute('stroke-width', '96');
+      el.setAttribute('vector-effect', 'non-scaling-stroke');
+      el.setAttribute('paint-order', 'stroke fill');
       el.setAttribute('stroke-linejoin', 'round');
+      el.setAttribute('stroke-linecap', 'round');
       el.setAttribute('visibility', 'hidden');
       svg.appendChild(el);
       elementMap.set(value, el);
@@ -135,75 +137,33 @@ export default function ConvexHullLayer({
         el.setAttribute('visibility', 'visible');
 
         if (coords.length === 1) {
-          // Single node: draw a small circle using a polygon approximation
+          // Single node: micro-triangle at node center.
+          // The 48px non-scaling stroke radius creates a circle visually.
           const coord = coords[0]!;
-          const ccx = coord[0] ?? 0;
-          const ccy = coord[1] ?? 0;
-          const r = 0.06;
-          const points = Array.from({ length: 16 }, (_, i) => {
-            const angle = (i / 16) * Math.PI * 2;
-            return `${ccx + r * Math.cos(angle)},${ccy + r * Math.sin(angle)}`;
-          }).join(' ');
-          el.setAttribute('points', points);
-        } else if (coords.length === 2) {
-          // Two nodes: draw a capsule (ellipse approximation)
-          const p1 = coords[0]!;
-          const p2 = coords[1]!;
-          const p1x = p1[0] ?? 0;
-          const p1y = p1[1] ?? 0;
-          const p2x = p2[0] ?? 0;
-          const p2y = p2[1] ?? 0;
-          const mx = (p1x + p2x) / 2;
-          const my = (p1y + p2y) / 2;
-          const dx = p2x - p1x;
-          const dy = p2y - p1y;
-          const len = Math.sqrt(dx * dx + dy * dy);
-          const halfLen = len / 2 + 0.05;
-          const halfWidth = 0.05;
-          const angle = Math.atan2(dy, dx);
-          const cos = Math.cos(angle);
-          const sin = Math.sin(angle);
-
-          // Build capsule from two semicircles connected by lines
-          const capsulePoints: string[] = [];
-          // Top arc (from p1 side)
-          for (let i = 0; i <= 8; i++) {
-            const a = Math.PI / 2 + (i / 8) * Math.PI;
-            const lx = -halfLen + halfWidth * Math.cos(a);
-            const ly = halfWidth * Math.sin(a);
-            capsulePoints.push(
-              `${mx + lx * cos - ly * sin},${my + lx * sin + ly * cos}`,
-            );
-          }
-          // Bottom arc (from p2 side)
-          for (let i = 0; i <= 8; i++) {
-            const a = -Math.PI / 2 + (i / 8) * Math.PI;
-            const lx = halfLen + halfWidth * Math.cos(a);
-            const ly = halfWidth * Math.sin(a);
-            capsulePoints.push(
-              `${mx + lx * cos - ly * sin},${my + lx * sin + ly * cos}`,
-            );
-          }
-          el.setAttribute('points', capsulePoints.join(' '));
-        } else {
-          // 3+ nodes: use concaveman, then expand outward from centroid
-          const hull = concaveman(coords, 0.6, 0);
-          const PADDING = 0.04;
-          const cx =
-            hull.reduce((sum, p) => sum + (p[0] ?? 0), 0) / hull.length;
-          const cy =
-            hull.reduce((sum, p) => sum + (p[1] ?? 0), 0) / hull.length;
-          const points = hull
-            .map((p) => {
-              const px = p[0] ?? 0;
-              const py = p[1] ?? 0;
-              const dx = px - cx;
-              const dy = py - cy;
-              const dist = Math.sqrt(dx * dx + dy * dy);
-              if (dist === 0) return `${px},${py}`;
-              return `${px + (dx / dist) * PADDING},${py + (dy / dist) * PADDING}`;
+          const cx = coord[0] ?? 0;
+          const cy = coord[1] ?? 0;
+          const r = 0.001;
+          const points = [0, 1, 2]
+            .map((i) => {
+              const angle = (i / 3) * Math.PI * 2;
+              return `${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`;
             })
             .join(' ');
+          el.setAttribute('points', points);
+        } else if (coords.length === 2) {
+          // Two nodes: just the two center points.
+          // Round stroke-linecap/linejoin + 96px stroke creates a capsule.
+          const p1 = coords[0]!;
+          const p2 = coords[1]!;
+          el.setAttribute(
+            'points',
+            `${p1[0] ?? 0},${p1[1] ?? 0} ${p2[0] ?? 0},${p2[1] ?? 0}`,
+          );
+        } else {
+          // 3+ nodes: raw concaveman hull points.
+          // The stroke provides all visual padding.
+          const hull = concaveman(coords, 0.6, 0);
+          const points = hull.map((p) => `${p[0] ?? 0},${p[1] ?? 0}`).join(' ');
           el.setAttribute('points', points);
         }
       }

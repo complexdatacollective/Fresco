@@ -1,20 +1,22 @@
-import { type Stage } from '@codaco/protocol-validation';
 import { Accordion } from '@base-ui/react/accordion';
 import { Popover } from '@base-ui/react/popover';
 import { Radio } from '@base-ui/react/radio';
 import { RadioGroup } from '@base-ui/react/radio-group';
 import { Toggle } from '@base-ui/react/toggle';
+import { type Stage } from '@codaco/protocol-validation';
 import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Snowflake,
   RotateCcw,
+  Snowflake,
 } from 'lucide-react';
-import { motion } from 'motion/react';
-import { type RefObject, useMemo } from 'react';
+import { AnimatePresence } from 'motion/react';
+import { type RefObject, useCallback, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { cx } from '~/utils/cva';
+import { MotionSurface } from '~/components/layout/Surface';
+import Heading from '~/components/typography/Heading';
+import { IconButton } from '~/components/ui/Button';
 import {
   getEdgeColorForType,
   makeGetCategoricalOptions,
@@ -22,14 +24,22 @@ import {
   makeGetNodeAttributeLabel,
 } from '~/lib/interviewer/selectors/session';
 import { type RootState } from '~/lib/interviewer/store';
+import { cx } from '~/utils/cva';
 
 type NarrativeStage = Extract<Stage, { type: 'Narrative' }>;
 type Preset = NarrativeStage['presets'][number];
+
+const SECTION_ATTRIBUTES = 'attributes';
+const SECTION_LINKS = 'links';
+const SECTION_GROUPS = 'groups';
 
 type PresetSwitcherProps = {
   presets: Preset[];
   activePreset: number;
   highlightIndex: number;
+  showHighlighting: boolean;
+  showEdges: boolean;
+  showHulls: boolean;
   isFrozen: boolean;
   shouldShowResetButton: boolean;
   shouldShowFreezeButton: boolean;
@@ -47,6 +57,9 @@ export default function PresetSwitcher({
   presets,
   activePreset,
   highlightIndex,
+  showHighlighting,
+  showEdges,
+  showHulls,
   isFrozen,
   shouldShowResetButton,
   shouldShowFreezeButton,
@@ -97,218 +110,253 @@ export default function PresetSwitcher({
   const hasHighlights = highlightLabels.length > 0;
   const hasEdges = edges.length > 0;
   const hasGroups = categoricalOptions && categoricalOptions.length > 0;
-  const hasLegendContent = hasHighlights || hasEdges || hasGroups;
+
+  // Controlled accordion: open sections correspond to enabled features
+  const accordionValue = useMemo(() => {
+    const value: string[] = [];
+    if (showHighlighting) value.push(SECTION_ATTRIBUTES);
+    if (showEdges) value.push(SECTION_LINKS);
+    if (showHulls) value.push(SECTION_GROUPS);
+    return value;
+  }, [showHighlighting, showEdges, showHulls]);
+
+  const handleAccordionValueChange = useCallback(
+    (newValue: unknown[]) => {
+      const next = new Set(newValue);
+      const prev = new Set(accordionValue);
+
+      // Toggle whichever section changed
+      if (prev.has(SECTION_ATTRIBUTES) !== next.has(SECTION_ATTRIBUTES)) {
+        onToggleHighlighting();
+      }
+      if (prev.has(SECTION_LINKS) !== next.has(SECTION_LINKS)) {
+        onToggleEdges();
+      }
+      if (prev.has(SECTION_GROUPS) !== next.has(SECTION_GROUPS)) {
+        onToggleHulls();
+      }
+    },
+    [accordionValue, onToggleHighlighting, onToggleEdges, onToggleHulls],
+  );
+
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   if (!currentPreset) return null;
 
   return (
-    <motion.div
-      className="bg-surface/80 absolute right-10 bottom-10 z-10 flex min-w-64 cursor-move flex-col rounded-lg shadow-lg backdrop-blur-md"
+    <MotionSurface
+      noContainer
+      className="bg-surface/80 absolute right-10 bottom-10 z-10 flex cursor-move items-center gap-4 backdrop-blur-md"
+      spacing="none"
       drag
       dragConstraints={dragConstraints}
+      layout
+      style={{ borderRadius: 32 }}
+      animate={
+        popoverOpen
+          ? { borderTopLeftRadius: 0, borderTopRightRadius: 0 }
+          : { borderRadius: 32 }
+      }
     >
-      {/* Preset navigation */}
-      <div className="flex items-center gap-1 p-2">
-        <button
-          type="button"
-          className="rounded p-1 transition-opacity hover:bg-white/10 disabled:opacity-30"
-          disabled={activePreset === 0}
-          onClick={() => onChangePreset(activePreset - 1)}
-          aria-label="Previous preset"
-        >
-          <ChevronLeft size={16} />
-        </button>
-
-        {hasLegendContent ? (
-          <Popover.Root>
-            <Popover.Trigger className="flex-1 cursor-pointer text-center text-sm font-medium hover:underline">
-              {currentPreset.label}
-            </Popover.Trigger>
-            <Popover.Portal>
-              <Popover.Positioner sideOffset={8} side="top" align="center">
-                <Popover.Popup className="bg-surface/95 w-72 rounded-lg shadow-xl backdrop-blur-md">
-                  <Popover.Arrow className="data-[side=bottom]:top-[-15px] data-[side=top]:bottom-[-14px] data-[side=top]:rotate-180">
-                    <ArrowSvg />
-                  </Popover.Arrow>
-                  <Accordion.Root multiple className="flex flex-col">
-                    {hasHighlights && (
-                      <Accordion.Item>
-                        <Accordion.Header className="flex items-center justify-between border-b border-white/10 px-3 py-2">
-                          <Accordion.Trigger className="flex flex-1 items-center gap-2 text-xs font-medium tracking-wider uppercase opacity-60 hover:opacity-100">
-                            Attributes
-                            <ChevronDown
-                              size={12}
-                              className="transition-transform [[data-panel-open]>&]:rotate-180"
-                            />
-                          </Accordion.Trigger>
-                          <Toggle
-                            pressed={true}
-                            onPressedChange={onToggleHighlighting}
-                            onClick={(e) => e.stopPropagation()}
-                            className="text-muted-foreground rounded p-0.5 text-xs hover:bg-white/10"
-                            aria-label="Toggle attributes"
-                          >
-                            <span className="text-[10px]">On</span>
-                          </Toggle>
-                        </Accordion.Header>
-                        <Accordion.Panel className="px-3 py-2">
-                          <RadioGroup
-                            value={String(highlightIndex)}
-                            onValueChange={(v) =>
-                              onChangeHighlightIndex(Number(v))
-                            }
-                            className="flex flex-col gap-1"
-                          >
-                            {highlightLabels.map((label, index) => (
-                              <label
-                                key={index}
-                                className="flex cursor-pointer items-center gap-2 text-sm"
-                              >
-                                <Radio.Root
-                                  value={String(index)}
-                                  className="border-muted-foreground flex size-4 items-center justify-center rounded-full border"
-                                >
-                                  <Radio.Indicator className="bg-primary size-2 rounded-full" />
-                                </Radio.Root>
-                                {label}
-                              </label>
-                            ))}
-                          </RadioGroup>
-                        </Accordion.Panel>
-                      </Accordion.Item>
-                    )}
-
-                    {hasEdges && (
-                      <Accordion.Item>
-                        <Accordion.Header className="flex items-center justify-between border-b border-white/10 px-3 py-2">
-                          <Accordion.Trigger className="flex flex-1 items-center gap-2 text-xs font-medium tracking-wider uppercase opacity-60 hover:opacity-100">
-                            Links
-                            <ChevronDown
-                              size={12}
-                              className="transition-transform [[data-panel-open]>&]:rotate-180"
-                            />
-                          </Accordion.Trigger>
-                          <Toggle
-                            pressed={true}
-                            onPressedChange={onToggleEdges}
-                            onClick={(e) => e.stopPropagation()}
-                            className="text-muted-foreground rounded p-0.5 text-xs hover:bg-white/10"
-                            aria-label="Toggle links"
-                          >
-                            <span className="text-[10px]">On</span>
-                          </Toggle>
-                        </Accordion.Header>
-                        <Accordion.Panel className="px-3 py-2">
-                          <div className="flex flex-col gap-1">
-                            {edges.map((edge, index) => (
-                              <div
-                                key={index}
-                                className="flex items-center gap-2 text-sm"
-                              >
-                                <EdgeSwatch color={edge.color} />
-                                {edge.label}
-                              </div>
-                            ))}
-                          </div>
-                        </Accordion.Panel>
-                      </Accordion.Item>
-                    )}
-
-                    {hasGroups && (
-                      <Accordion.Item>
-                        <Accordion.Header className="flex items-center justify-between border-b border-white/10 px-3 py-2">
-                          <Accordion.Trigger className="flex flex-1 items-center gap-2 text-xs font-medium tracking-wider uppercase opacity-60 hover:opacity-100">
-                            Groups
-                            <ChevronDown
-                              size={12}
-                              className="transition-transform [[data-panel-open]>&]:rotate-180"
-                            />
-                          </Accordion.Trigger>
-                          <Toggle
-                            pressed={true}
-                            onPressedChange={onToggleHulls}
-                            onClick={(e) => e.stopPropagation()}
-                            className="text-muted-foreground rounded p-0.5 text-xs hover:bg-white/10"
-                            aria-label="Toggle groups"
-                          >
-                            <span className="text-[10px]">On</span>
-                          </Toggle>
-                        </Accordion.Header>
-                        <Accordion.Panel className="px-3 py-2">
-                          <div className="flex flex-col gap-1">
-                            {categoricalOptions.map((option, index) => (
-                              <div
-                                key={index}
-                                className="flex items-center gap-2 text-sm"
-                              >
-                                <span
-                                  className="inline-block size-3 rounded-full"
-                                  style={{
-                                    backgroundColor: `var(--color-cat-${index + 1})`,
-                                  }}
-                                />
-                                {option.label}
-                              </div>
-                            ))}
-                          </div>
-                        </Accordion.Panel>
-                      </Accordion.Item>
-                    )}
-                  </Accordion.Root>
-                </Popover.Popup>
-              </Popover.Positioner>
-            </Popover.Portal>
-          </Popover.Root>
-        ) : (
-          <span className="flex-1 text-center text-sm font-medium">
-            {currentPreset.label}
-          </span>
+      <IconButton
+        disabled={activePreset === 0}
+        onClick={() => onChangePreset(activePreset - 1)}
+        aria-label="Previous preset"
+        icon={<ChevronLeft />}
+        variant="text"
+        size="lg"
+        className="rounded-none outline-offset-0"
+      />
+      <AnimatePresence>
+        {shouldShowFreezeButton && (
+          <Toggle
+            pressed={isFrozen}
+            onPressedChange={onToggleFreeze}
+            className={cx(
+              'rounded p-1.5 transition-colors',
+              isFrozen
+                ? 'bg-primary/20 text-primary'
+                : 'text-muted-foreground hover:bg-white/10',
+            )}
+            aria-label={
+              isFrozen ? 'Unfreeze annotations' : 'Freeze annotations'
+            }
+            render={
+              <IconButton
+                icon={<Snowflake />}
+                variant="text"
+                size="lg"
+                aria-label={
+                  isFrozen ? 'Unfreeze annotations' : 'Freeze annotations'
+                }
+              />
+            }
+          />
         )}
+        {shouldShowResetButton && (
+          <IconButton
+            icon={<RotateCcw />}
+            onClick={onResetInteractions}
+            aria-label="Reset annotations"
+            variant="text"
+            size="lg"
+          />
+        )}
+        <Popover.Root onOpenChange={setPopoverOpen}>
+          <Popover.Trigger
+            className="flex-1 cursor-pointer"
+            render={<Heading level="label" margin="none" />}
+          >
+            {currentPreset.label}
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner sideOffset={40} align="center">
+              <Popover.Popup
+                className="bg-surface/80 rounded-lg shadow-xl backdrop-blur-md"
+                render={<MotionSurface noContainer />}
+              >
+                <Popover.Arrow className="data-[side=bottom]:top-[-15px] data-[side=top]:bottom-[-14px] data-[side=top]:rotate-180">
+                  <ArrowSvg />
+                </Popover.Arrow>
+                <Accordion.Root
+                  multiple
+                  value={accordionValue}
+                  onValueChange={handleAccordionValueChange}
+                  className="flex flex-col"
+                >
+                  {hasHighlights && (
+                    <Accordion.Item value={SECTION_ATTRIBUTES}>
+                      <Accordion.Header>
+                        <Accordion.Trigger className="focusable flex w-full items-center gap-2 border-b border-white/10 px-3 py-2">
+                          <Heading
+                            level="h4"
+                            variant="all-caps"
+                            margin="none"
+                            className="flex-1 text-left text-xs opacity-60"
+                          >
+                            Attributes
+                          </Heading>
+                          <ChevronDown
+                            size={12}
+                            className="opacity-60 transition-transform [[data-panel-open]>&]:rotate-180"
+                          />
+                        </Accordion.Trigger>
+                      </Accordion.Header>
+                      <Accordion.Panel className="px-3 py-2">
+                        <RadioGroup
+                          value={String(highlightIndex)}
+                          onValueChange={(v) =>
+                            onChangeHighlightIndex(Number(v))
+                          }
+                          className="flex flex-col gap-1"
+                        >
+                          {highlightLabels.map((label, index) => (
+                            <label
+                              key={index}
+                              className="flex cursor-pointer items-center gap-2 text-sm"
+                            >
+                              <Radio.Root
+                                value={String(index)}
+                                className="border-muted-foreground flex size-4 items-center justify-center rounded-full border"
+                              >
+                                <Radio.Indicator className="bg-primary size-2 rounded-full" />
+                              </Radio.Root>
+                              {label}
+                            </label>
+                          ))}
+                        </RadioGroup>
+                      </Accordion.Panel>
+                    </Accordion.Item>
+                  )}
 
-        <button
-          type="button"
-          className="rounded p-1 transition-opacity hover:bg-white/10 disabled:opacity-30"
-          disabled={activePreset + 1 === presets.length}
-          onClick={() => onChangePreset(activePreset + 1)}
-          aria-label="Next preset"
-        >
-          <ChevronRight size={16} />
-        </button>
-      </div>
+                  {hasEdges && (
+                    <Accordion.Item value={SECTION_LINKS}>
+                      <Accordion.Header>
+                        <Accordion.Trigger className="focusable flex w-full items-center gap-2 border-b border-white/10 px-3 py-2">
+                          <Heading
+                            level="h4"
+                            variant="all-caps"
+                            margin="none"
+                            className="flex-1 text-left text-xs opacity-60"
+                          >
+                            Links
+                          </Heading>
+                          <ChevronDown
+                            size={12}
+                            className="opacity-60 transition-transform [[data-panel-open]>&]:rotate-180"
+                          />
+                        </Accordion.Trigger>
+                      </Accordion.Header>
+                      <Accordion.Panel className="px-3 py-2">
+                        <div className="flex flex-col gap-1">
+                          {edges.map((edge, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center gap-2 text-sm"
+                            >
+                              <EdgeSwatch color={edge.color} />
+                              {edge.label}
+                            </div>
+                          ))}
+                        </div>
+                      </Accordion.Panel>
+                    </Accordion.Item>
+                  )}
 
-      {/* Action bar */}
-      {(shouldShowFreezeButton || shouldShowResetButton) && (
-        <div className="flex items-center justify-end gap-1 border-t border-white/10 px-2 py-1.5">
-          {shouldShowFreezeButton && (
-            <Toggle
-              pressed={isFrozen}
-              onPressedChange={onToggleFreeze}
-              className={cx(
-                'rounded p-1.5 transition-colors',
-                isFrozen
-                  ? 'bg-primary/20 text-primary'
-                  : 'text-muted-foreground hover:bg-white/10',
-              )}
-              aria-label={
-                isFrozen ? 'Unfreeze annotations' : 'Freeze annotations'
-              }
-            >
-              <Snowflake size={16} />
-            </Toggle>
-          )}
-          {shouldShowResetButton && (
-            <button
-              type="button"
-              onClick={onResetInteractions}
-              className="text-muted-foreground rounded p-1.5 hover:bg-white/10"
-              aria-label="Reset interactions"
-            >
-              <RotateCcw size={16} />
-            </button>
-          )}
-        </div>
-      )}
-    </motion.div>
+                  {hasGroups && (
+                    <Accordion.Item value={SECTION_GROUPS}>
+                      <Accordion.Header>
+                        <Accordion.Trigger className="focusable flex w-full items-center gap-2 border-b border-white/10 px-3 py-2">
+                          <Heading
+                            level="h4"
+                            variant="all-caps"
+                            margin="none"
+                            className="flex-1 text-left text-xs opacity-60"
+                          >
+                            Groups
+                          </Heading>
+                          <ChevronDown
+                            size={12}
+                            className="opacity-60 transition-transform [[data-panel-open]>&]:rotate-180"
+                          />
+                        </Accordion.Trigger>
+                      </Accordion.Header>
+                      <Accordion.Panel className="px-3 py-2">
+                        <div className="flex flex-col gap-1">
+                          {categoricalOptions.map((option, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center gap-2 text-sm"
+                            >
+                              <span
+                                className="inline-block size-3 rounded-full"
+                                style={{
+                                  backgroundColor: `var(--color-cat-${index + 1})`,
+                                }}
+                              />
+                              {option.label}
+                            </div>
+                          ))}
+                        </div>
+                      </Accordion.Panel>
+                    </Accordion.Item>
+                  )}
+                </Accordion.Root>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      </AnimatePresence>
+      <IconButton
+        icon={<ChevronRight />}
+        aria-label="Next preset"
+        disabled={activePreset + 1 === presets.length}
+        onClick={() => onChangePreset(activePreset + 1)}
+        variant="text"
+        size="lg"
+        className="rounded-none outline-offset-0"
+      />
+    </MotionSurface>
   );
 }
 
