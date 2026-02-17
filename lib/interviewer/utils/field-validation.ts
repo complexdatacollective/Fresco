@@ -302,6 +302,15 @@ const compareVariables = (
   }
 
   // check for numbers (could be number, ordinal, scalar, etc)
+  // Form inputs often return strings, so coerce to numbers when type indicates numeric
+  if (type === 'number' || type === 'scalar' || type === 'ordinal') {
+    const num1 = Number(value1);
+    const num2 = Number(value2);
+    if (!isNaN(num1) && !isNaN(num2)) {
+      return num1 - num2;
+    }
+  }
+
   if (isNumber(value1) && isNumber(value2)) {
     return value1 - value2;
   }
