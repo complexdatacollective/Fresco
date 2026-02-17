@@ -125,9 +125,20 @@ export default function PresetSwitcher({
   if (!currentPreset) return null;
 
   return (
-    <MotionSurface
+
+      <Popover.Root
+        open={popoverOpen}
+        onOpenChange={(open, event) => {
+          if (!open && event.reason === 'outside-press') return;
+          setPopoverOpen(open);
+        }}
+      >
+        <Popover.Trigger
+          className="flex-1 cursor-pointer"
+        >
+              <MotionSurface
       noContainer
-      className="bg-surface/80 absolute right-10 bottom-10 z-10 flex cursor-move items-center gap-4 backdrop-blur-md"
+      className="bg-surface/80 absolute right-10 bottom-10 z-10 flex cursor-move items-center gap-4 rounded-2xl backdrop-blur-md"
       spacing="none"
       drag
       dragConstraints={dragConstraints}
@@ -142,17 +153,24 @@ export default function PresetSwitcher({
         size="lg"
         className="rounded-none outline-offset-0"
       />
-      <Popover.Root onOpenChange={setPopoverOpen}>
-        <Popover.Trigger
-          className="flex-1 cursor-pointer"
-          render={<Heading level="label" margin="none" />}
-        >
+      <Heading level="label" margin="none" >
           {currentPreset.label}
+      </Heading>
+            <IconButton
+        icon={<ChevronRight />}
+        aria-label="Next preset"
+        disabled={activePreset + 1 === presets.length}
+        onClick={() => onChangePreset(activePreset + 1)}
+        variant="text"
+        size="lg"
+        className="rounded-none outline-offset-0"
+      />
+    </MotionSurface>
         </Popover.Trigger>
         <Popover.Portal>
           <Popover.Positioner sideOffset={40} align="center">
             <Popover.Popup
-              className="bg-surface/80 rounded-lg shadow-xl backdrop-blur-md"
+              className="bg-surface/80 overflow-visible rounded-lg shadow-xl backdrop-blur-md"
               render={<Surface noContainer />}
             >
               <Popover.Arrow className="data-[side=bottom]:top-[-15px] data-[side=top]:bottom-[-14px] data-[side=top]:rotate-180">
@@ -167,7 +185,7 @@ export default function PresetSwitcher({
                 {hasHighlights && (
                   <Accordion.Item value={SECTION_ATTRIBUTES}>
                     <Accordion.Header>
-                      <Accordion.Trigger className="focusable flex w-full items-center gap-2 border-b border-white/10 px-3 py-2">
+                      <Accordion.Trigger className="focusable flex w-full items-center gap-2">
                         <Heading
                           level="h4"
                           variant="all-caps"
@@ -176,10 +194,7 @@ export default function PresetSwitcher({
                         >
                           Attributes
                         </Heading>
-                        <ChevronDown
-                          size={12}
-                          className="opacity-60 transition-transform [[data-panel-open]>&]:rotate-180"
-                        />
+                        <ChevronDown className="opacity-60 transition-transform [[data-panel-open]>&]:rotate-180" />
                       </Accordion.Trigger>
                     </Accordion.Header>
                     <Accordion.Panel className="px-3 py-2">
@@ -210,7 +225,7 @@ export default function PresetSwitcher({
                 {hasEdges && (
                   <Accordion.Item value={SECTION_LINKS}>
                     <Accordion.Header>
-                      <Accordion.Trigger className="focusable flex w-full items-center gap-2 border-b border-white/10 px-3 py-2">
+                      <Accordion.Trigger className="focusable flex w-full items-center gap-2">
                         <Heading
                           level="h4"
                           variant="all-caps"
@@ -219,10 +234,7 @@ export default function PresetSwitcher({
                         >
                           Links
                         </Heading>
-                        <ChevronDown
-                          size={12}
-                          className="opacity-60 transition-transform [[data-panel-open]>&]:rotate-180"
-                        />
+                        <ChevronDown className="opacity-60 transition-transform [[data-panel-open]>&]:rotate-180" />
                       </Accordion.Trigger>
                     </Accordion.Header>
                     <Accordion.Panel className="px-3 py-2">
@@ -244,7 +256,7 @@ export default function PresetSwitcher({
                 {hasGroups && (
                   <Accordion.Item value={SECTION_GROUPS}>
                     <Accordion.Header>
-                      <Accordion.Trigger className="focusable flex w-full items-center gap-2 border-b border-white/10 px-3 py-2">
+                      <Accordion.Trigger className="focusable flex w-full items-center gap-2">
                         <Heading
                           level="h4"
                           variant="all-caps"
@@ -253,10 +265,7 @@ export default function PresetSwitcher({
                         >
                           Groups
                         </Heading>
-                        <ChevronDown
-                          size={12}
-                          className="opacity-60 transition-transform [[data-panel-open]>&]:rotate-180"
-                        />
+                        <ChevronDown className="opacity-60 transition-transform [[data-panel-open]>&]:rotate-180" />
                       </Accordion.Trigger>
                     </Accordion.Header>
                     <Accordion.Panel className="px-3 py-2">
@@ -284,16 +293,7 @@ export default function PresetSwitcher({
           </Popover.Positioner>
         </Popover.Portal>
       </Popover.Root>
-      <IconButton
-        icon={<ChevronRight />}
-        aria-label="Next preset"
-        disabled={activePreset + 1 === presets.length}
-        onClick={() => onChangePreset(activePreset + 1)}
-        variant="text"
-        size="lg"
-        className="rounded-none outline-offset-0"
-      />
-    </MotionSurface>
+
   );
 }
 
