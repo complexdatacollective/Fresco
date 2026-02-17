@@ -2,7 +2,9 @@ import { type RefObject } from 'react';
 import { MotionSurface } from '~/components/layout/Surface';
 import Prompts from '~/lib/interviewer/components/Prompts';
 
-const CollapsablePrompts = (props: { dragConstraints: RefObject<null> }) => {
+const CollapsablePrompts = (props: {
+  dragConstraints: RefObject<HTMLElement | null>;
+}) => {
   const { dragConstraints } = props;
 
   return (

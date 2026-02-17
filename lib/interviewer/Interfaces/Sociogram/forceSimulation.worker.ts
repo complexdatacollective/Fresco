@@ -11,14 +11,16 @@ const DEFAULT_OPTIONS = {
 
 type ForceSimulationOptions = typeof DEFAULT_OPTIONS;
 
-let simulation: d3.Simulation<d3.SimulationNodeDatum, undefined>;
-let links: d3.SimulationLinkDatum<d3.SimulationNodeDatum>[];
+type SimNode = d3.SimulationNodeDatum & { nodeId?: string };
+
+let simulation: d3.Simulation<SimNode, undefined>;
+let links: d3.SimulationLinkDatum<SimNode>[];
 let options = { ...DEFAULT_OPTIONS };
 
-const cloneLinks = (ls: d3.SimulationLinkDatum<d3.SimulationNodeDatum>[]) =>
+const cloneLinks = (ls: d3.SimulationLinkDatum<SimNode>[]) =>
   ls.map((link) => ({ ...link }));
 
-const updateOptions = function (newOptions: Partial<ForceSimulationOptions>) {
+const updateOptions = (newOptions: Partial<ForceSimulationOptions>) => {
   Object.entries(newOptions).forEach(([option, value]) => {
     switch (option) {
       case 'alphaDecay':
@@ -44,16 +46,15 @@ const updateOptions = function (newOptions: Partial<ForceSimulationOptions>) {
     }
   });
 
-  options = { ...options, ...newOptions }; // Update saved options
-
+  options = { ...options, ...newOptions };
   simulation.alpha(0.3).restart();
 };
 
 type InitializeMessage = {
   type: 'initialize';
   network: {
-    nodes: d3.SimulationNodeDatum[];
-    links: d3.SimulationLinkDatum<d3.SimulationNodeDatum>[];
+    nodes: SimNode[];
+    links: d3.SimulationLinkDatum<SimNode>[];
   };
   options?: ForceSimulationOptions;
 };
@@ -63,31 +64,23 @@ type UpdateOptionsMessage = {
   options: ForceSimulationOptions;
 };
 
-type StopMessage = {
-  type: 'stop';
-};
-
-type StartMessage = {
-  type: 'start';
-};
-
-type ReheatMessage = {
-  type: 'reheat';
-};
+type StopMessage = { type: 'stop' };
+type StartMessage = { type: 'start' };
+type ReheatMessage = { type: 'reheat' };
 
 type UpdateNetworkMessage = {
   type: 'update_network';
   network: {
-    nodes: d3.SimulationNodeDatum[];
-    links: d3.SimulationLinkDatum<d3.SimulationNodeDatum>[];
+    nodes: SimNode[];
+    links: d3.SimulationLinkDatum<SimNode>[];
   };
   restart: boolean;
 };
 
 type UpdateNodeMessage = {
   type: 'update_node';
-  index: number;
-  node: Partial<d3.SimulationNodeDatum>;
+  nodeId: string;
+  node: Partial<SimNode>;
 };
 
 type Message =
@@ -99,14 +92,13 @@ type Message =
   | UpdateNetworkMessage
   | UpdateNodeMessage;
 
-onmessage = function ({ data }: { data: Message }) {
+onmessage = ({ data }: { data: Message }) => {
   switch (data.type) {
     case 'initialize': {
       const { network } = data;
-
       links = network.links;
 
-      console.debug('worker:initialize', network.nodes);
+      console.debug('worker:initialize', network.nodes.length, 'nodes');
 
       const initialOptions = {
         ...DEFAULT_OPTIONS,
@@ -114,10 +106,8 @@ onmessage = function ({ data }: { data: Message }) {
       };
 
       simulation = d3.forceSimulation(network.nodes);
-
       updateOptions(initialOptions);
 
-      // do not auto run
       simulation.alpha(0).stop();
 
       simulation.on('tick', () => {
@@ -141,75 +131,50 @@ onmessage = function ({ data }: { data: Message }) {
       break;
     }
     case 'stop': {
-      if (!simulation) {
-        return;
-      }
+      if (!simulation) return;
       console.debug('worker:stop');
       simulation.stop();
-      postMessage({
-        type: 'end',
-        nodes: simulation.nodes(),
-      });
+      postMessage({ type: 'end', nodes: simulation.nodes() });
       break;
     }
     case 'start': {
-      if (!simulation) {
-        return;
-      }
+      if (!simulation) return;
       console.debug('worker:start');
       simulation.alpha(1).restart();
       break;
     }
     case 'reheat': {
-      if (!simulation) {
-        return;
-      }
-      console.debug('worker:start');
+      if (!simulation) return;
+      console.debug('worker:reheat');
       simulation.alpha(0.3).restart();
       break;
     }
     case 'update_network': {
-      if (!simulation) {
-        return;
-      }
+      if (!simulation) return;
 
       const { network } = data;
-
       links = network.links;
 
       simulation.nodes(network.nodes);
-
       simulation.force(
         'links',
         d3.forceLink(cloneLinks(links)).distance(options.linkDistance),
       );
 
       if (data.restart) {
-        // TODO: don't run this on "first run"?
         simulation.alpha(0.3).restart();
       }
       break;
     }
     case 'update_node': {
-      if (!simulation) {
-        return;
-      }
+      if (!simulation) return;
 
-      const nodes = simulation.nodes().map((node, index) => {
-        if (index !== data.index) {
-          return node;
-        }
-
-        const newNode = {
-          ...node,
-          ...data.node,
-        };
-
-        return newNode;
+      const nodes = simulation.nodes().map((node) => {
+        if (node.nodeId !== data.nodeId) return node;
+        return { ...node, ...data.node };
       });
 
       simulation.nodes(nodes);
-
       simulation.force(
         'links',
         d3.forceLink(cloneLinks(links)).distance(options.linkDistance),

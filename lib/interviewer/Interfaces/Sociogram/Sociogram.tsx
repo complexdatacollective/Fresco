@@ -1,24 +1,36 @@
 'use client';
 
 import { type Stage } from '@codaco/protocol-validation';
-import { bindActionCreators } from '@reduxjs/toolkit';
+import {
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
+} from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
+import { DndStoreProvider } from '~/lib/dnd';
 import ConcentricCircles from '~/lib/interviewer/components/ConcentricCircles';
-import { usePrompts } from '../../components/Prompts/usePrompts';
-import { type StageProps } from '../../components/Stage';
-import { getAssetUrlFromId } from '../../ducks/modules/protocol';
-import { actionCreators as resetActions } from '../../ducks/modules/reset';
+import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
+import { type StageProps } from '~/lib/interviewer/components/Stage';
+import { getAssetUrlFromId } from '~/lib/interviewer/ducks/modules/protocol';
+import {
+  toggleEdge,
+  toggleNodeAttributes,
+  updateNode,
+} from '~/lib/interviewer/ducks/modules/session';
 import {
   getEdges,
-  getNextUnplacedNode,
   getNodes,
   getPlacedNodes,
-} from '../../selectors/canvas';
-import { useAppDispatch } from '../../store';
+  getUnplacedNodes,
+} from '~/lib/interviewer/selectors/canvas';
+import { useAppDispatch } from '~/lib/interviewer/store';
+import Canvas from './Canvas';
 import CollapsablePrompts from './CollapsablePrompts';
+import NodeDrawer from './NodeDrawer';
 import SimulationPanel from './SimulationPanel';
+import { useForceSimulation } from './useForceSimulation';
+import { createSociogramStore, useSociogramStore } from './useSociogramStore';
 
 type SociogramProps = StageProps & {
   stage: Extract<Stage, { type: 'Sociogram' }>;
@@ -26,43 +38,10 @@ type SociogramProps = StageProps & {
 
 const Sociogram = (stageProps: SociogramProps) => {
   const { stage } = stageProps;
-  const { prompt, prompts } = usePrompts<(typeof stage.prompts)[number]>();
+  const { prompt } = usePrompts<(typeof stage.prompts)[number]>();
   const dispatch = useAppDispatch();
 
-  const { resetEdgesOfType, resetPropertyForAllNodes } = useMemo(
-    () =>
-      bindActionCreators(
-        {
-          resetEdgesOfType: resetActions.resetEdgesOfType,
-          resetPropertyForAllNodes: resetActions.resetPropertyForAllNodes,
-        },
-        dispatch,
-      ),
-    [dispatch],
-  );
-
-  const handleResetInterface = useCallback(() => {
-    prompts.forEach((p) => {
-      if ('edges' in p && p.edges?.create) {
-        resetEdgesOfType(p.edges.create);
-      }
-
-      const layoutVariable = get(p, 'layout.layoutVariable', null);
-      if (!layoutVariable) {
-        return;
-      }
-
-      if (typeof layoutVariable === 'string') {
-        resetPropertyForAllNodes(layoutVariable);
-      } else {
-        Object.keys(layoutVariable).forEach((type) => {
-          resetPropertyForAllNodes(layoutVariable[type]);
-        });
-      }
-    });
-  }, [prompts, resetEdgesOfType, resetPropertyForAllNodes]);
-
-  const interfaceRef = useRef(null);
+  const interfaceRef = useRef<HTMLDivElement>(null);
 
   const getAssetUrl = useSelector(getAssetUrlFromId);
 
@@ -87,23 +66,157 @@ const Sociogram = (stageProps: SociogramProps) => {
 
   const allNodes = useSelector(getNodes);
   const placedNodes = useSelector(getPlacedNodes);
-  const nextUnplacedNode = useSelector(getNextUnplacedNode);
+  const unplacedNodes = useSelector(getUnplacedNodes);
 
-  const nodes = layoutMode === 'AUTOMATIC' ? allNodes : placedNodes;
+  const canvasNodes = layoutMode === 'AUTOMATIC' ? allNodes : placedNodes;
   const edges = useSelector(getEdges);
 
+  // Zustand store for real-time positions
+  const storeRef = useRef(createSociogramStore());
+  const store = storeRef.current;
+
+  // Sync positions from Redux when nodes or layout variable change
+  useEffect(() => {
+    store.getState().syncFromNodes(canvasNodes, layoutVariable);
+  }, [canvasNodes, layoutVariable, store]);
+
+  // Force simulation (only active in AUTOMATIC mode)
+  const simulation = useForceSimulation({
+    enabled: layoutMode === 'AUTOMATIC',
+    nodes: canvasNodes,
+    edges,
+    layoutVariable,
+    store,
+    dispatch,
+  });
+
+  const selectedNodeId = useSociogramStore(
+    store,
+    (state) => state.selectedNodeId,
+  );
+
+  // Handle node selection (for edge creation and highlighting)
+  const handleNodeSelect = useCallback(
+    (nodeId: string) => {
+      if (createEdge) {
+        // Edge creation mode
+        if (selectedNodeId === null) {
+          store.getState().selectNode(nodeId);
+        } else if (selectedNodeId === nodeId) {
+          store.getState().selectNode(null);
+        } else {
+          void dispatch(
+            toggleEdge({
+              from: selectedNodeId,
+              to: nodeId,
+              type: createEdge,
+            }),
+          );
+          store.getState().selectNode(null);
+        }
+      } else if (allowHighlighting && highlightAttribute) {
+        // Highlighting mode
+        const node = canvasNodes.find(
+          (n) => n[entityPrimaryKeyProperty] === nodeId,
+        );
+        if (node) {
+          const currentValue =
+            node[entityAttributesProperty][highlightAttribute];
+          dispatch(
+            toggleNodeAttributes({
+              nodeId,
+              attributes: { [highlightAttribute]: !currentValue },
+            }),
+          );
+        }
+      }
+    },
+    [
+      createEdge,
+      selectedNodeId,
+      store,
+      dispatch,
+      allowHighlighting,
+      highlightAttribute,
+      canvasNodes,
+    ],
+  );
+
+  // Handle drag end: sync single position to Redux
+  const handleNodeDragEnd = useCallback(
+    (nodeId: string, position: { x: number; y: number }) => {
+      void dispatch(
+        updateNode({
+          nodeId,
+          newAttributeData: {
+            [layoutVariable]: { x: position.x, y: position.y },
+          },
+        }),
+      );
+    },
+    [dispatch, layoutVariable],
+  );
+
+  // Handle drop from drawer to canvas
+  const handleDrop = useCallback(
+    (nodeId: string, position: { x: number; y: number }) => {
+      store.getState().setPosition(nodeId, position);
+      void dispatch(
+        updateNode({
+          nodeId,
+          newAttributeData: {
+            [layoutVariable]: { x: position.x, y: position.y },
+          },
+        }),
+      );
+    },
+    [store, dispatch, layoutVariable],
+  );
+
+  const background = backgroundImage ? (
+    <img
+      src={backgroundImage}
+      className="size-full object-cover"
+      alt="Background"
+    />
+  ) : (
+    <ConcentricCircles n={concentricCircles} skewed={skewedTowardCenter} />
+  );
+
+  const simulationHandlers =
+    layoutMode === 'AUTOMATIC'
+      ? {
+          moveNode: simulation.moveNode,
+          releaseNode: simulation.releaseNode,
+        }
+      : null;
+
   return (
-    <div className="interface h-dvh overflow-hidden" ref={interfaceRef}>
-      {layoutMode === 'AUTOMATIC' && (
-        <SimulationPanel dragConstraints={interfaceRef} />
-      )}
-      <CollapsablePrompts dragConstraints={interfaceRef} />
-      {backgroundImage ? (
-        <img src={backgroundImage} className="size-full" alt="Background" />
-      ) : (
-        <ConcentricCircles n={concentricCircles} skewed={skewedTowardCenter} />
-      )}
-    </div>
+    <DndStoreProvider>
+      <div className="relative h-dvh overflow-hidden" ref={interfaceRef}>
+        <Canvas
+          background={background}
+          nodes={canvasNodes}
+          edges={edges}
+          store={store}
+          selectedNodeId={selectedNodeId}
+          onNodeSelect={handleNodeSelect}
+          onNodeDragEnd={handleNodeDragEnd}
+          onDrop={handleDrop}
+          allowRepositioning={allowPositioning}
+          simulation={simulationHandlers}
+        />
+        {layoutMode === 'MANUAL' && <NodeDrawer nodes={unplacedNodes} />}
+        {layoutMode === 'AUTOMATIC' && (
+          <SimulationPanel
+            simulationEnabled={simulation.simulationEnabled}
+            onToggle={simulation.toggleSimulation}
+            dragConstraints={interfaceRef}
+          />
+        )}
+        <CollapsablePrompts dragConstraints={interfaceRef} />
+      </div>
+    </DndStoreProvider>
   );
 };
 
