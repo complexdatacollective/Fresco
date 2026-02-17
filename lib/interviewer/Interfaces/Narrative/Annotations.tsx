@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'motion/react';
 import {
   forwardRef,
   useCallback,
@@ -6,7 +7,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import Fade from '~/lib/interviewer/Interfaces/Narrative/Fade';
 
 type Point = { x: number; y: number };
 
@@ -49,22 +49,23 @@ function AnnotationLine({
   }
 
   return (
-    <Fade
-      in={showLine}
-      enter={false}
-      customDuration={{ enter: 0, exit: 3000 * Math.log10(line.length ** 2) }}
-      onExited={onLineFaded}
-    >
-      <path
-        d={pathData}
-        fill="none"
-        stroke="white"
-        strokeWidth="0.004"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-      />
-    </Fade>
+    <AnimatePresence initial={false} onExitComplete={onLineFaded}>
+      {showLine && (
+        <motion.path
+          d={pathData}
+          fill="none"
+          stroke="white"
+          strokeWidth="0.004"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
+          exit={{ opacity: 0 }}
+          transition={{
+            duration: (3000 * Math.log10(line.length ** 2)) / 1000,
+          }}
+        />
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -221,7 +222,7 @@ const Annotations = forwardRef<AnnotationsHandle, AnnotationsProps>(
     return (
       <div
         ref={containerRef}
-        className="absolute inset-0 z-10"
+        className="absolute inset-0"
         style={{ touchAction: 'none' }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}

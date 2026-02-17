@@ -11,6 +11,7 @@ const Panels = ({ children, minimize = false }: PanelsProps) => {
       className={cx(
         'flex flex-col',
         'w-96 max-w-[30vw]',
+        'gap-6',
         'transition-[opacity,width,margin-right]',
         'duration-(--animation-duration-standard)',
         'ease-(--animation-easing)',

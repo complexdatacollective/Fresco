@@ -84,11 +84,11 @@ function ConvexHullLayerWrapper({ nodes }: { nodes: NcNode[] }) {
         return (
           <div
             key={node[entityPrimaryKeyProperty]}
-            className="absolute size-3 -translate-x-1/2 -translate-y-1/2 rounded-full"
+            className="absolute size-3 -translate-1/2 rounded-full"
             style={{
               left: `${pos.x * 100}%`,
               top: `${pos.y * 100}%`,
-              backgroundColor: `var(--color-cat-color-seq-${colorIndex})`,
+              backgroundColor: `var(--color-cat-${colorIndex})`,
             }}
           />
         );

@@ -1,6 +1,6 @@
 import { type Codebook } from '@codaco/protocol-validation';
 import type { NcNetwork } from '@codaco/shared-consts';
-import { Node } from '~/lib/legacy-ui/components';
+import Node from '~/components/Node';
 import { cx } from '~/utils/cva';
 
 // TODO: Move to shared-consts or protocol-validation

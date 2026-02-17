@@ -25,7 +25,7 @@ type GroupData = {
  * Groups nodes by their categorical variable values.
  * A single node can belong to multiple groups (categorical values are arrays).
  */
-function groupNodesByVariable(
+export function groupNodesByVariable(
   nodes: NcNode[],
   groupVariable: string,
   categoricalOptions: CategoricalOption[],
@@ -101,12 +101,9 @@ export default function ConvexHullLayer({
         svgNS,
         'polygon',
       ) as SVGPolygonElement;
-      el.setAttribute('fill', `var(--color-cat-color-seq-${group.colorIndex})`);
+      el.setAttribute('fill', `var(--color-cat-${group.colorIndex})`);
       el.setAttribute('fill-opacity', '0.15');
-      el.setAttribute(
-        'stroke',
-        `var(--color-cat-color-seq-${group.colorIndex})`,
-      );
+      el.setAttribute('stroke', `var(--color-cat-${group.colorIndex})`);
       el.setAttribute('stroke-opacity', '0.5');
       el.setAttribute('stroke-width', '0.008');
       el.setAttribute('stroke-linejoin', 'round');
@@ -142,7 +139,7 @@ export default function ConvexHullLayer({
           const coord = coords[0]!;
           const ccx = coord[0] ?? 0;
           const ccy = coord[1] ?? 0;
-          const r = 0.04;
+          const r = 0.06;
           const points = Array.from({ length: 16 }, (_, i) => {
             const angle = (i / 16) * Math.PI * 2;
             return `${ccx + r * Math.cos(angle)},${ccy + r * Math.sin(angle)}`;
@@ -161,8 +158,8 @@ export default function ConvexHullLayer({
           const dx = p2x - p1x;
           const dy = p2y - p1y;
           const len = Math.sqrt(dx * dx + dy * dy);
-          const halfLen = len / 2 + 0.03;
-          const halfWidth = 0.03;
+          const halfLen = len / 2 + 0.05;
+          const halfWidth = 0.05;
           const angle = Math.atan2(dy, dx);
           const cos = Math.cos(angle);
           const sin = Math.sin(angle);
@@ -189,9 +186,24 @@ export default function ConvexHullLayer({
           }
           el.setAttribute('points', capsulePoints.join(' '));
         } else {
-          // 3+ nodes: use concaveman
+          // 3+ nodes: use concaveman, then expand outward from centroid
           const hull = concaveman(coords, 0.6, 0);
-          const points = hull.map(([x, y]) => `${x},${y}`).join(' ');
+          const PADDING = 0.04;
+          const cx =
+            hull.reduce((sum, p) => sum + (p[0] ?? 0), 0) / hull.length;
+          const cy =
+            hull.reduce((sum, p) => sum + (p[1] ?? 0), 0) / hull.length;
+          const points = hull
+            .map((p) => {
+              const px = p[0] ?? 0;
+              const py = p[1] ?? 0;
+              const dx = px - cx;
+              const dy = py - cy;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+              if (dist === 0) return `${px},${py}`;
+              return `${px + (dx / dist) * PADDING},${py + (dy / dist) * PADDING}`;
+            })
+            .join(' ');
           el.setAttribute('points', points);
         }
       }

@@ -2,6 +2,7 @@
 
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { AnimatePresence, motion } from 'motion/react';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
 import {
   controlVariants,
   groupSpacingVariants,
@@ -207,7 +208,7 @@ export default function ToggleButtonGroupField(props: ToggleButtonGroupProps) {
                 )}
               </AnimatePresence>
               <span className="relative z-10 line-clamp-3 max-w-full overflow-hidden leading-tight text-balance">
-                {option.label}
+                <RenderMarkdown>{option.label}</RenderMarkdown>
               </span>
             </motion.button>
           </Checkbox.Root>

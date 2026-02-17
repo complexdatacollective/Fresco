@@ -101,6 +101,7 @@ const { motionMockModule } = vi.hoisted(() => {
     th: createMotionComponent('th'),
     tbody: createMotionComponent('tbody'),
     thead: createMotionComponent('thead'),
+    path: createMotionComponent('path'),
     // Add the create method for motion.create(Component) API
     create: createMotionFromComponent,
   };

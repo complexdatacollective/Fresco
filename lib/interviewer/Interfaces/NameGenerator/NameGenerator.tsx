@@ -271,7 +271,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
     <>
       <div className="interface flex-col gap-6" ref={interfaceRef}>
         <Prompts />
-        <div className="mb-5 flex min-h-0 w-full flex-1 basis-full gap-4">
+        <div className="flex min-h-0 w-full flex-1 basis-full gap-4">
           {panels && <NodePanels disableAddNew={maxNodesReached} />}
           <NodeList
             items={nodesForPrompt}
