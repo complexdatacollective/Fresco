@@ -5,10 +5,11 @@ import {
 import { motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
+import UINode from '~/components/Node';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import Panel from '~/lib/interviewer/components/Panel';
 import Prompts from '~/lib/interviewer/components/Prompts';
+import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { addNode, deleteNode } from '~/lib/interviewer/ducks/modules/session';
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import { getCodebookVariablesForSubjectType } from '~/lib/interviewer/selectors/protocol';
@@ -19,8 +20,6 @@ import {
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import getParentKeyByNameValue from '~/lib/interviewer/utils/getParentKeyByNameValue';
-import { DataCard } from '~/lib/legacy-ui/components/Cards';
-import UINode from '~/lib/legacy-ui/components/Node';
 import { cx } from '~/utils/cva';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import SearchableList from '../../components/SearchableList';
@@ -34,6 +33,19 @@ import {
 } from '../utils/StageLevelValidation';
 import { type NameGeneratorRosterProps } from './helpers';
 import useItems, { type UseItemElement } from './useItems';
+
+function DataCard(props: { item: UseItemElement }) {
+  const { item } = props;
+  const label = item.data[entityAttributesProperty]?.name || item.id;
+
+  return (
+    <div className="card">
+      <div className="card-body">
+        <p>{label}</p>
+      </div>
+    </div>
+  );
+}
 
 const countColumns = (width: number) =>
   width < 140 ? 1 : Math.floor(width / 450);

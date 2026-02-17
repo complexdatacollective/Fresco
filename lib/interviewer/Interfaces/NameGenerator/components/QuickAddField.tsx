@@ -1,19 +1,18 @@
 import { AnimatePresence, motion, type Variants } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import ActionButton from '~/components/interview/ActionButton';
-import { type InterviewerIconName } from '~/components/ui/Icon';
+import Icon, { type InterviewerIconName } from '~/components/ui/Icon';
 import { type ValidationPropsCatalogue } from '~/lib/form/components/Field/types';
 import InputField from '~/lib/form/components/fields/InputField';
 import { useField } from '~/lib/form/hooks/useField';
 import useFormStore from '~/lib/form/hooks/useFormStore';
+import ActionButton from '~/lib/interviewer/components/ActionButton';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import {
   getNodeColorSelector,
   getNodeTypeLabel,
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
-import Icon from '~/lib/legacy-ui/components/Icon';
 import { cx } from '~/utils/cva';
 
 type QuickAddFieldProps = {

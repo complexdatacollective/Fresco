@@ -1,6 +1,7 @@
 import type { Meta, StoryFn } from '@storybook/nextjs-vite';
 import { useEffect, useRef, useState, type JSX } from 'react';
 import { useStore } from 'zustand';
+import Node from '~/components/Node';
 import { type FamilyTreeNodeType } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
 import { FAMILY_TREE_CONFIG } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/config';
 import { type ConnectorRenderData } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/pedigreeAdapter';
@@ -9,7 +10,6 @@ import {
   type Edge,
   type FamilyTreeStoreApi,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
-import Node from '~/lib/legacy-ui/components/Node';
 import {
   type LineSegment,
   type ParentChildConnector,

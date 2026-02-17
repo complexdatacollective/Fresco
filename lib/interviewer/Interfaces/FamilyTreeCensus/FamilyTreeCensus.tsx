@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useSelector } from 'react-redux';
 import { useToast } from '~/components/ui/Toast';
+import usePortalTarget from '~/hooks/usePortalTarget';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import Prompts from '~/lib/interviewer/components/Prompts/Prompts';
 import { addEdge, deleteNode } from '~/lib/interviewer/ducks/modules/session';
@@ -165,7 +166,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
   const diseaseVariable = steps.get(currentStepIndex)?.diseaseVariable ?? null;
 
-  const stageElement = document.getElementById('stage');
+  const stageElement = usePortalTarget('stage');
   const removeNode = useFamilyTreeStore((state) => state.removeNode);
 
   return (

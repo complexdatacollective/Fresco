@@ -5,10 +5,10 @@ import { useMemo } from 'react';
 import { Flipped } from 'react-flip-toolkit';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import { useDropTarget } from '~/lib/dnd';
-import { usePrompts } from '../behaviours/withPrompt';
 import { useNodeLabel } from '../Interfaces/Anonymisation/useNodeLabel';
 import createSorter, { type ProcessedSortRule } from '../utils/createSorter';
 import NodeList from './NodeList';
+import { usePrompts } from './Prompts/usePrompts';
 
 const Details = ({ nodes }: { nodes: NcNode[] }) => {
   const label = useNodeLabel(nodes[0]!);

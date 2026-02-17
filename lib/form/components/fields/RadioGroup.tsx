@@ -3,6 +3,7 @@
 import { Radio } from '@base-ui/react/radio';
 import { RadioGroup, type RadioGroupProps } from '@base-ui/react/radio-group';
 import { motion } from 'motion/react';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
 import {
   controlLabelVariants,
   controlVariants,
@@ -199,7 +200,7 @@ export default function RadioGroupField(props: RadioGroupFieldProps) {
                   isOptionDisabled && 'opacity-50',
                 )}
               >
-                {option.label}
+                <RenderMarkdown>{option.label}</RenderMarkdown>
               </span>
             </label>
           );

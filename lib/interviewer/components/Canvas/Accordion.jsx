@@ -1,7 +1,8 @@
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
-import Icon from '~/lib/legacy-ui/components/Icon';
+import Heading from '~/components/typography/Heading';
+import Icon from '~/components/ui/Icon';
 
 class Accordion extends Component {
   constructor(props) {
@@ -30,8 +31,7 @@ class Accordion extends Component {
     return (
       <div className="accordion" onClick={onAccordionToggle}>
         <div className={toggleClasses} onClick={this.toggleAccordion}>
-          <h4>{label}</h4>
-          &nbsp;
+          <Heading level="h4">{label}</Heading>
           <Icon
             name="chevron-up"
             color="white"

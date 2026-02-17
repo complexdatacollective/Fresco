@@ -3,7 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import { connection } from 'next/server';
 import { Suspense } from 'react';
 import SuperJSON from 'superjson';
-import { Spinner } from '~/lib/legacy-ui/components';
+import Spinner from '~/components/Spinner';
 import { getAppSetting } from '~/queries/appSettings';
 import {
   getInterviewById,

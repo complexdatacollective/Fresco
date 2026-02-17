@@ -5,7 +5,7 @@ import {
 } from '@codaco/shared-consts';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
+import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import {
   addEdge,
   deleteEdge,

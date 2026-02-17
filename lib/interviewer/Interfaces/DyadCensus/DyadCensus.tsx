@@ -1,10 +1,10 @@
-import { type Stage as TStage } from '@codaco/protocol-validation';
+import { type Stage } from '@codaco/protocol-validation';
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
-import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import Prompts from '~/lib/interviewer/components/Prompts';
+import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { type StageProps } from '~/lib/interviewer/components/Stage';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import {
@@ -12,7 +12,6 @@ import {
   getNetworkEdges,
   getNetworkNodesForType,
 } from '~/lib/interviewer/selectors/session';
-import BooleanOption from '~/lib/legacy-ui/components/Boolean/BooleanOption';
 import { cx } from '~/utils/cva';
 import Pair from './components/Pair';
 import { getNodePair, getPairs } from './helpers';
@@ -44,17 +43,12 @@ const introVariants = {
   hide: { opacity: 0, scale: 0 },
 };
 
-type DyadCensusStage = TStage & {
-  introductionPanel: {
-    title: string;
-    text: string;
-  };
+type DyadCensusProps = StageProps & {
+  stage: Extract<Stage, { type: 'DyadCensus' }>;
 };
 
-export default function DyadCensus(props: StageProps) {
+export default function DyadCensus(props: DyadCensusProps) {
   const { registerBeforeNext, stage, getNavigationHelpers } = props;
-
-  const dyadCensusStage = stage as DyadCensusStage;
 
   const { moveForward } = getNavigationHelpers();
 
@@ -66,7 +60,7 @@ export default function DyadCensus(props: StageProps) {
     prompt: { createEdge },
     promptIndex,
     prompts,
-  } = usePrompts<{ createEdge: string }>();
+  } = usePrompts<(typeof stage.prompts)[number]>();
 
   const nodes = usePropSelector(getNetworkNodesForType, props);
   const edges = usePropSelector(getNetworkEdges, props);
@@ -157,8 +151,7 @@ export default function DyadCensus(props: StageProps) {
   const choiceClasses = cx(
     'relative z-(--z-panel) flex w-[70vmin] shrink-0 grow-0 flex-col rounded-(--nc-border-radius) border-[0.5rem] border-transparent p-5 text-center',
     {
-      'animate-shake border-(--nc-error) outline-offset-[0.75rem]':
-        !isValid,
+      'animate-shake border-(--nc-error) outline-offset-[0.75rem]': !isValid,
     },
   );
 
@@ -174,12 +167,8 @@ export default function DyadCensus(props: StageProps) {
             animate="show"
             key="intro"
           >
-            <h1 className="text-center">
-              {dyadCensusStage.introductionPanel.title}
-            </h1>
-            <RenderMarkdown>
-              {dyadCensusStage.introductionPanel.text}
-            </RenderMarkdown>
+            <h1 className="text-center">{stage.introductionPanel.title}</h1>
+            <RenderMarkdown>{stage.introductionPanel.text}</RenderMarkdown>
           </motion.div>
         )}
         {!isIntroduction && (

@@ -3,10 +3,10 @@
 import { faker } from '@faker-js/faker';
 import { useCallback, useMemo, useState } from 'react';
 import preview from '~/.storybook/preview';
+import Node, { type NodeColorSequence } from '~/components/Node';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
-import Node, { type NodeColorSequence } from '~/lib/legacy-ui/components/Node';
 import { cx } from '~/utils/cva';
 import { Collection } from '../components/Collection';
 import { CollectionSortButton } from '../components/CollectionSortButton';

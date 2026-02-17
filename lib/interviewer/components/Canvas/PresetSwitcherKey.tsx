@@ -7,7 +7,7 @@ import { useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useSelector } from 'react-redux';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
-import Icon from '~/lib/legacy-ui/components/Icon';
+import Icon from '~/components/ui/Icon';
 import {
   getCurrentStage,
   getEdgeColorForType,

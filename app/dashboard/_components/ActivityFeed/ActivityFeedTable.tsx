@@ -1,10 +1,10 @@
 'use client';
 
-import type { Events } from '~/lib/db/generated/client';
 import type { ColumnDef } from '@tanstack/react-table';
 import { use, useMemo } from 'react';
 import { DataTable } from '~/components/data-table/data-table';
-import { useDataTable } from '~/hooks/use-data-table';
+import { useDataTable } from '~/hooks/useDataTable';
+import type { Events } from '~/lib/db/generated/client';
 import type { ActivitiesFeed } from '~/queries/activityFeed';
 import {
   fetchActivityFeedTableColumnDefs,

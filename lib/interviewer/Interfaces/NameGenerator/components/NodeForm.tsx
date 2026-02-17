@@ -10,18 +10,17 @@ import {
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import ActionButton from '~/components/interview/ActionButton';
 import Button from '~/components/ui/Button';
 import { type InterviewerIconName } from '~/components/ui/Icon';
 import Dialog from '~/lib/dialogs/Dialog';
 import Form from '~/lib/form/components/Form';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import { type FormSubmitHandler } from '~/lib/form/store/types';
+import ActionButton from '~/lib/interviewer/components/ActionButton';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { getNodeIconName } from '../../../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../../../selectors/prop';
 import { useAppDispatch } from '../../../store';
-import { FIRST_LOAD_UI_ELEMENT_DELAY } from '../../utils/constants';
 
 type NodeFormProps = {
   selectedNode: NcNode | null;
@@ -68,7 +67,6 @@ const NodeForm = (props: NodeFormProps) => {
     animate: {
       opacity: 1,
       y: '0rem',
-      transition: { delay: FIRST_LOAD_UI_ELEMENT_DELAY },
     },
   };
 

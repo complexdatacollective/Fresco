@@ -1,6 +1,5 @@
 export const PROTOCOL_EXTENSION = '.netcanvas';
 export const APP_SUPPORTED_SCHEMA_VERSIONS = [7, 8];
-export const MIN_ARCHITECT_VERSION_FOR_PREVIEW = '7.0.1';
 
 // Analytics
 export const POSTHOG_APP_NAME = 'Fresco';

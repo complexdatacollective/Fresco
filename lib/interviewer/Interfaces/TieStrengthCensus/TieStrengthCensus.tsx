@@ -5,8 +5,8 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
-import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import Prompts from '~/lib/interviewer/components/Prompts';
+import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import {
@@ -14,7 +14,6 @@ import {
   getNetworkEdges as getEdges,
   getNetworkNodesForType,
 } from '~/lib/interviewer/selectors/session';
-import BooleanOption from '~/lib/legacy-ui/components/Boolean/BooleanOption';
 import { cx } from '~/utils/cva';
 import useAutoAdvance from '../DyadCensus/useAutoAdvance';
 import useEdgeState from '../DyadCensus/useEdgeState';

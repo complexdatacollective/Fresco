@@ -3,7 +3,7 @@ import { type StageType } from '@codaco/protocol-validation';
 import { lazy } from 'react';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
-import Icon from '~/lib/legacy-ui/components/Icon';
+import Icon from '~/components/ui/Icon';
 
 const NotFoundInterface = ({ interfaceType }: { interfaceType: string }) => (
   <Surface>
@@ -27,7 +27,7 @@ const LazySociogram = lazy(() => import('./Sociogram'));
 const LazyInformation = lazy(() => import('./Information'));
 const LazyOrdinalBin = lazy(() => import('./OrdinalBin/OrdinalBin'));
 const LazyCategoricalBin = lazy(() => import('./CategoricalBin'));
-const LazyNarrative = lazy(() => import('./Narrative'));
+const LazyNarrative = lazy(() => import('./Narrative/Narrative'));
 const LazyAlterForm = lazy(() => import('./AlterForm'));
 const LazyEgoForm = lazy(() => import('./EgoForm'));
 const LazyAlterEdgeForm = lazy(() => import('./AlterEdgeForm'));

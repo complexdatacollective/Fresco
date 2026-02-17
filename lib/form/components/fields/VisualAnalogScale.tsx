@@ -1,6 +1,7 @@
 'use client';
 
 import { Slider } from '@base-ui/react/slider';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
 import {
   sliderControlVariants,
   sliderRootVariants,
@@ -76,12 +77,12 @@ export default function VisualAnalogScaleField(
         <div className="relative mt-2 flex justify-between">
           {minLabel && (
             <div className="max-w-24 text-left text-sm leading-tight text-current/70">
-              {minLabel}
+              <RenderMarkdown>{minLabel}</RenderMarkdown>
             </div>
           )}
           {maxLabel && (
             <div className="max-w-24 text-right text-sm leading-tight text-current/70">
-              {maxLabel}
+              <RenderMarkdown>{maxLabel}</RenderMarkdown>
             </div>
           )}
         </div>

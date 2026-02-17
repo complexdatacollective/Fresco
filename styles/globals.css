@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-@import './colors.css';
+@import './shared/colors.css';
 
 @plugin '@tailwindcss/forms';
 @plugin './plugins/tailwind-motion-spring.ts';

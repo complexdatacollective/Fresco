@@ -1,7 +1,5 @@
 import { motion } from 'motion/react';
-import UINode, {
-  type NodeColorSequence,
-} from '~/lib/legacy-ui/components/Node';
+import UINode, { type NodeColorSequence } from '~/components/Node';
 
 const variants = {
   visible: { opacity: 1 },

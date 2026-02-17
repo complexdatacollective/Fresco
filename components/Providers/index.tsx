@@ -5,9 +5,9 @@ import { Toast } from '@base-ui/react/toast';
 import { MotionConfig, MotionGlobalConfig } from 'motion/react';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { type ReactNode } from 'react';
+import ProtocolImportProvider from '~/components/ProtocolImport/ProtocolImportProvider';
 import DialogProvider from '~/lib/dialogs/DialogProvider';
 import { DndStoreProvider } from '~/lib/dnd';
-import ProtocolImportProvider from '~/lib/protocol-import/ProtocolImportProvider';
 import { Toaster } from '../ui/Toast';
 import { PostHogIdentify } from './PosthogIdentify';
 

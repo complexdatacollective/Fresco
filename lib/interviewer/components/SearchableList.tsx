@@ -2,9 +2,9 @@ import { isEqual } from 'es-toolkit';
 import { SearchIcon } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { memo, useEffect, useId, useMemo } from 'react';
+import { type NodeColorSequence } from '~/components/Node';
 import { useDndStore, type DndStore } from '~/lib/dnd';
 import InputField from '~/lib/form/components/fields/InputField';
-import { type NodeColorSequence } from '~/lib/legacy-ui/components/Node';
 import { cx } from '~/utils/cva';
 import useSearch from '../hooks/useSearch';
 import useSort from '../hooks/useSort';
@@ -185,7 +185,8 @@ const SearchableList = memo(
     const dragItem = useDndStore((state: DndStore) => state.dragItem);
 
     const listId = `hyper-list-${id}`;
-    const dragItemType = (dragItem?.metadata as { itemType?: string })?.itemType;
+    const dragItemType = (dragItem?.metadata as { itemType?: string })
+      ?.itemType;
     const willAccept =
       isDragging && dragItemType && accepts.includes(dragItemType);
     const isOver = activeDropTargetId === listId;

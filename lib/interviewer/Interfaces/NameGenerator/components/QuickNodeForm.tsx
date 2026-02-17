@@ -9,7 +9,6 @@ import { useSelector } from 'react-redux';
 import Form from '~/lib/form/components/Form';
 import { type FormSubmitHandler } from '~/lib/form/store/types';
 import { getAdditionalAttributesSelector } from '../../../selectors/prop';
-import { FIRST_LOAD_UI_ELEMENT_DELAY } from '../../utils/constants';
 import QuickAddField from './QuickAddField';
 
 const containerVariants: Variants = {
@@ -17,7 +16,6 @@ const containerVariants: Variants = {
     y: '0rem',
     opacity: 1,
     transition: {
-      delay: FIRST_LOAD_UI_ELEMENT_DELAY,
       when: 'beforeChildren',
     },
   },

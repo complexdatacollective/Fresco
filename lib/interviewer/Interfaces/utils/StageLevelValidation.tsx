@@ -8,9 +8,8 @@ import {
   useRef,
   useState,
 } from 'react';
+import Icon from '~/components/ui/Icon';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
-import Icon from '~/lib/legacy-ui/components/Icon';
-import { FIRST_LOAD_UI_ELEMENT_DELAY } from './constants';
 
 /**
  * Simple wrapper to add self-dismissing behaviour to a component
@@ -199,7 +198,6 @@ export const MaxNodesMet = SelfDismissingNote(() => {
       initial="hide"
       animate="show"
       exit="hide"
-      custom={FIRST_LOAD_UI_ELEMENT_DELAY}
       key="min-nodes-not-met"
     >
       <motion.div

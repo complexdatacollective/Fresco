@@ -1,7 +1,7 @@
 'use client';
 
 import UIPrompts from '~/lib/interviewer/components/Prompts/Prompts';
-import { usePrompts } from '../behaviours/withPrompt';
+import { usePrompts } from './Prompts/usePrompts';
 
 const Prompts = () => {
   const { prompt, prompts } = usePrompts();

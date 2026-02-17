@@ -1,6 +1,6 @@
 import type { Stage as TStage } from '@codaco/protocol-validation';
 import { type ElementType, Suspense } from 'react';
-import { Spinner } from '~/lib/legacy-ui/components';
+import Spinner from '~/components/Spinner';
 import getInterface from '../Interfaces';
 import type { BeforeNextFunction } from './ProtocolScreen';
 import StageErrorBoundary from './StageErrorBoundary';

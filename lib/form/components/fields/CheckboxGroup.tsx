@@ -1,3 +1,4 @@
+import { RenderMarkdown } from '~/components/RenderMarkdown';
 import {
   controlLabelVariants,
   controlVariants,
@@ -114,7 +115,9 @@ export default function CheckboxGroupField(props: CheckboxGroupProps) {
                 }}
                 size={size}
               />
-              <span>{option.label}</span>
+              <span>
+                <RenderMarkdown>{option.label}</RenderMarkdown>
+              </span>
             </label>
           );
         })}

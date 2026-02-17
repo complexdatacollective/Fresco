@@ -4,9 +4,8 @@ import { bindActionCreators } from '@reduxjs/toolkit';
 import { get } from 'es-toolkit/compat';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import useTimeout from '~/lib/legacy-ui/hooks/useTimeout';
+import { useTimeout } from 'usehooks-ts';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
-import { usePrompts } from '../behaviours/withPrompt';
 import Background from '../components/Canvas/Background';
 import Canvas from '../components/Canvas/Canvas';
 import EdgeLayout from '../components/Canvas/EdgeLayout';
@@ -14,18 +13,19 @@ import NodeBucket from '../components/Canvas/NodeBucket';
 import NodeLayout from '../components/Canvas/NodeLayout';
 import SimulationPanel from '../components/Canvas/SimulationPanel';
 import CollapsablePrompts from '../components/CollapsablePrompts';
+import { usePrompts } from '../components/Prompts/usePrompts';
 import { type StageProps } from '../components/Stage';
 import { LayoutProvider } from '../contexts/LayoutContext';
 import { getAssetUrlFromId } from '../ducks/modules/protocol';
 import { actionCreators as resetActions } from '../ducks/modules/reset';
 import usePropSelector from '../hooks/usePropSelector';
-import { useAppDispatch } from '../store';
 import {
   getEdges,
   getNextUnplacedNode,
   getNodes,
   getPlacedNodes,
 } from '../selectors/canvas';
+import { useAppDispatch } from '../store';
 
 const Sociogram = (stageProps: StageProps) => {
   const { stage, registerBeforeNext } = stageProps;

@@ -1,6 +1,7 @@
 'use client';
 
 import { Slider } from '@base-ui/react/slider';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
 import {
   sliderControlVariants,
   sliderRootVariants,
@@ -122,7 +123,7 @@ export default function LikertScaleField(props: LikertScaleFieldProps) {
                       : 'translateX(-50%)',
                 }}
               >
-                {option.label}
+                <RenderMarkdown>{option.label}</RenderMarkdown>
               </div>
             );
           })}

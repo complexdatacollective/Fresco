@@ -7,8 +7,6 @@ import {
 } from '@codaco/shared-consts';
 import { find, get, isEmpty } from 'es-toolkit/compat';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import useDropTarget from '~/lib/interviewer/behaviours/DragAndDrop/useDropTarget';
-import useBounds from '~/lib/interviewer/behaviours/useBounds';
 import {
   toggleEdge,
   toggleNodeAttributes,

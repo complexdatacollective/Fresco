@@ -6,12 +6,12 @@ import { useDropTarget } from '~/lib/dnd';
 import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
 import { cx } from '~/utils/cva';
 import NodeList from '../../../components/NodeList';
+import { usePrompts } from '../../../components/Prompts/usePrompts';
 import { updateNode } from '../../../ducks/modules/session';
 import { useAppDispatch } from '../../../store';
 import createSorter, {
   type ProcessedSortRule,
 } from '../../../utils/createSorter';
-import { usePrompts } from '../../../behaviours/withPrompt';
 import { type OrdinalBinItem as OrdinalBinItemType } from '../useOrdinalBins';
 
 type OrdinalBinItemProps = {

@@ -1,11 +1,11 @@
 import { type NcNode, type VariableValue } from '@codaco/shared-consts';
 import { useSelector } from 'react-redux';
+import Node from '~/components/Node';
 import { useDragSource } from '~/lib/dnd';
 import { useNodeLabel } from '~/lib/interviewer/Interfaces/Anonymisation/useNodeLabel';
 import { FAMILY_TREE_CONFIG } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/config';
 import { useClickUnlessDragged } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/useClickUnlessDragged';
 import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
-import { Node } from '~/lib/legacy-ui/components';
 
 export type FamilyTreeNodeType = {
   id: string;

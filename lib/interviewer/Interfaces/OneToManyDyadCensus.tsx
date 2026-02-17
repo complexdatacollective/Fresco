@@ -3,7 +3,7 @@ import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
+import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { MotionNode } from '../components/Node';
 import { nodeListVariants } from '../components/NodeList';

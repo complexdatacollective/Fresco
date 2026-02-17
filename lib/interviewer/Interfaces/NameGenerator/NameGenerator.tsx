@@ -16,8 +16,8 @@ import { useSelector } from 'react-redux';
 import usePortalTarget from '~/hooks/usePortalTarget';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import NodeList from '~/lib/interviewer/components/NodeList';
-import { usePrompts } from '../../behaviours/withPrompt';
 import Prompts from '../../components/Prompts';
+import { usePrompts } from '../../components/Prompts/usePrompts';
 import { type Direction } from '../../components/ProtocolScreen';
 import { type StageProps } from '../../components/Stage';
 import {

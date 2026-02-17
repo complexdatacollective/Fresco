@@ -1,5 +1,5 @@
 import { type LucideProps, icons } from 'lucide-react';
-import customIcons from '~/lib/legacy-ui/components/icons';
+import customIcons from '~/lib/interviewer/components/icons';
 
 type CustomIconName = keyof typeof customIcons;
 type LucideIconName = keyof typeof icons;
