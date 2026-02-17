@@ -18,7 +18,6 @@ type InitializePreviewRequest = {
   type: 'initialize-preview';
   protocol: VersionedProtocol;
   assetMeta: AssetMetadata[];
-  architectVersion: string;
 };
 
 type CompletePreviewRequest = {

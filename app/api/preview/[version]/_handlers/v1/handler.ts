@@ -1,8 +1,7 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest } from 'next/server';
 import { hash } from 'ohash';
 import { addEvent } from '~/actions/activityFeed';
 import { env } from '~/env';
-import { MIN_ARCHITECT_VERSION_FOR_PREVIEW } from '~/fresco.config';
 import trackEvent from '~/lib/analytics';
 import { prisma } from '~/lib/db';
 import { Prisma } from '~/lib/db/generated/client';
@@ -16,30 +15,18 @@ import { getUTApi } from '~/lib/uploadthing/server-helpers';
 import { getExistingAssets } from '~/queries/protocols';
 import { ensureError } from '~/utils/ensureError';
 import { extractApikeyAssetsFromManifest } from '~/utils/protocolImport';
-import { compareSemver, semverSchema } from '~/utils/semVer';
-import { checkPreviewAuth, corsHeaders, jsonResponse } from './helpers';
-import type {
-  AbortResponse,
-  CompleteResponse,
-  InitializeResponse,
-  PreviewRequest,
-  PreviewResponse,
-  ReadyResponse,
-  RejectedResponse,
+import { checkPreviewAuth, jsonResponse } from './helpers';
+import {
+  type AbortResponse,
+  type CompleteResponse,
+  type InitializeResponse,
+  type PreviewRequest,
+  type ReadyResponse,
+  type RejectedResponse,
 } from './types';
 
-// Handle preflight OPTIONS request
-export function OPTIONS() {
-  return new NextResponse(null, {
-    status: 204,
-    headers: corsHeaders,
-  });
-}
-
-export async function POST(
-  req: NextRequest,
-): Promise<NextResponse<PreviewResponse>> {
-  const authError = await checkPreviewAuth(req);
+export async function v1(request: NextRequest) {
+  const authError = await checkPreviewAuth(request);
 
   if (authError) {
     return jsonResponse(authError.response, authError.status);
@@ -51,25 +38,12 @@ export async function POST(
   };
 
   try {
-    const body = (await req.json()) as PreviewRequest;
+    const body = (await request.json()) as PreviewRequest;
     const { type } = body;
 
     switch (type) {
       case 'initialize-preview': {
-        const { protocol: protocolJson, assetMeta, architectVersion } = body;
-
-        // Check Architect version compatibility
-        const architectVer = semverSchema.parse(`v${architectVersion}`);
-        const minVer = semverSchema.parse(
-          `v${MIN_ARCHITECT_VERSION_FOR_PREVIEW}`,
-        );
-        if (compareSemver(architectVer, minVer) < 0) {
-          const response: InitializeResponse = {
-            status: 'error',
-            message: `Architect versions below ${MIN_ARCHITECT_VERSION_FOR_PREVIEW} are not supported for preview mode`,
-          };
-          return jsonResponse(response, 400);
-        }
+        const { protocol: protocolJson, assetMeta } = body;
 
         // Validate and migrate protocol
         const validationResult = await validateAndMigrateProtocol(protocolJson);
@@ -98,7 +72,7 @@ export async function POST(
 
         // If protocol exists, return ready immediately
         if (existingPreview) {
-          const url = new URL(env.PUBLIC_URL ?? req.nextUrl.clone());
+          const url = new URL(env.PUBLIC_URL ?? request.nextUrl.clone());
           url.pathname = `/preview/${existingPreview.id}`;
 
           const response: ReadyResponse = {
@@ -198,7 +172,7 @@ export async function POST(
 
         // If no new assets to upload, return ready immediately
         if (presignedUrls.length === 0) {
-          const url = new URL(env.PUBLIC_URL ?? req.nextUrl.clone());
+          const url = new URL(env.PUBLIC_URL ?? request.nextUrl.clone());
           url.pathname = `/preview/${protocol.id}`;
 
           const response: InitializeResponse = {
@@ -240,7 +214,7 @@ export async function POST(
 
         void addEvent('Preview Mode', `Preview protocol upload completed`);
 
-        const url = new URL(env.PUBLIC_URL ?? req.nextUrl.clone());
+        const url = new URL(env.PUBLIC_URL ?? request.nextUrl.clone());
         url.pathname = `/preview/${protocol.id}`;
 
         const response: CompleteResponse = {
