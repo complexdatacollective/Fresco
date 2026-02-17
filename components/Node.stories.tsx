@@ -237,6 +237,7 @@ export const VisualStates: Story = {
     </div>
   ),
   parameters: {
+    chromatic: { pauseAnimationAtEnd: true },
     docs: {
       description: {
         story: `
@@ -273,6 +274,7 @@ export const CombinedStates: Story = {
     </div>
   ),
   parameters: {
+    chromatic: { pauseAnimationAtEnd: true },
     docs: {
       description: {
         story:
@@ -581,6 +583,7 @@ export const LinkingColors: Story = {
     </div>
   ),
   parameters: {
+    chromatic: { pauseAnimationAtEnd: true },
     docs: {
       description: {
         story:

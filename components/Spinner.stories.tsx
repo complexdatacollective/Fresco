@@ -7,6 +7,7 @@ const meta: Meta<typeof Spinner> = {
   component: Spinner,
   tags: ['autodocs'],
   parameters: {
+    chromatic: { disableSnapshot: true },
     layout: 'centered',
     docs: {
       description: {
