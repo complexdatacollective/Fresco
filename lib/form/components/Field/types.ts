@@ -1,3 +1,4 @@
+import { type Variable } from '@codaco/protocol-validation';
 import { type JSONContent } from '@tiptap/core';
 import { type ReactNode } from 'react';
 import {
@@ -5,6 +6,15 @@ import {
   type ValidationContext,
 } from '../../store/types';
 import { type ValidationPropKey } from '../../validation/functions';
+
+/**
+ * Parameter type for variable comparison validations
+ * (greaterThanVariable, lessThanVariable, greaterThanOrEqualToVariable, lessThanOrEqualToVariable)
+ */
+export type VariableComparisonParam = {
+  attribute: string;
+  type: Variable['type'];
+};
 
 /**
  * Type representing all possible values for a form field.
@@ -55,8 +65,10 @@ type CommonValidationProps = {
   unique?: string;
   sameAs?: string;
   differentFrom?: string;
-  greaterThanVariable?: string;
-  lessThanVariable?: string;
+  greaterThanVariable?: VariableComparisonParam;
+  lessThanVariable?: VariableComparisonParam;
+  greaterThanOrEqualToVariable?: VariableComparisonParam;
+  lessThanOrEqualToVariable?: VariableComparisonParam;
 };
 
 /**

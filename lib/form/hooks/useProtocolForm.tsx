@@ -123,9 +123,25 @@ export default function useProtocolForm({
       if (validation.sameAs !== undefined)
         props.sameAs = validation.sameAs as string;
       if (validation.greaterThanVariable !== undefined)
-        props.greaterThanVariable = validation.greaterThanVariable as string;
+        props.greaterThanVariable = {
+          attribute: validation.greaterThanVariable as string,
+          type: field.type,
+        };
       if (validation.lessThanVariable !== undefined)
-        props.lessThanVariable = validation.lessThanVariable as string;
+        props.lessThanVariable = {
+          attribute: validation.lessThanVariable as string,
+          type: field.type,
+        };
+      if (validation.greaterThanOrEqualToVariable !== undefined)
+        props.greaterThanOrEqualToVariable = {
+          attribute: validation.greaterThanOrEqualToVariable as string,
+          type: field.type,
+        };
+      if (validation.lessThanOrEqualToVariable !== undefined)
+        props.lessThanOrEqualToVariable = {
+          attribute: validation.lessThanOrEqualToVariable as string,
+          type: field.type,
+        };
     }
 
     // Pass validation context for context-dependent validations (unique, sameAs, differentFrom, etc.)

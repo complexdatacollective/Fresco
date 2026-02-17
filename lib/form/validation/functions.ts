@@ -357,7 +357,8 @@ const greaterThanVariable: ValidationFunction<{
       if (!(attribute in formValues)) {
         return;
       }
-      if (compareVariables(value, formValues[attribute], type) < 0) {
+      // Strict comparison: value must be greater than (not equal to) the comparison
+      if (compareVariables(value, formValues[attribute], type) <= 0) {
         ctx.addIssue({
           code: 'too_small',
           minimum: Number(formValues[attribute]),
@@ -436,7 +437,8 @@ const lessThanVariable: ValidationFunction<{
         return;
       }
 
-      if (compareVariables(value, formValues[attribute], type) > 0) {
+      // Strict comparison: value must be less than (not equal to) the comparison
+      if (compareVariables(value, formValues[attribute], type) >= 0) {
         ctx.addIssue({
           code: 'too_big',
           maximum: Number(formValues[attribute]),
@@ -449,6 +451,117 @@ const lessThanVariable: ValidationFunction<{
     })
     .meta({
       hint: `Must be less than the value of '${displayName}'.`,
+    });
+};
+
+/**
+ * Require that a value be greater than or equal to another variable in the same form
+ */
+const greaterThanOrEqualToVariable: ValidationFunction<{
+  attribute: string;
+  type: Variable['type'];
+}> = (parameter, context) => (formValues) => {
+  const { attribute, type } = parameter;
+
+  invariant(
+    typeof attribute === 'string',
+    'Attribute must be specified for greaterThanOrEqualToVariable validation',
+  );
+
+  invariant(
+    typeof type === 'string',
+    'Type must be specified for greaterThanOrEqualToVariable validation',
+  );
+
+  // Resolve the display name - use codebook name if context available, otherwise use attribute
+  let displayName = attribute;
+  if (context) {
+    const { stageSubject, codebook } = context;
+    const comparisonVariable = getVariableDefinition(
+      codebook,
+      stageSubject,
+      attribute,
+    );
+    invariant(comparisonVariable, 'Comparison variable not found in codebook');
+    displayName = comparisonVariable.name;
+  }
+
+  return z
+    .unknown()
+    .superRefine((value, ctx) => {
+      // Only validate if the comparison attribute exists in formValues
+      if (!(attribute in formValues)) {
+        return;
+      }
+      if (compareVariables(value, formValues[attribute], type) < 0) {
+        ctx.addIssue({
+          code: 'too_small',
+          minimum: Number(formValues[attribute]),
+          inclusive: true,
+          origin: type === 'datetime' ? 'date' : 'number',
+          message: `Your answer must be greater than or equal to the value of '${displayName}'.`,
+          path: [],
+        });
+      }
+    })
+    .meta({
+      hint: `Must be greater than or equal to the value of '${displayName}'.`,
+    });
+};
+
+/**
+ * Require that a value be less than or equal to another variable in the same form
+ */
+const lessThanOrEqualToVariable: ValidationFunction<{
+  attribute: string;
+  type: Variable['type'];
+}> = (parameter, context) => (formValues) => {
+  const { attribute, type } = parameter;
+
+  invariant(
+    typeof attribute === 'string',
+    'Attribute must be specified for lessThanOrEqualToVariable validation',
+  );
+
+  invariant(
+    typeof type === 'string',
+    'Type must be specified for lessThanOrEqualToVariable validation',
+  );
+
+  // Resolve the display name - use codebook name if context available, otherwise use attribute
+  let displayName = attribute;
+  if (context) {
+    const { stageSubject, codebook } = context;
+    const comparisonVariable = getVariableDefinition(
+      codebook,
+      stageSubject,
+      attribute,
+    );
+    invariant(comparisonVariable, 'Comparison variable not found in codebook');
+    displayName = comparisonVariable.name;
+  }
+
+  return z
+    .unknown()
+    .superRefine((value, ctx) => {
+      // Only validate if the comparison attribute exists in formValues
+      if (!(attribute in formValues)) {
+        return;
+      }
+
+      if (compareVariables(value, formValues[attribute], type) > 0) {
+        ctx.addIssue({
+          code: 'too_big',
+          maximum: Number(formValues[attribute]),
+          inclusive: true,
+          origin: type === 'datetime' ? 'date' : 'number',
+          message: `Your answer must be less than or equal to the value of '${displayName}'.`,
+          path: [],
+        });
+      }
+    })
+    .meta({
+      hint: `Must be less than or equal to the value of '${displayName}'.`,
     });
 };
 
@@ -478,6 +591,8 @@ export const validations = {
   sameAs,
   greaterThanVariable,
   lessThanVariable,
+  greaterThanOrEqualToVariable,
+  lessThanOrEqualToVariable,
   custom,
 };
 

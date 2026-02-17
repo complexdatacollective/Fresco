@@ -580,6 +580,16 @@ describe('Validation Functions', () => {
       expect(result.success).toBe(true);
     });
 
+    it('should reject values equal to the comparison field (strict comparison)', () => {
+      const validator = validations.greaterThanVariable(
+        { attribute: 'numberAttribute', type: 'number' },
+        createMockContext(),
+      )({ numberAttribute: 10 });
+
+      const result = validator.safeParse(10);
+      expect(result.success).toBe(false);
+    });
+
     it('should work with datetime fields', () => {
       const validator = validations.greaterThanVariable(
         { attribute: 'dateAttribute', type: 'datetime' },
@@ -607,6 +617,20 @@ describe('Validation Functions', () => {
       }).toThrow(
         'Attribute must be specified for greaterThanVariable validation',
       );
+    });
+
+    it('should throw error when attribute is not in codebook', () => {
+      expect(() => {
+        validations
+          .greaterThanVariable(
+            {
+              attribute: 'missingAttribute',
+              type: 'number',
+            },
+            createMockContext(),
+          )({})
+          .safeParse(10);
+      }).toThrow('Comparison variable not found in codebook');
     });
 
     it('should pass validation when comparison attribute is not in form values (allows hint generation)', () => {
@@ -646,6 +670,16 @@ describe('Validation Functions', () => {
 
       const result = validator.safeParse(5);
       expect(result.success).toBe(true);
+    });
+
+    it('should reject values equal to the comparison field (strict comparison)', () => {
+      const validator = validations.lessThanVariable(
+        { attribute: 'numberAttribute', type: 'number' },
+        createMockContext(),
+      )({ numberAttribute: 10 });
+
+      const result = validator.safeParse(10);
+      expect(result.success).toBe(false);
     });
 
     it('should work with datetime fields', () => {
@@ -690,6 +724,192 @@ describe('Validation Functions', () => {
       // When the comparison attribute is not in formValues, validation is skipped
       // This allows hint generation to work without requiring formValues
       const validator = validations.lessThanVariable(
+        { attribute: 'numberAttribute', type: 'number' },
+        createMockContext(),
+      )({});
+
+      const result = validator.safeParse(10);
+      expect(result.success).toBe(true);
+    });
+  });
+
+  describe('greaterThanOrEqualToVariable', () => {
+    it('should reject values less than the comparison field', () => {
+      const validator = validations.greaterThanOrEqualToVariable(
+        { attribute: 'numberAttribute', type: 'number' },
+        createMockContext(),
+      )({ numberAttribute: 10 });
+
+      const result = validator.safeParse(5);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0]?.message).toBe(
+          "Your answer must be greater than or equal to the value of 'Number Attribute'.",
+        );
+      }
+    });
+
+    it('should accept values equal to the comparison field', () => {
+      const validator = validations.greaterThanOrEqualToVariable(
+        { attribute: 'numberAttribute', type: 'number' },
+        createMockContext(),
+      )({ numberAttribute: 10 });
+
+      const result = validator.safeParse(10);
+      expect(result.success).toBe(true);
+    });
+
+    it('should accept values greater than the comparison field', () => {
+      const validator = validations.greaterThanOrEqualToVariable(
+        { attribute: 'numberAttribute', type: 'number' },
+        createMockContext(),
+      )({ numberAttribute: 10 });
+
+      const result = validator.safeParse(15);
+      expect(result.success).toBe(true);
+    });
+
+    it('should work with datetime fields', () => {
+      const validator = validations.greaterThanOrEqualToVariable(
+        { attribute: 'dateAttribute', type: 'datetime' },
+        createMockContext(),
+      )({ dateAttribute: '2024-01-01T00:00:00Z' });
+
+      const result = validator.safeParse('2024-06-01T00:00:00Z');
+      expect(result.success).toBe(true);
+
+      const resultEqual = validator.safeParse('2024-01-01T00:00:00Z');
+      expect(resultEqual.success).toBe(true);
+
+      const resultPast = validator.safeParse('2023-06-01T00:00:00Z');
+      expect(resultPast.success).toBe(false);
+    });
+
+    it('should throw error when attribute is not specified', () => {
+      expect(() => {
+        validations
+          .greaterThanOrEqualToVariable(
+            { attribute: null, type: 'number' } as unknown as {
+              attribute: string;
+              type: 'number';
+            },
+            createMockContext(),
+          )({})
+          .safeParse(10);
+      }).toThrow(
+        'Attribute must be specified for greaterThanOrEqualToVariable validation',
+      );
+    });
+
+    it('should throw error when attribute is not in codebook', () => {
+      expect(() => {
+        validations
+          .greaterThanOrEqualToVariable(
+            {
+              attribute: 'missingAttribute',
+              type: 'number',
+            },
+            createMockContext(),
+          )({})
+          .safeParse(10);
+      }).toThrow('Comparison variable not found in codebook');
+    });
+
+    it('should pass validation when comparison attribute is not in form values (allows hint generation)', () => {
+      const validator = validations.greaterThanOrEqualToVariable(
+        { attribute: 'numberAttribute', type: 'number' },
+        createMockContext(),
+      )({});
+
+      const result = validator.safeParse(10);
+      expect(result.success).toBe(true);
+    });
+  });
+
+  describe('lessThanOrEqualToVariable', () => {
+    it('should reject values greater than the comparison field', () => {
+      const validator = validations.lessThanOrEqualToVariable(
+        { attribute: 'numberAttribute', type: 'number' },
+        createMockContext(),
+      )({ numberAttribute: 10 });
+
+      const result = validator.safeParse(15);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0]?.message).toBe(
+          "Your answer must be less than or equal to the value of 'Number Attribute'.",
+        );
+      }
+    });
+
+    it('should accept values equal to the comparison field', () => {
+      const validator = validations.lessThanOrEqualToVariable(
+        { attribute: 'numberAttribute', type: 'number' },
+        createMockContext(),
+      )({ numberAttribute: 10 });
+
+      const result = validator.safeParse(10);
+      expect(result.success).toBe(true);
+    });
+
+    it('should accept values less than the comparison field', () => {
+      const validator = validations.lessThanOrEqualToVariable(
+        { attribute: 'numberAttribute', type: 'number' },
+        createMockContext(),
+      )({ numberAttribute: 10 });
+
+      const result = validator.safeParse(5);
+      expect(result.success).toBe(true);
+    });
+
+    it('should work with datetime fields', () => {
+      const validator = validations.lessThanOrEqualToVariable(
+        { attribute: 'dateAttribute', type: 'datetime' },
+        createMockContext(),
+      )({ dateAttribute: '2024-01-01T00:00:00Z' });
+
+      const result = validator.safeParse('2023-06-01T00:00:00Z');
+      expect(result.success).toBe(true);
+
+      const resultEqual = validator.safeParse('2024-01-01T00:00:00Z');
+      expect(resultEqual.success).toBe(true);
+
+      const resultFuture = validator.safeParse('2024-06-01T00:00:00Z');
+      expect(resultFuture.success).toBe(false);
+    });
+
+    it('should throw error when attribute is not specified', () => {
+      expect(() => {
+        validations
+          .lessThanOrEqualToVariable(
+            { attribute: null, type: 'number' } as unknown as {
+              attribute: string;
+              type: 'number';
+            },
+            createMockContext(),
+          )({})
+          .safeParse(10);
+      }).toThrow(
+        'Attribute must be specified for lessThanOrEqualToVariable validation',
+      );
+    });
+
+    it('should throw error when attribute is not in codebook', () => {
+      expect(() => {
+        validations
+          .lessThanOrEqualToVariable(
+            {
+              attribute: 'missingAttribute',
+              type: 'number',
+            },
+            createMockContext(),
+          )({})
+          .safeParse(10);
+      }).toThrow('Comparison variable not found in codebook');
+    });
+
+    it('should pass validation when comparison attribute is not in form values (allows hint generation)', () => {
+      const validator = validations.lessThanOrEqualToVariable(
         { attribute: 'numberAttribute', type: 'number' },
         createMockContext(),
       )({});
