@@ -4,7 +4,7 @@ import {
   type NcNode,
 } from '@codaco/shared-consts';
 import { clamp } from 'es-toolkit';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type AppDispatch } from '~/lib/interviewer/store';
 import { type SociogramStoreApi } from './useSociogramStore';
 
@@ -51,12 +51,38 @@ export function useForceSimulation({
   const [isRunning, setIsRunning] = useState(false);
   const [simulationEnabled, setSimulationEnabled] = useState(enabled);
 
+  // Keep refs updated so the effect can read latest values without re-running
+  const nodesRef = useRef(nodes);
+  nodesRef.current = nodes;
+  const edgesRef = useRef(edges);
+  edgesRef.current = edges;
+
+  // Stable keys that only change when nodes/edges are added or removed
+  const nodeIdsKey = useMemo(
+    () =>
+      nodes
+        .map((n) => n[entityPrimaryKeyProperty])
+        .sort()
+        .join(','),
+    [nodes],
+  );
+
+  const edgesKey = useMemo(
+    () =>
+      edges
+        .map((e) => `${e.from}-${e.to}`)
+        .sort()
+        .join(','),
+    [edges],
+  );
+
   // Initialize worker
   useEffect(() => {
     if (!enabled) return;
 
     const worker = new Worker(
       new URL('./forceSimulation.worker', import.meta.url),
+      { type: 'module' },
     );
     workerRef.current = worker;
 
@@ -83,15 +109,17 @@ export function useForceSimulation({
     };
 
     // Build sim nodes with positions from the store
+    const currentNodes = nodesRef.current;
+    const currentEdges = edgesRef.current;
     const { positions } = store.getState();
-    const simNodes: SimNode[] = nodes.map((node) => {
+    const simNodes: SimNode[] = currentNodes.map((node) => {
       const nodeId = node[entityPrimaryKeyProperty];
       const pos = positions.get(nodeId) ?? { x: 0.5, y: 0.5 };
       const simPos = toSimCoords(pos);
       return { nodeId, x: simPos.x, y: simPos.y };
     });
 
-    const simLinks = edges
+    const simLinks = currentEdges
       .map((edge) => ({
         source: simNodes.findIndex((n) => n.nodeId === edge.from),
         target: simNodes.findIndex((n) => n.nodeId === edge.to),
@@ -107,7 +135,27 @@ export function useForceSimulation({
       worker.terminate();
       workerRef.current = null;
     };
-  }, [enabled, nodes, edges, layoutVariable, store, dispatch]);
+    // Re-initialize only when node structure changes, not attribute or edge changes
+  }, [enabled, nodeIdsKey, layoutVariable, store, dispatch]);
+
+  // Update links in the existing worker when edges are added/removed
+  useEffect(() => {
+    const worker = workerRef.current;
+    if (!worker || !enabled) return;
+
+    const currentNodes = nodesRef.current;
+    const currentEdges = edgesRef.current;
+
+    const nodeIds = currentNodes.map((n) => n[entityPrimaryKeyProperty]);
+    const simLinks = currentEdges
+      .map((edge) => ({
+        source: nodeIds.indexOf(edge.from),
+        target: nodeIds.indexOf(edge.to),
+      }))
+      .filter((link) => link.source >= 0 && link.target >= 0);
+
+    worker.postMessage({ type: 'update_links', links: simLinks });
+  }, [enabled, edgesKey]);
 
   // Start/stop when simulationEnabled changes
   useEffect(() => {

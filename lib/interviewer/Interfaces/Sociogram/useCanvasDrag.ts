@@ -28,6 +28,7 @@ export function useCanvasDrag({
   simulation = null,
 }: UseCanvasDragOptions) {
   const isDraggingRef = useRef(false);
+  const isPointerActiveRef = useRef(false);
   const startPosRef = useRef({ x: 0, y: 0 });
   const rafRef = useRef<number | null>(null);
 
@@ -48,6 +49,9 @@ export function useCanvasDrag({
     (e: React.PointerEvent) => {
       if (disabled) return;
       if (e.button !== 0) return;
+      if (isPointerActiveRef.current) return;
+
+      isPointerActiveRef.current = true;
 
       e.stopPropagation();
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
@@ -109,6 +113,7 @@ export function useCanvasDrag({
         }
 
         isDraggingRef.current = false;
+        isPointerActiveRef.current = false;
       };
 
       document.addEventListener('pointermove', handleMove);

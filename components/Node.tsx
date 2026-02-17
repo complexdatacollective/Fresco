@@ -102,6 +102,8 @@ type UINodeProps = {
   selected?: boolean;
   /** Whether the node is in linking mode (externally controlled) */
   linking?: boolean;
+  /** Whether the node is highlighted (e.g. via highlight behavior) */
+  highlighted?: boolean;
   /** External pointer down handler (composes with internal behavior) */
   onPointerDown?: (e: React.PointerEvent) => void;
   /** External pointer up handler (composes with internal behavior) */
@@ -146,6 +148,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     shape,
     selected = false,
     linking = false,
+    highlighted = false,
     loading = false,
     disabled = false,
     size = 'md',
@@ -177,16 +180,19 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
   // Scope for selected state animation (box-shadow on main element)
   const [stateScope, animate] = useAnimate();
 
-  // Track previous selected state for animation transitions
+  // Track previous states for animation transitions
   const prevSelected = usePrevious(selected);
+  const prevHighlighted = usePrevious(highlighted);
 
-  // Selected animation (box-shadow on main element)
+  // Box-shadow animation for selected and highlighted states
   useEffect(() => {
     if (!stateScope.current) return;
 
-    // Start selected animation (prevSelected is undefined on first render)
-    if (selected && prevSelected !== true) {
-      // Spring animation for selection - overshoots then rebounds to resting state
+    const isActive = selected || highlighted;
+    const wasActive = prevSelected === true || prevHighlighted === true;
+
+    if (isActive && !wasActive) {
+      // Spring animation - overshoots then rebounds to resting state
       void animate(
         stateScope.current,
         {
@@ -198,18 +204,24 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
         },
         {
           duration: 0.4,
-          ease: [0.34, 1.56, 0.64, 1], // Custom ease with overshoot
+          ease: [0.34, 1.56, 0.64, 1],
         },
       );
-    } else if (!selected && prevSelected === true) {
-      // Animate out
+    } else if (!isActive && wasActive) {
       void animate(
         stateScope.current,
         { boxShadow: '0 0 0 0 transparent' },
         { duration: 0.15 },
       );
     }
-  }, [selected, prevSelected, stateScope, animate]);
+  }, [
+    selected,
+    highlighted,
+    prevSelected,
+    prevHighlighted,
+    stateScope,
+    animate,
+  ]);
 
   return (
     <motion.button
@@ -232,6 +244,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
       }}
       data-node-selected={selected || undefined}
       data-node-linking={linking || undefined}
+      data-node-highlighted={highlighted || undefined}
       onPointerDown={composeEventHandlers(
         nodeProps.onPointerDown,
         externalPointerDown,

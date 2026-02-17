@@ -5,9 +5,16 @@ import {
   entityPrimaryKeyProperty,
   type NcNode,
 } from '@codaco/shared-consts';
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, createReducer } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Provider } from 'react-redux';
+import { action } from 'storybook/actions';
+import {
+  addEdge,
+  deleteEdge,
+  toggleNodeAttributes,
+  updateNode,
+} from '~/lib/interviewer/ducks/modules/session';
 import Sociogram from './Sociogram';
 
 const names = [
@@ -67,6 +74,7 @@ const createMockEdges = (
     type: edgeType,
     from: `node-${from}`,
     to: `node-${to}`,
+    [entityAttributesProperty]: {} as Record<string, unknown>,
   }));
 };
 
@@ -162,9 +170,48 @@ const createMockStore = (
   edges: ReturnType<typeof createMockEdges> = [],
 ) => {
   const session = createMockSession(nodes, edges);
+
+  const sessionReducer = createReducer(session, (builder) => {
+    builder
+      .addCase(updateNode.fulfilled, (state, reduxAction) => {
+        const { nodeId, newAttributeData } = reduxAction.payload;
+        const node = state.network.nodes.find(
+          (n) => n[entityPrimaryKeyProperty] === nodeId,
+        );
+        if (node) {
+          Object.assign(node[entityAttributesProperty], newAttributeData);
+        }
+        action('updateNode')({ nodeId, newAttributeData });
+      })
+      .addCase(addEdge.fulfilled, (state, action) => {
+        const { from, to, type, attributeData, edgeId } = action.payload;
+        state.network.edges.push({
+          [entityPrimaryKeyProperty]: edgeId,
+          from,
+          to,
+          type,
+          [entityAttributesProperty]: attributeData,
+        });
+      })
+      .addCase(deleteEdge, (state, action) => {
+        state.network.edges = state.network.edges.filter(
+          (edge) => edge[entityPrimaryKeyProperty] !== action.payload,
+        );
+      })
+      .addCase(toggleNodeAttributes, (state, action) => {
+        const { nodeId, attributes } = action.payload;
+        const node = state.network.nodes.find(
+          (n) => n[entityPrimaryKeyProperty] === nodeId,
+        );
+        if (node) {
+          Object.assign(node[entityAttributesProperty], attributes);
+        }
+      });
+  });
+
   return configureStore({
     reducer: {
-      session: (state: typeof session = session) => state,
+      session: sessionReducer,
       protocol: (state: typeof protocol = protocol) => state,
       ui: (state: typeof mockUiState = mockUiState) => state,
     },
@@ -274,7 +321,7 @@ const stageWithAutoLayout = {
       enabled: true,
     },
   },
-  prompts: [defaultPrompt],
+  prompts: [edgePrompt],
 };
 
 const stageWithMultiplePrompts = {

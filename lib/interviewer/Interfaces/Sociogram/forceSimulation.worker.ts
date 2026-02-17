@@ -3,11 +3,12 @@ import * as d3 from 'd3';
 
 const DEFAULT_OPTIONS = {
   alphaDecay: 1 - Math.pow(0.001, 1 / 300),
-  velocityDecay: 0.1,
-  charge: -30,
-  linkDistance: 30,
-  center: 0.1,
-} as const;
+  velocityDecay: 0.4,
+  charge: -300,
+  linkDistance: 80,
+  center: 0.03,
+  collideRadius: 20,
+};
 
 type ForceSimulationOptions = typeof DEFAULT_OPTIONS;
 
@@ -41,6 +42,9 @@ const updateOptions = (newOptions: Partial<ForceSimulationOptions>) => {
           'links',
           d3.forceLink(cloneLinks(links)).distance(value),
         );
+        break;
+      case 'collideRadius':
+        simulation.force('collide', d3.forceCollide().radius(value));
         break;
       default:
     }
@@ -77,6 +81,11 @@ type UpdateNetworkMessage = {
   restart: boolean;
 };
 
+type UpdateLinksMessage = {
+  type: 'update_links';
+  links: d3.SimulationLinkDatum<SimNode>[];
+};
+
 type UpdateNodeMessage = {
   type: 'update_node';
   nodeId: string;
@@ -90,6 +99,7 @@ type Message =
   | StartMessage
   | ReheatMessage
   | UpdateNetworkMessage
+  | UpdateLinksMessage
   | UpdateNodeMessage;
 
 onmessage = ({ data }: { data: Message }) => {
@@ -164,6 +174,18 @@ onmessage = ({ data }: { data: Message }) => {
       if (data.restart) {
         simulation.alpha(0.3).restart();
       }
+      break;
+    }
+    case 'update_links': {
+      if (!simulation) return;
+
+      links = data.links;
+      simulation.force(
+        'links',
+        d3.forceLink(cloneLinks(links)).distance(options.linkDistance),
+      );
+
+      simulation.alpha(0.3).restart();
       break;
     }
     case 'update_node': {

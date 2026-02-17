@@ -16,6 +16,7 @@ type CanvasNodeProps = {
   onSelect?: (nodeId: string) => void;
   selected?: boolean;
   linking?: boolean;
+  highlighted?: boolean;
   disabled?: boolean;
   allowRepositioning?: boolean;
   simulation?: {
@@ -32,6 +33,7 @@ export default function CanvasNode({
   onSelect,
   selected = false,
   linking = false,
+  highlighted = false,
   disabled = false,
   allowRepositioning = true,
   simulation = null,
@@ -78,6 +80,7 @@ export default function CanvasNode({
         {...node}
         selected={selected}
         linking={linking}
+        highlighted={highlighted}
         disabled={disabled}
         size="sm"
       />

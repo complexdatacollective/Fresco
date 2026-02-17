@@ -94,19 +94,22 @@ const Sociogram = (stageProps: SociogramProps) => {
     (state) => state.selectedNodeId,
   );
 
-  // Handle node selection (for edge creation and highlighting)
+  // Handle node selection (for edge creation and highlighting).
+  // Reads selectedNodeId directly from the store to avoid closure staleness —
+  // this callback is invoked from a DOM-level pointerup handler (useCanvasDrag)
+  // which may capture an outdated closure between clicks.
   const handleNodeSelect = useCallback(
     (nodeId: string) => {
       if (createEdge) {
-        // Edge creation mode
-        if (selectedNodeId === null) {
+        const currentSelectedNodeId = store.getState().selectedNodeId;
+        if (currentSelectedNodeId === null) {
           store.getState().selectNode(nodeId);
-        } else if (selectedNodeId === nodeId) {
+        } else if (currentSelectedNodeId === nodeId) {
           store.getState().selectNode(null);
         } else {
           void dispatch(
             toggleEdge({
-              from: selectedNodeId,
+              from: currentSelectedNodeId,
               to: nodeId,
               type: createEdge,
             }),
@@ -114,7 +117,6 @@ const Sociogram = (stageProps: SociogramProps) => {
           store.getState().selectNode(null);
         }
       } else if (allowHighlighting && highlightAttribute) {
-        // Highlighting mode
         const node = canvasNodes.find(
           (n) => n[entityPrimaryKeyProperty] === nodeId,
         );
@@ -132,7 +134,6 @@ const Sociogram = (stageProps: SociogramProps) => {
     },
     [
       createEdge,
-      selectedNodeId,
       store,
       dispatch,
       allowHighlighting,
@@ -198,6 +199,7 @@ const Sociogram = (stageProps: SociogramProps) => {
         edges={edges}
         store={store}
         selectedNodeId={selectedNodeId}
+        highlightAttribute={highlightAttribute}
         onNodeSelect={handleNodeSelect}
         onNodeDragEnd={handleNodeDragEnd}
         onDrop={handleDrop}
