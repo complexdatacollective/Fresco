@@ -1,9 +1,17 @@
 import {
+  entityAttributesProperty,
   entityPrimaryKeyProperty,
   type NcEdge,
   type NcNode,
 } from '@codaco/shared-consts';
-import { type RefCallback, type ReactNode, useCallback, useRef } from 'react';
+import {
+  type RefCallback,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'react';
+import { clamp } from 'es-toolkit';
 import { useDropTarget } from '~/lib/dnd';
 import { cx } from '~/utils/cva';
 import CanvasNode from './CanvasNode';
@@ -16,6 +24,7 @@ type CanvasProps = {
   edges: NcEdge[];
   store: SociogramStoreApi;
   selectedNodeId: string | null;
+  highlightAttribute?: string;
   onNodeSelect?: (nodeId: string) => void;
   onNodeDragEnd?: (nodeId: string, position: { x: number; y: number }) => void;
   onDrop?: (nodeId: string, position: { x: number; y: number }) => void;
@@ -33,6 +42,7 @@ export default function Canvas({
   edges,
   store,
   selectedNodeId,
+  highlightAttribute,
   onNodeSelect,
   onNodeDragEnd,
   onDrop,
@@ -41,14 +51,37 @@ export default function Canvas({
   simulation = null,
 }: CanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
+  const lastPointerPosRef = useRef<{ x: number; y: number } | null>(null);
+
+  // Track pointer position via a document-level listener.
+  // React's onPointerMove on the canvas div does NOT fire during DnD drags
+  // because useDragSource calls setPointerCapture on the dragged element,
+  // redirecting all pointer events away from the canvas.
+  useEffect(() => {
+    const handler = (e: PointerEvent) => {
+      lastPointerPosRef.current = { x: e.clientX, y: e.clientY };
+    };
+    document.addEventListener('pointermove', handler);
+    return () => document.removeEventListener('pointermove', handler);
+  }, []);
 
   const handleDrop = useCallback(
     (metadata?: Record<string, unknown>) => {
       if (!metadata?.nodeId) return;
       const nodeId = metadata.nodeId as string;
 
-      // Place at center; user can reposition after placement
-      const position = { x: 0.5, y: 0.5 };
+      let position = { x: 0.5, y: 0.5 };
+      const canvas = canvasRef.current;
+      const pointer = lastPointerPosRef.current;
+
+      if (canvas && pointer) {
+        const rect = canvas.getBoundingClientRect();
+        position = {
+          x: clamp((pointer.x - rect.left) / rect.width, 0, 1),
+          y: clamp((pointer.y - rect.top) / rect.height, 0, 1),
+        };
+      }
+
       onDrop?.(nodeId, position);
     },
     [onDrop],
@@ -96,6 +129,9 @@ export default function Canvas({
       {/* Nodes */}
       {nodes.map((node) => {
         const nodeId = node[entityPrimaryKeyProperty];
+        const highlighted = highlightAttribute
+          ? !!node[entityAttributesProperty][highlightAttribute]
+          : false;
         return (
           <CanvasNode
             key={nodeId}
@@ -104,8 +140,9 @@ export default function Canvas({
             store={store}
             onDragEnd={onNodeDragEnd}
             onSelect={onNodeSelect}
-            selected={selectedNodeId === nodeId}
-            linking={selectedNodeId !== null && selectedNodeId !== nodeId}
+            selected={false}
+            linking={selectedNodeId === nodeId}
+            highlighted={highlighted}
             disabled={disabled}
             allowRepositioning={allowRepositioning}
             simulation={simulation}
