@@ -20,7 +20,8 @@ import { type CanvasStoreApi } from '~/lib/interviewer/canvas/useCanvasStore';
 
 type CanvasProps = {
   background: ReactNode;
-  overlays?: ReactNode;
+  underlays?: ReactNode;
+  foreground?: ReactNode;
   nodes: NcNode[];
   edges: NcEdge[];
   store: CanvasStoreApi;
@@ -39,7 +40,8 @@ type CanvasProps = {
 
 export default function Canvas({
   background,
-  overlays,
+  underlays,
+  foreground,
   nodes,
   edges,
   store,
@@ -140,11 +142,11 @@ export default function Canvas({
         {background}
       </div>
 
+      {/* Underlays (convex hulls) */}
+      {underlays}
+
       {/* Edge layer */}
       <EdgeLayer edges={edges} store={store} />
-
-      {/* Overlays (convex hulls, annotations, etc.) */}
-      {overlays}
 
       {/* Nodes */}
       {nodes.map((node) => {
@@ -169,6 +171,9 @@ export default function Canvas({
           />
         );
       })}
+
+      {/* Foreground (annotations/drawing) */}
+      {foreground}
     </div>
   );
 }

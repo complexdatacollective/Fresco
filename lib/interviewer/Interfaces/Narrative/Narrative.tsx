@@ -164,21 +164,19 @@ const Narrative = ({ stage }: NarrativeProps) => {
     <ConcentricCircles n={concentricCircles} skewed={skewedTowardCenter} />
   );
 
-  const overlays = (
-    <>
-      {convexHullVariable && (
-        <ConvexHullLayer
-          store={store}
-          nodes={nodesWithLayout}
-          groupVariable={convexHullVariable}
-          categoricalOptions={categoricalOptions}
-        />
-      )}
-      {freeDraw && isDrawingEnabled && (
-        <Annotations ref={annotationLayer} isFrozen={isFrozen} />
-      )}
-    </>
-  );
+  const underlays = convexHullVariable ? (
+    <ConvexHullLayer
+      store={store}
+      nodes={nodesWithLayout}
+      groupVariable={convexHullVariable}
+      categoricalOptions={categoricalOptions}
+    />
+  ) : null;
+
+  const foreground =
+    freeDraw && isDrawingEnabled ? (
+      <Annotations ref={annotationLayer} isFrozen={isFrozen} />
+    ) : null;
 
   return (
     <div
@@ -187,7 +185,8 @@ const Narrative = ({ stage }: NarrativeProps) => {
     >
       <Canvas
         background={background}
-        overlays={overlays}
+        underlays={underlays}
+        foreground={foreground}
         nodes={nodesWithLayout}
         edges={filteredEdges}
         store={store}
