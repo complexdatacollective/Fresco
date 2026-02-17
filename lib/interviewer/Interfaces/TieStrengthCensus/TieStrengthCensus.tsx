@@ -4,7 +4,9 @@ import { get } from 'es-toolkit/compat';
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
+import { MotionSurface } from '~/components/layout/Surface';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
+import Heading from '~/components/typography/Heading';
 import Prompts from '~/lib/interviewer/components/Prompts';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
@@ -171,17 +173,20 @@ const TieStrengthCensus = (props: TieStrengthCensusProps) => {
     <div className="flex h-full flex-col items-center justify-center">
       <AnimatePresence initial={false} mode="wait">
         {isIntroduction && (
-          <motion.div
-            className="max-h-full max-w-[80ch] rounded-(--nc-border-radius) bg-(--nc-panel-bg-muted) px-16 py-5"
+          <MotionSurface
+            noContainer
+            className="w-full max-w-2xl grow-0"
             variants={introVariants}
             initial="hide"
             exit="hide"
             animate="show"
             key="intro"
           >
-            <h1 className="text-center">{stage.introductionPanel.title}</h1>
+            <Heading level="h1" className="text-center">
+              {stage.introductionPanel.title}
+            </Heading>
             <RenderMarkdown>{stage.introductionPanel.text}</RenderMarkdown>
-          </motion.div>
+          </MotionSurface>
         )}
         {!isIntroduction && (
           <motion.div

@@ -2,35 +2,28 @@
 
 import { type Middleware } from '@reduxjs/toolkit';
 import { debounce, isEqual, omit } from 'es-toolkit';
+import posthog from 'posthog-js';
 import { type RootState } from '~/lib/interviewer/store';
 import { ensureError } from '~/utils/ensureError';
 import { type SessionState } from '../ducks/modules/session';
 
 const syncFn = async (id: string, data: SessionState) => {
-  try {
-    // eslint-disable-next-line no-console
-    console.log('🚀 Syncing data with server...');
-    const response = await fetch(`/interview/${id}/sync`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
+  // eslint-disable-next-line no-console
+  console.log('🚀 Syncing data with server...');
+  const response = await fetch(`/interview/${id}/sync`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
 
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-
-    // eslint-disable-next-line no-console
-    console.log('✅ Data synced successfully');
-    return { success: true };
-  } catch (e) {
-    const error = ensureError(e);
-    // eslint-disable-next-line no-console
-    console.error('❌ Error syncing data:', error);
-    return { success: false, error: error.message };
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
   }
+
+  // eslint-disable-next-line no-console
+  console.log('✅ Data synced successfully');
 };
 
 const sessionChanged = (a: SessionState, b: SessionState) =>
@@ -60,7 +53,8 @@ export const createSyncMiddleware = (): Middleware<{}, RootState> => {
       .catch((e) => {
         const error = ensureError(e);
         // eslint-disable-next-line no-console
-        console.error('Failed to sync state with backend:', error);
+        console.error('❌ Error syncing data:', error);
+        posthog.captureException(error);
       })
       .finally(() => {
         isSyncing = false;

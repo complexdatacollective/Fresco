@@ -103,8 +103,8 @@ export default function ConvexHullLayer({
       ) as SVGPolygonElement;
       el.setAttribute('fill', `var(--color-cat-${group.colorIndex})`);
       el.setAttribute('stroke', `var(--color-cat-${group.colorIndex})`);
-      el.setAttribute('opacity', '0.15');
-      el.setAttribute('stroke-width', '96');
+      el.setAttribute('opacity', '0.45');
+      el.setAttribute('stroke-width', '140');
       el.setAttribute('vector-effect', 'non-scaling-stroke');
       el.setAttribute('paint-order', 'stroke fill');
       el.setAttribute('stroke-linejoin', 'round');

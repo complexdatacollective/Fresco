@@ -1,5 +1,5 @@
 import { Toggle } from '@base-ui/react/toggle';
-import { Pencil, PencilOff, RotateCcw, Snowflake } from 'lucide-react';
+import { Pencil, RotateCcw, Snowflake } from 'lucide-react';
 import { MotionSurface } from '~/components/layout/Surface';
 import { IconButton } from '~/components/ui/Button';
 import { cx } from '~/utils/cva';
@@ -22,7 +22,7 @@ export default function DrawingControls({
   return (
     <MotionSurface
       noContainer
-      className="bg-surface/80 absolute bottom-10 left-10 z-10 flex items-center gap-1 backdrop-blur-md"
+      className="bg-surface/80 absolute bottom-10 left-10 z-10 flex items-center rounded-2xl backdrop-blur-md"
       spacing="none"
       layout
     >
@@ -31,24 +31,35 @@ export default function DrawingControls({
         onPressedChange={onToggleDrawing}
         render={
           <IconButton
-            icon={isDrawingEnabled ? <Pencil /> : <PencilOff />}
+            icon={<Pencil />}
             variant="text"
             size="lg"
             className={cx(
               'rounded-none',
-              isDrawingEnabled && 'bg-primary/20 text-primary',
+              isDrawingEnabled && 'bg-primary/40 text-primary',
             )}
             aria-label={isDrawingEnabled ? 'Disable drawing' : 'Enable drawing'}
           />
         }
       />
-      <IconButton
-        icon={<Snowflake />}
-        onClick={onToggleFreeze}
-        variant="text"
-        size="lg"
-        className={cx('rounded-none', isFrozen && 'bg-primary/20 text-primary')}
-        aria-label={isFrozen ? 'Unfreeze annotations' : 'Freeze annotations'}
+      <Toggle
+        pressed={isFrozen}
+        onPressedChange={onToggleFreeze}
+        render={
+          <IconButton
+            icon={<Snowflake />}
+            variant="text"
+            size="lg"
+            className={cx(
+              'hover:enabled:bg-sea-serpent/40 rounded-none',
+              isFrozen &&
+                'bg-sea-serpent/40 hover:enabled:bg-sea-serpent/40 text-sea-serpent',
+            )}
+            aria-label={
+              isFrozen ? 'Unfreeze annotations' : 'Freeze annotations'
+            }
+          />
+        }
       />
       <IconButton
         icon={<RotateCcw />}

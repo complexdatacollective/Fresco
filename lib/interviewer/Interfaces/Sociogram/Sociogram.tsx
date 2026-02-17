@@ -8,6 +8,11 @@ import {
 import { get } from 'es-toolkit/compat';
 import { useCallback, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
+import Canvas from '~/lib/interviewer/canvas/Canvas';
+import {
+  createCanvasStore,
+  useCanvasStore,
+} from '~/lib/interviewer/canvas/useCanvasStore';
 import ConcentricCircles from '~/lib/interviewer/components/ConcentricCircles';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { type StageProps } from '~/lib/interviewer/components/Stage';
@@ -24,11 +29,6 @@ import {
   getUnplacedNodes,
 } from '~/lib/interviewer/selectors/canvas';
 import { useAppDispatch } from '~/lib/interviewer/store';
-import Canvas from '~/lib/interviewer/canvas/Canvas';
-import {
-  createCanvasStore,
-  useCanvasStore,
-} from '~/lib/interviewer/canvas/useCanvasStore';
 import CollapsablePrompts from './CollapsablePrompts';
 import NodeDrawer from './NodeDrawer';
 import SimulationPanel from './SimulationPanel';
@@ -197,7 +197,10 @@ const Sociogram = (stageProps: SociogramProps) => {
       : null;
 
   return (
-    <div className="relative h-dvh overflow-hidden" ref={interfaceRef}>
+    <div
+      className="interface relative h-dvh overflow-hidden"
+      ref={interfaceRef}
+    >
       <Canvas
         background={background}
         nodes={canvasNodes}
