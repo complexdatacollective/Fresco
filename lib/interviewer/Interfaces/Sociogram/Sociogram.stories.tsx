@@ -635,6 +635,58 @@ export const BackgroundImage: Story = {
   },
 };
 
+export const AutomaticLayoutLarge: Story = {
+  args: {
+    stage: stageWithAutoLayout,
+    registerBeforeNext: mockRegisterBeforeNext,
+    getNavigationHelpers: mockGetNavigationHelpers,
+  },
+  parameters: {
+    nodes: createMockNodes(20, 'sociogramLayout'),
+    edges: createMockEdges([
+      [1, 2],
+      [1, 3],
+      [2, 3],
+      [2, 4],
+      [3, 5],
+      [4, 5],
+      [4, 6],
+      [5, 7],
+      [6, 7],
+      [6, 8],
+      [7, 9],
+      [8, 9],
+      [8, 10],
+      [9, 11],
+      [10, 11],
+      [10, 12],
+      [11, 13],
+      [12, 13],
+      [12, 14],
+      [13, 15],
+      [14, 15],
+      [14, 16],
+      [15, 17],
+      [16, 17],
+      [16, 18],
+      [17, 19],
+      [18, 19],
+      [18, 20],
+      [19, 20],
+      [1, 10],
+      [5, 15],
+      [3, 18],
+    ]),
+    protocol: createMockProtocol(stageWithAutoLayout),
+    docs: {
+      description: {
+        story:
+          'Automatic layout with 20 nodes and a dense edge network to test force simulation performance and settling.',
+      },
+    },
+  },
+};
+
 export const EdgesAndHighlighting: Story = {
   args: {
     stage: {

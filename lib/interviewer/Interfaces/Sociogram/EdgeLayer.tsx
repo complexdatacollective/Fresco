@@ -43,8 +43,9 @@ export default function EdgeLayer({ edges, store }: EdgeLayerProps) {
       // Codebook stores 'edge-color-seq-N', CSS variable is '--color-edge-N'
       const n = /\d+$/.exec(colorToken)?.[0] ?? '1';
       el.setAttribute('stroke', `var(--color-edge-${n})`);
-      el.setAttribute('stroke-width', '0.004');
+      el.setAttribute('stroke-width', '6');
       el.setAttribute('stroke-linecap', 'round');
+      el.setAttribute('vector-effect', 'non-scaling-stroke');
       svg.appendChild(el);
       return el;
     });

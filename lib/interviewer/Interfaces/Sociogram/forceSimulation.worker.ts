@@ -2,11 +2,11 @@
 import * as d3 from 'd3';
 
 const DEFAULT_OPTIONS = {
-  alphaDecay: 1 - Math.pow(0.001, 1 / 300),
-  velocityDecay: 0.4,
+  alphaDecay: 1 - Math.pow(0.001, 1 / 150),
+  velocityDecay: 0.3,
   charge: -500,
   linkDistance: 80,
-  center: 0.2,
+  center: 0.1,
   collideRadius: 20,
 };
 
