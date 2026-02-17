@@ -11,6 +11,7 @@ import {
   generatePresignedUploadUrl,
   parseUploadThingToken,
 } from '~/lib/uploadthing/presigned';
+import { getUTApi } from '~/lib/uploadthing/server-helpers';
 import { getExistingAssets } from '~/queries/protocols';
 import { ensureError } from '~/utils/ensureError';
 import { extractApikeyAssetsFromManifest } from '~/utils/protocolImport';
@@ -226,7 +227,7 @@ export async function v1(request: NextRequest) {
       case 'abort-preview': {
         const { protocolId } = body;
 
-        // Find and delete the protocol
+        // Find the protocol
         const protocol = await prisma.protocol.findUnique({
           where: { id: protocolId },
         });
@@ -239,7 +240,42 @@ export async function v1(request: NextRequest) {
           return jsonResponse(response, 404);
         }
 
-        // Delete the protocol (cascades to related entities)
+        // Find assets that are ONLY associated with this protocol
+        // Note: `every` alone would match orphaned assets (with no protocols),
+        // so we also require `some` to ensure the asset is actually linked to this protocol
+        const assetsToDelete = await prisma.asset.findMany({
+          where: {
+            AND: [
+              { protocols: { some: { id: protocolId } } },
+              { protocols: { every: { id: protocolId } } },
+            ],
+          },
+          select: { key: true },
+        });
+
+        // Delete assets from UploadThing (best effort)
+        if (assetsToDelete.length > 0) {
+          try {
+            const utapi = await getUTApi();
+            await utapi.deleteFiles(assetsToDelete.map((a) => a.key));
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error('Error deleting preview protocol assets:', error);
+          }
+        }
+
+        // Delete assets from database
+        if (assetsToDelete.length > 0) {
+          await prisma.asset.deleteMany({
+            where: {
+              key: {
+                in: assetsToDelete.map((a) => a.key),
+              },
+            },
+          });
+        }
+
+        // Delete the protocol
         await prisma.protocol.delete({
           where: { id: protocolId },
         });

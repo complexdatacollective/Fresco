@@ -50,15 +50,14 @@ export async function prunePreviewProtocols(): Promise<{
     const protocolIds = oldProtocols.map((p) => p.id);
 
     // Select assets that are ONLY associated with the protocols to be deleted
+    // Note: `every` alone would match orphaned assets (with no protocols),
+    // so we also require `some` to ensure the asset is actually linked to these protocols
     const assetKeysToDelete = await prisma.asset.findMany({
       where: {
-        protocols: {
-          every: {
-            id: {
-              in: protocolIds,
-            },
-          },
-        },
+        AND: [
+          { protocols: { some: { id: { in: protocolIds } } } },
+          { protocols: { every: { id: { in: protocolIds } } } },
+        ],
       },
       select: { key: true },
     });
