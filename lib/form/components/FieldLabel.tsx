@@ -6,7 +6,6 @@ import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import remarkGemoji from 'remark-gemoji';
 import { Label as UILabel } from '~/components/ui/Label';
-import { useRender, type RenderProp } from '~/lib/legacy-ui/utils/useRender';
 
 const ALLOWED_MARKDOWN_LABEL_TAGS = ['em', 'strong', 'ul', 'ol', 'li'];
 
@@ -40,11 +39,10 @@ const defaultMarkdownRenderers = {
 
 type FieldLabelProps = React.ComponentPropsWithoutRef<typeof UILabel> & {
   required?: boolean;
-  render?: RenderProp<React.ComponentPropsWithoutRef<typeof UILabel>>;
 };
 
 const FieldLabel = React.forwardRef<HTMLLabelElement, FieldLabelProps>(
-  ({ required, children, render, ...props }, ref) => {
+  ({ required, children, ...props }, ref) => {
     const processedChildren = React.useMemo(() => {
       if (typeof children === 'string') {
         return escapeAngleBracket(children);
@@ -52,8 +50,8 @@ const FieldLabel = React.forwardRef<HTMLLabelElement, FieldLabelProps>(
       return children;
     }, [children]);
 
-    const content = (
-      <>
+    return (
+      <UILabel ref={ref} {...props}>
         {typeof processedChildren === 'string' ? (
           <ReactMarkdown
             allowedElements={ALLOWED_MARKDOWN_LABEL_TAGS}
@@ -73,17 +71,8 @@ const FieldLabel = React.forwardRef<HTMLLabelElement, FieldLabelProps>(
             *
           </span>
         )}
-      </>
+      </UILabel>
     );
-
-    const labelProps = {
-      ref,
-      children: content,
-      ...props,
-    };
-
-    // Use render pattern with UILabel as default
-    return useRender(render, <UILabel />, labelProps);
   },
 );
 

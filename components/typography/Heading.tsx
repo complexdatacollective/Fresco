@@ -1,7 +1,7 @@
 'use client';
 
+import { useRender, type useRender as UseRender } from '@base-ui/react';
 import * as React from 'react';
-import { useRender, type RenderProp } from '~/lib/legacy-ui/utils/useRender';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 
 export const headingVariants = cva({
@@ -34,34 +34,30 @@ export const headingVariants = cva({
   ],
 });
 
-const levelToElement = {
-  h1: <h1 />,
-  h2: <h2 />,
-  h3: <h3 />,
-  h4: <h4 />,
-  label: <h4 />,
+const levelToTagName = {
+  h1: 'h1',
+  h2: 'h2',
+  h3: 'h3',
+  h4: 'h4',
+  label: 'h4',
 } as const;
 
-type HeadingRenderProps = React.HTMLAttributes<HTMLHeadingElement> &
-  React.RefAttributes<HTMLHeadingElement> &
-  Record<string, unknown>;
-
 type HeadingProps = {
-  render?: RenderProp<HeadingRenderProps>;
+  render?: UseRender.RenderProp;
 } & React.HTMLAttributes<HTMLHeadingElement> &
   VariantProps<typeof headingVariants>;
 
 const Heading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
   ({ className, variant, level = 'h2', margin, render, ...props }, ref) => {
-    const defaultElement = levelToElement[level];
-
-    const headingProps: HeadingRenderProps = {
-      className: cx(headingVariants({ variant, level, margin, className })),
+    return useRender({
+      render,
       ref,
-      ...props,
-    };
-
-    return useRender(render, defaultElement, headingProps);
+      props: {
+        className: cx(headingVariants({ variant, level, margin, className })),
+        ...props,
+      },
+      defaultTagName: levelToTagName[level],
+    });
   },
 );
 
