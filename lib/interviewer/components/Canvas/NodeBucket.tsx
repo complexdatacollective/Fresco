@@ -8,7 +8,6 @@ import { DragSource } from '../../behaviours/DragAndDrop';
 import { NO_SCROLL } from '../../behaviours/DragAndDrop/DragManager';
 import useDropObstacle from '../../behaviours/DragAndDrop/useDropObstacle';
 import LayoutContext from '../../contexts/LayoutContext';
-import { FIRST_LOAD_UI_ELEMENT_DELAY } from '../../Interfaces/utils/constants';
 import Node from '../Node';
 
 const EnhancedNode = DragSource(Node);
@@ -39,7 +38,6 @@ const NodeBucket = ({ id, allowPositioning, node }: NodeBucketProps) => {
               animate={{
                 opacity: 1,
                 y: 0,
-                transition: { delay: FIRST_LOAD_UI_ELEMENT_DELAY },
               }}
               exit={{ opacity: 0, y: '100%' }}
             >

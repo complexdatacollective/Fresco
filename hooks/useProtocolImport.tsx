@@ -6,15 +6,15 @@ import {
 } from '@codaco/protocol-validation';
 import { queue } from 'async';
 import { hash } from 'ohash';
+import posthog from 'posthog-js';
 import { useCallback, useEffect, useRef } from 'react';
 import {
   getNewAssetIds,
   getProtocolByHash,
   insertProtocol,
 } from '~/actions/protocols';
+import { useProtocolImportStoreApi } from '~/components/ProtocolImport/useProtocolImportStore';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
-import posthog from 'posthog-js';
-import { useProtocolImportStoreApi } from '~/lib/protocol-import/useProtocolImportStore';
 import {
   validateAndMigrateProtocol,
   type ProtocolValidationError,

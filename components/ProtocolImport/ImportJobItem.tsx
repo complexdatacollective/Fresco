@@ -17,14 +17,11 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { forwardRef } from 'react';
-import {
-  type ImportJob,
-  type ImportPhase,
-} from '~/lib/protocol-import/protocolImportStore';
 import { cx } from '~/utils/cva';
 import Surface from '../layout/Surface';
 import { IconButton } from '../ui/Button';
 import ProgressBar from '../ui/ProgressBar';
+import { type ImportJob, type ImportPhase } from './protocolImportStore';
 
 type PhaseConfig = {
   label: string;

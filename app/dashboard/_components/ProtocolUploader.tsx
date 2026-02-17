@@ -2,10 +2,10 @@
 
 import { FileDown, Loader2 } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
+import { useProtocolImportStore } from '~/components/ProtocolImport/useProtocolImportStore';
 import { Button, type ButtonProps } from '~/components/ui/Button';
 import { PROTOCOL_EXTENSION } from '~/fresco.config';
 import { useProtocolImport } from '~/hooks/useProtocolImport';
-import { useProtocolImportStore } from '~/lib/protocol-import/useProtocolImportStore';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { cx } from '~/utils/cva';
 

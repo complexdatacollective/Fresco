@@ -11,6 +11,7 @@ import {
 import { useMergeRefs } from 'react-best-merge-refs';
 import { useNodeInteractions } from '~/hooks/useNodeInteractions';
 import usePrevious from '~/hooks/usePrevious';
+import { composeEventHandlers } from '~/utils/composeEventHandlers';
 import { cva, type VariantProps } from '~/utils/cva';
 
 // TODO: should be part of protocol-validation
