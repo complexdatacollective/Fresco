@@ -1,25 +1,38 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 'use client';
 
+import { type Stage } from '@codaco/protocol-validation';
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import NodeLayout from '~/lib/interviewer/components/Canvas/NodeLayout';
+import Canvas from '~/lib/interviewer/canvas/Canvas';
+import { createCanvasStore } from '~/lib/interviewer/canvas/useCanvasStore';
+import ConcentricCircles from '~/lib/interviewer/components/ConcentricCircles';
 import { type StageProps } from '~/lib/interviewer/components/Stage';
-import Annotations from '~/lib/interviewer/Interfaces/Narrative/Annotations';
-import Canvas from '../../components/Canvas/Canvas';
-import { LayoutProvider } from '../../contexts/LayoutContext';
-import { edgesToCoords } from '../../selectors/canvas';
-import { getNetworkEdges, getNetworkNodes } from '../../selectors/session';
-import Background from '../Sociogram/Background';
-import ConvexHulls from './ConvexHulls';
-import NarrativeEdgeLayout from './NarrativeEdgeLayout';
-import PresetSwitcher from './PresetSwitcher';
+import { updateNode } from '~/lib/interviewer/ducks/modules/session';
+import {
+  getCategoricalOptions,
+  getNetworkEdges,
+  getNetworkNodes,
+} from '~/lib/interviewer/selectors/session';
+import { useAppDispatch, type RootState } from '~/lib/interviewer/store';
+import Annotations, {
+  type AnnotationsHandle,
+} from '~/lib/interviewer/Interfaces/Narrative/Annotations';
+import ConvexHullLayer from '~/lib/interviewer/Interfaces/Narrative/ConvexHullLayer';
+import PresetSwitcher from '~/lib/interviewer/Interfaces/Narrative/PresetSwitcher';
 
-const Narrative = ({ stage }: StageProps) => {
+type NarrativeStage = Extract<Stage, { type: 'Narrative' }>;
+
+type NarrativeProps = StageProps & {
+  stage: NarrativeStage;
+};
+
+const Narrative = ({ stage }: NarrativeProps) => {
+  const dispatch = useAppDispatch();
   const nodes = useSelector(getNetworkNodes);
   const edges = useSelector(getNetworkEdges);
+  const interfaceRef = useRef<HTMLDivElement>(null);
 
   const [presetIndex, setPresetIndex] = useState(0);
   const [showConvexHulls, setShowConvexHulls] = useState(true);
@@ -30,8 +43,11 @@ const Narrative = ({ stage }: StageProps) => {
   const [activeFocusNodes, setActiveFocusNodes] = useState(false);
   const [isFrozen, setIsFrozen] = useState(false);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const annotationLayer = useRef<any>(null);
+  const annotationLayer = useRef<AnnotationsHandle>(null);
+
+  // Zustand store for real-time positions
+  const storeRef = useRef(createCanvasStore());
+  const store = storeRef.current;
 
   const handleChangeActiveAnnotations = useCallback((status: boolean) => {
     setActiveAnnotations(status);
@@ -58,7 +74,6 @@ const Narrative = ({ stage }: StageProps) => {
   }, []);
 
   const handleResetInteractions = useCallback(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     annotationLayer.current?.reset();
   }, []);
 
@@ -77,8 +92,8 @@ const Narrative = ({ stage }: StageProps) => {
     [presetIndex],
   );
 
-  // Stage properties accessed via get() since stage is a union type
-  const presets = get(stage, 'presets', []);
+  // Stage properties
+  const { presets } = stage;
   const currentPreset = presets[presetIndex];
 
   // Behaviour Configuration
@@ -87,91 +102,121 @@ const Narrative = ({ stage }: StageProps) => {
   const shouldShowResetButton = activeAnnotations || activeFocusNodes;
 
   // Display Properties
-  const layoutVariable = get(currentPreset, 'layoutVariable');
-  const displayEdges = showEdges ? get(currentPreset, 'edges.display', []) : [];
-  const highlight = get(currentPreset, 'highlight', []);
+  const layoutVariable = currentPreset?.layoutVariable ?? '';
+  const highlight = currentPreset?.highlight ?? [];
   const convexHullVariable = showConvexHulls
-    ? get(currentPreset, 'groupVariable', '')
+    ? (currentPreset?.groupVariable ?? '')
     : '';
 
   // Background Configuration
-  const backgroundImage = get(stage, 'background.image');
   const concentricCircles = get(stage, 'background.concentricCircles');
   const skewedTowardCenter = get(stage, 'background.skewedTowardCenter');
 
-  // NodeLayout and ConvexHulls should only be passed nodes that have the layoutVariable set
-  const nodesWithLayout = layoutVariable
-    ? nodes.filter((node) => node[entityAttributesProperty][layoutVariable])
-    : [];
-
-  // EdgeLayout should only be passed edges in the presets edges.display list
-  const filteredEdges = edges.filter((edge) =>
-    displayEdges.includes(edge.type),
+  // Only include nodes that have the layout variable set
+  const nodesWithLayout = useMemo(
+    () =>
+      layoutVariable
+        ? nodes.filter((node) => node[entityAttributesProperty][layoutVariable])
+        : [],
+    [nodes, layoutVariable],
   );
-  const edgesWithCoords = edgesToCoords(filteredEdges, {
-    nodes: nodesWithLayout,
-    layout: layoutVariable,
-  });
+
+  // Filter edges by display types
+  const displayEdgeTypes = currentPreset?.edges?.display;
+  const filteredEdges = useMemo(
+    () =>
+      showEdges && displayEdgeTypes
+        ? edges.filter((edge) => displayEdgeTypes.includes(edge.type))
+        : [],
+    [edges, showEdges, displayEdgeTypes],
+  );
+
+  // Sync positions from nodes when layout variable or nodes change
+  useEffect(() => {
+    store.getState().syncFromNodes(nodesWithLayout, layoutVariable);
+  }, [nodesWithLayout, layoutVariable, store]);
+
+  // Handle drag end: sync single position to Redux
+  const handleNodeDragEnd = useCallback(
+    (nodeId: string, position: { x: number; y: number }) => {
+      void dispatch(
+        updateNode({
+          nodeId,
+          newAttributeData: {
+            [layoutVariable]: { x: position.x, y: position.y },
+          },
+        }),
+      );
+    },
+    [dispatch, layoutVariable],
+  );
+
+  // Get categorical options for convex hulls
+  const categoricalOptions = useSelector((state: RootState) =>
+    getCategoricalOptions(state, {
+      variableId: convexHullVariable,
+    }),
+  ) as { value: number; label: string }[];
+
+  // Highlight attribute
+  const highlightAttribute = showHighlightedNodes
+    ? (highlight[highlightIndex] ?? undefined)
+    : undefined;
+
+  const background = (
+    <ConcentricCircles n={concentricCircles} skewed={skewedTowardCenter} />
+  );
+
+  const overlays = (
+    <>
+      {convexHullVariable && (
+        <ConvexHullLayer
+          store={store}
+          nodes={nodesWithLayout}
+          groupVariable={convexHullVariable}
+          categoricalOptions={categoricalOptions}
+        />
+      )}
+      {freeDraw && (
+        <Annotations
+          ref={annotationLayer}
+          isFrozen={isFrozen}
+          onChangeActiveAnnotations={handleChangeActiveAnnotations}
+        />
+      )}
+    </>
+  );
 
   return (
-    <div className="narrative-interface">
-      <div className="narrative-interface__canvas" id="sociogram-canvas">
-        <LayoutProvider
-          layout={layoutVariable}
-          nodes={nodesWithLayout}
-          edges={edgesWithCoords}
-          twoMode={false}
-          allowAutomaticLayout={false}
-        >
-          <Canvas
-            className="narrative-concentric-circles"
-            key={`circles-${currentPreset?.id}`}
-          >
-            <Background
-              concentricCircles={concentricCircles}
-              skewedTowardCenter={skewedTowardCenter}
-              image={backgroundImage}
-            />
-            <ConvexHulls
-              nodes={nodesWithLayout}
-              groupVariable={convexHullVariable}
-              layoutVariable={layoutVariable}
-            />
-            <NarrativeEdgeLayout edges={edgesWithCoords} />
-            {freeDraw && (
-              <Annotations
-                ref={annotationLayer}
-                isFrozen={isFrozen}
-                onChangeActiveAnnotations={handleChangeActiveAnnotations}
-              />
-            )}
-            <NodeLayout
-              id="NODE_LAYOUT"
-              highlightAttribute={
-                showHighlightedNodes ? highlight[highlightIndex] : null
-              }
-              layoutVariable={layoutVariable}
-              allowPositioning={allowRepositioning}
-            />
-          </Canvas>
-          <PresetSwitcher
-            id="drop-obstacle"
-            presets={presets}
-            activePreset={presetIndex}
-            highlightIndex={highlightIndex}
-            isFrozen={isFrozen}
-            shouldShowResetButton={shouldShowResetButton}
-            shouldShowFreezeButton={freeDraw}
-            onResetInteractions={handleResetInteractions}
-            onChangePreset={handleChangePreset}
-            onToggleFreeze={handleToggleFreeze}
-            onToggleHulls={handleToggleHulls}
-            onToggleEdges={handleToggleEdges}
-            onChangeHighlightIndex={handleChangeHighlightIndex}
-            onToggleHighlighting={handleToggleHighlighting}
-          />
-        </LayoutProvider>
-      </div>
+    <div className="relative h-dvh overflow-hidden" ref={interfaceRef}>
+      <Canvas
+        background={background}
+        overlays={overlays}
+        nodes={nodesWithLayout}
+        edges={filteredEdges}
+        store={store}
+        selectedNodeId={null}
+        highlightAttribute={highlightAttribute}
+        onNodeDragEnd={handleNodeDragEnd}
+        allowRepositioning={allowRepositioning}
+        simulation={null}
+      />
+      <PresetSwitcher
+        presets={presets}
+        activePreset={presetIndex}
+        highlightIndex={highlightIndex}
+        isFrozen={isFrozen}
+        shouldShowResetButton={shouldShowResetButton}
+        shouldShowFreezeButton={freeDraw}
+        onResetInteractions={handleResetInteractions}
+        onChangePreset={handleChangePreset}
+        onToggleFreeze={handleToggleFreeze}
+        onToggleHulls={handleToggleHulls}
+        onToggleEdges={handleToggleEdges}
+        onChangeHighlightIndex={handleChangeHighlightIndex}
+        onToggleHighlighting={handleToggleHighlighting}
+        dragConstraints={interfaceRef}
+      />
     </div>
   );
 };

@@ -6,7 +6,7 @@ import {
 import { clamp } from 'es-toolkit';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type AppDispatch } from '~/lib/interviewer/store';
-import { type SociogramStoreApi } from './useSociogramStore';
+import { type CanvasStoreApi } from '~/lib/interviewer/canvas/useCanvasStore';
 
 const SIM_RANGE = 250;
 
@@ -35,7 +35,7 @@ type UseForceSimulationOptions = {
   nodes: NcNode[];
   edges: NcEdge[];
   layoutVariable: string;
-  store: SociogramStoreApi;
+  store: CanvasStoreApi;
   dispatch: AppDispatch;
 };
 

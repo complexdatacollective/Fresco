@@ -4,11 +4,11 @@ import { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
 import { type RootState } from '~/lib/interviewer/store';
-import { type SociogramStoreApi } from './useSociogramStore';
+import { type CanvasStoreApi } from '~/lib/interviewer/canvas/useCanvasStore';
 
 type EdgeLayerProps = {
   edges: NcEdge[];
-  store: SociogramStoreApi;
+  store: CanvasStoreApi;
 };
 
 export default function EdgeLayer({ edges, store }: EdgeLayerProps) {

@@ -14,15 +14,16 @@ import {
 import { clamp } from 'es-toolkit';
 import { useDropTarget } from '~/lib/dnd';
 import { cx } from '~/utils/cva';
-import CanvasNode from './CanvasNode';
-import EdgeLayer from './EdgeLayer';
-import { type SociogramStoreApi } from './useSociogramStore';
+import CanvasNode from '~/lib/interviewer/canvas/CanvasNode';
+import EdgeLayer from '~/lib/interviewer/canvas/EdgeLayer';
+import { type CanvasStoreApi } from '~/lib/interviewer/canvas/useCanvasStore';
 
 type CanvasProps = {
   background: ReactNode;
+  overlays?: ReactNode;
   nodes: NcNode[];
   edges: NcEdge[];
-  store: SociogramStoreApi;
+  store: CanvasStoreApi;
   selectedNodeId: string | null;
   highlightAttribute?: string;
   onNodeSelect?: (nodeId: string) => void;
@@ -38,6 +39,7 @@ type CanvasProps = {
 
 export default function Canvas({
   background,
+  overlays,
   nodes,
   edges,
   store,
@@ -52,6 +54,21 @@ export default function Canvas({
 }: CanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const lastPointerPosRef = useRef<{ x: number; y: number } | null>(null);
+
+  // Track canvas dimensions so the store can compute boundary margins
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const observer = new ResizeObserver(([entry]) => {
+      if (!entry) return;
+      const { width, height } = entry.contentRect;
+      store.getState().setCanvasDimensions({ width, height });
+    });
+
+    observer.observe(canvas);
+    return () => observer.disconnect();
+  }, [store]);
 
   // Track pointer position via a document-level listener.
   // React's onPointerMove on the canvas div does NOT fire during DnD drags
@@ -125,6 +142,9 @@ export default function Canvas({
 
       {/* Edge layer */}
       <EdgeLayer edges={edges} store={store} />
+
+      {/* Overlays (convex hulls, annotations, etc.) */}
+      {overlays}
 
       {/* Nodes */}
       {nodes.map((node) => {

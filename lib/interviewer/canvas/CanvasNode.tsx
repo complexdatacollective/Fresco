@@ -5,13 +5,16 @@ import {
 } from '@codaco/shared-consts';
 import { type RefObject, useCallback } from 'react';
 import Node from '~/lib/interviewer/components/Node';
-import { useCanvasDrag } from './useCanvasDrag';
-import { useSociogramStore, type SociogramStoreApi } from './useSociogramStore';
+import { useCanvasDrag } from '~/lib/interviewer/canvas/useCanvasDrag';
+import {
+  useCanvasStore,
+  type CanvasStoreApi,
+} from '~/lib/interviewer/canvas/useCanvasStore';
 
 type CanvasNodeProps = {
   node: NcNode;
   canvasRef: RefObject<HTMLElement | null>;
-  store: SociogramStoreApi;
+  store: CanvasStoreApi;
   onDragEnd?: (nodeId: string, position: { x: number; y: number }) => void;
   onSelect?: (nodeId: string) => void;
   selected?: boolean;
@@ -40,7 +43,7 @@ export default function CanvasNode({
 }: CanvasNodeProps) {
   const nodeId = node[entityPrimaryKeyProperty];
 
-  const position = useSociogramStore(store, (state) =>
+  const position = useCanvasStore(store, (state) =>
     state.positions.get(nodeId),
   );
 

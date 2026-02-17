@@ -1,17 +1,26 @@
 import { AnimatePresence, motion } from 'motion/react';
-import PropTypes from 'prop-types';
+import { type ReactNode } from 'react';
 
 const ANIMATION_DURATION_FAST = 0.25;
-const DEFAULT_EASING = [0.4, 0, 0.2, 1];
+const DEFAULT_EASING: [number, number, number, number] = [0.4, 0, 0.2, 1];
 
-function Fade({
+type FadeProps = {
+  children: ReactNode;
+  in: boolean;
+  enter?: boolean;
+  customDuration?: { enter: number; exit: number };
+  customEasing?: [number, number, number, number];
+  onExited?: () => void;
+};
+
+export default function Fade({
   children,
   customDuration,
   customEasing,
   enter = true,
   onExited,
   in: inProp,
-}) {
+}: FadeProps) {
   const defaultDuration = {
     enter: ANIMATION_DURATION_FAST,
     exit: ANIMATION_DURATION_FAST,
@@ -38,14 +47,3 @@ function Fade({
     </AnimatePresence>
   );
 }
-
-Fade.propTypes = {
-  children: PropTypes.any,
-  customDuration: PropTypes.object,
-  customEasing: PropTypes.array,
-  enter: PropTypes.bool,
-  in: PropTypes.bool.isRequired,
-  onExited: PropTypes.func,
-};
-
-export default Fade;

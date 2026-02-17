@@ -2,13 +2,13 @@
 import * as d3 from 'd3';
 
 const DEFAULT_OPTIONS = {
-  alphaDecay: 1 - Math.pow(0.001, 1 / 150),
-  velocityDecay: 0.3,
-  charge: -500,
-  linkDistance: 80,
-  center: 0.1,
-  collideRadius: 20,
-};
+  alphaDecay: 1 - Math.pow(0.001, 1 / 300),
+  velocityDecay: 0.1,
+  charge: -150,
+  linkDistance: 60,
+  center: 0.05,
+  collideRadius: 30,
+} as const;
 
 type ForceSimulationOptions = typeof DEFAULT_OPTIONS;
 

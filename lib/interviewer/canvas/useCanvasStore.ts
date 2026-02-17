@@ -10,38 +10,60 @@ import { updateNode } from '~/lib/interviewer/ducks/modules/session';
 import { type AppDispatch } from '~/lib/interviewer/store';
 
 type Position = { x: number; y: number };
+type CanvasDimensions = { width: number; height: number };
 
-type SociogramState = {
+// Minimum gap (px) between a node's visible edge and the canvas boundary.
+const EDGE_PADDING = 16;
+// Node radius: size-24 = 6rem = 96px → 48px
+const NODE_RADIUS = 48;
+
+type CanvasState = {
   positions: Map<string, Position>;
   selectedNodeId: string | null;
+  canvasDimensions: CanvasDimensions | null;
 };
 
-type SociogramActions = {
+type CanvasActions = {
   setPosition: (nodeId: string, position: Position) => void;
   setBatchPositions: (entries: [string, Position][]) => void;
+  setCanvasDimensions: (dimensions: CanvasDimensions) => void;
   syncFromNodes: (nodes: NcNode[], layoutVariable: string) => void;
   syncNewFromNodes: (nodes: NcNode[], layoutVariable: string) => void;
   selectNode: (nodeId: string | null) => void;
   syncToRedux: (dispatch: AppDispatch, layoutVariable: string) => void;
 };
 
-type SociogramStore = SociogramState & SociogramActions;
+type CanvasStore = CanvasState & CanvasActions;
 
-const clampPosition = (pos: Position): Position => ({
-  x: clamp(pos.x, 0, 1),
-  y: clamp(pos.y, 0, 1),
-});
+const clampPosition = (
+  pos: Position,
+  dimensions: CanvasDimensions | null,
+): Position => {
+  if (!dimensions || dimensions.width === 0 || dimensions.height === 0) {
+    return { x: clamp(pos.x, 0, 1), y: clamp(pos.y, 0, 1) };
+  }
 
-export const createSociogramStore = () =>
-  createStore<SociogramStore>()(
+  const inset = NODE_RADIUS + EDGE_PADDING;
+  const marginX = Math.min(inset / dimensions.width, 0.5);
+  const marginY = Math.min(inset / dimensions.height, 0.5);
+
+  return {
+    x: clamp(pos.x, marginX, 1 - marginX),
+    y: clamp(pos.y, marginY, 1 - marginY),
+  };
+};
+
+export const createCanvasStore = () =>
+  createStore<CanvasStore>()(
     subscribeWithSelector((set, get) => ({
       positions: new Map(),
       selectedNodeId: null,
+      canvasDimensions: null,
 
       setPosition: (nodeId, position) => {
         set((state) => {
           const next = new Map(state.positions);
-          next.set(nodeId, clampPosition(position));
+          next.set(nodeId, clampPosition(position, state.canvasDimensions));
           return { positions: next };
         });
       },
@@ -50,13 +72,24 @@ export const createSociogramStore = () =>
         set((state) => {
           const next = new Map(state.positions);
           for (const [nodeId, position] of entries) {
-            next.set(nodeId, clampPosition(position));
+            next.set(nodeId, clampPosition(position, state.canvasDimensions));
           }
           return { positions: next };
         });
       },
 
+      setCanvasDimensions: (dimensions) => {
+        set((state) => {
+          const next = new Map<string, Position>();
+          for (const [nodeId, pos] of state.positions) {
+            next.set(nodeId, clampPosition(pos, dimensions));
+          }
+          return { canvasDimensions: dimensions, positions: next };
+        });
+      },
+
       syncFromNodes: (nodes, layoutVariable) => {
+        const dims = get().canvasDimensions;
         const next = new Map<string, Position>();
         for (const node of nodes) {
           const attrs = node[entityAttributesProperty];
@@ -71,7 +104,7 @@ export const createSociogramStore = () =>
           ) {
             next.set(
               node[entityPrimaryKeyProperty],
-              clampPosition(layoutValue),
+              clampPosition(layoutValue, dims),
             );
           }
         }
@@ -106,7 +139,10 @@ export const createSociogramStore = () =>
                 typeof layoutValue.x === 'number' &&
                 typeof layoutValue.y === 'number'
               ) {
-                next.set(nodeId, clampPosition(layoutValue));
+                next.set(
+                  nodeId,
+                  clampPosition(layoutValue, state.canvasDimensions),
+                );
               }
             }
           }
@@ -135,11 +171,11 @@ export const createSociogramStore = () =>
     })),
   );
 
-export type SociogramStoreApi = ReturnType<typeof createSociogramStore>;
+export type CanvasStoreApi = ReturnType<typeof createCanvasStore>;
 
-export function useSociogramStore<T>(
-  store: SociogramStoreApi,
-  selector: (state: SociogramStore) => T,
+export function useCanvasStore<T>(
+  store: CanvasStoreApi,
+  selector: (state: CanvasStore) => T,
 ): T {
   return useStore(store, selector);
 }

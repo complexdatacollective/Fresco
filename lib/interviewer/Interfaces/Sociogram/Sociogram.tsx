@@ -24,12 +24,15 @@ import {
   getUnplacedNodes,
 } from '~/lib/interviewer/selectors/canvas';
 import { useAppDispatch } from '~/lib/interviewer/store';
-import Canvas from './Canvas';
+import Canvas from '~/lib/interviewer/canvas/Canvas';
+import {
+  createCanvasStore,
+  useCanvasStore,
+} from '~/lib/interviewer/canvas/useCanvasStore';
 import CollapsablePrompts from './CollapsablePrompts';
 import NodeDrawer from './NodeDrawer';
 import SimulationPanel from './SimulationPanel';
 import { useForceSimulation } from './useForceSimulation';
-import { createSociogramStore, useSociogramStore } from './useSociogramStore';
 
 type SociogramProps = StageProps & {
   stage: Extract<Stage, { type: 'Sociogram' }>;
@@ -71,7 +74,7 @@ const Sociogram = (stageProps: SociogramProps) => {
   const edges = useSelector(getEdges);
 
   // Zustand store for real-time positions
-  const storeRef = useRef(createSociogramStore());
+  const storeRef = useRef(createCanvasStore());
   const store = storeRef.current;
 
   // Sync positions from Redux when nodes or layout variable change.
@@ -94,10 +97,7 @@ const Sociogram = (stageProps: SociogramProps) => {
     dispatch,
   });
 
-  const selectedNodeId = useSociogramStore(
-    store,
-    (state) => state.selectedNodeId,
-  );
+  const selectedNodeId = useCanvasStore(store, (state) => state.selectedNodeId);
 
   // Handle node selection (for edge creation and highlighting).
   // Reads selectedNodeId directly from the store to avoid closure staleness —

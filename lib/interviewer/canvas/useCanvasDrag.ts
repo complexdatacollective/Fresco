@@ -1,6 +1,6 @@
 import { clamp } from 'es-toolkit';
 import { type RefObject, useCallback, useRef } from 'react';
-import { type SociogramStoreApi } from './useSociogramStore';
+import { type CanvasStoreApi } from '~/lib/interviewer/canvas/useCanvasStore';
 
 const DRAG_THRESHOLD = 5;
 const NUDGE_AMOUNT = 0.02;
@@ -8,7 +8,7 @@ const NUDGE_AMOUNT = 0.02;
 type UseCanvasDragOptions = {
   nodeId: string;
   canvasRef: RefObject<HTMLElement | null>;
-  store: SociogramStoreApi;
+  store: CanvasStoreApi;
   onDragEnd?: (nodeId: string, position: { x: number; y: number }) => void;
   onClick?: () => void;
   disabled?: boolean;
