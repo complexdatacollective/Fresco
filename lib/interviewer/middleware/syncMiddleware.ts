@@ -6,7 +6,6 @@ import { type RootState } from '~/lib/interviewer/store';
 import { ensureError } from '~/utils/ensureError';
 import { type SessionState } from '../ducks/modules/session';
 
-// Sync data implemented as fetch request
 const syncFn = async (id: string, data: SessionState) => {
   try {
     // eslint-disable-next-line no-console
@@ -24,75 +23,86 @@ const syncFn = async (id: string, data: SessionState) => {
     }
 
     // eslint-disable-next-line no-console
-    console.log('✅ Data synced successfully:');
-    return {
-      success: true,
-    };
+    console.log('✅ Data synced successfully');
+    return { success: true };
   } catch (e) {
     const error = ensureError(e);
     // eslint-disable-next-line no-console
     console.error('❌ Error syncing data:', error);
-    return {
-      success: false,
-      error: error.message,
-    };
+    return { success: false, error: error.message };
   }
 };
 
+const sessionChanged = (a: SessionState, b: SessionState) =>
+  !isEqual(omit(a, ['promptIndex']), omit(b, ['promptIndex']));
+
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const createSyncMiddleware = (): Middleware<{}, RootState> => {
-  let previousState = {} as SessionState;
-  // Track if we're currently syncing to avoid loops
+  // Tracks the state that was last sent to the server, so we only sync
+  // when there are genuinely unsynced changes.
+  let lastSyncedState = {} as SessionState;
   let isSyncing = false;
+  let storeRef: { getState: () => RootState } | null = null;
 
-  const debouncedSync = debounce(
-    (interviewId: string, session: SessionState) => {
-      // Set flag to prevent recursive syncing
-      isSyncing = true;
+  const doSync = () => {
+    if (isSyncing || !storeRef) return;
 
-      // Perform the sync
-      syncFn(interviewId, session)
-        .catch((e) => {
-          const error = ensureError(e);
-          // eslint-disable-next-line no-console
-          console.error('Failed to sync state with backend:', error);
-        })
-        .finally(() => {
-          // Reset syncing flag
-          isSyncing = false;
-        });
-    },
-    3000,
-    { edges: ['leading', 'trailing'] },
-  );
+    const session = storeRef.getState().session;
 
-  // Middleware implementation
-  return (store) => (next) => (action: unknown) => {
-    // Always pass the action through the reducer first (optimistic updates)
-    const result = next(action);
-
-    // skip if the state hasn't changed
-    const state = store.getState();
-    if (
-      isEqual(
-        omit(state.session, ['promptIndex']),
-        omit(previousState, ['promptIndex']),
-      )
-    ) {
-      return result;
+    if (!sessionChanged(session, lastSyncedState)) {
+      return;
     }
 
-    // Update previous state
-    previousState = state.session;
+    isSyncing = true;
+    lastSyncedState = session;
 
-    // Skip if we're already in the process of syncing
-    // This prevents infinite loops where sync triggers actions
-    if (isSyncing) {
+    syncFn(session.id, session)
+      .catch((e) => {
+        const error = ensureError(e);
+        // eslint-disable-next-line no-console
+        console.error('Failed to sync state with backend:', error);
+      })
+      .finally(() => {
+        isSyncing = false;
+
+        // If state changed during sync, schedule a follow-up so changes
+        // that arrived while the request was in-flight are never lost.
+        if (
+          storeRef &&
+          sessionChanged(storeRef.getState().session, lastSyncedState)
+        ) {
+          debouncedSync();
+        }
+      });
+  };
+
+  const debouncedSync = debounce(doSync, 3000, {
+    edges: ['leading', 'trailing'],
+  });
+
+  return (store) => {
+    storeRef = store;
+    // Reset per-store state so a previous interview's sync state doesn't
+    // leak into a new one.
+    lastSyncedState = store.getState().session;
+    isSyncing = false;
+    debouncedSync.cancel();
+
+    return (next) => (action: unknown) => {
+      const result = next(action);
+
+      const state = store.getState();
+
+      if (!sessionChanged(state.session, lastSyncedState)) {
+        return result;
+      }
+
+      // Let the debounce handle rate-limiting. doSync reads current state
+      // at execution time (not captured here), so the trailing edge always
+      // sends the latest state.
+      debouncedSync();
+
       return result;
-    }
-
-    debouncedSync(state.session.id, state.session);
-
-    return result;
+    };
   };
 };
