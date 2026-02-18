@@ -9,6 +9,7 @@ import ProtocolImportProvider from '~/components/ProtocolImport/ProtocolImportPr
 import DialogProvider from '~/lib/dialogs/DialogProvider';
 import { DndStoreProvider } from '~/lib/dnd';
 import { Toaster } from '../ui/Toast';
+import { TooltipProvider } from '../ui/tooltip';
 import { PostHogIdentify } from './PosthogIdentify';
 
 export default function Providers({
@@ -27,15 +28,17 @@ export default function Providers({
       <MotionConfig reducedMotion="user" skipAnimations={!!disableAnimations}>
         <DirectionProvider direction="ltr">
           <Toast.Provider limit={7}>
-            <DndStoreProvider>
-              <ProtocolImportProvider>
-                <PostHogIdentify
-                  installationId={installationId}
-                  disableAnalytics={disableAnalytics}
-                />
-                <DialogProvider>{children}</DialogProvider>
-              </ProtocolImportProvider>
-            </DndStoreProvider>
+            <TooltipProvider>
+              <DndStoreProvider>
+                <ProtocolImportProvider>
+                  <PostHogIdentify
+                    installationId={installationId}
+                    disableAnalytics={disableAnalytics}
+                  />
+                  <DialogProvider>{children}</DialogProvider>
+                </ProtocolImportProvider>
+              </DndStoreProvider>
+            </TooltipProvider>
             <Toaster />
           </Toast.Provider>
         </DirectionProvider>

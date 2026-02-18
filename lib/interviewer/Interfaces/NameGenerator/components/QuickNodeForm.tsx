@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux';
 
 import Form from '~/lib/form/components/Form';
 import { type FormSubmitHandler } from '~/lib/form/store/types';
-import { getAdditionalAttributesSelector } from '../../../selectors/prop';
+import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import QuickAddField from './QuickAddField';
 
 const containerVariants: Variants = {
@@ -80,8 +80,6 @@ const QuickNodeForm = ({
     <motion.div
       className="absolute right-12 bottom-6 z-20"
       variants={containerVariants}
-      initial="initial"
-      animate="animate"
       layout
     >
       <Form onSubmit={handleSubmit}>

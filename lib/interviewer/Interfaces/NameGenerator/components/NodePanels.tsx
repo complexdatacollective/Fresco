@@ -2,7 +2,7 @@ import { type Panel } from '@codaco/protocol-validation';
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { invariant } from 'es-toolkit';
 import { get } from 'es-toolkit/compat';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useDndStore, type DndStore } from '~/lib/dnd';
 import Panels from '../../../components/Panels';
@@ -20,6 +20,7 @@ import NodePanel from './NodePanel';
 
 type NodePanelsProps = {
   disableAddNew: boolean;
+  onOpenChange?: (isOpen: boolean) => void;
 };
 
 const NodePanelColors = [
@@ -44,7 +45,7 @@ function NodePanels(props: NodePanelsProps) {
     }[]
   >([]);
 
-  const { disableAddNew } = props;
+  const { disableAddNew, onOpenChange } = props;
   const isDragging = useDndStore((state: DndStore) => state.isDragging);
   const dragItem = useDndStore((state: DndStore) => state.dragItem);
   const meta = dragItem?.metadata as NcNode & { itemType: string };
@@ -125,8 +126,16 @@ function NodePanels(props: NodePanelsProps) {
   );
 
   const isAnyPanelOpen = useMemo(() => {
-    return panels?.some((panel, index) => isPanelOpen(index)) ?? false;
+    return panels?.some((_panel, index) => isPanelOpen(index)) ?? false;
   }, [isPanelOpen, panels]);
+
+  const prevIsAnyPanelOpen = useRef(isAnyPanelOpen);
+  useEffect(() => {
+    if (prevIsAnyPanelOpen.current !== isAnyPanelOpen) {
+      prevIsAnyPanelOpen.current = isAnyPanelOpen;
+      onOpenChange?.(isAnyPanelOpen);
+    }
+  }, [isAnyPanelOpen, onOpenChange]);
 
   const handlePanelUpdate = useCallback(
     (index: number) => (displayCount: number, nodeIndex: Set<string>) => {

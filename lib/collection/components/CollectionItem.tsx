@@ -114,14 +114,14 @@ function CollectionItemComponent<T>({
     'data-disabled': isDisabled || undefined,
     'data-dragging': undefined,
     'data-drop-target': undefined,
-    'onFocus': itemProps.onFocus as React.FocusEventHandler<HTMLElement>,
-    'onClick': itemProps.onClick as React.MouseEventHandler<HTMLElement>,
+    'onFocus': itemProps.onFocus,
+    'onClick': itemProps.onClick,
     'onKeyDown': composedOnKeyDown,
     'onPointerDown': dndDragProps.onPointerDown as
-      | React.PointerEventHandler<HTMLElement>
+      | React.PointerEventHandler<Element>
       | undefined,
     'onPointerMove': dndDragProps.onPointerMove as
-      | React.PointerEventHandler<HTMLElement>
+      | React.PointerEventHandler<Element>
       | undefined,
     'id': itemId,
     ...dndDragProps,

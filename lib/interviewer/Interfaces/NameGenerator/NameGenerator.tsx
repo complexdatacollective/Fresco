@@ -13,15 +13,13 @@ import { has } from 'es-toolkit/compat';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useSelector } from 'react-redux';
+import { ResizableFlexPanel } from '~/components/ui/ResizableFlexPanel';
 import usePortalTarget from '~/hooks/usePortalTarget';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import Prompts from '../../components/Prompts';
 import { usePrompts } from '../../components/Prompts/usePrompts';
-import {
-  type Direction,
-  type StageProps,
-} from '~/lib/interviewer/types';
+import { type Direction, type StageProps } from '~/lib/interviewer/types';
 import {
   addNode as addNodeAction,
   addNodeToPrompt as addNodeToPromptAction,
@@ -87,6 +85,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
 
   const [selectedNode, setSelectedNode] = useState<NcNode | null>(null);
   const [showMinWarning, setShowMinWarning] = useState(false);
+  const [isPanelsOpen, setIsPanelsOpen] = useState(false);
 
   const minNodes = minNodesWithDefault(behaviours?.minNodes);
   const maxNodes = maxNodesWithDefault(behaviours?.maxNodes);
@@ -271,18 +270,48 @@ const NameGenerator = (props: NameGeneratorProps) => {
     <>
       <div className="interface flex-col gap-6" ref={interfaceRef}>
         <Prompts />
-        <div className="flex min-h-0 w-full flex-1 basis-full gap-4">
-          {panels && <NodePanels disableAddNew={maxNodesReached} />}
-          <NodeList
-            items={nodesForPrompt}
-            id="MAIN_NODE_LIST"
-            accepts={['NEW_NODE']}
-            itemType="EXISTING_NODE"
-            onDrop={handleDropNode}
-            onItemClick={handleSelectNode}
-            className="flex flex-1 rounded"
-          />
-        </div>
+        {panels ? (
+          <ResizableFlexPanel
+            storageKey="name-generator-panels"
+            defaultBasis={30}
+            min={15}
+            max={60}
+            breakpoints={[
+              { value: 25, label: '25% panels' },
+              { value: 33, label: 'One-third panels' },
+              { value: 50, label: 'Equal split' },
+            ]}
+            overrideBasis={isPanelsOpen ? undefined : 0}
+            className="w-full flex-1 basis-full"
+            aria-label="Resize panel and node list areas"
+          >
+            <NodePanels
+              disableAddNew={maxNodesReached}
+              onOpenChange={setIsPanelsOpen}
+            />
+            <NodeList
+              items={nodesForPrompt}
+              id="MAIN_NODE_LIST"
+              accepts={['NEW_NODE']}
+              itemType="EXISTING_NODE"
+              onDrop={handleDropNode}
+              onItemClick={handleSelectNode}
+              className="flex flex-1 rounded"
+            />
+          </ResizableFlexPanel>
+        ) : (
+          <div className="flex min-h-0 w-full flex-1 basis-full gap-4">
+            <NodeList
+              items={nodesForPrompt}
+              id="MAIN_NODE_LIST"
+              accepts={['NEW_NODE']}
+              itemType="EXISTING_NODE"
+              onDrop={handleDropNode}
+              onItemClick={handleSelectNode}
+              className="flex flex-1 rounded"
+            />
+          </div>
+        )}
         {form ? (
           <NodeForm
             selectedNode={selectedNode}

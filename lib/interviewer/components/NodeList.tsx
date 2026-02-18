@@ -4,6 +4,7 @@ import { memo, useCallback, useMemo, useState } from 'react';
 import { Collection } from '~/lib/collection/components/Collection';
 import { useDragAndDrop } from '~/lib/collection/dnd/useDragAndDrop';
 import { InlineGridLayout } from '~/lib/collection/layout/InlineGridLayout';
+import { type ItemProps } from '~/lib/collection/types';
 import { type DropCallback } from '~/lib/dnd/types';
 import { cx } from '~/utils/cva';
 import Node from './Node';
@@ -29,7 +30,7 @@ const NodeList = memo(
     itemType = 'NODE',
     accepts,
     onDrop,
-    onItemClick: _onItemClick,
+    onItemClick,
     nodeSize = 'md',
     className,
     animate = true,
@@ -72,6 +73,18 @@ const NodeList = memo(
       className,
     );
 
+    const renderItem = useCallback(
+      (node: NcNode, itemProps: ItemProps) => (
+        <Node
+          {...node}
+          {...itemProps}
+          size={nodeSize}
+          onClick={() => onItemClick?.(node)}
+        />
+      ),
+      [nodeSize, onItemClick],
+    );
+
     const [animationComplete, setAnimationComplete] = useState(false);
 
     return (
@@ -82,6 +95,7 @@ const NodeList = memo(
           exit: { opacity: 0 },
         }}
         onAnimationComplete={() => setAnimationComplete(true)}
+        className="h-full grow"
       >
         {animationComplete && (
           <Collection
@@ -89,7 +103,7 @@ const NodeList = memo(
             items={items}
             keyExtractor={keyExtractor}
             layout={layout}
-            renderItem={(node) => <Node {...node} size={nodeSize} />}
+            renderItem={renderItem}
             dragAndDropHooks={
               (accepts ?? onDrop) ? dragAndDropHooks : undefined
             }

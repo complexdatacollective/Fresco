@@ -149,7 +149,9 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
     };
 
     return (
-      <motion.div className={cx('relative flex min-h-0 flex-1', className)}>
+      <motion.div
+        className={cx('relative flex h-full min-h-0 flex-1', className)}
+      >
         <motion.div
           layoutScroll
           ref={useMergeRefs({ viewportRef, ref })}
@@ -162,7 +164,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
             'focusable',
             'p-2',
             // Layout
-            'min-h-0 flex-1 overflow-auto overscroll-contain',
+            'h-full min-h-0 flex-1 overflow-auto overscroll-contain',
             // Gradient fade effect
             fade && 'scroll-area-viewport',
             // Scroll snap

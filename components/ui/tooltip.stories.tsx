@@ -1,11 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import Button from './Button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from './tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip';
 
 const meta = {
   title: 'UI/Tooltip',
@@ -20,13 +15,6 @@ const meta = {
       description: 'Whether the tooltip is open by default',
     },
   },
-  decorators: [
-    (Story) => (
-      <TooltipProvider>
-        <Story />
-      </TooltipProvider>
-    ),
-  ],
 } satisfies Meta<typeof Tooltip>;
 
 export default meta;

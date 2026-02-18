@@ -144,49 +144,54 @@ function CollectionContent<T extends Record<string, unknown>>({
         <FilterManagerContext.Provider value={filterManager}>
           <CollectionIdContext.Provider value={collectionId}>
             {children}
-            <ScrollArea
+            <div
               className={className}
-              ref={mergedRef}
-              id={collectionId}
-              aria-label={ariaLabel}
-              aria-labelledby={ariaLabelledBy}
-              aria-multiselectable={selectionMode === 'multiple' || undefined}
-              aria-activedescendant={
-                selectionManager.focusedKey !== null
-                  ? `${collectionId}-item-${selectionManager.focusedKey}`
-                  : undefined
-              }
-              data-drop-target-over={dropState?.isOver}
-              data-drop-target-valid={dropState?.willAccept}
-              data-dragging={dropState?.isDragging}
-              {...collectionProps}
-              {...restDndProps}
+              data-drop-target-over={dropState?.isOver ?? undefined}
+              data-drop-target-valid={dropState?.willAccept ?? undefined}
+              data-dragging={dropState?.isDragging ?? undefined}
             >
-              {virtualized ? (
-                <VirtualizedRenderer
-                  layout={layout}
-                  collection={collection}
-                  renderItem={renderItem}
-                  animate={animate}
-                  collectionId={collectionId}
-                  dragAndDropHooks={dragAndDropHooks}
-                  scrollRef={containerRef}
-                  overscan={overscan}
-                />
-              ) : (
-                <StaticRenderer
-                  layout={layout}
-                  collection={collection}
-                  renderItem={renderItem}
-                  animate={animate}
-                  collectionId={collectionId}
-                  dragAndDropHooks={dragAndDropHooks}
-                />
-              )}
-              {collection.size === 0 && (
-                <div className="text-center text-current/70">{emptyState}</div>
-              )}
-            </ScrollArea>
+              <ScrollArea
+                ref={mergedRef}
+                id={collectionId}
+                aria-label={ariaLabel}
+                aria-labelledby={ariaLabelledBy}
+                aria-multiselectable={selectionMode === 'multiple' || undefined}
+                aria-activedescendant={
+                  selectionManager.focusedKey !== null
+                    ? `${collectionId}-item-${selectionManager.focusedKey}`
+                    : undefined
+                }
+                {...collectionProps}
+                {...restDndProps}
+              >
+                {virtualized ? (
+                  <VirtualizedRenderer
+                    layout={layout}
+                    collection={collection}
+                    renderItem={renderItem}
+                    animate={animate}
+                    collectionId={collectionId}
+                    dragAndDropHooks={dragAndDropHooks}
+                    scrollRef={containerRef}
+                    overscan={overscan}
+                  />
+                ) : (
+                  <StaticRenderer
+                    layout={layout}
+                    collection={collection}
+                    renderItem={renderItem}
+                    animate={animate}
+                    collectionId={collectionId}
+                    dragAndDropHooks={dragAndDropHooks}
+                  />
+                )}
+                {collection.size === 0 && (
+                  <div className="text-center text-current/70">
+                    {emptyState}
+                  </div>
+                )}
+              </ScrollArea>
+            </div>
           </CollectionIdContext.Provider>
         </FilterManagerContext.Provider>
       </SortManagerContext.Provider>
