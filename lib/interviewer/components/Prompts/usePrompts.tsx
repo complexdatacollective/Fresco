@@ -1,16 +1,33 @@
 import {
   type EntityDefinition,
   type Prompt,
+  type SortOrder,
 } from '@codaco/protocol-validation';
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updatePrompt } from '../../ducks/modules/session';
-import { getAllVariableUUIDsByEntity } from '../../selectors/protocol';
-import { getPromptIndex, getPrompts } from '../../selectors/session';
+import { updatePrompt } from '~/lib/interviewer/ducks/modules/session';
+import { getAllVariableUUIDsByEntity } from '~/lib/interviewer/selectors/protocol';
+import {
+  getPromptIndex,
+  getPrompts,
+} from '~/lib/interviewer/selectors/session';
 import {
   type ProcessedSortRule,
   processProtocolSortRule,
-} from '../../utils/createSorter';
+} from '~/lib/interviewer/utils/createSorter';
+
+function isSortOrder(value: unknown): value is SortOrder {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (item: unknown) =>
+        typeof item === 'object' &&
+        item !== null &&
+        'property' in item &&
+        'direction' in item,
+    )
+  );
+}
 
 const processSortRules = (
   prompts: Prompt[] | null,
@@ -33,7 +50,7 @@ const processSortRules = (
     sortProperties.forEach((property) => {
       if (property in prompt) {
         const sortRules = prompt[property as keyof Prompt];
-        if (sortRules) {
+        if (isSortOrder(sortRules)) {
           sortOptions[property] = sortRules.map(ruleProcessor);
         }
       }
@@ -82,7 +99,9 @@ const processSortRules = (
  * updatePrompt,
  * } = usePrompts();
  */
-export const usePrompts = <T extends Prompt>() => {
+export const usePrompts = <
+  T extends Record<string, unknown> = Record<string, unknown>,
+>() => {
   const dispatch = useDispatch();
   const setPrompt = useCallback(
     (promptIndex: number) => dispatch(updatePrompt(promptIndex)),
@@ -108,13 +127,14 @@ export const usePrompts = <T extends Prompt>() => {
     );
   };
 
-  const currentPrompt = () => {
-    return (processedPrompts[promptIndex] ?? { id: null }) as unknown as T;
-  };
+  const prompt = (processedPrompts[promptIndex] ?? {
+    id: '',
+    text: '',
+  }) as Prompt & T;
 
   return {
     promptIndex,
-    prompt: currentPrompt(),
+    prompt,
     prompts: processedPrompts,
     promptForward,
     promptBackward,

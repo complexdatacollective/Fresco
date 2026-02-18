@@ -2,6 +2,7 @@ import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
   type NcNode,
+  type VariableValue,
 } from '@codaco/shared-consts';
 import { describe, expect, it } from 'vitest';
 import { groupNodesByVariable } from '~/lib/interviewer/Interfaces/Narrative/ConvexHullLayer';
@@ -10,7 +11,7 @@ type CategoricalOption = { value: number; label: string };
 
 function makeNode(
   id: string,
-  attributes: Record<string, unknown> = {},
+  attributes: Record<string, VariableValue> = {},
 ): NcNode {
   return {
     [entityPrimaryKeyProperty]: id,

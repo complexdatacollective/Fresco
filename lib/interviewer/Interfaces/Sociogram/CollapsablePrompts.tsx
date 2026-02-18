@@ -1,11 +1,13 @@
-import { type RefObject } from 'react';
+import { type ReactNode, type RefObject } from 'react';
 import { MotionSurface } from '~/components/layout/Surface';
 import Prompts from '~/lib/interviewer/components/Prompts';
 
 const CollapsablePrompts = (props: {
   dragConstraints: RefObject<HTMLElement | null>;
+  children?: ReactNode;
+  currentPromptIndex?: number;
 }) => {
-  const { dragConstraints } = props;
+  const { dragConstraints, children } = props;
 
   return (
     <MotionSurface
@@ -17,6 +19,7 @@ const CollapsablePrompts = (props: {
       spacing="sm"
     >
       <Prompts small />
+      {children}
     </MotionSurface>
   );
 };

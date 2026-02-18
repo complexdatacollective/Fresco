@@ -153,7 +153,7 @@ function SlidesFormInner({
   };
 
   const parentClasses = cx(
-    'flex h-full flex-col items-center justify-center',
+    'interface flex h-full flex-col items-center justify-center',
     parentClass,
   );
 

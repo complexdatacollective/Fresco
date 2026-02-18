@@ -3,9 +3,10 @@
 import { type Middleware } from '@reduxjs/toolkit';
 import { debounce, isEqual, omit } from 'es-toolkit';
 import posthog from 'posthog-js';
-import { type RootState } from '~/lib/interviewer/store';
+import { type SessionState } from '~/lib/interviewer/ducks/modules/session';
 import { ensureError } from '~/utils/ensureError';
-import { type SessionState } from '../ducks/modules/session';
+
+type SyncMiddlewareState = { session: SessionState };
 
 const syncFn = async (id: string, data: SessionState) => {
   // eslint-disable-next-line no-console
@@ -30,12 +31,10 @@ const sessionChanged = (a: SessionState, b: SessionState) =>
   !isEqual(omit(a, ['promptIndex']), omit(b, ['promptIndex']));
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export const createSyncMiddleware = (): Middleware<{}, RootState> => {
-  // Tracks the state that was last sent to the server, so we only sync
-  // when there are genuinely unsynced changes.
+export const createSyncMiddleware = (): Middleware<{}, SyncMiddlewareState> => {
   let lastSyncedState = {} as SessionState;
   let isSyncing = false;
-  let storeRef: { getState: () => RootState } | null = null;
+  let storeRef: { getState: () => SyncMiddlewareState } | null = null;
 
   const doSync = () => {
     if (isSyncing || !storeRef) return;

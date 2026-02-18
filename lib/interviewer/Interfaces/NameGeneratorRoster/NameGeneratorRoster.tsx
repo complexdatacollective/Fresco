@@ -34,9 +34,8 @@ import {
 import { type NameGeneratorRosterProps } from './helpers';
 import useItems, { type UseItemElement } from './useItems';
 
-function DataCard(props: { item: UseItemElement }) {
-  const { item } = props;
-  const label = item.data[entityAttributesProperty]?.name || item.id;
+function DataCard(props: UseItemElement['props']) {
+  const { label } = props;
 
   return (
     <div className="card">

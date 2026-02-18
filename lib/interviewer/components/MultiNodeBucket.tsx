@@ -1,7 +1,7 @@
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { isEqual } from 'es-toolkit';
 import { AnimatePresence, motion } from 'motion/react';
-import { memo, useEffect, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo } from 'react';
 import { useDragSource } from '~/lib/dnd';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import createSorter, { type ProcessedSortRule } from '../utils/createSorter';
@@ -48,8 +48,6 @@ type MultiNodeBucketProps = {
 const MultiNodeBucket = memo(
   (props: MultiNodeBucketProps) => {
     const { nodes = [], sortOrder = [], itemType = 'NODE', nodeSize } = props;
-
-    const [stagger] = useState(true);
 
     const sorter = useMemo(() => createSorter<NcNode>(sortOrder), [sortOrder]);
     const sortedNodes = sorter(nodes);

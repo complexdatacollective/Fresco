@@ -98,30 +98,32 @@ export default function LikertScaleField(props: LikertScaleFieldProps) {
           </Slider.Control>
         </Slider.Root>
 
-        <div className="relative mt-2">
+        <div
+          className="mt-2 grid"
+          style={{
+            gridTemplateColumns:
+              options.length <= 2
+                ? `repeat(${options.length}, 1fr)`
+                : `0.5fr repeat(${options.length - 2}, 1fr) 0.5fr`,
+          }}
+        >
           {options.map((option, index) => {
             const isFirst = index === 0;
             const isLast = index === options.length - 1;
-            const percentage =
-              options.length > 1
-                ? (index / Math.max(1, options.length - 1)) * 100
-                : 50;
 
             return (
               <div
                 key={index}
                 className={cx(
-                  'absolute max-w-20 text-sm leading-tight text-current/70',
-                  isFirst ? 'text-left' : isLast ? 'text-right' : 'text-center',
+                  'text-sm leading-tight text-current/70',
+                  options.length === 1
+                    ? 'text-center'
+                    : isFirst
+                      ? 'text-left'
+                      : isLast
+                        ? 'text-right'
+                        : 'text-center',
                 )}
-                style={{
-                  left: `${percentage}%`,
-                  transform: isFirst
-                    ? 'translateX(0)'
-                    : isLast
-                      ? 'translateX(-100%)'
-                      : 'translateX(-50%)',
-                }}
               >
                 <RenderMarkdown>{option.label}</RenderMarkdown>
               </div>

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import customIcons from '~/lib/legacy-ui/components/icons';
+import customIcons from '~/lib/interviewer/components/icons';
 import Icon, { type InterviewerIconName } from './Icon';
 
 const meta = {

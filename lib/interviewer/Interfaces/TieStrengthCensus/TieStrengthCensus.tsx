@@ -17,6 +17,7 @@ import {
   getNetworkNodesForType,
 } from '~/lib/interviewer/selectors/session';
 import { cx } from '~/utils/cva';
+import BooleanOption from '~/lib/interviewer/components/BooleanOption';
 import useAutoAdvance from '../DyadCensus/useAutoAdvance';
 import useEdgeState from '../DyadCensus/useEdgeState';
 import useSteps from '../DyadCensus/useSteps';

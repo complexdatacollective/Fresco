@@ -1,4 +1,8 @@
-import { configureStore, createAction } from '@reduxjs/toolkit';
+import {
+  configureStore,
+  createAction,
+  type UnknownAction,
+} from '@reduxjs/toolkit';
 import {
   afterEach,
   beforeEach,
@@ -12,6 +16,12 @@ import { type SessionState } from '~/lib/interviewer/ducks/modules/session';
 import { createSyncMiddleware } from '~/lib/interviewer/middleware/syncMiddleware';
 
 // --- Helpers ---
+
+type FetchInit = { body: string };
+
+function parseFetchBody(call: unknown[]): Record<string, unknown> {
+  return JSON.parse((call[1] as FetchInit).body) as Record<string, unknown>;
+}
 
 function makeSession(overrides: Partial<SessionState> = {}): SessionState {
   return {
@@ -37,8 +47,8 @@ function createTestStore(
   return configureStore({
     reducer: {
       session: (
-        state: SessionState = session,
-        action: ReturnType<typeof mutateSession>,
+        state: SessionState | undefined = session,
+        action: UnknownAction,
       ) => {
         if (mutateSession.match(action)) {
           return { ...state, ...action.payload };
@@ -62,8 +72,8 @@ beforeEach(() => {
   fetchMock = vi.fn().mockResolvedValue({ ok: true });
   vi.stubGlobal('fetch', fetchMock);
   // Suppress console noise from syncFn
-  vi.spyOn(console, 'log').mockImplementation(() => {});
-  vi.spyOn(console, 'error').mockImplementation(() => {});
+  vi.spyOn(console, 'log').mockImplementation(vi.fn());
+  vi.spyOn(console, 'error').mockImplementation(vi.fn());
 
   middleware = createSyncMiddleware();
 });
@@ -85,7 +95,7 @@ describe('syncMiddleware', () => {
     await vi.advanceTimersByTimeAsync(0);
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    const body = JSON.parse(fetchMock.mock.calls[0]![1].body as string);
+    const body = parseFetchBody(fetchMock.mock.calls[0]!);
     expect(body.currentStep).toBe(1);
   });
 
@@ -118,7 +128,7 @@ describe('syncMiddleware', () => {
     await vi.advanceTimersByTimeAsync(3000);
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    const trailingBody = JSON.parse(fetchMock.mock.calls[1]![1].body as string);
+    const trailingBody = parseFetchBody(fetchMock.mock.calls[1]!);
     expect(trailingBody.currentStep).toBe(3);
   });
 
@@ -151,7 +161,7 @@ describe('syncMiddleware', () => {
     // Advance past the debounce window so the trailing edge fires
     await vi.advanceTimersByTimeAsync(3000);
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    const followUpBody = JSON.parse(fetchMock.mock.calls[1]![1].body as string);
+    const followUpBody = parseFetchBody(fetchMock.mock.calls[1]!);
     expect(followUpBody.currentStep).toBe(2);
   });
 
@@ -181,8 +191,7 @@ describe('syncMiddleware', () => {
     await vi.advanceTimersByTimeAsync(3000);
 
     // The trailing edge should have the latest state (currentStep: 5)
-    const lastCall = fetchMock.mock.calls.at(-1)!;
-    const body = JSON.parse(lastCall[1].body as string);
+    const body = parseFetchBody(fetchMock.mock.calls.at(-1)!);
     expect(body.currentStep).toBe(5);
   });
 
@@ -207,7 +216,7 @@ describe('syncMiddleware', () => {
     await vi.advanceTimersByTimeAsync(0);
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    const body = JSON.parse(fetchMock.mock.calls[1]![1].body as string);
+    const body = parseFetchBody(fetchMock.mock.calls[1]!);
     expect(body.id).toBe('interview-2');
   });
 
@@ -271,17 +280,21 @@ describe('syncMiddleware', () => {
 
     // The trailing from the first cycle may fire, but the second dispatch
     // should not produce an additional sync because the values match.
-    const syncCallsWithStep1 = fetchMock.mock.calls.filter((call) => {
-      const body = JSON.parse(call[1].body as string);
-      return body.currentStep === 1;
-    });
+    const syncCallsWithStep1 = fetchMock.mock.calls.filter(
+      (call: unknown[]) => {
+        const body = parseFetchBody(call);
+        return body.currentStep === 1;
+      },
+    );
     // At most the leading + trailing of the first cycle
     expect(syncCallsWithStep1.length).toBeLessThanOrEqual(2);
 
     // No call should have been made for the second dispatch
-    const allBodies = fetchMock.mock.calls.map((call) =>
-      JSON.parse(call[1].body as string),
+    const allBodies = fetchMock.mock.calls.map((call: unknown[]) =>
+      parseFetchBody(call),
     );
-    expect(allBodies.every((b) => b.currentStep === 1)).toBe(true);
+    expect(
+      allBodies.every((b: Record<string, unknown>) => b.currentStep === 1),
+    ).toBe(true);
   });
 });

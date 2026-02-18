@@ -67,6 +67,14 @@ const agreementOptions = [
   { label: 'Strongly Agree', value: 5 },
 ];
 
+const longLabelOptions = [
+  { label: 'Completely disagree with this statement', value: 1 },
+  { label: 'Somewhat disagree', value: 2 },
+  { label: 'Neither agree nor disagree with the premise', value: 3 },
+  { label: 'Somewhat agree', value: 4 },
+  { label: 'Completely agree with this statement', value: 5 },
+];
+
 export const Default: Story = {
   args: {
     'options': agreementOptions,
@@ -94,6 +102,41 @@ export const Default: Story = {
             args.onChange?.(newValue);
           }}
         />
+      </div>
+    );
+  },
+};
+
+export const LongLabels: Story = {
+  args: {
+    'options': longLabelOptions,
+    'value': 3,
+    'disabled': false,
+    'readOnly': false,
+    'aria-invalid': false,
+  },
+  render: (args) => {
+    const [value, setValue] = useState<string | number | undefined>(
+      args.value ?? 3,
+    );
+
+    useEffect(() => {
+      setValue(args.value ?? 3);
+    }, [args.value]);
+
+    return (
+      <div className="w-xl">
+        <LikertScaleField
+          {...args}
+          value={value}
+          onChange={(newValue) => {
+            setValue(newValue);
+            args.onChange?.(newValue);
+          }}
+        />
+        <p className="mt-4 text-sm text-current/50">
+          This text should not overlap with the labels above.
+        </p>
       </div>
     );
   },

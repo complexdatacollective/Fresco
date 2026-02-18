@@ -760,6 +760,7 @@ function VirtualizedStoryRender({
 
 export const VirtualizedRendererStory = meta.story({
   name: 'Virtualized (Large Lists)',
+  tags: ['!test'],
   args: {
     itemCount: 1000,
     layoutType: 'list',
@@ -1562,6 +1563,7 @@ function LargeListFilteringDemo({
 
 export const LargeListFilteringStory = meta.story({
   name: 'Filtering - Large List (Web Worker)',
+  tags: ['!test'],
   args: {
     gap: 4,
     itemCount: 5000,

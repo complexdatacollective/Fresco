@@ -15,6 +15,7 @@ import {
   getNetworkNodesForType,
 } from '~/lib/interviewer/selectors/session';
 import { cx } from '~/utils/cva';
+import BooleanOption from '~/lib/interviewer/components/BooleanOption';
 import Pair from './components/Pair';
 import { getNodePair, getPairs } from './helpers';
 import useAutoAdvance from './useAutoAdvance';

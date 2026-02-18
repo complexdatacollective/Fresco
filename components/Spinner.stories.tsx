@@ -242,7 +242,7 @@ export const AnimationModes: Story = {
     const [controlledAnimating, setControlledAnimating] = useState(true);
 
     return (
-      <div className="grid grid-cols-2 gap-12 lg:grid-cols-4">
+      <div className="tablet-portrait:grid-cols-4 grid grid-cols-2 gap-12">
         <div className="flex flex-col items-center gap-4">
           <Spinner size="md" animationMode="infinite" />
           <span className="text-xs font-medium">infinite</span>

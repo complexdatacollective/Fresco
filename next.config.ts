@@ -38,7 +38,7 @@ const config: NextConfig = {
   // cacheHandlers (plural) intercepts 'use cache' directives.
   // See lib/cache-handler.cjs and lib/cache.ts for caching strategy docs.
   cacheHandlers: disableNextCache
-    ? { default: require.resolve('./lib/cache-handler.cjs') }
+    ? { default: require.resolve('./lib/cache/cache-handler.cjs') }
     : undefined,
   cacheComponents: true,
   typedRoutes: true,

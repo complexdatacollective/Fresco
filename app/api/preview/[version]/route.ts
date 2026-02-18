@@ -1,5 +1,5 @@
 import { type HTTP_METHOD } from 'next/dist/server/web/http';
-import { NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { v1 } from './_handlers/v1/handler';
 import { corsHeaders } from './_handlers/v1/helpers';
 
@@ -11,7 +11,7 @@ export function OPTIONS() {
   });
 }
 
-type Handler = (request: Request) => Response | Promise<Response>;
+type Handler = (request: NextRequest) => Response | Promise<Response>;
 
 const handlers: Record<string, Record<string, Handler>> = {
   v1: { POST: v1 },
@@ -19,7 +19,7 @@ const handlers: Record<string, Record<string, Handler>> = {
 
 function createVersionedHandler(method: HTTP_METHOD) {
   return async (
-    request: Request,
+    request: NextRequest,
     { params }: { params: Promise<{ version: string }> },
   ) => {
     const { version } = await params;

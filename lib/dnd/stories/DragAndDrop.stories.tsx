@@ -5,7 +5,7 @@ import { Collection } from '~/lib/collection/components/Collection';
 import { useDragAndDrop } from '~/lib/collection/dnd/useDragAndDrop';
 import { InlineGridLayout } from '~/lib/collection/layout/InlineGridLayout';
 import { type DragMetadata } from '~/lib/dnd';
-import { Node } from '~/lib/legacy-ui/components';
+import Node from '~/components/Node';
 
 type Item = {
   id: string;

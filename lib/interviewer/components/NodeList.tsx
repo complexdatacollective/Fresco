@@ -44,7 +44,7 @@ const NodeList = memo(
     itemType = 'NODE',
     accepts,
     onDrop,
-    onItemClick,
+    onItemClick: _onItemClick,
     nodeSize = 'md',
     className,
     animate = true,
