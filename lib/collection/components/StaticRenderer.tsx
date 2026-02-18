@@ -1,11 +1,4 @@
-import {
-  AnimatePresence,
-  LayoutGroup,
-  motion,
-  stagger,
-  useAnimate,
-} from 'motion/react';
-import { useEffect, useRef } from 'react';
+import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import { type Layout } from '../layout/Layout';
 import {
   type Collection,
@@ -13,6 +6,7 @@ import {
   type ItemRenderer,
 } from '../types';
 import { CollectionItem } from './CollectionItem';
+import { useStaggerAnimation } from '../hooks/useStaggerAnimation';
 
 type StaticRendererProps<T> = {
   layout: Layout<T>;
@@ -22,10 +16,6 @@ type StaticRendererProps<T> = {
   animate?: boolean;
   collectionId: string;
 };
-
-const ANIMATION_CONFIG = {
-  staggerDelay: 0.05,
-} as const;
 
 /**
  * Non-virtualized renderer that renders all items using CSS Grid/Flexbox.
@@ -44,33 +34,7 @@ export function StaticRenderer<T>({
   // Get CSS styles from layout (flexbox for list, CSS grid for grid)
   const containerStyle = layout.getContainerStyles();
 
-  // Setup animation using imperative useAnimate API
-  const [scope, animate] = useAnimate<HTMLDivElement>();
-  const hasAnimatedRef = useRef(false);
-
-  // Run stagger animation on mount
-  useEffect(() => {
-    if (!shouldAnimate || hasAnimatedRef.current || collection.size === 0) {
-      return;
-    }
-
-    hasAnimatedRef.current = true;
-
-    const runAnimation = async () => {
-      await animate(
-        '[data-stagger-item]',
-        { opacity: [0, 1], y: ['20%', '0%'], scale: [0.6, 1] },
-        {
-          type: 'spring',
-          stiffness: 500,
-          damping: 20,
-          delay: stagger(ANIMATION_CONFIG.staggerDelay),
-        },
-      );
-    };
-
-    void runAnimation();
-  }, [animate, shouldAnimate, collection.size]);
+  const scope = useStaggerAnimation(shouldAnimate ?? false, collection.size);
 
   // Get layout item styles (e.g., fixed width for InlineGridLayout)
   const layoutItemStyle = layout.getItemStyles();

@@ -1,17 +1,11 @@
 'use client';
 
-import {
-  AnimatePresence,
-  LayoutGroup,
-  stagger,
-  useAnimate,
-} from 'motion/react';
+import { AnimatePresence, LayoutGroup } from 'motion/react';
 import {
   type RefObject,
   useEffect,
   useLayoutEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import { useSelectionManager } from '../contexts';
@@ -23,11 +17,8 @@ import {
   type CollectionProps,
   type ItemRenderer,
 } from '../types';
+import { useStaggerAnimation } from '../hooks/useStaggerAnimation';
 import { CollectionItem } from './CollectionItem';
-
-const ANIMATION_CONFIG = {
-  staggerDelay: 0.05,
-} as const;
 
 type VirtualizedRendererProps<T> = {
   layout: Layout<T>;
@@ -181,38 +172,13 @@ export function VirtualizedRenderer<T>({
     height: 'auto',
   };
 
-  // Setup animation using imperative useAnimate API
-  const [scope, animate] = useAnimate<HTMLDivElement>();
-  const hasAnimatedRef = useRef(false);
+  // Calculate visible item count for stagger animation
+  const visibleItemCount = virtualItems.reduce(
+    (sum, { row }) => sum + row.itemKeys.length,
+    0,
+  );
 
-  // Run stagger animation on mount - only after items are actually rendered
-  useEffect(() => {
-    if (
-      !shouldAnimate ||
-      hasAnimatedRef.current ||
-      collection.size === 0 ||
-      virtualItems.length === 0
-    ) {
-      return;
-    }
-
-    hasAnimatedRef.current = true;
-
-    const runAnimation = async () => {
-      await animate(
-        '[data-stagger-item]',
-        { opacity: [0, 1], y: ['20%', '0%'], scale: [0.6, 1] },
-        {
-          type: 'spring',
-          stiffness: 500,
-          damping: 20,
-          delay: stagger(ANIMATION_CONFIG.staggerDelay),
-        },
-      );
-    };
-
-    void runAnimation();
-  }, [animate, shouldAnimate, collection.size, virtualItems.length]);
+  const scope = useStaggerAnimation(shouldAnimate ?? false, visibleItemCount);
 
   return (
     <>
