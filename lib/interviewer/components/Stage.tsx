@@ -1,6 +1,5 @@
 import type { Stage as TStage } from '@codaco/protocol-validation';
-import { type ElementType, Suspense } from 'react';
-import Spinner from '~/components/Spinner';
+import { type ElementType } from 'react';
 import getInterface from '../Interfaces';
 import type { BeforeNextFunction } from './ProtocolScreen';
 import StageErrorBoundary from './StageErrorBoundary';
@@ -26,22 +25,14 @@ function Stage(props: StageProps) {
       key={stage.id}
     >
       <StageErrorBoundary>
-        <Suspense
-          fallback={
-            <div className="flex size-full items-center justify-center">
-              <Spinner size="lg" />
-            </div>
-          }
-        >
-          {CurrentInterface && (
-            <CurrentInterface
-              key={stage.id}
-              registerBeforeNext={registerBeforeNext}
-              stage={stage}
-              getNavigationHelpers={getNavigationHelpers}
-            />
-          )}
-        </Suspense>
+        {CurrentInterface && (
+          <CurrentInterface
+            key={stage.id}
+            registerBeforeNext={registerBeforeNext}
+            stage={stage}
+            getNavigationHelpers={getNavigationHelpers}
+          />
+        )}
       </StageErrorBoundary>
     </div>
   );

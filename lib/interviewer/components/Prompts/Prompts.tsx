@@ -8,6 +8,11 @@ import { cx } from '~/utils/cva';
 import Pips from './Pips';
 import Prompt from './Prompt';
 
+const containerVariants = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { when: 'beforeChildren' as const } },
+};
+
 type PromptsProps = {
   prompts: TPrompt[];
   currentPromptId?: string;
@@ -45,11 +50,6 @@ const Prompts = ({
     'text-surface-contrast flex w-full flex-col items-center leading-tight font-normal text-balance',
     className,
   );
-
-  const containerVariants = {
-    initial: { opacity: 0 },
-    animate: { opacity: 1, transition: { when: 'beforeChildren' as const } },
-  };
 
   return (
     <motion.div

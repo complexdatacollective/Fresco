@@ -40,10 +40,10 @@ const nodeVariants = cva({
   variants: {
     size: {
       xxs: 'size-8',
-      xs: 'size-18',
-      sm: 'size-24',
-      md: 'size-30',
-      lg: 'size-36',
+      xs: 'desktop:size-18 tablet:size-16 size-14',
+      sm: 'desktop:size-24 tablet:size-22 size-20',
+      md: 'desktop:size-30 tablet:size-28 size-24',
+      lg: 'desktop:size-36 tablet:size-34 size-30',
     },
     shape: {
       circle: 'rounded-full',

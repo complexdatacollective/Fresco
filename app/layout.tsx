@@ -1,4 +1,4 @@
-import { type Metadata } from 'next';
+import { type Metadata, type Viewport } from 'next';
 import Providers from '~/components/Providers';
 import { env } from '~/env';
 import { getDisableAnalytics, getInstallationId } from '~/queries/appSettings';
@@ -8,6 +8,14 @@ import '~/styles/themes/default.css';
 export const metadata: Metadata = {
   title: 'Network Canvas Fresco',
   description: 'Fresco.',
+};
+
+export const viewport: Viewport = {
+  // width: 'device-width',
+  // initialScale: 1,
+  // maximumScale: 1,
+  // userScalable: false,
+  viewportFit: 'cover',
 };
 
 async function RootLayout({ children }: { children: React.ReactNode }) {

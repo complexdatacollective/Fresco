@@ -4,7 +4,13 @@
 import { invariant } from 'es-toolkit';
 import { AnimatePresence, motion } from 'motion/react';
 import { parseAsInteger, useQueryState } from 'nuqs';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import useMediaQuery from '~/hooks/useMediaQuery';
 import { cx } from '~/utils/cva';
@@ -51,10 +57,17 @@ export default function ProtocolScreen() {
   );
   const [forceNavigationDisabled, setForceNavigationDisabled] = useState(false);
 
-  // Two-phase navigation state
-  const [showStage, setShowStage] = useState(true);
+  // Two-phase navigation state.
+  // Starts false so that AnimatePresence sees the first child as "entering"
+  // rather than "appearing", which enables variant propagation to descendants.
+  const [showStage, setShowStage] = useState(false);
   const pendingStepRef = useRef<number | null>(null);
   const isTransitioningRef = useRef(false);
+
+  // Show the stage on mount (before paint so there's no visual delay).
+  useLayoutEffect(() => {
+    setShowStage(true);
+  }, []);
 
   // Selectors
   const stage = useSelector(getCurrentStage); // null = loading, undefined = not found
@@ -260,13 +273,11 @@ export default function ProtocolScreen() {
     : 'vertical';
 
   return (
-    <motion.div
+    <div
       className={cx(
         'relative flex size-full flex-1 overflow-hidden',
         isPortraitAspectRatio ? 'flex-col' : 'flex-row-reverse',
       )}
-      initial="initial"
-      animate="animate"
     >
       <AnimatePresence mode="wait" onExitComplete={handleExitComplete}>
         {showStage && stage && (
@@ -301,6 +312,6 @@ export default function ProtocolScreen() {
         progress={progress}
         orientation={navigationOrientation}
       />
-    </motion.div>
+    </div>
   );
 }

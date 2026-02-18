@@ -10,6 +10,7 @@ import { MotionSurface } from '~/components/layout/Surface';
 import { IconButton } from '~/components/ui/Button';
 import ProgressBar from '~/components/ui/ProgressBar';
 import { cva, cx } from '~/utils/cva';
+import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import PassphrasePrompter from './PassphrasePrompter';
 
 const variants = {
@@ -28,23 +29,23 @@ const containerVariants = {
   initial: (orientation: 'vertical' | 'horizontal') => ({
     opacity: 0,
     x: orientation === 'vertical' ? '-100%' : 0,
-    y: orientation === 'horizontal' ? '-100%' : 0,
+    y: orientation === 'horizontal' ? '100%' : 0,
   }),
-  animate: {
+  animate: () => ({
     opacity: 1,
     y: 0,
     x: 0,
     transition: {
       when: 'beforeChildren',
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 100,
       damping: 20,
     },
-  },
+  }),
   exit: (orientation: 'vertical' | 'horizontal') => ({
     opacity: 0,
     x: orientation === 'vertical' ? '-100%' : 0,
-    y: orientation === 'horizontal' ? '-100%' : 0,
+    y: orientation === 'horizontal' ? '100%' : 0,
     transition: { when: 'afterChildren' },
   }),
 };
@@ -124,6 +125,9 @@ const Navigation = ({
       noContainer
       variants={containerVariants}
       custom={orientation}
+      initial="initial"
+      animate="animate"
+      exit="exit"
     >
       <NavigationButton
         onClick={moveBackward}
@@ -152,4 +156,4 @@ const Navigation = ({
   );
 };
 
-export default Navigation;
+export default withNoSSRWrapper(Navigation);

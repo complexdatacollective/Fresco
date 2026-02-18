@@ -1,9 +1,32 @@
+// Interfaces are imported eagerly (not via React.lazy) so they render
+// synchronously in the same React commit as the stage's motion.div wrapper.
+// Lazy loading caused variant propagation to fail on first load: the parent's
+// initial→animate transition would start (and complete) while the lazy module
+// was still being fetched, so descendants like Prompts never received the
+// "initial" variant and skipped their enter animation entirely.
 /* eslint-disable react/display-name */
 import { type StageType } from '@codaco/protocol-validation';
-import { lazy } from 'react';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Icon from '~/components/ui/Icon';
+import AlterEdgeForm from './AlterEdgeForm';
+import AlterForm from './AlterForm';
+import Anonymisation from './Anonymisation/Anonymisation';
+import CategoricalBin from './CategoricalBin';
+import DyadCensus from './DyadCensus/DyadCensus';
+import EgoForm from './EgoForm';
+import FamilyTreeCensus from './FamilyTreeCensus/FamilyTreeCensus';
+import FinishSession from './FinishSession';
+import Geospatial from './Geospatial/Geospatial';
+import Information from './Information';
+import NameGenerator from './NameGenerator/NameGenerator';
+import NameGeneratorQuickAdd from './NameGenerator/NameGeneratorQuickAdd';
+import NameGeneratorRoster from './NameGeneratorRoster';
+import Narrative from './Narrative/Narrative';
+import OrdinalBin from './OrdinalBin/OrdinalBin';
+import Sociogram from './Sociogram/Sociogram';
+import TieStrengthCensus from './TieStrengthCensus/TieStrengthCensus';
+import OneToManyDyadCensus from './OneToManyDyadCensus';
 
 const NotFoundInterface = ({ interfaceType }: { interfaceType: string }) => (
   <Surface>
@@ -18,69 +41,44 @@ const NotFoundInterface = ({ interfaceType }: { interfaceType: string }) => (
 
 type InterfaceType = StageType | 'FinishSession';
 
-const LazyNameGenerator = lazy(() => import('./NameGenerator/NameGenerator'));
-const LazyNameGeneratorQuickAdd = lazy(
-  () => import('./NameGenerator/NameGeneratorQuickAdd'),
-);
-const LazyNameGeneratorRoster = lazy(() => import('./NameGeneratorRoster'));
-const LazySociogram = lazy(() => import('./Sociogram/Sociogram'));
-const LazyInformation = lazy(() => import('./Information'));
-const LazyOrdinalBin = lazy(() => import('./OrdinalBin/OrdinalBin'));
-const LazyCategoricalBin = lazy(() => import('./CategoricalBin'));
-const LazyNarrative = lazy(() => import('./Narrative/Narrative'));
-const LazyAlterForm = lazy(() => import('./AlterForm'));
-const LazyEgoForm = lazy(() => import('./EgoForm'));
-const LazyAlterEdgeForm = lazy(() => import('./AlterEdgeForm'));
-const LazyDyadCensus = lazy(() => import('./DyadCensus/DyadCensus'));
-const LazyTieStrengthCensus = lazy(
-  () => import('./TieStrengthCensus/TieStrengthCensus'),
-);
-const LazyAnonymisation = lazy(() => import('./Anonymisation/Anonymisation'));
-const LazyOneToManyDyadCensus = lazy(() => import('./OneToManyDyadCensus'));
-const LazyGeospatial = lazy(() => import('./Geospatial/Geospatial'));
-const LazyFinishSession = lazy(() => import('./FinishSession'));
-const LazyFamilyTreeCensus = lazy(
-  () => import('./FamilyTreeCensus/FamilyTreeCensus'),
-);
-
 const getInterface = (interfaceType: InterfaceType) => {
   switch (interfaceType) {
     case 'NameGenerator':
-      return LazyNameGenerator;
+      return NameGenerator;
     case 'NameGeneratorQuickAdd':
-      return LazyNameGeneratorQuickAdd;
+      return NameGeneratorQuickAdd;
     case 'NameGeneratorRoster':
-      return LazyNameGeneratorRoster;
+      return NameGeneratorRoster;
     case 'Sociogram':
-      return LazySociogram;
+      return Sociogram;
     case 'Information':
-      return LazyInformation;
+      return Information;
     case 'OrdinalBin':
-      return LazyOrdinalBin;
+      return OrdinalBin;
     case 'CategoricalBin':
-      return LazyCategoricalBin;
+      return CategoricalBin;
     case 'Narrative':
-      return LazyNarrative;
+      return Narrative;
     case 'AlterForm':
-      return LazyAlterForm;
+      return AlterForm;
     case 'EgoForm':
-      return LazyEgoForm;
+      return EgoForm;
     case 'AlterEdgeForm':
-      return LazyAlterEdgeForm;
+      return AlterEdgeForm;
     case 'DyadCensus':
-      return LazyDyadCensus;
+      return DyadCensus;
     case 'TieStrengthCensus':
-      return LazyTieStrengthCensus;
+      return TieStrengthCensus;
     case 'Anonymisation':
-      return LazyAnonymisation;
+      return Anonymisation;
     case 'OneToManyDyadCensus':
-      return LazyOneToManyDyadCensus;
+      return OneToManyDyadCensus;
     case 'Geospatial':
-      return LazyGeospatial;
+      return Geospatial;
     case 'FinishSession':
-      return LazyFinishSession;
+      return FinishSession;
     case 'FamilyTreeCensus':
-      return LazyFamilyTreeCensus;
+      return FamilyTreeCensus;
     default:
       return () => <NotFoundInterface interfaceType={interfaceType} />;
   }
