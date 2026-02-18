@@ -21,7 +21,7 @@ import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { type RootState } from '~/lib/interviewer/store';
-import { type Direction } from '../../components/ProtocolScreen';
+import { type Direction } from '~/lib/interviewer/types';
 import { useMapbox } from './useMapbox';
 
 const introVariants = {

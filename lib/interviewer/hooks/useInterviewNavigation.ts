@@ -1,8 +1,6 @@
 'use client';
-'use no memo';
 
 import { invariant } from 'es-toolkit';
-import { AnimatePresence, motion } from 'motion/react';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import {
   type ElementType,
@@ -13,53 +11,27 @@ import {
   useState,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import useMediaQuery from '~/hooks/useMediaQuery';
-import { cx } from '~/utils/cva';
-import type { Stage as TStage } from '@codaco/protocol-validation';
-import { updatePrompt, updateStage } from '../ducks/modules/session';
-import useReadyForNextStage from '../hooks/useReadyForNextStage';
-import getInterface from '../Interfaces';
+import type {
+  BeforeNextFunction,
+  Direction,
+  StageProps,
+} from '~/lib/interviewer/types';
+import {
+  updatePrompt,
+  updateStage,
+} from '~/lib/interviewer/ducks/modules/session';
+import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
+import getInterface from '~/lib/interviewer/Interfaces';
 import {
   getCurrentStage,
   getNavigationInfo,
   getPromptCount,
   getStageCount,
-} from '../selectors/session';
-import { getNavigableStages } from '../selectors/skip-logic';
-import { calculateProgress } from '../selectors/utils';
-import Navigation from './Navigation';
-import StageErrorBoundary from './StageErrorBoundary';
+} from '~/lib/interviewer/selectors/session';
+import { getNavigableStages } from '~/lib/interviewer/selectors/skip-logic';
+import { calculateProgress } from '~/lib/interviewer/selectors/utils';
 
-export type Direction = 'forwards' | 'backwards';
-
-export type BeforeNextFunction = (
-  direction: Direction,
-) => Promise<boolean | 'FORCE'> | boolean | 'FORCE';
-
-export type StageProps<T extends TStage['type'] = TStage['type']> = {
-  stage: Extract<TStage, { type: T }>;
-  registerBeforeNext: (fn: BeforeNextFunction | null) => void;
-  getNavigationHelpers: () => {
-    moveForward: () => void;
-    moveBackward: () => void;
-  };
-};
-
-const variants = {
-  initial: {
-    opacity: 0,
-  },
-  animate: {
-    opacity: 1,
-    transition: { when: 'beforeChildren' },
-  },
-  exit: {
-    opacity: 0,
-    transition: { when: 'afterChildren' },
-  },
-};
-
-export default function ProtocolScreen() {
+export default function useInterviewNavigation() {
   const dispatch = useDispatch();
 
   // State
@@ -82,7 +54,7 @@ export default function ProtocolScreen() {
   }, []);
 
   // Selectors
-  const stage = useSelector(getCurrentStage); // null = loading, undefined = not found
+  const stage = useSelector(getCurrentStage);
   const CurrentInterface = stage
     ? (getInterface(stage.type) as ElementType<StageProps>)
     : null;
@@ -95,7 +67,7 @@ export default function ProtocolScreen() {
   const stageCount = useSelector(getStageCount);
   const promptCount = useSelector(getPromptCount);
 
-  // Refs
+  // Refs to avoid stale closures in navigation callbacks
   const nextValidStageIndexRef = useRef(nextValidStageIndex);
   const previousValidStageIndexRef = useRef(previousValidStageIndex);
 
@@ -117,7 +89,7 @@ export default function ProtocolScreen() {
     );
   }, [currentStep, stageCount, promptIndex, promptCount]);
 
-  // Refs
+  // beforeNext registration
   const beforeNextFunction = useRef<BeforeNextFunction | null>(null);
   const registerBeforeNext = useCallback((fn: BeforeNextFunction | null) => {
     beforeNextFunction.current = fn;
@@ -136,7 +108,6 @@ export default function ProtocolScreen() {
 
     const beforeNextResult = await beforeNextFunction.current(direction);
 
-    // Throw an error if beforeNextFunction returns an invalid value
     invariant(
       beforeNextResult === true ||
         beforeNextResult === false ||
@@ -164,7 +135,7 @@ export default function ProtocolScreen() {
         return;
       }
 
-      // from this point on we are definitely navigating, so set up the animation
+      // From this point on we are definitely navigating stages
       const fakeProgress = calculateProgress(
         nextValidStageIndexRef.current,
         stageCount,
@@ -172,7 +143,6 @@ export default function ProtocolScreen() {
         promptCount,
       );
       setProgress(fakeProgress);
-      // If the result is true or 'FORCE' we can reset the function here:
       registerBeforeNext(null);
 
       void setQueryStep(nextValidStageIndexRef.current);
@@ -200,7 +170,6 @@ export default function ProtocolScreen() {
         return;
       }
 
-      // Advance the prompt if we're not at the last one.
       if (stageAllowsNavigation !== 'FORCE' && !isFirstPrompt) {
         dispatch(updatePrompt(promptIndex - 1));
         return;
@@ -253,8 +222,8 @@ export default function ProtocolScreen() {
     }
   }, [queryStep, currentStep, setQueryStep]);
 
-  // Two-phase navigation: when URL changes, start exit animation
-  // Redux currentStep is NOT updated here — it's deferred to handleExitComplete
+  // Two-phase navigation: when URL changes, start exit animation.
+  // Redux currentStep is NOT updated here — it's deferred to handleExitComplete.
   useEffect(() => {
     if (queryStep !== null && queryStep !== currentStep) {
       pendingStepRef.current = queryStep;
@@ -265,79 +234,39 @@ export default function ProtocolScreen() {
     }
   }, [queryStep, currentStep]);
 
-  // Check if the current stage is valid for us to be on.
+  // If the current stage should be skipped, move to the previous valid stage.
   useEffect(() => {
-    // If the current stage should be skipped, move to the previous available
-    // stage that isn't.
     if (!isCurrentStepValid) {
       // eslint-disable-next-line no-console
       console.log(
         '⚠️ Invalid stage! Moving you to the previous valid stage...',
       );
-      // This should always return a valid stage, because we know that the
-      // first stage is always valid.
       void setQueryStep(previousValidStageIndex, { history: 'replace' });
     }
   }, [setQueryStep, isCurrentStepValid, previousValidStageIndex]);
 
   const { canMoveForward, canMoveBackward } = useSelector(getNavigationInfo);
 
-  const isPortraitAspectRatio = useMediaQuery('(max-aspect-ratio: 3/4)');
-  const navigationOrientation = isPortraitAspectRatio
-    ? 'horizontal'
-    : 'vertical';
+  return {
+    // Stage rendering
+    stage,
+    currentStep,
+    CurrentInterface,
+    showStage,
+    registerBeforeNext,
+    getNavigationHelpers,
+    handleExitComplete,
 
-  return (
-    <div
-      className={cx(
-        'relative flex size-full flex-1 overflow-hidden',
-        isPortraitAspectRatio ? 'flex-col' : 'flex-row-reverse',
-      )}
-    >
-      <AnimatePresence mode="wait" onExitComplete={handleExitComplete}>
-        {showStage && stage && (
-          <motion.div
-            key={currentStep}
-            className="flex min-h-0 flex-1"
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            variants={variants}
-          >
-            <div
-              className="flex size-full flex-col items-center"
-              id="stage"
-              key={stage.id}
-            >
-              <StageErrorBoundary>
-                {CurrentInterface && (
-                  <CurrentInterface
-                    key={stage.id}
-                    registerBeforeNext={registerBeforeNext}
-                    stage={stage}
-                    getNavigationHelpers={getNavigationHelpers}
-                  />
-                )}
-              </StageErrorBoundary>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <Navigation
-        moveBackward={moveBackward}
-        moveForward={moveForward}
-        disableMoveForward={
-          forceNavigationDisabled || !showStage || !canMoveForward
-        }
-        disableMoveBackward={
-          forceNavigationDisabled ||
-          !showStage ||
-          (!canMoveBackward && !beforeNextFunction.current)
-        }
-        pulseNext={isReadyForNextStage}
-        progress={progress}
-        orientation={navigationOrientation}
-      />
-    </div>
-  );
+    // Navigation controls
+    moveForward,
+    moveBackward,
+    disableMoveForward:
+      forceNavigationDisabled || !showStage || !canMoveForward,
+    disableMoveBackward:
+      forceNavigationDisabled ||
+      !showStage ||
+      (!canMoveBackward && !beforeNextFunction.current),
+    pulseNext: isReadyForNextStage,
+    progress,
+  };
 }

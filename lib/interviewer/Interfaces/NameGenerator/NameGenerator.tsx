@@ -21,7 +21,7 @@ import { usePrompts } from '../../components/Prompts/usePrompts';
 import {
   type Direction,
   type StageProps,
-} from '../../components/ProtocolScreen';
+} from '~/lib/interviewer/types';
 import {
   addNode as addNodeAction,
   addNodeToPrompt as addNodeToPromptAction,

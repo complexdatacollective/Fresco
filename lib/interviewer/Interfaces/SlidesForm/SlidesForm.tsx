@@ -15,7 +15,7 @@ import {
   type BeforeNextFunction,
   type Direction,
   type StageProps,
-} from '../../components/ProtocolScreen';
+} from '~/lib/interviewer/types';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 
 type SlidesFormProps = StageProps<'AlterForm' | 'EgoForm'> & {

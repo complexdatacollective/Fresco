@@ -16,7 +16,7 @@ import {
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
-import { type StageProps } from '../../components/ProtocolScreen';
+import { type StageProps } from '~/lib/interviewer/types';
 import { FamilyTreeProvider, useFamilyTreeStore } from './FamilyTreeProvider';
 import { getRelationshipTypeVariable } from './utils/edgeUtils';
 

@@ -11,7 +11,7 @@ import EncryptionBackground from '../../components/EncryptedBackground';
 import type {
   BeforeNextFunction,
   StageProps,
-} from '../../components/ProtocolScreen';
+} from '~/lib/interviewer/types';
 import { usePassphrase } from './usePassphrase';
 
 type AnonymisationProps = StageProps<'Anonymisation'>;

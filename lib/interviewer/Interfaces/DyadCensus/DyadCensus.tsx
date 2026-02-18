@@ -6,7 +6,7 @@ import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
 import Prompts from '~/lib/interviewer/components/Prompts';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
-import { type StageProps } from '~/lib/interviewer/components/ProtocolScreen';
+import { type StageProps } from '~/lib/interviewer/types';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import {
   getEdgeColorForType,

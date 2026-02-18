@@ -8,7 +8,7 @@ import {
 import Heading from '~/components/typography/Heading';
 import { ScrollArea } from '~/components/ui/ScrollArea';
 import { cx } from '~/utils/cva';
-import { type StageProps } from '../components/ProtocolScreen';
+import { type StageProps } from '~/lib/interviewer/types';
 import AssetMetaProvider from './utils/AssetMetaProvider';
 
 const getItemComponent = (item: Item) => {

@@ -10,7 +10,7 @@ import {
   type GetInterviewByIdQuery,
 } from '~/queries/interviews';
 import { getServerSession } from '~/utils/auth';
-import InterviewShell from '../_components/InterviewShell';
+import InterviewShell from '~/lib/interviewer/InterviewShell';
 
 export default function Page(props: {
   params: Promise<{ interviewId: string }>;

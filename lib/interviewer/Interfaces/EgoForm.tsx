@@ -20,7 +20,7 @@ import { type FieldValue } from '~/lib/form/store/types';
 import {
   type BeforeNextFunction,
   type StageProps,
-} from '../components/ProtocolScreen';
+} from '~/lib/interviewer/types';
 import { updateEgo } from '../ducks/modules/session';
 import useFlipflop from '../hooks/useFlipflop';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';

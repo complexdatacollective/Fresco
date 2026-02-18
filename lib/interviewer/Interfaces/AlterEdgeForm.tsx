@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import { type StageProps } from '~/lib/interviewer/components/ProtocolScreen';
+import { type StageProps } from '~/lib/interviewer/types';
 import { updateEdge } from '~/lib/interviewer/ducks/modules/session';
 import { getNetworkEdgesForType } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';

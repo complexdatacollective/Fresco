@@ -8,7 +8,7 @@ import { connection } from 'next/server';
 import { Suspense } from 'react';
 import SuperJSON from 'superjson';
 import { v4 as uuid } from 'uuid';
-import InterviewShell from '~/app/(interview)/interview/_components/InterviewShell';
+import InterviewShell from '~/lib/interviewer/InterviewShell';
 import { prisma } from '~/lib/db';
 import { getPreviewMode } from '~/queries/appSettings';
 import { getProtocolForPreview } from '~/queries/protocols';

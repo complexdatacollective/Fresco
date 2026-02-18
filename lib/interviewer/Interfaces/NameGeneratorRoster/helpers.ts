@@ -1,6 +1,6 @@
 import { type getNodeVariables } from '~/lib/interviewer/selectors/interface';
 import getParentKeyByNameValue from '~/lib/interviewer/utils/getParentKeyByNameValue';
-import { type StageProps } from '../../components/ProtocolScreen';
+import { type StageProps } from '~/lib/interviewer/types';
 
 export const convertNamesToUUIDs = (
   variables: ReturnType<typeof getNodeVariables>,
