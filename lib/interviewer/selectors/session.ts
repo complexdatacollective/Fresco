@@ -43,21 +43,21 @@ export const getCurrentStage = createSelector(
   },
 );
 
+/**
+ * Returns the subject for the current stage, or `null` for subjectless stages
+ * (Information, Anonymisation).
+ *
+ * This selector must never throw because Redux dispatches trigger synchronous
+ * subscription notifications. During stage transitions, components from the
+ * *previous* stage still have active `connect()` subscriptions (React cleans
+ * them up asynchronously via `useEffect`). If the new stage is subjectless and
+ * this selector threw, those stale subscriptions would crash.
+ */
 export const getStageSubject = createSelector(getCurrentStage, (stage) => {
   invariant(stage, 'getStageSubject: No current stage found');
 
-  /**
-   * TODO: Schema 8 added a subject for ego stages, but didn't add it to the
-   * stages themselves. Right now, we can make the assumption that if a stage
-   * doesn't have a subject, it's an ego stage, but this should be formalized.
-   *
-   * https://github.com/complexdatacollective/network-canvas-monorepo/blob/main/packages/protocol-validation/src/schemas/8/common/subjects.ts#L18C1-L22C12
-   */
-
   if (stage.type === 'Information' || stage.type === 'Anonymisation') {
-    throw new Error(
-      `getStageSubject: Stage type "${stage.type}" does not have a subject`,
-    );
+    return null;
   }
 
   if (stage.type === 'EgoForm') {
@@ -70,7 +70,7 @@ export const getStageSubject = createSelector(getCurrentStage, (stage) => {
 });
 
 export const getSubjectType = createSelector(getStageSubject, (subject) => {
-  if (subject.entity === 'ego') {
+  if (!subject || subject.entity === 'ego') {
     return null;
   }
 
@@ -314,16 +314,11 @@ const getEdgeColor = createSelector(
   getCodebook,
   getStageSubject,
   (codebook, stageSubject) => {
-    invariant(
-      stageSubject?.entity === 'edge',
-      'getEdgeColor: Not an edge subject',
-    );
-
-    const edgeType = stageSubject?.type ?? null;
-
-    if (!edgeType) {
+    if (stageSubject?.entity !== 'edge') {
       return 'edge-color-seq-1';
     }
+
+    const edgeType = stageSubject.type;
 
     return (
       (codebook as Codebook)?.edge?.[edgeType]?.color ?? 'edge-color-seq-1'

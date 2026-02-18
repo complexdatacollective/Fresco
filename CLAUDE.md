@@ -366,6 +366,7 @@ pnpm storybook      # Component testing
 5. **AppSettings enum** must sync between Prisma schema and `schemas/appSettings.ts`
 6. **Cache invalidation** - use `safeUpdateTag()` in Server Actions, `safeRevalidateTag()` in Route Handlers (see Caching section)
 7. **Always use path aliases** - use `~/components/Button` not `../components/Button`
+8. **`getStageSubject` returns `null` for subjectless stages** (Information, Anonymisation). All downstream selectors must handle `null` — TypeScript strict mode enforces this. Never use `throw` or `invariant` in `getStageSubject` because Redux dispatches trigger synchronous subscription notifications while React cleans up `connect()` subscriptions asynchronously, so stale selectors from the previous stage will re-evaluate against the new stage.
 
 ## Dependencies to Know
 

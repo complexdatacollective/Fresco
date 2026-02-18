@@ -19,7 +19,7 @@ import {
 const AddFamilyMemberForm = () => {
   const subject = useSelector(getStageSubject);
   const nodeType = useSelector(
-    getNodeTypeLabel(subject.entity !== 'ego' ? subject.type : ''),
+    getNodeTypeLabel(subject && subject.entity !== 'ego' ? subject.type : ''),
   );
   const icon = useSelector(getNodeIconName);
   const nodesMap = useFamilyTreeStore((state) => state.network.nodes);

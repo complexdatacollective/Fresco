@@ -118,7 +118,7 @@ export default function QuickAddField({
   const subject = useSelector(getStageSubject);
   const nodeColor = useSelector(getNodeColorSelector);
   const nodeType = useSelector(
-    getNodeTypeLabel(subject.entity !== 'ego' ? subject.type : ''),
+    getNodeTypeLabel(subject && subject.entity !== 'ego' ? subject.type : ''),
   );
   const icon = useSelector(getNodeIconName);
 
