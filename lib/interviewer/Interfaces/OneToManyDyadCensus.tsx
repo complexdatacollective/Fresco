@@ -1,4 +1,3 @@
-import { type Stage } from '@codaco/protocol-validation';
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
@@ -15,9 +14,7 @@ import { getNetworkEdges, getNetworkNodesForType } from '../selectors/session';
 import { useAppDispatch } from '../store';
 import { type ProtocolSortRule } from '../utils/createSorter';
 
-type OneToManyDyadCensusProps = StageProps & {
-  stage: Extract<Stage, { type: 'OneToManyDyadCensus' }>;
-};
+type OneToManyDyadCensusProps = StageProps<'OneToManyDyadCensus'>;
 
 function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   const {

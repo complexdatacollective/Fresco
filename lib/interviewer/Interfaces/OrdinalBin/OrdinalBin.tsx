@@ -1,4 +1,4 @@
-import { type Prompt, type Stage } from '@codaco/protocol-validation';
+import { type Prompt } from '@codaco/protocol-validation';
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import { isNil } from 'es-toolkit';
 import { useSelector } from 'react-redux';
@@ -12,9 +12,7 @@ import { getNetworkNodesForType } from '../../selectors/session';
 import { type ProcessedSortRule } from '../../utils/createSorter';
 import OrdinalBins from './components/OrdinalBins';
 
-type OrdinalBinStageProps = StageProps & {
-  stage: Extract<Stage, { type: 'OrdinalBin' }>;
-};
+type OrdinalBinStageProps = StageProps<'OrdinalBin'>;
 
 type OrdinalBinPrompt = Prompt & {
   bucketSortOrder?: ProcessedSortRule[];

@@ -1,4 +1,4 @@
-import { type Prompt, type Stage } from '@codaco/protocol-validation';
+import { type Prompt } from '@codaco/protocol-validation';
 import { useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
@@ -10,14 +10,7 @@ import { type StageProps } from '../components/ProtocolScreen';
 import { getUncategorisedNodes } from '../selectors/interface';
 import { type ProcessedSortRule } from '../utils/createSorter';
 
-type CategoricalBinStageProps = StageProps & {
-  stage: Extract<
-    Stage,
-    {
-      type: 'CategoricalBin';
-    }
-  >;
-};
+type CategoricalBinStageProps = StageProps<'CategoricalBin'>;
 
 /**
  * CategoricalBin Interface

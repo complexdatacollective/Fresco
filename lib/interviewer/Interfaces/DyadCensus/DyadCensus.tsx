@@ -1,4 +1,3 @@
-import { type Stage } from '@codaco/protocol-validation';
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -46,9 +45,7 @@ const introVariants = {
   hide: { opacity: 0, scale: 0 },
 };
 
-type DyadCensusProps = StageProps & {
-  stage: Extract<Stage, { type: 'DyadCensus' }>;
-};
+type DyadCensusProps = StageProps<'DyadCensus'>;
 
 export default function DyadCensus(props: DyadCensusProps) {
   const { registerBeforeNext, stage, getNavigationHelpers } = props;

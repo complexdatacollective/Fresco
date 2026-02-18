@@ -1,4 +1,3 @@
-import { type Stage } from '@codaco/protocol-validation';
 import { type NcNode } from '@codaco/shared-consts';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -21,9 +20,7 @@ import { type StageProps } from '../../components/ProtocolScreen';
 import { FamilyTreeProvider, useFamilyTreeStore } from './FamilyTreeProvider';
 import { getRelationshipTypeVariable } from './utils/edgeUtils';
 
-type FamilyTreeCensusProps = StageProps & {
-  stage: Extract<Stage, { type: 'FamilyTreeCensus' }>;
-};
+type FamilyTreeCensusProps = StageProps<'FamilyTreeCensus'>;
 
 /**
  * Given a FamilyTreeCensus stage, return the ordered list of steps,

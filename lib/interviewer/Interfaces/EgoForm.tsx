@@ -1,4 +1,3 @@
-import { type Stage } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
 import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
@@ -40,9 +39,7 @@ const elementHasOverflow = ({
   scrollHeight: number;
 }) => scrollHeight > clientHeight || scrollWidth > clientWidth;
 
-type EgoFormProps = StageProps & {
-  stage: Extract<Stage, { type: 'EgoForm' }>;
-};
+type EgoFormProps = StageProps<'EgoForm'>;
 
 const EgoFormInner = (props: EgoFormProps) => {
   const { registerBeforeNext, stage } = props;

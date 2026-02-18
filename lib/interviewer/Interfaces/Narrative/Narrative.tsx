@@ -1,6 +1,5 @@
 'use client';
 
-import { type Stage } from '@codaco/protocol-validation';
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -23,11 +22,7 @@ import {
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch, type RootState } from '~/lib/interviewer/store';
 
-type NarrativeStage = Extract<Stage, { type: 'Narrative' }>;
-
-type NarrativeProps = StageProps & {
-  stage: NarrativeStage;
-};
+type NarrativeProps = StageProps<'Narrative'>;
 
 const Narrative = ({ stage }: NarrativeProps) => {
   const dispatch = useAppDispatch();

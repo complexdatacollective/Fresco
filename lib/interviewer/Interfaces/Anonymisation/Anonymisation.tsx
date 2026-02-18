@@ -1,4 +1,3 @@
-import type { Stage } from '@codaco/protocol-validation';
 import { motion } from 'motion/react';
 import { useCallback, useEffect, useRef } from 'react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
@@ -15,9 +14,7 @@ import type {
 } from '../../components/ProtocolScreen';
 import { usePassphrase } from './usePassphrase';
 
-type AnonymisationProps = StageProps & {
-  stage: Extract<Stage, { type: 'Anonymisation' }>;
-};
+type AnonymisationProps = StageProps<'Anonymisation'>;
 
 export default function Anonymisation(props: AnonymisationProps) {
   const formRef = useRef<HTMLFormElement>(null);

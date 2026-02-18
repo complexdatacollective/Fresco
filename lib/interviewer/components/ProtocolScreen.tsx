@@ -36,8 +36,8 @@ export type BeforeNextFunction = (
   direction: Direction,
 ) => Promise<boolean | 'FORCE'> | boolean | 'FORCE';
 
-export type StageProps = {
-  stage: TStage;
+export type StageProps<T extends TStage['type'] = TStage['type']> = {
+  stage: Extract<TStage, { type: T }>;
   registerBeforeNext: (fn: BeforeNextFunction | null) => void;
   getNavigationHelpers: () => {
     moveForward: () => void;

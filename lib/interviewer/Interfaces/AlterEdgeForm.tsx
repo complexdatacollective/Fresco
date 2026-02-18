@@ -9,7 +9,7 @@ import { useAppDispatch } from '~/lib/interviewer/store';
 import SlideFormEdge from './SlidesForm/SlideFormEdge';
 import SlidesForm from './SlidesForm/SlidesForm';
 
-const AlterEdgeForm = (props: StageProps) => {
+const AlterEdgeForm = (props: StageProps<'AlterEdgeForm'>) => {
   const items = useSelector(getNetworkEdgesForType);
   const dispatch = useAppDispatch();
 

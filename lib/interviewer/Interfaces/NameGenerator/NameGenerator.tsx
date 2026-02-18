@@ -1,6 +1,6 @@
 'use client';
 
-import { type Form, type Stage } from '@codaco/protocol-validation';
+import { type Form } from '@codaco/protocol-validation';
 import {
   type EntityAttributesProperty,
   entityAttributesProperty,
@@ -62,9 +62,7 @@ export const nameGeneratorHandleBeforeLeaving =
     return true;
   };
 
-type NameGeneratorProps = StageProps & {
-  stage: Extract<Stage, { type: 'NameGeneratorQuickAdd' | 'NameGenerator' }>;
-};
+type NameGeneratorProps = StageProps<'NameGeneratorQuickAdd' | 'NameGenerator'>;
 
 const NameGenerator = (props: NameGeneratorProps) => {
   const { registerBeforeNext, stage } = props;

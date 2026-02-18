@@ -1,6 +1,5 @@
 'use client';
 
-import { type Stage } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
@@ -34,9 +33,7 @@ import NodeDrawer from './NodeDrawer';
 import SimulationPanel from './SimulationPanel';
 import { useForceSimulation } from './useForceSimulation';
 
-type SociogramProps = StageProps & {
-  stage: Extract<Stage, { type: 'Sociogram' }>;
-};
+type SociogramProps = StageProps<'Sociogram'>;
 
 const Sociogram = (stageProps: SociogramProps) => {
   const { stage } = stageProps;

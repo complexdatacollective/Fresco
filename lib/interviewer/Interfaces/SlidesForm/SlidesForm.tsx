@@ -1,4 +1,3 @@
-import { type Stage } from '@codaco/protocol-validation';
 import { debounce } from 'es-toolkit';
 import { AnimatePresence, motion } from 'motion/react';
 import type { ComponentType, ReactElement } from 'react';
@@ -19,8 +18,7 @@ import {
 } from '../../components/ProtocolScreen';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 
-type SlidesFormProps = StageProps & {
-  stage: Extract<Stage, { type: 'AlterForm' | 'EgoForm' }>;
+type SlidesFormProps = StageProps<'AlterForm' | 'EgoForm'> & {
   items: unknown[];
   updateItem: (...args: unknown[]) => void;
   parentClass?: string;

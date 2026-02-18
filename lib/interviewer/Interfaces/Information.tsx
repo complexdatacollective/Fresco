@@ -1,4 +1,4 @@
-import { type Item, type Stage } from '@codaco/protocol-validation';
+import { type Item } from '@codaco/protocol-validation';
 import React from 'react';
 import Surface from '~/components/layout/Surface';
 import {
@@ -57,11 +57,7 @@ const getItemComponent = (item: Item) => {
   }
 };
 
-type InformationStage = Extract<Stage, { type: 'Information' }>;
-
-type InformationProps = StageProps & {
-  stage: InformationStage;
-};
+type InformationProps = StageProps<'Information'>;
 
 /**
  * Information Interface
