@@ -74,10 +74,10 @@ const nodeVariants = cva({
   },
 });
 
-const labelVariants = cva({
+export const labelVariants = cva({
   base: [
     'overflow-hidden text-center hyphens-auto whitespace-pre-line',
-    'px-2 text-wrap wrap-break-word',
+    'px-2 leading-5! text-wrap wrap-break-word',
   ],
   variants: {
     size: {
@@ -92,6 +92,12 @@ const labelVariants = cva({
     size: 'md',
   },
 });
+
+export function truncateNodeLabel(label: string, maxLength = 22): string {
+  if (label.length <= maxLength) return label;
+  // Use a soft hyphen (\u{AD}) to allow breaking long words if needed
+  return `${label.substring(0, maxLength - 4)}\u{AD}...`;
+}
 
 type UINodeProps = {
   /** Text label displayed inside the node */
@@ -160,8 +166,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     ...buttonProps
   } = props;
 
-  const labelWithEllipsis =
-    label.length < 22 ? label : `${label.substring(0, 18)}\u{AD}...`;
+  const labelWithEllipsis = truncateNodeLabel(label);
 
   // Infer interaction mode from props
   const hasClickHandler = !!onClick;
@@ -290,9 +295,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
       </AnimatePresence>
       {loading && <Loader2 className="animate-spin" size={24} />}
       {!loading && (
-        <span className={labelVariants({ size, className: 'leading-5' })}>
-          {labelWithEllipsis}
-        </span>
+        <span className={labelVariants({ size })}>{labelWithEllipsis}</span>
       )}
     </motion.button>
   );

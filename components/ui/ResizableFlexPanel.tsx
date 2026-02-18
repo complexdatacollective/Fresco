@@ -108,6 +108,8 @@ const ResizableFlexPanel = forwardRef<HTMLDivElement, ResizableFlexPanelProps>(
           <div
             className={cx(
               'rounded-full bg-white/30',
+              'spring-[0.5,0.6]',
+              'ease-in-out',
               'transition-[background-color,transform] duration-150',
               isHorizontal ? 'h-8 w-1' : 'h-1 w-8',
               isDragging && 'scale-150 bg-white/70',

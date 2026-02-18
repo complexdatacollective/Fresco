@@ -1,10 +1,15 @@
 import { Toggle } from '@base-ui/react';
 import { Plus } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { MotionSurface } from '~/components/layout/Surface';
-import { type NodeColorSequence } from '~/components/Node';
+import {
+  labelVariants,
+  truncateNodeLabel,
+  type NodeColorSequence,
+} from '~/components/Node';
+import Paragraph from '~/components/typography/Paragraph';
 import Icon, { type InterviewerIconName } from '~/components/ui/Icon';
 import {
   Tooltip,
@@ -17,6 +22,7 @@ import { useField } from '~/lib/form/hooks/useField';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
+import { cx } from '~/utils/cva';
 
 function convertToNodeColor(color: NodeColorSequence): string {
   switch (color) {
@@ -59,38 +65,63 @@ export default function QuickAddField({
 }: QuickAddFieldProps) {
   const [checked, setChecked] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
+  const [submissionCount, setSubmissionCount] = useState(0);
 
   const { id, meta, fieldProps } = useField({
     name: targetVariable,
     initialValue: '',
     disabled,
+    validateOnChange: true,
+    validateOnChangeDelay: 0,
     ...validationProps,
   });
 
   const isFormSubmitting = useFormStore((state) => state.isSubmitting);
   const wasSubmittingRef = useRef(false);
 
-  const tooltipTimer = useRef<NodeJS.Timeout | undefined>(undefined);
   const inputRef = useRef<HTMLInputElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
-  // Reset field (but stay open) when form submission succeeds
+  // Reset field (but stay open) when form submission succeeds, or show
+  // validation errors on failed submission attempts.
   useEffect(() => {
     // Detect transition from submitting to not submitting
     if (wasSubmittingRef.current && !isFormSubmitting) {
-      // If we were submitting and the field is now valid, submission succeeded
       if (meta.isValid && fieldProps.value) {
         fieldProps.onChange('');
-        // Re-focus the input for quick successive additions
-        inputRef.current?.focus();
+        setSubmissionCount((c) => c + 1);
+        setShowErrors(false);
+      } else {
+        setShowErrors(true);
       }
+      inputRef.current?.focus();
     }
     wasSubmittingRef.current = isFormSubmitting;
   }, [isFormSubmitting, meta.isValid, fieldProps]);
+
+  const handleChange = useCallback(
+    (value: string | undefined) => {
+      fieldProps.onChange(value);
+    },
+    [fieldProps],
+  );
 
   const resetField = () => {
     setChecked(false);
     fieldProps.onChange('');
   };
+
+  const handleBlur = useCallback(
+    (e: React.FocusEvent) => {
+      if (toggleRef.current?.contains(e.relatedTarget)) {
+        return;
+      }
+      resetField();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
   const showInput = () => {
     onShowInput();
@@ -108,29 +139,27 @@ export default function QuickAddField({
   }, [disabled]);
 
   useEffect(() => {
-    // If the state becomes invalid, cancel the tooltip
-    if (!meta.isValid && tooltipTimer.current) {
-      clearTimeout(tooltipTimer.current);
-    }
-
-    // If there's already a tooltip timer
-    if (tooltipTimer.current) {
+    // Show a usage hint after 5s if the user hasn't pressed Enter yet.
+    // Once the user has submitted successfully, they know the workflow.
+    // Typing resets the timer.
+    if (!checked || submissionCount > 0) {
+      setShowTooltip(false);
       return;
     }
 
-    // Set a new timer: input is valid, the form is open, and there's no
-    // existing timer
-    tooltipTimer.current = setTimeout(() => {
+    setShowTooltip(false);
+
+    const timer = setTimeout(() => {
       setShowTooltip(true);
     }, 5000);
 
     return () => {
-      clearTimeout(tooltipTimer.current);
+      clearTimeout(timer);
     };
-  }, [fieldProps.value, meta.isValid]);
+  }, [checked, submissionCount, fieldProps.value]);
 
   return (
-    <motion.div className="flex items-center gap-4">
+    <motion.div className="relative flex items-center gap-4">
       <AnimatePresence>
         {checked && (
           <MotionSurface
@@ -140,28 +169,42 @@ export default function QuickAddField({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '4rem' }}
           >
-            <Tooltip open={showTooltip}>
-              <TooltipTrigger disabled className="w-full">
-                <InputField
-                  ref={inputRef}
-                  type="text"
-                  autoFocus
-                  placeholder={placeholder}
-                  id={id}
-                  name={targetVariable}
-                  {...fieldProps}
-                  value={fieldProps.value as string}
-                  onChange={fieldProps.onChange}
-                  onBlur={resetField}
-                />
+            <Tooltip open={showErrors && !!meta.errors?.length}>
+              <TooltipTrigger render={<div className="w-full" />}>
+                <Tooltip open={showTooltip && !showErrors}>
+                  <TooltipTrigger render={<div className="w-full" />}>
+                    <InputField
+                      ref={inputRef}
+                      type="text"
+                      autoFocus
+                      placeholder={placeholder}
+                      id={id}
+                      name={targetVariable}
+                      {...fieldProps}
+                      value={fieldProps.value as string}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent
+                    align="center"
+                    className="max-w-2xs text-sm"
+                    sideOffset={25}
+                  >
+                    Press <kbd>Enter</kbd> when you are finished. The box will
+                    stay open so you can quickly enter multiple names in a row.
+                  </TooltipContent>
+                </Tooltip>
               </TooltipTrigger>
               <TooltipContent
+                side="bottom"
                 align="center"
-                className="max-w-2xs text-sm"
-                sideOffset={25}
+                className="bg-destructive text-destructive-contrast [&_svg_path]:fill-destructive max-w-2xs text-sm"
+                sideOffset={10}
               >
-                Enter a name and press <kbd>Enter</kbd>. The box will stay open
-                so you can quickly enter multiple names in a row.
+                {meta.errors?.[0] && (
+                  <Paragraph margin="none">{meta.errors[0]}</Paragraph>
+                )}
               </TooltipContent>
             </Tooltip>
           </MotionSurface>
@@ -178,16 +221,20 @@ export default function QuickAddField({
         }}
         disabled={disabled}
         render={
-          <button className="focusable aspect-square size-28 rounded-full">
+          <button
+            ref={toggleRef}
+            className="focusable aspect-square size-28 rounded-full"
+          >
             <motion.div
-              className="elevation-high relative flex size-full cursor-pointer items-center justify-center overflow-hidden rounded-full [&>.lucide]:aspect-square [&>.lucide]:h-16 [&>.lucide]:w-auto"
-              animate={
-                checked
-                  ? {
-                      backgroundColor: `var(--${convertToNodeColor(nodeColor)})`,
-                    }
-                  : { backgroundColor: 'var(--primary)' }
-              }
+              className={cx(
+                'elevation-high relative flex aspect-square size-28 items-center justify-center overflow-hidden rounded-full transition-[background-color,filter] duration-300 [&>.lucide]:aspect-square [&>.lucide]:h-16 [&>.lucide]:w-auto',
+                disabled ? 'cursor-not-allowed saturate-0' : 'cursor-pointer',
+              )}
+              style={{
+                backgroundColor: checked
+                  ? `var(--${convertToNodeColor(nodeColor)})`
+                  : 'var(--primary)',
+              }}
             >
               <AnimatePresence mode="popLayout" initial={false}>
                 {checked ? (
@@ -196,11 +243,28 @@ export default function QuickAddField({
                     initial={{ y: '-100%' }}
                     animate={{ y: 0 }}
                     exit={{ y: '-100%' }}
+                    className="flex h-full items-center justify-center"
                   >
                     {fieldProps.value ? (
-                      <span>{fieldProps.value as string}</span>
+                      <span className={labelVariants()}>
+                        {truncateNodeLabel(fieldProps.value as string)}
+                      </span>
                     ) : (
-                      <Plus className="size-6 text-white" size={12} />
+                      <div className="flex items-center gap-1.5">
+                        {[0, 1, 2].map((i) => (
+                          <motion.div
+                            key={i}
+                            className="size-2.5 rounded-full bg-white"
+                            animate={{ y: [0, -6, 0] }}
+                            transition={{
+                              duration: 0.6,
+                              repeat: Infinity,
+                              delay: i * 0.15,
+                              ease: 'easeInOut',
+                            }}
+                          />
+                        ))}
+                      </div>
                     )}
                   </motion.div>
                 ) : (
@@ -209,8 +273,12 @@ export default function QuickAddField({
                     initial={{ y: '100%' }}
                     animate={{ y: 0 }}
                     exit={{ y: '100%' }}
+                    className="h-full"
                   >
-                    <Icon name={icon as InterviewerIconName} />
+                    <Icon
+                      name={icon as InterviewerIconName}
+                      className="h-full w-auto"
+                    />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -218,9 +286,9 @@ export default function QuickAddField({
             <motion.div
               className="bg-platinum text-charcoal absolute -top-2 -right-4 flex size-10 items-center justify-center rounded-full shadow-lg"
               animate={
-                checked && !fieldProps.value
-                  ? { scale: 0, opacity: 0, rotate: 180 }
-                  : { scale: 1, opacity: 1, rotate: 0 }
+                !checked || meta.isValid
+                  ? { scale: 1, opacity: 1, rotate: 0 }
+                  : { scale: 0, opacity: 0, rotate: 180 }
               }
             >
               <Plus className="size-6" size={12} />
