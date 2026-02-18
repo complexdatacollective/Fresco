@@ -18,8 +18,10 @@ import NodeBin from '~/lib/interviewer/components/NodeBin';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import Prompts from '../../components/Prompts';
 import { usePrompts } from '../../components/Prompts/usePrompts';
-import { type Direction } from '../../components/ProtocolScreen';
-import { type StageProps } from '../../components/Stage';
+import {
+  type Direction,
+  type StageProps,
+} from '../../components/ProtocolScreen';
 import {
   addNode as addNodeAction,
   addNodeToPrompt as addNodeToPromptAction,

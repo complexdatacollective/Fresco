@@ -18,8 +18,10 @@ import useFormStore from '~/lib/form/hooks/useFormStore';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { type FieldValue } from '~/lib/form/store/types';
-import { type BeforeNextFunction } from '../components/ProtocolScreen';
-import { type StageProps } from '../components/Stage';
+import {
+  type BeforeNextFunction,
+  type StageProps,
+} from '../components/ProtocolScreen';
 import { updateEgo } from '../ducks/modules/session';
 import useFlipflop from '../hooks/useFlipflop';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';

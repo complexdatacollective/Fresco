@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux';
 import Canvas from '~/lib/interviewer/canvas/Canvas';
 import { createCanvasStore } from '~/lib/interviewer/canvas/useCanvasStore';
 import ConcentricCircles from '~/lib/interviewer/components/ConcentricCircles';
-import { type StageProps } from '~/lib/interviewer/components/Stage';
+import { type StageProps } from '~/lib/interviewer/components/ProtocolScreen';
 import { updateNode } from '~/lib/interviewer/ducks/modules/session';
 import Annotations, {
   type AnnotationsHandle,

@@ -5,6 +5,7 @@ import { invariant } from 'es-toolkit';
 import { AnimatePresence, motion } from 'motion/react';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import {
+  type ElementType,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -14,8 +15,10 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import useMediaQuery from '~/hooks/useMediaQuery';
 import { cx } from '~/utils/cva';
+import type { Stage as TStage } from '@codaco/protocol-validation';
 import { updatePrompt, updateStage } from '../ducks/modules/session';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
+import getInterface from '../Interfaces';
 import {
   getCurrentStage,
   getNavigationInfo,
@@ -25,13 +28,22 @@ import {
 import { getNavigableStages } from '../selectors/skip-logic';
 import { calculateProgress } from '../selectors/utils';
 import Navigation from './Navigation';
-import Stage from './Stage';
+import StageErrorBoundary from './StageErrorBoundary';
 
 export type Direction = 'forwards' | 'backwards';
 
 export type BeforeNextFunction = (
   direction: Direction,
 ) => Promise<boolean | 'FORCE'> | boolean | 'FORCE';
+
+export type StageProps = {
+  stage: TStage;
+  registerBeforeNext: (fn: BeforeNextFunction | null) => void;
+  getNavigationHelpers: () => {
+    moveForward: () => void;
+    moveBackward: () => void;
+  };
+};
 
 const variants = {
   initial: {
@@ -71,6 +83,9 @@ export default function ProtocolScreen() {
 
   // Selectors
   const stage = useSelector(getCurrentStage); // null = loading, undefined = not found
+  const CurrentInterface = stage
+    ? (getInterface(stage.type) as ElementType<StageProps>)
+    : null;
 
   const { isReady: isReadyForNextStage } = useReadyForNextStage();
   const { currentStep, isLastPrompt, isFirstPrompt, promptIndex } =
@@ -289,11 +304,22 @@ export default function ProtocolScreen() {
             exit="exit"
             variants={variants}
           >
-            <Stage
-              stage={stage}
-              registerBeforeNext={registerBeforeNext}
-              getNavigationHelpers={getNavigationHelpers}
-            />
+            <div
+              className="flex size-full flex-col items-center"
+              id="stage"
+              key={stage.id}
+            >
+              <StageErrorBoundary>
+                {CurrentInterface && (
+                  <CurrentInterface
+                    key={stage.id}
+                    registerBeforeNext={registerBeforeNext}
+                    stage={stage}
+                    getNavigationHelpers={getNavigationHelpers}
+                  />
+                )}
+              </StageErrorBoundary>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

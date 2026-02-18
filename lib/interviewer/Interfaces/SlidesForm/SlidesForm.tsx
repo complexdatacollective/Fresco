@@ -15,8 +15,8 @@ import { cx } from '~/utils/cva';
 import {
   type BeforeNextFunction,
   type Direction,
+  type StageProps,
 } from '../../components/ProtocolScreen';
-import { type StageProps } from '../../components/Stage';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 
 type SlidesFormProps = StageProps & {

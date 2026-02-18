@@ -6,7 +6,7 @@ import CategoricalList from '../components/CategoricalList';
 import MultiNodeBucket from '../components/MultiNodeBucket';
 import Prompts from '../components/Prompts';
 import { usePrompts } from '../components/Prompts/usePrompts';
-import { type StageProps } from '../components/Stage';
+import { type StageProps } from '../components/ProtocolScreen';
 import { getUncategorisedNodes } from '../selectors/interface';
 import { type ProcessedSortRule } from '../utils/createSorter';
 
