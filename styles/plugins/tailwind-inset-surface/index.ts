@@ -55,7 +55,7 @@ export default plugin((api) => {
   api.addUtilities({
     '.inset-surface': {
       'border': '1px solid oklch(0% 0 0 / 0.1)',
-      'box-shadow': `inset 0 3px 5px 0 ${shadow}, inset 0 -1px 2px 0 ${highlight}`,
+      'box-shadow': `inset 0 2px 4px 0 ${shadow}, inset 0 -1px 2px 0 ${highlight}`,
     },
   });
 });

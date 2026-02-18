@@ -1,8 +1,10 @@
 'use client';
 
 import { Slider } from '@base-ui/react/slider';
+import { motion } from 'motion/react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import {
+  controlLabelVariants,
   sliderControlVariants,
   sliderRootVariants,
   sliderThumbVariants,
@@ -67,6 +69,16 @@ export default function VisualAnalogScaleField(
           <Slider.Control className={sliderControlVariants()}>
             <Slider.Track className={sliderTrackVariants({ state })}>
               <Slider.Thumb
+                render={
+                  <motion.div
+                    whileTap={{ scale: 1.1 }}
+                    transition={{
+                      type: 'spring',
+                      duration: 0.3,
+                      bounce: 0.4,
+                    }}
+                  />
+                }
                 className={sliderThumbVariants({ state })}
                 aria-label="Visual analog scale value"
               />
@@ -74,18 +86,30 @@ export default function VisualAnalogScaleField(
           </Slider.Control>
         </Slider.Root>
 
-        <div className="relative mt-2 flex justify-between">
-          {minLabel && (
-            <div className="max-w-24 text-left text-sm leading-tight text-current/70">
-              <RenderMarkdown>{minLabel}</RenderMarkdown>
-            </div>
-          )}
-          {maxLabel && (
-            <div className="max-w-24 text-right text-sm leading-tight text-current/70">
-              <RenderMarkdown>{maxLabel}</RenderMarkdown>
-            </div>
-          )}
-        </div>
+        {(minLabel ?? maxLabel) && (
+          <div className="relative mt-2 flex justify-between px-3">
+            {minLabel && (
+              <div
+                className={cx(
+                  controlLabelVariants({ size: 'sm' }),
+                  'max-w-24 text-left',
+                )}
+              >
+                <RenderMarkdown>{minLabel}</RenderMarkdown>
+              </div>
+            )}
+            {maxLabel && (
+              <div
+                className={cx(
+                  controlLabelVariants({ size: 'sm' }),
+                  'max-w-24 text-right',
+                )}
+              >
+                <RenderMarkdown>{maxLabel}</RenderMarkdown>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

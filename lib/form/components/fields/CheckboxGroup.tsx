@@ -81,6 +81,7 @@ export default function CheckboxGroupField(props: CheckboxGroupProps) {
         id={id}
         {...fieldsetProps}
         className={checkboxGroupComposedVariants({
+          size,
           orientation,
           useColumns,
           state: getInputState(props),

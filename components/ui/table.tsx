@@ -36,7 +36,7 @@ const TableHeader = React.forwardRef<
   <thead
     ref={ref}
     className={cx(
-      'publish-colors border-collapse bg-current/10 [&_tr]:border-b',
+      'publish-colors border-sea-green border-collapse bg-current/10 [&_tr]:border-b-current/20',
       className,
     )}
     {...props}
@@ -83,7 +83,7 @@ const TableRow = React.forwardRef<
     ref={ref}
     className={cx(
       'h-14', // Height works the same as min-h for table rows https://stackoverflow.com/questions/19432092/can-i-use-a-min-height-for-table-tr-or-td
-      'data-[state=selected]:bg-selected/15 border-b transition-colors duration-300',
+      'data-[state=selected]:bg-selected/15 border-b outline-current/20 transition-colors duration-300',
       className,
     )}
     {...props}

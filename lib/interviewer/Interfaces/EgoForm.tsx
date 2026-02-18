@@ -231,7 +231,20 @@ const EgoFormInner = (props: EgoFormProps) => {
               onClick={scrollToBottom}
               className="flex items-center gap-2"
             >
-              <Heading level="h4" margin="none">
+              <motion.div
+                aria-hidden="true"
+                animate={{
+                  y: [0, 7, 0, 7, 0],
+                }}
+                transition={{
+                  duration: 2,
+                  ease: 'easeInOut',
+                  repeat: Infinity,
+                }}
+              >
+                <ChevronDown size="24" />
+              </motion.div>
+              <Heading level="label" margin="none">
                 Scroll to see more questions
               </Heading>
               <motion.div

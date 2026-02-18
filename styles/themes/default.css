@@ -17,7 +17,7 @@
     /* Used for relative color values */
     --base-hue: 280;
 
-    --background: oklch(98% 0.08 var(--base-hue));
+    --background: oklch(98% 0.2 var(--base-hue));
     --text: oklch(10% 0.22 var(--base-hue));
 
     --neutral: oklch(99% 0.02 var(--base-hue));
@@ -32,13 +32,14 @@
     --secondary: oklch(from var(--primary) calc(l + 0.2) calc(c + 0.05) h);
     --secondary-contrast: oklch(var(--white));
 
-    --surface: oklch(100% 0.01 var(--base-hue));
+    /* use calc() to reduce the lightness of background to calculate surface */
+    --surface: oklch(from var(--background) calc(l - 0.03) c h);
     --surface-contrast: var(--text);
-    --surface-1: oklch(97% 0.02 var(--base-hue));
+    --surface-1: oklch(from var(--surface) calc(l - 0.03) c h);
     --surface-1-contrast: var(--text);
-    --surface-2: oklch(95% 0.025 var(--base-hue));
+    --surface-2: oklch(from var(--surface-1) calc(l - 0.03) c h);
     --surface-2-contrast: var(--text);
-    --surface-3: oklch(93% 0.03 var(--base-hue));
+    --surface-3: oklch(from var(--surface-2) calc(l - 0.03) c h);
     --surface-3-contrast: var(--text);
     --surface-popover: var(--color-white);
     --surface-popover-contrast: var(--color-text);
@@ -65,7 +66,8 @@
 
     --link: oklch(from var(--accent) calc(l - 0.2) calc(c + 0.05) h);
 
-    --outline: oklch(90% 0.01 var(--base-hue)); /* Used for borders */
+    /* Used for default border color. Set to color-mix of currentColor and transparent */
+    --outline: color-mix(in oklch, currentColor 20%, transparent);
 
     --input: oklch(var(--white));
     --input-contrast: oklch(var(--cyber-grape));

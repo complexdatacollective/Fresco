@@ -2,7 +2,7 @@
 
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Toast } from '@base-ui/react/toast';
-import { MotionConfig, MotionGlobalConfig } from 'motion/react';
+import { MotionConfig } from 'motion/react';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { type ReactNode } from 'react';
 import ProtocolImportProvider from '~/components/ProtocolImport/ProtocolImportProvider';
@@ -22,17 +22,9 @@ export default function Providers({
   installationId?: string;
   disableAnalytics?: boolean;
 }) {
-  /**
-   * This is the documented way to turn of all animations
-   * (cannot be done via MotionConfig: https://github.com/motiondivision/motion/issues/3514)
-   *
-   * Used in CI environments to prevent issues with visual snapshots.
-   */
-  MotionGlobalConfig.skipAnimations = !!disableAnimations;
-
   return (
     <NuqsAdapter>
-      <MotionConfig reducedMotion="user">
+      <MotionConfig reducedMotion="user" skipAnimations={!!disableAnimations}>
         <DirectionProvider direction="ltr">
           <Toast.Provider limit={7}>
             <DndStoreProvider>

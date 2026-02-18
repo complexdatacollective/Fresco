@@ -260,47 +260,47 @@ export default function ProtocolScreen() {
     : 'vertical';
 
   return (
-    <>
-      <div
-        className={cx(
-          'relative flex size-full flex-1 overflow-hidden',
-          isPortraitAspectRatio ? 'flex-col' : 'flex-row-reverse',
+    <motion.div
+      className={cx(
+        'relative flex size-full flex-1 overflow-hidden',
+        isPortraitAspectRatio ? 'flex-col' : 'flex-row-reverse',
+      )}
+      initial="initial"
+      animate="animate"
+    >
+      <AnimatePresence mode="wait" onExitComplete={handleExitComplete}>
+        {showStage && stage && (
+          <motion.div
+            key={currentStep}
+            className="flex min-h-0 flex-1"
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            variants={variants}
+          >
+            <Stage
+              stage={stage}
+              registerBeforeNext={registerBeforeNext}
+              getNavigationHelpers={getNavigationHelpers}
+            />
+          </motion.div>
         )}
-      >
-        <AnimatePresence mode="wait" onExitComplete={handleExitComplete}>
-          {showStage && stage && (
-            <motion.div
-              key={currentStep}
-              className="flex min-h-0 flex-1"
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              variants={variants}
-            >
-              <Stage
-                stage={stage}
-                registerBeforeNext={registerBeforeNext}
-                getNavigationHelpers={getNavigationHelpers}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <Navigation
-          moveBackward={moveBackward}
-          moveForward={moveForward}
-          disableMoveForward={
-            forceNavigationDisabled || !showStage || !canMoveForward
-          }
-          disableMoveBackward={
-            forceNavigationDisabled ||
-            !showStage ||
-            (!canMoveBackward && !beforeNextFunction.current)
-          }
-          pulseNext={isReadyForNextStage}
-          progress={progress}
-          orientation={navigationOrientation}
-        />
-      </div>
-    </>
+      </AnimatePresence>
+      <Navigation
+        moveBackward={moveBackward}
+        moveForward={moveForward}
+        disableMoveForward={
+          forceNavigationDisabled || !showStage || !canMoveForward
+        }
+        disableMoveBackward={
+          forceNavigationDisabled ||
+          !showStage ||
+          (!canMoveBackward && !beforeNextFunction.current)
+        }
+        pulseNext={isReadyForNextStage}
+        progress={progress}
+        orientation={navigationOrientation}
+      />
+    </motion.div>
   );
 }

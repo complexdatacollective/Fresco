@@ -4,12 +4,50 @@ import {
   ChevronRight,
   ChevronUp,
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { type ComponentProps } from 'react';
-import Surface from '~/components/layout/Surface';
+import { MotionSurface } from '~/components/layout/Surface';
 import { IconButton } from '~/components/ui/Button';
 import ProgressBar from '~/components/ui/ProgressBar';
 import { cva, cx } from '~/utils/cva';
 import PassphrasePrompter from './PassphrasePrompter';
+
+const variants = {
+  initial: {
+    opacity: 0,
+  },
+  animate: {
+    opacity: 1,
+  },
+  exit: {
+    opacity: 0,
+  },
+};
+
+const containerVariants = {
+  initial: (orientation: 'vertical' | 'horizontal') => ({
+    opacity: 0,
+    x: orientation === 'vertical' ? '-100%' : 0,
+    y: orientation === 'horizontal' ? '-100%' : 0,
+  }),
+  animate: {
+    opacity: 1,
+    y: 0,
+    x: 0,
+    transition: {
+      when: 'beforeChildren',
+      type: 'spring',
+      stiffness: 100,
+      damping: 20,
+    },
+  },
+  exit: (orientation: 'vertical' | 'horizontal') => ({
+    opacity: 0,
+    x: orientation === 'vertical' ? '-100%' : 0,
+    y: orientation === 'horizontal' ? '-100%' : 0,
+    transition: { when: 'afterChildren' },
+  }),
+};
 
 const NavigationButton = ({
   disabled,
@@ -17,13 +55,15 @@ const NavigationButton = ({
   ...props
 }: ComponentProps<typeof IconButton>) => {
   return (
-    <IconButton
-      variant="text"
-      className={cx('[&>.lucide]:h-[2em]', className)}
-      disabled={disabled}
-      {...props}
-      size="lg"
-    />
+    <motion.div variants={variants}>
+      <IconButton
+        variant="text"
+        className={cx('[&>.lucide]:h-[2em]', className)}
+        disabled={disabled}
+        {...props}
+        size="xl"
+      />
+    </motion.div>
   );
 };
 
@@ -76,12 +116,14 @@ const Navigation = ({
   const ForwardIcon = orientation === 'vertical' ? ChevronDown : ChevronRight;
 
   return (
-    <Surface
+    <MotionSurface
       role="navigation"
       elevation="none"
       className={navigationVariants({ orientation })}
-      spacing="sm"
+      spacing="xs"
       noContainer
+      variants={containerVariants}
+      custom={orientation}
     >
       <NavigationButton
         onClick={moveBackward}
@@ -90,9 +132,12 @@ const Navigation = ({
         aria-label="Previous Step"
       />
       {orientation === 'vertical' && <PassphrasePrompter />}
-      <div className={progressContainerVariants({ orientation })}>
+      <motion.div
+        className={progressContainerVariants({ orientation })}
+        variants={variants}
+      >
         <ProgressBar percentProgress={progress} orientation={orientation} />
-      </div>
+      </motion.div>
       <NavigationButton
         className={cx(
           pulseNext &&
@@ -103,7 +148,7 @@ const Navigation = ({
         icon={<ForwardIcon className="size-8" strokeWidth="3px" />}
         aria-label="Next Step"
       />
-    </Surface>
+    </MotionSurface>
   );
 };
 

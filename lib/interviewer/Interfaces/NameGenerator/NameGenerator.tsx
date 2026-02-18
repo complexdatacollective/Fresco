@@ -283,6 +283,22 @@ const NameGenerator = (props: NameGeneratorProps) => {
             className="flex flex-1 rounded"
           />
         </div>
+        {form ? (
+          <NodeForm
+            selectedNode={selectedNode}
+            form={form}
+            disabled={maxNodesReached || (useEncryption && !passphrase)}
+            onClose={() => setSelectedNode(null)}
+            addNode={addNode}
+          />
+        ) : (
+          <QuickNodeForm
+            disabled={maxNodesReached || (useEncryption && !passphrase)}
+            targetVariable={quickAdd!}
+            onShowForm={() => setShowMinWarning(false)}
+            addNode={addNode}
+          />
+        )}
       </div>
       {stageElement &&
         createPortal(
@@ -310,23 +326,6 @@ const NameGenerator = (props: NameGeneratorProps) => {
           />,
           stageElement,
         )}
-      {form && (
-        <NodeForm
-          selectedNode={selectedNode}
-          form={form}
-          disabled={maxNodesReached || (useEncryption && !passphrase)}
-          onClose={() => setSelectedNode(null)}
-          addNode={addNode}
-        />
-      )}
-      {!form && (
-        <QuickNodeForm
-          disabled={maxNodesReached || (useEncryption && !passphrase)}
-          targetVariable={quickAdd!}
-          onShowForm={() => setShowMinWarning(false)}
-          addNode={addNode}
-        />
-      )}
     </>
   );
 };

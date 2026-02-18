@@ -16,13 +16,9 @@
     --neutral: oklch(var(--platinum));
     --neutral-contrast: oklch(var(--charcoal));
 
-    --primary: color-mix(
-      in oklab,
-      oklch(from var(--color-sea-green) l calc(c + 0.2) h),
-      white 50%
-    );
+    --primary: oklch(var(--sea-green));
 
-    --primary-contrast: color-mix(in oklab, oklch(var(--sea-green)), black 60%);
+    --primary-contrast: oklch(var(--white));
 
     /* For visual emphasis */
     --accent: oklch(var(--slate-blue));
@@ -73,8 +69,6 @@
     --selected: oklch(var(--white));
 
     --link: var(--barbie-pink);
-
-    --outline: currentColor; /* Used for borders */
 
     --input: oklch(var(--navy-taupe));
     --input-contrast: oklch(var(--white));

@@ -17,7 +17,7 @@ const toggleContainerVariants = compose(
     base: cx(
       'border-0',
       'relative inline-flex aspect-2/1 items-center rounded-full p-[0.2em]',
-      'shadow-inner',
+      'inset-surface',
       'focusable outline-(--input-border)',
       'transition-all duration-200',
     ),

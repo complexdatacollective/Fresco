@@ -1,8 +1,10 @@
 'use client';
 
 import { Slider } from '@base-ui/react/slider';
+import { motion } from 'motion/react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import {
+  controlLabelVariants,
   sliderControlVariants,
   sliderRootVariants,
   sliderThumbVariants,
@@ -73,6 +75,8 @@ export default function LikertScaleField(props: LikertScaleFieldProps) {
               {options.length > 0 && (
                 <div className={sliderTickContainerStyles}>
                   {options.map((_, index) => {
+                    if (index === 0 || index === options.length - 1)
+                      return null;
                     const percentage =
                       options.length > 1
                         ? (index / (options.length - 1)) * 100
@@ -91,6 +95,16 @@ export default function LikertScaleField(props: LikertScaleFieldProps) {
                 </div>
               )}
               <Slider.Thumb
+                render={
+                  <motion.div
+                    whileTap={{ scale: 1.1 }}
+                    transition={{
+                      type: 'spring',
+                      duration: 0.3,
+                      bounce: 0.4,
+                    }}
+                  />
+                }
                 className={sliderThumbVariants({ state })}
                 aria-label={`Select value on scale: ${currentOption?.label ?? 'No selection'}`}
               />
@@ -99,7 +113,7 @@ export default function LikertScaleField(props: LikertScaleFieldProps) {
         </Slider.Root>
 
         <div
-          className="mt-2 grid"
+          className="mt-2 grid gap-2 px-3"
           style={{
             gridTemplateColumns:
               options.length <= 2
@@ -115,7 +129,7 @@ export default function LikertScaleField(props: LikertScaleFieldProps) {
               <div
                 key={index}
                 className={cx(
-                  'text-sm leading-tight text-current/70',
+                  controlLabelVariants({ size: 'sm' }),
                   options.length === 1
                     ? 'text-center'
                     : isFirst

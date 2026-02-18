@@ -133,6 +133,7 @@ export default function RadioGroupField(props: RadioGroupFieldProps) {
         disabled={disabled}
         readOnly={readOnly}
         className={radioGroupWrapperVariants({
+          size,
           orientation,
           useColumns,
           state: getInputState(props),
@@ -174,7 +175,7 @@ export default function RadioGroupField(props: RadioGroupFieldProps) {
                     <svg
                       viewBox="0 0 24 24"
                       fill="currentColor"
-                      className="size-full overflow-hidden rounded-[40%] p-[0.1em]"
+                      className="text-primary size-full overflow-hidden rounded-[40%] p-[0.1em]"
                     >
                       <motion.rect
                         x="2"
