@@ -268,7 +268,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
 
   return (
     <>
-      <div className="interface flex-col gap-6" ref={interfaceRef}>
+      <div className="interface min-h-0 flex-col gap-6" ref={interfaceRef}>
         <Prompts />
         {panels ? (
           <ResizableFlexPanel
@@ -282,7 +282,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
               { value: 50, label: 'Equal split' },
             ]}
             overrideBasis={isPanelsOpen ? undefined : 0}
-            className="w-full flex-1 basis-full"
+            className="min-h-0 w-full flex-1 basis-full"
             aria-label="Resize panel and node list areas"
           >
             <NodePanels

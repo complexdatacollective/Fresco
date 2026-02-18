@@ -2,9 +2,9 @@
 
 import { configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { fn } from 'storybook/test';
-import { useState } from 'react';
 import { Provider } from 'react-redux';
+import { action } from 'storybook/actions';
+import { fn } from 'storybook/test';
 import Form from '~/lib/form/components/Form';
 import { type FormSubmitHandler } from '~/lib/form/store/types';
 import QuickAddField from './QuickAddField';
@@ -116,7 +116,7 @@ const meta: Meta<typeof QuickAddField> = {
   component: QuickAddField,
   decorators: [ReduxDecorator],
   parameters: {
-    layout: 'centered',
+    layout: 'fullscreen',
   },
   argTypes: {
     name: {
@@ -159,12 +159,11 @@ function QuickAddFieldWrapper(
   },
 ) {
   const { onFormSubmit, ...fieldProps } = props;
-  const [submittedValue, setSubmittedValue] = useState<string | null>(null);
 
   const handleSubmit: FormSubmitHandler = (values) => {
     const typedValues = values as Record<string, unknown>;
     const submittedName = typedValues[fieldProps.name] as string;
-    setSubmittedValue(submittedName);
+    action(submittedName);
 
     // Log to Storybook actions panel
     onFormSubmit({ [fieldProps.name]: submittedName });
@@ -177,11 +176,6 @@ function QuickAddFieldWrapper(
       <Form onSubmit={handleSubmit}>
         <QuickAddField {...fieldProps} />
       </Form>
-      {submittedValue && (
-        <div className="text-sm text-white" data-testid="submitted-value">
-          Submitted: {submittedValue}
-        </div>
-      )}
     </div>
   );
 }

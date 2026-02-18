@@ -1,6 +1,6 @@
 import { Toggle } from '@base-ui/react';
 import { Plus } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion, useAnimate } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { MotionSurface } from '~/components/layout/Surface';
@@ -49,6 +49,12 @@ function convertToNodeColor(color: NodeColorSequence): string {
   }
 }
 
+const PARTICLE_COUNT = 50;
+const PARTICLE_ANGLES = Array.from(
+  { length: PARTICLE_COUNT },
+  (_, i) => (i / PARTICLE_COUNT) * Math.PI * 2,
+);
+
 type QuickAddFieldProps = {
   name: string;
   placeholder: string;
@@ -81,7 +87,40 @@ export default function QuickAddField({
   const wasSubmittingRef = useRef(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const toggleRef = useRef<HTMLButtonElement>(null);
+  const [toggleScope, animate] = useAnimate<HTMLButtonElement>();
+  const particlesRef = useRef<(HTMLDivElement | null)[]>([]);
+
+  const celebrate = useCallback(async () => {
+    const button = toggleScope.current;
+    if (!button) return;
+
+    // Circle: shrink → elastic bounce-back
+    const circle = button.querySelector('[data-toggle-circle]');
+    if (circle) {
+      void animate(
+        circle,
+        { scale: [0.6, 1] },
+        { type: 'spring', stiffness: 500, damping: 8, mass: 0.8 },
+      );
+    }
+
+    // Particles: burst outward and fade
+    particlesRef.current.forEach((el, i) => {
+      if (!el) return;
+      const angle = PARTICLE_ANGLES[i];
+      if (angle === undefined) return;
+      const distance = 300 + Math.random() * 40;
+      const x = Math.cos(angle) * distance;
+      const y = Math.sin(angle) * distance;
+
+      const duration = 0.6 + Math.random() * 0.5;
+      void animate(
+        el,
+        { x: [0, x], y: [0, y], opacity: [1, 0], scale: [1, 0] },
+        { duration, ease: 'easeOut' },
+      );
+    });
+  }, [animate, toggleScope]);
 
   // Reset field (but stay open) when form submission succeeds, or show
   // validation errors on failed submission attempts.
@@ -92,13 +131,14 @@ export default function QuickAddField({
         fieldProps.onChange('');
         setSubmissionCount((c) => c + 1);
         setShowErrors(false);
+        void celebrate();
       } else {
         setShowErrors(true);
       }
       inputRef.current?.focus();
     }
     wasSubmittingRef.current = isFormSubmitting;
-  }, [isFormSubmitting, meta.isValid, fieldProps]);
+  }, [isFormSubmitting, meta.isValid, fieldProps, celebrate]);
 
   const handleChange = useCallback(
     (value: string | undefined) => {
@@ -114,7 +154,7 @@ export default function QuickAddField({
 
   const handleBlur = useCallback(
     (e: React.FocusEvent) => {
-      if (toggleRef.current?.contains(e.relatedTarget)) {
+      if (toggleScope.current?.contains(e.relatedTarget)) {
         return;
       }
       resetField();
@@ -164,7 +204,7 @@ export default function QuickAddField({
         {checked && (
           <MotionSurface
             noContainer
-            className="w-sm rounded-xl"
+            className="elevation-high bg-surface/80 w-sm rounded-xl backdrop-blur-md"
             initial={{ opacity: 0, x: '4rem' }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '4rem' }}
@@ -222,10 +262,20 @@ export default function QuickAddField({
         disabled={disabled}
         render={
           <button
-            ref={toggleRef}
-            className="focusable aspect-square size-28 rounded-full"
+            ref={toggleScope}
+            className="focusable relative aspect-square size-28 rounded-full"
           >
+            {/* {PARTICLE_ANGLES.map((_, i) => (
+              <div
+                key={i}
+                ref={(el) => {
+                  particlesRef.current[i] = el;
+                }}
+                className="pointer-events-none absolute top-1/2 left-1/2 z-10 size-1 -translate-1/2 rounded-full bg-white opacity-0"
+              />
+            ))} */}
             <motion.div
+              data-toggle-circle
               className={cx(
                 'elevation-high relative flex aspect-square size-28 items-center justify-center overflow-hidden rounded-full transition-[background-color,filter] duration-300 [&>.lucide]:aspect-square [&>.lucide]:h-16 [&>.lucide]:w-auto',
                 disabled ? 'cursor-not-allowed saturate-0' : 'cursor-pointer',

@@ -5,9 +5,9 @@ import { Skeleton } from '~/components/ui/skeleton';
 import { cx } from '~/utils/cva';
 
 const statCardClasses = cx(
-  'flex flex-col gap-4 transition-all',
+  'flex flex-col gap-4 border transition-all',
   '@3xs:flex-row @3xs:items-center @lg:gap-6',
-  'hover:scale-[102%]',
+  'hover:elevation-medium hover:scale-[102%]',
   'w-full rounded outline-none',
   'tablet:px-6 tablet:py-8 px-4 py-6',
 );

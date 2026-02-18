@@ -33,7 +33,7 @@
     --surface-1-contrast: var(--text);
     --surface-2: oklch(from var(--background) calc(l + 0.13) c h);
     --surface-2-contrast: var(--text);
-    --surface-3: oklch(from var(--background) calc(l + 0.05) c h);
+    --surface-3: oklch(from var(--background) calc(l + 0.16) c h);
     --surface-3-contrast: var(--text);
     --surface-popover: oklch(var(--white));
     --surface-popover-contrast: var(--background);

@@ -13,7 +13,7 @@ const Table = React.forwardRef<
     spacing="none"
     {...surfaceProps}
     className={cx(
-      'mx-auto w-full max-w-full overflow-x-auto rounded',
+      'mx-auto w-full max-w-full overflow-x-auto rounded border',
       surfaceProps?.className,
     )}
     noContainer
@@ -36,7 +36,7 @@ const TableHeader = React.forwardRef<
   <thead
     ref={ref}
     className={cx(
-      'publish-colors border-sea-green border-collapse bg-current/10 [&_tr]:border-b-current/20',
+      'publish-colors border-collapse bg-[color-mix(in_oklab,var(--surface)_90%,var(--primary))] [&_tr]:border-b',
       className,
     )}
     {...props}

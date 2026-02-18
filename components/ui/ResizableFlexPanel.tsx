@@ -96,6 +96,7 @@ const ResizableFlexPanel = forwardRef<HTMLDivElement, ResizableFlexPanelProps>(
           aria-label={ariaLabel ?? 'Resize panels'}
           tabIndex={0}
           className={cx(
+            'group',
             'focusable relative z-10 flex shrink-0 items-center justify-center',
             'touch-none select-none',
             isHorizontal ? 'w-4 cursor-col-resize' : 'h-4 cursor-row-resize',
