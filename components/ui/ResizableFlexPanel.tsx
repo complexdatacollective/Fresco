@@ -130,4 +130,3 @@ const ResizableFlexPanel = forwardRef<HTMLDivElement, ResizableFlexPanelProps>(
 ResizableFlexPanel.displayName = 'ResizableFlexPanel';
 
 export { ResizableFlexPanel };
-export type { Breakpoint, ResizableFlexPanelProps };

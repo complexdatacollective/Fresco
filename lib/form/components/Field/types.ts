@@ -11,7 +11,7 @@ import { type ValidationPropKey } from '../../validation/functions';
  * Parameter type for variable comparison validations
  * (greaterThanVariable, lessThanVariable, greaterThanOrEqualToVariable, lessThanOrEqualToVariable)
  */
-export type VariableComparisonParam = {
+type VariableComparisonParam = {
   attribute: string;
   type: Variable['type'];
 };
