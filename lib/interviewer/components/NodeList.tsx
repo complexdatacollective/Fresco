@@ -1,27 +1,12 @@
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
-import { memo, useCallback, useMemo } from 'react';
+import { motion } from 'motion/react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { Collection } from '~/lib/collection/components/Collection';
 import { useDragAndDrop } from '~/lib/collection/dnd/useDragAndDrop';
 import { InlineGridLayout } from '~/lib/collection/layout/InlineGridLayout';
 import { type DropCallback } from '~/lib/dnd/types';
 import { cx } from '~/utils/cva';
 import Node from './Node';
-
-/**
- * @deprecated Use Collection animations instead
- */
-export const nodeListVariants = {
-  initial: { opacity: 0 },
-  animate: {
-    opacity: 1,
-    transition: {
-      when: 'beforeChildren',
-      delayChildren: 0.25,
-      staggerChildren: 0.05,
-    },
-  },
-  exit: { opacity: 0 },
-};
 
 type NodeListProps = {
   items?: NcNode[];
@@ -87,21 +72,36 @@ const NodeList = memo(
       className,
     );
 
+    const [animationComplete, setAnimationComplete] = useState(false);
+
     return (
-      <Collection
-        id={id ?? 'node-list'}
-        items={items}
-        keyExtractor={keyExtractor}
-        layout={layout}
-        renderItem={(node) => <Node {...node} size={nodeSize} />}
-        dragAndDropHooks={(accepts ?? onDrop) ? dragAndDropHooks : undefined}
-        className={containerClasses}
-        animate={animate}
-        virtualized={virtualized}
-        overscan={overscan}
-        aria-label="Node list"
-        emptyState={null}
-      />
+      <motion.div
+        variants={{
+          initial: { opacity: 0 },
+          animate: { opacity: 1 },
+          exit: { opacity: 0 },
+        }}
+        onAnimationComplete={() => setAnimationComplete(true)}
+      >
+        {animationComplete && (
+          <Collection
+            id={id ?? 'node-list'}
+            items={items}
+            keyExtractor={keyExtractor}
+            layout={layout}
+            renderItem={(node) => <Node {...node} size={nodeSize} />}
+            dragAndDropHooks={
+              (accepts ?? onDrop) ? dragAndDropHooks : undefined
+            }
+            className={containerClasses}
+            animate={animate}
+            virtualized={virtualized}
+            overscan={overscan}
+            aria-label="Node list"
+            emptyState={null}
+          />
+        )}
+      </motion.div>
     );
   },
 );
