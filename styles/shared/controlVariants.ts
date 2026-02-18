@@ -1,4 +1,19 @@
-import { cva, cx } from '~/utils/cva';
+import { compose, cva, cx } from '~/utils/cva';
+
+// Small size variants for controls that should use a smaller scale, such as checkboxes
+export const smallSizeVariants = cva({
+  variants: {
+    size: {
+      sm: 'h-5',
+      md: 'h-6',
+      lg: 'h-8',
+      xl: 'h-10',
+    },
+  },
+  defaultVariants: {
+    size: 'md',
+  },
+});
 
 // Scale-specific Slider Variants (for VisualAnalogScale and LikertScale)
 // Uses base-ui slider which sets --slider-thumb-position CSS custom property
@@ -18,11 +33,14 @@ export const sliderRootVariants = cva({
 });
 
 export const sliderControlVariants = cva({
-  base: cx('relative flex h-10 w-full items-center'),
+  base: cx('relative flex h-10 w-full items-center px-3'),
 });
 
 export const sliderTrackVariants = cva({
-  base: cx('relative h-4 w-full border-2', 'transition-colors duration-200'),
+  base: cx(
+    'inset-surface relative h-4 w-full rounded border-2',
+    'transition-colors duration-200',
+  ),
   variants: {
     state: {
       normal: 'bg-input border-transparent',
@@ -36,32 +54,40 @@ export const sliderTrackVariants = cva({
   },
 });
 
-export const sliderThumbVariants = cva({
-  base: cx(
-    // Positioning - base-ui sets --slider-thumb-position
-    'absolute top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2',
-    'left-(--slider-thumb-position)',
-    // Appearance
-    'block rounded-full',
-    'focusable',
-    'transition-colors duration-200',
-  ),
-  variants: {
-    state: {
-      normal: 'bg-accent cursor-grab active:cursor-grabbing',
-      disabled: 'bg-input-contrast/30 pointer-events-none',
-      readOnly: 'bg-input-contrast/50 pointer-events-none',
-      invalid: 'bg-accent',
+export const sliderThumbVariants = compose(
+  smallSizeVariants,
+  cva({
+    base: cx(
+      // Positioning - base-ui sets --slider-thumb-position
+      'absolute top-1/2 aspect-square -translate-x-1/2 -translate-y-1/2',
+      'left-(--slider-thumb-position)',
+      // Appearance
+      'block rounded-full',
+      // focusable-within: the nested <input type="range"> receives focus, not the div
+      'focusable-within outline-primary',
+      'transition-colors duration-200',
+    ),
+    variants: {
+      state: {
+        normal: 'bg-primary cursor-grab active:cursor-grabbing',
+        disabled:
+          'pointer-events-none bg-[color-mix(in_oklch,var(--input-contrast)_30%,currentColor)]',
+        readOnly:
+          'pointer-events-none bg-[color-mix(in_oklch,var(--input-contrast)_50%,currentColor)]',
+        invalid: 'bg-destructive cursor-grab active:cursor-grabbing',
+      },
     },
-  },
-  defaultVariants: {
-    state: 'normal',
-  },
-});
+    defaultVariants: {
+      state: 'normal',
+    },
+  }),
+);
 
 export const sliderTickContainerStyles = cx('absolute inset-0 w-full');
 
-export const sliderTickStyles = cx('bg-input-contrast/20 h-full w-1');
+export const sliderTickStyles = cx(
+  'h-full w-1 bg-[color-mix(in_oklab,var(--input)_70%,var(--input-contrast))]',
+);
 
 // Base variants for all 'control' like components (inputs, buttons, etc)
 export const controlVariants = cva({
@@ -70,7 +96,7 @@ export const controlVariants = cva({
     'overflow-hidden',
     'truncate text-nowrap',
     'rounded',
-    'border-2 border-transparent',
+    'border-2',
   ),
 });
 
@@ -104,21 +130,6 @@ export const heightVariants = cva({
   },
 });
 
-// Small size variants for controls that should use a smaller scale, such as checkboxes
-export const smallSizeVariants = cva({
-  variants: {
-    size: {
-      sm: 'h-5',
-      md: 'h-6',
-      lg: 'h-8',
-      xl: 'h-10',
-    },
-  },
-  defaultVariants: {
-    size: 'md',
-  },
-});
-
 // Set the size of any child SVG icons to slightly above 1em to match text height
 export const proportionalLucideIconVariants = cva({
   base: '[&>.lucide]:h-[1em] [&>.lucide]:max-h-full [&>.lucide]:w-auto [&>.lucide]:shrink-0',
@@ -126,7 +137,7 @@ export const proportionalLucideIconVariants = cva({
 
 // adds background and border styles for input-like controls
 export const inputControlVariants = cva({
-  base: cx('bg-input text-input-contrast', 'border-input-contrast/10'),
+  base: cx('bg-input text-input-contrast', ''),
 });
 
 // Spacing between elements within a wrapper, such as icons and text
@@ -140,7 +151,18 @@ export const wrapperPaddingVariants = cva({
 
 // Spacing for groups of controls
 export const groupSpacingVariants = cva({
-  base: 'gap-2 p-4',
+  base: 'inset-surface',
+  variants: {
+    size: {
+      sm: 'gap-2 p-4',
+      md: 'gap-2 px-6 py-4',
+      lg: 'gap-6 px-8 py-6',
+      xl: 'gap-8 p-10 py-8',
+    },
+  },
+  defaultVariants: {
+    size: 'md',
+  },
 });
 
 // Variants for placeholder text styling
@@ -180,7 +202,8 @@ export const interactiveStateVariants = cva({
       disabled: cx('focus-within:border-input-contrast/50'),
       readOnly: cx('focus-within:border-input-contrast/70'),
       invalid: '',
-      normal: 'has-[input:focus-visible]:focus-styles outline-current',
+      normal:
+        'has-[input:focus-visible,textarea:focus-visible]:focus-styles outline-current',
     },
   },
   defaultVariants: {
@@ -223,7 +246,7 @@ export const orientationVariants = cva({
 });
 
 export const controlLabelVariants = cva({
-  base: cx('text-balance select-none'),
+  base: cx('leading-tight! text-balance select-none'),
   variants: {
     size: {
       sm: 'text-sm',
