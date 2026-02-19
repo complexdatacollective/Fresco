@@ -21,6 +21,7 @@ export const resetAppSettings = async () => {
       prisma.appSettings.deleteMany(),
       prisma.events.deleteMany(),
       prisma.asset.deleteMany(),
+      prisma.apiToken.deleteMany(),
     ]);
 
     // add a new initializedAt date
