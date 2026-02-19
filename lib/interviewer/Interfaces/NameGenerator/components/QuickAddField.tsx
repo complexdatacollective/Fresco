@@ -90,7 +90,7 @@ export default function QuickAddField({
   const [toggleScope, animate] = useAnimate<HTMLButtonElement>();
   const particlesRef = useRef<(HTMLDivElement | null)[]>([]);
 
-  const celebrate = useCallback(async () => {
+  const celebrate = useCallback(() => {
     const button = toggleScope.current;
     if (!button) return;
 
