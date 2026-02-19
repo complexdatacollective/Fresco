@@ -11,6 +11,7 @@ import Prompt from './Prompt';
 const containerVariants = {
   initial: { opacity: 0 },
   animate: { opacity: 1, transition: { when: 'beforeChildren' as const } },
+  exit: { opacity: 0 },
 };
 
 type PromptsProps = {
@@ -66,21 +67,23 @@ const Prompts = ({
           small={small}
         />
       )}
-      <AnimatePresence custom={backwards} mode="wait" initial={false}>
-        {prompts.map(
-          ({ id, text }) =>
-            currentIndex >= 0 &&
-            prompts[currentIndex]?.id === id && (
-              <Prompt
-                key={id}
-                id={id}
-                text={text}
-                backwards={backwards}
-                small={small}
-              />
-            ),
-        )}
-      </AnimatePresence>
+      <motion.div variants={containerVariants}>
+        <AnimatePresence custom={backwards} mode="wait" initial={false}>
+          {prompts.map(
+            ({ id, text }) =>
+              currentIndex >= 0 &&
+              prompts[currentIndex]?.id === id && (
+                <Prompt
+                  key={id}
+                  id={id}
+                  text={text}
+                  backwards={backwards}
+                  small={small}
+                />
+              ),
+          )}
+        </AnimatePresence>
+      </motion.div>
     </motion.div>
   );
 };

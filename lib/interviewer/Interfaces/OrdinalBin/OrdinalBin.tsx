@@ -3,7 +3,6 @@ import { entityAttributesProperty } from '@codaco/shared-consts';
 import { isNil } from 'es-toolkit';
 import { useSelector } from 'react-redux';
 import { type StageProps } from '~/lib/interviewer/types';
-import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import MultiNodeBucket from '../../components/MultiNodeBucket';
 import Prompts from '../../components/Prompts';
 import { usePrompts } from '../../components/Prompts/usePrompts';
@@ -60,4 +59,4 @@ const OrdinalBin = (props: OrdinalBinStageProps) => {
   );
 };
 
-export default withNoSSRWrapper(OrdinalBin);
+export default OrdinalBin;

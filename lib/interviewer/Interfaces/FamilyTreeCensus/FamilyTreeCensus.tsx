@@ -15,7 +15,6 @@ import {
   getNetworkNodes,
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
-import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { type StageProps } from '~/lib/interviewer/types';
 import { FamilyTreeProvider, useFamilyTreeStore } from './FamilyTreeProvider';
 import { getRelationshipTypeVariable } from './utils/edgeUtils';
@@ -209,7 +208,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   );
 };
 
-export default withNoSSRWrapper((props: FamilyTreeCensusProps) => {
+export default function FamilyTreeCensusWithProvider(props: FamilyTreeCensusProps) {
   const ego = useSelector(getNetworkEgo);
   const allNodes = useSelector(getNetworkNodes);
   const allEdges = useSelector(getNetworkEdges);
@@ -227,4 +226,4 @@ export default withNoSSRWrapper((props: FamilyTreeCensusProps) => {
       <FamilyTreeCensus {...props} />
     </FamilyTreeProvider>
   );
-});
+}

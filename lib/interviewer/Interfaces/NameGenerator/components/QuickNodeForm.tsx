@@ -78,7 +78,7 @@ const QuickNodeForm = ({
 
   return (
     <>
-      <div className="pointer-events-none absolute right-0 bottom-0 z-10 h-48 w-xl bg-[radial-gradient(ellipse_at_bottom_right,rgba(0,0,0,0.3)_0%,transparent_70%)]" />
+      <div className="pointer-events-none absolute right-0 bottom-0 z-10 h-48 w-xl bg-[radial-gradient(ellipse_at_bottom_right,oklch(from_var(--background)_calc(l-0.1)_c_h),transparent_70%)]" />
       <motion.div
         className="absolute right-12 bottom-6 z-20"
         variants={containerVariants}

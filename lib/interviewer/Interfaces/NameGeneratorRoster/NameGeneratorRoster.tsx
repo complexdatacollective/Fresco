@@ -23,7 +23,6 @@ import {
 import { useAppDispatch } from '~/lib/interviewer/store';
 import getParentKeyByNameValue from '~/lib/interviewer/utils/getParentKeyByNameValue';
 import { cx } from '~/utils/cva';
-import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import SearchableList from '../../components/SearchableList';
 import { usePassphrase } from '../Anonymisation/usePassphrase';
 import { type NameGeneratorRosterProps } from './helpers';
@@ -315,4 +314,4 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
   );
 };
 
-export default withNoSSRWrapper(NameGeneratorRoster);
+export default NameGeneratorRoster;

@@ -1,7 +1,6 @@
 import { type Prompt } from '@codaco/protocol-validation';
 import { useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import CategoricalList from '../components/CategoricalList';
 import MultiNodeBucket from '../components/MultiNodeBucket';
 import Prompts from '../components/Prompts';
@@ -54,4 +53,4 @@ const CategoricalBin = (props: CategoricalBinStageProps) => {
   );
 };
 
-export default withNoSSRWrapper(CategoricalBin);
+export default CategoricalBin;

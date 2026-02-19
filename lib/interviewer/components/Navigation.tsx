@@ -10,7 +10,6 @@ import { MotionSurface } from '~/components/layout/Surface';
 import { IconButton } from '~/components/ui/Button';
 import ProgressBar from '~/components/ui/ProgressBar';
 import { cva, cx } from '~/utils/cva';
-import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import PassphrasePrompter from './PassphrasePrompter';
 
 const variants = {
@@ -167,4 +166,4 @@ const Navigation = ({
   );
 };
 
-export default withNoSSRWrapper(Navigation);
+export default Navigation;

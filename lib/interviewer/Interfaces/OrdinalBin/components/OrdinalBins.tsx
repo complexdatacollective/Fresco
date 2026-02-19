@@ -1,5 +1,4 @@
 import { type Stage } from '@codaco/protocol-validation';
-import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { useOrdinalBins, type OrdinalBinPrompt } from '../useOrdinalBins';
 import OrdinalBinItem from './OrdinalBinItem';
 
@@ -34,4 +33,4 @@ const OrdinalBins = (props: OrdinalBinsProps) => {
   );
 };
 
-export default withNoSSRWrapper(OrdinalBins);
+export default OrdinalBins;
