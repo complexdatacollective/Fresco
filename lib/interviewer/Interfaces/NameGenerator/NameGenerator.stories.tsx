@@ -9,9 +9,11 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
 import { Provider } from 'react-redux';
+import { InterviewNavigationBridge } from '~/.storybook/interview-navigation-bridge';
 import { withInterviewAnimation } from '~/.storybook/interview-decorator';
 import sessionReducer from '~/lib/interviewer/ducks/modules/session';
 import uiReducer from '~/lib/interviewer/ducks/modules/ui';
+import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
 import NameGenerator from './NameGenerator';
 
 const names = [
@@ -213,6 +215,7 @@ const NameGeneratorStoryWrapper = (args: StoryArgs) => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const store = useMemo(() => createStore(args), [configKey]);
+  const nav = useMemo(() => createStoryNavigation(store), [store]);
 
   const stage = createStage(args);
 
@@ -221,19 +224,11 @@ const NameGeneratorStoryWrapper = (args: StoryArgs) => {
       <div id="stage" className="relative flex size-full flex-col items-center">
         <NameGenerator
           stage={stage}
-          registerBeforeNext={() => {
-            // no-op for stories
-          }}
-          getNavigationHelpers={() => ({
-            moveForward: () => {
-              // no-op
-            },
-            moveBackward: () => {
-              // no-op
-            },
-          })}
+          registerBeforeNext={nav.registerBeforeNext}
+          getNavigationHelpers={nav.getNavigationHelpers}
         />
       </div>
+      <InterviewNavigationBridge store={store} storyNavigation={nav} />
     </Provider>
   );
 };
