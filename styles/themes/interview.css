@@ -75,6 +75,8 @@
 
     --overlay: oklch(from oklch(var(--rich-black)) calc(l + 0.15) c h);
 
+    --outline: oklch(90% 0.02 var(--base-hue)); /* Used for borders */
+
     /* Sequences */
     --node-1: oklch(var(--neon-coral));
     --node-1-contrast: oklch(var(--white));
@@ -112,6 +114,8 @@
     --ord-6: oklch(var(--cerulean-blue));
     --ord-7: oklch(var(--paradise-pink));
     --ord-8: oklch(var(--mustard));
+    --ord-9: oklch(var(--purple-pizazz));
+    --ord-10: oklch(var(--slate-blue));
 
     /* used by categorical and convex hulls */
     --cat-1: oklch(var(--sea-serpent));

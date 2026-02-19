@@ -16,6 +16,7 @@ const CloseButton = forwardRef<
   return (
     <IconButton
       ref={ref}
+      color="dynamic"
       {...rest}
       icon={icon}
       title={title}

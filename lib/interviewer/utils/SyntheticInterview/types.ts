@@ -39,7 +39,11 @@ export type StageType =
   | 'NameGenerator'
   | 'Sociogram'
   | 'Narrative'
-  | 'OneToManyDyadCensus';
+  | 'DyadCensus'
+  | 'OneToManyDyadCensus'
+  | 'OrdinalBin'
+  | 'CategoricalBin'
+  | 'EgoForm';
 
 export type NameGeneratorPromptEntry = {
   id: string;
@@ -69,6 +73,12 @@ export type SortRule = {
   direction: 'asc' | 'desc';
 };
 
+export type DyadCensusPromptEntry = {
+  id: string;
+  text: string;
+  createEdge: string;
+};
+
 export type OneToManyDyadCensusPromptEntry = {
   id: string;
   text: string;
@@ -77,10 +87,33 @@ export type OneToManyDyadCensusPromptEntry = {
   binSortOrder?: SortRule[];
 };
 
+export type OrdinalBinPromptEntry = {
+  id: string;
+  text: string;
+  variable: string;
+  bucketSortOrder?: SortRule[];
+  binSortOrder?: SortRule[];
+  color?: string;
+};
+
+export type CategoricalBinPromptEntry = {
+  id: string;
+  text: string;
+  variable: string;
+  otherVariable?: string;
+  otherVariablePrompt?: string;
+  otherOptionLabel?: string;
+  bucketSortOrder?: SortRule[];
+  binSortOrder?: SortRule[];
+};
+
 export type PromptEntry =
   | NameGeneratorPromptEntry
   | SociogramPromptEntry
-  | OneToManyDyadCensusPromptEntry;
+  | DyadCensusPromptEntry
+  | OneToManyDyadCensusPromptEntry
+  | OrdinalBinPromptEntry
+  | CategoricalBinPromptEntry;
 
 export type PresetEntry = {
   id: string;
@@ -95,7 +128,8 @@ export type PresetEntry = {
 
 export type FormFieldEntry = {
   variable: string;
-  component: ComponentType;
+  component?: ComponentType;
+  prompt?: string;
 };
 
 export type FormEntry = {
@@ -131,6 +165,10 @@ export type StageEntry = {
     freeDraw?: boolean;
     allowRepositioning?: boolean;
     removeAfterConsideration?: boolean;
+  };
+  introductionPanel?: {
+    title: string;
+    text: string;
   };
   initialNodes: number;
   initialEdges: [number, number][];
@@ -202,6 +240,10 @@ export type AddStageInput = {
     title?: string;
     fields: FormFieldInput[];
   };
+  introductionPanel?: {
+    title?: string;
+    text?: string;
+  };
 };
 
 export type AddPromptInput = {
@@ -218,9 +260,32 @@ export type AddPromptInput = {
   };
 };
 
+export type AddDyadCensusPromptInput = {
+  text?: string;
+  createEdge?: boolean | string;
+};
+
 export type AddOneToManyDyadCensusPromptInput = {
   text?: string;
   createEdge?: boolean | string;
+  bucketSortOrder?: SortRule[];
+  binSortOrder?: SortRule[];
+};
+
+export type AddOrdinalBinPromptInput = {
+  text?: string;
+  variable?: string;
+  bucketSortOrder?: SortRule[];
+  binSortOrder?: SortRule[];
+  color?: string;
+};
+
+export type AddCategoricalBinPromptInput = {
+  text?: string;
+  variable?: string;
+  otherVariable?: string;
+  otherVariablePrompt?: string;
+  otherOptionLabel?: string;
   bucketSortOrder?: SortRule[];
   binSortOrder?: SortRule[];
 };

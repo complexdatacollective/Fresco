@@ -49,3 +49,16 @@ export const EDGE_COLORS = [
   'edge-color-seq-4',
   'edge-color-seq-5',
 ];
+
+export const ORDINAL_COLORS = [
+  'ord-color-seq-1',
+  'ord-color-seq-2',
+  'ord-color-seq-3',
+  'ord-color-seq-4',
+  'ord-color-seq-5',
+  'ord-color-seq-6',
+  'ord-color-seq-7',
+  'ord-color-seq-8',
+  'ord-color-seq-9',
+  'ord-color-seq-10',
+];

@@ -109,6 +109,8 @@
     --ord-6: oklch(var(--cerulean-blue));
     --ord-7: oklch(var(--paradise-pink));
     --ord-8: oklch(var(--mustard));
+    --ord-9: oklch(var(--purple-pizazz));
+    --ord-10: oklch(var(--slate-blue));
 
     /* used by categorical and convex hulls */
     --cat-1: oklch(var(--sea-serpent));

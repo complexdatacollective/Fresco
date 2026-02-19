@@ -67,8 +67,16 @@ export class ValueGenerator {
         return 'Place people in the circles based on how close you are to them.';
       case 'Narrative':
         return 'Review the network and add any annotations.';
+      case 'DyadCensus':
+        return 'Do these two people know each other?';
       case 'OneToManyDyadCensus':
         return 'Does this person have a relationship with any of the people below?';
+      case 'OrdinalBin':
+        return 'How much do you agree with each person?';
+      case 'CategoricalBin':
+        return 'Which categories does each person belong to?';
+      case 'EgoForm':
+        return 'Please tell us about yourself.';
       default:
         return 'Please complete this step.';
     }

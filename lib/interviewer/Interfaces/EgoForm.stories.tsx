@@ -5,13 +5,34 @@ import { useMemo } from 'react';
 import { Provider } from 'react-redux';
 import { withInterviewAnimation } from '~/.storybook/interview-decorator';
 import { InterviewNavigationBridge } from '~/.storybook/interview-navigation-bridge';
+import { type ComponentType } from '~/lib/interviewer/utils/SyntheticInterview/types';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
 import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
-import DyadCensus from './DyadCensus';
+import EgoForm from './EgoForm';
+
+const FIELD_PRESETS: { component: ComponentType; prompt: string }[] = [
+  { component: 'Text', prompt: 'What is your name?' },
+  { component: 'Number', prompt: 'How old are you?' },
+  { component: 'TextArea', prompt: 'Describe yourself briefly.' },
+  { component: 'Toggle', prompt: 'Do you live alone?' },
+  { component: 'Boolean', prompt: 'Are you currently employed?' },
+  { component: 'RadioGroup', prompt: 'What is your highest education level?' },
+  {
+    component: 'CheckboxGroup',
+    prompt: 'Which languages do you speak?',
+  },
+  {
+    component: 'LikertScale',
+    prompt: 'How would you rate your overall health?',
+  },
+  {
+    component: 'VisualAnalogScale',
+    prompt: 'How happy are you right now?',
+  },
+];
 
 type StoryArgs = {
-  initialNodeCount: number;
-  promptCount: number;
+  fieldCount: number;
   introTitle: string;
   introText: string;
 };
@@ -19,28 +40,27 @@ type StoryArgs = {
 function buildInterview(args: StoryArgs) {
   const interview = new SyntheticInterview();
 
-  const nodeType = interview.addNodeType({ name: 'Person' });
-
-  const stage = interview.addStage('DyadCensus', {
-    label: 'Dyad Census',
-    initialNodes: args.initialNodeCount,
-    subject: { entity: 'node', type: nodeType.id },
+  const stage = interview.addStage('EgoForm', {
+    label: 'About You',
     introductionPanel: {
       title: args.introTitle,
       text: args.introText,
     },
   });
 
-  for (let i = 0; i < args.promptCount; i++) {
-    stage.addPrompt({
-      text: `Prompt ${i + 1}: Do these two people know each other?`,
+  const fieldCount = Math.min(args.fieldCount, FIELD_PRESETS.length);
+  for (let i = 0; i < fieldCount; i++) {
+    const preset = FIELD_PRESETS[i]!;
+    stage.addFormField({
+      component: preset.component,
+      prompt: preset.prompt,
     });
   }
 
   return interview;
 }
 
-const DyadCensusStoryWrapper = (args: StoryArgs) => {
+const EgoFormStoryWrapper = (args: StoryArgs) => {
   const configKey = JSON.stringify(args);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -50,15 +70,15 @@ const DyadCensusStoryWrapper = (args: StoryArgs) => {
 
   const protocol = interview.getProtocol();
   const rawStage = protocol.stages[0];
-  if (rawStage?.type !== 'DyadCensus') {
-    throw new Error('Expected DyadCensus stage');
+  if (rawStage?.type !== 'EgoForm') {
+    throw new Error('Expected EgoForm stage');
   }
   const stage = rawStage;
 
   return (
     <Provider store={store}>
       <div id="stage" className="relative flex size-full flex-col items-center">
-        <DyadCensus
+        <EgoForm
           stage={stage}
           registerBeforeNext={nav.registerBeforeNext}
           getNavigationHelpers={nav.getNavigationHelpers}
@@ -70,20 +90,16 @@ const DyadCensusStoryWrapper = (args: StoryArgs) => {
 };
 
 const meta: Meta<StoryArgs> = {
-  title: 'Interview/Interfaces/DyadCensus',
+  title: 'Interview/Interfaces/EgoForm',
   decorators: [withInterviewAnimation],
   parameters: {
     forceTheme: 'interview',
     layout: 'fullscreen',
   },
   argTypes: {
-    initialNodeCount: {
-      control: { type: 'range', min: 2, max: 10 },
-      description: 'Number of nodes in the network (pairs = n*(n-1)/2)',
-    },
-    promptCount: {
-      control: { type: 'range', min: 1, max: 3 },
-      description: 'Number of prompts',
+    fieldCount: {
+      control: { type: 'range', min: 1, max: FIELD_PRESETS.length },
+      description: 'Number of form fields',
     },
     introTitle: {
       control: 'text',
@@ -95,11 +111,10 @@ const meta: Meta<StoryArgs> = {
     },
   },
   args: {
-    initialNodeCount: 4,
-    promptCount: 1,
-    introTitle: 'Network Relationships',
+    fieldCount: 4,
+    introTitle: 'About You',
     introText:
-      'In this section, you will be asked about relationships between people in your network. For each pair of people, please indicate whether they know each other.',
+      'Please answer the following questions about yourself. Your responses will be kept confidential.',
   },
 };
 
@@ -107,5 +122,5 @@ export default meta;
 type Story = StoryObj<StoryArgs>;
 
 export const Default: Story = {
-  render: (args) => <DyadCensusStoryWrapper {...args} />,
+  render: (args) => <EgoFormStoryWrapper {...args} />,
 };

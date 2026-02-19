@@ -11,17 +11,23 @@ import {
   DEFAULT_ORDINAL_OPTIONS,
   EDGE_COLORS,
   NODE_COLORS,
+  ORDINAL_COLORS,
 } from './constants';
 import { createMockStore } from './createMockStore';
 import {
+  type AddCategoricalBinPromptInput,
+  type AddDyadCensusPromptInput,
   type AddEdgeTypeInput,
   type AddNodeTypeInput,
   type AddOneToManyDyadCensusPromptInput,
+  type AddOrdinalBinPromptInput,
   type AddPresetInput,
   type AddPromptInput,
   type AddStageInput,
   type AddVariableInput,
+  type CategoricalBinPromptEntry,
   type ComponentType,
+  type DyadCensusPromptEntry,
   type EdgeEntry,
   type EdgeTypeEntry,
   type FormFieldInput,
@@ -30,6 +36,7 @@ import {
   type NodeEntry,
   type NodeTypeEntry,
   type OneToManyDyadCensusPromptEntry,
+  type OrdinalBinPromptEntry,
   type PresetEntry,
   type SociogramPromptEntry,
   type StageEntry,
@@ -75,15 +82,39 @@ type NarrativeHandle = StageHandleBase & {
   addPreset: (opts?: AddPresetInput) => void;
 };
 
+type DyadCensusHandle = StageHandleBase & {
+  addPrompt: (opts?: AddDyadCensusPromptInput) => void;
+};
+
 type OneToManyDyadCensusHandle = StageHandleBase & {
   addPrompt: (opts?: AddOneToManyDyadCensusPromptInput) => void;
+};
+
+type OrdinalBinHandle = StageHandleBase & {
+  addPrompt: (opts?: AddOrdinalBinPromptInput) => void;
+};
+
+type CategoricalBinHandle = StageHandleBase & {
+  addPrompt: (opts?: AddCategoricalBinPromptInput) => void;
+};
+
+type EgoFormHandle = StageHandleBase & {
+  addFormField: (opts: {
+    component: ComponentType;
+    variable?: string;
+    prompt?: string;
+  }) => void;
 };
 
 type StageHandleMap = {
   NameGenerator: NameGeneratorHandle;
   Sociogram: SociogramHandle;
   Narrative: NarrativeHandle;
+  DyadCensus: DyadCensusHandle;
   OneToManyDyadCensus: OneToManyDyadCensusHandle;
+  OrdinalBin: OrdinalBinHandle;
+  CategoricalBin: CategoricalBinHandle;
+  EgoForm: EgoFormHandle;
 };
 
 export class SyntheticInterview {
@@ -96,8 +127,10 @@ export class SyntheticInterview {
   private nodes: NodeEntry[] = [];
   private edges: EdgeEntry[] = [];
   private assets: Record<string, unknown>[] = [];
+  private egoVariables = new Map<string, VariableEntry>();
   private nodeTypeCounter = 0;
   private edgeTypeCounter = 0;
+  private ordinalPromptCounter = 0;
 
   constructor(seed = 42) {
     this.seed = seed;
@@ -191,6 +224,24 @@ export class SyntheticInterview {
     return { id: varId };
   }
 
+  addEgoVariable(opts?: AddVariableInput): VariableRef {
+    const varId = this.nextId('ego-var');
+    const type = this.resolveVariableType(opts);
+    const options = this.resolveOptions(type, opts?.options);
+
+    const entry: VariableEntry = {
+      id: varId,
+      name: opts?.name ?? this.defaultVariableName(type),
+      type,
+      component: opts?.component,
+      options,
+      validation: opts?.validation,
+    };
+
+    this.egoVariables.set(varId, entry);
+    return { id: varId };
+  }
+
   // --- Stage API ---
 
   addStage<T extends StageType>(
@@ -199,9 +250,9 @@ export class SyntheticInterview {
   ): StageHandleMap[T] {
     const stageId = this.nextId('stage');
 
-    // Resolve subject: auto-create node type if needed
+    // EgoForm stages have no subject
     let subject = opts?.subject;
-    if (!subject) {
+    if (!subject && type !== 'EgoForm') {
       let nodeTypeId: string;
       if (this.nodeTypes.size > 0) {
         nodeTypeId = this.nodeTypes.keys().next().value!;
@@ -231,12 +282,20 @@ export class SyntheticInterview {
       panels: [],
       background: opts?.background,
       behaviours,
+      introductionPanel: opts?.introductionPanel
+        ? {
+            title: opts.introductionPanel.title ?? 'Introduction',
+            text: opts.introductionPanel.text ?? '',
+          }
+        : type === 'DyadCensus'
+          ? { title: 'Introduction', text: '' }
+          : undefined,
       initialNodes: opts?.initialNodes ?? 0,
       initialEdges: opts?.initialEdges ?? [],
     };
 
-    // Handle form fields for NameGenerator
-    if (opts?.form) {
+    // Handle form fields for NameGenerator (node-based)
+    if (opts?.form && subject) {
       const fields = opts.form.fields.map((f) =>
         this.resolveFormField(f, subject.type),
       );
@@ -246,8 +305,8 @@ export class SyntheticInterview {
       };
     }
 
-    // Generate initial nodes
-    if (entry.initialNodes > 0) {
+    // Generate initial nodes (only for node-based stages)
+    if (entry.initialNodes > 0 && subject) {
       for (let i = 0; i < entry.initialNodes; i++) {
         this.nodes.push({
           uid: this.nextId('node'),
@@ -346,6 +405,14 @@ export class SyntheticInterview {
           },
         } as StageHandleMap[T];
 
+      case 'DyadCensus':
+        return {
+          ...base,
+          addPrompt: (opts?: AddDyadCensusPromptInput) => {
+            entry.prompts.push(this.resolveDyadCensusPrompt(opts));
+          },
+        } as StageHandleMap[T];
+
       case 'OneToManyDyadCensus':
         return {
           ...base,
@@ -353,6 +420,36 @@ export class SyntheticInterview {
             entry.prompts.push(
               this.resolveOneToManyDyadCensusPrompt(opts, entry),
             );
+          },
+        } as StageHandleMap[T];
+
+      case 'OrdinalBin':
+        return {
+          ...base,
+          addPrompt: (opts?: AddOrdinalBinPromptInput) => {
+            entry.prompts.push(this.resolveOrdinalBinPrompt(opts, entry));
+          },
+        } as StageHandleMap[T];
+
+      case 'CategoricalBin':
+        return {
+          ...base,
+          addPrompt: (opts?: AddCategoricalBinPromptInput) => {
+            entry.prompts.push(this.resolveCategoricalBinPrompt(opts, entry));
+          },
+        } as StageHandleMap[T];
+
+      case 'EgoForm':
+        return {
+          ...base,
+          addFormField: (opts: {
+            component: ComponentType;
+            variable?: string;
+            prompt?: string;
+          }) => {
+            const field = this.resolveEgoFormField(opts);
+            entry.form ??= { title: 'About you', fields: [] };
+            entry.form.fields.push(field);
           },
         } as StageHandleMap[T];
 
@@ -407,6 +504,25 @@ export class SyntheticInterview {
     return {
       variable: variableId,
       component: input.component,
+    };
+  }
+
+  private resolveEgoFormField(input: {
+    component: ComponentType;
+    variable?: string;
+    prompt?: string;
+  }) {
+    let variableId = input.variable;
+    if (!variableId) {
+      const ref = this.addEgoVariable({
+        component: input.component,
+        name: input.prompt,
+      });
+      variableId = ref.id;
+    }
+    return {
+      variable: variableId,
+      prompt: input.prompt ?? 'Enter a value',
     };
   }
 
@@ -548,6 +664,29 @@ export class SyntheticInterview {
     };
   }
 
+  private resolveDyadCensusPrompt(
+    opts: AddDyadCensusPromptInput | undefined,
+  ): DyadCensusPromptEntry {
+    const promptId = this.nextId('prompt');
+
+    let createEdge: string;
+    if (typeof opts?.createEdge === 'string') {
+      createEdge = opts.createEdge;
+    } else {
+      if (this.edgeTypes.size > 0) {
+        createEdge = this.edgeTypes.keys().next().value!;
+      } else {
+        createEdge = this.addEdgeType().id;
+      }
+    }
+
+    return {
+      id: promptId,
+      text: opts?.text ?? this.valueGen.generatePromptText('DyadCensus'),
+      createEdge,
+    };
+  }
+
   private resolveOneToManyDyadCensusPrompt(
     opts: AddOneToManyDyadCensusPromptInput | undefined,
     _entry: StageEntry,
@@ -577,6 +716,69 @@ export class SyntheticInterview {
       text:
         opts?.text ?? this.valueGen.generatePromptText('OneToManyDyadCensus'),
       createEdge,
+      bucketSortOrder: opts?.bucketSortOrder,
+      binSortOrder: opts?.binSortOrder,
+    };
+  }
+
+  private resolveOrdinalBinPrompt(
+    opts: AddOrdinalBinPromptInput | undefined,
+    entry: StageEntry,
+  ): OrdinalBinPromptEntry {
+    const promptId = this.nextId('prompt');
+    const nodeTypeId = entry.subject!.type;
+
+    // Resolve variable: use provided or auto-create an ordinal variable
+    let variable: string;
+    if (opts?.variable) {
+      variable = opts.variable;
+    } else {
+      const ref = this.addVariableToNodeType(nodeTypeId, {
+        type: 'ordinal',
+        name: 'Agreement',
+      });
+      variable = ref.id;
+    }
+
+    const colorIndex = this.ordinalPromptCounter % ORDINAL_COLORS.length;
+    this.ordinalPromptCounter++;
+
+    return {
+      id: promptId,
+      text: opts?.text ?? this.valueGen.generatePromptText('OrdinalBin'),
+      variable,
+      bucketSortOrder: opts?.bucketSortOrder,
+      binSortOrder: opts?.binSortOrder,
+      color: opts?.color ?? ORDINAL_COLORS[colorIndex],
+    };
+  }
+
+  private resolveCategoricalBinPrompt(
+    opts: AddCategoricalBinPromptInput | undefined,
+    entry: StageEntry,
+  ): CategoricalBinPromptEntry {
+    const promptId = this.nextId('prompt');
+    const nodeTypeId = entry.subject!.type;
+
+    // Resolve variable: use provided or auto-create a categorical variable
+    let variable: string;
+    if (opts?.variable) {
+      variable = opts.variable;
+    } else {
+      const ref = this.addVariableToNodeType(nodeTypeId, {
+        type: 'categorical',
+        name: 'Category',
+      });
+      variable = ref.id;
+    }
+
+    return {
+      id: promptId,
+      text: opts?.text ?? this.valueGen.generatePromptText('CategoricalBin'),
+      variable,
+      otherVariable: opts?.otherVariable,
+      otherVariablePrompt: opts?.otherVariablePrompt,
+      otherOptionLabel: opts?.otherOptionLabel,
       bucketSortOrder: opts?.bucketSortOrder,
       binSortOrder: opts?.binSortOrder,
     };
@@ -700,7 +902,24 @@ export class SyntheticInterview {
       };
     }
 
-    return { node, edge };
+    // Build ego codebook if ego variables exist
+    let ego: Record<string, unknown> | undefined;
+    if (this.egoVariables.size > 0) {
+      const variables: Record<string, unknown> = {};
+      for (const [varId, varEntry] of this.egoVariables) {
+        const variable: Record<string, unknown> = {
+          name: varEntry.name,
+          type: varEntry.type,
+        };
+        if (varEntry.component) variable.component = varEntry.component;
+        if (varEntry.options) variable.options = varEntry.options;
+        if (varEntry.validation) variable.validation = varEntry.validation;
+        variables[varId] = variable;
+      }
+      ego = { variables };
+    }
+
+    return { node, edge, ego };
   }
 
   private buildStageConfig(stage: StageEntry): unknown {
@@ -736,6 +955,10 @@ export class SyntheticInterview {
 
     if (stage.behaviours) {
       config.behaviours = stage.behaviours;
+    }
+
+    if (stage.introductionPanel) {
+      config.introductionPanel = stage.introductionPanel;
     }
 
     return config;
