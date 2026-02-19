@@ -203,6 +203,11 @@ export type CollectionProps<T> = SortProps &
     // Animation props
     /** Enable stagger enter animation for items */
     'animate'?: boolean;
+    /**
+     * When this value changes, the stagger entrance animation re-runs.
+     * Used by NodeList to trigger re-animation on prompt transitions.
+     */
+    'animationKey'?: string | number;
 
     // Rendering props
     /**

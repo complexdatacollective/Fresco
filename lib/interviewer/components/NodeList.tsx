@@ -1,6 +1,6 @@
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
-import { motion } from 'motion/react';
-import { memo, useCallback, useMemo, useState } from 'react';
+import { animate as motionAnimate, motion } from 'motion/react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Collection } from '~/lib/collection/components/Collection';
 import { useDragAndDrop } from '~/lib/collection/dnd/useDragAndDrop';
 import { InlineGridLayout } from '~/lib/collection/layout/InlineGridLayout';
@@ -19,9 +19,12 @@ type NodeListProps = {
   nodeSize?: 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
   className?: string;
   animate?: boolean;
+  animationKey?: string | number;
   virtualized?: boolean;
   overscan?: number;
 };
+
+const EXIT_DURATION = 0.2;
 
 const NodeList = memo(
   ({
@@ -34,10 +37,78 @@ const NodeList = memo(
     nodeSize = 'md',
     className,
     animate = true,
+    animationKey,
     virtualized,
     overscan,
   }: NodeListProps) => {
     const layout = useMemo(() => new InlineGridLayout<NcNode>({ gap: 16 }), []);
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    // --- Item buffering for prompt transitions ---
+    const [displayItems, setDisplayItems] = useState(items);
+    const [displayAnimationKey, setDisplayAnimationKey] =
+      useState(animationKey);
+    const latestItemsRef = useRef(items);
+    const isTransitioningRef = useRef(false);
+    const prevAnimationKeyRef = useRef(animationKey);
+
+    // Always keep latest items ref up to date
+    latestItemsRef.current = items;
+
+    // When not transitioning, pass items through immediately
+    useEffect(() => {
+      if (!isTransitioningRef.current) {
+        setDisplayItems(items);
+      }
+    }, [items]);
+
+    // Detect animationKey change and run exit → swap → re-enter
+    useEffect(() => {
+      if (
+        animationKey === prevAnimationKeyRef.current ||
+        prevAnimationKeyRef.current === undefined
+      ) {
+        prevAnimationKeyRef.current = animationKey;
+        return;
+      }
+
+      prevAnimationKeyRef.current = animationKey;
+
+      const container = containerRef.current;
+      if (!container) {
+        // No container yet — just swap directly
+        setDisplayItems(latestItemsRef.current);
+        setDisplayAnimationKey(animationKey);
+        return;
+      }
+
+      const staggerItems = container.querySelectorAll<HTMLElement>(
+        '[data-stagger-item]',
+      );
+
+      if (staggerItems.length === 0) {
+        // Nothing to animate out — swap directly
+        setDisplayItems(latestItemsRef.current);
+        setDisplayAnimationKey(animationKey);
+        return;
+      }
+
+      isTransitioningRef.current = true;
+
+      // Capture the new animationKey for use in the async callback
+      const nextKey = animationKey;
+
+      void motionAnimate(
+        staggerItems,
+        { opacity: 0, scale: 0.6 },
+        { duration: EXIT_DURATION },
+      ).then(() => {
+        // Swap to latest items and update animationKey to trigger stagger re-entrance
+        setDisplayItems(latestItemsRef.current);
+        setDisplayAnimationKey(nextKey);
+        isTransitioningRef.current = false;
+      });
+    }, [animationKey]);
 
     // Build drag and drop hooks if accepts or onDrop is provided
     const { dragAndDropHooks } = useDragAndDrop<NcNode>({
@@ -89,6 +160,7 @@ const NodeList = memo(
 
     return (
       <motion.div
+        ref={containerRef}
         variants={{
           initial: { opacity: 0 },
           animate: { opacity: 1 },
@@ -100,7 +172,7 @@ const NodeList = memo(
         {animationComplete && (
           <Collection
             id={id ?? 'node-list'}
-            items={items}
+            items={displayItems}
             keyExtractor={keyExtractor}
             layout={layout}
             renderItem={renderItem}
@@ -109,6 +181,7 @@ const NodeList = memo(
             }
             className={containerClasses}
             animate={animate}
+            animationKey={displayAnimationKey}
             virtualized={virtualized}
             overscan={overscan}
             aria-label="Node list"

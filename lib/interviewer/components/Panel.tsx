@@ -49,7 +49,6 @@ const Panel = ({
   );
 
   const panelContentClasses = compose(
-    surfaceSpacingVariants,
     cva({
       base: cx(
         'flex min-h-0 grow basis-auto flex-col overflow-hidden',

@@ -14,6 +14,7 @@ type StaticRendererProps<T> = {
   renderItem: ItemRenderer<T>;
   dragAndDropHooks?: CollectionProps<T>['dragAndDropHooks'];
   animate?: boolean;
+  animationKey?: string | number;
   collectionId: string;
   layoutGroupId?: string | null;
 };
@@ -30,13 +31,18 @@ export function StaticRenderer<T>({
   renderItem,
   dragAndDropHooks,
   animate: shouldAnimate,
+  animationKey,
   collectionId,
   layoutGroupId,
 }: StaticRendererProps<T>) {
   // Get CSS styles from layout (flexbox for list, CSS grid for grid)
   const containerStyle = layout.getContainerStyles();
 
-  const scope = useStaggerAnimation(shouldAnimate ?? false, collection.size);
+  const scope = useStaggerAnimation(
+    shouldAnimate ?? false,
+    collection.size,
+    animationKey,
+  );
 
   // Get layout item styles (e.g., fixed width for InlineGridLayout)
   const layoutItemStyle = layout.getItemStyles();

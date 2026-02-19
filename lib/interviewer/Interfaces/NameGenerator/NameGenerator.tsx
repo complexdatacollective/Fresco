@@ -60,7 +60,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
 
   const interfaceRef = useRef(null);
 
-  const { isLastPrompt } = usePrompts();
+  const { isLastPrompt, promptIndex } = usePrompts();
   const { requirePassphrase, passphrase } = usePassphrase();
 
   const [selectedNode, setSelectedNode] = useState<NcNode | null>(null);
@@ -301,6 +301,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
             <NodePanels
               disableAddNew={maxNodesReached}
               onOpenChange={setIsPanelsOpen}
+              animationKey={promptIndex}
             />
             <NodeList
               items={nodesForPrompt}
@@ -309,6 +310,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
               itemType="EXISTING_NODE"
               onDrop={handleDropNode}
               onItemClick={handleSelectNode}
+              animationKey={promptIndex}
               className="flex flex-1 rounded"
             />
           </ResizableFlexPanel>
@@ -321,6 +323,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
               itemType="EXISTING_NODE"
               onDrop={handleDropNode}
               onItemClick={handleSelectNode}
+              animationKey={promptIndex}
               className="flex flex-1 rounded"
             />
           </div>

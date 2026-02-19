@@ -26,6 +26,7 @@ type VirtualizedRendererProps<T> = {
   renderItem: ItemRenderer<T>;
   dragAndDropHooks?: CollectionProps<T>['dragAndDropHooks'];
   animate?: boolean;
+  animationKey?: string | number;
   collectionId: string;
   scrollRef: RefObject<HTMLElement | null>;
   /** Number of rows to render beyond the visible viewport. Default: 5 */
@@ -53,6 +54,7 @@ export function VirtualizedRenderer<T>({
   renderItem,
   dragAndDropHooks,
   animate: shouldAnimate,
+  animationKey,
   collectionId,
   scrollRef,
   overscan = 5,
@@ -180,7 +182,11 @@ export function VirtualizedRenderer<T>({
     0,
   );
 
-  const scope = useStaggerAnimation(shouldAnimate ?? false, visibleItemCount);
+  const scope = useStaggerAnimation(
+    shouldAnimate ?? false,
+    visibleItemCount,
+    animationKey,
+  );
 
   const effectiveLayoutGroupId =
     layoutGroupId === undefined ? collectionId : (layoutGroupId ?? undefined);

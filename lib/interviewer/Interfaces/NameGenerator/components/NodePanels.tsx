@@ -21,6 +21,7 @@ import NodePanel from './NodePanel';
 type NodePanelsProps = {
   disableAddNew: boolean;
   onOpenChange?: (isOpen: boolean) => void;
+  animationKey?: string | number;
 };
 
 const NodePanelColors = [
@@ -45,7 +46,7 @@ function NodePanels(props: NodePanelsProps) {
     }[]
   >([]);
 
-  const { disableAddNew, onOpenChange } = props;
+  const { disableAddNew, onOpenChange, animationKey } = props;
   const isDragging = useDndStore((state: DndStore) => state.isDragging);
   const dragItem = useDndStore((state: DndStore) => state.dragItem);
   const meta = dragItem?.metadata as NcNode & { itemType: string };
@@ -165,6 +166,7 @@ function NodePanels(props: NodePanelsProps) {
         onDrop={createDropHandler(panel.dataSource)}
         onUpdate={handlePanelUpdate(index)}
         id={`PANEL_NODE_LIST_${index}`}
+        animationKey={animationKey}
       />
     );
   };

@@ -11,13 +11,31 @@ const MAX_STAGGER_DELAY = 0.1;
  * The per-item stagger delay is calculated as `TOTAL_STAGGER_DURATION / itemCount`,
  * clamped to a maximum of `MAX_STAGGER_DELAY`.
  *
+ * When `animationKey` changes (and a previous value existed), `hasAnimatedRef` is
+ * reset so the stagger entrance re-runs on the newly rendered items.
+ *
  * @param enabled - Whether animation is enabled
  * @param itemCount - Number of items to animate (used to calculate stagger delay)
+ * @param animationKey - When this value changes, the stagger entrance re-runs
  * @returns A ref to attach to the animation scope container
  */
-export function useStaggerAnimation(enabled: boolean, itemCount: number) {
+export function useStaggerAnimation(
+  enabled: boolean,
+  itemCount: number,
+  animationKey?: string | number,
+) {
   const [scope, animate] = useAnimate<HTMLDivElement>();
   const hasAnimatedRef = useRef(false);
+  const prevAnimationKeyRef = useRef(animationKey);
+
+  // Reset hasAnimatedRef when animationKey changes so the stagger re-runs
+  if (
+    animationKey !== prevAnimationKeyRef.current &&
+    prevAnimationKeyRef.current !== undefined
+  ) {
+    hasAnimatedRef.current = false;
+    prevAnimationKeyRef.current = animationKey;
+  }
 
   useEffect(() => {
     if (!enabled || hasAnimatedRef.current || itemCount === 0) {
@@ -45,7 +63,7 @@ export function useStaggerAnimation(enabled: boolean, itemCount: number) {
     };
 
     void runAnimation();
-  }, [animate, enabled, itemCount]);
+  }, [animate, enabled, itemCount, animationKey]);
 
   return scope;
 }

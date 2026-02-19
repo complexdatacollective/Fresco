@@ -17,8 +17,8 @@
     /* Used for relative color values */
     --base-hue: 280;
 
-    --background: oklch(98% 0.08 var(--base-hue));
-    --text: oklch(10% 0.22 var(--base-hue));
+    --background: oklch(98% 0.08 calc(var(--base-hue) + 3));
+    --text: oklch(29% 0.18 calc(var(--base-hue) + 5));
 
     --neutral: oklch(99% 0.02 var(--base-hue));
     --neutral-contrast: oklch(10% 0.2 var(--base-hue));

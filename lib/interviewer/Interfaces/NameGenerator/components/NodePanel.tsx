@@ -19,6 +19,7 @@ type NodePanelProps = {
   onDrop: DropCallback;
   onUpdate: (nodeCount: number, nodeIndex: Set<string>) => void;
   id: string;
+  animationKey?: string | number;
 };
 
 function NodePanel(props: NodePanelProps) {
@@ -30,6 +31,7 @@ function NodePanel(props: NodePanelProps) {
     onDrop,
     minimize,
     accepts,
+    animationKey,
   } = props;
 
   const stageSubject = useSelector(getStageSubject);
@@ -67,6 +69,7 @@ function NodePanel(props: NodePanelProps) {
         onDrop={onDrop}
         accepts={accepts}
         nodeSize="sm"
+        animationKey={animationKey}
       />
     </Panel>
   );
