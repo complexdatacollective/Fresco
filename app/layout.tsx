@@ -1,7 +1,5 @@
 import { Quicksand } from 'next/font/google';
-import ResponsiveContainer from '~/components/ResponsiveContainer';
 import { Toaster } from '~/components/ui/toaster';
-import { env } from '~/env';
 import '~/styles/globals.css';
 
 export const metadata = {
@@ -21,18 +19,6 @@ function RootLayout({ children }: { children: React.ReactNode }) {
       <body className={`${quicksand.className} antialiased`}>
         {children}
         <Toaster />
-        {env.SANDBOX_MODE && (
-          <ResponsiveContainer>
-            <footer className="z-1 flex justify-center py-4">
-              <a href="https://www.netlify.com">
-                <img
-                  src="https://www.netlify.com/assets/badges/netlify-badge-color-accent.svg"
-                  alt="Deploys by Netlify"
-                />
-              </a>
-            </footer>
-          </ResponsiveContainer>
-        )}
       </body>
     </html>
   );
