@@ -1,4 +1,5 @@
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
+import { motion } from 'motion/react';
 import { memo, useMemo } from 'react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
@@ -22,6 +23,17 @@ type OrdinalBinItemProps = {
   promptId: string;
   sortOrder?: ProcessedSortRule[];
   totalBins: number;
+};
+
+const itemVariants = {
+  initial: { opacity: 0, y: 20, scale: 0.95 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { type: 'spring' as const, stiffness: 500, damping: 30 },
+  },
+  exit: { opacity: 0, scale: 0.95, transition: { duration: 0.15 } },
 };
 
 const getPromptColorClass = (color: string | undefined) => {
@@ -56,6 +68,8 @@ const OrdinalBinItem = memo((props: OrdinalBinItemProps) => {
 
   const missingValue = bin.value < 0;
   const blendPercent = Math.round((1 / totalBins) * index * 100);
+  const isFirst = index === 0;
+  const isLast = index === totalBins - 1;
 
   const promptColorClass = getPromptColorClass(
     (prompt as { color?: string }).color,
@@ -92,14 +106,18 @@ const OrdinalBinItem = memo((props: OrdinalBinItemProps) => {
   const accentClasses = cx(
     'flex min-h-14 items-center justify-center px-2 text-center',
     promptColorClass,
+    isFirst && 'rounded-tl',
+    isLast && 'rounded-tr',
     missingValue
       ? 'bg-[color-mix(in_oklch,var(--color-rich-black)_20%,var(--color-background)_80%)]'
       : 'bg-[color-mix(in_oklch,var(--prompt-color)_var(--blend-percent),var(--color-background)_calc(100%-var(--blend-percent)))]',
   );
 
   const panelClasses = cx(
-    'flex flex-1 grow-5 flex-col items-center overflow-hidden p-2 transition-colors duration-200',
+    'flex min-h-0 flex-col items-center overflow-hidden p-2 transition-colors duration-200',
     promptColorClass,
+    isFirst && 'rounded-bl',
+    isLast && 'rounded-br',
     isDragging && willAccept && 'ring-accent ring-2 ring-inset',
     isOver && willAccept && 'bg-success',
     !isOver &&
@@ -111,7 +129,10 @@ const OrdinalBinItem = memo((props: OrdinalBinItemProps) => {
   );
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col" key={index}>
+    <motion.div
+      className="row-span-2 grid min-w-0 grid-rows-subgrid"
+      variants={itemVariants}
+    >
       <div
         className={accentClasses}
         style={
@@ -135,7 +156,7 @@ const OrdinalBinItem = memo((props: OrdinalBinItemProps) => {
       >
         <NodeList id={listId} items={sortedNodes} nodeSize="sm" />
       </div>
-    </div>
+    </motion.div>
   );
 });
 

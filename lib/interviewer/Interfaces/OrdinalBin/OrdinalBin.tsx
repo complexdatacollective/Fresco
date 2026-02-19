@@ -1,6 +1,7 @@
 import { type Prompt } from '@codaco/protocol-validation';
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import { isNil } from 'es-toolkit';
+import { AnimatePresence, motion } from 'motion/react';
 import { useSelector } from 'react-redux';
 import { type StageProps } from '~/lib/interviewer/types';
 import MultiNodeBucket from '../../components/MultiNodeBucket';
@@ -12,6 +13,18 @@ import { type ProcessedSortRule } from '../../utils/createSorter';
 import OrdinalBins from './components/OrdinalBins';
 
 type OrdinalBinStageProps = StageProps<'OrdinalBin'>;
+
+const binsContainerVariants = {
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+      when: 'beforeChildren' as const,
+    },
+  },
+  exit: { opacity: 0 },
+};
 
 // TODO: This type shouldn't be needed. The prompt type should be defined by the protocol and
 // validated as such. There is a problem with the protocol validation type for this
@@ -45,15 +58,26 @@ const OrdinalBin = (props: OrdinalBinStageProps) => {
       <div className="shrink-0">
         <Prompts />
       </div>
-      <div className="flex-1 overflow-hidden">
-        <MultiNodeBucket
-          nodes={nodesForPrompt}
-          listId={`${stage.id}_${prompt?.id ?? 'unknown'}_NODE_BUCKET`}
-          sortOrder={prompt?.bucketSortOrder}
-        />
-      </div>
-      <div className="flex h-64 shrink-0 gap-2 px-4 pb-4">
-        <OrdinalBins stage={stage} prompt={prompt ?? null} />
+      <MultiNodeBucket
+        nodes={nodesForPrompt}
+        listId={`${stage.id}_${prompt?.id ?? 'unknown'}_NODE_BUCKET`}
+        sortOrder={prompt?.bucketSortOrder}
+      />
+      <div className="min-h-0 flex-1">
+        <AnimatePresence mode="wait">
+          {prompt && (
+            <motion.div
+              key={prompt.id}
+              className="grid h-full auto-cols-fr grid-flow-col grid-rows-[auto_1fr] gap-x-2"
+              variants={binsContainerVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <OrdinalBins stage={stage} prompt={prompt} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
