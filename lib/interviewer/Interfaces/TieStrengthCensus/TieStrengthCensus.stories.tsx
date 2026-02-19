@@ -177,6 +177,10 @@ const mockNavigationHelpers = {
     // eslint-disable-next-line no-console
     console.log('Move forward');
   },
+  moveBackward: () => {
+    // eslint-disable-next-line no-console
+    console.log('Move backward');
+  },
 };
 
 const mockRegisterBeforeNext = () => {

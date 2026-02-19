@@ -24,7 +24,6 @@ import useEdgeState from '../DyadCensus/useEdgeState';
 import useSteps from '../DyadCensus/useSteps';
 import { getNodePair, getPairs } from './helpers';
 import Pair from './Pair';
-import type { TieStrengthCensusProps } from './types';
 
 const fadeVariants = {
   show: { opacity: 1, transition: { duration: 0.5 } },

@@ -227,11 +227,7 @@ function SlidesFormInner({
           onUpdate={handleUpdate}
           onScroll={handleScroll}
           form={formState as Record<string, unknown>}
-          subject={
-            (stage.type === 'EgoForm'
-              ? { entity: 'ego' }
-              : stage.subject) as Record<string, unknown>
-          }
+          subject={stage.subject as Record<string, unknown>}
           submitButton={
             <button
               type="submit"
