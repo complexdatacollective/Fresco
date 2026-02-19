@@ -16,6 +16,7 @@ import { createMockStore } from './createMockStore';
 import {
   type AddEdgeTypeInput,
   type AddNodeTypeInput,
+  type AddOneToManyDyadCensusPromptInput,
   type AddPresetInput,
   type AddPromptInput,
   type AddStageInput,
@@ -28,6 +29,7 @@ import {
   type NameGeneratorPromptEntry,
   type NodeEntry,
   type NodeTypeEntry,
+  type OneToManyDyadCensusPromptEntry,
   type PresetEntry,
   type SociogramPromptEntry,
   type StageEntry,
@@ -73,10 +75,15 @@ type NarrativeHandle = StageHandleBase & {
   addPreset: (opts?: AddPresetInput) => void;
 };
 
+type OneToManyDyadCensusHandle = StageHandleBase & {
+  addPrompt: (opts?: AddOneToManyDyadCensusPromptInput) => void;
+};
+
 type StageHandleMap = {
   NameGenerator: NameGeneratorHandle;
   Sociogram: SociogramHandle;
   Narrative: NarrativeHandle;
+  OneToManyDyadCensus: OneToManyDyadCensusHandle;
 };
 
 export class SyntheticInterview {
@@ -204,6 +211,16 @@ export class SyntheticInterview {
       subject = { entity: 'node', type: nodeTypeId };
     }
 
+    // OneToManyDyadCensus requires behaviours.removeAfterConsideration
+    const behaviours =
+      type === 'OneToManyDyadCensus'
+        ? {
+            removeAfterConsideration:
+              opts?.behaviours?.removeAfterConsideration ?? false,
+            ...opts?.behaviours,
+          }
+        : opts?.behaviours;
+
     const entry: StageEntry = {
       id: stageId,
       type,
@@ -213,7 +230,7 @@ export class SyntheticInterview {
       presets: [],
       panels: [],
       background: opts?.background,
-      behaviours: opts?.behaviours,
+      behaviours,
       initialNodes: opts?.initialNodes ?? 0,
       initialEdges: opts?.initialEdges ?? [],
     };
@@ -326,6 +343,16 @@ export class SyntheticInterview {
           ...base,
           addPreset: (opts?: AddPresetInput) => {
             entry.presets.push(this.resolveNarrativePreset(opts, entry));
+          },
+        } as StageHandleMap[T];
+
+      case 'OneToManyDyadCensus':
+        return {
+          ...base,
+          addPrompt: (opts?: AddOneToManyDyadCensusPromptInput) => {
+            entry.prompts.push(
+              this.resolveOneToManyDyadCensusPrompt(opts, entry),
+            );
           },
         } as StageHandleMap[T];
 
@@ -518,6 +545,40 @@ export class SyntheticInterview {
       edges,
       groupVariable,
       highlight,
+    };
+  }
+
+  private resolveOneToManyDyadCensusPrompt(
+    opts: AddOneToManyDyadCensusPromptInput | undefined,
+    _entry: StageEntry,
+  ): OneToManyDyadCensusPromptEntry {
+    const promptId = this.nextId('prompt');
+
+    // Resolve edge type
+    let createEdge: string;
+    if (typeof opts?.createEdge === 'string') {
+      createEdge = opts.createEdge;
+    } else if (opts?.createEdge === true || opts?.createEdge === undefined) {
+      // Auto-create or reuse an edge type
+      if (this.edgeTypes.size > 0) {
+        createEdge = this.edgeTypes.keys().next().value!;
+      } else {
+        createEdge = this.addEdgeType().id;
+      }
+    } else {
+      createEdge =
+        this.edgeTypes.size > 0
+          ? this.edgeTypes.keys().next().value!
+          : this.addEdgeType().id;
+    }
+
+    return {
+      id: promptId,
+      text:
+        opts?.text ?? this.valueGen.generatePromptText('OneToManyDyadCensus'),
+      createEdge,
+      bucketSortOrder: opts?.bucketSortOrder,
+      binSortOrder: opts?.binSortOrder,
     };
   }
 

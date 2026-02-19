@@ -35,7 +35,11 @@ export type EdgeTypeEntry = {
   variables: Map<string, VariableEntry>;
 };
 
-export type StageType = 'NameGenerator' | 'Sociogram' | 'Narrative';
+export type StageType =
+  | 'NameGenerator'
+  | 'Sociogram'
+  | 'Narrative'
+  | 'OneToManyDyadCensus';
 
 export type NameGeneratorPromptEntry = {
   id: string;
@@ -60,7 +64,23 @@ export type SociogramPromptEntry = {
   };
 };
 
-export type PromptEntry = NameGeneratorPromptEntry | SociogramPromptEntry;
+export type SortRule = {
+  property: string;
+  direction: 'asc' | 'desc';
+};
+
+export type OneToManyDyadCensusPromptEntry = {
+  id: string;
+  text: string;
+  createEdge: string;
+  bucketSortOrder?: SortRule[];
+  binSortOrder?: SortRule[];
+};
+
+export type PromptEntry =
+  | NameGeneratorPromptEntry
+  | SociogramPromptEntry
+  | OneToManyDyadCensusPromptEntry;
 
 export type PresetEntry = {
   id: string;
@@ -110,6 +130,7 @@ export type StageEntry = {
     automaticLayout?: { enabled: boolean };
     freeDraw?: boolean;
     allowRepositioning?: boolean;
+    removeAfterConsideration?: boolean;
   };
   initialNodes: number;
   initialEdges: [number, number][];
@@ -175,6 +196,7 @@ export type AddStageInput = {
     automaticLayout?: { enabled: boolean };
     freeDraw?: boolean;
     allowRepositioning?: boolean;
+    removeAfterConsideration?: boolean;
   };
   form?: {
     title?: string;
@@ -194,6 +216,13 @@ export type AddPromptInput = {
   highlight?: {
     variable?: string | boolean;
   };
+};
+
+export type AddOneToManyDyadCensusPromptInput = {
+  text?: string;
+  createEdge?: boolean | string;
+  bucketSortOrder?: SortRule[];
+  binSortOrder?: SortRule[];
 };
 
 export type AddPresetInput = {

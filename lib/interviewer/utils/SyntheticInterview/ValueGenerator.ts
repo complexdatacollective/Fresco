@@ -67,6 +67,8 @@ export class ValueGenerator {
         return 'Place people in the circles based on how close you are to them.';
       case 'Narrative':
         return 'Review the network and add any annotations.';
+      case 'OneToManyDyadCensus':
+        return 'Does this person have a relationship with any of the people below?';
       default:
         return 'Please complete this step.';
     }
