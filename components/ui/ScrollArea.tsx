@@ -164,7 +164,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
             'focusable',
             'p-2',
             // Layout
-            'h-full min-h-0 flex-1 overflow-auto overscroll-contain',
+            'min-h-0 flex-1 overflow-auto overscroll-contain',
             // Gradient fade effect
             fade && 'scroll-area-viewport',
             // Scroll snap
