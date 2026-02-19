@@ -1,4 +1,3 @@
-import type { Stage } from '@codaco/protocol-validation';
 import {
   entityPrimaryKeyProperty,
   type VariableValue,
@@ -21,7 +20,7 @@ import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { type RootState } from '~/lib/interviewer/store';
-import { type Direction } from '~/lib/interviewer/types';
+import { type Direction, type StageProps } from '~/lib/interviewer/types';
 import { useMapbox } from './useMapbox';
 
 const introVariants = {
@@ -57,10 +56,7 @@ const nodeAnimationVariants: Variants = {
   }),
 };
 
-type GeospatialInterfaceProps = Stage & {
-  stage: Extract<Stage, { type: 'Geospatial' }>;
-  registerBeforeNext: (beforeNext: (direction: Direction) => boolean) => void;
-};
+type GeospatialInterfaceProps = StageProps<'Geospatial'>;
 
 export default function GeospatialInterface({
   stage,

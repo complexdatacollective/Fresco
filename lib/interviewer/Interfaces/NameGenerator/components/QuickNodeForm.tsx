@@ -31,7 +31,7 @@ const containerVariants: Variants = {
 type QuickNodeFormProps = {
   disabled: boolean;
   targetVariable: string;
-  onShowForm: () => void;
+  onShowForm?: () => void;
   addNode: (attributes: NcNode[EntityAttributesProperty]) => Promise<void>;
 };
 
@@ -89,7 +89,7 @@ const QuickNodeForm = ({
             name={targetVariable}
             disabled={disabled}
             placeholder="Type a label and press enter..."
-            onShowInput={onShowForm}
+            onShowInput={onShowForm ?? undefined}
             required
             minLength={1}
           />

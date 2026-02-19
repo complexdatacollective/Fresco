@@ -2,6 +2,7 @@ import { updatePrompt } from '~/lib/interviewer/ducks/modules/session';
 import {
   type BeforeNextFunction,
   type Direction,
+  type RegisterBeforeNext,
 } from '~/lib/interviewer/types';
 
 /**
@@ -41,15 +42,38 @@ function getStagePromptCount(stage: unknown): number {
 export type StoryNavigation = ReturnType<typeof createStoryNavigation>;
 
 export function createStoryNavigation(store: PromptNavigableStore) {
-  let beforeNextFn: BeforeNextFunction | null = null;
+  const handlers = new Map<string, BeforeNextFunction>();
 
-  const registerBeforeNext = (fn: BeforeNextFunction | null) => {
-    beforeNextFn = fn;
+  const registerBeforeNext: RegisterBeforeNext = (
+    ...args: [BeforeNextFunction | null] | [string, BeforeNextFunction | null]
+  ) => {
+    if (args.length === 1) {
+      const [fn] = args;
+      if (fn === null) {
+        handlers.clear();
+      } else {
+        handlers.set('default', fn);
+      }
+    } else {
+      const [key, fn] = args;
+      if (fn === null) {
+        handlers.delete(key);
+      } else {
+        handlers.set(key, fn);
+      }
+    }
   };
 
   const canNavigate = async (direction: Direction) => {
-    if (!beforeNextFn) return true;
-    return beforeNextFn(direction);
+    if (handlers.size === 0) return true;
+
+    let hasForce = false;
+    for (const fn of handlers.values()) {
+      const result = await fn(direction);
+      if (result === false) return false;
+      if (result === 'FORCE') hasForce = true;
+    }
+    return hasForce ? 'FORCE' : true;
   };
 
   const getNavigationHelpers = () => ({

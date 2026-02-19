@@ -19,12 +19,14 @@ import NodeBin from '~/lib/interviewer/components/NodeBin';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import Prompts from '../../components/Prompts';
 import { usePrompts } from '../../components/Prompts/usePrompts';
-import { type Direction, type StageProps } from '~/lib/interviewer/types';
+import { type StageProps } from '~/lib/interviewer/types';
 import {
   addNode as addNodeAction,
   addNodeToPrompt as addNodeToPromptAction,
   deleteNode as deleteNodeAction,
 } from '../../ducks/modules/session';
+import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
+import useStageValidation from '~/lib/interviewer/hooks/useStageValidation';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
 import { getCodebookVariablesForSubjectType } from '../../selectors/protocol';
 import {
@@ -34,31 +36,9 @@ import {
 import { useAppDispatch } from '../../store';
 import { usePassphrase } from '../Anonymisation/usePassphrase';
 import { decryptData } from '../Anonymisation/utils';
-import {
-  MaxNodesMet,
-  maxNodesWithDefault,
-  MinNodesNotMet,
-  minNodesWithDefault,
-} from '../utils/StageLevelValidation';
 import NodeForm from './components/NodeForm';
 import NodePanels from './components/NodePanels';
 import QuickNodeForm from './components/QuickNodeForm';
-
-export const nameGeneratorHandleBeforeLeaving =
-  (
-    isLastPrompt: boolean,
-    stageNodeCount: number,
-    minNodes: number,
-    setShowMinWarning: (state: boolean) => void,
-  ) =>
-  (direction: Direction) => {
-    if (isLastPrompt && direction === 'forwards' && stageNodeCount < minNodes) {
-      setShowMinWarning(true);
-      return false;
-    }
-
-    return true;
-  };
 
 type NameGeneratorProps = StageProps<'NameGeneratorQuickAdd' | 'NameGenerator'>;
 
@@ -84,11 +64,10 @@ const NameGenerator = (props: NameGeneratorProps) => {
   const { requirePassphrase, passphrase } = usePassphrase();
 
   const [selectedNode, setSelectedNode] = useState<NcNode | null>(null);
-  const [showMinWarning, setShowMinWarning] = useState(false);
   const [isPanelsOpen, setIsPanelsOpen] = useState(false);
 
-  const minNodes = minNodesWithDefault(behaviours?.minNodes);
-  const maxNodes = maxNodesWithDefault(behaviours?.maxNodes);
+  const minNodes = behaviours?.minNodes ?? 0;
+  const maxNodes = behaviours?.maxNodes ?? Infinity;
 
   const stageNodeCount = useSelector(getStageNodeCount);
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
@@ -172,20 +151,54 @@ const NameGenerator = (props: NameGeneratorProps) => {
 
   const maxNodesReached = stageNodeCount >= maxNodes;
 
-  useEffect(() => {
-    if (stageNodeCount >= minNodes) {
-      setShowMinWarning(false);
-    }
-  }, [stageNodeCount, minNodes]);
+  const { updateReady } = useReadyForNextStage();
+  const { showToast, closeToast } = useStageValidation({
+    registerBeforeNext,
+    constraints: [
+      {
+        direction: 'forwards',
+        isMet: stageNodeCount >= minNodes || !isLastPrompt,
+        toast: {
+          description: (
+            <>
+              You must create at least <strong>{minNodes}</strong>{' '}
+              {minNodes > 1 ? 'items' : 'item'} before you can continue.
+            </>
+          ),
+          variant: 'destructive',
+          anchor: 'forward',
+          timeout: 4000,
+        },
+      },
+    ],
+  });
 
-  registerBeforeNext(
-    nameGeneratorHandleBeforeLeaving(
-      isLastPrompt,
-      stageNodeCount,
-      minNodes,
-      setShowMinWarning,
-    ),
-  );
+  const maxToastRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (maxNodesReached) {
+      maxToastRef.current = showToast({
+        description:
+          'You have added the maximum number of items for this screen.',
+        variant: 'info',
+        anchor: 'forward',
+        timeout: 0,
+      });
+      updateReady(true);
+    } else if (maxToastRef.current) {
+      closeToast(maxToastRef.current);
+      maxToastRef.current = null;
+      updateReady(false);
+    }
+
+    return () => {
+      if (maxToastRef.current) {
+        closeToast(maxToastRef.current);
+      }
+      updateReady(false);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [maxNodesReached]);
 
   /**
    * Drop node handler
@@ -324,7 +337,6 @@ const NameGenerator = (props: NameGeneratorProps) => {
           <QuickNodeForm
             disabled={maxNodesReached || (useEncryption && !passphrase)}
             targetVariable={quickAdd!}
-            onShowForm={() => setShowMinWarning(false)}
             addNode={addNode}
           />
         )}
@@ -338,20 +350,6 @@ const NameGenerator = (props: NameGeneratorProps) => {
             dropHandler={(meta: NcNode) =>
               deleteNode(meta[entityPrimaryKeyProperty])
             }
-          />,
-          stageElement,
-        )}
-      {stageElement &&
-        createPortal(
-          <MaxNodesMet show={maxNodesReached} timeoutDuration={0} />,
-          stageElement,
-        )}
-      {stageElement &&
-        createPortal(
-          <MinNodesNotMet
-            show={showMinWarning}
-            minNodes={minNodes}
-            onHideCallback={() => setShowMinWarning(false)}
           />,
           stageElement,
         )}

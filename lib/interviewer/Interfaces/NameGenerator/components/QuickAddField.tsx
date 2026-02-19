@@ -59,7 +59,7 @@ type QuickAddFieldProps = {
   name: string;
   placeholder: string;
   disabled: boolean;
-  onShowInput: () => void;
+  onShowInput?: () => void;
 } & Partial<ValidationPropsCatalogue>;
 
 export default function QuickAddField({
@@ -164,7 +164,7 @@ export default function QuickAddField({
   );
 
   const showInput = () => {
-    onShowInput();
+    onShowInput?.();
     setChecked(true);
   };
 

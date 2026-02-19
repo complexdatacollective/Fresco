@@ -3,7 +3,7 @@ import {
   entityPrimaryKeyProperty,
 } from '@codaco/shared-consts';
 import { motion } from 'motion/react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import UINode from '~/components/Node';
 import NodeList from '~/lib/interviewer/components/NodeList';
@@ -11,6 +11,8 @@ import Panel from '~/lib/interviewer/components/Panel';
 import Prompts from '~/lib/interviewer/components/Prompts';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { addNode, deleteNode } from '~/lib/interviewer/ducks/modules/session';
+import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
+import useStageValidation from '~/lib/interviewer/hooks/useStageValidation';
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import { getCodebookVariablesForSubjectType } from '~/lib/interviewer/selectors/protocol';
 import {
@@ -24,13 +26,6 @@ import { cx } from '~/utils/cva';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import SearchableList from '../../components/SearchableList';
 import { usePassphrase } from '../Anonymisation/usePassphrase';
-import { nameGeneratorHandleBeforeLeaving } from '../NameGenerator/NameGenerator';
-import {
-  MaxNodesMet,
-  maxNodesWithDefault,
-  MinNodesNotMet,
-  minNodesWithDefault,
-} from '../utils/StageLevelValidation';
 import { type NameGeneratorRosterProps } from './helpers';
 import useItems, { type UseItemElement } from './useItems';
 
@@ -72,7 +67,7 @@ const variants = {
 const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
   const { stage, registerBeforeNext } = props;
 
-  const { promptIndex, isLastPrompt } = usePrompts();
+  const { isLastPrompt } = usePrompts();
 
   const { requirePassphrase, passphrase } = usePassphrase();
 
@@ -89,10 +84,8 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
   const { status: itemsStatus, items, excludeItems } = useItems(props);
 
   const stageNodeCount = useSelector(getStageNodeCount);
-  const minNodes = minNodesWithDefault(stage.behaviours?.minNodes);
-  const maxNodes = maxNodesWithDefault(stage.behaviours?.maxNodes);
-
-  const [showMinWarning, setShowMinWarning] = useState(false);
+  const minNodes = stage.behaviours?.minNodes ?? 0;
+  const maxNodes = stage.behaviours?.maxNodes ?? Infinity;
 
   const useEncryption = useMemo(() => {
     // Handle new node attributes, first since it is simpler
@@ -148,18 +141,56 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
     }
   }, [useEncryption, requirePassphrase]);
 
-  registerBeforeNext(
-    nameGeneratorHandleBeforeLeaving(
-      isLastPrompt,
-      stageNodeCount,
-      minNodes,
-      setShowMinWarning,
-    ),
-  );
+  const maxNodesReached = stageNodeCount >= maxNodes;
+
+  const { updateReady } = useReadyForNextStage();
+  const { showToast, closeToast } = useStageValidation({
+    registerBeforeNext,
+    constraints: [
+      {
+        direction: 'forwards',
+        isMet: stageNodeCount >= minNodes || !isLastPrompt,
+        toast: {
+          description: (
+            <>
+              You must create at least <strong>{minNodes}</strong>{' '}
+              {minNodes > 1 ? 'items' : 'item'} before you can continue.
+            </>
+          ),
+          variant: 'destructive',
+          anchor: 'forward',
+          timeout: 4000,
+        },
+      },
+    ],
+  });
+
+  const maxToastRef = useRef<string | null>(null);
 
   useEffect(() => {
-    setShowMinWarning(false);
-  }, [stageNodeCount, promptIndex]);
+    if (maxNodesReached) {
+      maxToastRef.current = showToast({
+        description:
+          'You have added the maximum number of items for this screen.',
+        variant: 'info',
+        anchor: 'forward',
+        timeout: 0,
+      });
+      updateReady(true);
+    } else if (maxToastRef.current) {
+      closeToast(maxToastRef.current);
+      maxToastRef.current = null;
+      updateReady(false);
+    }
+
+    return () => {
+      if (maxToastRef.current) {
+        closeToast(maxToastRef.current);
+      }
+      updateReady(false);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [maxNodesReached]);
 
   const handleAddNode = (metadata?: Record<string, unknown>) => {
     const meta = metadata as UseItemElement | undefined;
@@ -202,12 +233,12 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
       return true;
     }
 
-    if (stageNodeCount >= maxNodes) {
+    if (maxNodesReached) {
       return true;
     }
 
     return false;
-  }, [stageNodeCount, maxNodes, itemsStatus, passphrase, useEncryption]);
+  }, [maxNodesReached, itemsStatus, passphrase, useEncryption]);
 
   const DragPreviewNode = useMemo(
     () =>
@@ -280,16 +311,6 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
           </div>
         </motion.div>
       </div>
-      {interfaceRef.current && (
-        <MinNodesNotMet
-          show={showMinWarning}
-          minNodes={minNodes}
-          onHideCallback={() => setShowMinWarning(false)}
-        />
-      )}
-      {interfaceRef.current && (
-        <MaxNodesMet show={stageNodeCount >= maxNodes} timeoutDuration={0} />
-      )}
     </div>
   );
 };

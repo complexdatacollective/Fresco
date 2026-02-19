@@ -5,7 +5,7 @@ import {
   ChevronUp,
 } from 'lucide-react';
 import { motion } from 'motion/react';
-import { type ComponentProps } from 'react';
+import { type ComponentProps, type Ref } from 'react';
 import { MotionSurface } from '~/components/layout/Surface';
 import { IconButton } from '~/components/ui/Button';
 import ProgressBar from '~/components/ui/ProgressBar';
@@ -53,11 +53,15 @@ const containerVariants = {
 const NavigationButton = ({
   disabled,
   className,
+  buttonRef,
   ...props
-}: ComponentProps<typeof IconButton>) => {
+}: ComponentProps<typeof IconButton> & {
+  buttonRef?: Ref<HTMLButtonElement>;
+}) => {
   return (
     <motion.div variants={variants}>
       <IconButton
+        ref={buttonRef}
         color="dynamic"
         variant="text"
         className={cx('[&>.lucide]:h-[2em]', className)}
@@ -103,6 +107,8 @@ type NavigationProps = {
   pulseNext: boolean;
   progress: number;
   orientation?: 'horizontal' | 'vertical';
+  forwardButtonRef?: Ref<HTMLButtonElement>;
+  backButtonRef?: Ref<HTMLButtonElement>;
 };
 
 const Navigation = ({
@@ -113,6 +119,8 @@ const Navigation = ({
   pulseNext,
   progress,
   orientation = 'vertical',
+  forwardButtonRef,
+  backButtonRef,
 }: NavigationProps) => {
   const BackIcon = orientation === 'vertical' ? ChevronUp : ChevronLeft;
   const ForwardIcon = orientation === 'vertical' ? ChevronDown : ChevronRight;
@@ -135,6 +143,7 @@ const Navigation = ({
         disabled={disableMoveBackward}
         icon={<BackIcon />}
         aria-label="Previous Step"
+        buttonRef={backButtonRef}
       />
       {orientation === 'vertical' && <PassphrasePrompter />}
       <motion.div
@@ -152,6 +161,7 @@ const Navigation = ({
         disabled={disableMoveForward}
         icon={<ForwardIcon className="size-8" strokeWidth="3px" />}
         aria-label="Next Step"
+        buttonRef={forwardButtonRef}
       />
     </MotionSurface>
   );

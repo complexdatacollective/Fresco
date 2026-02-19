@@ -2,9 +2,11 @@
 'use no memo';
 
 import { AnimatePresence, motion } from 'motion/react';
+import { useRef } from 'react';
 import { Provider } from 'react-redux';
 import SuperJSON from 'superjson';
 import useMediaQuery from '~/hooks/useMediaQuery';
+import { InterviewToastProvider } from '~/lib/interviewer/components/InterviewToast';
 import StageErrorBoundary from '~/lib/interviewer/components/StageErrorBoundary';
 import Navigation from '~/lib/interviewer/components/Navigation';
 import useInterviewNavigation from '~/lib/interviewer/hooks/useInterviewNavigation';
@@ -43,6 +45,9 @@ function Interview() {
     progress,
   } = useInterviewNavigation();
 
+  const forwardButtonRef = useRef<HTMLButtonElement>(null);
+  const backButtonRef = useRef<HTMLButtonElement>(null);
+
   const isPortraitAspectRatio = useMediaQuery('(max-aspect-ratio: 3/4)');
   const navigationOrientation = isPortraitAspectRatio
     ? 'horizontal'
@@ -55,35 +60,41 @@ function Interview() {
         isPortraitAspectRatio ? 'flex-col' : 'flex-row-reverse',
       )}
     >
-      <AnimatePresence mode="wait" onExitComplete={handleExitComplete}>
-        {showStage && stage && (
-          <motion.div
-            key={currentStep}
-            className="flex min-h-0 flex-1"
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            variants={variants}
-          >
-            <div
-              className="flex size-full flex-col items-center"
-              id="stage"
-              key={stage.id}
+      <InterviewToastProvider
+        forwardButtonRef={forwardButtonRef}
+        backButtonRef={backButtonRef}
+        orientation={navigationOrientation}
+      >
+        <AnimatePresence mode="wait" onExitComplete={handleExitComplete}>
+          {showStage && stage && (
+            <motion.div
+              key={currentStep}
+              className="flex min-h-0 flex-1"
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              variants={variants}
             >
-              <StageErrorBoundary>
-                {CurrentInterface && (
-                  <CurrentInterface
-                    key={stage.id}
-                    registerBeforeNext={registerBeforeNext}
-                    stage={stage}
-                    getNavigationHelpers={getNavigationHelpers}
-                  />
-                )}
-              </StageErrorBoundary>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <div
+                className="flex size-full flex-col items-center"
+                id="stage"
+                key={stage.id}
+              >
+                <StageErrorBoundary>
+                  {CurrentInterface && (
+                    <CurrentInterface
+                      key={stage.id}
+                      registerBeforeNext={registerBeforeNext}
+                      stage={stage}
+                      getNavigationHelpers={getNavigationHelpers}
+                    />
+                  )}
+                </StageErrorBoundary>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </InterviewToastProvider>
       <Navigation
         moveBackward={moveBackward}
         moveForward={moveForward}
@@ -92,6 +103,8 @@ function Interview() {
         pulseNext={pulseNext}
         progress={progress}
         orientation={navigationOrientation}
+        forwardButtonRef={forwardButtonRef}
+        backButtonRef={backButtonRef}
       />
     </div>
   );

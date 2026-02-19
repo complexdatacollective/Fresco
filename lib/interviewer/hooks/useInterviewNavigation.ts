@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import type {
   BeforeNextFunction,
   Direction,
+  RegisterBeforeNext,
   StageProps,
 } from '~/lib/interviewer/types';
 import {
@@ -89,33 +90,60 @@ export default function useInterviewNavigation() {
     );
   }, [currentStep, stageCount, promptIndex, promptCount]);
 
-  // beforeNext registration
-  const beforeNextFunction = useRef<BeforeNextFunction | null>(null);
-  const registerBeforeNext = useCallback((fn: BeforeNextFunction | null) => {
-    beforeNextFunction.current = fn;
-  }, []);
+  // beforeNext registration (multiple keyed handlers)
+  const beforeNextHandlers = useRef(new Map<string, BeforeNextFunction>());
+  const registerBeforeNext: RegisterBeforeNext = useCallback(
+    (
+      ...args: [BeforeNextFunction | null] | [string, BeforeNextFunction | null]
+    ) => {
+      if (args.length === 1) {
+        const [fn] = args;
+        if (fn === null) {
+          beforeNextHandlers.current.clear();
+        } else {
+          beforeNextHandlers.current.set('default', fn);
+        }
+      } else {
+        const [key, fn] = args;
+        if (fn === null) {
+          beforeNextHandlers.current.delete(key);
+        } else {
+          beforeNextHandlers.current.set(key, fn);
+        }
+      }
+    },
+    [],
+  ) as RegisterBeforeNext;
 
   /**
-   * Before navigation is allowed, we check if there is a beforeNextFunction
-   * and if it exists we evaluate it and use the return value to determine if
-   * navigation continues. This allows stages to 'hijack' the navigation
-   * process and prevent navigation if necessary.
+   * Before navigation is allowed, we iterate all registered beforeNext handlers
+   * in insertion order. If any returns false, navigation is blocked. If any
+   * returns 'FORCE' (and none returned false), the prompt boundary is skipped.
    */
   const canNavigate = async (direction: Direction) => {
-    if (!beforeNextFunction.current) {
+    const handlers = beforeNextHandlers.current;
+    if (handlers.size === 0) {
       return true;
     }
 
-    const beforeNextResult = await beforeNextFunction.current(direction);
+    let hasForce = false;
+    for (const fn of handlers.values()) {
+      const result = await fn(direction);
 
-    invariant(
-      beforeNextResult === true ||
-        beforeNextResult === false ||
-        beforeNextResult === 'FORCE',
-      `beforeNextFunction must return a boolean or the string 'FORCE'`,
-    );
+      invariant(
+        result === true || result === false || result === 'FORCE',
+        `beforeNextFunction must return a boolean or the string 'FORCE'`,
+      );
 
-    return beforeNextResult;
+      if (result === false) {
+        return false;
+      }
+      if (result === 'FORCE') {
+        hasForce = true;
+      }
+    }
+
+    return hasForce ? 'FORCE' : true;
   };
 
   const moveForward = useCallback(async () => {
@@ -265,7 +293,7 @@ export default function useInterviewNavigation() {
     disableMoveBackward:
       forceNavigationDisabled ||
       !showStage ||
-      (!canMoveBackward && !beforeNextFunction.current),
+      (!canMoveBackward && beforeNextHandlers.current.size === 0),
     pulseNext: isReadyForNextStage,
     progress,
   };

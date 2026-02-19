@@ -10,15 +10,15 @@ import ProgressBar from '~/components/ui/ProgressBar';
 import useDialog from '~/lib/dialogs/useDialog';
 import useFormState from '~/lib/form/hooks/useFormState';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
-import { cx } from '~/utils/cva';
 import {
   type BeforeNextFunction,
   type Direction,
   type StageProps,
 } from '~/lib/interviewer/types';
+import { cx } from '~/utils/cva';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 
-type SlidesFormProps = StageProps<'AlterForm' | 'EgoForm'> & {
+type SlidesFormProps = StageProps<'AlterForm' | 'AlterEdgeForm'> & {
   items: unknown[];
   updateItem: (...args: unknown[]) => void;
   parentClass?: string;

@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import { MotionSurface } from '~/components/layout/Surface';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
+import BooleanOption from '~/lib/interviewer/components/BooleanOption';
 import Prompts from '~/lib/interviewer/components/Prompts';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
@@ -17,7 +18,7 @@ import {
   getNetworkNodesForType,
 } from '~/lib/interviewer/selectors/session';
 import { cx } from '~/utils/cva';
-import BooleanOption from '~/lib/interviewer/components/BooleanOption';
+import { type StageProps } from '../../types';
 import useAutoAdvance from '../DyadCensus/useAutoAdvance';
 import useEdgeState from '../DyadCensus/useEdgeState';
 import useSteps from '../DyadCensus/useSteps';
@@ -48,6 +49,8 @@ const introVariants = {
   show: { opacity: 1, scale: 1 },
   hide: { opacity: 0, scale: 0 },
 };
+
+export type TieStrengthCensusProps = StageProps<'TieStrengthCensus'>;
 
 const TieStrengthCensus = (props: TieStrengthCensusProps) => {
   const { registerBeforeNext, stage, getNavigationHelpers } = props;
