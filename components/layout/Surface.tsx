@@ -2,21 +2,14 @@
 
 import { motion, type MotionProps } from 'motion/react';
 import { type ElementType, forwardRef, type JSX } from 'react';
-import { cva, cx, type VariantProps } from '~/utils/cva';
+import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import ResponsiveContainer, {
   type ResponsiveContainerProps,
 } from './ResponsiveContainer';
 
-export const surfaceVariants = cva({
-  base: 'publish-colors relative grow overflow-hidden rounded-sm @xl:rounded @4xl:rounded-lg',
+export const surfaceSpacingVariants = cva({
+  base: '',
   variants: {
-    level: {
-      0: 'text-surface-contrast bg-surface',
-      1: 'text-surface-1-contrast bg-surface-1',
-      2: 'text-surface-2-contrast bg-surface-2',
-      3: 'text-surface-3-contrast bg-surface-3',
-      popover: 'text-surface-popover-contrast bg-surface-popover',
-    },
     spacing: {
       none: '',
       xs: 'px-4 py-2 @xl:px-6 @xl:py-4',
@@ -25,29 +18,47 @@ export const surfaceVariants = cva({
       lg: 'px-10 py-8 @xl:px-16 @xl:py-12 @4xl:px-20 @4xl:py-16',
       xl: 'px-12 py-10 @xl:px-20 @xl:py-16 @4xl:px-28 @4xl:py-20',
     },
-    bleed: {
-      none: '',
-      xs: '-mx-2 @xl:-mx-4',
-      sm: '-mx-4 @xl:-mx-6 @4xl:-mx-8',
-      md: '-mx-8 @xl:-mx-10 @4xl:-mx-12',
-      lg: '-mx-10 @xl:-mx-16 @4xl:-mx-20',
-      xl: '-mx-10 @xl:-mx-20 @4xl:-mx-28',
-    },
-    elevation: {
-      dynamic: 'elevation-low @xl:elevation-medium @4xl:elevation-high',
-      low: 'elevation-low',
-      medium: 'elevation-medium',
-      high: 'elevation-high',
-      none: '',
-    },
   },
   defaultVariants: {
-    level: 0,
     spacing: 'md',
-    elevation: 'low',
-    bleed: 'none',
   },
 });
+
+export const surfaceVariants = compose(
+  surfaceSpacingVariants,
+  cva({
+    base: 'publish-colors relative grow overflow-hidden rounded-sm @xl:rounded @4xl:rounded-lg',
+    variants: {
+      level: {
+        0: 'text-surface-contrast bg-surface',
+        1: 'text-surface-1-contrast bg-surface-1',
+        2: 'text-surface-2-contrast bg-surface-2',
+        3: 'text-surface-3-contrast bg-surface-3',
+        popover: 'text-surface-popover-contrast bg-surface-popover',
+      },
+      bleed: {
+        none: '',
+        xs: '-mx-2 @xl:-mx-4',
+        sm: '-mx-4 @xl:-mx-6 @4xl:-mx-8',
+        md: '-mx-8 @xl:-mx-10 @4xl:-mx-12',
+        lg: '-mx-10 @xl:-mx-16 @4xl:-mx-20',
+        xl: '-mx-10 @xl:-mx-20 @4xl:-mx-28',
+      },
+      elevation: {
+        dynamic: 'elevation-low @xl:elevation-medium @4xl:elevation-high',
+        low: 'elevation-low',
+        medium: 'elevation-medium',
+        high: 'elevation-high',
+        none: '',
+      },
+    },
+    defaultVariants: {
+      level: 0,
+      elevation: 'low',
+      bleed: 'none',
+    },
+  }),
+);
 
 export type SurfaceVariants = VariantProps<typeof surfaceVariants>;
 

@@ -5,7 +5,9 @@ export const metadata = {
 
 function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main className="flex h-screen max-h-screen flex-col">{children}</main>
+    <main className="flex h-screen max-h-screen flex-col [color-scheme:dark]">
+      {children}
+    </main>
   );
 }
 

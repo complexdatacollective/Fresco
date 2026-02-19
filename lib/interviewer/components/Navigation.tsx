@@ -58,6 +58,7 @@ const NavigationButton = ({
   return (
     <motion.div variants={variants}>
       <IconButton
+        color="dynamic"
         variant="text"
         className={cx('[&>.lucide]:h-[2em]', className)}
         disabled={disabled}
