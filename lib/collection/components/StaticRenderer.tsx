@@ -15,6 +15,7 @@ type StaticRendererProps<T> = {
   dragAndDropHooks?: CollectionProps<T>['dragAndDropHooks'];
   animate?: boolean;
   collectionId: string;
+  layoutGroupId?: string | null;
 };
 
 /**
@@ -30,6 +31,7 @@ export function StaticRenderer<T>({
   dragAndDropHooks,
   animate: shouldAnimate,
   collectionId,
+  layoutGroupId,
 }: StaticRendererProps<T>) {
   // Get CSS styles from layout (flexbox for list, CSS grid for grid)
   const containerStyle = layout.getContainerStyles();
@@ -39,8 +41,11 @@ export function StaticRenderer<T>({
   // Get layout item styles (e.g., fixed width for InlineGridLayout)
   const layoutItemStyle = layout.getItemStyles();
 
+  const effectiveLayoutGroupId =
+    layoutGroupId === undefined ? collectionId : (layoutGroupId ?? undefined);
+
   return (
-    <LayoutGroup id={collectionId}>
+    <LayoutGroup id={effectiveLayoutGroupId}>
       <div ref={scope} style={containerStyle}>
         <AnimatePresence initial={false} mode="popLayout">
           {Array.from(collection).map((node) => (

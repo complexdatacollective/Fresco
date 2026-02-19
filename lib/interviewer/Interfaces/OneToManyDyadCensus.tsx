@@ -1,10 +1,13 @@
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
-import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence } from 'motion/react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
+import Surface from '~/components/layout/Surface';
+import { Collection } from '~/lib/collection/components/Collection';
+import { InlineGridLayout } from '~/lib/collection/layout/InlineGridLayout';
+import { type ItemProps } from '~/lib/collection/types';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { type StageProps } from '~/lib/interviewer/types';
-import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { MotionNode } from '../components/Node';
 import Prompts from '../components/Prompts';
 import { edgeExists, toggleEdge } from '../ducks/modules/session';
@@ -12,19 +15,6 @@ import useSortedNodeList from '../hooks/useSortedNodeList';
 import { getNetworkEdges, getNetworkNodesForType } from '../selectors/session';
 import { useAppDispatch } from '../store';
 import { type ProtocolSortRule } from '../utils/createSorter';
-
-const nodeListVariants = {
-  initial: { opacity: 0 },
-  animate: {
-    opacity: 1,
-    transition: {
-      when: 'beforeChildren',
-      delayChildren: 0.25,
-      staggerChildren: 0.05,
-    },
-  },
-  exit: { opacity: 0 },
-};
 
 type OneToManyDyadCensusProps = StageProps<'OneToManyDyadCensus'>;
 
@@ -78,19 +68,9 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
    * - If we are moving backward and on step 0, allow navigation
    */
   registerBeforeNext((direction) => {
-    // disable overflow
-    if (containerRef.current) {
-      containerRef.current.style.overflowY = 'visible';
-    }
-
     if (direction === 'forwards') {
       if (currentStep + 1 <= numberOfSteps) {
         setCurrentStep((prev) => prev + 1);
-        setTimeout(() => {
-          if (containerRef.current) {
-            containerRef.current.style.overflowY = 'auto';
-          }
-        }, 500);
         return false;
       }
 
@@ -100,11 +80,6 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
     if (direction === 'backwards') {
       if (currentStep > 0) {
         setCurrentStep((prev) => prev - 1);
-        setTimeout(() => {
-          if (containerRef.current) {
-            containerRef.current.style.overflowY = 'auto';
-          }
-        }, 500);
         return false;
       }
 
@@ -119,110 +94,94 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
     setCurrentStep(0);
   }, [promptIndex]);
 
-  const handleNodeClick = (source: NcNode, target: NcNode) => () => {
-    const edgeAction = toggleEdge({
-      from: source[entityPrimaryKeyProperty],
-      to: target[entityPrimaryKeyProperty],
-      type: createEdge,
+  const handleNodeClick = useCallback(
+    (sourceNode: NcNode, target: NcNode) => () => {
+      const edgeAction = toggleEdge({
+        from: sourceNode[entityPrimaryKeyProperty],
+        to: target[entityPrimaryKeyProperty],
+        type: createEdge,
+      });
+
+      void dispatch(edgeAction);
+    },
+    [createEdge, dispatch],
+  );
+
+  const layout = useMemo(() => new InlineGridLayout<NcNode>({ gap: 16 }), []);
+
+  const keyExtractor = useCallback(
+    (node: NcNode) => node[entityPrimaryKeyProperty],
+    [],
+  );
+
+  const filteredTargets = useMemo(() => {
+    if (!removeAfterConsideration) return sortedTargets;
+    return sortedTargets.filter((node) => {
+      const sortedIndex = sortedSource.findIndex(
+        (s) => s[entityPrimaryKeyProperty] === node[entityPrimaryKeyProperty],
+      );
+      return sortedIndex >= currentStep;
     });
+  }, [sortedTargets, sortedSource, removeAfterConsideration, currentStep]);
 
-    void dispatch(edgeAction);
-  };
-
-  const containerRef = useRef<HTMLDivElement>(null);
+  const renderItem = useCallback(
+    (node: NcNode, itemProps: ItemProps) => {
+      const selected = !!edgeExists(
+        edges,
+        node[entityPrimaryKeyProperty],
+        source[entityPrimaryKeyProperty],
+        createEdge,
+      );
+      return (
+        <MotionNode
+          {...node}
+          {...itemProps}
+          selected={selected}
+          onClick={handleNodeClick(source, node)}
+          layoutId={node[entityPrimaryKeyProperty]}
+        />
+      );
+    },
+    [edges, source, createEdge, handleNodeClick],
+  );
 
   return (
-    <div className="one-to-many-dyad-census flex size-full flex-col gap-4 px-[2.4rem] py-[1.2rem]">
-      <div className="flex flex-col items-center">
-        <Prompts />
-        <AnimatePresence mode="wait">
-          <motion.div
-            variants={nodeListVariants}
-            exit={{ opacity: 0 }}
-            key={promptIndex}
-          >
-            {source &&
-              (() => {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const { type, ...sourceProps } = source;
-                return (
-                  <MotionNode
-                    {...sourceProps}
-                    layoutId={source[entityPrimaryKeyProperty]}
-                    key={`${source[entityPrimaryKeyProperty]}-${promptIndex}`}
-                  />
-                );
-              })()}
-            {!source && (
-              <div
-                key="missing"
-                className="flex h-24 items-center justify-center"
-              >
-                No nodes available to display.
-              </div>
-            )}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      <div className="flex grow flex-col rounded-(--nc-border-radius) bg-(--nc-panel-bg-muted) p-4">
-        <div className="mb-4 flex w-full items-center justify-center">
-          <h4>Click/tap all that apply:</h4>
-        </div>
-        {sortedTargets.length === 0 ? (
-          <div className="flex size-full grow items-center justify-center">
-            <h3>No nodes to display.</h3>
-          </div>
+    <div className="interface flex size-full flex-col gap-4">
+      <Prompts />
+      <AnimatePresence mode="popLayout">
+        {source ? (
+          <MotionNode
+            {...source}
+            size="sm"
+            layoutId={source[entityPrimaryKeyProperty]}
+            key={source[entityPrimaryKeyProperty]}
+          />
         ) : (
-          <div className="flex min-h-full grow flex-wrap content-start justify-center overflow-visible [--base-node-size:calc(var(--nc-base-font-size)*8)]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                variants={nodeListVariants}
-                key={promptIndex}
-                exit={{ opacity: 0 }}
-                className="flex flex-wrap content-start justify-center gap-4"
-              >
-                {sortedTargets.map((node) => {
-                  /**
-                   * Remove after consideration behaviour:
-                   * Once a node has been 'considered' (has been the source), it should be
-                   * filtered out of the nodes list. We can calculate this by removing nodes
-                   * from the start of the nodes array based on the current step.
-                   */
-                  const sortedIndex = sortedSource.findIndex(
-                    (s) =>
-                      s[entityPrimaryKeyProperty] ===
-                      node[entityPrimaryKeyProperty],
-                  );
-                  if (removeAfterConsideration && sortedIndex < currentStep) {
-                    return null;
-                  }
-                  const selected = !!edgeExists(
-                    edges,
-                    node[entityPrimaryKeyProperty],
-                    source[entityPrimaryKeyProperty],
-                    createEdge,
-                  );
-
-                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                  const { type, ...nodeProps } = node;
-                  return (
-                    <MotionNode
-                      {...nodeProps}
-                      selected={selected}
-                      onClick={handleNodeClick(source, node)}
-                      layoutId={node[entityPrimaryKeyProperty]}
-                      key={`${node[entityPrimaryKeyProperty]}-${promptIndex}`}
-                    />
-                  );
-                })}
-              </motion.div>
-            </AnimatePresence>
+          <div key="missing" className="flex h-24 items-center justify-center">
+            No nodes available to display.
           </div>
         )}
-      </div>
+      </AnimatePresence>
+      <Surface noContainer className="flex grow flex-col" spacing="none">
+        <div className="flex w-full items-center justify-center p-4">
+          <h4>Click/tap all that apply:</h4>
+        </div>
+        <Collection
+          key={promptIndex}
+          id="dyad-census-targets"
+          items={filteredTargets}
+          keyExtractor={keyExtractor}
+          layout={layout}
+          renderItem={renderItem}
+          selectionMode="none"
+          layoutGroupId={null}
+          viewportClassName="p-4"
+          aria-label="Target nodes"
+          emptyState={<h3>No nodes to display.</h3>}
+        />
+      </Surface>
     </div>
   );
 }
 
-export default withNoSSRWrapper(OneToManyDyadCensus);
+export default OneToManyDyadCensus;

@@ -51,6 +51,8 @@ function CollectionContent<T extends Record<string, unknown>>({
   dragAndDropHooks,
   virtualized,
   overscan,
+  viewportClassName,
+  layoutGroupId,
   // Sort props
   sortBy,
   sortDirection,
@@ -154,6 +156,7 @@ function CollectionContent<T extends Record<string, unknown>>({
               <ScrollArea
                 ref={mergedRef}
                 id={collectionId}
+                viewportClassName={viewportClassName}
                 aria-label={ariaLabel}
                 aria-labelledby={ariaLabelledBy}
                 aria-multiselectable={selectionMode === 'multiple' || undefined}
@@ -175,6 +178,7 @@ function CollectionContent<T extends Record<string, unknown>>({
                     dragAndDropHooks={dragAndDropHooks}
                     scrollRef={containerRef}
                     overscan={overscan}
+                    layoutGroupId={layoutGroupId}
                   />
                 ) : (
                   <StaticRenderer
@@ -184,6 +188,7 @@ function CollectionContent<T extends Record<string, unknown>>({
                     animate={animate}
                     collectionId={collectionId}
                     dragAndDropHooks={dragAndDropHooks}
+                    layoutGroupId={layoutGroupId}
                   />
                 )}
                 {collection.size === 0 && (
@@ -253,6 +258,8 @@ export function Collection<T extends Record<string, unknown>>({
   dragAndDropHooks,
   virtualized,
   overscan,
+  viewportClassName,
+  layoutGroupId,
   // Sort props
   sortBy,
   sortDirection,
@@ -300,6 +307,8 @@ export function Collection<T extends Record<string, unknown>>({
         dragAndDropHooks={dragAndDropHooks}
         virtualized={virtualized}
         overscan={overscan}
+        viewportClassName={viewportClassName}
+        layoutGroupId={layoutGroupId}
         // Sort props
         sortBy={sortBy}
         sortDirection={sortDirection}

@@ -223,6 +223,17 @@ export type CollectionProps<T> = SortProps &
     /** Optional drag and drop hooks */
     'dragAndDropHooks'?: DragAndDropHooks;
 
+    /** Additional class names for the ScrollArea viewport (inner scrollable element) */
+    'viewportClassName'?: string;
+
+    /**
+     * Controls the LayoutGroup id used for scoping layoutId animations.
+     * - `undefined` (default): uses `collectionId` — standard scoped behavior
+     * - `null`: LayoutGroup has no id — layoutId is global, enabling cross-boundary transitions
+     * - `string`: uses the provided string for scoping
+     */
+    'layoutGroupId'?: string | null;
+
     /**
      * Children for sort UI components.
      * Use with CollectionSortButton, CollectionSortSelect, or custom UI via useSortManager hook.

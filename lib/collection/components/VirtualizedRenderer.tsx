@@ -30,6 +30,7 @@ type VirtualizedRendererProps<T> = {
   scrollRef: RefObject<HTMLElement | null>;
   /** Number of rows to render beyond the visible viewport. Default: 5 */
   overscan?: number;
+  layoutGroupId?: string | null;
 };
 
 /**
@@ -55,6 +56,7 @@ export function VirtualizedRenderer<T>({
   collectionId,
   scrollRef,
   overscan = 5,
+  layoutGroupId,
 }: VirtualizedRendererProps<T>) {
   // Track container width and font-size for layout calculations
   const [containerWidth, setContainerWidth] = useState(0);
@@ -180,10 +182,13 @@ export function VirtualizedRenderer<T>({
 
   const scope = useStaggerAnimation(shouldAnimate ?? false, visibleItemCount);
 
+  const effectiveLayoutGroupId =
+    layoutGroupId === undefined ? collectionId : (layoutGroupId ?? undefined);
+
   return (
     <>
       {measurementContainer}
-      <LayoutGroup id={collectionId}>
+      <LayoutGroup id={effectiveLayoutGroupId}>
         <div
           style={{
             height: totalHeight,
