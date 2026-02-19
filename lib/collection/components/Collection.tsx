@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { useMergeRefs } from 'react-best-merge-refs';
 import { ScrollArea } from '~/components/ui/ScrollArea';
+import { cx } from '~/utils/cva';
 import { CollectionProvider } from '../CollectionProvider';
 import {
   CollectionIdContext,
@@ -145,7 +146,7 @@ function CollectionContent<T extends Record<string, unknown>>({
           <CollectionIdContext.Provider value={collectionId}>
             {children}
             <div
-              className={className}
+              className={cx('min-h-0 flex-1', className)}
               data-drop-target-over={dropState?.isOver ?? undefined}
               data-drop-target-valid={dropState?.willAccept ?? undefined}
               data-dragging={dropState?.isDragging ?? undefined}

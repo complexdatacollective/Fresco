@@ -42,11 +42,13 @@ export function StaticRenderer<T>({
   return (
     <LayoutGroup id={collectionId}>
       <div ref={scope} style={containerStyle}>
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence initial={false} mode="popLayout">
           {Array.from(collection).map((node) => (
             <motion.div
               key={node.key}
               layout="position"
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.6, opacity: 0 }}
               style={layoutItemStyle}
             >

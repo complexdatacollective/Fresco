@@ -188,7 +188,7 @@ function CollectionStoryRender(args: CollectionStoryArgs) {
   };
 
   return (
-    <div className={cx(collectionClasses, 'h-full p-4')}>
+    <div className={cx(collectionClasses, 'h-screen p-4')}>
       <Heading level="h2">Collection Demo</Heading>
       <Paragraph>
         Layout: <strong>{layoutType}</strong> | Item:{' '}
@@ -432,7 +432,7 @@ function DragDropBetweenCollections() {
   );
 
   return (
-    <div className="flex h-full gap-8">
+    <div className="flex h-screen gap-8">
       <div className={cx(collectionClasses, 'flex-1')}>
         <Heading level="h2">Team A ({leftItems.length} people)</Heading>
         <Paragraph>Drag people to move them to the other team.</Paragraph>
@@ -563,7 +563,7 @@ function DynamicItemsDemo() {
   };
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex h-screen flex-col gap-4">
       <div className="flex gap-4">
         <button
           onClick={addItem}
@@ -733,7 +733,7 @@ function VirtualizedStoryRender({
   );
 
   return (
-    <div className={cx(collectionClasses, 'h-full')}>
+    <div className={cx(collectionClasses, 'h-screen')}>
       <Heading level="h2">
         Virtualized Collection ({items.length.toLocaleString()} items)
       </Heading>
@@ -883,7 +883,7 @@ function SortingWithButtonsDemo() {
   );
 
   return (
-    <div className={cx(collectionClasses, 'h-full')}>
+    <div className={cx(collectionClasses, 'h-screen')}>
       <Heading level="h2">Sorting with Buttons</Heading>
       <Paragraph>
         Click sort buttons to sort the collection. Click again to toggle
@@ -943,7 +943,7 @@ function SortingWithSelectDemo() {
   );
 
   return (
-    <div className={cx(collectionClasses, 'h-full')}>
+    <div className={cx(collectionClasses, 'h-screen')}>
       <Heading level="h2">Sorting with Select Dropdown</Heading>
       <Paragraph>
         Use the dropdown to select a sort field and toggle direction.
@@ -1038,7 +1038,7 @@ function CustomSortControlsDemo() {
   }
 
   return (
-    <div className={cx(collectionClasses, 'h-full')}>
+    <div className={cx(collectionClasses, 'h-screen')}>
       <Heading level="h2">Custom Sort Controls</Heading>
       <Paragraph>
         Build your own sort UI using the useSortManager hook.
@@ -1075,7 +1075,7 @@ function DefaultSortDemo() {
   );
 
   return (
-    <div className={cx(collectionClasses, 'h-full')}>
+    <div className={cx(collectionClasses, 'h-screen')}>
       <Heading level="h2">Default Sort (Uncontrolled)</Heading>
       <Paragraph>
         Collection starts sorted by priority descending (highest first).
@@ -1132,7 +1132,7 @@ function ControlledSortDemo() {
   );
 
   return (
-    <div className={cx(collectionClasses, 'h-full')}>
+    <div className={cx(collectionClasses, 'h-screen')}>
       <Heading level="h2">Controlled Sort</Heading>
       <Paragraph>
         Sort state is managed externally. Current: {String(sortState.property)}{' '}
@@ -1319,7 +1319,7 @@ function BasicFilteringDemo({
   );
 
   return (
-    <div className={cx(collectionClasses, 'h-full')}>
+    <div className={cx(collectionClasses, 'h-screen')}>
       <Heading level="h2">Filtering Collection</Heading>
       <Paragraph>
         Search by name, email, department, or role. Uses fuzzy matching powered
@@ -1413,7 +1413,7 @@ function FilteringWithSortingDemo({
   );
 
   return (
-    <div className={cx(collectionClasses, 'h-full')}>
+    <div className={cx(collectionClasses, 'h-screen')}>
       <Heading level="h2">Filtering + Sorting</Heading>
       <Paragraph>
         Combine filtering and sorting. Filter narrows results, then sort orders
@@ -1527,7 +1527,7 @@ function LargeListFilteringDemo({
   );
 
   return (
-    <div className={cx(collectionClasses, 'h-full')}>
+    <div className={cx(collectionClasses, 'h-screen')}>
       <Heading level="h2">
         Large List Filtering ({items.length.toLocaleString()} items)
       </Heading>
@@ -1673,7 +1673,7 @@ function CustomFilterControlsDemo({
   }
 
   return (
-    <div className={cx(collectionClasses, 'h-full')}>
+    <div className={cx(collectionClasses, 'h-screen')}>
       <Heading level="h2">Custom Filter Controls</Heading>
       <Paragraph>
         Build your own filter UI using the useFilterManager hook.
@@ -1745,7 +1745,7 @@ function ControlledFilterDemo({ gap = 8 }: Partial<FilterStoryArgs>) {
   );
 
   return (
-    <div className={cx(collectionClasses, 'h-full')}>
+    <div className={cx(collectionClasses, 'h-screen')}>
       <Heading level="h2">Controlled Filter</Heading>
       <Paragraph data-testid="current-query-display">
         Filter state is managed externally. Current query: &quot;{filterQuery}
