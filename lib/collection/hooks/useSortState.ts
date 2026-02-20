@@ -52,6 +52,26 @@ export function useSortState(props: SortProps = {}): SortManager {
   const onSortChangeRef = useRef(onSortChange);
   onSortChangeRef.current = onSortChange;
 
+  // Initialize sort state from default props synchronously (uncontrolled mode).
+  // Runs before the store subscription so the first read picks up defaults,
+  // and before CollectionProvider's setItems effect so items are sorted correctly.
+  const hasInitialized = useRef(false);
+  if (!isControlled && !hasInitialized.current && defaultSortBy) {
+    hasInitialized.current = true;
+    storeApi.getState().updateSortState({
+      sortProperty: defaultSortBy,
+      sortDirection: defaultSortDirection,
+      sortType: defaultSortType,
+      sortRules: [
+        {
+          property: defaultSortBy,
+          direction: defaultSortDirection,
+          type: defaultSortType,
+        },
+      ],
+    });
+  }
+
   // Subscribe to sort state with shallow comparison
   const sortState = useCollectionStore<unknown, SortState>(
     useShallow((state) => ({
@@ -61,34 +81,6 @@ export function useSortState(props: SortProps = {}): SortManager {
       sortRules: state.sortRules,
     })),
   );
-
-  // Initialize sort state from default props (uncontrolled mode)
-  const hasInitialized = useRef(false);
-  useEffect(() => {
-    if (!isControlled && !hasInitialized.current && defaultSortBy) {
-      const store = storeApi.getState();
-      const rules = [
-        {
-          property: defaultSortBy,
-          direction: defaultSortDirection,
-          type: defaultSortType,
-        },
-      ];
-      store.updateSortState({
-        sortProperty: defaultSortBy,
-        sortDirection: defaultSortDirection,
-        sortType: defaultSortType,
-        sortRules: rules,
-      });
-      hasInitialized.current = true;
-    }
-  }, [
-    storeApi,
-    isControlled,
-    defaultSortBy,
-    defaultSortDirection,
-    defaultSortType,
-  ]);
 
   // Sync controlled sort props
   useEffect(() => {

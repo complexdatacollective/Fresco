@@ -345,6 +345,10 @@ function PrimaryStoryRender(args: PrimaryStoryArgs) {
         virtualized={virtualized}
         overscan={overscan}
         aria-label="Demo collection"
+        {...(sortUIType !== 'none' && {
+          defaultSortBy: '*',
+          defaultSortDirection: 'asc',
+        })}
         {...(filterEnabled && {
           filterKeys: ['name', 'department', 'role'] as const,
           filterDebounceMs,
