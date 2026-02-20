@@ -31,7 +31,6 @@ type DemoItem = {
   color: NodeColorSequence;
   department: string;
   role: string;
-  email: string;
   createdAt: Date;
   priority: number;
   completed: boolean;
@@ -72,7 +71,6 @@ function generateDemoItems(count: number, seed = 123): DemoItem[] {
       'Lead',
       'Intern',
     ]),
-    email: faker.internet.email(),
     createdAt: faker.date.between({
       from: new Date('2024-01-01'),
       to: new Date('2024-12-31'),
@@ -348,7 +346,7 @@ function PrimaryStoryRender(args: PrimaryStoryArgs) {
         overscan={overscan}
         aria-label="Demo collection"
         {...(filterEnabled && {
-          filterKeys: ['name', 'email', 'department', 'role'] as const,
+          filterKeys: ['name', 'department', 'role'] as const,
           filterDebounceMs,
           filterFuseOptions: { threshold: filterThreshold },
         })}
@@ -524,7 +522,7 @@ export const Primary = meta.story({
     sortUIType: 'buttons',
     filterEnabled: true,
     filterDebounceMs: 300,
-    filterThreshold: 0.4,
+    filterThreshold: 0.35,
   },
   argTypes: {
     layoutType: {

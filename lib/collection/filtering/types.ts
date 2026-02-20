@@ -16,13 +16,13 @@ export type FilterProperty = string | string[];
  * See https://fusejs.io/api/options.html
  */
 export type FuseOptions = {
-  /** Match threshold (0.0 = exact, 1.0 = match anything). Default: 0.4 */
+  /** Match threshold (0.0 = exact, 1.0 = match anything). Default: 0.35 */
   threshold?: number;
   /** Max distance for fuzzy match. Default: 100 */
   distance?: number;
   /** Ignore where in string match occurs. Default: true */
   ignoreLocation?: boolean;
-  /** Minimum number of characters required to match. Default: 1 */
+  /** Minimum number of characters required to match. Default: 2 */
   minMatchCharLength?: number;
   /** Enable extended search with special operators. Default: false */
   useExtendedSearch?: boolean;

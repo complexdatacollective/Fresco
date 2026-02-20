@@ -25,10 +25,10 @@ class SearchEngine {
     this.fuse = new Fuse(items, {
       keys,
       includeScore: true,
-      threshold: 0.4,
+      threshold: 0.35,
       distance: 100,
       ignoreLocation: true,
-      minMatchCharLength: 1,
+      minMatchCharLength: 2,
       findAllMatches: true,
       ...options,
     });
