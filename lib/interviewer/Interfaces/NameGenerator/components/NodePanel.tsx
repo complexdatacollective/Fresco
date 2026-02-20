@@ -8,13 +8,12 @@ import Panel from '~/lib/interviewer/components/Panel';
 import useExternalData from '~/lib/interviewer/hooks/useExternalData';
 import { getPanelNodes } from '~/lib/interviewer/selectors/name-generator';
 import { getStageSubject } from '~/lib/interviewer/selectors/session';
-import { type HighlightColor } from './NodePanels';
 
 type NodePanelProps = {
   panelConfig: PanelType;
   disableDragging: boolean;
   accepts: string[];
-  highlightColor: HighlightColor;
+  panelNumber: number;
   minimize: boolean;
   onDrop: DropCallback;
   onUpdate: (nodeCount: number, nodeIndex: Set<string>) => void;
@@ -24,7 +23,7 @@ type NodePanelProps = {
 
 function NodePanel(props: NodePanelProps) {
   const {
-    highlightColor,
+    panelNumber,
     id,
     onUpdate,
     panelConfig,
@@ -59,7 +58,7 @@ function NodePanel(props: NodePanelProps) {
   return (
     <Panel
       title={panelConfig.title}
-      highlight={highlightColor}
+      panelNumber={panelNumber}
       minimize={minimize}
     >
       <NodeList

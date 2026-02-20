@@ -24,20 +24,6 @@ type NodePanelsProps = {
   animationKey?: string | number;
 };
 
-const NodePanelColors = [
-  '--primary',
-  '--nc-primary-color-seq-1',
-  '--nc-primary-color-seq-2',
-  '--nc-primary-color-seq-3',
-  '--nc-primary-color-seq-4',
-] as const;
-
-const getHighlight = (panelNumber: number) => {
-  return NodePanelColors[panelNumber % NodePanelColors.length]!;
-};
-
-export type HighlightColor = (typeof NodePanelColors)[number];
-
 function NodePanels(props: NodePanelsProps) {
   const [panelIndexes, setPanelIndexes] = useState<
     {
@@ -161,7 +147,7 @@ function NodePanels(props: NodePanelsProps) {
         panelConfig={panel}
         disableDragging={disableAddNew}
         accepts={['EXISTING_NODE']} // TODO: needs to adapt based on panel source
-        highlightColor={getHighlight(index)}
+        panelNumber={index} // Used to calculate highlight
         minimize={!isPanelOpen(index)}
         onDrop={createDropHandler(panel.dataSource)}
         onUpdate={handlePanelUpdate(index)}

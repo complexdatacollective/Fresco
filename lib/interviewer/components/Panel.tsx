@@ -2,12 +2,11 @@ import React, { useCallback, useState } from 'react';
 import Surface, { surfaceSpacingVariants } from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import { compose, cva, cx } from '~/utils/cva';
-import { type HighlightColor } from '../Interfaces/NameGenerator/components/NodePanels';
 
 type PanelProps = React.HTMLAttributes<HTMLDivElement> & {
   title: string;
   minimize?: boolean;
-  highlight?: HighlightColor | null;
+  panelNumber: number;
   noCollapse?: boolean;
 };
 
@@ -19,7 +18,7 @@ const Panel = ({
   title,
   children,
   minimize = false,
-  highlight = null,
+  panelNumber,
   noCollapse = false,
 }: PanelProps) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -34,18 +33,18 @@ const Panel = ({
   const panelClasses = cx(
     'flex min-h-0 grow flex-col overflow-hidden rounded border-b-10',
     'transition-all duration-500 ease-in-out',
-    highlight === null && 'border-b-0',
     minimize && 'mb-0 grow-0 basis-0 border-b-0 opacity-0',
     collapsed && !minimize && 'grow-0',
-    highlight === '--primary' && 'border-b-sea-green',
-    highlight === '--nc-primary-color-seq-1' &&
-      'border-(--nc-primary-color-seq-1)',
-    highlight === '--nc-primary-color-seq-2' &&
-      'border-(--nc-primary-color-seq-2)',
-    highlight === '--nc-primary-color-seq-3' &&
-      'border-(--nc-primary-color-seq-3)',
-    highlight === '--nc-primary-color-seq-4' &&
-      'border-(--nc-primary-color-seq-4)',
+    panelNumber === 0 && 'border-b-cat-1',
+    panelNumber === 1 && 'border-b-cat-2',
+    panelNumber === 2 && 'border-b-cat-3',
+    panelNumber === 3 && 'border-b-cat-4',
+    panelNumber === 4 && 'border-b-cat-5',
+    panelNumber === 5 && 'border-b-cat-6',
+    panelNumber === 6 && 'border-b-cat-7',
+    panelNumber === 7 && 'border-b-cat-8',
+    panelNumber === 8 && 'border-b-cat-9',
+    panelNumber === 9 && 'border-b-cat-10',
   );
 
   const panelContentClasses = compose(

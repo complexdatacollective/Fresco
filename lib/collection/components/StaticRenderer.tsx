@@ -1,4 +1,5 @@
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
+import { useStaggerAnimation } from '../hooks/useStaggerAnimation';
 import { type Layout } from '../layout/Layout';
 import {
   type Collection,
@@ -6,7 +7,6 @@ import {
   type ItemRenderer,
 } from '../types';
 import { CollectionItem } from './CollectionItem';
-import { useStaggerAnimation } from '../hooks/useStaggerAnimation';
 
 type StaticRendererProps<T> = {
   layout: Layout<T>;
@@ -52,15 +52,15 @@ export function StaticRenderer<T>({
 
   return (
     <LayoutGroup id={effectiveLayoutGroupId}>
-      <div ref={scope} style={containerStyle}>
+      <div ref={scope} className="overflow-hidden" style={containerStyle}>
         <AnimatePresence initial={false} mode="popLayout">
           {Array.from(collection).map((node) => (
             <motion.div
               key={node.key}
-              layout="position"
-              initial={{ scale: 0.6, opacity: 0 }}
+              layout={shouldAnimate ? 'position' : undefined}
+              initial={shouldAnimate ? { scale: 0.6, opacity: 0 } : false}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.6, opacity: 0 }}
+              exit={shouldAnimate ? { scale: 0.6, opacity: 0 } : undefined}
               style={layoutItemStyle}
             >
               <div data-stagger-item data-stagger-key={animationKey}>
