@@ -189,7 +189,14 @@ export function useMeasureItems<T>({
     lastMeasuredWidthRef.current = containerWidth;
     setMeasurements(newMeasurements);
     setIsComplete(newMeasurements.size === orderedKeys.length);
-  }, [orderedKeys, measurementInfo.mode, skip, containerWidth, remVersion]);
+  }, [
+    orderedKeys,
+    measurementInfo.mode,
+    skip,
+    containerWidth,
+    remVersion,
+    isComplete,
+  ]);
 
   // Reset measurements when collection or layout changes
   useLayoutEffect(() => {
