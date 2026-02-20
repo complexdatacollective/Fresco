@@ -4,42 +4,48 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Collection } from '~/lib/collection/components/Collection';
 import { useDragAndDrop } from '~/lib/collection/dnd/useDragAndDrop';
 import { InlineGridLayout } from '~/lib/collection/layout/InlineGridLayout';
-import { type ItemProps } from '~/lib/collection/types';
+import { type CollectionProps, type ItemProps } from '~/lib/collection/types';
 import { type DropCallback } from '~/lib/dnd/types';
 import { cx } from '~/utils/cva';
 import Node from './Node';
 
-type NodeListProps = {
+// Props that NodeList always provides internally — consumers can't override these
+type InternalCollectionProps =
+  | 'keyExtractor'
+  | 'renderItem'
+  | 'layout'
+  | 'dragAndDropHooks'
+  | 'items';
+
+type NodeListProps = Omit<CollectionProps<NcNode>, InternalCollectionProps> & {
   items?: NcNode[];
-  id?: string;
   itemType?: string;
   accepts?: string[];
   onDrop?: DropCallback;
   onItemClick?: (node: NcNode) => void;
   nodeSize?: 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
-  className?: string;
-  animate?: boolean;
-  animationKey?: string | number;
-  virtualized?: boolean;
-  overscan?: number;
 };
 
 const EXIT_DURATION = 0.2;
 
 const NodeList = memo(
   ({
-    items = [],
-    id,
+    // NodeList-specific props
     itemType = 'NODE',
     accepts,
     onDrop,
     onItemClick,
     nodeSize = 'md',
+    // Collection props with NodeList defaults
+    items = [],
+    id,
     className,
     animate = true,
     animationKey,
-    virtualized,
-    overscan,
+    emptyState = null,
+    'aria-label': ariaLabel = 'Node list',
+    // All other Collection props passed through
+    ...collectionProps
   }: NodeListProps) => {
     const layout = useMemo(() => new InlineGridLayout<NcNode>({ gap: 16 }), []);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -175,6 +181,7 @@ const NodeList = memo(
       >
         {animationComplete && (
           <Collection
+            {...collectionProps}
             key={displayAnimationKey}
             id={id ?? 'node-list'}
             items={displayItems}
@@ -187,10 +194,8 @@ const NodeList = memo(
             className={containerClasses}
             animate={animate}
             animationKey={displayAnimationKey}
-            virtualized={virtualized}
-            overscan={overscan}
-            aria-label="Node list"
-            emptyState={null}
+            aria-label={ariaLabel}
+            emptyState={emptyState}
           />
         )}
       </motion.div>
