@@ -7,7 +7,7 @@ import { Selection } from '../selection/Selection';
 import { SelectionManager } from '../selection/SelectionManager';
 import { type SelectionProps, type SelectionState } from '../selection/types';
 import { type Key } from '../types';
-import { useCollection } from './useCollection';
+import { useCollectionData } from './useCollection';
 
 /**
  * Hook to manage selection state within a collection.
@@ -46,7 +46,7 @@ export function useSelectionState(
   } = props;
 
   const storeApi = useCollectionStoreApi<unknown>();
-  const collection = useCollection();
+  const collection = useCollectionData();
 
   // Track if we're in controlled mode
   const isControlled = controlledSelectedKeys !== undefined;

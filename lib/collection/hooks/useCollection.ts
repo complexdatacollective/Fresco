@@ -13,7 +13,7 @@ import { type Collection, type Key, type Node } from '../types';
  * @example
  * ```tsx
  * function MyComponent() {
- *   const collection = useCollection<MyItem>();
+ *   const collection = useCollectionData<MyItem>();
  *
  *   const firstKey = collection.getFirstKey();
  *   const item = collection.getItem(firstKey);
@@ -22,7 +22,7 @@ import { type Collection, type Key, type Node } from '../types';
  * }
  * ```
  */
-export function useCollection<T>(): Collection<T> {
+export function useCollectionData<T>(): Collection<T> {
   const storeApi = useCollectionStoreApi<T>();
 
   // Subscribe to changes in items and orderedKeys

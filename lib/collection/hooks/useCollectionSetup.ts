@@ -15,7 +15,7 @@ import {
   type Node,
   type SelectionMode,
 } from '../types';
-import { useCollection } from './useCollection';
+import { useCollectionData } from './useCollection';
 import { useSelectionState } from './useSelectionState';
 
 type UseCollectionSetupOptions = {
@@ -54,7 +54,7 @@ export function useCollectionSetup<T>(
   options: UseCollectionSetupOptions,
   containerRef: RefObject<HTMLElement | null> | null,
 ): UseCollectionSetupResult<T> {
-  const collection = useCollection<T>();
+  const collection = useCollectionData<T>();
 
   // Track container width for grid column calculation
   const [containerWidth, setContainerWidth] = useState<number | undefined>(
