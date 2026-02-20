@@ -56,18 +56,9 @@ export class SpatialKeyboardDelegate implements KeyboardDelegate {
     return minHeight > 0 && overlapHeight > minHeight * 0.5;
   }
 
-  private skipDisabled(key: Key | null): Key | null {
-    if (key === null) return null;
-    if (!this.disabledKeys.has(key)) return key;
-
-    // If the target is disabled, try to find nearest non-disabled item
-    // For simplicity, we return null and let the caller handle it
-    return null;
-  }
-
-  private findNearestInDirection(
+  private findNearestVertical(
     fromKey: Key,
-    direction: 'up' | 'down' | 'left' | 'right',
+    direction: 'up' | 'down',
   ): Key | null {
     const fromRect = this.getItemRect(fromKey);
     if (!fromRect) return null;
@@ -75,77 +66,90 @@ export class SpatialKeyboardDelegate implements KeyboardDelegate {
     const fromCenterX = this.getCenterX(fromRect);
     const fromCenterY = this.getCenterY(fromRect);
 
-    const keys = this.getKeys();
+    // Collect candidates: items in the target direction and NOT on the same row
+    type Candidate = { key: Key; rect: Rect; centerX: number; centerY: number };
+    const candidates: Candidate[] = [];
+
+    for (const key of this.getKeys()) {
+      if (key === fromKey || this.disabledKeys.has(key)) continue;
+
+      const rect = this.getItemRect(key);
+      if (!rect) continue;
+
+      const centerY = this.getCenterY(rect);
+      const isInDirection =
+        direction === 'down' ? centerY > fromCenterY : centerY < fromCenterY;
+
+      if (isInDirection && !this.isOnSameRow(fromRect, rect)) {
+        candidates.push({
+          key,
+          rect,
+          centerX: this.getCenterX(rect),
+          centerY,
+        });
+      }
+    }
+
+    if (candidates.length === 0) return null;
+
+    // Find the nearest row by vertical distance
+    let nearestCandidate = candidates[0]!;
+    let nearestVertDist = Math.abs(nearestCandidate.centerY - fromCenterY);
+
+    for (const c of candidates) {
+      const vertDist = Math.abs(c.centerY - fromCenterY);
+      if (vertDist < nearestVertDist) {
+        nearestCandidate = c;
+        nearestVertDist = vertDist;
+      }
+    }
+
+    // Get all candidates on the same row as the nearest
+    const nearestRowCandidates = candidates.filter((c) =>
+      this.isOnSameRow(nearestCandidate.rect, c.rect),
+    );
+
+    // Pick the one closest horizontally
+    let bestKey = nearestRowCandidates[0]!.key;
+    let bestHorizDist = Math.abs(
+      nearestRowCandidates[0]!.centerX - fromCenterX,
+    );
+
+    for (const c of nearestRowCandidates) {
+      const horizDist = Math.abs(c.centerX - fromCenterX);
+      if (horizDist < bestHorizDist) {
+        bestKey = c.key;
+        bestHorizDist = horizDist;
+      }
+    }
+
+    return bestKey;
+  }
+
+  private findNearestHorizontal(
+    fromKey: Key,
+    direction: 'left' | 'right',
+  ): Key | null {
+    const fromRect = this.getItemRect(fromKey);
+    if (!fromRect) return null;
+
+    const fromCenterX = this.getCenterX(fromRect);
+
     let bestKey: Key | null = null;
     let bestDistance = Infinity;
 
-    for (const key of keys) {
-      if (key === fromKey) continue;
-      if (this.disabledKeys.has(key)) continue;
+    for (const key of this.getKeys()) {
+      if (key === fromKey || this.disabledKeys.has(key)) continue;
 
       const rect = this.getItemRect(key);
       if (!rect) continue;
 
       const centerX = this.getCenterX(rect);
-      const centerY = this.getCenterY(rect);
+      const isInDirection =
+        direction === 'right' ? centerX > fromCenterX : centerX < fromCenterX;
 
-      let isValidCandidate = false;
-      let primaryDistance: number;
-      let secondaryDistance: number;
-
-      switch (direction) {
-        case 'down':
-          // Item must be below (center Y is greater)
-          if (centerY > fromCenterY) {
-            isValidCandidate = true;
-            // Primary: vertical distance, Secondary: horizontal distance
-            primaryDistance = centerY - fromCenterY;
-            secondaryDistance = Math.abs(centerX - fromCenterX);
-          }
-          break;
-
-        case 'up':
-          // Item must be above (center Y is smaller)
-          if (centerY < fromCenterY) {
-            isValidCandidate = true;
-            primaryDistance = fromCenterY - centerY;
-            secondaryDistance = Math.abs(centerX - fromCenterX);
-          }
-          break;
-
-        case 'right':
-          // Item must be to the right and on the same row
-          if (centerX > fromCenterX && this.isOnSameRow(fromRect, rect)) {
-            isValidCandidate = true;
-            primaryDistance = centerX - fromCenterX;
-            secondaryDistance = Math.abs(centerY - fromCenterY);
-          }
-          break;
-
-        case 'left':
-          // Item must be to the left and on the same row
-          if (centerX < fromCenterX && this.isOnSameRow(fromRect, rect)) {
-            isValidCandidate = true;
-            primaryDistance = fromCenterX - centerX;
-            secondaryDistance = Math.abs(centerY - fromCenterY);
-          }
-          break;
-      }
-
-      if (isValidCandidate) {
-        // For up/down, prioritize items with similar X position (same column-ish)
-        // For left/right, prioritize closest item
-        let distance: number;
-
-        if (direction === 'up' || direction === 'down') {
-          // Weight: prefer items closer horizontally, then vertically
-          // Using a weighted distance where horizontal alignment matters more
-          distance = secondaryDistance! * 1000 + primaryDistance!;
-        } else {
-          // For left/right, just use horizontal distance
-          distance = primaryDistance!;
-        }
-
+      if (isInDirection && this.isOnSameRow(fromRect, rect)) {
+        const distance = Math.abs(centerX - fromCenterX);
         if (distance < bestDistance) {
           bestDistance = distance;
           bestKey = key;
@@ -157,19 +161,19 @@ export class SpatialKeyboardDelegate implements KeyboardDelegate {
   }
 
   getKeyBelow(key: Key): Key | null {
-    return this.findNearestInDirection(key, 'down');
+    return this.findNearestVertical(key, 'down');
   }
 
   getKeyAbove(key: Key): Key | null {
-    return this.findNearestInDirection(key, 'up');
+    return this.findNearestVertical(key, 'up');
   }
 
   getKeyRightOf(key: Key): Key | null {
-    return this.findNearestInDirection(key, 'right');
+    return this.findNearestHorizontal(key, 'right');
   }
 
   getKeyLeftOf(key: Key): Key | null {
-    return this.findNearestInDirection(key, 'left');
+    return this.findNearestHorizontal(key, 'left');
   }
 
   getFirstKey(): Key | null {
