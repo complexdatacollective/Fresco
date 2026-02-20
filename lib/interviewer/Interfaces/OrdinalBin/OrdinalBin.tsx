@@ -63,7 +63,7 @@ const OrdinalBin = (props: OrdinalBinStageProps) => {
         listId={`${stage.id}_${prompt?.id ?? 'unknown'}_NODE_BUCKET`}
         sortOrder={prompt?.bucketSortOrder}
       />
-      <div className="min-h-0 flex-1">
+      <div className="min-h-0 w-full flex-1">
         <AnimatePresence mode="wait">
           {prompt && (
             <motion.div

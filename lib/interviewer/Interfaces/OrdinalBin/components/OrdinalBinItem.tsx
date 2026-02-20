@@ -98,7 +98,7 @@ const OrdinalBinItem = memo((props: OrdinalBinItemProps) => {
 
   const { dropProps, isOver, willAccept, isDragging } = useDropTarget({
     id: listId,
-    accepts: ['node'],
+    accepts: ['NODE'],
     announcedName: `Ordinal bin for ${bin.label}`,
     onDrop: handleDrop,
   });

@@ -1,10 +1,13 @@
 'use client';
 
-import { ArrowDownIcon, ArrowUpIcon } from 'lucide-react';
+import { ArrowUpIcon } from 'lucide-react';
+import { motion } from 'motion/react';
 import { Button, type ButtonProps } from '~/components/ui/Button';
 import { cx } from '~/utils/cva';
 import { useOptionalSortManager } from '../contexts';
 import { type SortProperty, type SortType } from '../sorting/types';
+
+const MotionArrowIcon = motion.create(ArrowUpIcon);
 
 type CollectionSortButtonProps = {
   /** Property to sort by when clicked */
@@ -44,8 +47,8 @@ export function CollectionSortButton({
   label,
   showDirectionIndicator = true,
   className,
-  variant = 'outline',
-  size = 'sm',
+  variant = 'default',
+  size = 'md',
 }: CollectionSortButtonProps) {
   const sortManager = useOptionalSortManager();
 
@@ -72,17 +75,15 @@ export function CollectionSortButton({
       className={cx(isActive && 'bg-accent text-accent-contrast', className)}
       aria-pressed={isActive}
       aria-label={`Sort by ${label}${isActive ? ` (${direction === 'asc' ? 'ascending' : 'descending'})` : ''}`}
+      icon={
+        showDirectionIndicator && isActive ? (
+          <MotionArrowIcon
+            animate={{ rotate: direction === 'asc' ? 0 : 180 }}
+          />
+        ) : undefined
+      }
     >
       {label}
-      {showDirectionIndicator && isActive && (
-        <span className="ml-1">
-          {direction === 'asc' ? (
-            <ArrowUpIcon className="h-3.5 w-3.5" />
-          ) : (
-            <ArrowDownIcon className="h-3.5 w-3.5" />
-          )}
-        </span>
-      )}
     </Button>
   );
 }

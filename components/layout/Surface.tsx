@@ -20,7 +20,7 @@ export const surfaceSpacingVariants = cva({
     },
   },
   defaultVariants: {
-    spacing: 'md',
+    spacing: 'sm',
   },
 });
 

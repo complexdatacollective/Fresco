@@ -1,5 +1,5 @@
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
-import { animate as motionAnimate, motion } from 'motion/react';
+import { motion, animate as motionAnimate } from 'motion/react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Collection } from '~/lib/collection/components/Collection';
 import { useDragAndDrop } from '~/lib/collection/dnd/useDragAndDrop';
@@ -177,7 +177,7 @@ const NodeList = memo(
           exit: { opacity: 0 },
         }}
         onAnimationComplete={() => setAnimationComplete(true)}
-        className="h-full grow overflow-hidden"
+        className="size-full grow overflow-hidden"
       >
         {animationComplete && (
           <Collection
@@ -188,9 +188,7 @@ const NodeList = memo(
             keyExtractor={keyExtractor}
             layout={layout}
             renderItem={renderItem}
-            dragAndDropHooks={
-              (accepts ?? onDrop) ? dragAndDropHooks : undefined
-            }
+            dragAndDropHooks={dragAndDropHooks}
             className={containerClasses}
             animate={animate}
             animationKey={displayAnimationKey}

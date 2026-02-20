@@ -59,7 +59,7 @@ export default function LikertScaleField(props: LikertScaleFieldProps) {
 
   return (
     <div className={cx('w-full', className)} {...rest}>
-      <div className="relative py-4">
+      <div className="relative">
         <Slider.Root
           value={sliderValue}
           onValueChange={handleValueChange}

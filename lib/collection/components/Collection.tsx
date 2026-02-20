@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useMergeRefs } from 'react-best-merge-refs';
 import { ScrollArea } from '~/components/ui/ScrollArea';
 import { cx } from '~/utils/cva';
@@ -8,10 +8,12 @@ import {
   FilterManagerContext,
   SelectionManagerContext,
   SortManagerContext,
+  useCollectionStore,
 } from '../contexts';
 import { useCollectionSetup } from '../hooks/useCollectionSetup';
 import { useFilterState } from '../hooks/useFilterState';
 import { useSortState } from '../hooks/useSortState';
+import { type SortState } from '../sorting/types';
 import {
   type CollectionProps,
   type ItemRenderer,
@@ -125,6 +127,24 @@ function CollectionContent<T extends Record<string, unknown>>({
     items,
     keyExtractor: keyExtractor as KeyExtractor<Record<string, unknown>>,
   });
+
+  // Reset scroll position when filter results or sort state changes
+  const filterDebouncedQuery = useCollectionStore<unknown, string>(
+    (state) => state.filterDebouncedQuery,
+  );
+  const storeSortProperty = useCollectionStore<
+    unknown,
+    SortState['sortProperty']
+  >((state) => state.sortProperty);
+  const storeSortDirection = useCollectionStore<
+    unknown,
+    SortState['sortDirection']
+  >((state) => state.sortDirection);
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = 0;
+    }
+  }, [filterDebouncedQuery, storeSortProperty, storeSortDirection]);
 
   // Extract ref and tabIndex from dndCollectionProps
   // - ref: merged with containerRef

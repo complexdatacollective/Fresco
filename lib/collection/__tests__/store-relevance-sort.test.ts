@@ -18,8 +18,8 @@ const items: TestItem[] = [
   { id: '5', name: 'Eve' },
 ];
 
-function getOrderedIds(
-  store: ReturnType<typeof createCollectionStore<TestItem>>,
+function getOrderedIds<T>(
+  store: ReturnType<typeof createCollectionStore<T>>,
 ) {
   return store.getState().orderedKeys;
 }

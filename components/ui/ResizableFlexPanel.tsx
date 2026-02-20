@@ -74,7 +74,7 @@ const ResizableFlexPanel = forwardRef<HTMLDivElement, ResizableFlexPanelProps>(
         {/* First panel */}
         <div
           className={cx(
-            'shrink-0 overflow-hidden',
+            'flex shrink-0 flex-col overflow-hidden',
             isOverridden &&
               'transition-[flex-basis] duration-(--animation-duration-standard) ease-(--animation-easing)',
           )}
@@ -122,7 +122,9 @@ const ResizableFlexPanel = forwardRef<HTMLDivElement, ResizableFlexPanelProps>(
         </div>
 
         {/* Second panel */}
-        <div className={cx('min-h-0 min-w-0 flex-1')}>{secondChild}</div>
+        <div className={cx('flex min-h-0 min-w-0 flex-1 flex-col')}>
+          {secondChild}
+        </div>
       </div>
     );
   },

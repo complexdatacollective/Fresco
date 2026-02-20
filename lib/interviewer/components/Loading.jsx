@@ -2,6 +2,7 @@ import cx from 'classnames';
 import { motion } from 'motion/react';
 import PropTypes from 'prop-types';
 import Spinner from '~/components/Spinner';
+import Heading from '~/components/typography/Heading';
 
 const Loading = ({ message, className = '', small = false }) => (
   <motion.div
@@ -11,7 +12,7 @@ const Loading = ({ message, className = '', small = false }) => (
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
   >
-    <h2>{message}</h2>
+    <Heading level="h4">{message}</Heading>
     <Spinner small={small} />
   </motion.div>
 );

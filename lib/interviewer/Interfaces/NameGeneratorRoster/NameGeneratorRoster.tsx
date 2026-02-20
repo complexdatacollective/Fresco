@@ -2,10 +2,25 @@ import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
 } from '@codaco/shared-consts';
-import { motion } from 'motion/react';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { AnimatePresence } from 'motion/react';
+import { useCallback, useEffect, useId, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import UINode from '~/components/Node';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
+import { ResizableFlexPanel } from '~/components/ui/ResizableFlexPanel';
+import { Collection } from '~/lib/collection/components/Collection';
+import { CollectionFilterInput } from '~/lib/collection/components/CollectionFilterInput';
+import { CollectionSortButton } from '~/lib/collection/components/CollectionSortButton';
+import { useDragAndDrop } from '~/lib/collection/dnd/useDragAndDrop';
+import { ListLayout } from '~/lib/collection/layout/ListLayout';
+import {
+  type SortType as CollectionSortType,
+  type SortableProperty,
+  type SortRule,
+} from '~/lib/collection/sorting/types';
+import { type ItemProps } from '~/lib/collection/types';
+import { useDndStore, type DndStore } from '~/lib/dnd';
+import Loading from '~/lib/interviewer/components/Loading';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import Panel from '~/lib/interviewer/components/Panel';
 import Prompts from '~/lib/interviewer/components/Prompts';
@@ -13,6 +28,11 @@ import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { addNode, deleteNode } from '~/lib/interviewer/ducks/modules/session';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import useStageValidation from '~/lib/interviewer/hooks/useStageValidation';
+import { getNodeVariables } from '~/lib/interviewer/selectors/interface';
+import {
+  getSearchOptions,
+  getSortOptions,
+} from '~/lib/interviewer/selectors/name-generator';
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import { getCodebookVariablesForSubjectType } from '~/lib/interviewer/selectors/protocol';
 import {
@@ -21,44 +41,35 @@ import {
   getStageNodeCount,
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
+import { mapNCType } from '~/lib/interviewer/utils/createSorter';
 import getParentKeyByNameValue from '~/lib/interviewer/utils/getParentKeyByNameValue';
 import { cx } from '~/utils/cva';
-import SearchableList from '../../components/SearchableList';
 import { usePassphrase } from '../Anonymisation/usePassphrase';
-import { type NameGeneratorRosterProps } from './helpers';
+import DropOverlay from './DropOverlay';
+import { convertNamesToUUIDs, type NameGeneratorRosterProps } from './helpers';
 import useItems, { type UseItemElement } from './useItems';
 
-function DataCard(props: UseItemElement['props']) {
-  const { label } = props;
+/**
+ * Maps Network Canvas variable types (which include 'hierarchy' and
+ * 'categorical') to the subset supported by Collection's sort system.
+ */
+const toCollectionSortType = (
+  ncType: ReturnType<typeof mapNCType>,
+): CollectionSortType => {
+  if (ncType === 'hierarchy' || ncType === 'categorical') return 'string';
+  return ncType;
+};
 
-  return (
-    <div className="card">
-      <div className="card-body">
-        <p>{label}</p>
-      </div>
-    </div>
-  );
-}
-
-const countColumns = (width: number) =>
-  width < 140 ? 1 : Math.floor(width / 450);
-
-const ErrorMessage = (props: { error: Error }) => (
+const ErrorMessage = (_props: { error: Error }) => (
   <div className="flex flex-1 flex-col items-center justify-center">
-    <h1>Something went wrong</h1>
-    <p>External data could not be loaded.</p>
-    <p>
-      <small>{props.error.message}</small>
-    </p>
+    <Heading level="h2">Something went wrong</Heading>
+    <Paragraph>External data could not be loaded.</Paragraph>
   </div>
 );
 
-const variants = {
-  visible: {
-    opacity: 1,
-  },
-  hidden: { opacity: 0 },
-};
+const layout = new ListLayout<UseItemElement>({ gap: 14 });
+
+const keyExtractor = (item: UseItemElement) => item.id;
 
 /**
  * Name Generator (unified) Roster Interface
@@ -86,8 +97,73 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
   const minNodes = stage.behaviours?.minNodes ?? 0;
   const maxNodes = stage.behaviours?.maxNodes ?? Infinity;
 
+  // --- Search / filter setup ---
+  const searchOptions = useSelector(getSearchOptions);
+  const nodeVariables = useSelector(getNodeVariables);
+
+  const filterKeys = useMemo(() => {
+    if (!searchOptions) return undefined;
+    return convertNamesToUUIDs(
+      nodeVariables,
+      searchOptions.matchProperties,
+    ).map((uuid) => ['data', entityAttributesProperty, uuid]);
+  }, [searchOptions, nodeVariables]);
+
+  const filterFuseOptions = useMemo(() => {
+    if (!searchOptions) return undefined;
+    return {
+      threshold: searchOptions.fuzziness,
+      ignoreLocation: true,
+      minMatchCharLength: 1,
+      findAllMatches: true,
+      useExtendedSearch: true,
+    };
+  }, [searchOptions]);
+
+  // --- Sort setup ---
+  const sortOptions = useSelector(getSortOptions);
+
+  const { initialSortRules, sortableProperties } = useMemo<{
+    initialSortRules: SortRule[] | undefined;
+    sortableProperties: SortableProperty[] | undefined;
+  }>(() => {
+    if (!sortOptions)
+      return { initialSortRules: undefined, sortableProperties: undefined };
+
+    const sortOrder = sortOptions.sortOrder ?? [];
+
+    const initialPropertyName = sortOrder[0]?.property
+      ? [sortOrder[0].property]
+      : ['name'];
+    const uuid = convertNamesToUUIDs(nodeVariables, initialPropertyName)[0]!;
+    const variableDef = nodeVariables[uuid];
+    const ncType = mapNCType(variableDef?.type);
+
+    const rules: SortRule[] = [
+      {
+        property: ['data', entityAttributesProperty, uuid],
+        direction: sortOrder[0]?.direction ?? 'asc',
+        type: toCollectionSortType(ncType),
+      },
+    ];
+
+    const props = sortOptions.sortableProperties?.map(({ variable, label }) => {
+      const varUuid = convertNamesToUUIDs(nodeVariables, [variable])[0]!;
+      const varDef = nodeVariables[varUuid];
+      const varNcType = mapNCType(varDef?.type);
+
+      return {
+        property: ['data', entityAttributesProperty, varUuid],
+        label,
+        type: toCollectionSortType(varNcType),
+      };
+    });
+
+    return { initialSortRules: rules, sortableProperties: props };
+  }, [sortOptions, nodeVariables]);
+
+  // --- Encryption detection ---
   const useEncryption = useMemo(() => {
-    // Handle new node attributes, first since it is simpler
     if (
       Object.keys(newNodeAttributes).some(
         (variableId) => codebookForNodeType[variableId]?.encrypted,
@@ -96,11 +172,6 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
       return true;
     }
 
-    // To set this, we need to work out if adding a node based on the items
-    // will require encryption. This will be the case if any of the external
-    // data item keys match with the name property of any codebook variables
-    // for the node type (meaning that they will be transposed to the when
-    // the node is added to the interview
     const itemAttributesWithCodebookMatches = items.reduce(
       (codebookMatches, item) => {
         const attributesWithCodebookMatches = Object.keys(
@@ -118,7 +189,6 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
           return acc;
         }, [] as string[]);
 
-        // Only add the codebook matches if they are not already in the list;
         return [
           ...codebookMatches,
           ...attributesWithCodebookMatches.filter(
@@ -209,15 +279,17 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
         },
         attributeData,
         useEncryption,
-        // External roster data may contain attributes not in the codebook
         allowUnknownAttributes: true,
       }),
     );
   };
 
   const handleRemoveNode = useCallback(
-    ({ meta: { _uid } }: { meta: { _uid: string } }) => {
-      dispatch(deleteNode(_uid));
+    (metadata: Record<string, unknown>) => {
+      const uid = metadata[entityPrimaryKeyProperty] as string | undefined;
+      if (uid) {
+        dispatch(deleteNode(uid));
+      }
     },
     [dispatch],
   );
@@ -239,77 +311,138 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
     return false;
   }, [maxNodesReached, itemsStatus, passphrase, useEncryption]);
 
-  const DragPreviewNode = useMemo(
-    () =>
-      // eslint-disable-next-line react/display-name
-      ({
-        props,
-      }: {
-        props: {
-          label: string;
-        };
-      }) => <UINode color={dropNodeColor} label={props.label} />,
-    [dropNodeColor],
+  // --- Exclude already-added items from source panel ---
+  const filteredItems = useMemo(() => {
+    if (!excludeItems || excludeItems.length === 0) return items;
+    const excludeSet = new Set(excludeItems);
+    return items.filter((item) => !excludeSet.has(item.id));
+  }, [items, excludeItems]);
+
+  // --- Disabled keys to prevent dragging when disabled ---
+  const disabledKeys = useMemo(
+    () => (disabled ? filteredItems.map((item) => item.id) : undefined),
+    [disabled, filteredItems],
+  );
+
+  // --- DnD setup for source panel ---
+  const sourceCollectionId = `source-nodes-${useId()}`;
+
+  const { dragAndDropHooks } = useDragAndDrop<UseItemElement>({
+    getItems: (keys) => [{ type: 'SOURCE_NODES', keys }],
+    acceptTypes: ['ADDED_NODES'],
+    onDrop: (e) => {
+      if (e.metadata) handleRemoveNode(e.metadata);
+    },
+    getItemMetadata: (key) => {
+      const item = filteredItems.find((i) => i.id === String(key));
+      return item
+        ? { ...item, itemType: 'SOURCE_NODES' }
+        : { itemType: 'SOURCE_NODES' };
+    },
+  });
+
+  // --- Drop overlay state ---
+  const isDragging = useDndStore((state: DndStore) => state.isDragging);
+  const activeDropTargetId = useDndStore(
+    (state: DndStore) => state.activeDropTargetId,
+  );
+  const dragItem = useDndStore((state: DndStore) => state.dragItem);
+
+  const dragItemType = (dragItem?.metadata as { itemType?: string })?.itemType;
+  const willAcceptDrop = isDragging && dragItemType === 'ADDED_NODES';
+  const isOverSource = activeDropTargetId === `${sourceCollectionId}-container`;
+
+  // --- Render item callback ---
+  const renderItem = useCallback(
+    (item: UseItemElement, itemProps: ItemProps) => (
+      <div {...itemProps}>
+        <div className="bg-platinum text-charcoal rounded-sm p-4">
+          <Heading level="label">{item.props.label}</Heading>
+        </div>
+      </div>
+    ),
+    [],
   );
 
   return (
     <div
-      className="flex h-full flex-1 flex-col items-center justify-center overflow-hidden"
+      className="interface flex min-h-0 flex-1 flex-col items-center justify-center"
       ref={interfaceRef}
     >
-      <div
-        className="flex flex-[0_0_var(--interface-prompt-flex-basis)] items-center justify-center text-center"
-        key="prompts"
+      <Prompts />
+      <ResizableFlexPanel
+        storageKey="name-generator-roster-panels"
+        defaultBasis={50}
+        className="min-h-0 w-full flex-1 basis-full"
+        aria-label="Resize panel and node list areas"
       >
-        <Prompts />
-      </div>
-      <div className="flex size-full grow">
-        <motion.div
-          className="flex flex-1"
-          key="panels"
-          initial="hidden"
-          animate="visible"
-          exit="hidden"
-          variants={variants}
-          style={{ transitionDuration: '--animation-duration-standard' }}
-        >
-          <div className="flex h-full min-w-[30rem] flex-1 pr-[1.8rem] [&_.card]:cursor-grab">
-            <SearchableList
-              key={String(disabled)}
-              loading={itemsStatus.isLoading}
-              items={items}
-              title="Available to add"
-              columns={countColumns}
-              placeholder={
-                itemsStatus.error && <ErrorMessage error={itemsStatus.error} />
-              }
-              itemType="SOURCE_NODES"
-              excludeItems={excludeItems}
-              itemComponent={DataCard}
-              dragComponent={DragPreviewNode}
-              accepts={['ADDED_NODES']}
-              onDrop={handleRemoveNode}
-              dropNodeColor={dropNodeColor}
-              disabled={disabled}
-            />
-          </div>
-          <div className="flex h-full flex-1 flex-col [&_.node-list]:flex-1 [&_.node-list.node-list--drag]:bg-transparent [&_.node-list.node-list--hover]:bg-transparent">
-            <Panel title="Added" noCollapse>
-              <div className={nodeListClasses}>
-                <NodeList
-                  id="node-list"
-                  className={nodeListClasses}
-                  itemType="ADDED_NODES"
-                  accepts={['ADDED_NODES']}
-                  onDrop={handleAddNode}
-                  items={nodesForPrompt}
-                  virtualized
-                />
-              </div>
-            </Panel>
-          </div>
-        </motion.div>
-      </div>
+        <Panel title="Available to add" panelNumber={0} noCollapse>
+          {itemsStatus.isLoading ? (
+            <Loading message="Loading..." />
+          ) : itemsStatus.error ? (
+            <ErrorMessage error={itemsStatus.error} />
+          ) : (
+            <div className="relative flex min-h-0 flex-1 flex-col [&_.card]:cursor-grab">
+              <Collection
+                items={filteredItems}
+                keyExtractor={keyExtractor}
+                layout={layout}
+                renderItem={renderItem}
+                filterKeys={filterKeys}
+                filterFuseOptions={filterFuseOptions}
+                sortRules={initialSortRules}
+                dragAndDropHooks={dragAndDropHooks}
+                disabledKeys={disabledKeys}
+                virtualized
+                emptyState={<>Nothing matched your search term.</>}
+                aria-label="Source nodes"
+                id={sourceCollectionId}
+              >
+                {sortableProperties && sortableProperties.length > 0 && (
+                  <div className="flex w-full flex-col gap-2">
+                    <div className="flex flex-wrap gap-2 p-2">
+                      {sortableProperties.map((sp) => (
+                        <CollectionSortButton
+                          key={
+                            Array.isArray(sp.property)
+                              ? sp.property.join('-')
+                              : String(sp.property)
+                          }
+                          property={sp.property}
+                          type={sp.type}
+                          label={sp.label}
+                        />
+                      ))}
+                    </div>
+                    <CollectionFilterInput
+                      className="grow"
+                      placeholder="Enter a search term..."
+                    />
+                  </div>
+                )}
+              </Collection>
+              <AnimatePresence>
+                {willAcceptDrop && (
+                  <DropOverlay
+                    isOver={isOverSource}
+                    nodeColor={dropNodeColor ?? 'node-color-seq-1'}
+                    message="Drop here to remove"
+                  />
+                )}
+              </AnimatePresence>
+            </div>
+          )}
+        </Panel>
+        <NodeList
+          id="node-list"
+          className={nodeListClasses}
+          itemType="ADDED_NODES"
+          accepts={['SOURCE_NODES']}
+          onDrop={handleAddNode}
+          items={nodesForPrompt}
+          virtualized
+        />
+      </ResizableFlexPanel>
     </div>
   );
 };

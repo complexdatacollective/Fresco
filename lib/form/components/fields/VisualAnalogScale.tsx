@@ -55,7 +55,7 @@ export default function VisualAnalogScaleField(
 
   return (
     <div className={cx('w-full', className)} {...rest}>
-      <div className="relative py-4">
+      <div className="relative">
         <Slider.Root
           value={value}
           onValueChange={handleValueChange}

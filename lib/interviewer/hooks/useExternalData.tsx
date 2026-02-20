@@ -1,5 +1,6 @@
 import { type Panel, type StageSubject } from '@codaco/protocol-validation';
 import { type NcNode } from '@codaco/shared-consts';
+import posthog from 'posthog-js';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getVariableTypeReplacements } from '~/lib/network-exporters/utils/externalData';
@@ -60,6 +61,12 @@ const useExternalData = (
       .then(() => updateStatus({ isLoading: false }))
       .catch((e) => {
         const error = ensureError(e);
+        posthog.captureException(error, {
+          tags: {
+            feature: 'external-data',
+            dataSource,
+          },
+        });
         // eslint-disable-next-line no-console
         console.error(e);
         updateStatus({ isLoading: false, error: error });

@@ -237,6 +237,13 @@ export default function useInterviewNavigation() {
     const target = pendingStepRef.current;
     if (target === null) return;
 
+    // Clear any stale beforeNext handlers that were re-registered by the
+    // exiting stage during its exit animation renders. Without this,
+    // interfaces that call registerBeforeNext() during render (e.g.
+    // DyadCensus, EgoForm, SlidesForm) leave behind handlers with stale
+    // closures that block navigation on the incoming stage.
+    beforeNextHandlers.current.clear();
+
     dispatch(updateStage(target));
     pendingStepRef.current = null;
     setShowStage(true);
