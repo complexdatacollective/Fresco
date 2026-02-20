@@ -21,6 +21,8 @@ const getActiveSession = (state: RootState) => {
 
 export const getStageIndex = (state: RootState) => state.session.currentStep;
 
+export const getInterviewId = (state: RootState) => state.session.id;
+
 export const getStageMetadata = createSelector(
   getActiveSession,
   getStageIndex,
