@@ -246,6 +246,7 @@ type PrimaryStoryArgs = {
   minItemWidth: number;
   itemComponent: 'card' | 'node';
   selectionMode: SelectionMode;
+  disabledItemCount: number;
   animate: boolean;
   virtualized: boolean;
   overscan: number;
@@ -263,6 +264,7 @@ function PrimaryStoryRender(args: PrimaryStoryArgs) {
     minItemWidth,
     itemComponent,
     selectionMode,
+    disabledItemCount,
     animate,
     virtualized,
     overscan,
@@ -291,6 +293,11 @@ function PrimaryStoryRender(args: PrimaryStoryArgs) {
   const removeItem = useCallback(() => {
     setItems((prev) => prev.slice(0, -1));
   }, []);
+
+  const disabledKeys = useMemo(
+    () => items.slice(0, disabledItemCount).map((item) => item.id),
+    [items, disabledItemCount],
+  );
 
   const layout = useMemo(
     () => createLayout(layoutType, gap, minItemWidth),
@@ -335,6 +342,7 @@ function PrimaryStoryRender(args: PrimaryStoryArgs) {
         keyExtractor={(item: DemoItem) => item.id}
         renderItem={renderItem}
         selectionMode={selectionMode}
+        disabledKeys={disabledKeys}
         animate={animate}
         virtualized={virtualized}
         overscan={overscan}
@@ -508,6 +516,7 @@ export const Primary = meta.story({
     minItemWidth: 200,
     itemComponent: 'card',
     selectionMode: 'multiple',
+    disabledItemCount: 0,
     animate: true,
     virtualized: false,
     overscan: 5,
@@ -546,6 +555,11 @@ export const Primary = meta.story({
       control: 'select' as const,
       options: ['none', 'single', 'multiple'],
       description: 'Selection behavior',
+      table: { category: 'Behavior' },
+    },
+    disabledItemCount: {
+      control: { type: 'range' as const, min: 0, max: 20, step: 1 },
+      description: 'Number of items to disable (from the start of the list)',
       table: { category: 'Behavior' },
     },
     animate: {

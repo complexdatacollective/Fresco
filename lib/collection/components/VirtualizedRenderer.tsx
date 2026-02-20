@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { useSelectionManager } from '../contexts';
 import { useMeasureItems } from '../hooks/useMeasureItems';
+import { useStaggerAnimation } from '../hooks/useStaggerAnimation';
 import { useVirtualization } from '../hooks/useVirtualization';
 import { type Layout } from '../layout/Layout';
 import {
@@ -17,7 +18,6 @@ import {
   type CollectionProps,
   type ItemRenderer,
 } from '../types';
-import { useStaggerAnimation } from '../hooks/useStaggerAnimation';
 import { CollectionItem } from './CollectionItem';
 
 type VirtualizedRendererProps<T> = {
@@ -190,7 +190,7 @@ export function VirtualizedRenderer<T>({
       {measurementContainer}
       <LayoutGroup id={effectiveLayoutGroupId}>
         <div
-          className="relative w-full overflow-hidden"
+          className="relative w-full"
           style={{ height: totalHeight }}
           ref={scope}
         >

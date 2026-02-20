@@ -52,7 +52,7 @@ export function StaticRenderer<T>({
 
   return (
     <LayoutGroup id={effectiveLayoutGroupId}>
-      <div ref={scope} className="overflow-hidden" style={containerStyle}>
+      <div ref={scope} style={containerStyle}>
         <AnimatePresence initial={false} mode="popLayout">
           {Array.from(collection).map((node) => (
             <motion.div
