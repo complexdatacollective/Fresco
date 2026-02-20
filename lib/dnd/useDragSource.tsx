@@ -161,6 +161,7 @@ export function useDragSource(
   const finishDrag = useCallback(
     (shouldDrop = true) => {
       const activeDropTargetId = storeApi.getState().activeDropTargetId;
+      const isSuccessfulDrop = shouldDrop && activeDropTargetId !== null;
 
       if (!shouldDrop) {
         storeApi.getState().setActiveDropTarget(null);
@@ -172,12 +173,26 @@ export function useDragSource(
 
       const element = elementRef.current;
       if (element) {
-        element.style.visibility = 'visible'; // Restore visibility
+        if (isSuccessfulDrop) {
+          // Leave the element hidden so AnimatePresence exit doesn't flash
+          // the item back in its original position. The element will be
+          // removed from the DOM when the exit animation completes.
+          // Safety net: restore visibility if the item is still in the DOM
+          // after the exit animation would have completed (e.g. the drop
+          // handler didn't actually remove the item).
+          setTimeout(() => {
+            if (element.isConnected) {
+              element.style.visibility = '';
+            }
+          }, 500);
+        } else {
+          element.style.visibility = '';
+        }
       }
 
       // Announce keyboard drag result for failed drops only
       // Successful drops are announced by the drop target
-      if (dragMode === 'keyboard' && (!shouldDrop || !activeDropTargetId)) {
+      if (dragMode === 'keyboard' && !isSuccessfulDrop) {
         const itemName = announcedName ?? 'Item';
         announce(`Drop cancelled, ${itemName} returned to original position`);
       }
