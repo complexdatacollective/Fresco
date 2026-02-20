@@ -82,6 +82,10 @@ export function useSelectableCollection(
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
+      // If an item-level handler (e.g. DnD keyboard drag) already handled
+      // this event, don't interfere.
+      if (e.defaultPrevented) return;
+
       const { focusedKey } = selectionManager;
 
       // Handle navigation keys

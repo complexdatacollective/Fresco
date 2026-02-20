@@ -162,6 +162,8 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     style,
     onPointerDown: externalPointerDown,
     onPointerUp: externalPointerUp,
+    onKeyDown: externalKeyDown,
+    onKeyUp: externalKeyUp,
     onClick,
     ...buttonProps
   } = props;
@@ -230,6 +232,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
 
   return (
     <motion.button
+      {...buttonProps}
       ref={useMergeRefs({ ref, scope, stateScope })}
       type="button"
       disabled={disabled}
@@ -260,10 +263,9 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
       )}
       onPointerCancel={nodeProps.onPointerCancel}
       onPointerLeave={nodeProps.onPointerLeave}
-      onKeyDown={nodeProps.onKeyDown}
-      onKeyUp={nodeProps.onKeyUp}
+      onKeyDown={composeEventHandlers(externalKeyDown, nodeProps.onKeyDown)}
+      onKeyUp={composeEventHandlers(externalKeyUp, nodeProps.onKeyUp)}
       onClick={onClick}
-      {...buttonProps}
     >
       {/* Linking indicator - separate element so it can animate independently */}
       <AnimatePresence>
