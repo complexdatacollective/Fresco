@@ -191,12 +191,12 @@ export function useMeasureItems<T>({
     setIsComplete(newMeasurements.size === orderedKeys.length);
   }, [orderedKeys, measurementInfo.mode, skip, containerWidth, remVersion]);
 
-  // Reset measurements when collection changes
+  // Reset measurements when collection or layout changes
   useLayoutEffect(() => {
     setIsComplete(false);
     setMeasurements(new Map());
     lastMeasuredSentinelSizeRef.current = null;
-  }, [collection]);
+  }, [collection, layout]);
 
   // Generate the hidden measurement container
   const measurementContainer = useMemo(() => {
