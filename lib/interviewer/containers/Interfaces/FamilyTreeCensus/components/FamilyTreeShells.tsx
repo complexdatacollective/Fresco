@@ -30,6 +30,7 @@ import {
   getEgoSexVariable,
   getNodeIsEgoVariable,
   getNodeSexVariable,
+  getRelationshipToEgoVariable,
 } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/nodeUtils';
 import { getNetworkEgo } from '~/lib/interviewer/selectors/session';
 
@@ -82,6 +83,7 @@ export const FamilyTreeShells = (props: {
   const relationshipVariable = useSelector(getRelationshipTypeVariable);
   const nodeSexVariable = useSelector(getNodeSexVariable);
   const nodeIsEgoVariable = useSelector(getNodeIsEgoVariable);
+  const relationshipToEgoVariable = useSelector(getRelationshipToEgoVariable);
   const ego = useSelector(getNetworkEgo);
   const egoSexVariable = useSelector(getEgoSexVariable);
   const [hydratedOnce, setHydratedOnce] = useState(false);
@@ -156,14 +158,19 @@ export const FamilyTreeShells = (props: {
     for (const netNode of networkNodes) {
       const id = netNode._uid;
       const metadataNode = metadataByNetworkId.get(id);
-      const label = metadataNode?.label ?? '';
+      const label =
+        metadataNode?.label ??
+        (netNode.attributes?.[relationshipToEgoVariable] as string) ??
+        '';
       // Use sex from node attributes (primary source), fall back to metadata, then 'female'
       const attrSex = netNode.attributes?.[nodeSexVariable] as
         | 'male'
         | 'female'
         | undefined;
       const sex = attrSex ?? metadataNode?.sex ?? 'female';
-      const isEgo = metadataNode?.isEgo;
+      const isEgo =
+        metadataNode?.isEgo ??
+        (netNode.attributes?.[nodeIsEgoVariable] === true);
       const readOnly = metadataNode?.readOnly ?? false;
       const attributes = netNode.attributes ?? {};
       const diseaseVars =
