@@ -49,9 +49,17 @@ export function useStaggerAnimation(
       MAX_STAGGER_DELAY,
     );
 
+    // When animationKey is defined, scope the selector to only target items
+    // with the current key. This prevents the stagger from accidentally
+    // animating exiting items still in the DOM (from AnimatePresence popLayout).
+    const selector =
+      animationKey !== undefined
+        ? `[data-stagger-item][data-stagger-key="${animationKey}"]`
+        : '[data-stagger-item]';
+
     const runAnimation = async () => {
       await animate(
-        '[data-stagger-item]',
+        selector,
         { opacity: [0, 1], y: ['20%', '0%'], scale: [0.6, 1] },
         {
           type: 'spring',

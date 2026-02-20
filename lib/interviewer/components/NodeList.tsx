@@ -51,9 +51,22 @@ const NodeList = memo(
     const latestItemsRef = useRef(items);
     const isTransitioningRef = useRef(false);
     const prevAnimationKeyRef = useRef(animationKey);
+    const needsExitRef = useRef(false);
 
     // Always keep latest items ref up to date
     latestItemsRef.current = items;
+
+    // Detect animationKey change synchronously during render so
+    // isTransitioningRef is set BEFORE effects run. This prevents the
+    // items-passthrough effect from flashing the new items in.
+    if (
+      animationKey !== prevAnimationKeyRef.current &&
+      prevAnimationKeyRef.current !== undefined
+    ) {
+      isTransitioningRef.current = true;
+      needsExitRef.current = true;
+      prevAnimationKeyRef.current = animationKey;
+    }
 
     // When not transitioning, pass items through immediately
     useEffect(() => {
@@ -62,23 +75,18 @@ const NodeList = memo(
       }
     }, [items]);
 
-    // Detect animationKey change and run exit → swap → re-enter
+    // Run exit animation when animationKey changed (flagged during render)
     useEffect(() => {
-      if (
-        animationKey === prevAnimationKeyRef.current ||
-        prevAnimationKeyRef.current === undefined
-      ) {
-        prevAnimationKeyRef.current = animationKey;
+      if (!needsExitRef.current) {
         return;
       }
-
-      prevAnimationKeyRef.current = animationKey;
+      needsExitRef.current = false;
 
       const container = containerRef.current;
       if (!container) {
-        // No container yet — just swap directly
         setDisplayItems(latestItemsRef.current);
         setDisplayAnimationKey(animationKey);
+        isTransitioningRef.current = false;
         return;
       }
 
@@ -87,15 +95,12 @@ const NodeList = memo(
       );
 
       if (staggerItems.length === 0) {
-        // Nothing to animate out — swap directly
         setDisplayItems(latestItemsRef.current);
         setDisplayAnimationKey(animationKey);
+        isTransitioningRef.current = false;
         return;
       }
 
-      isTransitioningRef.current = true;
-
-      // Capture the new animationKey for use in the async callback
       const nextKey = animationKey;
 
       void motionAnimate(
@@ -103,7 +108,6 @@ const NodeList = memo(
         { opacity: 0, scale: 0.6 },
         { duration: EXIT_DURATION },
       ).then(() => {
-        // Swap to latest items and update animationKey to trigger stagger re-entrance
         setDisplayItems(latestItemsRef.current);
         setDisplayAnimationKey(nextKey);
         isTransitioningRef.current = false;
@@ -167,10 +171,11 @@ const NodeList = memo(
           exit: { opacity: 0 },
         }}
         onAnimationComplete={() => setAnimationComplete(true)}
-        className="h-full grow"
+        className="h-full grow overflow-hidden"
       >
         {animationComplete && (
           <Collection
+            key={displayAnimationKey}
             id={id ?? 'node-list'}
             items={displayItems}
             keyExtractor={keyExtractor}

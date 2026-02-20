@@ -63,7 +63,7 @@ export function StaticRenderer<T>({
               exit={{ scale: 0.6, opacity: 0 }}
               style={layoutItemStyle}
             >
-              <div data-stagger-item>
+              <div data-stagger-item data-stagger-key={animationKey}>
                 <CollectionItem
                   node={node}
                   renderItem={renderItem}

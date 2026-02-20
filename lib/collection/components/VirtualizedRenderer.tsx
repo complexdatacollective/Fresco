@@ -218,7 +218,7 @@ export function VirtualizedRenderer<T>({
 
                   return (
                     <div key={key} style={itemStyle}>
-                      <div data-stagger-item>
+                      <div data-stagger-item data-stagger-key={animationKey}>
                         <CollectionItem
                           node={node}
                           renderItem={renderItem}
