@@ -66,7 +66,7 @@ const desc =
   (a: T, b: T) =>
     asc(propertyGetter)(b, a);
 
-type SortFn<T extends Item> = (a: T, b: T) => number;
+export type SortFn<T extends Item> = (a: T, b: T) => number;
 
 /**
  * Helper function that executes a series of functions in order, passing until
@@ -274,19 +274,17 @@ const getSortFunction = <T extends Item>(
  */
 const createCollectionSorter = <T extends Item = Item>(
   sortRules: SortRule[] = [],
+  prefixFns: SortFn<T & { _createdIndex?: number }>[] = [],
 ) => {
-  if (sortRules.length === 0) {
-    // No sorting - return items unchanged
+  const sortFunctions = sortRules.map(getSortFunction<T>);
+  const allFns = [...prefixFns, ...sortFunctions];
+
+  if (allFns.length === 0) {
     return (items: T[]) => items;
   }
 
-  const sortFunctions = sortRules.map(getSortFunction<T>);
-
   return (items: T[]) => {
-    // Add _createdIndex for FIFO/LIFO sorting, then sort, then remove it
-    return withoutCreatedIndex(
-      withCreatedIndex(items).sort(chain(...sortFunctions)),
-    );
+    return withoutCreatedIndex(withCreatedIndex(items).sort(chain(...allFns)));
   };
 };
 

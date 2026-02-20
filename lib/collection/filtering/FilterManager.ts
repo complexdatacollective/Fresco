@@ -110,6 +110,7 @@ export class FilterManager {
       filterDebouncedQuery: '',
       filterMatchCount: null,
       filterMatchingKeys: null,
+      filterScores: null,
     });
     this.options.onFilterChange?.('');
   }

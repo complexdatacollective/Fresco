@@ -9,7 +9,9 @@ import {
   type SelectionMode,
   type SelectionState,
 } from './selection/types';
-import createCollectionSorter from './sorting/createCollectionSorter';
+import createCollectionSorter, {
+  type SortFn,
+} from './sorting/createCollectionSorter';
 import {
   defaultSortState,
   type SortDirection,
@@ -80,6 +82,7 @@ export type FullCollectionStore<T> = CollectionStore<T> & {
   filterIsIndexing: boolean;
   filterMatchCount: number | null;
   filterMatchingKeys: Set<Key> | null;
+  filterScores: Map<Key, number> | null;
 
   // Filter actions
   updateFilterState: (updates: Partial<FilterState>) => void;
@@ -166,6 +169,45 @@ function buildNodes<T>(
 }
 
 /**
+ * Filter items by matching keys, then sort with optional relevance prefix.
+ * Relevance comparator (from filter scores) is chained before user sort rules,
+ * so it acts as the primary sort key with user rules as tiebreakers.
+ */
+function filterAndSort<T>(
+  items: T[],
+  keyExtractor: KeyExtractor<T>,
+  sortRules: SortRule[],
+  filterMatchingKeys: Set<Key> | null,
+  filterScores: Map<Key, number> | null,
+): T[] {
+  const filtered =
+    filterMatchingKeys !== null
+      ? items.filter((item) => filterMatchingKeys.has(keyExtractor(item)))
+      : [...items];
+
+  const prefixFns: SortFn<
+    T & Record<string, unknown> & { _createdIndex?: number }
+  >[] = [];
+  if (filterScores !== null && filterScores.size > 0) {
+    prefixFns.push((a, b) => {
+      const scoreA = filterScores.get(keyExtractor(a as unknown as T)) ?? 1;
+      const scoreB = filterScores.get(keyExtractor(b as unknown as T)) ?? 1;
+      return scoreA - scoreB;
+    });
+  }
+
+  if (prefixFns.length > 0 || sortRules.length > 0) {
+    const sorter = createCollectionSorter<T & Record<string, unknown>>(
+      sortRules,
+      prefixFns,
+    );
+    return sorter(filtered as (T & Record<string, unknown>)[]) as T[];
+  }
+
+  return filtered;
+}
+
+/**
  * Factory function to create a collection store.
  * Follows the pattern from lib/dnd/store.ts.
  *
@@ -195,24 +237,13 @@ export const createCollectionStore = <T>(
         const storedKeyExtractor = keyExtractor;
         const storedTextValueExtractor = textValueExtractor;
 
-        // First, apply filter if active
-        let itemsToProcess = items;
-        if (state.filterMatchingKeys !== null) {
-          itemsToProcess = items.filter((item) =>
-            state.filterMatchingKeys!.has(keyExtractor(item)),
-          );
-        }
-
-        // Then apply sorting if sort rules exist
-        let sortedItems = itemsToProcess;
-        if (state.sortRules.length > 0) {
-          const sorter = createCollectionSorter<T & Record<string, unknown>>(
-            state.sortRules,
-          );
-          sortedItems = sorter(
-            itemsToProcess as (T & Record<string, unknown>)[],
-          ) as T[];
-        }
+        const sortedItems = filterAndSort(
+          items,
+          keyExtractor,
+          state.sortRules,
+          state.filterMatchingKeys,
+          state.filterScores,
+        );
 
         const { itemsMap, orderedKeys } = buildNodes(
           sortedItems,
@@ -368,6 +399,7 @@ export const createCollectionStore = <T>(
           _textValueExtractor,
           sortRules,
           filterMatchingKeys,
+          filterScores,
         } = state;
 
         // Can't re-sort if we don't have the original data
@@ -375,24 +407,13 @@ export const createCollectionStore = <T>(
           return;
         }
 
-        // First, filter items if a filter is active
-        let itemsToProcess = _originalItems;
-        if (filterMatchingKeys !== null) {
-          itemsToProcess = _originalItems.filter((item) =>
-            filterMatchingKeys.has(_keyExtractor(item)),
-          );
-        }
-
-        // Then apply sorting
-        let sortedItems = itemsToProcess;
-        if (sortRules.length > 0) {
-          const sorter = createCollectionSorter<T & Record<string, unknown>>(
-            sortRules,
-          );
-          sortedItems = sorter(
-            itemsToProcess as (T & Record<string, unknown>)[],
-          ) as T[];
-        }
+        const sortedItems = filterAndSort(
+          _originalItems,
+          _keyExtractor,
+          sortRules,
+          filterMatchingKeys,
+          filterScores,
+        );
 
         const { itemsMap, orderedKeys } = buildNodes(
           sortedItems,

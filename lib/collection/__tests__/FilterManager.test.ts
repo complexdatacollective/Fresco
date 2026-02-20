@@ -2,9 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { FilterManager } from '../filtering/FilterManager';
 import { type FilterState } from '../filtering/types';
 
-function createDefaultState(
-  overrides: Partial<FilterState> = {},
-): FilterState {
+function createDefaultState(overrides: Partial<FilterState> = {}): FilterState {
   return {
     filterQuery: '',
     filterDebouncedQuery: '',
@@ -12,6 +10,7 @@ function createDefaultState(
     filterIsIndexing: false,
     filterMatchCount: null,
     filterMatchingKeys: null,
+    filterScores: null,
     ...overrides,
   };
 }
@@ -211,6 +210,7 @@ describe('FilterManager', () => {
           filterDebouncedQuery: '',
           filterMatchCount: null,
           filterMatchingKeys: null,
+          filterScores: null,
         });
       });
 

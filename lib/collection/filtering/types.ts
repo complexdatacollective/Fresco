@@ -46,6 +46,8 @@ export type FilterState = {
   filterMatchCount: number | null;
   /** Set of matching item keys (null if no filter active = show all) */
   filterMatchingKeys: Set<Key> | null;
+  /** Relevance scores from fuzzy search (null if no filter active) */
+  filterScores: Map<Key, number> | null;
 };
 
 /**
@@ -90,4 +92,5 @@ export const defaultFilterState: FilterState = {
   filterIsIndexing: false,
   filterMatchCount: null,
   filterMatchingKeys: null,
+  filterScores: null,
 };

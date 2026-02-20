@@ -67,6 +67,7 @@ export function useFilterState<T extends Record<string, unknown>>(
       filterIsIndexing: state.filterIsIndexing,
       filterMatchCount: state.filterMatchCount,
       filterMatchingKeys: state.filterMatchingKeys,
+      filterScores: state.filterScores,
     })),
   );
 
@@ -120,6 +121,7 @@ export function useFilterState<T extends Record<string, unknown>>(
           filterDebouncedQuery: query,
           filterMatchingKeys: isEmptyQuery ? null : result.matchingKeys,
           filterMatchCount: isEmptyQuery ? null : result.matchCount,
+          filterScores: isEmptyQuery ? null : result.scores,
           filterIsFiltering: false,
         });
 
