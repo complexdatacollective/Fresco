@@ -38,10 +38,10 @@ export class ListLayout<T = unknown> extends Layout<T> {
     return this.gap_;
   }
 
-  getMeasurementInfo(): MeasurementInfo {
+  getMeasurementInfo(containerWidth?: number): MeasurementInfo {
     return {
       mode: 'height-only',
-      constrainedWidth: this.containerWidth,
+      constrainedWidth: containerWidth ?? this.containerWidth,
     };
   }
 

@@ -60,9 +60,8 @@ export function VirtualizedRenderer<T>({
   overscan = 5,
   layoutGroupId,
 }: VirtualizedRendererProps<T>) {
-  // Track container width and font-size for layout calculations
+  // Track container width for layout calculations
   const [containerWidth, setContainerWidth] = useState(0);
-  const [fontSize, setFontSize] = useState<string | undefined>(undefined);
 
   // Track the scroll element in state to trigger effects when ref becomes available
   const [scrollElement, setScrollElement] = useState<HTMLElement | null>(null);
@@ -108,10 +107,6 @@ export function VirtualizedRenderer<T>({
     const initialWidth = scrollElement.clientWidth - paddingX;
     setContainerWidth(initialWidth);
 
-    // Capture font-size for accurate em-based measurements
-    // This ensures the measurement container uses the same font-size as the scroll container
-    setFontSize(computedStyle.fontSize);
-
     observer.observe(scrollElement);
     return () => {
       observer.disconnect();
@@ -128,7 +123,6 @@ export function VirtualizedRenderer<T>({
     renderItem,
     containerWidth,
     skip: containerWidth === 0,
-    fontSize,
   });
 
   // Get rows from layout after measurements complete
@@ -196,11 +190,8 @@ export function VirtualizedRenderer<T>({
       {measurementContainer}
       <LayoutGroup id={effectiveLayoutGroupId}>
         <div
-          style={{
-            height: totalHeight,
-            width: '100%',
-            position: 'relative',
-          }}
+          className="relative w-full overflow-hidden"
+          style={{ height: totalHeight }}
           ref={scope}
         >
           <AnimatePresence mode="popLayout" initial={false}>

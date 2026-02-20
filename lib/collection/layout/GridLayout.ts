@@ -44,10 +44,21 @@ export class GridLayout<T = unknown> extends Layout<T> {
     };
   }
 
-  getMeasurementInfo(): MeasurementInfo {
+  getMeasurementInfo(containerWidth?: number): MeasurementInfo {
+    // Compute constrainedWidth from containerWidth if provided, avoiding the need
+    // for update() to have been called first. This prevents a race condition where
+    // VirtualizedRenderer starts measurement (via useLayoutEffect) before
+    // useCollectionSetup calls layout.update() (via useEffect).
+    let constrainedWidth = this.currentItemWidth;
+
+    if (containerWidth !== undefined && containerWidth > 0) {
+      const columnCount = this.calculateColumnCount(containerWidth);
+      constrainedWidth = this.calculateItemWidth(containerWidth, columnCount);
+    }
+
     return {
       mode: 'height-only',
-      constrainedWidth: this.currentItemWidth,
+      constrainedWidth,
     };
   }
 

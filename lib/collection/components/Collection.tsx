@@ -156,6 +156,7 @@ function CollectionContent<T extends Record<string, unknown>>({
             >
               <ScrollArea
                 ref={mergedRef}
+                role="listbox"
                 id={collectionId}
                 viewportClassName={viewportClassName}
                 aria-label={ariaLabel}

@@ -30,8 +30,12 @@ export abstract class Layout<T = unknown> {
    * - 'none': No measurement needed (fixed sizes)
    * - 'height-only': Measure height with constrained width
    * - 'intrinsic': Measure full intrinsic size
+   *
+   * @param containerWidth - Optional container width for computing constrainedWidth
+   *   on-the-fly, without requiring update() to have been called first. This avoids
+   *   timing issues where measurement starts before the layout has been initialized.
    */
-  abstract getMeasurementInfo(): MeasurementInfo;
+  abstract getMeasurementInfo(containerWidth?: number): MeasurementInfo;
 
   /**
    * Updates layout with measured item dimensions.

@@ -55,7 +55,7 @@ export class InlineGridLayout<T = unknown> extends Layout<T> {
     return this.gap_;
   }
 
-  getMeasurementInfo(): MeasurementInfo {
+  getMeasurementInfo(_containerWidth?: number): MeasurementInfo {
     return {
       mode: 'intrinsic',
     };
