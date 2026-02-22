@@ -4,11 +4,13 @@ import { type Stage } from '@codaco/protocol-validation';
 import { type Store } from '@reduxjs/toolkit';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Provider } from 'react-redux';
+import useMediaQuery from '~/hooks/useMediaQuery';
 import Information from '~/lib/interviewer/Interfaces/Information';
 import { InterviewToastProvider } from '~/lib/interviewer/components/InterviewToast';
 import Navigation from '~/lib/interviewer/components/Navigation';
 import { StageMetadataProvider } from '~/lib/interviewer/contexts/StageMetadataContext';
 import { type StoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
+import { cx } from '~/utils/cva';
 import { InterviewNavigationBridge } from './interview-navigation-bridge';
 
 type StoryState = {
@@ -52,6 +54,11 @@ export function InterviewStoryShell<S extends StoryState>({
   const progress = ((currentStep + 1) / totalStages) * 100;
   const helpers = nav.getNavigationHelpers();
 
+  const isPortraitAspectRatio = useMediaQuery('(max-aspect-ratio: 3/4)');
+  const navigationOrientation = isPortraitAspectRatio
+    ? 'horizontal'
+    : 'vertical';
+
   const renderContent = () => {
     if (currentStep === mainStageIndex) {
       return children;
@@ -78,11 +85,16 @@ export function InterviewStoryShell<S extends StoryState>({
   return (
     <Provider store={store}>
       <StageMetadataProvider value={nav.registerBeforeNext}>
-        <div className="relative flex size-full flex-1 flex-row-reverse overflow-hidden">
+        <div
+          className={cx(
+            'relative flex size-full flex-1 overflow-hidden',
+            isPortraitAspectRatio ? 'flex-col' : 'flex-row-reverse',
+          )}
+        >
           <InterviewToastProvider
             forwardButtonRef={forwardButtonRef}
             backButtonRef={backButtonRef}
-            orientation="vertical"
+            orientation={navigationOrientation}
           >
             <div className="flex min-h-0 flex-1">{renderContent()}</div>
           </InterviewToastProvider>
@@ -95,7 +107,7 @@ export function InterviewStoryShell<S extends StoryState>({
             }
             pulseNext={false}
             progress={progress}
-            orientation="vertical"
+            orientation={navigationOrientation}
             forwardButtonRef={forwardButtonRef}
             backButtonRef={backButtonRef}
           />
