@@ -8,7 +8,6 @@ import { useDropTarget } from '~/lib/dnd';
 import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
 import { cx } from '~/utils/cva';
 import NodeList from '../../../components/NodeList';
-import Overlay from '../../../components/Overlay';
 import { usePrompts } from '../../../components/Prompts/usePrompts';
 import { updateNode } from '../../../ducks/modules/session';
 import { useAppDispatch } from '../../../store';
@@ -40,9 +39,9 @@ const springTransition = {
 };
 
 const binItemVariants = {
-  initial: { opacity: 0, scale: 0 },
-  animate: { opacity: 1, scale: 1 },
-  exit: { opacity: 0, scale: 0, transition: { duration: 0.15 } },
+  initial: { opacity: 0, scale: 0.4 },
+  animate: { opacity: 1, scale: 1, transition: { type: 'spring' as const } },
+  exit: { opacity: 0, scale: 0.4, transition: { duration: 0.15 } },
 };
 
 const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
@@ -154,25 +153,20 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
     : {};
 
   const otherOverlay = isOtherVariable && (
-    <Overlay
-      show={showOther !== null}
-      onClose={() => setShowOther(null)}
+    <OtherVariableForm
+      open={showOther !== null}
+      node={showOther!}
       title={bin.otherVariablePrompt ?? 'Other'}
-    >
-      {showOther && (
-        <OtherVariableForm
-          node={showOther}
-          prompt={bin.otherVariablePrompt!}
-          onSubmit={handleSubmitOtherVariableForm}
-          onCancel={() => setShowOther(null)}
-          initialValues={{
-            otherVariable: (getEntityAttributes(showOther)[
-              bin.otherVariable!
-            ] ?? '') as string,
-          }}
-        />
-      )}
-    </Overlay>
+      prompt={bin.otherVariablePrompt!}
+      onSubmit={handleSubmitOtherVariableForm}
+      onClose={() => setShowOther(null)}
+      initialValue={
+        showOther
+          ? ((getEntityAttributes(showOther)[bin.otherVariable!] ??
+              '') as string)
+          : ''
+      }
+    />
   );
 
   if (isExpanded) {
@@ -204,7 +198,7 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
           layoutId={layoutId}
           className={panelClasses}
           style={{ ...colorStyle, borderRadius: 16 }}
-          transition={{ layout: springTransition }}
+          transition={springTransition}
           variants={binItemVariants}
           initial="initial"
           animate="animate"
@@ -249,7 +243,7 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
   }
 
   const circleClasses = cx(
-    'focusable flex min-w-0 cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden text-center outline-(--cat-color)',
+    'focusable flex min-w-0 cursor-pointer flex-col items-center justify-center overflow-hidden text-center outline-(--cat-color)',
     'border-4 p-4',
     'border-(--cat-color)',
     catColor && !missingValue && 'bg-[oklch(from_var(--cat-color)_l_c_h/0.1)]',
@@ -288,9 +282,9 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
         transition={springTransition}
         variants={binItemVariants}
       >
-        <h3 className="text-base font-semibold">
+        <Heading level="h4">
           <RenderMarkdown>{bin.label}</RenderMarkdown>
-        </h3>
+        </Heading>
         <AnimatePresence>
           {bin.nodes.length > 0 && (
             <motion.div

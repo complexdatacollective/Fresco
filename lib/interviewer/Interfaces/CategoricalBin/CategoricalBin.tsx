@@ -107,7 +107,7 @@ const CategoricalBin = (props: CategoricalBinStageProps) => {
             <motion.div
               key={prompt.id}
               ref={containerRef}
-              className="catbin-circles flex size-full flex-wrap content-center items-center justify-center gap-4 overflow-hidden data-expanded:content-start"
+              className="catbin-circles flex size-full flex-wrap content-center items-center justify-center gap-4 data-expanded:content-start"
               data-expanded={hasExpanded || undefined}
               onClick={handleCollapseAll}
               variants={binsContainerVariants}

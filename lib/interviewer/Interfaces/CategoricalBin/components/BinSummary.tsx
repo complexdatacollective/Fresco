@@ -1,4 +1,5 @@
 import { type NcNode } from '@codaco/shared-consts';
+import Paragraph from '~/components/typography/Paragraph';
 import { useNodeLabel } from '../../Anonymisation/useNodeLabel';
 
 type BinSummaryProps = {
@@ -11,10 +12,10 @@ const BinSummary = ({ nodes }: BinSummaryProps) => {
   const count = nodes.length - 1;
 
   return (
-    <p className="text-sm opacity-80">
+    <Paragraph>
       {label}
       {count > 0 ? ` and ${count} other${count > 1 ? 's' : ''}` : ''}
-    </p>
+    </Paragraph>
   );
 };
 

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-const DEFAULT_MAX_SIZE = 500;
+const DEFAULT_MAX_SIZE = 900;
 
 /**
  * Finds the largest circle diameter that fits `count` circles into a

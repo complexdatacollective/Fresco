@@ -25,6 +25,7 @@ const CATEGORY_LABELS = [
 type StoryArgs = {
   categoryCount: number;
   hasMissingValue: boolean;
+  hasOtherOption: boolean;
   initialNodeCount: number;
   unassignedCount: number;
   promptCount: number;
@@ -51,6 +52,10 @@ function buildInterview(args: StoryArgs) {
 
   const nodeType = interview.addNodeType({ name: 'Person' });
 
+  const otherVariableId = args.hasOtherOption
+    ? nodeType.addVariable({ name: 'Other Reason', type: 'text' }).id
+    : undefined;
+
   const variables: string[] = [];
   for (let i = 0; i < args.promptCount; i++) {
     const ref = nodeType.addVariable({
@@ -76,6 +81,11 @@ function buildInterview(args: StoryArgs) {
     stage.addPrompt({
       variable: variables[i],
       text: `Prompt ${i + 1}: Which categories does each person belong to?`,
+      ...(otherVariableId && {
+        otherVariable: otherVariableId,
+        otherVariablePrompt: 'Please specify the other category:',
+        otherOptionLabel: 'Other',
+      }),
     });
   }
 
@@ -150,6 +160,10 @@ const meta: Meta<StoryArgs> = {
       control: 'boolean',
       description: 'Include a "N/A" category with negative value',
     },
+    hasOtherOption: {
+      control: 'boolean',
+      description: 'Add an "Other" bin with a text input prompt',
+    },
     initialNodeCount: {
       control: { type: 'range', min: 0, max: 15 },
       description: 'Total number of nodes in the network',
@@ -166,6 +180,7 @@ const meta: Meta<StoryArgs> = {
   args: {
     categoryCount: 4,
     hasMissingValue: false,
+    hasOtherOption: false,
     initialNodeCount: 8,
     unassignedCount: 3,
     promptCount: 1,
