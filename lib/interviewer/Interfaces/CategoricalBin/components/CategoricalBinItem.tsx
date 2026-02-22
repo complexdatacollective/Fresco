@@ -1,13 +1,20 @@
+import { type Prompt } from '@codaco/protocol-validation';
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
-import { memo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
+import { ScrollArea } from '~/components/ui/ScrollArea';
 import { useDropTarget } from '~/lib/dnd';
 import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
 import { cx } from '~/utils/cva';
+import NodeList from '../../../components/NodeList';
 import Overlay from '../../../components/Overlay';
+import { usePrompts } from '../../../components/Prompts/usePrompts';
 import { updateNode } from '../../../ducks/modules/session';
 import { useAppDispatch } from '../../../store';
+import createSorter, {
+  type ProcessedSortRule,
+} from '../../../utils/createSorter';
 import { type CategoricalBin } from '../useCategoricalBins';
 import BinSummary from './BinSummary';
 import OtherVariableForm from './OtherVariableForm';
@@ -19,8 +26,17 @@ type CategoricalBinItemProps = {
   promptOtherVariable: string | undefined;
   stageId: string;
   promptId: string;
+  sortOrder?: ProcessedSortRule[];
+  isExpanded: boolean;
   onToggleExpand: (index: number) => void;
   catColor: string | null;
+  layoutStyle: React.CSSProperties;
+};
+
+const springTransition = {
+  type: 'spring' as const,
+  stiffness: 400,
+  damping: 35,
 };
 
 const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
@@ -31,11 +47,15 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
     promptOtherVariable,
     stageId,
     promptId,
+    sortOrder = [],
+    isExpanded,
     onToggleExpand,
     catColor,
+    layoutStyle,
   } = props;
 
   const dispatch = useAppDispatch();
+  const { prompt } = usePrompts<Prompt & { sortOrder?: ProcessedSortRule[] }>();
 
   const isOtherVariable = !!bin.otherVariable;
   const [showOther, setShowOther] = useState<NcNode | null>(null);
@@ -78,6 +98,11 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
     setNodeCategory(node, bin.value);
   };
 
+  const handleClickItem = (node: NcNode) => {
+    if (!isOtherVariable) return;
+    setShowOther(node);
+  };
+
   const handleSubmitOtherVariableForm = ({
     otherVariable: value,
   }: {
@@ -98,6 +123,16 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
     }
   };
 
+  const listSortOrder = prompt?.sortOrder ?? sortOrder;
+  const sorter = useMemo(
+    () => createSorter<NcNode>(listSortOrder),
+    [listSortOrder],
+  );
+  const sortedNodes = sorter(bin.nodes);
+
+  const listId = `CATBIN_NODE_LIST_${stageId}_${promptId}_${index}`;
+  const layoutId = `catbin-${promptId}-${index}`;
+
   const { dropProps, isOver, willAccept, isDragging } = useDropTarget({
     id: `CATBIN_ITEM_${stageId}_${promptId}_${index}`,
     accepts: ['NODE'],
@@ -112,9 +147,105 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
     ? ({ '--cat-color': catColor } as React.CSSProperties)
     : {};
 
+  const otherOverlay = isOtherVariable && (
+    <Overlay
+      show={showOther !== null}
+      onClose={() => setShowOther(null)}
+      title={bin.otherVariablePrompt ?? 'Other'}
+    >
+      {showOther && (
+        <OtherVariableForm
+          node={showOther}
+          prompt={bin.otherVariablePrompt!}
+          onSubmit={handleSubmitOtherVariableForm}
+          onCancel={() => setShowOther(null)}
+          initialValues={{
+            otherVariable: (getEntityAttributes(showOther)[
+              bin.otherVariable!
+            ] ?? '') as string,
+          }}
+        />
+      )}
+    </Overlay>
+  );
+
+  if (isExpanded) {
+    const panelClasses = cx(
+      'flex flex-col overflow-hidden border-4 transition-colors',
+      catColor && 'border-(--cat-color)',
+      !catColor && 'border-outline',
+      isDragging && willAccept && 'ring-2 ring-(--cat-color) ring-offset-2',
+      isOver &&
+        willAccept &&
+        'shadow-[0_0_24px_var(--cat-color)] ring-4 ring-(--cat-color)',
+    );
+
+    const headerClasses = cx(
+      'flex shrink-0 cursor-pointer items-center gap-3 px-4 py-3',
+      catColor &&
+        !missingValue &&
+        'bg-[oklch(from_var(--cat-color)_l_c_h/0.15)]',
+      catColor &&
+        missingValue &&
+        'bg-[oklch(from_var(--cat-color)_calc(l*0.5)_calc(c*0.4)_h/0.15)]',
+      !catColor && 'bg-surface-1',
+    );
+
+    return (
+      <>
+        <motion.div
+          layout
+          layoutId={layoutId}
+          className={panelClasses}
+          style={{ ...colorStyle, ...layoutStyle, borderRadius: 16 }}
+          transition={springTransition}
+          initial="initial"
+          animate="animate"
+        >
+          <div
+            className={headerClasses}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggle();
+            }}
+            onKeyDown={handleKeyDown}
+            role="button"
+            tabIndex={0}
+            aria-expanded={true}
+            aria-label={`Category ${bin.label}, ${bin.nodes.length} items, expanded`}
+          >
+            <h3 className="text-lg font-semibold">
+              <RenderMarkdown>{bin.label}</RenderMarkdown>
+            </h3>
+            <span className="ml-auto text-sm opacity-60">
+              {bin.nodes.length}
+            </span>
+          </div>
+          <div {...dropProps} className="min-h-0 flex-1 overflow-hidden p-2">
+            <ScrollArea className="size-full">
+              <motion.div
+                initial="initial"
+                animate="animate"
+                className="size-full"
+              >
+                <NodeList
+                  id={listId}
+                  items={sortedNodes}
+                  nodeSize="sm"
+                  onItemClick={handleClickItem}
+                />
+              </motion.div>
+            </ScrollArea>
+          </div>
+        </motion.div>
+        {otherOverlay}
+      </>
+    );
+  }
+
   const circleClasses = cx(
-    'flex size-full cursor-pointer flex-col items-center justify-center gap-2 text-center transition-all',
-    'rounded-full border-4 p-4',
+    'flex cursor-pointer flex-col items-center justify-center gap-2 text-center',
+    'border-4 p-4',
     catColor && 'border-(--cat-color)',
     !catColor && 'border-outline',
     catColor && !missingValue && 'bg-[oklch(from_var(--cat-color)_l_c_h/0.1)]',
@@ -130,10 +261,12 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
 
   return (
     <>
-      <div
+      <motion.div
+        layout
+        layoutId={layoutId}
         {...dropProps}
         className={circleClasses}
-        style={colorStyle}
+        style={{ ...colorStyle, ...layoutStyle, borderRadius: '50%' }}
         onClick={(e) => {
           e.stopPropagation();
           handleToggle();
@@ -143,6 +276,7 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
         tabIndex={0}
         aria-expanded={false}
         aria-label={`Category ${bin.label}, ${bin.nodes.length} items`}
+        transition={springTransition}
       >
         <h3 className="text-base font-semibold">
           <RenderMarkdown>{bin.label}</RenderMarkdown>
@@ -158,29 +292,8 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-
-      {isOtherVariable && (
-        <Overlay
-          show={showOther !== null}
-          onClose={() => setShowOther(null)}
-          title={bin.otherVariablePrompt ?? 'Other'}
-        >
-          {showOther && (
-            <OtherVariableForm
-              node={showOther}
-              prompt={bin.otherVariablePrompt!}
-              onSubmit={handleSubmitOtherVariableForm}
-              onCancel={() => setShowOther(null)}
-              initialValues={{
-                otherVariable: (getEntityAttributes(showOther)[
-                  bin.otherVariable!
-                ] ?? '') as string,
-              }}
-            />
-          )}
-        </Overlay>
-      )}
+      </motion.div>
+      {otherOverlay}
     </>
   );
 });

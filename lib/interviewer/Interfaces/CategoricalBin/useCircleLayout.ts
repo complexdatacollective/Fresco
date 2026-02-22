@@ -1,67 +1,74 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const DEFAULT_MAX_SIZE = 500;
-const DEFAULT_GAP = 24;
 
+/**
+ * Finds the largest circle diameter that fits `count` circles into a
+ * `width × height` area (accounting for gaps between items) by trying
+ * every column count 1..count and picking the arrangement that
+ * maximises the cell size.
+ */
 function computeCircleSize(
   width: number,
   height: number,
   count: number,
   gap: number,
-  maxSize: number,
 ): number {
   if (count === 0 || width <= 0 || height <= 0) return 0;
 
   let best = 0;
-
   for (let cols = 1; cols <= count; cols++) {
     const rows = Math.ceil(count / cols);
-    const availW = (width - gap * (cols - 1)) / cols;
-    const availH = (height - gap * (rows - 1)) / rows;
-    const size = Math.min(availW, availH);
+    const cellW = (width - gap * (cols - 1)) / cols;
+    const cellH = (height - gap * (rows - 1)) / rows;
+    const size = Math.min(cellW, cellH);
     if (size > best) best = size;
   }
 
-  return Math.min(Math.floor(best), maxSize);
+  // Subtract 1px to avoid exact-fit boundary issues with flex-wrap
+  return Math.max(Math.floor(best) - 1, 0);
 }
 
 type UseCircleLayoutOptions = {
   count: number;
   maxSize?: number;
-  gap?: number;
 };
 
 export function useCircleLayout({
   count,
   maxSize = DEFAULT_MAX_SIZE,
-  gap = DEFAULT_GAP,
 }: UseCircleLayoutOptions) {
-  const [circleSize, setCircleSize] = useState(0);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0, gap: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
-  const observerRef = useRef<ResizeObserver | null>(null);
-
-  const recalculate = useCallback(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const { width, height } = el.getBoundingClientRect();
-    setCircleSize(computeCircleSize(width, height, count, gap, maxSize));
-  }, [count, gap, maxSize]);
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
-    observerRef.current = new ResizeObserver(() => {
-      recalculate();
+    const observer = new ResizeObserver((entries) => {
+      const box = entries[0]?.contentBoxSize[0];
+      if (!box) return;
+      const computedGap = parseFloat(getComputedStyle(el).gap) || 0;
+      setDimensions({
+        width: box.inlineSize,
+        height: box.blockSize,
+        gap: computedGap,
+      });
     });
-    observerRef.current.observe(el);
 
-    recalculate();
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
-    return () => {
-      observerRef.current?.disconnect();
-    };
-  }, [recalculate]);
+  const { width, height, gap } = dimensions;
+  const circleSize = Math.min(
+    computeCircleSize(width, height, count, gap),
+    maxSize,
+  );
 
-  return { containerRef, circleSize };
+  return {
+    containerRef,
+    flexBasis: circleSize,
+    ready: width > 0 && height > 0 && gap > 0,
+  };
 }
