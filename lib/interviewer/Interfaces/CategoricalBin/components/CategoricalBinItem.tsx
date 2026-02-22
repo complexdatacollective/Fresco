@@ -155,7 +155,7 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
   const otherOverlay = isOtherVariable && (
     <OtherVariableForm
       open={showOther !== null}
-      node={showOther!}
+      node={showOther}
       title={bin.otherVariablePrompt ?? 'Other'}
       prompt={bin.otherVariablePrompt!}
       onSubmit={handleSubmitOtherVariableForm}

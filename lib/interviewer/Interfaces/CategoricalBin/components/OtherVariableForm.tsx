@@ -1,4 +1,4 @@
-import { type NcNode } from '@codaco/shared-consts';
+import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import Button from '~/components/ui/Button';
 import Dialog, { DialogFooter } from '~/lib/dialogs/Dialog';
 import Field from '~/lib/form/components/Field/Field';
@@ -13,7 +13,7 @@ type FormValues = {
 
 type OtherVariableFormProps = {
   open: boolean;
-  node: NcNode;
+  node?: NcNode;
   title: string;
   prompt: string;
   onSubmit: (values: FormValues) => void;
@@ -60,18 +60,23 @@ const OtherVariableForm = ({
         <FormWithoutProvider onSubmit={handleSubmit} id="other-variable-form">
           <div className="flex items-start gap-4">
             <div className="shrink-0">
-              <Node {...node} />
+              {node && (
+                <Node
+                  _uid={node[entityPrimaryKeyProperty]}
+                  type={node.type}
+                  attributes={node.attributes}
+                />
+              )}
             </div>
-            <div className="flex min-w-0 flex-1 flex-col gap-2">
-              <Field
-                label={prompt}
-                placeholder="Enter your response here..."
-                component={InputField}
-                name="otherVariable"
-                initialValue={initialValue}
-                required
-              />
-            </div>
+            <Field
+              label={prompt}
+              placeholder="Enter your response here..."
+              component={InputField}
+              name="otherVariable"
+              initialValue={initialValue}
+              required
+              autoFocus
+            />
           </div>
         </FormWithoutProvider>
       </Dialog>
