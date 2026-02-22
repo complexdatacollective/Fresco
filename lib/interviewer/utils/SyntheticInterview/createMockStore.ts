@@ -45,8 +45,6 @@ const mockUiState = {
   showPassphrasePrompter: false,
 };
 
-export type MockStore = ReturnType<typeof createMockStore>;
-
 export function createMockStore(protocol: MockProtocol, session: MockSession) {
   const sessionReducer = createReducer(session, (builder) => {
     builder

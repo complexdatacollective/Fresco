@@ -127,7 +127,7 @@ export type PresetEntry = {
   highlight?: string[];
 };
 
-export type FormFieldEntry = {
+type FormFieldEntry = {
   variable: string;
   component?: ComponentType;
   prompt?: string;

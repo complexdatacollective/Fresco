@@ -1,4 +1,3 @@
-import { type Prompt } from '@codaco/protocol-validation';
 import { entityAttributesProperty, type NcNode } from '@codaco/shared-consts';
 import { isNil } from 'es-toolkit';
 import { useMemo } from 'react';
@@ -6,14 +5,6 @@ import { useSelector } from 'react-redux';
 import { makeGetVariableOptions } from '../../selectors/interface';
 import { getPromptVariable } from '../../selectors/prop';
 import { getNetworkNodesForType } from '../../selectors/session';
-import { type ProcessedSortRule } from '../../utils/createSorter';
-
-export type OrdinalBinPrompt = Prompt & {
-  bucketSortOrder?: ProcessedSortRule[];
-  binSortOrder?: ProcessedSortRule[];
-  color?: string;
-};
-
 export type OrdinalBinItem = {
   label: string;
   value: number;
@@ -43,7 +34,8 @@ export function useOrdinalBins(): UseOrdinalBinsResult {
       const nodes = stageNodes.filter(
         (node) =>
           !isNil(node[entityAttributesProperty][activePromptVariable!]) &&
-          node[entityAttributesProperty][activePromptVariable!] === option.value,
+          node[entityAttributesProperty][activePromptVariable!] ===
+            option.value,
       );
 
       return {

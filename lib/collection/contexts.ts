@@ -114,21 +114,6 @@ export function useCollectionId(): string | undefined {
 export const SortManagerContext = createContext<SortManager | null>(null);
 
 /**
- * Hook to access the SortManager from context.
- */
-export function useSortManager(): SortManager {
-  const manager = useContext(SortManagerContext);
-
-  if (!manager) {
-    throw new Error(
-      'useSortManager must be used within a Collection with sorting enabled',
-    );
-  }
-
-  return manager;
-}
-
-/**
  * Hook to optionally access the SortManager.
  * Returns null if sorting context is not available.
  */

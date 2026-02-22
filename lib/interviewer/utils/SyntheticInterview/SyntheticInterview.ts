@@ -46,16 +46,16 @@ import {
 } from './types';
 import { ValueGenerator } from './ValueGenerator';
 
-export type VariableRef = {
+type VariableRef = {
   id: string;
 };
 
-export type NodeTypeHandle = {
+type NodeTypeHandle = {
   id: string;
   addVariable: (opts?: AddVariableInput) => VariableRef;
 };
 
-export type EdgeTypeHandle = {
+type EdgeTypeHandle = {
   id: string;
 };
 

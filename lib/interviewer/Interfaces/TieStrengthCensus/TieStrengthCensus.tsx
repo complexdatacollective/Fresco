@@ -50,7 +50,7 @@ const introVariants = {
   hide: { opacity: 0, scale: 0 },
 };
 
-export type TieStrengthCensusProps = StageProps<'TieStrengthCensus'>;
+type TieStrengthCensusProps = StageProps<'TieStrengthCensus'>;
 
 const TieStrengthCensus = (props: TieStrengthCensusProps) => {
   const { stage, getNavigationHelpers } = props;
