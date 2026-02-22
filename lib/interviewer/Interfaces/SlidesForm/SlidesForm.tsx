@@ -15,6 +15,7 @@ import {
   type Direction,
   type StageProps,
 } from '~/lib/interviewer/types';
+import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import { cx } from '~/utils/cva';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 
@@ -50,7 +51,6 @@ function SlidesFormInner({
   items = [],
   slideForm: SlideForm,
   parentClass = '',
-  registerBeforeNext,
   updateItem,
 }: SlidesFormProps) {
   const { moveForward } = getNavigationHelpers();
@@ -201,7 +201,7 @@ function SlidesFormInner({
     [updateItem, pendingDirection, previousItem, nextItem, isComplete],
   );
 
-  registerBeforeNext(beforeNext);
+  useBeforeNext(beforeNext);
 
   const handleEnterSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     moveForward();

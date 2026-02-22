@@ -8,6 +8,7 @@ import { InlineGridLayout } from '~/lib/collection/layout/InlineGridLayout';
 import { type ItemProps } from '~/lib/collection/types';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { type StageProps } from '~/lib/interviewer/types';
+import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import { MotionNode } from '../components/Node';
 import Prompts from '../components/Prompts';
 import { edgeExists, toggleEdge } from '../ducks/modules/session';
@@ -20,7 +21,6 @@ type OneToManyDyadCensusProps = StageProps<'OneToManyDyadCensus'>;
 
 function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   const {
-    registerBeforeNext,
     stage: {
       behaviours: { removeAfterConsideration },
     },
@@ -67,7 +67,7 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
    * - If we are moving backward, decrement the step until we reach 0
    * - If we are moving backward and on step 0, allow navigation
    */
-  registerBeforeNext((direction) => {
+  useBeforeNext((direction) => {
     if (direction === 'forwards') {
       if (currentStep + 1 <= numberOfSteps) {
         setCurrentStep((prev) => prev + 1);

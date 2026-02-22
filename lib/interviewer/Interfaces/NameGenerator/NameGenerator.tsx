@@ -14,19 +14,20 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useSelector } from 'react-redux';
 import { ResizableFlexPanel } from '~/components/ui/ResizableFlexPanel';
+import useMediaQuery from '~/hooks/useMediaQuery';
 import usePortalTarget from '~/hooks/usePortalTarget';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import NodeList from '~/lib/interviewer/components/NodeList';
+import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
+import useStageValidation from '~/lib/interviewer/hooks/useStageValidation';
+import { type StageProps } from '~/lib/interviewer/types';
 import Prompts from '../../components/Prompts';
 import { usePrompts } from '../../components/Prompts/usePrompts';
-import { type StageProps } from '~/lib/interviewer/types';
 import {
   addNode as addNodeAction,
   addNodeToPrompt as addNodeToPromptAction,
   deleteNode as deleteNodeAction,
 } from '../../ducks/modules/session';
-import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
-import useStageValidation from '~/lib/interviewer/hooks/useStageValidation';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
 import { getCodebookVariablesForSubjectType } from '../../selectors/protocol';
 import {
@@ -43,7 +44,7 @@ import QuickNodeForm from './components/QuickNodeForm';
 type NameGeneratorProps = StageProps<'NameGeneratorQuickAdd' | 'NameGenerator'>;
 
 const NameGenerator = (props: NameGeneratorProps) => {
-  const { registerBeforeNext, stage } = props;
+  const { stage } = props;
 
   const { behaviours, type, panels } = stage;
 
@@ -153,7 +154,6 @@ const NameGenerator = (props: NameGeneratorProps) => {
 
   const { updateReady } = useReadyForNextStage();
   const { showToast, closeToast } = useStageValidation({
-    registerBeforeNext,
     constraints: [
       {
         direction: 'forwards',
@@ -278,6 +278,18 @@ const NameGenerator = (props: NameGeneratorProps) => {
   );
 
   const stageElement = usePortalTarget('stage');
+  const isSmallScreen = useMediaQuery('(max-aspect-ratio: 3/4)');
+  const isWideScreen = useMediaQuery('(min-aspect-ratio: 3/2)');
+
+  function defaultBasis() {
+    if (isSmallScreen) {
+      return 50;
+    } else if (isWideScreen) {
+      return 25;
+    } else {
+      return 33;
+    }
+  }
 
   return (
     <>
@@ -285,10 +297,12 @@ const NameGenerator = (props: NameGeneratorProps) => {
         <Prompts />
         {panels ? (
           <ResizableFlexPanel
-            storageKey="name-generator-panels"
-            defaultBasis={30}
-            min={15}
-            max={60}
+            storageKey={
+              isSmallScreen
+                ? 'name-generator-panels-vertical'
+                : 'name-generator-panels-horizontal'
+            }
+            defaultBasis={defaultBasis()}
             breakpoints={[
               { value: 25, label: '25% panels' },
               { value: 33, label: 'One-third panels' },
@@ -297,6 +311,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
             overrideBasis={isPanelsOpen ? undefined : 0}
             className="min-h-0 w-full flex-1 basis-full"
             aria-label="Resize panel and node list areas"
+            orientation={isSmallScreen ? 'vertical' : 'horizontal'}
           >
             <NodePanels
               disableAddNew={maxNodesReached}

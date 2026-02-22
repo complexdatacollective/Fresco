@@ -16,6 +16,7 @@ import {
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { type StageProps } from '~/lib/interviewer/types';
+import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import { FamilyTreeProvider, useFamilyTreeStore } from './FamilyTreeProvider';
 import { getRelationshipTypeVariable } from './utils/edgeUtils';
 
@@ -75,7 +76,7 @@ const getStageSteps = (
 };
 
 const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
-  const { registerBeforeNext, stage } = props;
+  const { stage } = props;
 
   const networkNodes = useSelector(getNetworkNodes);
   const networkEdges = useSelector(getNetworkEdges);
@@ -129,7 +130,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
-  registerBeforeNext((direction) => {
+  useBeforeNext((direction) => {
     if (direction === 'forwards') {
       const isNameGenerationStep = currentStepIndex === 1;
       if (isNameGenerationStep && missingNames()) {
@@ -208,7 +209,9 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   );
 };
 
-export default function FamilyTreeCensusWithProvider(props: FamilyTreeCensusProps) {
+export default function FamilyTreeCensusWithProvider(
+  props: FamilyTreeCensusProps,
+) {
   const ego = useSelector(getNetworkEgo);
   const allNodes = useSelector(getNetworkNodes);
   const allEdges = useSelector(getNetworkEdges);

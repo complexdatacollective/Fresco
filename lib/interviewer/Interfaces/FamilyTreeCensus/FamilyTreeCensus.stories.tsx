@@ -1,16 +1,41 @@
 'use client';
 
+import { type Stage } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
   type NcEdge,
   type NcNode,
 } from '@codaco/shared-consts';
-import { configureStore } from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { motion } from 'motion/react';
-import { Provider } from 'react-redux';
+import { useMemo } from 'react';
+import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
+import { withInterviewAnimation } from '~/.storybook/interview-decorator';
+import sessionReducer from '~/lib/interviewer/ducks/modules/session';
+import uiReducer from '~/lib/interviewer/ducks/modules/ui';
+import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
 import FamilyTreeCensus from './FamilyTreeCensus';
+
+const informationStageBefore = {
+  id: 'info-before',
+  type: 'Information' as const,
+  label: 'Welcome',
+  title: 'Welcome',
+  items: [
+    { id: 'item-1', type: 'text' as const, content: 'Before the main stage.' },
+  ],
+};
+
+const informationStageAfter = {
+  id: 'info-after',
+  type: 'Information' as const,
+  label: 'Complete',
+  title: 'Complete',
+  items: [
+    { id: 'item-2', type: 'text' as const, content: 'After the main stage.' },
+  ],
+};
 
 const mockProtocol = {
   id: 'test-protocol',
@@ -76,6 +101,7 @@ const mockProtocol = {
     },
   },
   stages: [
+    informationStageBefore,
     {
       id: 'family-tree-stage',
       type: 'FamilyTreeCensus',
@@ -85,15 +111,17 @@ const mockProtocol = {
         type: 'person',
       },
       edgeType: {
+        entity: 'edge',
         type: 'family',
       },
+      relationshipTypeVariable: 'relationship',
       nodeSexVariable: 'sex',
       egoSexVariable: 'sex',
-      edgeRelationshipVariable: 'relationship',
       relationshipToEgoVariable: 'relationshipToEgo',
       nodeIsEgoVariable: 'isEgo',
       scaffoldingStep: {
         text: 'Please create your family tree by adding family members.',
+        showQuickStartModal: false,
       },
       nameGenerationStep: {
         text: 'Please provide information for each family member.',
@@ -115,11 +143,13 @@ const mockProtocol = {
       },
       diseaseNominationStep: [
         {
+          id: 'disease-nom-1',
           text: 'Which family members have the disease?',
           variable: 'hasDisease',
         },
       ],
     },
+    informationStageAfter,
   ],
 };
 
@@ -139,8 +169,12 @@ const createMockNodes = (count: number): NcNode[] => {
 
 const createMockSession = (nodes: NcNode[], edges: NcEdge[]) => ({
   id: 'test-session',
-  currentStep: 0,
+  currentStep: 1,
   promptIndex: 0,
+  startTime: new Date().toISOString(),
+  finishTime: null,
+  exportTime: null,
+  lastUpdated: new Date().toISOString(),
   network: {
     nodes,
     edges,
@@ -152,7 +186,7 @@ const createMockSession = (nodes: NcNode[], edges: NcEdge[]) => ({
     },
   },
   stageMetadata: {
-    0: {
+    1: {
       hasSeenScaffoldPrompt: true,
       nodes: nodes.map((node, i) => ({
         interviewNetworkId: node[entityPrimaryKeyProperty],
@@ -167,6 +201,7 @@ const createMockSession = (nodes: NcNode[], edges: NcEdge[]) => ({
 });
 
 const mockUiState = {
+  FORM_IS_READY: false,
   passphrase: null as string | null,
   passphraseInvalid: false,
   showPassphrasePrompter: false,
@@ -175,200 +210,124 @@ const mockUiState = {
 const createMockStore = (nodes: NcNode[], edges: NcEdge[]) => {
   const session = createMockSession(nodes, edges);
   return configureStore({
-    reducer: {
-      session: (state: typeof session = session) => state,
+    reducer: combineReducers({
+      session: sessionReducer,
       protocol: (state: typeof mockProtocol = mockProtocol) => state,
-      ui: (state: typeof mockUiState = mockUiState) => state,
-    },
+      ui: uiReducer,
+    }),
     preloadedState: {
       protocol: mockProtocol,
       session,
       ui: mockUiState,
     },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({ serializableCheck: false }),
   });
 };
 
-type DecoratorProps = {
-  nodes: NcNode[];
-  edges?: NcEdge[];
+type StoryArgs = {
+  initialNodeCount: number;
+  hasEdges: boolean;
 };
 
-function ReduxDecoratorFactory({ nodes, edges = [] }: DecoratorProps) {
-  return function ReduxDecorator(Story: React.ComponentType) {
-    const store = createMockStore(nodes, edges);
-
-    const decoratorVariants = {
-      initial: { opacity: 0 },
-      animate: { opacity: 1 },
-      exit: { opacity: 0 },
-    };
-
-    return (
-      <Provider store={store}>
-        <motion.div
-          variants={decoratorVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-        >
-          <div className="flex h-[800px] gap-4 p-4">
-            <Story />
-          </div>
-        </motion.div>
-      </Provider>
-    );
-  };
+function buildStore(args: StoryArgs) {
+  const nodes = createMockNodes(args.initialNodeCount);
+  const edges: NcEdge[] = [];
+  return createMockStore(nodes, edges);
 }
 
-const mockStage = mockProtocol.stages[0] as unknown as Parameters<
-  typeof FamilyTreeCensus
->[0]['stage'];
+const FamilyTreeCensusStoryWrapper = (args: StoryArgs) => {
+  const configKey = JSON.stringify(args);
 
-const mockRegisterBeforeNext = () => {
-  // Mock implementation
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const store = useMemo(() => buildStore(args), [configKey]);
+  const nav = useMemo(() => createStoryNavigation(store), [store]);
+
+  const stage = mockProtocol.stages[1];
+  if (stage?.type !== 'FamilyTreeCensus') {
+    throw new Error('Expected FamilyTreeCensus stage');
+  }
+
+  return (
+    <InterviewStoryShell
+      store={store}
+      nav={nav}
+      stages={mockProtocol.stages as Stage[]}
+      mainStageIndex={1}
+    >
+      <div id="stage" className="relative flex size-full flex-col items-center">
+        <FamilyTreeCensus
+          stage={
+            stage as unknown as Parameters<typeof FamilyTreeCensus>[0]['stage']
+          }
+          getNavigationHelpers={nav.getNavigationHelpers}
+        />
+      </div>
+    </InterviewStoryShell>
+  );
 };
 
-const mockNavigationHelpers = {
-  moveForward: () => {
-    // eslint-disable-next-line no-console
-    console.log('Move forward');
-  },
-  moveBackward: () => {
-    // eslint-disable-next-line no-console
-    console.log('Move backward');
-  },
-};
-
-const meta: Meta<typeof FamilyTreeCensus> = {
+const meta: Meta<StoryArgs> = {
   title: 'Interview/Interfaces/FamilyTreeCensus',
-  component: FamilyTreeCensus,
+  decorators: [withInterviewAnimation],
   parameters: {
+    forceTheme: 'interview',
     layout: 'fullscreen',
   },
   argTypes: {
-    stage: {
-      control: false,
-      description: 'Stage configuration object',
+    initialNodeCount: {
+      control: { type: 'range', min: 0, max: 6 },
+      description: 'Number of family members',
     },
-    registerBeforeNext: {
-      control: false,
-      description: 'Function to register before next navigation',
+    hasEdges: {
+      control: 'boolean',
+      description: 'Include family relationship edges',
     },
-    getNavigationHelpers: {
-      control: false,
-      description: 'Function to get navigation helpers',
-    },
+  },
+  args: {
+    initialNodeCount: 4,
+    hasEdges: false,
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<StoryArgs>;
+
+export const Default: Story = {
+  render: (args) => <FamilyTreeCensusStoryWrapper {...args} />,
+};
 
 export const EmptyTree: Story = {
+  render: (args) => <FamilyTreeCensusStoryWrapper {...args} />,
   args: {
-    stage: mockStage,
-    registerBeforeNext: mockRegisterBeforeNext,
-    getNavigationHelpers: () => mockNavigationHelpers,
-  },
-  decorators: [
-    ReduxDecoratorFactory({
-      nodes: [],
-    }),
-  ],
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Shows the initial state with no family members. The census form should appear.',
-      },
-    },
+    initialNodeCount: 0,
   },
 };
 
 export const ScaffoldingStep: Story = {
+  render: (args) => <FamilyTreeCensusStoryWrapper {...args} />,
   args: {
-    stage: mockStage,
-    registerBeforeNext: mockRegisterBeforeNext,
-    getNavigationHelpers: () => mockNavigationHelpers,
-  },
-  decorators: [
-    ReduxDecoratorFactory({
-      nodes: createMockNodes(2),
-      edges: [],
-    }),
-  ],
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Step 1: Scaffolding step where users add family members to create the tree structure.',
-      },
-    },
+    initialNodeCount: 2,
   },
 };
 
 export const NameGenerationStep: Story = {
+  render: (args) => <FamilyTreeCensusStoryWrapper {...args} />,
   args: {
-    stage: mockStage,
-    registerBeforeNext: mockRegisterBeforeNext,
-    getNavigationHelpers: () => mockNavigationHelpers,
-  },
-  decorators: [
-    ReduxDecoratorFactory({
-      nodes: createMockNodes(4),
-      edges: [],
-    }),
-  ],
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Step 2: Name generation step where users fill in information for each family member.',
-      },
-    },
+    initialNodeCount: 4,
   },
 };
 
 export const DiseaseNominationStep: Story = {
+  render: (args) => <FamilyTreeCensusStoryWrapper {...args} />,
   args: {
-    stage: mockStage,
-    registerBeforeNext: mockRegisterBeforeNext,
-    getNavigationHelpers: () => mockNavigationHelpers,
-  },
-  decorators: [
-    ReduxDecoratorFactory({
-      nodes: createMockNodes(5),
-      edges: [],
-    }),
-  ],
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Step 3: Disease nomination step where users select which family members have the disease.',
-      },
-    },
+    initialNodeCount: 5,
   },
 };
 
 export const LargeFamily: Story = {
+  render: (args) => <FamilyTreeCensusStoryWrapper {...args} />,
   args: {
-    stage: mockStage,
-    registerBeforeNext: mockRegisterBeforeNext,
-    getNavigationHelpers: () => mockNavigationHelpers,
-  },
-  decorators: [
-    ReduxDecoratorFactory({
-      nodes: createMockNodes(6),
-      edges: [],
-    }),
-  ],
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Shows a larger family tree with multiple family members (relationships tested in unit tests).',
-      },
-    },
+    initialNodeCount: 6,
   },
 };

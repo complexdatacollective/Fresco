@@ -29,7 +29,6 @@ const AlterEdgeForm = (props: StageProps<'AlterEdgeForm'>) => {
       items={items}
       // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
       stage={props.stage as any}
-      registerBeforeNext={props.registerBeforeNext}
       getNavigationHelpers={props.getNavigationHelpers}
     />
   );

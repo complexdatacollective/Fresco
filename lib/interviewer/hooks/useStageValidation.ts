@@ -1,13 +1,17 @@
 'use client';
 
 import { Toast, type ToastManagerPositionerProps } from '@base-ui/react/toast';
-import { type ReactNode, useCallback, useEffect, useRef } from 'react';
+import {
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+} from 'react';
 import { type ToastVariant } from '~/components/ui/Toast';
 import { useInterviewToastContext } from '~/lib/interviewer/components/InterviewToast';
-import {
-  type Direction,
-  type RegisterBeforeNext,
-} from '~/lib/interviewer/types';
+import { StageMetadataContext } from '~/lib/interviewer/contexts/StageMetadataContext';
+import { type Direction } from '~/lib/interviewer/types';
 
 type StageConstraint = {
   direction: 'forwards' | 'backwards' | 'both';
@@ -28,14 +32,11 @@ type InterviewToastOptions = {
 };
 
 type UseStageValidationOptions = {
-  registerBeforeNext: RegisterBeforeNext;
   constraints: StageConstraint[];
 };
 
-function useStageValidation({
-  registerBeforeNext,
-  constraints,
-}: UseStageValidationOptions) {
+function useStageValidation({ constraints }: UseStageValidationOptions) {
+  const registerBeforeNext = useContext(StageMetadataContext);
   const toastContext = useInterviewToastContext();
   const toastManager = Toast.useToastManager();
 

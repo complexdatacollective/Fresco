@@ -1,16 +1,13 @@
 'use client';
 
-import { type Stage } from '@codaco/protocol-validation';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
+import { useMemo } from 'react';
+import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
+import { withInterviewAnimation } from '~/.storybook/interview-decorator';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
+import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
 import Narrative from './Narrative';
 
-/**
- * Create a standard Narrative SyntheticInterview with common codebook:
- * - "Person" node type with name, 2 layout vars, highlight vars, group var
- * - "Friendship" and "Professional" edge types
- */
 function createNarrativeInterview(seed: number) {
   const si = new SyntheticInterview(seed);
   const nt = si.addNodeType({ name: 'Person' });
@@ -55,95 +52,86 @@ function createNarrativeInterview(seed: number) {
   };
 }
 
-function storyArgs<T extends Stage['type']>(si: SyntheticInterview) {
-  const protocol = si.getProtocol();
-  const stage = protocol.stages[0]! as Extract<Stage, { type: T }>;
-  const store = si.getStore();
-  const nav = createStoryNavigation(store);
-  return {
-    args: {
-      stage,
-      registerBeforeNext: nav.registerBeforeNext,
-      getNavigationHelpers: nav.getNavigationHelpers,
-    },
-    parameters: {
-      store,
-      storyNavigation: nav,
-    },
-  };
+function NarrativeStoryWrapper({
+  buildFn,
+}: {
+  buildFn: () => SyntheticInterview;
+}) {
+  const interview = useMemo(() => buildFn(), [buildFn]);
+  const store = useMemo(
+    () => interview.getStore({ currentStep: 1 }),
+    [interview],
+  );
+  const nav = useMemo(() => createStoryNavigation(store), [store]);
+
+  const protocol = interview.getProtocol();
+  const rawStage = protocol.stages[1];
+  if (rawStage?.type !== 'Narrative') {
+    throw new Error('Expected Narrative stage');
+  }
+
+  return (
+    <InterviewStoryShell
+      store={store}
+      nav={nav}
+      stages={protocol.stages}
+      mainStageIndex={1}
+    >
+      <div id="stage" className="relative flex size-full flex-col items-center">
+        <Narrative
+          stage={rawStage}
+          getNavigationHelpers={nav.getNavigationHelpers}
+        />
+      </div>
+    </InterviewStoryShell>
+  );
 }
 
-// --- Meta ---
-
-const meta: Meta<typeof Narrative> = {
+const meta: Meta = {
   title: 'Interview/Interfaces/Narrative',
-  component: Narrative,
+  decorators: [withInterviewAnimation],
   parameters: {
     forceTheme: 'interview',
     layout: 'fullscreen',
   },
-  argTypes: {
-    stage: {
-      control: 'object',
-      description: 'Narrative stage configuration from protocol',
-    },
-    registerBeforeNext: {
-      control: false,
-      description: 'Callback to register navigation guard',
-    },
-    getNavigationHelpers: {
-      control: false,
-      description: 'Returns navigation helper functions',
-    },
-  },
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj;
 
-// --- Stories ---
+// --- Build functions ---
 
-export const Default: Story = (() => {
+const buildDefault = () => {
   const { si, layoutVar1 } = createNarrativeInterview(100);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   si.addStage('Narrative', { initialNodes: 6 }).addPreset({
     label: 'Social Network',
     layoutVariable: layoutVar1.id,
   });
-  return {
-    ...storyArgs<'Narrative'>(si),
-    parameters: {
-      ...storyArgs<'Narrative'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Basic Narrative with placed nodes and a single preset. No edges, groups, or highlights.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const EmptyNetwork: Story = (() => {
+const buildEmptyNetwork = () => {
   const { si, layoutVar1 } = createNarrativeInterview(101);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   si.addStage('Narrative').addPreset({
     label: 'Social Network',
     layoutVariable: layoutVar1.id,
   });
-  return {
-    ...storyArgs<'Narrative'>(si),
-    parameters: {
-      ...storyArgs<'Narrative'>(si).parameters,
-      docs: {
-        description: {
-          story: 'Narrative with no nodes in the network.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const ConcentricCirclesBackground: Story = (() => {
+const buildConcentricCirclesBackground = () => {
   const { si, layoutVar1 } = createNarrativeInterview(102);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   si.addStage('Narrative', {
     initialNodes: 8,
     background: { concentricCircles: 4, skewedTowardCenter: true },
@@ -151,22 +139,16 @@ export const ConcentricCirclesBackground: Story = (() => {
     label: 'Social Network',
     layoutVariable: layoutVar1.id,
   });
-  return {
-    ...storyArgs<'Narrative'>(si),
-    parameters: {
-      ...storyArgs<'Narrative'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Narrative with 4 concentric circles and skewed-toward-center distribution as background.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const WithEdges: Story = (() => {
+const buildWithEdges = () => {
   const { si, layoutVar1, friendshipEt } = createNarrativeInterview(103);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   si.addStage('Narrative', { initialNodes: 6 }).addPreset({
     label: 'Social Network',
     layoutVariable: layoutVar1.id,
@@ -183,22 +165,16 @@ export const WithEdges: Story = (() => {
     ],
     friendshipEt.id,
   );
-  return {
-    ...storyArgs<'Narrative'>(si),
-    parameters: {
-      ...storyArgs<'Narrative'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Narrative displaying friendship edges between nodes. Edges can be toggled via the legend panel.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const WithConvexHulls: Story = (() => {
+const buildWithConvexHulls = () => {
   const { si, layoutVar1, communityVar } = createNarrativeInterview(104);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   si.addStage('Narrative', { initialNodes: 10 }).addPreset({
     label: 'Community Groups',
     layoutVariable: layoutVar1.id,
@@ -217,23 +193,17 @@ export const WithConvexHulls: Story = (() => {
     [1, 2],
   ];
   groupValues.forEach((v, i) => si.setNodeAttribute(i, communityVar.id, v));
-  return {
-    ...storyArgs<'Narrative'>(si),
-    parameters: {
-      ...storyArgs<'Narrative'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Narrative with convex hull overlays grouping nodes by community. Node 10 belongs to two groups (Family and Work).',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const WithHighlighting: Story = (() => {
+const buildWithHighlighting = () => {
   const { si, layoutVar1, closeVar, trustedVar } =
     createNarrativeInterview(105);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   si.addStage('Narrative', { initialNodes: 8 }).addPreset({
     label: 'Close Friends',
     layoutVariable: layoutVar1.id,
@@ -241,21 +211,14 @@ export const WithHighlighting: Story = (() => {
   });
   const hlValues = [true, false, true, null, true, false, true, false];
   hlValues.forEach((v, i) => si.setNodeAttribute(i, closeVar.id, v));
-  return {
-    ...storyArgs<'Narrative'>(si),
-    parameters: {
-      ...storyArgs<'Narrative'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Narrative with highlight variables. The legend panel allows switching between "Close Friend" and "Trusted" attributes, and toggling highlighting on/off.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const FullFeatured: Story = (() => {
+const buildFullFeatured = () => {
   const {
     si,
     layoutVar1,
@@ -264,6 +227,7 @@ export const FullFeatured: Story = (() => {
     friendshipEt,
     professionalEt,
   } = createNarrativeInterview(106);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   si.addStage('Narrative', { initialNodes: 10 }).addPreset({
     label: 'Full View',
     layoutVariable: layoutVar1.id,
@@ -315,21 +279,14 @@ export const FullFeatured: Story = (() => {
     ],
     professionalEt.id,
   );
-  return {
-    ...storyArgs<'Narrative'>(si),
-    parameters: {
-      ...storyArgs<'Narrative'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Narrative with all features enabled: edges (friendship and professional), convex hulls (community groups), and node highlighting (close friends). Open the legend panel to toggle each layer.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const MultiplePresets: Story = (() => {
+const buildMultiplePresets = () => {
   const {
     si,
     layoutVar1,
@@ -340,6 +297,7 @@ export const MultiplePresets: Story = (() => {
     friendshipEt,
     professionalEt,
   } = createNarrativeInterview(107);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   const stage = si.addStage('Narrative', { initialNodes: 10 });
   stage.addPreset({
     label: 'Social View',
@@ -408,22 +366,16 @@ export const MultiplePresets: Story = (() => {
     ],
     professionalEt.id,
   );
-  return {
-    ...storyArgs<'Narrative'>(si),
-    parameters: {
-      ...storyArgs<'Narrative'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Narrative with three presets: "Social View" (friendship edges + community hulls + close friends), "Professional View" (professional edges + trusted highlighting with alternate layout), and "Community Map" (community hulls only). Use the arrow buttons to switch between presets.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const WithFreeDraw: Story = (() => {
+const buildWithFreeDraw = () => {
   const { si, layoutVar1 } = createNarrativeInterview(108);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   si.addStage('Narrative', {
     initialNodes: 5,
     behaviours: { freeDraw: true },
@@ -431,22 +383,16 @@ export const WithFreeDraw: Story = (() => {
     label: 'Social Network',
     layoutVariable: layoutVar1.id,
   });
-  return {
-    ...storyArgs<'Narrative'>(si),
-    parameters: {
-      ...storyArgs<'Narrative'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Narrative with free-draw annotations enabled. Click and drag on the canvas to draw. Lines fade after release. Use the snowflake button to freeze annotations, and the reset button to clear them.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const WithRepositioning: Story = (() => {
+const buildWithRepositioning = () => {
   const { si, layoutVar1 } = createNarrativeInterview(109);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   si.addStage('Narrative', {
     initialNodes: 6,
     behaviours: { allowRepositioning: true },
@@ -454,21 +400,14 @@ export const WithRepositioning: Story = (() => {
     label: 'Social Network',
     layoutVariable: layoutVar1.id,
   });
-  return {
-    ...storyArgs<'Narrative'>(si),
-    parameters: {
-      ...storyArgs<'Narrative'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Narrative with node repositioning enabled. Drag nodes to move them. Changes persist to the session data.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const AllBehaviours: Story = (() => {
+const buildAllBehaviours = () => {
   const {
     si,
     layoutVar1,
@@ -477,6 +416,7 @@ export const AllBehaviours: Story = (() => {
     friendshipEt,
     professionalEt,
   } = createNarrativeInterview(110);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   si.addStage('Narrative', {
     initialNodes: 10,
     behaviours: { freeDraw: true, allowRepositioning: true },
@@ -532,21 +472,14 @@ export const AllBehaviours: Story = (() => {
     ],
     professionalEt.id,
   );
-  return {
-    ...storyArgs<'Narrative'>(si),
-    parameters: {
-      ...storyArgs<'Narrative'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Narrative with all behaviours and features enabled: free-draw annotations, node repositioning, edges, convex hulls, and highlighting. This is the most feature-rich configuration possible.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const ManyNodes: Story = (() => {
+const buildManyNodes = () => {
   const {
     si,
     layoutVar1,
@@ -555,6 +488,7 @@ export const ManyNodes: Story = (() => {
     friendshipEt,
     professionalEt,
   } = createNarrativeInterview(111);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   si.addStage('Narrative', { initialNodes: 15 }).addPreset({
     label: 'Full View',
     layoutVariable: layoutVar1.id,
@@ -595,22 +529,16 @@ export const ManyNodes: Story = (() => {
     ],
     professionalEt.id,
   );
-  return {
-    ...storyArgs<'Narrative'>(si),
-    parameters: {
-      ...storyArgs<'Narrative'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Narrative with 15 nodes to test layout density, edge rendering, and convex hull performance with a larger network.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const SingleNodeGroups: Story = (() => {
+const buildSingleNodeGroups = () => {
   const { si, layoutVar1, communityVar } = createNarrativeInterview(112);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   si.addStage('Narrative', { initialNodes: 4 }).addPreset({
     label: 'Community Groups',
     layoutVariable: layoutVar1.id,
@@ -618,22 +546,16 @@ export const SingleNodeGroups: Story = (() => {
   });
   const groupValues: number[][] = [[1], [2], [3], [4]];
   groupValues.forEach((v, i) => si.setNodeAttribute(i, communityVar.id, v));
-  return {
-    ...storyArgs<'Narrative'>(si),
-    parameters: {
-      ...storyArgs<'Narrative'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Narrative where each node is in its own group, testing the single-node convex hull rendering (drawn as small circles).',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const TwoNodeGroup: Story = (() => {
+const buildTwoNodeGroup = () => {
   const { si, layoutVar1, communityVar } = createNarrativeInterview(113);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   si.addStage('Narrative', { initialNodes: 4 }).addPreset({
     label: 'Community Groups',
     layoutVariable: layoutVar1.id,
@@ -641,16 +563,69 @@ export const TwoNodeGroup: Story = (() => {
   });
   const groupValues: number[][] = [[1], [1], [2], [2]];
   groupValues.forEach((v, i) => si.setNodeAttribute(i, communityVar.id, v));
-  return {
-    ...storyArgs<'Narrative'>(si),
-    parameters: {
-      ...storyArgs<'Narrative'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Narrative with two groups of two nodes each, testing the two-node convex hull rendering (drawn as capsule shapes).',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
+
+// --- Stories ---
+
+export const Default: Story = {
+  render: () => <NarrativeStoryWrapper buildFn={buildDefault} />,
+};
+
+export const EmptyNetwork: Story = {
+  render: () => <NarrativeStoryWrapper buildFn={buildEmptyNetwork} />,
+};
+
+export const ConcentricCirclesBackground: Story = {
+  render: () => (
+    <NarrativeStoryWrapper buildFn={buildConcentricCirclesBackground} />
+  ),
+};
+
+export const WithEdges: Story = {
+  render: () => <NarrativeStoryWrapper buildFn={buildWithEdges} />,
+};
+
+export const WithConvexHulls: Story = {
+  render: () => <NarrativeStoryWrapper buildFn={buildWithConvexHulls} />,
+};
+
+export const WithHighlighting: Story = {
+  render: () => <NarrativeStoryWrapper buildFn={buildWithHighlighting} />,
+};
+
+export const FullFeatured: Story = {
+  render: () => <NarrativeStoryWrapper buildFn={buildFullFeatured} />,
+};
+
+export const MultiplePresets: Story = {
+  render: () => <NarrativeStoryWrapper buildFn={buildMultiplePresets} />,
+};
+
+export const WithFreeDraw: Story = {
+  render: () => <NarrativeStoryWrapper buildFn={buildWithFreeDraw} />,
+};
+
+export const WithRepositioning: Story = {
+  render: () => <NarrativeStoryWrapper buildFn={buildWithRepositioning} />,
+};
+
+export const AllBehaviours: Story = {
+  render: () => <NarrativeStoryWrapper buildFn={buildAllBehaviours} />,
+};
+
+export const ManyNodes: Story = {
+  render: () => <NarrativeStoryWrapper buildFn={buildManyNodes} />,
+};
+
+export const SingleNodeGroups: Story = {
+  render: () => <NarrativeStoryWrapper buildFn={buildSingleNodeGroups} />,
+};
+
+export const TwoNodeGroup: Story = {
+  render: () => <NarrativeStoryWrapper buildFn={buildTwoNodeGroup} />,
+};

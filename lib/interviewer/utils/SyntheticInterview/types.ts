@@ -43,7 +43,8 @@ export type StageType =
   | 'OneToManyDyadCensus'
   | 'OrdinalBin'
   | 'CategoricalBin'
-  | 'EgoForm';
+  | 'EgoForm'
+  | 'Information';
 
 export type NameGeneratorPromptEntry = {
   id: string;
@@ -143,6 +144,12 @@ export type PanelEntry = {
   dataSource: string;
 };
 
+export type InformationItem = {
+  id: string;
+  type: 'text';
+  content: string;
+};
+
 export type StageEntry = {
   id: string;
   type: StageType;
@@ -170,6 +177,8 @@ export type StageEntry = {
     title: string;
     text: string;
   };
+  title?: string;
+  items?: InformationItem[];
   initialNodes: number;
   initialEdges: [number, number][];
 };

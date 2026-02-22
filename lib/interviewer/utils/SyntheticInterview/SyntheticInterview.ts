@@ -106,6 +106,8 @@ type EgoFormHandle = StageHandleBase & {
   }) => void;
 };
 
+type InformationHandle = StageHandleBase;
+
 type StageHandleMap = {
   NameGenerator: NameGeneratorHandle;
   Sociogram: SociogramHandle;
@@ -115,6 +117,7 @@ type StageHandleMap = {
   OrdinalBin: OrdinalBinHandle;
   CategoricalBin: CategoricalBinHandle;
   EgoForm: EgoFormHandle;
+  Information: InformationHandle;
 };
 
 export class SyntheticInterview {
@@ -250,9 +253,9 @@ export class SyntheticInterview {
   ): StageHandleMap[T] {
     const stageId = this.nextId('stage');
 
-    // EgoForm stages have no subject
+    // EgoForm and Information stages have no subject
     let subject = opts?.subject;
-    if (!subject && type !== 'EgoForm') {
+    if (!subject && type !== 'EgoForm' && type !== 'Information') {
       let nodeTypeId: string;
       if (this.nodeTypes.size > 0) {
         nodeTypeId = this.nodeTypes.keys().next().value!;
@@ -346,6 +349,32 @@ export class SyntheticInterview {
     this.stages.push(entry);
 
     return this.createStageHandle(type, entry);
+  }
+
+  addInformationStage(opts?: {
+    title?: string;
+    text?: string;
+    label?: string;
+  }): InformationHandle {
+    const stageId = this.nextId('stage');
+    const title = opts?.title ?? 'Information';
+    const text = opts?.text ?? '';
+
+    const entry: StageEntry = {
+      id: stageId,
+      type: 'Information',
+      label: opts?.label ?? title,
+      title,
+      items: [{ id: this.nextId('item'), type: 'text', content: text }],
+      prompts: [],
+      presets: [],
+      panels: [],
+      initialNodes: 0,
+      initialEdges: [],
+    };
+
+    this.stages.push(entry);
+    return { id: stageId, stageEntry: entry };
   }
 
   private createStageHandle<T extends StageType>(
@@ -453,7 +482,7 @@ export class SyntheticInterview {
           },
         } as StageHandleMap[T];
 
-      default:
+      case 'Information':
         return base as StageHandleMap[T];
     }
   }
@@ -959,6 +988,14 @@ export class SyntheticInterview {
 
     if (stage.introductionPanel) {
       config.introductionPanel = stage.introductionPanel;
+    }
+
+    if (stage.title !== undefined) {
+      config.title = stage.title;
+    }
+
+    if (stage.items) {
+      config.items = stage.items;
     }
 
     return config;

@@ -3,8 +3,7 @@
 import { type Stage } from '@codaco/protocol-validation';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
-import { Provider } from 'react-redux';
-import { InterviewNavigationBridge } from '~/.storybook/interview-navigation-bridge';
+import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
 import { withInterviewAnimation } from '~/.storybook/interview-decorator';
 import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
@@ -21,6 +20,11 @@ function buildInterview(args: StoryArgs) {
   const nt = si.addNodeType({ name: 'Person' });
   const et = si.addEdgeType({ name: 'Friendship' });
 
+  si.addInformationStage({
+    title: 'Welcome',
+    text: 'Before the main stage.',
+  });
+
   const stage = si.addStage('OneToManyDyadCensus', {
     label: 'One-to-Many Dyad Census',
     initialNodes: args.initialNodeCount,
@@ -35,15 +39,20 @@ function buildInterview(args: StoryArgs) {
     });
   }
 
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+
   const protocol = si.getProtocol();
-  const stageConfig = protocol.stages[0]! as Extract<
+  const stageConfig = protocol.stages[1]! as Extract<
     Stage,
     { type: 'OneToManyDyadCensus' }
   >;
-  const store = si.getStore();
+  const store = si.getStore({ currentStep: 1 });
   const nav = createStoryNavigation(store);
 
-  return { stageConfig, store, nav };
+  return { stageConfig, store, nav, stages: protocol.stages };
 }
 
 const OneToManyDyadCensusWrapper = (args: StoryArgs) => {
@@ -51,19 +60,22 @@ const OneToManyDyadCensusWrapper = (args: StoryArgs) => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const interview = useMemo(() => buildInterview(args), [configKey]);
-  const { stageConfig, store, nav } = interview;
+  const { stageConfig, store, nav, stages } = interview;
 
   return (
-    <Provider store={store}>
+    <InterviewStoryShell
+      store={store}
+      nav={nav}
+      stages={stages}
+      mainStageIndex={1}
+    >
       <div id="stage" className="relative flex size-full flex-col items-center">
         <OneToManyDyadCensus
           stage={stageConfig}
-          registerBeforeNext={nav.registerBeforeNext}
           getNavigationHelpers={nav.getNavigationHelpers}
         />
       </div>
-      <InterviewNavigationBridge store={store} storyNavigation={nav} />
-    </Provider>
+    </InterviewStoryShell>
   );
 };
 

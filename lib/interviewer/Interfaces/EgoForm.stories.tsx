@@ -2,9 +2,8 @@
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
-import { Provider } from 'react-redux';
+import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
 import { withInterviewAnimation } from '~/.storybook/interview-decorator';
-import { InterviewNavigationBridge } from '~/.storybook/interview-navigation-bridge';
 import { type ComponentType } from '~/lib/interviewer/utils/SyntheticInterview/types';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
 import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
@@ -40,6 +39,11 @@ type StoryArgs = {
 function buildInterview(args: StoryArgs) {
   const interview = new SyntheticInterview();
 
+  interview.addInformationStage({
+    title: 'Welcome',
+    text: 'Before the main stage.',
+  });
+
   const stage = interview.addStage('EgoForm', {
     label: 'About You',
     introductionPanel: {
@@ -57,6 +61,11 @@ function buildInterview(args: StoryArgs) {
     });
   }
 
+  interview.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+
   return interview;
 }
 
@@ -65,27 +74,33 @@ const EgoFormStoryWrapper = (args: StoryArgs) => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const interview = useMemo(() => buildInterview(args), [configKey]);
-  const store = useMemo(() => interview.getStore(), [interview]);
+  const store = useMemo(
+    () => interview.getStore({ currentStep: 1 }),
+    [interview],
+  );
   const nav = useMemo(() => createStoryNavigation(store), [store]);
 
   const protocol = interview.getProtocol();
-  const rawStage = protocol.stages[0];
+  const rawStage = protocol.stages[1];
   if (rawStage?.type !== 'EgoForm') {
     throw new Error('Expected EgoForm stage');
   }
   const stage = rawStage;
 
   return (
-    <Provider store={store}>
+    <InterviewStoryShell
+      store={store}
+      nav={nav}
+      stages={protocol.stages}
+      mainStageIndex={1}
+    >
       <div id="stage" className="relative flex size-full flex-col items-center">
         <EgoForm
           stage={stage}
-          registerBeforeNext={nav.registerBeforeNext}
           getNavigationHelpers={nav.getNavigationHelpers}
         />
       </div>
-      <InterviewNavigationBridge store={store} storyNavigation={nav} />
-    </Provider>
+    </InterviewStoryShell>
   );
 };
 

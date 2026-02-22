@@ -1,5 +1,6 @@
 'use client';
 
+import { type Stage } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
@@ -8,9 +9,8 @@ import {
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
-import { Provider } from 'react-redux';
-import { InterviewNavigationBridge } from '~/.storybook/interview-navigation-bridge';
 import { withInterviewAnimation } from '~/.storybook/interview-decorator';
+import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
 import sessionReducer from '~/lib/interviewer/ducks/modules/session';
 import uiReducer from '~/lib/interviewer/ducks/modules/ui';
 import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
@@ -121,6 +121,26 @@ const createStage = (args: StoryArgs) => {
   };
 };
 
+const informationStageBefore = {
+  id: 'info-before',
+  type: 'Information' as const,
+  label: 'Welcome',
+  title: 'Welcome',
+  items: [
+    { id: 'item-1', type: 'text' as const, content: 'Before the main stage.' },
+  ],
+};
+
+const informationStageAfter = {
+  id: 'info-after',
+  type: 'Information' as const,
+  label: 'Complete',
+  title: 'Complete',
+  items: [
+    { id: 'item-2', type: 'text' as const, content: 'After the main stage.' },
+  ],
+};
+
 const createMockProtocol = (args: StoryArgs) => {
   const stage = createStage(args);
 
@@ -129,7 +149,7 @@ const createMockProtocol = (args: StoryArgs) => {
     name: 'Test Protocol',
     schemaVersion: 8,
     importedAt: new Date().toISOString(),
-    stages: [stage],
+    stages: [informationStageBefore, stage, informationStageAfter],
     codebook: {
       node: {
         person: {
@@ -153,7 +173,7 @@ const createMockProtocol = (args: StoryArgs) => {
 
 const createMockSession = (nodes: NcNode[]) => ({
   id: 'test-session',
-  currentStep: 0,
+  currentStep: 1,
   promptIndex: 0,
   startTime: new Date().toISOString(),
   finishTime: null,
@@ -217,19 +237,23 @@ const NameGeneratorStoryWrapper = (args: StoryArgs) => {
   const store = useMemo(() => createStore(args), [configKey]);
   const nav = useMemo(() => createStoryNavigation(store), [store]);
 
+  const protocol = createMockProtocol(args);
   const stage = createStage(args);
 
   return (
-    <Provider store={store}>
+    <InterviewStoryShell
+      store={store}
+      nav={nav}
+      stages={protocol.stages as Stage[]}
+      mainStageIndex={1}
+    >
       <div id="stage" className="relative flex size-full flex-col items-center">
         <NameGenerator
           stage={stage}
-          registerBeforeNext={nav.registerBeforeNext}
           getNavigationHelpers={nav.getNavigationHelpers}
         />
       </div>
-      <InterviewNavigationBridge store={store} storyNavigation={nav} />
-    </Provider>
+    </InterviewStoryShell>
   );
 };
 

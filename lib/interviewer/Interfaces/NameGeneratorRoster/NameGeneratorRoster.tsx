@@ -75,7 +75,7 @@ const keyExtractor = (item: UseItemElement) => item.id;
  * Name Generator (unified) Roster Interface
  */
 const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
-  const { stage, registerBeforeNext } = props;
+  const { stage } = props;
 
   const { isLastPrompt } = usePrompts();
 
@@ -214,7 +214,6 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
 
   const { updateReady } = useReadyForNextStage();
   const { showToast, closeToast } = useStageValidation({
-    registerBeforeNext,
     constraints: [
       {
         direction: 'forwards',

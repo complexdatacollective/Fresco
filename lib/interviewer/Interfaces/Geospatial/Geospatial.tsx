@@ -21,6 +21,7 @@ import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { type RootState } from '~/lib/interviewer/store';
 import { type Direction, type StageProps } from '~/lib/interviewer/types';
+import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import { useMapbox } from './useMapbox';
 
 const introVariants = {
@@ -60,7 +61,6 @@ type GeospatialInterfaceProps = StageProps<'Geospatial'>;
 
 export default function GeospatialInterface({
   stage,
-  registerBeforeNext,
 }: GeospatialInterfaceProps) {
   const dispatch = useDispatch<ThunkDispatch<RootState, unknown, Action>>();
   const dragSafeRef = useRef(null);
@@ -205,7 +205,7 @@ export default function GeospatialInterface({
     return false;
   };
 
-  registerBeforeNext(beforeNext);
+  useBeforeNext(beforeNext);
 
   // Update navigation button based on selection
   useEffect(() => {

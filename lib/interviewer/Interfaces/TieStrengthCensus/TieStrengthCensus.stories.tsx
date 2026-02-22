@@ -1,16 +1,41 @@
 'use client';
 
+import { type Stage } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
   type NcEdge,
   type NcNode,
 } from '@codaco/shared-consts';
-import { configureStore } from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { motion } from 'motion/react';
-import { Provider } from 'react-redux';
+import { useMemo } from 'react';
+import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
+import { withInterviewAnimation } from '~/.storybook/interview-decorator';
+import sessionReducer from '~/lib/interviewer/ducks/modules/session';
+import uiReducer from '~/lib/interviewer/ducks/modules/ui';
+import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
 import TieStrengthCensus from './TieStrengthCensus';
+
+const informationStageBefore = {
+  id: 'info-before',
+  type: 'Information' as const,
+  label: 'Welcome',
+  title: 'Welcome',
+  items: [
+    { id: 'item-1', type: 'text' as const, content: 'Before the main stage.' },
+  ],
+};
+
+const informationStageAfter = {
+  id: 'info-after',
+  type: 'Information' as const,
+  label: 'Complete',
+  title: 'Complete',
+  items: [
+    { id: 'item-2', type: 'text' as const, content: 'After the main stage.' },
+  ],
+};
 
 const mockProtocol = {
   id: 'test-protocol',
@@ -47,6 +72,7 @@ const mockProtocol = {
     },
   },
   stages: [
+    informationStageBefore,
     {
       id: 'tie-strength-stage',
       type: 'TieStrengthCensus',
@@ -69,6 +95,7 @@ const mockProtocol = {
         },
       ],
     },
+    informationStageAfter,
   ],
 };
 
@@ -101,8 +128,12 @@ const createMockEdges = (
 
 const createMockSession = (nodes: NcNode[], edges: NcEdge[]) => ({
   id: 'test-session',
-  currentStep: 0,
+  currentStep: 1,
   promptIndex: 0,
+  startTime: new Date().toISOString(),
+  finishTime: null,
+  exportTime: null,
+  lastUpdated: new Date().toISOString(),
   network: {
     nodes,
     edges,
@@ -111,10 +142,11 @@ const createMockSession = (nodes: NcNode[], edges: NcEdge[]) => ({
       [entityAttributesProperty]: {},
     },
   },
-  stageMetadata: [],
+  stageMetadata: {},
 });
 
 const mockUiState = {
+  FORM_IS_READY: false,
   passphrase: null as string | null,
   passphraseInvalid: false,
   showPassphrasePrompter: false,
@@ -123,200 +155,128 @@ const mockUiState = {
 const createMockStore = (nodes: NcNode[], edges: NcEdge[]) => {
   const session = createMockSession(nodes, edges);
   return configureStore({
-    reducer: {
-      session: (state: typeof session = session) => state,
+    reducer: combineReducers({
+      session: sessionReducer,
       protocol: (state: typeof mockProtocol = mockProtocol) => state,
-      ui: (state: typeof mockUiState = mockUiState) => state,
-    },
+      ui: uiReducer,
+    }),
     preloadedState: {
       protocol: mockProtocol,
       session,
       ui: mockUiState,
     },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({ serializableCheck: false }),
   });
 };
 
-type DecoratorProps = {
-  nodes: NcNode[];
-  edges?: NcEdge[];
+type StoryArgs = {
+  initialNodeCount: number;
+  hasExistingEdges: boolean;
 };
 
-function ReduxDecoratorFactory({ nodes, edges = [] }: DecoratorProps) {
-  return function ReduxDecorator(Story: React.ComponentType) {
-    const store = createMockStore(nodes, edges);
-
-    const decoratorVariants = {
-      initial: { opacity: 0 },
-      animate: { opacity: 1 },
-      exit: { opacity: 0 },
-    };
-
-    return (
-      <Provider store={store}>
-        <motion.div
-          variants={decoratorVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-        >
-          <div className="flex h-[600px] gap-4 p-4">
-            <Story />
-          </div>
-        </motion.div>
-      </Provider>
-    );
-  };
+function buildStore(args: StoryArgs) {
+  const nodes = createMockNodes(args.initialNodeCount);
+  const edges = args.hasExistingEdges
+    ? createMockEdges([
+        [1, 2, 3],
+        [2, 3, 1],
+      ])
+    : [];
+  return createMockStore(nodes, edges);
 }
 
-const mockStage = mockProtocol.stages[0] as unknown as Parameters<
-  typeof TieStrengthCensus
->[0]['stage'];
+const TieStrengthCensusStoryWrapper = (args: StoryArgs) => {
+  const configKey = JSON.stringify(args);
 
-const mockNavigationHelpers = {
-  moveForward: () => {
-    // eslint-disable-next-line no-console
-    console.log('Move forward');
-  },
-  moveBackward: () => {
-    // eslint-disable-next-line no-console
-    console.log('Move backward');
-  },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const store = useMemo(() => buildStore(args), [configKey]);
+  const nav = useMemo(() => createStoryNavigation(store), [store]);
+
+  const stage = mockProtocol.stages[1];
+  if (stage?.type !== 'TieStrengthCensus') {
+    throw new Error('Expected TieStrengthCensus stage');
+  }
+
+  return (
+    <InterviewStoryShell
+      store={store}
+      nav={nav}
+      stages={mockProtocol.stages as Stage[]}
+      mainStageIndex={1}
+    >
+      <div id="stage" className="relative flex size-full flex-col items-center">
+        <TieStrengthCensus
+          stage={stage as Parameters<typeof TieStrengthCensus>[0]['stage']}
+          getNavigationHelpers={nav.getNavigationHelpers}
+        />
+      </div>
+    </InterviewStoryShell>
+  );
 };
 
-const mockRegisterBeforeNext = () => {
-  // Mock implementation
-};
-
-const meta: Meta<typeof TieStrengthCensus> = {
+const meta: Meta<StoryArgs> = {
   title: 'Interview/Interfaces/TieStrengthCensus',
-  component: TieStrengthCensus,
+  decorators: [withInterviewAnimation],
   parameters: {
+    forceTheme: 'interview',
     layout: 'fullscreen',
   },
   argTypes: {
-    stage: {
-      control: false,
-      description: 'Stage configuration object',
+    initialNodeCount: {
+      control: { type: 'range', min: 0, max: 5 },
+      description: 'Number of nodes in the network',
     },
-    registerBeforeNext: {
-      control: false,
-      description: 'Function to register before next navigation',
+    hasExistingEdges: {
+      control: 'boolean',
+      description: 'Include pre-existing friendship edges',
     },
-    getNavigationHelpers: {
-      control: false,
-      description: 'Function to get navigation helpers',
-    },
+  },
+  args: {
+    initialNodeCount: 3,
+    hasExistingEdges: false,
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<StoryArgs>;
+
+export const Default: Story = {
+  render: (args) => <TieStrengthCensusStoryWrapper {...args} />,
+};
 
 export const Introduction: Story = {
+  render: (args) => <TieStrengthCensusStoryWrapper {...args} />,
   args: {
-    stage: mockStage,
-    registerBeforeNext: mockRegisterBeforeNext,
-    getNavigationHelpers: () => mockNavigationHelpers,
-  },
-  decorators: [
-    ReduxDecoratorFactory({
-      nodes: createMockNodes(3),
-    }),
-  ],
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Shows the introduction panel before starting the tie strength census.',
-      },
-    },
+    initialNodeCount: 3,
   },
 };
 
 export const ThreeNodes: Story = {
+  render: (args) => <TieStrengthCensusStoryWrapper {...args} />,
   args: {
-    stage: mockStage,
-    registerBeforeNext: mockRegisterBeforeNext,
-    getNavigationHelpers: () => mockNavigationHelpers,
-  },
-  decorators: [
-    ReduxDecoratorFactory({
-      nodes: createMockNodes(3),
-    }),
-  ],
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'TieStrengthCensus with 3 nodes (3 possible pairs: Alice-Bob, Alice-Charlie, Bob-Charlie).',
-      },
-    },
+    initialNodeCount: 3,
   },
 };
 
 export const FiveNodes: Story = {
+  render: (args) => <TieStrengthCensusStoryWrapper {...args} />,
   args: {
-    stage: mockStage,
-    registerBeforeNext: mockRegisterBeforeNext,
-    getNavigationHelpers: () => mockNavigationHelpers,
-  },
-  decorators: [
-    ReduxDecoratorFactory({
-      nodes: createMockNodes(5),
-    }),
-  ],
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'TieStrengthCensus with 5 nodes (10 possible pairs). Shows how the interface handles more complex networks.',
-      },
-    },
+    initialNodeCount: 5,
   },
 };
 
 export const WithExistingEdges: Story = {
+  render: (args) => <TieStrengthCensusStoryWrapper {...args} />,
   args: {
-    stage: mockStage,
-    registerBeforeNext: mockRegisterBeforeNext,
-    getNavigationHelpers: () => mockNavigationHelpers,
-  },
-  decorators: [
-    ReduxDecoratorFactory({
-      nodes: createMockNodes(4),
-      edges: createMockEdges([
-        [1, 2, 3],
-        [2, 3, 1],
-      ]),
-    }),
-  ],
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'TieStrengthCensus with some edges already created. The interface should show existing edges and allow updating them.',
-      },
-    },
+    initialNodeCount: 4,
+    hasExistingEdges: true,
   },
 };
 
 export const NoNodes: Story = {
+  render: (args) => <TieStrengthCensusStoryWrapper {...args} />,
   args: {
-    stage: mockStage,
-    registerBeforeNext: mockRegisterBeforeNext,
-    getNavigationHelpers: () => mockNavigationHelpers,
-  },
-  decorators: [
-    ReduxDecoratorFactory({
-      nodes: createMockNodes(0),
-    }),
-  ],
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'TieStrengthCensus with no nodes. The interface should handle this gracefully.',
-      },
-    },
+    initialNodeCount: 0,
   },
 };

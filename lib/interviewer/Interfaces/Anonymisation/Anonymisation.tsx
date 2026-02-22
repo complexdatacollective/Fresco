@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Button from '~/components/ui/Button';
 import Field from '~/lib/form/components/Field/Field';
@@ -8,10 +8,8 @@ import Form from '~/lib/form/components/Form';
 import useFormState from '~/lib/form/hooks/useFormState';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import EncryptionBackground from '../../components/EncryptedBackground';
-import type {
-  BeforeNextFunction,
-  StageProps,
-} from '~/lib/interviewer/types';
+import type { StageProps } from '~/lib/interviewer/types';
+import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import { usePassphrase } from './usePassphrase';
 
 type AnonymisationProps = StageProps<'Anonymisation'>;
@@ -20,35 +18,25 @@ export default function Anonymisation(props: AnonymisationProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const { updateReady } = useReadyForNextStage();
   const {
-    registerBeforeNext,
     stage: { explanationText },
   } = props;
   const { passphrase, setPassphrase } = usePassphrase();
 
   const { isValid: isFormValid } = useFormState();
 
-  const preventNavigationWithoutPassphrase: BeforeNextFunction = useCallback(
-    (direction) => {
-      // Allow backwards navigation always
-      if (direction === 'backwards') {
-        return true;
-      }
-
-      // Submit the form, to trigger validation
-      formRef.current?.submit();
-
-      if (!isFormValid) {
-        return false;
-      }
-
+  useBeforeNext((direction) => {
+    if (direction === 'backwards') {
       return true;
-    },
-    [formRef, isFormValid],
-  );
+    }
 
-  useEffect(() => {
-    registerBeforeNext(preventNavigationWithoutPassphrase);
-  }, [registerBeforeNext, preventNavigationWithoutPassphrase]);
+    formRef.current?.submit();
+
+    if (!isFormValid) {
+      return false;
+    }
+
+    return true;
+  });
 
   const handleSetPassphrase = useCallback(
     (values: unknown) => {

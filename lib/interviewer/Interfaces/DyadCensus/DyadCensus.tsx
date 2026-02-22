@@ -7,6 +7,7 @@ import Heading from '~/components/typography/Heading';
 import Prompts from '~/lib/interviewer/components/Prompts';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { type StageProps } from '~/lib/interviewer/types';
+import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import {
   getEdgeColorForType,
@@ -48,7 +49,7 @@ const introVariants = {
 type DyadCensusProps = StageProps<'DyadCensus'>;
 
 export default function DyadCensus(props: DyadCensusProps) {
-  const { registerBeforeNext, stage, getNavigationHelpers } = props;
+  const { stage, getNavigationHelpers } = props;
 
   const { moveForward } = getNavigationHelpers();
 
@@ -86,7 +87,7 @@ export default function DyadCensus(props: DyadCensusProps) {
     `${stepsState.step}_${stepsState.substep}`,
   );
 
-  registerBeforeNext((direction) => {
+  useBeforeNext((direction) => {
     if (direction === 'forwards') {
       setForwards(true);
       setIsValid(true);

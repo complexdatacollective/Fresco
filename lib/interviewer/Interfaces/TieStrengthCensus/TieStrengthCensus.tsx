@@ -19,6 +19,7 @@ import {
 } from '~/lib/interviewer/selectors/session';
 import { cx } from '~/utils/cva';
 import { type StageProps } from '../../types';
+import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import useAutoAdvance from '../DyadCensus/useAutoAdvance';
 import useEdgeState from '../DyadCensus/useEdgeState';
 import useSteps from '../DyadCensus/useSteps';
@@ -52,7 +53,7 @@ const introVariants = {
 export type TieStrengthCensusProps = StageProps<'TieStrengthCensus'>;
 
 const TieStrengthCensus = (props: TieStrengthCensusProps) => {
-  const { registerBeforeNext, stage, getNavigationHelpers } = props;
+  const { stage, getNavigationHelpers } = props;
 
   const { moveForward } = getNavigationHelpers();
 
@@ -103,7 +104,7 @@ const TieStrengthCensus = (props: TieStrengthCensusProps) => {
   const { hasEdge, edgeVariableValue, setEdge, isTouched, isChanged } =
     useEdgeState(pair, edges, `${stepsState.step}_${stepsState.substep}`);
 
-  registerBeforeNext((direction) => {
+  useBeforeNext((direction) => {
     if (direction === 'forwards') {
       setForwards(true);
       setIsValid(true);

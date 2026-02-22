@@ -13,7 +13,6 @@ export type RegisterBeforeNext = {
 
 export type StageProps<T extends TStage['type'] = TStage['type']> = {
   stage: Extract<TStage, { type: T }>;
-  registerBeforeNext: RegisterBeforeNext;
   getNavigationHelpers: () => {
     moveForward: () => void;
     moveBackward: () => void;

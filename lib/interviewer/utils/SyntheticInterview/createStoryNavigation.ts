@@ -1,4 +1,7 @@
-import { updatePrompt } from '~/lib/interviewer/ducks/modules/session';
+import {
+  updatePrompt,
+  updateStage,
+} from '~/lib/interviewer/ducks/modules/session';
 import {
   type BeforeNextFunction,
   type Direction,
@@ -82,12 +85,19 @@ export function createStoryNavigation(store: PromptNavigableStore) {
       if (!result) return;
 
       const state = store.getState();
+      const currentStep = state.session.currentStep;
       const promptIndex = state.session.promptIndex ?? 0;
-      const stage = state.protocol.stages[state.session.currentStep];
+      const stage = state.protocol.stages[currentStep];
       const promptCount = getStagePromptCount(stage);
+      const totalStages = state.protocol.stages.length;
 
-      if (result !== 'FORCE' && promptIndex < promptCount - 1) {
+      if (result === 'FORCE') return;
+
+      if (promptIndex < promptCount - 1) {
         store.dispatch(updatePrompt(promptIndex + 1));
+      } else if (currentStep < totalStages - 1) {
+        store.dispatch(updatePrompt(0));
+        store.dispatch(updateStage(currentStep + 1));
       }
     },
     moveBackward: async () => {
@@ -95,10 +105,18 @@ export function createStoryNavigation(store: PromptNavigableStore) {
       if (!result) return;
 
       const state = store.getState();
+      const currentStep = state.session.currentStep;
       const promptIndex = state.session.promptIndex ?? 0;
 
-      if (result !== 'FORCE' && promptIndex > 0) {
+      if (result === 'FORCE') return;
+
+      if (promptIndex > 0) {
         store.dispatch(updatePrompt(promptIndex - 1));
+      } else if (currentStep > 0) {
+        const prevStage = state.protocol.stages[currentStep - 1];
+        const prevPromptCount = getStagePromptCount(prevStage);
+        store.dispatch(updatePrompt(prevPromptCount - 1));
+        store.dispatch(updateStage(currentStep - 1));
       }
     },
   });

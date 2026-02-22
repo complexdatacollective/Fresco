@@ -1,16 +1,13 @@
 'use client';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { type Stage } from '@codaco/protocol-validation';
-import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
+import { useMemo } from 'react';
+import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
+import { withInterviewAnimation } from '~/.storybook/interview-decorator';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
+import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
 import Sociogram from './Sociogram';
 
-/**
- * Create a standard Sociogram SyntheticInterview with common codebook:
- * - "Person" node type with name, layout, and highlight variables
- * - "Friendship" edge type
- */
 function createSociogramInterview(seed: number) {
   const si = new SyntheticInterview(seed);
   const nt = si.addNodeType({ name: 'Person' });
@@ -26,134 +23,128 @@ function createSociogramInterview(seed: number) {
   return { si, nt, layoutVar, highlightVar, et };
 }
 
-function storyArgs<T extends Stage['type']>(si: SyntheticInterview) {
-  const protocol = si.getProtocol();
-  const stage = protocol.stages[0]! as Extract<Stage, { type: T }>;
-  const store = si.getStore();
-  const nav = createStoryNavigation(store);
-  return {
-    args: {
-      stage,
-      registerBeforeNext: nav.registerBeforeNext,
-      getNavigationHelpers: nav.getNavigationHelpers,
-    },
-    parameters: {
-      store,
-      storyNavigation: nav,
-    },
-  };
+function SociogramStoryWrapper({
+  buildFn,
+}: {
+  buildFn: () => SyntheticInterview;
+}) {
+  const interview = useMemo(() => buildFn(), [buildFn]);
+  const store = useMemo(
+    () => interview.getStore({ currentStep: 1 }),
+    [interview],
+  );
+  const nav = useMemo(() => createStoryNavigation(store), [store]);
+
+  const protocol = interview.getProtocol();
+  const rawStage = protocol.stages[1];
+  if (rawStage?.type !== 'Sociogram') {
+    throw new Error('Expected Sociogram stage');
+  }
+
+  return (
+    <InterviewStoryShell
+      store={store}
+      nav={nav}
+      stages={protocol.stages}
+      mainStageIndex={1}
+    >
+      <div id="stage" className="relative flex size-full flex-col items-center">
+        <Sociogram
+          stage={rawStage}
+          getNavigationHelpers={nav.getNavigationHelpers}
+        />
+      </div>
+    </InterviewStoryShell>
+  );
 }
 
-// --- Meta ---
-
-const meta: Meta<typeof Sociogram> = {
+const meta: Meta = {
   title: 'Interview/Interfaces/Sociogram',
-  component: Sociogram,
+  decorators: [withInterviewAnimation],
   parameters: {
     forceTheme: 'interview',
     layout: 'fullscreen',
   },
-  argTypes: {
-    stage: {
-      control: 'object',
-      description: 'Stage configuration from protocol',
-    },
-    registerBeforeNext: {
-      control: false,
-      description: 'Callback to register navigation guard',
-    },
-    getNavigationHelpers: {
-      control: false,
-      description: 'Returns navigation helper functions',
-    },
-  },
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj;
 
 // --- Stories ---
 
-export const Default: Story = (() => {
+const buildDefault = () => {
   const { si, layoutVar } = createSociogramInterview(1);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   const stage = si.addStage('Sociogram', { initialNodes: 5 });
   stage.addPrompt({ layout: { layoutVariable: layoutVar.id } });
-  return {
-    ...storyArgs<'Sociogram'>(si),
-    parameters: {
-      ...storyArgs<'Sociogram'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Basic Sociogram with placed nodes and default concentric circle background.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const EmptyNetwork: Story = (() => {
+export const Default: Story = {
+  render: () => <SociogramStoryWrapper buildFn={buildDefault} />,
+};
+
+const buildEmptyNetwork = () => {
   const { si, layoutVar } = createSociogramInterview(2);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   const stage = si.addStage('Sociogram');
   stage.addPrompt({ layout: { layoutVariable: layoutVar.id } });
-  return {
-    ...storyArgs<'Sociogram'>(si),
-    parameters: {
-      ...storyArgs<'Sociogram'>(si).parameters,
-      docs: {
-        description: {
-          story: 'Sociogram with no nodes in the network.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const WithUnplacedNodes: Story = (() => {
+export const EmptyNetwork: Story = {
+  render: () => <SociogramStoryWrapper buildFn={buildEmptyNetwork} />,
+};
+
+const buildWithUnplacedNodes = () => {
   const { si, layoutVar } = createSociogramInterview(3);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   const stage = si.addStage('Sociogram', { initialNodes: 6 });
   stage.addPrompt({ layout: { layoutVariable: layoutVar.id } });
-  // Set last 3 nodes as unplaced (null layout)
   for (let i = 3; i < 6; i++) {
     si.setNodeAttribute(i, layoutVar.id, null);
   }
-  return {
-    ...storyArgs<'Sociogram'>(si),
-    parameters: {
-      ...storyArgs<'Sociogram'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Sociogram with some placed nodes on the canvas and unplaced nodes in the bucket.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const ConcentricCircles: Story = (() => {
+export const WithUnplacedNodes: Story = {
+  render: () => <SociogramStoryWrapper buildFn={buildWithUnplacedNodes} />,
+};
+
+const buildConcentricCircles = () => {
   const { si, layoutVar } = createSociogramInterview(4);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   const stage = si.addStage('Sociogram', {
     initialNodes: 6,
     background: { concentricCircles: 4, skewedTowardCenter: true },
   });
   stage.addPrompt({ layout: { layoutVariable: layoutVar.id } });
-  return {
-    ...storyArgs<'Sociogram'>(si),
-    parameters: {
-      ...storyArgs<'Sociogram'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Sociogram with 4 concentric circles and skewed-toward-center distribution.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const WithEdges: Story = (() => {
+export const ConcentricCircles: Story = {
+  render: () => <SociogramStoryWrapper buildFn={buildConcentricCircles} />,
+};
+
+const buildWithEdges = () => {
   const { si, layoutVar, et } = createSociogramInterview(5);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   const stage = si.addStage('Sociogram', { initialNodes: 5 });
   stage.addPrompt({
     layout: { layoutVariable: layoutVar.id },
@@ -166,22 +157,20 @@ export const WithEdges: Story = (() => {
     [2, 4],
     [3, 4],
   ]);
-  return {
-    ...storyArgs<'Sociogram'>(si),
-    parameters: {
-      ...storyArgs<'Sociogram'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Sociogram with edge creation enabled and existing edges displayed between nodes.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const WithHighlighting: Story = (() => {
+export const WithEdges: Story = {
+  render: () => <SociogramStoryWrapper buildFn={buildWithEdges} />,
+};
+
+const buildWithHighlighting = () => {
   const { si, layoutVar, highlightVar } = createSociogramInterview(6);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   const stage = si.addStage('Sociogram', { initialNodes: 6 });
   stage.addPrompt({
     layout: { layoutVariable: layoutVar.id },
@@ -189,22 +178,20 @@ export const WithHighlighting: Story = (() => {
   });
   const hlValues = [true, false, true, null, true, false];
   hlValues.forEach((v, i) => si.setNodeAttribute(i, highlightVar.id, v));
-  return {
-    ...storyArgs<'Sociogram'>(si),
-    parameters: {
-      ...storyArgs<'Sociogram'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Sociogram with node highlighting enabled. Some nodes are highlighted as close friends.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const AutomaticLayout: Story = (() => {
+export const WithHighlighting: Story = {
+  render: () => <SociogramStoryWrapper buildFn={buildWithHighlighting} />,
+};
+
+const buildAutomaticLayout = () => {
   const { si, layoutVar, et } = createSociogramInterview(7);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   const stage = si.addStage('Sociogram', {
     initialNodes: 8,
     behaviours: { automaticLayout: { enabled: true } },
@@ -221,22 +208,20 @@ export const AutomaticLayout: Story = (() => {
     [4, 5],
     [6, 7],
   ]);
-  return {
-    ...storyArgs<'Sociogram'>(si),
-    parameters: {
-      ...storyArgs<'Sociogram'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Sociogram with automatic force-directed layout enabled. Nodes are positioned by the simulation.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const MultiplePrompts: Story = (() => {
+export const AutomaticLayout: Story = {
+  render: () => <SociogramStoryWrapper buildFn={buildAutomaticLayout} />,
+};
+
+const buildMultiplePrompts = () => {
   const { si, layoutVar, highlightVar } = createSociogramInterview(8);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   const stage = si.addStage('Sociogram', { initialNodes: 5 });
   stage.addPrompt({ layout: { layoutVariable: layoutVar.id } });
   stage.addPrompt({
@@ -244,22 +229,20 @@ export const MultiplePrompts: Story = (() => {
     layout: { layoutVariable: layoutVar.id },
     highlight: { variable: highlightVar.id },
   });
-  return {
-    ...storyArgs<'Sociogram'>(si),
-    parameters: {
-      ...storyArgs<'Sociogram'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Sociogram with multiple prompts. The first prompt handles positioning, the second enables highlighting.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const ManyNodes: Story = (() => {
+export const MultiplePrompts: Story = {
+  render: () => <SociogramStoryWrapper buildFn={buildMultiplePrompts} />,
+};
+
+const buildManyNodes = () => {
   const { si, layoutVar } = createSociogramInterview(9);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   const stage = si.addStage('Sociogram', { initialNodes: 10 });
   stage.addPrompt({ layout: { layoutVariable: layoutVar.id } });
   si.addEdges([
@@ -276,22 +259,20 @@ export const ManyNodes: Story = (() => {
     [1, 6],
     [2, 8],
   ]);
-  return {
-    ...storyArgs<'Sociogram'>(si),
-    parameters: {
-      ...storyArgs<'Sociogram'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Sociogram with many nodes to test layout density and performance.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const BackgroundImage: Story = (() => {
+export const ManyNodes: Story = {
+  render: () => <SociogramStoryWrapper buildFn={buildManyNodes} />,
+};
+
+const buildBackgroundImage = () => {
   const { si, layoutVar } = createSociogramInterview(10);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   const bgAssetId = 'bg-map-1';
   const stage = si.addStage('Sociogram', {
     initialNodes: 5,
@@ -302,22 +283,20 @@ export const BackgroundImage: Story = (() => {
     assetId: bgAssetId,
     url: 'https://picsum.photos/seed/sociogram/1200/1200',
   });
-  return {
-    ...storyArgs<'Sociogram'>(si),
-    parameters: {
-      ...storyArgs<'Sociogram'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Sociogram with a background image instead of concentric circles.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const AutomaticLayoutLarge: Story = (() => {
+export const BackgroundImage: Story = {
+  render: () => <SociogramStoryWrapper buildFn={buildBackgroundImage} />,
+};
+
+const buildAutomaticLayoutLarge = () => {
   const { si, layoutVar, et } = createSociogramInterview(11);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   const stage = si.addStage('Sociogram', {
     initialNodes: 20,
     behaviours: { automaticLayout: { enabled: true } },
@@ -340,22 +319,20 @@ export const AutomaticLayoutLarge: Story = (() => {
     [0, 9],
     [4, 14],
   ]);
-  return {
-    ...storyArgs<'Sociogram'>(si),
-    parameters: {
-      ...storyArgs<'Sociogram'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Automatic layout with 20 nodes and a sparse edge network to test force simulation performance and settling.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
 
-export const EdgesAndHighlighting: Story = (() => {
+export const AutomaticLayoutLarge: Story = {
+  render: () => <SociogramStoryWrapper buildFn={buildAutomaticLayoutLarge} />,
+};
+
+const buildEdgesAndHighlighting = () => {
   const { si, layoutVar, highlightVar, et } = createSociogramInterview(12);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
   const stage = si.addStage('Sociogram', { initialNodes: 6 });
   stage.addPrompt({
     text: 'Draw lines between people who know each other and highlight close friends.',
@@ -371,16 +348,13 @@ export const EdgesAndHighlighting: Story = (() => {
     [2, 4],
     [1, 3],
   ]);
-  return {
-    ...storyArgs<'Sociogram'>(si),
-    parameters: {
-      ...storyArgs<'Sociogram'>(si).parameters,
-      docs: {
-        description: {
-          story:
-            'Sociogram with both edge creation and node highlighting enabled simultaneously. Highlighted nodes have edges drawn between them.',
-        },
-      },
-    },
-  };
-})();
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
+
+export const EdgesAndHighlighting: Story = {
+  render: () => <SociogramStoryWrapper buildFn={buildEdgesAndHighlighting} />,
+};
