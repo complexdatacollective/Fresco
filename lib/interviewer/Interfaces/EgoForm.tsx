@@ -21,28 +21,18 @@ import {
   type BeforeNextFunction,
   type StageProps,
 } from '~/lib/interviewer/types';
+import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import { updateEgo } from '../ducks/modules/session';
 import useFlipflop from '../hooks/useFlipflop';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import { getEgoAttributes } from '../selectors/session';
+import elementHasOverflow from '~/utils/elementHasOverflow';
 import { useAppDispatch } from '../store';
-
-const elementHasOverflow = ({
-  clientWidth,
-  clientHeight,
-  scrollWidth,
-  scrollHeight,
-}: {
-  clientWidth: number;
-  clientHeight: number;
-  scrollWidth: number;
-  scrollHeight: number;
-}) => scrollHeight > clientHeight || scrollWidth > clientWidth;
 
 type EgoFormProps = StageProps<'EgoForm'>;
 
 const EgoFormInner = (props: EgoFormProps) => {
-  const { registerBeforeNext, stage } = props;
+  const { stage } = props;
 
   const { form, introductionPanel } = stage;
 
@@ -102,7 +92,7 @@ const EgoFormInner = (props: EgoFormProps) => {
     return false;
   };
 
-  registerBeforeNext(beforeNext);
+  useBeforeNext(beforeNext);
 
   const handleSubmitForm = useCallback(
     async (formData: unknown) => {
