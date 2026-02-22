@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const DEFAULT_MAX_SIZE = 500;
 
@@ -39,16 +39,19 @@ export function useCircleLayout({
   maxSize = DEFAULT_MAX_SIZE,
 }: UseCircleLayoutOptions) {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0, gap: 0 });
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [container, setContainer] = useState<HTMLDivElement | null>(null);
+
+  const containerRef = useCallback((el: HTMLDivElement | null) => {
+    setContainer(el);
+  }, []);
 
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
+    if (!container) return;
 
     const observer = new ResizeObserver((entries) => {
       const box = entries[0]?.contentBoxSize[0];
       if (!box) return;
-      const computedGap = parseFloat(getComputedStyle(el).gap) || 0;
+      const computedGap = parseFloat(getComputedStyle(container).gap) || 0;
       setDimensions({
         width: box.inlineSize,
         height: box.blockSize,
@@ -56,9 +59,9 @@ export function useCircleLayout({
       });
     });
 
-    observer.observe(el);
+    observer.observe(container);
     return () => observer.disconnect();
-  }, []);
+  }, [container]);
 
   const { width, height, gap } = dimensions;
   const circleSize = Math.min(
@@ -69,6 +72,5 @@ export function useCircleLayout({
   return {
     containerRef,
     flexBasis: circleSize,
-    ready: width > 0 && height > 0 && gap > 0,
   };
 }

@@ -78,7 +78,7 @@ const Panel = ({
           {title}
         </Heading>
       </div>
-      <div className={panelContentClasses({ spacing: 'xs' })}>{children}</div>
+      <div className={panelContentClasses()}>{children}</div>
     </Surface>
   );
 };

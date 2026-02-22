@@ -27,11 +27,7 @@ const DraggableNode = memo(
       disabled: !allowDrag,
     });
 
-    return (
-      <div {...dragProps}>
-        <Node {...node} {...nodeProps} />
-      </div>
-    );
+    return <Node {...node} {...nodeProps} {...dragProps} />;
   },
 );
 
@@ -64,8 +60,8 @@ const MultiNodeBucket = memo(
     }, [sortedNodes.length, updateReady]);
 
     return (
-      <motion.div layout className="node-list">
-        <AnimatePresence mode="sync">
+      <motion.div layout>
+        <AnimatePresence mode="wait">
           {sortedNodes.length === 0 && (
             <div className="flex h-full items-center justify-center">
               No items to place. Click the down arrow to continue.

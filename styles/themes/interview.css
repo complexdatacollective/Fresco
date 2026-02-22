@@ -136,6 +136,44 @@
   }
 }
 
+@layer components {
+  /* CategoricalBin layout — wrapper is the query container */
+  .catbin-outer {
+    container-type: size;
+    container-name: catbin;
+  }
+
+  .catbin-circles {
+    position: relative;
+  }
+
+  .catbin-circles[data-expanded] {
+    padding-inline-start: calc(50% + var(--spacing) * 2);
+  }
+
+  .catbin-expanded {
+    position: absolute;
+    inset: 0;
+    inset-inline-end: auto;
+    inline-size: calc(50% - var(--spacing) * 2);
+    z-index: 10;
+  }
+
+  @container catbin (aspect-ratio < 1) {
+    .catbin-circles[data-expanded] {
+      padding-inline-start: 0;
+      padding-block-start: calc(50cqb + var(--spacing) * 2);
+    }
+
+    .catbin-expanded {
+      inset: 0;
+      inset-block-end: auto;
+      inline-size: auto;
+      block-size: calc(50cqb - var(--spacing) * 2);
+    }
+  }
+}
+
 @layer base {
   html,
   body {

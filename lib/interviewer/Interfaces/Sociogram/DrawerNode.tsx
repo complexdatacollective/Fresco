@@ -15,15 +15,11 @@ export default function DrawerNode({ node }: DrawerNodeProps) {
   const rawName = node[entityAttributesProperty].name;
   const name = typeof rawName === 'string' ? rawName : 'Node';
 
-  const { dragProps, isDragging } = useDragSource({
+  const { dragProps } = useDragSource({
     type: 'UNPOSITIONED_NODE',
     metadata: { nodeId, nodeType: node.type, id: nodeId },
     announcedName: name,
   });
 
-  return (
-    <div {...dragProps} className={isDragging ? 'opacity-30' : ''}>
-      <Node {...node} size="sm" />
-    </div>
-  );
+  return <Node {...node} {...dragProps} size="sm" />;
 }

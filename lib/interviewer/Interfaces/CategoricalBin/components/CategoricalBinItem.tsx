@@ -30,13 +30,19 @@ type CategoricalBinItemProps = {
   isExpanded: boolean;
   onToggleExpand: (index: number) => void;
   catColor: string | null;
-  layoutStyle: React.CSSProperties;
+  flexBasis: number;
 };
 
 const springTransition = {
   type: 'spring' as const,
-  stiffness: 400,
-  damping: 35,
+  stiffness: 200,
+  damping: 25,
+};
+
+const binItemVariants = {
+  initial: { opacity: 0, scale: 0 },
+  animate: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0, transition: { duration: 0.15 } },
 };
 
 const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
@@ -51,7 +57,7 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
     isExpanded,
     onToggleExpand,
     catColor,
-    layoutStyle,
+    flexBasis,
   } = props;
 
   const dispatch = useAppDispatch();
@@ -171,7 +177,7 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
 
   if (isExpanded) {
     const panelClasses = cx(
-      'flex flex-col overflow-hidden border-4 transition-colors',
+      'catbin-expanded z-10 flex flex-col overflow-hidden border-4 transition-colors',
       catColor && 'border-(--cat-color)',
       !catColor && 'border-outline',
       isDragging && willAccept && 'ring-2 ring-(--cat-color) ring-offset-2',
@@ -197,8 +203,9 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
           layout
           layoutId={layoutId}
           className={panelClasses}
-          style={{ ...colorStyle, ...layoutStyle, borderRadius: 16 }}
-          transition={springTransition}
+          style={{ ...colorStyle, borderRadius: 16 }}
+          transition={{ layout: springTransition }}
+          variants={binItemVariants}
           initial="initial"
           animate="animate"
         >
@@ -242,7 +249,7 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
   }
 
   const circleClasses = cx(
-    'flex cursor-pointer flex-col items-center justify-center gap-2 text-center',
+    'focusable flex min-w-0 cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden text-center outline-(--cat-color)',
     'border-4 p-4',
     'border-(--cat-color)',
     catColor && !missingValue && 'bg-[oklch(from_var(--cat-color)_l_c_h/0.1)]',
@@ -263,7 +270,12 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
         layoutId={layoutId}
         {...dropProps}
         className={circleClasses}
-        style={{ ...colorStyle, ...layoutStyle, borderRadius: '50%' }}
+        style={{
+          ...colorStyle,
+          flexBasis: `${flexBasis}px`,
+          aspectRatio: '1 / 1',
+          borderRadius: '50%',
+        }}
         onClick={(e) => {
           e.stopPropagation();
           handleToggle();
@@ -274,6 +286,7 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
         aria-expanded={false}
         aria-label={`Category ${bin.label}, ${bin.nodes.length} items`}
         transition={springTransition}
+        variants={binItemVariants}
       >
         <h3 className="text-base font-semibold">
           <RenderMarkdown>{bin.label}</RenderMarkdown>

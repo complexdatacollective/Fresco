@@ -1,4 +1,4 @@
-import { LayoutGroup } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import { type StageProps } from '~/lib/interviewer/types';
 import MultiNodeBucket from '../../components/MultiNodeBucket';
@@ -30,6 +30,18 @@ const isSpecialValue = (value: number | string | null) => {
   if (value === null) return true;
   if (typeof value === 'number' && value < 0) return true;
   return false;
+};
+
+const binsContainerVariants = {
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.07,
+      when: 'beforeChildren' as const,
+    },
+  },
+  exit: { opacity: 0, transition: { duration: 0.2 } },
 };
 
 const getCatColor = (index: number, value: number | string | null) => {
@@ -73,11 +85,9 @@ const CategoricalBin = (props: CategoricalBinStageProps) => {
   const hasExpanded = expandedBinIndex !== null;
 
   const circleCount = hasExpanded ? bins.length - 1 : bins.length;
-  const { containerRef, flexBasis, ready } = useCircleLayout({
+  const { containerRef, flexBasis } = useCircleLayout({
     count: circleCount,
   });
-
-  const expandedBin = hasExpanded ? bins[expandedBinIndex] : undefined;
 
   return (
     <div className="interface flex h-full flex-col overflow-hidden">
@@ -91,59 +101,40 @@ const CategoricalBin = (props: CategoricalBinStageProps) => {
           sortOrder={prompt?.bucketSortOrder}
         />
       </div>
-      <div
-        className="flex min-h-0 w-full flex-1 gap-4"
-        onClick={handleCollapseAll}
-      >
-        {prompt && activePromptVariable && (
-          <LayoutGroup>
-            {hasExpanded && expandedBin && (
-              <CategoricalBinItem
-                key={expandedBinIndex}
-                bin={expandedBin}
-                index={expandedBinIndex}
-                activePromptVariable={activePromptVariable}
-                promptOtherVariable={promptOtherVariable}
-                stageId={stage.id}
-                promptId={prompt.id}
-                sortOrder={prompt.binSortOrder}
-                isExpanded={true}
-                onToggleExpand={handleToggleExpand}
-                catColor={getCatColor(expandedBinIndex, expandedBin.value)}
-                layoutStyle={{ width: '50%', height: '100%' }}
-              />
-            )}
-            <div
+      {prompt && activePromptVariable && (
+        <div className="catbin-outer min-h-0 w-full flex-1">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={prompt.id}
               ref={containerRef}
-              className="flex min-h-0 flex-1 flex-wrap content-center items-center justify-center gap-4"
+              className="catbin-circles flex size-full flex-wrap content-center items-center justify-center gap-4 overflow-hidden data-expanded:content-start"
+              data-expanded={hasExpanded || undefined}
+              onClick={handleCollapseAll}
+              variants={binsContainerVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
             >
-              {ready &&
-                bins.map((bin, index) => {
-                  if (index === expandedBinIndex) return null;
-                  return (
-                    <CategoricalBinItem
-                      key={index}
-                      bin={bin}
-                      index={index}
-                      activePromptVariable={activePromptVariable}
-                      promptOtherVariable={promptOtherVariable}
-                      stageId={stage.id}
-                      promptId={prompt.id}
-                      sortOrder={prompt.binSortOrder}
-                      isExpanded={false}
-                      onToggleExpand={handleToggleExpand}
-                      catColor={getCatColor(index, bin.value)}
-                      layoutStyle={{
-                        flexBasis: `${flexBasis}px`,
-                        aspectRatio: '1 / 1',
-                      }}
-                    />
-                  );
-                })}
-            </div>
-          </LayoutGroup>
-        )}
-      </div>
+              {bins.map((bin, index) => (
+                <CategoricalBinItem
+                  key={index}
+                  bin={bin}
+                  index={index}
+                  activePromptVariable={activePromptVariable}
+                  promptOtherVariable={promptOtherVariable}
+                  stageId={stage.id}
+                  promptId={prompt.id}
+                  sortOrder={prompt.binSortOrder}
+                  isExpanded={index === expandedBinIndex}
+                  onToggleExpand={handleToggleExpand}
+                  catColor={getCatColor(index, bin.value)}
+                  flexBasis={flexBasis}
+                />
+              ))}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 };
