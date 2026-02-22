@@ -90,7 +90,7 @@ const QuickNodeForm = ({
             disabled={disabled}
             placeholder="Type a label and press enter..."
             onShowInput={onShowForm ?? undefined}
-            required
+            required="You must enter a value before pressing enter."
             minLength={1}
           />
         </Form>

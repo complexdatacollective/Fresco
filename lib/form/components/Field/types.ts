@@ -60,7 +60,7 @@ export type ValidFieldComponent = React.ComponentType<any>;
  * These validations make sense regardless of the underlying data type.
  */
 type CommonValidationProps = {
-  required?: boolean;
+  required?: boolean | string;
   custom?: CustomFieldValidation | CustomFieldValidation[];
   unique?: string;
   sameAs?: string;

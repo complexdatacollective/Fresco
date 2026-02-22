@@ -280,7 +280,9 @@ const ReduxDecorator = (
   );
   return (
     <Provider store={store}>
-      <Story />
+      <div className="relative flex h-[400px] w-[800px] items-end justify-end p-6">
+        <Story />
+      </div>
     </Provider>
   );
 };

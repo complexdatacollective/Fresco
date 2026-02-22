@@ -33,9 +33,11 @@ export type ValidationFunction<T extends ValidationParameter> = (
  * - boolean: not null
  * - categorical: not null, empty array is not permitted
  */
-export const required = () => () => {
-  // TODO: localisation.
-  const message = 'You must answer this question before continuing.';
+export const required = (parameter?: boolean | string) => () => {
+  const message =
+    typeof parameter === 'string'
+      ? parameter
+      : 'You must answer this question before continuing.';
 
   return z.unknown().superRefine((value, ctx) => {
     const isEmptyString =
