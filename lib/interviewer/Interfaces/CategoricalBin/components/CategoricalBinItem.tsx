@@ -3,7 +3,7 @@ import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
 import { memo, useMemo, useState } from 'react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
-import { ScrollArea } from '~/components/ui/ScrollArea';
+import Heading from '~/components/typography/Heading';
 import { useDropTarget } from '~/lib/dnd';
 import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
 import { cx } from '~/utils/cva';
@@ -214,28 +214,26 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
             aria-expanded={true}
             aria-label={`Category ${bin.label}, ${bin.nodes.length} items, expanded`}
           >
-            <h3 className="text-lg font-semibold">
+            <Heading level="h3">
               <RenderMarkdown>{bin.label}</RenderMarkdown>
-            </h3>
+            </Heading>
             <span className="ml-auto text-sm opacity-60">
               {bin.nodes.length}
             </span>
           </div>
           <div {...dropProps} className="min-h-0 flex-1 overflow-hidden p-2">
-            <ScrollArea className="size-full">
-              <motion.div
-                initial="initial"
-                animate="animate"
-                className="size-full"
-              >
-                <NodeList
-                  id={listId}
-                  items={sortedNodes}
-                  nodeSize="sm"
-                  onItemClick={handleClickItem}
-                />
-              </motion.div>
-            </ScrollArea>
+            <motion.div
+              initial="initial"
+              animate="animate"
+              className="size-full"
+            >
+              <NodeList
+                id={listId}
+                items={sortedNodes}
+                nodeSize="sm"
+                onItemClick={handleClickItem}
+              />
+            </motion.div>
           </div>
         </motion.div>
         {otherOverlay}
@@ -246,8 +244,7 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
   const circleClasses = cx(
     'flex cursor-pointer flex-col items-center justify-center gap-2 text-center',
     'border-4 p-4',
-    catColor && 'border-(--cat-color)',
-    !catColor && 'border-outline',
+    'border-(--cat-color)',
     catColor && !missingValue && 'bg-[oklch(from_var(--cat-color)_l_c_h/0.1)]',
     catColor &&
       missingValue &&
