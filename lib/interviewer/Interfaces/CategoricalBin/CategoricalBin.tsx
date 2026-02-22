@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import { type StageProps } from '~/lib/interviewer/types';
+import { cx } from '~/utils/cva';
 import MultiNodeBucket from '../../components/MultiNodeBucket';
 import Prompts from '../../components/Prompts';
 import { usePrompts } from '../../components/Prompts/usePrompts';
@@ -102,12 +103,20 @@ const CategoricalBin = (props: CategoricalBinStageProps) => {
         />
       </div>
       {prompt && activePromptVariable && (
-        <div className="catbin-outer min-h-0 w-full flex-1">
+        <div className="[container-type:size] min-h-0 w-full flex-1 [container-name:catbin]">
           <AnimatePresence mode="wait">
             <motion.div
               key={prompt.id}
               ref={containerRef}
-              className="catbin-circles flex size-full flex-wrap content-center items-center justify-center gap-4 data-expanded:content-start"
+              className={cx(
+                'relative flex size-full flex-wrap content-center items-center justify-center gap-4',
+                // expanded: push circles right to make room for panel
+                'data-expanded:content-start',
+                'data-expanded:ps-[calc(50%+var(--spacing)*2)]',
+                // portrait: push circles down instead of right
+                '@[aspect-ratio<1]/catbin:data-expanded:ps-0',
+                '@[aspect-ratio<1]/catbin:data-expanded:pt-[calc(50cqb+var(--spacing)*2)]',
+              )}
               data-expanded={hasExpanded || undefined}
               onClick={handleCollapseAll}
               variants={binsContainerVariants}
