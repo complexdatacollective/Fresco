@@ -12,7 +12,7 @@ import Icon from '~/components/ui/Icon';
 import AlterEdgeForm from './AlterEdgeForm';
 import AlterForm from './AlterForm';
 import Anonymisation from './Anonymisation/Anonymisation';
-import CategoricalBin from './CategoricalBin';
+import CategoricalBin from './CategoricalBin/CategoricalBin';
 import DyadCensus from './DyadCensus/DyadCensus';
 import EgoForm from './EgoForm';
 import FamilyTreeCensus from './FamilyTreeCensus/FamilyTreeCensus';

@@ -69,7 +69,6 @@
     --selected: oklch(var(--white));
 
     --drag-valid: oklch(var(--slate-blue) / 0.3);
-
     --drag-over: oklch(var(--slate-blue) / 0.8);
 
     --link: var(--barbie-pink);
@@ -79,7 +78,7 @@
 
     --overlay: oklch(from oklch(var(--rich-black)) calc(l + 0.15) c h);
 
-    --outline: oklch(90% 0.02 var(--base-hue)); /* Used for borders */
+    --outline: oklch(var(--white) / 0.2); /* Used for borders */
 
     /* Sequences */
     --node-1: oklch(var(--neon-coral));

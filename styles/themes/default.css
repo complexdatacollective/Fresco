@@ -63,8 +63,8 @@
     --selected: oklch(91% 0.21 80);
     --selected-contrast: var(--accent-contrast);
 
-    --drag-valid: color-mix(in oklab, var(--color-slate-blue), white 50%);
-    --drag-over: color-mix(in oklab, var(--color-sea-green), white 50%);
+    --drag-valid: oklch(var(--slate-blue) / 0.3);
+    --drag-over: oklch(var(--slate-blue) / 0.8);
 
     --link: oklch(from var(--accent) calc(l - 0.2) calc(c + 0.05) h);
 
