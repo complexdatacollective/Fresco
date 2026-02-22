@@ -68,6 +68,10 @@
 
     --selected: oklch(var(--white));
 
+    --drag-valid: oklch(var(--slate-blue) / 0.3);
+
+    --drag-over: oklch(var(--slate-blue) / 0.8);
+
     --link: var(--barbie-pink);
 
     --input: oklch(var(--navy-taupe));

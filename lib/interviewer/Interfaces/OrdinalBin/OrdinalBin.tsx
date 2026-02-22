@@ -7,10 +7,10 @@ import { type StageProps } from '~/lib/interviewer/types';
 import MultiNodeBucket from '../../components/MultiNodeBucket';
 import Prompts from '../../components/Prompts';
 import { usePrompts } from '../../components/Prompts/usePrompts';
-import { getPromptVariable } from '../../selectors/prop';
 import { getNetworkNodesForType } from '../../selectors/session';
 import { type ProcessedSortRule } from '../../utils/createSorter';
-import OrdinalBins from './components/OrdinalBins';
+import OrdinalBinItem from './components/OrdinalBinItem';
+import { useOrdinalBins } from './useOrdinalBins';
 
 type OrdinalBinStageProps = StageProps<'OrdinalBin'>;
 
@@ -47,7 +47,8 @@ const OrdinalBin = (props: OrdinalBinStageProps) => {
   const { prompt } = usePrompts<OrdinalBinPrompt>();
 
   const stageNodes = useSelector(getNetworkNodesForType);
-  const activePromptVariable = useSelector(getPromptVariable);
+
+  const { bins, activePromptVariable } = useOrdinalBins();
 
   const nodesForPrompt = stageNodes.filter((node) =>
     isNil(node[entityAttributesProperty][activePromptVariable!]),
@@ -65,7 +66,7 @@ const OrdinalBin = (props: OrdinalBinStageProps) => {
       />
       <div className="min-h-0 w-full flex-1">
         <AnimatePresence mode="wait">
-          {prompt && (
+          {prompt && activePromptVariable && (
             <motion.div
               key={prompt.id}
               className="grid h-full auto-cols-fr grid-flow-col grid-rows-[auto_1fr] gap-x-2"
@@ -74,7 +75,18 @@ const OrdinalBin = (props: OrdinalBinStageProps) => {
               animate="animate"
               exit="exit"
             >
-              <OrdinalBins stage={stage} prompt={prompt} />
+              {bins.map((bin, index) => (
+                <OrdinalBinItem
+                  key={index}
+                  bin={bin}
+                  index={index}
+                  activePromptVariable={activePromptVariable}
+                  stageId={stage.id}
+                  promptId={prompt.id}
+                  sortOrder={prompt.binSortOrder}
+                  totalBins={bins.length}
+                />
+              ))}
             </motion.div>
           )}
         </AnimatePresence>

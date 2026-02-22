@@ -95,7 +95,7 @@ function ThemeWrapper({
   return (
     <div
       data-theme={selectedTheme}
-      className="bg-background text-text"
+      className="bg-background text-text publish-colors"
       style={{ opacity: isLoading ? 0 : 1, transition: 'opacity 150ms' }}
     >
       {children}

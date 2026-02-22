@@ -26,14 +26,13 @@ type OrdinalBinItemProps = {
 };
 
 const itemVariants = {
-  initial: { opacity: 0, y: 20, scale: 0.95 },
+  initial: { opacity: 0, y: '20%' },
   animate: {
     opacity: 1,
     y: 0,
-    scale: 1,
     transition: { type: 'spring' as const, stiffness: 500, damping: 30 },
   },
-  exit: { opacity: 0, scale: 0.95, transition: { duration: 0.15 } },
+  exit: { opacity: 0, y: '20%', transition: { duration: 0.15 } },
 };
 
 const getPromptColorClass = (color: string | undefined) => {
@@ -103,57 +102,51 @@ const OrdinalBinItem = memo((props: OrdinalBinItemProps) => {
     onDrop: handleDrop,
   });
 
-  const accentClasses = cx(
-    'flex min-h-14 items-center justify-center px-2 text-center',
-    promptColorClass,
-    isFirst && 'rounded-tl',
-    isLast && 'rounded-tr',
-    missingValue
-      ? 'bg-[color-mix(in_oklch,var(--color-rich-black)_20%,var(--color-background)_80%)]'
-      : 'bg-[color-mix(in_oklch,var(--prompt-color)_var(--blend-percent),var(--color-background)_calc(100%-var(--blend-percent)))]',
-  );
-
   const panelClasses = cx(
-    'flex min-h-0 flex-col items-center overflow-hidden p-2 transition-colors duration-200',
-    promptColorClass,
-    isFirst && 'rounded-bl',
-    isLast && 'rounded-br',
-    isDragging && willAccept && 'ring-accent ring-2 ring-inset',
-    isOver && willAccept && 'bg-success',
+    'row-span-2 grid min-w-0 grid-rows-subgrid overflow-hidden shadow',
     !isOver &&
       !missingValue &&
       'bg-[color-mix(in_oklch,var(--color-surface-1)_var(--blend-percent),var(--color-background)_calc(100%-var(--blend-percent)))]',
     !isOver &&
       missingValue &&
       'bg-[color-mix(in_oklch,var(--color-rich-black)_10%,var(--color-background)_90%)]',
+    isFirst && 'rounded-tl rounded-bl',
+    isLast && 'rounded-tr rounded-br',
+    isDragging && 'spring-long',
+    isOver && willAccept && 'scale-105 shadow-2xl',
+  );
+
+  const accentClasses = cx(
+    'flex min-h-14 items-center justify-center px-2 text-center',
+    promptColorClass,
+    missingValue
+      ? 'bg-[color-mix(in_oklab,var(--color-rich-black)_20%,var(--color-background)_80%)]'
+      : 'bg-[color-mix(in_oklab,var(--prompt-color)_var(--blend-percent),var(--color-background)_calc(100%-var(--blend-percent)))]',
+  );
+
+  const bodyClasses = cx(
+    'flex min-h-0 flex-col items-center overflow-hidden p-2 transition-colors duration-200',
+    promptColorClass,
+    isDragging && willAccept && 'bg-drag-valid',
+    isOver && willAccept && 'bg-drag-over',
   );
 
   return (
     <motion.div
-      className="row-span-2 grid min-w-0 grid-rows-subgrid"
+      className={panelClasses}
       variants={itemVariants}
+      style={
+        {
+          '--blend-percent': `${100 - blendPercent}%`,
+        } as React.CSSProperties
+      }
     >
-      <div
-        className={accentClasses}
-        style={
-          {
-            '--blend-percent': `${100 - blendPercent}%`,
-          } as React.CSSProperties
-        }
-      >
+      <div className={accentClasses}>
         <Heading level="h4" variant="default" margin="none">
           <RenderMarkdown>{bin.label}</RenderMarkdown>
         </Heading>
       </div>
-      <div
-        {...dropProps}
-        className={panelClasses}
-        style={
-          {
-            '--blend-percent': `${100 - blendPercent}%`,
-          } as React.CSSProperties
-        }
-      >
+      <div {...dropProps} className={bodyClasses}>
         <NodeList id={listId} items={sortedNodes} nodeSize="sm" />
       </div>
     </motion.div>

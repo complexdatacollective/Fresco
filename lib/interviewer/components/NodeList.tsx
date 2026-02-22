@@ -148,9 +148,9 @@ const NodeList = memo(
       'm-0 size-full grow before:rounded',
       'transition-colors duration-300',
       // data-drop-target-valid corresponds to willAccept
-      'data-[drop-target-valid=true]:bg-success/30',
+      'data-[drop-target-valid=true]:bg-drag-valid',
       // data-drop-target-over corresponds to isOver
-      'data-[drop-target-over=true]:data-[drop-target-valid=true]:bg-success',
+      'data-[drop-target-over=true]:data-[drop-target-valid=true]:bg-drag-over',
       className,
     );
 

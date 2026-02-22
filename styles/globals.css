@@ -141,6 +141,9 @@
   --color-selected: var(--selected);
   --color-selected-contrast: var(--selected-contrast);
 
+  --color-drag-valid: var(--drag-valid);
+  --color-drag-over: var(--drag-over);
+
   /* UI elements */
   --color-link: var(--link);
 
@@ -520,6 +523,7 @@ This custom variant lets you target only elements with the readonly attribute.
   @apply isolate;
 }
 
+/* Override default border color to use our theme values */
 @layer base {
   *,
   ::after,
