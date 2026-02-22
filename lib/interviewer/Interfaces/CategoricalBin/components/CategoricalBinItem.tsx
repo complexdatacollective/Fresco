@@ -1,7 +1,7 @@
 import { type Prompt } from '@codaco/protocol-validation';
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
-import { animate, AnimatePresence, motion, useMotionValue } from 'motion/react';
-import { memo, useEffect, useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import { memo, useMemo, useState } from 'react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
 import { useDropTarget } from '~/lib/dnd';
@@ -40,14 +40,8 @@ const springTransition = {
 
 const binItemVariants = {
   initial: { opacity: 0, scale: 0.4 },
-  animate: { opacity: 1, scale: 1 },
+  animate: { opacity: 1, scale: 1, transition: { type: 'spring' as const } },
   exit: { opacity: 0, scale: 0.4, transition: { duration: 0.15 } },
-};
-
-const containerVariants = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1, transition: { when: 'beforeChildren' } },
-  exit: { opacity: 0 },
 };
 
 const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
@@ -70,22 +64,6 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
 
   const isOtherVariable = !!bin.otherVariable;
   const [showOther, setShowOther] = useState<NcNode | null>(null);
-
-  // Animate borderRadius independently of the layout FLIP.
-  // layout only does scale correction on borderRadius (non-shared),
-  // it doesn't interpolate between old/new values. Using flexBasis/2
-  // instead of 9999 keeps the percentage-based correction smooth.
-  const circleBorderRadius = flexBasis > 0 ? flexBasis / 2 : 9999;
-  const borderRadius = useMotionValue(isExpanded ? 16 : circleBorderRadius);
-
-  useEffect(() => {
-    const controls = animate(
-      borderRadius,
-      isExpanded ? 16 : circleBorderRadius,
-      springTransition,
-    );
-    return () => controls.stop();
-  }, [isExpanded, circleBorderRadius, borderRadius]);
 
   const setNodeCategory = (node: NcNode, category: string | number | null) => {
     const variable = bin.otherVariable ?? activePromptVariable;
@@ -158,6 +136,7 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
   const sortedNodes = sorter(bin.nodes);
 
   const listId = `CATBIN_NODE_LIST_${stageId}_${promptId}_${index}`;
+  const layoutId = `catbin-${promptId}-${index}`;
 
   const { dropProps, isOver, willAccept, isDragging } = useDropTarget({
     id: `CATBIN_ITEM_${stageId}_${promptId}_${index}`,
@@ -169,7 +148,9 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
   const missingValue =
     bin.value === null || (typeof bin.value === 'number' && bin.value < 0);
 
-  const colorStyle = catColor ? { '--cat-color': catColor } : {};
+  const colorStyle = catColor
+    ? ({ '--cat-color': catColor } as React.CSSProperties)
+    : {};
 
   const otherOverlay = isOtherVariable && (
     <OtherVariableForm
@@ -188,115 +169,63 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
     />
   );
 
-  const wrapperClasses = isExpanded
-    ? cx(
-        'z-10 flex flex-col overflow-hidden border-4 transition-colors',
-        // landscape: absolute panel on the left half
-        'absolute inset-0 end-auto [inline-size:calc(50%-var(--spacing)*2)]',
-        // portrait: panel on the top half instead
-        '@[aspect-ratio<1]/catbin:inset-0',
-        '@[aspect-ratio<1]/catbin:end-[revert]',
-        '@[aspect-ratio<1]/catbin:[inset-block-end:auto]',
-        '@[aspect-ratio<1]/catbin:[inline-size:auto]',
-        '@[aspect-ratio<1]/catbin:[block-size:calc(50cqb-var(--spacing)*2)]',
-        // color
-        catColor && 'border-(--cat-color)',
-        !catColor && 'border-outline',
-        isDragging && willAccept && 'ring-2 ring-(--cat-color) ring-offset-2',
-        isOver &&
-          willAccept &&
-          'shadow-[0_0_24px_var(--cat-color)] ring-4 ring-(--cat-color)',
-      )
-    : cx(
-        'focusable flex min-w-0 cursor-pointer flex-col items-center justify-center overflow-hidden text-center outline-(--cat-color)',
-        'border-4 p-4',
-        'border-(--cat-color)',
-        catColor &&
-          !missingValue &&
-          'bg-[oklch(from_var(--cat-color)_l_c_h/0.1)]',
-        catColor &&
-          missingValue &&
-          'bg-[oklch(from_var(--cat-color)_calc(l*0.5)_calc(c*0.4)_h/0.1)]',
-        !catColor && 'bg-surface',
-        isDragging && willAccept && 'ring-2 ring-(--cat-color) ring-offset-2',
-        isOver &&
-          willAccept &&
-          'scale-110 shadow-[0_0_24px_var(--cat-color)] ring-4 ring-(--cat-color)',
-      );
+  if (isExpanded) {
+    const panelClasses = cx(
+      'catbin-expanded z-10 flex flex-col overflow-hidden border-4 transition-colors',
+      catColor && 'border-(--cat-color)',
+      !catColor && 'border-outline',
+      isDragging && willAccept && 'ring-2 ring-(--cat-color) ring-offset-2',
+      isOver &&
+        willAccept &&
+        'shadow-[0_0_24px_var(--cat-color)] ring-4 ring-(--cat-color)',
+    );
 
-  const wrapperStyle = isExpanded
-    ? { ...colorStyle, borderRadius }
-    : {
-        ...colorStyle,
-        borderRadius,
-        flexBasis: `${flexBasis}px`,
-        aspectRatio: '1 / 1',
-      };
-
-  const headerClasses = cx(
-    'flex w-full shrink-0 items-center gap-3',
-    !isExpanded && 'justify-center text-center',
-    isExpanded && 'cursor-pointer px-4 py-3',
-    isExpanded &&
+    const headerClasses = cx(
+      'flex shrink-0 cursor-pointer items-center gap-3 px-4 py-3',
       catColor &&
-      !missingValue &&
-      'bg-[oklch(from_var(--cat-color)_l_c_h/0.15)]',
-    isExpanded &&
+        !missingValue &&
+        'bg-[oklch(from_var(--cat-color)_l_c_h/0.15)]',
       catColor &&
-      missingValue &&
-      'bg-[oklch(from_var(--cat-color)_calc(l*0.5)_calc(c*0.4)_h/0.15)]',
-    isExpanded && !catColor && 'bg-surface-1',
-  );
+        missingValue &&
+        'bg-[oklch(from_var(--cat-color)_calc(l*0.5)_calc(c*0.4)_h/0.15)]',
+      !catColor && 'bg-surface-1',
+    );
 
-  return (
-    <>
-      <motion.div
-        layout
-        {...dropProps}
-        className={wrapperClasses}
-        style={wrapperStyle}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (!isExpanded) handleToggle();
-        }}
-        onKeyDown={handleKeyDown}
-        role="button"
-        tabIndex={0}
-        aria-expanded={isExpanded}
-        aria-label={`Category ${bin.label}, ${bin.nodes.length} items${isExpanded ? ', expanded' : ''}`}
-        transition={springTransition}
-        variants={binItemVariants}
-      >
-        {/* Header persists across states so layout can FLIP-animate it */}
+    return (
+      <>
         <motion.div
           layout
+          layoutId={layoutId}
+          className={panelClasses}
+          style={{ ...colorStyle, borderRadius: 16 }}
           transition={springTransition}
-          className={headerClasses}
-          onClick={
-            isExpanded
-              ? (e: React.MouseEvent) => {
-                  e.stopPropagation();
-                  handleToggle();
-                }
-              : undefined
-          }
+          variants={binItemVariants}
+          initial="initial"
+          animate="animate"
         >
-          <Heading level={'h4'}>
-            <RenderMarkdown>{bin.label}</RenderMarkdown>
-          </Heading>
-          {isExpanded && (
+          <div
+            className={headerClasses}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggle();
+            }}
+            onKeyDown={handleKeyDown}
+            role="button"
+            tabIndex={0}
+            aria-expanded={true}
+            aria-label={`Category ${bin.label}, ${bin.nodes.length} items, expanded`}
+          >
+            <Heading level="h3">
+              <RenderMarkdown>{bin.label}</RenderMarkdown>
+            </Heading>
             <span className="ml-auto text-sm opacity-60">
               {bin.nodes.length}
             </span>
-          )}
-        </motion.div>
-
-        {isExpanded ? (
-          <div className="min-h-0 flex-1 overflow-hidden p-2">
+          </div>
+          <div {...dropProps} className="min-h-0 flex-1 overflow-hidden p-2">
             <motion.div
               initial="initial"
               animate="animate"
-              variants={containerVariants}
               className="size-full"
             >
               <NodeList
@@ -307,20 +236,66 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
               />
             </motion.div>
           </div>
-        ) : (
-          <AnimatePresence>
-            {bin.nodes.length > 0 && (
-              <motion.div
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                variants={containerVariants}
-              >
-                <BinSummary nodes={bin.nodes} />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        )}
+        </motion.div>
+        {otherOverlay}
+      </>
+    );
+  }
+
+  const circleClasses = cx(
+    'focusable flex min-w-0 cursor-pointer flex-col items-center justify-center overflow-hidden text-center outline-(--cat-color)',
+    'border-4 p-4',
+    'border-(--cat-color)',
+    catColor && !missingValue && 'bg-[oklch(from_var(--cat-color)_l_c_h/0.1)]',
+    catColor &&
+      missingValue &&
+      'bg-[oklch(from_var(--cat-color)_calc(l*0.5)_calc(c*0.4)_h/0.1)]',
+    !catColor && 'bg-surface',
+    isDragging && willAccept && 'ring-2 ring-(--cat-color) ring-offset-2',
+    isOver &&
+      willAccept &&
+      'scale-110 shadow-[0_0_24px_var(--cat-color)] ring-4 ring-(--cat-color)',
+  );
+
+  return (
+    <>
+      <motion.div
+        layout
+        layoutId={layoutId}
+        {...dropProps}
+        className={circleClasses}
+        style={{
+          ...colorStyle,
+          flexBasis: `${flexBasis}px`,
+          aspectRatio: '1 / 1',
+          borderRadius: '50%',
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleToggle();
+        }}
+        onKeyDown={handleKeyDown}
+        role="button"
+        tabIndex={0}
+        aria-expanded={false}
+        aria-label={`Category ${bin.label}, ${bin.nodes.length} items`}
+        transition={springTransition}
+        variants={binItemVariants}
+      >
+        <Heading level="h4">
+          <RenderMarkdown>{bin.label}</RenderMarkdown>
+        </Heading>
+        <AnimatePresence>
+          {bin.nodes.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <BinSummary nodes={bin.nodes} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
       {otherOverlay}
     </>
