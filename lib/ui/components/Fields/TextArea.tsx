@@ -61,6 +61,7 @@ const TextArea = ({
       <div className={seamlessClasses}>
         <textarea
           id={id}
+          {...input}
           className="form-field form-field-text form-field-text--area form-field-text__input"
           placeholder={placeholder}
           autoFocus={autoFocus}
