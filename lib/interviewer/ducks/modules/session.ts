@@ -387,7 +387,11 @@ export const updateEgo = createAsyncThunk(
       `Invalid ego attributes: ${invalidKeys.join(', ')} do not exist in protocol codebook`,
     );
 
-    return egoAttributes;
+    // Merge with default attributes to ensure all codebook variables exist
+    return {
+      ...getDefaultAttributesForEntityType(egoVariables),
+      ...egoAttributes,
+    };
   },
 );
 
