@@ -170,8 +170,7 @@ export const FamilyTreeShells = (props: {
         | undefined;
       const sex = attrSex ?? metadataNode?.sex ?? 'female';
       const isEgo =
-        metadataNode?.isEgo ??
-        (netNode.attributes?.[nodeIsEgoVariable] === true);
+        metadataNode?.isEgo ?? netNode.attributes?.[nodeIsEgoVariable] === true;
       const readOnly = metadataNode?.readOnly ?? false;
       const attributes = netNode.attributes ?? {};
       const diseaseVars =
@@ -227,6 +226,7 @@ export const FamilyTreeShells = (props: {
     stage.diseaseNominationStep,
     hydratedOnce,
     relationshipVariable,
+    relationshipToEgoVariable,
     nodeSexVariable,
     nodeIsEgoVariable,
     ego,

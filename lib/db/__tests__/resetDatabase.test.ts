@@ -5,7 +5,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const SCHEMA_PATH = path.resolve(__dirname, '../schema.prisma');
 
 // Parse schema.prisma to get all model names and cascade-deleted models
-function parseSchema(): { allModels: string[]; cascadeDeletedModels: string[] } {
+function parseSchema(): {
+  allModels: string[];
+  cascadeDeletedModels: string[];
+} {
   const schema = fs.readFileSync(SCHEMA_PATH, 'utf-8');
 
   // Extract all model names
@@ -88,11 +91,12 @@ describe('resetDatabase', () => {
     await resetDatabase();
 
     expect(mockPrisma.appSettings.create).toHaveBeenCalledOnce();
-    expect(mockPrisma.appSettings.create).toHaveBeenCalledWith({
-      data: {
-        key: 'initializedAt',
-        value: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/),
-      },
-    });
+
+    const callArg: unknown = mockPrisma.appSettings.create.mock.lastCall?.[0];
+    expect(callArg).toHaveProperty('data.key', 'initializedAt');
+    expect(callArg).toHaveProperty(
+      'data.value',
+      expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/),
+    );
   });
 });
