@@ -280,16 +280,24 @@ function createTestStoreWithEgo(options: {
 }) {
   const { egoVariables = {} } = options;
 
+  const sessionState = createTestSessionState();
+  const protocolState = createTestProtocolState(egoVariables);
+  const uiState = { passphrase: null };
+
+  type SessionState = ReturnType<typeof createTestSessionState>;
+  type ProtocolState = ReturnType<typeof createTestProtocolState>;
+  type UIState = typeof uiState;
+
   return configureStore({
     reducer: {
-      session: (state = createTestSessionState()) => state,
-      protocol: (state = createTestProtocolState()) => state,
-      ui: (state = { passphrase: null }) => state,
+      session: (state: SessionState = sessionState): SessionState => state,
+      protocol: (state: ProtocolState = protocolState): ProtocolState => state,
+      ui: (state: UIState = uiState): UIState => state,
     },
     preloadedState: {
-      session: createTestSessionState(),
-      protocol: createTestProtocolState(egoVariables),
-      ui: { passphrase: null },
+      session: sessionState,
+      protocol: protocolState,
+      ui: uiState,
     },
   });
 
@@ -337,16 +345,24 @@ function createTestStoreWithEdge(options: {
     { _uid: 'node-2', type: 'person', attributes: {} },
   ];
 
+  const sessionState = createTestSessionState();
+  const protocolState = createTestProtocolState(edgeTypeId, edgeVariables);
+  const uiState = { passphrase: null };
+
+  type SessionState = ReturnType<typeof createTestSessionState>;
+  type ProtocolState = ReturnType<typeof createTestProtocolState>;
+  type UIState = typeof uiState;
+
   return configureStore({
     reducer: {
-      session: (state = createTestSessionState()) => state,
-      protocol: (state = createTestProtocolState()) => state,
-      ui: (state = { passphrase: null }) => state,
+      session: (state: SessionState = sessionState): SessionState => state,
+      protocol: (state: ProtocolState = protocolState): ProtocolState => state,
+      ui: (state: UIState = uiState): UIState => state,
     },
     preloadedState: {
-      session: createTestSessionState(),
-      protocol: createTestProtocolState(edgeTypeId, edgeVariables),
-      ui: { passphrase: null },
+      session: sessionState,
+      protocol: protocolState,
+      ui: uiState,
     },
   });
 
