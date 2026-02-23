@@ -16,12 +16,12 @@ import Node from '~/lib/interviewer/components/Node';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { getAssetUrlFromId } from '~/lib/interviewer/ducks/modules/protocol';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
+import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { type RootState } from '~/lib/interviewer/store';
 import { type Direction, type StageProps } from '~/lib/interviewer/types';
-import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import { useMapbox } from './useMapbox';
 
 const introVariants = {
@@ -259,7 +259,7 @@ export default function GeospatialInterface({
             <div className="relative z-20 flex w-1/3 flex-col items-center gap-6 text-center">
               <h2>
                 You have indicated an area outside of the selectable map. If
-                this is correct, please select the down arrow to proceed.
+                this is correct, please select the next arrow to proceed.
               </h2>
               <Button
                 size="sm"

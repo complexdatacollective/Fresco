@@ -6,10 +6,10 @@ import Field from '~/lib/form/components/Field/Field';
 import InputField from '~/lib/form/components/fields/InputField';
 import Form from '~/lib/form/components/Form';
 import useFormState from '~/lib/form/hooks/useFormState';
-import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
-import EncryptionBackground from '../../components/EncryptedBackground';
-import type { StageProps } from '~/lib/interviewer/types';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
+import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
+import type { StageProps } from '~/lib/interviewer/types';
+import EncryptionBackground from '../../components/EncryptedBackground';
 import { usePassphrase } from './usePassphrase';
 
 type AnonymisationProps = StageProps<'Anonymisation'>;
@@ -76,7 +76,7 @@ export default function Anonymisation(props: AnonymisationProps) {
           <div className="mt-8 text-center">
             {passphrase && (
               <p className="my-10 text-xl font-bold">
-                Passphrase created! Click the down arrow to continue.
+                Passphrase created! Click the next arrow to continue.
               </p>
             )}
             {!passphrase && (

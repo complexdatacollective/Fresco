@@ -64,7 +64,7 @@ const MultiNodeBucket = memo(
         <AnimatePresence mode="wait">
           {sortedNodes.length === 0 && (
             <div className="flex h-full items-center justify-center">
-              No items to place. Click the down arrow to continue.
+              No items to place. Click the next arrow to continue.
             </div>
           )}
           {sortedNodes.slice(0, 1).map((node, index) => (
