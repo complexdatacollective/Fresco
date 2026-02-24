@@ -67,6 +67,7 @@ function FilterableCollection({
     <Collection
       items={items}
       keyExtractor={(item) => item.id}
+      textValueExtractor={(item) => item.name}
       layout={layout}
       aria-label="Filterable collection"
       filterKeys={filterKeys}
@@ -102,19 +103,22 @@ function FilterManagerConsumer() {
   );
 }
 
-function CollectionWithFilterManager({ items = testItems }: { items?: Item[] }) {
+function CollectionWithFilterManager({
+  items = testItems,
+}: {
+  items?: Item[];
+}) {
   const layout = useMemo(() => new ListLayout<Item>({ gap: 8 }), []);
 
   return (
     <Collection
       items={items}
       keyExtractor={(item) => item.id}
+      textValueExtractor={(item) => item.name}
       layout={layout}
       aria-label="Test collection"
       filterKeys={['name', 'category']}
-      renderItem={(item, itemProps) => (
-        <div {...itemProps}>{item.name}</div>
-      )}
+      renderItem={(item, itemProps) => <div {...itemProps}>{item.name}</div>}
     >
       <FilterManagerConsumer />
     </Collection>
@@ -148,9 +152,12 @@ describe('Collection Filtering', () => {
         <Collection
           items={testItems}
           keyExtractor={(item) => item.id}
+          textValueExtractor={(item) => item.name}
           layout={layout}
           aria-label="Test collection"
-          renderItem={(item, itemProps) => <div {...itemProps}>{item.name}</div>}
+          renderItem={(item, itemProps) => (
+            <div {...itemProps}>{item.name}</div>
+          )}
         >
           <CollectionFilterInput placeholder="Search..." />
         </Collection>,
@@ -208,7 +215,9 @@ describe('Collection Filtering', () => {
 
       expect(screen.getByTestId('query')).toHaveTextContent('');
       expect(screen.getByTestId('is-filtering')).toHaveTextContent('false');
-      expect(screen.getByTestId('has-active-filter')).toHaveTextContent('false');
+      expect(screen.getByTestId('has-active-filter')).toHaveTextContent(
+        'false',
+      );
     });
 
     it('should update query when setQuery is called', async () => {
@@ -246,9 +255,12 @@ describe('Collection Filtering', () => {
           <Collection
             items={testItems}
             keyExtractor={(item) => item.id}
+            textValueExtractor={(item) => item.name}
             layout={layout}
             aria-label="Test collection"
-            renderItem={(item, itemProps) => <div {...itemProps}>{item.name}</div>}
+            renderItem={(item, itemProps) => (
+              <div {...itemProps}>{item.name}</div>
+            )}
           >
             <FilterManagerConsumer />
           </Collection>,

@@ -385,6 +385,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
               <Collection
                 items={filteredItems}
                 keyExtractor={keyExtractor}
+                textValueExtractor={(item: UseItemElement) => item.props.label}
                 layout={layout}
                 renderItem={renderItem}
                 filterKeys={filterKeys}

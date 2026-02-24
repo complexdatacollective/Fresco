@@ -1,4 +1,8 @@
-import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
+import {
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
+  type NcNode,
+} from '@codaco/shared-consts';
 import { AnimatePresence } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -13,8 +17,10 @@ import { MotionNode } from '../components/Node';
 import Prompts from '../components/Prompts';
 import { edgeExists, toggleEdge } from '../ducks/modules/session';
 import useSortedNodeList from '../hooks/useSortedNodeList';
+import { makeGetCodebookVariablesForNodeType } from '../selectors/protocol';
 import { getNetworkEdges, getNetworkNodesForType } from '../selectors/session';
 import { useAppDispatch } from '../store';
+import { getNodeLabelAttribute } from '../utils/getNodeLabelAttribute';
 import { type ProtocolSortRule } from '../utils/createSorter';
 
 type OneToManyDyadCensusProps = StageProps<'OneToManyDyadCensus'>;
@@ -114,6 +120,27 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
     [],
   );
 
+  const getCodebookVariablesForNodeType = useSelector(
+    makeGetCodebookVariablesForNodeType,
+  );
+
+  const textValueExtractor = useCallback(
+    (node: NcNode) => {
+      const codebookVariables = getCodebookVariablesForNodeType(node.type);
+      const labelAttrId = getNodeLabelAttribute(
+        codebookVariables,
+        node[entityAttributesProperty],
+      );
+      if (labelAttrId) {
+        const value = node[entityAttributesProperty][labelAttrId];
+        if (typeof value === 'string') return value;
+        if (typeof value === 'number') return String(value);
+      }
+      return node[entityPrimaryKeyProperty];
+    },
+    [getCodebookVariablesForNodeType],
+  );
+
   const filteredTargets = useMemo(() => {
     if (!removeAfterConsideration) return sortedTargets;
     return sortedTargets.filter((node) => {
@@ -171,6 +198,7 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
           id="dyad-census-targets"
           items={filteredTargets}
           keyExtractor={keyExtractor}
+          textValueExtractor={textValueExtractor}
           layout={layout}
           renderItem={renderItem}
           selectionMode="none"

@@ -38,7 +38,7 @@ export type Node<T> = {
   /** The user's data object */
   value: T;
   /** Text representation for type-ahead search and accessibility */
-  textValue?: string;
+  textValue: string;
   /** Zero-based index in the flattened collection */
   index: number;
   /** Key of parent node (for nested structures) */
@@ -111,7 +111,7 @@ type CollectionActions<T> = {
   setItems: (
     items: T[],
     keyExtractor: KeyExtractor<T>,
-    textValueExtractor?: TextValueExtractor<T>,
+    textValueExtractor: TextValueExtractor<T>,
   ) => void;
   /** Get a node by key */
   getItem: (key: Key) => Node<T> | undefined;
@@ -173,8 +173,8 @@ export type CollectionProps<T> = SortProps &
     'renderItem': ItemRenderer<T>;
     /** Layout instance that controls positioning */
     'layout': Layout<T>;
-    /** Function to extract text value for search/accessibility */
-    'textValueExtractor'?: TextValueExtractor<T>;
+    /** Function to extract text value for type-ahead search and accessibility */
+    'textValueExtractor': TextValueExtractor<T>;
     /** Component to render when collection is empty */
     'emptyState'?: React.ReactNode;
     /** Additional CSS class names */

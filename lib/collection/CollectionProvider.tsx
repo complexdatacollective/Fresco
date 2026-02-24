@@ -10,8 +10,8 @@ type CollectionProviderProps<T> = {
   items: T[];
   /** Function to extract unique key from each item */
   keyExtractor: KeyExtractor<T>;
-  /** Function to extract text value for search/accessibility */
-  textValueExtractor?: TextValueExtractor<T>;
+  /** Function to extract text value for type-ahead search and accessibility */
+  textValueExtractor: TextValueExtractor<T>;
   /** Child components */
   children: ReactNode;
 };

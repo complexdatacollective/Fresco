@@ -2,7 +2,7 @@
 
 import { faker } from '@faker-js/faker';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { expect, within } from 'storybook/test';
+import { expect, userEvent, within } from 'storybook/test';
 import preview from '~/.storybook/preview';
 import Node, { type NodeColorSequence } from '~/components/Node';
 import Heading from '~/components/typography/Heading';
@@ -338,6 +338,7 @@ function PrimaryStoryRender(args: PrimaryStoryArgs) {
         items={items}
         layout={layout}
         keyExtractor={(item: DemoItem) => item.id}
+        textValueExtractor={(item: DemoItem) => item.name}
         renderItem={renderItem}
         selectionMode={selectionMode}
         disabledKeys={disabledKeys}
@@ -471,6 +472,7 @@ function DragDropStoryRender(args: DragDropStoryArgs) {
           items={leftItems}
           layout={leftLayout}
           keyExtractor={(item: DemoItem) => item.id}
+          textValueExtractor={(item: DemoItem) => item.name}
           renderItem={renderItem}
           selectionMode={selectionMode}
           animate={animate}
@@ -488,6 +490,7 @@ function DragDropStoryRender(args: DragDropStoryArgs) {
           items={rightItems}
           layout={rightLayout}
           keyExtractor={(item: DemoItem) => item.id}
+          textValueExtractor={(item: DemoItem) => item.name}
           renderItem={renderItem}
           selectionMode={selectionMode}
           animate={animate}
@@ -668,4 +671,374 @@ export const DragDropBetweenCollections = meta.story({
   },
   argTypes: dragDropArgTypes,
   render: (args) => <DragDropStoryRender {...(args as DragDropStoryArgs)} />,
+});
+
+// =========================================
+// Interaction test stories
+// =========================================
+
+const interactionTestItems: DemoItem[] = [
+  {
+    id: 'item-1',
+    name: 'Alice Anderson',
+    description: 'Test item 1',
+    color: 'node-color-seq-1',
+    department: 'Engineering',
+    role: 'Manager',
+    createdAt: new Date('2024-01-01'),
+    priority: 1,
+    completed: false,
+  },
+  {
+    id: 'item-2',
+    name: 'Bob Baker',
+    description: 'Test item 2',
+    color: 'node-color-seq-2',
+    department: 'Design',
+    role: 'Senior',
+    createdAt: new Date('2024-02-01'),
+    priority: 2,
+    completed: true,
+  },
+  {
+    id: 'item-3',
+    name: 'Charlie Chen',
+    description: 'Test item 3',
+    color: 'node-color-seq-3',
+    department: 'Marketing',
+    role: 'Junior',
+    createdAt: new Date('2024-03-01'),
+    priority: 3,
+    completed: false,
+  },
+  {
+    id: 'item-4',
+    name: 'Chester Clark',
+    description: 'Test item 4',
+    color: 'node-color-seq-4',
+    department: 'Sales',
+    role: 'Lead',
+    createdAt: new Date('2024-04-01'),
+    priority: 4,
+    completed: true,
+  },
+  {
+    id: 'item-5',
+    name: 'Diana Davis',
+    description: 'Test item 5',
+    color: 'node-color-seq-5',
+    department: 'Support',
+    role: 'Intern',
+    createdAt: new Date('2024-05-01'),
+    priority: 5,
+    completed: false,
+  },
+];
+
+function InteractionTestRender({
+  selectionMode = 'multiple',
+  disabledKeys,
+}: {
+  selectionMode?: SelectionMode;
+  disabledKeys?: string[];
+}) {
+  const layout = useMemo(() => new ListLayout<DemoItem>({ gap: 8 }), []);
+
+  return (
+    <div className={cx(collectionClasses, 'h-[400px]')}>
+      <Collection
+        items={interactionTestItems}
+        layout={layout}
+        keyExtractor={(item: DemoItem) => item.id}
+        textValueExtractor={(item: DemoItem) => item.name}
+        renderItem={(item: DemoItem, itemProps: ItemProps) => (
+          <div
+            {...itemProps}
+            data-testid={item.id}
+            className={cx(
+              'bg-surface-1 text-surface-1-contrast rounded border-2 border-transparent p-3',
+              'data-selected:bg-accent data-selected:text-accent-contrast',
+              'focusable',
+              'data-disabled:opacity-50',
+            )}
+          >
+            {item.name}
+          </div>
+        )}
+        selectionMode={selectionMode}
+        disabledKeys={disabledKeys}
+        animate={false}
+        aria-label="Test collection"
+      />
+    </div>
+  );
+}
+
+export const KeyboardNavigation = meta.story({
+  name: 'Keyboard Navigation',
+  render: () => <InteractionTestRender />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Click first item to establish focus
+    await userEvent.click(canvas.getByTestId('item-1'));
+    await expect(canvas.getByTestId('item-1')).toHaveAttribute(
+      'data-focused',
+      'true',
+    );
+
+    // ArrowDown moves focus to next item
+    await userEvent.keyboard('{ArrowDown}');
+    await expect(canvas.getByTestId('item-2')).toHaveAttribute(
+      'data-focused',
+      'true',
+    );
+    await expect(canvas.getByTestId('item-1')).not.toHaveAttribute(
+      'data-focused',
+    );
+
+    // ArrowDown again
+    await userEvent.keyboard('{ArrowDown}');
+    await expect(canvas.getByTestId('item-3')).toHaveAttribute(
+      'data-focused',
+      'true',
+    );
+
+    // ArrowUp moves focus back
+    await userEvent.keyboard('{ArrowUp}');
+    await expect(canvas.getByTestId('item-2')).toHaveAttribute(
+      'data-focused',
+      'true',
+    );
+
+    // Home jumps to first item
+    await userEvent.keyboard('{Home}');
+    await expect(canvas.getByTestId('item-1')).toHaveAttribute(
+      'data-focused',
+      'true',
+    );
+
+    // End jumps to last item
+    await userEvent.keyboard('{End}');
+    await expect(canvas.getByTestId('item-5')).toHaveAttribute(
+      'data-focused',
+      'true',
+    );
+  },
+});
+
+export const SingleSelection = meta.story({
+  name: 'Single Selection',
+  render: () => <InteractionTestRender selectionMode="single" />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Click item-1 to select it
+    await userEvent.click(canvas.getByTestId('item-1'));
+    await expect(canvas.getByTestId('item-1')).toHaveAttribute(
+      'data-selected',
+      'true',
+    );
+
+    // Click item-3 replaces selection (single mode)
+    await userEvent.click(canvas.getByTestId('item-3'));
+    await expect(canvas.getByTestId('item-3')).toHaveAttribute(
+      'data-selected',
+      'true',
+    );
+    await expect(canvas.getByTestId('item-1')).not.toHaveAttribute(
+      'data-selected',
+    );
+
+    // ArrowDown moves focus to item-4
+    await userEvent.keyboard('{ArrowDown}');
+    await expect(canvas.getByTestId('item-4')).toHaveAttribute(
+      'data-focused',
+      'true',
+    );
+
+    // Space toggles selection of focused item
+    await userEvent.keyboard(' ');
+    await expect(canvas.getByTestId('item-4')).toHaveAttribute(
+      'data-selected',
+      'true',
+    );
+    await expect(canvas.getByTestId('item-3')).not.toHaveAttribute(
+      'data-selected',
+    );
+
+    // Space again deselects (toggle off)
+    await userEvent.keyboard(' ');
+    await expect(canvas.getByTestId('item-4')).not.toHaveAttribute(
+      'data-selected',
+    );
+  },
+});
+
+export const MultipleSelection = meta.story({
+  name: 'Multiple Selection',
+  render: () => <InteractionTestRender selectionMode="multiple" />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Click item-1 to select
+    await userEvent.click(canvas.getByTestId('item-1'));
+    await expect(canvas.getByTestId('item-1')).toHaveAttribute(
+      'data-selected',
+      'true',
+    );
+
+    // Click item-3 adds to selection (toggle behavior)
+    await userEvent.click(canvas.getByTestId('item-3'));
+    await expect(canvas.getByTestId('item-1')).toHaveAttribute(
+      'data-selected',
+      'true',
+    );
+    await expect(canvas.getByTestId('item-3')).toHaveAttribute(
+      'data-selected',
+      'true',
+    );
+
+    // Click item-1 again removes it from selection (toggle off)
+    await userEvent.click(canvas.getByTestId('item-1'));
+    await expect(canvas.getByTestId('item-1')).not.toHaveAttribute(
+      'data-selected',
+    );
+    await expect(canvas.getByTestId('item-3')).toHaveAttribute(
+      'data-selected',
+      'true',
+    );
+
+    // Ctrl+A selects all items
+    await userEvent.keyboard('{Control>}a{/Control}');
+    for (let i = 1; i <= 5; i++) {
+      await expect(canvas.getByTestId(`item-${i}`)).toHaveAttribute(
+        'data-selected',
+        'true',
+      );
+    }
+
+    // Escape clears selection
+    await userEvent.keyboard('{Escape}');
+    for (let i = 1; i <= 5; i++) {
+      await expect(canvas.getByTestId(`item-${i}`)).not.toHaveAttribute(
+        'data-selected',
+      );
+    }
+  },
+});
+
+export const TypeAheadSearch = meta.story({
+  name: 'Type-Ahead Search',
+  render: () => <InteractionTestRender />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Click first item to establish focus
+    await userEvent.click(canvas.getByTestId('item-1'));
+    await expect(canvas.getByTestId('item-1')).toHaveAttribute(
+      'data-focused',
+      'true',
+    );
+
+    // Type 'b' to jump to Bob Baker
+    await userEvent.keyboard('b');
+    await expect(canvas.getByTestId('item-2')).toHaveAttribute(
+      'data-focused',
+      'true',
+    );
+
+    // Wait for search string to reset (500ms timeout)
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
+    // Type 'che' to jump to Chester Clark (accumulated prefix)
+    // 'che' does NOT match Charlie Chen ('charlie' starts with 'cha', not 'che')
+    // but DOES match Chester Clark ('chester' starts with 'che')
+    await userEvent.keyboard('che');
+    await expect(canvas.getByTestId('item-4')).toHaveAttribute(
+      'data-focused',
+      'true',
+    );
+
+    // Wait for search string to reset
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
+    // Type 'd' to jump to Diana Davis
+    await userEvent.keyboard('d');
+    await expect(canvas.getByTestId('item-5')).toHaveAttribute(
+      'data-focused',
+      'true',
+    );
+  },
+});
+
+export const DisabledItems = meta.story({
+  name: 'Disabled Items',
+  render: () => <InteractionTestRender disabledKeys={['item-2', 'item-4']} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Verify disabled items have the disabled attribute
+    await expect(canvas.getByTestId('item-2')).toHaveAttribute(
+      'data-disabled',
+      'true',
+    );
+    await expect(canvas.getByTestId('item-4')).toHaveAttribute(
+      'data-disabled',
+      'true',
+    );
+
+    // Click item-1 to select and focus
+    await userEvent.click(canvas.getByTestId('item-1'));
+    await expect(canvas.getByTestId('item-1')).toHaveAttribute(
+      'data-focused',
+      'true',
+    );
+    await expect(canvas.getByTestId('item-1')).toHaveAttribute(
+      'data-selected',
+      'true',
+    );
+
+    // ArrowDown skips disabled item-2, focuses item-3
+    await userEvent.keyboard('{ArrowDown}');
+    await expect(canvas.getByTestId('item-3')).toHaveAttribute(
+      'data-focused',
+      'true',
+    );
+    await expect(canvas.getByTestId('item-2')).not.toHaveAttribute(
+      'data-focused',
+    );
+
+    // Space selects item-3
+    await userEvent.keyboard(' ');
+    await expect(canvas.getByTestId('item-3')).toHaveAttribute(
+      'data-selected',
+      'true',
+    );
+
+    // ArrowDown skips disabled item-4, focuses item-5
+    await userEvent.keyboard('{ArrowDown}');
+    await expect(canvas.getByTestId('item-5')).toHaveAttribute(
+      'data-focused',
+      'true',
+    );
+    await expect(canvas.getByTestId('item-4')).not.toHaveAttribute(
+      'data-focused',
+    );
+
+    // ArrowUp skips disabled item-4, focuses item-3
+    await userEvent.keyboard('{ArrowUp}');
+    await expect(canvas.getByTestId('item-3')).toHaveAttribute(
+      'data-focused',
+      'true',
+    );
+
+    // Disabled items should not be selected
+    await expect(canvas.getByTestId('item-2')).not.toHaveAttribute(
+      'data-selected',
+    );
+    await expect(canvas.getByTestId('item-4')).not.toHaveAttribute(
+      'data-selected',
+    );
+  },
 });

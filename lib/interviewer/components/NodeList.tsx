@@ -1,17 +1,25 @@
-import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
+import {
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
+  type NcNode,
+} from '@codaco/shared-consts';
 import { motion, animate as motionAnimate } from 'motion/react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { Collection } from '~/lib/collection/components/Collection';
 import { useDragAndDrop } from '~/lib/collection/dnd/useDragAndDrop';
 import { InlineGridLayout } from '~/lib/collection/layout/InlineGridLayout';
 import { type CollectionProps, type ItemProps } from '~/lib/collection/types';
 import { type DropCallback } from '~/lib/dnd/types';
+import { makeGetCodebookVariablesForNodeType } from '~/lib/interviewer/selectors/protocol';
+import { getNodeLabelAttribute } from '~/lib/interviewer/utils/getNodeLabelAttribute';
 import { cx } from '~/utils/cva';
 import Node from './Node';
 
 // Props that NodeList always provides internally — consumers can't override these
 type InternalCollectionProps =
   | 'keyExtractor'
+  | 'textValueExtractor'
   | 'renderItem'
   | 'layout'
   | 'dragAndDropHooks'
@@ -143,6 +151,27 @@ const NodeList = memo(
       [],
     );
 
+    const getCodebookVariablesForNodeType = useSelector(
+      makeGetCodebookVariablesForNodeType,
+    );
+
+    const textValueExtractor = useCallback(
+      (node: NcNode) => {
+        const codebookVariables = getCodebookVariablesForNodeType(node.type);
+        const labelAttrId = getNodeLabelAttribute(
+          codebookVariables,
+          node[entityAttributesProperty],
+        );
+        if (labelAttrId) {
+          const value = node[entityAttributesProperty][labelAttrId];
+          if (typeof value === 'string') return value;
+          if (typeof value === 'number') return String(value);
+        }
+        return node[entityPrimaryKeyProperty];
+      },
+      [getCodebookVariablesForNodeType],
+    );
+
     // Styling classes including drop state styling via data attributes
     const containerClasses = cx(
       'm-0 size-full grow before:rounded',
@@ -186,6 +215,7 @@ const NodeList = memo(
             id={id ?? 'node-list'}
             items={displayItems}
             keyExtractor={keyExtractor}
+            textValueExtractor={textValueExtractor}
             layout={layout}
             renderItem={renderItem}
             dragAndDropHooks={dragAndDropHooks}

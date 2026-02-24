@@ -63,6 +63,7 @@ function List({
         renderItem={renderItem}
         className={className}
         keyExtractor={(item) => item.id}
+        textValueExtractor={(item) => item.name}
         layout={new InlineGridLayout()}
         animate
       />

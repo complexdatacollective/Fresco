@@ -9,6 +9,7 @@ type TestItem = Record<string, unknown> & {
 };
 
 const keyExtractor = (item: TestItem): Key => item.id;
+const textValueExtractor = (item: TestItem) => item.name;
 
 const items: TestItem[] = [
   { id: '1', name: 'Alice' },
@@ -18,9 +19,7 @@ const items: TestItem[] = [
   { id: '5', name: 'Eve' },
 ];
 
-function getOrderedIds<T>(
-  store: ReturnType<typeof createCollectionStore<T>>,
-) {
+function getOrderedIds<T>(store: ReturnType<typeof createCollectionStore<T>>) {
   return store.getState().orderedKeys;
 }
 
@@ -28,7 +27,7 @@ describe('store relevance-based sorting', () => {
   describe('filterScores integration', () => {
     it('should sort filtered items by relevance score (lower = better match)', () => {
       const store = createCollectionStore<TestItem>();
-      store.getState().setItems(items, keyExtractor);
+      store.getState().setItems(items, keyExtractor, textValueExtractor);
 
       // Simulate a search that matched items 1, 3, 5 with varying relevance
       const matchingKeys = new Set<Key>(['1', '3', '5']);
@@ -57,7 +56,7 @@ describe('store relevance-based sorting', () => {
         { property: 'name', direction: 'asc', type: 'string' },
       ];
       store.getState().updateSortState({ sortRules });
-      store.getState().setItems(items, keyExtractor);
+      store.getState().setItems(items, keyExtractor, textValueExtractor);
 
       // Items 1 (Alice) and 2 (Bob) have same relevance score
       const matchingKeys = new Set<Key>(['1', '2', '3']);
@@ -86,7 +85,7 @@ describe('store relevance-based sorting', () => {
         { property: 'name', direction: 'asc', type: 'string' },
       ];
       store.getState().updateSortState({ sortRules });
-      store.getState().setItems(items, keyExtractor);
+      store.getState().setItems(items, keyExtractor, textValueExtractor);
 
       // Apply filter with scores
       store.getState().updateFilterState({
@@ -130,7 +129,7 @@ describe('store relevance-based sorting', () => {
       });
 
       // Now set items — should filter and sort by relevance
-      store.getState().setItems(items, keyExtractor);
+      store.getState().setItems(items, keyExtractor, textValueExtractor);
 
       expect(getOrderedIds(store)).toEqual(['4', '2']);
     });
@@ -145,7 +144,7 @@ describe('store relevance-based sorting', () => {
         filterScores: null,
         filterDebouncedQuery: 'test',
       });
-      store.getState().setItems(items, keyExtractor);
+      store.getState().setItems(items, keyExtractor, textValueExtractor);
 
       // Items should retain original order (filtered but not relevance-sorted)
       expect(getOrderedIds(store)).toEqual(['1', '3', '5']);
@@ -164,7 +163,7 @@ describe('store relevance-based sorting', () => {
         filterScores,
         filterDebouncedQuery: 'test',
       });
-      store.getState().setItems(items, keyExtractor);
+      store.getState().setItems(items, keyExtractor, textValueExtractor);
 
       // Item 3 (score 0.2) first, then 1 and 5 (score 1.0, maintain order)
       expect(getOrderedIds(store)[0]).toBe('3');
@@ -201,7 +200,9 @@ describe('store relevance-based sorting', () => {
         ]),
         filterDebouncedQuery: 'test',
       });
-      store.getState().setItems(extendedItems, extKeyExtractor);
+      store
+        .getState()
+        .setItems(extendedItems, extKeyExtractor, (item) => item.name);
 
       // Group 0.3: items 1,3 → name asc (Alice, Alice) → priority asc → 3(p1), 1(p2)
       // Group 0.7: items 2,4 → name asc (Bob, Bob) → priority asc → 2(p1), 4(p2)

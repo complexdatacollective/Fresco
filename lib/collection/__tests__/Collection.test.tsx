@@ -92,6 +92,7 @@ describe('Collection', () => {
         <Collection
           items={[]}
           keyExtractor={(item) => item.id}
+          textValueExtractor={(item) => item.name}
           layout={layout}
           emptyState={<div data-testid="empty">No items</div>}
           renderItem={(item, itemProps) => (
@@ -471,6 +472,7 @@ describe('Collection', () => {
         <Collection
           items={testItems}
           keyExtractor={(item) => item.id}
+          textValueExtractor={(item) => item.name}
           layout={layout}
           selectionMode="multiple"
           defaultSelectedKeys={['1', '3']}

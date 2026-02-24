@@ -90,7 +90,7 @@ export type FullCollectionStore<T> = CollectionStore<T> & {
   // Internal state for re-sorting (not part of public API)
   _originalItems: T[];
   _keyExtractor: KeyExtractor<T> | null;
-  _textValueExtractor: TextValueExtractor<T> | undefined;
+  _textValueExtractor: TextValueExtractor<T> | null;
 
   // Re-sort and filter items using current rules
   resortItems: () => void;
@@ -102,7 +102,7 @@ export type FullCollectionStore<T> = CollectionStore<T> & {
 type InternalSortState<T> = {
   _originalItems: T[];
   _keyExtractor: KeyExtractor<T> | null;
-  _textValueExtractor: TextValueExtractor<T> | undefined;
+  _textValueExtractor: TextValueExtractor<T> | null;
 };
 
 /**
@@ -136,7 +136,7 @@ const defaultInitState = <T>(): FullCollectionStateWithInternal<T> => ({
   // Internal state for re-sorting
   _originalItems: [],
   _keyExtractor: null,
-  _textValueExtractor: undefined,
+  _textValueExtractor: null,
 });
 
 /**
@@ -146,7 +146,7 @@ const defaultInitState = <T>(): FullCollectionStateWithInternal<T> => ({
 function buildNodes<T>(
   items: T[],
   keyExtractor: KeyExtractor<T>,
-  textValueExtractor?: TextValueExtractor<T>,
+  textValueExtractor: TextValueExtractor<T>,
 ): { itemsMap: Map<Key, Node<T>>; orderedKeys: Key[] } {
   const itemsMap = new Map<Key, Node<T>>();
   const orderedKeys: Key[] = [];
@@ -157,7 +157,7 @@ function buildNodes<T>(
       key,
       type: 'item',
       value: item,
-      textValue: textValueExtractor?.(item),
+      textValue: textValueExtractor(item),
       index,
       level: 0,
     };
@@ -228,7 +228,7 @@ export const createCollectionStore = <T>(
       setItems: (
         items: T[],
         keyExtractor: KeyExtractor<T>,
-        textValueExtractor?: TextValueExtractor<T>,
+        textValueExtractor: TextValueExtractor<T>,
       ) => {
         const state = get();
 
@@ -403,7 +403,11 @@ export const createCollectionStore = <T>(
         } = state;
 
         // Can't re-sort if we don't have the original data
-        if (!_keyExtractor || _originalItems.length === 0) {
+        if (
+          !_keyExtractor ||
+          !_textValueExtractor ||
+          _originalItems.length === 0
+        ) {
           return;
         }
 
