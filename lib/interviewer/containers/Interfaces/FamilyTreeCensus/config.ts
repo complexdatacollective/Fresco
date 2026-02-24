@@ -3,7 +3,7 @@ export const FAMILY_TREE_CONFIG = {
   nodeContainerHeight: 160,
   nodeWidth: 80,
   nodeHeight: 80,
-  padding: 40,
+  padding: 60,
   get rowHeight() {
     return this.nodeContainerHeight + this.padding;
   },
