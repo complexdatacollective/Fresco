@@ -53,7 +53,7 @@
     "@codaco/shared-consts": "5.0.0",
     "@paralleldrive/cuid2": "^3.3.0",
     "@posthog/nextjs-config": "^1.8.18",
-    "@prisma/adapter-neon": "^7.4.0",
+    "@prisma/adapter-neon": "^7.4.1",
     "@prisma/adapter-pg": "^7.4.1",
     "@prisma/client": "^7.4.0",
     "@radix-ui/react-checkbox": "^1.3.3",
