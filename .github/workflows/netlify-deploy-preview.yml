@@ -90,7 +90,7 @@ jobs:
         with:
           issue-number: ${{ needs.check-pr.outputs.pr_number }}
           comment-author: 'github-actions[bot]'
-          body-includes: Deploy Preview
+          body-includes: Deploy Preview for ${{ steps.deploy.outputs.site_name }} ready!
 
       - name: Comment on Pull Request
         uses: peter-evans/create-or-update-comment@v5
@@ -99,7 +99,7 @@ jobs:
           issue-number: ${{ needs.check-pr.outputs.pr_number }}
           edit-mode: replace
           body: |
-            ## ✅ Deploy Preview ready!
+            ## ✅ Deploy Preview for ${{ steps.deploy.outputs.site_name }} ready!
 
             | Name | Link |
             |------|------|
