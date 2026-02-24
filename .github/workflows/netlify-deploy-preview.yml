@@ -81,6 +81,8 @@ jobs:
         run: |
           netlify deploy --alias="pr-${{ needs.check-pr.outputs.pr_number }}" --json > netlify-deploy.json
           echo "deploy_url=$(jq -r '.deploy_url' netlify-deploy.json)" >> "$GITHUB_OUTPUT"
+          echo "deploy_id=$(jq -r '.deploy_id' netlify-deploy.json)" >> "$GITHUB_OUTPUT"
+          echo "site_name=$(jq -r '.site_name' netlify-deploy.json)" >> "$GITHUB_OUTPUT"
 
       - name: Find existing comment
         uses: peter-evans/find-comment@v3
@@ -88,7 +90,7 @@ jobs:
         with:
           issue-number: ${{ needs.check-pr.outputs.pr_number }}
           comment-author: 'github-actions[bot]'
-          body-includes: Netlify Preview
+          body-includes: Deploy Preview
 
       - name: Comment on Pull Request
         uses: peter-evans/create-or-update-comment@v5
@@ -97,7 +99,11 @@ jobs:
           issue-number: ${{ needs.check-pr.outputs.pr_number }}
           edit-mode: replace
           body: |
-            | Resource | Link |
-            |----------|------|
-            | Netlify Preview | ${{ steps.deploy.outputs.deploy_url }} |
-            | Neon branch | https://console.neon.tech/app/projects/${{ vars.NEON_PROJECT_ID }}/branches/${{ steps.create-branch.outputs.branch_id }} |
+            ## ✅ Deploy Preview ready!
+
+            | Name | Link |
+            |------|------|
+            | 🔨 Latest commit | ${{ github.sha }} |
+            | 🔍 Latest deploy log | https://app.netlify.com/projects/${{ steps.deploy.outputs.site_name }}/deploys/${{ steps.deploy.outputs.deploy_id }} |
+            | 😎 Deploy Preview | ${{ steps.deploy.outputs.deploy_url }} |
+            | 🌿 Neon branch | https://console.neon.tech/app/projects/${{ vars.NEON_PROJECT_ID }}/branches/${{ steps.create-branch.outputs.branch_id }} |
