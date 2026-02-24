@@ -183,7 +183,7 @@
     "sass": "^1.97.3",
     "sass-embedded": "^1.92.1",
     "storybook": "^10.2.10",
-    "tailwindcss": "4.1.18",
+    "tailwindcss": "4.2.1",
     "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.21.0",
     "typescript": "5.9.3",
