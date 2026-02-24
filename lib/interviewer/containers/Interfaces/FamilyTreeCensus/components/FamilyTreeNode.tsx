@@ -1,4 +1,5 @@
 import { type NcNode, type VariableValue } from '@codaco/shared-consts';
+import { User } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { useDragSource } from '~/lib/dnd';
 import { useNodeLabel } from '~/lib/interviewer/containers/Interfaces/Anonymisation/useNodeLabel';
@@ -103,20 +104,26 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
         className="relative flex flex-col items-center gap-2 text-center"
         {...dragProps}
       >
-        <Node
-          className="shrink-0"
-          style={
-            {
-              width: FAMILY_TREE_CONFIG.nodeWidth,
-              height: FAMILY_TREE_CONFIG.nodeHeight,
-              ...nodeColor(),
-            } as React.CSSProperties
-          }
-          color="custom"
-          label={isEgo ? 'You' : ''}
-          shape={shape}
-          selected={selected}
-        />
+        <div className="relative shrink-0">
+          <Node
+            style={
+              {
+                width: FAMILY_TREE_CONFIG.nodeWidth,
+                height: FAMILY_TREE_CONFIG.nodeHeight,
+                ...nodeColor(),
+              } as React.CSSProperties
+            }
+            color="custom"
+            label=""
+            shape={shape}
+            selected={selected}
+          />
+          {isEgo && (
+            <User
+              className={`pointer-events-none absolute top-1/2 left-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 ${networkNode ? 'text-white' : 'text-foreground'}`}
+            />
+          )}
+        </div>
         {isEgo && (
           <svg
             viewBox="0 0 300 300"
