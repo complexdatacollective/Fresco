@@ -305,7 +305,7 @@ export const FamilyTreeShells = (props: {
           }}
         />
       )}
-      <div className="census-node-canvas relative h-full w-full overflow-x-auto">
+      <div className="census-node-canvas relative h-full w-full overflow-x-auto pt-6">
         <div className="relative flex h-full min-w-fit justify-center">
           <div className="relative" style={{ width: treeWidth }}>
             <EdgeRenderer />
