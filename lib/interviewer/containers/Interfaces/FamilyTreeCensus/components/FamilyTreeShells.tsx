@@ -334,11 +334,7 @@ export const FamilyTreeShells = (props: {
                     return;
                   } else if (stepIndex === 1) {
                     setSelectedNode(node);
-                  } else if (
-                    node.interviewNetworkId &&
-                    diseaseVariable &&
-                    !node.isEgo
-                  ) {
+                  } else if (node.interviewNetworkId && diseaseVariable) {
                     const diseaseValue = !node.diseases?.get(diseaseVariable);
                     const diseaseData: Record<string, VariableValue> = {
                       [diseaseVariable]: diseaseValue,
