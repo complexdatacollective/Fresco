@@ -5,16 +5,18 @@ on:
     branches-ignore:
       - main
 
+concurrency:
+  group: preview-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
-  contents: read
   pull-requests: write
 
 jobs:
-  deploy-preview:
+  check-pr:
     runs-on: ubuntu-latest
-    env:
-      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+    outputs:
+      pr_number: ${{ steps.pr.outputs.number }}
     steps:
       - name: Get PR number
         id: pr
@@ -26,9 +28,20 @@ jobs:
             echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
           else
             echo "No open PR for branch ${{ github.ref_name }}, skipping deploy"
-            exit 0
           fi
 
+  deploy-preview:
+    needs: check-pr
+    if: needs.check-pr.outputs.pr_number != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+    steps:
       - name: Setup
         uses: complexdatacollective/github-actions/setup-pnpm@v1
 
@@ -41,19 +54,16 @@ jobs:
         uses: neondatabase/create-branch-action@v6
         with:
           project_id: ${{ vars.NEON_PROJECT_ID }}
-          branch_name: preview/pr-${{ steps.pr.outputs.number }}-${{ steps.branch-name.outputs.current_branch }}
+          branch_name: preview/pr-${{ needs.check-pr.outputs.pr_number }}-${{ steps.branch-name.outputs.current_branch }}
           database: ${{ vars.NEON_DATABASE_NAME }}
           role: ${{ vars.NEON_DATABASE_USERNAME }}
           api_key: ${{ secrets.NEON_API_KEY }}
           prisma: true
 
-      - name: Install Netlify CLI
-        run: pnpm add -g netlify-cli
-
       - name: Set Neon database URLs in Netlify
         run: |
-          netlify env:set DATABASE_URL "${{ steps.create-branch.outputs.db_url_pooled }}" --context branch:${{ steps.branch-name.outputs.current_branch }}
-          netlify env:set DATABASE_URL_UNPOOLED "${{ steps.create-branch.outputs.db_url }}" --context branch:${{ steps.branch-name.outputs.current_branch }}
+          pnpm dlx netlify-cli env:set DATABASE_URL "${{ steps.create-branch.outputs.db_url_pooled }}" --context branch:${{ steps.branch-name.outputs.current_branch }}
+          pnpm dlx netlify-cli env:set DATABASE_URL_UNPOOLED "${{ steps.create-branch.outputs.db_url }}" --context branch:${{ steps.branch-name.outputs.current_branch }}
 
       - name: Create .env for build
         run: |
@@ -61,18 +71,28 @@ jobs:
           echo "DATABASE_URL_UNPOOLED=${{ steps.create-branch.outputs.db_url }}" >> .env
 
       - name: Build
-        run: netlify build --context branch:${{ steps.branch-name.outputs.current_branch }}
+        run: pnpm dlx netlify-cli build --context branch:${{ steps.branch-name.outputs.current_branch }}
 
       - name: Deploy preview
         id: deploy
         run: |
-          netlify deploy --alias="pr-${{ steps.pr.outputs.number }}" --json > netlify-deploy.json
+          pnpm dlx netlify-cli deploy --alias="pr-${{ needs.check-pr.outputs.pr_number }}" --json > netlify-deploy.json
           echo "deploy_url=$(jq -r '.deploy_url' netlify-deploy.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Find existing comment
+        uses: peter-evans/find-comment@v3
+        id: fc
+        with:
+          issue-number: ${{ needs.check-pr.outputs.pr_number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: Netlify Preview
 
       - name: Comment on Pull Request
         uses: peter-evans/create-or-update-comment@v5
         with:
-          issue-number: ${{ steps.pr.outputs.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ needs.check-pr.outputs.pr_number }}
+          edit-mode: replace
           body: |
             | Resource | Link |
             |----------|------|
