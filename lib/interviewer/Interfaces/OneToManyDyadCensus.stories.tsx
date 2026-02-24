@@ -4,7 +4,6 @@ import { type Stage } from '@codaco/protocol-validation';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
 import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
-import { withInterviewAnimation } from '~/.storybook/interview-decorator';
 import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
 import OneToManyDyadCensus from './OneToManyDyadCensus';
@@ -81,7 +80,6 @@ const OneToManyDyadCensusWrapper = (args: StoryArgs) => {
 
 const meta: Meta<StoryArgs> = {
   title: 'Interview/Interfaces/OneToManyDyadCensus',
-  decorators: [withInterviewAnimation],
   parameters: {
     forceTheme: 'interview',
     layout: 'fullscreen',

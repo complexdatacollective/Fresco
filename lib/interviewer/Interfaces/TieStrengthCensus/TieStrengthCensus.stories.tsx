@@ -11,7 +11,6 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
 import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
-import { withInterviewAnimation } from '~/.storybook/interview-decorator';
 import sessionReducer from '~/lib/interviewer/ducks/modules/session';
 import uiReducer from '~/lib/interviewer/ducks/modules/ui';
 import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
@@ -78,8 +77,8 @@ const mockProtocol = {
       type: 'TieStrengthCensus',
       label: 'Rate Friendships',
       subject: {
-        entity: 'edge',
-        type: 'friendship',
+        entity: 'node',
+        type: 'person',
       },
       introductionPanel: {
         title: 'Rate Your Friendships',
@@ -217,7 +216,6 @@ const TieStrengthCensusStoryWrapper = (args: StoryArgs) => {
 
 const meta: Meta<StoryArgs> = {
   title: 'Interview/Interfaces/TieStrengthCensus',
-  decorators: [withInterviewAnimation],
   parameters: {
     forceTheme: 'interview',
     layout: 'fullscreen',

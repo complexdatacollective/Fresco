@@ -66,6 +66,12 @@ const buttonSpecificVariants = cva({
     iconPosition: 'left',
   },
   compoundVariants: [
+    // When in interview mode, use the button color for outline, because text has no contrast with bg
+    {
+      variant: 'default',
+      color: 'default',
+      className: 'interview:outline-(--component-text)',
+    },
     // Default color bg is too light to use as outline or text color
     {
       variant: ['outline', 'text', 'dashed'],

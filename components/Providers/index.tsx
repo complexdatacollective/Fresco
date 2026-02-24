@@ -8,6 +8,8 @@ import { type ReactNode } from 'react';
 import ProtocolImportProvider from '~/components/ProtocolImport/ProtocolImportProvider';
 import DialogProvider from '~/lib/dialogs/DialogProvider';
 import { DndStoreProvider } from '~/lib/dnd';
+import { InterviewToastViewport } from '~/lib/interviewer/components/InterviewToast';
+import { interviewToastManager } from '~/lib/interviewer/components/interviewToastManager';
 import { Toaster } from '../ui/Toast';
 import { TooltipProvider } from '../ui/tooltip';
 import { PostHogIdentify } from './PosthogIdentify';
@@ -40,6 +42,9 @@ export default function Providers({
               </DndStoreProvider>
             </TooltipProvider>
             <Toaster />
+          </Toast.Provider>
+          <Toast.Provider toastManager={interviewToastManager} limit={3}>
+            <InterviewToastViewport />
           </Toast.Provider>
         </DirectionProvider>
       </MotionConfig>

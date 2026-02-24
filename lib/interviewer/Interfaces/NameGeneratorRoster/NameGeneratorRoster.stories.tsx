@@ -9,7 +9,6 @@ import {
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
-import { withInterviewAnimation } from '~/.storybook/interview-decorator';
 import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
 import sessionReducer from '~/lib/interviewer/ducks/modules/session';
 import uiReducer from '~/lib/interviewer/ducks/modules/ui';
@@ -270,7 +269,6 @@ const NameGeneratorRosterStoryWrapper = (args: StoryArgs) => {
 
 const meta: Meta<StoryArgs> = {
   title: 'Interview/Interfaces/NameGeneratorRoster',
-  decorators: [withInterviewAnimation],
   parameters: {
     forceTheme: 'interview',
     layout: 'fullscreen',

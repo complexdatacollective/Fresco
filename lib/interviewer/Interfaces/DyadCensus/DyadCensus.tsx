@@ -1,172 +1,234 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { MotionSurface } from '~/components/layout/Surface';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
+import BooleanField from '~/lib/form/components/fields/Boolean';
 import Prompts from '~/lib/interviewer/components/Prompts';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
-import { type StageProps } from '~/lib/interviewer/types';
+import {
+  addEdge,
+  type DyadCensusMetadataItem,
+  deleteEdge,
+  edgeExists,
+  updateStageMetadata,
+} from '~/lib/interviewer/ducks/modules/session';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
-import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
+import useStageValidation from '~/lib/interviewer/hooks/useStageValidation';
 import {
   getEdgeColorForType,
   getNetworkEdges,
   getNetworkNodesForType,
+  getStageMetadata,
 } from '~/lib/interviewer/selectors/session';
-import { cx } from '~/utils/cva';
-import BooleanOption from '~/lib/interviewer/components/BooleanOption';
+import { useAppDispatch } from '~/lib/interviewer/store';
+import { type StageProps } from '~/lib/interviewer/types';
+import { getNodePairs } from '../../selectors/dyad-census';
 import Pair from './components/Pair';
-import { getNodePair, getPairs } from './helpers';
-import useAutoAdvance from './useAutoAdvance';
-import useEdgeState from './useEdgeState';
-import useSteps from './useSteps';
-
-const fadeVariants = {
-  show: { opacity: 1, transition: { duration: 0.5 } },
-  hide: { opacity: 0, transition: { duration: 0.5 } },
-};
-
-const optionsVariants = {
-  show: { opacity: 1, transition: { delay: 0.15, duration: 0.25 } },
-  hide: { opacity: 0, transition: { delay: 0.15, duration: 0.25 } },
-};
+import {
+  getNodePair,
+  getStageMetadataResponse,
+  isDyadCensusMetadata,
+  matchEntry,
+} from './helpers';
 
 const choiceVariants = {
-  show: {
+  initial: { opacity: 0, translateY: '120%' },
+  animate: {
     opacity: 1,
     translateY: '0%',
     transition: { delay: 0.15, type: 'spring' as const },
   },
-  hide: { opacity: 0, translateY: '120%' },
+  exit: { opacity: 0, translateY: '120%' },
 };
 
 const introVariants = {
-  show: { opacity: 1, scale: 1 },
-  hide: { opacity: 0, scale: 0 },
+  initial: { opacity: 0, scale: 0 },
+  animate: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0 },
 };
 
 type DyadCensusProps = StageProps<'DyadCensus'>;
 
 export default function DyadCensus(props: DyadCensusProps) {
   const { stage, getNavigationHelpers } = props;
-
   const { moveForward } = getNavigationHelpers();
+  const dispatch = useAppDispatch();
 
   const [isIntroduction, setIsIntroduction] = useState(true);
-  const [isForwards, setForwards] = useState(true);
-  const [isValid, setIsValid] = useState(true);
+  const [pairIndex, setPairIndex] = useState(0);
 
   const {
-    prompt: { createEdge },
     promptIndex,
-    prompts,
+    prompt: { createEdge },
   } = usePrompts<(typeof stage.prompts)[number]>();
 
-  const nodes = usePropSelector(getNetworkNodesForType, props);
-  const edges = usePropSelector(getNetworkEdges, props);
+  const nodes = useSelector(getNetworkNodesForType);
+  const edges = useSelector(getNetworkEdges);
   const edgeColor = useSelector(getEdgeColorForType(createEdge));
+  const stageMetadata = useSelector(getStageMetadata);
+  const pairs = useSelector(getNodePairs);
 
-  const pairsData = getPairs(nodes);
-  const pairs = pairsData.result;
-  const steps: number[] = Array(prompts.length).fill(pairs.length) as number[];
-
-  const [stepsState, nextStep, previousStep] = useSteps(steps);
-
-  const substepIndex = stepsState.substep;
   const pair =
-    substepIndex < pairs.length && substepIndex >= 0
-      ? (pairs[substepIndex] ?? null)
+    pairIndex >= 0 && pairIndex < pairs.length
+      ? (pairs[pairIndex] ?? null)
       : null;
-
   const [fromNode, toNode] = getNodePair(nodes, pair);
 
-  const { hasEdge, setEdge, isTouched, isChanged } = useEdgeState(
-    pair,
-    edges,
-    `${stepsState.step}_${stepsState.substep}`,
-  );
+  // Compute edge state directly from Redux
+  const existingEdgeId =
+    (pair && edgeExists(edges, pair[0], pair[1], createEdge)) ?? false;
+  const metadataResponse = pair
+    ? getStageMetadataResponse(stageMetadata, promptIndex, pair)
+    : { exists: false, value: undefined };
 
+  const hasEdge: boolean | null = existingEdgeId
+    ? true
+    : metadataResponse.exists
+      ? false
+      : null;
+
+  // Auto-advance tracking
+  const [isTouched, setIsTouched] = useState(false);
+  const [isChanged, setIsChanged] = useState(false);
+
+  // Reset touch state when pair or prompt changes
+  useEffect(() => {
+    setIsTouched(false);
+    setIsChanged(false);
+  }, [pairIndex, promptIndex]);
+
+  // Validation
+  useStageValidation({
+    constraints: [
+      {
+        direction: 'forwards',
+        isMet: isIntroduction || hasEdge !== null,
+        toast: {
+          description: 'Please select a response before continuing.',
+          variant: 'destructive',
+          anchor: 'forward',
+        },
+      },
+    ],
+  });
+
+  // Navigation
   useBeforeNext((direction) => {
     if (direction === 'forwards') {
-      setForwards(true);
-      setIsValid(true);
-
       if (isIntroduction) {
-        if (stepsState.totalSteps === 0) {
+        if (pairs.length === 0) {
           return 'FORCE';
         }
-
         setIsIntroduction(false);
         return false;
       }
 
-      if (hasEdge === null) {
-        setIsValid(false);
-        return false;
-      }
-
-      if (stepsState.isStepEnd || stepsState.isEnd) {
-        nextStep();
+      const isLastPair = pairIndex === pairs.length - 1;
+      if (isLastPair) {
+        setPairIndex(0);
         return true;
       }
 
-      nextStep();
+      setPairIndex((i) => i + 1);
       return false;
     }
 
     if (direction === 'backwards') {
-      setForwards(false);
-      setIsValid(true);
-
       if (isIntroduction) {
         return true;
       }
 
-      if (stepsState.isStart) {
+      if (pairIndex > 0) {
+        setPairIndex((i) => i - 1);
+        return false;
+      }
+
+      // pairIndex === 0
+      if (promptIndex === 0) {
         setIsIntroduction(true);
         return false;
       }
 
-      if (stepsState.isStepStart) {
-        previousStep();
-        return true;
-      }
-
-      previousStep();
-      return false;
+      setPairIndex(pairs.length - 1);
+      return true;
     }
 
     return false;
   });
 
-  useAutoAdvance(moveForward, isTouched, isChanged);
+  // Auto-advance
+  const moveForwardRef = useRef(moveForward);
+  moveForwardRef.current = moveForward;
 
-  const handleChange = (nextValue: boolean) => () => {
-    if (isTouched) {
+  useEffect(() => {
+    if (!isTouched) return;
+
+    if (!isChanged) {
+      moveForwardRef.current();
       return;
     }
-    setEdge(nextValue);
+
+    const timer = setTimeout(() => {
+      moveForwardRef.current();
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [isTouched, isChanged]);
+
+  // Edge state management
+  const setEdge = (value: boolean | undefined) => {
+    if (!pair || value === undefined) return;
+
+    setIsChanged(hasEdge !== value);
+    setIsTouched(true);
+
+    if (value === true) {
+      void dispatch(addEdge({ from: pair[0], to: pair[1], type: createEdge }));
+
+      if (isDyadCensusMetadata(stageMetadata)) {
+        dispatch(
+          updateStageMetadata(
+            stageMetadata.filter(
+              (item) => !matchEntry(promptIndex, pair)(item),
+            ),
+          ),
+        );
+      } else {
+        dispatch(updateStageMetadata([] as DyadCensusMetadataItem[]));
+      }
+      return;
+    }
+
+    // value === false
+    if (existingEdgeId) {
+      dispatch(deleteEdge(existingEdgeId));
+    }
+
+    const existingMetadata = isDyadCensusMetadata(stageMetadata)
+      ? stageMetadata.filter((item) => !matchEntry(promptIndex, pair)(item))
+      : [];
+
+    dispatch(
+      updateStageMetadata([
+        ...existingMetadata,
+        [promptIndex, ...pair, value],
+      ] as DyadCensusMetadataItem[]),
+    );
   };
 
-  const choiceClasses = cx(
-    'relative z-(--z-panel) flex w-[70vmin] shrink-0 grow-0 flex-col rounded-(--nc-border-radius) border-[0.5rem] border-transparent p-5 text-center',
-    {
-      'animate-shake border-(--nc-error) outline-offset-[0.75rem]': !isValid,
-    },
-  );
-
   return (
-    <div className="flex flex-1 flex-col items-center justify-center">
+    <div className="interface flex flex-1 flex-col items-center justify-center">
       <AnimatePresence initial={false} mode="wait">
-        {isIntroduction && (
+        {isIntroduction ? (
           <MotionSurface
             noContainer
             className="w-full max-w-2xl grow-0"
             variants={introVariants}
-            initial="hide"
-            exit="hide"
-            animate="show"
+            initial="initial"
+            exit="exit"
+            animate="animate"
             key="intro"
           >
             <Heading level="h1" className="text-center">
@@ -174,86 +236,61 @@ export default function DyadCensus(props: DyadCensusProps) {
             </Heading>
             <RenderMarkdown>{stage.introductionPanel.text}</RenderMarkdown>
           </MotionSurface>
-        )}
-        {!isIntroduction && (
+        ) : (
           <motion.div
             key="content"
-            variants={fadeVariants}
-            initial="hide"
-            exit="hide"
-            animate="show"
-            className="flex w-full flex-1 flex-col"
+            variants={{
+              initial: { opacity: 0 },
+              animate: { opacity: 1 },
+              exit: { opacity: 0 },
+            }}
+            initial="initial"
+            exit="exit"
+            animate="animate"
+            className="flex w-full flex-1 flex-col items-center"
           >
-            <div className="flex-[0_0_var(--interface-prompt-flex-basis)]">
-              <Prompts />
-            </div>
+            <motion.div className="flex w-full grow flex-col items-center justify-center">
+              <AnimatePresence mode="wait">
+                <Pair
+                  key={`${promptIndex}_${pairIndex}`}
+                  fromNode={fromNode}
+                  toNode={toNode}
+                  edgeColor={edgeColor}
+                  hasEdge={hasEdge}
+                />
+              </AnimatePresence>
+            </motion.div>
             <AnimatePresence mode="wait">
-              <motion.div
-                className="flex flex-auto"
+              <MotionSurface
+                noContainer
                 key={promptIndex}
-                variants={fadeVariants}
-                initial="hide"
-                exit="hide"
-                animate="show"
+                className="flex size-fit shrink-0 grow-0 flex-col items-center justify-center gap-4"
+                variants={choiceVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
               >
-                <div className="flex flex-1 flex-col items-center justify-center">
-                  <div className="relative flex w-full flex-1 items-center justify-center">
-                    <AnimatePresence custom={[isForwards]} initial={false}>
-                      {fromNode && toNode && (
-                        <Pair
-                          key={`${stepsState.step}_${stepsState.substep}`}
-                          edgeColor={edgeColor as string}
-                          hasEdge={hasEdge}
-                          animateForwards={isForwards}
-                          fromNode={fromNode}
-                          toNode={toNode}
-                        />
-                      )}
-                    </AnimatePresence>
-                  </div>
+                <Prompts />
+                <AnimatePresence>
                   <motion.div
-                    className={choiceClasses}
-                    variants={choiceVariants}
-                    layout
-                    initial="hide"
-                    animate="show"
+                    key={`${promptIndex}_${pairIndex}_choice`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
                   >
-                    <div>
-                      <AnimatePresence mode="wait">
-                        <motion.div
-                          key={stepsState.step}
-                          className="flex items-center justify-center"
-                          variants={optionsVariants}
-                          initial="hide"
-                          animate="show"
-                          exit="hide"
-                        >
-                          <div className="form-field-container form-field-boolean">
-                            <div className="form-field-boolean__control">
-                              <div>
-                                <div className="boolean__options">
-                                  <BooleanOption
-                                    selected={!!hasEdge && hasEdge !== null}
-                                    onClick={handleChange(true)}
-                                    label={() => <h1>Yes</h1>}
-                                  />
-                                  <BooleanOption
-                                    classes="boolean-option--no"
-                                    onClick={handleChange(false)}
-                                    selected={!hasEdge && hasEdge !== null}
-                                    label={() => <h1>No</h1>}
-                                    negative
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      </AnimatePresence>
-                    </div>
+                    <BooleanField
+                      className="w-fit"
+                      value={hasEdge ?? undefined}
+                      onChange={setEdge}
+                      options={[
+                        { label: 'Yes', value: true },
+                        { label: 'No', value: false },
+                      ]}
+                      noReset
+                    />
                   </motion.div>
-                </div>
-              </motion.div>
+                </AnimatePresence>
+              </MotionSurface>
             </AnimatePresence>
           </motion.div>
         )}

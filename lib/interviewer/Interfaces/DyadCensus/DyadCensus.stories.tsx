@@ -3,7 +3,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
 import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
-import { withInterviewAnimation } from '~/.storybook/interview-decorator';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
 import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
 import DyadCensus from './DyadCensus';
@@ -86,7 +85,6 @@ const DyadCensusStoryWrapper = (args: StoryArgs) => {
 
 const meta: Meta<StoryArgs> = {
   title: 'Interview/Interfaces/DyadCensus',
-  decorators: [withInterviewAnimation],
   parameters: {
     forceTheme: 'interview',
     layout: 'fullscreen',

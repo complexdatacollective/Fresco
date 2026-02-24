@@ -3,7 +3,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
 import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
-import { withInterviewAnimation } from '~/.storybook/interview-decorator';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
 import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
 import { type VariableOption } from '~/lib/interviewer/utils/SyntheticInterview/types';
@@ -148,7 +147,6 @@ const OrdinalBinStoryWrapper = (args: StoryArgs) => {
 
 const meta: Meta<StoryArgs> = {
   title: 'Interview/Interfaces/OrdinalBin',
-  decorators: [withInterviewAnimation],
   parameters: {
     forceTheme: 'interview',
     layout: 'fullscreen',

@@ -211,13 +211,14 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
   }, [useEncryption, requirePassphrase]);
 
   const maxNodesReached = stageNodeCount >= maxNodes;
+  const minNodesMet = !minNodes || !isLastPrompt || stageNodeCount >= minNodes;
 
   const { updateReady } = useReadyForNextStage();
   const { showToast, closeToast } = useStageValidation({
     constraints: [
       {
         direction: 'forwards',
-        isMet: stageNodeCount >= minNodes || !isLastPrompt,
+        isMet: minNodesMet,
         toast: {
           description: (
             <>
@@ -240,25 +241,26 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
       maxToastRef.current = showToast({
         description:
           'You have added the maximum number of items for this screen.',
-        variant: 'info',
+        variant: 'success',
         anchor: 'forward',
         timeout: 0,
       });
-      updateReady(true);
     } else if (maxToastRef.current) {
       closeToast(maxToastRef.current);
       maxToastRef.current = null;
-      updateReady(false);
     }
 
     return () => {
       if (maxToastRef.current) {
         closeToast(maxToastRef.current);
       }
-      updateReady(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [maxNodesReached]);
+
+  useEffect(() => {
+    updateReady(minNodesMet || maxNodesReached);
+  }, [minNodesMet, maxNodesReached, updateReady]);
 
   const handleAddNode = (metadata?: Record<string, unknown>) => {
     const meta = metadata as UseItemElement | undefined;

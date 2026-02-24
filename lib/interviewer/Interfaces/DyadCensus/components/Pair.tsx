@@ -1,47 +1,59 @@
+import { type EdgeColor } from '@codaco/protocol-validation';
 import { type NcNode } from '@codaco/shared-consts';
 import { motion } from 'motion/react';
 import Node from '~/lib/interviewer/components/Node';
 import { cx } from '~/utils/cva';
 
-const animationOffset = 200;
-const animationTarget = -50;
-
-const pairTransition = {
-  duration: 0.5,
-  delay: 0.15,
-  when: 'afterChildren' as const,
+const pairVariants = {
+  initial: {
+    y: '100%',
+    opacity: 0,
+    transition: { type: 'spring' as const, stiffness: 300, damping: 30 },
+  },
+  animate: {
+    y: '0%',
+    opacity: 1,
+    transition: {
+      type: 'spring' as const,
+      stiffness: 300,
+      damping: 30,
+      when: 'beforeChildren',
+      staggerChildren: 0.1,
+    },
+  },
+  exit: {
+    y: '100%',
+    opacity: 0,
+    transition: {
+      type: 'spring' as const,
+      stiffness: 300,
+      damping: 30,
+      when: 'afterChildren',
+    },
+  },
 };
 
-const getPairVariants = () => {
-  const translateUp = `${animationTarget - animationOffset}%`;
-  const translateDown = `${animationTarget + animationOffset}%`;
-  const translateTarget = `${animationTarget}%`;
+const edgeVariants = {
+  hideEdge: { backgroundPosition: 'right bottom' },
+  showEdge: { backgroundPosition: 'left bottom' },
+};
 
-  return {
-    initial: ([isForwards]: [boolean]) => ({
-      translateY: isForwards ? translateDown : translateUp,
-      translateX: '-50%',
-      opacity: 0,
-    }),
-    show: () => ({
-      translateY: translateTarget,
-      translateX: '-50%',
-      opacity: 1,
-    }),
-    hide: ([isForwards]: [boolean]) => ({
-      translateY: !isForwards ? translateDown : translateUp,
-      translateX: '-50%',
-      opacity: 0,
-    }),
-  };
+const edgeColorMap: Record<EdgeColor, string> = {
+  'edge-color-seq-1': '[--edge-color:var(--color-edge-1)]',
+  'edge-color-seq-2': '[--edge-color:var(--color-edge-2)]',
+  'edge-color-seq-3': '[--edge-color:var(--color-edge-3)]',
+  'edge-color-seq-4': '[--edge-color:var(--color-edge-4)]',
+  'edge-color-seq-5': '[--edge-color:var(--color-edge-5)]',
+  'edge-color-seq-6': '[--edge-color:var(--color-edge-6)]',
+  'edge-color-seq-7': '[--edge-color:var(--color-edge-7)]',
+  'edge-color-seq-8': '[--edge-color:var(--color-edge-8)]',
 };
 
 type PairProps = {
-  fromNode: NcNode;
-  toNode: NcNode;
-  edgeColor: string;
+  fromNode?: NcNode;
+  toNode?: NcNode;
+  edgeColor: EdgeColor;
   hasEdge?: boolean | null;
-  animateForwards?: boolean;
 };
 
 export default function Pair({
@@ -49,42 +61,31 @@ export default function Pair({
   toNode,
   edgeColor,
   hasEdge = false,
-  animateForwards = true,
 }: PairProps) {
-  const pairVariants = getPairVariants();
-
-  const edgeVariants = {
-    hideEdge: { backgroundPosition: 'right bottom' },
-    showEdge: { backgroundPosition: 'left bottom' },
-  };
+  if (!fromNode || !toNode) {
+    return null;
+  }
 
   return (
     <motion.div
-      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-      custom={[animateForwards]}
       variants={pairVariants}
-      transition={pairTransition}
       initial="initial"
-      animate="show"
-      exit="hide"
-      style={{
-        // @ts-expect-error - CSS custom properties are not typed
-        '--edge-color': `var(--nc-${edgeColor})`,
-      }}
+      animate="animate"
+      exit="exit"
+      className="flex w-md items-center"
     >
-      <div className="flex items-center justify-center">
-        <Node {...fromNode} className="relative z-2" />
-        <motion.div
-          className={cx(
-            'relative z-1 mx-[-1.5rem] h-2 w-44 transition-[background] duration-(--animation-duration-standard) ease-(--animation-easing)',
-            'bg-[linear-gradient(to_right,var(--edge-color)_50%,var(--nc-background)_50%)] bg-[length:200%_100%]',
-          )}
-          variants={edgeVariants}
-          initial="hideEdge"
-          animate={!hasEdge ? 'hideEdge' : 'showEdge'}
-        />
-        <Node {...toNode} className="relative z-2" />
-      </div>
+      <Node {...fromNode} />
+      <motion.div
+        className={cx(
+          edgeColorMap[edgeColor],
+          'mx-[-1.5rem] h-2 w-full transition-[background] duration-300 ease-out',
+          'bg-[linear-gradient(to_right,var(--edge-color)_50%,transparent_50%)] bg-[length:200%_100%]',
+        )}
+        variants={edgeVariants}
+        initial="hideEdge"
+        animate={!hasEdge ? 'hideEdge' : 'showEdge'}
+      />
+      <Node {...toNode} />
     </motion.div>
   );
 }

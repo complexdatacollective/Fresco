@@ -4,14 +4,18 @@ import { Toast, type ToastObject } from '@base-ui/react/toast';
 import { AlertCircle, CheckCircle, Info, type LucideIcon } from 'lucide-react';
 import {
   createContext,
+  type FocusEvent,
   type ReactNode,
   type RefObject,
+  useCallback,
   useContext,
+  useRef,
 } from 'react';
 import Paragraph from '~/components/typography/Paragraph';
 import CloseButton from '~/components/ui/CloseButton';
 import { type ToastVariant } from '~/components/ui/Toast';
 import { cva, cx } from '~/utils/cva';
+import { interviewToastManager } from '~/lib/interviewer/components/interviewToastManager';
 
 type InterviewToastContextValue = {
   forwardButtonRef: RefObject<HTMLButtonElement | null>;
@@ -43,6 +47,21 @@ const interviewToastVariants = cva({
   },
 });
 
+const arrowVariants = cva({
+  base: 'size-2.5 rotate-45 rounded-br-sm data-[side=bottom]:-top-[5px] data-[side=left]:-right-[5px] data-[side=right]:-left-[5px] data-[side=top]:-bottom-[5px]',
+  variants: {
+    variant: {
+      default: 'bg-surface',
+      info: 'bg-info',
+      success: 'bg-success',
+      destructive: 'bg-destructive',
+    },
+  },
+  defaultVariants: {
+    variant: 'default',
+  },
+});
+
 const variantIcons: Record<ToastVariant, LucideIcon | null> = {
   default: null,
   info: Info,
@@ -54,9 +73,33 @@ function InterviewToastItem({ toast }: { toast: ToastObject<object> }) {
   const variant = (toast.type ?? 'default') as ToastVariant;
   const IconComponent = variantIcons[variant];
 
-  return (
-    <Toast.Root toast={toast} className="relative">
-      {toast.positionerProps ? (
+  const hasFocusedRef = useRef(false);
+
+  const focusRef = useCallback((node: HTMLElement | null) => {
+    if (node) {
+      node.focus();
+    }
+  }, []);
+
+  const handleFocus = useCallback(() => {
+    hasFocusedRef.current = true;
+  }, []);
+
+  const handleBlur = useCallback(
+    (e: FocusEvent<HTMLElement>) => {
+      if (
+        hasFocusedRef.current &&
+        !e.currentTarget.contains(e.relatedTarget)
+      ) {
+        interviewToastManager.close(toast.id);
+      }
+    },
+    [toast.id],
+  );
+
+  if (toast.positionerProps) {
+    return (
+      <Toast.Root toast={toast} ref={focusRef} onFocus={handleFocus} onBlur={handleBlur}>
         <Toast.Positioner
           toast={toast}
           {...toast.positionerProps}
@@ -65,7 +108,7 @@ function InterviewToastItem({ toast }: { toast: ToastObject<object> }) {
           <Toast.Content
             className={cx(
               interviewToastVariants({ variant }),
-              'flex max-w-72 items-start gap-3',
+              'animate-shake pointer-events-auto flex max-w-72 items-start gap-3',
             )}
           >
             {IconComponent && (
@@ -74,48 +117,61 @@ function InterviewToastItem({ toast }: { toast: ToastObject<object> }) {
                 aria-hidden="true"
               />
             )}
-            <Toast.Description render={<Paragraph className="flex-1" />} />
+            <Toast.Description
+              render={<Paragraph margin="none" className="flex-1" />}
+            />
             <Toast.Close
               render={<CloseButton size="sm" />}
               aria-label="Close"
               nativeButton
             />
           </Toast.Content>
-        </Toast.Positioner>
-      ) : (
-        <Toast.Content
-          className={cx(
-            interviewToastVariants({ variant }),
-            'flex max-w-72 items-start gap-3',
-          )}
-        >
-          {IconComponent && (
-            <IconComponent
-              className="mt-[0.1em] h-5 w-5 shrink-0"
-              aria-hidden="true"
-            />
-          )}
-          <Toast.Description render={<Paragraph className="flex-1" />} />
-          <Toast.Close
-            render={<CloseButton size="sm" />}
-            aria-label="Close"
-            nativeButton
+          <Toast.Arrow
+            className={cx(arrowVariants({ variant }), 'animate-shake')}
           />
-        </Toast.Content>
-      )}
+        </Toast.Positioner>
+      </Toast.Root>
+    );
+  }
+
+  return (
+    <Toast.Root toast={toast} ref={focusRef} onFocus={handleFocus} onBlur={handleBlur}>
+      <Toast.Content
+        className={cx(
+          interviewToastVariants({ variant }),
+          'pointer-events-auto flex max-w-72 items-start gap-3',
+        )}
+      >
+        {IconComponent && (
+          <IconComponent
+            className="mt-[0.1em] h-5 w-5 shrink-0"
+            aria-hidden="true"
+          />
+        )}
+        <Toast.Description
+          render={<Paragraph margin="none" className="flex-1" />}
+        />
+        <Toast.Close
+          render={<CloseButton size="sm" />}
+          aria-label="Close"
+          nativeButton
+        />
+      </Toast.Content>
     </Toast.Root>
   );
 }
 
-function InterviewToastViewport() {
+export function InterviewToastViewport() {
   const { toasts } = Toast.useToastManager();
 
   return (
-    <Toast.Viewport className="pointer-events-none fixed inset-0 z-50">
-      {toasts.map((toast) => (
-        <InterviewToastItem key={toast.id} toast={toast} />
-      ))}
-    </Toast.Viewport>
+    <Toast.Portal>
+      <Toast.Viewport className="pointer-events-none fixed inset-0 z-50">
+        {toasts.map((toast) => (
+          <InterviewToastItem key={toast.id} toast={toast} />
+        ))}
+      </Toast.Viewport>
+    </Toast.Portal>
   );
 }
 
@@ -126,6 +182,11 @@ type InterviewToastProviderProps = {
   orientation: 'vertical' | 'horizontal';
 };
 
+/**
+ * Provides button refs and orientation context for interview toast positioning.
+ * Does NOT wrap in Toast.Provider — that is handled as a sibling provider in
+ * the app-level Providers component to avoid nested providers.
+ */
 export function InterviewToastProvider({
   children,
   forwardButtonRef,
@@ -136,10 +197,7 @@ export function InterviewToastProvider({
     <InterviewToastContext.Provider
       value={{ forwardButtonRef, backButtonRef, orientation }}
     >
-      <Toast.Provider limit={3}>
-        {children}
-        <InterviewToastViewport />
-      </Toast.Provider>
+      {children}
     </InterviewToastContext.Provider>
   );
 }

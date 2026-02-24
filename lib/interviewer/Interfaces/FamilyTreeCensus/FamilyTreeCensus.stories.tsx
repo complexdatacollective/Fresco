@@ -11,7 +11,6 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
 import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
-import { withInterviewAnimation } from '~/.storybook/interview-decorator';
 import sessionReducer from '~/lib/interviewer/ducks/modules/session';
 import uiReducer from '~/lib/interviewer/ducks/modules/ui';
 import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
@@ -269,7 +268,6 @@ const FamilyTreeCensusStoryWrapper = (args: StoryArgs) => {
 
 const meta: Meta<StoryArgs> = {
   title: 'Interview/Interfaces/FamilyTreeCensus',
-  decorators: [withInterviewAnimation],
   parameters: {
     forceTheme: 'interview',
     layout: 'fullscreen',

@@ -9,7 +9,7 @@ import {
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
-import { withInterviewAnimation } from '~/.storybook/interview-decorator';
+import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
 import sessionReducer from '~/lib/interviewer/ducks/modules/session';
 import uiReducer from '~/lib/interviewer/ducks/modules/ui';
@@ -259,7 +259,6 @@ const NameGeneratorStoryWrapper = (args: StoryArgs) => {
 
 const meta: Meta<StoryArgs> = {
   title: 'Interview/Interfaces/NameGenerator',
-  decorators: [withInterviewAnimation],
   parameters: {
     forceTheme: 'interview',
     layout: 'fullscreen',
@@ -306,4 +305,56 @@ type Story = StoryObj<StoryArgs>;
 
 export const Default: Story = {
   render: (args) => <NameGeneratorStoryWrapper {...args} />,
+};
+
+export const MinNodesValidation: Story = {
+  args: {
+    stageType: 'NameGeneratorQuickAdd',
+    initialNodeCount: 0,
+    promptCount: 1,
+    panelCount: 0,
+    minNodes: 3,
+    maxNodes: 0,
+  },
+  render: (args) => <NameGeneratorStoryWrapper {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Click the forward button to trigger validation
+    const forwardButton = canvas.getByRole('button', { name: 'Next Step' });
+    await userEvent.click(forwardButton);
+
+    // The validation popup should appear (rendered via portal)
+    await waitFor(async () => {
+      await expect(
+        screen.getByText(/must create at least/i),
+      ).toBeInTheDocument();
+    });
+
+    await expect(screen.getByText('3')).toBeInTheDocument();
+  },
+};
+
+export const MaxNodesReached: Story = {
+  args: {
+    stageType: 'NameGeneratorQuickAdd',
+    initialNodeCount: 3,
+    promptCount: 1,
+    panelCount: 0,
+    minNodes: 0,
+    maxNodes: 3,
+  },
+  render: (args) => <NameGeneratorStoryWrapper {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for the forward button to get the pulse class (maxNodesReached → updateReady)
+    const forwardButton = canvas.getByRole('button', { name: 'Next Step' });
+    await waitFor(
+      async () => {
+        await expect(forwardButton.className).toMatch(/animate-pulse-glow/);
+      },
+      { timeout: 3000 },
+    );
+  },
 };

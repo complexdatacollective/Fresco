@@ -151,13 +151,14 @@ const NameGenerator = (props: NameGeneratorProps) => {
   );
 
   const maxNodesReached = stageNodeCount >= maxNodes;
+  const minNodesMet = !minNodes || !isLastPrompt || stageNodeCount >= minNodes;
 
   const { updateReady } = useReadyForNextStage();
   const { showToast, closeToast } = useStageValidation({
     constraints: [
       {
         direction: 'forwards',
-        isMet: stageNodeCount >= minNodes || !isLastPrompt,
+        isMet: minNodesMet,
         toast: {
           description: (
             <>
@@ -176,29 +177,39 @@ const NameGenerator = (props: NameGeneratorProps) => {
   const maxToastRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (maxNodesReached) {
+    if (!maxNodesReached) {
+      if (maxToastRef.current) {
+        closeToast(maxToastRef.current);
+        maxToastRef.current = null;
+      }
+      return;
+    }
+
+    // Defer toast creation so StrictMode's cleanup (clearTimeout) cancels
+    // the pending timer rather than closing an already-rendered toast.
+    const timeout = setTimeout(() => {
       maxToastRef.current = showToast({
         description:
           'You have added the maximum number of items for this screen.',
-        variant: 'info',
+        variant: 'success',
         anchor: 'forward',
         timeout: 0,
       });
-      updateReady(true);
-    } else if (maxToastRef.current) {
-      closeToast(maxToastRef.current);
-      maxToastRef.current = null;
-      updateReady(false);
-    }
+    }, 0);
 
     return () => {
+      clearTimeout(timeout);
       if (maxToastRef.current) {
         closeToast(maxToastRef.current);
+        maxToastRef.current = null;
       }
-      updateReady(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [maxNodesReached]);
+
+  useEffect(() => {
+    updateReady(minNodesMet || maxNodesReached);
+  }, [minNodesMet, maxNodesReached, updateReady]);
 
   /**
    * Drop node handler

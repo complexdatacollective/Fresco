@@ -1,35 +1,7 @@
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
+import { type DyadCensusMetadataItem } from '~/lib/interviewer/ducks/modules/session';
 
 type Pair = [string, string];
-
-type PairAccumulator = {
-  result: Pair[];
-  pool: string[];
-};
-
-export const getPairs = (nodes: NcNode[]): PairAccumulator => {
-  const nodeIds = nodes.map((node) => node[entityPrimaryKeyProperty]);
-
-  const pairs = nodeIds.reduce<PairAccumulator>(
-    ({ result, pool }, id) => {
-      const nextPool = pool.filter((alterId) => alterId !== id);
-
-      if (nextPool.length === 0) {
-        return { result, pool: nextPool };
-      }
-
-      const newPairs: Pair[] = nextPool.map((alterId) => [id, alterId]);
-
-      return {
-        result: [...result, ...newPairs],
-        pool: nextPool,
-      };
-    },
-    { pool: nodeIds, result: [] },
-  );
-
-  return pairs;
-};
 
 const getNode = (nodes: NcNode[], id: string): NcNode | undefined =>
   nodes.find((node) => node[entityPrimaryKeyProperty] === id);
@@ -42,4 +14,43 @@ export const getNodePair = (
     return [undefined, undefined];
   }
   return [getNode(nodes, pair[0]), getNode(nodes, pair[1])];
+};
+
+export const matchEntry =
+  (promptIndex: number, pair: Pair) =>
+  ([p, a, b]: DyadCensusMetadataItem) =>
+    (p === promptIndex && a === pair[0] && b === pair[1]) ||
+    (p === promptIndex && b === pair[0] && a === pair[1]);
+
+export const isDyadCensusMetadata = (
+  state: unknown,
+): state is DyadCensusMetadataItem[] => {
+  return (
+    Array.isArray(state) &&
+    state.every(
+      (item) =>
+        Array.isArray(item) &&
+        item.length === 4 &&
+        typeof item[0] === 'number' &&
+        typeof item[1] === 'string' &&
+        typeof item[2] === 'string' &&
+        typeof item[3] === 'boolean',
+    )
+  );
+};
+
+export const getStageMetadataResponse = (
+  state: unknown,
+  promptIndex: number,
+  pair: Pair,
+) => {
+  if (!isDyadCensusMetadata(state) || pair.length !== 2) {
+    return { exists: false, value: undefined };
+  }
+
+  const answer = state.find(matchEntry(promptIndex, pair));
+  return {
+    exists: !!answer,
+    value: answer ? answer[3] : undefined,
+  };
 };

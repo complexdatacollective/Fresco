@@ -1,6 +1,5 @@
 'use client';
 
-import { Toast, type ToastManagerPositionerProps } from '@base-ui/react/toast';
 import {
   type ReactNode,
   useCallback,
@@ -10,6 +9,7 @@ import {
 } from 'react';
 import { type ToastVariant } from '~/components/ui/Toast';
 import { useInterviewToastContext } from '~/lib/interviewer/components/InterviewToast';
+import { interviewToastManager } from '~/lib/interviewer/components/interviewToastManager';
 import { StageMetadataContext } from '~/lib/interviewer/contexts/StageMetadataContext';
 import { type Direction } from '~/lib/interviewer/types';
 
@@ -38,20 +38,17 @@ type UseStageValidationOptions = {
 function useStageValidation({ constraints }: UseStageValidationOptions) {
   const registerBeforeNext = useContext(StageMetadataContext);
   const toastContext = useInterviewToastContext();
-  const toastManager = Toast.useToastManager();
 
   const constraintsRef = useRef(constraints);
   constraintsRef.current = constraints;
 
-  // Track active constraint toasts: constraint index → toast ID
+  // Track active constraint toasts: constraint index -> toast ID
   const activeToastsRef = useRef(new Map<number, string>());
   // Track previous isMet values for auto-close
   const prevIsMetRef = useRef<boolean[]>([]);
 
   const resolvePositionerProps = useCallback(
-    (
-      anchor: 'forward' | 'backward',
-    ): ToastManagerPositionerProps | undefined => {
+    (anchor: 'forward' | 'backward') => {
       if (!toastContext) return undefined;
 
       const { forwardButtonRef, backButtonRef, orientation } = toastContext;
@@ -67,28 +64,25 @@ function useStageValidation({ constraints }: UseStageValidationOptions) {
     [toastContext],
   );
 
-  const showToast = useCallback(
-    (options: InterviewToastOptions): string => {
-      const positionerProps = resolvePositionerProps(options.anchor);
+  const resolvePositionerPropsRef = useRef(resolvePositionerProps);
+  resolvePositionerPropsRef.current = resolvePositionerProps;
 
-      return toastManager.add({
-        type: options.variant,
-        description: options.description,
-        timeout: options.timeout ?? 4000,
-        positionerProps,
-      });
-    },
-    [toastManager, resolvePositionerProps],
-  );
+  const showToast = useCallback((options: InterviewToastOptions): string => {
+    const positionerProps = resolvePositionerPropsRef.current(options.anchor);
 
-  const closeToast = useCallback(
-    (id: string) => {
-      toastManager.close(id);
-    },
-    [toastManager],
-  );
+    return interviewToastManager.add({
+      type: options.variant,
+      description: options.description,
+      timeout: options.timeout ?? 4000,
+      positionerProps,
+    });
+  }, []);
 
-  // Auto-close toasts when constraints transition from unmet → met
+  const closeToast = useCallback((id: string) => {
+    interviewToastManager.close(id);
+  }, []);
+
+  // Auto-close toasts when constraints transition from unmet -> met
   useEffect(() => {
     const prevValues = prevIsMetRef.current;
     const activeToasts = activeToastsRef.current;
@@ -97,14 +91,14 @@ function useStageValidation({ constraints }: UseStageValidationOptions) {
       if (constraint.isMet && prevValues[index] === false) {
         const toastId = activeToasts.get(index);
         if (toastId) {
-          toastManager.close(toastId);
+          interviewToastManager.close(toastId);
           activeToasts.delete(index);
         }
       }
     });
 
     prevIsMetRef.current = constraints.map((c) => c.isMet);
-  }, [constraints, toastManager]);
+  }, [constraints]);
 
   // Register the keyed beforeNext handler
   useEffect(() => {
@@ -118,13 +112,12 @@ function useStageValidation({ constraints }: UseStageValidationOptions) {
           constraint.direction === 'both' || constraint.direction === direction;
 
         if (matchesDirection && !constraint.isMet) {
-          // Only show toast if we don't already have one active for this constraint
           if (!activeToasts.has(i)) {
-            const positionerProps = resolvePositionerProps(
+            const positionerProps = resolvePositionerPropsRef.current(
               constraint.toast.anchor,
             );
 
-            const toastId = toastManager.add({
+            const toastId = interviewToastManager.add({
               type: constraint.toast.variant,
               description: constraint.toast.description,
               timeout: constraint.toast.timeout ?? 4000,
@@ -152,11 +145,11 @@ function useStageValidation({ constraints }: UseStageValidationOptions) {
       registerBeforeNext('stageValidation', null);
 
       for (const toastId of activeToasts.values()) {
-        toastManager.close(toastId);
+        interviewToastManager.close(toastId);
       }
       activeToasts.clear();
     };
-  }, [registerBeforeNext, resolvePositionerProps, toastManager]);
+  }, [registerBeforeNext]);
 
   return { showToast, closeToast };
 }
