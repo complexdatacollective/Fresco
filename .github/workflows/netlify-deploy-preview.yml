@@ -60,10 +60,13 @@ jobs:
           api_key: ${{ secrets.NEON_API_KEY }}
           prisma: true
 
+      - name: Install Netlify CLI
+        run: pnpm add -g netlify-cli
+
       - name: Set Neon database URLs in Netlify
         run: |
-          pnpm dlx netlify-cli env:set DATABASE_URL "${{ steps.create-branch.outputs.db_url_pooled }}" --context branch:${{ steps.branch-name.outputs.current_branch }}
-          pnpm dlx netlify-cli env:set DATABASE_URL_UNPOOLED "${{ steps.create-branch.outputs.db_url }}" --context branch:${{ steps.branch-name.outputs.current_branch }}
+          netlify env:set DATABASE_URL "${{ steps.create-branch.outputs.db_url_pooled }}" --context branch:${{ steps.branch-name.outputs.current_branch }}
+          netlify env:set DATABASE_URL_UNPOOLED "${{ steps.create-branch.outputs.db_url }}" --context branch:${{ steps.branch-name.outputs.current_branch }}
 
       - name: Create .env for build
         run: |
@@ -71,12 +74,12 @@ jobs:
           echo "DATABASE_URL_UNPOOLED=${{ steps.create-branch.outputs.db_url }}" >> .env
 
       - name: Build
-        run: pnpm dlx netlify-cli build --context branch:${{ steps.branch-name.outputs.current_branch }}
+        run: netlify build --context branch:${{ steps.branch-name.outputs.current_branch }}
 
       - name: Deploy preview
         id: deploy
         run: |
-          pnpm dlx netlify-cli deploy --alias="pr-${{ needs.check-pr.outputs.pr_number }}" --json > netlify-deploy.json
+          netlify deploy --alias="pr-${{ needs.check-pr.outputs.pr_number }}" --json > netlify-deploy.json
           echo "deploy_url=$(jq -r '.deploy_url' netlify-deploy.json)" >> "$GITHUB_OUTPUT"
 
       - name: Find existing comment
