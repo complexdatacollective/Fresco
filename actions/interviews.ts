@@ -221,12 +221,12 @@ export async function createInterview(data: CreateInterview) {
       },
     });
 
+    const { label, identifier } = createdInterview.participant;
+    const participantDisplay = label ? `${label} (${identifier})` : identifier;
+
     void addEvent(
       'Interview Started',
-      `Participant "${
-        createdInterview.participant.label ??
-        createdInterview.participant.identifier
-      }" started an interview`,
+      `Participant "${participantDisplay}" started an interview`,
     );
 
     safeRevalidateTag('getInterviews');
@@ -268,11 +268,17 @@ export async function finishInterview(interviewId: Interview['id']) {
       data: {
         finishTime: new Date(),
       },
+      include: {
+        participant: true,
+      },
     });
+
+    const { label, identifier } = updatedInterview.participant;
+    const participantDisplay = label ? `${label} (${identifier})` : identifier;
 
     void addEvent(
       'Interview Completed',
-      `Interview with ID ${interviewId} has been completed`,
+      `Participant "${participantDisplay}" completed an interview`,
     );
 
     const network = JSON.parse(
