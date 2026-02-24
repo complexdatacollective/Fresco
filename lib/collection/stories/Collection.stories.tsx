@@ -511,6 +511,270 @@ const meta = preview.meta({
   tags: ['autodocs'],
   parameters: {
     layout: 'fullscreen',
+    docs: {
+      description: {
+        component: `
+# Collection
+
+A feature-rich, accessible collection component for rendering interactive lists and grids with selection, keyboard navigation, sorting, filtering, drag-and-drop, and virtualization.
+
+## Basic Usage
+
+\`\`\`tsx
+import { Collection } from '~/lib/collection/components/Collection';
+import { ListLayout } from '~/lib/collection/layout/ListLayout';
+
+const layout = new ListLayout({ gap: 8 });
+
+<Collection
+  items={items}
+  layout={layout}
+  keyExtractor={(item) => item.id}
+  textValueExtractor={(item) => item.name}
+  renderItem={(item, itemProps) => (
+    <div {...itemProps}>{item.name}</div>
+  )}
+  selectionMode="multiple"
+  aria-label="My collection"
+/>
+\`\`\`
+
+## Required Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| \`items\` | \`T[]\` | Array of data items to render |
+| \`layout\` | \`Layout<T>\` | Layout instance controlling positioning (\`ListLayout\`, \`GridLayout\`, or \`InlineGridLayout\`) |
+| \`keyExtractor\` | \`(item: T) => Key\` | Extracts a unique key (string or number) from each item |
+| \`textValueExtractor\` | \`(item: T) => string\` | Extracts a text label from each item for type-ahead search and ARIA accessibility |
+| \`renderItem\` | \`(item: T, itemProps: ItemProps) => ReactNode\` | Render function for each item. **You must spread \`itemProps\` onto the root element.** |
+
+## Layout System
+
+Three layout strategies are available. Each layout creates its own keyboard navigation delegate.
+
+### ListLayout
+
+Vertical single-column layout using flexbox. Keyboard navigation is Up/Down only.
+
+\`\`\`tsx
+new ListLayout({ gap: 8 })
+\`\`\`
+
+### GridLayout
+
+CSS Grid with auto-calculated columns based on container width. Supports 2D keyboard navigation (Up/Down/Left/Right).
+
+\`\`\`tsx
+new GridLayout({ minItemWidth: 200, gap: 16 })
+\`\`\`
+
+### InlineGridLayout
+
+Flexbox wrapping layout where items keep their intrinsic widths. Supports 2D spatial navigation. Best for variable-width items like tags or badges.
+
+\`\`\`tsx
+new InlineGridLayout({ gap: 16 })
+\`\`\`
+
+## Selection
+
+Set \`selectionMode\` to enable selection behavior:
+
+- **\`'none'\`** (default) - No selection
+- **\`'single'\`** - One item at a time; clicking replaces the selection
+- **\`'multiple'\`** - Toggle items on/off; supports range and bulk selection
+
+Selected items receive \`data-selected="true"\` and \`aria-selected="true"\` on their \`itemProps\`.
+
+### Controlled vs Uncontrolled
+
+\`\`\`tsx
+// Controlled
+<Collection
+  selectedKeys={selectedKeys}
+  onSelectionChange={(keys) => setSelectedKeys(keys)}
+  ...
+/>
+
+// Uncontrolled
+<Collection
+  defaultSelectedKeys={['1', '3']}
+  ...
+/>
+\`\`\`
+
+### Disabled Items
+
+Pass \`disabledKeys\` to prevent selection and skip items during keyboard navigation. Disabled items receive \`data-disabled="true"\`.
+
+\`\`\`tsx
+<Collection disabledKeys={['item-2', 'item-4']} ... />
+\`\`\`
+
+## Keyboard Navigation
+
+The collection implements a roving tabindex pattern. Tab into the collection, then use:
+
+| Key | Action |
+|-----|--------|
+| Arrow Down / Arrow Up | Move focus to next/previous item |
+| Arrow Left / Arrow Right | Move within row (grid layouts only) |
+| Home / End | Jump to first/last item |
+| Space / Enter | Toggle selection of focused item |
+| Ctrl+A / Cmd+A | Select all (multiple mode) |
+| Escape | Clear all selections |
+| **Type characters** | **Type-ahead search** - jump to matching item by name |
+
+### Type-Ahead Search
+
+When the collection has focus, typing characters accumulates a search string that is prefix-matched against item text values (from \`textValueExtractor\`). The search string resets after 500ms of inactivity. Matching is case-insensitive and wraps around the collection. Disabled items are skipped.
+
+## Sorting
+
+Enable sorting by providing a default sort configuration or controlled sort state. Use the built-in UI components or the \`useSortManager\` context hook for custom UIs.
+
+\`\`\`tsx
+<Collection
+  defaultSortBy="name"
+  defaultSortDirection="asc"
+  filterKeys={['name']}  // also enables filtering UI children
+  ...
+>
+  {/* Built-in sort UI components */}
+  <CollectionSortButton property="name" type="string" label="Name" />
+  <CollectionSortSelect options={sortOptions} />
+</Collection>
+\`\`\`
+
+### Sort Rules
+
+For multi-field sorting, pass \`sortRules\`:
+
+\`\`\`tsx
+const rules = [
+  { property: 'department', direction: 'asc', type: 'string' },
+  { property: 'priority', direction: 'desc', type: 'number' },
+];
+
+<Collection sortRules={rules} ... />
+\`\`\`
+
+The special property \`'*'\` sorts by original array order (useful for a "reset" button). Nested properties are supported as arrays: \`['profile', 'displayName']\`.
+
+## Filtering
+
+Enable fuzzy search by providing \`filterKeys\`. This activates a Fuse.js-powered search that runs in a Web Worker to avoid blocking the main thread.
+
+\`\`\`tsx
+<Collection
+  filterKeys={['name', 'department', 'role']}
+  filterDebounceMs={300}
+  filterFuseOptions={{ threshold: 0.35 }}
+  ...
+>
+  <CollectionFilterInput placeholder="Search..." showResultCount />
+</Collection>
+\`\`\`
+
+Results are sorted by relevance score. When combined with user sort rules, relevance acts as the primary sort key with user rules as tiebreakers.
+
+### CollectionFilterInput Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| \`placeholder\` | \`string\` | \`"Search..."\` | Input placeholder text |
+| \`showClearButton\` | \`boolean\` | \`true\` | Show clear button when query exists |
+| \`showResultCount\` | \`boolean\` | \`true\` | Show match count |
+| \`showLoadingIndicator\` | \`boolean\` | \`true\` | Show spinner while indexing/searching |
+| \`size\` | \`'sm' \\| 'md' \\| 'lg'\` | \`'md'\` | Input size |
+
+## Drag and Drop
+
+Integrate with the DnD system via \`useDragAndDrop\`:
+
+\`\`\`tsx
+const { dragAndDropHooks } = useDragAndDrop({
+  getItems: (keys) => [{ type: 'person', keys }],
+  onDrop: (e) => handleDrop(e),
+  acceptTypes: ['person'],
+});
+
+<Collection dragAndDropHooks={dragAndDropHooks} ... />
+\`\`\`
+
+Dragging is multi-select aware: if a selected item is dragged, all selected items move together. Disabled items cannot be dragged.
+
+## Virtualization
+
+For large lists, enable virtualization to only render visible items:
+
+\`\`\`tsx
+<Collection
+  virtualized
+  overscan={5}  // extra rows rendered beyond viewport
+  ...
+/>
+\`\`\`
+
+## Animation
+
+Items animate in with a stagger effect by default. Control this with:
+
+- **\`animate\`** - Enable/disable animations (default: \`true\`)
+- **\`animationKey\`** - Change this value to trigger a re-animation
+
+## Context Hooks
+
+Child components rendered inside \`<Collection>\` can access collection state through context hooks:
+
+| Hook | Description |
+|------|-------------|
+| \`useCollectionStore(selector)\` | Select from the zustand collection store |
+| \`useSelectionManager()\` | Access selection state and actions |
+| \`useOptionalSortManager()\` | Access sort state (null if sorting not configured) |
+| \`useFilterManager()\` | Access filter state (throws if \`filterKeys\` not set) |
+| \`useOptionalFilterManager()\` | Access filter state (null if not configured) |
+| \`useCollectionId()\` | Get the collection's unique ID |
+
+## ItemProps Data Attributes
+
+The \`itemProps\` passed to \`renderItem\` include data attributes for styling:
+
+| Attribute | When Present |
+|-----------|-------------|
+| \`data-selected="true"\` | Item is selected |
+| \`data-focused="true"\` | Item has keyboard focus |
+| \`data-disabled="true"\` | Item is disabled |
+| \`data-dragging="true"\` | Item is being dragged |
+| \`data-drop-target="true"\` | Item is a valid drop target |
+| \`data-collection-item\` | Always present on collection items |
+
+Use these with Tailwind's data attribute variants:
+
+\`\`\`tsx
+<div
+  {...itemProps}
+  className="data-selected:bg-accent data-disabled:opacity-50 data-focused:ring-2"
+>
+  {item.name}
+</div>
+\`\`\`
+
+## Empty State
+
+Provide a custom empty state component:
+
+\`\`\`tsx
+<Collection
+  items={[]}
+  emptyState={<div>No items found</div>}
+  ...
+/>
+\`\`\`
+`,
+      },
+    },
   },
 });
 
