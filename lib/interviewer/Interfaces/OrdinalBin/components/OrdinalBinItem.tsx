@@ -1,6 +1,7 @@
+import { type SortOrder } from '@codaco/protocol-validation';
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { motion } from 'motion/react';
-import { memo, useMemo } from 'react';
+import { memo } from 'react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
 import { useDropTarget } from '~/lib/dnd';
@@ -9,10 +10,8 @@ import { cx } from '~/utils/cva';
 import NodeList from '../../../components/NodeList';
 import { usePrompts } from '../../../components/Prompts/usePrompts';
 import { updateNode } from '../../../ducks/modules/session';
+import useSortedNodeList from '../../../hooks/useSortedNodeList';
 import { useAppDispatch } from '../../../store';
-import createSorter, {
-  type ProcessedSortRule,
-} from '../../../utils/createSorter';
 import { type OrdinalBinItem as OrdinalBinItemType } from '../useOrdinalBins';
 
 type OrdinalBinItemProps = {
@@ -21,7 +20,7 @@ type OrdinalBinItemProps = {
   activePromptVariable: string;
   stageId: string;
   promptId: string;
-  sortOrder?: ProcessedSortRule[];
+  sortOrder?: SortOrder;
   totalBins: number;
 };
 
@@ -90,8 +89,7 @@ const OrdinalBinItem = memo((props: OrdinalBinItemProps) => {
     );
   };
 
-  const sorter = useMemo(() => createSorter<NcNode>(sortOrder), [sortOrder]);
-  const sortedNodes = sorter(bin.nodes);
+  const sortedNodes = useSortedNodeList(bin.nodes, sortOrder);
 
   const listId = `ORDBIN_NODE_LIST_${stageId}_${promptId}_${index}`;
 

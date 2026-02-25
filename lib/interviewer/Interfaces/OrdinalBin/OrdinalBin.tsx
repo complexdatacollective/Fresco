@@ -1,4 +1,3 @@
-import { type Prompt } from '@codaco/protocol-validation';
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import { isNil } from 'es-toolkit';
 import { AnimatePresence, motion } from 'motion/react';
@@ -9,8 +8,8 @@ import NodeDrawer from '../../components/NodeDrawer';
 import Prompts from '../../components/Prompts';
 import { usePrompts } from '../../components/Prompts/usePrompts';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
+import useSortedNodeList from '../../hooks/useSortedNodeList';
 import { getNetworkNodesForType } from '../../selectors/session';
-import { type ProcessedSortRule } from '../../utils/createSorter';
 import OrdinalBinItem from './components/OrdinalBinItem';
 import { useOrdinalBins } from './useOrdinalBins';
 
@@ -28,15 +27,6 @@ const binsContainerVariants = {
   exit: { opacity: 0 },
 };
 
-// TODO: This type shouldn't be needed. The prompt type should be defined by the protocol and
-// validated as such. There is a problem with the protocol validation type for this
-// stage's prompt.
-type OrdinalBinPrompt = Prompt & {
-  bucketSortOrder?: ProcessedSortRule[];
-  binSortOrder?: ProcessedSortRule[];
-  color?: string;
-};
-
 /**
  * OrdinalBin Interface
  *
@@ -46,7 +36,7 @@ type OrdinalBinPrompt = Prompt & {
 const OrdinalBin = (props: OrdinalBinStageProps) => {
   const { stage } = props;
 
-  const { prompt } = usePrompts<OrdinalBinPrompt>();
+  const { prompt } = usePrompts<(typeof stage.prompts)[number]>();
 
   const stageNodes = useSelector(getNetworkNodesForType);
 
@@ -54,6 +44,10 @@ const OrdinalBin = (props: OrdinalBinStageProps) => {
 
   const nodesForPrompt = stageNodes.filter((node) =>
     isNil(node[entityAttributesProperty][activePromptVariable!]),
+  );
+  const sortedUnplacedNodes = useSortedNodeList(
+    nodesForPrompt,
+    prompt?.bucketSortOrder,
   );
 
   const { updateReady } = useReadyForNextStage();
@@ -94,7 +88,7 @@ const OrdinalBin = (props: OrdinalBinStageProps) => {
           )}
         </AnimatePresence>
       </div>
-      <NodeDrawer nodes={nodesForPrompt} itemType="NODE" />
+      <NodeDrawer nodes={sortedUnplacedNodes} itemType="NODE" />
     </div>
   );
 };

@@ -5,6 +5,7 @@ import NodeDrawer from '../../components/NodeDrawer';
 import Prompts from '../../components/Prompts';
 import { usePrompts } from '../../components/Prompts/usePrompts';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
+import useSortedNodeList from '../../hooks/useSortedNodeList';
 import CategoricalBinItem from './components/CategoricalBinItem';
 import {
   type CategoricalBinPrompt,
@@ -27,6 +28,8 @@ const CAT_COLOR_VARS = [
   'var(--cat-10)',
 ];
 
+// Determine if this is an 'other' or missing category, which needs to have
+// different visual treatment.
 const isSpecialValue = (value: number | string | null) => {
   if (value === null) return true;
   if (typeof value === 'number' && value < 0) return true;
@@ -69,6 +72,11 @@ const CategoricalBin = (props: CategoricalBinStageProps) => {
     promptOtherVariable,
     uncategorisedNodes,
   } = useCategoricalBins();
+
+  const sortedUncategorisedNodes = useSortedNodeList(
+    uncategorisedNodes,
+    prompt?.bucketSortOrder,
+  );
 
   const { updateReady } = useReadyForNextStage();
 
@@ -138,7 +146,7 @@ const CategoricalBin = (props: CategoricalBinStageProps) => {
         </div>
       )}
       <NodeDrawer
-        nodes={uncategorisedNodes}
+        nodes={sortedUncategorisedNodes}
         itemType="NODE"
         expanded={!hasExpanded}
       />

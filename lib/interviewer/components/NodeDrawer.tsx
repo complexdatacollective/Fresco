@@ -2,10 +2,7 @@ import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
 import { headingVariants } from '~/components/typography/Heading';
-import useSortedNodeList from '~/lib/interviewer/hooks/useSortedNodeList';
-import { getPromptSortOrder } from '~/lib/interviewer/selectors/session';
 import { cx } from '~/utils/cva';
 import DrawerNode from '../Interfaces/Sociogram/DrawerNode';
 
@@ -27,8 +24,6 @@ export default function NodeDrawer({
   const [internalExpanded, setInternalExpanded] = useState(true);
   const isExpanded = expanded ?? internalExpanded;
   const setIsExpanded = onExpandedChange ?? setInternalExpanded;
-  const sortOrder = useSelector(getPromptSortOrder);
-  const sortedNodes = useSortedNodeList(nodes, sortOrder);
 
   if (nodes.length === 0) return null;
 
@@ -78,7 +73,7 @@ export default function NodeDrawer({
             className="bg-surface/80 overflow-hidden rounded backdrop-blur-md"
           >
             <div className="flex items-center justify-center gap-4 overflow-x-auto p-4">
-              {sortedNodes.map((node) => (
+              {nodes.map((node) => (
                 <DrawerNode
                   key={node[entityPrimaryKeyProperty]}
                   node={node}

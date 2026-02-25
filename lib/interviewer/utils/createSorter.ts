@@ -6,6 +6,7 @@ import {
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 
+// TODO: This type should be exported directly from protocol-validation. Fixed in latest version.
 export type ProtocolSortRule = SortOrder[number];
 
 /**

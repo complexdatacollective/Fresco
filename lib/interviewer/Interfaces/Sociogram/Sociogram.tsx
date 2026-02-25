@@ -7,6 +7,8 @@ import {
 import { get } from 'es-toolkit/compat';
 import { useCallback, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
+import useSortedNodeList from '~/lib/interviewer/hooks/useSortedNodeList';
+import { getPromptSortOrder } from '~/lib/interviewer/selectors/session';
 import Canvas from '~/lib/interviewer/canvas/Canvas';
 import {
   createCanvasStore,
@@ -66,6 +68,8 @@ const Sociogram = (stageProps: SociogramProps) => {
   const allNodes = useSelector(getNodes);
   const placedNodes = useSelector(getPlacedNodes);
   const unplacedNodes = useSelector(getUnplacedNodes);
+  const sortOrder = useSelector(getPromptSortOrder);
+  const sortedUnplacedNodes = useSortedNodeList(unplacedNodes, sortOrder);
 
   const canvasNodes = layoutMode === 'AUTOMATIC' ? allNodes : placedNodes;
   const edges = useSelector(getEdges);
@@ -212,7 +216,7 @@ const Sociogram = (stageProps: SociogramProps) => {
         simulation={simulationHandlers}
       />
       {layoutMode === 'MANUAL' ? (
-        <NodeDrawer nodes={unplacedNodes} />
+        <NodeDrawer nodes={sortedUnplacedNodes} />
       ) : (
         <SimulationPanel
           simulationEnabled={simulation.simulationEnabled}

@@ -1,4 +1,4 @@
-import { type Prompt } from '@codaco/protocol-validation';
+import { type Prompt, type SortOrder } from '@codaco/protocol-validation';
 import { entityAttributesProperty, type NcNode } from '@codaco/shared-consts';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
@@ -11,11 +11,10 @@ import {
   getPromptVariable,
 } from '../../selectors/prop';
 import { getNetworkNodesForType } from '../../selectors/session';
-import { type ProcessedSortRule } from '../../utils/createSorter';
 
 export type CategoricalBinPrompt = Prompt & {
-  bucketSortOrder?: ProcessedSortRule[];
-  binSortOrder?: ProcessedSortRule[];
+  bucketSortOrder?: SortOrder;
+  binSortOrder?: SortOrder;
 };
 
 export type CategoricalBin = {

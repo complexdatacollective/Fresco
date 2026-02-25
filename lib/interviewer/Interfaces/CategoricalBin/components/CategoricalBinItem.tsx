@@ -1,7 +1,7 @@
-import { type Prompt } from '@codaco/protocol-validation';
+import { type Prompt, type SortOrder } from '@codaco/protocol-validation';
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { animate, AnimatePresence, motion } from 'motion/react';
-import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
 import { useDropTarget } from '~/lib/dnd';
@@ -10,10 +10,8 @@ import { cx } from '~/utils/cva';
 import NodeList from '../../../components/NodeList';
 import { usePrompts } from '../../../components/Prompts/usePrompts';
 import { updateNode } from '../../../ducks/modules/session';
+import useSortedNodeList from '../../../hooks/useSortedNodeList';
 import { useAppDispatch } from '../../../store';
-import createSorter, {
-  type ProcessedSortRule,
-} from '../../../utils/createSorter';
 import { type CategoricalBin } from '../useCategoricalBins';
 import BinSummary from './BinSummary';
 import OtherVariableForm from './OtherVariableForm';
@@ -25,7 +23,7 @@ type CategoricalBinItemProps = {
   promptOtherVariable: string | undefined;
   stageId: string;
   promptId: string;
-  sortOrder?: ProcessedSortRule[];
+  sortOrder?: SortOrder;
   isExpanded: boolean;
   onToggleExpand: (index: number) => void;
   catColor: string | null;
@@ -60,7 +58,7 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
   } = props;
 
   const dispatch = useAppDispatch();
-  const { prompt } = usePrompts<Prompt & { sortOrder?: ProcessedSortRule[] }>();
+  const { prompt } = usePrompts<Prompt & { sortOrder?: SortOrder }>();
   const binRef = useRef<HTMLDivElement>(null);
 
   const isOtherVariable = !!bin.otherVariable;
@@ -141,11 +139,7 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
   };
 
   const listSortOrder = prompt?.sortOrder ?? sortOrder;
-  const sorter = useMemo(
-    () => createSorter<NcNode>(listSortOrder),
-    [listSortOrder],
-  );
-  const sortedNodes = sorter(bin.nodes);
+  const sortedNodes = useSortedNodeList(bin.nodes, listSortOrder);
 
   const listId = `CATBIN_NODE_LIST_${stageId}_${promptId}_${index}`;
   const layoutId = `catbin-${promptId}-${index}`;
