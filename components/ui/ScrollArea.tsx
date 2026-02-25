@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'motion/react';
+import { LayoutGroup, motion } from 'motion/react';
 import {
   type CSSProperties,
   forwardRef,
@@ -194,48 +194,51 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
     const isHorizontal = orientation === 'horizontal';
 
     return (
-      <motion.div
-        className={cx('relative flex h-full min-h-0 flex-1', className)}
-      >
+      <LayoutGroup>
         <motion.div
-          layoutScroll
-          ref={useMergeRefs({ viewportRef, ref })}
-          tabIndex={tabIndex ?? 0}
-          onKeyDown={onKeyDown}
-          onKeyUp={onKeyUp}
-          onFocus={onFocus}
-          onBlur={onBlur}
-          className={cx(
-            'focusable',
-            'p-2',
-            // Layout
-            isHorizontal
-              ? 'min-w-0 flex-auto overflow-x-auto overflow-y-hidden overscroll-contain'
-              : 'min-h-0 flex-1 overflow-auto overscroll-contain',
-            // Gradient fade effect
-            fade &&
-              (isHorizontal
-                ? 'scroll-area-viewport-x'
-                : 'scroll-area-viewport'),
-            // Scroll snap
-            getSnapClasses(),
-            viewportClassName,
-          )}
-          style={
-            {
-              '--scroll-area-overflow-y-start': '0px',
-              '--scroll-area-overflow-y-end': '0px',
-              '--scrollbar-width': '0px',
-              '--scroll-area-overflow-x-start': '0px',
-              '--scroll-area-overflow-x-end': '0px',
-              '--scrollbar-height': '0px',
-            } as CSSProperties
-          }
-          {...rest}
+          className={cx('relative flex h-full min-h-0 flex-1', className)}
+          layout
         >
-          {children}
+          <motion.div
+            layout
+            ref={useMergeRefs({ viewportRef, ref })}
+            tabIndex={tabIndex ?? 0}
+            onKeyDown={onKeyDown}
+            onKeyUp={onKeyUp}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            className={cx(
+              'focusable',
+              'p-2',
+              // Layout
+              isHorizontal
+                ? 'min-w-0 flex-auto overflow-x-auto overflow-y-hidden overscroll-contain'
+                : 'min-h-0 flex-1 overflow-auto overscroll-contain',
+              // Gradient fade effect
+              fade &&
+                (isHorizontal
+                  ? 'scroll-area-viewport-x'
+                  : 'scroll-area-viewport'),
+              // Scroll snap
+              getSnapClasses(),
+              viewportClassName,
+            )}
+            style={
+              {
+                '--scroll-area-overflow-y-start': '0px',
+                '--scroll-area-overflow-y-end': '0px',
+                '--scrollbar-width': '0px',
+                '--scroll-area-overflow-x-start': '0px',
+                '--scroll-area-overflow-x-end': '0px',
+                '--scrollbar-height': '0px',
+              } as CSSProperties
+            }
+            {...rest}
+          >
+            {children}
+          </motion.div>
         </motion.div>
-      </motion.div>
+      </LayoutGroup>
     );
   },
 );
