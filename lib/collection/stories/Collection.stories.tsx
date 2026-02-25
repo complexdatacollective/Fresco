@@ -409,9 +409,10 @@ function DragDropStoryRender(args: DragDropStoryArgs) {
 
   const handleLeftDrop = useCallback(
     (e: DropEvent) => {
-      const itemsToMove = rightItems.filter((item) => e.keys.has(item.id));
+      const keys = e.metadata.keys as Set<Key>;
+      const itemsToMove = rightItems.filter((item) => keys.has(item.id));
       if (itemsToMove.length === 0) return;
-      setRightItems((prev) => prev.filter((item) => !e.keys.has(item.id)));
+      setRightItems((prev) => prev.filter((item) => !keys.has(item.id)));
       setLeftItems((prev) => [...prev, ...itemsToMove]);
     },
     [rightItems],
@@ -419,9 +420,10 @@ function DragDropStoryRender(args: DragDropStoryArgs) {
 
   const handleRightDrop = useCallback(
     (e: DropEvent) => {
-      const itemsToMove = leftItems.filter((item) => e.keys.has(item.id));
+      const keys = e.metadata.keys as Set<Key>;
+      const itemsToMove = leftItems.filter((item) => keys.has(item.id));
       if (itemsToMove.length === 0) return;
-      setLeftItems((prev) => prev.filter((item) => !e.keys.has(item.id)));
+      setLeftItems((prev) => prev.filter((item) => !keys.has(item.id)));
       setRightItems((prev) => [...prev, ...itemsToMove]);
     },
     [leftItems],

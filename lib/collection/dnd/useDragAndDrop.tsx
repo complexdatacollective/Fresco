@@ -10,7 +10,6 @@ import { DropIndicator } from './DropIndicator';
 import {
   type DragAndDropHooks,
   type DragAndDropOptions,
-  type DropEvent,
   type DroppableCollectionResult,
   type DropPosition,
   type DropTarget,
@@ -45,6 +44,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
     acceptTypes,
     allowedDropPositions = ['before', 'after'],
     getItemMetadata,
+    announcedName,
   } = options;
 
   // Get the item type(s) from the getItems function for drop target acceptance
@@ -105,23 +105,12 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
         const { dropProps, isOver, willAccept, isDragging } = useDropTarget({
           id: `${collectionId}-container`,
           accepts,
-          announcedName: `Drop zone for collection`,
+          announcedName,
           onDrop: (metadata) => {
             if (!metadata || !onDropRef.current) return;
 
-            const keys = metadata.keys as Set<Key> | undefined;
-            const key = metadata.key as Key | undefined;
             const type = (metadata.type as string | undefined) ?? 'unknown';
-
-            if (!keys && !key) return;
-
-            const dropEvent: DropEvent = {
-              keys: keys ?? new Set([key!]),
-              type,
-              metadata,
-            };
-
-            onDropRef.current(dropEvent);
+            onDropRef.current({ type, metadata });
           },
         });
 
@@ -233,7 +222,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
         const { dropProps, isOver, willAccept } = useDropTarget({
           id: `${collectionId}-item-${key}`,
           accepts: itemTypesRef.current,
-          announcedName: `Drop target for item ${key}`,
+          announcedName,
           onDrop: handleItemDrop,
           onDragEnter: () => {
             setDropTarget({ key, position: 'after' });
@@ -309,6 +298,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
       dropTarget,
       allowedDropPositions,
       acceptTypes,
+      announcedName,
     ],
   );
 

@@ -48,12 +48,10 @@ export type ReorderEvent = {
  * Event fired when items are dropped onto a collection container.
  */
 export type DropEvent = {
-  /** Keys of items being dropped */
-  keys: Set<Key>;
   /** Type identifier of the dragged items */
   type: string;
   /** Full metadata from the drag source */
-  metadata?: Record<string, unknown>;
+  metadata: Record<string, unknown>;
 };
 
 /**
@@ -158,4 +156,6 @@ export type DragAndDropOptions<_T = unknown> = {
   allowedDropPositions?: DropPosition[];
   /** Additional data to include with drag operations */
   getItemMetadata?: (key: Key) => Record<string, unknown>;
+  /** Name for accessibility announcements */
+  announcedName: string;
 };
