@@ -2,11 +2,13 @@ import { type Prompt } from '@codaco/protocol-validation';
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import { isNil } from 'es-toolkit';
 import { AnimatePresence, motion } from 'motion/react';
+import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { type StageProps } from '~/lib/interviewer/types';
-import MultiNodeBucket from '../../components/MultiNodeBucket';
+import NodeDrawer from '../../components/NodeDrawer';
 import Prompts from '../../components/Prompts';
 import { usePrompts } from '../../components/Prompts/usePrompts';
+import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 import { getNetworkNodesForType } from '../../selectors/session';
 import { type ProcessedSortRule } from '../../utils/createSorter';
 import OrdinalBinItem from './components/OrdinalBinItem';
@@ -54,16 +56,17 @@ const OrdinalBin = (props: OrdinalBinStageProps) => {
     isNil(node[entityAttributesProperty][activePromptVariable!]),
   );
 
+  const { updateReady } = useReadyForNextStage();
+
+  useEffect(() => {
+    updateReady(nodesForPrompt.length === 0);
+  }, [nodesForPrompt.length, updateReady]);
+
   return (
-    <div className="interface flex h-full flex-col overflow-hidden">
+    <div className="interface relative flex h-full flex-col overflow-hidden">
       <div className="shrink-0">
         <Prompts />
       </div>
-      <MultiNodeBucket
-        nodes={nodesForPrompt}
-        listId={`${stage.id}_${prompt?.id ?? 'unknown'}_NODE_BUCKET`}
-        sortOrder={prompt?.bucketSortOrder}
-      />
       <div className="min-h-0 w-full flex-1">
         <AnimatePresence mode="wait">
           {prompt && activePromptVariable && (
@@ -91,6 +94,7 @@ const OrdinalBin = (props: OrdinalBinStageProps) => {
           )}
         </AnimatePresence>
       </div>
+      <NodeDrawer nodes={nodesForPrompt} itemType="NODE" />
     </div>
   );
 };

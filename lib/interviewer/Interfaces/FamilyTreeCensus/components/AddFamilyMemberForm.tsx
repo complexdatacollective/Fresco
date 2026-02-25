@@ -11,16 +11,10 @@ import { useFamilyTreeStore } from '~/lib/interviewer/Interfaces/FamilyTreeCensu
 import { useDynamicFields } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/useDynamicFields';
 import { useRelatives } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/useRelatives';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
-import {
-  getNodeTypeLabel,
-  getStageSubject,
-} from '~/lib/interviewer/selectors/session';
+import { getNodeTypeLabel } from '~/lib/interviewer/selectors/session';
 
 const AddFamilyMemberForm = () => {
-  const subject = useSelector(getStageSubject);
-  const nodeType = useSelector(
-    getNodeTypeLabel(subject && subject.entity !== 'ego' ? subject.type : ''),
-  );
+  const nodeType = useSelector(getNodeTypeLabel);
   const icon = useSelector(getNodeIconName);
   const nodesMap = useFamilyTreeStore((state) => state.network.nodes);
   const nodes = Array.from(

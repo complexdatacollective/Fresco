@@ -14,7 +14,6 @@ import {
 } from '~/lib/interviewer/canvas/useCanvasStore';
 import ConcentricCircles from '~/lib/interviewer/components/ConcentricCircles';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
-import { type StageProps } from '~/lib/interviewer/types';
 import { getAssetUrlFromId } from '~/lib/interviewer/ducks/modules/protocol';
 import {
   toggleEdge,
@@ -28,8 +27,9 @@ import {
   getUnplacedNodes,
 } from '~/lib/interviewer/selectors/canvas';
 import { useAppDispatch } from '~/lib/interviewer/store';
+import { type StageProps } from '~/lib/interviewer/types';
+import NodeDrawer from '../../components/NodeDrawer';
 import CollapsablePrompts from './CollapsablePrompts';
-import NodeDrawer from './NodeDrawer';
 import SimulationPanel from './SimulationPanel';
 import { useForceSimulation } from './useForceSimulation';
 

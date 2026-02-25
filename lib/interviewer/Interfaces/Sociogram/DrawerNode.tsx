@@ -8,16 +8,20 @@ import Node from '~/lib/interviewer/components/Node';
 
 type DrawerNodeProps = {
   node: NcNode;
+  itemType?: string;
 };
 
-export default function DrawerNode({ node }: DrawerNodeProps) {
+export default function DrawerNode({
+  node,
+  itemType = 'UNPOSITIONED_NODE',
+}: DrawerNodeProps) {
   const nodeId = node[entityPrimaryKeyProperty];
   const rawName = node[entityAttributesProperty].name;
   const name = typeof rawName === 'string' ? rawName : 'Node';
 
   const { dragProps } = useDragSource({
-    type: 'UNPOSITIONED_NODE',
-    metadata: { nodeId, nodeType: node.type, id: nodeId },
+    type: itemType,
+    metadata: { ...node, nodeId, id: nodeId },
     announcedName: name,
   });
 

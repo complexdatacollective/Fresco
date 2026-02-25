@@ -1,7 +1,7 @@
 import { type Prompt } from '@codaco/protocol-validation';
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
-import { AnimatePresence, motion } from 'motion/react';
-import { memo, useMemo, useState } from 'react';
+import { animate, AnimatePresence, motion } from 'motion/react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
 import { useDropTarget } from '~/lib/dnd';
@@ -61,9 +61,20 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
 
   const dispatch = useAppDispatch();
   const { prompt } = usePrompts<Prompt & { sortOrder?: ProcessedSortRule[] }>();
+  const binRef = useRef<HTMLDivElement>(null);
 
   const isOtherVariable = !!bin.otherVariable;
   const [showOther, setShowOther] = useState<NcNode | null>(null);
+
+  const celebrateDrop = useCallback(() => {
+    const el = binRef.current;
+    if (!el) return;
+    void animate(
+      el,
+      { scale: [isExpanded ? 0.97 : 0.85, 1] },
+      { type: 'spring', stiffness: 500, damping: isExpanded ? 20 : 12 },
+    );
+  }, [isExpanded]);
 
   const setNodeCategory = (node: NcNode, category: string | number | null) => {
     const variable = bin.otherVariable ?? activePromptVariable;
@@ -101,6 +112,7 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
     }
 
     setNodeCategory(node, bin.value);
+    celebrateDrop();
   };
 
   const handleClickItem = (node: NcNode) => {
@@ -138,12 +150,24 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
   const listId = `CATBIN_NODE_LIST_${stageId}_${promptId}_${index}`;
   const layoutId = `catbin-${promptId}-${index}`;
 
-  const { dropProps, isOver, willAccept, isDragging } = useDropTarget({
+  const {
+    dropProps: { ref: dropRef, ...dropPropsRest },
+    isOver,
+    willAccept,
+  } = useDropTarget({
     id: `CATBIN_ITEM_${stageId}_${promptId}_${index}`,
     accepts: ['NODE'],
     announcedName: `Category: ${bin.label}`,
     onDrop: handleDrop,
   });
+
+  const mergedRef = useCallback(
+    (el: HTMLDivElement | null) => {
+      binRef.current = el;
+      dropRef(el);
+    },
+    [dropRef],
+  );
 
   const missingValue =
     bin.value === null || (typeof bin.value === 'number' && bin.value < 0);
@@ -174,7 +198,6 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
       'catbin-expanded z-10 flex flex-col overflow-hidden border-4 transition-colors',
       catColor && 'border-(--cat-color)',
       !catColor && 'border-outline',
-      isDragging && willAccept && 'ring-2 ring-(--cat-color) ring-offset-2',
       isOver &&
         willAccept &&
         'shadow-[0_0_24px_var(--cat-color)] ring-4 ring-(--cat-color)',
@@ -194,10 +217,12 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
     return (
       <>
         <motion.div
+          ref={binRef}
           layout
           layoutId={layoutId}
           className={panelClasses}
           style={{ ...colorStyle, borderRadius: 16 }}
+          onClick={(e) => e.stopPropagation()}
           transition={springTransition}
           variants={binItemVariants}
           initial="initial"
@@ -222,7 +247,11 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
               {bin.nodes.length}
             </span>
           </div>
-          <div {...dropProps} className="min-h-0 flex-1 overflow-hidden p-2">
+          <div
+            ref={dropRef}
+            {...dropPropsRest}
+            className="min-h-0 flex-1 overflow-hidden p-2"
+          >
             <motion.div
               initial="initial"
               animate="animate"
@@ -251,7 +280,6 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
       missingValue &&
       'bg-[oklch(from_var(--cat-color)_calc(l*0.5)_calc(c*0.4)_h/0.1)]',
     !catColor && 'bg-surface',
-    isDragging && willAccept && 'ring-2 ring-(--cat-color) ring-offset-2',
     isOver &&
       willAccept &&
       'scale-110 shadow-[0_0_24px_var(--cat-color)] ring-4 ring-(--cat-color)',
@@ -260,9 +288,10 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
   return (
     <>
       <motion.div
+        ref={mergedRef}
         layout
         layoutId={layoutId}
-        {...dropProps}
+        {...dropPropsRest}
         className={circleClasses}
         style={{
           ...colorStyle,

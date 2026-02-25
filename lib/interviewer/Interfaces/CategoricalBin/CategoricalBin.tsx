@@ -1,9 +1,10 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import { type StageProps } from '~/lib/interviewer/types';
-import MultiNodeBucket from '../../components/MultiNodeBucket';
+import NodeDrawer from '../../components/NodeDrawer';
 import Prompts from '../../components/Prompts';
 import { usePrompts } from '../../components/Prompts/usePrompts';
+import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 import CategoricalBinItem from './components/CategoricalBinItem';
 import {
   type CategoricalBinPrompt,
@@ -69,6 +70,12 @@ const CategoricalBin = (props: CategoricalBinStageProps) => {
     uncategorisedNodes,
   } = useCategoricalBins();
 
+  const { updateReady } = useReadyForNextStage();
+
+  useEffect(() => {
+    updateReady(uncategorisedNodes.length === 0);
+  }, [uncategorisedNodes.length, updateReady]);
+
   // Reset expanded bin when prompt changes
   useEffect(() => {
     setExpandedBinIndex(null);
@@ -90,16 +97,12 @@ const CategoricalBin = (props: CategoricalBinStageProps) => {
   });
 
   return (
-    <div className="interface flex h-full flex-col overflow-hidden">
+    <div
+      className="interface relative flex h-full flex-col overflow-hidden"
+      onClick={handleCollapseAll}
+    >
       <div className="shrink-0">
         <Prompts />
-      </div>
-      <div onClick={handleCollapseAll}>
-        <MultiNodeBucket
-          nodes={uncategorisedNodes}
-          listId={`${stage.id}_${prompt?.id ?? 'unknown'}_CAT_BUCKET`}
-          sortOrder={prompt?.bucketSortOrder}
-        />
       </div>
       {prompt && activePromptVariable && (
         <div className="catbin-outer min-h-0 w-full flex-1">
@@ -109,7 +112,6 @@ const CategoricalBin = (props: CategoricalBinStageProps) => {
               ref={containerRef}
               className="catbin-circles flex size-full flex-wrap content-center items-center justify-center gap-4 data-expanded:content-start"
               data-expanded={hasExpanded || undefined}
-              onClick={handleCollapseAll}
               variants={binsContainerVariants}
               initial="initial"
               animate="animate"
@@ -135,6 +137,11 @@ const CategoricalBin = (props: CategoricalBinStageProps) => {
           </AnimatePresence>
         </div>
       )}
+      <NodeDrawer
+        nodes={uncategorisedNodes}
+        itemType="NODE"
+        expanded={!hasExpanded}
+      />
     </div>
   );
 };
