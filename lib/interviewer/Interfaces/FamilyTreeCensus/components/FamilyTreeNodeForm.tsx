@@ -28,7 +28,7 @@ import {
   getRelationshipToEgoVariable,
   normalizeRelationshipToEgoLabel,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/utils/nodeUtils';
-import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
+import { getPromptAdditionalAttributes } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 
 type FamilyTreeNodeFormProps = {
@@ -42,7 +42,7 @@ type FamilyTreeNodeFormProps = {
 const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
   const { nodeType, selectedNode, form, diseaseVars, onClose } = props;
 
-  const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
+  const newNodeAttributes = useSelector(getPromptAdditionalAttributes);
   const nodeSexVariable = useSelector(getNodeSexVariable);
   const nodeIsEgoVariable = useSelector(getNodeIsEgoVariable);
   const relationshipToEgoVariable = useSelector(getRelationshipToEgoVariable);

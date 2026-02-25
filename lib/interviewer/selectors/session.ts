@@ -122,6 +122,23 @@ export const getCurrentPrompt = createSelector(
   },
 );
 
+export const getPromptAdditionalAttributes = createSelector(
+  getCurrentPrompt,
+  (prompt): Record<string, boolean> => {
+    if (!prompt || !('additionalAttributes' in prompt)) {
+      return {};
+    }
+
+    return (prompt.additionalAttributes ?? []).reduce(
+      (acc, { variable, value }) => ({
+        ...acc,
+        [variable]: value,
+      }),
+      {} as Record<string, boolean>,
+    );
+  },
+);
+
 export const getPromptSortOrder = createSelector(getCurrentPrompt, (prompt) => {
   if (prompt && 'sortOrder' in prompt) {
     return prompt.sortOrder;

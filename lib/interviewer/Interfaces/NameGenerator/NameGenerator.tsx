@@ -28,10 +28,10 @@ import {
   addNodeToPrompt as addNodeToPromptAction,
   deleteNode as deleteNodeAction,
 } from '../../ducks/modules/session';
-import { getAdditionalAttributesSelector } from '../../selectors/prop';
 import { getCodebookVariablesForSubjectType } from '../../selectors/protocol';
 import {
   getNetworkNodesForPrompt,
+  getPromptAdditionalAttributes,
   getStageNodeCount,
 } from '../../selectors/session';
 import { useAppDispatch } from '../../store';
@@ -71,7 +71,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
   const maxNodes = behaviours?.maxNodes ?? Infinity;
 
   const stageNodeCount = useSelector(getStageNodeCount);
-  const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
+  const newNodeAttributes = useSelector(getPromptAdditionalAttributes);
   const nodesForPrompt = useSelector(getNetworkNodesForPrompt);
   const codebookForNodeType = useSelector(getCodebookVariablesForSubjectType);
 

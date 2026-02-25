@@ -23,13 +23,13 @@ import { find, get } from 'es-toolkit/compat';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 import { generateSecureAttributes } from '../../Interfaces/Anonymisation/utils';
-import { getAdditionalAttributesSelector } from '../../selectors/prop';
 import {
   makeGetCodebookVariablesForEdgeType,
   makeGetCodebookVariablesForNodeType,
 } from '../../selectors/protocol';
 import {
   getCurrentStageId,
+  getPromptAdditionalAttributes,
   getPromptId,
   makeGetNodeById,
 } from '../../selectors/session';
@@ -462,7 +462,7 @@ export const removeNodeFromPrompt = createAsyncThunk(
     const state = getState() as RootState;
     const promptId = getPromptId(state);
     invariant(promptId, 'Prompt ID is required to remove a node from a prompt');
-    const promptAttributes = getAdditionalAttributesSelector(state);
+    const promptAttributes = getPromptAdditionalAttributes(state);
 
     return {
       nodeId,

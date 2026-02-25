@@ -1,53 +1,64 @@
+import { type Stage } from '@codaco/protocol-validation';
 import { entityAttributesProperty, type NcNode } from '@codaco/shared-consts';
-import { isNil } from 'es-toolkit';
-import { useMemo } from 'react';
+import { invariant, isNil } from 'es-toolkit';
 import { useSelector } from 'react-redux';
-import { makeGetVariableOptions } from '../../selectors/interface';
-import { getPromptVariable } from '../../selectors/prop';
+import { usePrompts } from '../../components/Prompts/usePrompts';
+import useSortedNodeList from '../../hooks/useSortedNodeList';
+import { makeGetCodebookVariableById } from '../../selectors/protocol';
 import { getNetworkNodesForType } from '../../selectors/session';
+
 export type OrdinalBinItem = {
   label: string;
-  value: number;
+  value: string | number | boolean;
   nodes: NcNode[];
 };
 
-type UseOrdinalBinsResult = {
-  bins: OrdinalBinItem[];
-  activePromptVariable: string | undefined;
-};
+type OrdinalBinPrompts = Extract<
+  Stage,
+  { type: 'OrdinalBin' }
+>['prompts'][number];
 
-/**
- * Hook that provides bins with their nodes for OrdinalBin interface.
- *
- * This hook extracts the selector logic from the legacy OrdinalBins component
- * and provides a typed interface for accessing bin data.
- */
-export function useOrdinalBins(): UseOrdinalBinsResult {
+export function useOrdinalBins() {
   const stageNodes = useSelector(getNetworkNodesForType);
-  const activePromptVariable = useSelector(getPromptVariable);
+  const {
+    prompt: { variable: activePromptVariable, bucketSortOrder },
+  } = usePrompts<OrdinalBinPrompts>();
 
-  const getOrdinalValues = useMemo(() => makeGetVariableOptions(), []);
-  const ordinalOptions = useSelector(getOrdinalValues);
+  const getVariableDefinition = useSelector(makeGetCodebookVariableById);
+  const variableDefinition = getVariableDefinition(activePromptVariable);
 
-  const bins: OrdinalBinItem[] = useMemo(() => {
-    return ordinalOptions.map((option) => {
-      const nodes = stageNodes.filter(
-        (node) =>
-          !isNil(node[entityAttributesProperty][activePromptVariable!]) &&
-          node[entityAttributesProperty][activePromptVariable!] ===
-            option.value,
+  invariant(
+    variableDefinition?.type === 'ordinal',
+    `Variable with ID ${activePromptVariable} is not an ordinal variable`,
+  );
+
+  const ordinalOptions = variableDefinition.options;
+
+  const bins: OrdinalBinItem[] = ordinalOptions.map((option) => {
+    const nodes = stageNodes.filter((node) => {
+      const attrValue = node[entityAttributesProperty][activePromptVariable];
+      return (
+        attrValue !== undefined &&
+        attrValue !== null &&
+        attrValue === option.value
       );
-
-      return {
-        label: option.label ?? '',
-        value: option.value as number,
-        nodes,
-      };
     });
-  }, [ordinalOptions, stageNodes, activePromptVariable]);
+
+    return {
+      label: option.label,
+      value: option.value,
+      nodes,
+    };
+  });
+
+  const unplacedNodes = stageNodes.filter((node) =>
+    isNil(node[entityAttributesProperty][activePromptVariable]),
+  );
+
+  const sortedUnplacedNodes = useSortedNodeList(unplacedNodes, bucketSortOrder);
 
   return {
     bins,
-    activePromptVariable,
+    unplacedNodes: sortedUnplacedNodes,
   };
 }

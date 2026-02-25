@@ -1,5 +1,4 @@
-import { entityAttributesProperty } from '@codaco/shared-consts';
-import { isNil } from 'es-toolkit';
+import { type Stage } from '@codaco/protocol-validation';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
@@ -8,12 +7,16 @@ import NodeDrawer from '../../components/NodeDrawer';
 import Prompts from '../../components/Prompts';
 import { usePrompts } from '../../components/Prompts/usePrompts';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
-import useSortedNodeList from '../../hooks/useSortedNodeList';
-import { getNetworkNodesForType } from '../../selectors/session';
+import { getCurrentStageId } from '../../selectors/session';
 import OrdinalBinItem from './components/OrdinalBinItem';
 import { useOrdinalBins } from './useOrdinalBins';
 
 type OrdinalBinStageProps = StageProps<'OrdinalBin'>;
+
+type OrdinalBinPrompts = Extract<
+  Stage,
+  { type: 'OrdinalBin' }
+>['prompts'][number];
 
 const binsContainerVariants = {
   initial: { opacity: 0 },
@@ -27,34 +30,20 @@ const binsContainerVariants = {
   exit: { opacity: 0 },
 };
 
-/**
- * OrdinalBin Interface
- *
- * An interface for assigning ordinal values to nodes. Nodes are dragged from
- * a bucket into bins representing ordinal values (e.g., 1-5 scale).
- */
-const OrdinalBin = (props: OrdinalBinStageProps) => {
-  const { stage } = props;
+const OrdinalBin = (_props: OrdinalBinStageProps) => {
+  const {
+    prompt,
+    prompt: { variable: activePromptVariable },
+  } = usePrompts<OrdinalBinPrompts>();
 
-  const { prompt } = usePrompts<(typeof stage.prompts)[number]>();
-
-  const stageNodes = useSelector(getNetworkNodesForType);
-
-  const { bins, activePromptVariable } = useOrdinalBins();
-
-  const nodesForPrompt = stageNodes.filter((node) =>
-    isNil(node[entityAttributesProperty][activePromptVariable!]),
-  );
-  const sortedUnplacedNodes = useSortedNodeList(
-    nodesForPrompt,
-    prompt?.bucketSortOrder,
-  );
+  const stageId = useSelector(getCurrentStageId);
+  const { bins, unplacedNodes } = useOrdinalBins();
 
   const { updateReady } = useReadyForNextStage();
 
   useEffect(() => {
-    updateReady(nodesForPrompt.length === 0);
-  }, [nodesForPrompt.length, updateReady]);
+    updateReady(unplacedNodes.length === 0);
+  }, [unplacedNodes.length, updateReady]);
 
   return (
     <div className="interface relative flex h-full flex-col overflow-hidden">
@@ -78,7 +67,7 @@ const OrdinalBin = (props: OrdinalBinStageProps) => {
                   bin={bin}
                   index={index}
                   activePromptVariable={activePromptVariable}
-                  stageId={stage.id}
+                  stageId={stageId}
                   promptId={prompt.id}
                   sortOrder={prompt.binSortOrder}
                   totalBins={bins.length}
@@ -88,7 +77,7 @@ const OrdinalBin = (props: OrdinalBinStageProps) => {
           )}
         </AnimatePresence>
       </div>
-      <NodeDrawer nodes={sortedUnplacedNodes} itemType="NODE" />
+      <NodeDrawer nodes={unplacedNodes} itemType="NODE" />
     </div>
   );
 };

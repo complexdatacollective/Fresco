@@ -19,7 +19,7 @@ import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import { type FormSubmitHandler } from '~/lib/form/store/types';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { getNodeIconName } from '../../../selectors/name-generator';
-import { getAdditionalAttributesSelector } from '../../../selectors/prop';
+import { getPromptAdditionalAttributes } from '../../../selectors/session';
 import { useAppDispatch } from '../../../store';
 import { useCelebrate } from '~/lib/interviewer/hooks/useCelebrate';
 import { cx } from '~/utils/cva';
@@ -35,7 +35,7 @@ type NodeFormProps = {
 const NodeForm = (props: NodeFormProps) => {
   const { selectedNode, form, disabled, onClose, addNode } = props;
 
-  const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
+  const newNodeAttributes = useSelector(getPromptAdditionalAttributes);
   const icon = useSelector(getNodeIconName);
 
   const [show, setShow] = useState(false);

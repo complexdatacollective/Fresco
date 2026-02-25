@@ -3,6 +3,10 @@
 import React, { createContext, useCallback, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Button } from '~/components/ui/Button';
+import { type FieldValue } from '~/lib/form/components/Field/types';
+import { FormWithoutProvider } from '~/lib/form/components/Form';
+import SubmitButton from '~/lib/form/components/SubmitButton';
+import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { generatePublicId } from '~/utils/generatePublicId';
 import Dialog from './Dialog';
 
@@ -48,17 +52,26 @@ export type CustomDialog = BaseDialog & {
   type: 'custom';
 };
 
+export type FormDialog = BaseDialog & {
+  type: 'form';
+  submitLabel?: string;
+  cancelLabel?: string;
+};
+
 // Helper type to extract return type from a dialog
 export type DialogReturnType<D> = D extends AcknowledgeDialog
   ? true | null
   : D extends ChoiceDialog<infer P, infer S, infer C>
     ? P | S | C | null
-    : unknown;
+    : D extends FormDialog
+      ? Record<string, FieldValue> | null
+      : unknown;
 
 export type AnyDialog =
   | AcknowledgeDialog
   | ChoiceDialog<unknown, unknown, unknown>
-  | CustomDialog;
+  | CustomDialog
+  | FormDialog;
 
 type DialogState = AnyDialog & {
   id: string;
@@ -228,22 +241,61 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
     return null;
   };
 
+  const renderDialog = (dialog: DialogState) => {
+    if (dialog.type === 'form') {
+      const formId = `dialog-form-${dialog.id}`;
+      return (
+        <FormStoreProvider key={dialog.id}>
+          <Dialog
+            title={dialog.title}
+            description={dialog.description}
+            closeDialog={() => closeDialog(dialog.id)}
+            accent={dialog.intent}
+            open={dialog.open}
+            footer={
+              <>
+                <Button onClick={() => closeDialog(dialog.id, null)}>
+                  {dialog.cancelLabel ?? 'Cancel'}
+                </Button>
+                <SubmitButton form={formId}>
+                  {dialog.submitLabel ?? 'Submit'}
+                </SubmitButton>
+              </>
+            }
+          >
+            <FormWithoutProvider
+              id={formId}
+              onSubmit={(values) => {
+                void closeDialog(dialog.id, values);
+                return { success: true };
+              }}
+            >
+              {dialog.children}
+            </FormWithoutProvider>
+          </Dialog>
+        </FormStoreProvider>
+      );
+    }
+
+    return (
+      <Dialog
+        key={dialog.id}
+        title={dialog.title}
+        description={dialog.description}
+        closeDialog={() => closeDialog(dialog.id)}
+        accent={dialog.intent}
+        open={dialog.open}
+        footer={renderDialogActions(dialog)}
+      >
+        {dialog.children}
+      </Dialog>
+    );
+  };
+
   return (
     <DialogContext.Provider value={contextValue}>
       {children}
-      {dialogs.map((dialog) => (
-        <Dialog
-          key={dialog.id}
-          title={dialog.title}
-          description={dialog.description}
-          closeDialog={() => closeDialog(dialog.id)}
-          accent={dialog.intent}
-          open={dialog.open}
-          footer={renderDialogActions(dialog)}
-        >
-          {dialog.children}
-        </Dialog>
-      ))}
+      {dialogs.map(renderDialog)}
     </DialogContext.Provider>
   );
 };

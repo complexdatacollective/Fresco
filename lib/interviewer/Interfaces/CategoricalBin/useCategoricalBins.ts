@@ -1,6 +1,5 @@
 import { type Stage } from '@codaco/protocol-validation';
 import { entityAttributesProperty, type NcNode } from '@codaco/shared-consts';
-import { invariant } from 'es-toolkit';
 import { get } from 'es-toolkit/compat';
 import { useSelector } from 'react-redux';
 import { usePrompts } from '../../components/Prompts/usePrompts';
@@ -16,15 +15,14 @@ import { getNetworkNodesForType } from '../../selectors/session';
 const matchVariableValue = (
   node: NcNode,
   variable: string,
-  value: number | string | null,
+  value: string | number | boolean,
 ) => {
   const variableValue = node[entityAttributesProperty][variable];
 
-  // No value assigned to the variable, so it can't match any value
-  if (!variableValue) return false;
+  if (variableValue === undefined || variableValue === null) return false;
 
-  if (Array.isArray(variableValue) && value !== null) {
-    return variableValue.includes(value);
+  if (Array.isArray(variableValue)) {
+    return variableValue.some((v) => v === value);
   }
 
   return variableValue === value;
@@ -50,13 +48,10 @@ export function useCategoricalBins() {
   const getVariableDefinition = useSelector(makeGetCodebookVariableById);
   const variableDefinition = getVariableDefinition(activePromptVariable);
 
-  invariant(
-    variableDefinition?.type === 'categorical' ||
-      variableDefinition?.type === 'ordinal',
-    `Variable with ID ${activePromptVariable} is not a categorical or ordinal variable`,
-  );
-
-  const categoricalOptions = variableDefinition.options;
+  const categoricalOptions =
+    variableDefinition && 'options' in variableDefinition
+      ? variableDefinition.options!
+      : [];
 
   // Calculate uncategorised nodes by filtering stageNodes to those that don't have a value for either the active prompt variable or the other variable
   const uncategorisedNodes = stageNodes.filter((node) => {
@@ -75,7 +70,14 @@ export function useCategoricalBins() {
     bucketSortOrder,
   );
 
-  const bins = categoricalOptions.map((option) => {
+  type Bin = {
+    label: string;
+    nodes: NcNode[];
+    value: string | number | boolean | null;
+    isOther: boolean;
+  };
+
+  const bins: Bin[] = categoricalOptions.map((option) => {
     // Filter nodes
     const nodes = stageNodes.filter((node) => {
       return matchVariableValue(node, activePromptVariable, option.value);
@@ -111,6 +113,7 @@ export function useCategoricalBins() {
     bins.push({
       label: otherOptionLabel,
       nodes: sortedOtherNodes,
+      value: null,
       isOther: true,
     });
   }

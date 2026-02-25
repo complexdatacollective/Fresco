@@ -231,6 +231,9 @@ export type CollectionProps<T> = SortProps &
     /** Additional class names for the ScrollArea viewport (inner scrollable element) */
     'viewportClassName'?: string;
 
+    /** Scroll orientation for the collection's ScrollArea. Defaults to 'vertical'. */
+    'orientation'?: 'vertical' | 'horizontal';
+
     /**
      * Controls the LayoutGroup id used for scoping layoutId animations.
      * - `undefined` (default): uses `collectionId` — standard scoped behavior

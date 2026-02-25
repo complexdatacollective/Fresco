@@ -55,6 +55,7 @@ function CollectionContent<T extends Record<string, unknown>>({
   virtualized,
   overscan,
   viewportClassName,
+  orientation,
   layoutGroupId,
   // Sort props
   sortBy,
@@ -169,7 +170,7 @@ function CollectionContent<T extends Record<string, unknown>>({
           <CollectionIdContext.Provider value={collectionId}>
             {children}
             <div
-              className={cx('min-h-0 flex-1', className)}
+              className={cx('min-h-0 w-full flex-1', className)}
               data-drop-target-over={dropState?.isOver ?? undefined}
               data-drop-target-valid={dropState?.willAccept ?? undefined}
               data-dragging={dropState?.isDragging ?? undefined}
@@ -179,6 +180,7 @@ function CollectionContent<T extends Record<string, unknown>>({
                 role="listbox"
                 id={collectionId}
                 viewportClassName={viewportClassName}
+                orientation={orientation}
                 aria-label={ariaLabel}
                 aria-labelledby={ariaLabelledBy}
                 aria-multiselectable={selectionMode === 'multiple' || undefined}
@@ -189,6 +191,7 @@ function CollectionContent<T extends Record<string, unknown>>({
                 }
                 {...collectionProps}
                 {...restDndProps}
+                className="size-full"
               >
                 {virtualized ? (
                   <VirtualizedRenderer
@@ -215,7 +218,7 @@ function CollectionContent<T extends Record<string, unknown>>({
                     layoutGroupId={layoutGroupId}
                   />
                 )}
-                {collection.size === 0 && (
+                {collection.size === 0 && emptyState && (
                   <div className="text-center text-current/70">
                     {emptyState}
                   </div>
@@ -284,6 +287,7 @@ export function Collection<T extends Record<string, unknown>>({
   virtualized,
   overscan,
   viewportClassName,
+  orientation,
   layoutGroupId,
   // Sort props
   sortBy,
@@ -334,6 +338,7 @@ export function Collection<T extends Record<string, unknown>>({
         virtualized={virtualized}
         overscan={overscan}
         viewportClassName={viewportClassName}
+        orientation={orientation}
         layoutGroupId={layoutGroupId}
         // Sort props
         sortBy={sortBy}

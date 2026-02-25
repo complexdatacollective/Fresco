@@ -20,9 +20,9 @@ export default function SubmitButton({
       color="primary"
       type="submit"
       disabled={isSubmitting}
+      icon={isSubmitting ? <Loader2 className="animate-spin" /> : undefined}
       {...props}
     >
-      {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
       {isSubmitting ? submittingText : children}
     </MotionButton>
   );

@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux';
 
 import Form from '~/lib/form/components/Form';
 import { type FormSubmitHandler } from '~/lib/form/store/types';
-import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
+import { getPromptAdditionalAttributes } from '~/lib/interviewer/selectors/session';
 import QuickAddField from './QuickAddField';
 
 const containerVariants: Variants = {
@@ -41,7 +41,7 @@ const QuickNodeForm = ({
   onShowForm,
   addNode,
 }: QuickNodeFormProps) => {
-  const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
+  const newNodeAttributes = useSelector(getPromptAdditionalAttributes);
 
   const handleSubmit: FormSubmitHandler = useCallback(
     async (values) => {

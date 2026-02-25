@@ -5,7 +5,7 @@ import { useCallback, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
-import { useDropTarget } from '~/lib/dnd';
+import { type DragMetadata, useDropTarget } from '~/lib/dnd';
 import { useCelebrate } from '~/lib/interviewer/hooks/useCelebrate';
 import { getCurrentStageId } from '~/lib/interviewer/selectors/session';
 import { cx } from '~/utils/cva';
@@ -17,7 +17,7 @@ type CategoricalBinItemProps = {
   label: string;
   isExpanded: boolean;
   onToggleExpand: () => void;
-  catColor: string;
+  catColor: string | null;
   onDropNode: (node: NcNode) => Promise<void>;
   flexBasis: number;
   nodes: NcNode[];
@@ -56,9 +56,13 @@ const CategoricalBinItem = (props: CategoricalBinItemProps) => {
   } = usePrompts<CategoricalBinPrompts>();
   const stageId = useSelector(getCurrentStageId);
   const binRef = useRef<HTMLDivElement>(null);
-  const celebrate = useCelebrate(binRef, { particleSize: 'large' });
+  const celebrate = useCelebrate(binRef, {
+    particleSize: 'large',
+    particleColor: catColor ?? 'random',
+  });
 
-  const handleDrop = async (node: NcNode) => {
+  const handleDrop = async (metadata?: DragMetadata) => {
+    const node = metadata as NcNode;
     await onDropNode(node);
     celebrate();
   };
@@ -142,7 +146,12 @@ const CategoricalBinItem = (props: CategoricalBinItemProps) => {
               animate="animate"
               className="size-full"
             >
-              <NodeList id={listId} items={nodes} nodeSize="sm" />
+              <NodeList
+                id={listId}
+                items={nodes}
+                nodeSize="sm"
+                announcedName={`${label} category`}
+              />
             </motion.div>
           </div>
         </motion.div>
@@ -176,7 +185,10 @@ const CategoricalBinItem = (props: CategoricalBinItemProps) => {
         aspectRatio: '1 / 1',
         borderRadius: '50%',
       }}
-      onClick={onToggleExpand}
+      onClick={(e) => {
+        e.stopPropagation();
+        onToggleExpand();
+      }}
       aria-expanded={false}
       aria-label={`Category ${label}, ${nodes.length} items`}
       transition={springTransition}

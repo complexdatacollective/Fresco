@@ -32,6 +32,7 @@ type NodeListProps = Omit<CollectionProps<NcNode>, InternalCollectionProps> & {
   onDrop?: DropCallback;
   onItemClick?: (node: NcNode) => void;
   nodeSize?: 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
+  announcedName: string; // For accessibility announcements related to drag and drop
 };
 
 const EXIT_DURATION = 0.2;
@@ -51,6 +52,7 @@ const NodeList = memo(
     animate = true,
     animationKey,
     emptyState = null,
+    announcedName,
     'aria-label': ariaLabel = 'Node list',
     // All other Collection props passed through
     ...collectionProps
@@ -130,6 +132,7 @@ const NodeList = memo(
 
     // Build drag and drop hooks if accepts or onDrop is provided
     const { dragAndDropHooks } = useDragAndDrop<NcNode>({
+      announcedName,
       getItems: (keys) => [{ type: itemType, keys }],
       acceptTypes: accepts,
       onDrop: onDrop

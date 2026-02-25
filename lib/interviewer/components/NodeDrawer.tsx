@@ -65,23 +65,37 @@ export default function NodeDrawer({
           </div>
 
           <motion.div
-            layout
-            initial={{ height: 0, opacity: 0 }}
+            initial={{
+              height: 0,
+              opacity: 0,
+              marginBottom: 'calc(var(--spacing) * -4)',
+            }}
             animate={
               isExpanded
                 ? {
                     height: 'auto',
                     opacity: 1,
+                    marginBottom: 0,
                     transition: {
                       height: { type: 'spring', stiffness: 300, damping: 24 },
+                      marginBottom: {
+                        type: 'spring',
+                        stiffness: 300,
+                        damping: 24,
+                      },
                       opacity: { duration: 0.15 },
                     },
                   }
                 : {
                     height: 0,
                     opacity: 0,
+                    marginBottom: 'calc(var(--spacing) * -4)',
                     transition: {
                       height: { duration: 0.25, ease: [0, 0, 0.2, 1] },
+                      marginBottom: {
+                        duration: 0.25,
+                        ease: [0, 0, 0.2, 1],
+                      },
                       opacity: { duration: 0.15 },
                     },
                   }

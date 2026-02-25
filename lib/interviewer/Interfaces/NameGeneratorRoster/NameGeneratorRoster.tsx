@@ -33,11 +33,11 @@ import {
   getSearchOptions,
   getSortOptions,
 } from '~/lib/interviewer/selectors/name-generator';
-import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import { getCodebookVariablesForSubjectType } from '~/lib/interviewer/selectors/protocol';
 import {
   getNetworkNodesForPrompt,
   getNodeColorSelector,
+  getPromptAdditionalAttributes,
   getStageNodeCount,
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
@@ -85,7 +85,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
 
   const dispatch = useAppDispatch();
 
-  const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
+  const newNodeAttributes = useSelector(getPromptAdditionalAttributes);
   const codebookForNodeType = useSelector(getCodebookVariablesForSubjectType);
   const nodesForPrompt = useSelector(getNetworkNodesForPrompt);
 

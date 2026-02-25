@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import { memo } from 'react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
-import { useDropTarget } from '~/lib/dnd';
+import useMediaQuery from '~/hooks/useMediaQuery';
 import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
 import { cx } from '~/utils/cva';
 import NodeList from '../../../components/NodeList';
@@ -63,8 +63,9 @@ const OrdinalBinItem = memo((props: OrdinalBinItemProps) => {
 
   const dispatch = useAppDispatch();
   const { prompt } = usePrompts();
+  const isPortrait = useMediaQuery('(orientation: portrait)');
 
-  const missingValue = bin.value < 0;
+  const missingValue = typeof bin.value === 'number' && bin.value < 0;
   const blendPercent = Math.round((1 / totalBins) * index * 100);
   const isFirst = index === 0;
   const isLast = index === totalBins - 1;
@@ -93,27 +94,15 @@ const OrdinalBinItem = memo((props: OrdinalBinItemProps) => {
 
   const listId = `ORDBIN_NODE_LIST_${stageId}_${promptId}_${index}`;
 
-  const { dropProps, isOver, willAccept, isDragging } = useDropTarget({
-    id: listId,
-    accepts: ['NODE'],
-    announcedName: `Ordinal bin for ${bin.label}`,
-    onDrop: handleDrop,
-  });
-
   const panelClasses = cx(
     'row-span-2 grid min-w-0 grid-rows-subgrid overflow-hidden shadow portrait:col-span-2 portrait:row-span-1 portrait:grid-cols-subgrid portrait:grid-rows-none',
-    !isOver &&
-      !missingValue &&
-      'bg-[color-mix(in_oklch,var(--color-surface-1)_var(--blend-percent),var(--color-background)_calc(100%-var(--blend-percent)))]',
-    !isOver &&
-      missingValue &&
+    'bg-[color-mix(in_oklch,var(--color-surface-1)_var(--blend-percent),var(--color-background)_calc(100%-var(--blend-percent)))]',
+    missingValue &&
       'bg-[color-mix(in_oklch,var(--color-rich-black)_10%,var(--color-background)_90%)]',
     isFirst &&
       'rounded-tl rounded-bl portrait:rounded-tr portrait:rounded-bl-none',
     isLast &&
       'rounded-tr rounded-br portrait:rounded-tr-none portrait:rounded-bl',
-    isDragging && 'spring-long',
-    isOver && willAccept && 'scale-105 shadow-2xl',
   );
 
   const accentClasses = cx(
@@ -125,10 +114,8 @@ const OrdinalBinItem = memo((props: OrdinalBinItemProps) => {
   );
 
   const bodyClasses = cx(
-    'flex min-h-0 flex-col items-center overflow-hidden p-2 transition-colors duration-200',
+    'flex min-h-0 flex-col items-center overflow-hidden transition-colors duration-200',
     promptColorClass,
-    isDragging && willAccept && 'bg-drag-valid',
-    isOver && willAccept && 'bg-drag-over',
   );
 
   return (
@@ -146,9 +133,16 @@ const OrdinalBinItem = memo((props: OrdinalBinItemProps) => {
           <RenderMarkdown>{bin.label}</RenderMarkdown>
         </Heading>
       </div>
-      <div {...dropProps} className={bodyClasses}>
-        <NodeList id={listId} items={sortedNodes} nodeSize="sm" />
-      </div>
+      <NodeList
+        id={listId}
+        items={sortedNodes}
+        nodeSize="sm"
+        orientation={isPortrait ? 'horizontal' : 'vertical'}
+        className={bodyClasses}
+        announcedName={`Container for the value '${bin.label}'`}
+        onDrop={handleDrop}
+        accepts={['NODE']}
+      />
     </motion.div>
   );
 });
