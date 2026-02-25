@@ -13,7 +13,7 @@ import Dialog from './Dialog';
 type BaseDialog = {
   id?: string;
   title: string;
-  description: string;
+  description?: string;
   intent?: 'default' | 'destructive' | 'success' | 'info';
   children?: React.ReactNode;
 };

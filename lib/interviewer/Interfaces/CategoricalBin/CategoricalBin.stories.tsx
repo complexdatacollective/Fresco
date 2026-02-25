@@ -98,6 +98,9 @@ function buildInterview(args: StoryArgs) {
     for (const varId of variables) {
       interview.setNodeAttribute(i, varId, null);
     }
+    if (otherVariableId) {
+      interview.setNodeAttribute(i, otherVariableId, null);
+    }
   }
 
   interview.addInformationStage({

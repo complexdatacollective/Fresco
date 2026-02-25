@@ -9,11 +9,13 @@ import { MotionNode } from '~/lib/interviewer/components/Node';
 type DrawerNodeProps = {
   node: NcNode;
   itemType?: string;
+  onLayoutAnimationComplete?: () => void;
 };
 
 export default function DrawerNode({
   node,
   itemType = 'UNPOSITIONED_NODE',
+  onLayoutAnimationComplete,
 }: DrawerNodeProps) {
   const nodeId = node[entityPrimaryKeyProperty];
   const rawName = node[entityAttributesProperty].name;
@@ -25,5 +27,13 @@ export default function DrawerNode({
     announcedName: name,
   });
 
-  return <MotionNode layout {...node} {...dragProps} size="sm" />;
+  return (
+    <MotionNode
+      layout
+      onLayoutAnimationComplete={onLayoutAnimationComplete}
+      {...node}
+      {...dragProps}
+      size="sm"
+    />
+  );
 }

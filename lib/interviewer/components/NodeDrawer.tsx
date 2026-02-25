@@ -1,7 +1,7 @@
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { headingVariants } from '~/components/typography/Heading';
 import { ScrollArea } from '~/components/ui/ScrollArea';
 import { cx } from '~/utils/cva';
@@ -30,6 +30,34 @@ export default function NodeDrawer({
   const setIsExpanded = onExpandedChange ?? setInternalExpanded;
 
   const hasNodes = nodes.length > 0;
+
+  // Suppress scrollbar and fade during layout animations.
+  // Detect node count changes synchronously during render so
+  // the suppression is active before the browser paints.
+  const [isLayoutAnimating, setIsLayoutAnimating] = useState(false);
+  const prevNodeCountRef = useRef(nodes.length);
+
+  if (nodes.length !== prevNodeCountRef.current) {
+    prevNodeCountRef.current = nodes.length;
+    if (nodes.length > 0 && !isLayoutAnimating) {
+      setIsLayoutAnimating(true);
+    }
+  }
+
+  // Safety timeout in case onLayoutAnimationComplete doesn't fire
+  // (e.g. no nodes actually moved).
+  useEffect(() => {
+    if (!isLayoutAnimating) return;
+    const timeout = setTimeout(() => setIsLayoutAnimating(false), 500);
+    return () => clearTimeout(timeout);
+  }, [isLayoutAnimating]);
+
+  const [remeasureKey, setRemeasureKey] = useState(0);
+
+  const handleLayoutAnimationComplete = useCallback(() => {
+    setIsLayoutAnimating(false);
+    setRemeasureKey((k) => k + 1);
+  }, []);
 
   return (
     <AnimatePresence>
@@ -105,6 +133,7 @@ export default function NodeDrawer({
             <ScrollArea
               orientation="horizontal"
               fade
+              remeasureKey={remeasureKey}
               viewportClassName="flex items-center gap-4 p-4"
             >
               {nodes.map((node) => (
@@ -112,6 +141,7 @@ export default function NodeDrawer({
                   key={node[entityPrimaryKeyProperty]}
                   node={node}
                   itemType={itemType}
+                  onLayoutAnimationComplete={handleLayoutAnimationComplete}
                 />
               ))}
             </ScrollArea>

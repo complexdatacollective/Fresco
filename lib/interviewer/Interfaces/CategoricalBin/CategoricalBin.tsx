@@ -1,18 +1,26 @@
 import { type Stage } from '@codaco/protocol-validation';
-import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
+import {
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
+  type NcNode,
+} from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import UINode from '~/components/Node';
 import useDialog from '~/lib/dialogs/useDialog';
 import Field from '~/lib/form/components/Field/Field';
 import InputField from '~/lib/form/components/fields/InputField';
-import Node from '~/lib/interviewer/components/Node';
 import { type StageProps } from '~/lib/interviewer/types';
 import NodeDrawer from '../../components/NodeDrawer';
 import Prompts from '../../components/Prompts';
 import { usePrompts } from '../../components/Prompts/usePrompts';
 import { updateNode } from '../../ducks/modules/session';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
+import { makeGetCodebookForNodeType } from '../../selectors/protocol';
+import { getNodeColorSelector } from '../../selectors/session';
 import { useAppDispatch } from '../../store';
+import { getNodeLabelAttribute } from '../../utils/getNodeLabelAttribute';
 import CategoricalBinItem from './components/CategoricalBinItem';
 import { useCategoricalBins } from './useCategoricalBins';
 import { useCircleLayout } from './useCircleLayout';
@@ -60,6 +68,27 @@ type CategoricalBinPrompts = Extract<
   { type: 'CategoricalBin' }
 >['prompts'][number];
 
+const getNodeLabel = (
+  node: NcNode,
+  getCodebook: ReturnType<typeof makeGetCodebookForNodeType.resultFunc>,
+): string => {
+  const codebook = getCodebook(node.type);
+  const attributes = node[entityAttributesProperty];
+  const labelAttrId = getNodeLabelAttribute(
+    codebook?.variables ?? {},
+    attributes,
+  );
+
+  if (labelAttrId) {
+    const value = attributes[labelAttrId];
+    if (typeof value === 'string' || typeof value === 'number') {
+      return String(value);
+    }
+  }
+
+  return codebook?.name ?? 'Node';
+};
+
 const CategoricalBin = (_props: CategoricalBinStageProps) => {
   const [expandedBinIndex, setExpandedBinIndex] = useState<number | null>(null);
 
@@ -89,25 +118,24 @@ const CategoricalBin = (_props: CategoricalBinStageProps) => {
 
   const dispatch = useAppDispatch();
   const { openDialog } = useDialog();
+  const nodeColor = useSelector(getNodeColorSelector);
+  const getCodebookForNodeType = useSelector(makeGetCodebookForNodeType);
 
   const handleDropNode = async (node: NcNode, binIndex: number) => {
     const nodeId = node[entityPrimaryKeyProperty];
-
-    const category = binIndex === -1 ? null : bins[binIndex]!.value;
+    const bin = bins[binIndex]!;
 
     // If the node is being dropped into the 'other' bin, show a dialog to specify the value for the other variable
-    if (binIndex === -1 && otherVariable) {
+    if (bin.isOther && otherVariable) {
       const result = await openDialog({
         type: 'form',
         title: 'Specify other',
-        description: 'Please specify the category for this item.',
         children: (
           <div className="flex items-start gap-4">
             <div className="shrink-0">
-              <Node
-                _uid={node[entityPrimaryKeyProperty]}
-                type={node.type}
-                attributes={node.attributes}
+              <UINode
+                color={nodeColor}
+                label={getNodeLabel(node, getCodebookForNodeType)}
               />
             </div>
             <Field
@@ -145,7 +173,7 @@ const CategoricalBin = (_props: CategoricalBinStageProps) => {
         nodeId,
         newAttributeData: {
           ...(otherVariable ? { [otherVariable]: null } : {}),
-          [variable]: category,
+          [variable]: bin.value,
         },
       }),
     );
@@ -187,11 +215,7 @@ const CategoricalBin = (_props: CategoricalBinStageProps) => {
           </motion.div>
         </AnimatePresence>
       </div>
-      <NodeDrawer
-        nodes={uncategorisedNodes}
-        itemType="NODE"
-        expanded={hasExpanded ? false : undefined}
-      />
+      <NodeDrawer nodes={uncategorisedNodes} itemType="NODE" />
     </div>
   );
 };

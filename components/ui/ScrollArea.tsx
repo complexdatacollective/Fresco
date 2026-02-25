@@ -31,6 +31,13 @@ type ScrollAreaProps = {
   snap?: ScrollSnapType;
   /** Axis for scroll-snap. Defaults to 'both'. Only applies when snap is set. */
   snapAxis?: ScrollSnapAxis;
+  /**
+   * Change this value to force a re-measurement of scroll dimensions.
+   * Useful when children run layout animations (e.g. Framer Motion `layout`)
+   * that temporarily distort scrollWidth/clientWidth. Pass a value that
+   * changes when the animation completes to trigger a fresh measurement.
+   */
+  remeasureKey?: unknown;
 } & ViewportProps &
   Omit<
     React.HTMLAttributes<HTMLDivElement>,
@@ -58,6 +65,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
       orientation = 'vertical',
       snap,
       snapAxis = 'both',
+      remeasureKey,
       // Viewport props - these go on the inner scrollable element
       onKeyDown,
       onKeyUp,
@@ -169,6 +177,11 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
       };
     }, [fade, updateScrollVariables]);
 
+    useEffect(() => {
+      updateScrollVariables();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [remeasureKey]);
+
     const getSnapClasses = () => {
       if (!snap) return null;
       const snapType =
@@ -197,7 +210,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
             'p-2',
             // Layout
             isHorizontal
-              ? 'min-w-0 flex-1 overflow-x-auto overflow-y-hidden overscroll-contain'
+              ? 'min-w-0 flex-auto overflow-x-auto overflow-y-hidden overscroll-contain'
               : 'min-h-0 flex-1 overflow-auto overscroll-contain',
             // Gradient fade effect
             fade &&

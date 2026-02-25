@@ -100,8 +100,7 @@ export function useCategoricalBins() {
   // Handle 'other' bin
   if (otherVariable && otherOptionLabel) {
     const otherNodes = stageNodes.filter(
-      (node) =>
-        get(node, [entityAttributesProperty, otherVariable]) !== undefined,
+      (node) => get(node, [entityAttributesProperty, otherVariable]) != null,
     );
 
     const sortedOtherNodes = getSortedNodeList(
