@@ -1,12 +1,10 @@
 'use client';
 
-import { type Stage } from '@codaco/protocol-validation';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
-import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
-import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
+import SuperJSON from 'superjson';
+import StoryInterviewShell from '~/.storybook/StoryInterviewShell';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
-import OneToManyDyadCensus from './OneToManyDyadCensus';
 
 type StoryArgs = {
   initialNodeCount: number;
@@ -43,15 +41,7 @@ function buildInterview(args: StoryArgs) {
     text: 'After the main stage.',
   });
 
-  const protocol = si.getProtocol();
-  const stageConfig = protocol.stages[1]! as Extract<
-    Stage,
-    { type: 'OneToManyDyadCensus' }
-  >;
-  const store = si.getStore({ currentStep: 1 });
-  const nav = createStoryNavigation(store);
-
-  return { stageConfig, store, nav, stages: protocol.stages };
+  return si;
 }
 
 const OneToManyDyadCensusWrapper = (args: StoryArgs) => {
@@ -59,22 +49,16 @@ const OneToManyDyadCensusWrapper = (args: StoryArgs) => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const interview = useMemo(() => buildInterview(args), [configKey]);
-  const { stageConfig, store, nav, stages } = interview;
+  const rawPayload = useMemo(
+    () =>
+      SuperJSON.stringify(interview.getInterviewPayload({ currentStep: 1 })),
+    [interview],
+  );
 
   return (
-    <InterviewStoryShell
-      store={store}
-      nav={nav}
-      stages={stages}
-      mainStageIndex={1}
-    >
-      <div id="stage" className="relative flex size-full flex-col items-center">
-        <OneToManyDyadCensus
-          stage={stageConfig}
-          getNavigationHelpers={nav.getNavigationHelpers}
-        />
-      </div>
-    </InterviewStoryShell>
+    <div className="flex h-dvh w-full">
+      <StoryInterviewShell rawPayload={rawPayload} disableSync />
+    </div>
   );
 };
 

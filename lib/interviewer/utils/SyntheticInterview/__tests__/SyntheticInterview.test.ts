@@ -426,17 +426,18 @@ describe('SyntheticInterview', () => {
     });
   });
 
-  describe('getStore', () => {
-    it('returns a working Redux store', () => {
+  describe('getInterviewPayload', () => {
+    it('returns interview payload matching expected shape', () => {
       const si = new SyntheticInterview();
       si.addStage('Sociogram', { initialNodes: 3 });
 
-      const store = si.getStore();
-      const state = store.getState();
+      const payload = si.getInterviewPayload();
 
-      expect(state.session.network.nodes).toHaveLength(3);
-      expect(state.protocol.codebook).toBeDefined();
-      expect(state.ui.passphrase).toBeNull();
+      expect(payload.network.nodes).toHaveLength(3);
+      expect(payload.protocol.codebook).toBeDefined();
+      expect(payload.protocol.name).toBe('Synthetic Protocol');
+      expect(payload.startTime).toBeInstanceOf(Date);
+      expect(payload.stageMetadata).toBeNull();
     });
   });
 

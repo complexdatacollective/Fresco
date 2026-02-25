@@ -1,20 +1,15 @@
 'use client';
 
-import { type Stage } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
   type NcNode,
 } from '@codaco/shared-consts';
-import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
 import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
-import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
-import sessionReducer from '~/lib/interviewer/ducks/modules/session';
-import uiReducer from '~/lib/interviewer/ducks/modules/ui';
-import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
-import NameGenerator from './NameGenerator';
+import SuperJSON from 'superjson';
+import StoryInterviewShell from '~/.storybook/StoryInterviewShell';
 
 const names = [
   'Alice',
@@ -148,7 +143,7 @@ const createMockProtocol = (args: StoryArgs) => {
     id: 'test-protocol',
     name: 'Test Protocol',
     schemaVersion: 8,
-    importedAt: new Date().toISOString(),
+    importedAt: new Date(2025, 0, 1),
     stages: [informationStageBefore, stage, informationStageAfter],
     codebook: {
       node: {
@@ -165,34 +160,17 @@ const createMockProtocol = (args: StoryArgs) => {
       },
     },
     assets: [],
-    experiments: {},
+    experiments: null,
     isPreview: false,
     isPending: false,
+    description: null,
   };
 };
 
-const createMockSession = (nodes: NcNode[]) => ({
-  id: 'test-session',
-  currentStep: 1,
-  promptIndex: 0,
-  startTime: new Date().toISOString(),
-  finishTime: null,
-  exportTime: null,
-  lastUpdated: new Date().toISOString(),
-  network: {
-    nodes,
-    edges: [],
-    ego: {
-      [entityPrimaryKeyProperty]: 'ego-1',
-      [entityAttributesProperty]: {},
-    },
-  },
-});
-
-const createStore = (args: StoryArgs) => {
+function buildPayload(args: StoryArgs) {
+  const now = new Date(2025, 0, 1);
   const protocol = createMockProtocol(args);
 
-  // Build nodes: main nodes for prompt-1, panel nodes for prompt-2
   const mainNodes = createMockNodes(
     args.initialNodeCount,
     ['prompt-1'],
@@ -203,57 +181,37 @@ const createStore = (args: StoryArgs) => {
       ? createMockNodes(3, ['prompt-2'], STAGE_ID, args.initialNodeCount)
       : [];
 
-  const session = createMockSession([...mainNodes, ...panelNodes]);
-
-  const mockUiState = {
-    FORM_IS_READY: false,
-    passphrase: null as string | null,
-    passphraseInvalid: false,
-    showPassphrasePrompter: false,
-  };
-
-  return configureStore({
-    reducer: combineReducers({
-      session: sessionReducer,
-      protocol: (state: typeof protocol = protocol) => state,
-      ui: uiReducer,
-    }),
-    preloadedState: {
-      session,
-      protocol,
-      ui: mockUiState,
+  return {
+    id: 'test-session',
+    startTime: now,
+    finishTime: null,
+    exportTime: null,
+    lastUpdated: now,
+    currentStep: 1,
+    stageMetadata: null,
+    network: {
+      nodes: [...mainNodes, ...panelNodes],
+      edges: [],
+      ego: {
+        [entityPrimaryKeyProperty]: 'ego-1',
+        [entityAttributesProperty]: {},
+      },
     },
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({
-        serializableCheck: false,
-      }),
-  });
-};
+    protocol,
+  };
+}
 
 const NameGeneratorStoryWrapper = (args: StoryArgs) => {
   const configKey = JSON.stringify(args);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const store = useMemo(() => createStore(args), [configKey]);
-  const nav = useMemo(() => createStoryNavigation(store), [store]);
-
-  const protocol = createMockProtocol(args);
-  const stage = createStage(args);
+  const payload = useMemo(() => buildPayload(args), [configKey]);
+  const rawPayload = useMemo(() => SuperJSON.stringify(payload), [payload]);
 
   return (
-    <InterviewStoryShell
-      store={store}
-      nav={nav}
-      stages={protocol.stages as Stage[]}
-      mainStageIndex={1}
-    >
-      <div id="stage" className="relative flex size-full flex-col items-center">
-        <NameGenerator
-          stage={stage}
-          getNavigationHelpers={nav.getNavigationHelpers}
-        />
-      </div>
-    </InterviewStoryShell>
+    <div className="flex h-dvh w-full">
+      <StoryInterviewShell rawPayload={rawPayload} disableSync />
+    </div>
   );
 };
 

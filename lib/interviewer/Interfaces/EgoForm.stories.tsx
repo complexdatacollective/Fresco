@@ -2,11 +2,10 @@
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
-import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
-import { type ComponentType } from '~/lib/interviewer/utils/SyntheticInterview/types';
+import SuperJSON from 'superjson';
+import StoryInterviewShell from '~/.storybook/StoryInterviewShell';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
-import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
-import EgoForm from './EgoForm';
+import { type ComponentType } from '~/lib/interviewer/utils/SyntheticInterview/types';
 
 const FIELD_PRESETS: { component: ComponentType; prompt: string }[] = [
   { component: 'Text', prompt: 'What is your name?' },
@@ -73,33 +72,16 @@ const EgoFormStoryWrapper = (args: StoryArgs) => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const interview = useMemo(() => buildInterview(args), [configKey]);
-  const store = useMemo(
-    () => interview.getStore({ currentStep: 1 }),
+  const rawPayload = useMemo(
+    () =>
+      SuperJSON.stringify(interview.getInterviewPayload({ currentStep: 1 })),
     [interview],
   );
-  const nav = useMemo(() => createStoryNavigation(store), [store]);
-
-  const protocol = interview.getProtocol();
-  const rawStage = protocol.stages[1];
-  if (rawStage?.type !== 'EgoForm') {
-    throw new Error('Expected EgoForm stage');
-  }
-  const stage = rawStage;
 
   return (
-    <InterviewStoryShell
-      store={store}
-      nav={nav}
-      stages={protocol.stages}
-      mainStageIndex={1}
-    >
-      <div id="stage" className="relative flex size-full flex-col items-center">
-        <EgoForm
-          stage={stage}
-          getNavigationHelpers={nav.getNavigationHelpers}
-        />
-      </div>
-    </InterviewStoryShell>
+    <div className="flex h-dvh w-full">
+      <StoryInterviewShell rawPayload={rawPayload} disableSync />
+    </div>
   );
 };
 

@@ -1,20 +1,15 @@
 'use client';
 
-import { type Stage } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
   type NcEdge,
   type NcNode,
 } from '@codaco/shared-consts';
-import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
-import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
-import sessionReducer from '~/lib/interviewer/ducks/modules/session';
-import uiReducer from '~/lib/interviewer/ducks/modules/ui';
-import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
-import FamilyTreeCensus from './FamilyTreeCensus';
+import SuperJSON from 'superjson';
+import StoryInterviewShell from '~/.storybook/StoryInterviewShell';
 
 const informationStageBefore = {
   id: 'info-before',
@@ -153,75 +148,17 @@ const mockProtocol = {
 };
 
 const createMockNodes = (count: number): NcNode[] => {
-  const names = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank'];
+  const nodeNames = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank'];
   return Array.from({ length: count }, (_, i) => ({
     [entityPrimaryKeyProperty]: `node-${i + 1}`,
     type: 'person',
     stageId: 'family-tree-stage',
     [entityAttributesProperty]: {
-      name: names[i % names.length] ?? 'Unknown',
+      name: nodeNames[i % nodeNames.length] ?? 'Unknown',
       age: 30 + i * 5,
       sex: i % 2 === 0 ? 'female' : 'male',
     },
   }));
-};
-
-const createMockSession = (nodes: NcNode[], edges: NcEdge[]) => ({
-  id: 'test-session',
-  currentStep: 1,
-  promptIndex: 0,
-  startTime: new Date().toISOString(),
-  finishTime: null,
-  exportTime: null,
-  lastUpdated: new Date().toISOString(),
-  network: {
-    nodes,
-    edges,
-    ego: {
-      [entityPrimaryKeyProperty]: 'ego-1',
-      [entityAttributesProperty]: {
-        sex: 'female',
-      },
-    },
-  },
-  stageMetadata: {
-    1: {
-      hasSeenScaffoldPrompt: true,
-      nodes: nodes.map((node, i) => ({
-        interviewNetworkId: node[entityPrimaryKeyProperty],
-        label: (node[entityAttributesProperty].name as string) ?? '',
-        sex:
-          (node[entityAttributesProperty].sex as 'male' | 'female') ?? 'female',
-        isEgo: i === 0,
-        readOnly: false,
-      })),
-    },
-  },
-});
-
-const mockUiState = {
-  FORM_IS_READY: false,
-  passphrase: null as string | null,
-  passphraseInvalid: false,
-  showPassphrasePrompter: false,
-};
-
-const createMockStore = (nodes: NcNode[], edges: NcEdge[]) => {
-  const session = createMockSession(nodes, edges);
-  return configureStore({
-    reducer: combineReducers({
-      session: sessionReducer,
-      protocol: (state: typeof mockProtocol = mockProtocol) => state,
-      ui: uiReducer,
-    }),
-    preloadedState: {
-      protocol: mockProtocol,
-      session,
-      ui: mockUiState,
-    },
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({ serializableCheck: false }),
-  });
 };
 
 type StoryArgs = {
@@ -229,40 +166,67 @@ type StoryArgs = {
   hasEdges: boolean;
 };
 
-function buildStore(args: StoryArgs) {
+function buildPayload(args: StoryArgs) {
+  const now = new Date(2025, 0, 1);
   const nodes = createMockNodes(args.initialNodeCount);
   const edges: NcEdge[] = [];
-  return createMockStore(nodes, edges);
+
+  return {
+    id: 'test-session',
+    startTime: now,
+    finishTime: null,
+    exportTime: null,
+    lastUpdated: now,
+    currentStep: 1,
+    stageMetadata: {
+      1: {
+        hasSeenScaffoldPrompt: true,
+        nodes: nodes.map((node, i) => ({
+          interviewNetworkId: node[entityPrimaryKeyProperty],
+          label: (node[entityAttributesProperty].name as string) ?? '',
+          sex:
+            (node[entityAttributesProperty].sex as 'male' | 'female') ??
+            'female',
+          isEgo: i === 0,
+          readOnly: false,
+        })),
+      },
+    },
+    network: {
+      nodes,
+      edges,
+      ego: {
+        [entityPrimaryKeyProperty]: 'ego-1',
+        [entityAttributesProperty]: {
+          sex: 'female',
+        },
+      },
+    },
+    protocol: {
+      ...mockProtocol,
+      name: 'Test Protocol',
+      description: null,
+      schemaVersion: 8,
+      importedAt: now,
+      isPreview: false,
+      isPending: false,
+      experiments: null,
+      assets: [],
+    },
+  };
 }
 
 const FamilyTreeCensusStoryWrapper = (args: StoryArgs) => {
   const configKey = JSON.stringify(args);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const store = useMemo(() => buildStore(args), [configKey]);
-  const nav = useMemo(() => createStoryNavigation(store), [store]);
-
-  const stage = mockProtocol.stages[1];
-  if (stage?.type !== 'FamilyTreeCensus') {
-    throw new Error('Expected FamilyTreeCensus stage');
-  }
+  const payload = useMemo(() => buildPayload(args), [configKey]);
+  const rawPayload = useMemo(() => SuperJSON.stringify(payload), [payload]);
 
   return (
-    <InterviewStoryShell
-      store={store}
-      nav={nav}
-      stages={mockProtocol.stages as Stage[]}
-      mainStageIndex={1}
-    >
-      <div id="stage" className="relative flex size-full flex-col items-center">
-        <FamilyTreeCensus
-          stage={
-            stage as unknown as Parameters<typeof FamilyTreeCensus>[0]['stage']
-          }
-          getNavigationHelpers={nav.getNavigationHelpers}
-        />
-      </div>
-    </InterviewStoryShell>
+    <div className="flex h-dvh w-full">
+      <StoryInterviewShell rawPayload={rawPayload} disableSync />
+    </div>
   );
 };
 

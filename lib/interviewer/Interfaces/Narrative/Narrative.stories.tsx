@@ -2,10 +2,9 @@
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
-import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
+import SuperJSON from 'superjson';
+import StoryInterviewShell from '~/.storybook/StoryInterviewShell';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
-import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
-import Narrative from './Narrative';
 
 function createNarrativeInterview(seed: number) {
   const si = new SyntheticInterview(seed);
@@ -57,32 +56,16 @@ function NarrativeStoryWrapper({
   buildFn: () => SyntheticInterview;
 }) {
   const interview = useMemo(() => buildFn(), [buildFn]);
-  const store = useMemo(
-    () => interview.getStore({ currentStep: 1 }),
+  const rawPayload = useMemo(
+    () =>
+      SuperJSON.stringify(interview.getInterviewPayload({ currentStep: 1 })),
     [interview],
   );
-  const nav = useMemo(() => createStoryNavigation(store), [store]);
-
-  const protocol = interview.getProtocol();
-  const rawStage = protocol.stages[1];
-  if (rawStage?.type !== 'Narrative') {
-    throw new Error('Expected Narrative stage');
-  }
 
   return (
-    <InterviewStoryShell
-      store={store}
-      nav={nav}
-      stages={protocol.stages}
-      mainStageIndex={1}
-    >
-      <div id="stage" className="relative flex size-full flex-col items-center">
-        <Narrative
-          stage={rawStage}
-          getNavigationHelpers={nav.getNavigationHelpers}
-        />
-      </div>
-    </InterviewStoryShell>
+    <div className="flex h-dvh w-full">
+      <StoryInterviewShell rawPayload={rawPayload} disableSync />
+    </div>
   );
 }
 

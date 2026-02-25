@@ -1,20 +1,15 @@
 'use client';
 
-import { type Stage } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
   type NcEdge,
   type NcNode,
 } from '@codaco/shared-consts';
-import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
-import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
-import sessionReducer from '~/lib/interviewer/ducks/modules/session';
-import uiReducer from '~/lib/interviewer/ducks/modules/ui';
-import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
-import TieStrengthCensus from './TieStrengthCensus';
+import SuperJSON from 'superjson';
+import StoryInterviewShell from '~/.storybook/StoryInterviewShell';
 
 const informationStageBefore = {
   id: 'info-before',
@@ -125,56 +120,13 @@ const createMockEdges = (
   }));
 };
 
-const createMockSession = (nodes: NcNode[], edges: NcEdge[]) => ({
-  id: 'test-session',
-  currentStep: 1,
-  promptIndex: 0,
-  startTime: new Date().toISOString(),
-  finishTime: null,
-  exportTime: null,
-  lastUpdated: new Date().toISOString(),
-  network: {
-    nodes,
-    edges,
-    ego: {
-      [entityPrimaryKeyProperty]: 'ego-1',
-      [entityAttributesProperty]: {},
-    },
-  },
-  stageMetadata: {},
-});
-
-const mockUiState = {
-  FORM_IS_READY: false,
-  passphrase: null as string | null,
-  passphraseInvalid: false,
-  showPassphrasePrompter: false,
-};
-
-const createMockStore = (nodes: NcNode[], edges: NcEdge[]) => {
-  const session = createMockSession(nodes, edges);
-  return configureStore({
-    reducer: combineReducers({
-      session: sessionReducer,
-      protocol: (state: typeof mockProtocol = mockProtocol) => state,
-      ui: uiReducer,
-    }),
-    preloadedState: {
-      protocol: mockProtocol,
-      session,
-      ui: mockUiState,
-    },
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({ serializableCheck: false }),
-  });
-};
-
 type StoryArgs = {
   initialNodeCount: number;
   hasExistingEdges: boolean;
 };
 
-function buildStore(args: StoryArgs) {
+function buildPayload(args: StoryArgs) {
+  const now = new Date(2025, 0, 1);
   const nodes = createMockNodes(args.initialNodeCount);
   const edges = args.hasExistingEdges
     ? createMockEdges([
@@ -182,35 +134,48 @@ function buildStore(args: StoryArgs) {
         [2, 3, 1],
       ])
     : [];
-  return createMockStore(nodes, edges);
+
+  return {
+    id: 'test-session',
+    startTime: now,
+    finishTime: null,
+    exportTime: null,
+    lastUpdated: now,
+    currentStep: 1,
+    stageMetadata: null,
+    network: {
+      nodes,
+      edges,
+      ego: {
+        [entityPrimaryKeyProperty]: 'ego-1',
+        [entityAttributesProperty]: {},
+      },
+    },
+    protocol: {
+      ...mockProtocol,
+      name: 'Test Protocol',
+      description: null,
+      schemaVersion: 8,
+      importedAt: now,
+      isPreview: false,
+      isPending: false,
+      experiments: null,
+      assets: [],
+    },
+  };
 }
 
 const TieStrengthCensusStoryWrapper = (args: StoryArgs) => {
   const configKey = JSON.stringify(args);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const store = useMemo(() => buildStore(args), [configKey]);
-  const nav = useMemo(() => createStoryNavigation(store), [store]);
-
-  const stage = mockProtocol.stages[1];
-  if (stage?.type !== 'TieStrengthCensus') {
-    throw new Error('Expected TieStrengthCensus stage');
-  }
+  const payload = useMemo(() => buildPayload(args), [configKey]);
+  const rawPayload = useMemo(() => SuperJSON.stringify(payload), [payload]);
 
   return (
-    <InterviewStoryShell
-      store={store}
-      nav={nav}
-      stages={mockProtocol.stages as Stage[]}
-      mainStageIndex={1}
-    >
-      <div id="stage" className="relative flex size-full flex-col items-center">
-        <TieStrengthCensus
-          stage={stage as Parameters<typeof TieStrengthCensus>[0]['stage']}
-          getNavigationHelpers={nav.getNavigationHelpers}
-        />
-      </div>
-    </InterviewStoryShell>
+    <div className="flex h-dvh w-full">
+      <StoryInterviewShell rawPayload={rawPayload} disableSync />
+    </div>
   );
 };
 

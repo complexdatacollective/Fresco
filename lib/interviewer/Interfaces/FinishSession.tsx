@@ -1,6 +1,5 @@
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
-import { finishInterview } from '~/actions/interviews';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
@@ -26,6 +25,7 @@ const FinishSession = () => {
         if (!interviewId) {
           throw new Error('No interview id found');
         }
+        const { finishInterview } = await import('~/actions/interviews');
         const finished = await finishInterview(interviewId);
 
         if (finished && !finished.error) {

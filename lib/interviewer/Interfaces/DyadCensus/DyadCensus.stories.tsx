@@ -2,10 +2,9 @@
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
-import { InterviewStoryShell } from '~/.storybook/InterviewStoryShell';
+import SuperJSON from 'superjson';
+import StoryInterviewShell from '~/.storybook/StoryInterviewShell';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
-import { createStoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
-import DyadCensus from './DyadCensus';
 
 type StoryArgs = {
   initialNodeCount: number;
@@ -53,33 +52,16 @@ const DyadCensusStoryWrapper = (args: StoryArgs) => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const interview = useMemo(() => buildInterview(args), [configKey]);
-  const store = useMemo(
-    () => interview.getStore({ currentStep: 1 }),
+  const rawPayload = useMemo(
+    () =>
+      SuperJSON.stringify(interview.getInterviewPayload({ currentStep: 1 })),
     [interview],
   );
-  const nav = useMemo(() => createStoryNavigation(store), [store]);
-
-  const protocol = interview.getProtocol();
-  const rawStage = protocol.stages[1];
-  if (rawStage?.type !== 'DyadCensus') {
-    throw new Error('Expected DyadCensus stage');
-  }
-  const stage = rawStage;
 
   return (
-    <InterviewStoryShell
-      store={store}
-      nav={nav}
-      stages={protocol.stages}
-      mainStageIndex={1}
-    >
-      <div id="stage" className="relative flex size-full flex-col items-center">
-        <DyadCensus
-          stage={stage}
-          getNavigationHelpers={nav.getNavigationHelpers}
-        />
-      </div>
-    </InterviewStoryShell>
+    <div className="flex h-dvh w-full">
+      <StoryInterviewShell rawPayload={rawPayload} disableSync />
+    </div>
   );
 };
 

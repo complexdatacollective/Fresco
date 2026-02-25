@@ -13,7 +13,6 @@ import {
   NODE_COLORS,
   ORDINAL_COLORS,
 } from './constants';
-import { createMockStore } from './createMockStore';
 import {
   type AddCategoricalBinPromptInput,
   type AddDyadCensusPromptInput,
@@ -882,21 +881,30 @@ export class SyntheticInterview {
     };
   }
 
-  getSession(opts?: GetSessionInput) {
+  getInterviewPayload(opts?: GetSessionInput) {
+    const now = new Date(2025, 0, 1);
+    const protocol = this.getProtocol();
+    const network = this.getNetwork();
+
     return {
       id: `session-${this.seed}`,
-      currentStep: opts?.currentStep ?? 0,
-      promptIndex: opts?.promptIndex ?? 0,
-      startTime: new Date(2025, 0, 1).toISOString(),
+      startTime: now,
       finishTime: null,
       exportTime: null,
-      lastUpdated: new Date(2025, 0, 1).toISOString(),
-      network: this.getNetwork(),
+      lastUpdated: now,
+      currentStep: opts?.currentStep ?? 0,
+      stageMetadata: null,
+      network,
+      protocol: {
+        ...protocol,
+        name: 'Synthetic Protocol',
+        description: null,
+        importedAt: now,
+        isPreview: false,
+        isPending: false,
+        experiments: null,
+      },
     };
-  }
-
-  getStore(opts?: GetSessionInput) {
-    return createMockStore(this.getProtocol(), this.getSession(opts));
   }
 
   // --- Internal builders ---

@@ -2,13 +2,9 @@ import addonA11y from '@storybook/addon-a11y';
 import addonDocs from '@storybook/addon-docs';
 import addonVitest from '@storybook/addon-vitest';
 import { definePreview } from '@storybook/nextjs-vite';
-import { type Store } from '@reduxjs/toolkit';
 import { StrictMode } from 'react';
-import { Provider } from 'react-redux';
 import Providers from '../components/Providers';
-import { type StoryNavigation } from '~/lib/interviewer/utils/SyntheticInterview/createStoryNavigation';
 import '../styles/globals.css';
-import { InterviewNavigationBridge } from './interview-navigation-bridge';
 import { getInitialTheme, globalTypes, withTheme } from './theme-switcher';
 
 // @chromatic-com/storybook is not included here because it doesn't export a
@@ -75,24 +71,6 @@ export default definePreview({
       </StrictMode>
     ),
     withTheme,
-    (
-      Story: React.ComponentType,
-      context: {
-        parameters?: { store?: Store; storyNavigation?: StoryNavigation };
-      },
-    ) => {
-      const store = context.parameters?.store;
-      const nav = context.parameters?.storyNavigation;
-
-      if (!store || !nav) return <Story />;
-
-      return (
-        <Provider store={store}>
-          <Story />
-          <InterviewNavigationBridge store={store} storyNavigation={nav} />
-        </Provider>
-      );
-    },
   ],
 
   globalTypes,
