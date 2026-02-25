@@ -1,97 +1,122 @@
-import { type Prompt, type SortOrder } from '@codaco/protocol-validation';
+import { type Stage } from '@codaco/protocol-validation';
 import { entityAttributesProperty, type NcNode } from '@codaco/shared-consts';
-import { useMemo } from 'react';
+import { invariant } from 'es-toolkit';
+import { get } from 'es-toolkit/compat';
 import { useSelector } from 'react-redux';
+import { usePrompts } from '../../components/Prompts/usePrompts';
+import useSortedNodeList, {
+  getSortedNodeList,
+} from '../../hooks/useSortedNodeList';
 import {
-  makeGetVariableOptions,
-  getUncategorisedNodes,
-} from '../../selectors/interface';
-import {
-  getPromptOtherVariable,
-  getPromptVariable,
-} from '../../selectors/prop';
+  getAllVariableUUIDsByEntity,
+  makeGetCodebookVariableById,
+} from '../../selectors/protocol';
 import { getNetworkNodesForType } from '../../selectors/session';
 
-export type CategoricalBinPrompt = Prompt & {
-  bucketSortOrder?: SortOrder;
-  binSortOrder?: SortOrder;
-};
-
-export type CategoricalBin = {
-  label: string;
-  value: number | string | null;
-  nodes: NcNode[];
-  otherVariable?: string;
-  otherVariablePrompt?: string;
-};
-
-type UseCategoricalBinsResult = {
-  bins: CategoricalBin[];
-  activePromptVariable: string | undefined;
-  promptOtherVariable: string | undefined;
-  uncategorisedNodes: NcNode[];
-};
-
-const matchVariable = (
+const matchVariableValue = (
   node: NcNode,
   variable: string,
   value: number | string | null,
 ) => {
-  const nodeValue = node[entityAttributesProperty][variable];
-  if (!nodeValue) return false;
+  const variableValue = node[entityAttributesProperty][variable];
 
-  if (Array.isArray(nodeValue) && value !== null) {
-    return (nodeValue as (string | number | boolean)[]).includes(value);
+  // No value assigned to the variable, so it can't match any value
+  if (!variableValue) return false;
+
+  if (Array.isArray(variableValue) && value !== null) {
+    return variableValue.includes(value);
   }
 
-  return nodeValue === value;
+  return variableValue === value;
 };
 
-const hasOtherVariable = (node: NcNode, otherVariable?: string) =>
-  otherVariable &&
-  node[entityAttributesProperty][otherVariable] !== null &&
-  node[entityAttributesProperty][otherVariable] !== undefined;
+type CategoricalBinPrompts = Extract<
+  Stage,
+  { type: 'CategoricalBin' }
+>['prompts'][number];
 
-export function useCategoricalBins(): UseCategoricalBinsResult {
+export function useCategoricalBins() {
   const stageNodes = useSelector(getNetworkNodesForType);
-  const activePromptVariable = useSelector(getPromptVariable);
-  const [promptOtherVariable] = useSelector(getPromptOtherVariable);
-  const uncategorisedNodes = useSelector(getUncategorisedNodes);
+  const {
+    prompt: {
+      variable: activePromptVariable,
+      otherVariable,
+      otherOptionLabel,
+      bucketSortOrder,
+    },
+  } = usePrompts<CategoricalBinPrompts>();
 
-  const getCategoricalValues = useMemo(() => makeGetVariableOptions(true), []);
-  const categoricalOptions = useSelector(getCategoricalValues);
+  const codebookVariables = useSelector(getAllVariableUUIDsByEntity);
+  const getVariableDefinition = useSelector(makeGetCodebookVariableById);
+  const variableDefinition = getVariableDefinition(activePromptVariable);
 
-  const bins: CategoricalBin[] = useMemo(() => {
-    return categoricalOptions.map((option) => {
-      const otherVar = (option as { otherVariable?: string }).otherVariable;
-      const otherVarPrompt = (option as { otherVariablePrompt?: string })
-        .otherVariablePrompt;
+  invariant(
+    variableDefinition?.type === 'categorical' ||
+      variableDefinition?.type === 'ordinal',
+    `Variable with ID ${activePromptVariable} is not a categorical or ordinal variable`,
+  );
 
-      const nodes = stageNodes.filter((node) => {
-        if (otherVar) {
-          return hasOtherVariable(node, otherVar);
-        }
-        return matchVariable(
-          node,
-          activePromptVariable!,
-          option.value as number | string | null,
-        );
-      });
+  const categoricalOptions = variableDefinition.options;
 
-      return {
-        label: option.label ?? '',
-        value: option.value as number | string | null,
-        nodes,
-        ...(otherVar ? { otherVariable: otherVar } : {}),
-        ...(otherVarPrompt ? { otherVariablePrompt: otherVarPrompt } : {}),
-      };
+  // Calculate uncategorised nodes by filtering stageNodes to those that don't have a value for either the active prompt variable or the other variable
+  const uncategorisedNodes = stageNodes.filter((node) => {
+    const attributes = node[entityAttributesProperty];
+
+    const activeVarExists = activePromptVariable
+      ? !!attributes[activePromptVariable]
+      : false;
+    const otherVarExists = otherVariable ? !!attributes[otherVariable] : false;
+
+    return !activeVarExists && !otherVarExists;
+  });
+
+  const sortedUncategorisedNodes = useSortedNodeList(
+    uncategorisedNodes,
+    bucketSortOrder,
+  );
+
+  const bins = categoricalOptions.map((option) => {
+    // Filter nodes
+    const nodes = stageNodes.filter((node) => {
+      return matchVariableValue(node, activePromptVariable, option.value);
     });
-  }, [categoricalOptions, stageNodes, activePromptVariable]);
+
+    const sortedNodes = getSortedNodeList(
+      nodes,
+      bucketSortOrder,
+      codebookVariables,
+    );
+
+    return {
+      label: option.label,
+      nodes: sortedNodes,
+      value: option.value,
+      isOther: false,
+    };
+  });
+
+  // Handle 'other' bin
+  if (otherVariable && otherOptionLabel) {
+    const otherNodes = stageNodes.filter(
+      (node) =>
+        get(node, [entityAttributesProperty, otherVariable]) !== undefined,
+    );
+
+    const sortedOtherNodes = getSortedNodeList(
+      otherNodes,
+      bucketSortOrder,
+      codebookVariables,
+    );
+
+    bins.push({
+      label: otherOptionLabel,
+      nodes: sortedOtherNodes,
+      isOther: true,
+    });
+  }
 
   return {
     bins,
-    activePromptVariable,
-    promptOtherVariable,
-    uncategorisedNodes,
+    uncategorisedNodes: sortedUncategorisedNodes,
   };
 }

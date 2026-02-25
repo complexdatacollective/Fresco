@@ -3,6 +3,7 @@ import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { headingVariants } from '~/components/typography/Heading';
+import { ScrollArea } from '~/components/ui/ScrollArea';
 import { cx } from '~/utils/cva';
 import DrawerNode from '../Interfaces/Sociogram/DrawerNode';
 
@@ -11,6 +12,8 @@ type NodeDrawerProps = {
   itemType?: string;
   expanded?: boolean;
   onExpandedChange?: (expanded: boolean) => void;
+  /** When true, drawer is absolutely positioned (for Sociogram canvas overlay). Defaults to false (inline flex). */
+  floating?: boolean;
 };
 
 const MotionChevron = motion.create(ChevronDown);
@@ -20,62 +23,75 @@ export default function NodeDrawer({
   itemType,
   expanded,
   onExpandedChange,
+  floating = false,
 }: NodeDrawerProps) {
   const [internalExpanded, setInternalExpanded] = useState(true);
   const isExpanded = expanded ?? internalExpanded;
   const setIsExpanded = onExpandedChange ?? setInternalExpanded;
 
-  if (nodes.length === 0) return null;
+  const hasNodes = nodes.length > 0;
 
   return (
-    <div className="absolute inset-x-0 bottom-0 z-10 mx-auto w-fit max-w-2xl min-w-sm drop-shadow-[0_-2px_16px_rgba(0,0,0,0.4)]">
-      {/* Toggle button */}
-      <div className="flex justify-center">
-        <button
-          type="button"
-          onClick={() => setIsExpanded(!isExpanded)}
+    <AnimatePresence>
+      {hasNodes && (
+        <motion.div
+          initial={{ y: '100%' }}
+          animate={{ y: 0 }}
+          exit={{ y: '150%' }}
+          transition={{ type: 'spring', stiffness: 300, damping: 28 }}
           className={cx(
-            'bg-surface/80 flex items-center gap-2 rounded-t-lg px-8 py-2 text-sm backdrop-blur-md',
-            headingVariants({ level: 'label' }),
+            'tablet:min-w-sm tablet:w-fit z-10 mx-auto w-full max-w-2xl drop-shadow-xl',
+            floating ? 'absolute inset-x-0 bottom-0' : 'shrink-0',
           )}
-          aria-label={isExpanded ? 'Collapse drawer' : 'Expand drawer'}
-          aria-expanded={isExpanded}
         >
-          <MotionChevron
-            className="size-[1em]"
-            animate={{ rotate: isExpanded ? 0 : 180 }}
-          />
-          {nodes.length} unplaced
-        </button>
-      </div>
+          {/* Toggle button */}
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className={cx(
+                'bg-surface flex items-center gap-2 rounded-t-lg px-8 py-2 text-sm',
+                headingVariants({ level: 'label' }),
+              )}
+              aria-label={isExpanded ? 'Collapse drawer' : 'Expand drawer'}
+              aria-expanded={isExpanded}
+            >
+              <MotionChevron
+                className="size-[1em]"
+                animate={{ rotate: isExpanded ? 0 : 180 }}
+              />
+              {nodes.length} unplaced
+            </button>
+          </div>
 
-      {/* Drawer content */}
-      <AnimatePresence>
-        {isExpanded && (
           <motion.div
             layout
             initial={{ height: 0, opacity: 0 }}
-            animate={{
-              height: 'auto',
-              opacity: 1,
-              transition: {
-                height: { type: 'spring', stiffness: 300, damping: 24 },
-                opacity: { duration: 0.15 },
-              },
-            }}
-            exit={{
-              height: 0,
-              opacity: 0,
-              transition: {
-                height: { duration: 0.25, ease: [0, 0, 0.2, 1] },
-                opacity: { duration: 0.15 },
-              },
-            }}
-            className="bg-surface/80 overflow-hidden rounded backdrop-blur-md"
+            animate={
+              isExpanded
+                ? {
+                    height: 'auto',
+                    opacity: 1,
+                    transition: {
+                      height: { type: 'spring', stiffness: 300, damping: 24 },
+                      opacity: { duration: 0.15 },
+                    },
+                  }
+                : {
+                    height: 0,
+                    opacity: 0,
+                    transition: {
+                      height: { duration: 0.25, ease: [0, 0, 0.2, 1] },
+                      opacity: { duration: 0.15 },
+                    },
+                  }
+            }
+            className="bg-surface publish-colors overflow-hidden rounded"
           >
-            <motion.div
-              layout
-              className="flex items-center justify-center gap-4 overflow-x-auto p-4"
+            <ScrollArea
+              orientation="horizontal"
+              fade
+              viewportClassName="flex items-center gap-4 p-4"
             >
               {nodes.map((node) => (
                 <DrawerNode
@@ -84,10 +100,10 @@ export default function NodeDrawer({
                   itemType={itemType}
                 />
               ))}
-            </motion.div>
+            </ScrollArea>
           </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

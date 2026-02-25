@@ -24,3 +24,18 @@ export default function useSortedNodeList<T extends Record<string, unknown>[]>(
 
   return sortedNodeList as T;
 }
+
+// Version of the above that can be used in selectors without violating rules of hooks
+export function getSortedNodeList<T extends Record<string, unknown>[]>(
+  nodeList: T,
+  sortRules: ProtocolSortRule[] | undefined,
+  codebookVariables: ReturnType<typeof getAllVariableUUIDsByEntity>,
+): T {
+  if (!sortRules || sortRules.length === 0) {
+    return nodeList;
+  }
+
+  const ruleProcessor = processProtocolSortRule(codebookVariables);
+  const sorter = createSorter(sortRules.map(ruleProcessor));
+  return sorter(nodeList) as T;
+}

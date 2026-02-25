@@ -513,6 +513,23 @@ This custom variant lets you target only elements with the readonly attribute.
   }
 }
 
+@utility scroll-area-viewport-x {
+  --fade-width: max(1.5rem, 8%);
+  &::before,
+  &::after {
+    @apply pointer-events-none absolute top-0 block transition-[width] duration-100 ease-out content-[''];
+    bottom: var(--scrollbar-height, 0px);
+  }
+  &::before {
+    @apply left-0 z-1 bg-linear-to-r from-(--published-bg,var(--background)) to-transparent;
+    width: min(var(--fade-width), var(--scroll-area-overflow-x-start, 0px));
+  }
+  &::after {
+    @apply right-0 bg-linear-to-l from-(--published-bg,var(--background)) to-transparent;
+    width: min(var(--fade-width), var(--scroll-area-overflow-x-end, 0px));
+  }
+}
+
 /* Replacement for interface centering mixin */
 @utility interface {
   @apply relative flex w-full shrink grow basis-auto items-center justify-center gap-8 p-4;

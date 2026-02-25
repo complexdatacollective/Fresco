@@ -25,6 +25,8 @@ type ScrollAreaProps = {
   viewportClassName?: string;
   /** Whether to show gradient fade at scroll edges. Defaults to true. */
   fade?: boolean;
+  /** Scroll orientation. Defaults to 'vertical'. */
+  orientation?: 'vertical' | 'horizontal';
   /** Enable scroll-snap behavior. Children should use 'snap-start', 'snap-center', or 'snap-end' classes. */
   snap?: ScrollSnapType;
   /** Axis for scroll-snap. Defaults to 'both'. Only applies when snap is set. */
@@ -53,6 +55,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
       viewportClassName,
       children,
       fade = true,
+      orientation = 'vertical',
       snap,
       snapAxis = 'both',
       // Viewport props - these go on the inner scrollable element
@@ -83,25 +86,29 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
         // Verify viewport still exists after async callbacks
         if (!viewportRef.current) return;
 
-        const { scrollTop, scrollHeight, clientHeight } = viewportRef.current;
+        const {
+          scrollTop,
+          scrollHeight,
+          clientHeight,
+          scrollLeft,
+          scrollWidth,
+          clientWidth,
+        } = viewportRef.current;
 
-        // Only show fade when there's actual overflow
-        const hasOverflow = scrollHeight > clientHeight;
-
-        // Calculate distance from top and bottom edges
-        const overflowStart = hasOverflow ? scrollTop : 0;
-        const overflowEnd = hasOverflow
+        // Vertical overflow
+        const hasVerticalOverflow = scrollHeight > clientHeight;
+        const overflowYStart = hasVerticalOverflow ? scrollTop : 0;
+        const overflowYEnd = hasVerticalOverflow
           ? Math.max(0, scrollHeight - clientHeight - scrollTop)
           : 0;
 
-        // Set CSS variables for the fade effect
         viewportRef.current.style.setProperty(
           '--scroll-area-overflow-y-start',
-          `${overflowStart}px`,
+          `${overflowYStart}px`,
         );
         viewportRef.current.style.setProperty(
           '--scroll-area-overflow-y-end',
-          `${overflowEnd}px`,
+          `${overflowYEnd}px`,
         );
 
         // Inset fade pseudo-elements to avoid covering the scrollbar
@@ -110,6 +117,29 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
         viewportRef.current.style.setProperty(
           '--scrollbar-width',
           `${scrollbarWidth}px`,
+        );
+
+        // Horizontal overflow
+        const hasHorizontalOverflow = scrollWidth > clientWidth;
+        const overflowXStart = hasHorizontalOverflow ? scrollLeft : 0;
+        const overflowXEnd = hasHorizontalOverflow
+          ? Math.max(0, scrollWidth - clientWidth - scrollLeft)
+          : 0;
+
+        viewportRef.current.style.setProperty(
+          '--scroll-area-overflow-x-start',
+          `${overflowXStart}px`,
+        );
+        viewportRef.current.style.setProperty(
+          '--scroll-area-overflow-x-end',
+          `${overflowXEnd}px`,
+        );
+
+        const scrollbarHeight =
+          viewportRef.current.offsetHeight - viewportRef.current.clientHeight;
+        viewportRef.current.style.setProperty(
+          '--scrollbar-height',
+          `${scrollbarHeight}px`,
         );
       });
     }, []);
@@ -148,6 +178,8 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
       return `snap-both ${snapType}`;
     };
 
+    const isHorizontal = orientation === 'horizontal';
+
     return (
       <motion.div
         className={cx('relative flex h-full min-h-0 flex-1', className)}
@@ -164,19 +196,26 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
             'focusable',
             'p-2',
             // Layout
-            'min-h-0 flex-1 overflow-auto overscroll-contain',
+            isHorizontal
+              ? 'min-w-0 flex-1 overflow-x-auto overflow-y-hidden overscroll-contain'
+              : 'min-h-0 flex-1 overflow-auto overscroll-contain',
             // Gradient fade effect
-            fade && 'scroll-area-viewport',
+            fade &&
+              (isHorizontal
+                ? 'scroll-area-viewport-x'
+                : 'scroll-area-viewport'),
             // Scroll snap
             getSnapClasses(),
             viewportClassName,
           )}
           style={
             {
-              // Initialize CSS variables for fade effect
               '--scroll-area-overflow-y-start': '0px',
               '--scroll-area-overflow-y-end': '0px',
               '--scrollbar-width': '0px',
+              '--scroll-area-overflow-x-start': '0px',
+              '--scroll-area-overflow-x-end': '0px',
+              '--scrollbar-height': '0px',
             } as CSSProperties
           }
           {...rest}

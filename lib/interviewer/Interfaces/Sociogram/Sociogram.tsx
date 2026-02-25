@@ -7,8 +7,6 @@ import {
 import { get } from 'es-toolkit/compat';
 import { useCallback, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import useSortedNodeList from '~/lib/interviewer/hooks/useSortedNodeList';
-import { getPromptSortOrder } from '~/lib/interviewer/selectors/session';
 import Canvas from '~/lib/interviewer/canvas/Canvas';
 import {
   createCanvasStore,
@@ -22,12 +20,14 @@ import {
   toggleNodeAttributes,
   updateNode,
 } from '~/lib/interviewer/ducks/modules/session';
+import useSortedNodeList from '~/lib/interviewer/hooks/useSortedNodeList';
 import {
   getEdges,
   getNodes,
   getPlacedNodes,
   getUnplacedNodes,
 } from '~/lib/interviewer/selectors/canvas';
+import { getPromptSortOrder } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { type StageProps } from '~/lib/interviewer/types';
 import NodeDrawer from '../../components/NodeDrawer';
@@ -215,16 +215,17 @@ const Sociogram = (stageProps: SociogramProps) => {
         allowRepositioning={allowPositioning}
         simulation={simulationHandlers}
       />
-      {layoutMode === 'MANUAL' ? (
-        <NodeDrawer nodes={sortedUnplacedNodes} />
-      ) : (
-        <SimulationPanel
-          simulationEnabled={simulation.simulationEnabled}
-          onToggle={simulation.toggleSimulation}
-          dragConstraints={interfaceRef}
-        />
+      {layoutMode === 'MANUAL' && (
+        <NodeDrawer nodes={sortedUnplacedNodes} floating />
       )}
-      <CollapsablePrompts dragConstraints={interfaceRef} />
+      <CollapsablePrompts dragConstraints={interfaceRef}>
+        {layoutMode === 'AUTOMATIC' && (
+          <SimulationPanel
+            simulationEnabled={simulation.simulationEnabled}
+            onToggle={simulation.toggleSimulation}
+          />
+        )}
+      </CollapsablePrompts>
     </div>
   );
 };

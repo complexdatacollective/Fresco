@@ -101,15 +101,17 @@ const OrdinalBinItem = memo((props: OrdinalBinItemProps) => {
   });
 
   const panelClasses = cx(
-    'row-span-2 grid min-w-0 grid-rows-subgrid overflow-hidden shadow',
+    'row-span-2 grid min-w-0 grid-rows-subgrid overflow-hidden shadow portrait:col-span-2 portrait:row-span-1 portrait:grid-cols-subgrid portrait:grid-rows-none',
     !isOver &&
       !missingValue &&
       'bg-[color-mix(in_oklch,var(--color-surface-1)_var(--blend-percent),var(--color-background)_calc(100%-var(--blend-percent)))]',
     !isOver &&
       missingValue &&
       'bg-[color-mix(in_oklch,var(--color-rich-black)_10%,var(--color-background)_90%)]',
-    isFirst && 'rounded-tl rounded-bl',
-    isLast && 'rounded-tr rounded-br',
+    isFirst &&
+      'rounded-tl rounded-bl portrait:rounded-tr portrait:rounded-bl-none',
+    isLast &&
+      'rounded-tr rounded-br portrait:rounded-tr-none portrait:rounded-bl',
     isDragging && 'spring-long',
     isOver && willAccept && 'scale-105 shadow-2xl',
   );

@@ -59,6 +59,15 @@ Enable scroll snapping by setting the \`snap\` prop. Children should include sna
   },
   tags: ['autodocs'],
   argTypes: {
+    orientation: {
+      control: 'select',
+      options: ['vertical', 'horizontal'],
+      description:
+        'Scroll orientation. Controls which axis overflows and which fade effect is applied.',
+      table: {
+        defaultValue: { summary: "'vertical'" },
+      },
+    },
     fade: {
       control: 'boolean',
       description:
@@ -189,7 +198,10 @@ export const Horizontal: Story = {
     },
   },
   render: () => (
-    <ScrollArea className="bg-background publish-colors h-40 w-96 border">
+    <ScrollArea
+      orientation="horizontal"
+      className="bg-background publish-colors h-40 w-96 border"
+    >
       <HorizontalContent />
     </ScrollArea>
   ),
@@ -265,7 +277,10 @@ export const Orientations: Story = {
       </div>
       <div className="flex h-36 w-80 flex-col gap-2">
         <span className="text-sm font-medium">Horizontal</span>
-        <ScrollArea className="bg-background publish-colors border">
+        <ScrollArea
+          orientation="horizontal"
+          className="bg-background publish-colors border"
+        >
           <HorizontalContent />
         </ScrollArea>
       </div>
@@ -393,6 +408,7 @@ export const ScrollSnapHorizontal: Story = {
           Horizontal Snap (center, mandatory)
         </span>
         <ScrollArea
+          orientation="horizontal"
           snap="mandatory"
           className="bg-background publish-colors h-44 w-96 border"
         >
@@ -404,6 +420,7 @@ export const ScrollSnapHorizontal: Story = {
           Horizontal Snap (center, proximity)
         </span>
         <ScrollArea
+          orientation="horizontal"
           snap="proximity"
           className="bg-background publish-colors h-44 w-96 border"
         >

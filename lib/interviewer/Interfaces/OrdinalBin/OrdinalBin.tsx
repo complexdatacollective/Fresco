@@ -66,7 +66,7 @@ const OrdinalBin = (props: OrdinalBinStageProps) => {
           {prompt && activePromptVariable && (
             <motion.div
               key={prompt.id}
-              className="grid h-full auto-cols-fr grid-flow-col grid-rows-[auto_1fr] gap-x-2"
+              className="grid h-full auto-cols-fr grid-flow-col grid-rows-[auto_1fr] gap-x-2 portrait:grid-flow-row portrait:auto-rows-fr portrait:grid-cols-[auto_1fr] portrait:grid-rows-none portrait:gap-x-0 portrait:gap-y-2"
               variants={binsContainerVariants}
               initial="initial"
               animate="animate"

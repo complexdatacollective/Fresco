@@ -1,16 +1,25 @@
+import {
+  entityPrimaryKeyProperty,
+  type NcNode,
+  type VariableValue,
+} from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import Node from '~/components/Node';
+import useDialog from '~/lib/dialogs/useDialog';
+import Field from '~/lib/form/components/Field/Field';
+import InputField from '~/lib/form/components/fields/InputField';
+import { FormWithoutProvider } from '~/lib/form/components/Form';
+import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { type StageProps } from '~/lib/interviewer/types';
 import NodeDrawer from '../../components/NodeDrawer';
 import Prompts from '../../components/Prompts';
 import { usePrompts } from '../../components/Prompts/usePrompts';
+import { updateNode } from '../../ducks/modules/session';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
-import useSortedNodeList from '../../hooks/useSortedNodeList';
+import { useAppDispatch } from '../../store';
 import CategoricalBinItem from './components/CategoricalBinItem';
-import {
-  type CategoricalBinPrompt,
-  useCategoricalBins,
-} from './useCategoricalBins';
+import { useCategoricalBins } from './useCategoricalBins';
 import { useCircleLayout } from './useCircleLayout';
 
 type CategoricalBinStageProps = StageProps<'CategoricalBin'>;
@@ -28,14 +37,6 @@ const CAT_COLOR_VARS = [
   'var(--cat-10)',
 ];
 
-// Determine if this is an 'other' or missing category, which needs to have
-// different visual treatment.
-const isSpecialValue = (value: number | string | null) => {
-  if (value === null) return true;
-  if (typeof value === 'number' && value < 0) return true;
-  return false;
-};
-
 const binsContainerVariants = {
   initial: { opacity: 0 },
   animate: {
@@ -48,11 +49,11 @@ const binsContainerVariants = {
   exit: { opacity: 0, transition: { duration: 0.2 } },
 };
 
-const getCatColor = (index: number, value: number | string | null) => {
+const getCatColor = (index: number, isOther: boolean) => {
   if (index < 0) return null;
   const colorVar = CAT_COLOR_VARS[index % CAT_COLOR_VARS.length]!;
 
-  if (isSpecialValue(value)) {
+  if (isOther) {
     return `oklch(from ${colorVar} calc(l*0.5) calc(c*0.4) h)`;
   }
 
@@ -64,19 +65,11 @@ const CategoricalBin = (props: CategoricalBinStageProps) => {
 
   const [expandedBinIndex, setExpandedBinIndex] = useState<number | null>(null);
 
-  const { prompt } = usePrompts<CategoricalBinPrompt>();
-
   const {
-    bins,
-    activePromptVariable,
-    promptOtherVariable,
-    uncategorisedNodes,
-  } = useCategoricalBins();
+    prompt: { id, otherVariable, otherVariablePrompt, variable },
+  } = usePrompts<(typeof stage.prompts)[number]>();
 
-  const sortedUncategorisedNodes = useSortedNodeList(
-    uncategorisedNodes,
-    prompt?.bucketSortOrder,
-  );
+  const { bins, uncategorisedNodes } = useCategoricalBins();
 
   const { updateReady } = useReadyForNextStage();
 
@@ -87,15 +80,7 @@ const CategoricalBin = (props: CategoricalBinStageProps) => {
   // Reset expanded bin when prompt changes
   useEffect(() => {
     setExpandedBinIndex(null);
-  }, [prompt?.id]);
-
-  const handleToggleExpand = useCallback((index: number) => {
-    setExpandedBinIndex((prev) => (prev === index ? null : index));
-  }, []);
-
-  const handleCollapseAll = useCallback(() => {
-    setExpandedBinIndex(null);
-  }, []);
+  }, [id]);
 
   const hasExpanded = expandedBinIndex !== null;
 
@@ -104,19 +89,91 @@ const CategoricalBin = (props: CategoricalBinStageProps) => {
     count: circleCount,
   });
 
+  const dispatch = useAppDispatch();
+  const { openDialog } = useDialog();
+
+  const handleDropNode = async (node: NcNode, binIndex: number) => {
+    const nodeId = node[entityPrimaryKeyProperty];
+
+    const category = binIndex === -1 ? null : bins[binIndex]!.value;
+
+    // If the node is being dropped into the 'other' bin, we need to show a dialog to specify the value for the other variable
+    if (binIndex === -1 && otherVariable) {
+      const result = await new Promise<{ otherVariable: VariableValue } | null>(
+        (resolve) => {
+          void openDialog({
+            type: 'custom',
+            title: 'Specify other',
+            description: 'Please specify the category for this item.',
+            children: (
+              <FormWithoutProvider
+                onSubmit={(values) => {
+                  resolve(values);
+                }}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="shrink-0">
+                    {node && (
+                      <Node
+                        _uid={node[entityPrimaryKeyProperty]}
+                        type={node.type}
+                        attributes={node.attributes}
+                      />
+                    )}
+                  </div>
+                  <Field
+                    label={otherVariablePrompt!}
+                    placeholder="Enter your response here..."
+                    component={InputField}
+                    name="otherVariable"
+                    required
+                    autoFocus
+                  />
+                </div>
+              </FormWithoutProvider>
+            ),
+            intent: 'default',
+          });
+        },
+      );
+
+      await dispatch(
+        updateNode({
+          nodeId,
+          newAttributeData: {
+            [variable]: null,
+            [otherVariable]: result?.otherVariable ?? null,
+          },
+        }),
+      );
+
+      return;
+    }
+    await dispatch(
+      updateNode({
+        nodeId,
+        newAttributeData: {
+          [otherVariable]: null,
+          [variable]: category,
+        },
+      }),
+    );
+  };
+
   return (
-    <div
-      className="interface relative flex h-full flex-col overflow-hidden"
-      onClick={handleCollapseAll}
-    >
-      <div className="shrink-0">
+    <FormStoreProvider>
+      <div
+        className="interface relative flex h-full flex-col overflow-hidden"
+        onClick={() => {
+          setExpandedBinIndex(null);
+        }}
+      >
         <Prompts />
-      </div>
-      {prompt && activePromptVariable && (
+
         <div className="catbin-outer min-h-0 w-full flex-1">
           <AnimatePresence mode="wait">
             <motion.div
-              key={prompt.id}
+              key={id}
               ref={containerRef}
               className="catbin-circles flex size-full flex-wrap content-center items-center justify-center gap-4 data-expanded:content-start"
               data-expanded={hasExpanded || undefined}
@@ -128,29 +185,24 @@ const CategoricalBin = (props: CategoricalBinStageProps) => {
               {bins.map((bin, index) => (
                 <CategoricalBinItem
                   key={index}
-                  bin={bin}
-                  index={index}
-                  activePromptVariable={activePromptVariable}
-                  promptOtherVariable={promptOtherVariable}
-                  stageId={stage.id}
-                  promptId={prompt.id}
-                  sortOrder={prompt.binSortOrder}
+                  label={bin.label}
                   isExpanded={index === expandedBinIndex}
-                  onToggleExpand={handleToggleExpand}
-                  catColor={getCatColor(index, bin.value)}
+                  onToggleExpand={() => setExpandedBinIndex(index)}
+                  catColor={getCatColor(index, bin.isOther)}
+                  onDropNode={(node) => handleDropNode(node, index)}
                   flexBasis={flexBasis}
                 />
               ))}
             </motion.div>
           </AnimatePresence>
         </div>
-      )}
-      <NodeDrawer
-        nodes={sortedUncategorisedNodes}
-        itemType="NODE"
-        expanded={!hasExpanded}
-      />
-    </div>
+        <NodeDrawer
+          nodes={uncategorisedNodes}
+          itemType="NODE"
+          expanded={!hasExpanded}
+        />
+      </div>
+    </FormStoreProvider>
   );
 };
 

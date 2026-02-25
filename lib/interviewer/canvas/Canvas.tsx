@@ -4,16 +4,15 @@ import {
   type NcEdge,
   type NcNode,
 } from '@codaco/shared-consts';
+import { clamp } from 'es-toolkit';
 import {
-  type RefCallback,
   type ReactNode,
+  type RefCallback,
   useCallback,
   useEffect,
   useRef,
 } from 'react';
-import { clamp } from 'es-toolkit';
 import { useDropTarget } from '~/lib/dnd';
-import { cx } from '~/utils/cva';
 import CanvasNode from '~/lib/interviewer/canvas/CanvasNode';
 import EdgeLayer from '~/lib/interviewer/canvas/EdgeLayer';
 import { type CanvasStoreApi } from '~/lib/interviewer/canvas/useCanvasStore';
@@ -106,7 +105,7 @@ export default function Canvas({
     [onDrop],
   );
 
-  const { dropProps, isOver, willAccept } = useDropTarget({
+  const { dropProps } = useDropTarget({
     id: 'sociogram-canvas',
     accepts: ['UNPOSITIONED_NODE'],
     announcedName: 'Sociogram Canvas',
@@ -128,11 +127,7 @@ export default function Canvas({
   return (
     <div
       ref={mergedRef}
-      className={cx(
-        'relative size-full overflow-hidden',
-        isOver && willAccept && 'ring-primary/50 ring-4 ring-inset',
-      )}
-      aria-dropeffect={dropProps['aria-dropeffect']}
+      className="relative size-full overflow-hidden"
       aria-label={dropProps['aria-label']}
       data-zone-id={dropProps['data-zone-id']}
       tabIndex={dropProps.tabIndex}

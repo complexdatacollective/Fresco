@@ -91,6 +91,15 @@ export const getCodebookVariablesForSubjectType = createSelector(
   },
 );
 
+/**
+ * Version of getCodebookVariablesForSubjectType that accepts a variable ID and
+ * returns the single variable definition
+ */
+export const makeGetCodebookVariableById = createSelector(
+  getCodebookVariablesForSubjectType,
+  (variables) => (variableId: string) => variables[variableId],
+);
+
 export const makeGetCodebookForNodeType = createSelector(
   getCodebook,
   (codebook) => (type: string) => {
