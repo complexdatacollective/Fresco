@@ -1,5 +1,5 @@
 import { type NcNode, type VariableValue } from '@codaco/shared-consts';
-import { User } from 'lucide-react';
+
 import { useSelector } from 'react-redux';
 import { useDragSource } from '~/lib/dnd';
 import { useNodeLabel } from '~/lib/interviewer/containers/Interfaces/Anonymisation/useNodeLabel';
@@ -7,6 +7,67 @@ import { FAMILY_TREE_CONFIG } from '~/lib/interviewer/containers/Interfaces/Fami
 import { useClickUnlessDragged } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useClickUnlessDragged';
 import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
 import { Node } from '~/lib/ui/components';
+
+/**
+ * Icon for the ego (self) node in the family tree.
+ * Based on the add-a-person icon (lib/ui/assets/icons/add-a-person-single.svg).
+ *
+ * Variants:
+ * - "platinum": For colored backgrounds - uses platinum shades
+ * - "slate": For white/platinum backgrounds - uses slate blue shades
+ */
+function EgoIcon({
+  className,
+  variant = 'slate',
+}: {
+  className?: string;
+  variant?: 'platinum' | 'slate';
+}) {
+  const colors =
+    variant === 'platinum'
+      ? {
+          primary: 'var(--color-platinum)',
+          secondary: 'var(--color-platinum--dark)',
+        }
+      : {
+          primary: 'var(--color-slate-blue)',
+          secondary: 'var(--color-slate-blue--dark)',
+        };
+
+  return (
+    <svg
+      viewBox="0 0 139.8 167.5"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      {/* Head - upper half */}
+      <path
+        fill={colors.primary}
+        d="M69.9,0C46.1,0,26.8,21.4,26.8,47.8c-0.1,11.6,3.8,22.9,11.1,32l64-64C94,6.1,82.6,0,69.9,0z"
+      />
+      {/* Head - lower half */}
+      <path
+        fill={colors.secondary}
+        d="M37.9,79.8c7.9,9.7,19.3,15.8,32,15.8c23.8,0,43.1-21.4,43.1-47.8c0.1-11.6-3.8-22.9-11.1-32L37.9,79.8z"
+      />
+      {/* Neck */}
+      <path
+        fill={colors.secondary}
+        d="M94,103.4c-4.1,0-13.6-7.5-10.9-11.3H56.6c2.7,3.8-6.8,11.3-10.9,11.3l24.2,10.8L94,103.4z"
+      />
+      {/* Body - left side */}
+      <path
+        fill={colors.primary}
+        d="M100.3,105.3l-58.6,58.6C26.5,160,12.3,152.8,0,143c9.2-20.1,27.7-35.5,50.2-41.3c5.9,3.8,12.7,5.8,19.7,5.9c7-0.1,13.8-2.1,19.7-5.9C93.3,102.7,96.8,103.9,100.3,105.3z"
+      />
+      {/* Body - right side */}
+      <path
+        fill={colors.secondary}
+        d="M139.8,143c-27.6,22-63.9,29.8-98.1,20.9l58.6-58.6C117.8,112.5,131.9,125.9,139.8,143z"
+      />
+    </svg>
+  );
+}
 
 export type FamilyTreeNodeType = {
   id: string;
@@ -119,8 +180,9 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
             selected={selected}
           />
           {isEgo && (
-            <User
-              className={`pointer-events-none absolute top-1/2 left-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 ${networkNode ? 'text-white' : 'text-foreground'}`}
+            <EgoIcon
+              className="pointer-events-none absolute top-1/2 left-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2"
+              variant={networkNode ? 'platinum' : 'slate'}
             />
           )}
         </div>
