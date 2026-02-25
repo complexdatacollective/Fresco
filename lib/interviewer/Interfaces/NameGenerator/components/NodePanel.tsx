@@ -69,6 +69,7 @@ function NodePanel(props: NodePanelProps) {
         accepts={accepts}
         nodeSize="sm"
         animationKey={animationKey}
+        announcedName={panelConfig.title}
       />
     </Panel>
   );

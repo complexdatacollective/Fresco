@@ -430,11 +430,13 @@ function DragDropStoryRender(args: DragDropStoryArgs) {
   );
 
   const { dragAndDropHooks: leftDndHooks } = useDragAndDrop<DemoItem>({
+    announcedName: 'Left Collection',
     getItems: () => [{ type: ITEM_TYPE, keys: new Set<Key>() }],
     onDrop: handleLeftDrop,
   });
 
   const { dragAndDropHooks: rightDndHooks } = useDragAndDrop<DemoItem>({
+    announcedName: 'Right Collection',
     getItems: () => [{ type: ITEM_TYPE, keys: new Set<Key>() }],
     onDrop: handleRightDrop,
   });

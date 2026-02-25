@@ -361,6 +361,7 @@ function DragBetweenListsExample() {
             nodeSize="md"
             accepts={['node']}
             onDrop={handleDropOnLeft}
+            announcedName="Left Node List"
           />
         </div>
       </div>
@@ -375,6 +376,7 @@ function DragBetweenListsExample() {
             nodeSize="md"
             accepts={['node']}
             onDrop={handleDropOnRight}
+            announcedName="Right Node List"
           />
         </div>
       </div>

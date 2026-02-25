@@ -45,6 +45,7 @@ function List({
   className?: string;
 }) {
   const { dragAndDropHooks } = useDragAndDrop<Item>({
+    announcedName: title,
     getItems: () => [{ type: 'fruit', keys: new Set() }],
     acceptTypes,
     onDrop: (metadata) => {

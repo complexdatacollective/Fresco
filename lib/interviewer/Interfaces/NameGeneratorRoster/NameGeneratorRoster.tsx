@@ -329,6 +329,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
   const sourceCollectionId = `source-nodes-${useId()}`;
 
   const { dragAndDropHooks } = useDragAndDrop<UseItemElement>({
+    announcedName: 'Available Roster Nodes',
     getItems: (keys) => [{ type: 'SOURCE_NODES', keys }],
     acceptTypes: ['ADDED_NODES'],
     onDrop: (e) => {
@@ -443,6 +444,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
           onDrop={handleAddNode}
           items={nodesForPrompt}
           virtualized
+          announcedName="Added Nodes"
         />
       </ResizableFlexPanel>
     </div>
