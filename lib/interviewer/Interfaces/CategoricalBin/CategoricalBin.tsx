@@ -187,7 +187,6 @@ const CategoricalBin = (_props: CategoricalBinStageProps) => {
       }}
     >
       <Prompts />
-
       <div className="catbin-outer min-h-0 w-full flex-1">
         <AnimatePresence mode="wait">
           <motion.div

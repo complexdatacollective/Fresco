@@ -248,14 +248,24 @@ export function useDragSource(
         element.releasePointerCapture(e.pointerId);
       }
 
-      // Suppress the click event that follows pointer up after a real drag
-      // This prevents selection from triggering after drag-and-drop
+      // Suppress the click event that follows pointer up after a real drag.
+      // This prevents selection from triggering after drag-and-drop.
+      const cleanup = () => {
+        document.removeEventListener('click', suppressClick, true);
+      };
       const suppressClick = (clickEvent: MouseEvent) => {
         clickEvent.stopPropagation();
         clickEvent.preventDefault();
-        document.removeEventListener('click', suppressClick, true);
+        cleanup();
       };
       document.addEventListener('click', suppressClick, true);
+
+      // Safety cleanup: when pointer capture caused significant movement
+      // (a real drag), the browser won't synthesize a click event, leaving
+      // the listener to swallow the user's next intentional click. Remove
+      // it after the current event cycle — any synthetic click from this
+      // pointer-up sequence fires synchronously before setTimeout(0).
+      setTimeout(cleanup, 0);
 
       finishDrag(true);
     },

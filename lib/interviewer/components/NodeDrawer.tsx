@@ -77,7 +77,6 @@ export default function NodeDrawer({
                 layout="position"
                 type="button"
                 onClick={() => {
-                  console.log('clicked');
                   setIsExpanded(!isExpanded);
                 }}
                 className={cx(
