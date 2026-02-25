@@ -4,7 +4,7 @@ import {
   type NcNode,
 } from '@codaco/shared-consts';
 import { useDragSource } from '~/lib/dnd';
-import Node from '~/lib/interviewer/components/Node';
+import { MotionNode } from '~/lib/interviewer/components/Node';
 
 type DrawerNodeProps = {
   node: NcNode;
@@ -25,5 +25,5 @@ export default function DrawerNode({
     announcedName: name,
   });
 
-  return <Node {...node} {...dragProps} size="sm" />;
+  return <MotionNode layout {...node} {...dragProps} size="sm" />;
 }

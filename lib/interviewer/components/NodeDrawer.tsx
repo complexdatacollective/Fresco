@@ -53,6 +53,7 @@ export default function NodeDrawer({
       <AnimatePresence>
         {isExpanded && (
           <motion.div
+            layout
             initial={{ height: 0, opacity: 0 }}
             animate={{
               height: 'auto',
@@ -72,7 +73,10 @@ export default function NodeDrawer({
             }}
             className="bg-surface/80 overflow-hidden rounded backdrop-blur-md"
           >
-            <div className="flex items-center justify-center gap-4 overflow-x-auto p-4">
+            <motion.div
+              layout
+              className="flex items-center justify-center gap-4 overflow-x-auto p-4"
+            >
               {nodes.map((node) => (
                 <DrawerNode
                   key={node[entityPrimaryKeyProperty]}
@@ -80,7 +84,7 @@ export default function NodeDrawer({
                   itemType={itemType}
                 />
               ))}
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

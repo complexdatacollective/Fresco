@@ -8,7 +8,7 @@ import {
   type VariableValue,
 } from '@codaco/shared-consts';
 import { Plus } from 'lucide-react';
-import { AnimatePresence, motion, useAnimate } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Button from '~/components/ui/Button';
@@ -21,13 +21,8 @@ import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/
 import { getNodeIconName } from '../../../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../../../selectors/prop';
 import { useAppDispatch } from '../../../store';
+import { useCelebrate } from '~/lib/interviewer/hooks/useCelebrate';
 import { cx } from '~/utils/cva';
-
-const PARTICLE_COUNT = 50;
-const PARTICLE_ANGLES = Array.from(
-  { length: PARTICLE_COUNT },
-  (_, i) => (i / PARTICLE_COUNT) * Math.PI * 2,
-);
 
 type NodeFormProps = {
   selectedNode: NcNode | null;
@@ -47,38 +42,8 @@ const NodeForm = (props: NodeFormProps) => {
 
   const dispatch = useAppDispatch();
 
-  const [buttonScope, animate] = useAnimate<HTMLButtonElement>();
-  const particlesRef = useRef<(HTMLDivElement | null)[]>([]);
-
-  const celebrate = useCallback(() => {
-    const button = buttonScope.current;
-    if (!button) return;
-
-    const circle = button.querySelector('[data-toggle-circle]');
-    if (circle) {
-      void animate(
-        circle,
-        { scale: [0.6, 1] },
-        { type: 'spring', stiffness: 500, damping: 8, mass: 0.8 },
-      );
-    }
-
-    particlesRef.current.forEach((el, i) => {
-      if (!el) return;
-      const angle = PARTICLE_ANGLES[i];
-      if (angle === undefined) return;
-      const distance = 300 + Math.random() * 40;
-      const x = Math.cos(angle) * distance;
-      const y = Math.sin(angle) * distance;
-
-      const duration = 0.6 + Math.random() * 0.5;
-      void animate(
-        el,
-        { x: [0, x], y: [0, y], opacity: [1, 0], scale: [1, 0] },
-        { duration, ease: 'easeOut' },
-      );
-    });
-  }, [animate, buttonScope]);
+  const circleRef = useRef<HTMLDivElement>(null);
+  const celebrate = useCelebrate(circleRef, { particles: true });
 
   const updateNode = useCallback(
     (payload: {
@@ -163,22 +128,13 @@ const NodeForm = (props: NodeFormProps) => {
           variants={variants}
         >
           <button
-            ref={buttonScope}
             onClick={() => setShow(true)}
             disabled={disabled}
             aria-label="Add a person"
             className="focusable relative aspect-square size-28 rounded-full"
           >
-            {/* {PARTICLE_ANGLES.map((_, i) => (
-              <div
-                key={i}
-                ref={(el) => {
-                  particlesRef.current[i] = el;
-                }}
-                className="pointer-events-none absolute top-1/2 left-1/2 z-10 size-1 -translate-1/2 rounded-full bg-white opacity-0"
-              />
-            ))} */}
             <motion.div
+              ref={circleRef}
               data-toggle-circle
               className={cx(
                 'elevation-high relative flex aspect-square size-28 items-center justify-center overflow-hidden rounded-full transition-[background-color,filter] duration-300 [&>.lucide]:aspect-square [&>.lucide]:h-16 [&>.lucide]:w-auto',

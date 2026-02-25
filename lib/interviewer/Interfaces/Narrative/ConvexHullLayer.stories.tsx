@@ -98,7 +98,7 @@ function ConvexHullLayerWrapper({ nodes }: { nodes: NcNode[] }) {
 }
 
 const meta: Meta<typeof ConvexHullLayer> = {
-  title: 'Interview/Narrative/ConvexHullLayer',
+  title: 'Interview/Components/ConvexHullLayer',
   component: ConvexHullLayer,
   parameters: {
     forceTheme: 'interview',

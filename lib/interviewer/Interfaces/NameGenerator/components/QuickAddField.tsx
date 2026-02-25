@@ -1,6 +1,6 @@
 import { Toggle } from '@base-ui/react';
 import { Plus } from 'lucide-react';
-import { AnimatePresence, motion, useAnimate } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { MotionSurface } from '~/components/layout/Surface';
@@ -22,6 +22,7 @@ import { useField } from '~/lib/form/hooks/useField';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
+import { useCelebrate } from '~/lib/interviewer/hooks/useCelebrate';
 import { cx } from '~/utils/cva';
 
 function convertToNodeColor(color: NodeColorSequence): string {
@@ -48,12 +49,6 @@ function convertToNodeColor(color: NodeColorSequence): string {
       return color;
   }
 }
-
-const PARTICLE_COUNT = 50;
-const PARTICLE_ANGLES = Array.from(
-  { length: PARTICLE_COUNT },
-  (_, i) => (i / PARTICLE_COUNT) * Math.PI * 2,
-);
 
 type QuickAddFieldProps = {
   name: string;
@@ -87,40 +82,9 @@ export default function QuickAddField({
   const wasSubmittingRef = useRef(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const [toggleScope, animate] = useAnimate<HTMLButtonElement>();
-  const particlesRef = useRef<(HTMLDivElement | null)[]>([]);
-
-  const celebrate = useCallback(() => {
-    const button = toggleScope.current;
-    if (!button) return;
-
-    // Circle: shrink → elastic bounce-back
-    const circle = button.querySelector('[data-toggle-circle]');
-    if (circle) {
-      void animate(
-        circle,
-        { scale: [0.6, 1] },
-        { type: 'spring', stiffness: 500, damping: 8, mass: 0.8 },
-      );
-    }
-
-    // Particles: burst outward and fade
-    particlesRef.current.forEach((el, i) => {
-      if (!el) return;
-      const angle = PARTICLE_ANGLES[i];
-      if (angle === undefined) return;
-      const distance = 300 + Math.random() * 40;
-      const x = Math.cos(angle) * distance;
-      const y = Math.sin(angle) * distance;
-
-      const duration = 0.6 + Math.random() * 0.5;
-      void animate(
-        el,
-        { x: [0, x], y: [0, y], opacity: [1, 0], scale: [1, 0] },
-        { duration, ease: 'easeOut' },
-      );
-    });
-  }, [animate, toggleScope]);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const circleRef = useRef<HTMLDivElement>(null);
+  const celebrate = useCelebrate(circleRef, { particles: true });
 
   // Reset field (but stay open) when form submission succeeds, or show
   // validation errors on failed submission attempts.
@@ -154,7 +118,7 @@ export default function QuickAddField({
 
   const handleBlur = useCallback(
     (e: React.FocusEvent) => {
-      if (toggleScope.current?.contains(e.relatedTarget)) {
+      if (buttonRef.current?.contains(e.relatedTarget)) {
         return;
       }
       resetField();
@@ -262,19 +226,11 @@ export default function QuickAddField({
         disabled={disabled}
         render={
           <button
-            ref={toggleScope}
+            ref={buttonRef}
             className="focusable relative aspect-square size-28 rounded-full"
           >
-            {/* {PARTICLE_ANGLES.map((_, i) => (
-              <div
-                key={i}
-                ref={(el) => {
-                  particlesRef.current[i] = el;
-                }}
-                className="pointer-events-none absolute top-1/2 left-1/2 z-10 size-1 -translate-1/2 rounded-full bg-white opacity-0"
-              />
-            ))} */}
             <motion.div
+              ref={circleRef}
               data-toggle-circle
               className={cx(
                 'elevation-high relative flex aspect-square size-28 items-center justify-center overflow-hidden rounded-full transition-[background-color,filter] duration-300 [&>.lucide]:aspect-square [&>.lucide]:h-16 [&>.lucide]:w-auto',

@@ -1,10 +1,11 @@
 import { type Prompt, type SortOrder } from '@codaco/protocol-validation';
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
-import { animate, AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { memo, useCallback, useRef, useState } from 'react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
 import { useDropTarget } from '~/lib/dnd';
+import { useCelebrate } from '~/lib/interviewer/hooks/useCelebrate';
 import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
 import { cx } from '~/utils/cva';
 import NodeList from '../../../components/NodeList';
@@ -64,15 +65,7 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
   const isOtherVariable = !!bin.otherVariable;
   const [showOther, setShowOther] = useState<NcNode | null>(null);
 
-  const celebrateDrop = useCallback(() => {
-    const el = binRef.current;
-    if (!el) return;
-    void animate(
-      el,
-      { scale: [isExpanded ? 0.97 : 0.85, 1] },
-      { type: 'spring', stiffness: 500, damping: isExpanded ? 20 : 12 },
-    );
-  }, [isExpanded]);
+  const celebrate = useCelebrate(binRef, { particleSize: 'large' });
 
   const setNodeCategory = (node: NcNode, category: string | number | null) => {
     const variable = bin.otherVariable ?? activePromptVariable;
@@ -110,7 +103,7 @@ const CategoricalBinItem = memo((props: CategoricalBinItemProps) => {
     }
 
     setNodeCategory(node, bin.value);
-    celebrateDrop();
+    celebrate();
   };
 
   const handleClickItem = (node: NcNode) => {

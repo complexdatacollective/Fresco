@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import ConcentricCircles from '~/lib/interviewer/components/ConcentricCircles';
 
 const meta: Meta<typeof ConcentricCircles> = {
-  title: 'Interview/ConcentricCircles',
+  title: 'Interview/Components/ConcentricCircles',
   component: ConcentricCircles,
   parameters: {
     forceTheme: 'interview',
