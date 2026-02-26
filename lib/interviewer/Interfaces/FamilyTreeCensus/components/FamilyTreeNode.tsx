@@ -26,11 +26,11 @@ function EgoIcon({
     variant === 'platinum'
       ? {
           primary: 'var(--color-platinum)',
-          secondary: 'var(--color-platinum--dark)',
+          secondary: 'var(--color-platinum-dark)',
         }
       : {
           primary: 'var(--color-slate-blue)',
-          secondary: 'var(--color-slate-blue--dark)',
+          secondary: 'var(--color-slate-blue-dark)',
         };
 
   return (
@@ -176,6 +176,7 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
             }
             color="custom"
             label=""
+            ariaLabel={isEgo ? 'You' : label}
             shape={shape}
             selected={selected}
           />

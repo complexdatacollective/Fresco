@@ -102,6 +102,8 @@ export function truncateNodeLabel(label: string, maxLength = 22): string {
 type UINodeProps = {
   /** Text label displayed inside the node */
   label?: string;
+  /** Accessibility label for the node button. Falls back to `label` if not provided. */
+  ariaLabel?: string;
   /** Whether the node is loading */
   loading?: boolean;
   /** Whether the node is selected (toggle state) */
@@ -150,6 +152,7 @@ type UINodeProps = {
 const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
   const {
     label = 'Node',
+    ariaLabel,
     color,
     shape,
     selected = false,
@@ -236,7 +239,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
       ref={useMergeRefs({ ref, scope, stateScope })}
       type="button"
       disabled={disabled}
-      aria-label={label}
+      aria-label={ariaLabel ?? label}
       aria-pressed={hasClickHandler ? selected : undefined}
       className={nodeVariants({
         size,
