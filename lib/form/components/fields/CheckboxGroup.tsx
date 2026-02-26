@@ -2,6 +2,7 @@ import { RenderMarkdown } from '~/components/RenderMarkdown';
 import {
   controlLabelVariants,
   controlVariants,
+  groupOptionVariants,
   groupSpacingVariants,
   inputControlVariants,
   interactiveStateVariants,
@@ -96,10 +97,10 @@ export default function CheckboxGroupField(props: CheckboxGroupProps) {
           return (
             <label
               key={option.value}
-              className={cx(
-                'flex items-center gap-2',
-                controlLabelVariants({ size }),
-              )}
+              className={groupOptionVariants({
+                size,
+                disabled: isOptionDisabled,
+              })}
             >
               <Checkbox
                 name={name}
@@ -116,7 +117,13 @@ export default function CheckboxGroupField(props: CheckboxGroupProps) {
                 }}
                 size={size}
               />
-              <span>
+              <span
+                className={cx(
+                  controlLabelVariants({ size }),
+                  'cursor-[inherit] transition-colors duration-200',
+                  isOptionDisabled && 'opacity-50',
+                )}
+              >
                 <RenderMarkdown>{option.label}</RenderMarkdown>
               </span>
             </label>

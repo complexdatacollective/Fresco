@@ -7,6 +7,7 @@ import { RenderMarkdown } from '~/components/RenderMarkdown';
 import {
   controlLabelVariants,
   controlVariants,
+  groupOptionVariants,
   groupSpacingVariants,
   inputControlVariants,
   interactiveStateVariants,
@@ -29,26 +30,6 @@ const radioGroupWrapperVariants = compose(
     base: 'items-start',
   }),
 );
-
-const radioOptionVariants = cva({
-  base: 'group flex items-center transition-colors duration-200',
-  variants: {
-    size: {
-      sm: 'gap-2 text-sm',
-      md: 'gap-3 text-base',
-      lg: 'gap-4 text-lg',
-      xl: 'gap-5 text-xl',
-    },
-    disabled: {
-      true: 'cursor-not-allowed',
-      false: 'cursor-pointer',
-    },
-  },
-  defaultVariants: {
-    size: 'md',
-    disabled: false,
-  },
-});
 
 const radioIndicatorVariants = compose(
   smallSizeVariants,
@@ -156,7 +137,7 @@ export default function RadioGroupField(props: RadioGroupFieldProps) {
           return (
             <label
               key={optionValue}
-              className={radioOptionVariants({
+              className={groupOptionVariants({
                 size,
                 disabled: isOptionDisabled,
               })}

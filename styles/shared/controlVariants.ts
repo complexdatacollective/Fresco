@@ -245,6 +245,26 @@ export const orientationVariants = cva({
   },
 });
 
+export const groupOptionVariants = cva({
+  base: cx('flex items-center transition-colors duration-200'),
+  variants: {
+    size: {
+      sm: 'gap-2',
+      md: 'gap-3',
+      lg: 'gap-4',
+      xl: 'gap-5',
+    },
+    disabled: {
+      true: 'cursor-not-allowed',
+      false: 'cursor-pointer',
+    },
+  },
+  defaultVariants: {
+    size: 'md',
+    disabled: false,
+  },
+});
+
 export const controlLabelVariants = cva({
   base: cx('leading-tight! text-balance select-none'),
   variants: {
