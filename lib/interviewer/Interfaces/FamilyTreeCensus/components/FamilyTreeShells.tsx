@@ -34,6 +34,7 @@ import {
   getStageMetadata,
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
+import { FAMILY_TREE_CONFIG } from '../config';
 
 const isFamilyTreeStageMetadata = (
   stageMetadata: unknown,
@@ -75,6 +76,15 @@ export const FamilyTreeShells = (props: {
     }
     return map;
   }, [networkNodes]);
+  // Calculate tree width for centering
+  const treeWidth = useMemo(() => {
+    if (nodesMap.size === 0) return FAMILY_TREE_CONFIG.nodeContainerWidth;
+    let maxX = 0;
+    for (const node of nodesMap.values()) {
+      if ((node.x ?? 0) > maxX) maxX = node.x ?? 0;
+    }
+    return maxX + FAMILY_TREE_CONFIG.nodeContainerWidth;
+  }, [nodesMap]);
   const [selectedNode, setSelectedNode] = useState<FamilyTreeNodeType | void>(
     undefined,
   );
@@ -295,52 +305,50 @@ export const FamilyTreeShells = (props: {
           }}
         />
       )}
-      <div className="census-node-canvas relative size-full overflow-x-auto">
-        <div className="relative size-full">
-          <EdgeRenderer />
-          {nodes.map((node) => (
-            <FamilyTreeNode
-              key={node.id}
-              placeholderId={node.id}
-              networkNode={
-                node.interviewNetworkId
-                  ? networkNodeMap.get(node.interviewNetworkId)
-                  : undefined
-              }
-              label={node.label}
-              isEgo={node.isEgo}
-              allowDrag={node.readOnly !== true && stepIndex < 2}
-              shape={node.sex === 'female' ? 'circle' : 'square'}
-              x={node.x ?? 0}
-              y={node.y ?? 0}
-              selected={
-                node.interviewNetworkId != null &&
-                typeof diseaseVariable === 'string' &&
-                node.diseases?.get(diseaseVariable)
-              }
-              handleClick={() => {
-                if (stepIndex === 0) {
-                  return;
-                } else if (stepIndex === 1) {
-                  setSelectedNode(node);
-                } else if (
-                  node.interviewNetworkId &&
-                  diseaseVariable &&
-                  !node.isEgo
-                ) {
-                  const diseaseValue = !node.diseases?.get(diseaseVariable);
-                  const diseaseData: Record<string, VariableValue> = {
-                    [diseaseVariable]: diseaseValue,
-                  };
-                  void updateNode({
-                    nodeId: node.interviewNetworkId,
-                    newAttributeData: diseaseData,
-                    diseaseValue: diseaseValue,
-                  });
+      <div className="census-node-canvas relative size-full overflow-x-auto pt-6">
+        <div className="relative flex size-full min-w-fit justify-center">
+          <div className="relative" style={{ width: treeWidth }}>
+            <EdgeRenderer />
+            {nodes.map((node) => (
+              <FamilyTreeNode
+                key={node.id}
+                placeholderId={node.id}
+                networkNode={
+                  node.interviewNetworkId
+                    ? networkNodeMap.get(node.interviewNetworkId)
+                    : undefined
                 }
-              }}
-            />
-          ))}
+                label={node.label}
+                isEgo={node.isEgo}
+                allowDrag={node.readOnly !== true && stepIndex < 2}
+                shape={node.sex === 'female' ? 'circle' : 'square'}
+                x={node.x ?? 0}
+                y={node.y ?? 0}
+                selected={
+                  node.interviewNetworkId != null &&
+                  typeof diseaseVariable === 'string' &&
+                  node.diseases?.get(diseaseVariable)
+                }
+                handleClick={() => {
+                  if (stepIndex === 0) {
+                    return;
+                  } else if (stepIndex === 1) {
+                    setSelectedNode(node);
+                  } else if (node.interviewNetworkId && diseaseVariable) {
+                    const diseaseValue = !node.diseases?.get(diseaseVariable);
+                    const diseaseData: Record<string, VariableValue> = {
+                      [diseaseVariable]: diseaseValue,
+                    };
+                    void updateNode({
+                      nodeId: node.interviewNetworkId,
+                      newAttributeData: diseaseData,
+                      diseaseValue: diseaseValue,
+                    });
+                  }
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
       <CensusForm

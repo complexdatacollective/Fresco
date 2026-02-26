@@ -2,6 +2,7 @@ import { invariant } from 'es-toolkit';
 import { enableMapSet } from 'immer';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
 import { type FamilyTreeNodeType } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
 import {
   buildConnectorData,
@@ -9,9 +10,8 @@ import {
   pedigreeLayoutToPositions,
   storeToPedigreeInput,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/pedigreeAdapter';
-import { alignPedigree } from '~/lib/pedigree-layout/alignPedigree';
-import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
 import type { AppDispatch } from '~/lib/interviewer/store';
+import { alignPedigree } from '~/lib/pedigree-layout/alignPedigree';
 
 enableMapSet();
 
@@ -95,7 +95,11 @@ type NetworkActions = {
     egoSex: Sex,
   ) => void;
   initializeMinimalNetwork: () => void;
-  addPlaceholderNode: (relation: string, anchorId?: string, secondParentId?: string) => string;
+  addPlaceholderNode: (
+    relation: string,
+    anchorId?: string,
+    secondParentId?: string,
+  ) => string;
   runLayout: () => void;
   syncMetadata: () => void;
 };
@@ -476,21 +480,25 @@ export const createFamilyTreeStore = (
           const store = get();
 
           // Use the existing structure from initializeMinimalNetwork
-          const {
-            addNode,
-            addEdge,
-            updateNode,
-            getNodeIdFromRelationship,
-          } = store;
+          const { addNode, addEdge, updateNode, getNodeIdFromRelationship } =
+            store;
 
           // Get existing nodes from the minimal network
           const egoId = getNodeIdFromRelationship('ego');
           const motherId = getNodeIdFromRelationship('mother');
           const fatherId = getNodeIdFromRelationship('father');
-          const maternalGrandfatherId = getNodeIdFromRelationship('maternal-grandfather');
-          const maternalGrandmotherId = getNodeIdFromRelationship('maternal-grandmother');
-          const paternalGrandfatherId = getNodeIdFromRelationship('paternal-grandfather');
-          const paternalGrandmotherId = getNodeIdFromRelationship('paternal-grandmother');
+          const maternalGrandfatherId = getNodeIdFromRelationship(
+            'maternal-grandfather',
+          );
+          const maternalGrandmotherId = getNodeIdFromRelationship(
+            'maternal-grandmother',
+          );
+          const paternalGrandfatherId = getNodeIdFromRelationship(
+            'paternal-grandfather',
+          );
+          const paternalGrandmotherId = getNodeIdFromRelationship(
+            'paternal-grandmother',
+          );
 
           // Guard: minimal network must exist
           if (
@@ -503,7 +511,9 @@ export const createFamilyTreeStore = (
             !paternalGrandmotherId
           ) {
             // eslint-disable-next-line no-console
-            console.warn('generatePlaceholderNetwork: minimal network not initialized');
+            console.warn(
+              'generatePlaceholderNetwork: minimal network not initialized',
+            );
             return;
           }
 
@@ -675,36 +685,38 @@ export const createFamilyTreeStore = (
           });
 
           // Father's additional partners
-          arrayFromRelationCount(formData, 'fathers-additional-partners').forEach(
-            (_, index) => {
-              const additionalPartnerId = addNode({
-                label: `father's partner ${index + 2}`,
-                sex: 'female',
-                readOnly: true,
-              });
-              addEdge({
-                source: fatherId,
-                target: additionalPartnerId,
-                relationship: 'partner',
-              });
-            },
-          );
+          arrayFromRelationCount(
+            formData,
+            'fathers-additional-partners',
+          ).forEach((_, index) => {
+            const additionalPartnerId = addNode({
+              label: `father's partner ${index + 2}`,
+              sex: 'female',
+              readOnly: false,
+            });
+            addEdge({
+              source: fatherId,
+              target: additionalPartnerId,
+              relationship: 'partner',
+            });
+          });
 
           // Mother's additional partners
-          arrayFromRelationCount(formData, 'mothers-additional-partners').forEach(
-            (_, index) => {
-              const additionalPartnerId = addNode({
-                label: `mother's partner ${index + 2}`,
-                sex: 'male',
-                readOnly: true,
-              });
-              addEdge({
-                source: additionalPartnerId,
-                target: motherId,
-                relationship: 'partner',
-              });
-            },
-          );
+          arrayFromRelationCount(
+            formData,
+            'mothers-additional-partners',
+          ).forEach((_, index) => {
+            const additionalPartnerId = addNode({
+              label: `mother's partner ${index + 2}`,
+              sex: 'male',
+              readOnly: false,
+            });
+            addEdge({
+              source: additionalPartnerId,
+              target: motherId,
+              relationship: 'partner',
+            });
+          });
 
           store.runLayout();
         },
@@ -820,7 +832,11 @@ export const createFamilyTreeStore = (
           store.runLayout();
         },
 
-        addPlaceholderNode: (relation: string, anchorId?: string, secondParentId?: string) => {
+        addPlaceholderNode: (
+          relation: string,
+          anchorId?: string,
+          secondParentId?: string,
+        ) => {
           const store = get();
           const { addNode, addEdge, network, getNodeIdFromRelationship } =
             store;
@@ -915,7 +931,8 @@ export const createFamilyTreeStore = (
                 edge.relationship === 'partner' &&
                 (edge.source === nodeId || edge.target === nodeId)
               ) {
-                const partnerId = edge.source === nodeId ? edge.target : edge.source;
+                const partnerId =
+                  edge.source === nodeId ? edge.target : edge.source;
                 partners.push(partnerId);
               }
             }
@@ -923,7 +940,10 @@ export const createFamilyTreeStore = (
           };
 
           // Find an additional partner (not the primary spouse) for half-sibling creation
-          const findAdditionalPartner = (nodeId: string, excludeId?: string): string | null => {
+          const findAdditionalPartner = (
+            nodeId: string,
+            excludeId?: string,
+          ): string | null => {
             const partners = findAllPartners(nodeId);
             // Return first partner that isn't the excluded one (usually the primary spouse)
             for (const partnerId of partners) {
@@ -965,7 +985,9 @@ export const createFamilyTreeStore = (
             const anchorNode = network.nodes.get(anchorId);
             if (!anchorNode) {
               // eslint-disable-next-line no-console
-              console.warn(`Additional partner anchor node not found: ${anchorId}`);
+              console.warn(
+                `Additional partner anchor node not found: ${anchorId}`,
+              );
               return newNodeId;
             }
 
@@ -974,7 +996,7 @@ export const createFamilyTreeStore = (
             get().updateNode(newNodeId, {
               sex: partnerSex,
               label: `${anchorNode.label}'s partner`,
-              readOnly: true,
+              readOnly: false,
             });
 
             // Create partner edge
@@ -998,8 +1020,10 @@ export const createFamilyTreeStore = (
             const egoId = getNodeIdFromRelationship('ego');
             const egoParents = egoId ? getParents(egoId) : [];
             const primaryPartnerId = egoParents.find((id) => id !== anchorId);
-            const additionalPartnerId = secondParentId ?? findAdditionalPartner(anchorId, primaryPartnerId);
-            
+            const additionalPartnerId =
+              secondParentId ??
+              findAdditionalPartner(anchorId, primaryPartnerId);
+
             connectAsChild(anchorId);
             if (additionalPartnerId) connectAsChild(additionalPartnerId);
           }
@@ -1069,7 +1093,9 @@ export const createFamilyTreeStore = (
           else if (rel.includes('halfaunt') || rel.includes('halfuncle')) {
             if (!anchorId) {
               // eslint-disable-next-line no-console
-              console.warn(`Half aunt/uncle relation requires anchorId (grandparent)`);
+              console.warn(
+                `Half aunt/uncle relation requires anchorId (grandparent)`,
+              );
               return newNodeId;
             }
             // anchorId is the biological grandparent
