@@ -15,6 +15,7 @@ import {
 } from './constants';
 import {
   type AddCategoricalBinPromptInput,
+  type AddDiseaseNominationStepInput,
   type AddDyadCensusPromptInput,
   type AddEdgeTypeInput,
   type AddNodeTypeInput,
@@ -23,9 +24,11 @@ import {
   type AddPresetInput,
   type AddPromptInput,
   type AddStageInput,
+  type AddTieStrengthCensusPromptInput,
   type AddVariableInput,
   type CategoricalBinPromptEntry,
   type ComponentType,
+  type DiseaseNominationStepEntry,
   type DyadCensusPromptEntry,
   type EdgeEntry,
   type EdgeTypeEntry,
@@ -40,6 +43,7 @@ import {
   type SociogramPromptEntry,
   type StageEntry,
   type StageType,
+  type TieStrengthCensusPromptEntry,
   type VariableEntry,
   type VariableType,
 } from './types';
@@ -56,6 +60,7 @@ type NodeTypeHandle = {
 
 type EdgeTypeHandle = {
   id: string;
+  addVariable: (opts?: AddVariableInput) => VariableRef;
 };
 
 type StageHandleBase = {
@@ -71,6 +76,15 @@ type NameGeneratorHandle = StageHandleBase & {
   }) => void;
   addPrompt: (opts?: AddPromptInput) => void;
   addPanel: (opts?: { title?: string; dataSource?: string }) => void;
+};
+
+type NameGeneratorQuickAddHandle = StageHandleBase & {
+  addPrompt: (opts?: AddPromptInput) => void;
+  addPanel: (opts?: { title?: string; dataSource?: string }) => void;
+};
+
+type NameGeneratorRosterHandle = StageHandleBase & {
+  addPrompt: (opts?: AddPromptInput) => void;
 };
 
 type SociogramHandle = StageHandleBase & {
@@ -107,8 +121,36 @@ type EgoFormHandle = StageHandleBase & {
 
 type InformationHandle = StageHandleBase;
 
+type TieStrengthCensusHandle = StageHandleBase & {
+  addPrompt: (opts?: AddTieStrengthCensusPromptInput) => void;
+};
+
+type AlterFormHandle = StageHandleBase & {
+  addFormField: (opts: {
+    component: ComponentType;
+    variable?: string;
+    prompt?: string;
+  }) => void;
+};
+
+type AlterEdgeFormHandle = StageHandleBase & {
+  addFormField: (opts: {
+    component: ComponentType;
+    variable?: string;
+    prompt?: string;
+  }) => void;
+};
+
+type AnonymisationHandle = StageHandleBase;
+
+type FamilyTreeCensusHandle = StageHandleBase & {
+  addDiseaseNominationStep: (opts?: AddDiseaseNominationStepInput) => void;
+};
+
 type StageHandleMap = {
   NameGenerator: NameGeneratorHandle;
+  NameGeneratorQuickAdd: NameGeneratorQuickAddHandle;
+  NameGeneratorRoster: NameGeneratorRosterHandle;
   Sociogram: SociogramHandle;
   Narrative: NarrativeHandle;
   DyadCensus: DyadCensusHandle;
@@ -117,7 +159,22 @@ type StageHandleMap = {
   CategoricalBin: CategoricalBinHandle;
   EgoForm: EgoFormHandle;
   Information: InformationHandle;
+  TieStrengthCensus: TieStrengthCensusHandle;
+  AlterForm: AlterFormHandle;
+  AlterEdgeForm: AlterEdgeFormHandle;
+  Anonymisation: AnonymisationHandle;
+  FamilyTreeCensus: FamilyTreeCensusHandle;
 };
+
+// Stage types that have no subject (node/edge)
+const SUBJECTLESS_STAGES = new Set<StageType>([
+  'EgoForm',
+  'Information',
+  'Anonymisation',
+]);
+
+// Stage types where the subject is an edge, not a node
+const EDGE_SUBJECT_STAGES = new Set<StageType>(['AlterEdgeForm']);
 
 export class SyntheticInterview {
   private seed: number;
@@ -197,7 +254,11 @@ export class SyntheticInterview {
 
     this.edgeTypes.set(id, entry);
 
-    return { id };
+    return {
+      id,
+      addVariable: (varOpts?: AddVariableInput) =>
+        this.addVariableToEdgeType(id, varOpts),
+    };
   }
 
   addVariableToNodeType(
@@ -223,6 +284,32 @@ export class SyntheticInterview {
     };
 
     nodeType.variables.set(varId, entry);
+    return { id: varId };
+  }
+
+  addVariableToEdgeType(
+    edgeTypeId: string,
+    opts?: AddVariableInput,
+  ): VariableRef {
+    const edgeType = this.edgeTypes.get(edgeTypeId);
+    if (!edgeType) {
+      throw new Error(`Edge type "${edgeTypeId}" not found`);
+    }
+
+    const varId = this.nextId('var');
+    const type = this.resolveVariableType(opts);
+    const options = this.resolveOptions(type, opts?.options);
+
+    const entry: VariableEntry = {
+      id: varId,
+      name: opts?.name ?? this.defaultVariableName(type),
+      type,
+      component: opts?.component,
+      options,
+      validation: opts?.validation,
+    };
+
+    edgeType.variables.set(varId, entry);
     return { id: varId };
   }
 
@@ -252,16 +339,27 @@ export class SyntheticInterview {
   ): StageHandleMap[T] {
     const stageId = this.nextId('stage');
 
-    // EgoForm and Information stages have no subject
+    // Resolve subject based on stage type
     let subject = opts?.subject;
-    if (!subject && type !== 'EgoForm' && type !== 'Information') {
-      let nodeTypeId: string;
-      if (this.nodeTypes.size > 0) {
-        nodeTypeId = this.nodeTypes.keys().next().value!;
+    if (!subject && !SUBJECTLESS_STAGES.has(type)) {
+      if (EDGE_SUBJECT_STAGES.has(type)) {
+        // Edge-based stages need an edge type subject
+        let edgeTypeId: string;
+        if (this.edgeTypes.size > 0) {
+          edgeTypeId = this.edgeTypes.keys().next().value!;
+        } else {
+          edgeTypeId = this.addEdgeType().id;
+        }
+        subject = { entity: 'edge', type: edgeTypeId };
       } else {
-        nodeTypeId = this.addNodeType().id;
+        let nodeTypeId: string;
+        if (this.nodeTypes.size > 0) {
+          nodeTypeId = this.nodeTypes.keys().next().value!;
+        } else {
+          nodeTypeId = this.addNodeType().id;
+        }
+        subject = { entity: 'node', type: nodeTypeId };
       }
-      subject = { entity: 'node', type: nodeTypeId };
     }
 
     // OneToManyDyadCensus requires behaviours.removeAfterConsideration
@@ -289,15 +387,26 @@ export class SyntheticInterview {
             title: opts.introductionPanel.title ?? 'Introduction',
             text: opts.introductionPanel.text ?? '',
           }
-        : type === 'DyadCensus'
+        : type === 'DyadCensus' || type === 'TieStrengthCensus'
           ? { title: 'Introduction', text: '' }
-          : undefined,
+          : type === 'AlterForm' || type === 'AlterEdgeForm'
+            ? {
+                title: opts?.introductionPanel?.title ?? 'Introduction',
+                text: opts?.introductionPanel?.text ?? '',
+              }
+            : undefined,
       initialNodes: opts?.initialNodes ?? 0,
       initialEdges: opts?.initialEdges ?? [],
     };
 
     // Handle form fields for NameGenerator (node-based)
-    if (opts?.form && subject) {
+    if (
+      opts?.form &&
+      subject?.entity === 'node' &&
+      (type === 'NameGenerator' ||
+        type === 'AlterForm' ||
+        type === 'FamilyTreeCensus')
+    ) {
       const fields = opts.form.fields.map((f) =>
         this.resolveFormField(f, subject.type),
       );
@@ -307,8 +416,130 @@ export class SyntheticInterview {
       };
     }
 
+    // Handle form fields for AlterEdgeForm (edge-based)
+    if (opts?.form && subject?.entity === 'edge') {
+      const fields = opts.form.fields.map((f) =>
+        this.resolveEdgeFormField(f, subject.type),
+      );
+      entry.form = {
+        title: opts.form.title ?? 'Describe this relationship',
+        fields,
+      };
+    }
+
+    // NameGeneratorQuickAdd
+    if (type === 'NameGeneratorQuickAdd') {
+      const nodeTypeId = subject?.type;
+      if (nodeTypeId) {
+        const nodeType = this.nodeTypes.get(nodeTypeId);
+        entry.quickAdd = opts?.quickAdd ?? nodeType?.displayVariable ?? 'name';
+      }
+    }
+
+    // NameGeneratorRoster
+    if (type === 'NameGeneratorRoster') {
+      entry.dataSource = opts?.dataSource ?? 'externalData';
+      if (opts?.cardOptions) {
+        entry.cardOptions = {
+          displayLabel: opts.cardOptions.displayLabel ?? 'name',
+          additionalProperties: opts.cardOptions.additionalProperties,
+        };
+      }
+      if (opts?.sortOptions) {
+        entry.sortOptions = {
+          sortOrder: opts.sortOptions.sortOrder ?? [
+            { property: 'name', direction: 'asc' },
+          ],
+          sortableProperties: opts.sortOptions.sortableProperties ?? [],
+        };
+      }
+      if (opts?.searchOptions) {
+        entry.searchOptions = {
+          fuzziness: opts.searchOptions.fuzziness ?? 0.6,
+          matchProperties: opts.searchOptions.matchProperties ?? ['name'],
+        };
+      }
+    }
+
+    // Anonymisation
+    if (type === 'Anonymisation') {
+      entry.explanationText = {
+        title: opts?.explanationText?.title ?? 'Data Anonymisation',
+        body:
+          opts?.explanationText?.body ??
+          'Please enter a passphrase to protect your data.',
+      };
+    }
+
+    // FamilyTreeCensus
+    if (type === 'FamilyTreeCensus') {
+      // Edge type reference
+      if (opts?.edgeType) {
+        entry.edgeType = opts.edgeType;
+      } else {
+        let edgeTypeId: string;
+        if (this.edgeTypes.size > 0) {
+          edgeTypeId = this.edgeTypes.keys().next().value!;
+        } else {
+          edgeTypeId = this.addEdgeType({ name: 'Family' }).id;
+        }
+        entry.edgeType = { entity: 'edge', type: edgeTypeId };
+      }
+
+      entry.relationshipTypeVariable = opts?.relationshipTypeVariable;
+      entry.nodeSexVariable = opts?.nodeSexVariable;
+      entry.egoSexVariable = opts?.egoSexVariable;
+      entry.relationshipToEgoVariable =
+        opts?.relationshipToEgoVariable ?? 'relationshipToEgo';
+      entry.nodeIsEgoVariable = opts?.nodeIsEgoVariable ?? 'isEgo';
+
+      if (opts?.scaffoldingStep) {
+        entry.scaffoldingStep = {
+          text:
+            opts.scaffoldingStep.text ??
+            this.valueGen.generatePromptText('FamilyTreeCensus'),
+          showQuickStartModal:
+            opts.scaffoldingStep.showQuickStartModal ?? false,
+        };
+      } else {
+        entry.scaffoldingStep = {
+          text: this.valueGen.generatePromptText('FamilyTreeCensus'),
+          showQuickStartModal: false,
+        };
+      }
+
+      if (opts?.nameGenerationStep) {
+        const nameGenForm = opts.nameGenerationStep.form;
+        let resolvedForm: StageEntry['nameGenerationStep'];
+        if (nameGenForm && subject) {
+          const fields = nameGenForm.fields.map((f) =>
+            this.resolveFormField(f, subject.type),
+          );
+          resolvedForm = {
+            text:
+              opts.nameGenerationStep.text ??
+              'Please provide information for each family member.',
+            form: {
+              title: nameGenForm.title ?? 'Family Member Information',
+              fields,
+            },
+          };
+        } else {
+          resolvedForm = {
+            text:
+              opts.nameGenerationStep.text ??
+              'Please provide information for each family member.',
+            form: { title: 'Family Member Information', fields: [] },
+          };
+        }
+        entry.nameGenerationStep = resolvedForm;
+      }
+
+      entry.diseaseNominationStep = [];
+    }
+
     // Generate initial nodes (only for node-based stages)
-    if (entry.initialNodes > 0 && subject) {
+    if (entry.initialNodes > 0 && subject?.entity === 'node') {
       for (let i = 0; i < entry.initialNodes; i++) {
         this.nodes.push({
           uid: this.nextId('node'),
@@ -417,6 +648,29 @@ export class SyntheticInterview {
           },
         } as StageHandleMap[T];
 
+      case 'NameGeneratorQuickAdd':
+        return {
+          ...base,
+          addPrompt: (opts?: AddPromptInput) => {
+            entry.prompts.push(this.resolvePrompt(opts, entry));
+          },
+          addPanel: (opts?: { title?: string; dataSource?: string }) => {
+            entry.panels.push({
+              id: this.nextId('panel'),
+              title: opts?.title ?? 'Panel',
+              dataSource: opts?.dataSource ?? 'existing',
+            });
+          },
+        } as StageHandleMap[T];
+
+      case 'NameGeneratorRoster':
+        return {
+          ...base,
+          addPrompt: (opts?: AddPromptInput) => {
+            entry.prompts.push(this.resolvePrompt(opts, entry));
+          },
+        } as StageHandleMap[T];
+
       case 'Sociogram':
         return {
           ...base,
@@ -483,6 +737,78 @@ export class SyntheticInterview {
 
       case 'Information':
         return base as StageHandleMap[T];
+
+      case 'TieStrengthCensus':
+        return {
+          ...base,
+          addPrompt: (opts?: AddTieStrengthCensusPromptInput) => {
+            entry.prompts.push(
+              this.resolveTieStrengthCensusPrompt(opts, entry),
+            );
+          },
+        } as StageHandleMap[T];
+
+      case 'AlterForm':
+        return {
+          ...base,
+          addFormField: (opts: {
+            component: ComponentType;
+            variable?: string;
+            prompt?: string;
+          }) => {
+            const field = this.resolveFormField(
+              {
+                component: opts.component,
+                variable: opts.variable,
+                prompt: opts.prompt,
+              },
+              entry.subject!.type,
+            );
+            entry.form ??= { title: 'About this person', fields: [] };
+            entry.form.fields.push(field);
+          },
+        } as StageHandleMap[T];
+
+      case 'AlterEdgeForm':
+        return {
+          ...base,
+          addFormField: (opts: {
+            component: ComponentType;
+            variable?: string;
+            prompt?: string;
+          }) => {
+            const field = this.resolveEdgeFormField(
+              {
+                component: opts.component,
+                variable: opts.variable,
+                prompt: opts.prompt,
+              },
+              entry.subject!.type,
+            );
+            entry.form ??= {
+              title: 'Describe this relationship',
+              fields: [],
+            };
+            entry.form.fields.push(field);
+          },
+        } as StageHandleMap[T];
+
+      case 'Anonymisation':
+        return base as StageHandleMap[T];
+
+      case 'FamilyTreeCensus':
+        return {
+          ...base,
+          addDiseaseNominationStep: (opts?: AddDiseaseNominationStepInput) => {
+            const step: DiseaseNominationStepEntry = {
+              id: this.nextId('disease-nom'),
+              text: opts?.text ?? 'Which family members have this condition?',
+              variable: opts?.variable ?? this.nextId('disease-var'),
+            };
+            entry.diseaseNominationStep ??= [];
+            entry.diseaseNominationStep.push(step);
+          },
+        } as StageHandleMap[T];
     }
   }
 
@@ -524,6 +850,26 @@ export class SyntheticInterview {
     if (!variableId) {
       // Auto-create variable from component type
       const ref = this.addVariableToNodeType(nodeTypeId, {
+        component: input.component,
+        name: input.prompt,
+      });
+      variableId = ref.id;
+    }
+    return {
+      variable: variableId,
+      component: input.component,
+    };
+  }
+
+  private resolveEdgeFormField(
+    input:
+      | FormFieldInput
+      | { component: ComponentType; variable?: string; prompt?: string },
+    edgeTypeId: string,
+  ) {
+    let variableId = input.variable;
+    if (!variableId) {
+      const ref = this.addVariableToEdgeType(edgeTypeId, {
         component: input.component,
         name: input.prompt,
       });
@@ -812,6 +1158,46 @@ export class SyntheticInterview {
     };
   }
 
+  private resolveTieStrengthCensusPrompt(
+    opts: AddTieStrengthCensusPromptInput | undefined,
+    _entry: StageEntry,
+  ): TieStrengthCensusPromptEntry {
+    const promptId = this.nextId('prompt');
+
+    // Resolve edge type
+    let createEdge: string;
+    if (typeof opts?.createEdge === 'string') {
+      createEdge = opts.createEdge;
+    } else {
+      if (this.edgeTypes.size > 0) {
+        createEdge = this.edgeTypes.keys().next().value!;
+      } else {
+        createEdge = this.addEdgeType().id;
+      }
+    }
+
+    // Resolve edge variable - must exist on the edge type
+    let edgeVariable: string;
+    if (opts?.edgeVariable) {
+      edgeVariable = opts.edgeVariable;
+    } else {
+      // Auto-create an ordinal variable on the edge type
+      const ref = this.addVariableToEdgeType(createEdge, {
+        type: 'ordinal',
+        name: 'Strength',
+      });
+      edgeVariable = ref.id;
+    }
+
+    return {
+      id: promptId,
+      text: opts?.text ?? this.valueGen.generatePromptText('TieStrengthCensus'),
+      createEdge,
+      edgeVariable,
+      negativeLabel: opts?.negativeLabel ?? 'No Relationship',
+    };
+  }
+
   // --- Output methods ---
 
   getProtocol() {
@@ -893,7 +1279,7 @@ export class SyntheticInterview {
       exportTime: null,
       lastUpdated: now,
       currentStep: opts?.currentStep ?? 0,
-      stageMetadata: null,
+      stageMetadata: opts?.stageMetadata ?? null,
       network,
       protocol: {
         ...protocol,
@@ -933,10 +1319,26 @@ export class SyntheticInterview {
 
     const edge: Record<string, unknown> = {};
     for (const [id, entry] of this.edgeTypes) {
-      edge[id] = {
+      const edgeEntry: Record<string, unknown> = {
         name: entry.name,
         color: entry.color,
       };
+      // Serialize edge type variables if any exist
+      if (entry.variables.size > 0) {
+        const variables: Record<string, unknown> = {};
+        for (const [varId, varEntry] of entry.variables) {
+          const variable: Record<string, unknown> = {
+            name: varEntry.name,
+            type: varEntry.type,
+          };
+          if (varEntry.component) variable.component = varEntry.component;
+          if (varEntry.options) variable.options = varEntry.options;
+          if (varEntry.validation) variable.validation = varEntry.validation;
+          variables[varId] = variable;
+        }
+        edgeEntry.variables = variables;
+      }
+      edge[id] = edgeEntry;
     }
 
     // Build ego codebook if ego variables exist
@@ -1006,6 +1408,59 @@ export class SyntheticInterview {
       config.items = stage.items;
     }
 
+    // NameGeneratorQuickAdd
+    if (stage.quickAdd) {
+      config.quickAdd = stage.quickAdd;
+    }
+
+    // NameGeneratorRoster
+    if (stage.dataSource) {
+      config.dataSource = stage.dataSource;
+    }
+    if (stage.cardOptions) {
+      config.cardOptions = stage.cardOptions;
+    }
+    if (stage.sortOptions) {
+      config.sortOptions = stage.sortOptions;
+    }
+    if (stage.searchOptions) {
+      config.searchOptions = stage.searchOptions;
+    }
+
+    // Anonymisation
+    if (stage.explanationText) {
+      config.explanationText = stage.explanationText;
+    }
+
+    // FamilyTreeCensus
+    if (stage.edgeType) {
+      config.edgeType = stage.edgeType;
+    }
+    if (stage.relationshipTypeVariable !== undefined) {
+      config.relationshipTypeVariable = stage.relationshipTypeVariable;
+    }
+    if (stage.nodeSexVariable !== undefined) {
+      config.nodeSexVariable = stage.nodeSexVariable;
+    }
+    if (stage.egoSexVariable !== undefined) {
+      config.egoSexVariable = stage.egoSexVariable;
+    }
+    if (stage.relationshipToEgoVariable !== undefined) {
+      config.relationshipToEgoVariable = stage.relationshipToEgoVariable;
+    }
+    if (stage.nodeIsEgoVariable !== undefined) {
+      config.nodeIsEgoVariable = stage.nodeIsEgoVariable;
+    }
+    if (stage.scaffoldingStep) {
+      config.scaffoldingStep = stage.scaffoldingStep;
+    }
+    if (stage.nameGenerationStep) {
+      config.nameGenerationStep = stage.nameGenerationStep;
+    }
+    if (stage.diseaseNominationStep) {
+      config.diseaseNominationStep = stage.diseaseNominationStep;
+    }
+
     return config;
   }
 
@@ -1027,6 +1482,23 @@ export class SyntheticInterview {
       );
     }
     node.explicitAttributes[variableId] = value;
+  }
+
+  /**
+   * Set explicit attribute values on an edge by its index in the edges array.
+   */
+  setEdgeAttribute(
+    edgeIndex: number,
+    variableId: string,
+    value: unknown,
+  ): void {
+    const edge = this.edges[edgeIndex];
+    if (!edge) {
+      throw new Error(
+        `Edge index ${edgeIndex} out of range (${this.edges.length} edges)`,
+      );
+    }
+    edge.attributes[variableId] = value;
   }
 
   /**
@@ -1076,6 +1548,12 @@ export class SyntheticInterview {
     const nodeType = this.nodeTypes.get(nodeTypeId);
     if (!nodeType) return [];
     return [...nodeType.variables.keys()];
+  }
+
+  getEdgeVariableIds(edgeTypeId: string): string[] {
+    const edgeType = this.edgeTypes.get(edgeTypeId);
+    if (!edgeType) return [];
+    return [...edgeType.variables.keys()];
   }
 
   getNodeEntries(): NodeEntry[] {

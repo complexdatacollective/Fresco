@@ -1,50 +1,10 @@
 'use client';
 
-import {
-  entityAttributesProperty,
-  entityPrimaryKeyProperty,
-  type NcNode,
-} from '@codaco/shared-consts';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
 import SuperJSON from 'superjson';
 import StoryInterviewShell from '~/.storybook/StoryInterviewShell';
-
-const names = [
-  'Alice Johnson',
-  'Bob Smith',
-  'Charlie Brown',
-  'Diana Prince',
-  'Eve Martinez',
-  'Frank Wilson',
-  'Grace Lee',
-  'Henry Garcia',
-  'Iris Chen',
-  'Jack Taylor',
-  'Kate Williams',
-  'Leo Anderson',
-  'Maya Thomas',
-  'Noah Jackson',
-  'Olivia White',
-];
-
-const locations = [
-  'New York',
-  'Los Angeles',
-  'Chicago',
-  'Houston',
-  'Phoenix',
-  'Philadelphia',
-  'San Antonio',
-  'San Diego',
-  'Dallas',
-  'San Jose',
-  'Austin',
-  'Denver',
-  'Portland',
-  'Seattle',
-  'Miami',
-];
+import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
 
 const ROSTER_SIZES = [50, 100, 1000, 5000, 50000] as const;
 type RosterSize = (typeof ROSTER_SIZES)[number];
@@ -57,160 +17,86 @@ type StoryArgs = {
   maxNodes: number;
 };
 
-const STAGE_ID = 'roster-stage';
+function buildInterview(args: StoryArgs) {
+  const si = new SyntheticInterview();
 
-const createPrompts = (count: number) =>
-  Array.from({ length: count }, (_, i) => ({
-    id: `prompt-${i + 1}`,
-    text: `Prompt ${i + 1}: Please select the people you know from this list.`,
-  }));
+  const nodeType = si.addNodeType({ name: 'Person' });
+  const nameVar = nodeType.addVariable({ name: 'Name', type: 'text' });
+  const ageVar = nodeType.addVariable({ name: 'Age', type: 'number' });
+  const locationVar = nodeType.addVariable({
+    name: 'Location',
+    type: 'text',
+  });
 
-const createMockNodes = (
-  count: number,
-  promptIds: string[],
-  idOffset = 0,
-): NcNode[] =>
-  Array.from({ length: count }, (_, i) => ({
-    [entityPrimaryKeyProperty]: `node-${idOffset + i + 1}`,
-    type: 'person',
-    stageId: STAGE_ID,
-    promptIDs: promptIds,
-    [entityAttributesProperty]: {
-      name: names[(idOffset + i) % names.length] ?? 'Unknown',
-      age: 20 + (((idOffset + i) * 7) % 40),
-      location: locations[(idOffset + i) % locations.length] ?? 'Unknown',
-    },
-  }));
+  si.addInformationStage({
+    title: 'Welcome',
+    text: 'Before the main stage.',
+  });
 
-const createStage = (args: StoryArgs) => {
-  const prompts = createPrompts(args.promptCount);
-  const behaviours =
-    args.minNodes > 0 || args.maxNodes > 0
-      ? {
-          ...(args.minNodes > 0 ? { minNodes: args.minNodes } : {}),
-          ...(args.maxNodes > 0 ? { maxNodes: args.maxNodes } : {}),
-        }
-      : undefined;
+  const behaviours: { minNodes?: number; maxNodes?: number } = {};
+  if (args.minNodes > 0) behaviours.minNodes = args.minNodes;
+  if (args.maxNodes > 0) behaviours.maxNodes = args.maxNodes;
 
-  return {
-    id: STAGE_ID,
-    type: 'NameGeneratorRoster' as const,
+  const stage = si.addStage('NameGeneratorRoster', {
     label: 'Select People',
-    subject: { entity: 'node' as const, type: 'person' },
+    initialNodes: args.initialSelectedCount,
+    subject: { entity: 'node', type: nodeType.id },
     dataSource: 'externalData',
-    prompts,
-    behaviours,
+    behaviours: Object.keys(behaviours).length > 0 ? behaviours : undefined,
     cardOptions: {
-      displayLabel: 'name',
+      displayLabel: nameVar.id,
       additionalProperties: [
-        { label: 'Age', variable: 'age' },
-        { label: 'Location', variable: 'location' },
+        { label: 'Age', variable: ageVar.id },
+        { label: 'Location', variable: locationVar.id },
       ],
     },
     sortOptions: {
-      sortOrder: [{ property: 'name', direction: 'asc' as const }],
+      sortOrder: [{ property: nameVar.id, direction: 'asc' }],
       sortableProperties: [
-        { variable: 'name', label: 'Name' },
-        { variable: 'age', label: 'Age' },
-        { variable: 'location', label: 'Location' },
+        { variable: nameVar.id, label: 'Name' },
+        { variable: ageVar.id, label: 'Age' },
+        { variable: locationVar.id, label: 'Location' },
       ],
     },
     searchOptions: {
       fuzziness: 0.6,
-      matchProperties: ['name', 'location'],
+      matchProperties: [nameVar.id, locationVar.id],
     },
-  };
-};
+  });
 
-const informationStageBefore = {
-  id: 'info-before',
-  type: 'Information' as const,
-  label: 'Welcome',
-  title: 'Welcome',
-  items: [
-    { id: 'item-1', type: 'text' as const, content: 'Before the main stage.' },
-  ],
-};
+  for (let i = 0; i < args.promptCount; i++) {
+    stage.addPrompt({
+      text: `Prompt ${i + 1}: Please select the people you know from this list.`,
+    });
+  }
 
-const informationStageAfter = {
-  id: 'info-after',
-  type: 'Information' as const,
-  label: 'Complete',
-  title: 'Complete',
-  items: [
-    { id: 'item-2', type: 'text' as const, content: 'After the main stage.' },
-  ],
-};
+  si.addAsset({
+    key: 'asset-external-data',
+    assetId: 'externalData',
+    name: 'External Data',
+    type: 'network',
+    url: `/storybook/roster-${args.rosterSize}.json`,
+    size: 0,
+  });
 
-function buildPayload(args: StoryArgs) {
-  const now = new Date(2025, 0, 1);
-  const stage = createStage(args);
-  const selectedNodes = createMockNodes(args.initialSelectedCount, [
-    'prompt-1',
-  ]);
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
 
-  return {
-    id: 'test-session',
-    startTime: now,
-    finishTime: null,
-    exportTime: null,
-    lastUpdated: now,
-    currentStep: 1,
-    stageMetadata: null,
-    network: {
-      nodes: selectedNodes,
-      edges: [],
-      ego: {
-        [entityPrimaryKeyProperty]: 'ego-1',
-        [entityAttributesProperty]: {},
-      },
-    },
-    protocol: {
-      id: 'test-protocol',
-      name: 'Test Protocol',
-      description: null,
-      schemaVersion: 8,
-      importedAt: now,
-      stages: [informationStageBefore, stage, informationStageAfter],
-      codebook: {
-        node: {
-          person: {
-            name: 'Person',
-            color: 'node-color-seq-1',
-            displayVariable: 'name',
-            variables: {
-              name: { name: 'Name', type: 'text' },
-              age: { name: 'Age', type: 'number' },
-              location: { name: 'Location', type: 'text' },
-            },
-          },
-        },
-      },
-      assets: [
-        {
-          key: 'asset-external-data',
-          assetId: 'externalData',
-          name: 'External Data',
-          type: 'network',
-          url: `/storybook/roster-${args.rosterSize}.json`,
-          size: 0,
-        },
-      ],
-      experiments: {
-        encryptedVariables: false,
-      },
-      isPreview: false,
-      isPending: false,
-    },
-  };
+  return si;
 }
 
 const NameGeneratorRosterStoryWrapper = (args: StoryArgs) => {
   const configKey = JSON.stringify(args);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const payload = useMemo(() => buildPayload(args), [configKey]);
-  const rawPayload = useMemo(() => SuperJSON.stringify(payload), [payload]);
+  const interview = useMemo(() => buildInterview(args), [configKey]);
+  const rawPayload = useMemo(
+    () =>
+      SuperJSON.stringify(interview.getInterviewPayload({ currentStep: 1 })),
+    [interview],
+  );
 
   return (
     <div className="flex h-dvh w-full">

@@ -451,4 +451,365 @@ describe('SyntheticInterview', () => {
       expect(network.nodes).toHaveLength(5);
     });
   });
+
+  describe('NameGeneratorQuickAdd', () => {
+    it('creates stage with quickAdd field', () => {
+      const si = new SyntheticInterview();
+      const stage = si.addStage('NameGeneratorQuickAdd');
+      stage.addPrompt({ text: 'Name your friends' });
+
+      const protocol = si.getProtocol();
+      const stageConfig = protocol.stages[0] as Record<string, unknown>;
+      expect(stageConfig.type).toBe('NameGeneratorQuickAdd');
+      expect(stageConfig.quickAdd).toBeTruthy();
+      const prompts = stageConfig.prompts as { text: string }[];
+      expect(prompts).toHaveLength(1);
+      expect(prompts[0]!.text).toBe('Name your friends');
+    });
+
+    it('supports panels', () => {
+      const si = new SyntheticInterview();
+      const stage = si.addStage('NameGeneratorQuickAdd');
+      stage.addPrompt();
+      stage.addPanel({ title: 'Existing' });
+
+      const protocol = si.getProtocol();
+      const stageConfig = protocol.stages[0] as Record<string, unknown>;
+      const panels = stageConfig.panels as { title: string }[];
+      expect(panels).toHaveLength(1);
+      expect(panels[0]!.title).toBe('Existing');
+    });
+  });
+
+  describe('NameGeneratorRoster', () => {
+    it('creates stage with dataSource and card/sort/search options', () => {
+      const si = new SyntheticInterview();
+      const stage = si.addStage('NameGeneratorRoster', {
+        dataSource: 'externalData',
+        cardOptions: { displayLabel: 'name' },
+        sortOptions: {
+          sortOrder: [{ property: 'name', direction: 'asc' }],
+          sortableProperties: [{ variable: 'name', label: 'Name' }],
+        },
+        searchOptions: {
+          fuzziness: 0.6,
+          matchProperties: ['name'],
+        },
+      });
+      stage.addPrompt({ text: 'Select people' });
+
+      const protocol = si.getProtocol();
+      const stageConfig = protocol.stages[0] as Record<string, unknown>;
+      expect(stageConfig.type).toBe('NameGeneratorRoster');
+      expect(stageConfig.dataSource).toBe('externalData');
+      expect(stageConfig.cardOptions).toBeDefined();
+      expect(stageConfig.sortOptions).toBeDefined();
+      expect(stageConfig.searchOptions).toBeDefined();
+    });
+  });
+
+  describe('TieStrengthCensus', () => {
+    it('creates stage with edge variable on prompt', () => {
+      const si = new SyntheticInterview();
+      const et = si.addEdgeType({ name: 'Friendship' });
+      const varRef = et.addVariable({
+        type: 'ordinal',
+        name: 'Strength',
+        options: [
+          { label: 'Weak', value: 1 },
+          { label: 'Strong', value: 3 },
+        ],
+      });
+
+      const stage = si.addStage('TieStrengthCensus', {
+        initialNodes: 3,
+      });
+      stage.addPrompt({
+        createEdge: et.id,
+        edgeVariable: varRef.id,
+        negativeLabel: 'No Friendship',
+      });
+
+      const protocol = si.getProtocol();
+      const stageConfig = protocol.stages[0] as Record<string, unknown>;
+      expect(stageConfig.type).toBe('TieStrengthCensus');
+
+      const prompts = stageConfig.prompts as {
+        createEdge: string;
+        edgeVariable: string;
+        negativeLabel: string;
+      }[];
+      expect(prompts).toHaveLength(1);
+      expect(prompts[0]!.createEdge).toBe(et.id);
+      expect(prompts[0]!.edgeVariable).toBe(varRef.id);
+      expect(prompts[0]!.negativeLabel).toBe('No Friendship');
+    });
+
+    it('auto-creates edge type and variable when none provided', () => {
+      const si = new SyntheticInterview();
+      const stage = si.addStage('TieStrengthCensus', { initialNodes: 3 });
+      stage.addPrompt();
+
+      const protocol = si.getProtocol();
+      const edgeTypeIds = Object.keys(protocol.codebook.edge);
+      expect(edgeTypeIds.length).toBeGreaterThanOrEqual(1);
+
+      const edgeType = protocol.codebook.edge[edgeTypeIds[0]!] as Record<
+        string,
+        unknown
+      >;
+      expect(edgeType.variables).toBeDefined();
+    });
+  });
+
+  describe('AlterForm', () => {
+    it('creates stage with form fields for node attributes', () => {
+      const si = new SyntheticInterview();
+      const stage = si.addStage('AlterForm', {
+        initialNodes: 3,
+        introductionPanel: { title: 'About each person' },
+      });
+      stage.addFormField({ component: 'Text', prompt: 'Nickname' });
+      stage.addFormField({ component: 'Number', prompt: 'Age' });
+
+      const protocol = si.getProtocol();
+      const stageConfig = protocol.stages[0] as Record<string, unknown>;
+      expect(stageConfig.type).toBe('AlterForm');
+      expect(stageConfig.introductionPanel).toBeDefined();
+
+      const form = stageConfig.form as {
+        fields: { variable: string; component: string }[];
+      };
+      expect(form.fields).toHaveLength(2);
+    });
+  });
+
+  describe('AlterEdgeForm', () => {
+    it('creates stage with edge subject and form fields', () => {
+      const si = new SyntheticInterview();
+      const nt = si.addNodeType();
+      const et = si.addEdgeType({ name: 'Friendship' });
+
+      si.addStage('NameGenerator', {
+        initialNodes: 3,
+        subject: { entity: 'node', type: nt.id },
+      });
+      si.addEdges(
+        [
+          [0, 1],
+          [1, 2],
+        ],
+        et.id,
+      );
+
+      const stage = si.addStage('AlterEdgeForm', {
+        subject: { entity: 'edge', type: et.id },
+        introductionPanel: { title: 'About each relationship' },
+      });
+      stage.addFormField({ component: 'RadioGroup', prompt: 'Closeness' });
+
+      const protocol = si.getProtocol();
+      // AlterEdgeForm is the second stage
+      const stageConfig = protocol.stages[1] as Record<string, unknown>;
+      expect(stageConfig.type).toBe('AlterEdgeForm');
+      const subject = stageConfig.subject as { entity: string; type: string };
+      expect(subject.entity).toBe('edge');
+
+      const form = stageConfig.form as {
+        fields: { variable: string; component: string }[];
+      };
+      expect(form.fields).toHaveLength(1);
+
+      // Edge variable should be in codebook
+      const edgeCodebook = protocol.codebook.edge[et.id] as Record<
+        string,
+        unknown
+      >;
+      expect(edgeCodebook.variables).toBeDefined();
+    });
+  });
+
+  describe('Anonymisation', () => {
+    it('creates subjectless stage with explanationText', () => {
+      const si = new SyntheticInterview();
+      si.addStage('Anonymisation', {
+        explanationText: {
+          title: 'Protect Your Data',
+          body: 'Enter a passphrase.',
+        },
+      });
+
+      const protocol = si.getProtocol();
+      const stageConfig = protocol.stages[0] as Record<string, unknown>;
+      expect(stageConfig.type).toBe('Anonymisation');
+      expect(stageConfig.subject).toBeUndefined();
+
+      const explText = stageConfig.explanationText as {
+        title: string;
+        body: string;
+      };
+      expect(explText.title).toBe('Protect Your Data');
+      expect(explText.body).toBe('Enter a passphrase.');
+    });
+
+    it('provides default explanationText', () => {
+      const si = new SyntheticInterview();
+      si.addStage('Anonymisation');
+
+      const protocol = si.getProtocol();
+      const stageConfig = protocol.stages[0] as Record<string, unknown>;
+      const explText = stageConfig.explanationText as {
+        title: string;
+        body: string;
+      };
+      expect(explText.title).toBeTruthy();
+      expect(explText.body).toBeTruthy();
+    });
+  });
+
+  describe('FamilyTreeCensus', () => {
+    it('creates stage with all family tree fields', () => {
+      const si = new SyntheticInterview();
+      const nt = si.addNodeType({ name: 'Person' });
+      const et = si.addEdgeType({ name: 'Family' });
+      const relVar = et.addVariable({
+        type: 'categorical',
+        name: 'Relationship',
+        options: [
+          { label: 'Parent', value: 'parent' },
+          { label: 'Child', value: 'child' },
+        ],
+      });
+      const sexVar = nt.addVariable({
+        type: 'categorical',
+        name: 'Sex',
+        options: [
+          { label: 'Male', value: 'male' },
+          { label: 'Female', value: 'female' },
+        ],
+      });
+
+      const stage = si.addStage('FamilyTreeCensus', {
+        subject: { entity: 'node', type: nt.id },
+        edgeType: { entity: 'edge', type: et.id },
+        relationshipTypeVariable: relVar.id,
+        nodeSexVariable: sexVar.id,
+        initialNodes: 3,
+        nameGenerationStep: {
+          text: 'Provide info',
+          form: {
+            title: 'Info',
+            fields: [{ component: 'Text', prompt: 'Name' }],
+          },
+        },
+      });
+      stage.addDiseaseNominationStep({
+        text: 'Who has the disease?',
+        variable: 'hasDisease',
+      });
+
+      const protocol = si.getProtocol();
+      const stageConfig = protocol.stages[0] as Record<string, unknown>;
+      expect(stageConfig.type).toBe('FamilyTreeCensus');
+      expect(stageConfig.edgeType).toEqual({
+        entity: 'edge',
+        type: et.id,
+      });
+      expect(stageConfig.relationshipTypeVariable).toBe(relVar.id);
+      expect(stageConfig.scaffoldingStep).toBeDefined();
+      expect(stageConfig.nameGenerationStep).toBeDefined();
+
+      const diseaseSteps = stageConfig.diseaseNominationStep as {
+        text: string;
+        variable: string;
+      }[];
+      expect(diseaseSteps).toHaveLength(1);
+      expect(diseaseSteps[0]!.text).toBe('Who has the disease?');
+    });
+  });
+
+  describe('edge variable codebook serialization', () => {
+    it('serializes edge type variables in codebook', () => {
+      const si = new SyntheticInterview();
+      const et = si.addEdgeType({ name: 'Friendship' });
+      et.addVariable({
+        type: 'ordinal',
+        name: 'Strength',
+        options: [
+          { label: 'Weak', value: 1 },
+          { label: 'Strong', value: 3 },
+        ],
+      });
+
+      const protocol = si.getProtocol();
+      const edgeCodebook = protocol.codebook.edge[et.id] as Record<
+        string,
+        unknown
+      >;
+      expect(edgeCodebook.variables).toBeDefined();
+
+      const variables = edgeCodebook.variables as Record<
+        string,
+        { name: string; type: string }
+      >;
+      const varEntries = Object.values(variables);
+      expect(varEntries).toHaveLength(1);
+      expect(varEntries[0]!.name).toBe('Strength');
+      expect(varEntries[0]!.type).toBe('ordinal');
+    });
+  });
+
+  describe('setEdgeAttribute', () => {
+    it('sets explicit attribute values on edges', () => {
+      const si = new SyntheticInterview();
+      const et = si.addEdgeType({ name: 'Friendship' });
+      const varRef = et.addVariable({
+        type: 'ordinal',
+        name: 'Strength',
+        options: [
+          { label: 'Weak', value: 1 },
+          { label: 'Strong', value: 3 },
+        ],
+      });
+
+      si.addStage('NameGenerator', { initialNodes: 3 });
+      si.addEdges(
+        [
+          [0, 1],
+          [1, 2],
+        ],
+        et.id,
+      );
+
+      si.setEdgeAttribute(0, varRef.id, 3);
+      si.setEdgeAttribute(1, varRef.id, 1);
+
+      const network = si.getNetwork();
+      expect(network.edges[0]![entityAttributesProperty][varRef.id]).toBe(3);
+      expect(network.edges[1]![entityAttributesProperty][varRef.id]).toBe(1);
+    });
+
+    it('throws for out-of-range edge index', () => {
+      const si = new SyntheticInterview();
+      expect(() => si.setEdgeAttribute(0, 'var', 1)).toThrow(/out of range/);
+    });
+  });
+
+  describe('stageMetadata passthrough', () => {
+    it('passes stageMetadata through to interview payload', () => {
+      const si = new SyntheticInterview();
+      si.addStage('FamilyTreeCensus', { initialNodes: 2 });
+
+      const metadata = {
+        1: { hasSeenScaffoldPrompt: true, nodes: [] },
+      };
+
+      const payload = si.getInterviewPayload({
+        currentStep: 1,
+        stageMetadata: metadata,
+      });
+
+      expect(payload.stageMetadata).toEqual(metadata);
+    });
+  });
 });

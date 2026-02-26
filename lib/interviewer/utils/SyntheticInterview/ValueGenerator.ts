@@ -32,7 +32,7 @@ export class ValueGenerator {
         const options = variable.options ?? [];
         if (options.length === 0) return null;
         const count = 1 + (index % 2);
-        const picked: number[] = [];
+        const picked: (number | string)[] = [];
         for (let i = 0; i < count && i < options.length; i++) {
           picked.push(options[(index + i) % options.length]!.value);
         }
@@ -62,7 +62,10 @@ export class ValueGenerator {
   generatePromptText(stageType: string): string {
     switch (stageType) {
       case 'NameGenerator':
+      case 'NameGeneratorQuickAdd':
         return 'Please name the people you are close to.';
+      case 'NameGeneratorRoster':
+        return 'Please select the people you know from this list.';
       case 'Sociogram':
         return 'Place people in the circles based on how close you are to them.';
       case 'Narrative':
@@ -77,6 +80,14 @@ export class ValueGenerator {
         return 'Which categories does each person belong to?';
       case 'EgoForm':
         return 'Please tell us about yourself.';
+      case 'TieStrengthCensus':
+        return 'How strong is the relationship between these two people?';
+      case 'AlterForm':
+        return 'Please provide details about each person.';
+      case 'AlterEdgeForm':
+        return 'Please describe each relationship.';
+      case 'FamilyTreeCensus':
+        return 'Please create your family tree by adding family members.';
       default:
         return 'Please complete this step.';
     }

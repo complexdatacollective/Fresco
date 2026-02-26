@@ -8,7 +8,7 @@ export type ComponentType = (typeof ComponentTypesKeys)[number];
 
 export type VariableOption = {
   label: string;
-  value: number;
+  value: number | string;
 };
 
 export type VariableEntry = {
@@ -37,6 +37,8 @@ export type EdgeTypeEntry = {
 
 export type StageType =
   | 'NameGenerator'
+  | 'NameGeneratorQuickAdd'
+  | 'NameGeneratorRoster'
   | 'Sociogram'
   | 'Narrative'
   | 'DyadCensus'
@@ -44,7 +46,12 @@ export type StageType =
   | 'OrdinalBin'
   | 'CategoricalBin'
   | 'EgoForm'
-  | 'Information';
+  | 'Information'
+  | 'TieStrengthCensus'
+  | 'AlterForm'
+  | 'AlterEdgeForm'
+  | 'Anonymisation'
+  | 'FamilyTreeCensus';
 
 export type NameGeneratorPromptEntry = {
   id: string;
@@ -108,13 +115,28 @@ export type CategoricalBinPromptEntry = {
   binSortOrder?: SortRule[];
 };
 
+export type TieStrengthCensusPromptEntry = {
+  id: string;
+  text: string;
+  createEdge: string;
+  edgeVariable: string;
+  negativeLabel: string;
+};
+
+export type DiseaseNominationStepEntry = {
+  id: string;
+  text: string;
+  variable: string;
+};
+
 export type PromptEntry =
   | NameGeneratorPromptEntry
   | SociogramPromptEntry
   | DyadCensusPromptEntry
   | OneToManyDyadCensusPromptEntry
   | OrdinalBinPromptEntry
-  | CategoricalBinPromptEntry;
+  | CategoricalBinPromptEntry
+  | TieStrengthCensusPromptEntry;
 
 export type PresetEntry = {
   id: string;
@@ -154,10 +176,7 @@ export type StageEntry = {
   id: string;
   type: StageType;
   label: string;
-  subject?: {
-    entity: 'node';
-    type: string;
-  };
+  subject?: { entity: 'node'; type: string } | { entity: 'edge'; type: string };
   form?: FormEntry;
   prompts: PromptEntry[];
   presets: PresetEntry[];
@@ -172,6 +191,8 @@ export type StageEntry = {
     freeDraw?: boolean;
     allowRepositioning?: boolean;
     removeAfterConsideration?: boolean;
+    minNodes?: number;
+    maxNodes?: number;
   };
   introductionPanel?: {
     title: string;
@@ -181,6 +202,45 @@ export type StageEntry = {
   items?: InformationItem[];
   initialNodes: number;
   initialEdges: [number, number][];
+  // NameGeneratorQuickAdd
+  quickAdd?: string;
+  // NameGeneratorRoster
+  dataSource?: string;
+  cardOptions?: {
+    displayLabel: string;
+    additionalProperties?: { label: string; variable: string }[];
+  };
+  sortOptions?: {
+    sortOrder: SortRule[];
+    sortableProperties: { variable: string; label: string }[];
+  };
+  searchOptions?: {
+    fuzziness: number;
+    matchProperties: string[];
+  };
+  // Anonymisation
+  explanationText?: {
+    title: string;
+    body: string;
+  };
+  // TieStrengthCensus (edge type reference on stage)
+  // FamilyTreeCensus
+  edgeType?: { entity: 'edge'; type: string };
+  // FamilyTreeCensus-specific fields
+  relationshipTypeVariable?: string;
+  nodeSexVariable?: string;
+  egoSexVariable?: string;
+  relationshipToEgoVariable?: string;
+  nodeIsEgoVariable?: string;
+  scaffoldingStep?: {
+    text: string;
+    showQuickStartModal?: boolean;
+  };
+  nameGenerationStep?: {
+    text: string;
+    form: FormEntry;
+  };
+  diseaseNominationStep?: DiseaseNominationStepEntry[];
 };
 
 export type NodeEntry = {
@@ -228,10 +288,7 @@ export type FormFieldInput = {
 
 export type AddStageInput = {
   label?: string;
-  subject?: {
-    entity: 'node';
-    type: string;
-  };
+  subject?: { entity: 'node'; type: string } | { entity: 'edge'; type: string };
   initialNodes?: number;
   initialEdges?: [number, number][];
   background?: {
@@ -244,6 +301,8 @@ export type AddStageInput = {
     freeDraw?: boolean;
     allowRepositioning?: boolean;
     removeAfterConsideration?: boolean;
+    minNodes?: number;
+    maxNodes?: number;
   };
   form?: {
     title?: string;
@@ -252,6 +311,45 @@ export type AddStageInput = {
   introductionPanel?: {
     title?: string;
     text?: string;
+  };
+  // NameGeneratorQuickAdd
+  quickAdd?: string;
+  // NameGeneratorRoster
+  dataSource?: string;
+  cardOptions?: {
+    displayLabel?: string;
+    additionalProperties?: { label: string; variable: string }[];
+  };
+  sortOptions?: {
+    sortOrder?: SortRule[];
+    sortableProperties?: { variable: string; label: string }[];
+  };
+  searchOptions?: {
+    fuzziness?: number;
+    matchProperties?: string[];
+  };
+  // Anonymisation
+  explanationText?: {
+    title?: string;
+    body?: string;
+  };
+  // FamilyTreeCensus
+  edgeType?: { entity: 'edge'; type: string };
+  relationshipTypeVariable?: string;
+  nodeSexVariable?: string;
+  egoSexVariable?: string;
+  relationshipToEgoVariable?: string;
+  nodeIsEgoVariable?: string;
+  scaffoldingStep?: {
+    text?: string;
+    showQuickStartModal?: boolean;
+  };
+  nameGenerationStep?: {
+    text?: string;
+    form?: {
+      title?: string;
+      fields: FormFieldInput[];
+    };
   };
 };
 
@@ -299,6 +397,18 @@ export type AddCategoricalBinPromptInput = {
   binSortOrder?: SortRule[];
 };
 
+export type AddTieStrengthCensusPromptInput = {
+  text?: string;
+  createEdge?: boolean | string;
+  edgeVariable?: string;
+  negativeLabel?: string;
+};
+
+export type AddDiseaseNominationStepInput = {
+  text?: string;
+  variable?: string;
+};
+
 export type AddPresetInput = {
   label?: string;
   layoutVariable?: string;
@@ -312,4 +422,5 @@ export type AddPresetInput = {
 export type GetSessionInput = {
   currentStep?: number;
   promptIndex?: number;
+  stageMetadata?: Record<number, unknown> | null;
 };
