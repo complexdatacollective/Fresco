@@ -9,6 +9,7 @@ type TwoFactorVerifyProps = {
   error?: string | null;
   isSubmitting?: boolean;
   showRecoveryOption?: boolean;
+  formId?: string;
 };
 
 export default function TwoFactorVerify({
@@ -16,6 +17,7 @@ export default function TwoFactorVerify({
   error,
   isSubmitting,
   showRecoveryOption,
+  formId,
 }: TwoFactorVerifyProps) {
   const [code, setCode] = useState('');
   const [useRecovery, setUseRecovery] = useState(false);
@@ -26,7 +28,7 @@ export default function TwoFactorVerify({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit} id={formId} className="flex flex-col gap-4">
       <label className="text-sm font-medium">
         {useRecovery
           ? 'Enter one of your recovery codes'
@@ -55,13 +57,15 @@ export default function TwoFactorVerify({
           {error}
         </p>
       )}
-      <Button
-        type="submit"
-        color="primary"
-        disabled={Boolean(isSubmitting) || code.length === 0}
-      >
-        {isSubmitting ? 'Verifying...' : 'Verify'}
-      </Button>
+      {!formId && (
+        <Button
+          type="submit"
+          color="primary"
+          disabled={Boolean(isSubmitting) || code.length === 0}
+        >
+          {isSubmitting ? 'Verifying...' : 'Verify'}
+        </Button>
+      )}
       {showRecoveryOption && (
         <button
           type="button"

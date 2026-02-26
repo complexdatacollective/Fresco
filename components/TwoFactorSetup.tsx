@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from 'motion/react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { enableTotp, verifyTotpSetup } from '~/actions/totp';
 import RecoveryCodes from '~/components/RecoveryCodes';
@@ -10,6 +11,8 @@ import Dialog from '~/lib/dialogs/Dialog';
 import { cx } from '~/utils/cva';
 import Spinner from './Spinner';
 import Paragraph from './typography/Paragraph';
+
+const VERIFY_FORM_ID = 'two-factor-verify-form';
 
 type TwoFactorSetupProps = {
   open: boolean;
@@ -113,7 +116,16 @@ export default function TwoFactorSetup({
     title = 'Set Up Two-Factor Authentication';
     description =
       'Scan the QR code with your authenticator app, then enter the code to verify.';
-    footer = undefined;
+    footer = setupData ? (
+      <Button
+        type="submit"
+        form={VERIFY_FORM_ID}
+        color="primary"
+        disabled={isVerifying}
+      >
+        {isVerifying ? 'Verifying...' : 'Verify'}
+      </Button>
+    ) : undefined;
   }
 
   return (
@@ -124,68 +136,71 @@ export default function TwoFactorSetup({
       description={description}
       footer={footer}
     >
-      {step === 'generate' && (
-        <div className="flex flex-col gap-6">
-          {userCount === 1 && (
-            <Alert variant="warning">
-              <AlertTitle>Single account warning</AlertTitle>
-              <AlertDescription>
-                You are the only user account. If you lose access to your
-                authenticator app and recovery codes, there will be no way to
-                recover your account. Consider creating a second user account
-                first.
-              </AlertDescription>
-            </Alert>
-          )}
-          {isLoading && (
-            <div className="flex flex-col items-center gap-4">
-              <Spinner />
-              <Paragraph>Generating secret...</Paragraph>
-            </div>
-          )}
-          {setupData && (
-            <>
-              <div className="flex justify-center">
-                <img
-                  src={setupData.qrCodeDataUrl}
-                  alt="QR code for authenticator app"
-                  width={400}
-                  height={400}
-                />
+      <motion.div layout>
+        {step === 'generate' && (
+          <div className="flex flex-col gap-6">
+            {userCount === 1 && (
+              <Alert variant="warning">
+                <AlertTitle>Single account warning</AlertTitle>
+                <AlertDescription>
+                  You are the only user account. If you lose access to your
+                  authenticator app and recovery codes, there will be no way to
+                  recover your account. Consider creating a second user account
+                  first.
+                </AlertDescription>
+              </Alert>
+            )}
+            {isLoading && (
+              <div className="flex flex-col items-center gap-4">
+                <Spinner />
+                <Paragraph>Generating secret...</Paragraph>
               </div>
-              <div className="flex flex-col gap-2">
-                <Paragraph intent="smallText">
-                  Can&apos;t scan the QR code? Enter this secret manually:
-                </Paragraph>
-                <div className="flex items-center gap-2">
-                  <code
-                    className={cx(
-                      'bg-input font-monospace flex-1 rounded px-3 py-2 text-sm',
-                      'break-all select-all',
-                    )}
-                  >
-                    {setupData.secret}
-                  </code>
-                  <Button
-                    color="dynamic"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => void handleCopySecret()}
-                  >
-                    {secretCopied ? 'Copied!' : 'Copy'}
-                  </Button>
+            )}
+            {setupData && (
+              <>
+                <div className="flex justify-center">
+                  <img
+                    src={setupData.qrCodeDataUrl}
+                    alt="QR code for authenticator app"
+                    width={400}
+                    height={400}
+                  />
                 </div>
-              </div>
-              <TwoFactorVerify
-                onVerify={handleVerify}
-                error={verifyError}
-                isSubmitting={isVerifying}
-              />
-            </>
-          )}
-        </div>
-      )}
-      {step === 'recovery' && <RecoveryCodes codes={recoveryCodes} />}
+                <div className="flex flex-col gap-2">
+                  <Paragraph intent="smallText">
+                    Can&apos;t scan the QR code? Enter this secret manually:
+                  </Paragraph>
+                  <div className="flex items-center gap-2">
+                    <code
+                      className={cx(
+                        'bg-input font-monospace flex-1 rounded px-3 py-2 text-sm',
+                        'break-all select-all',
+                      )}
+                    >
+                      {setupData.secret}
+                    </code>
+                    <Button
+                      color="dynamic"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => void handleCopySecret()}
+                    >
+                      {secretCopied ? 'Copied!' : 'Copy'}
+                    </Button>
+                  </div>
+                </div>
+                <TwoFactorVerify
+                  onVerify={handleVerify}
+                  error={verifyError}
+                  isSubmitting={isVerifying}
+                  formId={VERIFY_FORM_ID}
+                />
+              </>
+            )}
+          </div>
+        )}
+        {step === 'recovery' && <RecoveryCodes codes={recoveryCodes} />}
+      </motion.div>
     </Dialog>
   );
 }
