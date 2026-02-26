@@ -52,7 +52,7 @@ export class TestDatabase {
       env: {
         ...process.env,
         DATABASE_URL: this.connectionUri,
-        DATABASE_URL_UNPOOLED: this.connectionUri,
+        DIRECT_URL: this.connectionUri,
         SKIP_ENV_VALIDATION: 'true',
       },
       stdio: 'pipe',

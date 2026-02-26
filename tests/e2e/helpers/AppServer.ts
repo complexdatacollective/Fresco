@@ -87,7 +87,7 @@ export class AppServer {
         PORT: String(port),
         HOSTNAME: '0.0.0.0',
         DATABASE_URL: opts.databaseUrl,
-        DATABASE_URL_UNPOOLED: opts.databaseUrl,
+        DIRECT_URL: opts.databaseUrl,
         SKIP_ENV_VALIDATION: 'true',
         DISABLE_ANALYTICS: 'true',
         DISABLE_NEXT_CACHE: 'true',

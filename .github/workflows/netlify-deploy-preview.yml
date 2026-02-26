@@ -29,9 +29,6 @@ jobs:
             exit 0
           fi
 
-      - name: Setup
-        uses: complexdatacollective/github-actions/setup-pnpm@v1
-
       - name: Get branch name
         id: branch-name
         uses: tj-actions/branch-names@v9
@@ -42,41 +39,49 @@ jobs:
         with:
           project_id: ${{ vars.NEON_PROJECT_ID }}
           branch_name: preview/pr-${{ steps.pr.outputs.number }}-${{ steps.branch-name.outputs.current_branch }}
-          database: ${{ vars.NEON_DATABASE_NAME }}
-          role: ${{ vars.NEON_DATABASE_USERNAME }}
           api_key: ${{ secrets.NEON_API_KEY }}
-          prisma: true
+
+      - name: Setup
+        uses: complexdatacollective/github-actions/setup-pnpm@v1
+
+      - name: Run Migrations
+        run: npx tsx scripts/setup-database.ts
+        env:
+          DIRECT_URL: ${{ steps.create-branch.outputs.db_url }}
+          DATABASE_URL: ${{ steps.create-branch.outputs.db_url_with_pooler }}
 
       - name: Install Netlify CLI
         run: pnpm add -g netlify-cli
 
-      - name: Set Neon database URLs in Netlify
-        run: |
-          netlify env:set DATABASE_URL "${{ steps.create-branch.outputs.db_url_pooled }}" --context branch:${{ steps.branch-name.outputs.current_branch }}
-          netlify env:set DATABASE_URL_UNPOOLED "${{ steps.create-branch.outputs.db_url }}" --context branch:${{ steps.branch-name.outputs.current_branch }}
+      # - name: Build
+      #   run: netlify build --context branch:${{ steps.branch-name.outputs.current_branch }}
 
-      - name: Create .env for build
-        run: |
-          echo "DATABASE_URL=${{ steps.create-branch.outputs.db_url_pooled }}" > .env
-          echo "DATABASE_URL_UNPOOLED=${{ steps.create-branch.outputs.db_url }}" >> .env
-          echo "POSTHOG_PERSONAL_API_KEY=${{ secrets.POSTHOG_PERSONAL_API_KEY }}" >> .env
-          echo "POSTHOG_PROJECT_ID=${{ secrets.POSTHOG_PROJECT_ID }}" >> .env
+      # - name: Deploy preview
+      #   id: deploy
+      #   run: |
+      #     netlify deploy --alias="pr-${{ steps.pr.outputs.number }}" --json > netlify-deploy.json
+      #     echo "deploy_url=$(jq -r '.deploy_url' netlify-deploy.json)" >> "$GITHUB_OUTPUT"
 
-      - name: Build
-        run: netlify build --context branch:${{ steps.branch-name.outputs.current_branch }}
-
-      - name: Deploy preview
+      - name: Deploy Preview to Netlify with CLI
         id: deploy
         run: |
-          netlify deploy --alias="pr-${{ steps.pr.outputs.number }}" --json > netlify-deploy.json
-          echo "deploy_url=$(jq -r '.deploy_url' netlify-deploy.json)" >> "$GITHUB_OUTPUT"
+          # Pull down the environment variables for the deploy-preview context
+          netlify env:list --context deploy-preview --plain >> .env
+          # Add the database connection URLs to the .env file
+          echo DIRECT_URL="${{ steps.create-branch.outputs.db_url }}" >> .env
+          echo DATABASE_URL="${{ steps.create-branch.outputs.db_url_with_pooler }}" >> .env
+          # Deploy the preview to Netlify
+          netlify deploy --alias="pr-${{ github.event.number }}" --context=deploy-preview --json > netlify-deploy.json
+          # Get the deploy URL from the netlify-deploy.json file
+          DEPLOY_URL=$(cat netlify-deploy.json | jq -r '.deploy_url')
+          # Export the deploy URL as an output for this step
+          echo "deploy_url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
 
       - name: Comment on Pull Request
-        uses: peter-evans/create-or-update-comment@v5
+        uses: thollander/actions-comment-pull-request@v2
         with:
-          issue-number: ${{ steps.pr.outputs.number }}
-          body: |
+          message: |
             | Resource | Link |
             |----------|------|
-            | Netlify Preview | ${{ steps.deploy.outputs.deploy_url }} |
-            | Neon branch | https://console.neon.tech/app/projects/${{ vars.NEON_PROJECT_ID }}/branches/${{ steps.create-branch.outputs.branch_id }} |
+            | Netlify Preview 🚀 | ${{ steps.deploy.outputs.deploy_url }} |
+            | Neon branch 🐘 | https://console.neon.tech/app/projects/${{ env.NEON_PROJECT_ID }}/branches/${{ steps.create-branch.outputs.branch_id }} |

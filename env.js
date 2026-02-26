@@ -8,8 +8,8 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
+    DIRECT_URL: z.string(),
     DATABASE_URL: z.string(),
-    DATABASE_URL_UNPOOLED: z.string(),
     PUBLIC_URL: z.string().url().optional(),
     USE_NEON_POSTGRES_ADAPTER: z.stringbool().optional(),
   },
@@ -52,7 +52,7 @@ export const env = createEnv({
    */
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
-    DATABASE_URL_UNPOOLED: process.env.DATABASE_URL_UNPOOLED,
+    DIRECT_URL: process.env.DIRECT_URL,
     NODE_ENV: process.env.NODE_ENV,
     CI: process.env.CI,
     PUBLIC_URL: process.env.PUBLIC_URL,

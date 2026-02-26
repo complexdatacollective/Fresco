@@ -9,6 +9,6 @@ export default defineConfig({
     // Note: do _not_ use the prisma/config `env()` utility, as it enforces
     // that the variable is set at config time, which breaks certain workflows
     // (e.g. generating the client without a live database connection).
-    url: env.DATABASE_URL,
+    url: env.DIRECT_URL,
   },
 }) satisfies PrismaConfig;
