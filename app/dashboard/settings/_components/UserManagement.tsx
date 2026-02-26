@@ -4,6 +4,7 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { Plus, User } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { z } from 'zod';
+import { resetTotpForUser } from '~/actions/totp';
 import {
   changePassword,
   checkUsernameAvailable,
@@ -63,6 +64,7 @@ function makeUserColumns(
   currentUserId: string,
   userCount: number,
   onDeleteUser: (user: UserRow) => void,
+  onResetTotp: (user: UserRow) => void,
 ): ColumnDef<UserRow>[] {
   return [
     {
@@ -119,16 +121,28 @@ function makeUserColumns(
       cell: ({ row }) => {
         const isCurrentUser = row.original.id === currentUserId;
         const isLastUser = userCount <= 1;
+        const hasTwoFactor = row.original.totpCredential?.verified;
         return (
-          <Button
-            onClick={() => onDeleteUser(row.original)}
-            color="destructive"
-            size="sm"
-            disabled={isCurrentUser || isLastUser}
-            data-testid={`delete-user-${row.original.username}`}
-          >
-            Delete
-          </Button>
+          <div className="flex gap-2">
+            {hasTwoFactor && !isCurrentUser && (
+              <Button
+                onClick={() => onResetTotp(row.original)}
+                size="sm"
+                data-testid={`reset-2fa-${row.original.username}`}
+              >
+                Reset 2FA
+              </Button>
+            )}
+            <Button
+              onClick={() => onDeleteUser(row.original)}
+              color="destructive"
+              size="sm"
+              disabled={isCurrentUser || isLastUser}
+              data-testid={`delete-user-${row.original.username}`}
+            >
+              Delete
+            </Button>
+          </div>
         );
       },
     },
@@ -175,10 +189,35 @@ export default function UserManagement({
     [confirm, doDeleteUsers],
   );
 
+  const handleResetTotp = useCallback(
+    (user: UserRow) => {
+      void confirm({
+        title: 'Reset Two-Factor Authentication',
+        description: `This will disable two-factor authentication for ${user.username}. They will need to set it up again.`,
+        confirmLabel: 'Reset 2FA',
+        intent: 'destructive',
+        onConfirm: async () => {
+          const result = await resetTotpForUser(user.id);
+          if (result.error) {
+            setError(result.error);
+          } else {
+            setUsers((prev) =>
+              prev.map((u) =>
+                u.id === user.id ? { ...u, totpCredential: null } : u,
+              ),
+            );
+          }
+        },
+      });
+    },
+    [confirm],
+  );
+
   const columns = makeUserColumns(
     currentUserId,
     users.length,
     handleDeleteUser,
+    handleResetTotp,
   );
 
   const handleCreateUser = async (
@@ -213,7 +252,10 @@ export default function UserManagement({
       };
     }
 
-    setUsers([...users, { id: crypto.randomUUID(), username }]);
+    setUsers([
+      ...users,
+      { id: crypto.randomUUID(), username, totpCredential: null },
+    ]);
     setIsCreating(false);
     return { success: true };
   };

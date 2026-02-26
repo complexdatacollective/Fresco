@@ -8,7 +8,7 @@ import { prisma } from '~/lib/db';
 export async function resetDatabase(): Promise<void> {
   // Delete all data from all tables
   // Note: Some models cascade-delete their children:
-  // - User cascades to Session, Key
+  // - User cascades to Session, Key, TotpCredential, RecoveryCode
   // - Protocol cascades to Interview
   // - Participant cascades to Interview
   await Promise.all([
@@ -19,6 +19,7 @@ export async function resetDatabase(): Promise<void> {
     prisma.events.deleteMany(),
     prisma.asset.deleteMany(),
     prisma.apiToken.deleteMany(),
+    prisma.loginAttempt.deleteMany(),
   ]);
 
   // Create fresh initializedAt setting

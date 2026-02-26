@@ -35,6 +35,12 @@ export const activityTypes = [
   'User Created',
   'User Deleted',
   'Password Changed',
+  'Two-Factor Enabled',
+  'Two-Factor Disabled',
+  'Two-Factor Reset',
+  'Two-Factor Login',
+  'Recovery Code Used',
+  'Recovery Codes Regenerated',
 ] as const;
 
 export type ActivityType = (typeof activityTypes)[number];
