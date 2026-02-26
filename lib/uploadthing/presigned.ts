@@ -1,5 +1,6 @@
 import { createHmac } from 'crypto';
 import Sqids, { defaultOptions } from 'sqids';
+import { env } from '~/env';
 import { getAppSetting } from '~/queries/appSettings';
 
 export type ParsedToken = {
@@ -139,4 +140,56 @@ export function generatePresignedUploadUrl(
     fileUrl,
     expiresAt,
   };
+}
+
+type RegisterUploadOptions = {
+  fileKeys: string[];
+  tokenData: ParsedToken;
+  callbackUrl: string;
+  callbackSlug?: string;
+};
+
+/**
+ * Register file uploads with UploadThing's route-metadata endpoint.
+ * This is required for CORS to work properly in Firefox/Safari.
+ */
+export async function registerUploadWithUploadThing(
+  options: RegisterUploadOptions,
+): Promise<void> {
+  const {
+    fileKeys,
+    tokenData,
+    callbackUrl,
+    callbackSlug = 'assetRouter',
+  } = options;
+  const { apiKey, regions, ingestHost } = tokenData;
+
+  const region = regions[0] ?? 'sea1';
+  const ingestUrl = `https://${region}.${ingestHost}`;
+
+  const response = await fetch(`${ingestUrl}/route-metadata`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-uploadthing-api-key': apiKey,
+      'x-uploadthing-version': '7.4.0',
+      'x-uploadthing-be-adapter': 'server',
+      'x-uploadthing-fe-package': '@uploadthing/react',
+    },
+    body: JSON.stringify({
+      fileKeys,
+      metadata: {},
+      isDev: env.NODE_ENV === 'development',
+      callbackUrl,
+      callbackSlug,
+      awaitServerData: false,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Failed to register upload with UploadThing: ${response.status} ${errorText}`,
+    );
+  }
 }

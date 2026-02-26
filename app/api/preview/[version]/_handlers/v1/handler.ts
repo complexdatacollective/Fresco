@@ -10,6 +10,7 @@ import { validateAndMigrateProtocol } from '~/lib/protocol/validateAndMigratePro
 import {
   generatePresignedUploadUrl,
   parseUploadThingToken,
+  registerUploadWithUploadThing,
 } from '~/lib/uploadthing/presigned';
 import { getUTApi } from '~/lib/uploadthing/server-helpers';
 import { getExistingAssets } from '~/queries/protocols';
@@ -143,7 +144,18 @@ export async function v1(request: NextRequest) {
         });
 
         const presignedUrls = presignedData.map((d) => d.uploadUrl);
+        const fileKeys = presignedData.map((d) => d.assetRecord.key);
         const assetsToCreate = presignedData.map((d) => d.assetRecord);
+
+        // Register the uploads with UploadThing to enable CORS for browser uploads
+        if (fileKeys.length > 0) {
+          const callbackUrl = `${env.PUBLIC_URL ?? request.nextUrl.origin}/api/uploadthing`;
+          await registerUploadWithUploadThing({
+            fileKeys,
+            tokenData: tokenData!,
+            callbackUrl,
+          });
+        }
 
         // Create the protocol with assets immediately
         // Mark as pending if there are assets to upload
