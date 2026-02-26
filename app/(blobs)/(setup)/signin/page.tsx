@@ -1,4 +1,5 @@
 import { Loader2 } from 'lucide-react';
+import { type Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { containerClasses } from '~/components/ContainerClasses';
@@ -9,7 +10,7 @@ import { cx } from '~/utils/cva';
 import SandboxCredentials from '../_components/SandboxCredentials';
 import { SignInForm } from '../_components/SignInForm';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Fresco - Sign In',
   description: 'Sign in to Fresco.',
 };

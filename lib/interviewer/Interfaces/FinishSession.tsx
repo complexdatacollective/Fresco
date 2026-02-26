@@ -1,3 +1,5 @@
+'use client';
+
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import Surface from '~/components/layout/Surface';
@@ -25,10 +27,13 @@ const FinishSession = () => {
         if (!interviewId) {
           throw new Error('No interview id found');
         }
-        const { finishInterview } = await import('~/actions/interviews');
-        const finished = await finishInterview(interviewId);
 
-        if (finished && !finished.error) {
+        const response = await fetch(`/interview/${interviewId}/finish`, {
+          method: 'POST',
+        });
+        const result = (await response.json()) as { error: string | null };
+
+        if (!result.error) {
           router.push(`/interview/finished`);
         }
       },

@@ -1,9 +1,6 @@
 'use server';
 
-import { type NcNetwork } from '@codaco/shared-consts';
 import { createId } from '@paralleldrive/cuid2';
-import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
 import { after } from 'next/server';
 import superjson from 'superjson';
 import {
@@ -258,42 +255,5 @@ export async function createInterview(data: CreateInterview) {
       error: 'Failed to create interview',
       createdInterviewId: null,
     };
-  }
-}
-
-export async function finishInterview(interviewId: Interview['id']) {
-  try {
-    const updatedInterview = await prisma.interview.update({
-      where: {
-        id: interviewId,
-      },
-      data: {
-        finishTime: new Date(),
-      },
-    });
-
-    const network = JSON.parse(
-      JSON.stringify(updatedInterview.network),
-    ) as NcNetwork;
-
-    void addEvent(
-      'Interview Completed',
-      `Interview with ID ${interviewId} has been completed`,
-      {
-        nodeCount: network?.nodes?.length ?? 0,
-        edgeCount: network?.edges?.length ?? 0,
-      },
-    );
-
-    (await cookies()).set(updatedInterview.protocolId, 'completed');
-
-    safeUpdateTag('getInterviews');
-    safeUpdateTag('summaryStatistics');
-    safeUpdateTag('activityFeed');
-    revalidatePath('/dashboard');
-
-    return { error: null };
-  } catch (error) {
-    return { error: 'Failed to finish interview' };
   }
 }

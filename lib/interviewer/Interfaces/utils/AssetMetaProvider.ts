@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux';
-import { type Asset } from '~/lib/db/generated/client';
+import { type Asset } from '~/lib/db/generated/browser';
 import { getAssetManifest } from '../../ducks/modules/protocol';
 
 const AssetMetaProvider = ({
