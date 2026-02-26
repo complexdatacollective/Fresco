@@ -220,12 +220,12 @@ export async function createInterview(data: CreateInterview) {
       },
     });
 
+    const { label, identifier } = createdInterview.participant;
+    const participantDisplay = label ? `${label} (${identifier})` : identifier;
+
     void addEvent(
       'Interview Started',
-      `Participant "${
-        createdInterview.participant.label ??
-        createdInterview.participant.identifier
-      }" started an interview`,
+      `Participant "${participantDisplay}" started an interview`,
     );
 
     /**

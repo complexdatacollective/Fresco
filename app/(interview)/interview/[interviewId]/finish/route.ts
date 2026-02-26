@@ -21,7 +21,13 @@ const routeHandler = async (
       data: {
         finishTime: new Date(),
       },
+      include: {
+        participant: true,
+      },
     });
+
+    const { label, identifier } = updatedInterview.participant;
+    const participantDisplay = label ? `${label} (${identifier})` : identifier;
 
     const network = JSON.parse(
       JSON.stringify(updatedInterview.network),
@@ -29,7 +35,7 @@ const routeHandler = async (
 
     void addEvent(
       'Interview Completed',
-      `Interview with ID ${interviewId} has been completed`,
+      `Participant "${participantDisplay}" completed an interview`,
       {
         nodeCount: network?.nodes?.length ?? 0,
         edgeCount: network?.edges?.length ?? 0,
