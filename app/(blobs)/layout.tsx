@@ -2,8 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { type PropsWithChildren, Suspense } from 'react';
 import BackgroundBlobs from '~/components/BackgroundBlobs/BackgroundBlobs';
-import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
-import { env } from '~/env';
+import NetlifyBadge from '~/components/NetlifyBadge';
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
@@ -11,29 +10,18 @@ export default function Layout({ children }: PropsWithChildren) {
       <div className="relative z-10 flex min-h-dvh w-dvw flex-col">
         <Link href="/">
           <Image
-            src="/images/NC-Type and Mark Wide Pos_LRG-4x.png"
-            width={300}
-            height={84.05}
+            src="/images/NC-Type and Mark Wide Pos.svg"
+            width={545.52}
+            height={131.61}
             priority
             alt="Network Canvas"
-            className="h-auto w-[300px] p-4"
+            className="h-auto w-md p-4"
           />
         </Link>
         <main className="tablet:items-center tablet:py-0 flex grow items-start justify-center overflow-y-auto py-4">
           {children}
         </main>
-        {env.SANDBOX_MODE && (
-          <ResponsiveContainer>
-            <footer className="z-1 flex justify-center py-4">
-              <a href="https://www.netlify.com">
-                <img
-                  src="https://www.netlify.com/assets/badges/netlify-badge-color-accent.svg"
-                  alt="Deploys by Netlify"
-                />
-              </a>
-            </footer>
-          </ResponsiveContainer>
-        )}
+        <NetlifyBadge />
       </div>
       <div
         data-testid="background-blobs"
