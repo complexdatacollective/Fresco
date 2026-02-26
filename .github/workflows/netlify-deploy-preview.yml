@@ -1,9 +1,7 @@
 name: Deploy Preview
 
 on:
-  push:
-    branches-ignore:
-      - main
+  pull_request:
 
 permissions:
   contents: read
@@ -16,19 +14,6 @@ jobs:
       NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
       NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
     steps:
-      - name: Get PR number
-        id: pr
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          PR_NUMBER=$(gh pr list --repo "${{ github.repository }}" --head "${{ github.ref_name }}" --json number --jq '.[0].number')
-          if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
-            echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
-          else
-            echo "No open PR for branch ${{ github.ref_name }}, skipping deploy"
-            exit 0
-          fi
-
       - name: Get branch name
         id: branch-name
         uses: tj-actions/branch-names@v9
@@ -38,7 +23,7 @@ jobs:
         uses: neondatabase/create-branch-action@v6
         with:
           project_id: ${{ vars.NEON_PROJECT_ID }}
-          branch_name: preview/pr-${{ steps.pr.outputs.number }}-${{ steps.branch-name.outputs.current_branch }}
+          branch_name: preview/pr-${{ github.event.number }}-${{ steps.branch-name.outputs.current_branch }}
           api_key: ${{ secrets.NEON_API_KEY }}
 
       - name: Setup
@@ -75,4 +60,4 @@ jobs:
             | Resource | Link |
             |----------|------|
             | Netlify Preview 🚀 | ${{ steps.deploy.outputs.deploy_url }} |
-            | Neon branch 🐘 | https://console.neon.tech/app/projects/${{ env.NEON_PROJECT_ID }}/branches/${{ steps.create-branch.outputs.branch_id }} |
+            | Neon branch 🐘 | https://console.neon.tech/app/projects/${{ vars.NEON_PROJECT_ID }}/branches/${{ steps.create-branch.outputs.branch_id }} |
