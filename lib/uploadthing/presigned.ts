@@ -1,6 +1,5 @@
 import { createHmac } from 'crypto';
 import Sqids, { defaultOptions } from 'sqids';
-import { env } from '~/env';
 import { getAppSetting } from '~/queries/appSettings';
 
 export type ParsedToken = {
@@ -179,7 +178,7 @@ export async function registerUploadWithUploadThing(
     body: JSON.stringify({
       fileKeys,
       metadata: {},
-      isDev: env.NODE_ENV === 'development',
+      isDev: false, // Always false - isDev: true causes 60s delays waiting for dev webhook stream
       callbackUrl,
       callbackSlug,
       awaitServerData: false,
