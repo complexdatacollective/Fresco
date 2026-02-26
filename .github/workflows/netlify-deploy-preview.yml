@@ -60,5 +60,4 @@ jobs:
           message: |
             | Resource | Link |
             |----------|------|
-            | Netlify Preview 🚀 | https://${{ steps.branch-name.outputs.current_branch }}--${{ vars.NETLIFY_SITE_NAME }}.netlify.app |
             | Neon branch 🐘 | https://console.neon.tech/app/projects/${{ vars.NEON_PROJECT_ID }}/branches/${{ steps.create-branch.outputs.branch_id }} |
