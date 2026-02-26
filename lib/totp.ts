@@ -10,7 +10,6 @@ import {
 import { Secret, TOTP } from 'otpauth';
 import { toDataURL } from 'qrcode';
 
-const ISSUER = 'Fresco';
 const RECOVERY_CODE_COUNT = 10;
 const RECOVERY_CODE_BYTES = 10;
 const TWO_FACTOR_TOKEN_TTL_MS = 5 * 60 * 1000;
@@ -26,9 +25,13 @@ export function generateTotpSecret(): string {
   return secret.base32;
 }
 
-export function generateTotpUri(secret: string, username: string): string {
+export function generateTotpUri(
+  secret: string,
+  username: string,
+  issuer: string,
+): string {
   const totp = new TOTP({
-    issuer: ISSUER,
+    issuer,
     label: username,
     secret: Secret.fromBase32(secret),
   });
@@ -38,7 +41,6 @@ export function generateTotpUri(secret: string, username: string): string {
 
 export function verifyTotpCode(secret: string, code: string): boolean {
   const totp = new TOTP({
-    issuer: ISSUER,
     secret: Secret.fromBase32(secret),
   });
 

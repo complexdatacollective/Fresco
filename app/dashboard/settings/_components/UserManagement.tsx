@@ -342,33 +342,32 @@ export default function UserManagement({
   return (
     <div className="space-y-6">
       <Heading level="label">Current User</Heading>
-      <Surface
-        level={1}
-        className="tablet:flex-row tablet:items-center tablet:justify-between mt-2 flex flex-col gap-4 p-6"
-        spacing="sm"
-      >
-        <div className="tablet:gap-6 flex items-center gap-4">
-          <div className="bg-surface-2 text-surface-2-contrast tablet:size-14 inset-surface flex size-10 shrink-0 items-center justify-center rounded-full">
-            <User className="tablet:size-8 size-5" />
+      <Surface level={1} className="mt-2 flex flex-col gap-4 p-6" spacing="sm">
+        <div className="tablet:flex-row tablet:items-center tablet:justify-between flex flex-col gap-4">
+          <div className="tablet:gap-6 flex items-center gap-4">
+            <div className="bg-surface-2 text-surface-2-contrast tablet:size-14 inset-surface flex size-10 shrink-0 items-center justify-center rounded-full">
+              <User className="tablet:size-8 size-5" />
+            </div>
+            <div className="min-w-0">
+              <Paragraph intent="smallText" margin="none">
+                Logged in as:
+              </Paragraph>
+              <Paragraph className="truncate font-medium">
+                {currentUsername}
+              </Paragraph>
+            </div>
           </div>
-          <div className="min-w-0">
-            <Paragraph intent="smallText" margin="none">
-              Logged in as:
-            </Paragraph>
-            <Paragraph className="truncate font-medium">
-              {currentUsername}
-            </Paragraph>
-          </div>
+          <Button
+            onClick={() => setIsChangingPassword(true)}
+            size="sm"
+            className="tablet:w-auto w-full"
+          >
+            Change Password
+          </Button>
         </div>
-        <Button
-          onClick={() => setIsChangingPassword(true)}
-          size="sm"
-          className="tablet:w-auto w-full"
-        >
-          Change Password
-        </Button>
+        <hr className="border-surface-2" />
+        <TwoFactorSettings hasTwoFactor={hasTwoFactor} userCount={userCount} />
       </Surface>
-      <TwoFactorSettings hasTwoFactor={hasTwoFactor} userCount={userCount} />
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <Heading level="label">All Users</Heading>

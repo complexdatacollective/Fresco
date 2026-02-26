@@ -36,20 +36,20 @@ describe('generateTotpSecret', () => {
 describe('generateTotpUri', () => {
   it('returns a string starting with otpauth://totp/', () => {
     const secret = generateTotpSecret();
-    const uri = generateTotpUri(secret, 'testuser');
+    const uri = generateTotpUri(secret, 'testuser', 'Fresco (localhost)');
     expect(uri).toMatch(/^otpauth:\/\/totp\//);
   });
 
   it('contains the issuer Fresco', () => {
     const secret = generateTotpSecret();
-    const uri = generateTotpUri(secret, 'testuser');
+    const uri = generateTotpUri(secret, 'testuser', 'Fresco (localhost)');
     expect(uri).toContain('Fresco');
   });
 
   it('contains the username in the label', () => {
     const secret = generateTotpSecret();
     const username = 'alice@example.com';
-    const uri = generateTotpUri(secret, username);
+    const uri = generateTotpUri(secret, username, 'Fresco (localhost)');
     expect(uri).toContain(encodeURIComponent(username));
   });
 });
@@ -187,7 +187,7 @@ describe('createTwoFactorToken and verifyTwoFactorToken', () => {
 describe('generateQrCodeDataUrl', () => {
   it('returns a data URL starting with data:image/png;base64,', async () => {
     const secret = generateTotpSecret();
-    const uri = generateTotpUri(secret, 'testuser');
+    const uri = generateTotpUri(secret, 'testuser', 'Fresco (localhost)');
     const dataUrl = await generateQrCodeDataUrl(uri);
     expect(dataUrl).toMatch(/^data:image\/png;base64,/);
   });

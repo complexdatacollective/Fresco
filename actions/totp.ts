@@ -12,6 +12,7 @@ import {
 } from '~/lib/totp';
 import { disableTotpSchema, verifyTotpSetupSchema } from '~/schemas/totp';
 import { requireApiAuth } from '~/utils/auth';
+import { getBaseUrl } from '~/utils/getBaseUrl';
 import { addEvent } from './activityFeed';
 
 export async function enableTotp() {
@@ -33,8 +34,11 @@ export async function enableTotp() {
     },
   });
 
+  const hostname = new URL(getBaseUrl()).hostname;
+  const issuer = `Fresco (${hostname})`;
+
   const qrCodeDataUrl = await generateQrCodeDataUrl(
-    generateTotpUri(secret, session.user.username),
+    generateTotpUri(secret, session.user.username, issuer),
   );
 
   return { error: null, data: { secret, qrCodeDataUrl } };

@@ -57,6 +57,7 @@ export default function TwoFactorVerify({
       )}
       <Button
         type="submit"
+        color="primary"
         disabled={Boolean(isSubmitting) || code.length === 0}
       >
         {isSubmitting ? 'Verifying...' : 'Verify'}

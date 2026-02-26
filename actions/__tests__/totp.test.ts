@@ -136,6 +136,10 @@ vi.mock('~/utils/auth', () => ({
   getServerSession: vi.fn(),
 }));
 
+vi.mock('~/utils/getBaseUrl', () => ({
+  getBaseUrl: () => 'https://fresco.example.com',
+}));
+
 vi.mock('~/utils/getClientIp', () => ({
   getClientIp: vi.fn().mockResolvedValue('127.0.0.1'),
 }));
@@ -247,6 +251,7 @@ describe('enableTotp', () => {
     expect(mockGenerateTotpUri).toHaveBeenCalledWith(
       TOTP_SECRET,
       CURRENT_USERNAME,
+      'Fresco (fresco.example.com)',
     );
     expect(mockGenerateQrCodeDataUrl).toHaveBeenCalledWith(TOTP_URI);
   });

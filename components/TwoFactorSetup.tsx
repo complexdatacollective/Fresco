@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { enableTotp, verifyTotpSetup } from '~/actions/totp';
 import RecoveryCodes from '~/components/RecoveryCodes';
 import TwoFactorVerify from '~/components/TwoFactorVerify';
@@ -36,6 +36,7 @@ export default function TwoFactorSetup({
   const [verifyError, setVerifyError] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [secretCopied, setSecretCopied] = useState(false);
+  const setupCompleted = useRef(false);
 
   const handleOpen = async () => {
     setIsLoading(true);
@@ -63,11 +64,15 @@ export default function TwoFactorSetup({
     if (result.data) {
       setRecoveryCodes(result.data.recoveryCodes);
       setStep('recovery');
-      onSetupComplete?.();
+      setupCompleted.current = true;
     }
   };
 
   const handleClose = () => {
+    if (setupCompleted.current) {
+      onSetupComplete?.();
+      setupCompleted.current = false;
+    }
     setStep('generate');
     setSetupData(null);
     setRecoveryCodes([]);
