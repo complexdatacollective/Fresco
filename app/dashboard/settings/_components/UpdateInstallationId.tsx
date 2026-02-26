@@ -28,14 +28,12 @@ export default function UpdateInstallationId({
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <UpdateSettingsValue
-        settingsKey="installationId"
-        initialValue={currentId}
-        readOnly={readOnly}
-        schema={z.string().min(1, 'Installation ID cannot be empty')}
-      />
-      <div className="flex justify-end">
+    <UpdateSettingsValue
+      settingsKey="installationId"
+      initialValue={currentId}
+      readOnly={readOnly}
+      schema={z.string().min(1, 'Installation ID cannot be empty')}
+      suffixComponent={
         <Button
           disabled={readOnly ?? isRegenerating}
           onClick={handleRegenerate}
@@ -43,13 +41,12 @@ export default function UpdateInstallationId({
           size="sm"
         >
           {isRegenerating ? (
-            <Loader2 className="mr-2 animate-spin" />
+            <Loader2 className="animate-spin" />
           ) : (
-            <RefreshCw className="mr-2" />
+            <RefreshCw />
           )}
-          {isRegenerating ? 'Regenerating...' : 'Regenerate'}
         </Button>
-      </div>
-    </div>
+      }
+    />
   );
 }
