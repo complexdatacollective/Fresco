@@ -63,7 +63,7 @@ jobs:
         id: deploy
         run: |
           # Deploy the preview to Netlify
-          netlify deploy --alias="pr-${{ github.event.number }}" --context=deploy-preview --json > netlify-deploy.json
+          netlify deploy --alias="pr-${{ github.event.number }}" --context "branch:$BRANCH_NAME" --json > netlify-deploy.json
           # Get the deploy URL from the netlify-deploy.json file
           DEPLOY_URL=$(cat netlify-deploy.json | jq -r '.deploy_url')
           # Export the deploy URL as an output for this step
