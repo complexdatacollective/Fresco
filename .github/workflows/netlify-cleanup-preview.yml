@@ -23,4 +23,4 @@ jobs:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         run: |
           bunx netlify-cli env:unset DATABASE_URL --context "branch:$BRANCH_NAME"
-          bunx netlify-cli env:unset DIRECT_URL --context "branch:$BRANCH_NAME"
+          bunx netlify-cli env:unset DATABASE_URL_UNPOOLED --context "branch:$BRANCH_NAME"

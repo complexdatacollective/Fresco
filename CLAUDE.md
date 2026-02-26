@@ -231,7 +231,7 @@ function MyForm() {
 
 - Schema at `prisma/schema.prisma`
 - Client imported from `~/utils/db`
-- Uses connection pooling (DATABASE_URL) and direct connection (DIRECT_URL)
+- Uses connection pooling (DATABASE_URL) and direct connection (DATABASE_URL_UNPOOLED)
 - Key models: User, Protocol, Interview, Participant, AppSettings, Events
 
 ```typescript
