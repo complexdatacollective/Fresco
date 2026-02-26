@@ -41,6 +41,9 @@ jobs:
           branch_name: preview/pr-${{ steps.pr.outputs.number }}-${{ steps.branch-name.outputs.current_branch }}
           api_key: ${{ secrets.NEON_API_KEY }}
 
+      - name: Setup
+        uses: complexdatacollective/github-actions/setup-pnpm@v1
+
       - name: Install Netlify CLI
         run: pnpm add -g netlify-cli
 
@@ -51,9 +54,6 @@ jobs:
           # Add the database connection URLs to the .env file
           echo DIRECT_URL="${{ steps.create-branch.outputs.db_url }}" >> .env
           echo DATABASE_URL="${{ steps.create-branch.outputs.db_url_pooled }}" >> .env
-
-      - name: Setup
-        uses: complexdatacollective/github-actions/setup-pnpm@v1
 
       - name: Run Migrations
         run: npx tsx scripts/setup-database.ts
