@@ -20,6 +20,8 @@ type UINodeProps = {
   color?: NodeColorSequence;
   shape?: 'circle' | 'square';
   label?: string;
+  /** Accessibility label for the node button. Falls back to `label` if not provided. */
+  ariaLabel?: string;
   selected?: boolean;
   linking?: boolean;
   loading?: boolean;
@@ -34,6 +36,7 @@ type UINodeProps = {
 const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
   const {
     label = 'Node',
+    ariaLabel,
     color = 'node-color-seq-1',
     shape = 'circle',
     selected = false,
@@ -101,7 +104,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     label.length <= maxChars ? label : `${label.substring(0, maxChars - 3)}\u{AD}...`;
 
   return (
-    <button className={classes} ref={ref} aria-label={label} {...buttonProps}>
+    <button className={classes} ref={ref} aria-label={ariaLabel ?? label} {...buttonProps}>
       {loading && <Loader2 className="animate-spin" size={24} />}
       {!loading && <span className={labelClasses}>{labelWithEllipsis}</span>}
     </button>
