@@ -46,24 +46,17 @@ jobs:
       - name: Run Migrations
         run: npx tsx scripts/setup-database.ts
 
+      - name: Run Initialization
+        run: npx tsx scripts/initialize.ts
+
       - name: Set Netlify runtime environment variables
         run: |
-          # Set the database connection URLs scoped to this PR's branch so
-          # they're available at runtime in serverless functions without
-          # conflicting with other PRs. Netlify resolves env vars with
-          # branch-specific values taking priority over deploy-preview context.
-          netlify env:set DATABASE_URL ${{ steps.create-branch.outputs.db_url_pooled }} --context branch:${{ steps.branch-name.outputs.current_branch }}
-          netlify env:set DATABASE_URL_UNPOOLED ${{ steps.create-branch.outputs.db_url }} --context branch:${{ steps.branch-name.outputs.current_branch }}
+          netlify env:set DATABASE_URL "${{ steps.create-branch.outputs.db_url_pooled }}" --context "branch:${{ steps.branch-name.outputs.current_branch }}"
+          netlify env:set DATABASE_URL_UNPOOLED "${{ steps.create-branch.outputs.db_url }}" --context "branch:${{ steps.branch-name.outputs.current_branch }}"
 
-      - name: Deploy Preview to Netlify with CLI
-        id: deploy
+      - name: Trigger Netlify Branch Deploy
         run: |
-          # Deploy the preview to Netlify
-          netlify deploy --context branch:${{ steps.branch-name.outputs.current_branch }} --json > netlify-deploy.json
-          # Get the deploy URL from the netlify-deploy.json file
-          DEPLOY_URL=$(cat netlify-deploy.json | jq -r '.deploy_url')
-          # Export the deploy URL as an output for this step
-          echo "deploy_url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
+          curl -X POST -d '{}' "${{ secrets.NETLIFY_BUILD_HOOK_URL }}?trigger_branch=${{ steps.branch-name.outputs.current_branch }}&trigger_title=PR+%23${{ github.event.number }}+branch+deploy"
 
       - name: Comment on Pull Request
         uses: thollander/actions-comment-pull-request@v2
@@ -71,5 +64,5 @@ jobs:
           message: |
             | Resource | Link |
             |----------|------|
-            | Netlify Preview 🚀 | ${{ steps.deploy.outputs.deploy_url }} |
+            | Netlify Preview 🚀 | https://${{ steps.branch-name.outputs.current_branch }}--${{ vars.NETLIFY_SITE_NAME }}.netlify.app |
             | Neon branch 🐘 | https://console.neon.tech/app/projects/${{ vars.NEON_PROJECT_ID }}/branches/${{ steps.create-branch.outputs.branch_id }} |

@@ -1,3 +1,6 @@
 [build]
   publish = ".next"
   command = "pnpm build:platform"
+
+[context.branch-deploy]
+  command = "pnpm build:branch-preview"
