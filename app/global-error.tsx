@@ -4,12 +4,11 @@ import { ClipboardCopy } from 'lucide-react';
 import Image from 'next/image';
 import posthog from 'posthog-js';
 import { useEffect, useState } from 'react';
-import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
+import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import Link from '~/components/ui/Link';
-import { cx } from '~/utils/cva';
 
 export default function Error({
   error,
@@ -44,10 +43,7 @@ ${error.stack}`;
 
   return (
     <div className="flex h-screen items-center justify-center">
-      <ResponsiveContainer
-        baseSize="60%"
-        className={cx('shadow-platinum-dark m-10 w-[30rem] p-10 shadow-xl')}
-      >
+      <Surface>
         <div className="mb-6 flex flex-col items-center justify-center gap-2">
           <Image
             src="/images/robot.svg"
@@ -80,7 +76,7 @@ ${error.stack}`;
             Try Again
           </Button>
         </div>
-      </ResponsiveContainer>
+      </Surface>
     </div>
   );
 }

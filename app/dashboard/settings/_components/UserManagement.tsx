@@ -11,6 +11,7 @@ import {
   createUser,
   deleteUsers,
 } from '~/actions/users';
+import TwoFactorSettings from '~/app/dashboard/settings/_components/TwoFactorSettings';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { DataTable } from '~/components/DataTable/DataTable';
 import Surface from '~/components/layout/Surface';
@@ -27,7 +28,6 @@ import InputField from '~/lib/form/components/fields/InputField';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { type FormSubmissionResult } from '~/lib/form/store/types';
 import { type GetUsersReturnType } from '~/queries/users';
-import TwoFactorSettings from '~/app/dashboard/settings/_components/TwoFactorSettings';
 
 type UserRow = GetUsersReturnType[number];
 
@@ -365,6 +365,7 @@ export default function UserManagement({
             onClick={() => setIsChangingPassword(true)}
             size="sm"
             className="tablet:w-auto w-full"
+            color="primary"
           >
             Change Password
           </Button>
