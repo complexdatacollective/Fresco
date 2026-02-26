@@ -10,6 +10,7 @@ import { type FormSubmissionResult } from '~/lib/form/store/types';
 import { checkRateLimit, recordLoginAttempt } from '~/lib/rateLimit';
 import { createSessionCookie } from '~/lib/session';
 import { createTwoFactorToken } from '~/lib/totp';
+import { getInstallationId } from '~/queries/appSettings';
 import { createUserFormDataSchema, loginSchema } from '~/schemas/auth';
 import { getServerSession } from '~/utils/auth';
 import { getClientIp } from '~/utils/getClientIp';
@@ -119,12 +120,19 @@ export const login = async (data: unknown): Promise<LoginResult> => {
 
   await recordLoginAttempt(username, ipAddress, true);
 
-  const totpCredential = await prisma.totpCredential.findUnique({
+  const totpCredential = await prisma.totpCredential.findFirst({
     where: { user_id: key.user_id, verified: true },
   });
 
   if (totpCredential) {
-    const twoFactorToken = createTwoFactorToken(key.user_id);
+    const installationId = await getInstallationId();
+    if (!installationId) {
+      return {
+        success: false,
+        formErrors: ['Server configuration error. Please contact an admin.'],
+      };
+    }
+    const twoFactorToken = createTwoFactorToken(key.user_id, installationId);
     return {
       success: false,
       requiresTwoFactor: true,

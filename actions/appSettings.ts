@@ -54,6 +54,13 @@ export async function setAppSetting<
   }
 }
 
+export async function regenerateInstallationId() {
+  await requireApiAuth();
+  const newId = createId();
+  await setAppSetting('installationId', newId);
+  return newId;
+}
+
 export async function completeSetup() {
   const installationId = await getInstallationId();
   if (!installationId) {

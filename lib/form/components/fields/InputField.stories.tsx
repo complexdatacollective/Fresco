@@ -136,7 +136,7 @@ export const Sizes: Story = {
           size={size}
           placeholder={`${args.placeholder} (${size})`}
           aria-label={`${size} size input`}
-          prefixComponent={<Search className="h-4 w-4" />}
+          prefixComponent={<Search className="size-4" />}
         />
       ))}
     </div>
@@ -210,7 +210,7 @@ export const States: Story = {
             aria-label="Invalid state input"
             data-testid="invalid-input"
             suffixComponent={
-              <AlertCircle className="text-destructive h-4 w-4" />
+              <AlertCircle className="text-destructive size-4" />
             }
           />
         </div>
@@ -267,14 +267,14 @@ export const InputTypes: Story = {
           type="email"
           placeholder="email@example.com"
           aria-label="Email input"
-          prefixComponent={<Mail className="h-4 w-4" />}
+          prefixComponent={<Mail className="size-4" />}
         />
         <InputField
           {...restArgs}
           type="password"
           placeholder="Password"
           aria-label="Password input"
-          prefixComponent={<Lock className="h-4 w-4" />}
+          prefixComponent={<Lock className="size-4" />}
         />
         <InputField
           {...restArgs}
@@ -306,13 +306,13 @@ export const InputTypes: Story = {
           type="search"
           placeholder="Search..."
           aria-label="Search input"
-          prefixComponent={<Search className="h-4 w-4" />}
+          prefixComponent={<Search className="size-4" />}
         />
         <InputField
           {...restArgs}
           type="date"
           aria-label="Date input"
-          prefixComponent={<Calendar className="h-4 w-4" />}
+          prefixComponent={<Calendar className="size-4" />}
         />
       </div>
     );
@@ -350,34 +350,34 @@ export const WithIcons: Story = {
         {...args}
         placeholder="Search..."
         aria-label="Search input"
-        prefixComponent={<Search className="h-4 w-4" />}
+        prefixComponent={<Search className="size-4" />}
       />
       <InputField
         {...args}
         placeholder="Username"
         aria-label="Username input"
-        prefixComponent={<User className="h-4 w-4" />}
+        prefixComponent={<User className="size-4" />}
       />
       <InputField
         {...args}
         type="number"
         placeholder="0.00"
         aria-label="Price input"
-        prefixComponent={<DollarSign className="h-4 w-4" />}
+        prefixComponent={<DollarSign className="size-4" />}
         suffixComponent={<span className="text-sm">USD</span>}
       />
       <InputField
         {...args}
         defaultValue="Valid input"
         aria-label="Valid input"
-        suffixComponent={<Check className="text-success h-4 w-4" />}
+        suffixComponent={<Check className="text-success size-4" />}
       />
       <InputField
         {...args}
         placeholder="Loading..."
         aria-label="Loading input"
         disabled
-        suffixComponent={<Loader2 className="h-4 w-4 animate-spin" />}
+        suffixComponent={<Loader2 className="size-4 animate-spin" />}
       />
     </div>
   ),
@@ -408,7 +408,7 @@ export const PasswordInput: Story = {
         defaultValue="secretpassword"
         aria-label="Password input"
         data-testid="password-input"
-        prefixComponent={<Lock className="h-4 w-4" />}
+        prefixComponent={<Lock className="size-4" />}
         suffixComponent={
           <button
             type="button"
@@ -418,9 +418,9 @@ export const PasswordInput: Story = {
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
             {showPassword ? (
-              <EyeOff className="h-4 w-4" />
+              <EyeOff className="size-4" />
             ) : (
-              <Eye className="h-4 w-4" />
+              <Eye className="size-4" />
             )}
           </button>
         }
@@ -475,7 +475,7 @@ export const ClearableInput: Story = {
                 className="hover:text-current"
                 aria-label="Clear input"
               >
-                <X className="h-4 w-4" />
+                <X className="size-4" />
               </button>
             )
           }

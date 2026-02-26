@@ -82,7 +82,7 @@ function ToastItem({ toast }: ToastItemProps) {
       <Toast.Content className="flex gap-3 overflow-hidden transition-opacity duration-250 data-behind:pointer-events-none data-behind:opacity-0 data-expanded:pointer-events-auto data-expanded:opacity-100">
         {IconComponent && (
           <IconComponent
-            className="mt-[0.1em] h-5 w-5 shrink-0"
+            className="mt-[0.1em] size-5 shrink-0"
             aria-hidden="true"
           />
         )}

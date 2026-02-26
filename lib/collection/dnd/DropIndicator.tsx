@@ -33,15 +33,15 @@ export function DropIndicator({ target, className }: DropIndicatorProps) {
   return (
     <div
       className={cx(
-        'bg-primary pointer-events-none absolute right-0 left-0 z-10 h-1',
+        'bg-primary pointer-events-none absolute inset-x-0 z-10 h-1',
         target.position === 'before' ? '-top-0.5' : '-bottom-0.5',
         className,
       )}
       data-drop-indicator={target.position}
       data-target-key={target.key}
     >
-      <div className="bg-primary absolute top-1/2 left-0 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-lg" />
-      <div className="bg-primary absolute top-1/2 right-0 h-3 w-3 translate-x-1/2 -translate-y-1/2 rounded-full shadow-lg" />
+      <div className="bg-primary absolute top-1/2 left-0 size-3 -translate-1/2 rounded-full shadow-lg" />
+      <div className="bg-primary absolute top-1/2 right-0 size-3 translate-x-1/2 -translate-y-1/2 rounded-full shadow-lg" />
     </div>
   );
 }

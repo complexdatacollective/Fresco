@@ -41,7 +41,7 @@ export default function TwoFactorVerify({
         pattern={useRecovery ? '[0-9a-f]*' : '[0-9]*'}
         autoComplete="one-time-code"
         autoFocus
-        placeholder={useRecovery ? 'a1b2c3d4e5f6g7h8i9j0' : '000000'}
+        placeholder={useRecovery ? '0123456789abcdef0123' : '000000'}
         className={cx(
           'bg-input text-input-contrast rounded border-2 border-transparent px-4 py-2',
           'font-monospace text-center text-lg tracking-widest',

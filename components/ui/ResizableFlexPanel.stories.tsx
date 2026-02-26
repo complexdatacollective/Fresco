@@ -194,7 +194,7 @@ export const NameGeneratorMockup: Story = {
         {Array.from({ length: 12 }, (_, i) => (
           <div
             key={i}
-            className="flex h-16 w-16 items-center justify-center rounded-full bg-[#6366f1] text-xs text-white"
+            className="flex size-16 items-center justify-center rounded-full bg-[#6366f1] text-xs text-white"
           >
             Node {i + 1}
           </div>

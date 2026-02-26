@@ -83,7 +83,7 @@ export function CollectionFilterInput({
   const statusText = filterManager.isIndexing ? indexingText : loadingText;
 
   const defaultLoadingIndicator = (
-    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+    <Loader2 className="size-4 animate-spin" aria-hidden="true" />
   );
 
   const prefixContent =
@@ -93,7 +93,7 @@ export function CollectionFilterInput({
         <span className="text-sm text-current/70">{statusText}</span>
       </div>
     ) : (
-      <Search className="h-4 w-4" aria-hidden="true" />
+      <Search className="size-4" aria-hidden="true" />
     );
 
   const suffixContent = (

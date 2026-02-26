@@ -10,6 +10,7 @@ import {
   verifyTotpCode,
   verifyTwoFactorToken,
 } from '~/lib/totp';
+import { getInstallationId } from '~/queries/appSettings';
 import { verifyTwoFactorSchema } from '~/schemas/totp';
 import { getClientIp } from '~/utils/getClientIp';
 import { addEvent } from './activityFeed';
@@ -27,7 +28,14 @@ export async function verifyTwoFactor(
 
   const { twoFactorToken, code } = parsed.data;
 
-  const tokenResult = verifyTwoFactorToken(twoFactorToken);
+  const installationId = await getInstallationId();
+  if (!installationId) {
+    return {
+      success: false,
+      formErrors: ['Server configuration error. Please contact an admin.'],
+    };
+  }
+  const tokenResult = verifyTwoFactorToken(twoFactorToken, installationId);
   if (!tokenResult.valid) {
     return {
       success: false,
@@ -37,8 +45,17 @@ export async function verifyTwoFactor(
 
   const { userId } = tokenResult;
 
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { username: true },
+  });
+
+  if (!user) {
+    return { success: false, formErrors: ['User not found'] };
+  }
+
   const ipAddress = await getClientIp();
-  const rateLimitResult = await checkRateLimit(userId, ipAddress);
+  const rateLimitResult = await checkRateLimit(user.username, ipAddress);
   if (!rateLimitResult.allowed) {
     return {
       success: false,
@@ -46,7 +63,7 @@ export async function verifyTwoFactor(
     };
   }
 
-  const credential = await prisma.totpCredential.findUnique({
+  const credential = await prisma.totpCredential.findFirst({
     where: { user_id: userId, verified: true },
   });
 
@@ -62,7 +79,7 @@ export async function verifyTwoFactor(
 
   if (isTotpCode) {
     if (!verifyTotpCode(credential.secret, code)) {
-      void recordLoginAttempt(userId, ipAddress, false);
+      void recordLoginAttempt(user.username, ipAddress, false);
       return { success: false, formErrors: ['Invalid verification code'] };
     }
 
@@ -77,23 +94,19 @@ export async function verifyTwoFactor(
   if (isRecoveryCode) {
     const codeHash = hashRecoveryCode(code);
 
-    const recoveryCode = await prisma.recoveryCode.findFirst({
+    const { count } = await prisma.recoveryCode.updateMany({
       where: {
         user_id: userId,
         codeHash,
         usedAt: null,
       },
-    });
-
-    if (!recoveryCode) {
-      void recordLoginAttempt(userId, ipAddress, false);
-      return { success: false, formErrors: ['Invalid recovery code'] };
-    }
-
-    await prisma.recoveryCode.update({
-      where: { id: recoveryCode.id },
       data: { usedAt: new Date() },
     });
+
+    if (count === 0) {
+      void recordLoginAttempt(user.username, ipAddress, false);
+      return { success: false, formErrors: ['Invalid recovery code'] };
+    }
 
     await createSessionCookie(userId);
 
@@ -103,6 +116,6 @@ export async function verifyTwoFactor(
     return { success: true };
   }
 
-  void recordLoginAttempt(userId, ipAddress, false);
+  void recordLoginAttempt(user.username, ipAddress, false);
   return { success: false, formErrors: ['Invalid code format'] };
 }

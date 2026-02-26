@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { enableTotp, verifyTotpSetup } from '~/actions/totp';
 import RecoveryCodes from '~/components/RecoveryCodes';
 import TwoFactorVerify from '~/components/TwoFactorVerify';
@@ -83,10 +83,12 @@ export default function TwoFactorSetup({
     setTimeout(() => setSecretCopied(false), 2000);
   };
 
-  // Trigger generation when dialog opens
-  if (open && !setupData && !isLoading && step === 'generate') {
-    void handleOpen();
-  }
+  useEffect(() => {
+    if (open && !setupData && !isLoading && step === 'generate') {
+      void handleOpen();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   let title: string;
   let description: ReactNode;

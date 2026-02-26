@@ -318,7 +318,7 @@ function AdditionalAttributeItem({
           <motion.div
             key="item"
             layout
-            className="flex w-full items-center gap-2 px-2 py-2"
+            className="flex w-full items-center gap-2 p-2"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -329,7 +329,7 @@ function AdditionalAttributeItem({
                 onPointerDown={(e) => dragControls.start(e)}
                 className="touch-none"
               >
-                <GripVertical className="h-4 w-4 cursor-grab" />
+                <GripVertical className="size-4 cursor-grab" />
               </motion.div>
             )}
             <motion.div layout className="flex flex-1 items-center gap-3">

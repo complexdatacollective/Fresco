@@ -34,7 +34,7 @@ import AnalyticsButton from '../_components/AnalyticsButton';
 import RecruitmentTestSectionServer from '../_components/RecruitmentTestSectionServer';
 import ResetButton from '../_components/ResetButton';
 import UpdateUploadThingTokenAlert from '../_components/UpdateUploadThingTokenAlert';
-import TwoFactorSettings from './_components/TwoFactorSettings';
+
 import UpdateInstallationId from './_components/UpdateInstallationId';
 import UpdateUploadThingToken from './_components/UpdateUploadThingToken';
 import UserManagement from './_components/UserManagement';
@@ -44,7 +44,7 @@ function getSettingsSections(): SettingsSection[] {
   const sections: SettingsSection[] = [
     { id: 'app-version', title: 'App Version' },
     { id: 'user-management', title: 'User Management' },
-    { id: 'security', title: 'Security' },
+
     { id: 'configuration', title: 'Configuration' },
     { id: 'interview-settings', title: 'Interview Settings' },
     { id: 'privacy', title: 'Privacy' },
@@ -70,7 +70,6 @@ function SettingsContentSkeleton() {
       <div className="flex gap-8">
         <SettingsNavigation sections={sections} />
         <div className="min-w-0 flex-1 space-y-6">
-          <SettingsCardSkeleton rows={1} />
           <SettingsCardSkeleton rows={1} />
           <SettingsCardSkeleton rows={1} />
           <SettingsCardSkeleton rows={2} />
@@ -121,7 +120,7 @@ async function SettingsContent() {
 
   const [apiTokens, totpCredential] = await Promise.all([
     previewMode ? getApiTokens() : Promise.resolve([]),
-    prisma.totpCredential.findUnique({
+    prisma.totpCredential.findFirst({
       where: { user_id: session.user.userId, verified: true },
       select: { id: true },
     }),
@@ -144,11 +143,6 @@ async function SettingsContent() {
               users={users}
               currentUserId={session.user.userId}
               currentUsername={session.user.username}
-            />
-          </SettingsCard>
-
-          <SettingsCard id="security" title="Security" divideChildren>
-            <TwoFactorSettings
               hasTwoFactor={hasTwoFactor}
               userCount={users.length}
             />

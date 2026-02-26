@@ -9,7 +9,7 @@ const Panels = ({ children, minimize = false }: PanelsProps) => {
   return (
     <div
       className={cx(
-        'flex h-full w-full flex-col',
+        'flex size-full flex-col',
         'gap-6',
         'transition-opacity',
         'duration-(--animation-duration-standard)',

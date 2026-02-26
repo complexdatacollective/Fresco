@@ -30,6 +30,23 @@ async function getFailureCount(
   });
 }
 
+async function getLastAttemptTimestamp(
+  field: 'username' | 'ipAddress',
+  value: string,
+  since: Date,
+): Promise<Date | null> {
+  const result = await prisma.loginAttempt.findFirst({
+    where: {
+      [field]: value,
+      success: false,
+      timestamp: { gte: since },
+    },
+    orderBy: { timestamp: 'desc' },
+    select: { timestamp: true },
+  });
+  return result?.timestamp ?? null;
+}
+
 export async function checkRateLimit(
   username: string | null,
   ipAddress: string | null,
@@ -48,30 +65,39 @@ export async function checkRateLimit(
     return { allowed: true };
   }
 
-  const lastAttempt = await prisma.loginAttempt.findFirst({
-    where: {
-      success: false,
-      timestamp: { gte: windowStart },
-      OR: [
-        ...(username ? [{ username }] : []),
-        ...(ipAddress ? [{ ipAddress }] : []),
-      ],
-    },
-    orderBy: { timestamp: 'desc' },
-    select: { timestamp: true },
-  });
+  const [usernameLastAttempt, ipLastAttempt] = await Promise.all([
+    username
+      ? getLastAttemptTimestamp('username', username, windowStart)
+      : null,
+    ipAddress
+      ? getLastAttemptTimestamp('ipAddress', ipAddress, windowStart)
+      : null,
+  ]);
 
-  if (!lastAttempt) {
+  const now = Date.now();
+  let latestRetryAfter = 0;
+
+  if (usernameLastAttempt) {
+    const usernameDelay = calculateDelay(usernameFailures);
+    latestRetryAfter = Math.max(
+      latestRetryAfter,
+      usernameLastAttempt.getTime() + usernameDelay,
+    );
+  }
+
+  if (ipLastAttempt) {
+    const ipDelay = calculateDelay(ipFailures);
+    latestRetryAfter = Math.max(
+      latestRetryAfter,
+      ipLastAttempt.getTime() + ipDelay,
+    );
+  }
+
+  if (latestRetryAfter === 0 || now >= latestRetryAfter) {
     return { allowed: true };
   }
 
-  const retryAfter = lastAttempt.timestamp.getTime() + delayMs;
-
-  if (Date.now() >= retryAfter) {
-    return { allowed: true };
-  }
-
-  return { allowed: false, retryAfter };
+  return { allowed: false, retryAfter: latestRetryAfter };
 }
 
 export async function recordLoginAttempt(
@@ -87,7 +113,9 @@ export async function recordLoginAttempt(
     },
   });
 
-  await cleanupOldAttempts();
+  if (Math.random() < 0.05) {
+    await cleanupOldAttempts();
+  }
 }
 
 export async function cleanupOldAttempts(): Promise<void> {

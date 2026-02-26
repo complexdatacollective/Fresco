@@ -27,6 +27,7 @@ import InputField from '~/lib/form/components/fields/InputField';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { type FormSubmissionResult } from '~/lib/form/store/types';
 import { type GetUsersReturnType } from '~/queries/users';
+import TwoFactorSettings from '~/app/dashboard/settings/_components/TwoFactorSettings';
 
 type UserRow = GetUsersReturnType[number];
 
@@ -34,6 +35,8 @@ type UserManagementProps = {
   users: GetUsersReturnType;
   currentUserId: string;
   currentUsername: string;
+  hasTwoFactor: boolean;
+  userCount: number;
 };
 
 const usernameSchema = z
@@ -114,6 +117,14 @@ function makeUserColumns(
       },
     },
     {
+      id: '2fa',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="2FA" />
+      ),
+      cell: ({ row }) =>
+        row.original.totpCredential?.verified ? 'Enabled' : '\u2014',
+    },
+    {
       id: 'actions',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Actions" />
@@ -153,6 +164,8 @@ export default function UserManagement({
   users: initialUsers,
   currentUserId,
   currentUsername,
+  hasTwoFactor,
+  userCount,
 }: UserManagementProps) {
   const [users, setUsers] = useState(initialUsers);
   const [isCreating, setIsCreating] = useState(false);
@@ -355,6 +368,7 @@ export default function UserManagement({
           Change Password
         </Button>
       </Surface>
+      <TwoFactorSettings hasTwoFactor={hasTwoFactor} userCount={userCount} />
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <Heading level="label">All Users</Heading>
