@@ -1,4 +1,4 @@
-name: Delete Preview Branch on Neon
+name: Cleanup Deploy Preview
 on:
   pull_request:
     types: [closed]
@@ -7,9 +7,20 @@ permissions:
 jobs:
   delete-preview:
     runs-on: ubuntu-latest
+    env:
+      BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
+      PR_NUMBER: ${{ github.event.number }}
     steps:
       - uses: oven-sh/setup-bun@v2
       - name: Delete Neon Branch
-        run: bunx neonctl branches delete preview/pr-${{ github.event.number }}-${{ github.event.pull_request.head.ref }} --project-id ${{ vars.NEON_PROJECT_ID }}
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+        run: bunx neonctl branches delete "preview/pr-$PR_NUMBER-$BRANCH_NAME" --project-id ${{ vars.NEON_PROJECT_ID }}
+
+      - name: Remove branch-scoped Netlify env vars
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          bunx netlify-cli env:unset DATABASE_URL --context "branch:$BRANCH_NAME"
+          bunx netlify-cli env:unset DIRECT_URL --context "branch:$BRANCH_NAME"
