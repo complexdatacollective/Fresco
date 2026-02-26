@@ -54,10 +54,6 @@ jobs:
           netlify env:set DATABASE_URL "${{ steps.create-branch.outputs.db_url_pooled }}" --context "branch:${{ steps.branch-name.outputs.current_branch }}"
           netlify env:set DATABASE_URL_UNPOOLED "${{ steps.create-branch.outputs.db_url }}" --context "branch:${{ steps.branch-name.outputs.current_branch }}"
 
-      - name: Trigger Netlify Branch Deploy
-        run: |
-          curl -X POST -d '{}' "${{ secrets.NETLIFY_BUILD_HOOK_URL }}?trigger_branch=${{ steps.branch-name.outputs.current_branch }}&trigger_title=PR+%23${{ github.event.number }}+branch+deploy"
-
       - name: Comment on Pull Request
         uses: thollander/actions-comment-pull-request@v2
         with:
