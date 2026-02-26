@@ -1,12 +1,13 @@
-import BackgroundBlobs from '~/components/BackgroundBlobs/BackgroundBlobs';
 import Image from 'next/image';
-import type { PropsWithChildren } from 'react';
 import Link from 'next/link';
+import type { PropsWithChildren } from 'react';
+import BackgroundBlobs from '~/components/BackgroundBlobs/BackgroundBlobs';
+import NetlifyBadge from '~/components/NetlifyBadge';
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
     <>
-      <div className="relative z-10 flex h-[90dvh] w-[100dvw] flex-col">
+      <div className="relative z-10 flex min-h-dvh w-dvw flex-col">
         <div className="p-6">
           <Link href="/">
             <Image
@@ -22,8 +23,9 @@ export default function Layout({ children }: PropsWithChildren) {
         <main className="flex grow items-center justify-center">
           {children}
         </main>
+        <NetlifyBadge />
       </div>
-      <div className="text-background-primary fixed left-0 top-0 h-[100dvh] w-[100dvw] bg-navy-taupe">
+      <div className="text-background-primary bg-navy-taupe fixed top-0 left-0 h-[100dvh] w-[100dvw]">
         <BackgroundBlobs large={0} medium={3} small={4} />
       </div>
     </>

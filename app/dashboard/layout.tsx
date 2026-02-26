@@ -1,3 +1,4 @@
+import NetlifyBadge from '~/components/NetlifyBadge';
 import { getAppSetting, requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
 import { NavigationBar } from './_components/NavigationBar';
@@ -22,6 +23,7 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
       {!uploadThingToken && <UploadThingModal />}
 
       {children}
+      <NetlifyBadge />
     </>
   );
 };
