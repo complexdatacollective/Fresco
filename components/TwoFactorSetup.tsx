@@ -8,6 +8,8 @@ import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
 import Dialog from '~/lib/dialogs/Dialog';
 import { cx } from '~/utils/cva';
+import Spinner from './Spinner';
+import Paragraph from './typography/Paragraph';
 
 type TwoFactorSetupProps = {
   open: boolean;
@@ -136,9 +138,10 @@ export default function TwoFactorSetup({
             </Alert>
           )}
           {isLoading && (
-            <p className="py-8 text-center text-current/70">
-              Generating secret...
-            </p>
+            <div className="flex flex-col items-center gap-4">
+              <Spinner />
+              <Paragraph>Generating secret...</Paragraph>
+            </div>
           )}
           {setupData && (
             <>
@@ -146,14 +149,14 @@ export default function TwoFactorSetup({
                 <img
                   src={setupData.qrCodeDataUrl}
                   alt="QR code for authenticator app"
-                  width={200}
-                  height={200}
+                  width={400}
+                  height={400}
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <p className="text-sm text-current/70">
+                <Paragraph intent="smallText">
                   Can&apos;t scan the QR code? Enter this secret manually:
-                </p>
+                </Paragraph>
                 <div className="flex items-center gap-2">
                   <code
                     className={cx(
@@ -164,6 +167,7 @@ export default function TwoFactorSetup({
                     {setupData.secret}
                   </code>
                   <Button
+                    color="dynamic"
                     variant="outline"
                     size="sm"
                     onClick={() => void handleCopySecret()}
