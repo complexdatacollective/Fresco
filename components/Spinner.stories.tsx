@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Spinner from './Spinner';
 
 const meta: Meta<typeof Spinner> = {
-  title: 'UI/Spinner',
+  title: 'Components/Spinner',
   component: Spinner,
   tags: ['autodocs'],
   parameters: {

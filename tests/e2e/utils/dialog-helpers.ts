@@ -99,32 +99,3 @@ export async function submitDialog(
   await submitButton.click();
   await waitForDialogToClose(page);
 }
-
-/**
- * Select an option in a native select dropdown within a dialog.
- */
-export async function selectDialogOption(
-  page: Page,
-  optionValue: string | { index: number },
-): Promise<void> {
-  const dialog = getDialog(page);
-  const select = dialog.locator('select').first();
-  await expect(select).toBeVisible();
-
-  if (typeof optionValue === 'string') {
-    await select.selectOption(optionValue);
-  } else {
-    await select.selectOption(optionValue);
-  }
-}
-
-/**
- * Expect a dialog to contain specific text (useful for warnings).
- */
-export async function expectDialogToContain(
-  page: Page,
-  text: string | RegExp,
-): Promise<void> {
-  const dialog = getDialog(page);
-  await expect(dialog).toContainText(text);
-}

@@ -7,7 +7,7 @@ import RichTextEditorField from '../lib/form/components/fields/RichTextEditor';
 import RichTextRenderer from './RichTextRenderer';
 
 const meta: Meta<typeof RichTextRenderer> = {
-  title: 'UI/RichTextRenderer',
+  title: 'Components/RichTextRenderer',
   component: RichTextRenderer,
   parameters: {
     layout: 'centered',

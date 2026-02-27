@@ -4,7 +4,7 @@ import { type Locator, type Page, expect } from '@playwright/test';
 /**
  * Configuration options for visual snapshots
  */
-export type VisualSnapshotOptions = {
+type VisualSnapshotOptions = {
   /** Name of the snapshot file (without extension) */
   name: string;
   /** Threshold for pixel differences (0.0 to 1.0) */

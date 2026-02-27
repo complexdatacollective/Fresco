@@ -5,6 +5,11 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CONTEXT_FILE = path.join(__dirname, '../.context-data.json');
 
+export type InterviewTestData = {
+  protocol: { id: string };
+  participants: { identifier: string }[];
+};
+
 export type SerializedContext = {
   suiteId: string;
   appUrl: string;
@@ -12,25 +17,10 @@ export type SerializedContext = {
   testData?: InterviewTestData;
 };
 
-export type StoredContextData = {
+type StoredContextData = {
   contexts: Record<string, SerializedContext>;
   createdAt: string;
 };
-
-/**
- * Save context data to a file for test workers to access.
- * This is necessary because Playwright global setup runs in a separate process
- * from test workers, so globalThis values are not shared.
- */
-export async function saveContextData(
-  contexts: Record<string, SerializedContext>,
-): Promise<void> {
-  const data: StoredContextData = {
-    contexts,
-    createdAt: new Date().toISOString(),
-  };
-  await fs.writeFile(CONTEXT_FILE, JSON.stringify(data, null, 2));
-}
 
 /**
  * Load context data from file.
@@ -42,16 +32,5 @@ export async function loadContextData(): Promise<StoredContextData | null> {
     return JSON.parse(content) as StoredContextData;
   } catch {
     return null;
-  }
-}
-
-/**
- * Delete context data file (called during teardown).
- */
-export async function clearContextData(): Promise<void> {
-  try {
-    await fs.unlink(CONTEXT_FILE);
-  } catch {
-    // File may not exist, ignore
   }
 }

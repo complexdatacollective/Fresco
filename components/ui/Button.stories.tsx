@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { Fragment } from 'react';
 import {
   Check,
   ChevronRight,
@@ -10,6 +9,7 @@ import {
   Upload,
   X,
 } from 'lucide-react';
+import { Fragment } from 'react';
 import { Button, ButtonSkeleton, MotionButton } from './Button';
 import { BUTTON_COLORS } from './button-constants';
 
@@ -26,7 +26,7 @@ const iconMap = {
 };
 
 const meta = {
-  title: 'UI/Button',
+  title: 'Components/Button',
   component: Button,
   parameters: {
     layout: 'centered',

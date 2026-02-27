@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import {
-  Info,
-  CheckCircle,
   AlertCircle,
   AlertTriangle,
   Bell,
+  CheckCircle,
+  Info,
 } from 'lucide-react';
-import { Alert, AlertTitle, AlertDescription } from './Alert';
+import { Alert, AlertDescription, AlertTitle } from './Alert';
 
 const iconMap = {
   default: undefined,
@@ -19,7 +19,7 @@ const iconMap = {
 };
 
 const meta = {
-  title: 'UI/Alert',
+  title: 'Components/Alert',
   component: Alert,
   parameters: {
     layout: 'padded',

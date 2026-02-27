@@ -29,7 +29,7 @@ export async function waitForTable(
  * Wait for the search debounce to complete.
  * Use this after filling a search/filter input.
  */
-export async function waitForSearchDebounce(
+async function waitForSearchDebounce(
   page: Page,
   ms = DEFAULT_SEARCH_DEBOUNCE_MS,
 ): Promise<void> {
@@ -40,7 +40,7 @@ export async function waitForSearchDebounce(
  * Get the search/filter input for a data table.
  * Scoped to inputs with type="search" to avoid matching dialog inputs.
  */
-export async function getSearchInput(page: Page): Promise<Locator> {
+async function getSearchInput(page: Page): Promise<Locator> {
   const searchInput = page.locator('input[type="search"]').first();
   await expect(searchInput).toBeVisible({ timeout: DEFAULT_TABLE_TIMEOUT });
   return searchInput;
@@ -76,13 +76,6 @@ export async function selectAllRows(page: Page): Promise<void> {
   await selectAllCheckbox.click();
   // Wait for selection to propagate
   await page.waitForTimeout(300);
-}
-
-/**
- * Deselect all rows using the header checkbox.
- */
-export async function deselectAllRows(page: Page): Promise<void> {
-  await selectAllRows(page);
 }
 
 /**

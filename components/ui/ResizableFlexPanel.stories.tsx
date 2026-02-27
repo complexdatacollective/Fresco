@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ResizableFlexPanel } from './ResizableFlexPanel';
 
 const meta = {
-  title: 'UI/ResizableFlexPanel',
+  title: 'Components/ResizableFlexPanel',
   component: ResizableFlexPanel,
   parameters: {
     layout: 'fullscreen',

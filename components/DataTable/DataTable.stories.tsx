@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { type ColumnDef } from '@tanstack/react-table';
 import { Trash } from 'lucide-react';
@@ -18,92 +19,18 @@ type Person = {
   status: 'active' | 'inactive' | 'pending';
 };
 
-const sampleData: Person[] = [
-  {
-    id: '1',
-    name: 'Alice Johnson',
-    email: 'alice@example.com',
-    role: 'Admin',
-    status: 'active',
-  },
-  {
-    id: '2',
-    name: 'Bob Smith',
-    email: 'bob@example.com',
-    role: 'User',
-    status: 'active',
-  },
-  {
-    id: '3',
-    name: 'Carol White',
-    email: 'carol@example.com',
-    role: 'Editor',
-    status: 'inactive',
-  },
-  {
-    id: '4',
-    name: 'David Brown',
-    email: 'david@example.com',
-    role: 'Viewer',
-    status: 'pending',
-  },
-  {
-    id: '5',
-    name: 'Eve Davis',
-    email: 'eve@example.com',
-    role: 'User',
-    status: 'active',
-  },
-  {
-    id: '6',
-    name: 'Frank Wilson',
-    email: 'frank@example.com',
-    role: 'Admin',
-    status: 'active',
-  },
-  {
-    id: '7',
-    name: 'Grace Lee',
-    email: 'grace@example.com',
-    role: 'Editor',
-    status: 'inactive',
-  },
-  {
-    id: '8',
-    name: 'Henry Taylor',
-    email: 'henry@example.com',
-    role: 'User',
-    status: 'pending',
-  },
-  {
-    id: '9',
-    name: 'Iris Martinez',
-    email: 'iris@example.com',
-    role: 'Viewer',
-    status: 'active',
-  },
-  {
-    id: '10',
-    name: 'Jack Anderson',
-    email: 'jack@example.com',
-    role: 'Admin',
-    status: 'active',
-  },
-  {
-    id: '11',
-    name: 'Karen Thomas',
-    email: 'karen@example.com',
-    role: 'User',
-    status: 'active',
-  },
-  {
-    id: '12',
-    name: 'Leo Garcia',
-    email: 'leo@example.com',
-    role: 'Editor',
-    status: 'inactive',
-  },
-];
+const ROLES = ['Admin', 'User', 'Editor', 'Viewer'];
+const STATUSES: Person['status'][] = ['active', 'inactive', 'pending'];
+
+faker.seed(42);
+
+const sampleData: Person[] = Array.from({ length: 12 }, (_, i) => ({
+  id: String(i + 1),
+  name: faker.person.fullName(),
+  email: faker.internet.email().toLowerCase(),
+  role: faker.helpers.arrayElement(ROLES),
+  status: faker.helpers.arrayElement(STATUSES),
+}));
 
 const columns: ColumnDef<Person>[] = [
   {

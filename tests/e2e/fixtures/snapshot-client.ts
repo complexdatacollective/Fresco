@@ -107,7 +107,7 @@ export class DatabaseSnapshots {
    *
    * @returns A cleanup function that restores to the initial snapshot
    */
-  async isolate(): Promise<() => Promise<void>> {
+  async isolate(_name?: string): Promise<() => Promise<void>> {
     this.isolationDepth++;
 
     // Restore to initial state BEFORE the test runs
@@ -334,55 +334,5 @@ export class DatabaseSnapshots {
    */
   get testData() {
     return this.context.testData;
-  }
-}
-
-/**
- * Static utility for creating snapshots from global-setup.
- * This is used before workers are started, so it operates directly on the database.
- */
-export async function createInitialSnapshot(
-  suiteId: string,
-  databaseUrl: string,
-): Promise<{ success: boolean; tables: number; size: number }> {
-  const pool = new pg.Pool({
-    connectionString: databaseUrl,
-    max: 1,
-  });
-
-  try {
-    // Get all table names
-    const excludedList = EXCLUDED_TABLES.map((t) => `'${t}'`).join(', ');
-    const result = await pool.query<{ tablename: string }>(
-      `SELECT tablename FROM pg_tables
-       WHERE schemaname = 'public'
-       AND tablename NOT IN (${excludedList})
-       ORDER BY tablename`,
-    );
-    const tableNames = result.rows.map((row) => row.tablename);
-
-    // Dump data from all tables
-    const tableData: TableData[] = [];
-    for (const tableName of tableNames) {
-      const dataResult = await pool.query(`SELECT * FROM "${tableName}"`);
-      tableData.push({
-        tableName,
-        rows: dataResult.rows as Record<string, unknown>[],
-      });
-    }
-
-    // Write to file
-    const snapshotPath = path.join(SNAPSHOTS_DIR, suiteId, 'initial.json');
-    await fs.mkdir(path.dirname(snapshotPath), { recursive: true });
-    const content = JSON.stringify(tableData, null, 2);
-    await fs.writeFile(snapshotPath, content);
-
-    return {
-      success: true,
-      tables: tableNames.length,
-      size: content.length,
-    };
-  } finally {
-    await pool.end();
   }
 }
