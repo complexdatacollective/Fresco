@@ -109,7 +109,6 @@ function QRCodeStep({ userCount }: { userCount: number }) {
 
 function VerifyStep() {
   const { setNextEnabled, setStepData, goToStep, setBeforeNext } = useWizard();
-  const [verifyError, setVerifyError] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [code, setCode] = useState<string | undefined>(undefined);
 
@@ -125,14 +124,11 @@ function VerifyStep() {
   useEffect(() => {
     setBeforeNext(async () => {
       setIsVerifying(true);
-      setVerifyError(null);
-
       const result = await verifyTotpSetup({ code });
 
       setIsVerifying(false);
 
       if (result.error) {
-        setVerifyError(result.error);
         return false;
       }
 

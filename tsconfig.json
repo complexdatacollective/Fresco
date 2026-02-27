@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2024",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "checkJs": false,
     "skipLibCheck": true,
@@ -23,9 +19,7 @@
     "noUncheckedIndexedAccess": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": [
-        "./*"
-      ]
+      "~/*": ["./*"]
     },
     "plugins": [
       {
@@ -43,16 +37,11 @@
     "**/*.jsx",
     "**/*.cjs",
     "**/*.mjs",
-    ".storybook/**/*",
     ".next/types/**/*.ts",
     "eslint-local-rules/index.js",
     "actions/auth.ts",
     "env.js",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "storybook-static",
-    "lib/db/generated"
-  ]
+  "exclude": ["node_modules", "storybook-static", "lib/db/generated"]
 }
