@@ -1,7 +1,7 @@
 'use client';
 
 import { type ColumnDef } from '@tanstack/react-table';
-import { Plus, User } from 'lucide-react';
+import { Plus, Trash, User } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { z } from 'zod';
 import { resetTotpForUser } from '~/actions/totp';
@@ -14,10 +14,12 @@ import {
 import TwoFactorSettings from '~/app/dashboard/settings/_components/TwoFactorSettings';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { DataTable } from '~/components/DataTable/DataTable';
+import { DataTableFloatingBar } from '~/components/DataTable/DataTableFloatingBar';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
+import { useClientDataTable } from '~/hooks/useClientDataTable';
 import Dialog from '~/lib/dialogs/Dialog';
 import useDialog from '~/lib/dialogs/useDialog';
 import Field from '~/lib/form/components/Field/Field';
@@ -233,6 +235,40 @@ export default function UserManagement({
     handleResetTotp,
   );
 
+  const handleDeleteSelected = useCallback(
+    (selectedUsers: UserRow[]) => {
+      const deletableUsers = selectedUsers.filter(
+        (user) => user.id !== currentUserId,
+      );
+
+      if (deletableUsers.length === 0) {
+        setError('You cannot delete your own account');
+        return;
+      }
+
+      const isSingle = deletableUsers.length === 1;
+      void confirm({
+        title: isSingle ? 'Delete User' : 'Delete Multiple Users',
+        description: isSingle
+          ? `Are you sure you want to delete the user "${deletableUsers[0]?.username}"? This action cannot be undone.`
+          : `Are you sure you want to delete ${deletableUsers.length} users? This action cannot be undone.`,
+        confirmLabel: isSingle
+          ? 'Delete User'
+          : `Delete ${deletableUsers.length} Users`,
+        intent: 'destructive',
+        onConfirm: () => doDeleteUsers(deletableUsers),
+      });
+    },
+    [currentUserId, confirm, doDeleteUsers],
+  );
+
+  const { table } = useClientDataTable({
+    data: users,
+    columns,
+    enablePagination: false,
+    enableRowSelection: (row) => row.original.id !== currentUserId,
+  });
+
   const handleCreateUser = async (
     values: unknown,
   ): Promise<FormSubmissionResult> => {
@@ -311,34 +347,6 @@ export default function UserManagement({
     return { success: true };
   };
 
-  const handleDeleteSelected = useCallback(
-    (selectedUsers: UserRow[]) => {
-      // Filter out current user - they can't delete themselves
-      const deletableUsers = selectedUsers.filter(
-        (user) => user.id !== currentUserId,
-      );
-
-      if (deletableUsers.length === 0) {
-        setError('You cannot delete your own account');
-        return;
-      }
-
-      const isSingle = deletableUsers.length === 1;
-      void confirm({
-        title: isSingle ? 'Delete User' : 'Delete Multiple Users',
-        description: isSingle
-          ? `Are you sure you want to delete the user "${deletableUsers[0]?.username}"? This action cannot be undone.`
-          : `Are you sure you want to delete ${deletableUsers.length} users? This action cannot be undone.`,
-        confirmLabel: isSingle
-          ? 'Delete User'
-          : `Delete ${deletableUsers.length} Users`,
-        intent: 'destructive',
-        onConfirm: () => doDeleteUsers(deletableUsers),
-      });
-    },
-    [currentUserId, confirm, doDeleteUsers],
-  );
-
   return (
     <div className="space-y-6">
       <Heading level="label">Current User</Heading>
@@ -386,12 +394,25 @@ export default function UserManagement({
         </div>
 
         <DataTable
-          columns={columns}
-          data={users}
-          handleDeleteSelected={handleDeleteSelected}
+          table={table}
           surfaceLevel={1}
           emptyText="No users created yet."
           showPagination={false}
+          floatingBar={
+            <DataTableFloatingBar table={table}>
+              <Button
+                onClick={() =>
+                  handleDeleteSelected(
+                    table.getSelectedRowModel().rows.map((r) => r.original),
+                  )
+                }
+                color="destructive"
+                icon={<Trash className="size-4" />}
+              >
+                Delete Selected
+              </Button>
+            </DataTableFloatingBar>
+          }
         />
       </div>
       <FormStoreProvider>

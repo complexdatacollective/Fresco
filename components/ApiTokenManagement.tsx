@@ -9,6 +9,7 @@ import {
   updateApiToken,
 } from '~/actions/apiTokens';
 import { DataTable } from '~/components/DataTable/DataTable';
+import { useClientDataTable } from '~/hooks/useClientDataTable';
 import Dialog from '~/lib/dialogs/Dialog';
 import InputField from '~/lib/form/components/fields/InputField';
 import { type GetApiTokensReturnType } from '~/queries/apiTokens';
@@ -95,12 +96,6 @@ export default function ApiTokenManagement({
     setIsDeleting(false);
   };
 
-  const handleDeleteSelected = (data: ApiToken[]) => {
-    const token = data[0];
-    if (!token) return;
-    setTokenToDelete(token);
-  };
-
   const columns: ColumnDef<ApiToken>[] = [
     {
       accessorKey: 'description',
@@ -162,19 +157,27 @@ export default function ApiTokenManagement({
         />
       ),
     },
+    {
+      id: 'actions',
+      cell: ({ row }: { row: Row<ApiToken> }) => (
+        <Button
+          onClick={() => setTokenToDelete(row.original)}
+          color="destructive"
+          size="sm"
+          disabled={disabled}
+          data-testid={`delete-token-${row.original.description ?? 'Untitled'}`}
+        >
+          Delete
+        </Button>
+      ),
+    },
   ];
 
-  const ActionsCell = ({ row }: { row: Row<ApiToken>; data: ApiToken[] }) => (
-    <Button
-      onClick={() => setTokenToDelete(row.original)}
-      color="destructive"
-      size="sm"
-      disabled={disabled}
-      data-testid={`delete-token-${row.original.description ?? 'Untitled'}`}
-    >
-      Delete
-    </Button>
-  );
+  const { table } = useClientDataTable({
+    data: tokens,
+    columns,
+    enablePagination: false,
+  });
 
   return (
     <div className="space-y-4" data-testid="api-token-management">
@@ -188,10 +191,7 @@ export default function ApiTokenManagement({
         Create New Token
       </Button>
       <DataTable
-        data={tokens}
-        columns={columns}
-        actions={ActionsCell}
-        handleDeleteSelected={handleDeleteSelected}
+        table={table}
         surfaceLevel={1}
         emptyText="No API tokens created yet."
         showPagination={false}

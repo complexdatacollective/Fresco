@@ -1,6 +1,6 @@
 import { hash } from 'ohash';
 import { Suspense } from 'react';
-import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
+import { DataTableSkeleton } from '~/components/DataTable/DataTableSkeleton';
 import { type getActivities } from '~/queries/activityFeed';
 import ActivityFeedTable from './ActivityFeedTable';
 import { searchParamsCache } from './SearchParams';

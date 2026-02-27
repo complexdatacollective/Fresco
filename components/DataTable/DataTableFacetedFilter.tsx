@@ -21,7 +21,6 @@ export function DataTableFacetedFilter<TData, TValue>({
 }: DataTableFacetedFilterProps<TData, TValue>) {
   const selectedValues = (column?.getFilterValue() as string[]) ?? [];
 
-  // Convert Option[] to ComboboxOption[]
   const comboboxOptions: ComboboxOption[] = useMemo(
     () =>
       options.map((option) => ({

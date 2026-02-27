@@ -2,37 +2,40 @@
 
 import type { Table } from '@tanstack/react-table';
 import { Search, X } from 'lucide-react';
-import * as React from 'react';
-import { type UrlObject } from 'url';
-import { DataTableFacetedFilter } from '~/components/data-table/data-table-faceted-filter';
+import { type ReactNode } from 'react';
 import {
   type DataTableFilterableColumn,
   type DataTableSearchableColumn,
 } from '~/components/DataTable/types';
 import { Button } from '~/components/ui/Button';
 import InputField from '~/lib/form/components/fields/InputField';
+import { DataTableFacetedFilter } from './DataTableFacetedFilter';
 
 type DataTableToolbarProps<TData> = {
   table: Table<TData>;
   filterableColumns?: DataTableFilterableColumn<TData>[];
   searchableColumns?: DataTableSearchableColumn<TData>[];
-  newRowLink?: UrlObject;
-  deleteRowsAction?: React.MouseEventHandler<HTMLButtonElement>;
+  children?: ReactNode;
 };
 
 export function DataTableToolbar<TData>({
   table,
   filterableColumns = [],
   searchableColumns = [],
+  children,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters?.length > 0;
 
-  if (searchableColumns.length === 0 && filterableColumns.length === 0) {
+  if (
+    searchableColumns.length === 0 &&
+    filterableColumns.length === 0 &&
+    !children
+  ) {
     return null;
   }
 
   return (
-    <div className="flex w-full flex-col gap-2 tablet:flex-row tablet:items-center">
+    <div className="tablet:flex-row tablet:flex-wrap flex w-full flex-col items-center justify-center gap-2">
       {searchableColumns.length > 0 &&
         searchableColumns.map(
           (column) =>
@@ -41,7 +44,7 @@ export function DataTableToolbar<TData>({
                 type="search"
                 prefixComponent={<Search />}
                 name="Filter"
-                className="w-full tablet:min-w-0 tablet:flex-1"
+                className="tablet:min-w-0 tablet:flex-1 tablet:max-w-xl w-full min-w-fit"
                 key={String(column.id)}
                 placeholder={`Filter ${column.title}...`}
                 value={
@@ -77,6 +80,7 @@ export function DataTableToolbar<TData>({
           Clear Filters
         </Button>
       )}
+      {children}
     </div>
   );
 }

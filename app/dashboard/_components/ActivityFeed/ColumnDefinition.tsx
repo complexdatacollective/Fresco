@@ -2,16 +2,14 @@
 
 import { type ColumnDef } from '@tanstack/react-table';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import {
-  type Activity,
-  type ActivityType,
-  activityTypes,
-  type DataTableFilterableColumn,
-  type DataTableSearchableColumn,
+import type {
+  DataTableFilterableColumn,
+  DataTableSearchableColumn,
 } from '~/components/DataTable/types';
 import { Badge } from '~/components/ui/badge';
 import TimeAgo from '~/components/ui/TimeAgo';
 import type { Events } from '~/lib/db/generated/client';
+import { type Activity, type ActivityType, activityTypes } from './types';
 import { getBadgeColorsForActivityType } from './utils';
 
 export function fetchActivityFeedTableColumnDefs(): ColumnDef<

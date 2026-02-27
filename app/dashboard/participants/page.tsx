@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import ParticipantsTable from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTable';
-import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
+import { DataTableSkeleton } from '~/components/DataTable/DataTableSkeleton';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import PageHeader from '~/components/typography/PageHeader';
 import { requireAppNotExpired } from '~/queries/appSettings';

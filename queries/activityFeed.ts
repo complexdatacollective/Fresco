@@ -1,6 +1,6 @@
 import 'server-only';
 import { cacheLife } from 'next/cache';
-import { type SearchParams } from '~/components/DataTable/types';
+import { type SearchParams } from '~/app/dashboard/_components/ActivityFeed/types';
 import { safeCacheTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 

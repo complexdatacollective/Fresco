@@ -30,7 +30,6 @@ export function DataTableSkeleton({
 
   return (
     <div className="flex w-full flex-col gap-6">
-      {/* Toolbar skeleton */}
       {hasToolbar && (
         <div className="mx-auto flex w-fit items-center gap-2">
           {searchableColumnCount > 0
@@ -54,7 +53,6 @@ export function DataTableSkeleton({
         </div>
       )}
 
-      {/* Table skeleton */}
       <Table surfaceProps={{ className: 'min-w-fit' }}>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
@@ -78,7 +76,6 @@ export function DataTableSkeleton({
         </TableBody>
       </Table>
 
-      {/* Pagination skeleton */}
       <div className="mx-auto w-fit">
         <div className="tablet:flex-row tablet:gap-6 laptop:gap-8 flex flex-col items-center justify-between gap-4">
           <div className="flex items-center space-x-2">

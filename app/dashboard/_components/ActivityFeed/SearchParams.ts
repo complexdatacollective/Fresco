@@ -5,11 +5,8 @@ import {
   parseAsJson,
   parseAsStringLiteral,
 } from 'nuqs/server';
-import {
-  FilterParam,
-  sortOrder,
-  sortableFields,
-} from '~/components/DataTable/types';
+import { FilterParam } from '~/components/DataTable/types';
+import { sortableFields, sortOrder } from './types';
 
 export const searchParamsParsers = {
   page: parseAsInteger.withDefault(1),
