@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import Button from '~/components/ui/Button';
 import { useWizard } from '~/lib/dialogs/useWizard';
@@ -513,6 +513,241 @@ export const WithOnFinish: StoryObj<Meta<WizardStoryArgs>> = {
         .lastCall?.[0] as Record<string, unknown>;
       await expect(result.displayName).toBe('Bob (participant)');
       await expect(typeof result.timestamp).toBe('string');
+    });
+  },
+};
+
+function AsyncValidationStep() {
+  const { setBeforeNext, setStepData } = useWizard();
+  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  useEffect(() => {
+    setBeforeNext(async () => {
+      setStatus('idle');
+      // Simulate an async validation (e.g. server-side check)
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      const isValid = Math.random() > 0.3;
+
+      if (isValid) {
+        setStatus('success');
+        setStepData({ validated: true });
+        return true;
+      }
+
+      setStatus('error');
+      return false;
+    });
+  }, [setBeforeNext, setStepData]);
+
+  return (
+    <div className="flex flex-col gap-3 pt-4">
+      <p className="text-sm">
+        Clicking Continue triggers an async validation. It has a 70% chance of
+        succeeding.
+      </p>
+      {status === 'error' && (
+        <p className="text-destructive text-sm" data-testid="validation-error">
+          Validation failed — try again.
+        </p>
+      )}
+      {status === 'success' && (
+        <p className="text-success text-sm" data-testid="validation-success">
+          Validation passed!
+        </p>
+      )}
+    </div>
+  );
+}
+
+function DeterministicValidationStep({ shouldPass }: { shouldPass: boolean }) {
+  const { setBeforeNext, setStepData } = useWizard();
+  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  useEffect(() => {
+    setBeforeNext(async () => {
+      setStatus('idle');
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      if (shouldPass) {
+        setStatus('success');
+        setStepData({ validated: true });
+        return true;
+      }
+
+      setStatus('error');
+      return false;
+    });
+  }, [setBeforeNext, setStepData, shouldPass]);
+
+  return (
+    <div className="flex flex-col gap-3 pt-4">
+      <p className="text-sm">
+        This step {shouldPass ? 'will pass' : 'will fail'} validation on
+        Continue.
+      </p>
+      {status === 'error' && (
+        <p className="text-destructive text-sm" data-testid="validation-error">
+          Validation failed.
+        </p>
+      )}
+      {status === 'success' && (
+        <p className="text-success text-sm" data-testid="validation-success">
+          Validation passed!
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Demonstrates `setBeforeNext` for async step interception.
+ * The step registers an async handler that simulates server-side
+ * validation. The wizard shows a loading spinner on the Continue
+ * button and blocks navigation if the handler returns `false`.
+ */
+export const WithBeforeNext: StoryObj<Meta<WizardStoryArgs>> = {
+  args: {
+    onResult: fn(),
+  },
+  render: (args) => {
+    const { openDialog } = useDialog();
+
+    const handleOpen = async () => {
+      const result = await openDialog({
+        type: 'wizard',
+        title: 'Async Validation',
+        steps: [
+          {
+            title: 'Validate',
+            description:
+              'This step runs async validation before allowing navigation.',
+            content: AsyncValidationStep,
+          },
+          {
+            title: 'Done',
+            description: 'You passed validation!',
+            content: ConfirmStep,
+          },
+        ],
+      });
+
+      args.onResult(result);
+    };
+
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Button onClick={handleOpen}>Wizard with Async Validation</Button>
+      </div>
+    );
+  },
+};
+
+/**
+ * Tests the `setBeforeNext` flow deterministically:
+ * 1. First step always fails validation → stays on step 1
+ * 2. After toggling to pass mode, validation succeeds → advances
+ */
+export const BeforeNextDeterministic: StoryObj<Meta<WizardStoryArgs>> = {
+  args: {
+    onResult: fn(),
+  },
+  render: (args) => {
+    const { openDialog } = useDialog();
+    const [shouldPass, setShouldPass] = useState(false);
+
+    const handleOpen = async () => {
+      const result = await openDialog({
+        type: 'wizard',
+        title: 'Deterministic Validation',
+        steps: [
+          {
+            title: 'Validate',
+            description: 'Deterministic async validation step.',
+            content: () => (
+              <DeterministicValidationStep shouldPass={shouldPass} />
+            ),
+          },
+          {
+            title: 'Done',
+            content: PlaceholderStep,
+          },
+        ],
+      });
+
+      args.onResult(result);
+    };
+
+    return (
+      <div className="flex h-screen flex-col items-center justify-center gap-4">
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            color={shouldPass ? 'default' : 'destructive'}
+            onClick={() => setShouldPass(false)}
+          >
+            Fail Mode
+          </Button>
+          <Button
+            size="sm"
+            color={shouldPass ? 'success' : 'default'}
+            onClick={() => setShouldPass(true)}
+          >
+            Pass Mode
+          </Button>
+        </div>
+        <Button onClick={handleOpen}>Open Wizard</Button>
+      </div>
+    );
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    // Start in fail mode (default) and open wizard
+    await userEvent.click(canvas.getByRole('button', { name: 'Open Wizard' }));
+    await screen.findByRole('dialog');
+
+    // Click Continue — should fail validation
+    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+    // Wait for the async handler to complete
+    await waitFor(
+      async () => {
+        await expect(screen.getByTestId('validation-error')).toBeVisible();
+      },
+      { timeout: 5000 },
+    );
+
+    // Should still be on step 1
+    await expect(screen.getByText(/will fail/)).toBeVisible();
+
+    // Cancel, switch to pass mode, re-open
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    await waitFor(async () => {
+      await expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Pass Mode' }));
+    await userEvent.click(canvas.getByRole('button', { name: 'Open Wizard' }));
+    await screen.findByRole('dialog');
+
+    // Click Continue — should pass
+    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+    await waitFor(
+      async () => {
+        // Should have advanced to step 2
+        await expect(screen.getByText('Step content goes here')).toBeVisible();
+      },
+      { timeout: 5000 },
+    );
+
+    // Finish
+    await userEvent.click(screen.getByRole('button', { name: 'Finish' }));
+
+    await waitFor(async () => {
+      await expect(args.onResult).toHaveBeenCalled();
     });
   },
 };

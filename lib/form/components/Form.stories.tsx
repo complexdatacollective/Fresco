@@ -1,5 +1,3 @@
-'use client';
-
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Check, Loader2, X } from 'lucide-react';
 import { action } from 'storybook/actions';

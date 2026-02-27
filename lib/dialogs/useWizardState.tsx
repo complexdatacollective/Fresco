@@ -1,11 +1,16 @@
 'use client';
 
+import { Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { type ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import Pips from '~/components/ui/Pips';
 import { type WizardDialog } from '~/lib/dialogs/DialogProvider';
-import { WizardContext, type WizardContextType } from '~/lib/dialogs/useWizard';
+import {
+  type BeforeNextHandler,
+  WizardContext,
+  type WizardContextType,
+} from '~/lib/dialogs/useWizard';
 
 const slideVariants = {
   enter: (direction: 'forward' | 'backward') => ({
@@ -45,7 +50,9 @@ export default function useWizardState({
   const [nextLabelOverride, setNextLabelOverride] = useState<string | null>(
     null,
   );
+  const [isNextLoading, setIsNextLoading] = useState(false);
 
+  const beforeNextRef = useRef<BeforeNextHandler | null>(null);
   const prevStepRef = useRef(stepIndex);
 
   const currentStep = dialog.steps[stepIndex];
@@ -57,6 +64,7 @@ export default function useWizardState({
     setNextEnabled(true);
     setBackEnabled(true);
     setNextLabelOverride(null);
+    beforeNextRef.current = null;
   }, []);
 
   const goToStep = useCallback(
@@ -72,6 +80,20 @@ export default function useWizardState({
   );
 
   const handleNext = useCallback(async () => {
+    const handler = beforeNextRef.current;
+
+    if (handler) {
+      setIsNextLoading(true);
+      try {
+        const result = await handler();
+        if (result === false) return;
+      } catch {
+        return;
+      } finally {
+        setIsNextLoading(false);
+      }
+    }
+
     if (isLastStep) {
       const result = dialog.onFinish ? dialog.onFinish(data) : data;
       await closeDialog(dialogId, result);
@@ -92,6 +114,10 @@ export default function useWizardState({
     setData((prev) => ({ ...prev, ...stepData }));
   }, []);
 
+  const setBeforeNext = useCallback((handler: BeforeNextHandler | null) => {
+    beforeNextRef.current = handler;
+  }, []);
+
   const wizardContext = useMemo<WizardContextType>(
     () => ({
       currentStep: stepIndex,
@@ -101,9 +127,10 @@ export default function useWizardState({
       setNextEnabled,
       setBackEnabled: (enabled: boolean) => setBackEnabled(enabled),
       setNextLabel: (label: string) => setNextLabelOverride(label),
+      setBeforeNext,
       goToStep,
     }),
-    [stepIndex, totalSteps, data, setStepData, goToStep],
+    [stepIndex, totalSteps, data, setStepData, setBeforeNext, goToStep],
   );
 
   if (!currentStep) return null;
@@ -162,9 +189,13 @@ export default function useWizardState({
         <Button
           color="primary"
           onClick={() => void handleNext()}
-          disabled={!nextEnabled}
+          disabled={!nextEnabled || isNextLoading}
         >
-          {nextLabel}
+          {isNextLoading ? (
+            <Loader2 className="animate-spin" size={16} />
+          ) : (
+            nextLabel
+          )}
         </Button>
       </>
     ),

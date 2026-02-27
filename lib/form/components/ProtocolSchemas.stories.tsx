@@ -1,5 +1,3 @@
-'use client';
-
 import { type AdditionalAttributes } from '@codaco/protocol-validation';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { type JSONContent } from '@tiptap/core';

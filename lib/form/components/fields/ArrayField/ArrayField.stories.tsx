@@ -1,5 +1,3 @@
-'use client';
-
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { GripVertical, PencilIcon, X } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -579,9 +577,7 @@ async function checkEmailExists(
   await new Promise((resolve) => setTimeout(resolve, 800));
 
   // If we're editing and the email hasn't changed, it's valid
-  if (
-    email.toLowerCase() === currentItemEmail?.toLowerCase()
-  ) {
+  if (email.toLowerCase() === currentItemEmail?.toLowerCase()) {
     return false;
   }
 

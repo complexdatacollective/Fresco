@@ -39,8 +39,10 @@ type ParagraphProps = {
 
 const Paragraph = forwardRef<HTMLParagraphElement, ParagraphProps>(
   ({ className, intent, margin, emphasis, ...props }, ref) => {
+    const Tag = intent === 'inlineCode' ? 'code' : 'p';
+
     return (
-      <p
+      <Tag
         ref={ref}
         className={cx(
           paragraphVariants({ intent, margin, emphasis, className }),

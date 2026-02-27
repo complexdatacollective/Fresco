@@ -1,5 +1,3 @@
-'use client';
-
 import type { Form as TForm } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,

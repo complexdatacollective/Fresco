@@ -2,6 +2,8 @@
 
 import { createContext, useContext } from 'react';
 
+export type BeforeNextHandler = () => Promise<boolean> | boolean;
+
 export type WizardContextType = {
   currentStep: number;
   totalSteps: number;
@@ -10,6 +12,7 @@ export type WizardContextType = {
   setNextEnabled: (enabled: boolean) => void;
   setBackEnabled: (enabled: boolean) => void;
   setNextLabel: (label: string) => void;
+  setBeforeNext: (handler: BeforeNextHandler | null) => void;
   goToStep: (step: number) => void;
 };
 

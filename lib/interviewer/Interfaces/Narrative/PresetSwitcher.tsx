@@ -3,6 +3,7 @@ import { Popover } from '@base-ui/react/popover';
 import { Radio } from '@base-ui/react/radio';
 import { RadioGroup } from '@base-ui/react/radio-group';
 import { type Stage } from '@codaco/protocol-validation';
+import { createSelector } from '@reduxjs/toolkit';
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import {
@@ -18,13 +19,8 @@ import { useSelector } from 'react-redux';
 import { MotionSurface } from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import { IconButton } from '~/components/ui/Button';
-import {
-  getEdgeColorForType,
-  makeGetCategoricalOptions,
-  makeGetEdgeLabel,
-  makeGetNodeAttributeLabel,
-} from '~/lib/interviewer/selectors/session';
-import { type RootState } from '~/lib/interviewer/store';
+import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
+import { getSubjectType } from '~/lib/interviewer/selectors/session';
 
 type NarrativeStage = Extract<Stage, { type: 'Narrative' }>;
 type Preset = NarrativeStage['presets'][number];
@@ -106,36 +102,38 @@ export default function PresetSwitcher({
 }: PresetSwitcherProps) {
   const currentPreset = presets[activePreset];
 
-  const selector = useMemo(() => {
-    const getEdgeLabel = makeGetEdgeLabel();
-    const getNodeAttributeLabel = makeGetNodeAttributeLabel();
-    const getCategoricalOptions = makeGetCategoricalOptions();
+  const selector = useMemo(
+    () =>
+      createSelector(getCodebook, getSubjectType, (codebook, subjectType) => {
+        const highlightLabels = (currentPreset?.highlight ?? []).map(
+          (variableId: string) =>
+            (subjectType &&
+              codebook?.node?.[subjectType]?.variables?.[variableId]?.name) ??
+            '',
+        );
 
-    return (state: RootState) => {
-      const labels = (currentPreset?.highlight ?? []).map((variable: string) =>
-        getNodeAttributeLabel(state, {
-          variableId: variable,
-        }),
-      );
-      const edgeList = (currentPreset?.edges?.display ?? []).map(
-        (type: string) => ({
-          label: getEdgeLabel(state, { type }),
-          color: getEdgeColorForType(type)(state),
-        }),
-      );
-      const catOptions = getCategoricalOptions(state, {
-        variableId: currentPreset?.groupVariable ?? '',
-      });
+        const edges = (currentPreset?.edges?.display ?? []).map(
+          (type: string) => ({
+            label: codebook?.edge?.[type]?.name ?? '',
+            color: codebook?.edge?.[type]?.color ?? 'edge-color-seq-1',
+          }),
+        );
 
-      return {
-        categoricalOptions: catOptions as
-          | { label: string; value: number }[]
-          | undefined,
-        edges: edgeList as { label: string; color: string }[],
-        highlightLabels: labels as string[],
-      };
-    };
-  }, [currentPreset]);
+        const groupVariable = currentPreset?.groupVariable;
+        let categoricalOptions: { label: string; value: number }[] | undefined;
+        if (subjectType && groupVariable) {
+          const variable =
+            codebook?.node?.[subjectType]?.variables?.[groupVariable];
+          categoricalOptions =
+            variable && 'options' in variable
+              ? (variable.options as { label: string; value: number }[])
+              : undefined;
+        }
+
+        return { categoricalOptions, edges, highlightLabels };
+      }),
+    [currentPreset],
+  );
 
   const { categoricalOptions, edges, highlightLabels } = useSelector(selector);
 
@@ -197,6 +195,7 @@ export default function PresetSwitcher({
         }}
       >
         <Popover.Trigger
+          nativeButton={false}
           render={
             <MotionSurface
               noContainer

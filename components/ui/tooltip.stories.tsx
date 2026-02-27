@@ -120,9 +120,7 @@ export const CustomOffset: Story = {
 export const DefaultOpen: Story = {
   render: () => (
     <Tooltip defaultOpen>
-      <TooltipTrigger>
-        <Button>I start open</Button>
-      </TooltipTrigger>
+      <TooltipTrigger render={<Button>I start open</Button>} />
       <TooltipContent>This tooltip is open by default</TooltipContent>
     </Tooltip>
   ),

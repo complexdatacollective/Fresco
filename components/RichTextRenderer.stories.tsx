@@ -1,5 +1,3 @@
-'use client';
-
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import type { JSONContent } from '@tiptap/react';
 import { useState } from 'react';

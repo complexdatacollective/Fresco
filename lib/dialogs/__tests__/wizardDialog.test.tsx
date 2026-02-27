@@ -1,11 +1,10 @@
 import { act, render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { useWizard } from '../useWizard';
-import DialogProvider from '../DialogProvider';
+import DialogProvider, { type WizardStep } from '../DialogProvider';
 import useDialog from '../useDialog';
-import { type WizardStep } from '../DialogProvider';
+import { useWizard } from '../useWizard';
 
 function SimpleStep() {
   const { setStepData } = useWizard();
@@ -454,5 +453,280 @@ describe('Wizard Dialog goToStep', () => {
 
     // Should now be on step 3 (index 2), showing ThirdStep content
     expect(screen.getByText('Step 3 content')).toBeInTheDocument();
+  });
+});
+
+describe('Wizard Dialog setBeforeNext', () => {
+  const user = userEvent.setup();
+
+  function BeforeNextStep({
+    handler,
+  }: {
+    handler: () => Promise<boolean> | boolean;
+  }) {
+    const { setBeforeNext } = useWizard();
+
+    useEffect(() => {
+      setBeforeNext(handler);
+    }, [setBeforeNext, handler]);
+
+    return <div>Before next step</div>;
+  }
+
+  function TestBeforeNext({
+    onResult,
+    handler,
+    steps,
+  }: {
+    onResult: (result: unknown) => void;
+    handler: () => Promise<boolean> | boolean;
+    steps?: WizardStep[];
+  }) {
+    const { openDialog } = useDialog();
+
+    const handleOpen = async () => {
+      const result = await openDialog({
+        type: 'wizard',
+        title: 'Test',
+        steps: steps ?? [
+          {
+            title: 'Step 1',
+            content: () => <BeforeNextStep handler={handler} />,
+          },
+          { title: 'Step 2', content: SecondStep },
+        ],
+      });
+      onResult(result);
+    };
+
+    return <button onClick={handleOpen}>Open</button>;
+  }
+
+  it('should block navigation when beforeNext returns false', async () => {
+    const handler = vi.fn().mockResolvedValue(false);
+    const onResult = vi.fn();
+
+    render(
+      <DialogProvider>
+        <TestBeforeNext onResult={onResult} handler={handler} />
+      </DialogProvider>,
+    );
+
+    await user.click(screen.getByText('Open'));
+    await screen.findByRole('dialog');
+
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    });
+
+    expect(handler).toHaveBeenCalledOnce();
+    // Should still be on step 1
+    expect(screen.getByText('Before next step')).toBeInTheDocument();
+  });
+
+  it('should allow navigation when beforeNext returns true', async () => {
+    const handler = vi.fn().mockResolvedValue(true);
+    const onResult = vi.fn();
+
+    render(
+      <DialogProvider>
+        <TestBeforeNext onResult={onResult} handler={handler} />
+      </DialogProvider>,
+    );
+
+    await user.click(screen.getByText('Open'));
+    await screen.findByRole('dialog');
+
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    });
+
+    expect(handler).toHaveBeenCalledOnce();
+    // Should have advanced to step 2
+    expect(screen.queryByText('Before next step')).not.toBeInTheDocument();
+  });
+
+  it('should allow navigation when beforeNext returns undefined', async () => {
+    const handler = vi.fn().mockResolvedValue(undefined);
+    const onResult = vi.fn();
+
+    render(
+      <DialogProvider>
+        <TestBeforeNext onResult={onResult} handler={handler} />
+      </DialogProvider>,
+    );
+
+    await user.click(screen.getByText('Open'));
+    await screen.findByRole('dialog');
+
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    });
+
+    expect(handler).toHaveBeenCalledOnce();
+    // Should have advanced to step 2
+    expect(screen.queryByText('Before next step')).not.toBeInTheDocument();
+  });
+
+  it('should block navigation when beforeNext throws', async () => {
+    const handler = vi.fn().mockRejectedValue(new Error('fail'));
+    const onResult = vi.fn();
+
+    render(
+      <DialogProvider>
+        <TestBeforeNext onResult={onResult} handler={handler} />
+      </DialogProvider>,
+    );
+
+    await user.click(screen.getByText('Open'));
+    await screen.findByRole('dialog');
+
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    });
+
+    expect(handler).toHaveBeenCalledOnce();
+    // Should still be on step 1
+    expect(screen.getByText('Before next step')).toBeInTheDocument();
+    // Button should not be loading anymore
+    expect(screen.getByRole('button', { name: 'Continue' })).toBeEnabled();
+  });
+
+  it('should clear beforeNext handler on step navigation', async () => {
+    const handler = vi.fn().mockResolvedValue(true);
+    const onResult = vi.fn();
+
+    render(
+      <DialogProvider>
+        <TestBeforeNext onResult={onResult} handler={handler} />
+      </DialogProvider>,
+    );
+
+    await user.click(screen.getByText('Open'));
+    await screen.findByRole('dialog');
+
+    // Navigate to step 2 (handler returns true, allows navigation)
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    });
+
+    expect(handler).toHaveBeenCalledOnce();
+
+    // Now on step 2 (no beforeNext handler) — click Finish
+    await user.click(screen.getByRole('button', { name: 'Finish' }));
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 600));
+    });
+
+    // Handler should not have been called again
+    expect(handler).toHaveBeenCalledOnce();
+    expect(onResult).toHaveBeenCalled();
+  });
+
+  it('should call beforeNext on the last step before onFinish', async () => {
+    const callOrder: string[] = [];
+    const handler = vi.fn().mockImplementation(() => {
+      callOrder.push('beforeNext');
+      return true;
+    });
+    const onFinish = vi.fn().mockImplementation((data: unknown) => {
+      callOrder.push('onFinish');
+      return data;
+    });
+    const onResult = vi.fn();
+
+    function TestLastStep({
+      onResult: onRes,
+    }: {
+      onResult: (result: unknown) => void;
+    }) {
+      const { openDialog } = useDialog();
+
+      const handleOpen = async () => {
+        const result = await openDialog({
+          type: 'wizard',
+          title: 'Test',
+          steps: [
+            {
+              title: 'Only Step',
+              content: () => <BeforeNextStep handler={handler} />,
+            },
+          ],
+          onFinish,
+        });
+        onRes(result);
+      };
+
+      return <button onClick={handleOpen}>Open</button>;
+    }
+
+    render(
+      <DialogProvider>
+        <TestLastStep onResult={onResult} />
+      </DialogProvider>,
+    );
+
+    await user.click(screen.getByText('Open'));
+    await screen.findByRole('dialog');
+
+    await user.click(screen.getByRole('button', { name: 'Finish' }));
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 600));
+    });
+
+    expect(callOrder).toEqual(['beforeNext', 'onFinish']);
+  });
+
+  it('should disable the next button while beforeNext is loading', async () => {
+    let resolveHandler: (value: boolean) => void;
+    const handler = vi.fn().mockImplementation(
+      () =>
+        new Promise<boolean>((resolve) => {
+          resolveHandler = resolve;
+        }),
+    );
+    const onResult = vi.fn();
+
+    render(
+      <DialogProvider>
+        <TestBeforeNext onResult={onResult} handler={handler} />
+      </DialogProvider>,
+    );
+
+    await user.click(screen.getByText('Open'));
+    await screen.findByRole('dialog');
+
+    const continueButton = screen.getByRole('button', { name: 'Continue' });
+    expect(continueButton).toBeEnabled();
+
+    await user.click(continueButton);
+
+    // Button should be disabled while loading — the label is replaced
+    // by a spinner, so "Continue" button should no longer exist
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    expect(
+      screen.queryByRole('button', { name: 'Continue' }),
+    ).not.toBeInTheDocument();
+
+    // Resolve the handler
+    await act(async () => {
+      resolveHandler(true);
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    });
+
+    // Should have navigated — step 1 content gone
+    expect(screen.queryByText('Before next step')).not.toBeInTheDocument();
   });
 });

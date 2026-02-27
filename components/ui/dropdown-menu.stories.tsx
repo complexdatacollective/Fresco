@@ -49,8 +49,8 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   render: () => (
     <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Button variant="outline">Open Menu</Button>
+      <DropdownMenuTrigger render={<Button variant="outline" />}>
+        Open Menu
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuItem>
@@ -115,8 +115,8 @@ export const WithCheckboxItems: Story = {
 
     return (
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Button variant="outline">View Options</Button>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          View Options
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           <DropdownMenuGroup>
@@ -154,8 +154,8 @@ export const WithRadioGroup: Story = {
 
     return (
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Button variant="outline">Position: {position}</Button>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Position: {position}
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           <DropdownMenuGroup>
@@ -181,8 +181,8 @@ export const WithRadioGroup: Story = {
 export const WithGroups: Story = {
   render: () => (
     <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Button variant="outline">Actions</Button>
+      <DropdownMenuTrigger render={<Button variant="outline" />}>
+        Actions
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuGroup>
@@ -232,8 +232,8 @@ export const WithGroups: Story = {
 export const WithSubmenus: Story = {
   render: () => (
     <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Button variant="outline">File</Button>
+      <DropdownMenuTrigger render={<Button variant="outline" />}>
+        File
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuItem>
@@ -280,8 +280,8 @@ export const Positioned: Story = {
   render: () => (
     <div className="flex gap-4">
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Button variant="outline">Bottom (Default)</Button>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Bottom (Default)
         </DropdownMenuTrigger>
         <DropdownMenuContent side="bottom">
           <DropdownMenuItem>Profile</DropdownMenuItem>
@@ -291,8 +291,8 @@ export const Positioned: Story = {
       </DropdownMenu>
 
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Button variant="outline">Top</Button>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Top
         </DropdownMenuTrigger>
         <DropdownMenuContent side="top">
           <DropdownMenuItem>Profile</DropdownMenuItem>
@@ -302,8 +302,8 @@ export const Positioned: Story = {
       </DropdownMenu>
 
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Button variant="outline">Left</Button>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Left
         </DropdownMenuTrigger>
         <DropdownMenuContent side="left">
           <DropdownMenuItem>Profile</DropdownMenuItem>
@@ -313,8 +313,8 @@ export const Positioned: Story = {
       </DropdownMenu>
 
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Button variant="outline">Right</Button>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Right
         </DropdownMenuTrigger>
         <DropdownMenuContent side="right">
           <DropdownMenuItem>Profile</DropdownMenuItem>
@@ -330,8 +330,8 @@ export const Aligned: Story = {
   render: () => (
     <div className="flex gap-4">
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Button variant="outline">Align Start</Button>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Align Start
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuItem>Profile</DropdownMenuItem>
@@ -341,8 +341,8 @@ export const Aligned: Story = {
       </DropdownMenu>
 
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Button variant="outline">Align Center</Button>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Align Center
         </DropdownMenuTrigger>
         <DropdownMenuContent align="center">
           <DropdownMenuItem>Profile</DropdownMenuItem>
@@ -352,8 +352,8 @@ export const Aligned: Story = {
       </DropdownMenu>
 
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Button variant="outline">Align End</Button>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Align End
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem>Profile</DropdownMenuItem>
@@ -368,8 +368,8 @@ export const Aligned: Story = {
 export const WithInsetItems: Story = {
   render: () => (
     <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Button variant="outline">Options</Button>
+      <DropdownMenuTrigger render={<Button variant="outline" />}>
+        Options
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel inset>My Account</DropdownMenuLabel>
@@ -390,8 +390,8 @@ export const Complex: Story = {
 
     return (
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Button>Open Complex Menu</Button>
+        <DropdownMenuTrigger render={<Button />}>
+          Open Complex Menu
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           <DropdownMenuGroup>

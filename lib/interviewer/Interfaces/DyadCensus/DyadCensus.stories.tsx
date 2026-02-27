@@ -1,5 +1,3 @@
-'use client';
-
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
 import SuperJSON from 'superjson';

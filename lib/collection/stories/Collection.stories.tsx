@@ -1,5 +1,3 @@
-'use client';
-
 import { faker } from '@faker-js/faker';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { expect, userEvent, within } from 'storybook/test';
