@@ -3,9 +3,6 @@ import Sqids, { defaultOptions } from 'sqids';
 import { getAppSetting } from '~/queries/appSettings';
 
 const UPLOADTHING_SLUG = 'assetRouter';
-// Derive UploadThing version from the installed package to avoid stale hardcoding
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { version: UPLOADTHING_VERSION } = require('uploadthing/package.json') as { version: string };
 const REGISTER_TIMEOUT_MS = 30_000;
 
 export type ParsedToken = {
@@ -182,7 +179,6 @@ export async function registerUploadWithUploadThing(
       headers: {
         'Content-Type': 'application/json',
         'x-uploadthing-api-key': apiKey,
-        'x-uploadthing-version': UPLOADTHING_VERSION,
         'x-uploadthing-be-adapter': 'server',
         'x-uploadthing-fe-package': '@uploadthing/react',
       },
