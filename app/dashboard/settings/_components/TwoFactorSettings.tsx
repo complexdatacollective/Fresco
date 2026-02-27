@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { disableTotp, regenerateRecoveryCodes } from '~/actions/totp';
 import RecoveryCodes from '~/components/RecoveryCodes';
 import SettingsField from '~/components/settings/SettingsField';
-import TwoFactorSetup from '~/components/TwoFactorSetup';
+import { useTwoFactorSetup } from '~/components/TwoFactorSetup';
 import TwoFactorVerify from '~/components/TwoFactorVerify';
 import { Button } from '~/components/ui/Button';
 import Dialog from '~/lib/dialogs/Dialog';
@@ -19,7 +19,6 @@ export default function TwoFactorSettings({
   userCount,
 }: TwoFactorSettingsProps) {
   const [hasTwoFactor, setHasTwoFactor] = useState(initialHasTwoFactor);
-  const [showSetup, setShowSetup] = useState(false);
   const [showDisable, setShowDisable] = useState(false);
   const [disableError, setDisableError] = useState<string | null>(null);
   const [isDisabling, setIsDisabling] = useState(false);
@@ -28,6 +27,8 @@ export default function TwoFactorSettings({
   const [showRecoveryCodes, setShowRecoveryCodes] = useState(false);
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
   const [isRegenerating, setIsRegenerating] = useState(false);
+
+  const startTwoFactorSetup = useTwoFactorSetup(userCount);
 
   const handleDisable = async (code: string) => {
     setIsDisabling(true);
@@ -66,29 +67,28 @@ export default function TwoFactorSettings({
     }
   };
 
+  const handleEnableSetup = async () => {
+    const completed = await startTwoFactorSetup();
+    if (completed) {
+      setHasTwoFactor(true);
+    }
+  };
+
   if (!hasTwoFactor) {
     return (
-      <>
-        <SettingsField
-          label="Two-Factor Authentication"
-          description="Add an extra layer of security to your account by requiring a code from your authenticator app when signing in."
-          control={
-            <Button
-              color="primary"
-              size="sm"
-              onClick={() => setShowSetup(true)}
-            >
-              Enable
-            </Button>
-          }
-        />
-        <TwoFactorSetup
-          open={showSetup}
-          onClose={() => setShowSetup(false)}
-          onSetupComplete={() => setHasTwoFactor(true)}
-          userCount={userCount}
-        />
-      </>
+      <SettingsField
+        label="Two-Factor Authentication"
+        description="Add an extra layer of security to your account by requiring a code from your authenticator app when signing in."
+        control={
+          <Button
+            color="primary"
+            size="sm"
+            onClick={() => void handleEnableSetup()}
+          >
+            Enable
+          </Button>
+        }
+      />
     );
   }
 

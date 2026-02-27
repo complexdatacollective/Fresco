@@ -37,7 +37,6 @@ export function fetchActivityFeedTableColumnDefs(): ColumnDef<
         const color = getBadgeColorsForActivityType(activityType);
         return <Badge className={color}>{activityType}</Badge>;
       },
-      enableSorting: false,
       enableHiding: false,
     },
     {

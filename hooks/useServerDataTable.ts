@@ -100,6 +100,13 @@ export function useServerDataTable<TData, TValue>({
   ]);
 
   useEffect(() => {
+    if (sorting.length === 0) {
+      void setSearchParams({
+        sort: null,
+        sortField: null,
+      });
+      return;
+    }
     void setSearchParams({
       sort: sorting[0]?.desc ? 'desc' : 'asc',
       sortField: sorting[0]?.id,
