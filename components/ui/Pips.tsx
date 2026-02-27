@@ -25,10 +25,6 @@ type PipsProps = {
   currentIndex?: number;
 };
 
-/**
- * Renders a set of pips indicating the current prompt position.
- * Hidden from assistive technology since navigation is handled externally.
- */
 const Pips = ({ small = false, count = 0, currentIndex = 0 }: PipsProps) => {
   const pipsClasses = cx(
     'flex w-full shrink-0 grow-0 items-center justify-center gap-2',
