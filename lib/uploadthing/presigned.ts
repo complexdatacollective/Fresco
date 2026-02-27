@@ -2,6 +2,10 @@ import { createHmac } from 'crypto';
 import Sqids, { defaultOptions } from 'sqids';
 import { getAppSetting } from '~/queries/appSettings';
 
+const UPLOADTHING_SLUG = 'assetRouter';
+const UPLOADTHING_VERSION = '7.4.0';
+const REGISTER_TIMEOUT_MS = 30_000;
+
 export type ParsedToken = {
   apiKey: string;
   appId: string;
@@ -117,7 +121,7 @@ export function generatePresignedUploadUrl(
     'x-ut-identifier': appId,
     'x-ut-file-name': fileName,
     'x-ut-file-size': String(fileSize),
-    'x-ut-slug': 'assetRouter', // Use the existing file router slug
+    'x-ut-slug': UPLOADTHING_SLUG,
     'x-ut-content-disposition': 'inline',
     'x-ut-acl': 'public-read',
   });
@@ -159,36 +163,44 @@ export async function registerUploadWithUploadThing(
     fileKeys,
     tokenData,
     callbackUrl,
-    callbackSlug = 'assetRouter',
+    callbackSlug = UPLOADTHING_SLUG,
   } = options;
   const { apiKey, regions, ingestHost } = tokenData;
 
   const region = regions[0] ?? 'sea1';
   const ingestUrl = `https://${region}.${ingestHost}`;
 
-  const response = await fetch(`${ingestUrl}/route-metadata`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-uploadthing-api-key': apiKey,
-      'x-uploadthing-version': '7.4.0',
-      'x-uploadthing-be-adapter': 'server',
-      'x-uploadthing-fe-package': '@uploadthing/react',
-    },
-    body: JSON.stringify({
-      fileKeys,
-      metadata: {},
-      isDev: false, // Always false - isDev: true causes 60s delays waiting for dev webhook stream
-      callbackUrl,
-      callbackSlug,
-      awaitServerData: false,
-    }),
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REGISTER_TIMEOUT_MS);
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(
-      `Failed to register upload with UploadThing: ${response.status} ${errorText}`,
-    );
+  try {
+    const response = await fetch(`${ingestUrl}/route-metadata`, {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-uploadthing-api-key': apiKey,
+        'x-uploadthing-version': UPLOADTHING_VERSION,
+        'x-uploadthing-be-adapter': 'server',
+        'x-uploadthing-fe-package': '@uploadthing/react',
+      },
+      body: JSON.stringify({
+        fileKeys,
+        metadata: {},
+        isDev: false, // Always false - isDev: true causes 60s delays
+        callbackUrl,
+        callbackSlug,
+        awaitServerData: false,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to register upload with UploadThing: ${response.status} ${errorText}`,
+      );
+    }
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
