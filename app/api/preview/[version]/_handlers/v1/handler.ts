@@ -15,6 +15,7 @@ import {
 import { getUTApi } from '~/lib/uploadthing/server-helpers';
 import { getExistingAssets } from '~/queries/protocols';
 import { ensureError } from '~/utils/ensureError';
+import { getBaseUrl } from '~/utils/getBaseUrl';
 import { extractApikeyAssetsFromManifest } from '~/utils/protocolImport';
 import { checkPreviewAuth, jsonResponse } from './helpers';
 import {
@@ -163,7 +164,7 @@ export async function v1(request: NextRequest) {
           const fileKeys = presignedData.map((d) => d.assetRecord.key);
 
           // Register the uploads with UploadThing to enable CORS for browser uploads
-          const callbackUrl = `${env.PUBLIC_URL ?? request.nextUrl.origin}/api/uploadthing`;
+          const callbackUrl = `${getBaseUrl()}/api/uploadthing`;
           await registerUploadWithUploadThing({
             fileKeys,
             tokenData,

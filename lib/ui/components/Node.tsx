@@ -104,7 +104,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     label.length <= maxChars ? label : `${label.substring(0, maxChars - 3)}\u{AD}...`;
 
   return (
-    <button className={classes} ref={ref} aria-label={ariaLabel ?? label} {...buttonProps}>
+    <button className={classes} ref={ref} {...buttonProps} aria-label={ariaLabel ?? label}>
       {loading && <Loader2 className="animate-spin" size={24} />}
       {!loading && <span className={labelClasses}>{labelWithEllipsis}</span>}
     </button>

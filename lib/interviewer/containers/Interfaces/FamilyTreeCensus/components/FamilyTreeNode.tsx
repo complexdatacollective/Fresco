@@ -176,7 +176,7 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
             }
             color="custom"
             label=""
-            ariaLabel={isEgo ? 'You' : label}
+            ariaLabel={isEgo ? 'You' : label || 'Node'}
             shape={shape}
             selected={selected}
           />

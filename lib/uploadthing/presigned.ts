@@ -3,7 +3,9 @@ import Sqids, { defaultOptions } from 'sqids';
 import { getAppSetting } from '~/queries/appSettings';
 
 const UPLOADTHING_SLUG = 'assetRouter';
-const UPLOADTHING_VERSION = '7.4.0';
+// Derive UploadThing version from the installed package to avoid stale hardcoding
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { version: UPLOADTHING_VERSION } = require('uploadthing/package.json') as { version: string };
 const REGISTER_TIMEOUT_MS = 30_000;
 
 export type ParsedToken = {
