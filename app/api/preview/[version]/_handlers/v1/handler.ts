@@ -10,10 +10,12 @@ import { validateAndMigrateProtocol } from '~/lib/protocol/validateAndMigratePro
 import {
   generatePresignedUploadUrl,
   parseUploadThingToken,
+  registerUploadWithUploadThing,
 } from '~/lib/uploadthing/presigned';
 import { getUTApi } from '~/lib/uploadthing/server-helpers';
 import { getExistingAssets } from '~/queries/protocols';
 import { ensureError } from '~/utils/ensureError';
+import { getBaseUrl } from '~/utils/getBaseUrl';
 import { extractApikeyAssetsFromManifest } from '~/utils/protocolImport';
 import { checkPreviewAuth, jsonResponse } from './helpers';
 import {
@@ -105,42 +107,70 @@ export async function v1(request: NextRequest) {
           (a) => !existingAssetIdSet.has(a.assetId),
         );
 
-        const tokenData = await parseUploadThingToken();
-
-        if (newAssets.length > 0 && !tokenData) {
-          const response: InitializeResponse = {
-            status: 'error',
-            message: 'UploadThing not configured',
+        // Generate presigned URLs for new assets that need uploading
+        type PresignedAssetData = {
+          uploadUrl: string;
+          assetRecord: {
+            assetId: string;
+            key: string;
+            name: string;
+            type: string;
+            url: string;
+            size: number;
           };
-          return jsonResponse(response, 500);
-        }
+        };
 
-        const presignedData = newAssets.map((asset) => {
-          const manifestEntry = assetManifest[asset.assetId];
-          const assetType = manifestEntry?.type ?? 'file';
+        let presignedData: PresignedAssetData[] = [];
 
-          const presigned = generatePresignedUploadUrl({
-            fileName: asset.name,
-            fileSize: asset.size,
-            tokenData: tokenData!,
-          });
+        if (newAssets.length > 0) {
+          const tokenData = await parseUploadThingToken();
 
-          if (!presigned) {
-            throw new Error('Failed to generate presigned URL');
+          if (!tokenData) {
+            const response: InitializeResponse = {
+              status: 'error',
+              message: 'UploadThing not configured',
+            };
+            return jsonResponse(response, 500);
           }
 
-          return {
-            uploadUrl: presigned.uploadUrl,
-            assetRecord: {
-              assetId: asset.assetId,
-              key: presigned.fileKey,
-              name: asset.name,
-              type: assetType,
-              url: presigned.fileUrl,
-              size: asset.size,
-            },
-          };
-        });
+          // tokenData is now narrowed to ParsedToken
+          presignedData = newAssets.map((asset) => {
+            const manifestEntry = assetManifest[asset.assetId];
+            const assetType = manifestEntry?.type ?? 'file';
+
+            const presigned = generatePresignedUploadUrl({
+              fileName: asset.name,
+              fileSize: asset.size,
+              tokenData,
+            });
+
+            if (!presigned) {
+              throw new Error('Failed to generate presigned URL');
+            }
+
+            return {
+              uploadUrl: presigned.uploadUrl,
+              assetRecord: {
+                assetId: asset.assetId,
+                key: presigned.fileKey,
+                name: asset.name,
+                type: assetType,
+                url: presigned.fileUrl,
+                size: asset.size,
+              },
+            };
+          });
+
+          const fileKeys = presignedData.map((d) => d.assetRecord.key);
+
+          // Register the uploads with UploadThing to enable CORS for browser uploads
+          const callbackUrl = `${getBaseUrl()}/api/uploadthing`;
+          await registerUploadWithUploadThing({
+            fileKeys,
+            tokenData,
+            callbackUrl,
+          });
+        }
 
         const presignedUrls = presignedData.map((d) => d.uploadUrl);
         const assetsToCreate = presignedData.map((d) => d.assetRecord);

@@ -680,7 +680,7 @@ export const createFamilyTreeStore = (
               const additionalPartnerId = addNode({
                 label: `father's partner ${index + 2}`,
                 sex: 'female',
-                readOnly: true,
+                readOnly: false,
               });
               addEdge({
                 source: fatherId,
@@ -696,7 +696,7 @@ export const createFamilyTreeStore = (
               const additionalPartnerId = addNode({
                 label: `mother's partner ${index + 2}`,
                 sex: 'male',
-                readOnly: true,
+                readOnly: false,
               });
               addEdge({
                 source: additionalPartnerId,
@@ -974,7 +974,7 @@ export const createFamilyTreeStore = (
             get().updateNode(newNodeId, {
               sex: partnerSex,
               label: `${anchorNode.label}'s partner`,
-              readOnly: true,
+              readOnly: false,
             });
 
             // Create partner edge
