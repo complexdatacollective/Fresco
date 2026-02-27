@@ -13,25 +13,25 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  // width: 'device-width',
-  // initialScale: 1,
-  // maximumScale: 1,
-  // userScalable: false,
   viewportFit: 'cover',
 };
 
 async function AnalyticsLoader() {
-  const [installationId, disableAnalytics] = await Promise.all([
-    getInstallationId(),
-    getDisableAnalytics(),
-  ]);
+  try {
+    const [installationId, disableAnalytics] = await Promise.all([
+      getInstallationId(),
+      getDisableAnalytics(),
+    ]);
 
-  return (
-    <PostHogIdentify
-      installationId={installationId}
-      disableAnalytics={disableAnalytics}
-    />
-  );
+    return (
+      <PostHogIdentify
+        installationId={installationId}
+        disableAnalytics={disableAnalytics}
+      />
+    );
+  } catch {
+    return null;
+  }
 }
 
 function RootLayout({ children }: { children: React.ReactNode }) {
