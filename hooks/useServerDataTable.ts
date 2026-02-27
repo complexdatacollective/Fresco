@@ -92,12 +92,16 @@ export function useServerDataTable<TData, TValue>({
     });
   }, [pageIndex, pageSize, setSearchParams]);
 
-  const [sorting, setSorting] = useState<SortingState>([
-    {
-      id: searchParams.sortField,
-      desc: searchParams.sort === 'desc',
-    },
-  ]);
+  const [sorting, setSorting] = useState<SortingState>(
+    searchParams.sort === 'none'
+      ? []
+      : [
+          {
+            id: searchParams.sortField,
+            desc: searchParams.sort === 'desc',
+          },
+        ],
+  );
 
   useEffect(() => {
     if (sorting.length === 0) {

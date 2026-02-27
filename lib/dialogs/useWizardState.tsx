@@ -2,8 +2,8 @@
 
 import { AnimatePresence, motion } from 'motion/react';
 import { type ReactNode, useCallback, useMemo, useRef, useState } from 'react';
-import Pips from '~/components/ui/Pips';
 import { Button } from '~/components/ui/Button';
+import Pips from '~/components/ui/Pips';
 import { type WizardDialog } from '~/lib/dialogs/DialogProvider';
 import { WizardContext, type WizardContextType } from '~/lib/dialogs/useWizard';
 
@@ -132,23 +132,21 @@ export default function useWizardState({
             </div>
           )
         )}
-        <div className="relative overflow-hidden">
-          <AnimatePresence mode="wait" custom={direction} initial={false}>
-            <motion.div
-              key={stepIndex}
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.2, ease: 'easeInOut' }}
-            >
-              <WizardContext.Provider value={wizardContext}>
-                <StepContent />
-              </WizardContext.Provider>
-            </motion.div>
-          </AnimatePresence>
-        </div>
+        <AnimatePresence mode="wait" custom={direction} initial={false}>
+          <motion.div
+            key={stepIndex}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+          >
+            <WizardContext.Provider value={wizardContext}>
+              <StepContent />
+            </WizardContext.Provider>
+          </motion.div>
+        </AnimatePresence>
       </>
     ),
     footer: (

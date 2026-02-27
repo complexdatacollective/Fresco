@@ -5,12 +5,15 @@ import { enableTotp, verifyTotpSetup } from '~/actions/totp';
 import RecoveryCodes from '~/components/RecoveryCodes';
 import TwoFactorVerify from '~/components/TwoFactorVerify';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import { Button } from '~/components/ui/Button';
 import useDialog from '~/lib/dialogs/useDialog';
 import { useWizard } from '~/lib/dialogs/useWizard';
+import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
+import InputField from '~/lib/form/components/fields/InputField';
 import { cx } from '~/utils/cva';
+import { surfaceSpacingVariants } from './layout/Surface';
 import Spinner from './Spinner';
 import Paragraph from './typography/Paragraph';
+import Button from './ui/Button';
 
 type SetupData = {
   secret: string;
@@ -45,8 +48,7 @@ function QRCodeStep({ userCount }: { userCount: number }) {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setNextEnabled, setStepData]);
 
   const handleCopySecret = async () => {
     if (!setupData) return;
@@ -67,47 +69,39 @@ function QRCodeStep({ userCount }: { userCount: number }) {
           </AlertDescription>
         </Alert>
       )}
-      {isLoading && (
-        <div className="flex flex-col items-center gap-4">
-          <Spinner />
-          <Paragraph>Generating secret...</Paragraph>
-        </div>
-      )}
-      {setupData && (
-        <>
-          <div className="flex justify-center">
+      <fieldset
+        className={cx(
+          'flex h-96 flex-col items-center justify-center rounded border',
+          surfaceSpacingVariants(),
+        )}
+      >
+        {isLoading || !setupData ? (
+          <>
+            <Spinner />
+            <Paragraph>Generating secret...</Paragraph>
+          </>
+        ) : (
+          <>
             <img
               src={setupData.qrCodeDataUrl}
               alt="QR code for authenticator app"
-              width={400}
-              height={400}
+              className="mx-auto aspect-square grow"
             />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Paragraph intent="smallText">
-              Can&apos;t scan the QR code? Enter this secret manually:
-            </Paragraph>
-            <div className="flex items-center gap-2">
-              <code
-                className={cx(
-                  'bg-input font-monospace flex-1 rounded px-3 py-2 text-sm',
-                  'break-all select-all',
-                )}
-              >
-                {setupData.secret}
-              </code>
-              <Button
-                color="dynamic"
-                variant="outline"
-                size="sm"
-                onClick={() => void handleCopySecret()}
-              >
-                {secretCopied ? 'Copied!' : 'Copy'}
-              </Button>
-            </div>
-          </div>
-        </>
-      )}
+            <UnconnectedField
+              component={InputField}
+              readOnly
+              label="Can't scan the QR code? Enter this secret manually:"
+              value={setupData.secret}
+              className="font-monospace"
+              suffixComponent={
+                <Button size="sm" onClick={() => void handleCopySecret()}>
+                  {secretCopied ? 'Copied!' : 'Copy'}
+                </Button>
+              }
+            />
+          </>
+        )}
+      </fieldset>
     </>
   );
 }

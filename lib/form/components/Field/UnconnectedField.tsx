@@ -3,7 +3,10 @@
 import { useId } from 'react';
 import { type ExtractProps } from '~/lib/form/validation/utils/extractProps';
 import { BaseField } from './BaseField';
-import { type InjectedFieldProps } from './types';
+
+// Keys that UnconnectedField injects into the component —
+// only these need to be omitted from the consumer-facing type.
+type ManagedKeys = 'id' | 'aria-required' | 'aria-describedby';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type UnconnectedFieldProps<C extends React.ComponentType<any>> = {
@@ -14,7 +17,7 @@ type UnconnectedFieldProps<C extends React.ComponentType<any>> = {
   errors?: string[];
   showErrors?: boolean;
   component: C;
-} & Omit<ExtractProps<C>, keyof InjectedFieldProps>;
+} & Omit<ExtractProps<C>, ManagedKeys>;
 
 /**
  * UnconnectedField renders a field with consistent styling but without

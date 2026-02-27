@@ -37,7 +37,7 @@ export type Activity = Prisma.EventsGetPayload<{
   };
 }>;
 
-export const sortOrder = ['asc', 'desc'] as const;
+export const sortOrder = ['asc', 'desc', 'none'] as const;
 
 export const sortableFields = ['timestamp', 'type', 'message'] as const;
 
