@@ -21,6 +21,7 @@ import {
   updatePrompt,
   updateStage,
 } from '~/lib/interviewer/ducks/modules/session';
+import { getStages } from '~/lib/interviewer/ducks/modules/protocol';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import getInterface from '~/lib/interviewer/Interfaces';
 import {
@@ -67,6 +68,19 @@ export default function useInterviewNavigation() {
     useSelector(getNavigableStages);
   const stageCount = useSelector(getStageCount);
   const promptCount = useSelector(getPromptCount);
+  const stages = useSelector(getStages);
+
+  // Helper to get prompt count for a specific stage index
+  const getPromptCountForStage = useCallback(
+    (stageIndex: number) => {
+      const targetStage = stages[stageIndex];
+      if (targetStage && 'prompts' in targetStage && targetStage.prompts) {
+        return targetStage.prompts.length;
+      }
+      return 1; // Default to 1 if no prompts (same as getPromptCount selector)
+    },
+    [stages],
+  );
 
   // Refs to avoid stale closures in navigation callbacks
   const nextValidStageIndexRef = useRef(nextValidStageIndex);
@@ -164,11 +178,14 @@ export default function useInterviewNavigation() {
       }
 
       // From this point on we are definitely navigating stages
+      const nextPromptCount = getPromptCountForStage(
+        nextValidStageIndexRef.current,
+      );
       const fakeProgress = calculateProgress(
         nextValidStageIndexRef.current,
         stageCount,
         0,
-        promptCount,
+        nextPromptCount,
       );
       setProgress(fakeProgress);
       registerBeforeNext(null);
@@ -183,7 +200,7 @@ export default function useInterviewNavigation() {
     promptIndex,
     registerBeforeNext,
     stageCount,
-    promptCount,
+    getPromptCountForStage,
     setQueryStep,
   ]);
 
@@ -203,11 +220,14 @@ export default function useInterviewNavigation() {
         return;
       }
 
+      const prevPromptCount = getPromptCountForStage(
+        previousValidStageIndexRef.current,
+      );
       const fakeProgress = calculateProgress(
         previousValidStageIndexRef.current,
         stageCount,
         0,
-        promptCount,
+        prevPromptCount,
       );
       setProgress(fakeProgress);
       registerBeforeNext(null);
@@ -222,7 +242,7 @@ export default function useInterviewNavigation() {
     promptIndex,
     registerBeforeNext,
     stageCount,
-    promptCount,
+    getPromptCountForStage,
   ]);
 
   const getNavigationHelpers = useCallback(
