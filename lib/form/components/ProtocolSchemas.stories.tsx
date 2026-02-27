@@ -276,6 +276,7 @@ function AdditionalAttributeItem({
             exit={{ opacity: 0 }}
           >
             <UnconnectedField
+              name="variable"
               component={SelectField}
               label="Variable"
               hint="Select the variable to set"
@@ -286,6 +287,7 @@ function AdditionalAttributeItem({
               required
             />
             <UnconnectedField
+              name="value"
               component={BooleanField}
               label="Value"
               hint="The boolean value to assign"

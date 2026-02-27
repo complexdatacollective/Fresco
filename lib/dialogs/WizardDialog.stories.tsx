@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import Button from '~/components/ui/Button';
+import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
 import InputField from '~/lib/form/components/fields/InputField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
-import { useWizard } from '~/lib/dialogs/useWizard';
 import useDialog from './useDialog';
 
 function NameStep() {
@@ -15,6 +15,7 @@ function NameStep() {
   return (
     <div className="flex flex-col gap-3 pt-4">
       <UnconnectedField
+        name="name"
         label="Your name"
         component={InputField}
         placeholder="Enter your name..."
@@ -47,6 +48,7 @@ function RoleStep() {
         role:
       </p>
       <UnconnectedField
+        name="role"
         label="Role"
         component={RadioGroupField}
         options={roleOptions}
@@ -218,6 +220,7 @@ function DynamicLabelStep() {
   return (
     <div className="flex flex-col gap-3 pt-4">
       <UnconnectedField
+        name="nextLabel"
         label="Custom next button label"
         component={InputField}
         value={label}

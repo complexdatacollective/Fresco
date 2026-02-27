@@ -1,23 +1,56 @@
 'use client';
 
-import { useId } from 'react';
-import { type ExtractProps } from '~/lib/form/validation/utils/extractProps';
+import { LayoutGroup } from 'motion/react';
+import { type ReactNode, useId } from 'react';
+import { type ValidationContext } from '../../store/types';
+import { type ValidationPropKey } from '../../validation/functions';
 import { BaseField } from './BaseField';
+import {
+  type ExtractValue,
+  type ValidationPropsForValue,
+  type ValidFieldComponent,
+} from './types';
 
 // Keys that UnconnectedField injects into the component —
 // only these need to be omitted from the consumer-facing type.
 type ManagedKeys = 'id' | 'aria-required' | 'aria-describedby';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type UnconnectedFieldProps<C extends React.ComponentType<any>> = {
-  id?: string;
+/**
+ * Props for the Field component itself.
+ * Generic over C (the component type) to enable type inference.
+ */
+type FieldOwnProps<C extends ValidFieldComponent> = {
+  name: string;
   label: string;
-  hint?: string;
-  required?: boolean;
-  errors?: string[];
-  showErrors?: boolean;
-  component: C;
-} & Omit<ExtractProps<C>, ManagedKeys>;
+  hint?: ReactNode;
+  initialValue?: ExtractValue<C> | undefined;
+  showValidationHints?: boolean;
+  disabled?: boolean;
+  readOnly?: boolean;
+  /**
+   * Context required for context-dependent validations like unique, sameAs, etc.
+   */
+  validationContext?: ValidationContext;
+  /**
+   * When true, validates the field on change instead of waiting for blur.
+   * Validation is debounced to avoid excessive calls while typing.
+   * Useful for async validation where immediate feedback is desired.
+   */
+  validateOnChange?: boolean;
+  /**
+   * Debounce delay in milliseconds for validateOnChange.
+   * Only applies when validateOnChange is true.
+   * @default 300
+   */
+  validateOnChangeDelay?: number;
+};
+
+type UnconnectedFieldProps<C extends ValidFieldComponent> = FieldOwnProps<C> &
+  Omit<React.ComponentProps<C>, ValidationPropKey | ManagedKeys> &
+  ValidationPropsForValue<ExtractValue<C>> & {
+    component: C;
+    showErrors?: boolean;
+  };
 
 /**
  * UnconnectedField renders a field with consistent styling but without
@@ -36,8 +69,7 @@ type UnconnectedFieldProps<C extends React.ComponentType<any>> = {
  * />
  * ```
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function UnconnectedField<C extends React.ComponentType<any>>({
+export default function UnconnectedField<C extends ValidFieldComponent>({
   id: providedId,
   label,
   hint,
@@ -55,21 +87,23 @@ export default function UnconnectedField<C extends React.ComponentType<any>>({
     .join(' ');
 
   return (
-    <BaseField
-      id={id}
-      label={label}
-      hint={hint}
-      required={required}
-      errors={errors}
-      showErrors={showErrors}
-    >
-      <Component
+    <LayoutGroup id={id}>
+      <BaseField
         id={id}
-        aria-required={required ?? false}
-        aria-describedby={describedBy || undefined}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        {...(componentProps as any)}
-      />
-    </BaseField>
+        label={label}
+        hint={hint}
+        required={Boolean(componentProps.required)}
+        errors={errors}
+        showErrors={showErrors}
+      >
+        <Component
+          id={id}
+          aria-required={required ?? false}
+          aria-describedby={describedBy || undefined}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          {...(componentProps as any)}
+        />
+      </BaseField>
+    </LayoutGroup>
   );
 }

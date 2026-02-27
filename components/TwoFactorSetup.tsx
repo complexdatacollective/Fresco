@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { enableTotp, verifyTotpSetup } from '~/actions/totp';
 import RecoveryCodes from '~/components/RecoveryCodes';
-import TwoFactorVerify from '~/components/TwoFactorVerify';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import useDialog from '~/lib/dialogs/useDialog';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
 import InputField from '~/lib/form/components/fields/InputField';
+import SegmentedCodeField from '~/lib/form/components/fields/SegmentedCodeField';
 import { cx } from '~/utils/cva';
 import { surfaceSpacingVariants } from './layout/Surface';
 import Spinner from './Spinner';
@@ -88,6 +88,7 @@ function QRCodeStep({ userCount }: { userCount: number }) {
               className="mx-auto aspect-square grow"
             />
             <UnconnectedField
+              name="secret"
               component={InputField}
               readOnly
               label="Can't scan the QR code? Enter this secret manually:"
@@ -110,10 +111,16 @@ function VerifyStep() {
   const { setNextEnabled, setStepData, goToStep } = useWizard();
   const [verifyError, setVerifyError] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [code, setCode] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     setNextEnabled(false);
   }, [setNextEnabled]);
+
+  useEffect(() => {
+    setStepData({ code });
+    setNextEnabled(code?.length === 6);
+  }, [code, setNextEnabled, setStepData]);
 
   const handleVerify = async (code: string) => {
     setIsVerifying(true);
@@ -135,10 +142,19 @@ function VerifyStep() {
   };
 
   return (
-    <TwoFactorVerify
-      onVerify={handleVerify}
+    <UnconnectedField
+      name="code"
+      label="Enter your 6-digit code from your authenticator app"
+      component={SegmentedCodeField}
+      required="Code is required"
+      segments={6}
+      characterSet="numeric"
+      size="lg"
+      autoComplete="off"
+      value={code}
+      onChange={(value) => setCode(value)}
       error={verifyError}
-      isSubmitting={isVerifying}
+      disabled={isVerifying}
     />
   );
 }
@@ -174,6 +190,7 @@ export function useTwoFactorSetup(userCount: number) {
           description:
             'Enter the 6-digit code from your authenticator app to verify setup.',
           content: VerifyStep,
+          nextLabel: 'Verify',
         },
         {
           title: 'Save Recovery Codes',
