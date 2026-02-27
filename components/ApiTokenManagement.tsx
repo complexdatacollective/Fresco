@@ -194,6 +194,7 @@ export default function ApiTokenManagement({
         handleDeleteSelected={handleDeleteSelected}
         surfaceLevel={1}
         emptyText="No API tokens created yet."
+        showPagination={false}
       />
 
       {/* Create Token Dialog */}

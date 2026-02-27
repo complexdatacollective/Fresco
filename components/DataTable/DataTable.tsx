@@ -57,6 +57,7 @@ type DataTableProps<TData, TValue> = {
   defaultSortBy?: SortingState[0];
   surfaceLevel?: 0 | 1 | 2 | 3;
   emptyText?: string;
+  showPagination?: boolean;
 };
 
 export function DataTable<TData, TValue>({
@@ -71,6 +72,7 @@ export function DataTable<TData, TValue>({
   defaultSortBy,
   surfaceLevel = 0,
   emptyText = 'No results.',
+  showPagination = true,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>(
     defaultSortBy ? [{ ...defaultSortBy }] : [],
@@ -127,7 +129,9 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    ...(showPagination && {
+      getPaginationRowModel: getPaginationRowModel(),
+    }),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onRowSelectionChange: setRowSelection,
@@ -224,7 +228,7 @@ export function DataTable<TData, TValue>({
         </TableBody>
       </Table>
       <div>
-        <DataTablePagination table={table} />
+        {showPagination && <DataTablePagination table={table} />}
 
         {/**
          * TODO: This is garbage.

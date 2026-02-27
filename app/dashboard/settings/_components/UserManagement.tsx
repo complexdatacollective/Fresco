@@ -391,6 +391,7 @@ export default function UserManagement({
           handleDeleteSelected={handleDeleteSelected}
           surfaceLevel={1}
           emptyText="No users created yet."
+          showPagination={false}
         />
       </div>
       <FormStoreProvider>
