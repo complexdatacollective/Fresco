@@ -108,7 +108,7 @@ function QRCodeStep({ userCount }: { userCount: number }) {
 }
 
 function VerifyStep() {
-  const { setNextEnabled, setStepData, goToStep } = useWizard();
+  const { setNextEnabled, setStepData, goToStep, setBeforeNext } = useWizard();
   const [verifyError, setVerifyError] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [code, setCode] = useState<string | undefined>(undefined);
@@ -122,24 +122,28 @@ function VerifyStep() {
     setNextEnabled(code?.length === 6);
   }, [code, setNextEnabled, setStepData]);
 
-  const handleVerify = async (code: string) => {
-    setIsVerifying(true);
-    setVerifyError(null);
+  useEffect(() => {
+    setBeforeNext(async () => {
+      setIsVerifying(true);
+      setVerifyError(null);
 
-    const result = await verifyTotpSetup({ code });
+      const result = await verifyTotpSetup({ code });
 
-    setIsVerifying(false);
+      setIsVerifying(false);
 
-    if (result.error) {
-      setVerifyError(result.error);
-      return;
-    }
+      if (result.error) {
+        setVerifyError(result.error);
+        return false;
+      }
 
-    if (result.data) {
-      setStepData({ recoveryCodes: result.data.recoveryCodes });
-      goToStep(2);
-    }
-  };
+      if (result.data) {
+        setStepData({ recoveryCodes: result.data.recoveryCodes });
+        return true;
+      }
+
+      return false;
+    });
+  }, [code, setBeforeNext, setStepData, goToStep]);
 
   return (
     <UnconnectedField
@@ -153,7 +157,6 @@ function VerifyStep() {
       autoComplete="off"
       value={code}
       onChange={(value) => setCode(value)}
-      error={verifyError}
       disabled={isVerifying}
     />
   );
