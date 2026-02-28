@@ -17,6 +17,7 @@ import {
 } from 'react';
 import { useSelector } from 'react-redux';
 import { MotionSurface } from '~/components/layout/Surface';
+import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
 import { IconButton } from '~/components/ui/Button';
 import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
@@ -382,7 +383,9 @@ export default function PresetSwitcher({
                                         backgroundColor: `var(--color-cat-${index + 1})`,
                                       }}
                                     />
-                                    {option.label}
+                                    <RenderMarkdown>
+                                      {option.label}
+                                    </RenderMarkdown>
                                   </div>
                                 ))}
                               </div>
