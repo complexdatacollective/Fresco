@@ -11,6 +11,7 @@ import {
   createUser,
   deleteUsers,
 } from '~/actions/users';
+import PasswordField from '~/app/(blobs)/(setup)/_components/PasswordField';
 import TwoFactorSettings from '~/app/dashboard/settings/_components/TwoFactorSettings';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { DataTable } from '~/components/DataTable/DataTable';
@@ -530,7 +531,7 @@ export default function UserManagement({
               label="Username"
               component={InputField}
               required
-              autoComplete="username"
+              autoComplete="off"
               validateOnChange
               validateOnChangeDelay={500}
               custom={[
@@ -548,8 +549,7 @@ export default function UserManagement({
             <Field
               name="password"
               label="Password"
-              component={InputField}
-              type="password"
+              component={PasswordField}
               required
               autoComplete="new-password"
               custom={{
@@ -560,8 +560,7 @@ export default function UserManagement({
             <Field
               name="confirmPassword"
               label="Confirm Password"
-              component={InputField}
-              type="password"
+              component={PasswordField}
               required
               autoComplete="new-password"
             />

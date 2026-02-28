@@ -15,7 +15,15 @@ export default function InterviewPage() {
         data-testid="interviews-page-header"
       />
       <ResponsiveContainer maxWidth="full" baseSize="content" container={false}>
-        <Suspense fallback={<DataTableSkeleton columnCount={6} />}>
+        <Suspense
+          fallback={
+            <DataTableSkeleton
+              columnCount={7}
+              searchableColumnCount={1}
+              headerItemsCount={2}
+            />
+          }
+        >
           <AuthenticatedInterviews />
         </Suspense>
       </ResponsiveContainer>

@@ -53,7 +53,7 @@ export function DataTableSkeleton({
         </div>
       )}
 
-      <Table surfaceProps={{ className: 'min-w-fit' }}>
+      <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             {Array.from({ length: columnCount }).map((_, i) => (

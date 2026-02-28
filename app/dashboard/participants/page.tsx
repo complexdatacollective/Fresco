@@ -15,7 +15,21 @@ export default function ParticipantPage() {
         subHeaderText="View and manage your participants."
         data-testid="participants-page-header"
       />
-      <Suspense fallback={<DataTableSkeleton columnCount={5} />}>
+      <Suspense
+        fallback={
+          <ResponsiveContainer
+            maxWidth="6xl"
+            baseSize="content"
+            container={false}
+          >
+            <DataTableSkeleton
+              columnCount={4}
+              searchableColumnCount={1}
+              headerItemsCount={3}
+            />
+          </ResponsiveContainer>
+        }
+      >
         <AuthenticatedParticipants />
       </Suspense>
     </>
