@@ -532,6 +532,7 @@ export default function UserManagement({
               component={InputField}
               required
               autoComplete="off"
+              showValidationHints
               validateOnChange
               validateOnChangeDelay={500}
               custom={[
@@ -550,8 +551,10 @@ export default function UserManagement({
               name="password"
               label="Password"
               component={PasswordField}
+              showStrengthMeter
+              showValidationHints
               required
-              autoComplete="new-password"
+              autoComplete="off"
               custom={{
                 schema: passwordSchema,
                 hint: 'At least 8 characters with lowercase, uppercase, number, and symbol',
@@ -562,7 +565,7 @@ export default function UserManagement({
               label="Confirm Password"
               component={PasswordField}
               required
-              autoComplete="new-password"
+              autoComplete="off"
             />
           </FormWithoutProvider>
         </Dialog>
