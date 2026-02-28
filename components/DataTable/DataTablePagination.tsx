@@ -17,6 +17,7 @@ type DataTablePaginationProps<TData> = {
 export function DataTablePagination<TData>({
   table,
 }: DataTablePaginationProps<TData>) {
+  'use no memo';
   const pageCount = table.getPageCount();
   const showPageCount = pageCount > 0;
 

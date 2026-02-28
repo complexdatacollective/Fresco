@@ -19,6 +19,7 @@ import { type GetData } from './ProtocolsTable';
 export type ProtocolWithInterviews = GetProtocolsQuery[number];
 
 const ProtocolsTableClient = ({ dataPromise }: { dataPromise: GetData }) => {
+  'use no memo';
   const [rawProtocols, allowAnonymousRecruitment, hasUploadThingToken] =
     use(dataPromise);
   const protocols = SuperJSON.parse<GetProtocolsQuery>(rawProtocols);
@@ -45,7 +46,7 @@ const ProtocolsTableClient = ({ dataPromise }: { dataPromise: GetData }) => {
     [allowAnonymousRecruitment],
   );
 
-  const { table } = useClientDataTable({
+  const { table, tableVersion } = useClientDataTable({
     data: protocols,
     columns,
   });
@@ -54,16 +55,18 @@ const ProtocolsTableClient = ({ dataPromise }: { dataPromise: GetData }) => {
     <>
       <DataTable
         table={table}
+        tableVersion={tableVersion}
         toolbar={
           <DataTableToolbar
             table={table}
+            tableVersion={tableVersion}
             searchableColumns={[{ id: 'name', title: 'by name' }]}
           >
             <ProtocolUploader buttonDisabled={!hasUploadThingToken} />
           </DataTableToolbar>
         }
         floatingBar={
-          <DataTableFloatingBar table={table}>
+          <DataTableFloatingBar table={table} tableVersion={tableVersion}>
             <Button
               onClick={() =>
                 handleDelete(

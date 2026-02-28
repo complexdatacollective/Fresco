@@ -9,14 +9,17 @@ import Surface from '../layout/Surface';
 
 type DataTableFloatingBarProps<TData> = {
   table: Table<TData>;
+  tableVersion?: number;
 } & HTMLAttributes<HTMLElement>;
 
 export function DataTableFloatingBar<TData>({
   table,
+  tableVersion: _tableVersion,
   children,
   className,
   ...props
 }: DataTableFloatingBarProps<TData>) {
+  'use no memo';
   if (table.getFilteredSelectedRowModel().rows.length <= 0) return null;
 
   return (

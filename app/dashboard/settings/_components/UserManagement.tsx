@@ -169,6 +169,7 @@ export default function UserManagement({
   hasTwoFactor,
   userCount,
 }: UserManagementProps) {
+  'use no memo';
   const [users, setUsers] = useState(initialUsers);
   const [isCreating, setIsCreating] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -262,7 +263,7 @@ export default function UserManagement({
     [currentUserId, confirm, doDeleteUsers],
   );
 
-  const { table } = useClientDataTable({
+  const { table, tableVersion } = useClientDataTable({
     data: users,
     columns,
     enablePagination: false,
@@ -395,11 +396,12 @@ export default function UserManagement({
 
         <DataTable
           table={table}
+          tableVersion={tableVersion}
           surfaceLevel={1}
           emptyText="No users created yet."
           showPagination={false}
           floatingBar={
-            <DataTableFloatingBar table={table}>
+            <DataTableFloatingBar table={table} tableVersion={tableVersion}>
               <Button
                 onClick={() =>
                   handleDeleteSelected(

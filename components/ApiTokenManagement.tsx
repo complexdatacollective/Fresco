@@ -32,6 +32,7 @@ export default function ApiTokenManagement({
   tokens: initialTokens,
   disabled,
 }: ApiTokenManagementProps) {
+  'use no memo';
   const [tokens, setTokens] = useState<ApiToken[]>(initialTokens);
   const [isCreating, setIsCreating] = useState(false);
   const [newTokenDescription, setNewTokenDescription] = useState('');
@@ -173,7 +174,7 @@ export default function ApiTokenManagement({
     },
   ];
 
-  const { table } = useClientDataTable({
+  const { table, tableVersion } = useClientDataTable({
     data: tokens,
     columns,
     enablePagination: false,
@@ -192,6 +193,7 @@ export default function ApiTokenManagement({
       </Button>
       <DataTable
         table={table}
+        tableVersion={tableVersion}
         surfaceLevel={1}
         emptyText="No API tokens created yet."
         showPagination={false}

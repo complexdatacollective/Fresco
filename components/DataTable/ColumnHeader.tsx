@@ -29,6 +29,7 @@ export function DataTableColumnHeader<TData, TValue>({
   title,
   className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
+  'use no memo';
   const headerClasses = cx(
     buttonVariants({ variant: 'text', size: 'sm' }),
     'pointer-events-none -mx-4 min-w-max px-4! text-base',

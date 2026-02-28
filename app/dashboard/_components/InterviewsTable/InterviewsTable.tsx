@@ -35,6 +35,7 @@ export const InterviewsTable = ({
   interviewsPromise: GetInterviewsReturnType;
   protocolsPromise: GetProtocolsReturnType;
 }) => {
+  'use no memo';
   const serializedInterviews = use(interviewsPromise);
   const interviews = superjson.parse<GetInterviewsQuery>(serializedInterviews);
 
@@ -81,7 +82,7 @@ export const InterviewsTable = ({
     [],
   );
 
-  const { table } = useClientDataTable({
+  const { table, tableVersion } = useClientDataTable({
     data: interviews,
     columns,
     defaultSortBy: { id: 'lastUpdated', desc: true },
@@ -101,9 +102,11 @@ export const InterviewsTable = ({
       />
       <DataTable
         table={table}
+        tableVersion={tableVersion}
         toolbar={
           <DataTableToolbar
             table={table}
+            tableVersion={tableVersion}
             searchableColumns={[{ id: 'identifier', title: 'by identifier' }]}
           >
             <DropdownMenu>
@@ -136,7 +139,7 @@ export const InterviewsTable = ({
           </DataTableToolbar>
         }
         floatingBar={
-          <DataTableFloatingBar table={table}>
+          <DataTableFloatingBar table={table} tableVersion={tableVersion}>
             <Button
               onClick={() =>
                 handleDelete(

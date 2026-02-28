@@ -19,6 +19,7 @@ export function DataTableFacetedFilter<TData, TValue>({
   options,
   className,
 }: DataTableFacetedFilterProps<TData, TValue>) {
+  'use no memo';
   const selectedValues = (column?.getFilterValue() as string[]) ?? [];
 
   const comboboxOptions: ComboboxOption[] = useMemo(

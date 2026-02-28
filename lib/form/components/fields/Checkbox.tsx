@@ -1,7 +1,6 @@
 'use client';
 
 import { Checkbox as BaseCheckbox } from '@base-ui/react/checkbox';
-import { motion, useMotionValue, useTransform } from 'motion/react';
 import { type ComponentPropsWithoutRef, forwardRef, useState } from 'react';
 import {
   controlVariants,
@@ -48,6 +47,8 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
       className,
       size = 'md',
       onCheckedChange,
+      checked,
+      defaultChecked = false,
       disabled,
       readOnly,
       'aria-invalid': ariaInvalid,
@@ -55,17 +56,9 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
     },
     ref,
   ) => {
-    const [internalChecked, setInternalChecked] = useState(
-      props.checked ?? props.defaultChecked ?? false,
-    );
-
-    const isControlled = props.checked !== undefined;
-    const isChecked = isControlled ? props.checked : internalChecked;
-
-    const pathLength = useMotionValue(isChecked ? 1 : 0);
-    const strokeLinecap = useTransform(() =>
-      pathLength.get() === 0 ? 'none' : 'round',
-    );
+    const isControlled = checked !== undefined;
+    const [internalChecked, setInternalChecked] = useState(defaultChecked);
+    const isChecked = isControlled ? checked : internalChecked;
 
     const handleCheckedChange: NonNullable<
       ComponentPropsWithoutRef<typeof BaseCheckbox.Root>['onCheckedChange']
@@ -82,55 +75,45 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
         ref={ref}
         onCheckedChange={handleCheckedChange}
         disabled={disabled ?? readOnly}
+        {...(isControlled ? { checked } : { defaultChecked })}
         {...props}
+        className={checkboxRootVariants({
+          size,
+          className,
+          state: getInputState({
+            disabled,
+            readOnly,
+            'aria-invalid': !!ariaInvalid,
+          }),
+        })}
         nativeButton
-        render={({
-          onDrag: _onDrag,
-          onDragEnd: _onDragEnd,
-          onDragStart: _onDragStart,
-          onAnimationStart: _onAnimationStart,
-          ...rest
-        }) => (
-          <motion.button
-            {...rest}
-            aria-invalid={ariaInvalid}
-            className={checkboxRootVariants({
-              size,
-              className,
-              state: getInputState({
-                disabled,
-                readOnly,
-                'aria-invalid': !!ariaInvalid,
-              }),
-            })}
+        render={<button />}
+      >
+        <BaseCheckbox.Indicator
+          className={checkboxIndicatorVariants()}
+          render={<span />}
+          keepMounted
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            className="text-primary size-full p-[0.1em]"
+            stroke="currentColor"
+            strokeWidth="3"
           >
-            <div className={checkboxIndicatorVariants()}>
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                className="text-primary size-full p-[0.1em]"
-                stroke="currentColor"
-                strokeWidth="3"
-              >
-                <motion.path
-                  d="M4 12L10 18L20 6"
-                  initial={false}
-                  animate={{ pathLength: isChecked ? 1 : 0 }}
-                  transition={{
-                    type: 'spring',
-                    bounce: 0,
-                    duration: isChecked ? 0.3 : 0.1,
-                  }}
-                  style={{
-                    pathLength,
-                    strokeLinecap,
-                  }}
-                />
-              </svg>
-            </div>
-          </motion.button>
-        )}
-      />
+            <path
+              d="M4 12L10 18L20 6"
+              pathLength={1}
+              style={{
+                strokeDasharray: 1,
+                strokeDashoffset: isChecked ? 0 : 1,
+                strokeLinecap: isChecked ? 'round' : 'butt',
+                transition: 'stroke-dashoffset 0.2s ease-out',
+              }}
+            />
+          </svg>
+        </BaseCheckbox.Indicator>
+      </BaseCheckbox.Root>
     );
   },
 );

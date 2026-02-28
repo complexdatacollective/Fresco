@@ -2,7 +2,7 @@
 
 import { type ColumnDef, type Row } from '@tanstack/react-table';
 import { Trash } from 'lucide-react';
-import { use, useCallback, useMemo, useState } from 'react';
+import { use, useCallback, useMemo, useRef, useState } from 'react';
 import SuperJSON from 'superjson';
 import {
   deleteAllParticipants,
@@ -11,12 +11,14 @@ import {
 import { ActionsDropdown } from '~/app/dashboard/_components/ParticipantsTable/ActionsDropdown';
 import { getParticipantColumns } from '~/app/dashboard/_components/ParticipantsTable/Columns';
 import { DeleteParticipantsDialog } from '~/app/dashboard/participants/_components/DeleteParticipantsDialog';
+import ParticipantModal from '~/app/dashboard/participants/_components/ParticipantModal';
 import { DataTable } from '~/components/DataTable/DataTable';
 import { DataTableFloatingBar } from '~/components/DataTable/DataTableFloatingBar';
 import { DataTableToolbar } from '~/components/DataTable/DataTableToolbar';
 import { Button } from '~/components/ui/Button';
-import { DialogTrigger } from '~/lib/dialogs/DialogTrigger';
 import { useClientDataTable } from '~/hooks/useClientDataTable';
+import type { Participant } from '~/lib/db/generated/client';
+import { DialogTrigger } from '~/lib/dialogs/DialogTrigger';
 import type {
   GetParticipantsQuery,
   GetParticipantsReturnType,
@@ -30,6 +32,18 @@ import { GenerateParticipantURLs } from '../../participants/_components/ExportPa
 
 export type ParticipantWithInterviews = GetParticipantsQuery[number];
 
+// Memoize SuperJSON.parse results to maintain stable references across
+// re-renders. Without this, every table state change (sort, filter, select)
+// causes column definitions to be recreated, forcing TanStack Table to
+// rebuild its entire row model and re-render all cells.
+function useStableParse<T>(raw: string): T {
+  const ref = useRef<{ raw: string; parsed: T } | null>(null);
+  if (ref.current?.raw !== raw) {
+    ref.current = { raw, parsed: SuperJSON.parse<T>(raw) };
+  }
+  return ref.current.parsed;
+}
+
 export const ParticipantsTableClient = ({
   participantsPromise,
   protocolsPromise,
@@ -37,15 +51,20 @@ export const ParticipantsTableClient = ({
   participantsPromise: GetParticipantsReturnType;
   protocolsPromise: GetProtocolsReturnType;
 }) => {
+  'use no memo';
   const rawParticipants = use(participantsPromise);
   const rawProtocols = use(protocolsPromise);
-  const participants = SuperJSON.parse<GetParticipantsQuery>(rawParticipants);
-  const protocols = SuperJSON.parse<GetProtocolsQuery>(rawProtocols);
+  const participants = useStableParse<GetParticipantsQuery>(rawParticipants);
+  const protocols = useStableParse<GetProtocolsQuery>(rawProtocols);
 
   const [participantsToDelete, setParticipantsToDelete] = useState<
     ParticipantWithInterviews[] | null
   >(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const [editingParticipant, setEditingParticipant] =
+    useState<Participant | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const doDelete = async () => {
     if (!participantsToDelete) {
@@ -81,24 +100,39 @@ export const ParticipantsTableClient = ({
     setShowDeleteModal(true);
   }, [participants]);
 
-  const actionsColumn: ColumnDef<ParticipantWithInterviews> = {
-    id: 'actions',
-    cell: ({ row }: { row: Row<ParticipantWithInterviews> }) => (
-      <ActionsDropdown
-        row={row}
-        data={participants}
-        deleteHandler={(participant) => handleDeleteItems([participant])}
-      />
-    ),
-  };
-
-  const columns = useMemo<ColumnDef<ParticipantWithInterviews, unknown>[]>(
-    () => [...getParticipantColumns(protocols), actionsColumn],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [protocols, participants],
+  const handleEditParticipant = useCallback(
+    (participant: ParticipantWithInterviews) => {
+      setEditingParticipant(participant);
+      setShowEditModal(true);
+    },
+    [],
   );
 
-  const { table } = useClientDataTable({
+  const handleDeleteSingle = useCallback(
+    (participant: ParticipantWithInterviews) => {
+      handleDeleteItems([participant]);
+    },
+    [handleDeleteItems],
+  );
+
+  const columns = useMemo<ColumnDef<ParticipantWithInterviews, unknown>[]>(
+    () => [
+      ...getParticipantColumns(protocols),
+      {
+        id: 'actions',
+        cell: ({ row }: { row: Row<ParticipantWithInterviews> }) => (
+          <ActionsDropdown
+            row={row}
+            onEdit={handleEditParticipant}
+            onDelete={handleDeleteSingle}
+          />
+        ),
+      },
+    ],
+    [protocols, handleEditParticipant, handleDeleteSingle],
+  );
+
+  const { table, tableVersion } = useClientDataTable({
     data: participants,
     columns,
   });
@@ -121,11 +155,20 @@ export const ParticipantsTableClient = ({
         onConfirm={doDelete}
         onCancel={resetDelete}
       />
+      <ParticipantModal
+        open={showEditModal}
+        setOpen={setShowEditModal}
+        existingParticipants={participants}
+        editingParticipant={editingParticipant}
+        setEditingParticipant={setEditingParticipant}
+      />
       <DataTable
         table={table}
+        tableVersion={tableVersion}
         toolbar={
           <DataTableToolbar
             table={table}
+            tableVersion={tableVersion}
             searchableColumns={[{ id: 'identifier', title: 'by identifier' }]}
           >
             <AddParticipantButton existingParticipants={participants} />
@@ -159,7 +202,7 @@ export const ParticipantsTableClient = ({
           </DataTableToolbar>
         }
         floatingBar={
-          <DataTableFloatingBar table={table}>
+          <DataTableFloatingBar table={table} tableVersion={tableVersion}>
             <Button
               onClick={() =>
                 handleDeleteItems(
