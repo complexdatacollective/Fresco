@@ -16,7 +16,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   render: () => {
-    const [value, setValue] = useState('');
+    const [value, setValue] = useState<string | undefined>('');
     return (
       <div className="w-80">
         <PasswordField value={value} onChange={setValue} />
@@ -27,7 +27,7 @@ export const Default: Story = {
 
 export const WithStrengthMeter: Story = {
   render: () => {
-    const [value, setValue] = useState('');
+    const [value, setValue] = useState<string | undefined>('');
     return (
       <div className="w-80">
         <PasswordField value={value} onChange={setValue} showStrengthMeter />
@@ -52,7 +52,7 @@ export const StrengthLevels: Story = {
             <span className="text-sm font-medium">{label}</span>
             <PasswordField
               value={value}
-              onChange={() => {}}
+              onChange={undefined}
               showStrengthMeter
             />
           </div>
