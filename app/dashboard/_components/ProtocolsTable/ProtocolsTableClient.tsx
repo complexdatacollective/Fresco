@@ -23,7 +23,10 @@ const ProtocolsTableClient = ({ dataPromise }: { dataPromise: GetData }) => {
   'use no memo';
   const [rawProtocols, allowAnonymousRecruitment, hasUploadThingToken] =
     use(dataPromise);
-  const protocols = SuperJSON.parse<GetProtocolsQuery>(rawProtocols);
+  const protocols = useMemo(
+    () => SuperJSON.parse<GetProtocolsQuery>(rawProtocols),
+    [rawProtocols],
+  );
 
   const [showAlertDialog, setShowAlertDialog] = useState(false);
   const [protocolsToDelete, setProtocolsToDelete] =

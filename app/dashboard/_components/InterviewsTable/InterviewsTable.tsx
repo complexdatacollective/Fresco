@@ -38,7 +38,10 @@ export const InterviewsTable = ({
   // TanStack Table: consumers must also opt out so React Compiler doesn't memoize JSX that depends on the table ref.
   'use no memo';
   const serializedInterviews = use(interviewsPromise);
-  const interviews = superjson.parse<GetInterviewsQuery>(serializedInterviews);
+  const interviews = useMemo(
+    () => superjson.parse<GetInterviewsQuery>(serializedInterviews),
+    [serializedInterviews],
+  );
 
   const [selectedInterviews, setSelectedInterviews] =
     useState<typeof interviews>();
