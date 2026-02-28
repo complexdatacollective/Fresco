@@ -1,11 +1,11 @@
 'use client';
 
 import { type Table } from '@tanstack/react-table';
-import { CrossIcon } from 'lucide-react';
 import { type HTMLAttributes } from 'react';
-import { Button } from '~/components/ui/Button';
 import { cx } from '~/utils/cva';
 import Surface from '../layout/Surface';
+import Paragraph from '../typography/Paragraph';
+import CloseButton from '../ui/CloseButton';
 
 type DataTableFloatingBarProps<TData> = {
   table: Table<TData>;
@@ -24,20 +24,23 @@ export function DataTableFloatingBar<TData>({
   return (
     <Surface
       className={cx(
-        'fixed bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2',
+        'fixed inset-x-4 bottom-4 z-50 mx-auto flex w-fit flex-wrap items-center justify-center gap-4 rounded',
         className,
       )}
+      noContainer
       {...props}
     >
-      <Button
-        aria-label="Clear selection"
-        title="Clear"
+      <Paragraph className="shrink-0 grow" margin="none">
+        {table.getFilteredSelectedRowModel().rows.length} row
+        {table.getFilteredSelectedRowModel().rows.length === 1 ? '' : 's'}{' '}
+        selected
+      </Paragraph>
+      <div className="flex gap-2">{children}</div>
+      <CloseButton
+        className="grow"
         onClick={() => table.toggleAllRowsSelected(false)}
-      >
-        <CrossIcon className="size-4" aria-hidden="true" />
-      </Button>
-      {table.getFilteredSelectedRowModel().rows.length} row(s) selected
-      {children}
+        aria-label="Close selection bar"
+      />
     </Surface>
   );
 }
