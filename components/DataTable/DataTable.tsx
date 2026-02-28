@@ -35,6 +35,7 @@ export function DataTable<TData>({
   emptyText = 'No results.',
   getRowClasses,
 }: DataTableProps<TData>) {
+  // TanStack Table returns a mutable ref with stable identity, defeating React Compiler memoization.
   'use no memo';
   const columnCount = table.getAllColumns().length;
 

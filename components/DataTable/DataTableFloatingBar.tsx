@@ -17,6 +17,7 @@ export function DataTableFloatingBar<TData>({
   className,
   ...props
 }: DataTableFloatingBarProps<TData>) {
+  // TanStack Table returns a mutable ref with stable identity, defeating React Compiler memoization.
   'use no memo';
   if (table.getFilteredSelectedRowModel().rows.length <= 0) return null;
 

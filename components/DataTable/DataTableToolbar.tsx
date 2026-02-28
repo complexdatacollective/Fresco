@@ -24,6 +24,7 @@ export function DataTableToolbar<TData>({
   searchableColumns = [],
   children,
 }: DataTableToolbarProps<TData>) {
+  // TanStack Table returns a mutable ref with stable identity, defeating React Compiler memoization.
   'use no memo';
   const isFiltered = table.getState().columnFilters?.length > 0;
 

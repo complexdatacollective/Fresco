@@ -28,6 +28,7 @@ export function useClientDataTable<TData, TValue>({
   enableRowSelection = true,
   defaultSortBy,
 }: UseClientDataTableOptions<TData, TValue>) {
+  // TanStack Table returns a mutable ref with stable identity, defeating React Compiler memoization.
   'use no memo';
   const [sorting, setSorting] = useState<SortingState>(
     defaultSortBy ? [{ ...defaultSortBy }] : [],

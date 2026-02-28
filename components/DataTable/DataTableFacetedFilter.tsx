@@ -19,6 +19,7 @@ export function DataTableFacetedFilter<TData, TValue>({
   options,
   className,
 }: DataTableFacetedFilterProps<TData, TValue>) {
+  // TanStack Table returns a mutable ref with stable identity, defeating React Compiler memoization.
   'use no memo';
   const selectedValues = (column?.getFilterValue() as string[]) ?? [];
 

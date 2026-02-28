@@ -32,6 +32,7 @@ export default function ApiTokenManagement({
   tokens: initialTokens,
   disabled,
 }: ApiTokenManagementProps) {
+  // TanStack Table: consumers must also opt out so React Compiler doesn't memoize JSX that depends on the table ref.
   'use no memo';
   const [tokens, setTokens] = useState<ApiToken[]>(initialTokens);
   const [isCreating, setIsCreating] = useState(false);

@@ -51,6 +51,7 @@ export const ParticipantsTableClient = ({
   participantsPromise: GetParticipantsReturnType;
   protocolsPromise: GetProtocolsReturnType;
 }) => {
+  // TanStack Table: consumers must also opt out so React Compiler doesn't memoize JSX that depends on the table ref.
   'use no memo';
   const rawParticipants = use(participantsPromise);
   const rawProtocols = use(protocolsPromise);

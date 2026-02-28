@@ -19,6 +19,7 @@ import { type GetData } from './ProtocolsTable';
 export type ProtocolWithInterviews = GetProtocolsQuery[number];
 
 const ProtocolsTableClient = ({ dataPromise }: { dataPromise: GetData }) => {
+  // TanStack Table: consumers must also opt out so React Compiler doesn't memoize JSX that depends on the table ref.
   'use no memo';
   const [rawProtocols, allowAnonymousRecruitment, hasUploadThingToken] =
     use(dataPromise);

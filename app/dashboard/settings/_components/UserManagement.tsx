@@ -169,6 +169,7 @@ export default function UserManagement({
   hasTwoFactor,
   userCount,
 }: UserManagementProps) {
+  // TanStack Table: consumers must also opt out so React Compiler doesn't memoize JSX that depends on the table ref.
   'use no memo';
   const [users, setUsers] = useState(initialUsers);
   const [isCreating, setIsCreating] = useState(false);
