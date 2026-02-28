@@ -1,7 +1,10 @@
 'use server';
 
 import { after } from 'next/server';
-import type { Activity, ActivityType } from '~/components/DataTable/types';
+import type {
+  Activity,
+  ActivityType,
+} from '~/app/dashboard/_components/ActivityFeed/types';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';

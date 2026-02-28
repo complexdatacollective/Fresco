@@ -113,7 +113,7 @@ function InterviewToastItem({ toast }: { toast: ToastObject<object> }) {
           >
             {IconComponent && (
               <IconComponent
-                className="mt-[0.1em] h-5 w-5 shrink-0"
+                className="mt-[0.1em] size-5 shrink-0"
                 aria-hidden="true"
               />
             )}
@@ -144,7 +144,7 @@ function InterviewToastItem({ toast }: { toast: ToastObject<object> }) {
       >
         {IconComponent && (
           <IconComponent
-            className="mt-[0.1em] h-5 w-5 shrink-0"
+            className="mt-[0.1em] size-5 shrink-0"
             aria-hidden="true"
           />
         )}

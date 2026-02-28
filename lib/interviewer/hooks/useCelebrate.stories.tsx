@@ -1,5 +1,3 @@
-'use client';
-
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useRef } from 'react';
 import Button from '~/components/ui/Button';

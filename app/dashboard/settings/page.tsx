@@ -20,6 +20,7 @@ import VersionSection, {
   VersionSectionSkeleton,
 } from '~/components/VersionSection';
 import { env } from '~/env';
+import { prisma } from '~/lib/db';
 import { getApiTokens } from '~/queries/apiTokens';
 import {
   getAppSetting,
@@ -33,6 +34,7 @@ import AnalyticsButton from '../_components/AnalyticsButton';
 import RecruitmentTestSectionServer from '../_components/RecruitmentTestSectionServer';
 import ResetButton from '../_components/ResetButton';
 import UpdateUploadThingTokenAlert from '../_components/UpdateUploadThingTokenAlert';
+
 import UpdateInstallationId from './_components/UpdateInstallationId';
 import UpdateUploadThingToken from './_components/UpdateUploadThingToken';
 import UserManagement from './_components/UserManagement';
@@ -42,6 +44,7 @@ function getSettingsSections(): SettingsSection[] {
   const sections: SettingsSection[] = [
     { id: 'app-version', title: 'App Version' },
     { id: 'user-management', title: 'User Management' },
+
     { id: 'configuration', title: 'Configuration' },
     { id: 'interview-settings', title: 'Interview Settings' },
     { id: 'privacy', title: 'Privacy' },
@@ -115,7 +118,14 @@ async function SettingsContent() {
     getUsers(),
   ]);
 
-  const apiTokens = previewMode ? await getApiTokens() : [];
+  const [apiTokens, totpCredential] = await Promise.all([
+    previewMode ? getApiTokens() : Promise.resolve([]),
+    prisma.totpCredential.findFirst({
+      where: { user_id: session.user.userId, verified: true },
+      select: { id: true },
+    }),
+  ]);
+  const hasTwoFactor = !!totpCredential;
   const sections = getSettingsSections();
   const previewModeIsReadOnly = env.PREVIEW_MODE !== undefined;
 
@@ -133,6 +143,8 @@ async function SettingsContent() {
               users={users}
               currentUserId={session.user.userId}
               currentUsername={session.user.username}
+              hasTwoFactor={hasTwoFactor}
+              userCount={users.length}
             />
           </SettingsCard>
 

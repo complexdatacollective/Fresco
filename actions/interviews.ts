@@ -1,13 +1,9 @@
 'use server';
 
 import { createId } from '@paralleldrive/cuid2';
+import { cookies } from 'next/headers';
 import { after } from 'next/server';
 import superjson from 'superjson';
-import {
-  captureEvent,
-  captureException,
-  shutdownPostHog,
-} from '~/lib/posthog-server';
 import { safeRevalidateTag, safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { type Interview } from '~/lib/db/generated/client';
@@ -23,6 +19,11 @@ import type {
   ExportReturn,
   FormattedSession,
 } from '~/lib/network-exporters/utils/types';
+import {
+  captureEvent,
+  captureException,
+  shutdownPostHog,
+} from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
 import {
   getInterviewsForExport,
@@ -33,6 +34,47 @@ import { requireApiAuth } from '~/utils/auth';
 import { ensureError } from '~/utils/ensureError';
 import { addEvent } from './activityFeed';
 import { uploadZipToUploadThing } from './uploadThing';
+
+export async function finishInterview(interviewId: string) {
+  try {
+    const updatedInterview = await prisma.interview.update({
+      where: { id: interviewId },
+      data: { finishTime: new Date() },
+      include: { participant: true },
+    });
+
+    const { label, identifier } = updatedInterview.participant;
+    const participantDisplay = label ? `${label} (${identifier})` : identifier;
+
+    const network = updatedInterview.network;
+
+    void addEvent(
+      'Interview Completed',
+      `Participant "${participantDisplay}" completed an interview`,
+      {
+        nodeCount: network?.nodes?.length ?? 0,
+        edgeCount: network?.edges?.length ?? 0,
+      },
+    );
+
+    (await cookies()).set(updatedInterview.protocolId, 'completed');
+
+    safeUpdateTag('getInterviews');
+    safeUpdateTag('summaryStatistics');
+    safeUpdateTag('activityFeed');
+
+    return { error: null };
+  } catch (e) {
+    const error = ensureError(e);
+
+    after(async () => {
+      await captureException(error, { interviewId });
+      await shutdownPostHog();
+    });
+
+    return { error: 'Failed to finish interview' };
+  }
+}
 
 export async function deleteInterviews(data: DeleteInterviews) {
   await requireApiAuth();

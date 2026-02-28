@@ -12,10 +12,12 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  username     String    @unique
-  auth_session Session[]
-  key          Key[]
+  id             String          @id @default(cuid())
+  username       String          @unique
+  auth_session   Session[]
+  key            Key[]
+  totpCredential TotpCredential?
+  recoveryCodes  RecoveryCode[]
 }
 
 model Session {
@@ -127,4 +129,38 @@ model ApiToken {
   createdAt   DateTime @default(now())
   lastUsedAt  DateTime?
   isActive    Boolean  @default(true)
+}
+
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  username  String?
+  ipAddress String?
+  success   Boolean
+  timestamp DateTime @default(now())
+
+  @@index([username, timestamp])
+  @@index([ipAddress, timestamp])
+  @@index([timestamp])
+}
+
+model TotpCredential {
+  id        String   @id @default(cuid())
+  user_id   String   @unique
+  secret    String
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model RecoveryCode {
+  id        String    @id @default(cuid())
+  user_id   String
+  codeHash  String
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
 }

@@ -1,5 +1,3 @@
-'use client';
-
 import type { Prompt as TPrompt } from '@codaco/protocol-validation';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { motion } from 'motion/react';

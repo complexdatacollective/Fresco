@@ -225,7 +225,7 @@ function ComboboxField(props: ComboboxFieldProps) {
                   disabled={option.disabled}
                   className={comboboxItemVariants({ size })}
                 >
-                  <Combobox.ItemIndicator className="flex h-4 w-4 items-center justify-center">
+                  <Combobox.ItemIndicator className="flex size-4 items-center justify-center">
                     <Check className="h-[1em] w-[1em]" />
                   </Combobox.ItemIndicator>
                   <span

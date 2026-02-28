@@ -46,6 +46,7 @@ const mockPrisma = {
   events: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
   asset: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
   apiToken: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
+  loginAttempt: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
 };
 
 vi.mock('~/lib/db', () => ({

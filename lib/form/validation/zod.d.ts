@@ -6,7 +6,6 @@
  */
 
 declare module 'zod' {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface GlobalMeta {
     // add new fields here
     hintText?: string;

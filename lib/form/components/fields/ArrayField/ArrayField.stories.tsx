@@ -1,5 +1,3 @@
-'use client';
-
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { GripVertical, PencilIcon, X } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -94,7 +92,7 @@ function SimpleInlineItem({
           onPointerDown={(e) => dragControls.start(e)}
           className="touch-none"
         >
-          <GripVertical className="h-4 w-4 cursor-grab" />
+          <GripVertical className="size-4 cursor-grab" />
         </div>
       )}
       <div className="flex-1">{item.label}</div>
@@ -351,7 +349,7 @@ function TagInlineItem({
                 onClick={() => setColor(c)}
                 style={{ backgroundColor: TAG_COLORS[c] }}
                 className={cx(
-                  'h-8 w-8 rounded-full transition-all',
+                  'size-8 rounded-full transition-all',
                   color === c
                     ? 'ring-primary ring-2 ring-offset-2'
                     : 'opacity-50 hover:opacity-100',
@@ -390,7 +388,7 @@ function TagInlineItem({
           onPointerDown={(e) => dragControls.start(e)}
           className="touch-none"
         >
-          <GripVertical className="h-4 w-4 cursor-grab" />
+          <GripVertical className="size-4 cursor-grab" />
         </motion.div>
       )}
       <motion.div layout className="flex-1">
@@ -518,14 +516,14 @@ function ContactDisplayItem({
   return (
     <motion.div
       layoutId={item._internalId}
-      className="border-b-input-contrast/10 flex w-full items-center gap-3 border-b px-2 py-2 last:border-b-0"
+      className="border-b-input-contrast/10 flex w-full items-center gap-3 border-b p-2 last:border-b-0"
     >
       {isSortable && (
         <div
           onPointerDown={(e) => dragControls.start(e)}
           className="touch-none"
         >
-          <GripVertical className="h-4 w-4 cursor-grab" />
+          <GripVertical className="size-4 cursor-grab" />
         </div>
       )}
       <div className="flex flex-1 flex-col">
@@ -579,9 +577,7 @@ async function checkEmailExists(
   await new Promise((resolve) => setTimeout(resolve, 800));
 
   // If we're editing and the email hasn't changed, it's valid
-  if (
-    email.toLowerCase() === currentItemEmail?.toLowerCase()
-  ) {
+  if (email.toLowerCase() === currentItemEmail?.toLowerCase()) {
     return false;
   }
 
@@ -757,7 +753,7 @@ function DisplayOnlyItem({
           onPointerDown={(e) => dragControls.start(e)}
           className="touch-none"
         >
-          <GripVertical className="h-4 w-4 cursor-grab" />
+          <GripVertical className="size-4 cursor-grab" />
         </div>
       )}
       <div className="flex-1">{item.label}</div>
@@ -847,7 +843,7 @@ function AlwaysEditingItem({
           onPointerDown={(e) => dragControls.start(e)}
           className="touch-none"
         >
-          <GripVertical className="h-4 w-4 cursor-grab" />
+          <GripVertical className="size-4 cursor-grab" />
         </div>
       )}
       <InputField

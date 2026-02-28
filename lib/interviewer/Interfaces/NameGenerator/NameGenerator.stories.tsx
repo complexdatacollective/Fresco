@@ -1,5 +1,3 @@
-'use client';
-
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
 import { expect, screen, userEvent, waitFor, within } from 'storybook/test';

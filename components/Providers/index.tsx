@@ -12,18 +12,13 @@ import { InterviewToastViewport } from '~/lib/interviewer/components/InterviewTo
 import { interviewToastManager } from '~/lib/interviewer/components/interviewToastManager';
 import { Toaster } from '../ui/Toast';
 import { TooltipProvider } from '../ui/tooltip';
-import { PostHogIdentify } from './PosthogIdentify';
 
 export default function Providers({
   children,
   disableAnimations,
-  installationId,
-  disableAnalytics,
 }: {
   children: ReactNode;
   disableAnimations?: boolean;
-  installationId?: string;
-  disableAnalytics?: boolean;
 }) {
   return (
     <NuqsAdapter>
@@ -33,10 +28,6 @@ export default function Providers({
             <TooltipProvider>
               <DndStoreProvider>
                 <ProtocolImportProvider>
-                  <PostHogIdentify
-                    installationId={installationId}
-                    disableAnalytics={disableAnalytics}
-                  />
                   <DialogProvider>{children}</DialogProvider>
                 </ProtocolImportProvider>
               </DndStoreProvider>

@@ -1,5 +1,5 @@
 import { Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import type z from 'zod';
 import { setAppSetting } from '~/actions/appSettings';
 import { Button } from '~/components/ui/Button';
@@ -12,11 +12,13 @@ export default function UpdateSettingsValue({
   initialValue,
   readOnly,
   schema,
+  suffixComponent,
 }: {
   settingsKey: AppSetting;
   initialValue?: string;
   readOnly?: boolean;
   schema: z.ZodType<string>;
+  suffixComponent?: ReactNode;
 }) {
   const [newValue, setNewValue] = useState(initialValue);
   const [error, setError] = useState<string | null>(null);
@@ -61,6 +63,7 @@ export default function UpdateSettingsValue({
         type="text"
         className="w-full"
         disabled={readOnly ?? isSaving}
+        suffixComponent={suffixComponent}
       />
       {error && <p className="text-destructive mt-2 text-sm">{error}</p>}
       {newValue !== initialValue && (

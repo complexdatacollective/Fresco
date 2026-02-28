@@ -79,18 +79,17 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
       ...inputProps
     } = props;
 
-    return (
-      <motion.div
-        layout={layout}
-        className={cx(
-          inputWrapperVariants({ size, state: getInputState(props) }),
-          className,
-        )}
-      >
+    const wrapperClassName = cx(
+      inputWrapperVariants({ size, state: getInputState(props) }),
+      className,
+    );
+
+    const inputElement = (
+      <>
         {prefix}
         <input
           ref={ref}
-          autoComplete="off" // Default to off to avoid browser autofill styles
+          autoComplete="off"
           className={inputVariants({ className })}
           type={type}
           {...inputProps}
@@ -100,6 +99,16 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
           readOnly={readOnly}
         />
         {suffix}
+      </>
+    );
+
+    if (!layout) {
+      return <div className={wrapperClassName}>{inputElement}</div>;
+    }
+
+    return (
+      <motion.div layout={layout} className={wrapperClassName}>
+        {inputElement}
       </motion.div>
     );
   },

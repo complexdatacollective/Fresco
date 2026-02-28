@@ -9,7 +9,7 @@ import {
 } from './table';
 
 const meta = {
-  title: 'UI/Table',
+  title: 'Components/Table',
   component: Table,
   parameters: {
     layout: 'padded',

@@ -1,44 +1,40 @@
 'use server';
 
-import { createId } from '@paralleldrive/cuid2';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import z from 'zod';
-import { env } from '~/env';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { type FormSubmissionResult } from '~/lib/form/store/types';
+import { checkRateLimit, recordLoginAttempt } from '~/lib/rateLimit';
+import { createSessionCookie } from '~/lib/session';
+import { createTwoFactorToken } from '~/lib/totp';
+import { getInstallationId } from '~/queries/appSettings';
 import { createUserFormDataSchema, loginSchema } from '~/schemas/auth';
 import { getServerSession } from '~/utils/auth';
+import { getClientIp } from '~/utils/getClientIp';
 import { hashPassword, verifyPassword } from '~/utils/password';
 import { addEvent } from './activityFeed';
 
 const SESSION_COOKIE_NAME = 'auth_session';
-const SESSION_ACTIVE_PERIOD_MS = 1000 * 60 * 60 * 24; // 24 hours
-const SESSION_IDLE_PERIOD_MS = 1000 * 60 * 60 * 24 * 14; // 2 weeks
 
-async function createSessionCookie(userId: string) {
-  const sessionId = createId();
-  const now = Date.now();
+type RateLimited = {
+  success: false;
+  rateLimited: true;
+  retryAfter: number;
+};
 
-  await prisma.session.create({
-    data: {
-      id: sessionId,
-      user_id: userId,
-      active_expires: BigInt(now + SESSION_ACTIVE_PERIOD_MS),
-      idle_expires: BigInt(now + SESSION_IDLE_PERIOD_MS),
-    },
-  });
+type TwoFactorRequired = {
+  success: false;
+  requiresTwoFactor: true;
+  twoFactorToken: string;
+};
 
-  const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE_NAME, sessionId, {
-    httpOnly: true,
-    secure: env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
-  });
-}
+export type LoginResult =
+  | FormSubmissionResult
+  | RateLimited
+  | TwoFactorRequired;
 
 export async function signup(formData: unknown) {
   const parsedFormData = createUserFormDataSchema.safeParse(formData);
@@ -78,7 +74,7 @@ export async function signup(formData: unknown) {
   redirect('/setup?step=2');
 }
 
-export const login = async (data: unknown): Promise<FormSubmissionResult> => {
+export const login = async (data: unknown): Promise<LoginResult> => {
   const parsedFormData = loginSchema.safeParse(data);
 
   if (!parsedFormData.success) {
@@ -89,12 +85,23 @@ export const login = async (data: unknown): Promise<FormSubmissionResult> => {
   }
 
   const { username, password } = parsedFormData.data;
+  const ipAddress = await getClientIp();
+
+  const rateLimitResult = await checkRateLimit(username, ipAddress);
+  if (!rateLimitResult.allowed) {
+    return {
+      success: false,
+      rateLimited: true,
+      retryAfter: rateLimitResult.retryAfter,
+    };
+  }
 
   const key = await prisma.key.findUnique({
     where: { id: `username:${username}` },
   });
 
   if (!key?.hashed_password) {
+    void recordLoginAttempt(username, ipAddress, false);
     return {
       success: false,
       formErrors: ['Incorrect username or password'],
@@ -104,9 +111,32 @@ export const login = async (data: unknown): Promise<FormSubmissionResult> => {
   const validPassword = await verifyPassword(password, key.hashed_password);
 
   if (!validPassword) {
+    void recordLoginAttempt(username, ipAddress, false);
     return {
       success: false,
       formErrors: ['Incorrect username or password'],
+    };
+  }
+
+  await recordLoginAttempt(username, ipAddress, true);
+
+  const totpCredential = await prisma.totpCredential.findFirst({
+    where: { user_id: key.user_id, verified: true },
+  });
+
+  if (totpCredential) {
+    const installationId = await getInstallationId();
+    if (!installationId) {
+      return {
+        success: false,
+        formErrors: ['Server configuration error. Please contact an admin.'],
+      };
+    }
+    const twoFactorToken = createTwoFactorToken(key.user_id, installationId);
+    return {
+      success: false,
+      requiresTwoFactor: true,
+      twoFactorToken,
     };
   }
 

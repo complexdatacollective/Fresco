@@ -9,6 +9,7 @@ import SubmitButton from '~/lib/form/components/SubmitButton';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { generatePublicId } from '~/utils/generatePublicId';
 import Dialog from './Dialog';
+import useWizardState from './useWizardState';
 
 type BaseDialog = {
   id?: string;
@@ -58,6 +59,21 @@ export type FormDialog = BaseDialog & {
   cancelLabel?: string;
 };
 
+export type WizardStep = {
+  title: string;
+  description?: string;
+  content: React.ComponentType;
+  nextLabel?: string;
+  backLabel?: string;
+};
+
+export type WizardDialog = BaseDialog & {
+  type: 'wizard';
+  steps: WizardStep[];
+  progress?: React.ComponentType<{ currentStep: number; totalSteps: number }>;
+  onFinish?: (data: Record<string, unknown>) => unknown;
+};
+
 // Helper type to extract return type from a dialog
 export type DialogReturnType<D> = D extends AcknowledgeDialog
   ? true | null
@@ -65,13 +81,16 @@ export type DialogReturnType<D> = D extends AcknowledgeDialog
     ? P | S | C | null
     : D extends FormDialog
       ? Record<string, FieldValue> | null
-      : unknown;
+      : D extends WizardDialog
+        ? unknown
+        : unknown;
 
 export type AnyDialog =
   | AcknowledgeDialog
   | ChoiceDialog<unknown, unknown, unknown>
   | CustomDialog
-  | FormDialog;
+  | FormDialog
+  | WizardDialog;
 
 type DialogState = AnyDialog & {
   id: string;
@@ -97,6 +116,35 @@ export type DialogContextType = {
 };
 
 export const DialogContext = createContext<DialogContextType | null>(null);
+
+function WizardDialogRenderer({
+  dialog,
+  closeDialog,
+}: {
+  dialog: DialogState & { type: 'wizard' };
+  closeDialog: DialogContextType['closeDialog'];
+}) {
+  const wizardProps = useWizardState({
+    dialog,
+    dialogId: dialog.id,
+    closeDialog,
+  });
+
+  if (!wizardProps) return null;
+
+  return (
+    <Dialog
+      title={wizardProps.title}
+      description={wizardProps.description}
+      closeDialog={() => closeDialog(dialog.id, null)}
+      accent={dialog.intent}
+      open={dialog.open}
+      footer={wizardProps.footer}
+    >
+      {wizardProps.children}
+    </Dialog>
+  );
+}
 
 const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -242,6 +290,16 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const renderDialog = (dialog: DialogState) => {
+    if (dialog.type === 'wizard') {
+      return (
+        <WizardDialogRenderer
+          key={dialog.id}
+          dialog={dialog}
+          closeDialog={closeDialog}
+        />
+      );
+    }
+
     if (dialog.type === 'form') {
       const formId = `dialog-form-${dialog.id}`;
       return (

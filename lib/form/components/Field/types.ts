@@ -37,7 +37,7 @@ export type FieldValue =
  * to properly handle optional value properties.
  * Returns `never` if the component doesn't have a value prop.
  */
-type ExtractValue<C extends ValidFieldComponent> =
+export type ExtractValue<C extends ValidFieldComponent> =
   'value' extends keyof React.ComponentProps<C>
     ? Exclude<React.ComponentProps<C>['value'], undefined>
     : never;
@@ -111,7 +111,7 @@ export type ValidationPropsCatalogue = CommonValidationProps &
  * - Number fields additionally get minValue, maxValue
  * - Array fields additionally get minSelected, maxSelected
  */
-type ValidationPropsForValue<V> = CommonValidationProps &
+export type ValidationPropsForValue<V> = CommonValidationProps &
   (V extends string ? StringValidationProps : unknown) &
   (V extends number ? NumberValidationProps : unknown) &
   (V extends unknown[] ? ArrayValidationProps : unknown);

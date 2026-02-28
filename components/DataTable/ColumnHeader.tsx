@@ -29,6 +29,8 @@ export function DataTableColumnHeader<TData, TValue>({
   title,
   className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
+  // TanStack Table returns a mutable ref with stable identity, defeating React Compiler memoization.
+  'use no memo';
   const headerClasses = cx(
     buttonVariants({ variant: 'text', size: 'sm' }),
     'pointer-events-none -mx-4 min-w-max px-4! text-base',

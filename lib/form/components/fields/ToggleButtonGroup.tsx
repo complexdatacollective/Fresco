@@ -55,10 +55,10 @@ const toggleButtonVariants = cva({
       10: 'border-cat-10 focus-visible:outline-cat-10',
     },
     size: {
-      sm: 'h-24 w-24 p-2 text-xs',
-      md: 'h-36 w-36 p-3 text-sm',
-      lg: 'h-48 w-48 p-4 text-base',
-      xl: 'h-60 w-60 p-5 text-lg',
+      sm: 'size-24 p-2 text-xs',
+      md: 'size-36 p-3 text-sm',
+      lg: 'size-48 p-4 text-base',
+      xl: 'size-60 p-5 text-lg',
     },
   },
   defaultVariants: {

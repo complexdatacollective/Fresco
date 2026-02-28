@@ -243,6 +243,14 @@ export default tseslint.config(
     },
   },
 
+  // Declaration files require `interface` for ambient type merging
+  {
+    files: ['**/*.d.ts'],
+    rules: {
+      '@typescript-eslint/consistent-type-definitions': 'off',
+    },
+  },
+
   // Prettier must be last
   eslintConfigPrettier,
 );

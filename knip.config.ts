@@ -52,6 +52,7 @@ const config: KnipConfig = {
       'tests/e2e/global-setup.ts',
       'tests/e2e/global-teardown.ts',
       'tests/e2e/specs/**/*.spec.ts',
+      'tests/e2e/suites/**/*.spec.ts',
     ],
   },
 };

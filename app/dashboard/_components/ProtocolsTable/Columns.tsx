@@ -2,9 +2,9 @@
 
 import { type ColumnDef } from '@tanstack/react-table';
 import Image from 'next/image';
+import Checkbox from '~/lib/form/components/fields/Checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import TimeAgo from '~/components/ui/TimeAgo';
-import Checkbox from '~/lib/form/components/fields/Checkbox';
 import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';
 import type { ProtocolWithInterviews } from './ProtocolsTableClient';
 
@@ -17,16 +17,14 @@ export const getProtocolColumns = (
       header: ({ table }) => (
         <Checkbox
           checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value: boolean) =>
-            table.toggleAllPageRowsSelected(!!value)
-          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
         />
       ),
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
-          onCheckedChange={(value: boolean) => row.toggleSelected(!!value)}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
         />
       ),

@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
+import { DataTableSkeleton } from '~/components/DataTable/DataTableSkeleton';
 import { getAppSetting } from '~/queries/appSettings';
 import { getProtocols } from '~/queries/protocols';
 import ProtocolsTableClient from './ProtocolsTableClient';

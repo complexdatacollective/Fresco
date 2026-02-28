@@ -3,14 +3,12 @@
 import { ClipboardCopy } from 'lucide-react';
 import Image from 'next/image';
 import posthog from 'posthog-js';
-import { useEffect } from 'react';
-import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
+import { useEffect, useState } from 'react';
+import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import Link from '~/components/ui/Link';
-import { useToast } from '~/components/ui/Toast';
-import { cx } from '~/utils/cva';
 
 export default function Error({
   error,
@@ -20,7 +18,7 @@ export default function Error({
   reset: () => void;
   heading?: string;
 }) {
-  const { add } = useToast();
+  const [copied, setCopied] = useState(false);
 
   const handleReset = () => {
     reset();
@@ -35,11 +33,8 @@ Stack Trace:
 ${error.stack}`;
 
     await navigator.clipboard.writeText(debugInfo);
-    add({
-      title: 'Success',
-      description: 'Debug information copied to clipboard',
-      type: 'success',
-    });
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   useEffect(() => {
@@ -48,10 +43,7 @@ ${error.stack}`;
 
   return (
     <div className="flex h-screen items-center justify-center">
-      <ResponsiveContainer
-        baseSize="60%"
-        className={cx('shadow-platinum-dark m-10 w-[30rem] p-10 shadow-xl')}
-      >
+      <Surface>
         <div className="mb-6 flex flex-col items-center justify-center gap-2">
           <Image
             src="/images/robot.svg"
@@ -77,14 +69,14 @@ ${error.stack}`;
         </Paragraph>
         <div className="mt-4 flex flex-col gap-2">
           <Button onClick={copyDebugInfoToClipboard} variant="text">
-            Copy Debug Information
+            {copied ? 'Copied!' : 'Copy Debug Information'}
             <ClipboardCopy className="ml-2" />
           </Button>
           <Button onClick={handleReset} color="primary" className="flex">
             Try Again
           </Button>
         </div>
-      </ResponsiveContainer>
+      </Surface>
     </div>
   );
 }

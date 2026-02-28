@@ -14,10 +14,21 @@ export const onRequestError: Instrumentation.onRequestError = async (
     // into the Edge Instrumentation bundle
     const { getPostHogServer, shutdownPostHog } =
       await import('./lib/posthog-server');
-    const { getInstallationId } = await import('./queries/appSettings');
+    const { env } = await import('./env');
+    const { prisma } = await import('./lib/db');
 
     const posthog = getPostHogServer();
-    const distinctId = await getInstallationId();
+
+    // Query installation ID directly instead of using the cached query
+    // from queries/appSettings. The cached version uses 'use cache' +
+    // cacheLife(), which isn't available in the instrumentation context.
+    let distinctId = env.INSTALLATION_ID;
+    if (!distinctId) {
+      const result = await prisma.appSettings.findUnique({
+        where: { key: 'installationId' },
+      });
+      distinctId = result?.value ?? 'unknown';
+    }
 
     posthog.captureException(err, distinctId, {
       ...context,

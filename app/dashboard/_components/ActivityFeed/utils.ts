@@ -1,4 +1,4 @@
-import { type ActivityType } from '~/components/DataTable/types';
+import { type ActivityType } from './types';
 
 export const getBadgeColorsForActivityType = (type: ActivityType) => {
   switch (type) {
@@ -34,5 +34,17 @@ export const getBadgeColorsForActivityType = (type: ActivityType) => {
       return 'bg-tomato hover:bg-tomato-dark';
     case 'User Deleted':
       return 'bg-charcoal hover:bg-charcoal-dark';
+    case 'Two-Factor Enabled':
+      return 'bg-sea-green hover:bg-sea-green-dark';
+    case 'Two-Factor Disabled':
+      return 'bg-neon-carrot hover:bg-neon-carrot-dark';
+    case 'Two-Factor Reset':
+      return 'bg-mustard hover:bg-mustard-dark';
+    case 'Two-Factor Login':
+      return 'bg-neon-coral hover:bg-neon-coral-dark';
+    case 'Recovery Code Used':
+      return 'bg-purple-pizazz hover:bg-purple-pizazz-dark';
+    case 'Recovery Codes Regenerated':
+      return 'bg-cerulean-blue hover:bg-cerulean-blue-dark';
   }
 };

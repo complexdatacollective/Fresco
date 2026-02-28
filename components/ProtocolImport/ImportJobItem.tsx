@@ -124,7 +124,7 @@ const ImportJobItem = forwardRef<HTMLDivElement, ImportJobItemProps>(
             {/* Icon indicator */}
             <div
               className={cx(
-                'flex h-12 w-12 shrink-0 items-center justify-center rounded-full',
+                'flex size-12 shrink-0 items-center justify-center rounded-full',
                 config.bgColor,
               )}
             >
@@ -138,7 +138,7 @@ const ImportJobItem = forwardRef<HTMLDivElement, ImportJobItemProps>(
             {/* File info and status */}
             <div className="min-w-0 flex-1">
               <div className="mb-1 flex items-center gap-2">
-                <FileArchive className="text-surface-contrast/30 h-4 w-4 shrink-0" />
+                <FileArchive className="text-surface-contrast/30 size-4 shrink-0" />
                 <span className="truncate font-medium">{job.fileName}</span>
               </div>
               <div className={cx('text-sm', config.color)}>{config.label}</div>
@@ -148,14 +148,14 @@ const ImportJobItem = forwardRef<HTMLDivElement, ImportJobItemProps>(
             {job.phase === 'error' && (
               <div className="flex shrink-0 items-center gap-2">
                 <IconButton
-                  icon={<RefreshCw className="h-4 w-4" />}
+                  icon={<RefreshCw className="size-4" />}
                   aria-label="Retry import"
                   color="primary"
                   size="sm"
                   onClick={() => onRetry(job)}
                 />
                 <IconButton
-                  icon={<X className="h-4 w-4" />}
+                  icon={<X className="size-4" />}
                   aria-label="Dismiss"
                   variant="text"
                   size="sm"
@@ -165,7 +165,7 @@ const ImportJobItem = forwardRef<HTMLDivElement, ImportJobItemProps>(
             )}
             {job.phase === 'complete' && (
               <IconButton
-                icon={<X className="h-4 w-4" />}
+                icon={<X className="size-4" />}
                 aria-label="Dismiss"
                 variant="text"
                 size="sm"

@@ -8,8 +8,8 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    DATABASE_URL: z.string(),
     DATABASE_URL_UNPOOLED: z.string(),
+    DATABASE_URL: z.string(),
     PUBLIC_URL: z.string().url().optional(),
     USE_NEON_POSTGRES_ADAPTER: z.stringbool().optional(),
   },

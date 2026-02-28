@@ -3,7 +3,7 @@ import Button from './Button';
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip';
 
 const meta = {
-  title: 'UI/Tooltip',
+  title: 'Components/Tooltip',
   component: Tooltip,
   parameters: {
     layout: 'centered',
@@ -120,9 +120,7 @@ export const CustomOffset: Story = {
 export const DefaultOpen: Story = {
   render: () => (
     <Tooltip defaultOpen>
-      <TooltipTrigger>
-        <Button>I start open</Button>
-      </TooltipTrigger>
+      <TooltipTrigger render={<Button>I start open</Button>} />
       <TooltipContent>This tooltip is open by default</TooltipContent>
     </Tooltip>
   ),

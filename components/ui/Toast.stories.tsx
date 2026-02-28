@@ -4,7 +4,7 @@ import { Button } from './Button';
 import { useToast, type ToastVariant } from './Toast';
 
 const meta = {
-  title: 'UI/Toast',
+  title: 'Components/Toast',
   parameters: {
     layout: 'fullscreen',
   },

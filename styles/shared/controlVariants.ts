@@ -59,7 +59,7 @@ export const sliderThumbVariants = compose(
   cva({
     base: cx(
       // Positioning - base-ui sets --slider-thumb-position
-      'absolute top-1/2 aspect-square -translate-x-1/2 -translate-y-1/2',
+      'absolute top-1/2 aspect-square -translate-1/2',
       'left-(--slider-thumb-position)',
       // Appearance
       'block rounded-full',

@@ -8,7 +8,7 @@ import Button from '../ui/Button';
 import Modal from './Modal';
 
 const meta: Meta<typeof Modal> = {
-  title: 'UI/Modal',
+  title: 'Components/Modal',
   component: Modal,
   args: {
     onOpenChange: fn(),
@@ -38,7 +38,7 @@ function InteractiveModal() {
         <ModalPopup
           key="modal-popup"
           className={cx(
-            'fixed top-1/2 left-1/2 w-96 -translate-x-1/2 -translate-y-1/2',
+            'fixed top-1/2 left-1/2 w-96 -translate-1/2',
             'bg-surface-1 text-surface-1-contrast rounded-lg p-6 shadow-xl',
           )}
         >
@@ -118,7 +118,7 @@ function BottomSheetExample() {
         <ModalPopup
           key="bottom-sheet-popup"
           className={cx(
-            'fixed right-0 bottom-0 left-0',
+            'fixed inset-x-0 bottom-0',
             'bg-surface-1 text-surface-1-contrast rounded-t-xl shadow-xl',
           )}
           initial={{ y: '100%', opacity: 0.99 }}
@@ -210,7 +210,7 @@ function NestedModalsExample() {
         <ModalPopup
           key="outer-modal-popup"
           className={cx(
-            'fixed top-1/2 left-1/2 w-96 -translate-x-1/2 -translate-y-1/2',
+            'fixed top-1/2 left-1/2 w-96 -translate-1/2',
             'bg-surface-1 text-surface-1-contrast rounded-lg p-6 shadow-xl',
           )}
         >
@@ -230,7 +230,7 @@ function NestedModalsExample() {
         <ModalPopup
           key="inner-modal-popup"
           className={cx(
-            'fixed top-1/2 left-1/2 w-80 -translate-x-1/2 -translate-y-1/2',
+            'fixed top-1/2 left-1/2 w-80 -translate-1/2',
             'bg-surface-1 text-surface-1-contrast rounded-lg p-6 shadow-xl',
           )}
         >
@@ -269,7 +269,7 @@ function CustomAnimationExample() {
         <ModalPopup
           key="bouncy-modal-popup"
           className={cx(
-            'fixed top-1/2 left-1/2 w-96 -translate-x-1/2 -translate-y-1/2',
+            'fixed top-1/2 left-1/2 w-96 -translate-1/2',
             'bg-surface-1 text-surface-1-contrast rounded-lg p-6 shadow-xl',
           )}
           initial={{ opacity: 0, scale: 0.3, y: -100 }}
@@ -393,7 +393,7 @@ function LayoutIdMorphExample() {
             key="dialog-popup"
             layoutId={selectedItem.id}
             className={cx(
-              'fixed top-1/2 left-1/2 w-[500px] -translate-x-1/2 -translate-y-1/2',
+              'fixed top-1/2 left-1/2 w-[500px] -translate-1/2',
               'bg-surface-1 text-surface-1-contrast p-6',
             )}
             style={{ borderRadius: 42 }}

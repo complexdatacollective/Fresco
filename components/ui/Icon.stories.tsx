@@ -3,7 +3,7 @@ import customIcons from '~/lib/interviewer/components/icons';
 import Icon, { type InterviewerIconName } from './Icon';
 
 const meta = {
-  title: 'UI/Icon',
+  title: 'Components/Icon',
   component: Icon,
   parameters: {
     layout: 'centered',

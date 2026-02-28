@@ -1,21 +1,26 @@
 'use client';
 
 import { type ColumnDef } from '@tanstack/react-table';
-import { Plus, User } from 'lucide-react';
+import { Plus, Trash, User } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { z } from 'zod';
+import { resetTotpForUser } from '~/actions/totp';
 import {
   changePassword,
   checkUsernameAvailable,
   createUser,
   deleteUsers,
 } from '~/actions/users';
+import PasswordField from '~/lib/form/components/fields/PasswordField';
+import TwoFactorSettings from '~/app/dashboard/settings/_components/TwoFactorSettings';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { DataTable } from '~/components/DataTable/DataTable';
+import { DataTableFloatingBar } from '~/components/DataTable/DataTableFloatingBar';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
+import { useClientDataTable } from '~/hooks/useClientDataTable';
 import Dialog from '~/lib/dialogs/Dialog';
 import useDialog from '~/lib/dialogs/useDialog';
 import Field from '~/lib/form/components/Field/Field';
@@ -33,6 +38,8 @@ type UserManagementProps = {
   users: GetUsersReturnType;
   currentUserId: string;
   currentUsername: string;
+  hasTwoFactor: boolean;
+  userCount: number;
 };
 
 const usernameSchema = z
@@ -63,6 +70,7 @@ function makeUserColumns(
   currentUserId: string,
   userCount: number,
   onDeleteUser: (user: UserRow) => void,
+  onResetTotp: (user: UserRow) => void,
 ): ColumnDef<UserRow>[] {
   return [
     {
@@ -112,6 +120,14 @@ function makeUserColumns(
       },
     },
     {
+      id: '2fa',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="2FA" />
+      ),
+      cell: ({ row }) =>
+        row.original.totpCredential?.verified ? 'Enabled' : '\u2014',
+    },
+    {
       id: 'actions',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Actions" />
@@ -119,16 +135,28 @@ function makeUserColumns(
       cell: ({ row }) => {
         const isCurrentUser = row.original.id === currentUserId;
         const isLastUser = userCount <= 1;
+        const hasTwoFactor = row.original.totpCredential?.verified;
         return (
-          <Button
-            onClick={() => onDeleteUser(row.original)}
-            color="destructive"
-            size="sm"
-            disabled={isCurrentUser || isLastUser}
-            data-testid={`delete-user-${row.original.username}`}
-          >
-            Delete
-          </Button>
+          <div className="flex gap-2">
+            {hasTwoFactor && !isCurrentUser && (
+              <Button
+                onClick={() => onResetTotp(row.original)}
+                size="sm"
+                data-testid={`reset-2fa-${row.original.username}`}
+              >
+                Reset 2FA
+              </Button>
+            )}
+            <Button
+              onClick={() => onDeleteUser(row.original)}
+              color="destructive"
+              size="sm"
+              disabled={isCurrentUser || isLastUser}
+              data-testid={`delete-user-${row.original.username}`}
+            >
+              Delete
+            </Button>
+          </div>
         );
       },
     },
@@ -139,7 +167,11 @@ export default function UserManagement({
   users: initialUsers,
   currentUserId,
   currentUsername,
+  hasTwoFactor,
+  userCount,
 }: UserManagementProps) {
+  // TanStack Table: consumers must also opt out so React Compiler doesn't memoize JSX that depends on the table ref.
+  'use no memo';
   const [users, setUsers] = useState(initialUsers);
   const [isCreating, setIsCreating] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -175,11 +207,70 @@ export default function UserManagement({
     [confirm, doDeleteUsers],
   );
 
+  const handleResetTotp = useCallback(
+    (user: UserRow) => {
+      void confirm({
+        title: 'Reset Two-Factor Authentication',
+        description: `This will disable two-factor authentication for ${user.username}. They will need to set it up again.`,
+        confirmLabel: 'Reset 2FA',
+        intent: 'destructive',
+        onConfirm: async () => {
+          const result = await resetTotpForUser(user.id);
+          if (result.error) {
+            setError(result.error);
+          } else {
+            setUsers((prev) =>
+              prev.map((u) =>
+                u.id === user.id ? { ...u, totpCredential: null } : u,
+              ),
+            );
+          }
+        },
+      });
+    },
+    [confirm],
+  );
+
   const columns = makeUserColumns(
     currentUserId,
     users.length,
     handleDeleteUser,
+    handleResetTotp,
   );
+
+  const handleDeleteSelected = useCallback(
+    (selectedUsers: UserRow[]) => {
+      const deletableUsers = selectedUsers.filter(
+        (user) => user.id !== currentUserId,
+      );
+
+      if (deletableUsers.length === 0) {
+        setError('You cannot delete your own account');
+        return;
+      }
+
+      const isSingle = deletableUsers.length === 1;
+      void confirm({
+        title: isSingle ? 'Delete User' : 'Delete Multiple Users',
+        description: isSingle
+          ? `Are you sure you want to delete the user "${deletableUsers[0]?.username}"? This action cannot be undone.`
+          : `Are you sure you want to delete ${deletableUsers.length} users? This action cannot be undone.`,
+        confirmLabel: isSingle
+          ? 'Delete User'
+          : `Delete ${deletableUsers.length} Users`,
+        intent: 'destructive',
+        onConfirm: () => doDeleteUsers(deletableUsers),
+      });
+    },
+    [currentUserId, confirm, doDeleteUsers],
+  );
+
+  const { table } = useClientDataTable({
+    data: users,
+    columns,
+    enablePagination: false,
+    enableRowSelection: (row) => row.original.id !== currentUserId,
+  });
 
   const handleCreateUser = async (
     values: unknown,
@@ -213,7 +304,10 @@ export default function UserManagement({
       };
     }
 
-    setUsers([...users, { id: crypto.randomUUID(), username }]);
+    setUsers([
+      ...users,
+      { id: crypto.randomUUID(), username, totpCredential: null },
+    ]);
     setIsCreating(false);
     return { success: true };
   };
@@ -256,62 +350,38 @@ export default function UserManagement({
     return { success: true };
   };
 
-  const handleDeleteSelected = useCallback(
-    (selectedUsers: UserRow[]) => {
-      // Filter out current user - they can't delete themselves
-      const deletableUsers = selectedUsers.filter(
-        (user) => user.id !== currentUserId,
-      );
-
-      if (deletableUsers.length === 0) {
-        setError('You cannot delete your own account');
-        return;
-      }
-
-      const isSingle = deletableUsers.length === 1;
-      void confirm({
-        title: isSingle ? 'Delete User' : 'Delete Multiple Users',
-        description: isSingle
-          ? `Are you sure you want to delete the user "${deletableUsers[0]?.username}"? This action cannot be undone.`
-          : `Are you sure you want to delete ${deletableUsers.length} users? This action cannot be undone.`,
-        confirmLabel: isSingle
-          ? 'Delete User'
-          : `Delete ${deletableUsers.length} Users`,
-        intent: 'destructive',
-        onConfirm: () => doDeleteUsers(deletableUsers),
-      });
-    },
-    [currentUserId, confirm, doDeleteUsers],
-  );
-
   return (
     <div className="space-y-6">
       <Heading level="label">Current User</Heading>
       <Surface
         level={1}
-        className="tablet:flex-row tablet:items-center tablet:justify-between mt-2 flex flex-col gap-4 p-6"
+        className="mt-2 divide-y divide-current/10 p-6"
         spacing="sm"
       >
-        <div className="tablet:gap-6 flex items-center gap-4">
-          <div className="bg-surface-2 text-surface-2-contrast tablet:size-14 inset-surface flex size-10 shrink-0 items-center justify-center rounded-full">
-            <User className="tablet:size-8 size-5" />
+        <div className="tablet:flex-row tablet:items-center tablet:justify-between flex flex-col gap-4 pb-4">
+          <div className="tablet:gap-6 flex items-center gap-4">
+            <div className="bg-surface-2 text-surface-2-contrast tablet:size-14 inset-surface flex size-10 shrink-0 items-center justify-center rounded-full">
+              <User className="tablet:size-8 size-5" />
+            </div>
+            <div className="min-w-0">
+              <Paragraph intent="smallText" margin="none">
+                Logged in as:
+              </Paragraph>
+              <Paragraph className="truncate font-medium">
+                {currentUsername}
+              </Paragraph>
+            </div>
           </div>
-          <div className="min-w-0">
-            <Paragraph intent="smallText" margin="none">
-              Logged in as:
-            </Paragraph>
-            <Paragraph className="truncate font-medium">
-              {currentUsername}
-            </Paragraph>
-          </div>
+          <Button
+            onClick={() => setIsChangingPassword(true)}
+            size="sm"
+            className="tablet:w-auto w-full"
+            color="primary"
+          >
+            Change Password
+          </Button>
         </div>
-        <Button
-          onClick={() => setIsChangingPassword(true)}
-          size="sm"
-          className="tablet:w-auto w-full"
-        >
-          Change Password
-        </Button>
+        <TwoFactorSettings hasTwoFactor={hasTwoFactor} userCount={userCount} />
       </Surface>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -327,11 +397,25 @@ export default function UserManagement({
         </div>
 
         <DataTable
-          columns={columns}
-          data={users}
-          handleDeleteSelected={handleDeleteSelected}
+          table={table}
           surfaceLevel={1}
           emptyText="No users created yet."
+          showPagination={false}
+          floatingBar={
+            <DataTableFloatingBar table={table}>
+              <Button
+                onClick={() =>
+                  handleDeleteSelected(
+                    table.getSelectedRowModel().rows.map((r) => r.original),
+                  )
+                }
+                color="destructive"
+                icon={<Trash className="size-4" />}
+              >
+                Delete Selected
+              </Button>
+            </DataTableFloatingBar>
+          }
         />
       </div>
       <FormStoreProvider>
@@ -447,7 +531,8 @@ export default function UserManagement({
               label="Username"
               component={InputField}
               required
-              autoComplete="username"
+              autoComplete="off"
+              showValidationHints
               validateOnChange
               validateOnChangeDelay={500}
               custom={[
@@ -465,10 +550,11 @@ export default function UserManagement({
             <Field
               name="password"
               label="Password"
-              component={InputField}
-              type="password"
+              component={PasswordField}
+              showStrengthMeter
+              showValidationHints
               required
-              autoComplete="new-password"
+              autoComplete="off"
               custom={{
                 schema: passwordSchema,
                 hint: 'At least 8 characters with lowercase, uppercase, number, and symbol',
@@ -477,10 +563,9 @@ export default function UserManagement({
             <Field
               name="confirmPassword"
               label="Confirm Password"
-              component={InputField}
-              type="password"
+              component={PasswordField}
               required
-              autoComplete="new-password"
+              autoComplete="off"
             />
           </FormWithoutProvider>
         </Dialog>

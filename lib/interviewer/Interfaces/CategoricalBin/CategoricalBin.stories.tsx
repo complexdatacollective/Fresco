@@ -1,5 +1,3 @@
-'use client';
-
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
 import SuperJSON from 'superjson';
@@ -116,7 +114,8 @@ const CategoricalBinStoryWrapper = (args: StoryArgs) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const interview = useMemo(() => buildInterview(args), [configKey]);
   const rawPayload = useMemo(
-    () => SuperJSON.stringify(interview.getInterviewPayload({ currentStep: 1 })),
+    () =>
+      SuperJSON.stringify(interview.getInterviewPayload({ currentStep: 1 })),
     [interview],
   );
 

@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import ParticipantsTable from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTable';
-import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
+import { DataTableSkeleton } from '~/components/DataTable/DataTableSkeleton';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import PageHeader from '~/components/typography/PageHeader';
 import { requireAppNotExpired } from '~/queries/appSettings';
@@ -15,7 +15,21 @@ export default function ParticipantPage() {
         subHeaderText="View and manage your participants."
         data-testid="participants-page-header"
       />
-      <Suspense fallback={<DataTableSkeleton columnCount={5} />}>
+      <Suspense
+        fallback={
+          <ResponsiveContainer
+            maxWidth="6xl"
+            baseSize="content"
+            container={false}
+          >
+            <DataTableSkeleton
+              columnCount={4}
+              searchableColumnCount={1}
+              headerItemsCount={3}
+            />
+          </ResponsiveContainer>
+        }
+      >
         <AuthenticatedParticipants />
       </Suspense>
     </>

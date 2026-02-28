@@ -42,6 +42,7 @@ export class AppServer {
           ...process.env,
           SKIP_ENV_VALIDATION: 'true',
           DISABLE_NEXT_CACHE: 'true',
+          DISABLE_ANALYTICS: 'true',
         },
         stdio: 'pipe',
       });

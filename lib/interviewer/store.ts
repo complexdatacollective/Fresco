@@ -31,7 +31,7 @@ export const store = (
             'dialogs/open/pending', // Dialogs store callback functions
           ],
         },
-      }).concat(options?.disableSync ? [logger] : [logger, syncMiddleware]),
+      }).concat(logger, ...(options?.disableSync ? [] : [syncMiddleware])),
     preloadedState: {
       session: {
         // Important to manually pass only the required state items to the session

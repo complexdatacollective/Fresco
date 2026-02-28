@@ -1,5 +1,7 @@
 import { type Metadata, type Viewport } from 'next';
+import { Suspense } from 'react';
 import Providers from '~/components/Providers';
+import { PostHogIdentify } from '~/components/Providers/PosthogIdentify';
 import { env } from '~/env';
 import { getDisableAnalytics, getInstallationId } from '~/queries/appSettings';
 import '~/styles/globals.css';
@@ -11,28 +13,36 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  // width: 'device-width',
-  // initialScale: 1,
-  // maximumScale: 1,
-  // userScalable: false,
   viewportFit: 'cover',
 };
 
-async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [installationId, disableAnalytics] = await Promise.all([
-    getInstallationId(),
-    getDisableAnalytics(),
-  ]);
+async function AnalyticsLoader() {
+  try {
+    const [installationId, disableAnalytics] = await Promise.all([
+      getInstallationId(),
+      getDisableAnalytics(),
+    ]);
 
+    return (
+      <PostHogIdentify
+        installationId={installationId}
+        disableAnalytics={disableAnalytics}
+      />
+    );
+  } catch {
+    return null;
+  }
+}
+
+function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className="bg-background publish-colors antialiased">
         <div className="root h-dvh">
-          <Providers
-            disableAnimations={env.CI ?? false}
-            installationId={installationId}
-            disableAnalytics={disableAnalytics}
-          >
+          <Providers disableAnimations={env.CI ?? false}>
+            <Suspense>
+              <AnalyticsLoader />
+            </Suspense>
             {children}
           </Providers>
         </div>

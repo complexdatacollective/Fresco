@@ -3,7 +3,7 @@ import { cx } from '~/utils/cva';
 import { ScrollArea, type ScrollAreaProps } from './ScrollArea';
 
 const meta: Meta<ScrollAreaProps> = {
-  title: 'UI/ScrollArea',
+  title: 'Components/ScrollArea',
   component: ScrollArea,
   parameters: {
     layout: 'centered',

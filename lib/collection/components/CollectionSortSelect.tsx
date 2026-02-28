@@ -106,7 +106,7 @@ export function CollectionSortSelect({
           render={
             <Button variant={variant} size={size}>
               {currentOption ? currentOption.label : placeholder}
-              <ChevronsUpDownIcon className="ml-1 h-3.5 w-3.5 opacity-50" />
+              <ChevronsUpDownIcon className="ml-1 size-3.5 opacity-50" />
             </Button>
           }
         />
@@ -148,9 +148,9 @@ export function CollectionSortSelect({
           aria-label={`Sort ${currentDirection === 'asc' ? 'ascending' : 'descending'}, click to toggle`}
         >
           {currentDirection === 'asc' ? (
-            <ArrowUpIcon className="h-3.5 w-3.5" />
+            <ArrowUpIcon className="size-3.5" />
           ) : (
-            <ArrowDownIcon className="h-3.5 w-3.5" />
+            <ArrowDownIcon className="size-3.5" />
           )}
         </Button>
       )}

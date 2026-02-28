@@ -19,9 +19,9 @@ const getActiveSession = (state: RootState) => {
   return state.session;
 };
 
-export const getStageIndex = (state: RootState) => state.session.currentStep;
-
 export const getInterviewId = (state: RootState) => state.session.id;
+
+export const getStageIndex = (state: RootState) => state.session.currentStep;
 
 export const getStageMetadata = createSelector(
   getActiveSession,
@@ -328,19 +328,6 @@ export const getNodeTypeLabel = createSelector(
   },
 );
 
-export const makeGetEdgeLabel = () =>
-  createSelector(
-    getCodebook,
-    (_, props: Record<string, string>) => props.type ?? null,
-    (codebook, edgeType: string | null) => {
-      if (!edgeType) {
-        return '';
-      }
-
-      return (codebook as Codebook)?.edge?.[edgeType]?.name ?? '';
-    },
-  );
-
 const getEdgeColor = createSelector(
   getCodebook,
   getStageSubject,
@@ -370,23 +357,6 @@ export const getEdgeColorForType = (
 
 export const makeGetEdgeColor = () => getEdgeColor;
 
-export const makeGetNodeAttributeLabel = () =>
-  createSelector(
-    getCodebook,
-    getSubjectType,
-    (_, props: Record<string, string>) => props.variableId ?? null,
-    (codebook, subjectType: string | null, variableId: string | null) => {
-      if (!subjectType || !variableId) {
-        return '';
-      }
-
-      return (
-        (codebook as Codebook).node?.[subjectType]?.variables?.[variableId]
-          ?.name ?? undefined
-      );
-    },
-  );
-
 export const getCategoricalOptions = createSelector(
   getCodebook,
   getSubjectType,
@@ -402,8 +372,6 @@ export const getCategoricalOptions = createSelector(
     return variable && 'options' in variable ? variable.options : [];
   },
 );
-
-export const makeGetCategoricalOptions = () => getCategoricalOptions;
 
 /**
  * makeNetworkEdgesForType()

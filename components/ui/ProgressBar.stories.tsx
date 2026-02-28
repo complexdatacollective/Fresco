@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import ProgressBar from './ProgressBar';
 
 const meta: Meta<typeof ProgressBar> = {
-  title: 'UI/ProgressBar',
+  title: 'Components/ProgressBar',
   component: ProgressBar,
   parameters: {
     layout: 'centered',

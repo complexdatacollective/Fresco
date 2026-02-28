@@ -1,6 +1,6 @@
 import 'server-only';
 import { cacheLife } from 'next/cache';
-import { type SearchParams } from '~/components/DataTable/types';
+import { type SearchParams } from '~/app/dashboard/_components/ActivityFeed/types';
 import { safeCacheTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 
@@ -40,7 +40,10 @@ async function fetchActivities(rawSearchParams: unknown) {
     prisma.events.findMany({
       take: perPage,
       skip: offset,
-      orderBy: [{ [sortField]: sort }, { id: sort }],
+      orderBy:
+        sort === 'none'
+          ? [{ timestamp: 'desc' }, { id: 'desc' }]
+          : [{ [sortField]: sort }, { id: sort }],
       where: {
         ...queryFilterParams,
       },

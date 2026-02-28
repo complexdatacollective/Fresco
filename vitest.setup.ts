@@ -132,6 +132,7 @@ const { motionMockModule } = vi.hoisted(() => {
     AnimatePresence,
     LayoutGroup,
     useAnimation,
+    useAnimationControls: useAnimation,
     useAnimate,
     stagger,
     useMotionValue: (initial: number) => ({

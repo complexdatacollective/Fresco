@@ -5,7 +5,7 @@ import { findIndex } from 'es-toolkit/compat';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useRef } from 'react';
 import { cx } from '~/utils/cva';
-import Pips from './Pips';
+import Pips from '~/components/ui/Pips';
 import Prompt from './Prompt';
 
 const containerVariants = {

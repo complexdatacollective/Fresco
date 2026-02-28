@@ -191,7 +191,7 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
           <svg
             viewBox="0 0 300 300"
             xmlns="http://www.w3.org/2000/svg"
-            className="absolute right-6 bottom-8 block h-30 w-30"
+            className="absolute right-6 bottom-8 block size-30"
           >
             <defs>
               <marker

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Node, { NodeColors } from './Node';
 
 const meta: Meta<typeof Node> = {
-  title: 'UI/Node',
+  title: 'Components/Node',
   component: Node,
   tags: ['autodocs'],
   parameters: {

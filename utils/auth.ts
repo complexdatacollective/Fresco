@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { RedirectType, redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { cache } from 'react';
 import 'server-only';
 import { prisma } from '~/lib/db';
@@ -39,7 +39,7 @@ export async function requirePageAuth() {
   const session = await getServerSession();
 
   if (!session) {
-    redirect('/signin', RedirectType.replace);
+    redirect('/signin');
   }
   return session;
 }

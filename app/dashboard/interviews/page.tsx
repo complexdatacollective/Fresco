@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
+import { DataTableSkeleton } from '~/components/DataTable/DataTableSkeleton';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import PageHeader from '~/components/typography/PageHeader';
 import { requireAppNotExpired } from '~/queries/appSettings';
@@ -15,7 +15,15 @@ export default function InterviewPage() {
         data-testid="interviews-page-header"
       />
       <ResponsiveContainer maxWidth="full" baseSize="content" container={false}>
-        <Suspense fallback={<DataTableSkeleton columnCount={6} />}>
+        <Suspense
+          fallback={
+            <DataTableSkeleton
+              columnCount={7}
+              searchableColumnCount={1}
+              headerItemsCount={2}
+            />
+          }
+        >
           <AuthenticatedInterviews />
         </Suspense>
       </ResponsiveContainer>

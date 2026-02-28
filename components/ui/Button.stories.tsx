@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { Fragment } from 'react';
 import {
   Check,
   ChevronRight,
@@ -10,23 +9,24 @@ import {
   Upload,
   X,
 } from 'lucide-react';
+import { Fragment } from 'react';
 import { Button, ButtonSkeleton, MotionButton } from './Button';
 import { BUTTON_COLORS } from './button-constants';
 
 const iconMap = {
   none: undefined,
-  check: <Check className="h-4 w-4" />,
-  plus: <Plus className="h-4 w-4" />,
-  x: <X className="h-4 w-4" />,
-  settings: <Settings className="h-4 w-4" />,
-  download: <Download className="h-4 w-4" />,
-  upload: <Upload className="h-4 w-4" />,
-  trash: <Trash className="h-4 w-4" />,
-  chevronRight: <ChevronRight className="h-4 w-4" />,
+  check: <Check className="size-4" />,
+  plus: <Plus className="size-4" />,
+  x: <X className="size-4" />,
+  settings: <Settings className="size-4" />,
+  download: <Download className="size-4" />,
+  upload: <Upload className="size-4" />,
+  trash: <Trash className="size-4" />,
+  chevronRight: <ChevronRight className="size-4" />,
 };
 
 const meta = {
-  title: 'UI/Button',
+  title: 'Components/Button',
   component: Button,
   parameters: {
     layout: 'centered',

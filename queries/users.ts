@@ -13,6 +13,9 @@ export async function getUsers() {
     select: {
       id: true,
       username: true,
+      totpCredential: {
+        select: { verified: true },
+      },
     },
     orderBy: {
       username: 'asc',

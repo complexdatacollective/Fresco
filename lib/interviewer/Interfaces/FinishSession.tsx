@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
+import { finishInterview } from '~/actions/interviews';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
@@ -28,10 +29,7 @@ const FinishSession = () => {
           throw new Error('No interview id found');
         }
 
-        const response = await fetch(`/interview/${interviewId}/finish`, {
-          method: 'POST',
-        });
-        const result = (await response.json()) as { error: string | null };
+        const result = await finishInterview(interviewId);
 
         if (!result.error) {
           router.push(`/interview/finished`);

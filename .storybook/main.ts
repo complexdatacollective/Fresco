@@ -1,4 +1,5 @@
 import { defineMain } from '@storybook/nextjs-vite/node';
+import { stubUseServer } from './vite-plugin-stub-use-server.ts';
 
 export default defineMain({
   addons: [
@@ -21,4 +22,9 @@ export default defineMain({
     check: false,
   },
   stories: ['../**/*.stories.@(js|jsx|mjs|ts|tsx|mdx)'],
+
+  viteFinal(config) {
+    config.plugins = [stubUseServer(), ...(config.plugins ?? [])];
+    return config;
+  },
 });

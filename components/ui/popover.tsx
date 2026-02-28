@@ -60,10 +60,27 @@ type PopoverTriggerProps = ComponentProps<typeof BasePopover.Trigger> & {
   asChild?: boolean;
 };
 
-function PopoverTrigger({ children, asChild, ...props }: PopoverTriggerProps) {
+function isButtonElement(element: React.ReactElement): boolean {
+  if (typeof element.type === 'string') {
+    return element.type === 'button';
+  }
+  const name =
+    (element.type as { displayName?: string }).displayName ??
+    (element.type as { name?: string }).name ??
+    '';
+  return /button/i.test(name);
+}
+
+function PopoverTrigger({
+  children,
+  asChild,
+  nativeButton,
+  ...props
+}: PopoverTriggerProps) {
   if (asChild && isValidElement<Record<string, unknown>>(children)) {
     return (
       <BasePopover.Trigger
+        nativeButton={nativeButton ?? isButtonElement(children)}
         render={(triggerProps) =>
           cloneElement(children, {
             ...triggerProps,
@@ -75,7 +92,11 @@ function PopoverTrigger({ children, asChild, ...props }: PopoverTriggerProps) {
     );
   }
 
-  return <BasePopover.Trigger {...props}>{children}</BasePopover.Trigger>;
+  return (
+    <BasePopover.Trigger nativeButton={nativeButton} {...props}>
+      {children}
+    </BasePopover.Trigger>
+  );
 }
 
 type PopoverContentProps = ComponentProps<typeof BasePopover.Popup> & {

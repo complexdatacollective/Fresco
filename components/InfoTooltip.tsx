@@ -32,7 +32,9 @@ export default function InfoTooltip({
 }: InfoTooltipProps) {
   return (
     <Popover {...rest}>
-      <PopoverTrigger openOnHover>{trigger}</PopoverTrigger>
+      <PopoverTrigger openOnHover asChild>
+        {trigger}
+      </PopoverTrigger>
       <PopoverContent sideOffset={sideOffset} className="max-w-sm">
         <BasePopover.Title
           render={<Heading level="h4" variant="all-caps" className="mt-0!" />}

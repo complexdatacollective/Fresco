@@ -148,6 +148,7 @@ export default function RadioGroupField(props: RadioGroupFieldProps) {
                 render={(renderProps, state) => (
                   <div
                     {...renderProps}
+                    aria-label={option.label}
                     className={radioIndicatorVariants({
                       size,
                       state: getOptionState(),

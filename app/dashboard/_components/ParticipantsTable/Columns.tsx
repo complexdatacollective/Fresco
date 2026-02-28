@@ -1,8 +1,8 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import Image from 'next/image';
+import Checkbox from '~/lib/form/components/fields/Checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { Badge } from '~/components/ui/badge';
-import Checkbox from '~/lib/form/components/fields/Checkbox';
 import type { ProtocolWithInterviews } from '../ProtocolsTable/ProtocolsTableClient';
 import { GenerateParticipationURLButton } from './GenerateParticipantURLButton';
 import type { ParticipantWithInterviews } from './ParticipantsTableClient';
@@ -16,16 +16,14 @@ export function getParticipantColumns(
       header: ({ table }) => (
         <Checkbox
           checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value: boolean) =>
-            table.toggleAllPageRowsSelected(!!value)
-          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
         />
       ),
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
-          onCheckedChange={(value: boolean) => row.toggleSelected(!!value)}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
         />
       ),
