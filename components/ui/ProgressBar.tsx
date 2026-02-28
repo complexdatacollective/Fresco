@@ -49,7 +49,7 @@ const ProgressBar = ({
             // Background using color-mix
             '[background-color:color-mix(in_oklch,currentColor_20%,transparent)]',
             // Complete state
-            'data-complete:bg-primary',
+            'data-complete:bg-sea-green',
             // Orientation-specific sizing and transitions
             // Base UI automatically sets width for horizontal, so we need to override for vertical
             orientation === 'vertical' && [
