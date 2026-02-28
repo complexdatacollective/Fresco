@@ -3,7 +3,7 @@ import { useState } from 'react';
 import PasswordField from './PasswordField';
 
 const meta: Meta<typeof PasswordField> = {
-  title: 'Setup/PasswordField',
+  title: 'Systems/Form/Fields/PasswordField',
   component: PasswordField,
   parameters: {
     layout: 'centered',

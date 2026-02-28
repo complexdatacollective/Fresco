@@ -1,10 +1,10 @@
-import { Eye, EyeOff, Lock } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { getPasswordStrength } from '~/lib/form/components/fields/getPasswordStrength';
 import { IconButton } from '~/components/ui/Button';
 import ProgressBar from '~/components/ui/ProgressBar';
 import InputField from '~/lib/form/components/fields/InputField';
 import { cx } from '~/utils/cva';
-import { getPasswordStrength } from '~/app/(blobs)/(setup)/_components/getPasswordStrength';
 
 type PasswordFieldProps = React.ComponentProps<typeof InputField> & {
   showStrengthMeter?: boolean;
@@ -27,7 +27,6 @@ export default function PasswordField({
       <InputField
         type={showPassword ? 'text' : 'password'}
         placeholder="Enter password"
-        prefixComponent={<Lock />}
         suffixComponent={
           <IconButton
             variant="text"
@@ -46,14 +45,12 @@ export default function PasswordField({
           )}
           aria-live="polite"
         >
-          <div className="h-1.5 grow">
-            <ProgressBar
-              orientation="horizontal"
-              percentProgress={strength.percent}
-              nudge={false}
-              label="Password strength"
-            />
-          </div>
+          <ProgressBar
+            orientation="horizontal"
+            percentProgress={strength.percent}
+            nudge={false}
+            label="Password strength"
+          />
           <span className="text-xs font-medium">{strength.label}</span>
         </div>
       )}

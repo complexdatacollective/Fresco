@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { login, type LoginResult } from '~/actions/auth';
 import { verifyTwoFactor } from '~/actions/twoFactor';
-import PasswordField from '~/app/(blobs)/(setup)/_components/PasswordField';
+import PasswordField from '~/lib/form/components/fields/PasswordField';
 import TwoFactorVerify from '~/components/TwoFactorVerify';
 import { Button } from '~/components/ui/Button';
 import { DialogFooter } from '~/lib/dialogs/Dialog';

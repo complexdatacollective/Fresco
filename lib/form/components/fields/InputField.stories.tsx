@@ -4,8 +4,6 @@ import {
   Calendar,
   Check,
   DollarSign,
-  Eye,
-  EyeOff,
   Loader2,
   Lock,
   Mail,
@@ -381,63 +379,6 @@ export const WithIcons: Story = {
       />
     </div>
   ),
-};
-
-/**
- * Password input with visibility toggle button.
- * Use controls to change size, disabled, and readOnly states.
- */
-export const PasswordInput: Story = {
-  args: {
-    size: 'md',
-    placeholder: 'Enter password',
-  },
-  argTypes: {
-    'disabled': { control: 'boolean' },
-    'readOnly': { control: 'boolean' },
-    'aria-invalid': { control: 'boolean' },
-    'type': { control: false },
-  },
-  render: function Render(args) {
-    const [showPassword, setShowPassword] = useState(false);
-
-    return (
-      <InputField
-        {...args}
-        type={showPassword ? 'text' : 'password'}
-        defaultValue="secretpassword"
-        aria-label="Password input"
-        data-testid="password-input"
-        prefixComponent={<Lock className="size-4" />}
-        suffixComponent={
-          <button
-            type="button"
-            data-testid="toggle-button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="hover:text-current"
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
-          >
-            {showPassword ? (
-              <EyeOff className="size-4" />
-            ) : (
-              <Eye className="size-4" />
-            )}
-          </button>
-        }
-      />
-    );
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const input = canvas.getByTestId('password-input');
-    const toggleButton = canvas.getByTestId('toggle-button');
-
-    await expect(input).toHaveAttribute('type', 'password');
-    await userEvent.click(toggleButton);
-    await expect(input).toHaveAttribute('type', 'text');
-    await userEvent.click(toggleButton);
-    await expect(input).toHaveAttribute('type', 'password');
-  },
 };
 
 /**

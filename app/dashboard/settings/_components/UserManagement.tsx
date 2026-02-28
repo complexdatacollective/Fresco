@@ -11,7 +11,7 @@ import {
   createUser,
   deleteUsers,
 } from '~/actions/users';
-import PasswordField from '~/app/(blobs)/(setup)/_components/PasswordField';
+import PasswordField from '~/lib/form/components/fields/PasswordField';
 import TwoFactorSettings from '~/app/dashboard/settings/_components/TwoFactorSettings';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { DataTable } from '~/components/DataTable/DataTable';

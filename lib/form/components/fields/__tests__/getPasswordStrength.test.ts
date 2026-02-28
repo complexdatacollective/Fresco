@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   getPasswordStrength,
   type PasswordStrength,
-} from '~/app/(blobs)/(setup)/_components/getPasswordStrength';
+} from '~/lib/form/components/fields/getPasswordStrength';
 
 describe('getPasswordStrength', () => {
   it('returns score 0 for empty string', () => {
