@@ -1,9 +1,9 @@
 import ImportCSVModal from '~/app/dashboard/participants/_components/ImportCSVModal';
 import AnonymousRecruitmentSwitchClient from '~/components/AnonymousRecruitmentSwitchClient';
-import SettingsSection from '~/components/layout/SettingsSection';
 import LimitInterviewsSwitchClient from '~/components/LimitInterviewsSwitchClient';
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
+import SettingsCard from '~/components/settings/SettingsCard';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import OnboardContinue from '../OnboardContinue';
 
 function ManageParticipants({
@@ -14,9 +14,9 @@ function ManageParticipants({
   limitInterviews: boolean;
 }) {
   return (
-    <div className="max-w-[30rem]">
+    <div className="w-full max-w-[40rem]">
       <div className="mb-6">
-        <Heading variant="h2">Configure Participation</Heading>
+        <Heading level="h2">Configure Participation</Heading>
         <Paragraph>
           You can now optionally upload a CSV file containing the details of
           participants you wish to recruit for your study. You can also choose
@@ -25,35 +25,38 @@ function ManageParticipants({
         </Paragraph>
       </div>
       <div className="mb-6 flex flex-col gap-2">
-        <SettingsSection
-          heading="Import Participants"
+        <SettingsCard
+          title="Import Participants"
           controlArea={<ImportCSVModal />}
+          className="bg-surface-1 text-surface-1-contrast"
         >
           <Paragraph>Upload a CSV file of participants.</Paragraph>
-        </SettingsSection>
-        <SettingsSection
-          heading="Anonymous Recruitment"
+        </SettingsCard>
+        <SettingsCard
+          title="Anonymous Recruitment"
           controlArea={
             <AnonymousRecruitmentSwitchClient
               allowAnonymousRecruitment={allowAnonymousRecruitment}
             />
           }
+          className="bg-surface-1 text-surface-1-contrast"
         >
           <Paragraph>
             Allow participants to join your study by visiting a URL.
           </Paragraph>
-        </SettingsSection>
-        <SettingsSection
-          heading="Limit Interviews"
+        </SettingsCard>
+        <SettingsCard
+          title="Limit Interviews"
           controlArea={
             <LimitInterviewsSwitchClient limitInterviews={limitInterviews} />
           }
+          className="bg-surface-1 text-surface-1-contrast"
         >
           <Paragraph>
             Limit each participant to being allowed to complete one interview
             per protocol.
           </Paragraph>
-        </SettingsSection>
+        </SettingsCard>
       </div>
       <div className="flex justify-end">
         <OnboardContinue />

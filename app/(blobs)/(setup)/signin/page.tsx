@@ -1,30 +1,41 @@
+import { Loader2 } from 'lucide-react';
+import { type Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 import { containerClasses } from '~/components/ContainerClasses';
+import Surface from '~/components/layout/Surface';
+import Heading from '~/components/typography/Heading';
 import { getServerSession } from '~/utils/auth';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import SandboxCredentials from '../_components/SandboxCredentials';
 import { SignInForm } from '../_components/SignInForm';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Fresco - Sign In',
   description: 'Sign in to Fresco.',
 };
 
-export const dynamic = 'force-dynamic';
-
-export default async function Page() {
-  const session = await getServerSession();
-
-  if (session) {
-    // If the user is already signed in, redirect to the dashboard
-    redirect('/dashboard');
-  }
-
+export default function Page() {
   return (
-    <div className={cn(containerClasses, 'w-[25rem]')}>
-      <h1 className="mb-6 text-2xl font-bold">Sign In To Fresco</h1>
+    <Surface className={cx(containerClasses)} elevation="none" maxWidth="md">
+      <Heading level="h2">Sign In To Fresco</Heading>
       <SandboxCredentials />
+      <Suspense
+        fallback={
+          <div className="flex justify-center py-4">
+            <Loader2 className="size-6 animate-spin" />
+          </div>
+        }
+      >
+        <SignInGate />
+      </Suspense>
       <SignInForm />
-    </div>
+    </Surface>
   );
+}
+
+async function SignInGate() {
+  const session = await getServerSession();
+  if (session) redirect('/dashboard');
+  return null;
 }

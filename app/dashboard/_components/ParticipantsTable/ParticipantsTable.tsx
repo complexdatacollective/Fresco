@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
+import { DataTableSkeleton } from '~/components/DataTable/DataTableSkeleton';
 import { getParticipants } from '~/queries/participants';
 import { getProtocols } from '~/queries/protocols';
 import { ParticipantsTableClient } from './ParticipantsTableClient';
@@ -10,7 +10,13 @@ export default function ParticipantsTable() {
 
   return (
     <Suspense
-      fallback={<DataTableSkeleton columnCount={4} filterableColumnCount={3} />}
+      fallback={
+        <DataTableSkeleton
+          columnCount={4}
+          searchableColumnCount={1}
+          headerItemsCount={3}
+        />
+      }
     >
       <ParticipantsTableClient
         participantsPromise={participantsPromise}

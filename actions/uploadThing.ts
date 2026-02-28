@@ -6,7 +6,7 @@ import type {
   ArchiveResult,
   ExportReturn,
 } from '~/lib/network-exporters/utils/types';
-import { getUTApi } from '~/lib/uploadthing-server-helpers';
+import { getUTApi } from '~/lib/uploadthing/server-helpers';
 import { requireApiAuth } from '~/utils/auth';
 import { ensureError } from '~/utils/ensureError';
 
@@ -41,7 +41,7 @@ export const uploadZipToUploadThing = async (
     if (data) {
       void unlink(zipLocation); // Delete the zip file after successful upload
       return {
-        zipUrl: data.url,
+        zipUrl: data.ufsUrl,
         zipKey: data.key,
         status: rejected.length ? 'partial' : 'success',
         error: rejected.length ? 'Some exports failed' : null,

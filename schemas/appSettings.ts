@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
 
-export const appSettingsSchema = z
+const appSettingsSchema = z
   .object({
     initializedAt: z.date(),
     configured: z.boolean(),
@@ -11,12 +11,15 @@ export const appSettingsSchema = z
     installationId: z.string(),
     disableAnalytics: z.boolean(),
     disableSmallScreenOverlay: z.boolean(),
+    previewMode: z.boolean(),
+    previewModeRequireAuth: z.boolean(),
   })
   .strict();
 
 export type AppSetting = keyof z.infer<typeof appSettingsSchema>;
 
 const parseBoolean = (value: unknown): boolean | undefined => {
+  if (typeof value === 'boolean') return value;
   if (value === 'true') return true;
   if (value === 'false') return false;
   return undefined;
@@ -36,6 +39,8 @@ export const appSettingPreprocessedSchema = appSettingsSchema.extend({
     parseBoolean,
     z.boolean().default(false),
   ),
+  previewMode: z.preprocess(parseBoolean, z.boolean().default(false)),
+  previewModeRequireAuth: z.preprocess(parseBoolean, z.boolean().default(true)),
   uploadThingToken: z.string().optional(),
   installationId: z.string().optional(),
 });

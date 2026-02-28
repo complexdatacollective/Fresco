@@ -1,19 +1,14 @@
 import { type ColumnDef } from '@tanstack/react-table';
-import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import { Checkbox } from '~/components/ui/checkbox';
-import { GenerateParticipationURLButton } from './GenerateParticipantURLButton';
-import { type ParticipantWithInterviews } from '~/types/types';
 import Image from 'next/image';
-import InfoTooltip from '~/components/InfoTooltip';
-import { InfoIcon } from 'lucide-react';
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import { buttonVariants } from '~/components/ui/Button';
+import Checkbox from '~/lib/form/components/fields/Checkbox';
+import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { Badge } from '~/components/ui/badge';
-import type { GetProtocolsReturnType } from '~/queries/protocols';
+import type { ProtocolWithInterviews } from '../ProtocolsTable/ProtocolsTableClient';
+import { GenerateParticipationURLButton } from './GenerateParticipantURLButton';
+import type { ParticipantWithInterviews } from './ParticipantsTableClient';
 
 export function getParticipantColumns(
-  protocols: Awaited<GetProtocolsReturnType>,
+  protocols: ProtocolWithInterviews[],
 ): ColumnDef<ParticipantWithInterviews, unknown>[] {
   return [
     {
@@ -91,32 +86,11 @@ export function getParticipantColumns(
     },
     {
       id: 'participant-url',
-      header: () => {
+      header: ({ column }) => {
         return (
-          <InfoTooltip
-            triggerClasses="whitespace-nowrap flex"
-            trigger={
-              <div
-                className={buttonVariants({
-                  variant: 'tableHeader',
-                  size: 'sm',
-                })}
-              >
-                <span>Unique Participant URL</span>
-                <InfoIcon className="mx-2 h-4 w-4" />
-              </div>
-            }
-            content={
-              <>
-                <Heading variant="h4-all-caps">Unique Participant URL</Heading>
-                <Paragraph>
-                  A unique participant URL allows a participant to take an
-                  interview simply by visiting a URL. A participation URL is
-                  specific to each participant, and should only be shared with
-                  them.
-                </Paragraph>
-              </>
-            }
+          <DataTableColumnHeader
+            column={column}
+            title="Unique Participant URL"
           />
         );
       },

@@ -1,6 +1,7 @@
 import {
   caseProperty,
   codebookHashProperty,
+  type NcNetwork,
   protocolName,
   protocolProperty,
   sessionExportTimeProperty,
@@ -10,8 +11,7 @@ import {
 } from '@codaco/shared-consts';
 import { hash } from 'ohash';
 import { env } from '~/env';
-import type { getInterviewsForExport } from '~/queries/interviews';
-import type { NcNetwork } from '~/schemas/network-canvas';
+import type { GetInterviewsForExportQuery } from '~/queries/interviews';
 import { type SessionVariables } from '../utils/types';
 
 /**
@@ -20,7 +20,7 @@ import { type SessionVariables } from '../utils/types';
  */
 
 export const formatExportableSessions = (
-  sessions: Awaited<ReturnType<typeof getInterviewsForExport>>,
+  sessions: Awaited<GetInterviewsForExportQuery>,
 ) => {
   return sessions.map((session) => {
     const sessionProtocol = session.protocol;
@@ -43,12 +43,9 @@ export const formatExportableSessions = (
       [protocolProperty]: sessionProtocol.hash,
       [protocolName]: sessionProtocol.name,
       [codebookHashProperty]: hash(sessionProtocol.codebook),
-      [sessionStartTimeProperty]: session.startTime
-        ? new Date(session.startTime).toISOString()
-        : undefined,
-      [sessionFinishTimeProperty]: session.finishTime
-        ? new Date(session.finishTime).toISOString()
-        : undefined,
+      [sessionStartTimeProperty]: session.startTime.toISOString(),
+      [sessionFinishTimeProperty]:
+        session.finishTime?.toISOString() ?? undefined,
       [sessionExportTimeProperty]: new Date().toISOString(),
       COMMIT_HASH: env.COMMIT_HASH!,
       APP_VERSION: env.APP_VERSION!,

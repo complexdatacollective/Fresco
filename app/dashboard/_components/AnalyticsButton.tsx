@@ -1,36 +1,21 @@
 'use client';
+import posthog from 'posthog-js';
 import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/use-toast';
-import trackEvent from '~/lib/analytics';
-import { ensureError } from '~/utils/ensureError';
+import { useToast } from '~/components/ui/Toast';
 
 const AnalyticsButton = () => {
-  const { toast } = useToast();
-  const sendEvent = () =>
-    trackEvent({
-      type: 'ProtocolInstalled',
-      metadata: {
-        protocol: 'ethereum',
-        version: '1.0.0',
-      },
-    })
-      .then(() => {
-        toast({
-          title: 'Success',
-          description: 'Test event sent',
-          variant: 'success',
-        });
-      })
-      .catch((e) => {
-        const error = ensureError(e);
-        // eslint-disable-next-line no-console
-        console.log(error);
-        toast({
-          title: 'Error',
-          description: 'Sending event failed',
-          variant: 'destructive',
-        });
-      });
+  const { add } = useToast();
+  const sendEvent = () => {
+    posthog.capture('ProtocolInstalled', {
+      protocol: 'ethereum',
+      version: '1.0.0',
+    });
+    add({
+      title: 'Success',
+      description: 'Test event sent',
+      type: 'success',
+    });
+  };
 
   return (
     <>

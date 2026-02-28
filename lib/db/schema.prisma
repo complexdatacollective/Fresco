@@ -12,10 +12,12 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  username     String    @unique
-  auth_session Session[]
-  key          Key[]
+  id             String          @id @default(cuid())
+  username       String          @unique
+  auth_session   Session[]
+  key            Key[]
+  totpCredential TotpCredential?
+  recoveryCodes  RecoveryCode[]
 }
 
 model Session {
@@ -49,6 +51,11 @@ model Protocol {
   codebook      Json
   assets        Asset[]
   interviews    Interview[]
+  experiments   Json?
+  isPreview     Boolean     @default(false)
+  isPending     Boolean     @default(false)
+
+  @@index([isPreview, importedAt])
 }
 
 model Asset {
@@ -59,6 +66,7 @@ model Asset {
   url       String
   size      Int
   protocols Protocol[]
+  value     String?
 
   @@index(fields: [assetId, key])
 }
@@ -98,6 +106,8 @@ enum AppSetting {
   disableAnalytics
   disableSmallScreenOverlay
   uploadThingToken
+  previewMode
+  previewModeRequireAuth
 }
 
 model AppSettings {
@@ -110,4 +120,47 @@ model Events {
   timestamp DateTime @default(now())
   type      String
   message   String
+}
+
+model ApiToken {
+  id          String   @id @default(cuid())
+  token       String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  lastUsedAt  DateTime?
+  isActive    Boolean  @default(true)
+}
+
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  username  String?
+  ipAddress String?
+  success   Boolean
+  timestamp DateTime @default(now())
+
+  @@index([username, timestamp])
+  @@index([ipAddress, timestamp])
+  @@index([timestamp])
+}
+
+model TotpCredential {
+  id        String   @id @default(cuid())
+  user_id   String   @unique
+  secret    String
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model RecoveryCode {
+  id        String    @id @default(cuid())
+  user_id   String
+  codeHash  String
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
 }

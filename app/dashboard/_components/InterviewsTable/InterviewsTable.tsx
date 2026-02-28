@@ -1,14 +1,17 @@
 'use client';
 
-import { HardDriveUpload } from 'lucide-react';
-import { hash as objectHash } from 'ohash';
+import { type ColumnDef, type Row } from '@tanstack/react-table';
+import { FileUp, HardDriveUpload, Trash } from 'lucide-react';
 import { use, useMemo, useState } from 'react';
+import superjson from 'superjson';
 import { ActionsDropdown } from '~/app/dashboard/_components/InterviewsTable/ActionsDropdown';
 import { InterviewColumns } from '~/app/dashboard/_components/InterviewsTable/Columns';
 import { DeleteInterviewsDialog } from '~/app/dashboard/interviews/_components/DeleteInterviewsDialog';
 import { ExportInterviewsDialog } from '~/app/dashboard/interviews/_components/ExportInterviewsDialog';
 import { GenerateInterviewURLs } from '~/app/dashboard/interviews/_components/GenerateInterviewURLs';
 import { DataTable } from '~/components/DataTable/DataTable';
+import { DataTableFloatingBar } from '~/components/DataTable/DataTableFloatingBar';
+import { DataTableToolbar } from '~/components/DataTable/DataTableToolbar';
 import { Button } from '~/components/ui/Button';
 import {
   DropdownMenu,
@@ -16,8 +19,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import type { GetInterviewsReturnType } from '~/queries/interviews';
+import { useClientDataTable } from '~/hooks/useClientDataTable';
+import type {
+  GetInterviewsQuery,
+  GetInterviewsReturnType,
+} from '~/queries/interviews';
 import type { GetProtocolsReturnType } from '~/queries/protocols';
+
+type InterviewRow = GetInterviewsQuery[number];
 
 export const InterviewsTable = ({
   interviewsPromise,
@@ -26,7 +35,13 @@ export const InterviewsTable = ({
   interviewsPromise: GetInterviewsReturnType;
   protocolsPromise: GetProtocolsReturnType;
 }) => {
-  const interviews = use(interviewsPromise);
+  // TanStack Table: consumers must also opt out so React Compiler doesn't memoize JSX that depends on the table ref.
+  'use no memo';
+  const serializedInterviews = use(interviewsPromise);
+  const interviews = useMemo(
+    () => superjson.parse<GetInterviewsQuery>(serializedInterviews),
+    [serializedInterviews],
+  );
 
   const [selectedInterviews, setSelectedInterviews] =
     useState<typeof interviews>();
@@ -58,10 +73,28 @@ export const InterviewsTable = ({
     setShowExportModal(false);
   };
 
+  const actionsColumn: ColumnDef<InterviewRow> = {
+    id: 'actions',
+    cell: ({ row }: { row: Row<InterviewRow> }) => (
+      <ActionsDropdown row={row} />
+    ),
+  };
+
+  const columns = useMemo<ColumnDef<InterviewRow, unknown>[]>(
+    () => [...InterviewColumns(), actionsColumn],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
+  const { table } = useClientDataTable({
+    data: interviews,
+    columns,
+    defaultSortBy: { id: 'lastUpdated', desc: true },
+  });
+
   return (
     <>
       <ExportInterviewsDialog
-        key={objectHash(selectedInterviews)}
         open={showExportModal}
         handleCancel={handleResetExport}
         interviewsToExport={selectedInterviews!}
@@ -72,24 +105,21 @@ export const InterviewsTable = ({
         interviewsToDelete={selectedInterviews ?? []}
       />
       <DataTable
-        columns={InterviewColumns()}
-        data={interviews}
-        filterColumnAccessorKey="identifier"
-        handleDeleteSelected={handleDelete}
-        handleExportSelected={(selected) => {
-          setSelectedInterviews(selected);
-          setShowExportModal(true);
-        }}
-        actions={ActionsDropdown}
-        defaultSortBy={{ id: 'lastUpdated', desc: true }}
-        headerItems={
-          <>
+        table={table}
+        toolbar={
+          <DataTableToolbar
+            table={table}
+            searchableColumns={[{ id: 'identifier', title: 'by identifier' }]}
+          >
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button disabled={interviews.length === 0}>
-                  <HardDriveUpload className="mr-2 inline-block h-4 w-4" />
-                  Export Interview Data
-                </Button>
+              <DropdownMenuTrigger
+                render={<Button icon={<HardDriveUpload />} />}
+                disabled={interviews.length === 0}
+                nativeButton
+                data-testid="export-interviews-button"
+                className="tablet:w-auto w-full"
+              >
+                Export Interview Data
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={handleExportAll}>
@@ -106,8 +136,36 @@ export const InterviewsTable = ({
             <GenerateInterviewURLs
               interviews={interviews}
               protocolsPromise={protocolsPromise}
+              className="tablet:w-auto w-full"
             />
-          </>
+          </DataTableToolbar>
+        }
+        floatingBar={
+          <DataTableFloatingBar table={table}>
+            <Button
+              onClick={() =>
+                handleDelete(
+                  table.getSelectedRowModel().rows.map((r) => r.original),
+                )
+              }
+              color="destructive"
+              icon={<Trash className="size-4" />}
+            >
+              Delete Selected
+            </Button>
+            <Button
+              onClick={() => {
+                setSelectedInterviews(
+                  table.getSelectedRowModel().rows.map((r) => r.original),
+                );
+                setShowExportModal(true);
+              }}
+              color="primary"
+              icon={<FileUp className="size-4" />}
+            >
+              Export Selected
+            </Button>
+          </DataTableFloatingBar>
         }
       />
     </>

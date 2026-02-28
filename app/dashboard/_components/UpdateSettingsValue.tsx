@@ -1,34 +1,36 @@
 import { Loader2 } from 'lucide-react';
-import { useState } from 'react';
-import { type z } from 'zod';
+import { type ReactNode, useState } from 'react';
+import type z from 'zod';
+import { setAppSetting } from '~/actions/appSettings';
 import { Button } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
+import InputField from '~/lib/form/components/fields/InputField';
+import { type AppSetting } from '~/schemas/appSettings';
 import ReadOnlyEnvAlert from '../settings/ReadOnlyEnvAlert';
 
-export default function UpdateSettingsValue<T extends string>({
+export default function UpdateSettingsValue({
+  settingsKey,
   initialValue,
-  updateValue,
-  schema,
   readOnly,
+  schema,
+  suffixComponent,
 }: {
-  initialValue?: T;
-  updateValue: (value: T) => Promise<unknown>;
-  schema: z.ZodSchema<T>;
+  settingsKey: AppSetting;
+  initialValue?: string;
   readOnly?: boolean;
+  schema: z.ZodType<string>;
+  suffixComponent?: ReactNode;
 }) {
   const [newValue, setNewValue] = useState(initialValue);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setSaving] = useState(false);
 
-  // If key is empty or invalid, set the error state
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-
-    const result = schema.safeParse(value);
+  // If settingsKey is empty or invalid, set the error state
+  const handleChange = (value: string | undefined) => {
+    const result = schema.safeParse(value ?? initialValue ?? '');
 
     if (!result.success) {
       setError(
-        `Invalid: ${result.error.errors.map((e) => e.message).join(', ')}`,
+        `Invalid: ${result.error.issues.map((e) => e.message).join(', ')}`,
       );
     } else {
       setError(null);
@@ -47,30 +49,27 @@ export default function UpdateSettingsValue<T extends string>({
     if (!newValue) return;
 
     setSaving(true);
-    await updateValue(newValue);
+    await setAppSetting(settingsKey, newValue);
     setSaving(false);
   };
 
   return (
     <>
       {readOnly && <ReadOnlyEnvAlert />}
-      <Input
+      <InputField
         value={newValue}
         onChange={handleChange}
         onFocus={(event) => event.target.select()}
         type="text"
-        error={error}
         className="w-full"
         disabled={readOnly ?? isSaving}
+        suffixComponent={suffixComponent}
       />
+      {error && <p className="text-destructive mt-2 text-sm">{error}</p>}
       {newValue !== initialValue && (
         <div className="mt-4 flex justify-end gap-2">
-          {!isSaving && (
-            <Button variant="outline" onClick={handleReset}>
-              Reset
-            </Button>
-          )}
-          <Button disabled={!!error} onClick={handleSave}>
+          {!isSaving && <Button onClick={handleReset}>Reset</Button>}
+          <Button disabled={!!error} onClick={handleSave} color="primary">
             {isSaving && <Loader2 className="mr-2 animate-spin" />}
             {isSaving ? 'Saving...' : 'Save'}
           </Button>

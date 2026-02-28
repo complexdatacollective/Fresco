@@ -1,17 +1,31 @@
 import * as React from 'react';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
+import Surface from '../layout/Surface';
 
 const Table = React.forwardRef<
   HTMLTableElement,
-  React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => (
-  <div className="w-full overflow-auto">
-    <table
-      ref={ref}
-      className={cn('w-full caption-bottom text-sm', className)}
-      {...props}
-    />
-  </div>
+  React.HTMLAttributes<HTMLTableElement> & {
+    surfaceProps?: React.ComponentProps<typeof Surface>;
+  }
+>(({ className, surfaceProps, ...props }, ref) => (
+  <Surface
+    maxWidth="none"
+    spacing="none"
+    {...surfaceProps}
+    className={cx(
+      'mx-auto w-full max-w-full overflow-x-auto rounded border',
+      surfaceProps?.className,
+    )}
+    noContainer
+  >
+    <div className="w-full max-w-full overflow-x-auto">
+      <table
+        ref={ref}
+        className={cx('w-full caption-bottom border-collapse', className)}
+        {...props}
+      />
+    </div>
+  </Surface>
 ));
 Table.displayName = 'Table';
 
@@ -19,7 +33,14 @@ const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn('[&_tr]:border-b', className)} {...props} />
+  <thead
+    ref={ref}
+    className={cx(
+      'publish-colors border-collapse bg-[color-mix(in_oklab,var(--surface)_90%,var(--primary))] [&_tr]:border-b',
+      className,
+    )}
+    {...props}
+  />
 ));
 TableHeader.displayName = 'TableHeader';
 
@@ -29,7 +50,11 @@ const TableBody = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tbody
     ref={ref}
-    className={cn('[&_tr:last-child]:border-0', className)}
+    className={cx(
+      '[&_tr:last-child]:border-0',
+      '[&_tr:not(:only-child)]:hover:bg-current/3', // Hover effect only on body rows, disabled when empty (single row)
+      className,
+    )}
     {...props}
   />
 ));
@@ -41,7 +66,10 @@ const TableFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tfoot
     ref={ref}
-    className={cn('bg-primary font-medium text-primary-foreground', className)}
+    className={cx(
+      'bg-primary publish-colors text-primary-contrast font-medium',
+      className,
+    )}
     {...props}
   />
 ));
@@ -53,8 +81,9 @@ const TableRow = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tr
     ref={ref}
-    className={cn(
-      'border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted',
+    className={cx(
+      'h-14', // Height works the same as min-h for table rows https://stackoverflow.com/questions/19432092/can-i-use-a-min-height-for-table-tr-or-td
+      'data-[state=selected]:bg-selected/15 border-b outline-current/20 transition-colors duration-300',
       className,
     )}
     {...props}
@@ -68,8 +97,9 @@ const TableHead = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <th
     ref={ref}
-    className={cn(
-      'h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0',
+    className={cx(
+      'w-0 pl-8 whitespace-nowrap',
+      'text-left font-medium last:w-auto last:pr-8',
       className,
     )}
     {...props}
@@ -83,8 +113,9 @@ const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
-    className={cn(
-      'whitespace-nowrap p-4 align-middle [&:has([role=checkbox])]:pr-0',
+    className={cx(
+      'w-0 pl-8 align-middle whitespace-nowrap',
+      'last:w-auto last:pr-8',
       className,
     )}
     {...props}
@@ -98,10 +129,10 @@ const TableCaption = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <caption
     ref={ref}
-    className={cn('mt-4 text-sm text-muted-foreground', className)}
+    className={cx('mt-4 text-sm text-current/70', className)}
     {...props}
   />
 ));
 TableCaption.displayName = 'TableCaption';
 
-export { Table, TableHeader, TableBody, TableHead, TableRow, TableCell };
+export { Table, TableBody, TableCell, TableHead, TableHeader, TableRow };

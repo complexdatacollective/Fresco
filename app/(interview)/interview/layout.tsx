@@ -1,18 +1,13 @@
-import SmallScreenOverlay from '~/app/(interview)/interview/_components/SmallScreenOverlay';
-import '~/styles/interview.scss';
+import type { ReactNode } from 'react';
+import '~/styles/themes/interview.css';
 
-export const metadata = {
-  title: 'Network Canvas Fresco - Interview',
-  description: 'Interview',
-};
-
-function RootLayout({ children }: { children: React.ReactNode }) {
+export default function InterviewLayout({ children }: { children: ReactNode }) {
   return (
-    <main className="flex h-[100vh] max-h-[100vh] flex-col bg-(--nc-background) text-(--nc-text)">
-      <SmallScreenOverlay />
+    <main
+      data-theme="interview"
+      className="flex h-screen max-h-screen flex-col"
+    >
       {children}
     </main>
   );
 }
-
-export default RootLayout;

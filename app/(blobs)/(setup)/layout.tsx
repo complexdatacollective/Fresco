@@ -1,7 +1,18 @@
-import type { ReactNode } from 'react';
+import { Loader2 } from 'lucide-react';
+import { type ReactNode, Suspense } from 'react';
 import { requireAppNotExpired } from '~/queries/appSettings';
 
-export default async function Layout({ children }: { children: ReactNode }) {
+export default function Layout({ children }: { children: ReactNode }) {
+  return (
+    <Suspense
+      fallback={<Loader2 className="text-background size-10 animate-spin" />}
+    >
+      <SetupLayoutContent>{children}</SetupLayoutContent>
+    </Suspense>
+  );
+}
+
+async function SetupLayoutContent({ children }: { children: ReactNode }) {
   await requireAppNotExpired(true);
   return children;
 }

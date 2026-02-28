@@ -6,17 +6,17 @@ const hasNonWhitespaceCharacters = (input: string | undefined) =>
 
 export const participantIdentifierSchema = z
   .string()
-  .min(1, { message: 'Identifier cannot be empty' })
-  .max(255, { message: 'Identifier too long. Maximum of 255 characters.' })
+  .min(1, { error: 'Identifier cannot be empty' })
+  .max(255, { error: 'Identifier too long. Maximum of 255 characters.' })
   .trim()
   .refine(hasNonWhitespaceCharacters, {
-    message: 'Identifier requires one or more non-whitespace characters.',
+    error: 'Identifier requires one or more non-whitespace characters.',
   });
 
 export const participantIdentifierOptionalSchema = z
   .string()
   .max(255, {
-    message: 'Identifier too long. Maximum of 255 characters.',
+    error: 'Identifier too long. Maximum of 255 characters.',
   })
   .trim()
   .transform((e) => (e === '' ? undefined : e))
@@ -32,7 +32,7 @@ export const participantLabelRequiredSchema = z
   .string()
   .trim()
   .refine(hasNonWhitespaceCharacters, {
-    message: 'Label requires one or more non-whitespace characters.',
+    error: 'Label requires one or more non-whitespace characters.',
   });
 
 export const ParticipantRowSchema = z.union([
@@ -48,7 +48,7 @@ export const ParticipantRowSchema = z.union([
 
 export const FormSchema = z.object({
   csvFile: z.array(ParticipantRowSchema, {
-    invalid_type_error: 'Invalid CSV',
+    message: 'Invalid CSV',
   }),
 });
 

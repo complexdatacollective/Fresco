@@ -1,12 +1,15 @@
 import { use } from 'react';
+import Surface from '~/components/layout/Surface';
+import Heading from '~/components/typography/Heading';
 import { Skeleton } from '~/components/ui/skeleton';
-import Heading from '~/components/ui/typography/Heading';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
-const statCardClasses = cn(
-  'flex flex-col gap-4 rounded-xl border border-[hsl(var(--platinum--dark))] bg-card p-4 text-card-foreground shadow-xl shadow-platinum-dark transition-all',
-  'sm:flex-row sm:items-center md:p-6 lg:gap-6 lg:p-10',
-  ' hover:scale-[102%]',
+const statCardClasses = cx(
+  'flex flex-col gap-4 border transition-all',
+  '@3xs:flex-row @3xs:items-center @lg:gap-6',
+  'hover:elevation-medium hover:scale-[102%]',
+  'w-full rounded outline-none',
+  'tablet:px-6 tablet:py-8 px-4 py-6',
 );
 function StatCard({
   title,
@@ -22,13 +25,17 @@ function StatCard({
   const data = use(dataPromise);
 
   return (
-    <div className={statCardClasses}>
-      <div className="hidden md:block">{icon}</div>
+    <Surface className={statCardClasses} spacing="none">
+      <div className="hidden @3xs:block">{icon}</div>
       <div>
-        <Heading variant="h4-all-caps">{title}</Heading>
-        <Heading variant="h1">{data[render]}</Heading>
+        <Heading level="h4" variant="all-caps" margin="none">
+          {title}
+        </Heading>
+        <Heading level="h1" margin="none">
+          {data[render]}
+        </Heading>
       </div>
-    </div>
+    </Surface>
   );
 }
 
@@ -40,13 +47,15 @@ export function StatCardSkeleton({
   icon: React.ReactNode;
 }) {
   return (
-    <div className={statCardClasses}>
-      <div className="hidden md:block">{icon}</div>
+    <Surface className={statCardClasses}>
+      <div className="tablet:block hidden">{icon}</div>
       <div>
-        <Heading variant="h4-all-caps">{title}</Heading>
+        <Heading level="h4" variant="all-caps">
+          {title}
+        </Heading>
         <Skeleton className="mt-2 h-10 w-32" />
       </div>
-    </div>
+    </Surface>
   );
 }
 

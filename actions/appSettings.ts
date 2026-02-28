@@ -1,33 +1,43 @@
 'use server';
 
+import { createId } from '@paralleldrive/cuid2';
 import { redirect } from 'next/navigation';
+import { after } from 'next/server';
 import { type z } from 'zod';
-import { safeRevalidateTag } from '~/lib/cache';
-import { type AppSetting, appSettingsSchema } from '~/schemas/appSettings';
-import { requireApiAuth } from '~/utils/auth';
+import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
+import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
+import { getInstallationId } from '~/queries/appSettings';
+import {
+  type AppSetting,
+  appSettingPreprocessedSchema,
+} from '~/schemas/appSettings';
+import { requireApiAuth } from '~/utils/auth';
 import { ensureError } from '~/utils/ensureError';
-
-// Convert string | boolean | Date to string
-const getStringValue = (value: string | boolean | Date) => {
-  if (typeof value === 'boolean') return value.toString();
-  if (value instanceof Date) return value.toISOString();
-  return value;
-};
+import { getStringValue } from '~/utils/serializeHelpers';
 
 export async function setAppSetting<
   Key extends AppSetting,
-  V extends z.infer<typeof appSettingsSchema>[Key],
+  V extends z.infer<typeof appSettingPreprocessedSchema>[Key],
 >(key: Key, value: V): Promise<V> {
   await requireApiAuth();
 
-  if (!appSettingsSchema.shape[key]) {
+  if (!appSettingPreprocessedSchema.shape[key]) {
     throw new Error(`Invalid app setting: ${key}`);
   }
 
   try {
-    const result = appSettingsSchema.shape[key].parse(value);
-    const stringValue = getStringValue(result);
+    // Null values are not supported - caller should not pass null
+    if (value === null) {
+      throw new Error('Cannot set app setting to null');
+    }
+
+    // Convert the typed value to a database string
+    // Filter out undefined values as they're not supported by getStringValue
+    if (value === undefined) {
+      throw new Error('Cannot set app setting to undefined');
+    }
+    const stringValue = getStringValue(value);
 
     await prisma.appSettings.upsert({
       where: { key },
@@ -35,7 +45,7 @@ export async function setAppSetting<
       update: { value: stringValue },
     });
 
-    safeRevalidateTag(`appSettings-${key}`);
+    safeUpdateTag(`appSettings-${key}`);
 
     return value;
   } catch (error) {
@@ -44,7 +54,25 @@ export async function setAppSetting<
   }
 }
 
-export async function submitUploadThingForm(token: string) {
-  await setAppSetting('uploadThingToken', token);
-  redirect('/setup?step=3');
+export async function regenerateInstallationId() {
+  await requireApiAuth();
+  const newId = createId();
+  await setAppSetting('installationId', newId);
+  return newId;
+}
+
+export async function completeSetup() {
+  const installationId = await getInstallationId();
+  if (!installationId) {
+    await setAppSetting('installationId', createId());
+  }
+  await setAppSetting('configured', true);
+  after(async () => {
+    await captureEvent('AppSetup', {
+      installationId,
+    });
+    await shutdownPostHog();
+  });
+
+  redirect('/dashboard');
 }

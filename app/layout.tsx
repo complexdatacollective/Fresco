@@ -1,24 +1,51 @@
-import { Quicksand } from 'next/font/google';
-import { Toaster } from '~/components/ui/toaster';
+import { type Metadata, type Viewport } from 'next';
+import { Suspense } from 'react';
+import Providers from '~/components/Providers';
+import { PostHogIdentify } from '~/components/Providers/PosthogIdentify';
+import { env } from '~/env';
+import { getDisableAnalytics, getInstallationId } from '~/queries/appSettings';
 import '~/styles/globals.css';
+import '~/styles/themes/default.css';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Network Canvas Fresco',
   description: 'Fresco.',
 };
 
-const quicksand = Quicksand({
-  weight: ['300', '400', '500', '600', '700'],
-  subsets: ['latin', 'latin-ext'],
-  display: 'swap',
-});
+export const viewport: Viewport = {
+  viewportFit: 'cover',
+};
+
+async function AnalyticsLoader() {
+  try {
+    const [installationId, disableAnalytics] = await Promise.all([
+      getInstallationId(),
+      getDisableAnalytics(),
+    ]);
+
+    return (
+      <PostHogIdentify
+        installationId={installationId}
+        disableAnalytics={disableAnalytics}
+      />
+    );
+  } catch {
+    return null;
+  }
+}
 
 function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${quicksand.className} antialiased`}>
-        {children}
-        <Toaster />
+      <body className="bg-background publish-colors antialiased">
+        <div className="root h-dvh">
+          <Providers disableAnimations={env.CI ?? false}>
+            <Suspense>
+              <AnalyticsLoader />
+            </Suspense>
+            {children}
+          </Providers>
+        </div>
       </body>
     </html>
   );

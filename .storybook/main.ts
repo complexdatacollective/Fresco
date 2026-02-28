@@ -1,16 +1,30 @@
-import type { StorybookConfig } from '@storybook/nextjs';
+import { defineMain } from '@storybook/nextjs-vite/node';
+import { stubUseServer } from './vite-plugin-stub-use-server.ts';
 
-const config: StorybookConfig = {
-  "stories": [
-    "../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)"
+export default defineMain({
+  addons: [
+    '@storybook/addon-docs',
+    '@storybook/addon-a11y',
+    '@storybook/addon-vitest',
+    '@chromatic-com/storybook',
   ],
-  "addons": [],
-  "framework": {
-    "name": "@storybook/nextjs",
-    "options": {}
+  framework: {
+    name: '@storybook/nextjs-vite',
+    options: {
+      builder: {
+        // Customize the Vite builder options here
+        viteConfigPath: './vitest.config.ts',
+      },
+    },
   },
-  "staticDirs": [
-    "../public"
-  ]
-};
-export default config;
+  staticDirs: ['../public', { from: '../styles/themes', to: '/styles/themes' }],
+  typescript: {
+    check: false,
+  },
+  stories: ['../**/*.stories.@(js|jsx|mjs|ts|tsx|mdx)'],
+
+  viteFinal(config) {
+    config.plugins = [stubUseServer(), ...(config.plugins ?? [])];
+    return config;
+  },
+});

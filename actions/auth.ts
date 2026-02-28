@@ -3,9 +3,38 @@
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { createUserFormDataSchema, loginSchema } from '~/schemas/auth';
-import { auth, getServerSession } from '~/utils/auth';
+import z from 'zod';
+import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
+import { type FormSubmissionResult } from '~/lib/form/store/types';
+import { checkRateLimit, recordLoginAttempt } from '~/lib/rateLimit';
+import { createSessionCookie } from '~/lib/session';
+import { createTwoFactorToken } from '~/lib/totp';
+import { getInstallationId } from '~/queries/appSettings';
+import { createUserFormDataSchema, loginSchema } from '~/schemas/auth';
+import { getServerSession } from '~/utils/auth';
+import { getClientIp } from '~/utils/getClientIp';
+import { hashPassword, verifyPassword } from '~/utils/password';
+import { addEvent } from './activityFeed';
+
+const SESSION_COOKIE_NAME = 'auth_session';
+
+type RateLimited = {
+  success: false;
+  rateLimited: true;
+  retryAfter: number;
+};
+
+type TwoFactorRequired = {
+  success: false;
+  requiresTwoFactor: true;
+  twoFactorToken: string;
+};
+
+export type LoginResult =
+  | FormSubmissionResult
+  | RateLimited
+  | TwoFactorRequired;
 
 export async function signup(formData: unknown) {
   const parsedFormData = createUserFormDataSchema.safeParse(formData);
@@ -17,121 +46,104 @@ export async function signup(formData: unknown) {
     };
   }
 
+  const { username, password } = parsedFormData.data;
+  const hashedPassword = await hashPassword(password);
+
+  let user;
   try {
-    const { username, password } = parsedFormData.data;
-
-    const user = await auth.createUser({
-      key: {
-        providerId: 'username', // auth method
-        providerUserId: username, // unique id when using "username" auth method
-        password, // hashed by Lucia
-      },
-      attributes: {
+    user = await prisma.user.create({
+      data: {
         username,
+        key: {
+          create: {
+            id: `username:${username}`,
+            hashed_password: hashedPassword,
+          },
+        },
       },
     });
-
-    const session = await auth.createSession({
-      userId: user.userId,
-      attributes: {},
-    });
-
-    if (!session) {
-      return {
-        success: false,
-        error: 'Failed to create session',
-      };
-    }
-
-    // set session cookie
-
-    const sessionCookie = auth.createSessionCookie(session);
-
-    cookies().set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes,
-    );
-
-    redirect('/setup?step=2');
-  } catch (error) {
-    // db error, email taken, etc
+  } catch {
     return {
       success: false,
       error: 'Username already taken',
     };
   }
+
+  await createSessionCookie(user.id);
+
+  redirect('/setup?step=2');
 }
 
-export const login = async (
-  data: unknown,
-): Promise<
-  | {
-      success: true;
-    }
-  | {
-      success: false;
-      formErrors: string[];
-      fieldErrors?: Record<string, string[]>;
-    }
-> => {
+export const login = async (data: unknown): Promise<LoginResult> => {
   const parsedFormData = loginSchema.safeParse(data);
 
   if (!parsedFormData.success) {
     return {
       success: false,
-      ...parsedFormData.error.flatten(),
+      ...z.flattenError(parsedFormData.error),
     };
   }
 
   const { username, password } = parsedFormData.data;
+  const ipAddress = await getClientIp();
 
-  // get user by userId
-  const existingUser = await prisma.user.findFirst({
-    where: {
-      username,
-    },
+  const rateLimitResult = await checkRateLimit(username, ipAddress);
+  if (!rateLimitResult.allowed) {
+    return {
+      success: false,
+      rateLimited: true,
+      retryAfter: rateLimitResult.retryAfter,
+    };
+  }
+
+  const key = await prisma.key.findUnique({
+    where: { id: `username:${username}` },
   });
 
-  if (!existingUser) {
-    // NOTE:
-    // Returning immediately allows malicious actors to figure out valid usernames from response times,
-    // allowing them to only focus on guessing passwords in brute-force attacks.
-    // As a preventive measure, you may want to hash passwords even for invalid usernames.
-    // However, valid usernames can be already be revealed with the signup page among other methods.
-    // It will also be much more resource intensive.
-    // Since protecting against this is non-trivial,
-    // it is crucial your implementation is protected against brute-force attacks with login throttling etc.
-    // If usernames are public, you may outright tell the user that the username is invalid.
-    // eslint-disable-next-line no-console
-    console.log('invalid username');
+  if (!key?.hashed_password) {
+    void recordLoginAttempt(username, ipAddress, false);
     return {
       success: false,
       formErrors: ['Incorrect username or password'],
     };
   }
 
-  let key;
-  try {
-    key = await auth.useKey('username', username, password);
-  } catch (e) {
+  const validPassword = await verifyPassword(password, key.hashed_password);
+
+  if (!validPassword) {
+    void recordLoginAttempt(username, ipAddress, false);
     return {
       success: false,
       formErrors: ['Incorrect username or password'],
     };
   }
 
-  const session = await auth.createSession({
-    userId: key.userId,
-    attributes: {},
+  await recordLoginAttempt(username, ipAddress, true);
+
+  const totpCredential = await prisma.totpCredential.findFirst({
+    where: { user_id: key.user_id, verified: true },
   });
 
-  const sessionCookie = auth.createSessionCookie(session);
-  cookies().set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes,
-  );
+  if (totpCredential) {
+    const installationId = await getInstallationId();
+    if (!installationId) {
+      return {
+        success: false,
+        formErrors: ['Server configuration error. Please contact an admin.'],
+      };
+    }
+    const twoFactorToken = createTwoFactorToken(key.user_id, installationId);
+    return {
+      success: false,
+      requiresTwoFactor: true,
+      twoFactorToken,
+    };
+  }
+
+  await createSessionCookie(key.user_id);
+
+  void addEvent('User Login', `User ${username} logged in`);
+  safeUpdateTag('activityFeed');
 
   return {
     success: true,
@@ -146,7 +158,12 @@ export async function logout() {
     };
   }
 
-  await auth.invalidateSession(session.sessionId);
+  await prisma.session
+    .delete({ where: { id: session.sessionId } })
+    .catch((_error: unknown) => undefined);
+
+  const cookieStore = await cookies();
+  cookieStore.delete(SESSION_COOKIE_NAME);
 
   revalidatePath('/');
 }

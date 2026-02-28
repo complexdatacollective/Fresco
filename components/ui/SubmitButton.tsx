@@ -8,7 +8,7 @@ function SubmitButton(props: ButtonProps) {
   const status = useFormStatus();
   return (
     <Button {...props} disabled={status.pending}>
-      {status.pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      {status.pending && <Loader2 className="mr-2 size-4 animate-spin" />}
       {props.children}
     </Button>
   );

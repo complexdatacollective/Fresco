@@ -2,8 +2,9 @@
 
 import { Check } from 'lucide-react';
 import { parseAsInteger, useQueryState } from 'nuqs';
-import Heading from '~/components/ui/typography/Heading';
-import { cn } from '~/utils/shadcn';
+import Surface from '~/components/layout/Surface';
+import Heading from '~/components/typography/Heading';
+import { cx } from '~/utils/cva';
 
 function OnboardSteps({ steps }: { steps: string[] }) {
   const [currentStep, setCurrentStep] = useQueryState(
@@ -12,11 +13,11 @@ function OnboardSteps({ steps }: { steps: string[] }) {
   );
 
   return (
-    <div className="flex shrink-0 grow-0 flex-col gap-6 rounded-xl bg-white px-8 py-12">
+    <Surface noContainer className="flex flex-col gap-4">
       {steps.map((step, index) => (
         <div
           key={index}
-          className={cn(
+          className={cx(
             'pointer-events-none flex items-center gap-2 rounded-xl',
             // Make 'clickable' if the step is complete
             currentStep > index && 'pointer-events-auto cursor-pointer',
@@ -24,10 +25,9 @@ function OnboardSteps({ steps }: { steps: string[] }) {
           onClick={() => void setCurrentStep(index + 1)}
         >
           <div
-            className={cn(
-              'border-primary/[.06] flex h-10 w-10 items-center justify-center rounded-full border text-sm font-bold',
-              index < currentStep - 1 &&
-                'bg-success border-teal-400 text-white',
+            className={cx(
+              'border-primary/6 laptop:size-10 flex size-8 items-center justify-center rounded-full border text-sm font-bold',
+              index < currentStep - 1 && 'bg-success border-success text-white',
               index === currentStep - 1 &&
                 'border-primary bg-primary text-white',
             )}
@@ -39,13 +39,13 @@ function OnboardSteps({ steps }: { steps: string[] }) {
             )}
           </div>
           <div className="flex flex-col">
-            <Heading variant={'h4-all-caps'} className="m-0 text-xs">
+            <Heading level="h4" variant="all-caps" className="m-0 text-xs">
               {step}
             </Heading>
           </div>
         </div>
       ))}
-    </div>
+    </Surface>
   );
 }
 

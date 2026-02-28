@@ -2,15 +2,13 @@
 
 import { ClipboardCopy } from 'lucide-react';
 import Image from 'next/image';
-import ErrorReportNotifier from '~/components/ErrorReportNotifier';
-import Link from '~/components/Link';
-import ResponsiveContainer from '~/components/ResponsiveContainer';
+import posthog from 'posthog-js';
+import { useEffect, useState } from 'react';
+import Surface from '~/components/layout/Surface';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
-import { cardClasses } from '~/components/ui/card';
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import { useToast } from '~/components/ui/use-toast';
-import { cn } from '~/utils/shadcn';
+import Link from '~/components/ui/Link';
 
 export default function Error({
   error,
@@ -20,7 +18,7 @@ export default function Error({
   reset: () => void;
   heading?: string;
 }) {
-  const { toast } = useToast();
+  const [copied, setCopied] = useState(false);
 
   const handleReset = () => {
     reset();
@@ -35,24 +33,17 @@ Stack Trace:
 ${error.stack}`;
 
     await navigator.clipboard.writeText(debugInfo);
-    toast({
-      title: 'Success',
-      description: 'Debug information copied to clipboard',
-      variant: 'success',
-      duration: 3000,
-    });
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
+  useEffect(() => {
+    posthog.captureException(error);
+  }, [error]);
+
   return (
-    <div className="flex h-[100vh] items-center justify-center">
-      <ErrorReportNotifier error={error} />
-      <ResponsiveContainer
-        baseSize="60%"
-        className={cn(
-          cardClasses,
-          'shadow-platinum-dark m-10 w-[30rem] p-10 shadow-xl',
-        )}
-      >
+    <div className="flex h-screen items-center justify-center">
+      <Surface>
         <div className="mb-6 flex flex-col items-center justify-center gap-2">
           <Image
             src="/images/robot.svg"
@@ -60,11 +51,11 @@ ${error.stack}`;
             height={80}
             alt="Error robot"
           />
-          <Heading variant="h1" className="text-destructive">
+          <Heading level="h1" className="text-destructive">
             There&apos;s a problem with Fresco.
           </Heading>
         </div>
-        <Paragraph variant="lead" className="mb-0">
+        <Paragraph intent="lead" className="mb-0">
           Fresco encountered a serious error and is unable to continue.
         </Paragraph>
         <Paragraph>
@@ -77,15 +68,15 @@ ${error.stack}`;
           .
         </Paragraph>
         <div className="mt-4 flex flex-col gap-2">
-          <Button onClick={copyDebugInfoToClipboard} variant="ghost">
-            Copy Debug Information
+          <Button onClick={copyDebugInfoToClipboard} variant="text">
+            {copied ? 'Copied!' : 'Copy Debug Information'}
             <ClipboardCopy className="ml-2" />
           </Button>
-          <Button onClick={handleReset} variant="default" className="flex">
+          <Button onClick={handleReset} color="primary" className="flex">
             Try Again
           </Button>
         </div>
-      </ResponsiveContainer>
+      </Surface>
     </div>
   );
 }

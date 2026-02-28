@@ -1,17 +1,15 @@
 import { cookies } from 'next/headers';
-import { NextResponse, type NextRequest } from 'next/server';
+import { after, NextResponse, type NextRequest } from 'next/server';
 import { createInterview } from '~/actions/interviews';
 import { env } from '~/env';
-import trackEvent from '~/lib/analytics';
+import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
-
-export const dynamic = 'force-dynamic';
 
 const handler = async (
   req: NextRequest,
-  { params }: { params: { protocolId: string } },
+  { params }: { params: Promise<{ protocolId: string }> },
 ) => {
-  const protocolId = params.protocolId; // From route segment
+  const { protocolId } = await params;
 
   // when deployed via docker `req.url` and `req.nextUrl`
   // shows Docker Container ID instead of real host
@@ -30,7 +28,7 @@ const handler = async (
   // if limitInterviews is enabled
   // Check cookies for interview already completed for this user for this protocol
   // and redirect to finished page
-  if (limitInterviews && cookies().get(protocolId)) {
+  if (limitInterviews && (await cookies()).get(protocolId)) {
     url.pathname = '/interview/finished';
     return NextResponse.redirect(url);
   }
@@ -51,20 +49,25 @@ const handler = async (
   }
 
   // Create a new interview given the protocolId and participantId
-  const { createdInterviewId, error } = await createInterview({
+  const { createdInterviewId, error, errorType } = await createInterview({
     participantIdentifier,
     protocolId,
   });
 
   if (error) {
-    void trackEvent({
-      type: 'Error',
-      name: error,
-      message: 'Failed to create interview',
-      metadata: {
+    after(async () => {
+      await captureEvent('Error', {
+        name: error,
+        message: 'Failed to create interview',
         path: '/onboard/[protocolId]/route.ts',
-      },
+      });
+      await shutdownPostHog();
     });
+
+    if (errorType === 'no-anonymous-recruitment') {
+      url.pathname = '/onboard/no-anonymous-recruitment';
+      return NextResponse.redirect(url);
+    }
 
     url.pathname = '/onboard/error';
     return NextResponse.redirect(url);
@@ -77,11 +80,11 @@ const handler = async (
     }...`,
   );
 
-  void trackEvent({
-    type: 'InterviewStarted',
-    metadata: {
+  after(async () => {
+    await captureEvent('InterviewStarted', {
       usingAnonymousParticipant: !participantIdentifier,
-    },
+    });
+    await shutdownPostHog();
   });
 
   // Redirect to the interview

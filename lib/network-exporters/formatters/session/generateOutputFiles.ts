@@ -1,5 +1,5 @@
-import type { Codebook } from '@codaco/shared-consts';
-import type { InstalledProtocols } from '~/lib/interviewer/store';
+import { invariant } from 'es-toolkit';
+import { type ExportedProtocol } from '~/actions/interviews';
 import { getFilePrefix } from '../../utils/general';
 import type {
   ExportFormat,
@@ -11,7 +11,7 @@ import exportFile from './exportFile';
 import { partitionByType } from './partitionByType';
 
 export const generateOutputFiles =
-  (protocols: InstalledProtocols, exportOptions: ExportOptions) =>
+  (protocols: Record<string, ExportedProtocol>, exportOptions: ExportOptions) =>
   async (unifiedSessions: Record<string, SessionWithResequencedIDs[]>) => {
     const exportFormats = [
       ...(exportOptions.exportGraphML ? ['graphml'] : []),
@@ -20,16 +20,14 @@ export const generateOutputFiles =
 
     const exportPromises: Promise<ExportResult>[] = [];
 
-    Object.entries(unifiedSessions).forEach(([protocolUID, sessions]) => {
-      sessions.forEach((session) => {
-        // Skip if sessions don't have required sessionVariables
+    Object.entries(unifiedSessions).forEach(([protocolKey, sessions]) => {
+      const codebook = protocols[protocolKey]?.codebook;
+      invariant(codebook, `No protocol found for key: ${protocolKey}`);
 
-        const protocol = protocols[protocolUID]!;
+      sessions.forEach((session) => {
         const prefix = getFilePrefix(session);
 
         exportFormats.forEach((format) => {
-          const codebook = protocol.codebook as unknown as Codebook; // Needed due to prisma.Json type
-
           // Split each network into separate files based on format and entity type.
           const partitionedNetworks = partitionByType(
             codebook,

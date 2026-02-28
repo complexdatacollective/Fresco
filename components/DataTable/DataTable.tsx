@@ -1,21 +1,11 @@
+'use client';
+
 import {
   flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-  type ColumnDef,
-  type ColumnFiltersState,
   type Row,
-  type SortingState,
   type Table as TTable,
 } from '@tanstack/react-table';
-import { FileUp, Loader } from 'lucide-react';
-import { useCallback, useState } from 'react';
-import { makeDefaultColumns } from '~/components/DataTable/DefaultColumns';
-import { Button } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
+import { type ReactNode } from 'react';
 import {
   Table,
   TableBody,
@@ -24,264 +14,80 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
+import { DataTablePagination } from './DataTablePagination';
 
-type CustomTable<TData> = TTable<TData> & {
-  options?: {
-    meta?: {
-      getRowClasses?: (row: Row<TData>) => string | undefined;
-      navigatorLanguages?: string[];
-    };
-  };
+type DataTableProps<TData> = {
+  table: TTable<TData>;
+  toolbar?: ReactNode;
+  floatingBar?: ReactNode;
+  showPagination?: boolean;
+  surfaceLevel?: 0 | 1 | 2 | 3;
+  emptyText?: string;
+  getRowClasses?: (row: Row<TData>) => string | undefined;
 };
 
-type DataTableProps<TData, TValue> = {
-  columns?: ColumnDef<TData, TValue>[];
-  data: TData[];
-  filterColumnAccessorKey?: string;
-  handleDeleteSelected?: (data: TData[]) => Promise<void> | void;
-  handleExportSelected?: (data: TData[]) => void;
-  actions?: React.ComponentType<{
-    row: Row<TData>;
-    data: TData[];
-    deleteHandler: (item: TData) => void;
-  }>;
-  actionsHeader?: React.ReactNode;
-  calculateRowClasses?: (row: Row<TData>) => string | undefined;
-  headerItems?: React.ReactNode;
-  defaultSortBy?: SortingState[0];
-};
-
-export function DataTable<TData, TValue>({
-  columns = [],
-  data,
-  handleDeleteSelected,
-  handleExportSelected,
-  filterColumnAccessorKey = '',
-  actions,
-  actionsHeader,
-  calculateRowClasses,
-  headerItems,
-  defaultSortBy,
-}: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>(
-    defaultSortBy ? [{ ...defaultSortBy }] : [],
-  );
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [rowSelection, setRowSelection] = useState({});
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-
-  if (columns.length === 0) {
-    columns = makeDefaultColumns(data);
-  }
-
-  const deleteHandler = async () => {
-    setIsDeleting(true);
-    const selectedData = table
-      .getSelectedRowModel()
-      .rows.map((r) => r.original);
-
-    try {
-      await handleDeleteSelected?.(selectedData);
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(error.message);
-      }
-      throw new Error('An unknown error occurred.');
-    }
-
-    setIsDeleting(false);
-    setRowSelection({});
-  };
-
-  if (actions) {
-    const actionsColumn = {
-      id: 'actions',
-      header: () => actionsHeader ?? null,
-      cell: ({ row }: { row: Row<TData> }) => {
-        const cellDeleteHandler = async (item: TData) => {
-          await handleDeleteSelected?.([item]);
-        };
-
-        return flexRender(actions, {
-          row,
-          data,
-          deleteHandler: cellDeleteHandler,
-        });
-      },
-    };
-
-    columns = [...columns, actionsColumn];
-  }
-
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    onRowSelectionChange: setRowSelection,
-    onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
-    meta: {
-      getRowClasses: (row: Row<TData>) => calculateRowClasses?.(row),
-    },
-    state: {
-      sorting,
-      rowSelection,
-      columnFilters,
-    },
-  }) as CustomTable<TData>;
-
-  const hasSelectedRows = table.getSelectedRowModel().rows.length > 0;
-
-  const exportHandler = useCallback(() => {
-    const selectedData = table
-      .getSelectedRowModel()
-      .rows.map((r) => r.original);
-
-    handleExportSelected?.(selectedData);
-
-    setRowSelection({});
-  }, [handleExportSelected, table, setRowSelection]);
+export function DataTable<TData>({
+  table,
+  toolbar,
+  floatingBar,
+  showPagination = true,
+  surfaceLevel = 0,
+  emptyText = 'No results.',
+  getRowClasses,
+}: DataTableProps<TData>) {
+  // TanStack Table returns a mutable ref with stable identity, defeating React Compiler memoization.
+  'use no memo';
+  const columnCount = table.getAllColumns().length;
 
   return (
-    <>
-      {(filterColumnAccessorKey || headerItems) && (
-        <div className="flex items-center gap-2 pt-1 pb-4">
-          {filterColumnAccessorKey && (
-            <Input
-              name="filter"
-              placeholder={`Filter by ${filterColumnAccessorKey}...`}
-              value={
-                (table
-                  .getColumn(filterColumnAccessorKey)
-                  ?.getFilterValue() as string) ?? ''
-              }
-              onChange={(event) =>
-                table
-                  .getColumn(filterColumnAccessorKey)
-                  ?.setFilterValue(event.target.value)
-              }
-              className="mt-0"
-            />
-          )}
-          {headerItems}
-        </div>
-      )}
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                  className={table.options.meta?.getRowClasses?.(row)}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
+    <div className="flex flex-col gap-6">
+      {toolbar}
+      <Table surfaceProps={{ level: surfaceLevel }} data-testid="data-table">
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
                       )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && 'selected'}
+                className={getRowClasses?.(row)}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext(),
+                    )}
+                  </TableCell>
+                ))}
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      <div>
-        <div className="flex justify-between py-4">
-          <div className="text-muted-foreground text-sm">
-            {table.getFilteredSelectedRowModel().rows.length} of{' '}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
-          </div>
-          <div className="space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              Next
-            </Button>
-          </div>
-        </div>
-        {/**
-         * TODO: This is garbage.
-         *
-         * This shouldn't be part of the data table - it should be a component
-         * that is passed in to the table that gets given access to the table
-         * state. See the other data-table for an example.
-         */}
-        {hasSelectedRows && (
-          <Button
-            onClick={() => void deleteHandler()}
-            variant="destructive"
-            size="sm"
-            disabled={isDeleting}
-          >
-            {isDeleting ? (
-              <span className="flex items-center gap-2">
-                Deleting...
-                <Loader className="h-4 w-4 animate-spin text-white" />
-              </span>
-            ) : (
-              'Delete Selected'
-            )}
-          </Button>
-        )}
-
-        {hasSelectedRows && handleExportSelected && (
-          <Button
-            onClick={exportHandler}
-            variant="default"
-            size="sm"
-            className="mx-2 gap-x-2.5"
-          >
-            Export Selected
-            <FileUp className="h-5 w-5" />
-          </Button>
-        )}
-      </div>
-    </>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columnCount} className="h-24 text-center">
+                {emptyText}
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+      {showPagination && <DataTablePagination table={table} />}
+      {floatingBar}
+    </div>
   );
 }

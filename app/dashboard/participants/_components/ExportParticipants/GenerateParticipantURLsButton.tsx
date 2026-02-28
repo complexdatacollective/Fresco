@@ -1,125 +1,134 @@
 'use client';
-import { useState, useEffect } from 'react';
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select';
-
-import ExportCSVParticipantURLs from './ExportCSVParticipantURLs';
-import FancyBox from '~/components/ui/FancyBox';
+import { FileUp } from 'lucide-react';
+import { unparse } from 'papaparse';
+import { useState } from 'react';
+import type { ParticipantWithInterviews } from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTableClient';
+import type { ProtocolWithInterviews } from '~/app/dashboard/_components/ProtocolsTable/ProtocolsTableClient';
+import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog';
-import { FileUp } from 'lucide-react';
-import type { GetProtocolsReturnType } from '~/queries/protocols';
-import type { GetParticipantsReturnType } from '~/queries/participants';
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '~/components/ui/popover';
+import { useToast } from '~/components/ui/Toast';
+import { useDownload } from '~/hooks/useDownload';
+import ComboboxField from '~/lib/form/components/fields/Combobox/Combobox';
+import Field from '~/lib/form/components/Field/Field';
+import SelectField from '~/lib/form/components/fields/Select/Native';
+import Form from '~/lib/form/components/Form';
+import SubmitButton from '~/lib/form/components/SubmitButton';
+import FormStoreProvider from '~/lib/form/store/formStoreProvider';
+import { type FormSubmitHandler } from '~/lib/form/store/types';
 
 export const GenerateParticipantURLs = ({
   protocols,
   participants,
 }: {
-  protocols: Awaited<GetProtocolsReturnType>;
-  participants: Awaited<GetParticipantsReturnType>;
+  protocols: ProtocolWithInterviews[];
+  participants: ParticipantWithInterviews[];
 }) => {
-  const [selectedParticipants, setSelectedParticipants] = useState<string[]>(
-    [],
-  );
-
-  const [selectedProtocol, setSelectedProtocol] =
-    useState<Awaited<GetProtocolsReturnType>[0]>();
-
-  // Default to all participants selected
-  useEffect(() => {
-    if (participants) {
-      setSelectedParticipants(participants.map((p) => p.id));
-    }
-  }, [participants]);
-
   const [open, setOpen] = useState(false);
+  const download = useDownload();
+  const { add } = useToast();
 
-  const handleOpenChange = () => {
-    setOpen(!open);
+  const handleSubmit: FormSubmitHandler = (data: unknown) => {
+    const typedData = data as {
+      protocol: string;
+      participants: string[];
+    };
+    try {
+      const { protocol: protocolId, participants: participantIds } = typedData;
+
+      const csvData = participants
+        .filter((participant) => participantIds.includes(participant.id))
+        .map((participant) => ({
+          id: participant.id,
+          identifier: participant.identifier,
+          interview_url: `${window.location.origin}/onboard/${protocolId}/?participantId=${participant.id}`,
+        }));
+
+      const csv = unparse(csvData, { header: true });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const protocolNameWithoutExtension =
+        protocols.find((p) => p.id === protocolId)?.name.split('.')[0] ??
+        'protocol';
+      const fileName = `participation_urls_${protocolNameWithoutExtension}.csv`;
+      download(url, fileName);
+      URL.revokeObjectURL(url);
+
+      setOpen(false);
+      add({
+        title: 'Success',
+        description: 'Participation URLs CSV exported successfully',
+        type: 'success',
+      });
+      return { success: true };
+    } catch (error) {
+      add({
+        title: 'Error',
+        description: 'An error occurred while exporting participation URLs',
+        type: 'destructive',
+      });
+      return { success: false };
+    }
   };
 
   return (
-    <>
-      <Button
-        disabled={participants?.length === 0}
-        onClick={handleOpenChange}
-        variant="outline"
+    <Popover open={open} onOpenChange={(nextOpen) => setOpen(nextOpen)}>
+      <PopoverTrigger
+        render={
+          <Button
+            disabled={participants?.length === 0}
+            icon={<FileUp />}
+            className="tablet:w-auto w-full"
+            data-testid="export-participation-urls-button"
+          />
+        }
       >
-        <FileUp className="mr-2 inline-block h-4 w-4" />
         Export Participation URLs
-      </Button>
-      <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Generate Participation URLs</DialogTitle>
-            <DialogDescription>
-              Generate a CSV that contains{' '}
-              <strong>unique participation URLs</strong> for all participants by
-              protocol. These URLs can be shared with participants to allow them
-              to take your interview.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col items-center justify-end gap-4">
-            <Select
-              onValueChange={(value) => {
-                const protocol = protocols.find(
-                  (protocol) => protocol.id === value,
-                );
-
-                setSelectedProtocol(protocol);
-              }}
-              value={selectedProtocol?.id}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a Protocol..." />
-              </SelectTrigger>
-              <SelectContent>
-                {protocols?.map((protocol) => (
-                  <SelectItem key={protocol.id} value={protocol.id}>
-                    {protocol.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FancyBox
-              items={participants.map((participant) => ({
-                id: participant.id,
-                label: participant.identifier,
+      </PopoverTrigger>
+      <PopoverContent className="flex flex-col gap-4 p-4">
+        <Paragraph intent="smallText" margin="none">
+          Generate a CSV that contains unique participation URLs for selected
+          participants by protocol.
+        </Paragraph>
+        <FormStoreProvider>
+          <Form id="generate-urls" onSubmit={handleSubmit}>
+            <Field
+              label="Protocol"
+              name="protocol"
+              required
+              component={SelectField}
+              options={protocols.map((protocol) => ({
+                value: protocol.id,
+                label: protocol.name,
+              }))}
+            />
+            <Field
+              label="Participants"
+              name="participants"
+              required
+              component={ComboboxField}
+              options={participants.map((participant) => ({
                 value: participant.id,
+                label: participant.identifier,
               }))}
               placeholder="Select Participants..."
               singular="Participant"
               plural="Participants"
-              value={selectedParticipants}
-              onValueChange={setSelectedParticipants}
+              showSelectAll
+              showDeselectAll
+              initialValue={participants.map((p) => p.id)}
             />
-          </div>
-          <DialogFooter>
-            <Button onClick={handleOpenChange} variant="outline">
-              Cancel
-            </Button>
-            <ExportCSVParticipantURLs
-              protocol={selectedProtocol}
-              participants={selectedParticipants.map(
-                (id) => participants.find((p) => p.id === id)!,
-              )}
-            />
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+          </Form>
+          <SubmitButton color="primary" form="generate-urls">
+            Generate
+          </SubmitButton>
+        </FormStoreProvider>
+      </PopoverContent>
+    </Popover>
   );
 };

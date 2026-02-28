@@ -1,55 +1,56 @@
-import { Loader2 } from 'lucide-react';
-import { z } from 'zod';
-import { Button } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
-import useZodForm from '~/hooks/useZodForm';
-import { createUploadThingTokenSchema } from '~/schemas/appSettings';
+'use client';
 
-export const UploadThingTokenForm = ({
-  action,
-}: {
-  action: (token: string) => Promise<string | void>;
-}) => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isValid, isSubmitting },
-  } = useZodForm({
-    schema: z.object({
-      uploadThingToken: createUploadThingTokenSchema,
-    }),
-  });
+import { useRouter } from 'next/navigation';
+import z from 'zod';
+import { setAppSetting } from '~/actions/appSettings';
+import Field from '~/lib/form/components/Field/Field';
+import Form from '~/lib/form/components/Form';
+import SubmitButton from '~/lib/form/components/SubmitButton';
+import InputField from '~/lib/form/components/fields/InputField';
+import {
+  createUploadThingTokenFormSchema,
+  createUploadThingTokenSchema,
+} from '~/schemas/appSettings';
 
-  const onSubmit = async ({
-    uploadThingToken,
-  }: {
-    uploadThingToken: string;
-  }) => {
-    await action(uploadThingToken);
+export const UploadThingTokenForm = () => {
+  const router = useRouter();
+
+  const handleSubmit = async (rawData: unknown) => {
+    const typedData = createUploadThingTokenFormSchema.safeParse(rawData);
+    if (!typedData.success) {
+      return {
+        success: false,
+        errors: z.flattenError(typedData.error).fieldErrors,
+      };
+    }
+
+    await setAppSetting('uploadThingToken', typedData.data.uploadThingToken);
+    // Navigate to step 3 (Upload Protocol)
+    router.push('/setup?step=3');
+
+    return {
+      success: true,
+    };
   };
 
   return (
-    <form
-      className="flex w-full flex-col"
-      onSubmit={(event) => void handleSubmit(onSubmit)(event)}
-    >
-      <div className="mb-6 flex">
-        <Input
-          className="w-full"
-          label="UPLOADTHING_TOKEN"
-          hint="Copy and paste the full token from your UploadThing dashboard."
-          type="text"
-          placeholder="UPLOADTHING_TOKEN=******************"
-          error={errors.uploadThingToken?.message}
-          {...register('uploadThingToken')}
-        />
-      </div>
-      <div className="flex flex-wrap justify-end">
-        <Button disabled={isSubmitting || !isValid} type="submit">
-          {isSubmitting && <Loader2 className="mr-2 animate-spin" />}
-          {isSubmitting ? 'Saving...' : 'Save and continue'}
-        </Button>
-      </div>
-    </form>
+    <Form onSubmit={handleSubmit} className="flex w-full flex-col">
+      <Field
+        key="uploadThingToken"
+        name="uploadThingToken"
+        label="UPLOADTHING_TOKEN"
+        placeholder="UPLOADTHING_TOKEN=******************"
+        hint="Copy and paste the full token from your UploadThing dashboard."
+        custom={{
+          schema: createUploadThingTokenSchema,
+          hint: 'Paste the full token including the UPLOADTHING_TOKEN= prefix',
+        }}
+        component={InputField}
+        type="text"
+      />
+      <SubmitButton key="submit" className="mt-6">
+        Save and continue
+      </SubmitButton>
+    </Form>
   );
 };

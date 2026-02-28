@@ -1,172 +1,322 @@
 @import 'tailwindcss';
 
+@import './shared/colors.css';
+
 @plugin '@tailwindcss/forms';
-@plugin '@tailwindcss/aspect-ratio';
-@plugin '@tailwindcss/container-queries';
-@plugin 'tailwindcss-animate';
-@plugin '@tailwindcss/typography';
+@plugin './plugins/tailwind-motion-spring.ts';
+@plugin './plugins/tailwind-elevation/index.ts';
+@plugin './plugins/tailwind-inset-surface/index.ts';
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translate3d(-0.1rem, 0, 0);
+  }
+
+  20%,
+  80% {
+    transform: translate3d(0.2rem, 0, 0);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-0.4rem, 0, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate3d(0.4rem, 0, 0);
+  }
+}
 
 @theme {
+  /*****************************************************************************
+  *                                  TYPOGRAPHY
+  *****************************************************************************/
+
+  --text-*: initial;
+  /* Level -2: xs */
+  --text-xs: clamp(0.64rem, calc(0.733rem + 0.283vw), 0.79rem);
+  --text-xs--line-height: 1.85;
+  --text-xs--letter-spacing: 0.03em;
+  /* --text-xs--font-weight: 400; */
+
+  /* Level -1: sm */
+  --text-sm: clamp(0.8rem, calc(0.844rem + 0.223vw), 0.889rem);
+  --text-sm--line-height: 1.8;
+  --text-sm--letter-spacing: 0.02em;
+  /* --text-sm--font-weight: 400; */
+
+  /* Level 0: base */
+  --text-base: 1rem;
+  --text-base--line-height: 1.7;
+  --text-base--letter-spacing: 0;
+  /* --text-base--font-weight: 400; */
+
+  /* Level 1: lg */
+  --text-lg: clamp(1.125rem, calc(1.063rem + 0.313vw), 1.25rem);
+  --text-lg--line-height: 1.5;
+  --text-lg--letter-spacing: -0.01em;
+  /* --text-lg--font-weight: 450; */
+
+  /* Level 2: xl */
+  --text-xl: clamp(1.266rem, calc(1.141rem + 0.625vw), 1.563rem);
+  --text-xl--line-height: 1.4;
+  --text-xl--letter-spacing: -0.015em;
+  /* --text-xl--font-weight: 500; */
+
+  /* Level 3: 2xl */
+  --text-2xl: clamp(1.424rem, calc(1.174rem + 1.25vw), 1.953rem);
+  --text-2xl--line-height: 1.3;
+  --text-2xl--letter-spacing: -0.02em;
+  /* --text-2xl--font-weight: 600; */
+
+  /* Level 4: 3xl */
+  --text-3xl: clamp(1.602rem, calc(1.143rem + 2.295vw), 2.441rem);
+  --text-3xl--line-height: 1.25;
+  --text-3xl--letter-spacing: -0.025em;
+  /* --text-3xl--font-weight: 700; */
+
+  /* Level 5: 4xl */
+  --text-4xl: clamp(1.802rem, calc(1.052rem + 3.75vw), 3.052rem);
+  --text-4xl--line-height: 1.2;
+  --text-4xl--letter-spacing: -0.03em;
+  /* --text-4xl--font-weight: 700; */
+
+  --font-*: initial;
+
+  --font-body: var(--body-font, 'Open Sans', sans-serif);
+  --font-heading: var(--heading-font, 'Open Sans', sans-serif);
+  --font-monospace: 'Fira Code', monospace;
+
+  /*****************************************************************************
+  *                               COLORS
+  *****************************************************************************/
   --color-*: initial;
-  --color-neon-coral: hsl(var(--neon-coral));
-  --color-neon-coral-dark: hsl(var(--neon-coral--dark));
 
-  --color-sea-green: hsl(var(--sea-green));
-  --color-sea-green-dark: hsl(var(--sea-green--dark));
+  /*
+    Semantic colors
+  */
+  --color-background: var(--background);
 
-  --color-slate-blue: hsl(var(--slate-blue));
-  --color-slate-blue-dark: hsl(var(--slate-blue--dark));
+  --color-text: var(--text);
 
-  --color-navy-taupe: hsl(var(--navy-taupe));
-  --color-navy-taupe-dark: hsl(var(--navy-taupe--dark));
+  --color-primary: var(--primary);
+  --color-primary-contrast: var(--primary-contrast);
 
-  --color-cyber-grape: hsl(var(--cyber-grape));
-  --color-cyber-grape-dark: hsl(var(--cyber-grape--dark));
+  --color-neutral: var(--neutral);
+  --color-neutral-contrast: var(--neutral-contrast);
 
-  --color-mustard: hsl(var(--mustard));
-  --color-mustard-dark: hsl(var(--mustard--dark));
+  --color-accent: var(--accent);
+  --color-accent-contrast: var(--accent-contrast);
 
-  --color-rich-black: hsl(var(--rich-black));
-  --color-rich-black-dark: hsl(var(--rich-black--dark));
+  --color-secondary: var(--secondary);
+  --color-secondary-contrast: var(--secondary-contrast);
 
-  --color-charcoal: hsl(var(--charcoal));
-  --color-charcoal-dark: hsl(var(--charcoal--dark));
+  --color-surface: var(--surface);
+  --color-surface-contrast: var(--surface-contrast);
+  --color-surface-1: var(--surface-1);
+  --color-surface-1-contrast: var(--surface-1-contrast);
+  --color-surface-2: var(--surface-2);
+  --color-surface-2-contrast: var(--surface-2-contrast);
+  --color-surface-3: var(--surface-3);
+  --color-surface-3-contrast: var(--surface-3-contrast);
+  --color-surface-popover: var(--surface-popover);
+  --color-surface-popover-contrast: var(--surface-popover-contrast);
 
-  --color-platinum: hsl(var(--platinum));
-  --color-platinum-dark: hsl(var(--platinum--dark));
+  /* States */
+  --color-destructive: var(--destructive);
+  --color-destructive-contrast: var(--destructive-contrast);
 
-  --color-sea-serpent: hsl(var(--sea-serpent));
-  --color-sea-serpent-dark: hsl(var(--sea-serpent--dark));
+  --color-warning: var(--warning);
+  --color-warning-contrast: var(--warning-contrast);
 
-  --color-purple-pizazz: hsl(var(--purple-pizazz));
-  --color-purple-pizazz-dark: hsl(var(--purple-pizazz--dark));
+  --color-success: var(--success);
+  --color-success-contrast: var(--success-contrast);
 
-  --color-paradise-pink: hsl(var(--paradise-pink));
-  --color-paradise-pink-dark: hsl(var(--paradise-pink--dark));
+  --color-info: var(--info);
+  --color-info-contrast: var(--info-contrast);
 
-  --color-cerulean-blue: hsl(var(--cerulean-blue));
-  --color-cerulean-blue-dark: hsl(var(--cerulean-blue--dark));
+  --color-selected: var(--selected);
+  --color-selected-contrast: var(--selected-contrast);
 
-  --color-kiwi: hsl(var(--kiwi));
-  --color-kiwi-dark: hsl(var(--kiwi--dark));
+  --color-drag-valid: var(--drag-valid);
+  --color-drag-over: var(--drag-over);
 
-  --color-neon-carrot: hsl(var(--neon-carrot));
-  --color-neon-carrot-dark: hsl(var(--neon-carrot--dark));
+  /* UI elements */
+  --color-link: var(--link);
 
-  --color-barbie-pink: hsl(var(--barbie-pink));
-  --color-barbie-pink-dark: hsl(var(--barbie-pink--dark));
+  --color-outline: var(--outline);
 
-  --color-tomato: hsl(var(--tomato));
-  --color-tomato-dark: hsl(var(--tomato--dark));
+  --color-input: var(--input);
+  --color-input-contrast: var(--input-contrast);
+
+  --color-overlay: oklch(from var(--overlay) l c h / 0.45);
+
+  /* Color sequences */
+  --color-node-1: var(--node-1);
+  --color-node-1-contrast: var(--node-1-contrast);
+  --color-node-2: var(--node-2);
+  --color-node-2-contrast: var(--node-2-contrast);
+  --color-node-3: var(--node-3);
+  --color-node-3-contrast: var(--node-3-contrast);
+  --color-node-4: var(--node-4);
+  --color-node-4-contrast: var(--node-4-contrast);
+  --color-node-5: var(--node-5);
+  --color-node-5-contrast: var(--node-5-contrast);
+  --color-node-6: var(--node-6);
+  --color-node-6-contrast: var(--node-6-contrast);
+  --color-node-7: var(--node-7);
+  --color-node-7-contrast: var(--node-7-contrast);
+  --color-node-8: var(--node-8);
+  --color-node-8-contrast: var(--node-8-contrast);
+
+  --color-edge-1: var(--edge-1);
+  --color-edge-2: var(--edge-2);
+  --color-edge-3: var(--edge-3);
+  --color-edge-4: var(--edge-4);
+  --color-edge-5: var(--edge-5);
+  --color-edge-6: var(--edge-6);
+  --color-edge-7: var(--edge-7);
+  --color-edge-8: var(--edge-8);
+  --color-edge-9: var(--edge-9);
+  --color-edge-10: var(--edge-10);
+
+  --color-ord-1: var(--ord-1);
+  --color-ord-2: var(--ord-2);
+  --color-ord-3: var(--ord-3);
+  --color-ord-4: var(--ord-4);
+  --color-ord-5: var(--ord-5);
+  --color-ord-6: var(--ord-6);
+  --color-ord-7: var(--ord-7);
+  --color-ord-8: var(--ord-8);
+  --color-ord-9: var(--ord-9);
+  --color-ord-10: var(--ord-10);
+
+  --color-cat-1: var(--cat-1);
+  --color-cat-2: var(--cat-2);
+  --color-cat-3: var(--cat-3);
+  --color-cat-4: var(--cat-4);
+  --color-cat-5: var(--cat-5);
+  --color-cat-6: var(--cat-6);
+  --color-cat-7: var(--cat-7);
+  --color-cat-8: var(--cat-8);
+  --color-cat-9: var(--cat-9);
+  --color-cat-10: var(--cat-10);
+
+  /* Named colors - these reference colors.css triplets, so they keep oklch() */
+  --color-neon-coral: oklch(var(--neon-coral));
+  --color-neon-coral-dark: oklch(var(--neon-coral--dark));
+
+  --color-sea-green: oklch(var(--sea-green));
+  --color-sea-green-dark: oklch(var(--sea-green--dark));
+
+  --color-slate-blue: oklch(var(--slate-blue));
+  --color-slate-blue-dark: oklch(var(--slate-blue--dark));
+
+  --color-navy-taupe: oklch(var(--navy-taupe));
+  --color-navy-taupe-dark: oklch(var(--navy-taupe--dark));
+
+  --color-cyber-grape: oklch(var(--cyber-grape));
+  --color-cyber-grape-dark: oklch(var(--cyber-grape--dark));
+
+  --color-mustard: oklch(var(--mustard));
+  --color-mustard-dark: oklch(var(--mustard--dark));
+
+  --color-rich-black: oklch(var(--rich-black));
+  --color-rich-black-dark: oklch(var(--rich-black--dark));
+
+  --color-charcoal: oklch(var(--charcoal));
+  --color-charcoal-dark: oklch(var(--charcoal--dark));
+
+  --color-platinum: oklch(var(--platinum));
+  --color-platinum-dark: oklch(var(--platinum--dark));
+
+  --color-sea-serpent: oklch(var(--sea-serpent));
+  --color-sea-serpent-dark: oklch(var(--sea-serpent--dark));
+
+  --color-purple-pizazz: oklch(var(--purple-pizazz));
+  --color-purple-pizazz-dark: oklch(var(--purple-pizazz--dark));
+
+  --color-paradise-pink: oklch(var(--paradise-pink));
+  --color-paradise-pink-dark: oklch(var(--paradise-pink--dark));
+
+  --color-cerulean-blue: oklch(var(--cerulean-blue));
+  --color-cerulean-blue-dark: oklch(var(--cerulean-blue--dark));
+
+  --color-kiwi: oklch(var(--kiwi));
+  --color-kiwi-dark: oklch(var(--kiwi--dark));
+
+  --color-neon-carrot: oklch(var(--neon-carrot));
+  --color-neon-carrot-dark: oklch(var(--neon-carrot--dark));
+
+  --color-barbie-pink: oklch(var(--barbie-pink));
+  --color-barbie-pink-dark: oklch(var(--barbie-pink--dark));
+
+  --color-tomato: oklch(var(--tomato));
+  --color-tomato-dark: oklch(var(--tomato--dark));
 
   --color-transparent: transparent;
-  --color-white: hsl(var(--white));
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
+  --color-white: oklch(var(--white));
+  --color-black: oklch(var(--black));
 
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
+  /*
+    Spacing
+  */
+  --spacing-*: initial;
+  --spacing: var(--spacing-base);
 
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  /*
+    Breakpoints/Containers
+  */
+  --breakpoint-*: initial;
 
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --breakpoint-phone: 20rem; /* 320px - minimum mobile */
+  --breakpoint-tablet: 48rem; /* 768px - small tablets, iPad Mini */
+  --breakpoint-tablet-portrait: 64rem; /* 1024px - iPad Pro 11" */
+  --breakpoint-laptop: 80rem; /* 1280px - small laptops, iPad Pro 12.9" */
+  --breakpoint-desktop: 120rem; /* 1920px - full HD desktop */
+  --breakpoint-desktop-lg: 160rem; /* 2560px - 2K/4K displays */
 
-  --color-success: hsl(var(--success));
-  --color-success-foreground: hsl(var(--success-foreground));
+  /*
+    Border radius
+    
+    This is a PITA, because motion doesn't work with css variables for border
+    radius, for some reason. So, approximate pixel values are provided next to
+    each of these, based on the default radius of 1.75rem (28px).
 
-  --color-info: hsl(var(--info));
-  --color-info-foreground: hsl(var(--info-foreground));
+    Use the pixel values in motion animations, and the variables elsewhere.
+  */
 
-  --color-warning: hsl(var(--warning));
-  --color-warning-foreground: hsl(var(--warning-foreground));
+  /* Responsive node sizes using clamp() for fluid scaling */
+  /* These scale smoothly between min and max based on viewport width */
+  /* The middle value (preferred) uses vw units for responsiveness */
+  --node-size-xxs: clamp(3rem, 4vw, 4.5rem); /* 48px - 72px */
+  --node-size-xs: clamp(4rem, 5.5vw, 6rem); /* 64px - 96px */
+  --node-size-sm: clamp(5rem, 7vw, 8rem); /* 80px - 128px */
+  --node-size-md: clamp(6.5rem, 9vw, 10rem); /* 104px - 160px */
+  --node-size-lg: clamp(8rem, 11vw, 12rem); /* 128px - 192px */
 
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-
-  --color-panel: hsl(var(--panel));
-  --color-panel-foreground: hsl(var(--foreground));
-
-  --color-input: hsl(var(--input));
-  --color-input-foreground: hsl(var(--input-foreground));
-
-  --color-border: hsl(var(--border));
-  --color-link: hsl(var(--link));
-
-  /* interviewer - node sequence colors */
-  --node-color-seq-1: var(--color-neon-coral);
-  --node-color-seq-1-dark: var(--color-neon-coral-dark);
-
-  --node-color-seq-2: var(--color-sea-serpent);
-  --node-color-seq-2-dark: var(--color-sea-serpent-dark);
-
-  --node-color-seq-3: var(--color-purple-pizazz);
-  --node-color-seq-3-dark: var(--color-purple-pizazz-dark);
-
-  --node-color-seq-4: var(--color-neon-carrot);
-  --node-color-seq-4-dark: var(--color-neon-carrot-dark);
-
-  --node-color-seq-5: var(--color-kiwi);
-  --node-color-seq-5-dark: var(--color-kiwi-dark);
-
-  --node-color-seq-6: var(--color-cerulean-blue);
-  --node-color-seq-6-dark: var(--color-cerulean-blue-dark);
-
-  --node-color-seq-7: var(--color-paradise-pink);
-  --node-color-seq-7-dark: var(--color-paradise-pink-dark);
-
-  --node-color-seq-8: var(--color-mustard);
-  --node-color-seq-8-dark: var(--color-mustard-dark);
-
-  /* edge sequence colors */
-  --edge-color-seq-1: var(--color-mustard);
-  --edge-color-seq-1-dark: var(--color-mustard-dark);
-
-  --edge-color-seq-2: var(--color-neon-coral);
-  --edge-color-seq-2-dark: var(--color-neon-coral-dark);
-
-  --edge-color-seq-3: var(--color-kiwi);
-  --edge-color-seq-3-dark: var(--color-kiwi-dark);
-
-  --edge-color-seq-4: var(--color-paradise-pink);
-  --edge-color-seq-4-dark: var(--color-paradise-pink-dark);
-
-  --edge-color-seq-5: var(--color-tomato);
-  --edge-color-seq-5-dark: var(--color-tomato-dark);
-
-  --edge-color-seq-6: var(--color-sea-serpent);
-  --edge-color-seq-6-dark: var(--color-sea-serpent-dark);
-
-  --edge-color-seq-7: var(--color-slate-blue);
-  --edge-color-seq-7-dark: var(--color-slate-blue-dark);
-
-  --edge-color-seq-8: var(--color-sea-green);
-  --edge-color-seq-8-dark: var(--color-sea-green-dark);
-
-  --edge-color-seq-9: var(--color-cerulean-blue);
-  --edge-color-seq-9-dark: var(--color-cerulean-blue-dark);
-
+  /* Responsive node label font sizes */
+  --node-font-size-xxs: clamp(0.5rem, 0.7vw, 0.75rem);
+  --node-font-size-xs: clamp(0.625rem, 0.9vw, 0.875rem);
+  --node-font-size-sm: clamp(0.75rem, 1vw, 1rem);
+  --node-font-size-md: clamp(0.875rem, 1.2vw, 1.125rem);
+  --node-font-size-lg: clamp(1rem, 1.4vw, 1.25rem);
   --radius-*: initial;
-  --radius-none: 0px;
-  --radius-sm: 0.125rem;
-  --radius: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.75rem;
-  --radius-2xl: 1rem;
-  --radius-3xl: 1.5rem;
-  --radius-full: 9999px;
-  --radius-input: 0.75rem;
+  --radius-none: 0px; /* 0px */
+  --radius-sm: calc(var(--radius) * 0.5); /* 14px */
+  --radius: 1.75rem; /* default - overridden by theme files */
+  --radius-lg: calc(var(--radius) * 1.5); /* 42px */
+  --radius-xl: calc(var(--radius) * 2); /* 56px */
+  --radius-2xl: calc(var(--radius) * 3); /* 84px */
+  --radius-3xl: calc(var(--radius) * 4); /* 112px */
+  --radius-full: 9999px; /* 9999px */
+
+  /*
+    Animation
+  */
 
   --animate-wiggle: wiggle 1s ease-in-out infinite;
   --animate-shake: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
@@ -175,8 +325,24 @@
   --animate-indeterminate-progress-bar: indeterminate-progress-bar 1s infinite
     linear;
   --animate-background-gradient: background-gradient 5s infinite ease-in-out;
+  --animate-linking: linking 1s ease-in-out infinite;
+  --animate-pulse-glow: animate-pulse-glow 2s infinite;
 
   --transform-origin-left-right: 0% 50%;
+
+  @keyframes animate-pulse-glow {
+    0% {
+      box-shadow: 0 0 0 0 oklch(from var(--color-success) l c h / 0.8);
+    }
+
+    70% {
+      box-shadow: 0 0 0 2rem oklch(from var(--color-success) l c h / 0);
+    }
+
+    100% {
+      box-shadow: 0 0 0 0 oklch(from var(--color-success) l c h / 0);
+    }
+  }
 
   @keyframes wiggle {
     0%,
@@ -242,219 +408,154 @@
       transform: translate3d(4px, 0, 0);
     }
   }
+
+  @keyframes linking {
+    0% {
+      transform: scale(0.8);
+    }
+
+    50% {
+      transform: scale(1);
+    }
+
+    100% {
+      transform: scale(0.8);
+    }
+  }
 }
 
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
+/* 
 
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
+The default tailwind way to do this uses a psuedo element selector, which
+means that anything not editable is "read only", including things
+like <select>. 
+
+This custom variant lets you target only elements with the readonly attribute.
+
 */
+@custom-variant is-read-only (&[readonly]);
+
+/**
+ * Utility classes for focus styles:
+ * - focusable: applies focus styles on :focus-visible (default color: currentColor)
+ * - focusable-within: applies focus styles on :focus-within + :focus-visible
+ * - focus-styles: the actual focus styles (sizing only, no color)
+ *
+ * To override the focus ring color, add outline-[color] to your element.
+ * The color is set in normal state so it can be overridden by other utilities.
+ */
+@utility focus-styles {
+  @apply outline-4 outline-offset-3 transition-all duration-200 ease-in-out;
+}
+
+@utility focusable {
+  outline-color: currentColor; /* Default - override with outline-[color] */
+  @apply focus-visible:focus-styles;
+}
+
+@utility focusable-within {
+  outline-color: currentColor;
+  @apply focus-visible-within:focus-styles;
+}
+
+/**
+ * focusable-after: applies focus styles via ::after pseudo-element on a wrapper.
+ * Apply this to a PARENT element that wraps a scrollable/overflow child.
+ * The child that should trigger focus styles must have the `focusable-after-trigger` class.
+ * The pseudo-element sits on the parent and won't be clipped by child overflow.
+ */
+@utility focusable-after {
+  @apply relative;
+  &::after {
+    @apply pointer-events-none absolute inset-0 content-[''];
+    outline-color: currentColor;
+  }
+  &:has(.focusable-after-trigger:focus-visible)::after {
+    @apply focus-styles z-1 rounded-sm;
+  }
+}
+
+@utility focusable-after-trigger {
+  @apply outline-none;
+}
+
+/**
+ * focusable-after-within: extends focusable-after to also trigger when ANY
+ * descendant has :focus-visible. Use this for Collection components where
+ * items receive actual DOM focus instead of the trigger element.
+ */
+@utility focusable-after-within {
+  &:has(:focus-visible)::after {
+    @apply focus-styles z-1 rounded-sm;
+  }
+}
+
+/**
+ * Gradient scroll fade for ScrollArea viewport.
+ * Uses CSS variables set by ScrollArea component to create fade effects at scroll edges.
+ * --scroll-area-overflow-y-start: distance scrolled from top
+ * --scroll-area-overflow-y-end: distance remaining to scroll
+ */
+@utility scroll-area-viewport {
+  --fade-height: max(1.5rem, 8%);
+  &::before,
+  &::after {
+    @apply pointer-events-none absolute left-0 block transition-[height] duration-100 ease-out content-[''];
+    right: var(--scrollbar-width, 0px);
+  }
+  &::before {
+    @apply top-0 z-1 bg-linear-to-b from-(--published-bg,var(--background)) to-transparent;
+    height: min(var(--fade-height), var(--scroll-area-overflow-y-start, 0px));
+  }
+  &::after {
+    @apply bottom-0 bg-linear-to-t from-(--published-bg,var(--background)) to-transparent;
+    height: min(var(--fade-height), var(--scroll-area-overflow-y-end, 0px));
+  }
+}
+
+@utility scroll-area-viewport-x {
+  --fade-width: max(1.5rem, 8%);
+  &::before,
+  &::after {
+    @apply pointer-events-none absolute top-0 block transition-[width] duration-100 ease-out content-[''];
+    bottom: var(--scrollbar-height, 0px);
+  }
+  &::before {
+    @apply left-0 z-1 bg-linear-to-r from-(--published-bg,var(--background)) to-transparent;
+    width: min(var(--fade-width), var(--scroll-area-overflow-x-start, 0px));
+  }
+  &::after {
+    @apply right-0 bg-linear-to-l from-(--published-bg,var(--background)) to-transparent;
+    width: min(var(--fade-width), var(--scroll-area-overflow-x-end, 0px));
+  }
+}
+
+/* Replacement for interface centering mixin */
+@utility interface {
+  @apply relative flex w-full shrink grow basis-auto items-center justify-center gap-8 p-4;
+}
+
+/* Required for base-ui components that use portals: https://base-ui.com/react/overview/quick-start#portals */
+@utility root {
+  @apply isolate;
+}
+
+/* Override default border color to use our theme values */
 @layer base {
   *,
   ::after,
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-platinum-dark, currentColor);
+    @apply border-outline;
   }
-}
 
-@layer base {
-  :root {
-    /* UI Colors */
-    /* To generate dark color variants, subtract 5% from the lightness. */
-    --dark-mod: 5%;
-    --neon-coral-hue: 342;
-    --neon-coral-saturation: 76.9%;
-    --neon-coral-lightness: 50.8%;
-    --neon-coral: var(--neon-coral-hue) var(--neon-coral-saturation)
-      var(--neon-coral-lightness);
-    --neon-coral--dark: var(--neon-coral-hue) var(--neon-coral-saturation)
-      calc(var(--neon-coral-lightness) - var(--dark-mod));
-
-    --mustard-hue: 46;
-    --mustard-saturation: 100%;
-    --mustard-lightness: 47%;
-    --mustard: var(--mustard-hue) var(--mustard-saturation)
-      var(--mustard-lightness);
-    --mustard--dark: var(--mustard-hue) var(--mustard-saturation)
-      calc(var(--mustard-lightness) - var(--dark-mod));
-
-    --sea-green-hue: 168;
-    --sea-green-saturation: 100%;
-    --sea-green-lightness: 35%;
-    --sea-green: var(--sea-green-hue) var(--sea-green-saturation)
-      var(--sea-green-lightness);
-    --sea-green--dark: var(--sea-green-hue) var(--sea-green-saturation)
-      calc(var(--sea-green-lightness) - var(--dark-mod));
-
-    --slate-blue-hue: 237;
-    --slate-blue-saturation: 79%;
-    --slate-blue-lightness: 65%;
-    --slate-blue: var(--slate-blue-hue) var(--slate-blue-saturation)
-      var(--slate-blue-lightness);
-    --slate-blue--dark: var(--slate-blue-hue) var(--slate-blue-saturation)
-      calc(var(--slate-blue-lightness) - var(--dark-mod));
-
-    --navy-taupe-hue: 248;
-    --navy-taupe-saturation: 34%;
-    --navy-taupe-lightness: 25%;
-    --navy-taupe: var(--navy-taupe-hue) var(--navy-taupe-saturation)
-      var(--navy-taupe-lightness);
-    --navy-taupe--dark: var(--navy-taupe-hue) var(--navy-taupe-saturation)
-      calc(var(--navy-taupe-lightness) - var(--dark-mod));
-
-    --cyber-grape-hue: 240;
-    --cyber-grape-saturation: 33%;
-    --cyber-grape-lightness: 29%;
-    --cyber-grape: var(--cyber-grape-hue) var(--cyber-grape-saturation)
-      var(--cyber-grape-lightness);
-    --cyber-grape--dark: var(--cyber-grape-hue) var(--cyber-grape-saturation)
-      calc(var(--cyber-grape-lightness) - var(--dark-mod));
-
-    --rich-black-hue: 240;
-    --rich-black-saturation: 35%;
-    --rich-black-lightness: 10%;
-    --rich-black: var(--rich-black-hue) var(--rich-black-saturation)
-      var(--rich-black-lightness);
-
-    --charcoal-hue: 231;
-    --charcoal-saturation: 4%;
-    --charcoal-lightness: 43%;
-    --charcoal: var(--charcoal-hue) var(--charcoal-saturation)
-      var(--charcoal-lightness);
-
-    --platinum-hue: 210;
-    --platinum-saturation: 43%;
-    --platinum-lightness: 95%;
-    --platinum: var(--platinum-hue) var(--platinum-saturation)
-      var(--platinum-lightness);
-    --platinum--dark: var(--platinum-hue) var(--platinum-saturation)
-      calc(var(--platinum-lightness) - var(--dark-mod));
-
-    --sea-serpent-hue: 190;
-    --sea-serpent-saturation: 87%;
-    --sea-serpent-lightness: 47%;
-    --sea-serpent: var(--sea-serpent-hue) var(--sea-serpent-saturation)
-      var(--sea-serpent-lightness);
-    --sea-serpent--dark: var(--sea-serpent-hue) var(--sea-serpent-saturation)
-      calc(var(--sea-serpent-lightness) - var(--dark-mod));
-
-    --purple-pizazz-hue: 291;
-    --purple-pizazz-saturation: 86%;
-    --purple-pizazz-lightness: 52%;
-    --purple-pizazz: var(--purple-pizazz-hue) var(--purple-pizazz-saturation)
-      var(--purple-pizazz-lightness);
-    --purple-pizazz--dark: var(--purple-pizazz-hue)
-      var(--purple-pizazz-saturation)
-      calc(var(--purple-pizazz-lightness) - var(--dark-mod));
-
-    --paradise-pink-hue: 331;
-    --paradise-pink-saturation: 100%;
-    --paradise-pink-lightness: 57%;
-    --paradise-pink: var(--paradise-pink-hue) var(--paradise-pink-saturation)
-      var(--paradise-pink-lightness);
-    --paradise-pink--dark: var(--paradise-pink-hue)
-      var(--paradise-pink-saturation)
-      calc(var(--paradise-pink-lightness) - var(--dark-mod));
-
-    --cerulean-blue-hue: 216;
-    --cerulean-blue-saturation: 100%;
-    --cerulean-blue-lightness: 53%;
-    --cerulean-blue: var(--cerulean-blue-hue) var(--cerulean-blue-saturation)
-      var(--cerulean-blue-lightness);
-    --cerulean-blue--dark: var(--cerulean-blue-hue)
-      var(--cerulean-blue-saturation)
-      calc(var(--cerulean-blue-lightness) - var(--dark-mod));
-
-    --kiwi-hue: 103;
-    --kiwi-saturation: 46%;
-    --kiwi-lightness: 56%;
-    --kiwi: var(--kiwi-hue) var(--kiwi-saturation) var(--kiwi-lightness);
-    --kiwi--dark: var(--kiwi-hue) var(--kiwi-saturation)
-      calc(var(--kiwi-lightness) - var(--dark-mod));
-
-    --neon-carrot-hue: 32;
-    --neon-carrot-saturation: 92%;
-    --neon-carrot-lightness: 52%;
-    --neon-carrot: var(--neon-carrot-hue) var(--neon-carrot-saturation)
-      var(--neon-carrot-lightness);
-    --neon-carrot--dark: var(--neon-carrot-hue) var(--neon-carrot-saturation)
-      calc(var(--neon-carrot-lightness) - var(--dark-mod));
-
-    --barbie-pink-hue: 328;
-    --barbie-pink-saturation: 100%;
-    --barbie-pink-lightness: 47%;
-    --barbie-pink: var(--barbie-pink-hue) var(--barbie-pink-saturation)
-      var(--barbie-pink-lightness);
-    --barbie-pink--dark: var(--barbie-pink-hue) var(--barbie-pink-saturation)
-      calc(var(--barbie-pink-lightness) - var(--dark-mod));
-
-    --tomato-hue: 356;
-    --tomato-saturation: 77%;
-    --tomato-lightness: 54%;
-    --tomato: var(--tomato-hue) var(--tomato-saturation) var(--tomato-lightness);
-    --tomato--dark: var(--tomato-hue) var(--tomato-saturation)
-      calc(var(--tomato-lightness) - var(--dark-mod));
-
-    --white: 0 0% 100%;
-
-    /* Semantic slots */
-    --background: var(--platinum);
-    --foreground: var(--cyber-grape);
-
-    --primary: var(--cyber-grape);
-    --primary-foreground: var(--white);
-
-    --secondary: var(--neon-coral);
-    --secondary-foreground: var(--white);
-
-    --muted: var(--platinum);
-    --muted-foreground: var(--cyber-grape-hue)
-      calc(var(--cyber-grape-saturation) - 10%)
-      calc(var(--cyber-grape-lightness) - 10%);
-
-    --accent: var(--slate-blue);
-    --accent-foreground: var(--white);
-
-    --destructive: var(--tomato);
-    --destructive-foreground: var(--white);
-
-    --warning: var(--neon-carrot);
-    --warning-foreground: var(--white);
-
-    --info: var(--cerulean-blue);
-    --info-foreground: var(--white);
-
-    --success: var(--sea-green);
-    --success-foreground: var(--white);
-
-    --border: var(--platinum--dark);
-
-    --link: var(--neon-coral);
-
-    --card: 0 0% 100%;
-
-    --panel: var(--platinum);
-
-    --input: 0 0% 100%;
-    --input-foreground: var(--cyber-grape);
-
-    --popover: var(--white);
-    --popover-foreground: var(--foreground);
-  }
-}
-
-@layer base {
   body {
-    @apply bg-background text-foreground;
-    font-family: 'Open Sans', sans-serif;
+    @apply bg-background text-text publish-colors font-body;
+    position: relative; /* https://base-ui.com/react/overview/quick-start#ios-26-safari */
   }
 
-  /* These two tags are semantic, so I think its okay to apply styles to them directly in the global styles. */
+  /* These tags are semantic, so I think its okay to apply styles to them directly in the global styles. */
   strong {
     @apply font-extrabold;
   }
@@ -462,4 +563,41 @@
   em {
     @apply italic;
   }
+
+  s {
+    @apply line-through;
+  }
+
+  u {
+    @apply underline;
+  }
+
+  hr {
+    @apply my-6 rounded border-[1.2px] border-current/5;
+  }
+
+  kbd {
+    @apply font-monospace inline-flex items-center justify-center rounded-sm border border-current/15 bg-current/5 px-1.5 py-0.5 text-xs leading-none font-medium shadow-[0_1px_0_1px_oklch(from_currentColor_l_c_h/0.1)];
+  }
+
+  /* Slightly increase default stroke width for better visibility */
+  .lucide {
+    stroke-width: 2.5px;
+  }
+}
+
+/* Custom variant for :focus-within + :focus-visible */
+@variant focus-visible-within (&:has(:focus-visible));
+
+/*
+  Interview mode variant - uses the data-theme="interview" attribute on any ancestor element.
+  This allows forcing interview mode on specific routes while
+  using semantic color tokens that adapt to light/dark context.
+*/
+@custom-variant interview (&:where([data-theme="interview"], [data-theme="interview"] *));
+@custom-variant dashboard (&:where([data-theme="dashboard"], [data-theme="dashboard"] *));
+
+/* Storybook docs story canvas background */
+.sbdocs-preview {
+  background: var(--background) !important;
 }

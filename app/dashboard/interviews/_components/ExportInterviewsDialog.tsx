@@ -1,49 +1,26 @@
-import type { Interview } from '~/lib/db/generated/client';
-import { DialogDescription } from '@radix-ui/react-dialog';
-import { FileWarning, Loader2, XCircle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import superjson from 'superjson';
 import {
   exportSessions,
+  type FormattedProtocols,
   prepareExportData,
   updateExportTime,
 } from '~/actions/interviews';
 import { deleteZipFromUploadThing } from '~/actions/uploadThing';
 import { Button } from '~/components/ui/Button';
-import { cardClasses } from '~/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog';
-import Heading from '~/components/ui/typography/Heading';
-import { useToast } from '~/components/ui/use-toast';
+import { useToast } from '~/components/ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
 import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
-import trackEvent from '~/lib/analytics';
-import { ExportOptionsSchema } from '~/lib/network-exporters/utils/types';
+import posthog from 'posthog-js';
+import type { Interview } from '~/lib/db/generated/client';
+import Dialog from '~/lib/dialogs/Dialog';
+import {
+  ExportOptionsSchema,
+  type FormattedSession,
+} from '~/lib/network-exporters/utils/types';
 import { ensureError } from '~/utils/ensureError';
-import { cn } from '~/utils/shadcn';
 import ExportOptionsView from './ExportOptionsView';
-
-const ExportingStateAnimation = () => {
-  return (
-    <div className="fixed inset-0 z-99 flex flex-col items-center justify-center gap-3 bg-background/80 text-primary">
-      <div
-        className={cn(
-          cardClasses,
-          'flex flex-col items-center justify-center gap-4 p-10',
-        )}
-      >
-        <Loader2 className="h-20 w-20 animate-spin" />
-        <Heading variant="h4">
-          Exporting and zipping files. Please wait...
-        </Heading>
-      </div>
-    </div>
-  );
-};
 
 export const ExportInterviewsDialog = ({
   open,
@@ -55,7 +32,7 @@ export const ExportInterviewsDialog = ({
   interviewsToExport: Interview[];
 }) => {
   const download = useDownload();
-  const { toast } = useToast();
+  const { add } = useToast();
   const [isExporting, setIsExporting] = useState(false);
 
   const [exportOptions, setExportOptions] = useSafeLocalStorage(
@@ -84,10 +61,15 @@ export const ExportInterviewsDialog = ({
       const { formattedSessions, formattedProtocols } =
         await prepareExportData(interviewIds);
 
+      const parsedFormattedSessions =
+        superjson.parse<FormattedSession[]>(formattedSessions);
+      const parsedFormattedProtocols =
+        superjson.parse<FormattedProtocols>(formattedProtocols);
+
       // export the data
       const { zipUrl, zipKey, status, error } = await exportSessions(
-        formattedSessions,
-        formattedProtocols,
+        parsedFormattedSessions,
+        parsedFormattedProtocols,
         interviewIds,
         exportOptions,
       );
@@ -115,52 +97,35 @@ export const ExportInterviewsDialog = ({
       download(url, 'Network Canvas Export.zip');
       // clean up the URL object
       URL.revokeObjectURL(url);
+
+      add({
+        title: 'Export complete!',
+        type: 'success',
+      });
     } catch (error) {
       const e = ensureError(error);
 
-      toast({
-        icon: <XCircle />,
+      add({
         title: 'Error',
         description:
           'Failed to export, please try again. The error was: ' + e.message,
-        variant: 'destructive',
+        type: 'destructive',
       });
 
-      void trackEvent({
-        type: 'Error',
-        name: 'FailedToExportInterviews',
-        message: e.message,
-        stack: e.stack,
-        metadata: {
-          error: e.name,
-          string: e.toString(),
-          path: '/dashboard/interviews/_components/ExportInterviewsDialog.tsx',
-        },
-      });
+      posthog.captureException(e);
     } finally {
       if (exportFilename) {
         // Attempt to delete the zip file from UploadThing.
         void deleteZipFromUploadThing(exportFilename).catch((error) => {
           const e = ensureError(error);
-          void trackEvent({
-            type: 'Error',
-            name: 'FailedToDeleteTempFile',
-            message: e.message,
-            stack: e.stack,
-            metadata: {
-              error: e.name,
-              string: e.toString(),
-              path: '/dashboard/interviews/_components/ExportInterviewsDialog.tsx',
-            },
-          });
+          posthog.captureException(e);
 
-          toast({
-            icon: <FileWarning />,
-            duration: Infinity,
-            variant: 'default',
+          add({
+            timeout: Infinity,
+            type: 'destructive',
             title: 'Could not delete temporary file',
             description:
-              'We were unable to delete the temporary file containing your exported data, which is stored on your UploadThing account. Although extremely unlikely, it is possible that this file could be accessed by someone else. You can delete the file manually by visiting uploadthing.com and logging in with your GitHub account. Please use the feedback button to report this issue.',
+              'We were unable to delete the temporary file containing your exported data, which is stored on your UploadThing account. Although extremely unlikely, it is possible that this file could be accessed by someone else. You can delete the file manually by visiting uploadthing.com and logging in with your GitHub account. Please contact us to report this issue.',
           });
         });
       }
@@ -172,29 +137,35 @@ export const ExportInterviewsDialog = ({
 
   return (
     <>
-      {isExporting && <ExportingStateAnimation />}
-      <Dialog open={open} onOpenChange={handleCancel}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirm File Export Options</DialogTitle>
-            <DialogDescription>
-              Before exporting, please confirm the export options that you wish
-              to use. These options are identical to those found in Interviewer.
-            </DialogDescription>
-          </DialogHeader>
-          <ExportOptionsView
-            exportOptions={exportOptions}
-            setExportOptions={setExportOptions}
-          />
-          <DialogFooter>
-            <Button onClick={handleCancel} variant="outline">
+      <Dialog
+        open={open}
+        closeDialog={() => {
+          if (!isExporting) {
+            handleCancel();
+          }
+        }}
+        title="Confirm File Export Options"
+        description="Before exporting, please confirm the export options that you wish to use. These options are identical to those found in Interviewer."
+        footer={
+          <>
+            <Button onClick={handleCancel} disabled={isExporting}>
               Cancel
             </Button>
-            <Button onClick={handleConfirm}>
+            <Button
+              onClick={handleConfirm}
+              color="primary"
+              disabled={isExporting}
+              icon={isExporting ? <Loader2 className="animate-spin" /> : null}
+            >
               {isExporting ? 'Exporting...' : 'Start export process'}
             </Button>
-          </DialogFooter>
-        </DialogContent>
+          </>
+        }
+      >
+        <ExportOptionsView
+          exportOptions={exportOptions}
+          setExportOptions={setExportOptions}
+        />
       </Dialog>
     </>
   );
