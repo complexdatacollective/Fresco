@@ -10,7 +10,8 @@ import CloseButton from '../ui/CloseButton';
 
 type DataTableFloatingBarProps<TData> = {
   table: Table<TData>;
-} & Omit<ComponentProps<typeof MotionSurface>, 'table'>;
+  className?: string;
+} & Omit<ComponentProps<typeof MotionSurface>, 'table' | 'className'>;
 
 export function DataTableFloatingBar<TData>({
   table,
