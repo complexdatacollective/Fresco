@@ -46,7 +46,7 @@ const ProtocolsTableClient = ({ dataPromise }: { dataPromise: GetData }) => {
     [allowAnonymousRecruitment],
   );
 
-  const { table, tableVersion } = useClientDataTable({
+  const { table } = useClientDataTable({
     data: protocols,
     columns,
   });
@@ -55,18 +55,16 @@ const ProtocolsTableClient = ({ dataPromise }: { dataPromise: GetData }) => {
     <>
       <DataTable
         table={table}
-        tableVersion={tableVersion}
         toolbar={
           <DataTableToolbar
             table={table}
-            tableVersion={tableVersion}
             searchableColumns={[{ id: 'name', title: 'by name' }]}
           >
             <ProtocolUploader buttonDisabled={!hasUploadThingToken} />
           </DataTableToolbar>
         }
         floatingBar={
-          <DataTableFloatingBar table={table} tableVersion={tableVersion}>
+          <DataTableFloatingBar table={table}>
             <Button
               onClick={() =>
                 handleDelete(

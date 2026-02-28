@@ -263,7 +263,7 @@ export default function UserManagement({
     [currentUserId, confirm, doDeleteUsers],
   );
 
-  const { table, tableVersion } = useClientDataTable({
+  const { table } = useClientDataTable({
     data: users,
     columns,
     enablePagination: false,
@@ -396,12 +396,11 @@ export default function UserManagement({
 
         <DataTable
           table={table}
-          tableVersion={tableVersion}
           surfaceLevel={1}
           emptyText="No users created yet."
           showPagination={false}
           floatingBar={
-            <DataTableFloatingBar table={table} tableVersion={tableVersion}>
+            <DataTableFloatingBar table={table}>
               <Button
                 onClick={() =>
                   handleDeleteSelected(

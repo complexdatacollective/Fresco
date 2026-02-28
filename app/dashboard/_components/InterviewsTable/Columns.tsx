@@ -2,7 +2,7 @@
 
 import { type ColumnDef } from '@tanstack/react-table';
 import Image from 'next/image';
-import { DataTableCheckbox } from '~/components/DataTable/DataTableCheckbox';
+import Checkbox from '~/lib/form/components/fields/Checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { Badge } from '~/components/ui/badge';
 import ProgressBar from '~/components/ui/ProgressBar';
@@ -19,14 +19,14 @@ export const InterviewColumns = (): ColumnDef<
       className: 'sticky left-0',
     },
     header: ({ table }) => (
-      <DataTableCheckbox
+      <Checkbox
         checked={table.getIsAllPageRowsSelected()}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
       />
     ),
     cell: ({ row }) => (
-      <DataTableCheckbox
+      <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"

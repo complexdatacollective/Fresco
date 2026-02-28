@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  type Renderable,
+  flexRender,
   type Row,
   type Table as TTable,
 } from '@tanstack/react-table';
@@ -16,31 +16,8 @@ import {
 } from '~/components/ui/table';
 import { DataTablePagination } from './DataTablePagination';
 
-// Renders a column definition's header/cell function directly, bypassing
-// React's component memoization. This ensures column render functions
-// always re-evaluate with current table state.
-// TanStack Table's flexRender mounts column render functions as React
-// components (<Comp {...props} />), which React Compiler auto-memoizes.
-// Since the table object is a mutable ref with stable identity, the
-// compiler treats it as "unchanged" and skips re-renders. Calling the
-// function directly avoids this memoization boundary.
-function renderDirect<TProps extends object>(
-  render: Renderable<TProps>,
-  props: TProps,
-): ReactNode {
-  if (!render) return null;
-  if (typeof render === 'function') {
-    return (render as (props: TProps) => ReactNode)(props);
-  }
-  return render as ReactNode;
-}
-
 type DataTableProps<TData> = {
   table: TTable<TData>;
-  // Incrementing counter that forces re-render when table state changes.
-  // useReactTable returns a mutable object with stable identity, so React
-  // Compiler may skip re-renders without this signal.
-  tableVersion?: number;
   toolbar?: ReactNode;
   floatingBar?: ReactNode;
   showPagination?: boolean;
@@ -51,7 +28,6 @@ type DataTableProps<TData> = {
 
 export function DataTable<TData>({
   table,
-  tableVersion = 0,
   toolbar,
   floatingBar,
   showPagination = true,
@@ -63,7 +39,7 @@ export function DataTable<TData>({
   const columnCount = table.getAllColumns().length;
 
   return (
-    <div className="flex flex-col gap-6" data-table-version={tableVersion}>
+    <div className="flex flex-col gap-6">
       {toolbar}
       <Table surfaceProps={{ level: surfaceLevel }} data-testid="data-table">
         <TableHeader>
@@ -73,7 +49,7 @@ export function DataTable<TData>({
                 <TableHead key={header.id}>
                   {header.isPlaceholder
                     ? null
-                    : renderDirect(
+                    : flexRender(
                         header.column.columnDef.header,
                         header.getContext(),
                       )}
@@ -92,7 +68,7 @@ export function DataTable<TData>({
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
-                    {renderDirect(
+                    {flexRender(
                       cell.column.columnDef.cell,
                       cell.getContext(),
                     )}

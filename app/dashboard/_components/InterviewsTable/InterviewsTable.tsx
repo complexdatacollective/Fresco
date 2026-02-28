@@ -82,7 +82,7 @@ export const InterviewsTable = ({
     [],
   );
 
-  const { table, tableVersion } = useClientDataTable({
+  const { table } = useClientDataTable({
     data: interviews,
     columns,
     defaultSortBy: { id: 'lastUpdated', desc: true },
@@ -102,11 +102,9 @@ export const InterviewsTable = ({
       />
       <DataTable
         table={table}
-        tableVersion={tableVersion}
         toolbar={
           <DataTableToolbar
             table={table}
-            tableVersion={tableVersion}
             searchableColumns={[{ id: 'identifier', title: 'by identifier' }]}
           >
             <DropdownMenu>
@@ -139,7 +137,7 @@ export const InterviewsTable = ({
           </DataTableToolbar>
         }
         floatingBar={
-          <DataTableFloatingBar table={table} tableVersion={tableVersion}>
+          <DataTableFloatingBar table={table}>
             <Button
               onClick={() =>
                 handleDelete(

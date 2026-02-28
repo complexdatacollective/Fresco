@@ -10,9 +10,8 @@ import {
   type ColumnFiltersState,
   type Row,
   type SortingState,
-  type Updater,
 } from '@tanstack/react-table';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 type UseClientDataTableOptions<TData, TValue> = {
   data: TData[];
@@ -22,12 +21,6 @@ type UseClientDataTableOptions<TData, TValue> = {
   defaultSortBy?: { id: string; desc: boolean };
 };
 
-// TanStack Table's useReactTable returns a mutable object whose identity
-// never changes (stored in a ref). React Compiler may skip re-renders of
-// child components that receive the table object because the reference is
-// stable. The tableVersion counter increments on every state change,
-// providing a primitive value that child components can depend on to
-// ensure they re-render when table state changes.
 export function useClientDataTable<TData, TValue>({
   data,
   columns,
@@ -35,33 +28,12 @@ export function useClientDataTable<TData, TValue>({
   enableRowSelection = true,
   defaultSortBy,
 }: UseClientDataTableOptions<TData, TValue>) {
+  'use no memo';
   const [sorting, setSorting] = useState<SortingState>(
     defaultSortBy ? [{ ...defaultSortBy }] : [],
   );
   const [rowSelection, setRowSelection] = useState({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [tableVersion, setTableVersion] = useState(0);
-
-  const trackSorting = useCallback((updater: Updater<SortingState>) => {
-    setSorting(updater);
-    setTableVersion((v) => v + 1);
-  }, []);
-
-  const trackRowSelection = useCallback(
-    (updater: Updater<Record<string, boolean>>) => {
-      setRowSelection(updater);
-      setTableVersion((v) => v + 1);
-    },
-    [],
-  );
-
-  const trackColumnFilters = useCallback(
-    (updater: Updater<ColumnFiltersState>) => {
-      setColumnFilters(updater);
-      setTableVersion((v) => v + 1);
-    },
-    [],
-  );
 
   const table = useReactTable({
     data,
@@ -70,10 +42,10 @@ export function useClientDataTable<TData, TValue>({
     ...(enablePagination && {
       getPaginationRowModel: getPaginationRowModel(),
     }),
-    onSortingChange: trackSorting,
+    onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    onRowSelectionChange: trackRowSelection,
-    onColumnFiltersChange: trackColumnFilters,
+    onRowSelectionChange: setRowSelection,
+    onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     enableRowSelection,
     state: {
@@ -83,5 +55,5 @@ export function useClientDataTable<TData, TValue>({
     },
   });
 
-  return { table, tableVersion };
+  return { table };
 }

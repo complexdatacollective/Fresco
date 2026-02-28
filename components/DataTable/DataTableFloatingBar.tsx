@@ -9,12 +9,10 @@ import Surface from '../layout/Surface';
 
 type DataTableFloatingBarProps<TData> = {
   table: Table<TData>;
-  tableVersion?: number;
 } & HTMLAttributes<HTMLElement>;
 
 export function DataTableFloatingBar<TData>({
   table,
-  tableVersion: _tableVersion,
   children,
   className,
   ...props

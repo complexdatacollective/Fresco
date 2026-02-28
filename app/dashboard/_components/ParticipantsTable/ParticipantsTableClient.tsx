@@ -132,7 +132,7 @@ export const ParticipantsTableClient = ({
     [protocols, handleEditParticipant, handleDeleteSingle],
   );
 
-  const { table, tableVersion } = useClientDataTable({
+  const { table } = useClientDataTable({
     data: participants,
     columns,
   });
@@ -164,11 +164,9 @@ export const ParticipantsTableClient = ({
       />
       <DataTable
         table={table}
-        tableVersion={tableVersion}
         toolbar={
           <DataTableToolbar
             table={table}
-            tableVersion={tableVersion}
             searchableColumns={[{ id: 'identifier', title: 'by identifier' }]}
           >
             <AddParticipantButton existingParticipants={participants} />
@@ -202,7 +200,7 @@ export const ParticipantsTableClient = ({
           </DataTableToolbar>
         }
         floatingBar={
-          <DataTableFloatingBar table={table} tableVersion={tableVersion}>
+          <DataTableFloatingBar table={table}>
             <Button
               onClick={() =>
                 handleDeleteItems(

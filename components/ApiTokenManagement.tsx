@@ -174,7 +174,7 @@ export default function ApiTokenManagement({
     },
   ];
 
-  const { table, tableVersion } = useClientDataTable({
+  const { table } = useClientDataTable({
     data: tokens,
     columns,
     enablePagination: false,
@@ -193,7 +193,6 @@ export default function ApiTokenManagement({
       </Button>
       <DataTable
         table={table}
-        tableVersion={tableVersion}
         surfaceLevel={1}
         emptyText="No API tokens created yet."
         showPagination={false}
