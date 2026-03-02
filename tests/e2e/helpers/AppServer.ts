@@ -30,9 +30,8 @@ export class AppServer {
 
   static ensureBuild(): void {
     const serverExists = fs.existsSync(STANDALONE_SERVER);
-    const forceRebuild = process.env.FORCE_REBUILD === 'true';
 
-    if (serverExists && !forceRebuild) {
+    if (serverExists) {
       log('setup', 'Standalone build already exists, skipping build');
     } else {
       log('setup', 'Building standalone Next.js app...');

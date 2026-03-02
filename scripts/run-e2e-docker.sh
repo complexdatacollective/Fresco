@@ -50,7 +50,6 @@ fi
 docker run --rm \
   -e CI=true \
   -e INSTALLATION_ID=e2e-test-env \
-  -e FORCE_REBUILD=true \
   -v "$(pwd)":/work \
   -v /dev/null:/work/.env:ro \
   -v /var/run/docker.sock:/var/run/docker.sock \

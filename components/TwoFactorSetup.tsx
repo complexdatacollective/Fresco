@@ -21,12 +21,16 @@ type SetupData = {
 };
 
 function QRCodeStep({ userCount }: { userCount: number }) {
+  // eslint-disable-next-line no-console
+  console.log('[QRCodeStep] Rendering, userCount:', userCount);
   const { setNextEnabled, setStepData } = useWizard();
   const [setupData, setSetupData] = useState<SetupData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [secretCopied, setSecretCopied] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('[QRCodeStep] Setting nextEnabled to false');
     setNextEnabled(false);
   }, [setNextEnabled]);
 
@@ -34,13 +38,25 @@ function QRCodeStep({ userCount }: { userCount: number }) {
     let cancelled = false;
 
     async function fetchTotpData() {
-      const result = await enableTotp();
-      if (cancelled) return;
-      setIsLoading(false);
-      if (result.data) {
-        setSetupData(result.data);
-        setStepData({ setupData: result.data });
-        setNextEnabled(true);
+      // eslint-disable-next-line no-console
+      console.log('[QRCodeStep] Calling enableTotp...');
+      try {
+        const result = await enableTotp();
+        // eslint-disable-next-line no-console
+        console.log('[QRCodeStep] enableTotp result:', {
+          error: result.error,
+          hasData: !!result.data,
+        });
+        if (cancelled) return;
+        setIsLoading(false);
+        if (result.data) {
+          setSetupData(result.data);
+          setStepData({ setupData: result.data });
+          setNextEnabled(true);
+        }
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('[QRCodeStep] enableTotp FAILED:', err);
       }
     }
 

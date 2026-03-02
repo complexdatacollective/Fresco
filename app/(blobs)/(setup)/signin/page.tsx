@@ -3,7 +3,7 @@ import { type Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { containerClasses } from '~/components/ContainerClasses';
-import Surface from '~/components/layout/Surface';
+import { MotionSurface } from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import { getServerSession } from '~/utils/auth';
 import { cx } from '~/utils/cva';
@@ -17,7 +17,12 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <Surface className={cx(containerClasses)} elevation="none" maxWidth="md">
+    <MotionSurface
+      noContainer
+      className={cx(containerClasses, 'mx-auto grow-0')}
+      elevation="none"
+      baseSize="content"
+    >
       <Heading level="h2">Sign In To Fresco</Heading>
       <SandboxCredentials />
       <Suspense
@@ -30,7 +35,7 @@ export default function Page() {
         <SignInGate />
       </Suspense>
       <SignInForm />
-    </Surface>
+    </MotionSurface>
   );
 }
 

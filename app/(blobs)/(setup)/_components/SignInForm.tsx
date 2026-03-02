@@ -1,11 +1,10 @@
 'use client';
 
-import { ArrowLeft, User2 } from 'lucide-react';
+import { ArrowLeft, LockIcon, User2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { login, type LoginResult } from '~/actions/auth';
 import { verifyTwoFactor } from '~/actions/twoFactor';
-import PasswordField from '~/lib/form/components/fields/PasswordField';
 import TwoFactorVerify from '~/components/TwoFactorVerify';
 import { Button } from '~/components/ui/Button';
 import { DialogFooter } from '~/lib/dialogs/Dialog';
@@ -13,6 +12,7 @@ import Field from '~/lib/form/components/Field/Field';
 import Form from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
 import InputField from '~/lib/form/components/fields/InputField';
+import PasswordField from '~/lib/form/components/fields/PasswordField';
 import { type FormSubmitHandler } from '~/lib/form/store/types';
 import { loginSchema } from '~/schemas/auth';
 
@@ -146,7 +146,7 @@ export const SignInForm = () => {
         }}
         component={InputField}
         autoComplete="username"
-        prefixComponent={<User2 className="size-4" />}
+        prefixComponent={<User2 />}
       />
       <Field
         key="password"
@@ -159,6 +159,7 @@ export const SignInForm = () => {
           hint: 'Enter your password',
         }}
         autoComplete="current-password"
+        prefixComponent={<LockIcon />}
       />
       <DialogFooter>
         <SubmitButton

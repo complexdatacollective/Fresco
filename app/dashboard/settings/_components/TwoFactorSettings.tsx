@@ -68,7 +68,11 @@ export default function TwoFactorSettings({
   };
 
   const handleEnableSetup = async () => {
+    // eslint-disable-next-line no-console
+    console.log('[TwoFactorSettings] Enable button clicked, starting setup...');
     const completed = await startTwoFactorSetup();
+    // eslint-disable-next-line no-console
+    console.log('[TwoFactorSettings] Setup completed:', completed);
     if (completed) {
       setHasTwoFactor(true);
     }
