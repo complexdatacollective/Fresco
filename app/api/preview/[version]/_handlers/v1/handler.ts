@@ -65,8 +65,8 @@ export async function v1(request: NextRequest) {
         // Ensures that we dont accumulate old preview protocols
         await prunePreviewProtocols();
 
-        // Check if this exact protocol already exists
-        const existingPreview = await prisma.protocol.findFirst({
+        // Check if this exact preview protocol already exists
+        const existingPreview = await prisma.previewProtocol.findFirst({
           where: {
             hash: protocolHash,
           },
@@ -172,12 +172,11 @@ export async function v1(request: NextRequest) {
           });
         }
 
-        const presignedUrls = presignedData.map((d) => d.uploadUrl);
         const assetsToCreate = presignedData.map((d) => d.assetRecord);
 
-        // Create the protocol with assets immediately
+        // Create the preview protocol with assets immediately
         // Mark as pending if there are assets to upload
-        const protocol = await prisma.protocol.create({
+        const protocol = await prisma.previewProtocol.create({
           data: {
             hash: protocolHash,
             name: `preview-${Date.now()}`,
@@ -189,8 +188,7 @@ export async function v1(request: NextRequest) {
             stages: protocolToValidate.stages,
             codebook: protocolToValidate.codebook,
             experiments: protocolToValidate.experiments ?? Prisma.JsonNull,
-            isPreview: true,
-            isPending: presignedUrls.length > 0,
+            isPending: presignedData.length > 0,
             assets: {
               create: [...assetsToCreate, ...newApikeyAssets],
               connect: existingAssetIds.map((assetId) => ({ assetId })),
@@ -201,7 +199,7 @@ export async function v1(request: NextRequest) {
         void addEvent('Preview Mode', `Preview protocol upload initiated`);
 
         // If no new assets to upload, return ready immediately
-        if (presignedUrls.length === 0) {
+        if (presignedData.length === 0) {
           const url = new URL(env.PUBLIC_URL ?? request.nextUrl.clone());
           url.pathname = `/preview/${protocol.id}`;
 
@@ -211,6 +209,13 @@ export async function v1(request: NextRequest) {
           };
           return jsonResponse(response);
         }
+
+        // Return presigned URLs with their associated assetIds
+        // so the client can match files to URLs correctly
+        const presignedUrls = presignedData.map((d) => ({
+          assetId: d.assetRecord.assetId,
+          url: d.uploadUrl,
+        }));
 
         const response: InitializeResponse = {
           status: 'job-created',
@@ -223,8 +228,8 @@ export async function v1(request: NextRequest) {
       case 'complete-preview': {
         const { protocolId } = body;
 
-        // Find the protocol
-        const protocol = await prisma.protocol.findUnique({
+        // Find the preview protocol
+        const protocol = await prisma.previewProtocol.findUnique({
           where: { id: protocolId },
         });
 
@@ -237,7 +242,7 @@ export async function v1(request: NextRequest) {
         }
 
         // Update timestamp and clear pending flag to mark completion
-        await prisma.protocol.update({
+        await prisma.previewProtocol.update({
           where: { id: protocol.id },
           data: { importedAt: new Date(), isPending: false },
         });
@@ -257,8 +262,8 @@ export async function v1(request: NextRequest) {
       case 'abort-preview': {
         const { protocolId } = body;
 
-        // Find the protocol
-        const protocol = await prisma.protocol.findUnique({
+        // Find the preview protocol
+        const protocol = await prisma.previewProtocol.findUnique({
           where: { id: protocolId },
         });
 
@@ -270,14 +275,14 @@ export async function v1(request: NextRequest) {
           return jsonResponse(response, 404);
         }
 
-        // Find assets that are ONLY associated with this protocol
-        // Note: `every` alone would match orphaned assets (with no protocols),
-        // so we also require `some` to ensure the asset is actually linked to this protocol
+        // Find assets that are ONLY associated with this preview protocol
+        // (not shared with any regular protocols or other preview protocols)
         const assetsToDelete = await prisma.asset.findMany({
           where: {
             AND: [
-              { protocols: { some: { id: protocolId } } },
-              { protocols: { every: { id: protocolId } } },
+              { previewProtocols: { some: { id: protocolId } } },
+              { previewProtocols: { every: { id: protocolId } } },
+              { protocols: { none: {} } },
             ],
           },
           select: { key: true },
@@ -305,8 +310,8 @@ export async function v1(request: NextRequest) {
           });
         }
 
-        // Delete the protocol
-        await prisma.protocol.delete({
+        // Delete the preview protocol
+        await prisma.previewProtocol.delete({
           where: { id: protocolId },
         });
 
