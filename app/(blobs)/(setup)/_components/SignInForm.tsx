@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { login, type LoginResult } from '~/actions/auth';
 import { verifyTwoFactor } from '~/actions/twoFactor';
-import TwoFactorVerify from '~/components/TwoFactorVerify';
 import { Button } from '~/components/ui/Button';
 import { DialogFooter } from '~/lib/dialogs/Dialog';
 import Field from '~/lib/form/components/Field/Field';
@@ -13,6 +12,7 @@ import Form from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
 import InputField from '~/lib/form/components/fields/InputField';
 import PasswordField from '~/lib/form/components/fields/PasswordField';
+import SegmentedCodeField from '~/lib/form/components/fields/SegmentedCodeField';
 import { type FormSubmitHandler } from '~/lib/form/store/types';
 import { loginSchema } from '~/schemas/auth';
 
@@ -35,9 +35,8 @@ export const SignInForm = () => {
 
   const [twoFactorRequired, setTwoFactorRequired] = useState(false);
   const [twoFactorToken, setTwoFactorToken] = useState<string | null>(null);
-  const [twoFactorError, setTwoFactorError] = useState<string | null>(null);
-  const [isVerifying, setIsVerifying] = useState(false);
   const [retryAfter, setRetryAfter] = useState<number | null>(null);
+  const [useRecovery, setUseRecovery] = useState(false);
 
   useEffect(() => {
     if (retryAfter === null || retryAfter <= 0) {
@@ -85,51 +84,81 @@ export const SignInForm = () => {
     return result;
   };
 
-  const handleTwoFactorVerify = async (code: string) => {
-    setTwoFactorError(null);
-    setIsVerifying(true);
-
-    try {
-      const result = await verifyTwoFactor({
-        twoFactorToken,
-        code,
-      });
-
-      if (result.success) {
-        router.push('/dashboard');
-        return;
-      }
-
-      if ('formErrors' in result && result.formErrors) {
-        setTwoFactorError(result.formErrors[0] ?? 'Verification failed');
-      } else {
-        setTwoFactorError('Verification failed');
-      }
-    } finally {
-      setIsVerifying(false);
+  const handleTwoFactorSubmit: FormSubmitHandler = async (data) => {
+    const values = data as Record<string, string>;
+    const code = values.code;
+    if (!code) {
+      return { success: false, fieldErrors: { code: ['Code is required'] } };
     }
+
+    const result = await verifyTwoFactor({ twoFactorToken, code });
+
+    if (!result.success) {
+      const error =
+        'formErrors' in result && result.formErrors
+          ? (result.formErrors[0] ?? 'Verification failed')
+          : 'Verification failed';
+      return { success: false, formErrors: [error] };
+    }
+
+    router.push('/dashboard');
+    return { success: true };
   };
 
   const handleBackToSignIn = () => {
     setTwoFactorRequired(false);
     setTwoFactorToken(null);
-    setTwoFactorError(null);
+    setUseRecovery(false);
   };
 
   if (twoFactorRequired) {
     return (
-      <div className="flex w-full flex-col gap-4">
-        <TwoFactorVerify
-          onVerify={handleTwoFactorVerify}
-          error={twoFactorError}
-          isSubmitting={isVerifying}
-          showRecoveryOption
-        />
-        <Button variant="text" onClick={handleBackToSignIn}>
-          <ArrowLeft className="size-4" />
-          Back to sign in
+      <Form
+        key={useRecovery ? 'recovery' : 'totp'}
+        onSubmit={handleTwoFactorSubmit}
+        id="sign-in-2fa"
+      >
+        {useRecovery ? (
+          <Field
+            name="code"
+            label="Enter one of your recovery codes"
+            component={InputField}
+            required="Recovery code is required"
+            className="font-monospace tracking-widest"
+            placeholder="0123456789abcdef0123"
+            autoComplete="off"
+          />
+        ) : (
+          <Field
+            name="code"
+            label="Enter your 6-digit code from your authenticator app"
+            component={SegmentedCodeField}
+            required="Code is required"
+            segments={6}
+            characterSet="numeric"
+            size="lg"
+          />
+        )}
+        <Button
+          type="button"
+          onClick={() => setUseRecovery((prev) => !prev)}
+          variant="link"
+        >
+          {useRecovery
+            ? 'Use authenticator app instead'
+            : 'Use a recovery code instead'}
         </Button>
-      </div>
+
+        <DialogFooter>
+          <Button variant="text" onClick={handleBackToSignIn}>
+            <ArrowLeft className="size-4" />
+            Back to sign in
+          </Button>
+          <SubmitButton form="sign-in-2fa" submittingText="Verifying...">
+            Verify
+          </SubmitButton>
+        </DialogFooter>
+      </Form>
     );
   }
 

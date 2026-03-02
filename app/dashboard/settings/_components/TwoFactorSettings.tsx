@@ -8,6 +8,8 @@ import { useTwoFactorSetup } from '~/components/TwoFactorSetup';
 import TwoFactorVerify from '~/components/TwoFactorVerify';
 import { Button } from '~/components/ui/Button';
 import Dialog from '~/lib/dialogs/Dialog';
+import SubmitButton from '~/lib/form/components/SubmitButton';
+import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 
 type TwoFactorSettingsProps = {
   hasTwoFactor: boolean;
@@ -20,59 +22,14 @@ export default function TwoFactorSettings({
 }: TwoFactorSettingsProps) {
   const [hasTwoFactor, setHasTwoFactor] = useState(initialHasTwoFactor);
   const [showDisable, setShowDisable] = useState(false);
-  const [disableError, setDisableError] = useState<string | null>(null);
-  const [isDisabling, setIsDisabling] = useState(false);
   const [showRegenerateVerify, setShowRegenerateVerify] = useState(false);
-  const [regenerateError, setRegenerateError] = useState<string | null>(null);
   const [showRecoveryCodes, setShowRecoveryCodes] = useState(false);
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
-  const [isRegenerating, setIsRegenerating] = useState(false);
 
   const startTwoFactorSetup = useTwoFactorSetup(userCount);
 
-  const handleDisable = async (code: string) => {
-    setIsDisabling(true);
-    setDisableError(null);
-
-    const result = await disableTotp({ code });
-
-    setIsDisabling(false);
-
-    if (result.error) {
-      setDisableError(result.error);
-      return;
-    }
-
-    setHasTwoFactor(false);
-    setShowDisable(false);
-  };
-
-  const handleRegenerateRecoveryCodes = async (code: string) => {
-    setIsRegenerating(true);
-    setRegenerateError(null);
-
-    const result = await regenerateRecoveryCodes({ code });
-
-    setIsRegenerating(false);
-
-    if (result.error) {
-      setRegenerateError(result.error);
-      return;
-    }
-
-    if (result.data) {
-      setShowRegenerateVerify(false);
-      setRecoveryCodes(result.data.recoveryCodes);
-      setShowRecoveryCodes(true);
-    }
-  };
-
   const handleEnableSetup = async () => {
-    // eslint-disable-next-line no-console
-    console.log('[TwoFactorSettings] Enable button clicked, starting setup...');
     const completed = await startTwoFactorSetup();
-    // eslint-disable-next-line no-console
-    console.log('[TwoFactorSettings] Setup completed:', completed);
     if (completed) {
       setHasTwoFactor(true);
     }
@@ -119,37 +76,72 @@ export default function TwoFactorSettings({
         }
       />
 
-      <Dialog
-        open={showDisable}
-        closeDialog={() => {
-          setShowDisable(false);
-          setDisableError(null);
-        }}
-        title="Disable Two-Factor Authentication"
-        description="Enter your current authenticator code to disable two-factor authentication."
-      >
-        <TwoFactorVerify
-          onVerify={handleDisable}
-          error={disableError}
-          isSubmitting={isDisabling}
-        />
-      </Dialog>
+      <FormStoreProvider>
+        <Dialog
+          open={showDisable}
+          closeDialog={() => setShowDisable(false)}
+          title="Disable Two-Factor Authentication"
+          description="Enter your current authenticator code or a recovery code to disable two-factor authentication."
+          footer={
+            <>
+              <Button onClick={() => setShowDisable(false)}>Cancel</Button>
+              <SubmitButton
+                form="disable-2fa"
+                color="destructive"
+                submittingText="Disabling..."
+              >
+                Disable
+              </SubmitButton>
+            </>
+          }
+        >
+          <TwoFactorVerify
+            formId="disable-2fa"
+            onVerify={async (code) => {
+              const result = await disableTotp({ code });
+              if (result.error) throw new Error(result.error);
+              setHasTwoFactor(false);
+              setShowDisable(false);
+            }}
+            allowRecoveryCodes
+          />
+        </Dialog>
+      </FormStoreProvider>
 
-      <Dialog
-        open={showRegenerateVerify}
-        closeDialog={() => {
-          setShowRegenerateVerify(false);
-          setRegenerateError(null);
-        }}
-        title="Regenerate Recovery Codes"
-        description="Enter your current authenticator code to generate new recovery codes. Your existing codes will be invalidated."
-      >
-        <TwoFactorVerify
-          onVerify={handleRegenerateRecoveryCodes}
-          error={regenerateError}
-          isSubmitting={isRegenerating}
-        />
-      </Dialog>
+      <FormStoreProvider>
+        <Dialog
+          open={showRegenerateVerify}
+          closeDialog={() => setShowRegenerateVerify(false)}
+          title="Regenerate Recovery Codes"
+          description="Enter your current authenticator code to generate new recovery codes. Your existing codes will be invalidated."
+          footer={
+            <>
+              <Button onClick={() => setShowRegenerateVerify(false)}>
+                Cancel
+              </Button>
+              <SubmitButton
+                form="regenerate-recovery-codes"
+                submittingText="Regenerating..."
+              >
+                Regenerate
+              </SubmitButton>
+            </>
+          }
+        >
+          <TwoFactorVerify
+            formId="regenerate-recovery-codes"
+            onVerify={async (code) => {
+              const result = await regenerateRecoveryCodes({ code });
+              if (result.error) throw new Error(result.error);
+              if (result.data) {
+                setShowRegenerateVerify(false);
+                setRecoveryCodes(result.data.recoveryCodes);
+                setShowRecoveryCodes(true);
+              }
+            }}
+          />
+        </Dialog>
+      </FormStoreProvider>
 
       <Dialog
         open={showRecoveryCodes}

@@ -17,15 +17,9 @@ import { addEvent } from './activityFeed';
 
 export async function enableTotp() {
   try {
-    // eslint-disable-next-line no-console
-    console.log('[enableTotp] Starting...');
     const session = await requireApiAuth();
-    // eslint-disable-next-line no-console
-    console.log('[enableTotp] Auth OK, userId:', session.user.userId);
 
     const secret = generateTotpSecret();
-    // eslint-disable-next-line no-console
-    console.log('[enableTotp] Secret generated');
 
     await prisma.totpCredential.upsert({
       where: { user_id: session.user.userId },
@@ -40,21 +34,11 @@ export async function enableTotp() {
         verified: false,
       },
     });
-    // eslint-disable-next-line no-console
-    console.log('[enableTotp] DB upsert done');
 
     const hostname = new URL(getBaseUrl()).hostname;
     const issuer = `Fresco (${hostname})`;
-    // eslint-disable-next-line no-console
-    console.log('[enableTotp] Generating QR code for issuer:', issuer);
-
     const qrCodeDataUrl = await generateQrCodeDataUrl(
       generateTotpUri(secret, session.user.username, issuer),
-    );
-    // eslint-disable-next-line no-console
-    console.log(
-      '[enableTotp] QR code generated, length:',
-      qrCodeDataUrl.length,
     );
 
     return { error: null, data: { secret, qrCodeDataUrl } };
@@ -111,6 +95,47 @@ export async function verifyTotpSetup(data: unknown) {
   return { error: null, data: { recoveryCodes } };
 }
 
+const TOTP_CODE_PATTERN = /^\d{6}$/;
+const RECOVERY_CODE_PATTERN = /^[0-9a-f]{20}$/;
+
+export async function verifyCurrentUserTotp(code: string) {
+  const session = await requireApiAuth();
+
+  const credential = await prisma.totpCredential.findUnique({
+    where: { user_id: session.user.userId },
+  });
+
+  if (!credential?.verified) {
+    return { error: 'Two-factor authentication is not enabled' };
+  }
+
+  if (TOTP_CODE_PATTERN.test(code)) {
+    if (!verifyTotpCode(credential.secret, code)) {
+      return { error: 'Invalid verification code' };
+    }
+    return { error: null };
+  }
+
+  if (RECOVERY_CODE_PATTERN.test(code)) {
+    const codeHash = hashRecoveryCode(code);
+    const found = await prisma.recoveryCode.findFirst({
+      where: {
+        user_id: session.user.userId,
+        codeHash,
+        usedAt: null,
+      },
+      select: { id: true },
+    });
+
+    if (!found) {
+      return { error: 'Invalid recovery code' };
+    }
+    return { error: null };
+  }
+
+  return { error: 'Invalid code format' };
+}
+
 export async function disableTotp(data: unknown) {
   const session = await requireApiAuth();
 
@@ -129,8 +154,26 @@ export async function disableTotp(data: unknown) {
     return { error: 'Two-factor authentication is not enabled', data: null };
   }
 
-  if (!verifyTotpCode(credential.secret, code)) {
-    return { error: 'Invalid verification code', data: null };
+  if (TOTP_CODE_PATTERN.test(code)) {
+    if (!verifyTotpCode(credential.secret, code)) {
+      return { error: 'Invalid verification code', data: null };
+    }
+  } else if (RECOVERY_CODE_PATTERN.test(code)) {
+    const codeHash = hashRecoveryCode(code);
+    const { count } = await prisma.recoveryCode.updateMany({
+      where: {
+        user_id: session.user.userId,
+        codeHash,
+        usedAt: null,
+      },
+      data: { usedAt: new Date() },
+    });
+
+    if (count === 0) {
+      return { error: 'Invalid recovery code', data: null };
+    }
+  } else {
+    return { error: 'Invalid code format', data: null };
   }
 
   await prisma.$transaction([
