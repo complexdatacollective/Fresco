@@ -33,18 +33,13 @@ export default async function PreviewInterviewPage({
     notFound();
   }
 
-  // Only allow preview protocols
-  if (!protocol.isPreview) {
-    notFound();
-  }
-
   // Don't allow pending protocols (still uploading assets)
   if (protocol.isPending) {
     notFound();
   }
 
   // Update timestamp to prevent premature pruning
-  await prisma.protocol.update({
+  await prisma.previewProtocol.update({
     where: { id: protocolId },
     data: { importedAt: new Date() },
   });

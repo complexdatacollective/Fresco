@@ -140,8 +140,8 @@ export class TestDataBuilder {
     const protocolHash = hash(protocol);
 
     await this.pool.query(
-      `INSERT INTO "Protocol" (id, hash, name, "schemaVersion", description, "importedAt", "lastModified", stages, codebook, "isPreview", "isPending")
-       VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), $6, $7, false, false)`,
+      `INSERT INTO "Protocol" (id, hash, name, "schemaVersion", description, "importedAt", "lastModified", stages, codebook)
+       VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), $6, $7)`,
       [
         protocolId,
         protocolHash,

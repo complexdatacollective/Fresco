@@ -12,6 +12,7 @@ import usePrevious from '~/hooks/usePrevious';
 import Navigation from '../components/Navigation';
 import { updatePrompt, updateStage } from '../ducks/modules/session';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
+import { getStages } from '../ducks/modules/protocol';
 import {
   getCurrentStage,
   getNavigationInfo,
@@ -80,6 +81,19 @@ export default function ProtocolScreen() {
     useSelector(getNavigableStages);
   const stageCount = useSelector(getStageCount);
   const promptCount = useSelector(getPromptCount);
+  const stages = useSelector(getStages);
+
+  // Helper to get prompt count for a specific stage index
+  const getPromptCountForStage = useCallback(
+    (stageIndex: number) => {
+      const targetStage = stages[stageIndex];
+      if (targetStage && 'prompts' in targetStage && targetStage.prompts) {
+        return targetStage.prompts.length;
+      }
+      return 1; // Default to 1 if no prompts (same as getPromptCount selector)
+    },
+    [stages],
+  );
 
   // Refs
   const nextValidStageIndexRef = useRef(nextValidStageIndex);
@@ -153,11 +167,14 @@ export default function ProtocolScreen() {
       }
 
       // from this point on we are definitely navigating, so set up the animation
+      const nextPromptCount = getPromptCountForStage(
+        nextValidStageIndexRef.current,
+      );
       const fakeProgress = calculateProgress(
         nextValidStageIndexRef.current,
         stageCount,
         0,
-        promptCount,
+        nextPromptCount,
       );
       setProgress(fakeProgress);
       await animate(scope.current, { y: '-100vh' }, animationOptions);
@@ -176,7 +193,7 @@ export default function ProtocolScreen() {
     registerBeforeNext,
     scope,
     stageCount,
-    promptCount,
+    getPromptCountForStage,
     setQueryStep,
   ]);
 
@@ -196,11 +213,14 @@ export default function ProtocolScreen() {
         return;
       }
 
+      const prevPromptCount = getPromptCountForStage(
+        previousValidStageIndexRef.current,
+      );
       const fakeProgress = calculateProgress(
         previousValidStageIndexRef.current,
         stageCount,
         0,
-        promptCount,
+        prevPromptCount,
       );
       setProgress(fakeProgress);
 
@@ -220,7 +240,7 @@ export default function ProtocolScreen() {
     registerBeforeNext,
     scope,
     stageCount,
-    promptCount,
+    getPromptCountForStage,
   ]);
 
   const getNavigationHelpers = useCallback(

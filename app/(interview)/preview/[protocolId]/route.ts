@@ -26,20 +26,14 @@ const handler = async (
     return NextResponse.redirect(url);
   }
 
-  // Verify that this is actually a preview protocol
-  const protocol = await prisma.protocol.findUnique({
+  // Verify that this is a preview protocol
+  const protocol = await prisma.previewProtocol.findUnique({
     where: { id: protocolId },
-    select: { isPreview: true, isPending: true, name: true },
+    select: { isPending: true, name: true },
   });
 
   if (!protocol) {
     url.pathname = '/onboard/error';
-    return NextResponse.redirect(url);
-  }
-
-  if (!protocol.isPreview) {
-    // Not a preview protocol, redirect to regular onboard
-    url.pathname = `/onboard/${protocolId}`;
     return NextResponse.redirect(url);
   }
 

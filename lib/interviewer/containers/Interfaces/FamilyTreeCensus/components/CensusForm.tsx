@@ -193,6 +193,11 @@ export const CensusForm = ({
       onClose={() => setShow(false)}
       forceDisableFullscreen
       className="!w-auto"
+      footer={
+        <div className="flex w-full items-center justify-end pb-4">
+          <Button onClick={handleSubmit}>Generate Family Tree</Button>
+        </div>
+      }
     >
       <div className="flex flex-col">
         {shouldAskSex && variableDef?.options && (
@@ -229,9 +234,6 @@ export const CensusForm = ({
               className="mb-4"
             />
           ))}
-        </div>
-        <div className="mb-8 flex items-center justify-end">
-          <Button onClick={handleSubmit}>Generate Family Tree</Button>
         </div>
       </div>
     </Overlay>

@@ -156,8 +156,6 @@ const NodeList = memo(
         {...dropProps}
         className={classNames}
         style={hoverStyles}
-        variants={nodeListVariants}
-        layout
         key="node-list"
       >
         <AnimatePresence mode="sync">
