@@ -2,22 +2,90 @@ name: 'Chromatic'
 permissions:
   contents: read
   pull-requests: write
+  statuses: write
 
-on: push
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  issue_comment:
+    types: [created]
 
 jobs:
   chromatic:
     name: Run Chromatic
     runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request &&
+       startsWith(github.event.comment.body, '/chromatic'))
     steps:
+      - name: Get PR details
+        if: github.event_name == 'issue_comment'
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            core.setOutput('ref', pr.data.head.ref);
+            core.setOutput('sha', pr.data.head.sha);
+
+            await Promise.all([
+              github.rest.reactions.createForIssueComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: context.payload.comment.id,
+                content: 'rocket'
+              }),
+              github.rest.repos.createCommitStatus({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                sha: pr.data.head.sha,
+                state: 'pending',
+                context: 'Chromatic',
+                description: 'Visual tests running...'
+              })
+            ]);
+
       - name: Setup
         uses: complexdatacollective/github-actions/setup-pnpm@v1
         with:
           fetch-depth: '0'
+          ref: ${{ steps.pr.outputs.ref || '' }}
 
       - name: Run Chromatic
+        id: chromatic
         uses: chromaui/action@latest
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           autoAcceptChanges: main
           onlyChanged: true
+
+      - name: Update commit status
+        if: github.event_name == 'issue_comment' && always()
+        uses: actions/github-script@v7
+        env:
+          CHROMATIC_OUTCOME: ${{ steps.chromatic.outcome }}
+          PR_SHA: ${{ steps.pr.outputs.sha }}
+          BUILD_URL: ${{ steps.chromatic.outputs.buildUrl }}
+        with:
+          script: |
+            const success = process.env.CHROMATIC_OUTCOME === 'success';
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.PR_SHA,
+              state: success ? 'success' : 'failure',
+              context: 'Chromatic',
+              description: success
+                ? 'Visual tests passed'
+                : 'Visual tests failed',
+              target_url: process.env.BUILD_URL || undefined
+            });
