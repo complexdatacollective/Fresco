@@ -1,6 +1,6 @@
 import { type VariableType } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import RadioGroup from '~/lib/form/components/fields/RadioGroup';
 import { type FamilyTreeNodeType } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
 import { useFamilyTreeStore } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
@@ -23,46 +23,11 @@ type FieldConfig<Props = Record<string, unknown>> = {
     onSubmit: (value: { value: string }) => string | undefined;
     onChange: () => string | undefined;
   };
-  _uniqueKey?: number;
 };
 
 type RadioGroupConfig = FieldConfig<React.ComponentProps<typeof RadioGroup>>;
 
-// Refs to hold setters - allows stable components to call dynamic setters
-const relationSetterRef: React.MutableRefObject<
-  ((val: string) => void) | null
-> = { current: null };
-const firstParentSetterRef: React.MutableRefObject<
-  ((val: string) => void) | null
-> = { current: null };
-
-// Stable component that calls the relation setter via ref
-const RelationRadioGroup = (props: React.ComponentProps<typeof RadioGroup>) => (
-  <RadioGroup
-    {...props}
-    onChange={(val) => {
-      if (typeof val === 'string') {
-        relationSetterRef.current?.(val);
-      }
-    }}
-  />
-);
-
-// Stable component that calls the first parent setter via ref
-const FirstParentRadioGroup = (
-  props: React.ComponentProps<typeof RadioGroup>,
-) => (
-  <RadioGroup
-    {...props}
-    onChange={(val) => {
-      if (typeof val === 'string') {
-        firstParentSetterRef.current?.(val);
-      }
-    }}
-  />
-);
-
-function createRelationField(
+function createField(
   label: string,
   variable: string,
   options: RelativeOption[],
@@ -81,25 +46,6 @@ function createRelationField(
   };
 }
 
-function createFirstParentField(
-  label: string,
-  variable: string,
-  options: RelativeOption[],
-): RadioGroupConfig {
-  return {
-    fieldLabel: label,
-    options,
-    type: 'ordinal',
-    variable,
-    Component: FirstParentRadioGroup,
-    validation: {
-      onSubmit: (value: { value: string }) =>
-        value?.value ? undefined : 'Selection is required',
-      onChange: () => undefined,
-    },
-  };
-}
-
 // TODO: Replace this whole thing with <FieldGroup />
 export function useDynamicFields({
   nodes,
@@ -107,24 +53,19 @@ export function useDynamicFields({
   firstCousinOptions,
   nieceOptions,
   grandchildrenOptions,
-  show,
+  relationValue,
+  firstParentValue,
 }: {
   nodes: FamilyTreeNodeType[];
   edges: Map<string, Edge>;
   firstCousinOptions: RelativeOption[];
   nieceOptions: RelativeOption[];
   grandchildrenOptions: RelativeOption[];
-  show: boolean;
+  /** Current relation value from form store */
+  relationValue: string | null;
+  /** Current first parent value from form store */
+  firstParentValue: string | null;
 }) {
-  const [relationValue, setRelationValue] = useState<string | null>(null);
-  const [firstParentValue, setFirstParentValue] = useState<string | null>(null);
-
-  // Keep refs in sync with current setters
-  useEffect(() => {
-    relationSetterRef.current = setRelationValue;
-    firstParentSetterRef.current = setFirstParentValue;
-  }, []);
-
   const getNodeIdFromRelationship = useFamilyTreeStore(
     (state) => state.getNodeIdFromRelationship,
   );
@@ -143,25 +84,13 @@ export function useDynamicFields({
     'paternal-grandfather',
   );
 
-  useEffect(() => {
-    if (!show) {
-      setRelationValue(null);
-      setFirstParentValue(null);
-    }
-  }, [show]);
-
-  // Reset first parent when relation changes
-  useEffect(() => {
-    setFirstParentValue(null);
-  }, [relationValue]);
-
   const processedFields = useMemo(() => {
     const baseField: RadioGroupConfig = {
       fieldLabel: 'How is this person related to you?',
       options: [],
       type: 'ordinal',
       variable: 'relation',
-      Component: RelationRadioGroup,
+      Component: RadioGroup,
       validation: {
         onSubmit: (value: { value: string }) =>
           value?.value ? undefined : 'Relation is required',
@@ -363,7 +292,7 @@ export function useDynamicFields({
       getHalfAuntUncleSecondParentOptions();
 
     // Relations that need parent selection (and potentially second parent)
-    // These use createFirstParentField which tracks selection via FirstParentRadioGroup
+    // These use createField which tracks selection via FirstParentRadioGroup
     const firstParentRelations = new Set([
       'halfSister',
       'halfBrother',
@@ -384,16 +313,16 @@ export function useDynamicFields({
     const halfAuntUncleRelations = new Set(['halfAunt', 'halfUncle']);
 
     const additionalFieldsMap: Record<string, RadioGroupConfig> = {
-      additionalPartner: createRelationField(
+      additionalPartner: createField(
         'Who is this person a partner of?',
         'additionalPartnerRelation',
         additionalPartnerOfOptions,
       ),
-      aunt: createRelationField('Who is the aunt related to?', 'auntRelation', [
+      aunt: createField('Who is the aunt related to?', 'auntRelation', [
         { label: 'Father', value: fatherKey },
         { label: 'Mother', value: motherKey },
       ]),
-      uncle: createRelationField(
+      uncle: createField(
         'Who is the uncle related to?',
         'uncleRelation',
         [
@@ -401,55 +330,55 @@ export function useDynamicFields({
           { label: 'Mother', value: motherKey },
         ],
       ),
-      // Half-siblings use createFirstParentField to track selection for second parent
-      halfSister: createFirstParentField(
+      // Half-siblings use createField to track selection for second parent
+      halfSister: createField(
         'Who is the parent of your half sister?',
         'halfSisterRelation',
         parentsWithMultiplePartners,
       ),
-      halfBrother: createFirstParentField(
+      halfBrother: createField(
         'Who is the parent of your half brother?',
         'halfBrotherRelation',
         parentsWithMultiplePartners,
       ),
-      // Half-aunt/uncle use createFirstParentField to track selection for second parent
-      halfAunt: createFirstParentField(
+      // Half-aunt/uncle use createField to track selection for second parent
+      halfAunt: createField(
         'Who is the biological grandparent of your half aunt?',
         'halfAuntRelation',
         grandparentsWithMultiplePartners,
       ),
-      halfUncle: createFirstParentField(
+      halfUncle: createField(
         'Who is the biological grandparent of your half uncle?',
         'halfUncleRelation',
         grandparentsWithMultiplePartners,
       ),
-      // These use createFirstParentField to track selection for potential second parent
-      firstCousinMale: createFirstParentField(
+      // These use createField to track selection for potential second parent
+      firstCousinMale: createField(
         'Who is the parent of your first cousin?',
         'firstCousinMaleRelation',
         firstCousinOptions,
       ),
-      firstCousinFemale: createFirstParentField(
+      firstCousinFemale: createField(
         'Who is the parent of your first cousin?',
         'firstCousinFemaleRelation',
         firstCousinOptions,
       ),
-      niece: createFirstParentField(
+      niece: createField(
         'Who is the parent of your niece?',
         'nieceRelation',
         nieceOptions,
       ),
-      nephew: createFirstParentField(
+      nephew: createField(
         'Who is the parent of your nephew?',
         'nephewRelation',
         nieceOptions,
       ),
-      granddaughter: createFirstParentField(
+      granddaughter: createField(
         'Who is the parent of your granddaughter?',
         'granddaughterRelation',
         grandchildrenOptions,
       ),
-      grandson: createFirstParentField(
+      grandson: createField(
         'Who is the parent of your grandson?',
         'grandsonRelation',
         grandchildrenOptions,
@@ -480,7 +409,7 @@ export function useDynamicFields({
       secondParentOptions.length > 0;
 
     const secondParentField = needsSecondParent
-      ? createRelationField(
+      ? createField(
           'Who is the other parent?',
           'secondParentRelation',
           secondParentOptions,
@@ -489,12 +418,8 @@ export function useDynamicFields({
 
     const processed: RadioGroupConfig[] = [
       dynamicBaseField,
-      ...(additionalField
-        ? [{ ...additionalField, _uniqueKey: Date.now() }]
-        : []),
-      ...(secondParentField
-        ? [{ ...secondParentField, _uniqueKey: Date.now() + 1 }]
-        : []),
+      ...(additionalField ? [additionalField] : []),
+      ...(secondParentField ? [secondParentField] : []),
     ];
 
     return processed;
@@ -514,11 +439,5 @@ export function useDynamicFields({
     firstParentValue,
   ]);
 
-  return {
-    processedFields,
-    relationValue,
-    setRelationValue,
-    firstParentValue,
-    setFirstParentValue,
-  };
+  return { processedFields };
 }

@@ -26,16 +26,26 @@ function createFamilyTreeInterview(seed: number) {
   const si = new SyntheticInterview(seed);
 
   const nodeType = si.addNodeType({ name: 'Person' });
-  const nameVar = nodeType.addVariable({ name: 'Name', type: 'text' });
+  const nameVar = nodeType.addVariable({
+    name: 'Name',
+    type: 'text',
+    component: 'Text',
+  });
   const sexVar = nodeType.addVariable({
     name: 'Sex',
     type: 'categorical',
     options: SEX_OPTIONS,
+    component: 'RadioGroup',
   });
-  const ageVar = nodeType.addVariable({ name: 'Age', type: 'number' });
+  const ageVar = nodeType.addVariable({
+    name: 'Age',
+    type: 'number',
+    component: 'Number',
+  });
   const diseaseVar = nodeType.addVariable({
     name: 'Has Disease',
     type: 'boolean',
+    component: 'Boolean',
   });
 
   const edgeType = si.addEdgeType({ name: 'Family' });
@@ -480,10 +490,12 @@ const buildMultipleDiseaseSteps = () => {
   const disease1Var = nodeType.addVariable({
     name: 'Has Heart Disease',
     type: 'boolean',
+    component: 'Boolean',
   });
   const disease2Var = nodeType.addVariable({
     name: 'Has Diabetes',
     type: 'boolean',
+    component: 'Boolean',
   });
 
   si.addInformationStage({

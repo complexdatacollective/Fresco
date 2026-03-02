@@ -7,11 +7,14 @@ import {
   type VariableValue,
 } from '@codaco/shared-consts';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Button from '~/components/ui/Button';
 import Dialog from '~/lib/dialogs/Dialog';
+import { type FieldValue } from '~/lib/form/components/Field/types';
 import Form from '~/lib/form/components/Form';
+import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
+import { type FormSubmitHandler } from '~/lib/form/store/types';
 import {
   addNode as addNetworkNode,
   updateNode as updateNetworkNode,
@@ -48,7 +51,6 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
   const relationshipToEgoVariable = useSelector(getRelationshipToEgoVariable);
 
   const [show, setShow] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
 
   const updateShellNode = useFamilyTreeStore((state) => state.updateNode);
   const getShellIdByNetworkId = useFamilyTreeStore(
@@ -135,8 +137,9 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
     [dispatch, getShellIdByNetworkId, syncMetadata, updateShellNode],
   );
 
-  const getInitialValues = useCallback(() => {
-    const values: Record<string, VariableValue> = {};
+  // Calculate initial values for the form
+  const initialValues = useMemo(() => {
+    const values: Record<string, FieldValue> = {};
 
     if (!selectedNode) return values;
 
@@ -153,36 +156,45 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
       }
       const value = fieldValue ?? topValue;
 
-      if (value !== undefined) {
-        values[field.variable] = value;
+      // Only include non-null values (FieldValue doesn't accept null)
+      if (value !== undefined && value !== null) {
+        values[field.variable] = value as FieldValue;
       }
     });
 
     return values;
   }, [selectedNode, form.fields, nodeSexVariable]);
 
-  const handleSubmit = useCallback(
-    (values: unknown) => {
-      const { value } = values as { value: Record<string, VariableValue> };
-      if (!selectedNode || !selectedNode.id) return;
+  // Generate field components using the same hook as NodeForm
+  const { fieldComponents } = useProtocolForm({
+    fields: form.fields,
+    autoFocus: true,
+    initialValues,
+  });
+
+  const handleSubmit: FormSubmitHandler = useCallback(
+    (values) => {
+      const formValues = values as Record<string, VariableValue>;
+      if (!selectedNode || !selectedNode.id) return { success: true };
 
       if (selectedNode.interviewNetworkId) {
         // Existing node → update only the editable fields
         void updateNode({
           nodeId: selectedNode.interviewNetworkId,
-          newAttributeData: value,
+          newAttributeData: formValues,
         });
       } else {
         // Placeholder → commit
         const fullPayload = {
           ...newNodeAttributes,
-          ...value,
+          ...formValues,
         };
         void commitShellNode(selectedNode, fullPayload);
       }
 
       setShow(false);
       onClose();
+      return { success: true };
     },
     [selectedNode, onClose, updateNode, newNodeAttributes, commitShellNode],
   );
@@ -210,25 +222,18 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
         footer={
           <Button
             key="submit"
-            aria-label="Submit"
-            onClick={() => {
-              formRef.current?.requestSubmit();
-            }}
+            type="submit"
+            form="family-tree-node-form"
+            aria-label="Finished"
             color="primary"
           >
             Finished
           </Button>
         }
       >
-        <Form
-          {...({
-            ref: formRef,
-            fields: form.fields,
-            handleSubmit,
-            getInitialValues,
-            focusFirstInput: true,
-          } as unknown as React.ComponentProps<typeof Form>)}
-        />
+        <Form id="family-tree-node-form" onSubmit={handleSubmit} className="w-full">
+          {fieldComponents}
+        </Form>
       </Dialog>
     </>
   );

@@ -855,9 +855,15 @@ export class SyntheticInterview {
       });
       variableId = ref.id;
     }
+    // Get the variable name if no prompt was provided
+    const nodeType = this.nodeTypes.get(nodeTypeId);
+    const variable = nodeType?.variables.get(variableId);
+    const prompt = input.prompt ?? variable?.name ?? 'Field';
+
     return {
       variable: variableId,
       component: input.component,
+      prompt,
     };
   }
 
@@ -875,9 +881,15 @@ export class SyntheticInterview {
       });
       variableId = ref.id;
     }
+    // Get the variable name if no prompt was provided
+    const edgeType = this.edgeTypes.get(edgeTypeId);
+    const variable = edgeType?.variables.get(variableId);
+    const prompt = input.prompt ?? variable?.name ?? 'Field';
+
     return {
       variable: variableId,
       component: input.component,
+      prompt,
     };
   }
 
