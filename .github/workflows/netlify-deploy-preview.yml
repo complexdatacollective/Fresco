@@ -32,6 +32,16 @@ jobs:
       - name: Install Netlify CLI
         run: pnpm add -g netlify-cli
 
+      - name: Get branch preview URL
+        id: branch-preview
+        env:
+          BRANCH: ${{ steps.branch-name.outputs.current_branch }}
+        run: |
+          SUBDOMAIN=$(curl -s -H "Authorization: Bearer $NETLIFY_AUTH_TOKEN" \
+            "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID" | jq -r '.name')
+          BRANCH_SLUG=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//')
+          echo "url=https://${BRANCH_SLUG}--${SUBDOMAIN}.netlify.app" >> "$GITHUB_OUTPUT"
+
       - name: Write .env file
         env:
           NEON_DB_URL: ${{ steps.create-branch.outputs.db_url }}
@@ -50,14 +60,56 @@ jobs:
         run: npx tsx scripts/initialize.ts
 
       - name: Set Netlify runtime environment variables
+        env:
+          BRANCH: ${{ steps.branch-name.outputs.current_branch }}
+          DB_URL_POOLED: ${{ steps.create-branch.outputs.db_url_pooled }}
+          DB_URL: ${{ steps.create-branch.outputs.db_url }}
         run: |
-          netlify env:set DATABASE_URL "${{ steps.create-branch.outputs.db_url_pooled }}" --context "branch:${{ steps.branch-name.outputs.current_branch }}"
-          netlify env:set DATABASE_URL_UNPOOLED "${{ steps.create-branch.outputs.db_url }}" --context "branch:${{ steps.branch-name.outputs.current_branch }}"
+          netlify env:set DATABASE_URL "$DB_URL_POOLED" --context "branch:$BRANCH"
+          netlify env:set DATABASE_URL_UNPOOLED "$DB_URL" --context "branch:$BRANCH"
+
+      - name: Check for existing deploy comment
+        id: find-comment
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          FOUND=$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" \
+            --jq '[.[] | select(.body | contains("<!-- tag: deploy-preview -->"))] | length')
+          if [ "$FOUND" -gt 0 ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Comment on Pull Request
+        if: success() && steps.find-comment.outputs.exists != 'true'
         uses: thollander/actions-comment-pull-request@v2
         with:
+          comment_tag: deploy-preview
           message: |
             | Resource | Link |
             |----------|------|
+            | Branch Preview 🌐 | ${{ steps.branch-preview.outputs.url }} |
             | Neon branch 🐘 | https://console.neon.tech/app/projects/${{ vars.NEON_PROJECT_ID }}/branches/${{ steps.create-branch.outputs.branch_id }} |
+
+      - name: Remove failure comment on success
+        if: success()
+        continue-on-error: true
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          comment_tag: deploy-preview-failure
+          mode: delete
+          message: ''
+
+      - name: Comment on failure
+        if: failure()
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          comment_tag: deploy-preview-failure
+          message: |
+            ⚠️ **Branch preview setup failed**
+
+            Check the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
