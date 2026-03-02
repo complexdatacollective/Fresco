@@ -1,5 +1,6 @@
 /* eslint-disable no-process-env */
 import { defineConfig, devices } from '@playwright/test';
+import { AUTH_STATE_PATH } from './config/test-config.js';
 
 export default defineConfig({
   testDir: './specs',
@@ -65,7 +66,7 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         baseURL: process.env.DASHBOARD_URL,
-        storageState: './tests/e2e/.auth/admin.json',
+        storageState: AUTH_STATE_PATH,
       },
     },
   ],

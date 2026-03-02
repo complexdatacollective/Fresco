@@ -1,14 +1,11 @@
 import { test } from '@playwright/test';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const authFile = path.join(__dirname, '../../.auth/admin.json');
+import { AUTH_STATE_PATH, saveAuthState } from '../../config/test-config.js';
 
 test('authenticate as admin for dashboard', async ({ page, context }) => {
   // Ensure the auth directory exists
-  await fs.mkdir(path.dirname(authFile), { recursive: true });
+  await fs.mkdir(path.dirname(AUTH_STATE_PATH), { recursive: true });
 
   // Navigate to login page
   await page.goto('/signin');
@@ -27,5 +24,5 @@ test('authenticate as admin for dashboard', async ({ page, context }) => {
   );
 
   // Save the authenticated state
-  await context.storageState({ path: authFile });
+  await saveAuthState(context);
 });

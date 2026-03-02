@@ -1,3 +1,4 @@
+import { saveAuthState } from '../../config/test-config.js';
 import { expect, expectURL, test } from '../../fixtures/test.js';
 import { fillField } from '../../helpers/form.js';
 
@@ -23,6 +24,6 @@ test.describe('Sign In Page', () => {
     await expectURL(page, /\/dashboard/);
 
     // Save authentication state for use by dashboard tests
-    await page.context().storageState({ path: './tests/e2e/.auth/admin.json' });
+    await saveAuthState(page);
   });
 });

@@ -144,11 +144,6 @@ test.describe('Two-Factor Authentication', () => {
 
         // Should redirect to dashboard
         await expectURL(page, /\/dashboard/);
-
-        // Restore auth state for subsequent tests
-        await page
-          .context()
-          .storageState({ path: './tests/e2e/.auth/admin.json' });
       } finally {
         await cleanup();
       }
@@ -187,11 +182,6 @@ test.describe('Two-Factor Authentication', () => {
 
         // Should still be on signin page
         await expectURL(page, /\/signin/);
-
-        // Restore auth state
-        await page
-          .context()
-          .storageState({ path: './tests/e2e/.auth/admin.json' });
       } finally {
         await cleanup();
       }
@@ -231,11 +221,6 @@ test.describe('Two-Factor Authentication', () => {
 
         // Should redirect to dashboard
         await expectURL(page, /\/dashboard/);
-
-        // Restore auth state
-        await page
-          .context()
-          .storageState({ path: './tests/e2e/.auth/admin.json' });
       } finally {
         await cleanup();
       }
@@ -281,11 +266,6 @@ test.describe('Two-Factor Authentication', () => {
 
         // Should still be on signin page
         await expectURL(page, /\/signin/);
-
-        // Restore auth state
-        await page
-          .context()
-          .storageState({ path: './tests/e2e/.auth/admin.json' });
       } finally {
         await cleanup();
       }
