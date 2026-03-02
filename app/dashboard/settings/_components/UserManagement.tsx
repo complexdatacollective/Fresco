@@ -2,7 +2,7 @@
 
 import { type ColumnDef } from '@tanstack/react-table';
 import { Plus, Trash, User } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { use, useCallback, useState } from 'react';
 import { z } from 'zod/mini';
 import { resetTotpForUser } from '~/actions/totp';
 import {
@@ -35,11 +35,10 @@ import { type GetUsersReturnType } from '~/queries/users';
 type UserRow = GetUsersReturnType[number];
 
 type UserManagementProps = {
-  users: GetUsersReturnType;
+  usersPromise: Promise<GetUsersReturnType>;
   currentUserId: string;
   currentUsername: string;
-  hasTwoFactor: boolean;
-  userCount: number;
+  hasTwoFactorPromise: Promise<boolean>;
 };
 
 const usernameSchema = z
@@ -163,14 +162,15 @@ function makeUserColumns(
 }
 
 export default function UserManagement({
-  users: initialUsers,
+  usersPromise,
   currentUserId,
   currentUsername,
-  hasTwoFactor,
-  userCount,
+  hasTwoFactorPromise,
 }: UserManagementProps) {
   // TanStack Table: consumers must also opt out so React Compiler doesn't memoize JSX that depends on the table ref.
   'use no memo';
+  const initialUsers = use(usersPromise);
+  const hasTwoFactor = use(hasTwoFactorPromise);
   const [users, setUsers] = useState(initialUsers);
   const [isCreating, setIsCreating] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -375,7 +375,10 @@ export default function UserManagement({
             Change Password
           </Button>
         </div>
-        <TwoFactorSettings hasTwoFactor={hasTwoFactor} userCount={userCount} />
+        <TwoFactorSettings
+          hasTwoFactor={hasTwoFactor}
+          userCount={users.length}
+        />
       </Surface>
       <div className="space-y-4">
         <div className="flex items-center justify-between">

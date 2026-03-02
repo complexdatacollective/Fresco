@@ -2,7 +2,7 @@
 
 import { type ColumnDef, type Row } from '@tanstack/react-table';
 import { Clipboard } from 'lucide-react';
-import { useState } from 'react';
+import { use, useState } from 'react';
 import {
   createApiToken,
   deleteApiToken,
@@ -24,16 +24,17 @@ import { useToast } from './ui/Toast';
 type ApiToken = GetApiTokensReturnType[number];
 
 type ApiTokenManagementProps = {
-  tokens: GetApiTokensReturnType;
+  tokensPromise: Promise<GetApiTokensReturnType>;
   disabled?: boolean;
 };
 
 export default function ApiTokenManagement({
-  tokens: initialTokens,
+  tokensPromise,
   disabled,
 }: ApiTokenManagementProps) {
   // TanStack Table: consumers must also opt out so React Compiler doesn't memoize JSX that depends on the table ref.
   'use no memo';
+  const initialTokens = use(tokensPromise);
   const [tokens, setTokens] = useState<ApiToken[]>(initialTokens);
   const [isCreating, setIsCreating] = useState(false);
   const [newTokenDescription, setNewTokenDescription] = useState('');
