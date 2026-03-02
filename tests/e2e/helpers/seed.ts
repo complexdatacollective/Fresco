@@ -43,6 +43,9 @@ export async function seedDashboardEnvironment(
       ADMIN_CREDENTIALS.password,
     );
 
+    // Create second test user (for admin reset 2FA tests, etc.)
+    await builder.createUser('testuser');
+
     // Configure app settings
     await builder.setupAppSettings();
 

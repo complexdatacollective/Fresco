@@ -1,7 +1,8 @@
 import { createId } from '@paralleldrive/cuid2';
 import { hash } from 'ohash';
-import pg from 'pg';
+import { type AppSetting, type Prisma } from '~/lib/db/generated/client.js';
 import { log } from './logger.js';
+import { createTestPrisma, type TestPrismaClient } from './prisma.js';
 
 /**
  * Utility for generating sequential timestamps with guaranteed ordering.
@@ -30,13 +31,10 @@ const TEST_PASSWORD_HASH =
   's2:nafkj52dvd7u4t4i:493703b7bca0d47edf26a2c420d45b0ec324ac75fddaeabbe2d880783a1f387f00ad5ed8e324fb4a7cc1b14fb8862e1c2009c8cc9dbd32c74c3bed55ee7a07c1';
 
 export class TestDataBuilder {
-  private pool: pg.Pool;
+  private prisma: TestPrismaClient;
 
   constructor(connectionUri: string) {
-    this.pool = new pg.Pool({
-      connectionString: connectionUri,
-      max: 3,
-    });
+    this.prisma = createTestPrisma(connectionUri);
   }
 
   async createUser(
@@ -54,16 +52,14 @@ export class TestDataBuilder {
       );
     }
 
-    await this.pool.query(`INSERT INTO "User" (id, username) VALUES ($1, $2)`, [
-      userId,
-      username,
-    ]);
+    await this.prisma.user.create({
+      data: { id: userId, username },
+    });
 
     const keyId = `username:${username.toLowerCase()}`;
-    await this.pool.query(
-      `INSERT INTO "Key" (id, hashed_password, user_id) VALUES ($1, $2, $3)`,
-      [keyId, TEST_PASSWORD_HASH, userId],
-    );
+    await this.prisma.key.create({
+      data: { id: keyId, hashed_password: TEST_PASSWORD_HASH, user_id: userId },
+    });
 
     log('setup', `Created user "${username}" (${userId})`);
     return { userId, username, password: actualPassword };
@@ -139,19 +135,20 @@ export class TestDataBuilder {
 
     const protocolHash = hash(protocol);
 
-    await this.pool.query(
-      `INSERT INTO "Protocol" (id, hash, name, "schemaVersion", description, "importedAt", "lastModified", stages, codebook, "isPreview", "isPending")
-       VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), $6, $7, false, false)`,
-      [
-        protocolId,
-        protocolHash,
+    await this.prisma.protocol.create({
+      data: {
+        id: protocolId,
+        hash: protocolHash,
         name,
-        8,
+        schemaVersion: 8,
         description,
-        JSON.stringify(stages),
-        JSON.stringify(codebook),
-      ],
-    );
+        lastModified: new Date(),
+        stages,
+        codebook,
+        isPreview: false,
+        isPending: false,
+      },
+    });
 
     log('setup', `Created protocol "${name}" (${protocolId})`);
     return { id: protocolId, hash: protocolHash, name };
@@ -165,10 +162,9 @@ export class TestDataBuilder {
     const identifier = opts?.identifier ?? `P-${id.slice(0, 6)}`;
     const label = opts?.label ?? null;
 
-    await this.pool.query(
-      `INSERT INTO "Participant" (id, identifier, label) VALUES ($1, $2, $3)`,
-      [id, identifier, label],
-    );
+    await this.prisma.participant.create({
+      data: { id, identifier, label },
+    });
 
     log('setup', `Created participant "${identifier}" (${id})`);
     return { id, identifier, label };
@@ -181,7 +177,7 @@ export class TestDataBuilder {
       finished?: boolean;
       exported?: boolean;
       currentStep?: number;
-      network?: Record<string, unknown>;
+      network?: Prisma.InputJsonValue;
     },
   ): Promise<{ id: string }> {
     const id = createId();
@@ -195,21 +191,19 @@ export class TestDataBuilder {
       ego: { _uid: createId(), attributes: {} },
     };
 
-    await this.pool.query(
-      `INSERT INTO "Interview" (id, "startTime", "finishTime", "exportTime", "lastUpdated", network, "participantId", "protocolId", "currentStep")
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-      [
+    await this.prisma.interview.create({
+      data: {
         id,
-        now,
+        startTime: now,
         finishTime,
         exportTime,
-        now,
-        JSON.stringify(network),
+        lastUpdated: now,
+        network,
         participantId,
         protocolId,
         currentStep,
-      ],
-    );
+      },
+    });
 
     log('setup', `Created interview (${id}) for participant ${participantId}`);
     return { id };
@@ -222,20 +216,21 @@ export class TestDataBuilder {
   ): Promise<{ id: string }> {
     const id = options?.id ?? createId();
     const ts = options?.timestamp ?? new Date();
-    await this.pool.query(
-      `INSERT INTO "Events" (id, timestamp, type, message) VALUES ($1, $2, $3, $4)`,
-      [id, ts, type, message],
-    );
+
+    await this.prisma.events.create({
+      data: { id, timestamp: ts, type, message },
+    });
+
     return { id };
   }
 
   async insertSettings(settings: Record<string, string>): Promise<void> {
     for (const [key, value] of Object.entries(settings)) {
-      await this.pool.query(
-        `INSERT INTO "AppSettings" (key, value) VALUES ($1, $2)
-         ON CONFLICT (key) DO UPDATE SET value = $2`,
-        [key, value],
-      );
+      await this.prisma.appSettings.upsert({
+        where: { key: key as AppSetting },
+        create: { key: key as AppSetting, value },
+        update: { value },
+      });
     }
   }
 
@@ -257,17 +252,18 @@ export class TestDataBuilder {
     const settings = { ...defaults, ...overrides };
 
     for (const [key, value] of Object.entries(settings)) {
-      await this.pool.query(
-        `INSERT INTO "AppSettings" (key, value) VALUES ($1, $2)
-         ON CONFLICT (key) DO UPDATE SET value = $2`,
-        [key, value],
-      );
+      if (value === undefined) continue;
+      await this.prisma.appSettings.upsert({
+        where: { key: key as AppSetting },
+        create: { key: key as AppSetting, value },
+        update: { value },
+      });
     }
 
     log('setup', 'App settings configured');
   }
 
   async close(): Promise<void> {
-    await this.pool.end();
+    await this.prisma.$disconnect();
   }
 }

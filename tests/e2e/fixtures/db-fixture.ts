@@ -1,8 +1,11 @@
 import { type Page } from '@playwright/test';
+import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import pg from 'pg';
 import { log } from '../helpers/logger.js';
+import { createTestPrisma, type TestPrismaClient } from '../helpers/prisma.js';
+import { type AppSetting } from '~/lib/db/generated/client.js';
 
 type TableSnapshot = {
   table: string;
@@ -16,6 +19,7 @@ const LOCK_ID = 42;
 export class DatabaseIsolation {
   private databaseUrl: string;
   private suiteId: string;
+  private prisma: TestPrismaClient;
   private isolationClient: pg.PoolClient | null = null;
 
   // Pool and client for holding the shared read lock across the spec file
@@ -25,6 +29,7 @@ export class DatabaseIsolation {
   constructor(databaseUrl: string, suiteId: string) {
     this.databaseUrl = databaseUrl;
     this.suiteId = suiteId;
+    this.prisma = createTestPrisma(databaseUrl);
   }
 
   getDatabaseUrl(): string {
@@ -48,37 +53,109 @@ export class DatabaseIsolation {
   }
 
   async getProtocolId(): Promise<string> {
-    const result = await this.query<{ id: string }>(
-      `SELECT id FROM "Protocol" LIMIT 1`,
-    );
-    const row = result.rows[0];
-    if (!row) {
+    const protocol = await this.prisma.protocol.findFirst({
+      select: { id: true },
+    });
+    if (!protocol) {
       throw new Error('No protocol found in database');
     }
-    return row.id;
+    return protocol.id;
   }
 
   async updateAppSetting(key: string, value: string): Promise<void> {
-    await this.query(`UPDATE "AppSettings" SET value = $2 WHERE key = $1`, [
-      key,
-      value,
-    ]);
+    await this.prisma.appSettings.update({
+      where: { key: key as AppSetting },
+      data: { value },
+    });
   }
 
   async deleteUser(username: string): Promise<void> {
-    await this.query(`DELETE FROM "User" WHERE "username" = $1`, [username]);
+    await this.prisma.user.delete({ where: { username } }).catch(() => {
+      // Ignore if user doesn't exist (e.g., first run or retry cleanup)
+    });
   }
 
   async getParticipantCount(identifier?: string): Promise<number> {
-    const result = identifier
-      ? await this.query<{ count: string }>(
-          `SELECT COUNT(*) as count FROM "Participant" WHERE identifier = $1`,
-          [identifier],
-        )
-      : await this.query<{ count: string }>(
-          `SELECT COUNT(*) as count FROM "Participant"`,
-        );
-    return Number(result.rows[0]?.count ?? 0);
+    return this.prisma.participant.count({
+      where: identifier ? { identifier } : undefined,
+    });
+  }
+
+  async seedTotpForUser(
+    username: string,
+    secret: string,
+    recoveryCodes: string[],
+  ): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      select: { id: true },
+    });
+    if (!user) {
+      throw new Error(`User "${username}" not found`);
+    }
+
+    await this.prisma.totpCredential.upsert({
+      where: { user_id: user.id },
+      create: {
+        user_id: user.id,
+        secret,
+        verified: true,
+      },
+      update: {
+        secret,
+        verified: true,
+      },
+    });
+
+    await this.prisma.recoveryCode.deleteMany({
+      where: { user_id: user.id },
+    });
+
+    await this.prisma.recoveryCode.createMany({
+      data: recoveryCodes.map((code) => ({
+        user_id: user.id,
+        codeHash: createHash('sha256').update(code).digest('hex'),
+      })),
+    });
+
+    log('test', `Seeded TOTP for user "${username}"`);
+  }
+
+  async clearTotpForUser(username: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      select: { id: true },
+    });
+    if (!user) {
+      throw new Error(`User "${username}" not found`);
+    }
+
+    await this.prisma.totpCredential.deleteMany({
+      where: { user_id: user.id },
+    });
+    await this.prisma.recoveryCode.deleteMany({
+      where: { user_id: user.id },
+    });
+
+    log('test', `Cleared TOTP for user "${username}"`);
+  }
+
+  async markRecoveryCodeUsed(username: string, code: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      select: { id: true },
+    });
+    if (!user) {
+      throw new Error(`User "${username}" not found`);
+    }
+
+    const codeHash = createHash('sha256').update(code).digest('hex');
+    await this.prisma.recoveryCode.updateMany({
+      where: { user_id: user.id, codeHash },
+      data: { usedAt: new Date() },
+    });
+
+    log('test', `Marked recovery code as used for user "${username}"`);
   }
 
   private async restoreWith(
