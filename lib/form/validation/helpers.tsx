@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/mini';
 import { UnorderedList } from '~/components/typography/UnorderedList';
 import type {
   CustomFieldValidation,
@@ -21,7 +21,7 @@ import {
  * that generate schemas based on form state. It uses Zod's `safeParseAsync` for
  * non-throwing validation that returns a discriminated union result.
  *
- * @template T - The Zod schema type, defaults to `z.ZodTypeAny`
+ * @template T - The Zod schema type, defaults to `z.ZodMiniType`
  *
  * @param value - The field value to validate
  * @param validation - Either a Zod schema directly, or a function that receives
@@ -32,23 +32,8 @@ import {
  * @returns A promise resolving to a `ValidationResult<T>`:
  *   - On success: `{ success: true, data: T }` where data is the parsed value
  *   - On failure: `{ success: false, error: z.ZodError }` containing validation issues
- *
- * @example
- * ```typescript
- * const result = await validateFieldValue(
- *   'test@example.com',
- *   z.string().email(),
- *   {}
- * );
- *
- * if (result.success) {
- *   console.log('Valid email:', result.data);
- * } else {
- *   console.log('Errors:', result.error.issues);
- * }
- * ```
  */
-export async function validateFieldValue<T extends z.ZodTypeAny>(
+export async function validateFieldValue<T extends z.ZodMiniType>(
   value: unknown,
   validation: FieldValidationFunction,
   formValues: Record<string, FieldValue>,
@@ -73,60 +58,28 @@ export function makeValidationFunction(props: Record<string, unknown>) {
     | undefined;
 
   return (formValues: Record<string, FieldValue>) =>
-    z.unknown().superRefine(async (fieldValue, ctx) => {
-      // Handle built-in validations from the validations object
-      const validationEntries = Object.entries(props).filter(
-        ([key]) =>
-          key in validations && key !== 'validationContext' && key !== 'custom',
-      );
+    z.unknown().check(
+      z.superRefine(async (fieldValue, ctx) => {
+        // Handle built-in validations from the validations object
+        const validationEntries = Object.entries(props).filter(
+          ([key]) =>
+            key in validations &&
+            key !== 'validationContext' &&
+            key !== 'custom',
+        );
 
-      for (const [validationName, parameter] of validationEntries) {
-        try {
-          const validationFnFactory = validations[
-            validationName as keyof typeof validations
-          ] as ValidationFunction<ValidationParameter>;
-
-          const validationFn = validationFnFactory(
-            parameter as ValidationParameter,
-            validationContext,
-          )(formValues);
-
-          const result = await validationFn.safeParseAsync(fieldValue);
-
-          if (!result.success && result.error) {
-            result.error.issues.forEach((issue) => {
-              ctx.addIssue({
-                code: 'custom',
-                message: issue.message,
-                path: [...issue.path],
-              });
-            });
-          }
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error('Error while validating:', error);
-          ctx.addIssue({
-            code: 'custom',
-            message: 'An error occurred while validating.',
-          });
-        }
-      }
-
-      // Handle custom validations (single or array)
-      if ('custom' in props && props.custom) {
-        const customValidations = Array.isArray(props.custom)
-          ? (props.custom as CustomFieldValidation[])
-          : [props.custom as CustomFieldValidation];
-
-        for (const { schema } of customValidations) {
+        for (const [validationName, parameter] of validationEntries) {
           try {
-            // Resolve schema if it's a function
-            const resolvedSchema =
-              typeof schema === 'function'
-                ? await schema(formValues, validationContext)
-                : schema;
+            const validationFnFactory = validations[
+              validationName as keyof typeof validations
+            ] as ValidationFunction<ValidationParameter>;
 
-            const result = await resolvedSchema.safeParseAsync(fieldValue);
+            const validationFn = validationFnFactory(
+              parameter as ValidationParameter,
+              validationContext,
+            )(formValues);
+
+            const result = await validationFn.safeParseAsync(fieldValue);
 
             if (!result.success && result.error) {
               result.error.issues.forEach((issue) => {
@@ -139,15 +92,51 @@ export function makeValidationFunction(props: Record<string, unknown>) {
             }
           } catch (error) {
             // eslint-disable-next-line no-console
-            console.log('custom validation error', error);
+            console.error('Error while validating:', error);
             ctx.addIssue({
               code: 'custom',
               message: 'An error occurred while validating.',
             });
           }
         }
-      }
-    });
+
+        // Handle custom validations (single or array)
+        if ('custom' in props && props.custom) {
+          const customValidations = Array.isArray(props.custom)
+            ? (props.custom as CustomFieldValidation[])
+            : [props.custom as CustomFieldValidation];
+
+          for (const { schema } of customValidations) {
+            try {
+              // Resolve schema if it's a function
+              const resolvedSchema =
+                typeof schema === 'function'
+                  ? await schema(formValues, validationContext)
+                  : schema;
+
+              const result = await resolvedSchema.safeParseAsync(fieldValue);
+
+              if (!result.success && result.error) {
+                result.error.issues.forEach((issue) => {
+                  ctx.addIssue({
+                    code: 'custom',
+                    message: issue.message,
+                    path: [...issue.path],
+                  });
+                });
+              }
+            } catch (error) {
+              // eslint-disable-next-line no-console
+              console.log('custom validation error', error);
+              ctx.addIssue({
+                code: 'custom',
+                message: 'An error occurred while validating.',
+              });
+            }
+          }
+        }
+      }),
+    );
 }
 
 /**
@@ -192,8 +181,10 @@ export function makeValidationHints(props: Record<string, unknown>) {
         validationContext,
       )({});
 
-      // Extract hint from the schema's metadata
-      const meta = validationFn.meta() as { hint?: string } | undefined;
+      // Extract hint from the schema's metadata via global registry
+      const meta = z.globalRegistry.get(validationFn) as
+        | { hint?: string }
+        | undefined;
       if (meta?.hint) {
         hints.push(meta.hint);
       }

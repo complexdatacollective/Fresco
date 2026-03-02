@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { z } from 'zod';
+import { z } from 'zod/mini';
 import type { FieldValue } from '../store/types';
 import { validateFieldValue } from './helpers';
 
@@ -22,7 +22,7 @@ describe('Validation Utils', () => {
     });
 
     it('should validate with Zod schema', async () => {
-      const schema = z.string().min(3, 'Too short');
+      const schema = z.string().check(z.minLength(3, 'Too short'));
 
       // Valid case
       const validResult = await validateFieldValue(
@@ -49,7 +49,7 @@ describe('Validation Utils', () => {
 
     it('should validate with function returning schema', async () => {
       const validationFn = (_formValues: Record<string, FieldValue>) => {
-        return z.string().email({ message: 'Invalid email' });
+        return z.email({ message: 'Invalid email' });
       };
 
       // Valid case
@@ -81,7 +81,7 @@ describe('Validation Utils', () => {
       ) => {
         // Simulate async operation
         await new Promise<void>((resolve) => setTimeout(resolve, 10));
-        return z.string().min(5, 'Too short');
+        return z.string().check(z.minLength(5, 'Too short'));
       };
 
       // Valid case
@@ -123,7 +123,9 @@ describe('Validation Utils', () => {
       ) => {
         const minLength =
           typeof formValues.minLength === 'number' ? formValues.minLength : 3;
-        return z.string().min(minLength, `Must be at least ${minLength} chars`);
+        return z
+          .string()
+          .check(z.minLength(minLength, `Must be at least ${minLength} chars`));
       };
 
       const formValuesWithMinLength: Record<string, FieldValue> = {

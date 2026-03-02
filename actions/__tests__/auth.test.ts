@@ -140,7 +140,7 @@ vi.mock('~/schemas/auth', () => ({
   loginSchema: {
     safeParse: mockLoginSchemaSafeParse,
   },
-  createUserFormDataSchema: {
+  createUserSchema: {
     safeParse: vi.fn(),
   },
 }));

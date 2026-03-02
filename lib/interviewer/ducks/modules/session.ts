@@ -21,7 +21,7 @@ import {
 import { invariant } from 'es-toolkit';
 import { find, get } from 'es-toolkit/compat';
 import { v4 as uuid } from 'uuid';
-import { z } from 'zod';
+import { z } from 'zod/mini';
 import { generateSecureAttributes } from '../../Interfaces/Anonymisation/utils';
 import {
   makeGetCodebookVariablesForEdgeType,
@@ -79,8 +79,8 @@ export function edgeExists(
 
 const FamilyTreeCensusStageMetadataSchema = z.object({
   hasSeenScaffoldPrompt: z.boolean(),
-  nodes: z
-    .array(
+  nodes: z.optional(
+    z.array(
       z.object({
         interviewNetworkId: z.string(),
         label: z.string(),
@@ -88,8 +88,8 @@ const FamilyTreeCensusStageMetadataSchema = z.object({
         isEgo: z.boolean(),
         readOnly: z.boolean(),
       }),
-    )
-    .optional(),
+    ),
+  ),
 });
 
 export type FamilyTreeCensusStageMetadata = z.infer<

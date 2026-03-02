@@ -1,6 +1,6 @@
 import { Loader2 } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
-import type z from 'zod';
+import type { z } from 'zod/mini';
 import { setAppSetting } from '~/actions/appSettings';
 import { Button } from '~/components/ui/Button';
 import InputField from '~/lib/form/components/fields/InputField';
@@ -17,7 +17,7 @@ export default function UpdateSettingsValue({
   settingsKey: AppSetting;
   initialValue?: string;
   readOnly?: boolean;
-  schema: z.ZodType<string>;
+  schema: z.ZodMiniType<string>;
   suffixComponent?: ReactNode;
 }) {
   const [newValue, setNewValue] = useState(initialValue);

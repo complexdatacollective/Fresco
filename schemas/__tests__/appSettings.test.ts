@@ -100,26 +100,23 @@ describe('App Settings Schema Validators', () => {
   });
   describe('UPLOADTHING_TOKEN Parsing through Schema', () => {
     it("should parse token value from UPLOADTHING_TOKEN='token'", () => {
-      const validData = new FormData();
-      validData.append('uploadThingToken', "UPLOADTHING_TOKEN='ABCD1234Token'");
-
-      const result = createUploadThingTokenFormSchema.parse(validData);
+      const result = createUploadThingTokenFormSchema.parse({
+        uploadThingToken: "UPLOADTHING_TOKEN='ABCD1234Token'",
+      });
       expect(result.uploadThingToken).toBe('ABCD1234Token');
     });
 
     it('should remove surrounding quotes', () => {
-      const validData = new FormData();
-      validData.append('uploadThingToken', "'ABCD1234Token'");
-
-      const result = createUploadThingTokenFormSchema.parse(validData);
+      const result = createUploadThingTokenFormSchema.parse({
+        uploadThingToken: "'ABCD1234Token'",
+      });
       expect(result.uploadThingToken).toBe('ABCD1234Token');
     });
 
     it('should not change already correct tokens', () => {
-      const validData = new FormData();
-      validData.append('uploadThingToken', 'ABCD1234Token');
-
-      const result = createUploadThingTokenFormSchema.parse(validData);
+      const result = createUploadThingTokenFormSchema.parse({
+        uploadThingToken: 'ABCD1234Token',
+      });
       expect(result.uploadThingToken).toBe('ABCD1234Token');
     });
   });

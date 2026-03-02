@@ -1,3 +1,4 @@
+import 'server-only';
 import { CurrentProtocolSchema } from '@codaco/protocol-validation';
 import { z } from 'zod';
 

@@ -1,35 +1,31 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import z from 'zod';
-import { setAppSetting } from '~/actions/appSettings';
+import { setUploadThingToken } from '~/actions/appSettings';
 import Field from '~/lib/form/components/Field/Field';
 import Form from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
 import InputField from '~/lib/form/components/fields/InputField';
-import {
-  createUploadThingTokenFormSchema,
-  createUploadThingTokenSchema,
-} from '~/schemas/appSettings';
+import { createUploadThingTokenSchema } from '~/schemas/appSettings';
 
 export const UploadThingTokenForm = () => {
   const router = useRouter();
 
   const handleSubmit = async (rawData: unknown) => {
-    const typedData = createUploadThingTokenFormSchema.safeParse(rawData);
-    if (!typedData.success) {
+    const result = await setUploadThingToken(rawData);
+
+    if (!result.success) {
       return {
-        success: false,
-        errors: z.flattenError(typedData.error).fieldErrors,
+        success: false as const,
+        fieldErrors: result.fieldErrors,
       };
     }
 
-    await setAppSetting('uploadThingToken', typedData.data.uploadThingToken);
     // Navigate to step 3 (Upload Protocol)
     router.push('/setup?step=3');
 
     return {
-      success: true,
+      success: true as const,
     };
   };
 

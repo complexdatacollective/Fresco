@@ -79,6 +79,7 @@ export default function TwoFactorSettings({
       <SettingsField
         label="Two-Factor Authentication"
         description="Add an extra layer of security to your account by requiring a code from your authenticator app when signing in."
+        testId="two-factor-field"
         control={
           <Button
             color="primary"
@@ -97,6 +98,7 @@ export default function TwoFactorSettings({
       <SettingsField
         label="Two-Factor Authentication"
         description="Two-factor authentication is enabled for your account."
+        testId="two-factor-field"
         control={
           <div className="flex gap-2">
             <Button size="sm" onClick={() => setShowRegenerateVerify(true)}>

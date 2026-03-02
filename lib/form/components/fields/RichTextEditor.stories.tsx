@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import type { JSONContent } from '@tiptap/react';
 import { action } from 'storybook/actions';
-import { z } from 'zod';
-import Field from '../Field/Field';
-import Form from '../Form';
-import SubmitButton from '../SubmitButton';
+import { z } from 'zod/mini';
+import Field from '~/lib/form/components/Field/Field';
+import Form from '~/lib/form/components/Form';
+import SubmitButton from '~/lib/form/components/SubmitButton';
 import RichTextEditorField from './RichTextEditor';
 
 const meta: Meta<typeof RichTextEditorField> = {
@@ -240,7 +240,7 @@ export const InForm: Story = {
         hint="Write a detailed description using rich text formatting"
         component={RichTextEditorField}
         custom={{
-          schema: z.object({}).passthrough(),
+          schema: z.looseObject({}),
           hint: 'Enter rich text content',
         }}
       />

@@ -1,6 +1,6 @@
 import { type Variable } from '@codaco/protocol-validation';
 import { invariant } from 'es-toolkit';
-import z from 'zod';
+import { z } from 'zod/mini';
 import { type FieldValue, type ValidationContext } from '../store/types';
 import collectNetworkValues from './utils/collectNetworkValues';
 import compareVariables from './utils/compareVariables';
@@ -19,7 +19,7 @@ export type ValidationFunction<T extends ValidationParameter> = (
   // unique = string etc.
   parameter: T,
   context?: ValidationContext,
-) => (formValues: Record<string, FieldValue>) => z.ZodType;
+) => (formValues: Record<string, FieldValue>) => z.ZodMiniType;
 
 /**
  * Make a field required
@@ -39,22 +39,12 @@ export const required = (parameter?: boolean | string) => () => {
       ? parameter
       : 'You must answer this question before continuing.';
 
-  return z.unknown().superRefine((value, ctx) => {
-    const isEmptyString =
-      typeof value === 'string' && value.trim().length === 0;
+  return z.unknown().check(
+    z.superRefine((value, ctx) => {
+      const isEmptyString =
+        typeof value === 'string' && value.trim().length === 0;
 
-    if (value === null || value === undefined || isEmptyString) {
-      ctx.addIssue({
-        code: 'custom',
-        input: value,
-        message: message,
-        path: [],
-      });
-    }
-
-    // Handle number fields
-    if (typeof value === 'number') {
-      if (isNaN(value)) {
+      if (value === null || value === undefined || isEmptyString) {
         ctx.addIssue({
           code: 'custom',
           input: value,
@@ -62,20 +52,32 @@ export const required = (parameter?: boolean | string) => () => {
           path: [],
         });
       }
-    }
 
-    // Handle array fields
-    if (Array.isArray(value)) {
-      if (value.length === 0) {
-        ctx.addIssue({
-          code: 'custom',
-          input: value,
-          message: message,
-          path: [],
-        });
+      // Handle number fields
+      if (typeof value === 'number') {
+        if (isNaN(value)) {
+          ctx.addIssue({
+            code: 'custom',
+            input: value,
+            message: message,
+            path: [],
+          });
+        }
       }
-    }
-  }); // No hint for required because we use the asterisk in the UI
+
+      // Handle array fields
+      if (Array.isArray(value)) {
+        if (value.length === 0) {
+          ctx.addIssue({
+            code: 'custom',
+            input: value,
+            message: message,
+            path: [],
+          });
+        }
+      }
+    }),
+  ); // No hint for required because we use the asterisk in the UI
 };
 
 /**
@@ -86,13 +88,15 @@ const maxLength: ValidationFunction<number> = (max) => () => {
 
   const hint = `Enter at most ${max} characters.`;
 
-  return z
-    .string()
-    .max(max, {
-      message: `Too long. Enter fewer than than ${max} characters.`,
-    })
-    .prefault('')
-    .meta({ hint });
+  return z.prefault(
+    z
+      .string()
+      .check(
+        z.maxLength(max, `Too long. Enter fewer than than ${max} characters.`),
+        z.meta({ hint }),
+      ),
+    '',
+  );
 };
 
 /**
@@ -103,13 +107,15 @@ const minLength: ValidationFunction<number> = (min) => () => {
 
   const hint = `Enter at least ${min} characters.`;
 
-  return z
-    .string()
-    .min(min, {
-      message: `Too short. Enter at least ${min} characters.`,
-    })
-    .prefault('')
-    .meta({ hint });
+  return z.prefault(
+    z
+      .string()
+      .check(
+        z.minLength(min, `Too short. Enter at least ${min} characters.`),
+        z.meta({ hint }),
+      ),
+    '',
+  );
 };
 
 /**
@@ -121,13 +127,15 @@ const minValue: ValidationFunction<number> = (min) => () => {
 
   const hint = `Enter a value greater than or equal to ${min}.`;
 
-  return z.coerce
-    .number()
-    .gte(min, {
-      message: `Too small. Value must be at least ${min}.`,
-    })
-    .prefault(min - 1)
-    .meta({ hint });
+  return z.prefault(
+    z.coerce
+      .number()
+      .check(
+        z.gte(min, `Too small. Value must be at least ${min}.`),
+        z.meta({ hint }),
+      ),
+    min - 1,
+  );
 };
 
 /**
@@ -139,13 +147,15 @@ const maxValue: ValidationFunction<number> = (max) => () => {
 
   const hint = `Enter a value less than or equal to ${max}.`;
 
-  return z.coerce
-    .number()
-    .lte(max, {
-      message: `Too large. Value must be at most ${max}.`,
-    })
-    .prefault(max - 1)
-    .meta({ hint });
+  return z.prefault(
+    z.coerce
+      .number()
+      .check(
+        z.lte(max, `Too large. Value must be at most ${max}.`),
+        z.meta({ hint }),
+      ),
+    max - 1,
+  );
 };
 
 /**
@@ -156,13 +166,18 @@ const minSelected: ValidationFunction<number> = (min) => () => {
 
   const hint = `Select at least ${min} value${min === 1 ? '' : 's'}.`;
 
-  return z
-    .array(z.unknown())
-    .min(min, {
-      message: `Too few selected. Select at least ${min} value${min === 1 ? '' : 's'}.`,
-    })
-    .prefault([])
-    .meta({ hint });
+  return z.prefault(
+    z
+      .array(z.unknown())
+      .check(
+        z.minLength(
+          min,
+          `Too few selected. Select at least ${min} value${min === 1 ? '' : 's'}.`,
+        ),
+        z.meta({ hint }),
+      ),
+    [],
+  );
 };
 
 /**
@@ -173,13 +188,18 @@ const maxSelected: ValidationFunction<number> = (max) => () => {
 
   const hint = `Select a maximum of ${max} value${max === 1 ? '' : 's'}.`;
 
-  return z
-    .array(z.unknown())
-    .max(max, {
-      message: `Too many items selected. Select a maximum of ${max} value${max === 1 ? '' : 's'}.`,
-    })
-    .prefault(Array.from({ length: max }, () => null))
-    .meta({ hint });
+  return z.prefault(
+    z
+      .array(z.unknown())
+      .check(
+        z.maxLength(
+          max,
+          `Too many items selected. Select a maximum of ${max} value${max === 1 ? '' : 's'}.`,
+        ),
+        z.meta({ hint }),
+      ),
+    Array.from({ length: max }, () => null),
+  );
 };
 
 /**
@@ -195,9 +215,8 @@ const unique: ValidationFunction<string> = (attribute, context) => () => {
 
   const hint = 'Must be unique.';
 
-  return z
-    .unknown()
-    .superRefine((value, ctx) => {
+  return z.unknown().check(
+    z.superRefine((value, ctx) => {
       invariant(
         stageSubject.entity !== 'ego',
         'Not applicable to ego entities',
@@ -221,8 +240,9 @@ const unique: ValidationFunction<string> = (attribute, context) => () => {
           path: [],
         });
       }
-    })
-    .meta({ hint });
+    }),
+    z.meta({ hint }),
+  );
 };
 
 /**
@@ -256,9 +276,8 @@ const differentFrom: ValidationFunction<string> =
       displayName = comparisonVariable.name;
     }
 
-    return z
-      .unknown()
-      .superRefine((value, ctx) => {
+    return z.unknown().check(
+      z.superRefine((value, ctx) => {
         // Only validate if the comparison attribute exists in formValues
         if (!(attribute in formValues)) {
           return;
@@ -270,8 +289,9 @@ const differentFrom: ValidationFunction<string> =
             path: [],
           });
         }
-      })
-      .meta({ hint: `Must be different from '${displayName}'.` });
+      }),
+      z.meta({ hint: `Must be different from '${displayName}'.` }),
+    );
   };
 
 /**
@@ -302,9 +322,8 @@ const sameAs: ValidationFunction<string> =
       displayName = comparisonVariable.name;
     }
 
-    return z
-      .unknown()
-      .superRefine((value, ctx) => {
+    return z.unknown().check(
+      z.superRefine((value, ctx) => {
         // Only validate if the comparison attribute exists in formValues
         if (!(attribute in formValues)) {
           return;
@@ -316,8 +335,9 @@ const sameAs: ValidationFunction<string> =
             path: [],
           });
         }
-      })
-      .meta({ hint: `Must match the value of '${displayName}'.` });
+      }),
+      z.meta({ hint: `Must match the value of '${displayName}'.` }),
+    );
   };
 
 /**
@@ -352,9 +372,8 @@ const greaterThanVariable: ValidationFunction<{
     displayName = comparisonVariable.name;
   }
 
-  return z
-    .unknown()
-    .superRefine((value, ctx) => {
+  return z.unknown().check(
+    z.superRefine((value, ctx) => {
       // Only validate if the comparison attribute exists in formValues
       if (!(attribute in formValues)) {
         return;
@@ -370,10 +389,11 @@ const greaterThanVariable: ValidationFunction<{
           path: [],
         });
       }
-    })
-    .meta({
+    }),
+    z.meta({
       hint: `Must be greater than the value of '${displayName}'.`,
-    });
+    }),
+  );
 };
 
 /**
@@ -390,13 +410,12 @@ const pattern: ValidationFunction<{
     invariant(regex, 'Regex must be specified');
     invariant(hint, 'Hint must be specified for pattern validation');
 
-    return z
-      .string()
-      .regex(new RegExp(regex), {
-        message: errorMessage,
-      })
-      .prefault('')
-      .meta({ hint });
+    return z.prefault(
+      z
+        .string()
+        .check(z.regex(new RegExp(regex), errorMessage), z.meta({ hint })),
+      '',
+    );
   };
 
 /**
@@ -431,9 +450,8 @@ const lessThanVariable: ValidationFunction<{
     displayName = comparisonVariable.name;
   }
 
-  return z
-    .unknown()
-    .superRefine((value, ctx) => {
+  return z.unknown().check(
+    z.superRefine((value, ctx) => {
       // Only validate if the comparison attribute exists in formValues
       if (!(attribute in formValues)) {
         return;
@@ -450,10 +468,11 @@ const lessThanVariable: ValidationFunction<{
           path: [],
         });
       }
-    })
-    .meta({
+    }),
+    z.meta({
       hint: `Must be less than the value of '${displayName}'.`,
-    });
+    }),
+  );
 };
 
 /**
@@ -488,9 +507,8 @@ const greaterThanOrEqualToVariable: ValidationFunction<{
     displayName = comparisonVariable.name;
   }
 
-  return z
-    .unknown()
-    .superRefine((value, ctx) => {
+  return z.unknown().check(
+    z.superRefine((value, ctx) => {
       // Only validate if the comparison attribute exists in formValues
       if (!(attribute in formValues)) {
         return;
@@ -505,10 +523,11 @@ const greaterThanOrEqualToVariable: ValidationFunction<{
           path: [],
         });
       }
-    })
-    .meta({
+    }),
+    z.meta({
       hint: `Must be greater than or equal to the value of '${displayName}'.`,
-    });
+    }),
+  );
 };
 
 /**
@@ -543,9 +562,8 @@ const lessThanOrEqualToVariable: ValidationFunction<{
     displayName = comparisonVariable.name;
   }
 
-  return z
-    .unknown()
-    .superRefine((value, ctx) => {
+  return z.unknown().check(
+    z.superRefine((value, ctx) => {
       // Only validate if the comparison attribute exists in formValues
       if (!(attribute in formValues)) {
         return;
@@ -561,19 +579,20 @@ const lessThanOrEqualToVariable: ValidationFunction<{
           path: [],
         });
       }
-    })
-    .meta({
+    }),
+    z.meta({
       hint: `Must be less than or equal to the value of '${displayName}'.`,
-    });
+    }),
+  );
 };
 
 const email = () => () => {
   const hint = 'Must be a valid email address.';
 
-  return z
-    .email({ message: 'Enter a valid email address.' })
-    .prefault('')
-    .meta({ hint });
+  return z.prefault(
+    z.email('Enter a valid email address.').check(z.meta({ hint })),
+    '',
+  );
 };
 
 const custom = () => () => void 0; // Placeholder for custom validation handled elsewhere

@@ -1,6 +1,6 @@
 import { type Codebook, type StageSubject } from '@codaco/protocol-validation';
 import { type NcNetwork } from '@codaco/shared-consts';
-import type * as z from 'zod';
+import type * as z from 'zod/mini';
 
 // Re-export FieldValue for convenience
 export { type FieldValue } from '../components/Field/types';
@@ -21,7 +21,7 @@ import { type FieldValue } from '../components/Field/types';
  *
  * @template T - The Zod schema type being validated against
  */
-export type ValidationResult<T extends z.ZodTypeAny = z.ZodTypeAny> = Awaited<
+export type ValidationResult<T extends z.ZodMiniType = z.ZodMiniType> = Awaited<
   ReturnType<T['safeParseAsync']>
 >;
 
@@ -30,11 +30,11 @@ export type ValidationResult<T extends z.ZodTypeAny = z.ZodTypeAny> = Awaited<
  * that receives form values and validation context and returns a schema.
  */
 export type FieldValidationFunction =
-  | z.ZodType
+  | z.ZodMiniType
   | ((
       formValues: Record<string, FieldValue>,
       validationContext?: ValidationContext,
-    ) => z.ZodType | Promise<z.ZodType>);
+    ) => z.ZodMiniType | Promise<z.ZodMiniType>);
 
 /**
  * Custom field validation with required hint metadata.

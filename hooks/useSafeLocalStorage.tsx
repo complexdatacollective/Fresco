@@ -1,5 +1,5 @@
 import { useLocalStorage } from 'usehooks-ts';
-import { type z } from 'zod';
+import { type z } from 'zod/mini';
 
 /**
  * A reusable state hook that combines localstorage with zod schema validation.
@@ -11,7 +11,7 @@ import { type z } from 'zod';
  */
 export default function useSafeLocalStorage<T>(
   key: string,
-  schema: z.Schema<T>,
+  schema: z.ZodMiniType<T>,
   initialData: T,
 ) {
   const storage = useLocalStorage(key, initialData, {

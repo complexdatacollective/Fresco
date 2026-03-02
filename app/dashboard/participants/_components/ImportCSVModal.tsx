@@ -2,7 +2,6 @@
 
 import { FileDown, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { ZodError } from 'zod';
 import { importParticipants } from '~/actions/participants';
 import Paragraph from '~/components/typography/Paragraph';
 import { UnorderedList } from '~/components/typography/UnorderedList';
@@ -14,7 +13,6 @@ import { FormWithoutProvider } from '~/lib/form/components/Form';
 import { useFormMeta } from '~/lib/form/hooks/useFormState';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import type { FormSubmissionResult } from '~/lib/form/store/types';
-import { FormSchema } from '~/schemas/participant';
 import DropzoneField from './DropzoneField';
 
 function ImportButton() {
@@ -46,8 +44,20 @@ function ImportDialogContent({
 
   const handleSubmit = async (data: unknown): Promise<FormSubmissionResult> => {
     try {
-      const safeData = FormSchema.parse(data);
-      const result = await importParticipants(safeData.csvFile);
+      const typedData = data as { csvFile?: unknown };
+      const result = await importParticipants(typedData.csvFile);
+
+      if (result.error) {
+        add({
+          title: 'Error',
+          description: result.error,
+          type: 'destructive',
+        });
+        return {
+          success: false,
+          formErrors: [result.error],
+        };
+      }
 
       if (
         result.existingParticipants &&
@@ -85,19 +95,6 @@ function ImportDialogContent({
       onClose();
       return { success: true };
     } catch (e) {
-      if (e instanceof ZodError) {
-        add({
-          title: 'Error',
-          description: e.issues[0]
-            ? `Invalid CSV File: ${e.issues[0].message}`
-            : 'Invalid CSV file. Please check the file requirements and try again.',
-          type: 'destructive',
-        });
-        return {
-          success: false,
-          formErrors: [e.issues[0]?.message ?? 'Invalid CSV file'],
-        };
-      }
       // eslint-disable-next-line no-console
       console.log(e);
       add({

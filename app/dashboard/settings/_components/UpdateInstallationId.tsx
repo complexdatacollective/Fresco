@@ -2,7 +2,7 @@
 
 import { Loader2, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
-import z from 'zod';
+import { z } from 'zod/mini';
 import { regenerateInstallationId } from '~/actions/appSettings';
 import { Button } from '~/components/ui/Button';
 import UpdateSettingsValue from '../../_components/UpdateSettingsValue';
@@ -32,7 +32,9 @@ export default function UpdateInstallationId({
       settingsKey="installationId"
       initialValue={currentId}
       readOnly={readOnly}
-      schema={z.string().min(1, 'Installation ID cannot be empty')}
+      schema={z
+        .string()
+        .check(z.minLength(1, 'Installation ID cannot be empty'))}
       suffixComponent={
         <Button
           disabled={readOnly ?? isRegenerating}

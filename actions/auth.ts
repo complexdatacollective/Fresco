@@ -11,7 +11,7 @@ import { checkRateLimit, recordLoginAttempt } from '~/lib/rateLimit';
 import { createSessionCookie } from '~/lib/session';
 import { createTwoFactorToken } from '~/lib/totp';
 import { getInstallationId } from '~/queries/appSettings';
-import { createUserFormDataSchema, loginSchema } from '~/schemas/auth';
+import { createUserSchema, loginSchema } from '~/schemas/auth';
 import { getServerSession } from '~/utils/auth';
 import { getClientIp } from '~/utils/getClientIp';
 import { hashPassword, verifyPassword } from '~/utils/password';
@@ -37,7 +37,7 @@ export type LoginResult =
   | TwoFactorRequired;
 
 export async function signup(formData: unknown) {
-  const parsedFormData = createUserFormDataSchema.safeParse(formData);
+  const parsedFormData = createUserSchema.safeParse(formData);
 
   if (!parsedFormData.success) {
     return {

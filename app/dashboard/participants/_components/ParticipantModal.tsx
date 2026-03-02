@@ -17,6 +17,7 @@ import SubmitButton from '~/lib/form/components/SubmitButton';
 import InputField from '~/lib/form/components/fields/InputField';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
+import { z } from 'zod/mini';
 import {
   participantIdentifierSchema,
   participantLabelSchema,
@@ -154,20 +155,22 @@ function IdentifierField({
   const setFieldValue = useFormStore((state) => state.setFieldValue);
 
   // Create validation that includes the uniqueness check
-  const identifierValidation = participantIdentifierSchema.refine(
-    (data) => {
-      const existingParticipant = existingParticipants.find(
-        (p) => p.identifier === data,
-      );
-      // Allow the current identifier if editing
-      return (
-        !existingParticipant ||
-        existingParticipant.id === editingParticipant?.id
-      );
-    },
-    {
-      message: 'This identifier is already in use.',
-    },
+  const identifierValidation = participantIdentifierSchema.check(
+    z.refine(
+      (data) => {
+        const existingParticipant = existingParticipants.find(
+          (p) => p.identifier === data,
+        );
+        // Allow the current identifier if editing
+        return (
+          !existingParticipant ||
+          existingParticipant.id === editingParticipant?.id
+        );
+      },
+      {
+        message: 'This identifier is already in use.',
+      },
+    ),
   );
 
   const hint = (

@@ -251,6 +251,49 @@ export default tseslint.config(
     },
   },
 
+  // Enforce zod/mini in client-reachable code for smaller bundles.
+  // Server-only files (actions/, queries/, schemas/, route handlers)
+  // are excluded — schemas use `import 'server-only'` guards instead.
+  {
+    files: [
+      'app/**/*.{ts,tsx}',
+      'components/**/*.{ts,tsx}',
+      'hooks/**/*.{ts,tsx}',
+      'lib/**/*.{ts,tsx}',
+    ],
+    ignores: [
+      'actions/**',
+      'queries/**',
+      'scripts/**',
+      'app/**/route.{ts,tsx}',
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'next/cache',
+              importNames: ['cacheTag', 'updateTag', 'revalidateTag'],
+              message:
+                'Use safeCacheTag, safeUpdateTag, or safeRevalidateTag from ~/lib/cache for type-safe cache tags.',
+            },
+            {
+              name: 'zod',
+              message:
+                "Import from 'zod/mini' instead for smaller client bundles. Standard zod is allowed in server-only files (actions/, queries/).",
+            },
+            {
+              name: 'zod/v4',
+              message:
+                "Import from 'zod/mini' instead for smaller client bundles. Standard zod is allowed in server-only files (actions/, queries/).",
+            },
+          ],
+        },
+      ],
+    },
+  },
+
   // Prettier must be last
   eslintConfigPrettier,
 );

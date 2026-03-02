@@ -5,7 +5,7 @@ import { GripVertical, PencilIcon, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { action } from 'storybook/actions';
-import { z } from 'zod';
+import { z } from 'zod/mini';
 import RichTextRenderer from '~/components/RichTextRenderer';
 import Heading from '~/components/typography/Heading';
 import Button, { IconButton, MotionButton } from '~/components/ui/Button';
@@ -56,14 +56,14 @@ const NameGeneratorPromptSchema = z.object({
     },
     { message: 'Invalid Rich Text content' },
   ),
-  additionalAttributes: z
-    .array(
+  additionalAttributes: z.optional(
+    z.array(
       z.object({
         variable: z.string(),
         value: z.boolean(),
       }),
-    )
-    .optional(),
+    ),
+  ),
 });
 
 // Simplified version of Name Generator prompt schema
@@ -100,19 +100,21 @@ function NameGeneratorPromptItem({
         <RichTextRenderer content={item.text} />
         {item.additionalAttributes && item.additionalAttributes.length > 0 && (
           <div className="mt-1 flex flex-wrap gap-1">
-            {item.additionalAttributes.map((attr, index) => (
-              <span
-                key={`${attr.variable}-${index}`}
-                className={cx(
-                  'rounded p-2 text-xs',
-                  attr.value
-                    ? 'bg-success/10 text-success'
-                    : 'bg-destructive/20 text-destructive',
-                )}
-              >
-                {attr.variable}={String(attr.value)}
-              </span>
-            ))}
+            {item.additionalAttributes.map(
+              (attr: { variable: string; value: boolean }, index: number) => (
+                <span
+                  key={`${attr.variable}-${index}`}
+                  className={cx(
+                    'rounded p-2 text-xs',
+                    attr.value
+                      ? 'bg-success/10 text-success'
+                      : 'bg-destructive/20 text-destructive',
+                  )}
+                >
+                  {attr.variable}={String(attr.value)}
+                </span>
+              ),
+            )}
           </div>
         )}
       </motion.div>
@@ -148,8 +150,27 @@ function NameGeneratorPromptEditor({
 }: ArrayFieldEditorProps<NameGeneratorPrompt>) {
   const handleSubmit = (rawData: unknown) => {
     // rawData won't contain an 'id', so we need to make it optional in the schema
-    const PartialNameGeneratorPromptSchema = NameGeneratorPromptSchema.partial({
-      id: true,
+    const PartialNameGeneratorPromptSchema = z.object({
+      id: z.optional(z.uuid()),
+      text: z.custom<JSONContent>(
+        (val) => {
+          return (
+            typeof val === 'object' &&
+            val !== null &&
+            'type' in val &&
+            'content' in val
+          );
+        },
+        { message: 'Invalid Rich Text content' },
+      ),
+      additionalAttributes: z.optional(
+        z.array(
+          z.object({
+            variable: z.string(),
+            value: z.boolean(),
+          }),
+        ),
+      ),
     });
 
     const result = PartialNameGeneratorPromptSchema.safeParse(rawData);

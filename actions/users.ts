@@ -2,7 +2,7 @@
 
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
-import { createUserFormDataSchema } from '~/schemas/auth';
+import { createUserSchema } from '~/schemas/auth';
 import { changePasswordSchema, deleteUsersSchema } from '~/schemas/users';
 import { requireApiAuth } from '~/utils/auth';
 import { hashPassword, verifyPassword } from '~/utils/password';
@@ -11,7 +11,7 @@ import { addEvent } from './activityFeed';
 export async function createUser(data: unknown) {
   await requireApiAuth();
 
-  const parsedData = createUserFormDataSchema.safeParse(data);
+  const parsedData = createUserSchema.safeParse(data);
 
   if (!parsedData.success) {
     return {

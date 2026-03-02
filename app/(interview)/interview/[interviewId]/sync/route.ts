@@ -1,6 +1,7 @@
 import { NcNetworkSchema } from '@codaco/shared-consts';
 import { after, NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
+import { z as zm } from 'zod/mini';
 import { prisma } from '~/lib/db';
 import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
 import { captureException, shutdownPostHog } from '~/lib/posthog-server';
@@ -21,7 +22,7 @@ const routeHandler = async (
     id: z.string(),
     network: NcNetworkSchema,
     currentStep: z.number(),
-    stageMetadata: StageMetadataSchema.optional(),
+    stageMetadata: zm.optional(StageMetadataSchema),
     lastUpdated: z.string(),
   });
 

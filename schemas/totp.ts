@@ -1,3 +1,4 @@
+import 'server-only';
 import { z } from 'zod';
 
 export const verifyTotpSetupSchema = z.object({

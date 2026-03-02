@@ -6,9 +6,9 @@ import Paragraph from '~/components/typography/Paragraph';
 import { Label } from '~/components/ui/Label';
 import type { FieldValue } from '~/lib/form/components/Field/types';
 import { useField } from '~/lib/form/hooks/useField';
+import { csvDataSchema } from '~/schemas/participant';
 import { cx } from '~/utils/cva';
 import parseCSV from '~/utils/parseCSV';
-import * as z from 'zod/v4';
 
 const accept = {
   'text/csv': [],
@@ -17,27 +17,6 @@ const accept = {
 };
 const maxFiles = 1;
 const maxSize = 1024 * 5000; // 5MB
-
-// Zod schema for CSV validation
-const csvRowSchema = z.object({
-  label: z.string().optional(),
-  identifier: z.string().optional(),
-});
-
-const csvDataSchema = z
-  .array(csvRowSchema)
-  .refine(
-    (rows) =>
-      rows.every(
-        (row) =>
-          (row.label !== undefined && row.label !== '') ||
-          row.identifier !== undefined,
-      ),
-    {
-      message:
-        'Invalid CSV. Every row must have either a label or an identifier',
-    },
-  );
 
 export default function DropzoneField<T>({
   name = 'csvFile',

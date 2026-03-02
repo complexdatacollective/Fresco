@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Check, Loader2, X } from 'lucide-react';
 import { action } from 'storybook/actions';
-import { z } from 'zod';
+import { z } from 'zod/mini';
 import Field from '~/lib/form/components/Field/Field';
 import FieldGroup from '~/lib/form/components/FieldGroup';
 import Form from '~/lib/form/components/Form';
@@ -147,17 +147,17 @@ const checkUsernameAvailability = async (
  * Async validation schema that combines sync validation (min length)
  * with async validation (username availability check).
  */
-const usernameSchema = z
-  .string()
-  .min(3, 'Username must be at least 3 characters')
-  .refine(
+const usernameSchema = z.string().check(
+  z.minLength(3, 'Username must be at least 3 characters'),
+  z.refine(
     async (username) => {
       // Skip async validation for short usernames (sync validation will catch it)
       if (username.length < 3) return true;
       return await checkUsernameAvailability(username);
     },
     { message: 'This username is already taken. Try another one.' },
-  );
+  ),
+);
 
 export const WithValidation: Story = {
   render: () => (
@@ -458,7 +458,9 @@ export const MultiFieldCondition: Story = {
           label="Number of Publications"
           component={InputField}
           custom={{
-            schema: z.coerce.number().min(0, 'Must be a positive number'),
+            schema: z.coerce
+              .number()
+              .check(z.minimum(0, 'Must be a positive number')),
             hint: 'Enter a positive number',
           }}
         />

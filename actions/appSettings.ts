@@ -4,6 +4,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { redirect } from 'next/navigation';
 import { after } from 'next/server';
 import { type z } from 'zod';
+import { z as zm } from 'zod/mini';
 import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
@@ -11,6 +12,7 @@ import { getInstallationId } from '~/queries/appSettings';
 import {
   type AppSetting,
   appSettingPreprocessedSchema,
+  createUploadThingTokenFormSchema,
 } from '~/schemas/appSettings';
 import { requireApiAuth } from '~/utils/auth';
 import { ensureError } from '~/utils/ensureError';
@@ -52,6 +54,22 @@ export async function setAppSetting<
     const e = ensureError(error);
     throw new Error(`Failed to update appSettings: ${key}: ${e.message}`);
   }
+}
+
+export async function setUploadThingToken(rawData: unknown) {
+  await requireApiAuth();
+
+  const parsed = createUploadThingTokenFormSchema.safeParse(rawData);
+  if (!parsed.success) {
+    const flattened = zm.flattenError(parsed.error);
+    return {
+      success: false as const,
+      fieldErrors: flattened.fieldErrors,
+    };
+  }
+
+  await setAppSetting('uploadThingToken', parsed.data.uploadThingToken);
+  return { success: true as const };
 }
 
 export async function regenerateInstallationId() {

@@ -3,7 +3,7 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { Plus, Trash, User } from 'lucide-react';
 import { useCallback, useState } from 'react';
-import { z } from 'zod';
+import { z } from 'zod/mini';
 import { resetTotpForUser } from '~/actions/totp';
 import {
   changePassword,
@@ -44,27 +44,26 @@ type UserManagementProps = {
 
 const usernameSchema = z
   .string()
-  .min(4, 'Username must be at least 4 characters')
-  .refine((s) => !s.includes(' '), 'Username cannot contain spaces');
+  .check(z.minLength(4, 'Username must be at least 4 characters'))
+  .check(z.refine((s) => !s.includes(' '), 'Username cannot contain spaces'));
 
-const usernameUniqueSchema = z.string().refine(
-  async (username) => {
+const usernameUniqueSchema = z.string().check(
+  z.refine(async (username) => {
     if (!username || username.length < 4 || username.includes(' ')) {
       return true; // Let the basic validation handle these cases
     }
     const result = await checkUsernameAvailable(username);
     return result.available;
-  },
-  { message: 'Username is already taken' },
+  }, 'Username is already taken'),
 );
 
 const passwordSchema = z
   .string()
-  .min(8, 'Password must be at least 8 characters')
-  .regex(/[a-z]/, 'Password must contain at least 1 lowercase letter')
-  .regex(/[A-Z]/, 'Password must contain at least 1 uppercase letter')
-  .regex(/[0-9]/, 'Password must contain at least 1 number')
-  .regex(/[^a-zA-Z0-9]/, 'Password must contain at least 1 symbol');
+  .check(z.minLength(8, 'Password must be at least 8 characters'))
+  .check(z.regex(/[a-z]/, 'Password must contain at least 1 lowercase letter'))
+  .check(z.regex(/[A-Z]/, 'Password must contain at least 1 uppercase letter'))
+  .check(z.regex(/[0-9]/, 'Password must contain at least 1 number'))
+  .check(z.regex(/[^a-zA-Z0-9]/, 'Password must contain at least 1 symbol'));
 
 function makeUserColumns(
   currentUserId: string,
@@ -290,12 +289,7 @@ export default function UserManagement({
       };
     }
 
-    const formData = new FormData();
-    formData.append('username', username);
-    formData.append('password', password);
-    formData.append('confirmPassword', confirmPassword);
-
-    const result = await createUser(formData);
+    const result = await createUser({ username, password, confirmPassword });
 
     if (result.error) {
       return {

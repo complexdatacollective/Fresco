@@ -12,5 +12,11 @@ declare module 'zod' {
   }
 }
 
+declare module 'zod/mini' {
+  interface GlobalMeta {
+    hintText?: string;
+  }
+}
+
 // forces TypeScript to consider the file a module
 export {};

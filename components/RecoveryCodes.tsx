@@ -49,11 +49,12 @@ export default function RecoveryCodes({ codes }: RecoveryCodesProps) {
           codes to sign in.
         </AlertDescription>
       </Alert>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2" data-testid="recovery-codes-list">
         {codes.map((code) => (
           <code
             key={code}
             className="bg-input font-monospace rounded px-3 py-2 text-center text-sm"
+            data-testid="recovery-code"
           >
             {code}
           </code>

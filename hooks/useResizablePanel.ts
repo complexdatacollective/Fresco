@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { z } from 'zod';
+import { z } from 'zod/mini';
 import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
 
 type Breakpoint = {
@@ -19,7 +19,7 @@ type UseResizablePanelOptions = {
   keyboardStep?: number;
 };
 
-const basisSchema = z.number().min(0).max(100);
+const basisSchema = z.number().check(z.minimum(0)).check(z.maximum(100));
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);

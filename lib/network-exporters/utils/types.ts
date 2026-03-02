@@ -16,7 +16,7 @@ import type {
   sessionProperty,
   sessionStartTimeProperty,
 } from '@codaco/shared-consts';
-import { z } from 'zod';
+import { z } from 'zod/mini';
 
 type NodeWithEgo = NcNode & {
   [egoProperty]: string;

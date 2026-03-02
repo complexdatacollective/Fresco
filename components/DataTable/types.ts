@@ -1,4 +1,4 @@
-import * as z from 'zod';
+import { z } from 'zod/mini';
 
 export type Option = {
   label: string;

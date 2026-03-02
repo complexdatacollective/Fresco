@@ -1,5 +1,5 @@
 import { enableMapSet } from 'immer';
-import { z } from 'zod';
+import { z } from 'zod/mini';
 import { immer } from 'zustand/middleware/immer';
 import { createStore } from 'zustand/vanilla';
 import { type FieldValue } from '../components/Field/types';

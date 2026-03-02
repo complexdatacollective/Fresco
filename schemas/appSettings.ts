@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { zfd } from 'zod-form-data';
+import { z as zm } from 'zod/mini';
 
 const appSettingsSchema = z
   .object({
@@ -50,15 +50,16 @@ const parseUploadThingToken = (token: string) => {
   return token.replace(/^(UPLOADTHING_TOKEN=)?['"]?|['"]$/g, '').trim();
 };
 
-export const createUploadThingTokenSchema = z
-  .string()
-  .min(10, {
-    message: 'UPLOADTHING_TOKEN must have at least 10 characters.',
-  })
-  .transform((token) => parseUploadThingToken(token));
-
-export const createUploadThingTokenFormSchema = zfd.formData(
-  z.object({
-    uploadThingToken: createUploadThingTokenSchema,
-  }),
+// Client-side schema using zod/mini for smaller bundle
+export const createUploadThingTokenSchema = zm.pipe(
+  zm
+    .string()
+    .check(
+      zm.minLength(10, 'UPLOADTHING_TOKEN must have at least 10 characters.'),
+    ),
+  zm.transform((token: string) => parseUploadThingToken(token)),
 );
+
+export const createUploadThingTokenFormSchema = zm.object({
+  uploadThingToken: createUploadThingTokenSchema,
+});

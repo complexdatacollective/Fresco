@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { z } from 'zod';
+import { z } from 'zod/mini';
 import { createFormStore } from '../store/formStore';
 import { type FieldConfig, type FormConfig } from '../store/types';
 import { validateFieldValue } from '../validation/helpers';
@@ -72,7 +72,7 @@ describe('FormStore', () => {
       const fieldConfig: FieldConfig = {
         name: 'email',
         initialValue: 'test@example.com',
-        validation: z.string().min(1, 'Email is required'),
+        validation: z.string().check(z.minLength(1, 'Email is required')),
       };
 
       store.getState().registerField(fieldConfig);
@@ -94,7 +94,7 @@ describe('FormStore', () => {
     it('should register field with undefined initial value when not provided', () => {
       const fieldConfig: FieldConfig = {
         name: 'username',
-        validation: z.string().optional(),
+        validation: z.optional(z.string()),
       };
 
       store.getState().registerField(fieldConfig);
@@ -108,7 +108,7 @@ describe('FormStore', () => {
       const fieldConfig: FieldConfig = {
         name: 'email',
         initialValue: 'test@example.com',
-        validation: z.string().optional(),
+        validation: z.optional(z.string()),
       };
 
       store.getState().registerField(fieldConfig);
@@ -128,13 +128,13 @@ describe('FormStore', () => {
       const fieldConfig: FieldConfig = {
         name: 'email',
         initialValue: 'test@example.com',
-        validation: z.string().min(1, 'Email is required'),
+        validation: z.string().check(z.minLength(1, 'Email is required')),
       };
 
       store.getState().registerField(fieldConfig);
 
       // Set an error for the field
-      const mockError = new z.ZodError([
+      const mockError = new z.core.$ZodError([
         { code: 'custom', message: 'Invalid email', path: ['email'] },
       ]);
       mockValidateFieldValue.mockResolvedValue({
@@ -160,11 +160,11 @@ describe('FormStore', () => {
       // Register two fields with validation
       store.getState().registerField({
         name: 'field1',
-        validation: z.string().min(1),
+        validation: z.string().check(z.minLength(1)),
       });
       store.getState().registerField({
         name: 'field2',
-        validation: z.string().min(1),
+        validation: z.string().check(z.minLength(1)),
       });
 
       // Validate field1 successfully
@@ -190,7 +190,7 @@ describe('FormStore', () => {
       const fieldConfig: FieldConfig = {
         name: 'email',
         initialValue: '',
-        validation: z.string().optional(),
+        validation: z.optional(z.string()),
       };
       store.getState().registerField(fieldConfig);
     });
@@ -210,7 +210,7 @@ describe('FormStore', () => {
     });
 
     it('should set field error and update validity through validation', async () => {
-      const mockError = new z.ZodError([
+      const mockError = new z.core.$ZodError([
         { code: 'custom', message: 'Invalid email format', path: ['email'] },
       ]);
       mockValidateFieldValue.mockResolvedValue({
@@ -230,7 +230,7 @@ describe('FormStore', () => {
 
     it('should clear field error through successful validation', async () => {
       // First set an error
-      const mockError = new z.ZodError([
+      const mockError = new z.core.$ZodError([
         { code: 'custom', message: 'Invalid email', path: ['email'] },
       ]);
       mockValidateFieldValue.mockResolvedValueOnce({
@@ -273,10 +273,10 @@ describe('FormStore', () => {
       // Register multiple fields with validation
       store
         .getState()
-        .registerField({ name: 'field1', validation: z.string().optional() });
+        .registerField({ name: 'field1', validation: z.optional(z.string()) });
       store
         .getState()
-        .registerField({ name: 'field2', validation: z.string().optional() });
+        .registerField({ name: 'field2', validation: z.optional(z.string()) });
 
       // Fields with validation start as invalid until validated
       expect(store.getState().isValid).toBe(false);
@@ -299,7 +299,7 @@ describe('FormStore', () => {
       expect(store.getState().isValid).toBe(true);
 
       // Set field1 as invalid through validation
-      const mockError = new z.ZodError([
+      const mockError = new z.core.$ZodError([
         { code: 'custom', message: 'Error', path: ['field1'] },
       ]);
       mockValidateFieldValue.mockResolvedValueOnce({
@@ -327,10 +327,10 @@ describe('FormStore', () => {
     it('should update form dirty state based on any field being dirty', () => {
       store
         .getState()
-        .registerField({ name: 'field1', validation: z.string().optional() });
+        .registerField({ name: 'field1', validation: z.optional(z.string()) });
       store
         .getState()
-        .registerField({ name: 'field2', validation: z.string().optional() });
+        .registerField({ name: 'field2', validation: z.optional(z.string()) });
 
       expect(store.getState().isDirty).toBe(false);
 
@@ -347,10 +347,10 @@ describe('FormStore', () => {
     it('should update form validating state based on any field validating', () => {
       store
         .getState()
-        .registerField({ name: 'field1', validation: z.string().optional() });
+        .registerField({ name: 'field1', validation: z.optional(z.string()) });
       store
         .getState()
-        .registerField({ name: 'field2', validation: z.string().optional() });
+        .registerField({ name: 'field2', validation: z.optional(z.string()) });
 
       expect(store.getState().isValidating).toBe(false);
     });
@@ -361,17 +361,17 @@ describe('FormStore', () => {
       store.getState().registerField({
         name: 'user.name',
         initialValue: 'John',
-        validation: z.string().optional(),
+        validation: z.optional(z.string()),
       });
       store.getState().registerField({
         name: 'user.email',
         initialValue: 'john@example.com',
-        validation: z.string().optional(),
+        validation: z.optional(z.string()),
       });
       store.getState().registerField({
         name: 'preferences.theme',
         initialValue: 'dark',
-        validation: z.string().optional(),
+        validation: z.optional(z.string()),
       });
     });
 
@@ -390,10 +390,10 @@ describe('FormStore', () => {
     });
 
     it('should get form errors with nested structure', async () => {
-      const mockError1 = new z.ZodError([
+      const mockError1 = new z.core.$ZodError([
         { code: 'custom', message: 'Name required', path: ['user', 'name'] },
       ]);
-      const mockError2 = new z.ZodError([
+      const mockError2 = new z.core.$ZodError([
         { code: 'custom', message: 'Invalid email', path: ['user', 'email'] },
       ]);
 
@@ -427,7 +427,7 @@ describe('FormStore', () => {
       store.getState().registerField({
         name: 'email',
         initialValue: 'test@example.com',
-        validation: z.string().min(1, 'Email is required'),
+        validation: z.string().check(z.minLength(1, 'Email is required')),
       });
     });
 
@@ -449,7 +449,7 @@ describe('FormStore', () => {
     });
 
     it('should handle field validation errors', async () => {
-      const mockError = new z.ZodError([
+      const mockError = new z.core.$ZodError([
         {
           code: 'custom',
           message: 'Email is required',
@@ -513,12 +513,14 @@ describe('FormStore', () => {
       store.getState().registerField({
         name: 'field1',
         initialValue: 'value1',
-        validation: z.string().min(1, 'Email is required'),
+        validation: z.string().check(z.minLength(1, 'Email is required')),
       });
       store.getState().registerField({
         name: 'field2',
         initialValue: 'value2',
-        validation: z.string().min(5, 'Field must be at least 5 characters'),
+        validation: z
+          .string()
+          .check(z.minLength(5, 'Field must be at least 5 characters')),
       });
     });
 
@@ -537,7 +539,7 @@ describe('FormStore', () => {
     });
 
     it('should handle validation failures', async () => {
-      const mockError = new z.ZodError([
+      const mockError = new z.core.$ZodError([
         {
           code: 'custom',
           message: 'Field1 is required',
@@ -597,7 +599,7 @@ describe('FormStore', () => {
       });
 
       // Validate with field errors
-      const mockError = new z.ZodError([
+      const mockError = new z.core.$ZodError([
         { code: 'custom', message: 'Field error', path: ['field1'] },
       ]);
       mockValidateFieldValue
@@ -621,7 +623,7 @@ describe('FormStore', () => {
       });
 
       // Validate field1 with an error
-      const mockError = new z.ZodError([
+      const mockError = new z.core.$ZodError([
         { code: 'custom', message: 'Field1 error', path: ['field1'] },
       ]);
       mockValidateFieldValue.mockResolvedValue({
@@ -706,7 +708,7 @@ describe('FormStore', () => {
         store.getState().registerField({
           name: 'email',
           initialValue: 'test@example.com',
-          validation: z.string().email(),
+          validation: z.email(),
         });
       });
 
@@ -747,7 +749,7 @@ describe('FormStore', () => {
         store.getState().registerForm(formConfig);
 
         // Mock validation to return failure
-        const mockError = new z.ZodError([
+        const mockError = new z.core.$ZodError([
           { code: 'custom', message: 'Invalid email', path: ['email'] },
         ]);
         mockValidateFieldValue.mockResolvedValue({
@@ -765,7 +767,7 @@ describe('FormStore', () => {
       it('should handle submission errors', async () => {
         const mockOnSubmit = vi.fn().mockResolvedValue({
           success: false,
-          errors: new z.ZodError([
+          errors: new z.core.$ZodError([
             { code: 'custom', message: 'Server error', path: [] },
           ]),
         });
@@ -864,12 +866,12 @@ describe('FormStore', () => {
       store.getState().registerField({
         name: 'email',
         initialValue: 'initial@example.com',
-        validation: z.string().min(1, 'Email is required'),
+        validation: z.string().check(z.minLength(1, 'Email is required')),
       });
       store.getState().registerField({
         name: 'name',
         initialValue: 'Initial Name',
-        validation: z.string().optional(),
+        validation: z.optional(z.string()),
       });
     });
 
@@ -878,7 +880,7 @@ describe('FormStore', () => {
       store.getState().setFieldValue('email', 'changed@example.com');
 
       // Set an error through validation
-      const mockError = new z.ZodError([
+      const mockError = new z.core.$ZodError([
         { code: 'custom', message: 'Some error', path: ['email'] },
       ]);
       mockValidateFieldValue.mockResolvedValue({
@@ -913,7 +915,7 @@ describe('FormStore', () => {
       store.getState().setFieldValue('email', 'changed@example.com');
 
       // Set an error through validation
-      const mockError = new z.ZodError([
+      const mockError = new z.core.$ZodError([
         { code: 'custom', message: 'Some error', path: ['email'] },
       ]);
       mockValidateFieldValue.mockResolvedValue({
@@ -947,7 +949,10 @@ describe('FormStore', () => {
       // Modify some state
       store
         .getState()
-        .registerField({ name: 'newField', validation: z.string().optional() });
+        .registerField({
+          name: 'newField',
+          validation: z.optional(z.string()),
+        });
       store.getState().setSubmitting(true);
 
       const initialState = store.getInitialState();
@@ -976,7 +981,7 @@ describe('FormStore', () => {
       const fieldConfig: FieldConfig = {
         name: 'test',
         initialValue: 'initial',
-        validation: z.string().optional(),
+        validation: z.optional(z.string()),
       };
 
       store.getState().registerField(fieldConfig);
@@ -992,7 +997,7 @@ describe('FormStore', () => {
       store.getState().registerField({
         name: 'test',
         initialValue: 'initial',
-        validation: z.string().optional(),
+        validation: z.optional(z.string()),
       });
 
       // Simulate concurrent updates
@@ -1000,7 +1005,7 @@ describe('FormStore', () => {
       store.getState().setFieldTouched('test', true);
 
       // Set validation error
-      const mockError = new z.ZodError([
+      const mockError = new z.core.$ZodError([
         { code: 'custom', message: 'validation error', path: [] },
       ]);
       mockValidateFieldValue.mockResolvedValue({
