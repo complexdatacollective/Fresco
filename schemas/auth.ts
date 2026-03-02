@@ -1,6 +1,6 @@
-import { isStrongPassword } from 'validator';
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
+import { isStrongPassword } from '~/utils/isStrongPassword';
 
 export const createUserSchema = z
   .object({
@@ -11,19 +11,10 @@ export const createUserSchema = z
       .prefault(''),
     password: z
       .string()
-      .refine(
-        (password) =>
-          isStrongPassword(password, {
-            minLowercase: 1,
-            minUppercase: 1,
-            minNumbers: 1,
-            minSymbols: 1,
-          }),
-        {
-          error:
-            'Password must contain at least 1 lowercase, 1 uppercase, 1 number, and 1 symbol',
-        },
-      )
+      .refine(isStrongPassword, {
+        error:
+          'Password must contain at least 1 lowercase, 1 uppercase, 1 number, and 1 symbol',
+      })
       .prefault(''),
     confirmPassword: z.string().min(1).prefault(''),
   })

@@ -1,5 +1,5 @@
-import { isStrongPassword } from 'validator';
 import { z } from 'zod';
+import { isStrongPassword } from '~/utils/isStrongPassword';
 
 export const deleteUsersSchema = z.object({
   ids: z
@@ -15,19 +15,10 @@ export const changePasswordSchema = z
       .prefault(''),
     newPassword: z
       .string()
-      .refine(
-        (password) =>
-          isStrongPassword(password, {
-            minLowercase: 1,
-            minUppercase: 1,
-            minNumbers: 1,
-            minSymbols: 1,
-          }),
-        {
-          error:
-            'Password must contain at least 1 lowercase, 1 uppercase, 1 number, and 1 symbol',
-        },
-      )
+      .refine(isStrongPassword, {
+        error:
+          'Password must contain at least 1 lowercase, 1 uppercase, 1 number, and 1 symbol',
+      })
       .prefault(''),
     confirmNewPassword: z.string().min(1).prefault(''),
   })

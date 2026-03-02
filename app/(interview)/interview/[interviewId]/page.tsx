@@ -1,3 +1,4 @@
+import dynamic from 'next/dynamic';
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 import { connection } from 'next/server';
@@ -10,7 +11,17 @@ import {
   type GetInterviewByIdQuery,
 } from '~/queries/interviews';
 import { getServerSession } from '~/utils/auth';
-import InterviewShell from '~/lib/interviewer/InterviewShell';
+
+const InterviewShell = dynamic(
+  () => import('~/lib/interviewer/InterviewShell'),
+  {
+    loading: () => (
+      <main className="flex h-screen items-center justify-center">
+        <Spinner size="lg" />
+      </main>
+    ),
+  },
+);
 
 export default function Page(props: {
   params: Promise<{ interviewId: string }>;

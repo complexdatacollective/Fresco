@@ -1,5 +1,15 @@
 /* eslint-disable no-console */
-import * as d3 from 'd3';
+import {
+  forceCollide,
+  forceLink,
+  forceManyBody,
+  forceSimulation,
+  forceX,
+  forceY,
+  type Simulation,
+  type SimulationLinkDatum,
+  type SimulationNodeDatum,
+} from 'd3-force';
 
 const DEFAULT_OPTIONS = {
   alphaDecay: 1 - Math.pow(0.001, 1 / 300),
@@ -12,14 +22,14 @@ const DEFAULT_OPTIONS = {
 
 type ForceSimulationOptions = typeof DEFAULT_OPTIONS;
 
-type SimNode = d3.SimulationNodeDatum & { nodeId?: string };
+type SimNode = SimulationNodeDatum & { nodeId?: string };
 
-let simulation: d3.Simulation<SimNode, undefined>;
-let links: d3.SimulationLinkDatum<SimNode>[];
+let simulation: Simulation<SimNode, undefined>;
+let links: SimulationLinkDatum<SimNode>[];
 let options = { ...DEFAULT_OPTIONS };
 let running = false;
 
-const cloneLinks = (ls: d3.SimulationLinkDatum<SimNode>[]) =>
+const cloneLinks = (ls: SimulationLinkDatum<SimNode>[]) =>
   ls.map((link) => ({ ...link }));
 
 const updateOptions = (newOptions: Partial<ForceSimulationOptions>) => {
@@ -32,20 +42,17 @@ const updateOptions = (newOptions: Partial<ForceSimulationOptions>) => {
         simulation.velocityDecay(value);
         break;
       case 'charge':
-        simulation.force('charge', d3.forceManyBody().strength(value));
+        simulation.force('charge', forceManyBody().strength(value));
         break;
       case 'center':
-        simulation.force('x', d3.forceX().strength(value));
-        simulation.force('y', d3.forceY().strength(value));
+        simulation.force('x', forceX().strength(value));
+        simulation.force('y', forceY().strength(value));
         break;
       case 'linkDistance':
-        simulation.force(
-          'links',
-          d3.forceLink(cloneLinks(links)).distance(value),
-        );
+        simulation.force('links', forceLink(cloneLinks(links)).distance(value));
         break;
       case 'collideRadius':
-        simulation.force('collide', d3.forceCollide().radius(value));
+        simulation.force('collide', forceCollide().radius(value));
         break;
       default:
     }
@@ -59,7 +66,7 @@ type InitializeMessage = {
   type: 'initialize';
   network: {
     nodes: SimNode[];
-    links: d3.SimulationLinkDatum<SimNode>[];
+    links: SimulationLinkDatum<SimNode>[];
   };
   options?: ForceSimulationOptions;
 };
@@ -77,14 +84,14 @@ type UpdateNetworkMessage = {
   type: 'update_network';
   network: {
     nodes: SimNode[];
-    links: d3.SimulationLinkDatum<SimNode>[];
+    links: SimulationLinkDatum<SimNode>[];
   };
   restart: boolean;
 };
 
 type UpdateLinksMessage = {
   type: 'update_links';
-  links: d3.SimulationLinkDatum<SimNode>[];
+  links: SimulationLinkDatum<SimNode>[];
 };
 
 type UpdateNodeMessage = {
@@ -116,7 +123,7 @@ onmessage = ({ data }: { data: Message }) => {
         ...data.options,
       };
 
-      simulation = d3.forceSimulation(network.nodes);
+      simulation = forceSimulation(network.nodes);
       updateOptions(initialOptions);
 
       simulation.alpha(0).stop();
@@ -171,7 +178,7 @@ onmessage = ({ data }: { data: Message }) => {
       simulation.nodes(network.nodes);
       simulation.force(
         'links',
-        d3.forceLink(cloneLinks(links)).distance(options.linkDistance),
+        forceLink(cloneLinks(links)).distance(options.linkDistance),
       );
 
       if (data.restart) {
@@ -185,7 +192,7 @@ onmessage = ({ data }: { data: Message }) => {
       links = data.links;
       simulation.force(
         'links',
-        d3.forceLink(cloneLinks(links)).distance(options.linkDistance),
+        forceLink(cloneLinks(links)).distance(options.linkDistance),
       );
 
       simulation.alpha(0.3).restart();
@@ -207,7 +214,7 @@ onmessage = ({ data }: { data: Message }) => {
       simulation.nodes(nodes);
       simulation.force(
         'links',
-        d3.forceLink(cloneLinks(links)).distance(options.linkDistance),
+        forceLink(cloneLinks(links)).distance(options.linkDistance),
       );
 
       if (running) {

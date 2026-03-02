@@ -44,6 +44,23 @@ const config: NextConfig = {
   typedRoutes: true,
   turbopack: {},
   transpilePackages: ['@codaco/shared-consts'],
+  experimental: {
+    optimizePackageImports: [
+      'lucide-react',
+      'es-toolkit',
+      '@tiptap/core',
+      '@tiptap/react',
+      '@tiptap/starter-kit',
+      'react-aria-components',
+    ],
+  },
+  serverExternalPackages: [
+    'posthog-node',
+    'archiver',
+    '@xmldom/xmldom',
+    'csvtojson',
+    'sharp',
+  ],
   env: {
     // add the package.json version and git hash to the environment
     APP_VERSION: `v${pkg.version}`,
