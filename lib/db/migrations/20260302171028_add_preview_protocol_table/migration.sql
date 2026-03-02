@@ -12,7 +12,7 @@ DELETE FROM "Protocol" WHERE "isPreview" = true;
 -- Clean up orphaned assets (those no longer linked to any Protocol)
 DELETE FROM "Asset" a
 WHERE NOT EXISTS (
-  SELECT 1 FROM "_ProtocolAssets" pa WHERE pa."A" = a."key"
+  SELECT 1 FROM "_AssetToProtocol" pa WHERE pa."A" = a."key"
 );
 
 -- DropIndex
