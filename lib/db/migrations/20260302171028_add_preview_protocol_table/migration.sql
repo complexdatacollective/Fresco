@@ -9,6 +9,12 @@
 -- Preview protocols are temporary and should not persist across this migration
 DELETE FROM "Protocol" WHERE "isPreview" = true;
 
+-- Clean up orphaned assets (those no longer linked to any Protocol)
+DELETE FROM "Asset" a
+WHERE NOT EXISTS (
+  SELECT 1 FROM "_ProtocolAssets" pa WHERE pa."A" = a."key"
+);
+
 -- DropIndex
 DROP INDEX "Protocol_isPreview_importedAt_idx";
 
