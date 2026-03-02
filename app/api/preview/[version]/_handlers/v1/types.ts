@@ -37,7 +37,7 @@ export type PreviewRequest =
 
 // RESPONSE TYPES
 
-export type PresignedUrlWithAssetId = {
+type PresignedUrlWithAssetId = {
   assetId: string;
   url: string;
 };
