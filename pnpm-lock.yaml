@@ -165,8 +165,8 @@ importers:
         specifier: ^1.356.1
         version: 1.356.1
       posthog-node:
-        specifier: ^5.26.0
-        version: 5.26.0
+        specifier: ^5.26.1
+        version: 5.26.1
       prop-types:
         specifier: ^15.8.1
         version: 15.8.1
@@ -5934,8 +5934,8 @@ packages:
   posthog-js@1.356.1:
     resolution: {integrity: sha512-4EQliSyTp3j/xOaWpZmu7fk1b4S+J3qy4JOu5Xy3/MYFxv1SlAylgifRdCbXZxCQWb6PViaNvwRf4EmburgfWA==}
 
-  posthog-node@5.26.0:
-    resolution: {integrity: sha512-DK1XF/RiunhvT57cFyPxW9OaliZzl5aREHFwY/AISL3MVOaDUb4wIccMn0G3ws3Ounen8iGH7xvzZQ0x2vEOEQ==}
+  posthog-node@5.26.1:
+    resolution: {integrity: sha512-UndYpR54PN0N8hFdRoUz2hQwg/iGZEtNnwL+RI1l0/76lIffnGYDSt2YyoCwmlN206q4angGvVze3oPCfJgiYA==}
     engines: {node: ^20.20.0 || >=22.22.0}
 
   potpack@2.1.0:
@@ -13679,7 +13679,7 @@ snapshots:
       query-selector-shadow-dom: 1.0.1
       web-vitals: 5.1.0
 
-  posthog-node@5.26.0:
+  posthog-node@5.26.1:
     dependencies:
       '@posthog/core': 1.23.1
 
