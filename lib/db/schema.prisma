@@ -52,21 +52,35 @@ model Protocol {
   assets        Asset[]
   interviews    Interview[]
   experiments   Json?
-  isPreview     Boolean     @default(false)
-  isPending     Boolean     @default(false)
+}
 
-  @@index([isPreview, importedAt])
+model PreviewProtocol {
+  id            String   @id @default(cuid())
+  hash          String   @unique
+  name          String
+  schemaVersion Int
+  description   String?
+  importedAt    DateTime @default(now())
+  lastModified  DateTime
+  stages        Json
+  codebook      Json
+  assets        Asset[]  @relation("PreviewProtocolAssets")
+  experiments   Json?
+  isPending     Boolean  @default(false)
+
+  @@index([importedAt])
 }
 
 model Asset {
-  key       String     @id
-  assetId   String     @unique
-  name      String
-  type      String
-  url       String
-  size      Int
-  protocols Protocol[]
-  value     String?
+  key              String            @id
+  assetId          String            @unique
+  name             String
+  type             String
+  url              String
+  size             Int
+  protocols        Protocol[]
+  previewProtocols PreviewProtocol[] @relation("PreviewProtocolAssets")
+  value            String?
 
   @@index(fields: [assetId, key])
 }
@@ -123,12 +137,12 @@ model Events {
 }
 
 model ApiToken {
-  id          String   @id @default(cuid())
-  token       String   @unique
+  id          String    @id @default(cuid())
+  token       String    @unique
   description String?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
   lastUsedAt  DateTime?
-  isActive    Boolean  @default(true)
+  isActive    Boolean   @default(true)
 }
 
 model LoginAttempt {

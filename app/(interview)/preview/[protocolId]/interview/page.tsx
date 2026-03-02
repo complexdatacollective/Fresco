@@ -52,15 +52,13 @@ async function PreviewContent({
     notFound();
   }
 
-  if (!protocol.isPreview) {
-    notFound();
-  }
-
+  // Don't allow pending protocols (still uploading assets)
   if (protocol.isPending) {
     notFound();
   }
 
-  await prisma.protocol.update({
+  // Update timestamp to prevent premature pruning
+  await prisma.previewProtocol.update({
     where: { id: protocolId },
     data: { importedAt: new Date() },
   });

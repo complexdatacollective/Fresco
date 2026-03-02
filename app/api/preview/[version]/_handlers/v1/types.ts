@@ -37,10 +37,15 @@ export type PreviewRequest =
 
 // RESPONSE TYPES
 
+type PresignedUrlWithAssetId = {
+  assetId: string;
+  url: string;
+};
+
 type JobCreatedResponse = {
   status: 'job-created';
   protocolId: string;
-  presignedUrls: string[];
+  presignedUrls: PresignedUrlWithAssetId[];
 };
 
 // No assets to upload

@@ -14,8 +14,6 @@ const AssetMetaProvider = ({
   const asset = codebookAssets[assetId];
 
   if (!codebookAssets || !asset) {
-    // eslint-disable-next-line no-console
-    console.log('error loading asset!', assetId);
     return null;
   }
 

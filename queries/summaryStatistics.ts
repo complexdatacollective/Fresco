@@ -15,9 +15,7 @@ export async function getSummaryStatistics() {
 
   const [interviewCount, protocolCount, participantCount] = await Promise.all([
     prisma.interview.count(),
-    prisma.protocol.count({
-      where: { isPreview: false },
-    }),
+    prisma.protocol.count(),
     prisma.participant.count(),
   ]);
 

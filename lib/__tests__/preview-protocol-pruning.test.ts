@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock Prisma
 const mockPrisma = {
-  protocol: {
+  previewProtocol: {
     findMany: vi.fn(),
     deleteMany: vi.fn(),
   },
@@ -46,15 +46,15 @@ describe('prunePreviewProtocols', () => {
       name: 'Old Protocol',
     };
 
-    mockPrisma.protocol.findMany.mockResolvedValue([oldProtocol]);
+    mockPrisma.previewProtocol.findMany.mockResolvedValue([oldProtocol]);
     mockPrisma.asset.findMany.mockResolvedValue([]);
-    mockPrisma.protocol.deleteMany.mockResolvedValue({ count: 1 });
+    mockPrisma.previewProtocol.deleteMany.mockResolvedValue({ count: 1 });
 
     const result = await prunePreviewProtocols();
 
     expect(result.deletedCount).toBe(1);
     expect(result.error).toBeUndefined();
-    expect(mockPrisma.protocol.deleteMany).toHaveBeenCalledWith({
+    expect(mockPrisma.previewProtocol.deleteMany).toHaveBeenCalledWith({
       where: {
         id: {
           in: ['old-protocol'],
@@ -67,12 +67,12 @@ describe('prunePreviewProtocols', () => {
     const { prunePreviewProtocols } =
       await import('../../actions/preview-protocol-pruning');
 
-    mockPrisma.protocol.findMany.mockResolvedValue([]);
+    mockPrisma.previewProtocol.findMany.mockResolvedValue([]);
 
     const result = await prunePreviewProtocols();
 
     expect(result.deletedCount).toBe(0);
-    expect(mockPrisma.protocol.deleteMany).not.toHaveBeenCalled();
+    expect(mockPrisma.previewProtocol.deleteMany).not.toHaveBeenCalled();
   });
 
   it('should delete associated assets from UploadThing', async () => {
@@ -88,10 +88,10 @@ describe('prunePreviewProtocols', () => {
     const assets = [{ key: 'ut-key-1' }, { key: 'ut-key-2' }];
 
     mockDeleteFiles.mockResolvedValue({ success: true });
-    mockPrisma.protocol.findMany.mockResolvedValue([oldProtocol]);
+    mockPrisma.previewProtocol.findMany.mockResolvedValue([oldProtocol]);
     mockPrisma.asset.findMany.mockResolvedValue(assets);
     mockPrisma.asset.deleteMany.mockResolvedValue({ count: 2 });
-    mockPrisma.protocol.deleteMany.mockResolvedValue({ count: 1 });
+    mockPrisma.previewProtocol.deleteMany.mockResolvedValue({ count: 1 });
 
     const result = await prunePreviewProtocols();
 
@@ -103,7 +103,7 @@ describe('prunePreviewProtocols', () => {
     const { prunePreviewProtocols } =
       await import('../../actions/preview-protocol-pruning');
 
-    mockPrisma.protocol.findMany.mockRejectedValue(new Error('Database error'));
+    mockPrisma.previewProtocol.findMany.mockRejectedValue(new Error('Database error'));
 
     const result = await prunePreviewProtocols();
 
@@ -115,28 +115,28 @@ describe('prunePreviewProtocols', () => {
     const { prunePreviewProtocols } =
       await import('../../actions/preview-protocol-pruning');
 
-    mockPrisma.protocol.findMany.mockResolvedValue([]);
+    mockPrisma.previewProtocol.findMany.mockResolvedValue([]);
 
     await prunePreviewProtocols();
 
     // Verify that findMany was called with the correct query structure
-    expect(mockPrisma.protocol.findMany).toHaveBeenCalled();
+    expect(mockPrisma.previewProtocol.findMany).toHaveBeenCalled();
 
-    const mockCalls = mockPrisma.protocol.findMany.mock.calls;
+    const mockCalls = mockPrisma.previewProtocol.findMany.mock.calls;
     expect(mockCalls.length).toBeGreaterThan(0);
 
-    // Check that the query includes isPreview: true
+    // Check that the query includes the OR clause for pending/completed
     const firstCall = mockCalls[0];
     expect(firstCall).toBeDefined();
     if (firstCall) {
       type QueryArgs = {
         where?: {
-          isPreview?: boolean;
           OR?: { isPending?: boolean; importedAt?: { lt?: Date } }[];
         };
       };
       const args = firstCall[0] as QueryArgs;
-      expect(args.where?.isPreview).toBe(true);
+      expect(args.where?.OR).toBeDefined();
+      expect(args.where?.OR?.length).toBe(2);
     }
   });
 });

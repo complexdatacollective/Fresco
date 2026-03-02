@@ -145,8 +145,6 @@ export class TestDataBuilder {
         lastModified: new Date(),
         stages,
         codebook,
-        isPreview: false,
-        isPending: false,
       },
     });
 
