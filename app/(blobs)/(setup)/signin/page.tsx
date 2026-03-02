@@ -1,7 +1,6 @@
-import { Loader2 } from 'lucide-react';
 import { type Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { Suspense } from 'react';
+import { connection } from 'next/server';
 import { containerClasses } from '~/components/ContainerClasses';
 import { MotionSurface } from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
@@ -15,7 +14,10 @@ export const metadata: Metadata = {
   description: 'Sign in to Fresco.',
 };
 
-export default function Page() {
+export default async function Page() {
+  await connection();
+  const session = await getServerSession();
+  if (session) redirect('/dashboard');
   return (
     <MotionSurface
       noContainer
@@ -25,22 +27,7 @@ export default function Page() {
     >
       <Heading level="h2">Sign In To Fresco</Heading>
       <SandboxCredentials />
-      <Suspense
-        fallback={
-          <div className="flex justify-center py-4">
-            <Loader2 className="size-6 animate-spin" />
-          </div>
-        }
-      >
-        <SignInGate />
-      </Suspense>
       <SignInForm />
     </MotionSurface>
   );
-}
-
-async function SignInGate() {
-  const session = await getServerSession();
-  if (session) redirect('/dashboard');
-  return null;
 }

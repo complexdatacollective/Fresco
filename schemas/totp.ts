@@ -17,7 +17,9 @@ export const verifyTwoFactorSchema = z.object({
 export const disableTotpSchema = z.object({
   code: z
     .string()
-    .length(6, { error: 'Code must be exactly 6 digits' })
-    .regex(/^\d{6}$/, { error: 'Code must be exactly 6 digits' })
+    .min(1, { error: 'Code is required' })
+    .refine((val) => /^\d{6}$/.test(val) || /^[0-9a-f]{20}$/.test(val), {
+      error: 'Must be a 6-digit code or a recovery code',
+    })
     .prefault(''),
 });

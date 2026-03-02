@@ -4,6 +4,7 @@ import { cacheTag, revalidateTag, updateTag } from 'next/cache';
 export const CacheTags = [
   'activityFeed',
   'appSettings',
+  'totpIsEnabled',
   'getInterviews',
   'summaryStatistics',
   'getParticipants',

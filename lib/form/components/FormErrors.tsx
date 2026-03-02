@@ -12,7 +12,7 @@ export default function FormErrors({ errors, className }: FormErrorsProps) {
   return (
     <div
       className={cx(
-        'border-destructive/20 bg-destructive/5 rounded border p-4',
+        'border-destructive/20 bg-destructive/5 rounded border p-4 not-last:mb-6',
         className,
       )}
     >
@@ -20,7 +20,7 @@ export default function FormErrors({ errors, className }: FormErrorsProps) {
         <AlertCircle className="text-destructive size-5 shrink-0" />
         <div className="space-y-1">
           {errors.map((error, index) => (
-            <p key={index} className="text-destructive text-sm">
+            <p key={index} className="text-destructive text-sm" role="alert">
               {error}
             </p>
           ))}

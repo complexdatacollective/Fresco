@@ -30,16 +30,11 @@ export default function TwoFactorVerify({
     }
 
     const result = await verifyCurrentUserTotp(code);
-    if (result.error) {
-      return { success: false, formErrors: [result.error] };
+    if (!result.success) {
+      return result;
     }
 
-    try {
-      await onVerify(code);
-    } catch (e) {
-      const message = e instanceof Error ? e.message : 'Action failed';
-      return { success: false, formErrors: [message] };
-    }
+    void onVerify(code);
 
     return { success: true };
   };

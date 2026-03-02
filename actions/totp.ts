@@ -10,6 +10,7 @@ import {
   hashRecoveryCode,
   verifyTotpCode,
 } from '~/lib/totp';
+import { type FormSubmissionResult } from '~/lib/form/store/types';
 import { disableTotpSchema, verifyTotpSetupSchema } from '~/schemas/totp';
 import { requireApiAuth } from '~/utils/auth';
 import { getBaseUrl } from '~/utils/getBaseUrl';
@@ -98,7 +99,9 @@ export async function verifyTotpSetup(data: unknown) {
 const TOTP_CODE_PATTERN = /^\d{6}$/;
 const RECOVERY_CODE_PATTERN = /^[0-9a-f]{20}$/;
 
-export async function verifyCurrentUserTotp(code: string) {
+export async function verifyCurrentUserTotp(
+  code: string,
+): Promise<FormSubmissionResult> {
   const session = await requireApiAuth();
 
   const credential = await prisma.totpCredential.findUnique({
@@ -106,14 +109,17 @@ export async function verifyCurrentUserTotp(code: string) {
   });
 
   if (!credential?.verified) {
-    return { error: 'Two-factor authentication is not enabled' };
+    return {
+      success: false,
+      formErrors: ['Two-factor authentication is not enabled'],
+    };
   }
 
   if (TOTP_CODE_PATTERN.test(code)) {
     if (!verifyTotpCode(credential.secret, code)) {
-      return { error: 'Invalid verification code' };
+      return { success: false, formErrors: ['Invalid verification code'] };
     }
-    return { error: null };
+    return { success: true };
   }
 
   if (RECOVERY_CODE_PATTERN.test(code)) {
@@ -128,12 +134,12 @@ export async function verifyCurrentUserTotp(code: string) {
     });
 
     if (!found) {
-      return { error: 'Invalid recovery code' };
+      return { success: false, formErrors: ['Invalid recovery code'] };
     }
-    return { error: null };
+    return { success: true };
   }
 
-  return { error: 'Invalid code format' };
+  return { success: false, formErrors: ['Invalid code format'] };
 }
 
 export async function disableTotp(data: unknown) {
