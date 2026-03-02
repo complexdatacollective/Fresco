@@ -68,6 +68,31 @@ jobs:
           autoAcceptChanges: main
           onlyChanged: true
 
+      - name: Post links to PR
+        if: github.event_name == 'issue_comment'
+        uses: actions/github-script@v7
+        env:
+          BRANCH: ${{ steps.pr.outputs.ref }}
+        with:
+          script: |
+            const branch = process.env.BRANCH;
+            const encodedBranch = encodeURIComponent(branch);
+            const body = [
+              '### Chromatic',
+              '',
+              `| | |`,
+              `|---|---|`,
+              `| **Storybook** | [View on Chromatic](https://${encodedBranch}--68b1958ee9350657446b5406.chromatic.com) |`,
+              `| **Library** | [View on Chromatic](https://www.chromatic.com/library?appId=68b1958ee9350657446b5406&branch=${encodedBranch}) |`,
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
+
       - name: Update commit status
         if: github.event_name == 'issue_comment' && always()
         uses: actions/github-script@v7
