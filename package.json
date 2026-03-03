@@ -62,6 +62,8 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-switch": "^1.2.6",
     "@reduxjs/toolkit": "^2.11.0",
+    "@simplewebauthn/browser": "^13.2.2",
+    "@simplewebauthn/server": "^13.2.3",
     "@tanstack/react-table": "^8.21.3",
     "@tiptap/core": "^3.20.0",
     "@tiptap/extension-bullet-list": "^3.20.0",

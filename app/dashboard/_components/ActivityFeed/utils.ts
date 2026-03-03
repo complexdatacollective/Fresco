@@ -46,5 +46,19 @@ export const getBadgeColorsForActivityType = (type: ActivityType) => {
       return 'bg-purple-pizazz hover:bg-purple-pizazz-dark';
     case 'Recovery Codes Regenerated':
       return 'bg-cerulean-blue hover:bg-cerulean-blue-dark';
+    case 'Passkey Registered':
+      return 'bg-sea-green hover:bg-sea-green-dark';
+    case 'Passkey Removed':
+      return 'bg-neon-carrot hover:bg-neon-carrot-dark';
+    case 'Passkey Login':
+      return 'bg-neon-coral hover:bg-neon-coral-dark';
+    case 'Password Removed':
+      return 'bg-mustard hover:bg-mustard-dark';
+    case 'Password Set':
+      return 'bg-sea-green hover:bg-sea-green-dark';
+    case 'Auth Reset':
+      return 'bg-tomato hover:bg-tomato-dark';
+    case 'Recovery Code Login':
+      return 'bg-purple-pizazz hover:bg-purple-pizazz-dark';
   }
 };

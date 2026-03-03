@@ -16,6 +16,9 @@ export async function getUsers() {
       totpCredential: {
         select: { verified: true },
       },
+      webAuthnCredentials: {
+        select: { id: true },
+      },
     },
     orderBy: {
       username: 'asc',

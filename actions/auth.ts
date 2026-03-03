@@ -9,7 +9,7 @@ import { prisma } from '~/lib/db';
 import { type FormSubmissionResult } from '~/lib/form/store/types';
 import { checkRateLimit, recordLoginAttempt } from '~/lib/rateLimit';
 import { createSessionCookie } from '~/lib/session';
-import { createTwoFactorToken } from '~/lib/totp';
+import { createTwoFactorToken, hashRecoveryCode } from '~/lib/totp';
 import { getInstallationId } from '~/queries/appSettings';
 import { createUserSchema, loginSchema } from '~/schemas/auth';
 import { getServerSession } from '~/utils/auth';
@@ -37,6 +37,38 @@ export type LoginResult =
   | TwoFactorRequired;
 
 export async function signup(formData: unknown) {
+  const data = formData as Record<string, unknown>;
+  const password = data.password;
+
+  // Passkey-only signup: password is null
+  if (password === null || password === undefined) {
+    const username = data.username;
+    if (typeof username !== 'string' || username.length < 4) {
+      return { success: false, error: 'Invalid username' };
+    }
+
+    let user;
+    try {
+      user = await prisma.user.create({
+        data: {
+          username,
+          key: {
+            create: {
+              id: `username:${username}`,
+              hashed_password: null,
+            },
+          },
+        },
+      });
+    } catch {
+      return { success: false, error: 'Username already taken' };
+    }
+
+    await createSessionCookie(user.id);
+    return { success: true };
+  }
+
+  // Password-based signup
   const parsedFormData = createUserSchema.safeParse(formData);
 
   if (!parsedFormData.success) {
@@ -46,8 +78,8 @@ export async function signup(formData: unknown) {
     };
   }
 
-  const { username, password } = parsedFormData.data;
-  const hashedPassword = await hashPassword(password);
+  const { username, password: validPassword } = parsedFormData.data;
+  const hashedPassword = await hashPassword(validPassword);
 
   let user;
   try {
@@ -149,6 +181,63 @@ export const login = async (data: unknown): Promise<LoginResult> => {
     success: true,
   };
 };
+
+export async function recoveryCodeLogin(data: {
+  username: string;
+  recoveryCode: string;
+}): Promise<FormSubmissionResult> {
+  const ipAddress = await getClientIp();
+
+  const rateLimitResult = await checkRateLimit(data.username, ipAddress);
+  if (!rateLimitResult.allowed) {
+    return {
+      success: false,
+      formErrors: ['Too many attempts. Please try again later.'],
+    };
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { username: data.username },
+    select: { id: true, username: true },
+  });
+
+  if (!user) {
+    void recordLoginAttempt(data.username, ipAddress, false);
+    return {
+      success: false,
+      formErrors: ['Invalid username or recovery code'],
+    };
+  }
+
+  const codeHash = hashRecoveryCode(data.recoveryCode);
+
+  const { count } = await prisma.recoveryCode.updateMany({
+    where: {
+      user_id: user.id,
+      codeHash,
+      usedAt: null,
+    },
+    data: { usedAt: new Date() },
+  });
+
+  if (count === 0) {
+    void recordLoginAttempt(data.username, ipAddress, false);
+    return {
+      success: false,
+      formErrors: ['Invalid username or recovery code'],
+    };
+  }
+
+  await recordLoginAttempt(data.username, ipAddress, true);
+  await createSessionCookie(user.id);
+
+  void addEvent(
+    'Recovery Code Login',
+    `User ${user.username} logged in with a recovery code`,
+  );
+
+  return { success: true };
+}
 
 export async function logout() {
   const session = await getServerSession();

@@ -158,6 +158,88 @@ export class DatabaseIsolation {
     log('test', `Marked recovery code as used for user "${username}"`);
   }
 
+  async seedPasskeyForUser(
+    username: string,
+    credentialId: string,
+    publicKey: string,
+    options?: {
+      friendlyName?: string;
+      counter?: number;
+      deviceType?: string;
+      backedUp?: boolean;
+    },
+  ): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      select: { id: true },
+    });
+    if (!user) {
+      throw new Error(`User "${username}" not found`);
+    }
+
+    await this.prisma.webAuthnCredential.create({
+      data: {
+        user_id: user.id,
+        credentialId,
+        publicKey,
+        counter: BigInt(options?.counter ?? 0),
+        transports: 'internal',
+        deviceType: options?.deviceType ?? 'multiDevice',
+        backedUp: options?.backedUp ?? true,
+        friendlyName: options?.friendlyName ?? 'Test Passkey',
+      },
+    });
+
+    log('test', `Seeded passkey for user "${username}"`);
+  }
+
+  async clearPasskeysForUser(username: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      select: { id: true },
+    });
+    if (!user) {
+      throw new Error(`User "${username}" not found`);
+    }
+
+    await this.prisma.webAuthnCredential.deleteMany({
+      where: { user_id: user.id },
+    });
+
+    log('test', `Cleared passkeys for user "${username}"`);
+  }
+
+  async removePasswordForUser(username: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      select: { id: true },
+    });
+    if (!user) {
+      throw new Error(`User "${username}" not found`);
+    }
+
+    await this.prisma.key.updateMany({
+      where: { user_id: user.id },
+      data: { hashed_password: null },
+    });
+
+    log('test', `Removed password for user "${username}"`);
+  }
+
+  async getUserPasskeyCount(username: string): Promise<number> {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      select: { id: true },
+    });
+    if (!user) {
+      throw new Error(`User "${username}" not found`);
+    }
+
+    return this.prisma.webAuthnCredential.count({
+      where: { user_id: user.id },
+    });
+  }
+
   private async restoreWith(
     client: pg.PoolClient,
     name: string,

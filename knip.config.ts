@@ -39,6 +39,9 @@ const config: KnipConfig = {
     // Table helpers are part of the public test API used by future specs
     'tests/e2e/helpers/table.ts': ['exports'],
 
+    // Server actions for passkey password management — UI not yet wired
+    'actions/webauthn.ts': ['exports'],
+
     // Pre-existing unused type exports (not related to e2e migration)
     'lib/interviewer/containers/Interfaces/FamilyTreeCensus/useDynamicFields.tsx':
       ['types'],

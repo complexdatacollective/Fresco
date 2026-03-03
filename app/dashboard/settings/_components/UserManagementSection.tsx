@@ -1,4 +1,5 @@
 import SettingsCard from '~/components/settings/SettingsCard';
+import { env } from '~/env';
 import { prisma } from '~/lib/db';
 import { getUsers } from '~/queries/users';
 import UserManagement from './UserManagement';
@@ -12,6 +13,21 @@ async function getHasTwoFactor(userId: string) {
   return !!result;
 }
 
+async function getPasskeys(userId: string) {
+  return prisma.webAuthnCredential.findMany({
+    where: { user_id: userId },
+    select: {
+      id: true,
+      friendlyName: true,
+      deviceType: true,
+      createdAt: true,
+      lastUsedAt: true,
+      backedUp: true,
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+}
+
 export default function UserManagementSection({
   userId,
   username,
@@ -21,6 +37,7 @@ export default function UserManagementSection({
 }) {
   const usersPromise = getUsers();
   const hasTwoFactorPromise = getHasTwoFactor(userId);
+  const passkeysPromise = getPasskeys(userId);
 
   return (
     <SettingsCard id="user-management" title="User Management">
@@ -29,6 +46,8 @@ export default function UserManagementSection({
         hasTwoFactorPromise={hasTwoFactorPromise}
         currentUserId={userId}
         currentUsername={username}
+        passkeysPromise={passkeysPromise}
+        sandboxMode={!!env.SANDBOX_MODE}
       />
     </SettingsCard>
   );

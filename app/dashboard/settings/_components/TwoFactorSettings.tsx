@@ -14,11 +14,13 @@ import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 type TwoFactorSettingsProps = {
   hasTwoFactor: boolean;
   userCount: number;
+  sandboxMode?: boolean;
 };
 
 export default function TwoFactorSettings({
   hasTwoFactor: initialHasTwoFactor,
   userCount,
+  sandboxMode = false,
 }: TwoFactorSettingsProps) {
   const [hasTwoFactor, setHasTwoFactor] = useState(initialHasTwoFactor);
   const [showDisable, setShowDisable] = useState(false);
@@ -46,6 +48,7 @@ export default function TwoFactorSettings({
             color="primary"
             size="sm"
             onClick={() => void handleEnableSetup()}
+            disabled={sandboxMode}
           >
             Enable
           </Button>

@@ -324,24 +324,30 @@ test.describe('Two-Factor Authentication', () => {
         const userRow = page.getByTestId('user-row-testuser');
         await expect(userRow).toBeVisible();
 
-        // Click Reset 2FA button
-        const resetButton = page.getByTestId('reset-2fa-testuser');
+        // Click Reset Auth button
+        const resetButton = page.getByTestId('reset-auth-testuser');
         await expect(resetButton).toBeVisible();
         await resetButton.click();
 
         // Confirmation dialog should appear
         const dialog = await waitForDialog(page);
         await expect(
-          dialog.getByRole('heading', { name: /reset two-factor/i }),
+          dialog.getByRole('heading', { name: /reset authentication/i }),
         ).toBeVisible();
 
         // Confirm the reset
-        await dialog.getByRole('button', { name: /reset 2fa/i }).click();
+        await dialog.getByRole('button', { name: /reset auth/i }).click();
 
-        // Dialog should close
+        // Temporary password dialog should appear
+        await expect(
+          dialog.getByRole('heading', { name: /temporary password/i }),
+        ).toBeVisible({ timeout: 10_000 });
+
+        // Close the dialog
+        await dialog.getByRole('button', { name: /done/i }).click();
         await dialog.waitFor({ state: 'hidden' });
 
-        // Reset 2FA button should no longer be visible for testuser
+        // Reset auth button should no longer be visible for testuser
         await expect(resetButton).not.toBeVisible();
       } finally {
         await cleanup();
@@ -488,7 +494,7 @@ test.describe('Two-Factor Authentication', () => {
 
         await page.goto('/dashboard/settings');
 
-        await page.getByTestId('reset-2fa-testuser').click();
+        await page.getByTestId('reset-auth-testuser').click();
 
         const dialog = await waitForDialog(page);
 

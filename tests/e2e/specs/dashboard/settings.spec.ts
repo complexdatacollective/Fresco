@@ -62,6 +62,10 @@ test.describe('Settings Page', () => {
       ).toBeVisible();
     });
 
+    test('passkey settings field visible', async ({ page }) => {
+      await expect(page.getByTestId('passkey-field')).toBeVisible();
+    });
+
     test('displays configuration section', async ({ page }) => {
       await expect(page.getByTestId('configuration-card')).toBeVisible();
     });

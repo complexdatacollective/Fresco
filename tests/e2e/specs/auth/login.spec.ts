@@ -10,6 +10,20 @@ test.describe('Sign In Page', () => {
     await capturePage('signin-page');
   });
 
+  test('passkey sign-in button visible', async ({ page }) => {
+    await page.goto('/signin');
+    await expect(
+      page.getByRole('button', { name: /sign in with a passkey/i }),
+    ).toBeVisible();
+  });
+
+  test('trouble signing in link visible', async ({ page }) => {
+    await page.goto('/signin');
+    await expect(
+      page.getByRole('button', { name: /trouble signing in/i }),
+    ).toBeVisible();
+  });
+
   test('authenticate as admin and save state', async ({ page }) => {
     await page.goto('/signin');
 

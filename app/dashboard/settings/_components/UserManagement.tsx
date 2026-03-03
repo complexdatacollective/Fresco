@@ -4,7 +4,7 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { Plus, Trash, User } from 'lucide-react';
 import { use, useCallback, useState } from 'react';
 import { z } from 'zod/mini';
-import { resetTotpForUser } from '~/actions/totp';
+import { resetAuthForUser } from '~/actions/webauthn';
 import {
   changePassword,
   checkUsernameAvailable,
@@ -12,6 +12,7 @@ import {
   deleteUsers,
 } from '~/actions/users';
 import PasswordField from '~/lib/form/components/fields/PasswordField';
+import PasskeySettings from '~/app/dashboard/settings/_components/PasskeySettings';
 import TwoFactorSettings from '~/app/dashboard/settings/_components/TwoFactorSettings';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { DataTable } from '~/components/DataTable/DataTable';
@@ -34,11 +35,22 @@ import { type GetUsersReturnType } from '~/queries/users';
 
 type UserRow = GetUsersReturnType[number];
 
+type Passkey = {
+  id: string;
+  friendlyName: string | null;
+  deviceType: string;
+  createdAt: Date;
+  lastUsedAt: Date | null;
+  backedUp: boolean;
+};
+
 type UserManagementProps = {
   usersPromise: Promise<GetUsersReturnType>;
   currentUserId: string;
   currentUsername: string;
   hasTwoFactorPromise: Promise<boolean>;
+  passkeysPromise: Promise<Passkey[]>;
+  sandboxMode: boolean;
 };
 
 const usernameSchema = z
@@ -68,7 +80,7 @@ function makeUserColumns(
   currentUserId: string,
   userCount: number,
   onDeleteUser: (user: UserRow) => void,
-  onResetTotp: (user: UserRow) => void,
+  onResetAuth: (user: UserRow) => void,
 ): ColumnDef<UserRow>[] {
   return [
     {
@@ -126,6 +138,16 @@ function makeUserColumns(
         row.original.totpCredential?.verified ? 'Enabled' : '\u2014',
     },
     {
+      id: 'passkeys',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Passkeys" />
+      ),
+      cell: ({ row }) =>
+        row.original.webAuthnCredentials.length > 0
+          ? String(row.original.webAuthnCredentials.length)
+          : '\u2014',
+    },
+    {
       id: 'actions',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Actions" />
@@ -133,16 +155,18 @@ function makeUserColumns(
       cell: ({ row }) => {
         const isCurrentUser = row.original.id === currentUserId;
         const isLastUser = userCount <= 1;
-        const hasTwoFactor = row.original.totpCredential?.verified;
+        const hasAuth =
+          row.original.totpCredential?.verified === true ||
+          row.original.webAuthnCredentials.length > 0;
         return (
           <div className="flex gap-2">
-            {hasTwoFactor && !isCurrentUser && (
+            {hasAuth && !isCurrentUser && (
               <Button
-                onClick={() => onResetTotp(row.original)}
+                onClick={() => onResetAuth(row.original)}
                 size="sm"
-                data-testid={`reset-2fa-${row.original.username}`}
+                data-testid={`reset-auth-${row.original.username}`}
               >
-                Reset 2FA
+                Reset Auth
               </Button>
             )}
             <Button
@@ -166,11 +190,14 @@ export default function UserManagement({
   currentUserId,
   currentUsername,
   hasTwoFactorPromise,
+  passkeysPromise,
+  sandboxMode,
 }: UserManagementProps) {
   // TanStack Table: consumers must also opt out so React Compiler doesn't memoize JSX that depends on the table ref.
   'use no memo';
   const initialUsers = use(usersPromise);
   const hasTwoFactor = use(hasTwoFactorPromise);
+  const initialPasskeys = use(passkeysPromise);
   const [users, setUsers] = useState(initialUsers);
   const [isCreating, setIsCreating] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -206,23 +233,34 @@ export default function UserManagement({
     [confirm, doDeleteUsers],
   );
 
-  const handleResetTotp = useCallback(
+  const [tempPassword, setTempPassword] = useState<string | null>(null);
+
+  const handleResetAuth = useCallback(
     (user: UserRow) => {
       void confirm({
-        title: 'Reset Two-Factor Authentication',
-        description: `This will disable two-factor authentication for ${user.username}. They will need to set it up again.`,
-        confirmLabel: 'Reset 2FA',
+        title: 'Reset Authentication',
+        description: `This will remove all passkeys, 2FA, and recovery codes for ${user.username}, and set a temporary password. They will need to set up their authentication again.`,
+        confirmLabel: 'Reset Auth',
         intent: 'destructive',
         onConfirm: async () => {
-          const result = await resetTotpForUser(user.id);
+          const result = await resetAuthForUser(user.id);
           if (result.error) {
             setError(result.error);
           } else {
             setUsers((prev) =>
               prev.map((u) =>
-                u.id === user.id ? { ...u, totpCredential: null } : u,
+                u.id === user.id
+                  ? {
+                      ...u,
+                      totpCredential: null,
+                      webAuthnCredentials: [],
+                    }
+                  : u,
               ),
             );
+            if (result.data?.temporaryPassword) {
+              setTempPassword(result.data.temporaryPassword);
+            }
           }
         },
       });
@@ -234,7 +272,7 @@ export default function UserManagement({
     currentUserId,
     users.length,
     handleDeleteUser,
-    handleResetTotp,
+    handleResetAuth,
   );
 
   const handleDeleteSelected = useCallback(
@@ -300,7 +338,12 @@ export default function UserManagement({
 
     setUsers([
       ...users,
-      { id: crypto.randomUUID(), username, totpCredential: null },
+      {
+        id: crypto.randomUUID(),
+        username,
+        totpCredential: null,
+        webAuthnCredentials: [],
+      },
     ]);
     setIsCreating(false);
     return { success: true };
@@ -366,18 +409,25 @@ export default function UserManagement({
               </Paragraph>
             </div>
           </div>
-          <Button
-            onClick={() => setIsChangingPassword(true)}
-            size="sm"
-            className="tablet:w-auto w-full"
-            color="primary"
-          >
-            Change Password
-          </Button>
+          {!sandboxMode && (
+            <Button
+              onClick={() => setIsChangingPassword(true)}
+              size="sm"
+              className="tablet:w-auto w-full"
+              color="primary"
+            >
+              Change Password
+            </Button>
+          )}
         </div>
         <TwoFactorSettings
           hasTwoFactor={hasTwoFactor}
           userCount={users.length}
+          sandboxMode={sandboxMode}
+        />
+        <PasskeySettings
+          initialPasskeys={initialPasskeys}
+          sandboxMode={sandboxMode}
         />
       </Surface>
       <div className="space-y-4">
@@ -567,6 +617,23 @@ export default function UserManagement({
           </FormWithoutProvider>
         </Dialog>
       </FormStoreProvider>
+      <Dialog
+        open={tempPassword !== null}
+        closeDialog={() => setTempPassword(null)}
+        title="Temporary Password"
+        description="The user's authentication has been reset. Share this temporary password with them so they can sign in and set up their account again."
+        footer={
+          <Button color="primary" onClick={() => setTempPassword(null)}>
+            Done
+          </Button>
+        }
+      >
+        <div className="bg-surface-1 rounded p-4 text-center">
+          <code className="font-monospace text-lg tracking-wider">
+            {tempPassword}
+          </code>
+        </div>
+      </Dialog>
     </div>
   );
 }

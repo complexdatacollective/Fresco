@@ -12,12 +12,13 @@ datasource db {
 }
 
 model User {
-  id             String          @id @default(cuid())
-  username       String          @unique
-  auth_session   Session[]
-  key            Key[]
-  totpCredential TotpCredential?
-  recoveryCodes  RecoveryCode[]
+  id                  String               @id @default(cuid())
+  username            String               @unique
+  auth_session        Session[]
+  key                 Key[]
+  totpCredential      TotpCredential?
+  recoveryCodes       RecoveryCode[]
+  webAuthnCredentials WebAuthnCredential[]
 }
 
 model Session {
@@ -35,6 +36,24 @@ model Key {
   hashed_password String?
   user_id         String
   user            User    @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model WebAuthnCredential {
+  id           String    @id @default(cuid())
+  user_id      String
+  credentialId String    @unique
+  publicKey    String
+  counter      BigInt    @default(0)
+  transports   String?
+  deviceType   String
+  backedUp     Boolean   @default(false)
+  friendlyName String?
+  createdAt    DateTime  @default(now())
+  lastUsedAt   DateTime?
+
+  user User @relation(references: [id], fields: [user_id], onDelete: Cascade)
 
   @@index([user_id])
 }
