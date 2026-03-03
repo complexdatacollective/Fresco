@@ -81,7 +81,7 @@ const buttonSpecificVariants = cva({
     },
     {
       variant: ['outline', 'dashed'],
-      color: 'dynamic',
+      color: ['dynamic', 'default'],
       className: 'border-current',
     },
     {

@@ -319,7 +319,7 @@ export const SignInForm = () => {
         <>
           <div className="flex items-center gap-3">
             <div className="bg-outline h-px flex-1" />
-            <span className="text-neutral text-sm">or</span>
+            <span className="text-sm">or</span>
             <div className="bg-outline h-px flex-1" />
           </div>
 
@@ -347,7 +347,7 @@ export const SignInForm = () => {
         variant="link"
         type="button"
         onClick={() => setShowRecovery(true)}
-        className="text-neutral text-sm"
+        className="text-sm"
       >
         Trouble signing in?
       </Button>
