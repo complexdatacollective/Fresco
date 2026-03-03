@@ -8,6 +8,7 @@ import {
   removePasskey,
   verifyRegistration,
 } from '~/actions/webauthn';
+import Surface from '~/components/layout/Surface';
 import SettingsField from '~/components/settings/SettingsField';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/Button';
@@ -30,7 +31,7 @@ type PasskeySettingsProps = {
 
 function formatDate(date: Date | null) {
   if (!date) return 'Never';
-  return new Date(date).toLocaleDateString(undefined, {
+  return new Date(date).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -134,13 +135,15 @@ export default function PasskeySettings({
       {passkeys.length > 0 && (
         <div className="flex flex-col gap-2">
           {passkeys.map((passkey) => (
-            <div
+            <Surface
+              level={2}
+              spacing="xs"
               key={passkey.id}
               data-testid="passkey-item"
-              className="flex items-center justify-between rounded border p-3"
+              className="flex items-center justify-between"
             >
-              <div className="flex items-center gap-3">
-                <KeyRound className="text-neutral size-5" />
+              <div className="flex items-center gap-6">
+                <KeyRound className="size-6" />
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-medium">
@@ -152,7 +155,7 @@ export default function PasskeySettings({
                         : 'Device-bound'}
                     </Badge>
                   </div>
-                  <div className="text-neutral flex gap-3 text-xs">
+                  <div className="flex gap-3 text-xs">
                     <span data-testid="passkey-date-created">
                       Added {formatDate(passkey.createdAt)}
                     </span>
@@ -174,11 +177,12 @@ export default function PasskeySettings({
                     ? 'Set a password before removing your only passkey'
                     : undefined
                 }
+                icon={<Trash />}
+                color="destructive"
               >
-                <Trash className="size-4" />
                 Remove
               </Button>
-            </div>
+            </Surface>
           ))}
         </div>
       )}

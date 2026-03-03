@@ -2,7 +2,7 @@ import type { HTMLAttributes } from 'react';
 import { type VariantProps, cva, cx } from '~/utils/cva';
 
 const responsiveContainerVariants = cva({
-  base: 'tablet:mx-auto flex grow flex-col',
+  base: 'tablet:mx-auto flex flex-col',
   variants: {
     maxWidth: {
       'sm': 'max-w-sm',

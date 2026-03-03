@@ -27,7 +27,7 @@ export const surfaceSpacingVariants = cva({
 export const surfaceVariants = compose(
   surfaceSpacingVariants,
   cva({
-    base: 'publish-colors relative grow overflow-hidden rounded-sm @xl:rounded @4xl:rounded-lg',
+    base: 'publish-colors relative overflow-hidden rounded-sm @xl:rounded @4xl:rounded-lg',
     variants: {
       level: {
         0: 'text-surface-contrast bg-surface',
