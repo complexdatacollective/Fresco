@@ -9,9 +9,9 @@ import {
   verifyRegistration,
 } from '~/actions/webauthn';
 import SettingsField from '~/components/settings/SettingsField';
+import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/Button';
 import useDialog from '~/lib/dialogs/useDialog';
-import { Badge } from '~/components/ui/badge';
 
 type Passkey = {
   id: string;
@@ -117,7 +117,7 @@ export default function PasskeySettings({
       label="Passkeys"
       description={
         passkeys.length === 0
-          ? 'Register a passkey to sign in without a password using biometrics or a security key.'
+          ? 'Register a passkey for the highest level of security. You will sign in without a password using biometrics or a security key.'
           : `${String(passkeys.length)} passkey${passkeys.length === 1 ? '' : 's'} registered.`
       }
       testId="passkey-field"
@@ -134,8 +134,9 @@ export default function PasskeySettings({
             size="sm"
             onClick={() => void handleAddPasskey()}
             disabled={sandboxMode || loading}
+            color="primary"
+            icon={<Plus />}
           >
-            <Plus className="size-4" />
             {loading ? 'Registering...' : 'Add passkey'}
           </Button>
         </div>
