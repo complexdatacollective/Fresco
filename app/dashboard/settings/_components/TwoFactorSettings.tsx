@@ -1,12 +1,15 @@
 'use client';
 
+import { RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { disableTotp, regenerateRecoveryCodes } from '~/actions/totp';
 import RecoveryCodes from '~/components/RecoveryCodes';
 import SettingsField from '~/components/settings/SettingsField';
 import { useTwoFactorSetup } from '~/components/TwoFactorSetup';
 import TwoFactorVerify from '~/components/TwoFactorVerify';
+import { Alert, AlertDescription } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
+import { Switch } from '~/components/ui/switch';
 import Dialog from '~/lib/dialogs/Dialog';
 import SubmitButton from '~/lib/form/components/SubmitButton';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
@@ -30,54 +33,42 @@ export default function TwoFactorSettings({
 
   const startTwoFactorSetup = useTwoFactorSetup(userCount);
 
-  const handleEnableSetup = async () => {
-    const completed = await startTwoFactorSetup();
-    if (completed) {
-      setHasTwoFactor(true);
+  const handleToggle = async (checked: boolean) => {
+    if (checked) {
+      const completed = await startTwoFactorSetup();
+      if (completed) {
+        setHasTwoFactor(true);
+      }
+    } else {
+      setShowDisable(true);
     }
   };
-
-  if (!hasTwoFactor) {
-    return (
-      <SettingsField
-        label="Two-Factor Authentication"
-        description="Add an extra layer of security to your account by requiring a code from your authenticator app when signing in."
-        testId="two-factor-field"
-        control={
-          <Button
-            color="primary"
-            size="sm"
-            onClick={() => void handleEnableSetup()}
-            disabled={sandboxMode}
-          >
-            Enable
-          </Button>
-        }
-      />
-    );
-  }
 
   return (
     <>
       <SettingsField
         label="Two-Factor Authentication"
-        description="Two-factor authentication is enabled for your account."
+        description="Two factor authentication (2FA) adds an extra layer of security to your account by requiring a second form of verification in addition to your password. This can be a code from an authenticator app or a recovery code."
         testId="two-factor-field"
         control={
-          <div className="flex gap-2">
-            <Button size="sm" onClick={() => setShowRegenerateVerify(true)}>
-              Regenerate Recovery Codes
-            </Button>
-            <Button
-              color="destructive"
-              size="sm"
-              onClick={() => setShowDisable(true)}
-            >
-              Disable
-            </Button>
-          </div>
+          <Switch
+            checked={hasTwoFactor}
+            onCheckedChange={(checked) => void handleToggle(checked)}
+            disabled={sandboxMode}
+            aria-label="Toggle two-factor authentication"
+          />
         }
-      />
+      >
+        {hasTwoFactor && (
+          <Button
+            size="sm"
+            onClick={() => setShowRegenerateVerify(true)}
+            icon={<RefreshCw />}
+          >
+            Regenerate Recovery Codes
+          </Button>
+        )}
+      </SettingsField>
 
       <FormStoreProvider>
         <Dialog
@@ -98,6 +89,14 @@ export default function TwoFactorSettings({
             </>
           }
         >
+          <Alert variant="info">
+            <AlertDescription>
+              If you can&apos;t access your authenticator app, you need to use a
+              recovery code to disable two-factor authentication. If you
+              don&apos;t have any valid recovery codes, you will need another
+              user to disable two-factor authentication for you.
+            </AlertDescription>
+          </Alert>
           <TwoFactorVerify
             formId="disable-2fa"
             onVerify={async (code) => {
@@ -131,6 +130,15 @@ export default function TwoFactorSettings({
             </>
           }
         >
+          <Alert variant="info">
+            <AlertDescription>
+              If you can&apos;t access your authenticator app, you need to
+              disable two-factor authentication using an existing recovery code
+              before you generate new codes. If you don&apos;t have any valid
+              recovery codes, you will need another user to disable two-factor
+              authentication for you.
+            </AlertDescription>
+          </Alert>
           <TwoFactorVerify
             formId="regenerate-recovery-codes"
             onVerify={async (code) => {

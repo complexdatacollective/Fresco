@@ -125,7 +125,7 @@ export default function PasskeySettings({
         <div className="flex items-center gap-2">
           <input
             type="text"
-            placeholder="Passkey name"
+            placeholder="Passkey name (optional)"
             value={friendlyName}
             onChange={(e) => setFriendlyName(e.target.value)}
             className="border-outline w-40 rounded border px-3 py-1.5 text-sm"

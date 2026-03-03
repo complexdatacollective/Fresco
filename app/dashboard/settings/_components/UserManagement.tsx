@@ -4,14 +4,13 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { Plus, Trash, User } from 'lucide-react';
 import { use, useCallback, useState } from 'react';
 import { z } from 'zod/mini';
-import { resetAuthForUser } from '~/actions/webauthn';
 import {
   changePassword,
   checkUsernameAvailable,
   createUser,
   deleteUsers,
 } from '~/actions/users';
-import PasswordField from '~/lib/form/components/fields/PasswordField';
+import { resetAuthForUser } from '~/actions/webauthn';
 import PasskeySettings from '~/app/dashboard/settings/_components/PasskeySettings';
 import TwoFactorSettings from '~/app/dashboard/settings/_components/TwoFactorSettings';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
@@ -20,6 +19,7 @@ import { DataTableFloatingBar } from '~/components/DataTable/DataTableFloatingBa
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
+import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
 import { useClientDataTable } from '~/hooks/useClientDataTable';
 import Dialog from '~/lib/dialogs/Dialog';
@@ -29,6 +29,7 @@ import { FormWithoutProvider } from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
 import Checkbox from '~/lib/form/components/fields/Checkbox';
 import InputField from '~/lib/form/components/fields/InputField';
+import PasswordField from '~/lib/form/components/fields/PasswordField';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { type FormSubmissionResult } from '~/lib/form/store/types';
 import { type GetUsersReturnType } from '~/queries/users';
@@ -395,31 +396,43 @@ export default function UserManagement({
         className="mt-2 divide-y divide-current/10 p-6"
         spacing="sm"
       >
-        <div className="tablet:flex-row tablet:items-center tablet:justify-between flex flex-col gap-4 pb-4">
-          <div className="tablet:gap-6 flex items-center gap-4">
-            <div className="bg-surface-2 text-surface-2-contrast tablet:size-14 inset-surface flex size-10 shrink-0 items-center justify-center rounded-full">
-              <User className="tablet:size-8 size-5" />
+        <div className="flex flex-col justify-between gap-4 pb-4">
+          <div className="tablet:flex-row tablet:items-center tablet:justify-between flex flex-col gap-4 pb-4">
+            <div className="tablet:gap-6 flex items-center gap-4">
+              <div className="bg-surface-2 text-surface-2-contrast tablet:size-14 inset-surface flex size-10 shrink-0 items-center justify-center rounded-full">
+                <User className="tablet:size-8 size-5" />
+              </div>
+              <div className="min-w-0">
+                <Paragraph intent="smallText" margin="none">
+                  Logged in as:
+                </Paragraph>
+                <Paragraph className="truncate font-medium">
+                  {currentUsername}
+                </Paragraph>
+              </div>
             </div>
-            <div className="min-w-0">
-              <Paragraph intent="smallText" margin="none">
-                Logged in as:
-              </Paragraph>
-              <Paragraph className="truncate font-medium">
-                {currentUsername}
-              </Paragraph>
-            </div>
+            {!sandboxMode && (
+              <Button
+                onClick={() => setIsChangingPassword(true)}
+                size="sm"
+                className="tablet:w-auto w-full"
+                color="primary"
+              >
+                Change Password
+              </Button>
+            )}
           </div>
-          {!sandboxMode && (
-            <Button
-              onClick={() => setIsChangingPassword(true)}
-              size="sm"
-              className="tablet:w-auto w-full"
-              color="primary"
-            >
-              Change Password
-            </Button>
+          {!hasTwoFactor && initialPasskeys.length === 0 && !sandboxMode && (
+            <Alert variant="warning" className="my-0">
+              <AlertTitle>Security Warning</AlertTitle>
+              <AlertDescription>
+                Your account is only protected by a password. Enable two-factor
+                authentication or add a passkey for stronger security.
+              </AlertDescription>
+            </Alert>
           )}
         </div>
+
         <TwoFactorSettings
           hasTwoFactor={hasTwoFactor}
           userCount={users.length}
