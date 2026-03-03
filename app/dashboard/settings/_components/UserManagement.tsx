@@ -18,7 +18,6 @@ import {
   generateAuthenticationOptions,
   generateRegistrationOptions,
   resetAuthForUser,
-  setPassword,
   switchToPasskeyMode,
   switchToPasswordMode,
   verifyPasskeyReauth,
@@ -220,11 +219,6 @@ export default function UserManagement({
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [passkeyVerified, setPasskeyVerified] = useState(false);
-  const [passkeyReauthError, setPasskeyReauthError] = useState<string | null>(
-    null,
-  );
-  const [reauthLoading, setReauthLoading] = useState(false);
   const [showSwitchToPasskey, setShowSwitchToPasskey] = useState(false);
   const [showSwitchToPassword, setShowSwitchToPassword] = useState(false);
   const [switchToPasswordReauthed, setSwitchToPasswordReauthed] =
@@ -417,77 +411,6 @@ export default function UserManagement({
     return { success: true };
   };
 
-  const handlePasskeyReauth = async () => {
-    setPasskeyReauthError(null);
-    setReauthLoading(true);
-
-    try {
-      const { error: genError, data: regData } =
-        await generateAuthenticationOptions();
-      if (genError || !regData) {
-        setPasskeyReauthError(genError ?? 'Failed to start verification');
-        setReauthLoading(false);
-        return;
-      }
-
-      const credential = await startAuthentication({
-        optionsJSON: regData.options,
-      });
-
-      const result = await verifyPasskeyReauth({ credential });
-
-      if (result.error) {
-        setPasskeyReauthError(result.error);
-        setReauthLoading(false);
-        return;
-      }
-
-      setPasskeyVerified(true);
-      setReauthLoading(false);
-    } catch (e) {
-      if (e instanceof Error && e.name === 'NotAllowedError') {
-        setReauthLoading(false);
-        return;
-      }
-      setPasskeyReauthError('Verification failed');
-      setReauthLoading(false);
-    }
-  };
-
-  const handleSetPassword = async (
-    values: unknown,
-  ): Promise<FormSubmissionResult> => {
-    const { newPassword, confirmNewPassword } = values as {
-      newPassword: string;
-      confirmNewPassword: string;
-    };
-
-    if (newPassword !== confirmNewPassword) {
-      return {
-        success: false,
-        formErrors: ['Passwords do not match'],
-      };
-    }
-
-    const result = await setPassword(newPassword);
-
-    if (result.error) {
-      return {
-        success: false,
-        formErrors: [result.error],
-      };
-    }
-
-    setPasswordChangeSuccess(true);
-    setTimeout(() => {
-      setIsChangingPassword(false);
-      setPasswordChangeSuccess(false);
-      setPasskeyVerified(false);
-    }, 1500);
-
-    return { success: true };
-  };
-
   const handleSwitchToPasskey = async (
     values: unknown,
   ): Promise<FormSubmissionResult> => {
@@ -619,19 +542,15 @@ export default function UserManagement({
               </Button>
             )}
           </div>
-          {hasPassword &&
-            !hasTwoFactor &&
-            initialPasskeys.length === 0 &&
-            !sandboxMode && (
-              <Alert variant="warning" className="my-0">
-                <AlertTitle>Security Warning</AlertTitle>
-                <AlertDescription>
-                  Your account is only protected by a password. Enable
-                  two-factor authentication or add a passkey for stronger
-                  security.
-                </AlertDescription>
-              </Alert>
-            )}
+          {hasPassword && !hasTwoFactor && !sandboxMode && (
+            <Alert variant="warning" className="my-0">
+              <AlertTitle>Security Warning</AlertTitle>
+              <AlertDescription>
+                Your account is only protected by a password. Enable two-factor
+                authentication for stronger security.
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
 
         {hasPassword ? (
@@ -735,17 +654,11 @@ export default function UserManagement({
           closeDialog={() => {
             setIsChangingPassword(false);
             setPasswordChangeSuccess(false);
-            setPasskeyVerified(false);
-            setPasskeyReauthError(null);
           }}
-          title={hasPassword ? 'Change Password' : 'Set Password'}
-          description={
-            hasPassword
-              ? 'Update your account password.'
-              : 'Add a password to your account.'
-          }
+          title="Change Password"
+          description="Update your account password."
           footer={
-            passwordChangeSuccess ? null : hasPassword ? (
+            passwordChangeSuccess ? null : (
               <>
                 <Button
                   type="button"
@@ -760,27 +673,14 @@ export default function UserManagement({
                   Update Password
                 </SubmitButton>
               </>
-            ) : passkeyVerified ? (
-              <>
-                <Button
-                  type="button"
-                  onClick={() => {
-                    setIsChangingPassword(false);
-                    setPasskeyVerified(false);
-                  }}
-                >
-                  Cancel
-                </Button>
-                <SubmitButton form="setPasswordForm">Set Password</SubmitButton>
-              </>
-            ) : null
+            )
           }
         >
           {passwordChangeSuccess ? (
             <div className="text-success text-center">
-              Password {hasPassword ? 'updated' : 'set'} successfully!
+              Password updated successfully!
             </div>
-          ) : hasPassword ? (
+          ) : (
             <FormWithoutProvider
               onSubmit={handleChangePassword}
               id="changePasswordForm"
@@ -823,58 +723,6 @@ export default function UserManagement({
                 sameAs="newPassword"
               />
             </FormWithoutProvider>
-          ) : passkeyVerified ? (
-            <FormWithoutProvider
-              onSubmit={handleSetPassword}
-              id="setPasswordForm"
-            >
-              <input
-                type="text"
-                name="username"
-                autoComplete="username"
-                value={currentUsername}
-                readOnly
-                className="sr-only"
-                tabIndex={-1}
-                aria-hidden="true"
-              />
-              <Field
-                name="newPassword"
-                label="New Password"
-                component={PasswordField}
-                showStrengthMeter
-                required
-                autoComplete="new-password"
-                custom={{
-                  schema: passwordSchema,
-                  hint: 'At least 8 characters with lowercase, uppercase, number, and symbol',
-                }}
-              />
-              <Field
-                name="confirmNewPassword"
-                label="Confirm New Password"
-                component={PasswordField}
-                required
-                autoComplete="new-password"
-                sameAs="newPassword"
-              />
-            </FormWithoutProvider>
-          ) : (
-            <div className="flex flex-col items-center gap-4 py-4">
-              <Paragraph className="text-center">
-                Verify your identity with a passkey before setting a password.
-              </Paragraph>
-              {passkeyReauthError && (
-                <p className="text-destructive text-sm">{passkeyReauthError}</p>
-              )}
-              <Button
-                onClick={() => void handlePasskeyReauth()}
-                disabled={reauthLoading}
-                color="primary"
-              >
-                {reauthLoading ? 'Verifying...' : 'Verify with passkey'}
-              </Button>
-            </div>
           )}
         </Dialog>
       </FormStoreProvider>

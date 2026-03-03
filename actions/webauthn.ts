@@ -16,7 +16,6 @@ import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { checkRateLimit, recordLoginAttempt } from '~/lib/rateLimit';
 import { createSessionCookie } from '~/lib/session';
-import { generateRecoveryCodes, hashRecoveryCode } from '~/lib/totp';
 import {
   createChallengeCookie,
   getWebAuthnConfig,
@@ -466,79 +465,6 @@ export async function removePasskey(credentialDbId: string) {
     `User ${session.user.username} removed a passkey${credential.friendlyName ? ` (${credential.friendlyName})` : ''}`,
   );
   safeUpdateTag('getUsers');
-
-  return { error: null, data: null };
-}
-
-export async function removePassword(currentPassword: string) {
-  const session = await requireApiAuth();
-
-  const passkeyCount = await prisma.webAuthnCredential.count({
-    where: { user_id: session.user.userId },
-  });
-
-  if (passkeyCount === 0) {
-    return {
-      error: 'Register a passkey before removing your password.',
-      data: null,
-    };
-  }
-
-  const key = await prisma.key.findFirst({
-    where: { user_id: session.user.userId },
-  });
-
-  if (!key?.hashed_password) {
-    return { error: 'No password is set.', data: null };
-  }
-
-  const valid = await verifyPassword(currentPassword, key.hashed_password);
-  if (!valid) {
-    return { error: 'Incorrect password.', data: null };
-  }
-
-  const existingCodes = await prisma.recoveryCode.count({
-    where: { user_id: session.user.userId, usedAt: null },
-  });
-
-  let recoveryCodes: string[] | null = null;
-
-  await prisma.$transaction(async (tx) => {
-    await tx.key.update({
-      where: { id: key.id },
-      data: { hashed_password: null },
-    });
-
-    if (existingCodes === 0) {
-      recoveryCodes = generateRecoveryCodes();
-      await tx.recoveryCode.createMany({
-        data: recoveryCodes.map((rc) => ({
-          user_id: session.user.userId,
-          codeHash: hashRecoveryCode(rc),
-        })),
-      });
-    }
-  });
-
-  void addEvent(
-    'Password Removed',
-    `User ${session.user.username} removed their password (passkey-only)`,
-  );
-
-  return { error: null, data: { recoveryCodes } };
-}
-
-export async function setPassword(newPassword: string) {
-  const session = await requireApiAuth();
-
-  const hashed = await hashPassword(newPassword);
-
-  await prisma.key.updateMany({
-    where: { user_id: session.user.userId },
-    data: { hashed_password: hashed },
-  });
-
-  void addEvent('Password Set', `User ${session.user.username} set a password`);
 
   return { error: null, data: null };
 }
