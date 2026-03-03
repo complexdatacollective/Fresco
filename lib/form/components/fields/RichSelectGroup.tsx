@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import {
@@ -141,17 +141,14 @@ export default function RichSelectGroupField(props: RichSelectGroupProps) {
 
   const isControlled = onChange !== undefined;
 
-  const currentValue = useMemo(
-    () =>
-      isControlled ? value : (defaultValue ?? (multiple ? [] : undefined)),
-    [isControlled, value, defaultValue, multiple],
-  );
+  const currentValue = isControlled
+    ? value
+    : (defaultValue ?? (multiple ? [] : undefined));
 
   const isSelected = useCallback(
     (optionValue: string | number) => {
-      if (multiple) {
-        const arr = (currentValue ?? []) as (string | number)[];
-        return arr.includes(optionValue);
+      if (multiple && Array.isArray(currentValue)) {
+        return currentValue.includes(optionValue);
       }
       return currentValue === optionValue;
     },
@@ -163,7 +160,7 @@ export default function RichSelectGroupField(props: RichSelectGroupProps) {
       if (readOnly || !onChange) return;
 
       if (multiple) {
-        const arr = (value ?? []) as (string | number)[];
+        const arr = Array.isArray(value) ? value : [];
         const isAlreadySelected = arr.includes(optionValue);
         const newValues = isAlreadySelected
           ? arr.filter((v) => v !== optionValue)
