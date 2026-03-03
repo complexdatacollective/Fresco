@@ -149,38 +149,41 @@ export default function useWizardState({
     title: currentStep.title,
     description: currentStep.description,
     children: (
-      <>
-        {ProgressComponent ? (
-          <ProgressComponent currentStep={stepIndex} totalSteps={totalSteps} />
-        ) : (
-          totalSteps > 1 && (
-            <div className="py-2">
-              <Pips count={totalSteps} currentIndex={stepIndex} small />
-            </div>
-          )
-        )}
-        <AnimatePresence mode="wait" custom={direction} initial={false}>
-          <motion.div
-            key={stepIndex}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.2, ease: 'easeInOut' }}
-          >
-            <WizardContext.Provider value={wizardContext}>
-              <StepContent />
-            </WizardContext.Provider>
-          </motion.div>
-        </AnimatePresence>
-      </>
+      <AnimatePresence mode="wait" custom={direction} initial={false}>
+        <motion.div
+          key={stepIndex}
+          custom={direction}
+          variants={slideVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ duration: 0.2, ease: 'easeInOut' }}
+        >
+          <WizardContext.Provider value={wizardContext}>
+            <StepContent />
+          </WizardContext.Provider>
+        </motion.div>
+      </AnimatePresence>
     ),
     footer: (
       <>
         <Button className="me-auto" onClick={handleCancel}>
           Cancel
         </Button>
+        {ProgressComponent ? (
+          <div className="flex flex-1 justify-center">
+            <ProgressComponent
+              currentStep={stepIndex}
+              totalSteps={totalSteps}
+            />
+          </div>
+        ) : (
+          totalSteps > 1 && (
+            <div className="flex flex-1 justify-center">
+              <Pips count={totalSteps} currentIndex={stepIndex} small />
+            </div>
+          )
+        )}
         {showBackButton && (
           <Button onClick={handleBack} disabled={isFirstStep || !backEnabled}>
             {currentStep.backLabel ?? 'Back'}
