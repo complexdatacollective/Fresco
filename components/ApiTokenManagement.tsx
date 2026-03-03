@@ -17,7 +17,7 @@ import { DataTableColumnHeader } from './DataTable/ColumnHeader';
 import { Alert, AlertDescription, AlertTitle } from './ui/Alert';
 import { Button } from './ui/Button';
 import { Label } from './ui/Label';
-import { Switch } from './ui/switch';
+import ToggleField from '~/lib/form/components/fields/ToggleField';
 import TimeAgo from './ui/TimeAgo';
 import { useToast } from './ui/Toast';
 
@@ -151,10 +151,10 @@ export default function ApiTokenManagement({
         <DataTableColumnHeader column={column} title="Status" />
       ),
       cell: ({ row }) => (
-        <Switch
-          checked={row.original.isActive}
+        <ToggleField
+          value={row.original.isActive}
           disabled={disabled}
-          onCheckedChange={() =>
+          onChange={() =>
             handleToggleActive(row.original.id, row.original.isActive)
           }
         />

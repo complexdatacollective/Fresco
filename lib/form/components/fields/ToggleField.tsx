@@ -2,6 +2,7 @@
 
 import { Switch } from '@base-ui/react/switch';
 import { motion } from 'motion/react';
+import { Skeleton } from '~/components/ui/skeleton';
 import {
   controlVariants,
   smallSizeVariants,
@@ -109,6 +110,10 @@ type ToggleFieldProps = CreateFormFieldProps<
   'button',
   VariantProps<typeof toggleContainerVariants>
 >;
+
+export function ToggleFieldSkeleton() {
+  return <Skeleton className="h-6 w-12 rounded-full" />;
+}
 
 export default function ToggleField(props: ToggleFieldProps) {
   const {

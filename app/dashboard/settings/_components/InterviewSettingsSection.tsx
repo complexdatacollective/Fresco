@@ -5,7 +5,7 @@ import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
 import ToggleSmallScreenWarning from '~/components/ToggleSmallScreenWarning';
 import { Alert, AlertDescription } from '~/components/ui/Alert';
-import { SwitchSkeleton } from '~/components/ui/switch';
+import { ToggleFieldSkeleton } from '~/lib/form/components/fields/ToggleField';
 import { getAppSetting } from '~/queries/appSettings';
 
 export default async function InterviewSettingsSection() {
@@ -24,7 +24,7 @@ export default async function InterviewSettingsSection() {
         description="If anonymous recruitment is enabled, you may generate an anonymous participation URL. This URL can be shared with participants to allow them to self-enroll in your study."
         testId="anonymous-recruitment-field"
         control={
-          <Suspense fallback={<SwitchSkeleton />}>
+          <Suspense fallback={<ToggleFieldSkeleton />}>
             <AnonymousRecruitmentSwitch />
           </Suspense>
         }
@@ -43,7 +43,7 @@ export default async function InterviewSettingsSection() {
           </>
         }
         control={
-          <Suspense fallback={<SwitchSkeleton />}>
+          <Suspense fallback={<ToggleFieldSkeleton />}>
             <LimitInterviewsSwitch />
           </Suspense>
         }
@@ -52,7 +52,7 @@ export default async function InterviewSettingsSection() {
         label="Disable Small Screen Warning"
         description="If this option is enabled, the warning about using Fresco on a small screen will be disabled."
         control={
-          <Suspense fallback={<SwitchSkeleton />}>
+          <Suspense fallback={<ToggleFieldSkeleton />}>
             <ToggleSmallScreenWarning />
           </Suspense>
         }

@@ -9,7 +9,7 @@ import { useTwoFactorSetup } from '~/components/TwoFactorSetup';
 import TwoFactorVerify from '~/components/TwoFactorVerify';
 import { Alert, AlertDescription } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
-import { Switch } from '~/components/ui/switch';
+import ToggleField from '~/lib/form/components/fields/ToggleField';
 import Dialog from '~/lib/dialogs/Dialog';
 import SubmitButton from '~/lib/form/components/SubmitButton';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
@@ -51,9 +51,9 @@ export default function TwoFactorSettings({
         description="Two factor authentication (2FA) adds an extra layer of security to your account by requiring a second form of verification in addition to your password. This can be a code from an authenticator app or a recovery code."
         testId="two-factor-field"
         control={
-          <Switch
-            checked={hasTwoFactor}
-            onCheckedChange={(checked) => void handleToggle(checked)}
+          <ToggleField
+            value={hasTwoFactor}
+            onChange={(checked) => void handleToggle(checked ?? false)}
             disabled={sandboxMode}
             aria-label="Toggle two-factor authentication"
           />

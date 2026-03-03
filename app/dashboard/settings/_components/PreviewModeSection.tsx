@@ -5,7 +5,7 @@ import PreviewModeSwitch from '~/components/PreviewModeSwitch';
 import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import { SwitchSkeleton } from '~/components/ui/switch';
+import { ToggleFieldSkeleton } from '~/lib/form/components/fields/ToggleField';
 import { env } from '~/env';
 import { getApiTokens } from '~/queries/apiTokens';
 import { getPreviewMode } from '~/queries/appSettings';
@@ -24,7 +24,7 @@ export default async function PreviewModeSection() {
         description="Enable preview mode to allow uploading and testing protocols directly from Architect Web on your private instance of Fresco."
         testId="enable-preview-mode-field"
         control={
-          <Suspense fallback={<SwitchSkeleton />}>
+          <Suspense fallback={<ToggleFieldSkeleton />}>
             <PreviewModeSwitch />
           </Suspense>
         }
@@ -36,7 +36,7 @@ export default async function PreviewModeSection() {
         testId="preview-mode-auth-field"
         description="When enabled, the preview protocol upload endpoint requires authentication via API token or user session. When disabled, anyone can upload preview protocols."
         control={
-          <Suspense fallback={<SwitchSkeleton />}>
+          <Suspense fallback={<ToggleFieldSkeleton />}>
             <PreviewModeAuthSwitch disabled={!previewMode} />
           </Suspense>
         }
