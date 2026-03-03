@@ -5,9 +5,7 @@ import { motion } from 'motion/react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import {
   controlVariants,
-  groupSpacingVariants,
   inputControlVariants,
-  interactiveStateVariants,
   orientationVariants,
   smallSizeVariants,
   stateVariants,
@@ -17,16 +15,21 @@ import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import { getInputState } from '../../utils/getInputState';
 import { type CreateFormFieldProps } from '../Field/types';
 
-// Wrapper variants for the fieldset container
 const richSelectGroupVariants = compose(
-  controlVariants,
-  inputControlVariants,
-  groupSpacingVariants,
-  stateVariants,
-  interactiveStateVariants,
   orientationVariants,
   cva({
-    base: 'items-stretch overflow-visible text-wrap',
+    base: 'items-stretch',
+    variants: {
+      size: {
+        sm: 'gap-2',
+        md: 'gap-2',
+        lg: 'gap-3',
+        xl: 'gap-4',
+      },
+    },
+    defaultVariants: {
+      size: 'md',
+    },
   }),
 );
 
@@ -96,15 +99,14 @@ const indicatorVariants = compose(
   }),
 );
 
-// Description text variants
 const descriptionVariants = cva({
   base: cx('leading-snug text-current/60'),
   variants: {
     size: {
-      sm: 'text-xs',
-      md: 'text-sm',
-      lg: 'text-base',
-      xl: 'text-lg',
+      sm: 'ps-9 text-xs',
+      md: 'ps-10 text-sm',
+      lg: 'ps-12 text-base',
+      xl: 'ps-14 text-lg',
     },
   },
   defaultVariants: {
@@ -242,7 +244,6 @@ export default function RichSelectGroupField(props: RichSelectGroupProps) {
           size,
           orientation,
           useColumns,
-          state: groupState,
           className,
         })}
         disabled={disabled}
