@@ -5,7 +5,7 @@ import PreviewModeSwitch from '~/components/PreviewModeSwitch';
 import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import { ToggleFieldSkeleton } from '~/lib/form/components/fields/ToggleField';
+import { ToggleFieldSkeleton } from '~/lib/form/components/fields/ToggleFieldSkeleton';
 import { env } from '~/env';
 import { getApiTokens } from '~/queries/apiTokens';
 import { getPreviewMode } from '~/queries/appSettings';

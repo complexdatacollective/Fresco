@@ -5,7 +5,7 @@ import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
 import ToggleSmallScreenWarning from '~/components/ToggleSmallScreenWarning';
 import { Alert, AlertDescription } from '~/components/ui/Alert';
-import { ToggleFieldSkeleton } from '~/lib/form/components/fields/ToggleField';
+import { ToggleFieldSkeleton } from '~/lib/form/components/fields/ToggleFieldSkeleton';
 import { getAppSetting } from '~/queries/appSettings';
 
 export default async function InterviewSettingsSection() {
