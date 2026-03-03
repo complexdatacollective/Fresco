@@ -43,7 +43,6 @@ export default function PasskeySettings({
   const [passkeys, setPasskeys] = useState<Passkey[]>(initialPasskeys);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [friendlyName, setFriendlyName] = useState('');
   const { confirm } = useDialog();
 
   const handleAddPasskey = async () => {
@@ -51,8 +50,7 @@ export default function PasskeySettings({
     setLoading(true);
 
     try {
-      const name = friendlyName.trim() || undefined;
-      const { error: genError, data } = await generateRegistrationOptions(name);
+      const { error: genError, data } = await generateRegistrationOptions();
       if (genError || !data) {
         setError(genError ?? 'Failed to start registration');
         return;
@@ -63,10 +61,7 @@ export default function PasskeySettings({
         optionsJSON: data.options,
       });
 
-      const result = await verifyRegistration({
-        credential,
-        friendlyName: name,
-      });
+      const result = await verifyRegistration({ credential });
       if (result.error) {
         setError(result.error);
         return;
@@ -84,7 +79,6 @@ export default function PasskeySettings({
           },
           ...prev,
         ]);
-        setFriendlyName('');
       }
     } catch (e) {
       if (e instanceof Error && e.name === 'NotAllowedError') {
@@ -122,24 +116,15 @@ export default function PasskeySettings({
       }
       testId="passkey-field"
       control={
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            placeholder="Passkey name (optional)"
-            value={friendlyName}
-            onChange={(e) => setFriendlyName(e.target.value)}
-            className="border-outline w-40 rounded border px-3 py-1.5 text-sm"
-          />
-          <Button
-            size="sm"
-            onClick={() => void handleAddPasskey()}
-            disabled={sandboxMode || loading}
-            color="primary"
-            icon={<Plus />}
-          >
-            {loading ? 'Registering...' : 'Add passkey'}
-          </Button>
-        </div>
+        <Button
+          size="sm"
+          onClick={() => void handleAddPasskey()}
+          disabled={sandboxMode || loading}
+          color="primary"
+          icon={<Plus />}
+        >
+          {loading ? 'Registering...' : 'Add passkey'}
+        </Button>
       }
     >
       {error && <p className="text-destructive mb-3 text-sm">{error}</p>}
