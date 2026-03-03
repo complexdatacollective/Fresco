@@ -56,9 +56,20 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
     },
     ref,
   ) => {
-    const isControlled = checked !== undefined;
+    // Determine if controlled or uncontrolled mode
+    // Controlled: onCheckedChange prop is provided (form system always uses this pattern)
+    // We use onCheckedChange as the indicator because the form system may pass undefined
+    // checked initially while the store is hydrating, but will always provide onCheckedChange
+    const isControlled = onCheckedChange !== undefined;
+    // For controlled mode, use false as fallback to prevent uncontrolled->controlled switch
+    const controlledChecked = isControlled
+      ? checked !== undefined
+        ? checked
+        : false
+      : undefined;
+
     const [internalChecked, setInternalChecked] = useState(defaultChecked);
-    const isChecked = isControlled ? checked : internalChecked;
+    const isChecked = isControlled ? controlledChecked : internalChecked;
 
     const handleCheckedChange: NonNullable<
       ComponentPropsWithoutRef<typeof BaseCheckbox.Root>['onCheckedChange']
@@ -75,7 +86,9 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
         ref={ref}
         onCheckedChange={handleCheckedChange}
         disabled={disabled ?? readOnly}
-        {...(isControlled ? { checked } : { defaultChecked })}
+        {...(isControlled
+          ? { checked: controlledChecked }
+          : { defaultChecked })}
         {...props}
         className={checkboxRootVariants({
           size,
