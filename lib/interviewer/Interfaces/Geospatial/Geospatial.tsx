@@ -9,9 +9,10 @@ import { AnimatePresence, motion, type Variants } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { type ThunkDispatch } from 'redux-thunk';
+import { MotionSurface } from '~/components/layout/Surface';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
+import Heading from '~/components/typography/Heading';
 import Button from '~/components/ui/Button';
-import CollapsablePrompts from '~/lib/interviewer/Interfaces/Sociogram/CollapsablePrompts';
 import Node from '~/lib/interviewer/components/Node';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { getAssetUrlFromId } from '~/lib/interviewer/ducks/modules/protocol';
@@ -19,6 +20,7 @@ import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
+import CollapsablePrompts from '~/lib/interviewer/Interfaces/Sociogram/CollapsablePrompts';
 import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { type RootState } from '~/lib/interviewer/store';
 import { type Direction, type StageProps } from '~/lib/interviewer/types';
@@ -225,19 +227,22 @@ export default function GeospatialInterface({
 
   if (isIntroduction) {
     return (
-      <motion.div
-        className="flex flex-1 flex-col items-center justify-center"
-        variants={introVariants}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        key="introduction"
-      >
-        <div className="max-w-3xl rounded-lg bg-(--nc-panel-bg-muted) p-8">
-          <h1 className="text-center">{introductionPanel?.title}</h1>
+      <div className="flex flex-1 flex-col items-center justify-center">
+        <MotionSurface
+          noContainer
+          className="w-full max-w-3xl grow-0"
+          variants={introVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          key="introduction"
+        >
+          <Heading level="h1" className="text-center">
+            {introductionPanel?.title}
+          </Heading>
           <RenderMarkdown>{introductionPanel?.text}</RenderMarkdown>
-        </div>
-      </motion.div>
+        </MotionSurface>
+      </div>
     );
   }
 
@@ -252,36 +257,41 @@ export default function GeospatialInterface({
         exit="hide"
         key="geospatial-interface"
       >
-        {/* if outside-selectable-areas, add an overlay */}
-        {initialSelectionValue === 'outside-selectable-areas' && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center">
-            <div className="absolute inset-0 bg-(--nc-background) opacity-75" />
-            <div className="relative z-20 flex w-1/3 flex-col items-center gap-6 text-center">
-              <h2>
-                You have indicated an area outside of the selectable map. If
-                this is correct, please select the next arrow to proceed.
-              </h2>
-              <Button
-                size="sm"
-                onClick={() => {
-                  setLocationValue(null);
-                }}
-              >
-                Deselect
-              </Button>
+        <div className="relative size-full">
+          {/* if outside-selectable-areas, add an overlay */}
+          {initialSelectionValue === 'outside-selectable-areas' && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center">
+              <div className="bg-background absolute inset-0 opacity-75" />
+              <div className="relative z-20 flex w-1/3 flex-col items-center gap-6 text-center">
+                <h2>
+                  You have indicated an area outside of the selectable map. If
+                  this is correct, please select the next arrow to proceed.
+                </h2>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setLocationValue(null);
+                  }}
+                  color="primary"
+                >
+                  Deselect
+                </Button>
+              </div>
             </div>
+          )}
+
+          <div id="map-container" className="size-full" ref={mapContainerRef} />
+
+          <div className="absolute bottom-10 left-14 z-5">
+            <Button
+              size="lg"
+              onClick={handleResetMapZoom}
+              icon={<Locate />}
+              title="Recenter Map"
+              aria-label="Recenter Map"
+              color="primary"
+            />
           </div>
-        )}
-
-        <div id="map-container" className="size-full" ref={mapContainerRef} />
-
-        <div className="absolute bottom-10 left-14 z-5">
-          <Button
-            size="lg"
-            onClick={handleResetMapZoom}
-            icon={<Locate />}
-            title="Recenter Map"
-          />
         </div>
 
         <CollapsablePrompts

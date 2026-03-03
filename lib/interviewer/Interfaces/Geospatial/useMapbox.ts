@@ -46,6 +46,40 @@ const PROTOCOL_TO_THEME_VAR: Record<string, string> = {
 const DEFAULT_COLOR_VAR = '--color-node-1';
 const DEFAULT_FALLBACK = 'rgb(226, 33, 91)';
 
+/**
+ * Converts any CSS color (including oklch) to hex format for Mapbox compatibility.
+ * Uses a cached Canvas 2D context which always serializes colors to hex.
+ *
+ * @param cssColor - Any valid CSS color string
+ * @returns Hex color string (e.g., '#ff0000') or fallback if invalid
+ * @note Must only be called client-side (uses document.createElement)
+ */
+export const convertCssColorToHex = (() => {
+  let ctx: CanvasRenderingContext2D | null = null;
+
+  return (cssColor: string): string => {
+    // SSR guard - return fallback when running server-side
+    if (typeof document === 'undefined') return DEFAULT_FALLBACK;
+
+    if (!ctx) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1;
+      canvas.height = 1;
+      ctx = canvas.getContext('2d');
+    }
+    if (!ctx) return DEFAULT_FALLBACK;
+
+    // Reset to known state to detect invalid colors
+    ctx.fillStyle = '#000000';
+    ctx.fillStyle = cssColor;
+
+    // If color was invalid, fillStyle stays #000000
+    return ctx.fillStyle === '#000000' && cssColor !== '#000000'
+      ? DEFAULT_FALLBACK
+      : ctx.fillStyle;
+  };
+})();
+
 type UseMapboxProps = {
   mapOptions: MapOptions;
   getAssetUrl: (url: string) => string | undefined;
@@ -108,8 +142,6 @@ export const useMapbox = ({
     });
 
     const handleMapLoad = () => {
-      setIsMapLoaded(true);
-
       if (mapRef.current) {
         mapRef.current.addSource('geojson-data', {
           type: 'geojson',
@@ -124,12 +156,13 @@ export const useMapbox = ({
         );
       }
 
-      // Read CSS variable value using getComputedStyle for Mapbox GL paint properties
+      // Read CSS variable and convert to RGB format for Mapbox GL compatibility
+      // (Mapbox doesn't support oklch colors used in the theme)
       const colorVar = PROTOCOL_TO_THEME_VAR[color] ?? DEFAULT_COLOR_VAR;
-      const ncColor =
-        getComputedStyle(document.documentElement)
-          .getPropertyValue(colorVar)
-          .trim() || DEFAULT_FALLBACK;
+      const rawColor = getComputedStyle(document.documentElement)
+        .getPropertyValue(colorVar)
+        .trim();
+      const ncColor = rawColor ? convertCssColorToHex(rawColor) : DEFAULT_FALLBACK;
 
       mapRef.current?.addLayer({
         id: 'outline',
@@ -176,6 +209,9 @@ export const useMapbox = ({
           ],
         },
       });
+
+      // Set loaded AFTER all layers are added to avoid race conditions
+      setIsMapLoaded(true);
     };
 
     const handleMapStyleLoad = () => {
