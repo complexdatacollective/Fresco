@@ -8,6 +8,7 @@ CREATE TABLE "WebAuthnCredential" (
     "transports" TEXT,
     "deviceType" TEXT NOT NULL,
     "backedUp" BOOLEAN NOT NULL DEFAULT false,
+    "aaguid" TEXT,
     "friendlyName" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "lastUsedAt" TIMESTAMP(3),

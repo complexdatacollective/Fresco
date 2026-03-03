@@ -49,6 +49,7 @@ model WebAuthnCredential {
   transports   String?
   deviceType   String
   backedUp     Boolean   @default(false)
+  aaguid       String?
   friendlyName String?
   createdAt    DateTime  @default(now())
   lastUsedAt   DateTime?
