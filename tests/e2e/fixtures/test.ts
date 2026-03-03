@@ -1,4 +1,5 @@
 import {
+  type ElementHandle,
   test as base,
   expect,
   type Locator,
@@ -28,6 +29,12 @@ const VISUAL_STYLES = `
   *, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }
   [data-testid="background-blobs"] { visibility: hidden !important; }
   [data-testid="time-ago"] { visibility: hidden !important; }
+`;
+
+const FULL_PAGE_STYLES = `
+  .root { height: auto !important; min-height: 100dvh !important; }
+  .root > * { min-height: 0 !important; }
+  main { overflow: visible !important; }
 `;
 
 type Viewport = {
@@ -110,13 +117,27 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         await page.addStyleTag({ content: VISUAL_STYLES });
 
         for (const viewport of viewports) {
+          const isFullPage = viewport.name === 'full';
+
           await page.setViewportSize({ width: viewport.width, height: 1080 });
+
+          let fullPageTag: ElementHandle<HTMLStyleElement> | null = null;
+          if (isFullPage) {
+            fullPageTag = await page.addStyleTag({ content: FULL_PAGE_STYLES });
+          }
+
           await page.waitForTimeout(100);
 
           await expect(page).toHaveScreenshot(`${name}-${viewport.name}.png`, {
             fullPage: true,
             mask: options.mask,
           });
+
+          if (fullPageTag) {
+            await fullPageTag.evaluate((el) => {
+              el.remove();
+            });
+          }
         }
 
         if (originalViewport) {

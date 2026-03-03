@@ -18,7 +18,7 @@ export default function Layout({ children }: PropsWithChildren) {
             className="h-auto w-md p-4"
           />
         </Link>
-        <main className="tablet:items-center tablet:py-0 flex grow items-start justify-center overflow-y-auto py-4">
+        <main className="tablet:items-center tablet:py-0 flex min-h-0 grow items-start justify-center overflow-y-auto py-4">
           {children}
         </main>
         <NetlifyBadge />
