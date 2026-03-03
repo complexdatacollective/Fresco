@@ -38,7 +38,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className="bg-background publish-colors antialiased">
-        <div className="root h-dvh">
+        <div className="root min-h-dvh">
           <Providers disableAnimations={env.CI ?? false}>
             <Suspense>
               <AnalyticsLoader />

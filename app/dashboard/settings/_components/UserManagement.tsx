@@ -553,12 +553,11 @@ export default function UserManagement({
             />
             {users.length === 1 && (
               <div className="py-4">
-                <Alert variant="warning" className="my-0">
-                  <AlertTitle>Single User Warning</AlertTitle>
+                <Alert variant="info" className="my-0">
                   <AlertDescription>
                     You are the only user. If you lose access to your passkey,
                     you will be locked out. Consider adding another user or
-                    switching to password authentication.
+                    backing up your passkey.
                   </AlertDescription>
                 </Alert>
               </div>

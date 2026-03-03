@@ -34,7 +34,6 @@ const VISUAL_STYLES = `
 const FULL_PAGE_STYLES = `
   .root { height: auto !important; min-height: 100dvh !important; }
   .root > * { min-height: 0 !important; }
-  main { overflow: visible !important; }
 `;
 
 type Viewport = {
@@ -121,7 +120,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
           await page.setViewportSize({ width: viewport.width, height: 1080 });
 
-          let fullPageTag: ElementHandle<HTMLStyleElement> | null = null;
+          let fullPageTag: ElementHandle<Node> | null = null;
           if (isFullPage) {
             fullPageTag = await page.addStyleTag({ content: FULL_PAGE_STYLES });
           }
@@ -135,7 +134,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
           if (fullPageTag) {
             await fullPageTag.evaluate((el) => {
-              el.remove();
+              el.parentNode?.removeChild(el);
             });
           }
         }

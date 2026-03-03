@@ -21,7 +21,7 @@ export default async function Page() {
   return (
     <MotionSurface
       noContainer
-      className={cx(containerClasses, 'mx-auto grow-0')}
+      className={cx(containerClasses, 'mx-auto')}
       elevation="none"
       baseSize="content"
     >
