@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="tablet:gap-16 tablet:px-6 laptop:px-12 mb-10 flex h-dvh flex-col gap-10 overflow-y-auto px-2 pb-10 [scrollbar-gutter:stable_both-edges]">
+    <div className="tablet:gap-16 tablet:px-6 laptop:px-12 flex h-dvh flex-col gap-10 overflow-y-auto px-2 pb-10 [scrollbar-gutter:stable_both-edges]">
       <NavigationBar />
       <Suspense fallback={null}>
         <UploadThingTokenGate />
