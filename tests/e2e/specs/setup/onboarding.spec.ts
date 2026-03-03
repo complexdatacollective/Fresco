@@ -26,6 +26,7 @@ test.describe('Setup Flow', () => {
       page.getByRole('heading', { name: 'Create an Admin Account', level: 2 }),
     ).toBeVisible();
     await fillField(page, 'username', 'testadmin');
+    await page.getByRole('radio', { name: /^Password/i }).click();
     await fillField(page, 'password', 'TestAdmin123!');
     await fillField(page, 'confirmPassword', 'TestAdmin123!');
     await page.getByRole('button', { name: 'Create account' }).click();

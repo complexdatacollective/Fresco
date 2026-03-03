@@ -8,7 +8,7 @@ export default defineConfig({
   snapshotDir: './visual-snapshots',
   snapshotPathTemplate: '{snapshotDir}/{arg}{ext}',
 
-  retries: 2,
+  retries: 0,
   // Multiple workers coordinate via shared/exclusive advisory locks:
   // - Read-only tests hold shared locks (parallel reads allowed)
   // - Mutation tests acquire exclusive locks (serialized writes)
@@ -17,6 +17,7 @@ export default defineConfig({
   reporter: [
     ['line'],
     ['html', { outputFolder: './playwright-report', open: 'never' }],
+    ['json', { outputFile: './test-results/results.json' }],
   ],
   expect: {
     toHaveScreenshot: {

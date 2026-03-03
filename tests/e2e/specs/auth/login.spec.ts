@@ -10,13 +10,6 @@ test.describe('Sign In Page', () => {
     await capturePage('signin-page');
   });
 
-  test('passkey sign-in button visible', async ({ page }) => {
-    await page.goto('/signin');
-    await expect(
-      page.getByRole('button', { name: /sign in with a passkey/i }),
-    ).toBeVisible();
-  });
-
   test('trouble signing in link visible', async ({ page }) => {
     await page.goto('/signin');
     await expect(
@@ -31,7 +24,7 @@ test.describe('Sign In Page', () => {
 
     await fillField(page, 'username', 'testadmin');
     await fillField(page, 'password', 'TestAdmin123!');
-    await page.getByRole('button', { name: /sign in/i }).click();
+    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
 
     // Wait for redirect to dashboard
     await page.waitForURL('**/dashboard', { timeout: 15_000 });

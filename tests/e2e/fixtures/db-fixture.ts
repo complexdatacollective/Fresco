@@ -231,15 +231,21 @@ export class DatabaseIsolation {
     });
     this.readLockClient = await this.readLockPool.connect();
 
-    // Acquire shared lock - allows parallel reads, blocks during exclusive writes
+    // Acquire exclusive lock for the restore to prevent concurrent TRUNCATEs
+    // from deadlocking each other
+    await this.readLockClient.query(`SELECT pg_advisory_lock(${LOCK_ID})`);
+    log(
+      'test',
+      `Acquired exclusive lock for restoring snapshot "${name}" for suite "${this.suiteId}"...`,
+    );
+    await this.restoreWith(this.readLockClient, name);
+
+    // Downgrade to shared lock: release exclusive, then acquire shared
+    await this.readLockClient.query(`SELECT pg_advisory_unlock(${LOCK_ID})`);
     await this.readLockClient.query(
       `SELECT pg_advisory_lock_shared(${LOCK_ID})`,
     );
-    log(
-      'test',
-      `Acquired shared lock and restoring snapshot "${name}" for suite "${this.suiteId}"...`,
-    );
-    await this.restoreWith(this.readLockClient, name);
+    log('test', `Downgraded to shared lock for suite "${this.suiteId}"`);
     // Keep the shared lock held - it protects read-only tests from concurrent mutations
   }
 
