@@ -28,7 +28,8 @@ const parseBoolean = (value: unknown): boolean | undefined => {
 // Variation of the schema that converts the string types in the db to the correct types
 export const appSettingPreprocessedSchema = appSettingsSchema.extend({
   initializedAt: z.preprocess(
-    (val) => (val == null ? null : new Date(String(val))),
+    (val) =>
+      val == null ? null : new Date(typeof val === 'string' ? val : ''),
     z.date().nullable().default(null),
   ),
   configured: z.preprocess(parseBoolean, z.boolean().default(false)),

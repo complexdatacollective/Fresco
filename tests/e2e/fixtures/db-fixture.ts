@@ -1,5 +1,4 @@
 import { type Page } from '@playwright/test';
-import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import pg from 'pg';
@@ -79,83 +78,6 @@ export class DatabaseIsolation {
     return this.prisma.participant.count({
       where: identifier ? { identifier } : undefined,
     });
-  }
-
-  async seedTotpForUser(
-    username: string,
-    secret: string,
-    recoveryCodes: string[],
-  ): Promise<void> {
-    const user = await this.prisma.user.findUnique({
-      where: { username },
-      select: { id: true },
-    });
-    if (!user) {
-      throw new Error(`User "${username}" not found`);
-    }
-
-    await this.prisma.totpCredential.upsert({
-      where: { user_id: user.id },
-      create: {
-        user_id: user.id,
-        secret,
-        verified: true,
-      },
-      update: {
-        secret,
-        verified: true,
-      },
-    });
-
-    await this.prisma.recoveryCode.deleteMany({
-      where: { user_id: user.id },
-    });
-
-    await this.prisma.recoveryCode.createMany({
-      data: recoveryCodes.map((code) => ({
-        user_id: user.id,
-        codeHash: createHash('sha256').update(code).digest('hex'),
-      })),
-    });
-
-    log('test', `Seeded TOTP for user "${username}"`);
-  }
-
-  async clearTotpForUser(username: string): Promise<void> {
-    const user = await this.prisma.user.findUnique({
-      where: { username },
-      select: { id: true },
-    });
-    if (!user) {
-      throw new Error(`User "${username}" not found`);
-    }
-
-    await this.prisma.totpCredential.deleteMany({
-      where: { user_id: user.id },
-    });
-    await this.prisma.recoveryCode.deleteMany({
-      where: { user_id: user.id },
-    });
-
-    log('test', `Cleared TOTP for user "${username}"`);
-  }
-
-  async markRecoveryCodeUsed(username: string, code: string): Promise<void> {
-    const user = await this.prisma.user.findUnique({
-      where: { username },
-      select: { id: true },
-    });
-    if (!user) {
-      throw new Error(`User "${username}" not found`);
-    }
-
-    const codeHash = createHash('sha256').update(code).digest('hex');
-    await this.prisma.recoveryCode.updateMany({
-      where: { user_id: user.id, codeHash },
-      data: { usedAt: new Date() },
-    });
-
-    log('test', `Marked recovery code as used for user "${username}"`);
   }
 
   async seedPasskeyForUser(

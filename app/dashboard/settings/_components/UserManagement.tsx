@@ -1,5 +1,9 @@
 'use client';
 
+import {
+  startAuthentication,
+  startRegistration,
+} from '@simplewebauthn/browser';
 import { type ColumnDef } from '@tanstack/react-table';
 import { Plus, Trash, User } from 'lucide-react';
 import { use, useCallback, useState } from 'react';
@@ -10,10 +14,6 @@ import {
   createUser,
   deleteUsers,
 } from '~/actions/users';
-import {
-  startAuthentication,
-  startRegistration,
-} from '@simplewebauthn/browser';
 import {
   generateAuthenticationOptions,
   generateRegistrationOptions,
@@ -206,11 +206,10 @@ export default function UserManagement({
 }: UserManagementProps) {
   // TanStack Table: consumers must also opt out so React Compiler doesn't memoize JSX that depends on the table ref.
   'use no memo';
-  const initialUsers = use(usersPromise);
+  const users = use(usersPromise);
   const hasTwoFactor = use(hasTwoFactorPromise);
   const initialPasskeys = use(passkeysPromise);
   const hasPassword = use(hasPasswordPromise);
-  const [users, setUsers] = useState(initialUsers);
   const [isCreating, setIsCreating] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(false);
@@ -226,19 +225,14 @@ export default function UserManagement({
 
   const { confirm } = useDialog();
 
-  const doDeleteUsers = useCallback(
-    async (usersToDelete: UserRow[]) => {
-      const ids = usersToDelete.map((u) => u.id);
-      const result = await deleteUsers({ ids });
+  const doDeleteUsers = useCallback(async (usersToDelete: UserRow[]) => {
+    const ids = usersToDelete.map((u) => u.id);
+    const result = await deleteUsers({ ids });
 
-      if (result.error) {
-        setError(result.error);
-      } else {
-        setUsers((prev) => prev.filter((user) => !ids.includes(user.id)));
-      }
-    },
-    [setUsers],
-  );
+    if (result.error) {
+      setError(result.error);
+    }
+  }, []);
 
   const handleDeleteUser = useCallback(
     (user: UserRow) => {
@@ -266,21 +260,8 @@ export default function UserManagement({
           const result = await resetAuthForUser(user.id);
           if (result.error) {
             setError(result.error);
-          } else {
-            setUsers((prev) =>
-              prev.map((u) =>
-                u.id === user.id
-                  ? {
-                      ...u,
-                      totpCredential: null,
-                      webAuthnCredentials: [],
-                    }
-                  : u,
-              ),
-            );
-            if (result.data?.temporaryPassword) {
-              setTempPassword(result.data.temporaryPassword);
-            }
+          } else if (result.data?.temporaryPassword) {
+            setTempPassword(result.data.temporaryPassword);
           }
         },
       });
@@ -356,15 +337,6 @@ export default function UserManagement({
       };
     }
 
-    setUsers([
-      ...users,
-      {
-        id: crypto.randomUUID(),
-        username,
-        totpCredential: null,
-        webAuthnCredentials: [],
-      },
-    ]);
     setIsCreating(false);
     return { success: true };
   };
@@ -522,9 +494,9 @@ export default function UserManagement({
                 <Paragraph intent="smallText" margin="none">
                   Logged in as:
                 </Paragraph>
-                <Paragraph className="truncate font-medium">
+                <Heading level="h4" margin="none">
                   {currentUsername}
-                </Paragraph>
+                </Heading>
               </div>
             </div>
             {hasPassword && !sandboxMode && (
