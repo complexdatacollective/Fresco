@@ -337,3 +337,22 @@ const buildEdgesAndHighlighting = () => {
 export const EdgesAndHighlighting: Story = {
   render: () => <SociogramStoryWrapper buildFn={buildEdgesAndHighlighting} />,
 };
+
+const buildLongPrompt = () => {
+  const { si, layoutVar } = createSociogramInterview(13);
+  si.addInformationStage({ title: 'Welcome', text: 'Before the main stage.' });
+  const stage = si.addStage('Sociogram', { initialNodes: 5 });
+  stage.addPrompt({
+    text: 'Position each person on the map based on how emotionally close you feel to them. Place people you feel very close to near the center and those you feel less connected with further out.',
+    layout: { layoutVariable: layoutVar.id },
+  });
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+  return si;
+};
+
+export const LongPrompt: Story = {
+  render: () => <SociogramStoryWrapper buildFn={buildLongPrompt} />,
+};

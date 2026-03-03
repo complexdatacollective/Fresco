@@ -17,6 +17,7 @@ import {
   type AddCategoricalBinPromptInput,
   type AddDiseaseNominationStepInput,
   type AddDyadCensusPromptInput,
+  type AddGeospatialPromptInput,
   type AddEdgeTypeInput,
   type AddNodeTypeInput,
   type AddOneToManyDyadCensusPromptInput,
@@ -32,6 +33,7 @@ import {
   type DyadCensusPromptEntry,
   type EdgeEntry,
   type EdgeTypeEntry,
+  type GeospatialPromptEntry,
   type FormFieldInput,
   type GetSessionInput,
   type NameGeneratorPromptEntry,
@@ -147,6 +149,10 @@ type FamilyTreeCensusHandle = StageHandleBase & {
   addDiseaseNominationStep: (opts?: AddDiseaseNominationStepInput) => void;
 };
 
+type GeospatialHandle = StageHandleBase & {
+  addPrompt: (opts?: AddGeospatialPromptInput) => void;
+};
+
 type StageHandleMap = {
   NameGenerator: NameGeneratorHandle;
   NameGeneratorQuickAdd: NameGeneratorQuickAddHandle;
@@ -164,6 +170,7 @@ type StageHandleMap = {
   AlterEdgeForm: AlterEdgeFormHandle;
   Anonymisation: AnonymisationHandle;
   FamilyTreeCensus: FamilyTreeCensusHandle;
+  Geospatial: GeospatialHandle;
 };
 
 // Stage types that have no subject (node/edge)
@@ -538,6 +545,32 @@ export class SyntheticInterview {
       entry.diseaseNominationStep = [];
     }
 
+    // Geospatial
+    if (type === 'Geospatial') {
+      // mapOptions is required for Geospatial stages
+      if (opts?.mapOptions) {
+        entry.mapOptions = opts.mapOptions;
+      } else {
+        // Provide sensible defaults for testing/Storybook
+        entry.mapOptions = {
+          tokenAssetId: 'mapbox-token',
+          style: 'mapbox://styles/mapbox/streets-v12',
+          center: [-87.6298, 41.8781], // Chicago
+          initialZoom: 11,
+          dataSourceAssetId: 'geojson-data',
+          color: 'node-color-seq-1',
+          targetFeatureProperty: 'name',
+        };
+      }
+      // Geospatial requires introductionPanel
+      entry.introductionPanel ??= {
+        title: opts?.introductionPanel?.title ?? 'Location Selection',
+        text:
+          opts?.introductionPanel?.text ??
+          'Please select a location on the map for each person.',
+      };
+    }
+
     // Generate initial nodes (only for node-based stages)
     if (entry.initialNodes > 0 && subject?.entity === 'node') {
       for (let i = 0; i < entry.initialNodes; i++) {
@@ -807,6 +840,15 @@ export class SyntheticInterview {
             };
             entry.diseaseNominationStep ??= [];
             entry.diseaseNominationStep.push(step);
+          },
+        } as StageHandleMap[T];
+
+      case 'Geospatial':
+        return {
+          ...base,
+          addPrompt: (opts?: AddGeospatialPromptInput) => {
+            const prompt = this.resolveGeospatialPrompt(opts, entry);
+            entry.prompts.push(prompt);
           },
         } as StageHandleMap[T];
     }
@@ -1210,6 +1252,34 @@ export class SyntheticInterview {
     };
   }
 
+  private resolveGeospatialPrompt(
+    opts: AddGeospatialPromptInput | undefined,
+    entry: StageEntry,
+  ): GeospatialPromptEntry {
+    const promptId = this.nextId('prompt');
+    const nodeTypeId = entry.subject?.type;
+
+    // Resolve the variable to store the location selection
+    let variable: string;
+    if (opts?.variable) {
+      variable = opts.variable;
+    } else if (nodeTypeId) {
+      const ref = this.addVariableToNodeType(nodeTypeId, {
+        type: 'text',
+        name: 'Location',
+      });
+      variable = ref.id;
+    } else {
+      variable = this.nextId('location-var');
+    }
+
+    return {
+      id: promptId,
+      text: opts?.text ?? this.valueGen.generatePromptText('Geospatial'),
+      variable,
+    };
+  }
+
   // --- Output methods ---
 
   getProtocol() {
@@ -1471,6 +1541,11 @@ export class SyntheticInterview {
     }
     if (stage.diseaseNominationStep) {
       config.diseaseNominationStep = stage.diseaseNominationStep;
+    }
+
+    // Geospatial
+    if (stage.mapOptions) {
+      config.mapOptions = stage.mapOptions;
     }
 
     return config;

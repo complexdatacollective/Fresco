@@ -51,7 +51,8 @@ export type StageType =
   | 'AlterForm'
   | 'AlterEdgeForm'
   | 'Anonymisation'
-  | 'FamilyTreeCensus';
+  | 'FamilyTreeCensus'
+  | 'Geospatial';
 
 export type NameGeneratorPromptEntry = {
   id: string;
@@ -129,6 +130,22 @@ export type DiseaseNominationStepEntry = {
   variable: string;
 };
 
+export type GeospatialPromptEntry = {
+  id: string;
+  text: string;
+  variable: string;
+};
+
+export type MapOptionsEntry = {
+  tokenAssetId: string;
+  style: string;
+  center: [number, number];
+  initialZoom: number;
+  dataSourceAssetId: string;
+  color: string;
+  targetFeatureProperty: string;
+};
+
 export type PromptEntry =
   | NameGeneratorPromptEntry
   | SociogramPromptEntry
@@ -136,7 +153,8 @@ export type PromptEntry =
   | OneToManyDyadCensusPromptEntry
   | OrdinalBinPromptEntry
   | CategoricalBinPromptEntry
-  | TieStrengthCensusPromptEntry;
+  | TieStrengthCensusPromptEntry
+  | GeospatialPromptEntry;
 
 export type PresetEntry = {
   id: string;
@@ -241,6 +259,8 @@ export type StageEntry = {
     form: FormEntry;
   };
   diseaseNominationStep?: DiseaseNominationStepEntry[];
+  // Geospatial
+  mapOptions?: MapOptionsEntry;
 };
 
 export type NodeEntry = {
@@ -351,6 +371,8 @@ export type AddStageInput = {
       fields: FormFieldInput[];
     };
   };
+  // Geospatial
+  mapOptions?: MapOptionsEntry;
 };
 
 export type AddPromptInput = {
@@ -405,6 +427,11 @@ export type AddTieStrengthCensusPromptInput = {
 };
 
 export type AddDiseaseNominationStepInput = {
+  text?: string;
+  variable?: string;
+};
+
+export type AddGeospatialPromptInput = {
   text?: string;
   variable?: string;
 };

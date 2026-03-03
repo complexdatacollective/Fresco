@@ -54,7 +54,7 @@ const DEFAULT_FALLBACK = 'rgb(226, 33, 91)';
  * @returns Hex color string (e.g., '#ff0000') or fallback if invalid
  * @note Must only be called client-side (uses document.createElement)
  */
-export const convertCssColorToHex = (() => {
+const convertCssColorToHex = (() => {
   let ctx: CanvasRenderingContext2D | null = null;
 
   return (cssColor: string): string => {
@@ -162,7 +162,9 @@ export const useMapbox = ({
       const rawColor = getComputedStyle(document.documentElement)
         .getPropertyValue(colorVar)
         .trim();
-      const ncColor = rawColor ? convertCssColorToHex(rawColor) : DEFAULT_FALLBACK;
+      const ncColor = rawColor
+        ? convertCssColorToHex(rawColor)
+        : DEFAULT_FALLBACK;
 
       mapRef.current?.addLayer({
         id: 'outline',

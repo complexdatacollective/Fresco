@@ -88,6 +88,8 @@ export class ValueGenerator {
         return 'Please describe each relationship.';
       case 'FamilyTreeCensus':
         return 'Please create your family tree by adding family members.';
+      case 'Geospatial':
+        return 'Please select a location on the map for this person.';
       default:
         return 'Please complete this step.';
     }

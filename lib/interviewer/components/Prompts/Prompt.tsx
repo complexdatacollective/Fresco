@@ -33,7 +33,7 @@ type PromptProps = {
  */
 const Prompt = ({ id, text, backwards = false, small }: PromptProps) => {
   const promptClasses = cx(
-    'font-heading line-clamp-3 overflow-hidden pb-[0.1em] text-center text-2xl',
+    'font-heading pb-[0.1em] text-center text-2xl',
   );
 
   return (
