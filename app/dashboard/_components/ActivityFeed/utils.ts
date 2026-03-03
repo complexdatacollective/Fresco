@@ -62,5 +62,7 @@ export const getBadgeColorsForActivityType = (type: ActivityType) => {
       return 'bg-purple-pizazz hover:bg-purple-pizazz-dark';
     case 'Switched to Passkey Mode':
       return 'bg-sea-green hover:bg-sea-green-dark';
+    case 'Switched to Password Mode':
+      return 'bg-mustard hover:bg-mustard-dark';
   }
 };

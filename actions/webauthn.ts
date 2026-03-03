@@ -678,3 +678,35 @@ export async function switchToPasskeyMode(data: {
 
   return { error: null, data: null };
 }
+
+export async function switchToPasswordMode(newPassword: string) {
+  const session = await requireApiAuth();
+
+  const key = await prisma.key.findFirst({
+    where: { user_id: session.user.userId },
+  });
+
+  if (key?.hashed_password) {
+    return { error: 'Account is already in password mode.', data: null };
+  }
+
+  const hashed = await hashPassword(newPassword);
+
+  await prisma.$transaction([
+    prisma.key.updateMany({
+      where: { user_id: session.user.userId },
+      data: { hashed_password: hashed },
+    }),
+    prisma.webAuthnCredential.deleteMany({
+      where: { user_id: session.user.userId },
+    }),
+  ]);
+
+  void addEvent(
+    'Switched to Password Mode',
+    `User ${session.user.username} switched to password authentication`,
+  );
+  safeUpdateTag('getUsers');
+
+  return { error: null, data: null };
+}
