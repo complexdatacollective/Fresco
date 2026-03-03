@@ -28,6 +28,15 @@ async function getPasskeys(userId: string) {
   });
 }
 
+async function getHasPassword(userId: string) {
+  const key = await prisma.key.findFirst({
+    where: { user_id: userId },
+    select: { hashed_password: true },
+  });
+
+  return !!key?.hashed_password;
+}
+
 export default function UserManagementSection({
   userId,
   username,
@@ -38,6 +47,7 @@ export default function UserManagementSection({
   const usersPromise = getUsers();
   const hasTwoFactorPromise = getHasTwoFactor(userId);
   const passkeysPromise = getPasskeys(userId);
+  const hasPasswordPromise = getHasPassword(userId);
 
   return (
     <SettingsCard id="user-management" title="User Management">
@@ -47,6 +57,7 @@ export default function UserManagementSection({
         currentUserId={userId}
         currentUsername={username}
         passkeysPromise={passkeysPromise}
+        hasPasswordPromise={hasPasswordPromise}
         sandboxMode={!!env.SANDBOX_MODE}
       />
     </SettingsCard>

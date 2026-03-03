@@ -16,6 +16,7 @@ export const NoPasskeys: Story = {
   args: {
     initialPasskeys: [],
     sandboxMode: false,
+    hasPassword: true,
   },
 };
 
@@ -40,6 +41,7 @@ export const WithPasskeys: Story = {
       },
     ],
     sandboxMode: false,
+    hasPassword: true,
   },
 };
 
@@ -56,5 +58,6 @@ export const SandboxMode: Story = {
       },
     ],
     sandboxMode: true,
+    hasPassword: true,
   },
 };

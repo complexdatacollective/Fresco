@@ -24,6 +24,15 @@ export async function getWebAuthnConfig() {
     rpID: url.hostname,
     rpName: 'Fresco',
     origin: url.origin,
+    attestationType: 'none' as const,
+    authenticatorSelection: {
+      residentKey: 'preferred' as const,
+      // 'preferred' means the authenticator MAY skip user verification.
+      // requireUserVerification must stay in sync — when generation uses
+      // 'preferred', verification must accept responses without UV.
+      userVerification: 'preferred' as const,
+    },
+    requireUserVerification: false,
   };
 }
 

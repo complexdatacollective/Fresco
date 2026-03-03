@@ -72,15 +72,12 @@ export async function generateRegistrationOptions() {
     rpName: config.rpName,
     rpID: config.rpID,
     userName: session.user.username,
-    attestationType: 'none',
+    attestationType: config.attestationType,
     excludeCredentials: existingCredentials.map((c) => ({
       id: c.credentialId,
       transports: splitTransports(c.transports),
     })),
-    authenticatorSelection: {
-      residentKey: 'preferred',
-      userVerification: 'preferred',
-    },
+    authenticatorSelection: config.authenticatorSelection,
   });
 
   await setChallengeCookie(options.challenge);
@@ -109,9 +106,16 @@ export async function verifyRegistration(data: {
       expectedChallenge: challenge,
       expectedOrigin: config.origin,
       expectedRPID: config.rpID,
+      requireUserVerification: config.requireUserVerification,
     });
-  } catch {
-    return { error: 'Registration verification failed.', data: null };
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Unknown error';
+    // eslint-disable-next-line no-console
+    console.error('[WebAuthn] Registration verification error:', message);
+    return {
+      error: `Registration verification failed: ${message}`,
+      data: null,
+    };
   }
 
   if (!verification.verified || !verification.registrationInfo) {
@@ -154,6 +158,167 @@ export async function verifyRegistration(data: {
   };
 }
 
+// --- Signup with Passkey (atomic: no session until passkey is verified) ---
+
+export async function generateSignupRegistrationOptions(username: string) {
+  if (!username || username.length < 4) {
+    return { error: 'Username must be at least 4 characters.', data: null };
+  }
+
+  const config = await getWebAuthnConfig();
+
+  const options = await generateRegOptions({
+    rpName: config.rpName,
+    rpID: config.rpID,
+    userName: username,
+    attestationType: config.attestationType,
+    authenticatorSelection: config.authenticatorSelection,
+  });
+
+  await setChallengeCookie(options.challenge);
+
+  return { error: null, data: { options } };
+}
+
+export async function signupWithPasskey(data: {
+  username: string;
+  credential: RegistrationResponseJSON;
+}) {
+  const { username, credential } = data;
+
+  if (!username || username.length < 4) {
+    return { error: 'Username must be at least 4 characters.', data: null };
+  }
+
+  const config = await getWebAuthnConfig();
+
+  const challenge = await getAndClearChallengeCookie();
+  if (!challenge) {
+    return { error: 'Challenge expired. Please try again.', data: null };
+  }
+
+  let verification;
+  try {
+    verification = await verifyRegistrationResponse({
+      response: credential,
+      expectedChallenge: challenge,
+      expectedOrigin: config.origin,
+      expectedRPID: config.rpID,
+      requireUserVerification: config.requireUserVerification,
+    });
+  } catch {
+    return { error: 'Registration verification failed.', data: null };
+  }
+
+  if (!verification.verified || !verification.registrationInfo) {
+    return { error: 'Registration verification failed.', data: null };
+  }
+
+  const {
+    credential: verifiedCredential,
+    credentialDeviceType,
+    credentialBackedUp,
+    aaguid,
+  } = verification.registrationInfo;
+
+  const friendlyName = getAuthenticatorName(aaguid, credentialDeviceType);
+
+  let user;
+  try {
+    user = await prisma.user.create({
+      data: {
+        username,
+        key: {
+          create: {
+            id: `username:${username}`,
+            hashed_password: null,
+          },
+        },
+        webAuthnCredentials: {
+          create: {
+            credentialId: verifiedCredential.id,
+            publicKey: Buffer.from(verifiedCredential.publicKey).toString(
+              'base64url',
+            ),
+            counter: BigInt(verifiedCredential.counter),
+            transports: verifiedCredential.transports?.join(',') ?? null,
+            deviceType: credentialDeviceType,
+            backedUp: credentialBackedUp,
+            aaguid,
+            friendlyName,
+          },
+        },
+      },
+    });
+  } catch {
+    return { error: 'Username already taken.', data: null };
+  }
+
+  await createSessionCookie(user.id);
+
+  void addEvent(
+    'User Created',
+    `User ${username} created an account with a passkey (${friendlyName})`,
+  );
+
+  return { error: null, data: { success: true } };
+}
+
+// --- Passkey Reauth ---
+
+export async function verifyPasskeyReauth(data: {
+  credential: AuthenticationResponseJSON;
+}) {
+  const session = await requireApiAuth();
+  const config = await getWebAuthnConfig();
+
+  const challenge = await getAndClearChallengeCookie();
+  if (!challenge) {
+    return { error: 'Challenge expired. Please try again.', data: null };
+  }
+
+  const storedCredential = await prisma.webAuthnCredential.findUnique({
+    where: { credentialId: data.credential.id },
+  });
+
+  if (storedCredential?.user_id !== session.user.userId) {
+    return { error: 'Passkey not recognized.', data: null };
+  }
+
+  let verification;
+  try {
+    verification = await verifyAuthenticationResponse({
+      response: data.credential,
+      expectedChallenge: challenge,
+      expectedOrigin: config.origin,
+      expectedRPID: config.rpID,
+      requireUserVerification: config.requireUserVerification,
+      credential: {
+        id: storedCredential.credentialId,
+        publicKey: Buffer.from(storedCredential.publicKey, 'base64url'),
+        counter: Number(storedCredential.counter),
+        transports: splitTransports(storedCredential.transports),
+      },
+    });
+  } catch {
+    return { error: 'Verification failed.', data: null };
+  }
+
+  if (!verification.verified) {
+    return { error: 'Verification failed.', data: null };
+  }
+
+  await prisma.webAuthnCredential.update({
+    where: { id: storedCredential.id },
+    data: {
+      counter: BigInt(verification.authenticationInfo.newCounter),
+      lastUsedAt: new Date(),
+    },
+  });
+
+  return { error: null, data: { verified: true } };
+}
+
 // --- Authentication ---
 
 export async function generateAuthenticationOptions() {
@@ -161,7 +326,7 @@ export async function generateAuthenticationOptions() {
 
   const options = await generateAuthOptions({
     rpID: config.rpID,
-    userVerification: 'preferred',
+    userVerification: config.authenticatorSelection.userVerification,
   });
 
   await setChallengeCookie(options.challenge);
@@ -208,6 +373,7 @@ export async function verifyAuthentication(data: {
       expectedChallenge: challenge,
       expectedOrigin: config.origin,
       expectedRPID: config.rpID,
+      requireUserVerification: config.requireUserVerification,
       credential: {
         id: storedCredential.credentialId,
         publicKey: Buffer.from(storedCredential.publicKey, 'base64url'),

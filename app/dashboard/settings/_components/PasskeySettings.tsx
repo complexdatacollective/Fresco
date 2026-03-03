@@ -25,6 +25,7 @@ type Passkey = {
 type PasskeySettingsProps = {
   initialPasskeys: Passkey[];
   sandboxMode: boolean;
+  hasPassword: boolean;
 };
 
 function formatDate(date: Date | null) {
@@ -39,6 +40,7 @@ function formatDate(date: Date | null) {
 export default function PasskeySettings({
   initialPasskeys,
   sandboxMode,
+  hasPassword,
 }: PasskeySettingsProps) {
   const [passkeys, setPasskeys] = useState<Passkey[]>(initialPasskeys);
   const [loading, setLoading] = useState(false);
@@ -164,7 +166,14 @@ export default function PasskeySettings({
                 variant="text"
                 size="sm"
                 onClick={() => handleRemovePasskey(passkey)}
-                disabled={sandboxMode}
+                disabled={
+                  sandboxMode || (passkeys.length === 1 && !hasPassword)
+                }
+                title={
+                  passkeys.length === 1 && !hasPassword
+                    ? 'Set a password before removing your only passkey'
+                    : undefined
+                }
               >
                 <Trash className="size-4" />
                 Remove
