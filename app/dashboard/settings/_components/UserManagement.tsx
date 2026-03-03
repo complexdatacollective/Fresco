@@ -10,11 +10,17 @@ import {
   createUser,
   deleteUsers,
 } from '~/actions/users';
-import { startAuthentication } from '@simplewebauthn/browser';
+import {
+  startAuthentication,
+  startRegistration,
+} from '@simplewebauthn/browser';
 import {
   generateAuthenticationOptions,
+  generateRegistrationOptions,
   resetAuthForUser,
   setPassword,
+  switchToPasskeyMode,
+  switchToPasswordMode,
   verifyPasskeyReauth,
 } from '~/actions/webauthn';
 import PasskeySettings from '~/app/dashboard/settings/_components/PasskeySettings';
@@ -23,6 +29,7 @@ import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { DataTable } from '~/components/DataTable/DataTable';
 import { DataTableFloatingBar } from '~/components/DataTable/DataTableFloatingBar';
 import Surface from '~/components/layout/Surface';
+import SettingsField from '~/components/settings/SettingsField';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
@@ -218,6 +225,14 @@ export default function UserManagement({
     null,
   );
   const [reauthLoading, setReauthLoading] = useState(false);
+  const [showSwitchToPasskey, setShowSwitchToPasskey] = useState(false);
+  const [showSwitchToPassword, setShowSwitchToPassword] = useState(false);
+  const [switchToPasswordReauthed, setSwitchToPasswordReauthed] =
+    useState(false);
+  const [switchToPasswordReauthError, setSwitchToPasswordReauthError] =
+    useState<string | null>(null);
+  const [switchToPasswordReauthLoading, setSwitchToPasswordReauthLoading] =
+    useState(false);
 
   const { confirm } = useDialog();
 
@@ -473,6 +488,103 @@ export default function UserManagement({
     return { success: true };
   };
 
+  const handleSwitchToPasskey = async (
+    values: unknown,
+  ): Promise<FormSubmissionResult> => {
+    const { currentPassword } = values as { currentPassword: string };
+
+    const { error: genError, data } = await generateRegistrationOptions();
+    if (genError || !data) {
+      return {
+        success: false,
+        formErrors: [genError ?? 'Failed to start registration'],
+      };
+    }
+
+    let credential;
+    try {
+      credential = await startRegistration({ optionsJSON: data.options });
+    } catch (e) {
+      if (e instanceof Error && e.name === 'NotAllowedError') {
+        return { success: false, formErrors: ['Passkey creation cancelled.'] };
+      }
+      return { success: false, formErrors: ['Passkey creation failed.'] };
+    }
+
+    const result = await switchToPasskeyMode({ currentPassword, credential });
+
+    if (result.error) {
+      return { success: false, formErrors: [result.error] };
+    }
+
+    window.location.reload();
+    return { success: true };
+  };
+
+  const handleSwitchToPasswordReauth = async () => {
+    setSwitchToPasswordReauthError(null);
+    setSwitchToPasswordReauthLoading(true);
+
+    try {
+      const { error: genError, data: regData } =
+        await generateAuthenticationOptions();
+      if (genError || !regData) {
+        setSwitchToPasswordReauthError(
+          genError ?? 'Failed to start verification',
+        );
+        setSwitchToPasswordReauthLoading(false);
+        return;
+      }
+
+      const credential = await startAuthentication({
+        optionsJSON: regData.options,
+      });
+
+      const result = await verifyPasskeyReauth({ credential });
+
+      if (result.error) {
+        setSwitchToPasswordReauthError(result.error);
+        setSwitchToPasswordReauthLoading(false);
+        return;
+      }
+
+      setSwitchToPasswordReauthed(true);
+      setSwitchToPasswordReauthLoading(false);
+    } catch (e) {
+      if (e instanceof Error && e.name === 'NotAllowedError') {
+        setSwitchToPasswordReauthLoading(false);
+        return;
+      }
+      setSwitchToPasswordReauthError('Verification failed');
+      setSwitchToPasswordReauthLoading(false);
+    }
+  };
+
+  const handleSwitchToPassword = async (
+    values: unknown,
+  ): Promise<FormSubmissionResult> => {
+    const { newPassword, confirmNewPassword } = values as {
+      newPassword: string;
+      confirmNewPassword: string;
+    };
+
+    if (newPassword !== confirmNewPassword) {
+      return {
+        success: false,
+        formErrors: ['Passwords do not match'],
+      };
+    }
+
+    const result = await switchToPasswordMode(newPassword);
+
+    if (result.error) {
+      return { success: false, formErrors: [result.error] };
+    }
+
+    window.location.reload();
+    return { success: true };
+  };
+
   return (
     <div className="space-y-6">
       <Heading level="label">Current User</Heading>
@@ -496,38 +608,91 @@ export default function UserManagement({
                 </Paragraph>
               </div>
             </div>
-            {!sandboxMode && (
+            {hasPassword && !sandboxMode && (
               <Button
                 onClick={() => setIsChangingPassword(true)}
                 size="sm"
                 className="tablet:w-auto w-full"
                 color="primary"
               >
-                {hasPassword ? 'Change Password' : 'Set Password'}
+                Change Password
               </Button>
             )}
           </div>
-          {!hasTwoFactor && initialPasskeys.length === 0 && !sandboxMode && (
-            <Alert variant="warning" className="my-0">
-              <AlertTitle>Security Warning</AlertTitle>
-              <AlertDescription>
-                Your account is only protected by a password. Enable two-factor
-                authentication or add a passkey for stronger security.
-              </AlertDescription>
-            </Alert>
-          )}
+          {hasPassword &&
+            !hasTwoFactor &&
+            initialPasskeys.length === 0 &&
+            !sandboxMode && (
+              <Alert variant="warning" className="my-0">
+                <AlertTitle>Security Warning</AlertTitle>
+                <AlertDescription>
+                  Your account is only protected by a password. Enable
+                  two-factor authentication or add a passkey for stronger
+                  security.
+                </AlertDescription>
+              </Alert>
+            )}
         </div>
 
-        <TwoFactorSettings
-          hasTwoFactor={hasTwoFactor}
-          userCount={users.length}
-          sandboxMode={sandboxMode}
-        />
-        <PasskeySettings
-          initialPasskeys={initialPasskeys}
-          sandboxMode={sandboxMode}
-          hasPassword={hasPassword}
-        />
+        {hasPassword ? (
+          <>
+            <TwoFactorSettings
+              hasTwoFactor={hasTwoFactor}
+              userCount={users.length}
+              sandboxMode={sandboxMode}
+            />
+            {!sandboxMode && (
+              <SettingsField
+                label="Switch to Passkey Authentication"
+                description="Remove your password and two-factor authentication, and use a passkey to sign in instead."
+                control={
+                  <Button
+                    onClick={() => setShowSwitchToPasskey(true)}
+                    size="sm"
+                    color="destructive"
+                  >
+                    Switch to Passkey
+                  </Button>
+                }
+              />
+            )}
+          </>
+        ) : (
+          <>
+            <PasskeySettings
+              initialPasskeys={initialPasskeys}
+              sandboxMode={sandboxMode}
+              hasPassword={hasPassword}
+            />
+            {users.length === 1 && (
+              <div className="py-4">
+                <Alert variant="warning" className="my-0">
+                  <AlertTitle>Single User Warning</AlertTitle>
+                  <AlertDescription>
+                    You are the only user. If you lose access to your passkey,
+                    you will be locked out. Consider adding another user or
+                    switching to password authentication.
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+            {!sandboxMode && (
+              <SettingsField
+                label="Switch to Password Authentication"
+                description="Remove all passkeys and switch to password-based authentication."
+                control={
+                  <Button
+                    onClick={() => setShowSwitchToPassword(true)}
+                    size="sm"
+                    color="destructive"
+                  >
+                    Switch to Password
+                  </Button>
+                }
+              />
+            )}
+          </>
+        )}
       </Surface>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -803,6 +968,142 @@ export default function UserManagement({
           </code>
         </div>
       </Dialog>
+      {/* Switch to Passkey Dialog */}
+      <FormStoreProvider>
+        <Dialog
+          open={showSwitchToPasskey}
+          closeDialog={() => setShowSwitchToPasskey(false)}
+          title="Switch to Passkey Authentication"
+          description="Enter your current password, then register a passkey. Your password and two-factor authentication will be removed."
+          footer={
+            <>
+              <Button
+                type="button"
+                onClick={() => setShowSwitchToPasskey(false)}
+              >
+                Cancel
+              </Button>
+              <SubmitButton form="switchToPasskeyForm" color="destructive">
+                Switch to Passkey
+              </SubmitButton>
+            </>
+          }
+        >
+          <FormWithoutProvider
+            onSubmit={handleSwitchToPasskey}
+            id="switchToPasskeyForm"
+          >
+            <input
+              type="text"
+              name="username"
+              autoComplete="username"
+              value={currentUsername}
+              readOnly
+              className="sr-only"
+              tabIndex={-1}
+              aria-hidden="true"
+            />
+            <Field
+              name="currentPassword"
+              label="Current Password"
+              component={PasswordField}
+              required
+              autoComplete="current-password"
+            />
+          </FormWithoutProvider>
+        </Dialog>
+      </FormStoreProvider>
+      {/* Switch to Password Dialog */}
+      <FormStoreProvider>
+        <Dialog
+          open={showSwitchToPassword}
+          closeDialog={() => {
+            setShowSwitchToPassword(false);
+            setSwitchToPasswordReauthed(false);
+            setSwitchToPasswordReauthError(null);
+            setSwitchToPasswordReauthLoading(false);
+          }}
+          title="Switch to Password Authentication"
+          description="All your passkeys will be removed and replaced with a password."
+          footer={
+            switchToPasswordReauthed ? (
+              <>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setShowSwitchToPassword(false);
+                    setSwitchToPasswordReauthed(false);
+                    setSwitchToPasswordReauthError(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <SubmitButton form="switchToPasswordForm" color="destructive">
+                  Switch to Password
+                </SubmitButton>
+              </>
+            ) : null
+          }
+        >
+          {switchToPasswordReauthed ? (
+            <FormWithoutProvider
+              onSubmit={handleSwitchToPassword}
+              id="switchToPasswordForm"
+            >
+              <input
+                type="text"
+                name="username"
+                autoComplete="username"
+                value={currentUsername}
+                readOnly
+                className="sr-only"
+                tabIndex={-1}
+                aria-hidden="true"
+              />
+              <Field
+                name="newPassword"
+                label="New Password"
+                component={PasswordField}
+                showStrengthMeter
+                required
+                autoComplete="new-password"
+                custom={{
+                  schema: passwordSchema,
+                  hint: 'At least 8 characters with lowercase, uppercase, number, and symbol',
+                }}
+              />
+              <Field
+                name="confirmNewPassword"
+                label="Confirm New Password"
+                component={PasswordField}
+                required
+                autoComplete="new-password"
+                sameAs="newPassword"
+              />
+            </FormWithoutProvider>
+          ) : (
+            <div className="flex flex-col items-center gap-4 py-4">
+              <Paragraph className="text-center">
+                Verify your identity with a passkey to continue.
+              </Paragraph>
+              {switchToPasswordReauthError && (
+                <p className="text-destructive text-sm">
+                  {switchToPasswordReauthError}
+                </p>
+              )}
+              <Button
+                onClick={() => void handleSwitchToPasswordReauth()}
+                disabled={switchToPasswordReauthLoading}
+                color="primary"
+              >
+                {switchToPasswordReauthLoading
+                  ? 'Verifying...'
+                  : 'Verify with passkey'}
+              </Button>
+            </div>
+          )}
+        </Dialog>
+      </FormStoreProvider>
     </div>
   );
 }
