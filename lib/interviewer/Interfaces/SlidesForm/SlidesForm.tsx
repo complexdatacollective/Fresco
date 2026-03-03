@@ -24,7 +24,6 @@ type SlidesFormProps = StageProps<'AlterForm' | 'AlterEdgeForm'> & {
   updateItem: (...args: unknown[]) => void;
   parentClass?: string;
   slideForm: ComponentType<{
-    subject: Record<string, unknown>;
     item: unknown;
     onUpdate: (...args: unknown[]) => void;
     onScroll: () => void;
@@ -226,8 +225,7 @@ function SlidesFormInner({
           item={items[itemIndex]}
           onUpdate={handleUpdate}
           onScroll={handleScroll}
-          form={formState as Record<string, unknown>}
-          subject={stage.subject as Record<string, unknown>}
+          form={stage.form}
           submitButton={
             <button
               type="submit"

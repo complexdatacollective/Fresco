@@ -6,6 +6,8 @@ import { useSelector } from 'react-redux';
 import {
   getValidationContext,
   selectFieldMetadata,
+  selectFieldMetadataWithSubject,
+  type Subject,
 } from '~/lib/interviewer/selectors/forms';
 import Field from '../components/Field/Field';
 import {
@@ -44,22 +46,33 @@ const fieldTypeMap: Record<ComponentType, React.ComponentType<any>> = {
 /**
  * Hook to automatically convert protocol form definitions into the new form
  * system by generating Field components with validation props.
+ *
+ * @param fields - The form field definitions from the protocol
+ * @param autoFocus - Whether to auto-focus the first field
+ * @param initialValues - Initial values for the form fields
+ * @param subject - Optional subject to use for looking up codebook variables.
+ *                  If provided, uses subject from props instead of Redux state.
+ *                  Required for SlidesForm where subject comes from item props.
  */
 export default function useProtocolForm({
   fields,
   autoFocus = false,
   initialValues,
+  subject,
 }: {
   fields: FormField[];
   autoFocus?: boolean;
   initialValues?: Record<string, FieldValue>;
+  subject?: Subject;
 }) {
   const validationContext = useSelector(
     getValidationContext,
   ) as ValidationContext | null;
 
   const fieldsMetadata = useSelector((state) =>
-    selectFieldMetadata(state, fields),
+    subject
+      ? selectFieldMetadataWithSubject(state, subject, fields)
+      : selectFieldMetadata(state, fields),
   );
 
   const fieldsWithMetadata = fieldsMetadata.map((field, index) => {

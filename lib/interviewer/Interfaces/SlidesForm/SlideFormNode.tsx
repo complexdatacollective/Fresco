@@ -7,12 +7,15 @@ import {
   type NcNode,
 } from '@codaco/shared-consts';
 import { ScrollArea } from '~/components/ui/ScrollArea';
+import { type FieldValue } from '~/lib/form/components/Field/types';
 import Form from '~/lib/form/components/Form';
+import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
+import { type FormSubmitHandler } from '~/lib/form/store/types';
+import { type Subject } from '../../selectors/forms';
 import Node from '../../components/Node';
 
 type SlideFormNodeProps = {
   form: TForm;
-  subject: Record<string, unknown>;
   item: NcNode;
   onUpdate?: (args: {
     nodeId: string;
@@ -30,19 +33,43 @@ type SlideFormNodeProps = {
 export default function SlideFormNode({
   form,
   item,
-  subject,
   submitButton = (
     <button type="submit" key="submit" aria-label="Submit" hidden />
   ),
   onUpdate,
-  otherNetworkEntities,
+  otherNetworkEntities: _otherNetworkEntities,
   onScroll: _onScroll,
 }: SlideFormNodeProps) {
   const id = item[entityPrimaryKeyProperty];
-  const initialValues = item[entityAttributesProperty];
+  const rawAttributes = item[entityAttributesProperty];
 
-  const handleSubmit = (formData: Record<string, unknown>) => {
-    onUpdate?.({ nodeId: id, newAttributeData: formData });
+  // Derive subject from the node item
+  const subject: Subject = { entity: 'node', type: item.type };
+
+  // Convert null values to undefined for form compatibility
+  const initialValues: Record<string, FieldValue> | undefined = rawAttributes
+    ? (Object.fromEntries(
+        Object.entries(rawAttributes).map(([key, value]) => [
+          key,
+          value ?? undefined,
+        ]),
+      ) as Record<string, FieldValue>)
+    : undefined;
+
+  // Convert protocol form fields to React components
+  const { fieldComponents } = useProtocolForm({
+    fields: form.fields,
+    autoFocus: false,
+    initialValues,
+    subject,
+  });
+
+  const handleSubmit: FormSubmitHandler = (values) => {
+    onUpdate?.({
+      nodeId: id,
+      newAttributeData: values as Record<string, unknown>,
+    });
+    return { success: true as const };
   };
 
   return (
@@ -63,18 +90,12 @@ export default function SlideFormNode({
         <div className="mt-[calc(var(--base-node-size)*0.4)] size-full">
           <ScrollArea>
             <Form
-              {...({
-                ...form,
-                className: '[&_.form-field-container]:break-inside-avoid',
-                initialValues: initialValues as Record<string, unknown>,
-                autoFocus: false,
-                subject,
-                onSubmit: handleSubmit,
-                submitButton,
-                validationMeta: { entityId: id },
-                otherNetworkEntities,
-              } as unknown as React.ComponentProps<typeof Form>)}
-            />
+              onSubmit={handleSubmit}
+              className="[&_.form-field-container]:break-inside-avoid"
+            >
+              {fieldComponents}
+              {submitButton}
+            </Form>
           </ScrollArea>
         </div>
       </div>

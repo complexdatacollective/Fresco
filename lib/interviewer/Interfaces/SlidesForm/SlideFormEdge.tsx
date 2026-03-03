@@ -10,17 +10,20 @@ import { find } from 'es-toolkit/compat';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { ScrollArea } from '~/components/ui/ScrollArea';
+import { type FieldValue } from '~/lib/form/components/Field/types';
 import Form from '~/lib/form/components/Form';
+import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
+import { type FormSubmitHandler } from '~/lib/form/store/types';
+import { type Subject } from '../../selectors/forms';
 import Node from '../../components/Node';
 import { getNetworkNodes, makeGetEdgeColor } from '../../selectors/session';
 
 type SlideFormEdgeProps = {
   form: TForm;
-  id: number;
   item: NcEdge;
   submitButton?: React.ReactNode;
-  onUpdate: (args: {
-    edgeId: number;
+  onUpdate?: (args: {
+    edgeId: string;
     newAttributeData: Record<string, unknown>;
   }) => void;
   otherNetworkEntities?: (NcNode | NcEdge | NcEgo)[];
@@ -28,8 +31,8 @@ type SlideFormEdgeProps = {
 };
 
 export default function SlideFormEdge(props: SlideFormEdgeProps) {
-  const { form, id, item, submitButton, onUpdate, otherNetworkEntities } =
-    props;
+  const { form, item, submitButton, onUpdate } = props;
+  const id = item[entityPrimaryKeyProperty];
 
   const getEdgeColor = useMemo(() => makeGetEdgeColor(), []);
   const edgeColor = useSelector(getEdgeColor);
@@ -38,14 +41,36 @@ export default function SlideFormEdge(props: SlideFormEdgeProps) {
   const fromNode = find(nodes, [entityPrimaryKeyProperty, item.from]);
   const toNode = find(nodes, [entityPrimaryKeyProperty, item.to]);
 
-  const handleSubmit = (values: unknown) => {
-    const formData = values as { value: Record<string, unknown> };
-    onUpdate?.({ edgeId: id, newAttributeData: formData.value });
+  const rawAttributes = item[entityAttributesProperty];
+
+  // Convert null values to undefined for form compatibility
+  const initialValues: Record<string, FieldValue> | undefined = rawAttributes
+    ? (Object.fromEntries(
+        Object.entries(rawAttributes).map(([key, value]) => [
+          key,
+          value ?? undefined,
+        ]),
+      ) as Record<string, FieldValue>)
+    : undefined;
+
+  // Derive subject from the edge item
+  const subject: Subject = { entity: 'edge', type: item.type };
+
+  // Convert protocol form fields to React components
+  const { fieldComponents } = useProtocolForm({
+    fields: form.fields,
+    autoFocus: false,
+    initialValues,
+    subject,
+  });
+
+  const handleSubmit: FormSubmitHandler = (values) => {
+    onUpdate?.({
+      edgeId: id,
+      newAttributeData: values as Record<string, unknown>,
+    });
+    return { success: true as const };
   };
-
-  const initialValues = item[entityAttributesProperty];
-
-  const subject = { entity: 'edge' as const, type: item.type };
 
   return (
     <div className="flex size-full items-center justify-center">
@@ -77,19 +102,12 @@ export default function SlideFormEdge(props: SlideFormEdgeProps) {
         <div className="mt-[calc(var(--base-node-size)*0.4)] size-full">
           <ScrollArea>
             <Form
-              {...({
-                fields: form.fields,
-                handleSubmit,
-                getInitialValues: () =>
-                  initialValues as Record<string, unknown>,
-                className: '[&_.form-field-container]:break-inside-avoid',
-                autoFocus: false,
-                subject,
-                submitButton,
-                validationMeta: { entityId: id.toString() },
-                otherNetworkEntities,
-              } as unknown as React.ComponentProps<typeof Form>)}
-            />
+              onSubmit={handleSubmit}
+              className="[&_.form-field-container]:break-inside-avoid"
+            >
+              {fieldComponents}
+              {submitButton}
+            </Form>
           </ScrollArea>
         </div>
       </div>
