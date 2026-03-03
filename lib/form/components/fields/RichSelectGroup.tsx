@@ -35,10 +35,10 @@ const optionCardVariants = compose(
   textSizeVariants,
   cva({
     base: cx(
-      'flex cursor-pointer flex-row items-start gap-3',
+      'flex cursor-pointer flex-col gap-1',
       'overflow-hidden rounded border-2 border-current/20',
       'bg-transparent text-left text-wrap',
-      'transition-colors duration-200',
+      'px-6 transition-colors duration-200',
       'focusable',
     ),
     variants: {
@@ -53,10 +53,10 @@ const optionCardVariants = compose(
         invalid: 'border-destructive',
       },
       size: {
-        sm: 'px-3 py-2',
-        md: 'px-4 py-3',
-        lg: 'px-5 py-4',
-        xl: 'px-6 py-5',
+        sm: 'py-2',
+        md: 'py-3',
+        lg: 'py-4',
+        xl: 'py-5',
       },
     },
     compoundVariants: [
@@ -82,7 +82,7 @@ const indicatorVariants = compose(
   cva({
     base: cx(
       'flex aspect-square shrink-0 items-center justify-center',
-      'focusable mt-0.5',
+      'focusable',
     ),
     variants: {
       mode: {
@@ -299,62 +299,62 @@ export default function RichSelectGroupField(props: RichSelectGroupProps) {
               transition={selectionSpring}
               {...ariaProps}
             >
-              <span
-                aria-hidden
-                className={indicatorVariants({
-                  size,
-                  state: optionState,
-                  mode: isSingle ? 'radio' : 'checkbox',
-                })}
-              >
-                {isSingle ? (
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="text-primary size-full overflow-hidden rounded-[40%] p-[0.1em]"
-                  >
-                    <motion.rect
-                      x="2"
-                      y="2"
-                      width="20"
-                      height="20"
-                      initial={false}
-                      animate={{ scale: optionSelected ? 1 : 0 }}
-                      transition={{
-                        type: 'spring',
-                        bounce: 0.3,
-                        duration: optionSelected ? 0.3 : 0.15,
-                      }}
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className="text-primary size-full p-[0.1em]"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                  >
-                    <path
-                      d="M4 12L10 18L20 6"
-                      pathLength={1}
-                      style={{
-                        strokeDasharray: 1,
-                        strokeDashoffset: optionSelected ? 0 : 1,
-                        strokeLinecap: optionSelected ? 'round' : 'butt',
-                        transition: 'stroke-dashoffset 0.2s ease-out',
-                      }}
-                    />
-                  </svg>
-                )}
-              </span>
-              <span className="flex min-w-0 flex-col gap-1">
-                <span className="leading-tight font-medium">
+              <span className="flex items-center gap-4">
+                <span
+                  aria-hidden
+                  className={indicatorVariants({
+                    size,
+                    state: optionState,
+                    mode: isSingle ? 'radio' : 'checkbox',
+                  })}
+                >
+                  {isSingle ? (
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="text-primary size-full overflow-hidden rounded-[40%] p-[0.1em]"
+                    >
+                      <motion.rect
+                        x="2"
+                        y="2"
+                        width="20"
+                        height="20"
+                        initial={false}
+                        animate={{ scale: optionSelected ? 1 : 0 }}
+                        transition={{
+                          type: 'spring',
+                          bounce: 0.3,
+                          duration: optionSelected ? 0.3 : 0.15,
+                        }}
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      className="text-primary size-full p-[0.1em]"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                    >
+                      <path
+                        d="M4 12L10 18L20 6"
+                        pathLength={1}
+                        style={{
+                          strokeDasharray: 1,
+                          strokeDashoffset: optionSelected ? 0 : 1,
+                          strokeLinecap: optionSelected ? 'round' : 'butt',
+                          transition: 'stroke-dashoffset 0.2s ease-out',
+                        }}
+                      />
+                    </svg>
+                  )}
+                </span>
+                <span className="min-w-0 leading-tight font-medium">
                   <RenderMarkdown>{option.label}</RenderMarkdown>
                 </span>
-                <span className={descriptionVariants({ size })}>
-                  <RenderMarkdown>{option.description}</RenderMarkdown>
-                </span>
+              </span>
+              <span className={descriptionVariants({ size })}>
+                <RenderMarkdown>{option.description}</RenderMarkdown>
               </span>
             </motion.button>
           );
