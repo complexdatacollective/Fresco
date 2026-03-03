@@ -89,7 +89,7 @@ export const SignUpForm = ({ sandboxMode = false }: SignUpFormProps) => {
 
       // Now register the passkey — user is authenticated via the signup session
       const { error: genError, data: regData } =
-        await generateRegistrationOptions('Default passkey');
+        await generateRegistrationOptions();
       if (genError ?? !regData) {
         setPasskeyLoading(false);
         setPasskeyError(genError ?? 'Failed to start passkey registration');
@@ -107,7 +107,6 @@ export const SignUpForm = ({ sandboxMode = false }: SignUpFormProps) => {
 
       const verifyResult = await verifyRegistration({
         credential,
-        friendlyName: 'Default passkey',
       });
 
       if (verifyResult.error) {
