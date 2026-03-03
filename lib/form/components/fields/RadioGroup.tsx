@@ -39,7 +39,7 @@ const radioIndicatorVariants = compose(
   cva({
     base: cx(
       'flex aspect-square shrink-0 items-center justify-center',
-      'rounded-[0.15em]',
+      'rounded-full',
       'focusable',
     ),
   }),
@@ -157,13 +157,12 @@ export default function RadioGroupField(props: RadioGroupFieldProps) {
                     <svg
                       viewBox="0 0 24 24"
                       fill="currentColor"
-                      className="text-primary size-full overflow-hidden rounded-[40%] p-[0.1em]"
+                      className="text-primary size-full overflow-hidden rounded-full p-[0.1em]"
                     >
-                      <motion.rect
-                        x="2"
-                        y="2"
-                        width="20"
-                        height="20"
+                      <motion.circle
+                        cx="12"
+                        cy="12"
+                        r="10"
                         initial={false}
                         animate={{ scale: state.checked ? 1 : 0 }}
                         transition={{
