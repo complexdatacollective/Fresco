@@ -92,6 +92,7 @@ export async function verifyTotpSetup(data: unknown) {
     `User ${session.user.username} enabled two-factor authentication`,
   );
   safeUpdateTag('activityFeed');
+  safeUpdateTag('getUsers');
 
   return { error: null, data: { recoveryCodes } };
 }
@@ -196,6 +197,7 @@ export async function disableTotp(data: unknown) {
     `User ${session.user.username} disabled two-factor authentication`,
   );
   safeUpdateTag('activityFeed');
+  safeUpdateTag('getUsers');
 
   return { error: null, data: null };
 }
