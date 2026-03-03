@@ -62,11 +62,7 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
     // checked initially while the store is hydrating, but will always provide onCheckedChange
     const isControlled = onCheckedChange !== undefined;
     // For controlled mode, use false as fallback to prevent uncontrolled->controlled switch
-    const controlledChecked = isControlled
-      ? checked !== undefined
-        ? checked
-        : false
-      : undefined;
+    const controlledChecked = isControlled ? (checked ?? false) : undefined;
 
     const [internalChecked, setInternalChecked] = useState(defaultChecked);
     const isChecked = isControlled ? controlledChecked : internalChecked;
