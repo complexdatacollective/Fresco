@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useRef } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { motion } from 'motion/react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import {
   controlVariants,
@@ -9,6 +9,7 @@ import {
   inputControlVariants,
   interactiveStateVariants,
   orientationVariants,
+  smallSizeVariants,
   stateVariants,
   textSizeVariants,
 } from '~/styles/shared/controlVariants';
@@ -25,7 +26,7 @@ const richSelectGroupVariants = compose(
   interactiveStateVariants,
   orientationVariants,
   cva({
-    base: 'items-stretch',
+    base: 'items-stretch overflow-visible text-wrap',
   }),
 );
 
@@ -34,19 +35,16 @@ const optionCardVariants = compose(
   textSizeVariants,
   cva({
     base: cx(
-      'relative flex cursor-pointer flex-col items-start gap-1',
-      'rounded border-2 border-current/20',
-      'bg-transparent text-left',
-      'transition-all duration-200',
+      'flex cursor-pointer flex-row items-start gap-3',
+      'overflow-hidden rounded border-2 border-current/20',
+      'bg-transparent text-left text-wrap',
+      'transition-colors duration-200',
       'focusable',
     ),
     variants: {
       selected: {
-        true: cx(
-          'border-primary bg-primary/5',
-          'ring-primary ring-2 ring-offset-2',
-        ),
-        false: cx('hover:border-current/40 hover:bg-current/5'),
+        true: 'border-primary',
+        false: 'hover:border-current/40',
       },
       state: {
         normal: '',
@@ -65,13 +63,35 @@ const optionCardVariants = compose(
       {
         selected: true,
         state: 'invalid',
-        className: 'border-destructive ring-destructive',
+        className: 'border-destructive',
       },
     ],
     defaultVariants: {
       selected: false,
       state: 'normal',
       size: 'md',
+    },
+  }),
+);
+
+const indicatorVariants = compose(
+  smallSizeVariants,
+  controlVariants,
+  inputControlVariants,
+  stateVariants,
+  cva({
+    base: cx(
+      'flex aspect-square shrink-0 items-center justify-center',
+      'focusable mt-0.5',
+    ),
+    variants: {
+      mode: {
+        radio: 'rounded-[0.15em]',
+        checkbox: 'rounded-full',
+      },
+    },
+    defaultVariants: {
+      mode: 'radio',
     },
   }),
 );
@@ -92,7 +112,6 @@ const descriptionVariants = cva({
   },
 });
 
-// Spring animation for selection ring
 const selectionSpring = {
   type: 'spring' as const,
   duration: 0.3,
@@ -280,24 +299,63 @@ export default function RichSelectGroupField(props: RichSelectGroupProps) {
               transition={selectionSpring}
               {...ariaProps}
             >
-              <span className="leading-tight font-medium">
-                <RenderMarkdown>{option.label}</RenderMarkdown>
-              </span>
-              <span className={descriptionVariants({ size })}>
-                <RenderMarkdown>{option.description}</RenderMarkdown>
-              </span>
-              <AnimatePresence>
-                {optionSelected && (
-                  <motion.span
-                    className="bg-primary/10 absolute inset-0 rounded"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15 }}
-                    aria-hidden
-                  />
+              <span
+                aria-hidden
+                className={indicatorVariants({
+                  size,
+                  state: optionState,
+                  mode: isSingle ? 'radio' : 'checkbox',
+                })}
+              >
+                {isSingle ? (
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="text-primary size-full overflow-hidden rounded-[40%] p-[0.1em]"
+                  >
+                    <motion.rect
+                      x="2"
+                      y="2"
+                      width="20"
+                      height="20"
+                      initial={false}
+                      animate={{ scale: optionSelected ? 1 : 0 }}
+                      transition={{
+                        type: 'spring',
+                        bounce: 0.3,
+                        duration: optionSelected ? 0.3 : 0.15,
+                      }}
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="text-primary size-full p-[0.1em]"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                  >
+                    <path
+                      d="M4 12L10 18L20 6"
+                      pathLength={1}
+                      style={{
+                        strokeDasharray: 1,
+                        strokeDashoffset: optionSelected ? 0 : 1,
+                        strokeLinecap: optionSelected ? 'round' : 'butt',
+                        transition: 'stroke-dashoffset 0.2s ease-out',
+                      }}
+                    />
+                  </svg>
                 )}
-              </AnimatePresence>
+              </span>
+              <span className="flex min-w-0 flex-col gap-1">
+                <span className="leading-tight font-medium">
+                  <RenderMarkdown>{option.label}</RenderMarkdown>
+                </span>
+                <span className={descriptionVariants({ size })}>
+                  <RenderMarkdown>{option.description}</RenderMarkdown>
+                </span>
+              </span>
             </motion.button>
           );
         })}
