@@ -25,6 +25,7 @@ import {
 import { requireApiAuth } from '~/utils/auth';
 import { getClientIp } from '~/utils/getClientIp';
 import { hashPassword, verifyPassword } from '~/utils/password';
+import { getAuthenticatorName } from '~/lib/webauthn/getAuthenticatorName';
 import { addEvent } from './activityFeed';
 
 const CHALLENGE_COOKIE_NAME = 'webauthn_challenge';
@@ -58,7 +59,7 @@ async function getAndClearChallengeCookie(): Promise<string | null> {
 
 // --- Registration ---
 
-export async function generateRegistrationOptions(friendlyName?: string) {
+export async function generateRegistrationOptions() {
   const session = await requireApiAuth();
   const config = await getWebAuthnConfig();
 
@@ -86,13 +87,12 @@ export async function generateRegistrationOptions(friendlyName?: string) {
 
   return {
     error: null,
-    data: { options, friendlyName: friendlyName ?? null },
+    data: { options },
   };
 }
 
 export async function verifyRegistration(data: {
   credential: RegistrationResponseJSON;
-  friendlyName?: string;
 }) {
   const session = await requireApiAuth();
   const config = await getWebAuthnConfig();
@@ -118,8 +118,10 @@ export async function verifyRegistration(data: {
     return { error: 'Registration verification failed.', data: null };
   }
 
-  const { credential, credentialDeviceType, credentialBackedUp } =
+  const { credential, credentialDeviceType, credentialBackedUp, aaguid } =
     verification.registrationInfo;
+
+  const friendlyName = getAuthenticatorName(aaguid, credentialDeviceType);
 
   const newCredential = await prisma.webAuthnCredential.create({
     data: {
@@ -130,13 +132,14 @@ export async function verifyRegistration(data: {
       transports: credential.transports?.join(',') ?? null,
       deviceType: credentialDeviceType,
       backedUp: credentialBackedUp,
-      friendlyName: data.friendlyName ?? null,
+      aaguid,
+      friendlyName,
     },
   });
 
   void addEvent(
     'Passkey Registered',
-    `User ${session.user.username} registered a passkey${data.friendlyName ? ` (${data.friendlyName})` : ''}`,
+    `User ${session.user.username} registered a passkey (${friendlyName})`,
   );
   safeUpdateTag('getUsers');
 
