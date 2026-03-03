@@ -163,6 +163,7 @@ export class DatabaseIsolation {
     credentialId: string,
     publicKey: string,
     options?: {
+      aaguid?: string;
       friendlyName?: string;
       counter?: number;
       deviceType?: string;
@@ -186,6 +187,7 @@ export class DatabaseIsolation {
         transports: 'internal',
         deviceType: options?.deviceType ?? 'multiDevice',
         backedUp: options?.backedUp ?? true,
+        aaguid: options?.aaguid ?? null,
         friendlyName: options?.friendlyName ?? 'Test Passkey',
       },
     });

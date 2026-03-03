@@ -140,7 +140,10 @@ test.describe('Passkey Authentication', () => {
           'testuser',
           'testuser-credential-id',
           'testuser-public-key',
-          { friendlyName: 'Test User Passkey' },
+          {
+            friendlyName: 'Test User Passkey',
+            aaguid: '00000000-0000-0000-0000-000000000000',
+          },
         );
 
         await page.goto('/dashboard/settings');
