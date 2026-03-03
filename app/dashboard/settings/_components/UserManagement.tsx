@@ -144,22 +144,18 @@ function makeUserColumns(
       },
     },
     {
-      id: '2fa',
+      id: 'authMethod',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="2FA" />
+        <DataTableColumnHeader column={column} title="Auth Method" />
       ),
-      cell: ({ row }) =>
-        row.original.totpCredential?.verified ? 'Enabled' : '\u2014',
-    },
-    {
-      id: 'passkeys',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Passkeys" />
-      ),
-      cell: ({ row }) =>
-        row.original.webAuthnCredentials.length > 0
-          ? String(row.original.webAuthnCredentials.length)
-          : '\u2014',
+      cell: ({ row }) => {
+        const hasPasskeys = row.original.webAuthnCredentials.length > 0;
+        const has2FA = row.original.totpCredential?.verified === true;
+
+        if (hasPasskeys) return 'Passkey';
+        if (has2FA) return 'Password + 2FA';
+        return 'Password';
+      },
     },
     {
       id: 'actions',
