@@ -60,5 +60,7 @@ export const getBadgeColorsForActivityType = (type: ActivityType) => {
       return 'bg-tomato hover:bg-tomato-dark';
     case 'Recovery Code Login':
       return 'bg-purple-pizazz hover:bg-purple-pizazz-dark';
+    case 'Switched to Passkey Mode':
+      return 'bg-sea-green hover:bg-sea-green-dark';
   }
 };

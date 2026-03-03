@@ -582,3 +582,99 @@ export async function resetAuthForUser(userId: string) {
 
   return { error: null, data: { temporaryPassword: tempPassword } };
 }
+
+// --- Mode Switching ---
+
+export async function switchToPasskeyMode(data: {
+  currentPassword: string;
+  credential: RegistrationResponseJSON;
+}) {
+  const session = await requireApiAuth();
+  const config = await getWebAuthnConfig();
+
+  const key = await prisma.key.findFirst({
+    where: { user_id: session.user.userId },
+  });
+
+  if (!key?.hashed_password) {
+    return { error: 'Account is already in passkey mode.', data: null };
+  }
+
+  const valid = await verifyPassword(data.currentPassword, key.hashed_password);
+  if (!valid) {
+    return { error: 'Incorrect password.', data: null };
+  }
+
+  const challenge = await getAndClearChallengeCookie();
+  if (!challenge) {
+    return { error: 'Challenge expired. Please try again.', data: null };
+  }
+
+  let verification;
+  try {
+    verification = await verifyRegistrationResponse({
+      response: data.credential,
+      expectedChallenge: challenge,
+      expectedOrigin: config.origin,
+      expectedRPID: config.rpID,
+      requireUserVerification: config.requireUserVerification,
+    });
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Unknown error';
+    // eslint-disable-next-line no-console
+    console.error('[WebAuthn] Registration verification error:', message);
+    return {
+      error: `Registration verification failed: ${message}`,
+      data: null,
+    };
+  }
+
+  if (!verification.verified || !verification.registrationInfo) {
+    return { error: 'Registration verification failed.', data: null };
+  }
+
+  const {
+    credential: verifiedCredential,
+    credentialDeviceType,
+    credentialBackedUp,
+    aaguid,
+  } = verification.registrationInfo;
+
+  const friendlyName = getAuthenticatorName(aaguid, credentialDeviceType);
+
+  await prisma.$transaction([
+    prisma.key.update({
+      where: { id: key.id },
+      data: { hashed_password: null },
+    }),
+    prisma.totpCredential.deleteMany({
+      where: { user_id: session.user.userId },
+    }),
+    prisma.recoveryCode.deleteMany({
+      where: { user_id: session.user.userId },
+    }),
+    prisma.webAuthnCredential.create({
+      data: {
+        user_id: session.user.userId,
+        credentialId: verifiedCredential.id,
+        publicKey: Buffer.from(verifiedCredential.publicKey).toString(
+          'base64url',
+        ),
+        counter: BigInt(verifiedCredential.counter),
+        transports: verifiedCredential.transports?.join(',') ?? null,
+        deviceType: credentialDeviceType,
+        backedUp: credentialBackedUp,
+        aaguid,
+        friendlyName,
+      },
+    }),
+  ]);
+
+  void addEvent(
+    'Switched to Passkey Mode',
+    `User ${session.user.username} switched to passkey-only authentication (${friendlyName})`,
+  );
+  safeUpdateTag('getUsers');
+
+  return { error: null, data: null };
+}

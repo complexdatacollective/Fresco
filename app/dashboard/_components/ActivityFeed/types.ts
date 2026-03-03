@@ -31,6 +31,7 @@ export const activityTypes = [
   'Password Set',
   'Auth Reset',
   'Recovery Code Login',
+  'Switched to Passkey Mode',
 ] as const;
 
 export type ActivityType = (typeof activityTypes)[number];
