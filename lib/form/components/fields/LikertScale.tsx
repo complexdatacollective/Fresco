@@ -53,9 +53,27 @@ export default function LikertScaleField(props: LikertScaleFieldProps) {
     }
   };
 
+  const commitPristineValue = () => {
+    if (readOnly || hasValue) return;
+    const midpointOption = options[midpoint];
+    if (midpointOption) {
+      onChange?.(midpointOption.value);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!hasValue && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      commitPristineValue();
+    }
+  };
+
   const currentIndex = options.findIndex((option) => option.value === value);
-  const sliderValue = currentIndex >= 0 ? currentIndex : 0;
-  const currentOption = options[currentIndex] ?? options[0];
+  const hasValue = currentIndex >= 0;
+  const midpoint = Math.floor((options.length - 1) / 2);
+  const sliderValue = hasValue ? currentIndex : midpoint;
+  const currentOption = hasValue ? options[currentIndex] : undefined;
+  const thumbState = !hasValue && state === 'normal' ? 'pristine' : state;
 
   return (
     <div className={cx('w-full', className)} {...rest}>
@@ -63,6 +81,8 @@ export default function LikertScaleField(props: LikertScaleFieldProps) {
         <Slider.Root
           value={sliderValue}
           onValueChange={handleValueChange}
+          onPointerDown={commitPristineValue}
+          onKeyDown={handleKeyDown}
           disabled={disabled}
           min={0}
           max={Math.max(0, options.length - 1)}
@@ -105,7 +125,7 @@ export default function LikertScaleField(props: LikertScaleFieldProps) {
                     }}
                   />
                 }
-                className={sliderThumbVariants({ state })}
+                className={sliderThumbVariants({ state: thumbState })}
                 aria-label={`Select value on scale: ${currentOption?.label ?? 'No selection'}`}
               />
             </Slider.Track>

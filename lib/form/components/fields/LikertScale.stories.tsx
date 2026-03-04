@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useEffect, useState } from 'react';
+import { expect, userEvent, within } from 'storybook/test';
 import Surface from '~/components/layout/Surface';
 import LikertScaleField from './LikertScale';
 
@@ -161,9 +162,124 @@ export const ThreePoint: Story = {
   render: (args) => <ControlledLikert {...args} initialValue={args.value} />,
 };
 
+function UnsetLikertWithValueDisplay({
+  options = agreementOptions,
+  ...args
+}: Omit<React.ComponentProps<typeof LikertScaleField>, 'value' | 'onChange'> & {
+  onChange?: (value: string | number) => void;
+}) {
+  const [value, setValue] = useState<string | number | undefined>(undefined);
+
+  return (
+    <div>
+      <LikertScaleField
+        {...args}
+        options={options}
+        value={value}
+        onChange={(newValue) => {
+          if (newValue !== undefined) {
+            setValue(newValue);
+            args.onChange?.(newValue);
+          }
+        }}
+      />
+      <p data-testid="likert-value">
+        {value === undefined ? 'unset' : String(value)}
+      </p>
+    </div>
+  );
+}
+
+export const Unset: Story = {
+  args: {
+    options: agreementOptions,
+    value: undefined,
+  },
+  render: (args) => <UnsetLikertWithValueDisplay {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const thumb = canvas.getByRole('slider');
+    const valueDisplay = canvas.getByTestId('likert-value');
+
+    // Thumb should start in pristine state (unset)
+    await expect(valueDisplay).toHaveTextContent('unset');
+
+    // Click the thumb to commit the midpoint value
+    await userEvent.click(thumb);
+    await expect(valueDisplay).toHaveTextContent('3');
+  },
+};
+
+export const UnsetKeyboardEnter: Story = {
+  args: {
+    options: agreementOptions,
+    value: undefined,
+  },
+  render: (args) => <UnsetLikertWithValueDisplay {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const thumb = canvas.getByRole('slider');
+    const valueDisplay = canvas.getByTestId('likert-value');
+
+    await expect(valueDisplay).toHaveTextContent('unset');
+
+    // Tab to the slider thumb and press Enter to confirm midpoint
+    await userEvent.tab();
+    await expect(thumb).toHaveFocus();
+    await userEvent.keyboard('{Enter}');
+    await expect(valueDisplay).toHaveTextContent('3');
+  },
+};
+
+export const UnsetKeyboardSpace: Story = {
+  args: {
+    options: agreementOptions,
+    value: undefined,
+  },
+  render: (args) => <UnsetLikertWithValueDisplay {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const thumb = canvas.getByRole('slider');
+    const valueDisplay = canvas.getByTestId('likert-value');
+
+    await expect(valueDisplay).toHaveTextContent('unset');
+
+    // Tab to the slider thumb and press Space to confirm midpoint
+    await userEvent.tab();
+    await expect(thumb).toHaveFocus();
+    await userEvent.keyboard(' ');
+    await expect(valueDisplay).toHaveTextContent('3');
+  },
+};
+
+export const UnsetKeyboardArrow: Story = {
+  args: {
+    options: agreementOptions,
+    value: undefined,
+  },
+  render: (args) => <UnsetLikertWithValueDisplay {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const thumb = canvas.getByRole('slider');
+    const valueDisplay = canvas.getByTestId('likert-value');
+
+    await expect(valueDisplay).toHaveTextContent('unset');
+
+    // Tab to the slider thumb and press ArrowRight to move and set value
+    await userEvent.tab();
+    await expect(thumb).toHaveFocus();
+    await userEvent.keyboard('{ArrowRight}');
+    await expect(valueDisplay).toHaveTextContent('4');
+  },
+};
+
 export const AllStates: Story = {
   render: () => (
     <div className="flex flex-col gap-8">
+      <div>
+        <p className="mb-2 text-xs font-medium text-current/50">Unset</p>
+        <LikertScaleField options={agreementOptions} value={undefined} />
+      </div>
       <div>
         <p className="mb-2 text-xs font-medium text-current/50">Normal</p>
         <LikertScaleField options={agreementOptions} value={3} />

@@ -70,6 +70,7 @@ export const sliderThumbVariants = compose(
     variants: {
       state: {
         normal: 'bg-primary cursor-grab active:cursor-grabbing',
+        pristine: 'bg-primary cursor-grab opacity-40 active:cursor-grabbing',
         disabled:
           'pointer-events-none bg-[color-mix(in_oklch,var(--input-contrast)_30%,currentColor)]',
         readOnly:

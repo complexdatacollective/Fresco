@@ -31,7 +31,7 @@ export default function VisualAnalogScaleField(
 ) {
   const {
     className,
-    value = 0,
+    value,
     onChange,
     min = 0,
     max = 100,
@@ -44,6 +44,10 @@ export default function VisualAnalogScaleField(
   } = props;
 
   const state = getInputState(props);
+  const hasValue = value !== undefined;
+  const midpoint = (min + max) / 2;
+  const sliderValue = hasValue ? value : midpoint;
+  const thumbState = !hasValue && state === 'normal' ? 'pristine' : state;
 
   const handleValueChange = (newValue: number | number[]) => {
     if (readOnly) return;
@@ -53,12 +57,26 @@ export default function VisualAnalogScaleField(
     }
   };
 
+  const commitPristineValue = () => {
+    if (readOnly || hasValue) return;
+    onChange?.(midpoint);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!hasValue && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      commitPristineValue();
+    }
+  };
+
   return (
     <div className={cx('w-full', className)} {...rest}>
       <div className="relative">
         <Slider.Root
-          value={value}
+          value={sliderValue}
           onValueChange={handleValueChange}
+          onPointerDown={commitPristineValue}
+          onKeyDown={handleKeyDown}
           disabled={disabled}
           min={min}
           max={max}
@@ -79,7 +97,7 @@ export default function VisualAnalogScaleField(
                     }}
                   />
                 }
-                className={sliderThumbVariants({ state })}
+                className={sliderThumbVariants({ state: thumbState })}
                 aria-label="Visual analog scale value"
               />
             </Slider.Track>
