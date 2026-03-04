@@ -31,21 +31,48 @@ const AREA_COLORS = [
   'ord-color-seq-7',
 ];
 
-type MapStyle = keyof typeof MAP_STYLES;
-type AreaColor = (typeof AREA_COLORS)[number];
-
-type StoryArgs = {
-  mapStyle: MapStyle;
-  areaColor: AreaColor;
+const REGIONS = {
+  chicago: {
+    file: '/storybook/chicago.geojson',
+    property: 'census_tra',
+    center: [-87.6298, 41.8781] as [number, number],
+    zoom: 10,
+    label: 'Chicago Census Tracts',
+  },
+  houston: {
+    file: '/storybook/houston.geojson',
+    property: 'Tract',
+    center: [-95.3698, 29.7604] as [number, number],
+    zoom: 9,
+    label: 'Houston Census Tracts',
+  },
+  'us-states': {
+    file: '/storybook/us-states.geojson',
+    property: 'name',
+    center: [-98.5795, 39.8283] as [number, number],
+    zoom: 4,
+    label: 'US States',
+  },
 };
 
-function createGeospatialInterview(seed: number) {
+type MapStyle = keyof typeof MAP_STYLES;
+type AreaColor = (typeof AREA_COLORS)[number];
+type Region = keyof typeof REGIONS;
+
+type StoryArgs = {
+  region: Region;
+  mapStyle: MapStyle;
+  areaColor: AreaColor;
+  promptCount: 1 | 2;
+  initialNodes: number;
+  prompt1Text: string;
+  prompt2Text: string;
+};
+
+function createGeospatialInterview(seed: number, region: Region) {
   const si = new SyntheticInterview(seed);
   const nt = si.addNodeType({ name: 'Person' });
-  const locationVar = nt.addVariable({
-    type: 'text',
-    name: 'Location',
-  });
+  const regionConfig = REGIONS[region];
 
   si.addAsset({
     assetId: 'mapbox-token',
@@ -54,10 +81,10 @@ function createGeospatialInterview(seed: number) {
 
   si.addAsset({
     assetId: 'geojson-data',
-    url: '/storybook/sample-geojson.json',
+    url: regionConfig.file,
   });
 
-  return { si, nt, locationVar };
+  return { si, nt, regionConfig };
 }
 
 function MissingTokenMessage() {
@@ -104,6 +131,11 @@ const meta: Meta<StoryArgs> = {
     layout: 'fullscreen',
   },
   argTypes: {
+    region: {
+      control: 'select',
+      options: Object.keys(REGIONS),
+      description: 'Geographic region / data source',
+    },
     mapStyle: {
       control: 'select',
       options: Object.keys(MAP_STYLES),
@@ -114,10 +146,34 @@ const meta: Meta<StoryArgs> = {
       options: AREA_COLORS,
       description: 'Color for selectable areas',
     },
+    promptCount: {
+      control: 'radio',
+      options: [1, 2],
+      description: 'Number of location prompts',
+    },
+    initialNodes: {
+      control: { type: 'number', min: 1, max: 10 },
+      description: 'Number of nodes to create',
+    },
+    prompt1Text: {
+      control: 'text',
+      description: 'Text for the first prompt',
+    },
+    prompt2Text: {
+      control: 'text',
+      description:
+        'Text for the second prompt (only used when promptCount is 2)',
+      if: { arg: 'promptCount', eq: 2 },
+    },
   },
   args: {
+    region: 'chicago',
     mapStyle: 'streets',
     areaColor: 'ord-color-seq-1',
+    promptCount: 1,
+    initialNodes: 3,
+    prompt1Text: 'Where does this person live?',
+    prompt2Text: 'Where does this person work?',
   },
 };
 
@@ -127,79 +183,68 @@ type Story = StoryObj<StoryArgs>;
 // --- Stories ---
 
 export const Default: Story = {
-  render: ({ mapStyle, areaColor }) => {
+  render: ({
+    region,
+    mapStyle,
+    areaColor,
+    promptCount,
+    initialNodes,
+    prompt1Text,
+    prompt2Text,
+  }) => {
     const buildFn = () => {
-      const { si, locationVar } = createGeospatialInterview(1);
-      si.addInformationStage({
-        title: 'Welcome',
-        text: 'Before the geospatial stage.',
-      });
-      const stage = si.addStage('Geospatial', {
-        initialNodes: 3,
-        introductionPanel: {
-          title: 'Location Selection',
-          text: 'Please select a location on the map for each person in your network.',
-        },
-        mapOptions: {
-          tokenAssetId: 'mapbox-token',
-          style: MAP_STYLES[mapStyle],
-          center: [-87.6298, 41.8781],
-          initialZoom: 11,
-          dataSourceAssetId: 'geojson-data',
-          color: areaColor,
-          targetFeatureProperty: 'name',
-        },
-      });
-      stage.addPrompt({ variable: locationVar.id });
-      si.addInformationStage({
-        title: 'Complete',
-        text: 'After the geospatial stage.',
-      });
-      return si;
-    };
-    return <GeospatialStoryWrapper buildFn={buildFn} />;
-  },
-};
-
-export const MultiplePrompts: Story = {
-  render: ({ mapStyle, areaColor }) => {
-    const buildFn = () => {
-      const { si, nt } = createGeospatialInterview(2);
-      const homeVar = nt.addVariable({ type: 'text', name: 'Home Location' });
-      const workVar = nt.addVariable({ type: 'text', name: 'Work Location' });
+      const { si, nt, regionConfig } = createGeospatialInterview(1, region);
 
       si.addInformationStage({
         title: 'Welcome',
         text: 'Before the geospatial stage.',
       });
+
       const stage = si.addStage('Geospatial', {
-        initialNodes: 3,
+        initialNodes,
         introductionPanel: {
           title: 'Location Selection',
-          text: 'You will select multiple locations for each person.',
+          text:
+            promptCount === 1
+              ? 'Please select a location on the map for each person in your network.'
+              : 'You will select multiple locations for each person.',
         },
         mapOptions: {
           tokenAssetId: 'mapbox-token',
           style: MAP_STYLES[mapStyle],
-          center: [-87.6298, 41.8781],
-          initialZoom: 11,
+          center: regionConfig.center,
+          initialZoom: regionConfig.zoom,
           dataSourceAssetId: 'geojson-data',
           color: areaColor,
-          targetFeatureProperty: 'name',
+          targetFeatureProperty: regionConfig.property,
         },
       });
-      stage.addPrompt({
-        text: 'Where does this person live?',
-        variable: homeVar.id,
+
+      const location1Var = nt.addVariable({
+        type: 'text',
+        name: 'Location 1',
       });
       stage.addPrompt({
-        text: 'Where does this person work?',
-        variable: workVar.id,
+        text: prompt1Text,
+        variable: location1Var.id,
       });
+
+      if (promptCount === 2) {
+        const location2Var = nt.addVariable({
+          type: 'text',
+          name: 'Location 2',
+        });
+        stage.addPrompt({
+          text: prompt2Text,
+          variable: location2Var.id,
+        });
+      }
+
       si.addInformationStage({
         title: 'Complete',
         text: 'After the geospatial stage.',
       });
+
       return si;
     };
     return <GeospatialStoryWrapper buildFn={buildFn} />;

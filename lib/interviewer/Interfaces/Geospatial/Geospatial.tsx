@@ -39,22 +39,22 @@ const fadeVariants = {
 const nodeAnimationVariants: Variants = {
   initial: (navDirection: Direction) => ({
     opacity: 0,
-    y: navDirection === 'backwards' ? '-10%' : '10%',
+    y: navDirection === 'backwards' ? '-20%' : '20%',
   }),
   animate: {
     opacity: 1,
     y: 0,
     transition: {
-      type: 'tween',
-      duration: 0.3,
+      ease: 'easeInOut',
+      duration: 0.4,
     },
   },
   exit: (navDirection: Direction) => ({
     opacity: 0,
-    y: navDirection === 'backwards' ? '10%' : '-10%',
+    y: navDirection === 'backwards' ? '20%' : '-20%',
     transition: {
-      type: 'tween',
-      duration: 0.3,
+      ease: 'easeInOut',
+      duration: 0.4,
     },
   }),
 };
