@@ -111,7 +111,9 @@ export default function EdgeRenderer() {
   const edgeType = useSelector(getEdgeType);
   const edgeColor = useSelector(getEdgeColorForType(edgeType));
 
-  const color = `var(--${edgeColor})`;
+  // Codebook stores 'edge-color-seq-N', CSS variable is '--color-edge-N'
+  const n = /\d+$/.exec(edgeColor)?.[0] ?? '1';
+  const color = `var(--color-edge-${n})`;
 
   const svgElements = useMemo(() => {
     if (!connectorData) return [];

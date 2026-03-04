@@ -63,7 +63,7 @@ function buildStore(nodeDefs: NodeDef[], edgeDefs: EdgeDef[]) {
 // ── SVG rendering helpers ──
 
 const EDGE_WIDTH = 5;
-const EDGE_COLOR = 'var(--edge-color-seq-1, #6366f1)';
+const EDGE_COLOR = 'var(--color-edge-1)';
 
 function renderLine(
   seg: LineSegment,

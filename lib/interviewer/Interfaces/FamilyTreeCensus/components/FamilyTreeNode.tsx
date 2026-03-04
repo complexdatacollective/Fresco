@@ -1,6 +1,8 @@
 import { type NcNode, type VariableValue } from '@codaco/shared-consts';
 import { useSelector } from 'react-redux';
 import Node from '~/components/Node';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import { useDragSource } from '~/lib/dnd';
 import { useNodeLabel } from '~/lib/interviewer/Interfaces/Anonymisation/useNodeLabel';
 import { FAMILY_TREE_CONFIG } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/config';
@@ -103,7 +105,11 @@ type FamilyTreeNodeProps = {
  */
 function NetworkNodeLabel({ node }: { node: NcNode }) {
   const label = useNodeLabel(node);
-  return <h4>{label}</h4>;
+  return (
+    <Heading level="label" margin="none">
+      {label}
+    </Heading>
+  );
 }
 
 export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
@@ -126,11 +132,14 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
     useClickUnlessDragged();
 
   const nodeColor = () => {
-    if (networkNode)
+    if (networkNode) {
+      // Codebook stores 'node-color-seq-N', CSS variable is '--color-node-N'
+      // Note: --dark is calculated by CSS via oklch (see Node component base styles)
+      const n = /\d+$/.exec(nodeTypeColor)?.[0] ?? '1';
       return {
-        '--base': `var(--${nodeTypeColor})`,
-        '--dark': `var(--${nodeTypeColor}-dark)`,
+        '--base': `var(--color-node-${n})`,
       };
+    }
 
     return {
       '--base': `var(--color-platinum)`,
@@ -221,15 +230,21 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
           Position anchor would be ideal for this but no FF support:
           https://developer.mozilla.org/en-US/docs/Web/CSS/position-anchor
         */}
-        <div className="family-tree-node-label-container bg-cyber-grape/80 m-1 flex flex-col gap-0.5 rounded-md px-2 py-1 text-white">
+        <div className="family-tree-node-label-container bg-cyber-grape/80 m-1 flex flex-col rounded-md px-2 py-1 text-white">
           {isEgo ? (
-            <h4>You</h4>
+            <Heading level="label" margin="none">
+              You
+            </Heading>
           ) : networkNode ? (
             <NetworkNodeLabel node={networkNode} />
           ) : (
-            <h4>{label}</h4>
+            <Heading level="label" margin="none">
+              {label}
+            </Heading>
           )}
-          <h5 className="family-tree-node-label font-normal!">{label}</h5>
+          <Paragraph intent="smallText" margin="none" className="family-tree-node-label">
+            {label}
+          </Paragraph>
         </div>
       </div>
     </div>

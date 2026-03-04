@@ -45,6 +45,16 @@ function createFamilyTreeInterview(seed: number) {
     type: 'boolean',
     component: 'Boolean',
   });
+  const isEgoVar = nodeType.addVariable({
+    name: 'Is Ego',
+    type: 'boolean',
+    component: 'Boolean',
+  });
+  const relationshipToEgoVar = nodeType.addVariable({
+    name: 'Relationship to Ego',
+    type: 'text',
+    component: 'Text',
+  });
 
   const edgeType = si.addEdgeType({ name: 'Family' });
   const relationshipVar = edgeType.addVariable({
@@ -66,6 +76,8 @@ function createFamilyTreeInterview(seed: number) {
     sexVar,
     ageVar,
     diseaseVar,
+    isEgoVar,
+    relationshipToEgoVar,
     edgeType,
     relationshipVar,
     egoSexVar,
@@ -153,6 +165,8 @@ export const Default: Story = {
         relationshipVar,
         egoSexVar,
         diseaseVar,
+        isEgoVar,
+        relationshipToEgoVar,
       } = createFamilyTreeInterview(1);
 
       // Add additional disease variable for multiple disease steps
@@ -175,8 +189,8 @@ export const Default: Story = {
         relationshipTypeVariable: relationshipVar.id,
         nodeSexVariable: sexVar.id,
         egoSexVariable: egoSexVar.id,
-        relationshipToEgoVariable: 'relationshipToEgo',
-        nodeIsEgoVariable: 'isEgo',
+        relationshipToEgoVariable: relationshipToEgoVar.id,
+        nodeIsEgoVariable: isEgoVar.id,
         scaffoldingStep: {
           text: scaffoldingText,
           showQuickStartModal,
