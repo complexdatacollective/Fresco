@@ -26,7 +26,7 @@ export async function mockUploadThing(page: Page) {
     }
 
     const body = route.request().postDataJSON() as {
-      files: Array<{ name: string; size: number; type: string }>;
+      files: { name: string; size: number; type: string }[];
     };
 
     const presigneds: MockPresigned[] = body.files.map((file, i) => ({
