@@ -17,16 +17,16 @@ import useFormStore from '~/lib/form/hooks/useFormStore';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { type FieldValue } from '~/lib/form/store/types';
+import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import {
   type BeforeNextFunction,
   type StageProps,
 } from '~/lib/interviewer/types';
-import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
+import elementHasOverflow from '~/utils/elementHasOverflow';
 import { updateEgo } from '../ducks/modules/session';
 import useFlipflop from '../hooks/useFlipflop';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import { getEgoAttributes } from '../selectors/session';
-import elementHasOverflow from '~/utils/elementHasOverflow';
 import { useAppDispatch } from '../store';
 
 type EgoFormProps = StageProps<'EgoForm'>;
@@ -67,7 +67,7 @@ const EgoFormInner = (props: EgoFormProps) => {
           intent: 'destructive',
           actions: {
             primary: { label: 'Discard changes', value: true },
-            cancel: { label: 'Go back', value: false },
+            cancel: { label: 'Keep changes', value: false },
           },
         });
         return !!result;
