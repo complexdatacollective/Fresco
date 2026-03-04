@@ -7,13 +7,18 @@ import {
 import { queue } from 'async';
 import { hash } from 'ohash';
 import posthog from 'posthog-js';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import {
   getNewAssetIds,
   getProtocolByHash,
   insertProtocol,
 } from '~/actions/protocols';
-import { useProtocolImportStoreApi } from '~/components/ProtocolImport/useProtocolImportStore';
+import {
+  calculateImportProgress,
+  type ImportPhase,
+} from '~/components/ProtocolImport/calculateImportProgress';
+import ImportToastContent from '~/components/ProtocolImport/ImportToastContent';
+import { useToast } from '~/components/ui/Toast';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
 import {
   validateAndMigrateProtocol,
@@ -64,16 +69,69 @@ function generateJobId(): string {
 }
 
 export const useProtocolImport = () => {
-  const store = useProtocolImportStoreApi();
+  const { add, update, close } = useToast();
   const activeJobs = useRef<Set<string>>(new Set());
+  // Store refs to toast manager functions so the queue callback can access them
+  // without being recreated when toast manager changes
+  const toastRef = useRef({ add, update, close });
+  toastRef.current = { add, update, close };
 
-  const processJob = async ({ file, jobId }: { file: File; jobId: string }) => {
+  const updateToastPhase = (
+    toastId: string,
+    phase: ImportPhase,
+    phaseProgress = 0,
+    error?: string | null,
+    onRetry?: () => void,
+  ) => {
+    const progress = calculateImportProgress(phase, phaseProgress);
+    const { update: toastUpdate } = toastRef.current;
+
+    if (phase === 'complete') {
+      toastUpdate(toastId, {
+        type: 'success',
+        description: null,
+        timeout: 2000,
+      });
+      return;
+    }
+
+    if (phase === 'error') {
+      toastUpdate(toastId, {
+        type: 'destructive',
+        description: (
+          <ImportToastContent
+            phase={phase}
+            progress={progress}
+            error={error}
+            onRetry={onRetry}
+          />
+        ),
+        timeout: 0,
+      });
+      return;
+    }
+
+    toastUpdate(toastId, {
+      description: <ImportToastContent phase={phase} progress={progress} />,
+    });
+  };
+
+  const processJob = async ({
+    file,
+    toastId,
+  }: {
+    file: File;
+    toastId: string;
+  }) => {
     const fileName = file.name;
-    const state = store.getState();
+
+    const retryThisFile = () => {
+      importProtocols([file]);
+    };
 
     try {
       // Phase: Parsing
-      state.updateJobPhase(jobId, 'parsing');
+      updateToastPhase(toastId, 'parsing');
       const fileArrayBuffer = await fileAsArrayBuffer(file);
 
       const JSZip = (await import('jszip')).default;
@@ -94,7 +152,7 @@ export const useProtocolImport = () => {
       }
 
       // Phase: Validating
-      state.updateJobPhase(jobId, 'validating');
+      updateToastPhase(toastId, 'validating');
       const validationResult = await validateAndMigrateProtocol(
         protocolJson,
         dependencies,
@@ -102,26 +160,29 @@ export const useProtocolImport = () => {
 
       if (!validationResult.success) {
         const errorMessage = getValidationErrorMessage(validationResult);
-        state.setJobError(jobId, errorMessage);
+        updateToastPhase(toastId, 'error', 0, errorMessage, retryThisFile);
         return;
       }
 
       const validatedProtocol = validationResult.protocol;
 
       // Phase: Checking duplicates
-      state.updateJobPhase(jobId, 'checking-duplicates');
+      updateToastPhase(toastId, 'checking-duplicates');
       const protocolHash = hash(validatedProtocol);
       const exists = await getProtocolByHash(protocolHash);
       if (exists) {
-        state.setJobError(
-          jobId,
+        updateToastPhase(
+          toastId,
+          'error',
+          0,
           'Protocol already exists. Delete the existing protocol first before importing again.',
+          retryThisFile,
         );
         return;
       }
 
       // Phase: Extracting assets
-      state.updateJobPhase(jobId, 'extracting-assets');
+      updateToastPhase(toastId, 'extracting-assets');
       const { fileAssets, apikeyAssets } = await getProtocolAssets(
         validatedProtocol,
         zip,
@@ -162,13 +223,13 @@ export const useProtocolImport = () => {
 
       if (newAssets.length > 0) {
         // Phase: Uploading assets
-        state.updateJobPhase(jobId, 'uploading-assets');
+        updateToastPhase(toastId, 'uploading-assets');
         const files = newAssets.map((asset) => asset.file);
 
         const uploadedFiles = await uploadFiles('assetRouter', {
           files,
           onUploadProgress: ({ progress }) => {
-            state.updateJobProgress(jobId, progress);
+            updateToastPhase(toastId, 'uploading-assets', progress);
           },
         });
 
@@ -193,7 +254,7 @@ export const useProtocolImport = () => {
       }
 
       // Phase: Saving
-      state.updateJobPhase(jobId, 'saving');
+      updateToastPhase(toastId, 'saving');
       const result = await insertProtocol({
         protocol: validatedProtocol,
         protocolName: fileName,
@@ -210,7 +271,7 @@ export const useProtocolImport = () => {
       });
 
       // Phase: Complete
-      state.updateJobPhase(jobId, 'complete');
+      updateToastPhase(toastId, 'complete');
 
       return;
     } catch (e) {
@@ -218,7 +279,7 @@ export const useProtocolImport = () => {
 
       posthog.captureException(error);
 
-      state.setJobError(jobId, error.message);
+      updateToastPhase(toastId, 'error', 0, error.message, retryThisFile);
 
       return;
     } finally {
@@ -228,76 +289,34 @@ export const useProtocolImport = () => {
 
   const jobQueue = useRef(queue(processJob, 2));
 
-  const importProtocols = useCallback(
-    (files: File[]) => {
-      const state = store.getState();
+  const importProtocols = useCallback((files: File[]) => {
+    files.forEach((file) => {
+      const jobAlreadyExists = activeJobs.current.has(file.name);
 
-      // Open the dialog when import starts
-      state.openDialog();
+      if (jobAlreadyExists) {
+        // eslint-disable-next-line no-console
+        console.warn(`Skipping duplicate job: ${file.name}`);
+        return;
+      }
 
-      files.forEach((file) => {
-        const jobAlreadyExists = activeJobs.current.has(file.name);
+      activeJobs.current.add(file.name);
 
-        if (jobAlreadyExists) {
-          // eslint-disable-next-line no-console
-          console.warn(`Skipping duplicate job: ${file.name}`);
-          return;
-        }
-
-        activeJobs.current.add(file.name);
-
-        const jobId = generateJobId();
-        state.addJob(jobId, file.name, file);
-
-        jobQueue.current.push({ file, jobId }).catch((error) => {
-          // eslint-disable-next-line no-console
-          console.log('jobQueue error', error);
-        });
+      const toastId = generateJobId();
+      toastRef.current.add({
+        id: toastId,
+        title: file.name,
+        description: <ImportToastContent phase="parsing" progress={0} />,
+        timeout: 0,
       });
-    },
-    [store],
-  );
 
-  // Listen for retry events from the dialog
-  useEffect(() => {
-    const handleRetry = (event: CustomEvent<{ file: File }>) => {
-      importProtocols([event.detail.file]);
-    };
-
-    window.addEventListener(
-      'protocol-import-retry',
-      handleRetry as EventListener,
-    );
-    return () => {
-      window.removeEventListener(
-        'protocol-import-retry',
-        handleRetry as EventListener,
-      );
-    };
-  }, [importProtocols]);
-
-  const cancelAllJobs = useCallback(() => {
-    jobQueue.current.pause();
-    jobQueue.current.remove(() => true);
-    activeJobs.current.clear();
-    jobQueue.current.resume();
-  }, []);
-
-  const cancelJob = useCallback((id: string) => {
-    jobQueue.current.remove(({ data }) => {
-      return data.file.name === id;
+      jobQueue.current.push({ file, toastId }).catch((error) => {
+        // eslint-disable-next-line no-console
+        console.log('jobQueue error', error);
+      });
     });
-    activeJobs.current.delete(id);
   }, []);
-
-  const hasActiveJobs = useCallback(() => {
-    return store.getState().hasActiveJobs();
-  }, [store]);
 
   return {
     importProtocols,
-    cancelJob,
-    cancelAllJobs,
-    hasActiveJobs,
   };
 };

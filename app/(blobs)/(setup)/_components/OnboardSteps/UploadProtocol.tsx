@@ -26,7 +26,7 @@ function ConfigureStudy() {
         If you don&apos;t have a protocol yet, you can upload one later from the
         dashboard.
       </Paragraph>
-      <ProtocolUploader hideCancelButton />
+      <ProtocolUploader />
       <div className="mt-6 flex justify-end">
         <Button onClick={handleNextStep} color="primary">
           Continue

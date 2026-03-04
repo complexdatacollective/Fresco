@@ -1,68 +1,29 @@
 'use client';
 
-import { FileDown, Loader2 } from 'lucide-react';
-import { useDropzone } from 'react-dropzone';
-import { useProtocolImportStore } from '~/components/ProtocolImport/useProtocolImportStore';
-import { Button, type ButtonProps } from '~/components/ui/Button';
-import { PROTOCOL_EXTENSION } from '~/fresco.config';
+import ProtocolImportPopover from '~/components/ProtocolImport/ProtocolImportPopover';
+import { type ButtonProps } from '~/components/ui/Button';
 import { useProtocolImport } from '~/hooks/useProtocolImport';
-import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
-import { cx } from '~/utils/cva';
 
-function ProtocolUploader({
+export default function ProtocolUploader({
   className,
   buttonVariant,
   buttonSize,
-  hideCancelButton,
   buttonDisabled,
 }: {
   className?: string;
   buttonVariant?: ButtonProps['variant'];
   buttonSize?: ButtonProps['size'];
-  hideCancelButton?: boolean;
   buttonDisabled?: boolean;
 }) {
-  const { importProtocols, cancelAllJobs } = useProtocolImport();
-  const hasActiveJobs = useProtocolImportStore((s) => s.hasActiveJobs());
-
-  const { getInputProps, open } = useDropzone({
-    noClick: true,
-    onDropAccepted: importProtocols,
-    accept: {
-      'application/octect-stream': [PROTOCOL_EXTENSION],
-      'application/zip': [PROTOCOL_EXTENSION],
-    },
-  });
+  const { importProtocols } = useProtocolImport();
 
   return (
-    <>
-      <Button
-        disabled={buttonDisabled}
-        onClick={open}
-        variant={buttonVariant}
-        size={buttonSize}
-        className={cx(
-          hasActiveJobs &&
-            cx(
-              'from-cyber-grape via-neon-coral to-cyber-grape bg-linear-to-r text-white',
-              'animate-background-gradient pointer-events-none cursor-wait bg-[length:400%]',
-            ),
-          className,
-        )}
-      >
-        {hasActiveJobs ? (
-          <Loader2 className="inline-block size-4 animate-spin" />
-        ) : (
-          <FileDown className="inline-block size-4" />
-        )}
-        <input {...getInputProps()} />
-        Import protocols
-      </Button>
-      {!hideCancelButton && hasActiveJobs && (
-        <Button onClick={cancelAllJobs}>Cancel all</Button>
-      )}
-    </>
+    <ProtocolImportPopover
+      onFilesAccepted={importProtocols}
+      buttonVariant={buttonVariant}
+      buttonSize={buttonSize}
+      buttonDisabled={buttonDisabled}
+      className={className}
+    />
   );
 }
-
-export default withNoSSRWrapper(ProtocolUploader);

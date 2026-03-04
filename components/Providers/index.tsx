@@ -5,7 +5,6 @@ import { Toast } from '@base-ui/react/toast';
 import { MotionConfig } from 'motion/react';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { type ReactNode } from 'react';
-import ProtocolImportProvider from '~/components/ProtocolImport/ProtocolImportProvider';
 import DialogProvider from '~/lib/dialogs/DialogProvider';
 import { DndStoreProvider } from '~/lib/dnd';
 import { InterviewToastViewport } from '~/lib/interviewer/components/InterviewToast';
@@ -27,9 +26,7 @@ export default function Providers({
           <Toast.Provider limit={7}>
             <TooltipProvider>
               <DndStoreProvider>
-                <ProtocolImportProvider>
-                  <DialogProvider>{children}</DialogProvider>
-                </ProtocolImportProvider>
+                <DialogProvider>{children}</DialogProvider>
               </DndStoreProvider>
             </TooltipProvider>
             <Toaster />

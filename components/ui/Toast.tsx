@@ -8,7 +8,6 @@ import {
 import { AlertCircle, CheckCircle, Info, type LucideIcon } from 'lucide-react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 import Heading from '../typography/Heading';
-import Paragraph from '../typography/Paragraph';
 import CloseButton from './CloseButton';
 
 const toastVariants = cva({
@@ -39,6 +38,7 @@ const variantIcons: Record<ToastVariant, LucideIcon | null> = {
 };
 
 type ToastData = {
+  id?: string;
   title: string;
   description?: string | React.ReactNode;
   variant?: ToastVariant;
@@ -88,7 +88,11 @@ function ToastItem({ toast }: ToastItemProps) {
         )}
         <div className="flex-1">
           <Toast.Title render={<Heading level="h4" />} />
-          <Toast.Description render={<Paragraph />} />
+          <Toast.Description
+            render={
+              <div className="font-body text-pretty not-last:mb-4" />
+            }
+          />
         </div>
         <Toast.Close
           render={<CloseButton size="sm" />}
@@ -101,8 +105,12 @@ function ToastItem({ toast }: ToastItemProps) {
   );
 }
 
-type TypedUseToastManager = Omit<UseToastManagerReturnValue, 'add'> & {
-  add: (data: ToastData) => void;
+type TypedUseToastManager = Omit<
+  UseToastManagerReturnValue,
+  'add' | 'update'
+> & {
+  add: (data: ToastData) => string;
+  update: (id: string, data: Partial<ToastData>) => void;
   toast: (data: ToastData) => void;
 };
 
