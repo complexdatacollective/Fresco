@@ -9,6 +9,7 @@ import {
 import { find } from 'es-toolkit/compat';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
+import Surface from '~/components/layout/Surface';
 import { ScrollArea } from '~/components/ui/ScrollArea';
 import { type FieldValue } from '~/lib/form/components/Field/types';
 import Form from '~/lib/form/components/Form';
@@ -101,13 +102,15 @@ export default function SlideFormEdge(props: SlideFormEdgeProps) {
         )}
         <div className="mt-[calc(var(--base-node-size)*0.4)] size-full">
           <ScrollArea>
-            <Form
-              onSubmit={handleSubmit}
-              className="[&_.form-field-container]:break-inside-avoid"
-            >
-              {fieldComponents}
-              {submitButton}
-            </Form>
+            <Surface>
+              <Form
+                onSubmit={handleSubmit}
+                className="[&_.form-field-container]:break-inside-avoid"
+              >
+                {fieldComponents}
+                {submitButton}
+              </Form>
+            </Surface>
           </ScrollArea>
         </div>
       </div>
