@@ -16,8 +16,8 @@ export default function Layout({ children }: PropsWithChildren) {
         </Suspense>
       </div>
 
-      <div className="tablet:grid-rows-[1fr_auto] relative z-10 grid min-h-dvh w-full grid-rows-[auto_1fr_auto]">
-        <header className="desktop:absolute desktop:top-0 desktop:left-0 desktop:z-10 p-4">
+      <div className="relative z-10 grid min-h-dvh w-full grid-rows-[auto_1fr_auto]">
+        <header className="p-4">
           <Link href="/">
             <Image
               src="/images/NC-Type and Mark Wide Pos.svg"
