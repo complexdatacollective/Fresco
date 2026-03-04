@@ -4,7 +4,6 @@ import useFormStore from './useFormStore';
 
 export function useForm(config: FormConfig) {
   const registeredRef = useRef(false);
-  const isUnmountingRef = useRef(false);
   const configRef = useRef(config); // Config is static, so this avoids needing to specify it in effect deps
   configRef.current = config;
   // Store errors are always an object (never null)
@@ -29,7 +28,7 @@ export function useForm(config: FormConfig) {
 
   // Register form once on mount. layout effect used to ensure it runs before fields register.
   useLayoutEffect(() => {
-    if (!registeredRef.current && !isUnmountingRef.current) {
+    if (!registeredRef.current) {
       registerForm({
         onSubmit: configRef.current.onSubmit,
         onSubmitInvalid: configRef.current.onSubmitInvalid,
@@ -38,7 +37,6 @@ export function useForm(config: FormConfig) {
     }
 
     return () => {
-      isUnmountingRef.current = true;
       if (registeredRef.current) {
         reset();
         registeredRef.current = false;

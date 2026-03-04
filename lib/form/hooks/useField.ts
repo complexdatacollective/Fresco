@@ -1,12 +1,5 @@
 import { debounce } from 'es-toolkit';
-import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-} from 'react';
+import { type ReactNode, useCallback, useEffect, useId, useMemo } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import {
   type FieldValue,
@@ -121,7 +114,6 @@ export function useField(config: UseFieldConfig): UseFieldResult {
   } = config;
 
   const id = useId();
-  const isUnmountingRef = useRef(false);
 
   // Memoize the validation function based on validation props
   // We serialize only the actual validation props (not component props like prefixComponent)
@@ -196,7 +188,6 @@ export function useField(config: UseFieldConfig): UseFieldResult {
 
   // Register field on mount
   useEffect(() => {
-    isUnmountingRef.current = false;
     registerField({
       name,
       initialValue,
@@ -204,7 +195,6 @@ export function useField(config: UseFieldConfig): UseFieldResult {
     });
 
     return () => {
-      isUnmountingRef.current = true;
       unregisterField(name);
     };
   }, [name, initialValue, validation, unregisterField, registerField]);
