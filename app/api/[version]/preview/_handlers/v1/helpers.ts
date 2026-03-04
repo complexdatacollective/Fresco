@@ -1,27 +1,22 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { verifyApiToken } from '~/actions/apiTokens';
+import { requireApiTokenAuth } from '~/app/api/_helpers/auth';
 import { getAppSetting, getPreviewMode } from '~/queries/appSettings';
 import { getServerSession } from '~/utils/auth';
 import type { AuthError, PreviewResponse } from './types';
 
-// CORS headers for external client (Architect)
 export const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
-// Helper to create JSON responses with CORS headers
 export function jsonResponse(data: PreviewResponse, status = 200) {
   return NextResponse.json(data, { status, headers: corsHeaders });
 }
 
-// Check preview mode and authentication
-// Returns null if authorized, or error data if not
 export async function checkPreviewAuth(
   req: NextRequest,
 ): Promise<AuthError | null> {
-  // Check if preview mode is enabled
   const previewMode = await getPreviewMode();
   if (!previewMode) {
     return {
@@ -33,35 +28,19 @@ export async function checkPreviewAuth(
     };
   }
 
-  // Check authentication if required
   const requireAuth = await getAppSetting('previewModeRequireAuth');
 
   if (requireAuth) {
-    // Try session-based auth first
     const session = await getServerSession();
 
     if (!session) {
-      // Try API token auth
-      const authHeader = req.headers.get('authorization');
-      const token = authHeader?.replace('Bearer ', '');
+      const result = await requireApiTokenAuth(req);
 
-      if (!token) {
+      if ('error' in result) {
         return {
           response: {
             status: 'error',
             message: 'Authentication required. Provide session or API token.',
-          },
-          status: 401,
-        };
-      }
-
-      const { valid } = await verifyApiToken(token);
-
-      if (!valid) {
-        return {
-          response: {
-            status: 'error',
-            message: 'Invalid API token',
           },
           status: 401,
         };

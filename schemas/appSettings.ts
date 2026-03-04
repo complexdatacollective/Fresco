@@ -14,6 +14,7 @@ const appSettingsSchema = z
     previewMode: z.boolean(),
     previewModeRequireAuth: z.boolean(),
     freezeInterviewsAfterCompletion: z.boolean(),
+    enableInterviewDataApi: z.boolean(),
   })
   .strict();
 
@@ -49,6 +50,10 @@ export const appSettingPreprocessedSchema = appSettingsSchema.extend({
   freezeInterviewsAfterCompletion: z.preprocess(
     parseBoolean,
     z.boolean().default(true),
+  ),
+  enableInterviewDataApi: z.preprocess(
+    parseBoolean,
+    z.boolean().default(false),
   ),
   uploadThingToken: z.string().optional(),
   installationId: z.string().optional(),

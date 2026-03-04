@@ -73,6 +73,7 @@ describe('App Settings Schema Validators', () => {
         previewMode: false,
         previewModeRequireAuth: true,
         freezeInterviewsAfterCompletion: true,
+        enableInterviewDataApi: false,
       });
     });
 
@@ -97,6 +98,7 @@ describe('App Settings Schema Validators', () => {
         previewMode: false,
         previewModeRequireAuth: true,
         freezeInterviewsAfterCompletion: true,
+        enableInterviewDataApi: false,
       });
     });
   });

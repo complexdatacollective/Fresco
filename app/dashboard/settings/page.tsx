@@ -13,6 +13,7 @@ import { requirePageAuth } from '~/utils/auth';
 import ConfigurationSection from './_components/ConfigurationSection';
 import DeveloperToolsSection from './_components/DeveloperToolsSection';
 import InterviewSettingsSection from './_components/InterviewSettingsSection';
+import ApiTokensSection from './_components/ApiTokensSection';
 import PreviewModeSection from './_components/PreviewModeSection';
 import PrivacySection from './_components/PrivacySection';
 import UserManagementSection from './_components/UserManagementSection';
@@ -24,6 +25,7 @@ function getSettingsSections(): SettingsSection[] {
     { id: 'configuration', title: 'Configuration' },
     { id: 'interview-settings', title: 'Interview Settings' },
     { id: 'privacy', title: 'Privacy' },
+    { id: 'api-tokens', title: 'API Tokens' },
     { id: 'preview-mode', title: 'Preview Mode' },
   ];
 
@@ -51,7 +53,8 @@ function SettingsContentSkeleton() {
           <SettingsCardSkeleton rows={2} />
           <SettingsCardSkeleton rows={3} />
           <SettingsCardSkeleton rows={1} />
-          <SettingsCardSkeleton rows={3} />
+          <SettingsCardSkeleton rows={2} />
+          <SettingsCardSkeleton rows={2} />
           {(env.NODE_ENV === 'development' || !env.SANDBOX_MODE) && (
             <SettingsCardSkeleton rows={3} />
           )}
@@ -102,7 +105,10 @@ async function SettingsContent() {
             <InterviewSettingsSection />
           </Suspense>
           <PrivacySection />
-          <Suspense fallback={<SettingsCardSkeleton rows={3} />}>
+          <Suspense fallback={<SettingsCardSkeleton rows={2} />}>
+            <ApiTokensSection />
+          </Suspense>
+          <Suspense fallback={<SettingsCardSkeleton rows={2} />}>
             <PreviewModeSection />
           </Suspense>
           {(env.NODE_ENV === 'development' || !env.SANDBOX_MODE) && (

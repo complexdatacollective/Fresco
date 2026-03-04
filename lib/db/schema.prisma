@@ -143,6 +143,7 @@ enum AppSetting {
   previewMode
   previewModeRequireAuth
   freezeInterviewsAfterCompletion
+  enableInterviewDataApi
 }
 
 model AppSettings {

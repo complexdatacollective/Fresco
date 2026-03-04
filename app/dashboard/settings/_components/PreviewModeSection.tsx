@@ -1,21 +1,18 @@
 import { Suspense } from 'react';
-import ApiTokenManagement from '~/components/ApiTokenManagement';
 import PreviewModeAuthSwitch from '~/components/PreviewModeAuthSwitch';
 import PreviewModeSwitch from '~/components/PreviewModeSwitch';
 import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import { ToggleFieldSkeleton } from '~/lib/form/components/fields/ToggleFieldSkeleton';
 import { env } from '~/env';
-import { getApiTokens } from '~/queries/apiTokens';
-import { getPreviewMode } from '~/queries/appSettings';
+import { ToggleFieldSkeleton } from '~/lib/form/components/fields/ToggleFieldSkeleton';
+import { getAppSetting, getPreviewMode } from '~/queries/appSettings';
 import ReadOnlyEnvAlert from '../ReadOnlyEnvAlert';
 
 export default async function PreviewModeSection() {
   const previewMode = await getPreviewMode();
   const previewModeIsReadOnly = env.PREVIEW_MODE !== undefined;
-
-  const apiTokensPromise = previewMode ? getApiTokens() : Promise.resolve([]);
+  const authenticationEnabled = await getAppSetting('previewModeRequireAuth');
 
   return (
     <SettingsCard id="preview-mode" title="Preview Mode" divideChildren>
@@ -34,35 +31,22 @@ export default async function PreviewModeSection() {
       <SettingsField
         label="Authentication"
         testId="preview-mode-auth-field"
-        description="When enabled, the preview protocol upload endpoint requires authentication via API token or user session. When disabled, anyone can upload preview protocols."
+        description="When enabled, the preview protocol upload endpoint requires authentication via API token or user session. Tokens can be managed in the API Tokens section."
         control={
           <Suspense fallback={<ToggleFieldSkeleton />}>
             <PreviewModeAuthSwitch disabled={!previewMode} />
           </Suspense>
         }
       >
-        <Alert variant="warning">
-          <AlertTitle>Security Warning</AlertTitle>
-          <AlertDescription>
-            Disabling authentication allows anyone with the URL of your study to
-            upload protocols. Only disable this in trusted environments.
-          </AlertDescription>
-        </Alert>
-      </SettingsField>
-      <SettingsField
-        label="API Tokens"
-        testId="api-tokens-field"
-        description={
-          <>
-            API tokens are used to authenticate preview protocol uploads from
-            Architect Web.
-          </>
-        }
-      >
-        <ApiTokenManagement
-          tokensPromise={apiTokensPromise}
-          disabled={!previewMode}
-        />
+        {!authenticationEnabled && (
+          <Alert variant="warning">
+            <AlertTitle>Security Warning</AlertTitle>
+            <AlertDescription>
+              Disabling authentication allows anyone with the URL of your study
+              to upload protocols. Only disable this in trusted environments.
+            </AlertDescription>
+          </Alert>
+        )}
       </SettingsField>
     </SettingsCard>
   );
