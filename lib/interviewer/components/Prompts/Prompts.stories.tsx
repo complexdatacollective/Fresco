@@ -193,17 +193,13 @@ export const LongPromptText: Story = {
     docs: {
       description: {
         story:
-          'Long prompts are clamped to 3 lines with a tooltip showing the full text.',
+          'Long prompts have a title attribute showing the full text on hover.',
       },
     },
   },
   play: async ({ canvasElement }) => {
     // Wait for animation to complete
     await new Promise((resolve) => setTimeout(resolve, 500));
-
-    // Verify the prompt is rendered
-    const promptContainer = canvasElement.querySelector('.line-clamp-3');
-    await expect(promptContainer).toBeInTheDocument();
 
     // Verify title attribute is set for tooltip
     const promptWithTitle = canvasElement.querySelector('[title]');
