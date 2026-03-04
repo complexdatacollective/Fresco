@@ -240,7 +240,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
     if (maxNodesReached) {
       maxToastRef.current = showToast({
         description:
-          'You have added the maximum number of items for this screen.',
+          'You have completed this task. Click the next arrow to continue.',
         variant: 'success',
         anchor: 'forward',
         timeout: 0,
