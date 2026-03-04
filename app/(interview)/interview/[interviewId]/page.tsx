@@ -81,6 +81,18 @@ async function InterviewContent({
         ? `Interview "${interviewId}" was opened by user "${session.user.username}"`
         : `Interview "${interviewId}" was opened`;
 
+      const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+
+      const recentEvent = await prisma.events.findFirst({
+        where: {
+          type: 'Interview Opened',
+          message,
+          timestamp: { gte: thirtyMinutesAgo },
+        },
+      });
+
+      if (recentEvent) return;
+
       await prisma.events.create({
         data: {
           type: 'Interview Opened' satisfies ActivityType,
