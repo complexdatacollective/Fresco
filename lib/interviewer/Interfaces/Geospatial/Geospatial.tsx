@@ -2,11 +2,13 @@ import {
   entityPrimaryKeyProperty,
   type VariableValue,
 } from '@codaco/shared-consts';
+import { SearchBox } from '@mapbox/search-js-react';
 import { type Action } from '@reduxjs/toolkit';
-import { LocateFixed, ZoomIn, ZoomOut } from 'lucide-react';
+import { LocateFixed, Search, TrainFront, ZoomIn, ZoomOut } from 'lucide-react';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import mapboxgl from 'mapbox-gl';
 import { AnimatePresence, motion, type Variants } from 'motion/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { type ThunkDispatch } from 'redux-thunk';
 import Surface from '~/components/layout/Surface';
@@ -22,7 +24,10 @@ import CollapsablePrompts from '~/lib/interviewer/Interfaces/Sociogram/Collapsab
 import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { type RootState } from '~/lib/interviewer/store';
 import { type Direction, type StageProps } from '~/lib/interviewer/types';
-import { useMapbox } from './useMapbox';
+import {
+  convertCssColorToHex,
+  useMapbox,
+} from '~/lib/interviewer/Interfaces/Geospatial/useMapbox';
 
 const fadeVariants = {
   show: { opacity: 1, transition: { duration: 0.5 } },
@@ -111,10 +116,14 @@ export default function GeospatialInterface({
 
   const {
     mapContainerRef,
+    mapRef,
+    accessToken,
     handleResetMapZoom,
     handleZoomIn,
     handleZoomOut,
     handleResetSelection,
+    handleToggleTransitLayers,
+    transitLayersVisible,
   } = useMapbox({
     mapOptions,
     getAssetUrl,
@@ -125,6 +134,35 @@ export default function GeospatialInterface({
       }
     },
   });
+
+  // Search state
+  const [searchVisible, setSearchVisible] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+
+  // Theme for Mapbox SearchBox - compute colors from CSS variables
+  const searchBoxTheme = useMemo(() => {
+    if (typeof document === 'undefined') return {};
+
+    const styles = getComputedStyle(document.documentElement);
+    const getColor = (varName: string) =>
+      convertCssColorToHex(styles.getPropertyValue(varName).trim());
+
+    return {
+      variables: {
+        fontFamily: 'inherit',
+        unit: '14px',
+        padding: '0.5em',
+        borderRadius: '8px',
+        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.3)',
+        colorBackground: getColor('--color-background'),
+        colorBackgroundHover: getColor('--color-surface-1'),
+        colorBackgroundActive: getColor('--color-surface-2'),
+        colorText: getColor('--color-text'),
+        colorPrimary: getColor('--color-primary'),
+        border: `1px solid ${getColor('--color-border')}`,
+      },
+    };
+  }, []);
 
   const getNodeIndex = useCallback(
     () => navState.activeIndex - 1,
@@ -158,6 +196,7 @@ export default function GeospatialInterface({
       direction: 'backwards',
     });
     handleResetSelection();
+    setSearchValue('');
   }, [getNodeIndex, handleResetSelection]);
 
   const nextNode = useCallback(() => {
@@ -166,6 +205,7 @@ export default function GeospatialInterface({
       direction: 'forwards',
     });
     handleResetSelection();
+    setSearchValue('');
   }, [handleResetSelection, navState.activeIndex]);
 
   const beforeNext = (direction: Direction) => {
@@ -244,13 +284,47 @@ export default function GeospatialInterface({
 
           <div id="map-container" className="size-full" ref={mapContainerRef} />
 
+          {/* Search box - toggleable from toolbar */}
+          <AnimatePresence>
+            {searchVisible && accessToken && mapRef.current && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                className="absolute top-4 left-4 z-10 w-80 **:text-(--color-text)!"
+              >
+                <SearchBox
+                  accessToken={accessToken}
+                  map={mapRef.current}
+                  mapboxgl={mapboxgl}
+                  value={searchValue}
+                  onChange={(value) => setSearchValue(value)}
+                  options={{
+                    proximity: mapOptions.center,
+                  }}
+                  placeholder="Search for a place or address..."
+                  theme={searchBoxTheme}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Map toolbar */}
           <Surface
             noContainer
             level={0}
             spacing="none"
             elevation="none"
-            className="absolute right-14 bottom-10 z-5 flex flex-col gap-2 rounded-xl p-2"
+            className="absolute right-4 bottom-10 z-5 flex flex-col gap-2 rounded-xl p-2"
           >
+            <IconButton
+              data-testid="geospatial-search-toggle"
+              onClick={() => setSearchVisible((v) => !v)}
+              icon={<Search />}
+              aria-label={searchVisible ? 'Close Search' : 'Search Location'}
+              color={searchVisible ? 'success' : 'primary'}
+            />
             <IconButton
               onClick={handleZoomIn}
               icon={<ZoomIn />}
@@ -268,6 +342,17 @@ export default function GeospatialInterface({
               icon={<LocateFixed />}
               aria-label="Recenter Map"
               color="primary"
+            />
+            <IconButton
+              data-testid="geospatial-transit-toggle"
+              onClick={handleToggleTransitLayers}
+              icon={<TrainFront />}
+              aria-label={
+                transitLayersVisible
+                  ? 'Hide Transit Lines'
+                  : 'Show Transit Lines'
+              }
+              color={transitLayersVisible ? 'success' : 'primary'}
             />
           </Surface>
         </div>
