@@ -13,6 +13,7 @@ const appSettingsSchema = z
     disableSmallScreenOverlay: z.boolean(),
     previewMode: z.boolean(),
     previewModeRequireAuth: z.boolean(),
+    freezeInterviewsAfterCompletion: z.boolean(),
   })
   .strict();
 
@@ -45,6 +46,10 @@ export const appSettingPreprocessedSchema = appSettingsSchema.extend({
   ),
   previewMode: z.preprocess(parseBoolean, z.boolean().default(false)),
   previewModeRequireAuth: z.preprocess(parseBoolean, z.boolean().default(true)),
+  freezeInterviewsAfterCompletion: z.preprocess(
+    parseBoolean,
+    z.boolean().default(true),
+  ),
   uploadThingToken: z.string().optional(),
   installationId: z.string().optional(),
 });

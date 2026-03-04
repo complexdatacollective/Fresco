@@ -142,6 +142,7 @@ enum AppSetting {
   uploadThingToken
   previewMode
   previewModeRequireAuth
+  freezeInterviewsAfterCompletion
 }
 
 model AppSettings {

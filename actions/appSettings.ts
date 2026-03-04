@@ -14,6 +14,7 @@ import {
   appSettingPreprocessedSchema,
   createUploadThingTokenFormSchema,
 } from '~/schemas/appSettings';
+import { addEvent } from '~/actions/activityFeed';
 import { requireApiAuth } from '~/utils/auth';
 import { ensureError } from '~/utils/ensureError';
 import { getStringValue } from '~/utils/serializeHelpers';
@@ -22,7 +23,7 @@ export async function setAppSetting<
   Key extends AppSetting,
   V extends z.infer<typeof appSettingPreprocessedSchema>[Key],
 >(key: Key, value: V): Promise<V> {
-  await requireApiAuth();
+  const session = await requireApiAuth();
 
   if (!appSettingPreprocessedSchema.shape[key]) {
     throw new Error(`Invalid app setting: ${key}`);
@@ -48,6 +49,11 @@ export async function setAppSetting<
     });
 
     safeUpdateTag(`appSettings-${key}`);
+
+    await addEvent(
+      'Setting Changed',
+      `"${session.user.username}" changed "${key}" to "${String(value)}"`,
+    );
 
     return value;
   } catch (error) {

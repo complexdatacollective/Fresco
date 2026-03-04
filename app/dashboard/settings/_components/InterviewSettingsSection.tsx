@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch';
+import FreezeInterviewsSwitch from '~/components/FreezeInterviewsSwitch';
 import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch';
 import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
@@ -45,6 +46,16 @@ export default async function InterviewSettingsSection() {
         control={
           <Suspense fallback={<ToggleFieldSkeleton />}>
             <LimitInterviewsSwitch />
+          </Suspense>
+        }
+      />
+      <SettingsField
+        label="Freeze Completed Interviews"
+        testId="freeze-interviews-field"
+        description="When enabled, completed interviews will silently reject any further data sync updates. This prevents modifications to submitted data if an interview is re-opened."
+        control={
+          <Suspense fallback={<ToggleFieldSkeleton />}>
+            <FreezeInterviewsSwitch />
           </Suspense>
         }
       />

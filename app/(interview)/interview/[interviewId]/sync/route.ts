@@ -5,6 +5,7 @@ import { z as zm } from 'zod/mini';
 import { prisma } from '~/lib/db';
 import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
 import { captureException, shutdownPostHog } from '~/lib/posthog-server';
+import { getAppSetting } from '~/queries/appSettings';
 import { ensureError } from '~/utils/ensureError';
 
 /**
@@ -46,6 +47,19 @@ const routeHandler = async (
 
   const { network, currentStep, stageMetadata, lastUpdated } =
     validatedRequest.data;
+
+  const freezeEnabled = await getAppSetting('freezeInterviewsAfterCompletion');
+
+  if (freezeEnabled) {
+    const interview = await prisma.interview.findUnique({
+      where: { id: interviewId },
+      select: { finishTime: true },
+    });
+
+    if (interview?.finishTime) {
+      return NextResponse.json({ success: true });
+    }
+  }
 
   try {
     await prisma.interview.update({
