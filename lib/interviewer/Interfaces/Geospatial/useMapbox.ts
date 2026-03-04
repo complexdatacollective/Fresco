@@ -58,25 +58,27 @@ const convertCssColorToHex = (() => {
   let ctx: CanvasRenderingContext2D | null = null;
 
   return (cssColor: string): string => {
-    // SSR guard - return fallback when running server-side
     if (typeof document === 'undefined') return DEFAULT_FALLBACK;
 
     if (!ctx) {
       const canvas = document.createElement('canvas');
       canvas.width = 1;
       canvas.height = 1;
-      ctx = canvas.getContext('2d');
+      ctx = canvas.getContext('2d', { willReadFrequently: true });
     }
     if (!ctx) return DEFAULT_FALLBACK;
 
-    // Reset to known state to detect invalid colors
-    ctx.fillStyle = '#000000';
+    // Paint the color onto a pixel and read it back as RGBA to guarantee
+    // conversion to a format Mapbox understands (oklch is not supported).
+    ctx.clearRect(0, 0, 1, 1);
     ctx.fillStyle = cssColor;
+    ctx.fillRect(0, 0, 1, 1);
+    const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
 
-    // If color was invalid, fillStyle stays #000000
-    return ctx.fillStyle === '#000000' && cssColor !== '#000000'
-      ? DEFAULT_FALLBACK
-      : ctx.fillStyle;
+    if (a === 0) return DEFAULT_FALLBACK;
+
+    const hex = (v: number) => v.toString(16).padStart(2, '0');
+    return `#${hex(r!)}${hex(g!)}${hex(b!)}`;
   };
 })();
 
