@@ -119,12 +119,16 @@ export default function TieStrengthCensus(props: TieStrengthCensusProps) {
   const existingEdgeId =
     (pair && edgeExists(edges, pair[0], pair[1], createEdge)) ?? false;
 
-  const edgeVariableValue = (() => {
+  const edgeVariableValue: string | number | undefined = (() => {
     if (!edgeVariable || !existingEdgeId) return undefined;
     const edge = edges.find(
       (e) => e[entityPrimaryKeyProperty] === existingEdgeId,
     );
-    return edge?.[entityAttributesProperty]?.[edgeVariable] ?? undefined;
+    const value = edge?.[entityAttributesProperty]?.[edgeVariable];
+    if (typeof value === 'string' || typeof value === 'number') {
+      return value;
+    }
+    return undefined;
   })();
 
   const metadataResponse = pair
@@ -229,14 +233,15 @@ export default function TieStrengthCensus(props: TieStrengthCensusProps) {
     return () => clearTimeout(timer);
   }, [isTouched, isChanged]);
 
-  // Edge state management
-  const setEdge = (value: boolean | string | number) => {
-    if (!pair) return;
+  // Handle option selection
+  const handleChange = (value: string | number | false) => {
+    if (!pair || isTouched) return;
 
-    setIsChanged(hasEdge !== value);
+    setIsChanged(hasEdge !== (value !== false));
     setIsTouched(true);
 
     if (value === false) {
+      // Negative option selected - delete edge and record in metadata
       if (existingEdgeId) {
         dispatch(deleteEdge(existingEdgeId));
       }
@@ -248,55 +253,48 @@ export default function TieStrengthCensus(props: TieStrengthCensusProps) {
       dispatch(
         updateStageMetadata([
           ...existingMetadata,
-          [promptIndex, ...pair, value],
+          [promptIndex, ...pair, false],
         ] as DyadCensusMetadataItem[]),
       );
       return;
     }
 
-    // value is string | number — create or update edge with variable value
-    if (typeof value === 'string' || typeof value === 'number') {
-      if (isDyadCensusMetadata(stageMetadata)) {
-        dispatch(
-          updateStageMetadata(
-            stageMetadata.filter(
-              (item) => !matchEntry(promptIndex, pair)(item),
-            ),
+    // Ordinal option selected - create or update edge with variable value
+    if (isDyadCensusMetadata(stageMetadata)) {
+      dispatch(
+        updateStageMetadata(
+          stageMetadata.filter(
+            (item) => !matchEntry(promptIndex, pair)(item),
           ),
-        );
-      }
+        ),
+      );
+    }
 
-      if (existingEdgeId) {
-        void dispatch(
-          updateEdge({
-            edgeId: existingEdgeId,
-            newAttributeData: {
-              [edgeVariable!]: value,
-            },
-          }),
-        );
-      } else {
-        void dispatch(
-          addEdge({
-            from: pair[0],
-            to: pair[1],
-            type: createEdge,
-            attributeData: {
-              [edgeVariable!]: value,
-            },
-          }),
-        );
-      }
+    if (existingEdgeId) {
+      void dispatch(
+        updateEdge({
+          edgeId: existingEdgeId,
+          newAttributeData: {
+            [edgeVariable!]: value,
+          },
+        }),
+      );
+    } else {
+      void dispatch(
+        addEdge({
+          from: pair[0],
+          to: pair[1],
+          type: createEdge,
+          attributeData: {
+            [edgeVariable!]: value,
+          },
+        }),
+      );
     }
   };
 
-  const handleChange = (nextValue: boolean | string | number) => () => {
-    if (isTouched) return;
-    setEdge(nextValue);
-  };
-
   return (
-    <div className="flex h-full flex-col items-center justify-center">
+    <div className="interface flex flex-1 flex-col items-center justify-center">
       <AnimatePresence initial={false} mode="wait">
         {isIntroduction ? (
           <MotionSurface
@@ -336,7 +334,7 @@ export default function TieStrengthCensus(props: TieStrengthCensusProps) {
               >
                 <div className="absolute top-0 left-0 flex size-full flex-col items-center justify-center">
                   <div className="relative flex w-full grow items-center justify-center">
-                    <AnimatePresence custom={[isForwards]} initial={false}>
+                    <AnimatePresence mode="wait" custom={[isForwards]} initial={false}>
                       <Pair
                         key={`${promptIndex}_${pairIndex}`}
                         edgeColor={edgeColor}
@@ -356,50 +354,35 @@ export default function TieStrengthCensus(props: TieStrengthCensusProps) {
                       maxWidth: `${(edgeVariableOptions.length + 1) * 20 + 3.6}rem`,
                     }}
                   >
-                    <div>
-                      <AnimatePresence mode="wait">
-                        <motion.div
-                          key={promptIndex}
-                          className="flex items-center justify-center"
-                          variants={optionsVariants}
-                          initial="initial"
-                          animate="animate"
-                          exit="exit"
-                        >
-                          <div className="form-field-container form-field-boolean">
-                            <div className="form-field-boolean__control">
-                              <div>
-                                <div className="boolean__options">
-                                  {edgeVariableOptions.map(
-                                    (option: {
-                                      label: string;
-                                      value: string | number;
-                                    }) => (
-                                      <BooleanOption
-                                        key={option.value}
-                                        selected={
-                                          !!hasEdge &&
-                                          edgeVariableValue === option.value
-                                        }
-                                        onClick={handleChange(option.value)}
-                                        label={option.label}
-                                      />
-                                    ),
-                                  )}
-                                  <BooleanOption
-                                    classes="boolean-option--no"
-                                    selected={!hasEdge && hasEdge === false}
-                                    onClick={handleChange(false)}
-                                    label={negativeLabel}
-                                    negative
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      </AnimatePresence>
-                    </div>
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={promptIndex}
+                        className="flex items-center justify-center"
+                        variants={optionsVariants}
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                      >
+                        <div className="grid auto-cols-fr grid-flow-col gap-4">
+                          {edgeVariableOptions.map((option) => (
+                            <BooleanOption
+                              key={option.value}
+                              selected={
+                                !!hasEdge && edgeVariableValue === option.value
+                              }
+                              onClick={() => handleChange(option.value)}
+                              label={option.label}
+                            />
+                          ))}
+                          <BooleanOption
+                            selected={hasEdge === false}
+                            onClick={() => handleChange(false)}
+                            label={negativeLabel}
+                            negative
+                          />
+                        </div>
+                      </motion.div>
+                    </AnimatePresence>
                   </motion.div>
                 </div>
               </motion.div>

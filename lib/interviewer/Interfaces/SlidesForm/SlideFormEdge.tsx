@@ -15,9 +15,11 @@ import { type FieldValue } from '~/lib/form/components/Field/types';
 import Form from '~/lib/form/components/Form';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import { type FormSubmitHandler } from '~/lib/form/store/types';
-import { type Subject } from '../../selectors/forms';
 import Node from '../../components/Node';
+import { type Subject } from '../../selectors/forms';
 import { getNetworkNodes, makeGetEdgeColor } from '../../selectors/session';
+import { edgeColorMap } from '../../utils/edgeColorMap';
+import { cx } from '~/utils/cva';
 
 type SlideFormEdgeProps = {
   form: TForm;
@@ -76,7 +78,7 @@ export default function SlideFormEdge(props: SlideFormEdgeProps) {
   return (
     <div className="flex size-full items-center justify-center">
       <div
-        className="relative flex min-h-5 w-full max-w-[65rem] rounded-[--nc-border-radius] bg-[--nc-panel-bg-muted] px-5 pt-2.5 pb-5"
+        className="relative flex min-h-5 w-full max-w-[65rem] flex-col rounded-[--nc-border-radius] bg-[--nc-panel-bg-muted] px-5 pt-2.5 pb-5"
         style={
           {
             '--base-node-size': '7.8rem',
@@ -84,22 +86,27 @@ export default function SlideFormEdge(props: SlideFormEdgeProps) {
           } as React.CSSProperties
         }
       >
-        {fromNode && (
-          <Node
-            {...fromNode}
-            className="absolute top-[calc(var(--base-node-size)*-0.5)] left-[calc(-8rem+50%-var(--base-node-size)/2)] rounded-full bg-[--nc-panel-bg-muted] *:z-2"
+        {/* Node pair with edge - uses flex layout like DyadCensus */}
+        <div className="absolute top-[calc(var(--base-node-size)*-0.5)] left-1/2 flex -translate-x-1/2 items-center">
+          {fromNode && (
+            <Node
+              {...fromNode}
+              className="rounded-full bg-[var(--nc-panel-bg-muted)]"
+            />
+          )}
+          <div
+            className={cx(
+              edgeColorMap[edgeColor],
+              'mx-[-1.5rem] h-2 w-32 bg-[var(--edge-color)]',
+            )}
           />
-        )}
-        <div
-          className="absolute top-[-1rem] left-[calc(50%-5rem)] z-1 h-2 w-[10rem]"
-          style={{ backgroundColor: `var(--nc-${edgeColor})` }}
-        />
-        {toNode && (
-          <Node
-            {...toNode}
-            className="absolute top-[calc(var(--base-node-size)*-0.5)] left-[calc(8rem+50%-var(--base-node-size)/2)] rounded-full bg-[--nc-panel-bg-muted]"
-          />
-        )}
+          {toNode && (
+            <Node
+              {...toNode}
+              className="rounded-full bg-[var(--nc-panel-bg-muted)]"
+            />
+          )}
+        </div>
         <div className="mt-[calc(var(--base-node-size)*0.4)] size-full">
           <ScrollArea>
             <Surface>

@@ -112,39 +112,3 @@ type Story = StoryObj<StoryArgs>;
 export const Default: Story = {
   render: (args) => <TieStrengthCensusStoryWrapper {...args} />,
 };
-
-export const Introduction: Story = {
-  render: (args) => <TieStrengthCensusStoryWrapper {...args} />,
-  args: {
-    initialNodeCount: 3,
-  },
-};
-
-export const ThreeNodes: Story = {
-  render: (args) => <TieStrengthCensusStoryWrapper {...args} />,
-  args: {
-    initialNodeCount: 3,
-  },
-};
-
-export const FiveNodes: Story = {
-  render: (args) => <TieStrengthCensusStoryWrapper {...args} />,
-  args: {
-    initialNodeCount: 5,
-  },
-};
-
-export const WithExistingEdges: Story = {
-  render: (args) => <TieStrengthCensusStoryWrapper {...args} />,
-  args: {
-    initialNodeCount: 4,
-    hasExistingEdges: true,
-  },
-};
-
-export const NoNodes: Story = {
-  render: (args) => <TieStrengthCensusStoryWrapper {...args} />,
-  args: {
-    initialNodeCount: 0,
-  },
-};
