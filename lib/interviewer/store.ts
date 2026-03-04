@@ -6,6 +6,7 @@ import protocol from '~/lib/interviewer/ducks/modules/protocol';
 import session from '~/lib/interviewer/ducks/modules/session';
 import ui from '~/lib/interviewer/ducks/modules/ui';
 import { type GetInterviewByIdQuery } from '~/queries/interviews';
+import { env } from '~/env.js';
 import logger from './ducks/middleware/logger';
 import { createSyncMiddleware } from './middleware/syncMiddleware';
 
@@ -31,7 +32,10 @@ export const store = (
             'dialogs/open/pending', // Dialogs store callback functions
           ],
         },
-      }).concat(logger, ...(options?.disableSync ? [] : [syncMiddleware])),
+      }).concat(
+        ...(env.NODE_ENV === 'development' ? [logger] : []),
+        ...(options?.disableSync ? [] : [syncMiddleware]),
+      ),
     preloadedState: {
       session: {
         // Important to manually pass only the required state items to the session

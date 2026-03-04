@@ -1,12 +1,12 @@
 import { hash } from 'ohash';
 import { Suspense } from 'react';
 import { DataTableSkeleton } from '~/components/DataTable/DataTableSkeleton';
-import { type getActivities } from '~/queries/activityFeed';
+import { type fetchActivities } from '~/queries/activityFeed';
 import ActivityFeedTable from './ActivityFeedTable';
 import { searchParamsCache } from './SearchParams';
 
 type ActivityFeedProps = {
-  activitiesPromise: ReturnType<typeof getActivities>;
+  activitiesPromise: ReturnType<typeof fetchActivities>;
 };
 
 export default function ActivityFeed({ activitiesPromise }: ActivityFeedProps) {
