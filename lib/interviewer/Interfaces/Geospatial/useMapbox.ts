@@ -123,6 +123,14 @@ export const useMapbox = ({
     });
   }, [center, initialZoom, mapRef]);
 
+  const handleZoomIn = useCallback(() => {
+    mapRef.current?.zoomIn();
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    mapRef.current?.zoomOut();
+  }, []);
+
   const handleResetSelection = useCallback(() => {
     if (mapRef.current) {
       mapRef.current.setFilter('selection', ['==', targetFeatureProperty, '']);
@@ -148,12 +156,6 @@ export const useMapbox = ({
           data: getAssetUrl(dataSourceAssetId),
           promoteId: targetFeatureProperty,
         });
-        // Zoom buttons
-        mapRef.current.addControl(
-          new mapboxgl.NavigationControl({
-            showCompass: false,
-          }),
-        );
       }
 
       // Read CSS variable and convert to RGB format for Mapbox GL compatibility
@@ -354,6 +356,8 @@ export const useMapbox = ({
   return {
     mapContainerRef,
     handleResetMapZoom,
+    handleZoomIn,
+    handleZoomOut,
     handleResetSelection,
   };
 };

@@ -3,16 +3,16 @@ import {
   type VariableValue,
 } from '@codaco/shared-consts';
 import { type Action } from '@reduxjs/toolkit';
-import { Locate } from 'lucide-react';
+import { LocateFixed, ZoomIn, ZoomOut } from 'lucide-react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { AnimatePresence, motion, type Variants } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { type ThunkDispatch } from 'redux-thunk';
-import { MotionSurface } from '~/components/layout/Surface';
+import Surface, { MotionSurface } from '~/components/layout/Surface';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
-import Button from '~/components/ui/Button';
+import Button, { IconButton } from '~/components/ui/Button';
 import Node from '~/lib/interviewer/components/Node';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { getAssetUrlFromId } from '~/lib/interviewer/ducks/modules/protocol';
@@ -117,18 +117,23 @@ export default function GeospatialInterface({
         ] as string | undefined)
       : undefined;
 
-  const { mapContainerRef, handleResetMapZoom, handleResetSelection } =
-    useMapbox({
-      mapOptions,
-      getAssetUrl,
-      initialSelectionValue,
-      onSelectionChange: (value: string) => {
-        if (currentPrompt && stageNodes[navState.activeIndex]) {
-          setLocationValue(value);
-        }
-      },
-      show: !isIntroduction,
-    });
+  const {
+    mapContainerRef,
+    handleResetMapZoom,
+    handleZoomIn,
+    handleZoomOut,
+    handleResetSelection,
+  } = useMapbox({
+    mapOptions,
+    getAssetUrl,
+    initialSelectionValue,
+    onSelectionChange: (value: string) => {
+      if (currentPrompt && stageNodes[navState.activeIndex]) {
+        setLocationValue(value);
+      }
+    },
+    show: !isIntroduction,
+  });
 
   const getNodeIndex = useCallback(
     () => navState.activeIndex - 1,
@@ -282,23 +287,39 @@ export default function GeospatialInterface({
 
           <div id="map-container" className="size-full" ref={mapContainerRef} />
 
-          <div className="absolute bottom-10 left-14 z-5">
-            <Button
-              size="lg"
+          <Surface
+            noContainer
+            level={0}
+            spacing="none"
+            elevation="none"
+            className="absolute right-14 bottom-10 z-5 flex flex-col gap-2 rounded-xl p-2"
+          >
+            <IconButton
+              onClick={handleZoomIn}
+              icon={<ZoomIn />}
+              aria-label="Zoom In"
+              color="primary"
+            />
+            <IconButton
+              onClick={handleZoomOut}
+              icon={<ZoomOut />}
+              aria-label="Zoom Out"
+              color="primary"
+            />
+            <IconButton
               onClick={handleResetMapZoom}
-              icon={<Locate />}
-              title="Recenter Map"
+              icon={<LocateFixed />}
               aria-label="Recenter Map"
               color="primary"
             />
-          </div>
+          </Surface>
         </div>
 
         <CollapsablePrompts
           currentPromptIndex={promptIndex}
           dragConstraints={dragSafeRef}
         >
-          <div className="flex flex-col items-center gap-2 pb-4">
+          <div className="flex flex-col items-center gap-4">
             <motion.div
               key={stageNodes[navState.activeIndex]?.[entityPrimaryKeyProperty]}
               variants={nodeAnimationVariants}
@@ -309,7 +330,7 @@ export default function GeospatialInterface({
               className="[--base-node-size:calc(var(--nc-base-font-size)*6.6)]"
             >
               {stageNodes[navState.activeIndex] && (
-                <Node {...stageNodes[navState.activeIndex]!} />
+                <Node size="sm" {...stageNodes[navState.activeIndex]!} />
               )}
             </motion.div>
             <Button
