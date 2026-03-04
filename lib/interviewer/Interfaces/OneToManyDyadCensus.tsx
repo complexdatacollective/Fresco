@@ -7,12 +7,13 @@ import { AnimatePresence } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Surface from '~/components/layout/Surface';
+import Heading from '~/components/typography/Heading';
 import { Collection } from '~/lib/collection/components/Collection';
 import { InlineGridLayout } from '~/lib/collection/layout/InlineGridLayout';
 import { type ItemProps } from '~/lib/collection/types';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
-import { type StageProps } from '~/lib/interviewer/types';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
+import { type StageProps } from '~/lib/interviewer/types';
 import { MotionNode } from '../components/Node';
 import Prompts from '../components/Prompts';
 import { edgeExists, toggleEdge } from '../ducks/modules/session';
@@ -20,8 +21,8 @@ import useSortedNodeList from '../hooks/useSortedNodeList';
 import { makeGetCodebookVariablesForNodeType } from '../selectors/protocol';
 import { getNetworkEdges, getNetworkNodesForType } from '../selectors/session';
 import { useAppDispatch } from '../store';
-import { getNodeLabelAttribute } from '../utils/getNodeLabelAttribute';
 import { type ProtocolSortRule } from '../utils/createSorter';
+import { getNodeLabelAttribute } from '../utils/getNodeLabelAttribute';
 
 type OneToManyDyadCensusProps = StageProps<'OneToManyDyadCensus'>;
 
@@ -33,6 +34,11 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   } = props;
 
   const [currentStep, setCurrentStep] = useState(0);
+
+  // The ScrollArea viewport uses overflow-auto which clips nodes during
+  // layoutId animations across the Surface boundary. Temporarily switch to
+  // overflow-visible while the animation is in flight, then restore scrolling.
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const dispatch = useAppDispatch();
 
@@ -77,6 +83,7 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
     if (direction === 'forwards') {
       if (currentStep + 1 <= numberOfSteps) {
         setCurrentStep((prev) => prev + 1);
+        setIsTransitioning(true);
         return false;
       }
 
@@ -86,6 +93,7 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
     if (direction === 'backwards') {
       if (currentStep > 0) {
         setCurrentStep((prev) => prev - 1);
+        setIsTransitioning(true);
         return false;
       }
 
@@ -98,7 +106,16 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   // Reset the step when the prompt changes
   useEffect(() => {
     setCurrentStep(0);
+    setIsTransitioning(true);
   }, [promptIndex]);
+
+  // Fallback: restore overflow after animation duration in case
+  // onLayoutAnimationComplete doesn't fire (e.g. no layout change).
+  useEffect(() => {
+    if (!isTransitioning) return;
+    const timer = setTimeout(() => setIsTransitioning(false), 800);
+    return () => clearTimeout(timer);
+  }, [isTransitioning]);
 
   const handleNodeClick = useCallback(
     (sourceNode: NcNode, target: NcNode) => () => {
@@ -180,8 +197,10 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
           <MotionNode
             {...source}
             size="sm"
+            className="z-10"
             layoutId={source[entityPrimaryKeyProperty]}
             key={source[entityPrimaryKeyProperty]}
+            onLayoutAnimationComplete={() => setIsTransitioning(false)}
           />
         ) : (
           <div key="missing" className="flex h-24 items-center justify-center">
@@ -189,10 +208,14 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
           </div>
         )}
       </AnimatePresence>
-      <Surface noContainer className="flex grow flex-col" spacing="none">
-        <div className="flex w-full items-center justify-center p-4">
-          <h4>Click/tap all that apply:</h4>
-        </div>
+      <Surface
+        noContainer
+        className="flex grow flex-col overflow-visible"
+        spacing="none"
+      >
+        <Heading level="h4" className="mx-auto p-2">
+          Click/tap all that apply:
+        </Heading>
         <Collection
           key={promptIndex}
           id="dyad-census-targets"
@@ -203,7 +226,7 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
           renderItem={renderItem}
           selectionMode="none"
           layoutGroupId={null}
-          viewportClassName="p-4"
+          viewportClassName={isTransitioning ? 'overflow-visible p-4' : 'p-4'}
           aria-label="Target nodes"
           emptyState={<h3>No nodes to display.</h3>}
         />
