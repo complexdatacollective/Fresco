@@ -562,13 +562,6 @@ export class SyntheticInterview {
           targetFeatureProperty: 'name',
         };
       }
-      // Geospatial requires introductionPanel
-      entry.introductionPanel ??= {
-        title: opts?.introductionPanel?.title ?? 'Location Selection',
-        text:
-          opts?.introductionPanel?.text ??
-          'Please select a location on the map for each person.',
-      };
     }
 
     // Generate initial nodes (only for node-based stages)

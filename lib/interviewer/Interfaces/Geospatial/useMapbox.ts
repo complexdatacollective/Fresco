@@ -87,7 +87,6 @@ type UseMapboxProps = {
   getAssetUrl: (url: string) => string | undefined;
   initialSelectionValue?: string;
   onSelectionChange: (value: string) => void;
-  show: boolean;
 };
 
 export const useMapbox = ({
@@ -95,7 +94,6 @@ export const useMapbox = ({
   getAssetUrl,
   initialSelectionValue,
   onSelectionChange,
-  show,
 }: UseMapboxProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -140,7 +138,7 @@ export const useMapbox = ({
   }, [targetFeatureProperty]);
 
   useEffect(() => {
-    if (!mapContainerRef.current || !center || !accessToken || !show) return;
+    if (!mapContainerRef.current || !center || !accessToken) return;
 
     mapboxgl.accessToken = accessToken;
 
@@ -244,7 +242,6 @@ export const useMapbox = ({
     targetFeatureProperty,
     dataSourceAssetId,
     style,
-    show,
   ]);
 
   // handle selections

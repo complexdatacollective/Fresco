@@ -202,13 +202,6 @@ export const Default: Story = {
 
       const stage = si.addStage('Geospatial', {
         initialNodes,
-        introductionPanel: {
-          title: 'Location Selection',
-          text:
-            promptCount === 1
-              ? 'Please select a location on the map for each person in your network.'
-              : 'You will select multiple locations for each person.',
-        },
         mapOptions: {
           tokenAssetId: 'mapbox-token',
           style: MAP_STYLES[mapStyle],

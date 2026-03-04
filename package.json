@@ -51,7 +51,7 @@
   },
   "dependencies": {
     "@base-ui/react": "1.2.0",
-    "@codaco/protocol-validation": "10.1.0",
+    "@codaco/protocol-validation": "11.0.0",
     "@codaco/shared-consts": "5.0.0",
     "@paralleldrive/cuid2": "^3.3.0",
     "@posthog/nextjs-config": "^1.8.18",

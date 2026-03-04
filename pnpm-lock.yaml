@@ -22,8 +22,8 @@ importers:
         specifier: 1.2.0
         version: 1.2.0(@types/react@19.2.13)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@codaco/protocol-validation':
-        specifier: 10.1.0
-        version: 10.1.0
+        specifier: 11.0.0
+        version: 11.0.0
       '@codaco/shared-consts':
         specifier: 5.0.0
         version: 5.0.0
@@ -673,8 +673,8 @@ packages:
     peerDependencies:
       storybook: ^0.0.0-0 || ^10.1.0 || ^10.1.0-0 || ^10.2.0-0 || ^10.3.0-0
 
-  '@codaco/protocol-validation@10.1.0':
-    resolution: {integrity: sha512-toUjrjYtyTJbsbS10PdNlmNkpRjeAdy3VIHpRsCtx9RWjGdNd1afRNimJd1ZgkePiFAfrPiy5ZSvTxogaTlgpA==}
+  '@codaco/protocol-validation@11.0.0':
+    resolution: {integrity: sha512-oNr7QKlhYkRcD3yVAFZjYR+JooBmRSeYtHBdWm1PDbMU8J/5Jp0Z2EsAhqXkloEEmpcjwr0m9jFAIqCNYcGFcg==}
     hasBin: true
 
   '@codaco/shared-consts@5.0.0':
@@ -7687,7 +7687,7 @@ snapshots:
       - '@chromatic-com/cypress'
       - '@chromatic-com/playwright'
 
-  '@codaco/protocol-validation@10.1.0':
+  '@codaco/protocol-validation@11.0.0':
     dependencies:
       '@codaco/shared-consts': 5.0.0
       '@faker-js/faker': 10.3.0

@@ -9,9 +9,7 @@ import { AnimatePresence, motion, type Variants } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { type ThunkDispatch } from 'redux-thunk';
-import Surface, { MotionSurface } from '~/components/layout/Surface';
-import { RenderMarkdown } from '~/components/RenderMarkdown';
-import Heading from '~/components/typography/Heading';
+import Surface from '~/components/layout/Surface';
 import Button, { IconButton } from '~/components/ui/Button';
 import Node from '~/lib/interviewer/components/Node';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
@@ -25,11 +23,6 @@ import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { type RootState } from '~/lib/interviewer/store';
 import { type Direction, type StageProps } from '~/lib/interviewer/types';
 import { useMapbox } from './useMapbox';
-
-const introVariants = {
-  show: { opacity: 1, scale: 1 },
-  hide: { opacity: 0, scale: 0 },
-};
 
 const fadeVariants = {
   show: { opacity: 1, transition: { duration: 0.5 } },
@@ -74,9 +67,8 @@ export default function GeospatialInterface({
     activeIndex: 0,
     direction: null,
   });
-  const [isIntroduction, setIsIntroduction] = useState(true);
 
-  const { mapOptions, introductionPanel } = stage;
+  const { mapOptions } = stage;
   const { promptIndex, prompt: currentPrompt } = usePrompts<{
     variable?: string;
   }>();
@@ -132,7 +124,6 @@ export default function GeospatialInterface({
         setLocationValue(value);
       }
     },
-    show: !isIntroduction,
   });
 
   const getNodeIndex = useCallback(
@@ -185,13 +176,9 @@ export default function GeospatialInterface({
 
     // We are moving backwards.
     if (direction === 'backwards') {
-      if (isIntroduction) {
-        return true;
-      }
-      // if we are at the first node, we should go back to introduction
+      // If we are at the first node, leave the stage
       if (navState.activeIndex === 0) {
-        setIsIntroduction(true);
-        return false;
+        return true;
       }
 
       previousNode();
@@ -199,11 +186,6 @@ export default function GeospatialInterface({
     }
 
     // We are moving forwards.
-    if (isIntroduction) {
-      setIsIntroduction(false);
-      return false;
-    }
-
     if (isLastNode()) {
       handleResetSelection();
       return true;
@@ -217,39 +199,14 @@ export default function GeospatialInterface({
   // Update navigation button based on selection
   useEffect(() => {
     const readyForNext =
-      stageNodes[navState.activeIndex]?.attributes?.[currentPrompt.variable!] &&
-      !isIntroduction
-        ? true
-        : false;
+      !!stageNodes[navState.activeIndex]?.attributes?.[currentPrompt.variable!];
     setIsReadyForNext(readyForNext);
   }, [
     currentPrompt.variable,
-    isIntroduction,
     navState.activeIndex,
     setIsReadyForNext,
     stageNodes,
   ]);
-
-  if (isIntroduction) {
-    return (
-      <div className="flex flex-1 flex-col items-center justify-center">
-        <MotionSurface
-          noContainer
-          className="w-full max-w-3xl grow-0"
-          variants={introVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          key="introduction"
-        >
-          <Heading level="h1" className="text-center">
-            {introductionPanel?.title}
-          </Heading>
-          <RenderMarkdown>{introductionPanel?.text}</RenderMarkdown>
-        </MotionSurface>
-      </div>
-    );
-  }
 
   return (
     <AnimatePresence mode="wait">
