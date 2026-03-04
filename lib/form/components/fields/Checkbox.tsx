@@ -1,6 +1,7 @@
 'use client';
 
 import { Checkbox as BaseCheckbox } from '@base-ui/react/checkbox';
+import { motion } from 'motion/react';
 import { type ComponentPropsWithoutRef, forwardRef, useState } from 'react';
 import {
   controlVariants,
@@ -96,7 +97,12 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
           }),
         })}
         nativeButton
-        render={<button />}
+        render={
+          <motion.button
+            whileTap={(disabled ?? readOnly) ? undefined : { scale: 0.85 }}
+            transition={{ type: 'spring', duration: 0.3, bounce: 0.3 }}
+          />
+        }
       >
         <BaseCheckbox.Indicator
           className={checkboxIndicatorVariants()}

@@ -142,39 +142,48 @@ export default function RadioGroupField(props: RadioGroupFieldProps) {
                 disabled: isOptionDisabled,
               })}
             >
-              <Radio.Root
-                value={optionValue}
-                disabled={isOptionDisabled}
-                render={(renderProps, state) => (
-                  <div
-                    {...renderProps}
-                    aria-label={option.label}
-                    className={radioIndicatorVariants({
-                      size,
-                      state: getOptionState(),
-                    })}
-                  >
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="text-primary size-full overflow-hidden rounded-full p-[0.1em]"
+              <motion.div
+                whileTap={isOptionDisabled ? undefined : { scale: 0.85 }}
+                transition={{
+                  type: 'spring',
+                  duration: 0.3,
+                  bounce: 0.3,
+                }}
+              >
+                <Radio.Root
+                  value={optionValue}
+                  disabled={isOptionDisabled}
+                  render={(renderProps, state) => (
+                    <div
+                      {...renderProps}
+                      aria-label={option.label}
+                      className={radioIndicatorVariants({
+                        size,
+                        state: getOptionState(),
+                      })}
                     >
-                      <motion.circle
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        initial={false}
-                        animate={{ scale: state.checked ? 1 : 0 }}
-                        transition={{
-                          type: 'spring',
-                          bounce: 0.3,
-                          duration: state.checked ? 0.3 : 0.15,
-                        }}
-                      />
-                    </svg>
-                  </div>
-                )}
-              />
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="text-primary size-full overflow-hidden rounded-full p-[0.1em]"
+                      >
+                        <motion.circle
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          initial={false}
+                          animate={{ scale: state.checked ? 1 : 0 }}
+                          transition={{
+                            type: 'spring',
+                            bounce: 0.3,
+                            duration: state.checked ? 0.3 : 0.15,
+                          }}
+                        />
+                      </svg>
+                    </div>
+                  )}
+                />
+              </motion.div>
               <span
                 className={cx(
                   controlLabelVariants({ size }),

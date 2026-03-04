@@ -1,6 +1,6 @@
 'use client';
 
-import * as Checkbox from '@radix-ui/react-checkbox';
+import { Checkbox as BaseCheckbox } from '@base-ui/react/checkbox';
 import { AnimatePresence, motion } from 'motion/react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import {
@@ -173,7 +173,7 @@ export default function ToggleButtonGroupField(props: ToggleButtonGroupProps) {
         const catColor = getCatColorIndex(index);
 
         return (
-          <Checkbox.Root
+          <BaseCheckbox.Root
             key={String(option.value)}
             name={name}
             value={String(option.value)}
@@ -184,34 +184,35 @@ export default function ToggleButtonGroupField(props: ToggleButtonGroupProps) {
               }
             }}
             disabled={isOptionDisabled}
-            asChild
+            nativeButton
+            render={
+              <motion.button
+                className={toggleButtonVariants({
+                  selected: isChecked,
+                  catColor,
+                  size,
+                })}
+                whileTap={isOptionDisabled ? undefined : { scale: 0.95 }}
+                transition={selectionSpring}
+              />
+            }
           >
-            <motion.button
-              className={toggleButtonVariants({
-                selected: isChecked,
-                catColor,
-                size,
-              })}
-              whileTap={isOptionDisabled ? undefined : { scale: 0.95 }}
-              transition={selectionSpring}
-            >
-              <AnimatePresence initial={false} mode="wait">
-                {isChecked && (
-                  <motion.div
-                    key={`fill-${option.value}`}
-                    className={fillIndicatorVariants({ catColor })}
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0, opacity: 0 }}
-                    transition={selectionSpring}
-                  />
-                )}
-              </AnimatePresence>
-              <span className="relative z-10 line-clamp-3 max-w-full overflow-hidden leading-tight text-balance">
-                <RenderMarkdown>{option.label}</RenderMarkdown>
-              </span>
-            </motion.button>
-          </Checkbox.Root>
+            <AnimatePresence initial={false} mode="wait">
+              {isChecked && (
+                <motion.div
+                  key={`fill-${option.value}`}
+                  className={fillIndicatorVariants({ catColor })}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={selectionSpring}
+                />
+              )}
+            </AnimatePresence>
+            <span className="relative z-10 line-clamp-3 max-w-full overflow-hidden leading-tight text-balance">
+              <RenderMarkdown>{option.label}</RenderMarkdown>
+            </span>
+          </BaseCheckbox.Root>
         );
       })}
     </fieldset>

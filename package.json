@@ -58,7 +58,6 @@
     "@prisma/adapter-neon": "^7.4.2",
     "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^7.4.2",
-    "@radix-ui/react-checkbox": "^1.3.3",
     "@radix-ui/react-slot": "^1.2.4",
     "@reduxjs/toolkit": "^2.11.0",
     "@simplewebauthn/browser": "^13.2.2",
