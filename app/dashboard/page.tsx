@@ -1,12 +1,12 @@
 import Image from 'next/image';
+import { type SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 import { DataTableSkeleton } from '~/components/DataTable/DataTableSkeleton';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import Heading from '~/components/typography/Heading';
 import PageHeader from '~/components/typography/PageHeader';
 import Paragraph from '~/components/typography/Paragraph';
-import { Skeleton } from '~/components/ui/skeleton';
-import { getActivities } from '~/queries/activityFeed';
+import { fetchActivities } from '~/queries/activityFeed';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { getSummaryStatistics } from '~/queries/summaryStatistics';
 import { requirePageAuth } from '~/utils/auth';
@@ -21,9 +21,7 @@ import SummaryStatistics from './_components/SummaryStatistics/SummaryStatistics
 import UpdateUploadThingTokenAlert from './_components/UpdateUploadThingTokenAlert';
 import AnonymousRecruitmentWarning from './protocols/_components/AnonymousRecruitmentWarning';
 
-export default function Home(props: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+export default function Home(props: { searchParams: Promise<SearchParams> }) {
   return (
     <>
       <PageHeader
@@ -78,24 +76,23 @@ function DashboardContentSkeleton() {
 async function DashboardContent({
   searchParams: searchParamsPromise,
 }: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const searchParams = await searchParamsPromise;
-  searchParamsCache.parse(searchParams);
-
-  const summaryPromise = getSummaryStatistics();
-  const activitiesPromise = getActivities(searchParamsCache.all());
-
   await requireAppNotExpired();
   await requirePageAuth();
 
+  const cache = await searchParamsCache.parse(searchParamsPromise);
+
+  const summaryPromise = getSummaryStatistics();
+  const activitiesPromise = fetchActivities(cache);
+
   return (
     <>
-      <Suspense fallback={<Skeleton className="h-20 w-full rounded" />}>
+      <Suspense fallback={null}>
         <AnonymousRecruitmentWarning />
       </Suspense>
 
-      <Suspense fallback={<Skeleton className="h-20 w-full rounded" />}>
+      <Suspense fallback={null}>
         <UpdateUploadThingTokenAlert />
       </Suspense>
 

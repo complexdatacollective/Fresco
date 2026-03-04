@@ -1,10 +1,10 @@
-import 'server-only';
 import { cacheLife } from 'next/cache';
+import 'server-only';
 import { type SearchParams } from '~/app/dashboard/_components/ActivityFeed/types';
 import { safeCacheTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 
-async function fetchActivities(rawSearchParams: unknown) {
+export async function fetchActivities(rawSearchParams: unknown) {
   'use cache';
   cacheLife('max');
   safeCacheTag('activityFeed');
@@ -54,7 +54,4 @@ async function fetchActivities(rawSearchParams: unknown) {
   return { events, pageCount };
 }
 
-export const getActivities = (rawSearchParams: unknown) =>
-  fetchActivities(rawSearchParams);
-
-export type ActivitiesFeed = ReturnType<typeof getActivities>;
+export type ActivitiesFeed = ReturnType<typeof fetchActivities>;
