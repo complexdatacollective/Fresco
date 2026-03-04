@@ -186,7 +186,11 @@ export class VisualSnapshots {
       try {
         await this.page.locator(selector).evaluateAll((elements) => {
           elements.forEach((el) => {
-            (el as HTMLElement).style.visibility = 'hidden';
+            const htmlEl = el as HTMLElement;
+            htmlEl.style.color = 'transparent';
+            htmlEl.style.display = 'inline-block';
+            htmlEl.style.width = '8ch';
+            htmlEl.style.overflow = 'hidden';
           });
         });
       } catch {

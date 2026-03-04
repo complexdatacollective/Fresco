@@ -26,7 +26,7 @@ const DEFAULT_PAGE_VIEWPORTS = [
 const VISUAL_STYLES = `
   *, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }
   [data-testid="background-blobs"] { visibility: hidden !important; }
-  [data-testid="time-ago"] { visibility: hidden !important; }
+  [data-testid="time-ago"] { color: transparent !important; display: inline-block !important; width: 8ch !important; overflow: hidden !important; }
 `;
 
 const FULL_PAGE_STYLES = `
