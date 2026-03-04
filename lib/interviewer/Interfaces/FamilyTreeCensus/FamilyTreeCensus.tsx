@@ -2,7 +2,6 @@ import { type NcNode } from '@codaco/shared-consts';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useSelector } from 'react-redux';
-import { useToast } from '~/components/ui/Toast';
 import usePortalTarget from '~/hooks/usePortalTarget';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import Prompts from '~/lib/interviewer/components/Prompts/Prompts';
@@ -17,6 +16,7 @@ import {
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { type StageProps } from '~/lib/interviewer/types';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
+import useStageValidation from '~/lib/interviewer/hooks/useStageValidation';
 import { FamilyTreeProvider, useFamilyTreeStore } from './FamilyTreeProvider';
 import { getRelationshipTypeVariable } from './utils/edgeUtils';
 
@@ -115,10 +115,9 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   };
 
   const nodesMap = useFamilyTreeStore((state) => state.network.nodes);
-  const missingNames = () => {
-    return nodesMap.values().some((value) => value.interviewNetworkId == null);
-  };
-  const { add } = useToast();
+  const hasMissingNames = nodesMap
+    .values()
+    .some((value) => value.interviewNetworkId == null);
 
   /**
    * Steps:
@@ -130,18 +129,25 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
-  useBeforeNext((direction) => {
-    if (direction === 'forwards') {
-      const isNameGenerationStep = currentStepIndex === 1;
-      if (isNameGenerationStep && missingNames()) {
-        add({
-          title: 'Error',
+  const isNameGenerationStep = currentStepIndex === 1;
+
+  useStageValidation({
+    constraints: [
+      {
+        direction: 'forwards',
+        isMet: !isNameGenerationStep || !hasMissingNames,
+        toast: {
           description:
             'Please enter information for all nodes in the tree before continuing.',
-          type: 'destructive',
-        });
-        return false;
-      }
+          variant: 'destructive',
+          anchor: 'forward',
+        },
+      },
+    ],
+  });
+
+  useBeforeNext((direction) => {
+    if (direction === 'forwards') {
       const isLastStep = currentStepIndex === steps.size - 1;
       if (isLastStep) {
         saveEdges();

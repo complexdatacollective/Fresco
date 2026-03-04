@@ -1,5 +1,4 @@
 import {
-  type ElementHandle,
   test as base,
   expect,
   type Locator,
@@ -22,7 +21,6 @@ const DEFAULT_PAGE_VIEWPORTS = [
   { name: 'laptop', width: 1280 }, // --breakpoint-laptop: 80rem
   { name: 'desktop', width: 1920 }, // --breakpoint-desktop: 120rem
   { name: 'desktop-lg', width: 2560 }, // --breakpoint-desktop-lg: 160rem
-  { name: 'full', width: 1920 }, // desktop width, fullPage: true
 ] as const;
 
 const VISUAL_STYLES = `
@@ -34,12 +32,16 @@ const VISUAL_STYLES = `
 const FULL_PAGE_STYLES = `
   .root { height: auto !important; min-height: 100dvh !important; }
   .root > * { min-height: 0 !important; }
+  [data-testid="dashboard-layout"] {
+    height: auto !important;
+    min-height: 100dvh !important;
+    overflow-y: visible !important;
+  }
 `;
 
 type Viewport = {
   name: string;
   width: number;
-  height: number | null;
 };
 
 type CapturePageOptions = {
@@ -114,16 +116,10 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         const originalViewport = page.viewportSize();
 
         await page.addStyleTag({ content: VISUAL_STYLES });
+        await page.addStyleTag({ content: FULL_PAGE_STYLES });
 
         for (const viewport of viewports) {
-          const isFullPage = viewport.name === 'full';
-
           await page.setViewportSize({ width: viewport.width, height: 1080 });
-
-          let fullPageTag: ElementHandle<Node> | null = null;
-          if (isFullPage) {
-            fullPageTag = await page.addStyleTag({ content: FULL_PAGE_STYLES });
-          }
 
           await page.waitForTimeout(100);
 
@@ -131,12 +127,6 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
             fullPage: true,
             mask: options.mask,
           });
-
-          if (fullPageTag) {
-            await fullPageTag.evaluate((el) => {
-              el.parentNode?.removeChild(el);
-            });
-          }
         }
 
         if (originalViewport) {

@@ -2,11 +2,11 @@ import { type Stage } from '@codaco/protocol-validation';
 import { useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Button from '~/components/ui/Button';
+import Dialog from '~/lib/dialogs/Dialog';
 import InputField from '~/lib/form/components/fields/InputField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import { useFamilyTreeStore } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
 import { getEgoSexVariable } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/utils/nodeUtils';
-import Overlay from '~/lib/interviewer/components/Overlay';
 import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
 import { updateEgo } from '~/lib/interviewer/ducks/modules/session';
 import { getNetworkEgo } from '~/lib/interviewer/selectors/session';
@@ -169,7 +169,7 @@ export const CensusForm = ({
     egoSexVariable,
   ]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
     const fieldValueMap = fields.reduce(
       (acc, field) => {
@@ -187,55 +187,51 @@ export const CensusForm = ({
   };
 
   return (
-    <Overlay
-      show={show}
+    <Dialog
+      open={show}
       title="Family Tree Census"
-      onClose={() => setShow(false)}
+      closeDialog={() => setShow(false)}
       className="w-auto!"
       footer={
-        <div className="mb-8 flex items-center justify-end">
-          <Button onClick={handleSubmit}>Generate Family Tree</Button>
-        </div>
+        <Button onClick={handleSubmit} color="primary">
+          Generate Family Tree
+        </Button>
       }
     >
-      <div className="flex flex-col">
-        {shouldAskSex && variableDef?.options && (
-          <div className="mb-6 w-full *:mb-0!">
-            <RadioGroupField
-              name={egoSexVariable}
-              value={sexValue}
-              onChange={(value) => setSexValue(value as Sex)}
-              aria-label="What is your sex?"
-              options={variableDef.options satisfies SexOption[]}
-            />
-          </div>
-        )}
-
-        <div className="w-full gap-6 *:mb-0! md:grid md:grid-cols-2">
-          {fields.map(({ variable, label, error, value }) => (
-            <div key={variable} className="mb-4 flex flex-col gap-1">
-              <label htmlFor={variable} className="text-sm font-medium">
-                {label}
-              </label>
-              <InputField
-                id={variable}
-                name={variable}
-                type="number"
-                value={value}
-                onChange={(newValue) =>
-                  handleSetFieldValue(variable)(newValue ?? 0)
-                }
-                placeholder="0"
-                aria-invalid={!!error}
-                className={error ? 'border-destructive' : ''}
-              />
-              {error && (
-                <span className="text-destructive text-sm">{error}</span>
-              )}
-            </div>
-          ))}
+      {shouldAskSex && variableDef?.options && (
+        <div className="mb-6 w-full *:mb-0!">
+          <RadioGroupField
+            name={egoSexVariable}
+            value={sexValue}
+            onChange={(value) => setSexValue(value as Sex)}
+            aria-label="What is your sex?"
+            options={variableDef.options satisfies SexOption[]}
+          />
         </div>
+      )}
+
+      <div className="w-full gap-6 *:mb-0! md:grid md:grid-cols-2">
+        {fields.map(({ variable, label, error, value }) => (
+          <div key={variable} className="mb-4 flex flex-col gap-1">
+            <label htmlFor={variable} className="text-sm font-medium">
+              {label}
+            </label>
+            <InputField
+              id={variable}
+              name={variable}
+              type="number"
+              value={value}
+              onChange={(newValue) =>
+                handleSetFieldValue(variable)(newValue ?? 0)
+              }
+              placeholder="0"
+              aria-invalid={!!error}
+              className={error ? 'border-destructive' : ''}
+            />
+            {error && <span className="text-destructive text-sm">{error}</span>}
+          </div>
+        ))}
       </div>
-    </Overlay>
+    </Dialog>
   );
 };

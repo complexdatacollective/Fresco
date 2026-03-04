@@ -240,15 +240,15 @@ Visual tests require Docker for consistent font rendering (`pnpm test:e2e` sets 
 
 #### `capturePage(name, options?)` - Full page at multiple viewports
 
-Captures the page at all Tailwind breakpoint sizes plus a full-height capture:
+Captures the full-height page at all Tailwind breakpoint sizes:
 
 ```ts
 test('dashboard page', async ({ page, capturePage }) => {
   await page.goto('/dashboard');
   await capturePage('dashboard');
-  // Creates 7 snapshots: dashboard-phone.png, dashboard-tablet.png,
+  // Creates 6 snapshots: dashboard-phone.png, dashboard-tablet.png,
   // dashboard-tablet-portrait.png, dashboard-laptop.png, dashboard-desktop.png,
-  // dashboard-desktop-lg.png, dashboard-full.png
+  // dashboard-desktop-lg.png
 });
 ```
 
@@ -264,17 +264,16 @@ await capturePage('settings', {
 });
 ```
 
-Default viewports (synced with `--breakpoint-*` in `styles/globals.css`):
+Default viewports (synced with `--breakpoint-*` in `styles/globals.css`). All captures are full-height (the entire scrollable page is captured):
 
-| Name            | Width | Height   | Notes                      |
-| --------------- | ----- | -------- | -------------------------- |
-| phone           | 320   | 568      | Minimum mobile             |
-| tablet          | 768   | 1024     | iPad Mini                  |
-| tablet-portrait | 1024  | 768      | iPad Pro 11"               |
-| laptop          | 1280  | 800      | Small laptops              |
-| desktop         | 1920  | 1080     | Full HD                    |
-| desktop-lg      | 2560  | 1440     | 2K/4K displays             |
-| full            | 1920  | fullPage | Desktop width, full height |
+| Name            | Width | Notes          |
+| --------------- | ----- | -------------- |
+| phone           | 320   | Minimum mobile |
+| tablet          | 768   | iPad Mini      |
+| tablet-portrait | 1024  | iPad Pro 11"   |
+| laptop          | 1280  | Small laptops  |
+| desktop         | 1920  | Full HD        |
+| desktop-lg      | 2560  | 2K/4K displays |
 
 #### `captureElement(element, name, options?)` - Single element capture
 

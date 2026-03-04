@@ -2,12 +2,12 @@ import { type VariableValue } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
-import Button from '~/components/ui/Button';
 import { type InterviewerIconName } from '~/components/ui/Icon';
 import Dialog from '~/lib/dialogs/Dialog';
 import Field from '~/lib/form/components/Field/Field';
-import { FormWithoutProvider } from '~/lib/form/components/Form';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
+import { FormWithoutProvider } from '~/lib/form/components/Form';
+import SubmitButton from '~/lib/form/components/SubmitButton';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { type FormSubmitHandler } from '~/lib/form/store/types';
@@ -23,8 +23,10 @@ import { getNodeTypeLabel } from '~/lib/interviewer/selectors/session';
  * Uses FormWithoutProvider since the parent already provides FormStoreProvider.
  */
 const AddFamilyMemberFormContent = ({
+  formId,
   onSubmit,
 }: {
+  formId: string;
   onSubmit: FormSubmitHandler;
 }) => {
   const nodesMap = useFamilyTreeStore((state) => state.network.nodes);
@@ -61,7 +63,7 @@ const AddFamilyMemberFormContent = ({
   });
 
   return (
-    <FormWithoutProvider onSubmit={onSubmit} className="w-full">
+    <FormWithoutProvider onSubmit={onSubmit} className="w-full" id={formId}>
       {processedFields.map((field) => (
         <Field
           key={field.variable}
@@ -72,14 +74,6 @@ const AddFamilyMemberFormContent = ({
           required
         />
       ))}
-      <Button
-        type="submit"
-        aria-label="Submit"
-        color="primary"
-        className="mt-4 w-full"
-      >
-        Finished
-      </Button>
     </FormWithoutProvider>
   );
 };
@@ -135,16 +129,28 @@ const AddFamilyMemberForm = () => {
           />
         </motion.div>
       </AnimatePresence>
-      <Dialog
-        open={show}
-        title="Add Relative"
-        closeDialog={handleClose}
-        className="node-form"
-      >
-        <FormStoreProvider>
-          <AddFamilyMemberFormContent onSubmit={handleSubmit} />
-        </FormStoreProvider>
-      </Dialog>
+      <FormStoreProvider>
+        <Dialog
+          open={show}
+          title="Add Relative"
+          closeDialog={handleClose}
+          footer={
+            <SubmitButton
+              type="submit"
+              aria-label="Submit"
+              color="primary"
+              form="add-family-member-form"
+            >
+              Finished
+            </SubmitButton>
+          }
+        >
+          <AddFamilyMemberFormContent
+            onSubmit={handleSubmit}
+            formId="add-family-member-form"
+          />
+        </Dialog>
+      </FormStoreProvider>
     </>
   );
 };
