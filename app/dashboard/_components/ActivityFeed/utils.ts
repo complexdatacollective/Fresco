@@ -14,6 +14,8 @@ export const getBadgeColorsForActivityType = (type: ActivityType) => {
       return 'bg-sea-serpent hover:bg-sea-serpent-dark';
     case 'Interview Completed':
       return 'bg-purple-pizazz hover:bg-purple-pizazz-dark';
+    case 'Interview Opened':
+      return 'bg-cerulean-blue hover:bg-cerulean-blue-dark';
     case 'Interview(s) Deleted':
       return 'bg-paradise-pink hover:bg-paradise-pink-dark';
     case 'Data Exported':

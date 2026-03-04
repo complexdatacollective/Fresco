@@ -8,6 +8,7 @@ export const activityTypes = [
   'Participant(s) Removed',
   'Interview Started',
   'Interview Completed',
+  'Interview Opened',
   'Interview(s) Deleted',
   'Data Exported',
   'API Token Created',

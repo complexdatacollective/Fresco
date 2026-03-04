@@ -1,10 +1,14 @@
 import dynamic from 'next/dynamic';
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
-import { connection } from 'next/server';
+import { after, connection } from 'next/server';
 import { Suspense } from 'react';
 import SuperJSON from 'superjson';
+import { type ActivityType } from '~/app/dashboard/_components/ActivityFeed/types';
 import Spinner from '~/components/Spinner';
+import { safeRevalidateTag } from '~/lib/cache';
+import { prisma } from '~/lib/db';
+import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
 import {
   getInterviewById,
@@ -70,6 +74,28 @@ async function InterviewContent({
   if (!session && interview?.finishTime) {
     redirect('/interview/finished');
   }
+
+  after(async () => {
+    try {
+      const message = session
+        ? `Interview "${interviewId}" was opened by user "${session.user.username}"`
+        : `Interview "${interviewId}" was opened`;
+
+      await prisma.events.create({
+        data: {
+          type: 'Interview Opened' satisfies ActivityType,
+          message,
+        },
+      });
+
+      safeRevalidateTag('activityFeed');
+
+      await captureEvent('Interview Opened', { message });
+      await shutdownPostHog();
+    } catch {
+      // Non-critical — don't block the interview
+    }
+  });
 
   return (
     <>
