@@ -101,7 +101,7 @@ test.describe('Settings Page', () => {
     });
 
     test('api tokens section visible', async ({ page }) => {
-      await expect(page.getByTestId('api-tokens-field')).toBeVisible();
+      await expect(page.getByTestId('api-tokens-card')).toBeVisible();
     });
 
     test('visual snapshot', async ({ page, capturePage }) => {
