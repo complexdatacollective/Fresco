@@ -199,11 +199,6 @@ export const useMapbox = ({
         ? convertCssColorToHex(rawColor)
         : DEFAULT_FALLBACK;
 
-      // Transit color - use project secondary color
-      const transitColor =
-        convertCssColorToHex(styles.getPropertyValue('--color-secondary').trim()) ||
-        '#7c3aed';
-
       mapRef.current?.addLayer({
         id: 'outline',
         type: 'line',
@@ -250,6 +245,12 @@ export const useMapbox = ({
         },
       });
 
+      // Transit color - use project secondary color
+      const transitColor =
+        convertCssColorToHex(
+          styles.getPropertyValue('--color-secondary').trim(),
+        ) || '#7c3aed';
+
       // Add transit layers from mapbox-streets-v8 vector tileset
       // Check if source already exists (some map styles include this tileset)
       if (!mapRef.current?.getSource(TRANSIT_SOURCE_ID)) {
@@ -265,13 +266,7 @@ export const useMapbox = ({
         type: 'line',
         source: TRANSIT_SOURCE_ID,
         'source-layer': 'road',
-        filter: [
-          'in',
-          'class',
-          'major_rail',
-          'minor_rail',
-          'service_rail',
-        ],
+        filter: ['in', 'class', 'major_rail', 'minor_rail', 'service_rail'],
         paint: {
           'line-color': transitColor,
           'line-width': MAP_CONSTS.LINE_WIDTH,
@@ -290,13 +285,7 @@ export const useMapbox = ({
         'source-layer': 'transit_stop_label',
         filter: ['==', 'stop_type', 'station'],
         paint: {
-          'circle-radius': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            10, 4,
-            14, 8,
-          ],
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 4, 14, 8],
           'circle-color': transitColor,
           'circle-stroke-color': '#ffffff',
           'circle-stroke-width': 1.5,
