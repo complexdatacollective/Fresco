@@ -413,4 +413,4 @@ The `database` fixture provides direct database access without passing `database
 - TestDataBuilder uses raw SQL (pg) to avoid Prisma client env validation dependency
 - Pre-computed scrypt hash for test password avoids lucia/utils import
 - `DISABLE_NEXT_CACHE=true` at build+runtime eliminates stale cache issues
-- Port allocation starts at 3100 to avoid conflicts with dev server
+- Port allocation starts at 4100 to avoid conflicts with the dev server (port 3000) and WebKitGTK's restricted port list on Linux

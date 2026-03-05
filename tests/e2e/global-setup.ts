@@ -1,5 +1,9 @@
 /* eslint-disable no-process-env */
-import { AppServer, resetPortAllocation } from './helpers/AppServer.js';
+import {
+  AppServer,
+  allocatePort,
+  resetPortAllocation,
+} from './helpers/AppServer.js';
 import { type SuiteContext, saveContext } from './helpers/context.js';
 import { log, logError } from './helpers/logger.js';
 import { TestDatabase } from './helpers/TestDatabase.js';
@@ -12,6 +16,7 @@ declare global {
 
 async function startEnvironment(
   suiteId: string,
+  port: number,
   seedFn: (connectionUri: string) => Promise<void>,
 ): Promise<{ db: TestDatabase; server: AppServer; context: SuiteContext }> {
   const db = await TestDatabase.start();
@@ -20,6 +25,7 @@ async function startEnvironment(
 
   const server = await AppServer.start({
     suiteId,
+    port,
     databaseUrl: db.connectionUri,
   });
 
@@ -44,8 +50,18 @@ export default async function globalSetup() {
     AppServer.ensureBuild();
 
     const instances = getEnvironmentInstances();
+    // Pre-allocate ports synchronously before starting any async work.
+    // Promise.all starts database containers concurrently, and without
+    // pre-allocation the order in which containers finish determines which
+    // suite gets which port — making assignments non-deterministic.
+    const instancesWithPorts = instances.map((inst) => ({
+      ...inst,
+      port: allocatePort(),
+    }));
     const environments = await Promise.all(
-      instances.map((inst) => startEnvironment(inst.suiteId, inst.seed)),
+      instancesWithPorts.map((inst) =>
+        startEnvironment(inst.suiteId, inst.port, inst.seed),
+      ),
     );
 
     const suites: Record<string, SuiteContext> = {};

@@ -26,7 +26,14 @@ test.describe('Setup Flow', () => {
       page.getByRole('heading', { name: 'Create an Admin Account', level: 2 }),
     ).toBeVisible();
     await fillField(page, 'username', 'testadmin');
-    await page.getByRole('radio', { name: /^Password/i }).click();
+    // The auth method radio group only renders when the browser supports WebAuthn.
+    // WebKit supports WebAuthn on macOS/iOS but not on Linux, so in Docker
+    // (Playwright's Linux container) the radio group is hidden and password is
+    // already the implicit default — no click needed.
+    const passwordRadio = page.getByRole('radio', { name: /^Password/i });
+    if (await passwordRadio.isVisible()) {
+      await passwordRadio.click();
+    }
     await fillField(page, 'password', 'TestAdmin123!');
     await fillField(page, 'confirmPassword', 'TestAdmin123!');
     await page.getByRole('button', { name: 'Create account' }).click();

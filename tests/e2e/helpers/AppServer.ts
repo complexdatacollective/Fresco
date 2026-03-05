@@ -7,14 +7,16 @@ import { log, logError } from './logger.js';
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../../../');
 const STANDALONE_SERVER = path.join(PROJECT_ROOT, '.next/standalone/server.js');
 
-let nextPort = 3100;
+// Port 4100+ avoids "Not allowed to use restricted network port" errors from
+// Playwright's WebKitGTK build on Linux (Docker).
+let nextPort = 4100;
 
-function allocatePort(): number {
+export function allocatePort(): number {
   return nextPort++;
 }
 
 export function resetPortAllocation(): void {
-  nextPort = 3100;
+  nextPort = 4100;
 }
 
 export class AppServer {
