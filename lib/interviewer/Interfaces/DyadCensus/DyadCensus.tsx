@@ -57,6 +57,7 @@ export default function DyadCensus(props: DyadCensusProps) {
   const dispatch = useAppDispatch();
 
   const [isIntroduction, setIsIntroduction] = useState(true);
+  const [isForwards, setIsForwards] = useState(true);
   const [pairIndex, setPairIndex] = useState(0);
 
   const {
@@ -117,6 +118,8 @@ export default function DyadCensus(props: DyadCensusProps) {
   // Navigation
   useBeforeNext((direction) => {
     if (direction === 'forwards') {
+      setIsForwards(true);
+
       if (isIntroduction) {
         if (pairs.length === 0) {
           return 'FORCE';
@@ -136,6 +139,8 @@ export default function DyadCensus(props: DyadCensusProps) {
     }
 
     if (direction === 'backwards') {
+      setIsForwards(false);
+
       if (isIntroduction) {
         return true;
       }
@@ -250,48 +255,45 @@ export default function DyadCensus(props: DyadCensusProps) {
             className="flex w-full flex-1 flex-col items-center"
           >
             <motion.div className="flex w-full grow flex-col items-center justify-center">
-              <AnimatePresence mode="wait">
+              <AnimatePresence mode="wait" custom={isForwards} initial={false}>
                 <Pair
                   key={`${promptIndex}_${pairIndex}`}
                   fromNode={fromNode}
                   toNode={toNode}
                   edgeColor={edgeColor}
                   hasEdge={hasEdge}
+                  animateForwards={isForwards}
                 />
               </AnimatePresence>
             </motion.div>
-            <AnimatePresence mode="wait">
-              <MotionSurface
-                noContainer
-                key={promptIndex}
-                className="flex size-fit shrink-0 grow-0 flex-col items-center justify-center gap-4"
-                variants={choiceVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-              >
-                <Prompts />
-                <AnimatePresence>
-                  <motion.div
-                    key={`${promptIndex}_${pairIndex}_choice`}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                  >
-                    <BooleanField
-                      className="w-fit"
-                      value={hasEdge ?? undefined}
-                      onChange={setEdge}
-                      options={[
-                        { label: 'Yes', value: true },
-                        { label: 'No', value: false },
-                      ]}
-                      noReset
-                    />
-                  </motion.div>
-                </AnimatePresence>
-              </MotionSurface>
-            </AnimatePresence>
+            <MotionSurface
+              noContainer
+              className="flex size-fit shrink-0 grow-0 flex-col items-center justify-center gap-4"
+              variants={choiceVariants}
+              initial="initial"
+              animate="animate"
+            >
+              <Prompts />
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`${promptIndex}_${pairIndex}_choice`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <BooleanField
+                    className="w-fit"
+                    value={hasEdge ?? undefined}
+                    onChange={setEdge}
+                    options={[
+                      { label: 'Yes', value: true },
+                      { label: 'No', value: false },
+                    ]}
+                    noReset
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </MotionSurface>
           </motion.div>
         )}
       </AnimatePresence>

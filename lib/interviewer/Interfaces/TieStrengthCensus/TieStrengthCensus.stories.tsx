@@ -6,22 +6,60 @@ import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/S
 
 type StoryArgs = {
   initialNodeCount: number;
+  promptCount: number;
   hasExistingEdges: boolean;
 };
 
-function buildInterview(args: StoryArgs) {
-  const si = new SyntheticInterview();
-
-  const nt = si.addNodeType({ name: 'Person' });
-  const et = si.addEdgeType({ name: 'Friendship' });
-  const strengthVar = et.addVariable({
-    name: 'Strength',
-    type: 'ordinal',
+const promptConfigs = [
+  {
+    edgeName: 'Friendship',
+    variableName: 'Strength',
+    promptText: 'How strong is the friendship between these two people?',
+    negativeLabel: 'No Friendship',
     options: [
       { label: 'Weak', value: 1 },
       { label: 'Moderate', value: 2 },
       { label: 'Strong', value: 3 },
     ],
+  },
+  {
+    edgeName: 'Trust',
+    variableName: 'Level',
+    promptText: 'How much do these two people trust each other?',
+    negativeLabel: 'No Trust',
+    options: [
+      { label: 'Low', value: 1 },
+      { label: 'Medium', value: 2 },
+      { label: 'High', value: 3 },
+    ],
+  },
+  {
+    edgeName: 'Communication',
+    variableName: 'Frequency',
+    promptText: 'How often do these two people communicate?',
+    negativeLabel: 'Never',
+    options: [
+      { label: 'Rarely', value: 1 },
+      { label: 'Sometimes', value: 2 },
+      { label: 'Often', value: 3 },
+    ],
+  },
+];
+
+function buildInterview(args: StoryArgs) {
+  const si = new SyntheticInterview();
+
+  const nt = si.addNodeType({ name: 'Person' });
+
+  // Create edge types and variables for each prompt
+  const edgeConfigs = promptConfigs.slice(0, args.promptCount).map((config) => {
+    const et = si.addEdgeType({ name: config.edgeName });
+    const variable = et.addVariable({
+      name: config.variableName,
+      type: 'ordinal',
+      options: config.options,
+    });
+    return { edgeType: et, variable, config };
   });
 
   si.addInformationStage({
@@ -30,32 +68,37 @@ function buildInterview(args: StoryArgs) {
   });
 
   const stage = si.addStage('TieStrengthCensus', {
-    label: 'Rate Friendships',
+    label: 'Rate Relationships',
     initialNodes: args.initialNodeCount,
     subject: { entity: 'node', type: nt.id },
     introductionPanel: {
-      title: 'Rate Your Friendships',
-      text: 'In this stage, you will be shown pairs of people from your network. For each pair, please indicate the strength of their friendship.',
+      title: 'Rate Your Relationships',
+      text: 'In this stage, you will be shown pairs of people from your network. For each pair, please indicate the strength of their relationship.',
     },
   });
 
-  stage.addPrompt({
-    text: 'How strong is the friendship between these two people?',
-    createEdge: et.id,
-    edgeVariable: strengthVar.id,
-    negativeLabel: 'No Friendship',
-  });
+  // Add prompts
+  for (const { edgeType, variable, config } of edgeConfigs) {
+    stage.addPrompt({
+      text: config.promptText,
+      createEdge: edgeType.id,
+      edgeVariable: variable.id,
+      negativeLabel: config.negativeLabel,
+    });
+  }
 
-  if (args.hasExistingEdges && args.initialNodeCount >= 3) {
+  // Add existing edges for the first edge type if requested
+  if (args.hasExistingEdges && args.initialNodeCount >= 3 && edgeConfigs[0]) {
+    const firstConfig = edgeConfigs[0];
     si.addEdges(
       [
         [0, 1],
         [1, 2],
       ],
-      et.id,
+      firstConfig.edgeType.id,
     );
-    si.setEdgeAttribute(0, strengthVar.id, 3);
-    si.setEdgeAttribute(1, strengthVar.id, 1);
+    si.setEdgeAttribute(0, firstConfig.variable.id, 3);
+    si.setEdgeAttribute(1, firstConfig.variable.id, 1);
   }
 
   si.addInformationStage({
@@ -92,16 +135,21 @@ const meta: Meta<StoryArgs> = {
   },
   argTypes: {
     initialNodeCount: {
-      control: { type: 'range', min: 0, max: 5 },
+      control: { type: 'range', min: 2, max: 5 },
       description: 'Number of nodes in the network',
+    },
+    promptCount: {
+      control: { type: 'range', min: 1, max: 3 },
+      description: 'Number of prompts (Friendship, Trust, Communication)',
     },
     hasExistingEdges: {
       control: 'boolean',
-      description: 'Include pre-existing friendship edges',
+      description: 'Include pre-existing edges for first prompt',
     },
   },
   args: {
     initialNodeCount: 3,
+    promptCount: 1,
     hasExistingEdges: false,
   },
 };

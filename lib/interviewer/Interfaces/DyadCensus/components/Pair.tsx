@@ -6,11 +6,10 @@ import { edgeColorMap } from '~/lib/interviewer/utils/edgeColorMap';
 import { cx } from '~/utils/cva';
 
 const pairVariants = {
-  initial: {
-    y: '100%',
+  initial: (isForwards: boolean) => ({
+    y: isForwards ? '100%' : '-100%',
     opacity: 0,
-    transition: { type: 'spring' as const, stiffness: 300, damping: 30 },
-  },
+  }),
   animate: {
     y: '0%',
     opacity: 1,
@@ -18,20 +17,19 @@ const pairVariants = {
       type: 'spring' as const,
       stiffness: 300,
       damping: 30,
-      when: 'beforeChildren',
-      staggerChildren: 0.1,
+      when: 'beforeChildren' as const,
     },
   },
-  exit: {
-    y: '100%',
+  exit: (isForwards: boolean) => ({
+    y: isForwards ? '-100%' : '100%',
     opacity: 0,
     transition: {
       type: 'spring' as const,
       stiffness: 300,
       damping: 30,
-      when: 'afterChildren',
+      when: 'afterChildren' as const,
     },
-  },
+  }),
 };
 
 const edgeVariants = {
@@ -44,6 +42,7 @@ type PairProps = {
   toNode?: NcNode;
   edgeColor: EdgeColor;
   hasEdge?: boolean | null;
+  animateForwards?: boolean;
 };
 
 export default function Pair({
@@ -51,6 +50,7 @@ export default function Pair({
   toNode,
   edgeColor,
   hasEdge = false,
+  animateForwards = true,
 }: PairProps) {
   if (!fromNode || !toNode) {
     return null;
@@ -58,6 +58,7 @@ export default function Pair({
 
   return (
     <motion.div
+      custom={animateForwards}
       variants={pairVariants}
       initial="initial"
       animate="animate"

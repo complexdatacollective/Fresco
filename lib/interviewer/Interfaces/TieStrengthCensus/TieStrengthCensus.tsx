@@ -78,7 +78,7 @@ export default function TieStrengthCensus(props: TieStrengthCensusProps) {
   const dispatch = useAppDispatch();
 
   const [isIntroduction, setIsIntroduction] = useState(true);
-  const [isForwards, setForwards] = useState(true);
+  const [isForwards, setIsForwards] = useState(true);
   const [pairIndex, setPairIndex] = useState(0);
 
   const {
@@ -169,7 +169,7 @@ export default function TieStrengthCensus(props: TieStrengthCensusProps) {
   // Navigation
   useBeforeNext((direction) => {
     if (direction === 'forwards') {
-      setForwards(true);
+      setIsForwards(true);
 
       if (isIntroduction) {
         if (pairs.length === 0) {
@@ -190,7 +190,7 @@ export default function TieStrengthCensus(props: TieStrengthCensusProps) {
     }
 
     if (direction === 'backwards') {
-      setForwards(false);
+      setIsForwards(false);
 
       if (isIntroduction) {
         return true;
@@ -318,75 +318,58 @@ export default function TieStrengthCensus(props: TieStrengthCensusProps) {
             initial="initial"
             exit="exit"
             animate="animate"
-            className="flex size-full flex-col"
+            className="flex w-full flex-1 flex-col items-center"
           >
-            <div className="flex flex-[0_0_var(--interface-prompt-flex-basis)] items-center justify-center text-center">
+            <motion.div className="flex w-full grow flex-col items-center justify-center">
+              <AnimatePresence mode="wait" custom={isForwards} initial={false}>
+                <Pair
+                  key={`${promptIndex}_${pairIndex}`}
+                  edgeColor={edgeColor}
+                  hasEdge={hasEdge}
+                  animateForwards={isForwards}
+                  fromNode={fromNode}
+                  toNode={toNode}
+                />
+              </AnimatePresence>
+            </motion.div>
+            <MotionSurface
+              noContainer
+              className="flex size-fit shrink-0 grow-0 flex-col items-center justify-center gap-4"
+              variants={choiceVariants}
+              initial="initial"
+              animate="animate"
+            >
               <Prompts />
-            </div>
-            <AnimatePresence mode="wait">
-              <motion.div
-                className="relative mt-4 min-h-0 flex-[1_auto]"
-                key={promptIndex}
-                variants={fadeVariants}
-                initial="initial"
-                exit="exit"
-                animate="animate"
-              >
-                <div className="absolute top-0 left-0 flex size-full flex-col items-center justify-center">
-                  <div className="relative flex w-full grow items-center justify-center">
-                    <AnimatePresence mode="wait" custom={[isForwards]} initial={false}>
-                      <Pair
-                        key={`${promptIndex}_${pairIndex}`}
-                        edgeColor={edgeColor}
-                        hasEdge={hasEdge}
-                        animateForwards={isForwards}
-                        fromNode={fromNode}
-                        toNode={toNode}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`${promptIndex}_${pairIndex}_choice`}
+                  className="flex items-center justify-center"
+                  variants={optionsVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                >
+                  <div className="grid auto-cols-fr grid-flow-col gap-4">
+                    {edgeVariableOptions.map((option) => (
+                      <BooleanOption
+                        key={option.value}
+                        selected={
+                          !!hasEdge && edgeVariableValue === option.value
+                        }
+                        onClick={() => handleChange(option.value)}
+                        label={option.label}
                       />
-                    </AnimatePresence>
+                    ))}
+                    <BooleanOption
+                      selected={hasEdge === false}
+                      onClick={() => handleChange(false)}
+                      label={negativeLabel}
+                      negative
+                    />
                   </div>
-                  <motion.div
-                    className="relative z-(--z-panel) flex w-full min-w-[65vmin] grow-0 flex-col rounded-(--nc-border-radius) border-8 border-transparent p-5"
-                    variants={choiceVariants}
-                    initial="initial"
-                    animate="animate"
-                    style={{
-                      maxWidth: `${(edgeVariableOptions.length + 1) * 20 + 3.6}rem`,
-                    }}
-                  >
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key={promptIndex}
-                        className="flex items-center justify-center"
-                        variants={optionsVariants}
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                      >
-                        <div className="grid auto-cols-fr grid-flow-col gap-4">
-                          {edgeVariableOptions.map((option) => (
-                            <BooleanOption
-                              key={option.value}
-                              selected={
-                                !!hasEdge && edgeVariableValue === option.value
-                              }
-                              onClick={() => handleChange(option.value)}
-                              label={option.label}
-                            />
-                          ))}
-                          <BooleanOption
-                            selected={hasEdge === false}
-                            onClick={() => handleChange(false)}
-                            label={negativeLabel}
-                            negative
-                          />
-                        </div>
-                      </motion.div>
-                    </AnimatePresence>
-                  </motion.div>
-                </div>
-              </motion.div>
-            </AnimatePresence>
+                </motion.div>
+              </AnimatePresence>
+            </MotionSurface>
           </motion.div>
         )}
       </AnimatePresence>
