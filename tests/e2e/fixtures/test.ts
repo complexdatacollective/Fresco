@@ -4,6 +4,7 @@ import {
   type Locator,
   type Page,
 } from '@playwright/test';
+import { getContextMappings } from '../config/test-config.js';
 import { loadContext, type SuiteContext } from '../helpers/context.js';
 import { DatabaseIsolation } from './db-fixture.js';
 
@@ -92,10 +93,14 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   database: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use, workerInfo) => {
-      // Worker-scoped so it can be used in beforeAll hooks
-      // Map project name to suite ID
       const projectName = workerInfo.project.name;
-      const suiteId = projectName === 'setup' ? 'setup' : 'dashboard';
+      const mappings = getContextMappings();
+      const suiteId = mappings[projectName];
+      if (!suiteId) {
+        throw new Error(
+          `No context mapping for project "${projectName}". Available: ${Object.keys(mappings).join(', ')}`,
+        );
+      }
       const context = await getContext(suiteId);
       const db = new DatabaseIsolation(context.databaseUrl, suiteId);
 
