@@ -1,38 +1,142 @@
-import { type BrowserContext, type Page } from '@playwright/test';
+/* eslint-disable no-process-env */
+import { type BrowserContext, type Page, devices } from '@playwright/test';
+import {
+  seedDashboardEnvironment,
+  seedSetupEnvironment,
+} from '../helpers/seed.js';
 
-/**
- * Path to the saved admin auth state, relative to the project root.
- * Used by the auth project to save state and the dashboard project to load it.
- */
-export const AUTH_STATE_PATH = './tests/e2e/.auth/admin.json';
+type BrowserConfig = {
+  name: string;
+  device: (typeof devices)[string];
+};
 
-/**
- * Save the current browser auth state (cookies, storage) to the shared auth file.
- * Call after login to persist state for the dashboard project.
- */
-export async function saveAuthState(pageOrContext: Page | BrowserContext) {
-  const context =
-    'context' in pageOrContext ? pageOrContext.context() : pageOrContext;
-  await context.storageState({ path: AUTH_STATE_PATH });
+type EnvironmentConfig = {
+  id: string;
+  testMatch: string;
+  seed: (connectionUri: string) => Promise<void>;
+  auth: boolean;
+};
+
+export const BROWSERS: BrowserConfig[] = [
+  { name: 'chromium', device: devices['Desktop Chrome'] },
+  { name: 'firefox', device: devices['Desktop Firefox'] },
+  { name: 'webkit', device: devices['Desktop Safari'] },
+];
+
+export const ENVIRONMENTS: EnvironmentConfig[] = [
+  {
+    id: 'setup',
+    testMatch: '**/setup/*.spec.ts',
+    seed: seedSetupEnvironment,
+    auth: false,
+  },
+  {
+    id: 'dashboard',
+    testMatch: '**/dashboard/*.spec.ts',
+    seed: seedDashboardEnvironment,
+    auth: true,
+  },
+];
+
+export function envInstanceId(envId: string, browserName: string): string {
+  return `${envId}-${browserName}`;
 }
 
-/**
- * Context mappings for test resolution
- * Maps test suite directories and Playwright project names to context identifiers
- */
-export const CONTEXT_MAPPINGS = {
-  // Maps suite directory names (tests/e2e/suites/<name>/) to context identifiers
-  suiteToContext: {
-    setup: 'setup',
-    dashboard: 'dashboard',
-    interview: 'interview',
-    auth: 'dashboard',
-  },
-  // Maps Playwright project names to context identifiers
-  projectToContext: {
-    'setup': 'setup',
-    'auth-dashboard': 'dashboard',
-    'dashboard': 'dashboard',
-    'interview': 'interview',
-  },
-} as const;
+export function envUrlVar(instanceId: string): string {
+  return `${instanceId.toUpperCase().replace(/-/g, '_')}_URL`;
+}
+
+export function authStatePath(envId: string, browserName: string): string {
+  return `./tests/e2e/.auth/${envId}-${browserName}.json`;
+}
+
+export function authStatePathForProject(projectName: string): string {
+  const instanceId = projectName.replace(/^auth-/, '');
+  const lastDash = instanceId.lastIndexOf('-');
+  const envId = instanceId.substring(0, lastDash);
+  const browserName = instanceId.substring(lastDash + 1);
+  return authStatePath(envId, browserName);
+}
+
+export function getEnvironmentInstances(): {
+  suiteId: string;
+  seed: (connectionUri: string) => Promise<void>;
+}[] {
+  return BROWSERS.flatMap((browser) =>
+    ENVIRONMENTS.map((env) => ({
+      suiteId: envInstanceId(env.id, browser.name),
+      seed: env.seed,
+    })),
+  );
+}
+
+export function getProjects(): {
+  name: string;
+  testMatch: string;
+  dependencies?: string[];
+  use: Record<string, unknown>;
+}[] {
+  return BROWSERS.flatMap((browser) =>
+    ENVIRONMENTS.flatMap((env) => {
+      const projects = [];
+      const instanceId = envInstanceId(env.id, browser.name);
+      const baseURL = process.env[envUrlVar(instanceId)];
+
+      if (env.auth) {
+        projects.push({
+          name: `auth-${instanceId}`,
+          testMatch: '**/auth/*.spec.ts',
+          use: {
+            ...browser.device,
+            baseURL,
+          },
+        });
+
+        projects.push({
+          name: instanceId,
+          testMatch: env.testMatch,
+          dependencies: [`auth-${instanceId}`],
+          use: {
+            ...browser.device,
+            baseURL,
+            storageState: authStatePath(env.id, browser.name),
+          },
+        });
+      } else {
+        projects.push({
+          name: instanceId,
+          testMatch: env.testMatch,
+          use: {
+            ...browser.device,
+            baseURL,
+          },
+        });
+      }
+
+      return projects;
+    }),
+  );
+}
+
+export function getContextMappings(): Record<string, string> {
+  const mappings: Record<string, string> = {};
+  for (const browser of BROWSERS) {
+    for (const env of ENVIRONMENTS) {
+      const instanceId = envInstanceId(env.id, browser.name);
+      mappings[instanceId] = instanceId;
+      if (env.auth) {
+        mappings[`auth-${instanceId}`] = instanceId;
+      }
+    }
+  }
+  return mappings;
+}
+
+export async function saveAuthState(
+  pageOrContext: Page | BrowserContext,
+  statePath: string,
+): Promise<void> {
+  const context =
+    'context' in pageOrContext ? pageOrContext.context() : pageOrContext;
+  await context.storageState({ path: statePath });
+}
