@@ -1,17 +1,13 @@
-/* eslint-disable no-process-env */
-import { defineConfig, devices } from '@playwright/test';
-import { AUTH_STATE_PATH } from './config/test-config.js';
+import { defineConfig } from '@playwright/test';
+import { getProjects } from './config/test-config.js';
 
 export default defineConfig({
   testDir: './specs',
   outputDir: './test-results',
   snapshotDir: './visual-snapshots',
-  snapshotPathTemplate: '{snapshotDir}/{arg}{ext}',
+  snapshotPathTemplate: '{snapshotDir}/{projectName}/{arg}{ext}',
 
   retries: 0,
-  // Multiple workers coordinate via shared/exclusive advisory locks:
-  // - Read-only tests hold shared locks (parallel reads allowed)
-  // - Mutation tests acquire exclusive locks (serialized writes)
   fullyParallel: false,
 
   reporter: [
@@ -25,7 +21,6 @@ export default defineConfig({
     },
   },
 
-  // Extended timeout to account for mutation tests waiting on exclusive locks
   timeout: 60_000,
 
   use: {
@@ -43,32 +38,5 @@ export default defineConfig({
   globalSetup: './global-setup.ts',
   globalTeardown: './global-teardown.ts',
 
-  projects: [
-    {
-      name: 'setup',
-      testMatch: '**/setup/*.spec.ts',
-      use: {
-        ...devices['Desktop Chrome'],
-        baseURL: process.env.SETUP_URL,
-      },
-    },
-    {
-      name: 'auth',
-      testMatch: '**/auth/*.spec.ts',
-      use: {
-        ...devices['Desktop Chrome'],
-        baseURL: process.env.DASHBOARD_URL,
-      },
-    },
-    {
-      name: 'dashboard',
-      testMatch: '**/dashboard/*.spec.ts',
-      dependencies: ['auth'],
-      use: {
-        ...devices['Desktop Chrome'],
-        baseURL: process.env.DASHBOARD_URL,
-        storageState: AUTH_STATE_PATH,
-      },
-    },
-  ],
+  projects: getProjects(),
 });
