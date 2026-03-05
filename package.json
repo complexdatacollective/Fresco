@@ -85,7 +85,7 @@
     "d3-force": "^3.0.0",
     "d3-interpolate-path": "^2.3.0",
     "dotenv": "^17.3.1",
-    "es-toolkit": "^1.44.0",
+    "es-toolkit": "^1.45.0",
     "fuse.js": "^7.1.0",
     "immer": "^11.1.4",
     "jszip": "^3.10.1",
