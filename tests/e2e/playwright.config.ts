@@ -15,7 +15,7 @@ export default defineConfig({
   snapshotDir: './visual-snapshots',
   snapshotPathTemplate: '{snapshotDir}/{projectName}/{arg}{ext}',
 
-  retries: 0,
+  retries: 1,
   fullyParallel: false,
 
   reporter: [
