@@ -15,6 +15,10 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
     outputs:
       test-result: ${{ steps.test.outcome }}
 
@@ -27,9 +31,9 @@ jobs:
           cache-path: .pnpm-docker-store
           cache-key-prefix: pnpm-docker-store
 
-      - name: Run E2E tests
+      - name: Run E2E tests (${{ matrix.browser }})
         id: test
-        run: pnpm test:e2e
+        run: pnpm test:e2e -- --project="*-${{ matrix.browser }}"
         env:
           CI: true
 
@@ -37,7 +41,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.browser }}
           path: |
             tests/e2e/playwright-report/
             tests/e2e/test-results/
@@ -47,7 +51,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: test-videos
+          name: test-videos-${{ matrix.browser }}
           path: tests/e2e/test-results/**/*.webm
           retention-days: 7
 
@@ -58,9 +62,8 @@ jobs:
           path: .pnpm-docker-store
           key: ${{ steps.setup.outputs.cache-key }}
 
-  # Resolve PR context for both pull_request and workflow_dispatch events
   resolve-pr:
-    if: failure() && needs.e2e.outputs.test-result == 'failure'
+    if: failure()
     needs: e2e
     runs-on: ubuntu-latest
     outputs:
