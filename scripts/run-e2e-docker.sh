@@ -39,6 +39,19 @@ echo "   Image: ${IMAGE}"
 echo "   Args: ${*:-<none>}"
 echo ""
 
+# Detect browser filter from --project flag to limit environment startup
+E2E_BROWSERS=""
+for arg in "$@"; do
+  case "$arg" in
+    --project=*-chromium|--project="*-chromium")
+      E2E_BROWSERS="chromium" ;;
+    --project=*-firefox|--project="*-firefox")
+      E2E_BROWSERS="firefox" ;;
+    --project=*-webkit|--project="*-webkit")
+      E2E_BROWSERS="webkit" ;;
+  esac
+done
+
 # Build the playwright command
 PLAYWRIGHT_CMD="pnpm exec playwright test --config=tests/e2e/playwright.config.ts"
 if [ $# -gt 0 ]; then
@@ -50,6 +63,7 @@ fi
 docker run --rm \
   -e CI=true \
   -e INSTALLATION_ID=e2e-test-env \
+  ${E2E_BROWSERS:+-e E2E_BROWSERS="$E2E_BROWSERS"} \
   -v "$(pwd)":/work \
   -v /dev/null:/work/.env:ro \
   -v /var/run/docker.sock:/var/run/docker.sock \

@@ -17,11 +17,19 @@ type EnvironmentConfig = {
   auth: boolean;
 };
 
-export const BROWSERS: BrowserConfig[] = [
+const ALL_BROWSERS: BrowserConfig[] = [
   { name: 'chromium', device: devices['Desktop Chrome'] },
   { name: 'firefox', device: devices['Desktop Firefox'] },
   { name: 'webkit', device: devices['Desktop Safari'] },
 ];
+
+export function getActiveBrowsers(): BrowserConfig[] {
+  const filter = process.env.E2E_BROWSERS;
+  if (!filter) return ALL_BROWSERS;
+  const names = filter.split(',').map((s) => s.trim());
+  const filtered = ALL_BROWSERS.filter((b) => names.includes(b.name));
+  return filtered.length > 0 ? filtered : ALL_BROWSERS;
+}
 
 export const ENVIRONMENTS: EnvironmentConfig[] = [
   {
@@ -62,7 +70,7 @@ export function getEnvironmentInstances(): {
   suiteId: string;
   seed: (connectionUri: string) => Promise<void>;
 }[] {
-  return BROWSERS.flatMap((browser) =>
+  return getActiveBrowsers().flatMap((browser) =>
     ENVIRONMENTS.map((env) => ({
       suiteId: envInstanceId(env.id, browser.name),
       seed: env.seed,
@@ -76,7 +84,7 @@ export function getProjects(): {
   dependencies?: string[];
   use: Record<string, unknown>;
 }[] {
-  return BROWSERS.flatMap((browser) =>
+  return getActiveBrowsers().flatMap((browser) =>
     ENVIRONMENTS.flatMap((env) => {
       const projects = [];
       const instanceId = envInstanceId(env.id, browser.name);
@@ -120,7 +128,7 @@ export function getProjects(): {
 
 export function getContextMappings(): Record<string, string> {
   const mappings: Record<string, string> = {};
-  for (const browser of BROWSERS) {
+  for (const browser of getActiveBrowsers()) {
     for (const env of ENVIRONMENTS) {
       const instanceId = envInstanceId(env.id, browser.name);
       mappings[instanceId] = instanceId;

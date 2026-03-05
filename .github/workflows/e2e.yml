@@ -36,6 +36,7 @@ jobs:
         run: pnpm test:e2e -- --project="*-${{ matrix.browser }}"
         env:
           CI: true
+          E2E_BROWSERS: ${{ matrix.browser }}
 
       - name: Upload test results
         if: always()
