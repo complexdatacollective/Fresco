@@ -27,8 +27,8 @@ test.describe('Onboard Integration', () => {
     test('GET with participantIdentifier redirects to interview', async ({
       page,
       database,
-    }) => {
-      const cleanup = await database.isolate(page);
+    }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         const protocolId = await database.getProtocolId();
         const response = await page.request.get(
@@ -43,8 +43,8 @@ test.describe('Onboard Integration', () => {
     test('GET anonymous (enabled by default) redirects to interview', async ({
       page,
       database,
-    }) => {
-      const cleanup = await database.isolate(page);
+    }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         const protocolId = await database.getProtocolId();
         const response = await page.request.get(`/onboard/${protocolId}`);
@@ -57,8 +57,8 @@ test.describe('Onboard Integration', () => {
     test('POST with JSON body redirects to interview', async ({
       page,
       database,
-    }) => {
-      const cleanup = await database.isolate(page);
+    }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         const protocolId = await database.getProtocolId();
         // maxRedirects: 0 prevents WebKit from hanging when re-streaming
@@ -79,8 +79,8 @@ test.describe('Onboard Integration', () => {
     test('participant reuse with same identifier', async ({
       page,
       database,
-    }) => {
-      const cleanup = await database.isolate(page);
+    }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         const protocolId = await database.getProtocolId();
         const identifier = 'REUSE-001';
@@ -105,8 +105,8 @@ test.describe('Onboard Integration', () => {
     test('anonymous recruitment disabled redirects to no-anonymous-recruitment', async ({
       page,
       database,
-    }) => {
-      const cleanup = await database.isolate(page);
+    }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         const protocolId = await database.getProtocolId();
         await database.updateAppSetting('allowAnonymousRecruitment', 'false');
@@ -122,8 +122,8 @@ test.describe('Onboard Integration', () => {
     test('limitInterviews prevents second interview', async ({
       page,
       database,
-    }) => {
-      const cleanup = await database.isolate(page);
+    }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         const protocolId = await database.getProtocolId();
         await database.updateAppSetting('limitInterviews', 'true');

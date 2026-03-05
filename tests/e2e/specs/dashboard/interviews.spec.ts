@@ -124,8 +124,8 @@ test.describe('Interviews Page', () => {
     test.describe.configure({ mode: 'serial' });
     let cleanup: () => Promise<void>;
 
-    test.beforeEach(async ({ page, database }) => {
-      cleanup = await database.isolate(page);
+    test.beforeEach(async ({ page, database }, testInfo) => {
+      cleanup = await database.isolate(page, testInfo);
       await page.goto('/dashboard/interviews');
     });
 

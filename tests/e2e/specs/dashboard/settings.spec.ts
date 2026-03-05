@@ -165,8 +165,8 @@ test.describe('Settings Page', () => {
   test.describe('Mutations', () => {
     test.describe.configure({ mode: 'serial' });
 
-    test('create new user', async ({ page, database }) => {
-      const cleanup = await database.isolate(page);
+    test('create new user', async ({ page, database }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         await page.goto('/dashboard/settings');
         // Clean up user from previous retries (User table excluded from snapshots)
@@ -196,8 +196,8 @@ test.describe('Settings Page', () => {
       }
     });
 
-    test('toggle anonymous recruitment', async ({ page, database }) => {
-      const cleanup = await database.isolate(page);
+    test('toggle anonymous recruitment', async ({ page, database }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         await page.goto('/dashboard/settings');
         const toggle = page
@@ -228,8 +228,8 @@ test.describe('Settings Page', () => {
     test('delete non-current user when multiple exist', async ({
       page,
       database,
-    }) => {
-      const cleanup = await database.isolate(page);
+    }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         await page.goto('/dashboard/settings');
         // Clean up user from previous retries (User table excluded from snapshots)
@@ -277,8 +277,8 @@ test.describe('Settings Page', () => {
       }
     });
 
-    test('toggle preview mode', async ({ page, database }) => {
-      const cleanup = await database.isolate(page);
+    test('toggle preview mode', async ({ page, database }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         await page.goto('/dashboard/settings');
         const toggle = page
@@ -306,8 +306,8 @@ test.describe('Settings Page', () => {
       }
     });
 
-    test('toggle preview mode authentication', async ({ page, database }) => {
-      const cleanup = await database.isolate(page);
+    test('toggle preview mode authentication', async ({ page, database }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         await page.goto('/dashboard/settings');
         // First enable preview mode
@@ -355,8 +355,8 @@ test.describe('Settings Page', () => {
       }
     });
 
-    test('create api token', async ({ page, database }) => {
-      const cleanup = await database.isolate(page);
+    test('create api token', async ({ page, database }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         await page.goto('/dashboard/settings');
         // First enable preview mode
@@ -414,8 +414,8 @@ test.describe('Settings Page', () => {
       page,
       database,
       captureElement,
-    }) => {
-      const cleanup = await database.isolate(page);
+    }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         await page.goto('/dashboard/settings');
         // Enable preview mode first
@@ -447,8 +447,8 @@ test.describe('Settings Page', () => {
       page,
       database,
       captureElement,
-    }) => {
-      const cleanup = await database.isolate(page);
+    }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         await page.goto('/dashboard/settings');
         // Enable preview mode first
@@ -495,8 +495,8 @@ test.describe('Settings Page', () => {
       page,
       database,
       captureElement,
-    }) => {
-      const cleanup = await database.isolate(page);
+    }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         await page.goto('/dashboard/settings');
         // Enable preview mode first
@@ -537,8 +537,8 @@ test.describe('Settings Page', () => {
       }
     });
 
-    test('delete api token', async ({ page, database }) => {
-      const cleanup = await database.isolate(page);
+    test('delete api token', async ({ page, database }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         await page.goto('/dashboard/settings');
         // First enable preview mode

@@ -164,8 +164,8 @@ Mutation tests acquire an **exclusive lock** that waits for all shared locks to 
 test.describe('Mutations', () => {
   test.describe.configure({ mode: 'serial' });
 
-  test('delete item', async ({ page, database }) => {
-    const cleanup = await database.isolate(page);
+  test('delete item', async ({ page, database }, testInfo) => {
+    const cleanup = await database.isolate(page, testInfo);
     try {
       // ... test that modifies data
     } finally {
@@ -175,7 +175,7 @@ test.describe('Mutations', () => {
 });
 ```
 
-`database.isolate(page)` acquires an exclusive lock, restores the DB snapshot, and reloads the page. The cleanup function restores the snapshot again and releases the exclusive lock.
+`database.isolate(page, testInfo)` acquires an exclusive lock, restores the DB snapshot, and returns a cleanup function. Pass `testInfo` so lock wait time is excluded from the test timeout — without it, tests queued behind other workers may time out waiting for the lock.
 
 ### Element Selectors
 
@@ -384,7 +384,7 @@ The `database` fixture provides direct database access without passing `database
 
 - `database.restoreSnapshot(name?)` — Acquire shared lock and restore snapshot (call in `beforeAll`)
 - `database.releaseReadLock()` — Release the shared lock (call in `afterAll`)
-- `database.isolate(page)` — Acquire exclusive lock, restore snapshot, reload page; returns cleanup function
+- `database.isolate(page, testInfo?)` — Acquire exclusive lock, restore snapshot; returns cleanup function. Pass `testInfo` to exclude lock wait time from the test timeout
 - `database.getProtocolId()` — Get first protocol's ID from database
 - `database.updateAppSetting(key, value)` — Update an AppSettings row
 - `database.getParticipantCount(identifier?)` — Count participants (optionally filter by identifier)

@@ -1,4 +1,4 @@
-import { type Page } from '@playwright/test';
+import { type Page, type TestInfo } from '@playwright/test';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import pg from 'pg';
@@ -286,8 +286,15 @@ export class DatabaseIsolation {
    * Isolates a mutation test by acquiring an exclusive lock and restoring the snapshot.
    * The exclusive lock blocks all other readers and writers until cleanup() is called.
    * Returns a cleanup function that must be called in afterEach.
+   *
+   * Pass `testInfo` to exclude lock wait time from the test timeout. Without it,
+   * tests queued behind other workers' mutations may time out waiting for the lock.
    */
-  async isolate(page: Page, name = 'initial'): Promise<() => Promise<void>> {
+  async isolate(
+    page: Page,
+    testInfo?: TestInfo,
+    name = 'initial',
+  ): Promise<() => Promise<void>> {
     // Release our shared lock first to avoid deadlock when acquiring exclusive lock.
     // Other workers holding shared locks will block our exclusive lock acquisition,
     // but we must not be one of them.
@@ -310,12 +317,33 @@ export class DatabaseIsolation {
     });
     let client: pg.PoolClient | null = null;
 
+    // Temporarily disable the test timeout while waiting for the advisory lock.
+    // Other workers' mutations may hold the lock for an unpredictable duration,
+    // and that wait shouldn't count against this test's timeout.
+    const originalTimeout = testInfo?.timeout ?? 0;
+    if (testInfo) {
+      testInfo.setTimeout(0);
+    }
+
+    const lockWaitStart = Date.now();
+
     try {
       client = await pool.connect();
 
       // Acquire exclusive lock - waits for all shared locks to release
       await client.query(`SELECT pg_advisory_lock(${LOCK_ID})`);
-      log('test', `Acquired exclusive lock for mutation test`);
+
+      const lockWaitMs = Date.now() - lockWaitStart;
+      log(
+        'test',
+        `Acquired exclusive lock for mutation test (waited ${lockWaitMs}ms)`,
+      );
+
+      // Restore the timeout, extended by the lock wait so the test's actual
+      // work gets the full configured timeout.
+      if (testInfo) {
+        testInfo.setTimeout(originalTimeout + lockWaitMs);
+      }
 
       // Store client so helper methods reuse this connection (protected by advisory lock)
       this.isolationClient = client;

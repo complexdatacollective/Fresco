@@ -81,8 +81,8 @@ test.describe('Dashboard Overview', () => {
   test.describe('Mutations', () => {
     test.describe.configure({ mode: 'serial' });
 
-    test('shows correct participant count', async ({ page, database }) => {
-      const cleanup = await database.isolate(page);
+    test('shows correct participant count', async ({ page, database }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         await page.goto('/dashboard');
         const card = page.getByTestId('stat-card-participants');

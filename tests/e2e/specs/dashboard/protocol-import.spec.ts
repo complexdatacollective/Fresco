@@ -87,9 +87,9 @@ test.describe('Protocol Import', () => {
     test('import Development.netcanvas successfully', async ({
       page,
       database,
-    }) => {
+    }, testInfo) => {
       test.setTimeout(120_000);
-      const cleanup = await database.isolate(page);
+      const cleanup = await database.isolate(page, testInfo);
       try {
         await mockUploadThing(page);
         await page.goto('/dashboard/protocols');
@@ -127,8 +127,8 @@ test.describe('Protocol Import', () => {
       }
     });
 
-    test('error: duplicate protocol import', async ({ page, database }) => {
-      const cleanup = await database.isolate(page);
+    test('error: duplicate protocol import', async ({ page, database }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         await mockUploadThing(page);
         await page.goto('/dashboard/protocols');

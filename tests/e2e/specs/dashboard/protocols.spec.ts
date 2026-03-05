@@ -123,8 +123,8 @@ test.describe('Protocols Page', () => {
     test('delete single protocol via row actions', async ({
       page,
       database,
-    }) => {
-      const cleanup = await database.isolate(page);
+    }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         await page.goto('/dashboard/protocols');
         await waitForTable(page, { minRows: 1 });
@@ -146,8 +146,8 @@ test.describe('Protocols Page', () => {
       }
     });
 
-    test('bulk delete protocols', async ({ page, database }) => {
-      const cleanup = await database.isolate(page);
+    test('bulk delete protocols', async ({ page, database }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         await page.goto('/dashboard/protocols');
         await waitForTable(page, { minRows: 1 });
@@ -170,8 +170,8 @@ test.describe('Protocols Page', () => {
       page,
       database,
       capturePage,
-    }) => {
-      const cleanup = await database.isolate(page);
+    }, testInfo) => {
+      const cleanup = await database.isolate(page, testInfo);
       try {
         await page.goto('/dashboard/protocols');
         await waitForTable(page, { minRows: 1 });

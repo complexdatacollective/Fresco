@@ -17,10 +17,6 @@ export default defineConfig({
 
   retries: 0,
   fullyParallel: false,
-  // Limit workers to reduce advisory lock contention across parallel spec files.
-  // With too many workers, mutation tests queue for the exclusive DB lock and
-  // exceed the 60s test timeout waiting.
-  workers: 3,
 
   reporter: [
     ['line'],
