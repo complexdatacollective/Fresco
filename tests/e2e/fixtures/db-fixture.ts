@@ -309,8 +309,9 @@ export class DatabaseIsolation {
     log('test', `Restoring snapshot "${name}" for suite "${this.suiteId}"...`);
     await this.restoreWith(client, name);
 
-    // Navigate back after restore - use networkidle to ensure React hydration completes
-    await page.goto(currentUrl, { waitUntil: 'networkidle' });
+    // Navigate back after restore. 'load' is used instead of 'networkidle' because
+    // WebKit keeps persistent connections (e.g. analytics) that prevent networkidle.
+    await page.goto(currentUrl, { waitUntil: 'load' });
 
     return async () => {
       // Navigate away before cleanup restore to prevent deadlocks.

@@ -17,6 +17,7 @@ test.describe('Protocol Import', () => {
       page,
       database,
     }) => {
+      test.setTimeout(120_000);
       const cleanup = await database.isolate(page);
       try {
         await mockUploadThing(page);

@@ -88,11 +88,13 @@ export class AppServer {
         NODE_ENV: 'production',
         PORT: String(port),
         HOSTNAME: '0.0.0.0',
+        PUBLIC_URL: `http://localhost:${port}`,
         DATABASE_URL: opts.databaseUrl,
         DATABASE_URL_UNPOOLED: opts.databaseUrl,
         SKIP_ENV_VALIDATION: 'true',
         DISABLE_ANALYTICS: 'true',
         DISABLE_NEXT_CACHE: 'true',
+        COOKIE_SECURE: 'false',
       },
       stdio: ['pipe', 'pipe', 'pipe'],
     });
