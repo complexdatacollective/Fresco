@@ -7,11 +7,10 @@ test.describe('Dashboard Overview', () => {
     await database.restoreSnapshot();
   });
 
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/dashboard');
-  });
-
   test.describe('Read-only', () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto('/dashboard');
+    });
     // Release shared lock after read-only tests complete, before mutations start.
     // This reduces wait time for mutation tests that need exclusive locks.
     test.afterAll(async ({ database }) => {
@@ -85,6 +84,7 @@ test.describe('Dashboard Overview', () => {
     test('shows correct participant count', async ({ page, database }) => {
       const cleanup = await database.isolate(page);
       try {
+        await page.goto('/dashboard');
         const card = page.getByTestId('stat-card-participants');
         const count = card.getByRole('heading', { level: 1 });
         await expect(count).toHaveText('10');

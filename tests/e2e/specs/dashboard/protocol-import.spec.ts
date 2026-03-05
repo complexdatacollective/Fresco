@@ -10,6 +10,77 @@ test.describe('Protocol Import', () => {
     await database.restoreSnapshot();
   });
 
+  // Client-side validation errors — these don't modify the database so they
+  // run with a shared lock, avoiding exclusive lock contention with other workers.
+  test.describe('Error handling', () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto('/dashboard/protocols');
+    });
+
+    test.afterAll(async ({ database }) => {
+      await database.releaseReadLock();
+    });
+
+    test('error: upload invalid ZIP file', async ({ page }) => {
+      await waitForTable(page, { minRows: 1 });
+
+      await page.getByRole('button', { name: /import protocols/i }).click();
+      const fileInput = page.locator('input[type="file"]');
+      await fileInput.setInputFiles(
+        path.join(DATA_DIR, 'not-a-zip.netcanvas'),
+      );
+
+      // Wait for error toast
+      const errorToast = page.locator(
+        'div[role="dialog"][data-type="destructive"]',
+      );
+      await expect(errorToast).toBeVisible({ timeout: 15_000 });
+
+      // Verify retry button is present
+      await expect(
+        errorToast.getByRole('button', { name: /retry/i }),
+      ).toBeVisible();
+    });
+
+    test('error: upload ZIP without protocol.json', async ({ page }) => {
+      await waitForTable(page, { minRows: 1 });
+
+      await page.getByRole('button', { name: /import protocols/i }).click();
+      const fileInput = page.locator('input[type="file"]');
+      await fileInput.setInputFiles(
+        path.join(DATA_DIR, 'missing-protocol-json.netcanvas'),
+      );
+
+      const errorToast = page.locator(
+        'div[role="dialog"][data-type="destructive"]',
+      );
+      await expect(errorToast).toBeVisible({ timeout: 15_000 });
+
+      await expect(
+        errorToast.getByRole('button', { name: /retry/i }),
+      ).toBeVisible();
+    });
+
+    test('error: upload unsupported schema version', async ({ page }) => {
+      await waitForTable(page, { minRows: 1 });
+
+      await page.getByRole('button', { name: /import protocols/i }).click();
+      const fileInput = page.locator('input[type="file"]');
+      await fileInput.setInputFiles(
+        path.join(DATA_DIR, 'invalid-schema.netcanvas'),
+      );
+
+      const errorToast = page.locator(
+        'div[role="dialog"][data-type="destructive"]',
+      );
+      await expect(errorToast).toBeVisible({ timeout: 15_000 });
+
+      await expect(
+        errorToast.getByRole('button', { name: /retry/i }),
+      ).toBeVisible();
+    });
+  });
+
   test.describe('Mutations', () => {
     test.describe.configure({ mode: 'serial' });
 
@@ -39,8 +110,8 @@ test.describe('Protocol Import', () => {
         );
         await expect(successToast).toBeVisible({ timeout: 30_000 });
 
-        // Wait for toast to auto-close then reload to pick up revalidated cache
-        await expect(successToast).toBeHidden({ timeout: 10_000 });
+        // Reload immediately to pick up revalidated cache (don't wait for
+        // toast auto-dismiss — saves ~10s which reduces exclusive lock hold time)
         await page.reload();
         await waitForTable(page, { minRows: 1 });
 
@@ -50,89 +121,6 @@ test.describe('Protocol Import', () => {
 
         await expect(
           page.getByRole('cell', { name: 'Development.netcanvas' }),
-        ).toBeVisible();
-      } finally {
-        await cleanup();
-      }
-    });
-
-    test('error: upload invalid ZIP file', async ({ page, database }) => {
-      const cleanup = await database.isolate(page);
-      try {
-        await page.goto('/dashboard/protocols');
-        await waitForTable(page, { minRows: 1 });
-
-        await page.getByRole('button', { name: /import protocols/i }).click();
-        const fileInput = page.locator('input[type="file"]');
-        await fileInput.setInputFiles(
-          path.join(DATA_DIR, 'not-a-zip.netcanvas'),
-        );
-
-        // Wait for error toast
-        const errorToast = page.locator(
-          'div[role="dialog"][data-type="destructive"]',
-        );
-        await expect(errorToast).toBeVisible({ timeout: 15_000 });
-
-        // Verify retry button is present
-        await expect(
-          errorToast.getByRole('button', { name: /retry/i }),
-        ).toBeVisible();
-      } finally {
-        await cleanup();
-      }
-    });
-
-    test('error: upload ZIP without protocol.json', async ({
-      page,
-      database,
-    }) => {
-      const cleanup = await database.isolate(page);
-      try {
-        await page.goto('/dashboard/protocols');
-        await waitForTable(page, { minRows: 1 });
-
-        await page.getByRole('button', { name: /import protocols/i }).click();
-        const fileInput = page.locator('input[type="file"]');
-        await fileInput.setInputFiles(
-          path.join(DATA_DIR, 'missing-protocol-json.netcanvas'),
-        );
-
-        const errorToast = page.locator(
-          'div[role="dialog"][data-type="destructive"]',
-        );
-        await expect(errorToast).toBeVisible({ timeout: 15_000 });
-
-        await expect(
-          errorToast.getByRole('button', { name: /retry/i }),
-        ).toBeVisible();
-      } finally {
-        await cleanup();
-      }
-    });
-
-    test('error: upload unsupported schema version', async ({
-      page,
-      database,
-    }) => {
-      const cleanup = await database.isolate(page);
-      try {
-        await page.goto('/dashboard/protocols');
-        await waitForTable(page, { minRows: 1 });
-
-        await page.getByRole('button', { name: /import protocols/i }).click();
-        const fileInput = page.locator('input[type="file"]');
-        await fileInput.setInputFiles(
-          path.join(DATA_DIR, 'invalid-schema.netcanvas'),
-        );
-
-        const errorToast = page.locator(
-          'div[role="dialog"][data-type="destructive"]',
-        );
-        await expect(errorToast).toBeVisible({ timeout: 15_000 });
-
-        await expect(
-          errorToast.getByRole('button', { name: /retry/i }),
         ).toBeVisible();
       } finally {
         await cleanup();

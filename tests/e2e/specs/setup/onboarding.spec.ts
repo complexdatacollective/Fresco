@@ -41,7 +41,7 @@ test.describe('Setup Flow', () => {
     // Step 2: Connect UploadThing
     await expect(
       page.getByRole('heading', { name: 'Connect UploadThing', level: 2 }),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 15_000 });
 
     await capturePage('setup-step-2-connect-uploadthing');
 

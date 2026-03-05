@@ -16,11 +16,10 @@ test.describe('Protocols Page', () => {
     await database.restoreSnapshot();
   });
 
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/dashboard/protocols');
-  });
-
   test.describe('Read-only', () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto('/dashboard/protocols');
+    });
     // Release shared lock after read-only tests complete, before mutations start.
     // This reduces wait time for mutation tests that need exclusive locks.
     test.afterAll(async ({ database }) => {
@@ -102,6 +101,20 @@ test.describe('Protocols Page', () => {
       await waitForTable(page, { minRows: 1 });
       await capturePage('protocols-page');
     });
+
+    test('visual: delete confirmation dialog', async ({
+      page,
+      captureElement,
+    }) => {
+      await waitForTable(page, { minRows: 1 });
+
+      const row = getFirstRow(page);
+      await openRowActions(row);
+      await page.getByRole('menuitem', { name: /delete/i }).click();
+
+      const dialog = await waitForDialog(page);
+      await captureElement(dialog, 'protocols-delete-confirmation');
+    });
   });
 
   test.describe('Mutations', () => {
@@ -113,6 +126,7 @@ test.describe('Protocols Page', () => {
     }) => {
       const cleanup = await database.isolate(page);
       try {
+        await page.goto('/dashboard/protocols');
         await waitForTable(page, { minRows: 1 });
         const initialCount = await getTableRowCount(page);
 
@@ -132,29 +146,10 @@ test.describe('Protocols Page', () => {
       }
     });
 
-    test('visual: delete confirmation dialog', async ({
-      page,
-      database,
-      captureElement,
-    }) => {
-      const cleanup = await database.isolate(page);
-      try {
-        await waitForTable(page, { minRows: 1 });
-
-        const row = getFirstRow(page);
-        await openRowActions(row);
-        await page.getByRole('menuitem', { name: /delete/i }).click();
-
-        const dialog = await waitForDialog(page);
-        await captureElement(dialog, 'protocols-delete-confirmation');
-      } finally {
-        await cleanup();
-      }
-    });
-
     test('bulk delete protocols', async ({ page, database }) => {
       const cleanup = await database.isolate(page);
       try {
+        await page.goto('/dashboard/protocols');
         await waitForTable(page, { minRows: 1 });
         await selectAllRows(page);
 
@@ -178,6 +173,7 @@ test.describe('Protocols Page', () => {
     }) => {
       const cleanup = await database.isolate(page);
       try {
+        await page.goto('/dashboard/protocols');
         await waitForTable(page, { minRows: 1 });
         await selectAllRows(page);
 

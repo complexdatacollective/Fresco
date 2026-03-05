@@ -299,10 +299,10 @@ export class DatabaseIsolation {
       log('test', `Released shared lock before acquiring exclusive lock`);
     }
 
-    // Navigate away BEFORE acquiring lock to stop app DB queries.
-    // This prevents deadlocks where TRUNCATE waits for active Next.js queries.
-    const currentUrl = page.url();
-    await page.goto('about:blank');
+    // Navigate to about:blank to stop app DB queries before acquiring lock.
+    // This prevents table lock conflicts where TRUNCATE waits for active
+    // Next.js queries. We use 'commit' waitUntil for fastest navigation.
+    await page.goto('about:blank', { waitUntil: 'commit' });
 
     const pool = new pg.Pool({
       connectionString: this.databaseUrl,
@@ -325,10 +325,6 @@ export class DatabaseIsolation {
         `Restoring snapshot "${name}" for suite "${this.suiteId}"...`,
       );
       await this.restoreWith(client, name);
-
-      // Navigate back after restore. 'load' is used instead of 'networkidle' because
-      // WebKit keeps persistent connections (e.g. analytics) that prevent networkidle.
-      await page.goto(currentUrl, { waitUntil: 'load' });
     } catch (error) {
       // If setup fails, release the connection so the advisory lock is freed
       // on disconnect and doesn't block other spec files.
@@ -341,42 +337,36 @@ export class DatabaseIsolation {
     }
 
     return async () => {
-      // Navigate away before cleanup restore to prevent deadlocks.
-      // Wrap in try/catch because the page may have crashed during the test.
+      this.isolationClient = null;
+
+      // Navigate to about:blank to stop background DB queries before
+      // releasing the lock. Uses 'commit' waitUntil for fastest navigation.
       try {
-        await page.goto('about:blank');
+        await page.goto('about:blank', { waitUntil: 'commit' });
       } catch {
-        // Page crashed during the test - still need to restore DB and release lock
+        // Page crashed during the test - still need to release lock
       }
 
+      // Release the exclusive advisory lock.
       try {
-        await this.restoreWith(client, name);
-      } finally {
-        this.isolationClient = null;
+        await client!.query(`SELECT pg_advisory_unlock(${LOCK_ID})`);
+        log('test', `Released exclusive lock after mutation test`);
+      } catch (unlockError) {
+        log(
+          'test',
+          `Failed to release exclusive lock (will auto-release on disconnect): ${unlockError}`,
+        );
+      }
 
-        // Release the exclusive advisory lock. Wrap in try/catch so a closed
-        // client (e.g. from a prior timeout) doesn't prevent pool cleanup and
-        // poison subsequent tests with an unreleased lock.
-        try {
-          await client.query(`SELECT pg_advisory_unlock(${LOCK_ID})`);
-          log('test', `Released exclusive lock after mutation test`);
-        } catch (unlockError) {
-          log(
-            'test',
-            `Failed to release exclusive lock (will auto-release on disconnect): ${unlockError}`,
-          );
-        }
+      client!.release();
+      await pool.end();
 
-        client.release();
-        await pool.end();
-
-        // Re-acquire shared lock so subsequent read-only tests are protected
-        if (hadReadLock && this.readLockClient) {
-          await this.readLockClient.query(
-            `SELECT pg_advisory_lock_shared(${LOCK_ID})`,
-          );
-          log('test', `Re-acquired shared lock after mutation test`);
-        }
+      // Re-acquire shared lock so subsequent read-only tests are protected
+      if (hadReadLock && this.readLockClient) {
+        await this.readLockClient.query(
+          `SELECT pg_advisory_lock_shared(${LOCK_ID})`,
+        );
+        log('test', `Re-acquired shared lock after mutation test`);
       }
     };
   }

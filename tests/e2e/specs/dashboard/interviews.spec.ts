@@ -16,11 +16,10 @@ test.describe('Interviews Page', () => {
     await database.restoreSnapshot();
   });
 
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/dashboard/interviews');
-  });
-
   test.describe('Read-only', () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto('/dashboard/interviews');
+    });
     // Release shared lock after read-only tests complete, before mutations start.
     // This reduces wait time for mutation tests that need exclusive locks.
     test.afterAll(async ({ database }) => {
@@ -93,6 +92,32 @@ test.describe('Interviews Page', () => {
       await waitForTable(page, { minRows: 5 });
       await capturePage('interviews-page');
     });
+
+    test('visual: delete confirmation dialog', async ({
+      page,
+      captureElement,
+    }) => {
+      await waitForTable(page, { minRows: 1 });
+
+      const row = getFirstRow(page);
+      await openRowActions(row);
+      await page.getByRole('menuitem', { name: /delete/i }).click();
+
+      const dialog = await waitForDialog(page);
+      await captureElement(dialog, 'interviews-delete-confirmation');
+    });
+
+    test('visual: export dialog', async ({ page, captureElement }) => {
+      await waitForTable(page, { minRows: 1 });
+
+      await page.getByTestId('export-interviews-button').click();
+      await page
+        .getByRole('menuitem', { name: /export all interviews/i })
+        .click();
+
+      const dialog = await waitForDialog(page);
+      await captureElement(dialog, 'interviews-export-dialog');
+    });
   });
 
   test.describe('Mutations', () => {
@@ -101,6 +126,7 @@ test.describe('Interviews Page', () => {
 
     test.beforeEach(async ({ page, database }) => {
       cleanup = await database.isolate(page);
+      await page.goto('/dashboard/interviews');
     });
 
     test.afterEach(async () => {
@@ -121,20 +147,6 @@ test.describe('Interviews Page', () => {
       expect(newCount).toBe(initialCount - 1);
     });
 
-    test('visual: delete confirmation dialog', async ({
-      page,
-      captureElement,
-    }) => {
-      await waitForTable(page, { minRows: 1 });
-
-      const row = getFirstRow(page);
-      await openRowActions(row);
-      await page.getByRole('menuitem', { name: /delete/i }).click();
-
-      const dialog = await waitForDialog(page);
-      await captureElement(dialog, 'interviews-delete-confirmation');
-    });
-
     test('bulk delete interviews', async ({ page }) => {
       await waitForTable(page, { minRows: 5 });
       await selectAllRows(page);
@@ -146,18 +158,6 @@ test.describe('Interviews Page', () => {
       await page.waitForTimeout(1000);
       const count = await getTableRowCount(page);
       expect(count).toBe(0);
-    });
-
-    test('visual: export dialog', async ({ page, captureElement }) => {
-      await waitForTable(page, { minRows: 1 });
-
-      await page.getByTestId('export-interviews-button').click();
-      await page
-        .getByRole('menuitem', { name: /export all interviews/i })
-        .click();
-
-      const dialog = await waitForDialog(page);
-      await captureElement(dialog, 'interviews-export-dialog');
     });
   });
 });

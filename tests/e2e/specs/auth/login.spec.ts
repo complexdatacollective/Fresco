@@ -9,7 +9,7 @@ import path from 'node:path';
 
 test.describe('Sign In Page', () => {
   test('visual: sign in page', async ({ page, capturePage }) => {
-    await page.goto('/signin');
+    await page.goto('/signin', { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: /sign in/i })).toBeVisible();
 
     await capturePage('signin-page');

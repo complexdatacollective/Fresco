@@ -17,11 +17,10 @@ test.describe('Participants Page', () => {
     await database.restoreSnapshot();
   });
 
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/dashboard/participants');
-  });
-
   test.describe('Read-only', () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto('/dashboard/participants');
+    });
     // Release shared lock after read-only tests complete, before mutations start.
     // This reduces wait time for mutation tests that need exclusive locks.
     test.afterAll(async ({ database }) => {
@@ -99,6 +98,13 @@ test.describe('Participants Page', () => {
       await waitForTable(page, { minRows: 10 });
       await capturePage('participants-page');
     });
+
+    test('visual: add participant dialog', async ({ page, captureElement }) => {
+      await page.getByRole('button', { name: /add/i }).click();
+      const dialog = await waitForDialog(page);
+
+      await captureElement(dialog, 'participants-add-dialog');
+    });
   });
 
   test.describe('Mutations', () => {
@@ -107,6 +113,7 @@ test.describe('Participants Page', () => {
 
     test.beforeEach(async ({ page, database }) => {
       cleanup = await database.isolate(page);
+      await page.goto('/dashboard/participants');
     });
 
     test.afterEach(async () => {
@@ -131,13 +138,6 @@ test.describe('Participants Page', () => {
       await waitForTable(page, { minRows: 1 });
       await searchTable(page, 'P011');
       await expect(page.getByRole('cell', { name: 'P011' })).toBeVisible();
-    });
-
-    test('visual: add participant dialog', async ({ page, captureElement }) => {
-      await page.getByRole('button', { name: /add/i }).click();
-      const dialog = await waitForDialog(page);
-
-      await captureElement(dialog, 'participants-add-dialog');
     });
 
     test('delete participant via row actions', async ({ page }) => {

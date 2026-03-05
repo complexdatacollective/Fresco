@@ -9,27 +9,26 @@ test.describe('Settings Page', () => {
     await database.restoreSnapshot();
   });
 
-  test.beforeEach(async ({ page }) => {
-    // Mock GitHub API to return consistent version info for visual snapshots
-    await page.route(
-      'https://api.github.com/repos/complexdatacollective/fresco/releases/latest',
-      (route) =>
-        route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            html_url:
-              'https://github.com/complexdatacollective/fresco/releases/tag/v3.0.0',
-            tag_name: 'v3.0.0',
-            body: 'Mocked release notes for testing.',
-          }),
-        }),
-    );
-
-    await page.goto('/dashboard/settings');
-  });
-
   test.describe('Read-only', () => {
+    test.beforeEach(async ({ page }) => {
+      // Mock GitHub API to return consistent version info for visual snapshots
+      await page.route(
+        'https://api.github.com/repos/complexdatacollective/fresco/releases/latest',
+        (route) =>
+          route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              html_url:
+                'https://github.com/complexdatacollective/fresco/releases/tag/v3.0.0',
+              tag_name: 'v3.0.0',
+              body: 'Mocked release notes for testing.',
+            }),
+          }),
+      );
+
+      await page.goto('/dashboard/settings');
+    });
     // Release shared lock after read-only tests complete, before mutations start.
     // This reduces wait time for mutation tests that need exclusive locks.
     test.afterAll(async ({ database }) => {
@@ -110,46 +109,66 @@ test.describe('Settings Page', () => {
         mask: [page.getByTestId('app-version-info')],
       });
     });
+
+    test('visual: add user dialog', async ({ page, captureElement }) => {
+      await page.getByRole('button', { name: /add user/i }).click();
+      const dialog = await waitForDialog(page);
+
+      await captureElement(dialog, 'settings-add-user-dialog');
+    });
+
+    test('visual: change password dialog', async ({
+      page,
+      captureElement,
+    }) => {
+      await page.getByRole('button', { name: /change password/i }).click();
+      const dialog = await waitForDialog(page);
+
+      await captureElement(dialog, 'settings-change-password-dialog');
+    });
+
+    test('validate username requirements', async ({ page }) => {
+      await page.getByRole('button', { name: /add user/i }).click();
+      await waitForDialog(page);
+
+      await fillField(page, 'username', 'ab');
+      await fillField(page, 'password', 'ValidPass123!');
+      await fillField(page, 'confirmPassword', 'ValidPass123!');
+
+      const dialog = page.getByRole('dialog');
+      const submitButton = dialog.getByRole('button', {
+        name: /create|add|submit/i,
+      });
+      await submitButton.click();
+
+      await expect(page.getByTestId('username-field-error')).toBeVisible();
+    });
+
+    test('validate password requirements', async ({ page }) => {
+      await page.getByRole('button', { name: /add user/i }).click();
+      await waitForDialog(page);
+
+      await fillField(page, 'username', 'validuser');
+      await fillField(page, 'password', 'weak');
+      await fillField(page, 'confirmPassword', 'weak');
+
+      const dialog = page.getByRole('dialog');
+      const submitButton = dialog.getByRole('button', {
+        name: /create|add|submit/i,
+      });
+      await submitButton.click();
+
+      await expect(page.getByTestId('password-field-error')).toBeVisible();
+    });
   });
 
   test.describe('Mutations', () => {
     test.describe.configure({ mode: 'serial' });
 
-    test('visual: add user dialog', async ({
-      page,
-      database,
-      captureElement,
-    }) => {
-      const cleanup = await database.isolate(page);
-      try {
-        await page.getByRole('button', { name: /add user/i }).click();
-        const dialog = await waitForDialog(page);
-
-        await captureElement(dialog, 'settings-add-user-dialog');
-      } finally {
-        await cleanup();
-      }
-    });
-
-    test('visual: change password dialog', async ({
-      page,
-      database,
-      captureElement,
-    }) => {
-      const cleanup = await database.isolate(page);
-      try {
-        await page.getByRole('button', { name: /change password/i }).click();
-        const dialog = await waitForDialog(page);
-
-        await captureElement(dialog, 'settings-change-password-dialog');
-      } finally {
-        await cleanup();
-      }
-    });
-
     test('create new user', async ({ page, database }) => {
       const cleanup = await database.isolate(page);
       try {
+        await page.goto('/dashboard/settings');
         // Clean up user from previous retries (User table excluded from snapshots)
         await database.deleteUser('newuser1');
         await page.reload();
@@ -177,53 +196,10 @@ test.describe('Settings Page', () => {
       }
     });
 
-    test('validate username requirements', async ({ page, database }) => {
-      const cleanup = await database.isolate(page);
-      try {
-        await page.getByRole('button', { name: /add user/i }).click();
-        await waitForDialog(page);
-
-        await fillField(page, 'username', 'ab');
-        await fillField(page, 'password', 'ValidPass123!');
-        await fillField(page, 'confirmPassword', 'ValidPass123!');
-
-        const dialog = page.getByRole('dialog');
-        const submitButton = dialog.getByRole('button', {
-          name: /create|add|submit/i,
-        });
-        await submitButton.click();
-
-        await expect(page.getByTestId('username-field-error')).toBeVisible();
-      } finally {
-        await cleanup();
-      }
-    });
-
-    test('validate password requirements', async ({ page, database }) => {
-      const cleanup = await database.isolate(page);
-      try {
-        await page.getByRole('button', { name: /add user/i }).click();
-        await waitForDialog(page);
-
-        await fillField(page, 'username', 'validuser');
-        await fillField(page, 'password', 'weak');
-        await fillField(page, 'confirmPassword', 'weak');
-
-        const dialog = page.getByRole('dialog');
-        const submitButton = dialog.getByRole('button', {
-          name: /create|add|submit/i,
-        });
-        await submitButton.click();
-
-        await expect(page.getByTestId('password-field-error')).toBeVisible();
-      } finally {
-        await cleanup();
-      }
-    });
-
     test('toggle anonymous recruitment', async ({ page, database }) => {
       const cleanup = await database.isolate(page);
       try {
+        await page.goto('/dashboard/settings');
         const toggle = page
           .getByTestId('anonymous-recruitment-field')
           .getByRole('switch');
@@ -255,6 +231,7 @@ test.describe('Settings Page', () => {
     }) => {
       const cleanup = await database.isolate(page);
       try {
+        await page.goto('/dashboard/settings');
         // Clean up user from previous retries (User table excluded from snapshots)
         await database.deleteUser('tempuser');
         await page.reload();
@@ -303,6 +280,7 @@ test.describe('Settings Page', () => {
     test('toggle preview mode', async ({ page, database }) => {
       const cleanup = await database.isolate(page);
       try {
+        await page.goto('/dashboard/settings');
         const toggle = page
           .getByTestId('enable-preview-mode-field')
           .getByRole('switch');
@@ -331,6 +309,7 @@ test.describe('Settings Page', () => {
     test('toggle preview mode authentication', async ({ page, database }) => {
       const cleanup = await database.isolate(page);
       try {
+        await page.goto('/dashboard/settings');
         // First enable preview mode
         const previewToggle = page
           .getByTestId('enable-preview-mode-field')
@@ -379,6 +358,7 @@ test.describe('Settings Page', () => {
     test('create api token', async ({ page, database }) => {
       const cleanup = await database.isolate(page);
       try {
+        await page.goto('/dashboard/settings');
         // First enable preview mode
         const previewToggle = page
           .getByTestId('enable-preview-mode-field')
@@ -437,6 +417,7 @@ test.describe('Settings Page', () => {
     }) => {
       const cleanup = await database.isolate(page);
       try {
+        await page.goto('/dashboard/settings');
         // Enable preview mode first
         const previewToggle = page
           .getByTestId('enable-preview-mode-field')
@@ -469,6 +450,7 @@ test.describe('Settings Page', () => {
     }) => {
       const cleanup = await database.isolate(page);
       try {
+        await page.goto('/dashboard/settings');
         // Enable preview mode first
         const previewToggle = page
           .getByTestId('enable-preview-mode-field')
@@ -516,6 +498,7 @@ test.describe('Settings Page', () => {
     }) => {
       const cleanup = await database.isolate(page);
       try {
+        await page.goto('/dashboard/settings');
         // Enable preview mode first
         const previewToggle = page
           .getByTestId('enable-preview-mode-field')
@@ -557,6 +540,7 @@ test.describe('Settings Page', () => {
     test('delete api token', async ({ page, database }) => {
       const cleanup = await database.isolate(page);
       try {
+        await page.goto('/dashboard/settings');
         // First enable preview mode
         const previewToggle = page
           .getByTestId('enable-preview-mode-field')
