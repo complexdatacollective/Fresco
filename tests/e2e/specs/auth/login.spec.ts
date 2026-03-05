@@ -10,9 +10,7 @@ import path from 'node:path';
 test.describe('Sign In Page', () => {
   test('visual: sign in page', async ({ page, capturePage }) => {
     await page.goto('/signin');
-    await expect(
-      page.getByRole('heading', { name: /sign in/i }),
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: /sign in/i })).toBeVisible();
 
     await capturePage('signin-page');
   });
@@ -30,9 +28,7 @@ test.describe('Sign In Page', () => {
 
     await page.goto('/signin');
 
-    await expect(
-      page.getByRole('heading', { name: /sign in/i }),
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: /sign in/i })).toBeVisible();
 
     await fillField(page, 'username', 'testadmin');
     await fillField(page, 'password', 'TestAdmin123!');

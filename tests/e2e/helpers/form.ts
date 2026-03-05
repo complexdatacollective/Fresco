@@ -13,5 +13,3 @@ export async function fillField(
   const input = field.locator('input, textarea').first();
   await input.fill(value);
 }
-
-

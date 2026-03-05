@@ -6,19 +6,17 @@ import {
   saveAuthState,
 } from '../../config/test-config.js';
 
-test('authenticate as admin for dashboard', async (
-  { page, context },
-  testInfo,
-) => {
+test('authenticate as admin for dashboard', async ({
+  page,
+  context,
+}, testInfo) => {
   const statePath = authStatePathForProject(testInfo.project.name);
   await fs.mkdir(path.dirname(statePath), { recursive: true });
 
   await page.goto('/signin');
 
   await page.getByRole('textbox', { name: 'Username' }).fill('admin');
-  await page
-    .getByRole('textbox', { name: 'Password' })
-    .fill('Administrator1!');
+  await page.getByRole('textbox', { name: 'Password' }).fill('Administrator1!');
 
   await page.getByRole('button', { name: 'Sign In' }).click();
 
