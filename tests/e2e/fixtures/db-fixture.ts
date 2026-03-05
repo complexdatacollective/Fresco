@@ -1,4 +1,4 @@
-import { type Page, type TestInfo } from '@playwright/test';
+import { test, type Page, type TestInfo } from '@playwright/test';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import pg from 'pg';
@@ -222,6 +222,11 @@ export class DatabaseIsolation {
    * Call this in beforeAll of each spec file.
    */
   async restoreSnapshot(name = 'initial'): Promise<void> {
+    // Disable the hook/test timeout while waiting for the advisory lock.
+    // Lock wait is unbounded — it depends on other workers finishing their
+    // mutations. This mirrors the pattern in isolate().
+    test.setTimeout(0);
+
     // Clean up any existing read lock (shouldn't happen, but be safe)
     await this.releaseReadLock();
 
