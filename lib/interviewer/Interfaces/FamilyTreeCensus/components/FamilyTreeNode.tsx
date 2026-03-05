@@ -1,7 +1,6 @@
 import { type NcNode, type VariableValue } from '@codaco/shared-consts';
 import { useSelector } from 'react-redux';
 import Node from '~/components/Node';
-import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { useDragSource } from '~/lib/dnd';
 import { useNodeLabel } from '~/lib/interviewer/Interfaces/Anonymisation/useNodeLabel';
@@ -100,107 +99,51 @@ type FamilyTreeNodeProps = {
 };
 
 /**
- * Renders the node label for nodes linked to the network.
- * Uses the standard useNodeLabel hook for label derivation.
+ * Component for rendering a filled (assigned) family tree node.
+ * Extracts the network node's label and displays it inside the node,
+ * with the relationship type shown below.
  */
-function NetworkNodeLabel({ node }: { node: NcNode }) {
-  const label = useNodeLabel(node);
-  return (
-    <Heading level="label" margin="none">
-      {label}
-    </Heading>
-  );
-}
-
-export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
-  const {
-    networkNode,
-    placeholderId,
-    label,
-    allowDrag,
-    x,
-    y,
-    shape,
-    isEgo,
-    selected,
-    handleClick,
-  } = props;
-
-  const nodeTypeColor = useSelector(getNodeColorSelector);
-
-  const { handlePointerDown, handlePointerUp, shouldHandleClick } =
-    useClickUnlessDragged();
-
-  const nodeColor = () => {
-    if (networkNode) {
-      // Codebook stores 'node-color-seq-N', CSS variable is '--color-node-N'
-      // Note: --dark is calculated by CSS via oklch (see Node component base styles)
-      const n = /\d+$/.exec(nodeTypeColor)?.[0] ?? '1';
-      return {
-        '--base': `var(--color-node-${n})`,
-      };
-    }
-
-    return {
-      '--base': `var(--color-platinum)`,
-      '--dark': `var(--color-platinum-dark)`,
-    };
-  };
-
-  const { dragProps } = useDragSource({
-    type: 'FAMILY_TREE_NODE',
-    metadata: { itemType: 'FAMILY_TREE_NODE', placeholderId: placeholderId },
-    announcedName: label,
-    disabled: !allowDrag,
-  });
+function FilledFamilyTreeNode({
+  networkNode,
+  relationshipLabel,
+  nodeColor,
+  shape,
+  selected,
+  isEgo,
+}: {
+  networkNode: NcNode;
+  relationshipLabel: string;
+  nodeColor: Record<string, string>;
+  shape: 'circle' | 'square';
+  selected?: boolean;
+  isEgo?: boolean;
+}) {
+  const networkLabel = useNodeLabel(networkNode);
 
   return (
-    <div
-      className="family-tree-node absolute"
-      style={{
-        top: y,
-        left: x,
-        width: FAMILY_TREE_CONFIG.nodeContainerWidth,
-        height: FAMILY_TREE_CONFIG.nodeContainerHeight,
-      }}
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      onClick={() => {
-        if (shouldHandleClick()) handleClick?.();
-      }}
-    >
-      <div
-        className="relative flex flex-col items-center gap-2 text-center"
-        {...dragProps}
-      >
-        <div className="relative shrink-0">
-          <Node
-            className="shrink-0"
-            style={
-              {
-                width: FAMILY_TREE_CONFIG.nodeWidth,
-                height: FAMILY_TREE_CONFIG.nodeHeight,
-                ...nodeColor(),
-              } as React.CSSProperties
-            }
-            color="custom"
-            label=""
-            ariaLabel={isEgo ? 'You' : label || 'Node'}
-            shape={shape}
-            selected={selected}
-          />
-          {isEgo && (
-            <EgoIcon
-              className="pointer-events-none absolute top-1/2 left-1/2 size-8 -translate-1/2"
-              variant={networkNode ? 'platinum' : 'slate'}
-            />
-          )}
-        </div>
+    <>
+      <div className="relative shrink-0">
+        <Node
+          className="shrink-0"
+          style={
+            {
+              width: FAMILY_TREE_CONFIG.nodeWidth,
+              height: FAMILY_TREE_CONFIG.nodeHeight,
+              ...nodeColor,
+            } as React.CSSProperties
+          }
+          color="custom"
+          label={networkLabel}
+          ariaLabel={networkLabel || 'Node'}
+          shape={shape}
+          selected={selected}
+        />
+        {/* Arrow pointing to ego node */}
         {isEgo && (
           <svg
             viewBox="0 0 300 300"
             xmlns="http://www.w3.org/2000/svg"
-            className="absolute right-6 bottom-8 block size-30"
+            className="absolute -right-6 -bottom-6 block size-30"
           >
             <defs>
               <marker
@@ -226,26 +169,204 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
             ></line>
           </svg>
         )}
-        {/*
-          Position anchor would be ideal for this but no FF support:
-          https://developer.mozilla.org/en-US/docs/Web/CSS/position-anchor
-        */}
-        <div className="family-tree-node-label-container bg-cyber-grape/80 m-1 flex flex-col rounded-md px-2 py-1 text-white">
-          {isEgo ? (
-            <Heading level="label" margin="none">
+      </div>
+      {/* External label shows relationship type for context */}
+      <div className="family-tree-node-label-container bg-cyber-grape/80 m-1 flex flex-col rounded-md px-2 py-1 text-white">
+        <Paragraph
+          intent="smallText"
+          margin="none"
+          className="family-tree-node-label"
+        >
+          {relationshipLabel}
+        </Paragraph>
+      </div>
+    </>
+  );
+}
+
+export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
+  const {
+    networkNode,
+    placeholderId,
+    label,
+    allowDrag,
+    x,
+    y,
+    shape,
+    isEgo,
+    selected,
+    handleClick,
+  } = props;
+
+  const nodeTypeColor = useSelector(getNodeColorSelector);
+
+  const { handlePointerDown, handlePointerUp, shouldHandleClick } =
+    useClickUnlessDragged();
+
+  const getNodeColor = (): Record<string, string> => {
+    if (networkNode) {
+      // Codebook stores 'node-color-seq-N', CSS variable is '--color-node-N'
+      // Note: --dark is calculated by CSS via oklch (see Node component base styles)
+      const n = /\d+$/.exec(nodeTypeColor)?.[0] ?? '1';
+      return {
+        '--base': `var(--color-node-${n})`,
+      };
+    }
+
+    return {
+      '--base': `var(--color-platinum)`,
+      '--dark': `var(--color-platinum-dark)`,
+    };
+  };
+
+  const { dragProps } = useDragSource({
+    type: 'FAMILY_TREE_NODE',
+    metadata: { itemType: 'FAMILY_TREE_NODE', placeholderId: placeholderId },
+    announcedName: label,
+    disabled: !allowDrag,
+  });
+
+  // Determine what to render inside the node:
+  // - Filled nodes: name inside, relationship/You below
+  // - Unfilled non-ego: blank inside, relationship below
+  // - Unfilled ego: icon inside, "You" below
+  const renderNodeContent = () => {
+    // Case 1: Filled node (has networkNode) - show name inside, label below
+    if (networkNode) {
+      return (
+        <FilledFamilyTreeNode
+          networkNode={networkNode}
+          relationshipLabel={isEgo ? 'You' : label}
+          nodeColor={getNodeColor()}
+          shape={shape}
+          selected={selected}
+          isEgo={isEgo}
+        />
+      );
+    }
+
+    // Case 2: Unfilled ego node - show icon inside, "You" label below
+    if (isEgo) {
+      return (
+        <>
+          <div className="relative shrink-0">
+            <Node
+              className="shrink-0"
+              style={
+                {
+                  width: FAMILY_TREE_CONFIG.nodeWidth,
+                  height: FAMILY_TREE_CONFIG.nodeHeight,
+                  ...getNodeColor(),
+                } as React.CSSProperties
+              }
+              color="custom"
+              label=""
+              ariaLabel="You"
+              shape={shape}
+              selected={selected}
+            />
+            <EgoIcon
+              className="pointer-events-none absolute top-1/2 left-1/2 size-8 -translate-1/2"
+              variant={networkNode ? 'platinum' : 'slate'}
+            />
+            {/* Arrow pointing to ego node - positioned relative to node */}
+            <svg
+              viewBox="0 0 300 300"
+              xmlns="http://www.w3.org/2000/svg"
+              className="absolute -right-6 -bottom-6 block size-30"
+            >
+              <defs>
+                <marker
+                  id="arrow"
+                  viewBox="0 0 10 10"
+                  refX="5"
+                  refY="5"
+                  markerWidth="3"
+                  markerHeight="6"
+                  fill="yellow"
+                >
+                  <path d="M 0 0 L 8.5 2 L 2 8.5 z"></path>
+                </marker>
+              </defs>
+              <line
+                x1="295"
+                y1="295"
+                x2="270"
+                y2="270"
+                stroke="yellow"
+                markerEnd="url(#arrow)"
+                strokeWidth="20"
+              ></line>
+            </svg>
+          </div>
+          {/* "You" label below the node */}
+          <div className="family-tree-node-label-container bg-cyber-grape/80 m-1 flex flex-col rounded-md px-2 py-1 text-white">
+            <Paragraph
+              intent="smallText"
+              margin="none"
+              className="family-tree-node-label"
+            >
               You
-            </Heading>
-          ) : networkNode ? (
-            <NetworkNodeLabel node={networkNode} />
-          ) : (
-            <Heading level="label" margin="none">
-              {label}
-            </Heading>
-          )}
-          <Paragraph intent="smallText" margin="none" className="family-tree-node-label">
+            </Paragraph>
+          </div>
+        </>
+      );
+    }
+
+    // Case 3: Unfilled non-ego node - blank node with relationship label below
+    return (
+      <>
+        <div className="relative shrink-0">
+          <Node
+            className="shrink-0"
+            style={
+              {
+                width: FAMILY_TREE_CONFIG.nodeWidth,
+                height: FAMILY_TREE_CONFIG.nodeHeight,
+                ...getNodeColor(),
+              } as React.CSSProperties
+            }
+            color="custom"
+            label=""
+            ariaLabel={label || 'Node'}
+            shape={shape}
+            selected={selected}
+          />
+        </div>
+        {/* External label shows relationship type */}
+        <div className="family-tree-node-label-container bg-cyber-grape/80 m-1 flex flex-col rounded-md px-2 py-1 text-white">
+          <Paragraph
+            intent="smallText"
+            margin="none"
+            className="family-tree-node-label"
+          >
             {label}
           </Paragraph>
         </div>
+      </>
+    );
+  };
+
+  return (
+    <div
+      className="family-tree-node absolute"
+      style={{
+        top: y,
+        left: x,
+        width: FAMILY_TREE_CONFIG.nodeContainerWidth,
+        height: FAMILY_TREE_CONFIG.nodeContainerHeight,
+      }}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onClick={() => {
+        if (shouldHandleClick()) handleClick?.();
+      }}
+    >
+      <div
+        className="relative flex flex-col items-center gap-2 text-center"
+        {...dragProps}
+      >
+        {renderNodeContent()}
       </div>
     </div>
   );

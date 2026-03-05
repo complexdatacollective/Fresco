@@ -100,5 +100,9 @@ export default meta;
 type Story = StoryObj<StoryArgs>;
 
 export const Default: Story = {
+  args: {
+    promptCount: 3,
+  },
+
   render: (args) => <DyadCensusStoryWrapper {...args} />,
 };

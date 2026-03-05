@@ -65,7 +65,14 @@ const nodeVariants = cva({
       false: '',
     },
   },
-  compoundVariants: [],
+  compoundVariants: [
+    // Scale border-radius proportionally (~25% of node size)
+    { shape: 'square', size: 'xxs', class: 'rounded-[8px]' },
+    { shape: 'square', size: 'xs', class: 'rounded-[16px]' },
+    { shape: 'square', size: 'sm', class: 'rounded-[24px]' },
+    // md uses default 'rounded' (~28px)
+    { shape: 'square', size: 'lg', class: 'rounded-[34px]' },
+  ],
   defaultVariants: {
     size: 'md',
     shape: 'circle',

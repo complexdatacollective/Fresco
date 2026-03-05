@@ -15,11 +15,11 @@ import { type FieldValue } from '~/lib/form/components/Field/types';
 import Form from '~/lib/form/components/Form';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import { type FormSubmitHandler } from '~/lib/form/store/types';
+import { cx } from '~/utils/cva';
 import Node from '../../components/Node';
 import { type Subject } from '../../selectors/forms';
 import { getNetworkNodes, makeGetEdgeColor } from '../../selectors/session';
 import { edgeColorMap } from '../../utils/edgeColorMap';
-import { cx } from '~/utils/cva';
 
 type SlideFormEdgeProps = {
   form: TForm;
@@ -91,19 +91,19 @@ export default function SlideFormEdge(props: SlideFormEdgeProps) {
           {fromNode && (
             <Node
               {...fromNode}
-              className="rounded-full bg-[var(--nc-panel-bg-muted)]"
+              className="rounded-full bg-(--nc-panel-bg-muted)"
             />
           )}
           <div
             className={cx(
               edgeColorMap[edgeColor],
-              'mx-[-1.5rem] h-2 w-32 bg-[var(--edge-color)]',
+              'mx-[-1.5rem] h-2 w-32 bg-(--edge-color)',
             )}
           />
           {toNode && (
             <Node
               {...toNode}
-              className="rounded-full bg-[var(--nc-panel-bg-muted)]"
+              className="rounded-full bg-(--nc-panel-bg-muted)"
             />
           )}
         </div>
