@@ -2,17 +2,34 @@
 
 ## Architecture
 
-Two isolated test environments run in parallel:
+Tests run across **3 browsers** (Chromium, Firefox, WebKit) x **2 environments** (setup, dashboard) = **6 isolated instances**, each with its own PostgreSQL container and Next.js server.
+
+### Configuration
+
+The `config/test-config.ts` file is the single source of truth:
+
+- **`BROWSERS`** array: `[chromium, firefox, webkit]` with device configs
+- **`ENVIRONMENTS`** array: `[setup, dashboard]` with seed functions and auth flags
+- Pure functions derive everything: `getProjects()`, `getEnvironmentInstances()`, `getContextMappings()`
+
+To add/remove a browser, edit the `BROWSERS` array. To add an environment, edit `ENVIRONMENTS`.
+
+### Environments
 
 - **setup**: Unconfigured app (fresh install) for onboarding wizard tests
 - **dashboard**: Fully configured app with seeded data for dashboard tests
 
-Each environment gets its own PostgreSQL testcontainer and Next.js standalone server process.
+### Browser Isolation
+
+Each browser gets its own DB + server per environment:
+
+- `setup-chromium`, `setup-firefox`, `setup-webkit`
+- `dashboard-chromium`, `dashboard-firefox`, `dashboard-webkit`
 
 ```
 Global Setup
 ├── Build standalone Next.js (DISABLE_NEXT_CACHE=true)
-├── For each environment:
+├── For each browser x environment (6 instances, in parallel):
 │   ├── Start PostgreSQL testcontainer
 │   ├── Run Prisma migrations
 │   ├── Seed test data
@@ -38,8 +55,10 @@ Global Teardown
 
 ```
 tests/e2e/
-├── playwright.config.ts         # 3 projects: setup, auth, dashboard
-├── global-setup.ts              # Infrastructure startup
+├── config/
+│   └── test-config.ts           # BROWSERS, ENVIRONMENTS, derived functions
+├── playwright.config.ts         # Generated projects from test-config
+├── global-setup.ts              # Infrastructure startup (6 instances)
 ├── global-teardown.ts           # Cleanup
 ├── helpers/
 │   ├── TestDatabase.ts          # PostgreSQL container + snapshots
@@ -68,13 +87,30 @@ tests/e2e/
 
 ## Playwright Projects
 
-| Project   | Tests            | Auth                   | Parallel |
-| --------- | ---------------- | ---------------------- | -------- |
-| setup     | specs/setup/     | None                   | Serial   |
-| auth      | specs/auth/      | None (saves state)     | N/A      |
-| dashboard | specs/dashboard/ | storageState from auth | Yes      |
+Projects are generated dynamically from `BROWSERS x ENVIRONMENTS`. For each browser:
 
-Dashboard depends on auth project completing first.
+| Project Pattern            | Tests            | Auth                           | Parallel |
+| -------------------------- | ---------------- | ------------------------------ | -------- |
+| `setup-{browser}`          | specs/setup/     | None                           | Serial   |
+| `auth-dashboard-{browser}` | specs/auth/      | None (saves per-browser state) | N/A      |
+| `dashboard-{browser}`      | specs/dashboard/ | storageState from auth         | Yes      |
+
+Dashboard depends on its browser-specific auth project completing first. Auth state is saved to per-browser paths (e.g., `.auth/dashboard-chromium.json`).
+
+### Running a single browser
+
+```bash
+# In Docker
+./scripts/run-e2e-docker.sh --project="*-chromium"
+./scripts/run-e2e-docker.sh --project="*-firefox"
+
+# Filter in CI
+pnpm test:e2e -- --project="*-webkit"
+```
+
+### CI matrix strategy
+
+CI runs each browser on a separate runner via GitHub Actions matrix strategy (`fail-fast: false`), so all browsers run even if one fails.
 
 ## Test Patterns
 
@@ -236,7 +272,7 @@ When adding testIds, follow these patterns used in the codebase:
 
 ### Visual snapshots
 
-Visual tests require Docker for consistent font rendering (`pnpm test:e2e` sets `CI=true`). They are automatically skipped when `CI` is not set. All visual snapshots are stored in `tests/e2e/visual-snapshots/`.
+Visual tests require Docker for consistent font rendering (`pnpm test:e2e` sets `CI=true`). They are automatically skipped when `CI` is not set. Snapshots are stored in per-project subdirectories under `tests/e2e/visual-snapshots/{projectName}/` (e.g., `visual-snapshots/dashboard-chromium/`).
 
 #### `capturePage(name, options?)` - Full page at multiple viewports
 

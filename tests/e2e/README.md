@@ -11,21 +11,31 @@ End-to-end tests for Fresco using Playwright, Testcontainers, and standalone Nex
 ## Commands
 
 ```bash
-# Run in Docker (consistent snapshots, matches CI)
+# Run all browsers in Docker (consistent snapshots, matches CI)
 pnpm test:e2e
+
+# Run a single browser
+./scripts/run-e2e-docker.sh --project="*-chromium"
+./scripts/run-e2e-docker.sh --project="*-firefox"
+./scripts/run-e2e-docker.sh --project="*-webkit"
 
 # Update visual snapshots (must run in Docker)
 pnpm test:e2e:update-snapshots
+
+# Update snapshots for a single browser
+./scripts/run-e2e-docker.sh --project="*-chromium" --update-snapshots
 ```
 
 ## Architecture
 
-Each test run spins up:
+Each test run spins up **3 browsers x 2 environments = 6 isolated instances**:
 
-- 2 PostgreSQL containers via testcontainers (setup + dashboard environments)
-- 2 standalone Next.js server processes (one per environment)
+- 6 PostgreSQL containers via testcontainers
+- 6 standalone Next.js server processes
 
-Tests run against these real servers with real databases. Mutation tests use database snapshot/restore for isolation.
+Each browser (Chromium, Firefox, WebKit) gets its own DB + server per environment, providing full browser isolation. Tests run against real servers with real databases. Mutation tests use database snapshot/restore for isolation.
+
+The `config/test-config.ts` file defines `BROWSERS` and `ENVIRONMENTS` arrays as the single source of truth. All Playwright projects, environment instances, and context mappings are derived from these arrays.
 
 ## Test Environments
 
@@ -42,11 +52,11 @@ Visual regression snapshots must be generated in Docker to ensure consistent fon
 pnpm test:e2e:update-snapshots
 ```
 
-Snapshots are stored alongside spec files and committed to the repository.
+Snapshots are stored in per-browser subdirectories under `visual-snapshots/` (e.g., `visual-snapshots/dashboard-chromium/`) and committed to the repository.
 
 ## CI Integration
 
-Tests run automatically via GitHub Actions. The Docker script (`scripts/run-e2e-docker.sh`) ensures reproducible results across environments.
+Tests run automatically via GitHub Actions with a **browser matrix strategy** — each browser (Chromium, Firefox, WebKit) runs on a separate runner in parallel. The Docker script (`scripts/run-e2e-docker.sh`) ensures reproducible results across environments.
 
 ## Debugging
 
