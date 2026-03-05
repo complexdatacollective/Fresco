@@ -231,22 +231,33 @@ export class DatabaseIsolation {
     });
     this.readLockClient = await this.readLockPool.connect();
 
-    // Acquire exclusive lock for the restore to prevent concurrent TRUNCATEs
-    // from deadlocking each other
-    await this.readLockClient.query(`SELECT pg_advisory_lock(${LOCK_ID})`);
-    log(
-      'test',
-      `Acquired exclusive lock for restoring snapshot "${name}" for suite "${this.suiteId}"...`,
-    );
-    await this.restoreWith(this.readLockClient, name);
+    try {
+      // Acquire exclusive lock for the restore to prevent concurrent TRUNCATEs
+      // from deadlocking each other
+      await this.readLockClient.query(`SELECT pg_advisory_lock(${LOCK_ID})`);
+      log(
+        'test',
+        `Acquired exclusive lock for restoring snapshot "${name}" for suite "${this.suiteId}"...`,
+      );
+      await this.restoreWith(this.readLockClient, name);
 
-    // Downgrade to shared lock: release exclusive, then acquire shared
-    await this.readLockClient.query(`SELECT pg_advisory_unlock(${LOCK_ID})`);
-    await this.readLockClient.query(
-      `SELECT pg_advisory_lock_shared(${LOCK_ID})`,
-    );
-    log('test', `Downgraded to shared lock for suite "${this.suiteId}"`);
-    // Keep the shared lock held - it protects read-only tests from concurrent mutations
+      // Downgrade to shared lock: release exclusive, then acquire shared
+      await this.readLockClient.query(`SELECT pg_advisory_unlock(${LOCK_ID})`);
+      await this.readLockClient.query(
+        `SELECT pg_advisory_lock_shared(${LOCK_ID})`,
+      );
+      log('test', `Downgraded to shared lock for suite "${this.suiteId}"`);
+      // Keep the shared lock held - it protects read-only tests from concurrent mutations
+    } catch (error) {
+      // If anything fails (timeout, connection error), release the connection
+      // immediately so the advisory lock is freed on disconnect and doesn't
+      // poison other spec files sharing this database.
+      this.readLockClient.release();
+      this.readLockClient = null;
+      await this.readLockPool.end();
+      this.readLockPool = null;
+      throw error;
+    }
   }
 
   /**
@@ -297,21 +308,37 @@ export class DatabaseIsolation {
       connectionString: this.databaseUrl,
       max: 1,
     });
-    const client = await pool.connect();
+    let client: pg.PoolClient | null = null;
 
-    // Acquire exclusive lock - waits for all shared locks to release
-    await client.query(`SELECT pg_advisory_lock(${LOCK_ID})`);
-    log('test', `Acquired exclusive lock for mutation test`);
+    try {
+      client = await pool.connect();
 
-    // Store client so helper methods reuse this connection (protected by advisory lock)
-    this.isolationClient = client;
+      // Acquire exclusive lock - waits for all shared locks to release
+      await client.query(`SELECT pg_advisory_lock(${LOCK_ID})`);
+      log('test', `Acquired exclusive lock for mutation test`);
 
-    log('test', `Restoring snapshot "${name}" for suite "${this.suiteId}"...`);
-    await this.restoreWith(client, name);
+      // Store client so helper methods reuse this connection (protected by advisory lock)
+      this.isolationClient = client;
 
-    // Navigate back after restore. 'load' is used instead of 'networkidle' because
-    // WebKit keeps persistent connections (e.g. analytics) that prevent networkidle.
-    await page.goto(currentUrl, { waitUntil: 'load' });
+      log(
+        'test',
+        `Restoring snapshot "${name}" for suite "${this.suiteId}"...`,
+      );
+      await this.restoreWith(client, name);
+
+      // Navigate back after restore. 'load' is used instead of 'networkidle' because
+      // WebKit keeps persistent connections (e.g. analytics) that prevent networkidle.
+      await page.goto(currentUrl, { waitUntil: 'load' });
+    } catch (error) {
+      // If setup fails, release the connection so the advisory lock is freed
+      // on disconnect and doesn't block other spec files.
+      this.isolationClient = null;
+      if (client) {
+        client.release();
+      }
+      await pool.end();
+      throw error;
+    }
 
     return async () => {
       // Navigate away before cleanup restore to prevent deadlocks.
@@ -326,8 +353,20 @@ export class DatabaseIsolation {
         await this.restoreWith(client, name);
       } finally {
         this.isolationClient = null;
-        await client.query(`SELECT pg_advisory_unlock(${LOCK_ID})`);
-        log('test', `Released exclusive lock after mutation test`);
+
+        // Release the exclusive advisory lock. Wrap in try/catch so a closed
+        // client (e.g. from a prior timeout) doesn't prevent pool cleanup and
+        // poison subsequent tests with an unreleased lock.
+        try {
+          await client.query(`SELECT pg_advisory_unlock(${LOCK_ID})`);
+          log('test', `Released exclusive lock after mutation test`);
+        } catch (unlockError) {
+          log(
+            'test',
+            `Failed to release exclusive lock (will auto-release on disconnect): ${unlockError}`,
+          );
+        }
+
         client.release();
         await pool.end();
 

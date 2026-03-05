@@ -231,7 +231,10 @@ export default function UserManagement({
 
     if (result.error) {
       setError(result.error);
+      return;
     }
+
+    window.location.reload();
   }, []);
 
   const handleDeleteUser = useCallback(
@@ -338,6 +341,7 @@ export default function UserManagement({
     }
 
     setIsCreating(false);
+    window.location.reload();
     return { success: true };
   };
 

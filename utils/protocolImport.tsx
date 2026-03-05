@@ -117,18 +117,17 @@ export const getProtocolAssets = async (
 // Helper method for reading a file as an ArrayBuffer. Useful for preparing a
 // File to be read by JSZip.
 export function fileAsArrayBuffer(file: Blob | File): Promise<ArrayBuffer> {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.addEventListener('error', (err) => {
+    reader.addEventListener('error', () => {
       reader.abort();
-      // eslint-disable-next-line no-console
-      console.log('readFileHelper Error: ', err);
-      throw new Error('The file could not be read.');
+      reject(new Error('The file could not be read.'));
     });
 
     reader.addEventListener('load', () => {
       if (!reader.result || typeof reader.result === 'string') {
-        throw new Error('The file could not be read.');
+        reject(new Error('The file could not be read.'));
+        return;
       }
 
       resolve(reader.result);

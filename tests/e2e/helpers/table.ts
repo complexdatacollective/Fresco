@@ -19,13 +19,18 @@ export async function waitForTable(
 
 export async function searchTable(page: Page, text: string): Promise<void> {
   const searchInput = page.getByPlaceholder(/search|filter/i);
-  await searchInput.fill(text);
+  await searchInput.clear();
+  // pressSequentially fires keydown/input/keyup per character, which reliably
+  // triggers React onChange in all browsers (WebKit drops events from fill()).
+  await searchInput.pressSequentially(text, { delay: 50 });
   await page.waitForTimeout(500);
 }
 
 export async function clearSearch(page: Page): Promise<void> {
   const searchInput = page.getByPlaceholder(/search|filter/i);
   await searchInput.clear();
+  // Dispatch an input event so React picks up the cleared value in WebKit.
+  await searchInput.dispatchEvent('input');
   await page.waitForTimeout(500);
 }
 

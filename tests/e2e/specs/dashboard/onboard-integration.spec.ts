@@ -61,13 +61,16 @@ test.describe('Onboard Integration', () => {
       const cleanup = await database.isolate(page);
       try {
         const protocolId = await database.getProtocolId();
+        // maxRedirects: 0 prevents WebKit from hanging when re-streaming
+        // the POST body for the redirect follow-up.
         const response = await page.request.post(`/onboard/${protocolId}`, {
           data: { participantIdentifier: 'POST-001' },
+          headers: { 'Content-Type': 'application/json' },
+          maxRedirects: 0,
         });
 
-        expect(response.status()).toBe(200);
-        const url = response.url();
-        expect(url).toContain('/interview/');
+        const location = response.headers()['location'] ?? '';
+        expect(location).toContain('/interview/');
       } finally {
         await cleanup();
       }
