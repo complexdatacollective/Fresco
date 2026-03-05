@@ -165,6 +165,7 @@
     "babel-plugin-react-compiler": "^1.0.0",
     "chalk": "^5.6.2",
     "chromatic": "^15.2.0",
+    "concurrently": "^9.2.1",
     "esbuild": "^0.27.3",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",

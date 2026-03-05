@@ -6,8 +6,18 @@ import {
 } from './helpers/AppServer.js';
 import { type SuiteContext, saveContext } from './helpers/context.js';
 import { log, logError } from './helpers/logger.js';
+import {
+  seedDashboardEnvironment,
+  seedSetupEnvironment,
+} from './helpers/seed.js';
 import { TestDatabase } from './helpers/TestDatabase.js';
 import { envUrlVar, getEnvironmentInstances } from './config/test-config.js';
+
+const SEED_FUNCTIONS: Record<string, (connectionUri: string) => Promise<void>> =
+  {
+    setup: seedSetupEnvironment,
+    dashboard: seedDashboardEnvironment,
+  };
 
 declare global {
   var __TEST_DBS__: TestDatabase[];
@@ -59,9 +69,13 @@ export default async function globalSetup() {
       port: allocatePort(),
     }));
     const environments = await Promise.all(
-      instancesWithPorts.map((inst) =>
-        startEnvironment(inst.suiteId, inst.port, inst.seed),
-      ),
+      instancesWithPorts.map((inst) => {
+        const seedFn = SEED_FUNCTIONS[inst.envId];
+        if (!seedFn) {
+          throw new Error(`No seed function for environment "${inst.envId}"`);
+        }
+        return startEnvironment(inst.suiteId, inst.port, seedFn);
+      }),
     );
 
     const suites: Record<string, SuiteContext> = {};

@@ -1,9 +1,5 @@
 /* eslint-disable no-process-env */
 import { type BrowserContext, type Page, devices } from '@playwright/test';
-import {
-  seedDashboardEnvironment,
-  seedSetupEnvironment,
-} from '../helpers/seed.js';
 
 type BrowserConfig = {
   name: string;
@@ -13,7 +9,6 @@ type BrowserConfig = {
 type EnvironmentConfig = {
   id: string;
   testMatch: string;
-  seed: (connectionUri: string) => Promise<void>;
   auth: boolean;
 };
 
@@ -23,7 +18,7 @@ const ALL_BROWSERS: BrowserConfig[] = [
   { name: 'webkit', device: devices['Desktop Safari'] },
 ];
 
-export function getActiveBrowsers(): BrowserConfig[] {
+function getActiveBrowsers(): BrowserConfig[] {
   const filter = process.env.E2E_BROWSERS;
   if (!filter) return ALL_BROWSERS;
   const names = filter.split(',').map((s) => s.trim());
@@ -31,22 +26,20 @@ export function getActiveBrowsers(): BrowserConfig[] {
   return filtered.length > 0 ? filtered : ALL_BROWSERS;
 }
 
-export const ENVIRONMENTS: EnvironmentConfig[] = [
+const ENVIRONMENTS: EnvironmentConfig[] = [
   {
     id: 'setup',
     testMatch: '**/setup/*.spec.ts',
-    seed: seedSetupEnvironment,
     auth: false,
   },
   {
     id: 'dashboard',
     testMatch: '**/dashboard/*.spec.ts',
-    seed: seedDashboardEnvironment,
     auth: true,
   },
 ];
 
-export function envInstanceId(envId: string, browserName: string): string {
+function envInstanceId(envId: string, browserName: string): string {
   return `${envId}-${browserName}`;
 }
 
@@ -54,7 +47,7 @@ export function envUrlVar(instanceId: string): string {
   return `${instanceId.toUpperCase().replace(/-/g, '_')}_URL`;
 }
 
-export function authStatePath(envId: string, browserName: string): string {
+function authStatePath(envId: string, browserName: string): string {
   return `./tests/e2e/.auth/${envId}-${browserName}.json`;
 }
 
@@ -68,12 +61,12 @@ export function authStatePathForProject(projectName: string): string {
 
 export function getEnvironmentInstances(): {
   suiteId: string;
-  seed: (connectionUri: string) => Promise<void>;
+  envId: string;
 }[] {
   return getActiveBrowsers().flatMap((browser) =>
     ENVIRONMENTS.map((env) => ({
       suiteId: envInstanceId(env.id, browser.name),
-      seed: env.seed,
+      envId: env.id,
     })),
   );
 }

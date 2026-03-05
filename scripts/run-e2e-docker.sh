@@ -39,18 +39,21 @@ echo "   Image: ${IMAGE}"
 echo "   Args: ${*:-<none>}"
 echo ""
 
-# Detect browser filter from --project flag to limit environment startup
-E2E_BROWSERS=""
-for arg in "$@"; do
-  case "$arg" in
-    --project=*-chromium|--project="*-chromium")
-      E2E_BROWSERS="chromium" ;;
-    --project=*-firefox|--project="*-firefox")
-      E2E_BROWSERS="firefox" ;;
-    --project=*-webkit|--project="*-webkit")
-      E2E_BROWSERS="webkit" ;;
-  esac
-done
+# Detect browser filter to limit environment startup.
+# Prefer E2E_BROWSERS env var if already set (e.g. from CI matrix),
+# otherwise try to infer from --project flag.
+if [ -z "$E2E_BROWSERS" ]; then
+  for arg in "$@"; do
+    case "$arg" in
+      --project=*-chromium|--project="*-chromium")
+        E2E_BROWSERS="chromium" ;;
+      --project=*-firefox|--project="*-firefox")
+        E2E_BROWSERS="firefox" ;;
+      --project=*-webkit|--project="*-webkit")
+        E2E_BROWSERS="webkit" ;;
+    esac
+  done
+fi
 
 # Build the playwright command
 PLAYWRIGHT_CMD="pnpm exec playwright test --config=tests/e2e/playwright.config.ts"

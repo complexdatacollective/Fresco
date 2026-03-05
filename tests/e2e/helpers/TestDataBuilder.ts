@@ -1,6 +1,6 @@
 import { createId } from '@paralleldrive/cuid2';
 import { hash } from 'ohash';
-import { type AppSetting, type Prisma } from '~/lib/db/generated/client.js';
+import { type AppSetting, type Prisma } from '~/lib/db/generated/client';
 import { log } from './logger.js';
 import { createTestPrisma, type TestPrismaClient } from './prisma.js';
 

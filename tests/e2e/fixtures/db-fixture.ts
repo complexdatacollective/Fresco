@@ -4,7 +4,7 @@ import path from 'node:path';
 import pg from 'pg';
 import { log } from '../helpers/logger.js';
 import { createTestPrisma, type TestPrismaClient } from '../helpers/prisma.js';
-import { type AppSetting } from '~/lib/db/generated/client.js';
+import { type AppSetting } from '~/lib/db/generated/client';
 
 type TableSnapshot = {
   table: string;
