@@ -9,6 +9,7 @@ import Heading from '~/components/typography/Heading';
 import ProgressBar from '~/components/ui/ProgressBar';
 import useDialog from '~/lib/dialogs/useDialog';
 import useFormState from '~/lib/form/hooks/useFormState';
+import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import {
   type BeforeNextFunction,
@@ -58,6 +59,7 @@ function SlidesFormInner({
 
   const formState = useFormState();
   const { submitForm, isValid, isDirty } = formState;
+  const validateForm = useFormStore((s) => s.validateForm);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -88,7 +90,7 @@ function SlidesFormInner({
     setIsReadyForNext(readyForNext);
   }, [setIsReadyForNext, scrollProgress, isValid]);
 
-  const beforeNext: BeforeNextFunction = (direction: Direction) => {
+  const beforeNext: BeforeNextFunction = async (direction: Direction) => {
     if (items.length === 0) {
       return true;
     }
@@ -100,8 +102,11 @@ function SlidesFormInner({
     }
 
     if (direction === 'backwards') {
-      if (!isValid && isDirty) {
-        void openDialog({
+      // Validate to get fresh state
+      const formIsValid = await validateForm();
+
+      if (!formIsValid && isDirty) {
+        const confirm = await openDialog({
           type: 'choice',
           title: 'Discard changes?',
           description:
@@ -111,15 +116,16 @@ function SlidesFormInner({
             primary: { label: 'Discard changes', value: true },
             cancel: { label: 'Go back', value: false },
           },
-        }).then((confirm) => {
-          if (confirm) {
-            previousItem();
-          }
-          void submitForm();
         });
+
+        if (confirm) {
+          previousItem();
+        }
         return false;
-      } else if (isValid) {
-        void submitForm();
+      }
+
+      if (formIsValid) {
+        await submitForm();
       }
 
       previousItem();
@@ -131,21 +137,20 @@ function SlidesFormInner({
       return false;
     }
 
-    void submitForm();
+    // Validate form before proceeding forward
+    const formIsValid = await validateForm();
 
-    if (!isValid) {
+    if (!formIsValid) {
       return false;
     }
 
-    if (isValid) {
-      if (isLastItem()) {
-        return true;
-      }
+    await submitForm();
 
-      nextItem();
-      return false;
+    if (isLastItem()) {
+      return true;
     }
 
+    nextItem();
     return false;
   };
 
