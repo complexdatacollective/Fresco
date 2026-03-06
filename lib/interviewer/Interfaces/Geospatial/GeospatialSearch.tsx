@@ -3,9 +3,12 @@
 import { Toggle } from '@base-ui/react';
 import { Search, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useRef, useState } from 'react';
+import { useCallback, useId, useMemo, useRef, useState } from 'react';
 import { MotionSurface } from '~/components/layout/Surface';
 import { IconButton } from '~/components/ui/Button';
+import { Collection } from '~/lib/collection/components/Collection';
+import { ListLayout } from '~/lib/collection/layout/ListLayout';
+import { type ItemProps } from '~/lib/collection/types';
 import InputField from '~/lib/form/components/fields/InputField';
 import { cx } from '~/utils/cva';
 import {
@@ -13,6 +16,19 @@ import {
   type Suggestion,
   type UseGeospatialSearchProps,
 } from './useGeospatialSearch';
+
+// Wrapper type that extends Suggestion with the required Record constraint
+type SuggestionItem = Suggestion & Record<string, unknown>;
+
+// Motion variants extracted to avoid recreation on every render
+const searchContainerVariants = {
+  initial: { opacity: 0, y: '-100%' },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: '-100%' },
+} as const;
+
+// Prevent blur when clicking suggestions (fixes race condition)
+const preventBlur = (e: React.MouseEvent) => e.preventDefault();
 
 export default function GeospatialSearch({
   accessToken,
@@ -24,6 +40,10 @@ export default function GeospatialSearch({
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // Stable ID for ARIA association between input and listbox
+  const listboxId = useId();
 
   const {
     query,
@@ -34,56 +54,154 @@ export default function GeospatialSearch({
     clear,
   } = useGeospatialSearch({ accessToken, map, proximity, resetKey });
 
-  const handleToggle = (pressed: boolean) => {
-    if (pressed) {
-      setIsOpen(true);
-    } else {
-      resetField();
-    }
-  };
+  // Layout inside component with useMemo to avoid shared instance issues
+  const layout = useMemo(() => new ListLayout<SuggestionItem>({ gap: 0 }), []);
 
-  const resetField = () => {
+  const resetField = useCallback(() => {
     setIsOpen(false);
     clear();
-  };
+  }, [clear]);
 
-  const handleBlur = (e: React.FocusEvent) => {
-    // Don't close if clicking the toggle button (let the toggle handle it)
-    if (buttonRef.current?.contains(e.relatedTarget)) {
-      return;
-    }
-    resetField();
-  };
+  const handleToggle = useCallback(
+    (pressed: boolean) => {
+      if (pressed) {
+        setIsOpen(true);
+      } else {
+        resetField();
+      }
+    },
+    [resetField],
+  );
 
-  const handleSuggestionClick = (suggestion: Suggestion) => {
-    void handleSelect(suggestion);
-    resetField();
-  };
+  const handleBlur = useCallback(
+    (e: React.FocusEvent) => {
+      // Don't close if clicking the toggle button (let the toggle handle it)
+      if (buttonRef.current?.contains(e.relatedTarget)) {
+        return;
+      }
+      // Don't close if focus is moving within the search panel (input or suggestions)
+      if (panelRef.current?.contains(e.relatedTarget)) {
+        return;
+      }
+      resetField();
+    },
+    [resetField],
+  );
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     clear();
     inputRef.current?.focus();
-  };
+  }, [clear]);
+
+  const handleInputKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        resetField();
+        // Restore focus to toggle button
+        buttonRef.current?.focus();
+      } else if (e.key === 'ArrowDown' && suggestions.length > 0) {
+        // Move focus to the first suggestion
+        e.preventDefault();
+        const firstOption = panelRef.current?.querySelector('[role="option"]');
+        if (firstOption instanceof HTMLElement) {
+          firstOption.focus();
+        }
+      } else if (e.key === 'ArrowUp' && suggestions.length > 0) {
+        // Move focus to the last suggestion
+        e.preventDefault();
+        const options = panelRef.current?.querySelectorAll('[role="option"]');
+        const lastOption = options?.[options.length - 1];
+        if (lastOption instanceof HTMLElement) {
+          lastOption.focus();
+        }
+      }
+    },
+    [resetField, suggestions.length],
+  );
+
+  // Memoized extractors following Collection patterns
+  const keyExtractor = useCallback(
+    (item: SuggestionItem) => item.mapbox_id,
+    [],
+  );
+
+  const textValueExtractor = useCallback(
+    (item: SuggestionItem) => item.name,
+    [],
+  );
+
+  // Click handler factory - returns a handler for each suggestion
+  const handleSuggestionClick = useCallback(
+    (suggestion: SuggestionItem) => () => {
+      void handleSelect(suggestion);
+      resetField();
+    },
+    [handleSelect, resetField],
+  );
+
+  // KeyDown handler factory for suggestions
+  const handleSuggestionKeyDown = useCallback(
+    (item: SuggestionItem) => (e: React.KeyboardEvent) => {
+      const clickHandler = handleSuggestionClick(item);
+
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        clickHandler();
+      } else if (e.key === 'Escape') {
+        resetField();
+        buttonRef.current?.focus();
+      } else if (e.key === 'ArrowUp') {
+        // Check if this is the first option - if so, return to input
+        const options = panelRef.current?.querySelectorAll('[role="option"]');
+        const firstOption = options?.[0];
+        if (e.currentTarget === firstOption) {
+          e.preventDefault();
+          inputRef.current?.focus();
+        }
+        // Otherwise let Collection handle navigation
+      } else if (e.key === 'ArrowDown') {
+        // Check if this is the last option - if so, cycle to input
+        const options = panelRef.current?.querySelectorAll('[role="option"]');
+        const lastOption = options?.[options.length - 1];
+        if (e.currentTarget === lastOption) {
+          e.preventDefault();
+          inputRef.current?.focus();
+        }
+        // Otherwise let Collection handle navigation
+      }
+    },
+    [handleSuggestionClick, resetField],
+  );
+
+  // Memoized renderItem following OneToManyDyadCensus pattern
+  const renderItem = useCallback(
+    (item: SuggestionItem, itemProps: ItemProps) => (
+      <div
+        {...itemProps}
+        onMouseDown={preventBlur}
+        onClick={handleSuggestionClick(item)}
+        onKeyDown={handleSuggestionKeyDown(item)}
+        className={cx(
+          'flex cursor-pointer flex-col gap-0.5 px-3 py-2',
+          'transition-colors outline-none',
+          'hover:bg-accent/10 data-focused:bg-accent/10',
+        )}
+      >
+        <span className="text-sm">{item.name}</span>
+        {item.place_formatted && (
+          <span className="text-xs">{item.place_formatted}</span>
+        )}
+      </div>
+    ),
+    [handleSuggestionClick, handleSuggestionKeyDown],
+  );
 
   const showSuggestions = suggestions.length > 0 || isLoading;
 
   return (
     <motion.div
       className={cx('flex items-center gap-2', className)}
-      variants={{
-        initial: {
-          opacity: 0,
-          y: '-100%',
-        },
-        animate: {
-          opacity: 1,
-          y: 0,
-        },
-        exit: {
-          opacity: 0,
-          y: '-100%',
-        },
-      }}
+      variants={searchContainerVariants}
     >
       <Toggle
         pressed={isOpen}
@@ -94,6 +212,7 @@ export default function GeospatialSearch({
             icon={<Search />}
             color={isOpen ? 'secondary' : 'dynamic'}
             aria-label={isOpen ? 'Close search' : 'Search location'}
+            aria-expanded={isOpen}
             data-testid="geospatial-search-toggle"
             className="relative"
             size="lg"
@@ -104,7 +223,7 @@ export default function GeospatialSearch({
       {/* Search panel - appears to right of toggle */}
       <AnimatePresence>
         {isOpen && (
-          <div className="relative">
+          <div ref={panelRef} className="relative" onBlur={handleBlur}>
             <MotionSurface
               noContainer
               spacing="none"
@@ -121,7 +240,13 @@ export default function GeospatialSearch({
                 placeholder="Search for a place..."
                 value={query}
                 onChange={handleQueryChange}
-                onBlur={handleBlur}
+                onKeyDown={handleInputKeyDown}
+                // ARIA combobox attributes
+                role="combobox"
+                aria-expanded={showSuggestions}
+                aria-controls={listboxId}
+                aria-autocomplete="list"
+                aria-haspopup="listbox"
                 suffixComponent={
                   query ? (
                     <IconButton
@@ -145,7 +270,7 @@ export default function GeospatialSearch({
                   spacing="none"
                   level="popover"
                   elevation="high"
-                  className="absolute left-0 mt-2 max-h-64 w-sm overflow-auto"
+                  className="absolute left-0 mt-2 max-h-64 w-sm"
                   initial={{ opacity: 0, y: '-0.5rem' }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: '-0.5rem' }}
@@ -156,35 +281,18 @@ export default function GeospatialSearch({
                       Searching...
                     </div>
                   ) : (
-                    <ul role="listbox" className="p-1">
-                      {suggestions.map((suggestion) => (
-                        <li
-                          key={suggestion.mapbox_id}
-                          role="option"
-                          aria-selected={false}
-                          tabIndex={0}
-                          onMouseDown={(e) => e.preventDefault()}
-                          onClick={() => handleSuggestionClick(suggestion)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              handleSuggestionClick(suggestion);
-                            }
-                          }}
-                          className={cx(
-                            'flex cursor-pointer flex-col gap-0.5 px-3 py-2',
-                            'transition-colors outline-none',
-                            'hover:bg-accent/10 focus:bg-accent/10',
-                          )}
-                        >
-                          <span className="text-sm">{suggestion.name}</span>
-                          {suggestion.place_formatted && (
-                            <span className="text-xs">
-                              {suggestion.place_formatted}
-                            </span>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
+                    <Collection
+                      id={listboxId}
+                      items={suggestions as SuggestionItem[]}
+                      layout={layout}
+                      keyExtractor={keyExtractor}
+                      textValueExtractor={textValueExtractor}
+                      selectionMode="none"
+                      animate={false}
+                      aria-label="Search suggestions"
+                      className="p-1"
+                      renderItem={renderItem}
+                    />
                   )}
                 </MotionSurface>
               )}
