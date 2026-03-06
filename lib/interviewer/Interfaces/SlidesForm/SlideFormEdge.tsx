@@ -107,8 +107,8 @@ export default function SlideFormEdge(props: SlideFormEdgeProps) {
             />
           )}
         </div>
-        <div className="mt-[calc(var(--base-node-size)*0.4)] size-full">
-          <ScrollArea>
+        <div className="mt-[calc(var(--base-node-size)*0.4)] flex flex-1 min-h-0 w-full flex-col">
+          <ScrollArea className="h-auto">
             <Surface>
               <Form
                 onSubmit={handleSubmit}
