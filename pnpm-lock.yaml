@@ -27,9 +27,6 @@ importers:
       '@codaco/shared-consts':
         specifier: 5.0.0
         version: 5.0.0
-      '@mapbox/search-js-core':
-        specifier: ^1.5.1
-        version: 1.5.1
       '@mapbox/search-js-react':
         specifier: ^1.5.1
         version: 1.5.1(mapbox-gl@3.19.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
