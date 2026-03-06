@@ -54,7 +54,7 @@ const DEFAULT_FALLBACK = 'rgb(226, 33, 91)';
  * @returns Hex color string (e.g., '#ff0000') or fallback if invalid
  * @note Must only be called client-side (uses document.createElement)
  */
-export const convertCssColorToHex = (() => {
+const convertCssColorToHex = (() => {
   let ctx: CanvasRenderingContext2D | null = null;
 
   return (cssColor: string): string => {
@@ -87,26 +87,21 @@ type UseMapboxProps = {
   getAssetUrl: (url: string) => string | undefined;
   initialSelectionValue?: string;
   onSelectionChange: (value: string) => void;
+  showTransitLayers: boolean;
 };
 
-// Transit configuration
 const TRANSIT_SOURCE_ID = 'mapbox-streets-v8';
-const TRANSIT_LAYER_IDS = [
-  'transit-lines',
-  'transit-stations',
-  'transit-labels',
-] as const;
 
 export const useMapbox = ({
   mapOptions,
   getAssetUrl,
   initialSelectionValue,
   onSelectionChange,
+  showTransitLayers,
 }: UseMapboxProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
-  const [transitLayersVisible, setTransitLayersVisible] = useState(false);
 
   const {
     center,
@@ -146,26 +141,6 @@ export const useMapbox = ({
     }
   }, [targetFeatureProperty]);
 
-  const handleToggleTransitLayers = useCallback(() => {
-    if (!mapRef.current) return;
-
-    const map = mapRef.current;
-    const newVisibility = !transitLayersVisible;
-
-    // Toggle visibility for each transit layer that exists in the style
-    for (const layerId of TRANSIT_LAYER_IDS) {
-      if (map.getLayer(layerId)) {
-        map.setLayoutProperty(
-          layerId,
-          'visibility',
-          newVisibility ? 'visible' : 'none',
-        );
-      }
-    }
-
-    setTransitLayersVisible(newVisibility);
-  }, [transitLayersVisible]);
-
   useEffect(() => {
     if (!mapContainerRef.current || !center || !accessToken) return;
 
@@ -177,9 +152,6 @@ export const useMapbox = ({
       zoom: initialZoom,
       style,
     });
-
-    // Reset transit state when map reinitializes (layers start hidden)
-    setTransitLayersVisible(false);
 
     const handleMapLoad = () => {
       if (mapRef.current) {
@@ -262,55 +234,55 @@ export const useMapbox = ({
 
       // Transit lines - rail classes from the road source-layer
       mapRef.current?.addLayer({
-        id: 'transit-lines',
-        type: 'line',
-        source: TRANSIT_SOURCE_ID,
+        'id': 'transit-lines',
+        'type': 'line',
+        'source': TRANSIT_SOURCE_ID,
         'source-layer': 'road',
-        filter: ['in', 'class', 'major_rail', 'minor_rail', 'service_rail'],
-        paint: {
+        'filter': ['in', 'class', 'major_rail', 'minor_rail', 'service_rail'],
+        'paint': {
           'line-color': transitColor,
           'line-width': MAP_CONSTS.LINE_WIDTH,
           'line-opacity': 0.8,
         },
-        layout: {
-          visibility: 'none',
+        'layout': {
+          visibility: showTransitLayers ? 'visible' : 'none',
         },
       });
 
       // Transit stations - circles from transit_stop_label source-layer
       mapRef.current?.addLayer({
-        id: 'transit-stations',
-        type: 'circle',
-        source: TRANSIT_SOURCE_ID,
+        'id': 'transit-stations',
+        'type': 'circle',
+        'source': TRANSIT_SOURCE_ID,
         'source-layer': 'transit_stop_label',
-        filter: ['==', 'stop_type', 'station'],
-        paint: {
+        'filter': ['==', 'stop_type', 'station'],
+        'paint': {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 4, 14, 8],
           'circle-color': transitColor,
           'circle-stroke-color': '#ffffff',
           'circle-stroke-width': 1.5,
         },
-        layout: {
-          visibility: 'none',
+        'layout': {
+          visibility: showTransitLayers ? 'visible' : 'none',
         },
       });
 
       // Transit labels - station names from transit_stop_label source-layer
       mapRef.current?.addLayer({
-        id: 'transit-labels',
-        type: 'symbol',
-        source: TRANSIT_SOURCE_ID,
+        'id': 'transit-labels',
+        'type': 'symbol',
+        'source': TRANSIT_SOURCE_ID,
         'source-layer': 'transit_stop_label',
-        filter: ['==', 'stop_type', 'station'],
-        layout: {
+        'filter': ['==', 'stop_type', 'station'],
+        'layout': {
           'text-field': ['get', 'name'],
           'text-font': ['DIN Pro Medium', 'Arial Unicode MS Regular'],
           'text-size': 12,
           'text-offset': [0, 1.2],
           'text-anchor': 'top',
-          visibility: 'none',
+          'visibility': showTransitLayers ? 'visible' : 'none',
         },
-        paint: {
+        'paint': {
           'text-color': transitColor,
           'text-halo-color': '#ffffff',
           'text-halo-width': 1.5,
@@ -345,6 +317,7 @@ export const useMapbox = ({
     targetFeatureProperty,
     dataSourceAssetId,
     style,
+    showTransitLayers,
   ]);
 
   // handle selections
@@ -463,7 +436,5 @@ export const useMapbox = ({
     handleZoomIn,
     handleZoomOut,
     handleResetSelection,
-    handleToggleTransitLayers,
-    transitLayersVisible,
   };
 };

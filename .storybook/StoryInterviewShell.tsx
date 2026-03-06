@@ -13,9 +13,9 @@ import {
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import SuperJSON from 'superjson';
 import useMediaQuery from '~/hooks/useMediaQuery';
+import { InterviewToastProvider } from '~/lib/interviewer/components/InterviewToast';
 import Navigation from '~/lib/interviewer/components/Navigation';
 import StageErrorBoundary from '~/lib/interviewer/components/StageErrorBoundary';
-import { InterviewToastProvider } from '~/lib/interviewer/components/InterviewToast';
 import { StageMetadataProvider } from '~/lib/interviewer/contexts/StageMetadataContext';
 import {
   updatePrompt,
@@ -120,9 +120,7 @@ function StoryInterview() {
 
   const navigateToStep = useCallback(
     (targetStep: number) => {
-      setProgress(
-        calculateProgress(targetStep, stageCount, 0, promptCount),
-      );
+      setProgress(calculateProgress(targetStep, stageCount, 0, promptCount));
       beforeNextHandlers.current.clear();
       pendingStepRef.current = targetStep;
       isTransitioningRef.current = true;
@@ -212,7 +210,7 @@ function StoryInterview() {
                 variants={variants}
               >
                 <div
-                  className="flex size-full flex-col items-center"
+                  className="flex size-full flex-col items-center justify-center"
                   id="stage"
                   key={stage.id}
                 >
@@ -257,8 +255,7 @@ const StoryInterviewShell = (props: {
   disableSync?: boolean;
 }) => {
   const decodedPayload = useMemo(
-    () =>
-      SuperJSON.parse<NonNullable<GetInterviewByIdQuery>>(props.rawPayload),
+    () => SuperJSON.parse<NonNullable<GetInterviewByIdQuery>>(props.rawPayload),
     [props.rawPayload],
   );
 

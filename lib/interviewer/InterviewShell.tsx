@@ -6,10 +6,10 @@ import { useRef } from 'react';
 import { Provider } from 'react-redux';
 import SuperJSON from 'superjson';
 import useMediaQuery from '~/hooks/useMediaQuery';
-import { StageMetadataProvider } from '~/lib/interviewer/contexts/StageMetadataContext';
 import { InterviewToastProvider } from '~/lib/interviewer/components/InterviewToast';
-import StageErrorBoundary from '~/lib/interviewer/components/StageErrorBoundary';
 import Navigation from '~/lib/interviewer/components/Navigation';
+import StageErrorBoundary from '~/lib/interviewer/components/StageErrorBoundary';
+import { StageMetadataProvider } from '~/lib/interviewer/contexts/StageMetadataContext';
 import useInterviewNavigation from '~/lib/interviewer/hooks/useInterviewNavigation';
 import { store } from '~/lib/interviewer/store';
 import { type GetInterviewByIdQuery } from '~/queries/interviews';
@@ -21,11 +21,11 @@ const variants = {
   },
   animate: {
     opacity: 1,
-    transition: { when: 'beforeChildren' },
+    transition: { when: 'beforeChildren', duration: 0.5 },
   },
   exit: {
     opacity: 0,
-    transition: { when: 'afterChildren' },
+    transition: { when: 'afterChildren', duration: 0.5 },
   },
 };
 
@@ -78,7 +78,7 @@ function Interview() {
                 variants={variants}
               >
                 <div
-                  className="flex size-full flex-col items-center"
+                  className="flex size-full flex-col items-center justify-center"
                   id="stage"
                   key={stage.id}
                 >

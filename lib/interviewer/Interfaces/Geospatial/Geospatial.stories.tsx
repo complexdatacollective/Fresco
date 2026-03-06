@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import 'mapbox-gl/dist/mapbox-gl.css';
 import { useMemo } from 'react';
 import SuperJSON from 'superjson';
 import StoryInterviewShell from '~/.storybook/StoryInterviewShell';
@@ -32,14 +31,14 @@ const AREA_COLORS = [
 ];
 
 const REGIONS = {
-  chicago: {
+  'chicago': {
     file: '/storybook/chicago.geojson',
     property: 'census_tra',
     center: [-87.6298, 41.8781] as [number, number],
     zoom: 10,
     label: 'Chicago Census Tracts',
   },
-  houston: {
+  'houston': {
     file: '/storybook/houston.geojson',
     property: 'Tract',
     center: [-95.3698, 29.7604] as [number, number],

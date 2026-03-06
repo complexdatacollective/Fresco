@@ -2,7 +2,7 @@
 
 import { Toggle } from '@base-ui/react';
 import { Search, X } from 'lucide-react';
-import { AnimatePresence } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useRef, useState } from 'react';
 import { MotionSurface } from '~/components/layout/Surface';
 import { IconButton } from '~/components/ui/Button';
@@ -19,7 +19,8 @@ export default function GeospatialSearch({
   map,
   proximity,
   resetKey,
-}: UseGeospatialSearchProps) {
+  className,
+}: UseGeospatialSearchProps & { className?: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -67,23 +68,38 @@ export default function GeospatialSearch({
   const showSuggestions = suggestions.length > 0 || isLoading;
 
   return (
-    <div className="flex items-center gap-2">
-      {/* Toggle button */}
-      <div className="relative z-10">
-        <Toggle
-          pressed={isOpen}
-          onPressedChange={handleToggle}
-          render={
-            <IconButton
-              ref={buttonRef}
-              icon={<Search />}
-              color={isOpen ? 'secondary' : 'default'}
-              aria-label={isOpen ? 'Close search' : 'Search location'}
-              data-testid="geospatial-search-toggle"
-            />
-          }
-        />
-      </div>
+    <motion.div
+      className={cx('flex items-center gap-2', className)}
+      variants={{
+        initial: {
+          opacity: 0,
+          y: '-100%',
+        },
+        animate: {
+          opacity: 1,
+          y: 0,
+        },
+        exit: {
+          opacity: 0,
+          y: '-100%',
+        },
+      }}
+    >
+      <Toggle
+        pressed={isOpen}
+        onPressedChange={handleToggle}
+        render={
+          <IconButton
+            ref={buttonRef}
+            icon={<Search />}
+            color={isOpen ? 'secondary' : 'dynamic'}
+            aria-label={isOpen ? 'Close search' : 'Search location'}
+            data-testid="geospatial-search-toggle"
+            className="relative"
+            size="lg"
+          />
+        }
+      />
 
       {/* Search panel - appears to right of toggle */}
       <AnimatePresence>
@@ -93,7 +109,7 @@ export default function GeospatialSearch({
               noContainer
               spacing="none"
               elevation="high"
-              className="w-sm rounded-xl bg-surface/80 backdrop-blur-md"
+              className="bg-surface/80 w-sm rounded-xl backdrop-blur-md"
               initial={{ opacity: 0, x: '-2rem' }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: '-2rem' }}
@@ -136,7 +152,7 @@ export default function GeospatialSearch({
                   transition={{ duration: 0.15, ease: 'easeOut' }}
                 >
                   {isLoading && suggestions.length === 0 ? (
-                    <div className="text-muted p-4 text-center text-sm italic">
+                    <div className="p-4 text-center text-sm italic">
                       Searching...
                     </div>
                   ) : (
@@ -162,7 +178,7 @@ export default function GeospatialSearch({
                         >
                           <span className="text-sm">{suggestion.name}</span>
                           {suggestion.place_formatted && (
-                            <span className="text-muted text-xs">
+                            <span className="text-xs">
                               {suggestion.place_formatted}
                             </span>
                           )}
@@ -176,6 +192,6 @@ export default function GeospatialSearch({
           </div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }

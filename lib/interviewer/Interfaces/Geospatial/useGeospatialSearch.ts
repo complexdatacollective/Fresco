@@ -1,4 +1,3 @@
-import { type SearchBoxSuggestion } from '@mapbox/search-js-core';
 import { useSearchBoxCore } from '@mapbox/search-js-react';
 import { debounce } from 'es-toolkit';
 import type { Map } from 'mapbox-gl';
@@ -14,8 +13,11 @@ import {
 // Zoom level when flying to a selected location
 const FLY_TO_ZOOM = 14;
 
-// Re-export for consumers
-export type Suggestion = SearchBoxSuggestion;
+// Infer the suggestion type from the SearchBoxCore API to avoid importing
+// from @mapbox/search-js-core (which pnpm doesn't hoist to top-level).
+type SearchBoxInstance = ReturnType<typeof useSearchBoxCore>;
+type SuggestResponse = Awaited<ReturnType<SearchBoxInstance['suggest']>>;
+export type Suggestion = SuggestResponse['suggestions'][number];
 
 export type UseGeospatialSearchProps = {
   accessToken: string | null | undefined;
