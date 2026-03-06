@@ -136,7 +136,6 @@ export default function GeospatialInterface({
         setLocationValue(value);
       }
     },
-    showTransitLayers: true, // TODO: make this configurable via stage options
   });
 
   const getNodeIndex = useCallback(
@@ -251,13 +250,15 @@ export default function GeospatialInterface({
           </div>
         )}
 
-        <GeospatialSearch
-          accessToken={accessToken}
-          map={mapRef.current}
-          proximity={mapOptions.center}
-          resetKey={navState.activeIndex}
-          className="absolute top-4 left-4 z-20"
-        />
+        {mapOptions.allowSearch && (
+          <GeospatialSearch
+            accessToken={accessToken}
+            map={mapRef.current}
+            proximity={mapOptions.center}
+            resetKey={navState.activeIndex}
+            className="absolute top-4 left-4 z-20"
+          />
+        )}
 
         {/* Map toolbar - zoom controls */}
         <MotionSurface

@@ -202,6 +202,9 @@ export default function GeospatialSearch({
     <motion.div
       className={cx('flex items-center gap-2', className)}
       variants={searchContainerVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
     >
       <Toggle
         pressed={isOpen}

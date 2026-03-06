@@ -66,6 +66,8 @@ type StoryArgs = {
   initialNodes: number;
   prompt1Text: string;
   prompt2Text: string;
+  showTransit: boolean;
+  allowSearch: boolean;
 };
 
 function createGeospatialInterview(seed: number, region: Region) {
@@ -164,6 +166,14 @@ const meta: Meta<StoryArgs> = {
         'Text for the second prompt (only used when promptCount is 2)',
       if: { arg: 'promptCount', eq: 2 },
     },
+    showTransit: {
+      control: 'boolean',
+      description: 'Show public transit routes and stations on the map',
+    },
+    allowSearch: {
+      control: 'boolean',
+      description: 'Allow participants to search for locations on the map',
+    },
   },
   args: {
     region: 'chicago',
@@ -173,6 +183,8 @@ const meta: Meta<StoryArgs> = {
     initialNodes: 3,
     prompt1Text: 'Where does this person live?',
     prompt2Text: 'Where does this person work?',
+    showTransit: false,
+    allowSearch: false,
   },
 };
 
@@ -190,6 +202,8 @@ export const Default: Story = {
     initialNodes,
     prompt1Text,
     prompt2Text,
+    showTransit,
+    allowSearch,
   }) => {
     const buildFn = () => {
       const { si, nt, regionConfig } = createGeospatialInterview(1, region);
@@ -209,6 +223,8 @@ export const Default: Story = {
           dataSourceAssetId: 'geojson-data',
           color: areaColor,
           targetFeatureProperty: regionConfig.property,
+          showTransit,
+          allowSearch,
         },
       });
 

@@ -144,6 +144,8 @@ export type MapOptionsEntry = {
   dataSourceAssetId: string;
   color: string;
   targetFeatureProperty: string;
+  showTransit?: boolean;
+  allowSearch?: boolean;
 };
 
 export type PromptEntry =

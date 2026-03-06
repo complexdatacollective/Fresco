@@ -87,7 +87,6 @@ type UseMapboxProps = {
   getAssetUrl: (url: string) => string | undefined;
   initialSelectionValue?: string;
   onSelectionChange: (value: string) => void;
-  showTransitLayers: boolean;
 };
 
 const TRANSIT_SOURCE_ID = 'mapbox-streets-v8';
@@ -97,7 +96,6 @@ export const useMapbox = ({
   getAssetUrl,
   initialSelectionValue,
   onSelectionChange,
-  showTransitLayers,
 }: UseMapboxProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -111,6 +109,7 @@ export const useMapbox = ({
     color,
     targetFeatureProperty,
     style,
+    showTransit,
   } = mapOptions;
 
   // get token value from asset manifest, using id
@@ -245,7 +244,7 @@ export const useMapbox = ({
           'line-opacity': 0.8,
         },
         'layout': {
-          visibility: showTransitLayers ? 'visible' : 'none',
+          visibility: showTransit ? 'visible' : 'none',
         },
       });
 
@@ -263,7 +262,7 @@ export const useMapbox = ({
           'circle-stroke-width': 1.5,
         },
         'layout': {
-          visibility: showTransitLayers ? 'visible' : 'none',
+          visibility: showTransit ? 'visible' : 'none',
         },
       });
 
@@ -280,7 +279,7 @@ export const useMapbox = ({
           'text-size': 12,
           'text-offset': [0, 1.2],
           'text-anchor': 'top',
-          'visibility': showTransitLayers ? 'visible' : 'none',
+          'visibility': showTransit ? 'visible' : 'none',
         },
         'paint': {
           'text-color': transitColor,
@@ -317,7 +316,7 @@ export const useMapbox = ({
     targetFeatureProperty,
     dataSourceAssetId,
     style,
-    showTransitLayers,
+    showTransit,
   ]);
 
   // handle selections
