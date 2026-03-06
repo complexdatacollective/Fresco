@@ -6,6 +6,7 @@ import { type Action } from '@reduxjs/toolkit';
 import { LocateFixed, ZoomIn, ZoomOut } from 'lucide-react';
 // import 'mapbox-gl/dist/mapbox-gl.css';
 import { AnimatePresence, motion, type Variants } from 'motion/react';
+import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { type ThunkDispatch } from 'redux-thunk';
@@ -18,12 +19,17 @@ import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
-import GeospatialSearch from '~/lib/interviewer/Interfaces/Geospatial/GeospatialSearch';
-import { useMapbox } from '~/lib/interviewer/Interfaces/Geospatial/useMapbox';
 import CollapsablePrompts from '~/lib/interviewer/Interfaces/Sociogram/CollapsablePrompts';
+import { useMapbox } from '~/lib/interviewer/Interfaces/Geospatial/useMapbox';
 import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { type RootState } from '~/lib/interviewer/store';
 import { type Direction, type StageProps } from '~/lib/interviewer/types';
+
+// Dynamic import with ssr:false - @mapbox/search-js-web accesses document at module load
+const GeospatialSearch = dynamic(
+  () => import('~/lib/interviewer/Interfaces/Geospatial/GeospatialSearch'),
+  { ssr: false },
+);
 
 const fadeVariants: Variants = {
   initial: {
