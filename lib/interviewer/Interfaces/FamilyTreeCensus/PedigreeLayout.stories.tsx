@@ -13,7 +13,7 @@ import {
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 
 const meta: Meta = {
-  title: 'Systems/FamilyTree/PedigreeLayout',
+  title: 'Systems/PedigreeLayout',
   parameters: {
     layout: 'fullscreen',
     backgrounds: { default: 'dark' },
@@ -27,12 +27,13 @@ faker.seed(42);
 const LABEL_HEIGHT = 60;
 
 function fakeName(sex?: 'male' | 'female') {
-  return faker.person.firstName(sex);
+  return faker.person.fullName({ sex });
 }
 
 type NodeDef = {
   id: string;
   label: string;
+  relationship: string;
   sex?: 'male' | 'female';
   isEgo?: boolean;
 };
@@ -45,8 +46,14 @@ type EdgeDef = {
 
 function buildStore(nodeDefs: NodeDef[], edgeDefs: EdgeDef[]) {
   const nodes = new Map<string, Omit<FamilyTreeNodeType, 'id'>>();
-  for (const { id, label, sex, isEgo } of nodeDefs) {
-    nodes.set(id, { label, sex, isEgo, readOnly: false });
+  for (const { id, label, relationship, sex, isEgo } of nodeDefs) {
+    nodes.set(id, {
+      label,
+      sex,
+      isEgo,
+      readOnly: false,
+      fields: { relationship },
+    });
   }
 
   const edges = new Map<string, Omit<Edge, 'id'>>();
@@ -88,6 +95,9 @@ function StoryVisualizationInner({ store }: { store: FamilyTreeStoreApi }) {
               shape={node.sex === 'female' ? 'circle' : 'square'}
               size="sm"
             />
+            <span className="text-xs text-white">
+              {(node.fields?.relationship as string) ?? ''}
+            </span>
           </div>
         )}
       />
@@ -111,15 +121,61 @@ export const ThreeGenerationFamily: StoryFn = () => {
   useEffect(() => {
     const store = buildStore(
       [
-        { id: 'mgm', label: fakeName('female'), sex: 'female' },
-        { id: 'mgf', label: fakeName('male'), sex: 'male' },
-        { id: 'pgm', label: fakeName('female'), sex: 'female' },
-        { id: 'pgf', label: fakeName('male'), sex: 'male' },
-        { id: 'mother', label: fakeName('female'), sex: 'female' },
-        { id: 'father', label: fakeName('male'), sex: 'male' },
-        { id: 'ego', label: fakeName('male'), sex: 'male', isEgo: true },
-        { id: 'sister', label: fakeName('female'), sex: 'female' },
-        { id: 'brother', label: fakeName('male'), sex: 'male' },
+        {
+          id: 'mgm',
+          label: fakeName('female'),
+          relationship: 'Mat. Grandmother',
+          sex: 'female',
+        },
+        {
+          id: 'mgf',
+          label: fakeName('male'),
+          relationship: 'Mat. Grandfather',
+          sex: 'male',
+        },
+        {
+          id: 'pgm',
+          label: fakeName('female'),
+          relationship: 'Pat. Grandmother',
+          sex: 'female',
+        },
+        {
+          id: 'pgf',
+          label: fakeName('male'),
+          relationship: 'Pat. Grandfather',
+          sex: 'male',
+        },
+        {
+          id: 'mother',
+          label: fakeName('female'),
+          relationship: 'Mother',
+          sex: 'female',
+        },
+        {
+          id: 'father',
+          label: fakeName('male'),
+          relationship: 'Father',
+          sex: 'male',
+        },
+        {
+          id: 'ego',
+          label: fakeName('male'),
+          relationship: 'You',
+          sex: 'male',
+          isEgo: true,
+        },
+        {
+          id: 'sister',
+          label: fakeName('female'),
+          relationship: 'Sister',
+          sex: 'female',
+        },
+        {
+          id: 'brother',
+          label: fakeName('male'),
+          relationship: 'Brother',
+          sex: 'male',
+        },
       ],
       [
         { source: 'mgf', target: 'mgm', relationship: 'partner' },
@@ -151,12 +207,43 @@ export const FamilyWithChildren: StoryFn = () => {
   useEffect(() => {
     const store = buildStore(
       [
-        { id: 'mother', label: fakeName('female'), sex: 'female' },
-        { id: 'father', label: fakeName('male'), sex: 'male' },
-        { id: 'ego', label: fakeName('female'), sex: 'female', isEgo: true },
-        { id: 'partner', label: fakeName('male'), sex: 'male' },
-        { id: 'daughter', label: fakeName('female'), sex: 'female' },
-        { id: 'son', label: fakeName('male'), sex: 'male' },
+        {
+          id: 'mother',
+          label: fakeName('female'),
+          relationship: 'Mother',
+          sex: 'female',
+        },
+        {
+          id: 'father',
+          label: fakeName('male'),
+          relationship: 'Father',
+          sex: 'male',
+        },
+        {
+          id: 'ego',
+          label: fakeName('female'),
+          relationship: 'You',
+          sex: 'female',
+          isEgo: true,
+        },
+        {
+          id: 'partner',
+          label: fakeName('male'),
+          relationship: 'Partner',
+          sex: 'male',
+        },
+        {
+          id: 'daughter',
+          label: fakeName('female'),
+          relationship: 'Daughter',
+          sex: 'female',
+        },
+        {
+          id: 'son',
+          label: fakeName('male'),
+          relationship: 'Son',
+          sex: 'male',
+        },
       ],
       [
         { source: 'father', target: 'mother', relationship: 'partner' },
@@ -183,19 +270,85 @@ export const ExtendedFamily: StoryFn = () => {
   useEffect(() => {
     const store = buildStore(
       [
-        { id: 'mgm', label: fakeName('female'), sex: 'female' },
-        { id: 'mgf', label: fakeName('male'), sex: 'male' },
-        { id: 'pgm', label: fakeName('female'), sex: 'female' },
-        { id: 'pgf', label: fakeName('male'), sex: 'male' },
-        { id: 'mother', label: fakeName('female'), sex: 'female' },
-        { id: 'father', label: fakeName('male'), sex: 'male' },
-        { id: 'aunt', label: fakeName('female'), sex: 'female' },
-        { id: 'uncle-spouse', label: fakeName('male'), sex: 'male' },
-        { id: 'p-uncle', label: fakeName('male'), sex: 'male' },
-        { id: 'ego', label: fakeName('male'), sex: 'male', isEgo: true },
-        { id: 'sister', label: fakeName('female'), sex: 'female' },
-        { id: 'cousin1', label: fakeName('male'), sex: 'male' },
-        { id: 'cousin2', label: fakeName('female'), sex: 'female' },
+        {
+          id: 'mgm',
+          label: fakeName('female'),
+          relationship: 'Mat. Grandmother',
+          sex: 'female',
+        },
+        {
+          id: 'mgf',
+          label: fakeName('male'),
+          relationship: 'Mat. Grandfather',
+          sex: 'male',
+        },
+        {
+          id: 'pgm',
+          label: fakeName('female'),
+          relationship: 'Pat. Grandmother',
+          sex: 'female',
+        },
+        {
+          id: 'pgf',
+          label: fakeName('male'),
+          relationship: 'Pat. Grandfather',
+          sex: 'male',
+        },
+        {
+          id: 'mother',
+          label: fakeName('female'),
+          relationship: 'Mother',
+          sex: 'female',
+        },
+        {
+          id: 'father',
+          label: fakeName('male'),
+          relationship: 'Father',
+          sex: 'male',
+        },
+        {
+          id: 'aunt',
+          label: fakeName('female'),
+          relationship: 'Mat. Aunt',
+          sex: 'female',
+        },
+        {
+          id: 'uncle-spouse',
+          label: fakeName('male'),
+          relationship: "Aunt's Husband",
+          sex: 'male',
+        },
+        {
+          id: 'p-uncle',
+          label: fakeName('male'),
+          relationship: 'Pat. Uncle',
+          sex: 'male',
+        },
+        {
+          id: 'ego',
+          label: fakeName('male'),
+          relationship: 'You',
+          sex: 'male',
+          isEgo: true,
+        },
+        {
+          id: 'sister',
+          label: fakeName('female'),
+          relationship: 'Sister',
+          sex: 'female',
+        },
+        {
+          id: 'cousin1',
+          label: fakeName('male'),
+          relationship: 'Cousin',
+          sex: 'male',
+        },
+        {
+          id: 'cousin2',
+          label: fakeName('female'),
+          relationship: 'Cousin',
+          sex: 'female',
+        },
       ],
       [
         { source: 'mgf', target: 'mgm', relationship: 'partner' },
@@ -242,16 +395,43 @@ export const MultiplePartnersWithHalfSiblings: StoryFn = () => {
   useEffect(() => {
     const store = buildStore(
       [
-        { id: 'mother', label: fakeName('female'), sex: 'female' },
-        { id: 'father', label: fakeName('male'), sex: 'male' },
+        {
+          id: 'mother',
+          label: fakeName('female'),
+          relationship: 'Mother',
+          sex: 'female',
+        },
+        {
+          id: 'father',
+          label: fakeName('male'),
+          relationship: 'Father',
+          sex: 'male',
+        },
         {
           id: 'additional-partner',
           label: fakeName('female'),
+          relationship: "Father's Partner",
           sex: 'female',
         },
-        { id: 'ego', label: fakeName('female'), sex: 'female', isEgo: true },
-        { id: 'brother', label: fakeName('male'), sex: 'male' },
-        { id: 'half-sister', label: fakeName('female'), sex: 'female' },
+        {
+          id: 'ego',
+          label: fakeName('female'),
+          relationship: 'You',
+          sex: 'female',
+          isEgo: true,
+        },
+        {
+          id: 'brother',
+          label: fakeName('male'),
+          relationship: 'Brother',
+          sex: 'male',
+        },
+        {
+          id: 'half-sister',
+          label: fakeName('female'),
+          relationship: 'Half-Sister',
+          sex: 'female',
+        },
       ],
       [
         { source: 'father', target: 'mother', relationship: 'partner' },
@@ -290,8 +470,19 @@ export const SimpleCouple: StoryFn = () => {
   useEffect(() => {
     const store = buildStore(
       [
-        { id: 'ego', label: fakeName('male'), sex: 'male', isEgo: true },
-        { id: 'partner', label: fakeName('female'), sex: 'female' },
+        {
+          id: 'ego',
+          label: fakeName('male'),
+          relationship: 'You',
+          sex: 'male',
+          isEgo: true,
+        },
+        {
+          id: 'partner',
+          label: fakeName('female'),
+          relationship: 'Partner',
+          sex: 'female',
+        },
       ],
       [{ source: 'ego', target: 'partner', relationship: 'partner' }],
     );
@@ -309,31 +500,133 @@ export const ComplexMultiGenerational: StoryFn = () => {
   useEffect(() => {
     const store = buildStore(
       [
-        { id: 'ggf', label: fakeName('male'), sex: 'male' },
-        { id: 'ggm', label: fakeName('female'), sex: 'female' },
-        { id: 'pgf', label: fakeName('male'), sex: 'male' },
-        { id: 'pgm', label: fakeName('female'), sex: 'female' },
-        { id: 'pgf-partner2', label: fakeName('female'), sex: 'female' },
-        { id: 'mgf', label: fakeName('male'), sex: 'male' },
-        { id: 'mgm', label: fakeName('female'), sex: 'female' },
-        { id: 'father', label: fakeName('male'), sex: 'male' },
+        {
+          id: 'ggf',
+          label: fakeName('male'),
+          relationship: 'Great-Grandfather',
+          sex: 'male',
+        },
+        {
+          id: 'ggm',
+          label: fakeName('female'),
+          relationship: 'Great-Grandmother',
+          sex: 'female',
+        },
+        {
+          id: 'pgf',
+          label: fakeName('male'),
+          relationship: 'Pat. Grandfather',
+          sex: 'male',
+        },
+        {
+          id: 'pgm',
+          label: fakeName('female'),
+          relationship: 'Pat. Grandmother',
+          sex: 'female',
+        },
+        {
+          id: 'pgf-partner2',
+          label: fakeName('female'),
+          relationship: "PGF's Partner",
+          sex: 'female',
+        },
+        {
+          id: 'mgf',
+          label: fakeName('male'),
+          relationship: 'Mat. Grandfather',
+          sex: 'male',
+        },
+        {
+          id: 'mgm',
+          label: fakeName('female'),
+          relationship: 'Mat. Grandmother',
+          sex: 'female',
+        },
+        {
+          id: 'father',
+          label: fakeName('male'),
+          relationship: 'Father',
+          sex: 'male',
+        },
         {
           id: 'father-partner2',
           label: fakeName('female'),
+          relationship: "Father's Partner",
           sex: 'female',
         },
-        { id: 'mother', label: fakeName('female'), sex: 'female' },
-        { id: 'half-uncle', label: fakeName('male'), sex: 'male' },
-        { id: 'aunt', label: fakeName('female'), sex: 'female' },
-        { id: 'aunt-h', label: fakeName('male'), sex: 'male' },
-        { id: 'ego', label: fakeName('male'), sex: 'male', isEgo: true },
-        { id: 'partner', label: fakeName('female'), sex: 'female' },
-        { id: 'sister', label: fakeName('female'), sex: 'female' },
-        { id: 'half-sis', label: fakeName('female'), sex: 'female' },
-        { id: 'cousin-f', label: fakeName('female'), sex: 'female' },
-        { id: 'cousin-m', label: fakeName('male'), sex: 'male' },
-        { id: 'son', label: fakeName('male'), sex: 'male' },
-        { id: 'daughter', label: fakeName('female'), sex: 'female' },
+        {
+          id: 'mother',
+          label: fakeName('female'),
+          relationship: 'Mother',
+          sex: 'female',
+        },
+        {
+          id: 'half-uncle',
+          label: fakeName('male'),
+          relationship: 'Pat. Half-Uncle',
+          sex: 'male',
+        },
+        {
+          id: 'aunt',
+          label: fakeName('female'),
+          relationship: 'Mat. Aunt',
+          sex: 'female',
+        },
+        {
+          id: 'aunt-h',
+          label: fakeName('male'),
+          relationship: "Aunt's Husband",
+          sex: 'male',
+        },
+        {
+          id: 'ego',
+          label: fakeName('male'),
+          relationship: 'You',
+          sex: 'male',
+          isEgo: true,
+        },
+        {
+          id: 'partner',
+          label: fakeName('female'),
+          relationship: 'Partner',
+          sex: 'female',
+        },
+        {
+          id: 'sister',
+          label: fakeName('female'),
+          relationship: 'Sister',
+          sex: 'female',
+        },
+        {
+          id: 'half-sis',
+          label: fakeName('female'),
+          relationship: 'Half-Sister',
+          sex: 'female',
+        },
+        {
+          id: 'cousin-f',
+          label: fakeName('female'),
+          relationship: 'Cousin',
+          sex: 'female',
+        },
+        {
+          id: 'cousin-m',
+          label: fakeName('male'),
+          relationship: 'Cousin',
+          sex: 'male',
+        },
+        {
+          id: 'son',
+          label: fakeName('male'),
+          relationship: 'Son',
+          sex: 'male',
+        },
+        {
+          id: 'daughter',
+          label: fakeName('female'),
+          relationship: 'Daughter',
+          sex: 'female',
+        },
       ],
       [
         { source: 'ggf', target: 'ggm', relationship: 'partner' },
@@ -400,6 +693,7 @@ export const FullScaffoldedPedigree: StoryFn = () => {
       sex: 'male',
       isEgo: true,
       readOnly: true,
+      fields: { relationship: 'You' },
     });
 
     const store = createFamilyTreeStore(nodes, new Map());
@@ -435,17 +729,73 @@ export const SimulatedHydration: StoryFn = () => {
     const state = store.getState();
 
     const reduxLikeNodes = [
-      { id: 'mgm', label: fakeName('female'), sex: 'female' as const },
-      { id: 'mgf', label: fakeName('male'), sex: 'male' as const },
-      { id: 'pgm', label: fakeName('female'), sex: 'female' as const },
-      { id: 'pgf', label: fakeName('male'), sex: 'male' as const },
-      { id: 'mother', label: fakeName('female'), sex: 'female' as const },
-      { id: 'father', label: fakeName('male'), sex: 'male' as const },
-      { id: 'uncle', label: fakeName('male'), sex: 'male' as const },
-      { id: 'aunt', label: fakeName('female'), sex: 'female' as const },
-      { id: 'ego', label: fakeName('male'), sex: 'male' as const, isEgo: true },
-      { id: 'sister', label: fakeName('female'), sex: 'female' as const },
-      { id: 'brother', label: fakeName('male'), sex: 'male' as const },
+      {
+        id: 'mgm',
+        label: fakeName('female'),
+        relationship: 'Mat. Grandmother',
+        sex: 'female' as const,
+      },
+      {
+        id: 'mgf',
+        label: fakeName('male'),
+        relationship: 'Mat. Grandfather',
+        sex: 'male' as const,
+      },
+      {
+        id: 'pgm',
+        label: fakeName('female'),
+        relationship: 'Pat. Grandmother',
+        sex: 'female' as const,
+      },
+      {
+        id: 'pgf',
+        label: fakeName('male'),
+        relationship: 'Pat. Grandfather',
+        sex: 'male' as const,
+      },
+      {
+        id: 'mother',
+        label: fakeName('female'),
+        relationship: 'Mother',
+        sex: 'female' as const,
+      },
+      {
+        id: 'father',
+        label: fakeName('male'),
+        relationship: 'Father',
+        sex: 'male' as const,
+      },
+      {
+        id: 'uncle',
+        label: fakeName('male'),
+        relationship: 'Mat. Uncle',
+        sex: 'male' as const,
+      },
+      {
+        id: 'aunt',
+        label: fakeName('female'),
+        relationship: 'Pat. Aunt',
+        sex: 'female' as const,
+      },
+      {
+        id: 'ego',
+        label: fakeName('male'),
+        relationship: 'You',
+        sex: 'male' as const,
+        isEgo: true,
+      },
+      {
+        id: 'sister',
+        label: fakeName('female'),
+        relationship: 'Sister',
+        sex: 'female' as const,
+      },
+      {
+        id: 'brother',
+        label: fakeName('male'),
+        relationship: 'Brother',
+        sex: 'male' as const,
+      },
     ];
 
     for (const node of reduxLikeNodes) {
@@ -456,6 +806,7 @@ export const SimulatedHydration: StoryFn = () => {
         isEgo: node.isEgo,
         readOnly: false,
         interviewNetworkId: node.id,
+        fields: { relationship: node.relationship },
       });
     }
 
