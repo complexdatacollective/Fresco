@@ -99,7 +99,7 @@ function renderParentChild(
   );
 }
 
-export type PedigreeEdgeSvgProps = {
+type PedigreeEdgeSvgProps = {
   connectorData: ConnectorRenderData | null;
   color: string;
   width: number;

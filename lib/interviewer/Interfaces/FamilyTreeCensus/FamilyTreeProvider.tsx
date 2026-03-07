@@ -84,7 +84,6 @@ export const FamilyTreeProvider = ({
   storeRef.current ??= createFamilyTreeStore(
     initialNodes,
     initialEdges,
-    undefined,
     dispatch,
   );
 

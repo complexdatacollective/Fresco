@@ -4,7 +4,7 @@ import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
 import { type FamilyTreeNodeType } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
-import { useAppDispatch } from '~/lib/interviewer/store';
+import { type useAppDispatch } from '~/lib/interviewer/store';
 
 enableMapSet();
 
@@ -91,6 +91,7 @@ type NetworkActions = {
     anchorId?: string,
     secondParentId?: string,
   ) => string;
+  initializeMinimalNetwork: () => void;
   syncMetadata: () => void;
 };
 
@@ -995,6 +996,103 @@ export const createFamilyTreeStore = (
           }
 
           return newNodeId;
+        },
+
+        initializeMinimalNetwork: () => {
+          const store = get();
+          const { addNode, addEdge, updateNode, network } = store;
+
+          const hasStructure = network.nodes.size > 1;
+          if (hasStructure) return;
+
+          const egoEntry = Array.from(network.nodes.entries()).find(
+            ([, node]) => node.isEgo,
+          );
+          if (!egoEntry) return;
+
+          const [egoId, egoNode] = egoEntry;
+          const egoSex = egoNode.sex ?? 'female';
+
+          const maternalGrandmotherId = addNode({
+            label: 'maternal grandmother',
+            sex: 'female',
+            readOnly: true,
+          });
+          const maternalGrandfatherId = addNode({
+            label: 'maternal grandfather',
+            sex: 'male',
+            readOnly: true,
+          });
+          addEdge({
+            source: maternalGrandfatherId,
+            target: maternalGrandmotherId,
+            relationship: 'partner',
+          });
+
+          const paternalGrandmotherId = addNode({
+            label: 'paternal grandmother',
+            sex: 'female',
+            readOnly: true,
+          });
+          const paternalGrandfatherId = addNode({
+            label: 'paternal grandfather',
+            sex: 'male',
+            readOnly: true,
+          });
+          addEdge({
+            source: paternalGrandfatherId,
+            target: paternalGrandmotherId,
+            relationship: 'partner',
+          });
+
+          const motherId = addNode({
+            label: 'mother',
+            sex: 'female',
+            readOnly: true,
+          });
+          addEdge({
+            source: maternalGrandfatherId,
+            target: motherId,
+            relationship: 'parent',
+          });
+          addEdge({
+            source: maternalGrandmotherId,
+            target: motherId,
+            relationship: 'parent',
+          });
+
+          const fatherId = addNode({
+            label: 'father',
+            sex: 'male',
+            readOnly: true,
+          });
+          addEdge({
+            source: paternalGrandfatherId,
+            target: fatherId,
+            relationship: 'parent',
+          });
+          addEdge({
+            source: paternalGrandmotherId,
+            target: fatherId,
+            relationship: 'parent',
+          });
+          addEdge({
+            source: fatherId,
+            target: motherId,
+            relationship: 'partner',
+          });
+
+          updateNode(egoId, { sex: egoSex });
+          addEdge({
+            source: fatherId,
+            target: egoId,
+            relationship: 'parent',
+          });
+          addEdge({
+            source: motherId,
+            target: egoId,
+            relationship: 'parent',
+          });
         },
 
         syncMetadata: () => {

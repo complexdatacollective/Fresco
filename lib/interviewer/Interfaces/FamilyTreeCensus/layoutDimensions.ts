@@ -22,12 +22,3 @@ export function computeLayoutMetrics(dims: LayoutDimensions) {
     partnerSpacing,
   };
 }
-
-export const LEGACY_DIMENSIONS: LayoutDimensions = {
-  nodeWidth: 100,
-  nodeHeight: 100,
-  labelWidth: 150,
-  labelHeight: 60,
-  rowGap: 70,
-  columnGap: 0,
-};
