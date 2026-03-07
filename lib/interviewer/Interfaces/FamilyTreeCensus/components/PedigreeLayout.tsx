@@ -2,6 +2,7 @@
 
 import { useMemo, type ReactNode } from 'react';
 import Spinner from '~/components/Spinner';
+import { PedigreeEdgeSvg } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/EdgeRenderer';
 import { type FamilyTreeNodeType } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
 import {
   computeLayoutMetrics,
@@ -14,7 +15,6 @@ import {
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/pedigreeAdapter';
 import { type Edge } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import { alignPedigree } from '~/lib/pedigree-layout/alignPedigree';
-import { PedigreeEdgeSvg } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/EdgeRenderer';
 
 type PedigreeLayoutNode = Omit<FamilyTreeNodeType, 'id'> & { id: string };
 
@@ -77,22 +77,27 @@ export default function PedigreeLayout({
 
   const { positions, connectorData } = layoutResult;
 
-  let maxX = 0;
-  let maxY = 0;
+  let totalWidth = 0;
+  let totalHeight = 0;
   for (const pos of positions.values()) {
-    maxX = Math.max(maxX, pos.x + metrics.containerWidth);
-    maxY = Math.max(maxY, pos.y + metrics.containerHeight);
+    const rightEdge = pos.x + metrics.containerWidth;
+    const bottomEdge = pos.y + metrics.containerHeight;
+    if (rightEdge > totalWidth) totalWidth = rightEdge;
+    if (bottomEdge > totalHeight) totalHeight = bottomEdge;
   }
 
   const edgeColor = 'var(--color-edge-1)';
 
   return (
-    <div className="relative" style={{ minWidth: maxX, minHeight: maxY }}>
+    <div
+      className="relative"
+      style={{ width: totalWidth, height: totalHeight }}
+    >
       <PedigreeEdgeSvg
         connectorData={connectorData}
         color={edgeColor}
-        width={maxX}
-        height={maxY}
+        width={totalWidth}
+        height={totalHeight}
       />
       {Array.from(nodes.entries()).map(([id, node]) => {
         const pos = positions.get(id);
