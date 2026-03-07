@@ -382,7 +382,7 @@ export class DatabaseIsolation {
 
       // Release the exclusive advisory lock.
       try {
-        await client!.query(`SELECT pg_advisory_unlock(${LOCK_ID})`);
+        await client.query(`SELECT pg_advisory_unlock(${LOCK_ID})`);
         log('test', `Released exclusive lock after mutation test`);
       } catch (unlockError) {
         log(
@@ -391,7 +391,7 @@ export class DatabaseIsolation {
         );
       }
 
-      client!.release();
+      client.release();
       await pool.end();
 
       // Re-acquire shared lock so subsequent read-only tests are protected

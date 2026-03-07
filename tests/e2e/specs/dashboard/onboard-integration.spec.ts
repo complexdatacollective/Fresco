@@ -69,7 +69,7 @@ test.describe('Onboard Integration', () => {
           maxRedirects: 0,
         });
 
-        const location = response.headers()['location'] ?? '';
+        const location = response.headers().location ?? '';
         expect(location).toContain('/interview/');
       } finally {
         await cleanup();
