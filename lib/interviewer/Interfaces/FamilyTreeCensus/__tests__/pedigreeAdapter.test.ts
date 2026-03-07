@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'vitest';
 import { type FamilyTreeNodeType } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
-import { FAMILY_TREE_CONFIG } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/config';
+import {
+  computeLayoutMetrics,
+  type LayoutDimensions,
+} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/layoutDimensions';
 import {
   buildConnectorData,
   pedigreeLayoutToPositions,
@@ -9,6 +12,15 @@ import {
 import { type Edge } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import { alignPedigree } from '~/lib/pedigree-layout/alignPedigree';
 import { type PedigreeLayout } from '~/lib/pedigree-layout/types';
+
+const TEST_DIMENSIONS: LayoutDimensions = {
+  nodeWidth: 100,
+  nodeHeight: 100,
+  labelWidth: 150,
+  labelHeight: 60,
+  rowGap: 70,
+  columnGap: 0,
+};
 
 type NodeData = Omit<FamilyTreeNodeType, 'id'>;
 type EdgeData = Omit<Edge, 'id'>;
@@ -175,13 +187,19 @@ describe('pedigreeLayoutToPositions', () => {
       twins: null,
     };
 
-    const positions = pedigreeLayoutToPositions(layout, ['a', 'b']);
+    const positions = pedigreeLayoutToPositions(
+      layout,
+      ['a', 'b'],
+      TEST_DIMENSIONS,
+    );
 
     const posA = positions.get('a')!;
     const posB = positions.get('b')!;
     expect(posA.x).toBe(0);
     expect(posA.y).toBe(0);
-    expect(posB.x).toBe(2.5 * FAMILY_TREE_CONFIG.siblingSpacing);
+    expect(posB.x).toBe(
+      2.5 * computeLayoutMetrics(TEST_DIMENSIONS).siblingSpacing,
+    );
     expect(posB.y).toBe(0);
   });
 
@@ -195,12 +213,18 @@ describe('pedigreeLayoutToPositions', () => {
       twins: null,
     };
 
-    const positions = pedigreeLayoutToPositions(layout, ['a', 'b']);
+    const positions = pedigreeLayoutToPositions(
+      layout,
+      ['a', 'b'],
+      TEST_DIMENSIONS,
+    );
 
     const posA = positions.get('a')!;
     expect(posA.x).toBe(0);
     const posB = positions.get('b')!;
-    expect(posB.x).toBe(2 * FAMILY_TREE_CONFIG.siblingSpacing);
+    expect(posB.x).toBe(
+      2 * computeLayoutMetrics(TEST_DIMENSIONS).siblingSpacing,
+    );
   });
 
   test('multi-generation layout uses rowHeight for y', () => {
@@ -213,10 +237,16 @@ describe('pedigreeLayoutToPositions', () => {
       twins: null,
     };
 
-    const positions = pedigreeLayoutToPositions(layout, ['parent', 'child']);
+    const positions = pedigreeLayoutToPositions(
+      layout,
+      ['parent', 'child'],
+      TEST_DIMENSIONS,
+    );
 
     expect(positions.get('parent')!.y).toBe(0);
-    expect(positions.get('child')!.y).toBe(FAMILY_TREE_CONFIG.rowHeight);
+    expect(positions.get('child')!.y).toBe(
+      computeLayoutMetrics(TEST_DIMENSIONS).rowHeight,
+    );
   });
 });
 
@@ -235,7 +265,7 @@ describe('buildConnectorData', () => {
 
     const { input } = storeToPedigreeInput(nodes, edges);
     const layout = alignPedigree(input);
-    const { connectors } = buildConnectorData(layout, edges);
+    const { connectors } = buildConnectorData(layout, edges, TEST_DIMENSIONS);
 
     // Should have at least one spouse line and one parent-child line
     expect(connectors.spouseLines.length).toBeGreaterThanOrEqual(1);
@@ -246,8 +276,6 @@ describe('buildConnectorData', () => {
       expect(sp.segment.x1).toBeGreaterThanOrEqual(0);
     }
   });
-
-  
 });
 
 describe('end-to-end: store → layout → positions', () => {
@@ -265,7 +293,11 @@ describe('end-to-end: store → layout → positions', () => {
 
     const { input, indexToId } = storeToPedigreeInput(nodes, edges);
     const layout = alignPedigree(input);
-    const positions = pedigreeLayoutToPositions(layout, indexToId);
+    const positions = pedigreeLayoutToPositions(
+      layout,
+      indexToId,
+      TEST_DIMENSIONS,
+    );
 
     expect(positions.get('father')!.y).toBeLessThan(positions.get('child')!.y);
     expect(positions.get('mother')!.y).toBeLessThan(positions.get('child')!.y);
@@ -282,7 +314,11 @@ describe('end-to-end: store → layout → positions', () => {
 
     const { input, indexToId } = storeToPedigreeInput(nodes, edges);
     const layout = alignPedigree(input);
-    const positions = pedigreeLayoutToPositions(layout, indexToId);
+    const positions = pedigreeLayoutToPositions(
+      layout,
+      indexToId,
+      TEST_DIMENSIONS,
+    );
 
     expect(positions.get('father')!.y).toBe(positions.get('mother')!.y);
   });
@@ -304,7 +340,11 @@ describe('end-to-end: store → layout → positions', () => {
 
     const { input, indexToId } = storeToPedigreeInput(nodes, edges);
     const layout = alignPedigree(input);
-    const positions = pedigreeLayoutToPositions(layout, indexToId);
+    const positions = pedigreeLayoutToPositions(
+      layout,
+      indexToId,
+      TEST_DIMENSIONS,
+    );
 
     expect(positions.get('ego')!.y).toBe(positions.get('sibling')!.y);
   });
@@ -328,7 +368,11 @@ describe('end-to-end: store → layout → positions', () => {
 
     const { input, indexToId } = storeToPedigreeInput(nodes, edges);
     const layout = alignPedigree(input);
-    const positions = pedigreeLayoutToPositions(layout, indexToId);
+    const positions = pedigreeLayoutToPositions(
+      layout,
+      indexToId,
+      TEST_DIMENSIONS,
+    );
 
     expect(positions.size).toBe(nodes.size);
     for (const nodeId of nodes.keys()) {

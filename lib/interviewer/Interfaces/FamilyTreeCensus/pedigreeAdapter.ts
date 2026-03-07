@@ -1,4 +1,7 @@
-import { FAMILY_TREE_CONFIG } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/config';
+import {
+  computeLayoutMetrics,
+  type LayoutDimensions,
+} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/layoutDimensions';
 import { type Edge } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import { type FamilyTreeNodeType } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
 import { computeConnectors } from '~/lib/pedigree-layout/connectors';
@@ -100,7 +103,9 @@ export function storeToPedigreeInput(
 export function pedigreeLayoutToPositions(
   layout: PedigreeLayout,
   indexToId: string[],
+  dimensions: LayoutDimensions,
 ): Map<string, { x: number; y: number }> {
+  const metrics = computeLayoutMetrics(dimensions);
   const positions = new Map<string, { x: number; y: number }>();
 
   for (let gen = 0; gen < layout.nid.length; gen++) {
@@ -113,8 +118,8 @@ export function pedigreeLayoutToPositions(
       // Only record first appearance (skip duplicates)
       if (positions.has(nodeId)) continue;
 
-      const x = layout.pos[gen]![col]! * FAMILY_TREE_CONFIG.siblingSpacing;
-      const y = gen * FAMILY_TREE_CONFIG.rowHeight;
+      const x = layout.pos[gen]![col]! * metrics.siblingSpacing;
+      const y = gen * metrics.rowHeight;
       positions.set(nodeId, { x, y });
     }
   }
@@ -143,10 +148,12 @@ export function pedigreeLayoutToPositions(
 export function buildConnectorData(
   layout: PedigreeLayout,
   _edges: Map<string, Omit<Edge, 'id'>>,
+  dimensions: LayoutDimensions,
 ): ConnectorRenderData {
+  const metrics = computeLayoutMetrics(dimensions);
   const scaling: ScalingParams = {
-    boxWidth: FAMILY_TREE_CONFIG.nodeWidth / FAMILY_TREE_CONFIG.siblingSpacing,
-    boxHeight: FAMILY_TREE_CONFIG.nodeHeight / FAMILY_TREE_CONFIG.rowHeight,
+    boxWidth: dimensions.nodeWidth / metrics.siblingSpacing,
+    boxHeight: dimensions.nodeHeight / metrics.rowHeight,
     legHeight: 0.25,
     hScale: 1,
     vScale: 1,
@@ -155,9 +162,9 @@ export function buildConnectorData(
   const connectors = computeConnectors(layout, scaling);
 
   // Transform all coordinates to pixel space
-  const sx = FAMILY_TREE_CONFIG.siblingSpacing;
-  const sy = FAMILY_TREE_CONFIG.rowHeight;
-  const xOffset = FAMILY_TREE_CONFIG.nodeContainerWidth / 2;
+  const sx = metrics.siblingSpacing;
+  const sy = metrics.rowHeight;
+  const xOffset = metrics.containerWidth / 2;
 
   for (const sp of connectors.spouseLines) {
     transformSegment(sp.segment, sx, sy, xOffset);

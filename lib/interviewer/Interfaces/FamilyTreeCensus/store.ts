@@ -4,14 +4,15 @@ import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
 import { type FamilyTreeNodeType } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
+import { LEGACY_DIMENSIONS } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/layoutDimensions';
 import {
   buildConnectorData,
   type ConnectorRenderData,
   pedigreeLayoutToPositions,
   storeToPedigreeInput,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/pedigreeAdapter';
-import type { AppDispatch } from '~/lib/interviewer/store';
 import { alignPedigree } from '~/lib/pedigree-layout/alignPedigree';
+import { useAppDispatch } from '../../store';
 
 enableMapSet();
 
@@ -94,7 +95,6 @@ type NetworkActions = {
     formData: Record<string, number>,
     egoSex: Sex,
   ) => void;
-  initializeMinimalNetwork: () => void;
   addPlaceholderNode: (
     relation: string,
     anchorId?: string,
@@ -129,12 +129,8 @@ export type FamilyTreeStore = FamilyTreeState & FamilyTreeAction;
 export const createFamilyTreeStore = (
   initialNodes: Map<string, Omit<FamilyTreeNodeType, 'id'>>,
   initialEdges: Map<string, Omit<Edge, 'id'>>,
-  init: FamilyTreeState = initialState,
-  dispatch?: AppDispatch,
+  dispatch: ReturnType<typeof useAppDispatch>,
 ) => {
-  init.network.nodes = initialNodes;
-  init.network.edges = initialEdges;
-
   return createStore<FamilyTreeStore>()(
     immer((set, get) => {
       // Network traversal utilities
@@ -253,8 +249,11 @@ export const createFamilyTreeStore = (
       };
 
       return {
-        ...init,
-
+        ...initialState,
+        network: {
+          nodes: initialNodes,
+          edges: initialEdges,
+        },
         setStep: (step) =>
           set((state) => {
             state.step = step;
@@ -721,117 +720,6 @@ export const createFamilyTreeStore = (
           store.runLayout();
         },
 
-        /**
-         * Initialize a minimal family tree structure without census form data.
-         * Creates grandparents, parents, and connects ego.
-         * Used when showQuickStartModal is false.
-         */
-        initializeMinimalNetwork: () => {
-          const store = get();
-          const { addNode, addEdge, updateNode, network } = store;
-
-          // Check if network already has structure (more than just ego)
-          const hasStructure = network.nodes.size > 1;
-          if (hasStructure) return;
-
-          // Find ego node
-          const egoEntry = Array.from(network.nodes.entries()).find(
-            ([, node]) => node.isEgo,
-          );
-          if (!egoEntry) return;
-
-          const [egoId, egoNode] = egoEntry;
-          const egoSex = egoNode.sex ?? 'female';
-
-          // Maternal grandparents
-          const maternalGrandmotherId = addNode({
-            label: 'maternal grandmother',
-            sex: 'female',
-            readOnly: true,
-          });
-          const maternalGrandfatherId = addNode({
-            label: 'maternal grandfather',
-            sex: 'male',
-            readOnly: true,
-          });
-          addEdge({
-            source: maternalGrandfatherId,
-            target: maternalGrandmotherId,
-            relationship: 'partner',
-          });
-
-          // Paternal grandparents
-          const paternalGrandmotherId = addNode({
-            label: 'paternal grandmother',
-            sex: 'female',
-            readOnly: true,
-          });
-          const paternalGrandfatherId = addNode({
-            label: 'paternal grandfather',
-            sex: 'male',
-            readOnly: true,
-          });
-          addEdge({
-            source: paternalGrandfatherId,
-            target: paternalGrandmotherId,
-            relationship: 'partner',
-          });
-
-          // Mother
-          const motherId = addNode({
-            label: 'mother',
-            sex: 'female',
-            readOnly: true,
-          });
-          addEdge({
-            source: maternalGrandfatherId,
-            target: motherId,
-            relationship: 'parent',
-          });
-          addEdge({
-            source: maternalGrandmotherId,
-            target: motherId,
-            relationship: 'parent',
-          });
-
-          // Father
-          const fatherId = addNode({
-            label: 'father',
-            sex: 'male',
-            readOnly: true,
-          });
-          addEdge({
-            source: paternalGrandfatherId,
-            target: fatherId,
-            relationship: 'parent',
-          });
-          addEdge({
-            source: paternalGrandmotherId,
-            target: fatherId,
-            relationship: 'parent',
-          });
-          addEdge({
-            source: fatherId,
-            target: motherId,
-            relationship: 'partner',
-          });
-
-          // Connect ego to parents
-          updateNode(egoId, { sex: egoSex });
-          addEdge({
-            source: fatherId,
-            target: egoId,
-            relationship: 'parent',
-          });
-          addEdge({
-            source: motherId,
-            target: egoId,
-            relationship: 'parent',
-          });
-
-          store.runLayout();
-        },
-
         addPlaceholderNode: (
           relation: string,
           anchorId?: string,
@@ -1131,8 +1019,12 @@ export const createFamilyTreeStore = (
           if (input.id.length === 0) return;
 
           const layout = alignPedigree(input);
-          const positions = pedigreeLayoutToPositions(layout, indexToId);
-          const connData = buildConnectorData(layout, edges);
+          const positions = pedigreeLayoutToPositions(
+            layout,
+            indexToId,
+            LEGACY_DIMENSIONS,
+          );
+          const connData = buildConnectorData(layout, edges, LEGACY_DIMENSIONS);
 
           set((draft) => {
             for (const [nodeId, position] of positions) {
@@ -1147,8 +1039,6 @@ export const createFamilyTreeStore = (
         },
 
         syncMetadata: () => {
-          if (!dispatch) return;
-
           const committedNodes = Array.from(get().network.nodes.values())
             .filter((n) => n.interviewNetworkId != null)
             .map((n) => ({
