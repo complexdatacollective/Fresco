@@ -2,6 +2,7 @@ import type { Meta, StoryFn } from '@storybook/nextjs-vite';
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import Node from '~/components/Node';
+import { useNodeMeasurement } from '~/hooks/useNodeMeasurement';
 import { type FamilyTreeNodeType } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
 import PedigreeLayout from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/PedigreeLayout';
 import {
@@ -20,17 +21,9 @@ const meta: Meta = {
 
 export default meta;
 
-const emptyNodes = new Map<string, Omit<FamilyTreeNodeType, 'id'>>();
-const emptyEdges = new Map<string, Omit<Edge, 'id'>>();
-
-const STORY_DIMENSIONS = {
-  nodeWidth: 100,
-  nodeHeight: 100,
-  labelWidth: 150,
-  labelHeight: 60,
-  rowGap: 70,
-  columnGap: 0,
-};
+const LABEL_HEIGHT = 60;
+const ROW_GAP = 70;
+const COLUMN_GAP = 0;
 
 type NodeDef = {
   id: string;
@@ -67,13 +60,22 @@ function buildStore(nodeDefs: NodeDef[], edgeDefs: EdgeDef[]) {
 function StoryVisualizationInner({ store }: { store: FamilyTreeStoreApi }) {
   const nodesMap = useStore(store, (s) => s.network.nodes);
   const edgesMap = useStore(store, (s) => s.network.edges);
+  const { nodeWidth, nodeHeight, portal } = useNodeMeasurement({
+    component: <Node size="sm" />,
+  });
 
   return (
-    <div className="relative size-full overflow-auto bg-[#1a1a2e] p-8">
+    <div className="max-w-full overflow-auto">
+      {portal}
       <PedigreeLayout
         nodes={nodesMap}
         edges={edgesMap}
-        {...STORY_DIMENSIONS}
+        nodeWidth={nodeWidth}
+        nodeHeight={nodeHeight}
+        labelWidth={Math.max(nodeWidth, 150)}
+        labelHeight={LABEL_HEIGHT}
+        rowGap={ROW_GAP}
+        columnGap={COLUMN_GAP}
         renderNode={(node) => (
           <div className="flex flex-col items-center gap-1 text-center">
             <Node
