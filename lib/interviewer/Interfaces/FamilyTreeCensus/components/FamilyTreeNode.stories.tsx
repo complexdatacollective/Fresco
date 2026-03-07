@@ -7,7 +7,6 @@ import { configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Provider } from 'react-redux';
 import FamilyTreeNode from './FamilyTreeNode';
-import { FAMILY_TREE_CONFIG } from '../config';
 
 // Mock protocol with a Person node type
 const mockProtocol = {
@@ -95,8 +94,8 @@ const NodeContainer = ({ children }: { children: React.ReactNode }) => (
   <div
     className="relative"
     style={{
-      width: FAMILY_TREE_CONFIG.nodeContainerWidth,
-      height: FAMILY_TREE_CONFIG.nodeContainerHeight + 40,
+      width: 150,
+      height: 200,
     }}
   >
     {children}
@@ -136,8 +135,6 @@ const meta: Meta<typeof FamilyTreeNode> = {
   },
   args: {
     placeholderId: 'placeholder-1',
-    x: 0,
-    y: 0,
     allowDrag: false,
   },
 };
@@ -274,8 +271,6 @@ export const AllStates: Story = {
             placeholderId="p1"
             label="Father"
             shape="square"
-            x={0}
-            y={0}
             allowDrag={false}
           />
         </NodeContainer>
@@ -287,8 +282,6 @@ export const AllStates: Story = {
             placeholderId="p2"
             label="Mother"
             shape="circle"
-            x={0}
-            y={0}
             allowDrag={false}
           />
         </NodeContainer>
@@ -300,8 +293,6 @@ export const AllStates: Story = {
             placeholderId="p3"
             label="Father"
             shape="square"
-            x={0}
-            y={0}
             allowDrag={false}
             networkNode={createMockNetworkNode('John')}
           />
@@ -314,8 +305,6 @@ export const AllStates: Story = {
             placeholderId="p4"
             label="Mother"
             shape="circle"
-            x={0}
-            y={0}
             allowDrag={false}
             networkNode={createMockNetworkNode('Mary')}
           />
@@ -328,8 +317,6 @@ export const AllStates: Story = {
             placeholderId="p5"
             label="You"
             shape="circle"
-            x={0}
-            y={0}
             allowDrag={false}
             isEgo
           />
@@ -342,8 +329,6 @@ export const AllStates: Story = {
             placeholderId="p6"
             label="You"
             shape="circle"
-            x={0}
-            y={0}
             allowDrag={false}
             isEgo
             networkNode={createMockNetworkNode('Sarah')}
@@ -380,8 +365,6 @@ export const ShapeComparison: Story = {
             placeholderId="male"
             label="Father"
             shape="square"
-            x={0}
-            y={0}
             allowDrag={false}
             networkNode={createMockNetworkNode('John')}
           />
@@ -394,8 +377,6 @@ export const ShapeComparison: Story = {
             placeholderId="female"
             label="Mother"
             shape="circle"
-            x={0}
-            y={0}
             allowDrag={false}
             networkNode={createMockNetworkNode('Mary')}
           />
