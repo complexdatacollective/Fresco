@@ -22,8 +22,6 @@ const meta: Meta = {
 export default meta;
 
 const LABEL_HEIGHT = 60;
-const ROW_GAP = 70;
-const COLUMN_GAP = 0;
 
 type NodeDef = {
   id: string;
@@ -74,8 +72,6 @@ function StoryVisualizationInner({ store }: { store: FamilyTreeStoreApi }) {
         nodeHeight={nodeHeight}
         labelWidth={Math.max(nodeWidth, 150)}
         labelHeight={LABEL_HEIGHT}
-        rowGap={ROW_GAP}
-        columnGap={COLUMN_GAP}
         renderNode={(node) => (
           <div className="flex flex-col items-center gap-1 text-center">
             <Node

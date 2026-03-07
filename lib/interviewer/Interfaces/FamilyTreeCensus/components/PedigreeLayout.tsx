@@ -25,8 +25,6 @@ type PedigreeLayoutProps = {
   nodeHeight: number;
   labelWidth: number;
   labelHeight: number;
-  rowGap: number;
-  columnGap: number;
   renderNode: (node: PedigreeLayoutNode) => ReactNode;
 };
 
@@ -37,8 +35,6 @@ export default function PedigreeLayout({
   nodeHeight,
   labelWidth,
   labelHeight,
-  rowGap,
-  columnGap,
   renderNode,
 }: PedigreeLayoutProps) {
   const dimensions: LayoutDimensions = useMemo(
@@ -47,10 +43,8 @@ export default function PedigreeLayout({
       nodeHeight,
       labelWidth,
       labelHeight,
-      rowGap,
-      columnGap,
     }),
-    [nodeWidth, nodeHeight, labelWidth, labelHeight, rowGap, columnGap],
+    [nodeWidth, nodeHeight, labelWidth, labelHeight],
   );
 
   const metrics = useMemo(() => computeLayoutMetrics(dimensions), [dimensions]);
@@ -81,22 +75,27 @@ export default function PedigreeLayout({
 
   const { positions, connectorData } = layoutResult;
 
-  let maxX = 0;
-  let maxY = 0;
+  let totalWidth = 0;
+  let totalHeight = 0;
   for (const pos of positions.values()) {
-    maxX = Math.max(maxX, pos.x + metrics.containerWidth);
-    maxY = Math.max(maxY, pos.y + metrics.containerHeight);
+    const rightEdge = pos.x + metrics.containerWidth;
+    const bottomEdge = pos.y + metrics.containerHeight;
+    if (rightEdge > totalWidth) totalWidth = rightEdge;
+    if (bottomEdge > totalHeight) totalHeight = bottomEdge;
   }
 
   const edgeColor = 'var(--color-edge-1)';
 
   return (
-    <div className="relative" style={{ minWidth: maxX, minHeight: maxY }}>
+    <div
+      className="relative"
+      style={{ width: totalWidth, height: totalHeight }}
+    >
       <PedigreeEdgeSvg
         connectorData={connectorData}
         color={edgeColor}
-        width={maxX}
-        height={maxY}
+        width={totalWidth}
+        height={totalHeight}
       />
       {Array.from(nodes.entries()).map(([id, node]) => {
         const pos = positions.get(id);

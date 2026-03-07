@@ -18,8 +18,6 @@ const TEST_DIMENSIONS: LayoutDimensions = {
   nodeHeight: 100,
   labelWidth: 150,
   labelHeight: 60,
-  rowGap: 70,
-  columnGap: 0,
 };
 
 type NodeData = Omit<FamilyTreeNodeType, 'id'>;

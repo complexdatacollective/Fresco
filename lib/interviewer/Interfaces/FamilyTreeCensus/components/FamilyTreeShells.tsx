@@ -306,8 +306,6 @@ export const FamilyTreeShells = (props: {
             nodeHeight={nodeHeight}
             labelWidth={150}
             labelHeight={60}
-            rowGap={70}
-            columnGap={0}
             renderNode={(node) => (
               <FamilyTreeNode
                 placeholderId={node.id}
