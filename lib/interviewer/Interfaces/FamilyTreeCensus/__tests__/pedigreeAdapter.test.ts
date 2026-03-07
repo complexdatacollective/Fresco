@@ -16,8 +16,6 @@ import { type PedigreeLayout } from '~/lib/pedigree-layout/types';
 const TEST_DIMENSIONS: LayoutDimensions = {
   nodeWidth: 100,
   nodeHeight: 100,
-  labelWidth: 150,
-  labelHeight: 60,
 };
 
 type NodeData = Omit<FamilyTreeNodeType, 'id'>;

@@ -23,8 +23,6 @@ type PedigreeLayoutProps = {
   edges: Map<string, Omit<Edge, 'id'>>;
   nodeWidth: number;
   nodeHeight: number;
-  labelWidth: number;
-  labelHeight: number;
   renderNode: (node: PedigreeLayoutNode) => ReactNode;
 };
 
@@ -33,18 +31,14 @@ export default function PedigreeLayout({
   edges,
   nodeWidth,
   nodeHeight,
-  labelWidth,
-  labelHeight,
   renderNode,
 }: PedigreeLayoutProps) {
   const dimensions: LayoutDimensions = useMemo(
     () => ({
       nodeWidth,
       nodeHeight,
-      labelWidth,
-      labelHeight,
     }),
-    [nodeWidth, nodeHeight, labelWidth, labelHeight],
+    [nodeWidth, nodeHeight],
   );
 
   const metrics = useMemo(() => computeLayoutMetrics(dimensions), [dimensions]);

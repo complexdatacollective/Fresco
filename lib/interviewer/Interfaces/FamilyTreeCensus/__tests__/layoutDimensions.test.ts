@@ -8,8 +8,6 @@ describe('computeLayoutMetrics', () => {
   const dims: LayoutDimensions = {
     nodeWidth: 100,
     nodeHeight: 100,
-    labelWidth: 150,
-    labelHeight: 60,
   };
 
   test('derives rowGap as 70% of nodeHeight', () => {
@@ -22,20 +20,14 @@ describe('computeLayoutMetrics', () => {
     expect(metrics.columnGap).toBe(Math.round(100 * 0.1));
   });
 
-  test('containerWidth is max of nodeWidth and labelWidth', () => {
+  test('containerWidth equals nodeWidth', () => {
     const metrics = computeLayoutMetrics(dims);
-    expect(metrics.containerWidth).toBe(150);
+    expect(metrics.containerWidth).toBe(100);
   });
 
-  test('containerWidth uses nodeWidth when it exceeds labelWidth', () => {
-    const wide = { ...dims, nodeWidth: 200 };
-    const metrics = computeLayoutMetrics(wide);
-    expect(metrics.containerWidth).toBe(200);
-  });
-
-  test('containerHeight is nodeHeight + labelHeight', () => {
+  test('containerHeight equals nodeHeight', () => {
     const metrics = computeLayoutMetrics(dims);
-    expect(metrics.containerHeight).toBe(160);
+    expect(metrics.containerHeight).toBe(100);
   });
 
   test('rowHeight is containerHeight + rowGap', () => {
@@ -59,8 +51,6 @@ describe('computeLayoutMetrics', () => {
     const small: LayoutDimensions = {
       nodeWidth: 50,
       nodeHeight: 80,
-      labelWidth: 60,
-      labelHeight: 30,
     };
     const metrics = computeLayoutMetrics(small);
     expect(metrics.rowGap).toBe(Math.round(80 * 0.7));
@@ -71,8 +61,6 @@ describe('computeLayoutMetrics', () => {
     const odd: LayoutDimensions = {
       nodeWidth: 73,
       nodeHeight: 91,
-      labelWidth: 100,
-      labelHeight: 40,
     };
     const metrics = computeLayoutMetrics(odd);
     expect(Number.isInteger(metrics.rowGap)).toBe(true);

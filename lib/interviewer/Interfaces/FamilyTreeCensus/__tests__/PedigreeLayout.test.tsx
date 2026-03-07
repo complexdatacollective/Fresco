@@ -10,8 +10,6 @@ type EdgeData = Omit<Edge, 'id'>;
 const DIMS = {
   nodeWidth: 100,
   nodeHeight: 100,
-  labelWidth: 150,
-  labelHeight: 60,
 };
 
 function makeNodes(
