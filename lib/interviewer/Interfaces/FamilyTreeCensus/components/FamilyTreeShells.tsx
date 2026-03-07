@@ -66,7 +66,7 @@ export const FamilyTreeShells = (props: {
   const edgesMap = useFamilyTreeStore((state) => state.network.edges);
   const existingNodes = networkNodes.length > 0;
 
-  const { nodeWidth, nodeHeight, portal } = useNodeMeasurement({
+  const { nodeWidth, nodeHeight } = useNodeMeasurement({
     component: <Node size="sm" />,
   });
 
@@ -297,7 +297,6 @@ export const FamilyTreeShells = (props: {
         />
       )}
       <div className="census-node-canvas relative size-full overflow-x-auto pt-6">
-        {portal}
         <div className="relative flex size-full min-w-fit justify-center">
           <PedigreeLayout
             nodes={nodesMap}

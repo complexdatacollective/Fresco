@@ -151,10 +151,11 @@ export function buildConnectorData(
   dimensions: LayoutDimensions,
 ): ConnectorRenderData {
   const metrics = computeLayoutMetrics(dimensions);
+  const boxHeight = dimensions.nodeHeight / metrics.rowHeight;
   const scaling: ScalingParams = {
     boxWidth: dimensions.nodeWidth / metrics.siblingSpacing,
-    boxHeight: dimensions.nodeHeight / metrics.rowHeight,
-    legHeight: 0.25,
+    boxHeight,
+    legHeight: (1 - boxHeight) / 2,
     hScale: 1,
     vScale: 1,
   };

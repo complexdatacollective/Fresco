@@ -26,7 +26,7 @@ const meta: Meta = {
     },
     nodeStyle: {
       control: 'select',
-      options: ['Colored Node', 'Labeled Node', 'Node with Subtitle', 'Dot'],
+      options: ['Colored Node', 'Labeled Node', 'Responsive', 'Dot'],
     },
   },
   args: {
@@ -193,18 +193,21 @@ const NODE_MEASUREMENT_COMPONENTS: Record<string, React.ReactElement> = {
   'Colored Node': <Node size="sm" />,
   'Labeled Node': (
     <div className="flex flex-col items-center gap-1">
+      <span className="invisible text-xs">placeholder</span>
       <Node size="sm" />
       <span className="text-xs text-white">placeholder</span>
     </div>
   ),
-  'Node with Subtitle': (
-    <div className="flex flex-col items-center gap-1">
-      <Node size="sm" />
-      <span className="text-xs text-white">placeholder</span>
-      <span className="text-[10px] text-white/60">subtitle</span>
-    </div>
+  'Responsive': (
+    <div
+      className="rounded-full bg-node-1"
+      style={{
+        width: 'clamp(24px, 5vw, 80px)',
+        height: 'clamp(24px, 5vw, 80px)',
+      }}
+    />
   ),
-  'Dot': <div className="size-4 rounded-full bg-white" />,
+  'Dot': <div className="m-4 size-4 rounded-full bg-white" />,
 };
 
 const NODE_RENDERERS: Record<string, NodeRenderer> = {
@@ -217,6 +220,7 @@ const NODE_RENDERERS: Record<string, NodeRenderer> = {
   ),
   'Labeled Node': (node) => (
     <div className="flex flex-col items-center gap-1 text-center">
+      <span className="invisible max-w-24 truncate text-xs">{node.label}</span>
       <Node
         className="shrink-0"
         color={node.isEgo ? 'node-color-seq-2' : 'node-color-seq-1'}
@@ -227,24 +231,19 @@ const NODE_RENDERERS: Record<string, NodeRenderer> = {
       <span className="max-w-24 truncate text-xs text-white">{node.label}</span>
     </div>
   ),
-  'Node with Subtitle': (node) => (
-    <div className="flex flex-col items-center gap-1 text-center">
-      <Node
-        className="shrink-0"
-        color={node.isEgo ? 'node-color-seq-2' : 'node-color-seq-1'}
-        label={node.label}
-        shape={node.sex === 'female' ? 'circle' : 'square'}
-        size="sm"
-      />
-      <span className="max-w-24 truncate text-xs text-white">{node.label}</span>
-      <span className="text-[10px] text-white/60">
-        {node.isEgo ? 'Ego' : (node.sex ?? 'unknown')}
-      </span>
-    </div>
+  'Responsive': (node) => (
+    <div
+      className={`rounded-full ${node.isEgo ? 'bg-node-2' : 'bg-node-1'}`}
+      style={{
+        width: 'clamp(24px, 5vw, 80px)',
+        height: 'clamp(24px, 5vw, 80px)',
+      }}
+      title={node.label}
+    />
   ),
   'Dot': (node) => (
     <div
-      className={`size-4 rounded-full ${node.isEgo ? 'bg-yellow-400' : 'bg-white'}`}
+      className={`m-4 size-4 rounded-full ${node.isEgo ? 'bg-yellow-400' : 'bg-white'}`}
       title={node.label}
     />
   ),
@@ -263,7 +262,7 @@ export const Playground: StoryFn<StoryArgs> = ({ network, nodeStyle }) => {
     NODE_MEASUREMENT_COMPONENTS[nodeStyle] ??
     NODE_MEASUREMENT_COMPONENTS['Labeled Node']!;
 
-  const { nodeWidth, nodeHeight, portal } = useNodeMeasurement({
+  const { nodeWidth, nodeHeight } = useNodeMeasurement({
     component: measureComponent,
   });
 
@@ -272,7 +271,6 @@ export const Playground: StoryFn<StoryArgs> = ({ network, nodeStyle }) => {
 
   return (
     <div className="flex size-full items-center justify-center overflow-auto p-8">
-      {portal}
       <PedigreeLayout
         nodes={stableNodes}
         edges={stableEdges}

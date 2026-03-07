@@ -37,12 +37,11 @@ function triggerAllObservers(width: number, height: number) {
 }
 
 function TestConsumer({ component }: { component: React.ReactElement }) {
-  const { nodeWidth, nodeHeight, portal } = useNodeMeasurement({
+  const { nodeWidth, nodeHeight } = useNodeMeasurement({
     component,
   });
   return (
     <div>
-      {portal}
       <div data-testid="width">{nodeWidth}</div>
       <div data-testid="height">{nodeHeight}</div>
     </div>
@@ -78,7 +77,7 @@ describe('useNodeMeasurement', () => {
     expect(containers.length).toBeGreaterThanOrEqual(1);
   });
 
-  test('renders portal content into the hidden container', () => {
+  test('renders content into the hidden container', () => {
     setup();
     render(<TestConsumer component={<div>test</div>} />);
 
@@ -89,7 +88,7 @@ describe('useNodeMeasurement', () => {
     expect(container.children.length).toBeGreaterThan(0);
   });
 
-  test('creates a ResizeObserver for the portal content', () => {
+  test('creates a ResizeObserver for the content', () => {
     setup();
     render(<TestConsumer component={<div>test</div>} />);
 

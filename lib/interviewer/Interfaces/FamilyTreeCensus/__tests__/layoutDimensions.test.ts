@@ -15,9 +15,9 @@ describe('computeLayoutMetrics', () => {
     expect(metrics.rowGap).toBe(Math.round(100 * 0.7));
   });
 
-  test('derives columnGap as 10% of nodeWidth', () => {
+  test('derives columnGap as 60% of nodeWidth', () => {
     const metrics = computeLayoutMetrics(dims);
-    expect(metrics.columnGap).toBe(Math.round(100 * 0.1));
+    expect(metrics.columnGap).toBe(Math.round(100 * 0.6));
   });
 
   test('containerWidth equals nodeWidth', () => {
@@ -54,7 +54,7 @@ describe('computeLayoutMetrics', () => {
     };
     const metrics = computeLayoutMetrics(small);
     expect(metrics.rowGap).toBe(Math.round(80 * 0.7));
-    expect(metrics.columnGap).toBe(Math.round(50 * 0.1));
+    expect(metrics.columnGap).toBe(Math.round(50 * 0.6));
   });
 
   test('rounds gaps to integers', () => {

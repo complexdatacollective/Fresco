@@ -1,12 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState, type ReactElement } from 'react';
-import { createPortal } from 'react-dom';
+import { createRoot, type Root } from 'react-dom/client';
 
 type NodeMeasurement = {
   nodeWidth: number;
   nodeHeight: number;
-  portal: React.ReactPortal | null;
 };
 
 export function useNodeMeasurement({
@@ -15,55 +14,56 @@ export function useNodeMeasurement({
   component: ReactElement;
 }): NodeMeasurement {
   const [dimensions, setDimensions] = useState({ nodeWidth: 0, nodeHeight: 0 });
-  const [container, setContainer] = useState<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const rootRef = useRef<Root | null>(null);
   const observerRef = useRef<ResizeObserver | null>(null);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const el = document.createElement('div');
-    el.style.visibility = 'hidden';
-    el.style.position = 'absolute';
-    el.style.pointerEvents = 'none';
-    el.style.top = '-9999px';
-    el.style.left = '-9999px';
-    document.body.appendChild(el);
-    setContainer(el);
+    const container = document.createElement('div');
+    container.style.visibility = 'hidden';
+    container.style.position = 'absolute';
+    container.style.pointerEvents = 'none';
+    container.style.top = '-9999px';
+    container.style.left = '-9999px';
+    document.body.appendChild(container);
+    containerRef.current = container;
+
+    const wrapper = document.createElement('div');
+    wrapper.style.display = 'inline-block';
+    container.appendChild(wrapper);
+    wrapperRef.current = wrapper;
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+      const { width, height } = entry.contentRect;
+      setDimensions((prev) => {
+        if (prev.nodeWidth === width && prev.nodeHeight === height) {
+          return prev;
+        }
+        return { nodeWidth: width, nodeHeight: height };
+      });
+    });
+    observer.observe(wrapper);
+    observerRef.current = observer;
+
+    rootRef.current = createRoot(wrapper);
 
     return () => {
-      observerRef.current?.disconnect();
-      document.body.removeChild(el);
-      setContainer(null);
+      observer.disconnect();
+      observerRef.current = null;
+      rootRef.current?.unmount();
+      rootRef.current = null;
+      document.body.removeChild(container);
+      containerRef.current = null;
+      wrapperRef.current = null;
     };
   }, []);
 
-  const portal = container
-    ? createPortal(
-        <div
-          ref={(el) => {
-            if (!el) return;
-            observerRef.current?.disconnect();
+  useEffect(() => {
+    rootRef.current?.render(component);
+  }, [component]);
 
-            const observer = new ResizeObserver((entries) => {
-              const entry = entries[0];
-              if (!entry) return;
-              const { width, height } = entry.contentRect;
-              setDimensions((prev) => {
-                if (prev.nodeWidth === width && prev.nodeHeight === height) {
-                  return prev;
-                }
-                return { nodeWidth: width, nodeHeight: height };
-              });
-            });
-
-            observer.observe(el);
-            observerRef.current = observer;
-          }}
-          style={{ display: 'inline-block' }}
-        >
-          {component}
-        </div>,
-        container,
-      )
-    : null;
-
-  return { ...dimensions, portal };
+  return dimensions;
 }

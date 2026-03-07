@@ -41,8 +41,8 @@ export function computeConnectors(
     const tempy = i + boxh / 2;
     for (let j = 0; j < maxcol; j++) {
       if (layout.spouse[i]?.[j] && layout.spouse[i]![j]! > 0) {
-        const x1 = layout.pos[i]![j]! + boxw / 2;
-        const x2 = layout.pos[i]![j + 1]! - boxw / 2;
+        const x1 = layout.pos[i]![j]!;
+        const x2 = layout.pos[i]![j + 1]!;
         const segment: LineSegment = {
           type: 'line',
           x1,
@@ -132,7 +132,7 @@ export function computeConnectors(
         uplines.push({
           type: 'line',
           x1: childX,
-          y1: i,
+          y1: i + boxh / 2,
           x2: target[k]!,
           y2: i - legh,
         });
@@ -205,24 +205,44 @@ export function computeConnectors(
       const y1 = i - legh;
       const parentLink: LineSegment[] = [];
 
+      // Parent link: starts at parent center, diagonal only in the gap
+      const parentCenterY = i - 1 + boxh / 2;
+      const parentBottomY = i - 1 + boxh;
+      const x2 = parentx;
+
       if (branch === 0) {
-        // Single diagonal line
-        parentLink.push({
-          type: 'line',
-          x1,
-          y1,
-          x2: parentx,
-          y2: i - 1 + boxh / 2,
-        });
-      } else {
-        // Three-segment right-angle path
-        const y2 = i - 1 + boxh / 2;
-        const x2 = parentx;
-        const ydelta = ((y2 - y1) * branch) / 2;
+        // Vertical from center to bottom, then diagonal to sibling bar
         parentLink.push(
-          { type: 'line', x1, y1, x2: x1, y2: y1 + ydelta },
-          { type: 'line', x1, y1: y1 + ydelta, x2, y2: y2 - ydelta },
-          { type: 'line', x1: x2, y1: y2 - ydelta, x2, y2 },
+          { type: 'line', x1: x2, y1: parentCenterY, x2, y2: parentBottomY },
+          { type: 'line', x1: x2, y1: parentBottomY, x2: x1, y2: y1 },
+        );
+      } else {
+        // Vertical from center to bottom, then routed path through the gap
+        const gapSpan = y1 - parentBottomY;
+        const ydelta = (gapSpan * branch) / 2;
+        parentLink.push(
+          {
+            type: 'line',
+            x1: x2,
+            y1: parentCenterY,
+            x2,
+            y2: parentBottomY,
+          },
+          {
+            type: 'line',
+            x1: x2,
+            y1: parentBottomY,
+            x2,
+            y2: parentBottomY + ydelta,
+          },
+          {
+            type: 'line',
+            x1: x2,
+            y1: parentBottomY + ydelta,
+            x2: x1,
+            y2: y1 - ydelta,
+          },
+          { type: 'line', x1, y1: y1 - ydelta, x2: x1, y2: y1 },
         );
       }
 
