@@ -8,18 +8,20 @@ import type {
 } from '@codaco/shared-consts';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
+import Node from '~/components/Node';
 import { useToast } from '~/components/ui/Toast';
+import { useNodeMeasurement } from '~/hooks/useNodeMeasurement';
 import {
   type FamilyTreeCensusStageMetadata,
   updateNode as updateNetworkNode,
 } from '~/lib/interviewer/ducks/modules/session';
 import AddFamilyMemberForm from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/AddFamilyMemberForm';
 import { CensusForm } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/CensusForm';
-import EdgeRenderer from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/EdgeRenderer';
 import FamilyTreeNode, {
   type FamilyTreeNodeType,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
 import FamilyTreeNodeForm from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNodeForm';
+import PedigreeLayout from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/PedigreeLayout';
 import { useFamilyTreeStore } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
 import type { Relationship } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import { getRelationshipTypeVariable } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/utils/edgeUtils';
@@ -34,7 +36,6 @@ import {
   getStageMetadata,
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
-import { FAMILY_TREE_CONFIG } from '../config';
 
 const isFamilyTreeStageMetadata = (
   stageMetadata: unknown,
@@ -54,7 +55,6 @@ export const FamilyTreeShells = (props: {
   const nodesMap = useFamilyTreeStore((state) => state.network.nodes);
   const addShellNode = useFamilyTreeStore((state) => state.addNode);
   const addShellEdge = useFamilyTreeStore((state) => state.addEdge);
-  const runLayout = useFamilyTreeStore((state) => state.runLayout);
   const updateShellNode = useFamilyTreeStore((state) => state.updateNode);
   const getShellIdByNetworkId = useFamilyTreeStore(
     (state) => state.getShellIdByNetworkId,
@@ -63,12 +63,13 @@ export const FamilyTreeShells = (props: {
   const initializeMinimalNetwork = useFamilyTreeStore(
     (state) => state.initializeMinimalNetwork,
   );
+  const edgesMap = useFamilyTreeStore((state) => state.network.edges);
   const existingNodes = networkNodes.length > 0;
-  const nodes: FamilyTreeNodeType[] = Array.from(
-    nodesMap.entries().map(([id, node]) => ({ id, ...node })),
-  );
 
-  // Create a lookup map from network ID to NcNode for label derivation
+  const { nodeWidth, nodeHeight, portal } = useNodeMeasurement({
+    component: <Node size="sm" />,
+  });
+
   const networkNodeMap = useMemo(() => {
     const map = new Map<string, NcNode>();
     for (const node of networkNodes) {
@@ -76,15 +77,7 @@ export const FamilyTreeShells = (props: {
     }
     return map;
   }, [networkNodes]);
-  // Calculate tree width for centering
-  const treeWidth = useMemo(() => {
-    if (nodesMap.size === 0) return FAMILY_TREE_CONFIG.nodeContainerWidth;
-    let maxX = 0;
-    for (const node of nodesMap.values()) {
-      if ((node.x ?? 0) > maxX) maxX = node.x ?? 0;
-    }
-    return maxX + FAMILY_TREE_CONFIG.nodeContainerWidth;
-  }, [nodesMap]);
+
   const [selectedNode, setSelectedNode] = useState<FamilyTreeNodeType | void>(
     undefined,
   );
@@ -222,7 +215,6 @@ export const FamilyTreeShells = (props: {
       });
     }
 
-    runLayout();
     setHydratedOnce(true);
   }, [
     shouldHydrate,
@@ -231,7 +223,6 @@ export const FamilyTreeShells = (props: {
     metadataByNetworkId,
     addShellNode,
     addShellEdge,
-    runLayout,
     clearNetwork,
     stage.diseaseNominationStep,
     hydratedOnce,
@@ -306,12 +297,19 @@ export const FamilyTreeShells = (props: {
         />
       )}
       <div className="census-node-canvas relative size-full overflow-x-auto pt-6">
+        {portal}
         <div className="relative flex size-full min-w-fit justify-center">
-          <div className="relative" style={{ width: treeWidth }}>
-            <EdgeRenderer />
-            {nodes.map((node) => (
+          <PedigreeLayout
+            nodes={nodesMap}
+            edges={edgesMap}
+            nodeWidth={nodeWidth}
+            nodeHeight={nodeHeight}
+            labelWidth={150}
+            labelHeight={60}
+            rowGap={70}
+            columnGap={0}
+            renderNode={(node) => (
               <FamilyTreeNode
-                key={node.id}
                 placeholderId={node.id}
                 networkNode={
                   node.interviewNetworkId
@@ -322,8 +320,6 @@ export const FamilyTreeShells = (props: {
                 isEgo={node.isEgo}
                 allowDrag={node.readOnly !== true && stepIndex < 2}
                 shape={node.sex === 'female' ? 'circle' : 'square'}
-                x={node.x ?? 0}
-                y={node.y ?? 0}
                 selected={
                   node.interviewNetworkId != null &&
                   typeof diseaseVariable === 'string' &&
@@ -347,8 +343,8 @@ export const FamilyTreeShells = (props: {
                   }
                 }}
               />
-            ))}
-          </div>
+            )}
+          />
         </div>
       </div>
       <CensusForm

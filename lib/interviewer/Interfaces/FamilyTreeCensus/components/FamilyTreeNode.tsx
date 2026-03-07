@@ -4,7 +4,7 @@ import Node from '~/components/Node';
 import Paragraph from '~/components/typography/Paragraph';
 import { useDragSource } from '~/lib/dnd';
 import { useNodeLabel } from '~/lib/interviewer/Interfaces/Anonymisation/useNodeLabel';
-import { FAMILY_TREE_CONFIG } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/config';
+
 import { useClickUnlessDragged } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/useClickUnlessDragged';
 import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
 
@@ -90,8 +90,6 @@ type FamilyTreeNodeProps = {
   shape: 'circle' | 'square';
   allowDrag: boolean;
   isEgo?: boolean;
-  x: number;
-  y: number;
   selected?: boolean;
   handleClick?: () => void;
 };
@@ -123,14 +121,9 @@ function FilledFamilyTreeNode({
       <div className="relative shrink-0">
         <Node
           className="shrink-0"
-          style={
-            {
-              width: FAMILY_TREE_CONFIG.nodeWidth,
-              height: FAMILY_TREE_CONFIG.nodeHeight,
-              ...nodeColor,
-            } as React.CSSProperties
-          }
+          style={nodeColor as React.CSSProperties}
           color="custom"
+          size="sm"
           label={networkLabel}
           ariaLabel={networkLabel || 'Node'}
           shape={shape}
@@ -188,8 +181,6 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
     placeholderId,
     label,
     allowDrag,
-    x,
-    y,
     shape,
     isEgo,
     selected,
@@ -250,14 +241,9 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
           <div className="relative shrink-0">
             <Node
               className="shrink-0"
-              style={
-                {
-                  width: FAMILY_TREE_CONFIG.nodeWidth,
-                  height: FAMILY_TREE_CONFIG.nodeHeight,
-                  ...getNodeColor(),
-                } as React.CSSProperties
-              }
+              style={getNodeColor() as React.CSSProperties}
               color="custom"
+              size="sm"
               label=""
               ariaLabel="You"
               shape={shape}
@@ -317,14 +303,9 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
         <div className="relative shrink-0">
           <Node
             className="shrink-0"
-            style={
-              {
-                width: FAMILY_TREE_CONFIG.nodeWidth,
-                height: FAMILY_TREE_CONFIG.nodeHeight,
-                ...getNodeColor(),
-              } as React.CSSProperties
-            }
+            style={getNodeColor() as React.CSSProperties}
             color="custom"
+            size="sm"
             label=""
             ariaLabel={label || 'Node'}
             shape={shape}
@@ -347,13 +328,7 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
 
   return (
     <div
-      className="family-tree-node absolute"
-      style={{
-        top: y,
-        left: x,
-        width: FAMILY_TREE_CONFIG.nodeContainerWidth,
-        height: FAMILY_TREE_CONFIG.nodeContainerHeight,
-      }}
+      className="family-tree-node"
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       onClick={() => {
