@@ -12,6 +12,7 @@ const meta: Meta = {
   parameters: {
     layout: 'fullscreen',
     backgrounds: { default: 'dark' },
+    docs: { source: { type: 'code' } },
   },
   argTypes: {
     network: {
