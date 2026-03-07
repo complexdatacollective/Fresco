@@ -4,15 +4,7 @@ import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
 import { type FamilyTreeNodeType } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
-import { LEGACY_DIMENSIONS } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/layoutDimensions';
-import {
-  buildConnectorData,
-  type ConnectorRenderData,
-  pedigreeLayoutToPositions,
-  storeToPedigreeInput,
-} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/pedigreeAdapter';
-import { alignPedigree } from '~/lib/pedigree-layout/alignPedigree';
-import { useAppDispatch } from '../../store';
+import { useAppDispatch } from '~/lib/interviewer/store';
 
 enableMapSet();
 
@@ -74,7 +66,6 @@ type NetworkState = {
 type FamilyTreeState = {
   step: 'scaffoldingStep' | 'nameGenerationStep' | 'diseaseNominationStep';
   network: NetworkState;
-  connectorData: ConnectorRenderData | null;
 };
 
 type NetworkActions = {
@@ -100,7 +91,6 @@ type NetworkActions = {
     anchorId?: string,
     secondParentId?: string,
   ) => string;
-  runLayout: () => void;
   syncMetadata: () => void;
 };
 
@@ -116,7 +106,6 @@ const initialState: FamilyTreeState = {
     nodes: new Map(),
     edges: new Map(),
   },
-  connectorData: null,
 };
 
 const arrayFromRelationCount = (
@@ -129,7 +118,7 @@ export type FamilyTreeStore = FamilyTreeState & FamilyTreeAction;
 export const createFamilyTreeStore = (
   initialNodes: Map<string, Omit<FamilyTreeNodeType, 'id'>>,
   initialEdges: Map<string, Omit<Edge, 'id'>>,
-  dispatch: ReturnType<typeof useAppDispatch>,
+  dispatch?: ReturnType<typeof useAppDispatch>,
 ) => {
   return createStore<FamilyTreeStore>()(
     immer((set, get) => {
@@ -430,7 +419,6 @@ export const createFamilyTreeStore = (
           // maybe delete partners if they have no other connections
           partnerIds.forEach((partnerId) => maybeDeletePartner(partnerId));
 
-          get().runLayout();
           get().syncMetadata();
         },
 
@@ -716,8 +704,6 @@ export const createFamilyTreeStore = (
               relationship: 'partner',
             });
           });
-
-          store.runLayout();
         },
 
         addPlaceholderNode: (
@@ -1008,34 +994,7 @@ export const createFamilyTreeStore = (
             }
           }
 
-          store.runLayout();
           return newNodeId;
-        },
-
-        runLayout: () => {
-          const { nodes, edges } = get().network;
-          const { input, indexToId } = storeToPedigreeInput(nodes, edges);
-
-          if (input.id.length === 0) return;
-
-          const layout = alignPedigree(input);
-          const positions = pedigreeLayoutToPositions(
-            layout,
-            indexToId,
-            LEGACY_DIMENSIONS,
-          );
-          const connData = buildConnectorData(layout, edges, LEGACY_DIMENSIONS);
-
-          set((draft) => {
-            for (const [nodeId, position] of positions) {
-              const node = draft.network.nodes.get(nodeId);
-              if (node) {
-                node.x = position.x;
-                node.y = position.y;
-              }
-            }
-            draft.connectorData = connData;
-          });
         },
 
         syncMetadata: () => {
@@ -1049,7 +1008,7 @@ export const createFamilyTreeStore = (
               readOnly: n.readOnly ?? false,
             }));
 
-          dispatch(
+          dispatch?.(
             updateStageMetadata({
               hasSeenScaffoldPrompt: true,
               nodes: committedNodes,

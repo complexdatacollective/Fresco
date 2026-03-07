@@ -75,8 +75,6 @@ export type FamilyTreeNodeType = {
   interviewNetworkId?: string;
   placeholderId?: string;
   isEgo?: boolean;
-  x?: number;
-  y?: number;
   shape?: 'circle' | 'square';
   selected?: boolean;
   sex?: 'male' | 'female';
