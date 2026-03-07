@@ -67,7 +67,7 @@ export default function PedigreeLayout({
     const connectorData = buildConnectorData(layout, edges, dimensions);
 
     return { positions, connectorData };
-  }, [nodes, edges, dimensions, nodeWidth, nodeHeight]);
+  }, [nodes, edges, dimensions]);
 
   if (nodeWidth === 0 || nodeHeight === 0) {
     return <Spinner />;

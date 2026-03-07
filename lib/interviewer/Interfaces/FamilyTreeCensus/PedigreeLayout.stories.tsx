@@ -20,6 +20,9 @@ const meta: Meta = {
 
 export default meta;
 
+const emptyNodes = new Map<string, Omit<FamilyTreeNodeType, 'id'>>();
+const emptyEdges = new Map<string, Omit<Edge, 'id'>>();
+
 const STORY_DIMENSIONS = {
   nodeWidth: 100,
   nodeHeight: 100,
@@ -61,16 +64,9 @@ function buildStore(nodeDefs: NodeDef[], edgeDefs: EdgeDef[]) {
   return createFamilyTreeStore(nodes, edges);
 }
 
-function StoryVisualization({
-  storeRef,
-}: {
-  storeRef: React.RefObject<FamilyTreeStoreApi | null>;
-}) {
-  const store = storeRef.current;
-  const emptyNodes = new Map<string, Omit<FamilyTreeNodeType, 'id'>>();
-  const emptyEdges = new Map<string, Omit<Edge, 'id'>>();
-  const nodesMap = store ? useStore(store, (s) => s.network.nodes) : emptyNodes;
-  const edgesMap = store ? useStore(store, (s) => s.network.edges) : emptyEdges;
+function StoryVisualizationInner({ store }: { store: FamilyTreeStoreApi }) {
+  const nodesMap = useStore(store, (s) => s.network.nodes);
+  const edgesMap = useStore(store, (s) => s.network.edges);
 
   return (
     <div className="relative size-full overflow-auto bg-[#1a1a2e] p-8">
@@ -93,6 +89,15 @@ function StoryVisualization({
       />
     </div>
   );
+}
+
+function StoryVisualization({
+  storeRef,
+}: {
+  storeRef: React.RefObject<FamilyTreeStoreApi | null>;
+}) {
+  if (!storeRef.current) return null;
+  return <StoryVisualizationInner store={storeRef.current} />;
 }
 
 export const ThreeGenerationFamily: StoryFn = () => {
