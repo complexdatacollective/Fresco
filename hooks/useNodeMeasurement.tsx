@@ -15,27 +15,27 @@ export function useNodeMeasurement({
   component: ReactElement;
 }): NodeMeasurement {
   const [dimensions, setDimensions] = useState({ nodeWidth: 0, nodeHeight: 0 });
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const observerRef = useRef<ResizeObserver | null>(null);
 
   useEffect(() => {
-    const container = document.createElement('div');
-    container.style.visibility = 'hidden';
-    container.style.position = 'absolute';
-    container.style.pointerEvents = 'none';
-    container.style.top = '-9999px';
-    container.style.left = '-9999px';
-    document.body.appendChild(container);
-    containerRef.current = container;
+    const el = document.createElement('div');
+    el.style.visibility = 'hidden';
+    el.style.position = 'absolute';
+    el.style.pointerEvents = 'none';
+    el.style.top = '-9999px';
+    el.style.left = '-9999px';
+    document.body.appendChild(el);
+    setContainer(el);
 
     return () => {
       observerRef.current?.disconnect();
-      document.body.removeChild(container);
-      containerRef.current = null;
+      document.body.removeChild(el);
+      setContainer(null);
     };
   }, []);
 
-  const portal = containerRef.current
+  const portal = container
     ? createPortal(
         <div
           ref={(el) => {
@@ -61,7 +61,7 @@ export function useNodeMeasurement({
         >
           {component}
         </div>,
-        containerRef.current,
+        container,
       )
     : null;
 
