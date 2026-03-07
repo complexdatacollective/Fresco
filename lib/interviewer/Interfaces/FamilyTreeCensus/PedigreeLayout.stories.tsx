@@ -63,7 +63,7 @@ function StoryVisualizationInner({ store }: { store: FamilyTreeStoreApi }) {
   });
 
   return (
-    <div className="max-w-full overflow-auto">
+    <div className="flex max-w-full items-center justify-center overflow-auto">
       {portal}
       <PedigreeLayout
         nodes={nodesMap}
