@@ -43,7 +43,7 @@ export function alignped3(
       const n2 = x2.n[i]!;
       if (n1 > 0 && n2 > 0) {
         let temp: number;
-        if (nid[i]![n1 - 1] === x2.nid[i]![0]) {
+        if (Math.floor(nid[i]![n1 - 1]!) === Math.floor(x2.nid[i]![0]!)) {
           temp = pos[i]![n1 - 1]! - x2.pos[i]![0]!;
         } else {
           temp = space + pos[i]![n1 - 1]! - x2.pos[i]![0]!;
@@ -60,7 +60,7 @@ export function alignped3(
     if (n2 <= 0) continue;
 
     let overlap = 0;
-    if (n1 > 0 && nid[i]![n1 - 1] === Math.floor(x2.nid[i]![0]!)) {
+    if (n1 > 0 && Math.floor(nid[i]![n1 - 1]!) === Math.floor(x2.nid[i]![0]!)) {
       // Two subjects overlap
       overlap = 1;
       fam[i]![n1 - 1] = Math.max(fam[i]![n1 - 1]!, fam2[i]![0]!);

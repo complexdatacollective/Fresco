@@ -12,7 +12,7 @@ export type Sex = 'male' | 'female';
 
 export type NodeIsEgo = true | false;
 
-export type Relationship = 'parent' | 'partner';
+export type Relationship = 'parent' | 'partner' | 'donor' | 'surrogate';
 
 export type RelationshipToEgo =
   | 'maternal-grandmother'

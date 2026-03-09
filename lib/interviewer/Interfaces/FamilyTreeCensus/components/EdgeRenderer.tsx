@@ -82,13 +82,26 @@ function renderGroupLine(
   );
 }
 
+function getAuxiliaryStyle(edgeType: AuxiliaryConnector['edgeType']) {
+  switch (edgeType) {
+    case 'bio-parent':
+      return { strokeDasharray: '8 4', strokeWidth: 3, opacity: 0.8 };
+    case 'donor':
+    case 'surrogate':
+      return { strokeDasharray: '2 4', strokeWidth: 2, opacity: 0.6 };
+  }
+}
+
 function renderAuxiliary(conn: AuxiliaryConnector, idx: number, color: string) {
+  const style = getAuxiliaryStyle(conn.edgeType);
   return (
     <g key={`aux-${idx}`}>
       {conn.segments.map((seg, i) =>
         renderLine(seg, color, `aux-${idx}-seg-${i}`, {
-          strokeDasharray: '8 4',
-          opacity: 0.7,
+          strokeDasharray: style.strokeDasharray,
+          strokeWidth: style.strokeWidth,
+          opacity: style.opacity,
+          strokeLinecap: 'round',
         }),
       )}
     </g>

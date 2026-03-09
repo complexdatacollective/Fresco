@@ -30,29 +30,30 @@ export function kindepth(
     throw new Error('Impossible pedigree: someone is their own ancestor');
   }
 
+  // Assign depth = max(parent depths) + 1 using topological ordering.
+  // A child is only assigned once ALL its parents have depths.
   const depth = new Array<number>(n).fill(0);
+  const assigned = new Set<number>(currentLevel);
 
-  // Iteratively assign depth: children of current level get depth i
-  for (let i = 1; i <= n; i++) {
-    const nextLevel: number[] = [];
+  for (let pass = 0; pass < n; pass++) {
+    let progress = false;
     for (let j = 0; j < n; j++) {
+      if (assigned.has(j)) continue;
       const personParents = parents[j]!;
       if (personParents.length === 0) continue;
-      const hasParentInLevel = personParents.some((p) =>
-        currentLevel.includes(p.parentIndex),
+      const allAssigned = personParents.every((p) =>
+        assigned.has(p.parentIndex),
       );
-      if (hasParentInLevel) {
-        nextLevel.push(j);
-      }
+      if (!allAssigned) continue;
+
+      const maxParentDepth = Math.max(
+        ...personParents.map((p) => depth[p.parentIndex]!),
+      );
+      depth[j] = maxParentDepth + 1;
+      assigned.add(j);
+      progress = true;
     }
-    if (nextLevel.length === 0) break;
-    if (i === n) {
-      throw new Error('Impossible pedigree: someone is their own ancestor');
-    }
-    for (const p of nextLevel) {
-      depth[p] = i;
-    }
-    currentLevel = nextLevel;
+    if (!progress) break;
   }
 
   if (!align) return depth;

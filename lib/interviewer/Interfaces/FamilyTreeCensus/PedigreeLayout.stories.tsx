@@ -22,6 +22,15 @@ const meta: Meta = {
         'Nuclear Family',
         'Three Generations',
         'Extended Family',
+        'Same-Sex Mothers',
+        'Same-Sex Fathers',
+        'Single Parent',
+        'Three Co-Parents',
+        'Blended Family',
+        'Non-Binary Parent',
+        'Sperm Donor',
+        'Surrogacy',
+        'Donor + Surrogate',
       ],
     },
     nodeStyle: {
@@ -180,6 +189,226 @@ const NETWORKS: Record<string, NetworkData> = {
       { source: 'partner', target: 'daughter', relationship: 'parent' },
     ],
   ),
+  'Same-Sex Mothers': buildNetwork(
+    [
+      { id: 'momA', label: fakeName('female'), sex: 'female' },
+      { id: 'momB', label: fakeName('female'), sex: 'female' },
+      { id: 'daughter', label: fakeName('female'), sex: 'female', isEgo: true },
+      { id: 'son', label: fakeName('male'), sex: 'male' },
+    ],
+    [
+      { source: 'momA', target: 'momB', relationship: 'partner' },
+      { source: 'momA', target: 'daughter', relationship: 'parent' },
+      { source: 'momB', target: 'daughter', relationship: 'parent' },
+      { source: 'momA', target: 'son', relationship: 'parent' },
+      { source: 'momB', target: 'son', relationship: 'parent' },
+    ],
+  ),
+  'Same-Sex Fathers': buildNetwork(
+    [
+      { id: 'dadA', label: fakeName('male'), sex: 'male' },
+      { id: 'dadB', label: fakeName('male'), sex: 'male' },
+      { id: 'child', label: fakeName('female'), sex: 'female', isEgo: true },
+    ],
+    [
+      { source: 'dadA', target: 'dadB', relationship: 'partner' },
+      { source: 'dadA', target: 'child', relationship: 'parent' },
+      { source: 'dadB', target: 'child', relationship: 'parent' },
+    ],
+  ),
+  'Single Parent': buildNetwork(
+    [
+      { id: 'parent', label: fakeName('female'), sex: 'female' },
+      { id: 'child1', label: fakeName('male'), sex: 'male', isEgo: true },
+      { id: 'child2', label: fakeName('female'), sex: 'female' },
+    ],
+    [
+      { source: 'parent', target: 'child1', relationship: 'parent' },
+      { source: 'parent', target: 'child2', relationship: 'parent' },
+    ],
+  ),
+  'Three Co-Parents': buildNetwork(
+    [
+      { id: 'parentA', label: fakeName('female'), sex: 'female' },
+      { id: 'parentB', label: fakeName('female'), sex: 'female' },
+      { id: 'parentC', label: fakeName('male'), sex: 'male' },
+      { id: 'child', label: fakeName('male'), sex: 'male', isEgo: true },
+    ],
+    [
+      { source: 'parentA', target: 'parentB', relationship: 'partner' },
+      { source: 'parentA', target: 'child', relationship: 'parent' },
+      { source: 'parentB', target: 'child', relationship: 'parent' },
+      { source: 'parentC', target: 'child', relationship: 'parent' },
+    ],
+  ),
+  'Blended Family': buildNetwork(
+    [
+      { id: 'parentA', label: fakeName('male'), sex: 'male' },
+      { id: 'exPartner', label: fakeName('female'), sex: 'female' },
+      { id: 'newPartner', label: fakeName('female'), sex: 'female' },
+      {
+        id: 'child1st',
+        label: fakeName('female'),
+        sex: 'female',
+        isEgo: true,
+      },
+      { id: 'child2nd', label: fakeName('male'), sex: 'male' },
+    ],
+    [
+      { source: 'parentA', target: 'exPartner', relationship: 'partner' },
+      { source: 'parentA', target: 'newPartner', relationship: 'partner' },
+      { source: 'parentA', target: 'child1st', relationship: 'parent' },
+      { source: 'exPartner', target: 'child1st', relationship: 'parent' },
+      { source: 'parentA', target: 'child2nd', relationship: 'parent' },
+      { source: 'newPartner', target: 'child2nd', relationship: 'parent' },
+    ],
+  ),
+  'Non-Binary Parent': buildNetwork(
+    [
+      { id: 'nbParent', label: 'Alex' },
+      { id: 'partner', label: fakeName('female'), sex: 'female' },
+      { id: 'child1', label: fakeName('male'), sex: 'male', isEgo: true },
+      { id: 'child2', label: fakeName('female'), sex: 'female' },
+    ],
+    [
+      { source: 'nbParent', target: 'partner', relationship: 'partner' },
+      { source: 'nbParent', target: 'child1', relationship: 'parent' },
+      { source: 'partner', target: 'child1', relationship: 'parent' },
+      { source: 'nbParent', target: 'child2', relationship: 'parent' },
+      { source: 'partner', target: 'child2', relationship: 'parent' },
+    ],
+  ),
+  'Sperm Donor': buildNetwork(
+    [
+      // Grandparents of momA
+      { id: 'gfA', label: fakeName('male'), sex: 'male' },
+      { id: 'gmA', label: fakeName('female'), sex: 'female' },
+      // Social parents
+      { id: 'momA', label: fakeName('female'), sex: 'female' },
+      { id: 'momB', label: fakeName('female'), sex: 'female' },
+      // Donor
+      { id: 'donor', label: 'Sperm Donor', sex: 'male' },
+      // Children
+      { id: 'ego', label: fakeName('female'), sex: 'female', isEgo: true },
+      { id: 'sibling', label: fakeName('male'), sex: 'male' },
+      // Ego's partner and child
+      { id: 'egoPartner', label: fakeName('male'), sex: 'male' },
+      { id: 'grandchild', label: fakeName('female'), sex: 'female' },
+    ],
+    [
+      // Grandparents
+      { source: 'gfA', target: 'gmA', relationship: 'partner' },
+      { source: 'gfA', target: 'momA', relationship: 'parent' },
+      { source: 'gmA', target: 'momA', relationship: 'parent' },
+      // Social parents
+      { source: 'momA', target: 'momB', relationship: 'partner' },
+      { source: 'momA', target: 'ego', relationship: 'parent' },
+      { source: 'momB', target: 'ego', relationship: 'parent' },
+      { source: 'momA', target: 'sibling', relationship: 'parent' },
+      { source: 'momB', target: 'sibling', relationship: 'parent' },
+      // Donor connection
+      { source: 'donor', target: 'ego', relationship: 'donor' },
+      { source: 'donor', target: 'sibling', relationship: 'donor' },
+      // Ego's family
+      { source: 'ego', target: 'egoPartner', relationship: 'partner' },
+      { source: 'ego', target: 'grandchild', relationship: 'parent' },
+      { source: 'egoPartner', target: 'grandchild', relationship: 'parent' },
+    ],
+  ),
+  'Surrogacy': buildNetwork(
+    [
+      // Grandparents
+      { id: 'gfF', label: fakeName('male'), sex: 'male' },
+      { id: 'gmF', label: fakeName('female'), sex: 'female' },
+      // Social parents
+      { id: 'dadA', label: fakeName('male'), sex: 'male' },
+      { id: 'dadB', label: fakeName('male'), sex: 'male' },
+      // Surrogate and egg donor
+      { id: 'surrogate', label: 'Surrogate', sex: 'female' },
+      { id: 'eggDonor', label: 'Egg Donor', sex: 'female' },
+      // Children
+      { id: 'ego', label: fakeName('male'), sex: 'male', isEgo: true },
+      { id: 'sibling', label: fakeName('female'), sex: 'female' },
+      // Uncle (dadA's brother)
+      { id: 'uncle', label: fakeName('male'), sex: 'male' },
+      // Ego's partner and child
+      { id: 'egoPartner', label: fakeName('female'), sex: 'female' },
+      { id: 'grandchild', label: fakeName('male'), sex: 'male' },
+    ],
+    [
+      // Grandparents
+      { source: 'gfF', target: 'gmF', relationship: 'partner' },
+      { source: 'gfF', target: 'dadA', relationship: 'parent' },
+      { source: 'gmF', target: 'dadA', relationship: 'parent' },
+      { source: 'gfF', target: 'uncle', relationship: 'parent' },
+      { source: 'gmF', target: 'uncle', relationship: 'parent' },
+      // Social parents
+      { source: 'dadA', target: 'dadB', relationship: 'partner' },
+      { source: 'dadA', target: 'ego', relationship: 'parent' },
+      { source: 'dadB', target: 'ego', relationship: 'parent' },
+      { source: 'dadA', target: 'sibling', relationship: 'parent' },
+      { source: 'dadB', target: 'sibling', relationship: 'parent' },
+      // Surrogate + egg donor connections
+      { source: 'surrogate', target: 'ego', relationship: 'surrogate' },
+      { source: 'surrogate', target: 'sibling', relationship: 'surrogate' },
+      { source: 'eggDonor', target: 'ego', relationship: 'donor' },
+      { source: 'eggDonor', target: 'sibling', relationship: 'donor' },
+      // Ego's family
+      { source: 'ego', target: 'egoPartner', relationship: 'partner' },
+      { source: 'ego', target: 'grandchild', relationship: 'parent' },
+      { source: 'egoPartner', target: 'grandchild', relationship: 'parent' },
+    ],
+  ),
+  'Donor + Surrogate': buildNetwork(
+    [
+      // Maternal grandparents of parentA
+      { id: 'mgf', label: fakeName('male'), sex: 'male' },
+      { id: 'mgm', label: fakeName('female'), sex: 'female' },
+      // Social parents
+      { id: 'parentA', label: fakeName('female'), sex: 'female' },
+      { id: 'parentB', label: fakeName('female'), sex: 'female' },
+      // Donor and surrogate
+      { id: 'donor', label: 'Sperm Donor', sex: 'male' },
+      { id: 'surrogate', label: 'Surrogate', sex: 'female' },
+      // Children
+      { id: 'ego', label: fakeName('female'), sex: 'female', isEgo: true },
+      { id: 'sibling', label: fakeName('male'), sex: 'male' },
+      // ParentA's sister and her family
+      { id: 'aunt', label: fakeName('female'), sex: 'female' },
+      { id: 'auntPartner', label: fakeName('male'), sex: 'male' },
+      { id: 'cousin', label: fakeName('male'), sex: 'male' },
+      // Ego's partner and child
+      { id: 'egoPartner', label: fakeName('male'), sex: 'male' },
+      { id: 'grandchild', label: fakeName('female'), sex: 'female' },
+    ],
+    [
+      // Grandparents
+      { source: 'mgf', target: 'mgm', relationship: 'partner' },
+      { source: 'mgf', target: 'parentA', relationship: 'parent' },
+      { source: 'mgm', target: 'parentA', relationship: 'parent' },
+      { source: 'mgf', target: 'aunt', relationship: 'parent' },
+      { source: 'mgm', target: 'aunt', relationship: 'parent' },
+      // Social parents
+      { source: 'parentA', target: 'parentB', relationship: 'partner' },
+      { source: 'parentA', target: 'ego', relationship: 'parent' },
+      { source: 'parentB', target: 'ego', relationship: 'parent' },
+      { source: 'parentA', target: 'sibling', relationship: 'parent' },
+      { source: 'parentB', target: 'sibling', relationship: 'parent' },
+      // Donor + surrogate connections
+      { source: 'donor', target: 'ego', relationship: 'donor' },
+      { source: 'donor', target: 'sibling', relationship: 'donor' },
+      { source: 'surrogate', target: 'ego', relationship: 'surrogate' },
+      { source: 'surrogate', target: 'sibling', relationship: 'surrogate' },
+      // Aunt's family
+      { source: 'aunt', target: 'auntPartner', relationship: 'partner' },
+      { source: 'aunt', target: 'cousin', relationship: 'parent' },
+      { source: 'auntPartner', target: 'cousin', relationship: 'parent' },
+      // Ego's family
+      { source: 'ego', target: 'egoPartner', relationship: 'partner' },
+      { source: 'ego', target: 'grandchild', relationship: 'parent' },
+      { source: 'egoPartner', target: 'grandchild', relationship: 'parent' },
+    ],
+  ),
 };
 
 type NodeRenderer = (node: {
@@ -200,7 +429,7 @@ const NODE_MEASUREMENT_COMPONENTS: Record<string, React.ReactElement> = {
   ),
   'Responsive': (
     <div
-      className="rounded-full bg-node-1"
+      className="bg-node-1 rounded-full"
       style={{
         width: 'clamp(24px, 5vw, 80px)',
         height: 'clamp(24px, 5vw, 80px)',
@@ -214,6 +443,7 @@ const NODE_RENDERERS: Record<string, NodeRenderer> = {
   'Colored Node': (node) => (
     <Node
       color={node.isEgo ? 'node-color-seq-2' : 'node-color-seq-1'}
+      label={node.label}
       shape={node.sex === 'female' ? 'circle' : 'square'}
       size="sm"
     />
