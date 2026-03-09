@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import { type ParentConnection } from '~/lib/pedigree-layout/types';
 import {
   ancestor,
   chaseup,
   createMatrix,
-  isSpouseMarker,
+  isGroupMarker,
   matchIndex,
   pmax,
   pmin,
@@ -71,41 +72,79 @@ describe('tableCounts', () => {
 });
 
 describe('ancestor', () => {
-  it('returns all ancestors of a person', () => {
-    // 0=grandpa, 1=grandma, 2=father, 3=mother, 4=child
-    const mom = [-1, -1, 1, -1, 3];
-    const dad = [-1, -1, 0, -1, 2];
-    const anc = ancestor(4, mom, dad);
-    expect(anc).toContain(2); // father
-    expect(anc).toContain(3); // mother
-    expect(anc).toContain(0); // grandpa
-    expect(anc).toContain(1); // grandma
-    expect(anc).not.toContain(4); // not self
+  it('finds all ancestors of a person via parents array', () => {
+    // grandpa=0, grandma=1, father=2, mother=3, child=4
+    const parents: ParentConnection[][] = [
+      [],
+      [], // grandpa, grandma: founders
+      [
+        { parentIndex: 0, edgeType: 'social-parent' },
+        { parentIndex: 1, edgeType: 'social-parent' },
+      ],
+      [], // mother: founder
+      [
+        { parentIndex: 2, edgeType: 'social-parent' },
+        { parentIndex: 3, edgeType: 'social-parent' },
+      ],
+    ];
+    const result = ancestor(4, parents);
+    expect(result).toContain(2); // father
+    expect(result).toContain(3); // mother
+    expect(result).toContain(0); // grandpa
+    expect(result).toContain(1); // grandma
+    expect(result).not.toContain(4); // not self
   });
 
   it('returns empty for a founder', () => {
-    const anc = ancestor(0, [-1, -1], [-1, -1]);
-    expect(anc).toEqual([]);
+    const parents: ParentConnection[][] = [[]];
+    expect(ancestor(0, parents)).toEqual([]);
+  });
+
+  it('handles single parent', () => {
+    const parents: ParentConnection[][] = [
+      [],
+      [{ parentIndex: 0, edgeType: 'social-parent' }],
+    ];
+    expect(ancestor(1, parents)).toEqual([0]);
+  });
+
+  it('handles 3 parents', () => {
+    const parents: ParentConnection[][] = [
+      [],
+      [],
+      [],
+      [
+        { parentIndex: 0, edgeType: 'social-parent' },
+        { parentIndex: 1, edgeType: 'social-parent' },
+        { parentIndex: 2, edgeType: 'co-parent' },
+      ],
+    ];
+    const result = ancestor(3, parents);
+    expect(result.sort()).toEqual([0, 1, 2]);
   });
 });
 
 describe('chaseup', () => {
-  it('returns all ancestors', () => {
-    const mom = [-1, -1, 1, -1, 3];
-    const dad = [-1, -1, 0, -1, 2];
-    const result = chaseup([4], mom, dad);
-    expect(result).toContain(4);
-    expect(result).toContain(2);
-    expect(result).toContain(3);
+  it('finds all ancestors reachable from a set', () => {
+    const parents: ParentConnection[][] = [
+      [],
+      [],
+      [
+        { parentIndex: 0, edgeType: 'social-parent' },
+        { parentIndex: 1, edgeType: 'social-parent' },
+      ],
+    ];
+    const result = chaseup([2], parents);
     expect(result).toContain(0);
     expect(result).toContain(1);
+    expect(result).toContain(2);
   });
 });
 
-describe('isSpouseMarker', () => {
+describe('isGroupMarker', () => {
   it('detects .5 values', () => {
-    expect(isSpouseMarker(3.5)).toBe(true);
-    expect(isSpouseMarker(3)).toBe(false);
-    expect(isSpouseMarker(0)).toBe(false);
+    expect(isGroupMarker(3.5)).toBe(true);
+    expect(isGroupMarker(3)).toBe(false);
+    expect(isGroupMarker(0)).toBe(false);
   });
 });
