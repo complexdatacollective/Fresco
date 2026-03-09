@@ -2,34 +2,20 @@
 
 import { useState } from 'react';
 import Node from '~/components/Node';
+import useDialog from '~/lib/dialogs/useDialog';
+import Field from '~/lib/form/components/Field/Field';
+import InputField from '~/lib/form/components/fields/InputField';
 import { useNodeMeasurement } from '~/hooks/useNodeMeasurement';
 import FamilyTreeNode from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
-import NodeContextMenu from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/NodeContextMenu';
-import AddPersonForm, {
+import NodeContextMenu, {
+  type NodeContextMenuAction,
+} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/NodeContextMenu';
+import AddPersonFields, {
   type AddPersonMode,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/AddPersonForm';
-import NameInput from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/NameInput';
 import PedigreeLayout from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/PedigreeLayout';
 import { useFamilyTreeStore } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
-import { Button } from '~/components/ui/Button';
 import { type ParentEdgeType } from '~/lib/pedigree-layout/types';
-
-type InteractionState =
-  | { mode: 'idle' }
-  | {
-      mode: 'contextMenu';
-      nodeId: string;
-      position: { x: number; y: number };
-    }
-  | {
-      mode: 'addPerson';
-      nodeId: string;
-      addMode: AddPersonMode;
-    }
-  | {
-      mode: 'editName';
-      nodeId: string;
-    };
 
 export default function PedigreeView() {
   const nodes = useFamilyTreeStore((s) => s.network.nodes);
@@ -38,67 +24,73 @@ export default function PedigreeView() {
   const addEdge = useFamilyTreeStore((s) => s.addEdge);
   const updateNode = useFamilyTreeStore((s) => s.updateNode);
 
-  const [interaction, setInteraction] = useState<InteractionState>({
-    mode: 'idle',
-  });
+  const [openMenuNodeId, setOpenMenuNodeId] = useState<string | null>(null);
+  const { openDialog } = useDialog();
 
   const { nodeWidth, nodeHeight } = useNodeMeasurement({
     component: <Node size="sm" />,
   });
 
-  const handleNodeTap = (nodeId: string, position: { x: number; y: number }) =>
-    setInteraction({ mode: 'contextMenu', nodeId, position });
+  const handleAddPerson = async (nodeId: string, mode: AddPersonMode) => {
+    const result = await openDialog({
+      type: 'form',
+      title: `Add ${mode}`,
+      submitLabel: 'Add',
+      cancelLabel: 'Cancel',
+      children: (
+        <AddPersonFields
+          mode={mode}
+          anchorNodeId={nodeId}
+          nodes={nodes}
+          edges={edges}
+        />
+      ),
+    });
 
-  const dismiss = () => setInteraction({ mode: 'idle' });
+    if (!result) return;
 
-  const handleAddPersonSubmit = (
-    anchorId: string,
-    data: {
-      name: string;
-      mode: AddPersonMode;
-      edgeType?: ParentEdgeType;
-      partnerId?: string;
-      current?: boolean;
-    },
-  ) => {
-    const newNodeId = addNode({ label: data.name, isEgo: false });
+    const name = typeof result.name === 'string' ? result.name : '';
+    const newNodeId = addNode({ label: name, isEgo: false });
 
-    switch (data.mode) {
+    switch (mode) {
       case 'parent':
         addEdge({
           source: newNodeId,
-          target: anchorId,
+          target: nodeId,
           type: 'parent',
-          edgeType: data.edgeType ?? 'social-parent',
+          edgeType:
+            (result.edgeType as ParentEdgeType | undefined) ?? 'social-parent',
         });
         break;
-      case 'child':
+      case 'child': {
         addEdge({
-          source: anchorId,
+          source: nodeId,
           target: newNodeId,
           type: 'parent',
           edgeType: 'social-parent',
         });
-        if (data.partnerId) {
+        const partnerId = result.partnerId as string | undefined;
+        if (partnerId) {
           addEdge({
-            source: data.partnerId,
+            source: partnerId,
             target: newNodeId,
             type: 'parent',
             edgeType: 'social-parent',
           });
         }
         break;
+      }
       case 'partner':
         addEdge({
-          source: anchorId,
+          source: nodeId,
           target: newNodeId,
           type: 'partner',
-          current: data.current ?? true,
+          current: result.current !== 'ex',
         });
         break;
-      case 'sibling': {
+      case 'sibling':
         for (const edge of edges.values()) {
-          if (edge.type === 'parent' && edge.target === anchorId) {
+          if (edge.type === 'parent' && edge.target === nodeId) {
             addEdge({
               source: edge.source,
               target: newNodeId,
@@ -108,10 +100,40 @@ export default function PedigreeView() {
           }
         }
         break;
-      }
     }
+  };
 
-    dismiss();
+  const handleEditName = async (nodeId: string) => {
+    const currentName = nodes.get(nodeId)?.label ?? '';
+
+    const result = await openDialog({
+      type: 'form',
+      title: 'Edit name',
+      submitLabel: 'Done',
+      cancelLabel: 'Cancel',
+      children: (
+        <Field
+          name="name"
+          label="Name"
+          component={InputField}
+          initialValue={currentName}
+        />
+      ),
+    });
+
+    if (!result) return;
+
+    const name = typeof result.name === 'string' ? result.name : '';
+    updateNode(nodeId, { label: name });
+  };
+
+  const handleMenuAction = (nodeId: string, action: NodeContextMenuAction) => {
+    setOpenMenuNodeId(null);
+    if (action === 'editName') {
+      void handleEditName(nodeId);
+    } else {
+      void handleAddPerson(nodeId, action);
+    }
   };
 
   return (
@@ -123,92 +145,22 @@ export default function PedigreeView() {
           nodeWidth={nodeWidth}
           nodeHeight={nodeHeight}
           renderNode={(node) => (
-            <FamilyTreeNode
-              node={node}
-              allowDrag={node.readOnly !== true}
-              onTap={handleNodeTap}
-            />
+            <NodeContextMenu
+              nodeId={node.id}
+              edges={edges}
+              open={openMenuNodeId === node.id}
+              onOpenChange={(open) => setOpenMenuNodeId(open ? node.id : null)}
+              onAction={(action) => handleMenuAction(node.id, action)}
+            >
+              <FamilyTreeNode
+                node={node}
+                allowDrag={node.readOnly !== true}
+                onTap={(nodeId) => setOpenMenuNodeId(nodeId)}
+              />
+            </NodeContextMenu>
           )}
         />
       </div>
-
-      {interaction.mode === 'contextMenu' && (
-        <NodeContextMenu
-          nodeId={interaction.nodeId}
-          node={nodes.get(interaction.nodeId)!}
-          position={interaction.position}
-          edges={edges}
-          onAddParent={() =>
-            setInteraction({
-              mode: 'addPerson',
-              nodeId: interaction.nodeId,
-              addMode: 'parent',
-            })
-          }
-          onAddChild={() =>
-            setInteraction({
-              mode: 'addPerson',
-              nodeId: interaction.nodeId,
-              addMode: 'child',
-            })
-          }
-          onAddPartner={() =>
-            setInteraction({
-              mode: 'addPerson',
-              nodeId: interaction.nodeId,
-              addMode: 'partner',
-            })
-          }
-          onAddSibling={() =>
-            setInteraction({
-              mode: 'addPerson',
-              nodeId: interaction.nodeId,
-              addMode: 'sibling',
-            })
-          }
-          onEditName={() =>
-            setInteraction({
-              mode: 'editName',
-              nodeId: interaction.nodeId,
-            })
-          }
-          onClose={dismiss}
-        />
-      )}
-
-      {interaction.mode === 'addPerson' && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="rounded-lg bg-white shadow-xl">
-            <AddPersonForm
-              mode={interaction.addMode}
-              anchorNodeId={interaction.nodeId}
-              nodes={nodes}
-              edges={edges}
-              onSubmit={(data) =>
-                handleAddPersonSubmit(interaction.nodeId, data)
-              }
-              onCancel={dismiss}
-            />
-          </div>
-        </div>
-      )}
-
-      {interaction.mode === 'editName' && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="flex flex-col gap-4 rounded-lg bg-white p-4 shadow-xl">
-            <h3 className="text-lg font-semibold">Edit name</h3>
-            <NameInput
-              value={nodes.get(interaction.nodeId)?.label ?? ''}
-              onChange={(value) =>
-                updateNode(interaction.nodeId, { label: value })
-              }
-            />
-            <Button onClick={dismiss} color="primary">
-              Done
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

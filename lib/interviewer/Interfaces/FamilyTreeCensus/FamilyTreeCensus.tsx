@@ -39,11 +39,8 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     (s) => s.generateQuickStartNetwork,
   );
 
-  const quickStart = (stage as Record<string, unknown>).quickStart as
-    | { enabled?: boolean; prompt?: string }
-    | undefined;
-  const quickStartEnabled = quickStart?.enabled === true;
-  const hasNodes = nodesMap.size > 0;
+  const nonEgoNodeCount = [...nodesMap.values()].filter((n) => !n.isEgo).length;
+  const hasNodes = nonEgoNodeCount > 0;
 
   const diseaseSteps: DiseaseStep[] =
     stage.diseaseNominationStep?.map((d) => ({
@@ -88,29 +85,28 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
   const stageElement = usePortalTarget('stage');
 
-  const showQuickStart =
-    currentStepIndex === 0 && !hasNodes && quickStartEnabled;
+  const showQuickStart = currentStepIndex === 0 && !hasNodes;
 
   return (
     <>
-      <div className="flex grow flex-col gap-4">
+      <div className="interface flex grow flex-col gap-4">
         <Prompts
           prompts={allPrompts}
           currentPromptId={allPrompts[currentStepIndex]?.id}
           className="shrink-0"
         />
-
-        {showQuickStart ? (
-          <QuickStartForm
-            prompt={quickStart?.prompt ?? stage.scaffoldingStep.text}
-            onSubmit={(data) => {
-              generateQuickStartNetwork(data);
-              syncMetadata();
-            }}
-          />
-        ) : (
-          <PedigreeView />
-        )}
+        <div className="relative flex grow items-center justify-center">
+          {showQuickStart ? (
+            <QuickStartForm
+              onSubmit={(data) => {
+                generateQuickStartNetwork(data);
+                syncMetadata();
+              }}
+            />
+          ) : (
+            <PedigreeView />
+          )}
+        </div>
       </div>
 
       {stageElement &&

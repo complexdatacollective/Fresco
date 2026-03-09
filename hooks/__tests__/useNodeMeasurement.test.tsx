@@ -24,7 +24,9 @@ class MockResizeObserver {
     this.disconnectSpy();
   }
 
-  unobserve() {}
+  unobserve() {
+    // no-op: required by ResizeObserver interface
+  }
 }
 
 function triggerAllObservers(width: number, height: number) {

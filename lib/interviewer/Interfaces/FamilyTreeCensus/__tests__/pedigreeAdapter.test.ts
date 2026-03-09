@@ -37,9 +37,7 @@ function makeEdges(
         source: string;
         target: string;
         type: 'parent';
-        edgeType: StoreEdge extends { type: 'parent'; edgeType: infer T }
-          ? T
-          : never;
+        edgeType: Extract<StoreEdge, { type: 'parent' }>['edgeType'];
       }
   )[],
 ) {

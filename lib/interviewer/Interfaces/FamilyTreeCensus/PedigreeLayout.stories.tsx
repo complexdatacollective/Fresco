@@ -70,7 +70,7 @@ function buildNetwork(
 ): NetworkData {
   const nodes = new Map<string, NodeData>();
   for (const { id, label, sex, isEgo } of nodeDefs) {
-    nodes.set(id, { label, sex, isEgo, readOnly: false });
+    nodes.set(id, { label, sex, isEgo: isEgo ?? false, readOnly: false });
   }
 
   const edges = new Map<string, StoreEdge>();
