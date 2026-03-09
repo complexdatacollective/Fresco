@@ -7,7 +7,6 @@ import NumberCounterField from '~/lib/form/components/fields/NumberCounterField'
 
 export default function ChildrenWithPartnerCountStep() {
   const { data, setStepData } = useWizard();
-  const hasPartner = (data.hasPartner as boolean | undefined) ?? false;
   const [count, setCount] = useState(
     (data.childrenWithPartnerCount as number | undefined) ?? 0,
   );
@@ -15,16 +14,6 @@ export default function ChildrenWithPartnerCountStep() {
   useEffect(() => {
     setStepData({ childrenWithPartnerCount: count });
   }, [count, setStepData]);
-
-  if (!hasPartner) {
-    return (
-      <div className="flex flex-col gap-3 pt-4">
-        <p className="text-muted-foreground text-sm">
-          No partner selected. Click Continue to proceed.
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-3 pt-4">

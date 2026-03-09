@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Heading from '~/components/typography/Heading';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
@@ -36,21 +37,11 @@ export default function ParentsDetailStep() {
     );
   };
 
-  if (parentCount === 0) {
-    return (
-      <div className="flex flex-col gap-3 pt-4">
-        <p className="text-muted-foreground text-sm">
-          No parents to add. Click Continue to proceed.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col gap-6 pt-4">
       {parents.map((parent, i) => (
-        <div key={i} className="flex flex-col gap-3 rounded-lg border p-4">
-          <h3 className="text-sm font-medium">Parent {i + 1}</h3>
+        <div key={i} className="flex flex-col gap-3 rounded border p-4">
+          <Heading level="h3">Parent {i + 1}</Heading>
           <PersonFields
             index={i}
             prefix="parent"

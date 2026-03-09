@@ -8,7 +8,6 @@ import { type PersonDetail } from '~/lib/interviewer/Interfaces/FamilyTreeCensus
 export default function ChildrenWithPartnerDetailStep() {
   const { data, setStepData } = useWizard();
   const childCount = (data.childrenWithPartnerCount as number | undefined) ?? 0;
-  const hasPartner = (data.hasPartner as boolean | undefined) ?? false;
 
   const [children, setChildren] = useState<PersonDetail[]>(() => {
     const existing = data.childrenWithPartner as PersonDetail[] | undefined;
@@ -29,16 +28,6 @@ export default function ChildrenWithPartnerDetailStep() {
       prev.map((c, i) => (i === index ? { ...c, ...updates } : c)),
     );
   };
-
-  if (childCount === 0 || !hasPartner) {
-    return (
-      <div className="flex flex-col gap-3 pt-4">
-        <p className="text-muted-foreground text-sm">
-          No children with partner to add. Click Continue to proceed.
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-6 pt-4">

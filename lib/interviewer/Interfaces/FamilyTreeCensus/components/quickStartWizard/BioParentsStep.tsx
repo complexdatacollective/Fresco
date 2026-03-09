@@ -43,16 +43,6 @@ export default function BioParentsStep() {
     );
   };
 
-  if (bioParentCount >= 2) {
-    return (
-      <div className="flex flex-col gap-3 pt-4">
-        <p className="text-muted-foreground text-sm">
-          All biological parents already identified. Click Continue to proceed.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col gap-6 pt-4">
       <p className="text-sm text-current/70">
