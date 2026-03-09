@@ -28,13 +28,14 @@ type ConversionResult = {
   idToIndex: Map<string, number>;
 };
 
-function mapSex(sex: 'male' | 'female' | undefined): Sex {
+function mapSex(sex: Sex | undefined): Sex {
   if (sex === 'male') return 'male';
   if (sex === 'female') return 'female';
+  if (sex === 'terminated') return 'terminated';
   return 'unknown';
 }
 
-function mapGender(sex: 'male' | 'female' | undefined): Gender {
+function mapGender(sex: Sex | undefined): Gender {
   if (sex === 'male') return 'man';
   if (sex === 'female') return 'woman';
   return 'unknown';
@@ -57,9 +58,11 @@ export function storeToPedigreeInput(
   const n = indexToId.length;
   const id: string[] = indexToId.slice();
   const sex: Sex[] = indexToId.map((nid) => mapSex(nodes.get(nid)?.sex));
-  const gender: Gender[] = indexToId.map((nid) =>
-    mapGender(nodes.get(nid)?.sex),
-  );
+  const gender: Gender[] = indexToId.map((nid) => {
+    const node = nodes.get(nid);
+    if (node?.gender) return node.gender;
+    return mapGender(node?.sex);
+  });
   const parents: ParentConnection[][] = Array.from({ length: n }, () => []);
   const relations: Relation[] = [];
 
