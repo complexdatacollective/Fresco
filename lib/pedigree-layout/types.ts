@@ -1,7 +1,32 @@
 export type Sex = 'male' | 'female' | 'unknown' | 'terminated';
 
-export type RelationCode = 1 | 2 | 3 | 4;
-// 1=MZ twin, 2=DZ twin, 3=unknown twin, 4=spouse
+export type Gender =
+  | 'man'
+  | 'woman'
+  | 'non-binary'
+  | 'transgender-man'
+  | 'transgender-woman'
+  | 'genderqueer'
+  | 'agender'
+  | 'two-spirit'
+  | 'other'
+  | 'unknown';
+
+export type ParentEdgeType =
+  | 'social-parent'
+  | 'bio-parent'
+  | 'donor'
+  | 'surrogate'
+  | 'co-parent';
+
+export type ParentConnection = {
+  parentIndex: number;
+  edgeType: ParentEdgeType;
+};
+
+export type RelationCode = 1 | 2 | 3 | 4 | 5 | 6;
+// 1=MZ twin, 2=DZ twin, 3=unknown twin, 4=partner
+// 5=co-parent, 6=donor/surrogate relation
 
 export type Relation = {
   id1: number; // 0-based index
@@ -11,35 +36,34 @@ export type Relation = {
 
 export type PedigreeInput = {
   id: string[];
-  fatherIndex: number[]; // -1 = no father
-  motherIndex: number[]; // -1 = no mother
   sex: Sex[];
+  gender: Gender[];
+  parents: ParentConnection[][]; // parents[i] = all parent connections for person i
   relation?: Relation[];
   hints?: Hints;
 };
 
+export type GroupHint = {
+  members: number[]; // ordered list of node indices in the group
+  anchor: number;
+};
+
 export type Hints = {
   order: number[];
-  spouse?: SpouseHint[];
+  groups?: GroupHint[];
 };
 
-export type SpouseHint = {
-  leftIndex: number;
-  rightIndex: number;
-  anchor: number; // 0=undecided, 1=left anchor, 2=right anchor
-};
-
-// Internal spouse list entry (4-column matrix row in R)
-// [leftIndex, rightIndex, anchorSide, anchorType]
-export type SpouseEntry = [number, number, number, number];
+// [member indices..., anchorSide, anchorType]
+// Variable length — first N-2 elements are member indices
+export type GroupEntry = number[];
 
 // Internal alignment result passed between alignped functions
 export type AlignmentArrays = {
   n: number[]; // count of subjects per generation
-  nid: number[][]; // person indices (row=gen, col=pos); .5 = spouse marker
+  nid: number[][]; // person indices (row=gen, col=pos); .5 = group member marker
   pos: number[][]; // horizontal positions
   fam: number[][]; // parent family linkage
-  spouselist: SpouseEntry[];
+  grouplist: GroupEntry[];
 };
 
 // Public output from alignPedigree
@@ -48,7 +72,7 @@ export type PedigreeLayout = {
   nid: number[][]; // integer person indices (no .5)
   pos: number[][]; // optimized x-coordinates
   fam: number[][];
-  spouse: number[][]; // 0=none, 1=spouse pair, 2=consanguineous
+  group: number[][]; // replaces spouse: 0=none, >0=parent group membership
   twins: number[][] | null; // 0=none, 1=MZ, 2=DZ, 3=unknown
 };
 
@@ -70,18 +94,25 @@ export type ArcPath = {
   dashed: boolean;
 };
 
-export type SpouseConnector = {
-  type: 'spouse';
+export type ParentGroupConnector = {
+  type: 'parent-group';
   segment: LineSegment;
-  double: boolean;
+  double: boolean; // consanguineous
   doubleSegment?: LineSegment;
 };
 
 export type ParentChildConnector = {
   type: 'parent-child';
+  edgeType: ParentEdgeType;
   uplines: LineSegment[];
   siblingBar: LineSegment;
   parentLink: LineSegment[];
+};
+
+export type AuxiliaryConnector = {
+  type: 'auxiliary';
+  edgeType: 'donor' | 'surrogate' | 'bio-parent';
+  segments: LineSegment[];
 };
 
 export type TwinIndicator = {
@@ -98,8 +129,9 @@ export type DuplicateArc = {
 };
 
 export type PedigreeConnectors = {
-  spouseLines: SpouseConnector[];
+  groupLines: ParentGroupConnector[];
   parentChildLines: ParentChildConnector[];
+  auxiliaryLines: AuxiliaryConnector[];
   twinIndicators: TwinIndicator[];
   duplicateArcs: DuplicateArc[];
 };
