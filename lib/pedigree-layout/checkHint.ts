@@ -1,12 +1,12 @@
-import { type Hints, type Sex } from '~/lib/pedigree-layout/types';
+import { type Hints } from '~/lib/pedigree-layout/types';
 
 /**
  * Validate hint consistency for pedigree layout.
- * Port of kinship2::check.hint (check.hint.R)
+ *
+ * @param hints - layout hints to validate
+ * @param n - number of people in the pedigree
  */
-export function checkHint(hints: Hints, sex: Sex[]): Hints {
-  const n = sex.length;
-
+export function checkHint(hints: Hints, n: number): Hints {
   if (!hints.order) {
     throw new Error('Missing order component');
   }
@@ -14,26 +14,13 @@ export function checkHint(hints: Hints, sex: Sex[]): Hints {
     throw new Error('Wrong length for order component');
   }
 
-  if (!hints.spouse) return hints;
+  if (!hints.groups) return hints;
 
-  for (const sp of hints.spouse) {
-    if (
-      sp.leftIndex < 0 ||
-      sp.leftIndex >= n ||
-      sp.rightIndex < 0 ||
-      sp.rightIndex >= n
-    ) {
-      throw new Error('Invalid spouse value');
-    }
-
-    const leftSex = sex[sp.leftIndex];
-    const rightSex = sex[sp.rightIndex];
-    const validPair =
-      (leftSex === 'female' && rightSex === 'male') ||
-      (rightSex === 'female' && leftSex === 'male');
-
-    if (!validPair) {
-      throw new Error('A marriage is not male/female');
+  for (const group of hints.groups) {
+    for (const idx of group.members) {
+      if (idx < 0 || idx >= n) {
+        throw new Error('Invalid group member index');
+      }
     }
   }
 

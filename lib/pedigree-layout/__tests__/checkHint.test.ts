@@ -1,52 +1,46 @@
 import { describe, expect, it } from 'vitest';
 import { checkHint } from '~/lib/pedigree-layout/checkHint';
-import { type Sex } from '~/lib/pedigree-layout/types';
+import { type Hints } from '~/lib/pedigree-layout/types';
 
 describe('checkHint', () => {
-  const sex: Sex[] = ['male', 'female', 'male'];
-
   it('passes valid hints through', () => {
-    const hints = { order: [1, 2, 3] };
-    expect(checkHint(hints, sex)).toEqual(hints);
+    const hints: Hints = { order: [1, 2, 3] };
+    expect(checkHint(hints, 3)).toEqual(hints);
   });
 
   it('throws on missing order', () => {
-    expect(() => checkHint({ order: [] }, sex)).toThrow(
+    expect(() => checkHint({ order: [] }, 3)).toThrow(
       'Wrong length for order component',
     );
   });
 
   it('throws on wrong length order', () => {
-    expect(() => checkHint({ order: [1, 2] }, sex)).toThrow(
+    expect(() => checkHint({ order: [1, 2] }, 3)).toThrow(
       'Wrong length for order component',
     );
   });
 
-  it('validates spouse pairs are male/female', () => {
-    const hints = {
+  it('validates group member indices are in range', () => {
+    const hints: Hints = {
       order: [1, 2, 3],
-      spouse: [{ leftIndex: 0, rightIndex: 1, anchor: 0 }],
+      groups: [{ members: [0, 5], anchor: 0 }],
     };
-    // male + female — should pass
-    expect(() => checkHint(hints, sex)).not.toThrow();
+    expect(() => checkHint(hints, 3)).toThrow('Invalid group member index');
   });
 
-  it('throws on same-sex spouse pair', () => {
-    const hints = {
+  it('accepts any combination of people in a group', () => {
+    const hints: Hints = {
       order: [1, 2, 3],
-      spouse: [{ leftIndex: 0, rightIndex: 2, anchor: 0 }],
+      groups: [{ members: [0, 2], anchor: 0 }],
     };
-    // male + male — should fail
-    expect(() => checkHint(hints, sex)).toThrow(
-      'A marriage is not male/female',
-    );
+    expect(() => checkHint(hints, 3)).not.toThrow();
   });
 
-  it('throws on out-of-range spouse index', () => {
-    const hints = {
+  it('accepts groups of 3+', () => {
+    const hints: Hints = {
       order: [1, 2, 3],
-      spouse: [{ leftIndex: 0, rightIndex: 5, anchor: 0 }],
+      groups: [{ members: [0, 1, 2], anchor: 0 }],
     };
-    expect(() => checkHint(hints, sex)).toThrow('Invalid spouse value');
+    expect(() => checkHint(hints, 3)).not.toThrow();
   });
 });
