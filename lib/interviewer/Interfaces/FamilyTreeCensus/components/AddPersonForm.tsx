@@ -3,21 +3,13 @@
 import Field from '~/lib/form/components/Field/Field';
 import InputField from '~/lib/form/components/fields/InputField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
+import { PARENT_EDGE_TYPE_OPTIONS } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/fieldOptions';
 import {
   type NodeData,
   type StoreEdge,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
-import { type ParentEdgeType } from '~/lib/pedigree-layout/types';
 
 export type AddPersonMode = 'parent' | 'child' | 'partner' | 'sibling';
-
-const PARENT_EDGE_TYPE_OPTIONS: { value: ParentEdgeType; label: string }[] = [
-  { value: 'social-parent', label: 'Social parent' },
-  { value: 'bio-parent', label: 'Biological parent' },
-  { value: 'donor', label: 'Donor' },
-  { value: 'surrogate', label: 'Surrogate' },
-  { value: 'co-parent', label: 'Co-parent' },
-];
 
 const CURRENT_EX_OPTIONS = [
   { value: 'current', label: 'Current' },
