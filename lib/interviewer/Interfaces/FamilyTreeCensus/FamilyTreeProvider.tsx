@@ -3,14 +3,13 @@ import { invariant } from 'es-toolkit';
 import { createContext, useContext, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useStore } from 'zustand';
-import { type FamilyTreeNodeType } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
 import {
   createFamilyTreeStore,
-  type Edge,
   type FamilyTreeStore,
   type FamilyTreeStoreApi,
-  type Relationship,
+  type NodeData,
   type Sex,
+  type StoreEdge,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import { getRelationshipTypeVariable } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/utils/edgeUtils';
 import {
@@ -22,6 +21,27 @@ import { useAppDispatch } from '~/lib/interviewer/store';
 const FamilyTreeContext = createContext<FamilyTreeStoreApi | undefined>(
   undefined,
 );
+
+function mapReduxEdgeToStoreEdge(
+  relationship: string,
+  source: string,
+  target: string,
+): StoreEdge {
+  switch (relationship) {
+    case 'bio-parent':
+      return { source, target, type: 'parent', edgeType: 'bio-parent' };
+    case 'donor':
+      return { source, target, type: 'parent', edgeType: 'donor' };
+    case 'surrogate':
+      return { source, target, type: 'parent', edgeType: 'surrogate' };
+    case 'partner':
+      return { source, target, type: 'partner', current: true };
+    case 'parent':
+    case 'social-parent':
+    default:
+      return { source, target, type: 'parent', edgeType: 'social-parent' };
+  }
+}
 
 export const FamilyTreeProvider = ({
   ego,
@@ -40,47 +60,50 @@ export const FamilyTreeProvider = ({
   const dispatch = useAppDispatch();
   const egoSexVariable = useSelector(getEgoSexVariable);
   const nodeSexVariable = useSelector(getNodeSexVariable);
-  const initialNodes = new Map<string, Omit<FamilyTreeNodeType, 'id'>>(
+  const relationshipVariable = useSelector(getRelationshipTypeVariable);
+
+  const initialNodes = new Map<string, NodeData>(
     nodes.map((node) => {
       const diseases = new Map(
         diseaseVariables.map((disease) => [
           disease,
-          node.attributes[disease] as boolean,
+          node.attributes[disease] === true,
         ]),
       );
       return [
         node._uid,
         {
           label: '',
-          sex: node.attributes[nodeSexVariable] as Sex,
-          readOnly: false,
+          sex: node.attributes[nodeSexVariable] as Sex | undefined,
           isEgo: false,
+          readOnly: false,
           interviewNetworkId: node._uid,
-          diseases: diseases,
+          diseases,
         },
       ];
     }),
   );
+
   if (ego != null) {
     initialNodes.set(ego._uid, {
       label: 'You',
       sex: ego.attributes[egoSexVariable] === 'male' ? 'male' : 'female',
-      readOnly: true,
       isEgo: true,
+      readOnly: true,
     });
   }
-  const relationshipVariable = useSelector(getRelationshipTypeVariable);
-  const initialEdges = new Map<string, Omit<Edge, 'id'>>(
-    edges.map((edge) => [
-      edge._uid,
-      {
-        relationship: edge.attributes[relationshipVariable] as Relationship,
-        source: edge.from,
-        target: edge.to,
-        interviewNetworkId: edge._uid,
-      },
-    ]),
+
+  const initialEdges = new Map<string, StoreEdge>(
+    edges.map((edge) => {
+      const relationship = (edge.attributes[relationshipVariable] ??
+        '') as string;
+      return [
+        edge._uid,
+        mapReduxEdgeToStoreEdge(relationship, edge.from, edge.to),
+      ];
+    }),
   );
+
   storeRef.current ??= createFamilyTreeStore(
     initialNodes,
     initialEdges,
