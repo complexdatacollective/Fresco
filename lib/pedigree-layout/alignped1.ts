@@ -1,159 +1,160 @@
 import {
   type AlignmentArrays,
-  type SpouseEntry,
+  type GroupEntry,
+  type ParentConnection,
 } from '~/lib/pedigree-layout/types';
 import { alignped2 } from '~/lib/pedigree-layout/alignped2';
 import { alignped3 } from '~/lib/pedigree-layout/alignped3';
 
 /**
  * Lay out one person and all descendants.
- * Port of kinship2::alignped1 (alignped1.R)
  *
- * Determines spouse placement (left/right), recursively lays out
- * children of each marriage via alignped2, and merges subtrees.
+ * Determines group member placement (left/right), recursively lays out
+ * children of each parent group via alignped2, and merges subtrees.
  */
 export function alignped1(
   x: number,
-  dad: number[],
-  mom: number[],
+  parents: ParentConnection[][],
   level: number[],
   horder: number[],
   packed: boolean,
-  spouselist: SpouseEntry[],
+  grouplist: GroupEntry[],
 ): AlignmentArrays {
-  const maxlev = Math.max(...level) + 1; // levels are 0-based depth, we need count
+  const maxlev = Math.max(...level) + 1;
   const lev = level[x]!;
   const n = new Array<number>(maxlev).fill(0);
 
-  // Find spouses from spouselist
-  let spouse: number[] = [];
-  let sprows: number[] = [];
+  // Find groups containing x from grouplist
+  // GroupEntry format: [member1, member2, ..., anchorSide, anchorType]
+  // The first N-2 elements are member indices
+  let groupMembers: number[] = [];
+  let grows: number[] = [];
 
-  if (spouselist.length > 0) {
-    // Check if x appears as column 1 (left/male side)
-    const isCol1 = spouselist.some((row) => row[0] === x);
-    if (isCol1) {
-      // sex=1 (male): spouses where col1==x and (col4==col3 or col4==0)
-      for (let i = 0; i < spouselist.length; i++) {
-        const row = spouselist[i]!;
-        if (row[0] === x && (row[3] === row[2] || row[3] === 0)) {
-          spouse.push(row[1]);
-          sprows.push(i);
-        }
-      }
-    } else {
-      // sex=2 (female): spouses where col2==x and (col4!=col3 or col4==0)
-      for (let i = 0; i < spouselist.length; i++) {
-        const row = spouselist[i]!;
-        if (row[1] === x && (row[3] !== row[2] || row[3] === 0)) {
-          spouse.push(row[0]);
-          sprows.push(i);
+  if (grouplist.length > 0) {
+    for (let i = 0; i < grouplist.length; i++) {
+      const entry = grouplist[i]!;
+      const members = entry.slice(0, entry.length - 2);
+      if (members.includes(x)) {
+        // Collect all other members of this group
+        const anchorSide = entry[entry.length - 2]!;
+        const anchorType = entry[entry.length - 1]!;
+        // Determine if x is the anchor based on anchorSide/anchorType
+        const isAnchor =
+          anchorType === anchorSide || anchorType === 0;
+        if (isAnchor) {
+          for (const m of members) {
+            if (m !== x) {
+              groupMembers.push(m);
+              grows.push(i);
+            }
+          }
         }
       }
     }
 
-    // Determine sex code for this person based on spouselist position
-    const sex = isCol1 ? 1 : 2;
-
-    // Marriages that cross levels: keep only spouses at same or higher level
-    if (spouse.length > 0) {
+    // Keep only members at same or higher level (cross-level filtering)
+    if (groupMembers.length > 0) {
       const keepIdx: number[] = [];
-      for (let i = 0; i < spouse.length; i++) {
-        if (level[spouse[i]!]! <= lev) {
+      for (let i = 0; i < groupMembers.length; i++) {
+        if (level[groupMembers[i]!]! <= lev) {
           keepIdx.push(i);
         }
       }
-      spouse = keepIdx.map((i) => spouse[i]!);
-      sprows = keepIdx.map((i) => sprows[i]!);
+      groupMembers = keepIdx.map((i) => groupMembers[i]!);
+      grows = keepIdx.map((i) => grows[i]!);
     }
 
-    const nspouse = spouse.length;
+    const nMembers = groupMembers.length;
 
     // Initialize matrices
     const nid: number[][] = Array.from({ length: maxlev }, () =>
-      new Array<number>(nspouse + 1).fill(0),
+      new Array<number>(nMembers + 1).fill(0),
     );
     const famMat: number[][] = Array.from({ length: maxlev }, () =>
-      new Array<number>(nspouse + 1).fill(0),
+      new Array<number>(nMembers + 1).fill(0),
     );
     const pos: number[][] = Array.from({ length: maxlev }, () =>
-      new Array<number>(nspouse + 1).fill(0),
+      new Array<number>(nMembers + 1).fill(0),
     );
 
-    n[lev] = nspouse + 1;
-    for (let j = 0; j <= nspouse; j++) {
+    n[lev] = nMembers + 1;
+    for (let j = 0; j <= nMembers; j++) {
       pos[lev]![j] = j;
     }
 
-    if (nspouse === 0) {
+    if (nMembers === 0) {
       nid[lev]![0] = x;
-      return { nid, pos, fam: famMat, n, spouselist };
+      return { nid, pos, fam: famMat, n, grouplist };
     }
 
-    // Separate left and right spouses using anchor columns 3-4
-    const lspouse: number[] = [];
-    const rspouse: number[] = [];
+    // Separate left and right members using anchor columns
+    const lMembers: number[] = [];
+    const rMembers: number[] = [];
     const undecided: number[] = [];
 
-    for (let i = 0; i < sprows.length; i++) {
-      const row = spouselist[sprows[i]!]!;
-      if (row[2] === 3 - sex) {
-        // left: col3 == 3-sex
-        lspouse.push(spouse[i]!);
-      } else if (row[2] === sex) {
-        // right: col3 == sex
-        rspouse.push(spouse[i]!);
+    for (let i = 0; i < grows.length; i++) {
+      const entry = grouplist[grows[i]!]!;
+      const anchorSide = entry[entry.length - 2]!;
+      // anchorSide determines placement relative to the anchor (x)
+      // In the original: col3 == 3-sex means left, col3 == sex means right
+      // We generalize: anchorSide 1 = member on left, anchorSide 2 = member on right
+      if (anchorSide === 1) {
+        lMembers.push(groupMembers[i]!);
+      } else if (anchorSide === 2) {
+        rMembers.push(groupMembers[i]!);
       } else {
-        // col3 == 0, undecided
         undecided.push(i);
       }
     }
 
-    // Distribute undecided spouses
+    // Distribute undecided members
     if (undecided.length > 0) {
-      const totalLeft = Math.floor((sprows.length + (sex === 2 ? 1 : 0)) / 2);
-      let nleft = totalLeft - lspouse.length;
+      const totalLeft = Math.floor(grows.length / 2);
+      let nleft = totalLeft - lMembers.length;
       if (nleft > 0) {
         const take = Math.min(nleft, undecided.length);
         for (let i = 0; i < take; i++) {
-          lspouse.push(spouse[undecided[i]!]!);
+          lMembers.push(groupMembers[undecided[i]!]!);
         }
         undecided.splice(0, take);
-        nleft -= take;
       }
       for (const idx of undecided) {
-        rspouse.unshift(spouse[idx]!);
+        rMembers.unshift(groupMembers[idx]!);
       }
     }
 
-    // Fill level row: [lspouse..., x, rspouse...]
-    const levelRow = [...lspouse, x, ...rspouse];
+    // Fill level row: [lMembers..., x, rMembers...]
+    const levelRow = [...lMembers, x, ...rMembers];
     for (let j = 0; j < levelRow.length; j++) {
       nid[lev]![j] = levelRow[j]!;
     }
-    // Mark spouses with .5
-    for (let j = 0; j < nspouse; j++) {
+    // Mark non-anchor members with .5
+    for (let j = 0; j < lMembers.length; j++) {
+      nid[lev]![j] = nid[lev]![j]! + 0.5;
+    }
+    for (let j = lMembers.length + 1; j < levelRow.length; j++) {
       nid[lev]![j] = nid[lev]![j]! + 0.5;
     }
 
-    // Remove consumed entries from spouselist
-    const consumedSet = new Set(sprows);
-    spouselist = spouselist.filter((_, i) => !consumedSet.has(i));
+    // Remove consumed entries from grouplist
+    const consumedSet = new Set(grows);
+    grouplist = grouplist.filter((_, i) => !consumedSet.has(i));
 
-    // Process children for each spouse
+    // Process children for each group member pairing
     let nokids = true;
     let rval: AlignmentArrays | null = null;
-    const orderedSpouse = [...lspouse, ...rspouse];
+    const orderedMembers = [...lMembers, ...rMembers];
 
-    for (let i = 0; i < orderedSpouse.length; i++) {
-      const ispouse = orderedSpouse[i]!;
-      // Find children of (x, ispouse)
+    for (let i = 0; i < orderedMembers.length; i++) {
+      const member = orderedMembers[i]!;
+      // Find children whose parents include both x and this member
       const children: number[] = [];
-      for (let j = 0; j < dad.length; j++) {
-        if (
-          (dad[j] === x && mom[j] === ispouse) ||
-          (dad[j] === ispouse && mom[j] === x)
-        ) {
+      for (let j = 0; j < parents.length; j++) {
+        const pConns = parents[j]!;
+        if (pConns.length === 0) continue;
+        const hasX = pConns.some((p) => p.parentIndex === x);
+        const hasMember = pConns.some((p) => p.parentIndex === member);
+        if (hasX && hasMember) {
           children.push(j);
         }
       }
@@ -161,14 +162,13 @@ export function alignped1(
       if (children.length > 0) {
         const rval1 = alignped2(
           children,
-          dad,
-          mom,
+          parents,
           level,
           horder,
           packed,
-          spouselist,
+          grouplist,
         );
-        spouselist = rval1.spouselist;
+        grouplist = rval1.grouplist;
 
         // Set parentage for children on next level
         const nextLev = lev + 1;
@@ -177,7 +177,7 @@ export function alignped1(
           for (let j = 0; j < tempRow.length; j++) {
             const floorVal = Math.floor(tempRow[j]!);
             if (children.includes(floorVal)) {
-              rval1.fam[nextLev]![j] = i + 1; // 1-based family index (position in level row)
+              rval1.fam[nextLev]![j] = i + 1; // 1-based family index
             }
           }
         }
@@ -202,7 +202,7 @@ export function alignped1(
 
             if (kidmean > parmean) {
               // Move parents right
-              for (let j = i; j <= nspouse; j++) {
+              for (let j = i; j <= nMembers; j++) {
                 pos[lev]![j] = pos[lev]![j]! + (kidmean - parmean);
               }
             } else {
@@ -228,19 +228,17 @@ export function alignped1(
     }
 
     if (nokids) {
-      return { nid, pos, fam: famMat, n, spouselist };
+      return { nid, pos, fam: famMat, n, grouplist };
     }
 
     // Splice parent level into children's result
-    if (rval!.nid[0]!.length >= nspouse + 1) {
-      // rval has room for the parent row
+    if (rval!.nid[0]!.length >= nMembers + 1) {
       rval!.n[lev] = n[lev]!;
-      for (let j = 0; j <= nspouse; j++) {
+      for (let j = 0; j <= nMembers; j++) {
         rval!.nid[lev]![j] = nid[lev]![j]!;
         rval!.pos[lev]![j] = pos[lev]![j]!;
       }
     } else {
-      // Parent structure has room for children's data
       const rvalCols = rval!.nid[0]!.length;
       for (let row = lev + 1; row < maxlev; row++) {
         n[row] = rval!.n[row]!;
@@ -250,18 +248,18 @@ export function alignped1(
           famMat[row]![j] = rval!.fam[row]![j]!;
         }
       }
-      rval = { nid, pos, fam: famMat, n, spouselist: [] };
+      rval = { nid, pos, fam: famMat, n, grouplist: [] };
     }
 
-    rval!.spouselist = spouselist;
+    rval!.grouplist = grouplist;
     return rval!;
   }
 
-  // No spouselist at all — single person, no spouses
+  // No grouplist at all — single person, no group members
   const nid: number[][] = Array.from({ length: maxlev }, () => [0]);
   const famMat: number[][] = Array.from({ length: maxlev }, () => [0]);
   const pos: number[][] = Array.from({ length: maxlev }, () => [0]);
   n[lev] = 1;
   nid[lev]![0] = x;
-  return { nid, pos, fam: famMat, n, spouselist };
+  return { nid, pos, fam: famMat, n, grouplist };
 }

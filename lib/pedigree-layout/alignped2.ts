@@ -1,45 +1,50 @@
 import {
   type AlignmentArrays,
-  type SpouseEntry,
+  type GroupEntry,
+  type ParentConnection,
 } from '~/lib/pedigree-layout/types';
 import { alignped1 } from '~/lib/pedigree-layout/alignped1';
 import { alignped3 } from '~/lib/pedigree-layout/alignped3';
 
 /**
  * Lay out a set of siblings.
- * Port of kinship2::alignped2 (alignped2.R)
  *
  * Sorts siblings by horder, calls alignped1 for each,
  * and merges results with alignped3.
  */
 export function alignped2(
   x: number[],
-  dad: number[],
-  mom: number[],
+  parents: ParentConnection[][],
   level: number[],
   horder: number[],
   packed: boolean,
-  spouselist: SpouseEntry[],
+  grouplist: GroupEntry[],
 ): AlignmentArrays {
   // Sort siblings by horder
   const sorted = [...x].sort((a, b) => (horder[a] ?? 0) - (horder[b] ?? 0));
 
-  let rval = alignped1(sorted[0]!, dad, mom, level, horder, packed, spouselist);
-  spouselist = rval.spouselist;
+  let rval = alignped1(
+    sorted[0]!,
+    parents,
+    level,
+    horder,
+    packed,
+    grouplist,
+  );
+  grouplist = rval.grouplist;
 
   if (sorted.length > 1) {
     const mylev = level[sorted[0]!]!;
     for (let i = 1; i < sorted.length; i++) {
       const rval2 = alignped1(
         sorted[i]!,
-        dad,
-        mom,
+        parents,
         level,
         horder,
         packed,
-        spouselist,
+        grouplist,
       );
-      spouselist = rval2.spouselist;
+      grouplist = rval2.grouplist;
 
       // Special case: skip merge if sibling already on their level
       // (can happen with inbreeding)
@@ -52,7 +57,7 @@ export function alignped2(
         rval = alignped3(rval, rval2, packed);
       }
     }
-    rval.spouselist = spouselist;
+    rval.grouplist = grouplist;
   }
 
   return rval;
