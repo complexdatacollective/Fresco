@@ -1,8 +1,8 @@
 import {
+  type GroupEntry,
   type Hints,
   type PedigreeInput,
   type PedigreeLayout,
-  type SpouseEntry,
 } from '~/lib/pedigree-layout/types';
 import { alignped1 } from '~/lib/pedigree-layout/alignped1';
 import { alignped3 } from '~/lib/pedigree-layout/alignped3';
@@ -14,7 +14,6 @@ import { ancestor } from '~/lib/pedigree-layout/utils';
 
 /**
  * Main pedigree layout algorithm.
- * Port of kinship2::align.pedigree (align.pedigree.R)
  *
  * Takes pedigree data and computes the aligned layout with positions.
  */
@@ -31,17 +30,6 @@ export function alignPedigree(
   let { hints } = options;
 
   const n = ped.id.length;
-  const dad = ped.fatherIndex;
-  const mom = ped.motherIndex;
-
-  // Validate: everyone must have 0 or 2 parents
-  for (let i = 0; i < n; i++) {
-    if ((dad[i] === -1) !== (mom[i] === -1)) {
-      throw new Error(
-        'Everyone must have 0 parents or 2 parents, not just one',
-      );
-    }
-  }
 
   // Generate or validate hints
   if (!hints) {
@@ -51,11 +39,11 @@ export function alignPedigree(
       hints = { order: Array.from({ length: n }, (_, i) => i + 1) };
     }
   } else {
-    hints = checkHint(hints, ped.sex);
+    hints = checkHint(hints, n);
   }
 
   // Compute depth (0-based) and add 1 for 1-based levels
-  const depth = kindepth(mom, dad, true);
+  const depth = kindepth(ped.parents, true);
   const level = depth.map((d) => d + 1);
 
   const horder = hints.order;
@@ -63,143 +51,164 @@ export function alignPedigree(
   // Build relation matrix (if any)
   const relation = ped.relation ?? null;
 
-  // Build spouse list
-  let spouselist: SpouseEntry[] = [];
+  // Build group list from parent groups
+  let grouplist: GroupEntry[] = [];
 
-  // Add from hints
-  if (hints.spouse) {
-    for (const sp of hints.spouse) {
-      const leftSex = ped.sex[sp.leftIndex];
-      const isMale = leftSex === 'male';
-      const col1 = isMale ? sp.leftIndex : sp.rightIndex;
-      const col2 = isMale ? sp.rightIndex : sp.leftIndex;
-      const col3 = 1 + (leftSex !== 'male' ? 1 : 0); // R: 1 + (tsex!='male')
-      spouselist.push([col1, col2, col3, sp.anchor]);
+  // Add from hints (GroupHint → GroupEntry)
+  if (hints.groups) {
+    for (const gh of hints.groups) {
+      // GroupEntry: [member1, member2, ..., anchorSide, anchorType]
+      grouplist.push([...gh.members, 0, gh.anchor]);
     }
   }
 
-  // Add spouse relations (code 4)
+  // Add partner relations (code 4)
   if (relation) {
     for (const rel of relation) {
       if (rel.code === 4) {
-        const s1 = ped.sex[rel.id1];
-        if (s1 === 'male') {
-          spouselist.push([rel.id1, rel.id2, 0, 0]);
-        } else {
-          spouselist.push([rel.id2, rel.id1, 0, 0]);
-        }
+        grouplist.push([rel.id1, rel.id2, 0, 0]);
       }
     }
   }
 
-  // Add parent pairs
+  // Add parent groups from children's parents arrays
+  const groupSet = new Set<string>();
   for (let i = 0; i < n; i++) {
-    if (dad[i]! >= 0 && mom[i]! >= 0) {
-      spouselist.push([dad[i]!, mom[i]!, 0, 0]);
+    const pConns = ped.parents[i]!;
+    if (pConns.length < 2) continue;
+    // Only group social-parent and co-parent connections for layout grouping
+    const socialParents = pConns
+      .filter(
+        (p) =>
+          p.edgeType === 'social-parent' || p.edgeType === 'co-parent',
+      )
+      .map((p) => p.parentIndex)
+      .sort((a, b) => a - b);
+    if (socialParents.length < 2) continue;
+    const key = socialParents.join(',');
+    if (!groupSet.has(key)) {
+      groupSet.add(key);
+      grouplist.push([...socialParents, 0, 0]);
     }
   }
 
-  // Deduplicate by hash
-  const seen = new Set<number>();
-  spouselist = spouselist.filter((entry) => {
-    const hash = entry[0] * n + entry[1];
-    if (seen.has(hash)) return false;
-    seen.add(hash);
+  // Deduplicate grouplist by hash (first two members)
+  const seen = new Set<string>();
+  grouplist = grouplist.filter((entry) => {
+    const members = entry.slice(0, entry.length - 2);
+    const key = members.join(',');
+    if (seen.has(key)) return false;
+    seen.add(key);
     return true;
   });
 
-  // Find founders: both parents of the spouse pair are founders (no parents)
-  const noparents = spouselist.map((entry) => {
-    const d0 = dad[entry[0]];
-    const d1 = dad[entry[1]];
-    return d0 === -1 && d1 === -1;
+  // Find founders: people whose group members are all founders (no parents)
+  const isFounder = (idx: number) => ped.parents[idx]!.length === 0;
+
+  const founderGroups = grouplist.filter((entry) => {
+    const members = entry.slice(0, entry.length - 2);
+    return members.every((m) => isFounder(m));
   });
 
-  // Find founding mothers/fathers with multiple marriages
-  const founderMoms = spouselist
-    .filter((_, i) => noparents[i])
-    .map((e) => e[1]);
-  const founderDads = spouselist
-    .filter((_, i) => noparents[i])
-    .map((e) => e[0]);
-
-  const dupMomSet = new Set<number>();
-  const dupMom: number[] = [];
-  for (const m of founderMoms) {
-    if (dupMomSet.has(m)) dupMom.push(m);
-    dupMomSet.add(m);
+  // Collect unique founders from founder groups
+  const founderMembers = new Set<number>();
+  const dupMembers = new Set<number>();
+  for (const entry of founderGroups) {
+    const members = entry.slice(0, entry.length - 2);
+    for (const m of members) {
+      if (founderMembers.has(m)) {
+        dupMembers.add(m);
+      }
+      founderMembers.add(m);
+    }
   }
 
-  const dupDadSet = new Set<number>();
-  const dupDad: number[] = [];
-  for (const d of founderDads) {
-    if (dupDadSet.has(d)) dupDad.push(d);
-    dupDadSet.add(d);
+  // Pick one representative per founder group (preferring duplicates as anchors)
+  const representatives = new Set<number>();
+  for (const entry of founderGroups) {
+    const members = entry.slice(0, entry.length - 2);
+    // If any member appears in multiple groups, they're the anchor
+    const anchor = members.find((m) => dupMembers.has(m));
+    if (anchor !== undefined) {
+      representatives.add(anchor);
+    } else {
+      // Otherwise pick the last member (arbitrary but consistent)
+      representatives.add(members[members.length - 1]!);
+    }
   }
 
-  const dupAll = new Set([...dupMom, ...dupDad]);
+  // Also add lone founders (no groups)
+  for (let i = 0; i < n; i++) {
+    if (isFounder(i) && !founderMembers.has(i)) {
+      // Check if this person has children — only layout roots
+      const hasChildren = ped.parents.some((pConns) =>
+        pConns.some((p) => p.parentIndex === i),
+      );
+      if (hasChildren) {
+        representatives.add(i);
+      }
+    }
+  }
 
-  // Founding mothers not in dupAll
-  const foundMom = spouselist
-    .filter(
-      (entry, i) =>
-        noparents[i] && !dupAll.has(entry[0]) && !dupAll.has(entry[1]),
-    )
-    .map((e) => e[1]);
-
-  const founders = [...new Set([...dupMom, ...dupDad, ...foundMom])].sort(
+  const founders = [...representatives].sort(
     (a, b) => (horder[a] ?? 0) - (horder[b] ?? 0),
   );
 
   if (founders.length === 0) {
-    throw new Error('No founders found in pedigree');
+    // Fallback: use all people with no parents
+    for (let i = 0; i < n; i++) {
+      if (isFounder(i)) founders.push(i);
+    }
+    if (founders.length === 0) {
+      throw new Error('No founders found in pedigree');
+    }
   }
 
   // Layout first founder
   let rval = alignped1(
     founders[0]!,
-    dad,
-    mom,
+    ped.parents,
     level,
     horder,
     packed,
-    spouselist,
+    grouplist,
   );
 
   // Merge remaining founders
   if (founders.length > 1) {
-    spouselist = rval.spouselist;
+    grouplist = rval.grouplist;
     for (let i = 1; i < founders.length; i++) {
       const rval2 = alignped1(
         founders[i]!,
-        dad,
-        mom,
+        ped.parents,
         level,
         horder,
         packed,
-        spouselist,
+        grouplist,
       );
-      spouselist = rval2.spouselist;
+      grouplist = rval2.grouplist;
       rval = alignped3(rval, rval2, packed);
     }
   }
 
-  // Unhash: separate nid and spouse from .5 encoding
+  // Unhash: separate nid and group from .5 encoding
   const maxdepth = rval.nid.length;
-  const nid: number[][] = rval.nid.map((row) => row.map((v) => Math.floor(v)));
-  const spouseMat: number[][] = rval.nid.map((row) =>
+  const nid: number[][] = rval.nid.map((row) =>
+    row.map((v) => Math.floor(v)),
+  );
+  const groupMat: number[][] = rval.nid.map((row) =>
     row.map((v) => (v !== Math.floor(v) ? 1 : 0)),
   );
 
-  // Detect consanguinity: spouse pairs with common ancestors get spouse=2
+  // Detect consanguinity: group pairs with common ancestors get group=2
   for (let i = 0; i < maxdepth; i++) {
-    for (let j = 0; j < spouseMat[i]!.length; j++) {
-      if (spouseMat[i]![j]! > 0) {
-        const a1 = ancestor(nid[i]![j]!, mom, dad);
-        const a2 = ancestor(nid[i]![j + 1]!, mom, dad);
+    for (let j = 0; j < groupMat[i]!.length; j++) {
+      if (groupMat[i]![j]! > 0) {
+        const a1 = ancestor(nid[i]![j]!, ped.parents);
+        const a2 = ancestor(nid[i]![j + 1]!, ped.parents);
         const combined = [...a1, ...a2];
         if (combined.length !== new Set(combined).size) {
-          spouseMat[i]![j] = 2;
+          groupMat[i]![j] = 2;
         }
       }
     }
@@ -217,7 +226,6 @@ export function alignPedigree(
     );
 
     for (const rel of twinRelations) {
-      // Find positions of left and right twins in the ntemp matrix
       let lpos = -1;
       let rpos = -1;
       for (let row = 0; row < maxdepth; row++) {
@@ -242,12 +250,13 @@ export function alignPedigree(
 
   // Run position optimization (fall back to unoptimized if QP solver fails)
   let pos: number[][];
-  const doAlign = align === true || (Array.isArray(align) && align.length > 0);
+  const doAlign =
+    align === true || (Array.isArray(align) && align.length > 0);
   const maxLevel = Math.max(...level);
   if (doAlign && maxLevel > 1) {
     try {
-      const spouseBool = spouseMat.map((row) => row.map((v) => v > 0));
-      pos = alignped4(rval, spouseBool, level, width, align);
+      const groupBool = groupMat.map((row) => row.map((v) => v > 0));
+      pos = alignped4(rval, groupBool, level, width, align);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.warn(
@@ -265,7 +274,7 @@ export function alignPedigree(
     nid,
     pos,
     fam: rval.fam,
-    spouse: spouseMat,
+    group: groupMat,
     twins,
   };
 }

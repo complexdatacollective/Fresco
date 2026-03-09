@@ -3,6 +3,10 @@ import { alignPedigree } from '~/lib/pedigree-layout/alignPedigree';
 import {
   multipleMarriages,
   nuclearFamily,
+  sameSeParents,
+  singleParent,
+  surrogacyFamily,
+  threeCoParents,
   threeGeneration,
   twinFamily,
   wideFamily,
@@ -16,7 +20,7 @@ describe('alignPedigree', () => {
     // Should have 2 levels
     expect(result.n.filter((v) => v > 0).length).toBe(2);
 
-    // All 5 people should appear in the layout (0-based indices, 0 is valid)
+    // All 5 people should appear in the layout
     const allIds = result.nid.flatMap((row, i) =>
       row.slice(0, result.n[i]).filter((v) => v >= 0),
     );
@@ -47,13 +51,12 @@ describe('alignPedigree', () => {
     }
   });
 
-  it('marks spouse pairs', () => {
+  it('marks parent groups', () => {
     const result = alignPedigree(nuclearFamily, {
       hints: { order: [1, 2, 3, 4, 5] },
     });
-    // At least one spouse marker somewhere
-    const hasSpouse = result.spouse.some((row) => row.some((v) => v > 0));
-    expect(hasSpouse).toBe(true);
+    const hasGroup = result.group.some((row) => row.some((v) => v > 0));
+    expect(hasGroup).toBe(true);
   });
 
   it('all positions are non-negative', () => {
@@ -62,7 +65,8 @@ describe('alignPedigree', () => {
     });
     for (let lev = 0; lev < result.n.length; lev++) {
       for (let j = 0; j < result.n[lev]!; j++) {
-        expect(result.pos[lev]![j]!).toBeGreaterThanOrEqual(0);
+        // Allow tiny floating point errors from QP solver
+        expect(result.pos[lev]![j]!).toBeGreaterThanOrEqual(-1e-10);
       }
     }
   });
@@ -71,9 +75,7 @@ describe('alignPedigree', () => {
     const result = alignPedigree(multipleMarriages, {
       hints: { order: [1, 2, 3, 4, 5] },
     });
-    // Should have 2 levels
     expect(result.n.filter((v) => v > 0).length).toBe(2);
-    // All 5 people should appear
     const allIds = result.nid.flatMap((row, i) =>
       row.slice(0, result.n[i]).filter((v) => v >= 0),
     );
@@ -84,23 +86,53 @@ describe('alignPedigree', () => {
     const result = alignPedigree(twinFamily, {
       hints: { order: [1, 2, 3, 4, 5] },
     });
-    // Should have 2 levels
     expect(result.n.filter((v) => v > 0).length).toBe(2);
-    // Twin info should be present
     expect(result.twins).not.toBeNull();
   });
 
-  it('throws when a person has only one parent', () => {
+  it('lays out same-sex parents', () => {
+    const result = alignPedigree(sameSeParents, {
+      hints: { order: [1, 2, 3] },
+    });
+    expect(result.n.filter((v) => v > 0).length).toBe(2);
+    const allIds = result.nid.flatMap((row, i) =>
+      row.slice(0, result.n[i]).filter((v) => v >= 0),
+    );
+    expect(allIds).toContain(0);
+    expect(allIds).toContain(1);
+    expect(allIds).toContain(2);
+  });
+
+  it('lays out single parent', () => {
+    const result = alignPedigree(singleParent, {
+      hints: { order: [1, 2] },
+    });
+    expect(result.n.filter((v) => v > 0).length).toBe(2);
+  });
+
+  it('does NOT throw when a person has only one parent', () => {
     expect(() =>
-      alignPedigree(
-        {
-          id: ['a', 'b'],
-          fatherIndex: [-1, 0],
-          motherIndex: [-1, -1],
-          sex: ['male', 'male'],
-        },
-        { hints: { order: [1, 2] } },
-      ),
-    ).toThrow('Everyone must have 0 parents or 2 parents');
+      alignPedigree(singleParent, { hints: { order: [1, 2] } }),
+    ).not.toThrow();
+  });
+
+  it('lays out three co-parents', () => {
+    const result = alignPedigree(threeCoParents, {
+      hints: { order: [1, 2, 3, 4] },
+    });
+    expect(result.n.filter((v) => v > 0).length).toBe(2);
+  });
+
+  it('lays out surrogacy family', () => {
+    const result = alignPedigree(surrogacyFamily, {
+      hints: { order: [1, 2, 3, 4] },
+    });
+    expect(result.n.filter((v) => v > 0).length).toBe(2);
+    const allIds = result.nid.flatMap((row, i) =>
+      row.slice(0, result.n[i]).filter((v) => v >= 0),
+    );
+    for (let i = 0; i < 4; i++) {
+      expect(allIds).toContain(i);
+    }
   });
 });
