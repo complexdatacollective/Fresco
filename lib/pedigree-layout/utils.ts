@@ -60,59 +60,75 @@ export function tableCounts(arr: number[]): Map<number, number> {
   return counts;
 }
 
-// Chase all ancestors of a person (from align.pedigree.R:95-103)
+import { type ParentConnection } from '~/lib/pedigree-layout/types';
+
+// Chase all ancestors of a person
 export function ancestor(
   me: number,
-  momIdx: number[],
-  dadIdx: number[],
+  parents: ParentConnection[][],
 ): number[] {
-  let alist = [me];
-  for (;;) {
-    const newEntries: number[] = [];
-    for (const idx of alist) {
-      const m = momIdx[idx];
-      const d = dadIdx[idx];
-      if (m !== undefined && m >= 0) newEntries.push(m);
-      if (d !== undefined && d >= 0) newEntries.push(d);
-    }
-    const merged = [...new Set([...alist, ...newEntries])].sort(
-      (a, b) => a - b,
-    );
-    if (merged.length === alist.length) break;
-    alist = merged;
+  const n = parents.length;
+  const result = new Array<boolean>(n).fill(false);
+
+  // Seed with direct parents
+  const myParents = parents[me] ?? [];
+  for (const p of myParents) {
+    result[p.parentIndex] = true;
   }
-  return alist.filter((x) => x !== me);
+
+  // Chase up iteratively
+  for (let iter = 0; iter < n; iter++) {
+    let changed = false;
+    for (let i = 0; i < n; i++) {
+      if (!result[i]) continue;
+      for (const p of parents[i] ?? []) {
+        if (!result[p.parentIndex]) {
+          result[p.parentIndex] = true;
+          changed = true;
+        }
+      }
+    }
+    if (!changed) break;
+  }
+
+  const indices: number[] = [];
+  for (let i = 0; i < n; i++) {
+    if (result[i]) indices.push(i);
+  }
+  return indices;
 }
 
-// Chase up ancestors (from kindepth.R:74-83)
-// Returns all ancestors reachable from x
-export function chaseup(x: number[], midx: number[], didx: number[]): number[] {
-  let result = [...x];
-  let newItems = x.flatMap((idx) => {
-    const items: number[] = [];
-    const m = midx[idx];
-    const d = didx[idx];
-    if (m !== undefined && m >= 0) items.push(m);
-    if (d !== undefined && d >= 0) items.push(d);
-    return items;
-  });
+// Chase up ancestors — returns all ancestors reachable from x (including x)
+export function chaseup(
+  x: number[],
+  parents: ParentConnection[][],
+): number[] {
+  const n = parents.length;
+  const inSet = new Array<boolean>(n).fill(false);
+  for (const idx of x) inSet[idx] = true;
 
-  while (newItems.length > 0) {
-    result = [...new Set([...result, ...newItems])];
-    newItems = newItems.flatMap((idx) => {
-      const items: number[] = [];
-      const m = midx[idx];
-      const d = didx[idx];
-      if (m !== undefined && m >= 0) items.push(m);
-      if (d !== undefined && d >= 0) items.push(d);
-      return items;
-    });
-    newItems = newItems.filter((item) => !result.includes(item));
+  for (let iter = 0; iter < n; iter++) {
+    let changed = false;
+    for (let i = 0; i < n; i++) {
+      if (!inSet[i]) continue;
+      for (const p of parents[i] ?? []) {
+        if (!inSet[p.parentIndex]) {
+          inSet[p.parentIndex] = true;
+          changed = true;
+        }
+      }
+    }
+    if (!changed) break;
+  }
+
+  const result: number[] = [];
+  for (let i = 0; i < n; i++) {
+    if (inSet[i]) result.push(i);
   }
   return result;
 }
 
-// Check if a value is a spouse marker (has .5 fractional part)
-export function isSpouseMarker(val: number): boolean {
+// Check if a value is a group member marker (has .5 fractional part)
+export function isGroupMarker(val: number): boolean {
   return val !== Math.floor(val);
 }
