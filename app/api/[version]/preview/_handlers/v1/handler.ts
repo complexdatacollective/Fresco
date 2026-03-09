@@ -49,7 +49,6 @@ export async function v1(request: NextRequest) {
 
         // Validate and migrate protocol
         const validationResult = await validateAndMigrateProtocol(protocolJson);
-
         if (!validationResult.success) {
           return jsonResponse(REJECTED_RESPONSE, 400);
         }
