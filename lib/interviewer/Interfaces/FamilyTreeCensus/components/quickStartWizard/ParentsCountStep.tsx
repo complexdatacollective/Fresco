@@ -20,6 +20,7 @@ export default function ParentsCountStep() {
       <UnconnectedField
         name="parentCount"
         label="How many parents do you have?"
+        hint="This includes biological, step, adoptive, and anyone else that you identify as a parent."
         component={NumberCounterField}
         value={count}
         minValue={0}

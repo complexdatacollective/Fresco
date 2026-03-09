@@ -1,15 +1,8 @@
 'use client';
 
-import { Button } from '~/components/ui/Button';
 import Surface from '~/components/layout/Surface';
+import { Button } from '~/components/ui/Button';
 import useDialog from '~/lib/dialogs/useDialog';
-import { type Gender, type Sex } from '~/lib/pedigree-layout/types';
-import {
-  type BioParentDetail,
-  type ParentDetail,
-  type PersonDetail,
-  type QuickStartData,
-} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import BioParentsStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/BioParentsStep';
 import ChildrenWithPartnerCountStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/ChildrenWithPartnerCountStep';
 import ChildrenWithPartnerDetailStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/ChildrenWithPartnerDetailStep';
@@ -20,6 +13,13 @@ import ParentsDetailStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/com
 import PartnerStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/PartnerStep';
 import SiblingsCountStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/SiblingsCountStep';
 import SiblingsDetailStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/SiblingsDetailStep';
+import {
+  type BioParentDetail,
+  type ParentDetail,
+  type PersonDetail,
+  type QuickStartData,
+} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
+import { type Gender, type Sex } from '~/lib/pedigree-layout/types';
 
 type QuickStartFormProps = {
   onSubmit: (data: QuickStartData) => void;
@@ -35,12 +35,12 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
       steps: [
         {
           title: 'Parents',
-          description: 'How many parents do you have?',
           content: ParentsCountStep,
         },
         {
           title: 'Parent details',
-          description: 'Tell us about each parent.',
+          description:
+            'Please provide us with further details about each parent that you mentioned.',
           content: ParentsDetailStep,
         },
         {
