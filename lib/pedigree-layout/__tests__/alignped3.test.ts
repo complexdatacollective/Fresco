@@ -9,14 +9,14 @@ describe('alignped3', () => {
       nid: [[1]],
       pos: [[0]],
       fam: [[0]],
-      spouselist: [],
+      grouplist: [],
     };
     const x2: AlignmentArrays = {
       n: [1],
       nid: [[2]],
       pos: [[0]],
       fam: [[0]],
-      spouselist: [],
+      grouplist: [],
     };
 
     const result = alignped3(x1, x2, true);
@@ -32,14 +32,14 @@ describe('alignped3', () => {
       nid: [[1, 3]],
       pos: [[0, 1]],
       fam: [[0, 0]],
-      spouselist: [],
+      grouplist: [],
     };
     const x2: AlignmentArrays = {
       n: [2],
       nid: [[3, 4]],
       pos: [[0, 1]],
       fam: [[0, 0]],
-      spouselist: [],
+      grouplist: [],
     };
 
     const result = alignped3(x1, x2, true);
@@ -62,7 +62,7 @@ describe('alignped3', () => {
         [0, 0],
         [1, 0],
       ],
-      spouselist: [],
+      grouplist: [],
     };
     const x2: AlignmentArrays = {
       n: [1, 1],
@@ -78,7 +78,7 @@ describe('alignped3', () => {
         [0, 0],
         [1, 0],
       ],
-      spouselist: [],
+      grouplist: [],
     };
 
     const result = alignped3(x1, x2, true);

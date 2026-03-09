@@ -2,7 +2,6 @@ import { type AlignmentArrays } from '~/lib/pedigree-layout/types';
 
 /**
  * Merge two pedigree alignment structures side-by-side.
- * Port of kinship2::alignped3 (alignped3.R)
  *
  * Handles overlap detection (same person in both trees) and
  * slide calculation for positioning.
@@ -111,5 +110,5 @@ export function alignped3(
     }
   }
 
-  return { n, nid, pos, fam, spouselist: [] };
+  return { n, nid, pos, fam, grouplist: [] };
 }
