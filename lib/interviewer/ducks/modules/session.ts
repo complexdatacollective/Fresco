@@ -78,16 +78,42 @@ export function edgeExists(
 }
 
 const FamilyTreeCensusStageMetadataSchema = z.object({
-  hasSeenScaffoldPrompt: z.boolean(),
+  hasCompletedQuickStart: z.boolean(),
   nodes: z.optional(
     z.array(
       z.object({
-        interviewNetworkId: z.string(),
+        id: z.string(),
+        interviewNetworkId: z.optional(z.string()),
         label: z.string(),
-        sex: z.enum(['male', 'female']),
+        sex: z.optional(z.enum(['male', 'female'])),
         isEgo: z.boolean(),
-        readOnly: z.boolean(),
       }),
+    ),
+  ),
+  edges: z.optional(
+    z.array(
+      z.union([
+        z.object({
+          id: z.string(),
+          source: z.string(),
+          target: z.string(),
+          type: z.literal('parent'),
+          edgeType: z.enum([
+            'social-parent',
+            'bio-parent',
+            'donor',
+            'surrogate',
+            'co-parent',
+          ]),
+        }),
+        z.object({
+          id: z.string(),
+          source: z.string(),
+          target: z.string(),
+          type: z.literal('partner'),
+          current: z.boolean(),
+        }),
+      ]),
     ),
   ),
 });

@@ -2,8 +2,10 @@ import {
   computeLayoutMetrics,
   type LayoutDimensions,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/layoutDimensions';
-import { type Edge } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
-import { type FamilyTreeNodeType } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
+import {
+  type NodeData,
+  type StoreEdge,
+} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import { computeConnectors } from '~/lib/pedigree-layout/connectors';
 import {
   type Gender,
@@ -39,8 +41,8 @@ function mapGender(sex: 'male' | 'female' | undefined): Gender {
 }
 
 export function storeToPedigreeInput(
-  nodes: Map<string, Omit<FamilyTreeNodeType, 'id'>>,
-  edges: Map<string, Omit<Edge, 'id'>>,
+  nodes: Map<string, NodeData>,
+  edges: Map<string, StoreEdge>,
 ): ConversionResult {
   const indexToId: string[] = [];
   const idToIndex = new Map<string, number>();
@@ -61,38 +63,22 @@ export function storeToPedigreeInput(
   const parents: ParentConnection[][] = Array.from({ length: n }, () => []);
   const relations: Relation[] = [];
 
-  // Build parent connections
-  const parentRelationships = new Set<string>([
-    'parent',
-    'donor',
-    'surrogate',
-    'bio-parent',
-  ]);
-  const edgeTypeMap: Record<string, ParentConnection['edgeType']> = {
-    'parent': 'social-parent',
-    'donor': 'donor',
-    'surrogate': 'surrogate',
-    'bio-parent': 'bio-parent',
-  };
   for (const edge of edges.values()) {
-    if (!parentRelationships.has(edge.relationship)) continue;
-    const childIdx = idToIndex.get(edge.target);
-    const parentIdx = idToIndex.get(edge.source);
-    if (childIdx === undefined || parentIdx === undefined) continue;
+    if (edge.type === 'parent') {
+      const childIdx = idToIndex.get(edge.target);
+      const parentIdx = idToIndex.get(edge.source);
+      if (childIdx === undefined || parentIdx === undefined) continue;
 
-    parents[childIdx]!.push({
-      parentIndex: parentIdx,
-      edgeType: edgeTypeMap[edge.relationship] ?? 'social-parent',
-    });
-  }
-
-  // Build relations from partner edges (code 4 = partner)
-  for (const edge of edges.values()) {
-    if (edge.relationship !== 'partner') continue;
-    const i1 = idToIndex.get(edge.source);
-    const i2 = idToIndex.get(edge.target);
-    if (i1 === undefined || i2 === undefined) continue;
-    relations.push({ id1: i1, id2: i2, code: 4 });
+      parents[childIdx]!.push({
+        parentIndex: parentIdx,
+        edgeType: edge.edgeType,
+      });
+    } else if (edge.type === 'partner') {
+      const i1 = idToIndex.get(edge.source);
+      const i2 = idToIndex.get(edge.target);
+      if (i1 === undefined || i2 === undefined) continue;
+      relations.push({ id1: i1, id2: i2, code: 4 });
+    }
   }
 
   return {
@@ -155,10 +141,9 @@ export function pedigreeLayoutToPositions(
 
 export function buildConnectorData(
   layout: PedigreeLayout,
-  _edges: Map<string, Omit<Edge, 'id'>>,
+  _edges: Map<string, StoreEdge>,
   dimensions: LayoutDimensions,
   parents: ParentConnection[][] = [],
-  relations: Relation[] = [],
 ): ConnectorRenderData {
   const metrics = computeLayoutMetrics(dimensions);
   const boxHeight = dimensions.nodeHeight / metrics.rowHeight;
@@ -170,14 +155,7 @@ export function buildConnectorData(
     vScale: 1,
   };
 
-  const connectors = computeConnectors(
-    layout,
-    scaling,
-    parents,
-    0.6,
-    0.5,
-    relations,
-  );
+  const connectors = computeConnectors(layout, scaling, parents);
 
   // Transform all coordinates to pixel space
   const sx = metrics.siblingSpacing;
@@ -212,7 +190,9 @@ export function buildConnectorData(
   }
 
   for (const aux of connectors.auxiliaryLines) {
-    transformSegment(aux.segment, sx, sy, xOffset);
+    for (const seg of aux.segments) {
+      transformSegment(seg, sx, sy, xOffset);
+    }
   }
 
   for (const da of connectors.duplicateArcs) {
@@ -271,7 +251,7 @@ export function buildConnectorData(
       if (ti.label) ti.label.x += -rawMinX;
     }
     for (const aux of connectors.auxiliaryLines) {
-      shiftSegment(aux.segment, -rawMinX, 0);
+      for (const seg of aux.segments) shiftSegment(seg, -rawMinX, 0);
     }
     for (const da of connectors.duplicateArcs) {
       for (const pt of da.path.points) pt.x += -rawMinX;
@@ -303,7 +283,7 @@ export function buildConnectorData(
       if (ti.label) ti.label.y += -rawMinY;
     }
     for (const aux of connectors.auxiliaryLines) {
-      shiftSegment(aux.segment, 0, -rawMinY);
+      for (const seg of aux.segments) shiftSegment(seg, 0, -rawMinY);
     }
     for (const da of connectors.duplicateArcs) {
       for (const pt of da.path.points) pt.y += -rawMinY;

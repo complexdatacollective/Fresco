@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'vitest';
-import { type FamilyTreeNodeType } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
 import {
   computeLayoutMetrics,
   type LayoutDimensions,
@@ -9,7 +8,10 @@ import {
   pedigreeLayoutToPositions,
   storeToPedigreeInput,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/pedigreeAdapter';
-import { type Edge } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
+import {
+  type NodeData,
+  type StoreEdge,
+} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import { alignPedigree } from '~/lib/pedigree-layout/alignPedigree';
 import { type PedigreeLayout } from '~/lib/pedigree-layout/types';
 
@@ -18,34 +20,47 @@ const TEST_DIMENSIONS: LayoutDimensions = {
   nodeHeight: 100,
 };
 
-type NodeData = Omit<FamilyTreeNodeType, 'id'>;
-type EdgeData = Omit<Edge, 'id'>;
-
 function makeNodes(
   entries: { id: string; sex?: 'male' | 'female'; isEgo?: boolean }[],
 ) {
   const map = new Map<string, NodeData>();
   for (const { id, sex, isEgo } of entries) {
-    map.set(id, { label: id, sex, isEgo, readOnly: false });
+    map.set(id, { label: id, sex, isEgo: isEgo ?? false });
   }
   return map;
 }
 
 function makeEdges(
-  entries: {
-    source: string;
-    target: string;
-    relationship: Edge['relationship'];
-  }[],
+  entries: (
+    | { source: string; target: string; type: 'partner'; current?: boolean }
+    | {
+        source: string;
+        target: string;
+        type: 'parent';
+        edgeType: StoreEdge extends { type: 'parent'; edgeType: infer T }
+          ? T
+          : never;
+      }
+  )[],
 ) {
-  const map = new Map<string, EdgeData>();
+  const map = new Map<string, StoreEdge>();
   for (let i = 0; i < entries.length; i++) {
     const e = entries[i]!;
-    map.set(`e${i}`, {
-      source: e.source,
-      target: e.target,
-      relationship: e.relationship,
-    });
+    if (e.type === 'partner') {
+      map.set(`e${i}`, {
+        source: e.source,
+        target: e.target,
+        type: 'partner',
+        current: e.current ?? true,
+      });
+    } else {
+      map.set(`e${i}`, {
+        source: e.source,
+        target: e.target,
+        type: 'parent',
+        edgeType: e.edgeType,
+      });
+    }
   }
   return map;
 }
@@ -81,9 +96,19 @@ describe('storeToPedigreeInput', () => {
       { id: 'child', sex: 'male', isEgo: true },
     ]);
     const edges = makeEdges([
-      { source: 'father', target: 'mother', relationship: 'partner' },
-      { source: 'father', target: 'child', relationship: 'parent' },
-      { source: 'mother', target: 'child', relationship: 'parent' },
+      { source: 'father', target: 'mother', type: 'partner' },
+      {
+        source: 'father',
+        target: 'child',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
+      {
+        source: 'mother',
+        target: 'child',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
     ]);
 
     const { input, idToIndex } = storeToPedigreeInput(nodes, edges);
@@ -92,13 +117,11 @@ describe('storeToPedigreeInput', () => {
     const fatherIdx = idToIndex.get('father')!;
     const motherIdx = idToIndex.get('mother')!;
 
-    // Child should have both parents
     expect(input.parents[childIdx]).toHaveLength(2);
     const parentIndices = input.parents[childIdx]!.map((p) => p.parentIndex);
     expect(parentIndices).toContain(fatherIdx);
     expect(parentIndices).toContain(motherIdx);
 
-    // Parents have no parents
     expect(input.parents[fatherIdx]).toHaveLength(0);
     expect(input.parents[motherIdx]).toHaveLength(0);
   });
@@ -112,12 +135,32 @@ describe('storeToPedigreeInput', () => {
       { id: 'child', sex: 'female', isEgo: true },
     ]);
     const edges = makeEdges([
-      { source: 'gf', target: 'gm', relationship: 'partner' },
-      { source: 'gf', target: 'father', relationship: 'parent' },
-      { source: 'gm', target: 'father', relationship: 'parent' },
-      { source: 'father', target: 'mother', relationship: 'partner' },
-      { source: 'father', target: 'child', relationship: 'parent' },
-      { source: 'mother', target: 'child', relationship: 'parent' },
+      { source: 'gf', target: 'gm', type: 'partner' },
+      {
+        source: 'gf',
+        target: 'father',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
+      {
+        source: 'gm',
+        target: 'father',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
+      { source: 'father', target: 'mother', type: 'partner' },
+      {
+        source: 'father',
+        target: 'child',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
+      {
+        source: 'mother',
+        target: 'child',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
     ]);
 
     const { input, idToIndex } = storeToPedigreeInput(nodes, edges);
@@ -147,8 +190,8 @@ describe('storeToPedigreeInput', () => {
       { id: 'c', sex: 'female' },
     ]);
     const edges = makeEdges([
-      { source: 'a', target: 'b', relationship: 'partner' },
-      { source: 'a', target: 'c', relationship: 'partner' },
+      { source: 'a', target: 'b', type: 'partner' },
+      { source: 'a', target: 'c', type: 'partner' },
     ]);
 
     const { input } = storeToPedigreeInput(nodes, edges);
@@ -164,7 +207,12 @@ describe('storeToPedigreeInput', () => {
       { id: 'child', sex: 'female' },
     ]);
     const edges = makeEdges([
-      { source: 'parent', target: 'child', relationship: 'parent' },
+      {
+        source: 'parent',
+        target: 'child',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
     ]);
 
     const { input, idToIndex } = storeToPedigreeInput(nodes, edges);
@@ -181,6 +229,34 @@ describe('storeToPedigreeInput', () => {
     const { input } = storeToPedigreeInput(nodes, new Map());
     expect(input.sex[0]).toBe('unknown');
     expect(input.gender[0]).toBe('unknown');
+  });
+
+  test('passes ParentEdgeType straight through without translation', () => {
+    const nodes = makeNodes([
+      { id: 'sp' },
+      { id: 'donor' },
+      { id: 'child', isEgo: true },
+    ]);
+    const edges = makeEdges([
+      {
+        source: 'sp',
+        target: 'child',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
+      {
+        source: 'donor',
+        target: 'child',
+        type: 'parent',
+        edgeType: 'donor',
+      },
+    ]);
+
+    const result = storeToPedigreeInput(nodes, edges);
+    const childIdx = result.idToIndex.get('child')!;
+    const edgeTypes = result.input.parents[childIdx]!.map((p) => p.edgeType);
+    expect(edgeTypes).toContain('social-parent');
+    expect(edgeTypes).toContain('donor');
   });
 });
 
@@ -266,9 +342,19 @@ describe('buildConnectorData', () => {
       { id: 'child', sex: 'male', isEgo: true },
     ]);
     const edges = makeEdges([
-      { source: 'father', target: 'mother', relationship: 'partner' },
-      { source: 'father', target: 'child', relationship: 'parent' },
-      { source: 'mother', target: 'child', relationship: 'parent' },
+      { source: 'father', target: 'mother', type: 'partner' },
+      {
+        source: 'father',
+        target: 'child',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
+      {
+        source: 'mother',
+        target: 'child',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
     ]);
 
     const { input } = storeToPedigreeInput(nodes, edges);
@@ -280,11 +366,9 @@ describe('buildConnectorData', () => {
       input.parents,
     );
 
-    // Should have at least one group line and one parent-child line
     expect(connectors.groupLines.length).toBeGreaterThanOrEqual(1);
     expect(connectors.parentChildLines.length).toBeGreaterThanOrEqual(1);
 
-    // All coordinates should be in pixel space (not abstract units)
     for (const gl of connectors.groupLines) {
       expect(gl.segment.x1).toBeGreaterThanOrEqual(0);
     }
@@ -299,9 +383,19 @@ describe('end-to-end: store → layout → positions', () => {
       { id: 'child', sex: 'male', isEgo: true },
     ]);
     const edges = makeEdges([
-      { source: 'father', target: 'mother', relationship: 'partner' },
-      { source: 'father', target: 'child', relationship: 'parent' },
-      { source: 'mother', target: 'child', relationship: 'parent' },
+      { source: 'father', target: 'mother', type: 'partner' },
+      {
+        source: 'father',
+        target: 'child',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
+      {
+        source: 'mother',
+        target: 'child',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
     ]);
 
     const { input, indexToId } = storeToPedigreeInput(nodes, edges);
@@ -322,7 +416,7 @@ describe('end-to-end: store → layout → positions', () => {
       { id: 'mother', sex: 'female' },
     ]);
     const edges = makeEdges([
-      { source: 'father', target: 'mother', relationship: 'partner' },
+      { source: 'father', target: 'mother', type: 'partner' },
     ]);
 
     const { input, indexToId } = storeToPedigreeInput(nodes, edges);
@@ -344,11 +438,31 @@ describe('end-to-end: store → layout → positions', () => {
       { id: 'sibling', sex: 'female' },
     ]);
     const edges = makeEdges([
-      { source: 'father', target: 'mother', relationship: 'partner' },
-      { source: 'father', target: 'ego', relationship: 'parent' },
-      { source: 'mother', target: 'ego', relationship: 'parent' },
-      { source: 'father', target: 'sibling', relationship: 'parent' },
-      { source: 'mother', target: 'sibling', relationship: 'parent' },
+      { source: 'father', target: 'mother', type: 'partner' },
+      {
+        source: 'father',
+        target: 'ego',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
+      {
+        source: 'mother',
+        target: 'ego',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
+      {
+        source: 'father',
+        target: 'sibling',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
+      {
+        source: 'mother',
+        target: 'sibling',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
     ]);
 
     const { input, indexToId } = storeToPedigreeInput(nodes, edges);
@@ -371,12 +485,32 @@ describe('end-to-end: store → layout → positions', () => {
       { id: 'ego', sex: 'female', isEgo: true },
     ]);
     const edges = makeEdges([
-      { source: 'gf', target: 'gm', relationship: 'partner' },
-      { source: 'gf', target: 'father', relationship: 'parent' },
-      { source: 'gm', target: 'father', relationship: 'parent' },
-      { source: 'father', target: 'mother', relationship: 'partner' },
-      { source: 'father', target: 'ego', relationship: 'parent' },
-      { source: 'mother', target: 'ego', relationship: 'parent' },
+      { source: 'gf', target: 'gm', type: 'partner' },
+      {
+        source: 'gf',
+        target: 'father',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
+      {
+        source: 'gm',
+        target: 'father',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
+      { source: 'father', target: 'mother', type: 'partner' },
+      {
+        source: 'father',
+        target: 'ego',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
+      {
+        source: 'mother',
+        target: 'ego',
+        type: 'parent',
+        edgeType: 'social-parent',
+      },
     ]);
 
     const { input, indexToId } = storeToPedigreeInput(nodes, edges);

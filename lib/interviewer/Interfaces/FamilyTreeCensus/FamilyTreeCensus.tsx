@@ -5,9 +5,14 @@ import { useSelector } from 'react-redux';
 import usePortalTarget from '~/hooks/usePortalTarget';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import Prompts from '~/lib/interviewer/components/Prompts/Prompts';
-import { addEdge, deleteNode } from '~/lib/interviewer/ducks/modules/session';
-import { getEdgeType } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/EdgeRenderer';
-import { FamilyTreeShells } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeShells';
+import { deleteNode } from '~/lib/interviewer/ducks/modules/session';
+import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
+import PedigreeView from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/PedigreeView';
+import QuickStartForm from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/QuickStartForm';
+import {
+  FamilyTreeProvider,
+  useFamilyTreeStore,
+} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
 import {
   getNetworkEdges,
   getNetworkEgo,
@@ -15,142 +20,56 @@ import {
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { type StageProps } from '~/lib/interviewer/types';
-import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
-import useStageValidation from '~/lib/interviewer/hooks/useStageValidation';
-import { FamilyTreeProvider, useFamilyTreeStore } from './FamilyTreeProvider';
-import { getRelationshipTypeVariable } from './utils/edgeUtils';
 
 type FamilyTreeCensusProps = StageProps<'FamilyTreeCensus'>;
 
-/**
- * Given a FamilyTreeCensus stage, return the ordered list of steps,
- * including steps for each disease nomination step if present.
- *
- * Provide an ascending numerical index, starting at 0
- */
-const getStageSteps = (
-  stage: FamilyTreeCensusProps['stage'],
-): Map<
-  number,
-  {
-    promptText: string;
-    diseaseVariable: string | null;
-  }
-> => {
-  const steps = new Map<
-    number,
-    {
-      promptText: string;
-      diseaseVariable: string | null;
-    }
-  >();
-
-  let stepIndex = 0;
-
-  // Scaffolding step
-  steps.set(stepIndex, {
-    promptText: stage.scaffoldingStep.text,
-    diseaseVariable: null,
-  });
-  stepIndex += 1;
-
-  // Name generation step
-  steps.set(stepIndex, {
-    promptText: stage.nameGenerationStep.text,
-    diseaseVariable: null,
-  });
-  stepIndex += 1;
-
-  // Disease nomination steps, if any
-  if (stage.diseaseNominationStep) {
-    for (const diseaseStep of stage.diseaseNominationStep) {
-      steps.set(stepIndex, {
-        promptText: diseaseStep.text,
-        diseaseVariable: diseaseStep.variable,
-      });
-      stepIndex += 1;
-    }
-  }
-
-  return steps;
+type DiseaseStep = {
+  promptText: string;
+  diseaseVariable: string;
 };
 
 const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const { stage } = props;
 
-  const networkNodes = useSelector(getNetworkNodes);
-  const networkEdges = useSelector(getNetworkEdges);
   const dispatch = useAppDispatch();
-  const edgesMap = useFamilyTreeStore((state) => state.network.edges);
-  const edges = Array.from(
-    edgesMap.entries().map(([id, edge]) => ({ id, ...edge })),
+  const nodesMap = useFamilyTreeStore((s) => s.network.nodes);
+  const removeNode = useFamilyTreeStore((s) => s.removeNode);
+  const syncMetadata = useFamilyTreeStore((s) => s.syncMetadata);
+  const generateQuickStartNetwork = useFamilyTreeStore(
+    (s) => s.generateQuickStartNetwork,
   );
-  const edgeType = useSelector(getEdgeType);
-  const relationshipVariable = useSelector(getRelationshipTypeVariable);
-  const saveEdges = () => {
-    const existingEdges = new Set(
-      networkEdges.map(
-        (edge) =>
-          `${edge.from}-${edge.to}-${(edge.attributes[relationshipVariable] as string) ?? ''}`,
-      ),
-    );
 
-    edges.forEach((edge) => {
-      const edgeKey = `${edge.source}-${edge.target}-${edge.relationship}`;
+  const quickStart = (stage as Record<string, unknown>).quickStart as
+    | { enabled?: boolean; prompt?: string }
+    | undefined;
+  const quickStartEnabled = quickStart?.enabled === true;
+  const hasNodes = nodesMap.size > 0;
 
-      // skip if this edge already exists in the Redux network
-      if (existingEdges.has(edgeKey)) return;
+  const diseaseSteps: DiseaseStep[] =
+    stage.diseaseNominationStep?.map((d) => ({
+      promptText: d.text,
+      diseaseVariable: d.variable,
+    })) ?? [];
 
-      void dispatch(
-        addEdge({
-          from: edge.source,
-          to: edge.target,
-          type: edgeType,
-          attributeData: {
-            [relationshipVariable]: edge.relationship,
-          },
-        }),
-      );
-    });
+  const scaffoldingPrompt = {
+    id: 'scaffolding',
+    text: stage.scaffoldingStep.text,
   };
-
-  const nodesMap = useFamilyTreeStore((state) => state.network.nodes);
-  const hasMissingNames = nodesMap
-    .values()
-    .some((value) => value.interviewNetworkId == null);
-
-  /**
-   * Steps:
-   *  1. Scaffolding step, with optional quick start modal
-   *  2. Name generation, with name interpretation via form
-   *  3. Disease nomination (optional)
-   */
-  const steps = getStageSteps(stage);
+  const allPrompts = [
+    scaffoldingPrompt,
+    ...diseaseSteps.map((d, i) => ({
+      id: `disease-${i}`,
+      text: d.promptText,
+    })),
+  ];
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
-  const isNameGenerationStep = currentStepIndex === 1;
-
-  useStageValidation({
-    constraints: [
-      {
-        direction: 'forwards',
-        isMet: !isNameGenerationStep || !hasMissingNames,
-        toast: {
-          description:
-            'Please enter information for all nodes in the tree before continuing.',
-          variant: 'destructive',
-          anchor: 'forward',
-        },
-      },
-    ],
-  });
-
   useBeforeNext((direction) => {
     if (direction === 'forwards') {
-      const isLastStep = currentStepIndex === steps.size - 1;
+      const isLastStep = currentStepIndex === allPrompts.length - 1;
       if (isLastStep) {
-        saveEdges();
+        syncMetadata();
         return true;
       }
 
@@ -167,34 +86,37 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     return false;
   });
 
-  const diseaseVariable = steps.get(currentStepIndex)?.diseaseVariable ?? null;
-
   const stageElement = usePortalTarget('stage');
-  const removeNode = useFamilyTreeStore((state) => state.removeNode);
+
+  const showQuickStart =
+    currentStepIndex === 0 && !hasNodes && quickStartEnabled;
 
   return (
     <>
       <div className="flex grow flex-col gap-4">
         <Prompts
-          prompts={Array.from(steps.entries()).map(([id, { promptText }]) => ({
-            id: id.toString(),
-            text: promptText,
-          }))}
-          currentPromptId={currentStepIndex.toString()}
+          prompts={allPrompts}
+          currentPromptId={allPrompts[currentStepIndex]?.id}
           className="shrink-0"
         />
-        <FamilyTreeShells
-          stage={stage}
-          diseaseVariable={diseaseVariable}
-          stepIndex={currentStepIndex}
-          networkNodes={networkNodes}
-          networkEdges={networkEdges}
-        />
+
+        {showQuickStart ? (
+          <QuickStartForm
+            prompt={quickStart?.prompt ?? stage.scaffoldingStep.text}
+            onSubmit={(data) => {
+              generateQuickStartNetwork(data);
+              syncMetadata();
+            }}
+          />
+        ) : (
+          <PedigreeView />
+        )}
       </div>
+
       {stageElement &&
         createPortal(
           <NodeBin
-            dropHandler={(node, metadata) => {
+            dropHandler={(_node, metadata) => {
               const shellNode = metadata as Record<string, string>;
               const placeholderId = shellNode?.placeholderId;
               if (!placeholderId) return;

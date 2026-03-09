@@ -1,14 +1,10 @@
-import {
-  entityAttributesProperty,
-  entityPrimaryKeyProperty,
-  type NcNode,
-} from '@codaco/shared-consts';
+import { entityAttributesProperty } from '@codaco/shared-consts';
 import { configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Provider } from 'react-redux';
+import { type NodeData } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import FamilyTreeNode from './FamilyTreeNode';
 
-// Mock protocol with a Person node type
 const mockProtocol = {
   id: 'test-protocol',
   codebook: {
@@ -80,16 +76,19 @@ const ReduxDecorator = (Story: React.ComponentType) => {
   );
 };
 
-// Helper to create mock NcNode
-const createMockNetworkNode = (name: string): NcNode => ({
-  [entityPrimaryKeyProperty]: `node-${name}`,
-  type: 'person',
-  [entityAttributesProperty]: {
-    name,
-  },
-});
+function createNode(
+  overrides: Partial<NodeData> & { id?: string } = {},
+): NodeData & { id: string } {
+  return {
+    id: overrides.id ?? `node-${crypto.randomUUID()}`,
+    label: overrides.label ?? '',
+    isEgo: overrides.isEgo ?? false,
+    sex: overrides.sex,
+    readOnly: overrides.readOnly,
+    interviewNetworkId: overrides.interviewNetworkId,
+  };
+}
 
-// Container for positioning nodes in stories
 const NodeContainer = ({ children }: { children: React.ReactNode }) => (
   <div
     className="relative"
@@ -110,31 +109,7 @@ const meta: Meta<typeof FamilyTreeNode> = {
     layout: 'centered',
     forceTheme: 'interview',
   },
-  argTypes: {
-    label: {
-      control: 'text',
-      description: 'Relationship label (e.g., "Father", "Mother")',
-    },
-    shape: {
-      control: 'select',
-      options: ['circle', 'square'],
-      description: 'Node shape (circle = female, square = male)',
-    },
-    isEgo: {
-      control: 'boolean',
-      description: 'Whether this is the ego (self) node',
-    },
-    selected: {
-      control: 'boolean',
-      description: 'Whether the node is selected',
-    },
-    allowDrag: {
-      control: 'boolean',
-      description: 'Whether dragging is enabled',
-    },
-  },
   args: {
-    placeholderId: 'placeholder-1',
     allowDrag: false,
   },
 };
@@ -142,9 +117,6 @@ const meta: Meta<typeof FamilyTreeNode> = {
 export default meta;
 type Story = StoryObj<typeof FamilyTreeNode>;
 
-/**
- * Unfilled male node (square shape) showing relationship label below.
- */
 export const UnfilledMale: Story = {
   render: (args) => (
     <NodeContainer>
@@ -152,15 +124,10 @@ export const UnfilledMale: Story = {
     </NodeContainer>
   ),
   args: {
-    label: 'Father',
-    shape: 'square',
-    isEgo: false,
+    node: createNode({ id: 'p1', sex: 'male' }),
   },
 };
 
-/**
- * Unfilled female node (circle shape) showing relationship label below.
- */
 export const UnfilledFemale: Story = {
   render: (args) => (
     <NodeContainer>
@@ -168,15 +135,10 @@ export const UnfilledFemale: Story = {
     </NodeContainer>
   ),
   args: {
-    label: 'Mother',
-    shape: 'circle',
-    isEgo: false,
+    node: createNode({ id: 'p2', sex: 'female' }),
   },
 };
 
-/**
- * Filled male node with name inside and relationship label below.
- */
 export const FilledMale: Story = {
   render: (args) => (
     <NodeContainer>
@@ -184,16 +146,15 @@ export const FilledMale: Story = {
     </NodeContainer>
   ),
   args: {
-    label: 'Father',
-    shape: 'square',
-    isEgo: false,
-    networkNode: createMockNetworkNode('John'),
+    node: createNode({
+      id: 'p3',
+      label: 'John',
+      sex: 'male',
+      interviewNetworkId: 'n1',
+    }),
   },
 };
 
-/**
- * Filled female node with name inside and relationship label below.
- */
 export const FilledFemale: Story = {
   render: (args) => (
     <NodeContainer>
@@ -201,16 +162,15 @@ export const FilledFemale: Story = {
     </NodeContainer>
   ),
   args: {
-    label: 'Mother',
-    shape: 'circle',
-    isEgo: false,
-    networkNode: createMockNetworkNode('Mary'),
+    node: createNode({
+      id: 'p4',
+      label: 'Mary',
+      sex: 'female',
+      interviewNetworkId: 'n2',
+    }),
   },
 };
 
-/**
- * Unfilled ego node with icon inside and "You" label below.
- */
 export const UnfilledEgo: Story = {
   render: (args) => (
     <NodeContainer>
@@ -218,15 +178,10 @@ export const UnfilledEgo: Story = {
     </NodeContainer>
   ),
   args: {
-    label: 'You',
-    shape: 'circle',
-    isEgo: true,
+    node: createNode({ id: 'p5', sex: 'female', isEgo: true }),
   },
 };
 
-/**
- * Filled ego node with name inside and "You" label below.
- */
 export const FilledEgo: Story = {
   render: (args) => (
     <NodeContainer>
@@ -234,16 +189,16 @@ export const FilledEgo: Story = {
     </NodeContainer>
   ),
   args: {
-    label: 'You',
-    shape: 'circle',
-    isEgo: true,
-    networkNode: createMockNetworkNode('Sarah'),
+    node: createNode({
+      id: 'p6',
+      label: 'Sarah',
+      sex: 'female',
+      isEgo: true,
+      interviewNetworkId: 'n3',
+    }),
   },
 };
 
-/**
- * Selected node state.
- */
 export const Selected: Story = {
   render: (args) => (
     <NodeContainer>
@@ -251,26 +206,23 @@ export const Selected: Story = {
     </NodeContainer>
   ),
   args: {
-    label: 'Brother',
-    shape: 'square',
-    isEgo: false,
-    networkNode: createMockNetworkNode('Mike'),
+    node: createNode({
+      id: 'p7',
+      label: 'Mike',
+      sex: 'male',
+      interviewNetworkId: 'n4',
+    }),
     selected: true,
   },
 };
 
-/**
- * All node states displayed together for comparison.
- */
 export const AllStates: Story = {
   render: () => (
     <div className="flex flex-wrap gap-8">
       <div className="flex flex-col items-center gap-2">
         <NodeContainer>
           <FamilyTreeNode
-            placeholderId="p1"
-            label="Father"
-            shape="square"
+            node={createNode({ id: 'a1', sex: 'male' })}
             allowDrag={false}
           />
         </NodeContainer>
@@ -279,9 +231,7 @@ export const AllStates: Story = {
       <div className="flex flex-col items-center gap-2">
         <NodeContainer>
           <FamilyTreeNode
-            placeholderId="p2"
-            label="Mother"
-            shape="circle"
+            node={createNode({ id: 'a2', sex: 'female' })}
             allowDrag={false}
           />
         </NodeContainer>
@@ -290,11 +240,13 @@ export const AllStates: Story = {
       <div className="flex flex-col items-center gap-2">
         <NodeContainer>
           <FamilyTreeNode
-            placeholderId="p3"
-            label="Father"
-            shape="square"
+            node={createNode({
+              id: 'a3',
+              label: 'John',
+              sex: 'male',
+              interviewNetworkId: 'n1',
+            })}
             allowDrag={false}
-            networkNode={createMockNetworkNode('John')}
           />
         </NodeContainer>
         <span className="text-xs text-white/70">Filled Male</span>
@@ -302,11 +254,13 @@ export const AllStates: Story = {
       <div className="flex flex-col items-center gap-2">
         <NodeContainer>
           <FamilyTreeNode
-            placeholderId="p4"
-            label="Mother"
-            shape="circle"
+            node={createNode({
+              id: 'a4',
+              label: 'Mary',
+              sex: 'female',
+              interviewNetworkId: 'n2',
+            })}
             allowDrag={false}
-            networkNode={createMockNetworkNode('Mary')}
           />
         </NodeContainer>
         <span className="text-xs text-white/70">Filled Female</span>
@@ -314,11 +268,8 @@ export const AllStates: Story = {
       <div className="flex flex-col items-center gap-2">
         <NodeContainer>
           <FamilyTreeNode
-            placeholderId="p5"
-            label="You"
-            shape="circle"
+            node={createNode({ id: 'a5', sex: 'female', isEgo: true })}
             allowDrag={false}
-            isEgo
           />
         </NodeContainer>
         <span className="text-xs text-white/70">Unfilled Ego</span>
@@ -326,12 +277,14 @@ export const AllStates: Story = {
       <div className="flex flex-col items-center gap-2">
         <NodeContainer>
           <FamilyTreeNode
-            placeholderId="p6"
-            label="You"
-            shape="circle"
+            node={createNode({
+              id: 'a6',
+              label: 'Sarah',
+              sex: 'female',
+              isEgo: true,
+              interviewNetworkId: 'n3',
+            })}
             allowDrag={false}
-            isEgo
-            networkNode={createMockNetworkNode('Sarah')}
           />
         </NodeContainer>
         <span className="text-xs text-white/70">Filled Ego</span>
@@ -353,20 +306,19 @@ All FamilyTreeNode states displayed together:
   },
 };
 
-/**
- * Comparison of male (square) and female (circle) shapes.
- */
 export const ShapeComparison: Story = {
   render: () => (
     <div className="flex gap-12">
       <div className="flex flex-col items-center gap-2">
         <NodeContainer>
           <FamilyTreeNode
-            placeholderId="male"
-            label="Father"
-            shape="square"
+            node={createNode({
+              id: 's1',
+              label: 'John',
+              sex: 'male',
+              interviewNetworkId: 'n1',
+            })}
             allowDrag={false}
-            networkNode={createMockNetworkNode('John')}
           />
         </NodeContainer>
         <span className="text-xs text-white/70">Male (Square)</span>
@@ -374,11 +326,13 @@ export const ShapeComparison: Story = {
       <div className="flex flex-col items-center gap-2">
         <NodeContainer>
           <FamilyTreeNode
-            placeholderId="female"
-            label="Mother"
-            shape="circle"
+            node={createNode({
+              id: 's2',
+              label: 'Mary',
+              sex: 'female',
+              interviewNetworkId: 'n2',
+            })}
             allowDrag={false}
-            networkNode={createMockNetworkNode('Mary')}
           />
         </NodeContainer>
         <span className="text-xs text-white/70">Female (Circle)</span>
