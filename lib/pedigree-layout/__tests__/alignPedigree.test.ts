@@ -154,6 +154,8 @@ const defaultScaling: ScalingParams = {
   boxWidth: 1,
   boxHeight: 0.5,
   legHeight: 0.25,
+  hScale: 1,
+  vScale: 1,
 };
 
 describe('traditional family regression', () => {
@@ -180,10 +182,7 @@ describe('traditional family regression', () => {
 
     // Child level: 3 people (indices 2, 3, 4)
     expect(result.n[childLevIdx]).toBe(3);
-    const childLevel = result.nid[childLevIdx]!.slice(
-      0,
-      result.n[childLevIdx],
-    );
+    const childLevel = result.nid[childLevIdx]!.slice(0, result.n[childLevIdx]);
     expect(childLevel).toContain(2);
     expect(childLevel).toContain(3);
     expect(childLevel).toContain(4);
