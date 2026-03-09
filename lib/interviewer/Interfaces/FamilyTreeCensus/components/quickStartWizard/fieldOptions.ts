@@ -28,8 +28,8 @@ export const PARENT_EDGE_TYPE_OPTIONS: {
 }[] = [
   { value: 'bio-parent', label: 'Biological parent' },
   { value: 'social-parent', label: 'Social parent' },
-  { value: 'donor', label: 'Donor' },
-  { value: 'surrogate', label: 'Surrogate' },
+  { value: 'donor', label: 'Sperm/Egg Donor' },
+  { value: 'surrogate', label: 'Surrogate Carrier' },
   { value: 'co-parent', label: 'Co-parent' },
 ];
 
