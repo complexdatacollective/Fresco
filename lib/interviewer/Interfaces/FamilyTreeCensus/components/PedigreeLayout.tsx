@@ -3,7 +3,6 @@
 import { useMemo, type ReactNode } from 'react';
 import Spinner from '~/components/Spinner';
 import { PedigreeEdgeSvg } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/EdgeRenderer';
-import { type FamilyTreeNodeType } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
 import {
   computeLayoutMetrics,
   type LayoutDimensions,
@@ -13,17 +12,21 @@ import {
   pedigreeLayoutToPositions,
   storeToPedigreeInput,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/pedigreeAdapter';
-import { type Edge } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
+import {
+  type NodeData,
+  type StoreEdge,
+} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import { alignPedigree } from '~/lib/pedigree-layout/alignPedigree';
 
-type PedigreeLayoutNode = Omit<FamilyTreeNodeType, 'id'> & { id: string };
+type PedigreeLayoutNode = NodeData & { id: string };
 
 type PedigreeLayoutProps = {
-  nodes: Map<string, Omit<FamilyTreeNodeType, 'id'>>;
-  edges: Map<string, Omit<Edge, 'id'>>;
+  nodes: Map<string, NodeData>;
+  edges: Map<string, StoreEdge>;
   nodeWidth: number;
   nodeHeight: number;
   renderNode: (node: PedigreeLayoutNode) => ReactNode;
+  onNodeTap?: (nodeId: string, position: { x: number; y: number }) => void;
 };
 
 export default function PedigreeLayout({
