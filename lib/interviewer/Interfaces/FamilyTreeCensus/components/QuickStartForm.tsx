@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import ToggleField from '~/lib/form/components/fields/ToggleField';
-import { cx } from '~/utils/cva';
 import { type QuickStartData } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 
 type QuickStartFormProps = {
