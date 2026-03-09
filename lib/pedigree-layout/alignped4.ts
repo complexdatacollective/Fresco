@@ -9,14 +9,14 @@ import { solveQP } from '~/lib/pedigree-layout/solveQP';
  * then solves a QP to find optimal x-positions.
  *
  * @param rval - alignment arrays from previous stages
- * @param spouse - boolean matrix: spouse[i][j] true if j is a spouse at level i
+ * @param group - boolean matrix: group[i][j] true if j is a group member at level i
  * @param level - unused here but kept for API compatibility
  * @param width - max layout width
  * @param align - [penalty1, penalty2] or true for defaults [1.5, 2]
  */
 export function alignped4(
   rval: AlignmentArrays,
-  spouse: boolean[][],
+  group: boolean[][],
   _level: number[],
   width: number,
   align: number[] | boolean,
@@ -51,7 +51,7 @@ export function alignped4(
   let npenal = 0;
   for (let i = 0; i < maxlev; i++) {
     for (let j = 0; j < rval.nid[i]!.length; j++) {
-      if (j < rval.n[i]! && spouse[i]?.[j]) npenal++;
+      if (j < rval.n[i]! && group[i]?.[j]) npenal++;
       if (rval.fam[i]![j]! > 0) npenal++;
     }
   }
@@ -66,8 +66,8 @@ export function alignped4(
   // Penalties to keep spouses close
   for (let lev = 0; lev < maxlev; lev++) {
     const spouseCols: number[] = [];
-    for (let j = 0; j < (spouse[lev]?.length ?? 0); j++) {
-      if (spouse[lev]![j]) spouseCols.push(j);
+    for (let j = 0; j < (group[lev]?.length ?? 0); j++) {
+      if (group[lev]![j]) spouseCols.push(j);
     }
     if (spouseCols.length > 0) {
       const sqrtAlign2 = Math.sqrt(alignParams[1]!);
