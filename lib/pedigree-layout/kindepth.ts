@@ -1,149 +1,150 @@
+import { type ParentConnection } from '~/lib/pedigree-layout/types';
 import { chaseup } from '~/lib/pedigree-layout/utils';
 
 /**
  * Compute the generational depth of each subject in a pedigree.
  * Depth = max number of generations to farthest founder ancestor.
  *
- * When align=true, adjusts depths so spouses plot on the same line.
+ * When align=true, adjusts depths so parent group members plot on the same line.
  *
- * Port of kinship2::kindepth (kindepth.R)
- *
- * @param midx - 0-based index of each person's mother (-1 = no mother)
- * @param didx - 0-based index of each person's father (-1 = no father)
- * @param align - whether to align spouse depths
+ * @param parents - parents[i] = array of parent connections for person i
+ * @param align - whether to align parent group depths
  */
 export function kindepth(
-  midx: number[],
-  didx: number[],
+  parents: ParentConnection[][],
   align = false,
 ): number[] {
-  const n = midx.length;
+  const n = parents.length;
   if (n === 1) return [0];
 
-  // Founders: no mother and no father
-  let parents: number[] = [];
+  // Founders: people with no parents
+  let currentLevel: number[] = [];
   for (let i = 0; i < n; i++) {
-    if (midx[i] === -1 && didx[i] === -1) {
-      parents.push(i);
+    if (parents[i]!.length === 0) {
+      currentLevel.push(i);
     }
+  }
+
+  // If no founders exist but there are people, it's cyclic
+  if (currentLevel.length === 0) {
+    throw new Error('Impossible pedigree: someone is their own ancestor');
   }
 
   const depth = new Array<number>(n).fill(0);
 
-  // Iteratively assign depth: children of current parents get depth i
+  // Iteratively assign depth: children of current level get depth i
   for (let i = 1; i <= n; i++) {
-    const nextParents: number[] = [];
+    const nextLevel: number[] = [];
     for (let j = 0; j < n; j++) {
-      const m = midx[j]!;
-      const d = didx[j]!;
-      const matchMom = m >= 0 && parents.includes(m);
-      const matchDad = d >= 0 && parents.includes(d);
-      if (matchMom || matchDad) {
-        nextParents.push(j);
+      const personParents = parents[j]!;
+      if (personParents.length === 0) continue;
+      const hasParentInLevel = personParents.some((p) =>
+        currentLevel.includes(p.parentIndex),
+      );
+      if (hasParentInLevel) {
+        nextLevel.push(j);
       }
     }
-    if (nextParents.length === 0) break;
+    if (nextLevel.length === 0) break;
     if (i === n) {
       throw new Error('Impossible pedigree: someone is their own ancestor');
     }
-    for (const p of nextParents) {
+    for (const p of nextLevel) {
       depth[p] = i;
     }
-    parents = nextParents;
+    currentLevel = nextLevel;
   }
 
   if (!align) return depth;
 
-  // --- Alignment: adjust depths so spouses are on the same line ---
+  // --- Alignment: adjust depths so parent group members are on the same line ---
 
-  // Collect all parent pairs (dad, mom) where both exist
-  const dads: number[] = [];
-  const moms: number[] = [];
+  // Collect all parent groups (unique sets of parents who share children)
+  const groupSet = new Set<string>();
+  const groups: number[][] = [];
+
   for (let i = 0; i < n; i++) {
-    if (midx[i]! >= 0 && didx[i]! >= 0) {
-      dads.push(didx[i]!);
-      moms.push(midx[i]!);
+    if (parents[i]!.length < 2) continue;
+    const memberIndices = parents[i]!.map((p) => p.parentIndex).sort((a, b) => a - b);
+    const key = memberIndices.join(',');
+    if (!groupSet.has(key)) {
+      groupSet.add(key);
+      groups.push(memberIndices);
     }
   }
 
-  // Remove duplicate pairs
-  const seen = new Set<number>();
-  const uniqueDads: number[] = [];
-  const uniqueMoms: number[] = [];
-  for (let i = 0; i < dads.length; i++) {
-    const hash = dads[i]! + moms[i]! * n;
-    if (!seen.has(hash)) {
-      seen.add(hash);
-      uniqueDads.push(dads[i]!);
-      uniqueMoms.push(moms[i]!);
-    }
-  }
-
-  const npair = uniqueDads.length;
-  const done = new Array<boolean>(npair).fill(false);
+  const ngroups = groups.length;
+  const done = new Array<boolean>(ngroups).fill(false);
 
   for (;;) {
-    // Find pairs where depth[dad] != depth[mom] and not yet done
-    const pairsToFix: number[] = [];
-    for (let i = 0; i < npair; i++) {
-      if (!done[i] && depth[uniqueDads[i]!] !== depth[uniqueMoms[i]!]) {
-        pairsToFix.push(i);
+    // Find groups where members have different depths
+    const groupsToFix: number[] = [];
+    for (let i = 0; i < ngroups; i++) {
+      if (done[i]) continue;
+      const members = groups[i]!;
+      const depths = members.map((m) => depth[m]!);
+      if (Math.min(...depths) !== Math.max(...depths)) {
+        groupsToFix.push(i);
       }
     }
-    if (pairsToFix.length === 0) break;
+    if (groupsToFix.length === 0) break;
 
-    // Pick the pair with smallest max depth
-    const maxDepths = pairsToFix.map((idx) =>
-      Math.max(depth[uniqueDads[idx]!]!, depth[uniqueMoms[idx]!]!),
-    );
+    // Pick the group with smallest max depth
+    const maxDepths = groupsToFix.map((idx) => {
+      const members = groups[idx]!;
+      return Math.max(...members.map((m) => depth[m]!));
+    });
     const minMax = Math.min(...maxDepths);
-    const who = pairsToFix.find(
-      (idx) =>
-        Math.max(depth[uniqueDads[idx]!]!, depth[uniqueMoms[idx]!]!) === minMax,
-    )!;
+    const who = groupsToFix.find((idx) => {
+      const members = groups[idx]!;
+      return Math.max(...members.map((m) => depth[m]!)) === minMax;
+    })!;
 
-    // "good" = closer to children (higher depth), "bad" = farther
-    let good = uniqueMoms[who]!;
-    let bad = uniqueDads[who]!;
-    if (depth[uniqueDads[who]!]! > depth[uniqueMoms[who]!]!) {
-      good = uniqueDads[who]!;
-      bad = uniqueMoms[who]!;
-    }
+    const members = groups[who]!;
+    const memberDepths = members.map((m) => depth[m]!);
+    const maxDepth = Math.max(...memberDepths);
 
-    const abad = chaseup([bad], midx, didx);
+    // "good" = member with highest depth (closer to children)
+    // "bad" = member with lowest depth (needs to be pushed down)
+    const good = members[memberDepths.indexOf(maxDepth)]!;
+    const bad = members.find((m) => depth[m] !== maxDepth)!;
+
+    const abad = chaseup([bad], parents);
 
     // Simple case: solitary marry-in
-    const badAppearances =
-      uniqueDads.filter((d) => d === bad).length +
-      uniqueMoms.filter((m) => m === bad).length;
+    const badAppearances = groups.filter((g) => g.includes(bad)).length;
     if (abad.length === 1 && badAppearances === 1) {
       depth[bad] = depth[good]!;
     } else {
-      let agood = chaseup([good], midx, didx);
+      let agood = chaseup([good], parents);
 
-      // Chase spouses and their ancestors, excluding the given pair
-      const tdad = uniqueDads.filter((_, i) => i !== who);
-      const tmom = uniqueMoms.filter((_, i) => i !== who);
+      // Chase group members and their ancestors, excluding the given group
+      const otherGroups = groups.filter((_, i) => i !== who);
 
       for (;;) {
-        // Find spouses of anyone in agood
-        const spouses: number[] = [];
-        for (let i = 0; i < tdad.length; i++) {
-          if (agood.includes(tdad[i]!)) spouses.push(tmom[i]!);
-          if (agood.includes(tmom[i]!)) spouses.push(tdad[i]!);
+        // Find group co-members of anyone in agood
+        const coMembers: number[] = [];
+        for (const g of otherGroups) {
+          const overlap = g.some((m) => agood.includes(m));
+          if (overlap) {
+            for (const m of g) {
+              coMembers.push(m);
+            }
+          }
         }
 
-        let temp = [...new Set([...agood, ...spouses])];
-        temp = [...new Set(chaseup(temp, midx, didx))];
+        let temp = [...new Set([...agood, ...coMembers])];
+        temp = [...new Set(chaseup(temp, parents))];
 
         // Add kids at or above good's depth
         for (let j = 0; j < n; j++) {
-          const m = midx[j]!;
-          const d = didx[j]!;
-          if ((m >= 0 && temp.includes(m)) || (d >= 0 && temp.includes(d))) {
-            if (depth[j]! <= depth[good]!) {
-              temp = [...new Set([...temp, j])];
-            }
+          const personParents = parents[j]!;
+          if (personParents.length === 0) continue;
+          const hasParentInTemp = personParents.some((p) =>
+            temp.includes(p.parentIndex),
+          );
+          if (hasParentInTemp && depth[j]! <= depth[good]!) {
+            temp = [...new Set([...temp, j])];
           }
         }
 
@@ -160,19 +161,19 @@ export function kindepth(
 
         // Repair: ensure all children are below their parents
         for (let i = 0; i <= n; i++) {
-          const currentParents: number[] = [];
+          const atLevel: number[] = [];
           for (let j = 0; j < n; j++) {
-            if (depth[j] === i) currentParents.push(j);
+            if (depth[j] === i) atLevel.push(j);
           }
 
           let anyChild = false;
           for (let j = 0; j < n; j++) {
-            const m = midx[j]!;
-            const d = didx[j]!;
-            if (
-              (m >= 0 && currentParents.includes(m)) ||
-              (d >= 0 && currentParents.includes(d))
-            ) {
+            const personParents = parents[j]!;
+            if (personParents.length === 0) continue;
+            const hasParentAtLevel = personParents.some((p) =>
+              atLevel.includes(p.parentIndex),
+            );
+            if (hasParentAtLevel) {
               anyChild = true;
               depth[j] = Math.max(i + 1, depth[j]!);
             }
@@ -182,9 +183,9 @@ export function kindepth(
       }
     }
 
-    // Mark pairs involving 'bad' as done
-    for (let i = 0; i < npair; i++) {
-      if (uniqueDads[i] === bad || uniqueMoms[i] === bad) {
+    // Mark groups involving 'bad' as done
+    for (let i = 0; i < ngroups; i++) {
+      if (groups[i]!.includes(bad)) {
         done[i] = true;
       }
     }
