@@ -1,6 +1,8 @@
 import { enableMapSet } from 'immer';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
+import { type useAppDispatch } from '~/lib/interviewer/store';
 import { type ParentEdgeType } from '~/lib/pedigree-layout/types';
 
 enableMapSet();
@@ -14,6 +16,14 @@ export type NodeData = {
   readOnly?: boolean;
   interviewNetworkId?: string;
   diseases?: Map<string, boolean>;
+};
+
+export type QuickStartData = {
+  parentCount: number;
+  siblingCount: number;
+  hasPartner: boolean;
+  childrenWithPartnerCount: number;
+  soloChildrenCount: number;
 };
 
 export type StoreEdge = {
@@ -40,6 +50,8 @@ type NetworkActions = {
   removeEdge: (id: string) => void;
   clearNetwork: () => void;
   setStep: (step: FamilyTreeState['step']) => void;
+  generateQuickStartNetwork: (data: QuickStartData) => void;
+  syncMetadata: () => void;
 };
 
 export type FamilyTreeStore = FamilyTreeState & NetworkActions;
@@ -47,7 +59,7 @@ export type FamilyTreeStore = FamilyTreeState & NetworkActions;
 export const createFamilyTreeStore = (
   initialNodes: Map<string, NodeData>,
   initialEdges: Map<string, StoreEdge>,
-  _dispatch?: unknown,
+  dispatch?: ReturnType<typeof useAppDispatch>,
 ) => {
   return createStore<FamilyTreeStore>()(
     immer((set, get) => {
@@ -121,6 +133,117 @@ export const createFamilyTreeStore = (
             state.network.nodes.clear();
             state.network.edges.clear();
           });
+        },
+
+        generateQuickStartNetwork: (data) => {
+          const {
+            parentCount,
+            siblingCount,
+            hasPartner,
+            childrenWithPartnerCount,
+            soloChildrenCount,
+          } = data;
+
+          get().clearNetwork();
+
+          const egoId = get().addNode({ label: '', isEgo: true });
+
+          const parentIds: string[] = [];
+          for (let i = 0; i < parentCount; i++) {
+            const parentId = get().addNode({ label: '', isEgo: false });
+            parentIds.push(parentId);
+            get().addEdge({
+              source: parentId,
+              target: egoId,
+              type: 'parent',
+              edgeType: 'social-parent',
+            });
+          }
+
+          for (let i = 1; i < parentIds.length; i++) {
+            get().addEdge({
+              source: parentIds[i - 1]!,
+              target: parentIds[i]!,
+              type: 'partner',
+              current: true,
+            });
+          }
+
+          for (let i = 0; i < siblingCount; i++) {
+            const siblingId = get().addNode({ label: '', isEgo: false });
+            for (const parentId of parentIds) {
+              get().addEdge({
+                source: parentId,
+                target: siblingId,
+                type: 'parent',
+                edgeType: 'social-parent',
+              });
+            }
+          }
+
+          let partnerId: string | undefined;
+          if (hasPartner) {
+            partnerId = get().addNode({ label: '', isEgo: false });
+            get().addEdge({
+              source: egoId,
+              target: partnerId,
+              type: 'partner',
+              current: true,
+            });
+          }
+
+          for (let i = 0; i < childrenWithPartnerCount; i++) {
+            const childId = get().addNode({ label: '', isEgo: false });
+            get().addEdge({
+              source: egoId,
+              target: childId,
+              type: 'parent',
+              edgeType: 'social-parent',
+            });
+            if (partnerId) {
+              get().addEdge({
+                source: partnerId,
+                target: childId,
+                type: 'parent',
+                edgeType: 'social-parent',
+              });
+            }
+          }
+
+          for (let i = 0; i < soloChildrenCount; i++) {
+            const childId = get().addNode({ label: '', isEgo: false });
+            get().addEdge({
+              source: egoId,
+              target: childId,
+              type: 'parent',
+              edgeType: 'social-parent',
+            });
+          }
+        },
+
+        syncMetadata: () => {
+          const { nodes, edges } = get().network;
+
+          const serializedNodes = [...nodes.entries()].map(([id, node]) => ({
+            id,
+            interviewNetworkId: node.interviewNetworkId,
+            label: node.label,
+            sex: node.sex,
+            isEgo: node.isEgo,
+          }));
+
+          const serializedEdges = [...edges.entries()].map(([id, edge]) => ({
+            id,
+            ...edge,
+          }));
+
+          dispatch?.(
+            updateStageMetadata({
+              hasCompletedQuickStart: true,
+              nodes: serializedNodes,
+              edges: serializedEdges,
+            }),
+          );
         },
       };
     }),

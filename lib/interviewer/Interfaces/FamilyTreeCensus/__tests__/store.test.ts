@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
   createFamilyTreeStore,
   type NodeData,
+  type QuickStartData,
   type StoreEdge,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
+import { type useAppDispatch } from '~/lib/interviewer/store';
 
 describe('store creation', () => {
   it('creates an empty store', () => {
@@ -223,5 +225,114 @@ describe('setStep', () => {
 
     store.getState().setStep('diseaseNomination');
     expect(store.getState().step).toBe('diseaseNomination');
+  });
+});
+
+const quickStart = (
+  overrides: Partial<QuickStartData> = {},
+): QuickStartData => ({
+  parentCount: 0,
+  siblingCount: 0,
+  hasPartner: false,
+  childrenWithPartnerCount: 0,
+  soloChildrenCount: 0,
+  ...overrides,
+});
+
+describe('generateQuickStartNetwork', () => {
+  it('creates only ego when all counts are zero', () => {
+    const store = createFamilyTreeStore(new Map(), new Map());
+    store.getState().generateQuickStartNetwork(quickStart());
+
+    const { nodes, edges } = store.getState().network;
+    expect(nodes.size).toBe(1);
+    expect(edges.size).toBe(0);
+
+    const ego = [...nodes.values()].find((n) => n.isEgo);
+    expect(ego).toBeDefined();
+    expect(ego?.label).toBe('');
+  });
+
+  it('creates parents with social-parent edges and partner group', () => {
+    const store = createFamilyTreeStore(new Map(), new Map());
+    store.getState().generateQuickStartNetwork(quickStart({ parentCount: 2 }));
+
+    const { nodes, edges } = store.getState().network;
+    expect(nodes.size).toBe(3);
+
+    const edgeArray = [...edges.values()];
+    const parentEdges = edgeArray.filter((e) => e.type === 'parent');
+    const partnerEdges = edgeArray.filter((e) => e.type === 'partner');
+    expect(parentEdges).toHaveLength(2);
+    expect(partnerEdges).toHaveLength(1);
+  });
+
+  it('creates siblings linked to same parents as ego', () => {
+    const store = createFamilyTreeStore(new Map(), new Map());
+    store
+      .getState()
+      .generateQuickStartNetwork(
+        quickStart({ parentCount: 2, siblingCount: 2 }),
+      );
+
+    const { nodes, edges } = store.getState().network;
+    expect(nodes.size).toBe(5);
+
+    const edgeArray = [...edges.values()];
+    const parentEdges = edgeArray.filter((e) => e.type === 'parent');
+    const partnerEdges = edgeArray.filter((e) => e.type === 'partner');
+    // 2 parents × 3 children (ego + 2 siblings) = 6 parent edges
+    expect(parentEdges).toHaveLength(6);
+    expect(partnerEdges).toHaveLength(1);
+  });
+
+  it('creates partner and children with partner', () => {
+    const store = createFamilyTreeStore(new Map(), new Map());
+    store
+      .getState()
+      .generateQuickStartNetwork(
+        quickStart({ hasPartner: true, childrenWithPartnerCount: 2 }),
+      );
+
+    const { nodes, edges } = store.getState().network;
+    // ego + partner + 2 children = 4
+    expect(nodes.size).toBe(4);
+
+    const edgeArray = [...edges.values()];
+    const parentEdges = edgeArray.filter((e) => e.type === 'parent');
+    const partnerEdges = edgeArray.filter((e) => e.type === 'partner');
+    // 2 parents (ego + partner) × 2 children = 4
+    expect(parentEdges).toHaveLength(4);
+    expect(partnerEdges).toHaveLength(1);
+  });
+
+  it('creates solo children linked only to ego', () => {
+    const store = createFamilyTreeStore(new Map(), new Map());
+    store
+      .getState()
+      .generateQuickStartNetwork(quickStart({ soloChildrenCount: 3 }));
+
+    const { nodes, edges } = store.getState().network;
+    // ego + 3 children = 4
+    expect(nodes.size).toBe(4);
+
+    const edgeArray = [...edges.values()];
+    const parentEdges = edgeArray.filter((e) => e.type === 'parent');
+    expect(parentEdges).toHaveLength(3);
+  });
+});
+
+describe('syncMetadata', () => {
+  it('dispatches updateStageMetadata with serialized nodes and edges', () => {
+    const dispatched: unknown[] = [];
+    const mockDispatch = ((action: unknown) => {
+      dispatched.push(action);
+      return action;
+    }) as ReturnType<typeof useAppDispatch>;
+
+    const store = createFamilyTreeStore(new Map(), new Map(), mockDispatch);
+    store.getState().addNode({ label: 'Ego', isEgo: true });
+    store.getState().syncMetadata();
+    expect(dispatched.length).toBe(1);
   });
 });
