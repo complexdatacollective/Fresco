@@ -8,9 +8,9 @@ import {
   type FamilyTreeStore,
   type FamilyTreeStoreApi,
   type NodeData,
-  type Sex,
   type StoreEdge,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
+import { type Sex } from '~/lib/pedigree-layout/types';
 import { getRelationshipTypeVariable } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/utils/edgeUtils';
 import {
   getEgoSexVariable,
