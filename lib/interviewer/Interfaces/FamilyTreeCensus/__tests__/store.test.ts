@@ -259,8 +259,8 @@ describe('generateQuickStartNetwork', () => {
     store.getState().generateQuickStartNetwork(
       quickStart({
         parents: [
-          { name: '', edgeType: 'social-parent' },
-          { name: '', edgeType: 'social-parent' },
+          { name: '', nameKnown: false, edgeType: 'social-parent' },
+          { name: '', nameKnown: false, edgeType: 'social-parent' },
         ],
       }),
     );
@@ -280,8 +280,8 @@ describe('generateQuickStartNetwork', () => {
     store.getState().generateQuickStartNetwork(
       quickStart({
         parents: [
-          { name: '', edgeType: 'social-parent' },
-          { name: '', edgeType: 'social-parent' },
+          { name: '', nameKnown: false, edgeType: 'social-parent' },
+          { name: '', nameKnown: false, edgeType: 'social-parent' },
         ],
         siblings: [{ name: '' }, { name: '' }],
       }),
@@ -364,8 +364,8 @@ describe('integration: full flow', () => {
 
     store.getState().generateQuickStartNetwork({
       parents: [
-        { name: '', edgeType: 'social-parent' },
-        { name: '', edgeType: 'social-parent' },
+        { name: '', nameKnown: false, edgeType: 'social-parent' },
+        { name: '', nameKnown: false, edgeType: 'social-parent' },
       ],
       bioParents: [],
       siblings: [],

@@ -28,6 +28,7 @@ export type PersonDetail = {
 };
 
 export type ParentDetail = PersonDetail & {
+  nameKnown: boolean;
   edgeType: ParentEdgeType;
 };
 
