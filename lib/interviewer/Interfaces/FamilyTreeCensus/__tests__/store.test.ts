@@ -231,11 +231,12 @@ describe('setStep', () => {
 const quickStart = (
   overrides: Partial<QuickStartData> = {},
 ): QuickStartData => ({
-  parentCount: 0,
-  siblingCount: 0,
-  hasPartner: false,
-  childrenWithPartnerCount: 0,
-  soloChildrenCount: 0,
+  parents: [],
+  bioParents: [],
+  siblings: [],
+  partner: { hasPartner: false },
+  childrenWithPartner: [],
+  otherChildren: [],
   ...overrides,
 });
 
@@ -255,7 +256,14 @@ describe('generateQuickStartNetwork', () => {
 
   it('creates parents with social-parent edges and partner group', () => {
     const store = createFamilyTreeStore(new Map(), new Map());
-    store.getState().generateQuickStartNetwork(quickStart({ parentCount: 2 }));
+    store.getState().generateQuickStartNetwork(
+      quickStart({
+        parents: [
+          { name: '', edgeType: 'social-parent' },
+          { name: '', edgeType: 'social-parent' },
+        ],
+      }),
+    );
 
     const { nodes, edges } = store.getState().network;
     expect(nodes.size).toBe(3);
@@ -269,11 +277,15 @@ describe('generateQuickStartNetwork', () => {
 
   it('creates siblings linked to same parents as ego', () => {
     const store = createFamilyTreeStore(new Map(), new Map());
-    store
-      .getState()
-      .generateQuickStartNetwork(
-        quickStart({ parentCount: 2, siblingCount: 2 }),
-      );
+    store.getState().generateQuickStartNetwork(
+      quickStart({
+        parents: [
+          { name: '', edgeType: 'social-parent' },
+          { name: '', edgeType: 'social-parent' },
+        ],
+        siblings: [{ name: '' }, { name: '' }],
+      }),
+    );
 
     const { nodes, edges } = store.getState().network;
     expect(nodes.size).toBe(5);
@@ -288,11 +300,12 @@ describe('generateQuickStartNetwork', () => {
 
   it('creates partner and children with partner', () => {
     const store = createFamilyTreeStore(new Map(), new Map());
-    store
-      .getState()
-      .generateQuickStartNetwork(
-        quickStart({ hasPartner: true, childrenWithPartnerCount: 2 }),
-      );
+    store.getState().generateQuickStartNetwork(
+      quickStart({
+        partner: { hasPartner: true, name: '' },
+        childrenWithPartner: [{ name: '' }, { name: '' }],
+      }),
+    );
 
     const { nodes, edges } = store.getState().network;
     // ego + partner + 2 children = 4
@@ -308,9 +321,11 @@ describe('generateQuickStartNetwork', () => {
 
   it('creates solo children linked only to ego', () => {
     const store = createFamilyTreeStore(new Map(), new Map());
-    store
-      .getState()
-      .generateQuickStartNetwork(quickStart({ soloChildrenCount: 3 }));
+    store.getState().generateQuickStartNetwork(
+      quickStart({
+        otherChildren: [{ name: '' }, { name: '' }, { name: '' }],
+      }),
+    );
 
     const { nodes, edges } = store.getState().network;
     // ego + 3 children = 4
@@ -348,11 +363,15 @@ describe('integration: full flow', () => {
     const store = createFamilyTreeStore(new Map(), new Map(), mockDispatch);
 
     store.getState().generateQuickStartNetwork({
-      parentCount: 2,
-      siblingCount: 0,
-      hasPartner: false,
-      childrenWithPartnerCount: 0,
-      soloChildrenCount: 0,
+      parents: [
+        { name: '', edgeType: 'social-parent' },
+        { name: '', edgeType: 'social-parent' },
+      ],
+      bioParents: [],
+      siblings: [],
+      partner: { hasPartner: false },
+      childrenWithPartner: [],
+      otherChildren: [],
     });
     expect(store.getState().network.nodes.size).toBe(3);
 
