@@ -71,3 +71,6 @@ storybook-static
 
 # Local Netlify folder
 .netlify
+
+# Git worktrees
+.worktrees
