@@ -29,16 +29,6 @@ export default function SiblingsDetailStep() {
     );
   };
 
-  if (siblingCount === 0) {
-    return (
-      <div className="flex flex-col gap-3 pt-4">
-        <p className="text-muted-foreground text-sm">
-          No siblings to add. Click Continue to proceed.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col gap-6 pt-4">
       {siblings.map((sibling, i) => (

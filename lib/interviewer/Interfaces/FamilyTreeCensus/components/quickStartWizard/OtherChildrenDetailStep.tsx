@@ -29,17 +29,6 @@ export default function OtherChildrenDetailStep() {
     );
   };
 
-  if (childCount === 0) {
-    return (
-      <div className="flex flex-col gap-3 pt-4">
-        <p className="text-muted-foreground text-sm">
-          No additional children to add. Click Finish to generate your family
-          tree.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col gap-6 pt-4">
       {children.map((child, i) => (
