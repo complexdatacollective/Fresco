@@ -10,7 +10,18 @@ import { alignped4 } from '~/lib/pedigree-layout/alignped4';
 import { autohint } from '~/lib/pedigree-layout/autohint';
 import { checkHint } from '~/lib/pedigree-layout/checkHint';
 import { kindepth } from '~/lib/pedigree-layout/kindepth';
+import { type ParentEdgeType } from '~/lib/pedigree-layout/types';
 import { ancestor } from '~/lib/pedigree-layout/utils';
+
+const AUXILIARY_EDGE_TYPES = new Set<ParentEdgeType>([
+  'donor',
+  'surrogate',
+  'bio-parent',
+]);
+
+function isAuxiliaryEdge(edgeType: ParentEdgeType): boolean {
+  return AUXILIARY_EDGE_TYPES.has(edgeType);
+}
 
 /**
  * Main pedigree layout algorithm.
@@ -61,7 +72,7 @@ export function alignPedigree(
     );
     if (socialLevel < 0) continue;
     for (const p of pConns) {
-      if (p.edgeType === 'donor' || p.edgeType === 'surrogate') {
+      if (isAuxiliaryEdge(p.edgeType)) {
         level[p.parentIndex] = socialLevel;
       }
     }
@@ -174,7 +185,7 @@ export function alignPedigree(
     ped.parents.every((pConns) =>
       pConns
         .filter((p) => p.parentIndex === idx)
-        .every((p) => p.edgeType === 'donor' || p.edgeType === 'surrogate'),
+        .every((p) => isAuxiliaryEdge(p.edgeType)),
     );
 
   const componentFounder = new Map<number, number>();
@@ -438,9 +449,7 @@ export function alignPedigree(
         const pConns = ped.parents[ci]!;
         if (!placedIds.has(ci)) continue;
         const auxConn = pConns.find(
-          (p) =>
-            p.parentIndex === i &&
-            (p.edgeType === 'donor' || p.edgeType === 'surrogate'),
+          (p) => p.parentIndex === i && isAuxiliaryEdge(p.edgeType),
         );
         if (auxConn) {
           childIdx = ci;

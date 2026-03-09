@@ -158,5 +158,54 @@ describe('computeConnectors', () => {
     const connectors = computeConnectors(donorLayout, scaling, donorParents);
     expect(connectors.auxiliaryLines.length).toBe(1);
     expect(connectors.auxiliaryLines[0]!.edgeType).toBe('donor');
+    expect(connectors.auxiliaryLines[0]!.segment).toBeDefined();
+  });
+
+  it('sets partner=true on group lines between partners', () => {
+    const connectors = computeConnectors(layout, scaling, parents, 0.6, 0.5, [
+      { id1: 1, id2: 2, code: 4 },
+    ]);
+    expect(connectors.groupLines[0]!.partner).toBe(true);
+  });
+
+  it('sets partner=false on group lines without partner relation', () => {
+    const connectors = computeConnectors(layout, scaling, parents);
+    expect(connectors.groupLines[0]!.partner).toBe(false);
+  });
+
+  it('produces auxiliary connectors for bio-parent edges', () => {
+    const bioLayout: PedigreeLayout = {
+      n: [3, 1],
+      nid: [
+        [0, 1, 2],
+        [3, 0, 0],
+      ],
+      pos: [
+        [0, 1, 3],
+        [0.5, 0, 0],
+      ],
+      fam: [
+        [0, 0, 0],
+        [1, 0, 0],
+      ],
+      group: [
+        [1, 0, 0],
+        [0, 0, 0],
+      ],
+      twins: null,
+    };
+    const bioParents: ParentConnection[][] = [
+      [],
+      [],
+      [],
+      [
+        { parentIndex: 0, edgeType: 'social-parent' },
+        { parentIndex: 1, edgeType: 'social-parent' },
+        { parentIndex: 2, edgeType: 'bio-parent' },
+      ],
+    ];
+    const connectors = computeConnectors(bioLayout, scaling, bioParents);
+    expect(connectors.auxiliaryLines.length).toBe(1);
+    expect(connectors.auxiliaryLines[0]!.edgeType).toBe('bio-parent');
   });
 });

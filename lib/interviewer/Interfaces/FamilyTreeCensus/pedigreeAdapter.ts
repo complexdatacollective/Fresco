@@ -62,11 +62,17 @@ export function storeToPedigreeInput(
   const relations: Relation[] = [];
 
   // Build parent connections
-  const parentRelationships = new Set<string>(['parent', 'donor', 'surrogate']);
+  const parentRelationships = new Set<string>([
+    'parent',
+    'donor',
+    'surrogate',
+    'bio-parent',
+  ]);
   const edgeTypeMap: Record<string, ParentConnection['edgeType']> = {
-    parent: 'social-parent',
-    donor: 'donor',
-    surrogate: 'surrogate',
+    'parent': 'social-parent',
+    'donor': 'donor',
+    'surrogate': 'surrogate',
+    'bio-parent': 'bio-parent',
   };
   for (const edge of edges.values()) {
     if (!parentRelationships.has(edge.relationship)) continue;
@@ -152,6 +158,7 @@ export function buildConnectorData(
   _edges: Map<string, Omit<Edge, 'id'>>,
   dimensions: LayoutDimensions,
   parents: ParentConnection[][] = [],
+  relations: Relation[] = [],
 ): ConnectorRenderData {
   const metrics = computeLayoutMetrics(dimensions);
   const boxHeight = dimensions.nodeHeight / metrics.rowHeight;
@@ -163,7 +170,14 @@ export function buildConnectorData(
     vScale: 1,
   };
 
-  const connectors = computeConnectors(layout, scaling, parents);
+  const connectors = computeConnectors(
+    layout,
+    scaling,
+    parents,
+    0.6,
+    0.5,
+    relations,
+  );
 
   // Transform all coordinates to pixel space
   const sx = metrics.siblingSpacing;
@@ -198,9 +212,7 @@ export function buildConnectorData(
   }
 
   for (const aux of connectors.auxiliaryLines) {
-    for (const seg of aux.segments) {
-      transformSegment(seg, sx, sy, xOffset);
-    }
+    transformSegment(aux.segment, sx, sy, xOffset);
   }
 
   for (const da of connectors.duplicateArcs) {
@@ -259,7 +271,7 @@ export function buildConnectorData(
       if (ti.label) ti.label.x += -rawMinX;
     }
     for (const aux of connectors.auxiliaryLines) {
-      for (const seg of aux.segments) shiftSegment(seg, -rawMinX, 0);
+      shiftSegment(aux.segment, -rawMinX, 0);
     }
     for (const da of connectors.duplicateArcs) {
       for (const pt of da.path.points) pt.x += -rawMinX;
@@ -291,7 +303,7 @@ export function buildConnectorData(
       if (ti.label) ti.label.y += -rawMinY;
     }
     for (const aux of connectors.auxiliaryLines) {
-      for (const seg of aux.segments) shiftSegment(seg, 0, -rawMinY);
+      shiftSegment(aux.segment, 0, -rawMinY);
     }
     for (const da of connectors.duplicateArcs) {
       for (const pt of da.path.points) pt.y += -rawMinY;

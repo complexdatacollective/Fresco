@@ -49,6 +49,7 @@ function renderGroupLine(
   const seg = conn.segment;
 
   if (conn.double) {
+    // Consanguineous: two close parallel lines
     return (
       <g key={`consang-${idx}`}>
         {renderLine(conn.segment, color, `consang-line1-${idx}`)}
@@ -58,28 +59,35 @@ function renderGroupLine(
     );
   }
 
-  // Regular partner: double horizontal lines
-  const offset = EDGE_WIDTH;
-  return (
-    <g key={`partner-${idx}`}>
-      <line
-        x1={seg.x1}
-        y1={seg.y1 - offset}
-        x2={seg.x2}
-        y2={seg.y2 - offset}
-        stroke={color}
-        strokeWidth={EDGE_WIDTH}
-      />
-      <line
-        x1={seg.x1}
-        y1={seg.y1 + offset}
-        x2={seg.x2}
-        y2={seg.y2 + offset}
-        stroke={color}
-        strokeWidth={EDGE_WIDTH}
-      />
-    </g>
-  );
+  if (conn.partner) {
+    // Partner relationship: double horizontal lines
+    const offset = EDGE_WIDTH;
+    return (
+      <g key={`partner-${idx}`}>
+        <line
+          x1={seg.x1}
+          y1={seg.y1 - offset}
+          x2={seg.x2}
+          y2={seg.y2 - offset}
+          stroke={color}
+          strokeWidth={EDGE_WIDTH}
+        />
+        <line
+          x1={seg.x1}
+          y1={seg.y1 + offset}
+          x2={seg.x2}
+          y2={seg.y2 + offset}
+          stroke={color}
+          strokeWidth={EDGE_WIDTH}
+        />
+      </g>
+    );
+  }
+
+  // Co-parent group bar: single spanning line
+  return renderLine(seg, color, `group-bar-${idx}`, {
+    strokeLinecap: 'round',
+  });
 }
 
 function getAuxiliaryStyle(edgeType: AuxiliaryConnector['edgeType']) {
@@ -94,18 +102,12 @@ function getAuxiliaryStyle(edgeType: AuxiliaryConnector['edgeType']) {
 
 function renderAuxiliary(conn: AuxiliaryConnector, idx: number, color: string) {
   const style = getAuxiliaryStyle(conn.edgeType);
-  return (
-    <g key={`aux-${idx}`}>
-      {conn.segments.map((seg, i) =>
-        renderLine(seg, color, `aux-${idx}-seg-${i}`, {
-          strokeDasharray: style.strokeDasharray,
-          strokeWidth: style.strokeWidth,
-          opacity: style.opacity,
-          strokeLinecap: 'round',
-        }),
-      )}
-    </g>
-  );
+  return renderLine(conn.segment, color, `aux-${idx}`, {
+    strokeDasharray: style.strokeDasharray,
+    strokeWidth: style.strokeWidth,
+    opacity: style.opacity,
+    strokeLinecap: 'round',
+  });
 }
 
 function renderParentChild(
