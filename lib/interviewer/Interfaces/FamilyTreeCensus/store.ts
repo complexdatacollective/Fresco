@@ -3,27 +3,45 @@ import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
 import { type useAppDispatch } from '~/lib/interviewer/store';
-import { type ParentEdgeType } from '~/lib/pedigree-layout/types';
+import {
+  type Gender,
+  type ParentEdgeType,
+  type Sex,
+} from '~/lib/pedigree-layout/types';
 
 enableMapSet();
-
-export type Sex = 'male' | 'female';
 
 export type NodeData = {
   label: string;
   sex?: Sex;
+  gender?: Gender;
   isEgo: boolean;
   readOnly?: boolean;
   interviewNetworkId?: string;
   diseases?: Map<string, boolean>;
 };
 
+export type PersonDetail = {
+  name: string;
+  sex?: Sex;
+  gender?: Gender;
+};
+
+export type ParentDetail = PersonDetail & {
+  edgeType: ParentEdgeType;
+};
+
+export type BioParentDetail = PersonDetail & {
+  nameKnown: boolean;
+};
+
 export type QuickStartData = {
-  parentCount: number;
-  siblingCount: number;
-  hasPartner: boolean;
-  childrenWithPartnerCount: number;
-  soloChildrenCount: number;
+  parents: ParentDetail[];
+  bioParents: BioParentDetail[];
+  siblings: PersonDetail[];
+  partner: (PersonDetail & { hasPartner: true }) | { hasPartner: false };
+  childrenWithPartner: PersonDetail[];
+  otherChildren: PersonDetail[];
 };
 
 export type StoreEdge = {
@@ -229,6 +247,7 @@ export const createFamilyTreeStore = (
             interviewNetworkId: node.interviewNetworkId,
             label: node.label,
             sex: node.sex,
+            gender: node.gender,
             isEgo: node.isEgo,
           }));
 
