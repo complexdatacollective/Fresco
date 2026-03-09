@@ -26,7 +26,6 @@ type PedigreeLayoutProps = {
   nodeWidth: number;
   nodeHeight: number;
   renderNode: (node: PedigreeLayoutNode) => ReactNode;
-  onNodeTap?: (nodeId: string, position: { x: number; y: number }) => void;
 };
 
 export default function PedigreeLayout({
@@ -60,7 +59,6 @@ export default function PedigreeLayout({
       edges,
       dimensions,
       input.parents,
-      input.relation ?? [],
     );
 
     return { positions, connectorData };

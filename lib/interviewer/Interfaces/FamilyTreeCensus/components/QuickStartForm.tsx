@@ -1,119 +1,83 @@
 'use client';
 
-import { useState } from 'react';
-import { Button } from '~/components/ui/Button';
+import Surface from '~/components/layout/Surface';
+import Field from '~/lib/form/components/Field/Field';
+import FieldGroup from '~/lib/form/components/FieldGroup';
+import Form from '~/lib/form/components/Form';
+import SubmitButton from '~/lib/form/components/SubmitButton';
+import NumberCounterField from '~/lib/form/components/fields/NumberCounterField';
 import ToggleField from '~/lib/form/components/fields/ToggleField';
+import { type FieldValue } from '~/lib/form/store/types';
 import { type QuickStartData } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 
 type QuickStartFormProps = {
-  prompt: string;
   onSubmit: (data: QuickStartData) => void;
 };
 
-function NumberStepper({
-  label,
-  value,
-  onChange,
-  min = 0,
-  max = 20,
-}: {
-  label: string;
-  value: number;
-  onChange: (value: number) => void;
-  min?: number;
-  max?: number;
-}) {
+export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
   return (
-    <div className="flex items-center justify-between gap-4">
-      <span className="text-sm font-medium">{label}</span>
-      <div className="flex items-center gap-1">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onChange(Math.max(min, value - 1))}
-          disabled={value <= min}
-          aria-label={`Decrease ${label}`}
-        >
-          −
-        </Button>
-        <span className="w-8 text-center tabular-nums">{value}</span>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onChange(Math.min(max, value + 1))}
-          disabled={value >= max}
-          aria-label={`Increase ${label}`}
-        >
-          +
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-export default function QuickStartForm({
-  prompt,
-  onSubmit,
-}: QuickStartFormProps) {
-  const [parentCount, setParentCount] = useState(2);
-  const [siblingCount, setSiblingCount] = useState(0);
-  const [hasPartner, setHasPartner] = useState(false);
-  const [childrenWithPartnerCount, setChildrenWithPartnerCount] = useState(0);
-  const [soloChildrenCount, setSoloChildrenCount] = useState(0);
-
-  const handleSubmit = () => {
-    onSubmit({
-      parentCount,
-      siblingCount,
-      hasPartner,
-      childrenWithPartnerCount,
-      soloChildrenCount,
-    });
-  };
-
-  return (
-    <div className="mx-auto flex w-full max-w-md flex-col gap-6 p-6">
-      <p className="text-center text-lg font-medium">{prompt}</p>
-
-      <div className="flex flex-col gap-4">
-        <NumberStepper
+    <Surface noContainer maxWidth="md">
+      <Form
+        onSubmit={(values) => {
+          const v = values as Record<string, FieldValue>;
+          onSubmit({
+            parentCount: (v.parentCount as number | undefined) ?? 2,
+            siblingCount: (v.siblingCount as number | undefined) ?? 0,
+            hasPartner: (v.hasPartner as boolean | undefined) ?? false,
+            childrenWithPartnerCount:
+              (v.childrenWithPartnerCount as number | undefined) ?? 0,
+            soloChildrenCount: (v.soloChildrenCount as number | undefined) ?? 0,
+          });
+          return { success: true };
+        }}
+        className="flex flex-col gap-4"
+      >
+        <Field
+          name="parentCount"
           label="How many parents do you have?"
-          value={parentCount}
-          onChange={setParentCount}
+          component={NumberCounterField}
+          initialValue={2}
+          minValue={0}
+          maxValue={20}
         />
-        <NumberStepper
+        <Field
+          name="siblingCount"
           label="How many siblings do you have?"
-          value={siblingCount}
-          onChange={setSiblingCount}
+          component={NumberCounterField}
+          initialValue={0}
+          minValue={0}
+          maxValue={20}
         />
-
-        <div className="flex items-center justify-between gap-4">
-          <span className="text-sm font-medium">Do you have a partner?</span>
-          <ToggleField
-            value={hasPartner}
-            onChange={(checked) => setHasPartner(checked ?? false)}
-            size="sm"
-          />
-        </div>
-
-        {hasPartner && (
-          <NumberStepper
-            label="How many children together?"
-            value={childrenWithPartnerCount}
-            onChange={setChildrenWithPartnerCount}
-          />
-        )}
-
-        <NumberStepper
-          label="Children from another relationship?"
-          value={soloChildrenCount}
-          onChange={setSoloChildrenCount}
+        <Field
+          name="hasPartner"
+          label="Do you have a partner?"
+          component={ToggleField}
+          initialValue={false}
         />
-      </div>
-
-      <Button onClick={handleSubmit} color="primary">
-        Get started
-      </Button>
-    </div>
+        <FieldGroup
+          watch={['hasPartner'] as const}
+          condition={(values) => values.hasPartner === true}
+        >
+          <Field
+            name="childrenWithPartnerCount"
+            label="How many children do you have with your partner?"
+            hint="You can add children from other relationships in the next section."
+            component={NumberCounterField}
+            initialValue={0}
+            minValue={0}
+            maxValue={20}
+          />
+        </FieldGroup>
+        <Field
+          name="soloChildrenCount"
+          label="How many children do you have from other relationships (not with your current partner)?"
+          component={NumberCounterField}
+          initialValue={0}
+          minValue={0}
+          maxValue={20}
+        />
+        <SubmitButton>Get started</SubmitButton>
+      </Form>
+    </Surface>
   );
 }

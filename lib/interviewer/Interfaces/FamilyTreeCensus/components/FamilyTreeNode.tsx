@@ -71,7 +71,7 @@ type FamilyTreeNodeProps = {
   node: NodeData & { id: string };
   allowDrag: boolean;
   selected?: boolean;
-  onTap?: (nodeId: string, position: { x: number; y: number }) => void;
+  onTap?: (nodeId: string) => void;
 };
 
 function EgoArrow() {
@@ -208,9 +208,9 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
       className="family-tree-node"
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
-      onClick={(e) => {
+      onClick={() => {
         if (shouldHandleClick()) {
-          onTap?.(id, { x: e.clientX, y: e.clientY });
+          onTap?.(id);
         }
       }}
     >

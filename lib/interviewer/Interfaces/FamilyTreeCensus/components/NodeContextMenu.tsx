@@ -1,65 +1,82 @@
 'use client';
 
-import { Button } from '~/components/ui/Button';
-import {
-  type NodeData,
-  type StoreEdge,
-} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
+import { Menu } from '@base-ui/react/menu';
+import { type ReactNode } from 'react';
+import { type StoreEdge } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
+
+export type NodeContextMenuAction =
+  | 'parent'
+  | 'child'
+  | 'partner'
+  | 'sibling'
+  | 'editName';
 
 type NodeContextMenuProps = {
   nodeId: string;
-  node: NodeData;
-  position: { x: number; y: number };
   edges: Map<string, StoreEdge>;
-  onAddParent: () => void;
-  onAddChild: () => void;
-  onAddPartner: () => void;
-  onAddSibling: () => void;
-  onEditName: () => void;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onAction: (action: NodeContextMenuAction) => void;
+  children: ReactNode;
 };
+
+const menuItemClass =
+  'cursor-pointer rounded-md px-3 py-1.5 text-sm font-semibold text-neutral select-none data-highlighted:bg-neutral/10';
 
 export default function NodeContextMenu({
   nodeId,
-  node: _node,
-  position,
   edges,
-  onAddParent,
-  onAddChild,
-  onAddPartner,
-  onAddSibling,
-  onEditName,
-  onClose,
+  open,
+  onOpenChange,
+  onAction,
+  children,
 }: NodeContextMenuProps) {
   const hasParents = [...edges.values()].some(
     (edge) => edge.type === 'parent' && edge.target === nodeId,
   );
 
   return (
-    <div
-      className="absolute z-50 flex flex-col gap-1 rounded-lg bg-white p-2 shadow-lg"
-      style={{ left: position.x, top: position.y }}
-    >
-      <Button variant="text" size="sm" onClick={onAddParent}>
-        Add parent
-      </Button>
-      <Button variant="text" size="sm" onClick={onAddChild}>
-        Add child
-      </Button>
-      <Button variant="text" size="sm" onClick={onAddPartner}>
-        Add partner
-      </Button>
-      {hasParents && (
-        <Button variant="text" size="sm" onClick={onAddSibling}>
-          Add sibling
-        </Button>
-      )}
-      <Button variant="text" size="sm" onClick={onEditName}>
-        Edit name
-      </Button>
-      <Button variant="text" size="sm" onClick={onClose}>
-        Cancel
-      </Button>
-    </div>
+    <Menu.Root open={open} onOpenChange={onOpenChange}>
+      <Menu.Trigger render={<div />}>{children}</Menu.Trigger>
+      <Menu.Portal>
+        <Menu.Positioner sideOffset={8}>
+          <Menu.Popup className="flex flex-col gap-0.5 rounded-lg bg-white p-1.5 shadow-lg outline-none">
+            <Menu.Item
+              className={menuItemClass}
+              onClick={() => onAction('parent')}
+            >
+              Add parent
+            </Menu.Item>
+            <Menu.Item
+              className={menuItemClass}
+              onClick={() => onAction('child')}
+            >
+              Add child
+            </Menu.Item>
+            <Menu.Item
+              className={menuItemClass}
+              onClick={() => onAction('partner')}
+            >
+              Add partner
+            </Menu.Item>
+            {hasParents && (
+              <Menu.Item
+                className={menuItemClass}
+                onClick={() => onAction('sibling')}
+              >
+                Add sibling
+              </Menu.Item>
+            )}
+            <Menu.Separator className="bg-neutral/20 my-1 h-px" />
+            <Menu.Item
+              className={menuItemClass}
+              onClick={() => onAction('editName')}
+            >
+              Edit name
+            </Menu.Item>
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Portal>
+    </Menu.Root>
   );
 }

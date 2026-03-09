@@ -53,8 +53,10 @@ export function useNodeMeasurement({
     return () => {
       observer.disconnect();
       observerRef.current = null;
-      rootRef.current?.unmount();
+      const root = rootRef.current;
       rootRef.current = null;
+      // Defer unmount to avoid "synchronously unmount while React is rendering"
+      setTimeout(() => root?.unmount(), 0);
       document.body.removeChild(container);
       containerRef.current = null;
       wrapperRef.current = null;

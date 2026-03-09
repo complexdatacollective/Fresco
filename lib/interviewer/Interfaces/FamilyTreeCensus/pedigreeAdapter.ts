@@ -190,7 +190,7 @@ export function buildConnectorData(
   }
 
   for (const aux of connectors.auxiliaryLines) {
-    for (const seg of aux.segments) {
+    for (const seg of [aux.segment]) {
       transformSegment(seg, sx, sy, xOffset);
     }
   }
@@ -251,7 +251,7 @@ export function buildConnectorData(
       if (ti.label) ti.label.x += -rawMinX;
     }
     for (const aux of connectors.auxiliaryLines) {
-      for (const seg of aux.segments) shiftSegment(seg, -rawMinX, 0);
+      for (const seg of [aux.segment]) shiftSegment(seg, -rawMinX, 0);
     }
     for (const da of connectors.duplicateArcs) {
       for (const pt of da.path.points) pt.x += -rawMinX;
@@ -283,7 +283,7 @@ export function buildConnectorData(
       if (ti.label) ti.label.y += -rawMinY;
     }
     for (const aux of connectors.auxiliaryLines) {
-      for (const seg of aux.segments) shiftSegment(seg, 0, -rawMinY);
+      for (const seg of [aux.segment]) shiftSegment(seg, 0, -rawMinY);
     }
     for (const da of connectors.duplicateArcs) {
       for (const pt of da.path.points) pt.y += -rawMinY;

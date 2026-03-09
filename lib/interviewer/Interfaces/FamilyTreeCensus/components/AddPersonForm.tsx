@@ -1,52 +1,42 @@
 'use client';
 
-import { useState } from 'react';
-import { Button } from '~/components/ui/Button';
+import Field from '~/lib/form/components/Field/Field';
+import InputField from '~/lib/form/components/fields/InputField';
+import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import {
   type NodeData,
   type StoreEdge,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import { type ParentEdgeType } from '~/lib/pedigree-layout/types';
-import NameInput from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/NameInput';
 
 export type AddPersonMode = 'parent' | 'child' | 'partner' | 'sibling';
 
-type AddPersonFormProps = {
+const PARENT_EDGE_TYPE_OPTIONS: { value: ParentEdgeType; label: string }[] = [
+  { value: 'social-parent', label: 'Social parent' },
+  { value: 'bio-parent', label: 'Biological parent' },
+  { value: 'donor', label: 'Donor' },
+  { value: 'surrogate', label: 'Surrogate' },
+  { value: 'co-parent', label: 'Co-parent' },
+];
+
+const CURRENT_EX_OPTIONS = [
+  { value: 'current', label: 'Current' },
+  { value: 'ex', label: 'Ex' },
+];
+
+type AddPersonFieldsProps = {
   mode: AddPersonMode;
   anchorNodeId: string;
   nodes: Map<string, NodeData>;
   edges: Map<string, StoreEdge>;
-  onSubmit: (data: {
-    name: string;
-    mode: AddPersonMode;
-    edgeType?: ParentEdgeType;
-    partnerId?: string;
-    current?: boolean;
-  }) => void;
-  onCancel: () => void;
 };
 
-const PARENT_EDGE_TYPE_LABELS: Record<ParentEdgeType, string> = {
-  'social-parent': 'Social parent',
-  'bio-parent': 'Biological parent',
-  'donor': 'Donor',
-  'surrogate': 'Surrogate',
-  'co-parent': 'Co-parent',
-};
-
-export default function AddPersonForm({
+export default function AddPersonFields({
   mode,
   anchorNodeId,
   nodes,
   edges,
-  onSubmit,
-  onCancel,
-}: AddPersonFormProps) {
-  const [name, setName] = useState('');
-  const [edgeType, setEdgeType] = useState<ParentEdgeType>('social-parent');
-  const [partnerId, setPartnerId] = useState<string | undefined>();
-  const [current, setCurrent] = useState(true);
-
+}: AddPersonFieldsProps) {
   const partners =
     mode === 'child'
       ? [...edges.values()]
@@ -65,111 +55,51 @@ export default function AddPersonForm({
           )
       : [];
 
-  const handleSubmit = () => {
-    onSubmit({
-      name,
-      mode,
-      edgeType: mode === 'parent' ? edgeType : undefined,
-      partnerId: mode === 'child' ? partnerId : undefined,
-      current: mode === 'partner' ? current : undefined,
-    });
-  };
+  const partnerOptions = [
+    ...partners.map(({ id, node }) => ({
+      value: id,
+      label: node.label || 'Unknown',
+    })),
+    { value: '', label: 'No partner (solo)' },
+  ];
 
   return (
-    <div className="flex flex-col gap-4 p-4">
-      <h3 className="text-lg font-semibold capitalize">Add {mode}</h3>
+    <>
+      <Field
+        name="name"
+        label="Name"
+        component={InputField}
+        placeholder="Enter name or leave blank if unknown"
+      />
 
       {mode === 'parent' && (
-        <fieldset className="flex flex-col gap-2">
-          <legend className="mb-1 text-sm font-medium">Parent type</legend>
-          {(
-            Object.entries(PARENT_EDGE_TYPE_LABELS) as [
-              ParentEdgeType,
-              string,
-            ][]
-          ).map(([value, label]) => (
-            <label key={value} className="flex items-center gap-2 text-sm">
-              <input
-                type="radio"
-                name="edgeType"
-                value={value}
-                checked={edgeType === value}
-                onChange={() => setEdgeType(value)}
-              />
-              {label}
-            </label>
-          ))}
-        </fieldset>
+        <Field
+          name="edgeType"
+          label="Parent type"
+          component={RadioGroupField}
+          options={PARENT_EDGE_TYPE_OPTIONS}
+          initialValue="social-parent"
+        />
       )}
 
       {mode === 'child' && partners.length > 0 && (
-        <fieldset className="flex flex-col gap-2">
-          <legend className="mb-1 text-sm font-medium">
-            With which partner?
-          </legend>
-          {partners.map(({ id, node }) => (
-            <label key={id} className="flex items-center gap-2 text-sm">
-              <input
-                type="radio"
-                name="partnerId"
-                value={id}
-                checked={partnerId === id}
-                onChange={() => setPartnerId(id)}
-              />
-              {node.label || 'Unknown'}
-            </label>
-          ))}
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="radio"
-              name="partnerId"
-              value=""
-              checked={partnerId === undefined}
-              onChange={() => setPartnerId(undefined)}
-            />
-            No partner (solo)
-          </label>
-        </fieldset>
+        <Field
+          name="partnerId"
+          label="With which partner?"
+          component={RadioGroupField}
+          options={partnerOptions}
+        />
       )}
 
       {mode === 'partner' && (
-        <fieldset className="flex flex-col gap-2">
-          <legend className="mb-1 text-sm font-medium">
-            Current or ex partner?
-          </legend>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="radio"
-              name="current"
-              value="current"
-              checked={current}
-              onChange={() => setCurrent(true)}
-            />
-            Current
-          </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="radio"
-              name="current"
-              value="ex"
-              checked={!current}
-              onChange={() => setCurrent(false)}
-            />
-            Ex
-          </label>
-        </fieldset>
+        <Field
+          name="current"
+          label="Current or ex partner?"
+          component={RadioGroupField}
+          options={CURRENT_EX_OPTIONS}
+          initialValue="current"
+        />
       )}
-
-      <NameInput value={name} onChange={setName} />
-
-      <div className="flex gap-2">
-        <Button onClick={handleSubmit} color="primary">
-          Add
-        </Button>
-        <Button variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
-      </div>
-    </div>
+    </>
   );
 }
