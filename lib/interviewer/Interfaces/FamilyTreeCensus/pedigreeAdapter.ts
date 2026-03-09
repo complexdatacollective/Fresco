@@ -2,8 +2,10 @@ import {
   computeLayoutMetrics,
   type LayoutDimensions,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/layoutDimensions';
-import { type Edge } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
-import { type FamilyTreeNodeType } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
+import {
+  type NodeData,
+  type StoreEdge,
+} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import { computeConnectors } from '~/lib/pedigree-layout/connectors';
 import {
   type Gender,
@@ -39,8 +41,8 @@ function mapGender(sex: 'male' | 'female' | undefined): Gender {
 }
 
 export function storeToPedigreeInput(
-  nodes: Map<string, Omit<FamilyTreeNodeType, 'id'>>,
-  edges: Map<string, Omit<Edge, 'id'>>,
+  nodes: Map<string, NodeData>,
+  edges: Map<string, StoreEdge>,
 ): ConversionResult {
   const indexToId: string[] = [];
   const idToIndex = new Map<string, number>();
@@ -61,32 +63,22 @@ export function storeToPedigreeInput(
   const parents: ParentConnection[][] = Array.from({ length: n }, () => []);
   const relations: Relation[] = [];
 
-  // Build parent connections
-  const parentRelationships = new Set<string>(['parent', 'donor', 'surrogate']);
-  const edgeTypeMap: Record<string, ParentConnection['edgeType']> = {
-    parent: 'social-parent',
-    donor: 'donor',
-    surrogate: 'surrogate',
-  };
   for (const edge of edges.values()) {
-    if (!parentRelationships.has(edge.relationship)) continue;
-    const childIdx = idToIndex.get(edge.target);
-    const parentIdx = idToIndex.get(edge.source);
-    if (childIdx === undefined || parentIdx === undefined) continue;
+    if (edge.type === 'parent') {
+      const childIdx = idToIndex.get(edge.target);
+      const parentIdx = idToIndex.get(edge.source);
+      if (childIdx === undefined || parentIdx === undefined) continue;
 
-    parents[childIdx]!.push({
-      parentIndex: parentIdx,
-      edgeType: edgeTypeMap[edge.relationship] ?? 'social-parent',
-    });
-  }
-
-  // Build relations from partner edges (code 4 = partner)
-  for (const edge of edges.values()) {
-    if (edge.relationship !== 'partner') continue;
-    const i1 = idToIndex.get(edge.source);
-    const i2 = idToIndex.get(edge.target);
-    if (i1 === undefined || i2 === undefined) continue;
-    relations.push({ id1: i1, id2: i2, code: 4 });
+      parents[childIdx]!.push({
+        parentIndex: parentIdx,
+        edgeType: edge.edgeType,
+      });
+    } else if (edge.type === 'partner') {
+      const i1 = idToIndex.get(edge.source);
+      const i2 = idToIndex.get(edge.target);
+      if (i1 === undefined || i2 === undefined) continue;
+      relations.push({ id1: i1, id2: i2, code: 4 });
+    }
   }
 
   return {
@@ -149,7 +141,7 @@ export function pedigreeLayoutToPositions(
 
 export function buildConnectorData(
   layout: PedigreeLayout,
-  _edges: Map<string, Omit<Edge, 'id'>>,
+  _edges: Map<string, StoreEdge>,
   dimensions: LayoutDimensions,
   parents: ParentConnection[][] = [],
 ): ConnectorRenderData {
