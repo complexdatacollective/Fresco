@@ -82,10 +82,24 @@ export function computeConnectors(
     const familyIds = [...new Set(layout.fam[i]!.filter((v) => v > 0))];
 
     for (const fam of familyIds) {
-      // Parent midpoint (fam is 1-based column index in parent level)
-      const parentX1 = layout.pos[i - 1]![fam - 1]!;
-      const parentX2 = layout.pos[i - 1]![fam]!;
-      const parentx = (parentX1 + parentX2) / 2;
+      // Parent position (fam is 1-based column index in parent level)
+      // Walk outward from fam-1 to find the full extent of the parent group
+      let groupLeft = fam - 1;
+      while (groupLeft > 0 && (layout.group[i - 1]?.[groupLeft - 1] ?? 0) > 0) {
+        groupLeft--;
+      }
+      let groupRight = fam - 1;
+      while (
+        groupRight < maxcol - 1 &&
+        (layout.group[i - 1]?.[groupRight] ?? 0) > 0
+      ) {
+        groupRight++;
+      }
+      const parentx =
+        groupLeft === groupRight
+          ? layout.pos[i - 1]![groupLeft]!
+          : (layout.pos[i - 1]![groupLeft]! + layout.pos[i - 1]![groupRight]!) /
+            2;
 
       // Find children in this family
       const whoIdx: number[] = [];

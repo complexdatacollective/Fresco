@@ -141,6 +141,109 @@ describe('alignPedigree', () => {
       expect(allIds).toContain(i);
     }
   });
+
+  it('places donor on the same row as social parents', () => {
+    const result = alignPedigree(surrogacyFamily, {
+      hints: { order: [1, 2, 3, 4] },
+    });
+    // Find which row each person is on
+    const rowOf = new Map<number, number>();
+    for (let lev = 0; lev < result.n.length; lev++) {
+      for (let col = 0; col < (result.n[lev] ?? 0); col++) {
+        const pid = result.nid[lev]![col]!;
+        if (pid >= 0) rowOf.set(pid, lev);
+      }
+    }
+    // Social parents (0, 1) and surrogate (2) should be on the same row
+    expect(rowOf.get(2)).toBe(rowOf.get(0));
+    expect(rowOf.get(2)).toBe(rowOf.get(1));
+    // Child (3) should be on a different (lower) row
+    expect(rowOf.get(3)).toBeGreaterThan(rowOf.get(0)!);
+  });
+
+  it('places donor on same row as social parents in multi-gen pedigree', () => {
+    // 3-gen: gp1(0) + gp2(1) -> parent(2); parent(2) + partner(3) -> child(4); donor(5) for child(4)
+    const ped: PedigreeInput = {
+      id: ['gp1', 'gp2', 'parent', 'partner', 'child', 'donor'],
+      sex: ['male', 'female', 'male', 'female', 'male', 'male'],
+      gender: ['man', 'woman', 'man', 'woman', 'man', 'man'],
+      parents: [
+        [],
+        [],
+        [sp(0), sp(1)],
+        [],
+        [
+          { parentIndex: 2, edgeType: 'social-parent' },
+          { parentIndex: 3, edgeType: 'social-parent' },
+          { parentIndex: 5, edgeType: 'donor' },
+        ],
+        [],
+      ],
+    };
+    const result = alignPedigree(ped, {
+      hints: { order: [1, 2, 3, 4, 5, 6] },
+    });
+
+    const rowOf = new Map<number, number>();
+    for (let lev = 0; lev < result.n.length; lev++) {
+      for (let col = 0; col < (result.n[lev] ?? 0); col++) {
+        const pid = result.nid[lev]![col]!;
+        if (pid >= 0) rowOf.set(pid, lev);
+      }
+    }
+    // Donor (5) should be on the same row as social parents (2, 3)
+    expect(rowOf.get(5)).toBe(rowOf.get(2));
+    // All three should be on the middle level (not the grandparent level)
+    expect(rowOf.get(5)).toBeGreaterThan(rowOf.get(0)!);
+  });
+
+  it('places donor on same row in Sperm Donor story scenario', () => {
+    // Mimics the exact structure of the Sperm Donor storybook example:
+    // gfA(0), gmA(1) -> momA(2); momA(2) + momB(3) -> ego(5), sibling(6); donor(4) for ego+sibling
+    // ego(5) + egoPartner(7) -> grandchild(8)
+    const ped: PedigreeInput = {
+      id: ['gfA', 'gmA', 'momA', 'momB', 'donor', 'ego', 'sibling', 'egoPartner', 'grandchild'],
+      sex: ['male', 'female', 'female', 'female', 'male', 'female', 'male', 'male', 'female'],
+      gender: ['man', 'woman', 'woman', 'woman', 'man', 'woman', 'man', 'man', 'woman'],
+      parents: [
+        [], // gfA
+        [], // gmA
+        [sp(0), sp(1)], // momA
+        [], // momB
+        [], // donor
+        [
+          { parentIndex: 2, edgeType: 'social-parent' },
+          { parentIndex: 3, edgeType: 'social-parent' },
+          { parentIndex: 4, edgeType: 'donor' },
+        ], // ego
+        [
+          { parentIndex: 2, edgeType: 'social-parent' },
+          { parentIndex: 3, edgeType: 'social-parent' },
+          { parentIndex: 4, edgeType: 'donor' },
+        ], // sibling
+        [], // egoPartner
+        [sp(5), sp(7)], // grandchild
+      ],
+    };
+    const result = alignPedigree(ped, {
+      hints: { order: [1, 2, 3, 4, 5, 6, 7, 8, 9] },
+    });
+
+    const rowOf = new Map<number, number>();
+    for (let lev = 0; lev < result.n.length; lev++) {
+      for (let col = 0; col < (result.n[lev] ?? 0); col++) {
+        const pid = result.nid[lev]![col]!;
+        if (pid >= 0) rowOf.set(pid, lev);
+      }
+    }
+
+    // Donor (4) should be on same row as momA (2) and momB (3)
+    expect(rowOf.get(4)).toBe(rowOf.get(2));
+    // grandparents should be on a higher (earlier) row
+    expect(rowOf.get(0)).toBeLessThan(rowOf.get(2)!);
+    // grandchild should be on a lower row than ego
+    expect(rowOf.get(8)).toBeGreaterThan(rowOf.get(5)!);
+  });
 });
 
 // --- Regression tests: traditional families still produce correct layouts ---

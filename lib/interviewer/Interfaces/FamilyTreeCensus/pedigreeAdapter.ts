@@ -62,15 +62,21 @@ export function storeToPedigreeInput(
   const relations: Relation[] = [];
 
   // Build parent connections
+  const parentRelationships = new Set<string>(['parent', 'donor', 'surrogate']);
+  const edgeTypeMap: Record<string, ParentConnection['edgeType']> = {
+    parent: 'social-parent',
+    donor: 'donor',
+    surrogate: 'surrogate',
+  };
   for (const edge of edges.values()) {
-    if (edge.relationship !== 'parent') continue;
+    if (!parentRelationships.has(edge.relationship)) continue;
     const childIdx = idToIndex.get(edge.target);
     const parentIdx = idToIndex.get(edge.source);
     if (childIdx === undefined || parentIdx === undefined) continue;
 
     parents[childIdx]!.push({
       parentIndex: parentIdx,
-      edgeType: 'social-parent',
+      edgeType: edgeTypeMap[edge.relationship] ?? 'social-parent',
     });
   }
 

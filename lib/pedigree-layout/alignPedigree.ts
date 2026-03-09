@@ -46,6 +46,27 @@ export function alignPedigree(
   const depth = kindepth(ped.parents, true);
   const level = depth.map((d) => d + 1);
 
+  // Force auxiliary parents (donors/surrogates) to the same level as the
+  // social parents of the children they connect to.
+  for (let i = 0; i < n; i++) {
+    const pConns = ped.parents[i]!;
+    if (pConns.length === 0) continue;
+    const socialLevel = Math.max(
+      ...pConns
+        .filter(
+          (p) => p.edgeType === 'social-parent' || p.edgeType === 'co-parent',
+        )
+        .map((p) => level[p.parentIndex]!),
+      -1,
+    );
+    if (socialLevel < 0) continue;
+    for (const p of pConns) {
+      if (p.edgeType === 'donor' || p.edgeType === 'surrogate') {
+        level[p.parentIndex] = socialLevel;
+      }
+    }
+  }
+
   const horder = hints.order;
 
   // Build relation matrix (if any)
@@ -91,65 +112,103 @@ export function alignPedigree(
     }
   }
 
-  // Deduplicate grouplist by hash (first two members)
+  // Deduplicate grouplist by sorted member set
   const seen = new Set<string>();
   grouplist = grouplist.filter((entry) => {
     const members = entry.slice(0, entry.length - 2);
-    const key = members.join(',');
+    const key = [...members].sort((a, b) => a - b).join(',');
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
   });
 
-  // Find founders: people whose group members are all founders (no parents)
-  const isFounder = (idx: number) => ped.parents[idx]!.length === 0;
-
-  const founderGroups = grouplist.filter((entry) => {
-    const members = entry.slice(0, entry.length - 2);
-    return members.every((m) => isFounder(m));
+  // Remove groups that are strict subsets of larger groups
+  grouplist = grouplist.filter((entry, idx) => {
+    const members = new Set(entry.slice(0, entry.length - 2));
+    return !grouplist.some((other, otherIdx) => {
+      if (idx === otherIdx) return false;
+      const otherMembers = other.slice(0, other.length - 2);
+      if (otherMembers.length <= members.size) return false;
+      return [...members].every((m) => otherMembers.includes(m));
+    });
   });
 
-  // Collect unique founders from founder groups
-  const founderMembers = new Set<number>();
-  const dupMembers = new Set<number>();
-  for (const entry of founderGroups) {
+  // Find connected components using union-find over the pedigree graph.
+  // Two people are connected if they share a group (partnership) or a
+  // parent-child relationship. We pick one founder per component.
+  const isFounder = (idx: number) => ped.parents[idx]!.length === 0;
+
+  const parent = Array.from({ length: n }, (_, i) => i);
+  function find(x: number): number {
+    while (parent[x] !== x) {
+      parent[x] = parent[parent[x]!]!;
+      x = parent[x]!;
+    }
+    return x;
+  }
+  function union(a: number, b: number) {
+    const ra = find(a);
+    const rb = find(b);
+    if (ra !== rb) parent[ra] = rb;
+  }
+
+  // Union group members (partnerships)
+  for (const entry of grouplist) {
     const members = entry.slice(0, entry.length - 2);
-    for (const m of members) {
-      if (founderMembers.has(m)) {
-        dupMembers.add(m);
-      }
-      founderMembers.add(m);
+    for (let i = 1; i < members.length; i++) {
+      union(members[0]!, members[i]!);
     }
   }
 
-  // Pick one representative per founder group (preferring duplicates as anchors)
-  const representatives = new Set<number>();
-  for (const entry of founderGroups) {
-    const members = entry.slice(0, entry.length - 2);
-    // If any member appears in multiple groups, they're the anchor
-    const anchor = members.find((m) => dupMembers.has(m));
-    if (anchor !== undefined) {
-      representatives.add(anchor);
-    } else {
-      // Otherwise pick the last member (arbitrary but consistent)
-      representatives.add(members[members.length - 1]!);
-    }
-  }
-
-  // Also add lone founders (no groups)
+  // Union parent-child relationships
   for (let i = 0; i < n; i++) {
-    if (isFounder(i) && !founderMembers.has(i)) {
-      // Check if this person has children — only layout roots
-      const hasChildren = ped.parents.some((pConns) =>
-        pConns.some((p) => p.parentIndex === i),
-      );
-      if (hasChildren) {
-        representatives.add(i);
+    for (const p of ped.parents[i]!) {
+      union(i, p.parentIndex);
+    }
+  }
+
+  // Pick one founder per connected component.
+  // Prefer social parents (in a group or with social-parent/co-parent edges)
+  // over auxiliary-only parents (donors/surrogates).
+  const isAuxiliaryOnly = (idx: number) =>
+    ped.parents.every((pConns) =>
+      pConns
+        .filter((p) => p.parentIndex === idx)
+        .every((p) => p.edgeType === 'donor' || p.edgeType === 'surrogate'),
+    );
+
+  const componentFounder = new Map<number, number>();
+  for (let i = 0; i < n; i++) {
+    if (!isFounder(i)) continue;
+    // Only include founders who have children or are in a group
+    const hasChildren = ped.parents.some((pConns) =>
+      pConns.some((p) => p.parentIndex === i),
+    );
+    const inGroup = grouplist.some((entry) => {
+      const members = entry.slice(0, entry.length - 2);
+      return members.includes(i);
+    });
+    if (!hasChildren && !inGroup) continue;
+
+    const comp = find(i);
+    const existing = componentFounder.get(comp);
+    if (existing === undefined) {
+      componentFounder.set(comp, i);
+    } else {
+      // Prefer social parents over auxiliary-only parents
+      const existingAux = isAuxiliaryOnly(existing);
+      const candidateAux = isAuxiliaryOnly(i);
+      if (existingAux && !candidateAux) {
+        componentFounder.set(comp, i);
+      } else if (existingAux === candidateAux) {
+        if ((horder[i] ?? 0) < (horder[existing] ?? 0)) {
+          componentFounder.set(comp, i);
+        }
       }
     }
   }
 
-  const founders = [...representatives].sort(
+  const founders = [...componentFounder.values()].sort(
     (a, b) => (horder[a] ?? 0) - (horder[b] ?? 0),
   );
 
@@ -173,7 +232,7 @@ export function alignPedigree(
     grouplist,
   );
 
-  // Merge remaining founders
+  // Merge remaining founders (disconnected components only)
   if (founders.length > 1) {
     grouplist = rval.grouplist;
     for (let i = 1; i < founders.length; i++) {
@@ -190,12 +249,290 @@ export function alignPedigree(
     }
   }
 
+  // Discover missing ancestors and their descendants. alignped1 only traverses
+  // downward, so when a group member (e.g., "mother") is discovered via her
+  // partner, mother's parents and their other children are not discovered.
+  //
+  // We call alignped1 for each missing founder to get their full subtree,
+  // then splice new (unplaced) entries directly into the main layout.
+  // This avoids alignped3's boundary-only overlap limitation.
+  const collectPlaced = () => {
+    const s = new Set<number>();
+    for (let lev2 = 0; lev2 < rval.nid.length; lev2++) {
+      for (let col = 0; col < (rval.n[lev2] ?? 0); col++) {
+        const pid = Math.floor(rval.nid[lev2]![col]!);
+        if (pid >= 0) s.add(pid);
+      }
+    }
+    return s;
+  };
+
+  for (let pass = 0; pass < n; pass++) {
+    const placedIds = collectPlaced();
+    const unplacedFounder = (() => {
+      for (let i = 0; i < n; i++) {
+        if (placedIds.has(i)) continue;
+        if (!isFounder(i)) continue;
+        // Skip auxiliary-only parents — handled in a dedicated pass later
+        if (isAuxiliaryOnly(i)) continue;
+        const hasPlacedChild = ped.parents.some(
+          (pConns, ci) =>
+            placedIds.has(ci) && pConns.some((p) => p.parentIndex === i),
+        );
+        if (hasPlacedChild) return i;
+      }
+      return -1;
+    })();
+
+    if (unplacedFounder < 0) break;
+
+    // Get the full subtree for this founder
+    const sub = alignped1(
+      unplacedFounder,
+      ped.parents,
+      level,
+      horder,
+      packed,
+      rval.grouplist,
+    );
+
+    // Splice new entries from the subtree into the main layout.
+    // For each level, find entries in sub that aren't already in rval,
+    // and insert them next to an already-placed neighbor.
+    const maxlev = rval.nid.length;
+
+    for (let lev2 = 0; lev2 < maxlev; lev2++) {
+      const subN = sub.n[lev2] ?? 0;
+      if (subN === 0) continue;
+
+      // Collect new entries from the subtree
+      const newEntries: {
+        nid: number;
+        pos: number;
+        fam: number;
+        subCol: number;
+      }[] = [];
+      let anchorSubCol = -1;
+      let anchorMainCol = -1;
+
+      for (let col = 0; col < subN; col++) {
+        const pid = Math.floor(sub.nid[lev2]![col]!);
+        if (pid < 0) continue;
+        if (placedIds.has(pid)) {
+          // This person is already in the main layout — use as anchor
+          if (anchorSubCol < 0) {
+            anchorSubCol = col;
+            // Find their column in the main layout
+            const mainN = rval.n[lev2] ?? 0;
+            for (let mc = 0; mc < mainN; mc++) {
+              if (Math.floor(rval.nid[lev2]![mc]!) === pid) {
+                anchorMainCol = mc;
+                break;
+              }
+            }
+          }
+        } else {
+          newEntries.push({
+            nid: sub.nid[lev2]![col]!,
+            pos: sub.pos[lev2]![col]!,
+            fam: sub.fam[lev2]![col]!,
+            subCol: col,
+          });
+        }
+      }
+
+      if (newEntries.length === 0) continue;
+
+      const mainN = rval.n[lev2] ?? 0;
+      // Determine insertion point: after the anchor if found,
+      // otherwise append at the end
+      const insertAt = anchorMainCol >= 0 ? anchorMainCol + 1 : mainN;
+
+      // Ensure arrays are large enough
+      const newTotal = mainN + newEntries.length;
+      while (rval.nid[lev2]!.length < newTotal) {
+        rval.nid[lev2]!.push(0);
+        rval.pos[lev2]!.push(0);
+        rval.fam[lev2]!.push(0);
+      }
+
+      // Shift existing entries after insertAt to make room
+      for (let mc = mainN - 1; mc >= insertAt; mc--) {
+        rval.nid[lev2]![mc + newEntries.length] = rval.nid[lev2]![mc]!;
+        rval.pos[lev2]![mc + newEntries.length] = rval.pos[lev2]![mc]!;
+        rval.fam[lev2]![mc + newEntries.length] = rval.fam[lev2]![mc]!;
+      }
+
+      // Insert new entries, positioning relative to anchor or end
+      const basePos = insertAt > 0 ? rval.pos[lev2]![insertAt - 1]! + 1 : 0;
+      for (let k = 0; k < newEntries.length; k++) {
+        const col = insertAt + k;
+        rval.nid[lev2]![col] = newEntries[k]!.nid;
+        rval.pos[lev2]![col] = basePos + k;
+        rval.fam[lev2]![col] = 0; // Will be set below
+      }
+
+      rval.n[lev2] = newTotal;
+
+      // First, shift existing fam pointers on levels below that reference
+      // columns shifted by this insertion (must happen BEFORE setting new
+      // fam pointers to avoid double-shifting).
+      for (let belowLev = lev2 + 1; belowLev < maxlev; belowLev++) {
+        const belowN = rval.n[belowLev] ?? 0;
+        for (let cc = 0; cc < belowN; cc++) {
+          const famVal = rval.fam[belowLev]![cc]!;
+          // fam is 1-based column in (belowLev - 1). If the insertion
+          // was at belowLev's parent level (lev2 == belowLev - 1),
+          // shift fam pointers that reference columns >= insertAt.
+          if (lev2 === belowLev - 1 && famVal > insertAt) {
+            rval.fam[belowLev]![cc] = famVal + newEntries.length;
+          }
+        }
+      }
+
+      // Then, set fam pointers for children of the new founders.
+      // fam is a 1-based column index into the parent level pointing to
+      // the left member of the parent group.
+      if (lev2 < maxlev - 1) {
+        const childLev = lev2 + 1;
+        const childN = rval.n[childLev] ?? 0;
+        const newPersonIds = newEntries.map((e) => Math.floor(e.nid));
+        for (let cc = 0; cc < childN; cc++) {
+          const childPid = Math.floor(rval.nid[childLev]![cc]!);
+          if (childPid < 0) continue;
+          const childParents = ped.parents[childPid];
+          if (!childParents) continue;
+          const hasNewParent = childParents.some((p) =>
+            newPersonIds.includes(p.parentIndex),
+          );
+          if (hasNewParent && rval.fam[childLev]![cc] === 0) {
+            rval.fam[childLev]![cc] = insertAt + 1; // 1-based
+          }
+        }
+      }
+    }
+
+    // Ensure all row arrays have the same width
+    const maxWidth = Math.max(...rval.n);
+    for (let lev2 = 0; lev2 < maxlev; lev2++) {
+      while (rval.nid[lev2]!.length < maxWidth) {
+        rval.nid[lev2]!.push(0);
+        rval.pos[lev2]!.push(0);
+        rval.fam[lev2]!.push(0);
+      }
+    }
+  }
+
+  // Place unplaced auxiliary parents (donors/surrogates) adjacent to the
+  // social parent group of their shared children.
+  {
+    const placedIds = collectPlaced();
+    const maxlev = rval.nid.length;
+
+    for (let i = 0; i < n; i++) {
+      if (placedIds.has(i)) continue;
+
+      // Check if this person is an auxiliary parent of any placed child
+      let childIdx = -1;
+      for (let ci = 0; ci < n; ci++) {
+        const pConns = ped.parents[ci]!;
+        if (!placedIds.has(ci)) continue;
+        const auxConn = pConns.find(
+          (p) =>
+            p.parentIndex === i &&
+            (p.edgeType === 'donor' || p.edgeType === 'surrogate'),
+        );
+        if (auxConn) {
+          childIdx = ci;
+          break;
+        }
+      }
+      if (childIdx < 0) continue;
+
+      // Find the social parents of this child in the layout
+      const socialParentIndices = ped.parents[childIdx]!.filter(
+        (p) => p.edgeType === 'social-parent' || p.edgeType === 'co-parent',
+      ).map((p) => p.parentIndex);
+
+      const lev2 = level[i]!;
+      if (lev2 < 0 || lev2 >= maxlev) continue;
+      const mainN = rval.n[lev2] ?? 0;
+
+      // Find the rightmost social parent column on this level
+      let insertAfter = -1;
+      for (let col = 0; col < mainN; col++) {
+        const pid = Math.floor(rval.nid[lev2]![col]!);
+        if (socialParentIndices.includes(pid)) {
+          insertAfter = col;
+        }
+      }
+
+      // Insert after the social parent group (or at end if not found)
+      const insertAt = insertAfter >= 0 ? insertAfter + 1 : mainN;
+      const newTotal = mainN + 1;
+
+      while (rval.nid[lev2]!.length < newTotal) {
+        rval.nid[lev2]!.push(0);
+        rval.pos[lev2]!.push(0);
+        rval.fam[lev2]!.push(0);
+      }
+
+      // Shift existing entries after insertAt
+      for (let mc = mainN - 1; mc >= insertAt; mc--) {
+        rval.nid[lev2]![mc + 1] = rval.nid[lev2]![mc]!;
+        rval.pos[lev2]![mc + 1] = rval.pos[lev2]![mc]!;
+        rval.fam[lev2]![mc + 1] = rval.fam[lev2]![mc]!;
+      }
+
+      // Position with spacing after the previous column
+      const basePos = insertAt > 0 ? rval.pos[lev2]![insertAt - 1]! + 1 : 0;
+      rval.nid[lev2]![insertAt] = i;
+      rval.pos[lev2]![insertAt] = basePos;
+      rval.fam[lev2]![insertAt] = 0;
+      rval.n[lev2] = newTotal;
+
+      // Shift fam pointers on levels below
+      for (let belowLev = lev2 + 1; belowLev < maxlev; belowLev++) {
+        const belowN = rval.n[belowLev] ?? 0;
+        for (let cc = 0; cc < belowN; cc++) {
+          const famVal = rval.fam[belowLev]![cc]!;
+          if (lev2 === belowLev - 1 && famVal > insertAt) {
+            rval.fam[belowLev]![cc] = famVal + 1;
+          }
+        }
+      }
+
+      placedIds.add(i);
+    }
+
+    // Ensure all row arrays have the same width
+    const maxWidth = Math.max(...rval.n);
+    for (let lev2 = 0; lev2 < maxlev; lev2++) {
+      while (rval.nid[lev2]!.length < maxWidth) {
+        rval.nid[lev2]!.push(0);
+        rval.pos[lev2]!.push(0);
+        rval.fam[lev2]!.push(0);
+      }
+    }
+  }
+
   // Unhash: separate nid and group from .5 encoding
   const maxdepth = rval.nid.length;
   const nid: number[][] = rval.nid.map((row) => row.map((v) => Math.floor(v)));
-  const groupMat: number[][] = rval.nid.map((row) =>
-    row.map((v) => (v !== Math.floor(v) ? 1 : 0)),
-  );
+  const groupMat: number[][] = rval.nid.map((row) => {
+    const g = new Array<number>(row.length).fill(0);
+    for (let j = 0; j < row.length; j++) {
+      if (row[j] !== Math.floor(row[j]!)) {
+        // .5 member: place group line to the left (or right if first column)
+        if (j > 0) {
+          g[j - 1] = 1;
+        } else {
+          g[j] = 1;
+        }
+      }
+    }
+    return g;
+  });
 
   // Detect consanguinity: group pairs with common ancestors get group=2
   for (let i = 0; i < maxdepth; i++) {

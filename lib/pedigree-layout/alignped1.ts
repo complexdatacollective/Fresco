@@ -189,17 +189,20 @@ export function alignped1(
     let rval: AlignmentArrays | null = null;
     const orderedMembers = [...lMembers, ...rMembers];
 
+    const assignedChildren = new Set<number>();
     for (let i = 0; i < orderedMembers.length; i++) {
       const member = orderedMembers[i]!;
       // Find children whose parents include both x and this member
       const children: number[] = [];
       for (let j = 0; j < parents.length; j++) {
+        if (assignedChildren.has(j)) continue;
         const pConns = parents[j]!;
         if (pConns.length === 0) continue;
         const hasX = pConns.some((p) => p.parentIndex === x);
         const hasMember = pConns.some((p) => p.parentIndex === member);
         if (hasX && hasMember) {
           children.push(j);
+          assignedChildren.add(j);
         }
       }
 
