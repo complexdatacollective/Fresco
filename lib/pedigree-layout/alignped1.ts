@@ -84,7 +84,52 @@ export function alignped1(
 
     if (nMembers === 0) {
       nid[lev]![0] = x;
-      return { nid, pos, fam: famMat, n, grouplist };
+
+      // Check for children of this single parent (no group members)
+      const singleChildren: number[] = [];
+      for (let j = 0; j < parents.length; j++) {
+        const pConns = parents[j]!;
+        if (pConns.length === 0) continue;
+        if (pConns.some((p) => p.parentIndex === x)) {
+          singleChildren.push(j);
+        }
+      }
+
+      if (singleChildren.length === 0) {
+        return { nid, pos, fam: famMat, n, grouplist };
+      }
+
+      // Layout children
+      const rval1 = alignped2(
+        singleChildren,
+        parents,
+        level,
+        horder,
+        packed,
+        grouplist,
+      );
+      grouplist = rval1.grouplist;
+
+      // Set parentage
+      const nextLev = lev + 1;
+      if (nextLev < maxlev) {
+        const tempRow = rval1.nid[nextLev]!;
+        for (let j = 0; j < tempRow.length; j++) {
+          const floorVal = Math.floor(tempRow[j]!);
+          if (singleChildren.includes(floorVal)) {
+            rval1.fam[nextLev]![j] = 1;
+          }
+        }
+      }
+
+      // Splice parent into children result
+      if (rval1.nid[0]!.length >= 1) {
+        rval1.n[lev] = 1;
+        rval1.nid[lev]![0] = x;
+        rval1.pos[lev]![0] = 0;
+      }
+      rval1.grouplist = grouplist;
+      return rval1;
     }
 
     // Separate left and right members using anchor columns
@@ -255,11 +300,56 @@ export function alignped1(
     return rval!;
   }
 
-  // No grouplist at all — single person, no group members
+  // No grouplist — check for single-parent children
   const nid: number[][] = Array.from({ length: maxlev }, () => [0]);
   const famMat: number[][] = Array.from({ length: maxlev }, () => [0]);
   const pos: number[][] = Array.from({ length: maxlev }, () => [0]);
   n[lev] = 1;
   nid[lev]![0] = x;
-  return { nid, pos, fam: famMat, n, grouplist };
+
+  // Check for children of this single parent
+  const singleChildren: number[] = [];
+  for (let j = 0; j < parents.length; j++) {
+    const pConns = parents[j]!;
+    if (pConns.length === 0) continue;
+    if (pConns.some((p) => p.parentIndex === x)) {
+      singleChildren.push(j);
+    }
+  }
+
+  if (singleChildren.length === 0) {
+    return { nid, pos, fam: famMat, n, grouplist };
+  }
+
+  // Layout children
+  const rval1 = alignped2(
+    singleChildren,
+    parents,
+    level,
+    horder,
+    packed,
+    grouplist,
+  );
+  grouplist = rval1.grouplist;
+
+  // Set parentage
+  const nextLev = lev + 1;
+  if (nextLev < maxlev) {
+    const tempRow = rval1.nid[nextLev]!;
+    for (let j = 0; j < tempRow.length; j++) {
+      const floorVal = Math.floor(tempRow[j]!);
+      if (singleChildren.includes(floorVal)) {
+        rval1.fam[nextLev]![j] = 1;
+      }
+    }
+  }
+
+  // Splice parent into children result
+  if (rval1.nid[0]!.length >= 1) {
+    rval1.n[lev] = 1;
+    rval1.nid[lev]![0] = x;
+    rval1.pos[lev]![0] = 0;
+  }
+  rval1.grouplist = grouplist;
+  return rval1;
 }
