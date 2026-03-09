@@ -97,6 +97,7 @@ export type ArcPath = {
 export type ParentGroupConnector = {
   type: 'parent-group';
   segment: LineSegment;
+  partner: boolean; // true = double parallel lines (partners), false = single bar (co-parents)
   double: boolean; // consanguineous
   doubleSegment?: LineSegment;
 };
@@ -112,7 +113,7 @@ export type ParentChildConnector = {
 export type AuxiliaryConnector = {
   type: 'auxiliary';
   edgeType: 'donor' | 'surrogate' | 'bio-parent';
-  segments: LineSegment[];
+  segment: LineSegment;
 };
 
 export type TwinIndicator = {

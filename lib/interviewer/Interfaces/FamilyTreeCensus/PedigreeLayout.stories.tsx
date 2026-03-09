@@ -243,24 +243,41 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'Blended Family': buildNetwork(
     [
-      { id: 'parentA', label: fakeName('male'), sex: 'male' },
-      { id: 'exPartner', label: fakeName('female'), sex: 'female' },
-      { id: 'newPartner', label: fakeName('female'), sex: 'female' },
+      // Custodial parent and step-parent (social parents)
+      { id: 'custodialMom', label: fakeName('female'), sex: 'female' },
+      { id: 'stepDad', label: fakeName('male'), sex: 'male' },
+      // Non-custodial bio-parent (auxiliary)
+      { id: 'bioDad', label: 'Bio Father', sex: 'male' },
+      // Children
       {
-        id: 'child1st',
+        id: 'child1',
         label: fakeName('female'),
         sex: 'female',
         isEgo: true,
       },
-      { id: 'child2nd', label: fakeName('male'), sex: 'male' },
+      { id: 'child2', label: fakeName('male'), sex: 'male' },
+      // Step-parent's child from previous relationship
+      { id: 'stepChild', label: fakeName('male'), sex: 'male' },
+      { id: 'exPartner', label: fakeName('female'), sex: 'female' },
     ],
     [
-      { source: 'parentA', target: 'exPartner', relationship: 'partner' },
-      { source: 'parentA', target: 'newPartner', relationship: 'partner' },
-      { source: 'parentA', target: 'child1st', relationship: 'parent' },
-      { source: 'exPartner', target: 'child1st', relationship: 'parent' },
-      { source: 'parentA', target: 'child2nd', relationship: 'parent' },
-      { source: 'newPartner', target: 'child2nd', relationship: 'parent' },
+      // Custodial parents (social parents to child1 and child2)
+      {
+        source: 'custodialMom',
+        target: 'stepDad',
+        relationship: 'partner',
+      },
+      { source: 'custodialMom', target: 'child1', relationship: 'parent' },
+      { source: 'stepDad', target: 'child1', relationship: 'parent' },
+      { source: 'custodialMom', target: 'child2', relationship: 'parent' },
+      { source: 'stepDad', target: 'child2', relationship: 'parent' },
+      // Bio-parent (auxiliary dashed connector)
+      { source: 'bioDad', target: 'child1', relationship: 'bio-parent' },
+      { source: 'bioDad', target: 'child2', relationship: 'bio-parent' },
+      // Step-parent's previous relationship
+      { source: 'stepDad', target: 'exPartner', relationship: 'partner' },
+      { source: 'stepDad', target: 'stepChild', relationship: 'parent' },
+      { source: 'exPartner', target: 'stepChild', relationship: 'parent' },
     ],
   ),
   'Non-Binary Parent': buildNetwork(

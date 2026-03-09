@@ -147,3 +147,22 @@ export const singleParent: PedigreeInput = {
   gender: ['woman', 'man'],
   parents: [[], [sp(0)]],
 };
+
+/**
+ * Blended family with bio-parent: custodial parents + non-custodial bio-parent
+ */
+export const blendedFamily: PedigreeInput = {
+  id: ['custodialMom', 'stepDad', 'bioDad', 'child'],
+  sex: ['female', 'male', 'male', 'female'],
+  gender: ['woman', 'man', 'man', 'woman'],
+  parents: [
+    [],
+    [],
+    [],
+    [
+      { parentIndex: 0, edgeType: 'social-parent' },
+      { parentIndex: 1, edgeType: 'social-parent' },
+      { parentIndex: 2, edgeType: 'bio-parent' },
+    ],
+  ],
+};

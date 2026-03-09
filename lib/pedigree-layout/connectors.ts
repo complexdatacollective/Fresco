@@ -8,6 +8,7 @@ import {
   type PedigreeConnectors,
   type PedigreeLayout,
   type Point,
+  type Relation,
   type ScalingParams,
   type TwinIndicator,
 } from '~/lib/pedigree-layout/types';
@@ -20,6 +21,7 @@ import {
  * @param layout - pedigree layout (positions, families, groups, twins)
  * @param scaling - box sizing and scale factors
  * @param parents - parent connections for edge type info
+ * @param relations - relation array (partner=code 4) for group line styling
  * @param branch - branch style for parent-child links (0=diagonal, >0=right-angle). Default 0.6
  * @param pconnect - where parent link meets sibling bar (0-1). Default 0.5
  */
@@ -29,6 +31,7 @@ export function computeConnectors(
   parents: ParentConnection[][],
   branch = 0.6,
   pconnect = 0.5,
+  relations: Relation[] = [],
 ): PedigreeConnectors {
   const { boxHeight: boxh, legHeight: legh } = scaling;
   const maxlev = layout.nid.length;
@@ -39,6 +42,16 @@ export function computeConnectors(
   const auxiliaryLines: AuxiliaryConnector[] = [];
   const twinIndicators: TwinIndicator[] = [];
   const duplicateArcs: DuplicateArc[] = [];
+
+  // Build partner pair lookup from relations (code 4 = partner)
+  const partnerPairs = new Set<string>();
+  for (const rel of relations) {
+    if (rel.code === 4) {
+      partnerPairs.add(
+        `${Math.min(rel.id1, rel.id2)},${Math.max(rel.id1, rel.id2)}`,
+      );
+    }
+  }
 
   // --- Parent group lines (replaces spouse lines) ---
   for (let i = 0; i < maxlev; i++) {
@@ -56,9 +69,17 @@ export function computeConnectors(
         };
 
         const isDouble = layout.group[i]![j] === 2;
+
+        // Check if these two adjacent members are partners
+        const leftId = layout.nid[i]![j]!;
+        const rightId = layout.nid[i]![j + 1]!;
+        const pairKey = `${Math.min(leftId, rightId)},${Math.max(leftId, rightId)}`;
+        const isPartner = partnerPairs.has(pairKey);
+
         const connector: ParentGroupConnector = {
           type: 'parent-group',
           segment,
+          partner: isPartner,
           double: isDouble,
         };
 
@@ -310,15 +331,13 @@ export function computeConnectors(
                 auxiliaryLines.push({
                   type: 'auxiliary',
                   edgeType: pc.edgeType,
-                  segments: [
-                    {
-                      type: 'line',
-                      x1: parentX,
-                      y1: parentY,
-                      x2: childX,
-                      y2: childY,
-                    },
-                  ],
+                  segment: {
+                    type: 'line',
+                    x1: parentX,
+                    y1: parentY,
+                    x2: childX,
+                    y2: childY,
+                  },
                 });
               }
             }

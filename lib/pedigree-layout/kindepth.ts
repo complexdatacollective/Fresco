@@ -18,7 +18,7 @@ export function kindepth(
   if (n === 1) return [0];
 
   // Founders: people with no parents
-  let currentLevel: number[] = [];
+  const currentLevel: number[] = [];
   for (let i = 0; i < n; i++) {
     if (parents[i]!.length === 0) {
       currentLevel.push(i);

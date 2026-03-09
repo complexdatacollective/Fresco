@@ -7,6 +7,7 @@ import {
   type ScalingParams,
 } from '~/lib/pedigree-layout/types';
 import {
+  blendedFamily,
   multipleMarriages,
   nuclearFamily,
   sameSeParents,
@@ -202,9 +203,39 @@ describe('alignPedigree', () => {
     // gfA(0), gmA(1) -> momA(2); momA(2) + momB(3) -> ego(5), sibling(6); donor(4) for ego+sibling
     // ego(5) + egoPartner(7) -> grandchild(8)
     const ped: PedigreeInput = {
-      id: ['gfA', 'gmA', 'momA', 'momB', 'donor', 'ego', 'sibling', 'egoPartner', 'grandchild'],
-      sex: ['male', 'female', 'female', 'female', 'male', 'female', 'male', 'male', 'female'],
-      gender: ['man', 'woman', 'woman', 'woman', 'man', 'woman', 'man', 'man', 'woman'],
+      id: [
+        'gfA',
+        'gmA',
+        'momA',
+        'momB',
+        'donor',
+        'ego',
+        'sibling',
+        'egoPartner',
+        'grandchild',
+      ],
+      sex: [
+        'male',
+        'female',
+        'female',
+        'female',
+        'male',
+        'female',
+        'male',
+        'male',
+        'female',
+      ],
+      gender: [
+        'man',
+        'woman',
+        'woman',
+        'woman',
+        'man',
+        'woman',
+        'man',
+        'man',
+        'woman',
+      ],
       parents: [
         [], // gfA
         [], // gmA
@@ -243,6 +274,21 @@ describe('alignPedigree', () => {
     expect(rowOf.get(0)).toBeLessThan(rowOf.get(2)!);
     // grandchild should be on a lower row than ego
     expect(rowOf.get(8)).toBeGreaterThan(rowOf.get(5)!);
+  });
+
+  it('places bio-parent on same row as social parents', () => {
+    const result = alignPedigree(blendedFamily, {
+      hints: { order: [1, 2, 3, 4] },
+    });
+    const rowOf = new Map<number, number>();
+    for (let lev = 0; lev < result.n.length; lev++) {
+      for (let col = 0; col < (result.n[lev] ?? 0); col++) {
+        const pid = result.nid[lev]![col]!;
+        if (pid >= 0) rowOf.set(pid, lev);
+      }
+    }
+    // Bio-parent (2) should be on same row as social parents (0, 1)
+    expect(rowOf.get(2)).toBe(rowOf.get(0));
   });
 });
 
