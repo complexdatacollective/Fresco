@@ -336,3 +336,46 @@ describe('syncMetadata', () => {
     expect(dispatched.length).toBe(1);
   });
 });
+
+describe('integration: full flow', () => {
+  it('quick-start → add donor → edit name → sync', () => {
+    const dispatched: unknown[] = [];
+    const mockDispatch = ((action: unknown) => {
+      dispatched.push(action);
+      return action;
+    }) as ReturnType<typeof useAppDispatch>;
+
+    const store = createFamilyTreeStore(new Map(), new Map(), mockDispatch);
+
+    store.getState().generateQuickStartNetwork({
+      parentCount: 2,
+      siblingCount: 0,
+      hasPartner: false,
+      childrenWithPartnerCount: 0,
+      soloChildrenCount: 0,
+    });
+    expect(store.getState().network.nodes.size).toBe(3);
+
+    const egoEntry = [...store.getState().network.nodes.entries()].find(
+      ([_, n]) => n.isEgo,
+    )!;
+    const egoId = egoEntry[0];
+
+    const donorId = store.getState().addNode({ label: '', isEgo: false });
+    store.getState().addEdge({
+      source: donorId,
+      target: egoId,
+      type: 'parent',
+      edgeType: 'donor',
+    });
+    expect(store.getState().network.nodes.size).toBe(4);
+
+    store.getState().updateNode(donorId, { label: 'Sperm Donor' });
+    expect(store.getState().network.nodes.get(donorId)?.label).toBe(
+      'Sperm Donor',
+    );
+
+    store.getState().syncMetadata();
+    expect(dispatched.length).toBe(1);
+  });
+});
