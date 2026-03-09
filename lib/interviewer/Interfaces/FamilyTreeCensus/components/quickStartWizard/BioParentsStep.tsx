@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
 import ToggleField from '~/lib/form/components/fields/ToggleField';
+import PersonFields from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/PersonFields';
 import {
   type BioParentDetail,
   type ParentDetail,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
-import PersonFields from './PersonFields';
 
 export default function BioParentsStep() {
   const { data, setStepData } = useWizard();
@@ -42,6 +42,16 @@ export default function BioParentsStep() {
       prev.map((p, i) => (i === index ? { ...p, ...updates } : p)),
     );
   };
+
+  if (bioParentCount >= 2) {
+    return (
+      <div className="flex flex-col gap-3 pt-4">
+        <p className="text-muted-foreground text-sm">
+          All biological parents already identified. Click Continue to proceed.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6 pt-4">

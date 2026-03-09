@@ -4,10 +4,9 @@ import { useEffect, useState } from 'react';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
 import NumberCounterField from '~/lib/form/components/fields/NumberCounterField';
-import { STEP_INDICES } from './stepIndices';
 
 export default function ParentsCountStep() {
-  const { data, setStepData, setBeforeNext, goToStep } = useWizard();
+  const { data, setStepData } = useWizard();
   const [count, setCount] = useState(
     (data.parentCount as number | undefined) ?? 2,
   );
@@ -15,16 +14,6 @@ export default function ParentsCountStep() {
   useEffect(() => {
     setStepData({ parentCount: count });
   }, [count, setStepData]);
-
-  useEffect(() => {
-    setBeforeNext(() => {
-      if (count === 0) {
-        goToStep(STEP_INDICES.BIO_PARENTS);
-        return false;
-      }
-      return true;
-    });
-  }, [count, setBeforeNext, goToStep]);
 
   return (
     <div className="flex flex-col gap-3 pt-4">

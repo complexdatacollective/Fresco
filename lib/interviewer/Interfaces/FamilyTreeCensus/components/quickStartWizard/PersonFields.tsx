@@ -4,7 +4,12 @@ import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
 import InputField from '~/lib/form/components/fields/InputField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import { type Gender, type Sex } from '~/lib/pedigree-layout/types';
-import { GENDER_OPTIONS, SEX_OPTIONS, isGender, isSex } from './fieldOptions';
+import {
+  GENDER_OPTIONS,
+  SEX_OPTIONS,
+  isGender,
+  isSex,
+} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/fieldOptions';
 
 type PersonFieldsProps = {
   index: number;

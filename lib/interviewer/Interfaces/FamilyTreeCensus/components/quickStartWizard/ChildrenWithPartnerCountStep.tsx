@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
 import NumberCounterField from '~/lib/form/components/fields/NumberCounterField';
-import { STEP_INDICES } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/stepIndices';
 
 export default function ChildrenWithPartnerCountStep() {
-  const { data, setStepData, setBeforeNext, goToStep } = useWizard();
+  const { data, setStepData } = useWizard();
+  const hasPartner = (data.hasPartner as boolean | undefined) ?? false;
   const [count, setCount] = useState(
     (data.childrenWithPartnerCount as number | undefined) ?? 0,
   );
@@ -16,15 +16,15 @@ export default function ChildrenWithPartnerCountStep() {
     setStepData({ childrenWithPartnerCount: count });
   }, [count, setStepData]);
 
-  useEffect(() => {
-    setBeforeNext(() => {
-      if (count === 0) {
-        goToStep(STEP_INDICES.OTHER_CHILDREN_COUNT);
-        return false;
-      }
-      return true;
-    });
-  }, [count, setBeforeNext, goToStep]);
+  if (!hasPartner) {
+    return (
+      <div className="flex flex-col gap-3 pt-4">
+        <p className="text-muted-foreground text-sm">
+          No partner selected. Click Continue to proceed.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-3 pt-4">

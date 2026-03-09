@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useWizard } from '~/lib/dialogs/useWizard';
-import { type PersonDetail } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/PersonFields';
+import { type PersonDetail } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 
 export default function SiblingsDetailStep() {
   const { data, setStepData } = useWizard();
@@ -28,6 +28,16 @@ export default function SiblingsDetailStep() {
       prev.map((s, i) => (i === index ? { ...s, ...updates } : s)),
     );
   };
+
+  if (siblingCount === 0) {
+    return (
+      <div className="flex flex-col gap-3 pt-4">
+        <p className="text-muted-foreground text-sm">
+          No siblings to add. Click Continue to proceed.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6 pt-4">

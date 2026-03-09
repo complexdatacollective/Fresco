@@ -4,13 +4,15 @@ import { useEffect, useState } from 'react';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
+import {
+  PARENT_EDGE_TYPE_OPTIONS,
+  isParentEdgeType,
+} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/fieldOptions';
+import PersonFields from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/PersonFields';
 import { type ParentDetail } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
-import PersonFields from './PersonFields';
-import { PARENT_EDGE_TYPE_OPTIONS, isParentEdgeType } from './fieldOptions';
-import { STEP_INDICES } from './stepIndices';
 
 export default function ParentsDetailStep() {
-  const { data, setStepData, setBeforeNext, goToStep } = useWizard();
+  const { data, setStepData } = useWizard();
   const parentCount = (data.parentCount as number | undefined) ?? 0;
 
   const [parents, setParents] = useState<ParentDetail[]>(() => {
@@ -28,22 +30,21 @@ export default function ParentsDetailStep() {
     setStepData({ parents });
   }, [parents, setStepData]);
 
-  useEffect(() => {
-    const bioCount = parents.filter((p) => p.edgeType === 'bio-parent').length;
-    setBeforeNext(() => {
-      if (bioCount >= 2) {
-        goToStep(STEP_INDICES.SIBLINGS_COUNT);
-        return false;
-      }
-      return true;
-    });
-  }, [parents, setBeforeNext, goToStep]);
-
   const updateParent = (index: number, updates: Partial<ParentDetail>) => {
     setParents((prev) =>
       prev.map((p, i) => (i === index ? { ...p, ...updates } : p)),
     );
   };
+
+  if (parentCount === 0) {
+    return (
+      <div className="flex flex-col gap-3 pt-4">
+        <p className="text-muted-foreground text-sm">
+          No parents to add. Click Continue to proceed.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6 pt-4">
