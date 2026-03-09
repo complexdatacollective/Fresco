@@ -4,16 +4,15 @@ import { useEffect, useState } from 'react';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
 import ToggleField from '~/lib/form/components/fields/ToggleField';
-import { type Gender, type Sex } from '~/lib/pedigree-layout/types';
-import PersonFields from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/PersonFields';
 import {
-  isSex,
   isGender,
+  isSex,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/fieldOptions';
-import { STEP_INDICES } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/stepIndices';
+import PersonFields from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/PersonFields';
+import { type Gender, type Sex } from '~/lib/pedigree-layout/types';
 
 export default function PartnerStep() {
-  const { data, setStepData, setBeforeNext, goToStep } = useWizard();
+  const { data, setStepData } = useWizard();
   const [hasPartner, setHasPartner] = useState(
     (data.hasPartner as boolean | undefined) ?? false,
   );
@@ -36,16 +35,6 @@ export default function PartnerStep() {
   useEffect(() => {
     setStepData({ hasPartner, partnerName, partnerSex, partnerGender });
   }, [hasPartner, partnerName, partnerSex, partnerGender, setStepData]);
-
-  useEffect(() => {
-    setBeforeNext(() => {
-      if (!hasPartner) {
-        goToStep(STEP_INDICES.OTHER_CHILDREN_COUNT);
-        return false;
-      }
-      return true;
-    });
-  }, [hasPartner, setBeforeNext, goToStep]);
 
   return (
     <div className="flex flex-col gap-6 pt-4">

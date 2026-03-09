@@ -176,11 +176,11 @@ export const createFamilyTreeStore = (
             });
           }
 
-          // Link consecutive parents as partners
-          for (let i = 1; i < parentIds.length; i++) {
+          // Partner the first two parents
+          if (parentIds.length >= 2) {
             get().addEdge({
-              source: parentIds[i - 1]!,
-              target: parentIds[i]!,
+              source: parentIds[0]!,
+              target: parentIds[1]!,
               type: 'partner',
               current: true,
             });
@@ -257,14 +257,14 @@ export const createFamilyTreeStore = (
               source: egoId,
               target: childId,
               type: 'parent',
-              edgeType: 'social-parent',
+              edgeType: 'bio-parent',
             });
             if (partnerId) {
               get().addEdge({
                 source: partnerId,
                 target: childId,
                 type: 'parent',
-                edgeType: 'social-parent',
+                edgeType: 'bio-parent',
               });
             }
           }
@@ -281,7 +281,7 @@ export const createFamilyTreeStore = (
               source: egoId,
               target: childId,
               type: 'parent',
-              edgeType: 'social-parent',
+              edgeType: 'bio-parent',
             });
           }
         },
