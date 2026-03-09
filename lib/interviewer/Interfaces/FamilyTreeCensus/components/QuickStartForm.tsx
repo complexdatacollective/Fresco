@@ -1,83 +1,125 @@
 'use client';
 
+import { Button } from '~/components/ui/Button';
 import Surface from '~/components/layout/Surface';
-import Field from '~/lib/form/components/Field/Field';
-import FieldGroup from '~/lib/form/components/FieldGroup';
-import Form from '~/lib/form/components/Form';
-import SubmitButton from '~/lib/form/components/SubmitButton';
-import NumberCounterField from '~/lib/form/components/fields/NumberCounterField';
-import ToggleField from '~/lib/form/components/fields/ToggleField';
-import { type FieldValue } from '~/lib/form/store/types';
-import { type QuickStartData } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
+import useDialog from '~/lib/dialogs/useDialog';
+import { type Gender, type Sex } from '~/lib/pedigree-layout/types';
+import {
+  type BioParentDetail,
+  type ParentDetail,
+  type PersonDetail,
+  type QuickStartData,
+} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
+import BioParentsStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/BioParentsStep';
+import ChildrenWithPartnerCountStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/ChildrenWithPartnerCountStep';
+import ChildrenWithPartnerDetailStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/ChildrenWithPartnerDetailStep';
+import OtherChildrenCountStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/OtherChildrenCountStep';
+import OtherChildrenDetailStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/OtherChildrenDetailStep';
+import ParentsCountStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/ParentsCountStep';
+import ParentsDetailStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/ParentsDetailStep';
+import PartnerStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/PartnerStep';
+import SiblingsCountStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/SiblingsCountStep';
+import SiblingsDetailStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/SiblingsDetailStep';
 
 type QuickStartFormProps = {
   onSubmit: (data: QuickStartData) => void;
 };
 
 export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
+  const { openDialog } = useDialog();
+
+  const handleClick = async () => {
+    const result = await openDialog({
+      type: 'wizard',
+      title: 'Build your family tree',
+      steps: [
+        {
+          title: 'Parents',
+          description: 'How many parents do you have?',
+          content: ParentsCountStep,
+        },
+        {
+          title: 'Parent details',
+          description: 'Tell us about each parent.',
+          content: ParentsDetailStep,
+        },
+        {
+          title: 'Biological parents',
+          description: 'Information about biological parents for the pedigree.',
+          content: BioParentsStep,
+        },
+        {
+          title: 'Siblings',
+          description: 'How many siblings do you have?',
+          content: SiblingsCountStep,
+        },
+        {
+          title: 'Sibling details',
+          description: 'Tell us about each sibling.',
+          content: SiblingsDetailStep,
+        },
+        {
+          title: 'Partner',
+          description: 'Do you have a partner?',
+          content: PartnerStep,
+        },
+        {
+          title: 'Children with partner',
+          description: 'How many children do you have with your partner?',
+          content: ChildrenWithPartnerCountStep,
+        },
+        {
+          title: 'Children with partner details',
+          description: 'Tell us about each child.',
+          content: ChildrenWithPartnerDetailStep,
+        },
+        {
+          title: 'Other children',
+          description: 'Children from other relationships.',
+          content: OtherChildrenCountStep,
+        },
+        {
+          title: 'Other children details',
+          description: 'Tell us about each child.',
+          content: OtherChildrenDetailStep,
+          nextLabel: 'Get started',
+        },
+      ],
+      onFinish: (data: Record<string, unknown>) => {
+        // Type assertions are acceptable here since we control the wizard
+        // steps and know the exact shape of data they produce
+        const quickStartData: QuickStartData = {
+          parents: (data.parents as ParentDetail[] | undefined) ?? [],
+          bioParents: (data.bioParents as BioParentDetail[] | undefined) ?? [],
+          siblings: (data.siblings as PersonDetail[] | undefined) ?? [],
+          partner: (data.hasPartner as boolean | undefined)
+            ? {
+                hasPartner: true,
+                name:
+                  typeof data.partnerName === 'string' ? data.partnerName : '',
+                sex: data.partnerSex as Sex | undefined,
+                gender: data.partnerGender as Gender | undefined,
+              }
+            : { hasPartner: false },
+          childrenWithPartner:
+            (data.childrenWithPartner as PersonDetail[] | undefined) ?? [],
+          otherChildren:
+            (data.otherChildren as PersonDetail[] | undefined) ?? [],
+        };
+        return quickStartData;
+      },
+    });
+
+    if (result) {
+      onSubmit(result as QuickStartData);
+    }
+  };
+
   return (
     <Surface noContainer maxWidth="md">
-      <Form
-        onSubmit={(values) => {
-          const v = values as Record<string, FieldValue>;
-          onSubmit({
-            parentCount: (v.parentCount as number | undefined) ?? 2,
-            siblingCount: (v.siblingCount as number | undefined) ?? 0,
-            hasPartner: (v.hasPartner as boolean | undefined) ?? false,
-            childrenWithPartnerCount:
-              (v.childrenWithPartnerCount as number | undefined) ?? 0,
-            soloChildrenCount: (v.soloChildrenCount as number | undefined) ?? 0,
-          });
-          return { success: true };
-        }}
-        className="flex flex-col gap-4"
-      >
-        <Field
-          name="parentCount"
-          label="How many parents do you have?"
-          component={NumberCounterField}
-          initialValue={2}
-          minValue={0}
-          maxValue={20}
-        />
-        <Field
-          name="siblingCount"
-          label="How many siblings do you have?"
-          component={NumberCounterField}
-          initialValue={0}
-          minValue={0}
-          maxValue={20}
-        />
-        <Field
-          name="hasPartner"
-          label="Do you have a partner?"
-          component={ToggleField}
-          initialValue={false}
-        />
-        <FieldGroup
-          watch={['hasPartner'] as const}
-          condition={(values) => values.hasPartner === true}
-        >
-          <Field
-            name="childrenWithPartnerCount"
-            label="How many children do you have with your partner?"
-            hint="You can add children from other relationships in the next section."
-            component={NumberCounterField}
-            initialValue={0}
-            minValue={0}
-            maxValue={20}
-          />
-        </FieldGroup>
-        <Field
-          name="soloChildrenCount"
-          label="How many children do you have from other relationships (not with your current partner)?"
-          component={NumberCounterField}
-          initialValue={0}
-          minValue={0}
-          maxValue={20}
-        />
-        <SubmitButton>Get started</SubmitButton>
-      </Form>
+      <Button color="primary" onClick={() => void handleClick()}>
+        Get started
+      </Button>
     </Surface>
   );
 }
