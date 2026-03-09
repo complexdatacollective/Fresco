@@ -54,11 +54,40 @@ export default function useWizardState({
 
   const beforeNextRef = useRef<BeforeNextHandler | null>(null);
   const prevStepRef = useRef(stepIndex);
+  const dataRef = useRef(data);
+  dataRef.current = data;
 
   const currentStep = dialog.steps[stepIndex];
-  const isFirstStep = stepIndex === 0;
-  const isLastStep = stepIndex === dialog.steps.length - 1;
   const totalSteps = dialog.steps.length;
+
+  const findNextUnskipped = useCallback(
+    (from: number, dir: 'forward' | 'backward'): number | null => {
+      const delta = dir === 'forward' ? 1 : -1;
+      let candidate = from + delta;
+      while (candidate >= 0 && candidate < totalSteps) {
+        const step = dialog.steps[candidate];
+        if (!step?.skip?.(dataRef.current)) return candidate;
+        candidate += delta;
+      }
+      return null;
+    },
+    [dialog.steps, totalSteps],
+  );
+
+  const activeStepCount = useMemo(() => {
+    return dialog.steps.filter((s) => !s.skip?.(data)).length;
+  }, [dialog.steps, data]);
+
+  const activeStepIndex = useMemo(() => {
+    let idx = 0;
+    for (let i = 0; i < stepIndex; i++) {
+      if (!dialog.steps[i]?.skip?.(data)) idx++;
+    }
+    return idx;
+  }, [dialog.steps, data, stepIndex]);
+
+  const isFirstActive = findNextUnskipped(-1, 'forward') === stepIndex;
+  const isLastActive = findNextUnskipped(totalSteps, 'backward') === stepIndex;
 
   const resetStepOverrides = useCallback(() => {
     setNextEnabled(true);
@@ -94,17 +123,29 @@ export default function useWizardState({
       }
     }
 
-    if (isLastStep) {
+    if (isLastActive) {
       const result = dialog.onFinish ? dialog.onFinish(data) : data;
       await closeDialog(dialogId, result);
       return;
     }
-    goToStep(stepIndex + 1);
-  }, [isLastStep, dialog, data, closeDialog, dialogId, goToStep, stepIndex]);
+
+    const next = findNextUnskipped(stepIndex, 'forward');
+    if (next !== null) goToStep(next);
+  }, [
+    isLastActive,
+    dialog,
+    data,
+    closeDialog,
+    dialogId,
+    goToStep,
+    stepIndex,
+    findNextUnskipped,
+  ]);
 
   const handleBack = useCallback(() => {
-    goToStep(stepIndex - 1);
-  }, [goToStep, stepIndex]);
+    const prev = findNextUnskipped(stepIndex, 'backward');
+    if (prev !== null) goToStep(prev);
+  }, [goToStep, stepIndex, findNextUnskipped]);
 
   const handleCancel = useCallback(() => {
     void closeDialog(dialogId, null);
@@ -141,9 +182,9 @@ export default function useWizardState({
   const nextLabel =
     nextLabelOverride ??
     currentStep.nextLabel ??
-    (isLastStep ? 'Finish' : 'Continue');
+    (isLastActive ? 'Finish' : 'Continue');
 
-  const showBackButton = !isFirstStep;
+  const showBackButton = !isFirstActive;
 
   return {
     title: currentStep.title,
@@ -173,19 +214,23 @@ export default function useWizardState({
         {ProgressComponent ? (
           <div className="flex flex-1 justify-center">
             <ProgressComponent
-              currentStep={stepIndex}
-              totalSteps={totalSteps}
+              currentStep={activeStepIndex}
+              totalSteps={activeStepCount}
             />
           </div>
         ) : (
-          totalSteps > 1 && (
+          activeStepCount > 1 && (
             <div className="flex flex-1 justify-center">
-              <Pips count={totalSteps} currentIndex={stepIndex} small />
+              <Pips
+                count={activeStepCount}
+                currentIndex={activeStepIndex}
+                small
+              />
             </div>
           )
         )}
         {showBackButton && (
-          <Button onClick={handleBack} disabled={isFirstStep || !backEnabled}>
+          <Button onClick={handleBack} disabled={isFirstActive || !backEnabled}>
             {currentStep.backLabel ?? 'Back'}
           </Button>
         )}

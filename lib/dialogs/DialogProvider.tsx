@@ -65,6 +65,7 @@ export type WizardStep = {
   content: React.ComponentType;
   nextLabel?: string;
   backLabel?: string;
+  skip?: (data: Record<string, unknown>) => boolean;
 };
 
 export type WizardDialog = BaseDialog & {
