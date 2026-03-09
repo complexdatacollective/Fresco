@@ -65,7 +65,9 @@ export function kindepth(
 
   for (let i = 0; i < n; i++) {
     if (parents[i]!.length < 2) continue;
-    const memberIndices = parents[i]!.map((p) => p.parentIndex).sort((a, b) => a - b);
+    const memberIndices = parents[i]!.map((p) => p.parentIndex).sort(
+      (a, b) => a - b,
+    );
     const key = memberIndices.join(',');
     if (!groupSet.has(key)) {
       groupSet.add(key);

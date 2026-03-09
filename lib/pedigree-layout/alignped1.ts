@@ -39,8 +39,7 @@ export function alignped1(
         const anchorSide = entry[entry.length - 2]!;
         const anchorType = entry[entry.length - 1]!;
         // Determine if x is the anchor based on anchorSide/anchorType
-        const isAnchor =
-          anchorType === anchorSide || anchorType === 0;
+        const isAnchor = anchorType === anchorSide || anchorType === 0;
         if (isAnchor) {
           for (const m of members) {
             if (m !== x) {
@@ -155,7 +154,7 @@ export function alignped1(
     // Distribute undecided members
     if (undecided.length > 0) {
       const totalLeft = Math.floor(grows.length / 2);
-      let nleft = totalLeft - lMembers.length;
+      const nleft = totalLeft - lMembers.length;
       if (nleft > 0) {
         const take = Math.min(nleft, undecided.length);
         for (let i = 0; i < take; i++) {

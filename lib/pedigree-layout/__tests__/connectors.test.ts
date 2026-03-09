@@ -155,11 +155,7 @@ describe('computeConnectors', () => {
         { parentIndex: 2, edgeType: 'donor' },
       ],
     ];
-    const connectors = computeConnectors(
-      donorLayout,
-      scaling,
-      donorParents,
-    );
+    const connectors = computeConnectors(donorLayout, scaling, donorParents);
     expect(connectors.auxiliaryLines.length).toBe(1);
     expect(connectors.auxiliaryLines[0]!.edgeType).toBe('donor');
   });

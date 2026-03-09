@@ -23,14 +23,7 @@ export function alignped2(
   // Sort siblings by horder
   const sorted = [...x].sort((a, b) => (horder[a] ?? 0) - (horder[b] ?? 0));
 
-  let rval = alignped1(
-    sorted[0]!,
-    parents,
-    level,
-    horder,
-    packed,
-    grouplist,
-  );
+  let rval = alignped1(sorted[0]!, parents, level, horder, packed, grouplist);
   grouplist = rval.grouplist;
 
   if (sorted.length > 1) {

@@ -53,9 +53,7 @@ export function autohint(
   const twinRelations = relation.filter((r) => r.code < 4);
   if (twinRelations.length > 0) {
     twinrel = twinRelations;
-    const twinlist = [
-      ...new Set(twinRelations.flatMap((r) => [r.id1, r.id2])),
-    ];
+    const twinlist = [...new Set(twinRelations.flatMap((r) => [r.id1, r.id2]))];
 
     // Iteratively assign twin set IDs (using min person index as set ID)
     for (let iter = 1; iter < twinlist.length; iter++) {
@@ -156,11 +154,7 @@ export function autohint(
   }
 
   // Helper: find siblings in the same family group
-  function findsibs(
-    mypos: number,
-    pl: PedigreeLayout,
-    lev: number,
-  ): number[] {
+  function findsibs(mypos: number, pl: PedigreeLayout, lev: number): number[] {
     const family = pl.fam[lev]![mypos]!;
     if (family === 0) throw new Error('autohint bug 6');
     const result: number[] = [];
@@ -181,8 +175,7 @@ export function autohint(
   ): number[] {
     if (ts[id]! >= 0) {
       const sibHorders = sibs.map((s) => ho[s]!);
-      const shiftAmt =
-        1 + Math.max(...sibHorders) - Math.min(...sibHorders);
+      const shiftAmt = 1 + Math.max(...sibHorders) - Math.min(...sibHorders);
       const twins = sibs.filter((s) => ts[s] === ts[id]);
 
       for (const t of twins) {
@@ -202,10 +195,8 @@ export function autohint(
             const newIds: number[] = [];
             for (const m of monoset) {
               for (const r of monoRel) {
-                if (r.id1 === m && !monoset.includes(r.id2))
-                  newIds.push(r.id2);
-                if (r.id2 === m && !monoset.includes(r.id1))
-                  newIds.push(r.id1);
+                if (r.id1 === m && !monoset.includes(r.id2)) newIds.push(r.id2);
+                if (r.id2 === m && !monoset.includes(r.id1)) newIds.push(r.id1);
               }
             }
             monoset = [...new Set([...monoset, ...newIds])];
@@ -379,10 +370,8 @@ export function autohint(
 
       // Add group hints based on anchor combination
       const id1 = idlist[pair[0]!]!;
-      const id2 =
-        groupMemberPos[0]! >= 0 ? idlist[groupMemberPos[0]!]! : 0;
-      const id3 =
-        groupMemberPos[1]! >= 0 ? idlist[groupMemberPos[1]!]! : 0;
+      const id2 = groupMemberPos[0]! >= 0 ? idlist[groupMemberPos[0]!]! : 0;
+      const id3 = groupMemberPos[1]! >= 0 ? idlist[groupMemberPos[1]!]! : 0;
       const key = `${anchorType[0]}${anchorType[1]}`;
 
       let temp: GroupHint[] | null = null;
