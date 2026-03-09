@@ -154,30 +154,29 @@ export const createFamilyTreeStore = (
         },
 
         generateQuickStartNetwork: (data) => {
-          const {
-            parentCount,
-            siblingCount,
-            hasPartner,
-            childrenWithPartnerCount,
-            soloChildrenCount,
-          } = data;
-
           get().clearNetwork();
 
           const egoId = get().addNode({ label: '', isEgo: true });
 
+          // Create parent nodes
           const parentIds: string[] = [];
-          for (let i = 0; i < parentCount; i++) {
-            const parentId = get().addNode({ label: '', isEgo: false });
+          for (const parent of data.parents) {
+            const parentId = get().addNode({
+              label: parent.name,
+              sex: parent.sex,
+              gender: parent.gender,
+              isEgo: false,
+            });
             parentIds.push(parentId);
             get().addEdge({
               source: parentId,
               target: egoId,
               type: 'parent',
-              edgeType: 'social-parent',
+              edgeType: parent.edgeType,
             });
           }
 
+          // Link consecutive parents as partners
           for (let i = 1; i < parentIds.length; i++) {
             get().addEdge({
               source: parentIds[i - 1]!,
@@ -187,21 +186,57 @@ export const createFamilyTreeStore = (
             });
           }
 
-          for (let i = 0; i < siblingCount; i++) {
-            const siblingId = get().addNode({ label: '', isEgo: false });
+          // Create bio-parent nodes
+          for (const bp of data.bioParents) {
+            const bpId = get().addNode({
+              label: bp.nameKnown ? bp.name : '',
+              sex: bp.sex,
+              gender: bp.gender,
+              isEgo: false,
+            });
+            get().addEdge({
+              source: bpId,
+              target: egoId,
+              type: 'parent',
+              edgeType: 'bio-parent',
+            });
+          }
+
+          // Create siblings linked to all parents (not bio-parents)
+          for (const sibling of data.siblings) {
+            const siblingId = get().addNode({
+              label: sibling.name,
+              sex: sibling.sex,
+              gender: sibling.gender,
+              isEgo: false,
+            });
             for (const parentId of parentIds) {
-              get().addEdge({
-                source: parentId,
-                target: siblingId,
-                type: 'parent',
-                edgeType: 'social-parent',
-              });
+              const parentEdge = [...get().network.edges.values()].find(
+                (e) =>
+                  e.type === 'parent' &&
+                  e.source === parentId &&
+                  e.target === egoId,
+              );
+              if (parentEdge && parentEdge.type === 'parent') {
+                get().addEdge({
+                  source: parentId,
+                  target: siblingId,
+                  type: 'parent',
+                  edgeType: parentEdge.edgeType,
+                });
+              }
             }
           }
 
+          // Create partner
           let partnerId: string | undefined;
-          if (hasPartner) {
-            partnerId = get().addNode({ label: '', isEgo: false });
+          if (data.partner.hasPartner) {
+            partnerId = get().addNode({
+              label: data.partner.name,
+              sex: data.partner.sex,
+              gender: data.partner.gender,
+              isEgo: false,
+            });
             get().addEdge({
               source: egoId,
               target: partnerId,
@@ -210,8 +245,14 @@ export const createFamilyTreeStore = (
             });
           }
 
-          for (let i = 0; i < childrenWithPartnerCount; i++) {
-            const childId = get().addNode({ label: '', isEgo: false });
+          // Create children with partner
+          for (const child of data.childrenWithPartner) {
+            const childId = get().addNode({
+              label: child.name,
+              sex: child.sex,
+              gender: child.gender,
+              isEgo: false,
+            });
             get().addEdge({
               source: egoId,
               target: childId,
@@ -228,8 +269,14 @@ export const createFamilyTreeStore = (
             }
           }
 
-          for (let i = 0; i < soloChildrenCount; i++) {
-            const childId = get().addNode({ label: '', isEgo: false });
+          // Create other children (ego only)
+          for (const child of data.otherChildren) {
+            const childId = get().addNode({
+              label: child.name,
+              sex: child.sex,
+              gender: child.gender,
+              isEgo: false,
+            });
             get().addEdge({
               source: egoId,
               target: childId,
