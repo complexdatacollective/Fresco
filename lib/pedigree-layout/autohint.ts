@@ -1,9 +1,9 @@
 import {
+  type GroupHint,
   type Hints,
   type PedigreeInput,
   type PedigreeLayout,
   type Relation,
-  type SpouseHint,
 } from '~/lib/pedigree-layout/types';
 import { kindepth } from '~/lib/pedigree-layout/kindepth';
 import { rank } from '~/lib/pedigree-layout/utils';
@@ -20,9 +20,8 @@ type LayoutFn = (
 
 /**
  * Automatically generate layout hints for a pedigree.
- * Port of kinship2::autohint (autohint.R)
  *
- * Computes sibling order and spouse pairing hints to resolve
+ * Computes sibling order and group pairing hints to resolve
  * duplicate appearances and layout ambiguities.
  *
  * @param layoutFn - layout function injected to break circular dependency
@@ -40,7 +39,7 @@ export function autohint(
   if (ped.hints) return ped.hints;
 
   const n = ped.id.length;
-  const depth = kindepth(ped.motherIndex, ped.fatherIndex, true);
+  const depth = kindepth(ped.parents, true);
   const { packed = true, align = false } = options;
 
   // Build relation matrix
@@ -54,7 +53,9 @@ export function autohint(
   const twinRelations = relation.filter((r) => r.code < 4);
   if (twinRelations.length > 0) {
     twinrel = twinRelations;
-    const twinlist = [...new Set(twinRelations.flatMap((r) => [r.id1, r.id2]))];
+    const twinlist = [
+      ...new Set(twinRelations.flatMap((r) => [r.id1, r.id2])),
+    ];
 
     // Iteratively assign twin set IDs (using min person index as set ID)
     for (let iter = 1; iter < twinlist.length; iter++) {
@@ -120,8 +121,8 @@ export function autohint(
     }
   }
 
-  let sptemp: SpouseHint[] | undefined = options.hints?.spouse
-    ? [...options.hints.spouse]
+  let grouptemp: GroupHint[] | undefined = options.hints?.groups
+    ? [...options.hints.groups]
     : undefined;
 
   if (!layoutFn) {
@@ -131,29 +132,35 @@ export function autohint(
   let plist = layoutFn(ped, {
     packed,
     align,
-    hints: { order: horder, spouse: sptemp },
+    hints: { order: horder, groups: grouptemp },
   });
 
-  // Helper: find the spouse group positions around mypos
-  function findspouse(mypos: number, pl: PedigreeLayout, lev: number): number {
+  // Helper: find a group member position near mypos
+  function findGroupMember(
+    mypos: number,
+    pl: PedigreeLayout,
+    lev: number,
+  ): number {
     let lpos = mypos;
-    while (lpos > 0 && pl.spouse[lev]![lpos - 1]! > 0) lpos--;
+    while (lpos > 0 && pl.group[lev]![lpos - 1]! > 0) lpos--;
     let rpos = mypos;
-    while (pl.spouse[lev]![rpos]! > 0) rpos++;
+    while (pl.group[lev]![rpos]! > 0) rpos++;
     if (rpos === lpos) throw new Error('autohint bug 3');
 
-    // Find first opposite-sex position
+    // Return first non-self group member
     const myNid = pl.nid[lev]![mypos]!;
-    const mySex = ped.sex[myNid];
     for (let p = lpos; p <= rpos; p++) {
-      const pNid = pl.nid[lev]![p]!;
-      if (ped.sex[pNid] !== mySex) return p;
+      if (pl.nid[lev]![p] !== myNid) return p;
     }
     throw new Error('autohint bug 4');
   }
 
   // Helper: find siblings in the same family group
-  function findsibs(mypos: number, pl: PedigreeLayout, lev: number): number[] {
+  function findsibs(
+    mypos: number,
+    pl: PedigreeLayout,
+    lev: number,
+  ): number[] {
     const family = pl.fam[lev]![mypos]!;
     if (family === 0) throw new Error('autohint bug 6');
     const result: number[] = [];
@@ -174,7 +181,8 @@ export function autohint(
   ): number[] {
     if (ts[id]! >= 0) {
       const sibHorders = sibs.map((s) => ho[s]!);
-      const shiftAmt = 1 + Math.max(...sibHorders) - Math.min(...sibHorders);
+      const shiftAmt =
+        1 + Math.max(...sibHorders) - Math.min(...sibHorders);
       const twins = sibs.filter((s) => ts[s] === ts[id]);
 
       for (const t of twins) {
@@ -194,8 +202,10 @@ export function autohint(
             const newIds: number[] = [];
             for (const m of monoset) {
               for (const r of monoRel) {
-                if (r.id1 === m && !monoset.includes(r.id2)) newIds.push(r.id2);
-                if (r.id2 === m && !monoset.includes(r.id1)) newIds.push(r.id1);
+                if (r.id1 === m && !monoset.includes(r.id2))
+                  newIds.push(r.id2);
+                if (r.id2 === m && !monoset.includes(r.id1))
+                  newIds.push(r.id1);
               }
             }
             monoset = [...new Set([...monoset, ...newIds])];
@@ -274,10 +284,10 @@ export function autohint(
         sib1 = Math.max(...findsibs(pair[0]!, pl, lev));
       } else {
         try {
-          const sp = findspouse(pair[0]!, pl, lev);
-          const famVal1 = pl.fam[lev]![sp] ?? 0;
+          const gm = findGroupMember(pair[0]!, pl, lev);
+          const famVal1 = pl.fam[lev]![gm] ?? 0;
           if (famVal1 === 0) return false;
-          sib1 = Math.max(...findsibs(sp, pl, lev));
+          sib1 = Math.max(...findsibs(gm, pl, lev));
         } catch {
           return false;
         }
@@ -288,10 +298,10 @@ export function autohint(
         sib2 = Math.min(...findsibs(pair[1]!, pl, lev));
       } else {
         try {
-          const sp = findspouse(pair[1]!, pl, lev);
-          const famVal2 = pl.fam[lev]![sp] ?? 0;
+          const gm = findGroupMember(pair[1]!, pl, lev);
+          const famVal2 = pl.fam[lev]![gm] ?? 0;
           if (famVal2 === 0) return false;
-          sib2 = Math.min(...findsibs(sp, pl, lev));
+          sib2 = Math.min(...findsibs(gm, pl, lev));
         } catch {
           return false;
         }
@@ -320,8 +330,8 @@ export function autohint(
     if (dpairs.length === 0) continue;
 
     for (const pair of dpairs) {
-      const anchor = [0, 0];
-      const spouse = [0, 0];
+      const anchorType = [0, 0];
+      const groupMemberPos = [0, 0];
 
       for (let j = 0; j < 2; j++) {
         const direction = j === 1;
@@ -329,7 +339,7 @@ export function autohint(
 
         if (plist.fam[lev]![mypos]! > 0) {
           // Connected to parents at this location
-          anchor[j] = 1; // familial anchor
+          anchorType[j] = 1; // familial anchor
           const sibs = findsibs(mypos, plist, lev).map((s) => idlist[s]!);
           if (sibs.length > 1) {
             horder = shift(
@@ -342,17 +352,17 @@ export function autohint(
             );
           }
         } else {
-          // Check if spouse is connected to parents
+          // Check if group member is connected to parents
           try {
-            spouse[j] = findspouse(mypos, plist, lev);
-            if (plist.fam[lev]![spouse[j]!]! > 0) {
-              anchor[j] = 2; // spousal anchor
-              const sibs = findsibs(spouse[j]!, plist, lev).map(
+            groupMemberPos[j] = findGroupMember(mypos, plist, lev);
+            if (plist.fam[lev]![groupMemberPos[j]!]! > 0) {
+              anchorType[j] = 2; // group member anchor
+              const sibs = findsibs(groupMemberPos[j]!, plist, lev).map(
                 (s) => idlist[s]!,
               );
               if (sibs.length > 1) {
                 horder = shift(
-                  idlist[spouse[j]!]!,
+                  idlist[groupMemberPos[j]!]!,
                   sibs,
                   direction,
                   horder,
@@ -362,45 +372,47 @@ export function autohint(
               }
             }
           } catch {
-            // spouse not found, anchor stays 0
+            // group member not found, anchor stays 0
           }
         }
       }
 
-      // Add marriage hints based on anchor combination
+      // Add group hints based on anchor combination
       const id1 = idlist[pair[0]!]!;
-      const id2 = spouse[0]! >= 0 ? idlist[spouse[0]!]! : 0;
-      const id3 = spouse[1]! >= 0 ? idlist[spouse[1]!]! : 0;
-      const key = `${anchor[0]}${anchor[1]}`;
+      const id2 =
+        groupMemberPos[0]! >= 0 ? idlist[groupMemberPos[0]!]! : 0;
+      const id3 =
+        groupMemberPos[1]! >= 0 ? idlist[groupMemberPos[1]!]! : 0;
+      const key = `${anchorType[0]}${anchorType[1]}`;
 
-      let temp: SpouseHint[] | null = null;
+      let temp: GroupHint[] | null = null;
       switch (key) {
         case '21':
-          temp = [{ leftIndex: id2, rightIndex: id1, anchor: pair[2]! }];
+          temp = [{ members: [id2, id1], anchor: pair[2]! }];
           break;
         case '22':
           temp = [
-            { leftIndex: id2, rightIndex: id1, anchor: 1 },
-            { leftIndex: id1, rightIndex: id3, anchor: 2 },
+            { members: [id2, id1], anchor: 1 },
+            { members: [id1, id3], anchor: 2 },
           ];
           break;
         case '02':
-          temp = [{ leftIndex: id2, rightIndex: id1, anchor: 0 }];
+          temp = [{ members: [id2, id1], anchor: 0 }];
           break;
         case '20':
-          temp = [{ leftIndex: id2, rightIndex: id1, anchor: 0 }];
+          temp = [{ members: [id2, id1], anchor: 0 }];
           break;
         case '00':
           temp = [
-            { leftIndex: id1, rightIndex: id3, anchor: 0 },
-            { leftIndex: id2, rightIndex: id1, anchor: 0 },
+            { members: [id1, id3], anchor: 0 },
+            { members: [id2, id1], anchor: 0 },
           ];
           break;
         case '01':
-          temp = [{ leftIndex: id2, rightIndex: id1, anchor: 2 }];
+          temp = [{ members: [id2, id1], anchor: 2 }];
           break;
         case '10':
-          temp = [{ leftIndex: id1, rightIndex: id2, anchor: 1 }];
+          temp = [{ members: [id1, id2], anchor: 1 }];
           break;
         default:
           // Unexpected case: return simple ordering
@@ -408,7 +420,7 @@ export function autohint(
       }
 
       if (temp) {
-        sptemp = [...(sptemp ?? []), ...temp];
+        grouptemp = [...(grouptemp ?? []), ...temp];
       }
     }
 
@@ -416,9 +428,9 @@ export function autohint(
     plist = layoutFn(ped, {
       packed,
       align,
-      hints: { order: horder, spouse: sptemp },
+      hints: { order: horder, groups: grouptemp },
     });
   }
 
-  return { order: horder, spouse: sptemp };
+  return { order: horder, groups: grouptemp };
 }
