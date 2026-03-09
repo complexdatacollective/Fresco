@@ -79,8 +79,7 @@ export function alignPedigree(
     // Only group social-parent and co-parent connections for layout grouping
     const socialParents = pConns
       .filter(
-        (p) =>
-          p.edgeType === 'social-parent' || p.edgeType === 'co-parent',
+        (p) => p.edgeType === 'social-parent' || p.edgeType === 'co-parent',
       )
       .map((p) => p.parentIndex)
       .sort((a, b) => a - b);
@@ -193,9 +192,7 @@ export function alignPedigree(
 
   // Unhash: separate nid and group from .5 encoding
   const maxdepth = rval.nid.length;
-  const nid: number[][] = rval.nid.map((row) =>
-    row.map((v) => Math.floor(v)),
-  );
+  const nid: number[][] = rval.nid.map((row) => row.map((v) => Math.floor(v)));
   const groupMat: number[][] = rval.nid.map((row) =>
     row.map((v) => (v !== Math.floor(v) ? 1 : 0)),
   );
@@ -250,8 +247,7 @@ export function alignPedigree(
 
   // Run position optimization (fall back to unoptimized if QP solver fails)
   let pos: number[][];
-  const doAlign =
-    align === true || (Array.isArray(align) && align.length > 0);
+  const doAlign = align === true || (Array.isArray(align) && align.length > 0);
   const maxLevel = Math.max(...level);
   if (doAlign && maxLevel > 1) {
     try {

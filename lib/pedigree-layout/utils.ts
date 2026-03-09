@@ -63,10 +63,7 @@ export function tableCounts(arr: number[]): Map<number, number> {
 import { type ParentConnection } from '~/lib/pedigree-layout/types';
 
 // Chase all ancestors of a person
-export function ancestor(
-  me: number,
-  parents: ParentConnection[][],
-): number[] {
+export function ancestor(me: number, parents: ParentConnection[][]): number[] {
   const n = parents.length;
   const result = new Array<boolean>(n).fill(false);
 
@@ -99,10 +96,7 @@ export function ancestor(
 }
 
 // Chase up ancestors — returns all ancestors reachable from x (including x)
-export function chaseup(
-  x: number[],
-  parents: ParentConnection[][],
-): number[] {
+export function chaseup(x: number[], parents: ParentConnection[][]): number[] {
   const n = parents.length;
   const inSet = new Array<boolean>(n).fill(false);
   for (const idx of x) inSet[idx] = true;

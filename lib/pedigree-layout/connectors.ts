@@ -30,7 +30,7 @@ export function computeConnectors(
   branch = 0.6,
   pconnect = 0.5,
 ): PedigreeConnectors {
-  const { boxWidth: _boxw, boxHeight: boxh, legHeight: legh } = scaling;
+  const { boxHeight: boxh, legHeight: legh } = scaling;
   const maxlev = layout.nid.length;
   const maxcol = layout.nid[0]?.length ?? 0;
 
@@ -98,8 +98,8 @@ export function computeConnectors(
       const firstChildId = layout.nid[i]![whoIdx[0]!]!;
       const childParents = parents[firstChildId] ?? [];
       const primaryEdgeType =
-        childParents.find((p) => p.edgeType === 'social-parent')
-          ?.edgeType ?? 'social-parent';
+        childParents.find((p) => p.edgeType === 'social-parent')?.edgeType ??
+        'social-parent';
 
       // Compute targets (twin grouping)
       let target: number[];
@@ -152,10 +152,8 @@ export function computeConnectors(
       if (layout.twins) {
         for (let k = 0; k < whoIdx.length; k++) {
           if (layout.twins[i]?.[whoIdx[k]!] === 1) {
-            const temp1 =
-              (layout.pos[i]![whoIdx[k]!]! + target[k]!) / 2;
-            const temp2 =
-              (layout.pos[i]![whoIdx[k + 1]!]! + target[k]!) / 2;
+            const temp1 = (layout.pos[i]![whoIdx[k]!]! + target[k]!) / 2;
+            const temp2 = (layout.pos[i]![whoIdx[k + 1]!]! + target[k]!) / 2;
             twinIndicators.push({
               type: 'twin',
               code: 1,
@@ -170,10 +168,8 @@ export function computeConnectors(
           }
 
           if (layout.twins[i]?.[whoIdx[k]!] === 3) {
-            const temp1 =
-              (layout.pos[i]![whoIdx[k]!]! + target[k]!) / 2;
-            const temp2 =
-              (layout.pos[i]![whoIdx[k + 1]!]! + target[k]!) / 2;
+            const temp1 = (layout.pos[i]![whoIdx[k]!]! + target[k]!) / 2;
+            const temp2 = (layout.pos[i]![whoIdx[k + 1]!]! + target[k]!) / 2;
             twinIndicators.push({
               type: 'twin',
               code: 3,
