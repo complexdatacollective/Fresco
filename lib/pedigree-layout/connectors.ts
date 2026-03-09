@@ -1,46 +1,50 @@
 import {
+  type AuxiliaryConnector,
   type DuplicateArc,
   type LineSegment,
   type ParentChildConnector,
+  type ParentConnection,
+  type ParentGroupConnector,
   type PedigreeConnectors,
   type PedigreeLayout,
   type Point,
   type ScalingParams,
-  type SpouseConnector,
   type TwinIndicator,
 } from '~/lib/pedigree-layout/types';
 
 /**
  * Compute connector geometry for rendering a pedigree.
- * Port of plot.pedigree.R connector logic (lines 263-363).
  *
  * Produces abstract line segments and paths — no SVG or canvas dependency.
  *
- * @param layout - pedigree layout (positions, families, spouses, twins)
+ * @param layout - pedigree layout (positions, families, groups, twins)
  * @param scaling - box sizing and scale factors
+ * @param parents - parent connections for edge type info
  * @param branch - branch style for parent-child links (0=diagonal, >0=right-angle). Default 0.6
  * @param pconnect - where parent link meets sibling bar (0-1). Default 0.5
  */
 export function computeConnectors(
   layout: PedigreeLayout,
   scaling: ScalingParams,
+  parents: ParentConnection[][],
   branch = 0.6,
   pconnect = 0.5,
 ): PedigreeConnectors {
-  const { boxWidth: boxw, boxHeight: boxh, legHeight: legh } = scaling;
+  const { boxWidth: _boxw, boxHeight: boxh, legHeight: legh } = scaling;
   const maxlev = layout.nid.length;
   const maxcol = layout.nid[0]?.length ?? 0;
 
-  const spouseLines: SpouseConnector[] = [];
+  const groupLines: ParentGroupConnector[] = [];
   const parentChildLines: ParentChildConnector[] = [];
+  const auxiliaryLines: AuxiliaryConnector[] = [];
   const twinIndicators: TwinIndicator[] = [];
   const duplicateArcs: DuplicateArc[] = [];
 
-  // --- Spouse lines (R lines 263-279) ---
+  // --- Parent group lines (replaces spouse lines) ---
   for (let i = 0; i < maxlev; i++) {
     const tempy = i + boxh / 2;
     for (let j = 0; j < maxcol; j++) {
-      if (layout.spouse[i]?.[j] && layout.spouse[i]![j]! > 0) {
+      if (layout.group[i]?.[j] && layout.group[i]![j]! > 0) {
         const x1 = layout.pos[i]![j]!;
         const x2 = layout.pos[i]![j + 1]!;
         const segment: LineSegment = {
@@ -51,9 +55,9 @@ export function computeConnectors(
           y2: tempy,
         };
 
-        const isDouble = layout.spouse[i]![j] === 2;
-        const connector: SpouseConnector = {
-          type: 'spouse',
+        const isDouble = layout.group[i]![j] === 2;
+        const connector: ParentGroupConnector = {
+          type: 'parent-group',
           segment,
           double: isDouble,
         };
@@ -68,12 +72,12 @@ export function computeConnectors(
           };
         }
 
-        spouseLines.push(connector);
+        groupLines.push(connector);
       }
     }
   }
 
-  // --- Parent-child lines (R lines 280-342) ---
+  // --- Parent-child lines ---
   for (let i = 1; i < maxlev; i++) {
     const familyIds = [...new Set(layout.fam[i]!.filter((v) => v > 0))];
 
@@ -89,6 +93,14 @@ export function computeConnectors(
         if (layout.fam[i]![j] === fam) whoIdx.push(j);
       }
 
+      // Determine the primary edge type for this family
+      // Look at the first child's parent connections
+      const firstChildId = layout.nid[i]![whoIdx[0]!]!;
+      const childParents = parents[firstChildId] ?? [];
+      const primaryEdgeType =
+        childParents.find((p) => p.edgeType === 'social-parent')
+          ?.edgeType ?? 'social-parent';
+
       // Compute targets (twin grouping)
       let target: number[];
       if (!layout.twins) {
@@ -99,7 +111,6 @@ export function computeConnectors(
         for (let k = 1; k < whoIdx.length; k++) {
           twinToLeft.push(layout.twins[i]?.[whoIdx[k]!] ?? 0);
         }
-        // cumsum with reset on non-twin
         const groups: number[] = [];
         let groupId = 0;
         for (const ttl of twinToLeft) {
@@ -107,7 +118,6 @@ export function computeConnectors(
           groups.push(groupId);
         }
 
-        // Mean position per group
         const groupMeans = new Map<number, number[]>();
         for (let k = 0; k < groups.length; k++) {
           const g = groups[k]!;
@@ -140,11 +150,12 @@ export function computeConnectors(
 
       // Twin indicators
       if (layout.twins) {
-        // MZ twin line
         for (let k = 0; k < whoIdx.length; k++) {
           if (layout.twins[i]?.[whoIdx[k]!] === 1) {
-            const temp1 = (layout.pos[i]![whoIdx[k]!]! + target[k]!) / 2;
-            const temp2 = (layout.pos[i]![whoIdx[k + 1]!]! + target[k]!) / 2;
+            const temp1 =
+              (layout.pos[i]![whoIdx[k]!]! + target[k]!) / 2;
+            const temp2 =
+              (layout.pos[i]![whoIdx[k + 1]!]! + target[k]!) / 2;
             twinIndicators.push({
               type: 'twin',
               code: 1,
@@ -158,10 +169,11 @@ export function computeConnectors(
             });
           }
 
-          // Unknown twin "?"
           if (layout.twins[i]?.[whoIdx[k]!] === 3) {
-            const temp1 = (layout.pos[i]![whoIdx[k]!]! + target[k]!) / 2;
-            const temp2 = (layout.pos[i]![whoIdx[k + 1]!]! + target[k]!) / 2;
+            const temp1 =
+              (layout.pos[i]![whoIdx[k]!]! + target[k]!) / 2;
+            const temp2 =
+              (layout.pos[i]![whoIdx[k + 1]!]! + target[k]!) / 2;
             twinIndicators.push({
               type: 'twin',
               code: 3,
@@ -169,7 +181,6 @@ export function computeConnectors(
             });
           }
 
-          // DZ twin (code 2) — no special line, just recorded
           if (layout.twins[i]?.[whoIdx[k]!] === 2) {
             twinIndicators.push({
               type: 'twin',
@@ -205,19 +216,28 @@ export function computeConnectors(
       const y1 = i - legh;
       const parentLink: LineSegment[] = [];
 
-      // Parent link: starts at parent center, diagonal only in the gap
       const parentCenterY = i - 1 + boxh / 2;
       const parentBottomY = i - 1 + boxh;
       const x2 = parentx;
 
       if (branch === 0) {
-        // Vertical from center to bottom, then diagonal to sibling bar
         parentLink.push(
-          { type: 'line', x1: x2, y1: parentCenterY, x2, y2: parentBottomY },
-          { type: 'line', x1: x2, y1: parentBottomY, x2: x1, y2: y1 },
+          {
+            type: 'line',
+            x1: x2,
+            y1: parentCenterY,
+            x2,
+            y2: parentBottomY,
+          },
+          {
+            type: 'line',
+            x1: x2,
+            y1: parentBottomY,
+            x2: x1,
+            y2: y1,
+          },
         );
       } else {
-        // Vertical from center to bottom, then routed path through the gap
         const gapSpan = y1 - parentBottomY;
         const ydelta = (gapSpan * branch) / 2;
         parentLink.push(
@@ -248,6 +268,7 @@ export function computeConnectors(
 
       parentChildLines.push({
         type: 'parent-child',
+        edgeType: primaryEdgeType,
         uplines,
         siblingBar,
         parentLink,
@@ -255,7 +276,49 @@ export function computeConnectors(
     }
   }
 
-  // --- Duplicate subject arcs (R lines 344-363) ---
+  // --- Auxiliary lines for donor/surrogate/bio-parent edges ---
+  for (let i = 0; i < maxlev; i++) {
+    for (let j = 0; j < (layout.n[i] ?? 0); j++) {
+      const childId = layout.nid[i]![j]!;
+      const childParents = parents[childId] ?? [];
+
+      for (const pc of childParents) {
+        if (
+          pc.edgeType === 'donor' ||
+          pc.edgeType === 'surrogate' ||
+          pc.edgeType === 'bio-parent'
+        ) {
+          // Find the auxiliary parent's position in the layout
+          for (let pi = 0; pi < maxlev; pi++) {
+            for (let pj = 0; pj < (layout.n[pi] ?? 0); pj++) {
+              if (layout.nid[pi]![pj] === pc.parentIndex) {
+                const parentX = layout.pos[pi]![pj]!;
+                const parentY = pi + boxh / 2;
+                const childX = layout.pos[i]![j]!;
+                const childY = i + boxh / 2;
+
+                auxiliaryLines.push({
+                  type: 'auxiliary',
+                  edgeType: pc.edgeType,
+                  segments: [
+                    {
+                      type: 'line',
+                      x1: parentX,
+                      y1: parentY,
+                      x2: childX,
+                      y2: childY,
+                    },
+                  ],
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // --- Duplicate subject arcs ---
   const allIds = new Set<number>();
   for (let i = 0; i < maxlev; i++) {
     for (let j = 0; j < (layout.n[i] ?? 0); j++) {
@@ -265,7 +328,6 @@ export function computeConnectors(
   }
 
   for (const id of allIds) {
-    // Find all positions of this person
     const positions: { x: number; y: number }[] = [];
     for (let i = 0; i < maxlev; i++) {
       for (let j = 0; j < (layout.n[i] ?? 0); j++) {
@@ -276,14 +338,12 @@ export function computeConnectors(
     }
 
     if (positions.length > 1) {
-      // Sort by x
       positions.sort((a, b) => a.x - b.x);
 
       for (let j = 0; j < positions.length - 1; j++) {
         const p1 = positions[j]!;
         const p2 = positions[j + 1]!;
 
-        // Parabolic arc: 15 points
         const points: Point[] = [];
         for (let k = 0; k < 15; k++) {
           const t = k / 14;
@@ -303,8 +363,9 @@ export function computeConnectors(
   }
 
   return {
-    spouseLines,
+    groupLines,
     parentChildLines,
+    auxiliaryLines,
     twinIndicators,
     duplicateArcs,
   };

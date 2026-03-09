@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { computeConnectors } from '~/lib/pedigree-layout/connectors';
 import {
+  type ParentConnection,
   type PedigreeLayout,
   type ScalingParams,
 } from '~/lib/pedigree-layout/types';
@@ -28,54 +29,71 @@ describe('computeConnectors', () => {
       [0, 0, 0],
       [1, 1, 1],
     ],
-    spouse: [
+    group: [
       [1, 0, 0],
       [0, 0, 0],
     ],
     twins: null,
   };
 
-  it('produces spouse connectors for spouse pairs', () => {
-    const connectors = computeConnectors(layout, scaling);
-    expect(connectors.spouseLines.length).toBeGreaterThan(0);
-    expect(connectors.spouseLines[0]!.type).toBe('spouse');
+  const parents: ParentConnection[][] = [
+    [],
+    [],
+    [],
+    [
+      { parentIndex: 1, edgeType: 'social-parent' },
+      { parentIndex: 2, edgeType: 'social-parent' },
+    ],
+    [
+      { parentIndex: 1, edgeType: 'social-parent' },
+      { parentIndex: 2, edgeType: 'social-parent' },
+    ],
+    [
+      { parentIndex: 1, edgeType: 'social-parent' },
+      { parentIndex: 2, edgeType: 'social-parent' },
+    ],
+  ];
+
+  it('produces parent group connectors', () => {
+    const connectors = computeConnectors(layout, scaling, parents);
+    expect(connectors.groupLines.length).toBeGreaterThan(0);
+    expect(connectors.groupLines[0]!.type).toBe('parent-group');
   });
 
-  it('produces parent-child connectors', () => {
-    const connectors = computeConnectors(layout, scaling);
+  it('produces parent-child connectors with edgeType', () => {
+    const connectors = computeConnectors(layout, scaling, parents);
     expect(connectors.parentChildLines.length).toBeGreaterThan(0);
-    expect(connectors.parentChildLines[0]!.type).toBe('parent-child');
+    expect(connectors.parentChildLines[0]!.edgeType).toBe('social-parent');
   });
 
-  it('produces branched parent links (3 segments) when branch > 0', () => {
-    const connectors = computeConnectors(layout, scaling, 0.6);
+  it('produces branched parent links (4 segments) when branch > 0', () => {
+    const connectors = computeConnectors(layout, scaling, parents, 0.6);
     const pc = connectors.parentChildLines[0]!;
-    expect(pc.parentLink.length).toBe(3);
+    expect(pc.parentLink.length).toBe(4);
   });
 
-  it('produces single parent link when branch = 0', () => {
-    const connectors = computeConnectors(layout, scaling, 0);
+  it('produces 2 parent link segments when branch = 0', () => {
+    const connectors = computeConnectors(layout, scaling, parents, 0);
     const pc = connectors.parentChildLines[0]!;
-    expect(pc.parentLink.length).toBe(1);
+    expect(pc.parentLink.length).toBe(2);
   });
 
-  it('spouse connector double flag reflects consanguinity', () => {
-    const connectors = computeConnectors(layout, scaling);
-    // Our test layout has spouse=1 (not consanguineous)
-    expect(connectors.spouseLines[0]!.double).toBe(false);
+  it('group connector double flag reflects consanguinity', () => {
+    const connectors = computeConnectors(layout, scaling, parents);
+    expect(connectors.groupLines[0]!.double).toBe(false);
   });
 
   it('produces double line for consanguineous pairs', () => {
     const consLayout: PedigreeLayout = {
       ...layout,
-      spouse: [
+      group: [
         [2, 0, 0],
         [0, 0, 0],
       ],
     };
-    const connectors = computeConnectors(consLayout, scaling);
-    expect(connectors.spouseLines[0]!.double).toBe(true);
-    expect(connectors.spouseLines[0]!.doubleSegment).toBeDefined();
+    const connectors = computeConnectors(consLayout, scaling, parents);
+    expect(connectors.groupLines[0]!.double).toBe(true);
+    expect(connectors.groupLines[0]!.doubleSegment).toBeDefined();
   });
 
   it('produces duplicate arcs for repeated subjects', () => {
@@ -93,16 +111,56 @@ describe('computeConnectors', () => {
         [0, 0, 0],
         [0, 0, 0],
       ],
-      spouse: [
+      group: [
         [0, 0, 0],
         [0, 0, 0],
       ],
       twins: null,
     };
-    const connectors = computeConnectors(dupLayout, scaling);
+    const connectors = computeConnectors(dupLayout, scaling, []);
     expect(connectors.duplicateArcs.length).toBe(1);
     expect(connectors.duplicateArcs[0]!.personIndex).toBe(1);
     expect(connectors.duplicateArcs[0]!.path.dashed).toBe(true);
     expect(connectors.duplicateArcs[0]!.path.points.length).toBe(15);
+  });
+
+  it('produces auxiliary connectors for donor edges', () => {
+    const donorLayout: PedigreeLayout = {
+      n: [3, 1],
+      nid: [
+        [0, 1, 2],
+        [3, 0, 0],
+      ],
+      pos: [
+        [0, 1, 3],
+        [0.5, 0, 0],
+      ],
+      fam: [
+        [0, 0, 0],
+        [1, 0, 0],
+      ],
+      group: [
+        [1, 0, 0],
+        [0, 0, 0],
+      ],
+      twins: null,
+    };
+    const donorParents: ParentConnection[][] = [
+      [],
+      [],
+      [],
+      [
+        { parentIndex: 0, edgeType: 'social-parent' },
+        { parentIndex: 1, edgeType: 'social-parent' },
+        { parentIndex: 2, edgeType: 'donor' },
+      ],
+    ];
+    const connectors = computeConnectors(
+      donorLayout,
+      scaling,
+      donorParents,
+    );
+    expect(connectors.auxiliaryLines.length).toBe(1);
+    expect(connectors.auxiliaryLines[0]!.edgeType).toBe('donor');
   });
 });
