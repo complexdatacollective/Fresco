@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
+import Paragraph from '~/components/typography/Paragraph';
 import BooleanOption from './BooleanOption';
 
 const meta: Meta<typeof BooleanOption> = {
@@ -109,9 +110,9 @@ export const TieStrengthExample: Story = {
 
     return (
       <div className="flex flex-col items-center gap-4">
-        <p className="text-center text-lg">
+        <Paragraph margin="none" className="text-center text-lg">
           How strong is the friendship between these two people?
-        </p>
+        </Paragraph>
         <div className="grid auto-cols-fr grid-flow-col gap-4">
           {options.map((option) => (
             <BooleanOption
@@ -139,7 +140,9 @@ export const BinaryChoice: Story = {
 
     return (
       <div className="flex flex-col items-center gap-4">
-        <p className="text-center text-lg">Are these two people friends?</p>
+        <Paragraph margin="none" className="text-center text-lg">
+          Are these two people friends?
+        </Paragraph>
         <div className="grid auto-cols-fr grid-flow-col gap-4">
           <BooleanOption
             label="Yes"
@@ -169,14 +172,18 @@ export const AllStates: Story = {
   render: () => (
     <div className="flex flex-col gap-6">
       <div>
-        <p className="mb-2 text-sm font-medium">Unselected:</p>
+        <Paragraph margin="none" className="mb-2 text-sm font-medium">
+          Unselected:
+        </Paragraph>
         <div className="flex gap-4">
           <BooleanOption label="Normal" />
           <BooleanOption label="Negative" negative />
         </div>
       </div>
       <div>
-        <p className="mb-2 text-sm font-medium">Selected:</p>
+        <Paragraph margin="none" className="mb-2 text-sm font-medium">
+          Selected:
+        </Paragraph>
         <div className="flex gap-4">
           <BooleanOption label="Normal" selected />
           <BooleanOption label="Negative" negative selected />

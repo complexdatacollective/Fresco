@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import DatePickerField from './DatePicker';
 
 const meta: Meta<typeof DatePickerField> = {
@@ -93,9 +95,9 @@ export const FullDate: Story = {
           onChange={(v) => setValue(v ?? '')}
           name="full-date"
         />
-        <p className="text-xs text-current opacity-70">
+        <Paragraph margin="none" className="text-xs text-current opacity-70">
           Selected: {value || 'none'}
-        </p>
+        </Paragraph>
       </div>
     );
   },
@@ -122,9 +124,9 @@ export const MonthYear: Story = {
           onChange={(v) => setValue(v ?? '')}
           name="month-year"
         />
-        <p className="text-xs text-current opacity-70">
+        <Paragraph margin="none" className="text-xs text-current opacity-70">
           Selected: {value ?? 'none'}
-        </p>
+        </Paragraph>
       </div>
     );
   },
@@ -151,9 +153,9 @@ export const YearOnly: Story = {
           onChange={(v) => setValue(v ?? '')}
           name="year-only"
         />
-        <p className="text-xs text-current opacity-70">
+        <Paragraph margin="none" className="text-xs text-current opacity-70">
           Selected: {value || 'none'}
-        </p>
+        </Paragraph>
       </div>
     );
   },
@@ -177,40 +179,55 @@ export const AllTypes: Story = {
     return (
       <div className="flex w-full max-w-2xl flex-col gap-6">
         <div>
-          <h3 className="mb-2 text-sm font-semibold">Full Date</h3>
+          <Heading level="h3" margin="none" className="mb-2 text-sm">
+            Full Date
+          </Heading>
           <DatePickerField
             type="full"
             value={fullDate}
             onChange={(v) => setFullDate(v ?? '')}
             name="full-comparison"
           />
-          <p className="mt-1 text-xs text-current opacity-70">
+          <Paragraph
+            margin="none"
+            className="mt-1 text-xs text-current opacity-70"
+          >
             Value: {fullDate || 'none'}
-          </p>
+          </Paragraph>
         </div>
         <div>
-          <h3 className="mb-2 text-sm font-semibold">Month/Year</h3>
+          <Heading level="h3" margin="none" className="mb-2 text-sm">
+            Month/Year
+          </Heading>
           <DatePickerField
             type="month"
             value={monthYear}
             onChange={(v) => setMonthYear(v ?? '')}
             name="month-comparison"
           />
-          <p className="mt-1 text-xs text-current opacity-70">
+          <Paragraph
+            margin="none"
+            className="mt-1 text-xs text-current opacity-70"
+          >
             Value: {monthYear || 'none'}
-          </p>
+          </Paragraph>
         </div>
         <div>
-          <h3 className="mb-2 text-sm font-semibold">Year Only</h3>
+          <Heading level="h3" margin="none" className="mb-2 text-sm">
+            Year Only
+          </Heading>
           <DatePickerField
             type="year"
             value={year}
             onChange={(v) => setYear(v ?? '')}
             name="year-comparison"
           />
-          <p className="mt-1 text-xs text-current opacity-70">
+          <Paragraph
+            margin="none"
+            className="mt-1 text-xs text-current opacity-70"
+          >
             Value: {year || 'none'}
-          </p>
+          </Paragraph>
         </div>
       </div>
     );
@@ -234,7 +251,9 @@ export const WithConstraints: Story = {
     return (
       <div className="flex w-full max-w-2xl flex-col gap-6">
         <div>
-          <h3 className="mb-2 text-sm font-semibold">Full Date (2024 only)</h3>
+          <Heading level="h3" margin="none" className="mb-2 text-sm">
+            Full Date (2024 only)
+          </Heading>
           <DatePickerField
             type="full"
             min="2024-01-01"
@@ -243,12 +262,17 @@ export const WithConstraints: Story = {
             onChange={(v) => setFullDate(v ?? '')}
             name="constrained-full"
           />
-          <p className="mt-1 text-xs text-current opacity-70">
+          <Paragraph
+            margin="none"
+            className="mt-1 text-xs text-current opacity-70"
+          >
             Range: Jan 1, 2024 - Dec 31, 2024
-          </p>
+          </Paragraph>
         </div>
         <div>
-          <h3 className="mb-2 text-sm font-semibold">Month/Year (2022-2023)</h3>
+          <Heading level="h3" margin="none" className="mb-2 text-sm">
+            Month/Year (2022-2023)
+          </Heading>
           <DatePickerField
             type="month"
             min="2022-01-01"
@@ -257,12 +281,17 @@ export const WithConstraints: Story = {
             onChange={(v) => setMonthYear(v ?? '')}
             name="constrained-month"
           />
-          <p className="mt-1 text-xs text-current opacity-70">
+          <Paragraph
+            margin="none"
+            className="mt-1 text-xs text-current opacity-70"
+          >
             Range: Jan 2022 - Dec 2023
-          </p>
+          </Paragraph>
         </div>
         <div>
-          <h3 className="mb-2 text-sm font-semibold">Year (1990-2000)</h3>
+          <Heading level="h3" margin="none" className="mb-2 text-sm">
+            Year (1990-2000)
+          </Heading>
           <DatePickerField
             type="year"
             min="1990-01-01"
@@ -271,9 +300,12 @@ export const WithConstraints: Story = {
             onChange={(v) => setYear(v ?? '')}
             name="constrained-year"
           />
-          <p className="mt-1 text-xs text-current opacity-70">
+          <Paragraph
+            margin="none"
+            className="mt-1 text-xs text-current opacity-70"
+          >
             Range: 1990 - 2000
-          </p>
+          </Paragraph>
         </div>
       </div>
     );
@@ -293,12 +325,17 @@ export const AllStates: Story = {
   render: () => (
     <div className="flex w-full max-w-2xl flex-col gap-6">
       <div>
-        <h3 className="mb-2 text-sm font-semibold">Full Date</h3>
+        <Heading level="h3" margin="none" className="mb-2 text-sm">
+          Full Date
+        </Heading>
         <div className="space-y-3">
           <div>
-            <p className="mb-1 text-xs font-medium text-current opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium text-current opacity-70"
+            >
               Normal
-            </p>
+            </Paragraph>
             <DatePickerField
               type="full"
               value="2024-06-15"
@@ -309,9 +346,12 @@ export const AllStates: Story = {
             />
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium text-current opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium text-current opacity-70"
+            >
               Disabled
-            </p>
+            </Paragraph>
             <DatePickerField
               type="full"
               disabled
@@ -323,9 +363,12 @@ export const AllStates: Story = {
             />
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium text-current opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium text-current opacity-70"
+            >
               Read-Only
-            </p>
+            </Paragraph>
             <DatePickerField
               type="full"
               readOnly
@@ -337,9 +380,12 @@ export const AllStates: Story = {
             />
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium text-current opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium text-current opacity-70"
+            >
               Invalid
-            </p>
+            </Paragraph>
             <DatePickerField
               type="full"
               aria-invalid
@@ -354,12 +400,17 @@ export const AllStates: Story = {
       </div>
 
       <div>
-        <h3 className="mb-2 text-sm font-semibold">Month/Year</h3>
+        <Heading level="h3" margin="none" className="mb-2 text-sm">
+          Month/Year
+        </Heading>
         <div className="space-y-3">
           <div>
-            <p className="mb-1 text-xs font-medium text-current opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium text-current opacity-70"
+            >
               Normal
-            </p>
+            </Paragraph>
             <DatePickerField
               type="month"
               value="2024-06"
@@ -370,9 +421,12 @@ export const AllStates: Story = {
             />
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium text-current opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium text-current opacity-70"
+            >
               Disabled
-            </p>
+            </Paragraph>
             <DatePickerField
               type="month"
               disabled
@@ -384,9 +438,12 @@ export const AllStates: Story = {
             />
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium text-current opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium text-current opacity-70"
+            >
               Read-Only
-            </p>
+            </Paragraph>
             <DatePickerField
               type="month"
               readOnly
@@ -398,9 +455,12 @@ export const AllStates: Story = {
             />
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium text-current opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium text-current opacity-70"
+            >
               Invalid
-            </p>
+            </Paragraph>
             <DatePickerField
               type="month"
               aria-invalid
@@ -415,12 +475,17 @@ export const AllStates: Story = {
       </div>
 
       <div>
-        <h3 className="mb-2 text-sm font-semibold">Year Only</h3>
+        <Heading level="h3" margin="none" className="mb-2 text-sm">
+          Year Only
+        </Heading>
         <div className="space-y-3">
           <div>
-            <p className="mb-1 text-xs font-medium text-current opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium text-current opacity-70"
+            >
               Normal
-            </p>
+            </Paragraph>
             <DatePickerField
               type="year"
               value="2024"
@@ -431,9 +496,12 @@ export const AllStates: Story = {
             />
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium text-current opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium text-current opacity-70"
+            >
               Disabled
-            </p>
+            </Paragraph>
             <DatePickerField
               type="year"
               disabled
@@ -445,9 +513,12 @@ export const AllStates: Story = {
             />
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium text-current opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium text-current opacity-70"
+            >
               Read-Only
-            </p>
+            </Paragraph>
             <DatePickerField
               type="year"
               readOnly
@@ -459,9 +530,12 @@ export const AllStates: Story = {
             />
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium text-current opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium text-current opacity-70"
+            >
               Invalid
-            </p>
+            </Paragraph>
             <DatePickerField
               type="year"
               aria-invalid
@@ -513,14 +587,14 @@ export const BirthDateExample: Story = {
           />
         </div>
         {birthDate && (
-          <p className="text-xs text-current opacity-70">
+          <Paragraph margin="none" className="text-xs text-current opacity-70">
             Age:{' '}
             {Math.floor(
               (today.getTime() - new Date(birthDate).getTime()) /
                 (365.25 * 24 * 60 * 60 * 1000),
             )}{' '}
             years
-          </p>
+          </Paragraph>
         )}
       </div>
     );

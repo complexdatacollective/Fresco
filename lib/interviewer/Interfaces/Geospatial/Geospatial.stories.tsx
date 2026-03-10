@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
 import SuperJSON from 'superjson';
 import StoryInterviewShell from '~/.storybook/StoryInterviewShell';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
 
 // Requires STORYBOOK_MAPBOX_TOKEN env var to be set
@@ -92,10 +94,12 @@ function MissingTokenMessage() {
   return (
     <div className="flex h-dvh w-full items-center justify-center p-8">
       <div className="max-w-md text-center">
-        <h2 className="mb-2 text-xl font-semibold">Mapbox Token Required</h2>
-        <p className="mb-4 text-sm">
+        <Heading level="h2" margin="none" className="mb-2">
+          Mapbox Token Required
+        </Heading>
+        <Paragraph margin="none" className="mb-4 text-sm">
           This story requires a Mapbox API token to render the map.
-        </p>
+        </Paragraph>
         <code className="text-xs">STORYBOOK_MAPBOX_TOKEN=pk.xxx</code>
       </div>
     </div>

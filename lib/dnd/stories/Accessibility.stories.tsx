@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useCallback, useRef, useState } from 'react';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
+import { UnorderedList } from '~/components/typography/UnorderedList';
 import { useDragSource, useDropTarget, type DragMetadata } from '~/lib/dnd';
 import { useAccessibilityAnnouncements } from '~/lib/dnd/useAccessibilityAnnouncements';
 
@@ -218,7 +221,9 @@ export const KeyboardNavigation: Story = {
     return (
       <>
         <div style={{ padding: '20px' }}>
-          <h2>Keyboard Navigation Demo</h2>
+          <Heading level="h2" margin="none">
+            Keyboard Navigation Demo
+          </Heading>
 
           <div
             style={{
@@ -228,13 +233,15 @@ export const KeyboardNavigation: Story = {
               borderRadius: '8px',
             }}
           >
-            <h3 style={{ margin: '0 0 12px' }}>Instructions</h3>
+            <Heading level="h3" margin="none" className="mb-3">
+              Instructions
+            </Heading>
             <div style={{ fontSize: '14px', marginBottom: '12px' }}>
               {instructions}
             </div>
             <div style={{ fontSize: '12px', color: '#666' }}>
               <strong>Keyboard Controls:</strong>
-              <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
+              <UnorderedList className="my-2">
                 <li>
                   <kbd>Tab</kbd> - Navigate between items
                 </li>
@@ -247,7 +254,7 @@ export const KeyboardNavigation: Story = {
                 <li>
                   <kbd>Escape</kbd> - Cancel drag operation
                 </li>
-              </ul>
+              </UnorderedList>
             </div>
           </div>
 
@@ -259,7 +266,9 @@ export const KeyboardNavigation: Story = {
             }}
           >
             <div>
-              <h3>Source Items</h3>
+              <Heading level="h3" margin="none">
+                Source Items
+              </Heading>
               {items
                 .filter((item) => item.zone === 'source')
                 .map((item) => (
@@ -275,7 +284,9 @@ export const KeyboardNavigation: Story = {
             </div>
 
             <div>
-              <h3>Target Zones</h3>
+              <Heading level="h3" margin="none">
+                Target Zones
+              </Heading>
               <AccessibleDropZone
                 id="archive-zone"
                 accepts={['document']}
@@ -532,7 +543,9 @@ export const ScreenReaderAnnouncements: Story = {
     return (
       <>
         <div style={{ padding: '20px' }}>
-          <h2>Screen Reader Announcements</h2>
+          <Heading level="h2" margin="none">
+            Screen Reader Announcements
+          </Heading>
 
           <div
             style={{
@@ -542,17 +555,13 @@ export const ScreenReaderAnnouncements: Story = {
             }}
           >
             <div>
-              <h3>Interactive Elements</h3>
-              <p
-                style={{
-                  fontSize: '14px',
-                  color: '#666',
-                  marginBottom: '16px',
-                }}
-              >
+              <Heading level="h3" margin="none">
+                Interactive Elements
+              </Heading>
+              <Paragraph margin="none" className="mb-4 text-sm text-[#666]">
                 Use keyboard or mouse to interact. All actions will be announced
                 for screen readers and logged to the right.
-              </p>
+              </Paragraph>
 
               {items.map((item, index) => (
                 <LoggingDragItem
@@ -580,7 +589,9 @@ export const ScreenReaderAnnouncements: Story = {
             </div>
 
             <div>
-              <h3>Live Announcements</h3>
+              <Heading level="h3" margin="none">
+                Live Announcements
+              </Heading>
               <div
                 ref={announcementsRef}
                 style={{
@@ -680,7 +691,9 @@ export const AriaAttributes: Story = {
     return (
       <>
         <div style={{ padding: '20px' }}>
-          <h2>ARIA Attributes Demo</h2>
+          <Heading level="h2" margin="none">
+            ARIA Attributes Demo
+          </Heading>
 
           <div
             style={{
@@ -690,12 +703,14 @@ export const AriaAttributes: Story = {
               borderRadius: '8px',
             }}
           >
-            <h3 style={{ margin: '0 0 12px' }}>ARIA Attribute Inspection</h3>
-            <p style={{ fontSize: '14px', margin: '0 0 8px' }}>
+            <Heading level="h3" margin="none" className="mb-3">
+              ARIA Attribute Inspection
+            </Heading>
+            <Paragraph margin="none" className="mb-2 text-sm">
               Use browser dev tools to inspect the ARIA attributes on draggable
               items:
-            </p>
-            <ul style={{ fontSize: '14px', margin: 0, paddingLeft: '20px' }}>
+            </Paragraph>
+            <UnorderedList className="text-sm">
               <li>
                 <code>role=&quot;button&quot;</code> - Makes items keyboard
                 focusable
@@ -714,7 +729,7 @@ export const AriaAttributes: Story = {
                 <code>tabIndex=&quot;0&quot;</code> - Enables keyboard
                 navigation
               </li>
-            </ul>
+            </UnorderedList>
           </div>
 
           <div
@@ -725,7 +740,9 @@ export const AriaAttributes: Story = {
             }}
           >
             <div>
-              <h3>Draggable Items with ARIA</h3>
+              <Heading level="h3" margin="none">
+                Draggable Items with ARIA
+              </Heading>
               {items.map((item) => (
                 <div key={item.id} style={{ marginBottom: '16px' }}>
                   <AccessibleDragItem
@@ -767,7 +784,9 @@ export const AriaAttributes: Story = {
             </div>
 
             <div>
-              <h3>Drop Zones</h3>
+              <Heading level="h3" margin="none">
+                Drop Zones
+              </Heading>
               <AccessibleDropZone
                 id="aria-drop-primary"
                 accepts={['aria-test']}
@@ -818,34 +837,36 @@ export const AriaAttributes: Story = {
               borderRadius: '8px',
             }}
           >
-            <h3 style={{ margin: '0 0 12px' }}>Accessibility Testing Tips</h3>
-            <div style={{ fontSize: '14px' }}>
-              <p>
+            <Heading level="h3" margin="none" className="mb-3">
+              Accessibility Testing Tips
+            </Heading>
+            <div className="text-sm">
+              <Paragraph margin="none">
                 <strong>Screen Reader Testing:</strong>
-              </p>
-              <ul style={{ margin: '4px 0 12px', paddingLeft: '20px' }}>
+              </Paragraph>
+              <UnorderedList className="mt-1 mb-3">
                 <li>Test with NVDA, JAWS, or VoiceOver</li>
                 <li>Verify all elements are announced correctly</li>
                 <li>Check that drag operations provide clear feedback</li>
-              </ul>
+              </UnorderedList>
 
-              <p>
+              <Paragraph margin="none">
                 <strong>Keyboard Testing:</strong>
-              </p>
-              <ul style={{ margin: '4px 0 12px', paddingLeft: '20px' }}>
+              </Paragraph>
+              <UnorderedList className="mt-1 mb-3">
                 <li>Navigate using Tab key only</li>
                 <li>Verify all functionality is accessible via keyboard</li>
                 <li>Test that focus indicators are clearly visible</li>
-              </ul>
+              </UnorderedList>
 
-              <p>
+              <Paragraph margin="none">
                 <strong>Tools:</strong>
-              </p>
-              <ul style={{ margin: '4px 0', paddingLeft: '20px' }}>
+              </Paragraph>
+              <UnorderedList className="mt-1">
                 <li>Browser DevTools Accessibility Panel</li>
                 <li>axe DevTools extension</li>
                 <li>Lighthouse accessibility audit</li>
-              </ul>
+              </UnorderedList>
             </div>
           </div>
         </div>
@@ -876,7 +897,9 @@ export const AccessibilityPlayground: Story = {
     return (
       <>
         <div style={{ padding: '20px' }}>
-          <h2>Accessibility Testing Playground</h2>
+          <Heading level="h2" margin="none">
+            Accessibility Testing Playground
+          </Heading>
 
           <div
             style={{
@@ -886,7 +909,9 @@ export const AccessibilityPlayground: Story = {
               borderRadius: '8px',
             }}
           >
-            <h3 style={{ margin: '0 0 16px' }}>Accessibility Configuration</h3>
+            <Heading level="h3" margin="none" className="mb-4">
+              Accessibility Configuration
+            </Heading>
             <div
               style={{
                 display: 'grid',
@@ -968,7 +993,9 @@ export const AccessibilityPlayground: Story = {
             }}
           >
             <div>
-              <h3>Test Elements</h3>
+              <Heading level="h3" margin="none">
+                Test Elements
+              </Heading>
               <AccessibleDragItem
                 id="test-element-1"
                 type="playground"
@@ -1036,7 +1063,9 @@ export const AccessibilityPlayground: Story = {
             </div>
 
             <div>
-              <h3>Test Controls</h3>
+              <Heading level="h3" margin="none">
+                Test Controls
+              </Heading>
               <div style={{ marginBottom: '16px' }}>
                 <button
                   onClick={() => runAccessibilityTest('Focus Navigation')}
@@ -1103,7 +1132,9 @@ export const AccessibilityPlayground: Story = {
 
               {testResults.length > 0 && (
                 <div style={{ marginTop: '16px' }}>
-                  <h4>Test Results</h4>
+                  <Heading level="h4" margin="none">
+                    Test Results
+                  </Heading>
                   <div
                     style={{
                       backgroundColor: '#e8f5e9',

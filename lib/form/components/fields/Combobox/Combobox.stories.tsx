@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
+import { UnorderedList } from '~/components/typography/UnorderedList';
 import ComboboxField from './Combobox';
 import type { ComboboxOption } from './shared';
 
@@ -158,17 +161,19 @@ export const Overview: Story = {
     return (
       <div className="flex flex-col gap-8">
         <div className="space-y-2">
-          <h3 className="text-lg font-semibold">Multi-Select Combobox</h3>
-          <p className="text-sm opacity-70">
+          <Heading level="h3" margin="none" className="text-lg">
+            Multi-Select Combobox
+          </Heading>
+          <Paragraph margin="none" className="text-sm opacity-70">
             A searchable multi-select dropdown with bulk actions
-          </p>
-          <ul className="mb-2 list-inside list-disc space-y-1 text-xs opacity-70">
+          </Paragraph>
+          <UnorderedList className="mb-2 list-inside space-y-1 text-xs opacity-70">
             <li>Search/filter items</li>
             <li>Select All / Deselect All actions</li>
             <li>Check indicators for selected items</li>
             <li>Count display in trigger</li>
             <li>Keyboard navigation</li>
-          </ul>
+          </UnorderedList>
           <div className="w-80">
             <ComboboxField
               name="overview"
@@ -178,9 +183,9 @@ export const Overview: Story = {
               onChange={(v) => setValue(v ?? [])}
             />
           </div>
-          <p className="text-xs opacity-70">
+          <Paragraph margin="none" className="text-xs opacity-70">
             Selected: {value.length === 0 ? 'none' : value.join(', ')}
-          </p>
+          </Paragraph>
         </div>
       </div>
     );
@@ -212,10 +217,17 @@ export const Sizes: Story = {
 
     return (
       <div className="flex flex-col gap-6">
-        <h3 className="text-lg font-semibold">Combobox Sizes</h3>
+        <Heading level="h3" margin="none" className="text-lg">
+          Combobox Sizes
+        </Heading>
         <div className="flex w-full flex-col gap-4">
           <div>
-            <p className="mb-1 text-xs font-medium opacity-70">Small (sm)</p>
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium opacity-70"
+            >
+              Small (sm)
+            </Paragraph>
             <ComboboxField
               name="size-sm"
               size="sm"
@@ -226,9 +238,12 @@ export const Sizes: Story = {
             />
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium opacity-70"
+            >
               Medium (md) - default
-            </p>
+            </Paragraph>
             <ComboboxField
               name="size-md"
               size="md"
@@ -239,7 +254,12 @@ export const Sizes: Story = {
             />
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium opacity-70">Large (lg)</p>
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium opacity-70"
+            >
+              Large (lg)
+            </Paragraph>
             <ComboboxField
               name="size-lg"
               size="lg"
@@ -250,9 +270,12 @@ export const Sizes: Story = {
             />
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium opacity-70"
+            >
               Extra Large (xl)
-            </p>
+            </Paragraph>
             <ComboboxField
               name="size-xl"
               size="xl"
@@ -280,10 +303,17 @@ export const States: Story = {
   name: 'States: All Variants',
   render: () => (
     <div className="flex flex-col gap-6">
-      <h3 className="text-lg font-semibold">Combobox States</h3>
+      <Heading level="h3" margin="none" className="text-lg">
+        Combobox States
+      </Heading>
       <div className="flex w-full flex-col gap-4">
         <div>
-          <p className="mb-1 text-xs font-medium opacity-70">Normal</p>
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium opacity-70"
+          >
+            Normal
+          </Paragraph>
           <ComboboxField
             name="state-normal"
             options={sampleOptions}
@@ -295,7 +325,12 @@ export const States: Story = {
           />
         </div>
         <div>
-          <p className="mb-1 text-xs font-medium opacity-70">With Selection</p>
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium opacity-70"
+          >
+            With Selection
+          </Paragraph>
           <ComboboxField
             name="state-selected"
             options={sampleOptions}
@@ -307,7 +342,12 @@ export const States: Story = {
           />
         </div>
         <div>
-          <p className="mb-1 text-xs font-medium opacity-70">Disabled</p>
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium opacity-70"
+          >
+            Disabled
+          </Paragraph>
           <ComboboxField
             name="state-disabled"
             options={sampleOptions}
@@ -319,7 +359,12 @@ export const States: Story = {
           />
         </div>
         <div>
-          <p className="mb-1 text-xs font-medium opacity-70">Read Only</p>
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium opacity-70"
+          >
+            Read Only
+          </Paragraph>
           <ComboboxField
             name="state-readonly"
             options={sampleOptions}
@@ -331,7 +376,12 @@ export const States: Story = {
           />
         </div>
         <div>
-          <p className="mb-1 text-xs font-medium opacity-70">Invalid</p>
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium opacity-70"
+          >
+            Invalid
+          </Paragraph>
           <ComboboxField
             name="state-invalid"
             options={sampleOptions}
@@ -362,10 +412,12 @@ export const WithSearch: Story = {
     return (
       <div className="flex flex-col gap-8">
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold">Search Filtering</h3>
-          <p className="text-sm opacity-70">
+          <Heading level="h3" margin="none" className="text-lg">
+            Search Filtering
+          </Heading>
+          <Paragraph margin="none" className="text-sm opacity-70">
             Type to filter the list of options
-          </p>
+          </Paragraph>
           <div className="w-80">
             <ComboboxField
               name="with-search"
@@ -377,15 +429,17 @@ export const WithSearch: Story = {
               onChange={(v) => setValue(v ?? [])}
             />
           </div>
-          <p className="text-xs opacity-70">
+          <Paragraph margin="none" className="text-xs opacity-70">
             Selected: {value.length === 0 ? 'none' : value.join(', ')}
-          </p>
+          </Paragraph>
         </div>
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold">Without Search</h3>
-          <p className="text-sm opacity-70">
+          <Heading level="h3" margin="none" className="text-lg">
+            Without Search
+          </Heading>
+          <Paragraph margin="none" className="text-sm opacity-70">
             Search can be disabled for shorter lists
-          </p>
+          </Paragraph>
           <div className="w-80">
             <ComboboxField
               name="without-search"
@@ -423,10 +477,12 @@ export const WithSelectAll: Story = {
     return (
       <div className="flex flex-col gap-8">
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold">With Bulk Actions (Default)</h3>
-          <p className="text-sm opacity-70">
+          <Heading level="h3" margin="none" className="text-lg">
+            With Bulk Actions (Default)
+          </Heading>
+          <Paragraph margin="none" className="text-sm opacity-70">
             Select All and Deselect All buttons
-          </p>
+          </Paragraph>
           <div className="w-80">
             <ComboboxField
               name="with-bulk-actions"
@@ -438,15 +494,17 @@ export const WithSelectAll: Story = {
               onChange={(v) => setWithActions(v ?? [])}
             />
           </div>
-          <p className="text-xs opacity-70">
+          <Paragraph margin="none" className="text-xs opacity-70">
             Selected: {withActions.length} / {participantOptions.length}
-          </p>
+          </Paragraph>
         </div>
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold">Without Bulk Actions</h3>
-          <p className="text-sm opacity-70">
+          <Heading level="h3" margin="none" className="text-lg">
+            Without Bulk Actions
+          </Heading>
+          <Paragraph margin="none" className="text-sm opacity-70">
             Can be disabled with showSelectAll/showDeselectAll props
-          </p>
+          </Paragraph>
           <div className="w-80">
             <ComboboxField
               name="without-bulk-actions"
@@ -486,10 +544,12 @@ export const LongOptionList: Story = {
 
     return (
       <div className="flex flex-col gap-4">
-        <h3 className="text-lg font-semibold">Long List with Scroll</h3>
-        <p className="text-sm opacity-70">
+        <Heading level="h3" margin="none" className="text-lg">
+          Long List with Scroll
+        </Heading>
+        <Paragraph margin="none" className="text-sm opacity-70">
           Lists with many items show a scrollable dropdown with max height
-        </p>
+        </Paragraph>
         <div className="w-96">
           <ComboboxField
             name="long-list"
@@ -499,7 +559,9 @@ export const LongOptionList: Story = {
             onChange={(v) => setValue(v ?? [])}
           />
         </div>
-        <p className="text-xs opacity-70">Selected: {value.length} items</p>
+        <Paragraph margin="none" className="text-xs opacity-70">
+          Selected: {value.length} items
+        </Paragraph>
       </div>
     );
   },
@@ -524,10 +586,12 @@ export const UsageExamples: Story = {
     return (
       <div className="flex flex-col gap-8">
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold">Participant Selector</h3>
-          <p className="text-sm opacity-70">
+          <Heading level="h3" margin="none" className="text-lg">
+            Participant Selector
+          </Heading>
+          <Paragraph margin="none" className="text-sm opacity-70">
             Typical usage for selecting participants (default all selected)
-          </p>
+          </Paragraph>
           <div className="w-80">
             <ComboboxField
               name="participants"
@@ -539,18 +603,20 @@ export const UsageExamples: Story = {
               onChange={(v) => setSelectedParticipants(v ?? [])}
             />
           </div>
-          <p className="text-xs opacity-70">
+          <Paragraph margin="none" className="text-xs opacity-70">
             {selectedParticipants.length === participantOptions.length
               ? 'All participants selected'
               : `${selectedParticipants.length} of ${participantOptions.length} participants selected`}
-          </p>
+          </Paragraph>
         </div>
 
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold">Country Multi-Select</h3>
-          <p className="text-sm opacity-70">
+          <Heading level="h3" margin="none" className="text-lg">
+            Country Multi-Select
+          </Heading>
+          <Paragraph margin="none" className="text-sm opacity-70">
             Filter by multiple countries with search
-          </p>
+          </Paragraph>
           <div className="w-80">
             <ComboboxField
               name="countries"
@@ -591,8 +657,12 @@ export const DisabledOptions: Story = {
 
     return (
       <div className="flex flex-col gap-4">
-        <h3 className="text-lg font-semibold">Disabled Options</h3>
-        <p className="text-sm opacity-70">Individual options can be disabled</p>
+        <Heading level="h3" margin="none" className="text-lg">
+          Disabled Options
+        </Heading>
+        <Paragraph margin="none" className="text-sm opacity-70">
+          Individual options can be disabled
+        </Paragraph>
         <div className="w-80">
           <ComboboxField
             name="disabled-options"
@@ -602,9 +672,9 @@ export const DisabledOptions: Story = {
             onChange={(v) => setValue(v ?? [])}
           />
         </div>
-        <p className="text-xs opacity-70">
+        <Paragraph margin="none" className="text-xs opacity-70">
           Note: Select All only selects enabled options
-        </p>
+        </Paragraph>
       </div>
     );
   },

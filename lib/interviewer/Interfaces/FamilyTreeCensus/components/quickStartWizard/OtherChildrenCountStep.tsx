@@ -19,6 +19,7 @@ export default function OtherChildrenCountStep() {
     <div className="flex flex-col gap-3 pt-4">
       <UnconnectedField
         name="otherChildrenCount"
+        inline
         label="How many children do you have from other relationships?"
         component={NumberCounterField}
         value={count}

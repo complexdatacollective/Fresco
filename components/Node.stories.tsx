@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import Node, { NodeColors } from './Node';
 
 const meta: Meta<typeof Node> = {
@@ -196,11 +198,19 @@ export const ShapesAtAllSizes: Story = {
           <span className="w-12 text-sm font-medium">{size}</span>
           <div className="flex items-end gap-6">
             <div className="flex flex-col items-center gap-2">
-              <Node size={size} shape="circle" label={size === 'xxs' ? '' : 'Circle'} />
+              <Node
+                size={size}
+                shape="circle"
+                label={size === 'xxs' ? '' : 'Circle'}
+              />
               <span className="text-xs text-current/70">circle</span>
             </div>
             <div className="flex flex-col items-center gap-2">
-              <Node size={size} shape="square" label={size === 'xxs' ? '' : 'Square'} />
+              <Node
+                size={size}
+                shape="square"
+                label={size === 'xxs' ? '' : 'Square'}
+              />
               <span className="text-xs text-current/70">square</span>
             </div>
           </div>
@@ -397,22 +407,24 @@ export const InferredBehaviors: Story = {
   render: () => (
     <div className="flex flex-col gap-8">
       <div>
-        <h3 className="mb-2 text-sm font-medium">With onClick (Clickable)</h3>
-        <p className="mb-4 text-xs text-current/70">
+        <Heading level="h3" margin="none" className="mb-2 text-sm font-medium">
+          With onClick (Clickable)
+        </Heading>
+        <Paragraph margin="none" className="mb-4 text-xs text-current/70">
           Pointer cursor, press animation on click. Behavior is inferred from
           onClick being present.
-        </p>
+        </Paragraph>
         {/* eslint-disable-next-line no-console */}
         <Node label="Clickable" onClick={() => console.log('clicked')} />
       </div>
       <div>
-        <h3 className="mb-2 text-sm font-medium">
+        <Heading level="h3" margin="none" className="mb-2 text-sm font-medium">
           With style.cursor (Draggable)
-        </h3>
-        <p className="mb-4 text-xs text-current/70">
+        </Heading>
+        <Paragraph margin="none" className="mb-4 text-xs text-current/70">
           Grab cursor from external style. This is how drag systems like
           useDragSource integrate.
-        </p>
+        </Paragraph>
         <Node
           label="Draggable"
           style={{ cursor: 'grab' }}
@@ -420,11 +432,13 @@ export const InferredBehaviors: Story = {
         />
       </div>
       <div>
-        <h3 className="mb-2 text-sm font-medium">Both onClick & Cursor</h3>
-        <p className="mb-4 text-xs text-current/70">
+        <Heading level="h3" margin="none" className="mb-2 text-sm font-medium">
+          Both onClick & Cursor
+        </Heading>
+        <Paragraph margin="none" className="mb-4 text-xs text-current/70">
           External cursor style takes precedence, but press animation still
           works from onClick.
-        </p>
+        </Paragraph>
         <Node
           label="Both"
           style={{ cursor: 'grab' }}
@@ -434,10 +448,12 @@ export const InferredBehaviors: Story = {
         />
       </div>
       <div>
-        <h3 className="mb-2 text-sm font-medium">Display Only</h3>
-        <p className="mb-4 text-xs text-current/70">
+        <Heading level="h3" margin="none" className="mb-2 text-sm font-medium">
+          Display Only
+        </Heading>
+        <Paragraph margin="none" className="mb-4 text-xs text-current/70">
           No onClick, no cursor override. Default cursor, no press animation.
-        </p>
+        </Paragraph>
         <Node label="Display" color="node-color-seq-4" />
       </div>
     </div>
@@ -523,10 +539,10 @@ export const InteractiveDemo: Story = {
     return (
       <div className="flex flex-col gap-8">
         <div>
-          <p className="mb-4 text-sm text-current/70">
+          <Paragraph margin="none" className="mb-4 text-sm text-current/70">
             <strong>Click</strong> to toggle selection ·{' '}
             <strong>Shift+Click</strong> to toggle linking mode
-          </p>
+          </Paragraph>
           <div className="flex gap-6">
             {nodes.map((node) => (
               <Node

@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 
 const ColorSwatch = ({
   name,
@@ -44,10 +46,12 @@ export const SemanticColors: Story = {
   render: () => (
     <div className="space-y-8">
       <div>
-        <h2 className="mb-4 text-2xl font-bold">Semantic Colors</h2>
-        <p className="text-text/70 mb-6 text-sm">
+        <Heading level="h2" margin="none" className="mb-4">
+          Semantic Colors
+        </Heading>
+        <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
           Core brand and semantic colors used throughout the application
-        </p>
+        </Paragraph>
         <div className="tablet:grid-cols-4 grid grid-cols-2 gap-6">
           <ColorSwatch
             name="Primary"
@@ -73,10 +77,12 @@ export const SemanticColors: Story = {
       </div>
 
       <div>
-        <h2 className="mb-4 text-2xl font-bold">Status Colors</h2>
-        <p className="text-text/70 mb-6 text-sm">
+        <Heading level="h2" margin="none" className="mb-4">
+          Status Colors
+        </Heading>
+        <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
           Colors for indicating status, alerts, and user feedback
-        </p>
+        </Paragraph>
         <div className="tablet:grid-cols-4 grid grid-cols-2 gap-6">
           <ColorSwatch
             name="Success"
@@ -102,10 +108,12 @@ export const SemanticColors: Story = {
       </div>
 
       <div>
-        <h2 className="mb-4 text-2xl font-bold">Base Colors</h2>
-        <p className="text-text/70 mb-6 text-sm">
+        <Heading level="h2" margin="none" className="mb-4">
+          Base Colors
+        </Heading>
+        <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
           Foundation colors for backgrounds, surfaces, and text
-        </p>
+        </Paragraph>
         <div className="tablet:grid-cols-4 grid grid-cols-2 gap-6">
           <ColorSwatch name="Background" cssVar="--background" />
           <ColorSwatch name="Text" cssVar="--text" contrastVar="--neutral" />
@@ -119,10 +127,12 @@ export const SemanticColors: Story = {
       </div>
 
       <div>
-        <h2 className="mb-4 text-2xl font-bold">Surface Levels</h2>
-        <p className="text-text/70 mb-6 text-sm">
+        <Heading level="h2" margin="none" className="mb-4">
+          Surface Levels
+        </Heading>
+        <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
           Layered surfaces for depth and hierarchy
-        </p>
+        </Paragraph>
         <div className="tablet:grid-cols-4 grid grid-cols-2 gap-6">
           <ColorSwatch name="Surface" cssVar="--surface" />
           <ColorSwatch name="Surface 1" cssVar="--surface-1" />
@@ -137,10 +147,12 @@ export const SemanticColors: Story = {
       </div>
 
       <div>
-        <h2 className="mb-4 text-2xl font-bold">Interactive Colors</h2>
-        <p className="text-text/70 mb-6 text-sm">
+        <Heading level="h2" margin="none" className="mb-4">
+          Interactive Colors
+        </Heading>
+        <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
           Colors for interactive elements and inputs
-        </p>
+        </Paragraph>
         <div className="tablet:grid-cols-4 grid grid-cols-2 gap-6">
           <ColorSwatch
             name="Input"
@@ -163,10 +175,12 @@ export const NodeColors: Story = {
   render: () => (
     <div className="space-y-8">
       <div>
-        <h2 className="mb-4 text-2xl font-bold">Node Colors</h2>
-        <p className="text-text/70 mb-6 text-sm">
+        <Heading level="h2" margin="none" className="mb-4">
+          Node Colors
+        </Heading>
+        <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
           Sequential colors for network nodes (1-8)
-        </p>
+        </Paragraph>
         <div className="tablet:grid-cols-4 grid grid-cols-2 gap-6">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
             <ColorSwatch
@@ -186,10 +200,12 @@ export const EdgeColors: Story = {
   render: () => (
     <div className="space-y-8">
       <div>
-        <h2 className="mb-4 text-2xl font-bold">Edge Colors</h2>
-        <p className="text-text/70 mb-6 text-sm">
+        <Heading level="h2" margin="none" className="mb-4">
+          Edge Colors
+        </Heading>
+        <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
           Sequential colors for network edges (1-10)
-        </p>
+        </Paragraph>
         <div className="tablet:grid-cols-4 laptop:grid-cols-5 grid grid-cols-2 gap-6">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
             <ColorSwatch
@@ -209,8 +225,12 @@ export const OrdinalColors: Story = {
   render: () => (
     <div className="space-y-8">
       <div>
-        <h2 className="mb-4 text-2xl font-bold">Ordinal Colors</h2>
-        <p className="text-text/70 mb-6 text-sm">Ordinal scale colors (1-8)</p>
+        <Heading level="h2" margin="none" className="mb-4">
+          Ordinal Colors
+        </Heading>
+        <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
+          Ordinal scale colors (1-8)
+        </Paragraph>
         <div className="tablet:grid-cols-4 grid grid-cols-2 gap-6">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
             <ColorSwatch
@@ -229,10 +249,12 @@ export const CategoricalColors: Story = {
   render: () => (
     <div className="space-y-8">
       <div>
-        <h2 className="mb-4 text-2xl font-bold">Categorical Colors</h2>
-        <p className="text-text/70 mb-6 text-sm">
+        <Heading level="h2" margin="none" className="mb-4">
+          Categorical Colors
+        </Heading>
+        <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
           Categorical colors for groups and convex hulls (1-10)
-        </p>
+        </Paragraph>
         <div className="tablet:grid-cols-4 laptop:grid-cols-5 grid grid-cols-2 gap-6">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
             <ColorSwatch
@@ -251,14 +273,18 @@ export const AllColors: Story = {
   render: () => (
     <div className="space-y-12">
       <div>
-        <h1 className="mb-2 text-3xl font-bold">Complete Color System</h1>
-        <p className="text-text/70 mb-8">
+        <Heading level="h1" margin="none" className="mb-2">
+          Complete Color System
+        </Heading>
+        <Paragraph margin="none" className="text-text/70 mb-8">
           All colors available in the Fresco design system
-        </p>
+        </Paragraph>
       </div>
 
       <div>
-        <h2 className="mb-4 text-2xl font-bold">Semantic Colors</h2>
+        <Heading level="h2" margin="none" className="mb-4">
+          Semantic Colors
+        </Heading>
         <div className="tablet:grid-cols-4 grid grid-cols-2 gap-4">
           <ColorSwatch
             name="Primary"
@@ -304,7 +330,9 @@ export const AllColors: Story = {
       </div>
 
       <div>
-        <h2 className="mb-4 text-2xl font-bold">Node Sequence</h2>
+        <Heading level="h2" margin="none" className="mb-4">
+          Node Sequence
+        </Heading>
         <div className="tablet:grid-cols-4 grid grid-cols-2 gap-4">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
             <ColorSwatch
@@ -318,7 +346,9 @@ export const AllColors: Story = {
       </div>
 
       <div>
-        <h2 className="mb-4 text-2xl font-bold">Edge Sequence</h2>
+        <Heading level="h2" margin="none" className="mb-4">
+          Edge Sequence
+        </Heading>
         <div className="tablet:grid-cols-4 laptop:grid-cols-5 grid grid-cols-2 gap-4">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
             <ColorSwatch
@@ -331,7 +361,9 @@ export const AllColors: Story = {
       </div>
 
       <div>
-        <h2 className="mb-4 text-2xl font-bold">Ordinal & Categorical</h2>
+        <Heading level="h2" margin="none" className="mb-4">
+          Ordinal & Categorical
+        </Heading>
         <div className="tablet:grid-cols-4 grid grid-cols-2 gap-4">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
             <ColorSwatch

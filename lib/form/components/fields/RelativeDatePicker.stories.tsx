@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import RelativeDatePickerField from './RelativeDatePicker';
 
 const meta: Meta<typeof RelativeDatePickerField> = {
@@ -106,9 +108,9 @@ export const Default: Story = {
           onChange={(v) => setValue(v ?? '')}
           name="relative-date"
         />
-        <p className="text-xs text-current opacity-70">
+        <Paragraph margin="none" className="text-xs text-current opacity-70">
           Selected: {value || 'none'} (±30 days from today)
-        </p>
+        </Paragraph>
       </div>
     );
   },
@@ -132,7 +134,9 @@ export const AllSizes: Story = {
     return (
       <div className="flex w-full max-w-2xl flex-col gap-4">
         <div>
-          <h3 className="mb-2 text-sm font-semibold">Small</h3>
+          <Heading level="h3" margin="none" className="mb-2 text-sm">
+            Small
+          </Heading>
           <RelativeDatePickerField
             size="sm"
             before={30}
@@ -143,7 +147,9 @@ export const AllSizes: Story = {
           />
         </div>
         <div>
-          <h3 className="mb-2 text-sm font-semibold">Medium (default)</h3>
+          <Heading level="h3" margin="none" className="mb-2 text-sm">
+            Medium (default)
+          </Heading>
           <RelativeDatePickerField
             size="md"
             before={30}
@@ -154,7 +160,9 @@ export const AllSizes: Story = {
           />
         </div>
         <div>
-          <h3 className="mb-2 text-sm font-semibold">Large</h3>
+          <Heading level="h3" margin="none" className="mb-2 text-sm">
+            Large
+          </Heading>
           <RelativeDatePickerField
             size="lg"
             before={30}
@@ -175,9 +183,12 @@ export const AllStates: Story = {
     <div className="flex w-full max-w-md flex-col gap-6">
       <div className="space-y-3">
         <div>
-          <p className="mb-1 text-xs font-medium text-current opacity-70">
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium text-current opacity-70"
+          >
             Normal
-          </p>
+          </Paragraph>
           <RelativeDatePickerField
             before={30}
             after={30}
@@ -189,9 +200,12 @@ export const AllStates: Story = {
           />
         </div>
         <div>
-          <p className="mb-1 text-xs font-medium text-current opacity-70">
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium text-current opacity-70"
+          >
             Disabled
-          </p>
+          </Paragraph>
           <RelativeDatePickerField
             before={30}
             after={30}
@@ -204,9 +218,12 @@ export const AllStates: Story = {
           />
         </div>
         <div>
-          <p className="mb-1 text-xs font-medium text-current opacity-70">
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium text-current opacity-70"
+          >
             Read-Only
-          </p>
+          </Paragraph>
           <RelativeDatePickerField
             before={30}
             after={30}
@@ -219,9 +236,12 @@ export const AllStates: Story = {
           />
         </div>
         <div>
-          <p className="mb-1 text-xs font-medium text-current opacity-70">
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium text-current opacity-70"
+          >
             Invalid
-          </p>
+          </Paragraph>
           <RelativeDatePickerField
             before={30}
             after={30}
@@ -260,9 +280,9 @@ export const PastOnly: Story = {
           onChange={(v) => setValue(v ?? '')}
           name="past-date"
         />
-        <p className="text-xs text-current opacity-70">
+        <Paragraph margin="none" className="text-xs text-current opacity-70">
           Allows selection up to 365 days in the past (after=0)
-        </p>
+        </Paragraph>
       </div>
     );
   },
@@ -290,9 +310,9 @@ export const FutureOnly: Story = {
           onChange={(v) => setValue(v ?? '')}
           name="future-date"
         />
-        <p className="text-xs text-current opacity-70">
+        <Paragraph margin="none" className="text-xs text-current opacity-70">
           Allows selection up to 90 days in the future (before=0)
-        </p>
+        </Paragraph>
       </div>
     );
   },
@@ -322,9 +342,9 @@ export const WithCustomAnchor: Story = {
           onChange={(v) => setValue(v ?? '')}
           name="anchor-date"
         />
-        <p className="text-xs text-current opacity-70">
+        <Paragraph margin="none" className="text-xs text-current opacity-70">
           Anchored to {anchor} (±7 days)
-        </p>
+        </Paragraph>
       </div>
     );
   },

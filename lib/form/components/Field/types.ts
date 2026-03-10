@@ -206,12 +206,29 @@ export type FieldValueProps<V extends FieldValue> = {
  * Generic over C (the component type) to enable type inference.
  */
 type FieldOwnProps<C extends ValidFieldComponent> = {
+  /** Unique field name, used as the key in form state. */
   name: string;
+  /** Label text rendered above (or beside when inline) the control. */
   label: string;
+  /** Supplementary text rendered below the label. */
   hint?: ReactNode;
+  /**
+   * When true, renders the label and control on the same horizontal row
+   * with the hint grouped beneath the label.
+   * @default false
+   */
+  inline?: boolean;
+  /** Value the field starts with before user interaction. */
   initialValue?: ExtractValue<C> | undefined;
+  /**
+   * When true, renders a human-readable summary of the field's validation
+   * rules (e.g. "required", "between 8 and 64 characters") below the hint.
+   * @default false
+   */
   showValidationHints?: boolean;
+  /** Prevents user interaction and dims the control. */
   disabled?: boolean;
+  /** Allows the value to be read but not changed. */
   readOnly?: boolean;
   /**
    * Context required for context-dependent validations like unique, sameAs, etc.

@@ -1,11 +1,14 @@
 import { Dialog } from '@base-ui/react/dialog';
 import {
-  type HTMLMotionProps,
+  LayoutGroup,
   motion,
+  useAnimate,
+  usePresence,
+  type HTMLMotionProps,
   type TargetAndTransition,
   type VariantLabels,
 } from 'motion/react';
-import { type ComponentProps } from 'react';
+import { useEffect, useId, type ComponentProps } from 'react';
 
 /**
  * Default animation parameters loosely based on iOS dialog animations.
@@ -18,6 +21,7 @@ const defaultPopupAnimation = {
     y: 0,
     scale: 1,
     filter: 'blur(0px)',
+    transition: { when: 'beforeChildren' },
   },
   exit: {
     opacity: 0,
@@ -86,6 +90,8 @@ export default function ModalPopup({
 }: ModalPopupProps) {
   const hasLayoutId = 'layoutId' in props && props.layoutId !== undefined;
 
+  const id = useId();
+
   const hasAnimationProps =
     'initial' in props || 'animate' in props || 'exit' in props;
 
@@ -96,34 +102,80 @@ export default function ModalPopup({
   const animation = hasLayoutId
     ? ({
         initial: { opacity: 0.9999 },
-        animate: { opacity: 1 },
-        exit: { opacity: 0.9999 },
+        animate: { opacity: 1, transition: { when: 'beforeChidlren' } },
+        exit: { opacity: 0.9999, transition: { when: 'afterChidlren' } },
       } as const)
-    : hasAnimationProps
-      ? {}
-      : {
-          initial: defaultPopupAnimation.initial,
-          animate: defaultPopupAnimation.animate,
-          exit: defaultPopupAnimation.exit,
-        };
+    : {};
+
+  const [scope, animate] = useAnimate();
+
+  const [isPresent, safeToRemove] = usePresence(!hasLayoutId);
+
+  useEffect(() => {
+    if (hasLayoutId) {
+      console.log('layout ID');
+      return;
+    }
+
+    if (isPresent) {
+      const enterAnimation = async () => {
+        console.log('animating in');
+        await animate(
+          scope.current,
+          {
+            opacity: [0, 1],
+            y: ['-10%', '0%'],
+            scale: [1.2, 1],
+            filter: ['blur(10px)', 'blur(0px)'],
+          },
+          {
+            when: 'beforeChildren',
+            type: 'spring',
+            stiffness: 500,
+            damping: 30,
+          },
+        );
+      };
+      void enterAnimation();
+    } else {
+      const exitAnimation = async () => {
+        console.log('animating out');
+        await animate(scope.current, {
+          opacity: [1, 0],
+          y: ['0%', '-10%'],
+          scale: [1, 1.5],
+          filter: ['blur(0px)', 'blur(10px)'],
+        });
+        safeToRemove();
+      };
+
+      void exitAnimation();
+    }
+  }, [isPresent, scope, safeToRemove, animate, hasLayoutId]);
 
   return (
-    <Dialog.Popup
-      render={(popupProps) => (
-        <motion.div
-          {...(popupProps as HTMLMotionProps<'div'>)}
-          className={className}
-          variants={defaultPopupAnimation}
-          {...props}
-          {...animation}
-          // Even though the dialog uses createPortal, it will still potentially
-          // inherit motion settings from parents. Prevent that here.
-          inherit={false}
-          style={{ borderRadius: 28, ...popupProps.style }}
-        >
-          {children}
-        </motion.div>
-      )}
-    />
+    <LayoutGroup id={id}>
+      <Dialog.Popup
+        // Must render motion.div to properly detect animation completion for Base-UI's Dialog
+        render={
+          <motion.div
+            ref={scope}
+            layout
+            className={className}
+            {...props}
+            {...animation}
+            style={{ borderRadius: 28 }}
+            onLayoutAnimationComplete={() => {
+              console.log('layout animation complete');
+            }}
+            onAnimationComplete={() => {
+              console.log('animation complete');
+            }}
+          />
+        }
+      >
+        {children}
+      </Dialog.Popup>
+    </LayoutGroup>
   );
 }

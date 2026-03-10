@@ -2,8 +2,8 @@ import { useSelector } from 'react-redux';
 import Node from '~/components/Node';
 import Paragraph from '~/components/typography/Paragraph';
 import { useDragSource } from '~/lib/dnd';
-import { useClickUnlessDragged } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/useClickUnlessDragged';
 import { type NodeData } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
+import { useClickUnlessDragged } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/useClickUnlessDragged';
 import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
 
 /**
@@ -74,39 +74,6 @@ type FamilyTreeNodeProps = {
   onTap?: (nodeId: string) => void;
 };
 
-function EgoArrow() {
-  return (
-    <svg
-      viewBox="0 0 300 300"
-      xmlns="http://www.w3.org/2000/svg"
-      className="absolute -right-6 -bottom-6 block size-30"
-    >
-      <defs>
-        <marker
-          id="arrow"
-          viewBox="0 0 10 10"
-          refX="5"
-          refY="5"
-          markerWidth="3"
-          markerHeight="6"
-          fill="yellow"
-        >
-          <path d="M 0 0 L 8.5 2 L 2 8.5 z"></path>
-        </marker>
-      </defs>
-      <line
-        x1="295"
-        y1="295"
-        x2="270"
-        y2="270"
-        stroke="yellow"
-        markerEnd="url(#arrow)"
-        strokeWidth="20"
-      ></line>
-    </svg>
-  );
-}
-
 export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
   const { node, allowDrag, selected, onTap } = props;
 
@@ -161,7 +128,6 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
                 variant={node.interviewNetworkId ? 'platinum' : 'slate'}
               />
             )}
-            <EgoArrow />
           </div>
           <div className="family-tree-node-label-container bg-cyber-grape/80 m-1 flex flex-col rounded-md px-2 py-1 text-white">
             <Paragraph

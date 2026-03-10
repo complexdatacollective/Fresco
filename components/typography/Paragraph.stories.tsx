@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import Heading from './Heading';
-import Paragraph from './Paragraph';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 
 const meta = {
   title: 'Design System/Typography/Paragraph',
@@ -115,7 +115,9 @@ export const Margins: Story = {
   render: () => (
     <div className="max-w-2xl space-y-8">
       <div className="border-accent/20 rounded-lg border p-4">
-        <p className="text-sm">Default margin (not-first:mt-4)</p>
+        <Paragraph margin="none" className="text-sm">
+          Default margin (not-first:mt-4)
+        </Paragraph>
         <Paragraph margin="default">
           First paragraph with default margin.
         </Paragraph>
@@ -128,7 +130,9 @@ export const Margins: Story = {
       </div>
 
       <div className="border-accent/20 rounded-lg border p-4">
-        <p className="text-sm">No margin</p>
+        <Paragraph margin="none" className="text-sm">
+          No margin
+        </Paragraph>
         <Paragraph margin="none">First paragraph with no margin.</Paragraph>
         <Paragraph margin="none">
           Second paragraph - no top margin applied.

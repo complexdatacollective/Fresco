@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
+import Paragraph from '~/components/typography/Paragraph';
 import ToggleButtonGroupField from './ToggleButtonGroup';
 
 const meta: Meta<typeof ToggleButtonGroupField> = {
@@ -201,7 +202,9 @@ export const Sizes: Story = {
     return (
       <div className="flex w-full flex-col gap-8">
         <div>
-          <p className="mb-2 text-sm font-medium">Small (sm)</p>
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
+            Small (sm)
+          </Paragraph>
           <ToggleButtonGroupField
             options={basicOptions}
             value={smSelected}
@@ -210,7 +213,9 @@ export const Sizes: Story = {
           />
         </div>
         <div>
-          <p className="mb-2 text-sm font-medium">Medium (md) - Default</p>
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
+            Medium (md) - Default
+          </Paragraph>
           <ToggleButtonGroupField
             options={basicOptions}
             value={mdSelected}
@@ -219,7 +224,9 @@ export const Sizes: Story = {
           />
         </div>
         <div>
-          <p className="mb-2 text-sm font-medium">Large (lg)</p>
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
+            Large (lg)
+          </Paragraph>
           <ToggleButtonGroupField
             options={basicOptions}
             value={lgSelected}
@@ -228,7 +235,9 @@ export const Sizes: Story = {
           />
         </div>
         <div>
-          <p className="mb-2 text-sm font-medium">Extra Large (xl)</p>
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
+            Extra Large (xl)
+          </Paragraph>
           <ToggleButtonGroupField
             options={basicOptions}
             value={xlSelected}
@@ -255,9 +264,9 @@ export const SizeComparison: Story = {
     return (
       <div className="flex w-full flex-col gap-8">
         <div>
-          <p className="mb-2 text-sm font-medium">
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
             Small - Long labels truncate more
-          </p>
+          </Paragraph>
           <ToggleButtonGroupField
             options={longOptions}
             value={selected}
@@ -266,9 +275,9 @@ export const SizeComparison: Story = {
           />
         </div>
         <div>
-          <p className="mb-2 text-sm font-medium">
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
             Extra Large - More room for text
-          </p>
+          </Paragraph>
           <ToggleButtonGroupField
             options={longOptions}
             value={selected}

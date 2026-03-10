@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useEffect, useState } from 'react';
 import { expect, userEvent, within } from 'storybook/test';
 import Surface from '~/components/layout/Surface';
+import Paragraph from '~/components/typography/Paragraph';
 import VisualAnalogScaleField from './VisualAnalogScale';
 
 const meta = {
@@ -181,9 +182,9 @@ function UnsetVASWithValueDisplay({
           }
         }}
       />
-      <p data-testid="vas-value">
+      <Paragraph margin="none" data-testid="vas-value">
         {value === undefined ? 'unset' : String(value)}
-      </p>
+      </Paragraph>
     </div>
   );
 }
@@ -280,7 +281,12 @@ export const AllStates: Story = {
   render: () => (
     <div className="flex flex-col gap-8">
       <div>
-        <p className="mb-2 text-xs font-medium text-current/50">Unset</p>
+        <Paragraph
+          margin="none"
+          className="mb-2 text-xs font-medium text-current/50"
+        >
+          Unset
+        </Paragraph>
         <VisualAnalogScaleField
           value={undefined}
           minLabel="Low"
@@ -288,11 +294,21 @@ export const AllStates: Story = {
         />
       </div>
       <div>
-        <p className="mb-2 text-xs font-medium text-current/50">Normal</p>
+        <Paragraph
+          margin="none"
+          className="mb-2 text-xs font-medium text-current/50"
+        >
+          Normal
+        </Paragraph>
         <VisualAnalogScaleField value={50} minLabel="Low" maxLabel="High" />
       </div>
       <div>
-        <p className="mb-2 text-xs font-medium text-current/50">Disabled</p>
+        <Paragraph
+          margin="none"
+          className="mb-2 text-xs font-medium text-current/50"
+        >
+          Disabled
+        </Paragraph>
         <VisualAnalogScaleField
           value={50}
           minLabel="Low"
@@ -301,7 +317,12 @@ export const AllStates: Story = {
         />
       </div>
       <div>
-        <p className="mb-2 text-xs font-medium text-current/50">Read Only</p>
+        <Paragraph
+          margin="none"
+          className="mb-2 text-xs font-medium text-current/50"
+        >
+          Read Only
+        </Paragraph>
         <VisualAnalogScaleField
           value={75}
           minLabel="Low"
@@ -310,7 +331,12 @@ export const AllStates: Story = {
         />
       </div>
       <div>
-        <p className="mb-2 text-xs font-medium text-current/50">Invalid</p>
+        <Paragraph
+          margin="none"
+          className="mb-2 text-xs font-medium text-current/50"
+        >
+          Invalid
+        </Paragraph>
         <VisualAnalogScaleField
           value={50}
           minLabel="Low"

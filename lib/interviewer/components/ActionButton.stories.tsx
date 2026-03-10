@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { icons } from 'lucide-react';
+import Heading from '~/components/typography/Heading';
 import ActionButton from '~/lib/interviewer/components/ActionButton';
 
 const meta: Meta<typeof ActionButton> = {
@@ -88,9 +89,9 @@ export const DifferentIcons: Story = {
 export const Interactive: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
-      <h3 className="text-lg font-semibold">
+      <Heading level="h3" margin="none">
         Hover over the button to see the animation
-      </h3>
+      </Heading>
       <ActionButton
         iconName="UserRound"
         onClick={() => alert('Button clicked!')}

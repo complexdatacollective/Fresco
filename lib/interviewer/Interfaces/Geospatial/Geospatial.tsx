@@ -84,7 +84,8 @@ export default function GeospatialInterface({
     direction: null,
   });
 
-  const { mapOptions } = stage;
+  const mapOptions: import('~/lib/interviewer/Interfaces/Geospatial/useMapbox').ExtendedMapOptions =
+    stage.mapOptions;
   const { promptIndex, prompt: currentPrompt } = usePrompts<{
     variable?: string;
   }>();

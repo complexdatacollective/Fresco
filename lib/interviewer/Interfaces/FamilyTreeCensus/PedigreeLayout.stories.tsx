@@ -35,6 +35,7 @@ const meta: Meta = {
         'Surrogacy',
         'Donor + Surrogate',
         'Known Bio Parent',
+        'Single Parent Donor',
       ],
     },
     nodeStyle: {
@@ -443,7 +444,18 @@ const NETWORKS: Record<string, NetworkData> = {
       { id: 'child', label: fakeName('male'), sex: 'male', isEgo: true },
     ],
     [
-      { source: 'parentA', target: 'parentB', type: 'partner', active: true },
+      {
+        source: 'parentA',
+        target: 'parentB',
+        type: 'partner',
+        active: false,
+      },
+      {
+        source: 'parentA',
+        target: 'parentC',
+        type: 'partner',
+        active: false,
+      },
       {
         source: 'parentA',
         target: 'child',
@@ -854,6 +866,35 @@ const NETWORKS: Record<string, NetworkData> = {
         target: 'grandchild',
         type: 'parent',
         edgeType: 'parent',
+      },
+    ],
+  ),
+  'Single Parent Donor': buildNetwork(
+    [
+      { id: 'mom', label: fakeName('female'), sex: 'female' },
+      { id: 'donor', label: 'Sperm Donor', sex: 'male' },
+      { id: 'ego', label: fakeName('female'), sex: 'female', isEgo: true },
+      { id: 'sibling', label: fakeName('male'), sex: 'male' },
+    ],
+    [
+      {
+        source: 'mom',
+        target: 'ego',
+        type: 'parent',
+        edgeType: 'parent',
+      },
+      {
+        source: 'mom',
+        target: 'sibling',
+        type: 'parent',
+        edgeType: 'parent',
+      },
+      { source: 'donor', target: 'ego', type: 'parent', edgeType: 'donor' },
+      {
+        source: 'donor',
+        target: 'sibling',
+        type: 'parent',
+        edgeType: 'donor',
       },
     ],
   ),

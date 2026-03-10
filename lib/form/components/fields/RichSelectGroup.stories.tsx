@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
+import Paragraph from '~/components/typography/Paragraph';
 import RichSelectGroupField, { type RichSelectOption } from './RichSelectGroup';
 
 const meta: Meta<typeof RichSelectGroupField> = {
@@ -217,7 +218,9 @@ export const Sizes: Story = {
     return (
       <div className="flex w-full flex-col gap-8">
         <div>
-          <p className="mb-2 text-sm font-medium">Small (sm)</p>
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
+            Small (sm)
+          </Paragraph>
           <RichSelectGroupField
             options={basicOptions}
             value={smValue}
@@ -227,7 +230,9 @@ export const Sizes: Story = {
           />
         </div>
         <div>
-          <p className="mb-2 text-sm font-medium">Medium (md) - Default</p>
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
+            Medium (md) - Default
+          </Paragraph>
           <RichSelectGroupField
             options={basicOptions}
             value={mdValue}
@@ -237,7 +242,9 @@ export const Sizes: Story = {
           />
         </div>
         <div>
-          <p className="mb-2 text-sm font-medium">Large (lg)</p>
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
+            Large (lg)
+          </Paragraph>
           <RichSelectGroupField
             options={basicOptions}
             value={lgValue}
@@ -247,7 +254,9 @@ export const Sizes: Story = {
           />
         </div>
         <div>
-          <p className="mb-2 text-sm font-medium">Extra Large (xl)</p>
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
+            Extra Large (xl)
+          </Paragraph>
           <RichSelectGroupField
             options={basicOptions}
             value={xlValue}
@@ -266,7 +275,9 @@ export const AllStates: Story = {
     return (
       <div className="flex w-full max-w-lg flex-col gap-8">
         <div>
-          <p className="mb-2 text-sm font-medium">Normal:</p>
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
+            Normal:
+          </Paragraph>
           <RichSelectGroupField
             options={basicOptions}
             defaultValue="option-a"
@@ -274,7 +285,9 @@ export const AllStates: Story = {
           />
         </div>
         <div>
-          <p className="mb-2 text-sm font-medium">ReadOnly:</p>
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
+            ReadOnly:
+          </Paragraph>
           <RichSelectGroupField
             options={basicOptions}
             defaultValue="option-a"
@@ -283,7 +296,9 @@ export const AllStates: Story = {
           />
         </div>
         <div>
-          <p className="mb-2 text-sm font-medium">Disabled:</p>
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
+            Disabled:
+          </Paragraph>
           <RichSelectGroupField
             options={basicOptions}
             defaultValue="option-a"
@@ -292,7 +307,9 @@ export const AllStates: Story = {
           />
         </div>
         <div>
-          <p className="mb-2 text-sm font-medium">Invalid:</p>
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
+            Invalid:
+          </Paragraph>
           <RichSelectGroupField
             options={basicOptions}
             defaultValue="option-a"

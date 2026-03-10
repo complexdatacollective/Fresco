@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
@@ -41,11 +42,12 @@ export default function ParentsDetailStep() {
   };
 
   return (
-    <div className="flex flex-col gap-6 pt-4">
+    <div className="mt-6 flex flex-col gap-6">
       {parents.map((parent, i) => (
-        <div key={i} className="flex flex-col gap-3 rounded border p-4">
+        <Surface key={i} level={1}>
           <Heading level="h3">Parent {i + 1}</Heading>
           <UnconnectedField
+            inline
             name={`parent-${i}-nameKnown`}
             label="I know this person's name"
             component={ToggleField}
@@ -70,6 +72,7 @@ export default function ParentsDetailStep() {
           />
           <UnconnectedField
             name={`parent-${i}-isBioParent`}
+            inline
             label="This is my biological parent"
             component={ToggleField}
             value={parent.biological !== false}
@@ -77,7 +80,7 @@ export default function ParentsDetailStep() {
               updateParent(i, { biological: v ?? true });
             }}
           />
-        </div>
+        </Surface>
       ))}
     </div>
   );

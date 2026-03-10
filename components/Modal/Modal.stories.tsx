@@ -3,6 +3,8 @@ import { motion } from 'motion/react';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 import ModalPopup from '~/components/Modal/ModalPopup';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import { cx } from '~/utils/cva';
 import Button from '../ui/Button';
 import Modal from './Modal';
@@ -42,12 +44,14 @@ function InteractiveModal() {
             'bg-surface-1 text-surface-1-contrast rounded-lg p-6 shadow-xl',
           )}
         >
-          <h2 className="mb-2 text-lg font-semibold">Modal Title</h2>
-          <p className="mb-4 text-current/70">
+          <Heading level="h2" margin="none" className="mb-2 text-lg">
+            Modal Title
+          </Heading>
+          <Paragraph margin="none" className="mb-4 text-current/70">
             This is a basic modal using the Modal component that uses the
             built-in animation for ModalPopup. Click outside or press Escape to
             close.
-          </p>
+          </Paragraph>
           <div className="flex justify-end gap-2">
             <Button onClick={() => setOpen(false)}>Close</Button>
           </div>
@@ -80,12 +84,14 @@ function SheetExample() {
           transition={{ type: 'tween', duration: 0.3 }}
         >
           <div className="flex h-full flex-col p-6">
-            <h2 className="mb-2 text-lg font-semibold">Sheet Panel</h2>
-            <p className="mb-4 flex-1 text-current/70">
+            <Heading level="h2" margin="none" className="mb-2 text-lg">
+              Sheet Panel
+            </Heading>
+            <Paragraph margin="none" className="mb-4 flex-1 text-current/70">
               This demonstrates using Modal for a side sheet/drawer pattern. The
               Modal component handles the backdrop and portal, while custom
               content provides the slide-in animation.
-            </p>
+            </Paragraph>
             <div className="flex justify-end">
               <Button onClick={() => setOpen(false)}>Close</Button>
             </div>
@@ -127,10 +133,12 @@ function BottomSheetExample() {
           transition={{ type: 'tween', duration: 0.3 }}
         >
           <div className="p-6">
-            <h2 className="mb-2 text-lg font-semibold">Bottom Sheet</h2>
-            <p className="mb-4 text-current/70">
+            <Heading level="h2" margin="none" className="mb-2 text-lg">
+              Bottom Sheet
+            </Heading>
+            <Paragraph margin="none" className="mb-4 text-current/70">
               A mobile-friendly bottom sheet pattern using the Modal component.
-            </p>
+            </Paragraph>
             <div className="flex justify-end">
               <Button onClick={() => setOpen(false)}>Done</Button>
             </div>
@@ -173,13 +181,15 @@ function FullscreenOverlayExample() {
         >
           <div className="flex h-full flex-col p-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Fullscreen Overlay</h2>
+              <Heading level="h2" margin="none" className="text-xl">
+                Fullscreen Overlay
+              </Heading>
               <Button onClick={() => setOpen(false)}>Close</Button>
             </div>
-            <p className="mt-4 flex-1 text-current/70">
+            <Paragraph margin="none" className="mt-4 flex-1 text-current/70">
               This demonstrates a fullscreen overlay pattern. Useful for
               immersive experiences, image galleries, or complex forms.
-            </p>
+            </Paragraph>
           </div>
         </ModalPopup>
       </Modal>
@@ -214,10 +224,12 @@ function NestedModalsExample() {
             'bg-surface-1 text-surface-1-contrast rounded-lg p-6 shadow-xl',
           )}
         >
-          <h2 className="mb-2 text-lg font-semibold">First Modal</h2>
-          <p className="mb-4 text-current/70">
+          <Heading level="h2" margin="none" className="mb-2 text-lg">
+            First Modal
+          </Heading>
+          <Paragraph margin="none" className="mb-4 text-current/70">
             This is the outer modal. You can open another modal on top of it.
-          </p>
+          </Paragraph>
           <div className="flex justify-end gap-2">
             <Button onClick={() => setOuterOpen(false)}>Close</Button>
             <Button color="primary" onClick={() => setInnerOpen(true)}>
@@ -234,10 +246,12 @@ function NestedModalsExample() {
             'bg-surface-1 text-surface-1-contrast rounded-lg p-6 shadow-xl',
           )}
         >
-          <h2 className="mb-2 text-lg font-semibold">Second Modal</h2>
-          <p className="mb-4 text-current/70">
+          <Heading level="h2" margin="none" className="mb-2 text-lg">
+            Second Modal
+          </Heading>
+          <Paragraph margin="none" className="mb-4 text-current/70">
             This is a nested modal on top of the first one.
-          </p>
+          </Paragraph>
           <div className="flex justify-end">
             <Button onClick={() => setInnerOpen(false)}>Close</Button>
           </div>
@@ -289,11 +303,13 @@ function CustomAnimationExample() {
             damping: 15,
           }}
         >
-          <h2 className="mb-2 text-lg font-semibold">Custom Animation</h2>
-          <p className="mb-4 text-current/70">
+          <Heading level="h2" margin="none" className="mb-2 text-lg">
+            Custom Animation
+          </Heading>
+          <Paragraph margin="none" className="mb-4 text-current/70">
             This modal uses a custom bouncy spring animation. You can override
             the default animation by passing different motion props.
-          </p>
+          </Paragraph>
           <div className="flex justify-end">
             <Button onClick={() => setOpen(false)}>Close</Button>
           </div>

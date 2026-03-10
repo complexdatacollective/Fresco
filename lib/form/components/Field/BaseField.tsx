@@ -33,6 +33,7 @@ type BaseFieldProps = {
   required?: boolean;
   errors?: string[];
   showErrors?: boolean;
+  inline?: boolean;
   children: ReactNode;
   // TODO: the data attributes should be typed based on the return value of useField.
   containerProps?: ExcludeMotionConflicts<
@@ -54,6 +55,7 @@ export function BaseField({
   required,
   errors = [],
   showErrors = false,
+  inline = false,
   children,
   containerProps,
 }: BaseFieldProps) {
@@ -61,22 +63,50 @@ export function BaseField({
     <motion.div
       layout="position"
       {...containerProps}
-      className={cx('group w-full grow not-last:mb-6')}
+      className={cx(
+        'group w-full grow not-last:mb-6',
+        inline && 'flex items-center justify-between gap-4',
+      )}
     >
-      <FieldLabel id={`${id}-label`} htmlFor={id} required={required}>
-        {label}
-      </FieldLabel>
-      <Hint id={`${id}-hint`}>
-        {hint && <Paragraph>{hint}</Paragraph>}
-        {validationSummary}
-      </Hint>
-      {children}
-      <FieldErrors
-        id={`${id}-error`}
-        name={name}
-        errors={errors}
-        show={showErrors}
-      />
+      {inline ? (
+        <>
+          <div>
+            <FieldLabel id={`${id}-label`} htmlFor={id} required={required}>
+              {label}
+            </FieldLabel>
+            <Hint id={`${id}-hint`}>
+              {hint && <Paragraph>{hint}</Paragraph>}
+              {validationSummary}
+            </Hint>
+          </div>
+          <div>
+            {children}
+            <FieldErrors
+              id={`${id}-error`}
+              name={name}
+              errors={errors}
+              show={showErrors}
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          <FieldLabel id={`${id}-label`} htmlFor={id} required={required}>
+            {label}
+          </FieldLabel>
+          <Hint id={`${id}-hint`}>
+            {hint && <Paragraph>{hint}</Paragraph>}
+            {validationSummary}
+          </Hint>
+          {children}
+          <FieldErrors
+            id={`${id}-error`}
+            name={name}
+            errors={errors}
+            show={showErrors}
+          />
+        </>
+      )}
     </motion.div>
   );
 }

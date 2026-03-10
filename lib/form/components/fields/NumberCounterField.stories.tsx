@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
 import { expect, userEvent, within } from 'storybook/test';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
+import { UnorderedList } from '~/components/typography/UnorderedList';
 import NumberCounterField from './NumberCounterField';
 
 const meta: Meta<typeof NumberCounterField> = {
@@ -77,9 +80,13 @@ export const Default: Story = {
           onChange={(v) => setValue(v ?? 0)}
           data-testid="default-counter"
         />
-        <p className="text-xs opacity-70" data-testid="counter-value">
+        <Paragraph
+          margin="none"
+          className="text-xs opacity-70"
+          data-testid="counter-value"
+        >
           Current value: {value}
-        </p>
+        </Paragraph>
       </div>
     );
   },
@@ -141,7 +148,12 @@ export const States: Story = {
   render: (args) => (
     <div className="flex flex-col gap-4">
       <div>
-        <p className="mb-1 text-xs font-medium opacity-70">Normal</p>
+        <Paragraph
+          margin="none"
+          className="mb-1 text-xs font-medium opacity-70"
+        >
+          Normal
+        </Paragraph>
         <NumberCounterField
           {...args}
           value={5}
@@ -150,7 +162,12 @@ export const States: Story = {
         />
       </div>
       <div>
-        <p className="mb-1 text-xs font-medium opacity-70">Disabled</p>
+        <Paragraph
+          margin="none"
+          className="mb-1 text-xs font-medium opacity-70"
+        >
+          Disabled
+        </Paragraph>
         <NumberCounterField
           {...args}
           value={5}
@@ -160,7 +177,12 @@ export const States: Story = {
         />
       </div>
       <div>
-        <p className="mb-1 text-xs font-medium opacity-70">Read-Only</p>
+        <Paragraph
+          margin="none"
+          className="mb-1 text-xs font-medium opacity-70"
+        >
+          Read-Only
+        </Paragraph>
         <NumberCounterField
           {...args}
           value={5}
@@ -170,7 +192,12 @@ export const States: Story = {
         />
       </div>
       <div>
-        <p className="mb-1 text-xs font-medium opacity-70">Invalid</p>
+        <Paragraph
+          margin="none"
+          className="mb-1 text-xs font-medium opacity-70"
+        >
+          Invalid
+        </Paragraph>
         <NumberCounterField
           {...args}
           value={5}
@@ -214,9 +241,9 @@ export const WithBoundaries: Story = {
           aria-label="Bounded counter"
           data-testid="bounded-counter"
         />
-        <p className="text-xs opacity-70">
+        <Paragraph margin="none" className="text-xs opacity-70">
           Value: {value} (min: {args.minValue}, max: {args.maxValue})
-        </p>
+        </Paragraph>
       </div>
     );
   },
@@ -266,9 +293,12 @@ export const StepValues: Story = {
     return (
       <div className="flex flex-col gap-6">
         <div>
-          <p className="mb-1 text-xs font-medium opacity-70">
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium opacity-70"
+          >
             Step: 1 (default) - Value: {value1}
-          </p>
+          </Paragraph>
           <NumberCounterField
             {...args}
             step={1}
@@ -278,9 +308,12 @@ export const StepValues: Story = {
           />
         </div>
         <div>
-          <p className="mb-1 text-xs font-medium opacity-70">
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium opacity-70"
+          >
             Step: 5 - Value: {value5}
-          </p>
+          </Paragraph>
           <NumberCounterField
             {...args}
             step={5}
@@ -290,9 +323,12 @@ export const StepValues: Story = {
           />
         </div>
         <div>
-          <p className="mb-1 text-xs font-medium opacity-70">
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium opacity-70"
+          >
             Step: 0.1 - Value: {value01}
-          </p>
+          </Paragraph>
           <NumberCounterField
             {...args}
             step={0.1}
@@ -302,9 +338,12 @@ export const StepValues: Story = {
           />
         </div>
         <div>
-          <p className="mb-1 text-xs font-medium opacity-70">
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium opacity-70"
+          >
             Step: 0.25 - Value: {value025}
-          </p>
+          </Paragraph>
           <NumberCounterField
             {...args}
             step={0.25}
@@ -357,9 +396,13 @@ export const ControlledMode: Story = {
             Set to 100
           </button>
         </div>
-        <p className="text-xs opacity-70" data-testid="controlled-value">
+        <Paragraph
+          margin="none"
+          className="text-xs opacity-70"
+          data-testid="controlled-value"
+        >
           Type: {typeof value} | Value: {value}
-        </p>
+        </Paragraph>
       </div>
     );
   },
@@ -396,15 +439,15 @@ export const KeyboardNavigation: Story = {
     const [value, setValue] = useState(5);
     return (
       <div className="space-y-4">
-        <p className="text-xs opacity-70">
+        <Paragraph margin="none" className="text-xs opacity-70">
           Focus the counter and use keyboard:
-        </p>
-        <ul className="list-disc pl-4 text-xs opacity-70">
+        </Paragraph>
+        <UnorderedList className="pl-4 text-xs opacity-70">
           <li>Arrow Up/Right: Increment</li>
           <li>Arrow Down/Left: Decrement</li>
           <li>Home: Go to minimum</li>
           <li>End: Go to maximum</li>
-        </ul>
+        </UnorderedList>
         <NumberCounterField
           {...args}
           value={value}
@@ -412,9 +455,13 @@ export const KeyboardNavigation: Story = {
           aria-label="Keyboard navigation counter"
           data-testid="keyboard-counter"
         />
-        <p className="text-xs opacity-70" data-testid="keyboard-value">
+        <Paragraph
+          margin="none"
+          className="text-xs opacity-70"
+          data-testid="keyboard-value"
+        >
           Value: {value}
-        </p>
+        </Paragraph>
       </div>
     );
   },
@@ -460,8 +507,12 @@ export const QuantitySelector: Story = {
     return (
       <div className="bg-surface rounded-lg border p-4">
         <div className="mb-4">
-          <h3 className="font-medium">Product Name</h3>
-          <p className="text-sm opacity-70">${pricePerItem.toFixed(2)} each</p>
+          <Heading level="h3" margin="none" className="text-base font-medium">
+            Product Name
+          </Heading>
+          <Paragraph margin="none" className="text-sm opacity-70">
+            ${pricePerItem.toFixed(2)} each
+          </Paragraph>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -474,10 +525,12 @@ export const QuantitySelector: Story = {
             />
           </div>
           <div className="text-right">
-            <p className="text-sm opacity-70">Total</p>
-            <p className="text-lg font-bold">
+            <Paragraph margin="none" className="text-sm opacity-70">
+              Total
+            </Paragraph>
+            <Paragraph margin="none" className="text-lg font-bold">
               ${(quantity * pricePerItem).toFixed(2)}
-            </p>
+            </Paragraph>
           </div>
         </div>
       </div>

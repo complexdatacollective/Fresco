@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useRef } from 'react';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import { Button } from './Button';
 import { useToast, type ToastVariant } from './Toast';
 
@@ -28,10 +30,12 @@ function BasicDemo() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h3 className="text-lg font-semibold">Basic Toast</h3>
-      <p className="text-sm text-current/70">
+      <Heading level="h3" margin="none" className="text-lg">
+        Basic Toast
+      </Heading>
+      <Paragraph margin="none" className="text-sm text-current/70">
         Click the button to create toasts. Hover over the stack to expand.
-      </p>
+      </Paragraph>
       <Button onClick={createToast}>Create Toast</Button>
     </div>
   );
@@ -75,10 +79,12 @@ function VariantsDemo() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h3 className="text-lg font-semibold">Toast Variants</h3>
-      <p className="text-sm text-current/70">
+      <Heading level="h3" margin="none" className="text-lg">
+        Toast Variants
+      </Heading>
+      <Paragraph margin="none" className="text-sm text-current/70">
         Different visual styles for different types of notifications.
-      </p>
+      </Paragraph>
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" onClick={() => createToast('default')}>
           Default
@@ -127,11 +133,13 @@ function MultipleToastsDemo() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h3 className="text-lg font-semibold">Multiple Toasts</h3>
-      <p className="text-sm text-current/70">
+      <Heading level="h3" margin="none" className="text-lg">
+        Multiple Toasts
+      </Heading>
+      <Paragraph margin="none" className="text-sm text-current/70">
         Create multiple toasts to see how they stack. Hover over the stack to
         expand.
-      </p>
+      </Paragraph>
       <Button onClick={createMultipleToasts}>Create Multiple Toasts</Button>
     </div>
   );

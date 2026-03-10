@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
+import Paragraph from '~/components/typography/Paragraph';
+import { UnorderedList } from '~/components/typography/UnorderedList';
 import { ResizableFlexPanel } from './ResizableFlexPanel';
 
 const meta = {
@@ -147,16 +149,18 @@ export const KeyboardAccessible: Story = {
         key="a"
         className="flex h-full flex-col items-center justify-center gap-2 rounded-lg bg-[#6366f1] p-4 text-sm text-white"
       >
-        <p className="font-semibold">Keyboard controls:</p>
-        <ul className="list-inside list-disc text-left text-xs">
+        <Paragraph margin="none" className="font-semibold">
+          Keyboard controls:
+        </Paragraph>
+        <UnorderedList className="list-inside text-left text-xs">
           <li>Arrow keys: resize by step</li>
           <li>Home/End: jump to min/max</li>
           <li>PageUp/PageDown: jump between breakpoints</li>
           <li>Double-click handle: reset to default</li>
-        </ul>
-        <p className="mt-2 text-xs opacity-70">
+        </UnorderedList>
+        <Paragraph margin="none" className="mt-2 text-xs opacity-70">
           Tab to the handle, then use these keys
-        </p>
+        </Paragraph>
       </div>,
       <Panel key="b" label="Second panel" color="#0ea5e9" />,
     ],

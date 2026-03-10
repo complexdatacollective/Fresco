@@ -67,7 +67,7 @@ function getAuxiliaryStyle(edgeType: AuxiliaryConnector['edgeType']) {
       return { strokeDasharray: '8 4', strokeWidth: 3, opacity: 0.8 };
     case 'donor':
     case 'surrogate':
-      return { strokeDasharray: '2 4', strokeWidth: 2, opacity: 0.6 };
+      return { strokeDasharray: '2 4', strokeWidth: 3, opacity: 0.6 };
   }
 }
 

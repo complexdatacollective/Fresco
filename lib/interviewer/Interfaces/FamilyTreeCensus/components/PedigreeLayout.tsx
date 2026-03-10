@@ -50,7 +50,7 @@ export default function PedigreeLayout({
     if (dimensions.nodeWidth === 0 || dimensions.nodeHeight === 0) return null;
     if (nodes.size === 0) return null;
 
-    const { input, indexToId } = storeToPedigreeInput(nodes, edges);
+    const { input, indexToId, idToIndex } = storeToPedigreeInput(nodes, edges);
     if (input.id.length === 0) return null;
 
     const layout = alignPedigree(input);
@@ -60,6 +60,7 @@ export default function PedigreeLayout({
       edges,
       dimensions,
       input.parents,
+      idToIndex,
     );
 
     return { positions, connectorData };

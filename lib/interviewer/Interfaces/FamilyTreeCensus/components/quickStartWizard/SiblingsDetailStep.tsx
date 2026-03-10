@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Heading from '~/components/typography/Heading';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/PersonFields';
 import { type PersonDetail } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
@@ -32,8 +33,8 @@ export default function SiblingsDetailStep() {
   return (
     <div className="flex flex-col gap-6 pt-4">
       {siblings.map((sibling, i) => (
-        <div key={i} className="flex flex-col gap-3 rounded-lg border p-4">
-          <h3 className="text-sm font-medium">Sibling {i + 1}</h3>
+        <div key={i} className="flex flex-col gap-3 rounded border p-4">
+          <Heading level="h3">Sibling {i + 1}</Heading>
           <PersonFields
             index={i}
             prefix="sibling"

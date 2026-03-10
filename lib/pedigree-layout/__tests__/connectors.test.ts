@@ -71,13 +71,25 @@ describe('computeConnectors', () => {
   });
 
   it('produces branched parent links (4 segments) when branch > 0', () => {
-    const connectors = computeConnectors(layout, scaling, parents, 0.6);
+    const connectors = computeConnectors(
+      layout,
+      scaling,
+      parents,
+      undefined,
+      0.6,
+    );
     const pc = connectors.parentChildLines[0]!;
     expect(pc.parentLink.length).toBe(4);
   });
 
   it('produces 2 parent link segments when branch = 0', () => {
-    const connectors = computeConnectors(layout, scaling, parents, 0);
+    const connectors = computeConnectors(
+      layout,
+      scaling,
+      parents,
+      undefined,
+      0,
+    );
     const pc = connectors.parentChildLines[0]!;
     expect(pc.parentLink.length).toBe(2);
   });

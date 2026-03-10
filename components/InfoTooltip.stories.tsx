@@ -3,6 +3,8 @@ import { HelpCircle, Star } from 'lucide-react';
 import { FieldLabel } from '~/lib/form/components/FieldLabel';
 import InfoTooltip from './InfoTooltip';
 import Heading from './typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
+import { UnorderedList } from '~/components/typography/UnorderedList';
 import { Button, IconButton } from './ui/Button';
 
 const meta = {
@@ -73,15 +75,17 @@ export const ComplexDescription: Story = {
       {...args}
       description={(props) => (
         <div {...props}>
-          <p className="mb-2">This tooltip contains multiple elements:</p>
-          <ul className="mb-2 list-inside list-disc space-y-1">
+          <Paragraph margin="none" className="mb-2">
+            This tooltip contains multiple elements:
+          </Paragraph>
+          <UnorderedList className="mb-2 list-inside space-y-1">
             <li>First item with details</li>
             <li>Second item with more information</li>
             <li>Third item for completeness</li>
-          </ul>
-          <p className="text-sm italic">
+          </UnorderedList>
+          <Paragraph margin="none" className="text-sm italic">
             Use render functions for complex layouts.
-          </p>
+          </Paragraph>
         </div>
       )}
     />
@@ -98,18 +102,18 @@ export const WithFormattedContent: Story = {
       {...args}
       description={(props) => (
         <div {...props} className="space-y-2">
-          <p>
+          <Paragraph margin="none">
             <strong>Important:</strong> This feature requires proper
             configuration.
-          </p>
-          <p>
+          </Paragraph>
+          <Paragraph margin="none">
             You can use{' '}
             <code className="rounded bg-current/10 px-1">code snippets</code>{' '}
             and other formatting.
-          </p>
-          <p className="text-xs text-current/70">
+          </Paragraph>
+          <Paragraph margin="none" className="text-xs text-current/70">
             Note: Hover behavior is automatic.
-          </p>
+          </Paragraph>
         </div>
       )}
     />
@@ -165,14 +169,14 @@ export const InContext: Story = {
             title="Section Details"
             description={(props) => (
               <div {...props}>
-                <p className="mb-2">
+                <Paragraph margin="none" className="mb-2">
                   This section contains important configuration options:
-                </p>
-                <ul className="list-inside list-disc space-y-1">
+                </Paragraph>
+                <UnorderedList className="list-inside space-y-1">
                   <li>Option 1: Enables feature X</li>
                   <li>Option 2: Controls behavior Y</li>
                   <li>Option 3: Sets default Z</li>
-                </ul>
+                </UnorderedList>
               </div>
             )}
           />
@@ -194,10 +198,10 @@ export const InContext: Story = {
             }
           />
         </div>
-        <p className="text-sm text-current/70">
+        <Paragraph margin="none" className="text-sm text-current/70">
           Example content showing how the tooltip integrates with other UI
           elements.
-        </p>
+        </Paragraph>
       </div>
     </div>
   ),

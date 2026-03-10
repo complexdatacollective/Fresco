@@ -1,5 +1,10 @@
 import { type MapOptions } from '@codaco/protocol-validation';
 import type { MapMouseEvent } from 'mapbox-gl';
+
+export type ExtendedMapOptions = MapOptions & {
+  showTransit?: boolean;
+  allowSearch?: boolean;
+};
 import mapboxgl from 'mapbox-gl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -83,7 +88,7 @@ const convertCssColorToHex = (() => {
 })();
 
 type UseMapboxProps = {
-  mapOptions: MapOptions;
+  mapOptions: ExtendedMapOptions;
   getAssetUrl: (url: string) => string | undefined;
   initialSelectionValue?: string;
   onSelectionChange: (value: string) => void;

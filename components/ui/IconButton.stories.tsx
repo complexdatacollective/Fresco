@@ -17,6 +17,7 @@ import {
   X,
 } from 'lucide-react';
 import { Fragment } from 'react';
+import Heading from '~/components/typography/Heading';
 import { IconButton } from './Button';
 import { BUTTON_VARIANTS, ICON_BUTTON_COLORS } from './button-constants';
 
@@ -292,7 +293,9 @@ export const UseCases: Story = {
   render: () => (
     <div className="flex flex-col gap-8">
       <div>
-        <h3 className="mb-4 text-sm font-semibold">Action Buttons</h3>
+        <Heading level="h3" margin="none" className="mb-4 text-sm">
+          Action Buttons
+        </Heading>
         <div className="flex gap-2">
           <IconButton icon={<Edit />} aria-label="Edit" size="sm" />
           <IconButton
@@ -318,7 +321,9 @@ export const UseCases: Story = {
       </div>
 
       <div>
-        <h3 className="mb-4 text-sm font-semibold">Toolbar</h3>
+        <Heading level="h3" margin="none" className="mb-4 text-sm">
+          Toolbar
+        </Heading>
         <div className="flex gap-1 rounded-lg border p-2">
           <IconButton icon={<Edit />} aria-label="Edit" variant="text" />
           <IconButton
@@ -337,7 +342,9 @@ export const UseCases: Story = {
       </div>
 
       <div>
-        <h3 className="mb-4 text-sm font-semibold">Floating Action Button</h3>
+        <Heading level="h3" margin="none" className="mb-4 text-sm">
+          Floating Action Button
+        </Heading>
         <IconButton
           icon={<Plus />}
           aria-label="Add"

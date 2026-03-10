@@ -53,7 +53,7 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
         },
         {
           title: 'Biological parents',
-          description: 'Information about biological parents for the pedigree.',
+          description: 'For the purposes of this task, we need to ask you about your biological parents specifically.',
           content: BioParentsStep,
           skip: (d) => {
             const parents = (d.parents as ParentDetail[] | undefined) ?? [];
@@ -62,19 +62,19 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
         },
         {
           title: 'Sibling details',
-          description: 'Tell us about each sibling.',
+          description: 'Please now tell us about your siblings.',
           content: SiblingsDetailStep,
           skip: (d) => (d.siblingCount as number | undefined) === 0,
         },
         {
           title: 'Partner details',
-          description: 'Tell us about your partner.',
+          description: 'Next, tell us about your current partner.',
           content: PartnerStep,
           skip: (d) => !(d.hasPartner as boolean | undefined),
         },
         {
           title: 'Children with partner details',
-          description: 'Tell us about each child.',
+          description: 'Please tell us about each of your children with your current partner.',
           content: ChildrenWithPartnerDetailStep,
           skip: (d) =>
             !(d.hasPartner as boolean | undefined) ||
@@ -82,12 +82,11 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
         },
         {
           title: 'Other children',
-          description: 'Children from other relationships.',
           content: OtherChildrenCountStep,
         },
         {
           title: 'Other children details',
-          description: 'Tell us about each child.',
+          description: 'Please tell us about each of your other children from prior relationships.',
           content: OtherChildrenDetailStep,
           skip: (d) => (d.otherChildrenCount as number | undefined) === 0,
           nextLabel: 'Get started',

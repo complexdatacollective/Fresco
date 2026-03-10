@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import type { JSONContent } from '@tiptap/react';
 import { useState } from 'react';
+import Heading from '~/components/typography/Heading';
 import RichTextEditorField from '../lib/form/components/fields/RichTextEditor';
 import RichTextRenderer from './RichTextRenderer';
 
@@ -151,7 +152,9 @@ function LivePreviewComponent() {
   return (
     <div className="flex w-[1200px] gap-8">
       <div className="flex-1">
-        <h2 className="mb-4 text-lg font-semibold">Editor</h2>
+        <Heading level="h2" margin="none" className="mb-4 text-lg">
+          Editor
+        </Heading>
         <RichTextEditorField
           id="preview-editor"
           name="content"
@@ -161,7 +164,9 @@ function LivePreviewComponent() {
         />
       </div>
       <div className="flex-1">
-        <h2 className="mb-4 text-lg font-semibold">Rendered Output</h2>
+        <Heading level="h2" margin="none" className="mb-4 text-lg">
+          Rendered Output
+        </Heading>
         <div className="rounded-lg border border-current/10 p-6">
           <RichTextRenderer content={content} />
         </div>
@@ -184,7 +189,9 @@ function WithJsonPreviewComponent() {
   return (
     <div className="flex gap-6">
       <div className="shrink-0">
-        <h2 className="mb-4 text-lg font-semibold">Editor</h2>
+        <Heading level="h2" margin="none" className="mb-4 text-lg">
+          Editor
+        </Heading>
         <RichTextEditorField
           id="json-editor"
           name="content"
@@ -194,13 +201,17 @@ function WithJsonPreviewComponent() {
         />
       </div>
       <div className="shrink-0">
-        <h2 className="mb-4 text-lg font-semibold">Rendered Output</h2>
+        <Heading level="h2" margin="none" className="mb-4 text-lg">
+          Rendered Output
+        </Heading>
         <div className="rounded-lg border border-current/10 p-6">
           <RichTextRenderer content={content} />
         </div>
       </div>
       <div className="flex-1 overflow-hidden">
-        <h2 className="mb-4 text-lg font-semibold">JSON Content</h2>
+        <Heading level="h2" margin="none" className="mb-4 text-lg">
+          JSON Content
+        </Heading>
         <pre className="bg-surface-1 text-surface-1-contrast max-h-[500px] overflow-auto rounded-lg p-4 text-xs">
           {JSON.stringify(content, null, 2)}
         </pre>

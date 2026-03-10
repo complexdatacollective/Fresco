@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useEffect, useState } from 'react';
+import Paragraph from '~/components/typography/Paragraph';
 import BooleanField from './Boolean';
 
 const meta: Meta<typeof BooleanField> = {
@@ -121,9 +122,9 @@ export const DisabledWithSelection: Story = {
     return (
       <div className="w-full max-w-2xl space-y-8">
         <div>
-          <p className="mb-2 text-sm font-medium">
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
             Disabled with Yes selected:
-          </p>
+          </Paragraph>
           <BooleanField
             value={true}
             disabled
@@ -134,7 +135,9 @@ export const DisabledWithSelection: Story = {
           />
         </div>
         <div>
-          <p className="mb-2 text-sm font-medium">Disabled with No selected:</p>
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
+            Disabled with No selected:
+          </Paragraph>
           <BooleanField
             value={false}
             disabled
@@ -145,9 +148,9 @@ export const DisabledWithSelection: Story = {
           />
         </div>
         <div>
-          <p className="mb-2 text-sm font-medium">
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
             Disabled with no selection:
-          </p>
+          </Paragraph>
           <BooleanField
             value={undefined}
             disabled
@@ -197,9 +200,9 @@ export const ReadOnly: Story = {
     return (
       <div className="w-full space-y-8">
         <div>
-          <p className="mb-2 text-sm font-medium">
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
             Read-only with Yes selected:
-          </p>
+          </Paragraph>
           <BooleanField
             value={true}
             readOnly
@@ -210,9 +213,9 @@ export const ReadOnly: Story = {
           />
         </div>
         <div>
-          <p className="mb-2 text-sm font-medium">
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
             Read-only with No selected:
-          </p>
+          </Paragraph>
           <BooleanField
             value={false}
             readOnly
@@ -223,9 +226,9 @@ export const ReadOnly: Story = {
           />
         </div>
         <div>
-          <p className="mb-2 text-sm font-medium">
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
             Read-only with no selection:
-          </p>
+          </Paragraph>
           <BooleanField
             value={undefined}
             readOnly

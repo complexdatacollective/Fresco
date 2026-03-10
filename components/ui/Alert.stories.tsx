@@ -6,6 +6,8 @@ import {
   CheckCircle,
   Info,
 } from 'lucide-react';
+import Heading from '~/components/typography/Heading';
+import { UnorderedList } from '~/components/typography/UnorderedList';
 import { Alert, AlertDescription, AlertTitle } from './Alert';
 
 const iconMap = {
@@ -256,8 +258,10 @@ export const AccessibilityDemo: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
       <div className="rounded-lg border p-4">
-        <h3 className="mb-2 font-semibold">Accessibility Features:</h3>
-        <ul className="ml-6 list-disc space-y-1 text-sm">
+        <Heading level="h3" margin="none" className="mb-2 text-base">
+          Accessibility Features:
+        </Heading>
+        <UnorderedList className="space-y-1 text-sm">
           <li>
             <code>{'role="alert"'}</code> - Announces the alert to screen
             readers
@@ -282,7 +286,7 @@ export const AccessibilityDemo: Story = {
             <code>{'aria-hidden="true"'}</code> on icons - Prevents redundant
             announcements
           </li>
-        </ul>
+        </UnorderedList>
       </div>
 
       <Alert variant="destructive">

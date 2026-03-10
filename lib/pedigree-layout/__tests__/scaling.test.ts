@@ -22,6 +22,10 @@ describe('computeScaling', () => {
       [0, 0, 0],
     ],
     twins: null,
+    groupMember: [
+      [false, false, false],
+      [false, false, false],
+    ],
   };
 
   it('returns positive scaling parameters', () => {

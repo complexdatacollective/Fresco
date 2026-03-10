@@ -153,9 +153,10 @@ export function pedigreeLayoutToPositions(
 
 export function buildConnectorData(
   layout: PedigreeLayout,
-  _edges: Map<string, StoreEdge>,
+  edges: Map<string, StoreEdge>,
   dimensions: LayoutDimensions,
   parents: ParentConnection[][] = [],
+  idToIndex?: Map<string, number>,
 ): ConnectorRenderData {
   const metrics = computeLayoutMetrics(dimensions);
   const boxHeight = dimensions.nodeHeight / metrics.rowHeight;
@@ -167,7 +168,25 @@ export function buildConnectorData(
     vScale: 1,
   };
 
-  const connectors = computeConnectors(layout, scaling, parents);
+  // Build set of active partner pairs (numeric index keys)
+  let activePartnerPairs: Set<string> | undefined;
+  if (idToIndex) {
+    activePartnerPairs = new Set<string>();
+    for (const edge of edges.values()) {
+      if (edge.type !== 'partner' || !edge.active) continue;
+      const i1 = idToIndex.get(edge.source);
+      const i2 = idToIndex.get(edge.target);
+      if (i1 === undefined || i2 === undefined) continue;
+      activePartnerPairs.add(`${Math.min(i1, i2)},${Math.max(i1, i2)}`);
+    }
+  }
+
+  const connectors = computeConnectors(
+    layout,
+    scaling,
+    parents,
+    activePartnerPairs,
+  );
 
   // Transform all coordinates to pixel space
   const sx = metrics.siblingSpacing;
