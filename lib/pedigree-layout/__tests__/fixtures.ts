@@ -7,7 +7,7 @@ import {
 
 const sp = (parentIndex: number): ParentConnection => ({
   parentIndex,
-  edgeType: 'social-parent',
+  edgeType: 'parent',
 });
 
 /**
@@ -47,8 +47,8 @@ export const multipleMarriages: PedigreeInput = {
     { id1: 0, id2: 2, code: 4 },
   ] satisfies Relation[],
   partners: [
-    { partnerIndex1: 0, partnerIndex2: 1, current: false },
-    { partnerIndex1: 0, partnerIndex2: 2, current: true },
+    { partnerIndex1: 0, partnerIndex2: 1, active: false },
+    { partnerIndex1: 0, partnerIndex2: 2, active: true },
   ] satisfies PartnerConnection[],
 };
 
@@ -104,7 +104,7 @@ export const singleParentWithDonor: PedigreeInput = {
     [],
     [],
     [
-      { parentIndex: 0, edgeType: 'social-parent' },
+      { parentIndex: 0, edgeType: 'parent' },
       { parentIndex: 1, edgeType: 'donor' },
     ],
   ],
@@ -122,9 +122,9 @@ export const threeCoParents: PedigreeInput = {
     [],
     [],
     [
-      { parentIndex: 0, edgeType: 'social-parent' },
-      { parentIndex: 1, edgeType: 'social-parent' },
-      { parentIndex: 2, edgeType: 'co-parent' },
+      { parentIndex: 0, edgeType: 'parent' },
+      { parentIndex: 1, edgeType: 'parent' },
+      { parentIndex: 2, edgeType: 'parent' },
     ],
   ],
 };
@@ -141,8 +141,8 @@ export const surrogacyFamily: PedigreeInput = {
     [],
     [],
     [
-      { parentIndex: 0, edgeType: 'social-parent' },
-      { parentIndex: 1, edgeType: 'social-parent' },
+      { parentIndex: 0, edgeType: 'parent' },
+      { parentIndex: 1, edgeType: 'parent' },
       { parentIndex: 2, edgeType: 'surrogate' },
     ],
   ],
@@ -170,9 +170,9 @@ export const blendedFamily: PedigreeInput = {
     [],
     [],
     [
-      { parentIndex: 0, edgeType: 'social-parent' },
-      { parentIndex: 1, edgeType: 'social-parent' },
-      { parentIndex: 2, edgeType: 'bio-parent' },
+      { parentIndex: 0, edgeType: 'parent' },
+      { parentIndex: 1, edgeType: 'parent' },
+      { parentIndex: 2, edgeType: 'parent', biological: true },
     ],
   ],
 };
