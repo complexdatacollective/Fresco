@@ -104,23 +104,19 @@ export function computeConnectors(
     const familyIds = [...new Set(layout.fam[i]!.filter((v) => v > 0))];
 
     for (const fam of familyIds) {
-      // Parent position (fam is 1-based column index in parent level)
-      // Walk outward from fam-1 to find the full extent of the parent group
-      let groupLeft = fam - 1;
-      while (groupLeft > 0 && (layout.group[i - 1]?.[groupLeft - 1] ?? 0) > 0) {
-        groupLeft--;
-      }
-      let groupRight = fam - 1;
-      while (
-        groupRight < maxcol - 1 &&
-        (layout.group[i - 1]?.[groupRight] ?? 0) > 0
-      ) {
-        groupRight++;
-      }
+      // Couple is the two columns bracketing the group line that fam points to.
+      // fam is 1-based: fam=1 means group line between col 0 and col 1.
+      const coupleLeft = fam - 1;
+      const parentLevelN = layout.n[i - 1] ?? 0;
+      const hasPartnerRight =
+        coupleLeft + 1 < parentLevelN &&
+        (layout.group[i - 1]?.[coupleLeft] ?? 0) > 0;
+      const coupleRight = hasPartnerRight ? coupleLeft + 1 : coupleLeft;
       const parentx =
-        groupLeft === groupRight
-          ? layout.pos[i - 1]![groupLeft]!
-          : (layout.pos[i - 1]![groupLeft]! + layout.pos[i - 1]![groupRight]!) /
+        coupleLeft === coupleRight
+          ? layout.pos[i - 1]![coupleLeft]!
+          : (layout.pos[i - 1]![coupleLeft]! +
+              layout.pos[i - 1]![coupleRight]!) /
             2;
 
       // Find children in this family, separating out married-in group members

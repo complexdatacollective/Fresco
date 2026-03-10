@@ -34,6 +34,10 @@ describe('computeConnectors', () => {
       [0, 0, 0],
     ],
     twins: null,
+    groupMember: [
+      [false, false, false],
+      [false, false, false],
+    ],
   };
 
   const parents: ParentConnection[][] = [
@@ -116,6 +120,10 @@ describe('computeConnectors', () => {
         [0, 0, 0],
       ],
       twins: null,
+      groupMember: [
+        [false, false, false],
+        [false, false, false],
+      ],
     };
     const connectors = computeConnectors(dupLayout, scaling, []);
     expect(connectors.duplicateArcs.length).toBe(1);
@@ -144,6 +152,10 @@ describe('computeConnectors', () => {
         [0, 0, 0],
       ],
       twins: null,
+      groupMember: [
+        [false, false, false],
+        [false, false, false],
+      ],
     };
     const donorParents: ParentConnection[][] = [
       [],
@@ -173,6 +185,65 @@ describe('computeConnectors', () => {
     expect(connectors.groupLines[0]!.partner).toBe(false);
   });
 
+  it('routes parent links to specific couple midpoints in multi-partner layouts', () => {
+    // Layout: [partner1(col0), parent(col1), partner2(col2)]
+    // group: [1, 1, 0] — two adjacent couples sharing parent
+    // child1 has fam=1 (couple at cols 0-1), child2 has fam=2 (couple at cols 1-2)
+    const multiLayout: PedigreeLayout = {
+      n: [3, 2],
+      nid: [
+        [1, 0, 2],
+        [3, 4, 0],
+      ],
+      pos: [
+        [0, 1, 2],
+        [0.5, 1.5, 0],
+      ],
+      fam: [
+        [0, 0, 0],
+        [1, 2, 0],
+      ],
+      group: [
+        [1, 1, 0],
+        [0, 0, 0],
+      ],
+      twins: null,
+      groupMember: [
+        [false, false, false],
+        [false, false, false],
+      ],
+    };
+
+    const multiParents: ParentConnection[][] = [
+      [],
+      [],
+      [],
+      [
+        { parentIndex: 1, edgeType: 'social-parent' },
+        { parentIndex: 0, edgeType: 'social-parent' },
+      ],
+      [
+        { parentIndex: 0, edgeType: 'social-parent' },
+        { parentIndex: 2, edgeType: 'social-parent' },
+      ],
+    ];
+
+    const connectors = computeConnectors(multiLayout, scaling, multiParents);
+
+    // Should produce 2 separate parent-child connectors (one per couple)
+    expect(connectors.parentChildLines.length).toBe(2);
+
+    // First connector (fam=1): parent link targets midpoint of cols 0 and 1 = 0.5
+    const pc1 = connectors.parentChildLines[0]!;
+    const pc1ParentX = pc1.parentLink[0]!.x1;
+    expect(pc1ParentX).toBeCloseTo(0.5, 1);
+
+    // Second connector (fam=2): parent link targets midpoint of cols 1 and 2 = 1.5
+    const pc2 = connectors.parentChildLines[1]!;
+    const pc2ParentX = pc2.parentLink[0]!.x1;
+    expect(pc2ParentX).toBeCloseTo(1.5, 1);
+  });
+
   it('produces auxiliary connectors for bio-parent edges', () => {
     const bioLayout: PedigreeLayout = {
       n: [3, 1],
@@ -193,6 +264,10 @@ describe('computeConnectors', () => {
         [0, 0, 0],
       ],
       twins: null,
+      groupMember: [
+        [false, false, false],
+        [false, false, false],
+      ],
     };
     const bioParents: ParentConnection[][] = [
       [],
