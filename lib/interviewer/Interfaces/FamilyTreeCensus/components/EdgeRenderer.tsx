@@ -46,10 +46,7 @@ function renderGroupLine(
   idx: number,
   color: string,
 ) {
-  const seg = conn.segment;
-
   if (conn.double) {
-    // Consanguineous: two close parallel lines
     return (
       <g key={`consang-${idx}`}>
         {renderLine(conn.segment, color, `consang-line1-${idx}`)}
@@ -59,53 +56,14 @@ function renderGroupLine(
     );
   }
 
-  if (conn.partner) {
-    const offset = EDGE_WIDTH;
-    const midX = (seg.x1 + seg.x2) / 2;
-    const midY = (seg.y1 + seg.y2) / 2;
-    const slashSize = offset * 2;
-
-    return (
-      <g key={`partner-${idx}`}>
-        <line
-          x1={seg.x1}
-          y1={seg.y1 - offset}
-          x2={seg.x2}
-          y2={seg.y2 - offset}
-          stroke={color}
-          strokeWidth={EDGE_WIDTH}
-        />
-        <line
-          x1={seg.x1}
-          y1={seg.y1 + offset}
-          x2={seg.x2}
-          y2={seg.y2 + offset}
-          stroke={color}
-          strokeWidth={EDGE_WIDTH}
-        />
-        {!conn.current && (
-          <line
-            x1={midX - slashSize / 2}
-            y1={midY + slashSize}
-            x2={midX + slashSize / 2}
-            y2={midY - slashSize}
-            stroke={color}
-            strokeWidth={EDGE_WIDTH}
-          />
-        )}
-      </g>
-    );
-  }
-
-  // Co-parent group bar: single spanning line
-  return renderLine(seg, color, `group-bar-${idx}`, {
+  return renderLine(conn.segment, color, `group-bar-${idx}`, {
     strokeLinecap: 'round',
   });
 }
 
 function getAuxiliaryStyle(edgeType: AuxiliaryConnector['edgeType']) {
   switch (edgeType) {
-    case 'bio-parent':
+    case 'unpartnered-parent':
       return { strokeDasharray: '8 4', strokeWidth: 3, opacity: 0.8 };
     case 'donor':
     case 'surrogate':
