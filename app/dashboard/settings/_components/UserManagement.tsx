@@ -6,6 +6,7 @@ import {
 } from '@simplewebauthn/browser';
 import { type ColumnDef } from '@tanstack/react-table';
 import { Plus, Trash, User } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { use, useCallback, useState } from 'react';
 import { z } from 'zod/mini';
 import {
@@ -206,6 +207,7 @@ export default function UserManagement({
 }: UserManagementProps) {
   // TanStack Table: consumers must also opt out so React Compiler doesn't memoize JSX that depends on the table ref.
   'use no memo';
+  const router = useRouter();
   const users = use(usersPromise);
   const hasTwoFactor = use(hasTwoFactorPromise);
   const initialPasskeys = use(passkeysPromise);
@@ -234,8 +236,8 @@ export default function UserManagement({
       return;
     }
 
-    window.location.reload();
-  }, []);
+    router.refresh();
+  }, [router]);
 
   const handleDeleteUser = useCallback(
     (user: UserRow) => {
@@ -341,7 +343,7 @@ export default function UserManagement({
     }
 
     setIsCreating(false);
-    window.location.reload();
+    router.refresh();
     return { success: true };
   };
 
@@ -412,7 +414,8 @@ export default function UserManagement({
       return { success: false, formErrors: [result.error] };
     }
 
-    window.location.reload();
+    setShowSwitchToPasskey(false);
+    router.refresh();
     return { success: true };
   };
 
@@ -476,7 +479,9 @@ export default function UserManagement({
       return { success: false, formErrors: [result.error] };
     }
 
-    window.location.reload();
+    setShowSwitchToPassword(false);
+    setSwitchToPasswordReauthed(false);
+    router.refresh();
     return { success: true };
   };
 
