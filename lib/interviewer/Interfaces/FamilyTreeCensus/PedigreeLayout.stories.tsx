@@ -3,6 +3,7 @@ import type { Meta, StoryFn } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
 import Node from '~/components/Node';
 import { useNodeMeasurement } from '~/hooks/useNodeMeasurement';
+import PedigreeKey from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/PedigreeKey';
 import PedigreeLayout from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/PedigreeLayout';
 import {
   type NodeData,
@@ -458,7 +459,7 @@ const NETWORKS: Record<string, NetworkData> = {
         source: 'parentC',
         target: 'child',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'co-parent',
       },
     ],
   ),
@@ -480,7 +481,7 @@ const NETWORKS: Record<string, NetworkData> = {
         source: 'parentA',
         target: 'exPartner',
         type: 'partner',
-        current: true,
+        current: false,
       },
       {
         source: 'parentA',
@@ -899,7 +900,7 @@ const NODE_RENDERERS: Record<string, NodeRenderer> = {
         shape={node.sex === 'female' ? 'circle' : 'square'}
         size="sm"
       />
-      <span className="max-w-24 truncate text-xs text-white">{node.label}</span>
+      <span className="max-w-24 truncate text-xs">{node.label}</span>
     </div>
   ),
   'Responsive': (node) => (
@@ -941,13 +942,17 @@ export const Playground: StoryFn<StoryArgs> = ({ network, nodeStyle }) => {
   const stableEdges = useMemo(() => data.edges, [data]);
 
   return (
-    <div className="flex size-full items-center justify-center overflow-auto p-8">
+    <div className="flex size-full flex-col items-center justify-center gap-8 overflow-auto p-8">
       <PedigreeLayout
         nodes={stableNodes}
         edges={stableEdges}
         nodeWidth={nodeWidth}
         nodeHeight={nodeHeight}
         renderNode={renderNode}
+      />
+      <PedigreeKey
+        color="var(--color-edge-1)"
+        className="rounded-lg bg-white/10 p-4"
       />
     </div>
   );
