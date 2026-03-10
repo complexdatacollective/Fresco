@@ -126,10 +126,6 @@ const FamilyTreeCensusStageMetadataSchema = z.object({
   ),
 });
 
-export type FamilyTreeCensusStageMetadata = z.infer<
-  typeof FamilyTreeCensusStageMetadataSchema
->;
-
 const DyadCensusMetadataItem = z.tuple([
   z.number(), // prompt index
   z.string(), // entity a

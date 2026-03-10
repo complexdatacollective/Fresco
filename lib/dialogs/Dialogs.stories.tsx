@@ -2,6 +2,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import Button from '~/components/ui/Button';
 import Dialog from './Dialog';
 import DialogProvider from './DialogProvider';
@@ -181,9 +183,9 @@ export const DialogTypes: Story = {
         description: 'This dialog has custom content and actions.',
         children: (
           <div className="mt-4 flex flex-col gap-4">
-            <p className="text-current/70">
+            <Paragraph margin="none" className="text-current/70">
               Custom dialogs can contain any React content.
-            </p>
+            </Paragraph>
             <div className="flex justify-end gap-2">
               <Button onClick={() => closeDialog('custom-example', false)}>
                 Cancel
@@ -340,7 +342,9 @@ export const NestedDialogs: Story = {
         intent: 'default',
         children: (
           <div className="mt-4 flex flex-col gap-4">
-            <p className="text-current/70">Pretend there is a form here...</p>
+            <Paragraph margin="none" className="text-current/70">
+              Pretend there is a form here...
+            </Paragraph>
             <div className="flex justify-end gap-2">
               <Button onClick={() => closeDialog(dialogId, null)}>
                 Cancel
@@ -453,83 +457,101 @@ export const ScrollableContent: Story = {
         title: 'Terms and Conditions',
         description:
           'Please read and accept the following terms before continuing.',
+        footer: (
+          <>
+            <Button onClick={() => closeDialog('scrollable-dialog', false)}>
+              Decline
+            </Button>
+            <Button
+              color="primary"
+              onClick={() => closeDialog('scrollable-dialog', true)}
+            >
+              Accept Terms
+            </Button>
+          </>
+        ),
         children: (
           <div className="mt-4 flex flex-col gap-4">
             <div className="flex flex-col gap-4 text-sm">
-              <h3 className="font-semibold">1. Introduction</h3>
-              <p>
+              <Heading level="h3" margin="none">
+                1. Introduction
+              </Heading>
+              <Paragraph margin="none">
                 Welcome to our platform. These Terms and Conditions govern your
                 use of our services and constitute a legally binding agreement
                 between you and our company. By accessing or using our platform,
                 you agree to be bound by these terms.
-              </p>
+              </Paragraph>
 
-              <h3 className="font-semibold">2. User Responsibilities</h3>
-              <p>
+              <Heading level="h3" margin="none">
+                2. User Responsibilities
+              </Heading>
+              <Paragraph margin="none">
                 As a user, you are responsible for maintaining the
                 confidentiality of your account credentials and for all
                 activities that occur under your account. You agree to notify us
                 immediately of any unauthorized use of your account.
-              </p>
+              </Paragraph>
 
-              <h3 className="font-semibold">3. Privacy Policy</h3>
-              <p>
+              <Heading level="h3" margin="none">
+                3. Privacy Policy
+              </Heading>
+              <Paragraph margin="none">
                 Your privacy is important to us. Our Privacy Policy explains how
                 we collect, use, and protect your personal information. By using
                 our services, you consent to the collection and use of your
                 information as described in our Privacy Policy.
-              </p>
+              </Paragraph>
 
-              <h3 className="font-semibold">4. Intellectual Property</h3>
-              <p>
+              <Heading level="h3" margin="none">
+                4. Intellectual Property
+              </Heading>
+              <Paragraph margin="none">
                 All content, features, and functionality on this platform are
                 owned by us and are protected by international copyright,
                 trademark, and other intellectual property laws. You may not
                 reproduce, distribute, or create derivative works without our
                 prior written consent.
-              </p>
+              </Paragraph>
 
-              <h3 className="font-semibold">5. Limitation of Liability</h3>
-              <p>
+              <Heading level="h3" margin="none">
+                5. Limitation of Liability
+              </Heading>
+              <Paragraph margin="none">
                 To the fullest extent permitted by law, we shall not be liable
                 for any indirect, incidental, special, consequential, or
                 punitive damages arising from your use of or inability to use
                 our services, even if we have been advised of the possibility of
                 such damages.
-              </p>
+              </Paragraph>
 
-              <h3 className="font-semibold">6. Modifications to Terms</h3>
-              <p>
+              <Heading level="h3" margin="none">
+                6. Modifications to Terms
+              </Heading>
+              <Paragraph margin="none">
                 We reserve the right to modify these terms at any time. We will
                 notify you of any material changes by posting the updated terms
                 on our platform. Your continued use of our services after such
                 modifications constitutes your acceptance of the revised terms.
-              </p>
+              </Paragraph>
 
-              <h3 className="font-semibold">7. Governing Law</h3>
-              <p>
+              <Heading level="h3" margin="none">
+                7. Governing Law
+              </Heading>
+              <Paragraph margin="none">
                 These terms shall be governed by and construed in accordance
                 with the laws of the jurisdiction in which our company is
                 incorporated, without regard to its conflict of law provisions.
-              </p>
+              </Paragraph>
 
-              <h3 className="font-semibold">8. Contact Information</h3>
-              <p>
+              <Heading level="h3" margin="none">
+                8. Contact Information
+              </Heading>
+              <Paragraph margin="none">
                 If you have any questions about these Terms and Conditions,
                 please contact us at support@example.com. We are committed to
                 resolving any disputes or concerns you may have.
-              </p>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button onClick={() => closeDialog('scrollable-dialog', false)}>
-                Decline
-              </Button>
-              <Button
-                color="primary"
-                onClick={() => closeDialog('scrollable-dialog', true)}
-              >
-                Accept Terms
-              </Button>
+              </Paragraph>
             </div>
           </div>
         ),
@@ -592,9 +614,9 @@ export const LowLevelDialog: StoryObj<Meta<LowLevelDialogArgs>> = {
             </>
           }
         >
-          <p className="text-current/70">
+          <Paragraph margin="none" className="text-current/70">
             Use this component when you need direct control over dialog state.
-          </p>
+          </Paragraph>
         </Dialog>
       </div>
     );

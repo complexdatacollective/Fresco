@@ -1,5 +1,7 @@
 import type { Meta, StoryFn } from '@storybook/nextjs-vite';
 import { User } from 'lucide-react';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import { cx } from '~/utils/cva';
 
 const meta: Meta = {
@@ -32,13 +34,13 @@ const colors = [
 
 export const Comparison: StoryFn = () => (
   <div className="bg-background publish-colors min-h-screen space-y-8 p-8">
-    <h2 className="text-text text-2xl font-bold">
+    <Heading level="h2" margin="none" className="text-text">
       Inset Surface: With vs Without
-    </h2>
-    <p className="text-text/70">
+    </Heading>
+    <Paragraph margin="none" className="text-text/70">
       Each pair shows the same background color without (left) and with (right)
       the inset-surface utility.
-    </p>
+    </Paragraph>
     <div className="grid grid-cols-2 gap-6">
       {colors.map(({ name, bg, text }) => (
         <div key={name} className="flex items-center gap-4">
@@ -68,10 +70,12 @@ export const Comparison: StoryFn = () => (
 
 export const Shapes: StoryFn = () => (
   <div className="bg-background publish-colors min-h-screen space-y-8 p-8">
-    <h2 className="text-text text-2xl font-bold">Shapes</h2>
-    <p className="text-text/70">
+    <Heading level="h2" margin="none" className="text-text">
+      Shapes
+    </Heading>
+    <Paragraph margin="none" className="text-text/70">
       The inset effect works on any shape: rounded, pill, square, and circular.
-    </p>
+    </Paragraph>
     <div className="flex flex-wrap items-center gap-6">
       <div className="bg-primary/10 text-primary inset-surface flex h-20 w-40 items-center justify-center rounded-lg text-sm font-medium">
         Rounded
@@ -91,10 +95,12 @@ export const Shapes: StoryFn = () => (
 
 export const IconContainers: StoryFn = () => (
   <div className="bg-background publish-colors min-h-screen space-y-8 p-8">
-    <h2 className="text-text text-2xl font-bold">Icon Containers</h2>
-    <p className="text-text/70">
+    <Heading level="h2" margin="none" className="text-text">
+      Icon Containers
+    </Heading>
+    <Paragraph margin="none" className="text-text/70">
       Common use case: circular icon containers with inset appearance.
-    </p>
+    </Paragraph>
     <div className="flex flex-wrap items-center gap-6">
       {colors.slice(0, 5).map(({ name, bg, text }) => (
         <div

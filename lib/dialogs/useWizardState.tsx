@@ -12,18 +12,6 @@ import {
   type WizardContextType,
 } from '~/lib/dialogs/useWizard';
 
-const slideVariants = {
-  enter: (direction: 'forward' | 'backward') => ({
-    x: direction === 'forward' ? '100%' : '-100%',
-    opacity: 0,
-  }),
-  center: { x: 0, opacity: 1 },
-  exit: (direction: 'forward' | 'backward') => ({
-    x: direction === 'forward' ? '-100%' : '100%',
-    opacity: 0,
-  }),
-};
-
 type UseWizardStateArgs = {
   dialog: WizardDialog;
   dialogId: string;
@@ -43,7 +31,6 @@ export default function useWizardState({
   closeDialog,
 }: UseWizardStateArgs): WizardDialogProps | null {
   const [stepIndex, setStepIndex] = useState(0);
-  const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   const [data, setData] = useState<Record<string, unknown>>({});
   const [nextEnabled, setNextEnabled] = useState(true);
   const [backEnabled, setBackEnabled] = useState(true);
@@ -99,8 +86,6 @@ export default function useWizardState({
   const goToStep = useCallback(
     (target: number) => {
       if (target < 0 || target >= totalSteps) return;
-      const newDirection = target > stepIndex ? 'forward' : 'backward';
-      setDirection(newDirection);
       prevStepRef.current = stepIndex;
       resetStepOverrides();
       setStepIndex(target);
@@ -190,15 +175,14 @@ export default function useWizardState({
     title: currentStep.title,
     description: currentStep.description,
     children: (
-      <AnimatePresence mode="wait" custom={direction} initial={false}>
+      <AnimatePresence mode="wait" initial={false}>
         <motion.div
+          layout
           key={stepIndex}
-          custom={direction}
-          variants={slideVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{ duration: 0.2, ease: 'easeInOut' }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.1 }}
         >
           <WizardContext.Provider value={wizardContext}>
             <StepContent />
@@ -207,10 +191,7 @@ export default function useWizardState({
       </AnimatePresence>
     ),
     footer: (
-      <>
-        <Button className="me-auto" onClick={handleCancel}>
-          Cancel
-        </Button>
+      <div className="flex grow flex-col gap-4">
         {ProgressComponent ? (
           <div className="flex flex-1 justify-center">
             <ProgressComponent
@@ -229,23 +210,32 @@ export default function useWizardState({
             </div>
           )
         )}
-        {showBackButton && (
-          <Button onClick={handleBack} disabled={isFirstActive || !backEnabled}>
-            {currentStep.backLabel ?? 'Back'}
+        <div className="flex gap-2">
+          <Button className="me-auto" onClick={handleCancel}>
+            Cancel
           </Button>
-        )}
-        <Button
-          color="primary"
-          onClick={() => void handleNext()}
-          disabled={!nextEnabled || isNextLoading}
-        >
-          {isNextLoading ? (
-            <Loader2 className="animate-spin" size={16} />
-          ) : (
-            nextLabel
+
+          {showBackButton && (
+            <Button
+              onClick={handleBack}
+              disabled={isFirstActive || !backEnabled}
+            >
+              {currentStep.backLabel ?? 'Back'}
+            </Button>
           )}
-        </Button>
-      </>
+          <Button
+            color="primary"
+            onClick={() => void handleNext()}
+            disabled={!nextEnabled || isNextLoading}
+          >
+            {isNextLoading ? (
+              <Loader2 className="animate-spin" size={16} />
+            ) : (
+              nextLabel
+            )}
+          </Button>
+        </div>
+      </div>
     ),
   };
 }

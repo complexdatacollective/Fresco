@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
-import ToggleField from '~/lib/form/components/fields/ToggleField';
+import NumberCounterField from '~/lib/form/components/fields/NumberCounterField';
 import {
   isGender,
   isSex,
@@ -13,9 +13,6 @@ import { type Gender, type Sex } from '~/lib/pedigree-layout/types';
 
 export default function PartnerStep() {
   const { data, setStepData } = useWizard();
-  const [hasPartner, setHasPartner] = useState(
-    (data.hasPartner as boolean | undefined) ?? false,
-  );
   const [partnerName, setPartnerName] = useState(
     (data.partnerName as string | undefined) ?? '',
   );
@@ -31,34 +28,49 @@ export default function PartnerStep() {
       return v && isGender(v) ? v : undefined;
     })(),
   );
+  const [childrenWithPartnerCount, setChildrenWithPartnerCount] = useState(
+    (data.childrenWithPartnerCount as number | undefined) ?? 0,
+  );
 
   useEffect(() => {
-    setStepData({ hasPartner, partnerName, partnerSex, partnerGender });
-  }, [hasPartner, partnerName, partnerSex, partnerGender, setStepData]);
+    setStepData({
+      partnerName,
+      partnerSex,
+      partnerGender,
+      childrenWithPartnerCount,
+    });
+  }, [
+    partnerName,
+    partnerSex,
+    partnerGender,
+    childrenWithPartnerCount,
+    setStepData,
+  ]);
 
   return (
     <div className="flex flex-col gap-6 pt-4">
-      <UnconnectedField
-        name="hasPartner"
-        label="Do you have a partner?"
-        component={ToggleField}
-        value={hasPartner}
-        onChange={(v) => setHasPartner(!!v)}
+      <PersonFields
+        index={0}
+        prefix="partner"
+        name={partnerName}
+        sex={partnerSex}
+        gender={partnerGender}
+        onNameChange={setPartnerName}
+        onSexChange={setPartnerSex}
+        onGenderChange={setPartnerGender}
       />
-      {hasPartner && (
-        <div className="flex flex-col gap-3 rounded-lg border p-4">
-          <PersonFields
-            index={0}
-            prefix="partner"
-            name={partnerName}
-            sex={partnerSex}
-            gender={partnerGender}
-            onNameChange={setPartnerName}
-            onSexChange={setPartnerSex}
-            onGenderChange={setPartnerGender}
-          />
-        </div>
-      )}
+      <UnconnectedField
+        name="childrenWithPartnerCount"
+        inline
+        label="How many children do you have with your partner?"
+        component={NumberCounterField}
+        value={childrenWithPartnerCount}
+        minValue={0}
+        maxValue={20}
+        onChange={(v) => {
+          setChildrenWithPartnerCount(v ?? 0);
+        }}
+      />
     </div>
   );
 }

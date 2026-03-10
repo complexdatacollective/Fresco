@@ -148,6 +148,7 @@ const { motionMockModule } = vi.hoisted(() => {
     }),
     useDragControls: () => ({ start: () => undefined }),
     useReducedMotion: () => false,
+    usePresence: () => [true, null] as const,
   };
 
   return { motionMockModule };

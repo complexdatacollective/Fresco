@@ -97,7 +97,33 @@ export function alignPedigree(
     }
   }
 
-  // Add parent groups from children's parents arrays
+  // Build set of known partner pairs from relation and partners data.
+  // Used below to avoid grouping unpartnered parents (e.g. a known
+  // biological father) with the partnered couple.
+  const partnerPairs = new Set<string>();
+  if (relation) {
+    for (const rel of relation) {
+      if (rel.code === 4) {
+        const a = Math.min(rel.id1, rel.id2);
+        const b = Math.max(rel.id1, rel.id2);
+        partnerPairs.add(`${a},${b}`);
+      }
+    }
+  }
+  if (ped.partners) {
+    for (const pc of ped.partners) {
+      const a = Math.min(pc.partnerIndex1, pc.partnerIndex2);
+      const b = Math.max(pc.partnerIndex1, pc.partnerIndex2);
+      partnerPairs.add(`${a},${b}`);
+    }
+  }
+
+  // Add parent groups from children's parents arrays.
+  // When some parents of a child are in an explicit partner pair and
+  // others are not, only the partnered parents form a group. The
+  // unpartnered parents are left out so they receive auxiliary
+  // (dashed) connector treatment instead. When NO parents of a child
+  // are partnered, all parents are grouped (co-parent case).
   const groupSet = new Set<string>();
   for (let i = 0; i < n; i++) {
     const pConns = ped.parents[i]!;
@@ -107,10 +133,28 @@ export function alignPedigree(
       .map((p) => p.parentIndex)
       .sort((a, b) => a - b);
     if (socialParents.length < 2) continue;
-    const key = socialParents.join(',');
+
+    // Determine which parents are in explicit partner pairs with each other
+    const partnered = new Set<number>();
+    for (let a = 0; a < socialParents.length; a++) {
+      for (let b = a + 1; b < socialParents.length; b++) {
+        const pairKey = `${socialParents[a]},${socialParents[b]}`;
+        if (partnerPairs.has(pairKey)) {
+          partnered.add(socialParents[a]!);
+          partnered.add(socialParents[b]!);
+        }
+      }
+    }
+
+    const members =
+      partnered.size >= 2
+        ? [...partnered].sort((a, b) => a - b)
+        : socialParents;
+
+    const key = members.join(',');
     if (!groupSet.has(key)) {
       groupSet.add(key);
-      grouplist.push([...socialParents, 0, 0]);
+      grouplist.push([...members, 0, 0]);
     }
   }
 

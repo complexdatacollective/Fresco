@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import Heading from './Heading';
-import Paragraph from './Paragraph';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 
 const meta = {
   title: 'Design System/Typography/Heading',
@@ -103,7 +103,9 @@ export const LabelLevel: Story = {
   render: () => (
     <div className="space-y-6">
       <div>
-        <p className="mb-2 text-xs">Label level (renders as h4)</p>
+        <Paragraph margin="none" className="mb-2 text-xs">
+          Label level (renders as h4)
+        </Paragraph>
         <Heading level="label">Label Heading</Heading>
       </div>
     </div>
@@ -114,7 +116,9 @@ export const RenderPropPattern: Story = {
   render: () => (
     <div className="space-y-6">
       <div>
-        <p className="mb-2 text-xs">Using render prop to render as a link</p>
+        <Paragraph margin="none" className="mb-2 text-xs">
+          Using render prop to render as a link
+        </Paragraph>
         <Heading
           level="h2"
           render={({ className, children }) => (
@@ -125,7 +129,9 @@ export const RenderPropPattern: Story = {
         />
       </div>
       <div>
-        <p className="mb-2 text-xs">Using render prop with element</p>
+        <Paragraph margin="none" className="mb-2 text-xs">
+          Using render prop with element
+        </Paragraph>
         <Heading level="h2" render={<div />}>
           Non-semantic heading (div)
         </Heading>

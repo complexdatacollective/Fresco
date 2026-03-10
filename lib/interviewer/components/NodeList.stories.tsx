@@ -8,6 +8,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import { Provider } from 'react-redux';
+import Heading from '~/components/typography/Heading';
 import { type DragMetadata } from '~/lib/dnd';
 import NodeList from './NodeList';
 
@@ -349,9 +350,9 @@ function DragBetweenListsExample() {
   return (
     <div className="flex h-[600px] gap-8">
       <div className="flex flex-1 flex-col">
-        <h3 className="mb-4 text-lg font-semibold text-white">
+        <Heading level="h3" margin="none" className="mb-4 text-white">
           Left List ({leftItems.length} nodes)
-        </h3>
+        </Heading>
         <div className="border-accent/30 flex-1 rounded-lg border border-dashed p-4">
           <NodeList
             id="left-list"
@@ -364,9 +365,9 @@ function DragBetweenListsExample() {
         </div>
       </div>
       <div className="flex flex-1 flex-col">
-        <h3 className="mb-4 text-lg font-semibold text-white">
+        <Heading level="h3" margin="none" className="mb-4 text-white">
           Right List ({rightItems.length} nodes)
-        </h3>
+        </Heading>
         <div className="border-accent/30 flex-1 rounded-lg border border-dashed p-4">
           <NodeList
             id="right-list"

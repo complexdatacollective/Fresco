@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
+import Heading from '~/components/typography/Heading';
 import ToggleField from './ToggleField';
 
 const meta: Meta<typeof ToggleField> = {
@@ -222,7 +223,9 @@ export const AllStates: Story = {
     return (
       <div className="flex flex-col gap-8">
         <div>
-          <h3 className="mb-4 text-sm font-medium">Normal</h3>
+          <Heading level="h3" margin="none" className="mb-4 text-sm">
+            Normal
+          </Heading>
           <div className="flex gap-4">
             <ToggleField
               value={normalOff}
@@ -238,7 +241,9 @@ export const AllStates: Story = {
         </div>
 
         <div>
-          <h3 className="mb-4 text-sm font-medium">Disabled</h3>
+          <Heading level="h3" margin="none" className="mb-4 text-sm">
+            Disabled
+          </Heading>
           <div className="flex gap-4">
             <ToggleField
               disabled
@@ -254,7 +259,9 @@ export const AllStates: Story = {
         </div>
 
         <div>
-          <h3 className="mb-4 text-sm font-medium">Read-only</h3>
+          <Heading level="h3" margin="none" className="mb-4 text-sm">
+            Read-only
+          </Heading>
           <div className="flex gap-4">
             <ToggleField
               readOnly
@@ -270,7 +277,9 @@ export const AllStates: Story = {
         </div>
 
         <div>
-          <h3 className="mb-4 text-sm font-medium">Invalid</h3>
+          <Heading level="h3" margin="none" className="mb-4 text-sm">
+            Invalid
+          </Heading>
           <div className="flex gap-4">
             <ToggleField
               value={invalidOff}

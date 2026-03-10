@@ -1,5 +1,6 @@
 import type { StoryObj } from '@storybook/nextjs-vite';
 import { fn } from 'storybook/test';
+import Paragraph from '~/components/typography/Paragraph';
 import Button from '~/components/ui/Button';
 import Dialog, { STATE_VARIANTS, type DialogProps } from './Dialog';
 
@@ -45,7 +46,9 @@ const DialogTemplate = (args: DialogProps) => (
       </>
     }
   >
-    <p>This is additional content inside the dialog.</p>
+    <Paragraph margin="none">
+      This is additional content inside the dialog.
+    </Paragraph>
   </Dialog>
 );
 

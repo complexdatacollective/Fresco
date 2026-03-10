@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
+import Heading from '~/components/typography/Heading';
+import { UnorderedList } from '~/components/typography/UnorderedList';
 import { useDragSource, useDropTarget, type DragMetadata } from '..';
 
 // Simple drag source for testing
@@ -140,10 +142,14 @@ export const Basic: Story = {
   render: () => (
     <>
       <div style={{ padding: '20px' }}>
-        <h3>Basic Drop Target</h3>
+        <Heading level="h3" margin="none">
+          Basic Drop Target
+        </Heading>
         <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
           <div>
-            <h4>Draggable Items</h4>
+            <Heading level="h4" margin="none">
+              Draggable Items
+            </Heading>
             <DraggableItem id="item1" type="document">
               📄 Document
             </DraggableItem>
@@ -152,7 +158,9 @@ export const Basic: Story = {
             </DraggableItem>
           </div>
           <div style={{ flex: 1 }}>
-            <h4>Drop Zone</h4>
+            <Heading level="h4" margin="none">
+              Drop Zone
+            </Heading>
             <DropTargetExample accepts={['document']}>
               Drop documents here
             </DropTargetExample>
@@ -177,22 +185,28 @@ export const MultipleTypes: Story = {
     return (
       <>
         <div style={{ padding: '20px' }}>
-          <h3>Multiple Drop Zones</h3>
+          <Heading level="h3" margin="none">
+            Multiple Drop Zones
+          </Heading>
 
           {dropLog.length > 0 && (
             <div style={{ marginBottom: '16px' }}>
-              <h4>Drop Log:</h4>
-              <ul style={{ fontSize: '14px', color: '#666' }}>
+              <Heading level="h4" margin="none">
+                Drop Log:
+              </Heading>
+              <UnorderedList className="text-sm text-[#666]">
                 {dropLog.map((log, i) => (
                   <li key={i}>{log}</li>
                 ))}
-              </ul>
+              </UnorderedList>
             </div>
           )}
 
           <div style={{ display: 'flex', gap: '20px' }}>
             <div>
-              <h4>Items</h4>
+              <Heading level="h4" margin="none">
+                Items
+              </Heading>
               <DraggableItem
                 id="img1"
                 type="image"
@@ -225,7 +239,9 @@ export const MultipleTypes: Story = {
                 }}
               >
                 <div>
-                  <h4>Images Only</h4>
+                  <Heading level="h4" margin="none">
+                    Images Only
+                  </Heading>
                   <DropTargetExample
                     accepts={['image']}
                     onDrop={handleDrop('Images Folder')}
@@ -234,7 +250,9 @@ export const MultipleTypes: Story = {
                   </DropTargetExample>
                 </div>
                 <div>
-                  <h4>Videos Only</h4>
+                  <Heading level="h4" margin="none">
+                    Videos Only
+                  </Heading>
                   <DropTargetExample
                     accepts={['video']}
                     onDrop={handleDrop('Videos Folder')}
@@ -243,7 +261,9 @@ export const MultipleTypes: Story = {
                   </DropTargetExample>
                 </div>
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <h4>All Files</h4>
+                  <Heading level="h4" margin="none">
+                    All Files
+                  </Heading>
                   <DropTargetExample
                     accepts={['image', 'video', 'document']}
                     onDrop={handleDrop('All Files Folder')}
@@ -275,10 +295,14 @@ export const VisualFeedback: Story = {
     return (
       <>
         <div style={{ padding: '20px' }}>
-          <h3>Visual Feedback States</h3>
+          <Heading level="h3" margin="none">
+            Visual Feedback States
+          </Heading>
 
           <div style={{ marginBottom: '16px' }}>
-            <h4>Event Log:</h4>
+            <Heading level="h4" margin="none">
+              Event Log:
+            </Heading>
             <div
               style={{
                 height: '100px',
@@ -351,9 +375,9 @@ export const VisualFeedback: Story = {
             </div>
           </div>
 
-          <div style={{ marginTop: '16px', fontSize: '14px', color: '#666' }}>
+          <div className="mt-4 text-sm text-[#666]">
             <strong>Visual States:</strong>
-            <ul>
+            <UnorderedList>
               <li>
                 <strong>Blue border:</strong> Will accept the dragged item
               </li>
@@ -363,7 +387,7 @@ export const VisualFeedback: Story = {
               <li>
                 <strong>Red border:</strong> Will not accept the dragged item
               </li>
-            </ul>
+            </UnorderedList>
           </div>
         </div>
       </>
@@ -383,7 +407,9 @@ export const NestedDropTargets: Story = {
     return (
       <>
         <div style={{ padding: '20px' }}>
-          <h3>Nested Drop Targets</h3>
+          <Heading level="h3" margin="none">
+            Nested Drop Targets
+          </Heading>
 
           {drops.length > 0 && (
             <div style={{ marginBottom: '16px' }}>

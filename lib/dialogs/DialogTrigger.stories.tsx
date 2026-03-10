@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { CheckCircle, Trash2 } from 'lucide-react';
+import Paragraph from '~/components/typography/Paragraph';
 import DialogProvider from './DialogProvider';
 import { DialogTrigger } from './DialogTrigger';
 
@@ -124,8 +125,12 @@ export const CustomDialog: Story = {
       description: 'This dialog has custom content below.',
       children: (
         <div className="space-y-4 py-4">
-          <p>This is custom content inside the dialog.</p>
-          <p>You can put any React components here.</p>
+          <Paragraph margin="none">
+            This is custom content inside the dialog.
+          </Paragraph>
+          <Paragraph margin="none">
+            You can put any React components here.
+          </Paragraph>
         </div>
       ),
     },

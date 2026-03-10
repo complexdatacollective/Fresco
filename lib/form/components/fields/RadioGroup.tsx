@@ -38,7 +38,7 @@ const radioIndicatorVariants = compose(
   stateVariants,
   cva({
     base: cx(
-      'flex aspect-square shrink-0 items-center justify-center',
+      'flex aspect-square shrink-0! items-center justify-center',
       'rounded-full',
       'focusable',
     ),

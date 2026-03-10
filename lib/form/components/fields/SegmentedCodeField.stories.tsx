@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
 import { expect, userEvent, within } from 'storybook/test';
+import Paragraph from '~/components/typography/Paragraph';
 import SegmentedCodeField from './SegmentedCodeField';
 
 const meta: Meta<typeof SegmentedCodeField> = {
@@ -112,9 +113,13 @@ export const Default: Story = {
           onChange={(v) => setValue(v ?? '')}
           data-testid="default-code"
         />
-        <p className="text-xs opacity-70" data-testid="value-display">
+        <Paragraph
+          margin="none"
+          className="text-xs opacity-70"
+          data-testid="value-display"
+        >
           Value: &ldquo;{value}&rdquo;
-        </p>
+        </Paragraph>
       </div>
     );
   },
@@ -167,7 +172,9 @@ export const HexRecoveryCode: Story = {
           onChange={(v) => setValue(v ?? '')}
           data-testid="hex-code"
         />
-        <p className="text-xs opacity-70">Value: &ldquo;{value}&rdquo;</p>
+        <Paragraph margin="none" className="text-xs opacity-70">
+          Value: &ldquo;{value}&rdquo;
+        </Paragraph>
       </div>
     );
   },
@@ -236,7 +243,9 @@ export const Sizes: Story = {
       <div className="flex flex-col items-start gap-6">
         {(['sm', 'md', 'lg', 'xl'] as const).map((size) => (
           <div key={size} className="flex flex-col gap-1">
-            <p className="text-xs font-medium opacity-70">{size}</p>
+            <Paragraph margin="none" className="text-xs font-medium opacity-70">
+              {size}
+            </Paragraph>
             <SegmentedCodeField {...restArgs} size={size} />
           </div>
         ))}
@@ -255,11 +264,21 @@ export const States: Story = {
     return (
       <div className="flex flex-col gap-6">
         <div>
-          <p className="mb-1 text-xs font-medium opacity-70">Normal</p>
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium opacity-70"
+          >
+            Normal
+          </Paragraph>
           <SegmentedCodeField {...restArgs} data-testid="normal-code" />
         </div>
         <div>
-          <p className="mb-1 text-xs font-medium opacity-70">Disabled</p>
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium opacity-70"
+          >
+            Disabled
+          </Paragraph>
           <SegmentedCodeField
             {...restArgs}
             disabled
@@ -268,7 +287,12 @@ export const States: Story = {
           />
         </div>
         <div>
-          <p className="mb-1 text-xs font-medium opacity-70">Read-Only</p>
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium opacity-70"
+          >
+            Read-Only
+          </Paragraph>
           <SegmentedCodeField
             {...restArgs}
             readOnly
@@ -277,7 +301,12 @@ export const States: Story = {
           />
         </div>
         <div>
-          <p className="mb-1 text-xs font-medium opacity-70">Invalid</p>
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium opacity-70"
+          >
+            Invalid
+          </Paragraph>
           <SegmentedCodeField
             {...restArgs}
             aria-invalid
@@ -314,11 +343,13 @@ export const PasteSupport: Story = {
           onComplete={() => setCompleted(true)}
           data-testid="paste-code"
         />
-        <p className="text-xs opacity-70">
+        <Paragraph margin="none" className="text-xs opacity-70">
           Try pasting &ldquo;123456&rdquo; into any segment
-        </p>
+        </Paragraph>
         {completed && (
-          <p className="text-success text-sm font-medium">Code complete!</p>
+          <Paragraph margin="none" className="text-success text-sm font-medium">
+            Code complete!
+          </Paragraph>
         )}
       </div>
     );

@@ -10,6 +10,8 @@ import {
   X,
 } from 'lucide-react';
 import { Fragment } from 'react';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import { Button, ButtonSkeleton, MotionButton } from './Button';
 import { BUTTON_COLORS } from './button-constants';
 
@@ -143,7 +145,9 @@ export const Icons: Story = {
     <div className="flex flex-col gap-8">
       {/* Icon Position */}
       <div className="flex flex-col gap-4">
-        <h3 className="text-sm font-semibold">Icon Position</h3>
+        <Heading level="h3" margin="none" className="text-sm">
+          Icon Position
+        </Heading>
         <div className="flex flex-col gap-2">
           <span className="text-text/70 text-xs">Left (default)</span>
           <div className="flex gap-2">
@@ -164,7 +168,9 @@ export const Icons: Story = {
 
       {/* Sizes */}
       <div className="flex flex-col gap-4">
-        <h3 className="text-sm font-semibold">Sizes</h3>
+        <Heading level="h3" margin="none" className="text-sm">
+          Sizes
+        </Heading>
         <div className="flex items-end gap-2">
           <Button icon={<Download />} size="sm">
             SM
@@ -183,7 +189,9 @@ export const Icons: Story = {
 
       {/* Variants */}
       <div className="flex flex-col gap-4">
-        <h3 className="text-sm font-semibold">Variants</h3>
+        <Heading level="h3" margin="none" className="text-sm">
+          Variants
+        </Heading>
         <div className="flex gap-2">
           <Button icon={<Check />} variant="default">
             Default
@@ -205,7 +213,9 @@ export const Icons: Story = {
 
       {/* Colors */}
       <div className="flex flex-col gap-4">
-        <h3 className="text-sm font-semibold">Colors</h3>
+        <Heading level="h3" margin="none" className="text-sm">
+          Colors
+        </Heading>
         <div className="flex flex-wrap gap-2">
           <Button icon={<Plus />} color="default">
             Default
@@ -378,17 +388,21 @@ export const LinkVariant: Story = {
   render: () => (
     <div className="flex flex-col gap-8">
       <div>
-        <h3 className="mb-4 text-lg font-semibold">Link Variant</h3>
-        <p className="text-text/70 mb-6 text-sm">
+        <Heading level="h3" margin="none" className="mb-4 text-lg">
+          Link Variant
+        </Heading>
+        <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
           The link variant renders a button that visually appears like an anchor
           tag, with an underline on hover. Useful for inline actions that should
           look like text links.
-        </p>
+        </Paragraph>
       </div>
 
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-4">
-          <h4 className="text-sm font-semibold">Colors</h4>
+          <Heading level="h4" margin="none" className="text-sm font-semibold">
+            Colors
+          </Heading>
           <div className="flex flex-wrap items-center gap-4">
             <Button variant="link" color="default">
               Default Link
@@ -409,7 +423,9 @@ export const LinkVariant: Story = {
         </div>
 
         <div className="flex flex-col gap-4">
-          <h4 className="text-sm font-semibold">Sizes</h4>
+          <Heading level="h4" margin="none" className="text-sm font-semibold">
+            Sizes
+          </Heading>
           <div className="flex flex-wrap items-center gap-4">
             <Button variant="link" size="sm">
               Small
@@ -427,7 +443,9 @@ export const LinkVariant: Story = {
         </div>
 
         <div className="flex flex-col gap-4">
-          <h4 className="text-sm font-semibold">With Icons</h4>
+          <Heading level="h4" margin="none" className="text-sm font-semibold">
+            With Icons
+          </Heading>
           <div className="flex flex-wrap items-center gap-4">
             <Button variant="link" icon={<Download />}>
               Download
@@ -439,19 +457,23 @@ export const LinkVariant: Story = {
         </div>
 
         <div className="flex flex-col gap-4">
-          <h4 className="text-sm font-semibold">Inline Usage</h4>
-          <p className="text-text/70 text-sm">
+          <Heading level="h4" margin="none" className="text-sm font-semibold">
+            Inline Usage
+          </Heading>
+          <Paragraph margin="none" className="text-text/70 text-sm">
             You can use a{' '}
             <Button variant="link" color="primary" size="sm">
               link button
             </Button>{' '}
             inline with text to create clickable actions that blend with the
             surrounding content.
-          </p>
+          </Paragraph>
         </div>
 
         <div className="flex flex-col gap-4">
-          <h4 className="text-sm font-semibold">States</h4>
+          <Heading level="h4" margin="none" className="text-sm font-semibold">
+            States
+          </Heading>
           <div className="flex flex-wrap items-center gap-4">
             <Button variant="link">Normal</Button>
             <Button variant="link" disabled>
@@ -471,14 +493,14 @@ export const AdaptiveToContext: Story = {
   render: () => (
     <div className="flex flex-col gap-8">
       <div>
-        <h3 className="mb-4 text-lg font-semibold">
+        <Heading level="h3" margin="none" className="mb-4 text-lg">
           Dynamic variant adapts to container colors
-        </h3>
-        <p className="text-text/70 mb-6 text-sm">
+        </Heading>
+        <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
           The dynamic button variant uses CSS custom properties to adapt to the
           text and background colors of its container. Hover to see the lighter
           shade effect.
-        </p>
+        </Paragraph>
       </div>
 
       <div className="flex flex-col gap-6">

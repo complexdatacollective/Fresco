@@ -94,23 +94,6 @@ export const sameSeParents: PedigreeInput = {
 };
 
 /**
- * Single parent with donor
- */
-export const singleParentWithDonor: PedigreeInput = {
-  id: ['parent', 'donor', 'child'],
-  sex: ['female', 'male', 'female'],
-  gender: ['woman', 'man', 'woman'],
-  parents: [
-    [],
-    [],
-    [
-      { parentIndex: 0, edgeType: 'parent' },
-      { parentIndex: 1, edgeType: 'donor' },
-    ],
-  ],
-};
-
-/**
  * Three co-parents
  */
 export const threeCoParents: PedigreeInput = {

@@ -1,8 +1,5 @@
-import { createSelector } from '@reduxjs/toolkit';
-import { invariant } from 'es-toolkit';
 import { useMemo, type JSX } from 'react';
 import { type ConnectorRenderData } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/pedigreeAdapter';
-import { getCurrentStage } from '~/lib/interviewer/selectors/session';
 import {
   type AuxiliaryConnector,
   type LineSegment,
@@ -11,15 +8,6 @@ import {
 } from '~/lib/pedigree-layout/types';
 
 const EDGE_WIDTH = 5;
-
-export const getEdgeType = createSelector(getCurrentStage, (stage) => {
-  invariant(
-    stage.type === 'FamilyTreeCensus',
-    'Stage must be FamilyTreeCensus',
-  );
-
-  return stage.edgeType.type;
-});
 
 function renderLine(
   seg: LineSegment,
@@ -67,7 +55,7 @@ function getAuxiliaryStyle(edgeType: AuxiliaryConnector['edgeType']) {
       return { strokeDasharray: '8 4', strokeWidth: 3, opacity: 0.8 };
     case 'donor':
     case 'surrogate':
-      return { strokeDasharray: '2 4', strokeWidth: 2, opacity: 0.6 };
+      return { strokeDasharray: '2 4', strokeWidth: 3, opacity: 0.6 };
   }
 }
 

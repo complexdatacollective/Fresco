@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import { useDragSource, useDropTarget, type DragMetadata } from '..';
 
 // Simple draggable item component
@@ -160,7 +162,9 @@ export const Basic: Story = {
   render: () => (
     <>
       <div style={{ padding: '20px' }}>
-        <h3>Basic Draggable Items</h3>
+        <Heading level="h3" margin="none">
+          Basic Draggable Items
+        </Heading>
         <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
           <div>
             <DraggableItem id="1" type="card">
@@ -181,7 +185,9 @@ export const WithPreview: Story = {
   render: () => (
     <>
       <div style={{ padding: '20px' }}>
-        <h3>Custom Preview</h3>
+        <Heading level="h3" margin="none">
+          Custom Preview
+        </Heading>
         <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
           <div>
             <DraggableItem
@@ -223,14 +229,16 @@ export const ClickAndDrag: Story = {
     return (
       <>
         <div style={{ padding: '20px' }}>
-          <h3>Click vs Drag Behavior</h3>
-          <p style={{ marginBottom: '16px', color: '#666' }}>
+          <Heading level="h3" margin="none">
+            Click vs Drag Behavior
+          </Heading>
+          <Paragraph margin="none" className="mb-4 text-[#666]">
             <strong>Mouse/Touch:</strong> Click to select (opens form in real
             usage), drag to move. Threshold is 4px.
             <br />
             <strong>Keyboard:</strong> Enter = click/select, Space = start drag,
             Arrow keys = navigate drop targets, Escape = cancel.
-          </p>
+          </Paragraph>
 
           <div
             style={{
@@ -253,7 +261,9 @@ export const ClickAndDrag: Story = {
             style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}
           >
             <div>
-              <h4>Clickable & Draggable Items</h4>
+              <Heading level="h4" margin="none">
+                Clickable & Draggable Items
+              </Heading>
               {['Item A', 'Item B', 'Item C'].map((name) => (
                 <ClickableDraggableItem
                   key={name}
@@ -286,7 +296,9 @@ export const TypeRestrictions: Story = {
     return (
       <>
         <div style={{ padding: '20px' }}>
-          <h3>Type Restrictions</h3>
+          <Heading level="h3" margin="none">
+            Type Restrictions
+          </Heading>
           {lastDrop && (
             <div
               style={{
@@ -304,7 +316,9 @@ export const TypeRestrictions: Story = {
             style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}
           >
             <div>
-              <h4>Items</h4>
+              <Heading level="h4" margin="none">
+                Items
+              </Heading>
               <DraggableItem
                 id="fruit-1"
                 type="fruit"
@@ -328,7 +342,9 @@ export const TypeRestrictions: Story = {
               </DraggableItem>
             </div>
             <div>
-              <h4>Drop Zones</h4>
+              <Heading level="h4" margin="none">
+                Drop Zones
+              </Heading>
               <DropZone
                 accepts={['fruit']}
                 onDrop={(metadata) => {

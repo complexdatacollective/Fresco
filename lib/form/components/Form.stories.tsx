@@ -14,7 +14,7 @@ import useFormStore from '~/lib/form/hooks/useFormStore';
 import { cx } from '~/utils/cva';
 
 const meta: Meta<typeof Form> = {
-  title: 'Systems/Form/Form',
+  title: 'Systems/Form',
   component: Form,
   parameters: {
     layout: 'padded',

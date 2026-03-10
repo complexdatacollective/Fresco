@@ -42,8 +42,15 @@ function mapReduxEdgeToStoreEdge(
         edgeType: 'parent',
         biological: true,
       };
-    case 'parent':
     case 'social-parent':
+      return {
+        source,
+        target,
+        type: 'parent',
+        edgeType: 'parent',
+        biological: false,
+      };
+    case 'parent':
     default:
       return { source, target, type: 'parent', edgeType: 'parent' };
   }

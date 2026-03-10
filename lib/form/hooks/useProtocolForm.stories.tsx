@@ -389,7 +389,7 @@ const ProtocolFormDemo = ({
         action('form-submitted')(data);
         return { success: true };
       }}
-      className="elevation-high w-2xl rounded bg-white p-10"
+      className="elevation-high bg-surface w-2xl rounded p-10"
     >
       {fieldComponents}
       <SubmitButton className="mt-6">Submit</SubmitButton>

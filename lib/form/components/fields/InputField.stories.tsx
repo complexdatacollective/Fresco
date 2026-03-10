@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { expect, userEvent, within } from 'storybook/test';
+import Paragraph from '~/components/typography/Paragraph';
 import InputField from './InputField';
 
 const meta: Meta<typeof InputField> = {
@@ -166,7 +167,12 @@ export const States: Story = {
     return (
       <div className="flex w-80 flex-col gap-4">
         <div>
-          <p className="mb-1 text-xs font-medium opacity-70">Normal</p>
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium opacity-70"
+          >
+            Normal
+          </Paragraph>
           <InputField
             {...restArgs}
             value={normalValue}
@@ -177,7 +183,12 @@ export const States: Story = {
           />
         </div>
         <div>
-          <p className="mb-1 text-xs font-medium opacity-70">Disabled</p>
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium opacity-70"
+          >
+            Disabled
+          </Paragraph>
           <InputField
             {...restArgs}
             disabled
@@ -188,7 +199,12 @@ export const States: Story = {
           />
         </div>
         <div>
-          <p className="mb-1 text-xs font-medium opacity-70">Read-Only</p>
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium opacity-70"
+          >
+            Read-Only
+          </Paragraph>
           <InputField
             {...restArgs}
             readOnly
@@ -199,7 +215,12 @@ export const States: Story = {
           />
         </div>
         <div>
-          <p className="mb-1 text-xs font-medium opacity-70">Invalid</p>
+          <Paragraph
+            margin="none"
+            className="mb-1 text-xs font-medium opacity-70"
+          >
+            Invalid
+          </Paragraph>
           <InputField
             {...restArgs}
             aria-invalid
@@ -283,10 +304,14 @@ export const InputTypes: Story = {
           value={numberValue?.toString() ?? ''}
           onChange={(v) => setNumberValue(v ? Number(v) : undefined)}
         />
-        <p className="text-xs opacity-70" data-testid="number-value">
+        <Paragraph
+          margin="none"
+          className="text-xs opacity-70"
+          data-testid="number-value"
+        >
           Number value: {numberValue ?? 'undefined'} (type: {typeof numberValue}
           )
-        </p>
+        </Paragraph>
         <InputField
           {...restArgs}
           type="tel"
@@ -421,9 +446,9 @@ export const ClearableInput: Story = {
             )
           }
         />
-        <p className="text-xs opacity-70">
+        <Paragraph margin="none" className="text-xs opacity-70">
           Current value: &ldquo;{value}&rdquo;
-        </p>
+        </Paragraph>
       </div>
     );
   },
@@ -470,9 +495,13 @@ export const TypeSafeOnChange: Story = {
             placeholder="Type text..."
             data-testid="text-input"
           />
-          <p className="text-xs opacity-70" data-testid="text-info">
+          <Paragraph
+            margin="none"
+            className="text-xs opacity-70"
+            data-testid="text-info"
+          >
             Type: {typeof textValue} | Value: &ldquo;{textValue}&rdquo;
-          </p>
+          </Paragraph>
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">Number Input</label>
@@ -484,9 +513,13 @@ export const TypeSafeOnChange: Story = {
             placeholder="Enter number..."
             data-testid="number-input"
           />
-          <p className="text-xs opacity-70" data-testid="number-info">
+          <Paragraph
+            margin="none"
+            className="text-xs opacity-70"
+            data-testid="number-info"
+          >
             Type: {typeof numberValue} | Value: {numberValue ?? 'undefined'}
-          </p>
+          </Paragraph>
         </div>
       </div>
     );

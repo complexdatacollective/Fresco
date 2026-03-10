@@ -51,6 +51,7 @@ export type ChoiceDialog<P = unknown, S = unknown, C = null> = BaseDialog & {
 
 export type CustomDialog = BaseDialog & {
   type: 'custom';
+  footer?: React.ReactNode;
 };
 
 export type FormDialog = BaseDialog & {
@@ -336,6 +337,9 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
       );
     }
 
+    const footer =
+      dialog.type === 'custom' ? dialog.footer : renderDialogActions(dialog);
+
     return (
       <Dialog
         key={dialog.id}
@@ -344,7 +348,7 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
         closeDialog={() => closeDialog(dialog.id)}
         accent={dialog.intent}
         open={dialog.open}
-        footer={renderDialogActions(dialog)}
+        footer={footer}
       >
         {dialog.children}
       </Dialog>

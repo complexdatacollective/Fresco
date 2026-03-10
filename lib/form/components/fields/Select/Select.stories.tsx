@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
+import { UnorderedList } from '~/components/typography/UnorderedList';
 import NativeSelectField from './Native';
 import type { SelectOption } from './shared';
 import StyledSelectField from './Styled';
@@ -114,10 +117,12 @@ export const Overview: Story = {
     return (
       <div className="flex flex-col gap-8">
         <div className="space-y-2">
-          <h3 className="text-lg font-semibold">Native Select</h3>
-          <p className="text-sm opacity-70">
+          <Heading level="h3" margin="none" className="text-lg">
+            Native Select
+          </Heading>
+          <Paragraph margin="none" className="text-sm opacity-70">
             Uses HTML <code>&lt;select&gt;</code> element with custom styling
-          </p>
+          </Paragraph>
           <div className="w-80">
             <NativeSelectField
               name="native-select"
@@ -127,22 +132,24 @@ export const Overview: Story = {
               onChange={(v) => setNativeValue(v ?? '')}
             />
           </div>
-          <p className="text-xs opacity-70">
+          <Paragraph margin="none" className="text-xs opacity-70">
             Selected: {nativeValue || 'none'}
-          </p>
+          </Paragraph>
         </div>
 
         <div className="space-y-2">
-          <h3 className="text-lg font-semibold">Styled Select (Base UI)</h3>
-          <p className="text-sm opacity-70">
+          <Heading level="h3" margin="none" className="text-lg">
+            Styled Select (Base UI)
+          </Heading>
+          <Paragraph margin="none" className="text-sm opacity-70">
             Custom dropdown with better accessibility and UX
-          </p>
-          <ul className="mb-2 list-inside list-disc space-y-1 text-xs opacity-70">
+          </Paragraph>
+          <UnorderedList className="mb-2 list-inside space-y-1 text-xs opacity-70">
             <li>Check indicator for selected items</li>
             <li>Better keyboard navigation</li>
             <li>Hover and focus states</li>
             <li>Portal-based positioning</li>
-          </ul>
+          </UnorderedList>
           <div className="w-80">
             <StyledSelectField
               name="styled-select"
@@ -152,9 +159,9 @@ export const Overview: Story = {
               onChange={(v) => setStyledValue(v ?? '')}
             />
           </div>
-          <p className="text-xs opacity-70">
+          <Paragraph margin="none" className="text-xs opacity-70">
             Selected: {styledValue || 'none'}
-          </p>
+          </Paragraph>
         </div>
       </div>
     );
@@ -183,7 +190,9 @@ export const Sizes: Story = {
     return (
       <div className="flex flex-col gap-8">
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold">Native Select Sizes</h3>
+          <Heading level="h3" margin="none" className="text-lg">
+            Native Select Sizes
+          </Heading>
           <div className="flex w-full flex-col gap-3">
             <NativeSelectField
               name="native-sm-size"
@@ -213,7 +222,9 @@ export const Sizes: Story = {
         </div>
 
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold">Styled Select Sizes</h3>
+          <Heading level="h3" margin="none" className="text-lg">
+            Styled Select Sizes
+          </Heading>
           <div className="flex w-full flex-col gap-3">
             <StyledSelectField
               name="styled-sm-size"
@@ -259,12 +270,17 @@ export const States: Story = {
   render: () => (
     <div className="flex flex-col gap-8">
       <div className="space-y-3">
-        <h3 className="text-lg font-semibold">Native Select States</h3>
+        <Heading level="h3" margin="none" className="text-lg">
+          Native Select States
+        </Heading>
         <div className="flex w-full flex-col gap-3">
           <div>
-            <p className="mb-1 text-xs font-medium text-current opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium text-current opacity-70"
+            >
               Normal
-            </p>
+            </Paragraph>
             <NativeSelectField
               name="native-normal"
               options={sampleOptions}
@@ -276,9 +292,12 @@ export const States: Story = {
             />
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium text-current opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium text-current opacity-70"
+            >
               Disabled
-            </p>
+            </Paragraph>
             <NativeSelectField
               name="native-disabled-state"
               options={sampleOptions}
@@ -290,9 +309,12 @@ export const States: Story = {
             />
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium text-current opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium text-current opacity-70"
+            >
               Invalid
-            </p>
+            </Paragraph>
             <NativeSelectField
               name="native-invalid-state"
               options={sampleOptions}
@@ -307,12 +329,17 @@ export const States: Story = {
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-lg font-semibold">Styled Select States</h3>
+        <Heading level="h3" margin="none" className="text-lg">
+          Styled Select States
+        </Heading>
         <div className="flex w-full flex-col gap-3">
           <div>
-            <p className="mb-1 text-xs font-medium text-current opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium text-current opacity-70"
+            >
               Normal
-            </p>
+            </Paragraph>
             <StyledSelectField
               name="styled-normal"
               options={sampleOptions}
@@ -324,9 +351,12 @@ export const States: Story = {
             />
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium text-current opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium text-current opacity-70"
+            >
               Disabled
-            </p>
+            </Paragraph>
             <StyledSelectField
               name="styled-disabled-state"
               options={sampleOptions}
@@ -338,9 +368,12 @@ export const States: Story = {
             />
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium text-current opacity-70">
+            <Paragraph
+              margin="none"
+              className="mb-1 text-xs font-medium text-current opacity-70"
+            >
               Invalid
-            </p>
+            </Paragraph>
             <StyledSelectField
               name="styled-invalid-state"
               options={sampleOptions}
@@ -374,7 +407,9 @@ export const UsageExamples: Story = {
     return (
       <div className="flex flex-col gap-8">
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold">Country Selector</h3>
+          <Heading level="h3" margin="none" className="text-lg">
+            Country Selector
+          </Heading>
           <div className="tablet:grid-cols-2 grid gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium">Native</label>
@@ -400,7 +435,9 @@ export const UsageExamples: Story = {
         </div>
 
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold">Priority Selector</h3>
+          <Heading level="h3" margin="none" className="text-lg">
+            Priority Selector
+          </Heading>
           <div className="tablet:grid-cols-2 grid gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium">Native</label>
@@ -462,7 +499,9 @@ export const LongOptionList: Story = {
     return (
       <div className="flex flex-col gap-8">
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold">Native Select</h3>
+          <Heading level="h3" margin="none" className="text-lg">
+            Native Select
+          </Heading>
           <NativeSelectField
             name="countries-native"
             options={longOptions}
@@ -472,7 +511,9 @@ export const LongOptionList: Story = {
           />
         </div>
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold">Styled Select</h3>
+          <Heading level="h3" margin="none" className="text-lg">
+            Styled Select
+          </Heading>
           <StyledSelectField
             name="countries-styled"
             options={longOptions}
@@ -509,7 +550,9 @@ export const NumericValues: Story = {
     return (
       <div className="flex flex-col gap-8">
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold">Native Select</h3>
+          <Heading level="h3" margin="none" className="text-lg">
+            Native Select
+          </Heading>
           <NativeSelectField
             name="numbers-native"
             options={numericOptions}
@@ -517,12 +560,14 @@ export const NumericValues: Story = {
             value={value}
             onChange={(v) => setValue(v ?? '')}
           />
-          <p className="text-xs opacity-70">
+          <Paragraph margin="none" className="text-xs opacity-70">
             Value: {value} (type: {typeof value})
-          </p>
+          </Paragraph>
         </div>
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold">Styled Select</h3>
+          <Heading level="h3" margin="none" className="text-lg">
+            Styled Select
+          </Heading>
           <StyledSelectField
             name="numbers-styled"
             options={numericOptions}
@@ -530,9 +575,9 @@ export const NumericValues: Story = {
             value={value}
             onChange={(v) => setValue(v ?? '')}
           />
-          <p className="text-xs opacity-70">
+          <Paragraph margin="none" className="text-xs opacity-70">
             Value: {value} (type: {typeof value})
-          </p>
+          </Paragraph>
         </div>
       </div>
     );

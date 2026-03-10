@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import { cx } from '~/utils/cva';
 import { ScrollArea, type ScrollAreaProps } from './ScrollArea';
 
@@ -106,11 +108,13 @@ const VerticalContent = () => (
         key={i}
         className={cx('border p-4', 'bg-surface-1 text-surface-1-contrast')}
       >
-        <h4 className="font-medium">Item {i + 1}</h4>
-        <p className="text-sm opacity-70">
+        <Heading level="h4" margin="none" className="text-base font-medium">
+          Item {i + 1}
+        </Heading>
+        <Paragraph margin="none" className="text-sm opacity-70">
           This is some content for item {i + 1}. It demonstrates vertical
           scrolling.
-        </p>
+        </Paragraph>
       </div>
     ))}
   </div>
@@ -127,8 +131,12 @@ const HorizontalContent = () => (
           'w-48',
         )}
       >
-        <h4 className="font-medium">Card {i + 1}</h4>
-        <p className="text-sm opacity-70">Horizontal scroll content</p>
+        <Heading level="h4" margin="none" className="text-base font-medium">
+          Card {i + 1}
+        </Heading>
+        <Paragraph margin="none" className="text-sm opacity-70">
+          Horizontal scroll content
+        </Paragraph>
       </div>
     ))}
   </div>
@@ -147,9 +155,9 @@ const BothContent = () => (
               'w-40',
             )}
           >
-            <h4 className="text-sm font-medium">
+            <Heading level="h4" margin="none" className="text-sm font-medium">
               Cell {rowIndex + 1},{colIndex + 1}
-            </h4>
+            </Heading>
           </div>
         ))}
       </div>
@@ -325,11 +333,13 @@ const SnapVerticalContent = () => (
           'min-h-32',
         )}
       >
-        <h4 className="text-lg font-medium">Snap Item {i + 1}</h4>
-        <p className="text-sm opacity-70">
+        <Heading level="h4" margin="none" className="font-medium">
+          Snap Item {i + 1}
+        </Heading>
+        <Paragraph margin="none" className="text-sm opacity-70">
           This item will snap to the top when scrolling. Try scrolling slowly to
           see the snap effect.
-        </p>
+        </Paragraph>
       </div>
     ))}
   </div>
@@ -346,8 +356,12 @@ const SnapHorizontalContent = () => (
           'flex h-32 w-56 flex-col items-center justify-center',
         )}
       >
-        <h4 className="text-lg font-medium">Card {i + 1}</h4>
-        <p className="text-sm opacity-70">Snaps to center</p>
+        <Heading level="h4" margin="none" className="font-medium">
+          Card {i + 1}
+        </Heading>
+        <Paragraph margin="none" className="text-sm opacity-70">
+          Snaps to center
+        </Paragraph>
       </div>
     ))}
   </div>

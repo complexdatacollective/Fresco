@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useEffect, useState } from 'react';
 import { expect, userEvent, within } from 'storybook/test';
 import Surface from '~/components/layout/Surface';
+import Paragraph from '~/components/typography/Paragraph';
 import LikertScaleField from './LikertScale';
 
 const meta = {
@@ -183,9 +184,9 @@ function UnsetLikertWithValueDisplay({
           }
         }}
       />
-      <p data-testid="likert-value">
+      <Paragraph margin="none" data-testid="likert-value">
         {value === undefined ? 'unset' : String(value)}
-      </p>
+      </Paragraph>
     </div>
   );
 }
@@ -277,23 +278,48 @@ export const AllStates: Story = {
   render: () => (
     <div className="flex flex-col gap-8">
       <div>
-        <p className="mb-2 text-xs font-medium text-current/50">Unset</p>
+        <Paragraph
+          margin="none"
+          className="mb-2 text-xs font-medium text-current/50"
+        >
+          Unset
+        </Paragraph>
         <LikertScaleField options={agreementOptions} value={undefined} />
       </div>
       <div>
-        <p className="mb-2 text-xs font-medium text-current/50">Normal</p>
+        <Paragraph
+          margin="none"
+          className="mb-2 text-xs font-medium text-current/50"
+        >
+          Normal
+        </Paragraph>
         <LikertScaleField options={agreementOptions} value={3} />
       </div>
       <div>
-        <p className="mb-2 text-xs font-medium text-current/50">Disabled</p>
+        <Paragraph
+          margin="none"
+          className="mb-2 text-xs font-medium text-current/50"
+        >
+          Disabled
+        </Paragraph>
         <LikertScaleField options={agreementOptions} value={3} disabled />
       </div>
       <div>
-        <p className="mb-2 text-xs font-medium text-current/50">Read Only</p>
+        <Paragraph
+          margin="none"
+          className="mb-2 text-xs font-medium text-current/50"
+        >
+          Read Only
+        </Paragraph>
         <LikertScaleField options={agreementOptions} value={4} readOnly />
       </div>
       <div>
-        <p className="mb-2 text-xs font-medium text-current/50">Invalid</p>
+        <Paragraph
+          margin="none"
+          className="mb-2 text-xs font-medium text-current/50"
+        >
+          Invalid
+        </Paragraph>
         <LikertScaleField
           options={agreementOptions}
           value={3}

@@ -10,7 +10,12 @@ export default function DialogPopup({
   return (
     <ModalPopup
       className={cx(
-        surfaceVariants({ level: 0, elevation: 'high' }),
+        surfaceVariants({
+          level: 0,
+          elevation: 'high',
+          spacingX: 'none',
+          spacingY: 'none',
+        }),
         'tablet:w-auto tablet:min-w-md w-[calc(100%-var(--spacing)*10)] max-w-2xl',
         'fixed top-1/2 left-1/2 -translate-1/2',
         'flex max-h-[calc(100vh-var(--spacing)*4)] flex-col',

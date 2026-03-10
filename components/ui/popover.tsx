@@ -158,7 +158,7 @@ function PopoverContent({
   );
 }
 
-function ArrowSvg(props: ComponentProps<'svg'>) {
+export function ArrowSvg(props: ComponentProps<'svg'>) {
   return (
     <svg width="30" height="20" viewBox="0 0 20 10" fill="none" {...props}>
       <path

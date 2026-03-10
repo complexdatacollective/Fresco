@@ -23,6 +23,7 @@ type FieldOwnProps<C extends ValidFieldComponent> = {
   name: string;
   label: string;
   hint?: ReactNode;
+  inline?: boolean;
   initialValue?: ExtractValue<C> | undefined;
   showValidationHints?: boolean;
   disabled?: boolean;
@@ -49,6 +50,7 @@ type UnconnectedFieldProps<C extends ValidFieldComponent> = FieldOwnProps<C> &
   Omit<React.ComponentProps<C>, ValidationPropKey | ManagedKeys> &
   ValidationPropsForValue<ExtractValue<C>> & {
     component: C;
+    errors?: string[];
     showErrors?: boolean;
   };
 
@@ -73,6 +75,7 @@ export default function UnconnectedField<C extends ValidFieldComponent>({
   id: providedId,
   label,
   hint,
+  inline,
   required,
   errors,
   showErrors,
@@ -92,6 +95,7 @@ export default function UnconnectedField<C extends ValidFieldComponent>({
         id={id}
         label={label}
         hint={hint}
+        inline={inline}
         required={Boolean(componentProps.required)}
         errors={errors}
         showErrors={showErrors}

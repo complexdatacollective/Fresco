@@ -39,6 +39,3 @@ export function isGender(value: string): value is Gender {
   return GENDER_OPTIONS.some((o) => o.value === value);
 }
 
-export function isParentEdgeType(value: string): value is ParentEdgeType {
-  return PARENT_EDGE_TYPE_OPTIONS.some((o) => o.value === value);
-}

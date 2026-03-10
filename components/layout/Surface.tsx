@@ -7,22 +7,44 @@ import ResponsiveContainer, {
   type ResponsiveContainerProps,
 } from './ResponsiveContainer';
 
-export const surfaceSpacingVariants = cva({
+export const surfaceSpacingXVariants = cva({
   base: '',
   variants: {
-    spacing: {
+    spacingX: {
       none: '',
-      xs: 'px-4 py-2 @xl:px-6 @xl:py-4',
-      sm: 'px-6 py-4 @xl:px-8 @xl:py-6 @4xl:px-10 @4xl:py-6',
-      md: 'px-8 py-6 @xl:px-10 @xl:py-8 @4xl:px-12 @4xl:py-8',
-      lg: 'px-10 py-8 @xl:px-16 @xl:py-12 @4xl:px-20 @4xl:py-16',
-      xl: 'px-12 py-10 @xl:px-20 @xl:py-16 @4xl:px-28 @4xl:py-20',
+      xs: 'px-4 @xl:px-6',
+      sm: 'px-6 @xl:px-8 @4xl:px-10',
+      md: 'px-8 @xl:px-10 @4xl:px-12',
+      lg: 'px-10 @xl:px-16 @4xl:px-20',
+      xl: 'px-12 @xl:px-20 @4xl:px-28',
     },
   },
   defaultVariants: {
-    spacing: 'md',
+    spacingX: 'md',
   },
 });
+
+const surfaceSpacingYVariants = cva({
+  base: '',
+  variants: {
+    spacingY: {
+      none: '',
+      xs: 'py-2 @xl:py-4',
+      sm: 'py-4 @xl:py-6 @4xl:py-6',
+      md: 'py-6 @xl:py-8 @4xl:py-8',
+      lg: 'py-8 @xl:py-12 @4xl:py-16',
+      xl: 'py-10 @xl:py-16 @4xl:py-20',
+    },
+  },
+  defaultVariants: {
+    spacingY: 'md',
+  },
+});
+
+export const surfaceSpacingVariants = compose(
+  surfaceSpacingXVariants,
+  surfaceSpacingYVariants,
+);
 
 export const surfaceVariants = compose(
   surfaceSpacingVariants,
@@ -62,9 +84,13 @@ export const surfaceVariants = compose(
 
 export type SurfaceVariants = VariantProps<typeof surfaceVariants>;
 
+type SpacingSize = VariantProps<typeof surfaceSpacingXVariants>['spacingX'];
+
 type SurfaceProps<T extends ElementType = 'div'> = {
   as?: T;
   noContainer?: boolean;
+  /** Shorthand that sets both spacingX and spacingY. Individual axis props take precedence. */
+  spacing?: SpacingSize;
 } & SurfaceVariants &
   ResponsiveContainerProps &
   Omit<
@@ -73,6 +99,7 @@ type SurfaceProps<T extends ElementType = 'div'> = {
     | keyof ResponsiveContainerProps
     | 'as'
     | 'noContainer'
+    | 'spacing'
   >;
 
 /**
@@ -95,6 +122,8 @@ const SurfaceComponent = forwardRef<HTMLDivElement, SurfaceProps>(
       children,
       level,
       spacing,
+      spacingX,
+      spacingY,
       elevation,
       bleed,
       className,
@@ -111,7 +140,13 @@ const SurfaceComponent = forwardRef<HTMLDivElement, SurfaceProps>(
         ref={ref}
         {...rest}
         className={cx(
-          surfaceVariants({ level, spacing, elevation, bleed }),
+          surfaceVariants({
+            level,
+            spacingX: spacingX ?? spacing,
+            spacingY: spacingY ?? spacing,
+            elevation,
+            bleed,
+          }),
           className,
         )}
       >

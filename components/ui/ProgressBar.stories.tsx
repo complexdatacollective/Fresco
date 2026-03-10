@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useEffect, useState } from 'react';
+import Heading from '~/components/typography/Heading';
 import ProgressBar from './ProgressBar';
 
 const meta: Meta<typeof ProgressBar> = {
@@ -138,7 +139,9 @@ export const AnimatedProgress: Story = {
     return (
       <div className="flex flex-col gap-8">
         <div className="flex flex-col items-center gap-4">
-          <h3 className="text-lg font-semibold">Horizontal ({progress}%)</h3>
+          <Heading level="h3" margin="none" className="text-lg">
+            Horizontal ({progress}%)
+          </Heading>
           <div className="flex h-24 w-96 items-center justify-center">
             <ProgressBar
               orientation="horizontal"
@@ -148,7 +151,9 @@ export const AnimatedProgress: Story = {
           </div>
         </div>
         <div className="flex flex-col items-center gap-4">
-          <h3 className="text-lg font-semibold">Vertical ({progress}%)</h3>
+          <Heading level="h3" margin="none" className="text-lg">
+            Vertical ({progress}%)
+          </Heading>
           <div className="flex h-96 items-center justify-center">
             <ProgressBar
               orientation="vertical"
@@ -166,7 +171,9 @@ export const AllOrientations: Story = {
   render: () => (
     <div className="flex gap-12">
       <div className="flex flex-col items-center gap-4">
-        <h3 className="text-base font-semibold">Vertical 25%</h3>
+        <Heading level="h3" margin="none" className="text-base">
+          Vertical 25%
+        </Heading>
         <div className="flex h-96">
           <ProgressBar
             orientation="vertical"
@@ -176,7 +183,9 @@ export const AllOrientations: Story = {
         </div>
       </div>
       <div className="flex flex-col items-center gap-4">
-        <h3 className="text-base font-semibold">Vertical 50%</h3>
+        <Heading level="h3" margin="none" className="text-base">
+          Vertical 50%
+        </Heading>
         <div className="flex h-96">
           <ProgressBar
             orientation="vertical"
@@ -186,7 +195,9 @@ export const AllOrientations: Story = {
         </div>
       </div>
       <div className="flex flex-col items-center gap-4">
-        <h3 className="text-base font-semibold">Vertical 75%</h3>
+        <Heading level="h3" margin="none" className="text-base">
+          Vertical 75%
+        </Heading>
         <div className="flex h-96">
           <ProgressBar
             orientation="vertical"
@@ -196,7 +207,9 @@ export const AllOrientations: Story = {
         </div>
       </div>
       <div className="flex flex-col items-center gap-4">
-        <h3 className="text-base font-semibold">Vertical 100%</h3>
+        <Heading level="h3" margin="none" className="text-base">
+          Vertical 100%
+        </Heading>
         <div className="flex h-96">
           <ProgressBar
             orientation="vertical"
@@ -213,7 +226,9 @@ export const HorizontalVariants: Story = {
   render: () => (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-semibold">25% Progress</h3>
+        <Heading level="h3" margin="none" className="text-sm">
+          25% Progress
+        </Heading>
         <div className="w-96">
           <ProgressBar
             orientation="horizontal"
@@ -223,7 +238,9 @@ export const HorizontalVariants: Story = {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-semibold">50% Progress</h3>
+        <Heading level="h3" margin="none" className="text-sm">
+          50% Progress
+        </Heading>
         <div className="w-96">
           <ProgressBar
             orientation="horizontal"
@@ -233,7 +250,9 @@ export const HorizontalVariants: Story = {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-semibold">75% Progress</h3>
+        <Heading level="h3" margin="none" className="text-sm">
+          75% Progress
+        </Heading>
         <div className="w-96">
           <ProgressBar
             orientation="horizontal"
@@ -243,7 +262,9 @@ export const HorizontalVariants: Story = {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-semibold">100% Complete (with nudge)</h3>
+        <Heading level="h3" margin="none" className="text-sm">
+          100% Complete (with nudge)
+        </Heading>
         <div className="w-96">
           <ProgressBar
             orientation="horizontal"
@@ -253,7 +274,9 @@ export const HorizontalVariants: Story = {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-semibold">Indeterminate</h3>
+        <Heading level="h3" margin="none" className="text-sm">
+          Indeterminate
+        </Heading>
         <div className="w-96">
           <ProgressBar orientation="horizontal" indeterminate label="Loading" />
         </div>
@@ -266,7 +289,9 @@ export const WithCustomColors: Story = {
   render: () => (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-semibold">Default Color (inherits)</h3>
+        <Heading level="h3" margin="none" className="text-sm">
+          Default Color (inherits)
+        </Heading>
         <div className="w-96">
           <ProgressBar
             orientation="horizontal"
@@ -276,9 +301,9 @@ export const WithCustomColors: Story = {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-semibold">
+        <Heading level="h3" margin="none" className="text-sm">
           Custom Color (via CSS variable)
-        </h3>
+        </Heading>
         <div className="text-success w-96">
           <ProgressBar
             orientation="horizontal"
@@ -288,7 +313,9 @@ export const WithCustomColors: Story = {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-semibold">Warning Color</h3>
+        <Heading level="h3" margin="none" className="text-sm">
+          Warning Color
+        </Heading>
         <div className="text-warning w-96">
           <ProgressBar
             orientation="horizontal"
@@ -298,7 +325,9 @@ export const WithCustomColors: Story = {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-semibold">Destructive Color</h3>
+        <Heading level="h3" margin="none" className="text-sm">
+          Destructive Color
+        </Heading>
         <div className="text-destructive w-96">
           <ProgressBar
             orientation="horizontal"

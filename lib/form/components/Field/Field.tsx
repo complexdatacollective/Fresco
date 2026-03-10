@@ -20,6 +20,7 @@ export default function Field<C extends ValidFieldComponent>({
   name,
   label,
   hint,
+  inline,
   initialValue,
   showValidationHints = false,
   validationContext,
@@ -50,6 +51,7 @@ export default function Field<C extends ValidFieldComponent>({
         name={name}
         label={label}
         hint={hint}
+        inline={inline}
         validationSummary={validationSummary}
         required={Boolean(componentProps.required)}
         errors={meta.errors}

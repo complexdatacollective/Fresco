@@ -834,3 +834,299 @@ describe('Wizard Dialog setBeforeNext', () => {
     expect(screen.queryByText('Middle step content')).not.toBeInTheDocument();
   });
 });
+
+describe('Wizard Dialog skip', () => {
+  const user = userEvent.setup();
+
+  it('should skip steps with a skip function that returns true', async () => {
+    const onResult = vi.fn();
+
+    function SkippableStep() {
+      return <div>Skipped step</div>;
+    }
+
+    render(
+      <DialogProvider>
+        <TestWizardComponent
+          onResult={onResult}
+          steps={[
+            { title: 'Step 1', content: SimpleStep },
+            {
+              title: 'Step 2 (skipped)',
+              content: SkippableStep,
+              skip: () => true,
+            },
+            { title: 'Step 3', content: ThirdStep },
+          ]}
+        />
+      </DialogProvider>,
+    );
+
+    await user.click(screen.getByText('Open'));
+    expect(screen.getByText('Step 1')).toBeInTheDocument();
+
+    // Click Continue — should skip step 2 and land on step 3
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await vi.waitFor(() => {
+      expect(screen.getByText('Step 3 content')).toBeInTheDocument();
+    });
+    expect(screen.queryByText('Skipped step')).not.toBeInTheDocument();
+
+    // Click Back — should skip step 2 and land back on step 1
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    await vi.waitFor(() => {
+      expect(screen.getByText('Set Data')).toBeInTheDocument();
+    });
+    expect(screen.queryByText('Skipped step')).not.toBeInTheDocument();
+  });
+
+  it('should dynamically skip steps based on data', async () => {
+    const onResult = vi.fn();
+
+    function ToggleStep() {
+      const { data, setStepData } = useWizard();
+      const skipMiddle = data.skipMiddle === true;
+
+      return (
+        <div>
+          <span data-testid="skip-state">{skipMiddle ? 'on' : 'off'}</span>
+          <button onClick={() => setStepData({ skipMiddle: !skipMiddle })}>
+            Toggle skip
+          </button>
+        </div>
+      );
+    }
+
+    function MiddleStep() {
+      return <div>Middle step content</div>;
+    }
+
+    render(
+      <DialogProvider>
+        <TestWizardComponent
+          onResult={onResult}
+          steps={[
+            { title: 'Step 1', content: ToggleStep },
+            {
+              title: 'Step 2 (conditional)',
+              content: MiddleStep,
+              skip: (d) => d.skipMiddle === true,
+            },
+            { title: 'Step 3', content: ThirdStep },
+          ]}
+        />
+      </DialogProvider>,
+    );
+
+    await user.click(screen.getByText('Open'));
+
+    // Without skip toggled, step 2 should be reachable
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await vi.waitFor(() => {
+      expect(screen.getByText('Middle step content')).toBeInTheDocument();
+    });
+
+    // Go back and toggle skip on
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    await vi.waitFor(() => {
+      expect(screen.getByTestId('skip-state')).toHaveTextContent('off');
+    });
+    await user.click(screen.getByText('Toggle skip'));
+    expect(screen.getByTestId('skip-state')).toHaveTextContent('on');
+
+    // Now Continue should skip step 2 and go to step 3
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await vi.waitFor(() => {
+      expect(screen.getByText('Step 3 content')).toBeInTheDocument();
+    });
+    expect(screen.queryByText('Middle step content')).not.toBeInTheDocument();
+  });
+
+  it('should skip multiple consecutive steps', async () => {
+    const onResult = vi.fn();
+
+    function FourthStep() {
+      return <div>Step 4 content</div>;
+    }
+
+    render(
+      <DialogProvider>
+        <TestWizardComponent
+          onResult={onResult}
+          steps={[
+            { title: 'Step 1', content: SimpleStep },
+            {
+              title: 'Step 2 (skipped)',
+              content: () => <div>Step 2</div>,
+              skip: () => true,
+            },
+            {
+              title: 'Step 3 (skipped)',
+              content: ThirdStep,
+              skip: () => true,
+            },
+            { title: 'Step 4', content: FourthStep },
+          ]}
+        />
+      </DialogProvider>,
+    );
+
+    await user.click(screen.getByText('Open'));
+
+    // Forward should jump over both skipped steps
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await vi.waitFor(() => {
+      expect(screen.getByText('Step 4 content')).toBeInTheDocument();
+    });
+
+    // Backward should jump back over both skipped steps
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    await vi.waitFor(() => {
+      expect(screen.getByText('Set Data')).toBeInTheDocument();
+    });
+  });
+
+  it('should show Finish when the last active step is reached', async () => {
+    const onResult = vi.fn();
+
+    render(
+      <DialogProvider>
+        <TestWizardComponent
+          onResult={onResult}
+          steps={[
+            { title: 'Step 1', content: SimpleStep },
+            { title: 'Step 2', content: SecondStep },
+            {
+              title: 'Step 3 (skipped)',
+              content: ThirdStep,
+              skip: () => true,
+            },
+          ]}
+        />
+      </DialogProvider>,
+    );
+
+    await user.click(screen.getByText('Open'));
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+    await vi.waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: 'Finish' }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('should hide Back button on the first active step when earlier steps are skipped', async () => {
+    render(
+      <DialogProvider>
+        <TestWizardComponent
+          onResult={vi.fn()}
+          steps={[
+            {
+              title: 'Step 1 (skipped)',
+              content: SimpleStep,
+              skip: () => true,
+            },
+            { title: 'Step 2', content: SecondStep },
+            { title: 'Step 3', content: ThirdStep },
+          ]}
+        />
+      </DialogProvider>,
+    );
+
+    await user.click(screen.getByText('Open'));
+
+    // Navigate forward from step 0 (skipped) to step 1 (first active)
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await vi.waitFor(() => {
+      expect(screen.getByTestId('step1-data')).toBeInTheDocument();
+    });
+
+    // Step 2 (index 1) is the first active step — no Back button
+    expect(
+      screen.queryByRole('button', { name: 'Back' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should call onFinish with correct data when skipped steps are last', async () => {
+    const onResult = vi.fn();
+
+    render(
+      <DialogProvider>
+        <TestWizardComponent
+          onResult={onResult}
+          steps={[
+            { title: 'Step 1', content: SimpleStep },
+            {
+              title: 'Step 2 (skipped)',
+              content: SecondStep,
+              skip: () => true,
+            },
+          ]}
+        />
+      </DialogProvider>,
+    );
+
+    await user.click(screen.getByText('Open'));
+    await user.click(screen.getByText('Set Data'));
+
+    // Step 1 is the last active step, so button should say Finish
+    expect(screen.getByRole('button', { name: 'Finish' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Finish' }));
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 600));
+    });
+
+    expect(onResult).toHaveBeenCalledWith({ step1: 'done' });
+  });
+
+  it('should skip all middle steps leaving only first and last', async () => {
+    const onResult = vi.fn();
+
+    function LastStep() {
+      return <div>Last step content</div>;
+    }
+
+    render(
+      <DialogProvider>
+        <TestWizardComponent
+          onResult={onResult}
+          steps={[
+            { title: 'Step 1', content: SimpleStep },
+            {
+              title: 'Step 2 (skipped)',
+              content: () => <div>Step 2</div>,
+              skip: () => true,
+            },
+            {
+              title: 'Step 3 (skipped)',
+              content: ThirdStep,
+              skip: () => true,
+            },
+            {
+              title: 'Step 4 (skipped)',
+              content: () => <div>Step 4</div>,
+              skip: () => true,
+            },
+            { title: 'Step 5', content: LastStep },
+          ]}
+        />
+      </DialogProvider>,
+    );
+
+    await user.click(screen.getByText('Open'));
+
+    // Continue should jump straight to step 5
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await vi.waitFor(() => {
+      expect(screen.getByText('Last step content')).toBeInTheDocument();
+    });
+
+    // Back should return to step 1
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    await vi.waitFor(() => {
+      expect(screen.getByText('Set Data')).toBeInTheDocument();
+    });
+  });
+});

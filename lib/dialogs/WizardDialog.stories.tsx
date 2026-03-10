@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useEffect, useState } from 'react';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
+import Paragraph from '~/components/typography/Paragraph';
 import Button from '~/components/ui/Button';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
@@ -43,10 +44,10 @@ function RoleStep() {
 
   return (
     <div className="flex flex-col gap-3 pt-4">
-      <p className="text-sm">
+      <Paragraph>
         Welcome, <strong>{(data.name as string) ?? 'User'}</strong>! Choose your
         role:
-      </p>
+      </Paragraph>
       <UnconnectedField
         name="role"
         label="Role"
@@ -73,7 +74,7 @@ function ConfirmStep() {
 
   return (
     <div className="flex flex-col gap-3 pt-4">
-      <p className="text-sm">Please confirm your details:</p>
+      <Paragraph>Please confirm your details:</Paragraph>
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
         <dt className="font-medium">Name</dt>
         <dd data-testid="confirm-name">{(data.name as string) ?? '—'}</dd>
@@ -122,7 +123,6 @@ export const Default: StoryObj<Meta<WizardStoryArgs>> = {
           },
           {
             title: 'Choose a role',
-            description: 'Select the role that best describes you.',
             content: RoleStep,
           },
           {
@@ -193,14 +193,187 @@ export const Default: StoryObj<Meta<WizardStoryArgs>> = {
   },
 };
 
+function HasPartnerStep() {
+  const { data, setStepData, setNextEnabled } = useWizard();
+  const hasPartner = data.hasPartner as boolean | undefined;
+
+  useEffect(() => {
+    setNextEnabled(hasPartner !== undefined);
+  }, [hasPartner, setNextEnabled]);
+
+  return (
+    <div className="flex flex-col gap-3 pt-4">
+      <div className="flex gap-3">
+        <Button
+          color={hasPartner === true ? 'primary' : 'default'}
+          onClick={() => setStepData({ hasPartner: true })}
+        >
+          Yes
+        </Button>
+        <Button
+          color={hasPartner === false ? 'primary' : 'default'}
+          onClick={() => setStepData({ hasPartner: false })}
+        >
+          No
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function PartnerDetailsStep() {
+  const { data, setStepData } = useWizard();
+  const [partnerName, setPartnerName] = useState(
+    (data.partnerName as string) ?? '',
+  );
+
+  return (
+    <div className="flex flex-col gap-3 pt-4">
+      <UnconnectedField
+        name="partnerName"
+        label="Partner's name"
+        component={InputField}
+        placeholder="Enter partner's name..."
+        value={partnerName}
+        onChange={(value) => {
+          const v = value ?? '';
+          setPartnerName(v);
+          setStepData({ partnerName: v });
+        }}
+      />
+    </div>
+  );
+}
+
+function SkipSummaryStep() {
+  const { data } = useWizard();
+
+  return (
+    <div className="flex flex-col gap-3 pt-4">
+      <Paragraph>Please confirm your details:</Paragraph>
+      <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+        <dt className="font-medium">Name</dt>
+        <dd data-testid="confirm-name">{(data.name as string) ?? '—'}</dd>
+        <dt className="font-medium">Has partner</dt>
+        <dd data-testid="confirm-has-partner">
+          {data.hasPartner ? 'Yes' : 'No'}
+        </dd>
+        {data.hasPartner === true && (
+          <>
+            <dt className="font-medium">Partner&apos;s name</dt>
+            <dd data-testid="confirm-partner-name">
+              {(data.partnerName as string) ?? '—'}
+            </dd>
+          </>
+        )}
+      </dl>
+    </div>
+  );
+}
+
+/**
+ * Demonstrates declarative step skipping via the `skip` function.
+ * The "Partner Details" step is skipped when the user selects "No"
+ * for the partner question. The pip count updates dynamically.
+ */
+export const WithSkip: StoryObj<Meta<WizardStoryArgs>> = {
+  name: 'Step Skipping',
+  args: {
+    onResult: fn(),
+  },
+  render: (args) => {
+    const { openDialog } = useDialog();
+
+    const handleOpen = async () => {
+      const result = await openDialog({
+        type: 'wizard',
+        title: 'Profile Setup',
+        steps: [
+          {
+            title: 'Enter your name',
+            description: 'We need your name to get started.',
+            content: NameStep,
+          },
+          {
+            title: 'Partner',
+            description: 'Do you have a partner?',
+            content: HasPartnerStep,
+          },
+          {
+            title: 'Partner Details',
+            description: 'Tell us about your partner.',
+            content: PartnerDetailsStep,
+            skip: (data) => data.hasPartner !== true,
+          },
+          {
+            title: 'Confirm',
+            description: 'Review your details before completing.',
+            content: SkipSummaryStep,
+            nextLabel: 'Complete',
+          },
+        ],
+      });
+
+      args.onResult(result);
+    };
+
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Button onClick={handleOpen}>Open Wizard</Button>
+      </div>
+    );
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    // Open the wizard
+    await userEvent.click(canvas.getByRole('button', { name: 'Open Wizard' }));
+    await screen.findByRole('dialog');
+
+    // Step 1: Enter name
+    const nameInput = await screen.findByRole('textbox', {}, { timeout: 5000 });
+    await userEvent.type(nameInput, 'Alice');
+    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+    // Step 2: Select "No" for partner — this should skip step 3
+    const noButton = await screen.findByRole(
+      'button',
+      { name: 'No' },
+      { timeout: 5000 },
+    );
+    await userEvent.click(noButton);
+    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+    // Should jump straight to summary (step 4), skipping partner details
+    await waitFor(async () => {
+      await expect(screen.getByTestId('confirm-name')).toHaveTextContent(
+        'Alice',
+      );
+      await expect(screen.getByTestId('confirm-has-partner')).toHaveTextContent(
+        'No',
+      );
+    });
+
+    // Complete the wizard
+    await userEvent.click(screen.getByRole('button', { name: 'Complete' }));
+
+    await waitFor(async () => {
+      await expect(args.onResult).toHaveBeenCalledWith({
+        name: 'Alice',
+        hasPartner: false,
+      });
+    });
+  },
+};
+
 function DisableNextStep() {
   const { setNextEnabled } = useWizard();
 
   return (
     <div className="flex flex-col gap-3 pt-4">
-      <p className="text-sm">
+      <Paragraph margin="none" className="text-sm">
         Use the buttons below to toggle the Next button.
-      </p>
+      </Paragraph>
       <div className="flex gap-2">
         <Button size="sm" onClick={() => setNextEnabled(true)}>
           Enable Next
@@ -239,7 +412,9 @@ function GoToStepDemo() {
 
   return (
     <div className="flex flex-col gap-3 pt-4">
-      <p className="text-sm">Jump to any step:</p>
+      <Paragraph margin="none" className="text-sm">
+        Jump to any step:
+      </Paragraph>
       <div className="flex gap-2">
         {Array.from({ length: totalSteps }, (_, i) => (
           <Button key={i} size="sm" onClick={() => goToStep(i)}>
@@ -542,19 +717,27 @@ function AsyncValidationStep() {
 
   return (
     <div className="flex flex-col gap-3 pt-4">
-      <p className="text-sm">
+      <Paragraph margin="none" className="text-sm">
         Clicking Continue triggers an async validation. It has a 70% chance of
         succeeding.
-      </p>
+      </Paragraph>
       {status === 'error' && (
-        <p className="text-destructive text-sm" data-testid="validation-error">
+        <Paragraph
+          margin="none"
+          className="text-destructive text-sm"
+          data-testid="validation-error"
+        >
           Validation failed — try again.
-        </p>
+        </Paragraph>
       )}
       {status === 'success' && (
-        <p className="text-success text-sm" data-testid="validation-success">
+        <Paragraph
+          margin="none"
+          className="text-success text-sm"
+          data-testid="validation-success"
+        >
           Validation passed!
-        </p>
+        </Paragraph>
       )}
     </div>
   );
@@ -582,19 +765,27 @@ function DeterministicValidationStep({ shouldPass }: { shouldPass: boolean }) {
 
   return (
     <div className="flex flex-col gap-3 pt-4">
-      <p className="text-sm">
+      <Paragraph margin="none" className="text-sm">
         This step {shouldPass ? 'will pass' : 'will fail'} validation on
         Continue.
-      </p>
+      </Paragraph>
       {status === 'error' && (
-        <p className="text-destructive text-sm" data-testid="validation-error">
+        <Paragraph
+          margin="none"
+          className="text-destructive text-sm"
+          data-testid="validation-error"
+        >
           Validation failed.
-        </p>
+        </Paragraph>
       )}
       {status === 'success' && (
-        <p className="text-success text-sm" data-testid="validation-success">
+        <Paragraph
+          margin="none"
+          className="text-success text-sm"
+          data-testid="validation-success"
+        >
           Validation passed!
-        </p>
+        </Paragraph>
       )}
     </div>
   );

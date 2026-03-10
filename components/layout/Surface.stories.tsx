@@ -78,7 +78,7 @@ export const DifferentSpacing: StoryFn<typeof Surface> = () => (
       <Surface
         key={spacing}
         level={1}
-        spacing={spacing as SurfaceVariants['spacing']}
+        spacing={spacing as SurfaceVariants['spacingX']}
       >
         Surface with {spacing} spacing
       </Surface>

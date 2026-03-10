@@ -2,6 +2,8 @@
 
 import { File } from 'node:buffer';
 import { readFile, unlink } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { basename, join } from 'node:path';
 import type {
   ArchiveResult,
   ExportReturn,
@@ -28,9 +30,14 @@ export const uploadZipToUploadThing = async (
   const { path: zipLocation, completed, rejected } = results;
 
   try {
-    const fileName = zipLocation.split('/').pop()?.split('.').shift() ?? 'file';
-    const zipBuffer = await readFile(zipLocation);
-    const zipFile = new File([zipBuffer], `${fileName}.zip`, {
+    const fileName = basename(zipLocation);
+    if (!/^networkCanvasExport-\d+\.zip$/.test(fileName)) {
+      return { status: 'error', error: 'Invalid file path' };
+    }
+    const safePath = join(tmpdir(), fileName);
+
+    const zipBuffer = await readFile(safePath);
+    const zipFile = new File([zipBuffer], fileName, {
       type: 'application/zip',
     });
 
@@ -39,7 +46,7 @@ export const uploadZipToUploadThing = async (
     const { data, error } = await utapi.uploadFiles(zipFile);
 
     if (data) {
-      void unlink(zipLocation); // Delete the zip file after successful upload
+      void unlink(safePath); // Delete the zip file after successful upload
       return {
         zipUrl: data.ufsUrl,
         zipKey: data.key,

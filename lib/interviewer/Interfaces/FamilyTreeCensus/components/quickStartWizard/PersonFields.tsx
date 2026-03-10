@@ -3,13 +3,13 @@
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
 import InputField from '~/lib/form/components/fields/InputField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
-import { type Gender, type Sex } from '~/lib/pedigree-layout/types';
 import {
   GENDER_OPTIONS,
   SEX_OPTIONS,
   isGender,
   isSex,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/fieldOptions';
+import { type Gender, type Sex } from '~/lib/pedigree-layout/types';
 
 type PersonFieldsProps = {
   index: number;
@@ -35,13 +35,14 @@ export default function PersonFields({
   showName = true,
 }: PersonFieldsProps) {
   return (
-    <div className="flex flex-col gap-3">
+    <>
       {showName && (
         <UnconnectedField
           name={`${prefix}-${index}-name`}
           label="Name"
           component={InputField}
           placeholder="Enter name"
+          autoFocus
           value={name}
           onChange={(v) => onNameChange(v ?? '')}
         />
@@ -71,6 +72,6 @@ export default function PersonFields({
           }
         }}
       />
-    </div>
+    </>
   );
 }
