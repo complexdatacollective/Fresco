@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { computeConnectors } from '~/lib/pedigree-layout/connectors';
 import {
   type ParentConnection,
+  type PartnerConnection,
   type PedigreeLayout,
   type ScalingParams,
 } from '~/lib/pedigree-layout/types';
@@ -183,6 +184,38 @@ describe('computeConnectors', () => {
   it('sets partner=false on group lines without partner relation', () => {
     const connectors = computeConnectors(layout, scaling, parents);
     expect(connectors.groupLines[0]!.partner).toBe(false);
+  });
+
+  it('sets current=true on group lines for current partnerships', () => {
+    const partners: PartnerConnection[] = [
+      { partnerIndex1: 1, partnerIndex2: 2, current: true },
+    ];
+    const connectors = computeConnectors(
+      layout,
+      scaling,
+      parents,
+      0.6,
+      0.5,
+      [],
+      partners,
+    );
+    expect(connectors.groupLines[0]!.current).toBe(true);
+  });
+
+  it('sets current=false on group lines for past partnerships', () => {
+    const partners: PartnerConnection[] = [
+      { partnerIndex1: 1, partnerIndex2: 2, current: false },
+    ];
+    const connectors = computeConnectors(
+      layout,
+      scaling,
+      parents,
+      0.6,
+      0.5,
+      [],
+      partners,
+    );
+    expect(connectors.groupLines[0]!.current).toBe(false);
   });
 
   it('routes parent links to specific couple midpoints in multi-partner layouts', () => {

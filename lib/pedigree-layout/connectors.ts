@@ -5,6 +5,7 @@ import {
   type ParentChildConnector,
   type ParentConnection,
   type ParentGroupConnector,
+  type PartnerConnection,
   type PedigreeConnectors,
   type PedigreeLayout,
   type Point,
@@ -32,6 +33,7 @@ export function computeConnectors(
   branch = 0.6,
   pconnect = 0.5,
   relations: Relation[] = [],
+  partners: PartnerConnection[] = [],
 ): PedigreeConnectors {
   const { boxHeight: boxh, legHeight: legh } = scaling;
   const maxlev = layout.nid.length;
@@ -51,6 +53,12 @@ export function computeConnectors(
         `${Math.min(rel.id1, rel.id2)},${Math.max(rel.id1, rel.id2)}`,
       );
     }
+  }
+
+  const partnerMap = new Map<string, PartnerConnection>();
+  for (const p of partners) {
+    const key = `${Math.min(p.partnerIndex1, p.partnerIndex2)},${Math.max(p.partnerIndex1, p.partnerIndex2)}`;
+    partnerMap.set(key, p);
   }
 
   // --- Parent group lines (replaces spouse lines) ---
@@ -74,13 +82,16 @@ export function computeConnectors(
         const leftId = layout.nid[i]![j]!;
         const rightId = layout.nid[i]![j + 1]!;
         const pairKey = `${Math.min(leftId, rightId)},${Math.max(leftId, rightId)}`;
-        const isPartner = partnerPairs.has(pairKey);
+        const partnerConn = partnerMap.get(pairKey);
+        const isPartner =
+          partnerConn !== undefined || partnerPairs.has(pairKey);
+        const isCurrent = partnerConn?.current ?? true;
 
         const connector: ParentGroupConnector = {
           type: 'parent-group',
           segment,
           partner: isPartner,
-          current: true,
+          current: isCurrent,
           double: isDouble,
         };
 
