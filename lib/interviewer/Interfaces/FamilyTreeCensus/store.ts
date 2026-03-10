@@ -30,6 +30,7 @@ export type PersonDetail = {
 export type ParentDetail = PersonDetail & {
   nameKnown: boolean;
   edgeType: ParentEdgeType;
+  biological?: boolean;
 };
 
 export type BioParentDetail = PersonDetail & {
@@ -49,8 +50,8 @@ export type StoreEdge = {
   source: string;
   target: string;
 } & (
-  | { type: 'parent'; edgeType: ParentEdgeType }
-  | { type: 'partner'; current: boolean }
+  | { type: 'parent'; edgeType: ParentEdgeType; biological?: boolean }
+  | { type: 'partner'; active: boolean }
 );
 
 type FamilyTreeState = {
@@ -183,11 +184,11 @@ export const createFamilyTreeStore = (
               source: parentIds[0]!,
               target: parentIds[1]!,
               type: 'partner',
-              current: true,
+              active: true,
             });
           }
 
-          // Create bio-parent nodes
+          // Create biological parent nodes
           for (const bp of data.bioParents) {
             const bpId = get().addNode({
               label: bp.nameKnown ? bp.name : '',
@@ -199,11 +200,12 @@ export const createFamilyTreeStore = (
               source: bpId,
               target: egoId,
               type: 'parent',
-              edgeType: 'bio-parent',
+              edgeType: 'parent',
+              biological: true,
             });
           }
 
-          // Create siblings linked to all parents (not bio-parents)
+          // Create siblings linked to all parents (not biological parents)
           for (const sibling of data.siblings) {
             const siblingId = get().addNode({
               label: sibling.name,
@@ -242,7 +244,7 @@ export const createFamilyTreeStore = (
               source: egoId,
               target: partnerId,
               type: 'partner',
-              current: true,
+              active: true,
             });
           }
 
@@ -258,14 +260,16 @@ export const createFamilyTreeStore = (
               source: egoId,
               target: childId,
               type: 'parent',
-              edgeType: 'bio-parent',
+              edgeType: 'parent',
+              biological: true,
             });
             if (partnerId) {
               get().addEdge({
                 source: partnerId,
                 target: childId,
                 type: 'parent',
-                edgeType: 'bio-parent',
+                edgeType: 'parent',
+                biological: true,
               });
             }
           }
@@ -282,7 +286,8 @@ export const createFamilyTreeStore = (
               source: egoId,
               target: childId,
               type: 'parent',
-              edgeType: 'bio-parent',
+              edgeType: 'parent',
+              biological: true,
             });
           }
         },
