@@ -4,7 +4,6 @@ import Paragraph from '~/components/typography/Paragraph';
 import { useDragSource } from '~/lib/dnd';
 import { type NodeData } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import { useClickUnlessDragged } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/useClickUnlessDragged';
-import { type NodeData } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
 
 /**

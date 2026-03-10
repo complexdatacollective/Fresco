@@ -28,7 +28,6 @@ export default function Modal({
   onOpenChange: (open: boolean) => void;
   children: ReactNode;
 }) {
-  console.log('Modal render, open:', open);
   return (
     <BaseDialog.Root open={open} onOpenChange={onOpenChange}>
       <AnimatePresence>

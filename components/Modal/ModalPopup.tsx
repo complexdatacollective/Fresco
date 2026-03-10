@@ -102,8 +102,8 @@ export default function ModalPopup({
   const animation = hasLayoutId
     ? ({
         initial: { opacity: 0.9999 },
-        animate: { opacity: 1, transition: { when: 'beforeChidlren' } },
-        exit: { opacity: 0.9999, transition: { when: 'afterChidlren' } },
+        animate: { opacity: 1, transition: { when: 'beforeChildren' } },
+        exit: { opacity: 0.9999, transition: { when: 'afterChildren' } },
       } as const)
     : {};
 
@@ -113,13 +113,11 @@ export default function ModalPopup({
 
   useEffect(() => {
     if (hasLayoutId) {
-      console.log('layout ID');
       return;
     }
 
     if (isPresent) {
       const enterAnimation = async () => {
-        console.log('animating in');
         await animate(
           scope.current,
           {
@@ -139,7 +137,6 @@ export default function ModalPopup({
       void enterAnimation();
     } else {
       const exitAnimation = async () => {
-        console.log('animating out');
         await animate(scope.current, {
           opacity: [1, 0],
           y: ['0%', '-10%'],
@@ -165,12 +162,6 @@ export default function ModalPopup({
             {...props}
             {...animation}
             style={{ borderRadius: 28 }}
-            onLayoutAnimationComplete={() => {
-              console.log('layout animation complete');
-            }}
-            onAnimationComplete={() => {
-              console.log('animation complete');
-            }}
           />
         }
       >
