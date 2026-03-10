@@ -61,19 +61,6 @@ type TestFixtures = {
     name: string,
     options?: CaptureElementOptions,
   ) => Promise<void>;
-  /**
-   * A simple fetch wrapper for making API requests without any cookies.
-   * Use this for testing API endpoints that should reject unauthenticated requests.
-   *
-   * Uses native Node fetch instead of Playwright's APIRequestContext because
-   * Playwright's context inherits cookies from the browser storageState.
-   */
-  unauthenticatedRequest: {
-    post: (
-      path: string,
-      options: { data: unknown },
-    ) => Promise<{ status: () => number; json: () => Promise<unknown> }>;
-  };
 };
 
 type WorkerFixtures = {
@@ -118,6 +105,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       const db = new DatabaseIsolation(context.databaseUrl, suiteId);
 
       try {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         await use(db);
       } finally {
         // Always release locks when the worker tears down, even if tests
@@ -127,34 +115,6 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       }
     },
     { scope: 'worker' },
-  ],
-
-  unauthenticatedRequest: [
-    async ({}, use, testInfo) => {
-      // Get baseURL from project config
-      const baseURL = testInfo.project.use.baseURL!;
-
-      // Create a simple fetch wrapper that makes requests without any cookies.
-      // We use native fetch instead of Playwright's APIRequestContext because
-      // Playwright's context inherits cookies from the browser storageState.
-      const wrapper = {
-        post: async (path: string, options: { data: unknown }) => {
-          const url = `${baseURL}${path}`;
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(options.data),
-          });
-          return {
-            status: () => response.status,
-            json: () => response.json(),
-          };
-        },
-      };
-
-      await use(wrapper);
-    },
-    { scope: 'test' },
   ],
 
   capturePage: [

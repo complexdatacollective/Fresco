@@ -2,14 +2,14 @@
 
 ## Architecture
 
-Tests run across **3 browsers** (Chromium, Firefox, WebKit) x **2 environments** (setup, dashboard) = **6 isolated instances**, each with its own PostgreSQL container and Next.js server.
+Tests run across **3 browsers** (Chromium, Firefox, WebKit) x **4 environments** (setup, dashboard, api, interview) = **12 isolated instances**, each with its own PostgreSQL container and Next.js server.
 
 ### Configuration
 
 The `config/test-config.ts` file is the single source of truth:
 
 - **`BROWSERS`** array: `[chromium, firefox, webkit]` with device configs
-- **`ENVIRONMENTS`** array: `[setup, dashboard]` with seed functions and auth flags
+- **`ENVIRONMENTS`** array: `[setup, dashboard, api, interview]` with seed functions and auth flags
 - Pure functions derive everything: `getProjects()`, `getEnvironmentInstances()`, `getContextMappings()`
 
 To add/remove a browser, edit the `BROWSERS` array. To add an environment, edit `ENVIRONMENTS`.
@@ -17,7 +17,9 @@ To add/remove a browser, edit the `BROWSERS` array. To add an environment, edit 
 ### Environments
 
 - **setup**: Unconfigured app (fresh install) for onboarding wizard tests
-- **dashboard**: Fully configured app with seeded data for dashboard tests
+- **dashboard**: Fully configured app with seeded data for dashboard tests (requires auth)
+- **api**: Configured app for API-only tests (no auth, no browser)
+- **interview**: Configured app for interview/preview browser tests (no auth)
 
 ### Browser Isolation
 
@@ -25,11 +27,13 @@ Each browser gets its own DB + server per environment:
 
 - `setup-chromium`, `setup-firefox`, `setup-webkit`
 - `dashboard-chromium`, `dashboard-firefox`, `dashboard-webkit`
+- `api-chromium`, `api-firefox`, `api-webkit`
+- `interview-chromium`, `interview-firefox`, `interview-webkit`
 
 ```
 Global Setup
 ├── Build standalone Next.js (DISABLE_NEXT_CACHE=true)
-├── For each browser x environment (6 instances, in parallel):
+├── For each browser x environment (12 instances, in parallel):
 │   ├── Start PostgreSQL testcontainer
 │   ├── Run Prisma migrations
 │   ├── Seed test data
@@ -58,7 +62,7 @@ tests/e2e/
 ├── config/
 │   └── test-config.ts           # BROWSERS, ENVIRONMENTS, derived functions
 ├── playwright.config.ts         # Generated projects from test-config
-├── global-setup.ts              # Infrastructure startup (6 instances)
+├── global-setup.ts              # Infrastructure startup (12 instances)
 ├── global-teardown.ts           # Cleanup
 ├── helpers/
 │   ├── TestDatabase.ts          # PostgreSQL container + snapshots
@@ -73,29 +77,39 @@ tests/e2e/
 │   └── form.ts                  # Form field helpers (data-field-name)
 ├── fixtures/
 │   ├── db-fixture.ts            # DatabaseIsolation class
-│   └── test.ts                  # Extended test with db fixture
+│   ├── test.ts                  # Extended test with db fixture (browser tests)
+│   ├── api-test.ts              # Extended test for API-only tests
+│   └── preview-protocol.ts      # Test protocol factory for preview tests
 └── specs/
     ├── setup/onboarding.spec.ts
     ├── auth/login.spec.ts
-    └── dashboard/
-        ├── overview.spec.ts
-        ├── protocols.spec.ts
-        ├── participants.spec.ts
-        ├── interviews.spec.ts
-        └── settings.spec.ts
+    ├── dashboard/
+    │   ├── overview.spec.ts
+    │   ├── protocols.spec.ts
+    │   ├── participants.spec.ts
+    │   ├── interviews.spec.ts
+    │   └── settings.spec.ts
+    ├── api/
+    │   └── preview-mode.spec.ts # API-only preview tests
+    └── interview/
+        └── preview-mode.spec.ts # Browser preview tests
 ```
 
 ## Playwright Projects
 
 Projects are generated dynamically from `BROWSERS x ENVIRONMENTS`. For each browser:
 
-| Project Pattern            | Tests            | Auth                           | Parallel |
-| -------------------------- | ---------------- | ------------------------------ | -------- |
-| `setup-{browser}`          | specs/setup/     | None                           | Serial   |
-| `auth-dashboard-{browser}` | specs/auth/      | None (saves per-browser state) | N/A      |
-| `dashboard-{browser}`      | specs/dashboard/ | storageState from auth         | Yes      |
+| Project Pattern            | Tests              | Auth                           | Parallel |
+| -------------------------- | ------------------ | ------------------------------ | -------- |
+| `setup-{browser}`          | specs/setup/       | None                           | Serial   |
+| `auth-dashboard-{browser}` | specs/auth/        | None (saves per-browser state) | N/A      |
+| `dashboard-{browser}`      | specs/dashboard/   | storageState from auth         | Yes      |
+| `api-{browser}`            | specs/api/         | None                           | Yes      |
+| `interview-{browser}`      | specs/interview/   | None                           | Yes      |
 
 Dashboard depends on its browser-specific auth project completing first. Auth state is saved to per-browser paths (e.g., `.auth/dashboard-chromium.json`).
+
+The `api` and `interview` environments use the same seed data as `dashboard` but without authentication, making them suitable for testing unauthenticated endpoints and interview flows.
 
 ### Running a single browser
 
@@ -385,11 +399,21 @@ The `database` fixture provides direct database access without passing `database
 - `database.restoreSnapshot(name?)` — Acquire shared lock and restore snapshot (call in `beforeAll`)
 - `database.releaseReadLock()` — Release the shared lock (call in `afterAll`)
 - `database.isolate(page, testInfo?)` — Acquire exclusive lock, restore snapshot; returns cleanup function. Pass `testInfo` to exclude lock wait time from the test timeout
+- `database.isolateApi(testInfo?)` — Same as `isolate()` but for API-only tests that don't need a browser page
 - `database.getProtocolId()` — Get first protocol's ID from database
 - `database.updateAppSetting(key, value)` — Update an AppSettings row
 - `database.getParticipantCount(identifier?)` — Count participants (optionally filter by identifier)
 - `database.deleteUser(username)` — Delete a user by username (cascades to Session/Key). Use at the start of mutation tests that create users, to handle retries since the User table is excluded from snapshots
 - `database.getDatabaseUrl()` — Get raw connection string (rarely needed)
+
+**Preview mode helpers:**
+
+- `database.enablePreviewMode(requireAuth?)` — Enable preview mode with optional auth requirement
+- `database.disablePreviewMode()` — Disable preview mode
+- `database.createPreviewProtocol(options?)` — Create a preview protocol for testing
+- `database.deletePreviewProtocol(id)` — Delete a preview protocol
+- `database.createApiToken(description)` — Create an API token for authenticated requests
+- `database.getInterviewCount()` — Count Interview records (verify preview doesn't persist data)
 
 ## Adding New Tests
 
