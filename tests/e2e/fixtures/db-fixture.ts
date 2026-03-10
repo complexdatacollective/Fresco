@@ -1,10 +1,13 @@
+import { createId } from '@paralleldrive/cuid2';
 import { test, type Page, type TestInfo } from '@playwright/test';
+import { randomBytes } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { hash } from 'ohash';
 import pg from 'pg';
+import { type AppSetting } from '~/lib/db/generated/client';
 import { log } from '../helpers/logger.js';
 import { createTestPrisma, type TestPrismaClient } from '../helpers/prisma.js';
-import { type AppSetting } from '~/lib/db/generated/client';
 
 type TableSnapshot = {
   table: string;
@@ -164,6 +167,183 @@ export class DatabaseIsolation {
     });
   }
 
+  // ============================================================
+  // Preview Mode Helpers
+  // ============================================================
+
+  /**
+   * Enable preview mode with optional authentication requirement.
+   * @param requireAuth - If true, API requests must include a valid session or API token
+   */
+  async enablePreviewMode(requireAuth = false): Promise<void> {
+    await this.prisma.appSettings.upsert({
+      where: { key: 'previewMode' },
+      create: { key: 'previewMode', value: 'true' },
+      update: { value: 'true' },
+    });
+    await this.prisma.appSettings.upsert({
+      where: { key: 'previewModeRequireAuth' },
+      create: { key: 'previewModeRequireAuth', value: String(requireAuth) },
+      update: { value: String(requireAuth) },
+    });
+    log('test', `Enabled preview mode (requireAuth: ${requireAuth})`);
+  }
+
+  /**
+   * Disable preview mode.
+   */
+  async disablePreviewMode(): Promise<void> {
+    await this.prisma.appSettings.upsert({
+      where: { key: 'previewMode' },
+      create: { key: 'previewMode', value: 'false' },
+      update: { value: 'false' },
+    });
+    log('test', 'Disabled preview mode');
+  }
+
+
+  /**
+   * Create a preview protocol for testing.
+   * @param options.isPending - If true, marks protocol as still uploading assets
+   * @param options.name - Optional name for the protocol
+   * @returns The protocol ID
+   */
+  async createPreviewProtocol(options?: {
+    isPending?: boolean;
+    name?: string;
+  }): Promise<string> {
+    const protocolId = createId();
+    const name = options?.name ?? `preview-test-${Date.now()}`;
+    const nodeTypeId = createId();
+
+    const stages = [
+      {
+        id: createId(),
+        type: 'Information',
+        label: 'Welcome',
+        items: [
+          {
+            id: createId(),
+            type: 'text',
+            content: 'Welcome to the preview test interview.',
+          },
+        ],
+      },
+      {
+        id: createId(),
+        type: 'NameGeneratorQuickAdd',
+        label: 'Add People',
+        subject: { entity: 'node', type: nodeTypeId },
+        quickAdd: 'name',
+        prompts: [
+          {
+            id: createId(),
+            text: 'Who are the people you interact with?',
+          },
+        ],
+      },
+    ];
+
+    const codebook = {
+      node: {
+        [nodeTypeId]: {
+          name: 'person',
+          color: 'node-color-seq-1',
+          variables: {
+            name: { name: 'name', type: 'text' },
+          },
+        },
+      },
+      edge: {},
+      ego: { variables: {} },
+    };
+
+    const protocol = {
+      stages,
+      codebook,
+      schemaVersion: 8,
+      lastModified: new Date().toISOString(),
+      description: 'E2E test preview protocol',
+    };
+
+    const protocolHash = hash(protocol);
+
+    await this.prisma.previewProtocol.create({
+      data: {
+        id: protocolId,
+        hash: protocolHash,
+        name,
+        schemaVersion: 8,
+        description: 'E2E test preview protocol',
+        lastModified: new Date(),
+        stages,
+        codebook,
+        isPending: options?.isPending ?? false,
+      },
+    });
+
+    log('test', `Created preview protocol "${name}" (${protocolId})`);
+    return protocolId;
+  }
+
+  /**
+   * Delete a preview protocol by ID.
+   */
+  async deletePreviewProtocol(protocolId: string): Promise<void> {
+    await this.prisma.previewProtocol
+      .delete({
+        where: { id: protocolId },
+      })
+      .catch(() => {
+        // Ignore if not found
+      });
+  }
+
+  /**
+   * Create an API token for testing authenticated preview requests.
+   * @param description - Description for the token
+   * @returns The raw token value
+   */
+  async createApiToken(description: string): Promise<string> {
+    // Generate token using same format as production: base64url encoded random bytes
+    const token = randomBytes(32).toString('base64url');
+
+    await this.prisma.apiToken.create({
+      data: {
+        id: createId(),
+        token,
+        description,
+        isActive: true,
+      },
+    });
+
+    log('test', `Created API token "${description}"`);
+    return token;
+  }
+
+  /**
+   * Delete all API tokens.
+   */
+  async deleteAllApiTokens(): Promise<void> {
+    await this.prisma.apiToken.deleteMany({});
+    log('test', 'Deleted all API tokens');
+  }
+
+  /**
+   * Get count of Interview records.
+   * Used to verify preview mode doesn't persist interview data.
+   */
+  async getInterviewCount(): Promise<number> {
+    return this.prisma.interview.count();
+  }
+
+  /**
+   * Get count of PreviewProtocol records.
+   */
+  async getPreviewProtocolCount(): Promise<number> {
+    return this.prisma.previewProtocol.count();
+  }
+
   private async restoreWith(
     client: pg.PoolClient,
     name: string,
@@ -288,6 +468,103 @@ export class DatabaseIsolation {
   }
 
   /**
+   * Isolates a mutation test (API-only) by acquiring an exclusive lock and restoring the snapshot.
+   * This variant doesn't require a browser page and is suitable for pure API tests.
+   * The exclusive lock blocks all other readers and writers until cleanup() is called.
+   * Returns a cleanup function that must be called in afterEach.
+   *
+   * Pass `testInfo` to exclude lock wait time from the test timeout. Without it,
+   * tests queued behind other workers' mutations may time out waiting for the lock.
+   */
+  async isolateApi(
+    testInfo?: TestInfo,
+    name = 'initial',
+  ): Promise<() => Promise<void>> {
+    // Release our shared lock first to avoid deadlock when acquiring exclusive lock.
+    const hadReadLock = !!this.readLockClient;
+    if (hadReadLock) {
+      await this.readLockClient!.query(
+        `SELECT pg_advisory_unlock_shared(${LOCK_ID})`,
+      );
+      log('test', `Released shared lock before acquiring exclusive lock`);
+    }
+
+    const pool = new pg.Pool({
+      connectionString: this.databaseUrl,
+      max: 1,
+    });
+    let client: pg.PoolClient | null = null;
+
+    // Temporarily disable the test timeout while waiting for the advisory lock.
+    const originalTimeout = testInfo?.timeout ?? 0;
+    if (testInfo) {
+      testInfo.setTimeout(0);
+    }
+
+    const lockWaitStart = Date.now();
+
+    try {
+      client = await pool.connect();
+
+      // Acquire exclusive lock - waits for all shared locks to release
+      await client.query(`SELECT pg_advisory_lock(${LOCK_ID})`);
+
+      const lockWaitMs = Date.now() - lockWaitStart;
+      log(
+        'test',
+        `Acquired exclusive lock for API mutation test (waited ${lockWaitMs}ms)`,
+      );
+
+      // Restore the timeout, extended by the lock wait
+      if (testInfo) {
+        testInfo.setTimeout(originalTimeout + lockWaitMs);
+      }
+
+      // Store client so helper methods reuse this connection
+      this.isolationClient = client;
+
+      log(
+        'test',
+        `Restoring snapshot "${name}" for suite "${this.suiteId}"...`,
+      );
+      await this.restoreWith(client, name);
+    } catch (error) {
+      this.isolationClient = null;
+      if (client) {
+        client.release();
+      }
+      await pool.end();
+      throw error;
+    }
+
+    return async () => {
+      this.isolationClient = null;
+
+      // Release the exclusive advisory lock.
+      try {
+        await client.query(`SELECT pg_advisory_unlock(${LOCK_ID})`);
+        log('test', `Released exclusive lock after API mutation test`);
+      } catch (unlockError) {
+        log(
+          'test',
+          `Failed to release exclusive lock (will auto-release on disconnect): ${String(unlockError)}`,
+        );
+      }
+
+      client.release();
+      await pool.end();
+
+      // Re-acquire shared lock so subsequent read-only tests are protected
+      if (hadReadLock && this.readLockClient) {
+        await this.readLockClient.query(
+          `SELECT pg_advisory_lock_shared(${LOCK_ID})`,
+        );
+        log('test', `Re-acquired shared lock after API mutation test`);
+      }
+    };
+  }
+
+  /**
    * Isolates a mutation test by acquiring an exclusive lock and restoring the snapshot.
    * The exclusive lock blocks all other readers and writers until cleanup() is called.
    * Returns a cleanup function that must be called in afterEach.
@@ -387,7 +664,7 @@ export class DatabaseIsolation {
       } catch (unlockError) {
         log(
           'test',
-          `Failed to release exclusive lock (will auto-release on disconnect): ${unlockError}`,
+          `Failed to release exclusive lock (will auto-release on disconnect): ${String(unlockError)}`,
         );
       }
 

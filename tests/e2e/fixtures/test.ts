@@ -105,6 +105,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       const db = new DatabaseIsolation(context.databaseUrl, suiteId);
 
       try {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         await use(db);
       } finally {
         // Always release locks when the worker tears down, even if tests

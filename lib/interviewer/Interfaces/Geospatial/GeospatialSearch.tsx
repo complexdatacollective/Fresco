@@ -273,7 +273,7 @@ export default function GeospatialSearch({
                   spacing="none"
                   level="popover"
                   elevation="high"
-                  className="absolute left-0 mt-2 max-h-64 w-sm"
+                  className="absolute left-0 mt-2 flex max-h-64 w-sm flex-col"
                   initial={{ opacity: 0, y: '-0.5rem' }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: '-0.5rem' }}
@@ -293,7 +293,7 @@ export default function GeospatialSearch({
                       selectionMode="none"
                       animate={false}
                       aria-label="Search suggestions"
-                      className="p-1"
+                      className="flex flex-col p-1"
                       renderItem={renderItem}
                     />
                   )}
