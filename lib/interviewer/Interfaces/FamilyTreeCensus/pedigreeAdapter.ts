@@ -155,8 +155,6 @@ export function buildConnectorData(
   _edges: Map<string, StoreEdge>,
   dimensions: LayoutDimensions,
   parents: ParentConnection[][] = [],
-  relations: Relation[] = [],
-  partners: PartnerConnection[] = [],
 ): ConnectorRenderData {
   const metrics = computeLayoutMetrics(dimensions);
   const boxHeight = dimensions.nodeHeight / metrics.rowHeight;
@@ -168,15 +166,7 @@ export function buildConnectorData(
     vScale: 1,
   };
 
-  const connectors = computeConnectors(
-    layout,
-    scaling,
-    parents,
-    0.6,
-    0.5,
-    relations,
-    partners,
-  );
+  const connectors = computeConnectors(layout, scaling, parents);
 
   // Transform all coordinates to pixel space
   const sx = metrics.siblingSpacing;
