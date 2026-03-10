@@ -24,6 +24,12 @@ export type ParentConnection = {
   edgeType: ParentEdgeType;
 };
 
+export type PartnerConnection = {
+  partnerIndex1: number;
+  partnerIndex2: number;
+  current: boolean;
+};
+
 export type RelationCode = 1 | 2 | 3 | 4 | 5 | 6;
 // 1=MZ twin, 2=DZ twin, 3=unknown twin, 4=partner
 // 5=co-parent, 6=donor/surrogate relation
@@ -39,6 +45,7 @@ export type PedigreeInput = {
   sex: Sex[];
   gender: Gender[];
   parents: ParentConnection[][]; // parents[i] = all parent connections for person i
+  partners?: PartnerConnection[];
   relation?: Relation[];
   hints?: Hints;
 };
@@ -74,6 +81,9 @@ export type PedigreeLayout = {
   fam: number[][];
   group: number[][]; // replaces spouse: 0=none, >0=parent group membership
   twins: number[][] | null; // 0=none, 1=MZ, 2=DZ, 3=unknown
+  // true for nodes that were discovered as group members (.5 encoding),
+  // i.e. married-in partners rather than direct descendants
+  groupMember: boolean[][];
 };
 
 // --- Connector geometry types (for rendering) ---
@@ -98,6 +108,7 @@ export type ParentGroupConnector = {
   type: 'parent-group';
   segment: LineSegment;
   partner: boolean; // true = double parallel lines (partners), false = single bar (co-parents)
+  current: boolean;
   double: boolean; // consanguineous
   doubleSegment?: LineSegment;
 };

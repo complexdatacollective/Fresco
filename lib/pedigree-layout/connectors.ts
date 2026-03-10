@@ -80,6 +80,7 @@ export function computeConnectors(
           type: 'parent-group',
           segment,
           partner: isPartner,
+          current: true,
           double: isDouble,
         };
 
@@ -122,19 +123,59 @@ export function computeConnectors(
           : (layout.pos[i - 1]![groupLeft]! + layout.pos[i - 1]![groupRight]!) /
             2;
 
-      // Find children in this family
+      // Find children in this family, separating out married-in group members
+      // whose sibling bar would overlap with their partner's family
       const whoIdx: number[] = [];
+      const marriedInIdx: number[] = [];
       for (let j = 0; j < layout.fam[i]!.length; j++) {
-        if (layout.fam[i]![j] === fam) whoIdx.push(j);
+        if (layout.fam[i]![j] !== fam) continue;
+        // A group member (married-in partner) gets an individual parent
+        // connection to avoid overlapping sibling bars
+        if (layout.groupMember[i]?.[j]) {
+          marriedInIdx.push(j);
+        } else {
+          whoIdx.push(j);
+        }
       }
 
       // Determine the primary edge type for this family
-      // Look at the first child's parent connections
-      const firstChildId = layout.nid[i]![whoIdx[0]!]!;
+      const firstIdx = whoIdx[0] ?? marriedInIdx[0]!;
+      const firstChildId = layout.nid[i]![firstIdx]!;
       const childParents = parents[firstChildId] ?? [];
       const primaryEdgeType =
         childParents.find((p) => p.edgeType === 'social-parent')?.edgeType ??
         'social-parent';
+
+      // Skip the normal sibling bar if all children are married-in
+      if (whoIdx.length === 0) {
+        // Render each married-in member with an individual connector
+        for (const j of marriedInIdx) {
+          const childX = layout.pos[i]![j]!;
+          const upline: LineSegment = {
+            type: 'line',
+            x1: childX,
+            y1: i + boxh / 2,
+            x2: childX,
+            y2: i - legh,
+          };
+          const bar: LineSegment = {
+            type: 'line',
+            x1: childX,
+            y1: i - legh,
+            x2: childX,
+            y2: i - legh,
+          };
+          const link = buildParentLink(childX, parentx, i, boxh, legh, branch);
+          parentChildLines.push({
+            type: 'parent-child',
+            edgeType: primaryEdgeType,
+            uplines: [upline],
+            siblingBar: bar,
+            parentLink: link,
+          });
+        }
+        continue;
+      }
 
       // Compute targets (twin grouping)
       let target: number[];
@@ -304,6 +345,33 @@ export function computeConnectors(
         siblingBar,
         parentLink,
       });
+
+      // Render individual connectors for married-in group members
+      for (const j of marriedInIdx) {
+        const childX = layout.pos[i]![j]!;
+        const miUpline: LineSegment = {
+          type: 'line',
+          x1: childX,
+          y1: i + boxh / 2,
+          x2: childX,
+          y2: i - legh,
+        };
+        const miBar: LineSegment = {
+          type: 'line',
+          x1: childX,
+          y1: i - legh,
+          x2: childX,
+          y2: i - legh,
+        };
+        const miLink = buildParentLink(childX, parentx, i, boxh, legh, branch);
+        parentChildLines.push({
+          type: 'parent-child',
+          edgeType: primaryEdgeType,
+          uplines: [miUpline],
+          siblingBar: miBar,
+          parentLink: miLink,
+        });
+      }
     }
   }
 
@@ -398,4 +466,66 @@ export function computeConnectors(
     twinIndicators,
     duplicateArcs,
   };
+}
+
+function buildParentLink(
+  childX: number,
+  parentx: number,
+  i: number,
+  boxh: number,
+  legh: number,
+  branch: number,
+): LineSegment[] {
+  const y1 = i - legh;
+  const parentCenterY = i - 1 + boxh / 2;
+  const parentBottomY = i - 1 + boxh;
+  const link: LineSegment[] = [];
+
+  if (branch === 0) {
+    link.push(
+      {
+        type: 'line',
+        x1: parentx,
+        y1: parentCenterY,
+        x2: parentx,
+        y2: parentBottomY,
+      },
+      {
+        type: 'line',
+        x1: parentx,
+        y1: parentBottomY,
+        x2: childX,
+        y2: y1,
+      },
+    );
+  } else {
+    const gapSpan = y1 - parentBottomY;
+    const ydelta = (gapSpan * branch) / 2;
+    link.push(
+      {
+        type: 'line',
+        x1: parentx,
+        y1: parentCenterY,
+        x2: parentx,
+        y2: parentBottomY,
+      },
+      {
+        type: 'line',
+        x1: parentx,
+        y1: parentBottomY,
+        x2: parentx,
+        y2: parentBottomY + ydelta,
+      },
+      {
+        type: 'line',
+        x1: parentx,
+        y1: parentBottomY + ydelta,
+        x2: childX,
+        y2: y1 - ydelta,
+      },
+      { type: 'line', x1: childX, y1: y1 - ydelta, x2: childX, y2: y1 },
+    );
+  }
+
+  return link;
 }
