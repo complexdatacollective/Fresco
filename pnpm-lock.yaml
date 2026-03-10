@@ -29,7 +29,7 @@ importers:
         version: 5.0.0
       '@mapbox/search-js-react':
         specifier: ^1.5.1
-        version: 1.5.1(mapbox-gl@3.19.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 1.5.1(mapbox-gl@3.19.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@paralleldrive/cuid2':
         specifier: ^3.3.0
         version: 3.3.0
@@ -139,8 +139,8 @@ importers:
         specifier: ^0.577.0
         version: 0.577.0(react@19.2.4)
       mapbox-gl:
-        specifier: ^3.19.0
-        version: 3.19.0
+        specifier: ^3.19.1
+        version: 3.19.1
       motion:
         specifier: ^12.34.3
         version: 12.34.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -3119,10 +3119,6 @@ packages:
   '@types/linkify-it@5.0.0':
     resolution: {integrity: sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==}
 
-  '@types/mapbox__point-geometry@1.0.87':
-    resolution: {integrity: sha512-32whuSWD/aDBHpRrZmEMlRjxR0L3sSYUaRnVmw0XwyVMvuU5LsRqrFwYud7gXjqmUE0MSoJB91+IJMqCyYyxag==}
-    deprecated: This is a stub types definition. @mapbox/point-geometry provides its own type definitions, so you do not need this installed.
-
   '@types/markdown-it@14.1.2':
     resolution: {integrity: sha512-promo4eFwuiW+TfGxhi+0x3czqTYJkG8qB17ZUJiVF10Xm7NLVRSLUsfRTU/6h1e24VvRnXCx+hG7li58lkzog==}
 
@@ -5347,8 +5343,8 @@ packages:
     resolution: {integrity: sha512-hXdUTZYIVOt1Ex//jAQi+wTZZpUpwBj/0QsOzqegb3rGMMeJiSEu5xLHnYfBrRV4RH2+OCSOO95Is/7x1WJ4bw==}
     engines: {node: '>=10'}
 
-  mapbox-gl@3.19.0:
-    resolution: {integrity: sha512-SFObIgdxN0b6hZNsRxSUmQWdVW9q9GM2gw4McgFbycyhekew7BZIh8V57pEERDWlI9x/5SxxraTit5Cf0hm9OA==}
+  mapbox-gl@3.19.1:
+    resolution: {integrity: sha512-p1/nJ85IqpjKk7IKNDnH9AB4qE/MXbR5ToagNurofTpUgnXX9NXcOzm8WsRnrovQIwiefC4MiEWUK6Sa2HfWtg==}
 
   markdown-it@14.1.1:
     resolution: {integrity: sha512-BuU2qnTti9YKgK5N+IeMubp14ZUKUUw7yeJbkjtosvHiP0AZ5c8IAgEMk79D0eC8F23r4Ac/q8cAIFdm2FtyoA==}
@@ -6822,8 +6818,8 @@ packages:
   teex@1.0.1:
     resolution: {integrity: sha512-eYE6iEI62Ni1H8oIa7KlDU6uQBtqr4Eajni3wX7rpfXD8ysFx8z0+dri+KWEPWpBsxXfxu58x/0jvTVT1ekOSg==}
 
-  terser-webpack-plugin@5.3.17:
-    resolution: {integrity: sha512-YR7PtUp6GMU91BgSJmlaX/rS2lGDbAF7D+Wtq7hRO+MiljNmodYvqslzCFiYVAgW+Qoaaia/QUIP4lGXufjdZw==}
+  terser-webpack-plugin@5.4.0:
+    resolution: {integrity: sha512-Bn5vxm48flOIfkdl5CaD2+1CiUVbonWQ3KQPyP7/EuIl9Gbzq/gQFOzaMFUEgVjB1396tcK0SG8XcNJ/2kDH8g==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
       '@swc/core': '*'
@@ -8218,23 +8214,23 @@ snapshots:
     dependencies:
       '@types/geojson': 7946.0.16
 
-  '@mapbox/search-js-react@1.5.1(mapbox-gl@3.19.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@mapbox/search-js-react@1.5.1(mapbox-gl@3.19.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
       '@mapbox/search-js-core': 1.5.1
-      '@mapbox/search-js-web': 1.5.1(mapbox-gl@3.19.0)
+      '@mapbox/search-js-web': 1.5.1(mapbox-gl@3.19.1)
       '@types/geojson': 7946.0.16
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
     transitivePeerDependencies:
       - mapbox-gl
 
-  '@mapbox/search-js-web@1.5.1(mapbox-gl@3.19.0)':
+  '@mapbox/search-js-web@1.5.1(mapbox-gl@3.19.1)':
     dependencies:
       '@floating-ui/dom': 0.5.4
       '@mapbox/search-js-core': 1.5.1
       '@mapbox/sphericalmercator': 1.2.0
       focus-trap: 6.9.4
-      mapbox-gl: 3.19.0
+      mapbox-gl: 3.19.1
       no-scroll: 2.1.1
       subtag: 0.5.0
 
@@ -10542,10 +10538,6 @@ snapshots:
   '@types/json5@0.0.29': {}
 
   '@types/linkify-it@5.0.0': {}
-
-  '@types/mapbox__point-geometry@1.0.87':
-    dependencies:
-      '@mapbox/point-geometry': 1.1.0
 
   '@types/markdown-it@14.1.2':
     dependencies:
@@ -13018,7 +13010,7 @@ snapshots:
     dependencies:
       semver: 7.7.4
 
-  mapbox-gl@3.19.0:
+  mapbox-gl@3.19.1:
     dependencies:
       '@mapbox/jsonlint-lines-primitives': 2.0.2
       '@mapbox/mapbox-gl-supported': 3.0.0
@@ -13028,7 +13020,6 @@ snapshots:
       '@mapbox/vector-tile': 2.0.4
       '@types/geojson': 7946.0.16
       '@types/geojson-vt': 3.2.5
-      '@types/mapbox__point-geometry': 1.0.87
       '@types/pbf': 3.0.5
       '@types/supercluster': 7.1.3
       cheap-ruler: 4.0.0
@@ -14893,7 +14884,7 @@ snapshots:
       - react-native-b4a
     optional: true
 
-  terser-webpack-plugin@5.3.17(esbuild@0.27.3)(webpack@5.105.2(esbuild@0.27.3)):
+  terser-webpack-plugin@5.4.0(esbuild@0.27.3)(webpack@5.105.2(esbuild@0.27.3)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
@@ -15376,7 +15367,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.3
       tapable: 2.3.0
-      terser-webpack-plugin: 5.3.17(esbuild@0.27.3)(webpack@5.105.2(esbuild@0.27.3))
+      terser-webpack-plugin: 5.4.0(esbuild@0.27.3)(webpack@5.105.2(esbuild@0.27.3))
       watchpack: 2.5.1
       webpack-sources: 3.3.4
     transitivePeerDependencies:
