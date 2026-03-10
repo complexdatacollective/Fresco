@@ -77,6 +77,7 @@ export function storeToPedigreeInput(
       parents[childIdx]!.push({
         parentIndex: parentIdx,
         edgeType: edge.edgeType,
+        biological: edge.biological,
       });
     } else if (edge.type === 'partner') {
       const i1 = idToIndex.get(edge.source);
@@ -86,7 +87,7 @@ export function storeToPedigreeInput(
       partnerConnections.push({
         partnerIndex1: i1,
         partnerIndex2: i2,
-        current: edge.current,
+        active: edge.active,
       });
     }
   }
