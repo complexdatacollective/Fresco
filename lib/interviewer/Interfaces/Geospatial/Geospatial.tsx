@@ -2,6 +2,7 @@ import {
   entityPrimaryKeyProperty,
   type VariableValue,
 } from '@codaco/shared-consts';
+import { type ExtendedMapOptions } from '~/lib/interviewer/Interfaces/Geospatial/useMapbox';
 import { type Action } from '@reduxjs/toolkit';
 import { LocateFixed, ZoomIn, ZoomOut } from 'lucide-react';
 // import 'mapbox-gl/dist/mapbox-gl.css';
@@ -84,8 +85,7 @@ export default function GeospatialInterface({
     direction: null,
   });
 
-  const mapOptions: import('~/lib/interviewer/Interfaces/Geospatial/useMapbox').ExtendedMapOptions =
-    stage.mapOptions;
+  const mapOptions = stage.mapOptions as ExtendedMapOptions;
   const { promptIndex, prompt: currentPrompt } = usePrompts<{
     variable?: string;
   }>();

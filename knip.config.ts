@@ -28,7 +28,6 @@ const config: KnipConfig = {
     '@prisma/client', // Used at runtime by Prisma generated client (imports @prisma/client/runtime/client)
   ],
   ignoreBinaries: [
-    'docker-compose', // Should be installed by developers if needed, not a project dependency
     'netlify', // Installed during CI via pnpm add -g netlify-cli
   ],
   ignoreIssues: {

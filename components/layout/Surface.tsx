@@ -24,7 +24,7 @@ export const surfaceSpacingXVariants = cva({
   },
 });
 
-export const surfaceSpacingYVariants = cva({
+const surfaceSpacingYVariants = cva({
   base: '',
   variants: {
     spacingY: {

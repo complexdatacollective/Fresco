@@ -11,27 +11,6 @@ import {
 import { useEffect, useId, type ComponentProps } from 'react';
 
 /**
- * Default animation parameters loosely based on iOS dialog animations.
- * All animation states include opacity for Base-UI's animation detection.
- */
-const defaultPopupAnimation = {
-  initial: { opacity: 0, y: '-10%', scale: 1.2 },
-  animate: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    filter: 'blur(0px)',
-    transition: { when: 'beforeChildren' },
-  },
-  exit: {
-    opacity: 0,
-    y: '-10%',
-    scale: 1.5,
-    filter: 'blur(10px)',
-  },
-} as const;
-
-/**
  * Makes the opacity property required in TargetAndTransition.
  * Base-UI's dialog component detects animation completion via opacity changes.
  */
@@ -91,9 +70,6 @@ export default function ModalPopup({
   const hasLayoutId = 'layoutId' in props && props.layoutId !== undefined;
 
   const id = useId();
-
-  const hasAnimationProps =
-    'initial' in props || 'animate' in props || 'exit' in props;
 
   // Determine animation: layoutId gets minimal opacity so that base-ui detects it,
   // custom props used as-is, otherwise default

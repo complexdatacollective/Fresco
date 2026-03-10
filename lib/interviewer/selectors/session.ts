@@ -311,23 +311,6 @@ export const getNodeColorSelector = createSelector(
   },
 );
 
-/**
- * Get the human readable label for the current stage subject's type, e.g. "Person" for a node of
- * type "person", or "Friendship" for an edge of type "friendship". Returns null for ego subjects
- * and subjectless stages.
- */
-export const getNodeTypeLabel = createSelector(
-  getStageSubject,
-  getCodebook,
-  (subject, codebook) => {
-    if (!subject || subject.entity === 'ego') {
-      return null;
-    }
-
-    return codebook.node?.[subject.type]?.name ?? null;
-  },
-);
-
 const getEdgeColor = createSelector(
   getCodebook,
   getStageSubject,

@@ -201,7 +201,7 @@ export const Default: Story = {
             maxValue: 10,
             onChange: (v: number | undefined) => setCounterValue(v ?? 0),
           };
-        default:
+        case 'InputField':
           return {
             value: textValue,
             onChange: (v: string | undefined) => setTextValue(v ?? ''),
