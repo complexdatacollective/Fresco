@@ -2,16 +2,15 @@
 
 import Surface from '~/components/layout/Surface';
 import { Button } from '~/components/ui/Button';
+import ProgressBar from '~/components/ui/ProgressBar';
 import useDialog from '~/lib/dialogs/useDialog';
 import BioParentsStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/BioParentsStep';
-import ChildrenWithPartnerCountStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/ChildrenWithPartnerCountStep';
 import ChildrenWithPartnerDetailStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/ChildrenWithPartnerDetailStep';
 import OtherChildrenCountStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/OtherChildrenCountStep';
 import OtherChildrenDetailStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/OtherChildrenDetailStep';
 import ParentsCountStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/ParentsCountStep';
 import ParentsDetailStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/ParentsDetailStep';
 import PartnerStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/PartnerStep';
-import SiblingsCountStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/SiblingsCountStep';
 import SiblingsDetailStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/SiblingsDetailStep';
 import {
   type BioParentDetail,
@@ -32,9 +31,17 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
     const result = await openDialog({
       type: 'wizard',
       title: 'Build your family tree',
+      progress: ({ currentStep, totalSteps }) => (
+        <ProgressBar
+          orientation="horizontal"
+          percentProgress={((currentStep + 1) / totalSteps) * 100}
+          nudge={false}
+          label="Wizard progress"
+        />
+      ),
       steps: [
         {
-          title: 'Parents',
+          title: 'Your family',
           content: ParentsCountStep,
         },
         {
@@ -50,15 +57,8 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
           content: BioParentsStep,
           skip: (d) => {
             const parents = (d.parents as ParentDetail[] | undefined) ?? [];
-            return (
-              parents.filter((p) => p.edgeType === 'bio-parent').length >= 2
-            );
+            return parents.filter((p) => p.biological !== false).length >= 2;
           },
-        },
-        {
-          title: 'Siblings',
-          description: 'How many siblings do you have?',
-          content: SiblingsCountStep,
         },
         {
           title: 'Sibling details',
@@ -67,14 +67,9 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
           skip: (d) => (d.siblingCount as number | undefined) === 0,
         },
         {
-          title: 'Partner',
-          description: 'Do you have a partner?',
+          title: 'Partner details',
+          description: 'Tell us about your partner.',
           content: PartnerStep,
-        },
-        {
-          title: 'Children with partner',
-          description: 'How many children do you have with your partner?',
-          content: ChildrenWithPartnerCountStep,
           skip: (d) => !(d.hasPartner as boolean | undefined),
         },
         {

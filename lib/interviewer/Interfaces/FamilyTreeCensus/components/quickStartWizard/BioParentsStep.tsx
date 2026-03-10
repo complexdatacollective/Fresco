@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
 import ToggleField from '~/lib/form/components/fields/ToggleField';
@@ -14,9 +16,7 @@ export default function BioParentsStep() {
   const { data, setStepData } = useWizard();
 
   const parents = (data.parents as ParentDetail[] | undefined) ?? [];
-  const bioParentCount = parents.filter(
-    (p) => p.edgeType === 'bio-parent',
-  ).length;
+  const bioParentCount = parents.filter((p) => p.biological !== false).length;
   const missingCount = Math.max(0, 2 - bioParentCount);
 
   const [bioParents, setBioParents] = useState<BioParentDetail[]>(() => {
@@ -45,19 +45,19 @@ export default function BioParentsStep() {
 
   return (
     <div className="flex flex-col gap-6 pt-4">
-      <p className="text-sm text-current/70">
+      <Paragraph>
         For the pedigree, we need information about biological parents.
         {bioParentCount > 0
           ? ` You identified ${bioParentCount} biological parent${bioParentCount === 1 ? '' : 's'} above.`
           : ''}{' '}
         Please tell us about the {missingCount === 1 ? 'other' : ''} biological
         parent{missingCount > 1 ? 's' : ''}.
-      </p>
+      </Paragraph>
       {bioParents.map((bp, i) => (
         <div key={i} className="flex flex-col gap-3 rounded-lg border p-4">
-          <h3 className="text-sm font-medium">
+          <Heading level="h3">
             Biological parent {bioParentCount + i + 1}
-          </h3>
+          </Heading>
           <UnconnectedField
             name={`bioParent-${i}-nameKnown`}
             label="Do you know this person's name?"

@@ -70,7 +70,7 @@ export default function AddPersonFields({
           label="Parent type"
           component={RadioGroupField}
           options={PARENT_EDGE_TYPE_OPTIONS}
-          initialValue="social-parent"
+          initialValue="parent"
         />
       )}
 

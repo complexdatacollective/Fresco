@@ -26,11 +26,9 @@ export const PARENT_EDGE_TYPE_OPTIONS: {
   value: ParentEdgeType;
   label: string;
 }[] = [
-  { value: 'bio-parent', label: 'Biological parent' },
-  { value: 'social-parent', label: 'Social parent' },
+  { value: 'parent', label: 'Parent' },
   { value: 'donor', label: 'Sperm/Egg Donor' },
   { value: 'surrogate', label: 'Surrogate Carrier' },
-  { value: 'co-parent', label: 'Co-parent' },
 ];
 
 export function isSex(value: string): value is Sex {
