@@ -472,10 +472,42 @@ describe('traditional family regression', () => {
     const deepestIds = result.nid[deepest]!.slice(0, result.n[deepest]);
     expect(deepestIds).toContain(6);
 
-    // Connectors: at least 3 group lines, at least 3 parent-child links
+    // Connectors: at least 3 group lines, at least 3 parent-child links.
+    // parentB is a .5 group member (marry-in) and gets an individual
+    // parent-child connector to avoid overlapping sibling bars.
     const conn = computeConnectors(result, defaultScaling, ped.parents);
     expect(conn.groupLines.length).toBeGreaterThanOrEqual(3);
     expect(conn.parentChildLines.length).toBeGreaterThanOrEqual(3);
     expect(conn.auxiliaryLines.length).toBe(0);
+  });
+
+  it('multiple marriages: children from different couples get separate parent-child connectors', () => {
+    const result = alignPedigree(multipleMarriages, {
+      hints: { order: [1, 2, 3, 4, 5] },
+    });
+
+    const conn = computeConnectors(
+      result,
+      defaultScaling,
+      multipleMarriages.parents,
+      0.6,
+      0.5,
+      multipleMarriages.relation ?? [],
+      multipleMarriages.partners ?? [],
+    );
+
+    // Should produce 2 separate parent-child connectors (one per couple)
+    expect(conn.parentChildLines.length).toBe(2);
+
+    // Parent links should target different x positions
+    const x1 = conn.parentChildLines[0]!.parentLink[0]!.x1;
+    const x2 = conn.parentChildLines[1]!.parentLink[0]!.x1;
+    expect(x1).not.toBeCloseTo(x2, 1);
+
+    // Group lines should have correct current flags
+    const currentLine = conn.groupLines.find((g) => g.current);
+    const pastLine = conn.groupLines.find((g) => !g.current);
+    expect(currentLine).toBeDefined();
+    expect(pastLine).toBeDefined();
   });
 });

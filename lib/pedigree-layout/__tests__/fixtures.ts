@@ -1,6 +1,8 @@
 import {
   type ParentConnection,
+  type PartnerConnection,
   type PedigreeInput,
+  type Relation,
 } from '~/lib/pedigree-layout/types';
 
 const sp = (parentIndex: number): ParentConnection => ({
@@ -40,6 +42,14 @@ export const multipleMarriages: PedigreeInput = {
   sex: ['male', 'female', 'female', 'male', 'female'],
   gender: ['man', 'woman', 'woman', 'man', 'woman'],
   parents: [[], [], [], [sp(0), sp(1)], [sp(0), sp(2)]],
+  relation: [
+    { id1: 0, id2: 1, code: 4 },
+    { id1: 0, id2: 2, code: 4 },
+  ] satisfies Relation[],
+  partners: [
+    { partnerIndex1: 0, partnerIndex2: 1, current: false },
+    { partnerIndex1: 0, partnerIndex2: 2, current: true },
+  ] satisfies PartnerConnection[],
 };
 
 /**
