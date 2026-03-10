@@ -10,6 +10,7 @@ import { computeConnectors } from '~/lib/pedigree-layout/connectors';
 import {
   type Gender,
   type ParentConnection,
+  type PartnerConnection,
   type PedigreeConnectors,
   type PedigreeInput,
   type PedigreeLayout,
@@ -65,6 +66,7 @@ export function storeToPedigreeInput(
   });
   const parents: ParentConnection[][] = Array.from({ length: n }, () => []);
   const relations: Relation[] = [];
+  const partnerConnections: PartnerConnection[] = [];
 
   for (const edge of edges.values()) {
     if (edge.type === 'parent') {
@@ -81,6 +83,11 @@ export function storeToPedigreeInput(
       const i2 = idToIndex.get(edge.target);
       if (i1 === undefined || i2 === undefined) continue;
       relations.push({ id1: i1, id2: i2, code: 4 });
+      partnerConnections.push({
+        partnerIndex1: i1,
+        partnerIndex2: i2,
+        current: edge.current,
+      });
     }
   }
 
@@ -90,6 +97,7 @@ export function storeToPedigreeInput(
       sex,
       gender,
       parents,
+      partners: partnerConnections.length > 0 ? partnerConnections : undefined,
       relation: relations.length > 0 ? relations : undefined,
     },
     indexToId,
@@ -148,6 +156,7 @@ export function buildConnectorData(
   dimensions: LayoutDimensions,
   parents: ParentConnection[][] = [],
   relations: Relation[] = [],
+  partners: PartnerConnection[] = [],
 ): ConnectorRenderData {
   const metrics = computeLayoutMetrics(dimensions);
   const boxHeight = dimensions.nodeHeight / metrics.rowHeight;
@@ -166,6 +175,7 @@ export function buildConnectorData(
     0.6,
     0.5,
     relations,
+    partners,
   );
 
   // Transform all coordinates to pixel space
