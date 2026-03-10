@@ -11,7 +11,7 @@ import { getInputState } from '../../utils/getInputState';
 import { type CreateFormFieldProps } from '../Field/types';
 
 const segmentGroupVariants = cva({
-  base: cx('flex items-center'),
+  base: cx('flex max-w-full items-center'),
   variants: {
     size: {
       sm: 'gap-1.5',
@@ -33,7 +33,7 @@ const segmentVariants = compose(
   interactiveStateVariants,
   cva({
     base: cx(
-      'font-monospace aspect-square shrink-0 text-center caret-transparent',
+      'font-monospace aspect-square min-w-0 text-center caret-transparent',
       'focus-visible:focus-styles outline-current',
       'placeholder:text-input-contrast/30',
     ),
