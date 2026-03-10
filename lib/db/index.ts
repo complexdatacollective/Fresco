@@ -6,9 +6,10 @@ import {
 import { NcNetworkSchema } from '@codaco/shared-consts';
 import { PrismaNeon } from '@prisma/adapter-neon';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '~/lib/db/generated/client';
 import { env } from '~/env';
+import { PrismaClient } from '~/lib/db/generated/client';
 import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
+import { captureException } from '../posthog-server';
 
 const createPrismaClient = () => {
   const adapter = env.USE_NEON_POSTGRES_ADAPTER
@@ -77,7 +78,14 @@ const createPrismaClient = () => {
             if (!stageMetadata) {
               return null;
             }
-            return StageMetadataSchema.parse(stageMetadata);
+            const result = StageMetadataSchema.safeParse(stageMetadata);
+
+            if (!result.success) {
+              void captureException(result.error);
+              return null;
+            }
+
+            return result.data;
           },
         },
       },
