@@ -174,8 +174,8 @@ describe('alignPedigree', () => {
         [sp(0), sp(1)],
         [],
         [
-          { parentIndex: 2, edgeType: 'social-parent' },
-          { parentIndex: 3, edgeType: 'social-parent' },
+          { parentIndex: 2, edgeType: 'parent' },
+          { parentIndex: 3, edgeType: 'parent' },
           { parentIndex: 5, edgeType: 'donor' },
         ],
         [],
@@ -243,13 +243,13 @@ describe('alignPedigree', () => {
         [], // momB
         [], // donor
         [
-          { parentIndex: 2, edgeType: 'social-parent' },
-          { parentIndex: 3, edgeType: 'social-parent' },
+          { parentIndex: 2, edgeType: 'parent' },
+          { parentIndex: 3, edgeType: 'parent' },
           { parentIndex: 4, edgeType: 'donor' },
         ], // ego
         [
-          { parentIndex: 2, edgeType: 'social-parent' },
-          { parentIndex: 3, edgeType: 'social-parent' },
+          { parentIndex: 2, edgeType: 'parent' },
+          { parentIndex: 3, edgeType: 'parent' },
           { parentIndex: 4, edgeType: 'donor' },
         ], // sibling
         [], // egoPartner
@@ -296,7 +296,7 @@ describe('alignPedigree', () => {
 
 const sp = (parentIndex: number): ParentConnection => ({
   parentIndex,
-  edgeType: 'social-parent',
+  edgeType: 'parent',
 });
 
 const defaultScaling: ScalingParams = {
@@ -490,10 +490,6 @@ describe('traditional family regression', () => {
       result,
       defaultScaling,
       multipleMarriages.parents,
-      0.6,
-      0.5,
-      multipleMarriages.relation ?? [],
-      multipleMarriages.partners ?? [],
     );
 
     // Should produce 2 separate parent-child connectors (one per couple)
@@ -503,11 +499,5 @@ describe('traditional family regression', () => {
     const x1 = conn.parentChildLines[0]!.parentLink[0]!.x1;
     const x2 = conn.parentChildLines[1]!.parentLink[0]!.x1;
     expect(x1).not.toBeCloseTo(x2, 1);
-
-    // Group lines should have correct current flags
-    const currentLine = conn.groupLines.find((g) => g.current);
-    const pastLine = conn.groupLines.find((g) => !g.current);
-    expect(currentLine).toBeDefined();
-    expect(pastLine).toBeDefined();
   });
 });

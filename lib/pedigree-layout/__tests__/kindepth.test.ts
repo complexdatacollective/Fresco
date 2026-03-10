@@ -12,8 +12,8 @@ describe('kindepth', () => {
       [],
       [],
       [
-        { parentIndex: 0, edgeType: 'social-parent' },
-        { parentIndex: 1, edgeType: 'social-parent' },
+        { parentIndex: 0, edgeType: 'parent' },
+        { parentIndex: 1, edgeType: 'parent' },
       ],
     ];
     expect(kindepth(parents)).toEqual([0, 0, 1]);
@@ -24,13 +24,13 @@ describe('kindepth', () => {
       [],
       [],
       [
-        { parentIndex: 0, edgeType: 'social-parent' },
-        { parentIndex: 1, edgeType: 'social-parent' },
+        { parentIndex: 0, edgeType: 'parent' },
+        { parentIndex: 1, edgeType: 'parent' },
       ],
       [],
       [
-        { parentIndex: 2, edgeType: 'social-parent' },
-        { parentIndex: 3, edgeType: 'social-parent' },
+        { parentIndex: 2, edgeType: 'parent' },
+        { parentIndex: 3, edgeType: 'parent' },
       ],
     ];
     expect(kindepth(parents)).toEqual([0, 0, 1, 0, 2]);
@@ -39,7 +39,7 @@ describe('kindepth', () => {
   it('handles single parent', () => {
     const parents: ParentConnection[][] = [
       [],
-      [{ parentIndex: 0, edgeType: 'social-parent' }],
+      [{ parentIndex: 0, edgeType: 'parent' }],
     ];
     expect(kindepth(parents)).toEqual([0, 1]);
   });
@@ -50,9 +50,9 @@ describe('kindepth', () => {
       [],
       [],
       [
-        { parentIndex: 0, edgeType: 'social-parent' },
-        { parentIndex: 1, edgeType: 'social-parent' },
-        { parentIndex: 2, edgeType: 'co-parent' },
+        { parentIndex: 0, edgeType: 'parent' },
+        { parentIndex: 1, edgeType: 'parent' },
+        { parentIndex: 2, edgeType: 'parent' },
       ],
     ];
     expect(kindepth(parents)).toEqual([0, 0, 0, 1]);
@@ -64,13 +64,13 @@ describe('kindepth', () => {
       [],
       [],
       [
-        { parentIndex: 0, edgeType: 'social-parent' },
-        { parentIndex: 1, edgeType: 'social-parent' },
+        { parentIndex: 0, edgeType: 'parent' },
+        { parentIndex: 1, edgeType: 'parent' },
       ],
       [],
       [
-        { parentIndex: 2, edgeType: 'social-parent' },
-        { parentIndex: 3, edgeType: 'social-parent' },
+        { parentIndex: 2, edgeType: 'parent' },
+        { parentIndex: 3, edgeType: 'parent' },
       ],
     ];
     const depth = kindepth(parents, true);
@@ -80,8 +80,8 @@ describe('kindepth', () => {
 
   it('throws on cyclic pedigree', () => {
     const parents: ParentConnection[][] = [
-      [{ parentIndex: 1, edgeType: 'social-parent' }],
-      [{ parentIndex: 0, edgeType: 'social-parent' }],
+      [{ parentIndex: 1, edgeType: 'parent' }],
+      [{ parentIndex: 0, edgeType: 'parent' }],
     ];
     expect(() => kindepth(parents)).toThrow('Impossible pedigree');
   });
@@ -91,7 +91,7 @@ describe('kindepth', () => {
       [],
       [],
       [
-        { parentIndex: 0, edgeType: 'social-parent' },
+        { parentIndex: 0, edgeType: 'parent' },
         { parentIndex: 1, edgeType: 'donor' },
       ],
     ];
@@ -103,16 +103,16 @@ describe('kindepth', () => {
       [],
       [],
       [
-        { parentIndex: 0, edgeType: 'social-parent' },
-        { parentIndex: 1, edgeType: 'social-parent' },
+        { parentIndex: 0, edgeType: 'parent' },
+        { parentIndex: 1, edgeType: 'parent' },
       ],
       [
-        { parentIndex: 0, edgeType: 'social-parent' },
-        { parentIndex: 1, edgeType: 'social-parent' },
+        { parentIndex: 0, edgeType: 'parent' },
+        { parentIndex: 1, edgeType: 'parent' },
       ],
       [
-        { parentIndex: 0, edgeType: 'social-parent' },
-        { parentIndex: 1, edgeType: 'social-parent' },
+        { parentIndex: 0, edgeType: 'parent' },
+        { parentIndex: 1, edgeType: 'parent' },
       ],
     ];
     expect(kindepth(parents)).toEqual([0, 0, 1, 1, 1]);

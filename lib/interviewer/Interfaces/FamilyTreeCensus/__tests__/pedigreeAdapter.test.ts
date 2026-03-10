@@ -32,7 +32,7 @@ function makeNodes(
 
 function makeEdges(
   entries: (
-    | { source: string; target: string; type: 'partner'; current?: boolean }
+    | { source: string; target: string; type: 'partner'; active?: boolean }
     | {
         source: string;
         target: string;
@@ -49,7 +49,7 @@ function makeEdges(
         source: e.source,
         target: e.target,
         type: 'partner',
-        current: e.current ?? true,
+        active: e.active ?? true,
       });
     } else {
       map.set(`e${i}`, {
@@ -99,13 +99,13 @@ describe('storeToPedigreeInput', () => {
         source: 'father',
         target: 'child',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
       {
         source: 'mother',
         target: 'child',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
     ]);
 
@@ -138,26 +138,26 @@ describe('storeToPedigreeInput', () => {
         source: 'gf',
         target: 'father',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
       {
         source: 'gm',
         target: 'father',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
       { source: 'father', target: 'mother', type: 'partner' },
       {
         source: 'father',
         target: 'child',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
       {
         source: 'mother',
         target: 'child',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
     ]);
 
@@ -209,7 +209,7 @@ describe('storeToPedigreeInput', () => {
         source: 'parent',
         target: 'child',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
     ]);
 
@@ -240,7 +240,7 @@ describe('storeToPedigreeInput', () => {
         source: 'sp',
         target: 'child',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
       {
         source: 'donor',
@@ -253,7 +253,7 @@ describe('storeToPedigreeInput', () => {
     const result = storeToPedigreeInput(nodes, edges);
     const childIdx = result.idToIndex.get('child')!;
     const edgeTypes = result.input.parents[childIdx]!.map((p) => p.edgeType);
-    expect(edgeTypes).toContain('social-parent');
+    expect(edgeTypes).toContain('parent');
     expect(edgeTypes).toContain('donor');
   });
 });
@@ -267,6 +267,7 @@ describe('pedigreeLayoutToPositions', () => {
       fam: [[0, 0]],
       group: [[0, 0]],
       twins: null,
+      groupMember: [[false, false]],
     };
 
     const positions = pedigreeLayoutToPositions(
@@ -293,6 +294,7 @@ describe('pedigreeLayoutToPositions', () => {
       fam: [[0, 0]],
       group: [[0, 0]],
       twins: null,
+      groupMember: [[false, false]],
     };
 
     const positions = pedigreeLayoutToPositions(
@@ -317,6 +319,7 @@ describe('pedigreeLayoutToPositions', () => {
       fam: [[0], [0]],
       group: [[0], [0]],
       twins: null,
+      groupMember: [[false], [false]],
     };
 
     const positions = pedigreeLayoutToPositions(
@@ -345,13 +348,13 @@ describe('buildConnectorData', () => {
         source: 'father',
         target: 'child',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
       {
         source: 'mother',
         target: 'child',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
     ]);
 
@@ -386,13 +389,13 @@ describe('end-to-end: store → layout → positions', () => {
         source: 'father',
         target: 'child',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
       {
         source: 'mother',
         target: 'child',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
     ]);
 
@@ -441,25 +444,25 @@ describe('end-to-end: store → layout → positions', () => {
         source: 'father',
         target: 'ego',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
       {
         source: 'mother',
         target: 'ego',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
       {
         source: 'father',
         target: 'sibling',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
       {
         source: 'mother',
         target: 'sibling',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
     ]);
 
@@ -488,26 +491,26 @@ describe('end-to-end: store → layout → positions', () => {
         source: 'gf',
         target: 'father',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
       {
         source: 'gm',
         target: 'father',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
       { source: 'father', target: 'mother', type: 'partner' },
       {
         source: 'father',
         target: 'ego',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
       {
         source: 'mother',
         target: 'ego',
         type: 'parent',
-        edgeType: 'social-parent',
+        edgeType: 'parent',
       },
     ]);
 

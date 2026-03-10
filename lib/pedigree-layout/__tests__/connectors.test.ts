@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { computeConnectors } from '~/lib/pedigree-layout/connectors';
 import {
   type ParentConnection,
-  type PartnerConnection,
   type PedigreeLayout,
   type ScalingParams,
 } from '~/lib/pedigree-layout/types';
@@ -46,16 +45,16 @@ describe('computeConnectors', () => {
     [],
     [],
     [
-      { parentIndex: 1, edgeType: 'social-parent' },
-      { parentIndex: 2, edgeType: 'social-parent' },
+      { parentIndex: 1, edgeType: 'parent' },
+      { parentIndex: 2, edgeType: 'parent' },
     ],
     [
-      { parentIndex: 1, edgeType: 'social-parent' },
-      { parentIndex: 2, edgeType: 'social-parent' },
+      { parentIndex: 1, edgeType: 'parent' },
+      { parentIndex: 2, edgeType: 'parent' },
     ],
     [
-      { parentIndex: 1, edgeType: 'social-parent' },
-      { parentIndex: 2, edgeType: 'social-parent' },
+      { parentIndex: 1, edgeType: 'parent' },
+      { parentIndex: 2, edgeType: 'parent' },
     ],
   ];
 
@@ -68,7 +67,7 @@ describe('computeConnectors', () => {
   it('produces parent-child connectors with edgeType', () => {
     const connectors = computeConnectors(layout, scaling, parents);
     expect(connectors.parentChildLines.length).toBeGreaterThan(0);
-    expect(connectors.parentChildLines[0]!.edgeType).toBe('social-parent');
+    expect(connectors.parentChildLines[0]!.edgeType).toBe('parent');
   });
 
   it('produces branched parent links (4 segments) when branch > 0', () => {
@@ -163,8 +162,8 @@ describe('computeConnectors', () => {
       [],
       [],
       [
-        { parentIndex: 0, edgeType: 'social-parent' },
-        { parentIndex: 1, edgeType: 'social-parent' },
+        { parentIndex: 0, edgeType: 'parent' },
+        { parentIndex: 1, edgeType: 'parent' },
         { parentIndex: 2, edgeType: 'donor' },
       ],
     ];
@@ -172,50 +171,6 @@ describe('computeConnectors', () => {
     expect(connectors.auxiliaryLines.length).toBe(1);
     expect(connectors.auxiliaryLines[0]!.edgeType).toBe('donor');
     expect(connectors.auxiliaryLines[0]!.segment).toBeDefined();
-  });
-
-  it('sets partner=true on group lines between partners', () => {
-    const connectors = computeConnectors(layout, scaling, parents, 0.6, 0.5, [
-      { id1: 1, id2: 2, code: 4 },
-    ]);
-    expect(connectors.groupLines[0]!.partner).toBe(true);
-  });
-
-  it('sets partner=false on group lines without partner relation', () => {
-    const connectors = computeConnectors(layout, scaling, parents);
-    expect(connectors.groupLines[0]!.partner).toBe(false);
-  });
-
-  it('sets current=true on group lines for current partnerships', () => {
-    const partners: PartnerConnection[] = [
-      { partnerIndex1: 1, partnerIndex2: 2, current: true },
-    ];
-    const connectors = computeConnectors(
-      layout,
-      scaling,
-      parents,
-      0.6,
-      0.5,
-      [],
-      partners,
-    );
-    expect(connectors.groupLines[0]!.current).toBe(true);
-  });
-
-  it('sets current=false on group lines for past partnerships', () => {
-    const partners: PartnerConnection[] = [
-      { partnerIndex1: 1, partnerIndex2: 2, current: false },
-    ];
-    const connectors = computeConnectors(
-      layout,
-      scaling,
-      parents,
-      0.6,
-      0.5,
-      [],
-      partners,
-    );
-    expect(connectors.groupLines[0]!.current).toBe(false);
   });
 
   it('routes parent links to specific couple midpoints in multi-partner layouts', () => {
@@ -252,12 +207,12 @@ describe('computeConnectors', () => {
       [],
       [],
       [
-        { parentIndex: 1, edgeType: 'social-parent' },
-        { parentIndex: 0, edgeType: 'social-parent' },
+        { parentIndex: 1, edgeType: 'parent' },
+        { parentIndex: 0, edgeType: 'parent' },
       ],
       [
-        { parentIndex: 0, edgeType: 'social-parent' },
-        { parentIndex: 2, edgeType: 'social-parent' },
+        { parentIndex: 0, edgeType: 'parent' },
+        { parentIndex: 2, edgeType: 'parent' },
       ],
     ];
 
@@ -277,7 +232,7 @@ describe('computeConnectors', () => {
     expect(pc2ParentX).toBeCloseTo(1.5, 1);
   });
 
-  it('produces auxiliary connectors for bio-parent edges', () => {
+  it('produces auxiliary connectors for unpartnered-parent edges', () => {
     const bioLayout: PedigreeLayout = {
       n: [3, 1],
       nid: [
@@ -307,13 +262,13 @@ describe('computeConnectors', () => {
       [],
       [],
       [
-        { parentIndex: 0, edgeType: 'social-parent' },
-        { parentIndex: 1, edgeType: 'social-parent' },
-        { parentIndex: 2, edgeType: 'bio-parent' },
+        { parentIndex: 0, edgeType: 'parent' },
+        { parentIndex: 1, edgeType: 'parent' },
+        { parentIndex: 2, edgeType: 'parent', biological: true },
       ],
     ];
     const connectors = computeConnectors(bioLayout, scaling, bioParents);
     expect(connectors.auxiliaryLines.length).toBe(1);
-    expect(connectors.auxiliaryLines[0]!.edgeType).toBe('bio-parent');
+    expect(connectors.auxiliaryLines[0]!.edgeType).toBe('unpartnered-parent');
   });
 });

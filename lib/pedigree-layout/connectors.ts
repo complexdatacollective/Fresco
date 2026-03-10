@@ -118,8 +118,7 @@ export function computeConnectors(
       const firstChildId = layout.nid[i]![firstIdx]!;
       const childParents = parents[firstChildId] ?? [];
       const primaryEdgeType =
-        childParents.find((p) => p.edgeType === 'social-parent')?.edgeType ??
-        'social-parent';
+        childParents.find((p) => p.edgeType === 'parent')?.edgeType ?? 'parent';
 
       // Skip the normal sibling bar if all children are married-in
       if (whoIdx.length === 0) {

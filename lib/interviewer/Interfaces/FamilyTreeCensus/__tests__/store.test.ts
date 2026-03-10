@@ -25,7 +25,13 @@ describe('store creation', () => {
     const edges = new Map<string, StoreEdge>([
       [
         'e1',
-        { source: 'n2', target: 'n1', type: 'parent', edgeType: 'bio-parent' },
+        {
+          source: 'n2',
+          target: 'n1',
+          type: 'parent',
+          edgeType: 'parent',
+          biological: true,
+        },
       ],
     ]);
 
@@ -110,13 +116,14 @@ describe('removeNode', () => {
       source: parentId,
       target: childId,
       type: 'parent',
-      edgeType: 'bio-parent',
+      edgeType: 'parent',
+      biological: true,
     });
     const keptEdgeId = store.getState().addEdge({
       source: unrelatedId,
       target: parentId,
       type: 'partner',
-      current: true,
+      active: true,
     });
 
     store.getState().removeNode(childId);
@@ -139,14 +146,15 @@ describe('addEdge', () => {
       source: 'n1',
       target: 'n2',
       type: 'parent',
-      edgeType: 'bio-parent',
+      edgeType: 'parent',
+      biological: true,
     });
 
     const edge = store.getState().network.edges.get(id);
     expect(edge).toBeDefined();
     expect(edge?.type).toBe('parent');
     if (edge?.type === 'parent') {
-      expect(edge.edgeType).toBe('bio-parent');
+      expect(edge.edgeType).toBe('parent');
     }
   });
 
@@ -156,14 +164,14 @@ describe('addEdge', () => {
       source: 'n1',
       target: 'n2',
       type: 'partner',
-      current: true,
+      active: true,
     });
 
     const edge = store.getState().network.edges.get(id);
     expect(edge).toBeDefined();
     expect(edge?.type).toBe('partner');
     if (edge?.type === 'partner') {
-      expect(edge.current).toBe(true);
+      expect(edge.active).toBe(true);
     }
   });
 
@@ -190,7 +198,7 @@ describe('removeEdge', () => {
       source: 'n1',
       target: 'n2',
       type: 'partner',
-      current: false,
+      active: false,
     });
 
     expect(store.getState().network.edges.has(id)).toBe(true);
@@ -208,7 +216,7 @@ describe('clearNetwork', () => {
       source: 'x',
       target: 'y',
       type: 'partner',
-      current: true,
+      active: true,
     });
 
     store.getState().clearNetwork();
@@ -254,13 +262,13 @@ describe('generateQuickStartNetwork', () => {
     expect(ego?.label).toBe('');
   });
 
-  it('creates parents with social-parent edges and partner group', () => {
+  it('creates parents with parent edges and partner group', () => {
     const store = createFamilyTreeStore(new Map(), new Map());
     store.getState().generateQuickStartNetwork(
       quickStart({
         parents: [
-          { name: '', nameKnown: false, edgeType: 'social-parent' },
-          { name: '', nameKnown: false, edgeType: 'social-parent' },
+          { name: '', nameKnown: false, edgeType: 'parent' },
+          { name: '', nameKnown: false, edgeType: 'parent' },
         ],
       }),
     );
@@ -280,8 +288,8 @@ describe('generateQuickStartNetwork', () => {
     store.getState().generateQuickStartNetwork(
       quickStart({
         parents: [
-          { name: '', nameKnown: false, edgeType: 'social-parent' },
-          { name: '', nameKnown: false, edgeType: 'social-parent' },
+          { name: '', nameKnown: false, edgeType: 'parent' },
+          { name: '', nameKnown: false, edgeType: 'parent' },
         ],
         siblings: [{ name: '' }, { name: '' }],
       }),
@@ -364,8 +372,8 @@ describe('integration: full flow', () => {
 
     store.getState().generateQuickStartNetwork({
       parents: [
-        { name: '', nameKnown: false, edgeType: 'social-parent' },
-        { name: '', nameKnown: false, edgeType: 'social-parent' },
+        { name: '', nameKnown: false, edgeType: 'parent' },
+        { name: '', nameKnown: false, edgeType: 'parent' },
       ],
       bioParents: [],
       siblings: [],
