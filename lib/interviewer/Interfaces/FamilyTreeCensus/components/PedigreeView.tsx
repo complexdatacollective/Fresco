@@ -58,8 +58,7 @@ export default function PedigreeView() {
           source: newNodeId,
           target: nodeId,
           type: 'parent',
-          edgeType:
-            (result.edgeType as ParentEdgeType | undefined) ?? 'social-parent',
+          edgeType: (result.edgeType as ParentEdgeType | undefined) ?? 'parent',
         });
         break;
       case 'child': {
@@ -67,7 +66,7 @@ export default function PedigreeView() {
           source: nodeId,
           target: newNodeId,
           type: 'parent',
-          edgeType: 'social-parent',
+          edgeType: 'parent',
         });
         const partnerId = result.partnerId as string | undefined;
         if (partnerId) {
@@ -75,7 +74,7 @@ export default function PedigreeView() {
             source: partnerId,
             target: newNodeId,
             type: 'parent',
-            edgeType: 'social-parent',
+            edgeType: 'parent',
           });
         }
         break;
@@ -85,7 +84,7 @@ export default function PedigreeView() {
           source: nodeId,
           target: newNodeId,
           type: 'partner',
-          current: result.current !== 'ex',
+          active: result.current !== 'ex',
         });
         break;
       case 'sibling':

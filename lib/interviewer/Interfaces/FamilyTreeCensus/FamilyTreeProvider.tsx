@@ -28,18 +28,24 @@ function mapReduxEdgeToStoreEdge(
   target: string,
 ): StoreEdge {
   switch (relationship) {
-    case 'bio-parent':
-      return { source, target, type: 'parent', edgeType: 'bio-parent' };
     case 'donor':
       return { source, target, type: 'parent', edgeType: 'donor' };
     case 'surrogate':
       return { source, target, type: 'parent', edgeType: 'surrogate' };
     case 'partner':
-      return { source, target, type: 'partner', current: true };
+      return { source, target, type: 'partner', active: true };
+    case 'bio-parent':
+      return {
+        source,
+        target,
+        type: 'parent',
+        edgeType: 'parent',
+        biological: true,
+      };
     case 'parent':
     case 'social-parent':
     default:
-      return { source, target, type: 'parent', edgeType: 'social-parent' };
+      return { source, target, type: 'parent', edgeType: 'parent' };
   }
 }
 
