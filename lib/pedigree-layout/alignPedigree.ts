@@ -13,11 +13,7 @@ import { kindepth } from '~/lib/pedigree-layout/kindepth';
 import { type ParentEdgeType } from '~/lib/pedigree-layout/types';
 import { ancestor } from '~/lib/pedigree-layout/utils';
 
-const AUXILIARY_EDGE_TYPES = new Set<ParentEdgeType>([
-  'donor',
-  'surrogate',
-  'bio-parent',
-]);
+const AUXILIARY_EDGE_TYPES = new Set<ParentEdgeType>(['donor', 'surrogate']);
 
 function isAuxiliaryEdge(edgeType: ParentEdgeType): boolean {
   return AUXILIARY_EDGE_TYPES.has(edgeType);
@@ -64,9 +60,7 @@ export function alignPedigree(
     if (pConns.length === 0) continue;
     const socialLevel = Math.max(
       ...pConns
-        .filter(
-          (p) => p.edgeType === 'social-parent' || p.edgeType === 'co-parent',
-        )
+        .filter((p) => p.edgeType === 'parent')
         .map((p) => level[p.parentIndex]!),
       -1,
     );
@@ -108,11 +102,8 @@ export function alignPedigree(
   for (let i = 0; i < n; i++) {
     const pConns = ped.parents[i]!;
     if (pConns.length < 2) continue;
-    // Only group social-parent and co-parent connections for layout grouping
     const socialParents = pConns
-      .filter(
-        (p) => p.edgeType === 'social-parent' || p.edgeType === 'co-parent',
-      )
+      .filter((p) => p.edgeType === 'parent')
       .map((p) => p.parentIndex)
       .sort((a, b) => a - b);
     if (socialParents.length < 2) continue;
@@ -179,7 +170,7 @@ export function alignPedigree(
   }
 
   // Pick one founder per connected component.
-  // Prefer social parents (in a group or with social-parent/co-parent edges)
+  // Prefer social parents (in a group or with parent edges)
   // over auxiliary-only parents (donors/surrogates).
   const isAuxiliaryOnly = (idx: number) =>
     ped.parents.every((pConns) =>
@@ -356,8 +347,41 @@ export function alignPedigree(
 
       const mainN = rval.n[lev2] ?? 0;
       // Determine insertion point: after the anchor if found,
-      // otherwise append at the end
-      const insertAt = anchorMainCol >= 0 ? anchorMainCol + 1 : mainN;
+      // otherwise append at the end. Scan past group members (.5
+      // entries) and siblings sharing the same fam so we don't split
+      // existing partner groups or sibling families.
+      let insertAt: number;
+      if (anchorMainCol >= 0) {
+        // Find the effective family of the anchor. For .5 group members
+        // (married-in partners), always use the partner's fam — the .5
+        // member's own fam may point to their biological parents from a
+        // different family, which would cause insertAt to stop too early.
+        const anchorNid = rval.nid[lev2]![anchorMainCol]!;
+        const isHalf = anchorNid > 0 && anchorNid !== Math.floor(anchorNid);
+        let anchorFam: number;
+        if (isHalf && anchorMainCol > 0) {
+          anchorFam = rval.fam[lev2]![anchorMainCol - 1]!;
+        } else {
+          anchorFam = rval.fam[lev2]![anchorMainCol]!;
+          if (anchorFam === 0 && anchorMainCol + 1 < mainN) {
+            anchorFam = rval.fam[lev2]![anchorMainCol + 1]!;
+          }
+        }
+        insertAt = anchorMainCol + 1;
+        while (insertAt < mainN) {
+          const nidVal = rval.nid[lev2]![insertAt]!;
+          const isGroupMember = nidVal > 0 && nidVal !== Math.floor(nidVal);
+          const famVal = rval.fam[lev2]![insertAt]!;
+          const isSameFamily = anchorFam > 0 && famVal === anchorFam;
+          if (isGroupMember || isSameFamily) {
+            insertAt++;
+          } else {
+            break;
+          }
+        }
+      } else {
+        insertAt = mainN;
+      }
 
       // Ensure arrays are large enough
       const newTotal = mainN + newEntries.length;
@@ -409,7 +433,8 @@ export function alignPedigree(
         const childN = rval.n[childLev] ?? 0;
         const newPersonIds = newEntries.map((e) => Math.floor(e.nid));
         for (let cc = 0; cc < childN; cc++) {
-          const childPid = Math.floor(rval.nid[childLev]![cc]!);
+          const childNidVal = rval.nid[childLev]![cc]!;
+          const childPid = Math.floor(childNidVal);
           if (childPid < 0) continue;
           const childParents = ped.parents[childPid];
           if (!childParents) continue;
@@ -418,6 +443,125 @@ export function alignPedigree(
           );
           if (hasNewParent && rval.fam[childLev]![cc] === 0) {
             rval.fam[childLev]![cc] = insertAt + 1; // 1-based
+          }
+        }
+      }
+
+      // Set fam pointers for the newly inserted entries themselves,
+      // pointing to their parents' position in the main layout.
+      if (lev2 > 0) {
+        const parentLev = lev2 - 1;
+        const parentN = rval.n[parentLev] ?? 0;
+        for (let k = 0; k < newEntries.length; k++) {
+          const col = insertAt + k;
+          const nidVal = rval.nid[lev2]![col]!;
+          const personIdx = Math.floor(nidVal);
+          if (personIdx < 0) continue;
+          const personParents = ped.parents[personIdx];
+          if (!personParents || personParents.length === 0) continue;
+          for (let pc = 0; pc < parentN; pc++) {
+            const parentPid = Math.floor(rval.nid[parentLev]![pc]!);
+            if (parentPid < 0) continue;
+            if (
+              personParents.some(
+                (p) => p.parentIndex === parentPid && p.edgeType === 'parent',
+              )
+            ) {
+              rval.fam[lev2]![col] = pc + 1; // 1-based
+              break;
+            }
+          }
+        }
+      }
+
+      // Crossing minimization: when the anchor is a .5 group member,
+      // its partner's same-fam siblings sit between the anchor and the
+      // new entries. The partner family's sibling bar would cross over
+      // the anchor's biological parent connector. Fix by moving those
+      // siblings to before the partner (the outside edge).
+      if (anchorMainCol >= 0) {
+        const anchNidVal = rval.nid[lev2]![anchorMainCol]!;
+        const isHalfAnch =
+          anchNidVal > 0 && anchNidVal !== Math.floor(anchNidVal);
+
+        if (isHalfAnch && anchorMainCol > 0) {
+          const partnerCol = anchorMainCol - 1;
+          const partnerFamVal = rval.fam[lev2]![partnerCol]!;
+
+          if (partnerFamVal > 0) {
+            // Collect partner's siblings (and their .5 partners) between
+            // anchor+1 and insertAt
+            const sibCols: number[] = [];
+            for (let c = anchorMainCol + 1; c < insertAt; c++) {
+              const nv = rval.nid[lev2]![c]!;
+              const isGM = nv > 0 && nv !== Math.floor(nv);
+              const famVal = rval.fam[lev2]![c]!;
+              if (isGM || famVal === partnerFamVal) {
+                sibCols.push(c);
+              } else {
+                break;
+              }
+            }
+
+            if (sibCols.length > 0) {
+              const K = sibCols.length;
+              const A = anchorMainCol;
+
+              // Save sibling data
+              const savedSibs = sibCols.map((c) => ({
+                nid: rval.nid[lev2]![c]!,
+                pos: rval.pos[lev2]![c]!,
+                fam: rval.fam[lev2]![c]!,
+              }));
+
+              // Save cols [0..A] (everything before and including the anchor)
+              const savedFront: {
+                nid: number;
+                pos: number;
+                fam: number;
+              }[] = [];
+              for (let c = 0; c <= A; c++) {
+                savedFront.push({
+                  nid: rval.nid[lev2]![c]!,
+                  pos: rval.pos[lev2]![c]!,
+                  fam: rval.fam[lev2]![c]!,
+                });
+              }
+
+              // Place siblings at [0..K-1]
+              for (let k = 0; k < K; k++) {
+                rval.nid[lev2]![k] = savedSibs[k]!.nid;
+                rval.pos[lev2]![k] = savedSibs[k]!.pos;
+                rval.fam[lev2]![k] = savedSibs[k]!.fam;
+              }
+
+              // Place original front at [K..K+A]
+              for (let c = 0; c < savedFront.length; c++) {
+                rval.nid[lev2]![K + c] = savedFront[c]!.nid;
+                rval.pos[lev2]![K + c] = savedFront[c]!.pos;
+                rval.fam[lev2]![K + c] = savedFront[c]!.fam;
+              }
+
+              // Cols after A+K stay in place (new entries and beyond)
+
+              // Fix fam pointers on the child level that reference
+              // columns on this level (fam is 1-based column index)
+              if (lev2 + 1 < maxlev) {
+                const childLev = lev2 + 1;
+                const childN = rval.n[childLev] ?? 0;
+                for (let cc = 0; cc < childN; cc++) {
+                  const fv = rval.fam[childLev]![cc]!;
+                  if (fv <= 0) continue;
+                  if (fv <= A + 1) {
+                    // Was pointing to old cols [0..A], now at [K..K+A]
+                    rval.fam[childLev]![cc] = fv + K;
+                  } else if (fv >= A + 2 && fv <= A + K + 1) {
+                    // Was pointing to old cols [A+1..A+K], now at [0..K-1]
+                    rval.fam[childLev]![cc] = fv - (A + 1);
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -460,7 +604,7 @@ export function alignPedigree(
 
       // Find the social parents of this child in the layout
       const socialParentIndices = ped.parents[childIdx]!.filter(
-        (p) => p.edgeType === 'social-parent' || p.edgeType === 'co-parent',
+        (p) => p.edgeType === 'parent',
       ).map((p) => p.parentIndex);
 
       const lev2 = level[i]!;
@@ -527,6 +671,10 @@ export function alignPedigree(
 
   // Unhash: separate nid and group from .5 encoding
   const maxdepth = rval.nid.length;
+  // Record which nodes were .5 group members (married-in partners)
+  const groupMember: boolean[][] = rval.nid.map((row) =>
+    row.map((v) => v > 0 && v !== Math.floor(v)),
+  );
   const nid: number[][] = rval.nid.map((row) => row.map((v) => Math.floor(v)));
   const groupMat: number[][] = rval.nid.map((row) => {
     const g = new Array<number>(row.length).fill(0);
@@ -618,5 +766,6 @@ export function alignPedigree(
     fam: rval.fam,
     group: groupMat,
     twins,
+    groupMember,
   };
 }
