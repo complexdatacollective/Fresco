@@ -59,8 +59,6 @@ export default function PedigreeLayout({
       edges,
       dimensions,
       input.parents,
-      input.relation,
-      input.partners,
     );
 
     return { positions, connectorData };

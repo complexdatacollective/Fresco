@@ -5,11 +5,9 @@ import {
   type ParentChildConnector,
   type ParentConnection,
   type ParentGroupConnector,
-  type PartnerConnection,
   type PedigreeConnectors,
   type PedigreeLayout,
   type Point,
-  type Relation,
   type ScalingParams,
   type TwinIndicator,
 } from '~/lib/pedigree-layout/types';
@@ -22,7 +20,6 @@ import {
  * @param layout - pedigree layout (positions, families, groups, twins)
  * @param scaling - box sizing and scale factors
  * @param parents - parent connections for edge type info
- * @param relations - relation array (partner=code 4) for group line styling
  * @param branch - branch style for parent-child links (0=diagonal, >0=right-angle). Default 0.6
  * @param pconnect - where parent link meets sibling bar (0-1). Default 0.5
  */
@@ -32,8 +29,6 @@ export function computeConnectors(
   parents: ParentConnection[][],
   branch = 0.6,
   pconnect = 0.5,
-  relations: Relation[] = [],
-  partners: PartnerConnection[] = [],
 ): PedigreeConnectors {
   const { boxHeight: boxh, legHeight: legh } = scaling;
   const maxlev = layout.nid.length;
@@ -44,22 +39,6 @@ export function computeConnectors(
   const auxiliaryLines: AuxiliaryConnector[] = [];
   const twinIndicators: TwinIndicator[] = [];
   const duplicateArcs: DuplicateArc[] = [];
-
-  // Build partner pair lookup from relations (code 4 = partner)
-  const partnerPairs = new Set<string>();
-  for (const rel of relations) {
-    if (rel.code === 4) {
-      partnerPairs.add(
-        `${Math.min(rel.id1, rel.id2)},${Math.max(rel.id1, rel.id2)}`,
-      );
-    }
-  }
-
-  const partnerMap = new Map<string, PartnerConnection>();
-  for (const p of partners) {
-    const key = `${Math.min(p.partnerIndex1, p.partnerIndex2)},${Math.max(p.partnerIndex1, p.partnerIndex2)}`;
-    partnerMap.set(key, p);
-  }
 
   // --- Parent group lines (replaces spouse lines) ---
   for (let i = 0; i < maxlev; i++) {
@@ -78,20 +57,9 @@ export function computeConnectors(
 
         const isDouble = layout.group[i]![j] === 2;
 
-        // Check if these two adjacent members are partners
-        const leftId = layout.nid[i]![j]!;
-        const rightId = layout.nid[i]![j + 1]!;
-        const pairKey = `${Math.min(leftId, rightId)},${Math.max(leftId, rightId)}`;
-        const partnerConn = partnerMap.get(pairKey);
-        const isPartner =
-          partnerConn !== undefined || partnerPairs.has(pairKey);
-        const isCurrent = partnerConn?.current ?? true;
-
         const connector: ParentGroupConnector = {
           type: 'parent-group',
           segment,
-          partner: isPartner,
-          current: isCurrent,
           double: isDouble,
         };
 
@@ -382,18 +350,14 @@ export function computeConnectors(
     }
   }
 
-  // --- Auxiliary lines for donor/surrogate/bio-parent edges ---
+  // --- Auxiliary lines for donor/surrogate edges ---
   for (let i = 0; i < maxlev; i++) {
     for (let j = 0; j < (layout.n[i] ?? 0); j++) {
       const childId = layout.nid[i]![j]!;
       const childParents = parents[childId] ?? [];
 
       for (const pc of childParents) {
-        if (
-          pc.edgeType === 'donor' ||
-          pc.edgeType === 'surrogate' ||
-          pc.edgeType === 'bio-parent'
-        ) {
+        if (pc.edgeType === 'donor' || pc.edgeType === 'surrogate') {
           // Find the auxiliary parent's position in the layout
           for (let pi = 0; pi < maxlev; pi++) {
             for (let pj = 0; pj < (layout.n[pi] ?? 0); pj++) {
@@ -418,6 +382,82 @@ export function computeConnectors(
             }
           }
         }
+      }
+    }
+  }
+
+  // --- Auxiliary lines for unpartnered parents ---
+  // Build a set of partner pairs from the layout group data:
+  // adjacent nodes with group > 0 between them are partners.
+  const partnerPairSet = new Set<string>();
+  for (let i = 0; i < maxlev; i++) {
+    for (let j = 0; j < maxcol; j++) {
+      if ((layout.group[i]?.[j] ?? 0) > 0) {
+        const leftId = layout.nid[i]![j]!;
+        const rightId = layout.nid[i]![j + 1]!;
+        partnerPairSet.add(
+          `${Math.min(leftId, rightId)},${Math.max(leftId, rightId)}`,
+        );
+      }
+    }
+  }
+
+  // Build a lookup: nodeId -> layout position
+  const nodePosition = new Map<number, { x: number; y: number }>();
+  for (let i = 0; i < maxlev; i++) {
+    for (let j = 0; j < (layout.n[i] ?? 0); j++) {
+      const nid = layout.nid[i]![j]!;
+      if (!nodePosition.has(nid)) {
+        nodePosition.set(nid, { x: layout.pos[i]![j]!, y: i });
+      }
+    }
+  }
+
+  for (let i = 0; i < maxlev; i++) {
+    for (let j = 0; j < (layout.n[i] ?? 0); j++) {
+      const childId = layout.nid[i]![j]!;
+      const childParents = parents[childId] ?? [];
+
+      const parentEdges = childParents.filter((pc) => pc.edgeType === 'parent');
+      if (parentEdges.length < 2) continue;
+
+      // Determine which parents are in a partner group with another parent of this child
+      const parentIds = parentEdges.map((pe) => pe.parentIndex);
+      const partneredParents = new Set<number>();
+
+      for (let a = 0; a < parentIds.length; a++) {
+        for (let b = a + 1; b < parentIds.length; b++) {
+          const key = `${Math.min(parentIds[a]!, parentIds[b]!)},${Math.max(parentIds[a]!, parentIds[b]!)}`;
+          if (partnerPairSet.has(key)) {
+            partneredParents.add(parentIds[a]!);
+            partneredParents.add(parentIds[b]!);
+          }
+        }
+      }
+
+      // Only applies when some parents are partnered and others are not
+      if (partneredParents.size === 0) continue;
+
+      for (const parentId of parentIds) {
+        if (partneredParents.has(parentId)) continue;
+
+        const parentPos = nodePosition.get(parentId);
+        if (!parentPos) continue;
+
+        const childX = layout.pos[i]![j]!;
+        const childY = i + boxh / 2;
+
+        auxiliaryLines.push({
+          type: 'auxiliary',
+          edgeType: 'unpartnered-parent',
+          segment: {
+            type: 'line',
+            x1: parentPos.x,
+            y1: parentPos.y + boxh / 2,
+            x2: childX,
+            y2: childY,
+          },
+        });
       }
     }
   }
