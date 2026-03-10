@@ -60,8 +60,11 @@ function renderGroupLine(
   }
 
   if (conn.partner) {
-    // Partner relationship: double horizontal lines
     const offset = EDGE_WIDTH;
+    const midX = (seg.x1 + seg.x2) / 2;
+    const midY = (seg.y1 + seg.y2) / 2;
+    const slashSize = offset * 2;
+
     return (
       <g key={`partner-${idx}`}>
         <line
@@ -80,6 +83,16 @@ function renderGroupLine(
           stroke={color}
           strokeWidth={EDGE_WIDTH}
         />
+        {!conn.current && (
+          <line
+            x1={midX - slashSize / 2}
+            y1={midY + slashSize}
+            x2={midX + slashSize / 2}
+            y2={midY - slashSize}
+            stroke={color}
+            strokeWidth={EDGE_WIDTH}
+          />
+        )}
       </g>
     );
   }
