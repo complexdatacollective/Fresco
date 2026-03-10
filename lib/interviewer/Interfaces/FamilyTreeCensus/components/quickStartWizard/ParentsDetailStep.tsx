@@ -4,18 +4,9 @@ import { useEffect, useState } from 'react';
 import Heading from '~/components/typography/Heading';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
-import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import ToggleField from '~/lib/form/components/fields/ToggleField';
-import {
-  PARENT_EDGE_TYPE_OPTIONS,
-  isParentEdgeType,
-} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/fieldOptions';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/PersonFields';
 import { type ParentDetail } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
-
-const NON_BIO_EDGE_TYPE_OPTIONS = PARENT_EDGE_TYPE_OPTIONS.filter(
-  (o) => o.value !== 'bio-parent',
-);
 
 export default function ParentsDetailStep() {
   const { data, setStepData, setNextEnabled } = useWizard();
@@ -29,7 +20,8 @@ export default function ParentsDetailStep() {
       nameKnown: existing?.[i]?.nameKnown ?? false,
       sex: existing?.[i]?.sex,
       gender: existing?.[i]?.gender,
-      edgeType: existing?.[i]?.edgeType ?? 'bio-parent',
+      edgeType: existing?.[i]?.edgeType ?? 'parent',
+      biological: existing?.[i]?.biological ?? true,
     }));
   });
 
@@ -80,27 +72,11 @@ export default function ParentsDetailStep() {
             name={`parent-${i}-isBioParent`}
             label="This is my biological parent"
             component={ToggleField}
-            value={parent.edgeType === 'bio-parent'}
+            value={parent.biological !== false}
             onChange={(v) => {
-              updateParent(i, {
-                edgeType: v ? 'bio-parent' : 'social-parent',
-              });
+              updateParent(i, { biological: v ?? true });
             }}
           />
-          {parent.edgeType !== 'bio-parent' && (
-            <UnconnectedField
-              name={`parent-${i}-edgeType`}
-              label="Relationship type"
-              component={RadioGroupField}
-              options={NON_BIO_EDGE_TYPE_OPTIONS}
-              value={parent.edgeType}
-              onChange={(v) => {
-                if (typeof v === 'string' && isParentEdgeType(v)) {
-                  updateParent(i, { edgeType: v });
-                }
-              }}
-            />
-          )}
         </div>
       ))}
     </div>
