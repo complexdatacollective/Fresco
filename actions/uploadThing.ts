@@ -1,7 +1,9 @@
 'use server';
 
 import { File } from 'node:buffer';
-import { readFile, unlink } from 'node:fs/promises';
+import { readFile, realpath, unlink } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { resolve } from 'node:path';
 import type {
   ArchiveResult,
   ExportReturn,
@@ -28,8 +30,15 @@ export const uploadZipToUploadThing = async (
   const { path: zipLocation, completed, rejected } = results;
 
   try {
-    const fileName = zipLocation.split('/').pop()?.split('.').shift() ?? 'file';
-    const zipBuffer = await readFile(zipLocation);
+    const resolvedPath = await realpath(resolve(zipLocation));
+    const tempDir = await realpath(tmpdir());
+    if (!resolvedPath.startsWith(tempDir + '/')) {
+      return { status: 'error', error: 'Invalid file path' };
+    }
+
+    const fileName =
+      resolvedPath.split('/').pop()?.split('.').shift() ?? 'file';
+    const zipBuffer = await readFile(resolvedPath);
     const zipFile = new File([zipBuffer], `${fileName}.zip`, {
       type: 'application/zip',
     });
@@ -39,7 +48,7 @@ export const uploadZipToUploadThing = async (
     const { data, error } = await utapi.uploadFiles(zipFile);
 
     if (data) {
-      void unlink(zipLocation); // Delete the zip file after successful upload
+      void unlink(resolvedPath); // Delete the zip file after successful upload
       return {
         zipUrl: data.ufsUrl,
         zipKey: data.key,
