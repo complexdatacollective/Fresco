@@ -12,22 +12,18 @@ export type Gender =
   | 'other'
   | 'unknown';
 
-export type ParentEdgeType =
-  | 'social-parent'
-  | 'bio-parent'
-  | 'donor'
-  | 'surrogate'
-  | 'co-parent';
+export type ParentEdgeType = 'parent' | 'donor' | 'surrogate';
 
 export type ParentConnection = {
   parentIndex: number;
   edgeType: ParentEdgeType;
+  biological?: boolean; // defaults to true. Only meaningful for 'parent' edges.
 };
 
 export type PartnerConnection = {
   partnerIndex1: number;
   partnerIndex2: number;
-  current: boolean;
+  active: boolean;
 };
 
 export type RelationCode = 1 | 2 | 3 | 4 | 5 | 6;
@@ -107,9 +103,7 @@ export type ArcPath = {
 export type ParentGroupConnector = {
   type: 'parent-group';
   segment: LineSegment;
-  partner: boolean; // true = double parallel lines (partners), false = single bar (co-parents)
-  current: boolean;
-  double: boolean; // consanguineous
+  double: boolean;
   doubleSegment?: LineSegment;
 };
 
@@ -123,7 +117,7 @@ export type ParentChildConnector = {
 
 export type AuxiliaryConnector = {
   type: 'auxiliary';
-  edgeType: 'donor' | 'surrogate' | 'bio-parent';
+  edgeType: 'donor' | 'surrogate' | 'unpartnered-parent';
   segment: LineSegment;
 };
 
