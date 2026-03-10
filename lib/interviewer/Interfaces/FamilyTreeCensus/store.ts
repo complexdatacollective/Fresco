@@ -19,6 +19,7 @@ export type NodeData = {
   readOnly?: boolean;
   interviewNetworkId?: string;
   diseases?: Map<string, boolean>;
+  isBioRelative?: boolean;
 };
 
 export type PersonDetail = {

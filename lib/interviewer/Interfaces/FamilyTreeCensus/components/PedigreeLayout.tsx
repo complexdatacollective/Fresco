@@ -2,6 +2,7 @@
 
 import { useMemo, type ReactNode } from 'react';
 import Spinner from '~/components/Spinner';
+import { computeBioRelatives } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/computeBioRelatives';
 import { PedigreeEdgeSvg } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/EdgeRenderer';
 import {
   computeLayoutMetrics,
@@ -64,6 +65,12 @@ export default function PedigreeLayout({
     return { positions, connectorData };
   }, [nodes, edges, dimensions]);
 
+  const bioRelatives = useMemo(() => {
+    const egoEntry = [...nodes.entries()].find(([, n]) => n.isEgo);
+    if (!egoEntry) return new Set<string>();
+    return computeBioRelatives(egoEntry[0], edges);
+  }, [nodes, edges]);
+
   if (nodeWidth === 0 || nodeHeight === 0) {
     return (
       <div className="flex size-full items-center justify-center">
@@ -113,7 +120,7 @@ export default function PedigreeLayout({
               height: metrics.containerHeight,
             }}
           >
-            {renderNode({ id, ...node })}
+            {renderNode({ id, ...node, isBioRelative: bioRelatives.has(id) })}
           </div>
         );
       })}
