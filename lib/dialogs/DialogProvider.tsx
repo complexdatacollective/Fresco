@@ -1,5 +1,6 @@
 'use client';
 
+import { Loader2 } from 'lucide-react';
 import React, { createContext, useCallback, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Button } from '~/components/ui/Button';
@@ -101,6 +102,8 @@ type DialogState = AnyDialog & {
   id: string;
   resolveCallback: (value: unknown) => void;
   open: boolean;
+  isLoading?: boolean;
+  onPrimaryClickAsync?: () => Promise<void>;
 };
 
 export type ConfirmOptions = {
@@ -194,8 +197,10 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
         );
       });
 
+      // Dialog may have already been closed (e.g., due to navigation)
+      // In that case, just return early
       if (!dialogToResolve) {
-        throw new Error(`Dialog with ID ${id} does not exist`);
+        return;
       }
 
       dialogToResolve.resolveCallback(value);
@@ -210,9 +215,21 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
     [setDialogs],
   );
 
+  const setDialogLoading = useCallback(
+    (id: string, isLoading: boolean) => {
+      setDialogs((prevDialogs) =>
+        prevDialogs.map((d) => (d.id === id ? { ...d, isLoading } : d)),
+      );
+    },
+    [setDialogs],
+  );
+
   const confirm = useCallback(
     async (options: ConfirmOptions): Promise<void> => {
-      const result = await openDialog({
+      const dialogId = generatePublicId();
+
+      await openDialog({
+        id: dialogId,
         type: 'choice',
         title: options.title ?? 'Are you sure?',
         description: options.description ?? 'This action cannot be undone.',
@@ -221,12 +238,22 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
           primary: { label: options.confirmLabel, value: true },
           cancel: { label: options.cancelLabel ?? 'Cancel', value: false },
         },
+        onPrimaryClickAsync: async () => {
+          setDialogLoading(dialogId, true);
+          try {
+            await options.onConfirm();
+            await closeDialog(dialogId, true);
+          } catch (error) {
+            setDialogLoading(dialogId, false);
+            throw error;
+          }
+        },
+      } as ChoiceDialog<boolean, never, boolean> & {
+        id: string;
+        onPrimaryClickAsync: () => Promise<void>;
       });
-      if (result === true) {
-        await options.onConfirm();
-      }
     },
-    [openDialog],
+    [openDialog, closeDialog, setDialogLoading],
   );
 
   const contextValue: DialogContextType = {
@@ -255,6 +282,14 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
       const autoFocusButton: 'primary' | 'cancel' =
         dialog.intent === 'destructive' ? 'cancel' : 'primary';
 
+      const handlePrimaryClick = () => {
+        if (dialog.onPrimaryClickAsync) {
+          void dialog.onPrimaryClickAsync();
+        } else {
+          void closeDialog(dialog.id, dialog.actions.primary.value);
+        }
+      };
+
       // Render buttons in order: secondary, cancel, primary
       // Primary is visually highlighted
       // Cancel is not always present
@@ -266,6 +301,7 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
               onClick={() =>
                 closeDialog(dialog.id, dialog.actions.secondary!.value)
               }
+              disabled={dialog.isLoading}
             >
               {dialog.actions.secondary.label}
             </Button>
@@ -276,16 +312,19 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
                 closeDialog(dialog.id, dialog.actions.cancel.value)
               }
               autoFocus={autoFocusButton === 'cancel'}
+              disabled={dialog.isLoading}
             >
               {dialog.actions.cancel.label}
             </Button>
           )}
           <Button
             color="primary"
-            onClick={() => closeDialog(dialog.id, dialog.actions.primary.value)}
+            onClick={handlePrimaryClick}
             autoFocus={autoFocusButton === 'primary'}
+            disabled={dialog.isLoading}
+            icon={dialog.isLoading ? <Loader2 className="animate-spin" /> : undefined}
           >
-            {dialog.actions.primary.label}
+            {dialog.isLoading ? 'Please wait...' : dialog.actions.primary.label}
           </Button>
         </>
       );
@@ -352,6 +391,7 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
         accent={dialog.intent}
         open={dialog.open}
         footer={footer}
+        preventDismiss={dialog.isLoading}
       >
         {dialog.children}
       </Dialog>
