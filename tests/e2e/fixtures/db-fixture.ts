@@ -5,7 +5,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { hash } from 'ohash';
 import pg from 'pg';
-import { type AppSetting } from '~/lib/db/generated/client';
+import { type AppSetting, type Prisma } from '~/lib/db/generated/client';
 import { log } from '../helpers/logger.js';
 import { createTestPrisma, type TestPrismaClient } from '../helpers/prisma.js';
 
@@ -297,6 +297,146 @@ export class DatabaseIsolation {
       .catch(() => {
         // Ignore if not found
       });
+  }
+
+  /**
+   * Create a preview protocol from a full protocol JSON object.
+   * Use this for testing with complex protocols like SILOS.
+   * @param protocolData - The full protocol JSON (e.g., loaded from SILOS-protocol.json)
+   * @param options.isPending - If true, marks protocol as still uploading assets
+   * @param options.name - Optional override for the protocol name
+   * @returns The protocol ID
+   */
+  async createPreviewProtocolFromJson(
+    protocolData: Record<string, unknown>,
+    options?: {
+      isPending?: boolean;
+      name?: string;
+    },
+  ): Promise<string> {
+    const protocolId = createId();
+    const name =
+      options?.name ?? (protocolData.name as string) ?? `preview-${Date.now()}`;
+
+    const protocolHash = hash(protocolData);
+
+    await this.prisma.previewProtocol.create({
+      data: {
+        id: protocolId,
+        hash: protocolHash,
+        name,
+        schemaVersion: protocolData.schemaVersion as number,
+        description: (protocolData.description as string) ?? '',
+        lastModified: new Date(protocolData.lastModified as string),
+        stages: protocolData.stages as Prisma.InputJsonValue,
+        codebook: protocolData.codebook as Prisma.InputJsonValue,
+        isPending: options?.isPending ?? false,
+      },
+    });
+
+    log('test', `Created preview protocol from JSON "${name}" (${protocolId})`);
+    return protocolId;
+  }
+
+  /**
+   * Create a regular protocol from a full protocol JSON object.
+   * Use this for testing the /interview route with complex protocols like SILOS.
+   * @param protocolData - The full protocol JSON (e.g., loaded from SILOS-protocol.json)
+   * @param options.name - Optional override for the protocol name
+   * @returns The protocol ID
+   */
+  async createProtocolFromJson(
+    protocolData: Record<string, unknown>,
+    options?: {
+      name?: string;
+    },
+  ): Promise<string> {
+    const protocolId = createId();
+    const name =
+      options?.name ?? (protocolData.name as string) ?? 'Imported Protocol';
+
+    const protocolHash = hash(protocolData);
+
+    await this.prisma.protocol.create({
+      data: {
+        id: protocolId,
+        hash: protocolHash,
+        name,
+        schemaVersion: protocolData.schemaVersion as number,
+        description: (protocolData.description as string) ?? '',
+        lastModified: new Date(protocolData.lastModified as string),
+        stages: protocolData.stages as Prisma.InputJsonValue,
+        codebook: protocolData.codebook as Prisma.InputJsonValue,
+      },
+    });
+
+    log('test', `Created protocol from JSON "${name}" (${protocolId})`);
+    return protocolId;
+  }
+
+  /**
+   * Create a participant for testing.
+   * @param options.identifier - Optional participant identifier
+   * @param options.label - Optional participant label
+   * @returns The participant ID
+   */
+  async createParticipant(options?: {
+    identifier?: string;
+    label?: string;
+  }): Promise<string> {
+    const participantId = createId();
+    const identifier = options?.identifier ?? `TEST-${Date.now()}`;
+
+    await this.prisma.participant.create({
+      data: {
+        id: participantId,
+        identifier,
+        label: options?.label ?? null,
+      },
+    });
+
+    log('test', `Created participant "${identifier}" (${participantId})`);
+    return participantId;
+  }
+
+  /**
+   * Create an interview for testing.
+   * @param participantId - The participant ID
+   * @param protocolId - The protocol ID
+   * @param options.currentStep - Starting step (default: 0)
+   * @returns The interview ID
+   */
+  async createInterview(
+    participantId: string,
+    protocolId: string,
+    options?: {
+      currentStep?: number;
+    },
+  ): Promise<string> {
+    const interviewId = createId();
+    const now = new Date();
+
+    await this.prisma.interview.create({
+      data: {
+        id: interviewId,
+        startTime: now,
+        lastUpdated: now,
+        currentStep: options?.currentStep ?? 0,
+        network: {
+          nodes: [],
+          edges: [],
+          ego: { _uid: createId(), attributes: {} },
+        },
+        participantId,
+        protocolId,
+      },
+    });
+
+    log(
+      'test',
+      `Created interview (${interviewId}) for participant ${participantId}`,
+    );
+    return interviewId;
   }
 
   /**

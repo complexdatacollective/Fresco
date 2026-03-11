@@ -1,0 +1,4130 @@
+{
+  "stages": [
+    {
+      "label": "Welcome",
+      "type": "Information",
+      "title": "Welcome!",
+      "items": [
+        {
+          "size": "SMALL",
+          "id": "351e81d2-f855-4896-8bd0-5d9d5474cb07",
+          "content": "**Welcome!**\n\nThis study is interested in the people and the places you are connected to, and how your connections impact the risks people like you are exposed to as well as your access to resources.\n\nThe estimated time for completing this survey is 45 minutes.\n\n**Note: this survey will not timeout, but if you close the window and relaunch the survey you will have to start again.**\n\nIf you have any questions while completing, please reach out to our team at 708\\-628\\-7943 or silos@northwestern.edu\n",
+          "type": "text"
+        }
+      ],
+      "id": "3ff6eea0-dcdf-11ef-b7b2-6b4b6e9643e7"
+    },
+    {
+      "label": "Self-Nomination Instructions",
+      "type": "Information",
+      "title": "Getting Started",
+      "items": [
+        {
+          "size": "SMALL",
+          "id": "8964f2db-699d-4455-9a4a-84c8022fdd58",
+          "type": "text",
+          "content": "Over the course of this survey, you will be asked to name various people, places, and online spaces that you are connected to. You will be asked to name them using a specific kind of screen that appears at different points in the survey. The next screen is an example of the interface you will use to add people, places, and online spaces, and is meant to help you get comfortable with taking the survey.\n\nTo get started, press the **&#39;Add a Person&#39;** Icon at the bottom right corner of the screen. Type your name, your initials, &quot;Me,&quot; or any other term to identify yourself, then press Enter. Once you have done this, click the button at the bottom left corner of the screen to continue. This process will be the same as how you will add other people, places, and online spaces at later points in the survey.\n\nThe video below offers a preview of how the next screen will work. Please continue to the next screen once you feel comfortable with how to proceed.\n\n<br>\n\n"
+        },
+        {
+          "size": "SMALL",
+          "id": "88c176d9-c7de-475d-9f73-dc3d36312da2",
+          "type": "asset",
+          "content": "2efd44ba-dedb-4c03-92d5-58552aec1845"
+        }
+      ],
+      "id": "292ab910-02e8-11f1-a97e-05836b4240a0"
+    },
+    {
+      "label": "Self-Nomination",
+      "type": "NameGeneratorQuickAdd",
+      "subject": {
+        "type": "78ffb94c-6eba-4805-bc71-8154f7cbc9cf",
+        "entity": "node"
+      },
+      "quickAdd": "54b32af0-df01-4190-97a4-f5949527d6c7",
+      "prompts": [
+        {
+          "id": "698bca47-4cdd-4c13-a5c5-284c1e71154a",
+          "text": "Please click on the button on the bottom right of the screen and enter your name or initials\n"
+        }
+      ],
+      "behaviours": {
+        "maxNodes": 1,
+        "minNodes": 1
+      },
+      "id": "df61c290-01f4-11f1-9a17-4be4c9c772db"
+    },
+    {
+      "label": "Ego Information",
+      "type": "EgoForm",
+      "introductionPanel": {
+        "title": "About You",
+        "text": "To get started, please tell us a bit about yourself\n"
+      },
+      "form": {
+        "fields": [
+          {
+            "variable": "596c2ac2-9fd4-42f4-a0f3-cfa7f1676551",
+            "prompt": "What is your date of birth?\n"
+          },
+          {
+            "variable": "4d9cd886-2834-48ce-ba80-38a0dc9a5dd6",
+            "prompt": "How would you currently describe your sexual identity?\n"
+          },
+          {
+            "variable": "f3d7559b-3a07-4719-8e4a-1db49d270f7b",
+            "prompt": "What is your sex assigned at birth?\n"
+          },
+          {
+            "variable": "a06f06f5-b688-487c-8e3b-ca916aed2b84",
+            "prompt": "How would you currently identify your gender?\n"
+          },
+          {
+            "variable": "92869afe-a300-404c-a390-5fbc3f48cf25",
+            "prompt": "Please specify how you describe your race or ethnic background (check all that apply)\n"
+          },
+          {
+            "variable": "dc6779f2-4c6f-48bb-9e9c-2f6f014cf620",
+            "prompt": "Please specify if you identify as Hispanic/Latino\n"
+          },
+          {
+            "variable": "817b4886-bf32-431b-adce-81cbc3fcf233",
+            "prompt": "How many years have you lived in the Chicagoland area?\n"
+          },
+          {
+            "variable": "fe681ff5-adaf-40b8-8376-20b5f53c93c7",
+            "prompt": "What is your current HIV status?\n"
+          }
+        ]
+      },
+      "id": "b2dc4330-ea44-11ef-ac07-cf00903a0662"
+    },
+    {
+      "label": "Female Sex Assigned at Birth",
+      "type": "EgoForm",
+      "introductionPanel": {
+        "title": "Your Sex Assigned at Birth",
+        "text": "On the previous screen, you selected that your sex assigned at birth was female.\n"
+      },
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "INCLUDES",
+                "attribute": "f3d7559b-3a07-4719-8e4a-1db49d270f7b",
+                "value": "Female"
+              },
+              "id": "7589ffc5-177a-4015-9393-861c09dcb122"
+            }
+          ]
+        }
+      },
+      "form": {
+        "fields": [
+          {
+            "variable": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+            "prompt": "Is this correct?\n"
+          }
+        ]
+      },
+      "id": "88a02ae0-06c8-11f1-9708-57599218e76c"
+    },
+    {
+      "label": "Sex Assigned at Birth Ineligibility",
+      "type": "Information",
+      "title": "Study Ineligibility",
+      "items": [
+        {
+          "size": "SMALL",
+          "id": "e3fda2c3-7c49-4f9c-b3b7-11e84ca75792",
+          "type": "text",
+          "content": "Thank you for your interest in the SILOS study. We regret to inform you that you are ineligible to take part in this study. Only members of the community who were assigned male sex at birth are eligible to participate. As such, you may either close this window or continue to the next screen, where you will be taken to the end of the study.\n\nPlease note that a member of our team may reach out to you to confirm study ineligibility and to answer any related questions we may have.\n"
+        }
+      ],
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "b5329de4-2f76-4b1d-8962-fea20badfd08"
+            }
+          ]
+        }
+      },
+      "id": "6bc19d40-06c9-11f1-9708-57599218e76c"
+    },
+    {
+      "label": "Ego Information (Perceived by Others)",
+      "type": "EgoForm",
+      "introductionPanel": {
+        "title": "About You",
+        "text": "We are also interested in knowing _how others see you_ in addition to how you see yourself. For the following questions, please indicate how you believe other people perceive you.\n"
+      },
+      "form": {
+        "fields": [
+          {
+            "variable": "8a4af15c-394b-45eb-915d-6a150191758a",
+            "prompt": "If you were in public, what race would strangers assume you are based on what you look like? (Please select only one)\n"
+          },
+          {
+            "variable": "4f26a2c2-53c0-4802-b955-c84c8ca46c12",
+            "prompt": "If you were in public, what ethnicity would strangers assume you are based on what you look like?\n"
+          },
+          {
+            "variable": "648cb03d-7119-405f-98d7-9d4b6e5ec097",
+            "prompt": "If you were in public, what gender would strangers assume you are based on what you look like? (Please select only one)\n"
+          },
+          {
+            "variable": "0848da8d-c6b0-48c1-8520-b62dfc45212d",
+            "prompt": "If you were in public, what sexual orientation would strangers assume you are based on what you look like? (Please select only one)\n"
+          }
+        ]
+      },
+      "id": "196852f0-02f0-11f1-a97e-05836b4240a0",
+      "skipLogic": {
+        "action": "SKIP",
+        "filter": {
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "4c5ff414-d56d-47c7-b5cc-da71b578e553"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Ego Census Tract - Introduction",
+      "type": "Information",
+      "title": "Map Selection",
+      "items": [
+        {
+          "size": "SMALL",
+          "id": "90de379a-9726-4545-a29a-2310b72d039d",
+          "type": "text",
+          "content": "For the next part of this survey, we would like you to select the general area where you live. You will be shown a screen with a map of Chicago that has outlined areas. You will be prompted to select the area where you live.\n\n**Note:** this is not meant to pinpoint an exact address, just a general area.\n\nIf you live outside of Chicago, you may select the &quot;Outside Map Area&quot; button. **If you do not know where you live or wish to skip this section, you may click the down navigation arrow to proceed.**\n\nThe video below offers a preview of how the map screen will work. Please continue to the next screen once you feel comfortable with how to place yourself on the map.\n"
+        },
+        {
+          "size": "SMALL",
+          "id": "759287e9-98e0-4fc1-b35d-f4baaa24ee31",
+          "type": "asset",
+          "content": "27660f5f-4f7f-4d4a-aac1-de93800eb96d"
+        }
+      ],
+      "id": "cb6cb780-0858-11f1-96a8-9937b75bccaa",
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "ac6ff3e2-8283-4fe2-8ee7-c5fc9f85233b"
+            },
+            {
+              "type": "node",
+              "options": {
+                "type": "78ffb94c-6eba-4805-bc71-8154f7cbc9cf",
+                "operator": "EXISTS",
+                "value": ""
+              },
+              "id": "bf271cc1-da7e-4382-b940-b0bb8f3dabd8"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Ego Census Tract",
+      "type": "Geospatial",
+      "subject": {
+        "type": "78ffb94c-6eba-4805-bc71-8154f7cbc9cf",
+        "entity": "node"
+      },
+      "mapOptions": {
+        "tokenAssetId": "54080d34-0717-4691-81a2-bec9171cce74",
+        "dataSourceAssetId": "9fd0326a-4efa-43e9-95b2-4efb2986876f",
+        "style": "mapbox://styles/mapbox/standard",
+        "color": "ord-color-seq-4",
+        "center": [-87.64393745661555, 41.88272230756323],
+        "initialZoom": 11.230498990821,
+        "targetFeatureProperty": "census_tra",
+        "showTransit": true,
+        "allowSearch": true
+      },
+      "prompts": [
+        {
+          "id": "6da2f94c-baec-4207-a8a3-c50007feff0c",
+          "text": "Please select the general area where you live\n",
+          "variable": "ce92b437-e4b4-4ade-a0dd-0e7a9eb54105"
+        }
+      ],
+      "id": "94ad59c0-01f5-11f1-9a17-4be4c9c772db",
+      "skipLogic": {
+        "action": "SKIP",
+        "filter": {
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "81e94bab-2e74-4505-9b00-385163788ae4"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Ego Substances",
+      "type": "EgoForm",
+      "form": {
+        "fields": [
+          {
+            "variable": "4ff3010b-4706-4e40-9a9e-0735b50c489f",
+            "prompt": "Did you use marijuana in the past six months?"
+          },
+          {
+            "variable": "14cd06ba-6a48-403b-99a4-3ba97ed9523f",
+            "prompt": "Did you use cocaine in the past six months?"
+          },
+          {
+            "variable": "9e3c5efd-412d-40e3-9e30-fc53d8a8eb0a",
+            "prompt": "Did you use heroin in the past six months?"
+          },
+          {
+            "variable": "62b4364d-9802-4faa-8c35-61db120d24d6",
+            "prompt": "Did you use painkillers or opiates in the past six months?"
+          },
+          {
+            "variable": "220b8a1a-2001-4e22-a240-195bca3f63dd",
+            "prompt": "Did you use poppers in the past six months?"
+          },
+          {
+            "variable": "6655b2bb-59bb-4584-b1bb-19de37fdf0f3",
+            "prompt": "Did you use methamphetamine in the past six months?\n"
+          }
+        ]
+      },
+      "introductionPanel": {
+        "title": "Please indicate which of the following drugs you have used in the past 6 months",
+        "text": "<br>\n\n\n<br>\n\n\n---\n\n<br>\n\n"
+      },
+      "id": "1476d460-f5d2-11e9-8d3c-ff9674ac989f",
+      "skipLogic": {
+        "action": "SKIP",
+        "filter": {
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "d2198c82-1cdf-4caf-acb2-4f59c6bf1625"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Name Generator Instructions",
+      "type": "Information",
+      "items": [
+        {
+          "size": "MEDIUM",
+          "id": "4bc4aeea-7d5c-4658-9626-5e212b5c628f",
+          "content": "On the next screen, we will ask you about the people you have interacted with in the last six months. To add an individual in response to a prompt, press the **‘Add a Person’ Icon** at the bottom right corner of the screen. Type initials, a nickname, or a unique phrase that will help you remember this person along with their age and press Enter.\n\nAfter the first prompt, you can choose people you added from previous prompts by clicking on them in the left side panel and dragging them into the main panel.\n\nThe video below offers a preview of how the next screen will work. Please continue to the next screen once you feel comfortable with how to add people.\n",
+          "type": "text"
+        },
+        {
+          "size": "MEDIUM",
+          "id": "8c5e4ac9-f67f-4b8d-b369-847516a8b9c7",
+          "content": "55966506-9294-41e4-b83d-21cb9e525a6d",
+          "type": "asset"
+        }
+      ],
+      "title": "People in Your Life",
+      "id": "6c81c7f0-efd2-11ef-a748-d3b412f0893b",
+      "skipLogic": {
+        "action": "SKIP",
+        "filter": {
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "c3be5540-fdeb-42bf-9fd4-8ab5422b2de1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Name Generators (Close Ties and Drug)",
+      "type": "NameGenerator",
+      "subject": {
+        "entity": "node",
+        "type": "5f90648c-c728-4a92-acb2-fd066b6705cb"
+      },
+      "form": {
+        "title": "Name",
+        "fields": [
+          {
+            "variable": "b1eb909a-13cd-4dc6-ab90-c77e7bc2c5d3",
+            "prompt": "**Without using their actual name**, who is this person? Please provide initials, a nickname, or a unique phrase that will help you remember this person. Please do not use the same label for more than one person.\n"
+          },
+          {
+            "variable": "6621dc88-9cde-43a1-85ec-6fc7689b2211",
+            "prompt": "What is this person&#39;s age?\n"
+          },
+          {
+            "variable": "8f5d456b-06fb-4958-9a92-da6e87008bce",
+            "prompt": "What best describe&#39;s this person&#39;s relationship to you?\n"
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "id": "4f6bb761-02a0-4b9d-b7cd-fa2ea2ab8925",
+          "text": "Who are the people you have felt close to in the past 6 months? That is, people you see or talk to regularly and share your personal thoughts and feelings with.\n",
+          "additionalAttributes": [
+            {
+              "variable": "8d84468b-0dcd-40cd-8a2c-e78bd41cf5e4",
+              "value": true
+            },
+            {
+              "variable": "8edc4f24-7d2b-4e0c-9dfa-b92e4558ff18",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "76e21015-fe82-4118-b178-92b07fbf522d",
+          "text": "Who are the people that you have used marijuana or other drugs with in the past 6 months? You can drag and drop people you&#39;ve already mentioned from the side panel or add new people.\n",
+          "additionalAttributes": [
+            {
+              "variable": "45032017-155e-4499-9e7f-2abbfc6cc441",
+              "value": true
+            },
+            {
+              "variable": "682a6c9e-0c56-4f47-a013-e5f7a5951eb0",
+              "value": true
+            }
+          ]
+        }
+      ],
+      "id": "77009f60-f502-11e9-9d18-8b60fd3a7bec",
+      "panels": [
+        {
+          "id": "d1baaf4b-3d75-4ae3-8b31-3ff2fa87517c",
+          "title": "People you have already listed",
+          "dataSource": "existing"
+        }
+      ],
+      "behaviours": {
+        "minNodes": 1
+      },
+      "skipLogic": {
+        "action": "SKIP",
+        "filter": {
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "825e901b-2a49-44fd-8405-12087e355ec7"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Sex Partner Nomination",
+      "type": "NameGenerator",
+      "subject": {
+        "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+        "entity": "node"
+      },
+      "form": {
+        "title": "Name",
+        "fields": [
+          {
+            "variable": "b1eb909a-13cd-4dc6-ab90-c77e7bc2c5d3",
+            "prompt": "**Without using their actual name,** who is this person? Please provide initials, a nickname, or a unique phrase that will help you remember this person. Please do not use the same label for more than one person.\n"
+          },
+          {
+            "variable": "9dace85f-af41-4091-9209-389f0a24104a",
+            "prompt": "What is this person&#39;s age?\n"
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "id": "80831bdf-2f89-434e-a6b7-a76a33e9f26e",
+          "text": "Who are the people that you have had sex with (18+) in the past 6 months? You can drag and drop people you&#39;ve already mentioned from the side panel or add new people.\n",
+          "additionalAttributes": [
+            {
+              "variable": "1bf37368-5188-49c6-b35f-f0a49706fcb0",
+              "value": true
+            }
+          ]
+        }
+      ],
+      "id": "c5d6d810-076c-11f1-a55e-5f648853fbcf",
+      "panels": [
+        {
+          "id": "1929f848-3127-448f-ad5a-3508bb756f2e",
+          "title": "People you have already listed",
+          "dataSource": "existing",
+          "filter": {
+            "rules": [
+              {
+                "type": "node",
+                "options": {
+                  "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+                  "operator": "GREATER_THAN_OR_EQUAL",
+                  "attribute": "6621dc88-9cde-43a1-85ec-6fc7689b2211",
+                  "value": 18
+                },
+                "id": "c9558df9-f7ee-4fb3-87f1-4b35f8efc716"
+              }
+            ]
+          }
+        }
+      ],
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "3073e4e2-0098-4980-93b6-9711cae82b5c"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Sociogram (Close Ties and Drug Partners)",
+      "type": "Sociogram",
+      "subject": {
+        "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+        "entity": "node"
+      },
+      "background": {
+        "concentricCircles": 5,
+        "skewedTowardCenter": true
+      },
+      "prompts": [
+        {
+          "id": "9f5b1324-eeb4-464d-88af-5b71b0da5e84",
+          "highlight": {
+            "allowHighlighting": false
+          },
+          "edges": {
+            "create": "60c452a3-a56c-4515-9168-3e2fd951f0bd",
+            "display": ["60c452a3-a56c-4515-9168-3e2fd951f0bd"]
+          },
+          "text": "Connect any two people you know who are very close or spent time together in the past 6 months. You can connect two people by clicking on them one after the other.\n",
+          "layout": {
+            "layoutVariable": "366ded30-2372-423c-bccb-0caf5c3573ee"
+          }
+        },
+        {
+          "id": "fe362515-c7a0-400e-aad3-2bc311eadf6d",
+          "highlight": {
+            "allowHighlighting": true,
+            "variable": "45032017-155e-4499-9e7f-2abbfc6cc441"
+          },
+          "edges": {
+            "display": ["60c452a3-a56c-4515-9168-3e2fd951f0bd"]
+          },
+          "text": "Tap on all of the people you have used drugs with in the past 6 months. Anyone you mentioned previously will appear highlighted and does not need to be tapped again.\n",
+          "layout": {
+            "layoutVariable": "366ded30-2372-423c-bccb-0caf5c3573ee"
+          }
+        }
+      ],
+      "id": "cef257c0-f5c2-11e9-8d3c-ff9674ac989f",
+      "behaviours": {
+        "automaticLayout": {
+          "enabled": true
+        }
+      },
+      "skipLogic": {
+        "action": "SKIP",
+        "filter": {
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "d585835a-8799-4216-a5ca-c952dd931962"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Sex sociogram",
+      "type": "Sociogram",
+      "subject": {
+        "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+        "entity": "node"
+      },
+      "filter": {
+        "rules": [
+          {
+            "type": "node",
+            "options": {
+              "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+              "operator": "EXACTLY",
+              "attribute": "1bf37368-5188-49c6-b35f-f0a49706fcb0",
+              "value": true
+            },
+            "id": "6cc920b3-9436-4829-8274-d736d0e64bc6"
+          }
+        ]
+      },
+      "background": {
+        "concentricCircles": 4,
+        "skewedTowardCenter": true
+      },
+      "prompts": [
+        {
+          "id": "e2239713-6e00-4a90-b497-22fb5c809a8c",
+          "highlight": {
+            "allowHighlighting": false
+          },
+          "edges": {
+            "create": "75730298-20e7-4d2a-b898-5708201bf925",
+            "display": ["75730298-20e7-4d2a-b898-5708201bf925"]
+          },
+          "text": "Please connect any two sex partners who have had sex with each other in the past 6 months. You can connect two people by clicking on them one after the other.\n",
+          "layout": {
+            "layoutVariable": "366ded30-2372-423c-bccb-0caf5c3573ee"
+          }
+        },
+        {
+          "id": "023be856-37c2-4dd8-abd6-d5c5188f7334",
+          "edges": {
+            "display": ["75730298-20e7-4d2a-b898-5708201bf925"]
+          },
+          "text": "Please tap on anyone you are currently in a serious relationship with\n",
+          "highlight": {
+            "allowHighlighting": true,
+            "variable": "1d451133-7e81-4e9d-914c-f24d1e59ff6b"
+          },
+          "layout": {
+            "layoutVariable": "366ded30-2372-423c-bccb-0caf5c3573ee"
+          }
+        }
+      ],
+      "id": "e01c8840-f5db-11e9-8d3c-ff9674ac989f",
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "node",
+              "options": {
+                "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+                "operator": "EXACTLY",
+                "attribute": "1bf37368-5188-49c6-b35f-f0a49706fcb0",
+                "value": true
+              },
+              "id": "c8a15daf-9866-4892-a3b4-3ef3ddfb49d8"
+            },
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "804dc1b2-534e-4e83-9fe1-72e85cdeff09"
+            }
+          ]
+        }
+      },
+      "behaviours": {
+        "automaticLayout": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "label": "Ordinal Bins",
+      "type": "OrdinalBin",
+      "subject": {
+        "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+        "entity": "node"
+      },
+      "prompts": [
+        {
+          "variable": "759ec546-1053-4008-934c-8e6fe168c517",
+          "color": "ord-color-seq-1",
+          "id": "5c3409fe-49bd-4045-86ca-aff13eb679e6",
+          "text": "Rate the strength of your relationship with each person\n"
+        }
+      ],
+      "id": "48908750-f5c3-11e9-8d3c-ff9674ac989f",
+      "skipLogic": {
+        "action": "SKIP",
+        "filter": {
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "d13fbb29-fb97-46bd-a97e-823c2e21ff43"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Categorical Bins",
+      "type": "CategoricalBin",
+      "subject": {
+        "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+        "entity": "node"
+      },
+      "prompts": [
+        {
+          "variable": "70baa9c1-448f-44ee-a036-d7642cdb9254",
+          "id": "d9ae9f32-1fa1-4db9-b634-8fbff41a29dd",
+          "text": "Please specify how each of these people currently identifies their gender\n",
+          "otherVariable": "5dcf395e-cfe1-4ff4-9350-f8f69ed52a2d",
+          "otherOptionLabel": "Other\n",
+          "otherVariablePrompt": "What is this person&#39;s gender?\n"
+        },
+        {
+          "variable": "da77cf34-f6c3-477e-9f85-7ab28d72cc53",
+          "id": "fb559051-f573-4022-ab57-eff78695d104",
+          "text": "Please specify if each of these people identifies as Hispanic or Latino\n"
+        },
+        {
+          "variable": "fdbb2d57-c117-44f3-b99d-8156b1de42ae",
+          "id": "efdc8829-1b6f-48bc-82f2-dbf44a6f6ef8",
+          "text": "Please specify how each of these people describes their race or ethnic background\n",
+          "otherOptionLabel": "Other\n",
+          "otherVariablePrompt": "How does this person describe their race or ethnic background?\n",
+          "otherVariable": "5c9964a9-4e15-44ed-acb0-46af95ade20f"
+        },
+        {
+          "variable": "a677cc97-ecda-4f01-9143-4111a2b9c2e0",
+          "id": "7d9eaa7d-d677-41a6-9878-fd5d3b0dee47",
+          "text": "Please specify how each of these people describes their sexual identity\n",
+          "otherVariable": "50075b4b-d511-4549-9882-eec954509924",
+          "otherOptionLabel": "Other\n",
+          "otherVariablePrompt": "How does this person describe their sexual identity?\n"
+        }
+      ],
+      "id": "9efa6210-f5d1-11e9-8d3c-ff9674ac989f",
+      "skipLogic": {
+        "action": "SKIP",
+        "filter": {
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "563a925f-6cd0-4a3f-a0d3-ce202ce516bb"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Lives in City",
+      "type": "CategoricalBin",
+      "subject": {
+        "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+        "entity": "node"
+      },
+      "prompts": [
+        {
+          "variable": "e2684ae9-fb88-4f9d-90a7-861911f0f22f",
+          "id": "e2b1fc6c-6f5a-4794-a988-0c39c17bc98b",
+          "text": "Does this person live in Chicago?\n"
+        }
+      ],
+      "id": "1416b150-fb7d-11ef-8f57-e7bc788f1758",
+      "skipLogic": {
+        "action": "SKIP",
+        "filter": {
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "a797fe61-78b5-41f4-8f07-8cd49b7c9fc0"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Alter Census Tract - Introduction",
+      "type": "Information",
+      "title": "Map Selection",
+      "items": [
+        {
+          "size": "SMALL",
+          "id": "18e76235-ea8c-4782-9066-8b4f51c51c68",
+          "type": "text",
+          "content": "On the next screen, you will see a map of Chicago with outlined areas. You will be prompted to select the area where each person lives.\n\n**Note:** this is not meant to pinpoint an exact address, just a general area.\n\nIf the person lives outside of Chicago, you may select the &quot;Outside Map Area&quot; button. **If you do not know where the person lives or wish to skip the response for the person, you may click the down navigation arrow to proceed to the next person.**\n\nThe video below offers a preview of how the map screen will work. Please continue to the next screen once you feel comfortable with how to place people on the map.\n"
+        },
+        {
+          "size": "SMALL",
+          "id": "eeb03f45-edf8-477d-9849-c60d91c1de31",
+          "type": "asset",
+          "content": "27660f5f-4f7f-4d4a-aac1-de93800eb96d"
+        }
+      ],
+      "id": "2f6f9770-0859-11f1-96a8-9937b75bccaa",
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "rules": [
+            {
+              "type": "node",
+              "options": {
+                "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+                "operator": "EXISTS",
+                "value": ""
+              },
+              "id": "b283ba8b-08ef-46b2-b708-55c49abf7667"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Alter Census Tract",
+      "type": "Geospatial",
+      "subject": {
+        "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+        "entity": "node"
+      },
+      "filter": {
+        "rules": [
+          {
+            "type": "node",
+            "options": {
+              "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+              "operator": "INCLUDES",
+              "attribute": "e2684ae9-fb88-4f9d-90a7-861911f0f22f",
+              "value": "y"
+            },
+            "id": "a555a847-d47a-42a7-96c3-112ba10e01b1"
+          }
+        ]
+      },
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "node",
+              "options": {
+                "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+                "operator": "INCLUDES",
+                "attribute": "e2684ae9-fb88-4f9d-90a7-861911f0f22f",
+                "value": "y"
+              },
+              "id": "8c07c68c-225c-4986-9f85-7fd3f7d98de9"
+            },
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "0882f6c9-a893-4d68-b63d-91a8f51df4e6"
+            }
+          ]
+        }
+      },
+      "mapOptions": {
+        "tokenAssetId": "54080d34-0717-4691-81a2-bec9171cce74",
+        "dataSourceAssetId": "9fd0326a-4efa-43e9-95b2-4efb2986876f",
+        "targetFeatureProperty": "census_tra",
+        "color": "ord-color-seq-4",
+        "style": "mapbox://styles/mapbox/standard",
+        "center": [-87.66368873881865, 41.87193984474061],
+        "initialZoom": 11.502364748271573,
+        "showTransit": true,
+        "allowSearch": true
+      },
+      "prompts": [
+        {
+          "id": "358f9c64-6464-4f1e-b376-742dca82104e",
+          "text": "Please select the general area where this person lives.\n",
+          "variable": "685543d4-04fb-46fd-b92a-312c075210a4"
+        }
+      ],
+      "id": "8630acd0-fb7f-11ef-acb2-9567ed329ab7"
+    },
+    {
+      "label": "Sex Partners and Activity - Introduction",
+      "type": "Information",
+      "title": "Your Sexual Partners and Activity",
+      "items": [
+        {
+          "size": "SMALL",
+          "id": "2f123080-2f11-41b0-9bc0-874b2c5089a2",
+          "type": "text",
+          "content": "For the next section of this survey, we would like to know more about your sexual partnerships and activity over the past 6 months.\n\nPlease continue to the next screen when you are ready to proceed.\n"
+        }
+      ],
+      "id": "ebc1e7a0-078e-11f1-9ca7-eb8a294ee9c5"
+    },
+    {
+      "label": "Ego PrEP",
+      "type": "EgoForm",
+      "introductionPanel": {
+        "title": "PrEP Use",
+        "text": "We would like to ask you one question about your relationship to pre\\-exposure prophylaxis (PrEP) medication\n"
+      },
+      "form": {
+        "fields": [
+          {
+            "variable": "3736e8f1-af8c-4594-a1a1-d9a413e7a137",
+            "prompt": "During the past 6 months, have you ever taken any pre\\-exposure prophylaxis (PrEP) medication such as Truvada or Descovy to reduce your risk of HIV transmission?\n"
+          }
+        ]
+      },
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "fe681ff5-adaf-40b8-8376-20b5f53c93c7",
+                "value": "HIV_Positive"
+              },
+              "id": "90e281a6-eda4-4d15-8bde-86c429d0c247"
+            },
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "ebaf9390-8479-4225-9e28-a648ea7c499a"
+            }
+          ]
+        }
+      },
+      "id": "a889fa80-06b8-11f1-9708-57599218e76c"
+    },
+    {
+      "label": "Ego ART",
+      "type": "EgoForm",
+      "introductionPanel": {
+        "title": "ART Use",
+        "text": "We would like to ask you one question about your relationship to anti\\-retroviral therapy (ART) medication\n"
+      },
+      "form": {
+        "fields": [
+          {
+            "variable": "d1fd1340-481f-4750-aa41-1508d607ab52",
+            "prompt": "During the past 6 months, have you ever taken anti\\-retroviral therapy (ART) medications to treat your HIV infection?\n"
+          }
+        ]
+      },
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "fe681ff5-adaf-40b8-8376-20b5f53c93c7",
+                "value": "HIV_Positive"
+              },
+              "id": "62979250-5024-4376-8711-6c3f26a73480"
+            },
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "17c8f075-0703-42ac-a7e2-ed5325a7e17d"
+            }
+          ]
+        }
+      },
+      "id": "354d70a0-06b9-11f1-9708-57599218e76c"
+    },
+    {
+      "label": "Anal Sex Categorical Check",
+      "type": "CategoricalBin",
+      "subject": {
+        "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+        "entity": "node"
+      },
+      "filter": {
+        "rules": [
+          {
+            "type": "node",
+            "options": {
+              "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+              "operator": "EXACTLY",
+              "attribute": "1bf37368-5188-49c6-b35f-f0a49706fcb0",
+              "value": true
+            },
+            "id": "5ac702ba-59c3-4d96-b322-3dc0aef35154"
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "variable": "9170ac88-7651-4a33-bb03-8393bfc3e023",
+          "id": "3d378a0b-31d5-4c2b-9f03-80a85fddaed3",
+          "text": "Please indicate if you have had anal sex with each sexual partner in the last 6 months\n"
+        }
+      ],
+      "id": "3add10c0-f5db-11e9-8d3c-ff9674ac989f",
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "node",
+              "options": {
+                "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+                "operator": "EXACTLY",
+                "attribute": "1bf37368-5188-49c6-b35f-f0a49706fcb0",
+                "value": true
+              },
+              "id": "508b8f9e-c2c1-4fdd-a65e-a9f0d3eec678"
+            },
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "6782c204-8322-46e3-89d8-567adecd7bf4"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Anal Sex Counts (Total and Condomless)",
+      "type": "AlterForm",
+      "subject": {
+        "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+        "entity": "node"
+      },
+      "filter": {
+        "rules": [
+          {
+            "type": "node",
+            "options": {
+              "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+              "operator": "INCLUDES",
+              "attribute": "9170ac88-7651-4a33-bb03-8393bfc3e023",
+              "value": "Anal_sex"
+            },
+            "id": "8e3a5d23-b02f-44dd-ab1b-2e1826a740df"
+          }
+        ]
+      },
+      "introductionPanel": {
+        "title": "Your Sexual Partners",
+        "text": "Please answer the following questions about your sexual partners\n"
+      },
+      "form": {
+        "fields": [
+          {
+            "variable": "a61f8d2d-f3d1-4c4d-9236-34e709effb9f",
+            "prompt": "How many times did you have anal sex with this person **during the past 6 months**?\n"
+          },
+          {
+            "variable": "315d540c-92fe-4acd-81c7-0b6ea2dacc17",
+            "prompt": "How many of these times did you have anal sex with this person during the past 6 months **without using a condom**?\n"
+          }
+        ]
+      },
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "node",
+              "options": {
+                "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+                "operator": "INCLUDES",
+                "attribute": "9170ac88-7651-4a33-bb03-8393bfc3e023",
+                "value": "Anal_sex"
+              },
+              "id": "9dbbfa15-c257-4f43-89ba-c0e961694807"
+            },
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "5e1a1449-9205-48ce-89bb-3b7435bd961b"
+            }
+          ]
+        }
+      },
+      "id": "15e22c60-06b4-11f1-9708-57599218e76c"
+    },
+    {
+      "label": "Sex Partner Form",
+      "type": "AlterForm",
+      "subject": {
+        "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+        "entity": "node"
+      },
+      "filter": {
+        "rules": [
+          {
+            "type": "node",
+            "options": {
+              "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+              "operator": "INCLUDES",
+              "attribute": "9170ac88-7651-4a33-bb03-8393bfc3e023",
+              "value": "Anal_sex"
+            },
+            "id": "01aee30a-2a35-4d0c-853a-6b6898bc5850"
+          }
+        ]
+      },
+      "introductionPanel": {
+        "title": "Please answer the following questions about each of your sexual partners",
+        "text": "<br>\n\n\n---\n\n<br>\n\n"
+      },
+      "form": {
+        "fields": [
+          {
+            "variable": "c2235691-c828-4138-8602-37d3f047af48",
+            "prompt": "Please indicate the first day you had sex with this partner. If you don&#39;t recall the exact date, provide your best estimate. If the first day you had sex with this partner was before 2016, please select the earliest date available to you.\n"
+          },
+          {
+            "variable": "5442154c-b098-4801-ad84-80e7e55d7685",
+            "prompt": "Please indicate the last day you had sex with this partner. If you only had sex with this person once, please enter the same date as above in the field below.\n"
+          },
+          {
+            "variable": "ce4f028f-31ea-46a9-8564-a7c276d8efed",
+            "prompt": "Do you believe you will have sex again with this person in the future?\n"
+          },
+          {
+            "variable": "33e444a9-1605-492d-8c49-216eb08b078a",
+            "prompt": "What was the HIV status of this person the last time you had sex?\n"
+          }
+        ]
+      },
+      "id": "89e5f880-413a-11ea-be58-6b641bf482a4",
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "node",
+              "options": {
+                "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+                "operator": "INCLUDES",
+                "attribute": "9170ac88-7651-4a33-bb03-8393bfc3e023",
+                "value": "Anal_sex"
+              },
+              "id": "175d9a6a-98e7-4c0b-8e6b-8548c318f4da"
+            },
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "9eb88969-e7b7-4945-839a-87e40cb95788"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Alter PrEP",
+      "type": "CategoricalBin",
+      "subject": {
+        "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+        "entity": "node"
+      },
+      "filter": {
+        "join": "AND",
+        "rules": [
+          {
+            "type": "node",
+            "options": {
+              "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+              "operator": "INCLUDES",
+              "attribute": "9170ac88-7651-4a33-bb03-8393bfc3e023",
+              "value": "Anal_sex"
+            },
+            "id": "d1e581d4-ec08-487b-b255-27c2ca05fb1a"
+          },
+          {
+            "type": "node",
+            "options": {
+              "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+              "operator": "EXCLUDES",
+              "attribute": "33e444a9-1605-492d-8c49-216eb08b078a",
+              "value": "HIV_Positive"
+            },
+            "id": "39352868-bf76-4c06-8a2b-270bf5fdf9ac"
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "variable": "7b0b5fa0-11d5-4809-b5c6-b1d20ca62cb5",
+          "id": "92afc32b-f0af-4bd6-aeed-7ebb9f959f91",
+          "text": "During the past 6 months when you were having sex with these people, were each of these people taking any pre\\-exposure prophylaxis (PrEP) medication such as Truvada or Descovy to reduce their risk of HIV transmission?\n"
+        }
+      ],
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "OR",
+          "rules": [
+            {
+              "type": "node",
+              "options": {
+                "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+                "operator": "INCLUDES",
+                "attribute": "33e444a9-1605-492d-8c49-216eb08b078a",
+                "value": "HIV_Negative"
+              },
+              "id": "0341307f-05b3-403b-9084-571f232d3cb2"
+            },
+            {
+              "type": "node",
+              "options": {
+                "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+                "operator": "INCLUDES",
+                "attribute": "33e444a9-1605-492d-8c49-216eb08b078a",
+                "value": "Dont_know"
+              },
+              "id": "8b20f5bf-d17f-46e4-a694-f4c6a5c3e918"
+            }
+          ]
+        }
+      },
+      "id": "1121d340-06b6-11f1-9708-57599218e76c"
+    },
+    {
+      "label": "Alter ART",
+      "type": "CategoricalBin",
+      "subject": {
+        "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+        "entity": "node"
+      },
+      "filter": {
+        "join": "AND",
+        "rules": [
+          {
+            "type": "node",
+            "options": {
+              "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+              "operator": "INCLUDES",
+              "attribute": "9170ac88-7651-4a33-bb03-8393bfc3e023",
+              "value": "Anal_sex"
+            },
+            "id": "f127b837-cafa-449e-97d6-f3694c34d41b"
+          },
+          {
+            "type": "node",
+            "options": {
+              "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+              "operator": "INCLUDES",
+              "attribute": "33e444a9-1605-492d-8c49-216eb08b078a",
+              "value": "HIV_Positive"
+            },
+            "id": "367c94f1-c7f6-4825-aeb9-168020966f1a"
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "variable": "7142a57b-60ad-4c9d-b7cd-0ea381645501",
+          "id": "c9a17afe-4721-4307-abfc-1d4dd8f1d520",
+          "text": "During the past 6 months when you were having sex with these people, were each of these people taking anti\\-retroviral therapy medications (ART) to treat their HIV infection?\n"
+        }
+      ],
+      "id": "89dc0b70-06b6-11f1-9708-57599218e76c",
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "node",
+              "options": {
+                "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+                "operator": "INCLUDES",
+                "attribute": "33e444a9-1605-492d-8c49-216eb08b078a",
+                "value": "HIV_Positive"
+              },
+              "id": "daac0f69-4ccd-4c47-8b9f-e3762fe0fbb4"
+            },
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "81980a82-6bb8-4de9-bdbb-5ac8fc3eb116"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Alter Substances",
+      "type": "AlterForm",
+      "subject": {
+        "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+        "entity": "node"
+      },
+      "form": {
+        "fields": [
+          {
+            "variable": "d76f1663-f491-4aa2-90ee-806e186652b0",
+            "prompt": "To the best of your knowledge, which of the following substances has this person used in the past 6 months? (Check all that apply)\n"
+          }
+        ]
+      },
+      "introductionPanel": {
+        "title": "Please answer the following questions about each of these people",
+        "text": "<br>\n\n\n---\n\n<br>\n\n"
+      },
+      "id": "ac80fad0-17b8-11ef-8e32-1dcc3d860d43",
+      "filter": {
+        "rules": [
+          {
+            "type": "node",
+            "options": {
+              "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+              "operator": "INCLUDES",
+              "attribute": "9170ac88-7651-4a33-bb03-8393bfc3e023",
+              "value": "Anal_sex"
+            },
+            "id": "a9ed3530-cfe2-40cb-92eb-c1a832212fd1"
+          }
+        ]
+      },
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "89d245b3-0bb5-40f0-b625-4312a8e223f4"
+            },
+            {
+              "type": "node",
+              "options": {
+                "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+                "operator": "INCLUDES",
+                "attribute": "9170ac88-7651-4a33-bb03-8393bfc3e023",
+                "value": "Anal_sex"
+              },
+              "id": "11dae5c9-5ef9-45dd-a886-62c52047925b"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Sex Partner Place Met",
+      "type": "CategoricalBin",
+      "subject": {
+        "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+        "entity": "node"
+      },
+      "filter": {
+        "rules": [
+          {
+            "type": "node",
+            "options": {
+              "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+              "operator": "INCLUDES",
+              "attribute": "9170ac88-7651-4a33-bb03-8393bfc3e023",
+              "value": "Anal_sex"
+            },
+            "id": "caf15be0-662d-4023-9f68-3e8e941ca0f0"
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "variable": "c4a28d6c-3b6f-4cc7-a15b-0cff8cfd66d9",
+          "id": "22969179-e71a-490a-b07d-cb4416e31994",
+          "text": "Where did you meet each of these sexual partners?\n",
+          "otherVariable": "6d450ba7-b99b-4669-8cca-8d10884f0f05",
+          "otherOptionLabel": "Somewhere else\n",
+          "otherVariablePrompt": "Where did you meet this partner?\n"
+        }
+      ],
+      "id": "d4a18880-5fda-11ef-8dba-e5c83581a4af",
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "node",
+              "options": {
+                "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+                "operator": "INCLUDES",
+                "attribute": "9170ac88-7651-4a33-bb03-8393bfc3e023",
+                "value": "Anal_sex"
+              },
+              "id": "b7c99e29-df88-4675-bc87-8ec4487de385"
+            },
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "5462af66-1dcc-4c20-852e-efb3935276ec"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Name Place Met",
+      "type": "AlterForm",
+      "subject": {
+        "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+        "entity": "node"
+      },
+      "filter": {
+        "rules": [
+          {
+            "type": "node",
+            "options": {
+              "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+              "operator": "INCLUDES",
+              "attribute": "c4a28d6c-3b6f-4cc7-a15b-0cff8cfd66d9",
+              "value": "Physical_Place_or_Venue"
+            },
+            "id": "40900589-5279-4d60-8139-a365b9184d48"
+          }
+        ]
+      },
+      "introductionPanel": {
+        "title": "Places Where You Met Partners",
+        "text": "We would now like you to name the places where you met some of your sexual partners\n"
+      },
+      "form": {
+        "fields": [
+          {
+            "variable": "052fbe4e-a85e-4dc8-b632-43d3f9462ec2",
+            "prompt": "You indicated that you met this partner at a physical place or venue. What is the name of that place or venue?\n"
+          }
+        ]
+      },
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "node",
+              "options": {
+                "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+                "operator": "INCLUDES",
+                "attribute": "c4a28d6c-3b6f-4cc7-a15b-0cff8cfd66d9",
+                "value": "Physical_Place_or_Venue"
+              },
+              "id": "010fe253-f424-42d5-b032-01e94cd41ea3"
+            },
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "e899ef75-5028-4058-a786-ba4f8f638164"
+            }
+          ]
+        }
+      },
+      "id": "9ce909a0-0767-11f1-a55e-5f648853fbcf"
+    },
+    {
+      "label": "Name App Met",
+      "type": "AlterForm",
+      "subject": {
+        "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+        "entity": "node"
+      },
+      "filter": {
+        "rules": [
+          {
+            "type": "node",
+            "options": {
+              "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+              "operator": "INCLUDES",
+              "attribute": "c4a28d6c-3b6f-4cc7-a15b-0cff8cfd66d9",
+              "value": "Online_Mobile_App"
+            },
+            "id": "abd3f620-708e-42e0-8bed-ca232f284023"
+          }
+        ]
+      },
+      "introductionPanel": {
+        "title": "Websites/Apps Where You Met Partners",
+        "text": "We would now like you to name the websites or mobile apps where you met some of your sexual partners\n"
+      },
+      "form": {
+        "fields": [
+          {
+            "variable": "b5cd7347-5dce-4a67-8f2b-11dd2b6ead0b",
+            "prompt": "You indicated that you met this partner online or on a mobile app. What is the name of that site or mobile app?\n"
+          }
+        ]
+      },
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "node",
+              "options": {
+                "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+                "operator": "INCLUDES",
+                "attribute": "c4a28d6c-3b6f-4cc7-a15b-0cff8cfd66d9",
+                "value": "Online_Mobile_App"
+              },
+              "id": "d5bbac97-26ee-48cb-9473-e650ab6ce88e"
+            },
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "3af286b7-db87-4abb-8a30-9f3452b3ba6a"
+            }
+          ]
+        }
+      },
+      "id": "1e787500-0768-11f1-a55e-5f648853fbcf"
+    },
+    {
+      "label": "Poppers",
+      "type": "CategoricalBin",
+      "subject": {
+        "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+        "entity": "node"
+      },
+      "prompts": [
+        {
+          "variable": "1937f80c-1a03-44e9-80bd-e5a9b33eb14d",
+          "id": "a1f49b07-96e6-47bb-9190-40f13e3c5191",
+          "text": "Earlier you indicated that you had used **poppers** in the past 6 months. Looking back, have you ever used **poppers immediately before or during sex** with each of these partners?\n"
+        }
+      ],
+      "filter": {
+        "rules": [
+          {
+            "type": "node",
+            "options": {
+              "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+              "operator": "INCLUDES",
+              "attribute": "9170ac88-7651-4a33-bb03-8393bfc3e023",
+              "value": "Anal_sex"
+            },
+            "id": "f64950ab-8b80-4127-b0b0-44ad65c32f84"
+          }
+        ]
+      },
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "220b8a1a-2001-4e22-a240-195bca3f63dd",
+                "value": true
+              },
+              "id": "65e1b8dd-2af3-4479-9ca3-793096d690bd"
+            },
+            {
+              "type": "node",
+              "options": {
+                "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+                "operator": "INCLUDES",
+                "attribute": "9170ac88-7651-4a33-bb03-8393bfc3e023",
+                "value": "Anal_sex"
+              },
+              "id": "9bee26ae-f171-48e5-a618-6635df136683"
+            },
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "d53a5211-eb06-40f0-89d8-9457771749cc"
+            }
+          ]
+        }
+      },
+      "id": "6281c2e0-6194-11ef-8dba-e5c83581a4af"
+    },
+    {
+      "label": "Methamphetamine",
+      "type": "CategoricalBin",
+      "subject": {
+        "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+        "entity": "node"
+      },
+      "filter": {
+        "rules": [
+          {
+            "type": "node",
+            "options": {
+              "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+              "operator": "INCLUDES",
+              "attribute": "9170ac88-7651-4a33-bb03-8393bfc3e023",
+              "value": "Anal_sex"
+            },
+            "id": "b6f8836b-195c-4bf5-9f93-7cb7945d89bb"
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "variable": "93359b0e-133a-408a-9327-4c1472883cd9",
+          "id": "c5c5567f-ac5a-4b27-8d32-0068bb32eed2",
+          "text": "Earlier you indicated that you had used **methamphetamine** in the past 6 months. Looking back, have you ever used **methamphetamine immediately before or during sex** with each of these partners?\n"
+        }
+      ],
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "6655b2bb-59bb-4584-b1bb-19de37fdf0f3",
+                "value": true
+              },
+              "id": "3aff1f55-056a-44f2-ba41-5cae2dee55cb"
+            },
+            {
+              "type": "node",
+              "options": {
+                "type": "5f90648c-c728-4a92-acb2-fd066b6705cb",
+                "operator": "INCLUDES",
+                "attribute": "9170ac88-7651-4a33-bb03-8393bfc3e023",
+                "value": "Anal_sex"
+              },
+              "id": "b54a0254-7192-436a-a410-ee0d71a080e5"
+            },
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "82713345-dce9-4a3c-a4d1-a5b4c025a928"
+            }
+          ]
+        }
+      },
+      "id": "9e98e8d0-6194-11ef-8dba-e5c83581a4af"
+    },
+    {
+      "label": "Venue Nomination Instructions",
+      "type": "Information",
+      "title": "Places You Go",
+      "items": [
+        {
+          "size": "SMALL",
+          "id": "bac7ea19-8295-4a7e-b1f7-19671bcbcb8f",
+          "type": "text",
+          "content": "Now we are interested in learning about the kinds of places you go to hang out and meet new people. On the next two screens, you can add these places by clicking the **&#39;Add a Place&#39;** button on the bottom right hand side. Type the full name of the place you want to add in the text box, then press Enter.\n\nAfter the first screen, you can choose places you previously added by clicking on them in the left side panel and dragging them into the main panel. Once you are finished with each screen, you can click on the button at the bottom left of the screen to continue.\n\nThe video below offers a preview of how the next screen will work. Please continue to the next screen once you feel comfortable with how to add places.\n"
+        },
+        {
+          "size": "SMALL",
+          "id": "ce0607a3-eed3-46dc-a325-97af0e7a3ee1",
+          "type": "asset",
+          "content": "49317893-d679-4560-bd3b-9288505a46b9"
+        }
+      ],
+      "id": "ecea0030-02e9-11f1-a97e-05836b4240a0",
+      "skipLogic": {
+        "action": "SKIP",
+        "filter": {
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "b2b08d28-dd08-4436-af98-08a19eefae9e"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Venue Nomination - Socialize",
+      "type": "NameGeneratorQuickAdd",
+      "prompts": [
+        {
+          "id": "691757e6-d648-4aec-9002-a373b8882f35",
+          "text": "In the last 6 months, what places in Chicago did you go to in order to socialize or hang out with friends?\n",
+          "additionalAttributes": [
+            {
+              "variable": "3debd78c-3628-414c-a54f-c01ecab6f06f",
+              "value": true
+            }
+          ]
+        }
+      ],
+      "subject": {
+        "type": "18ddf7b2-3c18-4ba1-be01-16232962975e",
+        "entity": "node"
+      },
+      "quickAdd": "7b8a65eb-7b32-4d22-837e-f31125802d4c",
+      "id": "9418d2e0-efd6-11f0-800e-29d6b91b4041",
+      "skipLogic": {
+        "action": "SKIP",
+        "filter": {
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "86457ac2-0a42-425e-8b5f-19ad6d7f599b"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Venue Nomination - Meet People",
+      "type": "NameGeneratorQuickAdd",
+      "subject": {
+        "type": "18ddf7b2-3c18-4ba1-be01-16232962975e",
+        "entity": "node"
+      },
+      "quickAdd": "7b8a65eb-7b32-4d22-837e-f31125802d4c",
+      "prompts": [
+        {
+          "id": "16f8a0e1-3a30-4b34-8251-091122f019d3",
+          "text": "Are there any places in Chicago that you haven&#39;t already listed that you went to in the last 6 months with the intention of meeting new people?\n",
+          "additionalAttributes": [
+            {
+              "variable": "9eef3d2d-95ba-44fc-bd47-1c103fe896bb",
+              "value": true
+            }
+          ]
+        }
+      ],
+      "panels": [
+        {
+          "id": "ea833d10-8510-435d-a169-46f04caac554",
+          "title": "Places you already named",
+          "dataSource": "existing"
+        }
+      ],
+      "id": "5f3bbbd0-efd8-11f0-800e-29d6b91b4041",
+      "skipLogic": {
+        "action": "SKIP",
+        "filter": {
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "909b80ae-6166-45d2-a180-f76f8365b653"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Venue Frequency",
+      "type": "OrdinalBin",
+      "subject": {
+        "type": "18ddf7b2-3c18-4ba1-be01-16232962975e",
+        "entity": "node"
+      },
+      "prompts": [
+        {
+          "variable": "9ded73ee-2c0a-426c-b637-7f63ad809a50",
+          "color": "ord-color-seq-1",
+          "id": "d124ebc7-6d1e-4f27-91f2-dbeb3ede4a58",
+          "text": "How often have you gone to each of these places in the last 6 months?\n"
+        }
+      ],
+      "id": "25751f20-efe4-11f0-9d36-9beb2d0722bb",
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "121e7d0a-f2d8-4c25-9c34-ae1f662a4947"
+            },
+            {
+              "type": "node",
+              "options": {
+                "type": "18ddf7b2-3c18-4ba1-be01-16232962975e",
+                "operator": "EXISTS",
+                "value": ""
+              },
+              "id": "e0ede60e-6995-4cfb-bd50-f377b1fbf631"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Venue Type",
+      "type": "CategoricalBin",
+      "subject": {
+        "type": "18ddf7b2-3c18-4ba1-be01-16232962975e",
+        "entity": "node"
+      },
+      "prompts": [
+        {
+          "variable": "ce42c35c-8f47-4dc3-a5c2-febca6d92c1d",
+          "id": "9deec6dd-c6f5-4a3a-81bc-477b5236d4e8",
+          "text": "What kind of place is this?\n",
+          "otherVariable": "4e04127d-d69c-4987-9d51-51e944de4eb7",
+          "otherOptionLabel": "Something Else\n",
+          "otherVariablePrompt": "Please enter what kind of place this is\n"
+        }
+      ],
+      "id": "b0c974e0-efe4-11f0-9d36-9beb2d0722bb",
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "97699232-afa9-47b7-a831-29a86e5ff507"
+            },
+            {
+              "type": "node",
+              "options": {
+                "type": "18ddf7b2-3c18-4ba1-be01-16232962975e",
+                "operator": "EXISTS",
+                "value": ""
+              },
+              "id": "389fbaca-bb19-4da1-b462-9c451cff2818"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Venue Census Tract - Introduction",
+      "type": "Information",
+      "title": "Map Selection",
+      "items": [
+        {
+          "size": "SMALL",
+          "id": "a5aa7abe-4efe-4ef7-bdb4-ba65d54d867d",
+          "type": "text",
+          "content": "On the next screen, you will see a map of Chicago with outlined areas. You will be prompted to select the area where each place you named is located.\n\n**Note:** this is not meant to pinpoint an exact address, just a general area.\n\nIf the place you named is outside of Chicago, you may select the &quot;Outside Map Area&quot; button. **If you do not know where a place is or wish to skip the response for a given place, you may click the down navigation arrow to proceed to the next place.**\n\nThe video below offers a preview of how the map screen will work. Please continue to the next screen once you feel comfortable with adding places on the map.\n"
+        },
+        {
+          "size": "SMALL",
+          "id": "a5cfebb7-36ea-45e0-bf24-b15e76f73c84",
+          "type": "asset",
+          "content": "27660f5f-4f7f-4d4a-aac1-de93800eb96d"
+        }
+      ],
+      "id": "d98946c0-0859-11f1-96a8-9937b75bccaa",
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "rules": [
+            {
+              "type": "node",
+              "options": {
+                "type": "18ddf7b2-3c18-4ba1-be01-16232962975e",
+                "operator": "EXISTS",
+                "value": ""
+              },
+              "id": "6a4c613c-d782-4499-8827-90701c28372a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Venue Census Tract",
+      "type": "Geospatial",
+      "subject": {
+        "type": "18ddf7b2-3c18-4ba1-be01-16232962975e",
+        "entity": "node"
+      },
+      "mapOptions": {
+        "tokenAssetId": "54080d34-0717-4691-81a2-bec9171cce74",
+        "dataSourceAssetId": "9fd0326a-4efa-43e9-95b2-4efb2986876f",
+        "targetFeatureProperty": "census_tra",
+        "color": "ord-color-seq-4",
+        "center": [-87.6487425581735, 41.87558099335064],
+        "initialZoom": 11.678519520178344,
+        "style": "mapbox://styles/mapbox/standard",
+        "showTransit": true,
+        "allowSearch": true
+      },
+      "prompts": [
+        {
+          "id": "766200b3-3eb3-4332-807a-1c14996c71a9",
+          "text": "Please select the general area where this place is located.\n",
+          "variable": "02cb207c-95e5-496f-ad9b-0fb01c2a12dc"
+        }
+      ],
+      "id": "95d3fd90-02f4-11f1-a97e-05836b4240a0",
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "node",
+              "options": {
+                "type": "18ddf7b2-3c18-4ba1-be01-16232962975e",
+                "operator": "EXISTS",
+                "value": ""
+              },
+              "id": "4e9cd7fc-07b3-46a9-9afa-3d164bf5a4d9"
+            },
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "fce6fe50-b16b-4aa5-a57c-3220264ba53f"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Venue Attributes",
+      "type": "Sociogram",
+      "background": {
+        "skewedTowardCenter": false,
+        "concentricCircles": 3
+      },
+      "subject": {
+        "type": "18ddf7b2-3c18-4ba1-be01-16232962975e",
+        "entity": "node"
+      },
+      "prompts": [
+        {
+          "id": "9e98d4db-8374-4532-8b04-340448dcb5ca",
+          "layout": {
+            "layoutVariable": "991ead46-353b-4c93-854d-42aa5b7435c1"
+          },
+          "text": "Tap the places where most people who go there are lesbian, gay, bisexual, transgender, and/or queer.\n",
+          "highlight": {
+            "allowHighlighting": true,
+            "variable": "58fdec75-d5db-4323-8dea-18990be40bad"
+          }
+        }
+      ],
+      "id": "a4d16160-efe5-11f0-9d36-9beb2d0722bb",
+      "behaviours": {
+        "automaticLayout": {
+          "enabled": true
+        }
+      },
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "027a3e03-ad10-410d-935d-0b7379816f7c"
+            },
+            {
+              "type": "node",
+              "options": {
+                "type": "18ddf7b2-3c18-4ba1-be01-16232962975e",
+                "operator": "EXISTS",
+                "value": ""
+              },
+              "id": "7bfc4b4d-4e11-447a-bab4-310171b781f1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Venue - Heavy Drinking",
+      "type": "OrdinalBin",
+      "subject": {
+        "type": "18ddf7b2-3c18-4ba1-be01-16232962975e",
+        "entity": "node"
+      },
+      "prompts": [
+        {
+          "variable": "e8b01a10-bcdd-4df2-8fa6-8dd01d9a97cc",
+          "color": "ord-color-seq-1",
+          "id": "42923af2-cac3-48dd-abc2-d605a92e1b74",
+          "text": "How common would you say heavy drinking is at this place?\n"
+        }
+      ],
+      "id": "294946b0-efe6-11f0-9d36-9beb2d0722bb",
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "82989c9e-1413-475a-ae8a-ecab7b8b9ca7"
+            },
+            {
+              "type": "node",
+              "options": {
+                "type": "18ddf7b2-3c18-4ba1-be01-16232962975e",
+                "operator": "EXISTS",
+                "value": ""
+              },
+              "id": "3336571a-af70-451e-87f3-0c5be9640ce7"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Venue - Substance Use",
+      "type": "OrdinalBin",
+      "subject": {
+        "type": "18ddf7b2-3c18-4ba1-be01-16232962975e",
+        "entity": "node"
+      },
+      "prompts": [
+        {
+          "variable": "c9a0b852-673a-41d9-8c6d-c2d253082768",
+          "color": "ord-color-seq-1",
+          "id": "a8eaa614-a966-4b3e-aed7-a61e4e64a607",
+          "text": "How common would you say drug use (other than marijuana) is at this place?\n"
+        }
+      ],
+      "id": "7dcc4160-efe6-11f0-9d36-9beb2d0722bb",
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "89c51ab8-39e5-43b3-80bc-41e5a99675f5"
+            },
+            {
+              "type": "node",
+              "options": {
+                "type": "18ddf7b2-3c18-4ba1-be01-16232962975e",
+                "operator": "EXISTS",
+                "value": ""
+              },
+              "id": "e7a1ef1c-df4c-433d-9fbf-7ff4da7e27a6"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Venue - Meet for Sex",
+      "type": "OrdinalBin",
+      "subject": {
+        "type": "18ddf7b2-3c18-4ba1-be01-16232962975e",
+        "entity": "node"
+      },
+      "prompts": [
+        {
+          "variable": "ebb41b9c-ff43-4875-a05d-019bb45a5072",
+          "color": "ord-color-seq-1",
+          "id": "5d2dca9e-6b41-4483-bbea-fa863b339173",
+          "text": "How common would you say it is for people to go to this place intending to meet someone to have sex with?\n"
+        }
+      ],
+      "id": "f20adc80-efe6-11f0-9d36-9beb2d0722bb",
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "de60cd9c-048c-4730-a048-77ab676c2789"
+            },
+            {
+              "type": "node",
+              "options": {
+                "type": "18ddf7b2-3c18-4ba1-be01-16232962975e",
+                "operator": "EXISTS",
+                "value": ""
+              },
+              "id": "38d30621-fb41-4d31-8dc9-af723b039437"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "App Instructions",
+      "type": "Information",
+      "title": "Apps and Websites You Use",
+      "items": [
+        {
+          "size": "SMALL",
+          "id": "96c63189-f89c-4592-8a99-b1b665d51163",
+          "type": "text",
+          "content": "Now we are interested in learning about any websites or mobile apps you might use to meet people for sex, dating, and/or relationships. On the next screen,  you can add any app or website you use by clicking the **&#39;Add a Website/App&#39;** button on the bottom right corner of the screen. Type the full name of the website/app you want to add in the text box, then press Enter.\n\nThe video below offers a preview of how the next screen will work. Please continue to the next screen once you feel comfortable with how to add websites/apps.\n"
+        },
+        {
+          "size": "SMALL",
+          "id": "d1e2357d-ade4-4d93-b7fe-b41a98312bf4",
+          "type": "asset",
+          "content": "c86e448e-d72a-4828-8358-a7c89e2998a4"
+        }
+      ],
+      "id": "0b818110-02ec-11f1-a97e-05836b4240a0",
+      "skipLogic": {
+        "action": "SKIP",
+        "filter": {
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "3ff86ffa-5193-42ac-a3c3-34a855d3589c"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "App Nomination",
+      "type": "NameGeneratorQuickAdd",
+      "subject": {
+        "type": "1205e173-8d5a-4240-8303-b197d20e0482",
+        "entity": "node"
+      },
+      "quickAdd": "a9d4c3be-9a1c-45f1-a155-972f07db60f4",
+      "prompts": [
+        {
+          "id": "2b4a159a-6ef3-47c6-8fc2-58e3763379fe",
+          "text": "In the last 6 months, what websites or mobile apps did you use to meet people for sex, dating, and/or relationships?\n"
+        }
+      ],
+      "id": "81122820-efe7-11f0-9d36-9beb2d0722bb",
+      "skipLogic": {
+        "action": "SKIP",
+        "filter": {
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "b2880d41-e6cb-4de4-9237-b03e95e9f07a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Healthcare Access",
+      "type": "EgoForm",
+      "introductionPanel": {
+        "title": "Healthcare Access",
+        "text": "In the next series of questions, we will ask you about the places you go for to seek sexual health services such as HIV or STI testing, prevention, and treatment.\n"
+      },
+      "form": {
+        "fields": [
+          {
+            "variable": "606361d0-6c1d-4763-b3f0-e8c122a08a68",
+            "prompt": "In the last 6 months, have you gone to a healthcare provider in Chicago for sexual health services such as HIV or STI testing, prevention, or treatment?\n"
+          }
+        ]
+      },
+      "id": "94580090-f6ee-11f0-b84d-9787923f608e",
+      "skipLogic": {
+        "action": "SKIP",
+        "filter": {
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "4ba0dda6-ffc7-4808-b0d8-be1c5540de60"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "Healthcare Nomination",
+      "type": "NameGeneratorQuickAdd",
+      "subject": {
+        "type": "2be424d0-12a6-4d16-94ea-5c7844ebdc67",
+        "entity": "node"
+      },
+      "quickAdd": "845e17eb-0b2f-46d6-8bef-84f3c2112a62",
+      "prompts": [
+        {
+          "id": "6b510d84-3f91-438e-890c-3847b0868470",
+          "text": "Please add any sexual health service providers in Chicago that you&#39;ve utilized in the last 6 months.\n"
+        }
+      ],
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "606361d0-6c1d-4763-b3f0-e8c122a08a68",
+                "value": true
+              },
+              "id": "96cddddb-997e-4172-8dbc-23df57e801fd"
+            },
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "4c91c7b9-7a24-4699-90ed-5c08a43b4d5c"
+            }
+          ]
+        }
+      },
+      "id": "f2cb1450-f6ee-11f0-b84d-9787923f608e"
+    },
+    {
+      "label": "Healthcare Census Tract - Information",
+      "type": "Information",
+      "title": "Healthcare Access",
+      "items": [
+        {
+          "size": "SMALL",
+          "id": "7dd1d89c-fb7f-4ea2-a3cc-e864b0be4433",
+          "type": "text",
+          "content": "On the next screen, you will see a map of Chicago with outlined areas. You will be prompted to select the area where each healthcare provider you named is located.\n\n**Note:** this is not meant to pinpoint an exact address for each provider, just a general area.\n\nIf a provider is outside of Chicago, you may select the &quot;Outside Map Area&quot; button. **If you do not know where a provider is or wish to skip the response for that provider, you may click the down navigation arrow to proceed to the next provider.**\n\nThe video below offers a preview of how the map screen will work. Please continue to the next screen once you feel comfortable with how to place providers you named on the map.\n"
+        },
+        {
+          "size": "SMALL",
+          "id": "04ae183f-7c07-4580-9756-fa82a02e22ec",
+          "type": "asset",
+          "content": "27660f5f-4f7f-4d4a-aac1-de93800eb96d"
+        }
+      ],
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "rules": [
+            {
+              "type": "node",
+              "options": {
+                "type": "2be424d0-12a6-4d16-94ea-5c7844ebdc67",
+                "operator": "EXISTS",
+                "value": ""
+              },
+              "id": "3d2a2599-4b03-4b0f-a924-406c665ca730"
+            }
+          ]
+        }
+      },
+      "id": "517ea850-085a-11f1-96a8-9937b75bccaa"
+    },
+    {
+      "label": "Healthcare Census Tract",
+      "type": "Geospatial",
+      "subject": {
+        "type": "2be424d0-12a6-4d16-94ea-5c7844ebdc67",
+        "entity": "node"
+      },
+      "mapOptions": {
+        "tokenAssetId": "54080d34-0717-4691-81a2-bec9171cce74",
+        "dataSourceAssetId": "9fd0326a-4efa-43e9-95b2-4efb2986876f",
+        "targetFeatureProperty": "census_tra",
+        "color": "ord-color-seq-4",
+        "style": "mapbox://styles/mapbox/standard",
+        "center": [-87.66280014097032, 41.87242130364663],
+        "initialZoom": 10.94998544191388,
+        "showTransit": true,
+        "allowSearch": true
+      },
+      "prompts": [
+        {
+          "id": "6ba0b960-1752-4deb-81db-aef12b23505e",
+          "text": "Please select the general area where this provider is located.\n",
+          "variable": "a316a0c5-9291-4a17-8bfc-9247b36084a2"
+        }
+      ],
+      "skipLogic": {
+        "action": "SHOW",
+        "filter": {
+          "join": "AND",
+          "rules": [
+            {
+              "type": "node",
+              "options": {
+                "type": "2be424d0-12a6-4d16-94ea-5c7844ebdc67",
+                "operator": "EXISTS",
+                "value": ""
+              },
+              "id": "5236eee5-6bb3-41d1-9b8f-63a1dc1f2ff2"
+            },
+            {
+              "type": "ego",
+              "options": {
+                "operator": "NOT",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "6aa23424-afaa-4a47-a59a-3ec9e678a05f"
+            }
+          ]
+        }
+      },
+      "id": "ab277950-02f5-11f1-a97e-05836b4240a0"
+    },
+    {
+      "label": "Social Support - Introduction",
+      "type": "Information",
+      "title": "Your Thoughts and Feelings",
+      "items": [
+        {
+          "size": "SMALL",
+          "id": "079d875b-781d-46a5-8c71-7cbba33532f1",
+          "type": "text",
+          "content": "We are almost at the end of the survey. Before we go, we would like to ask you a few more questions regarding your feelings about people and places in your life.\n"
+        }
+      ],
+      "id": "858f8f60-0850-11f1-96a8-9937b75bccaa"
+    },
+    {
+      "label": "Ego Social Support",
+      "type": "EgoForm",
+      "introductionPanel": {
+        "title": "About You",
+        "text": "We are interested in how you feel about the following statements. Read each statement carefully. Indicate how you feel about each statement.\n"
+      },
+      "form": {
+        "fields": [
+          {
+            "variable": "7c2c9953-1d3a-498f-a83d-11b6378213f4",
+            "prompt": "There is a special person who is around when I am in need.\n"
+          },
+          {
+            "variable": "c08cb514-c349-4402-a2fb-49e6b238ea06",
+            "prompt": "There is a special person with whom I can share my joys and sorrows.\n"
+          },
+          {
+            "variable": "4c7f3cf9-bf6a-4c88-85bd-c2232e4ecfdb",
+            "prompt": "My family really tries to help me.\n"
+          },
+          {
+            "variable": "d053c8dc-827e-4fa1-8e5f-b2124ac98f64",
+            "prompt": "I have a special person who is a real source of comfort to me.\n"
+          },
+          {
+            "variable": "6c7d34c3-ef7e-4fcc-9ff3-4ed299a2ad98",
+            "prompt": "I can count on my friends when things go wrong.\n"
+          },
+          {
+            "variable": "f78cfe68-479d-40b7-81c2-f58a548053e1",
+            "prompt": "I can talk about my problems with my family.\n"
+          },
+          {
+            "variable": "7ce13844-b620-4ce6-9baa-714ec97d23a4",
+            "prompt": "I have friends with whom I can share my joys and sorrows.\n"
+          },
+          {
+            "variable": "f94a1de6-abbd-48d9-a759-02885718ed71",
+            "prompt": "There is a special person in my life who cares about my feelings.\n"
+          },
+          {
+            "variable": "74ab8125-dade-4b1e-bd3f-63faca51e357",
+            "prompt": "My family is willing to help me make decisions.\n"
+          },
+          {
+            "variable": "f29caf3b-f90f-48f6-b9a0-6a544f86e5b7",
+            "prompt": "I can talk about my problems with my friends.\n"
+          },
+          {
+            "variable": "677b1fe2-a15d-4828-bef7-2f0e5fc79b3a",
+            "prompt": "I get the emotional help and support I need from my family.\n"
+          },
+          {
+            "variable": "0452300a-e807-40a4-9bc5-586bf671d52d",
+            "prompt": "My friends really try to help me.\n"
+          }
+        ]
+      },
+      "id": "e62de4d0-02f0-11f1-a97e-05836b4240a0",
+      "skipLogic": {
+        "action": "SKIP",
+        "filter": {
+          "rules": [
+            {
+              "type": "ego",
+              "options": {
+                "operator": "EXACTLY",
+                "attribute": "f249c2d1-3f54-49a9-83d8-81e2387df5e5",
+                "value": true
+              },
+              "id": "64aebefa-5269-489c-869d-d4d66454aeb5"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "codebook": {
+    "node": {
+      "5f90648c-c728-4a92-acb2-fd066b6705cb": {
+        "color": "node-color-seq-1",
+        "variables": {
+          "8d84468b-0dcd-40cd-8a2c-e78bd41cf5e4": {
+            "name": "Close",
+            "type": "boolean"
+          },
+          "45032017-155e-4499-9e7f-2abbfc6cc441": {
+            "name": "Drugs",
+            "type": "boolean"
+          },
+          "1bf37368-5188-49c6-b35f-f0a49706fcb0": {
+            "name": "Sex",
+            "type": "boolean"
+          },
+          "366ded30-2372-423c-bccb-0caf5c3573ee": {
+            "name": "Cords",
+            "type": "layout"
+          },
+          "6621dc88-9cde-43a1-85ec-6fc7689b2211": {
+            "component": "Number",
+            "type": "number",
+            "name": "Age",
+            "validation": {
+              "maxValue": 100,
+              "minValue": 0
+            }
+          },
+          "759ec546-1053-4008-934c-8e6fe168c517": {
+            "type": "ordinal",
+            "name": "RelStrength",
+            "options": [
+              {
+                "label": "Very close\n",
+                "value": "Very_close"
+              },
+              {
+                "label": "Close\n",
+                "value": "Close"
+              },
+              {
+                "label": "Somewhat close\n",
+                "value": "Somewhat_close"
+              },
+              {
+                "label": "Not very close\n",
+                "value": "Not_very_close"
+              },
+              {
+                "label": "Not close at all\n",
+                "value": "Not_close_at_all"
+              }
+            ]
+          },
+          "1d451133-7e81-4e9d-914c-f24d1e59ff6b": {
+            "name": "Serious",
+            "type": "boolean"
+          },
+          "70baa9c1-448f-44ee-a036-d7642cdb9254": {
+            "type": "categorical",
+            "name": "Gender",
+            "options": [
+              {
+                "label": "Cisgender Female\n",
+                "value": "Cisgender_Female"
+              },
+              {
+                "label": "Cisgender Male\n",
+                "value": "Cisgender_Male"
+              },
+              {
+                "label": "Transgender Woman\n",
+                "value": "Transgender_Woman"
+              },
+              {
+                "label": "Transgender Man\n",
+                "value": "Transgender_Man"
+              },
+              {
+                "label": "Non\\-Binary\n",
+                "value": "Non_Binary"
+              },
+              {
+                "label": "Don&#39;t Know\n",
+                "value": "Dont_know"
+              }
+            ]
+          },
+          "da77cf34-f6c3-477e-9f85-7ab28d72cc53": {
+            "type": "categorical",
+            "name": "Hispanic",
+            "options": [
+              {
+                "label": "Hispanic or Latino\n",
+                "value": "Hispanic_or_Latino"
+              },
+              {
+                "label": "Not Hispanic or Latino\n",
+                "value": "Not_Hispanic_or_Latino"
+              }
+            ]
+          },
+          "fdbb2d57-c117-44f3-b99d-8156b1de42ae": {
+            "type": "categorical",
+            "name": "Race",
+            "options": [
+              {
+                "label": "White\n",
+                "value": "White"
+              },
+              {
+                "label": "Black\n",
+                "value": "Black"
+              },
+              {
+                "label": "Asian\n",
+                "value": "Asian"
+              },
+              {
+                "label": "American Indian or Alaskan Native\n",
+                "value": "American_Indian_or_Alaskan_Native"
+              },
+              {
+                "label": "Native Hawaiian or Other Pacific Islander\n",
+                "value": "Native_Hawaiian_or_Other_Pacific_Islander"
+              }
+            ]
+          },
+          "a677cc97-ecda-4f01-9143-4111a2b9c2e0": {
+            "type": "categorical",
+            "name": "SexOrient",
+            "options": [
+              {
+                "label": "Gay\n",
+                "value": "Gay"
+              },
+              {
+                "label": "Lesbian\n",
+                "value": "Lesbian"
+              },
+              {
+                "label": "Bisexual\n",
+                "value": "Bisexual"
+              },
+              {
+                "label": "Straight\n",
+                "value": "Straight"
+              },
+              {
+                "label": "Queer\n",
+                "value": "Queer"
+              },
+              {
+                "label": "Asexual\n",
+                "value": "Asexual"
+              },
+              {
+                "label": "Don&#39;t Know\n",
+                "value": "Dont_know"
+              }
+            ]
+          },
+          "c4a28d6c-3b6f-4cc7-a15b-0cff8cfd66d9": {
+            "type": "categorical",
+            "component": "ToggleButtonGroup",
+            "options": [
+              {
+                "label": "Online / Mobile App\n",
+                "value": "Online_Mobile_App"
+              },
+              {
+                "label": "Physical place or venue\n",
+                "value": "Physical_Place_or_Venue"
+              },
+              {
+                "label": "At a friend&#39;s house\n",
+                "value": "At_a_Friends_House"
+              }
+            ],
+            "name": "PlaceMet"
+          },
+          "9170ac88-7651-4a33-bb03-8393bfc3e023": {
+            "type": "categorical",
+            "name": "AnalSex",
+            "options": [
+              {
+                "label": "Anal sex\n",
+                "value": "Anal_sex"
+              },
+              {
+                "label": "No anal sex\n",
+                "value": "No_anal_sex"
+              }
+            ]
+          },
+          "720d9ca3-d8b5-4e74-90fd-e6285b06a04e": {
+            "type": "categorical",
+            "name": "CondomCat",
+            "options": [
+              {
+                "label": "Anal sex without a condom",
+                "value": "Condomless_anal_sex"
+              },
+              {
+                "label": "Always used a condom during anal sex",
+                "value": "No_condomless_anal_sex"
+              }
+            ]
+          },
+          "b1eb909a-13cd-4dc6-ab90-c77e7bc2c5d3": {
+            "component": "Text",
+            "type": "text",
+            "name": "name",
+            "validation": {
+              "maxLength": 7
+            }
+          },
+          "c2235691-c828-4138-8602-37d3f047af48": {
+            "component": "RelativeDatePicker",
+            "type": "datetime",
+            "name": "FirstSex",
+            "parameters": {
+              "before": 3650
+            }
+          },
+          "5442154c-b098-4801-ad84-80e7e55d7685": {
+            "component": "RelativeDatePicker",
+            "type": "datetime",
+            "name": "LastSex"
+          },
+          "ce4f028f-31ea-46a9-8564-a7c276d8efed": {
+            "component": "Boolean",
+            "type": "boolean",
+            "name": "OngoingPartner",
+            "options": [
+              {
+                "label": "Yes\n",
+                "value": true,
+                "negative": false
+              },
+              {
+                "label": "No\n",
+                "value": false,
+                "negative": true
+              }
+            ]
+          },
+          "d76f1663-f491-4aa2-90ee-806e186652b0": {
+            "component": "CheckboxGroup",
+            "type": "categorical",
+            "name": "AlterDrugsUsed",
+            "options": [
+              {
+                "label": "Marijuana\n",
+                "value": "Marijuana"
+              },
+              {
+                "label": "Cocaine\n",
+                "value": "Cocaine"
+              },
+              {
+                "label": "Heroin\n",
+                "value": "Heroin"
+              },
+              {
+                "label": "Painkillers or Opiates\n",
+                "value": "Painkillers_or_Opiates"
+              },
+              {
+                "label": "Poppers\n",
+                "value": "Poppers"
+              },
+              {
+                "label": "Methamphetamine\n",
+                "value": "Methamphetamine"
+              },
+              {
+                "label": "None\n",
+                "value": "None"
+              },
+              {
+                "label": "Don&#39;t know/unsure\n",
+                "value": "Dont_know"
+              }
+            ]
+          },
+          "5c9964a9-4e15-44ed-acb0-46af95ade20f": {
+            "type": "text",
+            "name": "otherRace"
+          },
+          "6d450ba7-b99b-4669-8cca-8d10884f0f05": {
+            "type": "text",
+            "name": "OtherPlaceMet"
+          },
+          "8edc4f24-7d2b-4e0c-9dfa-b92e4558ff18": {
+            "name": "addedClose",
+            "type": "boolean"
+          },
+          "682a6c9e-0c56-4f47-a013-e5f7a5951eb0": {
+            "name": "addedDrugs",
+            "type": "boolean"
+          },
+          "7fca2dfc-325d-43b7-8523-b48f443f48c9": {
+            "name": "addedSex",
+            "type": "boolean"
+          },
+          "1937f80c-1a03-44e9-80bd-e5a9b33eb14d": {
+            "name": "chemsexPoppers",
+            "type": "categorical",
+            "options": [
+              {
+                "label": "Yes\n",
+                "value": "TRUE"
+              },
+              {
+                "label": "No\n",
+                "value": "FALSE"
+              }
+            ]
+          },
+          "93359b0e-133a-408a-9327-4c1472883cd9": {
+            "name": "chemsexMeth",
+            "type": "categorical",
+            "options": [
+              {
+                "label": "Yes\n",
+                "value": "TRUE"
+              },
+              {
+                "label": "No\n",
+                "value": "FALSE"
+              }
+            ]
+          },
+          "041f5a4b-e3a2-41dd-9d6e-72d1f2238737": {
+            "name": "VaginalSex",
+            "type": "categorical",
+            "options": [
+              {
+                "value": "Vaginal_sex",
+                "label": "Vaginal sex\n"
+              },
+              {
+                "value": "No_vaginal_sex",
+                "label": "No vaginal sex\n"
+              }
+            ]
+          },
+          "6ae048a8-8745-4423-a672-faf0d9055f31": {
+            "name": "VCondomCat",
+            "type": "categorical",
+            "options": [
+              {
+                "label": "Vaginal sex without a condom\n",
+                "value": "Condomless_vaginal_sex"
+              },
+              {
+                "label": "Always used a condom during vaginal sex\n",
+                "value": "No_condomless_vaginal_sex"
+              }
+            ]
+          },
+          "e2684ae9-fb88-4f9d-90a7-861911f0f22f": {
+            "name": "cityResident",
+            "type": "categorical",
+            "options": [
+              {
+                "label": "Yes, lives in Chicago\n",
+                "value": "y"
+              },
+              {
+                "label": "No, does not live in Chicago\n",
+                "value": "n"
+              }
+            ]
+          },
+          "685543d4-04fb-46fd-b92a-312c075210a4": {
+            "name": "censusTract",
+            "type": "text"
+          },
+          "50075b4b-d511-4549-9882-eec954509924": {
+            "type": "text",
+            "name": "otherSexualIdentity"
+          },
+          "5dcf395e-cfe1-4ff4-9350-f8f69ed52a2d": {
+            "type": "text",
+            "name": "alterGenderOther"
+          },
+          "a61f8d2d-f3d1-4c4d-9236-34e709effb9f": {
+            "type": "number",
+            "component": "Number",
+            "name": "NumAnalSex"
+          },
+          "315d540c-92fe-4acd-81c7-0b6ea2dacc17": {
+            "component": "Number",
+            "type": "number",
+            "name": "NumCondomlessAnal",
+            "validation": {
+              "lessThanVariable": "a61f8d2d-f3d1-4c4d-9236-34e709effb9f"
+            }
+          },
+          "33e444a9-1605-492d-8c49-216eb08b078a": {
+            "type": "ordinal",
+            "component": "RadioGroup",
+            "options": [
+              {
+                "label": "HIV Positive\n",
+                "value": "HIV_Positive"
+              },
+              {
+                "label": "HIV Negative\n",
+                "value": "HIV_Negative"
+              },
+              {
+                "label": "Don&#39;t Know\n",
+                "value": "Dont_know"
+              }
+            ],
+            "name": "AlterHIVStatus"
+          },
+          "7b0b5fa0-11d5-4809-b5c6-b1d20ca62cb5": {
+            "name": "AlterPrEP",
+            "type": "categorical",
+            "options": [
+              {
+                "label": "Yes\n",
+                "value": "Yes"
+              },
+              {
+                "label": "No\n",
+                "value": "No"
+              },
+              {
+                "label": "Don&#39;t know\n",
+                "value": "Dont_know"
+              }
+            ]
+          },
+          "7142a57b-60ad-4c9d-b7cd-0ea381645501": {
+            "name": "AlterART",
+            "type": "categorical",
+            "options": [
+              {
+                "label": "Yes\n",
+                "value": "Yes"
+              },
+              {
+                "label": "No\n",
+                "value": "No"
+              },
+              {
+                "label": "Don&#39;t know\n",
+                "value": "Dont_know"
+              }
+            ]
+          },
+          "052fbe4e-a85e-4dc8-b632-43d3f9462ec2": {
+            "component": "Text",
+            "type": "text",
+            "name": "NamePlaceMet"
+          },
+          "b5cd7347-5dce-4a67-8f2b-11dd2b6ead0b": {
+            "component": "Text",
+            "type": "text",
+            "name": "NameAppMet"
+          },
+          "9dace85f-af41-4091-9209-389f0a24104a": {
+            "type": "number",
+            "component": "Number",
+            "validation": {
+              "minValue": 18,
+              "maxValue": 110
+            },
+            "name": "SexPartnerAge"
+          },
+          "8f5d456b-06fb-4958-9a92-da6e87008bce": {
+            "type": "categorical",
+            "component": "ToggleButtonGroup",
+            "options": [
+              {
+                "label": "Friend\n",
+                "value": "friend"
+              },
+              {
+                "label": "Family / Relative\n",
+                "value": "family_relative"
+              },
+              {
+                "label": "Romantic Partner\n",
+                "value": "romantic_partner"
+              },
+              {
+                "label": "Other\n",
+                "value": "other"
+              }
+            ],
+            "name": "Relationship"
+          }
+        },
+        "iconVariant": "add-a-person",
+        "name": "Person"
+      },
+      "18ddf7b2-3c18-4ba1-be01-16232962975e": {
+        "variables": {
+          "7b8a65eb-7b32-4d22-837e-f31125802d4c": {
+            "name": "name",
+            "type": "text"
+          },
+          "3debd78c-3628-414c-a54f-c01ecab6f06f": {
+            "name": "social_venue",
+            "type": "boolean"
+          },
+          "9eef3d2d-95ba-44fc-bd47-1c103fe896bb": {
+            "name": "meet_venue",
+            "type": "boolean"
+          },
+          "9ded73ee-2c0a-426c-b637-7f63ad809a50": {
+            "name": "venue_freq",
+            "type": "ordinal",
+            "options": [
+              {
+                "label": "Daily\n",
+                "value": 4
+              },
+              {
+                "label": "Weekly\n",
+                "value": 3
+              },
+              {
+                "label": "Monthly\n",
+                "value": 2
+              },
+              {
+                "label": "Less Than Monthly\n",
+                "value": 1
+              },
+              {
+                "value": 0,
+                "label": "Don&#39;t Want to Answer\n"
+              }
+            ]
+          },
+          "ce42c35c-8f47-4dc3-a5c2-febca6d92c1d": {
+            "name": "venue_type",
+            "type": "categorical",
+            "options": [
+              {
+                "label": "Bar/Club\n",
+                "value": "bar_club"
+              },
+              {
+                "label": "Restaurant/Coffee Shop\n",
+                "value": "restaurant_coffee"
+              },
+              {
+                "label": "Park/Neighborhood\n",
+                "value": "park_neighborhood"
+              },
+              {
+                "label": "Store/Shop\n",
+                "value": "store_shop"
+              }
+            ]
+          },
+          "4e04127d-d69c-4987-9d51-51e944de4eb7": {
+            "type": "text",
+            "name": "venue_type_other"
+          },
+          "892ed5b7-38a9-4d91-bfd4-35292009ea11": {
+            "name": "meet_for_sex",
+            "type": "boolean"
+          },
+          "991ead46-353b-4c93-854d-42aa5b7435c1": {
+            "name": "meet_sex_coord",
+            "type": "layout"
+          },
+          "58fdec75-d5db-4323-8dea-18990be40bad": {
+            "name": "lgbtq_venue",
+            "type": "boolean"
+          },
+          "e8b01a10-bcdd-4df2-8fa6-8dd01d9a97cc": {
+            "name": "venue_heavy_drinking",
+            "type": "ordinal",
+            "options": [
+              {
+                "label": "Very Common\n",
+                "value": 3
+              },
+              {
+                "value": 2,
+                "label": "Somewhat Common\n"
+              },
+              {
+                "label": "Not At All Common\n",
+                "value": 1
+              },
+              {
+                "label": "Don&#39;t Want to Answer\n",
+                "value": 0
+              }
+            ]
+          },
+          "c9a0b852-673a-41d9-8c6d-c2d253082768": {
+            "name": "venue_substance",
+            "type": "ordinal",
+            "options": [
+              {
+                "label": "Very Common\n",
+                "value": 3
+              },
+              {
+                "label": "Somewhat Common\n",
+                "value": 2
+              },
+              {
+                "label": "Not At All Common\n",
+                "value": 1
+              },
+              {
+                "label": "Don&#39;t Want to Answer\n",
+                "value": 0
+              }
+            ]
+          },
+          "ebb41b9c-ff43-4875-a05d-019bb45a5072": {
+            "name": "venue_meet_sex",
+            "type": "ordinal",
+            "options": [
+              {
+                "label": "Very Common\n",
+                "value": 3
+              },
+              {
+                "label": "Somewhat Common\n",
+                "value": 2
+              },
+              {
+                "label": "Not At All Common\n",
+                "value": 1
+              },
+              {
+                "label": "Don&#39;t Want to Answer\n",
+                "value": 0
+              }
+            ]
+          },
+          "02cb207c-95e5-496f-ad9b-0fb01c2a12dc": {
+            "name": "venueCensusTract",
+            "type": "location"
+          }
+        },
+        "iconVariant": "add-a-place",
+        "color": "node-color-seq-2",
+        "name": "Venue"
+      },
+      "1205e173-8d5a-4240-8303-b197d20e0482": {
+        "variables": {
+          "a9d4c3be-9a1c-45f1-a155-972f07db60f4": {
+            "name": "name",
+            "type": "text"
+          },
+          "5d206c59-c058-4ff8-bf55-48ec36704539": {
+            "name": "app_frequency",
+            "type": "ordinal",
+            "options": [
+              {
+                "label": "Daily\n",
+                "value": 4
+              },
+              {
+                "label": "Weekly\n",
+                "value": 3
+              },
+              {
+                "label": "Monthly\n",
+                "value": 2
+              },
+              {
+                "label": "Less Than Monthly\n",
+                "value": 1
+              },
+              {
+                "label": "Don&#39;t Want to Answer\n",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "iconVariant": "add-a-person",
+        "color": "node-color-seq-4",
+        "name": "App"
+      },
+      "2be424d0-12a6-4d16-94ea-5c7844ebdc67": {
+        "variables": {
+          "845e17eb-0b2f-46d6-8bef-84f3c2112a62": {
+            "name": "name",
+            "type": "text"
+          },
+          "a316a0c5-9291-4a17-8bfc-9247b36084a2": {
+            "name": "providerCensusTract",
+            "type": "location"
+          }
+        },
+        "iconVariant": "add-a-person",
+        "color": "node-color-seq-7",
+        "name": "Provider"
+      },
+      "78ffb94c-6eba-4805-bc71-8154f7cbc9cf": {
+        "variables": {
+          "54b32af0-df01-4190-97a4-f5949527d6c7": {
+            "name": "name",
+            "type": "text"
+          },
+          "ce92b437-e4b4-4ade-a0dd-0e7a9eb54105": {
+            "name": "egoCensusTract",
+            "type": "location"
+          }
+        },
+        "iconVariant": "add-a-person",
+        "color": "node-color-seq-6",
+        "name": "Ego"
+      }
+    },
+    "edge": {
+      "60c452a3-a56c-4515-9168-3e2fd951f0bd": {
+        "color": "edge-color-seq-1",
+        "name": "Close"
+      },
+      "75730298-20e7-4d2a-b898-5708201bf925": {
+        "color": "edge-color-seq-3",
+        "name": "SexTie"
+      }
+    },
+    "ego": {
+      "variables": {
+        "4ff3010b-4706-4e40-9a9e-0735b50c489f": {
+          "type": "boolean",
+          "component": "Boolean",
+          "name": "MarijuanaUsed",
+          "options": [
+            {
+              "label": "Yes\n",
+              "value": true
+            },
+            {
+              "label": "No\n",
+              "value": false,
+              "negative": true
+            }
+          ]
+        },
+        "14cd06ba-6a48-403b-99a4-3ba97ed9523f": {
+          "type": "boolean",
+          "component": "Boolean",
+          "name": "CocaineUsed",
+          "options": [
+            {
+              "label": "Yes\n",
+              "value": true
+            },
+            {
+              "label": "No\n",
+              "value": false,
+              "negative": true
+            }
+          ]
+        },
+        "9e3c5efd-412d-40e3-9e30-fc53d8a8eb0a": {
+          "type": "boolean",
+          "component": "Boolean",
+          "name": "HeroinUsed",
+          "options": [
+            {
+              "label": "Yes\n",
+              "value": true
+            },
+            {
+              "label": "No\n",
+              "value": false,
+              "negative": true
+            }
+          ]
+        },
+        "62b4364d-9802-4faa-8c35-61db120d24d6": {
+          "type": "boolean",
+          "component": "Boolean",
+          "name": "PainkillersUsed",
+          "options": [
+            {
+              "label": "Yes\n",
+              "value": true
+            },
+            {
+              "label": "No\n",
+              "value": false,
+              "negative": true
+            }
+          ]
+        },
+        "220b8a1a-2001-4e22-a240-195bca3f63dd": {
+          "type": "boolean",
+          "component": "Boolean",
+          "name": "PoppersUsed",
+          "options": [
+            {
+              "label": "Yes\n",
+              "value": true
+            },
+            {
+              "label": "No\n",
+              "value": false,
+              "negative": true
+            }
+          ]
+        },
+        "6655b2bb-59bb-4584-b1bb-19de37fdf0f3": {
+          "type": "boolean",
+          "component": "Boolean",
+          "options": [
+            {
+              "label": "Yes\n",
+              "value": true
+            },
+            {
+              "label": "No\n",
+              "value": false,
+              "negative": true
+            }
+          ],
+          "name": "MethUsed"
+        },
+        "a06f06f5-b688-487c-8e3b-ca916aed2b84": {
+          "component": "RadioGroup",
+          "type": "ordinal",
+          "name": "EgoGender",
+          "options": [
+            {
+              "value": "Cisgender_Female",
+              "label": "Cisgender Female\n"
+            },
+            {
+              "value": "Cisgender_Male",
+              "label": "Cisgender Male\n"
+            },
+            {
+              "value": "Transgender_Woman",
+              "label": "Transgender Woman\n"
+            },
+            {
+              "value": "Transgender_Man",
+              "label": "Transgender Man\n"
+            },
+            {
+              "label": "Non\\-Binary\n",
+              "value": "Non_Binary"
+            },
+            {
+              "value": "Other",
+              "label": "Other\n"
+            }
+          ]
+        },
+        "dc6779f2-4c6f-48bb-9e9c-2f6f014cf620": {
+          "component": "Boolean",
+          "type": "boolean",
+          "name": "EgoHispanic",
+          "options": [
+            {
+              "label": "Hispanic or Latino\n",
+              "value": true,
+              "negative": false
+            },
+            {
+              "label": "Not Hispanic or Latino\n",
+              "value": false,
+              "negative": true
+            }
+          ]
+        },
+        "92869afe-a300-404c-a390-5fbc3f48cf25": {
+          "component": "CheckboxGroup",
+          "type": "categorical",
+          "name": "EgoRace",
+          "options": [
+            {
+              "value": "White",
+              "label": "White\n"
+            },
+            {
+              "value": "Black",
+              "label": "Black\n"
+            },
+            {
+              "value": "Asian",
+              "label": "Asian\n"
+            },
+            {
+              "value": "American_Indian_or_Alaskan_Native",
+              "label": "American Indian or Alaskan Native\n"
+            },
+            {
+              "label": "Native Hawaiian or Other Pacific Islander\n",
+              "value": "Native_Hawaiian_or_Other_Pacific_Islander"
+            }
+          ]
+        },
+        "817b4886-bf32-431b-adce-81cbc3fcf233": {
+          "component": "Number",
+          "type": "number",
+          "name": "YearsLived",
+          "validation": {
+            "minValue": 0,
+            "maxValue": 30
+          }
+        },
+        "606361d0-6c1d-4763-b3f0-e8c122a08a68": {
+          "type": "boolean",
+          "component": "Boolean",
+          "options": [
+            {
+              "label": "Yes\n",
+              "value": true,
+              "negative": false
+            },
+            {
+              "label": "No\n",
+              "value": false,
+              "negative": true
+            }
+          ],
+          "name": "healthcare_access"
+        },
+        "596c2ac2-9fd4-42f4-a0f3-cfa7f1676551": {
+          "component": "DatePicker",
+          "type": "datetime",
+          "name": "egoDOB",
+          "parameters": {
+            "type": "full",
+            "min": "1996-01-01",
+            "max": "2007-12-31"
+          }
+        },
+        "f3d7559b-3a07-4719-8e4a-1db49d270f7b": {
+          "component": "ToggleButtonGroup",
+          "type": "categorical",
+          "name": "EgoBirthSex",
+          "options": [
+            {
+              "label": "Male\n",
+              "value": "Male"
+            },
+            {
+              "label": "Female\n",
+              "value": "Female"
+            },
+            {
+              "label": "Intersex\n",
+              "value": "Intersex"
+            }
+          ]
+        },
+        "4d9cd886-2834-48ce-ba80-38a0dc9a5dd6": {
+          "component": "CheckboxGroup",
+          "type": "categorical",
+          "name": "EgoSexualIdentity",
+          "options": [
+            {
+              "label": "Gay\n",
+              "value": "Gay"
+            },
+            {
+              "label": "Lesbian\n",
+              "value": "Lesbian"
+            },
+            {
+              "label": "Bisexual\n",
+              "value": "Bisexual"
+            },
+            {
+              "label": "Straight\n",
+              "value": "Straight"
+            },
+            {
+              "label": "Queer\n",
+              "value": "Queer"
+            },
+            {
+              "label": "Asexual\n",
+              "value": "Asexual"
+            },
+            {
+              "label": "Other\n",
+              "value": "Other"
+            }
+          ]
+        },
+        "8a4af15c-394b-45eb-915d-6a150191758a": {
+          "component": "RadioGroup",
+          "type": "ordinal",
+          "name": "EgoPerceivedRace",
+          "options": [
+            {
+              "label": "White\n",
+              "value": "White"
+            },
+            {
+              "label": "Black\n",
+              "value": "Black"
+            },
+            {
+              "label": "Asian\n",
+              "value": "Asian"
+            },
+            {
+              "label": "American Indian or Alaskan Native\n",
+              "value": "American_Indian_or_Alaskan_Native"
+            },
+            {
+              "label": "Native Hawaiian or Other Pacific Islander\n",
+              "value": "Native_Hawaiian_or_Other_Pacific_Islander"
+            }
+          ]
+        },
+        "4f26a2c2-53c0-4802-b955-c84c8ca46c12": {
+          "type": "boolean",
+          "component": "Boolean",
+          "options": [
+            {
+              "label": "Hispanic or Latino\n",
+              "value": true,
+              "negative": false
+            },
+            {
+              "label": "Not Hispanic or Latino\n",
+              "value": false,
+              "negative": true
+            }
+          ],
+          "name": "EgoPerceivedHispanic"
+        },
+        "648cb03d-7119-405f-98d7-9d4b6e5ec097": {
+          "type": "ordinal",
+          "component": "RadioGroup",
+          "options": [
+            {
+              "label": "Cisgender Female\n",
+              "value": "Cisgender_Female"
+            },
+            {
+              "label": "Cisgender Man\n",
+              "value": "Cisgender_Man"
+            },
+            {
+              "label": "Transgender Woman\n",
+              "value": "Transgender_Woman"
+            },
+            {
+              "label": "Transgender Man\n",
+              "value": "Transgender_Man"
+            },
+            {
+              "label": "Non\\-Binary\n",
+              "value": "Non_Binary"
+            },
+            {
+              "label": "Other\n",
+              "value": "Other"
+            }
+          ],
+          "name": "EgoPerceivedGender"
+        },
+        "0848da8d-c6b0-48c1-8520-b62dfc45212d": {
+          "type": "ordinal",
+          "component": "RadioGroup",
+          "options": [
+            {
+              "label": "Gay\n",
+              "value": "Gay"
+            },
+            {
+              "label": "Lesbian\n",
+              "value": "Lesbian"
+            },
+            {
+              "label": "Bisexual\n",
+              "value": "Bisexual"
+            },
+            {
+              "label": "Straight\n",
+              "value": "Straight"
+            },
+            {
+              "label": "Queer\n",
+              "value": "Queer"
+            },
+            {
+              "label": "Asexual\n",
+              "value": "Asexual"
+            },
+            {
+              "label": "Other\n",
+              "value": "Other"
+            }
+          ],
+          "name": "EgoPerceivedSexualIdentity"
+        },
+        "7c2c9953-1d3a-498f-a83d-11b6378213f4": {
+          "component": "LikertScale",
+          "type": "ordinal",
+          "name": "PersonInNeed",
+          "options": [
+            {
+              "value": 1,
+              "label": "Strongly Disagree\n"
+            },
+            {
+              "label": "Disagree\n",
+              "value": 2
+            },
+            {
+              "label": "Neutral\n",
+              "value": 3
+            },
+            {
+              "label": "Agree\n",
+              "value": 4
+            },
+            {
+              "label": "Strongly Agree\n",
+              "value": 5
+            }
+          ],
+          "validation": {
+            "required": true
+          }
+        },
+        "c08cb514-c349-4402-a2fb-49e6b238ea06": {
+          "component": "LikertScale",
+          "type": "ordinal",
+          "name": "ShareJoySorrow",
+          "options": [
+            {
+              "value": 1,
+              "label": "Strongly Disagree\n"
+            },
+            {
+              "label": "Disagree\n",
+              "value": 2
+            },
+            {
+              "label": "Neutral\n",
+              "value": 3
+            },
+            {
+              "label": "Agree\n",
+              "value": 4
+            },
+            {
+              "label": "Strongly Agree\n",
+              "value": 5
+            }
+          ],
+          "validation": {
+            "required": true
+          }
+        },
+        "4c7f3cf9-bf6a-4c88-85bd-c2232e4ecfdb": {
+          "component": "LikertScale",
+          "type": "ordinal",
+          "name": "FamilyHelp",
+          "options": [
+            {
+              "label": "Strongly Disagree\n",
+              "value": 1
+            },
+            {
+              "label": "Disagree\n",
+              "value": 2
+            },
+            {
+              "label": "Neutral\n",
+              "value": 3
+            },
+            {
+              "value": 4,
+              "label": "Agree\n"
+            },
+            {
+              "label": "Strongly Agree\n",
+              "value": 5
+            }
+          ],
+          "validation": {
+            "required": true
+          }
+        },
+        "d053c8dc-827e-4fa1-8e5f-b2124ac98f64": {
+          "component": "LikertScale",
+          "type": "ordinal",
+          "name": "SourceComfort",
+          "options": [
+            {
+              "label": "Strongly Disagree\n",
+              "value": 1
+            },
+            {
+              "label": "Disagree\n",
+              "value": 2
+            },
+            {
+              "label": "Neutral\n",
+              "value": 3
+            },
+            {
+              "label": "Agree\n",
+              "value": 4
+            },
+            {
+              "label": "Strongly Agree\n",
+              "value": 5
+            }
+          ],
+          "validation": {
+            "required": true
+          }
+        },
+        "6c7d34c3-ef7e-4fcc-9ff3-4ed299a2ad98": {
+          "component": "LikertScale",
+          "type": "ordinal",
+          "name": "CountOnFriends",
+          "options": [
+            {
+              "value": 1,
+              "label": "Strongly Disagree\n"
+            },
+            {
+              "label": "Disagree\n",
+              "value": 2
+            },
+            {
+              "label": "Neutral\n",
+              "value": 3
+            },
+            {
+              "label": "Agree\n",
+              "value": 4
+            },
+            {
+              "label": "Strongly Agree\n",
+              "value": 5
+            }
+          ],
+          "validation": {
+            "required": true
+          }
+        },
+        "f78cfe68-479d-40b7-81c2-f58a548053e1": {
+          "component": "LikertScale",
+          "type": "ordinal",
+          "name": "TalkProblemsFamily",
+          "options": [
+            {
+              "value": 1,
+              "label": "Strongly Disagree\n"
+            },
+            {
+              "label": "Disagree\n",
+              "value": 2
+            },
+            {
+              "label": "Neutral\n",
+              "value": 3
+            },
+            {
+              "label": "Agree\n",
+              "value": 4
+            },
+            {
+              "label": "Strongly Agree\n",
+              "value": 5
+            }
+          ],
+          "validation": {
+            "required": true
+          }
+        },
+        "7ce13844-b620-4ce6-9baa-714ec97d23a4": {
+          "component": "LikertScale",
+          "type": "ordinal",
+          "name": "FriendsJoySorrow",
+          "options": [
+            {
+              "label": "Strongly Disagree\n",
+              "value": 1
+            },
+            {
+              "label": "Disagree\n",
+              "value": 2
+            },
+            {
+              "label": "Neutral\n",
+              "value": 3
+            },
+            {
+              "label": "Agree\n",
+              "value": 4
+            },
+            {
+              "label": "Strongly Agree\n",
+              "value": 5
+            }
+          ],
+          "validation": {
+            "required": true
+          }
+        },
+        "f94a1de6-abbd-48d9-a759-02885718ed71": {
+          "component": "LikertScale",
+          "type": "ordinal",
+          "name": "CareFeelings",
+          "options": [
+            {
+              "label": "Strongly Disagree\n",
+              "value": 1
+            },
+            {
+              "label": "Disagree\n",
+              "value": 2
+            },
+            {
+              "label": "Neutral\n",
+              "value": 3
+            },
+            {
+              "label": "Agree\n",
+              "value": 4
+            },
+            {
+              "label": "Strongly Agree\n",
+              "value": 5
+            }
+          ],
+          "validation": {
+            "required": true
+          }
+        },
+        "74ab8125-dade-4b1e-bd3f-63faca51e357": {
+          "component": "LikertScale",
+          "type": "ordinal",
+          "name": "FamilyHelpDecisions",
+          "options": [
+            {
+              "label": "Strongly Disagree\n",
+              "value": 1
+            },
+            {
+              "label": "Disagree\n",
+              "value": 2
+            },
+            {
+              "label": "Neutral\n",
+              "value": 3
+            },
+            {
+              "label": "Agree\n",
+              "value": 4
+            },
+            {
+              "label": "Strongly Agree\n",
+              "value": 5
+            }
+          ],
+          "validation": {
+            "required": true
+          }
+        },
+        "f29caf3b-f90f-48f6-b9a0-6a544f86e5b7": {
+          "component": "LikertScale",
+          "type": "ordinal",
+          "name": "TalkProblemsFriends",
+          "options": [
+            {
+              "label": "Strongly Disagree\n",
+              "value": 1
+            },
+            {
+              "label": "Disagree\n",
+              "value": 2
+            },
+            {
+              "label": "Neutral\n",
+              "value": 3
+            },
+            {
+              "label": "Agree\n",
+              "value": 4
+            },
+            {
+              "label": "Strongly Agree\n",
+              "value": 5
+            }
+          ],
+          "validation": {
+            "required": true
+          }
+        },
+        "677b1fe2-a15d-4828-bef7-2f0e5fc79b3a": {
+          "component": "LikertScale",
+          "type": "ordinal",
+          "name": "EmotionalSupport",
+          "options": [
+            {
+              "label": "Strongly Disagree\n",
+              "value": 1
+            },
+            {
+              "label": "Disagree\n",
+              "value": 2
+            },
+            {
+              "label": "Neutral\n",
+              "value": 3
+            },
+            {
+              "label": "Agree\n",
+              "value": 4
+            },
+            {
+              "label": "Strongly Agree\n",
+              "value": 5
+            }
+          ],
+          "validation": {
+            "required": true
+          }
+        },
+        "0452300a-e807-40a4-9bc5-586bf671d52d": {
+          "component": "LikertScale",
+          "type": "ordinal",
+          "name": "FriendsTryHelp",
+          "options": [
+            {
+              "label": "Strongly Disagree\n",
+              "value": 1
+            },
+            {
+              "value": 2,
+              "label": "Disagree\n"
+            },
+            {
+              "label": "Neutral\n",
+              "value": 3
+            },
+            {
+              "label": "Agree\n",
+              "value": 4
+            },
+            {
+              "label": "Strongly Agree\n",
+              "value": 5
+            }
+          ],
+          "validation": {
+            "required": true
+          }
+        },
+        "fe681ff5-adaf-40b8-8376-20b5f53c93c7": {
+          "component": "RadioGroup",
+          "type": "ordinal",
+          "name": "EgoHIVStatus",
+          "options": [
+            {
+              "label": "HIV Positive\n",
+              "value": "HIV_Positive"
+            },
+            {
+              "label": "HIV Negative\n",
+              "value": "HIV_Negative"
+            },
+            {
+              "label": "Don&#39;t know\n",
+              "value": "Dont_know"
+            }
+          ]
+        },
+        "3736e8f1-af8c-4594-a1a1-d9a413e7a137": {
+          "type": "ordinal",
+          "component": "RadioGroup",
+          "options": [
+            {
+              "label": "Yes\n",
+              "value": "Yes"
+            },
+            {
+              "label": "No\n",
+              "value": "No"
+            },
+            {
+              "label": "Don&#39;t know\n",
+              "value": "Dont_know"
+            }
+          ],
+          "name": "EgoPrEP"
+        },
+        "d1fd1340-481f-4750-aa41-1508d607ab52": {
+          "type": "ordinal",
+          "component": "RadioGroup",
+          "options": [
+            {
+              "label": "Yes\n",
+              "value": "Yes"
+            },
+            {
+              "label": "No\n",
+              "value": "No"
+            },
+            {
+              "label": "Don&#39;t know\n",
+              "value": "Dont_know"
+            }
+          ],
+          "name": "EgoART"
+        },
+        "f249c2d1-3f54-49a9-83d8-81e2387df5e5": {
+          "type": "boolean",
+          "component": "Boolean",
+          "options": [
+            {
+              "label": "Yes\n",
+              "value": true,
+              "negative": false
+            },
+            {
+              "label": "No\n",
+              "value": false,
+              "negative": true
+            }
+          ],
+          "name": "EgoFemaleSAB"
+        }
+      }
+    }
+  },
+  "assetManifest": {
+    "55966506-9294-41e4-b83d-21cb9e525a6d": {
+      "id": "55966506-9294-41e4-b83d-21cb9e525a6d",
+      "type": "video",
+      "name": "namegen_reencoded.mp4",
+      "source": "8571d100-fb7c-11ef-8f57-e7bc788f1758.mp4"
+    },
+    "54080d34-0717-4691-81a2-bec9171cce74": {
+      "id": "54080d34-0717-4691-81a2-bec9171cce74",
+      "type": "apikey",
+      "name": "networkcanvas mapbox token",
+      "value": "MAPBOX_TOKEN_PLACEHOLDER"
+    },
+    "9fd0326a-4efa-43e9-95b2-4efb2986876f": {
+      "id": "9fd0326a-4efa-43e9-95b2-4efb2986876f",
+      "type": "geojson",
+      "name": "chicago.geojson",
+      "source": "5a0f5f70-fb7f-11ef-acb2-9567ed329ab7.geojson"
+    },
+    "2efd44ba-dedb-4c03-92d5-58552aec1845": {
+      "id": "2efd44ba-dedb-4c03-92d5-58552aec1845",
+      "type": "video",
+      "name": "self_nomination_video.mov",
+      "source": "self_nomination_video.mov"
+    },
+    "49317893-d679-4560-bd3b-9288505a46b9": {
+      "id": "49317893-d679-4560-bd3b-9288505a46b9",
+      "type": "video",
+      "name": "venue_nomination_video_chicago.mov",
+      "source": "venue_nomination_video_chicago.mov"
+    },
+    "c86e448e-d72a-4828-8358-a7c89e2998a4": {
+      "id": "c86e448e-d72a-4828-8358-a7c89e2998a4",
+      "type": "video",
+      "name": "app_nomination_video.mov",
+      "source": "app_nomination_video.mov"
+    },
+    "27660f5f-4f7f-4d4a-aac1-de93800eb96d": {
+      "id": "27660f5f-4f7f-4d4a-aac1-de93800eb96d",
+      "type": "video",
+      "name": "map2.mov",
+      "source": "map2.mov"
+    }
+  },
+  "schemaVersion": 8,
+  "description": "Network Canvas Protocol Developed for SILOS R01DA061247\nLast Edit: March 10 2026",
+  "lastModified": "2026-03-10T17:37:45.050Z",
+  "name": "silos_chicago"
+}
