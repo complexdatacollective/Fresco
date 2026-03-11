@@ -1,7 +1,6 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
 import { type ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import Pips from '~/components/ui/Pips';
@@ -175,20 +174,9 @@ export default function useWizardState({
     title: currentStep.title,
     description: currentStep.description,
     children: (
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          layout
-          key={stepIndex}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.1 }}
-        >
-          <WizardContext.Provider value={wizardContext}>
-            <StepContent />
-          </WizardContext.Provider>
-        </motion.div>
-      </AnimatePresence>
+      <WizardContext.Provider value={wizardContext}>
+        <StepContent />
+      </WizardContext.Provider>
     ),
     footer: (
       <div className="flex grow flex-col gap-4">
@@ -200,6 +188,7 @@ export default function useWizardState({
             />
           </div>
         ) : (
+          dialog.progress !== null &&
           activeStepCount > 1 && (
             <div className="flex flex-1 justify-center">
               <Pips
@@ -210,30 +199,30 @@ export default function useWizardState({
             </div>
           )
         )}
-        <div className="flex gap-2">
-          <Button className="me-auto" onClick={handleCancel}>
-            Cancel
-          </Button>
+        <div className="phone-landscape:flex-row phone-landscape:justify-between flex flex-col gap-2">
+          <Button onClick={handleCancel}>Cancel</Button>
 
-          {showBackButton && (
-            <Button
-              onClick={handleBack}
-              disabled={isFirstActive || !backEnabled}
-            >
-              {currentStep.backLabel ?? 'Back'}
-            </Button>
-          )}
-          <Button
-            color="primary"
-            onClick={() => void handleNext()}
-            disabled={!nextEnabled || isNextLoading}
-          >
-            {isNextLoading ? (
-              <Loader2 className="animate-spin" size={16} />
-            ) : (
-              nextLabel
+          <div className="phone-landscape:flex-row phone-landscape:justify-between flex flex-col gap-2">
+            {showBackButton && (
+              <Button
+                onClick={handleBack}
+                disabled={isFirstActive || !backEnabled}
+              >
+                {currentStep.backLabel ?? 'Back'}
+              </Button>
             )}
-          </Button>
+            <Button
+              color="primary"
+              onClick={() => void handleNext()}
+              disabled={!nextEnabled || isNextLoading}
+            >
+              {isNextLoading ? (
+                <Loader2 className="animate-spin" size={16} />
+              ) : (
+                nextLabel
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     ),

@@ -72,7 +72,10 @@ export type WizardStep = {
 export type WizardDialog = BaseDialog & {
   type: 'wizard';
   steps: WizardStep[];
-  progress?: React.ComponentType<{ currentStep: number; totalSteps: number }>;
+  progress?: React.ComponentType<{
+    currentStep: number;
+    totalSteps: number;
+  }> | null;
   onFinish?: (data: Record<string, unknown>) => unknown;
 };
 
