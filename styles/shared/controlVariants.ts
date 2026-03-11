@@ -4,10 +4,10 @@ import { compose, cva, cx } from '~/utils/cva';
 export const smallSizeVariants = cva({
   variants: {
     size: {
-      sm: 'h-5',
-      md: 'h-6',
-      lg: 'h-8',
-      xl: 'h-10',
+      sm: 'tablet-portrait:h-4.5 tablet-landscape:h-5 h-4',
+      md: 'tablet-portrait:h-5.5 tablet-landscape:h-6 h-5',
+      lg: 'tablet-portrait:h-7 tablet-landscape:h-8 h-6',
+      xl: 'tablet-portrait:h-9 tablet-landscape:h-10 h-8',
     },
   },
   defaultVariants: {
@@ -120,10 +120,10 @@ export const textSizeVariants = cva({
 export const heightVariants = cva({
   variants: {
     size: {
-      sm: 'h-10',
-      md: 'h-12',
-      lg: 'h-13',
-      xl: 'h-14',
+      sm: 'tablet-portrait:h-9 tablet-landscape:h-10 h-8',
+      md: 'tablet-portrait:h-10 tablet-landscape:h-12 h-9',
+      lg: 'tablet-portrait:h-11 tablet-landscape:h-13 h-10',
+      xl: 'tablet-portrait:h-12 tablet-landscape:h-14 h-11',
     },
   },
   defaultVariants: {
@@ -143,11 +143,11 @@ export const inputControlVariants = cva({
 
 // Spacing between elements within a wrapper, such as icons and text
 export const inlineSpacingVariants = cva({
-  base: 'gap-4',
+  base: 'tablet-portrait:gap-3 tablet-landscape:gap-4 gap-2',
 });
 
 export const wrapperPaddingVariants = cva({
-  base: 'px-6',
+  base: 'tablet-portrait:px-4 tablet-landscape:px-6 px-3',
 });
 
 // Spacing for groups of controls
@@ -155,10 +155,10 @@ export const groupSpacingVariants = cva({
   base: 'inset-surface',
   variants: {
     size: {
-      sm: 'gap-2 p-4',
-      md: 'gap-2 px-6 py-4',
-      lg: 'gap-6 px-8 py-6',
-      xl: 'gap-8 p-10 py-8',
+      sm: 'tablet-portrait:gap-1.5 tablet-portrait:p-3 tablet-landscape:gap-2 tablet-landscape:p-4 gap-1 p-2',
+      md: 'tablet-portrait:gap-1.5 tablet-portrait:px-4 tablet-portrait:py-3 tablet-landscape:gap-2 tablet-landscape:px-6 tablet-landscape:py-4 gap-1 px-3 py-2',
+      lg: 'tablet-portrait:gap-4 tablet-portrait:px-6 tablet-portrait:py-4 tablet-landscape:gap-6 tablet-landscape:px-8 tablet-landscape:py-6 gap-3 px-4 py-3',
+      xl: 'tablet-portrait:gap-6 tablet-portrait:px-8 tablet-portrait:py-6 tablet-landscape:gap-8 tablet-landscape:p-10 tablet-landscape:py-8 gap-4 px-6 py-4',
     },
   },
   defaultVariants: {
