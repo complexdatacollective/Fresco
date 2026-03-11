@@ -13,10 +13,9 @@ export default function DialogPopup({
         surfaceVariants({
           level: 0,
           elevation: 'high',
-          spacingX: 'none',
-          spacingY: 'none',
+          spacing: 'none',
         }),
-        'tablet:w-auto tablet:min-w-md w-[calc(100%-var(--spacing)*10)] max-w-2xl',
+        'phone-landscape:w-auto phone-landscape:min-w-md w-[calc(100%-var(--spacing)*6)] max-w-2xl',
         'fixed top-1/2 left-1/2 -translate-1/2',
         'flex max-h-[calc(100vh-var(--spacing)*4)] flex-col',
         className,

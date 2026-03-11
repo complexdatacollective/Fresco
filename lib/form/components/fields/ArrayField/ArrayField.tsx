@@ -229,7 +229,7 @@ function ArrayFieldItemWrapperInner<T extends Record<string, unknown>>(
       dragControls={dragControls}
       className={cx(
         itemVariants(),
-        surfaceVariants({ level: 1, spacingX: 'sm', spacingY: 'sm' }),
+        surfaceVariants({ level: 1, spacing: 'sm' }),
         resolvedItemClasses,
       )}
       custom={hasMounted}

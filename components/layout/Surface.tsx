@@ -7,44 +7,29 @@ import ResponsiveContainer, {
   type ResponsiveContainerProps,
 } from './ResponsiveContainer';
 
-export const surfaceSpacingXVariants = cva({
+export const surfaceSpacingVariants = cva({
   base: '',
   variants: {
-    spacingX: {
+    section: {
+      header: 'pb-0!',
+      content: 'py-0!',
+      footer: 'pt-0!',
+      container: '',
+    },
+    spacing: {
       none: '',
-      xs: 'px-4 @xl:px-6',
-      sm: 'px-6 @xl:px-8 @4xl:px-10',
-      md: 'px-8 @xl:px-10 @4xl:px-12',
-      lg: 'px-10 @xl:px-16 @4xl:px-20',
-      xl: 'px-12 @xl:px-20 @4xl:px-28',
+      xs: 'phone-landscape:px-3 tablet-portrait:px-4 tablet-landscape:px-6 phone-landscape:py-1.5 tablet-portrait:py-2 tablet-landscape:py-4 px-2 py-1',
+      sm: 'phone-landscape:px-4 tablet-portrait:px-6 tablet-landscape:px-8 laptop:px-10 phone-landscape:py-3 tablet-portrait:py-4 tablet-landscape:py-6 laptop:py-6 px-3 py-2',
+      md: 'phone-landscape:px-6 tablet-portrait:px-8 tablet-landscape:px-10 laptop:px-12 phone-landscape:py-4 tablet-portrait:py-6 tablet-landscape:py-8 laptop:py-8 px-4 py-3',
+      lg: 'phone-landscape:px-8 tablet-portrait:px-10 tablet-landscape:px-16 laptop:px-20 phone-landscape:py-6 tablet-portrait:py-8 tablet-landscape:py-12 laptop:py-16 px-6 py-4',
+      xl: 'phone-landscape:px-10 tablet-portrait:px-12 tablet-landscape:px-20 laptop:px-28 phone-landscape:py-8 tablet-portrait:py-10 tablet-landscape:py-16 laptop:py-20 px-8 py-6',
     },
   },
   defaultVariants: {
-    spacingX: 'md',
+    spacing: 'md',
+    section: 'container',
   },
 });
-
-const surfaceSpacingYVariants = cva({
-  base: '',
-  variants: {
-    spacingY: {
-      none: '',
-      xs: 'py-2 @xl:py-4',
-      sm: 'py-4 @xl:py-6 @4xl:py-6',
-      md: 'py-6 @xl:py-8 @4xl:py-8',
-      lg: 'py-8 @xl:py-12 @4xl:py-16',
-      xl: 'py-10 @xl:py-16 @4xl:py-20',
-    },
-  },
-  defaultVariants: {
-    spacingY: 'md',
-  },
-});
-
-export const surfaceSpacingVariants = compose(
-  surfaceSpacingXVariants,
-  surfaceSpacingYVariants,
-);
 
 export const surfaceVariants = compose(
   surfaceSpacingVariants,
@@ -84,13 +69,9 @@ export const surfaceVariants = compose(
 
 export type SurfaceVariants = VariantProps<typeof surfaceVariants>;
 
-type SpacingSize = VariantProps<typeof surfaceSpacingXVariants>['spacingX'];
-
 type SurfaceProps<T extends ElementType = 'div'> = {
   as?: T;
   noContainer?: boolean;
-  /** Shorthand that sets both spacingX and spacingY. Individual axis props take precedence. */
-  spacing?: SpacingSize;
 } & SurfaceVariants &
   ResponsiveContainerProps &
   Omit<
@@ -99,7 +80,6 @@ type SurfaceProps<T extends ElementType = 'div'> = {
     | keyof ResponsiveContainerProps
     | 'as'
     | 'noContainer'
-    | 'spacing'
   >;
 
 /**
@@ -122,8 +102,6 @@ const SurfaceComponent = forwardRef<HTMLDivElement, SurfaceProps>(
       children,
       level,
       spacing,
-      spacingX,
-      spacingY,
       elevation,
       bleed,
       className,
@@ -142,8 +120,7 @@ const SurfaceComponent = forwardRef<HTMLDivElement, SurfaceProps>(
         className={cx(
           surfaceVariants({
             level,
-            spacingX: spacingX ?? spacing,
-            spacingY: spacingY ?? spacing,
+            spacing,
             elevation,
             bleed,
           }),

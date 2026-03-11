@@ -71,7 +71,7 @@ const Panel = ({
       noContainer
     >
       <div
-        className={headingClassNames({ spacingX: 'sm', spacingY: 'sm' })}
+        className={headingClassNames({ spacing: 'sm' })}
         onClick={toggleCollapsed}
       >
         <Heading level="h3" margin="none">

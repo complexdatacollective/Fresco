@@ -1,10 +1,9 @@
 'use client';
 
 import { Dialog as BaseDialog } from '@base-ui/react/dialog';
-import { motion } from 'motion/react';
 import React, { type ReactNode } from 'react';
 import {
-  surfaceSpacingXVariants,
+  surfaceSpacingVariants,
   type SurfaceVariants,
 } from '~/components/layout/Surface';
 import Modal from '~/components/Modal/Modal';
@@ -12,26 +11,8 @@ import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import CloseButton from '~/components/ui/CloseButton';
 import { ScrollArea } from '~/components/ui/ScrollArea';
-import { compose, cva, cx } from '~/utils/cva';
+import { cx } from '~/utils/cva';
 import DialogPopup from './DialogPopup';
-
-/**
- * Dialog section padding — composes surfaceSpacingXVariants for horizontal
- * padding with section-specific vertical padding, so the ScrollArea
- * scrollbar sits at the container edge.
- */
-const dialogSectionVariants = compose(
-  surfaceSpacingXVariants,
-  cva({
-    variants: {
-      section: {
-        header: 'pt-6 @xl:pt-8 @4xl:pt-8',
-        content: 'py-2',
-        footer: 'pb-6 @xl:pb-8 @4xl:pb-8',
-      },
-    },
-  }),
-);
 
 // TODO: These seem like they belong in a shared location.
 export const STATE_VARIANTS = [
@@ -99,14 +80,21 @@ export default function Dialog({
         {...rest}
       >
         <DialogHeader>
-          <BaseDialog.Title render={<Heading margin="none" />}>
+          <BaseDialog.Title render={<Heading level="h2" />}>
             {title}
           </BaseDialog.Title>
-          <BaseDialog.Close nativeButton render={<CloseButton />} />
+          <BaseDialog.Close
+            nativeButton={false}
+            render={
+              <div className="mb-2 text-2xl">
+                <CloseButton />
+              </div>
+            }
+          />
         </DialogHeader>
         <DialogContent>
           {description && (
-            <BaseDialog.Description render={<Paragraph margin="none" />}>
+            <BaseDialog.Description render={<Paragraph />}>
               {description}
             </BaseDialog.Description>
           )}
@@ -122,22 +110,23 @@ Dialog.displayName = 'Dialog';
 
 const DialogHeader = ({ children }: { children: React.ReactNode }) => {
   return (
-    <motion.div
-      layout="position"
+    <div
       className={cx(
         'flex items-center justify-between gap-2',
-        dialogSectionVariants({ section: 'header' }),
+        surfaceSpacingVariants({ section: 'header' }),
       )}
     >
       {children}
-    </motion.div>
+    </div>
   );
 };
 
 const DialogContent = ({ children }: { children: React.ReactNode }) => {
   return (
     <ScrollArea
-      viewportClassName={dialogSectionVariants({ section: 'content' })}
+      viewportClassName={surfaceSpacingVariants({
+        section: 'content',
+      })}
     >
       {children}
     </ScrollArea>
@@ -152,17 +141,16 @@ const DialogFooter = ({
   className?: string;
 }) => {
   return (
-    <motion.footer
-      layout="position"
+    <footer
       className={cx(
-        children && 'tablet:flex-row flex-col',
-        children && 'mt-6 flex items-center justify-end gap-4',
-        dialogSectionVariants({ section: 'footer' }),
+        'phone-landscape:flex-row phone-landscape:justify-between mt-4 flex flex-col gap-2',
+        children && 'mt-6',
+        surfaceSpacingVariants({ section: 'footer' }),
         className,
       )}
     >
       {children}
-    </motion.footer>
+    </footer>
   );
 };
 
