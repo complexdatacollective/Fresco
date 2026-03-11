@@ -24,7 +24,7 @@ export function fetchActivityFeedTableColumnDefs(): ColumnDef<
       ),
       cell: ({ row }) => {
         const timestamp: string = row.getValue('timestamp');
-        return <TimeAgo date={timestamp} className="flex space-x-2 truncate" />;
+        return <TimeAgo date={timestamp} />;
       },
     },
     {
@@ -44,11 +44,7 @@ export function fetchActivityFeedTableColumnDefs(): ColumnDef<
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Details" />
       ),
-      cell: ({ row }) => (
-        <div className="flex space-x-2">
-          <span className="max-w-full truncate">{row.original.message}</span>
-        </div>
-      ),
+      cell: ({ row }) => row.original.message,
       enableSorting: false,
       enableHiding: false,
     },

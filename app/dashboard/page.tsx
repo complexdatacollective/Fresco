@@ -40,7 +40,7 @@ function DashboardContentSkeleton() {
   return (
     <>
       <ResponsiveContainer
-        className="tablet:grid-cols-3 desktop:gap-6 grid grid-cols-1 gap-4"
+        className="tablet-landscape:grid-cols-3 desktop:gap-6 grid grid-cols-1 gap-4"
         maxWidth="6xl"
       >
         <StatCardSkeleton title="Protocols" icon={<ProtocolIcon />} />
@@ -66,7 +66,7 @@ function DashboardContentSkeleton() {
           to keep track of new protocols, interviews, and participants.
         </Paragraph>
       </ResponsiveContainer>
-      <ResponsiveContainer maxWidth="4xl" baseSize="100%" container={false}>
+      <ResponsiveContainer maxWidth="6xl" baseSize="100%" container={false}>
         <DataTableSkeleton columnCount={3} filterableColumnCount={1} />
       </ResponsiveContainer>
     </>
@@ -105,7 +105,7 @@ async function DashboardContent({
           to keep track of new protocols, interviews, and participants.
         </Paragraph>
       </ResponsiveContainer>
-      <ResponsiveContainer maxWidth="4xl" baseSize="100%" container={false}>
+      <ResponsiveContainer maxWidth="6xl" baseSize="100%" container={false}>
         <ActivityFeed activitiesPromise={activitiesPromise} />
       </ResponsiveContainer>
     </>

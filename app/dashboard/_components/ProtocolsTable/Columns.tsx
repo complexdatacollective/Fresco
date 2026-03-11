@@ -38,14 +38,15 @@ export const getProtocolColumns = (
       },
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-2" title={row.original.name}>
+          <div className="flex items-center gap-2">
             <Image
               src="/images/protocol-icon.png"
               alt="Protocol icon"
               width={32}
               height={24}
+              className="shrink-0"
             />
-            <span className="max-w-96 truncate">{row.original.name}</span>
+            {row.original.name}
           </div>
         );
       },
