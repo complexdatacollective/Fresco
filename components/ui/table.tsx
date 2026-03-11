@@ -18,7 +18,7 @@ const Table = React.forwardRef<
     )}
     noContainer
   >
-    <div className="w-full max-w-full overflow-x-auto">
+    <div className="w-full max-w-full overflow-x-auto overscroll-none">
       <table
         ref={ref}
         className={cx('w-full caption-bottom border-collapse', className)}
