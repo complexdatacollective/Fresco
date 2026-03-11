@@ -56,10 +56,10 @@ without needing explicit mode flags.
     },
     shape: {
       control: 'select',
-      options: ['circle', 'square'],
+      options: ['circle', 'square', 'diamond'],
       description: 'Shape of the node.',
       table: {
-        type: { summary: "'circle' | 'square'" },
+        type: { summary: "'circle' | 'square' | 'diamond'" },
         defaultValue: { summary: 'circle' },
       },
     },
@@ -171,14 +171,18 @@ export const Sizes: Story = {
 };
 
 /**
- * Nodes can be circular or square.
+ * Nodes can be circular, square, or diamond-shaped.
  */
 export const Shapes: Story = {
   render: () => (
     <div className="flex gap-8">
-      {(['circle', 'square'] as const).map((shape) => (
+      {(['circle', 'square', 'diamond'] as const).map((shape, i) => (
         <div key={shape} className="flex flex-col items-center gap-2">
-          <Node shape={shape} label={shape} />
+          <Node
+            shape={shape}
+            label={shape}
+            color={`node-color-seq-${i + 1}` as (typeof NodeColors)[number]}
+          />
           <span className="text-xs text-current/70">{shape}</span>
         </div>
       ))}
@@ -187,8 +191,7 @@ export const Shapes: Story = {
 };
 
 /**
- * Comparison of circle vs square shapes at all available sizes.
- * Useful for verifying that square nodes maintain their shape at smaller sizes.
+ * Comparison of all shapes at all available sizes.
  */
 export const ShapesAtAllSizes: Story = {
   render: () => (
@@ -197,22 +200,16 @@ export const ShapesAtAllSizes: Story = {
         <div key={size} className="flex items-center gap-8">
           <span className="w-12 text-sm font-medium">{size}</span>
           <div className="flex items-end gap-6">
-            <div className="flex flex-col items-center gap-2">
-              <Node
-                size={size}
-                shape="circle"
-                label={size === 'xxs' ? '' : 'Circle'}
-              />
-              <span className="text-xs text-current/70">circle</span>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <Node
-                size={size}
-                shape="square"
-                label={size === 'xxs' ? '' : 'Square'}
-              />
-              <span className="text-xs text-current/70">square</span>
-            </div>
+            {(['circle', 'square', 'diamond'] as const).map((shape) => (
+              <div key={shape} className="flex flex-col items-center gap-2">
+                <Node
+                  size={size}
+                  shape={shape}
+                  label={size === 'xxs' ? '' : shape}
+                />
+                <span className="text-xs text-current/70">{shape}</span>
+              </div>
+            ))}
           </div>
         </div>
       ))}
@@ -223,18 +220,13 @@ export const ShapesAtAllSizes: Story = {
     docs: {
       description: {
         story: `
-Side-by-side comparison of circle and square shapes at each size.
+Side-by-side comparison of all shapes at each size.
 
 **Circle nodes** use \`rounded-full\` for a perfect circle.
 
-**Square nodes** use proportional border-radius (~25% of node size) to maintain consistent visual appearance across sizes:
-- **xxs** (32px): 8px radius
-- **xs** (~64px): 16px radius
-- **sm** (~88px): 24px radius
-- **md** (~112px): \`rounded\` (~28px from \`--radius\` CSS variable)
-- **lg** (~136px): 34px radius
+**Square nodes** use proportional border-radius (~25% of node size).
 
-This scaling ensures squares look visually consistent rather than becoming circular at small sizes or too sharp at large sizes.
+**Diamond nodes** are rotated squares with counter-rotated content. They use the same proportional border-radius as square, with all shadow effects (selected, linking, focus) rotating with the element.
         `,
       },
     },
@@ -651,6 +643,66 @@ export const LinkingColors: Story = {
       description: {
         story:
           'The linking animation uses a pulsing box-shadow effect to indicate the node is ready to form a connection.',
+      },
+    },
+  },
+};
+
+/**
+ * Diamond shape with all visual states to verify shadow effects rotate correctly.
+ */
+export const DiamondStates: Story = {
+  render: () => (
+    <div className="flex flex-wrap items-center gap-8">
+      <div className="flex flex-col items-center gap-2">
+        <Node shape="diamond" label="Default" />
+        <span className="text-xs text-current/70">Default</span>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <Node
+          shape="diamond"
+          label="Selected"
+          selected
+          color="node-color-seq-2"
+        />
+        <span className="text-xs text-current/70">Selected</span>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <Node
+          shape="diamond"
+          label="Linking"
+          linking
+          color="node-color-seq-3"
+        />
+        <span className="text-xs text-current/70">Linking</span>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <Node
+          shape="diamond"
+          label="Both"
+          selected
+          linking
+          color="node-color-seq-4"
+        />
+        <span className="text-xs text-current/70">Both</span>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <Node
+          shape="diamond"
+          label="Disabled"
+          disabled
+          color="node-color-seq-5"
+        />
+        <span className="text-xs text-current/70">Disabled</span>
+      </div>
+    </div>
+  ),
+  parameters: {
+    chromatic: { pauseAnimationAtEnd: true },
+    docs: {
+      description: {
+        story:
+          'Diamond nodes are rotated 45 degrees. All shadow effects (selected ring, linking pulse, focus outline) rotate with the element. The label text is counter-rotated to remain upright.',
       },
     },
   },

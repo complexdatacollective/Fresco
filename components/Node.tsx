@@ -40,14 +40,15 @@ const nodeVariants = cva({
   variants: {
     size: {
       xxs: 'size-8',
-      xs: 'desktop:size-18 tablet:size-16 size-14',
-      sm: 'desktop:size-24 tablet:size-22 size-20',
-      md: 'desktop:size-30 tablet:size-28 size-24',
-      lg: 'desktop:size-36 tablet:size-34 size-30',
+      xs: 'desktop:size-18 tablet-landscape:size-16 size-14',
+      sm: 'desktop:size-24 tablet-landscape:size-22 size-20',
+      md: 'desktop:size-30 tablet-landscape:size-28 size-24',
+      lg: 'desktop:size-36 tablet-landscape:size-34 size-30',
     },
     shape: {
       circle: 'rounded-full',
       square: 'rounded',
+      diamond: 'rotate-45 rounded',
     },
     color: {
       'node-color-seq-1': 'outline-node-1 [--base:var(--color-node-1)]',
@@ -72,6 +73,11 @@ const nodeVariants = cva({
     { shape: 'square', size: 'sm', class: 'rounded-[24px]' },
     // md uses default 'rounded' (~28px)
     { shape: 'square', size: 'lg', class: 'rounded-[34px]' },
+    // Diamond uses the same proportional radius as square
+    { shape: 'diamond', size: 'xxs', class: 'rounded-[8px]' },
+    { shape: 'diamond', size: 'xs', class: 'rounded-[16px]' },
+    { shape: 'diamond', size: 'sm', class: 'rounded-[24px]' },
+    { shape: 'diamond', size: 'lg', class: 'rounded-[34px]' },
   ],
   defaultVariants: {
     size: 'md',
@@ -100,7 +106,7 @@ export const labelVariants = cva({
   },
 });
 
-export function truncateNodeLabel(label: string, maxLength = 22): string {
+export function truncateNodeLabel(label: string, maxLength = 35): string {
   if (label.length <= maxLength) return label;
   // Use a soft hyphen (\u{AD}) to allow breaking long words if needed
   return `${label.substring(0, maxLength - 4)}\u{AD}...`;
@@ -149,12 +155,8 @@ type UINodeProps = {
  * - onClick present: enables press animation, sets pointer cursor
  * - style.cursor provided: uses that cursor (e.g., 'grab' from drag systems)
  *
- * Label behavior:
- * - Text is truncated with ellipsis if too long, but supports multi-line with breaks
- * - Uses RenderMarkdown to allow basic formatting in labels
- *
  * Shapes:
- * - Circle (default) or square, controlled by shape prop
+ * - Circle (default), square, or diamond (rotated square with counter-rotated content)
  */
 const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
   const {
@@ -179,6 +181,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
   } = props;
 
   const labelWithEllipsis = truncateNodeLabel(label);
+  const isDiamond = shape === 'diamond';
 
   // Infer interaction mode from props
   const hasClickHandler = !!onClick;
@@ -239,6 +242,15 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     stateScope,
     animate,
   ]);
+
+  const nodeContent = (
+    <>
+      {loading && <Loader2 className="animate-spin" size={24} />}
+      {!loading && (
+        <span className={labelVariants({ size })}>{labelWithEllipsis}</span>
+      )}
+    </>
+  );
 
   return (
     <motion.button
@@ -305,9 +317,10 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
           />
         )}
       </AnimatePresence>
-      {loading && <Loader2 className="animate-spin" size={24} />}
-      {!loading && (
-        <span className={labelVariants({ size })}>{labelWithEllipsis}</span>
+      {isDiamond ? (
+        <span className="-rotate-45">{nodeContent}</span>
+      ) : (
+        nodeContent
       )}
     </motion.button>
   );
