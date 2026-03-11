@@ -1,11 +1,11 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import {
   authStatePathForProject,
   saveAuthState,
 } from '../../config/test-config.js';
 import { expect, expectURL, test } from '../../fixtures/test.js';
 import { fillField } from '../../helpers/form.js';
-import fs from 'node:fs/promises';
-import path from 'node:path';
 
 test.describe('Sign In Page', () => {
   test('visual: sign in page', async ({ page, capturePage }) => {
@@ -32,7 +32,7 @@ test.describe('Sign In Page', () => {
 
     await fillField(page, 'username', 'testadmin');
     await fillField(page, 'password', 'TestAdmin123!');
-    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click();
 
     await page.waitForURL('**/dashboard', { timeout: 15_000 });
     await expectURL(page, /\/dashboard/);

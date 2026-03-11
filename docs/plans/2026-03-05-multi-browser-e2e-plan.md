@@ -15,6 +15,7 @@
 ## Important Context
 
 There are TWO test systems in this project:
+
 - **Active (`specs/`)**: Uses `fixtures/test.ts` with `DatabaseIsolation` (advisory locks). Configured in `playwright.config.ts`.
 - **WIP (`suites/`)**: Uses `fixtures/fixtures.ts` with `context-resolver.ts` and `DatabaseSnapshots`. NOT in the Playwright config yet.
 
@@ -25,6 +26,7 @@ The WIP system's `context-resolver.ts` imports `CONTEXT_MAPPINGS` from `test-con
 ### Task 1: Rewrite `test-config.ts` with BROWSERS, ENVIRONMENTS, and derived functions
 
 **Files:**
+
 - Rewrite: `tests/e2e/config/test-config.ts`
 
 **Step 1: Write the new `test-config.ts`**
@@ -41,7 +43,7 @@ import {
 
 type BrowserConfig = {
   name: string;
-  device: typeof devices[string];
+  device: (typeof devices)[string];
 };
 
 type EnvironmentConfig = {
@@ -196,6 +198,7 @@ git commit -m "refactor(e2e): rewrite test-config with BROWSERS, ENVIRONMENTS, a
 ### Task 2: Update `playwright.config.ts` to use generated projects
 
 **Files:**
+
 - Modify: `tests/e2e/playwright.config.ts`
 
 **Step 1: Rewrite the config**
@@ -266,6 +269,7 @@ git commit -m "refactor(e2e): use generated projects in playwright config"
 ### Task 3: Update `global-setup.ts` to start all browser environments
 
 **Files:**
+
 - Modify: `tests/e2e/global-setup.ts`
 
 **Step 1: Rewrite global setup**
@@ -362,6 +366,7 @@ git commit -m "refactor(e2e): dynamically start all browser environments in glob
 ### Task 4: Update the database fixture in `fixtures/test.ts`
 
 **Files:**
+
 - Modify: `tests/e2e/fixtures/test.ts:91-105`
 
 **Step 1: Update the database fixture**
@@ -436,6 +441,7 @@ git commit -m "refactor(e2e): use getContextMappings() in database fixture"
 ### Task 5: Update `specs/auth/login.spec.ts` for per-browser auth state
 
 **Files:**
+
 - Modify: `tests/e2e/specs/auth/login.spec.ts`
 
 **Step 1: Update auth spec**
@@ -443,7 +449,10 @@ git commit -m "refactor(e2e): use getContextMappings() in database fixture"
 The auth spec must save state to a browser-specific path derived from the project name.
 
 ```ts
-import { authStatePathForProject, saveAuthState } from '../../config/test-config.js';
+import {
+  authStatePathForProject,
+  saveAuthState,
+} from '../../config/test-config.js';
 import { expect, expectURL, test } from '../../fixtures/test.js';
 import { fillField } from '../../helpers/form.js';
 import fs from 'node:fs/promises';
@@ -474,7 +483,7 @@ test.describe('Sign In Page', () => {
 
     await fillField(page, 'username', 'testadmin');
     await fillField(page, 'password', 'TestAdmin123!');
-    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click();
 
     await page.waitForURL('**/dashboard', { timeout: 15_000 });
     await expectURL(page, /\/dashboard/);
@@ -502,6 +511,7 @@ git commit -m "refactor(e2e): save per-browser auth state in login spec"
 ### Task 6: Update `context-resolver.ts` for compatibility
 
 **Files:**
+
 - Modify: `tests/e2e/fixtures/context-resolver.ts:4,115-145`
 
 **Step 1: Update imports and usage**
@@ -509,10 +519,13 @@ git commit -m "refactor(e2e): save per-browser auth state in login spec"
 The `context-resolver.ts` (used by the WIP `suites/` system) imports `CONTEXT_MAPPINGS` which no longer exists. Update it to use `getContextMappings()`.
 
 Replace line 4:
+
 ```ts
 import { CONTEXT_MAPPINGS } from '../config/test-config';
 ```
+
 With:
+
 ```ts
 import { getContextMappings } from '../config/test-config';
 ```
@@ -581,6 +594,7 @@ git commit -m "refactor(e2e): update context-resolver to use getContextMappings(
 ### Task 7: Update `suites/auth/dashboard-setup.spec.ts` for compatibility
 
 **Files:**
+
 - Modify: `tests/e2e/suites/auth/dashboard-setup.spec.ts`
 
 **Step 1: Update auth spec in suites**
@@ -591,9 +605,15 @@ Replace the removed `AUTH_STATE_PATH` import with `authStatePathForProject`.
 import { test } from '@playwright/test';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { authStatePathForProject, saveAuthState } from '../../config/test-config.js';
+import {
+  authStatePathForProject,
+  saveAuthState,
+} from '../../config/test-config.js';
 
-test('authenticate as admin for dashboard', async ({ page, context }, testInfo) => {
+test('authenticate as admin for dashboard', async ({
+  page,
+  context,
+}, testInfo) => {
   const statePath = authStatePathForProject(testInfo.project.name);
   await fs.mkdir(path.dirname(statePath), { recursive: true });
 
@@ -631,6 +651,7 @@ git commit -m "refactor(e2e): update suites auth spec for per-browser auth paths
 ### Task 8: Update `.github/workflows/e2e.yml` with browser matrix
 
 **Files:**
+
 - Modify: `.github/workflows/e2e.yml:14-59`
 
 **Step 1: Add matrix strategy to e2e job**
@@ -695,9 +716,9 @@ jobs:
 Also update the `resolve-pr` job's condition to check across matrix runs. Change line 62-63:
 
 ```yaml
-  resolve-pr:
-    if: failure()
-    needs: e2e
+resolve-pr:
+  if: failure()
+  needs: e2e
 ```
 
 Note: `fail-fast: false` ensures all browsers run even if one fails, so you get full cross-browser results.
@@ -720,6 +741,7 @@ git commit -m "ci(e2e): add browser matrix strategy for parallel cross-browser t
 ### Task 9: Delete old visual snapshots and add `.gitkeep` for new directories
 
 **Files:**
+
 - Delete: `tests/e2e/visual-snapshots/*.png` (all files in flat directory)
 - Create: `tests/e2e/visual-snapshots/.gitkeep`
 
@@ -749,6 +771,7 @@ git commit -m "chore(e2e): remove old flat visual snapshots for per-browser subd
 ### Task 10: Update `tests/e2e/.gitignore` for per-browser auth files
 
 **Files:**
+
 - Modify or create: `tests/e2e/.gitignore`
 
 **Step 1: Check current .gitignore**
@@ -756,6 +779,7 @@ git commit -m "chore(e2e): remove old flat visual snapshots for per-browser subd
 Look for existing entries covering `.auth/`. If `.auth/` is already ignored, no change needed. If not, or if it only ignores `admin.json`, update to ignore the whole `.auth/` directory.
 
 Ensure these entries exist:
+
 ```
 .auth/
 .context/
@@ -805,6 +829,7 @@ git commit -m "chore: lint and format e2e test changes"
 Run: `pnpm exec playwright test --config=tests/e2e/playwright.config.ts --list 2>&1 | head -30`
 
 Expected output should show 9 projects:
+
 - `setup-chromium`, `setup-firefox`, `setup-webkit`
 - `auth-dashboard-chromium`, `auth-dashboard-firefox`, `auth-dashboard-webkit`
 - `dashboard-chromium`, `dashboard-firefox`, `dashboard-webkit`
@@ -890,12 +915,14 @@ Expected: Only Firefox projects run (setup-firefox, auth-dashboard-firefox, dash
 ### Task 16: Update E2E documentation
 
 **Files:**
+
 - Modify: `tests/e2e/CLAUDE.md`
 - Modify: `tests/e2e/README.md`
 
 **Step 1: Update CLAUDE.md**
 
 Update the architecture section, project table, file structure, and add documentation about:
+
 - The `BROWSERS` and `ENVIRONMENTS` config arrays
 - Per-browser isolation (separate DB + server per browser)
 - How to add/remove browsers
