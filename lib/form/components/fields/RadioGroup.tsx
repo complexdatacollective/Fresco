@@ -149,13 +149,16 @@ export default function RadioGroupField(props: RadioGroupFieldProps) {
                   duration: 0.3,
                   bounce: 0.3,
                 }}
+                tabIndex={-1}
               >
                 <Radio.Root
                   value={optionValue}
                   disabled={isOptionDisabled}
+                  nativeButton
                   render={(renderProps, state) => (
-                    <div
+                    <button
                       {...renderProps}
+                      type="button"
                       aria-label={option.label}
                       className={radioIndicatorVariants({
                         size,
@@ -180,7 +183,7 @@ export default function RadioGroupField(props: RadioGroupFieldProps) {
                           }}
                         />
                       </svg>
-                    </div>
+                    </button>
                   )}
                 />
               </motion.div>
