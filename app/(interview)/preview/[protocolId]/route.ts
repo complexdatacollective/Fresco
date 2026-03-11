@@ -56,8 +56,9 @@ const handler = async (
     await shutdownPostHog();
   });
 
-  // Redirect to the preview interview page (no database persistence)
+  // Redirect to the preview interview page (clear any stale query params)
   url.pathname = `/preview/${protocolId}/interview`;
+  url.search = '';
   return NextResponse.redirect(url);
 };
 

@@ -87,8 +87,9 @@ const handler = async (
     await shutdownPostHog();
   });
 
-  // Redirect to the interview
+  // Redirect to the interview (clear any stale query params)
   url.pathname = `/interview/${createdInterviewId}`;
+  url.search = '';
   return NextResponse.redirect(url);
 };
 
