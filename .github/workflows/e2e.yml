@@ -107,8 +107,9 @@ jobs:
       - name: Download playwright report
         uses: actions/download-artifact@v4
         with:
-          name: playwright-report
+          pattern: playwright-report-*
           path: new-report
+          merge-multiple: true
 
       - name: Fetch existing GitHub Pages content
         uses: actions/checkout@v4
