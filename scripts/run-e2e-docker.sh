@@ -60,4 +60,11 @@ docker run --rm \
   -w /work \
   --add-host=host.docker.internal:host-gateway \
   "${IMAGE}" \
-  sh -c "npm i -g pnpm && pnpm install --frozen-lockfile && pnpm build && $PLAYWRIGHT_CMD"
+  sh -c "npm i -g pnpm && pnpm install --frozen-lockfile && \
+    BUILD_HASH=\$(echo \"\$(git rev-parse HEAD)-\$(git diff | md5sum)\" | md5sum | cut -d' ' -f1) && \
+    if [ -f .next/BUILD_HASH ] && [ \"\$(cat .next/BUILD_HASH)\" = \"\$BUILD_HASH\" ]; then \
+      echo 'Skipping build (no changes since last build)'; \
+    else \
+      pnpm build && echo \"\$BUILD_HASH\" > .next/BUILD_HASH; \
+    fi && \
+    $PLAYWRIGHT_CMD"
