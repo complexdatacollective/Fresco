@@ -64,49 +64,30 @@ export function BaseField({
       layout="position"
       {...containerProps}
       className={cx(
-        'group w-full grow not-last:mb-6',
-        inline && 'flex items-center justify-between gap-4',
+        'group @container w-full grow not-last:mb-6',
+        inline &&
+          'tablet-portrait:flex-row tablet-portrait:items-center tablet-portrait:justify-between tablet-portrait:gap-4',
+        'flex flex-col',
       )}
     >
-      {inline ? (
-        <>
-          <div>
-            <FieldLabel id={`${id}-label`} htmlFor={id} required={required}>
-              {label}
-            </FieldLabel>
-            <Hint id={`${id}-hint`}>
-              {hint && <Paragraph>{hint}</Paragraph>}
-              {validationSummary}
-            </Hint>
-          </div>
-          <div>
-            {children}
-            <FieldErrors
-              id={`${id}-error`}
-              name={name}
-              errors={errors}
-              show={showErrors}
-            />
-          </div>
-        </>
-      ) : (
-        <>
-          <FieldLabel id={`${id}-label`} htmlFor={id} required={required}>
-            {label}
-          </FieldLabel>
-          <Hint id={`${id}-hint`}>
-            {hint && <Paragraph>{hint}</Paragraph>}
-            {validationSummary}
-          </Hint>
-          {children}
-          <FieldErrors
-            id={`${id}-error`}
-            name={name}
-            errors={errors}
-            show={showErrors}
-          />
-        </>
-      )}
+      <div>
+        <FieldLabel id={`${id}-label`} htmlFor={id} required={required}>
+          {label}
+        </FieldLabel>
+        <Hint id={`${id}-hint`}>
+          {hint && <Paragraph>{hint}</Paragraph>}
+          {validationSummary}
+        </Hint>
+      </div>
+      <div>
+        {children}
+        <FieldErrors
+          id={`${id}-error`}
+          name={name}
+          errors={errors}
+          show={showErrors}
+        />
+      </div>
     </motion.div>
   );
 }
