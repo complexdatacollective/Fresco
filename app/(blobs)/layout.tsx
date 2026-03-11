@@ -17,7 +17,7 @@ export default function Layout({ children }: PropsWithChildren) {
       </div>
 
       <div className="relative z-10 grid min-h-dvh w-full grid-rows-[auto_1fr_auto]">
-        <header className="p-4">
+        <header className="phone-landscape:p-4 p-2">
           <Link href="/">
             <Image
               src="/images/NC-Type and Mark Wide Pos.svg"
@@ -29,7 +29,9 @@ export default function Layout({ children }: PropsWithChildren) {
             />
           </Link>
         </header>
-        <main className="flex items-center justify-center p-4">{children}</main>
+        <main className="phone-landscape:p-4 flex items-center justify-center p-2">
+          {children}
+        </main>
         <NetlifyBadge />
       </div>
     </>

@@ -67,7 +67,7 @@ export default function NodeDrawer({
             exit={{ y: '150%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 28 }}
             className={cx(
-              'tablet:min-w-sm tablet:w-fit z-10 mx-auto w-full max-w-2xl drop-shadow-xl',
+              'tablet-landscape:min-w-sm tablet-landscape:w-fit z-10 mx-auto w-full max-w-2xl drop-shadow-xl',
               floating ? 'absolute inset-x-0 bottom-0' : 'shrink-0',
             )}
           >

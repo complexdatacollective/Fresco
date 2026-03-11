@@ -8,6 +8,7 @@ type ProgressBarProps = {
   percentProgress?: number;
   nudge?: boolean;
   label?: string;
+  className?: string;
 };
 
 const ProgressBar = ({
@@ -17,6 +18,7 @@ const ProgressBar = ({
   percentProgress = 0,
   nudge = true,
   label,
+  className,
 }: ProgressBarProps) => {
   const isIndeterminate = indeterminate || percentProgress === null;
   const value = isIndeterminate ? null : percentProgress;
@@ -39,6 +41,7 @@ const ProgressBar = ({
         nudge && 'data-complete:animate-pulse-glow',
         // Clickable cursor
         onClick && 'cursor-pointer',
+        className,
       )}
       data-orientation={orientation}
     >

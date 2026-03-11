@@ -29,10 +29,10 @@ export default function SettingsCard({
       data-testid={id ? `${id}-card` : undefined}
       className={cx(
         'w-full max-w-3xl scroll-mt-32',
-        controlArea && 'tablet:gap-10 flex gap-6',
+        controlArea && 'tablet-landscape:gap-10 flex gap-6',
         className,
         variant === 'destructive' && 'border-destructive border',
-        'tablet:flex-row flex-col rounded',
+        'tablet-landscape:flex-row flex-col rounded',
       )}
       maxWidth="none"
       baseSize="content"
@@ -54,7 +54,7 @@ export default function SettingsCard({
         )}
       </div>
       {controlArea && (
-        <div className="tablet:items-end tablet:justify-center flex shrink-0 flex-col items-start">
+        <div className="tablet-landscape:items-end tablet-landscape:justify-center flex shrink-0 flex-col items-start">
           {controlArea}
         </div>
       )}
@@ -76,9 +76,9 @@ export function SettingsCardSkeleton({
       <Surface
         className={cx(
           'w-3xl max-w-3xl scroll-mt-32',
-          'tablet:gap-10 flex gap-6',
+          'tablet-landscape:gap-10 flex gap-6',
           className,
-          'tablet:flex-row flex-col rounded',
+          'tablet-landscape:flex-row flex-col rounded',
         )}
         maxWidth="none"
         baseSize="content"
@@ -88,7 +88,7 @@ export function SettingsCardSkeleton({
           <Skeleton className="h-5 w-48" />
           <Skeleton className="h-4 w-80" />
         </div>
-        <div className="tablet:items-end tablet:justify-center flex shrink-0 flex-col items-start">
+        <div className="tablet-landscape:items-end tablet-landscape:justify-center flex shrink-0 flex-col items-start">
           <Skeleton className="h-10 w-24" />
         </div>
       </Surface>
@@ -100,7 +100,7 @@ export function SettingsCardSkeleton({
       className={cx(
         'w-3xl max-w-3xl scroll-mt-32',
         className,
-        'tablet:flex-row flex-col rounded',
+        'tablet-landscape:flex-row flex-col rounded',
       )}
       maxWidth="none"
       baseSize="content"
@@ -112,7 +112,7 @@ export function SettingsCardSkeleton({
           {Array.from({ length: rows }).map((_, i) => (
             <div
               key={i}
-              className="tablet:flex-row tablet:items-center tablet:justify-between tablet:gap-4 flex w-full flex-col gap-3 py-4"
+              className="tablet-landscape:flex-row tablet-landscape:items-center tablet-landscape:justify-between tablet-landscape:gap-4 flex w-full flex-col gap-3 py-4"
             >
               <div className="min-w-0 flex-1 space-y-2">
                 <Skeleton className="h-4 w-48" />

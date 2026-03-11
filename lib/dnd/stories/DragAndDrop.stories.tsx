@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
+import Node from '~/components/Node';
 import Heading from '~/components/typography/Heading';
 import { Collection } from '~/lib/collection/components/Collection';
 import { useDragAndDrop } from '~/lib/collection/dnd/useDragAndDrop';
 import { InlineGridLayout } from '~/lib/collection/layout/InlineGridLayout';
 import { type DragMetadata } from '~/lib/dnd';
-import Node from '~/components/Node';
 
 type Item = {
   id: string;
@@ -171,7 +171,7 @@ function DragDropExample() {
           />
         </div>
         <div>
-          <div className="tablet:grid-cols-2 grid grid-cols-1 gap-4">
+          <div className="tablet-landscape:grid-cols-2 grid grid-cols-1 gap-4">
             <List
               title="Fruits Only"
               acceptTypes={['fruit']}

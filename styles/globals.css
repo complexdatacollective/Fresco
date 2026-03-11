@@ -272,12 +272,35 @@
   */
   --breakpoint-*: initial;
 
-  --breakpoint-phone: 20rem; /* 320px - minimum mobile */
-  --breakpoint-tablet: 48rem; /* 768px - small tablets, iPad Mini */
-  --breakpoint-tablet-portrait: 64rem; /* 1024px - iPad Pro 11" */
-  --breakpoint-laptop: 80rem; /* 1280px - small laptops, iPad Pro 12.9" */
-  --breakpoint-desktop: 120rem; /* 1920px - full HD desktop */
-  --breakpoint-desktop-lg: 160rem; /* 2560px - 2K/4K displays */
+  /* Phone - Portrait */
+  --breakpoint-phone: 320px;
+  --breakpoint-phone-portrait-max: 479px;
+
+  /* Phone - Landscape */
+  --breakpoint-phone-landscape: 480px;
+  --breakpoint-phone-landscape-max: 767px;
+
+  /* Tablet - Portrait */
+  --breakpoint-tablet-portrait: 768px;
+  --breakpoint-tablet-portrait-max: 1023px;
+
+  /* Tablet - Landscape */
+  --breakpoint-tablet-landscape: 1024px;
+  --breakpoint-tablet-landscape-max: 1279px;
+
+  /* Laptop */
+  --breakpoint-laptop: 1280px;
+  --breakpoint-laptop-max: 1535px;
+
+  /* Desktop */
+  --breakpoint-desktop: 1536px;
+  --breakpoint-desktop-max: 1919px;
+
+  /* Large Desktop */
+  --breakpoint-desktop-lg: 1920px;
+
+  /* Extra Large Desktop */
+  --breakpoint-desktop-xl: 2560px;
 
   /*
     Border radius

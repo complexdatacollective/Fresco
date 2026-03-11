@@ -23,7 +23,7 @@ export function DataTablePagination<TData>({
   const showPageCount = pageCount > 0;
 
   return (
-    <div className="tablet:flex-row tablet:gap-6 laptop:gap-8 mx-auto flex w-fit flex-col items-center justify-between gap-4">
+    <div className="tablet-landscape:flex-row tablet-landscape:gap-6 laptop:gap-8 mx-auto flex w-fit flex-col items-center justify-between gap-4">
       <div className="flex items-center space-x-2">
         <Paragraph
           intent="smallText"

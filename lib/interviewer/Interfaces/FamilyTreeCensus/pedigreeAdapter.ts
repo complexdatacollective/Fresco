@@ -32,7 +32,7 @@ type ConversionResult = {
 function mapSex(sex: Sex | undefined): Sex {
   if (sex === 'male') return 'male';
   if (sex === 'female') return 'female';
-  if (sex === 'terminated') return 'terminated';
+  if (sex === 'intersex') return 'intersex';
   return 'unknown';
 }
 
@@ -61,7 +61,7 @@ export function storeToPedigreeInput(
   const sex: Sex[] = indexToId.map((nid) => mapSex(nodes.get(nid)?.sex));
   const gender: Gender[] = indexToId.map((nid) => {
     const node = nodes.get(nid);
-    if (node?.gender) return node.gender;
+    if (node?.gender && node.gender.length > 0) return node.gender[0]!;
     return mapGender(node?.sex);
   });
   const parents: ParentConnection[][] = Array.from({ length: n }, () => []);

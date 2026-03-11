@@ -1,10 +1,10 @@
 'use client';
-import type { Participant, Protocol } from '~/lib/db/generated/client';
 import { type Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
 import { SuperJSON } from 'superjson';
 import { Button } from '~/components/ui/Button';
+import type { Participant, Protocol } from '~/lib/db/generated/client';
 import SelectField from '~/lib/form/components/fields/Select/Styled';
 import {
   type GetParticipantsQuery,
@@ -54,7 +54,7 @@ export default function RecruitmentTestSection({
 
   return (
     <>
-      <div className="tablet:flex-row flex flex-col gap-4">
+      <div className="tablet-landscape:flex-row flex flex-col gap-4">
         <SelectField
           name="Protocol"
           options={protocols.map((p) => ({ value: p.id, label: p.name }))}
@@ -85,7 +85,7 @@ export default function RecruitmentTestSection({
           placeholder="Select a Participant..."
         />
       </div>
-      <div className="tablet:flex-row mt-4 flex flex-col gap-2">
+      <div className="tablet-landscape:flex-row mt-4 flex flex-col gap-2">
         <Button
           disabled={buttonDisabled}
           onClick={() => router.push(getInterviewURL())}

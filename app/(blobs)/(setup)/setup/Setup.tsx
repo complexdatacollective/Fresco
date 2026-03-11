@@ -47,7 +47,7 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
 
   const cardClasses = cx(
     containerClasses,
-    'tablet:flex-row tablet:gap-6 mx-4 flex flex-col gap-4',
+    'tablet-landscape:flex-row tablet-landscape:gap-6 mx-4 flex flex-col gap-4',
   );
 
   useEffect(() => {

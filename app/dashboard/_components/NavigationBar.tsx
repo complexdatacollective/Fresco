@@ -99,7 +99,7 @@ export function NavigationBar() {
             Fresco
           </Heading>
         </Link>
-        <ul className="tablet:flex tablet-portrait:gap-10 hidden items-center gap-4">
+        <ul className="tablet-landscape:flex tablet-portrait:gap-10 hidden items-center gap-4">
           <NavButton
             href="/dashboard"
             isActive={pathname === '/dashboard'}
@@ -121,7 +121,7 @@ export function NavigationBar() {
             isActive={pathname === '/dashboard/interviews'}
           />
         </ul>
-        <div className="tablet:flex hidden items-center gap-6">
+        <div className="tablet-landscape:flex hidden items-center gap-6">
           <NavButton
             label={
               <div className="flex items-center gap-2">
@@ -138,7 +138,7 @@ export function NavigationBar() {
           </motion.div>
         </div>
 
-        <div className="tablet:hidden">
+        <div className="tablet-landscape:hidden">
           <MobileNavDrawer />
         </div>
       </MotionSurface>

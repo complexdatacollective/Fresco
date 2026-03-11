@@ -2,7 +2,6 @@
 
 import Surface from '~/components/layout/Surface';
 import { Button } from '~/components/ui/Button';
-import ProgressBar from '~/components/ui/ProgressBar';
 import useDialog from '~/lib/dialogs/useDialog';
 import BioParentsStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/BioParentsStep';
 import ChildrenWithPartnerDetailStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/ChildrenWithPartnerDetailStep';
@@ -31,14 +30,7 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
     const result = await openDialog({
       type: 'wizard',
       title: 'Build your family tree',
-      progress: ({ currentStep, totalSteps }) => (
-        <ProgressBar
-          orientation="horizontal"
-          percentProgress={((currentStep + 1) / totalSteps) * 100}
-          nudge={false}
-          label="Wizard progress"
-        />
-      ),
+      progress: null,
       steps: [
         {
           title: 'Your family',
@@ -53,7 +45,8 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
         },
         {
           title: 'Biological parents',
-          description: 'For the purposes of this task, we need to ask you about your biological parents specifically.',
+          description:
+            'For the purposes of this task, we need to ask you about your biological parents specifically.',
           content: BioParentsStep,
           skip: (d) => {
             const parents = (d.parents as ParentDetail[] | undefined) ?? [];
@@ -74,7 +67,8 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
         },
         {
           title: 'Children with partner details',
-          description: 'Please tell us about each of your children with your current partner.',
+          description:
+            'Please tell us about each of your children with your current partner.',
           content: ChildrenWithPartnerDetailStep,
           skip: (d) =>
             !(d.hasPartner as boolean | undefined) ||
@@ -86,7 +80,8 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
         },
         {
           title: 'Other children details',
-          description: 'Please tell us about each of your other children from prior relationships.',
+          description:
+            'Please tell us about each of your other children from prior relationships.',
           content: OtherChildrenDetailStep,
           skip: (d) => (d.otherChildrenCount as number | undefined) === 0,
           nextLabel: 'Get started',
@@ -105,7 +100,7 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
                 name:
                   typeof data.partnerName === 'string' ? data.partnerName : '',
                 sex: data.partnerSex as Sex | undefined,
-                gender: data.partnerGender as Gender | undefined,
+                gender: data.partnerGender as Gender[] | undefined,
               }
             : { hasPartner: false },
           childrenWithPartner:

@@ -3,14 +3,14 @@
 import { FileDown, Upload } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import { Button, type ButtonProps } from '~/components/ui/Button';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '~/components/ui/popover';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
 import { PROTOCOL_EXTENSION } from '~/fresco.config';
 import { cx } from '~/utils/cva';
 
@@ -61,12 +61,12 @@ export default function ProtocolImportPopover({
           variant={buttonVariant}
           size={buttonSize}
           className={className}
+          icon={<FileDown />}
         >
-          <FileDown className="inline-block size-4" />
           Import protocols
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-72">
+      <PopoverContent align="end" className="w-full max-w-md">
         <div
           {...getRootProps()}
           className={cx(

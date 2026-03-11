@@ -227,17 +227,20 @@ export default function UserManagement({
 
   const { confirm } = useDialog();
 
-  const doDeleteUsers = useCallback(async (usersToDelete: UserRow[]) => {
-    const ids = usersToDelete.map((u) => u.id);
-    const result = await deleteUsers({ ids });
+  const doDeleteUsers = useCallback(
+    async (usersToDelete: UserRow[]) => {
+      const ids = usersToDelete.map((u) => u.id);
+      const result = await deleteUsers({ ids });
 
-    if (result.error) {
-      setError(result.error);
-      return;
-    }
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
 
-    router.refresh();
-  }, [router]);
+      router.refresh();
+    },
+    [router],
+  );
 
   const handleDeleteUser = useCallback(
     (user: UserRow) => {
@@ -494,10 +497,10 @@ export default function UserManagement({
         spacing="sm"
       >
         <div className="flex flex-col justify-between gap-4 pb-4">
-          <div className="tablet:flex-row tablet:items-center tablet:justify-between flex flex-col gap-4 pb-4">
-            <div className="tablet:gap-6 flex items-center gap-4">
-              <div className="bg-surface-2 text-surface-2-contrast tablet:size-14 inset-surface flex size-10 shrink-0 items-center justify-center rounded-full">
-                <User className="tablet:size-8 size-5" />
+          <div className="tablet-landscape:flex-row tablet-landscape:items-center tablet-landscape:justify-between flex flex-col gap-4 pb-4">
+            <div className="tablet-landscape:gap-6 flex items-center gap-4">
+              <div className="bg-surface-2 text-surface-2-contrast tablet-landscape:size-14 inset-surface flex size-10 shrink-0 items-center justify-center rounded-full">
+                <User className="tablet-landscape:size-8 size-5" />
               </div>
               <div className="min-w-0">
                 <Paragraph intent="smallText" margin="none">
@@ -512,7 +515,7 @@ export default function UserManagement({
               <Button
                 onClick={() => setIsChangingPassword(true)}
                 size="sm"
-                className="tablet:w-auto w-full"
+                className="tablet-landscape:w-auto w-full"
                 color="primary"
               >
                 Change Password
@@ -711,7 +714,6 @@ export default function UserManagement({
             setError(null);
           }}
           title="Add User"
-          description="Create a new user account."
           footer={
             <>
               <Button

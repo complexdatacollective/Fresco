@@ -120,10 +120,10 @@ export const textSizeVariants = cva({
 export const heightVariants = cva({
   variants: {
     size: {
-      sm: 'tablet-portrait:h-9 tablet-landscape:h-10 h-8',
-      md: 'tablet-portrait:h-10 tablet-landscape:h-12 h-9',
-      lg: 'tablet-portrait:h-11 tablet-landscape:h-13 h-10',
-      xl: 'tablet-portrait:h-12 tablet-landscape:h-14 h-11',
+      sm: 'tablet-portrait:h-9 tablet-landscape:h-10 h-9',
+      md: 'tablet-portrait:h-10 tablet-landscape:h-12 h-10',
+      lg: 'tablet-portrait:h-11 tablet-landscape:h-13 h-11',
+      xl: 'tablet-portrait:h-12 tablet-landscape:h-14 h-12',
     },
   },
   defaultVariants: {
@@ -147,7 +147,7 @@ export const inlineSpacingVariants = cva({
 });
 
 export const wrapperPaddingVariants = cva({
-  base: 'tablet-portrait:px-4 tablet-landscape:px-6 px-3',
+  base: 'tablet-landscape:px-6 px-4',
 });
 
 // Spacing for groups of controls

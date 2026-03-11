@@ -410,7 +410,7 @@ export const UsageExamples: Story = {
           <Heading level="h3" margin="none" className="text-lg">
             Country Selector
           </Heading>
-          <div className="tablet:grid-cols-2 grid gap-6">
+          <div className="tablet-landscape:grid-cols-2 grid gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium">Native</label>
               <NativeSelectField
@@ -438,7 +438,7 @@ export const UsageExamples: Story = {
           <Heading level="h3" margin="none" className="text-lg">
             Priority Selector
           </Heading>
-          <div className="tablet:grid-cols-2 grid gap-6">
+          <div className="tablet-landscape:grid-cols-2 grid gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium">Native</label>
               <NativeSelectField

@@ -1,9 +1,9 @@
 import { Button } from '~/components/ui/Button';
 
-import { type Participant } from '~/lib/db/generated/client';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import ParticipantModal from '~/app/dashboard/participants/_components/ParticipantModal';
+import { type Participant } from '~/lib/db/generated/client';
 
 type AddParticipantButtonProps = {
   existingParticipants: Participant[];
@@ -15,7 +15,7 @@ function AddParticipantButton({
   const [isOpen, setOpen] = useState(false);
 
   return (
-    <div className="tablet:w-auto w-full">
+    <div className="tablet-landscape:w-auto w-full">
       <ParticipantModal
         open={isOpen}
         setOpen={setOpen}
@@ -24,7 +24,7 @@ function AddParticipantButton({
       <Button
         onClick={() => setOpen(true)}
         icon={<Plus />}
-        className="tablet:w-auto w-full"
+        className="tablet-landscape:w-auto w-full"
       >
         Add Single Participant
       </Button>

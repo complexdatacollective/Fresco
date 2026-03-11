@@ -37,7 +37,7 @@ export default function SettingsNavigation({
       as="nav"
       spacing="sm"
       className={cx(
-        'tablet:block sticky top-28 hidden h-fit shrink grow-0',
+        'tablet-landscape:block sticky top-28 hidden h-fit shrink grow-0',
         className,
       )}
       noContainer

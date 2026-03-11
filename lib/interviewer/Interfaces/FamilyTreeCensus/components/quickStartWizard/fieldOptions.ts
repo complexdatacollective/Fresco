@@ -7,6 +7,8 @@ import {
 export const SEX_OPTIONS: { value: Sex; label: string }[] = [
   { value: 'male', label: 'Male' },
   { value: 'female', label: 'Female' },
+  { value: 'intersex', label: 'Intersex / Differences of sex development' },
+  { value: 'unknown', label: 'Unknown' },
 ];
 
 export const GENDER_OPTIONS: { value: Gender; label: string }[] = [
@@ -38,4 +40,3 @@ export function isSex(value: string): value is Sex {
 export function isGender(value: string): value is Gender {
   return GENDER_OPTIONS.some((o) => o.value === value);
 }
-

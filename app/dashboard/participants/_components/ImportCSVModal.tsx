@@ -121,7 +121,7 @@ function ImportDialogContent({
             <ImportButton />
           </>
         }
-        className="tablet:min-w-3xl"
+        className="tablet-landscape:min-w-3xl"
       >
         <Alert variant="info" className="m-0">
           <AlertTitle>CSV file requirements</AlertTitle>

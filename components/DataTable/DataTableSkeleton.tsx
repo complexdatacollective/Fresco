@@ -77,7 +77,7 @@ export function DataTableSkeleton({
       </Table>
 
       <div className="mx-auto w-fit">
-        <div className="tablet:flex-row tablet:gap-6 laptop:gap-8 flex flex-col items-center justify-between gap-4">
+        <div className="tablet-landscape:flex-row tablet-landscape:gap-6 laptop:gap-8 flex flex-col items-center justify-between gap-4">
           <div className="flex items-center space-x-2">
             <Skeleton className="h-5 w-24" />
             <Skeleton className="h-8 w-[70px]" />

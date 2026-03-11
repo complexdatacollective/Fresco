@@ -1,4 +1,4 @@
-export type Sex = 'male' | 'female' | 'unknown' | 'terminated';
+export type Sex = 'male' | 'female' | 'intersex' | 'unknown';
 
 export type Gender =
   | 'man'

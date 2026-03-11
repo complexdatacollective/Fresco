@@ -13,6 +13,7 @@ import {
   generateAuthenticationOptions,
   verifyAuthentication,
 } from '~/actions/webauthn';
+import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import { DialogFooter } from '~/lib/dialogs/Dialog';
 import Field from '~/lib/form/components/Field/Field';
@@ -209,15 +210,19 @@ export const SignInForm = () => {
           placeholder="0123456789abcdef0123"
           autoComplete="off"
         />
-        <DialogFooter>
-          <Button variant="text" type="button" onClick={handleBackToSignIn}>
-            <ArrowLeft className="size-4" />
+        <div className="tablet-landscape:flex-row tablet-landscape:justify-between mt-4 flex flex-col gap-2">
+          <Button
+            variant="text"
+            type="button"
+            onClick={handleBackToSignIn}
+            icon={<ArrowLeft />}
+          >
             Back to sign in
           </Button>
           <SubmitButton form="recovery-login" submittingText="Verifying...">
             Sign in
           </SubmitButton>
-        </DialogFooter>
+        </div>
       </Form>
     );
   }
@@ -261,8 +266,11 @@ export const SignInForm = () => {
         </Button>
 
         <DialogFooter>
-          <Button variant="text" onClick={handleBackToSignIn}>
-            <ArrowLeft className="size-4" />
+          <Button
+            variant="text"
+            onClick={handleBackToSignIn}
+            icon={<ArrowLeft />}
+          >
             Back to sign in
           </Button>
           <SubmitButton form="sign-in-2fa" submittingText="Verifying...">
@@ -274,7 +282,7 @@ export const SignInForm = () => {
   }
 
   return (
-    <div className="flex w-full flex-col gap-4">
+    <>
       <Form onSubmit={handleSubmit} className="w-full">
         <Field
           key="username"
@@ -302,7 +310,7 @@ export const SignInForm = () => {
           autoComplete="current-password"
           prefixComponent={<LockIcon />}
         />
-        <DialogFooter>
+        <div className="mt-8 flex flex-col">
           <SubmitButton
             key="submit"
             submittingText="Signing in..."
@@ -310,16 +318,16 @@ export const SignInForm = () => {
           >
             {retryAfter !== null && retryAfter > 0
               ? `Try again in ${String(retryAfter)}s`
-              : 'Sign In'}
+              : 'Sign in'}
           </SubmitButton>
-        </DialogFooter>
+        </div>
       </Form>
 
       {webauthnSupported && (
         <>
           <div className="flex items-center gap-3">
             <div className="bg-outline h-px flex-1" />
-            <span className="text-sm">or</span>
+            <span className="my-2 text-sm">or</span>
             <div className="bg-outline h-px flex-1" />
           </div>
 
@@ -328,17 +336,17 @@ export const SignInForm = () => {
             className="w-full"
             onClick={handlePasskeySignIn}
             disabled={passkeyLoading}
+            icon={<KeyRound />}
           >
-            <KeyRound className="size-4" />
             {passkeyLoading
               ? 'Waiting for passkey...'
               : 'Sign in with a passkey'}
           </Button>
 
           {passkeyError && (
-            <p className="text-destructive text-center text-sm">
+            <Paragraph className="text-destructive text-center text-sm">
               {passkeyError}
-            </p>
+            </Paragraph>
           )}
         </>
       )}
@@ -347,10 +355,10 @@ export const SignInForm = () => {
         variant="link"
         type="button"
         onClick={() => setShowRecovery(true)}
-        className="text-sm"
+        className="mt-4"
       >
         Trouble signing in?
       </Button>
-    </div>
+    </>
   );
 };

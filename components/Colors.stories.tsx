@@ -52,7 +52,7 @@ export const SemanticColors: Story = {
         <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
           Core brand and semantic colors used throughout the application
         </Paragraph>
-        <div className="tablet:grid-cols-4 grid grid-cols-2 gap-6">
+        <div className="tablet-landscape:grid-cols-4 grid grid-cols-2 gap-6">
           <ColorSwatch
             name="Primary"
             cssVar="--color-primary"
@@ -83,7 +83,7 @@ export const SemanticColors: Story = {
         <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
           Colors for indicating status, alerts, and user feedback
         </Paragraph>
-        <div className="tablet:grid-cols-4 grid grid-cols-2 gap-6">
+        <div className="tablet-landscape:grid-cols-4 grid grid-cols-2 gap-6">
           <ColorSwatch
             name="Success"
             cssVar="--color-success"
@@ -114,7 +114,7 @@ export const SemanticColors: Story = {
         <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
           Foundation colors for backgrounds, surfaces, and text
         </Paragraph>
-        <div className="tablet:grid-cols-4 grid grid-cols-2 gap-6">
+        <div className="tablet-landscape:grid-cols-4 grid grid-cols-2 gap-6">
           <ColorSwatch name="Background" cssVar="--background" />
           <ColorSwatch name="Text" cssVar="--text" contrastVar="--neutral" />
           <ColorSwatch
@@ -133,7 +133,7 @@ export const SemanticColors: Story = {
         <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
           Layered surfaces for depth and hierarchy
         </Paragraph>
-        <div className="tablet:grid-cols-4 grid grid-cols-2 gap-6">
+        <div className="tablet-landscape:grid-cols-4 grid grid-cols-2 gap-6">
           <ColorSwatch name="Surface" cssVar="--surface" />
           <ColorSwatch name="Surface 1" cssVar="--surface-1" />
           <ColorSwatch name="Surface 2" cssVar="--surface-2" />
@@ -153,7 +153,7 @@ export const SemanticColors: Story = {
         <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
           Colors for interactive elements and inputs
         </Paragraph>
-        <div className="tablet:grid-cols-4 grid grid-cols-2 gap-6">
+        <div className="tablet-landscape:grid-cols-4 grid grid-cols-2 gap-6">
           <ColorSwatch
             name="Input"
             cssVar="--input"
@@ -181,7 +181,7 @@ export const NodeColors: Story = {
         <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
           Sequential colors for network nodes (1-8)
         </Paragraph>
-        <div className="tablet:grid-cols-4 grid grid-cols-2 gap-6">
+        <div className="tablet-landscape:grid-cols-4 grid grid-cols-2 gap-6">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
             <ColorSwatch
               key={num}
@@ -206,7 +206,7 @@ export const EdgeColors: Story = {
         <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
           Sequential colors for network edges (1-10)
         </Paragraph>
-        <div className="tablet:grid-cols-4 laptop:grid-cols-5 grid grid-cols-2 gap-6">
+        <div className="tablet-landscape:grid-cols-4 laptop:grid-cols-5 grid grid-cols-2 gap-6">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
             <ColorSwatch
               key={num}
@@ -231,7 +231,7 @@ export const OrdinalColors: Story = {
         <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
           Ordinal scale colors (1-8)
         </Paragraph>
-        <div className="tablet:grid-cols-4 grid grid-cols-2 gap-6">
+        <div className="tablet-landscape:grid-cols-4 grid grid-cols-2 gap-6">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
             <ColorSwatch
               key={num}
@@ -255,7 +255,7 @@ export const CategoricalColors: Story = {
         <Paragraph margin="none" className="text-text/70 mb-6 text-sm">
           Categorical colors for groups and convex hulls (1-10)
         </Paragraph>
-        <div className="tablet:grid-cols-4 laptop:grid-cols-5 grid grid-cols-2 gap-6">
+        <div className="tablet-landscape:grid-cols-4 laptop:grid-cols-5 grid grid-cols-2 gap-6">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
             <ColorSwatch
               key={num}
@@ -285,7 +285,7 @@ export const AllColors: Story = {
         <Heading level="h2" margin="none" className="mb-4">
           Semantic Colors
         </Heading>
-        <div className="tablet:grid-cols-4 grid grid-cols-2 gap-4">
+        <div className="tablet-landscape:grid-cols-4 grid grid-cols-2 gap-4">
           <ColorSwatch
             name="Primary"
             cssVar="--color-primary"
@@ -333,7 +333,7 @@ export const AllColors: Story = {
         <Heading level="h2" margin="none" className="mb-4">
           Node Sequence
         </Heading>
-        <div className="tablet:grid-cols-4 grid grid-cols-2 gap-4">
+        <div className="tablet-landscape:grid-cols-4 grid grid-cols-2 gap-4">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
             <ColorSwatch
               key={num}
@@ -349,7 +349,7 @@ export const AllColors: Story = {
         <Heading level="h2" margin="none" className="mb-4">
           Edge Sequence
         </Heading>
-        <div className="tablet:grid-cols-4 laptop:grid-cols-5 grid grid-cols-2 gap-4">
+        <div className="tablet-landscape:grid-cols-4 laptop:grid-cols-5 grid grid-cols-2 gap-4">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
             <ColorSwatch
               key={num}
@@ -364,7 +364,7 @@ export const AllColors: Story = {
         <Heading level="h2" margin="none" className="mb-4">
           Ordinal & Categorical
         </Heading>
-        <div className="tablet:grid-cols-4 grid grid-cols-2 gap-4">
+        <div className="tablet-landscape:grid-cols-4 grid grid-cols-2 gap-4">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
             <ColorSwatch
               key={num}
@@ -373,7 +373,7 @@ export const AllColors: Story = {
             />
           ))}
         </div>
-        <div className="tablet:grid-cols-4 laptop:grid-cols-5 mt-4 grid grid-cols-2 gap-4">
+        <div className="tablet-landscape:grid-cols-4 laptop:grid-cols-5 mt-4 grid grid-cols-2 gap-4">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
             <ColorSwatch
               key={num}

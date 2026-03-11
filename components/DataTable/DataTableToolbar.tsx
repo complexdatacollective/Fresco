@@ -37,7 +37,7 @@ export function DataTableToolbar<TData>({
   }
 
   return (
-    <div className="tablet:flex-row tablet:flex-wrap flex w-full flex-col items-center justify-center gap-2">
+    <div className="tablet-landscape:flex-row tablet-landscape:flex-wrap flex w-full flex-col items-center justify-center gap-2">
       {searchableColumns.length > 0 &&
         searchableColumns.map(
           (searchCol) =>
@@ -47,7 +47,7 @@ export function DataTableToolbar<TData>({
                 type="search"
                 prefixComponent={<Search />}
                 name="Filter"
-                className="tablet:min-w-0 tablet:flex-1 tablet:max-w-xl w-full min-w-fit"
+                className="tablet-landscape:min-w-0 tablet-landscape:flex-1 tablet-landscape:max-w-xl w-full min-w-fit"
                 placeholder={`Filter ${searchCol.title}...`}
                 value={
                   (table
@@ -55,9 +55,7 @@ export function DataTableToolbar<TData>({
                     ?.getFilterValue() as string) ?? ''
                 }
                 onChange={(value) =>
-                  table
-                    .getColumn(String(searchCol.id))
-                    ?.setFilterValue(value)
+                  table.getColumn(String(searchCol.id))?.setFilterValue(value)
                 }
                 layout={false}
               />

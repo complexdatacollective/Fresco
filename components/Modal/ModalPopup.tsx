@@ -133,7 +133,6 @@ export default function ModalPopup({
         render={
           <motion.div
             ref={scope}
-            layout
             className={className}
             {...props}
             {...animation}

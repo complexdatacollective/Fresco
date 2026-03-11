@@ -15,7 +15,7 @@ export default function SummaryStatistics({
 }: SummaryStatisticsProps) {
   return (
     <ResponsiveContainer
-      className="tablet:grid-cols-3 desktop:gap-6 grid grid-cols-1 gap-4"
+      className="tablet-landscape:grid-cols-3 desktop:gap-6 grid grid-cols-1 gap-4"
       maxWidth="6xl"
     >
       <Link

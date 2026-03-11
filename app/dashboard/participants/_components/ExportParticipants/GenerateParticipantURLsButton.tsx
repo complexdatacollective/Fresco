@@ -13,8 +13,8 @@ import {
 } from '~/components/ui/popover';
 import { useToast } from '~/components/ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
-import ComboboxField from '~/lib/form/components/fields/Combobox/Combobox';
 import Field from '~/lib/form/components/Field/Field';
+import ComboboxField from '~/lib/form/components/fields/Combobox/Combobox';
 import SelectField from '~/lib/form/components/fields/Select/Native';
 import Form from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
@@ -83,7 +83,7 @@ export const GenerateParticipantURLs = ({
           <Button
             disabled={participants?.length === 0}
             icon={<FileUp />}
-            className="tablet:w-auto w-full"
+            className="tablet-landscape:w-auto w-full"
             data-testid="export-participation-urls-button"
           />
         }

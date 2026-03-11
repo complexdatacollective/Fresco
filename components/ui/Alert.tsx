@@ -82,7 +82,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
       >
         {IconComponent && (
           <IconComponent
-            className="tablet:block mt-[0.33em] hidden size-4 shrink-0" // mt is optical adjustment so that the SVG aligns with the heading
+            className="tablet-landscape:block mt-[0.33em] hidden size-4 shrink-0" // mt is optical adjustment so that the SVG aligns with the heading
             aria-hidden="true"
           />
         )}

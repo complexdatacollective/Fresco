@@ -80,17 +80,10 @@ export default function Dialog({
         {...rest}
       >
         <DialogHeader>
-          <BaseDialog.Title render={<Heading level="h2" />}>
+          <BaseDialog.Title render={<Heading level="h2" margin="none" />}>
             {title}
           </BaseDialog.Title>
-          <BaseDialog.Close
-            nativeButton={false}
-            render={
-              <div className="mb-2 text-2xl">
-                <CloseButton />
-              </div>
-            }
-          />
+          <BaseDialog.Close render={<CloseButton />} />
         </DialogHeader>
         <DialogContent>
           {description && (
@@ -112,7 +105,7 @@ const DialogHeader = ({ children }: { children: React.ReactNode }) => {
   return (
     <div
       className={cx(
-        'flex items-center justify-between gap-2',
+        'mb-4 flex items-center justify-between gap-2',
         surfaceSpacingVariants({ section: 'header' }),
       )}
     >
@@ -126,6 +119,7 @@ const DialogContent = ({ children }: { children: React.ReactNode }) => {
     <ScrollArea
       viewportClassName={surfaceSpacingVariants({
         section: 'content',
+        className: 'my-2!',
       })}
     >
       {children}

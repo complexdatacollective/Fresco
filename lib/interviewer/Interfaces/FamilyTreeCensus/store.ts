@@ -14,7 +14,7 @@ enableMapSet();
 export type NodeData = {
   label: string;
   sex?: Sex;
-  gender?: Gender;
+  gender?: Gender[];
   isEgo: boolean;
   readOnly?: boolean;
   interviewNetworkId?: string;
@@ -25,7 +25,7 @@ export type NodeData = {
 export type PersonDetail = {
   name: string;
   sex?: Sex;
-  gender?: Gender;
+  gender?: Gender[];
 };
 
 export type ParentDetail = PersonDetail & {

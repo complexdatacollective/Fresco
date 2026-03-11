@@ -9,7 +9,7 @@ const statCardClasses = cx(
   '@3xs:flex-row @3xs:items-center @lg:gap-6',
   'hover:elevation-medium hover:scale-[102%]',
   'w-full rounded outline-none',
-  'tablet:px-6 tablet:py-8 px-4 py-6',
+  'tablet-landscape:px-6 tablet-landscape:py-8 px-4 py-6',
 );
 function StatCard({
   title,
@@ -48,7 +48,7 @@ export function StatCardSkeleton({
 }) {
   return (
     <Surface className={statCardClasses}>
-      <div className="tablet:block hidden">{icon}</div>
+      <div className="tablet-landscape:block hidden">{icon}</div>
       <div>
         <Heading level="h4" variant="all-caps">
           {title}

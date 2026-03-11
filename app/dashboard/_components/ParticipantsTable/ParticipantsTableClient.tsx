@@ -194,7 +194,7 @@ export const ParticipantsTableClient = ({
                   handleDeleteAll();
                 }
               }}
-              className="tablet:w-auto w-full"
+              className="tablet-landscape:w-auto w-full"
             >
               Delete All
             </DialogTrigger>

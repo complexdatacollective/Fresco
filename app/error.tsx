@@ -59,8 +59,8 @@ ${error.stack}`;
           please contact us. You can also use the retry button to attempt to
           load the page again.
         </Paragraph>
-        <hr className="tablet:block hidden" />
-        <div className="tablet:flex-row tablet:justify-between flex flex-col gap-2">
+        <hr className="tablet-landscape:block hidden" />
+        <div className="tablet-landscape:flex-row tablet-landscape:justify-between flex flex-col gap-2">
           <Button onClick={copyDebugInfoToClipboard} icon={<ClipboardCopy />}>
             Copy Debug Information
           </Button>

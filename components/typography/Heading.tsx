@@ -12,7 +12,7 @@ export const headingVariants = cva({
       h2: 'text-2xl font-semibold',
       h3: 'text-xl font-semibold',
       h4: 'text-lg font-bold',
-      label: 'text-base font-bold',
+      label: 'text-base leading-snug font-bold',
     },
     variant: {
       'default': '',

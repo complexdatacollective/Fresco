@@ -219,7 +219,7 @@ export default function BooleanField(props: BooleanFieldProps) {
     className,
     value,
     onChange,
-    noReset = false,
+    noReset = true,
     label,
     options = [
       { label: 'Yes', value: true },
@@ -288,7 +288,7 @@ export default function BooleanField(props: BooleanFieldProps) {
                     selected: isSelected,
                     positive: isPositive,
                     state: buttonState,
-                    className: 'gap-2 text-left', // override browser default button style
+                    className: 'shrink-0 gap-2 text-left', // override browser default button style
                   })}
                 >
                   <BooleanIndicator

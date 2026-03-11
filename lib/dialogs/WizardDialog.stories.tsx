@@ -14,21 +14,19 @@ function NameStep() {
   const [name, setName] = useState((data.name as string) ?? '');
 
   return (
-    <div className="flex flex-col gap-3 pt-4">
-      <UnconnectedField
-        name="name"
-        label="Your name"
-        component={InputField}
-        placeholder="Enter your name..."
-        value={name}
-        onChange={(value) => {
-          const v = value ?? '';
-          setName(v);
-          setStepData({ name: v });
-          setNextEnabled(v.length > 0);
-        }}
-      />
-    </div>
+    <UnconnectedField
+      name="name"
+      label="Your name"
+      component={InputField}
+      placeholder="Enter your name..."
+      value={name}
+      onChange={(value) => {
+        const v = value ?? '';
+        setName(v);
+        setStepData({ name: v });
+        setNextEnabled(v.length > 0);
+      }}
+    />
   );
 }
 
@@ -43,7 +41,7 @@ function RoleStep() {
   const [role, setRole] = useState((data.role as string) ?? 'researcher');
 
   return (
-    <div className="flex flex-col gap-3 pt-4">
+    <>
       <Paragraph>
         Welcome, <strong>{(data.name as string) ?? 'User'}</strong>! Choose your
         role:
@@ -65,7 +63,7 @@ function RoleStep() {
           setStepData({ role: v });
         }}
       />
-    </div>
+    </>
   );
 }
 
@@ -73,7 +71,7 @@ function ConfirmStep() {
   const { data } = useWizard();
 
   return (
-    <div className="flex flex-col gap-3 pt-4">
+    <>
       <Paragraph>Please confirm your details:</Paragraph>
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
         <dt className="font-medium">Name</dt>
@@ -81,7 +79,7 @@ function ConfirmStep() {
         <dt className="font-medium">Role</dt>
         <dd data-testid="confirm-role">{(data.role as string) ?? '—'}</dd>
       </dl>
-    </div>
+    </>
   );
 }
 
@@ -249,7 +247,7 @@ function SkipSummaryStep() {
   const { data } = useWizard();
 
   return (
-    <div className="flex flex-col gap-3 pt-4">
+    <>
       <Paragraph>Please confirm your details:</Paragraph>
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
         <dt className="font-medium">Name</dt>
@@ -267,7 +265,7 @@ function SkipSummaryStep() {
           </>
         )}
       </dl>
-    </div>
+    </>
   );
 }
 
