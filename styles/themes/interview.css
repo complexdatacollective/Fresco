@@ -5,7 +5,7 @@
 */
 
 @layer theme {
-  :root {
+  html[data-theme="interview"] {
     --heading-font: 'Quicksand', sans-serif;
     --body-font: 'Quicksand', sans-serif;
     --spacing-base: 0.25em; /* TW default uses rem */
@@ -175,8 +175,7 @@
 }
 
 @layer base {
-  html,
-  body {
+  html[data-theme="interview"] {
     font-size: 20px;
   }
 }

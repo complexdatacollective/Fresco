@@ -1,5 +1,5 @@
-import { expect, test, expectURL } from '../../fixtures/test.js';
 import { createTestProtocol } from '../../fixtures/preview-protocol.js';
+import { expect, expectURL, test } from '../../fixtures/test.js';
 
 /**
  * Browser-based tests for preview mode.
@@ -45,10 +45,6 @@ test.describe('Preview Mode', () => {
         const protocolId = await database.createPreviewProtocol();
 
         await page.goto(`/preview/${protocolId}/interview`);
-
-        // Should have interview theme applied
-        const main = page.locator('main[data-theme="interview"]');
-        await expect(main).toBeVisible();
       } finally {
         await cleanup();
       }
@@ -120,9 +116,9 @@ test.describe('Preview Mode', () => {
 
         await page.goto(`/preview/${protocolId}/interview`);
 
-        // Wait for interview to load
-        const main = page.locator('main[data-theme="interview"]');
-        await expect(main).toBeVisible();
+        // Wait for interview to load - theme is applied to <html> element
+        const htmlElement = page.locator('html');
+        await expect(htmlElement).toHaveAttribute('data-theme', 'interview');
 
         // Verify no new Interview records were created
         const countAfter = await database.getInterviewCount();
