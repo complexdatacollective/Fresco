@@ -109,9 +109,7 @@ async function InterviewContent({
     }
   });
 
-  return (
-    <>
-      <InterviewShell rawPayload={rawInterview} />
-    </>
-  );
+  // Key on interviewId to force React to remount the component when navigating
+  // between interviews. This prevents the Router Cache from serving stale state.
+  return <InterviewShell key={interviewId} rawPayload={rawInterview} />;
 }

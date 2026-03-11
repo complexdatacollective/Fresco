@@ -288,6 +288,128 @@ test.describe.serial('Interview Navigation - Edge Cases', () => {
   });
 });
 
+test.describe.serial('Interview State Isolation', () => {
+  test('new interview should start at step 0 after navigating from another interview', async ({
+    page,
+    database,
+  }) => {
+    const protocolId = database.testData?.protocol.id;
+    if (!protocolId) {
+      throw new Error('Test data not found. Ensure global setup has run.');
+    }
+
+    await database.withSnapshot('state-isolation', async () => {
+      // Start first interview and navigate forward a few steps
+      const participantA = `STATE-ISO-A-${Date.now()}`;
+      await page.goto(
+        `/onboard/${protocolId}?participantIdentifier=${participantA}`,
+        { waitUntil: 'domcontentloaded' },
+      );
+
+      await page.waitForURL(/\/interview\/[a-z0-9-]+/, { timeout: 15000 });
+
+      // Extract interview A's ID
+      const interviewAUrl = page.url();
+      const interviewAMatch = /\/interview\/([a-z0-9-]+)/.exec(interviewAUrl);
+      const interviewAId = interviewAMatch?.[1];
+      expect(interviewAId).toBeTruthy();
+
+      // Navigate forward to step 1
+      const nextButton = page.getByRole('button', { name: /next step/i });
+      await expect(nextButton).toBeVisible({ timeout: 10000 });
+      await expect(nextButton).toBeEnabled();
+      await nextButton.click();
+      await page.waitForTimeout(500);
+
+      // Verify we're at step 1
+      await expect(page).toHaveURL(/step=1/, { timeout: 5000 });
+
+      // Now start a completely new interview via the onboard URL
+      const participantB = `STATE-ISO-B-${Date.now()}`;
+      await page.goto(
+        `/onboard/${protocolId}?participantIdentifier=${participantB}`,
+        { waitUntil: 'domcontentloaded' },
+      );
+
+      await page.waitForURL(/\/interview\/[a-z0-9-]+/, { timeout: 15000 });
+
+      // Extract interview B's ID
+      const interviewBUrl = page.url();
+      const interviewBMatch = /\/interview\/([a-z0-9-]+)/.exec(interviewBUrl);
+      const interviewBId = interviewBMatch?.[1];
+
+      // Verify it's a different interview
+      expect(interviewBId).toBeTruthy();
+      expect(interviewBId).not.toBe(interviewAId);
+
+      // CRITICAL: The new interview should start at step 0, not step 1 from the previous interview
+      // This tests the fix where we key InterviewShell on interviewId to prevent Router Cache stale state
+      await expect(page).toHaveURL(/step=0/, { timeout: 5000 });
+    });
+  });
+
+  test('navigating directly between two interviews should show correct step for each', async ({
+    page,
+    database,
+  }) => {
+    const protocolId = database.testData?.protocol.id;
+    if (!protocolId) {
+      throw new Error('Test data not found. Ensure global setup has run.');
+    }
+
+    await database.withSnapshot('direct-navigation', async () => {
+      // Create first interview and navigate to step 1
+      const participantA = `DIRECT-NAV-A-${Date.now()}`;
+      await page.goto(
+        `/onboard/${protocolId}?participantIdentifier=${participantA}`,
+        { waitUntil: 'domcontentloaded' },
+      );
+      await page.waitForURL(/\/interview\/[a-z0-9-]+/, { timeout: 15000 });
+
+      const interviewAMatch = /\/interview\/([a-z0-9-]+)/.exec(page.url());
+      const interviewAId = interviewAMatch?.[1];
+      expect(interviewAId).toBeTruthy();
+
+      // Navigate to step 1
+      const nextButton = page.getByRole('button', { name: /next step/i });
+      await expect(nextButton).toBeVisible({ timeout: 10000 });
+      await nextButton.click();
+      await page.waitForTimeout(500);
+      await expect(page).toHaveURL(/step=1/, { timeout: 5000 });
+
+      // Create second interview (stays at step 0)
+      const participantB = `DIRECT-NAV-B-${Date.now()}`;
+      await page.goto(
+        `/onboard/${protocolId}?participantIdentifier=${participantB}`,
+        { waitUntil: 'domcontentloaded' },
+      );
+      await page.waitForURL(/\/interview\/[a-z0-9-]+/, { timeout: 15000 });
+
+      const interviewBMatch = /\/interview\/([a-z0-9-]+)/.exec(page.url());
+      const interviewBId = interviewBMatch?.[1];
+      expect(interviewBId).toBeTruthy();
+      expect(interviewBId).not.toBe(interviewAId);
+
+      // Should be at step 0
+      await expect(page).toHaveURL(/step=0/, { timeout: 5000 });
+
+      // Now navigate directly back to interview A - it should be at step 1 (persisted)
+      await page.goto(`/interview/${interviewAId}`, {
+        waitUntil: 'domcontentloaded',
+      });
+      await page.waitForURL(/\/interview\/[a-z0-9-]+/, { timeout: 15000 });
+      await expect(page).toHaveURL(/step=1/, { timeout: 5000 });
+
+      // Navigate directly to interview B - should still be at step 0
+      await page.goto(`/interview/${interviewBId}`, {
+        waitUntil: 'domcontentloaded',
+      });
+      await page.waitForURL(/\/interview\/[a-z0-9-]+/, { timeout: 15000 });
+      await expect(page).toHaveURL(/step=0/, { timeout: 5000 });
+    });
+  });
+});
+
 test.describe.serial('Interview Completion', () => {
   test('should redirect to finished page after completing all stages', async ({
     page,
