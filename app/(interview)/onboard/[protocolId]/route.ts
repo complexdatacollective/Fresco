@@ -87,10 +87,15 @@ const handler = async (
     await shutdownPostHog();
   });
 
-  // Redirect to the interview (clear any stale query params)
+  // Redirect to the interview
+  // Explicitly disable caching to prevent Netlify from caching this redirect
+  // (Netlify adds max-age=86400 by default, causing all users to get the same interview)
   url.pathname = `/interview/${createdInterviewId}`;
-  url.search = '';
-  return NextResponse.redirect(url);
+  return NextResponse.redirect(url, {
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+    },
+  });
 };
 
 export { handler as GET, handler as POST };

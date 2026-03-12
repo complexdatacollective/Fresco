@@ -56,10 +56,14 @@ const handler = async (
     await shutdownPostHog();
   });
 
-  // Redirect to the preview interview page (clear any stale query params)
+  // Redirect to the preview interview page (no database persistence)
+  // Explicitly disable caching to prevent Netlify from caching this redirect
   url.pathname = `/preview/${protocolId}/interview`;
-  url.search = '';
-  return NextResponse.redirect(url);
+  return NextResponse.redirect(url, {
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+    },
+  });
 };
 
 export { handler as GET, handler as POST };
