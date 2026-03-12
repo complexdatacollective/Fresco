@@ -4,6 +4,14 @@ import { fillField } from '../../helpers/form.js';
 test.describe('Setup Flow', () => {
   test.describe.configure({ mode: 'serial' });
 
+  // Restore the database snapshot before the suite runs. This is critical for
+  // retries: the serial wizard test creates a user on the first attempt, and
+  // if it times out (e.g. slow WebKit screenshots) the retry would hit a
+  // unique constraint error without a clean slate.
+  test.beforeAll(async ({ database }) => {
+    await database.restoreSnapshot();
+  });
+
   test('redirects to setup page on first visit', async ({ page }) => {
     await page.goto('/');
     await expectURL(page, /\/setup/);
@@ -19,6 +27,10 @@ test.describe('Setup Flow', () => {
   });
 
   test('completes the onboarding wizard', async ({ page, capturePage }) => {
+    // This test navigates 5 wizard steps and captures screenshots at 7 viewports
+    // per step (~28 screenshots). WebKit is notably slower at rendering/comparing
+    // screenshots, so the default 60s timeout is insufficient.
+    test.setTimeout(120_000);
     await page.goto('/setup');
 
     // Step 1: Create Account
