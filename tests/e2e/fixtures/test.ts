@@ -126,8 +126,6 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         for (const viewport of viewports) {
           await page.setViewportSize({ width: viewport.width, height: 1080 });
 
-          await page.waitForTimeout(500);
-
           await expect(page).toHaveScreenshot(`${name}-${viewport.name}.png`, {
             fullPage: true,
             mask: options.mask,
