@@ -14,6 +14,8 @@ type EnvironmentConfig = {
 
 const ALL_BROWSERS: BrowserConfig[] = [
   { name: 'chromium', device: devices['Desktop Chrome'] },
+  { name: 'firefox', device: devices['Desktop Firefox'] },
+  { name: 'webkit', device: devices['Desktop Safari'] },
 ];
 
 function getActiveBrowsers(): BrowserConfig[] {

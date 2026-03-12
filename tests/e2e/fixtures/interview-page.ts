@@ -41,8 +41,8 @@ export class InterviewPage {
 
     await this.page.goto(url);
 
-    // Wait for navigation to be ready
-    await expect(this.nextButton).toBeVisible();
+    // Wait for navigation to be ready — interview hydration can be slow
+    await expect(this.nextButton).toBeVisible({ timeout: 15_000 });
   }
 
   /**

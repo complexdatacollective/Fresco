@@ -24,6 +24,7 @@ export default defineConfig({
     ['json', { outputFile: `${outputDir}/results.json` }],
   ],
   expect: {
+    timeout: 15_000,
     toHaveScreenshot: {
       maxDiffPixelRatio: 0.01,
     },

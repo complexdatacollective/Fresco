@@ -35,36 +35,65 @@ else
   PNPM_STORE_MOUNT="-v ${PNPM_STORE_VOLUME}:/root/.local/share/pnpm/store"
 fi
 
-# Pass E2E_BROWSERS through if set
-BROWSER_ENV=""
+# Determine which browsers to run
 if [ -n "$E2E_BROWSERS" ]; then
-  BROWSER_ENV="-e E2E_BROWSERS=$E2E_BROWSERS"
+  IFS=',' read -ra BROWSERS <<< "$E2E_BROWSERS"
+else
+  BROWSERS=(chromium firefox webkit)
 fi
 
-# Build the playwright command with any extra args
-PLAYWRIGHT_CMD="pnpm exec playwright test --config=tests/e2e/playwright.config.ts $*"
+run_tests() {
+  local browser_env="$1"
+  shift
+  docker run --rm \
+    -e CI=true \
+    -e INSTALLATION_ID=e2e-test-env \
+    -e SKIP_ENV_VALIDATION=true \
+    -e DISABLE_ANALYTICS=true \
+    -e DISABLE_NEXT_CACHE=true \
+    -e E2E_BROWSERS="$browser_env" \
+    -v "$(pwd)":/work \
+    -v /dev/null:/work/.env:ro \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v ${NODE_MODULES_VOLUME}:/work/node_modules \
+    -v ${NEXT_BUILD_VOLUME}:/work/.next \
+    ${PNPM_STORE_MOUNT} \
+    -w /work \
+    --add-host=host.docker.internal:host-gateway \
+    "${IMAGE}" \
+    sh -c "npm i -g pnpm && pnpm install --frozen-lockfile && \
+      BUILD_HASH=\$({ git rev-parse HEAD; git diff HEAD; git ls-files --others --exclude-standard; } | md5sum | cut -d' ' -f1) && \
+      if [ -f .next/BUILD_HASH ] && [ \"\$(cat .next/BUILD_HASH)\" = \"\$BUILD_HASH\" ]; then \
+        echo 'Skipping build (no changes since last build)'; \
+      else \
+        pnpm build && echo \"\$BUILD_HASH\" > .next/BUILD_HASH; \
+      fi && \
+      pnpm exec playwright test --config=tests/e2e/playwright.config.ts $*"
+}
 
-docker run --rm \
-  -e CI=true \
-  -e INSTALLATION_ID=e2e-test-env \
-  -e SKIP_ENV_VALIDATION=true \
-  -e DISABLE_ANALYTICS=true \
-  -e DISABLE_NEXT_CACHE=true \
-  ${BROWSER_ENV} \
-  -v "$(pwd)":/work \
-  -v /dev/null:/work/.env:ro \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v ${NODE_MODULES_VOLUME}:/work/node_modules \
-  -v ${NEXT_BUILD_VOLUME}:/work/.next \
-  ${PNPM_STORE_MOUNT} \
-  -w /work \
-  --add-host=host.docker.internal:host-gateway \
-  "${IMAGE}" \
-  sh -c "npm i -g pnpm && pnpm install --frozen-lockfile && \
-    BUILD_HASH=\$({ git rev-parse HEAD; git diff HEAD; git ls-files --others --exclude-standard; } | md5sum | cut -d' ' -f1) && \
-    if [ -f .next/BUILD_HASH ] && [ \"\$(cat .next/BUILD_HASH)\" = \"\$BUILD_HASH\" ]; then \
-      echo 'Skipping build (no changes since last build)'; \
-    else \
-      pnpm build && echo \"\$BUILD_HASH\" > .next/BUILD_HASH; \
-    fi && \
-    $PLAYWRIGHT_CMD"
+# In CI, run all browsers in one invocation (CI matrix handles separation).
+# Locally, run each browser sequentially to avoid OOM crashes.
+if [ "$GITHUB_ACTIONS" = "true" ]; then
+  BROWSER_LIST=$(IFS=','; echo "${BROWSERS[*]}")
+  run_tests "$BROWSER_LIST" "$@"
+else
+  FAILED_BROWSERS=()
+  for browser in "${BROWSERS[@]}"; do
+    echo ""
+    echo "=========================================="
+    echo "  Running e2e tests: $browser"
+    echo "=========================================="
+    echo ""
+    if ! run_tests "$browser" "$@"; then
+      FAILED_BROWSERS+=("$browser")
+    fi
+  done
+
+  if [ ${#FAILED_BROWSERS[@]} -gt 0 ]; then
+    echo ""
+    echo "=========================================="
+    echo "  Failures in: ${FAILED_BROWSERS[*]}"
+    echo "=========================================="
+    exit 1
+  fi
+fi

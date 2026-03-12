@@ -127,7 +127,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         for (const viewport of viewports) {
           await page.setViewportSize({ width: viewport.width, height: 1080 });
 
-          await page.waitForTimeout(100);
+          await page.waitForTimeout(500);
 
           await expect(page).toHaveScreenshot(`${name}-${viewport.name}.png`, {
             fullPage: true,
@@ -157,6 +157,27 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
           options: CaptureElementOptions = {},
         ) => {
           await page.addStyleTag({ content: VISUAL_STYLES });
+
+          // Wait for Base UI opening animations to complete.
+          // WebKit is slower to remove `data-starting-style`, causing
+          // Playwright's stability check to fail when the attribute
+          // toggles between consecutive screenshots.
+          await element.evaluate((el) => {
+            return new Promise<void>((resolve) => {
+              if (!el.hasAttribute('data-starting-style')) {
+                resolve();
+                return;
+              }
+
+              const observer = new MutationObserver(() => {
+                if (!el.hasAttribute('data-starting-style')) {
+                  observer.disconnect();
+                  resolve();
+                }
+              });
+              observer.observe(el, { attributes: true });
+            });
+          });
 
           await expect(element).toHaveScreenshot(`${name}.png`, {
             mask: options.mask,
