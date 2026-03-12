@@ -116,9 +116,8 @@ test.describe('Preview Mode', () => {
 
         await page.goto(`/preview/${protocolId}/interview`);
 
-        // Wait for interview to load - theme is applied to <html> element
-        const htmlElement = page.locator('html');
-        await expect(htmlElement).toHaveAttribute('data-theme', 'interview');
+        // Wait for interview to load - interview layout renders <main data-interview>
+        await expect(page.locator('main[data-interview]')).toBeVisible();
 
         // Verify no new Interview records were created
         const countAfter = await database.getInterviewCount();

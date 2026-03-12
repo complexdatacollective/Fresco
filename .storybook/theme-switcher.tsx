@@ -87,14 +87,17 @@ function ThemeWrapper({
     });
   }, [selectedTheme]);
 
-  // Apply data-theme to the HTML element for dark mode
   useLayoutEffect(() => {
-    document.documentElement.setAttribute('data-theme', selectedTheme);
+    if (selectedTheme === 'interview') {
+      document.documentElement.setAttribute('data-interview', '');
+    } else {
+      document.documentElement.removeAttribute('data-interview');
+    }
   }, [selectedTheme]);
 
   return (
     <div
-      data-theme={selectedTheme}
+      {...(selectedTheme === 'interview' ? { 'data-interview': '' } : {})}
       className="bg-background text-text publish-colors"
       style={{ opacity: isLoading ? 0 : 1, transition: 'opacity 150ms' }}
     >

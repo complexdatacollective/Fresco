@@ -1,5 +1,4 @@
 import { type Metadata } from 'next';
-import { InterviewThemeManager } from '~/components/InterviewThemeManager';
 import '~/styles/themes/interview.css';
 
 export const metadata: Metadata = {
@@ -9,12 +8,12 @@ export const metadata: Metadata = {
 
 function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
-      <InterviewThemeManager />
-      <main className="flex h-screen max-h-screen flex-col scheme-dark">
-        {children}
-      </main>
-    </>
+    <main
+      data-interview
+      className="flex h-screen max-h-screen flex-col scheme-dark"
+    >
+      {children}
+    </main>
   );
 }
 

@@ -613,11 +613,10 @@ This custom variant lets you target only elements with the readonly attribute.
 @variant focus-visible-within (&:has(:focus-visible));
 
 /*
-  Interview mode variant - uses the data-theme="interview" attribute on any ancestor element.
-  This allows forcing interview mode on specific routes while
-  using semantic color tokens that adapt to light/dark context.
+  Interview mode variant - uses the data-interview attribute on any ancestor element.
+  The interview layout's <main data-interview> activates this via CSS :has() selector.
 */
-@custom-variant interview (&:where([data-theme="interview"], [data-theme="interview"] *));
+@custom-variant interview (&:where([data-interview], [data-interview] *));
 @custom-variant dashboard (&:where([data-theme="dashboard"], [data-theme="dashboard"] *));
 
 /* Storybook docs story canvas background */
