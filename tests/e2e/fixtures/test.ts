@@ -105,15 +105,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       const context = await getContext(suiteId);
       const db = new DatabaseIsolation(context.databaseUrl, suiteId);
 
-      try {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        await use(db);
-      } finally {
-        // Always release locks when the worker tears down, even if tests
-        // failed or timed out. This prevents unreleased locks from
-        // cascading to other spec files sharing the same database.
-        await db.releaseReadLock();
-      }
+      await use(db);
     },
     { scope: 'worker' },
   ],

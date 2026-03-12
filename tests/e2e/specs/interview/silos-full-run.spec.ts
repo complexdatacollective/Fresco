@@ -43,234 +43,225 @@ test.describe('SILOS Protocol Full Run-Through', () => {
     // This is a long-running test - extend timeout to 15 minutes
     testInfo.setTimeout(15 * 60 * 1000);
 
-    const cleanup = await database.isolate(page, testInfo);
-    try {
-      // ============================================================
-      // Setup: Load protocol and enable preview mode
-      // ============================================================
+    await database.restoreSnapshot();
 
-      await test.step('Setup preview protocol', async () => {
-        await database.enablePreviewMode(false);
+    // ============================================================
+    // Setup: Load protocol and enable preview mode
+    // ============================================================
 
-        const silosProtocolJson = await fs.readFile(
-          SILOS_PROTOCOL_PATH,
-          'utf-8',
-        );
-        const silosProtocol = JSON.parse(silosProtocolJson) as Record<
-          string,
-          unknown
-        >;
+    await test.step('Setup preview protocol', async () => {
+      await database.enablePreviewMode(false);
 
-        const protocolId =
-          await database.createPreviewProtocolFromJson(silosProtocol);
+      const silosProtocolJson = await fs.readFile(SILOS_PROTOCOL_PATH, 'utf-8');
+      const silosProtocol = JSON.parse(silosProtocolJson) as Record<
+        string,
+        unknown
+      >;
 
-        // Navigate to interview
-        const interview = new InterviewPage(page, 'preview', protocolId);
-        await interview.start();
+      const protocolId =
+        await database.createPreviewProtocolFromJson(silosProtocol);
 
-        // Store interview instance for subsequent steps
-        (testInfo as unknown as { interview: InterviewPage }).interview =
-          interview;
-      });
+      // Navigate to interview
+      const interview = new InterviewPage(page, 'preview', protocolId);
+      await interview.start();
 
-      const interview = (testInfo as unknown as { interview: InterviewPage })
-        .interview;
+      // Store interview instance for subsequent steps
+      (testInfo as unknown as { interview: InterviewPage }).interview =
+        interview;
+    });
 
-      // ============================================================
-      // Stage 1: Welcome (Information)
-      // ============================================================
+    const interview = (testInfo as unknown as { interview: InterviewPage })
+      .interview;
 
-      await test.step('Stage 1: Welcome', async () => {
-        logCurrentStage(interview, 'Welcome');
-        await handleInformationStage(interview);
-      });
+    // ============================================================
+    // Stage 1: Welcome (Information)
+    // ============================================================
 
-      // ============================================================
-      // Stage 2: Self-Nomination Instructions (Information)
-      // ============================================================
+    await test.step('Stage 1: Welcome', async () => {
+      logCurrentStage(interview, 'Welcome');
+      await handleInformationStage(interview);
+    });
 
-      await test.step('Stage 2: Self-Nomination Instructions', async () => {
-        logCurrentStage(interview, 'Self-Nomination Instructions');
-        await handleInformationStage(interview);
-      });
+    // ============================================================
+    // Stage 2: Self-Nomination Instructions (Information)
+    // ============================================================
 
-      // ============================================================
-      // Stage 3: Self-Nomination (NameGeneratorQuickAdd)
-      // ============================================================
+    await test.step('Stage 2: Self-Nomination Instructions', async () => {
+      logCurrentStage(interview, 'Self-Nomination Instructions');
+      await handleInformationStage(interview);
+    });
 
-      await test.step('Stage 3: Self-Nomination', async () => {
-        logCurrentStage(interview, 'Self-Nomination');
-        await handleNameGeneratorQuickAdd(interview, [SELF_NOMINATION]);
-      });
+    // ============================================================
+    // Stage 3: Self-Nomination (NameGeneratorQuickAdd)
+    // ============================================================
 
-      // ============================================================
-      // Stage 4: Ego Information (EgoForm)
-      // ============================================================
+    await test.step('Stage 3: Self-Nomination', async () => {
+      logCurrentStage(interview, 'Self-Nomination');
+      await handleNameGeneratorQuickAdd(interview, [SELF_NOMINATION]);
+    });
 
-      await test.step('Stage 4: Ego Information', async () => {
-        logCurrentStage(interview, 'Ego Information');
-        await interview.waitForStageContent();
+    // ============================================================
+    // Stage 4: Ego Information (EgoForm)
+    // ============================================================
 
-        // Fill the ego form with male path data
-        // This is simplified - in practice each field needs specific handling
+    await test.step('Stage 4: Ego Information', async () => {
+      logCurrentStage(interview, 'Ego Information');
+      await interview.waitForStageContent();
 
-        // Date of birth - use specific selector for date input with ISO format
-        const dobInput = page.locator('input[type="date"]').first();
-        await dobInput.fill(EGO_FORM_DATA.dateOfBirth);
+      // Fill the ego form with male path data
+      // This is simplified - in practice each field needs specific handling
 
-        // Sexual identity - select option
-        await page.getByText(EGO_FORM_DATA.sexualIdentity).first().click();
+      // Date of birth - use specific selector for date input with ISO format
+      const dobInput = page.locator('input[type="date"]').first();
+      await dobInput.fill(EGO_FORM_DATA.dateOfBirth);
 
-        // Sex assigned at birth - CRITICAL: Must be Male
-        await page.getByText(EGO_FORM_DATA.sexAssignedAtBirth).first().click();
+      // Sexual identity - select option
+      await page.getByText(EGO_FORM_DATA.sexualIdentity).first().click();
 
-        // Gender
-        await page.getByText(EGO_FORM_DATA.gender).first().click();
+      // Sex assigned at birth - CRITICAL: Must be Male
+      await page.getByText(EGO_FORM_DATA.sexAssignedAtBirth).first().click();
 
-        // Race
-        for (const race of EGO_FORM_DATA.race) {
-          await page.getByText(race).first().click();
-        }
+      // Gender
+      await page.getByText(EGO_FORM_DATA.gender).first().click();
 
-        // Hispanic
-        await page.getByText(EGO_FORM_DATA.hispanic).first().click();
+      // Race
+      for (const race of EGO_FORM_DATA.race) {
+        await page.getByText(race).first().click();
+      }
 
-        // Years lived
-        const yearsInput = page.locator('input[type="number"]').first();
-        if (await yearsInput.isVisible()) {
-          await yearsInput.fill(EGO_FORM_DATA.yearsLived);
-        }
+      // Hispanic
+      await page.getByText(EGO_FORM_DATA.hispanic).first().click();
 
-        // HIV Status
-        await page.getByText(EGO_FORM_DATA.hivStatus).first().click();
+      // Years lived
+      const yearsInput = page.locator('input[type="number"]').first();
+      if (await yearsInput.isVisible()) {
+        await yearsInput.fill(EGO_FORM_DATA.yearsLived);
+      }
 
-        await interview.waitForNextEnabled();
-        await interview.navigateNext();
-      });
+      // HIV Status
+      await page.getByText(EGO_FORM_DATA.hivStatus).first().click();
 
-      // Stages 5-6 are skipped for male path
+      await interview.waitForNextEnabled();
+      await interview.navigateNext();
+    });
 
-      // ============================================================
-      // Stage 7: Ego Information Perceived by Others (EgoForm)
-      // ============================================================
+    // Stages 5-6 are skipped for male path
 
-      await test.step('Stage 7: Ego Perceived by Others', async () => {
-        logCurrentStage(interview, 'Ego Perceived by Others');
-        await interview.waitForStageContent();
+    // ============================================================
+    // Stage 7: Ego Information Perceived by Others (EgoForm)
+    // ============================================================
 
-        await page.getByText(EGO_PERCEIVED_DATA.perceivedRace).first().click();
-        await page
-          .getByText(EGO_PERCEIVED_DATA.perceivedHispanic)
-          .first()
-          .click();
-        await page
-          .getByText(EGO_PERCEIVED_DATA.perceivedGender)
-          .first()
-          .click();
-        await page
-          .getByText(EGO_PERCEIVED_DATA.perceivedSexualIdentity)
-          .first()
-          .click();
+    await test.step('Stage 7: Ego Perceived by Others', async () => {
+      logCurrentStage(interview, 'Ego Perceived by Others');
+      await interview.waitForStageContent();
 
-        await interview.waitForNextEnabled();
-        await interview.navigateNext();
-      });
+      await page.getByText(EGO_PERCEIVED_DATA.perceivedRace).first().click();
+      await page
+        .getByText(EGO_PERCEIVED_DATA.perceivedHispanic)
+        .first()
+        .click();
+      await page.getByText(EGO_PERCEIVED_DATA.perceivedGender).first().click();
+      await page
+        .getByText(EGO_PERCEIVED_DATA.perceivedSexualIdentity)
+        .first()
+        .click();
 
-      // ============================================================
-      // Stage 8: Ego Census Tract Introduction (Information)
-      // ============================================================
+      await interview.waitForNextEnabled();
+      await interview.navigateNext();
+    });
 
-      await test.step('Stage 8: Ego Census Tract Introduction', async () => {
-        logCurrentStage(interview, 'Ego Census Tract Introduction');
-        await handleInformationStage(interview);
-      });
+    // ============================================================
+    // Stage 8: Ego Census Tract Introduction (Information)
+    // ============================================================
 
-      // ============================================================
-      // Stage 9: Ego Census Tract (Geospatial)
-      // ============================================================
+    await test.step('Stage 8: Ego Census Tract Introduction', async () => {
+      logCurrentStage(interview, 'Ego Census Tract Introduction');
+      await handleInformationStage(interview);
+    });
 
-      await test.step('Stage 9: Ego Census Tract', async () => {
-        logCurrentStage(interview, 'Ego Census Tract');
-        // For testing, just use "outside map area" to skip map selection
-        await handleGeospatialStage(interview, { clickOutside: true });
-      });
+    // ============================================================
+    // Stage 9: Ego Census Tract (Geospatial)
+    // ============================================================
 
-      // ============================================================
-      // Stage 10: Ego Substances (EgoForm)
-      // ============================================================
+    await test.step('Stage 9: Ego Census Tract', async () => {
+      logCurrentStage(interview, 'Ego Census Tract');
+      // For testing, just use "outside map area" to skip map selection
+      await handleGeospatialStage(interview, { clickOutside: true });
+    });
 
-      await test.step('Stage 10: Ego Substances', async () => {
-        logCurrentStage(interview, 'Ego Substances');
-        await interview.waitForStageContent();
+    // ============================================================
+    // Stage 10: Ego Substances (EgoForm)
+    // ============================================================
 
-        // Select Yes for marijuana, poppers, meth to enable chemsex stages
-        // The form has multiple yes/no questions
-        const yesButtons = page.getByText('Yes').all();
-        const noButtons = page.getByText('No').all();
+    await test.step('Stage 10: Ego Substances', async () => {
+      logCurrentStage(interview, 'Ego Substances');
+      await interview.waitForStageContent();
 
-        // We need to select specific options - this is simplified
-        // In practice, iterate through each substance field
-        const allYes = await yesButtons;
-        const allNo = await noButtons;
+      // Select Yes for marijuana, poppers, meth to enable chemsex stages
+      // The form has multiple yes/no questions
+      const yesButtons = page.getByText('Yes').all();
+      const noButtons = page.getByText('No').all();
 
-        // Click Yes for first (marijuana), No for rest except poppers/meth
-        if (allYes[0]) await allYes[0].click(); // Marijuana - Yes
-        if (allNo[1]) await allNo[1].click(); // Cocaine - No
-        if (allNo[2]) await allNo[2].click(); // Heroin - No
-        if (allNo[3]) await allNo[3].click(); // Painkillers - No
-        if (allYes[4]) await allYes[4].click(); // Poppers - Yes
-        if (allYes[5]) await allYes[5].click(); // Meth - Yes
+      // We need to select specific options - this is simplified
+      // In practice, iterate through each substance field
+      const allYes = await yesButtons;
+      const allNo = await noButtons;
 
-        await interview.waitForNextEnabled();
-        await interview.navigateNext();
-      });
+      // Click Yes for first (marijuana), No for rest except poppers/meth
+      if (allYes[0]) await allYes[0].click(); // Marijuana - Yes
+      if (allNo[1]) await allNo[1].click(); // Cocaine - No
+      if (allNo[2]) await allNo[2].click(); // Heroin - No
+      if (allNo[3]) await allNo[3].click(); // Painkillers - No
+      if (allYes[4]) await allYes[4].click(); // Poppers - Yes
+      if (allYes[5]) await allYes[5].click(); // Meth - Yes
 
-      // ============================================================
-      // Stage 11: Name Generator Instructions (Information)
-      // ============================================================
+      await interview.waitForNextEnabled();
+      await interview.navigateNext();
+    });
 
-      await test.step('Stage 11: Name Generator Instructions', async () => {
-        logCurrentStage(interview, 'Name Generator Instructions');
-        await handleInformationStage(interview);
-      });
+    // ============================================================
+    // Stage 11: Name Generator Instructions (Information)
+    // ============================================================
 
-      // ============================================================
-      // Stage 12: Name Generators - Close Ties and Drug (NameGenerator)
-      // This has multiple prompts
-      // ============================================================
+    await test.step('Stage 11: Name Generator Instructions', async () => {
+      logCurrentStage(interview, 'Name Generator Instructions');
+      await handleInformationStage(interview);
+    });
 
-      await test.step('Stage 12: Name Generators - Close Ties', async () => {
-        logCurrentStage(interview, 'Name Generators - Close Ties');
-        await interview.waitForStageContent();
+    // ============================================================
+    // Stage 12: Name Generators - Close Ties and Drug (NameGenerator)
+    // This has multiple prompts
+    // ============================================================
 
-        // First prompt: Close ties
-        // Form fields use UUIDs as data-field-name, not human-readable names
-        for (const person of CLOSE_TIES) {
-          await interview.addNodeWithForm({
-            [PERSON_VARIABLES.name]: person.name,
-            [PERSON_VARIABLES.Age]: person.Age,
-            [PERSON_VARIABLES.Relationship]: person.Relationship,
-          });
-        }
+    await test.step('Stage 12: Name Generators - Close Ties', async () => {
+      logCurrentStage(interview, 'Name Generators - Close Ties');
+      await interview.waitForStageContent();
 
-        // Navigate to next prompt
-        await interview.waitForNextEnabled();
-        await interview.navigateNext();
-      });
+      // First prompt: Close ties
+      // Form fields use UUIDs as data-field-name, not human-readable names
+      for (const person of CLOSE_TIES) {
+        await interview.addNodeWithForm({
+          [PERSON_VARIABLES.name]: person.name,
+          [PERSON_VARIABLES.Age]: person.Age,
+          [PERSON_VARIABLES.Relationship]: person.Relationship,
+        });
+      }
 
-      await test.step('Stage 12: Name Generators - Drug Partners', async () => {
-        logCurrentStage(interview, 'Name Generators - Drug Partners');
-        // Second prompt: Drug partners (can reuse from side panel)
-        // For simplicity, just navigate through
-        await interview.waitForNextEnabled();
-        await interview.navigateNext();
-      });
+      // Navigate to next prompt
+      await interview.waitForNextEnabled();
+      await interview.navigateNext();
+    });
 
-      // TODO: Continue implementation from Stage 13 onwards
-      // Stage 13: Sex Partner Nomination - dialog not closing issue
-    } finally {
-      await cleanup();
-    }
+    await test.step('Stage 12: Name Generators - Drug Partners', async () => {
+      logCurrentStage(interview, 'Name Generators - Drug Partners');
+      // Second prompt: Drug partners (can reuse from side panel)
+      // For simplicity, just navigate through
+      await interview.waitForNextEnabled();
+      await interview.navigateNext();
+    });
+
+    // TODO: Continue implementation from Stage 13 onwards
+    // Stage 13: Sex Partner Nomination - dialog not closing issue
   });
 
   // TODO: Add test for female ineligible path once infrastructure issues are resolved

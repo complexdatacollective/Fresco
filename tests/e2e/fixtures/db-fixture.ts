@@ -1,11 +1,10 @@
 import { createId } from '@paralleldrive/cuid2';
-import { test, type Page, type TestInfo } from '@playwright/test';
 import { randomBytes } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { hash } from 'ohash';
 import pg from 'pg';
-import { type AppSetting, type Prisma } from '~/lib/db/generated/client';
+import { type Prisma } from '~/lib/db/generated/client';
 import { log } from '../helpers/logger.js';
 import { createTestPrisma, type TestPrismaClient } from '../helpers/prisma.js';
 
@@ -14,19 +13,10 @@ type TableSnapshot = {
   rows: Record<string, unknown>[];
 };
 
-// Advisory lock ID used for coordinating database access across workers.
-// Shared locks allow parallel reads; exclusive locks serialize mutations.
-const LOCK_ID = 42;
-
 export class DatabaseIsolation {
   private databaseUrl: string;
   private suiteId: string;
   private prisma: TestPrismaClient;
-  private isolationClient: pg.PoolClient | null = null;
-
-  // Pool and client for holding the shared read lock across the spec file
-  private readLockPool: pg.Pool | null = null;
-  private readLockClient: pg.PoolClient | null = null;
 
   constructor(databaseUrl: string, suiteId: string) {
     this.databaseUrl = databaseUrl;
@@ -42,10 +32,6 @@ export class DatabaseIsolation {
     text: string,
     values?: unknown[],
   ): Promise<pg.QueryResult<T>> {
-    // Use the isolation client if available (during isolated test), otherwise create a temporary pool
-    if (this.isolationClient) {
-      return this.isolationClient.query<T>(text, values);
-    }
     const pool = new pg.Pool({ connectionString: this.databaseUrl, max: 1 });
     try {
       return await pool.query<T>(text, values);
@@ -54,127 +40,78 @@ export class DatabaseIsolation {
     }
   }
 
-  async getProtocolId(): Promise<string> {
-    const protocol = await this.prisma.protocol.findFirst({
-      select: { id: true },
-    });
-    if (!protocol) {
-      throw new Error('No protocol found in database');
-    }
-    return protocol.id;
-  }
-
-  async updateAppSetting(key: string, value: string): Promise<void> {
-    await this.prisma.appSettings.update({
-      where: { key: key as AppSetting },
-      data: { value },
-    });
-  }
-
-  async deleteUser(username: string): Promise<void> {
-    await this.prisma.user.delete({ where: { username } }).catch(() => {
-      // Ignore if user doesn't exist (e.g., first run or retry cleanup)
-    });
-  }
-
-  async getParticipantCount(identifier?: string): Promise<number> {
-    return this.prisma.participant.count({
-      where: identifier ? { identifier } : undefined,
-    });
-  }
-
-  async seedPasskeyForUser(
-    username: string,
-    credentialId: string,
-    publicKey: string,
-    options?: {
-      aaguid?: string;
-      friendlyName?: string;
-      counter?: number;
-      deviceType?: string;
-      backedUp?: boolean;
-    },
+  private async restoreWith(
+    client: pg.PoolClient,
+    name: string,
   ): Promise<void> {
-    const user = await this.prisma.user.findUnique({
-      where: { username },
-      select: { id: true },
-    });
-    if (!user) {
-      throw new Error(`User "${username}" not found`);
+    const snapshotFile = path.resolve(
+      import.meta.dirname,
+      `../.db-snapshots/${this.suiteId}/${name}.json`,
+    );
+
+    const data = await fs.readFile(snapshotFile, 'utf-8');
+    const snapshot = JSON.parse(data) as TableSnapshot[];
+
+    await client.query('SET lock_timeout = 5000');
+    try {
+      await client.query('BEGIN');
+      await client.query('SET session_replication_role = replica');
+
+      for (const { table } of snapshot) {
+        await client.query(`TRUNCATE "${table}" CASCADE`);
+      }
+
+      for (const { table, rows } of snapshot) {
+        for (const row of rows) {
+          const columns = Object.keys(row);
+          const values = Object.values(row).map((v) =>
+            v !== null && typeof v === 'object' && !(v instanceof Date)
+              ? JSON.stringify(v)
+              : v,
+          );
+          const placeholders = columns.map((_, i) => `$${i + 1}`);
+          await client.query(
+            `INSERT INTO "${table}" (${columns.map((c) => `"${c}"`).join(', ')}) VALUES (${placeholders.join(', ')})`,
+            values,
+          );
+        }
+      }
+
+      await client.query('SET session_replication_role = DEFAULT');
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK').catch(() => {
+        // Ignore rollback errors
+      });
+      throw error;
+    } finally {
+      await client.query('SET lock_timeout = 0');
     }
-
-    await this.prisma.webAuthnCredential.create({
-      data: {
-        user_id: user.id,
-        credentialId,
-        publicKey,
-        counter: BigInt(options?.counter ?? 0),
-        transports: 'internal',
-        deviceType: options?.deviceType ?? 'multiDevice',
-        backedUp: options?.backedUp ?? true,
-        aaguid: options?.aaguid ?? null,
-        friendlyName: options?.friendlyName ?? 'Test Passkey',
-      },
-    });
-
-    log('test', `Seeded passkey for user "${username}"`);
   }
 
-  async clearPasskeysForUser(username: string): Promise<void> {
-    const user = await this.prisma.user.findUnique({
-      where: { username },
-      select: { id: true },
+  async restoreSnapshot(name = 'initial'): Promise<void> {
+    const pool = new pg.Pool({
+      connectionString: this.databaseUrl,
+      max: 1,
     });
-    if (!user) {
-      throw new Error(`User "${username}" not found`);
+    const client = await pool.connect();
+
+    try {
+      log(
+        'test',
+        `Restoring snapshot "${name}" for suite "${this.suiteId}"...`,
+      );
+      await this.restoreWith(client, name);
+    } finally {
+      client.release();
+      await pool.end();
     }
-
-    await this.prisma.webAuthnCredential.deleteMany({
-      where: { user_id: user.id },
-    });
-
-    log('test', `Cleared passkeys for user "${username}"`);
-  }
-
-  async removePasswordForUser(username: string): Promise<void> {
-    const user = await this.prisma.user.findUnique({
-      where: { username },
-      select: { id: true },
-    });
-    if (!user) {
-      throw new Error(`User "${username}" not found`);
-    }
-
-    await this.prisma.key.updateMany({
-      where: { user_id: user.id },
-      data: { hashed_password: null },
-    });
-
-    log('test', `Removed password for user "${username}"`);
-  }
-
-  async getUserPasskeyCount(username: string): Promise<number> {
-    const user = await this.prisma.user.findUnique({
-      where: { username },
-      select: { id: true },
-    });
-    if (!user) {
-      throw new Error(`User "${username}" not found`);
-    }
-
-    return this.prisma.webAuthnCredential.count({
-      where: { user_id: user.id },
-    });
   }
 
   // ============================================================
   // Preview Mode Helpers
   // ============================================================
 
-  /**
-   * Enable preview mode with optional authentication requirement.
-   * @param requireAuth - If true, API requests must include a valid session or API token
-   */
   async enablePreviewMode(requireAuth = false): Promise<void> {
     await this.prisma.appSettings.upsert({
       where: { key: 'previewMode' },
@@ -189,9 +126,6 @@ export class DatabaseIsolation {
     log('test', `Enabled preview mode (requireAuth: ${requireAuth})`);
   }
 
-  /**
-   * Disable preview mode.
-   */
   async disablePreviewMode(): Promise<void> {
     await this.prisma.appSettings.upsert({
       where: { key: 'previewMode' },
@@ -201,13 +135,6 @@ export class DatabaseIsolation {
     log('test', 'Disabled preview mode');
   }
 
-
-  /**
-   * Create a preview protocol for testing.
-   * @param options.isPending - If true, marks protocol as still uploading assets
-   * @param options.name - Optional name for the protocol
-   * @returns The protocol ID
-   */
   async createPreviewProtocol(options?: {
     isPending?: boolean;
     name?: string;
@@ -286,9 +213,6 @@ export class DatabaseIsolation {
     return protocolId;
   }
 
-  /**
-   * Delete a preview protocol by ID.
-   */
   async deletePreviewProtocol(protocolId: string): Promise<void> {
     await this.prisma.previewProtocol
       .delete({
@@ -299,14 +223,6 @@ export class DatabaseIsolation {
       });
   }
 
-  /**
-   * Create a preview protocol from a full protocol JSON object.
-   * Use this for testing with complex protocols like SILOS.
-   * @param protocolData - The full protocol JSON (e.g., loaded from SILOS-protocol.json)
-   * @param options.isPending - If true, marks protocol as still uploading assets
-   * @param options.name - Optional override for the protocol name
-   * @returns The protocol ID
-   */
   async createPreviewProtocolFromJson(
     protocolData: Record<string, unknown>,
     options?: {
@@ -338,114 +254,7 @@ export class DatabaseIsolation {
     return protocolId;
   }
 
-  /**
-   * Create a regular protocol from a full protocol JSON object.
-   * Use this for testing the /interview route with complex protocols like SILOS.
-   * @param protocolData - The full protocol JSON (e.g., loaded from SILOS-protocol.json)
-   * @param options.name - Optional override for the protocol name
-   * @returns The protocol ID
-   */
-  async createProtocolFromJson(
-    protocolData: Record<string, unknown>,
-    options?: {
-      name?: string;
-    },
-  ): Promise<string> {
-    const protocolId = createId();
-    const name =
-      options?.name ?? (protocolData.name as string) ?? 'Imported Protocol';
-
-    const protocolHash = hash(protocolData);
-
-    await this.prisma.protocol.create({
-      data: {
-        id: protocolId,
-        hash: protocolHash,
-        name,
-        schemaVersion: protocolData.schemaVersion as number,
-        description: (protocolData.description as string) ?? '',
-        lastModified: new Date(protocolData.lastModified as string),
-        stages: protocolData.stages as Prisma.InputJsonValue,
-        codebook: protocolData.codebook as Prisma.InputJsonValue,
-      },
-    });
-
-    log('test', `Created protocol from JSON "${name}" (${protocolId})`);
-    return protocolId;
-  }
-
-  /**
-   * Create a participant for testing.
-   * @param options.identifier - Optional participant identifier
-   * @param options.label - Optional participant label
-   * @returns The participant ID
-   */
-  async createParticipant(options?: {
-    identifier?: string;
-    label?: string;
-  }): Promise<string> {
-    const participantId = createId();
-    const identifier = options?.identifier ?? `TEST-${Date.now()}`;
-
-    await this.prisma.participant.create({
-      data: {
-        id: participantId,
-        identifier,
-        label: options?.label ?? null,
-      },
-    });
-
-    log('test', `Created participant "${identifier}" (${participantId})`);
-    return participantId;
-  }
-
-  /**
-   * Create an interview for testing.
-   * @param participantId - The participant ID
-   * @param protocolId - The protocol ID
-   * @param options.currentStep - Starting step (default: 0)
-   * @returns The interview ID
-   */
-  async createInterview(
-    participantId: string,
-    protocolId: string,
-    options?: {
-      currentStep?: number;
-    },
-  ): Promise<string> {
-    const interviewId = createId();
-    const now = new Date();
-
-    await this.prisma.interview.create({
-      data: {
-        id: interviewId,
-        startTime: now,
-        lastUpdated: now,
-        currentStep: options?.currentStep ?? 0,
-        network: {
-          nodes: [],
-          edges: [],
-          ego: { _uid: createId(), attributes: {} },
-        },
-        participantId,
-        protocolId,
-      },
-    });
-
-    log(
-      'test',
-      `Created interview (${interviewId}) for participant ${participantId}`,
-    );
-    return interviewId;
-  }
-
-  /**
-   * Create an API token for testing authenticated preview requests.
-   * @param description - Description for the token
-   * @returns The raw token value
-   */
   async createApiToken(description: string): Promise<string> {
-    // Generate token using same format as production: base64url encoded random bytes
     const token = randomBytes(32).toString('base64url');
 
     await this.prisma.apiToken.create({
@@ -461,363 +270,7 @@ export class DatabaseIsolation {
     return token;
   }
 
-  /**
-   * Delete all API tokens.
-   */
-  async deleteAllApiTokens(): Promise<void> {
-    await this.prisma.apiToken.deleteMany({});
-    log('test', 'Deleted all API tokens');
-  }
-
-  /**
-   * Get count of Interview records.
-   * Used to verify preview mode doesn't persist interview data.
-   */
   async getInterviewCount(): Promise<number> {
     return this.prisma.interview.count();
-  }
-
-  /**
-   * Get count of PreviewProtocol records.
-   */
-  async getPreviewProtocolCount(): Promise<number> {
-    return this.prisma.previewProtocol.count();
-  }
-
-  private async restoreWith(
-    client: pg.PoolClient,
-    name: string,
-  ): Promise<void> {
-    const snapshotFile = path.resolve(
-      import.meta.dirname,
-      `../.db-snapshots/${this.suiteId}/${name}.json`,
-    );
-
-    const data = await fs.readFile(snapshotFile, 'utf-8');
-    const snapshot = JSON.parse(data) as TableSnapshot[];
-
-    // Set a short lock timeout for table locks during restore, but reset it
-    // afterwards so advisory lock operations can wait indefinitely
-    await client.query('SET lock_timeout = 5000');
-    try {
-      await client.query('BEGIN');
-      await client.query('SET session_replication_role = replica');
-
-      for (const { table } of snapshot) {
-        await client.query(`TRUNCATE "${table}" CASCADE`);
-      }
-
-      for (const { table, rows } of snapshot) {
-        for (const row of rows) {
-          const columns = Object.keys(row);
-          const values = Object.values(row).map((v) =>
-            v !== null && typeof v === 'object' && !(v instanceof Date)
-              ? JSON.stringify(v)
-              : v,
-          );
-          const placeholders = columns.map((_, i) => `$${i + 1}`);
-          await client.query(
-            `INSERT INTO "${table}" (${columns.map((c) => `"${c}"`).join(', ')}) VALUES (${placeholders.join(', ')})`,
-            values,
-          );
-        }
-      }
-
-      await client.query('SET session_replication_role = DEFAULT');
-      await client.query('COMMIT');
-    } catch (error) {
-      await client.query('ROLLBACK').catch(() => {
-        // Ignore rollback errors - we're already handling the original error
-      });
-      throw error;
-    } finally {
-      await client.query('SET lock_timeout = 0');
-    }
-  }
-
-  /**
-   * Acquires a shared read lock and restores the database snapshot.
-   * The shared lock is held until releaseReadLock() is called.
-   * Multiple workers can hold shared locks simultaneously (parallel reads).
-   * Call this in beforeAll of each spec file.
-   */
-  async restoreSnapshot(name = 'initial'): Promise<void> {
-    // Disable the hook/test timeout while waiting for the advisory lock.
-    // Lock wait is unbounded — it depends on other workers finishing their
-    // mutations. This mirrors the pattern in isolate().
-    test.setTimeout(0);
-
-    // Clean up any existing read lock (shouldn't happen, but be safe)
-    await this.releaseReadLock();
-
-    this.readLockPool = new pg.Pool({
-      connectionString: this.databaseUrl,
-      max: 1,
-    });
-    this.readLockClient = await this.readLockPool.connect();
-
-    try {
-      // Acquire exclusive lock for the restore to prevent concurrent TRUNCATEs
-      // from deadlocking each other
-      await this.readLockClient.query(`SELECT pg_advisory_lock(${LOCK_ID})`);
-      log(
-        'test',
-        `Acquired exclusive lock for restoring snapshot "${name}" for suite "${this.suiteId}"...`,
-      );
-      await this.restoreWith(this.readLockClient, name);
-
-      // Downgrade to shared lock: release exclusive, then acquire shared
-      await this.readLockClient.query(`SELECT pg_advisory_unlock(${LOCK_ID})`);
-      await this.readLockClient.query(
-        `SELECT pg_advisory_lock_shared(${LOCK_ID})`,
-      );
-      log('test', `Downgraded to shared lock for suite "${this.suiteId}"`);
-      // Keep the shared lock held - it protects read-only tests from concurrent mutations
-    } catch (error) {
-      // If anything fails (timeout, connection error), release the connection
-      // immediately so the advisory lock is freed on disconnect and doesn't
-      // poison other spec files sharing this database.
-      this.readLockClient.release();
-      this.readLockClient = null;
-      await this.readLockPool.end();
-      this.readLockPool = null;
-      throw error;
-    }
-  }
-
-  /**
-   * Releases the shared read lock acquired by restoreSnapshot().
-   * Call this in afterAll of each spec file.
-   */
-  async releaseReadLock(): Promise<void> {
-    if (this.readLockClient) {
-      try {
-        await this.readLockClient.query(
-          `SELECT pg_advisory_unlock_shared(${LOCK_ID})`,
-        );
-        log('test', `Released shared lock for suite "${this.suiteId}"`);
-      } finally {
-        this.readLockClient.release();
-        this.readLockClient = null;
-      }
-    }
-    if (this.readLockPool) {
-      await this.readLockPool.end();
-      this.readLockPool = null;
-    }
-  }
-
-  /**
-   * Isolates a mutation test (API-only) by acquiring an exclusive lock and restoring the snapshot.
-   * This variant doesn't require a browser page and is suitable for pure API tests.
-   * The exclusive lock blocks all other readers and writers until cleanup() is called.
-   * Returns a cleanup function that must be called in afterEach.
-   *
-   * Pass `testInfo` to exclude lock wait time from the test timeout. Without it,
-   * tests queued behind other workers' mutations may time out waiting for the lock.
-   */
-  async isolateApi(
-    testInfo?: TestInfo,
-    name = 'initial',
-  ): Promise<() => Promise<void>> {
-    // Release our shared lock first to avoid deadlock when acquiring exclusive lock.
-    const hadReadLock = !!this.readLockClient;
-    if (hadReadLock) {
-      await this.readLockClient!.query(
-        `SELECT pg_advisory_unlock_shared(${LOCK_ID})`,
-      );
-      log('test', `Released shared lock before acquiring exclusive lock`);
-    }
-
-    const pool = new pg.Pool({
-      connectionString: this.databaseUrl,
-      max: 1,
-    });
-    let client: pg.PoolClient | null = null;
-
-    // Temporarily disable the test timeout while waiting for the advisory lock.
-    const originalTimeout = testInfo?.timeout ?? 0;
-    if (testInfo) {
-      testInfo.setTimeout(0);
-    }
-
-    const lockWaitStart = Date.now();
-
-    try {
-      client = await pool.connect();
-
-      // Acquire exclusive lock - waits for all shared locks to release
-      await client.query(`SELECT pg_advisory_lock(${LOCK_ID})`);
-
-      const lockWaitMs = Date.now() - lockWaitStart;
-      log(
-        'test',
-        `Acquired exclusive lock for API mutation test (waited ${lockWaitMs}ms)`,
-      );
-
-      // Restore the timeout, extended by the lock wait
-      if (testInfo) {
-        testInfo.setTimeout(originalTimeout + lockWaitMs);
-      }
-
-      // Store client so helper methods reuse this connection
-      this.isolationClient = client;
-
-      log(
-        'test',
-        `Restoring snapshot "${name}" for suite "${this.suiteId}"...`,
-      );
-      await this.restoreWith(client, name);
-    } catch (error) {
-      this.isolationClient = null;
-      if (client) {
-        client.release();
-      }
-      await pool.end();
-      throw error;
-    }
-
-    return async () => {
-      this.isolationClient = null;
-
-      // Release the exclusive advisory lock.
-      try {
-        await client.query(`SELECT pg_advisory_unlock(${LOCK_ID})`);
-        log('test', `Released exclusive lock after API mutation test`);
-      } catch (unlockError) {
-        log(
-          'test',
-          `Failed to release exclusive lock (will auto-release on disconnect): ${String(unlockError)}`,
-        );
-      }
-
-      client.release();
-      await pool.end();
-
-      // Re-acquire shared lock so subsequent read-only tests are protected
-      if (hadReadLock && this.readLockClient) {
-        await this.readLockClient.query(
-          `SELECT pg_advisory_lock_shared(${LOCK_ID})`,
-        );
-        log('test', `Re-acquired shared lock after API mutation test`);
-      }
-    };
-  }
-
-  /**
-   * Isolates a mutation test by acquiring an exclusive lock and restoring the snapshot.
-   * The exclusive lock blocks all other readers and writers until cleanup() is called.
-   * Returns a cleanup function that must be called in afterEach.
-   *
-   * Pass `testInfo` to exclude lock wait time from the test timeout. Without it,
-   * tests queued behind other workers' mutations may time out waiting for the lock.
-   */
-  async isolate(
-    page: Page,
-    testInfo?: TestInfo,
-    name = 'initial',
-  ): Promise<() => Promise<void>> {
-    // Release our shared lock first to avoid deadlock when acquiring exclusive lock.
-    // Other workers holding shared locks will block our exclusive lock acquisition,
-    // but we must not be one of them.
-    const hadReadLock = !!this.readLockClient;
-    if (hadReadLock) {
-      await this.readLockClient!.query(
-        `SELECT pg_advisory_unlock_shared(${LOCK_ID})`,
-      );
-      log('test', `Released shared lock before acquiring exclusive lock`);
-    }
-
-    // Navigate to about:blank to stop app DB queries before acquiring lock.
-    // This prevents table lock conflicts where TRUNCATE waits for active
-    // Next.js queries. We use 'commit' waitUntil for fastest navigation.
-    await page.goto('about:blank', { waitUntil: 'commit' });
-
-    const pool = new pg.Pool({
-      connectionString: this.databaseUrl,
-      max: 1,
-    });
-    let client: pg.PoolClient | null = null;
-
-    // Temporarily disable the test timeout while waiting for the advisory lock.
-    // Other workers' mutations may hold the lock for an unpredictable duration,
-    // and that wait shouldn't count against this test's timeout.
-    const originalTimeout = testInfo?.timeout ?? 0;
-    if (testInfo) {
-      testInfo.setTimeout(0);
-    }
-
-    const lockWaitStart = Date.now();
-
-    try {
-      client = await pool.connect();
-
-      // Acquire exclusive lock - waits for all shared locks to release
-      await client.query(`SELECT pg_advisory_lock(${LOCK_ID})`);
-
-      const lockWaitMs = Date.now() - lockWaitStart;
-      log(
-        'test',
-        `Acquired exclusive lock for mutation test (waited ${lockWaitMs}ms)`,
-      );
-
-      // Restore the timeout, extended by the lock wait so the test's actual
-      // work gets the full configured timeout.
-      if (testInfo) {
-        testInfo.setTimeout(originalTimeout + lockWaitMs);
-      }
-
-      // Store client so helper methods reuse this connection (protected by advisory lock)
-      this.isolationClient = client;
-
-      log(
-        'test',
-        `Restoring snapshot "${name}" for suite "${this.suiteId}"...`,
-      );
-      await this.restoreWith(client, name);
-    } catch (error) {
-      // If setup fails, release the connection so the advisory lock is freed
-      // on disconnect and doesn't block other spec files.
-      this.isolationClient = null;
-      if (client) {
-        client.release();
-      }
-      await pool.end();
-      throw error;
-    }
-
-    return async () => {
-      this.isolationClient = null;
-
-      // Navigate to about:blank to stop background DB queries before
-      // releasing the lock. Uses 'commit' waitUntil for fastest navigation.
-      try {
-        await page.goto('about:blank', { waitUntil: 'commit' });
-      } catch {
-        // Page crashed during the test - still need to release lock
-      }
-
-      // Release the exclusive advisory lock.
-      try {
-        await client.query(`SELECT pg_advisory_unlock(${LOCK_ID})`);
-        log('test', `Released exclusive lock after mutation test`);
-      } catch (unlockError) {
-        log(
-          'test',
-          `Failed to release exclusive lock (will auto-release on disconnect): ${String(unlockError)}`,
-        );
-      }
-
-      client.release();
-      await pool.end();
-
-      // Re-acquire shared lock so subsequent read-only tests are protected
-      if (hadReadLock && this.readLockClient) {
-        await this.readLockClient.query(
-          `SELECT pg_advisory_lock_shared(${LOCK_ID})`,
-        );
-        log('test', `Re-acquired shared lock after mutation test`);
-      }
-    };
   }
 }

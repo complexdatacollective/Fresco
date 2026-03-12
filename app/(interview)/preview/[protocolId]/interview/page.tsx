@@ -19,9 +19,9 @@ export default function PreviewInterviewPage(props: {
   return (
     <Suspense
       fallback={
-        <main className="flex h-screen items-center justify-center">
+        <div className="flex h-screen items-center justify-center">
           <Loader2 size={64} className="animate-spin" />
-        </main>
+        </div>
       }
     >
       <PreviewContent params={props.params} />

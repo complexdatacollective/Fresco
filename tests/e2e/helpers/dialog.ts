@@ -12,12 +12,3 @@ export async function waitForDialog(
   await dialog.waitFor({ state: 'visible', timeout: options?.timeout });
   return dialog;
 }
-
-export async function confirmDeletion(page: Page): Promise<void> {
-  const dialog = getDialog(page);
-  const confirmButton = dialog.getByRole('button', {
-    name: /delete|confirm|remove/i,
-  });
-  await confirmButton.click();
-  await dialog.waitFor({ state: 'hidden' });
-}

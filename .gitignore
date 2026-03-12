@@ -74,3 +74,7 @@ storybook-static
 
 # Git worktrees
 .worktrees
+
+# plans
+/docs/plans
+/docs/superpowers

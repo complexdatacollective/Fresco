@@ -20,9 +20,9 @@ const InterviewShell = dynamic(
   () => import('~/lib/interviewer/InterviewShell'),
   {
     loading: () => (
-      <main className="flex h-screen items-center justify-center">
+      <div className="flex h-screen items-center justify-center">
         <Spinner size="lg" />
-      </main>
+      </div>
     ),
   },
 );
@@ -33,9 +33,9 @@ export default function Page(props: {
   return (
     <Suspense
       fallback={
-        <main className="flex h-screen items-center justify-center">
+        <div className="flex h-screen items-center justify-center">
           <Spinner size="lg" />
-        </main>
+        </div>
       }
     >
       <InterviewContent params={props.params} />

@@ -4,6 +4,8 @@
 
 Tests run across **3 browsers** (Chromium, Firefox, WebKit) x **4 environments** (setup, dashboard, api, interview) = **12 isolated instances**, each with its own PostgreSQL container and Next.js server.
 
+Each environment has its own isolated database — no cross-environment coordination is needed. Tests within an environment share a single DB but use `restoreSnapshot()` to reset state before mutation tests.
+
 ### Configuration
 
 The `config/test-config.ts` file is the single source of truth:
@@ -17,9 +19,9 @@ To add/remove a browser, edit the `BROWSERS` array. To add an environment, edit 
 ### Environments
 
 - **setup**: Unconfigured app (fresh install) for onboarding wizard tests
-- **dashboard**: Fully configured app with seeded data for dashboard tests (requires auth)
-- **api**: Configured app for API-only tests (no auth, no browser)
-- **interview**: Configured app for interview/preview browser tests (no auth)
+- **dashboard**: Fully configured app with seeded data for dashboard tests (requires auth). Read-only tests only — no mutations.
+- **api**: Configured app for API-only tests (no auth, no browser). Mutations use `restoreSnapshot()`.
+- **interview**: Configured app for interview/preview browser tests (no auth). Mutations use `restoreSnapshot()`.
 
 ### Browser Isolation
 
@@ -41,12 +43,10 @@ Global Setup
 │   └── Create initial DB snapshot (JSON)
 └── Save context file for workers
 
-Test Workers (parallel via shared/exclusive locks)
-├── beforeAll: acquire shared lock, restore snapshot
-├── Read-only tests: run with shared lock held (parallel across files)
-├── Mutation tests: release shared → acquire exclusive → run → release exclusive → re-acquire shared
-│   └── TRUNCATE + INSERT from snapshot before/after
-├── afterAll: release shared lock
+Test Workers (fullyParallel: true)
+├── Dashboard tests: read-only, no database fixture needed
+├── Mutation tests: call restoreSnapshot() at the start of each test
+│   └── TRUNCATE + INSERT from snapshot JSON
 └── Visual snapshots: toHaveScreenshot() with animation disabling
 
 Global Teardown
@@ -71,15 +71,21 @@ tests/e2e/
 │   ├── seed.ts                  # Per-environment seed functions
 │   ├── logger.ts                # Structured logging
 │   ├── context.ts               # Worker context sharing (JSON)
+│   ├── prisma.ts                # Test Prisma client factory
 │   ├── dialog.ts                # Dialog interaction helpers
 │   ├── table.ts                 # Data table helpers
 │   ├── row-actions.ts           # Row action dropdown helpers
+│   ├── stage-handlers.ts        # Interview stage automation
 │   └── form.ts                  # Form field helpers (data-field-name)
 ├── fixtures/
 │   ├── db-fixture.ts            # DatabaseIsolation class
 │   ├── test.ts                  # Extended test with db fixture (browser tests)
 │   ├── api-test.ts              # Extended test for API-only tests
-│   └── preview-protocol.ts      # Test protocol factory for preview tests
+│   ├── preview-protocol.ts      # Test protocol factory for preview tests
+│   ├── interview-page.ts        # Interview page object model
+│   └── silos-test-data.ts       # SILOS protocol test data
+├── data/
+│   └── SILOS-protocol.json      # Full SILOS protocol for e2e testing
 └── specs/
     ├── setup/onboarding.spec.ts
     ├── auth/login.spec.ts
@@ -88,11 +94,14 @@ tests/e2e/
     │   ├── protocols.spec.ts
     │   ├── participants.spec.ts
     │   ├── interviews.spec.ts
-    │   └── settings.spec.ts
+    │   ├── settings.spec.ts
+    │   ├── protocol-import.spec.ts
+    │   └── onboard-integration.spec.ts
     ├── api/
     │   └── preview-mode.spec.ts # API-only preview tests
     └── interview/
-        └── preview-mode.spec.ts # Browser preview tests
+        ├── preview-mode.spec.ts # Browser preview tests
+        └── silos-full-run.spec.ts # Full SILOS protocol run-through
 ```
 
 ## Playwright Projects
@@ -128,40 +137,42 @@ CI runs each browser on a separate runner via GitHub Actions matrix strategy (`f
 
 ## Test Patterns
 
-### File-level isolation with shared/exclusive locks
+### Dashboard tests (read-only, no database fixture)
 
-Each spec file acquires a **shared lock** at the start to protect read-only tests from concurrent mutations in other workers. This enables parallel execution of read-only tests across files.
+Dashboard tests only read seeded data — they never mutate the database. Since each environment has its own isolated DB, no locking or snapshot restoration is needed.
 
 ```ts
 import { test, expect } from '../../fixtures/test.js';
 
 test.describe('My Feature', () => {
-  // Acquire shared lock and restore database
-  test.beforeAll(async ({ database }) => {
-    await database.restoreSnapshot();
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/dashboard/my-feature');
   });
 
-  test.describe('Read-only', () => {
-    // Release shared lock after read-only tests, before mutations start
-    test.afterAll(async ({ database }) => {
-      await database.releaseReadLock();
-    });
-
-    test('displays heading', async ({ page }) => {
-      await page.goto('/dashboard');
-      await expect(
-        page.getByRole('heading', { name: 'Dashboard' }),
-      ).toBeVisible();
-    });
-  });
-
-  test.describe('Mutations', () => {
-    // Mutation tests use isolate() which handles its own locking
+  test('displays heading', async ({ page }) => {
+    await expect(
+      page.getByRole('heading', { name: 'My Feature' }),
+    ).toBeVisible();
   });
 });
 ```
 
-### Read-only tests (parallel within file)
+### Mutation tests (with snapshot restore)
+
+Tests that modify database state call `database.restoreSnapshot()` at the start to ensure a clean state. Use `test.describe.configure({ mode: 'serial' })` if tests depend on sequential execution.
+
+```ts
+test.describe('Mutations', () => {
+  test.describe.configure({ mode: 'serial' });
+
+  test('creates a record', async ({ page, database }) => {
+    await database.restoreSnapshot();
+    // ... test that modifies data
+  });
+});
+```
+
+### Read-only tests
 
 ```ts
 test('displays heading', async ({ page }) => {
@@ -169,27 +180,6 @@ test('displays heading', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
 });
 ```
-
-### Mutation tests (serial, with exclusive lock)
-
-Mutation tests acquire an **exclusive lock** that waits for all shared locks to release, then blocks all other readers and writers. This ensures mutations are fully isolated.
-
-```ts
-test.describe('Mutations', () => {
-  test.describe.configure({ mode: 'serial' });
-
-  test('delete item', async ({ page, database }, testInfo) => {
-    const cleanup = await database.isolate(page, testInfo);
-    try {
-      // ... test that modifies data
-    } finally {
-      await cleanup();
-    }
-  });
-});
-```
-
-`database.isolate(page, testInfo)` acquires an exclusive lock, restores the DB snapshot, and returns a cleanup function. Pass `testInfo` so lock wait time is excluded from the test timeout — without it, tests queued behind other workers may time out waiting for the lock.
 
 ### Element Selectors
 
@@ -246,31 +236,15 @@ page.getByTestId('anonymous-recruitment-field').getByRole('switch');
 Avoid assertions on specific text content. This ties tests to copy and prevents refactoring:
 
 ```ts
-// ❌ Bad - breaks when copy changes
+// Bad - breaks when copy changes
 await expect(page.getByTestId('welcome-message')).toContainText(
   'Welcome to Fresco',
 );
 await expect(page.getByRole('heading')).toHaveText('Dashboard');
 
-// ✅ Good - tests structure, not content
+// Good - tests structure, not content
 await expect(page.getByTestId('page-header')).toBeVisible();
 await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-```
-
-**Example refactoring:**
-
-```ts
-// ❌ Bad - fragile, tied to DOM structure
-const toggle = page
-  .getByText('Anonymous Recruitment')
-  .locator('..')
-  .locator('..')
-  .getByRole('switch');
-
-// ✅ Good - stable, semantic
-const toggle = page
-  .getByTestId('anonymous-recruitment-field')
-  .getByRole('switch');
 ```
 
 #### 5. Adding testIds to components
@@ -296,9 +270,9 @@ Captures the full-height page at all Tailwind breakpoint sizes:
 test('dashboard page', async ({ page, capturePage }) => {
   await page.goto('/dashboard');
   await capturePage('dashboard');
-  // Creates 6 snapshots: dashboard-phone.png, dashboard-tablet.png,
-  // dashboard-tablet-portrait.png, dashboard-laptop.png, dashboard-desktop.png,
-  // dashboard-desktop-lg.png
+  // Creates 7 snapshots: dashboard-phone.png, dashboard-tablet-portrait.png,
+  // dashboard-tablet-landscape.png, dashboard-laptop.png, dashboard-desktop.png,
+  // dashboard-desktop-lg.png, dashboard-desktop-xl.png
 });
 ```
 
@@ -316,14 +290,15 @@ await capturePage('settings', {
 
 Default viewports (synced with `--breakpoint-*` in `styles/globals.css`). All captures are full-height (the entire scrollable page is captured):
 
-| Name            | Width | Notes          |
-| --------------- | ----- | -------------- |
-| phone           | 320   | Minimum mobile |
-| tablet          | 768   | iPad Mini      |
-| tablet-portrait | 1024  | iPad Pro 11"   |
-| laptop          | 1280  | Small laptops  |
-| desktop         | 1920  | Full HD        |
-| desktop-lg      | 2560  | 2K/4K displays |
+| Name             | Width | Notes          |
+| ---------------- | ----- | -------------- |
+| phone            | 320   | Minimum mobile |
+| tablet-portrait  | 768   | iPad Mini      |
+| tablet-landscape | 1024  | iPad Pro 11"   |
+| laptop           | 1280  | Small laptops  |
+| desktop          | 1536  | Standard       |
+| desktop-lg       | 1920  | Full HD        |
+| desktop-xl       | 2560  | 2K/4K displays |
 
 #### `captureElement(element, name, options?)` - Single element capture
 
@@ -371,10 +346,6 @@ await expect(page).toHaveURL(/\/dashboard\/protocols/);
 ### Dialog helpers (`helpers/dialog.ts`)
 
 - `waitForDialog(page)` — Wait for dialog to appear
-- `openDialog(page, buttonName)` — Click button and wait for dialog
-- `closeDialog(page)` — Press Escape to close
-- `confirmDeletion(page)` — Click the delete/confirm button
-- `submitDialog(page, buttonName?)` — Click submit/save button
 
 ### Table helpers (`helpers/table.ts`)
 
@@ -389,21 +360,12 @@ await expect(page).toHaveURL(/\/dashboard\/protocols/);
 
 - `getFirstRow(page)` — Get first table row
 - `openRowActions(row)` — Open the actions dropdown
-- `deleteSingleItem(page, row)` — Delete via row actions
-- `bulkDeleteSelected(page)` — Delete selected rows
 
 ### Database fixture methods
 
-The `database` fixture provides direct database access without passing `databaseUrl`:
+The `database` fixture provides direct database access for mutation tests. Dashboard tests should not use it.
 
-- `database.restoreSnapshot(name?)` — Acquire shared lock and restore snapshot (call in `beforeAll`)
-- `database.releaseReadLock()` — Release the shared lock (call in `afterAll`)
-- `database.isolate(page, testInfo?)` — Acquire exclusive lock, restore snapshot; returns cleanup function. Pass `testInfo` to exclude lock wait time from the test timeout
-- `database.isolateApi(testInfo?)` — Same as `isolate()` but for API-only tests that don't need a browser page
-- `database.getProtocolId()` — Get first protocol's ID from database
-- `database.updateAppSetting(key, value)` — Update an AppSettings row
-- `database.getParticipantCount(identifier?)` — Count participants (optionally filter by identifier)
-- `database.deleteUser(username)` — Delete a user by username (cascades to Session/Key). Use at the start of mutation tests that create users, to handle retries since the User table is excluded from snapshots
+- `database.restoreSnapshot(name?)` — Restore database to initial seeded state. Call at the start of any test that mutates data.
 - `database.getDatabaseUrl()` — Get raw connection string (rarely needed)
 
 **Preview mode helpers:**
@@ -412,16 +374,18 @@ The `database` fixture provides direct database access without passing `database
 - `database.disablePreviewMode()` — Disable preview mode
 - `database.createPreviewProtocol(options?)` — Create a preview protocol for testing
 - `database.deletePreviewProtocol(id)` — Delete a preview protocol
+- `database.createPreviewProtocolFromJson(protocolData, options?)` — Create a preview protocol from full JSON
 - `database.createApiToken(description)` — Create an API token for authenticated requests
 - `database.getInterviewCount()` — Count Interview records (verify preview doesn't persist data)
 
 ## Adding New Tests
 
 1. Create spec file in appropriate `specs/` subdirectory
-2. Import from `../../fixtures/test.js` for database fixture access
-3. Use `test.describe.configure({ mode: 'serial' })` for mutation tests
-4. Wrap mutations with `database.isolate(page)` for cleanup
-5. Disable animations before visual snapshots
+2. Import from `../../fixtures/test.js` (browser tests) or `../../fixtures/api-test.js` (API tests)
+3. Dashboard tests: just write tests, no database fixture needed
+4. Mutation tests: call `database.restoreSnapshot()` at the start of each test
+5. Use `test.describe.configure({ mode: 'serial' })` for tests that must run in order
+6. Disable animations before visual snapshots
 
 ## Seeded Data (Dashboard Environment)
 
@@ -433,8 +397,10 @@ The `database` fixture provides direct database access without passing `database
 
 ## Key Design Decisions
 
+- Each environment gets its own isolated PostgreSQL container — no cross-environment coordination needed
 - Auth tables (User, Session, Key) excluded from snapshots so browser sessions survive restores
 - TestDataBuilder uses raw SQL (pg) to avoid Prisma client env validation dependency
 - Pre-computed scrypt hash for test password avoids lucia/utils import
 - `DISABLE_NEXT_CACHE=true` at build+runtime eliminates stale cache issues
 - Port allocation starts at 4100 to avoid conflicts with the dev server (port 3000) and WebKitGTK's restricted port list on Linux
+- `fullyParallel: true` enables tests within a spec file to run in parallel (serial mode overrides this where needed)

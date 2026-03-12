@@ -16,7 +16,7 @@ export default defineConfig({
   snapshotPathTemplate: '{snapshotDir}/{projectName}/{arg}{ext}',
 
   retries: 1,
-  fullyParallel: false,
+  fullyParallel: true,
 
   reporter: [
     ['line'],

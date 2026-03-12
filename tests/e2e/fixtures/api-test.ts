@@ -11,7 +11,7 @@ import { DatabaseIsolation } from './db-fixture.js';
  * - No authentication storageState
  * - Uses Playwright's built-in `request` fixture for API calls
  *
- * The database fixture provides isolation for mutation tests via isolateApi().
+ * The database fixture provides snapshot restoration for mutation tests.
  */
 
 type WorkerFixtures = {
@@ -55,13 +55,7 @@ export const test = base.extend<object, WorkerFixtures>({
       const context = await getContext(suiteId);
       const db = new DatabaseIsolation(context.databaseUrl, suiteId);
 
-      try {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        await use(db);
-      } finally {
-        // Always release locks when the worker tears down
-        await db.releaseReadLock();
-      }
+      await use(db);
     },
     { scope: 'worker' },
   ],
