@@ -563,6 +563,17 @@ This custom variant lets you target only elements with the readonly attribute.
   @apply isolate;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+}
+
 /* Override default border color to use our theme values */
 @layer base {
   *,

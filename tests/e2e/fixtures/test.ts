@@ -26,7 +26,6 @@ const DEFAULT_PAGE_VIEWPORTS = [
 ] as const;
 
 const VISUAL_STYLES = `
-  *, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }
   [data-testid="background-blobs"] { visibility: hidden !important; }
   [data-testid="time-ago"] { color: transparent !important; display: inline-block !important; width: 8ch !important; overflow: hidden !important; }
 `;
@@ -157,27 +156,6 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
           options: CaptureElementOptions = {},
         ) => {
           await page.addStyleTag({ content: VISUAL_STYLES });
-
-          // Wait for Base UI opening animations to complete.
-          // WebKit is slower to remove `data-starting-style`, causing
-          // Playwright's stability check to fail when the attribute
-          // toggles between consecutive screenshots.
-          await element.evaluate((el) => {
-            return new Promise<void>((resolve) => {
-              if (!el.hasAttribute('data-starting-style')) {
-                resolve();
-                return;
-              }
-
-              const observer = new MutationObserver(() => {
-                if (!el.hasAttribute('data-starting-style')) {
-                  observer.disconnect();
-                  resolve();
-                }
-              });
-              observer.observe(el, { attributes: true });
-            });
-          });
 
           await expect(element).toHaveScreenshot(`${name}.png`, {
             mask: options.mask,

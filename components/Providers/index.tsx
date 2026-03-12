@@ -19,6 +19,10 @@ export default function Providers({
   children: ReactNode;
   disableAnimations?: boolean;
 }) {
+  if (disableAnimations) {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+  }
+
   return (
     <NuqsAdapter>
       <MotionConfig reducedMotion="user" skipAnimations={!!disableAnimations}>
