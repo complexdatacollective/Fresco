@@ -1,7 +1,7 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import React, { createContext, useCallback, useState } from 'react';
+import React, { createContext, useCallback, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
@@ -160,82 +160,82 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [dialogs, setDialogs] = useState<DialogState[]>([]);
+  const dialogsRef = useRef<DialogState[]>([]);
+
+  const setDialogsAndRef = useCallback(
+    (updater: (prev: DialogState[]) => DialogState[]) => {
+      setDialogs((prev) => {
+        const next = updater(prev);
+        dialogsRef.current = next;
+        return next;
+      });
+    },
+    [],
+  );
 
   const openDialog = useCallback(
     <D extends AnyDialog>(dialogProps: D): Promise<DialogReturnType<D>> => {
       return new Promise((resolveCallback) => {
         flushSync(() =>
-          setDialogs((prevDialogs) => [
+          setDialogsAndRef((prevDialogs) => [
             ...prevDialogs,
             {
+              onConfirmHandler: null,
               ...dialogProps,
               id: dialogProps.id ?? generatePublicId(),
               resolveCallback,
               open: true,
               abortController: null,
-              onConfirmHandler: null,
               error: null,
             } as DialogState,
           ]),
         );
       });
     },
-    [setDialogs],
+    [setDialogsAndRef],
   );
 
   const closeDialog = useCallback(
     async <T = boolean,>(id: string, value: T | null = null) => {
-      let dialogToResolve: DialogState | undefined;
+      const dialog = dialogsRef.current.find((d) => d.id === id);
 
-      setDialogs((prevDialogs) => {
-        const dialog = prevDialogs.find((d) => d.id === id);
-
-        if (!dialog || !dialog.open) {
-          return prevDialogs;
-        }
-
-        dialogToResolve = dialog;
-
-        if (dialog.abortController) {
-          dialog.abortController.abort();
-        }
-
-        return prevDialogs.map((d) =>
-          d.id === id ? { ...d, open: false } : d,
-        );
-      });
-
-      if (!dialogToResolve) {
+      if (!dialog || !dialog.open) {
         return;
       }
 
-      dialogToResolve.resolveCallback(value);
+      if (dialog.abortController) {
+        dialog.abortController.abort();
+      }
+
+      setDialogsAndRef((prevDialogs) =>
+        prevDialogs.map((d) => (d.id === id ? { ...d, open: false } : d)),
+      );
+
+      dialog.resolveCallback(value);
 
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      setDialogs((prevDialogs) =>
-        prevDialogs.filter((dialog) => dialog.id !== id),
-      );
+      setDialogsAndRef((prevDialogs) => prevDialogs.filter((d) => d.id !== id));
     },
-    [setDialogs],
+    [setDialogsAndRef],
   );
 
   const setDialogAbortController = useCallback(
     (id: string, abortController: AbortController | null) => {
-      setDialogs((prevDialogs) =>
+      setDialogsAndRef((prevDialogs) =>
         prevDialogs.map((d) => (d.id === id ? { ...d, abortController } : d)),
       );
     },
-    [setDialogs],
+    [setDialogsAndRef],
   );
 
   const setDialogError = useCallback(
     (id: string, error: string | null) => {
-      setDialogs((prevDialogs) =>
+      setDialogsAndRef((prevDialogs) =>
         prevDialogs.map((d) => (d.id === id ? { ...d, error } : d)),
       );
     },
-    [setDialogs],
+    [setDialogsAndRef],
   );
 
   const confirm = useCallback(
@@ -246,7 +246,17 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
         setDialogError(dialogId, null);
 
         const abortController = new AbortController();
-        const maybePromise = options.onConfirm(abortController.signal);
+
+        let maybePromise: void | Promise<void>;
+        try {
+          maybePromise = options.onConfirm(abortController.signal);
+        } catch (e) {
+          setDialogError(
+            dialogId,
+            e instanceof Error ? e.message : 'An error occurred',
+          );
+          return;
+        }
 
         if (!(maybePromise instanceof Promise)) {
           await closeDialog(dialogId, true);
@@ -290,7 +300,7 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
         onConfirmHandler: () => void | Promise<void>;
       });
 
-      return (result as true | false | null) ?? null;
+      return result ?? null;
     },
     [openDialog, closeDialog, setDialogAbortController, setDialogError],
   );

@@ -471,7 +471,6 @@ export const ConfirmUtility: StoryObj<Meta<ConfirmUtilityArgs>> = {
  * inline in the dialog and the user can retry.
  */
 export const AsyncConfirm: Story = {
-  name: 'Async Confirm',
   render: () => {
     const { confirm } = useDialog();
 

@@ -195,14 +195,14 @@ describe('DialogProvider', () => {
       expect(resolvedValue).toBeNull();
     });
 
-    it('should throw error when closing non-existent dialog', async () => {
+    it('should silently return when closing non-existent dialog', async () => {
       const { result } = renderHook(() => useDialog(), { wrapper });
 
-      await expect(async () => {
-        await act(async () => {
-          await result.current.closeDialog('non-existent-id', true);
-        });
-      }).rejects.toThrow('Dialog with ID non-existent-id does not exist');
+      // closeDialog silently returns for non-existent/already-closed dialogs
+      // to prevent double-close race conditions
+      await act(async () => {
+        await result.current.closeDialog('non-existent-id', true);
+      });
     });
   });
 });
@@ -638,7 +638,7 @@ describe('confirm with async onConfirm', () => {
       <DialogProvider>
         <AsyncConfirmTestComponent
           onResult={() => undefined}
-          onConfirmFn={async () => {
+          onConfirmFn={() => {
             throw new Error('Network request failed');
           }}
         />
