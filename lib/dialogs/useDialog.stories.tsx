@@ -4,8 +4,8 @@ import { fn } from 'storybook/test';
 import Button from '~/components/ui/Button';
 import useDialog from './useDialog';
 
-// Component that opens a nested confirmation dialog
-function NestedConfirmation({
+// Footer component that opens a nested confirmation dialog
+function NestedConfirmationFooter({
   onConfirm,
   onCancel,
 }: {
@@ -26,22 +26,18 @@ function NestedConfirmation({
       },
     });
 
-    // Only close the outer dialog if user confirmed deletion
-    // If they clicked "No, keep it", just close the nested dialog
-    // and let them return to the first dialog
     if (confirmed === true) {
       onConfirm();
     }
-    // Do nothing if cancelled - nested dialog closes, outer stays open
   };
 
   return (
-    <div className="flex justify-end gap-2 pt-4">
+    <>
       <Button onClick={onCancel}>Cancel</Button>
       <Button color="destructive" onClick={handleConfirmClick}>
         Delete
       </Button>
-    </div>
+    </>
   );
 }
 
@@ -120,8 +116,8 @@ export const NestedDialogs: Story = {
         title: 'Delete Item',
         description: 'Are you sure you want to delete this item?',
         intent: 'destructive',
-        children: (
-          <NestedConfirmation
+        footer: (
+          <NestedConfirmationFooter
             onConfirm={() => {
               console.log('Item deleted!');
               void closeDialog(dialogId, 'deleted');

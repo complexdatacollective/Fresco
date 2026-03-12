@@ -198,23 +198,23 @@ export const DialogTypes: Story = {
         type: 'custom',
         title: 'Custom Dialog',
         description: 'This dialog has custom content and actions.',
+        footer: (
+          <>
+            <Button onClick={() => closeDialog('custom-example', false)}>
+              Cancel
+            </Button>
+            <Button
+              color="primary"
+              onClick={() => closeDialog('custom-example', { custom: true })}
+            >
+              Submit
+            </Button>
+          </>
+        ),
         children: (
-          <div className="mt-4 flex flex-col gap-4">
-            <Paragraph margin="none" className="text-current/70">
-              Custom dialogs can contain any React content.
-            </Paragraph>
-            <div className="flex justify-end gap-2">
-              <Button onClick={() => closeDialog('custom-example', false)}>
-                Cancel
-              </Button>
-              <Button
-                color="primary"
-                onClick={() => closeDialog('custom-example', { custom: true })}
-              >
-                Submit
-              </Button>
-            </div>
-          </div>
+          <Paragraph margin="none" className="text-current/70">
+            Custom dialogs can contain any React content.
+          </Paragraph>
         ),
       });
       console.log('Custom result:', result);
@@ -357,39 +357,37 @@ export const NestedDialogs: Story = {
         description:
           'Make changes to your settings below. Click Save to confirm.',
         intent: 'default',
-        children: (
-          <div className="mt-4 flex flex-col gap-4">
-            <Paragraph margin="none" className="text-current/70">
-              Pretend there is a form here...
-            </Paragraph>
-            <div className="flex justify-end gap-2">
-              <Button onClick={() => closeDialog(dialogId, null)}>
-                Cancel
-              </Button>
-              <Button
-                color="primary"
-                onClick={async () => {
-                  const confirmed = await openDialog({
-                    type: 'choice',
-                    title: 'Save Changes?',
-                    description:
-                      'Are you sure you want to save these changes? This will overwrite your current settings.',
-                    intent: 'default',
-                    actions: {
-                      primary: { label: 'Save', value: true },
-                      cancel: { label: 'Back', value: false },
-                    },
-                  });
+        footer: (
+          <>
+            <Button onClick={() => closeDialog(dialogId, null)}>Cancel</Button>
+            <Button
+              color="primary"
+              onClick={async () => {
+                const confirmed = await openDialog({
+                  type: 'choice',
+                  title: 'Save Changes?',
+                  description:
+                    'Are you sure you want to save these changes? This will overwrite your current settings.',
+                  intent: 'default',
+                  actions: {
+                    primary: { label: 'Save', value: true },
+                    cancel: { label: 'Back', value: false },
+                  },
+                });
 
-                  if (confirmed === true) {
-                    void closeDialog(dialogId, 'saved');
-                  }
-                }}
-              >
-                Save
-              </Button>
-            </div>
-          </div>
+                if (confirmed === true) {
+                  void closeDialog(dialogId, 'saved');
+                }
+              }}
+            >
+              Save
+            </Button>
+          </>
+        ),
+        children: (
+          <Paragraph margin="none" className="text-current/70">
+            Pretend there is a form here...
+          </Paragraph>
         ),
       });
 
