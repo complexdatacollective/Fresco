@@ -178,24 +178,17 @@ export const SEX_PARTNERS = [
 /**
  * Venues to add (Stages 36-37)
  */
-export const VENUES = [
-  { name: 'Club1' },
-  { name: 'Bar1' },
-];
+export const VENUES = [{ name: 'Club1' }, { name: 'Bar1' }];
 
 /**
  * Apps to add (Stage 47)
  */
-export const APPS = [
-  { name: 'Grindr' },
-];
+export const APPS = [{ name: 'Grindr' }];
 
 /**
  * Healthcare providers to add (Stage 49)
  */
-export const HEALTHCARE_PROVIDERS = [
-  { name: 'Clinic1' },
-];
+export const HEALTHCARE_PROVIDERS = [{ name: 'Clinic1' }];
 
 // ============================================================
 // Bin Assignment Data

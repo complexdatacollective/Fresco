@@ -1,13 +1,6 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
-export type InterviewMode = 'preview' | 'interview';
-
-export type StageInfo = {
-  index: number;
-  type: string;
-  label: string;
-  id: string;
-};
+type InterviewMode = 'preview' | 'interview';
 
 /**
  * Page object for interacting with interview/preview pages.
@@ -384,7 +377,9 @@ export class InterviewPage {
       if (await dialog.isVisible()) {
         // Try clicking the form's submit button directly via JavaScript
         await submitButton.evaluate((btn) => {
-          btn.click();
+          if (btn instanceof HTMLElement) {
+            btn.click();
+          }
         });
         await this.page.waitForTimeout(500);
       }
