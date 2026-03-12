@@ -134,8 +134,8 @@ export function Toaster() {
     <Toast.Portal>
       <Toast.Viewport
         className={cx(
-          'fixed top-auto right-4 bottom-4',
-          'phone:right-8 phone:bottom-8 phone:max-w-md z-10 mx-auto flex w-full',
+          'phone-landscape:max-w-sm fixed top-auto bottom-2 mx-auto flex w-full',
+          'tablet-portrait:right-8 tablet-portrait:bottom-8 z-10',
         )}
       >
         {toasts.map((toast) => (

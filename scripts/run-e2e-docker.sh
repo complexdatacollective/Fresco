@@ -35,6 +35,14 @@ else
   PNPM_STORE_MOUNT="-v ${PNPM_STORE_VOLUME}:/root/.local/share/pnpm/store"
 fi
 
+# If this is a git worktree, mount the main .git directory so git works inside the container
+GIT_WORKTREE_MOUNT=""
+if [ -f .git ]; then
+  GITDIR=$(sed 's/gitdir: //' .git)
+  MAIN_GIT_DIR=$(cd "$(dirname "$(dirname "$GITDIR")")" && pwd)
+  GIT_WORKTREE_MOUNT="-v ${MAIN_GIT_DIR}:${MAIN_GIT_DIR}:ro"
+fi
+
 # Determine which browsers to run
 if [ -n "$E2E_BROWSERS" ]; then
   IFS=',' read -ra BROWSERS <<< "$E2E_BROWSERS"
@@ -57,12 +65,14 @@ run_tests() {
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v ${NODE_MODULES_VOLUME}:/work/node_modules \
     -v ${NEXT_BUILD_VOLUME}:/work/.next \
+    ${GIT_WORKTREE_MOUNT} \
     ${PNPM_STORE_MOUNT} \
     -w /work \
     --add-host=host.docker.internal:host-gateway \
     "${IMAGE}" \
-    sh -c "npm i -g pnpm && pnpm install --frozen-lockfile && \
-      BUILD_HASH=\$({ git rev-parse HEAD; git diff HEAD; git ls-files --others --exclude-standard; } | md5sum | cut -d' ' -f1) && \
+    sh -c "git config --global --add safe.directory /work && \
+      BUILD_HASH=\$({ git rev-parse HEAD; git diff HEAD; git ls-files --others --exclude-standard | git hash-object --stdin-paths 2>/dev/null; true; } | md5sum | cut -d' ' -f1) && \
+      npm i -g pnpm && pnpm install --frozen-lockfile && \
       if [ -f .next/BUILD_HASH ] && [ \"\$(cat .next/BUILD_HASH)\" = \"\$BUILD_HASH\" ]; then \
         echo 'Skipping build (no changes since last build)'; \
       else \
