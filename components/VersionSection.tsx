@@ -2,7 +2,8 @@ import 'server-only';
 import { Loader2 } from 'lucide-react';
 import { after } from 'next/server';
 import Markdown from 'react-markdown';
-// eslint-disable-next-line no-restricted-imports -- server-only component (guarded above)
+
+// eslint-disable-next-line no-restricted-imports -- server-only file (uses 'server-only' import)
 import { z } from 'zod';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import Link from '~/components/ui/Link';

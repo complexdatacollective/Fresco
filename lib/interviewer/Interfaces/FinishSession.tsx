@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
-import { finishInterview } from '~/actions/interviews';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
@@ -18,24 +17,32 @@ const FinishSession = () => {
 
   const { confirm } = useDialog();
 
-  const finishInterviewConfirmation = () =>
-    confirm({
+  const finishInterviewConfirmation = async () => {
+    if (!interviewId) {
+      return;
+    }
+
+    const result = await confirm({
       title: 'Are you sure you want to finish the interview?',
       description:
         'Your responses cannot be changed after you finish the interview.',
       confirmLabel: 'Finish Interview',
-      onConfirm: async () => {
-        if (!interviewId) {
-          throw new Error('No interview id found');
-        }
+      onConfirm: async (signal: AbortSignal) => {
+        const response = await fetch(`/api/interviews/${interviewId}/finish`, {
+          method: 'POST',
+          signal,
+        });
 
-        const result = await finishInterview(interviewId);
-
-        if (!result.error) {
-          router.push(`/interview/finished`);
+        if (!response.ok) {
+          throw new Error('Failed to finish interview');
         }
       },
     });
+
+    if (result === true) {
+      router.push('/interview/finished');
+    }
+  };
 
   if (isPreview) {
     return (
@@ -63,7 +70,10 @@ const FinishSession = () => {
           You have reached the end of the interview. If you are satisfied with
           the information you have entered, you may finish the interview now.
         </Paragraph>
-        <Button color="primary" onClick={finishInterviewConfirmation}>
+        <Button
+          color="primary"
+          onClick={() => void finishInterviewConfirmation()}
+        >
           Finish
         </Button>
       </Surface>

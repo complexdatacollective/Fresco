@@ -195,14 +195,14 @@ describe('DialogProvider', () => {
       expect(resolvedValue).toBeNull();
     });
 
-    it('should throw error when closing non-existent dialog', async () => {
+    it('should silently return when closing non-existent dialog', async () => {
       const { result } = renderHook(() => useDialog(), { wrapper });
 
-      await expect(async () => {
-        await act(async () => {
-          await result.current.closeDialog('non-existent-id', true);
-        });
-      }).rejects.toThrow('Dialog with ID non-existent-id does not exist');
+      // closeDialog silently returns for non-existent/already-closed dialogs
+      // to prevent double-close race conditions
+      await act(async () => {
+        await result.current.closeDialog('non-existent-id', true);
+      });
     });
   });
 });
@@ -501,5 +501,220 @@ describe('Dialog button actions', () => {
     });
 
     expect(capturedResult).toBeNull();
+  });
+});
+
+describe('confirm with async onConfirm', () => {
+  function AsyncConfirmTestComponent({
+    onResult,
+    onConfirmFn,
+  }: {
+    onResult: (result: unknown) => void;
+    onConfirmFn: (signal: AbortSignal) => void | Promise<void>;
+  }) {
+    const { confirm } = useDialog();
+
+    const handleClick = async () => {
+      const result = await confirm({
+        title: 'Async Confirm',
+        description: 'This will run an async action',
+        confirmLabel: 'Run Action',
+        cancelLabel: 'Cancel',
+        onConfirm: onConfirmFn,
+      });
+      onResult(result);
+    };
+
+    return <button onClick={handleClick}>Open Async Confirm</button>;
+  }
+
+  it('should return true when async onConfirm completes successfully', async () => {
+    const user = userEvent.setup();
+    let capturedResult: unknown = 'not-set';
+
+    render(
+      <DialogProvider>
+        <AsyncConfirmTestComponent
+          onResult={(r) => (capturedResult = r)}
+          onConfirmFn={async () => {
+            await new Promise<void>((resolve) => setTimeout(resolve, 50));
+          }}
+        />
+      </DialogProvider>,
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Open Async Confirm' }),
+    );
+
+    const runButton = await screen.findByRole('button', { name: 'Run Action' });
+    await user.click(runButton);
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 700));
+    });
+
+    expect(capturedResult).toBe(true);
+  });
+
+  it('should show loading state on primary button during async action', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <DialogProvider>
+        <AsyncConfirmTestComponent
+          onResult={() => undefined}
+          onConfirmFn={async () => {
+            await new Promise<void>((resolve) => setTimeout(resolve, 500));
+          }}
+        />
+      </DialogProvider>,
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Open Async Confirm' }),
+    );
+
+    const runButton = await screen.findByRole('button', { name: 'Run Action' });
+    await user.click(runButton);
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    const loadingButton = await screen.findByRole('button', {
+      name: 'Please wait...',
+    });
+    expect(loadingButton).toBeDisabled();
+
+    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+    expect(cancelButton).not.toBeDisabled();
+  });
+
+  it('should return false when user cancels during async action', async () => {
+    const user = userEvent.setup();
+    let capturedResult: unknown = 'not-set';
+
+    render(
+      <DialogProvider>
+        <AsyncConfirmTestComponent
+          onResult={(r) => (capturedResult = r)}
+          onConfirmFn={async (signal) => {
+            await new Promise<void>((_resolve, reject) => {
+              signal.addEventListener('abort', () => {
+                reject(new DOMException('Aborted', 'AbortError'));
+              });
+            });
+          }}
+        />
+      </DialogProvider>,
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Open Async Confirm' }),
+    );
+
+    const runButton = await screen.findByRole('button', { name: 'Run Action' });
+    await user.click(runButton);
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
+    await user.click(cancelButton);
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 700));
+    });
+
+    expect(capturedResult).toBe(false);
+  });
+
+  it('should show error message when async onConfirm throws', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <DialogProvider>
+        <AsyncConfirmTestComponent
+          onResult={() => undefined}
+          onConfirmFn={() => {
+            throw new Error('Network request failed');
+          }}
+        />
+      </DialogProvider>,
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Open Async Confirm' }),
+    );
+
+    const runButton = await screen.findByRole('button', { name: 'Run Action' });
+    await user.click(runButton);
+
+    expect(
+      await screen.findByText('Network request failed'),
+    ).toBeInTheDocument();
+
+    const retryButton = screen.getByRole('button', { name: 'Run Action' });
+    expect(retryButton).not.toBeDisabled();
+  });
+
+  it('should return false when user cancels before confirming', async () => {
+    const user = userEvent.setup();
+    let capturedResult: unknown = 'not-set';
+
+    render(
+      <DialogProvider>
+        <AsyncConfirmTestComponent
+          onResult={(r) => (capturedResult = r)}
+          onConfirmFn={() => undefined}
+        />
+      </DialogProvider>,
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Open Async Confirm' }),
+    );
+
+    const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
+    await user.click(cancelButton);
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 700));
+    });
+
+    expect(capturedResult).toBe(false);
+  });
+
+  it('should work with sync onConfirm', async () => {
+    const user = userEvent.setup();
+    let capturedResult: unknown = 'not-set';
+    let callbackCalled = false;
+
+    render(
+      <DialogProvider>
+        <AsyncConfirmTestComponent
+          onResult={(r) => (capturedResult = r)}
+          onConfirmFn={() => {
+            callbackCalled = true;
+          }}
+        />
+      </DialogProvider>,
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Open Async Confirm' }),
+    );
+
+    const runButton = await screen.findByRole('button', { name: 'Run Action' });
+    await user.click(runButton);
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 700));
+    });
+
+    expect(callbackCalled).toBe(true);
+    expect(capturedResult).toBe(true);
   });
 });

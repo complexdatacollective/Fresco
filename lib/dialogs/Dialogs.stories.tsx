@@ -119,6 +119,23 @@ import useDialog from './useDialog';
  *   },
  * });
  * ```
+ *
+ * ## Async Confirm
+ *
+ * The `confirm` utility supports async `onConfirm` callbacks with built-in
+ * abort and error handling. During loading, the dialog remains dismissible —
+ * cancel/close/Escape trigger `AbortController.abort()`.
+ *
+ * ```tsx
+ * const result = await confirm({
+ *   title: 'Finish Interview',
+ *   confirmLabel: 'Finish',
+ *   onConfirm: async (signal: AbortSignal) => {
+ *     await fetch('/api/action', { method: 'POST', signal });
+ *   },
+ * });
+ * // result: true (completed) | false (cancelled) | null (aborted/error)
+ * ```
  */
 const meta: Meta = {
   title: 'Systems/Dialogs',
@@ -437,6 +454,140 @@ export const ConfirmUtility: StoryObj<Meta<ConfirmUtilityArgs>> = {
         <Button color="destructive" onClick={handleDelete}>
           Delete Project
         </Button>
+      </div>
+    );
+  },
+};
+
+/**
+ * The `confirm` utility supports async `onConfirm` callbacks. When the callback
+ * returns a Promise, the dialog shows a loading state on the primary button.
+ *
+ * During loading, the cancel button, close button, backdrop click, and Escape key
+ * all trigger `AbortController.abort()` on the in-flight request. The dialog is
+ * **always dismissible**.
+ *
+ * If the async action fails with a non-abort error, the error message is shown
+ * inline in the dialog and the user can retry.
+ */
+export const AsyncConfirm: Story = {
+  render: () => {
+    const { confirm } = useDialog();
+
+    const handleAsyncAction = async () => {
+      const result = await confirm({
+        title: 'Finish Interview',
+        description:
+          'Are you sure you want to finish? Your responses cannot be changed afterwards.',
+        confirmLabel: 'Finish Interview',
+        cancelLabel: 'Cancel',
+        onConfirm: async (signal) => {
+          await new Promise<void>((resolve, reject) => {
+            const timeout = setTimeout(resolve, 2000);
+            signal.addEventListener('abort', () => {
+              clearTimeout(timeout);
+              reject(new DOMException('Aborted', 'AbortError'));
+            });
+          });
+        },
+      });
+      console.log('Async confirm result:', result);
+    };
+
+    return (
+      <div className="flex h-screen items-center justify-center gap-4">
+        <Button onClick={handleAsyncAction}>Finish Interview (2s delay)</Button>
+      </div>
+    );
+  },
+};
+
+/**
+ * When the user cancels during an async operation, the AbortController signal
+ * is triggered. Try clicking "Run Action" and then "Cancel" while loading.
+ */
+export const AsyncConfirmWithAbort: Story = {
+  name: 'Async Confirm — Abort on Cancel',
+  render: () => {
+    const { confirm } = useDialog();
+
+    const handleAction = async () => {
+      const result = await confirm({
+        title: 'Process Data',
+        description:
+          'This will process the selected data. You can cancel at any time.',
+        confirmLabel: 'Process',
+        cancelLabel: 'Cancel',
+        intent: 'default',
+        onConfirm: async (signal) => {
+          await new Promise<void>((resolve, reject) => {
+            const timeout = setTimeout(resolve, 5000);
+            signal.addEventListener('abort', () => {
+              clearTimeout(timeout);
+              reject(new DOMException('Aborted', 'AbortError'));
+            });
+          });
+        },
+      });
+
+      const resultLabels = {
+        true: 'Completed',
+        false: 'Cancelled before start',
+        null: 'Aborted during action',
+      };
+      console.log(
+        'Result:',
+        resultLabels[String(result) as keyof typeof resultLabels],
+      );
+    };
+
+    return (
+      <div className="flex h-screen items-center justify-center gap-4">
+        <Button onClick={handleAction}>
+          Process Data (5s — try cancelling)
+        </Button>
+      </div>
+    );
+  },
+};
+
+/**
+ * When the async `onConfirm` throws a non-abort error, the error message
+ * is displayed inline in the dialog. The primary button returns to its
+ * normal state so the user can retry.
+ */
+export const AsyncConfirmWithError: Story = {
+  name: 'Async Confirm — Error Handling',
+  render: () => {
+    const { confirm } = useDialog();
+
+    const handleAction = async () => {
+      const result = await confirm({
+        title: 'Save Changes',
+        description: 'Save your changes to the server.',
+        confirmLabel: 'Save',
+        cancelLabel: 'Cancel',
+        intent: 'default',
+        onConfirm: async (signal) => {
+          await new Promise<void>((resolve, reject) => {
+            const timeout = setTimeout(
+              () =>
+                reject(new Error('Network request failed: connection refused')),
+              1000,
+            );
+            signal.addEventListener('abort', () => {
+              clearTimeout(timeout);
+              reject(new DOMException('Aborted', 'AbortError'));
+            });
+          });
+        },
+      });
+      console.log('Error dialog result:', result);
+    };
+
+    return (
+      <div className="flex h-screen items-center justify-center gap-4">
+        <Button onClick={handleAction}>Save (always fails after 1s)</Button>
       </div>
     );
   },
