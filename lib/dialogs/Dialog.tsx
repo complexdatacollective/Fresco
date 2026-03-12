@@ -32,8 +32,6 @@ export type DialogProps = {
   children?: ReactNode;
   className?: string;
   layoutId?: string;
-  /** When true, prevents dialog from being dismissed by clicking outside or pressing Escape */
-  preventDismiss?: boolean;
 } & SurfaceVariants;
 
 /**
@@ -58,14 +56,13 @@ export default function Dialog({
   footer,
   open = false,
   className,
-  preventDismiss = false,
   ...rest
 }: DialogProps) {
   return (
     <Modal
       open={open}
       onOpenChange={(isOpen) => {
-        if (!isOpen && closeDialog && !preventDismiss) {
+        if (!isOpen && closeDialog) {
           closeDialog();
         }
       }}
@@ -86,7 +83,7 @@ export default function Dialog({
           <BaseDialog.Title render={<Heading level="h2" margin="none" />}>
             {title}
           </BaseDialog.Title>
-          {!preventDismiss && <BaseDialog.Close render={<CloseButton />} />}
+          <BaseDialog.Close render={<CloseButton />} />
         </DialogHeader>
         <DialogContent>
           {description && (
