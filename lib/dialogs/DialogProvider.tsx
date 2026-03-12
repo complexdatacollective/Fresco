@@ -3,6 +3,7 @@
 import { Loader2 } from 'lucide-react';
 import React, { createContext, useCallback, useState } from 'react';
 import { flushSync } from 'react-dom';
+import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import { type FieldValue } from '~/lib/form/components/Field/types';
 import { FormWithoutProvider } from '~/lib/form/components/Form';
@@ -102,12 +103,13 @@ type DialogState = AnyDialog & {
   id: string;
   resolveCallback: (value: unknown) => void;
   open: boolean;
-  isLoading?: boolean;
-  onPrimaryClickAsync?: () => Promise<void>;
+  abortController: AbortController | null;
+  onConfirmHandler: (() => void | Promise<void>) | null;
+  error: string | null;
 };
 
 export type ConfirmOptions = {
-  onConfirm: () => void | Promise<void>;
+  onConfirm: (signal: AbortSignal) => void | Promise<void>;
   title?: string;
   description?: string;
   confirmLabel: string;
@@ -120,7 +122,7 @@ export type DialogContextType = {
   openDialog: <D extends AnyDialog>(
     dialogProps: D,
   ) => Promise<DialogReturnType<D>>;
-  confirm: (options: ConfirmOptions) => Promise<void>;
+  confirm: (options: ConfirmOptions) => Promise<true | false | null>;
 };
 
 export const DialogContext = createContext<DialogContextType | null>(null);
@@ -170,6 +172,9 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
               id: dialogProps.id ?? generatePublicId(),
               resolveCallback,
               open: true,
+              abortController: null,
+              onConfirmHandler: null,
+              error: null,
             } as DialogState,
           ]),
         );
@@ -180,32 +185,32 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const closeDialog = useCallback(
     async <T = boolean,>(id: string, value: T | null = null) => {
-      // Use functional update to access current dialogs state
-      // This avoids stale closure issues when closeDialog is captured in children
       let dialogToResolve: DialogState | undefined;
 
       setDialogs((prevDialogs) => {
-        dialogToResolve = prevDialogs.find((dialog) => dialog.id === id);
+        const dialog = prevDialogs.find((d) => d.id === id);
 
-        if (!dialogToResolve) {
-          return prevDialogs; // No change if dialog not found
+        if (!dialog || !dialog.open) {
+          return prevDialogs;
         }
 
-        // Set open to false to trigger exit animation
+        dialogToResolve = dialog;
+
+        if (dialog.abortController) {
+          dialog.abortController.abort();
+        }
+
         return prevDialogs.map((d) =>
           d.id === id ? { ...d, open: false } : d,
         );
       });
 
-      // Dialog may have already been closed (e.g., due to navigation)
-      // In that case, just return early
       if (!dialogToResolve) {
         return;
       }
 
       dialogToResolve.resolveCallback(value);
 
-      // Wait for the animation to finish before removing from state
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       setDialogs((prevDialogs) =>
@@ -215,20 +220,58 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
     [setDialogs],
   );
 
-  const setDialogLoading = useCallback(
-    (id: string, isLoading: boolean) => {
+  const setDialogAbortController = useCallback(
+    (id: string, abortController: AbortController | null) => {
       setDialogs((prevDialogs) =>
-        prevDialogs.map((d) => (d.id === id ? { ...d, isLoading } : d)),
+        prevDialogs.map((d) => (d.id === id ? { ...d, abortController } : d)),
+      );
+    },
+    [setDialogs],
+  );
+
+  const setDialogError = useCallback(
+    (id: string, error: string | null) => {
+      setDialogs((prevDialogs) =>
+        prevDialogs.map((d) => (d.id === id ? { ...d, error } : d)),
       );
     },
     [setDialogs],
   );
 
   const confirm = useCallback(
-    async (options: ConfirmOptions): Promise<void> => {
+    async (options: ConfirmOptions): Promise<true | false | null> => {
       const dialogId = generatePublicId();
 
-      await openDialog({
+      const handleConfirm = async () => {
+        setDialogError(dialogId, null);
+
+        const abortController = new AbortController();
+        const maybePromise = options.onConfirm(abortController.signal);
+
+        if (!(maybePromise instanceof Promise)) {
+          await closeDialog(dialogId, true);
+          return;
+        }
+
+        setDialogAbortController(dialogId, abortController);
+
+        try {
+          await maybePromise;
+          await closeDialog(dialogId, true);
+        } catch (e) {
+          if (e instanceof DOMException && e.name === 'AbortError') {
+            return;
+          }
+
+          setDialogAbortController(dialogId, null);
+          setDialogError(
+            dialogId,
+            e instanceof Error ? e.message : 'An error occurred',
+          );
+        }
+      };
+
+      const result = await openDialog({
         id: dialogId,
         type: 'choice',
         title: options.title ?? 'Are you sure?',
@@ -236,24 +279,20 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
         intent: options.intent ?? 'destructive',
         actions: {
           primary: { label: options.confirmLabel, value: true },
-          cancel: { label: options.cancelLabel ?? 'Cancel', value: false },
+          cancel: {
+            label: options.cancelLabel ?? 'Cancel',
+            value: false,
+          },
         },
-        onPrimaryClickAsync: async () => {
-          setDialogLoading(dialogId, true);
-          try {
-            await options.onConfirm();
-            await closeDialog(dialogId, true);
-          } catch (error) {
-            setDialogLoading(dialogId, false);
-            throw error;
-          }
-        },
+        onConfirmHandler: handleConfirm,
       } as ChoiceDialog<boolean, never, boolean> & {
         id: string;
-        onPrimaryClickAsync: () => Promise<void>;
+        onConfirmHandler: () => void | Promise<void>;
       });
+
+      return (result as true | false | null) ?? null;
     },
-    [openDialog, closeDialog, setDialogLoading],
+    [openDialog, closeDialog, setDialogAbortController, setDialogError],
   );
 
   const contextValue: DialogContextType = {
@@ -275,33 +314,31 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     if (dialog.type === 'choice') {
-      // Calculate which button should be auto-focused based on the dialog intent
-      // Aim: least destructive action
-      // If destructive, focus cancel
-      // Otherwise, focus primary
       const autoFocusButton: 'primary' | 'cancel' =
         dialog.intent === 'destructive' ? 'cancel' : 'primary';
 
+      const isLoading = dialog.abortController !== null;
+
       const handlePrimaryClick = () => {
-        if (dialog.onPrimaryClickAsync) {
-          void dialog.onPrimaryClickAsync();
+        if (dialog.onConfirmHandler) {
+          void dialog.onConfirmHandler();
         } else {
           void closeDialog(dialog.id, dialog.actions.primary.value);
         }
       };
 
-      // Render buttons in order: secondary, cancel, primary
-      // Primary is visually highlighted
-      // Cancel is not always present
-      // Secondary is optional
       return (
         <>
+          {dialog.error && (
+            <Paragraph className="text-destructive w-full text-sm">
+              {dialog.error}
+            </Paragraph>
+          )}
           {dialog.actions.secondary && (
             <Button
               onClick={() =>
                 closeDialog(dialog.id, dialog.actions.secondary!.value)
               }
-              disabled={dialog.isLoading}
             >
               {dialog.actions.secondary.label}
             </Button>
@@ -312,7 +349,6 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
                 closeDialog(dialog.id, dialog.actions.cancel.value)
               }
               autoFocus={autoFocusButton === 'cancel'}
-              disabled={dialog.isLoading}
             >
               {dialog.actions.cancel.label}
             </Button>
@@ -321,10 +357,10 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
             color="primary"
             onClick={handlePrimaryClick}
             autoFocus={autoFocusButton === 'primary'}
-            disabled={dialog.isLoading}
-            icon={dialog.isLoading ? <Loader2 className="animate-spin" /> : undefined}
+            disabled={isLoading}
+            icon={isLoading ? <Loader2 className="animate-spin" /> : undefined}
           >
-            {dialog.isLoading ? 'Please wait...' : dialog.actions.primary.label}
+            {isLoading ? 'Please wait...' : dialog.actions.primary.label}
           </Button>
         </>
       );
@@ -391,7 +427,6 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
         accent={dialog.intent}
         open={dialog.open}
         footer={footer}
-        preventDismiss={dialog.isLoading}
       >
         {dialog.children}
       </Dialog>
