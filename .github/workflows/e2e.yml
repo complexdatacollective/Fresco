@@ -15,10 +15,6 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        browser: [chromium, firefox, webkit]
     outputs:
       test-result: ${{ steps.test.outcome }}
 
@@ -31,18 +27,17 @@ jobs:
           cache-path: .pnpm-docker-store
           cache-key-prefix: pnpm-docker-store
 
-      - name: Run E2E tests (${{ matrix.browser }})
+      - name: Run E2E tests
         id: test
         run: pnpm test:e2e
         env:
           CI: true
-          E2E_BROWSERS: ${{ matrix.browser }}
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-${{ matrix.browser }}
+          name: playwright-report
           path: |
             tests/e2e/playwright-report/
             tests/e2e/test-results/
@@ -52,7 +47,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: test-videos-${{ matrix.browser }}
+          name: test-videos
           path: tests/e2e/test-results/**/*.webm
           retention-days: 7
 
@@ -107,9 +102,8 @@ jobs:
       - name: Download playwright report
         uses: actions/download-artifact@v4
         with:
-          pattern: playwright-report-*
+          name: playwright-report
           path: new-report
-          merge-multiple: true
 
       - name: Fetch existing GitHub Pages content
         uses: actions/checkout@v4
