@@ -44,7 +44,7 @@ const ENVIRONMENTS: EnvironmentConfig[] = [
   },
   {
     id: 'interview',
-    testMatch: '**/interview/*.spec.ts',
+    testMatch: '**/interview/**/*.spec.ts',
     auth: false,
   },
 ];

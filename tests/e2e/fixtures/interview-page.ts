@@ -56,15 +56,30 @@ export class InterviewPage {
 
   /**
    * Navigate to the next stage/prompt.
-   * Waits for the next button to be enabled before clicking.
+   * Waits for the next button to be enabled before clicking,
+   * then waits for the URL step parameter to change.
    */
   async navigateNext(): Promise<void> {
+    // Get current step before clicking
+    const currentStep = this.getCurrentStep();
+
     // Wait for button to be enabled (form validation, animations complete)
     await expect(this.nextButton).toBeEnabled({ timeout: 10000 });
-    await this.nextButton.click();
 
-    // Wait for navigation to complete (URL changes or stage animation)
-    await this.page.waitForTimeout(300); // Allow for animation
+    // Use force:true because completion toasts can overlay the button
+    await this.nextButton.click({ force: true });
+
+    // Wait for URL step parameter to change (indicates navigation completed)
+    await this.page.waitForURL(
+      (url) => {
+        const newStep = url.searchParams.get('step');
+        return newStep !== null && parseInt(newStep, 10) > currentStep;
+      },
+      { timeout: 10000 },
+    );
+
+    // Brief wait for animation to settle
+    await this.page.waitForTimeout(300);
   }
 
   /**
@@ -185,8 +200,10 @@ export class InterviewPage {
     }
 
     // Check for radio buttons first (most common for categorical fields)
+    // Use exact matching to avoid "Male" matching "Female"
     const radioOption = field.getByRole('radio', {
-      name: new RegExp(value, 'i'),
+      name: value,
+      exact: true,
     });
     if ((await radioOption.count()) > 0) {
       await radioOption.click();
@@ -194,8 +211,10 @@ export class InterviewPage {
     }
 
     // Check for checkbox options (ToggleButtonGroup uses checkbox role)
+    // Use exact matching to avoid partial matches
     const checkboxOption = field.getByRole('checkbox', {
-      name: new RegExp(value, 'i'),
+      name: value,
+      exact: true,
     });
     if ((await checkboxOption.count()) > 0) {
       await checkboxOption.click();
