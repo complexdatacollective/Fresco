@@ -6,7 +6,7 @@ import { UploadThingTokenForm } from '../UploadThingTokenForm';
 
 function ConnectUploadThing() {
   return (
-    <div className="w-full max-w-[30rem]">
+    <div className="w-full">
       <div className="mb-4">
         <Heading level="h2">Connect UploadThing</Heading>
         <Paragraph>

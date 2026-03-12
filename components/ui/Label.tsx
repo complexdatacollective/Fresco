@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'motion/react';
 import * as React from 'react';
 import { cx } from '~/utils/cva';
 import { headingVariants } from '../typography/Heading';
@@ -30,8 +29,7 @@ const Label = React.forwardRef<
     },
     ref,
   ) => (
-    <motion.label
-      layout="position"
+    <label
       ref={ref}
       className={cx(
         'inline-block',
@@ -48,7 +46,7 @@ const Label = React.forwardRef<
           *
         </span>
       )}
-    </motion.label>
+    </label>
   ),
 );
 Label.displayName = 'Label';

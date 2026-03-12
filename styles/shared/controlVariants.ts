@@ -152,12 +152,12 @@ export const wrapperPaddingVariants = cva({
 
 // Spacing for groups of controls
 export const groupSpacingVariants = cva({
-  base: 'inset-surface',
+  base: '',
   variants: {
     size: {
-      sm: 'tablet-portrait:gap-1.5 tablet-portrait:p-3 tablet-landscape:gap-2 tablet-landscape:p-4 gap-1 p-2',
-      md: 'tablet-portrait:gap-1.5 tablet-portrait:px-4 tablet-portrait:py-3 tablet-landscape:gap-2 tablet-landscape:px-6 tablet-landscape:py-4 gap-1 px-3 py-2',
-      lg: 'tablet-portrait:gap-4 tablet-portrait:px-6 tablet-portrait:py-4 tablet-landscape:gap-6 tablet-landscape:px-8 tablet-landscape:py-6 gap-3 px-4 py-3',
+      sm: 'gap-2 p-4',
+      md: 'tablet-landscape:px-6 tablet-landscape:py-4 gap-4 p-4',
+      lg: 'tablet-portrait:gap-4 tablet-portrait:px-6 tablet-portrait:py-4 tablet-landscape:gap-6 tablet-landscape:px-8 tablet-landscape:py-6 gap-3 p-4',
       xl: 'tablet-portrait:gap-6 tablet-portrait:px-8 tablet-portrait:py-6 tablet-landscape:gap-8 tablet-landscape:p-10 tablet-landscape:py-8 gap-4 px-6 py-4',
     },
   },
@@ -214,6 +214,7 @@ export const interactiveStateVariants = cva({
 
 // Variants for displaying items in vertical or horizontal orientation
 export const orientationVariants = cva({
+  base: 'grid',
   variants: {
     orientation: {
       vertical: 'flex flex-col',
@@ -221,7 +222,6 @@ export const orientationVariants = cva({
     },
     useColumns: {
       true: cx(
-        'grid',
         '@xs:grid-cols-1',
         '@sm:grid-cols-2',
         '@md:grid-cols-2',

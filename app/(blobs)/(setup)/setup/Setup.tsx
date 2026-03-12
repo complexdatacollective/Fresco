@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'motion/react';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { useEffect } from 'react';
 import { containerClasses } from '~/components/ContainerClasses';
@@ -47,7 +46,7 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
 
   const cardClasses = cx(
     containerClasses,
-    'tablet-landscape:flex-row tablet-landscape:gap-6 mx-4 flex flex-col gap-4',
+    'tablet-portrait:flex-row tablet-portrait:gap-6 flex flex-col gap-4',
   );
 
   useEffect(() => {
@@ -67,11 +66,11 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
   const StepComponent = steps[step - 1]!.component;
 
   return (
-    <motion.div className={cardClasses}>
+    <div className={cardClasses}>
       <OnboardSteps steps={steps.map((step) => step.label)} />
-      <Surface noContainer>
+      <Surface noContainer className="w-full max-w-4xl">
         <StepComponent />
       </Surface>
-    </motion.div>
+    </div>
   );
 }

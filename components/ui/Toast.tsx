@@ -5,8 +5,9 @@ import {
   type ToastObject,
   type UseToastManagerReturnValue,
 } from '@base-ui/react/toast';
-import { AlertCircle, CheckCircle, Info, type LucideIcon } from 'lucide-react';
+import { AlertCircle, Info, PartyPopper, type LucideIcon } from 'lucide-react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
+import { surfaceVariants } from '../layout/Surface';
 import Heading from '../typography/Heading';
 import CloseButton from './CloseButton';
 
@@ -33,7 +34,7 @@ export type ToastVariant = NonNullable<
 const variantIcons: Record<ToastVariant, LucideIcon | null> = {
   default: null,
   info: Info,
-  success: CheckCircle,
+  success: PartyPopper,
   destructive: AlertCircle,
 };
 
@@ -69,7 +70,8 @@ function ToastItem({ toast }: ToastItemProps) {
         '[--height:var(--toast-frontmost-height,var(--toast-height))]', // toast height (matches frontmost when stacked)
         '[--offset-y:calc(var(--toast-offset-y)*-1+calc(var(--toast-index)*var(--gap)*-1)+var(--toast-swipe-movement-y))]', // vertical offset when expanded
         'after:absolute after:top-full after:left-0 after:h-[calc(var(--gap)+1px)] after:w-full after:content-[""]',
-        'mr-0 rounded p-4 shadow-lg select-none',
+        'mr-0 select-none',
+        surfaceVariants({ spacing: 'sm' }),
         'absolute right-0 bottom-0 left-auto',
         'z-[calc(1000-var(--toast-index))]',
         'h-(--height) w-full origin-bottom',
@@ -89,9 +91,7 @@ function ToastItem({ toast }: ToastItemProps) {
         <div className="flex-1">
           <Toast.Title render={<Heading level="h4" />} />
           <Toast.Description
-            render={
-              <div className="font-body text-pretty not-last:mb-4" />
-            }
+            render={<div className="font-body text-pretty not-last:mb-4" />}
           />
         </div>
         <Toast.Close
@@ -135,7 +135,7 @@ export function Toaster() {
       <Toast.Viewport
         className={cx(
           'fixed top-auto right-4 bottom-4',
-          'phone:right-8 phone:bottom-8 phone:w-72 z-10 mx-auto flex w-64',
+          'phone:right-8 phone:bottom-8 phone:max-w-md z-10 mx-auto flex w-full',
         )}
       >
         {toasts.map((toast) => (

@@ -180,7 +180,6 @@ function ComboboxField(props: ComboboxFieldProps) {
                       size="sm"
                       type="search"
                       prefixComponent={<SearchIcon />}
-                      layout={false}
                     />
                   }
                 />

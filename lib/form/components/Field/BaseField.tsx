@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'motion/react';
 import { type ReactNode } from 'react';
 import Paragraph from '~/components/typography/Paragraph';
 import { cx } from '~/utils/cva';
@@ -60,11 +59,10 @@ export function BaseField({
   containerProps,
 }: BaseFieldProps) {
   return (
-    <motion.div
-      layout="position"
+    <div
       {...containerProps}
       className={cx(
-        'group @container w-full grow not-last:mb-6',
+        'group w-full grow not-last:mb-6',
         inline &&
           'tablet-portrait:flex-row tablet-portrait:items-center tablet-portrait:justify-between tablet-portrait:gap-4',
         'flex flex-col',
@@ -88,6 +86,6 @@ export function BaseField({
           show={showErrors}
         />
       </div>
-    </motion.div>
+    </div>
   );
 }

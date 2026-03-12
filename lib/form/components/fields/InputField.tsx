@@ -1,4 +1,3 @@
-import { motion } from 'motion/react';
 import { forwardRef, type ReactNode } from 'react';
 import {
   controlVariants,
@@ -59,7 +58,6 @@ type InputFieldProps = CreateFormFieldProps<
     size?: VariantProps<typeof textSizeVariants>['size'];
     prefixComponent?: ReactNode;
     suffixComponent?: ReactNode;
-    layout?: 'position' | 'size' | false;
   }
 >;
 
@@ -75,7 +73,6 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
       type = 'text',
       disabled,
       readOnly,
-      layout = 'position',
       ...inputProps
     } = props;
 
@@ -102,15 +99,7 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
       </>
     );
 
-    if (!layout) {
-      return <div className={wrapperClassName}>{inputElement}</div>;
-    }
-
-    return (
-      <motion.div layout={layout} className={wrapperClassName}>
-        {inputElement}
-      </motion.div>
-    );
+    return <div className={wrapperClassName}>{inputElement}</div>;
   },
 );
 

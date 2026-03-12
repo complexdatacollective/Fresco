@@ -14,7 +14,7 @@ function ManageParticipants({
   limitInterviews: boolean;
 }) {
   return (
-    <div className="w-full max-w-[40rem]">
+    <div className="w-full">
       <div className="mb-6">
         <Heading level="h2">Configure Participation</Heading>
         <Paragraph>
@@ -24,7 +24,7 @@ function ManageParticipants({
           configured later from the dashboard.
         </Paragraph>
       </div>
-      <div className="mb-6 flex flex-col gap-2">
+      <div className="mb-6 flex flex-col gap-4">
         <SettingsCard
           title="Import Participants"
           controlArea={<ImportCSVModal />}

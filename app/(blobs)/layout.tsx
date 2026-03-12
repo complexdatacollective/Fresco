@@ -29,9 +29,7 @@ export default function Layout({ children }: PropsWithChildren) {
             />
           </Link>
         </header>
-        <main className="phone-landscape:p-4 flex items-center justify-center p-2">
-          {children}
-        </main>
+        <main className="flex items-center justify-center">{children}</main>
         <NetlifyBadge />
       </div>
     </>

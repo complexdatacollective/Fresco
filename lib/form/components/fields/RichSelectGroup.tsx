@@ -1,10 +1,12 @@
 'use client';
 
-import { useCallback, useMemo, useRef } from 'react';
 import { motion } from 'motion/react';
+import { useCallback, useMemo, useRef } from 'react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
+import { Label } from '~/components/ui/Label';
 import {
   controlVariants,
+  groupSpacingVariants,
   inputControlVariants,
   orientationVariants,
   smallSizeVariants,
@@ -18,7 +20,7 @@ import { type CreateFormFieldProps } from '../Field/types';
 const richSelectGroupVariants = compose(
   orientationVariants,
   cva({
-    base: 'items-stretch',
+    base: '',
     variants: {
       size: {
         sm: 'gap-2',
@@ -26,22 +28,28 @@ const richSelectGroupVariants = compose(
         lg: 'gap-3',
         xl: 'gap-4',
       },
+      orientation: {
+        vertical: 'items-stretch',
+        horizontal: 'items-stretch *:min-w-0 *:flex-1',
+      },
     },
     defaultVariants: {
       size: 'md',
+      orientation: 'vertical',
     },
   }),
 );
 
 // Individual option card variants
 const optionCardVariants = compose(
+  groupSpacingVariants,
   textSizeVariants,
   cva({
     base: cx(
-      'grid cursor-pointer grid-cols-[auto_1fr] items-center gap-x-4',
+      'grid cursor-pointer grid-cols-[auto_1fr] content-start items-start gap-x-4! gap-y-2!',
       'overflow-hidden rounded border-2 border-current/20',
       'bg-input text-left text-wrap',
-      'px-6 transition-colors duration-200',
+      'transition-colors duration-200',
       'focusable',
     ),
     variants: {
@@ -55,12 +63,6 @@ const optionCardVariants = compose(
         readOnly: 'pointer-events-none cursor-default',
         invalid: 'border-destructive',
       },
-      size: {
-        sm: 'py-2',
-        md: 'py-3',
-        lg: 'py-4',
-        xl: 'py-5',
-      },
     },
     compoundVariants: [
       {
@@ -72,7 +74,6 @@ const optionCardVariants = compose(
     defaultVariants: {
       selected: false,
       state: 'normal',
-      size: 'md',
     },
   }),
 );
@@ -89,8 +90,8 @@ const indicatorVariants = compose(
     ),
     variants: {
       mode: {
-        radio: 'rounded-[0.15em]',
-        checkbox: 'rounded-full',
+        radio: 'rounded-full',
+        checkbox: 'rounded-[0.15em]',
       },
     },
     defaultVariants: {
@@ -312,13 +313,12 @@ export default function RichSelectGroupField(props: RichSelectGroupProps) {
                   <svg
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    className="text-primary size-full overflow-hidden rounded-[40%] p-[0.1em]"
+                    className="text-primary size-full overflow-hidden rounded-full p-[0.1em]"
                   >
-                    <motion.rect
-                      x="2"
-                      y="2"
-                      width="20"
-                      height="20"
+                    <motion.circle
+                      cx="12"
+                      cy="12"
+                      r="10"
                       initial={false}
                       animate={{ scale: optionSelected ? 1 : 0 }}
                       transition={{
@@ -349,9 +349,9 @@ export default function RichSelectGroupField(props: RichSelectGroupProps) {
                   </svg>
                 )}
               </span>
-              <span className="min-w-0 leading-tight font-medium">
+              <Label className="m-0!">
                 <RenderMarkdown>{option.label}</RenderMarkdown>
-              </span>
+              </Label>
               <span className={descriptionVariants({ size })}>
                 <RenderMarkdown>{option.description}</RenderMarkdown>
               </span>

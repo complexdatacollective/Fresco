@@ -181,10 +181,11 @@ const EgoFormInner = (props: EgoFormProps) => {
         className="m-0 size-full"
         onScroll={handleScroll}
         ref={scrollAreaRef}
+        viewportClassName="p-2 phone-landscape:p-4"
       >
         <div
           ref={contentRef}
-          className="interface mx-auto max-w-[80ch] flex-col"
+          className="interface mx-auto max-w-[80ch] flex-col p-0"
         >
           <Surface>
             <Heading level="h1">{introductionPanel.title}</Heading>

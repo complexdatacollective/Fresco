@@ -50,9 +50,14 @@ export async function setAppSetting<
 
     safeUpdateTag(`appSettings-${key}`);
 
+    const REDACTED_KEYS: AppSetting[] = ['uploadThingToken'];
+    const displayValue = REDACTED_KEYS.includes(key)
+      ? '[REDACTED]'
+      : String(value);
+
     await addEvent(
       'Setting Changed',
-      `"${session.user.username}" changed "${key}" to "${String(value)}"`,
+      `"${session.user.username}" changed "${key}" to "${displayValue}"`,
     );
 
     return value;

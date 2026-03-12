@@ -57,7 +57,6 @@ export function DataTableToolbar<TData>({
                 onChange={(value) =>
                   table.getColumn(String(searchCol.id))?.setFilterValue(value)
                 }
-                layout={false}
               />
             ),
         )}

@@ -1,6 +1,5 @@
 'use client';
 
-import { LayoutGroup } from 'motion/react';
 import { useField } from '~/lib/form/hooks/useField';
 import { type FieldValue } from '~/lib/form/store/types';
 import { filterValidationProps } from '../../validation/helpers';
@@ -45,29 +44,27 @@ export default function Field<C extends ValidFieldComponent>({
   });
 
   return (
-    <LayoutGroup id={id}>
-      <BaseField
-        id={id}
-        name={name}
-        label={label}
-        hint={hint}
-        inline={inline}
-        validationSummary={validationSummary}
-        required={Boolean(componentProps.required)}
-        errors={meta.errors}
-        showErrors={meta.shouldShowError}
-        containerProps={containerProps}
-      >
-        {
-          <Component
-            id={id}
-            name={name}
-            {...fieldProps}
-            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-            {...(filterValidationProps(componentProps) as any)}
-          />
-        }
-      </BaseField>
-    </LayoutGroup>
+    <BaseField
+      id={id}
+      name={name}
+      label={label}
+      hint={hint}
+      inline={inline}
+      validationSummary={validationSummary}
+      required={Boolean(componentProps.required)}
+      errors={meta.errors}
+      showErrors={meta.shouldShowError}
+      containerProps={containerProps}
+    >
+      {
+        <Component
+          id={id}
+          name={name}
+          {...fieldProps}
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+          {...(filterValidationProps(componentProps) as any)}
+        />
+      }
+    </BaseField>
   );
 }

@@ -13,7 +13,7 @@ function OnboardSteps({ steps }: { steps: string[] }) {
   );
 
   return (
-    <Surface noContainer className="flex flex-col gap-4">
+    <Surface noContainer className="flex shrink-0 flex-col gap-4" spacing="xs">
       {steps.map((step, index) => (
         <div
           key={index}

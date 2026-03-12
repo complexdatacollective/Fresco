@@ -9,7 +9,7 @@ import Button from '~/components/ui/Button';
 
 export default function Documentation() {
   return (
-    <div className="w-full max-w-[40rem]">
+    <div className="w-full">
       <div className="mb-12">
         <Heading level="h2">Documentation</Heading>
         <Paragraph>
@@ -18,7 +18,7 @@ export default function Documentation() {
           below.
         </Paragraph>
       </div>
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-4">
         <a
           href="https://documentation.networkcanvas.com/en/fresco"
           target="_blank"
