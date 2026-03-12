@@ -1,7 +1,7 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import React, { createContext, useCallback, useRef, useState } from 'react';
+import React, { createContext, useCallback, useState } from 'react';
 import { flushSync } from 'react-dom';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
