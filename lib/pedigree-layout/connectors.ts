@@ -249,8 +249,8 @@ export function computeConnectors(
       }
 
       // Sibling bar (will be extended below if diagonal joins are used)
-      let minTarget = Math.min(...target);
-      let maxTarget = Math.max(...target);
+      const minTarget = Math.min(...target);
+      const maxTarget = Math.max(...target);
       const siblingBar: LineSegment = {
         type: 'line',
         x1: minTarget,
@@ -336,15 +336,11 @@ export function computeConnectors(
         // Extend sibling bar to include the junction X so the vertical
         // line visually connects to the children's uplines
         if (junctionX < minTarget) {
-          minTarget = junctionX;
           siblingBar.x1 = junctionX;
         }
         if (junctionX > maxTarget) {
-          maxTarget = junctionX;
           siblingBar.x2 = junctionX;
         }
-        // Update x1 so the sibling bar connection aligns with the junction
-        x1 = junctionX;
       } else {
         const x2 = parentx;
 
