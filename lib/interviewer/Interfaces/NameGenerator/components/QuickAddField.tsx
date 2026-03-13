@@ -20,9 +20,9 @@ import { type ValidationPropsCatalogue } from '~/lib/form/components/Field/types
 import InputField from '~/lib/form/components/fields/InputField';
 import { useField } from '~/lib/form/hooks/useField';
 import useFormStore from '~/lib/form/hooks/useFormStore';
+import { useCelebrate } from '~/lib/interviewer/hooks/useCelebrate';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
-import { useCelebrate } from '~/lib/interviewer/hooks/useCelebrate';
 import { cx } from '~/utils/cva';
 
 function convertToNodeColor(color: NodeColorSequence): string {
