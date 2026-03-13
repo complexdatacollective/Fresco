@@ -26,8 +26,7 @@ import Panel from '~/lib/interviewer/components/Panel';
 import Prompts from '~/lib/interviewer/components/Prompts';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { addNode, deleteNode } from '~/lib/interviewer/ducks/modules/session';
-import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
-import useStageValidation from '~/lib/interviewer/hooks/useStageValidation';
+import useNodeLimits from '~/lib/interviewer/hooks/useNodeLimits';
 import { getNodeVariables } from '~/lib/interviewer/selectors/interface';
 import {
   getSearchOptions,
@@ -210,57 +209,12 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
     }
   }, [useEncryption, requirePassphrase]);
 
-  const maxNodesReached = stageNodeCount >= maxNodes;
-  const minNodesMet = !minNodes || !isLastPrompt || stageNodeCount >= minNodes;
-
-  const { updateReady } = useReadyForNextStage();
-  const { showToast, closeToast } = useStageValidation({
-    constraints: [
-      {
-        direction: 'forwards',
-        isMet: minNodesMet,
-        toast: {
-          description: (
-            <>
-              You must create at least <strong>{minNodes}</strong>{' '}
-              {minNodes > 1 ? 'items' : 'item'} before you can continue.
-            </>
-          ),
-          variant: 'destructive',
-          anchor: 'forward',
-          timeout: 4000,
-        },
-      },
-    ],
+  const { maxNodesReached } = useNodeLimits({
+    stageNodeCount,
+    minNodes,
+    maxNodes,
+    isLastPrompt,
   });
-
-  const maxToastRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (maxNodesReached) {
-      maxToastRef.current = showToast({
-        description:
-          'You have completed this task. Click the next arrow to continue.',
-        variant: 'success',
-        anchor: 'forward',
-        timeout: 0,
-      });
-    } else if (maxToastRef.current) {
-      closeToast(maxToastRef.current);
-      maxToastRef.current = null;
-    }
-
-    return () => {
-      if (maxToastRef.current) {
-        closeToast(maxToastRef.current);
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [maxNodesReached]);
-
-  useEffect(() => {
-    updateReady(minNodesMet || maxNodesReached);
-  }, [minNodesMet, maxNodesReached, updateReady]);
 
   const handleAddNode = (metadata?: Record<string, unknown>) => {
     const meta = metadata as UseItemElement | undefined;

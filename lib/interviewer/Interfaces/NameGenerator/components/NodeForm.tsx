@@ -18,11 +18,11 @@ import Form from '~/lib/form/components/Form';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import { type FormSubmitHandler } from '~/lib/form/store/types';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
+import { useCelebrate } from '~/lib/interviewer/hooks/useCelebrate';
+import { cx } from '~/utils/cva';
 import { getNodeIconName } from '../../../selectors/name-generator';
 import { getPromptAdditionalAttributes } from '../../../selectors/session';
 import { useAppDispatch } from '../../../store';
-import { useCelebrate } from '~/lib/interviewer/hooks/useCelebrate';
-import { cx } from '~/utils/cva';
 
 type NodeFormProps = {
   selectedNode: NcNode | null;
@@ -124,7 +124,7 @@ const NodeForm = (props: NodeFormProps) => {
       <AnimatePresence>
         <motion.div
           key="add-button"
-          className="absolute right-14 bottom-5 z-20"
+          className="absolute right-12 bottom-4 z-20"
           variants={variants}
         >
           <button

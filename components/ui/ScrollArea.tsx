@@ -102,11 +102,20 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
           clientWidth,
         } = viewportRef.current;
 
-        // Vertical overflow
+        const styles = getComputedStyle(viewportRef.current);
+        const padTop = parseFloat(styles.paddingBlockStart);
+        const padBottom = parseFloat(styles.paddingBlockEnd);
+        const padLeft = parseFloat(styles.paddingInlineStart);
+        const padRight = parseFloat(styles.paddingInlineEnd);
+
+        // Vertical overflow — subtract padding so the fade only appears
+        // once content (not just padding) has scrolled past the edge.
         const hasVerticalOverflow = scrollHeight > clientHeight;
-        const overflowYStart = hasVerticalOverflow ? scrollTop : 0;
+        const overflowYStart = hasVerticalOverflow
+          ? Math.max(0, scrollTop - padTop)
+          : 0;
         const overflowYEnd = hasVerticalOverflow
-          ? Math.max(0, scrollHeight - clientHeight - scrollTop)
+          ? Math.max(0, scrollHeight - clientHeight - scrollTop - padBottom)
           : 0;
 
         viewportRef.current.style.setProperty(
@@ -128,9 +137,11 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
 
         // Horizontal overflow
         const hasHorizontalOverflow = scrollWidth > clientWidth;
-        const overflowXStart = hasHorizontalOverflow ? scrollLeft : 0;
+        const overflowXStart = hasHorizontalOverflow
+          ? Math.max(0, scrollLeft - padLeft)
+          : 0;
         const overflowXEnd = hasHorizontalOverflow
-          ? Math.max(0, scrollWidth - clientWidth - scrollLeft)
+          ? Math.max(0, scrollWidth - clientWidth - scrollLeft - padRight)
           : 0;
 
         viewportRef.current.style.setProperty(
@@ -203,7 +214,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
           onBlur={onBlur}
           className={cx(
             'focusable',
-            'p-2',
+            'py-2',
             // Layout
             isHorizontal
               ? 'min-w-0 flex-auto overflow-x-auto overflow-y-hidden overscroll-contain'

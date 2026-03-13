@@ -18,8 +18,7 @@ import useMediaQuery from '~/hooks/useMediaQuery';
 import usePortalTarget from '~/hooks/usePortalTarget';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import NodeList from '~/lib/interviewer/components/NodeList';
-import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
-import useStageValidation from '~/lib/interviewer/hooks/useStageValidation';
+import useNodeLimits from '~/lib/interviewer/hooks/useNodeLimits';
 import { type StageProps } from '~/lib/interviewer/types';
 import Prompts from '../../components/Prompts';
 import { usePrompts } from '../../components/Prompts/usePrompts';
@@ -150,66 +149,12 @@ const NameGenerator = (props: NameGeneratorProps) => {
     [dispatch, stage.subject.type, useEncryption],
   );
 
-  const maxNodesReached = stageNodeCount >= maxNodes;
-  const minNodesMet = !minNodes || !isLastPrompt || stageNodeCount >= minNodes;
-
-  const { updateReady } = useReadyForNextStage();
-  const { showToast, closeToast } = useStageValidation({
-    constraints: [
-      {
-        direction: 'forwards',
-        isMet: minNodesMet,
-        toast: {
-          description: (
-            <>
-              You must create at least <strong>{minNodes}</strong>{' '}
-              {minNodes > 1 ? 'items' : 'item'} before you can continue.
-            </>
-          ),
-          variant: 'destructive',
-          anchor: 'forward',
-          timeout: 4000,
-        },
-      },
-    ],
+  const { maxNodesReached } = useNodeLimits({
+    stageNodeCount,
+    minNodes,
+    maxNodes,
+    isLastPrompt,
   });
-
-  const maxToastRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (!maxNodesReached) {
-      if (maxToastRef.current) {
-        closeToast(maxToastRef.current);
-        maxToastRef.current = null;
-      }
-      return;
-    }
-
-    // Defer toast creation so StrictMode's cleanup (clearTimeout) cancels
-    // the pending timer rather than closing an already-rendered toast.
-    const timeout = setTimeout(() => {
-      maxToastRef.current = showToast({
-        description:
-          'You have completed this task. Click the next arrow to continue.',
-        variant: 'success',
-        anchor: 'forward',
-        timeout: 0,
-      });
-    }, 0);
-
-    return () => {
-      clearTimeout(timeout);
-      if (maxToastRef.current) {
-        closeToast(maxToastRef.current);
-        maxToastRef.current = null;
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [maxNodesReached]);
-
-  useEffect(() => {
-    updateReady(minNodesMet || maxNodesReached);
-  }, [minNodesMet, maxNodesReached, updateReady]);
 
   /**
    * Drop node handler

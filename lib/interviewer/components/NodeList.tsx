@@ -177,7 +177,8 @@ const NodeList = memo(
 
     // Styling classes including drop state styling via data attributes
     const containerClasses = cx(
-      'm-0 size-full grow before:rounded',
+      '',
+      'size-full grow before:rounded',
       'transition-colors duration-300',
       // data-drop-target-valid corresponds to willAccept
       'data-[drop-target-valid=true]:bg-drag-valid',
@@ -209,7 +210,7 @@ const NodeList = memo(
           exit: { opacity: 0 },
         }}
         onAnimationComplete={() => setAnimationComplete(true)}
-        className="size-full grow overflow-hidden"
+        className="size-full grow"
       >
         {animationComplete && (
           <Collection
@@ -227,6 +228,7 @@ const NodeList = memo(
             animationKey={displayAnimationKey}
             aria-label={ariaLabel}
             emptyState={emptyState}
+            viewportClassName="p-2"
           />
         )}
       </motion.div>
