@@ -1,15 +1,40 @@
 import { type Item } from '@codaco/protocol-validation';
-import React from 'react';
+import React, { useState } from 'react';
 import Surface from '~/components/layout/Surface';
 import {
   ALLOWED_MARKDOWN_SECTION_TAGS,
   RenderMarkdown,
 } from '~/components/RenderMarkdown';
+import Spinner from '~/components/Spinner';
 import Heading from '~/components/typography/Heading';
 import { ScrollArea } from '~/components/ui/ScrollArea';
-import { cx } from '~/utils/cva';
 import { type StageProps } from '~/lib/interviewer/types';
+import { cx } from '~/utils/cva';
 import AssetMetaProvider from './utils/AssetMetaProvider';
+
+function VideoPlayer({ src }: { src: string }) {
+  const [isLoading, setIsLoading] = useState(true);
+
+  return (
+    <div className="relative">
+      {isLoading && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+          <Spinner size="lg" />
+          <p className="text-muted-foreground text-sm">Loading video...</p>
+        </div>
+      )}
+      <video
+        src={src}
+        loop
+        controls
+        autoPlay
+        playsInline
+        className={cx(isLoading && 'invisible')}
+        onCanPlay={() => setIsLoading(false)}
+      />
+    </div>
+  );
+}
 
 const getItemComponent = (item: Item) => {
   switch (item.type) {
@@ -40,14 +65,7 @@ const getItemComponent = (item: Item) => {
               case 'audio':
                 return <audio src={assetMeta.url} controls autoPlay />;
               case 'video':
-                return (
-                  <video
-                    src={assetMeta.url}
-                    loop={item.loop}
-                    autoPlay
-                    playsInline
-                  />
-                );
+                return <VideoPlayer src={assetMeta.url} />;
               default:
                 return null;
             }
