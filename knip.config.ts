@@ -38,8 +38,7 @@ const config: KnipConfig = {
     // Table helpers are part of the public test API used by future specs
     'tests/e2e/helpers/table.ts': ['exports'],
 
-    // WIP SILOS e2e test data and stage handlers — exports will be consumed as tests are built out
-    'tests/e2e/fixtures/silos-test-data.ts': ['exports'],
+    // Stage handlers for interview automation — exports will be consumed as tests are built out
     'tests/e2e/helpers/stage-handlers.ts': ['exports'],
 
     // Server actions for passkey password management — UI not yet wired

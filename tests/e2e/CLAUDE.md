@@ -82,10 +82,9 @@ tests/e2e/
 │   ├── test.ts                  # Extended test with db fixture (browser tests)
 │   ├── api-test.ts              # Extended test for API-only tests
 │   ├── preview-protocol.ts      # Test protocol factory for preview tests
-│   ├── interview-page.ts        # Interview page object model
-│   └── silos-test-data.ts       # SILOS protocol test data
+│   └── interview-page.ts        # Interview page object model
 ├── data/
-│   └── SILOS-protocol.json      # Full SILOS protocol for e2e testing
+│   └── (todo: test protocol files)
 └── specs/
     ├── setup/onboarding.spec.ts
     ├── auth/login.spec.ts
@@ -100,21 +99,20 @@ tests/e2e/
     ├── api/
     │   └── preview-mode.spec.ts # API-only preview tests
     └── interview/
-        ├── preview-mode.spec.ts # Browser preview tests
-        └── silos-full-run.spec.ts # Full SILOS protocol run-through
+        └── preview-mode.spec.ts # Browser preview tests
 ```
 
 ## Playwright Projects
 
 Projects are generated dynamically from `BROWSERS x ENVIRONMENTS`. For each browser:
 
-| Project Pattern            | Tests              | Auth                           | Parallel |
-| -------------------------- | ------------------ | ------------------------------ | -------- |
-| `setup-{browser}`          | specs/setup/       | None                           | Serial   |
-| `auth-dashboard-{browser}` | specs/auth/        | None (saves per-browser state) | N/A      |
-| `dashboard-{browser}`      | specs/dashboard/   | storageState from auth         | Yes      |
-| `api-{browser}`            | specs/api/         | None                           | Yes      |
-| `interview-{browser}`      | specs/interview/   | None                           | Yes      |
+| Project Pattern            | Tests            | Auth                           | Parallel |
+| -------------------------- | ---------------- | ------------------------------ | -------- |
+| `setup-{browser}`          | specs/setup/     | None                           | Serial   |
+| `auth-dashboard-{browser}` | specs/auth/      | None (saves per-browser state) | N/A      |
+| `dashboard-{browser}`      | specs/dashboard/ | storageState from auth         | Yes      |
+| `api-{browser}`            | specs/api/       | None                           | Yes      |
+| `interview-{browser}`      | specs/interview/ | None                           | Yes      |
 
 Dashboard depends on its browser-specific auth project completing first. Auth state is saved to per-browser paths (e.g., `.auth/dashboard-chromium.json`).
 
