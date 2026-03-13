@@ -31,6 +31,18 @@ export default function NodeDrawer({
   const setIsExpanded = onExpandedChange ?? setInternalExpanded;
 
   const hasNodes = nodes.length > 0;
+  const isEmpty = !hasNodes;
+
+  // Collapse when emptied, expand when nodes arrive
+  const prevHasNodes = usePrevious(hasNodes);
+  useEffect(() => {
+    if (prevHasNodes === undefined) return;
+    if (prevHasNodes && !hasNodes) {
+      setIsExpanded(false);
+    } else if (!prevHasNodes && hasNodes) {
+      setIsExpanded(true);
+    }
+  }, [hasNodes, prevHasNodes, setIsExpanded]);
 
   const [isLayoutAnimating, setIsLayoutAnimating] = useState(false);
   const prevNodeCountRef = usePrevious(nodes.length);
@@ -58,100 +70,99 @@ export default function NodeDrawer({
 
   return (
     <LayoutGroup>
-      <AnimatePresence>
-        {hasNodes && (
-          <motion.div
-            layout
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '150%' }}
-            transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-            className={cx(
-              'tablet-landscape:min-w-sm tablet-landscape:w-fit z-10 mx-auto w-full max-w-2xl drop-shadow-xl',
-              floating ? 'absolute inset-x-0 bottom-0' : 'shrink-0',
-            )}
-          >
-            {/* Toggle button */}
-            <motion.div layout="position" className="flex justify-center">
-              <motion.button
-                layout="position"
-                type="button"
-                onClick={() => {
-                  setIsExpanded(!isExpanded);
-                }}
-                className={cx(
-                  'bg-surface flex items-center gap-2 rounded-t-lg px-8 py-2 text-sm',
-                  headingVariants({ level: 'label' }),
-                )}
-                aria-label={isExpanded ? 'Collapse drawer' : 'Expand drawer'}
-                aria-expanded={isExpanded}
-              >
-                <MotionChevron
-                  className="size-[1em]"
-                  animate={{ rotate: isExpanded ? 0 : 180 }}
-                />
-                {nodes.length} unplaced
-              </motion.button>
-            </motion.div>
-
-            <motion.div
-              layout
-              initial={{
-                height: 0,
-                opacity: 0,
-                marginBottom: 'calc(var(--spacing) * -4)',
-              }}
-              animate={
-                isExpanded
-                  ? {
-                      height: 'auto',
-                      opacity: 1,
-                      marginBottom: 0,
-                      transition: {
-                        height: { type: 'spring', stiffness: 300, damping: 24 },
-                        marginBottom: {
-                          type: 'spring',
-                          stiffness: 300,
-                          damping: 24,
-                        },
-                        opacity: { duration: 0.15 },
-                      },
-                    }
-                  : {
-                      height: 0,
-                      opacity: 0,
-                      marginBottom: 'calc(var(--spacing) * -4)',
-                      transition: {
-                        height: { duration: 0.25, ease: [0, 0, 0.2, 1] },
-                        marginBottom: {
-                          duration: 0.25,
-                          ease: [0, 0, 0.2, 1],
-                        },
-                        opacity: { duration: 0.15 },
-                      },
-                    }
-              }
-              className="bg-surface publish-colors overflow-hidden rounded"
-            >
-              <ScrollArea
-                orientation="horizontal"
-                fade
-                remeasureKey={remeasureKey}
-                viewportClassName="flex items-center gap-4 p-4"
-              >
-                {nodes.map((node) => (
-                  <DrawerNode
-                    key={node[entityPrimaryKeyProperty]}
-                    node={node}
-                    itemType={itemType}
-                    onLayoutAnimationComplete={handleLayoutAnimationComplete}
-                  />
-                ))}
-              </ScrollArea>
-            </motion.div>
-          </motion.div>
+      <motion.div
+        layout
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+        className={cx(
+          'tablet-landscape:min-w-sm tablet-landscape:w-fit z-10 mx-auto w-full max-w-2xl drop-shadow-xl',
+          floating ? 'absolute inset-x-0 bottom-0' : 'shrink-0',
         )}
-      </AnimatePresence>
+      >
+        {/* Toggle button */}
+        <motion.div layout="position" className="flex justify-center">
+          <motion.button
+            layout="position"
+            type="button"
+            onClick={() => {
+              if (!isEmpty) setIsExpanded(!isExpanded);
+            }}
+            disabled={isEmpty}
+            className={cx(
+              'bg-surface flex items-center gap-2 rounded-t-lg px-8 py-2 text-sm',
+              headingVariants({ level: 'label' }),
+              isEmpty && 'cursor-not-allowed opacity-50',
+            )}
+            aria-label={isExpanded ? 'Collapse drawer' : 'Expand drawer'}
+            aria-expanded={isExpanded}
+          >
+            <MotionChevron
+              className="size-[1em]"
+              animate={{ rotate: isExpanded ? 0 : 180 }}
+            />
+            {nodes.length} unplaced
+          </motion.button>
+        </motion.div>
+
+        <motion.div
+          layout
+          initial={{
+            height: 0,
+            opacity: 0,
+            marginBottom: 'calc(var(--spacing) * -4)',
+          }}
+          animate={
+            isExpanded
+              ? {
+                  height: 'auto',
+                  opacity: 1,
+                  marginBottom: 0,
+                  transition: {
+                    height: { type: 'spring', stiffness: 300, damping: 24 },
+                    marginBottom: {
+                      type: 'spring',
+                      stiffness: 300,
+                      damping: 24,
+                    },
+                    opacity: { duration: 0.15 },
+                  },
+                }
+              : {
+                  height: 0,
+                  opacity: 0,
+                  marginBottom: 'calc(var(--spacing) * -4)',
+                  transition: {
+                    height: { duration: 0.25, ease: [0, 0, 0.2, 1] },
+                    marginBottom: {
+                      duration: 0.25,
+                      ease: [0, 0, 0.2, 1],
+                    },
+                    opacity: { duration: 0.15 },
+                  },
+                }
+          }
+          className="bg-surface publish-colors overflow-hidden rounded"
+        >
+          <ScrollArea
+            orientation="horizontal"
+            fade
+            remeasureKey={remeasureKey}
+            viewportClassName="flex items-center gap-4 p-4"
+          >
+            <AnimatePresence>
+              {nodes.map((node) => (
+                <DrawerNode
+                  key={node[entityPrimaryKeyProperty]}
+                  node={node}
+                  itemType={itemType}
+                  onLayoutAnimationComplete={handleLayoutAnimationComplete}
+                />
+              ))}
+            </AnimatePresence>
+          </ScrollArea>
+        </motion.div>
+      </motion.div>
     </LayoutGroup>
   );
 }
