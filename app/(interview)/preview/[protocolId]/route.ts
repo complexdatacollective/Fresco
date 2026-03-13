@@ -1,7 +1,7 @@
 import { after, NextResponse, type NextRequest } from 'next/server';
 import { env } from '~/env';
-import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
 import { prisma } from '~/lib/db';
+import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
 import { getPreviewMode } from '~/queries/appSettings';
 
 const handler = async (
@@ -58,6 +58,7 @@ const handler = async (
 
   // Redirect to the preview interview page (no database persistence)
   // Explicitly disable caching to prevent Netlify from caching this redirect
+  // See: https://github.com/opennextjs/opennextjs-netlify/issues/3460
   url.pathname = `/preview/${protocolId}/interview`;
   return NextResponse.redirect(url, {
     headers: {

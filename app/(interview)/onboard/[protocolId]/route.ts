@@ -90,6 +90,7 @@ const handler = async (
   // Redirect to the interview
   // Explicitly disable caching to prevent Netlify from caching this redirect
   // (Netlify adds max-age=86400 by default, causing all users to get the same interview)
+  // See: https://github.com/opennextjs/opennextjs-netlify/issues/3460
   url.pathname = `/interview/${createdInterviewId}`;
   return NextResponse.redirect(url, {
     headers: {
