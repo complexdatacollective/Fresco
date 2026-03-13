@@ -18,11 +18,11 @@ export const surfaceSpacingVariants = cva({
     },
     spacing: {
       none: '',
-      xs: 'phone-landscape:px-3 tablet-portrait:px-4 tablet-landscape:p-4 phone-landscape:py-1.5 tablet-portrait:py-2 px-2 py-1',
-      sm: 'phone-landscape:px-4 tablet-portrait:px-6 tablet-landscape:p-6 laptop:px-10 phone-landscape:py-3 tablet-portrait:py-4 laptop:py-6 px-3 py-2',
-      md: 'phone-landscape:px-6 tablet-portrait:px-8 tablet-landscape:px-10 laptop:px-12 phone-landscape:py-4 tablet-portrait:py-6 tablet-landscape:py-8 laptop:py-8 px-4 py-3',
-      lg: 'phone-landscape:px-8 tablet-portrait:px-10 tablet-landscape:px-16 laptop:px-20 phone-landscape:py-6 tablet-portrait:py-8 tablet-landscape:py-12 laptop:py-16 px-6 py-4',
-      xl: 'phone-landscape:px-10 tablet-portrait:px-12 tablet-landscape:px-20 laptop:px-28 phone-landscape:py-8 tablet-portrait:py-10 tablet-landscape:py-16 laptop:py-20 px-8 py-6',
+      xs: 'phone-landscape:p-4 px-3 py-2',
+      sm: 'phone-landscape:p-6 px-4 py-3',
+      md: 'phone-landscape:px-8 phone-landscape:py-6 px-4 py-3',
+      lg: 'phone-landscape:px-8 phone-landscape:py-6 px-6 py-4',
+      xl: 'phone-landscape:px-10 phone-landscape:py-8 px-8 py-6',
     },
   },
   defaultVariants: {
