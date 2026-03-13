@@ -11,7 +11,7 @@ import { surfaceVariants } from '../layout/Surface';
 import Heading from '../typography/Heading';
 import CloseButton from './CloseButton';
 
-const toastVariants = cva({
+export const toastVariants = cva({
   base: 'publish-colors border bg-clip-padding',
   variants: {
     variant: {
@@ -31,7 +31,7 @@ export type ToastVariant = NonNullable<
   VariantProps<typeof toastVariants>['variant']
 >;
 
-const variantIcons: Record<ToastVariant, LucideIcon | null> = {
+export const variantIcons: Record<ToastVariant, LucideIcon | null> = {
   default: null,
   info: Info,
   success: PartyPopper,

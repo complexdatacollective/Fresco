@@ -1,21 +1,24 @@
 'use client';
 
 import { Toast, type ToastObject } from '@base-ui/react/toast';
-import { AlertCircle, CheckCircle, Info, type LucideIcon } from 'lucide-react';
 import {
   createContext,
-  type FocusEvent,
-  type ReactNode,
-  type RefObject,
   useCallback,
   useContext,
   useRef,
+  type FocusEvent,
+  type ReactNode,
+  type RefObject,
 } from 'react';
 import Paragraph from '~/components/typography/Paragraph';
 import CloseButton from '~/components/ui/CloseButton';
-import { type ToastVariant } from '~/components/ui/Toast';
-import { cva, cx } from '~/utils/cva';
+import {
+  toastVariants,
+  variantIcons,
+  type ToastVariant,
+} from '~/components/ui/Toast';
 import { interviewToastManager } from '~/lib/interviewer/components/interviewToastManager';
+import { cva, cx } from '~/utils/cva';
 
 type InterviewToastContextValue = {
   forwardButtonRef: RefObject<HTMLButtonElement | null>;
@@ -30,22 +33,6 @@ const InterviewToastContext = createContext<InterviewToastContextValue | null>(
 export function useInterviewToastContext() {
   return useContext(InterviewToastContext);
 }
-
-const interviewToastVariants = cva({
-  base: 'publish-colors rounded border bg-clip-padding p-4 shadow-lg',
-  variants: {
-    variant: {
-      default: 'bg-surface text-surface-contrast border-outline',
-      info: 'bg-info text-info-contrast border-info',
-      success: 'bg-success text-success-contrast border-success',
-      destructive:
-        'bg-destructive text-destructive-contrast border-destructive',
-    },
-  },
-  defaultVariants: {
-    variant: 'default',
-  },
-});
 
 const arrowVariants = cva({
   base: 'size-2.5 rotate-45 rounded-br-sm data-[side=bottom]:-top-[5px] data-[side=left]:-right-[5px] data-[side=right]:-left-[5px] data-[side=top]:-bottom-[5px]',
@@ -62,16 +49,40 @@ const arrowVariants = cva({
   },
 });
 
-const variantIcons: Record<ToastVariant, LucideIcon | null> = {
-  default: null,
-  info: Info,
-  success: CheckCircle,
-  destructive: AlertCircle,
+export type InterviewToastData = {
+  icon?: ReactNode;
 };
 
-function InterviewToastItem({ toast }: { toast: ToastObject<object> }) {
-  const variant = (toast.type ?? 'default') as ToastVariant;
+function InterviewToastIcon({
+  toast,
+  variant,
+}: {
+  toast: ToastObject<InterviewToastData>;
+  variant: ToastVariant;
+}) {
+  const customIcon = toast.data?.icon;
+  if (customIcon) {
+    return (
+      <span className="mt-[0.1em] size-5 shrink-0" aria-hidden="true">
+        {customIcon}
+      </span>
+    );
+  }
+
   const IconComponent = variantIcons[variant];
+  if (!IconComponent) return null;
+
+  return (
+    <IconComponent className="mt-[0.1em] size-5 shrink-0" aria-hidden="true" />
+  );
+}
+
+function InterviewToastItem({
+  toast,
+}: {
+  toast: ToastObject<InterviewToastData>;
+}) {
+  const variant = (toast.type ?? 'default') as ToastVariant;
 
   const hasFocusedRef = useRef(false);
 
@@ -87,76 +98,51 @@ function InterviewToastItem({ toast }: { toast: ToastObject<object> }) {
 
   const handleBlur = useCallback(
     (e: FocusEvent<HTMLElement>) => {
-      if (
-        hasFocusedRef.current &&
-        !e.currentTarget.contains(e.relatedTarget)
-      ) {
+      if (hasFocusedRef.current && !e.currentTarget.contains(e.relatedTarget)) {
         interviewToastManager.close(toast.id);
       }
     },
     [toast.id],
   );
 
-  if (toast.positionerProps) {
-    return (
-      <Toast.Root toast={toast} ref={focusRef} onFocus={handleFocus} onBlur={handleBlur}>
-        <Toast.Positioner
-          toast={toast}
-          {...toast.positionerProps}
-          sideOffset={12}
-        >
-          <Toast.Content
-            className={cx(
-              interviewToastVariants({ variant }),
-              'animate-shake pointer-events-auto flex max-w-72 items-start gap-3',
-            )}
-          >
-            {IconComponent && (
-              <IconComponent
-                className="mt-[0.1em] size-5 shrink-0"
-                aria-hidden="true"
-              />
-            )}
-            <Toast.Description
-              render={<Paragraph margin="none" className="flex-1" />}
-            />
-            <Toast.Close
-              render={<CloseButton size="sm" />}
-              aria-label="Close"
-              nativeButton
-            />
-          </Toast.Content>
-          <Toast.Arrow
-            className={cx(arrowVariants({ variant }), 'animate-shake')}
-          />
-        </Toast.Positioner>
-      </Toast.Root>
-    );
-  }
+  const variantClasses = cx(
+    toastVariants({ variant }),
+    'rounded p-4 shadow-lg',
+  );
 
   return (
-    <Toast.Root toast={toast} ref={focusRef} onFocus={handleFocus} onBlur={handleBlur}>
-      <Toast.Content
-        className={cx(
-          interviewToastVariants({ variant }),
-          'pointer-events-auto flex max-w-72 items-start gap-3',
-        )}
+    <Toast.Root
+      toast={toast}
+      ref={focusRef}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+    >
+      <Toast.Positioner
+        toast={toast}
+        {...toast.positionerProps}
+        sideOffset={12}
+        collisionPadding={24}
       >
-        {IconComponent && (
-          <IconComponent
-            className="mt-[0.1em] size-5 shrink-0"
-            aria-hidden="true"
+        <Toast.Content
+          className={cx(
+            variantClasses,
+            'animate-shake pointer-events-auto flex max-w-72 items-start gap-3',
+          )}
+        >
+          <InterviewToastIcon toast={toast} variant={variant} />
+          <Toast.Description
+            render={<Paragraph margin="none" className="flex-1" />}
           />
-        )}
-        <Toast.Description
-          render={<Paragraph margin="none" className="flex-1" />}
+          <Toast.Close
+            render={<CloseButton size="sm" />}
+            aria-label="Close"
+            nativeButton
+          />
+        </Toast.Content>
+        <Toast.Arrow
+          className={cx(arrowVariants({ variant }), 'animate-shake')}
         />
-        <Toast.Close
-          render={<CloseButton size="sm" />}
-          aria-label="Close"
-          nativeButton
-        />
-      </Toast.Content>
+      </Toast.Positioner>
     </Toast.Root>
   );
 }

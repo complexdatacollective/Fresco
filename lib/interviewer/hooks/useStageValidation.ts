@@ -20,6 +20,7 @@ type StageConstraint = {
     description: string | ReactNode;
     variant: ToastVariant;
     anchor: 'forward' | 'backward';
+    icon?: ReactNode;
     timeout?: number;
   };
 };
@@ -28,6 +29,7 @@ type InterviewToastOptions = {
   description: string | ReactNode;
   variant: ToastVariant;
   anchor: 'forward' | 'backward';
+  icon?: ReactNode;
   timeout?: number;
 };
 
@@ -75,6 +77,7 @@ function useStageValidation({ constraints }: UseStageValidationOptions) {
       description: options.description,
       timeout: options.timeout ?? 4000,
       positionerProps,
+      data: options.icon ? { icon: options.icon } : undefined,
     });
   }, []);
 
@@ -122,6 +125,9 @@ function useStageValidation({ constraints }: UseStageValidationOptions) {
               description: constraint.toast.description,
               timeout: constraint.toast.timeout ?? 4000,
               positionerProps,
+              data: constraint.toast.icon
+                ? { icon: constraint.toast.icon }
+                : undefined,
               onRemove: () => {
                 activeToasts.delete(i);
               },
