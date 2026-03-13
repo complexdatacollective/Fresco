@@ -49,7 +49,7 @@ const arrowVariants = cva({
   },
 });
 
-export type InterviewToastData = {
+type InterviewToastData = {
   icon?: ReactNode;
 };
 
