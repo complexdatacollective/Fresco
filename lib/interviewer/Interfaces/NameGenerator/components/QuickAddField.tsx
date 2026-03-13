@@ -184,6 +184,7 @@ export default function QuickAddField({
                       placeholder={placeholder}
                       id={id}
                       name={targetVariable}
+                      data-testid="quick-add-input"
                       {...fieldProps}
                       value={fieldProps.value as string}
                       onChange={handleChange}
@@ -228,6 +229,7 @@ export default function QuickAddField({
           <button
             ref={buttonRef}
             className="focusable relative aspect-square size-28 rounded-full"
+            data-testid="quick-add-toggle"
           >
             <motion.div
               ref={circleRef}

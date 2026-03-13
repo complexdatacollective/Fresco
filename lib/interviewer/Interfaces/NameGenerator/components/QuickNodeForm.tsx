@@ -83,6 +83,7 @@ const QuickNodeForm = ({
         className="absolute right-12 bottom-4 z-20"
         variants={containerVariants}
         layout
+        data-testid="quick-add-form"
       >
         <Form onSubmit={handleSubmit}>
           <QuickAddField
