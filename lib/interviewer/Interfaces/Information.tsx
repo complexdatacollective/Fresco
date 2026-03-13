@@ -7,6 +7,7 @@ import {
 } from '~/components/RenderMarkdown';
 import Spinner from '~/components/Spinner';
 import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import { ScrollArea } from '~/components/ui/ScrollArea';
 import { type StageProps } from '~/lib/interviewer/types';
 import { cx } from '~/utils/cva';
@@ -16,11 +17,11 @@ function VideoPlayer({ src }: { src: string }) {
   const [isLoading, setIsLoading] = useState(true);
 
   return (
-    <div className="relative">
+    <div className={cx('relative', isLoading && 'min-h-48')}>
       {isLoading && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
           <Spinner size="lg" />
-          <p className="text-muted-foreground text-sm">Loading video...</p>
+          <Paragraph intent="smallText">Loading video...</Paragraph>
         </div>
       )}
       <video
