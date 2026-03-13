@@ -1,23 +1,19 @@
 import { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { actionCreators as uiActions } from '../ducks/modules/ui';
-import type { RootState } from '../store';
+import { formIsReady, setFormIsReady } from '../ducks/modules/ui';
 
 const useReadyForNextStage = () => {
+  const isReady = useSelector(formIsReady);
   const dispatch = useDispatch();
 
   const updateReady = useCallback(
-    (isReady: boolean) => {
-      dispatch(uiActions.update({ FORM_IS_READY: isReady }));
+    (newValue: boolean) => {
+      dispatch(setFormIsReady(newValue));
     },
     [dispatch],
   );
 
-  const isReady = useSelector((state: RootState) => !!state.ui.FORM_IS_READY);
-
   useEffect(() => {
-    updateReady(false);
-
     return () => updateReady(false);
   }, [updateReady]);
 

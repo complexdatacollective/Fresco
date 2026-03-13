@@ -1,17 +1,15 @@
 'use client';
 
 import { type ColumnDef } from '@tanstack/react-table';
-import { Badge } from '~/components/ui/badge';
-import {
-  type ActivityType,
-  type DataTableFilterableColumn,
-  type DataTableSearchableColumn,
-  type Activity,
-  activityTypes,
-} from '~/lib/data-table/types';
-import type { Events } from '~/lib/db/generated/client';
-import TimeAgo from '~/components/ui/TimeAgo';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+import type {
+  DataTableFilterableColumn,
+  DataTableSearchableColumn,
+} from '~/components/DataTable/types';
+import { Badge } from '~/components/ui/badge';
+import TimeAgo from '~/components/ui/TimeAgo';
+import type { Events } from '~/lib/db/generated/client';
+import { type Activity, type ActivityType, activityTypes } from './types';
 import { getBadgeColorsForActivityType } from './utils';
 
 export function fetchActivityFeedTableColumnDefs(): ColumnDef<
@@ -26,11 +24,7 @@ export function fetchActivityFeedTableColumnDefs(): ColumnDef<
       ),
       cell: ({ row }) => {
         const timestamp: string = row.getValue('timestamp');
-        return (
-          <div className="flex space-x-2 truncate font-medium">
-            <TimeAgo date={timestamp} />
-          </div>
-        );
+        return <TimeAgo date={timestamp} />;
       },
     },
     {
@@ -41,13 +35,8 @@ export function fetchActivityFeedTableColumnDefs(): ColumnDef<
       cell: ({ row }) => {
         const activityType: ActivityType = row.getValue('type');
         const color = getBadgeColorsForActivityType(activityType);
-        return (
-          <div className="flex min-w-[140px] space-x-2">
-            <Badge className={color}>{activityType}</Badge>
-          </div>
-        );
+        return <Badge className={color}>{activityType}</Badge>;
       },
-      enableSorting: false,
       enableHiding: false,
     },
     {
@@ -55,13 +44,7 @@ export function fetchActivityFeedTableColumnDefs(): ColumnDef<
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Details" />
       ),
-      cell: ({ row }) => (
-        <div className="flex space-x-2">
-          <span className="max-w-full truncate font-medium">
-            {row.original.message}
-          </span>
-        </div>
-      ),
+      cell: ({ row }) => row.original.message,
       enableSorting: false,
       enableHiding: false,
     },

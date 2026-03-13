@@ -1,0 +1,5 @@
+.context/
+.db-snapshots/
+.auth/
+playwright-report/
+test-results/

@@ -1,54 +1,95 @@
 import 'server-only';
-import { createCachedFunction } from '~/lib/cache';
+import { cacheLife } from 'next/cache';
+import { stringify } from 'superjson';
+import { safeCacheTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 
-export const getInterviews = createCachedFunction(async () => {
-  const interviews = await prisma.interview.findMany({
+/**
+ * Define the Prisma query logic for fetching all interviews separately
+ * to infer the type from the return value.
+ */
+async function prisma_getInterviews() {
+  return prisma.interview.findMany({
     include: {
       protocol: true,
       participant: true,
     },
   });
-  return interviews;
-}, ['getInterviews']);
+}
+export type GetInterviewsQuery = Awaited<
+  ReturnType<typeof prisma_getInterviews>
+>;
+
+export async function getInterviews() {
+  'use cache';
+  cacheLife('max');
+  safeCacheTag('getInterviews');
+
+  const interviews = await prisma_getInterviews();
+  const safeInterviews = stringify(interviews);
+  return safeInterviews;
+}
 
 export type GetInterviewsReturnType = ReturnType<typeof getInterviews>;
-
-export const getInterviewsForExport = createCachedFunction(
-  async (interviewIds: string[]) => {
-    const interviews = await prisma.interview.findMany({
-      where: {
-        id: {
-          in: interviewIds,
-        },
+async function prisma_getInterviewsForExport(interviewIds: string[]) {
+  return prisma.interview.findMany({
+    where: {
+      id: {
+        in: interviewIds,
       },
-      include: {
-        protocol: true,
-        participant: true,
-      },
-    });
-    return interviews;
-  },
-  ['getInterviewsForExport', 'getInterviews'],
-);
-
-export const getInterviewById = (interviewId: string) =>
-  createCachedFunction(
-    async (interviewId: string) => {
-      const interview = await prisma.interview.findUnique({
-        where: {
-          id: interviewId,
-        },
-        include: {
-          protocol: {
-            include: {
-              assets: true,
-            },
-          },
-        },
-      });
-
-      return interview;
     },
-    [`getInterviewById-${interviewId}`, 'getInterviewById'],
-  )(interviewId);
+    include: {
+      protocol: true,
+      participant: true,
+    },
+  });
+}
+export type GetInterviewsForExportQuery = Awaited<
+  ReturnType<typeof prisma_getInterviewsForExport>
+>;
+
+export const getInterviewsForExport = async (interviewIds: string[]) => {
+  const interviews = await prisma_getInterviewsForExport(interviewIds);
+  const safeInterviews = stringify(interviews);
+  return safeInterviews;
+};
+
+/**
+ * Because we use a client extension to parse the JSON fields, we can't use the
+ * automatically generated types from the Prisma client (Prisma.InterviewGetPayload).
+ *
+ * Instead, we have to infer the type from the return value. To do this, we
+ * have to define the function outside of getInterviewById.
+ */
+async function prisma_getInterviewById(interviewId: string) {
+  return prisma.interview.findUnique({
+    where: { id: interviewId },
+    include: {
+      protocol: {
+        include: { assets: true },
+        omit: {
+          lastModified: true,
+          hash: true,
+        },
+      },
+    },
+  });
+}
+export type GetInterviewByIdQuery = Awaited<
+  ReturnType<typeof prisma_getInterviewById>
+>;
+
+// Note that this function should not be cached, because invalidating the cache
+// would cause the interview route to reload, thereby clearing the redux store.
+export const getInterviewById = async (interviewId: string) => {
+  const interview = await prisma_getInterviewById(interviewId);
+
+  if (!interview) {
+    return null;
+  }
+  // We need to superjsonify the result, because we pass it to the client
+  // and it contains a Date object.
+  return stringify({
+    ...interview,
+  });
+};

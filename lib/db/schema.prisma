@@ -12,10 +12,13 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  username     String    @unique
-  auth_session Session[]
-  key          Key[]
+  id                  String               @id @default(cuid())
+  username            String               @unique
+  auth_session        Session[]
+  key                 Key[]
+  totpCredential      TotpCredential?
+  recoveryCodes       RecoveryCode[]
+  webAuthnCredentials WebAuthnCredential[]
 }
 
 model Session {
@@ -37,6 +40,25 @@ model Key {
   @@index([user_id])
 }
 
+model WebAuthnCredential {
+  id           String    @id @default(cuid())
+  user_id      String
+  credentialId String    @unique
+  publicKey    String
+  counter      BigInt    @default(0)
+  transports   String?
+  deviceType   String
+  backedUp     Boolean   @default(false)
+  aaguid       String?
+  friendlyName String?
+  createdAt    DateTime  @default(now())
+  lastUsedAt   DateTime?
+
+  user User @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
 model Protocol {
   id            String      @id @default(cuid())
   hash          String      @unique
@@ -49,16 +71,36 @@ model Protocol {
   codebook      Json
   assets        Asset[]
   interviews    Interview[]
+  experiments   Json?
+}
+
+model PreviewProtocol {
+  id            String   @id @default(cuid())
+  hash          String   @unique
+  name          String
+  schemaVersion Int
+  description   String?
+  importedAt    DateTime @default(now())
+  lastModified  DateTime
+  stages        Json
+  codebook      Json
+  assets        Asset[]  @relation("PreviewProtocolAssets")
+  experiments   Json?
+  isPending     Boolean  @default(false)
+
+  @@index([importedAt])
 }
 
 model Asset {
-  key       String     @id
-  assetId   String     @unique
-  name      String
-  type      String
-  url       String
-  size      Int
-  protocols Protocol[]
+  key              String            @id
+  assetId          String            @unique
+  name             String
+  type             String
+  url              String
+  size             Int
+  protocols        Protocol[]
+  previewProtocols PreviewProtocol[] @relation("PreviewProtocolAssets")
+  value            String?
 
   @@index(fields: [assetId, key])
 }
@@ -98,6 +140,10 @@ enum AppSetting {
   disableAnalytics
   disableSmallScreenOverlay
   uploadThingToken
+  previewMode
+  previewModeRequireAuth
+  freezeInterviewsAfterCompletion
+  enableInterviewDataApi
 }
 
 model AppSettings {
@@ -110,4 +156,47 @@ model Events {
   timestamp DateTime @default(now())
   type      String
   message   String
+}
+
+model ApiToken {
+  id          String    @id @default(cuid())
+  token       String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  lastUsedAt  DateTime?
+  isActive    Boolean   @default(true)
+}
+
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  username  String?
+  ipAddress String?
+  success   Boolean
+  timestamp DateTime @default(now())
+
+  @@index([username, timestamp])
+  @@index([ipAddress, timestamp])
+  @@index([timestamp])
+}
+
+model TotpCredential {
+  id        String   @id @default(cuid())
+  user_id   String   @unique
+  secret    String
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model RecoveryCode {
+  id        String    @id @default(cuid())
+  user_id   String
+  codeHash  String
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
 }

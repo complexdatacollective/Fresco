@@ -1,9 +1,5 @@
 import dynamic from 'next/dynamic';
-import type {
-  ComponentProps,
-  ComponentType,
-  ReactNode,
-} from 'react';
+import type { ComponentProps, ComponentType, ReactNode } from 'react';
 
 /**
  * This component is a hack to get around the fact that Next.js doesn't support
@@ -41,4 +37,3 @@ export const withNoSSRWrapper = <P extends object>(
   );
   return WithNoSSRWrapper;
 };
-

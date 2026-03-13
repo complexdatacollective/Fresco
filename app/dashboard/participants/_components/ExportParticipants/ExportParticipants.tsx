@@ -1,23 +1,28 @@
 'use client';
 
-import { Check, FileUp } from 'lucide-react';
+import { FileUp } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { use, useState } from 'react';
+import superjson from 'superjson';
 import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/use-toast';
+import { useToast } from '~/components/ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
-import type { GetParticipantsReturnType } from '~/queries/participants';
+import type {
+  GetParticipantsQuery,
+  GetParticipantsReturnType,
+} from '~/queries/participants';
 
 function ExportParticipants({
   participantsPromise,
 }: {
   participantsPromise: GetParticipantsReturnType;
 }) {
-  const participants = use(participantsPromise);
+  const rawParticipants = use(participantsPromise);
+  const participants = superjson.parse<GetParticipantsQuery>(rawParticipants);
 
   const download = useDownload();
   const [isExporting, setIsExporting] = useState(false);
-  const { toast } = useToast();
+  const { add } = useToast();
 
   const handleExport = () => {
     try {
@@ -39,17 +44,16 @@ function ExportParticipants({
       download(url, 'participants.csv');
       // Clean up the URL object
       URL.revokeObjectURL(url);
-      toast({
+      add({
         title: 'Success',
-        icon: <Check />,
         description: 'Participant CSV exported successfully',
-        variant: 'success',
+        type: 'success',
       });
     } catch (error) {
-      toast({
+      add({
         title: 'Error',
         description: 'An error occurred while exporting participants',
-        variant: 'destructive',
+        type: 'destructive',
       });
       throw new Error('An error occurred while exporting participants');
     }
@@ -62,8 +66,8 @@ function ExportParticipants({
       disabled={participants?.length === 0}
       onClick={handleExport}
       className="w-full"
+      icon={<FileUp />}
     >
-      <FileUp className="mr-2 h-4 w-4" />
       {isExporting ? 'Exporting...' : 'Export Participant List'}
     </Button>
   );

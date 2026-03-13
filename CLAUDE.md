@@ -6,7 +6,7 @@ This document provides guidance for AI assistants working with the Fresco codeba
 
 Fresco is a web-based interview platform that brings Network Canvas interviews to the browser. It's built with Next.js 14 (App Router), TypeScript, and PostgreSQL. Version 3.0.0.
 
-**Documentation**: https://documentation.networkcanvas.com/en/fresco
+**Documentation**: <https://documentation.networkcanvas.com/en/fresco>
 
 ## Quick Reference
 
@@ -18,7 +18,7 @@ pnpm storybook                  # Component library at :6006
 
 # Quality Checks
 pnpm lint                       # ESLint
-pnpm ts-lint                    # TypeScript type checking
+pnpm typecheck                    # TypeScript type checking
 pnpm test                       # Vitest unit tests
 pnpm knip                       # Find unused code
 
@@ -75,15 +75,20 @@ styles/                # Global CSS/SCSS
 ### TypeScript
 
 - **Strict mode enabled** with `noUncheckedIndexedAccess`
+- **Do not use type assertions (`as`)** to fix type errors unless absolutely necessary. Find the root cause of the typing issue and refactor to resolve it. Type assertions should ALWAYS be confirmed with the user first.
 - Use `type` for type definitions (not `interface`) - enforced by ESLint
 - Prefer inline type imports: `import { type Foo } from './bar'`
 - Unused variables must start with underscore: `_unusedVar`
-- Path alias: `~/` maps to project root
+- **Always use path aliases** (`~/`) for imports - never use relative paths like `../` or `./`
 
 ```typescript
-// Correct
+// Correct - use path aliases
 import { type Protocol } from '@prisma/client';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
+import { Button } from '~/components/ui/Button';
+
+// Incorrect - never use relative paths
+// import { Button } from '../components/ui/Button';
 
 // Type definition
 export type CreateInterview = {
@@ -106,6 +111,7 @@ const dbUrl = env.DATABASE_URL;
 
 - `no-console` ESLint rule is enforced
 - Must disable ESLint for intentional logs:
+
 ```typescript
 // eslint-disable-next-line no-console
 console.log('Debug info');
@@ -114,17 +120,18 @@ console.log('Debug info');
 ### Server Actions
 
 Located in `/actions/`. Pattern:
+
 - Mark with `'use server'` directive
 - Use `requireApiAuth()` for authentication
 - Return `{ error, data }` pattern
-- Use `safeRevalidateTag()` for cache invalidation
+- Use `safeUpdateTag()` for cache invalidation (read-your-own-writes)
 - Track events with `addEvent()` for activity feed
 
 ```typescript
 'use server';
 
 import { requireApiAuth } from '~/utils/auth';
-import { safeRevalidateTag } from '~/lib/cache';
+import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/utils/db';
 
 export async function deleteItem(id: string) {
@@ -132,7 +139,7 @@ export async function deleteItem(id: string) {
 
   try {
     const result = await prisma.item.delete({ where: { id } });
-    safeRevalidateTag('getItems');
+    safeUpdateTag('getItems');
     return { error: null, data: result };
   } catch (error) {
     return { error: 'Failed to delete', data: null };
@@ -164,9 +171,11 @@ export default async function DashboardPage() {
 ### UI Components
 
 Using shadcn/ui with Tailwind. Follow the pattern:
+
 - Use `cva` (class-variance-authority) for variants
 - Use `cn()` utility from `~/utils/shadcn` for class merging
 - Export component + variants + skeleton when applicable
+- **Spread HTML props onto root element** - Components should accept all valid HTML attributes for their root element and spread them. This allows consumers to pass `data-testid`, `aria-*`, event handlers, etc. without the component needing explicit props for each.
 
 ```typescript
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -186,7 +195,18 @@ const buttonVariants = cva('base-classes', {
 export type ButtonProps = {
   variant?: VariantProps<typeof buttonVariants>['variant'];
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
+
+// Example: spreading props onto root element
+const Button = ({ variant, className, ...props }: ButtonProps) => (
+  <button className={cn(buttonVariants({ variant }), className)} {...props} />
+);
 ```
+
+**Why spread props?** Instead of adding specific props like `testId`, accept all HTML attributes and spread them. This:
+
+- Keeps the component API minimal
+- Allows any valid HTML attribute (`data-testid`, `aria-label`, `onClick`, etc.)
+- Follows React best practices for wrapper components
 
 ### Forms with Zod
 
@@ -223,6 +243,31 @@ const interviews = await prisma.interview.findMany({
 });
 ```
 
+### Caching
+
+Query functions in `/queries/` use the `'use cache'` directive with typesafe tag wrappers from `~/lib/cache`. Do not import `cacheTag`, `updateTag`, `revalidateTag`, or `unstable_cache` directly from `next/cache` - an ESLint `no-restricted-imports` rule enforces this.
+
+**Cached queries** use `safeCacheTag()` inside `'use cache'` functions:
+
+```typescript
+import { safeCacheTag } from '~/lib/cache';
+
+export async function getItems() {
+  'use cache';
+  safeCacheTag('getItems');
+  return prisma.item.findMany();
+}
+```
+
+**Cache invalidation** uses two different functions depending on context:
+
+- **`safeUpdateTag(tag)`** - Server Actions only. Uses `updateTag` for read-your-own-writes semantics (the next request waits for fresh data, so the user sees their change immediately).
+- **`safeRevalidateTag(tag)`** - Route Handlers only. Uses `revalidateTag(tag, 'max')` for stale-while-revalidate semantics (`updateTag` is not available in Route Handlers).
+
+Both accept a single tag or an array. All tags are typesafe against the `CacheTags` array in `lib/cache.ts`.
+
+**Disabling cache for tests**: Set `DISABLE_NEXT_CACHE=true` which activates the no-op `cacheHandlers` in `next.config.ts` (`lib/cache-handler.cjs`). This returns cache misses for all `'use cache'` functions.
+
 ### Naming Conventions
 
 - **Files**: PascalCase for components (`Button.tsx`), camelCase for utils (`shadcn.ts`)
@@ -234,11 +279,13 @@ const interviews = await prisma.interview.findMany({
 ## Formatting
 
 Prettier configuration (`.prettierrc`):
+
 - Single quotes
 - 80 character print width
 - Tailwind class sorting plugin
 
 ESLint:
+
 - TypeScript strict type checking
 - Next.js Core Web Vitals
 - No unused variables (except `_` prefix)
@@ -252,16 +299,23 @@ ESLint:
 - **Load Tests**: k6 (`pnpm load-test`)
 
 Run tests:
+
 ```bash
 pnpm test           # Unit tests
 pnpm storybook      # Component testing
 ```
 
+### E2E Testing Conventions
+
+- **Prefer `data-testid` attributes** over text matching for element selection in e2e tests. This makes tests more resilient to text changes and internationalization.
+- Add `data-testid` attributes to interactive elements and key UI components that need to be targeted in tests.
+- See `tests/e2e/CLAUDE.md` for detailed e2e testing patterns and fixtures.
+
 ## Important Files
 
 - `fresco.config.ts` - App-specific constants (protocol extensions, timeouts)
 - `env.js` - Environment variable validation
-- `next.config.js` - Next.js configuration
+- `next.config.ts` - Next.js configuration
 - `components.json` - shadcn/ui configuration
 - `.nvmrc` - Node.js version (20)
 - `docker-compose.dev.yml` - Development database
@@ -274,7 +328,7 @@ pnpm storybook      # Component testing
 2. Add `'use server'` directive
 3. Add auth check with `requireApiAuth()`
 4. Define input types in `/schemas/`
-5. Invalidate cache with `safeRevalidateTag()`
+5. Invalidate cache with `safeUpdateTag()`
 
 ### Adding a New Page
 
@@ -310,7 +364,9 @@ pnpm storybook      # Component testing
 3. **Use `type` not `interface`** for type definitions
 4. **Server Components are default** - add `'use client'` only when needed
 5. **AppSettings enum** must sync between Prisma schema and `schemas/appSettings.ts`
-6. **Cache invalidation** - use `safeRevalidateTag()` after mutations
+6. **Cache invalidation** - use `safeUpdateTag()` in Server Actions, `safeRevalidateTag()` in Route Handlers (see Caching section)
+7. **Always use path aliases** - use `~/components/Button` not `../components/Button`
+8. **`getStageSubject` returns `null` for subjectless stages** (Information, Anonymisation). All downstream selectors must handle `null` — TypeScript strict mode enforces this. Never use `throw` or `invariant` in `getStageSubject` because Redux dispatches trigger synchronous subscription notifications while React cleans up `connect()` subscriptions asynchronously, so stale selectors from the previous stage will re-evaluate against the new stage.
 
 ## Dependencies to Know
 
@@ -328,3 +384,39 @@ pnpm storybook      # Component testing
 - [shadcn/ui](https://ui.shadcn.com/)
 - [Prisma](https://www.prisma.io/docs)
 - [Tailwind CSS](https://tailwindcss.com/docs)
+
+## Debugging and Development Tips
+
+- Use the Playwright MCP to debug errors and view console output directly. Do NOT start the development server or the storybook server. Instead, prompt the user to start these for you.
+- NEVER disable linting rules unless you have asked permission from the user. This applies particularly to no-explicit-any which should only be disabled in truly exceptional circumstances.
+- when editing a component, look for a storybook story and ensure that any new features are documented and any changes to the component API are accurately reflected in the storybook
+
+## E2E Test Selector Best Practices
+
+When writing Playwright e2e tests, follow this selector hierarchy:
+
+1. **Prefer semantic `getByRole()` queries** - These are resilient and accessible:
+   - `getByRole('button', { name: /submit/i })`
+   - `getByRole('heading', { name: 'Settings', level: 1 })`
+   - `getByRole('switch')`, `getByRole('dialog')`, `getByRole('table')`
+
+2. **Use `getByTestId()` for non-semantic elements** - Add `data-testid` attributes to components:
+   - `getByTestId('user-row-testadmin')`
+   - `getByTestId('anonymous-recruitment-field')`
+
+3. **Avoid these fragile patterns:**
+   - `getByText()` - Breaks with text changes, i18n
+   - `toContainText()` / `toHaveText()` - Ties tests to specific copy, prevents refactoring
+   - `.first()` - Tied to DOM order
+   - `.locator('..')` - Parent traversal is fragile
+   - `.locator('#id')` - Prefer getByTestId for consistency
+
+4. **Test element presence, not text content** - Avoid assertions on specific text. Instead, test that elements exist using `toBeVisible()`. This allows copy changes without breaking tests.
+
+5. **For form fields with switches/toggles**, combine testId with role:
+
+   ```typescript
+   page.getByTestId('anonymous-recruitment-field').getByRole('switch');
+   ```
+
+6. **Add testIds to reusable components** (SettingsField, SettingsCard, DataTable rows, etc.) to enable targeted selection without DOM traversal.

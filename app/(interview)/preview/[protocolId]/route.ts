@@ -1,0 +1,70 @@
+import { after, NextResponse, type NextRequest } from 'next/server';
+import { env } from '~/env';
+import { prisma } from '~/lib/db';
+import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
+import { getPreviewMode } from '~/queries/appSettings';
+
+const handler = async (
+  req: NextRequest,
+  { params }: { params: Promise<{ protocolId: string }> },
+) => {
+  const { protocolId } = await params;
+
+  // Check if preview mode is enabled
+  const previewMode = await getPreviewMode();
+  if (!previewMode) {
+    const url = new URL(env.PUBLIC_URL ?? req.nextUrl.clone());
+    url.pathname = '/onboard/error';
+    return NextResponse.redirect(url);
+  }
+
+  const url = new URL(env.PUBLIC_URL ?? req.nextUrl.clone());
+
+  // Validate protocol ID
+  if (!protocolId || protocolId === 'undefined') {
+    url.pathname = '/onboard/error';
+    return NextResponse.redirect(url);
+  }
+
+  // Verify that this is a preview protocol
+  const protocol = await prisma.previewProtocol.findUnique({
+    where: { id: protocolId },
+    select: { isPending: true, name: true },
+  });
+
+  if (!protocol) {
+    url.pathname = '/onboard/error';
+    return NextResponse.redirect(url);
+  }
+
+  if (protocol.isPending) {
+    // Protocol assets are still being uploaded
+    url.pathname = '/onboard/error';
+    return NextResponse.redirect(url);
+  }
+
+  // eslint-disable-next-line no-console
+  console.log(
+    `🎨 Starting preview interview using preview protocol ${protocol.name}...`,
+  );
+
+  after(async () => {
+    await captureEvent('InterviewStarted', {
+      protocolId,
+      isPreview: true,
+    });
+    await shutdownPostHog();
+  });
+
+  // Redirect to the preview interview page (no database persistence)
+  // Explicitly disable caching to prevent Netlify from caching this redirect
+  // See: https://github.com/opennextjs/opennextjs-netlify/issues/3460
+  url.pathname = `/preview/${protocolId}/interview`;
+  return NextResponse.redirect(url, {
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+    },
+  });
+};
+
+export { handler as GET, handler as POST };

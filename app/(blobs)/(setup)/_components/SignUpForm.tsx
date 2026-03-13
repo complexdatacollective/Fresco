@@ -1,80 +1,204 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
+import {
+  browserSupportsWebAuthn,
+  startRegistration,
+} from '@simplewebauthn/browser';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useMediaQuery } from 'usehooks-ts';
 import { signup } from '~/actions/auth';
-import { Button } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
-import useZodForm from '~/hooks/useZodForm';
+import {
+  generateSignupRegistrationOptions,
+  signupWithPasskey,
+} from '~/actions/webauthn';
+import Field from '~/lib/form/components/Field/Field';
+import FieldGroup from '~/lib/form/components/FieldGroup';
+import InputField from '~/lib/form/components/fields/InputField';
+import PasswordField from '~/lib/form/components/fields/PasswordField';
+import RichSelectGroupField from '~/lib/form/components/fields/RichSelectGroup';
+import Form from '~/lib/form/components/Form';
+import SubmitButton from '~/lib/form/components/SubmitButton';
+import {
+  type FormSubmissionResult,
+  type FormSubmitHandler,
+} from '~/lib/form/store/types';
 import { createUserSchema } from '~/schemas/auth';
 
-export const SignUpForm = () => {
-  const {
-    register,
-    handleSubmit,
-    watch,
-    trigger,
-    formState: { errors, isValid, isSubmitting },
-  } = useZodForm({
-    schema: createUserSchema,
-    mode: 'onTouched',
-  });
+type SignUpFormProps = {
+  sandboxMode?: boolean;
+};
 
-  const onSubmit = async (data: unknown) => {
-    await signup(data);
+export const SignUpForm = ({ sandboxMode = false }: SignUpFormProps) => {
+  const router = useRouter();
+  const [webauthnSupported, setWebauthnSupported] = useState(false);
+  const [passkeyLoading, setPasskeyLoading] = useState(false);
+  const [passkeyError, setPasskeyError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setWebauthnSupported(browserSupportsWebAuthn());
+  }, []);
+
+  const showAuthMethodChoice = webauthnSupported && !sandboxMode;
+
+  const handleSubmit: FormSubmitHandler = async (data) => {
+    const values = data as Record<string, unknown>;
+    const authMethod =
+      typeof values?.authMethod === 'string' ? values.authMethod : 'password';
+    const username =
+      typeof values?.username === 'string' ? values.username : '';
+
+    if (authMethod === 'passkey') {
+      return handlePasskeySignup(username);
+    }
+
+    return handlePasswordSignup(data);
   };
 
-  const password = watch('password');
+  const handlePasswordSignup: FormSubmitHandler = async (data) => {
+    const result = await signup(data);
+
+    return {
+      success: false,
+      formErrors: result.error ? [result.error] : [],
+    };
+  };
+
+  const handlePasskeySignup = async (
+    username: string,
+  ): Promise<FormSubmissionResult> => {
+    if (!username) {
+      return {
+        success: false,
+        formErrors: ['Username is required'],
+      };
+    }
+
+    setPasskeyError(null);
+    setPasskeyLoading(true);
+
+    try {
+      // Step 1: Generate registration options (no session created yet)
+      const { error: genError, data: regData } =
+        await generateSignupRegistrationOptions(username);
+      if (genError || !regData) {
+        setPasskeyLoading(false);
+        return {
+          success: false,
+          formErrors: [genError ?? 'Failed to start passkey registration'],
+        };
+      }
+
+      // Step 2: OS passkey popup (still no session)
+      const credential = await startRegistration({
+        optionsJSON: regData.options,
+      });
+
+      // Step 3: Atomic signup — creates user + stores passkey + session
+      const result = await signupWithPasskey({ username, credential });
+
+      if (result.error) {
+        setPasskeyLoading(false);
+        return {
+          success: false,
+          formErrors: [result.error],
+        };
+      }
+
+      // Session now exists — navigate to next step
+      router.refresh();
+      router.push('/setup?step=2');
+      return { success: true };
+    } catch (e) {
+      if (e instanceof Error && e.name === 'NotAllowedError') {
+        setPasskeyLoading(false);
+        return { success: false };
+      }
+      setPasskeyLoading(false);
+      return {
+        success: false,
+        formErrors: ['Passkey registration failed'],
+      };
+    }
+  };
+
+  const isSmallScreen = useMediaQuery('(max-width: 640px)');
 
   return (
-    <form
-      className="flex flex-col"
-      onSubmit={(event) => void handleSubmit(onSubmit)(event)}
-      autoComplete="do-not-autofill"
-    >
-      <div className="mb-6 flex flex-wrap">
-        <Input
-          label="Username"
-          hint="Your username should be at least 4 characters, and must not contain any spaces."
-          type="text"
-          placeholder="username..."
-          autoComplete="do-not-autofill"
-          error={errors.username?.message}
-          {...register('username', {})}
+    <Form onSubmit={handleSubmit} className="flex flex-col">
+      <Field
+        name="username"
+        label="Username"
+        placeholder="username..."
+        hint="Your username should be at least 4 characters, and must not contain any spaces."
+        custom={{
+          schema: createUserSchema.shape.username,
+          hint: 'At least 4 characters, no spaces',
+        }}
+        component={InputField}
+        autoComplete="do-not-autofill"
+      />
+      {showAuthMethodChoice && (
+        <Field
+          name="authMethod"
+          label="Authentication method"
+          component={RichSelectGroupField}
+          orientation={isSmallScreen ? 'vertical' : 'horizontal'}
+          initialValue="passkey"
+          options={[
+            {
+              label: 'Passkey',
+              value: 'passkey',
+              description:
+                'Use biometrics or your device security to sign in. No password to remember — the most secure option.',
+            },
+            {
+              label: 'Password',
+              value: 'password',
+              description:
+                'Traditional username and password. Requires a strong password.',
+            },
+          ]}
         />
-      </div>
-      <div className="mb-6 flex flex-wrap">
-        <Input
-          className="w-full"
+      )}
+      <FieldGroup
+        watch={['authMethod']}
+        condition={(values) => values.authMethod !== 'passkey'}
+      >
+        <Field
+          name="password"
           label="Password"
-          hint="Your password must be at least 8 characters long, and contain at least one each of lowercase, uppercase, number and symbol characters."
-          type="password"
           placeholder="******************"
+          custom={{
+            schema: createUserSchema.shape.password,
+            hint: 'At least 8 characters with lowercase, uppercase, number and symbol',
+          }}
+          component={PasswordField}
+          showStrengthMeter
           autoComplete="do-not-autofill"
-          error={errors.password?.message}
-          {...register('password', {
-            onChange: () => trigger('password'),
-          })}
+          showValidationHints
         />
-        {password && password.length > 0 && (
-          <Input
-            className="w-full"
+        <FieldGroup
+          watch={['password']}
+          condition={(values) => !!values.password}
+        >
+          <Field
+            name="confirmPassword"
             label="Confirm password"
-            type="password"
             placeholder="******************"
+            sameAs="password"
+            component={PasswordField}
+            type="password"
             autoComplete="do-not-autofill"
-            error={errors.confirmPassword?.message}
-            {...register('confirmPassword', {
-              onChange: () => trigger('confirmPassword'),
-            })}
           />
-        )}
-      </div>
-      <div className="flex flex-wrap justify-end">
-        <Button disabled={isSubmitting || !isValid} type="submit">
-          {isSubmitting && <Loader2 className="mr-2 animate-spin" />}
-          {isSubmitting ? 'Creating account...' : 'Create account'}
-        </Button>
-      </div>
-    </form>
+        </FieldGroup>
+      </FieldGroup>
+      {passkeyError && (
+        <p className="text-destructive text-sm">{passkeyError}</p>
+      )}
+      <SubmitButton className="mt-6" disabled={passkeyLoading}>
+        Create account
+      </SubmitButton>
+    </Form>
   );
 };

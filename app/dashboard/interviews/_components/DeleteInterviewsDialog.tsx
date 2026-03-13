@@ -1,18 +1,10 @@
-import type { Interview } from '~/lib/db/generated/client';
-import { AlertCircle, Loader2, Trash2 } from 'lucide-react';
+import { Loader2, Trash2 } from 'lucide-react';
 import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 import { deleteInterviews } from '~/actions/interviews';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '~/components/ui/AlertDialog';
 import { Button } from '~/components/ui/Button';
+import type { Interview } from '~/lib/db/generated/client';
+import Dialog from '~/lib/dialogs/Dialog';
 
 type DeleteInterviewsDialog = {
   open: boolean;
@@ -47,66 +39,60 @@ export const DeleteInterviewsDialog = ({
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={handleCancelDialog}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete{' '}
-            <strong>
-              {interviewsToDelete.length}{' '}
-              {interviewsToDelete.length > 1 ? (
-                <>interviews.</>
-              ) : (
-                <>interview.</>
-              )}
-            </strong>
-          </AlertDialogDescription>
-          {hasUnexported && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Warning</AlertTitle>
-              <AlertDescription>
-                {interviewsToDelete.length > 1 ? (
-                  <>
-                    One or more of the selected interviews
-                    <strong> has not yet been exported.</strong>
-                  </>
-                ) : (
-                  <>
-                    The selected interview
-                    <strong> has not yet been exported.</strong>
-                  </>
-                )}
-              </AlertDescription>
-            </Alert>
-          )}
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting} onClick={handleCancelDialog}>
+    <Dialog
+      accent="destructive"
+      open={open}
+      closeDialog={handleCancelDialog}
+      title="Are you absolutely sure?"
+      description={
+        <>
+          This action cannot be undone. This will permanently delete{' '}
+          <strong>
+            {interviewsToDelete.length}{' '}
+            {interviewsToDelete.length > 1 ? <>interviews.</> : <>interview.</>}
+          </strong>
+        </>
+      }
+      footer={
+        <>
+          <Button disabled={isDeleting} onClick={handleCancelDialog}>
             Cancel
-          </AlertDialogCancel>
+          </Button>
           <Button
             disabled={isDeleting}
+            color="primary"
             onClick={async () => {
               setIsDeleting(true);
               await handleConfirm();
               setIsDeleting(false);
             }}
-            variant="destructive"
+            icon={
+              isDeleting ? <Loader2 className="animate-spin" /> : <Trash2 />
+            }
           >
-            {isDeleting ? (
+            {isDeleting ? 'Deleting...' : 'Delete interview(s)'}
+          </Button>
+        </>
+      }
+    >
+      {hasUnexported && (
+        <Alert variant="destructive">
+          <AlertTitle>Warning</AlertTitle>
+          <AlertDescription>
+            {interviewsToDelete.length > 1 ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...
+                One or more of the selected interviews
+                <strong> has not yet been exported.</strong>
               </>
             ) : (
               <>
-                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                The selected interview
+                <strong> has not yet been exported.</strong>
               </>
             )}
-          </Button>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </AlertDescription>
+        </Alert>
+      )}
+    </Dialog>
   );
 };

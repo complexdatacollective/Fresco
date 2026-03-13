@@ -1,9 +1,9 @@
 'use client';
 
-import { cn } from '~/utils/shadcn';
-import { useToast } from './ui/use-toast';
-import { Check, ClipboardCopy } from 'lucide-react';
+import { ClipboardCopy } from 'lucide-react';
+import { cx } from '~/utils/cva';
 import { Button } from './ui/Button';
+import { useToast } from './ui/Toast';
 
 export default function CopyDebugInfoButton({
   debugInfo,
@@ -14,17 +14,15 @@ export default function CopyDebugInfoButton({
   showToast?: boolean;
   className?: string;
 }) {
-  const { toast } = useToast();
+  const { add } = useToast();
 
   const copyDebugInfoToClipboard = async () => {
     await navigator.clipboard.writeText(debugInfo);
 
     if (showToast) {
-      toast({
-        icon: <Check />,
-        title: 'Success',
-        description: 'Debug information copied to clipboard',
-        variant: 'success',
+      add({
+        title: 'Debug information copied to clipboard',
+        type: 'success',
       });
     }
   };
@@ -32,15 +30,15 @@ export default function CopyDebugInfoButton({
   return (
     <Button
       onClick={copyDebugInfoToClipboard}
-      className={cn(
-        // 'h-auto w-auto rounded-md border border-platinum-dark bg-transparent p-1 text-primary/70 transition-all',
+      className={cx(
+        // 'h-auto w-auto rounded border border-platinum-dark bg-transparent p-1 text-primary/70 transition-all',
         // 'hover:bg-transparent hover:text-primary/100',
         className,
       )}
       title="Copy to clipboard"
-      variant="ghost"
+      color="primary"
+      icon={<ClipboardCopy />}
     >
-      <ClipboardCopy className="mr-2 h-4 w-4" />
       Copy Debug Info
     </Button>
   );

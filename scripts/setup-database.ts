@@ -31,26 +31,27 @@ function checkForNeededMigrations(): boolean {
     '--exit-code',
   ];
 
+  console.log(`Running: ${command} ${args.join(' ')}`);
   const result = spawnSync(command, args, { encoding: 'utf-8' });
 
   if (result.error) {
-    console.error('Failed to run command:', result.error);
+    console.error('Failed to spawn command:', result.error);
     throw result.error;
   }
 
-  // Handling the exit code
+  if (result.stdout) console.log('stdout:', result.stdout);
+  if (result.stderr) console.log('stderr:', result.stderr);
+  console.log('Exit code:', result.status);
+
   if (result.status === 0) {
     console.log('No differences between DB and schema detected.');
     return false;
   } else if (result.status === 2) {
     console.log('There are differences between the schemas.');
     return true;
-  } else if (result.status === 1) {
-    console.log('An error occurred.', result.stderr);
-    throw new Error(`Command failed with exit code ${result.status}`);
   }
 
-  return false;
+  throw new Error(`prisma migrate diff failed with exit code ${result.status}`);
 }
 
 /**
@@ -75,7 +76,12 @@ async function shouldApplyWorkaround(): Promise<boolean> {
 
 async function handleMigrations(): Promise<void> {
   try {
-    if (await shouldApplyWorkaround()) {
+    console.log('Starting migration process...');
+
+    const applyWorkaround = await shouldApplyWorkaround();
+    console.log('Should apply workaround:', applyWorkaround);
+
+    if (applyWorkaround) {
       console.log(
         'Workaround needed! Running: prisma migrate resolve --applied 0_init',
       );
@@ -84,12 +90,13 @@ async function handleMigrations(): Promise<void> {
       });
     }
 
-    // Determine if there are any migrations to run
     const needsMigrations = checkForNeededMigrations();
+    console.log('Needs migrations:', needsMigrations);
 
     if (needsMigrations) {
-      console.log('Migrations needed! Running: prisma migrate deploy');
+      console.log('Running: prisma migrate deploy');
       execSync('npx prisma migrate deploy', { stdio: 'inherit' });
+      console.log('Migrations applied successfully.');
     } else {
       console.log('No migrations needed.');
     }
