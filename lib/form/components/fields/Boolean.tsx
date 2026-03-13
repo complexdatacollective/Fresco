@@ -1,19 +1,18 @@
 'use client';
 
-import { Radio } from '@base-ui/react/radio';
-import { RadioGroup, type RadioGroupProps } from '@base-ui/react/radio-group';
 import { motion, useMotionValue, useTransform } from 'motion/react';
+import { useCallback, useRef } from 'react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
-import Button from '~/components/ui/Button';
+import { headingVariants } from '~/components/typography/Heading';
 import {
-  controlLabelVariants,
-  controlVariants,
   groupSpacingVariants,
   inputControlVariants,
   smallSizeVariants,
   stateVariants,
+  textSizeVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx } from '~/utils/cva';
+import { getInputState } from '../../utils/getInputState';
 import { type CreateFormFieldProps } from '../Field/types';
 
 type BooleanOption = {
@@ -21,50 +20,67 @@ type BooleanOption = {
   value: boolean;
 };
 
-const buttonVariants = compose(
-  controlVariants,
-  inputControlVariants,
+const optionCardVariants = compose(
   groupSpacingVariants,
-  stateVariants,
+  textSizeVariants,
   cva({
-    base: cx('elevation-low flex min-w-0 justify-start gap-3', 'focusable'),
+    base: cx(
+      'grid cursor-pointer grid-cols-[auto_1fr] content-start items-start gap-x-4! gap-y-2!',
+      'overflow-hidden rounded border-2 border-current/20',
+      'bg-input text-left text-wrap',
+      'transition-colors duration-200',
+      'focusable',
+    ),
     variants: {
       selected: {
         true: '',
-        false: 'hover:border-accent/30',
+        false: 'hover:border-current/40',
       },
       positive: {
-        true: 'outline-success!',
-        false: 'outline-destructive!',
+        true: '',
+        false: '',
+      },
+      state: {
+        normal: '',
+        disabled: 'pointer-events-none cursor-not-allowed opacity-50',
+        readOnly: 'pointer-events-none cursor-default',
+        invalid: 'border-destructive',
       },
     },
     compoundVariants: [
       {
         selected: true,
         positive: true,
-        class: 'border-success',
+        className: 'border-success',
       },
       {
         selected: true,
         positive: false,
-        class: 'border-destructive',
+        className: 'border-destructive',
+      },
+      {
+        selected: true,
+        state: 'invalid',
+        className: 'border-destructive',
       },
     ],
     defaultVariants: {
       selected: false,
       positive: true,
+      state: 'normal',
     },
   }),
 );
 
 const booleanIndicatorVariants = compose(
   smallSizeVariants,
-  controlVariants,
   inputControlVariants,
+  stateVariants,
   cva({
     base: cx(
-      'flex aspect-square shrink-0 items-center justify-center rounded-full',
-      'transition-colors duration-200',
+      'flex aspect-square shrink-0 items-center justify-center',
+      'overflow-hidden rounded-full border-2',
+      'focusable',
     ),
     variants: {
       selected: {
@@ -74,11 +90,6 @@ const booleanIndicatorVariants = compose(
       positive: {
         true: '',
         false: '',
-      },
-      state: {
-        disabled: '',
-        readOnly: '',
-        normal: '',
       },
     },
     compoundVariants: [
@@ -92,53 +103,36 @@ const booleanIndicatorVariants = compose(
         positive: false,
         class: 'bg-destructive border-destructive text-destructive-contrast',
       },
-      {
-        selected: false,
-        state: 'normal',
-        class: 'bg-input',
-      },
-      {
-        selected: false,
-        state: 'disabled',
-        class: 'bg-input-contrast/5',
-      },
-      {
-        selected: false,
-        state: 'readOnly',
-        class: 'bg-input-contrast/10',
-      },
     ],
     defaultVariants: {
       selected: false,
       positive: true,
-      state: 'normal',
     },
   }),
 );
 
+const selectionSpring = {
+  type: 'spring' as const,
+  duration: 0.3,
+  bounce: 0.15,
+};
+
 type BooleanFieldProps = CreateFormFieldProps<
   boolean,
-  'div',
-  Omit<
-    RadioGroupProps,
-    'onChange' | 'value' | 'defaultValue' | 'onValueChange'
-  > & {
+  'fieldset',
+  {
     noReset?: boolean;
     label?: string;
     options?: BooleanOption[];
   }
 >;
 
-type ButtonState = 'disabled' | 'readOnly' | 'normal';
-
 function BooleanIndicator({
   isSelected,
   isPositive,
-  state = 'normal',
 }: {
   isSelected: boolean;
   isPositive: boolean;
-  state?: ButtonState;
 }) {
   const pathLength = useMotionValue(isSelected ? 1 : 0);
   const strokeLinecap = useTransform(() =>
@@ -146,11 +140,11 @@ function BooleanIndicator({
   );
 
   return (
-    <div
+    <span
+      aria-hidden
       className={booleanIndicatorVariants({
         selected: isSelected,
         positive: isPositive,
-        state,
       })}
     >
       <svg
@@ -210,12 +204,13 @@ function BooleanIndicator({
           </>
         )}
       </svg>
-    </div>
+    </span>
   );
 }
 
 export default function BooleanField(props: BooleanFieldProps) {
   const {
+    id,
     className,
     value,
     onChange,
@@ -230,91 +225,124 @@ export default function BooleanField(props: BooleanFieldProps) {
     ...rest
   } = props;
 
-  const isInvalid = !!rest['aria-invalid'];
+  const optionRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const stringValue =
-    value === null || value === undefined ? '' : String(value);
+  const handleSelect = useCallback(
+    (optionValue: boolean) => {
+      if (readOnly || !onChange) return;
+      onChange(optionValue);
+    },
+    [onChange, readOnly],
+  );
 
-  const handleValueChange = (newValue: unknown) => {
-    if (readOnly) return;
-    onChange?.(newValue === 'true');
-  };
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent, index: number) => {
+      const enabledIndices = options
+        .map((_opt, i) => i)
+        .filter(() => !disabled);
 
-  const getButtonState = (): ButtonState => {
-    if (disabled) return 'disabled';
-    if (readOnly) return 'readOnly';
-    return 'normal';
-  };
+      const currentEnabledIndex = enabledIndices.indexOf(index);
+      if (currentEnabledIndex === -1) return;
 
-  const buttonState = getButtonState();
+      let nextIndex: number | undefined;
+
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        const next = currentEnabledIndex + 1;
+        nextIndex = enabledIndices[next >= enabledIndices.length ? 0 : next];
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const prev = currentEnabledIndex - 1;
+        nextIndex = enabledIndices[prev < 0 ? enabledIndices.length - 1 : prev];
+      }
+
+      if (nextIndex !== undefined) {
+        optionRefs.current[nextIndex]?.focus();
+        const option = options[nextIndex];
+        if (option) {
+          handleSelect(option.value);
+        }
+      }
+    },
+    [options, disabled, handleSelect],
+  );
+
+  const groupState = getInputState(props);
 
   return (
-    <fieldset
-      className={cx(
-        'flex w-full flex-col items-start gap-2 border-0 p-0',
-        className,
-      )}
-    >
-      {label && <legend className="sr-only">{label}</legend>}
-      <RadioGroup
+    <div className={cx('flex w-full flex-col gap-2', className)}>
+      <fieldset
+        id={id}
         {...rest}
-        value={stringValue}
-        onValueChange={handleValueChange}
+        role="radiogroup"
+        className="flex w-full items-stretch gap-2 border-0 p-0 *:min-w-0 *:flex-1"
         disabled={disabled}
-        readOnly={readOnly}
-        aria-invalid={isInvalid || undefined}
-        className={cx(
-          'grid w-full auto-cols-fr grid-flow-col gap-4 rounded-sm p-2',
-          'transition-colors duration-200',
-          isInvalid && 'border-destructive border-2',
-        )}
+        aria-label={label ?? rest['aria-label']}
+        aria-invalid={rest['aria-invalid'] ?? undefined}
       >
-        {options.map((option) => {
+        {label && <legend className="sr-only">{label}</legend>}
+        {options.map((option, index) => {
           const isSelected = value === option.value;
           const isPositive = option.value === true;
-          const optionValue = String(option.value);
+          const optionState = disabled
+            ? 'disabled'
+            : readOnly
+              ? 'readOnly'
+              : groupState === 'invalid'
+                ? 'invalid'
+                : 'normal';
 
           return (
-            <Radio.Root
-              key={optionValue}
-              value={optionValue}
+            <motion.button
+              key={String(option.value)}
+              ref={(el) => {
+                optionRefs.current[index] = el;
+              }}
+              type="button"
+              role="radio"
+              aria-checked={isSelected}
+              tabIndex={
+                isSelected || (value === undefined && index === 0) ? 0 : -1
+              }
+              className={optionCardVariants({
+                selected: isSelected,
+                positive: isPositive,
+                state: optionState,
+                size: 'md',
+              })}
+              onClick={() => {
+                if (!disabled && !readOnly) {
+                  handleSelect(option.value);
+                }
+              }}
+              onKeyDown={(e) => handleKeyDown(e, index)}
               disabled={disabled}
-              nativeButton
-              render={(renderProps, _state) => (
-                <button
-                  {...renderProps}
-                  type="button"
-                  className={buttonVariants({
-                    selected: isSelected,
-                    positive: isPositive,
-                    state: buttonState,
-                    className: 'shrink-0 gap-2 text-left', // override browser default button style
-                  })}
-                >
-                  <BooleanIndicator
-                    isSelected={isSelected}
-                    isPositive={isPositive}
-                    state={buttonState}
-                  />
-                  <div className={controlLabelVariants({ size: 'md' })}>
-                    <RenderMarkdown>{option.label}</RenderMarkdown>
-                  </div>
-                </button>
-              )}
-            />
+              whileTap={disabled || readOnly ? undefined : { scale: 0.98 }}
+              transition={selectionSpring}
+            >
+              <BooleanIndicator
+                isSelected={isSelected}
+                isPositive={isPositive}
+              />
+              <span
+                className={headingVariants({ level: 'label', margin: 'none' })}
+              >
+                <RenderMarkdown>{option.label}</RenderMarkdown>
+              </span>
+            </motion.button>
           );
         })}
-      </RadioGroup>
-      {!noReset && (
-        <Button
-          variant="link"
+      </fieldset>
+      {!noReset && value !== undefined && (
+        <button
+          type="button"
+          className="text-sm text-current/60 underline hover:text-current/80"
           onClick={() => onChange?.(undefined)}
           disabled={disabled ?? readOnly}
-          size="sm"
         >
           Reset answer
-        </Button>
+        </button>
       )}
-    </fieldset>
+    </div>
   );
 }
