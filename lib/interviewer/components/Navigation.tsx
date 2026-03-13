@@ -143,6 +143,7 @@ const Navigation = ({
         icon={<BackIcon />}
         aria-label="Previous Step"
         buttonRef={backButtonRef}
+        data-testid="previous-button"
       />
       {orientation === 'vertical' && <PassphrasePrompter />}
       <motion.div
@@ -161,6 +162,7 @@ const Navigation = ({
         icon={<ForwardIcon className="size-8" strokeWidth="3px" />}
         aria-label="Next Step"
         buttonRef={forwardButtonRef}
+        data-testid="next-button"
       />
     </MotionSurface>
   );

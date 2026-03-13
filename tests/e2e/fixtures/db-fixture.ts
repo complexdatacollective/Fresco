@@ -7,6 +7,10 @@ import pg from 'pg';
 import { type Prisma } from '~/lib/db/generated/client';
 import { log } from '../helpers/logger.js';
 import { createTestPrisma, type TestPrismaClient } from '../helpers/prisma.js';
+import {
+  ProtocolInstaller,
+  type InstalledProtocol,
+} from '../helpers/protocol-installer.js';
 
 type TableSnapshot = {
   table: string;
@@ -273,4 +277,96 @@ export class DatabaseIsolation {
   async getInterviewCount(): Promise<number> {
     return this.prisma.interview.count();
   }
+
+  // ============================================================
+  // Protocol Installation Helpers (for real .netcanvas protocols)
+  // ============================================================
+
+  private protocolInstaller: ProtocolInstaller | null = null;
+
+  /**
+   * Get or create the protocol installer instance.
+   * Uses the standalone build's public directory for asset extraction.
+   */
+  private getProtocolInstaller(): ProtocolInstaller {
+    if (!this.protocolInstaller) {
+      const projectRoot = path.resolve(import.meta.dirname, '../../../');
+      const publicDir = path.join(projectRoot, '.next/standalone/public');
+      this.protocolInstaller = new ProtocolInstaller(this.databaseUrl, publicDir);
+    }
+    return this.protocolInstaller;
+  }
+
+  /**
+   * Install a protocol from a .netcanvas file for e2e testing.
+   *
+   * This extracts the protocol.json and assets from the ZIP file,
+   * copies assets to the public directory, and inserts the protocol
+   * into the database.
+   *
+   * @param protocolPath - Absolute path to the .netcanvas file
+   * @returns Information about the installed protocol
+   */
+  async installProtocolFromFile(protocolPath: string): Promise<InstalledProtocol> {
+    const installer = this.getProtocolInstaller();
+    return installer.install(protocolPath);
+  }
+
+  /**
+   * Create an interview for an installed protocol.
+   *
+   * @param protocolId - The protocol ID to create an interview for
+   * @returns The interview ID
+   */
+  async createInterviewForProtocol(protocolId: string): Promise<string> {
+    const installer = this.getProtocolInstaller();
+    return installer.createInterview(protocolId);
+  }
+
+  /**
+   * Inject network state directly into an interview.
+   * Used to set up starting state for stage group tests.
+   *
+   * @param interviewId - The interview to update
+   * @param network - The network state to inject
+   * @param currentStep - The step to set
+   */
+  async injectNetworkState(
+    interviewId: string,
+    network: { nodes: unknown[]; edges: unknown[]; ego: unknown },
+    currentStep: number,
+  ): Promise<void> {
+    const installer = this.getProtocolInstaller();
+    return installer.injectNetworkState(interviewId, network, currentStep);
+  }
+
+  /**
+   * Uninstall a specific protocol and clean up its assets.
+   *
+   * @param protocolId - The protocol ID to uninstall
+   */
+  async uninstallProtocol(protocolId: string): Promise<void> {
+    const installer = this.getProtocolInstaller();
+    return installer.uninstall(protocolId);
+  }
+
+  /**
+   * Clean up all protocols installed via installProtocolFromFile().
+   * Call this in afterAll() to clean up test protocols.
+   */
+  async cleanupInstalledProtocols(): Promise<void> {
+    if (this.protocolInstaller) {
+      await this.protocolInstaller.cleanup();
+    }
+  }
+
+  /**
+   * Get the list of protocol IDs installed via installProtocolFromFile().
+   */
+  getInstalledProtocolIds(): string[] {
+    return this.protocolInstaller?.getInstalledProtocols() ?? [];
+  }
 }
+
+// Re-export InstalledProtocol type for convenience
+export type { InstalledProtocol };
