@@ -66,7 +66,16 @@ function doesTargetAccept(target: DropTarget, dragItem: DragItem): boolean {
     return false;
   }
 
-  return target.accepts.includes(dragType);
+  if (!target.accepts.includes(dragType)) {
+    return false;
+  }
+
+  // Apply custom filter if provided
+  if (target.acceptsFilter && !target.acceptsFilter(dragItem.metadata)) {
+    return false;
+  }
+
+  return true;
 }
 
 // Helper to update canDrop for all targets

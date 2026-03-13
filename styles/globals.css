@@ -555,7 +555,7 @@ This custom variant lets you target only elements with the readonly attribute.
 
 /* Replacement for interface centering mixin */
 @utility interface {
-  @apply phone-landscape:p-4 relative flex w-full shrink grow basis-auto items-center justify-center gap-8 p-2;
+  @apply phone-landscape:p-4 relative flex w-full shrink grow basis-auto items-center justify-center gap-4 p-2;
 }
 
 /* Required for base-ui components that use portals: https://base-ui.com/react/overview/quick-start#portals */
@@ -624,11 +624,11 @@ This custom variant lets you target only elements with the readonly attribute.
 @variant focus-visible-within (&:has(:focus-visible));
 
 /*
-  Interview mode variant - uses the data-interview attribute on any ancestor element.
+  Interview mode variant - matches the theme selector :root:has([data-interview]).
   The interview layout's <main data-interview> activates this via CSS :has() selector.
 */
-@custom-variant interview (&:where([data-interview], [data-interview] *));
-@custom-variant dashboard (&:where([data-theme="dashboard"], [data-theme="dashboard"] *));
+@custom-variant interview (:root:has([data-interview]) &);
+@custom-variant dashboard (:root:not(:has([data-interview])) &);
 
 /* Storybook docs story canvas background */
 .sbdocs-preview {

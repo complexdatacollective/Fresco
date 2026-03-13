@@ -15,6 +15,7 @@ export type DropTarget = {
   width: number;
   height: number;
   accepts: string[];
+  acceptsFilter?: (metadata: DragMetadata | undefined) => boolean;
   announcedName?: string;
 };
 

@@ -87,14 +87,6 @@ function ThemeWrapper({
     });
   }, [selectedTheme]);
 
-  useLayoutEffect(() => {
-    if (selectedTheme === 'interview') {
-      document.documentElement.setAttribute('data-interview', '');
-    } else {
-      document.documentElement.removeAttribute('data-interview');
-    }
-  }, [selectedTheme]);
-
   return (
     <div
       {...(selectedTheme === 'interview' ? { 'data-interview': '' } : {})}

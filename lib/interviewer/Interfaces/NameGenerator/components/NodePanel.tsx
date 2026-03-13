@@ -1,8 +1,8 @@
 import { type Panel as PanelType } from '@codaco/protocol-validation';
-import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
-import { useEffect, useMemo } from 'react';
+import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { type DropCallback } from '~/lib/dnd/types';
+import { type DragMetadata, type DropCallback } from '~/lib/dnd/types';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import Panel from '~/lib/interviewer/components/Panel';
 import useExternalData from '~/lib/interviewer/hooks/useExternalData';
@@ -55,6 +55,33 @@ function NodePanel(props: NodePanelProps) {
     onUpdate(nodes.length, fullNodeIndex);
   }, [nodes.length, onUpdate, fullNodeIndex]);
 
+  const acceptsFilter = useCallback(
+    (metadata: DragMetadata | undefined) => {
+      if (!metadata) return false;
+
+      const node = metadata as NcNode & { itemType?: string };
+
+      // Only accept nodes from the main panel
+      if (node.itemType !== 'EXISTING_NODE') return false;
+
+      if (panelConfig.dataSource === 'existing') {
+        // Existing network panels accept nodes that were on multiple prompts
+        // (i.e. they existed before this prompt and were shown in this panel)
+        return (node.promptIDs?.length ?? 0) > 1;
+      }
+
+      // External data panels only accept nodes that originated from this
+      // specific data source (their ID exists in the full node index) AND
+      // were added on the current prompt only (promptIDs.length === 1).
+      // Nodes with multiple promptIDs came via the existing network panel.
+      return (
+        (node.promptIDs?.length ?? 0) === 1 &&
+        fullNodeIndex.has(node[entityPrimaryKeyProperty])
+      );
+    },
+    [panelConfig.dataSource, fullNodeIndex],
+  );
+
   return (
     <Panel
       title={panelConfig.title}
@@ -64,9 +91,10 @@ function NodePanel(props: NodePanelProps) {
       <NodeList
         items={nodes}
         id={id}
-        itemType="NEW_NODE" // TODO - this should changed based on panel's data source
+        itemType="NEW_NODE"
         onDrop={onDrop}
         accepts={accepts}
+        acceptsFilter={acceptsFilter}
         nodeSize="sm"
         animationKey={animationKey}
         announcedName={panelConfig.title}

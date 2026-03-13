@@ -28,13 +28,13 @@ type PipsProps = {
 const Pips = ({ small = false, count = 0, currentIndex = 0 }: PipsProps) => {
   const pipsClasses = cx(
     'flex w-full shrink-0 grow-0 items-center justify-center gap-2',
-    small ? 'basis-5' : 'basis-9',
+    small ? 'basis-4' : 'basis-6',
   );
 
   const getPipClasses = (isActive: boolean) =>
     cx(
       'rounded-full border-current bg-transparent transition-colors duration-200',
-      small ? 'size-3 border' : 'size-5 border-2',
+      small ? 'size-2 border' : 'size-3 border-2',
       isActive && 'bg-current/30',
     );
 

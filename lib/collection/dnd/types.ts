@@ -152,6 +152,8 @@ export type DragAndDropOptions<_T = unknown> = {
   onDrop?: (e: DropEvent) => void;
   /** Types accepted for collection-level drop (defaults to types from getItems) */
   acceptTypes?: string[];
+  /** Custom filter for fine-grained acceptance based on drag item metadata */
+  acceptsFilter?: (metadata: Record<string, unknown> | undefined) => boolean;
   /** Which drop positions are allowed for reordering (default: ['before', 'after']) */
   allowedDropPositions?: DropPosition[];
   /** Additional data to include with drag operations */

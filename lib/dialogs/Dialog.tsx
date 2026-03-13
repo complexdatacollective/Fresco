@@ -119,6 +119,7 @@ const DialogContent = ({ children }: { children: React.ReactNode }) => {
     <ScrollArea
       viewportClassName={surfaceSpacingVariants({
         section: 'content',
+        className: 'py-2!',
       })}
     >
       {children}

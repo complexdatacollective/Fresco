@@ -42,6 +42,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
     onReorder,
     onDrop,
     acceptTypes,
+    acceptsFilter,
     allowedDropPositions = ['before', 'after'],
     getItemMetadata,
     announcedName,
@@ -105,6 +106,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
         const { dropProps, isOver, willAccept, isDragging } = useDropTarget({
           id: `${collectionId}-container`,
           accepts,
+          acceptsFilter,
           announcedName,
           onDrop: (metadata) => {
             if (!metadata || !onDropRef.current) return;
@@ -298,6 +300,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
       dropTarget,
       allowedDropPositions,
       acceptTypes,
+      acceptsFilter,
       announcedName,
     ],
   );

@@ -92,13 +92,18 @@ function NodePanels(props: NodePanelsProps) {
 
       // Rules for when panel contains existing nodes
       if (panel.dataSource === 'existing') {
-        // Don't allow nodes into existing panel if this is their last prompt ID
-        return meta.promptIDs?.length !== 1;
+        // Only accept nodes that were on multiple prompts (existed before this prompt)
+        return (meta.promptIDs?.length ?? 0) > 1;
       }
 
-      // Rules for when panel contains external data
-      // We need the original list though
-      return !!panelIndex?.has(meta[entityPrimaryKeyProperty]);
+      // Rules for when panel contains external data:
+      // Only accept nodes that originated from this data source AND were added
+      // on the current prompt only. Nodes with multiple promptIDs came via the
+      // existing network panel, not this external data panel.
+      return (
+        (meta.promptIDs?.length ?? 0) === 1 &&
+        !!panelIndex?.has(meta[entityPrimaryKeyProperty])
+      );
     },
     [meta, panelIndexes, panels],
   );
@@ -146,7 +151,7 @@ function NodePanels(props: NodePanelsProps) {
         key={index}
         panelConfig={panel}
         disableDragging={disableAddNew}
-        accepts={['EXISTING_NODE']} // TODO: needs to adapt based on panel source
+        accepts={['EXISTING_NODE']}
         panelNumber={index} // Used to calculate highlight
         minimize={!isPanelOpen(index)}
         onDrop={createDropHandler(panel.dataSource)}

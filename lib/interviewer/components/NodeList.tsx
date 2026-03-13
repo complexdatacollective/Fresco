@@ -10,7 +10,7 @@ import { Collection } from '~/lib/collection/components/Collection';
 import { useDragAndDrop } from '~/lib/collection/dnd/useDragAndDrop';
 import { InlineGridLayout } from '~/lib/collection/layout/InlineGridLayout';
 import { type CollectionProps, type ItemProps } from '~/lib/collection/types';
-import { type DropCallback } from '~/lib/dnd/types';
+import { type DragMetadata, type DropCallback } from '~/lib/dnd/types';
 import { makeGetCodebookVariablesForNodeType } from '~/lib/interviewer/selectors/protocol';
 import { getNodeLabelAttribute } from '~/lib/interviewer/utils/getNodeLabelAttribute';
 import { cx } from '~/utils/cva';
@@ -29,6 +29,7 @@ type NodeListProps = Omit<CollectionProps<NcNode>, InternalCollectionProps> & {
   items?: NcNode[];
   itemType?: string;
   accepts?: string[];
+  acceptsFilter?: (metadata: DragMetadata | undefined) => boolean;
   onDrop?: DropCallback;
   onItemClick?: (node: NcNode) => void;
   nodeSize?: 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
@@ -42,6 +43,7 @@ const NodeList = memo(
     // NodeList-specific props
     itemType = 'NODE',
     accepts,
+    acceptsFilter,
     onDrop,
     onItemClick,
     nodeSize = 'md',
@@ -135,6 +137,7 @@ const NodeList = memo(
       announcedName,
       getItems: (keys) => [{ type: itemType, keys }],
       acceptTypes: accepts,
+      acceptsFilter,
       onDrop: onDrop
         ? (e) => {
             // Map Collection's DropEvent to the old metadata format

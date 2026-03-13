@@ -21,6 +21,7 @@ type FocusBehaviorOnDrop = 'follow-item' | 'stay-in-source' | 'none';
 type DropTargetOptions = {
   id: string; // Required stable ID for the drop target
   accepts: string[];
+  acceptsFilter?: (metadata: DragMetadata | undefined) => boolean;
   announcedName: string; // Human-readable name for screen reader announcements
   onDrop?: DropCallback;
   onDragEnter?: (metadata?: DragMetadata) => void;
@@ -39,6 +40,7 @@ export function useDropTarget(
   const {
     id,
     accepts,
+    acceptsFilter,
     announcedName,
     onDrop,
     onDragEnter,
@@ -78,6 +80,17 @@ export function useDropTarget(
   // Memoize the accepts array to ensure stable reference
   const acceptsRef = useRef(accepts);
   acceptsRef.current = accepts;
+
+  const acceptsFilterRef = useRef(acceptsFilter);
+  acceptsFilterRef.current = acceptsFilter;
+
+  // Stable wrapper that delegates to the ref so the store always calls the latest filter
+  const stableAcceptsFilter = useMemo(() => {
+    if (!acceptsFilter) return undefined;
+    return (metadata: DragMetadata | undefined) =>
+      acceptsFilterRef.current?.(metadata) ?? true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!acceptsFilter]);
 
   // Immediate bounds update (no throttling) for drag operations
   const updateBoundsImmediate = useCallback(() => {
@@ -159,6 +172,7 @@ export function useDropTarget(
       id: dropIdRef.current,
       ...bounds,
       accepts: acceptsRef.current,
+      acceptsFilter: stableAcceptsFilter,
       announcedName,
     });
 
@@ -246,6 +260,7 @@ export function useDropTarget(
     registerDropTarget,
     updateBounds,
     announcedName,
+    stableAcceptsFilter,
   ]);
 
   // Handle drag enter/leave callbacks
@@ -367,6 +382,7 @@ export function useDropTarget(
         id: dropIdRef.current,
         ...bounds,
         accepts: acceptsRef.current,
+        acceptsFilter: stableAcceptsFilter,
         announcedName,
       });
     }
@@ -376,6 +392,7 @@ export function useDropTarget(
     unregisterDropTarget,
     dropIdRef,
     announcedName,
+    stableAcceptsFilter,
   ]);
 
   // Memoize the return object to prevent unnecessary re-renders
