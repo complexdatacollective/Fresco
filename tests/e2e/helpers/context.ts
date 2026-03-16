@@ -30,7 +30,7 @@ export async function saveContext(
   await fs.writeFile(CONTEXT_FILE, JSON.stringify(context, null, 2));
 }
 
-export async function loadContext(): Promise<StoredContext | null> {
+async function loadContext(): Promise<StoredContext | null> {
   try {
     const data = await fs.readFile(CONTEXT_FILE, 'utf-8');
     return JSON.parse(data) as StoredContext;
