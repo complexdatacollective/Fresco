@@ -33,15 +33,31 @@ A `ProtocolFixture` class that absorbs all logic currently in `helpers/protocol-
 
 ### Fixture wiring in `interview-test.ts`
 
+The `protocol` fixture is worker-scoped, so it must be declared in the second type parameter of `extend<TestFixtures, WorkerFixtures>`:
+
 ```typescript
-protocol: [async ({ database }, use) => {
-  const protocol = new ProtocolFixture(database.getDatabaseUrl());
-  await use(protocol);
-  await protocol.cleanup();
-}, { scope: 'worker' }],
+type InterviewTestFixtures = {
+  interview: InterviewFixture;
+  stage: StageFixture;
+};
+
+type InterviewWorkerFixtures = {
+  protocol: ProtocolFixture;
+};
+
+export const test = baseTest.extend<InterviewTestFixtures, InterviewWorkerFixtures>({
+  protocol: [async ({ database }, use) => {
+    const protocol = new ProtocolFixture(database.getDatabaseUrl());
+    await use(protocol);
+    await protocol.cleanup();
+  }, { scope: 'worker' }],
+
+  interview: async ({ page }, use) => { /* ... */ },
+  stage: async ({ page }, use) => { /* ... */ },
+});
 ```
 
-Worker-scoped, depends on `database` fixture. Cleanup is automatic via Playwright fixture teardown — tests never need manual `afterAll` for protocol cleanup.
+Cleanup is automatic via Playwright fixture teardown — tests never need manual `afterAll` for protocol cleanup.
 
 ### Changes to existing files
 
@@ -52,7 +68,9 @@ Worker-scoped, depends on `database` fixture. Cleanup is automatic via Playwrigh
 
 **`helpers/protocol-installer.ts`** — Delete entirely.
 
-**`global-teardown.ts`** — Remove the `cleanupExtractedAssets` import and call. Cleanup is handled by the fixture teardown per-suite. The Docker environment does not require global asset cleanup.
+**`global-teardown.ts`** — Remove the `cleanupExtractedAssets` import and call. Cleanup is handled by the fixture teardown per-suite. If a worker crashes before fixture teardown runs, stale assets may remain in `.next/standalone/public/e2e-assets/` — this is acceptable since they are overwritten on the next run and the directory is inside `.next/` which is gitignored.
+
+**`fixtures/interview-test.ts`** — Update the JSDoc usage example in the file header to reference `protocol.install()` and `protocol.createInterview()` instead of the old `database` methods.
 
 **`specs/interview/silos/interview.spec.ts`** — Update to use `protocol` fixture:
 - Import `InstalledProtocol` from `fixtures/protocol-fixture.js` instead of `fixtures/db-fixture.js`
