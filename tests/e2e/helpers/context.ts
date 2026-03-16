@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { getContextMappings } from '../config/test-config.js';
 
 const CONTEXT_FILE = path.resolve(
   import.meta.dirname,
@@ -44,4 +45,37 @@ export async function clearContext(): Promise<void> {
   } catch {
     // File may not exist
   }
+}
+
+let contextCache: Record<string, SuiteContext> | null = null;
+
+export async function getContext(suiteId: string): Promise<SuiteContext> {
+  if (!contextCache) {
+    const stored = await loadContext();
+    if (!stored) {
+      throw new Error(
+        'Test context not found. Did global-setup.ts run successfully?',
+      );
+    }
+    contextCache = stored.suites;
+  }
+
+  const suite = contextCache[suiteId];
+  if (!suite) {
+    throw new Error(
+      `Suite "${suiteId}" not found in test context. Available: ${Object.keys(contextCache).join(', ')}`,
+    );
+  }
+  return suite;
+}
+
+export function getSuiteId(projectName: string): string {
+  const mappings = getContextMappings();
+  const suiteId = mappings[projectName];
+  if (!suiteId) {
+    throw new Error(
+      `No context mapping for project "${projectName}". Available: ${Object.keys(mappings).join(', ')}`,
+    );
+  }
+  return suiteId;
 }
