@@ -184,7 +184,7 @@
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "prisma": "^7.4.2",
-    "sass": "^1.97.3",
+    "sass": "^1.98.0",
     "sass-embedded": "^1.92.1",
     "storybook": "^10.2.13",
     "tailwindcss": "4.2.1",
