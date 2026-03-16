@@ -72,14 +72,14 @@ tests/e2e/
 │   ├── logger.ts                # Structured logging
 │   ├── context.ts               # Worker context sharing (JSON)
 │   ├── prisma.ts                # Test Prisma client factory
+│   ├── expectations.ts          # URL assertion helpers
 │   ├── dialog.ts                # Dialog interaction helpers
 │   ├── table.ts                 # Data table helpers
 │   ├── row-actions.ts           # Row action dropdown helpers
 │   ├── preview-protocol.ts      # Test protocol factory for preview tests
 │   └── form.ts                  # Form field helpers (data-field-name)
 ├── fixtures/
-│   ├── test.ts                  # Extended test with database + app fixtures (browser tests)
-│   ├── api-test.ts              # Extended test for API-only tests
+│   ├── test.ts                  # Extended test with database + app fixtures
 │   ├── app-fixture.ts           # App-level state fixture (settings, API tokens)
 │   ├── interview-test.ts        # Interview fixtures (interview, stage, protocol)
 │   ├── interview-fixture.ts     # Interview page object model
@@ -323,12 +323,12 @@ Since all snapshots go into a shared directory, names must be unique across all 
 
 ## Helpers API
 
-### URL assertions (`fixtures/test.ts`)
+### URL assertions (`helpers/expectations.ts`)
 
 **Always use `expectURL()` instead of `expect(page).toHaveURL()`** for URL assertions. This helper provides a consistent timeout (15s) that works reliably in CI environments where navigation may be slower.
 
 ```ts
-import { expectURL } from '../../fixtures/test.js';
+import { expectURL } from '../../helpers/expectations.js';
 
 // Use this:
 await expectURL(page, /\/dashboard\/protocols/);
@@ -391,7 +391,7 @@ Cleanup is automatic — no `afterAll` needed.
 ## Adding New Tests
 
 1. Create spec file in appropriate `specs/` subdirectory
-2. Import from `../../fixtures/test.js` (browser tests) or `../../fixtures/api-test.js` (API tests)
+2. Import from `../../fixtures/test.js`
 3. Dashboard tests: just write tests, no database fixture needed
 4. Mutation tests: call `database.restoreSnapshot()` at the start of each test
 5. Use `test.describe.configure({ mode: 'serial' })` for tests that must run in order
