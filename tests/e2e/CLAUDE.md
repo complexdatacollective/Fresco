@@ -81,8 +81,11 @@ tests/e2e/
 │   ├── db-fixture.ts            # DatabaseIsolation class
 │   ├── test.ts                  # Extended test with db fixture (browser tests)
 │   ├── api-test.ts              # Extended test for API-only tests
-│   ├── preview-protocol.ts      # Test protocol factory for preview tests
-│   └── interview-page.ts        # Interview page object model
+│   ├── interview-test.ts        # Interview fixtures (interview, stage, protocol)
+│   ├── interview-fixture.ts     # Interview page object model
+│   ├── stage-fixture.ts         # Stage interaction fixture
+│   ├── protocol-fixture.ts      # Protocol installation fixture
+│   └── preview-protocol.ts      # Test protocol factory for preview tests
 ├── data/
 │   └── (todo: test protocol files)
 └── specs/
@@ -375,6 +378,17 @@ The `database` fixture provides direct database access for mutation tests. Dashb
 - `database.createPreviewProtocolFromJson(protocolData, options?)` — Create a preview protocol from full JSON
 - `database.createApiToken(description)` — Create an API token for authenticated requests
 - `database.getInterviewCount()` — Count Interview records (verify preview doesn't persist data)
+
+### Protocol fixture methods
+
+The `protocol` fixture is available in interview tests (import from `fixtures/interview-test.js`). It manages real `.netcanvas` protocol file installation with automatic cleanup via Playwright fixture teardown.
+
+- `protocol.install(protocolPath)` — Install a `.netcanvas` file (extracts assets, inserts into DB). Returns `InstalledProtocol`.
+- `protocol.createInterview(protocolId, participantIdentifier?)` — Create a Participant + Interview for the protocol. Returns interview ID.
+- `protocol.injectNetworkState(interviewId, network, currentStep)` — Set interview starting state for stage tests.
+- `protocol.uninstall(protocolId)` — Remove a specific protocol and its assets.
+
+Cleanup is automatic — no `afterAll` needed.
 
 ## Adding New Tests
 
