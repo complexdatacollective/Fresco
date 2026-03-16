@@ -4,6 +4,7 @@ import {
   createTestAssetMeta,
   INVALID_PROTOCOL,
 } from '../../helpers/preview-protocol.js';
+import { AppSetting } from '~/lib/db/generated/enums';
 
 /**
  * API-only tests for preview mode.
@@ -43,9 +44,11 @@ test.describe('Preview Mode API', () => {
     test('returns 401 when auth required and no credentials', async ({
       request,
       database,
+      app,
     }) => {
       await database.restoreSnapshot();
-      await database.enablePreviewMode(true); // requireAuth = true
+      await app.setSetting(AppSetting.previewMode, 'true');
+      await app.setSetting(AppSetting.previewModeRequireAuth, 'true');
 
       const response = await request.post('/api/v1/preview', {
         data: {
@@ -61,10 +64,12 @@ test.describe('Preview Mode API', () => {
     test('succeeds with valid API token when auth required', async ({
       request,
       database,
+      app,
     }) => {
       await database.restoreSnapshot();
-      await database.enablePreviewMode(true); // requireAuth = true
-      const token = await database.createApiToken('e2e-test-token');
+      await app.setSetting(AppSetting.previewMode, 'true');
+      await app.setSetting(AppSetting.previewModeRequireAuth, 'true');
+      const token = await app.createApiToken('e2e-test-token');
 
       const response = await request.post('/api/v1/preview', {
         headers: { Authorization: `Bearer ${token}` },
@@ -83,9 +88,11 @@ test.describe('Preview Mode API', () => {
     test('succeeds without auth when auth not required', async ({
       request,
       database,
+      app,
     }) => {
       await database.restoreSnapshot();
-      await database.enablePreviewMode(false); // No auth required
+      await app.setSetting(AppSetting.previewMode, 'true');
+      await app.setSetting(AppSetting.previewModeRequireAuth, 'false');
 
       const response = await request.post('/api/v1/preview', {
         data: {
@@ -103,9 +110,11 @@ test.describe('Preview Mode API', () => {
     test('valid protocol without assets returns ready status', async ({
       request,
       database,
+      app,
     }) => {
       await database.restoreSnapshot();
-      await database.enablePreviewMode(false);
+      await app.setSetting(AppSetting.previewMode, 'true');
+      await app.setSetting(AppSetting.previewModeRequireAuth, 'false');
 
       const response = await request.post('/api/v1/preview', {
         data: {
@@ -127,9 +136,11 @@ test.describe('Preview Mode API', () => {
     test('duplicate protocol returns existing preview URL', async ({
       request,
       database,
+      app,
     }) => {
       await database.restoreSnapshot();
-      await database.enablePreviewMode(false);
+      await app.setSetting(AppSetting.previewMode, 'true');
+      await app.setSetting(AppSetting.previewModeRequireAuth, 'false');
       const protocol = createTestProtocol({ name: 'Duplicate Test' });
 
       // First request
@@ -154,9 +165,11 @@ test.describe('Preview Mode API', () => {
     test('invalid protocol schema returns 400', async ({
       request,
       database,
+      app,
     }) => {
       await database.restoreSnapshot();
-      await database.enablePreviewMode(false);
+      await app.setSetting(AppSetting.previewMode, 'true');
+      await app.setSetting(AppSetting.previewModeRequireAuth, 'false');
 
       const response = await request.post('/api/v1/preview', {
         data: {
@@ -174,9 +187,11 @@ test.describe('Preview Mode API', () => {
     test('protocol with assets returns 500 when UploadThing not configured', async ({
       request,
       database,
+      app,
     }) => {
       await database.restoreSnapshot();
-      await database.enablePreviewMode(false);
+      await app.setSetting(AppSetting.previewMode, 'true');
+      await app.setSetting(AppSetting.previewModeRequireAuth, 'false');
 
       const response = await request.post('/api/v1/preview', {
         data: {
@@ -198,9 +213,11 @@ test.describe('Preview Mode API', () => {
     test('complete-preview returns 404 for non-existent protocol', async ({
       request,
       database,
+      app,
     }) => {
       await database.restoreSnapshot();
-      await database.enablePreviewMode(false);
+      await app.setSetting(AppSetting.previewMode, 'true');
+      await app.setSetting(AppSetting.previewModeRequireAuth, 'false');
 
       const response = await request.post('/api/v1/preview', {
         data: {
@@ -217,9 +234,11 @@ test.describe('Preview Mode API', () => {
     test('abort-preview returns 404 for non-existent protocol', async ({
       request,
       database,
+      app,
     }) => {
       await database.restoreSnapshot();
-      await database.enablePreviewMode(false);
+      await app.setSetting(AppSetting.previewMode, 'true');
+      await app.setSetting(AppSetting.previewModeRequireAuth, 'false');
 
       const response = await request.post('/api/v1/preview', {
         data: {
