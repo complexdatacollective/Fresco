@@ -55,7 +55,7 @@
     "@codaco/shared-consts": "5.0.0",
     "@mapbox/search-js-react": "^1.5.1",
     "@paralleldrive/cuid2": "^3.3.0",
-    "@posthog/nextjs-config": "^1.8.18",
+    "@posthog/nextjs-config": "^1.8.21",
     "@prisma/adapter-neon": "^7.4.2",
     "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^7.4.2",
