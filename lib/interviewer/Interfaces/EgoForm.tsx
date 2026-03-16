@@ -1,7 +1,13 @@
 import { type VariableValue } from '@codaco/shared-consts';
 import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useSelector } from 'react-redux';
 import Surface, { MotionSurface } from '~/components/layout/Surface';
 import {
@@ -16,7 +22,8 @@ import { useFormMeta } from '~/lib/form/hooks/useFormState';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
-import { type FieldValue } from '~/lib/form/store/types';
+import { type FieldValue, type FlattenedErrors } from '~/lib/form/store/types';
+import { focusFirstError } from '~/lib/form/utils/focusFirstError';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import {
   type BeforeNextFunction,
@@ -49,6 +56,11 @@ const EgoFormInner = (props: EgoFormProps) => {
   const { isDirty: isFormDirty, isValid: isFormValid } = useFormMeta();
   const submitForm = useFormStore((s) => s.submitForm);
   const validateForm = useFormStore((s) => s.validateForm);
+  const formErrors = useFormStore((s) => s.errors);
+  const formErrorsRef = useRef<FlattenedErrors>(formErrors);
+  useLayoutEffect(() => {
+    formErrorsRef.current = formErrors;
+  }, [formErrors]);
 
   const [isOverflowing, setIsOverflowing] = useState(false);
   const { updateReady: setIsReadyForNext } = useReadyForNextStage();
@@ -88,7 +100,12 @@ const EgoFormInner = (props: EgoFormProps) => {
       return true;
     }
 
-    // If the form is invalid, block navigation.
+    // Scroll to the first validation error after a tick so the store
+    // update has propagated to React and error elements are rendered.
+    setTimeout(() => {
+      focusFirstError(formErrorsRef.current);
+    }, 0);
+
     return false;
   };
 

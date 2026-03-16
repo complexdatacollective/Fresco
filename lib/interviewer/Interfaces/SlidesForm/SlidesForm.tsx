@@ -1,7 +1,13 @@
 import { debounce } from 'es-toolkit';
 import { AnimatePresence, motion } from 'motion/react';
 import type { ComponentType, ReactElement } from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { flushSync } from 'react-dom';
 import Surface from '~/components/layout/Surface';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
@@ -11,6 +17,8 @@ import useDialog from '~/lib/dialogs/useDialog';
 import useFormState from '~/lib/form/hooks/useFormState';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
+import { type FlattenedErrors } from '~/lib/form/store/types';
+import { focusFirstError } from '~/lib/form/utils/focusFirstError';
 import {
   type BeforeNextFunction,
   type Direction,
@@ -60,6 +68,11 @@ function SlidesFormInner({
   const formState = useFormState();
   const { submitForm, isValid, isDirty } = formState;
   const validateForm = useFormStore((s) => s.validateForm);
+  const formErrors = useFormStore((s) => s.errors);
+  const formErrorsRef = useRef<FlattenedErrors>(formErrors);
+  useLayoutEffect(() => {
+    formErrorsRef.current = formErrors;
+  }, [formErrors]);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -141,6 +154,9 @@ function SlidesFormInner({
     const formIsValid = await validateForm();
 
     if (!formIsValid) {
+      setTimeout(() => {
+        focusFirstError(formErrorsRef.current);
+      }, 0);
       return false;
     }
 

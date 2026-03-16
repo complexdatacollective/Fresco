@@ -44,10 +44,29 @@ export const focusFirstError = (errors: FlattenedErrors | null) => {
     'input, textarea, select, [tabindex]:not([tabindex="-1"])',
   );
 
-  // Focus the element after a brief delay to ensure scrolling has started
+  if (!focusableElement) return;
+
+  // Focus after smooth scroll completes. Using preventScroll avoids the
+  // browser snap-scrolling the element into view and interrupting the
+  // smooth animation.
+  const focusTarget = () => focusableElement.focus({ preventScroll: true });
+
+  // Use scrollend event when supported, with a timeout fallback.
+  const cleanup = new AbortController();
+
+  scroller.addEventListener(
+    'scrollend',
+    () => {
+      cleanup.abort();
+      focusTarget();
+    },
+    { once: true, signal: cleanup.signal },
+  );
+
+  // Fallback: if scrollend doesn't fire (e.g. already at target), focus
+  // after a generous delay that covers typical smooth scroll durations.
   setTimeout(() => {
-    if (focusableElement) {
-      focusableElement.focus();
-    }
-  }, 100);
+    cleanup.abort();
+    focusTarget();
+  }, 800);
 };
