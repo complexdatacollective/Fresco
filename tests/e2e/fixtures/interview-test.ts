@@ -15,9 +15,9 @@
  * test.describe('My Interview Test', () => {
  *   let interviewId: string;
  *
- *   test.beforeAll(async ({ database }) => {
- *     const { protocolId } = await database.installProtocolFromFile(PROTOCOL_PATH);
- *     interviewId = await database.createInterviewForProtocol(protocolId);
+ *   test.beforeAll(async ({ database, protocol }) => {
+ *     const { protocolId } = await protocol.install(PROTOCOL_PATH);
+ *     interviewId = await protocol.createInterview(protocolId);
  *   });
  *
  *   test.beforeEach(({ interview }) => {
@@ -34,6 +34,7 @@
 
 import { test as baseTest, expect } from './test.js';
 import { InterviewFixture } from './interview-fixture.js';
+import { ProtocolFixture } from './protocol-fixture.js';
 import { StageFixture } from './stage-fixture.js';
 
 type InterviewTestFixtures = {
@@ -41,7 +42,25 @@ type InterviewTestFixtures = {
   stage: StageFixture;
 };
 
-export const test = baseTest.extend<InterviewTestFixtures>({
+type InterviewWorkerFixtures = {
+  protocol: ProtocolFixture;
+};
+
+export const test = baseTest.extend<
+  InterviewTestFixtures,
+  InterviewWorkerFixtures
+>({
+  protocol: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({ database }, use) => {
+      const protocol = new ProtocolFixture(database.getDatabaseUrl());
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      await use(protocol);
+      await protocol.cleanup();
+    },
+    { scope: 'worker' },
+  ],
+
   interview: async ({ page }, use) => {
     const interview = new InterviewFixture(page);
     // eslint-disable-next-line react-hooks/rules-of-hooks
