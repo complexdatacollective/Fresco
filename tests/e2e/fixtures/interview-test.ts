@@ -52,7 +52,7 @@ export const test = baseTest.extend<
 >({
   protocol: [
     async ({ database }, use) => {
-      const protocol = new ProtocolFixture(database.getPrisma());
+      const protocol = new ProtocolFixture(database.prisma);
 
       await use(protocol);
       await protocol.cleanup();
