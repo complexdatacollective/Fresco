@@ -9,7 +9,7 @@ import { AppSetting } from '~/lib/db/generated/enums';
 /**
  * Browser-based tests for preview mode.
  *
- * These tests run in the 'interview' environment which has:
+ * These tests run in the 'preview' environment which has:
  * - A configured app with seeded data
  * - No authentication storageState (preview doesn't require auth)
  *

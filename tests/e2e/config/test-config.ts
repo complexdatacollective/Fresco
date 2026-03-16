@@ -47,6 +47,11 @@ const ENVIRONMENTS: EnvironmentConfig[] = [
     testMatch: '**/interview/**/*.spec.ts',
     auth: false,
   },
+  {
+    id: 'preview',
+    testMatch: '**/preview/**/*.spec.ts',
+    auth: false,
+  },
 ];
 
 function envInstanceId(envId: string, browserName: string): string {

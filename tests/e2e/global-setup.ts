@@ -19,6 +19,7 @@ const SEED_FUNCTIONS: Record<string, (connectionUri: string) => Promise<void>> =
     dashboard: seedDashboardEnvironment,
     api: seedDashboardEnvironment, // Reuse dashboard seed (configured app with data, but no auth)
     interview: seedDashboardEnvironment, // Reuse dashboard seed (configured app with data, but no auth)
+    preview: seedDashboardEnvironment, // Reuse dashboard seed (configured app for protocol preview tests)
   };
 
 declare global {

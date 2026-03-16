@@ -13,7 +13,11 @@ import { type Prisma } from '~/lib/db/generated/client';
 import { log } from '../helpers/logger.js';
 import { type TestPrismaClient } from '../helpers/prisma.js';
 
-function createInitialNetwork() {
+/**
+ * Creates an initial empty network for a new interview.
+ * Exported for testing.
+ */
+export function createInitialNetwork() {
   return {
     ego: {
       _uid: randomUUID(),
@@ -22,6 +26,19 @@ function createInitialNetwork() {
     nodes: [],
     edges: [],
   };
+}
+
+/**
+ * Rewrites asset:// URLs to serve from the e2e-assets directory.
+ * Exported for testing.
+ */
+export function rewriteAssetUrls<T>(protocol: T, protocolId: string): T {
+  const json = JSON.stringify(protocol);
+  const rewritten = json.replace(
+    /asset:\/\/([^"]+)/g,
+    `/e2e-assets/${protocolId}/$1`,
+  );
+  return JSON.parse(rewritten) as T;
 }
 
 export type InstalledProtocol = {
@@ -74,7 +91,7 @@ export class ProtocolFixture {
 
     await this.extractAssets(zip, assetDir);
 
-    const rewrittenProtocol = this.rewriteAssetUrls(
+    const rewrittenProtocol = rewriteAssetUrls(
       protocolJson,
       protocolId,
     ) as CurrentProtocol;
@@ -123,18 +140,6 @@ export class ProtocolFixture {
       await fs.mkdir(path.dirname(destPath), { recursive: true });
       await fs.writeFile(destPath, content);
     }
-  }
-
-  private rewriteAssetUrls(
-    protocol: VersionedProtocol,
-    protocolId: string,
-  ): VersionedProtocol {
-    const json = JSON.stringify(protocol);
-    const rewritten = json.replace(
-      /asset:\/\/([^"]+)/g,
-      `/e2e-assets/${protocolId}/$1`,
-    );
-    return JSON.parse(rewritten) as VersionedProtocol;
   }
 
   private async insertProtocol(

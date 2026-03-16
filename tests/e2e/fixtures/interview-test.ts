@@ -33,13 +33,22 @@
  */
 
 import { test as baseTest, expect } from './test.js';
+import { type Locator } from '@playwright/test';
 import { InterviewFixture } from './interview-fixture.js';
 import { ProtocolFixture } from './protocol-fixture.js';
 import { StageFixture } from './stage-fixture.js';
 
+type CaptureInterviewOptions = {
+  mask?: Locator[];
+};
+
 type InterviewTestFixtures = {
   interview: InterviewFixture;
   stage: StageFixture;
+  captureInterview: (
+    name: string,
+    options?: CaptureInterviewOptions,
+  ) => Promise<void>;
 };
 
 type InterviewWorkerFixtures = {
@@ -60,8 +69,24 @@ export const test = baseTest.extend<
     { scope: 'worker' },
   ],
 
-  interview: async ({ page }, use) => {
+  captureInterview: async ({ page }, use, testInfo) => {
+    // eslint-disable-next-line no-process-env
+    if (!process.env.CI) {
+      testInfo.skip(true, 'Visual snapshots only run in Docker');
+    }
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    await use(async (name: string, options: CaptureInterviewOptions = {}) => {
+      await expect(page).toHaveScreenshot(`${name}.png`, {
+        fullPage: false,
+        mask: options.mask,
+      });
+    });
+  },
+
+  interview: async ({ page, captureInterview }, use) => {
     const interview = new InterviewFixture(page);
+    interview.setCaptureFn(captureInterview);
     // eslint-disable-next-line react-hooks/rules-of-hooks
     await use(interview);
   },

@@ -1,13 +1,18 @@
 import { type Page, type Locator, expect } from '@playwright/test';
 
+export type CaptureInterviewFn = (name: string) => Promise<void>;
+
 /**
  * Interview fixture for e2e tests.
  *
  * Handles interview shell and navigation concerns.
  * Use the `stage` fixture for stage-specific interactions.
+ *
+ * Screenshots are captured automatically by `goto()` when a capture function is set.
  */
 export class InterviewFixture {
   readonly page: Page;
+  private captureFn: CaptureInterviewFn | null = null;
 
   /**
    * The interview ID. Must be set before using navigation methods.
@@ -20,7 +25,26 @@ export class InterviewFixture {
   }
 
   /**
+   * Set the capture function for automatic screenshots.
+   * Called by the interview-test fixture to wire up captureInterview.
+   */
+  setCaptureFn(fn: CaptureInterviewFn): void {
+    this.captureFn = fn;
+  }
+
+  /**
+   * Manually capture a screenshot with the given name.
+   * Useful in afterEach hooks to capture end state.
+   */
+  async capture(name: string): Promise<void> {
+    if (this.captureFn) {
+      await this.captureFn(name);
+    }
+  }
+
+  /**
    * Navigate directly to a stage by index.
+   * Automatically captures a screenshot after loading if a capture function is set.
    *
    * @param stageIndex - The 0-based stage index
    */
@@ -33,6 +57,11 @@ export class InterviewFixture {
 
     await this.page.goto(`/interview/${this.interviewId}?step=${stageIndex}`);
     await this.waitForStageLoad();
+
+    // Capture screenshot after stage load
+    if (this.captureFn) {
+      await this.captureFn(`stage-${stageIndex}`);
+    }
   }
 
   /**

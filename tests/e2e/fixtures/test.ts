@@ -132,6 +132,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     },
     { scope: 'test' },
   ],
+
 });
 
 export { expect };
