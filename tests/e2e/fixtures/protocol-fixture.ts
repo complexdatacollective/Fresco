@@ -15,9 +15,8 @@ import { type TestPrismaClient } from '../helpers/prisma.js';
 
 /**
  * Creates an initial empty network for a new interview.
- * Exported for testing.
  */
-export function createInitialNetwork() {
+function createInitialNetwork() {
   return {
     ego: {
       _uid: randomUUID(),
@@ -30,9 +29,8 @@ export function createInitialNetwork() {
 
 /**
  * Rewrites asset:// URLs to serve from the e2e-assets directory.
- * Exported for testing.
  */
-export function rewriteAssetUrls<T>(protocol: T, protocolId: string): T {
+function rewriteAssetUrls<T>(protocol: T, protocolId: string): T {
   const json = JSON.stringify(protocol);
   const rewritten = json.replace(
     /asset:\/\/([^"]+)/g,
@@ -41,7 +39,7 @@ export function rewriteAssetUrls<T>(protocol: T, protocolId: string): T {
   return JSON.parse(rewritten) as T;
 }
 
-export type InstalledProtocol = {
+type InstalledProtocol = {
   protocolId: string;
   name: string;
   stages: CurrentProtocol['stages'];

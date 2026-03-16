@@ -1,6 +1,6 @@
 import { type Page, type Locator, expect } from '@playwright/test';
 
-export type CaptureInterviewFn = (name: string) => Promise<void>;
+type CaptureInterviewFn = (name: string) => Promise<void>;
 
 /**
  * Interview fixture for e2e tests.
