@@ -41,7 +41,8 @@ async function startEnvironment(
     databaseUrl: db.connectionUri,
   });
 
-  await db.createSnapshot(suiteId, 'initial');
+  db.suiteId = suiteId;
+  await db.createSnapshot('initial');
 
   return {
     db,
