@@ -28,6 +28,10 @@ export class DatabaseIsolation {
     return this.databaseUrl;
   }
 
+  getPrisma(): TestPrismaClient {
+    return this.prisma;
+  }
+
   private async query<T extends pg.QueryResultRow>(
     text: string,
     values?: unknown[],

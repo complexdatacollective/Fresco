@@ -3,12 +3,13 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { hash } from 'ohash';
-import pg from 'pg';
 import type JSZip from 'jszip';
 import {
   type CurrentProtocol,
   type VersionedProtocol,
 } from '@codaco/protocol-validation';
+import { type Prisma } from '~/lib/db/generated/client';
+import { type TestPrismaClient } from '../helpers/prisma.js';
 import { log } from '../helpers/logger.js';
 
 function createInitialNetwork() {
@@ -37,16 +38,16 @@ export type InstalledProtocol = {
  * 1. Extracts protocol.json from the ZIP file
  * 2. Copies assets to public/e2e-assets/{protocolId}/
  * 3. Rewrites asset:// URLs to /e2e-assets/{protocolId}/
- * 4. Inserts the protocol into the database via raw SQL
+ * 4. Inserts the protocol into the database via Prisma
  */
 export class ProtocolFixture {
-  private databaseUrl: string;
+  private prisma: TestPrismaClient;
   private publicDir: string;
   private installedProtocols: string[] = [];
 
-  constructor(databaseUrl: string) {
+  constructor(prisma: TestPrismaClient) {
     const projectRoot = path.resolve(import.meta.dirname, '../../../');
-    this.databaseUrl = databaseUrl;
+    this.prisma = prisma;
     this.publicDir = path.join(projectRoot, '.next/standalone/public');
   }
 
@@ -139,60 +140,45 @@ export class ProtocolFixture {
     protocolId: string,
     protocol: CurrentProtocol,
   ): Promise<void> {
-    const pool = new pg.Pool({ connectionString: this.databaseUrl, max: 1 });
+    const protocolHash = hash(protocol);
+    const now = new Date();
 
-    try {
-      const protocolHash = hash(protocol);
-      const now = new Date().toISOString();
+    await this.prisma.protocol.create({
+      data: {
+        id: protocolId,
+        hash: protocolHash,
+        name: protocol.name ?? 'E2E Test Protocol',
+        schemaVersion: protocol.schemaVersion,
+        description: protocol.description ?? '',
+        importedAt: now,
+        lastModified: protocol.lastModified
+          ? new Date(protocol.lastModified)
+          : now,
+        stages: protocol.stages as Prisma.InputJsonValue,
+        codebook: protocol.codebook as Prisma.InputJsonValue,
+        experiments: protocol.experiments
+          ? (protocol.experiments as Prisma.InputJsonValue)
+          : undefined,
+      },
+    });
 
-      await pool.query(
-        `INSERT INTO "Protocol"
-         (id, hash, name, "schemaVersion", description, "importedAt", "lastModified", stages, codebook, experiments)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-        [
-          protocolId,
-          protocolHash,
-          protocol.name ?? 'E2E Test Protocol',
-          protocol.schemaVersion,
-          protocol.description ?? '',
-          now,
-          protocol.lastModified ?? now,
-          JSON.stringify(protocol.stages),
-          JSON.stringify(protocol.codebook),
-          protocol.experiments ? JSON.stringify(protocol.experiments) : null,
-        ],
-      );
+    if (protocol.assetManifest) {
+      for (const [assetId, asset] of Object.entries(protocol.assetManifest)) {
+        if (asset.type === 'apikey') continue;
+        if (!('source' in asset)) continue;
 
-      if (protocol.assetManifest) {
-        for (const [assetId, asset] of Object.entries(protocol.assetManifest)) {
-          if (asset.type === 'apikey') continue;
-          if (!('source' in asset)) continue;
-
-          const assetKey = createId();
-
-          await pool.query(
-            `INSERT INTO "Asset"
-             (key, "assetId", name, type, url, size)
-             VALUES ($1, $2, $3, $4, $5, $6)`,
-            [
-              assetKey,
-              assetId,
-              asset.name,
-              asset.type,
-              `/e2e-assets/${protocolId}/${asset.source}`,
-              0,
-            ],
-          );
-
-          await pool.query(
-            `INSERT INTO "_AssetToProtocol" ("A", "B")
-             VALUES ($1, $2)`,
-            [assetKey, protocolId],
-          );
-        }
+        await this.prisma.asset.create({
+          data: {
+            key: createId(),
+            assetId,
+            name: asset.name,
+            type: asset.type,
+            url: `/e2e-assets/${protocolId}/${asset.source}`,
+            size: 0,
+            protocols: { connect: { id: protocolId } },
+          },
+        });
       }
-    } finally {
-      await pool.end();
     }
   }
 
@@ -200,44 +186,28 @@ export class ProtocolFixture {
     protocolId: string,
     participantIdentifier?: string,
   ): Promise<string> {
-    const pool = new pg.Pool({ connectionString: this.databaseUrl, max: 1 });
+    const identifier = participantIdentifier ?? `e2e-participant-${Date.now()}`;
 
-    try {
-      const interviewId = createId();
-      const participantId = createId();
-      const identifier =
-        participantIdentifier ?? `e2e-participant-${Date.now()}`;
-      const now = new Date().toISOString();
+    const participant = await this.prisma.participant.create({
+      data: {
+        id: createId(),
+        identifier,
+        label: 'E2E Test Participant',
+      },
+    });
 
-      await pool.query(
-        `INSERT INTO "Participant" (id, identifier, label)
-         VALUES ($1, $2, $3)`,
-        [participantId, identifier, `E2E Test Participant`],
-      );
+    const interview = await this.prisma.interview.create({
+      data: {
+        id: createId(),
+        protocolId,
+        participantId: participant.id,
+        currentStep: 0,
+        network: createInitialNetwork() as Prisma.InputJsonValue,
+      },
+    });
 
-      await pool.query(
-        `INSERT INTO "Interview"
-         (id, "protocolId", "participantId", "currentStep", "startTime", "lastUpdated", network)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [
-          interviewId,
-          protocolId,
-          participantId,
-          0,
-          now,
-          now,
-          JSON.stringify(createInitialNetwork()),
-        ],
-      );
-
-      log(
-        'test',
-        `Created interview ${interviewId} for protocol ${protocolId}`,
-      );
-      return interviewId;
-    } finally {
-      await pool.end();
-    }
+    log('test', `Created interview ${interview.id} for protocol ${protocolId}`);
+    return interview.id;
   }
 
   async injectNetworkState(
@@ -245,43 +215,29 @@ export class ProtocolFixture {
     network: { nodes: unknown[]; edges: unknown[]; ego: unknown },
     currentStep: number,
   ): Promise<void> {
-    const pool = new pg.Pool({ connectionString: this.databaseUrl, max: 1 });
+    await this.prisma.interview.update({
+      where: { id: interviewId },
+      data: {
+        network: network as Prisma.InputJsonValue,
+        currentStep,
+      },
+    });
 
-    try {
-      await pool.query(
-        `UPDATE "Interview"
-         SET network = $1, "currentStep" = $2, "lastUpdated" = $3
-         WHERE id = $4`,
-        [
-          JSON.stringify(network),
-          currentStep,
-          new Date().toISOString(),
-          interviewId,
-        ],
-      );
-
-      log(
-        'test',
-        `Injected network state at step ${currentStep} for interview ${interviewId}`,
-      );
-    } finally {
-      await pool.end();
-    }
+    log(
+      'test',
+      `Injected network state at step ${currentStep} for interview ${interviewId}`,
+    );
   }
 
   async uninstall(protocolId: string): Promise<void> {
-    const pool = new pg.Pool({ connectionString: this.databaseUrl, max: 1 });
+    await this.prisma.protocol.delete({
+      where: { id: protocolId },
+    });
 
-    try {
-      await pool.query('DELETE FROM "Protocol" WHERE id = $1', [protocolId]);
+    const assetDir = path.join(this.publicDir, 'e2e-assets', protocolId);
+    await fs.rm(assetDir, { recursive: true, force: true });
 
-      const assetDir = path.join(this.publicDir, 'e2e-assets', protocolId);
-      await fs.rm(assetDir, { recursive: true, force: true });
-
-      log('test', `Uninstalled protocol ${protocolId}`);
-    } finally {
-      await pool.end();
-    }
+    log('test', `Uninstalled protocol ${protocolId}`);
   }
 
   async cleanup(): Promise<void> {
