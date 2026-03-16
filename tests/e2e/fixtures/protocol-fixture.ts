@@ -1,16 +1,17 @@
-import { createId } from '@paralleldrive/cuid2';
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { randomUUID } from 'node:crypto';
-import { hash } from 'ohash';
-import type JSZip from 'jszip';
 import {
+  type Codebook,
   type CurrentProtocol,
   type VersionedProtocol,
 } from '@codaco/protocol-validation';
+import { createId } from '@paralleldrive/cuid2';
+import type JSZip from 'jszip';
+import { randomUUID } from 'node:crypto';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { hash } from 'ohash';
 import { type Prisma } from '~/lib/db/generated/client';
-import { type TestPrismaClient } from '../helpers/prisma.js';
 import { log } from '../helpers/logger.js';
+import { type TestPrismaClient } from '../helpers/prisma.js';
 
 function createInitialNetwork() {
   return {
@@ -27,7 +28,7 @@ export type InstalledProtocol = {
   protocolId: string;
   name: string;
   stages: CurrentProtocol['stages'];
-  codebook: CurrentProtocol['codebook'];
+  codebook: Codebook;
   assetBasePath: string;
 };
 
