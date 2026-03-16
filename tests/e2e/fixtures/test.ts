@@ -4,9 +4,9 @@ import {
   type Locator,
   type Page,
 } from '@playwright/test';
-import { getContextMappings } from '../config/test-config.js';
-import { loadContext, type SuiteContext } from '../helpers/context.js';
-import { DatabaseIsolation } from './db-fixture.js';
+import { getContext, getSuiteId } from '../helpers/context.js';
+import { TestDatabase } from '../helpers/TestDatabase.js';
+import { AppFixture } from './app-fixture.js';
 
 /**
  * Default timeout for URL navigation assertions (toHaveURL).
@@ -64,47 +64,27 @@ type TestFixtures = {
 };
 
 type WorkerFixtures = {
-  database: DatabaseIsolation;
+  database: TestDatabase;
+  app: AppFixture;
 };
-
-let contextCache: Record<string, SuiteContext> | null = null;
-
-async function getContext(suiteId: string): Promise<SuiteContext> {
-  if (!contextCache) {
-    const stored = await loadContext();
-    if (!stored) {
-      throw new Error(
-        'Test context not found. Did global-setup.ts run successfully?',
-      );
-    }
-    contextCache = stored.suites;
-  }
-
-  const suite = contextCache[suiteId];
-  if (!suite) {
-    throw new Error(
-      `Suite "${suiteId}" not found in test context. Available: ${Object.keys(contextCache).join(', ')}`,
-    );
-  }
-  return suite;
-}
 
 export const test = base.extend<TestFixtures, WorkerFixtures>({
   database: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use, workerInfo) => {
       const projectName = workerInfo.project.name;
-      const mappings = getContextMappings();
-      const suiteId = mappings[projectName];
-      if (!suiteId) {
-        throw new Error(
-          `No context mapping for project "${projectName}". Available: ${Object.keys(mappings).join(', ')}`,
-        );
-      }
+      const suiteId = getSuiteId(projectName);
       const context = await getContext(suiteId);
-      const db = new DatabaseIsolation(context.databaseUrl, suiteId);
-
+      const db = TestDatabase.fromConnectionUri(context.databaseUrl, suiteId);
       await use(db);
+    },
+    { scope: 'worker' },
+  ],
+
+  app: [
+    async ({ database }, use) => {
+      const app = new AppFixture(database.prisma);
+      await use(app);
     },
     { scope: 'worker' },
   ],
