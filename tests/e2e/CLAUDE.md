@@ -78,9 +78,9 @@ tests/e2e/
 │   ├── preview-protocol.ts      # Test protocol factory for preview tests
 │   └── form.ts                  # Form field helpers (data-field-name)
 ├── fixtures/
-│   ├── db-fixture.ts            # DatabaseIsolation class
-│   ├── test.ts                  # Extended test with db fixture (browser tests)
+│   ├── test.ts                  # Extended test with database + app fixtures (browser tests)
 │   ├── api-test.ts              # Extended test for API-only tests
+│   ├── app-fixture.ts           # App-level state fixture (settings, API tokens)
 │   ├── interview-test.ts        # Interview fixtures (interview, stage, protocol)
 │   ├── interview-fixture.ts     # Interview page object model
 │   ├── stage-fixture.ts         # Stage interaction fixture
@@ -363,20 +363,19 @@ await expect(page).toHaveURL(/\/dashboard\/protocols/);
 
 ### Database fixture methods
 
-The `database` fixture provides direct database access for mutation tests. Dashboard tests should not use it.
+The `database` fixture provides database access and snapshot management. Available in all tests.
 
 - `database.restoreSnapshot(name?)` — Restore database to initial seeded state. Call at the start of any test that mutates data.
-- `database.getDatabaseUrl()` — Get raw connection string (rarely needed)
+- `database.prisma` — Prisma client for direct database queries (e.g., `database.prisma.interview.count()`).
+- `database.connectionUri` — Raw PostgreSQL connection string (rarely needed).
 
-**Preview mode helpers:**
+### App fixture methods
 
-- `database.enablePreviewMode(requireAuth?)` — Enable preview mode with optional auth requirement
-- `database.disablePreviewMode()` — Disable preview mode
-- `database.createPreviewProtocol(options?)` — Create a preview protocol for testing
-- `database.deletePreviewProtocol(id)` — Delete a preview protocol
-- `database.createPreviewProtocolFromJson(protocolData, options?)` — Create a preview protocol from full JSON
-- `database.createApiToken(description)` — Create an API token for authenticated requests
-- `database.getInterviewCount()` — Count Interview records (verify preview doesn't persist data)
+The `app` fixture provides app-level state manipulation. Available in all tests.
+
+- `app.setSetting(key, value)` — Upsert an AppSettings row.
+- `app.getSetting(key)` — Read an AppSettings value (returns null if not set).
+- `app.createApiToken(description)` — Create an API token, returns the token string.
 
 ### Protocol fixture methods
 
