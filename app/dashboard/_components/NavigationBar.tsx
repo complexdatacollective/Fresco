@@ -1,7 +1,7 @@
 'use client';
 
 import { Settings } from 'lucide-react';
-import { motion, type Variants } from 'motion/react';
+import { motion, useReducedMotion, type Variants } from 'motion/react';
 import type { Route } from 'next';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -74,6 +74,7 @@ const NavButton = ({
 
 export function NavigationBar() {
   const pathname = usePathname();
+  const shouldReduceMotion = useReducedMotion();
 
   return (
     <div className="sticky top-4 z-50 flex items-center justify-center">
@@ -85,7 +86,7 @@ export function NavigationBar() {
         )}
         elevation="high"
         variants={containerVariants}
-        initial="hidden"
+        initial={shouldReduceMotion ? false : 'hidden'}
         animate="visible"
         noContainer
       >
