@@ -3,14 +3,14 @@ import {
   AppServer,
   allocatePort,
   resetPortAllocation,
-} from './helpers/AppServer.js';
+} from './helpers/appServer.js';
 import { type SuiteContext, saveContext } from './helpers/context.js';
 import { log, logError } from './helpers/logger.js';
 import {
   seedDashboardEnvironment,
   seedSetupEnvironment,
 } from './helpers/seed.js';
-import { TestDatabase } from './helpers/TestDatabase.js';
+import { TestDatabase } from './helpers/testDatabase.js';
 import { envUrlVar, getEnvironmentInstances } from './config/test-config.js';
 
 const SEED_FUNCTIONS: Record<string, (connectionUri: string) => Promise<void>> =

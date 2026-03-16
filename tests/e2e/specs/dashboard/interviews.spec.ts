@@ -1,6 +1,6 @@
 import { expect, test } from '../../fixtures/test.js';
 import { waitForDialog } from '../../helpers/dialog.js';
-import { getFirstRow, openRowActions } from '../../helpers/row-actions.js';
+import { getFirstRow, openRowActions } from '../../helpers/rowActions.js';
 import {
   clickSortColumn,
   getTableRowCount,

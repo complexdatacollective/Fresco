@@ -65,9 +65,9 @@ tests/e2e/
 ├── global-setup.ts              # Infrastructure startup (12 instances)
 ├── global-teardown.ts           # Cleanup
 ├── helpers/
-│   ├── TestDatabase.ts          # PostgreSQL container + snapshots
-│   ├── AppServer.ts             # Next.js process lifecycle
-│   ├── TestDataBuilder.ts       # Test data factory (raw SQL)
+│   ├── testDatabase.ts          # PostgreSQL container + snapshots
+│   ├── appServer.ts             # Next.js process lifecycle
+│   ├── testDataBuilder.ts       # Test data factory (raw SQL)
 │   ├── seed.ts                  # Per-environment seed functions
 │   ├── logger.ts                # Structured logging
 │   ├── context.ts               # Worker context sharing (JSON)
@@ -75,8 +75,8 @@ tests/e2e/
 │   ├── expectations.ts          # URL assertion helpers
 │   ├── dialog.ts                # Dialog interaction helpers
 │   ├── table.ts                 # Data table helpers
-│   ├── row-actions.ts           # Row action dropdown helpers
-│   ├── preview-protocol.ts      # Test protocol factory for preview tests
+│   ├── rowActions.ts            # Row action dropdown helpers
+│   ├── previewProtocol.ts       # Test protocol factory for preview tests
 │   └── form.ts                  # Form field helpers (data-field-name)
 ├── fixtures/
 │   ├── test.ts                  # Extended test with database + app fixtures
@@ -356,7 +356,7 @@ await expect(page).toHaveURL(/\/dashboard\/protocols/);
 - `getTableRowCount(page)` — Count visible rows
 - `clickSortColumn(page, name)` — Click sortable header
 
-### Row action helpers (`helpers/row-actions.ts`)
+### Row action helpers (`helpers/rowActions.ts`)
 
 - `getFirstRow(page)` — Get first table row
 - `openRowActions(row)` — Open the actions dropdown

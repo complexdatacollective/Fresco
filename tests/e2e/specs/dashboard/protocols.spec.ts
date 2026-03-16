@@ -6,7 +6,7 @@ import {
   getTableRowCount,
   clickSortColumn,
 } from '../../helpers/table.js';
-import { getFirstRow, openRowActions } from '../../helpers/row-actions.js';
+import { getFirstRow, openRowActions } from '../../helpers/rowActions.js';
 import { waitForDialog } from '../../helpers/dialog.js';
 
 test.describe('Protocols Page', () => {

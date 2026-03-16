@@ -1,6 +1,6 @@
 import { test as base, expect, type Locator } from '@playwright/test';
 import { getContext, getSuiteId } from '../helpers/context.js';
-import { TestDatabase } from '../helpers/TestDatabase.js';
+import { TestDatabase } from '../helpers/testDatabase.js';
 import { AppFixture } from './app-fixture.js';
 
 // NOTE: Keep in sync with --breakpoint-* values in styles/globals.css

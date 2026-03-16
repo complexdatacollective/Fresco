@@ -3,7 +3,7 @@ import {
   createTestProtocol,
   createTestAssetMeta,
   INVALID_PROTOCOL,
-} from '../../helpers/preview-protocol.js';
+} from '../../helpers/previewProtocol.js';
 import { AppSetting } from '~/lib/db/generated/enums';
 
 /**

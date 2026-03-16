@@ -1,5 +1,5 @@
 import { createId } from '@paralleldrive/cuid2';
-import { TestDataBuilder, TimestampGenerator } from './TestDataBuilder.js';
+import { TestDataBuilder, TimestampGenerator } from './testDataBuilder.js';
 import { log } from './logger.js';
 
 // Admin credentials used across all seeded environments
