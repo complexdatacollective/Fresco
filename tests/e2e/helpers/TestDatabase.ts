@@ -8,6 +8,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import pg from 'pg';
 import { log, logError } from './logger.js';
+import { createTestPrisma, type TestPrismaClient } from './prisma.js';
 
 const SNAPSHOTS_DIR = path.resolve(import.meta.dirname, '../.db-snapshots');
 
@@ -20,15 +21,20 @@ type TableSnapshot = {
 };
 
 export class TestDatabase {
-  container: StartedPostgreSqlContainer;
+  container: StartedPostgreSqlContainer | null;
   connectionUri: string;
+  suiteId: string;
+  prisma: TestPrismaClient;
 
   private constructor(
-    container: StartedPostgreSqlContainer,
     connectionUri: string,
+    suiteId: string,
+    container: StartedPostgreSqlContainer | null,
   ) {
-    this.container = container;
     this.connectionUri = connectionUri;
+    this.suiteId = suiteId;
+    this.container = container;
+    this.prisma = createTestPrisma(connectionUri);
   }
 
   static async start(): Promise<TestDatabase> {
@@ -41,7 +47,14 @@ export class TestDatabase {
 
     const connectionUri = container.getConnectionUri();
     log('setup', `PostgreSQL started at ${connectionUri}`);
-    return new TestDatabase(container, connectionUri);
+    return new TestDatabase(connectionUri, '', container);
+  }
+
+  static fromConnectionUri(
+    connectionUri: string,
+    suiteId: string,
+  ): TestDatabase {
+    return new TestDatabase(connectionUri, suiteId, null);
   }
 
   runMigrations(): void {
@@ -60,16 +73,12 @@ export class TestDatabase {
     log('setup', 'Migrations completed');
   }
 
-  createPool(): pg.Pool {
-    return new pg.Pool({
+  async createSnapshot(name: string): Promise<void> {
+    log('setup', `Creating snapshot "${name}" for suite "${this.suiteId}"...`);
+    const pool = new pg.Pool({
       connectionString: this.connectionUri,
       max: 5,
     });
-  }
-
-  async createSnapshot(suiteId: string, name: string): Promise<void> {
-    log('setup', `Creating snapshot "${name}" for suite "${suiteId}"...`);
-    const pool = this.createPool();
 
     try {
       const tablesResult = await pool.query<{ tablename: string }>(
@@ -90,7 +99,7 @@ export class TestDatabase {
         });
       }
 
-      const snapshotDir = path.join(SNAPSHOTS_DIR, suiteId);
+      const snapshotDir = path.join(SNAPSHOTS_DIR, this.suiteId);
       await fs.mkdir(snapshotDir, { recursive: true });
       await fs.writeFile(
         path.join(snapshotDir, `${name}.json`),
@@ -103,18 +112,26 @@ export class TestDatabase {
     }
   }
 
-  async restoreSnapshot(suiteId: string, name: string): Promise<void> {
-    const snapshotFile = path.join(SNAPSHOTS_DIR, suiteId, `${name}.json`);
+  async restoreSnapshot(name = 'initial'): Promise<void> {
+    const snapshotFile = path.join(SNAPSHOTS_DIR, this.suiteId, `${name}.json`);
     const data = await fs.readFile(snapshotFile, 'utf-8');
     const snapshot = JSON.parse(data) as TableSnapshot[];
 
-    const pool = this.createPool();
+    const pool = new pg.Pool({
+      connectionString: this.connectionUri,
+      max: 1,
+    });
+    const client = await pool.connect();
 
     try {
-      const client = await pool.connect();
+      log(
+        'test',
+        `Restoring snapshot "${name}" for suite "${this.suiteId}"...`,
+      );
+      await client.query('SET lock_timeout = 5000');
       try {
         await client.query('BEGIN');
-        await client.query(`SET session_replication_role = replica`);
+        await client.query('SET session_replication_role = replica');
 
         for (const { table } of snapshot) {
           await client.query(`TRUNCATE "${table}" CASCADE`);
@@ -136,20 +153,24 @@ export class TestDatabase {
           }
         }
 
-        await client.query(`SET session_replication_role = DEFAULT`);
+        await client.query('SET session_replication_role = DEFAULT');
         await client.query('COMMIT');
       } catch (error) {
-        await client.query('ROLLBACK');
+        await client.query('ROLLBACK').catch(() => {
+          // Ignore rollback errors
+        });
         throw error;
       } finally {
-        client.release();
+        await client.query('SET lock_timeout = 0');
       }
     } finally {
+      client.release();
       await pool.end();
     }
   }
 
   async stop(): Promise<void> {
+    if (!this.container) return;
     log('teardown', 'Stopping PostgreSQL container...');
     try {
       await this.container.stop();
