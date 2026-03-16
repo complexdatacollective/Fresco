@@ -28,10 +28,10 @@ pnpm test:e2e:update-snapshots
 
 ## Architecture
 
-Each test run spins up **3 browsers x 2 environments = 6 isolated instances**:
+Each test run spins up **3 browsers x 4 environments = 12 isolated instances**:
 
-- 6 PostgreSQL containers via testcontainers
-- 6 standalone Next.js server processes
+- 12 PostgreSQL containers via testcontainers
+- 12 standalone Next.js server processes
 
 Each browser (Chromium, Firefox, WebKit) gets its own DB + server per environment, providing full browser isolation. Tests run against real servers with real databases. Mutation tests use database snapshot/restore for isolation.
 
@@ -39,10 +39,12 @@ The `config/test-config.ts` file defines `BROWSERS` and `ENVIRONMENTS` arrays as
 
 ## Test Environments
 
-| Environment | Purpose           | Seed State                                          |
-| ----------- | ----------------- | --------------------------------------------------- |
-| setup       | Onboarding wizard | Unconfigured app (fresh install)                    |
-| dashboard   | Dashboard pages   | Admin user, protocol, 10 participants, 5 interviews |
+| Environment | Purpose               | Seed State                                          |
+| ----------- | --------------------- | --------------------------------------------------- |
+| setup       | Onboarding wizard     | Unconfigured app (fresh install)                    |
+| dashboard   | Dashboard pages       | Admin user, protocol, 10 participants, 5 interviews |
+| api         | API-only tests        | Same as dashboard (no auth)                         |
+| interview   | Interview/preview     | Same as dashboard (no auth)                         |
 
 ## Visual Snapshots
 
