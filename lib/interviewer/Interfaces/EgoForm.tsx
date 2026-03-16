@@ -31,7 +31,6 @@ import {
 } from '~/lib/interviewer/types';
 import elementHasOverflow from '~/utils/elementHasOverflow';
 import { updateEgo } from '../ducks/modules/session';
-import useFlipflop from '../hooks/useFlipflop';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import { getEgoAttributes } from '../selectors/session';
 import { useAppDispatch } from '../store';
@@ -46,12 +45,8 @@ const EgoFormInner = (props: EgoFormProps) => {
   const dispatch = useAppDispatch();
   const { openDialog } = useDialog();
 
-  const [hasReachedBottom, setHasReachedBottom] = useState(false);
-  const [showScrollStatus, setShowScrollStatus] = useFlipflop(
-    true,
-    7000,
-    false,
-  );
+  const [hasScrolled, setHasScrolled] = useState(false);
+  const [nudgeVisible, setNudgeVisible] = useState(false);
 
   const { isDirty: isFormDirty, isValid: isFormValid } = useFormMeta();
   const submitForm = useFormStore((s) => s.submitForm);
@@ -61,6 +56,17 @@ const EgoFormInner = (props: EgoFormProps) => {
   useLayoutEffect(() => {
     formErrorsRef.current = formErrors;
   }, [formErrors]);
+
+  const fields = useFormStore((s) => s.fields);
+
+  // Show nudge after 7s of inactivity. Reset on field changes.
+  // Once the user has scrolled, permanently hide the nudge.
+  useEffect(() => {
+    if (hasScrolled) return;
+    setNudgeVisible(false);
+    const timer = setTimeout(() => setNudgeVisible(true), 7000);
+    return () => clearTimeout(timer);
+  }, [fields, hasScrolled]);
 
   const [isOverflowing, setIsOverflowing] = useState(false);
   const { updateReady: setIsReadyForNext } = useReadyForNextStage();
@@ -128,28 +134,11 @@ const EgoFormInner = (props: EgoFormProps) => {
     setIsReadyForNext(true);
   }, [isFormValid, setIsReadyForNext]);
 
-  const showScrollNudge =
-    !hasReachedBottom && showScrollStatus && isOverflowing;
+  const showScrollNudge = nudgeVisible && isOverflowing;
 
-  const scrollRafRef = useRef<number | null>(null);
-
-  const handleScroll = useCallback(
-    (event: React.UIEvent<HTMLDivElement>) => {
-      const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
-
-      if (scrollRafRef.current !== null) {
-        cancelAnimationFrame(scrollRafRef.current);
-      }
-
-      scrollRafRef.current = requestAnimationFrame(() => {
-        scrollRafRef.current = null;
-        const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
-        setHasReachedBottom(atBottom);
-        setShowScrollStatus(false);
-      });
-    },
-    [setShowScrollStatus],
-  );
+  const handleScroll = useCallback(() => {
+    setHasScrolled(true);
+  }, []);
 
   const { fieldComponents } = useProtocolForm({
     fields: form.fields,
@@ -175,14 +164,6 @@ const EgoFormInner = (props: EgoFormProps) => {
     }
 
     return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (scrollRafRef.current !== null) {
-        cancelAnimationFrame(scrollRafRef.current);
-      }
-    };
   }, []);
 
   const scrollToBottom = useCallback(() => {
