@@ -1,5 +1,9 @@
-import { createTestProtocol } from '../../helpers/preview-protocol.js';
+import {
+  createTestProtocol,
+  createPreviewProtocol,
+} from '../../helpers/preview-protocol.js';
 import { expect, expectURL, test } from '../../fixtures/test.js';
+import { AppSetting } from '~/lib/db/generated/enums';
 
 /**
  * Browser-based tests for preview mode.
@@ -23,10 +27,12 @@ test.describe('Preview Mode', () => {
   test('preview interview renders with correct theme', async ({
     page,
     database,
+    app,
   }) => {
     await database.restoreSnapshot();
-    await database.enablePreviewMode(false);
-    const protocolId = await database.createPreviewProtocol();
+    await app.setSetting(AppSetting.previewMode, 'true');
+    await app.setSetting(AppSetting.previewModeRequireAuth, 'false');
+    const protocolId = await createPreviewProtocol(database.prisma);
 
     await page.goto(`/preview/${protocolId}/interview`);
   });
@@ -34,10 +40,12 @@ test.describe('Preview Mode', () => {
   test('valid preview URL redirects to interview', async ({
     page,
     database,
+    app,
   }) => {
     await database.restoreSnapshot();
-    await database.enablePreviewMode(false);
-    const protocolId = await database.createPreviewProtocol();
+    await app.setSetting(AppSetting.previewMode, 'true');
+    await app.setSetting(AppSetting.previewModeRequireAuth, 'false');
+    const protocolId = await createPreviewProtocol(database.prisma);
 
     await page.goto(`/preview/${protocolId}`);
 
@@ -45,10 +53,15 @@ test.describe('Preview Mode', () => {
     await expectURL(page, new RegExp(`/preview/${protocolId}/interview`));
   });
 
-  test('pending protocol redirects to error', async ({ page, database }) => {
+  test('pending protocol redirects to error', async ({
+    page,
+    database,
+    app,
+  }) => {
     await database.restoreSnapshot();
-    await database.enablePreviewMode(false);
-    const protocolId = await database.createPreviewProtocol({
+    await app.setSetting(AppSetting.previewMode, 'true');
+    await app.setSetting(AppSetting.previewModeRequireAuth, 'false');
+    const protocolId = await createPreviewProtocol(database.prisma, {
       isPending: true,
     });
 
@@ -60,9 +73,11 @@ test.describe('Preview Mode', () => {
   test('non-existent protocol redirects to error', async ({
     page,
     database,
+    app,
   }) => {
     await database.restoreSnapshot();
-    await database.enablePreviewMode(false);
+    await app.setSetting(AppSetting.previewMode, 'true');
+    await app.setSetting(AppSetting.previewModeRequireAuth, 'false');
 
     await page.goto('/preview/non-existent-protocol-id');
 
@@ -72,12 +87,14 @@ test.describe('Preview Mode', () => {
   test('preview interview does not persist data', async ({
     page,
     database,
+    app,
   }) => {
     await database.restoreSnapshot();
-    await database.enablePreviewMode(false);
-    const protocolId = await database.createPreviewProtocol();
+    await app.setSetting(AppSetting.previewMode, 'true');
+    await app.setSetting(AppSetting.previewModeRequireAuth, 'false');
+    const protocolId = await createPreviewProtocol(database.prisma);
 
-    const countBefore = await database.getInterviewCount();
+    const countBefore = await database.prisma.interview.count();
 
     await page.goto(`/preview/${protocolId}/interview`, {
       waitUntil: 'load',
@@ -89,28 +106,35 @@ test.describe('Preview Mode', () => {
     });
 
     // Verify no new Interview records were created
-    const countAfter = await database.getInterviewCount();
+    const countAfter = await database.prisma.interview.count();
     expect(countAfter).toBe(countBefore);
   });
 
   test('preview mode disabled redirects to error', async ({
     page,
     database,
+    app,
   }) => {
     await database.restoreSnapshot();
     // Create protocol first, then disable preview mode
-    await database.enablePreviewMode(false);
-    const protocolId = await database.createPreviewProtocol();
-    await database.disablePreviewMode();
+    await app.setSetting(AppSetting.previewMode, 'true');
+    await app.setSetting(AppSetting.previewModeRequireAuth, 'false');
+    const protocolId = await createPreviewProtocol(database.prisma);
+    await app.setSetting(AppSetting.previewMode, 'false');
 
     await page.goto(`/preview/${protocolId}`);
 
     await expectURL(page, /\/onboard\/error/);
   });
 
-  test('abort-preview removes the protocol', async ({ page, database }) => {
+  test('abort-preview removes the protocol', async ({
+    page,
+    database,
+    app,
+  }) => {
     await database.restoreSnapshot();
-    await database.enablePreviewMode(false);
+    await app.setSetting(AppSetting.previewMode, 'true');
+    await app.setSetting(AppSetting.previewModeRequireAuth, 'false');
 
     // Create a preview protocol via API
     const initResponse = await page.request.post('/api/v1/preview', {
@@ -142,11 +166,13 @@ test.describe('Preview Mode', () => {
   test('complete-preview marks pending protocol as ready', async ({
     page,
     database,
+    app,
   }) => {
     await database.restoreSnapshot();
-    await database.enablePreviewMode(false);
+    await app.setSetting(AppSetting.previewMode, 'true');
+    await app.setSetting(AppSetting.previewModeRequireAuth, 'false');
     // Create a pending protocol (simulating asset upload in progress)
-    const protocolId = await database.createPreviewProtocol({
+    const protocolId = await createPreviewProtocol(database.prisma, {
       isPending: true,
     });
 
