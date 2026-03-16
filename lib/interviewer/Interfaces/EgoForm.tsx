@@ -62,11 +62,8 @@ const EgoFormInner = (props: EgoFormProps) => {
   // Show nudge after 7s of inactivity. Reset on field changes.
   // Once the user has scrolled, permanently hide the nudge.
   useEffect(() => {
-    if (hasScrolled) {
-      setNudgeVisible(false);
-      return;
-    }
     setNudgeVisible(false);
+    if (hasScrolled) return;
     const timer = setTimeout(() => setNudgeVisible(true), 7000);
     return () => clearTimeout(timer);
   }, [fields, hasScrolled]);
@@ -139,10 +136,6 @@ const EgoFormInner = (props: EgoFormProps) => {
 
   const showScrollNudge = nudgeVisible && isOverflowing;
 
-  const handleScroll = useCallback(() => {
-    setHasScrolled(true);
-  }, []);
-
   const { fieldComponents } = useProtocolForm({
     fields: form.fields,
     initialValues: Object.fromEntries(
@@ -158,6 +151,7 @@ const EgoFormInner = (props: EgoFormProps) => {
     if (!viewport) return;
 
     const checkOverflow = () => setIsOverflowing(elementHasOverflow(viewport));
+    const onScroll = () => setHasScrolled(true);
 
     const observer = new ResizeObserver(checkOverflow);
     observer.observe(viewport);
@@ -166,7 +160,12 @@ const EgoFormInner = (props: EgoFormProps) => {
       observer.observe(contentRef.current);
     }
 
-    return () => observer.disconnect();
+    viewport.addEventListener('scroll', onScroll, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      viewport.removeEventListener('scroll', onScroll);
+    };
   }, []);
 
   const scrollToBottom = useCallback(() => {
@@ -180,7 +179,6 @@ const EgoFormInner = (props: EgoFormProps) => {
     <>
       <ScrollArea
         className="m-0 size-full"
-        onScroll={handleScroll}
         ref={scrollAreaRef}
         viewportClassName="p-2 phone-landscape:p-4"
       >
