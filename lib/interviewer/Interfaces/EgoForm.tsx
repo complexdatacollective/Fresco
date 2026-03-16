@@ -62,7 +62,10 @@ const EgoFormInner = (props: EgoFormProps) => {
   // Show nudge after 7s of inactivity. Reset on field changes.
   // Once the user has scrolled, permanently hide the nudge.
   useEffect(() => {
-    if (hasScrolled) return;
+    if (hasScrolled) {
+      setNudgeVisible(false);
+      return;
+    }
     setNudgeVisible(false);
     const timer = setTimeout(() => setNudgeVisible(true), 7000);
     return () => clearTimeout(timer);
