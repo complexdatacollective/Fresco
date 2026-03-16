@@ -9,7 +9,7 @@
  */
 
 import path from 'node:path';
-import { type InstalledProtocol } from '~/tests/e2e/fixtures/db-fixture.js';
+import { type InstalledProtocol } from '~/tests/e2e/fixtures/protocol-fixture.js';
 import { expect, test } from '~/tests/e2e/fixtures/interview-test.js';
 
 const SILOS_PROTOCOL_PATH = path.resolve(
@@ -23,21 +23,10 @@ test.describe('SILOS Protocol', () => {
   let installedProtocol: InstalledProtocol;
   let interviewId: string;
 
-  test.beforeAll(async ({ database }) => {
+  test.beforeAll(async ({ database, protocol }) => {
     await database.restoreSnapshot();
-
-    // Install the SILOS protocol
-    installedProtocol =
-      await database.installProtocolFromFile(SILOS_PROTOCOL_PATH);
-
-    // Create an interview
-    interviewId = await database.createInterviewForProtocol(
-      installedProtocol.protocolId,
-    );
-  });
-
-  test.afterAll(async ({ database }) => {
-    await database.cleanupInstalledProtocols();
+    installedProtocol = await protocol.install(SILOS_PROTOCOL_PATH);
+    interviewId = await protocol.createInterview(installedProtocol.protocolId);
   });
 
   test.beforeEach(({ interview }) => {
