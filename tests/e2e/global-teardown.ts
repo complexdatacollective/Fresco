@@ -1,7 +1,5 @@
-import path from 'node:path';
 import { clearContext } from './helpers/context.js';
 import { log, logError } from './helpers/logger.js';
-import { cleanupExtractedAssets } from './helpers/protocol-installer.js';
 
 export default async function globalTeardown() {
   log('teardown', '=== E2E Global Teardown Starting ===');
@@ -24,11 +22,6 @@ export default async function globalTeardown() {
         logError('teardown', 'Failed to stop database', error);
       }
     }
-
-    // Clean up extracted e2e assets from all standalone public directories
-    const projectRoot = path.resolve(import.meta.dirname, '../..');
-    const publicDir = path.join(projectRoot, '.next/standalone/public');
-    await cleanupExtractedAssets(publicDir);
 
     await clearContext();
 
