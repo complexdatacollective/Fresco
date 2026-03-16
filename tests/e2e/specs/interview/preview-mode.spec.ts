@@ -1,4 +1,4 @@
-import { createTestProtocol } from '../../fixtures/preview-protocol.js';
+import { createTestProtocol } from '../../helpers/preview-protocol.js';
 import { expect, expectURL, test } from '../../fixtures/test.js';
 
 /**

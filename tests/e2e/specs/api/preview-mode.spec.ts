@@ -3,7 +3,7 @@ import {
   createTestProtocol,
   createTestAssetMeta,
   INVALID_PROTOCOL,
-} from '../../fixtures/preview-protocol.js';
+} from '../../helpers/preview-protocol.js';
 
 /**
  * API-only tests for preview mode.

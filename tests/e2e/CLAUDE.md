@@ -75,7 +75,7 @@ tests/e2e/
 │   ├── dialog.ts                # Dialog interaction helpers
 │   ├── table.ts                 # Data table helpers
 │   ├── row-actions.ts           # Row action dropdown helpers
-│   ├── stage-handlers.ts        # Interview stage automation
+│   ├── preview-protocol.ts      # Test protocol factory for preview tests
 │   └── form.ts                  # Form field helpers (data-field-name)
 ├── fixtures/
 │   ├── db-fixture.ts            # DatabaseIsolation class
@@ -84,8 +84,7 @@ tests/e2e/
 │   ├── interview-test.ts        # Interview fixtures (interview, stage, protocol)
 │   ├── interview-fixture.ts     # Interview page object model
 │   ├── stage-fixture.ts         # Stage interaction fixture
-│   ├── protocol-fixture.ts      # Protocol installation fixture
-│   └── preview-protocol.ts      # Test protocol factory for preview tests
+│   └── protocol-fixture.ts      # Protocol installation fixture
 ├── data/
 │   └── (todo: test protocol files)
 └── specs/
