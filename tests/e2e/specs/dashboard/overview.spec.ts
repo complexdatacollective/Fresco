@@ -1,4 +1,5 @@
-import { expect, expectURL, test } from '../../fixtures/test.js';
+import { expect, test } from '../../fixtures/test.js';
+import { expectURL } from '../../helpers/expectations.js';
 
 test.describe('Dashboard Overview', () => {
   test.beforeEach(async ({ page }) => {

@@ -1,4 +1,5 @@
-import { expect, expectURL, test } from '../../fixtures/test.js';
+import { expect, test } from '../../fixtures/test.js';
+import { expectURL } from '../../helpers/expectations.js';
 import { fillField } from '../../helpers/form.js';
 
 test.describe('Setup Flow', () => {

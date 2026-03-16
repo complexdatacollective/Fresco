@@ -2,7 +2,8 @@ import {
   createTestProtocol,
   createPreviewProtocol,
 } from '../../helpers/preview-protocol.js';
-import { expect, expectURL, test } from '../../fixtures/test.js';
+import { expect, test } from '../../fixtures/test.js';
+import { expectURL } from '../../helpers/expectations.js';
 import { AppSetting } from '~/lib/db/generated/enums';
 
 /**
