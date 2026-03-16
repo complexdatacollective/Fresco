@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/api-test.js';
+import { test, expect } from '../../fixtures/test.js';
 import {
   createTestProtocol,
   createTestAssetMeta,
