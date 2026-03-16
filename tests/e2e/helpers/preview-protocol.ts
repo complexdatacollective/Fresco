@@ -1,4 +1,85 @@
 import { createId } from '@paralleldrive/cuid2';
+import { hash } from 'ohash';
+import { log } from './logger.js';
+import { type TestPrismaClient } from './prisma.js';
+
+export async function createPreviewProtocol(
+  prisma: TestPrismaClient,
+  options?: { isPending?: boolean; name?: string },
+): Promise<string> {
+  const protocolId = createId();
+  const name = options?.name ?? `preview-test-${Date.now()}`;
+  const nodeTypeId = createId();
+
+  const stages = [
+    {
+      id: createId(),
+      type: 'Information',
+      label: 'Welcome',
+      items: [
+        {
+          id: createId(),
+          type: 'text',
+          content: 'Welcome to the preview test interview.',
+        },
+      ],
+    },
+    {
+      id: createId(),
+      type: 'NameGeneratorQuickAdd',
+      label: 'Add People',
+      subject: { entity: 'node', type: nodeTypeId },
+      quickAdd: 'name',
+      prompts: [
+        {
+          id: createId(),
+          text: 'Who are the people you interact with?',
+        },
+      ],
+    },
+  ];
+
+  const codebook = {
+    node: {
+      [nodeTypeId]: {
+        name: 'person',
+        color: 'node-color-seq-1',
+        variables: {
+          name: { name: 'name', type: 'text' },
+        },
+      },
+    },
+    edge: {},
+    ego: { variables: {} },
+  };
+
+  const protocol = {
+    stages,
+    codebook,
+    schemaVersion: 8,
+    lastModified: new Date().toISOString(),
+    description: 'E2E test preview protocol',
+  };
+
+  const protocolHash = hash(protocol);
+
+  await prisma.previewProtocol.create({
+    data: {
+      id: protocolId,
+      hash: protocolHash,
+      name,
+      schemaVersion: 8,
+      description: 'E2E test preview protocol',
+      lastModified: new Date(),
+      stages,
+      codebook,
+      isPending: options?.isPending ?? false,
+    },
+  });
+
+  log('test', `Created preview protocol "${name}" (${protocolId})`);
+  return protocolId;
+}
 
 /**
  * A minimal valid protocol for testing the preview API.
