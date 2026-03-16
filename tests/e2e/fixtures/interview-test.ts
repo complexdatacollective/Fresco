@@ -51,10 +51,9 @@ export const test = baseTest.extend<
   InterviewWorkerFixtures
 >({
   protocol: [
-    // eslint-disable-next-line no-empty-pattern
     async ({ database }, use) => {
       const protocol = new ProtocolFixture(database.getDatabaseUrl());
-      // eslint-disable-next-line react-hooks/rules-of-hooks
+
       await use(protocol);
       await protocol.cleanup();
     },
