@@ -175,7 +175,7 @@ const CategoricalBin = (_props: CategoricalBinStageProps) => {
 
   return (
     <div
-      className="interface overflow-hidden"
+      className="interface overflow-hidden pb-0"
       onClick={() => {
         setExpandedBinIndex(null);
       }}

@@ -440,7 +440,7 @@ export const NumberInputFeatures: Story = {
             {...restArgs}
             type="number"
             value={wholeValue}
-            onChange={(v) => setWholeValue(v)}
+            onChange={(v) => setWholeValue(v ?? '')}
             placeholder="Whole numbers"
             aria-label="Whole number input"
             data-testid="whole-number"
@@ -459,7 +459,7 @@ export const NumberInputFeatures: Story = {
             type="number"
             step="0.01"
             value={decimalValue}
-            onChange={(v) => setDecimalValue(v)}
+            onChange={(v) => setDecimalValue(v ?? '')}
             placeholder="0.00"
             aria-label="Decimal input"
             data-testid="decimal-number"
@@ -479,7 +479,7 @@ export const NumberInputFeatures: Story = {
             min="0"
             max="10"
             value={constrainedValue}
-            onChange={(v) => setConstrainedValue(v)}
+            onChange={(v) => setConstrainedValue(v ?? '')}
             placeholder="0-10"
             aria-label="Constrained number input"
             data-testid="constrained-number"
@@ -498,7 +498,7 @@ export const NumberInputFeatures: Story = {
             type="number"
             step="0.001"
             value={fineValue}
-            onChange={(v) => setFineValue(v)}
+            onChange={(v) => setFineValue(v ?? '')}
             placeholder="0.000"
             aria-label="Fine precision input"
             data-testid="fine-number"
@@ -518,7 +518,7 @@ export const NumberInputFeatures: Story = {
             step="0.01"
             min="0"
             value={priceValue}
-            onChange={(v) => setPriceValue(v)}
+            onChange={(v) => setPriceValue(v ?? '')}
             placeholder="0.00"
             aria-label="Price input"
             data-testid="price-number"
