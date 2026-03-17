@@ -89,7 +89,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
   return (
     <>
-      <div className="interface flex grow flex-col gap-4">
+      <div className="interface">
         <Prompts
           prompts={allPrompts}
           currentPromptId={allPrompts[currentStepIndex]?.id}

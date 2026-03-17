@@ -46,10 +46,8 @@ const OrdinalBin = (_props: OrdinalBinStageProps) => {
   }, [unplacedNodes.length, updateReady]);
 
   return (
-    <div className="interface relative flex h-full flex-col overflow-hidden">
-      <div className="shrink-0">
-        <Prompts />
-      </div>
+    <div className="interface overflow-hidden pb-0">
+      <Prompts />
       <div className="min-h-0 w-full flex-1">
         <AnimatePresence mode="wait">
           {prompt && activePromptVariable && (

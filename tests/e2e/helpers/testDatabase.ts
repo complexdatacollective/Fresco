@@ -39,7 +39,7 @@ export class TestDatabase {
 
   static async start(): Promise<TestDatabase> {
     log('setup', 'Starting PostgreSQL container...');
-    const container = await new PostgreSqlContainer('postgres:16-alpine')
+    const container = await new PostgreSqlContainer('postgres:17-alpine')
       .withDatabase('fresco_test')
       .withUsername('test')
       .withPassword('test')

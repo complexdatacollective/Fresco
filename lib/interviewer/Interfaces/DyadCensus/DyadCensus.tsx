@@ -9,10 +9,10 @@ import Prompts from '~/lib/interviewer/components/Prompts';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import {
   addEdge,
-  type DyadCensusMetadataItem,
   deleteEdge,
   edgeExists,
   updateStageMetadata,
+  type DyadCensusMetadataItem,
 } from '~/lib/interviewer/ducks/modules/session';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import useStageValidation from '~/lib/interviewer/hooks/useStageValidation';
@@ -224,7 +224,7 @@ export default function DyadCensus(props: DyadCensusProps) {
   };
 
   return (
-    <div className="interface flex flex-1 flex-col items-center justify-center">
+    <div className="interface">
       <AnimatePresence initial={false} mode="wait">
         {isIntroduction ? (
           <MotionSurface

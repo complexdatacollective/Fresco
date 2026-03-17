@@ -18,7 +18,7 @@ const checkboxRootVariants = compose(
   inputControlVariants,
   stateVariants,
   cva({
-    base: 'focusable flex aspect-square items-center justify-center rounded-[0.15em]',
+    base: 'focusable flex aspect-square shrink-0 items-center justify-center rounded-[0.15em]',
   }),
 );
 

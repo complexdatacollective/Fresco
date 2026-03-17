@@ -52,15 +52,9 @@ const binsContainerVariants = {
   exit: { opacity: 0, transition: { duration: 0.2 } },
 };
 
-const getCatColor = (index: number, isOther: boolean) => {
+const getCatColor = (index: number) => {
   if (index < 0) return null;
-  const colorVar = CAT_COLOR_VARS[index % CAT_COLOR_VARS.length]!;
-
-  if (isOther) {
-    return `oklch(from ${colorVar} calc(l*0.5) calc(c*0.4) h)`;
-  }
-
-  return colorVar;
+  return CAT_COLOR_VARS[index % CAT_COLOR_VARS.length]!;
 };
 
 type CategoricalBinPrompts = Extract<
@@ -181,7 +175,7 @@ const CategoricalBin = (_props: CategoricalBinStageProps) => {
 
   return (
     <div
-      className="interface relative flex h-full flex-col overflow-hidden"
+      className="interface overflow-hidden pb-0"
       onClick={() => {
         setExpandedBinIndex(null);
       }}
@@ -205,7 +199,7 @@ const CategoricalBin = (_props: CategoricalBinStageProps) => {
                 label={bin.label}
                 isExpanded={index === expandedBinIndex}
                 onToggleExpand={() => setExpandedBinIndex(index)}
-                catColor={getCatColor(index, bin.isOther)}
+                catColor={getCatColor(index)}
                 onDropNode={(node) => handleDropNode(node, index)}
                 nodes={bin.nodes}
                 flexBasis={flexBasis}
