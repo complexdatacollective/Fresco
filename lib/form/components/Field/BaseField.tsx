@@ -62,7 +62,7 @@ export function BaseField({
     <div
       {...containerProps}
       className={cx(
-        'group w-full grow not-last:mb-6',
+        'group desktop:not-last:mb-10 tablet-landscape:not-last:mb-8 w-full grow not-last:mb-6',
         inline &&
           'tablet-portrait:flex-row tablet-portrait:items-center tablet-portrait:justify-between tablet-portrait:gap-4',
         'flex flex-col',

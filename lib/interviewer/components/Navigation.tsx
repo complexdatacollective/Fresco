@@ -130,6 +130,7 @@ const Navigation = ({
       elevation="none"
       className={navigationVariants({ orientation })}
       spacing="xs"
+      dynamicSpacing={false}
       noContainer
       variants={containerVariants}
       custom={orientation}

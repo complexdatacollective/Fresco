@@ -3,8 +3,8 @@
 import {
   AlertCircle,
   AlertTriangle,
-  CheckCircle,
   Info,
+  PartyPopper,
   type LucideIcon,
 } from 'lucide-react';
 import * as React from 'react';
@@ -39,7 +39,7 @@ const variantIcons: Record<
   default: null,
   info: Info,
   destructive: AlertCircle,
-  success: CheckCircle,
+  success: PartyPopper,
   warning: AlertTriangle,
 };
 

@@ -555,7 +555,8 @@ This custom variant lets you target only elements with the readonly attribute.
 
 /* Replacement for interface centering mixin */
 @utility interface {
-  @apply phone-landscape:p-4 relative flex w-full shrink grow basis-auto items-center justify-center gap-4 p-2;
+  @apply relative flex min-h-0 w-full shrink grow basis-auto flex-col items-center justify-center;
+  @apply phone-landscape:p-4 phone-landscape:gap-6 tablet-landscape:p-6 tablet-landscape:gap-8 desktop:px-8 desktop:gap-10 gap-4 p-2;
 }
 
 /* Required for base-ui components that use portals: https://base-ui.com/react/overview/quick-start#portals */

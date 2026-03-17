@@ -4,10 +4,10 @@ import { compose, cva, cx } from '~/utils/cva';
 export const smallSizeVariants = cva({
   variants: {
     size: {
-      sm: 'tablet-portrait:h-4.5 tablet-landscape:h-5 h-4',
-      md: 'tablet-portrait:h-5.5 tablet-landscape:h-6 h-5',
-      lg: 'tablet-portrait:h-7 tablet-landscape:h-8 h-6',
-      xl: 'tablet-portrait:h-9 tablet-landscape:h-10 h-8',
+      sm: 'h-4.5',
+      md: 'h-6',
+      lg: 'h-8',
+      xl: 'h-10',
     },
   },
   defaultVariants: {
@@ -120,10 +120,10 @@ export const textSizeVariants = cva({
 export const heightVariants = cva({
   variants: {
     size: {
-      sm: 'tablet-portrait:h-9 tablet-landscape:h-10 h-9',
-      md: 'tablet-portrait:h-10 tablet-landscape:h-12 h-10',
-      lg: 'tablet-portrait:h-11 tablet-landscape:h-13 h-11',
-      xl: 'tablet-portrait:h-12 tablet-landscape:h-14 h-12',
+      sm: 'h-10',
+      md: 'h-12',
+      lg: 'h-13',
+      xl: 'h-14',
     },
   },
   defaultVariants: {
@@ -155,8 +155,8 @@ export const groupSpacingVariants = cva({
   base: '',
   variants: {
     size: {
-      sm: 'gap-2 p-4',
-      md: 'tablet-landscape:px-6 tablet-landscape:py-4 gap-4 p-4',
+      sm: 'gap-2 p-3',
+      md: 'tablet-landscape:px-6 tablet-landscape:py-4 tablet-landscape:gap-4 gap-3 p-4',
       lg: 'tablet-portrait:gap-4 tablet-portrait:px-6 tablet-portrait:py-4 tablet-landscape:gap-6 tablet-landscape:px-8 tablet-landscape:py-6 gap-3 p-4',
       xl: 'tablet-portrait:gap-6 tablet-portrait:px-8 tablet-portrait:py-6 tablet-landscape:gap-8 tablet-landscape:p-10 tablet-landscape:py-8 gap-4 px-6 py-4',
     },

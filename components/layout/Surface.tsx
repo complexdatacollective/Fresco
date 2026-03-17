@@ -18,16 +18,51 @@ export const surfaceSpacingVariants = cva({
     },
     spacing: {
       none: '',
-      xs: 'phone-landscape:p-4 px-3 py-2',
-      sm: 'phone-landscape:p-6 px-4 py-3',
-      md: 'phone-landscape:px-8 phone-landscape:py-6 px-4 py-3',
-      lg: 'phone-landscape:px-8 phone-landscape:py-6 px-6 py-4',
-      xl: 'phone-landscape:px-10 phone-landscape:py-8 px-8 py-6',
+      xs: 'px-3 py-2',
+      sm: 'px-4 py-3',
+      md: 'px-4 py-3',
+      lg: 'px-6 py-4',
+      xl: 'px-8 py-6',
+    },
+    dynamicSpacing: {
+      true: '',
+      false: '',
     },
   },
+  compoundVariants: [
+    {
+      spacing: 'xs',
+      dynamicSpacing: true,
+      className: 'phone-landscape:p-4',
+    },
+    {
+      spacing: 'sm',
+      dynamicSpacing: true,
+      className: 'phone-landscape:p-6',
+    },
+    {
+      spacing: 'md',
+      dynamicSpacing: true,
+      className:
+        'phone-landscape:px-8 phone-landscape:py-6 tablet-landscape:px-10 tablet-landscape:py-8 desktop:px-12 desktop:py-10',
+    },
+    {
+      spacing: 'lg',
+      dynamicSpacing: true,
+      className:
+        'phone-landscape:px-8 phone-landscape:py-6 tablet-portrait:px-10 tablet-portrait:py-8 tablet-landscape:px-12 tablet-landscape:py-10 desktop:px-16 desktop:py-12',
+    },
+    {
+      spacing: 'xl',
+      dynamicSpacing: true,
+      className:
+        'phone-landscape:px-10 phone-landscape:py-8 tablet-portrait:px-12 tablet-portrait:py-10 tablet-landscape:px-16 tablet-landscape:py-12 desktop:px-20 desktop:py-16',
+    },
+  ],
   defaultVariants: {
     spacing: 'md',
     section: 'container',
+    dynamicSpacing: true,
   },
 });
 
@@ -104,6 +139,8 @@ const SurfaceComponent = forwardRef<HTMLDivElement, SurfaceProps>(
       spacing,
       elevation,
       bleed,
+      section,
+      dynamicSpacing,
       className,
       maxWidth,
       baseSize,
@@ -123,6 +160,8 @@ const SurfaceComponent = forwardRef<HTMLDivElement, SurfaceProps>(
             spacing,
             elevation,
             bleed,
+            section,
+            dynamicSpacing,
           }),
           className,
         )}
