@@ -17,11 +17,11 @@ import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
 import {
   addEdge,
-  type DyadCensusMetadataItem,
   deleteEdge,
   edgeExists,
   updateEdge,
   updateStageMetadata,
+  type DyadCensusMetadataItem,
 } from '~/lib/interviewer/ducks/modules/session';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import useStageValidation from '~/lib/interviewer/hooks/useStageValidation';
@@ -263,9 +263,7 @@ export default function TieStrengthCensus(props: TieStrengthCensusProps) {
     if (isDyadCensusMetadata(stageMetadata)) {
       dispatch(
         updateStageMetadata(
-          stageMetadata.filter(
-            (item) => !matchEntry(promptIndex, pair)(item),
-          ),
+          stageMetadata.filter((item) => !matchEntry(promptIndex, pair)(item)),
         ),
       );
     }
@@ -294,7 +292,7 @@ export default function TieStrengthCensus(props: TieStrengthCensusProps) {
   };
 
   return (
-    <div className="interface flex flex-1 flex-col items-center justify-center">
+    <div className="interface">
       <AnimatePresence initial={false} mode="wait">
         {isIntroduction ? (
           <MotionSurface

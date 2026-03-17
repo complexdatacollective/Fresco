@@ -193,7 +193,7 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   );
 
   return (
-    <div className="interface flex size-full flex-col gap-4">
+    <div className="interface">
       <Prompts />
       <AnimatePresence mode="popLayout">
         {source ? (

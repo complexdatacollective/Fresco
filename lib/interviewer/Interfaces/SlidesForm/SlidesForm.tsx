@@ -19,12 +19,12 @@ import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { type FlattenedErrors } from '~/lib/form/store/types';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
+import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import {
   type BeforeNextFunction,
   type Direction,
   type StageProps,
 } from '~/lib/interviewer/types';
-import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import { cx } from '~/utils/cva';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 
@@ -170,10 +170,7 @@ function SlidesFormInner({
     return false;
   };
 
-  const parentClasses = cx(
-    'interface flex h-full flex-col items-center justify-center',
-    parentClass,
-  );
+  const parentClasses = cx('interface', parentClass);
 
   const isComplete = useCallback(
     (direction: Direction | null) => {

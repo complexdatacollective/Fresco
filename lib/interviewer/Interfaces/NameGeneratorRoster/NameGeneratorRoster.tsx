@@ -321,10 +321,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
   );
 
   return (
-    <div
-      className="interface flex min-h-0 flex-1 flex-col items-center justify-center"
-      ref={interfaceRef}
-    >
+    <div className="interface" ref={interfaceRef}>
       <Prompts />
       <ResizableFlexPanel
         storageKey="name-generator-roster-panels"

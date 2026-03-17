@@ -198,10 +198,7 @@ const Sociogram = (stageProps: SociogramProps) => {
       : null;
 
   return (
-    <div
-      className="interface relative h-dvh overflow-hidden"
-      ref={interfaceRef}
-    >
+    <div className="interface h-dvh overflow-hidden" ref={interfaceRef}>
       <Canvas
         background={background}
         nodes={canvasNodes}
