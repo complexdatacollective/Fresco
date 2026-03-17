@@ -1,24 +1,13 @@
 import { debounce } from 'es-toolkit';
 import { AnimatePresence, motion } from 'motion/react';
-import type { ComponentType, ReactElement } from 'react';
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import type { ForwardRefExoticComponent, ReactElement, RefAttributes } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import Surface from '~/components/layout/Surface';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
 import ProgressBar from '~/components/ui/ProgressBar';
 import useDialog from '~/lib/dialogs/useDialog';
-import useFormState from '~/lib/form/hooks/useFormState';
-import useFormStore from '~/lib/form/hooks/useFormStore';
-import FormStoreProvider from '~/lib/form/store/formStoreProvider';
-import { type FlattenedErrors } from '~/lib/form/store/types';
-import { focusFirstError } from '~/lib/form/utils/focusFirstError';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import {
   type BeforeNextFunction,
@@ -27,18 +16,21 @@ import {
 } from '~/lib/interviewer/types';
 import { cx } from '~/utils/cva';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
+import { type SlideFormHandle } from './SlideFormNode';
 
 type SlidesFormProps = StageProps<'AlterForm' | 'AlterEdgeForm'> & {
   items: unknown[];
   updateItem: (...args: unknown[]) => void;
   parentClass?: string;
-  slideForm: ComponentType<{
-    item: unknown;
-    onUpdate: (...args: unknown[]) => void;
-    onScroll: () => void;
-    form: Record<string, unknown>;
-    submitButton: ReactElement<Record<string, unknown>>;
-  }>;
+  slideForm: ForwardRefExoticComponent<
+    {
+      item: unknown;
+      onUpdate: (...args: unknown[]) => void;
+      onScroll: () => void;
+      form: Record<string, unknown>;
+      submitButton: ReactElement<Record<string, unknown>>;
+    } & RefAttributes<SlideFormHandle>
+  >;
 };
 
 const slideVariants = {
@@ -53,7 +45,7 @@ const slideVariants = {
   },
 };
 
-function SlidesFormInner({
+function SlidesForm({
   stage,
   getNavigationHelpers,
   items = [],
@@ -65,14 +57,8 @@ function SlidesFormInner({
 
   const { openDialog } = useDialog();
 
-  const formState = useFormState();
-  const { submitForm, isValid, isDirty } = formState;
-  const validateForm = useFormStore((s) => s.validateForm);
-  const formErrors = useFormStore((s) => s.errors);
-  const formErrorsRef = useRef<FlattenedErrors>(formErrors);
-  useLayoutEffect(() => {
-    formErrorsRef.current = formErrors;
-  }, [formErrors]);
+  // Ref to access the current slide's form methods
+  const slideFormRef = useRef<SlideFormHandle>(null);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -98,10 +84,12 @@ function SlidesFormInner({
     [activeIndex],
   );
 
+  // Update readiness based on scroll progress (validity is checked via ref when needed)
   useEffect(() => {
+    const isValid = slideFormRef.current?.isValid ?? true;
     const readyForNext = isValid && scrollProgress === 1;
     setIsReadyForNext(readyForNext);
-  }, [setIsReadyForNext, scrollProgress, isValid]);
+  }, [setIsReadyForNext, scrollProgress]);
 
   const beforeNext: BeforeNextFunction = async (direction: Direction) => {
     if (items.length === 0) {
@@ -114,9 +102,14 @@ function SlidesFormInner({
       return true;
     }
 
+    const formHandle = slideFormRef.current;
+
     if (direction === 'backwards') {
       // Validate to get fresh state
-      const formIsValid = await validateForm();
+      const formIsValid = formHandle
+        ? await formHandle.validateForm()
+        : true;
+      const isDirty = formHandle?.isDirty ?? false;
 
       if (!formIsValid && isDirty) {
         const confirm = await openDialog({
@@ -137,8 +130,8 @@ function SlidesFormInner({
         return false;
       }
 
-      if (formIsValid) {
-        await submitForm();
+      if (formIsValid && formHandle) {
+        await formHandle.submitForm();
       }
 
       previousItem();
@@ -151,16 +144,15 @@ function SlidesFormInner({
     }
 
     // Validate form before proceeding forward
-    const formIsValid = await validateForm();
+    const formIsValid = formHandle ? await formHandle.validateForm() : true;
 
     if (!formIsValid) {
-      setTimeout(() => {
-        focusFirstError(formErrorsRef.current);
-      }, 0);
       return false;
     }
 
-    await submitForm();
+    if (formHandle) {
+      await formHandle.submitForm();
+    }
 
     if (isLastItem()) {
       return true;
@@ -185,15 +177,25 @@ function SlidesFormInner({
     [isIntroScreen, isLastItem],
   );
 
-  const handleScroll = useCallback(
+  // Create a stable debounced scroll handler
+  const debouncedScrollHandler = useMemo(
     () =>
       debounce((_: unknown, progress: number) => {
         setScrollProgress(progress);
-        const nextIsReady = isValid && progress === 1;
-
-        setIsReadyForNext(nextIsReady);
       }, 200),
-    [setIsReadyForNext, isValid],
+    [],
+  );
+
+  // Cleanup debounced handler on unmount
+  useEffect(() => {
+    return () => {
+      debouncedScrollHandler.cancel();
+    };
+  }, [debouncedScrollHandler]);
+
+  const handleScroll = useCallback(
+    () => debouncedScrollHandler,
+    [debouncedScrollHandler],
   );
 
   useEffect(() => {
@@ -239,6 +241,7 @@ function SlidesFormInner({
         transition={{ ease: 'easeInOut', duration: 0.5 }}
       >
         <SlideForm
+          ref={slideFormRef}
           key={itemIndex}
           item={items[itemIndex]}
           onUpdate={handleUpdate}
@@ -318,13 +321,5 @@ function SlidesFormInner({
     </div>
   );
 }
-
-const SlidesForm = (props: SlidesFormProps) => {
-  return (
-    <FormStoreProvider>
-      <SlidesFormInner {...props} />
-    </FormStoreProvider>
-  );
-};
 
 export default SlidesForm;
