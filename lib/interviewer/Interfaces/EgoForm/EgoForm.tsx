@@ -30,10 +30,10 @@ import {
   type StageProps,
 } from '~/lib/interviewer/types';
 import elementHasOverflow from '~/utils/elementHasOverflow';
-import { updateEgo } from '../ducks/modules/session';
-import useReadyForNextStage from '../hooks/useReadyForNextStage';
-import { getEgoAttributes } from '../selectors/session';
-import { useAppDispatch } from '../store';
+import { updateEgo } from '../../ducks/modules/session';
+import useReadyForNextStage from '../../hooks/useReadyForNextStage';
+import { getEgoAttributes } from '../../selectors/session';
+import { useAppDispatch } from '../../store';
 
 type EgoFormProps = StageProps<'EgoForm'>;
 
@@ -177,14 +177,10 @@ const EgoFormInner = (props: EgoFormProps) => {
 
   return (
     <>
-      <ScrollArea
-        className="m-0 size-full"
-        ref={scrollAreaRef}
-        viewportClassName="p-2 phone-landscape:p-4"
-      >
+      <ScrollArea className="m-0 size-full" ref={scrollAreaRef}>
         <div
           ref={contentRef}
-          className="interface mx-auto max-w-[80ch] flex-col p-0"
+          className="interface mx-auto max-w-[80ch] flex-col"
         >
           <Surface>
             <Heading level="h1">{introductionPanel.title}</Heading>

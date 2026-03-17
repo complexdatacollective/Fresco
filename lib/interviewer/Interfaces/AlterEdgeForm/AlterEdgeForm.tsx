@@ -2,12 +2,12 @@
 
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import { type StageProps } from '~/lib/interviewer/types';
 import { updateEdge } from '~/lib/interviewer/ducks/modules/session';
 import { getNetworkEdgesForType } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
-import SlideFormEdge from './SlidesForm/SlideFormEdge';
-import SlidesForm from './SlidesForm/SlidesForm';
+import { type StageProps } from '~/lib/interviewer/types';
+import SlideFormEdge from '../SlidesForm/SlideFormEdge';
+import SlidesForm from '../SlidesForm/SlidesForm';
 
 const AlterEdgeForm = (props: StageProps<'AlterEdgeForm'>) => {
   const items = useSelector(getNetworkEdgesForType);

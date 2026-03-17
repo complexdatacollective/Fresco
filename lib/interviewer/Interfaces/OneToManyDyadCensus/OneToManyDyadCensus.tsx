@@ -14,15 +14,18 @@ import { type ItemProps } from '~/lib/collection/types';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import { type StageProps } from '~/lib/interviewer/types';
-import { MotionNode } from '../components/Node';
-import Prompts from '../components/Prompts';
-import { edgeExists, toggleEdge } from '../ducks/modules/session';
-import useSortedNodeList from '../hooks/useSortedNodeList';
-import { makeGetCodebookVariablesForNodeType } from '../selectors/protocol';
-import { getNetworkEdges, getNetworkNodesForType } from '../selectors/session';
-import { useAppDispatch } from '../store';
-import { type ProtocolSortRule } from '../utils/createSorter';
-import { getNodeLabelAttribute } from '../utils/getNodeLabelAttribute';
+import { MotionNode } from '../../components/Node';
+import Prompts from '../../components/Prompts';
+import { edgeExists, toggleEdge } from '../../ducks/modules/session';
+import useSortedNodeList from '../../hooks/useSortedNodeList';
+import { makeGetCodebookVariablesForNodeType } from '../../selectors/protocol';
+import {
+  getNetworkEdges,
+  getNetworkNodesForType,
+} from '../../selectors/session';
+import { useAppDispatch } from '../../store';
+import { type ProtocolSortRule } from '../../utils/createSorter';
+import { getNodeLabelAttribute } from '../../utils/getNodeLabelAttribute';
 
 type OneToManyDyadCensusProps = StageProps<'OneToManyDyadCensus'>;
 

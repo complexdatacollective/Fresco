@@ -11,7 +11,7 @@ import Paragraph from '~/components/typography/Paragraph';
 import { ScrollArea } from '~/components/ui/ScrollArea';
 import { type StageProps } from '~/lib/interviewer/types';
 import { cx } from '~/utils/cva';
-import AssetMetaProvider from './utils/AssetMetaProvider';
+import AssetMetaProvider from '../utils/AssetMetaProvider';
 
 function VideoPlayer({ src }: { src: string }) {
   const [isLoading, setIsLoading] = useState(true);

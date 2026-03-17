@@ -9,24 +9,24 @@ import { type StageType } from '@codaco/protocol-validation';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Icon from '~/components/ui/Icon';
-import AlterEdgeForm from './AlterEdgeForm';
-import AlterForm from './AlterForm';
+import AlterEdgeForm from './AlterEdgeForm/AlterEdgeForm';
+import AlterForm from './AlterForm/AlterForm';
 import Anonymisation from './Anonymisation/Anonymisation';
 import CategoricalBin from './CategoricalBin/CategoricalBin';
 import DyadCensus from './DyadCensus/DyadCensus';
-import EgoForm from './EgoForm';
+import EgoForm from './EgoForm/EgoForm';
 import FamilyTreeCensus from './FamilyTreeCensus/FamilyTreeCensus';
 import FinishSession from './FinishSession';
 import Geospatial from './Geospatial/Geospatial';
-import Information from './Information';
+import Information from './Information/Information';
 import NameGenerator from './NameGenerator/NameGenerator';
 import NameGeneratorQuickAdd from './NameGenerator/NameGeneratorQuickAdd';
 import NameGeneratorRoster from './NameGeneratorRoster';
 import Narrative from './Narrative/Narrative';
+import OneToManyDyadCensus from './OneToManyDyadCensus/OneToManyDyadCensus';
 import OrdinalBin from './OrdinalBin/OrdinalBin';
 import Sociogram from './Sociogram/Sociogram';
 import TieStrengthCensus from './TieStrengthCensus/TieStrengthCensus';
-import OneToManyDyadCensus from './OneToManyDyadCensus';
 
 const NotFoundInterface = ({ interfaceType }: { interfaceType: string }) => (
   <Surface>
