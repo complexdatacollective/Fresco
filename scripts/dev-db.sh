@@ -4,7 +4,7 @@
 
 set -e
 
-IMAGE="postgres:16-alpine"
+IMAGE="postgres:17-alpine"
 PORT=5432
 
 # Derive a safe suffix from the current git branch
