@@ -1,10 +1,12 @@
 'use client';
 
-import { motion, useMotionValue, useTransform } from 'motion/react';
+import { motion } from 'motion/react';
 import { useCallback, useRef } from 'react';
+
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import { headingVariants } from '~/components/typography/Heading';
 import {
+  controlVariants,
   groupSpacingVariants,
   inputControlVariants,
   smallSizeVariants,
@@ -33,12 +35,8 @@ const optionCardVariants = compose(
     ),
     variants: {
       selected: {
-        true: '',
+        true: 'border-primary',
         false: 'hover:border-current/40',
-      },
-      positive: {
-        true: '',
-        false: '',
       },
       state: {
         normal: '',
@@ -50,23 +48,12 @@ const optionCardVariants = compose(
     compoundVariants: [
       {
         selected: true,
-        positive: true,
-        className: 'border-success',
-      },
-      {
-        selected: true,
-        positive: false,
-        className: 'border-destructive',
-      },
-      {
-        selected: true,
         state: 'invalid',
         className: 'border-destructive',
       },
     ],
     defaultVariants: {
       selected: false,
-      positive: true,
       state: 'normal',
     },
   }),
@@ -74,40 +61,15 @@ const optionCardVariants = compose(
 
 const booleanIndicatorVariants = compose(
   smallSizeVariants,
+  controlVariants,
   inputControlVariants,
   stateVariants,
   cva({
     base: cx(
-      'flex aspect-square shrink-0 items-center justify-center',
-      'overflow-hidden rounded-full border-2',
+      'flex aspect-square shrink-0! items-center justify-center',
+      'rounded-full',
       'focusable',
     ),
-    variants: {
-      selected: {
-        true: '',
-        false: 'border-input-contrast/20',
-      },
-      positive: {
-        true: '',
-        false: '',
-      },
-    },
-    compoundVariants: [
-      {
-        selected: true,
-        positive: true,
-        class: 'bg-success border-success text-success-contrast',
-      },
-      {
-        selected: true,
-        positive: false,
-        class: 'bg-destructive border-destructive text-destructive-contrast',
-      },
-    ],
-    defaultVariants: {
-      selected: false,
-      positive: true,
-    },
   }),
 );
 
@@ -127,82 +89,26 @@ type BooleanFieldProps = CreateFormFieldProps<
   }
 >;
 
-function BooleanIndicator({
-  isSelected,
-  isPositive,
-}: {
-  isSelected: boolean;
-  isPositive: boolean;
-}) {
-  const pathLength = useMotionValue(isSelected ? 1 : 0);
-  const strokeLinecap = useTransform(() =>
-    pathLength.get() === 0 ? 'butt' : 'round',
-  );
-
+function BooleanIndicator({ isSelected }: { isSelected: boolean }) {
   return (
-    <span
-      aria-hidden
-      className={booleanIndicatorVariants({
-        selected: isSelected,
-        positive: isPositive,
-      })}
-    >
+    <span aria-hidden className={booleanIndicatorVariants()}>
       <svg
         viewBox="0 0 24 24"
-        fill="none"
-        className="size-full p-[0.15em]"
-        stroke="currentColor"
-        strokeWidth="3"
+        fill="currentColor"
+        className="text-primary size-full overflow-hidden rounded-full p-[0.1em]"
       >
-        {isPositive ? (
-          <motion.path
-            d="M4 12L10 18L20 6"
-            initial={false}
-            animate={{ pathLength: isSelected ? 1 : 0 }}
-            transition={{
-              type: 'spring',
-              bounce: 0,
-              duration: isSelected ? 0.3 : 0.1,
-            }}
-            style={{
-              pathLength,
-              strokeLinecap,
-            }}
-          />
-        ) : (
-          <>
-            <motion.path
-              d="M6 6L18 18"
-              initial={false}
-              animate={{ pathLength: isSelected ? 1 : 0 }}
-              transition={{
-                type: 'spring',
-                bounce: 0,
-                duration: isSelected ? 0.3 : 0.1,
-                delay: isSelected ? 0 : 0.05,
-              }}
-              style={{
-                pathLength,
-                strokeLinecap,
-              }}
-            />
-            <motion.path
-              d="M18 6L6 18"
-              initial={false}
-              animate={{ pathLength: isSelected ? 1 : 0 }}
-              transition={{
-                type: 'spring',
-                bounce: 0,
-                duration: isSelected ? 0.3 : 0.1,
-                delay: isSelected ? 0.1 : 0,
-              }}
-              style={{
-                pathLength,
-                strokeLinecap,
-              }}
-            />
-          </>
-        )}
+        <motion.circle
+          cx="12"
+          cy="12"
+          r="10"
+          initial={false}
+          animate={{ scale: isSelected ? 1 : 0 }}
+          transition={{
+            type: 'spring',
+            bounce: 0.3,
+            duration: isSelected ? 0.3 : 0.15,
+          }}
+        />
       </svg>
     </span>
   );
@@ -283,7 +189,6 @@ export default function BooleanField(props: BooleanFieldProps) {
         {label && <legend className="sr-only">{label}</legend>}
         {options.map((option, index) => {
           const isSelected = value === option.value;
-          const isPositive = option.value === true;
           const optionState = disabled
             ? 'disabled'
             : readOnly
@@ -306,7 +211,6 @@ export default function BooleanField(props: BooleanFieldProps) {
               }
               className={optionCardVariants({
                 selected: isSelected,
-                positive: isPositive,
                 state: optionState,
                 size: 'md',
               })}
@@ -320,10 +224,7 @@ export default function BooleanField(props: BooleanFieldProps) {
               whileTap={disabled || readOnly ? undefined : { scale: 0.98 }}
               transition={selectionSpring}
             >
-              <BooleanIndicator
-                isSelected={isSelected}
-                isPositive={isPositive}
-              />
+              <BooleanIndicator isSelected={isSelected} />
               <span
                 className={headingVariants({ level: 'label', margin: 'none' })}
               >
