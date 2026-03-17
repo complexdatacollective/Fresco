@@ -174,8 +174,14 @@
   }
 }
 
-/* @layer base {
+@layer base {
   :root:has([data-interview]) {
-    font-size: 20px;
+    @media (width >= theme(--breakpoint-desktop)) {
+      font-size: 18px;
+    }
+
+    @media (width >= theme(--breakpoint-desktop-xl)) {
+      font-size: 20px;
+    }
   }
-} */
+}
