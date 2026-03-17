@@ -75,3 +75,40 @@ type Story = StoryObj<StoryArgs>;
 export const Default: Story = {
   render: (args) => <AnonymisationStoryWrapper {...args} />,
 };
+
+export const MinimalExplanation: Story = {
+  render: (args) => <AnonymisationStoryWrapper {...args} />,
+  args: {
+    title: 'Anonymise Your Data',
+    body: 'Please create a passphrase to protect your identity.',
+  },
+};
+
+export const DetailedInstructions: Story = {
+  render: (args) => <AnonymisationStoryWrapper {...args} />,
+  args: {
+    title: 'Participant Data Protection',
+    body: [
+      '## Why Anonymisation?',
+      '',
+      'This study collects information about your social network. To protect',
+      'your privacy and the privacy of the people you mention, we use a',
+      'passphrase-based anonymisation process.',
+      '',
+      '## How It Works',
+      '',
+      '1. You create a **unique passphrase** below',
+      '2. This passphrase generates a cryptographic key',
+      '3. All names and identifying details are replaced with anonymous codes',
+      '4. Only someone with your exact passphrase can reverse the process',
+      '',
+      '## Important',
+      '',
+      '- Choose something **memorable** — you may need it again in follow-up sessions',
+      '- Do **not** share your passphrase with anyone',
+      '- If you forget your passphrase, your data cannot be de-anonymised',
+      '',
+      '> Your passphrase is never stored. It is used only to derive the encryption key.',
+    ].join('\n'),
+  },
+};

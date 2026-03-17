@@ -1,11 +1,16 @@
-import { motion } from 'motion/react';
+import { ArrowRight } from 'lucide-react';
 import { useCallback, useRef } from 'react';
+import Surface, { MotionSurface } from '~/components/layout/Surface';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
-import Button from '~/components/ui/Button';
+import Heading from '~/components/typography/Heading';
+import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
+import { ScrollArea } from '~/components/ui/ScrollArea';
 import Field from '~/lib/form/components/Field/Field';
-import InputField from '~/lib/form/components/fields/InputField';
-import Form from '~/lib/form/components/Form';
-import useFormState from '~/lib/form/hooks/useFormState';
+import PasswordField from '~/lib/form/components/fields/PasswordField';
+import { FormWithoutProvider } from '~/lib/form/components/Form';
+import SubmitButton from '~/lib/form/components/SubmitButton';
+import { useFormMeta } from '~/lib/form/hooks/useFormState';
+import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import type { StageProps } from '~/lib/interviewer/types';
@@ -14,7 +19,7 @@ import { usePassphrase } from './usePassphrase';
 
 type AnonymisationProps = StageProps<'Anonymisation'>;
 
-export default function Anonymisation(props: AnonymisationProps) {
+function AnonymisationInner(props: AnonymisationProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const { updateReady } = useReadyForNextStage();
   const {
@@ -22,7 +27,7 @@ export default function Anonymisation(props: AnonymisationProps) {
   } = props;
   const { passphrase, setPassphrase } = usePassphrase();
 
-  const { isValid: isFormValid } = useFormState();
+  const { isValid: isFormValid } = useFormMeta();
 
   useBeforeNext((direction) => {
     if (direction === 'backwards') {
@@ -50,40 +55,47 @@ export default function Anonymisation(props: AnonymisationProps) {
 
   return (
     <>
-      <motion.div className="anonymisation flex size-full flex-col items-center justify-center">
-        <motion.div
-          className="z-10 max-w-[80ch] rounded-(--nc-border-radius) bg-(--nc-panel-bg-muted) px-[2.4rem] py-[2.4rem]"
-          initial={{
-            scale: 0.8,
-            opacity: 0,
-            y: 50,
-          }}
-          animate={{
-            scale: 1,
-            opacity: 1,
-            y: 0,
-          }}
-          transition={{
-            type: 'spring',
-            damping: 15,
-            delay: 0.2,
-          }}
-        >
-          <h1 className="mb-8 text-center text-balance">
-            {explanationText.title}
-          </h1>
-          <RenderMarkdown>{explanationText.body}</RenderMarkdown>
-          <div className="mt-8 text-center">
-            {passphrase && (
-              <p className="my-10 text-xl font-bold">
-                Passphrase created! Click the next arrow to continue.
-              </p>
-            )}
-            {!passphrase && (
-              <div>
-                <Form onSubmit={handleSetPassphrase} ref={formRef}>
+      <EncryptionBackground thresholdPosition={passphrase ? 20 : 100} />
+      <ScrollArea className="m-0 size-full">
+        <div className="interface mx-auto min-h-full max-w-[80ch] flex-col">
+          <MotionSurface
+            noContainer
+            className="max-w-2xl"
+            initial={{
+              scale: 0.8,
+              opacity: 0,
+              y: 50,
+            }}
+            animate={{
+              scale: 1,
+              opacity: 1,
+              y: 0,
+            }}
+            transition={{
+              type: 'spring',
+              damping: 15,
+              delay: 0.2,
+            }}
+          >
+            <Heading level="h1">{explanationText.title}</Heading>
+            <RenderMarkdown>{explanationText.body}</RenderMarkdown>
+
+            {passphrase ? (
+              <Alert variant="success">
+                <AlertTitle>Complete</AlertTitle>
+                <AlertDescription>
+                  Passphrase set successfully! Click &quot;Next&quot; to
+                  continue.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <Surface level={1} className="mt-6" spacing="sm">
+                <FormWithoutProvider
+                  onSubmit={handleSetPassphrase}
+                  ref={formRef}
+                >
                   <Field
-                    component={InputField}
+                    component={PasswordField}
                     name="passphrase"
                     placeholder="Enter your passphrase..."
                     label="Passphrase"
@@ -91,35 +103,36 @@ export default function Anonymisation(props: AnonymisationProps) {
                     autoFocus
                   />
                   <Field
-                    component={InputField}
+                    component={PasswordField}
                     name="passphrase-2"
                     placeholder="Re-enter your passphrase..."
                     label="Confirm Passphrase"
                     required
                     sameAs="passphrase"
                   />
-                  <Button
+                  <SubmitButton
                     key="submit"
                     aria-label="Submit"
                     type="submit"
-                    icon="arrow-right"
+                    icon={<ArrowRight />}
                     iconPosition="right"
                   >
                     Continue
-                  </Button>
-                </Form>
-              </div>
+                  </SubmitButton>
+                </FormWithoutProvider>
+              </Surface>
             )}
-          </div>
-        </motion.div>
-      </motion.div>
-      <motion.div
-        className="absolute inset-0"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
-        <EncryptionBackground thresholdPosition={passphrase ? 20 : 100} />
-      </motion.div>
+          </MotionSurface>
+        </div>
+      </ScrollArea>
     </>
+  );
+}
+
+export default function Anonymisation(props: AnonymisationProps) {
+  return (
+    <FormStoreProvider>
+      <AnonymisationInner {...props} />
+    </FormStoreProvider>
   );
 }
