@@ -619,6 +619,17 @@ This custom variant lets you target only elements with the readonly attribute.
   .lucide {
     stroke-width: 2.5px;
   }
+
+  /* Interview mode responsive font-size (lives here because theme() needs @theme in same file) */
+  :root:has([data-interview]) {
+    @media (width >= theme(--breakpoint-desktop)) {
+      font-size: 18px;
+    }
+
+    @media (width >= theme(--breakpoint-desktop-xl)) {
+      font-size: 20px;
+    }
+  }
 }
 
 /* Custom variant for :focus-within + :focus-visible */
