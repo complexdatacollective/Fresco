@@ -407,6 +407,153 @@ export const WithIcons: Story = {
 };
 
 /**
+ * Number input features: step, min/max constraints, decimal precision,
+ * and prefix/suffix components alongside stepper buttons.
+ */
+export const NumberInputFeatures: Story = {
+  args: {
+    size: 'md',
+  },
+  argTypes: {
+    'disabled': { control: 'boolean' },
+    'readOnly': { control: 'boolean' },
+    'aria-invalid': { control: 'boolean' },
+    'type': { control: false },
+    'placeholder': { control: false },
+  },
+  render: function Render(args) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { value: _value, onChange: _onChange, ...restArgs } = args;
+    const [wholeValue, setWholeValue] = useState('10');
+    const [decimalValue, setDecimalValue] = useState('0.50');
+    const [constrainedValue, setConstrainedValue] = useState('5');
+    const [fineValue, setFineValue] = useState('1.000');
+    const [priceValue, setPriceValue] = useState('9.99');
+
+    return (
+      <div className="flex w-96 flex-col gap-6">
+        <div className="space-y-1">
+          <Paragraph margin="none" className="text-sm font-medium">
+            Default (step=1)
+          </Paragraph>
+          <InputField
+            {...restArgs}
+            type="number"
+            value={wholeValue}
+            onChange={(v) => setWholeValue(v)}
+            placeholder="Whole numbers"
+            aria-label="Whole number input"
+            data-testid="whole-number"
+          />
+          <Paragraph margin="none" className="text-xs opacity-70">
+            Value: {wholeValue || 'empty'}
+          </Paragraph>
+        </div>
+
+        <div className="space-y-1">
+          <Paragraph margin="none" className="text-sm font-medium">
+            Decimal (step=0.01)
+          </Paragraph>
+          <InputField
+            {...restArgs}
+            type="number"
+            step="0.01"
+            value={decimalValue}
+            onChange={(v) => setDecimalValue(v)}
+            placeholder="0.00"
+            aria-label="Decimal input"
+            data-testid="decimal-number"
+          />
+          <Paragraph margin="none" className="text-xs opacity-70">
+            Value: {decimalValue || 'empty'}
+          </Paragraph>
+        </div>
+
+        <div className="space-y-1">
+          <Paragraph margin="none" className="text-sm font-medium">
+            Constrained (min=0, max=10, step=1)
+          </Paragraph>
+          <InputField
+            {...restArgs}
+            type="number"
+            min="0"
+            max="10"
+            value={constrainedValue}
+            onChange={(v) => setConstrainedValue(v)}
+            placeholder="0-10"
+            aria-label="Constrained number input"
+            data-testid="constrained-number"
+          />
+          <Paragraph margin="none" className="text-xs opacity-70">
+            Value: {constrainedValue || 'empty'}
+          </Paragraph>
+        </div>
+
+        <div className="space-y-1">
+          <Paragraph margin="none" className="text-sm font-medium">
+            Fine precision (step=0.001)
+          </Paragraph>
+          <InputField
+            {...restArgs}
+            type="number"
+            step="0.001"
+            value={fineValue}
+            onChange={(v) => setFineValue(v)}
+            placeholder="0.000"
+            aria-label="Fine precision input"
+            data-testid="fine-number"
+          />
+          <Paragraph margin="none" className="text-xs opacity-70">
+            Value: {fineValue || 'empty'}
+          </Paragraph>
+        </div>
+
+        <div className="space-y-1">
+          <Paragraph margin="none" className="text-sm font-medium">
+            With prefix/suffix (step=0.01)
+          </Paragraph>
+          <InputField
+            {...restArgs}
+            type="number"
+            step="0.01"
+            min="0"
+            value={priceValue}
+            onChange={(v) => setPriceValue(v)}
+            placeholder="0.00"
+            aria-label="Price input"
+            data-testid="price-number"
+            prefixComponent={<DollarSign className="size-4" />}
+            suffixComponent={<span className="text-sm opacity-50">USD</span>}
+          />
+          <Paragraph margin="none" className="text-xs opacity-70">
+            Value: {priceValue || 'empty'}
+          </Paragraph>
+        </div>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const constrainedInput = canvas.getByTestId('constrained-number');
+    const increaseButton = canvas
+      .getByTestId('constrained-number')
+      .closest('div')
+      ?.parentElement?.querySelector('[aria-label="Increase value"]');
+
+    if (increaseButton) {
+      // Click increase until we hit max
+      for (let i = 0; i < 6; i++) {
+        await userEvent.click(increaseButton);
+      }
+    }
+
+    // Value should be clamped at 10
+    await expect(constrainedInput).toHaveValue(10);
+  },
+};
+
+/**
  * Input with a clear button that appears when there's text.
  * Use controls to change size, disabled, and readOnly states.
  */

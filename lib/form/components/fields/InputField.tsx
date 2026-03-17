@@ -1,4 +1,6 @@
-import { forwardRef, type ReactNode } from 'react';
+import { Minus, Plus } from 'lucide-react';
+import { forwardRef, useCallback, useRef, type ReactNode } from 'react';
+import { IconButton } from '~/components/ui/Button';
 import {
   controlVariants,
   heightVariants,
@@ -47,8 +49,20 @@ const inputVariants = compose(
       // Hide browser's native clear button on search inputs (we provide our own)
       '[&::-webkit-search-cancel-button]:hidden',
       '[&::-webkit-search-decoration]:hidden',
+      // Hide browser's native spinner on number inputs (we provide our own)
+      '[&::-webkit-outer-spin-button]:appearance-none',
+      '[&::-webkit-inner-spin-button]:appearance-none',
+      '[appearance:textfield]',
     ),
   }),
+);
+
+const stepperButtonVariants = cx(
+  'aspect-square h-full! rounded-none',
+  'elevation-none! translate-y-0!',
+  'bg-input-contrast/5 text-input-contrast',
+  'hover:bg-accent hover:text-accent-contrast',
+  'disabled:pointer-events-none disabled:opacity-30',
 );
 
 type InputFieldProps = CreateFormFieldProps<
@@ -76,27 +90,95 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
       ...inputProps
     } = props;
 
+    const internalRef = useRef<HTMLInputElement>(null);
+    const isNumber = type === 'number';
+    const isInteractive = !disabled && !readOnly;
+
+    const handleStep = useCallback((direction: 'up' | 'down') => {
+      const input = internalRef.current;
+      if (!input) return;
+
+      if (direction === 'up') {
+        input.stepUp();
+      } else {
+        input.stepDown();
+      }
+
+      // stepUp/stepDown don't fire change events, so dispatch one
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    }, []);
+
     const wrapperClassName = cx(
       inputWrapperVariants({ size, state: getInputState(props) }),
+      isNumber && 'gap-0! px-0!',
       className,
     );
 
-    const inputElement = (
+    const inputContent = (
       <>
         {prefix}
         <input
-          ref={ref}
+          ref={(node) => {
+            internalRef.current = node;
+
+            if (typeof ref === 'function') {
+              ref(node);
+            } else if (ref) {
+              ref.current = node;
+            }
+          }}
           autoComplete="off"
           className={inputVariants({ className })}
           type={type}
           {...inputProps}
           onChange={(e) => onChange?.(e.target.value)}
+          onWheel={(e) => {
+            if (isNumber) {
+              e.currentTarget.blur();
+            }
+          }}
           value={value ?? ''}
           disabled={disabled}
           readOnly={readOnly}
         />
         {suffix}
       </>
+    );
+
+    const inputElement = isNumber ? (
+      <>
+        <IconButton
+          size={size}
+          color="default"
+          disabled={!isInteractive}
+          onClick={() => handleStep('down')}
+          aria-label="Decrease value"
+          tabIndex={-1}
+          icon={<Minus />}
+          className={stepperButtonVariants}
+        />
+        <div
+          className={cx(
+            'flex min-w-0 grow items-center',
+            inlineSpacingVariants(),
+            wrapperPaddingVariants(),
+          )}
+        >
+          {inputContent}
+        </div>
+        <IconButton
+          size={size}
+          color="default"
+          disabled={!isInteractive}
+          onClick={() => handleStep('up')}
+          aria-label="Increase value"
+          tabIndex={-1}
+          icon={<Plus />}
+          className={stepperButtonVariants}
+        />
+      </>
+    ) : (
+      inputContent
     );
 
     return <div className={wrapperClassName}>{inputElement}</div>;
