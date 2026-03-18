@@ -68,5 +68,9 @@ export const getBadgeColorsForActivityType = (type: ActivityType) => {
       return 'bg-mustard hover:bg-mustard-dark';
     case 'Setting Changed':
       return 'bg-mustard hover:bg-mustard-dark';
+    case 'Synthetic Data Generated':
+      return 'bg-sea-green hover:bg-sea-green';
+    case 'Synthetic Data Deleted':
+      return 'bg-neon-carrot hover:bg-neon-carrot-dark';
   }
 };

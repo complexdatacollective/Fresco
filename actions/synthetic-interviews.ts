@@ -1,0 +1,46 @@
+'use server';
+
+import { addEvent } from '~/actions/activityFeed';
+import { safeUpdateTag } from '~/lib/cache';
+import { prisma } from '~/lib/db';
+import { requireApiAuth } from '~/utils/auth';
+
+export async function deleteSyntheticData() {
+  await requireApiAuth();
+
+  try {
+    const interviewCount = await prisma.interview.count({
+      where: { isSynthetic: true },
+    });
+    const participantCount = await prisma.participant.count({
+      where: { isSynthetic: true },
+    });
+
+    // Delete interviews first (foreign key constraint)
+    await prisma.interview.deleteMany({
+      where: { isSynthetic: true },
+    });
+
+    await prisma.participant.deleteMany({
+      where: { isSynthetic: true },
+    });
+
+    safeUpdateTag([
+      'getInterviews',
+      'getParticipants',
+      'interviewCount',
+      'participantCount',
+      'summaryStatistics',
+      'activityFeed',
+    ]);
+
+    void addEvent(
+      'Synthetic Data Deleted',
+      `Deleted ${String(interviewCount)} synthetic interviews and ${String(participantCount)} test participants`,
+    );
+
+    return { error: null, deleted: { interviewCount, participantCount } };
+  } catch (_error) {
+    return { error: 'Failed to delete synthetic data', deleted: null };
+  }
+}

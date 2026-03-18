@@ -35,6 +35,8 @@ export const activityTypes = [
   'Switched to Passkey Mode',
   'Switched to Password Mode',
   'Setting Changed',
+  'Synthetic Data Generated',
+  'Synthetic Data Deleted',
 ] as const;
 
 export type ActivityType = (typeof activityTypes)[number];
