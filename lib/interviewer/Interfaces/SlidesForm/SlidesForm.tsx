@@ -1,18 +1,30 @@
 import { type Form } from '@codaco/protocol-validation';
+import {
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
+  type EntityAttributesProperty,
+  type NcEdge,
+  type NcNode,
+} from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
 import {
-  type ComponentType,
-  type ReactElement,
+  type ReactNode,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
 } from 'react';
+import Surface from '~/components/layout/Surface';
+import { ScrollArea } from '~/components/ui/ScrollArea';
 import { useScrolledToBottom } from '~/hooks/useScrolledToBottom';
 import useDialog from '~/lib/dialogs/useDialog';
+import { type FieldValue } from '~/lib/form/components/Field/types';
+import { FormWithoutProvider } from '~/lib/form/components/Form';
 import { useFormMeta } from '~/lib/form/hooks/useFormState';
 import useFormStore from '~/lib/form/hooks/useFormStore';
+import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
+import { type FormSubmitHandler } from '~/lib/form/store/types';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import {
@@ -20,35 +32,93 @@ import {
   type Direction,
   type StageProps,
 } from '~/lib/interviewer/types';
+import { type Subject } from '../../selectors/forms';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 
-type SlidesFormProps<T = unknown> = StageProps<
-  'AlterForm' | 'AlterEdgeForm'
-> & {
-  items: T[];
-  updateItem: (...args: unknown[]) => void;
+type SlidesFormProps = StageProps<'AlterForm' | 'AlterEdgeForm'> & {
+  items: (NcNode | NcEdge)[];
+  subject: Subject;
+  updateItem: (
+    id: string,
+    newAttributeData: NcNode[EntityAttributesProperty],
+  ) => void;
   onNavigateBack?: () => void;
-  slideForm: ComponentType<{
-    item: T;
-    onUpdate: (...args: unknown[]) => void;
-    form: Form;
-    submitButton: ReactElement;
-    sentinelRef: (node: HTMLDivElement | null) => void;
-  }>;
+  renderHeader: (item: NcNode | NcEdge) => ReactNode;
 };
 
 const slideTransition = {
   type: 'spring' as const,
 };
 
-function SlidesFormInner<T>({
+function SlideContent({
+  item,
+  form,
+  subject,
+  sentinelRef,
+  submitButton,
+  onUpdate,
+}: {
+  item: NcNode | NcEdge;
+  form: Form;
+  subject: Subject;
+  sentinelRef: (node: HTMLDivElement | null) => void;
+  submitButton: ReactNode;
+  onUpdate: (
+    id: string,
+    newAttributeData: NcNode[EntityAttributesProperty],
+  ) => void;
+}) {
+  const id = item[entityPrimaryKeyProperty];
+  const rawAttributes = item[entityAttributesProperty];
+
+  const initialValues: Record<string, FieldValue> | undefined = rawAttributes
+    ? (Object.fromEntries(
+        Object.entries(rawAttributes).map(([key, value]) => [
+          key,
+          value ?? undefined,
+        ]),
+      ) as Record<string, FieldValue>)
+    : undefined;
+
+  const { fieldComponents } = useProtocolForm({
+    fields: form.fields,
+    autoFocus: false,
+    initialValues,
+    subject,
+  });
+
+  const handleSubmit: FormSubmitHandler = (values) => {
+    onUpdate(id, values as NcNode[EntityAttributesProperty]);
+    return { success: true as const };
+  };
+
+  return (
+    <div className="flex min-h-0 w-full shrink flex-col">
+      <ScrollArea className="h-auto">
+        <Surface maxWidth="2xl">
+          <FormWithoutProvider
+            onSubmit={handleSubmit}
+            className="[&_.form-field-container]:break-inside-avoid"
+          >
+            {fieldComponents}
+            {submitButton}
+            <div ref={sentinelRef} aria-hidden />
+          </FormWithoutProvider>
+        </Surface>
+      </ScrollArea>
+    </div>
+  );
+}
+
+function SlidesFormInner({
   stage,
   getNavigationHelpers,
   items = [],
-  slideForm: SlideForm,
+  subject,
   updateItem,
   onNavigateBack,
-}: SlidesFormProps<T>) {
+  renderHeader,
+}: SlidesFormProps) {
   const { moveForward } = getNavigationHelpers();
   const { openDialog } = useDialog();
 
@@ -170,12 +240,14 @@ function SlidesFormInner<T>({
           }}
           transition={slideTransition}
         >
-          <SlideForm
+          {renderHeader(currentItem)}
+          <SlideContent
             key={activeIndex}
             item={currentItem}
-            onUpdate={updateItem}
             form={stage.form}
+            subject={subject}
             sentinelRef={sentinelRef}
+            onUpdate={updateItem}
             submitButton={
               <button
                 type="submit"
@@ -192,7 +264,7 @@ function SlidesFormInner<T>({
   );
 }
 
-export default function SlidesForm<T>(props: SlidesFormProps<T>) {
+export default function SlidesForm(props: SlidesFormProps) {
   return (
     <FormStoreProvider>
       <SlidesFormInner {...props} />

@@ -1,13 +1,17 @@
 'use client';
 
+import {
+  type EntityAttributesProperty,
+  type NcNode,
+} from '@codaco/shared-consts';
 import { useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { updateNode } from '~/lib/interviewer/ducks/modules/session';
 import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { type StageProps } from '~/lib/interviewer/types';
+import Node from '../../components/Node';
 import IntroPanel from '../SlidesForm/IntroPanel';
-import SlideFormNode from '../SlidesForm/SlideFormNode';
 import SlidesForm from '../SlidesForm/SlidesForm';
 
 const AlterForm = (props: StageProps<'AlterForm'>) => {
@@ -17,10 +21,25 @@ const AlterForm = (props: StageProps<'AlterForm'>) => {
   const [showIntro, setShowIntro] = useState(true);
 
   const handleUpdateItem = useCallback(
-    (...args: unknown[]) => {
-      void dispatch(updateNode(args[0] as Parameters<typeof updateNode>[0]));
+    (id: string, newAttributeData: NcNode[EntityAttributesProperty]) => {
+      void dispatch(
+        updateNode({
+          nodeId: id,
+          newAttributeData,
+        }),
+      );
     },
     [dispatch],
+  );
+
+  const renderHeader = useCallback(
+    (item: NcNode) => (
+      <Node
+        {...item}
+        className="phone-landscape:mt-4 tablet-landscape:mt-6 mt-2 shrink-0 rounded-full"
+      />
+    ),
+    [],
   );
 
   if (showIntro) {
@@ -37,12 +56,13 @@ const AlterForm = (props: StageProps<'AlterForm'>) => {
 
   return (
     <SlidesForm
-      slideForm={SlideFormNode}
       updateItem={handleUpdateItem}
       items={items}
+      subject={stage.subject}
       stage={stage}
       getNavigationHelpers={props.getNavigationHelpers}
       onNavigateBack={() => setShowIntro(true)}
+      renderHeader={renderHeader}
     />
   );
 };
