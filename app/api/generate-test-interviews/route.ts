@@ -47,23 +47,45 @@ export async function POST(request: Request) {
         const stages = protocol.stages as { id: string }[];
         const totalStages = stages.length;
 
-        // Determine which interviews will be incomplete (drop-outs).
-        // At least 10% of interviews must be completed.
-        const minCompleted = Math.max(1, Math.ceil(count * 0.1));
-        const completedCount =
-          minCompleted + Math.floor(Math.random() * (count - minCompleted + 1));
-        const completedSet = new Set<number>();
+        // Simulate drop-out by walking stages as a participant would.
+        // At each stage the probability of dropping out increases, modelling
+        // fatigue / disengagement over a longer interview.
+        const simulateDropOutStage = (): number => {
+          for (let s = 0; s < totalStages; s++) {
+            const progress = (s + 1) / totalStages;
+            const dropOutChance = progress * 0.15;
+            if (Math.random() < dropOutChance) return s;
+          }
+          return totalStages;
+        };
 
-        while (completedSet.size < completedCount) {
-          completedSet.add(Math.floor(Math.random() * count));
+        // Pre-compute drop-out points and enforce at least 10% completion.
+        const dropOutStages = Array.from(
+          { length: count },
+          simulateDropOutStage,
+        );
+        let completedCount = dropOutStages.filter(
+          (s) => s === totalStages,
+        ).length;
+        const minCompleted = Math.max(1, Math.ceil(count * 0.1));
+
+        while (completedCount < minCompleted) {
+          const idx = Math.floor(Math.random() * count);
+          if (dropOutStages[idx] !== totalStages) {
+            dropOutStages[idx] = totalStages;
+            completedCount++;
+          }
         }
 
         for (let i = 0; i < count; i++) {
-          const isCompleted = completedSet.has(i);
+          const stagesCompleted = dropOutStages[i]!;
+          const isCompleted = stagesCompleted === totalStages;
 
           const { network, stageMetadata } = generateNetwork(
             protocol.codebook as Parameters<typeof generateNetwork>[0],
-            protocol.stages as Parameters<typeof generateNetwork>[1],
+            stages.slice(0, stagesCompleted) as Parameters<
+              typeof generateNetwork
+            >[1],
           );
 
           const participantIdentifier = `test-${createId()}`;
@@ -71,10 +93,6 @@ export async function POST(request: Request) {
           const startTime = new Date(
             Date.now() - Math.floor(Math.random() * 3600000),
           );
-
-          const currentStep = isCompleted
-            ? totalStages
-            : Math.floor(Math.random() * totalStages);
 
           const finishTime = isCompleted
             ? new Date(
@@ -87,7 +105,7 @@ export async function POST(request: Request) {
           await prisma.interview.create({
             data: {
               network: network as object,
-              currentStep,
+              currentStep: stagesCompleted,
               startTime,
               finishTime,
               isSynthetic: true,
