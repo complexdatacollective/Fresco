@@ -6,4 +6,4 @@ export const exportInterviewsSchema = z.object({
   exportOptions: ExportOptionsSchema,
 });
 
-export type ExportInterviewsInput = z.infer<typeof exportInterviewsSchema>;
+type ExportInterviewsInput = z.infer<typeof exportInterviewsSchema>;

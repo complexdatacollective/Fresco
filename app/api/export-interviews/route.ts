@@ -21,7 +21,15 @@ export async function POST(request: Request) {
     });
   }
 
-  const body: unknown = await request.json();
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
+      status: 400,
+    });
+  }
+
   const parsed = exportInterviewsSchema.safeParse(body);
 
   if (!parsed.success) {

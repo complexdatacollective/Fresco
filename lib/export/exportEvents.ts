@@ -1,4 +1,4 @@
-export const exportStages = [
+const exportStages = [
   'fetching',
   'formatting',
   'generating',
@@ -6,7 +6,7 @@ export const exportStages = [
   'uploading',
 ] as const;
 
-export type ExportStage = (typeof exportStages)[number];
+type ExportStage = (typeof exportStages)[number];
 
 export const stageMessages: Record<ExportStage, string> = {
   fetching: 'Fetching interview data...',
