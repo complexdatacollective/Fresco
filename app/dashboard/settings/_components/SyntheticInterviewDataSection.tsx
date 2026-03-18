@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { use, useState } from 'react';
 import { SuperJSON } from 'superjson';
 import { deleteSyntheticData } from '~/actions/synthetic-interviews';
@@ -34,6 +35,7 @@ export default function SyntheticInterviewDataSection({
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [syntheticCounts, setSyntheticCounts] = useState(initialCounts);
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleGenerate = async () => {
     if (!selectedProtocolId) return;
@@ -100,6 +102,7 @@ export default function SyntheticInterviewDataSection({
       }
     } finally {
       setIsGenerating(false);
+      router.refresh();
     }
   };
 
