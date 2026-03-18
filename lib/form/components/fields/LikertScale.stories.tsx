@@ -228,7 +228,7 @@ export const ClickTrackSetsClickedValue: Story = {
     const control = thumb.parentElement!.parentElement!.parentElement!;
     const rect = control.getBoundingClientRect();
 
-    fireEvent.pointerDown(control, {
+    await fireEvent.pointerDown(control, {
       clientX: rect.right - 2,
       clientY: rect.top + rect.height / 2,
       pointerId: 1,
@@ -236,7 +236,7 @@ export const ClickTrackSetsClickedValue: Story = {
       button: 0,
       buttons: 1,
     });
-    fireEvent.pointerUp(control, {
+    await fireEvent.pointerUp(control, {
       clientX: rect.right - 2,
       clientY: rect.top + rect.height / 2,
       pointerId: 1,

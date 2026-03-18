@@ -35,15 +35,17 @@ import {
 import { type Subject } from '../../selectors/forms';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 
-type SlidesFormProps = StageProps<'AlterForm' | 'AlterEdgeForm'> & {
-  items: (NcNode | NcEdge)[];
+type SlidesFormProps<T extends NcNode | NcEdge = NcNode | NcEdge> = StageProps<
+  'AlterForm' | 'AlterEdgeForm'
+> & {
+  items: T[];
   subject: Subject;
   updateItem: (
     id: string,
     newAttributeData: NcNode[EntityAttributesProperty],
   ) => void;
   onNavigateBack?: () => void;
-  renderHeader: (item: NcNode | NcEdge) => ReactNode;
+  renderHeader: (item: T) => ReactNode;
 };
 
 const slideTransition = {
@@ -110,15 +112,15 @@ function SlideContent({
   );
 }
 
-function SlidesFormInner({
+function SlidesFormInner<T extends NcNode | NcEdge>({
   stage,
   getNavigationHelpers,
-  items = [],
+  items = [] as T[],
   subject,
   updateItem,
   onNavigateBack,
   renderHeader,
-}: SlidesFormProps) {
+}: SlidesFormProps<T>) {
   const { moveForward } = getNavigationHelpers();
   const { openDialog } = useDialog();
 
@@ -264,7 +266,9 @@ function SlidesFormInner({
   );
 }
 
-export default function SlidesForm(props: SlidesFormProps) {
+export default function SlidesForm<T extends NcNode | NcEdge>(
+  props: SlidesFormProps<T>,
+) {
   return (
     <FormStoreProvider>
       <SlidesFormInner {...props} />
