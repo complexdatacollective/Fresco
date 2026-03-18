@@ -1,11 +1,12 @@
 'use server';
 
 import { createId } from '@paralleldrive/cuid2';
-import { Effect } from 'effect';
+import { Effect, Queue } from 'effect';
 import { after } from 'next/server';
 import { safeRevalidateTag, safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { type Interview } from '~/lib/db/generated/client';
+import type { ExportEvent } from '~/lib/export/exportEvents';
 import { ExportLayer } from '~/lib/export/layers/ExportLayer';
 import { exportPipeline } from '~/lib/export/pipeline';
 import { createInitialNetwork } from '~/lib/interviewer/ducks/modules/session';
@@ -87,7 +88,10 @@ export const exportInterviews = async (
 ): Promise<ExportReturn> => {
   await requireApiAuth();
 
-  const result = await exportPipeline(interviewIds, exportOptions).pipe(
+  const result = await Effect.gen(function* () {
+    const queue = yield* Queue.unbounded<ExportEvent>();
+    return yield* exportPipeline(interviewIds, exportOptions, queue);
+  }).pipe(
     Effect.catchAll((error) =>
       Effect.succeed({
         status: 'error' as const,
