@@ -1,24 +1,12 @@
 'use server';
 
 import { createId } from '@paralleldrive/cuid2';
-import { Effect, Queue } from 'effect';
 import { after } from 'next/server';
 import { safeRevalidateTag, safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { type Interview } from '~/lib/db/generated/client';
-import type { ExportEvent } from '~/lib/export/exportEvents';
-import { ExportLayer } from '~/lib/export/layers/ExportLayer';
-import { exportPipeline } from '~/lib/export/pipeline';
 import { createInitialNetwork } from '~/lib/interviewer/ducks/modules/session';
-import type {
-  ExportOptions,
-  ExportReturn,
-} from '~/lib/network-exporters/utils/types';
-import {
-  captureEvent,
-  captureException,
-  shutdownPostHog,
-} from '~/lib/posthog-server';
+import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
 import type { CreateInterview, DeleteInterviews } from '~/schemas/interviews';
 import { requireApiAuth } from '~/utils/auth';
@@ -80,47 +68,6 @@ export const updateExportTime = async (interviewIds: Interview['id'][]) => {
   } catch (error) {
     return { error: 'Failed to update interviews', interview: null };
   }
-};
-
-export const exportInterviews = async (
-  interviewIds: Interview['id'][],
-  exportOptions: ExportOptions,
-): Promise<ExportReturn> => {
-  await requireApiAuth();
-
-  const result = await Effect.gen(function* () {
-    const queue = yield* Queue.unbounded<ExportEvent>();
-    return yield* exportPipeline(interviewIds, exportOptions, queue);
-  }).pipe(
-    Effect.catchAll((error) =>
-      Effect.succeed({
-        status: 'error' as const,
-        error: error.userMessage,
-      } satisfies ExportReturn),
-    ),
-    Effect.provide(ExportLayer),
-    Effect.runPromise,
-  );
-
-  after(async () => {
-    if (result.status === 'error') {
-      await captureException(new Error(result.error ?? 'Unknown error'), {
-        interviewCount: interviewIds.length,
-        exportOptions,
-      });
-    } else {
-      await captureEvent('DataExported', {
-        status: result.status,
-        sessions: interviewIds.length,
-        exportOptions,
-        result,
-      });
-    }
-    await shutdownPostHog();
-  });
-
-  safeUpdateTag('getInterviews');
-  return result;
 };
 
 export async function createInterview(data: CreateInterview) {
