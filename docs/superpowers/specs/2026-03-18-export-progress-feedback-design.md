@@ -40,7 +40,9 @@ data: {"type":"error","message":"Something went wrong"}
 
 The export pipeline (`lib/export/pipeline.ts`) is modified to accept an `Effect.Queue` and push progress events to it between steps.
 
-The file generation step (`generateOutputFiles`) is converted from `Promise.all` to `Effect.forEach` with `{ concurrency: "unbounded" }`. Per-file completion is tracked via `Effect.Ref` and reported to the queue via `Effect.tap`.
+The file generation step (`generateOutputFiles`) becomes an Effect-returning function (no longer wrapped in `Effect.tryPromise`). Its internals are converted from building an array of Promises and using `Promise.all` to using `Effect.forEach` with `{ concurrency: "unbounded" }`. Each file export is wrapped as an Effect via `Effect.tryPromise`, and per-file completion is tracked via `Effect.Ref` and reported to the queue via `Effect.tap`. The function signature changes from a curried async function to an Effect, and its callsite in `pipeline.ts` updates accordingly (direct `yield*` instead of wrapping in `Effect.tryPromise`).
+
+The `total` file count is computed eagerly before invoking `Effect.forEach` — the existing code already builds the full list of export items (sessions x formats x entity types) before executing them. This count is sent with the initial `stage: 'generating'` event so the client knows the total from the start.
 
 The SSE stream is modeled as:
 
@@ -71,7 +73,9 @@ A React context provider that lives in the dashboard layout (`app/dashboard/layo
 8. As SSE events arrive, the toast is updated via `toast.update(id, ...)`
 9. On complete: zip is fetched and downloaded automatically, toast transitions to success and auto-dismisses after 5 seconds
 10. On error: toast transitions to error state and stays until dismissed
-11. Cleanup: temporary zip file is deleted from UploadThing after download
+11. After successful download: `updateExportTime` server action is called to update interview export timestamps
+12. Cleanup: temporary zip file is deleted from UploadThing after download
+13. PostHog event tracking: client-side `posthog.captureException` on error, preserved from existing flow
 
 #### Cancellation
 
@@ -88,7 +92,7 @@ Multiple exports can run simultaneously. Each gets its own toast, SSE connection
 
 The existing `@base-ui/react` toast system supports everything needed:
 
-- `timeout: 0` or `type: 'loading'` makes a toast persistent
+- `timeout: 0` makes a toast persistent (never auto-dismisses). Note: `type` is purely a visual variant and does not affect persistence — always set `timeout: 0` explicitly for persistent toasts.
 - `update(id, data)` modifies title, description, type, and timeout on an existing toast
 - `close(id)` dismisses a specific toast
 
@@ -102,7 +106,7 @@ The progress toast description is a React node containing the stage label text, 
 
 #### Toast States
 
-**During export (persistent, `type: 'loading'`):**
+**During export (persistent, `type: 'loading'`, `timeout: 0`):**
 
 - Early stages (fetching, formatting, archiving, uploading): spinner + stage label + cancel button
 - Generating stage: spinner + "Generating files... X / Y" + horizontal progress bar + cancel button
@@ -123,7 +127,7 @@ The progress toast description is a React node containing the stage label text, 
 |------|---------|
 | `app/api/export-interviews/route.ts` | SSE route handler |
 | `components/ExportProgressProvider.tsx` | React context for managing active exports |
-| `schemas/export.ts` | Zod schema for route handler request body |
+| `schemas/export.ts` | Zod schema for route handler request body (reuses `ExportOptionsSchema` from `~/lib/network-exporters/utils/types`) |
 
 ### Modified
 
