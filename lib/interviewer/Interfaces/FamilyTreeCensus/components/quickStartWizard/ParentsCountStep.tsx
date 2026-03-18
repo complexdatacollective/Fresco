@@ -1,34 +1,74 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useWizard } from '~/lib/dialogs/useWizard';
+import Field from '~/lib/form/components/Field/Field';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
+import BooleanField from '~/lib/form/components/fields/Boolean';
 import NumberCounterField from '~/lib/form/components/fields/NumberCounterField';
-import ToggleField from '~/lib/form/components/fields/ToggleField';
+import useFormStore from '~/lib/form/hooks/useFormStore';
+import FormStoreProvider from '~/lib/form/store/formStoreProvider';
+import { focusFirstError } from '~/lib/form/utils/focusFirstError';
 
 export default function ParentsCountStep() {
-  const { data, setStepData } = useWizard();
+  return (
+    <FormStoreProvider>
+      <ParentsCountForm />
+    </FormStoreProvider>
+  );
+}
+
+function ParentsCountForm() {
+  const { data, setStepData, setBeforeNext } = useWizard();
+  const validateForm = useFormStore((s) => s.validateForm);
+  const getFormValues = useFormStore((s) => s.getFormValues);
+  const errors = useFormStore((s) => s.errors);
+  const errorsRef = useRef(errors);
+  errorsRef.current = errors;
+
   const [parentCount, setParentCount] = useState(
     (data.parentCount as number | undefined) ?? 2,
   );
   const [siblingCount, setSiblingCount] = useState(
     (data.siblingCount as number | undefined) ?? 0,
   );
-  const [hasPartner, setHasPartner] = useState(
-    (data.hasPartner as boolean | undefined) ?? false,
-  );
+
+  const existingHasPartner =
+    (data.hasPartner as boolean | undefined) ?? undefined;
+
+  const parentCountRef = useRef(parentCount);
+  parentCountRef.current = parentCount;
+  const siblingCountRef = useRef(siblingCount);
+  siblingCountRef.current = siblingCount;
 
   useEffect(() => {
-    setStepData({ parentCount, siblingCount, hasPartner });
-  }, [parentCount, siblingCount, hasPartner, setStepData]);
+    setBeforeNext(async () => {
+      const isValid = await validateForm();
+      if (!isValid) {
+        setTimeout(() => focusFirstError(errorsRef.current), 0);
+        return false;
+      }
+
+      const values = getFormValues();
+      const rawHasPartner = values.hasPartner;
+
+      setStepData({
+        parentCount: parentCountRef.current,
+        siblingCount: siblingCountRef.current,
+        hasPartner:
+          typeof rawHasPartner === 'boolean' ? rawHasPartner : undefined,
+      });
+      return true;
+    });
+  }, [validateForm, getFormValues, setStepData, setBeforeNext]);
 
   return (
-    <div className="flex flex-col gap-6 pt-4">
+    <>
       <UnconnectedField
         name="parentCount"
         inline
         label="How many parents do you have?"
-        hint="This includes biological, step, adoptive, and anyone else that you identify as a parent."
+        hint="This includes donors/surrogates, step, adoptive, and anyone else that you identify as a parent."
         component={NumberCounterField}
         value={parentCount}
         minValue={0}
@@ -51,14 +91,15 @@ export default function ParentsCountStep() {
           setSiblingCount(newCount);
         }}
       />
-      <UnconnectedField
+      <Field
         name="hasPartner"
         inline
         label="Do you have a partner?"
-        component={ToggleField}
-        value={hasPartner}
-        onChange={(v) => setHasPartner(!!v)}
+        hint="This includes anyone you are currently in a romantic relationship with, including dating, committed, married, etc."
+        component={BooleanField}
+        initialValue={existingHasPartner}
+        required
       />
-    </div>
+    </>
   );
 }

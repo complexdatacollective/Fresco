@@ -181,7 +181,7 @@ export default function BooleanField(props: BooleanFieldProps) {
         id={id}
         {...rest}
         role="radiogroup"
-        className="flex w-full items-stretch gap-2 border-0 p-0 *:min-w-0 *:flex-1"
+        className="flex w-full items-stretch gap-2 border-0 p-0 *:flex-1"
         disabled={disabled}
         aria-label={label ?? rest['aria-label']}
         aria-invalid={rest['aria-invalid'] ?? undefined}

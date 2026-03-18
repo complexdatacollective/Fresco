@@ -68,7 +68,7 @@ export function BaseField({
         'flex flex-col',
       )}
     >
-      <div>
+      <div className={cx(inline && 'min-w-0')}>
         <FieldLabel id={`${id}-label`} htmlFor={id} required={required}>
           {label}
         </FieldLabel>
@@ -77,7 +77,7 @@ export function BaseField({
           {validationSummary}
         </Hint>
       </div>
-      <div>
+      <div className={cx(inline && 'shrink-0')}>
         {children}
         <FieldErrors
           id={`${id}-error`}
