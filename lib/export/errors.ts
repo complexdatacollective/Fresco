@@ -27,13 +27,6 @@ export class FileStorageError extends Data.TaggedError('FileStorageError')<{
   readonly userMessage: string;
 }> {}
 
-export type ExportPipelineError =
-  | DatabaseError
-  | FileSystemError
-  | ExportGenerationError
-  | ArchiveError
-  | FileStorageError;
-
 export function getUserMessage(error: unknown, stage: string): string {
   const message =
     error instanceof Error ? error.message.toLowerCase() : String(error);
