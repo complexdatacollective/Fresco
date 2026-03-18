@@ -70,12 +70,15 @@ type StageHandleBase = {
   stageEntry: StageEntry;
 };
 
+type AddFormFieldOpts = {
+  component: ComponentType;
+  variable?: string;
+  prompt?: string;
+  validation?: Record<string, unknown>;
+};
+
 type NameGeneratorHandle = StageHandleBase & {
-  addFormField: (opts: {
-    component: ComponentType;
-    variable?: string;
-    prompt?: string;
-  }) => void;
+  addFormField: (opts: AddFormFieldOpts) => void;
   addPrompt: (opts?: AddPromptInput) => void;
   addPanel: (opts?: { title?: string; dataSource?: string }) => void;
 };
@@ -114,11 +117,7 @@ type CategoricalBinHandle = StageHandleBase & {
 };
 
 type EgoFormHandle = StageHandleBase & {
-  addFormField: (opts: {
-    component: ComponentType;
-    variable?: string;
-    prompt?: string;
-  }) => void;
+  addFormField: (opts: AddFormFieldOpts) => void;
 };
 
 type InformationHandle = StageHandleBase;
@@ -128,19 +127,11 @@ type TieStrengthCensusHandle = StageHandleBase & {
 };
 
 type AlterFormHandle = StageHandleBase & {
-  addFormField: (opts: {
-    component: ComponentType;
-    variable?: string;
-    prompt?: string;
-  }) => void;
+  addFormField: (opts: AddFormFieldOpts) => void;
 };
 
 type AlterEdgeFormHandle = StageHandleBase & {
-  addFormField: (opts: {
-    component: ComponentType;
-    variable?: string;
-    prompt?: string;
-  }) => void;
+  addFormField: (opts: AddFormFieldOpts) => void;
 };
 
 type AnonymisationHandle = StageHandleBase;
@@ -646,16 +637,13 @@ export class SyntheticInterview {
       case 'NameGenerator':
         return {
           ...base,
-          addFormField: (opts: {
-            component: ComponentType;
-            variable?: string;
-            prompt?: string;
-          }) => {
+          addFormField: (opts: AddFormFieldOpts) => {
             const field = this.resolveFormField(
               {
                 component: opts.component,
                 variable: opts.variable,
                 prompt: opts.prompt,
+                validation: opts.validation,
               },
               entry.subject!.type,
             );
@@ -750,11 +738,7 @@ export class SyntheticInterview {
       case 'EgoForm':
         return {
           ...base,
-          addFormField: (opts: {
-            component: ComponentType;
-            variable?: string;
-            prompt?: string;
-          }) => {
+          addFormField: (opts: AddFormFieldOpts) => {
             const field = this.resolveEgoFormField(opts);
             entry.form ??= { title: 'About you', fields: [] };
             entry.form.fields.push(field);
@@ -777,16 +761,13 @@ export class SyntheticInterview {
       case 'AlterForm':
         return {
           ...base,
-          addFormField: (opts: {
-            component: ComponentType;
-            variable?: string;
-            prompt?: string;
-          }) => {
+          addFormField: (opts: AddFormFieldOpts) => {
             const field = this.resolveFormField(
               {
                 component: opts.component,
                 variable: opts.variable,
                 prompt: opts.prompt,
+                validation: opts.validation,
               },
               entry.subject!.type,
             );
@@ -798,16 +779,13 @@ export class SyntheticInterview {
       case 'AlterEdgeForm':
         return {
           ...base,
-          addFormField: (opts: {
-            component: ComponentType;
-            variable?: string;
-            prompt?: string;
-          }) => {
+          addFormField: (opts: AddFormFieldOpts) => {
             const field = this.resolveEdgeFormField(
               {
                 component: opts.component,
                 variable: opts.variable,
                 prompt: opts.prompt,
+                validation: opts.validation,
               },
               entry.subject!.type,
             );
@@ -887,6 +865,7 @@ export class SyntheticInterview {
       const ref = this.addVariableToNodeType(nodeTypeId, {
         component: input.component,
         name: input.prompt,
+        validation: input.validation,
       });
       variableId = ref.id;
     }
@@ -902,17 +881,13 @@ export class SyntheticInterview {
     };
   }
 
-  private resolveEdgeFormField(
-    input:
-      | FormFieldInput
-      | { component: ComponentType; variable?: string; prompt?: string },
-    edgeTypeId: string,
-  ) {
+  private resolveEdgeFormField(input: FormFieldInput, edgeTypeId: string) {
     let variableId = input.variable;
     if (!variableId) {
       const ref = this.addVariableToEdgeType(edgeTypeId, {
         component: input.component,
         name: input.prompt,
+        validation: input.validation,
       });
       variableId = ref.id;
     }
@@ -928,16 +903,13 @@ export class SyntheticInterview {
     };
   }
 
-  private resolveEgoFormField(input: {
-    component: ComponentType;
-    variable?: string;
-    prompt?: string;
-  }) {
+  private resolveEgoFormField(input: AddFormFieldOpts) {
     let variableId = input.variable;
     if (!variableId) {
       const ref = this.addEgoVariable({
         component: input.component,
         name: input.prompt,
+        validation: input.validation,
       });
       variableId = ref.id;
     }

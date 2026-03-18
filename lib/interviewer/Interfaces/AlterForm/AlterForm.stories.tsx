@@ -1,9 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
+import { action } from 'storybook/actions';
 import SuperJSON from 'superjson';
 import StoryInterviewShell from '~/.storybook/StoryInterviewShell';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
 import { type ComponentType } from '~/lib/interviewer/utils/SyntheticInterview/types';
+
+const logAction = action('redux');
+const onAction = (a: { type: string; payload?: unknown }) => {
+  logAction(a.type, a.payload);
+};
 
 const FIELD_PRESETS: { component: ComponentType; prompt: string }[] = [
   { component: 'Text', prompt: 'Nickname' },
@@ -81,7 +87,12 @@ const AlterFormStoryWrapper = (args: StoryArgs) => {
 
   return (
     <div className="flex h-dvh w-full">
-      <StoryInterviewShell rawPayload={rawPayload} disableSync />
+      <StoryInterviewShell
+        key={configKey}
+        rawPayload={rawPayload}
+        disableSync
+        onAction={onAction}
+      />
     </div>
   );
 };
@@ -133,5 +144,89 @@ export const ManyFields: Story = {
   render: (args) => <AlterFormStoryWrapper {...args} />,
   args: {
     fieldCount: FIELD_PRESETS.length,
+  },
+};
+
+function buildValidatedInterview() {
+  const interview = new SyntheticInterview();
+  const nodeType = interview.addNodeType({ name: 'Person' });
+
+  interview.addInformationStage({
+    title: 'Welcome',
+    text: 'Before the main stage.',
+  });
+
+  const stage = interview.addStage('AlterForm', {
+    label: 'Alter Form (Validated)',
+    initialNodes: 2,
+    subject: { entity: 'node', type: nodeType.id },
+    introductionPanel: {
+      title: 'About Each Person',
+      text: 'These fields have validation rules. Try advancing without filling them in to see errors.',
+    },
+  });
+
+  stage.addFormField({
+    component: 'Text',
+    prompt: 'Full name (required)',
+    validation: { required: true },
+  });
+  stage.addFormField({
+    component: 'Number',
+    prompt: 'Age (required, 1–120)',
+    validation: { required: true, minValue: 1, maxValue: 120 },
+  });
+  stage.addFormField({
+    component: 'TextArea',
+    prompt: 'Notes (required, 5–500 characters)',
+    validation: { required: true, minLength: 5, maxLength: 500 },
+  });
+  stage.addFormField({
+    component: 'CheckboxGroup',
+    prompt: 'Contexts you interact in (required, pick 1–3)',
+    validation: { required: true, minSelected: 1, maxSelected: 3 },
+  });
+  stage.addFormField({
+    component: 'RadioGroup',
+    prompt: 'How close are you? (required)',
+    validation: { required: true },
+  });
+
+  interview.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+
+  return interview;
+}
+
+const WithValidationWrapper = () => {
+  const interview = useMemo(() => buildValidatedInterview(), []);
+  const rawPayload = useMemo(
+    () =>
+      SuperJSON.stringify(interview.getInterviewPayload({ currentStep: 1 })),
+    [interview],
+  );
+
+  return (
+    <div className="flex h-dvh w-full">
+      <StoryInterviewShell
+        rawPayload={rawPayload}
+        disableSync
+        onAction={onAction}
+      />
+    </div>
+  );
+};
+
+export const WithValidation: Story = {
+  render: () => <WithValidationWrapper />,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Demonstrates form fields with validation rules including required fields, min/max values, length constraints, and selection limits. Try advancing without completing the form to see validation errors.',
+      },
+    },
   },
 };

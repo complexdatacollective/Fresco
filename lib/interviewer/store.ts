@@ -1,6 +1,10 @@
 'use client';
 
-import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import {
+  combineReducers,
+  configureStore,
+  type Middleware,
+} from '@reduxjs/toolkit';
 import { useDispatch } from 'react-redux';
 import protocol from '~/lib/interviewer/ducks/modules/protocol';
 import session from '~/lib/interviewer/ducks/modules/session';
@@ -20,7 +24,7 @@ const rootReducer = combineReducers({
 
 export const store = (
   { protocol, ...session }: NonNullable<GetInterviewByIdQuery>,
-  options?: { disableSync?: boolean },
+  options?: { disableSync?: boolean; extraMiddleware?: Middleware[] },
 ) =>
   configureStore({
     reducer: rootReducer,
@@ -35,6 +39,7 @@ export const store = (
       }).concat(
         ...(env.NODE_ENV === 'development' ? [logger] : []),
         ...(options?.disableSync ? [] : [syncMiddleware]),
+        ...(options?.extraMiddleware ?? []),
       ),
     preloadedState: {
       session: {

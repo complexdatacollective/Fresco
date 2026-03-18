@@ -6,13 +6,17 @@ import {
   type NcEdge,
   type NcNode,
 } from '@codaco/shared-consts';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion, useScroll, useTransform } from 'motion/react';
 import {
-  type ReactNode,
+  forwardRef,
+  useCallback,
+  useContext,
   useEffect,
+  useImperativeHandle,
   useLayoutEffect,
   useRef,
   useState,
+  type ReactNode,
 } from 'react';
 import Surface from '~/components/layout/Surface';
 import { ScrollArea } from '~/components/ui/ScrollArea';
@@ -23,7 +27,9 @@ import { FormWithoutProvider } from '~/lib/form/components/Form';
 import { useFormMeta } from '~/lib/form/hooks/useFormState';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
-import FormStoreProvider from '~/lib/form/store/formStoreProvider';
+import FormStoreProvider, {
+  FormStoreContext,
+} from '~/lib/form/store/formStoreProvider';
 import { type FormSubmitHandler } from '~/lib/form/store/types';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
@@ -32,8 +38,8 @@ import {
   type Direction,
   type StageProps,
 } from '~/lib/interviewer/types';
-import { type Subject } from '../../selectors/forms';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
+import { type Subject } from '../../selectors/forms';
 
 type SlidesFormProps = StageProps<'AlterForm' | 'AlterEdgeForm'> & {
   items: (NcNode | NcEdge)[];
@@ -48,69 +54,130 @@ type SlidesFormProps = StageProps<'AlterForm' | 'AlterEdgeForm'> & {
 
 const slideTransition = {
   type: 'spring' as const,
+  stiffness: 200,
+  damping: 15,
 };
 
-function SlideContent({
-  item,
-  form,
-  subject,
-  sentinelRef,
-  submitButton,
-  onUpdate,
-}: {
+type SlideHandle = {
+  validate: () => Promise<boolean>;
+  submit: () => Promise<void>;
+  isDirty: () => boolean;
+  focusFirstError: () => void;
+};
+
+type SlideContentProps = {
   item: NcNode | NcEdge;
   form: Form;
   subject: Subject;
-  sentinelRef: (node: HTMLDivElement | null) => void;
+  header: ReactNode;
   submitButton: ReactNode;
   onUpdate: (
     id: string,
     newAttributeData: NcNode[EntityAttributesProperty],
   ) => void;
-}) {
-  const id = item[entityPrimaryKeyProperty];
-  const rawAttributes = item[entityAttributesProperty];
+  onReadyChange: (ready: boolean) => void;
+};
 
-  const initialValues: Record<string, FieldValue> | undefined = rawAttributes
-    ? (Object.fromEntries(
-        Object.entries(rawAttributes).map(([key, value]) => [
-          key,
-          value ?? undefined,
-        ]),
-      ) as Record<string, FieldValue>)
-    : undefined;
+const SlideContentInner = forwardRef<SlideHandle, SlideContentProps>(
+  function SlideContentInner(
+    { item, form, subject, header, submitButton, onUpdate, onReadyChange },
+    ref,
+  ) {
+    const id = item[entityPrimaryKeyProperty];
+    const rawAttributes = item[entityAttributesProperty];
 
-  const { fieldComponents } = useProtocolForm({
-    fields: form.fields,
-    autoFocus: false,
-    initialValues,
-    subject,
-  });
+    const initialValues: Record<string, FieldValue> | undefined = rawAttributes
+      ? (Object.fromEntries(
+          Object.entries(rawAttributes).map(([key, value]) => [
+            key,
+            value ?? undefined,
+          ]),
+        ) as Record<string, FieldValue>)
+      : undefined;
 
-  const handleSubmit: FormSubmitHandler = (values) => {
-    onUpdate(id, values as NcNode[EntityAttributesProperty]);
-    return { success: true as const };
-  };
+    const { fieldComponents } = useProtocolForm({
+      fields: form.fields,
+      autoFocus: false,
+      initialValues,
+      subject,
+    });
 
-  return (
-    <div className="flex min-h-0 w-full shrink flex-col">
-      <ScrollArea className="h-auto">
-        <Surface maxWidth="2xl">
-          <FormWithoutProvider
-            onSubmit={handleSubmit}
-            className="[&_.form-field-container]:break-inside-avoid"
-          >
-            {fieldComponents}
-            {submitButton}
-            <div ref={sentinelRef} aria-hidden />
-          </FormWithoutProvider>
-        </Surface>
+    const handleSubmit: FormSubmitHandler = (values) => {
+      onUpdate(id, values as NcNode[EntityAttributesProperty]);
+      return { success: true as const };
+    };
+
+    const storeApi = useContext(FormStoreContext);
+    const { isValid } = useFormMeta();
+    const fieldCount = useFormStore((s) => s.fields.size);
+    const formErrors = useFormStore((s) => s.errors);
+    const formErrorsRef = useRef(formErrors);
+    useLayoutEffect(() => {
+      formErrorsRef.current = formErrors;
+    }, [formErrors]);
+
+    const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const { scrollY } = useScroll({ container: scrollAreaRef });
+    const headerScale = useTransform(scrollY, [0, 150], [1, 0.75]);
+    const { isAtBottom: hasScrolledToBottom, sentinelRef } =
+      useScrolledToBottom(scrollAreaRef);
+
+    useEffect(() => {
+      onReadyChange(isValid && fieldCount > 0 && hasScrolledToBottom);
+    }, [isValid, fieldCount, hasScrolledToBottom, onReadyChange]);
+
+    useImperativeHandle(ref, () => ({
+      validate: () => storeApi!.getState().validateForm(),
+      submit: () => storeApi!.getState().submitForm(),
+      isDirty: () => storeApi!.getState().isDirty,
+      focusFirstError: () => focusFirstError(formErrorsRef.current),
+    }));
+
+    return (
+      <ScrollArea
+        ref={scrollAreaRef}
+        className="size-full"
+        viewportClassName="flex flex-col gap-4 items-center h-full"
+      >
+        <div className="phone-landscape:py-4 tablet-landscape:py-6 phone-landscape:mx-4 tablet-landscape:mx-6 mx-2 my-auto flex flex-col gap-4 py-2">
+          <div className="sticky top-0 z-10 shrink-0">
+            <motion.div
+              className="flex justify-center"
+              style={{
+                scale: headerScale,
+                transformOrigin: 'top center',
+              }}
+            >
+              {header}
+            </motion.div>
+          </div>
+          <Surface noContainer className="phone:min-w-lg max-w-2xl shrink-0">
+            <FormWithoutProvider
+              onSubmit={handleSubmit}
+              className="[&_.form-field-container]:break-inside-avoid"
+            >
+              {fieldComponents}
+              {submitButton}
+            </FormWithoutProvider>
+          </Surface>
+        </div>
+        <div ref={sentinelRef} aria-hidden />
       </ScrollArea>
-    </div>
-  );
-}
+    );
+  },
+);
 
-function SlidesFormInner({
+const SlideContent = forwardRef<SlideHandle, SlideContentProps>(
+  function SlideContent(props, ref) {
+    return (
+      <FormStoreProvider>
+        <SlideContentInner ref={ref} {...props} />
+      </FormStoreProvider>
+    );
+  },
+);
+
+export default function SlidesForm({
   stage,
   getNavigationHelpers,
   items = [],
@@ -120,23 +187,20 @@ function SlidesFormInner({
   renderHeader,
 }: SlidesFormProps) {
   const { moveForward } = getNavigationHelpers();
-  const { openDialog } = useDialog();
+  const { confirm } = useDialog();
 
-  const { isValid, isDirty } = useFormMeta();
-  const validateForm = useFormStore((s) => s.validateForm);
-  const submitForm = useFormStore((s) => s.submitForm);
-  const fieldCount = useFormStore((s) => s.fields.size);
-  const formErrors = useFormStore((s) => s.errors);
-  const formErrorsRef = useRef(formErrors);
-  useLayoutEffect(() => {
-    formErrorsRef.current = formErrors;
-  }, [formErrors]);
-
-  const { isAtBottom: hasScrolledToBottom, sentinelRef } =
-    useScrolledToBottom();
-
+  const slideRef = useRef<SlideHandle | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const slideCallbackRef = useCallback((handle: SlideHandle | null) => {
+    if (handle !== null) {
+      slideRef.current = handle;
+    }
+  }, []);
+
   const { updateReady: setIsReadyForNext } = useReadyForNextStage();
+
+  const [slideReady, setSlideReady] = useState(false);
 
   const [pendingDirection, setPendingDirection] = useState<Direction | null>(
     null,
@@ -144,11 +208,12 @@ function SlidesFormInner({
 
   useEffect(() => {
     setIsReadyForNext(false);
+    setSlideReady(false);
   }, [activeIndex, setIsReadyForNext]);
 
   useEffect(() => {
-    setIsReadyForNext(isValid && hasScrolledToBottom && fieldCount > 0);
-  }, [setIsReadyForNext, isValid, hasScrolledToBottom, fieldCount]);
+    setIsReadyForNext(slideReady);
+  }, [setIsReadyForNext, slideReady]);
 
   const beforeNext: BeforeNextFunction = async (direction: Direction) => {
     if (items.length === 0) {
@@ -166,29 +231,25 @@ function SlidesFormInner({
         return true;
       }
 
-      const formIsValid = await validateForm();
+      const formIsValid = await slideRef.current?.validate();
 
-      if (!formIsValid && isDirty) {
-        const confirm = await openDialog({
-          type: 'choice',
+      if (!formIsValid && slideRef.current?.isDirty()) {
+        await confirm({
           title: 'Discard changes?',
           description:
             'This form contains invalid data, so it cannot be saved. If you continue it will be reset, and your changes will be lost. Do you want to discard your changes?',
+          confirmLabel: 'Discard changes',
+          cancelLabel: 'Cancel',
           intent: 'destructive',
-          actions: {
-            primary: { label: 'Discard changes', value: true },
-            cancel: { label: 'Go back', value: false },
+          onConfirm: () => {
+            setActiveIndex((prev) => prev - 1);
           },
         });
-
-        if (confirm) {
-          setActiveIndex((prev) => prev - 1);
-        }
         return false;
       }
 
       if (formIsValid) {
-        await submitForm();
+        await slideRef.current?.submit();
       }
 
       setActiveIndex((prev) => prev - 1);
@@ -196,14 +257,14 @@ function SlidesFormInner({
     }
 
     // Forward direction
-    const formIsValid = await validateForm();
+    const formIsValid = await slideRef.current?.validate();
 
     if (!formIsValid) {
-      focusFirstError(formErrorsRef.current);
+      slideRef.current?.focusFirstError();
       return false;
     }
 
-    await submitForm();
+    await slideRef.current?.submit();
 
     if (activeIndex >= items.length - 1) {
       return true;
@@ -231,7 +292,7 @@ function SlidesFormInner({
       <AnimatePresence mode="popLayout">
         <motion.div
           key={activeIndex}
-          className="relative flex min-h-0 w-full shrink grow basis-auto flex-col items-center justify-center"
+          className="relative flex min-h-0 w-full shrink grow basis-auto flex-col items-center"
           animate={{ y: 0, opacity: 1 }}
           initial={{ y: '35%', opacity: 0 }}
           exit={{
@@ -240,14 +301,14 @@ function SlidesFormInner({
           }}
           transition={slideTransition}
         >
-          {renderHeader(currentItem)}
           <SlideContent
-            key={activeIndex}
+            ref={slideCallbackRef}
             item={currentItem}
             form={stage.form}
             subject={subject}
-            sentinelRef={sentinelRef}
+            header={renderHeader(currentItem)}
             onUpdate={updateItem}
+            onReadyChange={setSlideReady}
             submitButton={
               <button
                 type="submit"
@@ -261,13 +322,5 @@ function SlidesFormInner({
         </motion.div>
       </AnimatePresence>
     </div>
-  );
-}
-
-export default function SlidesForm(props: SlidesFormProps) {
-  return (
-    <FormStoreProvider>
-      <SlidesFormInner {...props} />
-    </FormStoreProvider>
   );
 }

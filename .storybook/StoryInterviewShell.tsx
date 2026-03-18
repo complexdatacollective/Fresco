@@ -1,6 +1,7 @@
 'use client';
 'use no memo';
 
+import { type Middleware } from '@reduxjs/toolkit';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   type ElementType,
@@ -253,15 +254,38 @@ function StoryInterview() {
 const StoryInterviewShell = (props: {
   rawPayload: string;
   disableSync?: boolean;
+  onAction?: (action: { type: string; payload?: unknown }) => void;
 }) => {
   const decodedPayload = useMemo(
     () => SuperJSON.parse<NonNullable<GetInterviewByIdQuery>>(props.rawPayload),
     [props.rawPayload],
   );
 
+  const actionMiddleware: Middleware | undefined = useMemo(() => {
+    if (!props.onAction) return undefined;
+    const callback = props.onAction;
+    const middleware: Middleware = () => (next) => (action) => {
+      const result = next(action);
+      if (
+        typeof action === 'object' &&
+        action !== null &&
+        'type' in action &&
+        typeof action.type === 'string'
+      ) {
+        callback(action as { type: string; payload?: unknown });
+      }
+      return result;
+    };
+    return middleware;
+  }, [props.onAction]);
+
   const storeInstance = useMemo(
-    () => store(decodedPayload, { disableSync: props.disableSync }),
-    [decodedPayload, props.disableSync],
+    () =>
+      store(decodedPayload, {
+        disableSync: props.disableSync,
+        extraMiddleware: actionMiddleware ? [actionMiddleware] : undefined,
+      }),
+    [decodedPayload, props.disableSync, actionMiddleware],
   );
 
   return (

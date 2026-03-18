@@ -306,6 +306,7 @@ export type FormFieldInput = {
   variable?: string;
   prompt?: string;
   component: ComponentType;
+  validation?: Record<string, unknown>;
 };
 
 export type AddStageInput = {
