@@ -4,6 +4,8 @@ import {
   type ComponentType,
   type ReactElement,
   useEffect,
+  useLayoutEffect,
+  useRef,
   useState,
 } from 'react';
 import { useScrolledToBottom } from '~/hooks/useScrolledToBottom';
@@ -65,6 +67,10 @@ function SlidesFormInner<T>({
   const submitForm = useFormStore((s) => s.submitForm);
   const fieldCount = useFormStore((s) => s.fields.size);
   const formErrors = useFormStore((s) => s.errors);
+  const formErrorsRef = useRef(formErrors);
+  useLayoutEffect(() => {
+    formErrorsRef.current = formErrors;
+  }, [formErrors]);
 
   const { isAtBottom: hasScrolledToBottom, sentinelRef } =
     useScrolledToBottom();
@@ -77,12 +83,12 @@ function SlidesFormInner<T>({
   );
 
   useEffect(() => {
-    setIsReadyForNext(isValid && hasScrolledToBottom && fieldCount > 0);
-  }, [setIsReadyForNext, isValid, hasScrolledToBottom, fieldCount]);
-
-  useEffect(() => {
     setIsReadyForNext(false);
   }, [activeIndex, setIsReadyForNext]);
+
+  useEffect(() => {
+    setIsReadyForNext(isValid && hasScrolledToBottom && fieldCount > 0);
+  }, [setIsReadyForNext, isValid, hasScrolledToBottom, fieldCount]);
 
   const beforeNext: BeforeNextFunction = async (direction: Direction) => {
     if (items.length === 0) {
@@ -133,7 +139,7 @@ function SlidesFormInner<T>({
     const formIsValid = await validateForm();
 
     if (!formIsValid) {
-      focusFirstError(formErrors);
+      focusFirstError(formErrorsRef.current);
       return false;
     }
 
