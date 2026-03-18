@@ -203,7 +203,7 @@ function getExportErrorMessage(error: Error, stage: string): string {
     return `Database connection failed while ${stage}. Please try again later.`;
   }
 
-  return `Export failed while ${stage}: ${error.message}`;
+  return `Export failed while ${stage}. Please try again later.`;
 }
 
 async function cleanupTempFiles(filePaths: string[]) {
