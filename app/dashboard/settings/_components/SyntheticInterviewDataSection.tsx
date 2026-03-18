@@ -7,7 +7,7 @@ import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
 import { Button } from '~/components/ui/Button';
 import InputField from '~/lib/form/components/fields/InputField';
-import SelectField from '~/lib/form/components/fields/Select/Styled';
+import SelectField from '~/lib/form/components/fields/Select/Native';
 import ProgressBar from '~/components/ui/ProgressBar';
 import {
   type GetProtocolsQuery,
