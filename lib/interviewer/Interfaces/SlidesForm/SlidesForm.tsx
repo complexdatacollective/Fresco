@@ -41,15 +41,17 @@ import {
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 import { type Subject } from '../../selectors/forms';
 
-type SlidesFormProps = StageProps<'AlterForm' | 'AlterEdgeForm'> & {
-  items: (NcNode | NcEdge)[];
+type SlidesFormProps<T extends NcNode | NcEdge = NcNode | NcEdge> = StageProps<
+  'AlterForm' | 'AlterEdgeForm'
+> & {
+  items: T[];
   subject: Subject;
   updateItem: (
     id: string,
     newAttributeData: NcNode[EntityAttributesProperty],
   ) => void;
   onNavigateBack?: () => void;
-  renderHeader: (item: NcNode | NcEdge) => ReactNode;
+  renderHeader: (item: T) => ReactNode;
 };
 
 const slideTransition = {
@@ -180,12 +182,12 @@ const SlideContent = forwardRef<SlideHandle, SlideContentProps>(
 export default function SlidesForm({
   stage,
   getNavigationHelpers,
-  items = [],
+  items = [] as T[],
   subject,
   updateItem,
   onNavigateBack,
   renderHeader,
-}: SlidesFormProps) {
+}: SlidesFormProps<T>) {
   const { moveForward } = getNavigationHelpers();
   const { confirm } = useDialog();
 

@@ -10,6 +10,6 @@ export const getRelationshipTypeVariable = createSelector(
       'Stage must be FamilyTreeCensus',
     );
 
-    return stage.relationshipTypeVariable;
+    return stage.edgeOptions.relationshipTypeVariable;
   },
 );

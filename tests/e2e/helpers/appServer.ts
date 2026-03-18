@@ -42,7 +42,7 @@ export class AppServer {
         env: {
           ...process.env,
           SKIP_ENV_VALIDATION: 'true',
-          DISABLE_NEXT_CACHE: 'true',
+          E2E_TEST: 'true',
           DISABLE_ANALYTICS: 'true',
         },
         stdio: 'pipe',
@@ -93,7 +93,7 @@ export class AppServer {
         DATABASE_URL_UNPOOLED: opts.databaseUrl,
         SKIP_ENV_VALIDATION: 'true',
         DISABLE_ANALYTICS: 'true',
-        DISABLE_NEXT_CACHE: 'true',
+        E2E_TEST: 'true',
         COOKIE_SECURE: 'false',
       },
       stdio: ['pipe', 'pipe', 'pipe'],

@@ -3,7 +3,6 @@ import {
   entityAttributesProperty,
   type EntityPrimaryKey,
   entityPrimaryKeyProperty,
-  type NcNetwork,
   type NcNode,
 } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
@@ -58,7 +57,11 @@ export const getCurrentStage = createSelector(
 export const getStageSubject = createSelector(getCurrentStage, (stage) => {
   invariant(stage, 'getStageSubject: No current stage found');
 
-  if (stage.type === 'Information' || stage.type === 'Anonymisation') {
+  if (
+    stage.type === 'Information' ||
+    stage.type === 'Anonymisation' ||
+    stage.type === 'FamilyTreeCensus'
+  ) {
     return null;
   }
 
@@ -234,8 +237,6 @@ const getStageFilter = createSelector(getCurrentStage, (stage) => {
   return null;
 });
 
-type FilterFunction = (network: NcNetwork) => NcNetwork;
-
 // Filtered network
 const getFilteredNetwork = createSelector(
   getNetwork,
@@ -246,8 +247,7 @@ const getFilteredNetwork = createSelector(
     }
 
     if (nodeFilter) {
-      const filterFunction: FilterFunction = customFilter(nodeFilter);
-      return filterFunction(network);
+      return customFilter(nodeFilter)(network);
     }
 
     return network;

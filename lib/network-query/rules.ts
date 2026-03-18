@@ -10,8 +10,7 @@ import {
 import predicate, { operators } from './predicate';
 
 const singleEdgeRule =
-  (options: FilterRule['options']) =>
-  (node: NcNode, edges: NcEdge[]) => {
+  (options: FilterRule['options']) => (node: NcNode, edges: NcEdge[]) => {
     const { type, operator, value: other } = options;
     const attribute = 'attribute' in options ? options.attribute : undefined;
 
@@ -49,30 +48,28 @@ const singleEdgeRule =
 
 export type SingleEdgeRule = typeof singleEdgeRule;
 
-const singleNodeRule =
-  (options: FilterRule['options']) =>
-  (node: NcNode) => {
-    const { type, operator, value: other } = options;
-    const attribute = 'attribute' in options ? options.attribute : undefined;
+const singleNodeRule = (options: FilterRule['options']) => (node: NcNode) => {
+  const { type, operator, value: other } = options;
+  const attribute = 'attribute' in options ? options.attribute : undefined;
 
-    if (!attribute) {
-      // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
-      switch (operator) {
-        case operators.EXISTS:
-          return node.type === type;
-        default:
-          return node.type !== type;
-      }
+  if (!attribute) {
+    // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
+    switch (operator) {
+      case operators.EXISTS:
+        return node.type === type;
+      default:
+        return node.type !== type;
     }
+  }
 
-    return (
-      node.type === type &&
-      predicate(operator)({
-        value: node[entityAttributesProperty][attribute],
-        other,
-      })
-    );
-  };
+  return (
+    node.type === type &&
+    predicate(operator)({
+      value: node[entityAttributesProperty][attribute],
+      other,
+    })
+  );
+};
 
 type SingleNodeRule = typeof singleNodeRule;
 
@@ -199,24 +196,54 @@ type NodeRule = typeof nodeRule;
  * @param {string} options.operator What predicate to apply to the attribute
  * @param {string} options.value Value to compare the ego attribute with
  */
-const egoRule =
-  (options: FilterRule['options']) =>
-  (ego: NcEgo) => {
-    const { operator, value: other } = options;
-    const attribute = 'attribute' in options ? options.attribute : undefined;
+const egoRule = (options: FilterRule['options']) => (ego: NcEgo) => {
+  const { operator, value: other } = options;
+  const attribute = 'attribute' in options ? options.attribute : undefined;
 
-    return predicate(operator)({
-      value: ego[entityAttributesProperty][attribute!],
-      other,
-    });
-  };
+  return predicate(operator)({
+    value: ego[entityAttributesProperty][attribute!],
+    other,
+  });
+};
 
 export type EgoRule = typeof egoRule;
 
-type RuleWithMetadata = {
-  type: FilterRule['type'];
+// Runner types: what the factory functions return when called with options.
+// createRule calls f(options) and attaches .type/.options metadata via mutation,
+// so these callable-with-metadata types describe the actual runtime shape.
+type NetworkRuleResult = { nodes: NcNode[]; edges: NcEdge[] };
+
+export type NetworkRuleRunner = ((
+  nodes: NcNetwork['nodes'],
+  edges: NcNetwork['edges'],
+) => NetworkRuleResult) & {
+  type: 'node' | 'edge';
   options: FilterRule['options'];
 };
+
+type EgoRuleRunner = ((ego: NcEgo) => boolean) & {
+  type: 'ego';
+  options: FilterRule['options'];
+};
+
+type SingleNodeRuleRunner = ((node: NcNode) => boolean) & {
+  type: 'node';
+  options: FilterRule['options'];
+};
+
+type SingleEdgeRuleRunner = ((node: NcNode, edges: NcEdge[]) => boolean) & {
+  type: 'edge';
+  options: FilterRule['options'];
+};
+
+export type FilterRuleRunner = NetworkRuleRunner | EgoRuleRunner;
+type SingleRuleRunner =
+  | SingleNodeRuleRunner
+  | SingleEdgeRuleRunner
+  | EgoRuleRunner;
+
+// Backward-compat alias used by query.ts
+export type RuleFunctionWithMetadata = FilterRuleRunner | SingleRuleRunner;
 
 type RuleFunction =
   | EgoRule
@@ -225,13 +252,14 @@ type RuleFunction =
   | SingleNodeRule
   | SingleEdgeRule;
 
-export type RuleFunctionWithMetadata = RuleFunction & RuleWithMetadata;
-
 const createRule = (
   type: FilterRule['type'],
   options: FilterRule['options'],
   f: RuleFunction,
-) => {
+): RuleFunctionWithMetadata => {
+  // Mutation-based approach: f(options) returns a runner function, then we
+  // attach .type and .options. This requires an assertion because TypeScript
+  // cannot track property additions to function objects.
   const rule = f(options) as unknown as RuleFunctionWithMetadata;
   rule.type = type;
   rule.options = options;
@@ -251,19 +279,25 @@ const createRule = (
  * const result = rule(node, edges); // returns boolean
  * ```
  */
-export const getRuleFunction = ({ type, options }: FilterRule) => {
+export const getRuleFunction = ({
+  type,
+  options,
+}: FilterRule): FilterRuleRunner => {
   switch (type) {
     case 'node':
-      return createRule('node', options, nodeRule);
+      return createRule('node', options, nodeRule) as FilterRuleRunner;
     case 'edge':
-      return createRule('edge', options, edgeRule);
+      return createRule('edge', options, edgeRule) as FilterRuleRunner;
     case 'ego':
-      return createRule('ego', options, egoRule);
+      return createRule('ego', options, egoRule) as FilterRuleRunner;
   }
 };
 
 // As above, but for rules matching single array or edge
-export const getSingleRuleFunction = ({ type, options }: FilterRule) => {
+export const getSingleRuleFunction = ({
+  type,
+  options,
+}: FilterRule): RuleFunctionWithMetadata => {
   switch (type) {
     case 'node':
       return createRule('node', options, singleNodeRule);

@@ -221,7 +221,7 @@ export const createFamilyTreeStore = (
                   e.source === parentId &&
                   e.target === egoId,
               );
-              if (parentEdge && parentEdge.type === 'parent') {
+              if (parentEdge?.type === 'parent') {
                 get().addEdge({
                   source: parentId,
                   target: siblingId,

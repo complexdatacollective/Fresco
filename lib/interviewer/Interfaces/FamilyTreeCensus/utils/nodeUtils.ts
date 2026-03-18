@@ -17,5 +17,5 @@ export const getNodeSexVariable = createSelector(getCurrentStage, (stage) => {
     'Stage must be FamilyTreeCensus',
   );
 
-  return stage.nodeSexVariable;
+  return stage.nodeOptions.sexVariable;
 });

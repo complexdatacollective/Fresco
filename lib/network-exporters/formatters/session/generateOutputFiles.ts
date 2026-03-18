@@ -1,5 +1,5 @@
 import { invariant } from 'es-toolkit';
-import { type ExportedProtocol } from '~/actions/interviews';
+import { type ExportedProtocol } from '~/lib/export/pipeline';
 import { getFilePrefix } from '../../utils/general';
 import type {
   ExportFormat,

@@ -196,7 +196,7 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
         setDialogs((prevDialogs) => {
           const dialog = prevDialogs.find((d) => d.id === id);
 
-          if (!dialog || !dialog.open) {
+          if (!dialog?.open) {
             return prevDialogs;
           }
 

@@ -49,9 +49,7 @@ export type GetInterviewsForExportQuery = Awaited<
 >;
 
 export const getInterviewsForExport = async (interviewIds: string[]) => {
-  const interviews = await prisma_getInterviewsForExport(interviewIds);
-  const safeInterviews = stringify(interviews);
-  return safeInterviews;
+  return prisma_getInterviewsForExport(interviewIds);
 };
 
 /**

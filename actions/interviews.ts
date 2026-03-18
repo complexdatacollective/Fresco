@@ -1,22 +1,17 @@
 'use server';
 
 import { createId } from '@paralleldrive/cuid2';
+import { Effect } from 'effect';
 import { after } from 'next/server';
-import superjson from 'superjson';
 import { safeRevalidateTag, safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { type Interview } from '~/lib/db/generated/client';
+import { ExportLayer } from '~/lib/export/layers/ExportLayer';
+import { exportPipeline } from '~/lib/export/pipeline';
 import { createInitialNetwork } from '~/lib/interviewer/ducks/modules/session';
-import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
-import archive from '~/lib/network-exporters/formatters/session/archive';
-import { generateOutputFiles } from '~/lib/network-exporters/formatters/session/generateOutputFiles';
-import groupByProtocolProperty from '~/lib/network-exporters/formatters/session/groupByProtocolProperty';
-import { insertEgoIntoSessionNetworks } from '~/lib/network-exporters/formatters/session/insertEgoIntoSessionNetworks';
-import { resequenceIds } from '~/lib/network-exporters/formatters/session/resequenceIds';
 import type {
   ExportOptions,
   ExportReturn,
-  FormattedSession,
 } from '~/lib/network-exporters/utils/types';
 import {
   captureEvent,
@@ -24,15 +19,10 @@ import {
   shutdownPostHog,
 } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
-import {
-  getInterviewsForExport,
-  type GetInterviewsForExportQuery,
-} from '~/queries/interviews';
 import type { CreateInterview, DeleteInterviews } from '~/schemas/interviews';
 import { requireApiAuth } from '~/utils/auth';
 import { ensureError } from '~/utils/ensureError';
 import { addEvent } from './activityFeed';
-import { uploadZipToUploadThing } from './uploadThing';
 
 export async function deleteInterviews(data: DeleteInterviews) {
   await requireApiAuth();
@@ -91,77 +81,42 @@ export const updateExportTime = async (interviewIds: Interview['id'][]) => {
   }
 };
 
-export type ExportedProtocol =
-  Awaited<GetInterviewsForExportQuery>[number]['protocol'];
-
-export const prepareExportData = async (interviewIds: Interview['id'][]) => {
-  await requireApiAuth();
-
-  const interviewsSessionsRaw = await getInterviewsForExport(interviewIds);
-  const interviewsSessions = superjson.parse<GetInterviewsForExportQuery>(
-    interviewsSessionsRaw,
-  );
-
-  const protocolsMap = new Map<string, ExportedProtocol>();
-  interviewsSessions.forEach((session) => {
-    protocolsMap.set(session.protocol.hash, session.protocol);
-  });
-
-  const formattedProtocols = Object.fromEntries(protocolsMap);
-
-  const formattedSessions = formatExportableSessions(interviewsSessions);
-
-  return {
-    formattedSessions: superjson.stringify(formattedSessions),
-    formattedProtocols: superjson.stringify(formattedProtocols),
-  };
-};
-export type FormattedProtocols = Record<string, ExportedProtocol>;
-
-export const exportSessions = async (
-  formattedSessions: FormattedSession[],
-  formattedProtocols: FormattedProtocols,
+export const exportInterviews = async (
   interviewIds: Interview['id'][],
   exportOptions: ExportOptions,
 ): Promise<ExportReturn> => {
   await requireApiAuth();
 
-  try {
-    const result = await Promise.resolve(formattedSessions)
-      .then(insertEgoIntoSessionNetworks)
-      .then(groupByProtocolProperty)
-      .then(resequenceIds)
-      .then(generateOutputFiles(formattedProtocols, exportOptions))
-      .then(archive)
-      .then(uploadZipToUploadThing);
+  const result = await exportPipeline(interviewIds, exportOptions).pipe(
+    Effect.catchAll((error) =>
+      Effect.succeed({
+        status: 'error' as const,
+        error: error.userMessage,
+      } satisfies ExportReturn),
+    ),
+    Effect.provide(ExportLayer),
+    Effect.runPromise,
+  );
 
-    after(async () => {
+  after(async () => {
+    if (result.status === 'error') {
+      await captureException(new Error(result.error ?? 'Unknown error'), {
+        interviewCount: interviewIds.length,
+        exportOptions,
+      });
+    } else {
       await captureEvent('DataExported', {
         status: result.status,
         sessions: interviewIds.length,
         exportOptions,
         result,
       });
-      await shutdownPostHog();
-    });
+    }
+    await shutdownPostHog();
+  });
 
-    safeUpdateTag('getInterviews');
-
-    return result;
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error);
-    const e = ensureError(error);
-    after(async () => {
-      await captureException(e);
-      await shutdownPostHog();
-    });
-
-    return {
-      status: 'error',
-      error: `Error during data export: ${e.message}`,
-    };
-  }
+  safeUpdateTag('getInterviews');
+  return result;
 };
 
 export async function createInterview(data: CreateInterview) {

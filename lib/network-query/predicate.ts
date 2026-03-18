@@ -1,8 +1,5 @@
 import { isEqual, isNull } from 'es-toolkit';
 
-// TODO: remove these once filtering and querying is e2e typesafe
-
-// operators list
 export const operators = {
   EXACTLY: 'EXACTLY',
   INCLUDES: 'INCLUDES',
@@ -20,9 +17,8 @@ export const operators = {
   OPTIONS_LESS_THAN: 'OPTIONS_LESS_THAN',
   OPTIONS_EQUALS: 'OPTIONS_EQUALS',
   OPTIONS_NOT_EQUALS: 'OPTIONS_NOT_EQUALS',
-};
+} as const;
 
-// count operators list
 export const countOperators = {
   COUNT: 'COUNT',
   COUNT_NOT: 'COUNT_NOT',
@@ -32,12 +28,22 @@ export const countOperators = {
   COUNT_GREATER_THAN_OR_EQUAL: 'COUNT_GREATER_THAN_OR_EQUAL',
   COUNT_LESS_THAN: 'COUNT_LESS_THAN',
   COUNT_LESS_THAN_OR_EQUAL: 'COUNT_LESS_THAN_OR_EQUAL',
+} as const;
+
+// Predicate values are intentionally broad: attribute values can be any
+// VariableValue (string, number, boolean, arrays, records, null) and filter
+// rule comparison values overlap but aren't identical. Using unknown here
+// means each switch branch handles its own runtime narrowing, which matches
+// the existing JS behavior.
+type PredicateInput = {
+  value: unknown;
+  other: unknown;
 };
 
 /**
  * returns functions that can be used to compare `value` with `other`
  *
- * @param {string} operator One of the operators from the operators list.
+ * @param operator One of the operators from the operators list.
  *
  * Usage:
  *
@@ -46,21 +52,21 @@ export const countOperators = {
  * ```
  */
 const predicate =
-  (operator) =>
-  ({ value, other: variableValue }) => {
+  (operator: string) =>
+  ({ value, other: variableValue }: PredicateInput): boolean => {
     switch (operator) {
       case operators.GREATER_THAN:
       case countOperators.COUNT_GREATER_THAN:
-        return value > variableValue;
+        return (value as number) > (variableValue as number);
       case operators.LESS_THAN:
       case countOperators.COUNT_LESS_THAN:
-        return value < variableValue;
+        return (value as number) < (variableValue as number);
       case operators.GREATER_THAN_OR_EQUAL:
       case countOperators.COUNT_GREATER_THAN_OR_EQUAL:
-        return value >= variableValue;
+        return (value as number) >= (variableValue as number);
       case operators.LESS_THAN_OR_EQUAL:
       case countOperators.COUNT_LESS_THAN_OR_EQUAL:
-        return value <= variableValue;
+        return (value as number) <= (variableValue as number);
       case operators.EXACTLY:
       case countOperators.COUNT:
         return isEqual(value, variableValue);
@@ -68,12 +74,12 @@ const predicate =
       case countOperators.COUNT_NOT:
         return !isEqual(value, variableValue);
       case operators.CONTAINS: {
-        const regexp = new RegExp(variableValue);
-        return regexp.test(value);
+        const regexp = new RegExp(variableValue as string);
+        return regexp.test(value as string);
       }
       case operators.DOES_NOT_CONTAIN: {
-        const regexp = new RegExp(variableValue);
-        return !regexp.test(value);
+        const regexp = new RegExp(variableValue as string);
+        return !regexp.test(value as string);
       }
       /**
        * WARNING: INCLUDES/EXCLUDES are complicated!
@@ -90,7 +96,7 @@ const predicate =
 
         if (Array.isArray(variableValue)) {
           if (Array.isArray(value)) {
-            return variableValue.every((v) => value.includes(v));
+            return variableValue.every((v: unknown) => value.includes(v));
           }
 
           return variableValue.includes(value);
@@ -110,7 +116,7 @@ const predicate =
 
         if (Array.isArray(variableValue)) {
           if (Array.isArray(value)) {
-            return variableValue.every((v) => !value.includes(v));
+            return variableValue.every((v: unknown) => !value.includes(v));
           }
 
           return !variableValue.includes(value);
@@ -128,20 +134,20 @@ const predicate =
       case operators.NOT_EXISTS:
         return isNull(value);
       case countOperators.COUNT_ANY:
-        return value > 0;
+        return (value as number) > 0;
       case countOperators.COUNT_NONE:
         return value === 0;
       case operators.OPTIONS_GREATER_THAN: {
         if (!Array.isArray(value)) {
           return false;
         }
-        return value.length > variableValue;
+        return value.length > (variableValue as number);
       }
       case operators.OPTIONS_LESS_THAN: {
         if (!Array.isArray(value)) {
           return false;
         }
-        return value.length < variableValue;
+        return value.length < (variableValue as number);
       }
       case operators.OPTIONS_EQUALS: {
         if (!Array.isArray(value)) {

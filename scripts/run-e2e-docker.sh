@@ -58,7 +58,7 @@ run_tests() {
     -e INSTALLATION_ID=e2e-test-env \
     -e SKIP_ENV_VALIDATION=true \
     -e DISABLE_ANALYTICS=true \
-    -e DISABLE_NEXT_CACHE=true \
+    -e E2E_TEST=true \
     -e E2E_BROWSERS="$browser_env" \
     -v "$(pwd)":/work \
     -v /dev/null:/work/.env:ro \
