@@ -5,13 +5,7 @@ import {
   type ToastObject,
   type UseToastManagerReturnValue,
 } from '@base-ui/react/toast';
-import {
-  AlertCircle,
-  Info,
-  Loader2,
-  PartyPopper,
-  type LucideIcon,
-} from 'lucide-react';
+import { AlertCircle, Info, PartyPopper, type LucideIcon } from 'lucide-react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 import { surfaceVariants } from '../layout/Surface';
 import Heading from '../typography/Heading';
@@ -26,7 +20,6 @@ export const toastVariants = cva({
       success: 'bg-success text-success-contrast border-success',
       destructive:
         'bg-destructive text-destructive-contrast border-destructive',
-      loading: 'bg-info text-info-contrast border-info',
     },
   },
   defaultVariants: {
@@ -43,7 +36,6 @@ export const variantIcons: Record<ToastVariant, LucideIcon | null> = {
   info: Info,
   success: PartyPopper,
   destructive: AlertCircle,
-  loading: Loader2,
 };
 
 type ToastData = {
@@ -99,10 +91,7 @@ function ToastItem({ toast }: ToastItemProps) {
       <Toast.Content className="flex gap-3 overflow-hidden transition-opacity duration-250 data-behind:pointer-events-none data-behind:opacity-0 data-expanded:pointer-events-auto data-expanded:opacity-100">
         {IconComponent && (
           <IconComponent
-            className={cx(
-              'mt-[0.1em] size-5 shrink-0',
-              variant === 'loading' && 'animate-spin',
-            )}
+            className="mt-[0.1em] size-5 shrink-0"
             aria-hidden="true"
           />
         )}

@@ -1,5 +1,6 @@
 'use client';
 
+import { Loader2 } from 'lucide-react';
 import posthog from 'posthog-js';
 import { createContext, useCallback, useContext, useRef } from 'react';
 import { updateExportTime } from '~/actions/interviews';
@@ -47,11 +48,14 @@ function ExportProgressDescription({
 
   return (
     <div className="space-y-2">
-      <p className="text-sm opacity-60">
-        {showProgress
-          ? `${message} ${String(current)} / ${String(total)}`
-          : message}
-      </p>
+      <div className="flex items-center gap-2 text-sm opacity-60">
+        <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+        <p>
+          {showProgress
+            ? `${message} ${String(current)} / ${String(total)}`
+            : message}
+        </p>
+      </div>
       {showProgress && (
         <ProgressBar
           orientation="horizontal"
@@ -85,6 +89,7 @@ export function ExportProgressProvider({
       const controller = new AbortController();
 
       const toastId = add({
+        icon: <Loader2 className="size-5 animate-spin" aria-hidden="true" />,
         title: 'Exporting interviews',
         description: (
           <ExportProgressDescription
@@ -92,7 +97,6 @@ export function ExportProgressProvider({
             message="Starting export..."
           />
         ),
-        type: 'loading',
         timeout: 0,
         onClose: () => abortExport(toastId),
         onCancel: () => {

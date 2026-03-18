@@ -69,10 +69,6 @@ function VariantsDemo() {
         title: 'Error',
         description: 'Something went wrong. Please try again.',
       },
-      loading: {
-        title: 'Loading',
-        description: 'Processing your request...',
-      },
     };
 
     add({
@@ -102,9 +98,6 @@ function VariantsDemo() {
         <Button variant="outline" onClick={() => createToast('destructive')}>
           Destructive
         </Button>
-        <Button variant="outline" onClick={() => createToast('loading')}>
-          Loading
-        </Button>
       </div>
     </div>
   );
@@ -123,7 +116,6 @@ function MultipleToastsDemo() {
     'info',
     'success',
     'destructive',
-    'loading',
   ];
 
   const createMultipleToasts = () => {
@@ -164,7 +156,6 @@ function LoadingDemo() {
     const id = add({
       title: 'Exporting interviews',
       description: 'Fetching interview data...',
-      type: 'loading',
       timeout: 0,
       onCancel: () => {
         // eslint-disable-next-line no-console

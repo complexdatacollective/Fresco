@@ -42,7 +42,6 @@ const arrowVariants = cva({
       info: 'bg-info',
       success: 'bg-success',
       destructive: 'bg-destructive',
-      loading: 'bg-info',
     },
   },
   defaultVariants: {
