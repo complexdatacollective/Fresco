@@ -60,6 +60,19 @@ export default function LikertScaleField(props: LikertScaleFieldProps) {
     }
   };
 
+  // onValueCommitted fires on pointer release, even if the position didn't change.
+  // This handles the case where the user clicks on the midpoint while pristine.
+  const handleValueCommitted = (newValue: number | number[]) => {
+    if (readOnly || hasValue) return;
+    const index = Array.isArray(newValue) ? newValue[0] : newValue;
+    if (index !== undefined) {
+      const selectedOption = options[index];
+      if (selectedOption) {
+        onChange?.(selectedOption.value);
+      }
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!hasValue && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault();
@@ -76,6 +89,7 @@ export default function LikertScaleField(props: LikertScaleFieldProps) {
         <Slider.Root
           value={sliderValue}
           onValueChange={handleValueChange}
+          onValueCommitted={handleValueCommitted}
           onKeyDown={handleKeyDown}
           disabled={disabled}
           min={0}

@@ -248,6 +248,41 @@ export const ClickTrackSetsClickedValue: Story = {
   },
 };
 
+export const UnsetClickMidpoint: Story = {
+  args: {
+    options: agreementOptions,
+    value: undefined,
+  },
+  render: (args) => <UnsetLikertWithValueDisplay {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const thumb = canvas.getByRole('slider');
+    const valueDisplay = canvas.getByTestId('likert-value');
+
+    await expect(valueDisplay).toHaveTextContent('unset');
+
+    // Click on the thumb at the midpoint - should set value to 3
+    const thumbRect = thumb.getBoundingClientRect();
+    await fireEvent.pointerDown(thumb, {
+      clientX: thumbRect.left + thumbRect.width / 2,
+      clientY: thumbRect.top + thumbRect.height / 2,
+      pointerId: 1,
+      pointerType: 'mouse',
+      button: 0,
+      buttons: 1,
+    });
+    await fireEvent.pointerUp(thumb, {
+      clientX: thumbRect.left + thumbRect.width / 2,
+      clientY: thumbRect.top + thumbRect.height / 2,
+      pointerId: 1,
+      pointerType: 'mouse',
+      button: 0,
+    });
+
+    await expect(valueDisplay).toHaveTextContent('3');
+  },
+};
+
 export const UnsetKeyboardEnter: Story = {
   args: {
     options: agreementOptions,
