@@ -1508,32 +1508,33 @@ export class SyntheticInterview {
     }
 
     // FamilyTreeCensus
-    if (stage.edgeType) {
-      config.edgeType = stage.edgeType;
-    }
-    if (stage.relationshipTypeVariable !== undefined) {
-      config.relationshipTypeVariable = stage.relationshipTypeVariable;
-    }
-    if (stage.nodeSexVariable !== undefined) {
-      config.nodeSexVariable = stage.nodeSexVariable;
-    }
-    if (stage.egoSexVariable !== undefined) {
-      config.egoSexVariable = stage.egoSexVariable;
-    }
-    if (stage.relationshipToEgoVariable !== undefined) {
-      config.relationshipToEgoVariable = stage.relationshipToEgoVariable;
-    }
-    if (stage.nodeIsEgoVariable !== undefined) {
-      config.nodeIsEgoVariable = stage.nodeIsEgoVariable;
-    }
-    if (stage.scaffoldingStep) {
-      config.scaffoldingStep = stage.scaffoldingStep;
-    }
-    if (stage.nameGenerationStep) {
-      config.nameGenerationStep = stage.nameGenerationStep;
-    }
-    if (stage.diseaseNominationStep) {
-      config.diseaseNominationStep = stage.diseaseNominationStep;
+    if (stage.type === 'FamilyTreeCensus') {
+      if (stage.egoSexVariable !== undefined) {
+        config.egoSexVariable = stage.egoSexVariable;
+      }
+      if (stage.edgeType) {
+        config.edgeOptions = {
+          edgeType: stage.edgeType,
+          relationshipTypeVariable: stage.relationshipTypeVariable,
+          relationshipToEgoVariable: stage.relationshipToEgoVariable,
+        };
+      }
+      if (stage.subject) {
+        config.nodeOptions = {
+          nodeType: stage.subject,
+          sexVariable: stage.nodeSexVariable,
+          isEgoVariable: stage.nodeIsEgoVariable,
+        };
+      }
+      if (stage.scaffoldingStep) {
+        config.label = stage.scaffoldingStep.text;
+      }
+      if (stage.nameGenerationStep) {
+        config.nameGenerationStep = stage.nameGenerationStep;
+      }
+      if (stage.diseaseNominationStep) {
+        config.diseaseNominationStep = stage.diseaseNominationStep;
+      }
     }
 
     // Geospatial

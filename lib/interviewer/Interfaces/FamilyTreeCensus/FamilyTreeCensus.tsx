@@ -50,7 +50,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
   const scaffoldingPrompt = {
     id: 'scaffolding',
-    text: stage.scaffoldingStep.text,
+    text: stage.label,
   };
   const allPrompts = [
     scaffoldingPrompt,

@@ -1,9 +1,5 @@
 import { type Panel } from '@codaco/protocol-validation';
-import {
-  entityPrimaryKeyProperty,
-  type NcNetwork,
-  type NcNode,
-} from '@codaco/shared-consts';
+import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
 import customFilter from '~/lib/network-query/filter';
 import { getCodebook } from '../ducks/modules/protocol';
@@ -104,11 +100,15 @@ export const getPanelNodes = (
       // If a filter is provided, we apply it to the nodes
       const filterFunction = customFilter(panelConfig.filter);
 
+      const defaultEgo = { _uid: '', attributes: {} };
       const filteredNetwork = filterFunction({
         nodes,
         edges: panelConfig.dataSource === 'existing' ? networkEdges : [],
-        ego: panelConfig.dataSource === 'existing' ? networkEgo : undefined,
-      }) as NcNetwork;
+        ego:
+          panelConfig.dataSource === 'existing' && networkEgo
+            ? networkEgo
+            : defaultEgo,
+      });
 
       return filteredNetwork.nodes;
     },

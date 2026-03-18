@@ -1,8 +1,20 @@
-import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
-import { getRuleFunction } from './rules';
+import { type Filter } from '@codaco/protocol-validation';
+import {
+  entityPrimaryKeyProperty,
+  type NcEdge,
+  type NcNetwork,
+  type NcNode,
+} from '@codaco/shared-consts';
+import { type NetworkRuleRunner, getRuleFunction } from './rules';
+
+type NetworkRuleResult = { nodes: NcNode[]; edges: NcEdge[] };
+
+const isNetworkRunner = (
+  runner: ReturnType<typeof getRuleFunction>,
+): runner is NetworkRuleRunner => runner.type !== 'ego';
 
 // remove orphaned edges
-const trimEdges = (network) => {
+const trimEdges = (network: NcNetwork): NcNetwork => {
   const uids = new Set(
     network.nodes.map((node) => node[entityPrimaryKeyProperty]),
   );
@@ -43,15 +55,21 @@ const trimEdges = (network) => {
  * const filter = getFilter(config);
  * const result = filter(network);
  */
-const filter = ({ rules, join = 'OR' }) => {
+const filter = ({
+  rules,
+  join = 'OR',
+}: Filter): ((network: NcNetwork) => NcNetwork) => {
   const ruleRunners = rules.map(getRuleFunction);
-  return (network) => {
+  const networkRunners = ruleRunners.filter(isNetworkRunner);
+
+  return (network: NcNetwork): NcNetwork => {
     // AND === feed result of previous rule into next rule
     if (join === 'AND') {
-      return ruleRunners.reduce(
+      const result = networkRunners.reduce<NetworkRuleResult>(
         (acc, rule) => rule(acc.nodes, acc.edges),
-        network,
+        { nodes: network.nodes, edges: network.edges },
       );
+      return trimEdges({ ...network, ...result });
     }
 
     /**
@@ -72,13 +90,13 @@ const filter = ({ rules, join = 'OR' }) => {
     /**
      * 1. first run all node rules, storing the node IDs that survived.
      */
-    const alterRuleNetworks = ruleRunners
+    const alterRuleNetworks = networkRunners
       .filter((rule) => rule.type === 'node')
       .map((rule) => rule(network.nodes, network.edges));
 
     const survivingAlterIDs = new Set(
       alterRuleNetworks
-        .reduce((acc, { nodes }) => [...acc, ...nodes], [])
+        .reduce<NcNode[]>((acc, { nodes }) => [...acc, ...nodes], [])
         .map((node) => node[entityPrimaryKeyProperty]),
     );
 
@@ -101,7 +119,7 @@ const filter = ({ rules, join = 'OR' }) => {
      *   run the edge rules with the filtered node ID list means there are probably
      *   now rule ordering issues. We should probably fix this!
      */
-    const edgeRuleNetworks = ruleRunners
+    const edgeRuleNetworks = networkRunners
       .filter((rule) => rule.type === 'edge')
       .map((rule) => rule(network.nodes, network.edges));
 
@@ -110,11 +128,16 @@ const filter = ({ rules, join = 'OR' }) => {
       ...edgeRuleNetworks,
     ];
 
+    type AccumulatorState = NetworkRuleResult & {
+      nodeIds: Set<string>;
+      edgeIds: Set<string>;
+    };
+
     /**
      * 4. The combined alter and edge results are then reduced into a single result
      *   object, which has entity uniqueness forced.
      */
-    const results = filteredNetworks.reduce(
+    const results = filteredNetworks.reduce<AccumulatorState>(
       (acc, { nodes, edges }) => {
         const nodeIds = new Set(
           nodes.map((node) => node[entityPrimaryKeyProperty]),
@@ -140,8 +163,8 @@ const filter = ({ rules, join = 'OR' }) => {
       {
         nodes: [],
         edges: [],
-        nodeIds: new Set(),
-        edgeIds: new Set(),
+        nodeIds: new Set<string>(),
+        edgeIds: new Set<string>(),
       },
     );
 
