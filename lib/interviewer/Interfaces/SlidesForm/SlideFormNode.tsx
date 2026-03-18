@@ -70,18 +70,16 @@ export default function SlideFormNode({
       />
       <div className="flex min-h-0 w-full shrink flex-col">
         <ScrollArea className="h-auto">
-          <div className="phone-landscape:px-4 tablet-landscape:px-6 desktop:px-8 flex justify-center px-2">
-            <Surface className="w-full max-w-2xl">
-              <FormWithoutProvider
-                onSubmit={handleSubmit}
-                className="[&_.form-field-container]:break-inside-avoid"
-              >
-                {fieldComponents}
-                {submitButton}
-                <div ref={sentinelRef} aria-hidden />
-              </FormWithoutProvider>
-            </Surface>
-          </div>
+          <Surface maxWidth="2xl">
+            <FormWithoutProvider
+              onSubmit={handleSubmit}
+              className="[&_.form-field-container]:break-inside-avoid"
+            >
+              {fieldComponents}
+              {submitButton}
+              <div ref={sentinelRef} aria-hidden />
+            </FormWithoutProvider>
+          </Surface>
         </ScrollArea>
       </div>
     </>
