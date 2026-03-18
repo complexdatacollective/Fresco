@@ -37,15 +37,25 @@ export const makeLocalFileStorage = (baseUrl: string) =>
         };
       }),
 
-    delete: (key) =>
-      Effect.tryPromise({
+    delete: (key) => {
+      if (!/^networkCanvasExport-\d+\.zip$/.test(key)) {
+        return Effect.fail(
+          new FileStorageError({
+            cause: new Error(`Invalid key: ${key}`),
+            userMessage: 'Failed to delete file: invalid key.',
+          }),
+        );
+      }
+
+      return Effect.tryPromise({
         try: () => unlink(join(LOCAL_EXPORT_DIR, key)),
         catch: (error) =>
           new FileStorageError({
             cause: error,
             userMessage: getUserMessage(error, 'deleting from local storage'),
           }),
-      }),
+      });
+    },
   });
 
 export { LOCAL_EXPORT_DIR };

@@ -4,6 +4,9 @@ import { NextResponse } from 'next/server';
 import { env } from '~/env.js';
 import { LOCAL_EXPORT_DIR } from '~/lib/export/layers/LocalFileStorage';
 
+// Intentionally unauthenticated: this route is only active when
+// USE_LOCAL_FILE_STORAGE is set (test environments only) and returns
+// 404 otherwise. Auth is not needed for test-only file serving.
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ filename: string }> },
