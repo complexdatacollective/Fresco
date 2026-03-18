@@ -31,6 +31,7 @@ export async function getInterviews() {
 }
 
 export type GetInterviewsReturnType = ReturnType<typeof getInterviews>;
+
 async function prisma_getInterviewsForExport(interviewIds: string[]) {
   return prisma.interview.findMany({
     where: {
