@@ -8,16 +8,20 @@ import {
   useReactTable,
   type ColumnDef,
   type ColumnFiltersState,
+  type OnChangeFn,
   type Row,
   type SortingState,
 } from '@tanstack/react-table';
+import { parseAsJson, useQueryState } from 'nuqs';
 import { useState } from 'react';
+import { ColumnFiltersStateSchema } from '~/components/DataTable/filters/types';
 
 type UseClientDataTableOptions<TData, TValue> = {
   data: TData[];
   columns: ColumnDef<TData, TValue>[];
   enablePagination?: boolean;
   enableRowSelection?: boolean | ((row: Row<TData>) => boolean);
+  enableUrlFilters?: boolean;
   defaultSortBy?: { id: string; desc: boolean };
 };
 
@@ -26,6 +30,7 @@ export function useClientDataTable<TData, TValue>({
   columns,
   enablePagination = true,
   enableRowSelection = true,
+  enableUrlFilters = false,
   defaultSortBy,
 }: UseClientDataTableOptions<TData, TValue>) {
   // TanStack Table returns a mutable ref with stable identity, defeating React Compiler memoization.
@@ -34,7 +39,27 @@ export function useClientDataTable<TData, TValue>({
     defaultSortBy ? [{ ...defaultSortBy }] : [],
   );
   const [rowSelection, setRowSelection] = useState({});
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
+  const [urlFilters, setUrlFilters] = useQueryState(
+    'filters',
+    parseAsJson<ColumnFiltersState>(
+      // z.unknown() infers value as optional, but ColumnFiltersState requires it
+      (value) => ColumnFiltersStateSchema.parse(value) as ColumnFiltersState,
+    ).withDefault([]),
+  );
+  const [localFilters, setLocalFilters] = useState<ColumnFiltersState>([]);
+  const columnFilters = enableUrlFilters ? urlFilters : localFilters;
+
+  const onColumnFiltersChange: OnChangeFn<ColumnFiltersState> = enableUrlFilters
+    ? (updaterOrValue) => {
+        void setUrlFilters((prev) => {
+          const current = prev ?? [];
+          return typeof updaterOrValue === 'function'
+            ? updaterOrValue(current)
+            : updaterOrValue;
+        });
+      }
+    : setLocalFilters;
 
   const table = useReactTable({
     data,
@@ -46,7 +71,7 @@ export function useClientDataTable<TData, TValue>({
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onRowSelectionChange: setRowSelection,
-    onColumnFiltersChange: setColumnFilters,
+    onColumnFiltersChange,
     getFilteredRowModel: getFilteredRowModel(),
     enableRowSelection,
     state: {
