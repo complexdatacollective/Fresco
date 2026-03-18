@@ -1,5 +1,4 @@
-import { type Codebook } from '@codaco/protocol-validation';
-import Node from '~/components/Node';
+import Node, { type NodeColorSequence } from '~/components/Node';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import { cx } from '~/utils/cva';
 
@@ -109,42 +108,32 @@ function EdgeSummary({ color, count, typeName }: EdgeSummaryProps) {
 
 const NetworkSummary = ({
   network,
-  codebook,
 }: {
   network: GetInterviewsQuery[number]['network'];
-  codebook: Codebook | null;
 }) => {
-  if (!codebook) {
-    return <div className="text-xs">No interview data</div>;
-  }
-
-  const nodeSummaries = network.nodes.map(({ type: nodeType, count }) => {
-    const nodeInfo = codebook.node?.[nodeType];
-
-    return (
+  const nodeSummaries = network.nodes.map(
+    ({ type: nodeType, count, name, color }) => (
       <div className="flex flex-col items-center" key={nodeType}>
         <Node
           size="xxs"
-          color={nodeInfo?.color}
+          color={color as NodeColorSequence}
           label={count.toLocaleString()}
         />
-        <span className="pt-1 text-xs">{nodeInfo?.name ?? 'Unknown'}</span>
+        <span className="pt-1 text-xs">{name}</span>
       </div>
-    );
-  });
+    ),
+  );
 
   const edgeSummaries = network.edges
-    .map(({ type: edgeType, count }) => {
-      const edgeInfo = codebook.edge?.[edgeType];
-
-      if (!edgeInfo) return null;
+    .map(({ type: edgeType, count, name, color }) => {
+      if (!color) return null;
 
       return (
         <EdgeSummary
           key={edgeType}
-          color={edgeInfo.color as EdgeColorSequence}
+          color={color as EdgeColorSequence}
           count={count}
-          typeName={edgeInfo.name}
+          typeName={name}
         />
       );
     })

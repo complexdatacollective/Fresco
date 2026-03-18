@@ -11,6 +11,8 @@ import { prisma } from '~/lib/db';
 type NetworkSummaryEntry = {
   type: string;
   count: number;
+  name: string;
+  color?: string;
 };
 
 type InterviewNetworkSummary = {
@@ -18,15 +20,24 @@ type InterviewNetworkSummary = {
   edges: NetworkSummaryEntry[];
 };
 
+type CodebookLike = Record<
+  string,
+  Record<string, { name?: string; color?: string }> | undefined
+>;
+
 function summarizeNetwork(
   network: Record<string, unknown> | null,
+  codebook: CodebookLike | null,
 ): InterviewNetworkSummary {
   if (!network) return { nodes: [], edges: [] };
 
   const nodes = Array.isArray(network.nodes) ? network.nodes : [];
   const edges = Array.isArray(network.edges) ? network.edges : [];
 
-  const countByType = (items: unknown[]): NetworkSummaryEntry[] => {
+  const countByType = (
+    items: unknown[],
+    entityType: 'node' | 'edge',
+  ): NetworkSummaryEntry[] => {
     const counts = new Map<string, number>();
     for (const item of items) {
       if (item === null || typeof item !== 'object') continue;
@@ -34,12 +45,20 @@ function summarizeNetwork(
         'type' in item && typeof item.type === 'string' ? item.type : 'unknown';
       counts.set(type, (counts.get(type) ?? 0) + 1);
     }
-    return [...counts.entries()].map(([type, count]) => ({ type, count }));
+    return [...counts.entries()].map(([type, count]) => {
+      const info = codebook?.[entityType]?.[type];
+      return {
+        type,
+        count,
+        name: info?.name ?? 'Unknown',
+        color: info?.color,
+      };
+    });
   };
 
   return {
-    nodes: countByType(nodes),
-    edges: countByType(edges),
+    nodes: countByType(nodes, 'node'),
+    edges: countByType(edges, 'edge'),
   };
 }
 
@@ -70,12 +89,20 @@ async function prisma_getInterviews() {
     },
   });
 
-  return interviews.map((interview) => ({
-    ...interview,
-    network: summarizeNetwork(
-      interview.network as Record<string, unknown> | null,
-    ),
-  }));
+  return interviews.map(({ network, protocol, ...interview }) => {
+    const stages = Array.isArray(protocol.stages) ? protocol.stages : [];
+    return {
+      ...interview,
+      network: summarizeNetwork(
+        network as Record<string, unknown> | null,
+        protocol.codebook as CodebookLike | null,
+      ),
+      protocol: {
+        name: protocol.name,
+        stageCount: stages.length,
+      },
+    };
+  });
 }
 
 export type GetInterviewsQuery = Awaited<
