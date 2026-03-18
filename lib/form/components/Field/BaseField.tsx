@@ -63,29 +63,33 @@ export function BaseField({
       {...containerProps}
       className={cx(
         'group desktop:not-last:mb-10 tablet-landscape:not-last:mb-8 w-full grow not-last:mb-6',
-        inline &&
-          'tablet-portrait:flex-row tablet-portrait:items-center tablet-portrait:justify-between tablet-portrait:gap-4',
         'flex flex-col',
       )}
     >
-      <div className={cx(inline && 'min-w-0')}>
-        <FieldLabel id={`${id}-label`} htmlFor={id} required={required}>
-          {label}
-        </FieldLabel>
-        <Hint id={`${id}-hint`}>
-          {hint && <Paragraph>{hint}</Paragraph>}
-          {validationSummary}
-        </Hint>
+      <div
+        className={cx(
+          inline &&
+            'tablet-portrait:flex-row tablet-portrait:items-center tablet-portrait:justify-between tablet-portrait:gap-4',
+          'flex flex-col',
+        )}
+      >
+        <div className={cx(inline && 'min-w-0')}>
+          <FieldLabel id={`${id}-label`} htmlFor={id} required={required}>
+            {label}
+          </FieldLabel>
+          <Hint id={`${id}-hint`}>
+            {hint && <Paragraph>{hint}</Paragraph>}
+            {validationSummary}
+          </Hint>
+        </div>
+        <div className={cx(inline && 'shrink-0')}>{children}</div>
       </div>
-      <div className={cx(inline && 'shrink-0')}>
-        {children}
-        <FieldErrors
-          id={`${id}-error`}
-          name={name}
-          errors={errors}
-          show={showErrors}
-        />
-      </div>
+      <FieldErrors
+        id={`${id}-error`}
+        name={name}
+        errors={errors}
+        show={showErrors}
+      />
     </div>
   );
 }
