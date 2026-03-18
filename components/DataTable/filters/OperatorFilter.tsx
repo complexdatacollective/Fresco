@@ -68,9 +68,17 @@ export function OperatorFilter({
     const entityOption = entityOptions.find((o) => o.value === selectedEntity);
     if (!entityOption) return;
 
+    // Entity value format: "nodes.typeName" or "edges.typeName"
+    const [entityKind, entityType] = selectedEntity.split('.') as [
+      string,
+      string | undefined,
+    ];
+    if (!entityType || (entityKind !== 'nodes' && entityKind !== 'edges'))
+      return;
+
     const newCondition: OperatorCondition = {
-      entityType: selectedEntity,
-      entityKind: 'nodes',
+      entityType,
+      entityKind,
       operator: selectedOperator,
       value: numValue,
     };
