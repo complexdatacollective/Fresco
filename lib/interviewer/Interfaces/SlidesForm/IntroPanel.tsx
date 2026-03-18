@@ -45,7 +45,9 @@ export default function IntroPanel({
         <Heading level="h1" className="text-center">
           {title}
         </Heading>
-        <RenderMarkdown>{text}</RenderMarkdown>
+        <span>
+          <RenderMarkdown>{text}</RenderMarkdown>
+        </span>
       </Surface>
     </div>
   );

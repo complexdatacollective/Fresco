@@ -2,6 +2,7 @@
 
 import {
   type EntityAttributesProperty,
+  type NcEdge,
   type NcNode,
 } from '@codaco/shared-consts';
 import { useCallback, useState } from 'react';
@@ -32,15 +33,10 @@ const AlterForm = (props: StageProps<'AlterForm'>) => {
     [dispatch],
   );
 
-  const renderHeader = useCallback(
-    (item: NcNode) => (
-      <Node
-        {...item}
-        className="phone-landscape:mt-4 tablet-landscape:mt-6 mt-2 shrink-0 rounded-full"
-      />
-    ),
-    [],
-  );
+  const renderHeader = useCallback((item: NcNode | NcEdge) => {
+    if ('from' in item) return null;
+    return <Node {...item} className="shrink-0 rounded-full" />;
+  }, []);
 
   if (showIntro) {
     return (

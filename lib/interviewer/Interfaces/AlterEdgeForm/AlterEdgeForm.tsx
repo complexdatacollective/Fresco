@@ -4,6 +4,7 @@ import {
   entityPrimaryKeyProperty,
   type EntityAttributesProperty,
   type NcEdge,
+  type NcNode,
 } from '@codaco/shared-consts';
 import { find } from 'es-toolkit/compat';
 import { useCallback, useMemo, useState } from 'react';
@@ -31,7 +32,7 @@ function EdgeHeader({ item }: { item: NcEdge }) {
   const toNode = find(nodes, [entityPrimaryKeyProperty, item.to]);
 
   return (
-    <div className="phone-landscape:mt-4 tablet-landscape:mt-6 mt-2 flex shrink-0 items-center">
+    <div className="flex shrink-0 items-center">
       {fromNode && <Node {...fromNode} className="rounded-full" />}
       <div
         className={cx(
@@ -62,10 +63,10 @@ const AlterEdgeForm = (props: StageProps<'AlterEdgeForm'>) => {
     [dispatch],
   );
 
-  const renderHeader = useCallback(
-    (item: NcEdge) => <EdgeHeader item={item} />,
-    [],
-  );
+  const renderHeader = useCallback((item: NcNode | NcEdge) => {
+    if (!('from' in item)) return null;
+    return <EdgeHeader item={item} />;
+  }, []);
 
   if (showIntro) {
     return (
