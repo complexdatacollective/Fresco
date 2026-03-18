@@ -11,6 +11,7 @@ import { useDownload } from '~/hooks/useDownload';
 import type { ExportEvent } from '~/lib/export/exportEvents';
 import type { ExportOptions } from '~/lib/network-exporters/utils/types';
 import { ensureError } from '~/utils/ensureError';
+import Spinner from './Spinner';
 
 type ExportContextValue = {
   startExport: (interviewIds: string[], exportOptions: ExportOptions) => void;
@@ -89,7 +90,7 @@ export function ExportProgressProvider({
       const controller = new AbortController();
 
       const toastId = add({
-        icon: <Loader2 className="size-5 animate-spin" aria-hidden="true" />,
+        icon: <Spinner size="xs" aria-hidden="true" />,
         title: 'Exporting interviews',
         description: (
           <ExportProgressDescription
@@ -175,12 +176,13 @@ export function ExportProgressProvider({
 
                 await updateExportTime(interviewIds);
 
-                update(toastId, {
+                close(toastId);
+
+                add({
                   title: 'Export complete!',
                   description: 'Your download should start automatically.',
                   type: 'success',
                   timeout: 5000,
-                  onCancel: undefined,
                 });
 
                 void deleteZipFromUploadThing(data.zipKey).catch(

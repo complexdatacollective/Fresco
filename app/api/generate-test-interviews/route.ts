@@ -1,6 +1,5 @@
 import { createId } from '@paralleldrive/cuid2';
 import { addEvent } from '~/actions/activityFeed';
-import { safeRevalidateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { generateNetwork } from '~/lib/synthetic-interviews/generateNetwork';
 import { generateSyntheticInterviewsSchema } from '~/schemas/synthetic-interviews';
@@ -125,15 +124,6 @@ export async function POST(request: Request) {
 
           send({ type: 'progress', current: i + 1, total: count });
         }
-
-        safeRevalidateTag([
-          'getInterviews',
-          'getParticipants',
-          'interviewCount',
-          'participantCount',
-          'summaryStatistics',
-          'activityFeed',
-        ]);
 
         void addEvent(
           'Synthetic Data Generated',
