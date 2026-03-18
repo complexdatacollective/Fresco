@@ -102,4 +102,12 @@ export class ValueGenerator {
   generatePresetLabel(): string {
     return this.faker.word.words(2);
   }
+
+  randomInt(min: number, max: number): number {
+    return this.faker.number.int({ min, max });
+  }
+
+  randomFloat(min: number, max: number): number {
+    return this.faker.number.float({ min, max });
+  }
 }
