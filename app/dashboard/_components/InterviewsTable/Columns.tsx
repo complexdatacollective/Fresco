@@ -1,18 +1,27 @@
 'use client';
 
-import { type ColumnDef } from '@tanstack/react-table';
+import { type ColumnDef, type FilterFn } from '@tanstack/react-table';
 import Image from 'next/image';
 import Checkbox from '~/lib/form/components/fields/Checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+import FilterableColumnHeader from '~/components/DataTable/filters/FilterableColumnHeader';
+import {
+  booleanFilterFn,
+  dateFilterFn,
+  facetedFilterFn,
+  operatorFilterFn,
+  rangeFilterFn,
+} from '~/components/DataTable/filters/filterFns';
+import { type Option } from '~/components/DataTable/types';
 import { Badge } from '~/components/ui/badge';
 import ProgressBar from '~/components/ui/ProgressBar';
 import TimeAgo from '~/components/ui/TimeAgo';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import NetworkSummary from './NetworkSummary';
 
-export const InterviewColumns = (): ColumnDef<
-  Awaited<GetInterviewsQuery>[0]
->[] => [
+type InterviewRow = GetInterviewsQuery[number];
+
+export const InterviewColumns = (): ColumnDef<InterviewRow>[] => [
   {
     id: 'select',
     meta: {
@@ -75,10 +84,26 @@ export const InterviewColumns = (): ColumnDef<
   {
     id: 'protocolName',
     accessorKey: 'protocol.name',
-    header: ({ column }) => {
+    meta: {
+      filterType: 'faceted' as const,
+      filterConfig: {
+        type: 'faceted' as const,
+        options: (data: unknown[]) => {
+          const rows = data as GetInterviewsQuery;
+          const names = [...new Set(rows.map((r) => r.protocol.name))];
+          return names.map((name) => ({
+            label: name.replace(/\.netcanvas$/, ''),
+            value: name,
+          }));
+        },
+      },
+    },
+    filterFn: facetedFilterFn,
+    header: ({ column, table }) => {
       return (
-        <DataTableColumnHeader
+        <FilterableColumnHeader
           column={column}
+          table={table}
           title={
             <div className="flex items-center gap-2">
               <Image
@@ -110,8 +135,15 @@ export const InterviewColumns = (): ColumnDef<
   {
     id: 'startTime',
     accessorKey: 'startTime',
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Started" />;
+    meta: {
+      filterType: 'date' as const,
+      filterConfig: { type: 'date' as const },
+    },
+    filterFn: dateFilterFn,
+    header: ({ column, table }) => {
+      return (
+        <FilterableColumnHeader column={column} table={table} title="Started" />
+      );
     },
     cell: ({ row }) => {
       return <TimeAgo date={row.original.startTime} />;
@@ -120,8 +152,15 @@ export const InterviewColumns = (): ColumnDef<
   {
     id: 'lastUpdated',
     accessorKey: 'lastUpdated',
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Updated" />;
+    meta: {
+      filterType: 'date' as const,
+      filterConfig: { type: 'date' as const },
+    },
+    filterFn: dateFilterFn,
+    header: ({ column, table }) => {
+      return (
+        <FilterableColumnHeader column={column} table={table} title="Updated" />
+      );
     },
     cell: ({ row }) => {
       return <TimeAgo date={row.original.lastUpdated} />;
@@ -133,8 +172,30 @@ export const InterviewColumns = (): ColumnDef<
       const stageCount = row.protocol.stageCount;
       return stageCount > 0 ? (row.currentStep / stageCount) * 100 : 0;
     },
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Progress" />;
+    meta: {
+      filterType: 'range' as const,
+      filterConfig: {
+        type: 'range' as const,
+        min: 0,
+        max: 100,
+        step: 1,
+        presets: [
+          { label: 'Not Started', min: 0, max: 0 },
+          { label: 'In Progress', min: 1, max: 99 },
+          { label: 'Complete', min: 100, max: 100 },
+        ],
+        formatLabel: (v: number) => `${String(v)}%`,
+      },
+    },
+    filterFn: rangeFilterFn,
+    header: ({ column, table }) => {
+      return (
+        <FilterableColumnHeader
+          column={column}
+          table={table}
+          title="Progress"
+        />
+      );
     },
     cell: ({ row }) => {
       const stageCount = row.original.protocol.stageCount;
@@ -161,17 +222,65 @@ export const InterviewColumns = (): ColumnDef<
       const edgeCount = network.edges.reduce((sum, e) => sum + e.count, 0);
       return nodeCount + edgeCount;
     },
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Network" />;
+    meta: {
+      filterType: 'operator' as const,
+      filterConfig: {
+        type: 'operator' as const,
+        operators: ['eq', 'gt', 'lt', 'gte', 'lte'] as const,
+        entitySelector: {
+          label: 'Entity Type',
+          getOptions: (data: unknown[]) => {
+            const rows = data as GetInterviewsQuery;
+            const types = new Map<string, Option>();
+            for (const row of rows) {
+              for (const node of row.network.nodes) {
+                types.set(`nodes.${node.type}`, {
+                  label: `${node.name} (nodes)`,
+                  value: `nodes.${node.type}`,
+                });
+              }
+              for (const edge of row.network.edges) {
+                types.set(`edges.${edge.type}`, {
+                  label: `${edge.name} (edges)`,
+                  value: `edges.${edge.type}`,
+                });
+              }
+            }
+            return Array.from(types.values());
+          },
+        },
+      },
+    },
+    filterFn: operatorFilterFn as FilterFn<InterviewRow>,
+    header: ({ column, table }) => {
+      return (
+        <FilterableColumnHeader column={column} table={table} title="Network" />
+      );
     },
     cell: ({ row }) => {
       return <NetworkSummary network={row.original.network} />;
     },
   },
   {
+    id: 'exportTime',
     accessorKey: 'exportTime',
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Export Status" />;
+    meta: {
+      filterType: 'boolean' as const,
+      filterConfig: {
+        type: 'boolean' as const,
+        trueLabel: 'Exported',
+        falseLabel: 'Not Exported',
+      },
+    },
+    filterFn: booleanFilterFn,
+    header: ({ column, table }) => {
+      return (
+        <FilterableColumnHeader
+          column={column}
+          table={table}
+          title="Export Status"
+        />
+      );
     },
     cell: ({ row }) => {
       if (!row.original.exportTime) {

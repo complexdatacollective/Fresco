@@ -12,6 +12,7 @@ import { GenerateInterviewURLs } from '~/app/dashboard/interviews/_components/Ge
 import { DataTable } from '~/components/DataTable/DataTable';
 import { DataTableFloatingBar } from '~/components/DataTable/DataTableFloatingBar';
 import { DataTableToolbar } from '~/components/DataTable/DataTableToolbar';
+import ActiveFilterChips from '~/components/DataTable/filters/ActiveFilterChips';
 import { Button } from '~/components/ui/Button';
 import {
   DropdownMenu,
@@ -100,6 +101,7 @@ export const InterviewsTable = ({
     data: interviews,
     columns,
     defaultSortBy: { id: 'lastUpdated', desc: true },
+    enableUrlFilters: true,
   });
 
   return (
@@ -117,44 +119,47 @@ export const InterviewsTable = ({
       <DataTable
         table={table}
         toolbar={
-          <DataTableToolbar
-            table={table}
-            searchableColumns={[{ id: 'identifier', title: 'by identifier' }]}
-          >
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={<Button icon={<HardDriveUpload />} />}
-                disabled={interviews.length === 0}
-                nativeButton
-                data-testid="export-interviews-button"
+          <>
+            <DataTableToolbar
+              table={table}
+              searchableColumns={[{ id: 'identifier', title: 'by identifier' }]}
+            >
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={<Button icon={<HardDriveUpload />} />}
+                  disabled={interviews.length === 0}
+                  nativeButton
+                  data-testid="export-interviews-button"
+                  className="tablet-landscape:w-auto w-full"
+                >
+                  Export Interview Data
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={handleExportAll}>
+                    Export all interviews
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    disabled={completedInterviews.length === 0}
+                    onClick={handleExportCompleted}
+                  >
+                    Export all completed interviews
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    disabled={unexportedInterviews.length === 0}
+                    onClick={handleExportUnexported}
+                  >
+                    Export all unexported interviews
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <GenerateInterviewURLs
+                interviews={interviews}
+                protocolsPromise={protocolsPromise}
                 className="tablet-landscape:w-auto w-full"
-              >
-                Export Interview Data
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={handleExportAll}>
-                  Export all interviews
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  disabled={completedInterviews.length === 0}
-                  onClick={handleExportCompleted}
-                >
-                  Export all completed interviews
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  disabled={unexportedInterviews.length === 0}
-                  onClick={handleExportUnexported}
-                >
-                  Export all unexported interviews
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <GenerateInterviewURLs
-              interviews={interviews}
-              protocolsPromise={protocolsPromise}
-              className="tablet-landscape:w-auto w-full"
-            />
-          </DataTableToolbar>
+              />
+            </DataTableToolbar>
+            <ActiveFilterChips table={table} />
+          </>
         }
         floatingBar={
           <DataTableFloatingBar table={table}>
