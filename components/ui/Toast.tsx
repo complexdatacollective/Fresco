@@ -9,6 +9,7 @@ import { AlertCircle, Info, PartyPopper, type LucideIcon } from 'lucide-react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 import { surfaceVariants } from '../layout/Surface';
 import Heading from '../typography/Heading';
+import Button from './Button';
 import CloseButton from './CloseButton';
 
 export const toastVariants = cva({
@@ -53,6 +54,7 @@ type ToastData = {
 type ToastCustomData = {
   variant?: ToastVariant;
   onCancel?: () => void;
+  icon?: React.ReactNode;
 };
 
 type ToastItemProps = {
@@ -89,11 +91,15 @@ function ToastItem({ toast }: ToastItemProps) {
       )}
     >
       <Toast.Content className="flex gap-3 overflow-hidden transition-opacity duration-250 data-behind:pointer-events-none data-behind:opacity-0 data-expanded:pointer-events-auto data-expanded:opacity-100">
-        {IconComponent && (
-          <IconComponent
-            className="mt-[0.1em] size-5 shrink-0"
-            aria-hidden="true"
-          />
+        {toast.data?.icon ? (
+          <span className="mt-[0.1em] shrink-0">{toast.data.icon}</span>
+        ) : (
+          IconComponent && (
+            <IconComponent
+              className="mt-[0.1em] size-5 shrink-0"
+              aria-hidden="true"
+            />
+          )
         )}
         <div className="flex-1">
           <Toast.Title render={<Heading level="h4" />} />
@@ -101,13 +107,14 @@ function ToastItem({ toast }: ToastItemProps) {
             render={<div className="font-body text-pretty not-last:mb-4" />}
           />
           {toast.data?.onCancel && (
-            <button
+            <Button
               type="button"
-              className="mt-2 rounded bg-white/10 px-3 py-1 text-xs hover:bg-white/20"
+              size="sm"
               onClick={toast.data.onCancel}
+              className="mb-1"
             >
               Cancel
-            </button>
+            </Button>
           )}
         </div>
         <Toast.Close
@@ -134,11 +141,11 @@ export function useToast(): TypedUseToastManager {
   const toastManager = Toast.useToastManager();
 
   const add = (toastData: ToastData) => {
-    const { onCancel, onClose, ...rest } = toastData;
+    const { onCancel, onClose, icon, ...rest } = toastData;
     return toastManager.add({
       ...rest,
       onClose,
-      data: { onCancel },
+      data: { onCancel, icon },
     });
   };
 

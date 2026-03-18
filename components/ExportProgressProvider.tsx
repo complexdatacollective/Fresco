@@ -180,6 +180,7 @@ export function ExportProgressProvider({
                   description: 'Your download should start automatically.',
                   type: 'success',
                   timeout: 5000,
+                  onCancel: undefined,
                 });
 
                 void deleteZipFromUploadThing(data.zipKey).catch(
