@@ -39,9 +39,9 @@ type SlidesFormProps<T = unknown> = StageProps<
 
 const slideTransition = {
   type: 'spring' as const,
-  mass: 2,
-  damping: 30,
-  stiffness: 150,
+  mass: 3,
+  damping: 26,
+  stiffness: 120,
 };
 
 function SlidesFormInner<T>({
