@@ -37,16 +37,11 @@ type SlidesFormProps<T = unknown> = StageProps<
   }>;
 };
 
-const slideVariants = {
-  show: {
-    y: 0,
-  },
-  hideTop: {
-    y: '-100%',
-  },
-  hideBottom: {
-    y: '100%',
-  },
+const slideTransition = {
+  type: 'spring' as const,
+  mass: 2,
+  damping: 30,
+  stiffness: 150,
 };
 
 function SlidesFormInner<T>({
@@ -165,37 +160,36 @@ function SlidesFormInner<T>({
   }
 
   return (
-    <div className="interface">
-      <div className="flex w-full flex-auto items-center justify-center overflow-hidden">
-        <AnimatePresence mode="wait">
-          <motion.div
+    <div className="flex w-full flex-auto overflow-hidden">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeIndex}
+          className="interface"
+          animate={{ y: 0 }}
+          initial={{ y: '100%' }}
+          exit={{
+            y: pendingDirection === 'forwards' ? '-100%' : '100%',
+          }}
+          transition={slideTransition}
+        >
+          <SlideForm
             key={activeIndex}
-            className="absolute flex size-full max-w-7xl items-center justify-center [&_.scrollable]:h-full [&_.scrollable]:px-5"
-            variants={slideVariants}
-            animate="show"
-            initial="hideBottom"
-            exit={pendingDirection === 'forwards' ? 'hideTop' : 'hideBottom'}
-            transition={{ ease: 'easeInOut', duration: 0.5 }}
-          >
-            <SlideForm
-              key={activeIndex}
-              item={currentItem}
-              onUpdate={updateItem}
-              form={stage.form}
-              sentinelRef={sentinelRef}
-              submitButton={
-                <button
-                  type="submit"
-                  key="submit"
-                  aria-label="Submit"
-                  hidden
-                  onClick={handleEnterSubmit}
-                />
-              }
-            />
-          </motion.div>
-        </AnimatePresence>
-      </div>
+            item={currentItem}
+            onUpdate={updateItem}
+            form={stage.form}
+            sentinelRef={sentinelRef}
+            submitButton={
+              <button
+                type="submit"
+                key="submit"
+                aria-label="Submit"
+                hidden
+                onClick={handleEnterSubmit}
+              />
+            }
+          />
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

@@ -63,7 +63,7 @@ export default function SlideFormNode({
   };
 
   return (
-    <div className="flex size-full flex-col items-center justify-center gap-2">
+    <>
       <Node {...item} className="shrink-0 rounded-full" />
       <div className="flex min-h-0 w-full max-w-[65rem] flex-1 flex-col rounded-[--nc-border-radius] bg-[--nc-panel-bg-muted] px-5 pt-2.5 pb-5">
         <ScrollArea className="h-auto">
@@ -79,6 +79,6 @@ export default function SlideFormNode({
           </Surface>
         </ScrollArea>
       </div>
-    </div>
+    </>
   );
 }

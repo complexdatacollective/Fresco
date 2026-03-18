@@ -77,7 +77,7 @@ export default function SlideFormEdge({
   };
 
   return (
-    <div className="flex size-full flex-col items-center justify-center gap-2">
+    <>
       <div className="flex shrink-0 items-center">
         {fromNode && <Node {...fromNode} className="rounded-full" />}
         <div
@@ -102,6 +102,6 @@ export default function SlideFormEdge({
           </Surface>
         </ScrollArea>
       </div>
-    </div>
+    </>
   );
 }
