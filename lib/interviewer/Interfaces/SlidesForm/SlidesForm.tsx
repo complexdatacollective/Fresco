@@ -182,12 +182,12 @@ const SlideContent = forwardRef<SlideHandle, SlideContentProps>(
 export default function SlidesForm({
   stage,
   getNavigationHelpers,
-  items = [] as T[],
+  items = [],
   subject,
   updateItem,
   onNavigateBack,
   renderHeader,
-}: SlidesFormProps<T>) {
+}: SlidesFormProps) {
   const { moveForward } = getNavigationHelpers();
   const { confirm } = useDialog();
 
