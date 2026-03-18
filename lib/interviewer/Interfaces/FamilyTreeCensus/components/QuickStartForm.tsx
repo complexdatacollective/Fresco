@@ -1,8 +1,9 @@
 'use client';
 
-import Surface from '~/components/layout/Surface';
+import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import useDialog from '~/lib/dialogs/useDialog';
+import FamilyTreePlaceholder from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreePlaceholder';
 import BioParentsStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/BioParentsStep';
 import ChildrenWithPartnerDetailStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/ChildrenWithPartnerDetailStep';
 import OtherChildrenCountStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/OtherChildrenCountStep';
@@ -118,10 +119,14 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
   };
 
   return (
-    <Surface noContainer maxWidth="md">
+    <div className="flex flex-col items-center gap-6">
+      <FamilyTreePlaceholder className="w-64 max-w-full" />
+      <Paragraph emphasis="muted" margin="none" className="text-center">
+        Your family tree will appear here
+      </Paragraph>
       <Button color="primary" onClick={() => void handleClick()}>
         Get started
       </Button>
-    </Surface>
+    </div>
   );
 }
