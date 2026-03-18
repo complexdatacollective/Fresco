@@ -93,7 +93,7 @@ export default function SyntheticInterviewDataSection({
             toast({
               title: 'Generation complete',
               description: `Successfully generated ${String(created)} synthetic interviews.`,
-              variant: 'success',
+              type: 'success',
             });
           }
         }
