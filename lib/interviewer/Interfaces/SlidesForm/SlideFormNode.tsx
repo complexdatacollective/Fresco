@@ -65,7 +65,7 @@ export default function SlideFormNode({
   return (
     <>
       <Node {...item} className="shrink-0 rounded-full" />
-      <div className="flex min-h-0 w-full max-w-[65rem] shrink flex-col rounded-[--nc-border-radius] bg-[--nc-panel-bg-muted] px-5 pt-2.5 pb-5">
+      <div className="flex min-h-0 w-full max-w-2xl shrink flex-col rounded-[--nc-border-radius] bg-[--nc-panel-bg-muted] px-5 pt-2.5 pb-5">
         <ScrollArea className="h-auto">
           <Surface>
             <FormWithoutProvider
