@@ -1,12 +1,6 @@
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import superjson from 'superjson';
-import {
-  exportSessions,
-  type FormattedProtocols,
-  prepareExportData,
-  updateExportTime,
-} from '~/actions/interviews';
+import { exportInterviews, updateExportTime } from '~/actions/interviews';
 import { deleteZipFromUploadThing } from '~/actions/uploadThing';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/Toast';
@@ -15,10 +9,7 @@ import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
 import posthog from 'posthog-js';
 import type { Interview } from '~/lib/db/generated/client';
 import Dialog from '~/lib/dialogs/Dialog';
-import {
-  ExportOptionsSchema,
-  type FormattedSession,
-} from '~/lib/network-exporters/utils/types';
+import { ExportOptionsSchema } from '~/lib/network-exporters/utils/types';
 import { ensureError } from '~/utils/ensureError';
 import ExportOptionsView from './ExportOptionsView';
 
@@ -57,19 +48,7 @@ export const ExportInterviewsDialog = ({
     try {
       const interviewIds = interviewsToExport.map((interview) => interview.id);
 
-      // prepare data for export
-      const { formattedSessions, formattedProtocols } =
-        await prepareExportData(interviewIds);
-
-      const parsedFormattedSessions =
-        superjson.parse<FormattedSession[]>(formattedSessions);
-      const parsedFormattedProtocols =
-        superjson.parse<FormattedProtocols>(formattedProtocols);
-
-      // export the data
-      const { zipUrl, zipKey, status, error } = await exportSessions(
-        parsedFormattedSessions,
-        parsedFormattedProtocols,
+      const { zipUrl, zipKey, status, error } = await exportInterviews(
         interviewIds,
         exportOptions,
       );
