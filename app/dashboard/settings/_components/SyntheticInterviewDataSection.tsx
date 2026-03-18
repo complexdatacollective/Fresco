@@ -6,6 +6,7 @@ import { deleteSyntheticData } from '~/actions/synthetic-interviews';
 import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
 import { Button } from '~/components/ui/Button';
+import InputField from '~/lib/form/components/fields/InputField';
 import SelectField from '~/lib/form/components/fields/Select/Styled';
 import ProgressBar from '~/components/ui/ProgressBar';
 import {
@@ -138,13 +139,13 @@ export default function SyntheticInterviewDataSection({
             value={selectedProtocolId}
             placeholder="Select a Protocol..."
           />
-          <input
+          <InputField
+            name="count"
             type="number"
             min={1}
             max={1000}
-            value={count}
-            onChange={(e) => setCount(Number(e.target.value))}
-            className="bg-input text-input-contrast h-10 w-24 rounded border border-transparent px-3"
+            value={String(count)}
+            onChange={(value) => setCount(Number(value))}
             disabled={isGenerating}
           />
           <Button
