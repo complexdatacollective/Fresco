@@ -12,7 +12,6 @@ export const env = createEnv({
     DATABASE_URL: z.string(),
     PUBLIC_URL: z.string().url().optional(),
     USE_NEON_POSTGRES_ADAPTER: z.stringbool().optional(),
-    USE_LOCAL_FILE_STORAGE: z.stringbool().optional(),
   },
 
   /**
@@ -26,18 +25,17 @@ export const env = createEnv({
     INSTALLATION_ID: z.string().optional(),
     DISABLE_ANALYTICS: z.stringbool().optional(),
     /**
-     * DISABLE_NEXT_CACHE Environment Variable
+     * E2E_TEST Environment Variable
      *
-     * When set to 'true', completely disables Next.js caching for test isolation.
-     * This works via the no-op cacheHandlers in next.config.ts (lib/cache-handler.cjs),
-     * which returns cache misses for all operations. All 'use cache' functions
-     * route through this handler, so no additional bypass logic is needed.
+     * General flag for e2e test environments. When set to 'true':
+     * - Disables Next.js caching via the no-op cacheHandlers in next.config.ts
+     * - Enables local file storage for exports instead of UploadThing
      *
      * Usage:
-     * - E2E tests: Set at build time (tests/e2e/global-setup.ts) AND runtime
-     * - Production: Not set - uses Next.js default caching
+     * - E2E tests: Set at build time AND runtime
+     * - Production: Not set
      */
-    DISABLE_NEXT_CACHE: z.stringbool().optional(),
+    E2E_TEST: z.stringbool().optional(),
     NODE_ENV: z
       .enum(['development', 'test', 'production'])
       .default('development'),
@@ -59,7 +57,7 @@ export const env = createEnv({
     CI: process.env.CI,
     PUBLIC_URL: process.env.PUBLIC_URL,
     DISABLE_ANALYTICS: process.env.DISABLE_ANALYTICS,
-    DISABLE_NEXT_CACHE: process.env.DISABLE_NEXT_CACHE,
+    E2E_TEST: process.env.E2E_TEST,
     INSTALLATION_ID: process.env.INSTALLATION_ID,
     SANDBOX_MODE: process.env.SANDBOX_MODE,
     PREVIEW_MODE: process.env.PREVIEW_MODE,
@@ -67,7 +65,6 @@ export const env = createEnv({
     APP_VERSION: process.env.APP_VERSION,
     COMMIT_HASH: process.env.COMMIT_HASH,
     USE_NEON_POSTGRES_ADAPTER: process.env.USE_NEON_POSTGRES_ADAPTER,
-    USE_LOCAL_FILE_STORAGE: process.env.USE_LOCAL_FILE_STORAGE,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

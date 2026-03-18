@@ -34,7 +34,7 @@ Each browser gets its own DB + server per environment:
 
 ```
 Global Setup
-├── Build standalone Next.js (DISABLE_NEXT_CACHE=true)
+├── Build standalone Next.js (E2E_TEST=true)
 ├── For each browser x environment (12 instances, in parallel):
 │   ├── Start PostgreSQL testcontainer
 │   ├── Run Prisma migrations
@@ -411,6 +411,6 @@ Cleanup is automatic — no `afterAll` needed.
 - Auth tables (User, Session, Key) excluded from snapshots so browser sessions survive restores
 - TestDataBuilder uses raw SQL (pg) to avoid Prisma client env validation dependency
 - Pre-computed scrypt hash for test password avoids lucia/utils import
-- `DISABLE_NEXT_CACHE=true` at build+runtime eliminates stale cache issues
+- `E2E_TEST=true` at build+runtime eliminates stale cache issues
 - Port allocation starts at 4100 to avoid conflicts with the dev server (port 3000) and WebKitGTK's restricted port list on Linux
 - `fullyParallel: true` enables tests within a spec file to run in parallel (serial mode overrides this where needed)

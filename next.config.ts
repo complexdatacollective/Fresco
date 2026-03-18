@@ -28,7 +28,7 @@ try {
 }
 
 // eslint-disable-next-line no-process-env
-const disableNextCache = process.env.DISABLE_NEXT_CACHE === 'true';
+const isE2ETest = process.env.E2E_TEST === 'true';
 
 const config: NextConfig = {
   output: 'standalone',
@@ -37,7 +37,7 @@ const config: NextConfig = {
   // Use no-op cache handler for E2E tests, otherwise use Next.js default.
   // cacheHandlers (plural) intercepts 'use cache' directives.
   // See lib/cache-handler.cjs and lib/cache.ts for caching strategy docs.
-  cacheHandlers: disableNextCache
+  cacheHandlers: isE2ETest
     ? { default: require.resolve('./lib/cache/cache-handler.cjs') }
     : undefined,
   cacheComponents: true,

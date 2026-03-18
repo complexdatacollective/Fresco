@@ -266,7 +266,7 @@ export async function getItems() {
 
 Both accept a single tag or an array. All tags are typesafe against the `CacheTags` array in `lib/cache.ts`.
 
-**Disabling cache for tests**: Set `DISABLE_NEXT_CACHE=true` which activates the no-op `cacheHandlers` in `next.config.ts` (`lib/cache-handler.cjs`). This returns cache misses for all `'use cache'` functions.
+**E2E test environment**: Set `E2E_TEST=true` to enable e2e test mode. This activates the no-op `cacheHandlers` in `next.config.ts` (`lib/cache-handler.cjs`) which returns cache misses for all `'use cache'` functions, and enables local file storage for exports instead of UploadThing.
 
 ### Naming Conventions
 
