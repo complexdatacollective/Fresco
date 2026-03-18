@@ -34,6 +34,7 @@ type NodeListProps = Omit<CollectionProps<NcNode>, InternalCollectionProps> & {
   onItemClick?: (node: NcNode) => void;
   nodeSize?: 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
   announcedName: string; // For accessibility announcements related to drag and drop
+  testId?: string;
 };
 
 const EXIT_DURATION = 0.2;
@@ -47,6 +48,7 @@ const NodeList = memo(
     onDrop,
     onItemClick,
     nodeSize = 'md',
+    testId,
     // Collection props with NodeList defaults
     items = [],
     id,
@@ -214,6 +216,7 @@ const NodeList = memo(
         }}
         onAnimationComplete={() => setAnimationComplete(true)}
         className="size-full grow"
+        data-testid={testId}
       >
         {animationComplete && (
           <Collection

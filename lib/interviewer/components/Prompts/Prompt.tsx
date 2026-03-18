@@ -38,6 +38,7 @@ const Prompt = ({ id, text, backwards = false, small }: PromptProps) => {
 
   return (
     <motion.div
+      data-testid="prompt"
       title={text}
       key={id}
       custom={backwards}

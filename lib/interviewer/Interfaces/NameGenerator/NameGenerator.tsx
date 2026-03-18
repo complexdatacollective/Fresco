@@ -284,6 +284,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
               animationKey={promptIndex}
               className="flex flex-1 rounded"
               announcedName="Added Nodes"
+              testId="node-list"
             />
           </ResizableFlexPanel>
         ) : (
@@ -298,6 +299,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
               animationKey={promptIndex}
               className="flex flex-1 rounded"
               announcedName="Added Nodes"
+              testId="node-list"
             />
           </div>
         )}

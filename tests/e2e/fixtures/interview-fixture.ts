@@ -7,8 +7,6 @@ type CaptureInterviewFn = (name: string) => Promise<void>;
  *
  * Handles interview shell and navigation concerns.
  * Use the `stage` fixture for stage-specific interactions.
- *
- * Screenshots are captured automatically by `goto()` when a capture function is set.
  */
 export class InterviewFixture {
   readonly page: Page;
@@ -44,7 +42,6 @@ export class InterviewFixture {
 
   /**
    * Navigate directly to a stage by index.
-   * Automatically captures a screenshot after loading if a capture function is set.
    *
    * @param stageIndex - The 0-based stage index
    */
@@ -58,10 +55,8 @@ export class InterviewFixture {
     await this.page.goto(`/interview/${this.interviewId}?step=${stageIndex}`);
     await this.waitForStageLoad();
 
-    // Capture screenshot after stage load
-    if (this.captureFn) {
-      await this.captureFn(`stage-${stageIndex}`);
-    }
+    // Capture screenshot on stage load
+    await this.capture(`stage-${stageIndex}`);
   }
 
   /**

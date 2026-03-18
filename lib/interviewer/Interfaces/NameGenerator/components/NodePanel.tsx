@@ -87,6 +87,7 @@ function NodePanel(props: NodePanelProps) {
       title={panelConfig.title}
       panelNumber={panelNumber}
       minimize={minimize}
+      testId="node-panel"
     >
       <NodeList
         items={nodes}

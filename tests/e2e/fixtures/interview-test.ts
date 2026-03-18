@@ -69,15 +69,22 @@ export const test = baseTest.extend<
     { scope: 'worker' },
   ],
 
-  captureInterview: async ({ page }, use, testInfo) => {
+  // Use soft assertions for screenshots to avoid retries resetting serial test state.
+  // Soft assertions don't stop execution or trigger retries - failures are collected
+  // and reported at the end. This allows --update-snapshots to work without breaking
+  // subsequent stages.
+  captureInterview: async ({ page }, use) => {
     // eslint-disable-next-line no-process-env
-    if (!process.env.CI) {
-      testInfo.skip(true, 'Visual snapshots only run in Docker');
-    }
+    const isCI = !!process.env.CI;
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     await use(async (name: string, options: CaptureInterviewOptions = {}) => {
-      await expect(page).toHaveScreenshot(`${name}.png`, {
+      // Only capture screenshots in CI
+      if (!isCI) {
+        return;
+      }
+
+      // Use soft assertion - doesn't trigger retries on failure
+      await expect.soft(page).toHaveScreenshot(`${name}.png`, {
         fullPage: false,
         mask: options.mask,
       });

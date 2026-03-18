@@ -214,23 +214,79 @@ export class ProtocolFixture {
     return interview.id;
   }
 
-  async injectNetworkState(
-    interviewId: string,
-    network: { nodes: unknown[]; edges: unknown[]; ego: unknown },
-    currentStep: number,
-  ): Promise<void> {
-    await this.prisma.interview.update({
+  /**
+   * Get the current network state from the database for an interview.
+   * Useful for debugging sync issues.
+   */
+  async getNetworkState(interviewId: string): Promise<{
+    nodes: Array<{ _uid: string; type: string; attributes: Record<string, unknown> }>;
+    edges: Array<{ _uid: string; type: string; from: string; to: string }>;
+    ego: { _uid: string; attributes: Record<string, unknown> };
+    currentStep: number;
+  }> {
+    const interview = await this.prisma.interview.findUnique({
       where: { id: interviewId },
-      data: {
-        network: network as Prisma.InputJsonValue,
-        currentStep,
-      },
+      select: { network: true, currentStep: true },
     });
 
-    log(
-      'test',
-      `Injected network state at step ${currentStep} for interview ${interviewId}`,
+    if (!interview) {
+      throw new Error(`Interview ${interviewId} not found`);
+    }
+
+    const network = interview.network as {
+      nodes: Array<{ _uid: string; type: string; attributes: Record<string, unknown> }>;
+      edges: Array<{ _uid: string; type: string; from: string; to: string }>;
+      ego: { _uid: string; attributes: Record<string, unknown> };
+    };
+
+    return {
+      ...network,
+      currentStep: interview.currentStep,
+    };
+  }
+
+  /**
+   * Wait for nodes to appear in the database.
+   * Polls the database until the expected number of nodes exist or timeout.
+   */
+  async waitForNodes(
+    interviewId: string,
+    expectedCount: number,
+    options: { timeout?: number; interval?: number } = {},
+  ): Promise<void> {
+    const { timeout = 10000, interval = 500 } = options;
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < timeout) {
+      const state = await this.getNetworkState(interviewId);
+      if (state.nodes.length >= expectedCount) {
+        log('test', `Found ${state.nodes.length} nodes in database`);
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, interval));
+    }
+
+    const finalState = await this.getNetworkState(interviewId);
+    throw new Error(
+      `Timeout waiting for ${expectedCount} nodes. Found ${finalState.nodes.length} nodes after ${timeout}ms`,
     );
+  }
+
+  /**
+   * Log the current network state for debugging.
+   */
+  async logNetworkState(interviewId: string): Promise<void> {
+    const state = await this.getNetworkState(interviewId);
+    log('test', `Network state for interview ${interviewId}:`);
+    log('test', `  Current step: ${state.currentStep}`);
+    log('test', `  Nodes (${state.nodes.length}):`);
+    for (const node of state.nodes) {
+      log('test', `    - ${node._uid}: ${JSON.stringify(node.attributes)}`);
+    }
+    log('test', `  Edges (${state.edges.length}):`);
+    for (const edge of state.edges) {
+      log('test', `    - ${edge.from} -> ${edge.to} (${edge.type})`);
+    }
   }
 
   async uninstall(protocolId: string): Promise<void> {
@@ -263,9 +319,5 @@ export class ProtocolFixture {
     } catch {
       // Ignore if doesn't exist
     }
-  }
-
-  getInstalledProtocols(): string[] {
-    return [...this.installedProtocols];
   }
 }

@@ -8,6 +8,7 @@ type PanelProps = React.HTMLAttributes<HTMLDivElement> & {
   minimize?: boolean;
   panelNumber: number;
   noCollapse?: boolean;
+  testId?: string;
 };
 
 /**
@@ -20,6 +21,7 @@ const Panel = ({
   minimize = false,
   panelNumber,
   noCollapse = false,
+  testId,
 }: PanelProps) => {
   const [collapsed, setCollapsed] = useState(false);
 
@@ -69,6 +71,7 @@ const Panel = ({
       elevation="high"
       spacing="none"
       noContainer
+      data-testid={testId}
     >
       <div
         className={headingClassNames({ spacing: 'sm' })}

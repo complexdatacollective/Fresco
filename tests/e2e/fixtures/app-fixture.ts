@@ -20,13 +20,6 @@ export class AppFixture {
     log('test', `Set app setting "${key}" = "${value}"`);
   }
 
-  async getSetting(key: AppSetting): Promise<string | null> {
-    const row = await this.prisma.appSettings.findUnique({
-      where: { key },
-    });
-    return row?.value ?? null;
-  }
-
   async createApiToken(description: string): Promise<string> {
     const token = randomBytes(32).toString('base64url');
 
