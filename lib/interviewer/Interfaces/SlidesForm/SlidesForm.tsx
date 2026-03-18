@@ -13,8 +13,6 @@ import { useFormMeta } from '~/lib/form/hooks/useFormState';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
-import Heading from '~/components/typography/Heading';
-import ProgressBar from '~/components/ui/ProgressBar';
 import useDialog from '~/lib/dialogs/useDialog';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import {
@@ -169,13 +167,13 @@ function SlidesFormInner<T>({
   return (
     <div className="interface">
       <div className="flex w-full flex-auto items-center justify-center overflow-hidden">
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode="wait">
           <motion.div
             key={activeIndex}
             className="absolute flex size-full max-w-7xl items-center justify-center [&_.scrollable]:h-full [&_.scrollable]:px-5"
             variants={slideVariants}
             animate="show"
-            initial={pendingDirection === 'forwards' ? 'hideBottom' : 'hideTop'}
+            initial="hideBottom"
             exit={pendingDirection === 'forwards' ? 'hideTop' : 'hideBottom'}
             transition={{ ease: 'easeInOut', duration: 0.5 }}
           >
@@ -198,31 +196,6 @@ function SlidesFormInner<T>({
           </motion.div>
         </AnimatePresence>
       </div>
-      <AnimatePresence>
-        {items.length > 1 && (
-          <motion.div
-            className="absolute bottom-5 z-[--z-panel] flex w-80 flex-none flex-col text-center"
-            key="progress-container"
-            initial={{ opacity: 0, y: 100 }}
-            animate={{
-              opacity: 1,
-              y: 0,
-              transition: { delay: 0.5, duration: 0.5 },
-            }}
-            exit={{ opacity: 0, y: 100 }}
-          >
-            <Heading level="label">
-              <strong>{activeIndex + 1}</strong> of{' '}
-              <strong>{items.length}</strong>
-            </Heading>
-            <ProgressBar
-              orientation="horizontal"
-              percentProgress={((activeIndex + 1) / items.length) * 100}
-              nudge={false}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

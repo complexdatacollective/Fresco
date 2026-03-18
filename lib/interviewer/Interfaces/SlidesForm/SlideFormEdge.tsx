@@ -77,51 +77,30 @@ export default function SlideFormEdge({
   };
 
   return (
-    <div className="flex size-full items-center justify-center">
-      <div
-        className="relative flex min-h-5 w-full max-w-[65rem] flex-col rounded-[--nc-border-radius] bg-[--nc-panel-bg-muted] px-5 pt-2.5 pb-5"
-        style={
-          {
-            '--base-node-size': '7.8rem',
-            'maxHeight': '80%',
-          } as React.CSSProperties
-        }
-      >
-        {/* Node pair with edge - uses flex layout like DyadCensus */}
-        <div className="absolute top-[calc(var(--base-node-size)*-0.5)] left-1/2 flex -translate-x-1/2 items-center">
-          {fromNode && (
-            <Node
-              {...fromNode}
-              className="rounded-full bg-(--nc-panel-bg-muted)"
-            />
+    <div className="flex size-full flex-col items-center justify-center gap-2">
+      <div className="flex shrink-0 items-center">
+        {fromNode && <Node {...fromNode} className="rounded-full" />}
+        <div
+          className={cx(
+            edgeColorMap[edgeColor],
+            'mx-[-1.5rem] h-2 w-32 bg-(--edge-color)',
           )}
-          <div
-            className={cx(
-              edgeColorMap[edgeColor],
-              'mx-[-1.5rem] h-2 w-32 bg-(--edge-color)',
-            )}
-          />
-          {toNode && (
-            <Node
-              {...toNode}
-              className="rounded-full bg-(--nc-panel-bg-muted)"
-            />
-          )}
-        </div>
-        <div className="mt-[calc(var(--base-node-size)*0.4)] flex min-h-0 w-full flex-1 flex-col">
-          <ScrollArea className="h-auto">
-            <Surface>
-              <FormWithoutProvider
-                onSubmit={handleSubmit}
-                className="[&_.form-field-container]:break-inside-avoid"
-              >
-                {fieldComponents}
-                {submitButton}
-                <div ref={sentinelRef} aria-hidden />
-              </FormWithoutProvider>
-            </Surface>
-          </ScrollArea>
-        </div>
+        />
+        {toNode && <Node {...toNode} className="rounded-full" />}
+      </div>
+      <div className="flex min-h-0 w-full max-w-[65rem] flex-1 flex-col rounded-[--nc-border-radius] bg-[--nc-panel-bg-muted] px-5 pt-2.5 pb-5">
+        <ScrollArea className="h-auto">
+          <Surface>
+            <FormWithoutProvider
+              onSubmit={handleSubmit}
+              className="[&_.form-field-container]:break-inside-avoid"
+            >
+              {fieldComponents}
+              {submitButton}
+              <div ref={sentinelRef} aria-hidden />
+            </FormWithoutProvider>
+          </Surface>
+        </ScrollArea>
       </div>
     </div>
   );
