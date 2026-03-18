@@ -622,11 +622,13 @@ This custom variant lets you target only elements with the readonly attribute.
 
   /* Interview mode responsive font-size (lives here because theme() needs @theme in same file) */
   :root:has([data-interview]) {
-    @media (width >= theme(--breakpoint-desktop)) {
+    font-size: 16px;
+
+    @media (width >= theme(--breakpoint-tablet-landscape-max)) {
       font-size: 18px;
     }
 
-    @media (width >= theme(--breakpoint-desktop-xl)) {
+    @media (width >= theme(--breakpoint-desktop-lg)) {
       font-size: 20px;
     }
   }
