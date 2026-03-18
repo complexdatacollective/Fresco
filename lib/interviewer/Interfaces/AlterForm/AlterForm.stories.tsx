@@ -3,9 +3,32 @@ import { useMemo } from 'react';
 import SuperJSON from 'superjson';
 import StoryInterviewShell from '~/.storybook/StoryInterviewShell';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
+import { type ComponentType } from '~/lib/interviewer/utils/SyntheticInterview/types';
+
+const FIELD_PRESETS: { component: ComponentType; prompt: string }[] = [
+  { component: 'Text', prompt: 'Nickname' },
+  { component: 'Number', prompt: 'Age' },
+  { component: 'RadioGroup', prompt: 'How close are you to this person?' },
+  { component: 'Toggle', prompt: 'Do they live nearby?' },
+  { component: 'TextArea', prompt: 'Describe your relationship.' },
+  { component: 'Boolean', prompt: 'Have you met in person?' },
+  {
+    component: 'CheckboxGroup',
+    prompt: 'In what contexts do you interact?',
+  },
+  {
+    component: 'LikertScale',
+    prompt: 'How much do you trust this person?',
+  },
+  {
+    component: 'VisualAnalogScale',
+    prompt: 'How important is this relationship to you?',
+  },
+];
 
 type StoryArgs = {
   initialNodeCount: number;
+  fieldCount: number;
 };
 
 function buildInterview(args: StoryArgs) {
@@ -28,9 +51,14 @@ function buildInterview(args: StoryArgs) {
     },
   });
 
-  stage.addFormField({ component: 'Text', prompt: 'Nickname' });
-  stage.addFormField({ component: 'Number', prompt: 'Age' });
-  stage.addFormField({ component: 'RadioGroup', prompt: 'Closeness' });
+  const fieldCount = Math.min(args.fieldCount, FIELD_PRESETS.length);
+  for (let i = 0; i < fieldCount; i++) {
+    const preset = FIELD_PRESETS[i]!;
+    stage.addFormField({
+      component: preset.component,
+      prompt: preset.prompt,
+    });
+  }
 
   interview.addInformationStage({
     title: 'Complete',
@@ -69,9 +97,14 @@ const meta: Meta<StoryArgs> = {
       control: { type: 'range', min: 1, max: 10 },
       description: 'Number of alter nodes in the network',
     },
+    fieldCount: {
+      control: { type: 'range', min: 1, max: FIELD_PRESETS.length },
+      description: 'Number of form fields per node',
+    },
   },
   args: {
     initialNodeCount: 3,
+    fieldCount: 3,
   },
 };
 
@@ -93,5 +126,12 @@ export const SingleNode: Story = {
   render: (args) => <AlterFormStoryWrapper {...args} />,
   args: {
     initialNodeCount: 1,
+  },
+};
+
+export const ManyFields: Story = {
+  render: (args) => <AlterFormStoryWrapper {...args} />,
+  args: {
+    fieldCount: FIELD_PRESETS.length,
   },
 };
