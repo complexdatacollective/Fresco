@@ -1,0 +1,112 @@
+'use client';
+
+import { DateTime } from 'luxon';
+import {
+  type DateFilterConfig,
+  type DateFilterValue,
+} from '~/components/DataTable/filters/types';
+import { cx } from '~/utils/cva';
+
+type DateFilterProps = {
+  value: DateFilterValue | undefined;
+  onChange: (value: DateFilterValue | undefined) => void;
+  config: DateFilterConfig;
+};
+
+type RelativePreset = {
+  label: string;
+  days: number;
+};
+
+const relativePresets: RelativePreset[] = [
+  { label: 'Today', days: 0 },
+  { label: 'Last 7 days', days: 7 },
+  { label: 'Last 30 days', days: 30 },
+  { label: 'Last 90 days', days: 90 },
+];
+
+function getPresetRange(days: number): DateFilterValue {
+  const now = DateTime.now();
+  const to = now.toISODate()!;
+  const from = days === 0 ? to : now.minus({ days }).toISODate()!;
+  return { from, to };
+}
+
+function isPresetActive(
+  value: DateFilterValue | undefined,
+  days: number,
+): boolean {
+  if (!value) return false;
+  const preset = getPresetRange(days);
+  return value.from === preset.from && value.to === preset.to;
+}
+
+export default function DateFilter({
+  value,
+  onChange,
+  config: _config,
+}: DateFilterProps) {
+  const handlePresetClick = (days: number) => {
+    if (isPresetActive(value, days)) {
+      onChange(undefined);
+    } else {
+      onChange(getPresetRange(days));
+    }
+  };
+
+  const handleFromChange = (from: string) => {
+    if (!from) {
+      onChange(undefined);
+      return;
+    }
+    const to = value?.to ?? DateTime.now().toISODate()!;
+    onChange({ from, to });
+  };
+
+  const handleToChange = (to: string) => {
+    if (!to) {
+      onChange(undefined);
+      return;
+    }
+    const from = value?.from ?? to;
+    onChange({ from, to });
+  };
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap gap-1">
+        {relativePresets.map((preset) => (
+          <button
+            key={preset.label}
+            type="button"
+            onClick={() => handlePresetClick(preset.days)}
+            className={cx(
+              'rounded-full px-3 py-1 text-xs transition-colors',
+              isPresetActive(value, preset.days)
+                ? 'bg-primary/10 text-primary font-semibold'
+                : 'bg-muted text-muted-foreground hover:bg-muted/80',
+            )}
+          >
+            {preset.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex items-center gap-2">
+        <input
+          type="date"
+          value={value?.from ?? ''}
+          onChange={(e) => handleFromChange(e.target.value)}
+          className="border-input bg-background rounded-md border px-2 py-1 text-xs"
+        />
+        <span className="text-muted-foreground text-xs">to</span>
+        <input
+          type="date"
+          value={value?.to ?? ''}
+          onChange={(e) => handleToChange(e.target.value)}
+          className="border-input bg-background rounded-md border px-2 py-1 text-xs"
+        />
+      </div>
+    </div>
+  );
+}
