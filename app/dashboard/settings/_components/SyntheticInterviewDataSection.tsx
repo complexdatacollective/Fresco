@@ -3,6 +3,7 @@
 import { use, useState } from 'react';
 import { SuperJSON } from 'superjson';
 import { deleteSyntheticData } from '~/actions/synthetic-interviews';
+import { useToast } from '~/components/ui/Toast';
 import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
 import { Button } from '~/components/ui/Button';
@@ -32,6 +33,7 @@ export default function SyntheticInterviewDataSection({
   const [isDeleting, setIsDeleting] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [syntheticCounts, setSyntheticCounts] = useState(initialCounts);
+  const { toast } = useToast();
 
   const handleGenerate = async () => {
     if (!selectedProtocolId) return;
@@ -88,6 +90,11 @@ export default function SyntheticInterviewDataSection({
               interviewCount: prev.interviewCount + created,
               participantCount: prev.participantCount + created,
             }));
+            toast({
+              title: 'Generation complete',
+              description: `Successfully generated ${String(created)} synthetic interviews.`,
+              variant: 'success',
+            });
           }
         }
       }
