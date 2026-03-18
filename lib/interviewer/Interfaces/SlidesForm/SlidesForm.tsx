@@ -1,3 +1,4 @@
+import { type Form } from '@codaco/protocol-validation';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   type ComponentType,
@@ -21,14 +22,16 @@ import {
 } from '~/lib/interviewer/types';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 
-type SlidesFormProps = StageProps<'AlterForm' | 'AlterEdgeForm'> & {
-  items: unknown[];
+type SlidesFormProps<T = unknown> = StageProps<
+  'AlterForm' | 'AlterEdgeForm'
+> & {
+  items: T[];
   updateItem: (...args: unknown[]) => void;
   onNavigateBack?: () => void;
   slideForm: ComponentType<{
-    item: unknown;
+    item: T;
     onUpdate: (...args: unknown[]) => void;
-    form: Record<string, unknown>;
+    form: Form;
     submitButton: ReactElement;
     sentinelRef: (node: HTMLDivElement | null) => void;
   }>;
@@ -46,14 +49,14 @@ const slideVariants = {
   },
 };
 
-function SlidesFormInner({
+function SlidesFormInner<T>({
   stage,
   getNavigationHelpers,
   items = [],
   slideForm: SlideForm,
   updateItem,
   onNavigateBack,
-}: SlidesFormProps) {
+}: SlidesFormProps<T>) {
   const { moveForward } = getNavigationHelpers();
   const { openDialog } = useDialog();
 
@@ -151,6 +154,12 @@ function SlidesFormInner({
     e.preventDefault();
   };
 
+  const currentItem = items[activeIndex];
+
+  if (!currentItem) {
+    return null;
+  }
+
   return (
     <div className="interface">
       <div className="flex w-full flex-auto items-center justify-center overflow-hidden">
@@ -166,7 +175,7 @@ function SlidesFormInner({
           >
             <SlideForm
               key={activeIndex}
-              item={items[activeIndex]}
+              item={currentItem}
               onUpdate={updateItem}
               form={stage.form}
               sentinelRef={sentinelRef}
@@ -212,7 +221,7 @@ function SlidesFormInner({
   );
 }
 
-export default function SlidesForm(props: SlidesFormProps) {
+export default function SlidesForm<T>(props: SlidesFormProps<T>) {
   return (
     <FormStoreProvider>
       <SlidesFormInner {...props} />
