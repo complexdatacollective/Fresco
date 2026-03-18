@@ -4,10 +4,6 @@ import { stringify } from 'superjson';
 import { safeCacheTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 
-/**
- * Define the Prisma query logic for fetching all interviews separately
- * to infer the type from the return value.
- */
 type NetworkSummaryEntry = {
   type: string;
   count: number;
@@ -20,94 +16,103 @@ type InterviewNetworkSummary = {
   edges: NetworkSummaryEntry[];
 };
 
-type CodebookLike = Record<
-  string,
-  Record<string, { name?: string; color?: string }> | undefined
->;
+type InterviewListRow = {
+  id: string;
+  startTime: Date;
+  finishTime: Date | null;
+  exportTime: Date | null;
+  lastUpdated: Date;
+  currentStep: number;
+  protocolId: string;
+  isSynthetic: boolean;
+  participant: { identifier: string };
+  protocol: { name: string; stageCount: number };
+  network: InterviewNetworkSummary;
+};
 
-function summarizeNetwork(
-  network: Record<string, unknown> | null,
-  codebook: CodebookLike | null,
-): InterviewNetworkSummary {
-  if (!network) return { nodes: [], edges: [] };
+type RawInterviewRow = {
+  id: string;
+  startTime: Date;
+  finishTime: Date | null;
+  exportTime: Date | null;
+  lastUpdated: Date;
+  currentStep: number;
+  protocolId: string;
+  isSynthetic: boolean;
+  participantIdentifier: string;
+  protocolName: string;
+  stageCount: number;
+  nodeSummary: NetworkSummaryEntry[];
+  edgeSummary: NetworkSummaryEntry[];
+};
 
-  const nodes = Array.isArray(network.nodes) ? network.nodes : [];
-  const edges = Array.isArray(network.edges) ? network.edges : [];
+async function prisma_getInterviews(): Promise<InterviewListRow[]> {
+  const rows = await prisma.$queryRaw<RawInterviewRow[]>`
+    SELECT
+      i."id",
+      i."startTime",
+      i."finishTime",
+      i."exportTime",
+      i."lastUpdated",
+      i."currentStep",
+      i."protocolId",
+      i."isSynthetic",
+      par."identifier" AS "participantIdentifier",
+      p."name" AS "protocolName",
+      COALESCE(jsonb_array_length(p."stages"::jsonb), 0)::int AS "stageCount",
+      COALESCE(
+        (SELECT jsonb_agg(jsonb_build_object(
+          'type', node_type,
+          'count', cnt,
+          'name', COALESCE(p."codebook"->'node'->node_type->>'name', 'Unknown'),
+          'color', p."codebook"->'node'->node_type->>'color'
+        ))
+        FROM (
+          SELECT n->>'type' AS node_type, COUNT(*)::int AS cnt
+          FROM jsonb_array_elements(COALESCE(i."network"->'nodes', '[]'::jsonb)) AS n
+          GROUP BY n->>'type'
+        ) node_counts),
+        '[]'::jsonb
+      ) AS "nodeSummary",
+      COALESCE(
+        (SELECT jsonb_agg(jsonb_build_object(
+          'type', edge_type,
+          'count', cnt,
+          'name', COALESCE(p."codebook"->'edge'->edge_type->>'name', 'Unknown'),
+          'color', p."codebook"->'edge'->edge_type->>'color'
+        ))
+        FROM (
+          SELECT e->>'type' AS edge_type, COUNT(*)::int AS cnt
+          FROM jsonb_array_elements(COALESCE(i."network"->'edges', '[]'::jsonb)) AS e
+          GROUP BY e->>'type'
+        ) edge_counts),
+        '[]'::jsonb
+      ) AS "edgeSummary"
+    FROM "Interview" i
+    JOIN "Protocol" p ON i."protocolId" = p."id"
+    JOIN "Participant" par ON i."participantId" = par."id"
+    ORDER BY i."lastUpdated" DESC
+  `;
 
-  const countByType = (
-    items: unknown[],
-    entityType: 'node' | 'edge',
-  ): NetworkSummaryEntry[] => {
-    const counts = new Map<string, number>();
-    for (const item of items) {
-      if (item === null || typeof item !== 'object') continue;
-      const type =
-        'type' in item && typeof item.type === 'string' ? item.type : 'unknown';
-      counts.set(type, (counts.get(type) ?? 0) + 1);
-    }
-    return [...counts.entries()].map(([type, count]) => {
-      const info = codebook?.[entityType]?.[type];
-      return {
-        type,
-        count,
-        name: info?.name ?? 'Unknown',
-        color: info?.color,
-      };
-    });
-  };
-
-  return {
-    nodes: countByType(nodes, 'node'),
-    edges: countByType(edges, 'edge'),
-  };
-}
-
-async function prisma_getInterviews() {
-  const interviews = await prisma.interview.findMany({
-    select: {
-      id: true,
-      startTime: true,
-      finishTime: true,
-      exportTime: true,
-      lastUpdated: true,
-      currentStep: true,
-      protocolId: true,
-      network: true,
-      isSynthetic: true,
-      participant: {
-        select: {
-          identifier: true,
-        },
-      },
-      protocol: {
-        select: {
-          name: true,
-          stages: true,
-          codebook: true,
-        },
-      },
+  return rows.map((row) => ({
+    id: row.id,
+    startTime: row.startTime,
+    finishTime: row.finishTime,
+    exportTime: row.exportTime,
+    lastUpdated: row.lastUpdated,
+    currentStep: row.currentStep,
+    protocolId: row.protocolId,
+    isSynthetic: row.isSynthetic,
+    participant: { identifier: row.participantIdentifier },
+    protocol: { name: row.protocolName, stageCount: row.stageCount },
+    network: {
+      nodes: row.nodeSummary,
+      edges: row.edgeSummary,
     },
-  });
-
-  return interviews.map(({ network, protocol, ...interview }) => {
-    const stages = Array.isArray(protocol.stages) ? protocol.stages : [];
-    return {
-      ...interview,
-      network: summarizeNetwork(
-        network as Record<string, unknown> | null,
-        protocol.codebook as CodebookLike | null,
-      ),
-      protocol: {
-        name: protocol.name,
-        stageCount: stages.length,
-      },
-    };
-  });
+  }));
 }
 
-export type GetInterviewsQuery = Awaited<
-  ReturnType<typeof prisma_getInterviews>
->;
+export type GetInterviewsQuery = InterviewListRow[];
 
 export async function getInterviews() {
   'use cache';
