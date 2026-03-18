@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useEffect, useState } from 'react';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, fireEvent, userEvent, within } from 'storybook/test';
 import Surface from '~/components/layout/Surface';
 import Paragraph from '~/components/typography/Paragraph';
 import LikertScaleField from './LikertScale';
@@ -184,8 +184,11 @@ function UnsetLikertWithValueDisplay({
           }
         }}
       />
-      <Paragraph margin="none" data-testid="likert-value">
-        {value === undefined ? 'unset' : String(value)}
+      <Paragraph className="mt-8">
+        Value:&nbsp;
+        <span data-testid="likert-value">
+          {value === undefined ? 'unset' : String(value)}
+        </span>
       </Paragraph>
     </div>
   );
@@ -199,15 +202,49 @@ export const Unset: Story = {
   render: (args) => <UnsetLikertWithValueDisplay {...args} />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const thumb = canvas.getByRole('slider');
     const valueDisplay = canvas.getByTestId('likert-value');
 
     // Thumb should start in pristine state (unset)
     await expect(valueDisplay).toHaveTextContent('unset');
+  },
+};
 
-    // Click the thumb to commit the midpoint value
-    await userEvent.click(thumb);
-    await expect(valueDisplay).toHaveTextContent('3');
+export const ClickTrackSetsClickedValue: Story = {
+  args: {
+    options: agreementOptions,
+    value: undefined,
+  },
+  render: (args) => <UnsetLikertWithValueDisplay {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const valueDisplay = canvas.getByTestId('likert-value');
+    const thumb = canvas.getByRole('slider');
+
+    await expect(valueDisplay).toHaveTextContent('unset');
+
+    // Click on the slider control near the right end. With 5 options
+    // (values 1–5), this should set value 5 — not the midpoint (3).
+    // DOM: input[role=slider] > Thumb div > Track div > Control div
+    const control = thumb.parentElement!.parentElement!.parentElement!;
+    const rect = control.getBoundingClientRect();
+
+    fireEvent.pointerDown(control, {
+      clientX: rect.right - 2,
+      clientY: rect.top + rect.height / 2,
+      pointerId: 1,
+      pointerType: 'mouse',
+      button: 0,
+      buttons: 1,
+    });
+    fireEvent.pointerUp(control, {
+      clientX: rect.right - 2,
+      clientY: rect.top + rect.height / 2,
+      pointerId: 1,
+      pointerType: 'mouse',
+      button: 0,
+    });
+
+    await expect(valueDisplay).toHaveTextContent('5');
   },
 };
 

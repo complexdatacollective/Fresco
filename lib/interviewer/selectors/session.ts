@@ -385,7 +385,6 @@ export const getNetworkNodesForType = createSelector(
   },
 );
 
-export const makeNetworkNodesForType = () => getNetworkNodesForType;
 
 export const getStageNodeCount = createSelector(
   getNetworkNodesForType,

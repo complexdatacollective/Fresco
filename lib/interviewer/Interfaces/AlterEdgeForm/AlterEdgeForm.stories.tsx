@@ -3,9 +3,31 @@ import { useMemo } from 'react';
 import SuperJSON from 'superjson';
 import StoryInterviewShell from '~/.storybook/StoryInterviewShell';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
+import { type ComponentType } from '~/lib/interviewer/utils/SyntheticInterview/types';
+
+const FIELD_PRESETS: { component: ComponentType; prompt: string }[] = [
+  { component: 'RadioGroup', prompt: 'How close is this relationship?' },
+  { component: 'TextArea', prompt: 'Describe this relationship.' },
+  { component: 'Toggle', prompt: 'Do you see each other regularly?' },
+  { component: 'Number', prompt: 'How many years have you known each other?' },
+  { component: 'Boolean', prompt: 'Have you ever worked together?' },
+  {
+    component: 'LikertScale',
+    prompt: 'How much do you trust this person?',
+  },
+  {
+    component: 'CheckboxGroup',
+    prompt: 'In what contexts do you interact?',
+  },
+  {
+    component: 'VisualAnalogScale',
+    prompt: 'How important is this relationship?',
+  },
+];
 
 type StoryArgs = {
   edgeCount: number;
+  fieldCount: number;
 };
 
 function buildInterview(args: StoryArgs) {
@@ -42,14 +64,14 @@ function buildInterview(args: StoryArgs) {
     },
   });
 
-  stage.addFormField({
-    component: 'RadioGroup',
-    prompt: 'How close is this relationship?',
-  });
-  stage.addFormField({
-    component: 'TextArea',
-    prompt: 'Describe this relationship.',
-  });
+  const fieldCount = Math.min(args.fieldCount, FIELD_PRESETS.length);
+  for (let i = 0; i < fieldCount; i++) {
+    const preset = FIELD_PRESETS[i]!;
+    stage.addFormField({
+      component: preset.component,
+      prompt: preset.prompt,
+    });
+  }
 
   si.addInformationStage({
     title: 'Complete',
@@ -88,9 +110,14 @@ const meta: Meta<StoryArgs> = {
       control: { type: 'range', min: 1, max: 8 },
       description: 'Number of edges in the network',
     },
+    fieldCount: {
+      control: { type: 'range', min: 1, max: FIELD_PRESETS.length },
+      description: 'Number of form fields per edge',
+    },
   },
   args: {
     edgeCount: 3,
+    fieldCount: 2,
   },
 };
 
@@ -104,6 +131,13 @@ export const Default: Story = {
 export const ManyEdges: Story = {
   args: {
     edgeCount: 6,
+  },
+  render: (args) => <AlterEdgeFormStoryWrapper {...args} />,
+};
+
+export const ManyFields: Story = {
+  args: {
+    fieldCount: FIELD_PRESETS.length,
   },
   render: (args) => <AlterEdgeFormStoryWrapper {...args} />,
 };

@@ -42,6 +42,13 @@ export default function LikertScaleField(props: LikertScaleFieldProps) {
 
   const state = getInputState(props);
 
+  const currentIndex = options.findIndex((option) => option.value === value);
+  const hasValue = currentIndex >= 0;
+  const midpoint = Math.floor((options.length - 1) / 2);
+  const sliderValue = hasValue ? currentIndex : midpoint;
+  const currentOption = hasValue ? options[currentIndex] : undefined;
+  const thumbState = !hasValue && state === 'normal' ? 'pristine' : state;
+
   const handleValueChange = (newValue: number | number[]) => {
     if (readOnly) return;
     const index = Array.isArray(newValue) ? newValue[0] : newValue;
@@ -53,27 +60,15 @@ export default function LikertScaleField(props: LikertScaleFieldProps) {
     }
   };
 
-  const commitPristineValue = () => {
-    if (readOnly || hasValue) return;
-    const midpointOption = options[midpoint];
-    if (midpointOption) {
-      onChange?.(midpointOption.value);
-    }
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!hasValue && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault();
-      commitPristineValue();
+      const midpointOption = options[midpoint];
+      if (midpointOption) {
+        onChange?.(midpointOption.value);
+      }
     }
   };
-
-  const currentIndex = options.findIndex((option) => option.value === value);
-  const hasValue = currentIndex >= 0;
-  const midpoint = Math.floor((options.length - 1) / 2);
-  const sliderValue = hasValue ? currentIndex : midpoint;
-  const currentOption = hasValue ? options[currentIndex] : undefined;
-  const thumbState = !hasValue && state === 'normal' ? 'pristine' : state;
 
   return (
     <div className={cx('w-full', className)} {...rest}>
@@ -81,7 +76,6 @@ export default function LikertScaleField(props: LikertScaleFieldProps) {
         <Slider.Root
           value={sliderValue}
           onValueChange={handleValueChange}
-          onPointerDown={commitPristineValue}
           onKeyDown={handleKeyDown}
           disabled={disabled}
           min={0}
