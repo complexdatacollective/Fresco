@@ -711,12 +711,13 @@ describe('SyntheticInterview', () => {
       const protocol = si.getProtocol();
       const stageConfig = protocol.stages[0] as Record<string, unknown>;
       expect(stageConfig.type).toBe('FamilyTreeCensus');
-      expect(stageConfig.edgeType).toEqual({
+      const edgeOptions = stageConfig.edgeOptions as Record<string, unknown>;
+      expect(edgeOptions.edgeType).toEqual({
         entity: 'edge',
         type: et.id,
       });
-      expect(stageConfig.relationshipTypeVariable).toBe(relVar.id);
-      expect(stageConfig.scaffoldingStep).toBeDefined();
+      expect(edgeOptions.relationshipTypeVariable).toBe(relVar.id);
+      expect(stageConfig.label).toBeDefined();
       expect(stageConfig.nameGenerationStep).toBeDefined();
 
       const diseaseSteps = stageConfig.diseaseNominationStep as {
