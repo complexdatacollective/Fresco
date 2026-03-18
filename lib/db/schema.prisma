@@ -118,16 +118,18 @@ model Interview {
   protocolId    String      @map("protocolId")
   currentStep   Int         @default(0)
   stageMetadata Json? // Used to store negative responses in tiestrength census and dyadcensus
+  isSynthetic   Boolean     @default(false)
 
   @@index(fields: [protocolId])
   @@index([participantId])
 }
 
 model Participant {
-  id         String      @id @unique @default(cuid())
-  identifier String      @unique
-  label      String?
-  interviews Interview[]
+  id          String      @id @unique @default(cuid())
+  identifier  String      @unique
+  label       String?
+  isSynthetic Boolean     @default(false)
+  interviews  Interview[]
 }
 
 // Cant be shared with TS, unfortunately. Ensure `./schemas/appSettings.ts` is in sync

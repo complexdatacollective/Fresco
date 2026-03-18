@@ -27,6 +27,9 @@ importers:
       '@codaco/shared-consts':
         specifier: 5.0.0
         version: 5.0.0
+      '@faker-js/faker':
+        specifier: ^10.3.0
+        version: 10.3.0
       '@mapbox/search-js-react':
         specifier: ^1.5.1
         version: 1.5.1(mapbox-gl@3.20.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -262,9 +265,6 @@ importers:
       '@eslint/js':
         specifier: ^9.39.3
         version: 9.39.3
-      '@faker-js/faker':
-        specifier: ^10.3.0
-        version: 10.3.0
       '@next/eslint-plugin-next':
         specifier: 16.1.7
         version: 16.1.7
