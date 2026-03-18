@@ -3,27 +3,21 @@ import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
   type NcEdge,
-  type NcEgo,
-  type NcNode,
 } from '@codaco/shared-consts';
 import { find } from 'es-toolkit/compat';
-import { forwardRef, useImperativeHandle, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import Surface from '~/components/layout/Surface';
 import { ScrollArea } from '~/components/ui/ScrollArea';
 import { type FieldValue } from '~/lib/form/components/Field/types';
 import { FormWithoutProvider } from '~/lib/form/components/Form';
-import { useFormMeta } from '~/lib/form/hooks/useFormState';
-import useFormStore from '~/lib/form/hooks/useFormStore';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
-import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { type FormSubmitHandler } from '~/lib/form/store/types';
 import { cx } from '~/utils/cva';
 import Node from '../../components/Node';
 import { type Subject } from '../../selectors/forms';
 import { getNetworkNodes, makeGetEdgeColor } from '../../selectors/session';
 import { edgeColorMap } from '../../utils/edgeColorMap';
-import { type SlideFormHandle } from './SlideFormNode';
 
 type SlideFormEdgeProps = {
   form: TForm;
@@ -33,129 +27,102 @@ type SlideFormEdgeProps = {
     edgeId: string;
     newAttributeData: Record<string, unknown>;
   }) => void;
-  otherNetworkEntities?: (NcNode | NcEdge | NcEgo)[];
-  onScroll?: () => void;
+  sentinelRef: (node: HTMLDivElement | null) => void;
 };
 
-// Inner component that uses form hooks (must be inside FormStoreProvider)
-const SlideFormEdgeInner = forwardRef<SlideFormHandle, SlideFormEdgeProps>(
-  function SlideFormEdgeInner({ form, item, submitButton, onUpdate }, ref) {
-    const id = item[entityPrimaryKeyProperty];
+export default function SlideFormEdge({
+  form,
+  item,
+  submitButton = (
+    <button type="submit" key="submit" aria-label="Submit" hidden />
+  ),
+  onUpdate,
+  sentinelRef,
+}: SlideFormEdgeProps) {
+  const id = item[entityPrimaryKeyProperty];
 
-    const getEdgeColor = useMemo(() => makeGetEdgeColor(), []);
-    const edgeColor = useSelector(getEdgeColor);
-    const nodes = useSelector(getNetworkNodes);
+  const getEdgeColor = useMemo(() => makeGetEdgeColor(), []);
+  const edgeColor = useSelector(getEdgeColor);
+  const nodes = useSelector(getNetworkNodes);
 
-    const fromNode = find(nodes, [entityPrimaryKeyProperty, item.from]);
-    const toNode = find(nodes, [entityPrimaryKeyProperty, item.to]);
+  const fromNode = find(nodes, [entityPrimaryKeyProperty, item.from]);
+  const toNode = find(nodes, [entityPrimaryKeyProperty, item.to]);
 
-    // Expose form methods to parent via ref
-    const { isValid, isDirty } = useFormMeta();
-    const submitForm = useFormStore((s) => s.submitForm);
-    const validateForm = useFormStore((s) => s.validateForm);
+  const rawAttributes = item[entityAttributesProperty];
 
-    useImperativeHandle(
-      ref,
-      () => ({
-        submitForm,
-        validateForm,
-        isValid,
-        isDirty,
-      }),
-      [submitForm, validateForm, isValid, isDirty],
-    );
+  const initialValues: Record<string, FieldValue> | undefined = rawAttributes
+    ? (Object.fromEntries(
+        Object.entries(rawAttributes).map(([key, value]) => [
+          key,
+          value ?? undefined,
+        ]),
+      ) as Record<string, FieldValue>)
+    : undefined;
 
-    const rawAttributes = item[entityAttributesProperty];
+  const subject: Subject = { entity: 'edge', type: item.type };
 
-    // Convert null values to undefined for form compatibility
-    const initialValues: Record<string, FieldValue> | undefined = rawAttributes
-      ? (Object.fromEntries(
-          Object.entries(rawAttributes).map(([key, value]) => [
-            key,
-            value ?? undefined,
-          ]),
-        ) as Record<string, FieldValue>)
-      : undefined;
+  const { fieldComponents } = useProtocolForm({
+    fields: form.fields,
+    autoFocus: false,
+    initialValues,
+    subject,
+  });
 
-    // Derive subject from the edge item
-    const subject: Subject = { entity: 'edge', type: item.type };
-
-    // Convert protocol form fields to React components
-    const { fieldComponents } = useProtocolForm({
-      fields: form.fields,
-      autoFocus: false,
-      initialValues,
-      subject,
+  const handleSubmit: FormSubmitHandler = (values) => {
+    onUpdate?.({
+      edgeId: id,
+      newAttributeData: values as Record<string, unknown>,
     });
+    return { success: true as const };
+  };
 
-    const handleSubmit: FormSubmitHandler = (values) => {
-      onUpdate?.({
-        edgeId: id,
-        newAttributeData: values as Record<string, unknown>,
-      });
-      return { success: true as const };
-    };
-
-    return (
-      <div className="flex size-full items-center justify-center">
-        <div
-          className="relative flex min-h-5 w-full max-w-[65rem] flex-col rounded-[--nc-border-radius] bg-[--nc-panel-bg-muted] px-5 pt-2.5 pb-5"
-          style={
-            {
-              '--base-node-size': '7.8rem',
-              'maxHeight': '80%',
-            } as React.CSSProperties
-          }
-        >
-          {/* Node pair with edge - uses flex layout like DyadCensus */}
-          <div className="absolute top-[calc(var(--base-node-size)*-0.5)] left-1/2 flex -translate-x-1/2 items-center">
-            {fromNode && (
-              <Node
-                {...fromNode}
-                className="rounded-full bg-(--nc-panel-bg-muted)"
-              />
-            )}
-            <div
-              className={cx(
-                edgeColorMap[edgeColor],
-                'mx-[-1.5rem] h-2 w-32 bg-(--edge-color)',
-              )}
+  return (
+    <div className="flex size-full items-center justify-center">
+      <div
+        className="relative flex min-h-5 w-full max-w-[65rem] flex-col rounded-[--nc-border-radius] bg-[--nc-panel-bg-muted] px-5 pt-2.5 pb-5"
+        style={
+          {
+            '--base-node-size': '7.8rem',
+            'maxHeight': '80%',
+          } as React.CSSProperties
+        }
+      >
+        {/* Node pair with edge - uses flex layout like DyadCensus */}
+        <div className="absolute top-[calc(var(--base-node-size)*-0.5)] left-1/2 flex -translate-x-1/2 items-center">
+          {fromNode && (
+            <Node
+              {...fromNode}
+              className="rounded-full bg-(--nc-panel-bg-muted)"
             />
-            {toNode && (
-              <Node
-                {...toNode}
-                className="rounded-full bg-(--nc-panel-bg-muted)"
-              />
+          )}
+          <div
+            className={cx(
+              edgeColorMap[edgeColor],
+              'mx-[-1.5rem] h-2 w-32 bg-(--edge-color)',
             )}
-          </div>
-          <div className="mt-[calc(var(--base-node-size)*0.4)] flex flex-1 min-h-0 w-full flex-col">
-            <ScrollArea className="h-auto">
-              <Surface>
-                <FormWithoutProvider
-                  onSubmit={handleSubmit}
-                  className="[&_.form-field-container]:break-inside-avoid"
-                >
-                  {fieldComponents}
-                  {submitButton}
-                </FormWithoutProvider>
-              </Surface>
-            </ScrollArea>
-          </div>
+          />
+          {toNode && (
+            <Node
+              {...toNode}
+              className="rounded-full bg-(--nc-panel-bg-muted)"
+            />
+          )}
+        </div>
+        <div className="mt-[calc(var(--base-node-size)*0.4)] flex min-h-0 w-full flex-1 flex-col">
+          <ScrollArea className="h-auto">
+            <Surface>
+              <FormWithoutProvider
+                onSubmit={handleSubmit}
+                className="[&_.form-field-container]:break-inside-avoid"
+              >
+                {fieldComponents}
+                {submitButton}
+                <div ref={sentinelRef} aria-hidden />
+              </FormWithoutProvider>
+            </Surface>
+          </ScrollArea>
         </div>
       </div>
-    );
-  },
-);
-
-// Wrapper component that provides isolated FormStoreProvider per slide
-const SlideFormEdge = forwardRef<SlideFormHandle, SlideFormEdgeProps>(
-  function SlideFormEdge(props, ref) {
-    return (
-      <FormStoreProvider>
-        <SlideFormEdgeInner ref={ref} {...props} />
-      </FormStoreProvider>
-    );
-  },
-);
-
-export default SlideFormEdge;
+    </div>
+  );
+}
