@@ -74,15 +74,11 @@ export function ExportProgressProvider({
   const download = useDownload();
   const abortControllers = useRef(new Map<string, AbortController>());
 
-  const cancelExport = useCallback(
-    (toastId: string) => {
-      const controller = abortControllers.current.get(toastId);
-      controller?.abort();
-      abortControllers.current.delete(toastId);
-      close(toastId);
-    },
-    [close],
-  );
+  const abortExport = useCallback((toastId: string) => {
+    const controller = abortControllers.current.get(toastId);
+    controller?.abort();
+    abortControllers.current.delete(toastId);
+  }, []);
 
   const startExport = useCallback(
     (interviewIds: string[], exportOptions: ExportOptions) => {
@@ -98,8 +94,11 @@ export function ExportProgressProvider({
         ),
         type: 'loading',
         timeout: 0,
-        onClose: () => cancelExport(toastId),
-        onCancel: () => cancelExport(toastId),
+        onClose: () => abortExport(toastId),
+        onCancel: () => {
+          abortExport(toastId);
+          close(toastId);
+        },
       });
 
       abortControllers.current.set(toastId, controller);
@@ -137,7 +136,12 @@ export function ExportProgressProvider({
                 .find((line) => line.startsWith('data: '));
               if (!dataLine) continue;
 
-              const data = JSON.parse(dataLine.slice(6)) as ExportEvent;
+              let data: ExportEvent;
+              try {
+                data = JSON.parse(dataLine.slice(6)) as ExportEvent;
+              } catch {
+                continue;
+              }
 
               if (data.type === 'stage' || data.type === 'progress') {
                 update(toastId, {
@@ -217,7 +221,7 @@ export function ExportProgressProvider({
         }
       })();
     },
-    [add, update, download, cancelExport],
+    [add, update, close, download, abortExport],
   );
 
   return <ExportContext value={{ startExport }}>{children}</ExportContext>;

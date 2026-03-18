@@ -106,11 +106,3 @@ export const generateOutputFilesEffect = (
 
     return results;
   });
-
-export const generateOutputFiles =
-  (protocols: Record<string, ExportedProtocol>, exportOptions: ExportOptions) =>
-  async (unifiedSessions: Record<string, SessionWithResequencedIDs[]>) => {
-    const items = buildExportItems(protocols, exportOptions, unifiedSessions);
-    const result = await Promise.all(items.map((item) => exportFile(item)));
-    return result;
-  };

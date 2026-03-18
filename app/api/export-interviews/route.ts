@@ -4,7 +4,11 @@ import { safeRevalidateTag } from '~/lib/cache';
 import { type ExportEvent, formatSSE } from '~/lib/export/exportEvents';
 import { ExportLayer } from '~/lib/export/layers/ExportLayer';
 import { exportPipeline } from '~/lib/export/pipeline';
-import { captureEvent, captureException } from '~/lib/posthog-server';
+import {
+  captureEvent,
+  captureException,
+  shutdownPostHog,
+} from '~/lib/posthog-server';
 import { exportInterviewsSchema } from '~/schemas/export';
 import { requireApiAuth } from '~/utils/auth';
 
@@ -41,7 +45,7 @@ export async function POST(request: Request) {
           );
           void captureEvent('Data Exported', {
             interviewCount: interviewIds.length,
-          });
+          }).then(() => shutdownPostHog());
         }).pipe(
           Effect.andThen(
             Queue.offer(queue, {
@@ -54,7 +58,7 @@ export async function POST(request: Request) {
       ),
       Effect.tapError((error) =>
         Effect.sync(() => {
-          void captureException(error);
+          void captureException(error).then(() => shutdownPostHog());
         }).pipe(
           Effect.andThen(
             Queue.offer(queue, {
