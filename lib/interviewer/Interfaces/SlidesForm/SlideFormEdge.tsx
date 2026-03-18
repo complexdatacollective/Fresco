@@ -78,7 +78,7 @@ export default function SlideFormEdge({
 
   return (
     <>
-      <div className="flex shrink-0 items-center">
+      <div className="phone-landscape:mt-4 tablet-landscape:mt-6 mt-2 flex shrink-0 items-center">
         {fromNode && <Node {...fromNode} className="rounded-full" />}
         <div
           className={cx(
@@ -88,9 +88,9 @@ export default function SlideFormEdge({
         />
         {toNode && <Node {...toNode} className="rounded-full" />}
       </div>
-      <div className="flex min-h-0 w-full shrink flex-col rounded-[--nc-border-radius] bg-[--nc-panel-bg-muted] px-5 pt-2.5 pb-5">
+      <div className="flex min-h-0 w-full shrink flex-col">
         <ScrollArea className="h-auto">
-          <Surface className="mx-auto max-w-2xl">
+          <Surface className="phone-landscape:px-4 tablet-landscape:px-6 desktop:px-8 mx-auto max-w-2xl px-2">
             <FormWithoutProvider
               onSubmit={handleSubmit}
               className="[&_.form-field-container]:break-inside-avoid"

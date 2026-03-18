@@ -9,11 +9,11 @@ import {
   useState,
 } from 'react';
 import { useScrolledToBottom } from '~/hooks/useScrolledToBottom';
+import useDialog from '~/lib/dialogs/useDialog';
 import { useFormMeta } from '~/lib/form/hooks/useFormState';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
-import useDialog from '~/lib/dialogs/useDialog';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import {
   type BeforeNextFunction,
@@ -39,9 +39,6 @@ type SlidesFormProps<T = unknown> = StageProps<
 
 const slideTransition = {
   type: 'spring' as const,
-  mass: 3,
-  damping: 26,
-  stiffness: 120,
 };
 
 function SlidesFormInner<T>({
@@ -161,14 +158,15 @@ function SlidesFormInner<T>({
 
   return (
     <div className="flex w-full flex-auto overflow-hidden">
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout">
         <motion.div
           key={activeIndex}
-          className="interface"
-          animate={{ y: 0 }}
-          initial={{ y: '100%' }}
+          className="relative flex min-h-0 w-full shrink grow basis-auto flex-col items-center justify-center"
+          animate={{ y: 0, opacity: 1 }}
+          initial={{ y: '35%', opacity: 0 }}
           exit={{
-            y: pendingDirection === 'forwards' ? '-100%' : '100%',
+            y: pendingDirection === 'forwards' ? '-35%' : '35%',
+            opacity: 0,
           }}
           transition={slideTransition}
         >
