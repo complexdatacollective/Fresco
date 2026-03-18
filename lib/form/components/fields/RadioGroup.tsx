@@ -113,6 +113,7 @@ export default function RadioGroupField(props: RadioGroupFieldProps) {
         onValueChange={handleValueChange}
         disabled={disabled}
         readOnly={readOnly}
+        render={<fieldset />}
         className={radioGroupWrapperVariants({
           size,
           orientation,

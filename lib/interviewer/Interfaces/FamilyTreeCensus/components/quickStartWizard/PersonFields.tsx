@@ -44,7 +44,6 @@ export default function PersonFields({
         label="Sex assigned at birth"
         component={RadioGroupField}
         options={SEX_OPTIONS}
-        orientation="horizontal"
         initialValue={initial?.sex}
         required
         custom={sexCustomValidation}
