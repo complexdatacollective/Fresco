@@ -1,9 +1,18 @@
 'use client';
 
 import type { Codebook, NcNetwork, Stage } from '@codaco/shared-consts';
-import { type ColumnDef } from '@tanstack/react-table';
+import { type ColumnDef, type FilterFn } from '@tanstack/react-table';
 import Image from 'next/image';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+import { FilterableColumnHeader } from '~/components/DataTable/filters/FilterableColumnHeader';
+import {
+  booleanFilterFn,
+  dateFilterFn,
+  facetedFilterFn,
+  operatorFilterFn,
+  rangeFilterFn,
+} from '~/components/DataTable/filters/filterFns';
+import { type Option } from '~/components/DataTable/filters/types';
 import { Badge } from '~/components/ui/badge';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Progress } from '~/components/ui/progress';
@@ -11,9 +20,9 @@ import TimeAgo from '~/components/ui/TimeAgo';
 import type { GetInterviewsReturnType } from '~/queries/interviews';
 import NetworkSummary from './NetworkSummary';
 
-export const InterviewColumns = (): ColumnDef<
-  Awaited<GetInterviewsReturnType>[0]
->[] => [
+type InterviewRow = Awaited<GetInterviewsReturnType>[0];
+
+export const InterviewColumns = (): ColumnDef<InterviewRow>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -71,20 +80,37 @@ export const InterviewColumns = (): ColumnDef<
   {
     id: 'protocolName',
     accessorKey: 'protocol.name',
-    header: ({ column }) => {
-      return (
-        <div className="flex items-center gap-2">
-          <Image
-            src="/images/protocol-icon.png"
-            alt="Protocol icon"
-            className="max-w-none"
-            width={24}
-            height={24}
-          />
-          <DataTableColumnHeader column={column} title="Protocol Name" />
-        </div>
-      );
+    meta: {
+      filterType: 'faceted' as const,
+      filterConfig: {
+        type: 'faceted' as const,
+        options: (data: unknown[]) => {
+          const rows = data as Awaited<GetInterviewsReturnType>;
+          const names = [...new Set(rows.map((r) => r.protocol.name))];
+          return names.map((name) => ({
+            label: name.replace(/\.netcanvas$/, ''),
+            value: name,
+          }));
+        },
+      },
     },
+    filterFn: facetedFilterFn,
+    header: ({ column, table }) => (
+      <div className="flex items-center gap-2">
+        <Image
+          src="/images/protocol-icon.png"
+          alt="Protocol icon"
+          className="max-w-none"
+          width={24}
+          height={24}
+        />
+        <FilterableColumnHeader
+          column={column}
+          table={table}
+          title="Protocol Name"
+        />
+      </div>
+    ),
     cell: ({ row }) => {
       const protocolFileName = row.original.protocol.name;
       const protocolName = protocolFileName.replace(/\.netcanvas$/, '');
@@ -101,9 +127,14 @@ export const InterviewColumns = (): ColumnDef<
   {
     id: 'startTime',
     accessorKey: 'startTime',
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Started" />;
+    meta: {
+      filterType: 'date' as const,
+      filterConfig: { type: 'date' as const },
     },
+    filterFn: dateFilterFn,
+    header: ({ column, table }) => (
+      <FilterableColumnHeader column={column} table={table} title="Started" />
+    ),
     cell: ({ row }) => {
       const date = new Date(row.original.startTime);
       return <TimeAgo date={date} className="text-xs" />;
@@ -112,9 +143,14 @@ export const InterviewColumns = (): ColumnDef<
   {
     id: 'lastUpdated',
     accessorKey: 'lastUpdated',
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Updated" />;
+    meta: {
+      filterType: 'date' as const,
+      filterConfig: { type: 'date' as const },
     },
+    filterFn: dateFilterFn,
+    header: ({ column, table }) => (
+      <FilterableColumnHeader column={column} table={table} title="Updated" />
+    ),
     cell: ({ row }) => {
       const date = new Date(row.original.lastUpdated);
       return <TimeAgo date={date} className="text-xs" />;
@@ -128,9 +164,25 @@ export const InterviewColumns = (): ColumnDef<
         ? (row.currentStep / stages.length) * 100
         : 0;
     },
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Progress" />;
+    meta: {
+      filterType: 'range' as const,
+      filterConfig: {
+        type: 'range' as const,
+        min: 0,
+        max: 100,
+        step: 1,
+        presets: [
+          { label: 'Not Started', min: 0, max: 0 },
+          { label: 'In Progress', min: 1, max: 99 },
+          { label: 'Complete', min: 100, max: 100 },
+        ],
+        formatLabel: (v: number) => `${String(v)}%`,
+      },
     },
+    filterFn: rangeFilterFn,
+    header: ({ column, table }) => (
+      <FilterableColumnHeader column={column} table={table} title="Progress" />
+    ),
     cell: ({ row }) => {
       const stages = row.original.protocol.stages! as unknown as Stage[];
       const progress = (row.original.currentStep / stages.length) * 100;
@@ -150,9 +202,48 @@ export const InterviewColumns = (): ColumnDef<
       const edgeCount = network?.edges?.length ?? 0;
       return nodeCount + edgeCount;
     },
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Network" />;
+    meta: {
+      filterType: 'operator' as const,
+      filterConfig: {
+        type: 'operator' as const,
+        operators: ['eq', 'gt', 'lt', 'gte', 'lte'] as const,
+        entitySelector: {
+          label: 'Entity Type',
+          getOptions: (data: unknown[]) => {
+            const rows = data as Awaited<GetInterviewsReturnType>;
+            const types = new Map<string, Option>();
+            for (const row of rows) {
+              const network = row.network as NcNetwork;
+              const codebook = row.protocol.codebook as Codebook;
+              if (!network || !codebook) continue;
+              for (const node of network.nodes ?? []) {
+                const nodeInfo = codebook.node?.[node.type];
+                if (nodeInfo) {
+                  types.set(`nodes.${node.type}`, {
+                    label: `${nodeInfo.name} (nodes)`,
+                    value: `nodes.${node.type}`,
+                  });
+                }
+              }
+              for (const edge of network.edges ?? []) {
+                const edgeInfo = codebook.edge?.[edge.type];
+                if (edgeInfo) {
+                  types.set(`edges.${edge.type}`, {
+                    label: `${edgeInfo.name} (edges)`,
+                    value: `edges.${edge.type}`,
+                  });
+                }
+              }
+            }
+            return Array.from(types.values());
+          },
+        },
+      },
     },
+    filterFn: operatorFilterFn as FilterFn<InterviewRow>,
+    header: ({ column, table }) => (
+      <FilterableColumnHeader column={column} table={table} title="Network" />
+    ),
     cell: ({ row }) => {
       const network = row.original.network as NcNetwork;
       const codebook = row.original.protocol.codebook as Codebook;
@@ -161,10 +252,24 @@ export const InterviewColumns = (): ColumnDef<
     },
   },
   {
+    id: 'exportTime',
     accessorKey: 'exportTime',
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Export Status" />;
+    meta: {
+      filterType: 'boolean' as const,
+      filterConfig: {
+        type: 'boolean' as const,
+        trueLabel: 'Exported',
+        falseLabel: 'Not Exported',
+      },
     },
+    filterFn: booleanFilterFn,
+    header: ({ column, table }) => (
+      <FilterableColumnHeader
+        column={column}
+        table={table}
+        title="Export Status"
+      />
+    ),
     cell: ({ row }) => {
       if (!row.original.exportTime) {
         return <Badge variant="secondary">Not exported</Badge>;
