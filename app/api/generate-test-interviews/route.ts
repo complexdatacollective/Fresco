@@ -44,7 +44,23 @@ export async function POST(request: Request) {
       };
 
       try {
+        const stages = protocol.stages as { id: string }[];
+        const totalStages = stages.length;
+
+        // Determine which interviews will be incomplete (drop-outs).
+        // At least 10% of interviews must be completed.
+        const minCompleted = Math.max(1, Math.ceil(count * 0.1));
+        const completedCount =
+          minCompleted + Math.floor(Math.random() * (count - minCompleted + 1));
+        const completedSet = new Set<number>();
+
+        while (completedSet.size < completedCount) {
+          completedSet.add(Math.floor(Math.random() * count));
+        }
+
         for (let i = 0; i < count; i++) {
+          const isCompleted = completedSet.has(i);
+
           const { network, stageMetadata } = generateNetwork(
             protocol.codebook as Parameters<typeof generateNetwork>[0],
             protocol.stages as Parameters<typeof generateNetwork>[1],
@@ -52,21 +68,26 @@ export async function POST(request: Request) {
 
           const participantIdentifier = `test-${createId()}`;
 
-          // Timestamps don't need seeded reproducibility — each interview
-          // should have a unique, plausible time regardless of seed.
           const startTime = new Date(
             Date.now() - Math.floor(Math.random() * 3600000),
           );
-          const finishTime = new Date(
-            startTime.getTime() + Math.floor(Math.random() * 1800000) + 300000,
-          );
 
-          const stages = protocol.stages as { id: string }[];
+          const currentStep = isCompleted
+            ? totalStages
+            : Math.floor(Math.random() * totalStages);
+
+          const finishTime = isCompleted
+            ? new Date(
+                startTime.getTime() +
+                  Math.floor(Math.random() * 1800000) +
+                  300000,
+              )
+            : null;
 
           await prisma.interview.create({
             data: {
               network: network as object,
-              currentStep: stages.length,
+              currentStep,
               startTime,
               finishTime,
               isSynthetic: true,
