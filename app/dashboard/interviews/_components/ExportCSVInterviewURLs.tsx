@@ -26,7 +26,6 @@ function ExportCSVInterviewURLs({
       if (!protocol?.id) return;
 
       const csvData = interviews.map((interview) => ({
-        participant_id: interview.participantId,
         identifier: interview.participant.identifier,
         interview_url: `${window.location.origin}/interview/${interview.id}`,
       }));

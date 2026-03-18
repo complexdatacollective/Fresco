@@ -8,14 +8,76 @@ import { prisma } from '~/lib/db';
  * Define the Prisma query logic for fetching all interviews separately
  * to infer the type from the return value.
  */
+type NetworkSummaryEntry = {
+  type: string;
+  count: number;
+};
+
+type InterviewNetworkSummary = {
+  nodes: NetworkSummaryEntry[];
+  edges: NetworkSummaryEntry[];
+};
+
+function summarizeNetwork(
+  network: Record<string, unknown> | null,
+): InterviewNetworkSummary {
+  if (!network) return { nodes: [], edges: [] };
+
+  const nodes = Array.isArray(network.nodes) ? network.nodes : [];
+  const edges = Array.isArray(network.edges) ? network.edges : [];
+
+  const countByType = (items: unknown[]): NetworkSummaryEntry[] => {
+    const counts = new Map<string, number>();
+    for (const item of items) {
+      if (item === null || typeof item !== 'object') continue;
+      const type =
+        'type' in item && typeof item.type === 'string' ? item.type : 'unknown';
+      counts.set(type, (counts.get(type) ?? 0) + 1);
+    }
+    return [...counts.entries()].map(([type, count]) => ({ type, count }));
+  };
+
+  return {
+    nodes: countByType(nodes),
+    edges: countByType(edges),
+  };
+}
+
 async function prisma_getInterviews() {
-  return prisma.interview.findMany({
-    include: {
-      protocol: true,
-      participant: true,
+  const interviews = await prisma.interview.findMany({
+    select: {
+      id: true,
+      startTime: true,
+      finishTime: true,
+      exportTime: true,
+      lastUpdated: true,
+      currentStep: true,
+      protocolId: true,
+      network: true,
+      isSynthetic: true,
+      participant: {
+        select: {
+          identifier: true,
+        },
+      },
+      protocol: {
+        select: {
+          name: true,
+          stages: true,
+          codebook: true,
+        },
+      },
     },
   });
+
+  return interviews.map((interview) => ({
+    ...interview,
+    network: summarizeNetwork(
+      interview.network as Record<string, unknown> | null,
+    ),
+  }));
 }
+
 export type GetInterviewsQuery = Awaited<
   ReturnType<typeof prisma_getInterviews>
 >;

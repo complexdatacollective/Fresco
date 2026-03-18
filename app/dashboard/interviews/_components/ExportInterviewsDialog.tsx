@@ -1,7 +1,7 @@
 import { useExportProgress } from '~/components/ExportProgressProvider';
 import { Button } from '~/components/ui/Button';
 import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
-import type { Interview } from '~/lib/db/generated/client';
+import type { GetInterviewsQuery } from '~/queries/interviews';
 import Dialog from '~/lib/dialogs/Dialog';
 import { ExportOptionsSchema } from '~/lib/network-exporters/utils/types';
 import ExportOptionsView from './ExportOptionsView';
@@ -13,7 +13,7 @@ export const ExportInterviewsDialog = ({
 }: {
   open: boolean;
   handleCancel: () => void;
-  interviewsToExport: Interview[];
+  interviewsToExport: GetInterviewsQuery;
 }) => {
   const { startExport } = useExportProgress();
 

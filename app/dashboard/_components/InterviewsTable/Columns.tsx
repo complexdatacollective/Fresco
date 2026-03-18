@@ -158,8 +158,8 @@ export const InterviewColumns = (): ColumnDef<
     enableSorting: false,
     accessorFn: (row) => {
       const network = row.network;
-      const nodeCount = network?.nodes?.length ?? 0;
-      const edgeCount = network?.edges?.length ?? 0;
+      const nodeCount = network.nodes.reduce((sum, n) => sum + n.count, 0);
+      const edgeCount = network.edges.reduce((sum, e) => sum + e.count, 0);
       return nodeCount + edgeCount;
     },
     header: ({ column }) => {

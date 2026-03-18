@@ -1,6 +1,6 @@
 import { type Codebook } from '@codaco/protocol-validation';
-import type { NcNetwork } from '@codaco/shared-consts';
 import Node from '~/components/Node';
+import type { GetInterviewsQuery } from '~/queries/interviews';
 import { cx } from '~/utils/cva';
 
 // TODO: Move to shared-consts or protocol-validation
@@ -111,18 +111,14 @@ const NetworkSummary = ({
   network,
   codebook,
 }: {
-  network: NcNetwork | null;
+  network: GetInterviewsQuery[number]['network'];
   codebook: Codebook | null;
 }) => {
-  if (!network || !codebook) {
+  if (!codebook) {
     return <div className="text-xs">No interview data</div>;
   }
-  const nodeSummaries = Object.entries(
-    network.nodes?.reduce<Record<string, number>>((acc, node) => {
-      acc[node.type] = (acc[node.type] ?? 0) + 1;
-      return acc;
-    }, {}) ?? {},
-  ).map(([nodeType, count]) => {
+
+  const nodeSummaries = network.nodes.map(({ type: nodeType, count }) => {
     const nodeInfo = codebook.node?.[nodeType];
 
     return (
@@ -137,25 +133,22 @@ const NetworkSummary = ({
     );
   });
 
-  const edgeSummaries = Object.entries(
-    network.edges?.reduce<Record<string, number>>((acc, edge) => {
-      acc[edge.type] = (acc[edge.type] ?? 0) + 1;
-      return acc;
-    }, {}) ?? {},
-  ).map(([edgeType, count]) => {
-    const edgeInfo = codebook.edge?.[edgeType];
+  const edgeSummaries = network.edges
+    .map(({ type: edgeType, count }) => {
+      const edgeInfo = codebook.edge?.[edgeType];
 
-    if (!edgeInfo) return null;
+      if (!edgeInfo) return null;
 
-    return (
-      <EdgeSummary
-        key={edgeType}
-        color={edgeInfo.color as EdgeColorSequence}
-        count={count}
-        typeName={edgeInfo.name}
-      />
-    );
-  });
+      return (
+        <EdgeSummary
+          key={edgeType}
+          color={edgeInfo.color as EdgeColorSequence}
+          count={count}
+          typeName={edgeInfo.name}
+        />
+      );
+    })
+    .filter(Boolean);
 
   if (nodeSummaries.length === 0 && edgeSummaries.length === 0) {
     return <div className="text-xs">No nodes or edges</div>;
