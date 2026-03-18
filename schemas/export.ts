@@ -5,5 +5,3 @@ export const exportInterviewsSchema = z.object({
   interviewIds: z.array(z.string()).check(z.minLength(1)),
   exportOptions: ExportOptionsSchema,
 });
-
-type ExportInterviewsInput = z.infer<typeof exportInterviewsSchema>;
