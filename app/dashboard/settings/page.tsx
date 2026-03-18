@@ -16,6 +16,7 @@ import InterviewSettingsSection from './_components/InterviewSettingsSection';
 import ApiTokensSection from './_components/ApiTokensSection';
 import PreviewModeSection from './_components/PreviewModeSection';
 import PrivacySection from './_components/PrivacySection';
+import SyntheticInterviewDataServer from './_components/SyntheticInterviewDataServer';
 import UserManagementSection from './_components/UserManagementSection';
 
 function getSettingsSections(): SettingsSection[] {
@@ -27,6 +28,7 @@ function getSettingsSections(): SettingsSection[] {
     { id: 'privacy', title: 'Privacy' },
     { id: 'api-tokens', title: 'API Tokens' },
     { id: 'preview-mode', title: 'Preview Mode' },
+    { id: 'synthetic-interview-data', title: 'Synthetic Interview Data' },
   ];
 
   if (env.NODE_ENV === 'development' || !env.SANDBOX_MODE) {
@@ -53,6 +55,7 @@ function SettingsContentSkeleton() {
           <SettingsCardSkeleton rows={2} />
           <SettingsCardSkeleton rows={3} />
           <SettingsCardSkeleton rows={1} />
+          <SettingsCardSkeleton rows={2} />
           <SettingsCardSkeleton rows={2} />
           <SettingsCardSkeleton rows={2} />
           {(env.NODE_ENV === 'development' || !env.SANDBOX_MODE) && (
@@ -110,6 +113,9 @@ async function SettingsContent() {
           </Suspense>
           <Suspense fallback={<SettingsCardSkeleton rows={2} />}>
             <PreviewModeSection />
+          </Suspense>
+          <Suspense fallback={<SettingsCardSkeleton rows={2} />}>
+            <SyntheticInterviewDataServer />
           </Suspense>
           {(env.NODE_ENV === 'development' || !env.SANDBOX_MODE) && (
             <DeveloperToolsSection />
