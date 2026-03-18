@@ -71,7 +71,7 @@ export async function POST(request: Request) {
       Effect.catchAll(() => Effect.void),
       Effect.ensuring(Queue.shutdown(queue)),
       Effect.provide(ExportLayer),
-      Effect.fork,
+      Effect.forkDaemon,
     );
 
     const encoder = new TextEncoder();
