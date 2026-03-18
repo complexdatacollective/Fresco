@@ -90,12 +90,37 @@ function generateAttributes(
   return attrs;
 }
 
+function getStageBehaviours(
+  stage: Stage,
+): { minNodes?: number; maxNodes?: number } | undefined {
+  const stageRecord = stage as Record<string, unknown>;
+  return stageRecord.behaviours as
+    | { minNodes?: number; maxNodes?: number }
+    | undefined;
+}
+
+type AdditionalAttribute = { variable: string; value: boolean };
+
+function getPromptAdditionalAttributes(
+  prompt: Record<string, unknown>,
+): Record<string, boolean> {
+  const additional = prompt.additionalAttributes as
+    | AdditionalAttribute[]
+    | undefined;
+  if (!additional) return {};
+  return additional.reduce(
+    (acc, { variable, value }) => ({ ...acc, [variable]: value }),
+    {} as Record<string, boolean>,
+  );
+}
+
 function createNodesForStage(
   codebook: Codebook,
   stage: Stage,
-  promptId: string,
+  prompt: Record<string, unknown>,
   valueGen: ValueGenerator,
   existingNodeCount: number,
+  stageNodeCount: number,
 ): NcNode[] {
   const stageRecord = stage as Record<string, unknown>;
   const subject = stageRecord.subject as
@@ -107,7 +132,15 @@ function createNodesForStage(
   const nodeTypeDef = codebook.node?.[nodeType];
   if (!nodeTypeDef) return [];
 
-  const count = valueGen.randomInt(3, 8);
+  const behaviours = getStageBehaviours(stage);
+  const minNodes = behaviours?.minNodes ?? 1;
+  const maxNodes = behaviours?.maxNodes ?? 8;
+  const remaining = maxNodes - stageNodeCount;
+  if (remaining <= 0) return [];
+
+  const count = Math.min(valueGen.randomInt(minNodes, maxNodes), remaining);
+  const promptId = (prompt.id as string) ?? uuid();
+  const additionalAttrs = getPromptAdditionalAttributes(prompt);
   const newNodes: NcNode[] = [];
 
   for (let i = 0; i < count; i++) {
@@ -117,6 +150,8 @@ function createNodesForStage(
       valueGen,
       nodeIndex,
     );
+
+    Object.assign(attrs, additionalAttrs);
 
     newNodes.push({
       [entityPrimaryKeyProperty]: uuid(),
@@ -222,15 +257,17 @@ export function generateNetwork(
       case 'NameGenerator':
       case 'NameGeneratorQuickAdd':
       case 'NameGeneratorRoster': {
+        let stageNodeCount = 0;
         for (const prompt of prompts) {
-          const promptId = (prompt.id as string) ?? uuid();
           const newNodes = createNodesForStage(
             codebook,
             stage,
-            promptId,
+            prompt,
             valueGen,
             nodes.length,
+            stageNodeCount,
           );
+          stageNodeCount += newNodes.length;
 
           const form = getStageForm(stage);
           if (form) {
