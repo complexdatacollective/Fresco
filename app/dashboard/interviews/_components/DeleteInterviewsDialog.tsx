@@ -3,13 +3,13 @@ import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 import { deleteInterviews } from '~/actions/interviews';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
-import type { Interview } from '~/lib/db/generated/client';
+import type { GetInterviewsQuery } from '~/queries/interviews';
 import Dialog from '~/lib/dialogs/Dialog';
 
 type DeleteInterviewsDialog = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  interviewsToDelete: Interview[];
+  interviewsToDelete: GetInterviewsQuery;
 };
 
 export const DeleteInterviewsDialog = ({

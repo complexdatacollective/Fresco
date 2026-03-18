@@ -1,16 +1,9 @@
-import { Loader2 } from 'lucide-react';
-import { useState } from 'react';
-import { exportInterviews, updateExportTime } from '~/actions/interviews';
-import { deleteZipFromUploadThing } from '~/actions/uploadThing';
+import { useExportProgress } from '~/components/ExportProgressProvider';
 import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/Toast';
-import { useDownload } from '~/hooks/useDownload';
 import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
-import posthog from 'posthog-js';
-import type { Interview } from '~/lib/db/generated/client';
+import type { GetInterviewsQuery } from '~/queries/interviews';
 import Dialog from '~/lib/dialogs/Dialog';
 import { ExportOptionsSchema } from '~/lib/network-exporters/utils/types';
-import { ensureError } from '~/utils/ensureError';
 import ExportOptionsView from './ExportOptionsView';
 
 export const ExportInterviewsDialog = ({
@@ -20,11 +13,9 @@ export const ExportInterviewsDialog = ({
 }: {
   open: boolean;
   handleCancel: () => void;
-  interviewsToExport: Interview[];
+  interviewsToExport: GetInterviewsQuery;
 }) => {
-  const download = useDownload();
-  const { add } = useToast();
-  const [isExporting, setIsExporting] = useState(false);
+  const { startExport } = useExportProgress();
 
   const [exportOptions, setExportOptions] = useSafeLocalStorage(
     'exportOptions',
@@ -40,112 +31,31 @@ export const ExportInterviewsDialog = ({
     },
   );
 
-  const handleConfirm = async () => {
-    let exportFilename = null; // Used to track the filename of the temp file uploaded to UploadThing
-
-    // start export process
-    setIsExporting(true);
-    try {
-      const interviewIds = interviewsToExport.map((interview) => interview.id);
-
-      const { zipUrl, zipKey, status, error } = await exportInterviews(
-        interviewIds,
-        exportOptions,
-      );
-
-      if (status === 'error' || !zipUrl || !zipKey) {
-        throw new Error(error ?? 'An error occured during export.');
-      }
-
-      exportFilename = zipKey;
-
-      // update export time of interviews
-      await updateExportTime(interviewIds);
-
-      const responseAsBlob = await fetch(zipUrl).then((res) => {
-        if (!res.ok) {
-          throw new Error('HTTP error ' + res.status);
-        }
-        return res.blob();
-      });
-
-      // create a download link
-      const url = URL.createObjectURL(responseAsBlob);
-
-      // Download the zip file
-      download(url, 'Network Canvas Export.zip');
-      // clean up the URL object
-      URL.revokeObjectURL(url);
-
-      add({
-        title: 'Export complete!',
-        type: 'success',
-      });
-    } catch (error) {
-      const e = ensureError(error);
-
-      add({
-        title: 'Error',
-        description:
-          'Failed to export, please try again. The error was: ' + e.message,
-        type: 'destructive',
-      });
-
-      posthog.captureException(e);
-    } finally {
-      if (exportFilename) {
-        // Attempt to delete the zip file from UploadThing.
-        void deleteZipFromUploadThing(exportFilename).catch((error) => {
-          const e = ensureError(error);
-          posthog.captureException(e);
-
-          add({
-            timeout: Infinity,
-            type: 'destructive',
-            title: 'Could not delete temporary file',
-            description:
-              'We were unable to delete the temporary file containing your exported data, which is stored on your UploadThing account. Although extremely unlikely, it is possible that this file could be accessed by someone else. You can delete the file manually by visiting uploadthing.com and logging in with your GitHub account. Please contact us to report this issue.',
-          });
-        });
-      }
-
-      setIsExporting(false);
-      handleCancel(); // Close the dialog
-    }
+  const handleConfirm = () => {
+    const interviewIds = interviewsToExport.map((interview) => interview.id);
+    startExport(interviewIds, exportOptions);
+    handleCancel();
   };
 
   return (
-    <>
-      <Dialog
-        open={open}
-        closeDialog={() => {
-          if (!isExporting) {
-            handleCancel();
-          }
-        }}
-        title="Confirm File Export Options"
-        description="Before exporting, please confirm the export options that you wish to use. These options are identical to those found in Interviewer."
-        footer={
-          <>
-            <Button onClick={handleCancel} disabled={isExporting}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleConfirm}
-              color="primary"
-              disabled={isExporting}
-              icon={isExporting ? <Loader2 className="animate-spin" /> : null}
-            >
-              {isExporting ? 'Exporting...' : 'Start export process'}
-            </Button>
-          </>
-        }
-      >
-        <ExportOptionsView
-          exportOptions={exportOptions}
-          setExportOptions={setExportOptions}
-        />
-      </Dialog>
-    </>
+    <Dialog
+      open={open}
+      closeDialog={handleCancel}
+      title="Confirm File Export Options"
+      description="Before exporting, please confirm the export options that you wish to use. These options are identical to those found in Interviewer."
+      footer={
+        <>
+          <Button onClick={handleCancel}>Cancel</Button>
+          <Button onClick={handleConfirm} color="primary">
+            Start export process
+          </Button>
+        </>
+      }
+    >
+      <ExportOptionsView
+        exportOptions={exportOptions}
+        setExportOptions={setExportOptions}
+      />
+    </Dialog>
   );
 };

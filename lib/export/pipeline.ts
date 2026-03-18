@@ -1,7 +1,7 @@
 import { basename } from 'node:path';
-import { Effect } from 'effect';
+import { Effect, Queue } from 'effect';
 import archive from '~/lib/network-exporters/formatters/session/archive';
-import { generateOutputFiles } from '~/lib/network-exporters/formatters/session/generateOutputFiles';
+import { generateOutputFilesEffect } from '~/lib/network-exporters/formatters/session/generateOutputFiles';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
 import groupByProtocolProperty from '~/lib/network-exporters/formatters/session/groupByProtocolProperty';
 import { insertEgoIntoSessionNetworks } from '~/lib/network-exporters/formatters/session/insertEgoIntoSessionNetworks';
@@ -12,10 +12,10 @@ import type {
 } from '~/lib/network-exporters/utils/types';
 import {
   ArchiveError,
-  ExportGenerationError,
   FileStorageError,
   getUserMessage,
 } from '~/lib/export/errors';
+import { type ExportEvent, stageMessages } from '~/lib/export/exportEvents';
 import { FileStorage } from '~/lib/export/services/FileStorage';
 import { FileSystem } from '~/lib/export/services/FileSystem';
 import {
@@ -38,15 +38,28 @@ function buildProtocolsMap(
 export const exportPipeline = (
   interviewIds: string[],
   exportOptions: ExportOptions,
+  progressQueue: Queue.Queue<ExportEvent>,
 ) =>
   Effect.gen(function* () {
     const repo = yield* InterviewRepository;
     const fs = yield* FileSystem;
     const fileStorage = yield* FileStorage;
 
+    yield* Queue.offer(progressQueue, {
+      type: 'stage',
+      stage: 'fetching',
+      message: stageMessages.fetching,
+    });
+
     const sessions = yield* repo
       .getForExport(interviewIds)
       .pipe(Effect.withSpan('export.fetch'));
+
+    yield* Queue.offer(progressQueue, {
+      type: 'stage',
+      stage: 'formatting',
+      message: stageMessages.formatting,
+    });
 
     const protocols = buildProtocolsMap(sessions);
     const formatted = formatExportableSessions(sessions);
@@ -54,18 +67,22 @@ export const exportPipeline = (
     const grouped = groupByProtocolProperty(withEgo);
     const resequenced = resequenceIds(grouped);
 
-    const exportResults = yield* Effect.tryPromise({
-      try: () => generateOutputFiles(protocols, exportOptions)(resequenced),
-      catch: (error) =>
-        new ExportGenerationError({
-          cause: error,
-          userMessage: getUserMessage(error, 'generating export files'),
-        }),
-    }).pipe(Effect.withSpan('export.generateFiles'));
+    const exportResults = yield* generateOutputFilesEffect(
+      protocols,
+      exportOptions,
+      resequenced,
+      progressQueue,
+    ).pipe(Effect.withSpan('export.generateFiles'));
 
     const tempFilePaths = exportResults
       .filter((r): r is Extract<typeof r, { success: true }> => r.success)
       .map((r) => r.filePath);
+
+    yield* Queue.offer(progressQueue, {
+      type: 'stage',
+      stage: 'archiving',
+      message: stageMessages.archiving,
+    });
 
     const archiveResult = yield* Effect.tryPromise({
       try: () => archive(exportResults),
@@ -87,6 +104,12 @@ export const exportPipeline = (
         }),
       );
     }
+
+    yield* Queue.offer(progressQueue, {
+      type: 'stage',
+      stage: 'uploading',
+      message: stageMessages.uploading,
+    });
 
     const archiveBuffer = yield* fs.readFile(archiveResult.path);
     const { url, key } = yield* fileStorage

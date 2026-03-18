@@ -3,7 +3,10 @@
 import { useRouter } from 'next/navigation';
 import { use, useState } from 'react';
 import { SuperJSON } from 'superjson';
-import { deleteSyntheticData } from '~/actions/synthetic-interviews';
+import {
+  deleteSyntheticData,
+  revalidateSyntheticData,
+} from '~/actions/synthetic-interviews';
 import { useToast } from '~/components/ui/Toast';
 import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
@@ -102,6 +105,7 @@ export default function SyntheticInterviewDataSection({
       }
     } finally {
       setIsGenerating(false);
+      await revalidateSyntheticData();
       router.refresh();
     }
   };

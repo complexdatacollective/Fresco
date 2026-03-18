@@ -5,6 +5,19 @@ import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { requireApiAuth } from '~/utils/auth';
 
+export async function revalidateSyntheticData() {
+  await requireApiAuth();
+
+  safeUpdateTag([
+    'getInterviews',
+    'getParticipants',
+    'interviewCount',
+    'participantCount',
+    'summaryStatistics',
+    'activityFeed',
+  ]);
+}
+
 export async function deleteSyntheticData() {
   await requireApiAuth();
 

@@ -9,6 +9,7 @@ import { AlertCircle, Info, PartyPopper, type LucideIcon } from 'lucide-react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 import { surfaceVariants } from '../layout/Surface';
 import Heading from '../typography/Heading';
+import Button from './Button';
 import CloseButton from './CloseButton';
 
 export const toastVariants = cva({
@@ -46,10 +47,18 @@ type ToastData = {
   icon?: React.ReactNode;
   type?: ToastVariant;
   timeout?: number;
+  onCancel?: () => void;
+  onClose?: () => void;
+};
+
+type ToastCustomData = {
+  variant?: ToastVariant;
+  onCancel?: () => void;
+  icon?: React.ReactNode;
 };
 
 type ToastItemProps = {
-  toast: ToastObject<{ variant?: ToastVariant }>;
+  toast: ToastObject<ToastCustomData>;
 };
 
 function ToastItem({ toast }: ToastItemProps) {
@@ -82,17 +91,31 @@ function ToastItem({ toast }: ToastItemProps) {
       )}
     >
       <Toast.Content className="flex gap-3 overflow-hidden transition-opacity duration-250 data-behind:pointer-events-none data-behind:opacity-0 data-expanded:pointer-events-auto data-expanded:opacity-100">
-        {IconComponent && (
-          <IconComponent
-            className="mt-[0.1em] size-5 shrink-0"
-            aria-hidden="true"
-          />
+        {toast.data?.icon ? (
+          <span className="mt-[0.1em] shrink-0">{toast.data.icon}</span>
+        ) : (
+          IconComponent && (
+            <IconComponent
+              className="mt-[0.1em] size-5 shrink-0"
+              aria-hidden="true"
+            />
+          )
         )}
         <div className="flex-1">
           <Toast.Title render={<Heading level="h4" />} />
           <Toast.Description
             render={<div className="font-body text-pretty not-last:mb-4" />}
           />
+          {toast.data?.onCancel && (
+            <Button
+              type="button"
+              size="sm"
+              onClick={toast.data.onCancel}
+              className="mb-1"
+            >
+              Cancel
+            </Button>
+          )}
         </div>
         <Toast.Close
           render={<CloseButton size="sm" />}
@@ -117,12 +140,32 @@ type TypedUseToastManager = Omit<
 export function useToast(): TypedUseToastManager {
   const toastManager = Toast.useToastManager();
 
-  const toast = (data: ToastData) => {
-    toastManager.add(data);
+  const add = (toastData: ToastData) => {
+    const { onCancel, onClose, icon, ...rest } = toastData;
+    return toastManager.add({
+      ...rest,
+      onClose,
+      data: { onCancel, icon },
+    });
+  };
+
+  const update = (id: string, toastData: Partial<ToastData>) => {
+    const { onCancel, onClose, ...rest } = toastData;
+    toastManager.update(id, {
+      ...rest,
+      ...(onClose !== undefined && { onClose }),
+      ...(onCancel !== undefined && { data: { onCancel } }),
+    });
+  };
+
+  const toast = (toastData: ToastData) => {
+    add(toastData);
   };
 
   return {
     ...toastManager,
+    add,
+    update,
     toast,
   } as TypedUseToastManager;
 }

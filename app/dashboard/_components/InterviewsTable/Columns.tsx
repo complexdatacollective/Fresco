@@ -130,17 +130,16 @@ export const InterviewColumns = (): ColumnDef<
   {
     id: 'progress',
     accessorFn: (row) => {
-      const stages = row.protocol.stages;
-      return Array.isArray(stages)
-        ? (row.currentStep / stages.length) * 100
-        : 0;
+      const stageCount = row.protocol.stageCount;
+      return stageCount > 0 ? (row.currentStep / stageCount) * 100 : 0;
     },
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Progress" />;
     },
     cell: ({ row }) => {
-      const stages = row.original.protocol.stages;
-      const progress = (row.original.currentStep / stages.length) * 100;
+      const stageCount = row.original.protocol.stageCount;
+      const progress =
+        stageCount > 0 ? (row.original.currentStep / stageCount) * 100 : 0;
       return (
         <div className="flex items-center whitespace-nowrap">
           <ProgressBar
@@ -158,18 +157,15 @@ export const InterviewColumns = (): ColumnDef<
     enableSorting: false,
     accessorFn: (row) => {
       const network = row.network;
-      const nodeCount = network?.nodes?.length ?? 0;
-      const edgeCount = network?.edges?.length ?? 0;
+      const nodeCount = network.nodes.reduce((sum, n) => sum + n.count, 0);
+      const edgeCount = network.edges.reduce((sum, e) => sum + e.count, 0);
       return nodeCount + edgeCount;
     },
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Network" />;
     },
     cell: ({ row }) => {
-      const network = row.original.network;
-      const codebook = row.original.protocol.codebook;
-
-      return <NetworkSummary network={network} codebook={codebook} />;
+      return <NetworkSummary network={row.original.network} />;
     },
   },
   {

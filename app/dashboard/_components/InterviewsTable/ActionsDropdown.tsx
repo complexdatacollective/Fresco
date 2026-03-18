@@ -16,19 +16,22 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import type { Interview } from '~/lib/db/generated/client';
+import type { GetInterviewsQuery } from '~/queries/interviews';
 
-export const ActionsDropdown = ({ row }: { row: Row<Interview> }) => {
+type InterviewRow = GetInterviewsQuery[number];
+
+export const ActionsDropdown = ({ row }: { row: Row<InterviewRow> }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
-  const [selectedInterviews, setSelectedInterviews] = useState<Interview[]>();
+  const [selectedInterviews, setSelectedInterviews] =
+    useState<InterviewRow[]>();
 
-  const handleDelete = (data: Interview) => {
+  const handleDelete = (data: InterviewRow) => {
     setSelectedInterviews([data]);
     setShowDeleteModal(true);
   };
 
-  const handleExport = (data: Interview) => {
+  const handleExport = (data: InterviewRow) => {
     setSelectedInterviews([data]);
     setShowExportModal(true);
   };

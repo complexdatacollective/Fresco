@@ -1,6 +1,5 @@
-import { type Codebook } from '@codaco/protocol-validation';
-import type { NcNetwork } from '@codaco/shared-consts';
-import Node from '~/components/Node';
+import Node, { type NodeColorSequence } from '~/components/Node';
+import type { GetInterviewsQuery } from '~/queries/interviews';
 import { cx } from '~/utils/cva';
 
 // TODO: Move to shared-consts or protocol-validation
@@ -109,53 +108,36 @@ function EdgeSummary({ color, count, typeName }: EdgeSummaryProps) {
 
 const NetworkSummary = ({
   network,
-  codebook,
 }: {
-  network: NcNetwork | null;
-  codebook: Codebook | null;
+  network: GetInterviewsQuery[number]['network'];
 }) => {
-  if (!network || !codebook) {
-    return <div className="text-xs">No interview data</div>;
-  }
-  const nodeSummaries = Object.entries(
-    network.nodes?.reduce<Record<string, number>>((acc, node) => {
-      acc[node.type] = (acc[node.type] ?? 0) + 1;
-      return acc;
-    }, {}) ?? {},
-  ).map(([nodeType, count]) => {
-    const nodeInfo = codebook.node?.[nodeType];
-
-    return (
+  const nodeSummaries = network.nodes.map(
+    ({ type: nodeType, count, name, color }) => (
       <div className="flex flex-col items-center" key={nodeType}>
         <Node
           size="xxs"
-          color={nodeInfo?.color}
+          color={color as NodeColorSequence}
           label={count.toLocaleString()}
         />
-        <span className="pt-1 text-xs">{nodeInfo?.name ?? 'Unknown'}</span>
+        <span className="pt-1 text-xs">{name}</span>
       </div>
-    );
-  });
+    ),
+  );
 
-  const edgeSummaries = Object.entries(
-    network.edges?.reduce<Record<string, number>>((acc, edge) => {
-      acc[edge.type] = (acc[edge.type] ?? 0) + 1;
-      return acc;
-    }, {}) ?? {},
-  ).map(([edgeType, count]) => {
-    const edgeInfo = codebook.edge?.[edgeType];
+  const edgeSummaries = network.edges
+    .map(({ type: edgeType, count, name, color }) => {
+      if (!color) return null;
 
-    if (!edgeInfo) return null;
-
-    return (
-      <EdgeSummary
-        key={edgeType}
-        color={edgeInfo.color as EdgeColorSequence}
-        count={count}
-        typeName={edgeInfo.name}
-      />
-    );
-  });
+      return (
+        <EdgeSummary
+          key={edgeType}
+          color={color as EdgeColorSequence}
+          count={count}
+          typeName={name}
+        />
+      );
+    })
+    .filter(Boolean);
 
   if (nodeSummaries.length === 0 && edgeSummaries.length === 0) {
     return <div className="text-xs">No nodes or edges</div>;
