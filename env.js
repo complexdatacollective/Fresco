@@ -12,6 +12,7 @@ export const env = createEnv({
     DATABASE_URL: z.string(),
     PUBLIC_URL: z.string().url().optional(),
     USE_NEON_POSTGRES_ADAPTER: z.stringbool().optional(),
+    USE_LOCAL_FILE_STORAGE: z.stringbool().optional(),
   },
 
   /**
@@ -66,6 +67,7 @@ export const env = createEnv({
     APP_VERSION: process.env.APP_VERSION,
     COMMIT_HASH: process.env.COMMIT_HASH,
     USE_NEON_POSTGRES_ADAPTER: process.env.USE_NEON_POSTGRES_ADAPTER,
+    USE_LOCAL_FILE_STORAGE: process.env.USE_LOCAL_FILE_STORAGE,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

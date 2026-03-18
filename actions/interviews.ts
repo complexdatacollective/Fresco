@@ -6,7 +6,7 @@ import { after } from 'next/server';
 import { safeRevalidateTag, safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { type Interview } from '~/lib/db/generated/client';
-import { ProductionLayer } from '~/lib/export/layers/ProductionLayer';
+import { ExportLayer } from '~/lib/export/layers/ExportLayer';
 import { exportPipeline } from '~/lib/export/pipeline';
 import { createInitialNetwork } from '~/lib/interviewer/ducks/modules/session';
 import type {
@@ -94,7 +94,7 @@ export const exportInterviews = async (
         error: error.userMessage,
       } satisfies ExportReturn),
     ),
-    Effect.provide(ProductionLayer),
+    Effect.provide(ExportLayer),
     Effect.runPromise,
   );
 
