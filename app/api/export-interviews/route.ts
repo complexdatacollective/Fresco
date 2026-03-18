@@ -13,8 +13,10 @@ import { exportInterviewsSchema } from '~/schemas/export';
 import { requireApiAuth } from '~/utils/auth';
 
 export async function POST(request: Request) {
+  let username: string;
   try {
-    await requireApiAuth();
+    const session = await requireApiAuth();
+    username = session.user.username;
   } catch {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
@@ -49,7 +51,7 @@ export async function POST(request: Request) {
           safeRevalidateTag(['getInterviews', 'activityFeed']);
           void addEvent(
             'Data Exported',
-            `Exported data for ${String(interviewIds.length)} interview(s)`,
+            `${username} exported data for ${String(interviewIds.length)} interview(s)`,
           );
           void captureEvent('Data Exported', {
             interviewCount: interviewIds.length,
