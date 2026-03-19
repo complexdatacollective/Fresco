@@ -105,6 +105,7 @@ type PopoverContentProps = ComponentProps<typeof BasePopover.Popup> & {
   showArrow?: boolean;
   keepMounted?: boolean;
   align?: 'start' | 'center' | 'end';
+  anchor?: Element | React.RefObject<Element | null> | null;
 };
 
 function PopoverContent({
@@ -114,6 +115,7 @@ function PopoverContent({
   keepMounted = true,
   className,
   align = 'center',
+  anchor,
   ...props
 }: PopoverContentProps) {
   const { mounted } = usePopoverContext();
@@ -125,12 +127,18 @@ function PopoverContent({
     >
       <AnimatePresence>
         {mounted && (
-          <BasePopover.Positioner sideOffset={sideOffset} align={align}>
+          <BasePopover.Positioner
+            sideOffset={sideOffset}
+            align={align}
+            {...(anchor ? { anchor } : {})}
+          >
             <BasePopover.Popup
               render={
                 <MotionSurface
                   level="popover"
                   elevation="none"
+                  dynamicSpacing={false}
+                  spacing="xs"
                   noContainer
                   className={cx(
                     'max-w-(--available-width) overflow-visible shadow-xl',

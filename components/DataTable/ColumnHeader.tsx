@@ -2,7 +2,7 @@
 
 import { type Column, type Table } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, Filter, X } from 'lucide-react';
-import React, { type ReactNode, useState } from 'react';
+import React, { type ReactNode, useRef, useState } from 'react';
 import BooleanFilter from '~/components/DataTable/filters/BooleanFilter';
 import DateFilter from '~/components/DataTable/filters/DateFilter';
 import FacetedFilter from '~/components/DataTable/filters/FacetedFilter';
@@ -18,11 +18,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
+import { Popover, PopoverContent } from '~/components/ui/popover';
 import { cx } from '~/utils/cva';
 
 type DataTableColumnHeaderProps<TData, TValue> = {
@@ -47,6 +45,8 @@ export function DataTableColumnHeader<TData, TValue>({
   const isSorted = column.getIsSorted();
   const isActive = isSorted !== false || isFiltered;
 
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
   const [stagedValue, setStagedValue] = useState<FilterValue | undefined>(
     undefined,
   );
@@ -65,13 +65,20 @@ export function DataTableColumnHeader<TData, TValue>({
     );
   }
 
+  const handleOpenFilter = () => {
+    setStagedValue(column.getFilterValue() as FilterValue | undefined);
+    setFilterOpen(true);
+  };
+
   const handleApplyFilter = () => {
     column.setFilterValue(stagedValue);
+    setFilterOpen(false);
   };
 
   const handleClearFilter = () => {
     column.setFilterValue(undefined);
     setStagedValue(undefined);
+    setFilterOpen(false);
   };
 
   const icons: ReactNode[] = [];
@@ -86,75 +93,77 @@ export function DataTableColumnHeader<TData, TValue>({
       : [];
 
   return (
-    <DropdownMenu
-      onOpenChange={(open) => {
-        if (open) {
-          setStagedValue(column.getFilterValue() as FilterValue | undefined);
-        }
-      }}
-    >
-      <DropdownMenuTrigger
-        render={
-          <Button
-            size="sm"
-            className="-mx-4 min-w-max px-4! text-base"
-            variant={isActive ? 'default' : 'text'}
-            color={isActive ? 'primary' : 'default'}
-            iconPosition="right"
-            icon={
-              icons.length > 0 ? (
-                <span className="flex gap-0.5">{icons}</span>
-              ) : undefined
-            }
-          />
-        }
-        nativeButton
-      >
-        {title}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start">
-        {canSort && (
-          <>
-            <DropdownMenuItem
-              onClick={() => column.toggleSorting(false)}
-              className="gap-2"
-            >
-              <ArrowUp className="size-4" />
-              Sort ascending
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => column.toggleSorting(true)}
-              className="gap-2"
-            >
-              <ArrowDown className="size-4" />
-              Sort descending
-            </DropdownMenuItem>
-            {isSorted !== false && (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          ref={buttonRef}
+          render={
+            <Button
+              size="sm"
+              className="-mx-4 min-w-max px-4! text-base"
+              variant={isActive ? 'default' : 'text'}
+              color={isActive ? 'primary' : 'default'}
+              iconPosition="right"
+              icon={
+                icons.length > 0 ? (
+                  <span className="flex gap-0.5">{icons}</span>
+                ) : undefined
+              }
+            />
+          }
+          nativeButton
+        >
+          {title}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
+          {canSort && (
+            <>
               <DropdownMenuItem
-                onClick={() => column.clearSorting()}
+                onClick={() => column.toggleSorting(false)}
                 className="gap-2"
               >
-                <X className="size-4" />
-                Clear sort
+                <ArrowUp className="size-4" />
+                Sort ascending
               </DropdownMenuItem>
-            )}
-          </>
-        )}
-        {canSort && hasFilter && <DropdownMenuSeparator />}
-        {hasFilter && filterConfig && (
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger className="gap-2">
+              <DropdownMenuItem
+                onClick={() => column.toggleSorting(true)}
+                className="gap-2"
+              >
+                <ArrowDown className="size-4" />
+                Sort descending
+              </DropdownMenuItem>
+              {isSorted !== false && (
+                <DropdownMenuItem
+                  onClick={() => column.clearSorting()}
+                  className="gap-2"
+                >
+                  <X className="size-4" />
+                  Clear sort
+                </DropdownMenuItem>
+              )}
+            </>
+          )}
+          {canSort && hasFilter && <DropdownMenuSeparator />}
+          {hasFilter && (
+            <DropdownMenuItem onClick={handleOpenFilter} className="gap-2">
               <Filter className="size-4" />
               {isFiltered ? 'Edit filter' : 'Filter'}
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent className="w-72 p-3">
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {hasFilter && filterConfig && (
+        <Popover open={filterOpen} onOpenChange={setFilterOpen}>
+          <PopoverContent align="start" anchor={buttonRef} className="w-72 p-3">
+            <div className="flex flex-col gap-3">
               <FilterRenderer
                 filterConfig={filterConfig}
                 value={stagedValue}
                 onChange={setStagedValue}
                 data={data}
               />
-              <div className="mt-3 flex justify-end gap-2">
+              <div className="flex justify-end gap-2">
                 <Button size="sm" variant="text" onClick={handleClearFilter}>
                   Clear
                 </Button>
@@ -162,11 +171,11 @@ export function DataTableColumnHeader<TData, TValue>({
                   Apply
                 </Button>
               </div>
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
+    </>
   );
 }
 
