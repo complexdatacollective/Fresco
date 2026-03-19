@@ -67,7 +67,12 @@ export function DataTableColumnHeader<TData, TValue>({
 
   const handleOpenFilter = () => {
     setStagedValue(column.getFilterValue() as FilterValue | undefined);
-    setFilterOpen(true);
+    // Defer opening so the dropdown menu has time to fully close first.
+    // Without this, the popover opens and immediately closes because the
+    // dropdown's close handler fires after our open.
+    requestAnimationFrame(() => {
+      setFilterOpen(true);
+    });
   };
 
   const handleApplyFilter = () => {
@@ -120,24 +125,21 @@ export function DataTableColumnHeader<TData, TValue>({
             <>
               <DropdownMenuItem
                 onClick={() => column.toggleSorting(false)}
-                className="gap-2"
+                icon={<ArrowUp />}
               >
-                <ArrowUp className="size-4" />
                 Sort ascending
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => column.toggleSorting(true)}
-                className="gap-2"
+                icon={<ArrowDown />}
               >
-                <ArrowDown className="size-4" />
                 Sort descending
               </DropdownMenuItem>
               {isSorted !== false && (
                 <DropdownMenuItem
                   onClick={() => column.clearSorting()}
-                  className="gap-2"
+                  icon={<X />}
                 >
-                  <X className="size-4" />
                   Clear sort
                 </DropdownMenuItem>
               )}
@@ -145,8 +147,7 @@ export function DataTableColumnHeader<TData, TValue>({
           )}
           {canSort && hasFilter && <DropdownMenuSeparator />}
           {hasFilter && (
-            <DropdownMenuItem onClick={handleOpenFilter} className="gap-2">
-              <Filter className="size-4" />
+            <DropdownMenuItem onClick={handleOpenFilter} icon={<Filter />}>
               {isFiltered ? 'Edit filter' : 'Filter'}
             </DropdownMenuItem>
           )}

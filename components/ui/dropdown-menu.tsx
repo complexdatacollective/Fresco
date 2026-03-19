@@ -184,19 +184,23 @@ const DropdownMenuItem = React.forwardRef<
   React.ElementRef<typeof Menu.Item>,
   React.ComponentPropsWithoutRef<typeof Menu.Item> & {
     inset?: boolean;
+    icon?: React.ReactNode;
   }
->(({ className, inset, ...props }, ref) => (
+>(({ className, inset, icon, children, ...props }, ref) => (
   <Menu.Item
     ref={ref}
     className={cx(
-      'relative flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-hidden transition-colors select-none',
+      'relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden transition-colors select-none',
       'data-highlighted:bg-accent data-highlighted:text-accent-contrast',
       'data-disabled:pointer-events-none data-disabled:opacity-50',
       inset && 'pl-8',
       className,
     )}
     {...props}
-  />
+  >
+    {icon && <span className="size-4 shrink-0">{icon}</span>}
+    {children}
+  </Menu.Item>
 ));
 DropdownMenuItem.displayName = 'DropdownMenuItem';
 
