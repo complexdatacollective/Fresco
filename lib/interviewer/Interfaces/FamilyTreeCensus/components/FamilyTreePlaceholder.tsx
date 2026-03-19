@@ -31,8 +31,6 @@ export default function FamilyTreePlaceholder({
   const ego = { x: 140, y: 110 }; // square (slightly brighter)
   const child3 = { x: 220, y: 110 }; // circle
 
-  const nodeOpacity = 0.12;
-  const lineOpacity = 0.1;
   const stroke = 'var(--color-platinum)';
   const lineStroke = 'var(--color-platinum)';
   const sw = 2.5; // stroke width
@@ -53,7 +51,6 @@ export default function FamilyTreePlaceholder({
         y2={mother.y}
         stroke={lineStroke}
         strokeWidth={sw}
-        opacity={lineOpacity}
       />
       {/* Vertical from partner midpoint to sibling rail */}
       <line
@@ -63,7 +60,6 @@ export default function FamilyTreePlaceholder({
         y2={railY}
         stroke={lineStroke}
         strokeWidth={sw}
-        opacity={lineOpacity}
       />
       {/* Sibling rail */}
       <line
@@ -73,7 +69,6 @@ export default function FamilyTreePlaceholder({
         y2={railY}
         stroke={lineStroke}
         strokeWidth={sw}
-        opacity={lineOpacity}
       />
       {/* Drop lines to children */}
       <line
@@ -83,7 +78,6 @@ export default function FamilyTreePlaceholder({
         y2={child1.y - r}
         stroke={lineStroke}
         strokeWidth={sw}
-        opacity={lineOpacity}
       />
       <line
         x1={ego.x}
@@ -92,7 +86,6 @@ export default function FamilyTreePlaceholder({
         y2={ego.y - r}
         stroke={lineStroke}
         strokeWidth={sw}
-        opacity={lineOpacity}
       />
       <line
         x1={child3.x}
@@ -101,7 +94,6 @@ export default function FamilyTreePlaceholder({
         y2={child3.y - r}
         stroke={lineStroke}
         strokeWidth={sw}
-        opacity={lineOpacity}
       />
 
       {/* --- Nodes --- */}
@@ -115,7 +107,6 @@ export default function FamilyTreePlaceholder({
         fill="none"
         stroke={stroke}
         strokeWidth={sw}
-        opacity={nodeOpacity}
       />
       {/* Mother (circle) */}
       <circle
@@ -125,7 +116,6 @@ export default function FamilyTreePlaceholder({
         fill="none"
         stroke={stroke}
         strokeWidth={sw}
-        opacity={nodeOpacity}
       />
       {/* Sibling left (circle) */}
       <circle
@@ -135,7 +125,6 @@ export default function FamilyTreePlaceholder({
         fill="none"
         stroke={stroke}
         strokeWidth={sw}
-        opacity={nodeOpacity}
       />
       {/* Ego (square, slightly more visible) */}
       <rect
@@ -147,7 +136,6 @@ export default function FamilyTreePlaceholder({
         fill="none"
         stroke={stroke}
         strokeWidth={sw}
-        opacity={nodeOpacity * 1.5}
       />
       {/* Sibling right (circle) */}
       <circle
@@ -157,7 +145,6 @@ export default function FamilyTreePlaceholder({
         fill="none"
         stroke={stroke}
         strokeWidth={sw}
-        opacity={nodeOpacity}
       />
     </svg>
   );

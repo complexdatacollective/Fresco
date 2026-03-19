@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { useWizard } from '~/lib/dialogs/useWizard';
@@ -89,43 +90,49 @@ function BioParentsForm() {
   }, [validateForm, getFormValues, setStepData, setBeforeNext, missingCount]);
 
   return (
-    <div className="flex flex-col gap-6 pt-4">
+    <>
       <Paragraph>
-        For the pedigree, we need information about biological parents.
-        {bioParentCount > 0
-          ? ` You identified ${bioParentCount} biological parent${bioParentCount === 1 ? '' : 's'} above.`
-          : ''}{' '}
-        Please tell us about the {missingCount === 1 ? 'other' : ''} biological
-        parent{missingCount > 1 ? 's' : ''}.
+        For the purposes of this task, we need to ask you about your biological
+        parents specifically, and not just your parents in general.
       </Paragraph>
-      {Array.from({ length: missingCount }, (_, i) => (
-        <div key={i} className="flex flex-col gap-3 rounded-lg border p-4">
-          <Heading level="h3">
-            Biological parent {bioParentCount + i + 1}
-          </Heading>
-          <UnconnectedField
-            name={`bioParent-${i}-nameKnown`}
-            label="Do you know this person's name?"
-            component={ToggleField}
-            value={nameKnownState[i] ?? false}
-            onChange={(v) => {
-              setNameKnownState((prev) =>
-                prev.map((val, idx) => (idx === i ? (v ?? false) : val)),
-              );
-            }}
-          />
-          <PersonFields
-            index={i}
-            prefix="bioParent"
-            initial={{
-              name: existing?.[i]?.name,
-              sex: existing?.[i]?.sex,
-              gender: existing?.[i]?.gender,
-            }}
-            showName={nameKnownState[i] ?? false}
-          />
-        </div>
-      ))}
-    </div>
+      <Paragraph>
+        {bioParentCount > 0
+          ? ` You identified ${bioParentCount} biological parent${bioParentCount === 1 ? '' : 's'} previously.`
+          : ''}{' '}
+        Please tell us about your other biological parent
+        {missingCount > 1 ? 's' : ''}.
+      </Paragraph>
+      <div className="flex flex-col gap-6">
+        {Array.from({ length: missingCount }, (_, i) => (
+          <Surface key={i} level={1} spacing="sm">
+            <Heading level="h3">
+              Biological parent {bioParentCount + i + 1}
+            </Heading>
+            <UnconnectedField
+              inline
+              name={`bioParent-${i}-nameKnown`}
+              label="I know this person's name"
+              component={ToggleField}
+              value={nameKnownState[i] ?? false}
+              onChange={(v) => {
+                setNameKnownState((prev) =>
+                  prev.map((val, idx) => (idx === i ? (v ?? false) : val)),
+                );
+              }}
+            />
+            <PersonFields
+              index={i}
+              prefix="bioParent"
+              initial={{
+                name: existing?.[i]?.name,
+                sex: existing?.[i]?.sex,
+                gender: existing?.[i]?.gender,
+              }}
+              showName={nameKnownState[i] ?? false}
+            />
+          </Surface>
+        ))}
+      </div>
+    </>
   );
 }

@@ -46,8 +46,6 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
         },
         {
           title: 'Biological parents',
-          description:
-            'For the purposes of this task, we need to ask you about your biological parents specifically.',
           content: BioParentsStep,
           skip: (d) => {
             const parents = (d.parents as ParentDetail[] | undefined) ?? [];
@@ -120,7 +118,7 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <FamilyTreePlaceholder className="w-64 max-w-full" />
+      <FamilyTreePlaceholder className="w-96 max-w-full opacity-25" />
       <Paragraph emphasis="muted" margin="none" className="text-center">
         Your family tree will appear here
       </Paragraph>

@@ -110,35 +110,23 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
   const renderNodeContent = () => {
     if (isEgo) {
       return (
-        <>
-          <div className="relative shrink-0">
-            <Node
-              className="shrink-0"
-              style={nodeColor as React.CSSProperties}
-              color="custom"
-              size="sm"
-              label={label || ''}
-              ariaLabel={displayLabel}
-              shape={shape}
-              selected={selected}
+        <Node
+          className="shrink-0"
+          style={nodeColor as React.CSSProperties}
+          color="custom"
+          size="sm"
+          label={label || ''}
+          ariaLabel={displayLabel}
+          shape={shape}
+          selected={selected}
+        >
+          {!isEgo && (
+            <EgoIcon
+              className="pointer-events-none absolute top-1/2 left-1/2 size-8 -translate-1/2"
+              variant={node.interviewNetworkId ? 'platinum' : 'slate'}
             />
-            {!label && (
-              <EgoIcon
-                className="pointer-events-none absolute top-1/2 left-1/2 size-8 -translate-1/2"
-                variant={node.interviewNetworkId ? 'platinum' : 'slate'}
-              />
-            )}
-          </div>
-          <div className="family-tree-node-label-container bg-cyber-grape/80 m-1 flex flex-col rounded-md px-2 py-1 text-white">
-            <Paragraph
-              intent="smallText"
-              margin="none"
-              className="family-tree-node-label"
-            >
-              You
-            </Paragraph>
-          </div>
-        </>
+          )}
+        </Node>
       );
     }
 
