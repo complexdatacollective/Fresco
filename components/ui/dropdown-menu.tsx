@@ -98,21 +98,20 @@ const DropdownMenuSubContent = React.forwardRef<
             <Menu.Positioner sideOffset={sideOffset}>
               <Menu.Popup
                 ref={ref}
-                // render={
-                //   <MotionSurface
-                //     level="popover"
-                //     elevation="none"
-                //     spacing="none"
-                //     className={cx(
-                //       'min-w-[8rem] p-1 text-sm shadow-xl',
-                //       className,
-                //     )}
-                //     initial={{ opacity: 0, scale: 0.96 }}
-                //     animate={{ opacity: 1, scale: 1 }}
-                //     exit={{ opacity: 0, scale: 0.96 }}
-                //     transition={{ type: 'spring', duration: 0.5 }}
-                //   />
-                // }
+                render={
+                  <MotionSurface
+                    level="popover"
+                    elevation="none"
+                    spacing="xs"
+                    noContainer
+                    dynamicSpacing={false}
+                    className={cx('shadow-xl')}
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.96 }}
+                    transition={{ type: 'spring', duration: 0.5 }}
+                  />
+                }
                 {...props}
               />
             </Menu.Positioner>
@@ -156,13 +155,11 @@ const DropdownMenuContent = React.forwardRef<
                 render={
                   <MotionSurface
                     noContainer
+                    dynamicSpacing={false}
                     level="popover"
                     elevation="none"
-                    spacing="none"
-                    className={cx(
-                      'min-w-[8rem] p-1 text-sm shadow-xl',
-                      className,
-                    )}
+                    spacing="xs"
+                    className={cx('shadow-xl', className)}
                     initial={{ opacity: 0, scale: 0.96 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.96 }}
@@ -190,15 +187,16 @@ const DropdownMenuItem = React.forwardRef<
   <Menu.Item
     ref={ref}
     className={cx(
-      'relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden transition-colors select-none',
+      'relative flex cursor-default items-center gap-2 rounded-xs px-2 py-1.5 text-sm outline-hidden transition-colors select-none',
       'data-highlighted:bg-accent data-highlighted:text-accent-contrast',
       'data-disabled:pointer-events-none data-disabled:opacity-50',
+      'min-w-48',
       inset && 'pl-8',
       className,
     )}
     {...props}
   >
-    {icon && <span className="size-4 shrink-0">{icon}</span>}
+    {icon}
     {children}
   </Menu.Item>
 ));
@@ -276,7 +274,7 @@ const DropdownMenuSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <Menu.Separator
     ref={ref}
-    className={cx('-mx-1 my-1 h-px bg-current/50', className)}
+    className={cx('mx-auto my-1 h-px w-full rounded bg-current/20', className)}
     {...props}
   />
 ));

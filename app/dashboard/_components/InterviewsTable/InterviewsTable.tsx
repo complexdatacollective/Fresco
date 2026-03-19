@@ -12,7 +12,6 @@ import { GenerateInterviewURLs } from '~/app/dashboard/interviews/_components/Ge
 import { DataTable } from '~/components/DataTable/DataTable';
 import { DataTableFloatingBar } from '~/components/DataTable/DataTableFloatingBar';
 import { DataTableToolbar } from '~/components/DataTable/DataTableToolbar';
-import ActiveFilterChips from '~/components/DataTable/filters/ActiveFilterChips';
 import { Button } from '~/components/ui/Button';
 import {
   DropdownMenu,
@@ -158,7 +157,6 @@ export const InterviewsTable = ({
                 className="tablet-landscape:w-auto w-full"
               />
             </DataTableToolbar>
-            <ActiveFilterChips table={table} />
           </>
         }
         floatingBar={

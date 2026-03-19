@@ -329,6 +329,8 @@
   --node-font-size-lg: clamp(1rem, 1.4vw, 1.25rem);
   --radius-*: initial;
   --radius-none: 0px; /* 0px */
+  --radius-2xs: calc(var(--radius) * 0.125); /* 3.5px */
+  --radius-xs: calc(var(--radius) * 0.25); /* 7px */
   --radius-sm: calc(var(--radius) * 0.5); /* 14px */
   --radius: 1.75rem; /* default - overridden by theme files */
   --radius-lg: calc(var(--radius) * 1.5); /* 42px */
@@ -464,20 +466,24 @@ This custom variant lets you target only elements with the readonly attribute.
  * - focusable-within: applies focus styles on :focus-within + :focus-visible
  * - focus-styles: the actual focus styles (sizing only, no color)
  *
- * To override the focus ring color, add outline-[color] to your element.
- * The color is set in normal state so it can be overridden by other utilities.
+ * The outline color is set via --focus-color, which defaults to currentColor.
+ * Parent containers (e.g. Surface) can set --focus-color to override the
+ * focus ring color for all descendants — useful when currentColor would have
+ * poor contrast against a child component's background.
+ *
+ * To override per-element, add outline-[color] to the element itself.
  */
 @utility focus-styles {
   @apply outline-4 outline-offset-3 transition-all duration-200 ease-in-out;
 }
 
 @utility focusable {
-  outline-color: currentColor; /* Default - override with outline-[color] */
+  outline-color: var(--focus-color, currentColor);
   @apply focus-visible:focus-styles;
 }
 
 @utility focusable-within {
-  outline-color: currentColor;
+  outline-color: var(--focus-color, currentColor);
   @apply focus-visible-within:focus-styles;
 }
 
@@ -491,7 +497,7 @@ This custom variant lets you target only elements with the readonly attribute.
   @apply relative;
   &::after {
     @apply pointer-events-none absolute inset-0 content-[''];
-    outline-color: currentColor;
+    outline-color: var(--focus-color, currentColor);
   }
   &:has(.focusable-after-trigger:focus-visible)::after {
     @apply focus-styles z-1 rounded-sm;

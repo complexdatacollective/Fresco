@@ -146,7 +146,7 @@ function PopoverContent({
                   level="popover"
                   elevation="none"
                   dynamicSpacing={false}
-                  spacing="xs"
+                  spacing="sm"
                   noContainer
                   className={cx(
                     'max-w-(--available-width) overflow-visible shadow-xl',

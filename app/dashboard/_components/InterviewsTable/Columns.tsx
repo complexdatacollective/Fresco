@@ -2,9 +2,7 @@
 
 import { type ColumnDef, type FilterFn } from '@tanstack/react-table';
 import Image from 'next/image';
-import Checkbox from '~/lib/form/components/fields/Checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import { SelectAllHeader } from '~/components/DataTable/SelectAllHeader';
 import {
   booleanFilterFn,
   dateFilterFn,
@@ -12,10 +10,12 @@ import {
   operatorFilterFn,
   rangeFilterFn,
 } from '~/components/DataTable/filters/filterFns';
+import { SelectAllHeader } from '~/components/DataTable/SelectAllHeader';
 import { type Option } from '~/components/DataTable/types';
 import { Badge } from '~/components/ui/badge';
 import ProgressBar from '~/components/ui/ProgressBar';
 import TimeAgo from '~/components/ui/TimeAgo';
+import Checkbox from '~/lib/form/components/fields/Checkbox';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import NetworkSummary from './NetworkSummary';
 
@@ -272,7 +272,7 @@ export const InterviewColumns = (): ColumnDef<InterviewRow>[] => [
     },
     cell: ({ row }) => {
       if (!row.original.exportTime) {
-        return <Badge variant="secondary">Not exported</Badge>;
+        return <Badge variant="destructive">Not exported</Badge>;
       }
 
       return (

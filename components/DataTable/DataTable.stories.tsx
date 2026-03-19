@@ -3,7 +3,6 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { type ColumnDef } from '@tanstack/react-table';
 import { Trash } from 'lucide-react';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import ActiveFilterChips from '~/components/DataTable/filters/ActiveFilterChips';
 import {
   booleanFilterFn,
   dateFilterFn,
@@ -452,7 +451,6 @@ function ColumnFilterTable() {
             table={table}
             searchableColumns={[{ id: 'name', title: 'by name' }]}
           />
-          <ActiveFilterChips table={table} />
         </div>
       }
     />

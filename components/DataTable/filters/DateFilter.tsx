@@ -28,8 +28,8 @@ const relativePresets: RelativePreset[] = [
 
 function getPresetRange(days: number): DateFilterValue {
   const now = DateTime.now();
-  const to = now.toISODate()!;
-  const from = days === 0 ? to : now.minus({ days }).toISODate()!;
+  const to = now.toISODate();
+  const from = days === 0 ? to : now.minus({ days }).toISODate();
   return { from, to };
 }
 
@@ -60,7 +60,7 @@ export default function DateFilter({
       onChange(undefined);
       return;
     }
-    const to = value?.to ?? DateTime.now().toISODate()!;
+    const to = value?.to ?? DateTime.now().toISODate();
     onChange({ from, to });
   };
 
@@ -74,14 +74,14 @@ export default function DateFilter({
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap gap-1">
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap gap-2">
         {relativePresets.map((preset) => (
           <Button
             key={preset.label}
             size="sm"
-            variant={isPresetActive(value, preset.days) ? 'default' : 'outline'}
-            color={isPresetActive(value, preset.days) ? 'primary' : 'default'}
+            variant="default"
+            color={isPresetActive(value, preset.days) ? 'success' : 'default'}
             onClick={() => handlePresetClick(preset.days)}
           >
             {preset.label}

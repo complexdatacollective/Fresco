@@ -70,29 +70,27 @@ export const GenerateInterviewURLs = ({
           interviews by protocol.
         </Paragraph>
 
-        <div className="flex flex-col gap-4">
-          {!protocols ? (
-            <Skeleton className="h-10 w-full rounded" />
-          ) : (
-            <SelectField
-              name="Protocol"
-              options={protocols?.map((p) => ({ value: p.id, label: p.name }))}
-              onChange={(value) => {
-                const protocol = protocols.find(
-                  (protocol) => protocol.id === value,
-                );
+        {!protocols ? (
+          <Skeleton className="h-10 w-full rounded" />
+        ) : (
+          <SelectField
+            name="Protocol"
+            options={protocols?.map((p) => ({ value: p.id, label: p.name }))}
+            onChange={(value) => {
+              const protocol = protocols.find(
+                (protocol) => protocol.id === value,
+              );
 
-                setSelectedProtocol(protocol);
-              }}
-              value={selectedProtocol?.id}
-              placeholder="Select a Protocol..."
-            />
-          )}
-          <ExportCSVInterviewURLs
-            protocol={selectedProtocol}
-            interviews={interviewsToExport}
+              setSelectedProtocol(protocol);
+            }}
+            value={selectedProtocol?.id}
+            placeholder="Select a Protocol..."
           />
-        </div>
+        )}
+        <ExportCSVInterviewURLs
+          protocol={selectedProtocol}
+          interviews={interviewsToExport}
+        />
       </PopoverContent>
     </Popover>
   );

@@ -42,6 +42,7 @@ export default function FacetedFilter({
 
   return (
     <ComboboxField
+      size="sm"
       name="faceted-filter"
       options={comboboxOptions}
       placeholder="Select..."

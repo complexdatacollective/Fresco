@@ -59,18 +59,16 @@ export default function RangeFilter({
     ((val - config.min) / (config.max - config.min)) * 100;
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       {config.presets && config.presets.length > 0 && (
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap gap-2">
           {config.presets.map((preset) => (
             <Button
               key={preset.label}
               size="sm"
-              variant={
-                isPresetActive(preset.min, preset.max) ? 'default' : 'outline'
-              }
+              variant="default"
               color={
-                isPresetActive(preset.min, preset.max) ? 'primary' : 'default'
+                isPresetActive(preset.min, preset.max) ? 'success' : 'default'
               }
               onClick={() => handlePresetClick(preset.min, preset.max)}
             >
@@ -81,9 +79,9 @@ export default function RangeFilter({
       )}
 
       <div className="relative flex h-5 items-center">
-        <div className="bg-surface-1 absolute h-1.5 w-full rounded-full" />
+        <div className="absolute h-1.5 w-full rounded-full bg-current" />
         <div
-          className="bg-primary absolute h-1.5 rounded-full"
+          className="absolute h-1.5 rounded-full bg-current"
           style={{
             left: `${rangePercent(currentMin).toString()}%`,
             right: `${(100 - rangePercent(currentMax)).toString()}%`,
@@ -96,7 +94,7 @@ export default function RangeFilter({
           step={step}
           value={currentMin}
           onChange={(e) => handleMinChange(Number(e.target.value))}
-          className="[&::-moz-range-thumb]:border-primary [&::-webkit-slider-thumb]:border-primary pointer-events-none absolute w-full appearance-none bg-transparent [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:bg-white [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:bg-white"
+          className="text-accent pointer-events-none absolute w-full appearance-none bg-transparent [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:size-4 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-current [&::-moz-range-thumb]:bg-current [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:size-4 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-current [&::-webkit-slider-thumb]:bg-current"
         />
         <input
           type="range"
@@ -105,11 +103,11 @@ export default function RangeFilter({
           step={step}
           value={currentMax}
           onChange={(e) => handleMaxChange(Number(e.target.value))}
-          className="[&::-moz-range-thumb]:border-primary [&::-webkit-slider-thumb]:border-primary pointer-events-none absolute w-full appearance-none bg-transparent [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:bg-white [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:bg-white"
+          className="text-accent pointer-events-none absolute w-full appearance-none bg-transparent [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:size-4 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-current [&::-moz-range-thumb]:bg-current [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:size-4 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-current [&::-webkit-slider-thumb]:bg-current"
         />
       </div>
 
-      <div className="text-text/60 flex justify-between text-xs">
+      <div className="flex justify-between text-xs text-current/60">
         <span>{formatLabel(currentMin)}</span>
         <span>{formatLabel(currentMax)}</span>
       </div>

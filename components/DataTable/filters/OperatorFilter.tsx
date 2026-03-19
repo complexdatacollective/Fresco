@@ -7,11 +7,13 @@ import {
   type OperatorFilterConfig,
   type OperatorFilterValue,
 } from '~/components/DataTable/filters/types';
-import Button, { IconButton } from '~/components/ui/Button';
+import Heading from '~/components/typography/Heading';
+import { IconButton } from '~/components/ui/Button';
+import Button from '~/components/ui/Button';
 import { Badge } from '~/components/ui/badge';
 import InputField from '~/lib/form/components/fields/InputField';
+import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import SelectField from '~/lib/form/components/fields/Select/Native';
-import { cx } from '~/utils/cva';
 
 type OperatorFilterProps = {
   value: OperatorFilterValue | undefined;
@@ -64,8 +66,13 @@ export default function OperatorFilter({
     if (!entityType || (entityKind !== 'nodes' && entityKind !== 'edges'))
       return;
 
+    const entityLabel =
+      entityOptions.find((o) => o.value === selectedEntity)?.label ??
+      entityType;
+
     const newCondition: OperatorCondition = {
       entityType,
+      entityLabel,
       entityKind,
       operator: selectedOperator,
       value: numericValue,
@@ -92,76 +99,73 @@ export default function OperatorFilter({
   }));
 
   return (
-    <div className="flex flex-col gap-3">
-      {entityOptions.length > 0 && (
-        <div className="flex flex-wrap gap-1">
-          {entityOptions.map((option) => (
-            <Button
-              key={option.value}
-              size="sm"
-              variant={selectedEntity === option.value ? 'default' : 'outline'}
-              color={selectedEntity === option.value ? 'primary' : 'default'}
-              onClick={() => setSelectedEntity(option.value)}
-            >
-              {option.label}
-            </Button>
-          ))}
+    <>
+      <Heading level="h4">{config.entitySelector?.label}</Heading>
+      <div className="flex max-w-md flex-col gap-4">
+        {entityOptions.length > 0 && (
+          <RadioGroupField
+            name="entity-type"
+            size="sm"
+            orientation="horizontal"
+            options={entityOptions}
+            value={selectedEntity}
+            onChange={(val) => setSelectedEntity(String(val ?? ''))}
+          />
+        )}
+        <Heading level="h4">Operator</Heading>
+        <div className="flex items-center gap-2">
+          <SelectField
+            name="filter-operator"
+            size="sm"
+            options={operatorOptions}
+            value={selectedOperator}
+            onChange={(val) => {
+              const op = String(val);
+              if (op in operatorLabels) {
+                setSelectedOperator(op as OperatorCondition['operator']);
+              }
+            }}
+          />
+
+          <InputField
+            type="number"
+            name="filter-value"
+            size="sm"
+            value={inputValue}
+            onChange={(val) => setInputValue(val ?? '')}
+            placeholder="Value"
+          />
+
+          <Button size="sm" onClick={handleAddCondition}>
+            Add
+          </Button>
         </div>
-      )}
 
-      <div className="flex items-center gap-2">
-        <SelectField
-          name="filter-operator"
-          size="sm"
-          options={operatorOptions}
-          value={selectedOperator}
-          onChange={(val) => {
-            const op = String(val);
-            if (op in operatorLabels) {
-              setSelectedOperator(op as OperatorCondition['operator']);
-            }
-          }}
-        />
-
-        <InputField
-          type="number"
-          name="filter-value"
-          size="sm"
-          value={inputValue}
-          onChange={(val) => setInputValue(val ?? '')}
-          placeholder="Value"
-          className="w-20"
-        />
-
-        <Button size="sm" onClick={handleAddCondition}>
-          Add
-        </Button>
+        <Heading level="h4">Current Conditions:</Heading>
+        {conditions.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {conditions.map((condition, index) => (
+              <Badge
+                key={`${condition.entityKind}-${condition.entityType}-${condition.operator}-${condition.value.toString()}-${index.toString()}`}
+                className="bg-sea-green flex gap-2"
+              >
+                <span>
+                  {condition.entityLabel} {operatorSymbols[condition.operator]}{' '}
+                  {condition.value}
+                </span>
+                <IconButton
+                  size="sm"
+                  variant="text"
+                  aria-label="Remove condition"
+                  onClick={() => handleRemoveCondition(index)}
+                  icon={<X />}
+                  className="size-5!"
+                />
+              </Badge>
+            ))}
+          </div>
+        )}
       </div>
-
-      {conditions.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {conditions.map((condition, index) => (
-            <Badge
-              key={`${condition.entityKind}-${condition.entityType}-${condition.operator}-${condition.value.toString()}-${index.toString()}`}
-              variant="outline"
-              className={cx('gap-1 pr-1')}
-            >
-              <span>
-                {condition.entityKind}.{condition.entityType}{' '}
-                {operatorSymbols[condition.operator]} {condition.value}
-              </span>
-              <IconButton
-                size="sm"
-                variant="text"
-                aria-label="Remove condition"
-                onClick={() => handleRemoveCondition(index)}
-                icon={<X className="size-3" />}
-                className="size-5!"
-              />
-            </Badge>
-          ))}
-        </div>
-      )}
-    </div>
+    </>
   );
 }

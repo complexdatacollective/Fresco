@@ -18,7 +18,6 @@ import ComboboxField from '~/lib/form/components/fields/Combobox/Combobox';
 import SelectField from '~/lib/form/components/fields/Select/Native';
 import Form from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
-import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { type FormSubmitHandler } from '~/lib/form/store/types';
 
 export const GenerateParticipantURLs = ({
@@ -90,44 +89,42 @@ export const GenerateParticipantURLs = ({
       >
         Export Participation URLs
       </PopoverTrigger>
-      <PopoverContent className="flex flex-col gap-4 p-4">
-        <Paragraph intent="smallText" margin="none">
+      <PopoverContent className="w-80">
+        <Paragraph>
           Generate a CSV that contains unique participation URLs for selected
           participants by protocol.
         </Paragraph>
-        <FormStoreProvider>
-          <Form id="generate-urls" onSubmit={handleSubmit}>
-            <Field
-              label="Protocol"
-              name="protocol"
-              required
-              component={SelectField}
-              options={protocols.map((protocol) => ({
-                value: protocol.id,
-                label: protocol.name,
-              }))}
-            />
-            <Field
-              label="Participants"
-              name="participants"
-              required
-              component={ComboboxField}
-              options={participants.map((participant) => ({
-                value: participant.id,
-                label: participant.identifier,
-              }))}
-              placeholder="Select Participants..."
-              singular="Participant"
-              plural="Participants"
-              showSelectAll
-              showDeselectAll
-              initialValue={participants.map((p) => p.id)}
-            />
-          </Form>
-          <SubmitButton color="primary" form="generate-urls">
+        <Form id="generate-urls" onSubmit={handleSubmit}>
+          <Field
+            label="Protocol"
+            name="protocol"
+            required
+            component={SelectField}
+            options={protocols.map((protocol) => ({
+              value: protocol.id,
+              label: protocol.name,
+            }))}
+          />
+          <Field
+            label="Participants"
+            name="participants"
+            required
+            component={ComboboxField}
+            options={participants.map((participant) => ({
+              value: participant.id,
+              label: participant.identifier,
+            }))}
+            placeholder="Select Participants..."
+            singular="Participant"
+            plural="Participants"
+            showSelectAll
+            showDeselectAll
+            initialValue={participants.map((p) => p.id)}
+          />
+          <SubmitButton color="dynamic" form="generate-urls">
             Generate
           </SubmitButton>
-        </FormStoreProvider>
+        </Form>
       </PopoverContent>
     </Popover>
   );

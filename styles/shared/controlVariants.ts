@@ -143,7 +143,7 @@ export const inputControlVariants = cva({
 
 // Spacing between elements within a wrapper, such as icons and text
 export const inlineSpacingVariants = cva({
-  base: 'tablet-portrait:gap-3 tablet-landscape:gap-4 gap-2',
+  base: 'gap-2',
 });
 
 export const wrapperPaddingVariants = cva({
@@ -155,7 +155,7 @@ export const groupSpacingVariants = cva({
   base: '',
   variants: {
     size: {
-      sm: 'gap-2 p-3',
+      sm: 'gap-2 rounded-sm p-3',
       md: 'tablet-landscape:px-6 tablet-landscape:py-4 tablet-landscape:gap-4 gap-3 p-4',
       lg: 'tablet-portrait:gap-4 tablet-portrait:px-6 tablet-portrait:py-4 tablet-landscape:gap-6 tablet-landscape:px-8 tablet-landscape:py-6 gap-3 p-4',
       xl: 'tablet-portrait:gap-6 tablet-portrait:px-8 tablet-portrait:py-6 tablet-landscape:gap-8 tablet-landscape:p-10 tablet-landscape:py-8 gap-4 px-6 py-4',

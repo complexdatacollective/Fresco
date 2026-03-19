@@ -63,6 +63,7 @@ export type FacetedFilterValue = string[];
 
 export type OperatorCondition = {
   entityType: string;
+  entityLabel: string;
   entityKind: 'nodes' | 'edges';
   operator: 'eq' | 'gt' | 'lt' | 'gte' | 'lte';
   value: number;

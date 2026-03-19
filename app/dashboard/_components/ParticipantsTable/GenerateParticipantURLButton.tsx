@@ -42,7 +42,7 @@ export const GenerateParticipationURLButton = memo(
       return (
         <Button
           size="sm"
-          color="primary"
+          color="info"
           icon={<Copy />}
           onClick={() => setOpen(true)}
         >
@@ -54,7 +54,7 @@ export const GenerateParticipationURLButton = memo(
     return (
       <Popover open={open} onOpenChange={(nextOpen) => setOpen(nextOpen)}>
         <PopoverTrigger
-          render={<Button size="sm" color="primary" icon={<Copy />} />}
+          render={<Button size="sm" color="info" icon={<Copy />} />}
         >
           Copy Unique URL
         </PopoverTrigger>

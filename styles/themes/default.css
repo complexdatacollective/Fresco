@@ -20,7 +20,7 @@
     --background: oklch(98% 0.08 calc(var(--base-hue) + 3));
     --text: oklch(29% 0.18 calc(var(--base-hue) + 5));
 
-    --neutral: oklch(99% 0.02 var(--base-hue));
+    --neutral: color-mix(in oklab, var(--text) 5%, var(--color-white));
     --neutral-contrast: oklch(10% 0.2 var(--base-hue));
 
     --primary: oklch(18% 0.2 var(--base-hue));
@@ -40,8 +40,8 @@
     --surface-2-contrast: var(--text);
     --surface-3: oklch(93% 0.03 var(--base-hue));
     --surface-3-contrast: var(--text);
-    --surface-popover: var(--color-white);
-    --surface-popover-contrast: var(--color-text);
+    --surface-popover: var(--primary);
+    --surface-popover-contrast: var(--primary-contrast);
 
     --destructive: oklch(var(--tomato));
     --destructive-contrast: oklch(var(--white));

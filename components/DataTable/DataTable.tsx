@@ -7,7 +7,6 @@ import {
   type Table as TTable,
 } from '@tanstack/react-table';
 import { type ReactNode } from 'react';
-import { cx } from '~/utils/cva';
 import {
   Table,
   TableBody,
@@ -16,16 +15,18 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
+import { cx } from '~/utils/cva';
 import { DataTablePagination } from './DataTablePagination';
 
 function getColumnHighlight<TData>(column: Column<TData, unknown>) {
   const isSorted = column.getIsSorted();
   const isFiltered = column.getIsFiltered();
   if (isSorted && isFiltered)
-    return 'bg-[color-mix(in_oklab,var(--color-sea-green)_15%,var(--color-selected)_10%)]';
+    return 'bg-[color-mix(in_oklab,var(--color-sea-green)_5%,var(--selected)_5%)]';
   if (isSorted)
-    return 'bg-[color-mix(in_oklab,var(--color-sea-green)_10%,transparent)]';
-  if (isFiltered) return 'bg-selected/5';
+    return 'bg-[color-mix(in_oklab,var(--color-sea-green)_5%,transparent)]';
+  if (isFiltered)
+    return 'bg-[color-mix(in_oklab,var(--selected)_5%,transparent)]';
   return undefined;
 }
 

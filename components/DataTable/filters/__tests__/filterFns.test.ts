@@ -121,6 +121,7 @@ describe('operatorFilterFn', () => {
         conditions: [
           {
             entityType: 'person',
+            entityLabel: 'person (nodes)',
             entityKind: 'nodes',
             operator: 'gte',
             value: 5,
@@ -137,6 +138,7 @@ describe('operatorFilterFn', () => {
         conditions: [
           {
             entityType: 'person',
+            entityLabel: 'person (nodes)',
             entityKind: 'nodes',
             operator: 'gte',
             value: 10,
@@ -153,6 +155,7 @@ describe('operatorFilterFn', () => {
         conditions: [
           {
             entityType: 'organization',
+            entityLabel: 'organization (nodes)',
             entityKind: 'nodes',
             operator: 'eq',
             value: 0,
@@ -169,12 +172,14 @@ describe('operatorFilterFn', () => {
         conditions: [
           {
             entityType: 'person',
+            entityLabel: 'person (nodes)',
             entityKind: 'nodes',
             operator: 'gte',
             value: 5,
           },
           {
             entityType: 'place',
+            entityLabel: 'place (nodes)',
             entityKind: 'nodes',
             operator: 'gt',
             value: 10,
@@ -191,6 +196,7 @@ describe('operatorFilterFn', () => {
         conditions: [
           {
             entityType: 'person',
+            entityLabel: 'person (nodes)',
             entityKind: 'nodes',
             operator: 'eq',
             value: 5,
@@ -207,6 +213,7 @@ describe('operatorFilterFn', () => {
         conditions: [
           {
             entityType: 'knows',
+            entityLabel: 'knows (edges)',
             entityKind: 'edges',
             operator: 'gt',
             value: 6,
@@ -223,6 +230,7 @@ describe('operatorFilterFn', () => {
         conditions: [
           {
             entityType: 'place',
+            entityLabel: 'place (nodes)',
             entityKind: 'nodes',
             operator: 'lt',
             value: 5,
@@ -239,6 +247,7 @@ describe('operatorFilterFn', () => {
         conditions: [
           {
             entityType: 'knows',
+            entityLabel: 'knows (edges)',
             entityKind: 'edges',
             operator: 'lte',
             value: 7,
