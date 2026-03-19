@@ -4,6 +4,7 @@ import { type ColumnDef, type FilterFn } from '@tanstack/react-table';
 import Image from 'next/image';
 import Checkbox from '~/lib/form/components/fields/Checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+import { SelectAllHeader } from '~/components/DataTable/SelectAllHeader';
 import {
   booleanFilterFn,
   dateFilterFn,
@@ -26,13 +27,7 @@ export const InterviewColumns = (): ColumnDef<InterviewRow>[] => [
     meta: {
       className: 'sticky left-0',
     },
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
+    header: ({ table }) => <SelectAllHeader table={table} />,
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
