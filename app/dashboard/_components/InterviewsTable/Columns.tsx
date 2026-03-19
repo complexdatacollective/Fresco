@@ -66,7 +66,7 @@ export const InterviewColumns = (): ColumnDef<InterviewRow>[] => [
           className="flex items-center gap-2"
           title={row.original.participant.identifier}
         >
-          <Badge variant={'outline'}>
+          <Badge variant={'outline'} className="max-w-80 truncate">
             {row.original.participant.identifier}
           </Badge>
         </div>
