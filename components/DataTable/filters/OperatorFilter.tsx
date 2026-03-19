@@ -9,6 +9,8 @@ import {
 } from '~/components/DataTable/filters/types';
 import Button, { IconButton } from '~/components/ui/Button';
 import { Badge } from '~/components/ui/badge';
+import InputField from '~/lib/form/components/fields/InputField';
+import SelectField from '~/lib/form/components/fields/Select/Native';
 import { cx } from '~/utils/cva';
 
 type OperatorFilterProps = {
@@ -84,6 +86,11 @@ export default function OperatorFilter({
     }
   };
 
+  const operatorOptions = config.operators.map((op) => ({
+    value: op,
+    label: operatorLabels[op],
+  }));
+
   return (
     <div className="flex flex-col gap-3">
       {entityOptions.length > 0 && (
@@ -103,29 +110,27 @@ export default function OperatorFilter({
       )}
 
       <div className="flex items-center gap-2">
-        <select
+        <SelectField
+          name="filter-operator"
+          size="sm"
+          options={operatorOptions}
           value={selectedOperator}
-          onChange={(e) =>
-            setSelectedOperator(e.target.value as OperatorCondition['operator'])
-          }
-          className="border-input bg-background rounded-md border px-2 py-1 text-xs"
-        >
-          {config.operators.map((op) => (
-            <option key={op} value={op}>
-              {operatorLabels[op]}
-            </option>
-          ))}
-        </select>
-
-        <input
-          type="number"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleAddCondition();
+          onChange={(val) => {
+            const op = String(val);
+            if (op in operatorLabels) {
+              setSelectedOperator(op as OperatorCondition['operator']);
+            }
           }}
+        />
+
+        <InputField
+          type="number"
+          name="filter-value"
+          size="sm"
+          value={inputValue}
+          onChange={(val) => setInputValue(val ?? '')}
           placeholder="Value"
-          className="border-input bg-background w-20 rounded-md border px-2 py-1 text-xs"
+          className="w-20"
         />
 
         <Button size="sm" onClick={handleAddCondition}>

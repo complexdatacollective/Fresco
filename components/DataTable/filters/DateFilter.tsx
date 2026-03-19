@@ -6,6 +6,7 @@ import {
   type DateFilterValue,
 } from '~/components/DataTable/filters/types';
 import Button from '~/components/ui/Button';
+import InputField from '~/lib/form/components/fields/InputField';
 
 type DateFilterProps = {
   value: DateFilterValue | undefined;
@@ -89,18 +90,20 @@ export default function DateFilter({
       </div>
 
       <div className="flex items-center gap-2">
-        <input
+        <InputField
           type="date"
+          name="filter-date-from"
+          size="sm"
           value={value?.from ?? ''}
-          onChange={(e) => handleFromChange(e.target.value)}
-          className="border-input bg-background rounded-md border px-2 py-1 text-xs"
+          onChange={(val) => handleFromChange(val ?? '')}
         />
         <span className="text-text/60 text-xs">to</span>
-        <input
+        <InputField
           type="date"
+          name="filter-date-to"
+          size="sm"
           value={value?.to ?? ''}
-          onChange={(e) => handleToChange(e.target.value)}
-          className="border-input bg-background rounded-md border px-2 py-1 text-xs"
+          onChange={(val) => handleToChange(val ?? '')}
         />
       </div>
     </div>
