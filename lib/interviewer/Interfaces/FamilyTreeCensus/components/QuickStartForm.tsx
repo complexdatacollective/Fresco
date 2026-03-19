@@ -1,6 +1,6 @@
 'use client';
 
-import Paragraph from '~/components/typography/Paragraph';
+import Surface from '~/components/layout/Surface';
 import { Button } from '~/components/ui/Button';
 import useDialog from '~/lib/dialogs/useDialog';
 import FamilyTreePlaceholder from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreePlaceholder';
@@ -11,6 +11,8 @@ import OtherChildrenDetailStep from '~/lib/interviewer/Interfaces/FamilyTreeCens
 import ParentsCountStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/ParentsCountStep';
 import ParentsDetailStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/ParentsDetailStep';
 import PartnerStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/PartnerStep';
+import ParentGroupingStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/ParentGroupingStep';
+import SiblingParentMappingStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/SiblingParentMappingStep';
 import SiblingsDetailStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/SiblingsDetailStep';
 import {
   type BioParentDetail,
@@ -49,7 +51,7 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
           content: BioParentsStep,
           skip: (d) => {
             const parents = (d.parents as ParentDetail[] | undefined) ?? [];
-            return parents.filter((p) => p.biological !== false).length >= 2;
+            return parents.filter((p) => p.biologicallyRelated).length >= 2;
           },
         },
         {
@@ -57,6 +59,25 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
           description: 'Please now tell us about your siblings.',
           content: SiblingsDetailStep,
           skip: (d) => (d.siblingCount as number | undefined) === 0,
+        },
+        {
+          title: 'Sibling parent assignment',
+          description:
+            'Tell us which of your parents are also parents of each sibling.',
+          content: SiblingParentMappingStep,
+          skip: (d) => (d.siblingCount as number | undefined) === 0,
+        },
+        {
+          title: 'Parent grouping',
+          description: 'Tell us which of your parents raised you together.',
+          content: ParentGroupingStep,
+          skip: (d) => {
+            const siblingCount = (d.siblingCount as number | undefined) ?? 0;
+            if (siblingCount > 0) return true;
+            const parents = (d.parents as ParentDetail[] | undefined) ?? [];
+            const socialCount = parents.filter((p) => p.raisedYou).length;
+            return socialCount < 2;
+          },
         },
         {
           title: 'Partner details',
@@ -93,6 +114,10 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
           parents: (data.parents as ParentDetail[] | undefined) ?? [],
           bioParents: (data.bioParents as BioParentDetail[] | undefined) ?? [],
           siblings: (data.siblings as PersonDetail[] | undefined) ?? [],
+          siblingParentMap: data.siblingParentMap as
+            | Record<number, number[]>
+            | undefined,
+          parentGroup: data.parentGroup as number[] | undefined,
           partner: (data.hasPartner as boolean | undefined)
             ? {
                 hasPartner: true,
@@ -117,14 +142,11 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
   };
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <FamilyTreePlaceholder className="w-96 max-w-full opacity-25" />
-      <Paragraph emphasis="muted" margin="none" className="text-center">
-        Your family tree will appear here
-      </Paragraph>
+    <Surface noContainer className="flex flex-col items-center gap-6">
+      <FamilyTreePlaceholder className="phone:w-112 w-full opacity-50" />
       <Button color="primary" onClick={() => void handleClick()}>
         Get started
       </Button>
-    </div>
+    </Surface>
   );
 }
