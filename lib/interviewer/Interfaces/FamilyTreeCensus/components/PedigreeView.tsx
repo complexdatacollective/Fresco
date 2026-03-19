@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Node from '~/components/Node';
 import useDialog from '~/lib/dialogs/useDialog';
 import Field from '~/lib/form/components/Field/Field';
@@ -23,6 +24,7 @@ export default function PedigreeView() {
   const addEdge = useFamilyTreeStore((s) => s.addEdge);
   const updateNode = useFamilyTreeStore((s) => s.updateNode);
 
+  const [openMenuNodeId, setOpenMenuNodeId] = useState<string | null>(null);
   const { openDialog } = useDialog();
 
   const { nodeWidth, nodeHeight } = useNodeMeasurement({
@@ -125,6 +127,7 @@ export default function PedigreeView() {
   };
 
   const handleMenuAction = (nodeId: string, action: NodeContextMenuAction) => {
+    setOpenMenuNodeId(null);
     if (action === 'editName') {
       void handleEditName(nodeId);
     } else {
@@ -144,9 +147,15 @@ export default function PedigreeView() {
             <NodeContextMenu
               nodeId={node.id}
               edges={edges}
+              open={openMenuNodeId === node.id}
+              onOpenChange={(open) => setOpenMenuNodeId(open ? node.id : null)}
               onAction={(action) => handleMenuAction(node.id, action)}
             >
-              <FamilyTreeNode node={node} allowDrag={node.readOnly !== true} />
+              <FamilyTreeNode
+                node={node}
+                allowDrag={node.readOnly !== true}
+                onTap={(nodeId) => setOpenMenuNodeId(nodeId)}
+              />
             </NodeContextMenu>
           )}
         />
