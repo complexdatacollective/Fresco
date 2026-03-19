@@ -31,7 +31,8 @@ export async function POST(request: Request) {
     });
   }
 
-  const { protocolId, count } = parsed.data;
+  const { protocolId, count, simulateDropOut, respectSkipLogicAndFiltering } =
+    parsed.data;
 
   const protocol = await prisma.protocol.findUnique({
     where: { id: protocolId },
@@ -53,54 +54,32 @@ export async function POST(request: Request) {
       try {
         const stages = protocol.stages as { id: string }[];
         const totalStages = stages.length;
+        const typedStages = stages as Parameters<typeof generateNetwork>[1];
+        const typedCodebook = protocol.codebook as Parameters<
+          typeof generateNetwork
+        >[0];
 
-        // Simulate drop-out by walking stages as a participant would.
-        // At each stage the probability of dropping out increases, modelling
-        // fatigue / disengagement over a longer interview.
-        const simulateDropOutStage = (): number => {
-          for (let s = 0; s < totalStages; s++) {
-            const progress = (s + 1) / totalStages;
-            const dropOutChance = progress * 0.15;
-            if (Math.random() < dropOutChance) return s;
-          }
-          return totalStages;
-        };
+        const genOptions = { simulateDropOut, respectSkipLogicAndFiltering };
 
-        // Pre-compute drop-out points and enforce at least 10% completion.
-        const dropOutStages = Array.from(
-          { length: count },
-          simulateDropOutStage,
-        );
-        let completedCount = dropOutStages.filter(
-          (s) => s === totalStages,
-        ).length;
-        const minCompleted = Math.max(1, Math.ceil(count * 0.1));
-
-        while (completedCount < minCompleted) {
-          const idx = Math.floor(Math.random() * count);
-          if (dropOutStages[idx] !== totalStages) {
-            dropOutStages[idx] = totalStages;
-            completedCount++;
-          }
-        }
+        let completedCount = 0;
 
         for (let i = 0; i < count; i++) {
-          const stagesCompleted = dropOutStages[i]!;
-          const isCompleted = stagesCompleted === totalStages;
-
-          const { network, stageMetadata } = generateNetwork(
-            protocol.codebook as Parameters<typeof generateNetwork>[0],
-            stages.slice(0, stagesCompleted) as Parameters<
-              typeof generateNetwork
-            >[1],
+          const { network, stageMetadata, stagesCompleted } = generateNetwork(
+            typedCodebook,
+            typedStages,
+            undefined,
+            genOptions,
           );
 
-          const participantIdentifier = `test-${createId()}`;
+          const isCompleted = stagesCompleted === totalStages;
+          if (isCompleted) {
+            completedCount++;
+          }
 
+          const participantIdentifier = `test-${createId()}`;
           const startTime = new Date(
             Date.now() - Math.floor(Math.random() * 3600000),
           );
-
           const finishTime = isCompleted
             ? new Date(
                 startTime.getTime() +
@@ -131,6 +110,46 @@ export async function POST(request: Request) {
           });
 
           send({ type: 'progress', current: i + 1, total: count });
+        }
+
+        if (simulateDropOut) {
+          const minCompleted = Math.max(1, Math.ceil(count * 0.1));
+
+          if (completedCount < minCompleted) {
+            const deficit = minCompleted - completedCount;
+            const incompleteInterviews = await prisma.interview.findMany({
+              where: {
+                isSynthetic: true,
+                finishTime: null,
+                protocol: { id: protocolId },
+              },
+              select: { id: true, startTime: true },
+              take: deficit,
+              orderBy: { startTime: 'desc' },
+            });
+
+            for (const interview of incompleteInterviews) {
+              const { network, stageMetadata, stagesCompleted } =
+                generateNetwork(typedCodebook, typedStages, undefined, {
+                  ...genOptions,
+                  simulateDropOut: false,
+                });
+
+              await prisma.interview.update({
+                where: { id: interview.id },
+                data: {
+                  network: network as object,
+                  currentStep: stagesCompleted,
+                  stageMetadata: stageMetadata as object | undefined,
+                  finishTime: new Date(
+                    interview.startTime.getTime() +
+                      Math.floor(Math.random() * 1800000) +
+                      300000,
+                  ),
+                },
+              });
+            }
+          }
         }
 
         void addEvent(
