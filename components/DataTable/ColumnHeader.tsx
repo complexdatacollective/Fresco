@@ -43,9 +43,12 @@ export function DataTableColumnHeader<TData, TValue>({
   const isFiltered = column.getIsFiltered();
   const canSort = column.getCanSort();
   const isSorted = column.getIsSorted();
-  const isActive = isSorted !== false || isFiltered;
+  const hasActiveState = isSorted !== false || isFiltered;
+  const isInteracting = menuOpen || filterOpen;
+  const isActive = hasActiveState || isInteracting;
 
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [stagedValue, setStagedValue] = useState<FilterValue | undefined>(
     undefined,
@@ -99,7 +102,7 @@ export function DataTableColumnHeader<TData, TValue>({
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu onOpenChange={(open) => setMenuOpen(open)}>
         <DropdownMenuTrigger
           ref={buttonRef}
           render={
