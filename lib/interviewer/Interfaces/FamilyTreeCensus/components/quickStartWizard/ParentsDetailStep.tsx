@@ -8,6 +8,7 @@ import { useWizard } from '~/lib/dialogs/useWizard';
 import Field from '~/lib/form/components/Field/Field';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
 import BooleanField from '~/lib/form/components/fields/Boolean';
+import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import ToggleField from '~/lib/form/components/fields/ToggleField';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
@@ -31,7 +32,6 @@ export default function ParentsDetailStep() {
 
 type ParentMeta = {
   nameKnown: boolean;
-  edgeType: ParentDetail['edgeType'];
 };
 
 function ParentsDetailForm() {
@@ -49,7 +49,6 @@ function ParentsDetailForm() {
   const [parentMeta, setParentMeta] = useState<ParentMeta[]>(() =>
     Array.from({ length: parentCount }, (_, i) => ({
       nameKnown: existing?.[i]?.nameKnown ?? false,
-      edgeType: existing?.[i]?.edgeType ?? 'parent',
     })),
   );
 
@@ -62,11 +61,10 @@ function ParentsDetailForm() {
     );
   };
 
-  // Track which parents are biological reactively via stable string key
   const bioStateKey = useFormStore((s) => {
     const parts: string[] = [];
     for (let i = 0; i < parentCount; i++) {
-      const val = s.fields.get(`parent-${i}-isBioParent`)?.value;
+      const val = s.fields.get(`parent-${i}-biologicallyRelated`)?.value;
       parts.push(val === true ? 'T' : val === false ? 'F' : 'U');
     }
     return parts.join('');
@@ -82,23 +80,38 @@ function ParentsDetailForm() {
 
   const bioCount = bioParentIndices.length;
 
-  // When bio count reaches 2, force remaining parents to non-biological
   useEffect(() => {
     if (bioCount >= 2) {
       for (let i = 0; i < parentCount; i++) {
         if (bioStateKey[i] !== 'T') {
-          setFieldValue(`parent-${i}-isBioParent`, false);
+          setFieldValue(`parent-${i}-biologicallyRelated`, false);
         }
       }
     }
   }, [bioCount, parentCount, bioStateKey, setFieldValue]);
 
-  // Custom sex validation: no duplicate sex among biological parents
+  const raisedStateKey = useFormStore((s) => {
+    const parts: string[] = [];
+    for (let i = 0; i < parentCount; i++) {
+      const val = s.fields.get(`parent-${i}-raisedYou`)?.value;
+      parts.push(val === true ? 'T' : val === false ? 'F' : 'U');
+    }
+    return parts.join('');
+  });
+
+  useEffect(() => {
+    for (let i = 0; i < parentCount; i++) {
+      if (raisedStateKey[i] === 'F' && bioStateKey[i] === 'F') {
+        setFieldValue(`parent-${i}-raisedYou`, true);
+      }
+    }
+  }, [raisedStateKey, bioStateKey, parentCount, setFieldValue]);
+
   const makeSexValidation = useMemo(
     () =>
       (index: number): CustomFieldValidation => ({
         schema: (formValues) => {
-          const isBio = formValues[`parent-${index}-isBioParent`];
+          const isBio = formValues[`parent-${index}-biologicallyRelated`];
           if (isBio !== true) {
             return z.unknown();
           }
@@ -109,7 +122,7 @@ function ParentsDetailForm() {
 
               for (let i = 0; i < parentCount; i++) {
                 if (i === index) continue;
-                const otherBio = formValues[`parent-${i}-isBioParent`];
+                const otherBio = formValues[`parent-${i}-biologicallyRelated`];
                 const otherSex = formValues[`parent-${i}-sex`];
                 if (otherBio === true && otherSex === val) {
                   ctx.addIssue({
@@ -144,7 +157,17 @@ function ParentsDetailForm() {
           const rawName = values[`parent-${i}-name`];
           const rawSex = values[`parent-${i}-sex`];
           const rawGender = values[`parent-${i}-gender`];
-          const rawBiological = values[`parent-${i}-isBioParent`];
+          const rawRaisedYou = values[`parent-${i}-raisedYou`];
+          const rawBiologicallyRelated =
+            values[`parent-${i}-biologicallyRelated`];
+          const rawAuxiliaryRole = values[`parent-${i}-auxiliaryRole`];
+
+          const raisedYou =
+            typeof rawRaisedYou === 'boolean' ? rawRaisedYou : true;
+          const biologicallyRelated =
+            typeof rawBiologicallyRelated === 'boolean'
+              ? rawBiologicallyRelated
+              : true;
 
           return {
             name: typeof rawName === 'string' ? rawName : '',
@@ -156,9 +179,13 @@ function ParentsDetailForm() {
                 )
               : undefined,
             nameKnown: meta[i]?.nameKnown ?? false,
-            biological:
-              typeof rawBiological === 'boolean' ? rawBiological : true,
-            edgeType: meta[i]?.edgeType ?? 'parent',
+            raisedYou,
+            biologicallyRelated,
+            ...(!raisedYou &&
+            biologicallyRelated &&
+            (rawAuxiliaryRole === 'donor' || rawAuxiliaryRole === 'surrogate')
+              ? { auxiliaryRole: rawAuxiliaryRole }
+              : {}),
           };
         },
       );
@@ -167,6 +194,16 @@ function ParentsDetailForm() {
       return true;
     });
   }, [validateForm, getFormValues, setStepData, setBeforeNext, parentCount]);
+
+  const auxiliaryStateKey = useFormStore((s) => {
+    const parts: string[] = [];
+    for (let i = 0; i < parentCount; i++) {
+      const raised = s.fields.get(`parent-${i}-raisedYou`)?.value;
+      const bio = s.fields.get(`parent-${i}-biologicallyRelated`)?.value;
+      parts.push(raised === false && bio === true ? 'Y' : 'N');
+    }
+    return parts.join('');
+  });
 
   return (
     <div className="mt-6 flex flex-col gap-6">
@@ -177,14 +214,34 @@ function ParentsDetailForm() {
           <Surface key={i} level={1} spacing="sm">
             <Heading level="h3">Parent {i + 1}</Heading>
             <Field
-              name={`parent-${i}-isBioParent`}
-              label="This is my biological parent"
+              name={`parent-${i}-raisedYou`}
+              label="Did this person raise you?"
+              component={BooleanField}
+              initialValue={existing?.[i]?.raisedYou}
+              required
+            />
+            <Field
+              name={`parent-${i}-biologicallyRelated`}
+              label="Are they biologically related to you?"
               hint="This means someone who provided either sperm or an egg for your conception."
               component={BooleanField}
-              initialValue={existing?.[i]?.biological}
+              initialValue={existing?.[i]?.biologicallyRelated}
               required
               disabled={isBioDisabled}
             />
+            {auxiliaryStateKey[i] === 'Y' && (
+              <Field
+                name={`parent-${i}-auxiliaryRole`}
+                label="Was this person a sperm/egg donor or a surrogate?"
+                component={RadioGroupField}
+                options={[
+                  { value: 'donor', label: 'Sperm/egg donor' },
+                  { value: 'surrogate', label: 'Surrogate' },
+                ]}
+                initialValue={existing?.[i]?.auxiliaryRole}
+                required
+              />
+            )}
             <UnconnectedField
               inline
               name={`parent-${i}-nameKnown`}
