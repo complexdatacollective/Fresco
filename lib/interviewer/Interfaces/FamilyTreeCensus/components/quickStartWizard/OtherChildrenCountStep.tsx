@@ -7,9 +7,13 @@ import NumberCounterField from '~/lib/form/components/fields/NumberCounterField'
 
 export default function OtherChildrenCountStep() {
   const { data, setStepData } = useWizard();
-  const [count, setCount] = useState(
-    (data.otherChildrenCount as number | undefined) ?? 0,
-  );
+  const [count, setCount] = useState(() => {
+    const initial = (data.otherChildrenCount as number | undefined) ?? 0;
+    if (data.otherChildrenCount === undefined) {
+      setStepData({ otherChildrenCount: initial });
+    }
+    return initial;
+  });
 
   return (
     <div className="flex flex-col gap-3 pt-4">
