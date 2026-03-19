@@ -71,13 +71,13 @@ export default function ActiveFilterChips<TData>({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ type: 'spring', bounce: 0.25, duration: 0.3 }}
-            className="bg-surface-1 text-foreground inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm"
+            className="bg-surface-1 text-text inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm"
           >
             {chip.label}
             <button
               type="button"
               onClick={chip.onRemove}
-              className="text-muted-foreground hover:text-foreground -mr-1 rounded-full p-0.5 transition-colors"
+              className="text-text/60 hover:text-text -mr-1 rounded-full p-0.5 transition-colors"
               aria-label={`Remove filter: ${chip.label}`}
             >
               <X className="size-3" />

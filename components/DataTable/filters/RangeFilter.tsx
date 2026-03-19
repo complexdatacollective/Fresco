@@ -73,7 +73,7 @@ export default function RangeFilter({
                 'rounded-full px-3 py-1 text-xs transition-colors',
                 isPresetActive(preset.min, preset.max)
                   ? 'bg-primary/10 text-primary font-semibold'
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80',
+                  : 'bg-surface-1 text-text/60 hover:bg-surface-1/80',
               )}
             >
               {preset.label}
@@ -83,7 +83,7 @@ export default function RangeFilter({
       )}
 
       <div className="relative flex h-5 items-center">
-        <div className="bg-muted absolute h-1.5 w-full rounded-full" />
+        <div className="bg-surface-1 absolute h-1.5 w-full rounded-full" />
         <div
           className="bg-primary absolute h-1.5 rounded-full"
           style={{
@@ -111,7 +111,7 @@ export default function RangeFilter({
         />
       </div>
 
-      <div className="text-muted-foreground flex justify-between text-xs">
+      <div className="text-text/60 flex justify-between text-xs">
         <span>{formatLabel(currentMin)}</span>
         <span>{formatLabel(currentMax)}</span>
       </div>

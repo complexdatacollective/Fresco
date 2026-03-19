@@ -95,7 +95,7 @@ export default function OperatorFilter({
                 'rounded-full px-3 py-1 text-xs transition-colors',
                 selectedEntity === option.value
                   ? 'bg-primary/10 text-primary font-semibold'
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80',
+                  : 'bg-surface-1 text-text/60 hover:bg-surface-1/80',
               )}
             >
               {option.label}
@@ -133,7 +133,7 @@ export default function OperatorFilter({
         <button
           type="button"
           onClick={handleAddCondition}
-          className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-3 py-1 text-xs font-medium transition-colors"
+          className="bg-primary text-primary-contrast hover:bg-primary/90 rounded-md px-3 py-1 text-xs font-medium transition-colors"
         >
           Add Condition
         </button>

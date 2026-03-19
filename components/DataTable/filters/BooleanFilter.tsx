@@ -27,7 +27,7 @@ export default function BooleanFilter({
           'rounded-md px-3 py-1.5 text-sm transition-colors',
           value === true
             ? 'bg-primary/10 text-primary font-semibold'
-            : 'text-muted-foreground hover:bg-muted',
+            : 'text-text/60 hover:bg-surface-1',
         )}
       >
         {config.trueLabel}
@@ -39,7 +39,7 @@ export default function BooleanFilter({
           'rounded-md px-3 py-1.5 text-sm transition-colors',
           value === false
             ? 'bg-primary/10 text-primary font-semibold'
-            : 'text-muted-foreground hover:bg-muted',
+            : 'text-text/60 hover:bg-surface-1',
         )}
       >
         {config.falseLabel}

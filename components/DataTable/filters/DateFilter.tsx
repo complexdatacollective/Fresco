@@ -84,7 +84,7 @@ export default function DateFilter({
               'rounded-full px-3 py-1 text-xs transition-colors',
               isPresetActive(value, preset.days)
                 ? 'bg-primary/10 text-primary font-semibold'
-                : 'bg-muted text-muted-foreground hover:bg-muted/80',
+                : 'bg-surface-1 text-text/60 hover:bg-surface-1/80',
             )}
           >
             {preset.label}
@@ -99,7 +99,7 @@ export default function DateFilter({
           onChange={(e) => handleFromChange(e.target.value)}
           className="border-input bg-background rounded-md border px-2 py-1 text-xs"
         />
-        <span className="text-muted-foreground text-xs">to</span>
+        <span className="text-text/60 text-xs">to</span>
         <input
           type="date"
           value={value?.to ?? ''}
