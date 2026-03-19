@@ -1,6 +1,14 @@
 import { type Page, type Locator, expect } from '@playwright/test';
 
-type CaptureInterviewFn = (name: string) => Promise<void>;
+type CaptureOptions = {
+  mask?: Locator[];
+  maxDiffPixelRatio?: number;
+};
+
+type CaptureInterviewFn = (
+  name: string,
+  options?: CaptureOptions,
+) => Promise<void>;
 
 /**
  * Interview fixture for e2e tests.
@@ -34,9 +42,9 @@ export class InterviewFixture {
    * Manually capture a screenshot with the given name.
    * Useful in afterEach hooks to capture end state.
    */
-  async capture(name: string): Promise<void> {
+  async capture(name: string, options?: CaptureOptions): Promise<void> {
     if (this.captureFn) {
-      await this.captureFn(name);
+      await this.captureFn(name, options);
     }
   }
 
@@ -44,8 +52,12 @@ export class InterviewFixture {
    * Navigate directly to a stage by index.
    *
    * @param stageIndex - The 0-based stage index
+   * @param captureOptions - Options for the automatic screenshot capture
    */
-  async goto(stageIndex: number): Promise<void> {
+  async goto(
+    stageIndex: number,
+    captureOptions?: CaptureOptions,
+  ): Promise<void> {
     if (!this.interviewId) {
       throw new Error(
         'interviewId must be set before calling goto(). Set it in beforeEach.',
@@ -56,7 +68,7 @@ export class InterviewFixture {
     await this.waitForStageLoad();
 
     // Capture screenshot on stage load
-    await this.capture(`stage-${stageIndex}`);
+    await this.capture(`stage-${stageIndex}`, captureOptions);
   }
 
   /**

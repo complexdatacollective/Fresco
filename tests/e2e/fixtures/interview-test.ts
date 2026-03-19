@@ -40,6 +40,7 @@ import { StageFixture } from './stage-fixture.js';
 
 type CaptureInterviewOptions = {
   mask?: Locator[];
+  maxDiffPixelRatio?: number;
 };
 
 type InterviewTestFixtures = {
@@ -83,10 +84,13 @@ export const test = baseTest.extend<
         return;
       }
 
-      // Use soft assertion - doesn't trigger retries on failure
+      // Use soft assertion - doesn't trigger retries on failure.
+      // Default to 2% tolerance for interview screenshots — they run in
+      // Docker where minor rendering variations between runs are expected.
       await expect.soft(page).toHaveScreenshot(`${name}.png`, {
         fullPage: false,
         mask: options.mask,
+        maxDiffPixelRatio: options.maxDiffPixelRatio ?? 0.02,
       });
     });
   },

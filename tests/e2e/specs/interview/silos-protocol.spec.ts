@@ -31,7 +31,12 @@ test.describe('SILOS Protocol', () => {
     // Capture screenshot at end of each stage
     const stepMatch = /step=(\d+)/.exec(page.url());
     if (stepMatch?.[1]) {
-      await interview.capture(`stage-${stepMatch[1]}-final`);
+      // Sociogram stages (13, 14) have non-deterministic node positions
+      const sociogramStages = ['13', '14'];
+      const options = sociogramStages.includes(stepMatch[1])
+        ? { maxDiffPixelRatio: 0.1 }
+        : undefined;
+      await interview.capture(`stage-${stepMatch[1]}-final`, options);
     }
   });
 
@@ -439,16 +444,29 @@ test.describe('SILOS Protocol', () => {
 
     await expect(interview.nextButton).toBeEnabled();
 
-    // Wait for sync middleware to persist nodes (Stage 12 adds Evan)
-    // Total should be 4 nodes: Dan, Alice, Bob from Stage 11 + Evan
-    await protocol.waitForNodes(interview.interviewId, 4, { timeout: 10000 });
+    // Wait for sync middleware to persist Evan to the database.
+    // waitForNodes(4) is insufficient because it checks count, not content —
+    // addNodeToPrompt for Bob may trigger a sync that satisfies the count
+    // before Evan's creation is persisted.
+    await expect
+      .poll(
+        async () => {
+          const state = await protocol.getNetworkState(interview.interviewId);
+          return state.nodes.some((n) =>
+            Object.values(n.attributes).includes('Evan'),
+          );
+        },
+        { timeout: 15000, intervals: [500] },
+      )
+      .toBe(true);
   });
 
   test('Stage 13: Sociogram (Close Ties and Drug Partners)', async ({
     interview,
     stage,
   }) => {
-    await interview.goto(13);
+    // Sociogram has non-deterministic force-directed node layout
+    await interview.goto(13, { maxDiffPixelRatio: 0.1 });
 
     // Verify the first prompt is visible (connect close ties)
     await expect(stage.sociogram.getPrompt()).toBeVisible();

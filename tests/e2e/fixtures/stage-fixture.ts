@@ -1,6 +1,26 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
 /**
+ * Read the current DnD accessibility announcement from the live region.
+ * The DnD system appends a div[role="status"][aria-live="polite"] to document.body
+ * with text like "Drop target 1 of 5: Container for the value 'Very close '"
+ */
+async function getDndAnnouncement(page: Page): Promise<string> {
+  return page.evaluate(() => {
+    const statusElements = document.querySelectorAll(
+      'body > div[role="status"][aria-live="polite"]',
+    );
+    for (const el of statusElements) {
+      const text = el.textContent?.trim() ?? '';
+      if (text.includes('Drop target')) {
+        return text;
+      }
+    }
+    return '';
+  });
+}
+
+/**
  * Form fixture for EgoForm/AlterForm/NameGenerator stages.
  *
  * Provides methods to interact with form fields using their data-field-name attribute.
@@ -378,18 +398,13 @@ class OrdinalBinFixture {
     await node.evaluate((el) => (el as HTMLElement).focus());
     await node.press('Control+d');
 
-    // Navigate to the correct drop target. The compatible targets may include
-    // multiple bins, so we need to find the right one by checking the active
-    // drop target's announced name.
-    const targetName = await bin.getAttribute('aria-label');
+    // Navigate to the correct drop target by reading the DnD announcement.
+    // OrdinalBin targets are announced as "Container for the value '<label>'"
     let found = false;
     for (let i = 0; i < 10; i++) {
       await node.press('ArrowRight');
-      // Check if the current active drop target matches our bin
-      const isOverTarget = await bin.evaluate(
-        (el) => el.getAttribute('data-drop-target-over') === 'true',
-      );
-      if (isOverTarget) {
+      const announcement = await getDndAnnouncement(this.page);
+      if (announcement.includes(binLabel)) {
         found = true;
         break;
       }
@@ -397,7 +412,7 @@ class OrdinalBinFixture {
 
     if (!found) {
       throw new Error(
-        `Could not navigate to bin "${binLabel}" (aria-label: ${targetName})`,
+        `Could not navigate to ordinal bin "${binLabel}" via keyboard DnD`,
       );
     }
 
@@ -406,7 +421,7 @@ class OrdinalBinFixture {
   }
 
   /**
-   * Move a node from one bin to another.
+   * Move a node from one bin to another using keyboard DnD.
    */
   async moveNodeBetweenBins(
     nodeLabel: string,
@@ -414,33 +429,30 @@ class OrdinalBinFixture {
     toBinLabel: string,
   ): Promise<void> {
     const node = this.getNodeInBin(nodeLabel, fromBinLabel);
-    const targetBin = this.getBinNodeList(toBinLabel);
 
     await expect(node).toBeVisible();
-    await expect(targetBin).toBeVisible();
 
-    // Get bounding boxes
-    const sourceBox = await node.boundingBox();
-    const targetBox = await targetBin.boundingBox();
+    // Use keyboard DnD: focus the node in its current bin, then navigate to target.
+    await node.evaluate((el) => (el as HTMLElement).focus());
+    await node.press('Control+d');
 
-    if (!sourceBox || !targetBox) {
-      throw new Error('Could not get bounding boxes for drag operation');
+    let found = false;
+    for (let i = 0; i < 10; i++) {
+      await node.press('ArrowRight');
+      const announcement = await getDndAnnouncement(this.page);
+      if (announcement.includes(toBinLabel)) {
+        found = true;
+        break;
+      }
     }
 
-    // Calculate center points
-    const sourceX = sourceBox.x + sourceBox.width / 2;
-    const sourceY = sourceBox.y + sourceBox.height / 2;
-    const targetX = targetBox.x + targetBox.width / 2;
-    const targetY = targetBox.y + targetBox.height / 2;
+    if (!found) {
+      throw new Error(
+        `Could not navigate from bin "${fromBinLabel}" to bin "${toBinLabel}"`,
+      );
+    }
 
-    // Simulate pointer-based drag
-    await this.page.mouse.move(sourceX, sourceY);
-    await this.page.mouse.down();
-    await this.page.mouse.move(sourceX + 10, sourceY + 10, { steps: 2 });
-    await this.page.mouse.move(targetX, targetY, { steps: 10 });
-    await this.page.mouse.up();
-
-    // Wait for the drop animation to complete
+    await node.press('Enter');
     await this.page.waitForTimeout(300);
   }
 }
@@ -566,14 +578,13 @@ class CategoricalBinFixture {
     await node.evaluate((el) => (el as HTMLElement).focus());
     await node.press('Control+d');
 
-    // Navigate to the correct drop target bin
+    // Navigate to the correct drop target by reading the DnD announcement.
+    // CategoricalBin targets are announced as "Category: <label>"
     let found = false;
     for (let i = 0; i < 10; i++) {
       await node.press('ArrowRight');
-      const isOverTarget = await bin.evaluate(
-        (el) => el.getAttribute('data-drop-target-over') === 'true',
-      );
-      if (isOverTarget) {
+      const announcement = await getDndAnnouncement(this.page);
+      if (announcement.includes(binLabel)) {
         found = true;
         break;
       }
@@ -588,8 +599,8 @@ class CategoricalBinFixture {
   }
 
   /**
-   * Move a node from one bin to another.
-   * Requires expanding the source bin first.
+   * Move a node from one bin to another using keyboard DnD.
+   * Requires expanding the source bin first to access the node.
    */
   async moveNodeBetweenBins(
     nodeLabel: string,
@@ -600,33 +611,28 @@ class CategoricalBinFixture {
     await this.expandBin(fromBinLabel);
 
     const node = this.getNodeInBin(nodeLabel, fromBinLabel);
-    const targetBin = this.getBin(toBinLabel);
-
     await expect(node).toBeVisible();
-    await expect(targetBin).toBeVisible();
 
-    // Get bounding boxes
-    const sourceBox = await node.boundingBox();
-    const targetBox = await targetBin.boundingBox();
+    await node.evaluate((el) => (el as HTMLElement).focus());
+    await node.press('Control+d');
 
-    if (!sourceBox || !targetBox) {
-      throw new Error('Could not get bounding boxes for drag operation');
+    let found = false;
+    for (let i = 0; i < 10; i++) {
+      await node.press('ArrowRight');
+      const announcement = await getDndAnnouncement(this.page);
+      if (announcement.includes(toBinLabel)) {
+        found = true;
+        break;
+      }
     }
 
-    // Calculate center points
-    const sourceX = sourceBox.x + sourceBox.width / 2;
-    const sourceY = sourceBox.y + sourceBox.height / 2;
-    const targetX = targetBox.x + targetBox.width / 2;
-    const targetY = targetBox.y + targetBox.height / 2;
+    if (!found) {
+      throw new Error(
+        `Could not navigate from bin "${fromBinLabel}" to bin "${toBinLabel}"`,
+      );
+    }
 
-    // Simulate pointer-based drag
-    await this.page.mouse.move(sourceX, sourceY);
-    await this.page.mouse.down();
-    await this.page.mouse.move(sourceX + 10, sourceY + 10, { steps: 2 });
-    await this.page.mouse.move(targetX, targetY, { steps: 10 });
-    await this.page.mouse.up();
-
-    // Wait for the drop animation to complete
+    await node.press('Enter');
     await this.page.waitForTimeout(300);
 
     // Collapse any expanded bin
