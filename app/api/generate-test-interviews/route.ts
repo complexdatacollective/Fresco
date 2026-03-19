@@ -64,7 +64,7 @@ export async function POST(request: Request) {
         const incompleteInterviewIds: string[] = [];
 
         for (let i = 0; i < count; i++) {
-          const { network, stageMetadata, stagesCompleted, droppedOut } =
+          const { network, stageMetadata, currentStep, droppedOut } =
             generateNetwork(typedCodebook, typedStages, undefined, genOptions);
 
           const isCompleted = !droppedOut;
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
           const created = await prisma.interview.create({
             data: {
               network: network as object,
-              currentStep: stagesCompleted,
+              currentStep,
               startTime,
               finishTime,
               isSynthetic: true,
@@ -128,17 +128,21 @@ export async function POST(request: Request) {
             });
 
             for (const interview of incompleteInterviews) {
-              const { network, stageMetadata, stagesCompleted } =
-                generateNetwork(typedCodebook, typedStages, undefined, {
+              const { network, stageMetadata, currentStep } = generateNetwork(
+                typedCodebook,
+                typedStages,
+                undefined,
+                {
                   ...genOptions,
                   simulateDropOut: false,
-                });
+                },
+              );
 
               await prisma.interview.update({
                 where: { id: interview.id },
                 data: {
                   network: network as object,
-                  currentStep: stagesCompleted,
+                  currentStep,
                   stageMetadata: stageMetadata as object | undefined,
                   finishTime: new Date(
                     interview.startTime.getTime() +

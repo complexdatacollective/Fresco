@@ -63,7 +63,7 @@ type GenerateNetworkOptions = {
 type GenerateNetworkResult = {
   network: NcNetwork;
   stageMetadata: Record<string, unknown> | null;
-  stagesCompleted: number;
+  currentStep: number;
   droppedOut: boolean;
 };
 
@@ -332,7 +332,7 @@ export function generateNetwork(
   const { simulateDropOut = false, respectSkipLogicAndFiltering = false } =
     options;
   const totalStages = stages.length;
-  let stagesCompleted = 0;
+  let currentStep = 0;
   let droppedOut = false;
 
   for (let i = 0; i < stages.length; i++) {
@@ -364,11 +364,10 @@ export function generateNetwork(
       const dropOutChance = ((i + 1) / totalStages) * 0.15;
       if (valueGen.randomFloat(0, 1) < dropOutChance) {
         droppedOut = true;
+        currentStep = i;
         break;
       }
     }
-
-    stagesCompleted++;
 
     switch (stageType) {
       case 'NameGenerator':
@@ -791,6 +790,10 @@ export function generateNetwork(
     }
   }
 
+  if (!droppedOut) {
+    currentStep = totalStages;
+  }
+
   return {
     network: {
       ego: {
@@ -801,7 +804,7 @@ export function generateNetwork(
       edges,
     },
     stageMetadata: Object.keys(stageMetadata).length > 0 ? stageMetadata : null,
-    stagesCompleted,
+    currentStep,
     droppedOut,
   };
 }
