@@ -192,7 +192,6 @@ function ComboboxField(props: ComboboxFieldProps) {
                     <Button
                       onClick={handleSelectAll}
                       size="sm"
-                      variant="link"
                       className="flex grow"
                     >
                       Select All
@@ -202,7 +201,6 @@ function ComboboxField(props: ComboboxFieldProps) {
                     <Button
                       onClick={handleDeselectAll}
                       size="sm"
-                      variant="link"
                       className="flex grow"
                     >
                       Deselect All
