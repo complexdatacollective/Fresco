@@ -322,6 +322,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
       ) : (
         nodeContent
       )}
+      {props.children}
     </motion.button>
   );
 });

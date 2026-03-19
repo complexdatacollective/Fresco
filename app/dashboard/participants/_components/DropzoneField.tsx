@@ -67,14 +67,14 @@ export default function DropzoneField<T>({
       <div
         {...getRootProps({
           className: cx(
-            'hover:border-primary relative mx-auto flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-4 transition-colors',
+            'hover:border-sea-green relative mx-auto flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-4 transition-colors',
           ),
         })}
       >
         <input {...getInputProps({ id })} />
         {!hasValue && (
           <>
-            <FileText className="text-primary" size={28} />
+            <FileText size={28} />
             <Paragraph intent="smallText">
               Drag & drop file here, or click to select.
             </Paragraph>

@@ -44,10 +44,8 @@ export default function ProtocolImportDropzone({
       {...getRootProps()}
       className={cx(
         'flex flex-col items-center gap-3 p-6 text-center',
-        'rounded-lg border-2 border-dashed transition-colors',
-        isDragActive
-          ? 'border-primary bg-primary/5'
-          : 'border-surface-contrast/20',
+        'rounded-sm border-2 border-dashed transition-colors',
+        isDragActive ?? 'border-sea-green',
         className,
       )}
     >
@@ -55,13 +53,13 @@ export default function ProtocolImportDropzone({
       <div
         className={cx(
           'flex size-12 items-center justify-center rounded-full',
-          isDragActive ? 'bg-primary/10' : 'bg-surface-contrast/5',
+          isDragActive ? 'bg-sea-green' : 'bg-current/5',
         )}
       >
         <Upload
           className={cx(
             'size-6',
-            isDragActive ? 'text-primary' : 'text-surface-contrast/40',
+            isDragActive ? 'text-sea-green' : 'text-current',
           )}
         />
       </div>
@@ -73,7 +71,7 @@ export default function ProtocolImportDropzone({
           Drag & drop <code>{PROTOCOL_EXTENSION}</code> files here
         </Paragraph>
       </div>
-      <Button variant="outline" size="sm" onClick={openFileDialog}>
+      <Button size="sm" onClick={openFileDialog}>
         Browse files
       </Button>
     </div>
