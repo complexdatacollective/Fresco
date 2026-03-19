@@ -67,9 +67,7 @@ export const InterviewColumns = (): ColumnDef<InterviewRow>[] => [
           title={row.original.participant.identifier}
         >
           <Badge variant={'outline'}>
-            <span className="max-w-56 truncate">
-              {row.original.participant.identifier}
-            </span>
+            {row.original.participant.identifier}
           </Badge>
         </div>
       );
