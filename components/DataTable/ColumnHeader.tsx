@@ -89,10 +89,11 @@ export function DataTableColumnHeader<TData, TValue>({
   };
 
   const icons: ReactNode[] = [];
-  if (isSorted === 'asc') icons.push(<ArrowUp key="sort" className="size-4" />);
+  if (isSorted === 'asc')
+    icons.push(<ArrowUp key="sort" className="text-sea-green" />);
   if (isSorted === 'desc')
-    icons.push(<ArrowDown key="sort" className="size-4" />);
-  if (isFiltered) icons.push(<Filter key="filter" className="size-4" />);
+    icons.push(<ArrowDown key="sort" className="text-sea-green" />);
+  if (isFiltered) icons.push(<Filter key="filter" />);
 
   const data =
     hasFilter && table
@@ -128,12 +129,18 @@ export function DataTableColumnHeader<TData, TValue>({
               <DropdownMenuItem
                 onClick={() => column.toggleSorting(false)}
                 icon={<ArrowUp />}
+                className={
+                  isSorted === 'asc' ? 'bg-accent text-accent-contrast' : ''
+                }
               >
                 Sort ascending
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => column.toggleSorting(true)}
                 icon={<ArrowDown />}
+                className={
+                  isSorted === 'desc' ? 'bg-accent text-accent-contrast' : ''
+                }
               >
                 Sort descending
               </DropdownMenuItem>
@@ -158,7 +165,7 @@ export function DataTableColumnHeader<TData, TValue>({
 
       {hasFilter && filterConfig && (
         <Popover open={filterOpen} onOpenChange={setFilterOpen}>
-          <PopoverContent align="start" anchor={buttonRef} className="w-72 p-3">
+          <PopoverContent align="start" anchor={buttonRef}>
             <div className="flex flex-col gap-3">
               <FilterRenderer
                 filterConfig={filterConfig}
@@ -167,7 +174,12 @@ export function DataTableColumnHeader<TData, TValue>({
                 data={data}
               />
               <div className="flex justify-end gap-2">
-                <Button size="sm" variant="text" onClick={handleClearFilter}>
+                <Button
+                  size="sm"
+                  variant="text"
+                  color="dynamic"
+                  onClick={handleClearFilter}
+                >
                   Clear
                 </Button>
                 <Button size="sm" onClick={handleApplyFilter}>
