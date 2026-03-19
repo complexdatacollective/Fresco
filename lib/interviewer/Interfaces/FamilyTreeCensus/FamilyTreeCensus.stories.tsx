@@ -247,10 +247,8 @@ export const Default: Story = {
 };
 
 /**
- * Pre-populated traditional family: 2 parents, 3 children, all sharing
- * the same parents. Skips the QuickStart wizard.
- *
- * Nodes: Dad(0), Mom(1), Child1(2), Child2(3), Child3(4)
+ * Pre-populated traditional family: 2 parents, 3 children.
+ * Uses stageMetadata to provide named nodes — skips the QuickStart wizard.
  */
 export const TraditionalFamily: Story = {
   args: {
@@ -261,55 +259,103 @@ export const TraditionalFamily: Story = {
   render: ({ diseaseStepCount, scaffoldingText }) => {
     const buildFn = () => {
       const interview = createFamilyTreeInterview(10);
-      const { sexVar, relationshipVar } = addFamilyTreeStage(interview, {
-        initialNodes: 5,
+      addFamilyTreeStage(interview, {
+        initialNodes: 0,
         showQuickStartModal: false,
         scaffoldingText,
         diseaseStepCount,
       });
-      const { si } = interview;
-
-      // Node 0: Dad
-      si.setNodeAttribute(0, sexVar.id, 'male');
-      // Node 1: Mom
-      si.setNodeAttribute(1, sexVar.id, 'female');
-      // Node 2-4: Children
-      si.setNodeAttribute(2, sexVar.id, 'male');
-      si.setNodeAttribute(3, sexVar.id, 'female');
-      si.setNodeAttribute(4, sexVar.id, 'male');
-
-      // Parent edges: Dad->Child, Mom->Child
-      si.addEdges([
-        [0, 2],
-        [0, 3],
-        [0, 4],
-        [1, 2],
-        [1, 3],
-        [1, 4],
-      ]);
-      // Set relationship type on edges (indices 0-5)
-      for (let i = 0; i < 6; i++) {
-        si.setEdgeAttribute(i, relationshipVar.id, 'parent');
-      }
-
-      // Partner edge: Dad <-> Mom
-      si.addEdges([[0, 1]]);
-      si.setEdgeAttribute(6, relationshipVar.id, 'partner');
-
-      return si;
+      return interview.si;
     };
 
-    return <FamilyTreeStoryWrapper buildFn={buildFn} />;
+    const stageMetadata: Record<number, unknown> = {
+      1: {
+        hasCompletedQuickStart: true,
+        nodes: [
+          { id: 'ego', label: '', sex: 'male', isEgo: true },
+          { id: 'dad', label: 'Robert', sex: 'male', isEgo: false },
+          { id: 'mom', label: 'Susan', sex: 'female', isEgo: false },
+          { id: 'child1', label: 'James', sex: 'male', isEgo: false },
+          { id: 'child2', label: 'Emily', sex: 'female', isEgo: false },
+          { id: 'child3', label: 'Tom', sex: 'male', isEgo: false },
+        ],
+        edges: [
+          {
+            id: 'e1',
+            source: 'dad',
+            target: 'ego',
+            type: 'parent',
+            edgeType: 'parent',
+          },
+          {
+            id: 'e2',
+            source: 'mom',
+            target: 'ego',
+            type: 'parent',
+            edgeType: 'parent',
+          },
+          {
+            id: 'e3',
+            source: 'dad',
+            target: 'child1',
+            type: 'parent',
+            edgeType: 'parent',
+          },
+          {
+            id: 'e4',
+            source: 'mom',
+            target: 'child1',
+            type: 'parent',
+            edgeType: 'parent',
+          },
+          {
+            id: 'e5',
+            source: 'dad',
+            target: 'child2',
+            type: 'parent',
+            edgeType: 'parent',
+          },
+          {
+            id: 'e6',
+            source: 'mom',
+            target: 'child2',
+            type: 'parent',
+            edgeType: 'parent',
+          },
+          {
+            id: 'e7',
+            source: 'dad',
+            target: 'child3',
+            type: 'parent',
+            edgeType: 'parent',
+          },
+          {
+            id: 'e8',
+            source: 'mom',
+            target: 'child3',
+            type: 'parent',
+            edgeType: 'parent',
+          },
+          {
+            id: 'e9',
+            source: 'dad',
+            target: 'mom',
+            type: 'partner',
+            active: true,
+          },
+        ],
+      },
+    };
+
+    return (
+      <FamilyTreeStoryWrapper buildFn={buildFn} stageMetadata={stageMetadata} />
+    );
   },
 };
 
 /**
- * Same-sex parents with a sperm donor:
- * - Parent A (female) + Parent B (female) as social parents
- * - Donor (male) as biological-only connection
- * - 1 child
- *
- * Nodes: ParentA(0), ParentB(1), Donor(2), Child(3)
+ * Same-sex parents with a sperm donor.
+ * Uses stageMetadata to provide named nodes — skips the QuickStart wizard.
  */
 export const InclusiveFamily: Story = {
   args: {
@@ -320,42 +366,59 @@ export const InclusiveFamily: Story = {
   render: ({ diseaseStepCount, scaffoldingText }) => {
     const buildFn = () => {
       const interview = createFamilyTreeInterview(20);
-      const { sexVar, relationshipVar } = addFamilyTreeStage(interview, {
-        initialNodes: 4,
+      addFamilyTreeStage(interview, {
+        initialNodes: 0,
         showQuickStartModal: false,
         scaffoldingText,
         diseaseStepCount,
       });
-      const { si } = interview;
-
-      // Node 0: Parent A
-      si.setNodeAttribute(0, sexVar.id, 'female');
-      // Node 1: Parent B
-      si.setNodeAttribute(1, sexVar.id, 'female');
-      // Node 2: Donor
-      si.setNodeAttribute(2, sexVar.id, 'male');
-      // Node 3: Child
-      si.setNodeAttribute(3, sexVar.id, 'female');
-
-      // Social parent edges
-      si.addEdges([
-        [0, 3],
-        [1, 3],
-      ]);
-      si.setEdgeAttribute(0, relationshipVar.id, 'social-parent');
-      si.setEdgeAttribute(1, relationshipVar.id, 'social-parent');
-
-      // Donor edge
-      si.addEdges([[2, 3]]);
-      si.setEdgeAttribute(2, relationshipVar.id, 'donor');
-
-      // Partner edge: Parent A <-> Parent B
-      si.addEdges([[0, 1]]);
-      si.setEdgeAttribute(3, relationshipVar.id, 'partner');
-
-      return si;
+      return interview.si;
     };
 
-    return <FamilyTreeStoryWrapper buildFn={buildFn} />;
+    const stageMetadata: Record<number, unknown> = {
+      1: {
+        hasCompletedQuickStart: true,
+        nodes: [
+          { id: 'ego', label: '', sex: 'female', isEgo: true },
+          { id: 'parentA', label: 'Sarah', sex: 'female', isEgo: false },
+          { id: 'parentB', label: 'Lisa', sex: 'female', isEgo: false },
+          { id: 'donor', label: '', sex: 'male', isEgo: false },
+        ],
+        edges: [
+          {
+            id: 'e1',
+            source: 'parentA',
+            target: 'ego',
+            type: 'parent',
+            edgeType: 'social-parent',
+          },
+          {
+            id: 'e2',
+            source: 'parentB',
+            target: 'ego',
+            type: 'parent',
+            edgeType: 'social-parent',
+          },
+          {
+            id: 'e3',
+            source: 'donor',
+            target: 'ego',
+            type: 'parent',
+            edgeType: 'donor',
+          },
+          {
+            id: 'e4',
+            source: 'parentA',
+            target: 'parentB',
+            type: 'partner',
+            active: true,
+          },
+        ],
+      },
+    };
+
+    return (
+      <FamilyTreeStoryWrapper buildFn={buildFn} stageMetadata={stageMetadata} />
+    );
   },
 };

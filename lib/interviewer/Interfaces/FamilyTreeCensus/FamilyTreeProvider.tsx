@@ -10,12 +10,13 @@ import {
   type NodeData,
   type StoreEdge,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
-import { type Sex } from '~/lib/pedigree-layout/types';
+import { type Gender, type Sex } from '~/lib/pedigree-layout/types';
 import { getRelationshipTypeVariable } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/utils/edgeUtils';
 import {
   getEgoSexVariable,
   getNodeSexVariable,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/utils/nodeUtils';
+import { getStageMetadata } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 
 const FamilyTreeContext = createContext<FamilyTreeStoreApi | undefined>(
@@ -74,48 +75,86 @@ export const FamilyTreeProvider = ({
   const egoSexVariable = useSelector(getEgoSexVariable);
   const nodeSexVariable = useSelector(getNodeSexVariable);
   const relationshipVariable = useSelector(getRelationshipTypeVariable);
+  const stageMetadata = useSelector(getStageMetadata) as
+    | {
+        hasCompletedQuickStart?: boolean;
+        nodes?: {
+          id: string;
+          interviewNetworkId?: string;
+          label: string;
+          sex?: Sex;
+          gender?: Gender[];
+          isEgo: boolean;
+        }[];
+        edges?: (StoreEdge & { id: string })[];
+      }
+    | undefined;
 
-  const initialNodes = new Map<string, NodeData>(
-    nodes.map((node) => {
-      const diseases = new Map(
-        diseaseVariables.map((disease) => [
-          disease,
-          node.attributes[disease] === true,
-        ]),
-      );
-      return [
-        node._uid,
+  let initialNodes: Map<string, NodeData>;
+  let initialEdges: Map<string, StoreEdge>;
+
+  if (stageMetadata?.hasCompletedQuickStart && stageMetadata.nodes) {
+    initialNodes = new Map(
+      stageMetadata.nodes.map((node) => [
+        node.id,
         {
-          label: '',
-          sex: node.attributes[nodeSexVariable] as Sex | undefined,
-          isEgo: false,
-          readOnly: false,
-          interviewNetworkId: node._uid,
-          diseases,
+          label: node.label,
+          sex: node.sex,
+          gender: node.gender,
+          isEgo: node.isEgo,
+          interviewNetworkId: node.interviewNetworkId,
         },
-      ];
-    }),
-  );
+      ]),
+    );
+    initialEdges = new Map(
+      (stageMetadata.edges ?? []).map((edge) => {
+        const { id, ...edgeData } = edge;
+        return [id, edgeData];
+      }),
+    );
+  } else {
+    initialNodes = new Map<string, NodeData>(
+      nodes.map((node) => {
+        const diseases = new Map(
+          diseaseVariables.map((disease) => [
+            disease,
+            node.attributes[disease] === true,
+          ]),
+        );
+        return [
+          node._uid,
+          {
+            label: '',
+            sex: node.attributes[nodeSexVariable] as Sex | undefined,
+            isEgo: false,
+            readOnly: false,
+            interviewNetworkId: node._uid,
+            diseases,
+          },
+        ];
+      }),
+    );
 
-  if (ego != null) {
-    initialNodes.set(ego._uid, {
-      label: 'You',
-      sex: ego.attributes[egoSexVariable] === 'male' ? 'male' : 'female',
-      isEgo: true,
-      readOnly: true,
-    });
+    if (ego != null) {
+      initialNodes.set(ego._uid, {
+        label: 'You',
+        sex: ego.attributes[egoSexVariable] === 'male' ? 'male' : 'female',
+        isEgo: true,
+        readOnly: true,
+      });
+    }
+
+    initialEdges = new Map<string, StoreEdge>(
+      edges.map((edge) => {
+        const relationship = (edge.attributes[relationshipVariable] ??
+          '') as string;
+        return [
+          edge._uid,
+          mapReduxEdgeToStoreEdge(relationship, edge.from, edge.to),
+        ];
+      }),
+    );
   }
-
-  const initialEdges = new Map<string, StoreEdge>(
-    edges.map((edge) => {
-      const relationship = (edge.attributes[relationshipVariable] ??
-        '') as string;
-      return [
-        edge._uid,
-        mapReduxEdgeToStoreEdge(relationship, edge.from, edge.to),
-      ];
-    }),
-  );
 
   storeRef.current ??= createFamilyTreeStore(
     initialNodes,
