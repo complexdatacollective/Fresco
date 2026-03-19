@@ -83,8 +83,6 @@ export function DataTableColumnHeader<TData, TValue>({
   if (isSorted === 'desc')
     icons.push(<ArrowDown key="sort" className="size-4" />);
   if (isFiltered) icons.push(<Filter key="filter" className="size-4" />);
-  if (icons.length === 0 && (canSort || hasFilter))
-    icons.push(<ArrowUpDown key="default" className="size-4" />);
 
   const data =
     hasFilter && table
@@ -102,7 +100,11 @@ export function DataTableColumnHeader<TData, TValue>({
                 variant={isActive ? 'default' : 'text'}
                 color={isActive ? 'primary' : 'default'}
                 iconPosition="right"
-                icon={<span className="flex gap-0.5">{icons}</span>}
+                icon={
+                  icons.length > 0 ? (
+                    <span className="flex gap-0.5">{icons}</span>
+                  ) : undefined
+                }
               />
             }
             nativeButton
