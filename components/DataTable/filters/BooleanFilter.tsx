@@ -1,7 +1,7 @@
 'use client';
 
 import { type BooleanFilterConfig } from '~/components/DataTable/filters/types';
-import Button from '~/components/ui/Button';
+import CheckboxGroupField from '~/lib/form/components/fields/CheckboxGroup';
 
 type BooleanFilterProps = {
   value: boolean | undefined;
@@ -14,28 +14,40 @@ export default function BooleanFilter({
   onChange,
   config,
 }: BooleanFilterProps) {
-  const handleClick = (selected: boolean) => {
-    onChange(value === selected ? undefined : selected);
+  const options = [
+    { value: 'true', label: config.trueLabel },
+    { value: 'false', label: config.falseLabel },
+  ];
+
+  const selected: string[] = [];
+  if (value === true) selected.push('true');
+  if (value === false) selected.push('false');
+
+  const handleChange = (values: (string | number)[] | undefined) => {
+    const stringValues = (values ?? []).map(String);
+    const hasTrue = stringValues.includes('true');
+    const hasFalse = stringValues.includes('false');
+
+    if (hasTrue && hasFalse) {
+      // Both selected = no filter
+      onChange(undefined);
+    } else if (hasTrue) {
+      onChange(true);
+    } else if (hasFalse) {
+      onChange(false);
+    } else {
+      onChange(undefined);
+    }
   };
 
   return (
-    <div className="flex gap-1">
-      <Button
-        size="sm"
-        variant={value === true ? 'default' : 'outline'}
-        color={value === true ? 'primary' : 'default'}
-        onClick={() => handleClick(true)}
-      >
-        {config.trueLabel}
-      </Button>
-      <Button
-        size="sm"
-        variant={value === false ? 'default' : 'outline'}
-        color={value === false ? 'primary' : 'default'}
-        onClick={() => handleClick(false)}
-      >
-        {config.falseLabel}
-      </Button>
-    </div>
+    <CheckboxGroupField
+      name="boolean-filter"
+      options={options}
+      value={selected}
+      onChange={handleChange}
+      orientation="horizontal"
+      size="sm"
+    />
   );
 }
