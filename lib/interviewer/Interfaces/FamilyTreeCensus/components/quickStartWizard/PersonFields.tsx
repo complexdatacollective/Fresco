@@ -11,6 +11,8 @@ import {
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/fieldOptions';
 import { type Gender, type Sex } from '~/lib/pedigree-layout/types';
 
+const EMPTY_GENDER_ARRAY: Gender[] = [];
+
 type PersonFieldsProps = {
   index: number;
   prefix: string;
@@ -54,7 +56,7 @@ export default function PersonFields({
         label="Gender (select all that apply)"
         component={CheckboxGroupField}
         options={GENDER_OPTIONS}
-        initialValue={initial?.gender ?? []}
+        initialValue={initial?.gender ?? EMPTY_GENDER_ARRAY}
         required
       />
     </>
