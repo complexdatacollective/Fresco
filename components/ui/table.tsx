@@ -98,7 +98,7 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cx(
-      'w-0 px-8 whitespace-nowrap',
+      'w-0 px-4 whitespace-nowrap',
       'text-left font-medium last:w-auto',
       className,
     )}
@@ -114,7 +114,7 @@ const TableCell = React.forwardRef<
   <td
     ref={ref}
     className={cx(
-      'w-0 px-8 align-middle whitespace-nowrap',
+      'w-0 px-4 align-middle whitespace-nowrap',
       'last:w-auto',
       className,
     )}
