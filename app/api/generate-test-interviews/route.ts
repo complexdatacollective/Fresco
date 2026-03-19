@@ -62,6 +62,7 @@ export async function POST(request: Request) {
         const genOptions = { simulateDropOut, respectSkipLogicAndFiltering };
 
         let completedCount = 0;
+        const incompleteInterviewIds: string[] = [];
 
         for (let i = 0; i < count; i++) {
           const { network, stageMetadata, stagesCompleted } = generateNetwork(
@@ -88,7 +89,7 @@ export async function POST(request: Request) {
               )
             : null;
 
-          await prisma.interview.create({
+          const created = await prisma.interview.create({
             data: {
               network: network as object,
               currentStep: stagesCompleted,
@@ -109,23 +110,26 @@ export async function POST(request: Request) {
             },
           });
 
+          if (!isCompleted) {
+            incompleteInterviewIds.push(created.id);
+          }
+
           send({ type: 'progress', current: i + 1, total: count });
         }
 
+        // Enforce 10% minimum completion when drop-out is enabled.
+        // Regenerate incomplete interviews from this batch with drop-out
+        // disabled and update them in-place.
         if (simulateDropOut) {
           const minCompleted = Math.max(1, Math.ceil(count * 0.1));
 
           if (completedCount < minCompleted) {
             const deficit = minCompleted - completedCount;
+            const toFix = incompleteInterviewIds.slice(0, deficit);
+
             const incompleteInterviews = await prisma.interview.findMany({
-              where: {
-                isSynthetic: true,
-                finishTime: null,
-                protocol: { id: protocolId },
-              },
+              where: { id: { in: toFix } },
               select: { id: true, startTime: true },
-              take: deficit,
-              orderBy: { startTime: 'desc' },
             });
 
             for (const interview of incompleteInterviews) {
