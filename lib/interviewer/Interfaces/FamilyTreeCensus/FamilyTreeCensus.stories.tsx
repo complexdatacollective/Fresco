@@ -86,14 +86,18 @@ function createFamilyTreeInterview(seed: number) {
 
 function FamilyTreeStoryWrapper({
   buildFn,
+  stageMetadata,
 }: {
   buildFn: () => SyntheticInterview;
+  stageMetadata?: Record<number, unknown>;
 }) {
   const interview = useMemo(() => buildFn(), [buildFn]);
   const rawPayload = useMemo(
     () =>
-      SuperJSON.stringify(interview.getInterviewPayload({ currentStep: 1 })),
-    [interview],
+      SuperJSON.stringify(
+        interview.getInterviewPayload({ currentStep: 1, stageMetadata }),
+      ),
+    [interview, stageMetadata],
   );
 
   return (
@@ -220,7 +224,7 @@ function addFamilyTreeStage(
     text: 'After the main stage.',
   });
 
-  return { stage, sexVar, relationshipVar, isEgoVar };
+  return { stage, nameVar, sexVar, relationshipVar, isEgoVar };
 }
 
 // --- Stories ---

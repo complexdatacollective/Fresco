@@ -1,6 +1,5 @@
 import { useSelector } from 'react-redux';
 import Node from '~/components/Node';
-import Paragraph from '~/components/typography/Paragraph';
 import { useDragSource } from '~/lib/dnd';
 import { type NodeData } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import { useClickUnlessDragged } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/useClickUnlessDragged';
@@ -78,7 +77,8 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
   const { node, allowDrag, selected, onTap } = props;
 
   const { id, label, isEgo, sex } = node;
-  const shape = sex === 'female' ? 'circle' : 'square';
+  const shape =
+    sex === 'female' ? 'circle' : sex === 'intersex' ? 'diamond' : 'square';
   const displayLabel = label || 'Unnamed';
 
   const nodeTypeColor = useSelector(getNodeColorSelector);
@@ -87,15 +87,8 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
     useClickUnlessDragged();
 
   const getNodeColor = (): Record<string, string> => {
-    if (node.interviewNetworkId) {
-      const n = /\d+$/.exec(nodeTypeColor)?.[0] ?? '1';
-      return { '--base': `var(--color-node-${n})` };
-    }
-
-    return {
-      '--base': `var(--color-platinum)`,
-      '--dark': `var(--color-platinum-dark)`,
-    };
+    const n = /\d+$/.exec(nodeTypeColor)?.[0] ?? '1';
+    return { '--base': `var(--color-node-${n})` };
   };
 
   const { dragProps } = useDragSource({
@@ -131,29 +124,16 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
     }
 
     return (
-      <>
-        <div className="relative shrink-0">
-          <Node
-            className="shrink-0"
-            style={nodeColor as React.CSSProperties}
-            color="custom"
-            size="sm"
-            label={label || ''}
-            ariaLabel={displayLabel}
-            shape={shape}
-            selected={selected}
-          />
-        </div>
-        <div className="family-tree-node-label-container bg-cyber-grape/80 m-1 flex flex-col rounded-md px-2 py-1 text-white">
-          <Paragraph
-            intent="smallText"
-            margin="none"
-            className="family-tree-node-label"
-          >
-            {displayLabel}
-          </Paragraph>
-        </div>
-      </>
+      <Node
+        className="shrink-0"
+        style={nodeColor as React.CSSProperties}
+        color="custom"
+        size="sm"
+        label={label || ''}
+        ariaLabel={displayLabel}
+        shape={shape}
+        selected={selected}
+      />
     );
   };
 

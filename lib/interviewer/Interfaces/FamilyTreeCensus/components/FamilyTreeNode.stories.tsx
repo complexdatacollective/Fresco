@@ -117,85 +117,47 @@ const meta: Meta<typeof FamilyTreeNode> = {
 export default meta;
 type Story = StoryObj<typeof FamilyTreeNode>;
 
-export const UnfilledMale: Story = {
+export const Male: Story = {
   render: (args) => (
     <NodeContainer>
       <FamilyTreeNode {...args} />
     </NodeContainer>
   ),
   args: {
-    node: createNode({ id: 'p1', sex: 'male' }),
+    node: createNode({ id: 'p1', label: 'John', sex: 'male' }),
   },
 };
 
-export const UnfilledFemale: Story = {
+export const Female: Story = {
   render: (args) => (
     <NodeContainer>
       <FamilyTreeNode {...args} />
     </NodeContainer>
   ),
   args: {
-    node: createNode({ id: 'p2', sex: 'female' }),
+    node: createNode({ id: 'p2', label: 'Mary', sex: 'female' }),
   },
 };
 
-export const FilledMale: Story = {
+export const Intersex: Story = {
   render: (args) => (
     <NodeContainer>
       <FamilyTreeNode {...args} />
     </NodeContainer>
   ),
   args: {
-    node: createNode({
-      id: 'p3',
-      label: 'John',
-      sex: 'male',
-      interviewNetworkId: 'n1',
-    }),
+    node: createNode({ id: 'p3', label: 'Alex', sex: 'intersex' }),
   },
 };
 
-export const FilledFemale: Story = {
+export const Ego: Story = {
   render: (args) => (
     <NodeContainer>
       <FamilyTreeNode {...args} />
     </NodeContainer>
   ),
   args: {
-    node: createNode({
-      id: 'p4',
-      label: 'Mary',
-      sex: 'female',
-      interviewNetworkId: 'n2',
-    }),
-  },
-};
-
-export const UnfilledEgo: Story = {
-  render: (args) => (
-    <NodeContainer>
-      <FamilyTreeNode {...args} />
-    </NodeContainer>
-  ),
-  args: {
-    node: createNode({ id: 'p5', sex: 'female', isEgo: true }),
-  },
-};
-
-export const FilledEgo: Story = {
-  render: (args) => (
-    <NodeContainer>
-      <FamilyTreeNode {...args} />
-    </NodeContainer>
-  ),
-  args: {
-    node: createNode({
-      id: 'p6',
-      label: 'Sarah',
-      sex: 'female',
-      isEgo: true,
-      interviewNetworkId: 'n3',
-    }),
+    node: createNode({ id: 'p4', label: 'You', sex: 'female', isEgo: true }),
   },
 };
 
@@ -206,118 +168,18 @@ export const Selected: Story = {
     </NodeContainer>
   ),
   args: {
-    node: createNode({
-      id: 'p7',
-      label: 'Mike',
-      sex: 'male',
-      interviewNetworkId: 'n4',
-    }),
+    node: createNode({ id: 'p5', label: 'Mike', sex: 'male' }),
     selected: true,
   },
 };
 
-export const AllStates: Story = {
+export const AllShapes: Story = {
   render: () => (
     <div className="flex flex-wrap gap-8">
       <div className="flex flex-col items-center gap-2">
         <NodeContainer>
           <FamilyTreeNode
-            node={createNode({ id: 'a1', sex: 'male' })}
-            allowDrag={false}
-          />
-        </NodeContainer>
-        <span className="text-xs text-white/70">Unfilled Male</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <NodeContainer>
-          <FamilyTreeNode
-            node={createNode({ id: 'a2', sex: 'female' })}
-            allowDrag={false}
-          />
-        </NodeContainer>
-        <span className="text-xs text-white/70">Unfilled Female</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <NodeContainer>
-          <FamilyTreeNode
-            node={createNode({
-              id: 'a3',
-              label: 'John',
-              sex: 'male',
-              interviewNetworkId: 'n1',
-            })}
-            allowDrag={false}
-          />
-        </NodeContainer>
-        <span className="text-xs text-white/70">Filled Male</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <NodeContainer>
-          <FamilyTreeNode
-            node={createNode({
-              id: 'a4',
-              label: 'Mary',
-              sex: 'female',
-              interviewNetworkId: 'n2',
-            })}
-            allowDrag={false}
-          />
-        </NodeContainer>
-        <span className="text-xs text-white/70">Filled Female</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <NodeContainer>
-          <FamilyTreeNode
-            node={createNode({ id: 'a5', sex: 'female', isEgo: true })}
-            allowDrag={false}
-          />
-        </NodeContainer>
-        <span className="text-xs text-white/70">Unfilled Ego</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <NodeContainer>
-          <FamilyTreeNode
-            node={createNode({
-              id: 'a6',
-              label: 'Sarah',
-              sex: 'female',
-              isEgo: true,
-              interviewNetworkId: 'n3',
-            })}
-            allowDrag={false}
-          />
-        </NodeContainer>
-        <span className="text-xs text-white/70">Filled Ego</span>
-      </div>
-    </div>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story: `
-All FamilyTreeNode states displayed together:
-- **Unfilled nodes**: Blank inside, relationship label below
-- **Filled nodes**: Name inside, relationship label below
-- **Ego nodes**: Icon (unfilled) or name (filled) inside, "You" below, arrow indicator
-- **Shapes**: Square = male, Circle = female
-        `,
-      },
-    },
-  },
-};
-
-export const ShapeComparison: Story = {
-  render: () => (
-    <div className="flex gap-12">
-      <div className="flex flex-col items-center gap-2">
-        <NodeContainer>
-          <FamilyTreeNode
-            node={createNode({
-              id: 's1',
-              label: 'John',
-              sex: 'male',
-              interviewNetworkId: 'n1',
-            })}
+            node={createNode({ id: 'a1', label: 'John', sex: 'male' })}
             allowDrag={false}
           />
         </NodeContainer>
@@ -326,24 +188,56 @@ export const ShapeComparison: Story = {
       <div className="flex flex-col items-center gap-2">
         <NodeContainer>
           <FamilyTreeNode
-            node={createNode({
-              id: 's2',
-              label: 'Mary',
-              sex: 'female',
-              interviewNetworkId: 'n2',
-            })}
+            node={createNode({ id: 'a2', label: 'Mary', sex: 'female' })}
             allowDrag={false}
           />
         </NodeContainer>
         <span className="text-xs text-white/70">Female (Circle)</span>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <NodeContainer>
+          <FamilyTreeNode
+            node={createNode({ id: 'a3', label: 'Alex', sex: 'intersex' })}
+            allowDrag={false}
+          />
+        </NodeContainer>
+        <span className="text-xs text-white/70">Intersex (Diamond)</span>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <NodeContainer>
+          <FamilyTreeNode
+            node={createNode({
+              id: 'a4',
+              label: 'You',
+              sex: 'female',
+              isEgo: true,
+            })}
+            allowDrag={false}
+          />
+        </NodeContainer>
+        <span className="text-xs text-white/70">Ego</span>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <NodeContainer>
+          <FamilyTreeNode
+            node={createNode({ id: 'a5', label: 'Mike', sex: 'male' })}
+            allowDrag={false}
+            selected
+          />
+        </NodeContainer>
+        <span className="text-xs text-white/70">Selected</span>
       </div>
     </div>
   ),
   parameters: {
     docs: {
       description: {
-        story:
-          'Family trees use shape to indicate sex: squares for males, circles for females.',
+        story: `
+All FamilyTreeNode states:
+- **Shapes**: Square = male, Circle = female, Diamond = intersex
+- **Ego**: Self node
+- **Selected**: Highlighted state
+        `,
       },
     },
   },
