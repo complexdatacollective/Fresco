@@ -90,11 +90,13 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   return (
     <>
       <div className="interface">
-        <Prompts
-          prompts={allPrompts}
-          currentPromptId={allPrompts[currentStepIndex]?.id}
-          className="shrink-0"
-        />
+        {!showQuickStart && (
+          <Prompts
+            prompts={allPrompts}
+            currentPromptId={allPrompts[currentStepIndex]?.id}
+            className="shrink-0"
+          />
+        )}
         <div className="relative flex grow items-center justify-center">
           {showQuickStart ? (
             <QuickStartForm

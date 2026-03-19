@@ -114,7 +114,7 @@ const FamilyTreeCensusStageMetadataSchema = z.object({
           source: z.string(),
           target: z.string(),
           type: z.literal('parent'),
-          edgeType: z.enum(['parent', 'donor', 'surrogate']),
+          edgeType: z.enum(['parent', 'social-parent', 'donor', 'surrogate']),
         }),
         z.object({
           id: z.string(),

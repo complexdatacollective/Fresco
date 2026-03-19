@@ -29,7 +29,7 @@ const draw = (delay: number) => ({
     pathLength: 1,
     transition: {
       pathLength: {
-        type: 'spring',
+        type: 'spring' as const,
         delay: BASE_DELAY + delay,
         // Increase damping to prevent overshoot (which causes weird visual glitches with lines)
         damping: 20,
@@ -58,7 +58,6 @@ export default function FamilyTreePlaceholder({
   const child3 = { x: 2200, y: 1100 }; // circle
 
   const stroke = 'var(--color-platinum)';
-  const lineStroke = 'var(--color-platinum)';
   const sw = 25; // stroke width
 
   return (
@@ -77,7 +76,7 @@ export default function FamilyTreePlaceholder({
         y1={father.y}
         x2={mother.x - r}
         y2={mother.y}
-        stroke={lineStroke}
+        stroke={stroke}
         strokeWidth={sw}
         variants={draw(0.4)}
       />
@@ -87,7 +86,7 @@ export default function FamilyTreePlaceholder({
         y1={father.y}
         x2={midX}
         y2={railY}
-        stroke={lineStroke}
+        stroke={stroke}
         strokeWidth={sw}
         variants={draw(0.65)}
       />
@@ -97,35 +96,35 @@ export default function FamilyTreePlaceholder({
         y1={railY}
         x2={child3.x}
         y2={railY}
-        stroke={lineStroke}
+        stroke={stroke}
         strokeWidth={sw}
         variants={draw(0.9)}
       />
       {/* Drop lines to children */}
       <motion.line
         x1={child1.x}
-        y1={railY}
+        y1={railY - 10} // slight overlap with rail to avoid gaps
         x2={child1.x}
         y2={child1.y - r}
-        stroke={lineStroke}
+        stroke={stroke}
         strokeWidth={sw}
         variants={draw(1.15)}
       />
       <motion.line
         x1={ego.x}
-        y1={railY}
+        y1={railY - 10} // slight overlap with rail to avoid gaps
         x2={ego.x}
         y2={ego.y - r}
-        stroke={lineStroke}
+        stroke={stroke}
         strokeWidth={sw}
         variants={draw(1.15)}
       />
       <motion.line
         x1={child3.x}
-        y1={railY}
+        y1={railY - 10} // slight overlap with rail to avoid gaps
         x2={child3.x}
         y2={child3.y - r}
-        stroke={lineStroke}
+        stroke={stroke}
         strokeWidth={sw}
         variants={draw(1.15)}
       />

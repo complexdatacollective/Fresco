@@ -68,7 +68,7 @@ function ParentsCountForm() {
         name="parentCount"
         inline
         label="How many parents do you have?"
-        hint="This includes donors/surrogates, step, adoptive, and anyone else that you identify as a parent."
+        hint="This includes biological parents, donors/surrogates, step/adoptive parents, and anyone else that you consider a parent."
         component={NumberCounterField}
         value={parentCount}
         minValue={0}
