@@ -1,11 +1,13 @@
 'use client';
 
 import {
+  type Column,
   flexRender,
   type Row,
   type Table as TTable,
 } from '@tanstack/react-table';
 import { type ReactNode } from 'react';
+import { cx } from '~/utils/cva';
 import {
   Table,
   TableBody,
@@ -15,6 +17,16 @@ import {
   TableRow,
 } from '~/components/ui/table';
 import { DataTablePagination } from './DataTablePagination';
+
+function getColumnHighlight<TData>(column: Column<TData, unknown>) {
+  const isSorted = column.getIsSorted();
+  const isFiltered = column.getIsFiltered();
+  if (isSorted && isFiltered)
+    return 'bg-[color-mix(in_oklab,var(--primary)_5%,var(--selected)_5%)]';
+  if (isSorted) return 'bg-primary/5';
+  if (isFiltered) return 'bg-selected/5';
+  return undefined;
+}
 
 type DataTableProps<TData> = {
   table: TTable<TData>;
@@ -49,9 +61,7 @@ export function DataTable<TData>({
               {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
-                  className={
-                    header.column.getIsSorted() ? 'bg-primary/5' : undefined
-                  }
+                  className={cx(getColumnHighlight(header.column))}
                 >
                   {header.isPlaceholder
                     ? null
@@ -75,9 +85,7 @@ export function DataTable<TData>({
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}
-                    className={
-                      cell.column.getIsSorted() ? 'bg-primary/5' : undefined
-                    }
+                    className={cx(getColumnHighlight(cell.column))}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
