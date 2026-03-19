@@ -8,9 +8,9 @@ import {
   type OperatorFilterValue,
 } from '~/components/DataTable/filters/types';
 import Heading from '~/components/typography/Heading';
-import { IconButton } from '~/components/ui/Button';
-import Button from '~/components/ui/Button';
+import Button, { IconButton } from '~/components/ui/Button';
 import { Badge } from '~/components/ui/badge';
+import Paragraph from '~/components/typography/Paragraph';
 import InputField from '~/lib/form/components/fields/InputField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import SelectField from '~/lib/form/components/fields/Select/Native';
@@ -99,20 +99,18 @@ export default function OperatorFilter({
   }));
 
   return (
-    <>
-      <Heading level="h4">{config.entitySelector?.label}</Heading>
-      <div className="flex max-w-md flex-col gap-4">
+    <div className="flex max-w-md flex-col gap-4">
+      <section className="flex flex-col gap-3">
+        <Heading level="h4">New Condition</Heading>
         {entityOptions.length > 0 && (
           <RadioGroupField
             name="entity-type"
             size="sm"
-            orientation="horizontal"
             options={entityOptions}
             value={selectedEntity}
             onChange={(val) => setSelectedEntity(String(val ?? ''))}
           />
         )}
-        <Heading level="h4">Operator</Heading>
         <div className="flex items-center gap-2">
           <SelectField
             name="filter-operator"
@@ -140,32 +138,45 @@ export default function OperatorFilter({
             Add
           </Button>
         </div>
+      </section>
 
-        <Heading level="h4">Current Conditions:</Heading>
-        {conditions.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {conditions.map((condition, index) => (
-              <Badge
-                key={`${condition.entityKind}-${condition.entityType}-${condition.operator}-${condition.value.toString()}-${index.toString()}`}
-                className="bg-sea-green flex gap-2"
-              >
-                <span>
-                  {condition.entityLabel} {operatorSymbols[condition.operator]}{' '}
-                  {condition.value}
-                </span>
-                <IconButton
-                  size="sm"
-                  variant="text"
-                  aria-label="Remove condition"
-                  onClick={() => handleRemoveCondition(index)}
-                  icon={<X />}
-                  className="size-5!"
-                />
-              </Badge>
-            ))}
-          </div>
-        )}
-      </div>
-    </>
+      <section className="flex flex-col gap-3">
+        <Heading level="h4">Conditions</Heading>
+        <div className="inset-surface bg-primary/10 flex min-h-16 items-start rounded-sm p-3">
+          {conditions.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {conditions.map((condition, index) => (
+                <Badge
+                  key={`${condition.entityKind}-${condition.entityType}-${condition.operator}-${condition.value.toString()}-${index.toString()}`}
+                  className="bg-sea-green flex gap-2"
+                >
+                  <span>
+                    {condition.entityLabel}{' '}
+                    {operatorSymbols[condition.operator]} {condition.value}
+                  </span>
+                  <IconButton
+                    size="sm"
+                    variant="text"
+                    aria-label="Remove condition"
+                    onClick={() => handleRemoveCondition(index)}
+                    icon={<X />}
+                    className="size-5!"
+                  />
+                </Badge>
+              ))}
+            </div>
+          ) : (
+            <Paragraph
+              intent="smallText"
+              emphasis="muted"
+              margin="none"
+              className="w-full self-center text-center"
+            >
+              No conditions added
+            </Paragraph>
+          )}
+        </div>
+      </section>
+    </div>
   );
 }

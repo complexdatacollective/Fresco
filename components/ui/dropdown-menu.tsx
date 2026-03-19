@@ -158,8 +158,8 @@ const DropdownMenuContent = React.forwardRef<
                     dynamicSpacing={false}
                     level="popover"
                     elevation="none"
-                    spacing="xs"
-                    className={cx('shadow-xl', className)}
+                    spacing="none"
+                    className={cx('flex flex-col shadow-xl', className)}
                     initial={{ opacity: 0, scale: 0.96 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.96 }}
@@ -187,7 +187,7 @@ const DropdownMenuItem = React.forwardRef<
   <Menu.Item
     ref={ref}
     className={cx(
-      'relative flex cursor-default items-center gap-2 rounded-xs px-2 py-1.5 text-sm outline-hidden transition-colors select-none',
+      'relative flex cursor-default items-center gap-2 px-3 py-2 text-sm outline-hidden transition-colors select-none',
       'data-highlighted:bg-accent data-highlighted:text-accent-contrast',
       'data-disabled:pointer-events-none data-disabled:opacity-50',
       'min-w-48',

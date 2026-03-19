@@ -138,7 +138,7 @@ export const proportionalLucideIconVariants = cva({
 
 // adds background and border styles for input-like controls
 export const inputControlVariants = cva({
-  base: cx('bg-input text-input-contrast', ''),
+  base: cx('bg-input text-input-contrast'),
 });
 
 // Spacing between elements within a wrapper, such as icons and text
@@ -150,9 +150,11 @@ export const wrapperPaddingVariants = cva({
   base: 'tablet-landscape:px-6 px-4',
 });
 
-// Spacing for groups of controls
+// Spacing for groups of controls.
+// Resets --focus-color so child focusable elements (radios, checkboxes) use
+// currentColor instead of inheriting from a dark-background ancestor.
 export const groupSpacingVariants = cva({
-  base: '',
+  base: '[--focus-color:currentColor]',
   variants: {
     size: {
       sm: 'gap-2 rounded-sm p-3',
@@ -204,7 +206,7 @@ export const interactiveStateVariants = cva({
       readOnly: cx('focus-within:border-input-contrast/70'),
       invalid: '',
       normal:
-        'has-[input:focus-visible,textarea:focus-visible]:focus-styles outline-current',
+        'has-[input:focus-visible,textarea:focus-visible]:focus-styles outline-[var(--focus-color,currentColor)]',
     },
   },
   defaultVariants: {
