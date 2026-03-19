@@ -1,8 +1,7 @@
 'use client';
 
 import { type Column, type Table } from '@tanstack/react-table';
-import { ArrowUp, ArrowUpDown, Filter } from 'lucide-react';
-import { motion } from 'motion/react';
+import { ArrowDown, ArrowUp, ArrowUpDown, Filter, X } from 'lucide-react';
 import React, { type ReactNode, useState } from 'react';
 import BooleanFilter from '~/components/DataTable/filters/BooleanFilter';
 import DateFilter from '~/components/DataTable/filters/DateFilter';
@@ -14,15 +13,19 @@ import {
   type FilterValue,
 } from '~/components/DataTable/filters/types';
 import Button from '~/components/ui/Button';
-import { IconButton } from '~/components/ui/Button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '~/components/ui/dropdown-menu';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '~/components/ui/popover';
 import { cx } from '~/utils/cva';
-
-const MotionArrow = motion.create(ArrowUp);
 
 type DataTableColumnHeaderProps<TData, TValue> = {
   column: Column<TData, TValue>;
@@ -44,7 +47,12 @@ export function DataTableColumnHeader<TData, TValue>({
   const isFiltered = column.getIsFiltered();
   const canSort = column.getCanSort();
   const isSorted = column.getIsSorted();
-  const isSortActive = isSorted !== false;
+  const isActive = isSorted !== false || isFiltered;
+
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [stagedValue, setStagedValue] = useState<FilterValue | undefined>(
+    undefined,
+  );
 
   if (!canSort && !hasFilter) {
     return (
@@ -54,113 +62,115 @@ export function DataTableColumnHeader<TData, TValue>({
     );
   }
 
-  return (
-    <div className={cx('flex min-w-max items-center gap-1', className)}>
-      <span className="text-base font-semibold">{title}</span>
-      {canSort && (
-        <IconButton
-          size="sm"
-          variant={isSortActive ? 'default' : 'text'}
-          color={isSortActive ? 'primary' : 'default'}
-          onClick={() => column.toggleSorting()}
-          aria-label={`Sort by ${typeof title === 'string' ? title : 'column'}`}
-          icon={
-            isSorted !== false ? (
-              <MotionArrow
-                className="text-success size-4"
-                animate={isSorted === 'asc' ? { rotate: 180 } : {}}
-              />
-            ) : (
-              <ArrowUpDown className="size-4" />
-            )
-          }
-        />
-      )}
-      {hasFilter && table && (
-        <FilterPopover
-          column={column}
-          table={table}
-          filterConfig={filterConfig}
-          isFiltered={isFiltered}
-        />
-      )}
-    </div>
-  );
-}
-
-function FilterPopover<TData, TValue>({
-  column,
-  table,
-  filterConfig,
-  isFiltered,
-}: {
-  column: Column<TData, TValue>;
-  table: Table<TData>;
-  filterConfig: FilterConfig;
-  isFiltered: boolean;
-}) {
-  const [open, setOpen] = useState(false);
-  const [stagedValue, setStagedValue] = useState<FilterValue | undefined>(
-    undefined,
-  );
-
-  const handleOpenChange = (nextOpen: boolean) => {
-    if (nextOpen) {
-      setStagedValue(column.getFilterValue() as FilterValue | undefined);
-    }
-    setOpen(nextOpen);
+  const handleOpenFilter = () => {
+    setStagedValue(column.getFilterValue() as FilterValue | undefined);
+    setFilterOpen(true);
   };
 
-  const handleApply = () => {
+  const handleApplyFilter = () => {
     column.setFilterValue(stagedValue);
-    setOpen(false);
+    setFilterOpen(false);
   };
 
-  const handleClear = () => {
+  const handleClearFilter = () => {
     column.setFilterValue(undefined);
     setStagedValue(undefined);
-    setOpen(false);
+    setFilterOpen(false);
   };
 
-  const data = table.getCoreRowModel().rows.map((r) => r.original);
+  const icons: ReactNode[] = [];
+  if (isSorted === 'asc') icons.push(<ArrowUp key="sort" className="size-4" />);
+  if (isSorted === 'desc')
+    icons.push(<ArrowDown key="sort" className="size-4" />);
+  if (isFiltered) icons.push(<Filter key="filter" className="size-4" />);
+  if (icons.length === 0 && (canSort || hasFilter))
+    icons.push(<ArrowUpDown key="default" className="size-4" />);
+
+  const data =
+    hasFilter && table
+      ? table.getCoreRowModel().rows.map((r) => r.original)
+      : [];
 
   return (
-    <Popover open={open} onOpenChange={handleOpenChange}>
-      <PopoverTrigger>
-        <IconButton
-          size="sm"
-          variant="text"
-          color={isFiltered ? 'success' : 'default'}
-          aria-label="Filter column"
-          icon={
-            <span className="relative">
-              <Filter className="size-4" />
-              {isFiltered && (
-                <span className="bg-success absolute -top-0.5 -right-0.5 size-2 rounded-full" />
-              )}
-            </span>
-          }
-        />
-      </PopoverTrigger>
-      <PopoverContent align="start" className="w-72 p-3">
-        <div className="flex flex-col gap-3">
-          <FilterRenderer
-            filterConfig={filterConfig}
-            value={stagedValue}
-            onChange={setStagedValue}
-            data={data}
-          />
-          <div className="flex justify-end gap-2">
-            <Button size="sm" variant="text" onClick={handleClear}>
-              Clear
-            </Button>
-            <Button size="sm" onClick={handleApply}>
-              Apply
-            </Button>
-          </div>
-        </div>
-      </PopoverContent>
-    </Popover>
+    <div className={cx('flex min-w-max items-center', className)}>
+      <Popover open={filterOpen} onOpenChange={setFilterOpen}>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                size="sm"
+                variant={isActive ? 'default' : 'text'}
+                color={isActive ? 'primary' : 'default'}
+                iconPosition="right"
+                icon={<span className="flex gap-0.5">{icons}</span>}
+              />
+            }
+            nativeButton
+          >
+            {title}
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            {canSort && (
+              <>
+                <DropdownMenuItem
+                  onClick={() => column.toggleSorting(false)}
+                  className="gap-2"
+                >
+                  <ArrowUp className="size-4" />
+                  Sort ascending
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => column.toggleSorting(true)}
+                  className="gap-2"
+                >
+                  <ArrowDown className="size-4" />
+                  Sort descending
+                </DropdownMenuItem>
+                {isSorted !== false && (
+                  <DropdownMenuItem
+                    onClick={() => column.clearSorting()}
+                    className="gap-2"
+                  >
+                    <X className="size-4" />
+                    Clear sort
+                  </DropdownMenuItem>
+                )}
+              </>
+            )}
+            {canSort && hasFilter && <DropdownMenuSeparator />}
+            {hasFilter && (
+              <PopoverTrigger
+                render={<DropdownMenuItem className="gap-2" />}
+                onClick={handleOpenFilter}
+              >
+                <Filter className="size-4" />
+                {isFiltered ? 'Edit filter' : 'Filter'}
+              </PopoverTrigger>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+        {hasFilter && filterConfig && (
+          <PopoverContent align="start" className="w-72 p-3">
+            <div className="flex flex-col gap-3">
+              <FilterRenderer
+                filterConfig={filterConfig}
+                value={stagedValue}
+                onChange={setStagedValue}
+                data={data}
+              />
+              <div className="flex justify-end gap-2">
+                <Button size="sm" variant="text" onClick={handleClearFilter}>
+                  Clear
+                </Button>
+                <Button size="sm" onClick={handleApplyFilter}>
+                  Apply
+                </Button>
+              </div>
+            </div>
+          </PopoverContent>
+        )}
+      </Popover>
+    </div>
   );
 }
 
