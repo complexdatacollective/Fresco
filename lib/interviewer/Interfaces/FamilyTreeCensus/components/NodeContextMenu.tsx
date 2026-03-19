@@ -20,8 +20,6 @@ export type NodeContextMenuAction =
 type NodeContextMenuProps = {
   nodeId: string;
   edges: Map<string, StoreEdge>;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   onAction: (action: NodeContextMenuAction) => void;
   children: ReactNode;
 };
@@ -29,8 +27,6 @@ type NodeContextMenuProps = {
 export default function NodeContextMenu({
   nodeId,
   edges,
-  open,
-  onOpenChange,
   onAction,
   children,
 }: NodeContextMenuProps) {
@@ -39,7 +35,7 @@ export default function NodeContextMenu({
   );
 
   return (
-    <DropdownMenu open={open} onOpenChange={onOpenChange}>
+    <DropdownMenu>
       <DropdownMenuTrigger render={<div />}>{children}</DropdownMenuTrigger>
       <DropdownMenuContent sideOffset={8}>
         <DropdownMenuItem onClick={() => onAction('parent')}>

@@ -2,7 +2,6 @@ import { useSelector } from 'react-redux';
 import Node from '~/components/Node';
 import { useDragSource } from '~/lib/dnd';
 import { type NodeData } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
-import { useClickUnlessDragged } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/useClickUnlessDragged';
 import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
 
 /**
@@ -70,11 +69,10 @@ type FamilyTreeNodeProps = {
   node: NodeData & { id: string };
   allowDrag: boolean;
   selected?: boolean;
-  onTap?: (nodeId: string) => void;
 };
 
 export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
-  const { node, allowDrag, selected, onTap } = props;
+  const { node, allowDrag, selected } = props;
 
   const { id, label, isEgo, sex } = node;
   const shape =
@@ -82,9 +80,6 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
   const displayLabel = label || 'Unnamed';
 
   const nodeTypeColor = useSelector(getNodeColorSelector);
-
-  const { handlePointerDown, handlePointerUp, shouldHandleClick } =
-    useClickUnlessDragged();
 
   const getNodeColor = (): Record<string, string> => {
     const n = /\d+$/.exec(nodeTypeColor)?.[0] ?? '1';
@@ -138,16 +133,7 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
   };
 
   return (
-    <div
-      className="family-tree-node"
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      onClick={() => {
-        if (shouldHandleClick()) {
-          onTap?.(id);
-        }
-      }}
-    >
+    <div className="family-tree-node">
       <div
         className="relative flex flex-col items-center gap-2 text-center"
         {...dragProps}
