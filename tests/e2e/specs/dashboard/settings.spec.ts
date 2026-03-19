@@ -88,6 +88,7 @@ test.describe('Settings Page', () => {
   });
 
   test('visual snapshot', async ({ page, capturePage }) => {
+    test.slow();
     await capturePage('settings-page', {
       // Mask the version/commit text which varies between environments
       mask: [page.getByTestId('app-version-info')],

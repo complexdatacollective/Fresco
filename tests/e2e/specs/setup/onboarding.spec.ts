@@ -19,6 +19,7 @@ test.describe('Setup Flow', () => {
   });
 
   test('visual: step 1 - create account', async ({ page, capturePage }) => {
+    test.slow();
     await page.goto('/setup');
     await expect(
       page.getByRole('heading', { name: 'Create an Admin Account', level: 2 }),

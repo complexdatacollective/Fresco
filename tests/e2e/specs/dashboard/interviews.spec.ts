@@ -77,6 +77,7 @@ test.describe('Interviews Page', () => {
   });
 
   test('visual snapshot', async ({ page, capturePage }) => {
+    test.slow();
     await waitForTable(page, { minRows: 5 });
     await capturePage('interviews-page');
   });

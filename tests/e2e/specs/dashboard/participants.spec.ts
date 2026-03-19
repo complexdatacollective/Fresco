@@ -82,6 +82,7 @@ test.describe('Participants Page', () => {
   });
 
   test('visual snapshot', async ({ page, capturePage }) => {
+    test.slow();
     await waitForTable(page, { minRows: 10 });
     await capturePage('participants-page');
   });

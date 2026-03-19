@@ -330,7 +330,9 @@ class OrdinalBinFixture {
     // Find the heading with the label (exact match to avoid "Very close" matching "Not very close")
     return this.page
       .getByRole('heading', { name: label, level: 4, exact: true })
-      .locator('xpath=ancestor::div[contains(@class, "row-span-2") or contains(@class, "col-span-2")]');
+      .locator(
+        'xpath=ancestor::div[contains(@class, "row-span-2") or contains(@class, "col-span-2")]',
+      );
   }
 
   /**
@@ -362,7 +364,7 @@ class OrdinalBinFixture {
   }
 
   /**
-   * Drag a node from the drawer to a bin.
+   * Drag a node from the drawer to a bin using keyboard DnD.
    */
   async dragNodeToBin(nodeLabel: string, binLabel: string): Promise<void> {
     const node = this.getNodeInDrawer(nodeLabel);
@@ -371,28 +373,35 @@ class OrdinalBinFixture {
     await expect(node).toBeVisible();
     await expect(bin).toBeVisible();
 
-    // Get bounding boxes
-    const sourceBox = await node.boundingBox();
-    const targetBox = await bin.boundingBox();
+    // Use keyboard DnD (Ctrl+D, arrow keys, Enter) for cross-browser reliability.
+    // Nodes have tabIndex=-1, so we must focus programmatically.
+    await node.evaluate((el) => (el as HTMLElement).focus());
+    await node.press('Control+d');
 
-    if (!sourceBox || !targetBox) {
-      throw new Error('Could not get bounding boxes for drag operation');
+    // Navigate to the correct drop target. The compatible targets may include
+    // multiple bins, so we need to find the right one by checking the active
+    // drop target's announced name.
+    const targetName = await bin.getAttribute('aria-label');
+    let found = false;
+    for (let i = 0; i < 10; i++) {
+      await node.press('ArrowRight');
+      // Check if the current active drop target matches our bin
+      const isOverTarget = await bin.evaluate(
+        (el) => el.getAttribute('data-drop-target-over') === 'true',
+      );
+      if (isOverTarget) {
+        found = true;
+        break;
+      }
     }
 
-    // Calculate center points
-    const sourceX = sourceBox.x + sourceBox.width / 2;
-    const sourceY = sourceBox.y + sourceBox.height / 2;
-    const targetX = targetBox.x + targetBox.width / 2;
-    const targetY = targetBox.y + targetBox.height / 2;
+    if (!found) {
+      throw new Error(
+        `Could not navigate to bin "${binLabel}" (aria-label: ${targetName})`,
+      );
+    }
 
-    // Simulate pointer-based drag
-    await this.page.mouse.move(sourceX, sourceY);
-    await this.page.mouse.down();
-    await this.page.mouse.move(sourceX + 10, sourceY - 10, { steps: 2 });
-    await this.page.mouse.move(targetX, targetY, { steps: 10 });
-    await this.page.mouse.up();
-
-    // Wait for the drop animation to complete
+    await node.press('Enter');
     await this.page.waitForTimeout(300);
   }
 
@@ -545,7 +554,7 @@ class CategoricalBinFixture {
   }
 
   /**
-   * Drag a node from the drawer to a category bin.
+   * Drag a node from the drawer to a category bin using keyboard DnD.
    */
   async dragNodeToBin(nodeLabel: string, binLabel: string): Promise<void> {
     const node = this.getNodeInDrawer(nodeLabel);
@@ -554,28 +563,27 @@ class CategoricalBinFixture {
     await expect(node).toBeVisible();
     await expect(bin).toBeVisible();
 
-    // Get bounding boxes
-    const sourceBox = await node.boundingBox();
-    const targetBox = await bin.boundingBox();
+    await node.evaluate((el) => (el as HTMLElement).focus());
+    await node.press('Control+d');
 
-    if (!sourceBox || !targetBox) {
-      throw new Error('Could not get bounding boxes for drag operation');
+    // Navigate to the correct drop target bin
+    let found = false;
+    for (let i = 0; i < 10; i++) {
+      await node.press('ArrowRight');
+      const isOverTarget = await bin.evaluate(
+        (el) => el.getAttribute('data-drop-target-over') === 'true',
+      );
+      if (isOverTarget) {
+        found = true;
+        break;
+      }
     }
 
-    // Calculate center points
-    const sourceX = sourceBox.x + sourceBox.width / 2;
-    const sourceY = sourceBox.y + sourceBox.height / 2;
-    const targetX = targetBox.x + targetBox.width / 2;
-    const targetY = targetBox.y + targetBox.height / 2;
+    if (!found) {
+      throw new Error(`Could not navigate to category bin "${binLabel}"`);
+    }
 
-    // Simulate pointer-based drag
-    await this.page.mouse.move(sourceX, sourceY);
-    await this.page.mouse.down();
-    await this.page.mouse.move(sourceX + 10, sourceY - 10, { steps: 2 });
-    await this.page.mouse.move(targetX, targetY, { steps: 10 });
-    await this.page.mouse.up();
-
-    // Wait for the drop animation to complete
+    await node.press('Enter');
     await this.page.waitForTimeout(300);
   }
 
@@ -651,14 +659,11 @@ class NodePanelFixture {
   }
 
   /**
-   * Drag a node from the side panel to the main node list.
+   * Drag a node from the side panel to the main node list using keyboard DnD.
    *
-   * This app uses a custom pointer-based drag and drop implementation,
-   * not HTML5 DnD. We need to simulate pointer events manually:
-   * 1. pointerdown on source
-   * 2. pointermove with enough distance to exceed drag threshold (5px)
-   * 3. pointermove to the target
-   * 4. pointerup to drop
+   * Uses the app's keyboard-accessible drag path (Ctrl+D to start, arrow keys
+   * to navigate, Enter to drop) instead of pointer simulation, which fails
+   * in WebKit due to setPointerCapture issues with synthetic events.
    */
   async dragNodeToMainList(label: string): Promise<void> {
     const nodeInPanel = this.getNode(label);
@@ -667,35 +672,14 @@ class NodePanelFixture {
     await expect(nodeInPanel).toBeVisible();
     await expect(dropTarget).toBeVisible();
 
-    // Get bounding boxes
-    const sourceBox = await nodeInPanel.boundingBox();
-    const targetBox = await dropTarget.boundingBox();
-
-    if (!sourceBox || !targetBox) {
-      throw new Error('Could not get bounding boxes for drag operation');
-    }
-
-    // Calculate center points
-    const sourceX = sourceBox.x + sourceBox.width / 2;
-    const sourceY = sourceBox.y + sourceBox.height / 2;
-    const targetX = targetBox.x + targetBox.width / 2;
-    const targetY = targetBox.y + targetBox.height / 2;
-
-    // Simulate pointer-based drag:
-    // 1. Move to source and press
-    await this.page.mouse.move(sourceX, sourceY);
-    await this.page.mouse.down();
-
-    // 2. Move a small amount to exceed the drag threshold (5px)
-    await this.page.mouse.move(sourceX + 10, sourceY + 10, { steps: 2 });
-
-    // 3. Move to the target location
-    await this.page.mouse.move(targetX, targetY, { steps: 10 });
-
-    // 4. Release to drop
-    await this.page.mouse.up();
-
-    // Wait for the drop animation to complete
+    // Use keyboard DnD instead of pointer simulation because WebKit has issues
+    // with setPointerCapture on synthetic pointer events from Playwright's mouse
+    // API. The nodes have tabIndex=-1 (roving tabindex within a listbox), so we
+    // must focus them programmatically rather than via Tab.
+    await nodeInPanel.evaluate((el) => (el as HTMLElement).focus());
+    await nodeInPanel.press('Control+d');
+    await nodeInPanel.press('ArrowRight');
+    await nodeInPanel.press('Enter');
     await this.page.waitForTimeout(300);
   }
 }

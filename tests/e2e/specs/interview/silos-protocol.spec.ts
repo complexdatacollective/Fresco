@@ -374,8 +374,22 @@ test.describe('SILOS Protocol', () => {
 
     await expect(interview.nextButton).toBeEnabled();
 
-    // Wait for sync middleware to persist nodes to database (3s debounce + buffer)
-    await protocol.waitForNodes(interview.interviewId, 3, { timeout: 10000 });
+    // Wait for sync middleware to persist the addNodeToPrompt update to database.
+    // waitForNodes(3) is insufficient because the 3 nodes already existed before the
+    // drag — the drag only updates Alice's promptIDs and additional attributes.
+    // Poll until Alice has 2 promptIDs (close ties + drug prompt).
+    await expect
+      .poll(
+        async () => {
+          const state = await protocol.getNetworkState(interview.interviewId);
+          const alice = state.nodes.find((n) =>
+            Object.values(n.attributes).includes('Alice'),
+          );
+          return alice?.attributes['45032017-155e-4499-9e7f-2abbfc6cc441'];
+        },
+        { timeout: 15000, intervals: [500] },
+      )
+      .toBe(true);
     await protocol.logNetworkState(interview.interviewId);
   });
 
@@ -474,19 +488,27 @@ test.describe('SILOS Protocol', () => {
 
     // --- Test highlighting: Alice should already be highlighted ---
     // Alice was added to the drug use prompt in Stage 11, so she should be highlighted
-    expect(await stage.sociogram.isNodeHighlighted('Alice')).toBe(true);
+    await expect(stage.sociogram.getNode('Alice')).toHaveAttribute(
+      'data-node-highlighted',
+      'true',
+    );
 
     // --- Test unhighlighting: untap Alice ---
     await stage.sociogram.toggleHighlight('Alice');
 
-    // Verify Alice is no longer highlighted
-    expect(await stage.sociogram.isNodeHighlighted('Alice')).toBe(false);
+    // Verify Alice is no longer highlighted (attribute is removed when false)
+    await expect(stage.sociogram.getNode('Alice')).not.toHaveAttribute(
+      'data-node-highlighted',
+    );
 
     // --- Test re-highlighting: tap Alice again ---
     await stage.sociogram.toggleHighlight('Alice');
 
     // Verify Alice is highlighted again
-    expect(await stage.sociogram.isNodeHighlighted('Alice')).toBe(true);
+    await expect(stage.sociogram.getNode('Alice')).toHaveAttribute(
+      'data-node-highlighted',
+      'true',
+    );
 
     await expect(interview.nextButton).toBeEnabled();
   });

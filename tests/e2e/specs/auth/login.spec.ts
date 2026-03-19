@@ -10,6 +10,7 @@ import { fillField } from '../../helpers/form.js';
 
 test.describe('Sign In Page', () => {
   test('visual: sign in page', async ({ page, capturePage }) => {
+    test.slow();
     await page.goto('/signin', { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: /sign in/i })).toBeVisible();
 

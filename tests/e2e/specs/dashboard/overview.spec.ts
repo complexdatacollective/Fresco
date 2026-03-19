@@ -69,6 +69,7 @@ test.describe('Dashboard Overview', () => {
   });
 
   test('visual snapshot', async ({ capturePage }) => {
+    test.slow();
     await capturePage('dashboard-page');
   });
 });

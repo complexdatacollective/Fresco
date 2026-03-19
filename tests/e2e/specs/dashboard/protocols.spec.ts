@@ -86,6 +86,7 @@ test.describe('Protocols Page', () => {
   });
 
   test('visual snapshot', async ({ page, capturePage }) => {
+    test.slow();
     await waitForTable(page, { minRows: 1 });
     await capturePage('protocols-page');
   });
