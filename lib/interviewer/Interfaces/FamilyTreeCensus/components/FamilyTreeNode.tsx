@@ -159,9 +159,11 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
           <EgoIcon className="pointer-events-none absolute top-1/2 left-1/2 size-8 -translate-1/2" />
         )}
       </Node>
-      <span className="max-w-24 truncate text-xs text-white">
-        {displayLabel}
-      </span>
+      {(!label || isEgo) && (
+        <span className="max-w-24 truncate text-xs text-white">
+          {displayLabel}
+        </span>
+      )}
     </div>
   );
 }
