@@ -11,7 +11,7 @@ import OtherChildrenDetailStep from '~/lib/interviewer/Interfaces/FamilyTreeCens
 import ParentsCountStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/ParentsCountStep';
 import ParentsDetailStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/ParentsDetailStep';
 import PartnerStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/PartnerStep';
-import ParentGroupingStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/ParentGroupingStep';
+import ParentPartnershipStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/ParentPartnershipStep';
 import SiblingParentMappingStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/SiblingParentMappingStep';
 import SiblingsDetailStep from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/quickStartWizard/SiblingsDetailStep';
 import {
@@ -68,12 +68,10 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
           skip: (d) => (d.siblingCount as number | undefined) === 0,
         },
         {
-          title: 'Parent grouping',
-          description: 'Tell us which of your parents raised you together.',
-          content: ParentGroupingStep,
+          title: 'Parent relationships',
+          description: 'Tell us about the relationships between your parents.',
+          content: ParentPartnershipStep,
           skip: (d) => {
-            const siblingCount = (d.siblingCount as number | undefined) ?? 0;
-            if (siblingCount > 0) return true;
             const parents = (d.parents as ParentDetail[] | undefined) ?? [];
             const socialCount = parents.filter((p) => p.raisedYou).length;
             return socialCount < 2;
@@ -117,7 +115,9 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
           siblingParentMap: data.siblingParentMap as
             | Record<number, number[]>
             | undefined,
-          parentGroup: data.parentGroup as number[] | undefined,
+          parentPartnerships: data.parentPartnerships as
+            | [number, number][]
+            | undefined,
           partner: (data.hasPartner as boolean | undefined)
             ? {
                 hasPartner: true,

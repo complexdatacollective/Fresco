@@ -32,12 +32,12 @@ export type ParentDetail = PersonDetail & {
   nameKnown: boolean;
   raisedYou: boolean;
   biologicallyRelated: boolean;
-  auxiliaryRole?: 'donor' | 'surrogate';
+  auxiliaryRole?: 'donor' | 'surrogate' | 'none';
 };
 
 export type BioParentDetail = PersonDetail & {
   nameKnown: boolean;
-  auxiliaryRole: 'donor' | 'surrogate';
+  auxiliaryRole: 'donor' | 'surrogate' | 'none';
 };
 
 export type QuickStartData = {
@@ -45,7 +45,7 @@ export type QuickStartData = {
   bioParents: BioParentDetail[];
   siblings: PersonDetail[];
   siblingParentMap?: Record<number, number[]>;
-  parentGroup?: number[];
+  parentPartnerships?: [number, number][];
   partner: (PersonDetail & { hasPartner: true }) | { hasPartner: false };
   childrenWithPartner: PersonDetail[];
   otherChildren: PersonDetail[];
@@ -84,7 +84,8 @@ export type FamilyTreeStore = FamilyTreeState & NetworkActions;
 function deriveParentEdgeType(parent: ParentDetail): ParentEdgeType {
   if (parent.raisedYou) return 'social-parent';
   if (parent.auxiliaryRole === 'surrogate') return 'surrogate';
-  return 'donor';
+  if (parent.auxiliaryRole === 'donor') return 'donor';
+  return 'bio-parent';
 }
 
 export const createFamilyTreeStore = (
@@ -205,7 +206,11 @@ export const createFamilyTreeStore = (
               target: egoId,
               type: 'parent',
               edgeType:
-                bp.auxiliaryRole === 'surrogate' ? 'surrogate' : 'donor',
+                bp.auxiliaryRole === 'surrogate'
+                  ? 'surrogate'
+                  : bp.auxiliaryRole === 'donor'
+                    ? 'donor'
+                    : 'bio-parent',
               biological: true,
             });
           }
@@ -241,73 +246,15 @@ export const createFamilyTreeStore = (
             }
           }
 
-          // Create parent group (partner) edges
-          if (data.parentGroup) {
-            const group = data.parentGroup;
-            for (let a = 0; a < group.length; a++) {
-              for (let b = a + 1; b < group.length; b++) {
-                const idA = parentIds[group[a]!];
-                const idB = parentIds[group[b]!];
-                if (idA && idB) {
-                  get().addEdge({
-                    source: idA,
-                    target: idB,
-                    type: 'partner',
-                    active: true,
-                  });
-                }
-              }
-            }
-          } else if (data.siblingParentMap) {
-            const socialIndices = data.parents
-              .map((_, i) => i)
-              .filter((i) => data.parents[i]?.raisedYou);
-            const parentSets: number[][] = [socialIndices];
-            for (let si = 0; si < data.siblings.length; si++) {
-              parentSets.push(data.siblingParentMap[si] ?? socialIndices);
-            }
-
-            const parentUnion = new Map<number, Set<number>>();
-            for (const pset of parentSets) {
-              if (pset.length < 2) continue;
-              for (const p of pset) {
-                if (!parentUnion.has(p)) parentUnion.set(p, new Set());
-                for (const q of pset) {
-                  if (p !== q) parentUnion.get(p)!.add(q);
-                }
-              }
-            }
-
-            const created = new Set<string>();
-            for (const [p, neighbors] of parentUnion) {
-              for (const q of neighbors) {
-                const key = p < q ? `${p}-${q}` : `${q}-${p}`;
-                if (created.has(key)) continue;
-                created.add(key);
-                const idA = parentIds[p];
-                const idB = parentIds[q];
-                if (idA && idB) {
-                  get().addEdge({
-                    source: idA,
-                    target: idB,
-                    type: 'partner',
-                    active: true,
-                  });
-                }
-              }
-            }
-          } else {
-            const socialPIds = data.parents
-              .map((p, i) => ({ p, i }))
-              .filter(({ p }) => p.raisedYou)
-              .map(({ i }) => parentIds[i]!)
-              .filter(Boolean);
-
-            for (let a = 0; a < socialPIds.length; a++) {
-              for (let b = a + 1; b < socialPIds.length; b++) {
+          // Create partner edges between parents
+          if (data.parentPartnerships) {
+            for (const [a, b] of data.parentPartnerships) {
+              const idA = parentIds[a];
+              const idB = parentIds[b];
+              if (idA && idB) {
                 get().addEdge({
-                  source: socialPIds[a]!,
-                  target: socialPIds[b]!,
+                  source: idA,
+                  target: idB,
                   type: 'partner',
                   active: true,
                 });

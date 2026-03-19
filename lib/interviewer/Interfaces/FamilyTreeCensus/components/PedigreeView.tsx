@@ -154,7 +154,11 @@ export default function PedigreeView() {
               <FamilyTreeNode
                 node={node}
                 allowDrag={node.readOnly !== true}
-                onTap={(nodeId) => setOpenMenuNodeId(nodeId)}
+                onTap={(nodeId) => {
+                  // eslint-disable-next-line no-console
+                  console.log('[PedigreeView] onTap', nodeId);
+                  setOpenMenuNodeId(nodeId);
+                }}
               />
             </NodeContextMenu>
           )}

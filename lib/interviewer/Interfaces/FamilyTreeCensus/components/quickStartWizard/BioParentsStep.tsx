@@ -84,9 +84,11 @@ function BioParentsForm() {
               : undefined,
             nameKnown: nameKnown[i] ?? false,
             auxiliaryRole:
-              rawAuxiliaryRole === 'donor' || rawAuxiliaryRole === 'surrogate'
+              rawAuxiliaryRole === 'donor' ||
+              rawAuxiliaryRole === 'surrogate' ||
+              rawAuxiliaryRole === 'none'
                 ? rawAuxiliaryRole
-                : 'donor',
+                : 'none',
           };
         },
       );
@@ -142,10 +144,11 @@ function BioParentsForm() {
               label="Was this person a sperm/egg donor or a surrogate?"
               component={RadioGroupField}
               options={[
+                { value: 'none', label: 'No' },
                 { value: 'donor', label: 'Sperm/egg donor' },
                 { value: 'surrogate', label: 'Surrogate' },
               ]}
-              initialValue={existing?.[i]?.auxiliaryRole ?? 'donor'}
+              initialValue={existing?.[i]?.auxiliaryRole ?? 'none'}
               required
             />
           </Surface>

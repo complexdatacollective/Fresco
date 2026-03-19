@@ -12,7 +12,12 @@ export type Gender =
   | 'other'
   | 'unknown';
 
-export type ParentEdgeType = 'parent' | 'social-parent' | 'donor' | 'surrogate';
+export type ParentEdgeType =
+  | 'parent'
+  | 'social-parent'
+  | 'bio-parent'
+  | 'donor'
+  | 'surrogate';
 
 export type ParentConnection = {
   parentIndex: number;

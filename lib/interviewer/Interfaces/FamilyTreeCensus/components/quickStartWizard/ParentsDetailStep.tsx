@@ -183,7 +183,9 @@ function ParentsDetailForm() {
             biologicallyRelated,
             ...(!raisedYou &&
             biologicallyRelated &&
-            (rawAuxiliaryRole === 'donor' || rawAuxiliaryRole === 'surrogate')
+            (rawAuxiliaryRole === 'donor' ||
+              rawAuxiliaryRole === 'surrogate' ||
+              rawAuxiliaryRole === 'none')
               ? { auxiliaryRole: rawAuxiliaryRole }
               : {}),
           };
@@ -235,6 +237,7 @@ function ParentsDetailForm() {
                 label="Was this person a sperm/egg donor or a surrogate?"
                 component={RadioGroupField}
                 options={[
+                  { value: 'none', label: 'No' },
                   { value: 'donor', label: 'Sperm/egg donor' },
                   { value: 'surrogate', label: 'Surrogate' },
                 ]}
