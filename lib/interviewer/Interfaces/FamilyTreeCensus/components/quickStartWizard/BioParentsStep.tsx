@@ -5,7 +5,9 @@ import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { useWizard } from '~/lib/dialogs/useWizard';
+import Field from '~/lib/form/components/Field/Field';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
+import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import ToggleField from '~/lib/form/components/fields/ToggleField';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
@@ -38,7 +40,7 @@ function BioParentsForm() {
   errorsRef.current = errors;
 
   const parents = (data.parents as ParentDetail[] | undefined) ?? [];
-  const bioParentCount = parents.filter((p) => p.biological !== false).length;
+  const bioParentCount = parents.filter((p) => p.biologicallyRelated).length;
   const missingCount = Math.max(0, 2 - bioParentCount);
 
   const existing = data.bioParents as BioParentDetail[] | undefined;
@@ -69,6 +71,7 @@ function BioParentsForm() {
           const rawName = values[`bioParent-${i}-name`];
           const rawSex = values[`bioParent-${i}-sex`];
           const rawGender = values[`bioParent-${i}-gender`];
+          const rawAuxiliaryRole = values[`bioParent-${i}-auxiliaryRole`];
 
           return {
             name: typeof rawName === 'string' ? rawName : '',
@@ -80,6 +83,10 @@ function BioParentsForm() {
                 )
               : undefined,
             nameKnown: nameKnown[i] ?? false,
+            auxiliaryRole:
+              rawAuxiliaryRole === 'donor' || rawAuxiliaryRole === 'surrogate'
+                ? rawAuxiliaryRole
+                : 'donor',
           };
         },
       );
@@ -129,6 +136,17 @@ function BioParentsForm() {
                 gender: existing?.[i]?.gender,
               }}
               showName={nameKnownState[i] ?? false}
+            />
+            <Field
+              name={`bioParent-${i}-auxiliaryRole`}
+              label="Was this person a sperm/egg donor or a surrogate?"
+              component={RadioGroupField}
+              options={[
+                { value: 'donor', label: 'Sperm/egg donor' },
+                { value: 'surrogate', label: 'Surrogate' },
+              ]}
+              initialValue={existing?.[i]?.auxiliaryRole ?? 'donor'}
+              required
             />
           </Surface>
         ))}
