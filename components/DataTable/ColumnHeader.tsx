@@ -12,7 +12,7 @@ import {
   type FilterConfig,
   type FilterValue,
 } from '~/components/DataTable/filters/types';
-import Button from '~/components/ui/Button';
+import Button, { buttonVariants } from '~/components/ui/Button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,7 +56,13 @@ export function DataTableColumnHeader<TData, TValue>({
 
   if (!canSort && !hasFilter) {
     return (
-      <div className={cx('flex min-w-max items-center text-base', className)}>
+      <div
+        className={cx(
+          buttonVariants({ variant: 'text', size: 'sm' }),
+          'pointer-events-none -mx-4 min-w-max px-4! text-base',
+          className,
+        )}
+      >
         {title}
       </div>
     );
@@ -97,6 +103,7 @@ export function DataTableColumnHeader<TData, TValue>({
             render={
               <Button
                 size="sm"
+                className="-mx-4 min-w-max px-4! text-base"
                 variant={isActive ? 'default' : 'text'}
                 color={isActive ? 'primary' : 'default'}
                 iconPosition="right"
