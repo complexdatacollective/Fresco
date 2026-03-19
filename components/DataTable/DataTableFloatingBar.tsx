@@ -28,6 +28,8 @@ export function DataTableFloatingBar<TData>({
       {selectedCount > 0 && (
         <MotionSurface
           key="floating-bar"
+          level="popover"
+          spacing="sm"
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}

@@ -219,8 +219,8 @@ export class ProtocolFixture {
    * Useful for debugging sync issues.
    */
   async getNetworkState(interviewId: string): Promise<{
-    nodes: Array<{ _uid: string; type: string; attributes: Record<string, unknown> }>;
-    edges: Array<{ _uid: string; type: string; from: string; to: string }>;
+    nodes: { _uid: string; type: string; attributes: Record<string, unknown> }[];
+    edges: { _uid: string; type: string; from: string; to: string }[];
     ego: { _uid: string; attributes: Record<string, unknown> };
     currentStep: number;
   }> {
@@ -234,8 +234,8 @@ export class ProtocolFixture {
     }
 
     const network = interview.network as {
-      nodes: Array<{ _uid: string; type: string; attributes: Record<string, unknown> }>;
-      edges: Array<{ _uid: string; type: string; from: string; to: string }>;
+      nodes: { _uid: string; type: string; attributes: Record<string, unknown> }[];
+      edges: { _uid: string; type: string; from: string; to: string }[];
       ego: { _uid: string; attributes: Record<string, unknown> };
     };
 

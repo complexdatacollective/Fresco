@@ -108,7 +108,13 @@ export default function OperatorFilter({
             size="sm"
             options={entityOptions}
             value={selectedEntity}
-            onChange={(val) => setSelectedEntity(String(val ?? ''))}
+            onChange={(val) => {
+              if (typeof val === 'string' || typeof val === 'number') {
+                setSelectedEntity(String(val));
+              } else {
+                setSelectedEntity('');
+              }
+            }}
           />
         )}
         <div className="flex items-center gap-2">

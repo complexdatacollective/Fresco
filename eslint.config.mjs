@@ -243,6 +243,14 @@ export default tseslint.config(
     },
   },
 
+  // E2E tests are not React — Playwright fixture `use()` triggers false positives
+  {
+    files: ['tests/e2e/**/*.ts'],
+    rules: {
+      'react-hooks/rules-of-hooks': 'off',
+    },
+  },
+
   // Declaration files require `interface` for ambient type merging
   {
     files: ['**/*.d.ts'],

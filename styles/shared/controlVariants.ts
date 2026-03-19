@@ -206,7 +206,7 @@ export const interactiveStateVariants = cva({
       readOnly: cx('focus-within:border-input-contrast/70'),
       invalid: '',
       normal:
-        'has-[input:focus-visible,textarea:focus-visible]:focus-styles outline-[var(--focus-color,currentColor)]',
+        'has-[input:focus-visible,textarea:focus-visible]:focus-styles outline-(--focus-color,currentColor)',
     },
   },
   defaultVariants: {

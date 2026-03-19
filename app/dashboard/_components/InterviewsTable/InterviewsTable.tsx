@@ -179,7 +179,6 @@ export const InterviewsTable = ({
                 );
                 setShowExportModal(true);
               }}
-              color="primary"
               icon={<FileUp className="size-4" />}
             >
               Export Selected

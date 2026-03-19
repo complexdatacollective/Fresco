@@ -94,13 +94,11 @@ export const test = baseTest.extend<
   interview: async ({ page, captureInterview }, use) => {
     const interview = new InterviewFixture(page);
     interview.setCaptureFn(captureInterview);
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     await use(interview);
   },
 
   stage: async ({ page }, use) => {
     const stage = new StageFixture(page);
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     await use(stage);
   },
 });
