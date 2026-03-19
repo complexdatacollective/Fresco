@@ -14,6 +14,7 @@ import { Button } from '~/components/ui/Button';
 import InputField from '~/lib/form/components/fields/InputField';
 import SelectField from '~/lib/form/components/fields/Select/Native';
 import ProgressBar from '~/components/ui/ProgressBar';
+import ToggleField from '~/lib/form/components/fields/ToggleField';
 import {
   type GetProtocolsQuery,
   type GetProtocolsReturnType,
@@ -33,6 +34,9 @@ export default function SyntheticInterviewDataSection({
 
   const [selectedProtocolId, setSelectedProtocolId] = useState<string>();
   const [count, setCount] = useState(10);
+  const [simulateDropOut, setSimulateDropOut] = useState(true);
+  const [respectSkipLogicAndFiltering, setRespectSkipLogicAndFiltering] =
+    useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
@@ -50,7 +54,12 @@ export default function SyntheticInterviewDataSection({
       const response = await fetch('/api/generate-test-interviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ protocolId: selectedProtocolId, count }),
+        body: JSON.stringify({
+          protocolId: selectedProtocolId,
+          count,
+          simulateDropOut,
+          respectSkipLogicAndFiltering,
+        }),
       });
 
       if (!response.ok || !response.body) {
@@ -184,6 +193,32 @@ export default function SyntheticInterviewDataSection({
           </div>
         )}
       </SettingsField>
+      <SettingsField
+        label="Simulate participant drop-out"
+        description="When enabled, participants have an increasing chance of abandoning the interview at each stage."
+        testId="simulate-drop-out"
+        control={
+          <ToggleField
+            value={simulateDropOut}
+            onChange={(value) => setSimulateDropOut(value ?? true)}
+            disabled={isGenerating}
+          />
+        }
+      />
+      <SettingsField
+        label="Respect skip logic and filtering"
+        description="Evaluate skip logic rules and stage network filters during generation. Stages will be skipped or see filtered nodes based on the network state at that point."
+        testId="respect-skip-logic"
+        control={
+          <ToggleField
+            value={respectSkipLogicAndFiltering}
+            onChange={(value) =>
+              setRespectSkipLogicAndFiltering(value ?? false)
+            }
+            disabled={isGenerating}
+          />
+        }
+      />
       <SettingsField
         label="Delete Test Interviews"
         description={`There are currently ${String(syntheticCounts.interviewCount)} synthetic interviews and ${String(syntheticCounts.participantCount)} test participants.`}
