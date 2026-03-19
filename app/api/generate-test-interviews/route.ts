@@ -53,7 +53,6 @@ export async function POST(request: Request) {
 
       try {
         const stages = protocol.stages as { id: string }[];
-        const totalStages = stages.length;
         const typedStages = stages as Parameters<typeof generateNetwork>[1];
         const typedCodebook = protocol.codebook as Parameters<
           typeof generateNetwork
@@ -65,14 +64,10 @@ export async function POST(request: Request) {
         const incompleteInterviewIds: string[] = [];
 
         for (let i = 0; i < count; i++) {
-          const { network, stageMetadata, stagesCompleted } = generateNetwork(
-            typedCodebook,
-            typedStages,
-            undefined,
-            genOptions,
-          );
+          const { network, stageMetadata, stagesCompleted, droppedOut } =
+            generateNetwork(typedCodebook, typedStages, undefined, genOptions);
 
-          const isCompleted = stagesCompleted === totalStages;
+          const isCompleted = !droppedOut;
           if (isCompleted) {
             completedCount++;
           }

@@ -64,6 +64,7 @@ type GenerateNetworkResult = {
   network: NcNetwork;
   stageMetadata: Record<string, unknown> | null;
   stagesCompleted: number;
+  droppedOut: boolean;
 };
 
 function toVariableEntry(
@@ -332,6 +333,7 @@ export function generateNetwork(
     options;
   const totalStages = stages.length;
   let stagesCompleted = 0;
+  let droppedOut = false;
 
   for (let i = 0; i < stages.length; i++) {
     const stage = stages[i]!;
@@ -360,7 +362,10 @@ export function generateNetwork(
 
     if (simulateDropOut) {
       const dropOutChance = ((i + 1) / totalStages) * 0.15;
-      if (valueGen.randomFloat(0, 1) < dropOutChance) break;
+      if (valueGen.randomFloat(0, 1) < dropOutChance) {
+        droppedOut = true;
+        break;
+      }
     }
 
     stagesCompleted++;
@@ -797,5 +802,6 @@ export function generateNetwork(
     },
     stageMetadata: Object.keys(stageMetadata).length > 0 ? stageMetadata : null,
     stagesCompleted,
+    droppedOut,
   };
 }
