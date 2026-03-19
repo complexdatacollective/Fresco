@@ -35,6 +35,8 @@ type PopoverProps = ComponentProps<typeof BasePopover.Root> & {
 function Popover({ children, ...props }: PopoverProps) {
   const [mounted, setMounted] = useState(false);
 
+  const controlled = props.open !== undefined;
+
   const handleOpenChange = (
     nextOpen: boolean,
     event: BasePopover.Root.ChangeEventDetails,
@@ -43,11 +45,17 @@ function Popover({ children, ...props }: PopoverProps) {
     props.onOpenChange?.(nextOpen, event);
   };
 
+  // When open is controlled externally, sync mounted state so
+  // PopoverContent renders. base-ui only fires onOpenChange for
+  // internal state changes, not when the open prop changes.
+  const effectiveOpen = controlled ? props.open : mounted;
+  const effectiveMounted = controlled ? !!props.open : mounted;
+
   return (
-    <PopoverContext.Provider value={{ mounted, setMounted }}>
+    <PopoverContext.Provider value={{ mounted: effectiveMounted, setMounted }}>
       <BasePopover.Root
         {...props}
-        open={props.open ?? mounted}
+        open={effectiveOpen}
         onOpenChange={handleOpenChange}
       >
         {children}
