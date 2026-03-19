@@ -32,7 +32,10 @@ function SiblingParentMappingForm() {
   errorsRef.current = errors;
 
   const siblings = (data.siblings as PersonDetail[] | undefined) ?? [];
-  const parents = (data.parents as ParentDetail[] | undefined) ?? [];
+  const parents = useMemo(
+    () => (data.parents as ParentDetail[] | undefined) ?? [],
+    [data.parents],
+  );
   const socialParentIndices = useMemo(
     () =>
       parents
@@ -119,7 +122,7 @@ function SiblingParentMappingForm() {
 
   const getSiblingLabel = (index: number) => {
     const sibling = siblings[index];
-    return sibling?.name || `Sibling ${index + 1}`;
+    return sibling?.name ?? `Sibling ${index + 1}`;
   };
 
   return (

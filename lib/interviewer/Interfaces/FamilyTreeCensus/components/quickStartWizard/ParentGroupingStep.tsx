@@ -46,7 +46,7 @@ function ParentGroupingForm() {
   };
 
   useEffect(() => {
-    setBeforeNext(async () => {
+    setBeforeNext(() => {
       setStepData({ parentGroup: [...selectedRef.current] });
       return true;
     });
