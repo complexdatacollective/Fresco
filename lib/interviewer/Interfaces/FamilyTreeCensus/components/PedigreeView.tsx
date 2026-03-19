@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import Node from '~/components/Node';
 import useDialog from '~/lib/dialogs/useDialog';
 import Field from '~/lib/form/components/Field/Field';
 import InputField from '~/lib/form/components/fields/InputField';
 import { useNodeMeasurement } from '~/hooks/useNodeMeasurement';
-import FamilyTreeNode from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
+import FamilyTreeNode, {
+  FamilyTreeNodeMeasurement,
+} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/FamilyTreeNode';
 import NodeContextMenu, {
   type NodeContextMenuAction,
 } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/components/NodeContextMenu';
@@ -28,7 +29,7 @@ export default function PedigreeView() {
   const { openDialog } = useDialog();
 
   const { nodeWidth, nodeHeight } = useNodeMeasurement({
-    component: <Node size="sm" />,
+    component: <FamilyTreeNodeMeasurement />,
   });
 
   const handleAddPerson = async (nodeId: string, mode: AddPersonMode) => {
