@@ -30,18 +30,22 @@ export type PersonDetail = {
 
 export type ParentDetail = PersonDetail & {
   nameKnown: boolean;
-  edgeType: ParentEdgeType;
-  biological?: boolean;
+  raisedYou: boolean;
+  biologicallyRelated: boolean;
+  auxiliaryRole?: 'donor' | 'surrogate';
 };
 
 export type BioParentDetail = PersonDetail & {
   nameKnown: boolean;
+  auxiliaryRole: 'donor' | 'surrogate';
 };
 
 export type QuickStartData = {
   parents: ParentDetail[];
   bioParents: BioParentDetail[];
   siblings: PersonDetail[];
+  siblingParentMap?: Record<number, number[]>;
+  parentGroup?: number[];
   partner: (PersonDetail & { hasPartner: true }) | { hasPartner: false };
   childrenWithPartner: PersonDetail[];
   otherChildren: PersonDetail[];
