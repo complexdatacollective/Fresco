@@ -2,6 +2,7 @@ import addonA11y from '@storybook/addon-a11y';
 import addonDocs from '@storybook/addon-docs';
 import addonVitest from '@storybook/addon-vitest';
 import { definePreview } from '@storybook/nextjs-vite';
+import { NuqsTestingAdapter } from 'nuqs/adapters/testing';
 import { StrictMode } from 'react';
 import Providers from '../components/Providers';
 import '../styles/globals.css';
@@ -64,7 +65,7 @@ export default definePreview({
          * required by base-ui: https://base-ui.com/react/overview/quick-start#portals
          */}
         <div className="root h-full">
-          <Providers>
+          <Providers nuqsAdapter={NuqsTestingAdapter}>
             <Story />
           </Providers>
         </div>

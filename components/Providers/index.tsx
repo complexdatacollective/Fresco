@@ -3,8 +3,8 @@
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Toast } from '@base-ui/react/toast';
 import { MotionConfig } from 'motion/react';
-import { NuqsAdapter } from 'nuqs/adapters/next/app';
-import { type ReactNode } from 'react';
+import { NuqsAdapter as NextNuqsAdapter } from 'nuqs/adapters/next/app';
+import { type ComponentType, type ReactNode } from 'react';
 import DialogProvider from '~/lib/dialogs/DialogProvider';
 import { DndStoreProvider } from '~/lib/dnd';
 import { InterviewToastViewport } from '~/lib/interviewer/components/InterviewToast';
@@ -15,9 +15,11 @@ import { TooltipProvider } from '../ui/tooltip';
 export default function Providers({
   children,
   disableAnimations,
+  nuqsAdapter: NuqsAdapter = NextNuqsAdapter,
 }: {
   children: ReactNode;
   disableAnimations?: boolean;
+  nuqsAdapter?: ComponentType<{ children: ReactNode }>;
 }) {
   if (disableAnimations) {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
