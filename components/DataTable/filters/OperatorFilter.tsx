@@ -7,6 +7,8 @@ import {
   type OperatorFilterConfig,
   type OperatorFilterValue,
 } from '~/components/DataTable/filters/types';
+import Button, { IconButton } from '~/components/ui/Button';
+import { Badge } from '~/components/ui/badge';
 import { cx } from '~/utils/cva';
 
 type OperatorFilterProps = {
@@ -87,19 +89,15 @@ export default function OperatorFilter({
       {entityOptions.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {entityOptions.map((option) => (
-            <button
+            <Button
               key={option.value}
-              type="button"
+              size="sm"
+              variant={selectedEntity === option.value ? 'default' : 'outline'}
+              color={selectedEntity === option.value ? 'primary' : 'default'}
               onClick={() => setSelectedEntity(option.value)}
-              className={cx(
-                'rounded-full px-3 py-1 text-xs transition-colors',
-                selectedEntity === option.value
-                  ? 'bg-primary/10 text-primary font-semibold'
-                  : 'bg-surface-1 text-text/60 hover:bg-surface-1/80',
-              )}
             >
               {option.label}
-            </button>
+            </Button>
           ))}
         </div>
       )}
@@ -130,34 +128,32 @@ export default function OperatorFilter({
           className="border-input bg-background w-20 rounded-md border px-2 py-1 text-xs"
         />
 
-        <button
-          type="button"
-          onClick={handleAddCondition}
-          className="bg-primary text-primary-contrast hover:bg-primary/90 rounded-md px-3 py-1 text-xs font-medium transition-colors"
-        >
-          Add Condition
-        </button>
+        <Button size="sm" onClick={handleAddCondition}>
+          Add
+        </Button>
       </div>
 
       {conditions.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {conditions.map((condition, index) => (
-            <div
+            <Badge
               key={`${condition.entityKind}-${condition.entityType}-${condition.operator}-${condition.value.toString()}-${index.toString()}`}
-              className="bg-primary/10 text-primary flex items-center gap-1 rounded-full px-2.5 py-1 text-xs"
+              variant="outline"
+              className={cx('gap-1 pr-1')}
             >
               <span>
                 {condition.entityKind}.{condition.entityType}{' '}
                 {operatorSymbols[condition.operator]} {condition.value}
               </span>
-              <button
-                type="button"
+              <IconButton
+                size="sm"
+                variant="text"
+                aria-label="Remove condition"
                 onClick={() => handleRemoveCondition(index)}
-                className="hover:bg-primary/20 ml-0.5 rounded-full p-0.5 transition-colors"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </div>
+                icon={<X className="size-3" />}
+                className="size-5!"
+              />
+            </Badge>
           ))}
         </div>
       )}

@@ -1,7 +1,7 @@
 'use client';
 
-import { cx } from '~/utils/cva';
 import { type BooleanFilterConfig } from '~/components/DataTable/filters/types';
+import Button from '~/components/ui/Button';
 
 type BooleanFilterProps = {
   value: boolean | undefined;
@@ -20,30 +20,22 @@ export default function BooleanFilter({
 
   return (
     <div className="flex gap-1">
-      <button
-        type="button"
+      <Button
+        size="sm"
+        variant={value === true ? 'default' : 'outline'}
+        color={value === true ? 'primary' : 'default'}
         onClick={() => handleClick(true)}
-        className={cx(
-          'rounded-md px-3 py-1.5 text-sm transition-colors',
-          value === true
-            ? 'bg-primary/10 text-primary font-semibold'
-            : 'text-text/60 hover:bg-surface-1',
-        )}
       >
         {config.trueLabel}
-      </button>
-      <button
-        type="button"
+      </Button>
+      <Button
+        size="sm"
+        variant={value === false ? 'default' : 'outline'}
+        color={value === false ? 'primary' : 'default'}
         onClick={() => handleClick(false)}
-        className={cx(
-          'rounded-md px-3 py-1.5 text-sm transition-colors',
-          value === false
-            ? 'bg-primary/10 text-primary font-semibold'
-            : 'text-text/60 hover:bg-surface-1',
-        )}
       >
         {config.falseLabel}
-      </button>
+      </Button>
     </div>
   );
 }

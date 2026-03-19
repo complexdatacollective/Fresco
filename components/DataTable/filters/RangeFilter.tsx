@@ -5,7 +5,7 @@ import {
   type RangeFilterConfig,
   type RangeFilterValue,
 } from '~/components/DataTable/filters/types';
-import { cx } from '~/utils/cva';
+import Button from '~/components/ui/Button';
 
 type RangeFilterProps = {
   value: RangeFilterValue | undefined;
@@ -28,8 +28,6 @@ export default function RangeFilter({
       currentMin === presetMin && currentMax === presetMax,
     [currentMin, currentMax],
   );
-
-  const isDefault = currentMin === config.min && currentMax === config.max;
 
   const handlePresetClick = (presetMin: number, presetMax: number) => {
     if (isPresetActive(presetMin, presetMax)) {
@@ -65,19 +63,19 @@ export default function RangeFilter({
       {config.presets && config.presets.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {config.presets.map((preset) => (
-            <button
+            <Button
               key={preset.label}
-              type="button"
+              size="sm"
+              variant={
+                isPresetActive(preset.min, preset.max) ? 'default' : 'outline'
+              }
+              color={
+                isPresetActive(preset.min, preset.max) ? 'primary' : 'default'
+              }
               onClick={() => handlePresetClick(preset.min, preset.max)}
-              className={cx(
-                'rounded-full px-3 py-1 text-xs transition-colors',
-                isPresetActive(preset.min, preset.max)
-                  ? 'bg-primary/10 text-primary font-semibold'
-                  : 'bg-surface-1 text-text/60 hover:bg-surface-1/80',
-              )}
             >
               {preset.label}
-            </button>
+            </Button>
           ))}
         </div>
       )}

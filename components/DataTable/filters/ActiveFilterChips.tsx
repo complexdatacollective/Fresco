@@ -2,11 +2,11 @@
 'use no memo';
 
 import { type Table } from '@tanstack/react-table';
-import { X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { generateChipLabel } from '~/components/DataTable/filters/chipLabels';
 import { type OperatorFilterValue } from '~/components/DataTable/filters/types';
 import Button from '~/components/ui/Button';
+import CloseButton from '~/components/ui/CloseButton';
 
 type ActiveFilterChipsProps<TData> = {
   table: Table<TData>;
@@ -74,14 +74,12 @@ export default function ActiveFilterChips<TData>({
             className="bg-surface-1 text-text inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm"
           >
             {chip.label}
-            <button
-              type="button"
+            <CloseButton
+              size="sm"
               onClick={chip.onRemove}
-              className="text-text/60 hover:text-text -mr-1 rounded-full p-0.5 transition-colors"
-              aria-label={`Remove filter: ${chip.label}`}
-            >
-              <X className="size-3" />
-            </button>
+              title={`Remove filter: ${chip.label}`}
+              className="-mr-1 size-5!"
+            />
           </motion.span>
         ))}
         {chips.length > 1 && (

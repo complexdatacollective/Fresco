@@ -5,7 +5,7 @@ import {
   type DateFilterConfig,
   type DateFilterValue,
 } from '~/components/DataTable/filters/types';
-import { cx } from '~/utils/cva';
+import Button from '~/components/ui/Button';
 
 type DateFilterProps = {
   value: DateFilterValue | undefined;
@@ -76,19 +76,15 @@ export default function DateFilter({
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap gap-1">
         {relativePresets.map((preset) => (
-          <button
+          <Button
             key={preset.label}
-            type="button"
+            size="sm"
+            variant={isPresetActive(value, preset.days) ? 'default' : 'outline'}
+            color={isPresetActive(value, preset.days) ? 'primary' : 'default'}
             onClick={() => handlePresetClick(preset.days)}
-            className={cx(
-              'rounded-full px-3 py-1 text-xs transition-colors',
-              isPresetActive(value, preset.days)
-                ? 'bg-primary/10 text-primary font-semibold'
-                : 'bg-surface-1 text-text/60 hover:bg-surface-1/80',
-            )}
           >
             {preset.label}
-          </button>
+          </Button>
         ))}
       </div>
 
