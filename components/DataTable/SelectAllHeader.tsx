@@ -2,13 +2,14 @@
 
 import { type Table } from '@tanstack/react-table';
 import { ChevronDown } from 'lucide-react';
-import Checkbox from '~/lib/form/components/fields/Checkbox';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
+import Checkbox from '~/lib/form/components/fields/Checkbox';
+import { IconButton } from '../ui/Button';
 
 type SelectAllHeaderProps<TData> = {
   table: Table<TData>;
@@ -40,15 +41,17 @@ export function SelectAllHeader<TData>({ table }: SelectAllHeaderProps<TData>) {
       />
       {hasMultiplePages && (
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <button
-              type="button"
-              className="text-text/40 hover:text-text/80 -ml-1 rounded p-0.5 transition-colors"
-              aria-label="Selection options"
-            >
-              <ChevronDown className="size-3" />
-            </button>
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger
+            render={
+              <IconButton
+                size="sm"
+                variant="text"
+                aria-label="Selection options"
+                icon={<ChevronDown aria-hidden="true" />}
+              />
+            }
+            nativeButton
+          />
           <DropdownMenuContent align="start">
             <DropdownMenuItem
               onClick={() => table.toggleAllPageRowsSelected(true)}
