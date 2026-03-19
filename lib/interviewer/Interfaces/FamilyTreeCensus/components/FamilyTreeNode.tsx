@@ -1,7 +1,11 @@
 import { useSelector } from 'react-redux';
 import Node from '~/components/Node';
 import { useDragSource } from '~/lib/dnd';
-import { type NodeData } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
+import { useFamilyTreeStore } from '~/lib/interviewer/Interfaces/FamilyTreeCensus/FamilyTreeProvider';
+import {
+  type NodeData,
+  type StoreEdge,
+} from '~/lib/interviewer/Interfaces/FamilyTreeCensus/store';
 import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
 
 function EgoIcon({ className }: { className?: string }) {
@@ -35,6 +39,65 @@ function EgoIcon({ className }: { className?: string }) {
   );
 }
 
+function getRelationshipToEgo(
+  nodeId: string,
+  egoId: string | undefined,
+  nodes: Map<string, NodeData>,
+  edges: Map<string, StoreEdge>,
+): string | undefined {
+  if (!egoId || nodeId === egoId) return undefined;
+
+  for (const edge of edges.values()) {
+    if (edge.type === 'partner') {
+      if (
+        (edge.source === nodeId && edge.target === egoId) ||
+        (edge.source === egoId && edge.target === nodeId)
+      ) {
+        return 'Partner';
+      }
+      continue;
+    }
+
+    // Parent of ego
+    if (edge.source === nodeId && edge.target === egoId) {
+      return 'Parent';
+    }
+
+    // Child of ego
+    if (edge.source === egoId && edge.target === nodeId) {
+      return 'Child';
+    }
+  }
+
+  // Check if sibling (shares a parent with ego)
+  const egoParents = new Set<string>();
+  const nodeParents = new Set<string>();
+  for (const edge of edges.values()) {
+    if (edge.type !== 'parent') continue;
+    if (edge.target === egoId) egoParents.add(edge.source);
+    if (edge.target === nodeId) nodeParents.add(edge.source);
+  }
+
+  for (const p of egoParents) {
+    if (nodeParents.has(p)) return 'Sibling';
+  }
+
+  // Check if grandparent (parent of ego's parent)
+  for (const parentId of egoParents) {
+    for (const edge of edges.values()) {
+      if (
+        edge.type === 'parent' &&
+        edge.source === nodeId &&
+        edge.target === parentId
+      ) {
+        return 'Grandparent';
+      }
+    }
+  }
+
+  return undefined;
+}
+
 type FamilyTreeNodeProps = {
   node: NodeData & { id: string };
   allowDrag: boolean;
@@ -48,7 +111,17 @@ export default function FamilyTreeNode(props: FamilyTreeNodeProps) {
   const { id, label, isEgo, sex } = node;
   const shape =
     sex === 'female' ? 'circle' : sex === 'intersex' ? 'diamond' : 'square';
-  const displayLabel = isEgo ? 'You' : label || 'Unnamed';
+
+  const nodes = useFamilyTreeStore((s) => s.network.nodes);
+  const edges = useFamilyTreeStore((s) => s.network.edges);
+
+  const egoId = [...nodes.entries()].find(([, n]) => n.isEgo)?.[0];
+  const relationshipLabel = getRelationshipToEgo(id, egoId, nodes, edges);
+  const displayLabel = isEgo
+    ? 'You'
+    : label
+      ? label
+      : (relationshipLabel ?? 'Unnamed');
 
   const nodeTypeColor = useSelector(getNodeColorSelector);
   const n = /\d+$/.exec(nodeTypeColor)?.[0] ?? '1';
