@@ -22,9 +22,9 @@ function getColumnHighlight<TData>(column: Column<TData, unknown>) {
   const isSorted = column.getIsSorted();
   const isFiltered = column.getIsFiltered();
   if (isSorted && isFiltered)
-    return 'bg-[color-mix(in_oklab,var(--sea-green)_5%,var(--selected)_5%)]';
+    return 'bg-[color-mix(in_oklab,var(--sea-green)_15%,var(--selected)_10%)]';
   if (isSorted)
-    return 'bg-[color-mix(in_oklab,var(--sea-green)_5%,transparent)]';
+    return 'bg-[color-mix(in_oklab,var(--sea-green)_10%,transparent)]';
   if (isFiltered) return 'bg-selected/5';
   return undefined;
 }
