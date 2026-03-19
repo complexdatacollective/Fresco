@@ -4,7 +4,6 @@ import { type ColumnDef, type FilterFn } from '@tanstack/react-table';
 import Image from 'next/image';
 import Checkbox from '~/lib/form/components/fields/Checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import FilterableColumnHeader from '~/components/DataTable/filters/FilterableColumnHeader';
 import {
   booleanFilterFn,
   dateFilterFn,
@@ -101,7 +100,7 @@ export const InterviewColumns = (): ColumnDef<InterviewRow>[] => [
     filterFn: facetedFilterFn,
     header: ({ column, table }) => {
       return (
-        <FilterableColumnHeader
+        <DataTableColumnHeader
           column={column}
           table={table}
           title={
@@ -142,7 +141,7 @@ export const InterviewColumns = (): ColumnDef<InterviewRow>[] => [
     filterFn: dateFilterFn,
     header: ({ column, table }) => {
       return (
-        <FilterableColumnHeader column={column} table={table} title="Started" />
+        <DataTableColumnHeader column={column} table={table} title="Started" />
       );
     },
     cell: ({ row }) => {
@@ -159,7 +158,7 @@ export const InterviewColumns = (): ColumnDef<InterviewRow>[] => [
     filterFn: dateFilterFn,
     header: ({ column, table }) => {
       return (
-        <FilterableColumnHeader column={column} table={table} title="Updated" />
+        <DataTableColumnHeader column={column} table={table} title="Updated" />
       );
     },
     cell: ({ row }) => {
@@ -190,11 +189,7 @@ export const InterviewColumns = (): ColumnDef<InterviewRow>[] => [
     filterFn: rangeFilterFn,
     header: ({ column, table }) => {
       return (
-        <FilterableColumnHeader
-          column={column}
-          table={table}
-          title="Progress"
-        />
+        <DataTableColumnHeader column={column} table={table} title="Progress" />
       );
     },
     cell: ({ row }) => {
@@ -254,7 +249,7 @@ export const InterviewColumns = (): ColumnDef<InterviewRow>[] => [
     filterFn: operatorFilterFn as FilterFn<InterviewRow>,
     header: ({ column, table }) => {
       return (
-        <FilterableColumnHeader column={column} table={table} title="Network" />
+        <DataTableColumnHeader column={column} table={table} title="Network" />
       );
     },
     cell: ({ row }) => {
@@ -275,7 +270,7 @@ export const InterviewColumns = (): ColumnDef<InterviewRow>[] => [
     filterFn: booleanFilterFn,
     header: ({ column, table }) => {
       return (
-        <FilterableColumnHeader
+        <DataTableColumnHeader
           column={column}
           table={table}
           title="Export Status"

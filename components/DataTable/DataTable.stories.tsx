@@ -10,7 +10,6 @@ import {
   facetedFilterFn,
   rangeFilterFn,
 } from '~/components/DataTable/filters/filterFns';
-import FilterableColumnHeader from '~/components/DataTable/filters/FilterableColumnHeader';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/Button';
 import { useClientDataTable } from '~/hooks/useClientDataTable';
@@ -361,7 +360,7 @@ const filterColumns: ColumnDef<FilterablePerson>[] = [
   {
     accessorKey: 'name',
     header: ({ column, table }) => (
-      <FilterableColumnHeader column={column} title="Name" table={table} />
+      <DataTableColumnHeader column={column} title="Name" table={table} />
     ),
     cell: ({ row }) => (
       <div className="font-medium">{row.getValue('name')}</div>
@@ -378,7 +377,7 @@ const filterColumns: ColumnDef<FilterablePerson>[] = [
     },
     filterFn: facetedFilterFn,
     header: ({ column, table }) => (
-      <FilterableColumnHeader column={column} title="Role" table={table} />
+      <DataTableColumnHeader column={column} title="Role" table={table} />
     ),
   },
   {
@@ -398,7 +397,7 @@ const filterColumns: ColumnDef<FilterablePerson>[] = [
     },
     filterFn: rangeFilterFn,
     header: ({ column, table }) => (
-      <FilterableColumnHeader column={column} title="Score" table={table} />
+      <DataTableColumnHeader column={column} title="Score" table={table} />
     ),
   },
   {
@@ -413,7 +412,7 @@ const filterColumns: ColumnDef<FilterablePerson>[] = [
     },
     filterFn: booleanFilterFn,
     header: ({ column, table }) => (
-      <FilterableColumnHeader column={column} title="Active" table={table} />
+      <DataTableColumnHeader column={column} title="Active" table={table} />
     ),
     cell: ({ row }) => (
       <Badge variant={row.getValue('active') ? 'default' : 'secondary'}>
@@ -429,7 +428,7 @@ const filterColumns: ColumnDef<FilterablePerson>[] = [
     },
     filterFn: dateFilterFn,
     header: ({ column, table }) => (
-      <FilterableColumnHeader column={column} title="Join Date" table={table} />
+      <DataTableColumnHeader column={column} title="Join Date" table={table} />
     ),
     cell: ({ row }) => {
       const date = row.getValue<Date>('joinDate');
