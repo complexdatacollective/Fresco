@@ -1,7 +1,7 @@
 'use client';
 
 import { type Column, type Table } from '@tanstack/react-table';
-import { ArrowDown, ArrowUp, ArrowUpDown, Filter, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, Filter, X } from 'lucide-react';
 import React, { type ReactNode, useState } from 'react';
 import BooleanFilter from '~/components/DataTable/filters/BooleanFilter';
 import DateFilter from '~/components/DataTable/filters/DateFilter';
@@ -18,13 +18,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '~/components/ui/popover';
 import { cx } from '~/utils/cva';
 
 type DataTableColumnHeaderProps<TData, TValue> = {
@@ -49,7 +47,6 @@ export function DataTableColumnHeader<TData, TValue>({
   const isSorted = column.getIsSorted();
   const isActive = isSorted !== false || isFiltered;
 
-  const [filterOpen, setFilterOpen] = useState(false);
   const [stagedValue, setStagedValue] = useState<FilterValue | undefined>(
     undefined,
   );
@@ -68,20 +65,13 @@ export function DataTableColumnHeader<TData, TValue>({
     );
   }
 
-  const handleOpenFilter = () => {
-    setStagedValue(column.getFilterValue() as FilterValue | undefined);
-    setFilterOpen(true);
-  };
-
   const handleApplyFilter = () => {
     column.setFilterValue(stagedValue);
-    setFilterOpen(false);
   };
 
   const handleClearFilter = () => {
     column.setFilterValue(undefined);
     setStagedValue(undefined);
-    setFilterOpen(false);
   };
 
   const icons: ReactNode[] = [];
@@ -96,78 +86,75 @@ export function DataTableColumnHeader<TData, TValue>({
       : [];
 
   return (
-    <div className={cx('flex min-w-max items-center', className)}>
-      <Popover open={filterOpen} onOpenChange={setFilterOpen}>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                size="sm"
-                className="-mx-4 min-w-max px-4! text-base"
-                variant={isActive ? 'default' : 'text'}
-                color={isActive ? 'primary' : 'default'}
-                iconPosition="right"
-                icon={
-                  icons.length > 0 ? (
-                    <span className="flex gap-0.5">{icons}</span>
-                  ) : undefined
-                }
-              />
+    <DropdownMenu
+      onOpenChange={(open) => {
+        if (open) {
+          setStagedValue(column.getFilterValue() as FilterValue | undefined);
+        }
+      }}
+    >
+      <DropdownMenuTrigger
+        render={
+          <Button
+            size="sm"
+            className="-mx-4 min-w-max px-4! text-base"
+            variant={isActive ? 'default' : 'text'}
+            color={isActive ? 'primary' : 'default'}
+            iconPosition="right"
+            icon={
+              icons.length > 0 ? (
+                <span className="flex gap-0.5">{icons}</span>
+              ) : undefined
             }
-            nativeButton
-          >
-            {title}
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            {canSort && (
-              <>
-                <DropdownMenuItem
-                  onClick={() => column.toggleSorting(false)}
-                  className="gap-2"
-                >
-                  <ArrowUp className="size-4" />
-                  Sort ascending
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => column.toggleSorting(true)}
-                  className="gap-2"
-                >
-                  <ArrowDown className="size-4" />
-                  Sort descending
-                </DropdownMenuItem>
-                {isSorted !== false && (
-                  <DropdownMenuItem
-                    onClick={() => column.clearSorting()}
-                    className="gap-2"
-                  >
-                    <X className="size-4" />
-                    Clear sort
-                  </DropdownMenuItem>
-                )}
-              </>
-            )}
-            {canSort && hasFilter && <DropdownMenuSeparator />}
-            {hasFilter && (
-              <PopoverTrigger
-                render={<DropdownMenuItem className="gap-2" />}
-                onClick={handleOpenFilter}
+          />
+        }
+        nativeButton
+      >
+        {title}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
+        {canSort && (
+          <>
+            <DropdownMenuItem
+              onClick={() => column.toggleSorting(false)}
+              className="gap-2"
+            >
+              <ArrowUp className="size-4" />
+              Sort ascending
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => column.toggleSorting(true)}
+              className="gap-2"
+            >
+              <ArrowDown className="size-4" />
+              Sort descending
+            </DropdownMenuItem>
+            {isSorted !== false && (
+              <DropdownMenuItem
+                onClick={() => column.clearSorting()}
+                className="gap-2"
               >
-                <Filter className="size-4" />
-                {isFiltered ? 'Edit filter' : 'Filter'}
-              </PopoverTrigger>
+                <X className="size-4" />
+                Clear sort
+              </DropdownMenuItem>
             )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+          </>
+        )}
+        {canSort && hasFilter && <DropdownMenuSeparator />}
         {hasFilter && filterConfig && (
-          <PopoverContent align="start" className="w-72 p-3">
-            <div className="flex flex-col gap-3">
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger className="gap-2">
+              <Filter className="size-4" />
+              {isFiltered ? 'Edit filter' : 'Filter'}
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent className="w-72 p-3">
               <FilterRenderer
                 filterConfig={filterConfig}
                 value={stagedValue}
                 onChange={setStagedValue}
                 data={data}
               />
-              <div className="flex justify-end gap-2">
+              <div className="mt-3 flex justify-end gap-2">
                 <Button size="sm" variant="text" onClick={handleClearFilter}>
                   Clear
                 </Button>
@@ -175,11 +162,11 @@ export function DataTableColumnHeader<TData, TValue>({
                   Apply
                 </Button>
               </div>
-            </div>
-          </PopoverContent>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
         )}
-      </Popover>
-    </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
