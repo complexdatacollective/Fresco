@@ -1,104 +1,138 @@
+'use client';
+
+import { motion } from 'motion/react';
+
 /**
  * Decorative placeholder illustration shown on the FamilyTreeCensus interface
  * before the participant has started building their family tree. Renders a
  * ghost pedigree (squares and circles connected by lines) at low opacity to
  * preview what the completed tree will look like.
  *
+ * Each stroke animates in sequentially with a hand-drawn drawing effect.
+ * Uses Motion variants so the parent can orchestrate the animation by
+ * toggling between "initial" and "animate" states.
+ *
  * Layout (all positions derived from node centers):
  *
- *   Gen 1:   [Father]----[Mother]      y = 28
+ *   Gen 1:   [Father]----[Mother]      y = 280
  *                   |
- *            ───────┼───────           y = 80
+ *            ───────┼───────           y = 800
  *            |      |      |
- *   Gen 2:  (Sib)  [Ego]  (Sib)       y = 110
+ *   Gen 2:  (Sib)  [Ego]  (Sib)       y = 1100
  */
+
+const BASE_DELAY = 0.5;
+
+const draw = (delay: number) => ({
+  initial: { pathLength: 0 },
+  animate: {
+    pathLength: 1,
+    transition: {
+      pathLength: {
+        type: 'spring',
+        delay: BASE_DELAY + delay,
+        // Increase damping to prevent overshoot (which causes weird visual glitches with lines)
+        damping: 20,
+      },
+    },
+  },
+});
+
 export default function FamilyTreePlaceholder({
   className,
 }: {
   className?: string;
 }) {
-  // Node geometry
-  const r = 17; // circle radius & half side length for squares
+  // Node geometry (10x scale to avoid sub-pixel rounding errors)
+  const r = 170; // circle radius & half side length for squares
   const d = r * 2; // node diameter / side length
-  const rx = 10; // square corner radius
+  const rx = 100; // square corner radius
 
   // Node centers
-  const father = { x: 100, y: 28 };
-  const mother = { x: 180, y: 28 };
-  const midX = (father.x + mother.x) / 2; // 140
-  const railY = 80;
-  const child1 = { x: 60, y: 110 }; // circle
-  const ego = { x: 140, y: 110 }; // square (slightly brighter)
-  const child3 = { x: 220, y: 110 }; // circle
+  const father = { x: 1000, y: 280 };
+  const mother = { x: 1800, y: 280 };
+  const midX = (father.x + mother.x) / 2; // 1400
+  const railY = 800;
+  const child1 = { x: 600, y: 1100 }; // circle
+  const ego = { x: 1400, y: 1100 }; // square (slightly brighter)
+  const child3 = { x: 2200, y: 1100 }; // circle
 
   const stroke = 'var(--color-platinum)';
   const lineStroke = 'var(--color-platinum)';
-  const sw = 2.5; // stroke width
+  const sw = 25; // stroke width
 
   return (
-    <svg
-      viewBox="0 0 280 145"
+    <motion.svg
+      viewBox="0 0 2800 1450"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       aria-hidden
+      initial="initial"
+      animate="animate"
     >
       {/* --- Lines (behind nodes) --- */}
       {/* Partner line: right edge of father to left edge of mother */}
-      <line
+      <motion.line
         x1={father.x + r}
         y1={father.y}
         x2={mother.x - r}
         y2={mother.y}
         stroke={lineStroke}
         strokeWidth={sw}
+        variants={draw(0.4)}
       />
       {/* Vertical from partner midpoint to sibling rail */}
-      <line
+      <motion.line
         x1={midX}
         y1={father.y}
         x2={midX}
         y2={railY}
         stroke={lineStroke}
         strokeWidth={sw}
+        variants={draw(0.65)}
       />
       {/* Sibling rail */}
-      <line
+      <motion.line
         x1={child1.x}
         y1={railY}
         x2={child3.x}
         y2={railY}
         stroke={lineStroke}
         strokeWidth={sw}
+        variants={draw(0.9)}
       />
       {/* Drop lines to children */}
-      <line
+      <motion.line
         x1={child1.x}
         y1={railY}
         x2={child1.x}
         y2={child1.y - r}
         stroke={lineStroke}
         strokeWidth={sw}
+        variants={draw(1.15)}
       />
-      <line
+      <motion.line
         x1={ego.x}
         y1={railY}
         x2={ego.x}
         y2={ego.y - r}
         stroke={lineStroke}
         strokeWidth={sw}
+        variants={draw(1.15)}
       />
-      <line
+      <motion.line
         x1={child3.x}
         y1={railY}
         x2={child3.x}
         y2={child3.y - r}
         stroke={lineStroke}
         strokeWidth={sw}
+        variants={draw(1.15)}
       />
 
       {/* --- Nodes --- */}
       {/* Father (square) */}
-      <rect
+      <motion.rect
         x={father.x - r}
         y={father.y - r}
         width={d}
@@ -107,27 +141,30 @@ export default function FamilyTreePlaceholder({
         fill="none"
         stroke={stroke}
         strokeWidth={sw}
+        variants={draw(0)}
       />
       {/* Mother (circle) */}
-      <circle
+      <motion.circle
         cx={mother.x}
         cy={mother.y}
         r={r}
         fill="none"
         stroke={stroke}
         strokeWidth={sw}
+        variants={draw(0.15)}
       />
       {/* Sibling left (circle) */}
-      <circle
+      <motion.circle
         cx={child1.x}
         cy={child1.y}
         r={r}
         fill="none"
         stroke={stroke}
         strokeWidth={sw}
+        variants={draw(1.4)}
       />
       {/* Ego (square, slightly more visible) */}
-      <rect
+      <motion.rect
         x={ego.x - r}
         y={ego.y - r}
         width={d}
@@ -136,16 +173,18 @@ export default function FamilyTreePlaceholder({
         fill="none"
         stroke={stroke}
         strokeWidth={sw}
+        variants={draw(1.4)}
       />
       {/* Sibling right (circle) */}
-      <circle
+      <motion.circle
         cx={child3.x}
         cy={child3.y}
         r={r}
         fill="none"
         stroke={stroke}
         strokeWidth={sw}
+        variants={draw(1.4)}
       />
-    </svg>
+    </motion.svg>
   );
 }
