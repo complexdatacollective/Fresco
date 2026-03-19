@@ -1,4 +1,8 @@
-import { type Stage } from '@codaco/protocol-validation';
+import {
+  type Filter,
+  type SkipLogic,
+  type Stage,
+} from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
@@ -9,6 +13,8 @@ import {
 import { v4 as uuid } from 'uuid';
 import { ValueGenerator } from '~/lib/interviewer/utils/SyntheticInterview/ValueGenerator';
 import { type VariableEntry } from '~/lib/interviewer/utils/SyntheticInterview/types';
+import getFilter from '~/lib/network-query/filter';
+import getQuery from '~/lib/network-query/query';
 
 type NcAttributeValue =
   | string
@@ -49,9 +55,15 @@ type Codebook = {
   };
 };
 
+type GenerateNetworkOptions = {
+  simulateDropOut?: boolean;
+  respectSkipLogicAndFiltering?: boolean;
+};
+
 type GenerateNetworkResult = {
   network: NcNetwork;
   stageMetadata: Record<string, unknown> | null;
+  stagesCompleted: number;
 };
 
 function toVariableEntry(
@@ -235,10 +247,77 @@ function getStageForm(
     | undefined;
 }
 
+function buildCurrentNetwork(
+  egoUid: string,
+  egoAttributes: Record<string, unknown>,
+  nodes: NcNode[],
+  edges: NcEdge[],
+): NcNetwork {
+  return {
+    ego: {
+      [entityPrimaryKeyProperty]: egoUid,
+      [entityAttributesProperty]: egoAttributes,
+    } as NcNetwork['ego'],
+    nodes,
+    edges,
+  };
+}
+
+function getStageFilteredNodes(
+  nodes: NcNode[],
+  edges: NcEdge[],
+  egoUid: string,
+  egoAttributes: Record<string, unknown>,
+  stage: Stage,
+  nodeType: string,
+  respectFiltering: boolean,
+): NcNode[] {
+  if (!respectFiltering) return getNodesOfType(nodes, nodeType);
+
+  const stageRecord = stage as Record<string, unknown>;
+  const stageFilter = stageRecord.filter as Filter | undefined;
+  if (!stageFilter) return getNodesOfType(nodes, nodeType);
+
+  const currentNetwork = buildCurrentNetwork(
+    egoUid,
+    egoAttributes,
+    nodes,
+    edges,
+  );
+  const filtered = getFilter(stageFilter)(currentNetwork);
+  return getNodesOfType(filtered.nodes, nodeType);
+}
+
+function getStageFilteredEdges(
+  nodes: NcNode[],
+  edges: NcEdge[],
+  egoUid: string,
+  egoAttributes: Record<string, unknown>,
+  stage: Stage,
+  edgeType: string,
+  respectFiltering: boolean,
+): NcEdge[] {
+  if (!respectFiltering) return getEdgesOfType(edges, edgeType);
+
+  const stageRecord = stage as Record<string, unknown>;
+  const stageFilter = stageRecord.filter as Filter | undefined;
+  if (!stageFilter) return getEdgesOfType(edges, edgeType);
+
+  const currentNetwork = buildCurrentNetwork(
+    egoUid,
+    egoAttributes,
+    nodes,
+    edges,
+  );
+  const filtered = getFilter(stageFilter)(currentNetwork);
+  return getEdgesOfType(filtered.edges, edgeType);
+}
+
 export function generateNetwork(
   codebook: Codebook,
   stages: Stage[],
   seed?: number,
+  options: GenerateNetworkOptions = {},
 ): GenerateNetworkResult {
   const valueGen = new ValueGenerator(
     seed ?? Math.floor(Math.random() * 100000),
@@ -247,11 +326,44 @@ export function generateNetwork(
   const edges: NcEdge[] = [];
   const egoAttributes: Record<string, unknown> = {};
   const stageMetadata: Record<string, unknown> = {};
+  const egoUid = uuid();
 
-  for (const stage of stages) {
+  const { simulateDropOut = false, respectSkipLogicAndFiltering = false } =
+    options;
+  const totalStages = stages.length;
+  let stagesCompleted = 0;
+
+  for (let i = 0; i < stages.length; i++) {
+    const stage = stages[i]!;
     const stageType = getStageType(stage);
     const stageId = getStageId(stage);
     const prompts = getStagePrompts(stage);
+
+    if (respectSkipLogicAndFiltering) {
+      const stageRecord = stage as Record<string, unknown>;
+      const skipLogic = stageRecord.skipLogic as SkipLogic | undefined;
+
+      if (skipLogic) {
+        const currentNetwork = buildCurrentNetwork(
+          egoUid,
+          egoAttributes,
+          nodes,
+          edges,
+        );
+        const result = getQuery(skipLogic.filter)(currentNetwork);
+        const skipOnMatch = skipLogic.action === 'SKIP';
+        const isSkipped = (skipOnMatch && result) || (!skipOnMatch && !result);
+
+        if (isSkipped) continue;
+      }
+    }
+
+    if (simulateDropOut) {
+      const dropOutChance = ((i + 1) / totalStages) * 0.15;
+      if (valueGen.randomFloat(0, 1) < dropOutChance) break;
+    }
+
+    stagesCompleted++;
 
     switch (stageType) {
       case 'NameGenerator':
@@ -303,7 +415,15 @@ export function generateNetwork(
         const subject = getStageSubject(stage);
         if (subject?.entity !== 'node') break;
 
-        const subjectNodes = getNodesOfType(nodes, subject.type);
+        const subjectNodes = getStageFilteredNodes(
+          nodes,
+          edges,
+          egoUid,
+          egoAttributes,
+          stage,
+          subject.type,
+          respectSkipLogicAndFiltering,
+        );
 
         for (const prompt of prompts) {
           const promptEdges = prompt.edges as
@@ -340,7 +460,15 @@ export function generateNetwork(
         const subject = getStageSubject(stage);
         if (subject?.entity !== 'node') break;
 
-        const subjectNodes = getNodesOfType(nodes, subject.type);
+        const subjectNodes = getStageFilteredNodes(
+          nodes,
+          edges,
+          egoUid,
+          egoAttributes,
+          stage,
+          subject.type,
+          respectSkipLogicAndFiltering,
+        );
 
         for (const prompt of prompts) {
           const createEdgeType = prompt.createEdge as string | undefined;
@@ -368,7 +496,15 @@ export function generateNetwork(
         const subject = getStageSubject(stage);
         if (subject?.entity !== 'node') break;
 
-        const subjectNodes = getNodesOfType(nodes, subject.type);
+        const subjectNodes = getStageFilteredNodes(
+          nodes,
+          edges,
+          egoUid,
+          egoAttributes,
+          stage,
+          subject.type,
+          respectSkipLogicAndFiltering,
+        );
 
         for (const prompt of prompts) {
           const createEdgeType = prompt.createEdge as string | undefined;
@@ -387,10 +523,10 @@ export function generateNetwork(
 
           if (edgeVariable && edgeTypeDef?.variables?.[edgeVariable]) {
             const varDef = edgeTypeDef.variables[edgeVariable];
-            for (let i = 0; i < newEdges.length; i++) {
+            for (let edgeIdx = 0; edgeIdx < newEdges.length; edgeIdx++) {
               const entry = toVariableEntry(edgeVariable, varDef);
-              newEdges[i]![entityAttributesProperty][edgeVariable] =
-                generateValue(valueGen, entry, i);
+              newEdges[edgeIdx]![entityAttributesProperty][edgeVariable] =
+                generateValue(valueGen, entry, edgeIdx);
             }
           }
 
@@ -408,7 +544,15 @@ export function generateNetwork(
         const subject = getStageSubject(stage);
         if (subject?.entity !== 'node') break;
 
-        const subjectNodes = getNodesOfType(nodes, subject.type);
+        const subjectNodes = getStageFilteredNodes(
+          nodes,
+          edges,
+          egoUid,
+          egoAttributes,
+          stage,
+          subject.type,
+          respectSkipLogicAndFiltering,
+        );
         const nodeTypeDef = codebook.node?.[subject.type];
 
         for (const prompt of prompts) {
@@ -431,7 +575,15 @@ export function generateNetwork(
         const subject = getStageSubject(stage);
         if (subject?.entity !== 'node') break;
 
-        const subjectNodes = getNodesOfType(nodes, subject.type);
+        const subjectNodes = getStageFilteredNodes(
+          nodes,
+          edges,
+          egoUid,
+          egoAttributes,
+          stage,
+          subject.type,
+          respectSkipLogicAndFiltering,
+        );
         const nodeTypeDef = codebook.node?.[subject.type];
 
         for (const prompt of prompts) {
@@ -468,7 +620,15 @@ export function generateNetwork(
         const subject = getStageSubject(stage);
         if (subject?.entity !== 'node') break;
 
-        const subjectNodes = getNodesOfType(nodes, subject.type);
+        const subjectNodes = getStageFilteredNodes(
+          nodes,
+          edges,
+          egoUid,
+          egoAttributes,
+          stage,
+          subject.type,
+          respectSkipLogicAndFiltering,
+        );
         const form = getStageForm(stage);
         if (!form) break;
 
@@ -498,7 +658,15 @@ export function generateNetwork(
         const subject = getStageSubject(stage);
         if (subject?.entity !== 'edge') break;
 
-        const subjectEdges = getEdgesOfType(edges, subject.type);
+        const subjectEdges = getStageFilteredEdges(
+          nodes,
+          edges,
+          egoUid,
+          egoAttributes,
+          stage,
+          subject.type,
+          respectSkipLogicAndFiltering,
+        );
         const form = getStageForm(stage);
         if (!form) break;
 
@@ -584,7 +752,15 @@ export function generateNetwork(
         const subject = getStageSubject(stage);
         if (subject?.entity !== 'node') break;
 
-        const subjectNodes = getNodesOfType(nodes, subject.type);
+        const subjectNodes = getStageFilteredNodes(
+          nodes,
+          edges,
+          egoUid,
+          egoAttributes,
+          stage,
+          subject.type,
+          respectSkipLogicAndFiltering,
+        );
 
         for (const prompt of prompts) {
           const varId = prompt.variable as string | undefined;
@@ -613,12 +789,13 @@ export function generateNetwork(
   return {
     network: {
       ego: {
-        [entityPrimaryKeyProperty]: uuid(),
+        [entityPrimaryKeyProperty]: egoUid,
         [entityAttributesProperty]: egoAttributes,
       } as NcNetwork['ego'],
       nodes,
       edges,
     },
     stageMetadata: Object.keys(stageMetadata).length > 0 ? stageMetadata : null,
+    stagesCompleted,
   };
 }
