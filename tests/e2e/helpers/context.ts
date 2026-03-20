@@ -11,6 +11,7 @@ export type SuiteContext = {
   suiteId: string;
   appUrl: string;
   databaseUrl: string;
+  assetServerUrl: string;
 };
 
 type StoredContext = {

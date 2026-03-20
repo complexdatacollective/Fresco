@@ -28,13 +28,17 @@ function createInitialNetwork() {
 }
 
 /**
- * Rewrites asset:// URLs to serve from the e2e-assets directory.
+ * Rewrites asset:// URLs to serve from the asset server.
  */
-function rewriteAssetUrls<T>(protocol: T, protocolId: string): T {
+function rewriteAssetUrls<T>(
+  protocol: T,
+  protocolId: string,
+  assetServerUrl: string,
+): T {
   const json = JSON.stringify(protocol);
   const rewritten = json.replace(
     /asset:\/\/([^"]+)/g,
-    `/e2e-assets/${protocolId}/$1`,
+    `${assetServerUrl}/${protocolId}/$1`,
   );
   return JSON.parse(rewritten) as T;
 }
@@ -52,19 +56,22 @@ type InstalledProtocol = {
  * for e2e testing. It:
  *
  * 1. Extracts protocol.json from the ZIP file
- * 2. Copies assets to public/e2e-assets/{protocolId}/
- * 3. Rewrites asset:// URLs to /e2e-assets/{protocolId}/
+ * 2. Copies assets to .e2e-assets/{protocolId}/ (served by asset server)
+ * 3. Rewrites asset:// URLs to {assetServerUrl}/{protocolId}/
  * 4. Inserts the protocol into the database via Prisma
  */
 export class ProtocolFixture {
   private prisma: TestPrismaClient;
-  private publicDir: string;
+  private assetDir: string;
+  private assetServerUrl: string;
   private installedProtocols: string[] = [];
 
-  constructor(prisma: TestPrismaClient) {
+  constructor(prisma: TestPrismaClient, assetServerUrl: string) {
     const projectRoot = path.resolve(import.meta.dirname, '../../../');
     this.prisma = prisma;
-    this.publicDir = path.join(projectRoot, '.next/standalone/public');
+    this.assetServerUrl = assetServerUrl;
+    // Assets are stored in .e2e-assets at project root (served by asset server)
+    this.assetDir = path.join(projectRoot, '.e2e-assets');
   }
 
   async install(protocolPath: string): Promise<InstalledProtocol> {
@@ -84,14 +91,15 @@ export class ProtocolFixture {
 
     const protocolId = createId();
 
-    const assetDir = path.join(this.publicDir, 'e2e-assets', protocolId);
-    await fs.mkdir(assetDir, { recursive: true });
+    const protocolAssetDir = path.join(this.assetDir, protocolId);
+    await fs.mkdir(protocolAssetDir, { recursive: true });
 
-    await this.extractAssets(zip, assetDir);
+    await this.extractAssets(zip, protocolAssetDir);
 
     const rewrittenProtocol = rewriteAssetUrls(
       protocolJson,
       protocolId,
+      this.assetServerUrl,
     ) as CurrentProtocol;
 
     await this.insertProtocol(protocolId, rewrittenProtocol);
@@ -108,7 +116,7 @@ export class ProtocolFixture {
       name: rewrittenProtocol.name ?? 'Untitled',
       stages: rewrittenProtocol.stages,
       codebook: rewrittenProtocol.codebook,
-      assetBasePath: `/e2e-assets/${protocolId}`,
+      assetBasePath: `${this.assetServerUrl}/${protocolId}`,
     };
   }
 
@@ -177,7 +185,7 @@ export class ProtocolFixture {
             assetId,
             name: asset.name,
             type: asset.type,
-            url: `/e2e-assets/${protocolId}/${asset.source}`,
+            url: `${this.assetServerUrl}/${protocolId}/${asset.source}`,
             size: 0,
             protocols: { connect: { id: protocolId } },
           },
@@ -294,8 +302,8 @@ export class ProtocolFixture {
       where: { id: protocolId },
     });
 
-    const assetDir = path.join(this.publicDir, 'e2e-assets', protocolId);
-    await fs.rm(assetDir, { recursive: true, force: true });
+    const protocolAssetDir = path.join(this.assetDir, protocolId);
+    await fs.rm(protocolAssetDir, { recursive: true, force: true });
 
     log('test', `Uninstalled protocol ${protocolId}`);
   }
@@ -312,12 +320,5 @@ export class ProtocolFixture {
       }
     }
     this.installedProtocols = [];
-
-    const assetsDir = path.join(this.publicDir, 'e2e-assets');
-    try {
-      await fs.rm(assetsDir, { recursive: true, force: true });
-    } catch {
-      // Ignore if doesn't exist
-    }
   }
 }

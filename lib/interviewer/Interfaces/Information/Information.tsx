@@ -9,6 +9,7 @@ import Spinner from '~/components/Spinner';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { ScrollArea } from '~/components/ui/ScrollArea';
+import { env } from '~/env';
 import { type StageProps } from '~/lib/interviewer/types';
 import { cx } from '~/utils/cva';
 import AssetMetaProvider from '../utils/AssetMetaProvider';
@@ -16,9 +17,12 @@ import AssetMetaProvider from '../utils/AssetMetaProvider';
 function VideoPlayer({ src }: { src: string }) {
   const [isLoading, setIsLoading] = useState(true);
 
+  // Disable autoPlay and preload to prevent browser crashes in headless E2E tests.
+  const isE2E = env.NEXT_PUBLIC_E2E_TEST === true;
+
   return (
     <div className={cx('relative', isLoading && 'min-h-48')}>
-      {isLoading && (
+      {isLoading && !isE2E && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
           <Spinner size="lg" />
           <Paragraph intent="smallText">Loading video...</Paragraph>
@@ -28,9 +32,10 @@ function VideoPlayer({ src }: { src: string }) {
         src={src}
         loop
         controls
-        autoPlay
+        autoPlay={!isE2E}
         playsInline
-        className={cx(isLoading && 'invisible')}
+        preload={isE2E ? 'none' : 'auto'}
+        className={cx(isLoading && !isE2E && 'invisible')}
         onCanPlay={() => setIsLoading(false)}
       />
     </div>

@@ -65,6 +65,8 @@ const config: NextConfig = {
     // add the package.json version and git hash to the environment
     APP_VERSION: `v${pkg.version}`,
     COMMIT_HASH: commitHash,
+    // E2E test mode flag - ensures the value is inlined at build time
+    NEXT_PUBLIC_E2E_TEST: isE2ETest ? 'true' : 'false',
   },
   typescript: {
     ignoreBuildErrors: true,

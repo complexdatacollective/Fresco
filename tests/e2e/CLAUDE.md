@@ -2,7 +2,7 @@
 
 ## Architecture
 
-Tests run across **3 browsers** (Chromium, Firefox, WebKit) x **4 environments** (setup, dashboard, api, interview) = **12 isolated instances**, each with its own PostgreSQL container and Next.js server.
+Tests run across **3 browsers** (Chromium, Firefox, WebKit) x **5 environments** (setup, dashboard, api, interview, preview) = **15 isolated instances**, each with its own PostgreSQL container and Next.js server.
 
 Each environment has its own isolated database — no cross-environment coordination is needed. Tests within an environment share a single DB but use `restoreSnapshot()` to reset state before mutation tests.
 
@@ -11,7 +11,7 @@ Each environment has its own isolated database — no cross-environment coordina
 The `config/test-config.ts` file is the single source of truth:
 
 - **`BROWSERS`** array: `[chromium, firefox, webkit]` with device configs
-- **`ENVIRONMENTS`** array: `[setup, dashboard, api, interview]` with seed functions and auth flags
+- **`ENVIRONMENTS`** array: `[setup, dashboard, api, interview, preview]` with seed functions and auth flags
 - Pure functions derive everything: `getProjects()`, `getEnvironmentInstances()`, `getContextMappings()`
 
 To add/remove a browser, edit the `BROWSERS` array. To add an environment, edit `ENVIRONMENTS`.
@@ -21,7 +21,8 @@ To add/remove a browser, edit the `BROWSERS` array. To add an environment, edit 
 - **setup**: Unconfigured app (fresh install) for onboarding wizard tests
 - **dashboard**: Fully configured app with seeded data for dashboard tests (requires auth). Read-only tests only — no mutations.
 - **api**: Configured app for API-only tests (no auth, no browser). Mutations use `restoreSnapshot()`.
-- **interview**: Configured app for interview/preview browser tests (no auth). Mutations use `restoreSnapshot()`.
+- **interview**: Configured app for interview browser tests (no auth). Mutations use `restoreSnapshot()`.
+- **preview**: Configured app for preview mode browser tests (no auth). Mutations use `restoreSnapshot()`.
 
 ### Browser Isolation
 
@@ -31,11 +32,13 @@ Each browser gets its own DB + server per environment:
 - `dashboard-chromium`, `dashboard-firefox`, `dashboard-webkit`
 - `api-chromium`, `api-firefox`, `api-webkit`
 - `interview-chromium`, `interview-firefox`, `interview-webkit`
+- `preview-chromium`, `preview-firefox`, `preview-webkit`
 
 ```
 Global Setup
 ├── Build standalone Next.js (E2E_TEST=true)
-├── For each browser x environment (12 instances, in parallel):
+├── Start asset server (port 4200, serves .e2e-assets/)
+├── For each browser x environment (15 instances, in parallel):
 │   ├── Start PostgreSQL testcontainer
 │   ├── Run Prisma migrations
 │   ├── Seed test data
@@ -51,6 +54,7 @@ Test Workers (fullyParallel: true)
 
 Global Teardown
 ├── Kill Next.js processes
+├── Stop asset server
 ├── Stop PostgreSQL containers
 └── Clear context file
 ```
@@ -62,11 +66,12 @@ tests/e2e/
 ├── config/
 │   └── test-config.ts           # BROWSERS, ENVIRONMENTS, derived functions
 ├── playwright.config.ts         # Generated projects from test-config
-├── global-setup.ts              # Infrastructure startup (12 instances)
+├── global-setup.ts              # Infrastructure startup (15 instances)
 ├── global-teardown.ts           # Cleanup
 ├── helpers/
 │   ├── testDatabase.ts          # PostgreSQL container + snapshots
 │   ├── appServer.ts             # Next.js process lifecycle
+│   ├── assetServer.ts           # HTTP server for protocol assets
 │   ├── testDataBuilder.ts       # Test data factory (raw SQL)
 │   ├── seed.ts                  # Per-environment seed functions
 │   ├── logger.ts                # Structured logging
@@ -86,7 +91,12 @@ tests/e2e/
 │   ├── stage-fixture.ts         # Stage interaction fixture
 │   └── protocol-fixture.ts      # Protocol installation fixture
 ├── data/
-│   └── (todo: test protocol files)
+│   ├── Development.netcanvas         # Full development protocol
+│   ├── Sample Protocol v4.netcanvas  # Sample v4 protocol
+│   ├── silos.netcanvas               # SILOS interview protocol
+│   ├── invalid-schema.netcanvas      # Invalid schema (for error tests)
+│   ├── missing-protocol-json.netcanvas # Missing protocol.json (for error tests)
+│   └── not-a-zip.netcanvas           # Invalid ZIP file (for error tests)
 └── specs/
     ├── setup/onboarding.spec.ts
     ├── auth/login.spec.ts
@@ -99,9 +109,11 @@ tests/e2e/
     │   ├── protocol-import.spec.ts
     │   └── onboard-integration.spec.ts
     ├── api/
-    │   └── preview-mode.spec.ts # API-only preview tests
-    └── interview/
-        └── preview-mode.spec.ts # Browser preview tests
+    │   └── (API-only tests)
+    ├── interview/
+    │   └── (interview browser tests)
+    └── preview/
+        └── (preview mode browser tests)
 ```
 
 ## Playwright Projects
@@ -115,10 +127,11 @@ Projects are generated dynamically from `BROWSERS x ENVIRONMENTS`. For each brow
 | `dashboard-{browser}`      | specs/dashboard/ | storageState from auth         | Yes      |
 | `api-{browser}`            | specs/api/       | None                           | Yes      |
 | `interview-{browser}`      | specs/interview/ | None                           | Yes      |
+| `preview-{browser}`        | specs/preview/   | None                           | Yes      |
 
 Dashboard depends on its browser-specific auth project completing first. Auth state is saved to per-browser paths (e.g., `.auth/dashboard-chromium.json`).
 
-The `api` and `interview` environments use the same seed data as `dashboard` but without authentication, making them suitable for testing unauthenticated endpoints and interview flows.
+The `api`, `interview`, and `preview` environments use the same seed data as `dashboard` but without authentication, making them suitable for testing unauthenticated endpoints and interview/preview flows.
 
 ### Running a single browser
 
@@ -381,12 +394,21 @@ The `app` fixture provides app-level state manipulation. Available in all tests.
 
 The `protocol` fixture is available in interview tests (import from `fixtures/interview-test.js`). It manages real `.netcanvas` protocol file installation with automatic cleanup via Playwright fixture teardown.
 
-- `protocol.install(protocolPath)` — Install a `.netcanvas` file (extracts assets, inserts into DB). Returns `InstalledProtocol`.
+**Installation & Interview Creation:**
+
+- `protocol.install(protocolPath)` — Install a `.netcanvas` file (extracts assets to `.e2e-assets/`, inserts into DB, rewrites `asset://` URLs to asset server). Returns `InstalledProtocol` with `protocolId`, `name`, `stages`, `codebook`, and `assetBasePath`.
 - `protocol.createInterview(protocolId, participantIdentifier?)` — Create a Participant + Interview for the protocol. Returns interview ID.
-- `protocol.injectNetworkState(interviewId, network, currentStep)` — Set interview starting state for stage tests.
 - `protocol.uninstall(protocolId)` — Remove a specific protocol and its assets.
 
+**Network State Inspection (for debugging):**
+
+- `protocol.getNetworkState(interviewId)` — Get current network state from the database (`nodes`, `edges`, `ego`, `currentStep`).
+- `protocol.waitForNodes(interviewId, expectedCount, options?)` — Poll the database until `expectedCount` nodes exist. Useful for waiting for client-server sync.
+- `protocol.logNetworkState(interviewId)` — Log the current network state for debugging.
+
 Cleanup is automatic — no `afterAll` needed.
+
+**Asset Handling:** Protocol assets are extracted to `.e2e-assets/{protocolId}/` and served via a dedicated HTTP server on port 4200. The `asset://` URLs in the protocol JSON are rewritten to `http://localhost:4200/{protocolId}/filename`.
 
 ## Adding New Tests
 
@@ -414,3 +436,30 @@ Cleanup is automatic — no `afterAll` needed.
 - `E2E_TEST=true` at build+runtime eliminates stale cache issues
 - Port allocation starts at 4100 to avoid conflicts with the dev server (port 3000) and WebKitGTK's restricted port list on Linux
 - `fullyParallel: true` enables tests within a spec file to run in parallel (serial mode overrides this where needed)
+
+### Two Environment Variables for E2E Mode
+
+We use two env vars for E2E mode:
+
+- **`E2E_TEST`** — Set at build/runtime by `appServer.ts`. Used by `next.config.ts` to derive the client-side flag and by server-side code (e.g., `ExportLayer.ts`, test export routes).
+- **`NEXT_PUBLIC_E2E_TEST`** — Derived from `E2E_TEST` in `next.config.ts`. Inlined into client bundles at build time. Used by client components like `VideoPlayer` to disable video autoplay/preload.
+
+**Why two vars?** The project has `dotenv` installed, which interferes with Next.js's `NEXT_PUBLIC_*` handling. `NEXT_PUBLIC_*` env vars are not readable in `next.config.ts` when dotenv is present. By reading `E2E_TEST` (which dotenv doesn't interfere with) and explicitly setting `NEXT_PUBLIC_E2E_TEST` in `next.config.ts`'s `env` object, we ensure the value is inlined at build time.
+
+### Asset Server for Protocol Files
+
+Protocol assets (images, videos, audio) are served via a dedicated HTTP server on port 4200 instead of relying on Next.js's public directory:
+
+- Assets are extracted to `.e2e-assets/{protocolId}/` during protocol installation
+- `asset://` URLs are rewritten to `http://localhost:4200/{protocolId}/filename`
+- This avoids requiring a rebuild when protocols are installed dynamically
+
+### Video Handling in E2E Mode
+
+Videos crash headless browsers (especially WebKit) when autoplay or preload is enabled. When `NEXT_PUBLIC_E2E_TEST=true`:
+
+- `autoPlay` is disabled
+- `preload` is set to `'none'`
+- Loading spinner is hidden (since video never loads)
+
+See `lib/interviewer/Interfaces/Information/Information.tsx` for implementation.

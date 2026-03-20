@@ -55,7 +55,9 @@ storybook-static
 /tests/e2e/screenshots/
 /tests/e2e/.auth/
 /tests/e2e/.context-data.json
+/tests/e2e/.context/
 /tests/e2e/.db-snapshots/
+/.e2e-assets/
 /playwright-report/
 /test-results/
 /playwright/.cache/

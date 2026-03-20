@@ -31,12 +31,13 @@ test.describe('SILOS Protocol', () => {
     // Capture screenshot at end of each stage
     const stepMatch = /step=(\d+)/.exec(page.url());
     if (stepMatch?.[1]) {
+      const step = stepMatch[1];
       // Sociogram stages (13, 14) have non-deterministic node positions
       const sociogramStages = ['13', '14'];
-      const options = sociogramStages.includes(stepMatch[1])
-        ? { maxDiffPixelRatio: 0.1 }
-        : undefined;
-      await interview.capture(`stage-${stepMatch[1]}-final`, options);
+
+      await interview.capture(`stage-${step}-final`, {
+        maxDiffPixelRatio: sociogramStages.includes(step) ? 0.1 : undefined,
+      });
     }
   });
 
@@ -50,7 +51,7 @@ test.describe('SILOS Protocol', () => {
     await expect(interview.nextButton).toBeEnabled();
   });
 
-  test.fixme('Stage 1: Getting Started', async ({ page, interview }) => {
+  test('Stage 1: Getting Started', async ({ page, interview }) => {
     await interview.goto(1);
 
     // Verify getting started stage content
@@ -58,13 +59,14 @@ test.describe('SILOS Protocol', () => {
       page.getByRole('heading', { name: 'Getting Started' }),
     ).toBeVisible();
 
-    // todo: check for video loading
+    const video = page.locator('video');
+    await expect(video).toBeVisible();
 
     // Information stage - should be able to proceed immediately
     await expect(interview.nextButton).toBeEnabled();
   });
 
-  test('Stage 2: Self-Nomination', async ({ interview, stage }) => {
+  test('Stage 2: Self-Nomination', async ({ interview, stage, protocol }) => {
     await interview.goto(2);
 
     // Quick add should be enabled initially
@@ -95,6 +97,9 @@ test.describe('SILOS Protocol', () => {
     await stage.quickAdd.addNode('Me');
     await expect(stage.getNode('Me')).toBeVisible();
     await expect(interview.nextButton).toBeEnabled();
+
+    // Wait for sync middleware to persist the node to database
+    await protocol.waitForNodes(interview.interviewId, 1);
   });
 
   test('Stage 3: Ego Information (EgoForm)', async ({
@@ -211,17 +216,15 @@ test.describe('SILOS Protocol', () => {
     await expect(interview.nextButton).toBeEnabled();
   });
 
-  test.fixme('Stage 7: Map Selection Information', async ({
-    page,
-    interview,
-  }) => {
+  test('Stage 7: Map Selection Information', async ({ page, interview }) => {
     await interview.goto(7);
 
     await expect(
       page.getByRole('heading', { name: 'Map Selection' }),
     ).toBeVisible();
 
-    // todo: check for video loading
+    const video = page.locator('video');
+    await expect(video).toBeVisible();
 
     // Information stage - should be able to proceed immediately
     await expect(interview.nextButton).toBeEnabled();
@@ -267,10 +270,7 @@ test.describe('SILOS Protocol', () => {
     await expect(interview.nextButton).toBeEnabled();
   });
 
-  test.fixme('Stage 10: Name Generator Instructions', async ({
-    page,
-    interview,
-  }) => {
+  test('Stage 10: Name Generator Instructions', async ({ page, interview }) => {
     await interview.goto(10);
 
     // Verify the heading is visible
@@ -278,7 +278,8 @@ test.describe('SILOS Protocol', () => {
       page.getByRole('heading', { name: 'People in Your Life' }),
     ).toBeVisible();
 
-    // todo: check for video loading
+    const video = page.locator('video');
+    await expect(video).toBeVisible();
 
     // Information stage - should be able to proceed immediately
     await expect(interview.nextButton).toBeEnabled();

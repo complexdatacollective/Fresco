@@ -19,21 +19,20 @@ export const env = createEnv({
    * isn't built with invalid env vars. To expose them to the client, prefix them with
    * `NEXT_PUBLIC_`.
    */
-  client: {},
+  client: {
+    /**
+     * Client-side E2E test flag. Derived from E2E_TEST at build time via next.config.ts.
+     * Used to disable video autoplay/preload to prevent browser crashes in headless tests.
+     */
+    NEXT_PUBLIC_E2E_TEST: z.stringbool().optional(),
+  },
   shared: {
     PUBLIC_URL: z.string().url().optional(),
     INSTALLATION_ID: z.string().optional(),
     DISABLE_ANALYTICS: z.stringbool().optional(),
     /**
-     * E2E_TEST Environment Variable
-     *
-     * General flag for e2e test environments. When set to 'true':
-     * - Disables Next.js caching via the no-op cacheHandlers in next.config.ts
-     * - Enables local file storage for exports instead of UploadThing
-     *
-     * Usage:
-     * - E2E tests: Set at build time AND runtime
-     * - Production: Not set
+     * E2E test mode. Used by next.config.ts to derive NEXT_PUBLIC_E2E_TEST
+     * and by server-side code for runtime checks.
      */
     E2E_TEST: z.stringbool().optional(),
     NODE_ENV: z
@@ -58,6 +57,7 @@ export const env = createEnv({
     PUBLIC_URL: process.env.PUBLIC_URL,
     DISABLE_ANALYTICS: process.env.DISABLE_ANALYTICS,
     E2E_TEST: process.env.E2E_TEST,
+    NEXT_PUBLIC_E2E_TEST: process.env.NEXT_PUBLIC_E2E_TEST,
     INSTALLATION_ID: process.env.INSTALLATION_ID,
     SANDBOX_MODE: process.env.SANDBOX_MODE,
     PREVIEW_MODE: process.env.PREVIEW_MODE,

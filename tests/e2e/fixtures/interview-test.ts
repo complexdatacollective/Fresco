@@ -34,6 +34,7 @@
 
 import { test as baseTest, expect } from './test.js';
 import { type Locator } from '@playwright/test';
+import { getContext, getSuiteId } from '../helpers/context.js';
 import { InterviewFixture } from './interview-fixture.js';
 import { ProtocolFixture } from './protocol-fixture.js';
 import { StageFixture } from './stage-fixture.js';
@@ -61,8 +62,15 @@ export const test = baseTest.extend<
   InterviewWorkerFixtures
 >({
   protocol: [
-    async ({ database }, use) => {
-      const protocol = new ProtocolFixture(database.prisma);
+    // eslint-disable-next-line no-empty-pattern
+    async ({ database }, use, workerInfo) => {
+      const projectName = workerInfo.project.name;
+      const suiteId = getSuiteId(projectName);
+      const context = await getContext(suiteId);
+      const protocol = new ProtocolFixture(
+        database.prisma,
+        context.assetServerUrl,
+      );
 
       await use(protocol);
       await protocol.cleanup();

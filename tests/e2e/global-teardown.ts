@@ -14,6 +14,16 @@ export default async function globalTeardown() {
       }
     }
 
+    // Stop the asset server
+    const assetServer = globalThis.__ASSET_SERVER__;
+    if (assetServer) {
+      try {
+        await assetServer.stop();
+      } catch (error) {
+        logError('teardown', 'Failed to stop asset server', error);
+      }
+    }
+
     const dbs = globalThis.__TEST_DBS__ ?? [];
     for (const db of dbs) {
       try {

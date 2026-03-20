@@ -1,4 +1,4 @@
-import { type Page, type Locator, expect } from '@playwright/test';
+import { type Locator, type Page, expect } from '@playwright/test';
 
 type CaptureOptions = {
   mask?: Locator[];
@@ -44,8 +44,22 @@ export class InterviewFixture {
    */
   async capture(name: string, options?: CaptureOptions): Promise<void> {
     if (this.captureFn) {
-      await this.captureFn(name, options);
+      const resolvedOptions = this.resolveCaptureMasks(options);
+      await this.captureFn(name, resolvedOptions);
     }
+  }
+
+  /**
+   * Resolve capture options, always adding video masks.
+   */
+  private resolveCaptureMasks(options?: CaptureOptions): CaptureOptions {
+    const videoLocator = this.page.locator('video');
+    const existingMasks = options?.mask ?? [];
+
+    return {
+      ...options,
+      mask: [...existingMasks, videoLocator],
+    };
   }
 
   /**
