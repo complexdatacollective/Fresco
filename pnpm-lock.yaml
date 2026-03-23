@@ -332,8 +332,8 @@ importers:
         specifier: ^5.5.1
         version: 5.5.2
       '@types/pg':
-        specifier: ^8.18.0
-        version: 8.18.0
+        specifier: ^8.20.0
+        version: 8.20.0
       '@types/qrcode':
         specifier: ^1.5.6
         version: 1.5.6
@@ -3193,8 +3193,8 @@ packages:
   '@types/pg@8.11.11':
     resolution: {integrity: sha512-kGT1qKM8wJQ5qlawUrEkXgvMSXoV213KfMGXcwfDwUIfUHXqXYXOfS1nE1LINRJVVVx5wCm70XnFlMHaIcQAfw==}
 
-  '@types/pg@8.18.0':
-    resolution: {integrity: sha512-gT+oueVQkqnj6ajGJXblFR4iavIXWsGAFCk3dP4Kki5+a9R4NMt0JARdk6s8cUKcfUoqP5dAtDSLU8xYUTFV+Q==}
+  '@types/pg@8.20.0':
+    resolution: {integrity: sha512-bEPFOaMAHTEP1EzpvHTbmwR8UsFyHSKsRisLIHVMXnpNefSbGA1bD6CVy+qKjGSqmZqNqBDV2azOBo8TgkcVow==}
 
   '@types/qrcode@1.5.6':
     resolution: {integrity: sha512-te7NQcV2BOvdj2b1hCAHzAoMNuj65kNBMz0KBaxM6c3VGBOhU0dURQKOtH8CFNI/dsKkwlv32p26qYQTWoB5bw==}
@@ -5938,9 +5938,6 @@ packages:
     peerDependencies:
       pg: '>=8.0'
 
-  pg-protocol@1.12.0:
-    resolution: {integrity: sha512-uOANXNRACNdElMXJ0tPz6RBM0XQ61nONGAwlt8da5zs/iUOOCLBQOHSXnrC6fMsvtjxbOJrZZl5IScGv+7mpbg==}
-
   pg-protocol@1.13.0:
     resolution: {integrity: sha512-zzdvXfS6v89r6v7OcFCHfHlyG/wvry1ALxZo4LqgUoy7W9xhBDMaqOuMiF3qEV45VqsN6rdlcehHrfDtlCPc8w==}
 
@@ -6954,6 +6951,10 @@ packages:
 
   tapable@2.3.0:
     resolution: {integrity: sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg==}
+    engines: {node: '>=6'}
+
+  tapable@2.3.1:
+    resolution: {integrity: sha512-b+u3CEM6FjDHru+nhUSjDofpWSBp2rINziJWgApm72wwGasQ/wKXftZe4tI2Y5HPv6OpzXSZHOFq87H4vfsgsw==}
     engines: {node: '>=6'}
 
   tar-fs@2.1.4:
@@ -8487,8 +8488,8 @@ snapshots:
 
   '@neondatabase/serverless@1.0.2':
     dependencies:
-      '@types/node': 22.19.3
-      '@types/pg': 8.18.0
+      '@types/node': 22.19.15
+      '@types/pg': 8.20.0
 
   '@next/env@16.0.0': {}
 
@@ -10687,13 +10688,13 @@ snapshots:
 
   '@types/docker-modem@3.0.6':
     dependencies:
-      '@types/node': 22.19.3
+      '@types/node': 22.19.15
       '@types/ssh2': 1.15.5
 
   '@types/dockerode@4.0.1':
     dependencies:
       '@types/docker-modem': 3.0.6
-      '@types/node': 22.19.3
+      '@types/node': 22.19.15
       '@types/ssh2': 1.15.5
 
   '@types/doctrine@0.0.9': {}
@@ -10771,14 +10772,14 @@ snapshots:
 
   '@types/pg@8.11.11':
     dependencies:
-      '@types/node': 22.19.3
+      '@types/node': 22.19.15
       pg-protocol: 1.13.0
       pg-types: 4.1.0
 
-  '@types/pg@8.18.0':
+  '@types/pg@8.20.0':
     dependencies:
-      '@types/node': 22.19.3
-      pg-protocol: 1.12.0
+      '@types/node': 22.19.15
+      pg-protocol: 1.13.0
       pg-types: 2.2.0
 
   '@types/qrcode@1.5.6':
@@ -10805,11 +10806,11 @@ snapshots:
 
   '@types/ssh2-streams@0.1.13':
     dependencies:
-      '@types/node': 22.19.3
+      '@types/node': 22.19.15
 
   '@types/ssh2@0.5.52':
     dependencies:
-      '@types/node': 22.19.3
+      '@types/node': 22.19.15
       '@types/ssh2-streams': 0.1.13
 
   '@types/ssh2@1.15.5':
@@ -13884,8 +13885,6 @@ snapshots:
     dependencies:
       pg: 8.20.0
 
-  pg-protocol@1.12.0: {}
-
   pg-protocol@1.13.0: {}
 
   pg-types@2.2.0:
@@ -14180,7 +14179,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 22.19.3
+      '@types/node': 22.19.15
       long: 5.3.2
 
   protocol-buffers-schema@3.6.0: {}
@@ -15098,6 +15097,8 @@ snapshots:
 
   tapable@2.3.0: {}
 
+  tapable@2.3.1: {}
+
   tar-fs@2.1.4:
     dependencies:
       chownr: 1.1.4
@@ -15630,7 +15631,7 @@ snapshots:
       mime-types: 2.1.35
       neo-async: 2.6.2
       schema-utils: 4.3.3
-      tapable: 2.3.0
+      tapable: 2.3.1
       terser-webpack-plugin: 5.4.0(esbuild@0.27.4)(webpack@5.105.2(esbuild@0.27.4))
       watchpack: 2.5.1
       webpack-sources: 3.3.4
