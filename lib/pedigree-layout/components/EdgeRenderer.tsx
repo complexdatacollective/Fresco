@@ -149,6 +149,7 @@ function renderInactiveGroupLine(
 function getAuxiliaryStyle(edgeType: AuxiliaryConnector['edgeType']) {
   switch (edgeType) {
     case 'unpartnered-parent':
+    case 'social':
       return { strokeDasharray: DASHED_PATTERN, strokeWidth: EDGE_WIDTH };
     case 'donor':
     case 'surrogate':
@@ -173,30 +174,85 @@ function renderParentChild(
   color: string,
 ) {
   const isDashed = conn.edgeType === 'social';
-  const dashProps: React.SVGAttributes<SVGLineElement> = isDashed
-    ? { strokeDasharray: DASHED_PATTERN }
-    : {};
+
+  // For dashed (social/adoptive) edges, combine all segments into a single
+  // polyline so the dash pattern flows continuously instead of restarting
+  // at each segment boundary.
+  if (isDashed) {
+    const allSegments = [...conn.parentLink, conn.siblingBar, ...conn.uplines];
+    const points = segmentsToPolylinePoints(allSegments);
+
+    return (
+      <g key={`pc-${idx}`}>
+        {points.map((pts, i) => (
+          <polyline
+            key={`pc-${idx}-path-${i}`}
+            points={pts}
+            fill="none"
+            stroke={color}
+            strokeWidth={EDGE_WIDTH}
+            strokeDasharray={DASHED_PATTERN}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        ))}
+      </g>
+    );
+  }
 
   return (
     <g key={`pc-${idx}`}>
       {conn.uplines.map((ul, i) =>
         renderLine(ul, color, `pc-${idx}-up-${i}`, {
           strokeLinecap: 'round',
-          ...dashProps,
         }),
       )}
       {renderLine(conn.siblingBar, color, `pc-${idx}-bar`, {
         strokeLinecap: 'round',
-        ...dashProps,
       })}
       {conn.parentLink.map((pl, i) =>
         renderLine(pl, color, `pc-${idx}-pl-${i}`, {
           strokeLinecap: 'round',
-          ...dashProps,
         }),
       )}
     </g>
   );
+}
+
+/**
+ * Convert an array of line segments into connected polyline point strings.
+ * Segments that share endpoints are merged into a single polyline.
+ * Returns an array of point strings (one per connected chain).
+ */
+function segmentsToPolylinePoints(segments: LineSegment[]): string[] {
+  if (segments.length === 0) return [];
+
+  const chains: { x: number; y: number }[][] = [];
+
+  for (const seg of segments) {
+    // Skip degenerate segments (zero length)
+    if (seg.x1 === seg.x2 && seg.y1 === seg.y2) continue;
+
+    const start = { x: seg.x1, y: seg.y1 };
+    const end = { x: seg.x2, y: seg.y2 };
+
+    // Try to append to an existing chain
+    let merged = false;
+    for (const chain of chains) {
+      const last = chain[chain.length - 1]!;
+      if (last.x === start.x && last.y === start.y) {
+        chain.push(end);
+        merged = true;
+        break;
+      }
+    }
+
+    if (!merged) {
+      chains.push([start, end]);
+    }
+  }
+
+  return chains.map((chain) => chain.map((p) => `${p.x},${p.y}`).join(' '));
 }
 
 type PedigreeEdgeSvgProps = {

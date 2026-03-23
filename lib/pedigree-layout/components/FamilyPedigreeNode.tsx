@@ -2,9 +2,31 @@ import { useSelector } from 'react-redux';
 import Node from '~/components/Node';
 import Paragraph from '~/components/typography/Paragraph';
 import { useDragSource } from '~/lib/dnd';
-import { type NodeData } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import {
+  type AdoptionStatus,
+  type NodeData,
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import { useClickUnlessDragged } from '~/lib/pedigree-layout/useClickUnlessDragged';
 import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
+
+export function AdoptionBrackets({
+  children,
+  status,
+}: {
+  children: React.ReactNode;
+  status: AdoptionStatus;
+}) {
+  const bracketStyle =
+    'absolute top-1 bottom-1 w-1.5 border-white/80 border-y-2';
+
+  return (
+    <div className="relative" aria-label={`Adopted ${status}`} role="img">
+      <span className={`${bracketStyle} -left-2.5 border-l-2`} />
+      {children}
+      <span className={`${bracketStyle} -right-2.5 border-r-2`} />
+    </div>
+  );
+}
 
 /**
  * Icon for the ego (self) node in the family tree.
@@ -14,7 +36,7 @@ import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
  * - "platinum": For colored backgrounds - uses platinum shades
  * - "slate": For white/platinum backgrounds - uses slate blue shades
  */
-function EgoIcon({
+export function EgoIcon({
   className,
   variant = 'slate',
 }: {
@@ -77,7 +99,7 @@ type FamilyPedigreeNodeProps = {
 export default function FamilyPedigreeNode(props: FamilyPedigreeNodeProps) {
   const { node, allowDrag, selected, onTap } = props;
 
-  const { id, label, isEgo, shape: nodeShape } = node;
+  const { id, label, isEgo, shape: nodeShape, adoptionStatus } = node;
   const shape = nodeShape ?? 'square';
   const displayLabel = label || 'Unnamed';
 
@@ -108,42 +130,39 @@ export default function FamilyPedigreeNode(props: FamilyPedigreeNodeProps) {
   const nodeColor = getNodeColor();
 
   const renderNodeContent = () => {
+    const nodeElement = (
+      <Node
+        className="shrink-0"
+        style={nodeColor as React.CSSProperties}
+        color="custom"
+        size="sm"
+        label={label || ''}
+        ariaLabel={displayLabel}
+        shape={shape}
+        selected={selected}
+      >
+        {isEgo && (
+          <EgoIcon
+            className="pointer-events-none absolute top-1/2 left-1/2 size-8 -translate-1/2"
+            variant={node.interviewNetworkId ? 'platinum' : 'slate'}
+          />
+        )}
+      </Node>
+    );
+
+    const wrappedNode = adoptionStatus ? (
+      <AdoptionBrackets status={adoptionStatus}>{nodeElement}</AdoptionBrackets>
+    ) : (
+      <div className="relative shrink-0">{nodeElement}</div>
+    );
+
     if (isEgo) {
-      return (
-        <Node
-          className="shrink-0"
-          style={nodeColor as React.CSSProperties}
-          color="custom"
-          size="sm"
-          label={label || ''}
-          ariaLabel={displayLabel}
-          shape={shape}
-          selected={selected}
-        >
-          {!isEgo && (
-            <EgoIcon
-              className="pointer-events-none absolute top-1/2 left-1/2 size-8 -translate-1/2"
-              variant={node.interviewNetworkId ? 'platinum' : 'slate'}
-            />
-          )}
-        </Node>
-      );
+      return wrappedNode;
     }
 
     return (
       <>
-        <div className="relative shrink-0">
-          <Node
-            className="shrink-0"
-            style={nodeColor as React.CSSProperties}
-            color="custom"
-            size="sm"
-            label={label || ''}
-            ariaLabel={displayLabel}
-            shape={shape}
-            selected={selected}
-          />
-        </div>
+        {wrappedNode}
         <div className="family-tree-node-label-container bg-cyber-grape/80 m-1 flex flex-col rounded-md px-2 py-1 text-white">
           <Paragraph
             intent="smallText"

@@ -138,27 +138,31 @@ export function alignPedigree(
       .sort((a, b) => a - b);
     if (socialParents.length < 2) continue;
 
-    // Determine which parents are in explicit partner pairs with each other
-    const partnered = new Set<number>();
+    // Add each explicit partner pair as its own group entry rather than
+    // merging all partnered parents into one group. This preserves the
+    // distinction between separate partnerships (e.g. biodad↔mom and
+    // mom↔stepdad remain two pair groups, not one triple group).
     for (let a = 0; a < socialParents.length; a++) {
       for (let b = a + 1; b < socialParents.length; b++) {
         const pairKey = `${socialParents[a]},${socialParents[b]}`;
-        if (partnerPairs.has(pairKey)) {
-          partnered.add(socialParents[a]!);
-          partnered.add(socialParents[b]!);
+        if (partnerPairs.has(pairKey) && !groupSet.has(pairKey)) {
+          groupSet.add(pairKey);
+          grouplist.push([socialParents[a]!, socialParents[b]!, 0, 0]);
         }
       }
     }
 
-    const members =
-      partnered.size >= 2
-        ? [...partnered].sort((a, b) => a - b)
-        : socialParents;
-
-    const key = members.join(',');
-    if (!groupSet.has(key)) {
-      groupSet.add(key);
-      grouplist.push([...members, 0, 0]);
+    // If no parents are in explicit partner pairs, group all of them
+    // (co-parent case).
+    const hasAnyPair = socialParents.some((a, ai) =>
+      socialParents.some((b, bi) => bi > ai && partnerPairs.has(`${a},${b}`)),
+    );
+    if (!hasAnyPair) {
+      const key = socialParents.join(',');
+      if (!groupSet.has(key)) {
+        groupSet.add(key);
+        grouplist.push([...socialParents, 0, 0]);
+      }
     }
   }
 
@@ -251,7 +255,25 @@ export function alignPedigree(
       if (existingAux && !candidateAux) {
         componentFounder.set(comp, i);
       } else if (existingAux === candidateAux) {
-        if ((horder[i] ?? 0) < (horder[existing] ?? 0)) {
+        // Prefer nodes with more partner connections so that
+        // multi-partner people become the founder and alignped1 discovers
+        // all partners naturally.
+        const countPartners = (idx: number) => {
+          let count = 0;
+          for (const key of partnerPairs) {
+            const [a, b] = key.split(',').map(Number);
+            if (a === idx || b === idx) count++;
+          }
+          return count;
+        };
+        const existingPartners = countPartners(existing);
+        const candidatePartners = countPartners(i);
+        if (candidatePartners > existingPartners) {
+          componentFounder.set(comp, i);
+        } else if (
+          candidatePartners === existingPartners &&
+          (horder[i] ?? 0) < (horder[existing] ?? 0)
+        ) {
           componentFounder.set(comp, i);
         }
       }
@@ -320,16 +342,32 @@ export function alignPedigree(
   for (let pass = 0; pass < n; pass++) {
     const placedIds = collectPlaced();
     const unplacedFounder = (() => {
+      // First: prefer founders with already-placed children
       for (let i = 0; i < n; i++) {
         if (placedIds.has(i)) continue;
         if (!isFounder(i)) continue;
-        // Skip auxiliary-only parents — handled in a dedicated pass later
         if (isAuxiliaryOnly(i)) continue;
         const hasPlacedChild = ped.parents.some(
           (pConns, ci) =>
             placedIds.has(ci) && pConns.some((p) => p.parentIndex === i),
         );
         if (hasPlacedChild) return i;
+      }
+      // Fallback: founders with unplaced children in the same connected
+      // component as placed nodes (e.g. adoptive parents whose child was
+      // remapped to auxiliary edges and not yet discovered).
+      for (let i = 0; i < n; i++) {
+        if (placedIds.has(i)) continue;
+        if (!isFounder(i)) continue;
+        if (isAuxiliaryOnly(i)) continue;
+        const hasChildren = ped.parents.some((pConns) =>
+          pConns.some((p) => p.parentIndex === i && isPrimaryEdge(p.edgeType)),
+        );
+        if (!hasChildren) continue;
+        const connectedToPlaced = [...placedIds].some(
+          (pid) => find(pid) === find(i),
+        );
+        if (connectedToPlaced) return i;
       }
       return -1;
     })();
@@ -650,26 +688,51 @@ export function alignPedigree(
       }
       if (childIdx < 0) continue;
 
-      // Find the social parents of this child in the layout
-      const socialParentIndices = ped.parents[childIdx]!.filter((p) =>
-        isPrimaryEdge(p.edgeType),
-      ).map((p) => p.parentIndex);
+      // Find the primary parents of this child in the layout
+      const childParentConns = ped.parents[childIdx]!;
+      const socialParentIndices = childParentConns
+        .filter((p) => isPrimaryEdge(p.edgeType))
+        .map((p) => p.parentIndex);
+
+      // Find the biological parent among the primary parents — the donor
+      // should be placed on the same side as the biological contributor.
+      const bioParentIdx = childParentConns.find(
+        (p) => p.edgeType === 'biological',
+      )?.parentIndex;
 
       const lev2 = level[i]!;
       if (lev2 < 0 || lev2 >= maxlev) continue;
       const mainN = rval.n[lev2] ?? 0;
 
-      // Find the rightmost social parent column on this level
-      let insertAfter = -1;
+      // Find column positions of the social parents on this level
+      let leftmostSocialCol = mainN;
+      let rightmostSocialCol = -1;
+      let bioParentCol = -1;
       for (let col = 0; col < mainN; col++) {
         const pid = Math.floor(rval.nid[lev2]![col]!);
         if (socialParentIndices.includes(pid)) {
-          insertAfter = col;
+          if (col < leftmostSocialCol) leftmostSocialCol = col;
+          if (col > rightmostSocialCol) rightmostSocialCol = col;
         }
+        if (pid === bioParentIdx) bioParentCol = col;
       }
 
-      // Insert after the social parent group (or at end if not found)
-      const insertAt = insertAfter >= 0 ? insertAfter + 1 : mainN;
+      // Place on the same side as the biological parent:
+      // If bio parent is on the left of the couple, insert before the couple.
+      // Otherwise insert after.
+      const placeOnLeft =
+        bioParentCol >= 0 &&
+        rightmostSocialCol >= 0 &&
+        bioParentCol <= leftmostSocialCol;
+
+      let insertAt: number;
+      if (placeOnLeft && leftmostSocialCol > 0) {
+        insertAt = leftmostSocialCol;
+      } else if (rightmostSocialCol >= 0) {
+        insertAt = rightmostSocialCol + 1;
+      } else {
+        insertAt = mainN;
+      }
       const newTotal = mainN + 1;
 
       while (rval.nid[lev2]!.length < newTotal) {
@@ -685,8 +748,34 @@ export function alignPedigree(
         rval.fam[lev2]![mc + 1] = rval.fam[lev2]![mc]!;
       }
 
-      // Position with spacing after the previous column
-      const basePos = insertAt > 0 ? rval.pos[lev2]![insertAt - 1]! + 1 : 0;
+      // Position the auxiliary parent to the right of the rightmost child
+      // in its family, so the primary parent can be centered over children.
+      let maxChildPos = -Infinity;
+      const childLev = lev2 + 1;
+      if (childLev < maxlev) {
+        const childN = rval.n[childLev] ?? 0;
+        for (let cc = 0; cc < childN; cc++) {
+          const cid = Math.floor(rval.nid[childLev]![cc]!);
+          if (cid < 0) continue;
+          const cParents = ped.parents[cid];
+          if (
+            cParents?.some(
+              (p) => p.parentIndex === i && isAuxiliaryEdge(p.edgeType),
+            )
+          ) {
+            const cpos = rval.pos[childLev]![cc]!;
+            if (cpos > maxChildPos) maxChildPos = cpos;
+          }
+        }
+      }
+
+      const basePos =
+        Number.isFinite(maxChildPos) && maxChildPos >= 0
+          ? maxChildPos + 1
+          : insertAt > 0
+            ? rval.pos[lev2]![insertAt - 1]! + 2
+            : 0;
+
       rval.nid[lev2]![insertAt] = i;
       rval.pos[lev2]![insertAt] = basePos;
       rval.fam[lev2]![insertAt] = 0;
@@ -805,6 +894,144 @@ export function alignPedigree(
     }
   } else {
     pos = rval.pos.map((row) => [...row]);
+  }
+
+  // Post-process: center non-grouped (single) parents over their children,
+  // and push auxiliary-only parents (donors/surrogates) away from the
+  // family. The optimizer may compress auxiliary parents too close.
+  for (let lev2 = 0; lev2 < maxdepth - 1; lev2++) {
+    const genN = rval.n[lev2] ?? 0;
+    for (let col = 0; col < genN; col++) {
+      const pid = nid[lev2]![col]!;
+      if (pid < 0) continue;
+
+      const isGrouped =
+        (col > 0 && groupMat[lev2]![col - 1]! > 0) || groupMat[lev2]![col]! > 0;
+      if (isGrouped) continue;
+      if (groupMember[lev2]?.[col]) continue;
+
+      // Check if this is an auxiliary-only parent (donor/surrogate)
+      if (isAuxiliaryOnly(pid)) {
+        // Find child positions and the biological parent's position to
+        // determine which side the donor should be on.
+        let minChildPos = Infinity;
+        let maxChildPos = -Infinity;
+        let bioParentPos: number | undefined;
+
+        for (let cl = lev2 + 1; cl < maxdepth; cl++) {
+          const childN = rval.n[cl] ?? 0;
+          for (let cc = 0; cc < childN; cc++) {
+            const cid = nid[cl]![cc]!;
+            if (cid < 0) continue;
+            const cParents = ped.parents[cid];
+            if (!cParents) continue;
+            const hasAux = cParents.some(
+              (p) => p.parentIndex === pid && isAuxiliaryEdge(p.edgeType),
+            );
+            if (!hasAux) continue;
+
+            const cpos = pos[cl]![cc]!;
+            if (cpos < minChildPos) minChildPos = cpos;
+            if (cpos > maxChildPos) maxChildPos = cpos;
+
+            // Find the biological parent's position
+            if (bioParentPos === undefined) {
+              const bioPConn = cParents.find(
+                (p) => p.edgeType === 'biological',
+              );
+              if (bioPConn) {
+                for (let pc = 0; pc < genN; pc++) {
+                  if (nid[lev2]![pc] === bioPConn.parentIndex) {
+                    bioParentPos = pos[lev2]![pc]!;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        if (Number.isFinite(maxChildPos)) {
+          // Place on the same side as the biological parent
+          const childCenter = (minChildPos + maxChildPos) / 2;
+          if (bioParentPos !== undefined && bioParentPos < childCenter) {
+            // Bio parent is on the left — place donor to the left of the
+            // bio parent with the same spacing used on the right side.
+            pos[lev2]![col] = bioParentPos - 1;
+          } else {
+            // Bio parent is on the right or no bio parent — place to the right
+            pos[lev2]![col] = Math.max(pos[lev2]![col]!, maxChildPos + 1);
+          }
+        }
+        continue;
+      }
+
+      // Center non-grouped primary parents over their children
+      const childLev = lev2 + 1;
+      const childN = rval.n[childLev] ?? 0;
+      const childPositions: number[] = [];
+      for (let cc = 0; cc < childN; cc++) {
+        const cid = nid[childLev]![cc]!;
+        if (cid < 0) continue;
+        if (groupMember[childLev]?.[cc]) continue;
+        const famVal = rval.fam[childLev]![cc]!;
+        if (famVal === col + 1) {
+          childPositions.push(pos[childLev]![cc]!);
+        }
+      }
+
+      if (childPositions.length < 2) continue;
+
+      const childCenter =
+        (Math.min(...childPositions) + Math.max(...childPositions)) / 2;
+      pos[lev2]![col] = childCenter;
+    }
+  }
+
+  // Post-process: when a child has one biological and one social parent in a
+  // couple, position the child directly under the biological parent. This
+  // matches standard pedigree conventions (e.g. ART scenarios where the
+  // descent line comes from the genetic/gestational contributor).
+  for (let lev2 = 1; lev2 < maxdepth; lev2++) {
+    const childN = rval.n[lev2] ?? 0;
+    for (let cc = 0; cc < childN; cc++) {
+      const cid = nid[lev2]![cc]!;
+      if (cid < 0) continue;
+      if (groupMember[lev2]?.[cc]) continue;
+
+      const famVal = rval.fam[lev2]![cc]!;
+      if (famVal <= 0) continue;
+
+      const parentLev = lev2 - 1;
+      const coupleLeft = famVal - 1;
+      const parentN = rval.n[parentLev] ?? 0;
+      const hasRight =
+        coupleLeft + 1 < parentN &&
+        (groupMat[parentLev]?.[coupleLeft] ?? 0) > 0;
+
+      if (!hasRight) continue;
+
+      const leftId = nid[parentLev]![coupleLeft]!;
+      const rightId = nid[parentLev]![coupleLeft + 1]!;
+
+      const cParents = ped.parents[cid] ?? [];
+      const leftEdge = cParents.find(
+        (p) => p.parentIndex === leftId && isPrimaryEdge(p.edgeType),
+      );
+      const rightEdge = cParents.find(
+        (p) => p.parentIndex === rightId && isPrimaryEdge(p.edgeType),
+      );
+
+      if (!leftEdge || !rightEdge) continue;
+
+      // Only adjust when one is biological and the other is social
+      const leftIsBio = leftEdge.edgeType === 'biological';
+      const rightIsBio = rightEdge.edgeType === 'biological';
+      if (leftIsBio === rightIsBio) continue;
+
+      const bioParentCol = leftIsBio ? coupleLeft : coupleLeft + 1;
+      pos[lev2]![cc] = pos[parentLev]![bioParentCol]!;
+    }
   }
 
   return {

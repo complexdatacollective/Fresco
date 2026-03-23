@@ -8,6 +8,8 @@ import { type ParentEdge } from '~/schemas/familyPedigree';
 
 enableMapSet();
 
+export type AdoptionStatus = 'in' | 'out' | 'by-relative';
+
 export type NodeData = {
   label: string;
   shape?: NodeShape;
@@ -16,6 +18,7 @@ export type NodeData = {
   interviewNetworkId?: string;
   diseases?: Map<string, boolean>;
   isBioRelative?: boolean;
+  adoptionStatus?: AdoptionStatus;
 };
 
 export type PersonDetail = {
@@ -284,6 +287,7 @@ export const createFamilyPedigreeStore = (
             label: node.label,
             shape: node.shape,
             isEgo: node.isEgo,
+            adoptionStatus: node.adoptionStatus,
           }));
 
           const serializedEdges = [...edges.entries()].map(([id, edge]) => ({

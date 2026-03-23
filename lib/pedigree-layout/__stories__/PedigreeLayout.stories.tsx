@@ -3,12 +3,17 @@ import type { Meta, StoryFn } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
 import Node from '~/components/Node';
 import { useNodeMeasurement } from '~/hooks/useNodeMeasurement';
-import PedigreeKey from '~/lib/pedigree-layout/components/PedigreeKey';
-import PedigreeLayout from '~/lib/pedigree-layout/components/PedigreeLayout';
 import {
+  type AdoptionStatus,
   type NodeData,
   type StoreEdge,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import {
+  AdoptionBrackets,
+  EgoIcon,
+} from '~/lib/pedigree-layout/components/FamilyPedigreeNode';
+import PedigreeKey from '~/lib/pedigree-layout/components/PedigreeKey';
+import PedigreeLayout from '~/lib/pedigree-layout/components/PedigreeLayout';
 
 const meta: Meta = {
   title: 'Systems/PedigreeLayout',
@@ -47,6 +52,9 @@ const meta: Meta = {
         'ART 4a: Traditional Surrogacy',
         'ART 4b: Inseminate Sister',
         'ART 5: Reciprocal IVF',
+        'Adoption: Adopted In',
+        'Adoption: Adopted Out',
+        'Adoption: By Relative',
       ],
     },
     nodeStyle: {
@@ -77,14 +85,21 @@ function buildNetwork(
   nodeDefs: {
     id: string;
     label: string;
-    shape?: 'square' | 'circle';
+    shape?: 'square' | 'circle' | 'diamond';
     isEgo?: boolean;
+    adoptionStatus?: AdoptionStatus;
   }[],
   edgeDefs: StoreEdge[],
 ): NetworkData {
   const nodes = new Map<string, NodeData>();
-  for (const { id, label, shape, isEgo } of nodeDefs) {
-    nodes.set(id, { label, shape, isEgo: isEgo ?? false, readOnly: false });
+  for (const { id, label, shape, isEgo, adoptionStatus } of nodeDefs) {
+    nodes.set(id, {
+      label,
+      shape,
+      isEgo: isEgo ?? false,
+      readOnly: false,
+      adoptionStatus,
+    });
   }
 
   const edges = new Map<string, StoreEdge>();
@@ -603,7 +618,7 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'Non-Binary Parent': buildNetwork(
     [
-      { id: 'nbParent', label: 'Alex' },
+      { id: 'nbParent', label: 'Alex', shape: 'diamond' },
       { id: 'partner', label: fakeName('female'), shape: 'circle' },
       { id: 'child1', label: fakeName('male'), shape: 'square', isEgo: true },
       { id: 'child2', label: fakeName('female'), shape: 'circle' },
@@ -1199,10 +1214,10 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'ART 1e: Nonbinary Person Pregnant': buildNetwork(
     [
-      { id: 'nonbinary', label: 'Nonbinary' },
+      { id: 'nonbinary', label: 'Nonbinary', shape: 'diamond' },
       { id: 'transWoman', label: 'Trans Woman', shape: 'circle' },
       { id: 'donor', label: 'Sperm Donor', shape: 'square' },
-      { id: 'pregnancy', label: 'Pregnancy' },
+      { id: 'pregnancy', label: 'Pregnancy', shape: 'diamond' },
     ],
     [
       {
@@ -1450,13 +1465,19 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'Known Bio Parent': buildNetwork(
     [
+      { id: 'biodad', label: fakeName('male'), shape: 'square' },
       { id: 'mom', label: fakeName('female'), shape: 'circle' },
       { id: 'stepdad', label: fakeName('male'), shape: 'square' },
-      { id: 'biodad', label: fakeName('male'), shape: 'square' },
       { id: 'ego', label: fakeName('female'), shape: 'circle', isEgo: true },
       { id: 'sibling', label: fakeName('male'), shape: 'square' },
     ],
     [
+      {
+        source: 'biodad',
+        target: 'mom',
+        relationshipType: 'partner',
+        isActive: false,
+      },
       {
         source: 'mom',
         target: 'stepdad',
@@ -1470,15 +1491,15 @@ const NETWORKS: Record<string, NetworkData> = {
         isActive: true,
       },
       {
-        source: 'stepdad',
-        target: 'ego',
-        relationshipType: 'social',
-        isActive: true,
-      },
-      {
         source: 'biodad',
         target: 'ego',
         relationshipType: 'biological',
+        isActive: true,
+      },
+      {
+        source: 'stepdad',
+        target: 'ego',
+        relationshipType: 'social',
         isActive: true,
       },
       {
@@ -1488,15 +1509,206 @@ const NETWORKS: Record<string, NetworkData> = {
         isActive: true,
       },
       {
+        source: 'biodad',
+        target: 'sibling',
+        relationshipType: 'biological',
+        isActive: true,
+      },
+      {
         source: 'stepdad',
         target: 'sibling',
         relationshipType: 'social',
         isActive: true,
       },
+    ],
+  ),
+  'Adoption: Adopted In': buildNetwork(
+    [
+      { id: 'bioDad', label: fakeName('male'), shape: 'square' },
+      { id: 'bioMom', label: fakeName('female'), shape: 'circle' },
+      { id: 'adoptDad', label: fakeName('male'), shape: 'square' },
+      { id: 'adoptMom', label: fakeName('female'), shape: 'circle' },
       {
-        source: 'biodad',
+        id: 'child',
+        label: fakeName('female'),
+        shape: 'circle',
+        isEgo: true,
+        adoptionStatus: 'in',
+      },
+    ],
+    [
+      {
+        source: 'bioDad',
+        target: 'bioMom',
+        relationshipType: 'partner',
+        isActive: true,
+      },
+      {
+        source: 'adoptDad',
+        target: 'adoptMom',
+        relationshipType: 'partner',
+        isActive: true,
+      },
+      {
+        source: 'bioDad',
+        target: 'child',
+        relationshipType: 'biological',
+        isActive: true,
+      },
+      {
+        source: 'bioMom',
+        target: 'child',
+        relationshipType: 'biological',
+        isActive: true,
+      },
+      {
+        source: 'adoptDad',
+        target: 'child',
+        relationshipType: 'social',
+        isActive: true,
+      },
+      {
+        source: 'adoptMom',
+        target: 'child',
+        relationshipType: 'social',
+        isActive: true,
+      },
+    ],
+  ),
+  'Adoption: Adopted Out': buildNetwork(
+    [
+      { id: 'bioFather', label: fakeName('male'), shape: 'square' },
+      { id: 'bioMother', label: fakeName('female'), shape: 'circle' },
+      { id: 'sibling', label: fakeName('female'), shape: 'circle' },
+      { id: 'adoptFather', label: fakeName('male'), shape: 'square' },
+      { id: 'adoptMother', label: fakeName('female'), shape: 'circle' },
+      {
+        id: 'ego',
+        label: fakeName('male'),
+        shape: 'square',
+        isEgo: true,
+        adoptionStatus: 'out',
+      },
+    ],
+    [
+      {
+        source: 'bioFather',
+        target: 'bioMother',
+        relationshipType: 'partner',
+        isActive: true,
+      },
+      {
+        source: 'adoptFather',
+        target: 'adoptMother',
+        relationshipType: 'partner',
+        isActive: true,
+      },
+      {
+        source: 'bioFather',
         target: 'sibling',
         relationshipType: 'biological',
+        isActive: true,
+      },
+      {
+        source: 'bioMother',
+        target: 'sibling',
+        relationshipType: 'biological',
+        isActive: true,
+      },
+      {
+        source: 'bioFather',
+        target: 'ego',
+        relationshipType: 'biological',
+        isActive: true,
+      },
+      {
+        source: 'bioMother',
+        target: 'ego',
+        relationshipType: 'biological',
+        isActive: true,
+      },
+      {
+        source: 'adoptFather',
+        target: 'ego',
+        relationshipType: 'social',
+        isActive: true,
+      },
+      {
+        source: 'adoptMother',
+        target: 'ego',
+        relationshipType: 'social',
+        isActive: true,
+      },
+    ],
+  ),
+  'Adoption: By Relative': buildNetwork(
+    [
+      { id: 'grandpa', label: fakeName('male'), shape: 'square' },
+      { id: 'grandma', label: fakeName('female'), shape: 'circle' },
+      { id: 'father', label: fakeName('male'), shape: 'square' },
+      { id: 'aunt', label: fakeName('female'), shape: 'circle' },
+      { id: 'uncle', label: fakeName('male'), shape: 'square' },
+      {
+        id: 'child',
+        label: fakeName('female'),
+        shape: 'circle',
+        isEgo: true,
+        adoptionStatus: 'by-relative',
+      },
+    ],
+    [
+      {
+        source: 'grandpa',
+        target: 'grandma',
+        relationshipType: 'partner',
+        isActive: true,
+      },
+      {
+        source: 'grandpa',
+        target: 'father',
+        relationshipType: 'biological',
+        isActive: true,
+      },
+      {
+        source: 'grandma',
+        target: 'father',
+        relationshipType: 'biological',
+        isActive: true,
+      },
+      {
+        source: 'grandpa',
+        target: 'aunt',
+        relationshipType: 'biological',
+        isActive: true,
+      },
+      {
+        source: 'grandma',
+        target: 'aunt',
+        relationshipType: 'biological',
+        isActive: true,
+      },
+      {
+        source: 'uncle',
+        target: 'aunt',
+        relationshipType: 'partner',
+        isActive: true,
+      },
+      {
+        source: 'father',
+        target: 'child',
+        relationshipType: 'biological',
+        isActive: true,
+      },
+      {
+        source: 'aunt',
+        target: 'child',
+        relationshipType: 'social',
+        isActive: true,
+      },
+      {
+        source: 'uncle',
+        target: 'child',
+        relationshipType: 'social',
         isActive: true,
       },
     ],
@@ -1527,27 +1739,63 @@ const NODE_MEASUREMENT_COMPONENTS: Record<string, React.ReactElement> = {
 };
 
 const NODE_RENDERERS: Record<string, NodeRenderer> = {
-  'Colored Node': (node) => (
-    <Node
-      color={node.isEgo ? 'node-color-seq-2' : 'node-color-seq-1'}
-      label={node.label}
-      shape={node.shape ?? 'square'}
-      size="sm"
-    />
-  ),
-  'Labeled Node': (node) => (
-    <div className="flex flex-col items-center gap-1 text-center">
-      <span className="invisible max-w-24 truncate text-xs">{node.label}</span>
+  'Colored Node': (node) => {
+    const nodeEl = (
       <Node
-        className="shrink-0"
-        color={node.isEgo ? 'node-color-seq-2' : 'node-color-seq-1'}
-        label={node.label}
+        color="node-color-seq-1"
+        label={!node.isEgo ? node.label : ''}
         shape={node.shape ?? 'square'}
         size="sm"
-      />
-      <span className="max-w-24 truncate text-xs">{node.label}</span>
-    </div>
-  ),
+      >
+        {node.isEgo && (
+          <EgoIcon
+            className="pointer-events-none absolute top-1/2 left-1/2 size-8 -translate-1/2"
+            variant="platinum"
+          />
+        )}
+      </Node>
+    );
+    if (node.adoptionStatus) {
+      return (
+        <AdoptionBrackets status={node.adoptionStatus}>
+          {nodeEl}
+        </AdoptionBrackets>
+      );
+    }
+    return nodeEl;
+  },
+  'Labeled Node': (node) => {
+    const nodeEl = (
+      <Node
+        className="shrink-0"
+        color="node-color-seq-1"
+        label={!node.isEgo ? node.label : ''}
+        shape={node.shape ?? 'square'}
+        size="sm"
+      >
+        {node.isEgo && (
+          <EgoIcon
+            className="pointer-events-none absolute top-1/2 left-1/2 size-8 -translate-1/2"
+            variant="platinum"
+          />
+        )}
+      </Node>
+    );
+    const wrappedNode = node.adoptionStatus ? (
+      <AdoptionBrackets status={node.adoptionStatus}>{nodeEl}</AdoptionBrackets>
+    ) : (
+      nodeEl
+    );
+    return (
+      <div className="flex flex-col items-center gap-1 text-center">
+        <span className="invisible max-w-24 truncate text-xs">
+          {node.label}
+        </span>
+        {wrappedNode}
+        <span className="max-w-24 truncate text-xs">{node.label}</span>
+      </div>
+    );
+  },
   'Responsive': (node) => (
     <div
       className={`rounded-full ${node.isEgo ? 'bg-node-2' : 'bg-node-1'}`}
@@ -1560,7 +1808,7 @@ const NODE_RENDERERS: Record<string, NodeRenderer> = {
   ),
   'Dot': (node) => (
     <div
-      className={`m-4 size-4 rounded-full ${node.isEgo ? 'bg-yellow-400' : 'bg-white'}`}
+      className={`m-4 size-4 rounded-full ${node.isEgo ? 'bg-mustard' : 'bg-white'}`}
       title={node.label}
     />
   ),

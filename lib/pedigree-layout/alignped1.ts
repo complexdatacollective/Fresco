@@ -2,9 +2,16 @@ import {
   type AlignmentArrays,
   type GroupEntry,
   type ParentConnection,
+  type ParentEdgeType,
 } from '~/lib/pedigree-layout/types';
 import { alignped2 } from '~/lib/pedigree-layout/alignped2';
 import { alignped3 } from '~/lib/pedigree-layout/alignped3';
+
+const AUXILIARY_EDGE_TYPES = new Set<ParentEdgeType>(['donor', 'surrogate']);
+
+function isPrimaryParent(p: ParentConnection, parentIndex: number): boolean {
+  return p.parentIndex === parentIndex && !AUXILIARY_EDGE_TYPES.has(p.edgeType);
+}
 
 /**
  * Lay out one person and all descendants.
@@ -89,7 +96,7 @@ export function alignped1(
       for (let j = 0; j < parents.length; j++) {
         const pConns = parents[j]!;
         if (pConns.length === 0) continue;
-        if (pConns.some((p) => p.parentIndex === x)) {
+        if (pConns.some((p) => isPrimaryParent(p, x))) {
           singleChildren.push(j);
         }
       }
@@ -198,8 +205,8 @@ export function alignped1(
         if (assignedChildren.has(j)) continue;
         const pConns = parents[j]!;
         if (pConns.length === 0) continue;
-        const hasX = pConns.some((p) => p.parentIndex === x);
-        const hasMember = pConns.some((p) => p.parentIndex === member);
+        const hasX = pConns.some((p) => isPrimaryParent(p, x));
+        const hasMember = pConns.some((p) => isPrimaryParent(p, member));
         if (hasX && hasMember) {
           children.push(j);
           assignedChildren.add(j);
@@ -314,7 +321,7 @@ export function alignped1(
   for (let j = 0; j < parents.length; j++) {
     const pConns = parents[j]!;
     if (pConns.length === 0) continue;
-    if (pConns.some((p) => p.parentIndex === x)) {
+    if (pConns.some((p) => isPrimaryParent(p, x))) {
       singleChildren.push(j);
     }
   }

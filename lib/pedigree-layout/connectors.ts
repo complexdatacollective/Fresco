@@ -51,6 +51,8 @@ export function computeConnectors(
   const auxiliaryLines: AuxiliaryConnector[] = [];
   const twinIndicators: TwinIndicator[] = [];
   const duplicateArcs: DuplicateArc[] = [];
+  // Maps "childLevel,famId" → sibling bar segment (populated during parent-child computation)
+  const familySiblingBar = new Map<string, LineSegment>();
 
   // --- Parent group lines (all partner pairs, marked active/inactive) ---
   for (let i = 0; i < maxlev; i++) {
@@ -271,6 +273,8 @@ export function computeConnectors(
         y2: i - legh,
       };
 
+      familySiblingBar.set(`${i},${fam}`, siblingBar);
+
       // Parent link
       const targetRange = maxTarget - minTarget;
       let x1: number;
@@ -375,35 +379,91 @@ export function computeConnectors(
   }
 
   // --- Auxiliary lines for donor/surrogate edges ---
+  // Group connections by (parentIndex, childLevel, famId) so each
+  // donor/surrogate gets a single line to the sibling bar per family.
+  const auxConnections = new Map<
+    string,
+    {
+      parentIndex: number;
+      edgeType: 'donor' | 'surrogate';
+      childLevel: number;
+      famId: number;
+    }
+  >();
+
   for (let i = 0; i < maxlev; i++) {
     for (let j = 0; j < (layout.n[i] ?? 0); j++) {
       const childId = layout.nid[i]![j]!;
       const childParents = parents[childId] ?? [];
+      const famId = layout.fam[i]?.[j] ?? 0;
 
       for (const pc of childParents) {
         if (pc.edgeType === 'donor' || pc.edgeType === 'surrogate') {
-          for (let pi = 0; pi < maxlev; pi++) {
-            for (let pj = 0; pj < (layout.n[pi] ?? 0); pj++) {
-              if (layout.nid[pi]![pj] === pc.parentIndex) {
-                const parentX = layout.pos[pi]![pj]!;
-                const parentY = pi + boxh / 2;
-                const childX = layout.pos[i]![j]!;
-                const childY = i + boxh / 2;
-
-                auxiliaryLines.push({
-                  type: 'auxiliary',
-                  edgeType: pc.edgeType,
-                  segment: {
-                    type: 'line',
-                    x1: parentX,
-                    y1: parentY,
-                    x2: childX,
-                    y2: childY,
-                  },
-                });
-              }
-            }
+          const key = `${pc.parentIndex},${i},${famId}`;
+          if (!auxConnections.has(key)) {
+            auxConnections.set(key, {
+              parentIndex: pc.parentIndex,
+              edgeType: pc.edgeType,
+              childLevel: i,
+              famId,
+            });
           }
+        }
+      }
+    }
+  }
+
+  for (const conn of auxConnections.values()) {
+    let parentX: number | undefined;
+    let parentY: number | undefined;
+    for (let pi = 0; pi < maxlev; pi++) {
+      for (let pj = 0; pj < (layout.n[pi] ?? 0); pj++) {
+        if (layout.nid[pi]![pj] === conn.parentIndex) {
+          parentX = layout.pos[pi]![pj]!;
+          parentY = pi + boxh / 2;
+          break;
+        }
+      }
+      if (parentX !== undefined) break;
+    }
+    if (parentX === undefined || parentY === undefined) continue;
+
+    const bar = familySiblingBar.get(`${conn.childLevel},${conn.famId}`);
+
+    if (bar) {
+      // Connect to the nearest point on the sibling bar
+      const barMinX = Math.min(bar.x1, bar.x2);
+      const barMaxX = Math.max(bar.x1, bar.x2);
+      const connectX = Math.max(barMinX, Math.min(parentX, barMaxX));
+
+      auxiliaryLines.push({
+        type: 'auxiliary',
+        edgeType: conn.edgeType,
+        segment: {
+          type: 'line',
+          x1: parentX,
+          y1: parentY,
+          x2: connectX,
+          y2: bar.y1,
+        },
+      });
+    } else {
+      // No sibling bar (e.g. single child with no family assignment) —
+      // fall back to a direct line to the child
+      for (let j = 0; j < (layout.n[conn.childLevel] ?? 0); j++) {
+        if (layout.fam[conn.childLevel]?.[j] === conn.famId) {
+          auxiliaryLines.push({
+            type: 'auxiliary',
+            edgeType: conn.edgeType,
+            segment: {
+              type: 'line',
+              x1: parentX,
+              y1: parentY,
+              x2: layout.pos[conn.childLevel]![j]!,
+              y2: conn.childLevel + boxh / 2,
+            },
+          });
+          break;
         }
       }
     }
@@ -463,8 +523,28 @@ export function computeConnectors(
 
       if (partneredParents.size === 0) continue;
 
+      // Determine which parent pair the child is assigned to (primary family)
+      const childFam = layout.fam[i]?.[j] ?? 0;
+      const primaryCoupleLeft = childFam > 0 ? childFam - 1 : -1;
+      const primaryParentLevelN = layout.n[i - 1] ?? 0;
+      const primaryHasRight =
+        primaryCoupleLeft >= 0 &&
+        primaryCoupleLeft + 1 < primaryParentLevelN &&
+        (layout.group[i - 1]?.[primaryCoupleLeft] ?? 0) > 0;
+      const primaryLeftId =
+        primaryCoupleLeft >= 0
+          ? layout.nid[i - 1]?.[primaryCoupleLeft]
+          : undefined;
+      const primaryRightId = primaryHasRight
+        ? layout.nid[i - 1]?.[primaryCoupleLeft + 1]
+        : undefined;
+      const primaryFamilyIds = new Set<number>();
+      if (primaryLeftId !== undefined) primaryFamilyIds.add(primaryLeftId);
+      if (primaryRightId !== undefined) primaryFamilyIds.add(primaryRightId);
+
       for (const parentId of parentIds) {
-        if (partneredParents.has(parentId)) continue;
+        // Skip parents in the primary family (already have parent-child lines)
+        if (primaryFamilyIds.has(parentId)) continue;
 
         const parentPos = nodePosition.get(parentId);
         if (!parentPos) continue;
@@ -472,9 +552,14 @@ export function computeConnectors(
         const childX = layout.pos[i]![j]!;
         const childY = i + boxh / 2;
 
+        const parentEdge = childParents.find(
+          (pc) => pc.parentIndex === parentId,
+        );
+
         auxiliaryLines.push({
           type: 'auxiliary',
-          edgeType: 'unpartnered-parent',
+          edgeType:
+            parentEdge?.edgeType === 'social' ? 'social' : 'unpartnered-parent',
           segment: {
             type: 'line',
             x1: parentPos.x,

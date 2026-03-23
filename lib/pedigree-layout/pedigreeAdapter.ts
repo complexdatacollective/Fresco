@@ -84,7 +84,21 @@ export function storeToPedigreeInput(
       const parentIdx = idToIndex.get(edge.source);
       if (childIdx === undefined || parentIdx === undefined) continue;
 
-      const edgeType: ParentEdgeType = edge.relationshipType;
+      let edgeType: ParentEdgeType = edge.relationshipType;
+
+      // For adopted-in/out nodes, remap biological edges to 'donor' for layout.
+      // This makes them auxiliary so the child is positioned under the social
+      // (adoptive) parents instead, matching standard pedigree conventions.
+      // Adopted-by-relative keeps the child under biological parents.
+      const childNode = nodes.get(edge.target);
+      if (
+        (childNode?.adoptionStatus === 'in' ||
+          childNode?.adoptionStatus === 'out') &&
+        edgeType === 'biological'
+      ) {
+        edgeType = 'donor';
+      }
+
       parents[childIdx]!.push({
         parentIndex: parentIdx,
         edgeType,

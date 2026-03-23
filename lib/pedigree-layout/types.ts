@@ -120,7 +120,7 @@ export type ParentChildConnector = {
 
 export type AuxiliaryConnector = {
   type: 'auxiliary';
-  edgeType: 'donor' | 'surrogate' | 'unpartnered-parent';
+  edgeType: 'donor' | 'surrogate' | 'unpartnered-parent' | 'social';
   segment: LineSegment;
 };
 
