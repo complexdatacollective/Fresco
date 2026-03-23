@@ -511,6 +511,20 @@ export function computeConnectors(
     }
   }
 
+  // Group social/unpartnered-parent connections by (parentIndex, childLevel,
+  // famId) so we can decide per-parent whether to connect to the sibling bar
+  // or directly to individual children.
+  const socialConnections = new Map<
+    string,
+    {
+      parentIndex: number;
+      edgeType: 'social' | 'unpartnered-parent';
+      childLevel: number;
+      famId: number;
+      childColumns: number[];
+    }
+  >();
+
   for (let i = 0; i < maxlev; i++) {
     for (let j = 0; j < (layout.n[i] ?? 0); j++) {
       const childId = layout.nid[i]![j]!;
@@ -555,30 +569,70 @@ export function computeConnectors(
       if (primaryLeftId !== undefined) primaryFamilyIds.add(primaryLeftId);
       if (primaryRightId !== undefined) primaryFamilyIds.add(primaryRightId);
 
+      const famId = layout.fam[i]?.[j] ?? 0;
+
       for (const parentId of parentIds) {
-        // Skip parents in the primary family (already have parent-child lines)
         if (primaryFamilyIds.has(parentId)) continue;
-
-        const parentPos = nodePosition.get(parentId);
-        if (!parentPos) continue;
-
-        const childX = layout.pos[i]![j]!;
-        const childY = i + boxh / 2;
 
         const parentEdge = childParents.find(
           (pc) => pc.parentIndex === parentId,
         );
+        const edgeType: 'social' | 'unpartnered-parent' =
+          parentEdge?.edgeType === 'social' ? 'social' : 'unpartnered-parent';
 
+        const key = `${parentId},${i},${famId}`;
+        const existing = socialConnections.get(key);
+        if (existing) {
+          existing.childColumns.push(j);
+        } else {
+          socialConnections.set(key, {
+            parentIndex: parentId,
+            edgeType,
+            childLevel: i,
+            famId,
+            childColumns: [j],
+          });
+        }
+      }
+    }
+  }
+
+  for (const conn of socialConnections.values()) {
+    const parentPos = nodePosition.get(conn.parentIndex);
+    if (!parentPos) continue;
+
+    const bar = familySiblingBar.get(`${conn.childLevel},${conn.famId}`);
+    const famKey = `${conn.childLevel},${conn.famId}`;
+    const totalChildren = familyChildCount.get(famKey) ?? 0;
+    const isParentOfAllSiblings = conn.childColumns.length >= totalChildren;
+
+    if (bar && isParentOfAllSiblings && totalChildren > 1) {
+      const barMinX = Math.min(bar.x1, bar.x2);
+      const barMaxX = Math.max(bar.x1, bar.x2);
+      const connectX = Math.max(barMinX, Math.min(parentPos.x, barMaxX));
+
+      auxiliaryLines.push({
+        type: 'auxiliary',
+        edgeType: conn.edgeType,
+        segment: {
+          type: 'line',
+          x1: parentPos.x,
+          y1: parentPos.y + boxh / 2,
+          x2: connectX,
+          y2: bar.y1,
+        },
+      });
+    } else {
+      for (const col of conn.childColumns) {
         auxiliaryLines.push({
           type: 'auxiliary',
-          edgeType:
-            parentEdge?.edgeType === 'social' ? 'social' : 'unpartnered-parent',
+          edgeType: conn.edgeType,
           segment: {
             type: 'line',
             x1: parentPos.x,
             y1: parentPos.y + boxh / 2,
-            x2: childX,
-            y2: childY,
+            x2: layout.pos[conn.childLevel]![col]!,
+            y2: conn.childLevel + boxh / 2,
           },
         });
       }
