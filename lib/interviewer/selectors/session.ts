@@ -60,7 +60,7 @@ export const getStageSubject = createSelector(getCurrentStage, (stage) => {
   if (
     stage.type === 'Information' ||
     stage.type === 'Anonymisation' ||
-    stage.type === 'FamilyTreeCensus'
+    stage.type === 'FamilyPedigree'
   ) {
     return null;
   }
@@ -384,7 +384,6 @@ export const getNetworkNodesForType = createSelector(
     return nodes.filter((node) => node.type === subject.type);
   },
 );
-
 
 export const getStageNodeCount = createSelector(
   getNetworkNodesForType,

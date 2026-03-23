@@ -51,7 +51,7 @@ export type StageType =
   | 'AlterForm'
   | 'AlterEdgeForm'
   | 'Anonymisation'
-  | 'FamilyTreeCensus'
+  | 'FamilyPedigree'
   | 'Geospatial';
 
 export type NameGeneratorPromptEntry = {
@@ -244,9 +244,9 @@ export type StageEntry = {
     body: string;
   };
   // TieStrengthCensus (edge type reference on stage)
-  // FamilyTreeCensus
+  // FamilyPedigree
   edgeType?: { entity: 'edge'; type: string };
-  // FamilyTreeCensus-specific fields
+  // FamilyPedigree-specific fields
   relationshipTypeVariable?: string;
   nodeSexVariable?: string;
   egoSexVariable?: string;
@@ -356,7 +356,7 @@ export type AddStageInput = {
     title?: string;
     body?: string;
   };
-  // FamilyTreeCensus
+  // FamilyPedigree
   edgeType?: { entity: 'edge'; type: string };
   relationshipTypeVariable?: string;
   nodeSexVariable?: string;

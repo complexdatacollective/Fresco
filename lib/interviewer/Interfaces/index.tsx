@@ -15,7 +15,7 @@ import Anonymisation from './Anonymisation/Anonymisation';
 import CategoricalBin from './CategoricalBin/CategoricalBin';
 import DyadCensus from './DyadCensus/DyadCensus';
 import EgoForm from './EgoForm/EgoForm';
-import FamilyTreeCensus from './FamilyTreeCensus/FamilyTreeCensus';
+import FamilyPedigree from './FamilyPedigree/FamilyPedigree';
 import FinishSession from './FinishSession';
 import Geospatial from './Geospatial/Geospatial';
 import Information from './Information/Information';
@@ -77,8 +77,8 @@ const getInterface = (interfaceType: InterfaceType) => {
       return Geospatial;
     case 'FinishSession':
       return FinishSession;
-    case 'FamilyTreeCensus':
-      return FamilyTreeCensus;
+    case 'FamilyPedigree':
+      return FamilyPedigree;
     default:
       return () => <NotFoundInterface interfaceType={interfaceType} />;
   }

@@ -667,7 +667,7 @@ describe('SyntheticInterview', () => {
     });
   });
 
-  describe('FamilyTreeCensus', () => {
+  describe('FamilyPedigree', () => {
     it('creates stage with all family tree fields', () => {
       const si = new SyntheticInterview();
       const nt = si.addNodeType({ name: 'Person' });
@@ -689,7 +689,7 @@ describe('SyntheticInterview', () => {
         ],
       });
 
-      const stage = si.addStage('FamilyTreeCensus', {
+      const stage = si.addStage('FamilyPedigree', {
         subject: { entity: 'node', type: nt.id },
         edgeType: { entity: 'edge', type: et.id },
         relationshipTypeVariable: relVar.id,
@@ -710,7 +710,7 @@ describe('SyntheticInterview', () => {
 
       const protocol = si.getProtocol();
       const stageConfig = protocol.stages[0] as Record<string, unknown>;
-      expect(stageConfig.type).toBe('FamilyTreeCensus');
+      expect(stageConfig.type).toBe('FamilyPedigree');
       const edgeOptions = stageConfig.edgeOptions as Record<string, unknown>;
       expect(edgeOptions.edgeType).toEqual({
         entity: 'edge',
@@ -799,7 +799,7 @@ describe('SyntheticInterview', () => {
   describe('stageMetadata passthrough', () => {
     it('passes stageMetadata through to interview payload', () => {
       const si = new SyntheticInterview();
-      si.addStage('FamilyTreeCensus', { initialNodes: 2 });
+      si.addStage('FamilyPedigree', { initialNodes: 2 });
 
       const metadata = {
         1: { hasSeenScaffoldPrompt: true, nodes: [] },

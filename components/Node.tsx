@@ -14,6 +14,10 @@ import usePrevious from '~/hooks/usePrevious';
 import { composeEventHandlers } from '~/utils/composeEventHandlers';
 import { cva, type VariantProps } from '~/utils/cva';
 
+export const NodeShapes = ['circle', 'square', 'diamond'] as const;
+
+export type NodeShape = (typeof NodeShapes)[number];
+
 // TODO: should be part of protocol-validation
 export const NodeColors = [
   'node-color-seq-1',

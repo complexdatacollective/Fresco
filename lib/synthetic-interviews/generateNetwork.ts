@@ -696,7 +696,7 @@ export function generateNetwork(
         break;
       }
 
-      case 'FamilyTreeCensus': {
+      case 'FamilyPedigree': {
         const stageRecord = stage as Record<string, unknown>;
         const nodeCount = valueGen.randomInt(4, 10);
 

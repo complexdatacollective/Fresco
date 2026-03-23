@@ -136,7 +136,7 @@ type AlterEdgeFormHandle = StageHandleBase & {
 
 type AnonymisationHandle = StageHandleBase;
 
-type FamilyTreeCensusHandle = StageHandleBase & {
+type FamilyPedigreeHandle = StageHandleBase & {
   addDiseaseNominationStep: (opts?: AddDiseaseNominationStepInput) => void;
 };
 
@@ -160,7 +160,7 @@ type StageHandleMap = {
   AlterForm: AlterFormHandle;
   AlterEdgeForm: AlterEdgeFormHandle;
   Anonymisation: AnonymisationHandle;
-  FamilyTreeCensus: FamilyTreeCensusHandle;
+  FamilyPedigree: FamilyPedigreeHandle;
   Geospatial: GeospatialHandle;
 };
 
@@ -403,7 +403,7 @@ export class SyntheticInterview {
       subject?.entity === 'node' &&
       (type === 'NameGenerator' ||
         type === 'AlterForm' ||
-        type === 'FamilyTreeCensus')
+        type === 'FamilyPedigree')
     ) {
       const fields = opts.form.fields.map((f) =>
         this.resolveFormField(f, subject.type),
@@ -469,8 +469,8 @@ export class SyntheticInterview {
       };
     }
 
-    // FamilyTreeCensus
-    if (type === 'FamilyTreeCensus') {
+    // FamilyPedigree
+    if (type === 'FamilyPedigree') {
       // Edge type reference
       if (opts?.edgeType) {
         entry.edgeType = opts.edgeType;
@@ -495,13 +495,13 @@ export class SyntheticInterview {
         entry.scaffoldingStep = {
           text:
             opts.scaffoldingStep.text ??
-            this.valueGen.generatePromptText('FamilyTreeCensus'),
+            this.valueGen.generatePromptText('FamilyPedigree'),
           showQuickStartModal:
             opts.scaffoldingStep.showQuickStartModal ?? false,
         };
       } else {
         entry.scaffoldingStep = {
-          text: this.valueGen.generatePromptText('FamilyTreeCensus'),
+          text: this.valueGen.generatePromptText('FamilyPedigree'),
           showQuickStartModal: false,
         };
       }
@@ -800,7 +800,7 @@ export class SyntheticInterview {
       case 'Anonymisation':
         return base as StageHandleMap[T];
 
-      case 'FamilyTreeCensus':
+      case 'FamilyPedigree':
         return {
           ...base,
           addDiseaseNominationStep: (opts?: AddDiseaseNominationStepInput) => {
@@ -1479,8 +1479,8 @@ export class SyntheticInterview {
       config.explanationText = stage.explanationText;
     }
 
-    // FamilyTreeCensus
-    if (stage.type === 'FamilyTreeCensus') {
+    // FamilyPedigree
+    if (stage.type === 'FamilyPedigree') {
       if (stage.egoSexVariable !== undefined) {
         config.egoSexVariable = stage.egoSexVariable;
       }

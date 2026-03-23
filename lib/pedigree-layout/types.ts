@@ -12,18 +12,18 @@ export type Gender =
   | 'other'
   | 'unknown';
 
-export type ParentEdgeType = 'parent' | 'donor' | 'surrogate';
+export type ParentEdgeType = 'biological' | 'social' | 'donor' | 'surrogate';
 
 export type ParentConnection = {
   parentIndex: number;
   edgeType: ParentEdgeType;
-  biological?: boolean; // defaults to true. Only meaningful for 'parent' edges.
+  isGestationalCarrier?: boolean;
 };
 
 export type PartnerConnection = {
   partnerIndex1: number;
   partnerIndex2: number;
-  active: boolean;
+  isActive: boolean;
 };
 
 export type RelationCode = 1 | 2 | 3 | 4 | 5 | 6;
@@ -104,7 +104,10 @@ export type ParentGroupConnector = {
   type: 'parent-group';
   segment: LineSegment;
   double: boolean;
+  isActive: boolean;
   doubleSegment?: LineSegment;
+  descentXPositions?: number[];
+  nodeHalfWidth?: number;
 };
 
 export type ParentChildConnector = {

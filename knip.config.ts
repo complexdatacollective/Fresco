@@ -45,7 +45,7 @@ const config: KnipConfig = {
     'actions/webauthn.ts': ['exports'],
 
     // Pre-existing unused type exports (not related to e2e migration)
-    'lib/interviewer/containers/Interfaces/FamilyTreeCensus/useDynamicFields.tsx':
+    'lib/interviewer/containers/Interfaces/FamilyPedigree/useDynamicFields.tsx':
       ['types'],
     'lib/protocol/validateAndMigrateProtocol.ts': ['types'],
     'lib/uploadthing/presigned.ts': ['types'],

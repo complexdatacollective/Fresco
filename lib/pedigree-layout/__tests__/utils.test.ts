@@ -78,13 +78,13 @@ describe('ancestor', () => {
       [],
       [], // grandpa, grandma: founders
       [
-        { parentIndex: 0, edgeType: 'parent' },
-        { parentIndex: 1, edgeType: 'parent' },
+        { parentIndex: 0, edgeType: 'biological' },
+        { parentIndex: 1, edgeType: 'biological' },
       ],
       [], // mother: founder
       [
-        { parentIndex: 2, edgeType: 'parent' },
-        { parentIndex: 3, edgeType: 'parent' },
+        { parentIndex: 2, edgeType: 'biological' },
+        { parentIndex: 3, edgeType: 'biological' },
       ],
     ];
     const result = ancestor(4, parents);
@@ -103,7 +103,7 @@ describe('ancestor', () => {
   it('handles single parent', () => {
     const parents: ParentConnection[][] = [
       [],
-      [{ parentIndex: 0, edgeType: 'parent' }],
+      [{ parentIndex: 0, edgeType: 'biological' }],
     ];
     expect(ancestor(1, parents)).toEqual([0]);
   });
@@ -114,9 +114,9 @@ describe('ancestor', () => {
       [],
       [],
       [
-        { parentIndex: 0, edgeType: 'parent' },
-        { parentIndex: 1, edgeType: 'parent' },
-        { parentIndex: 2, edgeType: 'parent' },
+        { parentIndex: 0, edgeType: 'biological' },
+        { parentIndex: 1, edgeType: 'biological' },
+        { parentIndex: 2, edgeType: 'biological' },
       ],
     ];
     const result = ancestor(3, parents);
@@ -130,8 +130,8 @@ describe('chaseup', () => {
       [],
       [],
       [
-        { parentIndex: 0, edgeType: 'parent' },
-        { parentIndex: 1, edgeType: 'parent' },
+        { parentIndex: 0, edgeType: 'biological' },
+        { parentIndex: 1, edgeType: 'biological' },
       ],
     ];
     const result = chaseup([2], parents);

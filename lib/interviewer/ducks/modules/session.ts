@@ -77,7 +77,7 @@ export function edgeExists(
   return false;
 }
 
-const FamilyTreeCensusStageMetadataSchema = z.object({
+const FamilyPedigreeStageMetadataSchema = z.object({
   hasCompletedQuickStart: z.boolean(),
   nodes: z.optional(
     z.array(
@@ -85,23 +85,7 @@ const FamilyTreeCensusStageMetadataSchema = z.object({
         id: z.string(),
         interviewNetworkId: z.optional(z.string()),
         label: z.string(),
-        sex: z.optional(z.enum(['male', 'female', 'intersex', 'unknown'])),
-        gender: z.optional(
-          z.array(
-            z.enum([
-              'man',
-              'woman',
-              'non-binary',
-              'transgender-man',
-              'transgender-woman',
-              'genderqueer',
-              'agender',
-              'two-spirit',
-              'other',
-              'unknown',
-            ]),
-          ),
-        ),
+        shape: z.optional(z.enum(['circle', 'square', 'diamond'])),
         isEgo: z.boolean(),
       }),
     ),
@@ -113,15 +97,21 @@ const FamilyTreeCensusStageMetadataSchema = z.object({
           id: z.string(),
           source: z.string(),
           target: z.string(),
-          type: z.literal('parent'),
-          edgeType: z.enum(['parent', 'donor', 'surrogate']),
+          relationshipType: z.enum([
+            'biological',
+            'social',
+            'donor',
+            'surrogate',
+          ]),
+          isActive: z.boolean(),
+          isGestationalCarrier: z.optional(z.boolean()),
         }),
         z.object({
           id: z.string(),
           source: z.string(),
           target: z.string(),
-          type: z.literal('partner'),
-          active: z.boolean(),
+          relationshipType: z.literal('partner'),
+          isActive: z.boolean(),
         }),
       ]),
     ),
@@ -141,7 +131,7 @@ const DyadCensusStageMetadataSchema = z.array(DyadCensusMetadataItem);
 
 export const StageMetadataSchema = z.record(
   z.string(), // stage ID
-  z.union([FamilyTreeCensusStageMetadataSchema, DyadCensusStageMetadataSchema]),
+  z.union([FamilyPedigreeStageMetadataSchema, DyadCensusStageMetadataSchema]),
 );
 
 type StageMetadata = z.infer<typeof StageMetadataSchema>;

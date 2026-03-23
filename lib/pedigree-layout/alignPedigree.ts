@@ -19,6 +19,10 @@ function isAuxiliaryEdge(edgeType: ParentEdgeType): boolean {
   return AUXILIARY_EDGE_TYPES.has(edgeType);
 }
 
+function isPrimaryEdge(edgeType: ParentEdgeType): boolean {
+  return !AUXILIARY_EDGE_TYPES.has(edgeType);
+}
+
 /**
  * Main pedigree layout algorithm.
  *
@@ -60,7 +64,7 @@ export function alignPedigree(
     if (pConns.length === 0) continue;
     const socialLevel = Math.max(
       ...pConns
-        .filter((p) => p.edgeType === 'parent')
+        .filter((p) => isPrimaryEdge(p.edgeType))
         .map((p) => level[p.parentIndex]!),
       -1,
     );
@@ -129,7 +133,7 @@ export function alignPedigree(
     const pConns = ped.parents[i]!;
     if (pConns.length < 2) continue;
     const socialParents = pConns
-      .filter((p) => p.edgeType === 'parent')
+      .filter((p) => isPrimaryEdge(p.edgeType))
       .map((p) => p.parentIndex)
       .sort((a, b) => a - b);
     if (socialParents.length < 2) continue;
@@ -508,7 +512,7 @@ export function alignPedigree(
             if (parentPid < 0) continue;
             if (
               personParents.some(
-                (p) => p.parentIndex === parentPid && p.edgeType === 'parent',
+                (p) => p.parentIndex === parentPid && isPrimaryEdge(p.edgeType),
               )
             ) {
               rval.fam[lev2]![col] = pc + 1; // 1-based
@@ -647,8 +651,8 @@ export function alignPedigree(
       if (childIdx < 0) continue;
 
       // Find the social parents of this child in the layout
-      const socialParentIndices = ped.parents[childIdx]!.filter(
-        (p) => p.edgeType === 'parent',
+      const socialParentIndices = ped.parents[childIdx]!.filter((p) =>
+        isPrimaryEdge(p.edgeType),
       ).map((p) => p.parentIndex);
 
       const lev2 = level[i]!;

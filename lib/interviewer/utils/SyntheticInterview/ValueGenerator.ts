@@ -86,7 +86,7 @@ export class ValueGenerator {
         return 'Please provide details about each person.';
       case 'AlterEdgeForm':
         return 'Please describe each relationship.';
-      case 'FamilyTreeCensus':
+      case 'FamilyPedigree':
         return 'Please create your family tree by adding family members.';
       case 'Geospatial':
         return 'Please select a location on the map for this person.';

@@ -174,8 +174,8 @@ describe('alignPedigree', () => {
         [sp(0), sp(1)],
         [],
         [
-          { parentIndex: 2, edgeType: 'parent' },
-          { parentIndex: 3, edgeType: 'parent' },
+          { parentIndex: 2, edgeType: 'biological' },
+          { parentIndex: 3, edgeType: 'biological' },
           { parentIndex: 5, edgeType: 'donor' },
         ],
         [],
@@ -243,13 +243,13 @@ describe('alignPedigree', () => {
         [], // momB
         [], // donor
         [
-          { parentIndex: 2, edgeType: 'parent' },
-          { parentIndex: 3, edgeType: 'parent' },
+          { parentIndex: 2, edgeType: 'biological' },
+          { parentIndex: 3, edgeType: 'biological' },
           { parentIndex: 4, edgeType: 'donor' },
         ], // ego
         [
-          { parentIndex: 2, edgeType: 'parent' },
-          { parentIndex: 3, edgeType: 'parent' },
+          { parentIndex: 2, edgeType: 'biological' },
+          { parentIndex: 3, edgeType: 'biological' },
           { parentIndex: 4, edgeType: 'donor' },
         ], // sibling
         [], // egoPartner
@@ -296,7 +296,7 @@ describe('alignPedigree', () => {
 
 const sp = (parentIndex: number): ParentConnection => ({
   parentIndex,
-  edgeType: 'parent',
+  edgeType: 'biological',
 });
 
 const defaultScaling: ScalingParams = {
