@@ -41,6 +41,7 @@ const meta: Meta = {
         'Donor + Surrogate',
         'Known Bio Parent',
         'Single Parent Donor',
+        'Single Parent Two Donors',
         'ART 1a: Donor Sperm (Cis Couple)',
         'ART 1b: Donor Sperm (Women Couple)',
         'ART 1c: Unpartnered Woman, Same Donor',
@@ -1071,6 +1072,41 @@ const NETWORKS: Record<string, NetworkData> = {
       },
     ],
   ),
+  'Single Parent Two Donors': buildNetwork(
+    [
+      { id: 'mom', label: fakeName('female'), shape: 'circle' },
+      { id: 'donor1', label: 'Sperm Donor 1', shape: 'square' },
+      { id: 'donor2', label: 'Sperm Donor 2', shape: 'square' },
+      { id: 'ego', label: fakeName('female'), shape: 'circle', isEgo: true },
+      { id: 'sibling', label: fakeName('male'), shape: 'square' },
+    ],
+    [
+      {
+        source: 'mom',
+        target: 'ego',
+        relationshipType: 'biological',
+        isActive: true,
+      },
+      {
+        source: 'mom',
+        target: 'sibling',
+        relationshipType: 'biological',
+        isActive: true,
+      },
+      {
+        source: 'donor1',
+        target: 'ego',
+        relationshipType: 'donor',
+        isActive: true,
+      },
+      {
+        source: 'donor2',
+        target: 'sibling',
+        relationshipType: 'donor',
+        isActive: true,
+      },
+    ],
+  ),
   'ART 1a: Donor Sperm (Cis Couple)': buildNetwork(
     [
       { id: 'man', label: 'Man', shape: 'square' },
@@ -1395,12 +1431,44 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'ART 4b: Inseminate Sister': buildNetwork(
     [
+      { id: 'father', label: fakeName('male'), shape: 'square' },
+      { id: 'mother', label: fakeName('female'), shape: 'circle' },
       { id: 'cisMan', label: 'Cis Man', shape: 'square' },
       { id: 'transWoman', label: 'Trans Woman', shape: 'circle' },
       { id: 'sister', label: 'Sister', shape: 'circle' },
       { id: 'pregnancy', label: 'Pregnancy', shape: 'circle' },
     ],
     [
+      {
+        source: 'father',
+        target: 'mother',
+        relationshipType: 'partner',
+        isActive: true,
+      },
+      {
+        source: 'father',
+        target: 'transWoman',
+        relationshipType: 'biological',
+        isActive: true,
+      },
+      {
+        source: 'mother',
+        target: 'transWoman',
+        relationshipType: 'biological',
+        isActive: true,
+      },
+      {
+        source: 'father',
+        target: 'sister',
+        relationshipType: 'biological',
+        isActive: true,
+      },
+      {
+        source: 'mother',
+        target: 'sister',
+        relationshipType: 'biological',
+        isActive: true,
+      },
       {
         source: 'cisMan',
         target: 'transWoman',
@@ -1835,17 +1903,19 @@ export const Playground: StoryFn<StoryArgs> = ({ network, nodeStyle }) => {
   const stableEdges = useMemo(() => data.edges, [data]);
 
   return (
-    <div className="flex size-full flex-col items-center justify-center gap-8 overflow-auto p-8">
-      <PedigreeLayout
-        nodes={stableNodes}
-        edges={stableEdges}
-        nodeWidth={nodeWidth}
-        nodeHeight={nodeHeight}
-        renderNode={renderNode}
-      />
+    <div className="flex size-full flex-col items-start gap-8 overflow-auto p-8">
+      <div className="mx-auto">
+        <PedigreeLayout
+          nodes={stableNodes}
+          edges={stableEdges}
+          nodeWidth={nodeWidth}
+          nodeHeight={nodeHeight}
+          renderNode={renderNode}
+        />
+      </div>
       <PedigreeKey
         color="var(--color-edge-1)"
-        className="rounded-lg bg-white/10 p-4"
+        className="mx-auto rounded-lg bg-white/10 p-4"
       />
     </div>
   );

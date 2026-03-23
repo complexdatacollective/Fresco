@@ -379,8 +379,8 @@ export function computeConnectors(
   }
 
   // --- Auxiliary lines for donor/surrogate edges ---
-  // Group connections by (parentIndex, childLevel, famId) so each
-  // donor/surrogate gets a single line to the sibling bar per family.
+  // Group connections by (parentIndex, childLevel, famId), tracking which
+  // specific children each auxiliary parent connects to.
   const auxConnections = new Map<
     string,
     {
@@ -388,24 +388,37 @@ export function computeConnectors(
       edgeType: 'donor' | 'surrogate';
       childLevel: number;
       famId: number;
+      childColumns: number[];
     }
   >();
+
+  // Count total children per (level, famId) to compare against.
+  const familyChildCount = new Map<string, number>();
 
   for (let i = 0; i < maxlev; i++) {
     for (let j = 0; j < (layout.n[i] ?? 0); j++) {
       const childId = layout.nid[i]![j]!;
-      const childParents = parents[childId] ?? [];
+      if (childId < 0) continue;
       const famId = layout.fam[i]?.[j] ?? 0;
+      if (famId <= 0) continue;
 
+      const famKey = `${i},${famId}`;
+      familyChildCount.set(famKey, (familyChildCount.get(famKey) ?? 0) + 1);
+
+      const childParents = parents[childId] ?? [];
       for (const pc of childParents) {
         if (pc.edgeType === 'donor' || pc.edgeType === 'surrogate') {
           const key = `${pc.parentIndex},${i},${famId}`;
-          if (!auxConnections.has(key)) {
+          const existing = auxConnections.get(key);
+          if (existing) {
+            existing.childColumns.push(j);
+          } else {
             auxConnections.set(key, {
               parentIndex: pc.parentIndex,
               edgeType: pc.edgeType,
               childLevel: i,
               famId,
+              childColumns: [j],
             });
           }
         }
@@ -429,9 +442,12 @@ export function computeConnectors(
     if (parentX === undefined || parentY === undefined) continue;
 
     const bar = familySiblingBar.get(`${conn.childLevel},${conn.famId}`);
+    const famKey = `${conn.childLevel},${conn.famId}`;
+    const totalChildren = familyChildCount.get(famKey) ?? 0;
+    const isParentOfAllSiblings = conn.childColumns.length >= totalChildren;
 
-    if (bar) {
-      // Connect to the nearest point on the sibling bar
+    if (bar && isParentOfAllSiblings && totalChildren > 1) {
+      // Parent of all siblings — connect to the sibling bar
       const barMinX = Math.min(bar.x1, bar.x2);
       const barMaxX = Math.max(bar.x1, bar.x2);
       const connectX = Math.max(barMinX, Math.min(parentX, barMaxX));
@@ -448,23 +464,20 @@ export function computeConnectors(
         },
       });
     } else {
-      // No sibling bar (e.g. single child with no family assignment) —
-      // fall back to a direct line to the child
-      for (let j = 0; j < (layout.n[conn.childLevel] ?? 0); j++) {
-        if (layout.fam[conn.childLevel]?.[j] === conn.famId) {
-          auxiliaryLines.push({
-            type: 'auxiliary',
-            edgeType: conn.edgeType,
-            segment: {
-              type: 'line',
-              x1: parentX,
-              y1: parentY,
-              x2: layout.pos[conn.childLevel]![j]!,
-              y2: conn.childLevel + boxh / 2,
-            },
-          });
-          break;
-        }
+      // Parent of only some children (or no sibling bar) — connect
+      // directly to each child node
+      for (const col of conn.childColumns) {
+        auxiliaryLines.push({
+          type: 'auxiliary',
+          edgeType: conn.edgeType,
+          segment: {
+            type: 'line',
+            x1: parentX,
+            y1: parentY,
+            x2: layout.pos[conn.childLevel]![col]!,
+            y2: conn.childLevel + boxh / 2,
+          },
+        });
       }
     }
   }

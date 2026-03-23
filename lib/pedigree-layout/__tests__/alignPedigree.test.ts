@@ -276,6 +276,139 @@ describe('alignPedigree', () => {
     expect(rowOf.get(8)).toBeGreaterThan(rowOf.get(5)!);
   });
 
+  it('places both donor AND surrogate in layout (Donor + Surrogate story)', () => {
+    // Exact structure of the Donor + Surrogate storybook example:
+    // mgf(0), mgm(1) -> parentA(2), aunt(8)
+    // parentA(2) + parentB(3) -> ego(6), sibling(7)
+    // donor(4) for ego+sibling, surrogate(5) for ego+sibling
+    // aunt(8) + auntPartner(9) -> cousin(10)
+    // ego(6) + egoPartner(11) -> grandchild(12)
+    const ped: PedigreeInput = {
+      id: [
+        'mgf',
+        'mgm',
+        'parentA',
+        'parentB',
+        'donor',
+        'surrogate',
+        'ego',
+        'sibling',
+        'aunt',
+        'auntPartner',
+        'cousin',
+        'egoPartner',
+        'grandchild',
+      ],
+      sex: [
+        'male',
+        'female',
+        'female',
+        'female',
+        'male',
+        'female',
+        'female',
+        'male',
+        'female',
+        'male',
+        'male',
+        'male',
+        'female',
+      ],
+      gender: [
+        'man',
+        'woman',
+        'woman',
+        'woman',
+        'man',
+        'woman',
+        'woman',
+        'man',
+        'woman',
+        'man',
+        'man',
+        'man',
+        'woman',
+      ],
+      parents: [
+        [], // mgf (0)
+        [], // mgm (1)
+        [sp(0), sp(1)], // parentA (2)
+        [], // parentB (3)
+        [], // donor (4)
+        [], // surrogate (5)
+        [
+          { parentIndex: 2, edgeType: 'biological' },
+          { parentIndex: 3, edgeType: 'biological' },
+          { parentIndex: 4, edgeType: 'donor' },
+          { parentIndex: 5, edgeType: 'surrogate' },
+        ], // ego (6)
+        [
+          { parentIndex: 2, edgeType: 'biological' },
+          { parentIndex: 3, edgeType: 'biological' },
+          { parentIndex: 4, edgeType: 'donor' },
+          { parentIndex: 5, edgeType: 'surrogate' },
+        ], // sibling (7)
+        [sp(0), sp(1)], // aunt (8)
+        [], // auntPartner (9)
+        [
+          { parentIndex: 8, edgeType: 'biological' },
+          { parentIndex: 9, edgeType: 'biological' },
+        ], // cousin (10)
+        [], // egoPartner (11)
+        [
+          { parentIndex: 6, edgeType: 'biological' },
+          { parentIndex: 11, edgeType: 'biological' },
+        ], // grandchild (12)
+      ],
+      relation: [
+        { id1: 0, id2: 1, code: 4 },
+        { id1: 2, id2: 3, code: 4 },
+        { id1: 8, id2: 9, code: 4 },
+        { id1: 6, id2: 11, code: 4 },
+      ],
+      partners: [
+        { partnerIndex1: 0, partnerIndex2: 1, isActive: true },
+        { partnerIndex1: 2, partnerIndex2: 3, isActive: true },
+        { partnerIndex1: 8, partnerIndex2: 9, isActive: true },
+        { partnerIndex1: 6, partnerIndex2: 11, isActive: true },
+      ],
+    };
+    const result = alignPedigree(ped, {
+      hints: { order: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] },
+    });
+
+    const rowOf = new Map<number, number>();
+    for (let lev = 0; lev < result.n.length; lev++) {
+      for (let col = 0; col < (result.n[lev] ?? 0); col++) {
+        const pid = result.nid[lev]![col]!;
+        if (pid >= 0) rowOf.set(pid, lev);
+      }
+    }
+
+    // Both donor (4) and surrogate (5) should be placed in the layout
+    expect(rowOf.has(4)).toBe(true);
+    expect(rowOf.has(5)).toBe(true);
+    // Both should be on the same row as the social parents
+    expect(rowOf.get(4)).toBe(rowOf.get(2));
+    expect(rowOf.get(5)).toBe(rowOf.get(2));
+
+    // Donor and surrogate should have distinct column positions
+    const colOf = new Map<number, number>();
+    for (let lev = 0; lev < result.n.length; lev++) {
+      for (let col = 0; col < (result.n[lev] ?? 0); col++) {
+        const pid = result.nid[lev]![col]!;
+        if (pid >= 0 && !colOf.has(pid)) colOf.set(pid, result.pos[lev]![col]!);
+      }
+    }
+
+    expect(colOf.get(4)).not.toBe(colOf.get(5));
+    // Neither should overlap with the social parents
+    expect(colOf.get(4)).not.toBe(colOf.get(2));
+    expect(colOf.get(4)).not.toBe(colOf.get(3));
+    expect(colOf.get(5)).not.toBe(colOf.get(2));
+    expect(colOf.get(5)).not.toBe(colOf.get(3));
+  });
+
   it('places bio-parent on same row as social parents', () => {
     const result = alignPedigree(blendedFamily, {
       hints: { order: [1, 2, 3, 4] },
@@ -289,6 +422,52 @@ describe('alignPedigree', () => {
     }
     // Bio-parent (2) should be on same row as social parents (0, 1)
     expect(rowOf.get(2)).toBe(rowOf.get(0));
+  });
+
+  it('places child directly under sole primary parent in reciprocal IVF', () => {
+    // partnerA(0) + partnerB(1) couple; partnerA→pregnancy(3) is donor,
+    // partnerB→pregnancy is biological; spermDonor(2)→pregnancy is donor
+    const ped: PedigreeInput = {
+      id: ['partnerA', 'partnerB', 'spermDonor', 'pregnancy'],
+      sex: ['female', 'female', 'male', 'female'],
+      gender: ['woman', 'woman', 'man', 'woman'],
+      parents: [
+        [],
+        [],
+        [],
+        [
+          { parentIndex: 0, edgeType: 'donor' },
+          { parentIndex: 1, edgeType: 'biological' },
+          { parentIndex: 2, edgeType: 'donor' },
+        ],
+      ],
+      relation: [{ id1: 0, id2: 1, code: 4 }],
+      partners: [{ partnerIndex1: 0, partnerIndex2: 1, isActive: true }],
+    };
+    const result = alignPedigree(ped, {
+      hints: { order: [1, 2, 3, 4] },
+    });
+
+    const posOf = new Map<number, number>();
+    const rowOf = new Map<number, number>();
+    for (let lev = 0; lev < result.n.length; lev++) {
+      for (let col = 0; col < (result.n[lev] ?? 0); col++) {
+        const pid = result.nid[lev]![col]!;
+        if (pid >= 0 && !posOf.has(pid)) {
+          posOf.set(pid, result.pos[lev]![col]!);
+          rowOf.set(pid, lev);
+        }
+      }
+    }
+
+    // All 4 nodes should be placed
+    expect(posOf.has(0)).toBe(true);
+    expect(posOf.has(1)).toBe(true);
+    expect(posOf.has(2)).toBe(true);
+    expect(posOf.has(3)).toBe(true);
+
+    // Pregnancy (3) should be directly under partnerB (1)
+    expect(posOf.get(3)).toBe(posOf.get(1));
   });
 });
 
