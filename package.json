@@ -143,7 +143,7 @@
     "@storybook/nextjs-vite": "^10.2.19",
     "@t3-oss/env-nextjs": "^0.13.10",
     "@tailwindcss/forms": "^0.5.10",
-    "@tailwindcss/postcss": "4.2.1",
+    "@tailwindcss/postcss": "4.2.2",
     "@testcontainers/postgresql": "^11.13.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
