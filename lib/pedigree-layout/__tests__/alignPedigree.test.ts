@@ -424,6 +424,90 @@ describe('alignPedigree', () => {
     expect(rowOf.get(2)).toBe(rowOf.get(0));
   });
 
+  it('auxiliary parent insertion does not split group pairs', () => {
+    // partnerA(0) is donor, partnerB(1) is biological, they are a couple
+    // donor edge from partnerA, bio edge from partnerB → child(2)
+    const ped: PedigreeInput = {
+      id: ['partnerA', 'partnerB', 'child'],
+      sex: ['female', 'female', 'male'],
+      gender: ['woman', 'woman', 'man'],
+      parents: [
+        [],
+        [],
+        [
+          { parentIndex: 0, edgeType: 'donor' },
+          { parentIndex: 1, edgeType: 'biological' },
+        ],
+      ],
+      relation: [{ id1: 0, id2: 1, code: 4 }],
+      partners: [{ partnerIndex1: 0, partnerIndex2: 1, isActive: true }],
+    };
+    const result = alignPedigree(ped, { hints: { order: [1, 2, 3] } });
+
+    // Find row/col positions for partnerA and partnerB
+    const colOf = new Map<number, number>();
+    for (let lev = 0; lev < result.n.length; lev++) {
+      for (let col = 0; col < (result.n[lev] ?? 0); col++) {
+        const pid = result.nid[lev]![col]!;
+        if (pid >= 0 && !colOf.has(pid)) colOf.set(pid, col);
+      }
+    }
+
+    // The group matrix should connect partnerA(0) and partnerB(1).
+    // Find the parent level and check that the group marker connects them.
+    const parentLev = result.n.findIndex((v) => v > 0);
+    const col0 = colOf.get(0)!;
+    const col1 = colOf.get(1)!;
+    const leftCol = Math.min(col0, col1);
+
+    // group[parentLev][leftCol] should be > 0 indicating a group connection
+    expect(result.group[parentLev]![leftCol]).toBeGreaterThan(0);
+  });
+
+  it('subset donors have equal spacing from the family', () => {
+    // mom(0) + 2 donors (1,2) + 2 children (3,4)
+    // donor1→child3 only, donor2→child4 only
+    const ped: PedigreeInput = {
+      id: ['mom', 'donor1', 'donor2', 'child1', 'child2'],
+      sex: ['female', 'male', 'male', 'male', 'female'],
+      gender: ['woman', 'man', 'man', 'man', 'woman'],
+      parents: [
+        [],
+        [],
+        [],
+        [
+          { parentIndex: 0, edgeType: 'biological' },
+          { parentIndex: 1, edgeType: 'donor' },
+        ],
+        [
+          { parentIndex: 0, edgeType: 'biological' },
+          { parentIndex: 2, edgeType: 'donor' },
+        ],
+      ],
+    };
+    const result = alignPedigree(ped, { hints: { order: [1, 2, 3, 4, 5] } });
+
+    const posOf = new Map<number, number>();
+    for (let lev = 0; lev < result.n.length; lev++) {
+      for (let col = 0; col < (result.n[lev] ?? 0); col++) {
+        const pid = result.nid[lev]![col]!;
+        if (pid >= 0 && !posOf.has(pid)) {
+          posOf.set(pid, result.pos[lev]![col]!);
+        }
+      }
+    }
+
+    const momPos = posOf.get(0)!;
+    const donor1Pos = posOf.get(1)!;
+    const donor2Pos = posOf.get(2)!;
+
+    const dist1 = Math.abs(donor1Pos - momPos);
+    const dist2 = Math.abs(donor2Pos - momPos);
+
+    // Both donors should be equidistant from mom (within tolerance)
+    expect(dist1).toBeCloseTo(dist2, 0);
+  });
+
   it('places child directly under sole primary parent in reciprocal IVF', () => {
     // partnerA(0) + partnerB(1) couple; partnerA→pregnancy(3) is donor,
     // partnerB→pregnancy is biological; spermDonor(2)→pregnancy is donor

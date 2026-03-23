@@ -108,6 +108,7 @@ export type ParentGroupConnector = {
   doubleSegment?: LineSegment;
   descentXPositions?: number[];
   nodeHalfWidth?: number;
+  slashSide?: 'left' | 'right';
 };
 
 export type ParentChildConnector = {

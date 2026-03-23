@@ -86,6 +86,30 @@ export function computeConnectors(
           isActive,
         };
 
+        // For inactive lines, determine which side to place the slash:
+        // put it on the side of the partner who does NOT have another
+        // active relationship, so the connected partner's line looks
+        // continuous.
+        if (!isActive && activePartnerPairs) {
+          const leftId = layout.nid[i]![j]!;
+          const rightId = layout.nid[i]![j + 1]!;
+
+          const leftHasActive = [...activePartnerPairs].some((pk) => {
+            const [a, b] = pk.split(',').map(Number);
+            return a === leftId || b === leftId;
+          });
+          const rightHasActive = [...activePartnerPairs].some((pk) => {
+            const [a, b] = pk.split(',').map(Number);
+            return a === rightId || b === rightId;
+          });
+
+          if (leftHasActive && !rightHasActive) {
+            connector.slashSide = 'right';
+          } else if (rightHasActive && !leftHasActive) {
+            connector.slashSide = 'left';
+          }
+        }
+
         if (isDouble) {
           connector.doubleSegment = {
             type: 'line',

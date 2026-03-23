@@ -69,7 +69,18 @@ function renderInactiveGroupLine(
   const BREAK_HALF_WIDTH = SLASH_WIDTH + SLASH_GAP / 2;
 
   const nhw = conn.nodeHalfWidth ?? 0;
-  let breakCenterX = midX;
+  const leftNodeEdge = x1 + nhw;
+  const rightNodeEdge = x2 - nhw;
+
+  // Start with the preferred side if specified, otherwise center.
+  let breakCenterX: number;
+  if (conn.slashSide === 'left') {
+    breakCenterX = leftNodeEdge + (midX - leftNodeEdge) / 2;
+  } else if (conn.slashSide === 'right') {
+    breakCenterX = midX + (rightNodeEdge - midX) / 2;
+  } else {
+    breakCenterX = midX;
+  }
 
   if (conn.descentXPositions?.length) {
     const CLEARANCE = BREAK_HALF_WIDTH + EDGE_WIDTH;
@@ -79,10 +90,6 @@ function renderInactiveGroupLine(
     if (tooClose) {
       const minDescent = Math.min(...conn.descentXPositions);
       const maxDescent = Math.max(...conn.descentXPositions);
-
-      // Closest node edges (inner edges facing the line gap)
-      const leftNodeEdge = x1 + nhw;
-      const rightNodeEdge = x2 - nhw;
 
       // Place break equidistant between the descent line and the closest node edge
       const leftGap = minDescent - leftNodeEdge;
