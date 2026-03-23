@@ -181,7 +181,7 @@
     "eslint-plugin-storybook": "^10.2.19",
     "globals": "^17.4.0",
     "jsdom": "^29.0.0",
-    "knip": "^5.88.0",
+    "knip": "^6.0.3",
     "pg": "^8.20.0",
     "playwright": "^1.58.2",
     "prettier": "^3.8.1",
