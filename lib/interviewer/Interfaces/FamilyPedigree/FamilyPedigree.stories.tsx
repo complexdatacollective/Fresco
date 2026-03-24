@@ -281,12 +281,14 @@ async function clickContinue() {
 }
 
 async function clickFinish() {
-  const btn = await screen.findByRole(
-    'button',
-    { name: 'Finish' },
-    STEP_TIMEOUT,
+  // The final button may be "Finish" (wizard default) or "Get started"
+  // (custom nextLabel on OtherChildrenDetailStep)
+  const buttons = await screen.findAllByRole('button', {}, STEP_TIMEOUT);
+  const finishBtn = buttons.find(
+    (b) => b.textContent === 'Finish' || b.textContent === 'Get started',
   );
-  await userEvent.click(btn);
+  if (!finishBtn) throw new Error('No Finish or Get started button found');
+  await userEvent.click(finishBtn);
 }
 
 async function selectRadio(name: string) {
