@@ -1098,17 +1098,24 @@ export const SingleParentTwoDonors: ScenarioStory = {
     await waitForStepTransition();
 
     // SiblingsDetailStep: ego's parents + 1 sibling
-    // Ego's parents (first checkbox group): uncheck Donor 2 (index 2)
-    const egoParentCheckboxes = await screen.findAllByRole(
+    // All checkboxes on this step in DOM order:
+    // [0] ego-parents: Mom (checked)
+    // [1] ego-parents: Donor 1 (checked)
+    // [2] ego-parents: Donor 2 (checked) — UNCHECK this
+    // [3] sibling-0-sharedParents: Mom (checked)
+    // [4] sibling-0-sharedParents: Donor 1 (checked) — UNCHECK this
+    // [5] sibling-0-sharedParents: Donor 2 (checked)
+    const allCheckboxes = await screen.findAllByRole(
       'checkbox',
-      { name: 'Donor 2' },
+      {},
       STEP_TIMEOUT,
     );
-    if (egoParentCheckboxes[0]?.getAttribute('aria-checked') === 'true') {
-      await userEvent.click(egoParentCheckboxes[0]!);
+    // Uncheck ego's Donor 2 (index 2)
+    if (allCheckboxes[2]?.getAttribute('aria-checked') === 'true') {
+      await userEvent.click(allCheckboxes[2]!);
     }
 
-    // Sibling details
+    // Fill sibling details
     await typeInTextbox('Half Sib', 0);
     const sibSexRadios = await screen.findAllByRole(
       'radio',
@@ -1116,15 +1123,15 @@ export const SingleParentTwoDonors: ScenarioStory = {
       STEP_TIMEOUT,
     );
     await userEvent.click(sibSexRadios[0]!);
-    // Sibling shared parents: uncheck Donor 1 (second checkbox group's "Donor 1")
-    const sibDonor1Checkboxes = await screen.findAllByRole(
+
+    // Re-query checkboxes after form changes, then uncheck sibling's Donor 1 (index 4)
+    const allCheckboxes2 = await screen.findAllByRole(
       'checkbox',
-      { name: 'Donor 1' },
+      {},
       STEP_TIMEOUT,
     );
-    // Index 0 is ego's Donor 1 checkbox, index 1 is sibling's
-    if (sibDonor1Checkboxes[1]?.getAttribute('aria-checked') === 'true') {
-      await userEvent.click(sibDonor1Checkboxes[1]!);
+    if (allCheckboxes2[4]?.getAttribute('aria-checked') === 'true') {
+      await userEvent.click(allCheckboxes2[4]!);
     }
     await clickContinue();
     await waitForStepTransition();
