@@ -121,6 +121,7 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
           gestationalCarrierParentIndex: data.gestationalCarrierParentIndex as
             | number
             | undefined,
+          egoParentIndices: data.egoParentIndices as number[] | undefined,
           bioParents: (data.bioParents as BioParentDetail[] | undefined) ?? [],
           siblings: (data.siblings as SiblingDetail[] | undefined) ?? [],
           partner: (data.hasPartner as boolean | undefined)

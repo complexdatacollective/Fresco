@@ -65,6 +65,7 @@ export type ParentPartnership = {
 export type QuickStartData = {
   adoptionStatus?: AdoptionStatus;
   parents: ParentDetail[];
+  egoParentIndices?: number[];
   parentPartnerships: ParentPartnership[];
   gestationalCarrierParentIndex?: number;
   bioParents: BioParentDetail[];
@@ -206,31 +207,41 @@ export const createFamilyPedigreeStore = (
             adoptionStatus: data.adoptionStatus,
           });
 
+          const egoParentSet = data.egoParentIndices
+            ? new Set(data.egoParentIndices)
+            : null;
+
           const parentIds: string[] = [];
-          for (const parent of data.parents) {
+          for (let pi = 0; pi < data.parents.length; pi++) {
+            const parent = data.parents[pi]!;
             const parentId = get().addNode({
               ...personToNodeData(parent),
               label: parent.name,
             });
             parentIds.push(parentId);
-            const edgeId = get().addEdge({
-              source: parentId,
-              target: egoId,
-              relationshipType: parent.edgeType,
-              isActive: true,
-            });
 
-            // Mark gestational carrier on the parent→ego edge
-            if (
-              data.gestationalCarrierParentIndex !== undefined &&
-              parentIds.length - 1 === data.gestationalCarrierParentIndex
-            ) {
-              set((state) => {
-                const edge = state.network.edges.get(edgeId);
-                if (edge && edge.relationshipType !== 'partner') {
-                  edge.isGestationalCarrier = true;
-                }
+            // Only create parent→ego edge if this parent is ego's parent
+            const isEgoParent = !egoParentSet || egoParentSet.has(pi);
+            if (isEgoParent) {
+              const edgeId = get().addEdge({
+                source: parentId,
+                target: egoId,
+                relationshipType: parent.edgeType,
+                isActive: true,
               });
+
+              // Mark gestational carrier on the parent→ego edge
+              if (
+                data.gestationalCarrierParentIndex !== undefined &&
+                pi === data.gestationalCarrierParentIndex
+              ) {
+                set((state) => {
+                  const edge = state.network.edges.get(edgeId);
+                  if (edge && edge.relationshipType !== 'partner') {
+                    edge.isGestationalCarrier = true;
+                  }
+                });
+              }
             }
           }
 

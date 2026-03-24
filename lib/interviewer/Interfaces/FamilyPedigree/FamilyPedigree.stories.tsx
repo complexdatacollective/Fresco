@@ -1097,8 +1097,18 @@ export const SingleParentTwoDonors: ScenarioStory = {
     await clickContinue();
     await waitForStepTransition();
 
-    // SiblingsDetailStep: 1 sibling
-    // Shared parents: Mom (0) + Donor 2 (2) — uncheck Donor 1 (1)
+    // SiblingsDetailStep: ego's parents + 1 sibling
+    // Ego's parents (first checkbox group): uncheck Donor 2 (index 2)
+    const egoParentCheckboxes = await screen.findAllByRole(
+      'checkbox',
+      { name: 'Donor 2' },
+      STEP_TIMEOUT,
+    );
+    if (egoParentCheckboxes[0]?.getAttribute('aria-checked') === 'true') {
+      await userEvent.click(egoParentCheckboxes[0]!);
+    }
+
+    // Sibling details
     await typeInTextbox('Half Sib', 0);
     const sibSexRadios = await screen.findAllByRole(
       'radio',
@@ -1106,8 +1116,16 @@ export const SingleParentTwoDonors: ScenarioStory = {
       STEP_TIMEOUT,
     );
     await userEvent.click(sibSexRadios[0]!);
-    // Uncheck Donor 1 (parent index 1)
-    await uncheckCheckbox('Donor 1');
+    // Sibling shared parents: uncheck Donor 1 (second checkbox group's "Donor 1")
+    const sibDonor1Checkboxes = await screen.findAllByRole(
+      'checkbox',
+      { name: 'Donor 1' },
+      STEP_TIMEOUT,
+    );
+    // Index 0 is ego's Donor 1 checkbox, index 1 is sibling's
+    if (sibDonor1Checkboxes[1]?.getAttribute('aria-checked') === 'true') {
+      await userEvent.click(sibDonor1Checkboxes[1]!);
+    }
     await clickContinue();
     await waitForStepTransition();
 

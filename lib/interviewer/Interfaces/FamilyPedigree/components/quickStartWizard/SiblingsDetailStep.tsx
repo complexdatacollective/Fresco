@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import Field from '~/lib/form/components/Field/Field';
 import CheckboxGroupField from '~/lib/form/components/fields/CheckboxGroup';
@@ -43,6 +45,13 @@ function SiblingsDetailForm() {
       }
 
       const values = getFormValues();
+
+      // Ego's parent indices (only relevant when 3+ parents)
+      const rawEgoParents = values['ego-parents'];
+      const egoParentIndices = Array.isArray(rawEgoParents)
+        ? rawEgoParents.map((v) => Number(v))
+        : parents.map((_, idx) => idx);
+
       const siblings: SiblingDetail[] = Array.from(
         { length: siblingCount },
         (_, i) => {
@@ -61,13 +70,40 @@ function SiblingsDetailForm() {
         },
       );
 
-      setStepData({ siblings });
+      setStepData({
+        siblings,
+        ...(parents.length >= 3 ? { egoParentIndices } : {}),
+      });
       return true;
     });
   }, [validateForm, getFormValues, setStepData, setBeforeNext, siblingCount]);
 
+  const existingEgoParents = data.egoParentIndices as number[] | undefined;
+
   return (
     <div className="flex flex-col gap-6 pt-4">
+      {parents.length >= 3 && (
+        <Surface level={1} spacing="sm">
+          <Paragraph>
+            Since you have multiple parents, please confirm which are
+            specifically your parents (not just your siblings&apos; parents).
+          </Paragraph>
+          <Field
+            name="ego-parents"
+            label="Which of these parents are YOUR parents?"
+            component={CheckboxGroupField}
+            options={parents.map((p, pIdx) => ({
+              value: String(pIdx),
+              label: p.name || `Parent ${pIdx + 1}`,
+            }))}
+            initialValue={
+              existingEgoParents
+                ? existingEgoParents.map((idx) => String(idx))
+                : parents.map((_, pIdx) => String(pIdx))
+            }
+          />
+        </Surface>
+      )}
       {Array.from({ length: siblingCount }, (_, i) => (
         <div key={i} className="flex flex-col gap-3 rounded border p-4">
           <Heading level="h3">Sibling {i + 1}</Heading>
