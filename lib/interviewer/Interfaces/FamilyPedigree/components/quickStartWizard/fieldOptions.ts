@@ -1,4 +1,3 @@
-import { type NodeShape } from '~/components/Node';
 import {
   type Gender,
   type ParentEdgeType,
@@ -25,12 +24,6 @@ export const GENDER_OPTIONS: { value: Gender; label: string }[] = [
   { value: 'unknown', label: 'Unknown' },
 ];
 
-export const SHAPE_OPTIONS: { value: NodeShape; label: string }[] = [
-  { value: 'square', label: 'Square' },
-  { value: 'circle', label: 'Circle' },
-  { value: 'diamond', label: 'Diamond' },
-];
-
 export const PARENT_EDGE_TYPE_OPTIONS: {
   value: ParentEdgeType;
   label: string;
@@ -47,8 +40,4 @@ export function isSex(value: string): value is Sex {
 
 export function isGender(value: string): value is Gender {
   return GENDER_OPTIONS.some((o) => o.value === value);
-}
-
-export function isNodeShape(value: string): value is NodeShape {
-  return SHAPE_OPTIONS.some((o) => o.value === value);
 }

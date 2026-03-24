@@ -48,14 +48,8 @@ function OtherChildrenDetailForm() {
 
           return {
             name: typeof rawName === 'string' ? rawName : '',
-            shape:
-              typeof rawSex === 'string' && isSex(rawSex)
-                ? rawSex === 'female'
-                  ? ('circle' as const)
-                  : rawSex === 'male'
-                    ? ('square' as const)
-                    : ('diamond' as const)
-                : undefined,
+            biologicalSex:
+              typeof rawSex === 'string' && isSex(rawSex) ? rawSex : undefined,
           };
         },
       );

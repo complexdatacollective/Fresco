@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { type NodeShape } from '~/components/Node';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
 import NumberCounterField from '~/lib/form/components/fields/NumberCounterField';
@@ -17,13 +16,6 @@ export default function PartnerStep() {
       <PartnerForm />
     </FormStoreProvider>
   );
-}
-
-function sexToShape(sex: string | undefined): NodeShape | undefined {
-  if (sex === 'female') return 'circle';
-  if (sex === 'male') return 'square';
-  if (sex !== undefined) return 'diamond';
-  return undefined;
 }
 
 function PartnerForm() {
@@ -61,10 +53,8 @@ function PartnerForm() {
 
       setStepData({
         partnerName: typeof rawName === 'string' ? rawName : '',
-        partnerShape:
-          typeof rawSex === 'string' && isSex(rawSex)
-            ? sexToShape(rawSex)
-            : undefined,
+        partnerSex:
+          typeof rawSex === 'string' && isSex(rawSex) ? rawSex : undefined,
         childrenWithPartnerCount: childrenCountRef.current,
       });
       return true;

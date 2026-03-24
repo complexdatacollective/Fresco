@@ -141,18 +141,10 @@ function ParentsDetailForm() {
           const rawSex = values[`parent-${i}-sex`];
           const rawBiological = values[`parent-${i}-isBioParent`];
 
-          const shape =
-            typeof rawSex === 'string' && isSex(rawSex)
-              ? rawSex === 'female'
-                ? ('circle' as const)
-                : rawSex === 'male'
-                  ? ('square' as const)
-                  : ('diamond' as const)
-              : undefined;
-
           return {
             name: typeof rawName === 'string' ? rawName : '',
-            shape,
+            biologicalSex:
+              typeof rawSex === 'string' && isSex(rawSex) ? rawSex : undefined,
             nameKnown: meta[i]?.nameKnown ?? false,
             biological:
               typeof rawBiological === 'boolean' ? rawBiological : true,

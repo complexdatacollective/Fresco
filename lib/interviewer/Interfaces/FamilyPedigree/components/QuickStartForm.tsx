@@ -1,6 +1,5 @@
 'use client';
 
-import { type NodeShape } from '~/components/Node';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import useDialog from '~/lib/dialogs/useDialog';
@@ -96,7 +95,7 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
                 hasPartner: true,
                 name:
                   typeof data.partnerName === 'string' ? data.partnerName : '',
-                shape: data.partnerShape as NodeShape | undefined,
+                biologicalSex: data.partnerSex as string | undefined,
               }
             : { hasPartner: false },
           childrenWithPartner:
