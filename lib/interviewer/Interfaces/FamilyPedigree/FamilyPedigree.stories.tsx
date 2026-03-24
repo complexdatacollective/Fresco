@@ -392,7 +392,7 @@ export const NuclearFamily: ScenarioStory = {
 
     // ParentsDetailStep: Parent 1 (bio, name known, "Dad", Male)
     await selectRadioByIndex('Yes', 0); // bio parent 1
-    await toggleSwitch('I know this person\u2019s name', true);
+    await toggleSwitch("I know this person's name", true);
     await typeInTextbox('Dad', 0);
     const maleRadios = await screen.findAllByRole(
       'radio',
@@ -409,7 +409,7 @@ export const NuclearFamily: ScenarioStory = {
     await userEvent.click(yesRadios[1]!);
     const switches = await screen.findAllByRole(
       'switch',
-      { name: 'I know this person\u2019s name' },
+      { name: "I know this person's name" },
       STEP_TIMEOUT,
     );
     if (switches[1]?.getAttribute('aria-checked') !== 'true') {
@@ -490,7 +490,7 @@ export const SingleParent: ScenarioStory = {
 
     // ParentsDetailStep: Parent 1 (bio, name known, "Mom", Female)
     await selectRadio('Yes');
-    await toggleSwitch('I know this person\u2019s name', true);
+    await toggleSwitch("I know this person's name", true);
     await typeInTextbox('Mom', 0);
     await selectRadio('Female');
     await clickContinue();
@@ -545,7 +545,7 @@ export const SameSexMothers: ScenarioStory = {
     // ParentsDetailStep: both bio, both female
     // Parent 1: bio, "Mother A", Female
     await selectRadioByIndex('Yes', 0);
-    await toggleSwitch('I know this person\u2019s name', true);
+    await toggleSwitch("I know this person's name", true);
     await typeInTextbox('Mother A', 0);
     const femaleRadios1 = await screen.findAllByRole(
       'radio',
@@ -563,7 +563,7 @@ export const SameSexMothers: ScenarioStory = {
     await userEvent.click(yesRadios[1]!);
     const switches = await screen.findAllByRole(
       'switch',
-      { name: 'I know this person\u2019s name' },
+      { name: "I know this person's name" },
       STEP_TIMEOUT,
     );
     if (switches[1]?.getAttribute('aria-checked') !== 'true') {
@@ -627,7 +627,7 @@ export const SpermDonor: ScenarioStory = {
     // ParentsDetailStep: 3 parents
     // Parent 1: bio, "Mom A", Female
     await selectRadioByIndex('Yes', 0);
-    await toggleSwitch('I know this person\u2019s name', true);
+    await toggleSwitch("I know this person's name", true);
     await typeInTextbox('Mom A', 0);
     const femaleRadios = await screen.findAllByRole(
       'radio',
@@ -645,7 +645,7 @@ export const SpermDonor: ScenarioStory = {
     await userEvent.click(yesRadios[1]!);
     const switches = await screen.findAllByRole(
       'switch',
-      { name: 'I know this person\u2019s name' },
+      { name: "I know this person's name" },
       STEP_TIMEOUT,
     );
     if (switches[1]?.getAttribute('aria-checked') !== 'true') {
@@ -663,7 +663,7 @@ export const SpermDonor: ScenarioStory = {
     // Bio field for parent 3 should be forced to No since we already have 2 bio
     const switches3 = await screen.findAllByRole(
       'switch',
-      { name: 'I know this person\u2019s name' },
+      { name: "I know this person's name" },
       STEP_TIMEOUT,
     );
     if (switches3[2]?.getAttribute('aria-checked') !== 'true') {
@@ -758,7 +758,7 @@ export const BlendedFamily: ScenarioStory = {
     // ParentsDetailStep: 3 parents
     // Parent 1: bio, "Dad", Male
     await selectRadioByIndex('Yes', 0);
-    await toggleSwitch('I know this person\u2019s name', true);
+    await toggleSwitch("I know this person's name", true);
     await typeInTextbox('Dad', 0);
     const maleRadios = await screen.findAllByRole(
       'radio',
@@ -776,7 +776,7 @@ export const BlendedFamily: ScenarioStory = {
     await userEvent.click(yesRadios[1]!);
     const switches = await screen.findAllByRole(
       'switch',
-      { name: 'I know this person\u2019s name' },
+      { name: "I know this person's name" },
       STEP_TIMEOUT,
     );
     if (switches[1]?.getAttribute('aria-checked') !== 'true') {
@@ -793,7 +793,7 @@ export const BlendedFamily: ScenarioStory = {
     // Parent 3: social (not bio — forced), "Step Mom", Female
     const switches3 = await screen.findAllByRole(
       'switch',
-      { name: 'I know this person\u2019s name' },
+      { name: "I know this person's name" },
       STEP_TIMEOUT,
     );
     if (switches3[2]?.getAttribute('aria-checked') !== 'true') {
@@ -877,7 +877,7 @@ export const AdoptedIn: ScenarioStory = {
     // ParentsDetailStep: both social (not bio)
     // Parent 1: not bio, "Adoptive Dad", Male
     await selectRadioByIndex('No', 0); // not bio parent
-    await toggleSwitch('I know this person\u2019s name', true);
+    await toggleSwitch("I know this person's name", true);
     await typeInTextbox('Adoptive Dad', 0);
     const maleRadios = await screen.findAllByRole(
       'radio',
@@ -895,7 +895,7 @@ export const AdoptedIn: ScenarioStory = {
     await userEvent.click(noRadios[1]!);
     const switches = await screen.findAllByRole(
       'switch',
-      { name: 'I know this person\u2019s name' },
+      { name: "I know this person's name" },
       STEP_TIMEOUT,
     );
     if (switches[1]?.getAttribute('aria-checked') !== 'true') {
@@ -978,7 +978,7 @@ export const SingleParentTwoDonors: ScenarioStory = {
     // ParentsDetailStep: 3 parents
     // Parent 1: bio, "Mom", Female
     await selectRadioByIndex('Yes', 0);
-    await toggleSwitch('I know this person\u2019s name', true);
+    await toggleSwitch("I know this person's name", true);
     await typeInTextbox('Mom', 0);
     const femaleRadios = await screen.findAllByRole(
       'radio',
@@ -996,7 +996,7 @@ export const SingleParentTwoDonors: ScenarioStory = {
     await userEvent.click(yesRadios[1]!);
     const switches = await screen.findAllByRole(
       'switch',
-      { name: 'I know this person\u2019s name' },
+      { name: "I know this person's name" },
       STEP_TIMEOUT,
     );
     if (switches[1]?.getAttribute('aria-checked') !== 'true') {
@@ -1013,7 +1013,7 @@ export const SingleParentTwoDonors: ScenarioStory = {
     // Parent 3: donor (not bio — forced), "Donor 2", Male
     const switches3 = await screen.findAllByRole(
       'switch',
-      { name: 'I know this person\u2019s name' },
+      { name: "I know this person's name" },
       STEP_TIMEOUT,
     );
     if (switches3[2]?.getAttribute('aria-checked') !== 'true') {
@@ -1097,7 +1097,7 @@ export const WithPartnerAndChildren: ScenarioStory = {
     // ParentsDetailStep: 2 parents
     // Parent 1: bio, "Dad", Male
     await selectRadioByIndex('Yes', 0);
-    await toggleSwitch('I know this person\u2019s name', true);
+    await toggleSwitch("I know this person's name", true);
     await typeInTextbox('Dad', 0);
     const maleRadios = await screen.findAllByRole(
       'radio',
@@ -1115,7 +1115,7 @@ export const WithPartnerAndChildren: ScenarioStory = {
     await userEvent.click(yesRadios[1]!);
     const switches = await screen.findAllByRole(
       'switch',
-      { name: 'I know this person\u2019s name' },
+      { name: "I know this person's name" },
       STEP_TIMEOUT,
     );
     if (switches[1]?.getAttribute('aria-checked') !== 'true') {
