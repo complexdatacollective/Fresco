@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
-import { expect, screen, userEvent, waitFor } from 'storybook/test';
+import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 import SuperJSON from 'superjson';
 import StoryInterviewShell from '~/.storybook/StoryInterviewShell';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
@@ -1105,11 +1105,14 @@ export const SingleParentTwoDonors: ScenarioStory = {
       {},
       STEP_TIMEOUT,
     );
-    const egoCheckboxes =
-      egoParentsContainer.querySelectorAll('[role="checkbox"]');
-    // [0]=Mom, [1]=Donor 1, [2]=Donor 2 — uncheck Donor 2
-    if (egoCheckboxes[2]?.getAttribute('aria-checked') === 'true') {
-      await userEvent.click(egoCheckboxes[2]!);
+    const egoScope = within(egoParentsContainer);
+    const donor2InEgo = await egoScope.findByRole(
+      'checkbox',
+      { name: 'Donor 2' },
+      STEP_TIMEOUT,
+    );
+    if (donor2InEgo.getAttribute('aria-checked') === 'true') {
+      await userEvent.click(donor2InEgo);
     }
 
     // Fill sibling details
