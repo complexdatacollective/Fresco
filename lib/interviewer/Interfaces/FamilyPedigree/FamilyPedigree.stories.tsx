@@ -671,6 +671,13 @@ export const SpermDonor: ScenarioStory = {
     await userEvent.click(femaleRadios2[1]!);
 
     // Parent 3: donor (not bio), "Donor", Male
+    // Select "Sperm/Egg Donor" edge type for parent 3
+    const donorRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Sperm/Egg Donor' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(donorRadios[2]!);
     // Bio field for parent 3 should be forced to No since we already have 2 bio
     const switches3 = await screen.findAllByRole(
       'switch',
@@ -802,6 +809,13 @@ export const BlendedFamily: ScenarioStory = {
     await userEvent.click(femaleRadios[1]!);
 
     // Parent 3: social (not bio — forced), "Step Mom", Female
+    // Select "Social Parent" edge type for parent 3
+    const socialRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Social Parent (adoptive, step, foster)' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(socialRadios[2]!);
     const switches3 = await screen.findAllByRole(
       'switch',
       { name: "I know this person's name" },
@@ -886,7 +900,9 @@ export const AdoptedIn: ScenarioStory = {
     await waitForStepTransition();
 
     // ParentsDetailStep: both social (not bio)
-    // Parent 1: not bio, "Adoptive Dad", Male
+    // Parent 1: social, not bio, "Adoptive Dad", Male
+    // Select "Social Parent" edge type for parent 1
+    await selectRadioByIndex('Social Parent (adoptive, step, foster)', 0);
     await selectRadioByIndex('No', 0); // not bio parent
     await toggleSwitch("I know this person's name", true);
     await typeInTextbox('Adoptive Dad', 0);
@@ -897,7 +913,14 @@ export const AdoptedIn: ScenarioStory = {
     );
     await userEvent.click(maleRadios[0]!);
 
-    // Parent 2: not bio, "Adoptive Mom", Female
+    // Parent 2: social, not bio, "Adoptive Mom", Female
+    // Select "Social Parent" edge type for parent 2
+    const socialRadios2 = await screen.findAllByRole(
+      'radio',
+      { name: 'Social Parent (adoptive, step, foster)' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(socialRadios2[1]!);
     const noRadios = await screen.findAllByRole(
       'radio',
       { name: 'No' },
@@ -987,8 +1010,9 @@ export const SingleParentTwoDonors: ScenarioStory = {
     await waitForStepTransition();
 
     // ParentsDetailStep: 3 parents
-    // Parent 1: bio, "Mom", Female
-    await selectRadioByIndex('Yes', 0);
+    // Parent 1: biological, bio=yes, "Mom", Female
+    // Edge type defaults to "Biological Parent" — no change needed
+    await selectRadioByIndex('Yes', 0); // bio parent
     await toggleSwitch("I know this person's name", true);
     await typeInTextbox('Mom', 0);
     const femaleRadios = await screen.findAllByRole(
@@ -998,7 +1022,14 @@ export const SingleParentTwoDonors: ScenarioStory = {
     );
     await userEvent.click(femaleRadios[0]!);
 
-    // Parent 2: bio, "Donor 1", Male
+    // Parent 2: donor, bio=yes, "Donor 1", Male
+    // Select "Sperm/Egg Donor" edge type (2nd parent's donor radio)
+    const donorRadios1 = await screen.findAllByRole(
+      'radio',
+      { name: 'Sperm/Egg Donor' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(donorRadios1[1]!);
     const yesRadios = await screen.findAllByRole(
       'radio',
       { name: 'Yes' },
@@ -1021,7 +1052,14 @@ export const SingleParentTwoDonors: ScenarioStory = {
     );
     await userEvent.click(maleRadios1[1]!);
 
-    // Parent 3: donor (not bio — forced), "Donor 2", Male
+    // Parent 3: donor, bio not applicable (forced off), "Donor 2", Male
+    // Select "Sperm/Egg Donor" edge type (3rd parent's donor radio)
+    const donorRadios2 = await screen.findAllByRole(
+      'radio',
+      { name: 'Sperm/Egg Donor' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(donorRadios2[2]!);
     const switches3 = await screen.findAllByRole(
       'switch',
       { name: "I know this person's name" },

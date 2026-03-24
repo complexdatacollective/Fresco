@@ -11,8 +11,10 @@ import ToggleField from '~/lib/form/components/fields/ToggleField';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
+import { PARENT_EDGE_TYPE_OPTIONS } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import { type ParentDetail } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 
 export default function ParentsDetailStep() {
   return (
@@ -102,6 +104,7 @@ function ParentsDetailForm() {
           const rawName = values[`parent-${i}-name`];
           const rawSex = values[`parent-${i}-sex`];
           const rawBiological = values[`parent-${i}-isBioParent`];
+          const rawEdgeType = values[`parent-${i}-edgeType`];
 
           return {
             name: typeof rawName === 'string' ? rawName : '',
@@ -109,7 +112,10 @@ function ParentsDetailForm() {
             nameKnown: meta[i]?.nameKnown ?? false,
             biological:
               typeof rawBiological === 'boolean' ? rawBiological : true,
-            edgeType: meta[i]?.edgeType ?? 'biological',
+            edgeType:
+              typeof rawEdgeType === 'string'
+                ? (rawEdgeType as ParentDetail['edgeType'])
+                : 'biological',
           };
         },
       );
@@ -127,6 +133,14 @@ function ParentsDetailForm() {
         return (
           <Surface key={i} level={1} spacing="sm">
             <Heading level="h3">Parent {i + 1}</Heading>
+            <Field
+              name={`parent-${i}-edgeType`}
+              label="Relationship type"
+              component={RadioGroupField}
+              options={PARENT_EDGE_TYPE_OPTIONS}
+              initialValue={existing?.[i]?.edgeType ?? 'biological'}
+              required
+            />
             <Field
               name={`parent-${i}-isBioParent`}
               label="This is my biological parent"
