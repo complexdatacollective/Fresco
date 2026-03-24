@@ -3,76 +3,30 @@ import { invariant } from 'es-toolkit';
 import { createContext, useContext, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useStore } from 'zustand';
-import { type NodeShape } from '~/components/Node';
 import {
   createFamilyPedigreeStore,
+  sexToShape,
   type FamilyPedigreeStore,
   type FamilyPedigreeStoreApi,
   type NodeData,
   type StoreEdge,
+  type VariableConfig,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
-import { getRelationshipTypeVariable } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/edgeUtils';
 import {
-  getEgoShapeVariable,
-  getNodeShapeVariable,
+  getIsActiveVariable,
+  getIsGestationalCarrierVariable,
+  getRelationshipTypeVariable,
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/edgeUtils';
+import {
+  getBiologicalSexVariable,
+  getEgoVariable,
+  getNodeLabelVariable,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 import { useAppDispatch } from '~/lib/interviewer/store';
 
 const FamilyPedigreeContext = createContext<FamilyPedigreeStoreApi | undefined>(
   undefined,
 );
-
-function mapReduxEdgeToStoreEdge(
-  relationship: string,
-  source: string,
-  target: string,
-): StoreEdge {
-  switch (relationship) {
-    case 'donor':
-      return {
-        source,
-        target,
-        relationshipType: 'donor',
-        isActive: true,
-      };
-    case 'surrogate':
-      return {
-        source,
-        target,
-        relationshipType: 'surrogate',
-        isActive: true,
-      };
-    case 'partner':
-      return {
-        source,
-        target,
-        relationshipType: 'partner',
-        isActive: true,
-      };
-    case 'bio-parent':
-      return {
-        source,
-        target,
-        relationshipType: 'biological',
-        isActive: true,
-      };
-    case 'social-parent':
-      return {
-        source,
-        target,
-        relationshipType: 'social',
-        isActive: true,
-      };
-    case 'parent':
-    default:
-      return {
-        source,
-        target,
-        relationshipType: 'biological',
-        isActive: true,
-      };
-  }
-}
 
 export const FamilyPedigreeProvider = ({
   ego,
@@ -89,9 +43,24 @@ export const FamilyPedigreeProvider = ({
 }) => {
   const storeRef = useRef<FamilyPedigreeStoreApi>(undefined);
   const dispatch = useAppDispatch();
-  const egoShapeVariable = useSelector(getEgoShapeVariable);
-  const nodeShapeVariable = useSelector(getNodeShapeVariable);
-  const relationshipVariable = useSelector(getRelationshipTypeVariable);
+
+  const nodeLabelVariable = useSelector(getNodeLabelVariable);
+  const biologicalSexVariable = useSelector(getBiologicalSexVariable);
+  const egoVariable = useSelector(getEgoVariable);
+  const relationshipTypeVariable = useSelector(getRelationshipTypeVariable);
+  const isActiveVariable = useSelector(getIsActiveVariable);
+  const isGestationalCarrierVariable = useSelector(
+    getIsGestationalCarrierVariable,
+  );
+
+  const variableConfig: VariableConfig = {
+    nodeLabelVariable,
+    biologicalSexVariable,
+    egoVariable,
+    relationshipTypeVariable,
+    isActiveVariable,
+    isGestationalCarrierVariable,
+  };
 
   const initialNodes = new Map<string, NodeData>(
     nodes.map((node) => {
@@ -101,11 +70,18 @@ export const FamilyPedigreeProvider = ({
           node.attributes[disease] === true,
         ]),
       );
+
+      const label = (node.attributes[nodeLabelVariable] ?? '') as string;
+      const biologicalSex = node.attributes[biologicalSexVariable] as
+        | string
+        | undefined;
+
       return [
         node._uid,
         {
-          label: '',
-          shape: node.attributes[nodeShapeVariable] as NodeShape | undefined,
+          label,
+          biologicalSex,
+          shape: sexToShape(biologicalSex),
           isEgo: false,
           readOnly: false,
           interviewNetworkId: node._uid,
@@ -116,14 +92,15 @@ export const FamilyPedigreeProvider = ({
   );
 
   if (ego != null) {
-    const egoShapeValue = ego.attributes[egoShapeVariable];
-    const shape: NodeShape =
-      egoShapeValue === 'circle' || egoShapeValue === 'diamond'
-        ? egoShapeValue
-        : 'square';
+    const biologicalSex = ego.attributes[biologicalSexVariable] as
+      | string
+      | undefined;
+    const label = (ego.attributes[nodeLabelVariable] ?? 'You') as string;
+
     initialNodes.set(ego._uid, {
-      label: 'You',
-      shape,
+      label,
+      biologicalSex,
+      shape: sexToShape(biologicalSex),
       isEgo: true,
       readOnly: true,
     });
@@ -131,11 +108,32 @@ export const FamilyPedigreeProvider = ({
 
   const initialEdges = new Map<string, StoreEdge>(
     edges.map((edge) => {
-      const relationship = (edge.attributes[relationshipVariable] ??
-        '') as string;
+      const relationshipType = (edge.attributes[relationshipTypeVariable] ??
+        'biological') as StoreEdge['relationshipType'];
+      const isActive = edge.attributes[isActiveVariable] !== false;
+      const isGestationalCarrier = edge.attributes[
+        isGestationalCarrierVariable
+      ] as boolean | undefined;
+
+      const base = {
+        source: edge.from,
+        target: edge.to,
+        isActive,
+      };
+
+      if (relationshipType === 'partner') {
+        return [edge._uid, { ...base, relationshipType }];
+      }
+
       return [
         edge._uid,
-        mapReduxEdgeToStoreEdge(relationship, edge.from, edge.to),
+        {
+          ...base,
+          relationshipType,
+          ...(isGestationalCarrier !== undefined
+            ? { isGestationalCarrier }
+            : {}),
+        },
       ];
     }),
   );
@@ -143,6 +141,7 @@ export const FamilyPedigreeProvider = ({
   storeRef.current ??= createFamilyPedigreeStore(
     initialNodes,
     initialEdges,
+    variableConfig,
     dispatch,
   );
 
