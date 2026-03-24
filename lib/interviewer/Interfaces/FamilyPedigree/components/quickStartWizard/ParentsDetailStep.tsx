@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { z } from 'zod/mini';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import { useWizard } from '~/lib/dialogs/useWizard';
@@ -11,7 +10,6 @@ import BooleanField from '~/lib/form/components/fields/Boolean';
 import ToggleField from '~/lib/form/components/fields/ToggleField';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
-import { type CustomFieldValidation } from '~/lib/form/store/types';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import { type ParentDetail } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
@@ -88,41 +86,6 @@ function ParentsDetailForm() {
     }
   }, [bioCount, parentCount, bioStateKey, setFieldValue]);
 
-  // Custom sex validation: no duplicate sex among biological parents
-  const makeSexValidation = useMemo(
-    () =>
-      (index: number): CustomFieldValidation => ({
-        schema: (formValues) => {
-          const isBio = formValues[`parent-${index}-isBioParent`];
-          if (isBio !== true) {
-            return z.unknown();
-          }
-
-          return z.unknown().check(
-            z.superRefine((val, ctx) => {
-              if (val === undefined || val === null) return;
-
-              for (let i = 0; i < parentCount; i++) {
-                if (i === index) continue;
-                const otherBio = formValues[`parent-${i}-isBioParent`];
-                const otherSex = formValues[`parent-${i}-sex`];
-                if (otherBio === true && otherSex === val) {
-                  ctx.addIssue({
-                    code: 'custom',
-                    message:
-                      'Another biological parent already has this sex assigned at birth.',
-                  });
-                  return;
-                }
-              }
-            }),
-          );
-        },
-        hint: 'Must be different from other biological parents',
-      }),
-    [parentCount],
-  );
-
   useEffect(() => {
     setBeforeNext(async () => {
       const isValid = await validateForm();
@@ -190,7 +153,6 @@ function ParentsDetailForm() {
                 name: existing?.[i]?.name,
               }}
               showName={parentMeta[i]?.nameKnown ?? false}
-              sexCustomValidation={makeSexValidation(i)}
             />
           </Surface>
         );
