@@ -113,9 +113,6 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
             ? rawAdoption
             : undefined;
 
-        // eslint-disable-next-line no-console
-        console.log('[QuickStartForm] wizard data:', JSON.stringify({ parents: data.parents, egoParentIndices: data.egoParentIndices, siblings: data.siblings }, null, 2));
-
         const quickStartData: QuickStartData = {
           adoptionStatus,
           parents: (data.parents as ParentDetail[] | undefined) ?? [],
