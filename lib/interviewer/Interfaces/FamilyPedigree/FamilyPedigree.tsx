@@ -23,7 +23,7 @@ import { type StageProps } from '../../types';
 
 const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
   const {
-    stage: { censusPrompt, edgeConfig, nodeConfig, nominationPrompts },
+    stage: { censusPrompt, nominationPrompts },
   } = props;
 
   const dispatch = useAppDispatch();
@@ -119,14 +119,15 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
   );
 };
 
-export default function FamilyPedigreeWithProvider(props: FamilyPedigreeProps) {
+export default function FamilyPedigreeWithProvider(
+  props: StageProps<'FamilyPedigree'>,
+) {
   const ego = useSelector(getNetworkEgo);
   const allNodes = useSelector(getNetworkNodes);
   const allEdges = useSelector(getNetworkEdges);
   const { stage } = props;
   const diseaseVariables =
-    stage.diseaseNominationStep?.map((diseaseStep) => diseaseStep.variable) ??
-    [];
+    stage.nominationPrompts?.map((prompt) => prompt.variable) ?? [];
   return (
     <FamilyPedigreeProvider
       ego={ego}
