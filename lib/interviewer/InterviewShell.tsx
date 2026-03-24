@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useRef } from 'react';
 import { Provider } from 'react-redux';
 import SuperJSON from 'superjson';
+import DialogProvider from '~/lib/dialogs/DialogProvider';
 import useMediaQuery from '~/hooks/useMediaQuery';
 import { InterviewToastProvider } from '~/lib/interviewer/components/InterviewToast';
 import Navigation from '~/lib/interviewer/components/Navigation';
@@ -122,7 +123,9 @@ const InterviewShell = (props: {
 
   return (
     <Provider store={store(decodedPayload, { disableSync: props.disableSync })}>
-      <Interview />
+      <DialogProvider>
+        <Interview />
+      </DialogProvider>
     </Provider>
   );
 };

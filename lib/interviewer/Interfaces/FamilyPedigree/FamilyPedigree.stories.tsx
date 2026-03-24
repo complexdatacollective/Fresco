@@ -294,12 +294,14 @@ async function selectRadio(name: string) {
   await userEvent.click(radio);
 }
 
-async function setNumberCounter(label: string, target: number) {
-  const spinbutton = await screen.findByRole(
+async function setNumberCounter(index: number, target: number) {
+  const spinbuttons = await screen.findAllByRole(
     'spinbutton',
-    { name: label },
+    {},
     STEP_TIMEOUT,
   );
+  const spinbutton = spinbuttons[index];
+  if (!spinbutton) throw new Error(`No spinbutton found at index ${index}`);
   const currentValue = Number(spinbutton.getAttribute('aria-valuenow') ?? '0');
   const diff = target - currentValue;
 
@@ -307,7 +309,8 @@ async function setNumberCounter(label: string, target: number) {
     const incBtn = spinbutton.querySelector(
       'button[aria-label="Increase by 1"]',
     );
-    if (!incBtn) throw new Error(`No increment button found for "${label}"`);
+    if (!incBtn)
+      throw new Error(`No increment button found for spinbutton ${index}`);
     for (let i = 0; i < diff; i++) {
       await userEvent.click(incBtn);
     }
@@ -315,7 +318,8 @@ async function setNumberCounter(label: string, target: number) {
     const decBtn = spinbutton.querySelector(
       'button[aria-label="Decrease by 1"]',
     );
-    if (!decBtn) throw new Error(`No decrement button found for "${label}"`);
+    if (!decBtn)
+      throw new Error(`No decrement button found for spinbutton ${index}`);
     for (let i = 0; i < Math.abs(diff); i++) {
       await userEvent.click(decBtn);
     }
@@ -373,8 +377,8 @@ export const NuclearFamily: ScenarioStory = {
     await waitForStepTransition();
 
     // ParentsCountStep: 2 parents (default), 2 siblings, no partner
-    await setNumberCounter('How many parents do you have?', 2);
-    await setNumberCounter('How many siblings do you have?', 2);
+    await setNumberCounter(0, 2);
+    await setNumberCounter(1, 2);
     await selectRadio('No');
     await clickContinue();
     await waitForStepTransition();
@@ -471,8 +475,8 @@ export const SingleParent: ScenarioStory = {
     await waitForStepTransition();
 
     // ParentsCountStep: 1 parent, 0 siblings, no partner
-    await setNumberCounter('How many parents do you have?', 1);
-    await setNumberCounter('How many siblings do you have?', 0);
+    await setNumberCounter(0, 1);
+    await setNumberCounter(1, 0);
     await selectRadio('No');
     await clickContinue();
     await waitForStepTransition();
@@ -525,8 +529,8 @@ export const SameSexMothers: ScenarioStory = {
     await waitForStepTransition();
 
     // ParentsCountStep: 2 parents, 0 siblings, no partner
-    await setNumberCounter('How many parents do you have?', 2);
-    await setNumberCounter('How many siblings do you have?', 0);
+    await setNumberCounter(0, 2);
+    await setNumberCounter(1, 0);
     await selectRadio('No');
     await clickContinue();
     await waitForStepTransition();
@@ -607,8 +611,8 @@ export const SpermDonor: ScenarioStory = {
     await waitForStepTransition();
 
     // ParentsCountStep: 3 parents, 1 sibling, no partner
-    await setNumberCounter('How many parents do you have?', 3);
-    await setNumberCounter('How many siblings do you have?', 1);
+    await setNumberCounter(0, 3);
+    await setNumberCounter(1, 1);
     await selectRadio('No');
     await clickContinue();
     await waitForStepTransition();
@@ -738,8 +742,8 @@ export const BlendedFamily: ScenarioStory = {
     await waitForStepTransition();
 
     // ParentsCountStep: 3 parents, 0 siblings, no partner
-    await setNumberCounter('How many parents do you have?', 3);
-    await setNumberCounter('How many siblings do you have?', 0);
+    await setNumberCounter(0, 3);
+    await setNumberCounter(1, 0);
     await selectRadio('No');
     await clickContinue();
     await waitForStepTransition();
@@ -857,8 +861,8 @@ export const AdoptedIn: ScenarioStory = {
     await waitForStepTransition();
 
     // ParentsCountStep: 2 parents, 0 siblings, no partner
-    await setNumberCounter('How many parents do you have?', 2);
-    await setNumberCounter('How many siblings do you have?', 0);
+    await setNumberCounter(0, 2);
+    await setNumberCounter(1, 0);
     await selectRadio('No');
     await clickContinue();
     await waitForStepTransition();
@@ -958,8 +962,8 @@ export const SingleParentTwoDonors: ScenarioStory = {
     await waitForStepTransition();
 
     // ParentsCountStep: 3 parents, 1 sibling, no partner
-    await setNumberCounter('How many parents do you have?', 3);
-    await setNumberCounter('How many siblings do you have?', 1);
+    await setNumberCounter(0, 3);
+    await setNumberCounter(1, 1);
     await selectRadio('No');
     await clickContinue();
     await waitForStepTransition();
@@ -1077,8 +1081,8 @@ export const WithPartnerAndChildren: ScenarioStory = {
     await waitForStepTransition();
 
     // ParentsCountStep: 2 parents, 0 siblings, has partner
-    await setNumberCounter('How many parents do you have?', 2);
-    await setNumberCounter('How many siblings do you have?', 0);
+    await setNumberCounter(0, 2);
+    await setNumberCounter(1, 0);
     await selectRadio('Yes');
     await clickContinue();
     await waitForStepTransition();
@@ -1137,10 +1141,7 @@ export const WithPartnerAndChildren: ScenarioStory = {
     // PartnerStep: "Jane", Female, 2 children with partner
     await typeInTextbox('Jane', 0);
     await selectRadio('Female');
-    await setNumberCounter(
-      'How many children do you have with your partner?',
-      2,
-    );
+    await setNumberCounter(0, 2);
     await clickContinue();
     await waitForStepTransition();
 
@@ -1163,10 +1164,7 @@ export const WithPartnerAndChildren: ScenarioStory = {
     await waitForStepTransition();
 
     // OtherChildrenCountStep: 1
-    await setNumberCounter(
-      'How many children do you have from other relationships?',
-      1,
-    );
+    await setNumberCounter(0, 1);
     await clickContinue();
     await waitForStepTransition();
 
