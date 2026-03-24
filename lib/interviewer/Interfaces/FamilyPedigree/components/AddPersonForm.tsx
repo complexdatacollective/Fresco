@@ -1,16 +1,15 @@
 'use client';
 
+import { useSelector } from 'react-redux';
 import Field from '~/lib/form/components/Field/Field';
 import InputField from '~/lib/form/components/fields/InputField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
-import {
-  PARENT_EDGE_TYPE_OPTIONS,
-  SEX_OPTIONS,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
+import { PARENT_EDGE_TYPE_OPTIONS } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
 import {
   type NodeData,
   type StoreEdge,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { getBiologicalSexOptions } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 
 export type AddPersonMode = 'parent' | 'child' | 'partner' | 'sibling';
 
@@ -32,6 +31,8 @@ export default function AddPersonFields({
   nodes,
   edges,
 }: AddPersonFieldsProps) {
+  const sexOptions = useSelector(getBiologicalSexOptions);
+
   const partners =
     mode === 'child'
       ? [...edges.values()]
@@ -71,7 +72,7 @@ export default function AddPersonFields({
         name="biologicalSex"
         label="Sex assigned at birth"
         component={RadioGroupField}
-        options={SEX_OPTIONS}
+        options={sexOptions}
       />
 
       {mode === 'parent' && (

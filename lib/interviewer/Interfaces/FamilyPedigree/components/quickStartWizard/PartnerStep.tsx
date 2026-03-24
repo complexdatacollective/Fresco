@@ -7,7 +7,6 @@ import NumberCounterField from '~/lib/form/components/fields/NumberCounterField'
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
-import { isSex } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 
 export default function PartnerStep() {
@@ -27,10 +26,7 @@ function PartnerForm() {
   errorsRef.current = errors;
 
   const existingName = (data.partnerName as string | undefined) ?? '';
-  const existingSex = (() => {
-    const v = data.partnerSex as string | undefined;
-    return v && isSex(v) ? v : undefined;
-  })();
+  const existingSex = (data.partnerSex as string | undefined) ?? undefined;
 
   const [childrenWithPartnerCount, setChildrenWithPartnerCount] = useState(
     (data.childrenWithPartnerCount as number | undefined) ?? 0,
@@ -53,8 +49,7 @@ function PartnerForm() {
 
       setStepData({
         partnerName: typeof rawName === 'string' ? rawName : '',
-        partnerSex:
-          typeof rawSex === 'string' && isSex(rawSex) ? rawSex : undefined,
+        partnerSex: typeof rawSex === 'string' ? rawSex : undefined,
         childrenWithPartnerCount: childrenCountRef.current,
       });
       return true;

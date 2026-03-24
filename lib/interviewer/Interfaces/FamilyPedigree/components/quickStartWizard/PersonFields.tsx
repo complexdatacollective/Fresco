@@ -1,22 +1,16 @@
 'use client';
 
+import { useSelector } from 'react-redux';
 import Field from '~/lib/form/components/Field/Field';
-import CheckboxGroupField from '~/lib/form/components/fields/CheckboxGroup';
 import InputField from '~/lib/form/components/fields/InputField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import { type CustomFieldValidation } from '~/lib/form/store/types';
-import {
-  GENDER_OPTIONS,
-  SEX_OPTIONS,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
-import { type Gender, type Sex } from '~/lib/pedigree-layout/types';
-
-const EMPTY_GENDER_ARRAY: Gender[] = [];
+import { getBiologicalSexOptions } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 
 type PersonFieldsProps = {
   index: number;
   prefix: string;
-  initial?: { name?: string; sex?: Sex; gender?: Gender[] };
+  initial?: { name?: string; sex?: string };
   showName?: boolean;
   sexCustomValidation?: CustomFieldValidation | CustomFieldValidation[];
 };
@@ -28,6 +22,8 @@ export default function PersonFields({
   showName = true,
   sexCustomValidation,
 }: PersonFieldsProps) {
+  const sexOptions = useSelector(getBiologicalSexOptions);
+
   return (
     <>
       {showName && (
@@ -45,19 +41,11 @@ export default function PersonFields({
         name={`${prefix}-${index}-sex`}
         label="Sex assigned at birth"
         component={RadioGroupField}
-        options={SEX_OPTIONS}
+        options={sexOptions}
         initialValue={initial?.sex}
         required
         custom={sexCustomValidation}
         validateOnChange
-      />
-      <Field
-        name={`${prefix}-${index}-gender`}
-        label="Gender (select all that apply)"
-        component={CheckboxGroupField}
-        options={GENDER_OPTIONS}
-        initialValue={initial?.gender ?? EMPTY_GENDER_ARRAY}
-        required
       />
     </>
   );

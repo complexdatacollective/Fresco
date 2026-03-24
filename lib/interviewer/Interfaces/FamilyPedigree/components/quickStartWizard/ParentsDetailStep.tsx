@@ -13,7 +13,6 @@ import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { type CustomFieldValidation } from '~/lib/form/store/types';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
-import { isSex } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import { type ParentDetail } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
@@ -143,8 +142,7 @@ function ParentsDetailForm() {
 
           return {
             name: typeof rawName === 'string' ? rawName : '',
-            biologicalSex:
-              typeof rawSex === 'string' && isSex(rawSex) ? rawSex : undefined,
+            biologicalSex: typeof rawSex === 'string' ? rawSex : undefined,
             nameKnown: meta[i]?.nameKnown ?? false,
             biological:
               typeof rawBiological === 'boolean' ? rawBiological : true,

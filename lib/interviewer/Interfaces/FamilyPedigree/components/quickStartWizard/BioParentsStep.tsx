@@ -10,10 +10,6 @@ import ToggleField from '~/lib/form/components/fields/ToggleField';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
-import {
-  isGender,
-  isSex,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import {
   type BioParentDetail,
@@ -70,8 +66,7 @@ function BioParentsForm() {
 
           return {
             name: typeof rawName === 'string' ? rawName : '',
-            biologicalSex:
-              typeof rawSex === 'string' && isSex(rawSex) ? rawSex : undefined,
+            biologicalSex: typeof rawSex === 'string' ? rawSex : undefined,
             nameKnown: nameKnown[i] ?? false,
           };
         },
