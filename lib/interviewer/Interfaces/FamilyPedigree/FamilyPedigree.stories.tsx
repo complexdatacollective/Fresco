@@ -1098,21 +1098,18 @@ export const SingleParentTwoDonors: ScenarioStory = {
     await waitForStepTransition();
 
     // SiblingsDetailStep: ego's parents + 1 sibling
-    // All checkboxes on this step in DOM order:
-    // [0] ego-parents: Mom (checked)
-    // [1] ego-parents: Donor 1 (checked)
-    // [2] ego-parents: Donor 2 (checked) — UNCHECK this
-    // [3] sibling-0-sharedParents: Mom (checked)
-    // [4] sibling-0-sharedParents: Donor 1 (checked) — UNCHECK this
-    // [5] sibling-0-sharedParents: Donor 2 (checked)
-    const allCheckboxes = await screen.findAllByRole(
-      'checkbox',
+
+    // Uncheck Donor 2 from ego's parents using testid container
+    const egoParentsContainer = await screen.findByTestId(
+      'ego-parents-checkboxes',
       {},
       STEP_TIMEOUT,
     );
-    // Uncheck ego's Donor 2 (index 2)
-    if (allCheckboxes[2]?.getAttribute('aria-checked') === 'true') {
-      await userEvent.click(allCheckboxes[2]!);
+    const egoCheckboxes =
+      egoParentsContainer.querySelectorAll('[role="checkbox"]');
+    // [0]=Mom, [1]=Donor 1, [2]=Donor 2 — uncheck Donor 2
+    if (egoCheckboxes[2]?.getAttribute('aria-checked') === 'true') {
+      await userEvent.click(egoCheckboxes[2]!);
     }
 
     // Fill sibling details
@@ -1124,14 +1121,17 @@ export const SingleParentTwoDonors: ScenarioStory = {
     );
     await userEvent.click(sibSexRadios[0]!);
 
-    // Re-query checkboxes after form changes, then uncheck sibling's Donor 1 (index 4)
-    const allCheckboxes2 = await screen.findAllByRole(
+    // Uncheck Donor 1 from sibling's shared parents
+    // The sibling shared parents checkboxes are labeled "Donor 1"
+    // There are 2 "Donor 1" checkboxes: ego group [index 0] and sibling group [index 1]
+    const donor1Checkboxes = await screen.findAllByRole(
       'checkbox',
-      {},
+      { name: 'Donor 1' },
       STEP_TIMEOUT,
     );
-    if (allCheckboxes2[4]?.getAttribute('aria-checked') === 'true') {
-      await userEvent.click(allCheckboxes2[4]!);
+    // The sibling's "Donor 1" is the second one (index 1)
+    if (donor1Checkboxes[1]?.getAttribute('aria-checked') === 'true') {
+      await userEvent.click(donor1Checkboxes[1]!);
     }
     await clickContinue();
     await waitForStepTransition();

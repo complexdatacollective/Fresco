@@ -91,6 +91,7 @@ function SiblingsDetailForm() {
           <Field
             name="ego-parents"
             label="Which of these parents are YOUR parents?"
+            data-testid="ego-parents-checkboxes"
             component={CheckboxGroupField}
             options={parents.map((p, pIdx) => ({
               value: String(pIdx),

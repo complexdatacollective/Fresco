@@ -469,6 +469,70 @@ describe('generateQuickStartNetwork', () => {
     // Sib2 shares parents [0, 2] (Mom + Donor2)
     expect(sib2ParentEdges).toHaveLength(2);
   });
+
+  it('single parent two donors: ego gets Mom+Donor1, sibling gets Mom+Donor2', () => {
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    store.getState().generateQuickStartNetwork(
+      quickStart({
+        parents: [
+          { name: 'Mom', nameKnown: true, edgeType: 'biological' },
+          { name: 'Donor 1', nameKnown: true, edgeType: 'donor' },
+          { name: 'Donor 2', nameKnown: true, edgeType: 'donor' },
+        ],
+        egoParentIndices: [0, 1], // Mom + Donor 1 only
+        parentPartnerships: [],
+        siblings: [
+          { name: 'Half Sib', sharedParentIndices: [0, 2] }, // Mom + Donor 2
+        ],
+      }),
+    );
+
+    const { nodes, edges } = store.getState().network;
+    // ego + 3 parents + 1 sibling = 5
+    expect(nodes.size).toBe(5);
+
+    const egoEntry = [...nodes.entries()].find(([, n]) => n.isEgo)!;
+    const egoId = egoEntry[0];
+
+    // Ego should have edges from Mom (biological) and Donor 1 (donor) only
+    const egoParentEdges = [...edges.values()].filter(
+      (e) => e.target === egoId && e.relationshipType !== 'partner',
+    );
+    expect(egoParentEdges).toHaveLength(2);
+
+    const egoEdgeTypes = egoParentEdges.map((e) => e.relationshipType).sort();
+    expect(egoEdgeTypes).toEqual(['biological', 'donor']);
+
+    // Ego should NOT have an edge from Donor 2
+    const donor2Entry = [...nodes.entries()].find(
+      ([, n]) => n.label === 'Donor 2',
+    )!;
+    const donor2ToEgo = [...edges.values()].find(
+      (e) => e.source === donor2Entry[0] && e.target === egoId,
+    );
+    expect(donor2ToEgo).toBeUndefined();
+
+    // Sibling should have edges from Mom (biological) and Donor 2 (donor)
+    const sibEntry = [...nodes.entries()].find(
+      ([, n]) => n.label === 'Half Sib',
+    )!;
+    const sibParentEdges = [...edges.values()].filter(
+      (e) => e.target === sibEntry[0] && e.relationshipType !== 'partner',
+    );
+    expect(sibParentEdges).toHaveLength(2);
+
+    const sibEdgeTypes = sibParentEdges.map((e) => e.relationshipType).sort();
+    expect(sibEdgeTypes).toEqual(['biological', 'donor']);
+
+    // Sibling should NOT have an edge from Donor 1
+    const donor1Entry = [...nodes.entries()].find(
+      ([, n]) => n.label === 'Donor 1',
+    )!;
+    const donor1ToSib = [...edges.values()].find(
+      (e) => e.source === donor1Entry[0] && e.target === sibEntry[0],
+    );
+    expect(donor1ToSib).toBeUndefined();
+  });
 });
 
 describe('syncMetadata', () => {
