@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
+import { expect, screen, userEvent, waitFor } from 'storybook/test';
 import SuperJSON from 'superjson';
 import StoryInterviewShell from '~/.storybook/StoryInterviewShell';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
@@ -202,5 +203,983 @@ export const Default: Story = {
     };
 
     return <FamilyPedigreeStoryWrapper buildFn={buildFn} />;
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Helpers for wizard interaction tests
+// ---------------------------------------------------------------------------
+
+function buildScenarioInterview() {
+  const {
+    si,
+    nodeType,
+    nameVar,
+    ageVar,
+    sexVar,
+    edgeType,
+    relationshipVar,
+    isActiveVar,
+    isGestCarrierVar,
+    isEgoVar,
+    relationshipToEgoVar,
+  } = createFamilyPedigreeInterview(1);
+
+  si.addInformationStage({
+    title: 'Welcome',
+    text: 'Before the main stage.',
+  });
+
+  si.addStage('FamilyPedigree', {
+    label: 'Family Tree',
+    subject: { entity: 'node', type: nodeType.id },
+    initialNodes: 0,
+    nodeConfig: {
+      type: nodeType.id,
+      nodeLabelVariable: nameVar.id,
+      egoVariable: isEgoVar.id,
+      biologicalSexVariable: sexVar.id,
+      relationshipVariable: relationshipToEgoVar.id,
+      form: [{ variable: ageVar.id, prompt: 'Age' }],
+    },
+    edgeConfig: {
+      type: edgeType.id,
+      relationshipTypeVariable: relationshipVar.id,
+      isActiveVariable: isActiveVar.id,
+      isGestationalCarrierVariable: isGestCarrierVar.id,
+    },
+    censusPrompt: 'Please create your family tree.',
+  });
+
+  si.addInformationStage({
+    title: 'Complete',
+    text: 'After the main stage.',
+  });
+
+  return si;
+}
+
+const STEP_TIMEOUT = { timeout: 5000 };
+
+async function clickGetStarted() {
+  const btn = await screen.findByRole(
+    'button',
+    { name: 'Get started' },
+    STEP_TIMEOUT,
+  );
+  await userEvent.click(btn);
+  await screen.findByRole('dialog', {}, STEP_TIMEOUT);
+}
+
+async function clickContinue() {
+  const btn = await screen.findByRole(
+    'button',
+    { name: 'Continue' },
+    STEP_TIMEOUT,
+  );
+  await userEvent.click(btn);
+}
+
+async function clickFinish() {
+  const btn = await screen.findByRole(
+    'button',
+    { name: 'Get started' },
+    STEP_TIMEOUT,
+  );
+  await userEvent.click(btn);
+}
+
+async function selectRadio(name: string) {
+  const radio = await screen.findByRole('radio', { name }, STEP_TIMEOUT);
+  await userEvent.click(radio);
+}
+
+async function setNumberCounter(label: string, target: number) {
+  const spinbutton = await screen.findByRole(
+    'spinbutton',
+    { name: label },
+    STEP_TIMEOUT,
+  );
+  const currentValue = Number(spinbutton.getAttribute('aria-valuenow') ?? '0');
+  const diff = target - currentValue;
+
+  if (diff > 0) {
+    const incBtn = spinbutton.querySelector(
+      'button[aria-label="Increase by 1"]',
+    );
+    if (!incBtn) throw new Error(`No increment button found for "${label}"`);
+    for (let i = 0; i < diff; i++) {
+      await userEvent.click(incBtn);
+    }
+  } else if (diff < 0) {
+    const decBtn = spinbutton.querySelector(
+      'button[aria-label="Decrease by 1"]',
+    );
+    if (!decBtn) throw new Error(`No decrement button found for "${label}"`);
+    for (let i = 0; i < Math.abs(diff); i++) {
+      await userEvent.click(decBtn);
+    }
+  }
+}
+
+async function toggleSwitch(name: string, desiredState: boolean) {
+  const toggle = await screen.findByRole('switch', { name }, STEP_TIMEOUT);
+  const isChecked = toggle.getAttribute('aria-checked') === 'true';
+  if (isChecked !== desiredState) {
+    await userEvent.click(toggle);
+  }
+}
+
+async function typeInTextbox(value: string, index = 0) {
+  const textboxes = await screen.findAllByRole('textbox', {}, STEP_TIMEOUT);
+  const textbox = textboxes[index];
+  if (!textbox) throw new Error(`No textbox found at index ${index}`);
+  await userEvent.clear(textbox);
+  await userEvent.type(textbox, value);
+}
+
+async function uncheckCheckbox(name: string) {
+  const checkbox = await screen.findByRole('checkbox', { name }, STEP_TIMEOUT);
+  const isChecked = checkbox.getAttribute('aria-checked') === 'true';
+  if (isChecked) {
+    await userEvent.click(checkbox);
+  }
+}
+
+async function waitForStepTransition() {
+  await new Promise((resolve) => setTimeout(resolve, 500));
+}
+
+// ---------------------------------------------------------------------------
+// Scenario stories
+// ---------------------------------------------------------------------------
+
+type ScenarioStory = StoryObj<Meta<StoryArgs>>;
+
+const scenarioRender = () => {
+  const buildFn = () => buildScenarioInterview();
+  return <FamilyPedigreeStoryWrapper buildFn={buildFn} />;
+};
+
+export const NuclearFamily: ScenarioStory = {
+  args: { diseaseStepCount: 0, scaffoldingText: '' },
+  render: scenarioRender,
+  play: async () => {
+    await clickGetStarted();
+
+    // AdoptionStatusStep: No
+    await selectRadio('No');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentsCountStep: 2 parents (default), 2 siblings, no partner
+    await setNumberCounter('How many parents do you have?', 2);
+    await setNumberCounter('How many siblings do you have?', 2);
+    await selectRadio('No');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentsDetailStep: Parent 1 (bio, name known, "Dad", Male)
+    await selectRadio('Yes'); // bio parent 1
+    await toggleSwitch('I know this person\u2019s name', true);
+    await typeInTextbox('Dad', 0);
+    const maleRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Male' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(maleRadios[0]!);
+    // Parent 2 (bio, name known, "Mom", Female)
+    const yesRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Yes' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(yesRadios[1]!);
+    const switches = await screen.findAllByRole(
+      'switch',
+      { name: 'I know this person\u2019s name' },
+      STEP_TIMEOUT,
+    );
+    if (switches[1]?.getAttribute('aria-checked') !== 'true') {
+      await userEvent.click(switches[1]!);
+    }
+    await typeInTextbox('Mom', 1);
+    const femaleRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Female' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(femaleRadios[1]!);
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentPartnershipsStep: current partners
+    await selectRadio('Current partner');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // BioParentsStep: skipped (2 bio parents already)
+
+    // GestationalCarrierStep: Parent 2 (Mom)
+    await selectRadio('Mom');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // SiblingsDetailStep: 2 siblings
+    await typeInTextbox('Sibling 1', 0);
+    const sibMaleRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Male' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(sibMaleRadios[0]!);
+    await typeInTextbox('Sibling 2', 1);
+    const sibFemaleRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Female' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(sibFemaleRadios[1]!);
+    await clickContinue();
+    await waitForStepTransition();
+
+    // PartnerStep: skipped (no partner)
+
+    // OtherChildrenCountStep: 0 (default)
+    await clickFinish();
+
+    // Verify pedigree rendered
+    await waitFor(
+      async () => {
+        await expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+  },
+};
+
+export const SingleParent: ScenarioStory = {
+  args: { diseaseStepCount: 0, scaffoldingText: '' },
+  render: scenarioRender,
+  play: async () => {
+    await clickGetStarted();
+
+    // AdoptionStatusStep: No
+    await selectRadio('No');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentsCountStep: 1 parent, 0 siblings, no partner
+    await setNumberCounter('How many parents do you have?', 1);
+    await setNumberCounter('How many siblings do you have?', 0);
+    await selectRadio('No');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentsDetailStep: Parent 1 (bio, name known, "Mom", Female)
+    await selectRadio('Yes');
+    await toggleSwitch('I know this person\u2019s name', true);
+    await typeInTextbox('Mom', 0);
+    await selectRadio('Female');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentPartnershipsStep: skipped (< 2 parents)
+
+    // BioParentsStep: 1 bio parent, need 1 more
+    // Bio parent 2 — name unknown, Male
+    await selectRadio('Male');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // GestationalCarrierStep: Parent 1 (Mom)
+    await selectRadio('Mom');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // SiblingsDetailStep: skipped (0 siblings)
+    // PartnerStep: skipped (no partner)
+
+    // OtherChildrenCountStep: 0
+    await clickFinish();
+
+    await waitFor(
+      async () => {
+        await expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+  },
+};
+
+export const SameSexMothers: ScenarioStory = {
+  args: { diseaseStepCount: 0, scaffoldingText: '' },
+  render: scenarioRender,
+  play: async () => {
+    await clickGetStarted();
+
+    // AdoptionStatusStep: No
+    await selectRadio('No');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentsCountStep: 2 parents, 0 siblings, no partner
+    await setNumberCounter('How many parents do you have?', 2);
+    await setNumberCounter('How many siblings do you have?', 0);
+    await selectRadio('No');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentsDetailStep: both bio, both female
+    // Parent 1: bio, "Mother A", Female
+    await selectRadio('Yes');
+    await toggleSwitch('I know this person\u2019s name', true);
+    await typeInTextbox('Mother A', 0);
+    const femaleRadios1 = await screen.findAllByRole(
+      'radio',
+      { name: 'Female' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(femaleRadios1[0]!);
+
+    // Parent 2: bio, "Mother B", Female
+    const yesRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Yes' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(yesRadios[1]!);
+    const switches = await screen.findAllByRole(
+      'switch',
+      { name: 'I know this person\u2019s name' },
+      STEP_TIMEOUT,
+    );
+    if (switches[1]?.getAttribute('aria-checked') !== 'true') {
+      await userEvent.click(switches[1]!);
+    }
+    await typeInTextbox('Mother B', 1);
+    const femaleRadios2 = await screen.findAllByRole(
+      'radio',
+      { name: 'Female' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(femaleRadios2[1]!);
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentPartnershipsStep: current partners
+    await selectRadio('Current partner');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // BioParentsStep: skipped (2 bio parents)
+
+    // GestationalCarrierStep: Parent 1 (Mother A)
+    await selectRadio('Mother A');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // SiblingsDetailStep: skipped (0 siblings)
+    // PartnerStep: skipped (no partner)
+
+    // OtherChildrenCountStep: 0
+    await clickFinish();
+
+    await waitFor(
+      async () => {
+        await expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+  },
+};
+
+export const SpermDonor: ScenarioStory = {
+  args: { diseaseStepCount: 0, scaffoldingText: '' },
+  render: scenarioRender,
+  play: async () => {
+    await clickGetStarted();
+
+    // AdoptionStatusStep: No
+    await selectRadio('No');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentsCountStep: 3 parents, 1 sibling, no partner
+    await setNumberCounter('How many parents do you have?', 3);
+    await setNumberCounter('How many siblings do you have?', 1);
+    await selectRadio('No');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentsDetailStep: 3 parents
+    // Parent 1: bio, "Mom A", Female
+    await selectRadio('Yes');
+    await toggleSwitch('I know this person\u2019s name', true);
+    await typeInTextbox('Mom A', 0);
+    const femaleRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Female' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(femaleRadios[0]!);
+
+    // Parent 2: bio, "Mom B", Female
+    const yesRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Yes' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(yesRadios[1]!);
+    const switches = await screen.findAllByRole(
+      'switch',
+      { name: 'I know this person\u2019s name' },
+      STEP_TIMEOUT,
+    );
+    if (switches[1]?.getAttribute('aria-checked') !== 'true') {
+      await userEvent.click(switches[1]!);
+    }
+    await typeInTextbox('Mom B', 1);
+    const femaleRadios2 = await screen.findAllByRole(
+      'radio',
+      { name: 'Female' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(femaleRadios2[1]!);
+
+    // Parent 3: donor (not bio), "Donor", Male
+    // Bio field for parent 3 should be forced to No since we already have 2 bio
+    const switches3 = await screen.findAllByRole(
+      'switch',
+      { name: 'I know this person\u2019s name' },
+      STEP_TIMEOUT,
+    );
+    if (switches3[2]?.getAttribute('aria-checked') !== 'true') {
+      await userEvent.click(switches3[2]!);
+    }
+    await typeInTextbox('Donor', 2);
+    const maleRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Male' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(maleRadios[2]!);
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentPartnershipsStep: Mom A + Mom B = current, rest = not partners
+    // Partnership 0-1: Current partner
+    const currentRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Current partner' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(currentRadios[0]!);
+    // Partnership 0-2: Not partners
+    const notRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Not partners' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(notRadios[1]!);
+    // Partnership 1-2: Not partners
+    const notRadios2 = await screen.findAllByRole(
+      'radio',
+      { name: 'Not partners' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(notRadios2[2]!);
+    await clickContinue();
+    await waitForStepTransition();
+
+    // BioParentsStep: skipped (2 bio parents)
+
+    // GestationalCarrierStep: Parent 1 (Mom A)
+    await selectRadio('Mom A');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // SiblingsDetailStep: 1 sibling, shared parents = all 3
+    await typeInTextbox('Sib', 0);
+    const sibSexRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Male' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(sibSexRadios[0]!);
+    // All parents are shared by default — leave checkboxes as-is
+    await clickContinue();
+    await waitForStepTransition();
+
+    // PartnerStep: skipped (no partner)
+
+    // OtherChildrenCountStep: 0
+    await clickFinish();
+
+    await waitFor(
+      async () => {
+        await expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+  },
+};
+
+export const BlendedFamily: ScenarioStory = {
+  args: { diseaseStepCount: 0, scaffoldingText: '' },
+  render: scenarioRender,
+  play: async () => {
+    await clickGetStarted();
+
+    // AdoptionStatusStep: No
+    await selectRadio('No');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentsCountStep: 3 parents, 0 siblings, no partner
+    await setNumberCounter('How many parents do you have?', 3);
+    await setNumberCounter('How many siblings do you have?', 0);
+    await selectRadio('No');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentsDetailStep: 3 parents
+    // Parent 1: bio, "Dad", Male
+    await selectRadio('Yes');
+    await toggleSwitch('I know this person\u2019s name', true);
+    await typeInTextbox('Dad', 0);
+    const maleRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Male' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(maleRadios[0]!);
+
+    // Parent 2: bio, "Bio Mom", Female
+    const yesRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Yes' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(yesRadios[1]!);
+    const switches = await screen.findAllByRole(
+      'switch',
+      { name: 'I know this person\u2019s name' },
+      STEP_TIMEOUT,
+    );
+    if (switches[1]?.getAttribute('aria-checked') !== 'true') {
+      await userEvent.click(switches[1]!);
+    }
+    await typeInTextbox('Bio Mom', 1);
+    const femaleRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Female' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(femaleRadios[1]!);
+
+    // Parent 3: social (not bio — forced), "Step Mom", Female
+    const switches3 = await screen.findAllByRole(
+      'switch',
+      { name: 'I know this person\u2019s name' },
+      STEP_TIMEOUT,
+    );
+    if (switches3[2]?.getAttribute('aria-checked') !== 'true') {
+      await userEvent.click(switches3[2]!);
+    }
+    await typeInTextbox('Step Mom', 2);
+    const femaleRadios3 = await screen.findAllByRole(
+      'radio',
+      { name: 'Female' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(femaleRadios3[2]!);
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentPartnershipsStep:
+    // Dad + Bio Mom = ex-partners
+    const exRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Ex-partner' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(exRadios[0]!);
+    // Dad + Step Mom = current partners
+    const currentRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Current partner' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(currentRadios[1]!);
+    // Bio Mom + Step Mom = not partners
+    const notRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Not partners' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(notRadios[2]!);
+    await clickContinue();
+    await waitForStepTransition();
+
+    // BioParentsStep: skipped (2 bio parents)
+
+    // GestationalCarrierStep: Parent 2 (Bio Mom)
+    await selectRadio('Bio Mom');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // SiblingsDetailStep: skipped (0 siblings)
+    // PartnerStep: skipped (no partner)
+
+    // OtherChildrenCountStep: 0
+    await clickFinish();
+
+    await waitFor(
+      async () => {
+        await expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+  },
+};
+
+export const AdoptedIn: ScenarioStory = {
+  args: { diseaseStepCount: 0, scaffoldingText: '' },
+  render: scenarioRender,
+  play: async () => {
+    await clickGetStarted();
+
+    // AdoptionStatusStep: adopted in
+    await selectRadio('Yes, I was adopted into my family');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentsCountStep: 2 parents, 0 siblings, no partner
+    await setNumberCounter('How many parents do you have?', 2);
+    await setNumberCounter('How many siblings do you have?', 0);
+    await selectRadio('No');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentsDetailStep: both social (not bio)
+    // Parent 1: not bio, "Adoptive Dad", Male
+    await selectRadio('No'); // not bio parent
+    await toggleSwitch('I know this person\u2019s name', true);
+    await typeInTextbox('Adoptive Dad', 0);
+    const maleRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Male' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(maleRadios[0]!);
+
+    // Parent 2: not bio, "Adoptive Mom", Female
+    const noRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'No' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(noRadios[1]!);
+    const switches = await screen.findAllByRole(
+      'switch',
+      { name: 'I know this person\u2019s name' },
+      STEP_TIMEOUT,
+    );
+    if (switches[1]?.getAttribute('aria-checked') !== 'true') {
+      await userEvent.click(switches[1]!);
+    }
+    await typeInTextbox('Adoptive Mom', 1);
+    const femaleRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Female' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(femaleRadios[1]!);
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentPartnershipsStep: current partners
+    await selectRadio('Current partner');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // BioParentsStep: 0 bio parents, need 2
+    // Bio parent 1: name unknown, Male
+    const bioMaleRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Male' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(bioMaleRadios[0]!);
+    // Bio parent 2: name unknown, Female
+    const bioFemaleRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Female' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(bioFemaleRadios[1]!);
+    await clickContinue();
+    await waitForStepTransition();
+
+    // GestationalCarrierStep: bio parent 2 (female)
+    // Bio parents are appended after regular parents in the options list
+    // Parents: [Adoptive Dad (0), Adoptive Mom (1), Bio parent 1 (2), Bio parent 2 (3)]
+    // Bio parent 2 = index 3, but label is "Parent 4" since no name known
+    await selectRadio('Parent 4');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // SiblingsDetailStep: skipped (0 siblings)
+    // PartnerStep: skipped (no partner)
+
+    // OtherChildrenCountStep: 0
+    await clickFinish();
+
+    await waitFor(
+      async () => {
+        await expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+  },
+};
+
+export const SingleParentTwoDonors: ScenarioStory = {
+  args: { diseaseStepCount: 0, scaffoldingText: '' },
+  render: scenarioRender,
+  play: async () => {
+    await clickGetStarted();
+
+    // AdoptionStatusStep: No
+    await selectRadio('No');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentsCountStep: 3 parents, 1 sibling, no partner
+    await setNumberCounter('How many parents do you have?', 3);
+    await setNumberCounter('How many siblings do you have?', 1);
+    await selectRadio('No');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentsDetailStep: 3 parents
+    // Parent 1: bio, "Mom", Female
+    await selectRadio('Yes');
+    await toggleSwitch('I know this person\u2019s name', true);
+    await typeInTextbox('Mom', 0);
+    const femaleRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Female' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(femaleRadios[0]!);
+
+    // Parent 2: bio, "Donor 1", Male
+    const yesRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Yes' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(yesRadios[1]!);
+    const switches = await screen.findAllByRole(
+      'switch',
+      { name: 'I know this person\u2019s name' },
+      STEP_TIMEOUT,
+    );
+    if (switches[1]?.getAttribute('aria-checked') !== 'true') {
+      await userEvent.click(switches[1]!);
+    }
+    await typeInTextbox('Donor 1', 1);
+    const maleRadios1 = await screen.findAllByRole(
+      'radio',
+      { name: 'Male' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(maleRadios1[1]!);
+
+    // Parent 3: donor (not bio — forced), "Donor 2", Male
+    const switches3 = await screen.findAllByRole(
+      'switch',
+      { name: 'I know this person\u2019s name' },
+      STEP_TIMEOUT,
+    );
+    if (switches3[2]?.getAttribute('aria-checked') !== 'true') {
+      await userEvent.click(switches3[2]!);
+    }
+    await typeInTextbox('Donor 2', 2);
+    const maleRadios2 = await screen.findAllByRole(
+      'radio',
+      { name: 'Male' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(maleRadios2[2]!);
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentPartnershipsStep: all not partners
+    const notRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Not partners' },
+      STEP_TIMEOUT,
+    );
+    for (const radio of notRadios) {
+      await userEvent.click(radio);
+    }
+    await clickContinue();
+    await waitForStepTransition();
+
+    // BioParentsStep: skipped (2 bio parents: Mom + Donor 1)
+
+    // GestationalCarrierStep: Parent 1 (Mom)
+    await selectRadio('Mom');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // SiblingsDetailStep: 1 sibling
+    // Shared parents: Mom (0) + Donor 2 (2) — uncheck Donor 1 (1)
+    await typeInTextbox('Half Sib', 0);
+    const sibSexRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Female' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(sibSexRadios[0]!);
+    // Uncheck Donor 1 (parent index 1)
+    await uncheckCheckbox('Donor 1');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // PartnerStep: skipped (no partner)
+
+    // OtherChildrenCountStep: 0
+    await clickFinish();
+
+    await waitFor(
+      async () => {
+        await expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+  },
+};
+
+export const WithPartnerAndChildren: ScenarioStory = {
+  args: { diseaseStepCount: 0, scaffoldingText: '' },
+  render: scenarioRender,
+  play: async () => {
+    await clickGetStarted();
+
+    // AdoptionStatusStep: No
+    await selectRadio('No');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentsCountStep: 2 parents, 0 siblings, has partner
+    await setNumberCounter('How many parents do you have?', 2);
+    await setNumberCounter('How many siblings do you have?', 0);
+    await selectRadio('Yes');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentsDetailStep: 2 parents
+    // Parent 1: bio, "Dad", Male
+    await selectRadio('Yes');
+    await toggleSwitch('I know this person\u2019s name', true);
+    await typeInTextbox('Dad', 0);
+    const maleRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Male' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(maleRadios[0]!);
+
+    // Parent 2: bio, "Mom", Female
+    const yesRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Yes' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(yesRadios[1]!);
+    const switches = await screen.findAllByRole(
+      'switch',
+      { name: 'I know this person\u2019s name' },
+      STEP_TIMEOUT,
+    );
+    if (switches[1]?.getAttribute('aria-checked') !== 'true') {
+      await userEvent.click(switches[1]!);
+    }
+    await typeInTextbox('Mom', 1);
+    const femaleRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Female' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(femaleRadios[1]!);
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ParentPartnershipsStep: current partners
+    await selectRadio('Current partner');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // BioParentsStep: skipped (2 bio parents)
+
+    // GestationalCarrierStep: Parent 2 (Mom)
+    await selectRadio('Mom');
+    await clickContinue();
+    await waitForStepTransition();
+
+    // SiblingsDetailStep: skipped (0 siblings)
+
+    // PartnerStep: "Jane", Female, 2 children with partner
+    await typeInTextbox('Jane', 0);
+    await selectRadio('Female');
+    await setNumberCounter(
+      'How many children do you have with your partner?',
+      2,
+    );
+    await clickContinue();
+    await waitForStepTransition();
+
+    // ChildrenWithPartnerDetailStep: 2 children
+    await typeInTextbox('Child A', 0);
+    const childMaleRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Male' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(childMaleRadios[0]!);
+    await typeInTextbox('Child B', 1);
+    const childFemaleRadios = await screen.findAllByRole(
+      'radio',
+      { name: 'Female' },
+      STEP_TIMEOUT,
+    );
+    await userEvent.click(childFemaleRadios[1]!);
+    await clickContinue();
+    await waitForStepTransition();
+
+    // OtherChildrenCountStep: 1
+    await setNumberCounter(
+      'How many children do you have from other relationships?',
+      1,
+    );
+    await clickContinue();
+    await waitForStepTransition();
+
+    // OtherChildrenDetailStep: 1 child
+    await typeInTextbox('Other Child', 0);
+    await selectRadio('Male');
+    await clickFinish();
+
+    await waitFor(
+      async () => {
+        await expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
   },
 };
