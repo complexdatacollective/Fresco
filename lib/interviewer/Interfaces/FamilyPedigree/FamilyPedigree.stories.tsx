@@ -1150,6 +1150,15 @@ export const SingleParentTwoDonors: ScenarioStory = {
       },
       { timeout: 10000 },
     );
+
+    // Verify both donors appear in the pedigree
+    await waitFor(
+      async () => {
+        await expect(screen.getByText('Donor 1')).toBeInTheDocument();
+        await expect(screen.getByText('Donor 2')).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
   },
 };
 
