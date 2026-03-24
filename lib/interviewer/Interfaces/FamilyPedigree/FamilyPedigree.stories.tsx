@@ -283,7 +283,7 @@ async function clickContinue() {
 async function clickFinish() {
   const btn = await screen.findByRole(
     'button',
-    { name: 'Get started' },
+    { name: 'Finish' },
     STEP_TIMEOUT,
   );
   await userEvent.click(btn);
