@@ -4,19 +4,25 @@ import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import useDialog from '~/lib/dialogs/useDialog';
 import FamilyPedigreePlaceholder from '~/lib/pedigree-layout/components/FamilyPedigreePlaceholder';
+import AdoptionStatusStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/AdoptionStatusStep';
 import BioParentsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/BioParentsStep';
 import ChildrenWithPartnerDetailStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/ChildrenWithPartnerDetailStep';
+import GestationalCarrierStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/GestationalCarrierStep';
 import OtherChildrenCountStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/OtherChildrenCountStep';
 import OtherChildrenDetailStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/OtherChildrenDetailStep';
+import ParentPartnershipsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/ParentPartnershipsStep';
 import ParentsCountStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/ParentsCountStep';
 import ParentsDetailStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/ParentsDetailStep';
 import PartnerStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PartnerStep';
 import SiblingsDetailStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/SiblingsDetailStep';
 import {
+  type AdoptionStatus,
   type BioParentDetail,
   type ParentDetail,
+  type ParentPartnership,
   type PersonDetail,
   type QuickStartData,
+  type SiblingDetail,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
 type QuickStartFormProps = {
@@ -33,6 +39,10 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
       progress: null,
       steps: [
         {
+          title: 'Adoption status',
+          content: AdoptionStatusStep,
+        },
+        {
           title: 'Your family',
           content: ParentsCountStep,
         },
@@ -44,12 +54,21 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
           skip: (d) => (d.parentCount as number | undefined) === 0,
         },
         {
+          title: 'Parent partnerships',
+          content: ParentPartnershipsStep,
+          skip: (d) => ((d.parentCount as number | undefined) ?? 0) < 2,
+        },
+        {
           title: 'Biological parents',
           content: BioParentsStep,
           skip: (d) => {
             const parents = (d.parents as ParentDetail[] | undefined) ?? [];
             return parents.filter((p) => p.biological !== false).length >= 2;
           },
+        },
+        {
+          title: 'Gestational carrier',
+          content: GestationalCarrierStep,
         },
         {
           title: 'Sibling details',
@@ -86,10 +105,24 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
         },
       ],
       onFinish: (data: Record<string, unknown>) => {
+        const rawAdoption = data.adoptionStatus;
+        const adoptionStatus: AdoptionStatus | undefined =
+          rawAdoption === 'in' ||
+          rawAdoption === 'out' ||
+          rawAdoption === 'by-relative'
+            ? rawAdoption
+            : undefined;
+
         const quickStartData: QuickStartData = {
+          adoptionStatus,
           parents: (data.parents as ParentDetail[] | undefined) ?? [],
+          parentPartnerships:
+            (data.parentPartnerships as ParentPartnership[] | undefined) ?? [],
+          gestationalCarrierParentIndex: data.gestationalCarrierParentIndex as
+            | number
+            | undefined,
           bioParents: (data.bioParents as BioParentDetail[] | undefined) ?? [],
-          siblings: (data.siblings as PersonDetail[] | undefined) ?? [],
+          siblings: (data.siblings as SiblingDetail[] | undefined) ?? [],
           partner: (data.hasPartner as boolean | undefined)
             ? {
                 hasPartner: true,
