@@ -3,7 +3,10 @@
 import Field from '~/lib/form/components/Field/Field';
 import InputField from '~/lib/form/components/fields/InputField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
-import { PARENT_EDGE_TYPE_OPTIONS } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
+import {
+  PARENT_EDGE_TYPE_OPTIONS,
+  SEX_OPTIONS,
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
 import {
   type NodeData,
   type StoreEdge,
@@ -62,6 +65,13 @@ export default function AddPersonFields({
         label="Name"
         component={InputField}
         placeholder="Enter name or leave blank if unknown"
+      />
+
+      <Field
+        name="biologicalSex"
+        label="Sex assigned at birth"
+        component={RadioGroupField}
+        options={SEX_OPTIONS}
       />
 
       {mode === 'parent' && (

@@ -10,6 +10,7 @@ import AddPersonFields, {
   type AddPersonMode,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/AddPersonForm';
 import { useFamilyPedigreeStore } from '~/lib/interviewer/Interfaces/FamilyPedigree/FamilyPedigreeProvider';
+import { sexToShape } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import FamilyPedigreeNode from '~/lib/pedigree-layout/components/FamilyPedigreeNode';
 import NodeContextMenu, {
   type NodeContextMenuAction,
@@ -50,7 +51,16 @@ export default function PedigreeView() {
     if (!result) return;
 
     const name = typeof result.name === 'string' ? result.name : '';
-    const newNodeId = addNode({ label: name, isEgo: false });
+    const biologicalSex =
+      typeof result.biologicalSex === 'string'
+        ? result.biologicalSex
+        : undefined;
+    const newNodeId = addNode({
+      label: name,
+      biologicalSex,
+      shape: sexToShape(biologicalSex),
+      isEgo: false,
+    });
 
     switch (mode) {
       case 'parent':
