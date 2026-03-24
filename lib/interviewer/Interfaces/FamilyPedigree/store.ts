@@ -53,10 +53,22 @@ export type BioParentDetail = PersonDetail & {
   nameKnown: boolean;
 };
 
+export type SiblingDetail = PersonDetail & {
+  sharedParentIndices: number[];
+};
+
+export type ParentPartnership = {
+  parentIndices: [number, number];
+  isActive: boolean;
+};
+
 export type QuickStartData = {
+  adoptionStatus?: AdoptionStatus;
   parents: ParentDetail[];
+  parentPartnerships: ParentPartnership[];
+  gestationalCarrierParentIndex?: number;
   bioParents: BioParentDetail[];
-  siblings: PersonDetail[];
+  siblings: SiblingDetail[];
   partner: (PersonDetail & { hasPartner: true }) | { hasPartner: false };
   childrenWithPartner: PersonDetail[];
   otherChildren: PersonDetail[];
@@ -188,7 +200,11 @@ export const createFamilyPedigreeStore = (
         generateQuickStartNetwork: (data) => {
           get().clearNetwork();
 
-          const egoId = get().addNode({ label: '', isEgo: true });
+          const egoId = get().addNode({
+            label: '',
+            isEgo: true,
+            adoptionStatus: data.adoptionStatus,
+          });
 
           const parentIds: string[] = [];
           for (const parent of data.parents) {
@@ -197,21 +213,40 @@ export const createFamilyPedigreeStore = (
               label: parent.name,
             });
             parentIds.push(parentId);
-            get().addEdge({
+            const edgeId = get().addEdge({
               source: parentId,
               target: egoId,
               relationshipType: parent.edgeType,
               isActive: true,
             });
+
+            // Mark gestational carrier on the parent→ego edge
+            if (
+              data.gestationalCarrierParentIndex !== undefined &&
+              parentIds.length - 1 === data.gestationalCarrierParentIndex
+            ) {
+              set((state) => {
+                const edge = state.network.edges.get(edgeId);
+                if (edge && edge.relationshipType !== 'partner') {
+                  edge.isGestationalCarrier = true;
+                }
+              });
+            }
           }
 
-          if (parentIds.length >= 2) {
-            get().addEdge({
-              source: parentIds[0]!,
-              target: parentIds[1]!,
-              relationshipType: 'partner',
-              isActive: true,
-            });
+          // Create partner edges from explicit partnerships
+          for (const partnership of data.parentPartnerships) {
+            const [i, j] = partnership.parentIndices;
+            const sourceId = parentIds[i];
+            const targetId = parentIds[j];
+            if (sourceId && targetId) {
+              get().addEdge({
+                source: sourceId,
+                target: targetId,
+                relationshipType: 'partner',
+                isActive: partnership.isActive,
+              });
+            }
           }
 
           for (const bp of data.bioParents) {
@@ -229,7 +264,9 @@ export const createFamilyPedigreeStore = (
 
           for (const sibling of data.siblings) {
             const siblingId = get().addNode(personToNodeData(sibling));
-            for (const parentId of parentIds) {
+            for (const parentIdx of sibling.sharedParentIndices) {
+              const parentId = parentIds[parentIdx];
+              if (!parentId) continue;
               const parentEdge = [...get().network.edges.values()].find(
                 (e) =>
                   e.relationshipType !== 'partner' &&

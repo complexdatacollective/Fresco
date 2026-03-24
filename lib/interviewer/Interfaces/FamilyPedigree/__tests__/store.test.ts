@@ -250,6 +250,7 @@ const quickStart = (
   overrides: Partial<QuickStartData> = {},
 ): QuickStartData => ({
   parents: [],
+  parentPartnerships: [],
   bioParents: [],
   siblings: [],
   partner: { hasPartner: false },
@@ -280,6 +281,7 @@ describe('generateQuickStartNetwork', () => {
           { name: '', nameKnown: false, edgeType: 'biological' },
           { name: '', nameKnown: false, edgeType: 'biological' },
         ],
+        parentPartnerships: [{ parentIndices: [0, 1], isActive: true }],
       }),
     );
 
@@ -305,7 +307,11 @@ describe('generateQuickStartNetwork', () => {
           { name: '', nameKnown: false, edgeType: 'biological' },
           { name: '', nameKnown: false, edgeType: 'biological' },
         ],
-        siblings: [{ name: '' }, { name: '' }],
+        parentPartnerships: [{ parentIndices: [0, 1], isActive: true }],
+        siblings: [
+          { name: '', sharedParentIndices: [0, 1] },
+          { name: '', sharedParentIndices: [0, 1] },
+        ],
       }),
     );
 
@@ -367,6 +373,102 @@ describe('generateQuickStartNetwork', () => {
     );
     expect(parentEdges).toHaveLength(3);
   });
+
+  it('sets adoption status on ego', () => {
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    store
+      .getState()
+      .generateQuickStartNetwork(quickStart({ adoptionStatus: 'in' }));
+
+    const ego = [...store.getState().network.nodes.values()].find(
+      (n) => n.isEgo,
+    );
+    expect(ego?.adoptionStatus).toBe('in');
+  });
+
+  it('creates inactive partner edge for ex-partners', () => {
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    store.getState().generateQuickStartNetwork(
+      quickStart({
+        parents: [
+          { name: 'Mom', nameKnown: true, edgeType: 'biological' },
+          { name: 'Dad', nameKnown: true, edgeType: 'biological' },
+        ],
+        parentPartnerships: [{ parentIndices: [0, 1], isActive: false }],
+      }),
+    );
+
+    const partnerEdge = [...store.getState().network.edges.values()].find(
+      (e) => e.relationshipType === 'partner',
+    );
+    expect(partnerEdge).toBeDefined();
+    expect(partnerEdge?.isActive).toBe(false);
+  });
+
+  it('sets gestational carrier flag on parent edge', () => {
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    store.getState().generateQuickStartNetwork(
+      quickStart({
+        parents: [
+          { name: 'Mom', nameKnown: true, edgeType: 'biological' },
+          { name: 'Donor', nameKnown: true, edgeType: 'donor' },
+        ],
+        parentPartnerships: [],
+        gestationalCarrierParentIndex: 0,
+      }),
+    );
+
+    const egoId = [...store.getState().network.nodes.entries()].find(
+      ([, n]) => n.isEgo,
+    )![0];
+    const momEdge = [...store.getState().network.edges.values()].find(
+      (e) =>
+        e.target === egoId &&
+        e.relationshipType !== 'partner' &&
+        e.relationshipType === 'biological',
+    );
+    expect(momEdge).toBeDefined();
+    if (momEdge && momEdge.relationshipType !== 'partner') {
+      expect(momEdge.isGestationalCarrier).toBe(true);
+    }
+  });
+
+  it('creates per-sibling parent assignments', () => {
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    store.getState().generateQuickStartNetwork(
+      quickStart({
+        parents: [
+          { name: 'Mom', nameKnown: true, edgeType: 'biological' },
+          { name: 'Donor1', nameKnown: true, edgeType: 'donor' },
+          { name: 'Donor2', nameKnown: true, edgeType: 'donor' },
+        ],
+        parentPartnerships: [],
+        siblings: [
+          { name: 'Sib1', sharedParentIndices: [0, 1] },
+          { name: 'Sib2', sharedParentIndices: [0, 2] },
+        ],
+      }),
+    );
+
+    const { nodes, edges } = store.getState().network;
+    // ego + 3 parents + 2 siblings = 6
+    expect(nodes.size).toBe(6);
+
+    const sib1Entry = [...nodes.entries()].find(([, n]) => n.label === 'Sib1')!;
+    const sib2Entry = [...nodes.entries()].find(([, n]) => n.label === 'Sib2')!;
+
+    const sib1ParentEdges = [...edges.values()].filter(
+      (e) => e.target === sib1Entry[0] && e.relationshipType !== 'partner',
+    );
+    const sib2ParentEdges = [...edges.values()].filter(
+      (e) => e.target === sib2Entry[0] && e.relationshipType !== 'partner',
+    );
+
+    // Sib1 shares parents [0, 1] (Mom + Donor1)
+    expect(sib1ParentEdges).toHaveLength(2);
+    // Sib2 shares parents [0, 2] (Mom + Donor2)
+    expect(sib2ParentEdges).toHaveLength(2);
+  });
 });
 
 describe('syncMetadata', () => {
@@ -404,17 +506,15 @@ describe('integration: full flow', () => {
       mockDispatch,
     );
 
-    store.getState().generateQuickStartNetwork({
-      parents: [
-        { name: '', nameKnown: false, edgeType: 'biological' },
-        { name: '', nameKnown: false, edgeType: 'biological' },
-      ],
-      bioParents: [],
-      siblings: [],
-      partner: { hasPartner: false },
-      childrenWithPartner: [],
-      otherChildren: [],
-    });
+    store.getState().generateQuickStartNetwork(
+      quickStart({
+        parents: [
+          { name: '', nameKnown: false, edgeType: 'biological' },
+          { name: '', nameKnown: false, edgeType: 'biological' },
+        ],
+        parentPartnerships: [{ parentIndices: [0, 1], isActive: true }],
+      }),
+    );
     expect(store.getState().network.nodes.size).toBe(3);
 
     const egoEntry = [...store.getState().network.nodes.entries()].find(
