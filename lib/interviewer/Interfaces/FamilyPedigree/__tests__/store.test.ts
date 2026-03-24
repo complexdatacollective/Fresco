@@ -4,12 +4,22 @@ import {
   type NodeData,
   type QuickStartData,
   type StoreEdge,
+  type VariableConfig,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import { type useAppDispatch } from '~/lib/interviewer/store';
 
+const testConfig: VariableConfig = {
+  nodeLabelVariable: 'label',
+  biologicalSexVariable: 'sex',
+  egoVariable: 'isEgo',
+  relationshipTypeVariable: 'relationshipType',
+  isActiveVariable: 'isActive',
+  isGestationalCarrierVariable: 'isGestationalCarrier',
+};
+
 describe('store creation', () => {
   it('creates an empty store', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map());
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     const state = store.getState();
 
     expect(state.step).toBe('scaffolding');
@@ -34,7 +44,7 @@ describe('store creation', () => {
       ],
     ]);
 
-    const store = createFamilyPedigreeStore(nodes, edges);
+    const store = createFamilyPedigreeStore(nodes, edges, testConfig);
     const state = store.getState();
 
     expect(state.network.nodes.size).toBe(2);
@@ -45,7 +55,7 @@ describe('store creation', () => {
 
 describe('addNode', () => {
   it('creates a node with a generated id', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map());
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     const id = store
       .getState()
       .addNode({ label: 'test', shape: 'square', isEgo: false });
@@ -55,7 +65,7 @@ describe('addNode', () => {
   });
 
   it('stores data correctly without the id field', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map());
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     const id = store
       .getState()
       .addNode({ label: 'ego', shape: 'circle', isEgo: true, readOnly: false });
@@ -71,7 +81,7 @@ describe('addNode', () => {
   });
 
   it('uses a provided id', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map());
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     const id = store
       .getState()
       .addNode({ id: 'custom-id', label: 'test', isEgo: false });
@@ -83,7 +93,7 @@ describe('addNode', () => {
 
 describe('updateNode', () => {
   it('merges partial updates', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map());
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     const id = store.getState().addNode({
       label: 'test',
       shape: 'square',
@@ -103,7 +113,7 @@ describe('updateNode', () => {
 
 describe('removeNode', () => {
   it('deletes the node and cascading edges', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map());
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     const parentId = store
       .getState()
       .addNode({ label: 'parent', shape: 'circle', isEgo: false });
@@ -142,7 +152,7 @@ describe('removeNode', () => {
 
 describe('addEdge', () => {
   it('creates a parent edge with edgeType', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map());
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     const id = store.getState().addEdge({
       source: 'n1',
       target: 'n2',
@@ -159,7 +169,7 @@ describe('addEdge', () => {
   });
 
   it('creates a partner edge with current flag', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map());
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     const id = store.getState().addEdge({
       source: 'n1',
       target: 'n2',
@@ -176,7 +186,7 @@ describe('addEdge', () => {
   });
 
   it('strips the id field from stored data', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map());
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     const id = store.getState().addEdge({
       id: 'custom-edge',
       source: 'n1',
@@ -193,7 +203,7 @@ describe('addEdge', () => {
 
 describe('removeEdge', () => {
   it('deletes the edge', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map());
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     const id = store.getState().addEdge({
       source: 'n1',
       target: 'n2',
@@ -209,7 +219,7 @@ describe('removeEdge', () => {
 
 describe('clearNetwork', () => {
   it('removes all nodes and edges', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map());
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     store.getState().addNode({ label: 'a', isEgo: true });
     store.getState().addNode({ label: 'b', isEgo: false });
     store.getState().addEdge({
@@ -228,7 +238,7 @@ describe('clearNetwork', () => {
 
 describe('setStep', () => {
   it('changes step', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map());
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     expect(store.getState().step).toBe('scaffolding');
 
     store.getState().setStep('diseaseNomination');
@@ -250,7 +260,7 @@ const quickStart = (
 
 describe('generateQuickStartNetwork', () => {
   it('creates only ego when all counts are zero', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map());
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     store.getState().generateQuickStartNetwork(quickStart());
 
     const { nodes, edges } = store.getState().network;
@@ -263,7 +273,7 @@ describe('generateQuickStartNetwork', () => {
   });
 
   it('creates parents with parent edges and partner group', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map());
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     store.getState().generateQuickStartNetwork(
       quickStart({
         parents: [
@@ -288,7 +298,7 @@ describe('generateQuickStartNetwork', () => {
   });
 
   it('creates siblings linked to same parents as ego', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map());
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     store.getState().generateQuickStartNetwork(
       quickStart({
         parents: [
@@ -315,7 +325,7 @@ describe('generateQuickStartNetwork', () => {
   });
 
   it('creates partner and children with partner', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map());
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     store.getState().generateQuickStartNetwork(
       quickStart({
         partner: { hasPartner: true, name: '' },
@@ -340,7 +350,7 @@ describe('generateQuickStartNetwork', () => {
   });
 
   it('creates solo children linked only to ego', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map());
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     store.getState().generateQuickStartNetwork(
       quickStart({
         otherChildren: [{ name: '' }, { name: '' }, { name: '' }],
@@ -367,7 +377,12 @@ describe('syncMetadata', () => {
       return action;
     }) as ReturnType<typeof useAppDispatch>;
 
-    const store = createFamilyPedigreeStore(new Map(), new Map(), mockDispatch);
+    const store = createFamilyPedigreeStore(
+      new Map(),
+      new Map(),
+      testConfig,
+      mockDispatch,
+    );
     store.getState().addNode({ label: 'Ego', isEgo: true });
     store.getState().syncMetadata();
     expect(dispatched.length).toBe(1);
@@ -382,7 +397,12 @@ describe('integration: full flow', () => {
       return action;
     }) as ReturnType<typeof useAppDispatch>;
 
-    const store = createFamilyPedigreeStore(new Map(), new Map(), mockDispatch);
+    const store = createFamilyPedigreeStore(
+      new Map(),
+      new Map(),
+      testConfig,
+      mockDispatch,
+    );
 
     store.getState().generateQuickStartNetwork({
       parents: [

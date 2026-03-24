@@ -293,26 +293,15 @@ export const createFamilyPedigreeStore = (
           const serializedNodes = [...nodes.entries()].map(([id, node]) => ({
             id,
             interviewNetworkId: node.interviewNetworkId,
-            [variableConfig.nodeLabelVariable]: node.label,
-            [variableConfig.biologicalSexVariable]: node.biologicalSex,
-            [variableConfig.egoVariable]: node.isEgo,
+            label: node.label,
+            shape: node.shape,
             isEgo: node.isEgo,
             adoptionStatus: node.adoptionStatus,
           }));
 
           const serializedEdges = [...edges.entries()].map(([id, edge]) => ({
             id,
-            source: edge.source,
-            target: edge.target,
-            [variableConfig.relationshipTypeVariable]: edge.relationshipType,
-            [variableConfig.isActiveVariable]: edge.isActive,
-            ...(edge.relationshipType !== 'partner' &&
-            edge.isGestationalCarrier !== undefined
-              ? {
-                  [variableConfig.isGestationalCarrierVariable]:
-                    edge.isGestationalCarrier,
-                }
-              : {}),
+            ...edge,
           }));
 
           dispatch?.(
