@@ -7,7 +7,6 @@ import NodeBin from '~/lib/interviewer/components/NodeBin';
 import Prompts from '~/lib/interviewer/components/Prompts/Prompts';
 import { deleteNode } from '~/lib/interviewer/ducks/modules/session';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
-import PedigreeView from '~/lib/pedigree-layout/components/PedigreeView';
 import QuickStartForm from '~/lib/interviewer/Interfaces/FamilyPedigree/components/QuickStartForm';
 import {
   FamilyPedigreeProvider,
@@ -19,17 +18,13 @@ import {
   getNetworkNodes,
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
-import { type StageProps } from '~/lib/interviewer/types';
+import PedigreeView from '~/lib/pedigree-layout/components/PedigreeView';
+import { type StageProps } from '../../types';
 
-type FamilyPedigreeProps = StageProps<'FamilyPedigree'>;
-
-type DiseaseStep = {
-  promptText: string;
-  diseaseVariable: string;
-};
-
-const FamilyPedigree = (props: FamilyPedigreeProps) => {
-  const { stage } = props;
+const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
+  const {
+    stage: { censusPrompt, edgeConfig, nodeConfig, nominationPrompts },
+  } = props;
 
   const dispatch = useAppDispatch();
   const nodesMap = useFamilyPedigreeStore((s) => s.network.nodes);
@@ -42,23 +37,15 @@ const FamilyPedigree = (props: FamilyPedigreeProps) => {
   const nonEgoNodeCount = [...nodesMap.values()].filter((n) => !n.isEgo).length;
   const hasNodes = nonEgoNodeCount > 0;
 
-  const diseaseSteps: DiseaseStep[] =
-    stage.diseaseNominationStep?.map((d) => ({
-      promptText: d.text,
-      diseaseVariable: d.variable,
-    })) ?? [];
-
   const scaffoldingPrompt = {
     id: 'scaffolding',
-    text: stage.label,
+    text: censusPrompt,
   };
-  const allPrompts = [
-    scaffoldingPrompt,
-    ...diseaseSteps.map((d, i) => ({
-      id: `disease-${i}`,
-      text: d.promptText,
-    })),
-  ];
+  const allPrompts = [scaffoldingPrompt, ...(nominationPrompts ?? [])] as {
+    id: string;
+    text: string;
+    variable?: string;
+  }[];
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
@@ -84,7 +71,6 @@ const FamilyPedigree = (props: FamilyPedigreeProps) => {
   });
 
   const stageElement = usePortalTarget('stage');
-
   const showQuickStart = currentStepIndex === 0 && !hasNodes;
 
   return (

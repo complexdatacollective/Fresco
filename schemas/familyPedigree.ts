@@ -49,70 +49,6 @@ export const PartnerEdgeSchema = z.object({
 export const EdgeSchema = z.union([ParentEdgeSchema, PartnerEdgeSchema]);
 
 // ---------------------------------------------------------------------------
-// Stage Configuration — Protocol Definition
-// ---------------------------------------------------------------------------
-
-// Simplified form field definition for protocol-level form configuration.
-// Describes which variable to collect and which input component to render.
-export const FormFieldSchema = z.object({
-  variable: z.string(),
-  component: z.string(),
-});
-
-export const FormConfigSchema = z.object({
-  fields: z.array(FormFieldSchema),
-});
-
-export const NominationPromptSchema = z.object({
-  id: z.string(),
-  text: z.string(),
-  // Attribute to be toggled/nominated in this step (e.g. a disease variable)
-  variable: z.string(),
-});
-
-export const NodeConfigSchema = z.object({
-  // Node type for alter nodes in the codebook
-  type: z.string(),
-  // Categorical variable on the node determining its shape
-  shapeVariable: z.string(),
-  // Maps variable option values to pedigree shapes
-  shapeMapping: z.record(z.string(), NodeShapeSchema),
-  // Boolean variable marking the ego node
-  egoVariable: z.string(),
-  // String variable storing the relationship to ego (e.g. 'sibling', 'parent')
-  relationshipVariable: z.string(),
-  // Form fields collected when creating a node
-  form: FormConfigSchema,
-});
-
-export const EdgeConfigSchema = z.object({
-  // Edge type in the codebook (single type for both parent and partner edges)
-  type: z.string(),
-  // Variable storing the relationship type value (discriminant for the Edge union)
-  relationshipTypeVariable: z.string(),
-  // Variable storing whether the relationship is currently active
-  isActiveVariable: z.string(),
-  // Variable storing gestational carrier status (parent edges only)
-  isGestationalCarrierVariable: z.string(),
-});
-
-export const FamilyPedigreeStageSchema = z.object({
-  type: z.literal('FamilyPedigree'),
-
-  // Ego shape — references a variable in the ego codebook
-  egoShapeVariable: z.string(),
-  egoShapeMapping: z.record(z.string(), NodeShapeSchema),
-
-  nodeConfig: NodeConfigSchema,
-  edgeConfig: EdgeConfigSchema,
-
-  // Prompt shown during the family building phase
-  censusPrompt: z.string(),
-  // Optional attribute nomination steps (e.g. disease nomination)
-  nominationPrompts: z.array(NominationPromptSchema).optional(),
-});
-
-// ---------------------------------------------------------------------------
 // Inferred Types
 // ---------------------------------------------------------------------------
 
@@ -120,9 +56,3 @@ export type ParentType = z.infer<typeof ParentTypeSchema>;
 export type ParentEdge = z.infer<typeof ParentEdgeSchema>;
 export type PartnerEdge = z.infer<typeof PartnerEdgeSchema>;
 export type Edge = z.infer<typeof EdgeSchema>;
-export type FormField = z.infer<typeof FormFieldSchema>;
-export type FormConfig = z.infer<typeof FormConfigSchema>;
-export type NominationPrompt = z.infer<typeof NominationPromptSchema>;
-export type NodeConfig = z.infer<typeof NodeConfigSchema>;
-export type EdgeConfig = z.infer<typeof EdgeConfigSchema>;
-export type FamilyPedigreeStage = z.infer<typeof FamilyPedigreeStageSchema>;

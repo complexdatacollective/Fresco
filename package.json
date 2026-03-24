@@ -43,7 +43,8 @@
     "overrides": {
       "@types/react": "19.2.13",
       "@types/react-dom": "19.2.3",
-      "@codaco/shared-consts": "5.0.0"
+      "@codaco/shared-consts": "5.0.0",
+      "@codaco/protocol-validation": "link:../../projects/network-canvas/packages/protocol-validation"
     },
     "peerDependencyRules": {
       "allowedVersions": {}
