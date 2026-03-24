@@ -333,8 +333,10 @@ async function setNumberCounter(index: number, target: number) {
   }
 }
 
-async function toggleSwitch(name: string, desiredState: boolean) {
-  const toggle = await screen.findByRole('switch', { name }, STEP_TIMEOUT);
+async function toggleSwitch(name: string, desiredState: boolean, index = 0) {
+  const toggles = await screen.findAllByRole('switch', { name }, STEP_TIMEOUT);
+  const toggle = toggles[index];
+  if (!toggle) throw new Error(`No switch "${name}" at index ${index}`);
   const isChecked = toggle.getAttribute('aria-checked') === 'true';
   if (isChecked !== desiredState) {
     await userEvent.click(toggle);
