@@ -1111,9 +1111,9 @@ export const SingleParentTwoDonors: ScenarioStory = {
       { name: 'Donor 2' },
       STEP_TIMEOUT,
     );
-    if (donor2InEgo.getAttribute('aria-checked') === 'true') {
-      await userEvent.click(donor2InEgo);
-    }
+    // Use direct click — userEvent.click doesn't reliably toggle Base UI checkboxes
+    donor2InEgo.click();
+    await waitForStepTransition();
 
     // Fill sibling details
     await typeInTextbox('Half Sib', 0);
@@ -1125,17 +1125,14 @@ export const SingleParentTwoDonors: ScenarioStory = {
     await userEvent.click(sibSexRadios[0]!);
 
     // Uncheck Donor 1 from sibling's shared parents
-    // The sibling shared parents checkboxes are labeled "Donor 1"
-    // There are 2 "Donor 1" checkboxes: ego group [index 0] and sibling group [index 1]
     const donor1Checkboxes = await screen.findAllByRole(
       'checkbox',
       { name: 'Donor 1' },
       STEP_TIMEOUT,
     );
     // The sibling's "Donor 1" is the second one (index 1)
-    if (donor1Checkboxes[1]?.getAttribute('aria-checked') === 'true') {
-      await userEvent.click(donor1Checkboxes[1]!);
-    }
+    donor1Checkboxes[1]?.click();
+    await waitForStepTransition();
     await clickContinue();
     await waitForStepTransition();
 

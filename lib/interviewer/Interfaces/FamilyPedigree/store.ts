@@ -199,6 +199,14 @@ export const createFamilyPedigreeStore = (
         },
 
         generateQuickStartNetwork: (data) => {
+          // Debug: expose data on window for inspection
+          if (typeof window !== 'undefined') {
+            (window as Record<string, unknown>).__QUICKSTART_DEBUG = {
+              parents: data.parents.map((p) => ({ name: p.name, edgeType: p.edgeType })),
+              egoParentIndices: data.egoParentIndices,
+              siblings: data.siblings.map((s) => ({ name: s.name, shared: s.sharedParentIndices })),
+            };
+          }
           get().clearNetwork();
 
           const egoId = get().addNode({
