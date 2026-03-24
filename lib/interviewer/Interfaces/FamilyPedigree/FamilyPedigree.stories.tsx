@@ -354,7 +354,7 @@ async function typeInTextbox(value: string, index = 0) {
   const textboxes = await screen.findAllByRole('textbox', {}, STEP_TIMEOUT);
   const textbox = textboxes[index];
   if (!textbox) throw new Error(`No textbox found at index ${index}`);
-  await userEvent.clear(textbox);
+  await userEvent.click(textbox);
   await userEvent.type(textbox, value);
 }
 
