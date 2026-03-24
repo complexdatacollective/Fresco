@@ -278,20 +278,27 @@ export const createFamilyPedigreeStore = (
             for (const parentIdx of sibling.sharedParentIndices) {
               const parentId = parentIds[parentIdx];
               if (!parentId) continue;
+
+              // Determine edge type: use ego's edge if it exists, otherwise
+              // fall back to the parent's configured edgeType (needed when a
+              // parent is only the sibling's parent, not ego's).
               const parentEdge = [...get().network.edges.values()].find(
                 (e) =>
                   e.relationshipType !== 'partner' &&
                   e.source === parentId &&
                   e.target === egoId,
               );
-              if (parentEdge && parentEdge.relationshipType !== 'partner') {
-                get().addEdge({
-                  source: parentId,
-                  target: siblingId,
-                  relationshipType: parentEdge.relationshipType,
-                  isActive: true,
-                });
-              }
+              const edgeType =
+                parentEdge && parentEdge.relationshipType !== 'partner'
+                  ? parentEdge.relationshipType
+                  : (data.parents[parentIdx]?.edgeType ?? 'biological');
+
+              get().addEdge({
+                source: parentId,
+                target: siblingId,
+                relationshipType: edgeType,
+                isActive: true,
+              });
             }
           }
 
