@@ -301,6 +301,13 @@ async function selectRadioByIndex(name: string, index = 0) {
   await userEvent.click(radio);
 }
 
+async function selectNthRadio(index: number) {
+  const radios = await screen.findAllByRole('radio', {}, STEP_TIMEOUT);
+  const radio = radios[index];
+  if (!radio) throw new Error(`No radio at index ${index}`);
+  await userEvent.click(radio);
+}
+
 async function setNumberCounter(index: number, target: number) {
   const spinbuttons = await screen.findAllByRole(
     'spinbutton',
@@ -435,7 +442,7 @@ export const NuclearFamily: ScenarioStory = {
     // BioParentsStep: skipped (2 bio parents already)
 
     // GestationalCarrierStep: Parent 2 (Mom)
-    await selectRadio('Mom');
+    await selectNthRadio(1); // Mom = parent index 1
     await clickContinue();
     await waitForStepTransition();
 
@@ -507,7 +514,7 @@ export const SingleParent: ScenarioStory = {
     await waitForStepTransition();
 
     // GestationalCarrierStep: Parent 1 (Mom)
-    await selectRadio('Mom');
+    await selectNthRadio(0); // Mom = parent index 0
     await clickContinue();
     await waitForStepTransition();
 
@@ -589,7 +596,7 @@ export const SameSexMothers: ScenarioStory = {
     // BioParentsStep: skipped (2 bio parents)
 
     // GestationalCarrierStep: Parent 1 (Mother A)
-    await selectRadio('Mother A');
+    await selectNthRadio(0); // Mother A = parent index 0
     await clickContinue();
     await waitForStepTransition();
 
@@ -709,7 +716,7 @@ export const SpermDonor: ScenarioStory = {
     // BioParentsStep: skipped (2 bio parents)
 
     // GestationalCarrierStep: Parent 1 (Mom A)
-    await selectRadio('Mom A');
+    await selectNthRadio(0); // Mom A = parent index 0
     await clickContinue();
     await waitForStepTransition();
 
@@ -839,7 +846,7 @@ export const BlendedFamily: ScenarioStory = {
     // BioParentsStep: skipped (2 bio parents)
 
     // GestationalCarrierStep: Parent 2 (Bio Mom)
-    await selectRadio('Bio Mom');
+    await selectNthRadio(1); // Bio Mom = parent index 1
     await clickContinue();
     await waitForStepTransition();
 
@@ -940,7 +947,7 @@ export const AdoptedIn: ScenarioStory = {
     // Bio parents are appended after regular parents in the options list
     // Parents: [Adoptive Dad (0), Adoptive Mom (1), Bio parent 1 (2), Bio parent 2 (3)]
     // Bio parent 2 = index 3, but label is "Parent 4" since no name known
-    await selectRadio('Parent 4');
+    await selectNthRadio(3); // Bio parent 2 (female) = index 3
     await clickContinue();
     await waitForStepTransition();
 
@@ -1046,7 +1053,7 @@ export const SingleParentTwoDonors: ScenarioStory = {
     // BioParentsStep: skipped (2 bio parents: Mom + Donor 1)
 
     // GestationalCarrierStep: Parent 1 (Mom)
-    await selectRadio('Mom');
+    await selectNthRadio(0); // Mom = parent index 0
     await clickContinue();
     await waitForStepTransition();
 
@@ -1141,7 +1148,7 @@ export const WithPartnerAndChildren: ScenarioStory = {
     // BioParentsStep: skipped (2 bio parents)
 
     // GestationalCarrierStep: Parent 2 (Mom)
-    await selectRadio('Mom');
+    await selectNthRadio(1); // Mom = parent index 1
     await clickContinue();
     await waitForStepTransition();
 
