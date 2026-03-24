@@ -471,9 +471,40 @@ export class SyntheticInterview {
 
     // FamilyPedigree
     if (type === 'FamilyPedigree') {
-      // Edge type reference
-      if (opts?.edgeType) {
-        entry.edgeType = opts.edgeType;
+      if (opts?.nodeConfig) {
+        entry.nodeConfig = {
+          ...opts.nodeConfig,
+          form: opts.nodeConfig.form ?? [],
+        };
+      } else if (subject) {
+        const nodeTypeEntry = this.nodeTypes.get(subject.type);
+        const nodeLabelVar =
+          nodeTypeEntry?.displayVariable ?? this.nextId('label-var');
+        const egoVar = this.nextId('ego-var');
+        const bioSexVar = this.nextId('bio-sex-var');
+        const relToEgoVar = this.nextId('rel-to-ego-var');
+        entry.nodeConfig = {
+          type: subject.type,
+          nodeLabelVariable: nodeLabelVar,
+          egoVariable: egoVar,
+          biologicalSexVariable: bioSexVar,
+          relationshipVariable: relToEgoVar,
+          form: [],
+        };
+      }
+
+      if (opts?.edgeConfig) {
+        const isActiveVar =
+          opts.edgeConfig.isActiveVariable ?? this.nextId('is-active-var');
+        const isGestCarrierVar =
+          opts.edgeConfig.isGestationalCarrierVariable ??
+          this.nextId('is-gest-carrier-var');
+        entry.edgeConfig = {
+          type: opts.edgeConfig.type,
+          relationshipTypeVariable: opts.edgeConfig.relationshipTypeVariable,
+          isActiveVariable: isActiveVar,
+          isGestationalCarrierVariable: isGestCarrierVar,
+        };
       } else {
         let edgeTypeId: string;
         if (this.edgeTypes.size > 0) {
@@ -481,59 +512,19 @@ export class SyntheticInterview {
         } else {
           edgeTypeId = this.addEdgeType({ name: 'Family' }).id;
         }
-        entry.edgeType = { entity: 'edge', type: edgeTypeId };
-      }
-
-      entry.relationshipTypeVariable = opts?.relationshipTypeVariable;
-      entry.nodeSexVariable = opts?.nodeSexVariable;
-      entry.egoSexVariable = opts?.egoSexVariable;
-      entry.relationshipToEgoVariable =
-        opts?.relationshipToEgoVariable ?? 'relationshipToEgo';
-      entry.nodeIsEgoVariable = opts?.nodeIsEgoVariable ?? 'isEgo';
-
-      if (opts?.scaffoldingStep) {
-        entry.scaffoldingStep = {
-          text:
-            opts.scaffoldingStep.text ??
-            this.valueGen.generatePromptText('FamilyPedigree'),
-          showQuickStartModal:
-            opts.scaffoldingStep.showQuickStartModal ?? false,
-        };
-      } else {
-        entry.scaffoldingStep = {
-          text: this.valueGen.generatePromptText('FamilyPedigree'),
-          showQuickStartModal: false,
+        entry.edgeConfig = {
+          type: edgeTypeId,
+          relationshipTypeVariable: this.nextId('rel-type-var'),
+          isActiveVariable: this.nextId('is-active-var'),
+          isGestationalCarrierVariable: this.nextId('is-gest-carrier-var'),
         };
       }
 
-      if (opts?.nameGenerationStep) {
-        const nameGenForm = opts.nameGenerationStep.form;
-        let resolvedForm: StageEntry['nameGenerationStep'];
-        if (nameGenForm && subject) {
-          const fields = nameGenForm.fields.map((f) =>
-            this.resolveFormField(f, subject.type),
-          );
-          resolvedForm = {
-            text:
-              opts.nameGenerationStep.text ??
-              'Please provide information for each family member.',
-            form: {
-              title: nameGenForm.title ?? 'Family Member Information',
-              fields,
-            },
-          };
-        } else {
-          resolvedForm = {
-            text:
-              opts.nameGenerationStep.text ??
-              'Please provide information for each family member.',
-            form: { title: 'Family Member Information', fields: [] },
-          };
-        }
-        entry.nameGenerationStep = resolvedForm;
-      }
+      entry.censusPrompt =
+        opts?.censusPrompt ??
+        this.valueGen.generatePromptText('FamilyPedigree');
 
-      entry.diseaseNominationStep = [];
+      entry.nominationPrompts = [];
     }
 
     // Geospatial
@@ -809,8 +800,8 @@ export class SyntheticInterview {
               text: opts?.text ?? 'Which family members have this condition?',
               variable: opts?.variable ?? this.nextId('disease-var'),
             };
-            entry.diseaseNominationStep ??= [];
-            entry.diseaseNominationStep.push(step);
+            entry.nominationPrompts ??= [];
+            entry.nominationPrompts.push(step);
           },
         } as StageHandleMap[T];
 
@@ -1481,32 +1472,11 @@ export class SyntheticInterview {
 
     // FamilyPedigree
     if (stage.type === 'FamilyPedigree') {
-      if (stage.egoSexVariable !== undefined) {
-        config.egoSexVariable = stage.egoSexVariable;
-      }
-      if (stage.edgeType) {
-        config.edgeOptions = {
-          edgeType: stage.edgeType,
-          relationshipTypeVariable: stage.relationshipTypeVariable,
-          relationshipToEgoVariable: stage.relationshipToEgoVariable,
-        };
-      }
-      if (stage.subject) {
-        config.nodeOptions = {
-          nodeType: stage.subject,
-          sexVariable: stage.nodeSexVariable,
-          isEgoVariable: stage.nodeIsEgoVariable,
-        };
-      }
-      if (stage.scaffoldingStep) {
-        config.label = stage.scaffoldingStep.text;
-      }
-      if (stage.nameGenerationStep) {
-        config.nameGenerationStep = stage.nameGenerationStep;
-      }
-      if (stage.diseaseNominationStep) {
-        config.diseaseNominationStep = stage.diseaseNominationStep;
-      }
+      if (stage.nodeConfig) config.nodeConfig = stage.nodeConfig;
+      if (stage.edgeConfig) config.edgeConfig = stage.edgeConfig;
+      if (stage.censusPrompt) config.censusPrompt = stage.censusPrompt;
+      if (stage.nominationPrompts?.length)
+        config.nominationPrompts = stage.nominationPrompts;
     }
 
     // Geospatial

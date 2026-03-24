@@ -4,22 +4,6 @@ import SuperJSON from 'superjson';
 import StoryInterviewShell from '~/.storybook/StoryInterviewShell';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
 
-const SEX_OPTIONS = [
-  { label: 'Male', value: 'male' },
-  { label: 'Female', value: 'female' },
-];
-
-const RELATIONSHIP_OPTIONS = [
-  { label: 'Parent', value: 'parent' },
-  { label: 'Child', value: 'child' },
-  { label: 'Sibling', value: 'sibling' },
-  { label: 'Partner', value: 'partner' },
-];
-
-/**
- * Creates a base FamilyPedigree interview configuration.
- * This helper sets up all the common variables and types needed.
- */
 function createFamilyPedigreeInterview(seed: number) {
   const si = new SyntheticInterview(seed);
 
@@ -30,9 +14,12 @@ function createFamilyPedigreeInterview(seed: number) {
     component: 'Text',
   });
   const sexVar = nodeType.addVariable({
-    name: 'Sex',
+    name: 'Biological Sex',
     type: 'categorical',
-    options: SEX_OPTIONS,
+    options: [
+      { label: 'Male', value: 'male' },
+      { label: 'Female', value: 'female' },
+    ],
     component: 'RadioGroup',
   });
   const ageVar = nodeType.addVariable({
@@ -60,13 +47,20 @@ function createFamilyPedigreeInterview(seed: number) {
   const relationshipVar = edgeType.addVariable({
     name: 'Relationship',
     type: 'categorical',
-    options: RELATIONSHIP_OPTIONS,
+    options: [
+      { label: 'Parent', value: 'parent' },
+      { label: 'Child', value: 'child' },
+      { label: 'Sibling', value: 'sibling' },
+      { label: 'Partner', value: 'partner' },
+    ],
   });
-
-  const egoSexVar = si.addEgoVariable({
-    name: 'Sex',
-    type: 'categorical',
-    options: SEX_OPTIONS,
+  const isActiveVar = edgeType.addVariable({
+    name: 'Is Active',
+    type: 'boolean',
+  });
+  const isGestCarrierVar = edgeType.addVariable({
+    name: 'Is Gestational Carrier',
+    type: 'boolean',
   });
 
   return {
@@ -80,7 +74,8 @@ function createFamilyPedigreeInterview(seed: number) {
     relationshipToEgoVar,
     edgeType,
     relationshipVar,
-    egoSexVar,
+    isActiveVar,
+    isGestCarrierVar,
   };
 }
 
@@ -104,7 +99,6 @@ function FamilyPedigreeStoryWrapper({
 }
 
 type StoryArgs = {
-  showQuickStartModal: boolean;
   diseaseStepCount: 0 | 1 | 2;
   scaffoldingText: string;
 };
@@ -116,11 +110,6 @@ const meta: Meta<StoryArgs> = {
     layout: 'fullscreen',
   },
   argTypes: {
-    showQuickStartModal: {
-      control: 'boolean',
-      description:
-        'Show the quick start modal dialog. Only appears if initialNodes is 0.',
-    },
     diseaseStepCount: {
       control: 'radio',
       options: [0, 1, 2],
@@ -129,11 +118,10 @@ const meta: Meta<StoryArgs> = {
     },
     scaffoldingText: {
       control: 'text',
-      description: 'Text displayed in the scaffolding step',
+      description: 'Text displayed in the census prompt',
     },
   },
   args: {
-    showQuickStartModal: true,
     diseaseStepCount: 1,
     scaffoldingText: 'Please create your family tree by adding family members.',
   },
@@ -142,18 +130,8 @@ const meta: Meta<StoryArgs> = {
 export default meta;
 type Story = StoryObj<StoryArgs>;
 
-// --- Stories ---
-
-/**
- * Single configurable story for FamilyPedigree interface.
- *
- * Use the Storybook controls to configure:
- * - showQuickStartModal: Show the quick start dialog
- * - diseaseStepCount: Number of disease nomination steps (0, 1, or 2)
- * - scaffoldingText: Text displayed in the scaffolding step
- */
 export const Default: Story = {
-  render: ({ showQuickStartModal, diseaseStepCount, scaffoldingText }) => {
+  render: ({ diseaseStepCount, scaffoldingText }) => {
     const buildFn = () => {
       const {
         si,
@@ -163,13 +141,13 @@ export const Default: Story = {
         sexVar,
         edgeType,
         relationshipVar,
-        egoSexVar,
+        isActiveVar,
+        isGestCarrierVar,
         diseaseVar,
         isEgoVar,
         relationshipToEgoVar,
       } = createFamilyPedigreeInterview(1);
 
-      // Add additional disease variable for multiple disease steps
       const disease2Var = nodeType.addVariable({
         name: 'Has Diabetes',
         type: 'boolean',
@@ -185,29 +163,23 @@ export const Default: Story = {
         label: 'Family Tree',
         subject: { entity: 'node', type: nodeType.id },
         initialNodes: 0,
-        edgeType: { entity: 'edge', type: edgeType.id },
-        relationshipTypeVariable: relationshipVar.id,
-        nodeSexVariable: sexVar.id,
-        egoSexVariable: egoSexVar.id,
-        relationshipToEgoVariable: relationshipToEgoVar.id,
-        nodeIsEgoVariable: isEgoVar.id,
-        scaffoldingStep: {
-          text: scaffoldingText,
-          showQuickStartModal,
+        nodeConfig: {
+          type: nodeType.id,
+          nodeLabelVariable: nameVar.id,
+          egoVariable: isEgoVar.id,
+          biologicalSexVariable: sexVar.id,
+          relationshipVariable: relationshipToEgoVar.id,
+          form: [{ variable: ageVar.id, prompt: 'Age' }],
         },
-        nameGenerationStep: {
-          text: 'Please provide information for each family member.',
-          form: {
-            title: 'Family Member Information',
-            fields: [
-              { variable: nameVar.id, prompt: 'Name', component: 'Text' },
-              { variable: ageVar.id, prompt: 'Age', component: 'Number' },
-            ],
-          },
+        edgeConfig: {
+          type: edgeType.id,
+          relationshipTypeVariable: relationshipVar.id,
+          isActiveVariable: isActiveVar.id,
+          isGestationalCarrierVariable: isGestCarrierVar.id,
         },
+        censusPrompt: scaffoldingText,
       });
 
-      // Add disease nomination steps based on diseaseStepCount
       if (diseaseStepCount >= 1) {
         stage.addDiseaseNominationStep({
           text: 'Which family members have the disease?',

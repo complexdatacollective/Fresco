@@ -244,23 +244,24 @@ export type StageEntry = {
     body: string;
   };
   // TieStrengthCensus (edge type reference on stage)
-  // FamilyPedigree
   edgeType?: { entity: 'edge'; type: string };
   // FamilyPedigree-specific fields
-  relationshipTypeVariable?: string;
-  nodeSexVariable?: string;
-  egoSexVariable?: string;
-  relationshipToEgoVariable?: string;
-  nodeIsEgoVariable?: string;
-  scaffoldingStep?: {
-    text: string;
-    showQuickStartModal?: boolean;
+  nodeConfig?: {
+    type: string;
+    nodeLabelVariable: string;
+    egoVariable: string;
+    biologicalSexVariable: string;
+    relationshipVariable: string;
+    form: { variable: string; prompt: string }[];
   };
-  nameGenerationStep?: {
-    text: string;
-    form: FormEntry;
+  edgeConfig?: {
+    type: string;
+    relationshipTypeVariable: string;
+    isActiveVariable: string;
+    isGestationalCarrierVariable: string;
   };
-  diseaseNominationStep?: DiseaseNominationStepEntry[];
+  censusPrompt?: string;
+  nominationPrompts?: { id: string; text: string; variable: string }[];
   // Geospatial
   mapOptions?: MapOptionsEntry;
 };
@@ -357,23 +358,21 @@ export type AddStageInput = {
     body?: string;
   };
   // FamilyPedigree
-  edgeType?: { entity: 'edge'; type: string };
-  relationshipTypeVariable?: string;
-  nodeSexVariable?: string;
-  egoSexVariable?: string;
-  relationshipToEgoVariable?: string;
-  nodeIsEgoVariable?: string;
-  scaffoldingStep?: {
-    text?: string;
-    showQuickStartModal?: boolean;
+  nodeConfig?: {
+    type: string;
+    nodeLabelVariable: string;
+    egoVariable: string;
+    biologicalSexVariable: string;
+    relationshipVariable: string;
+    form?: { variable: string; prompt: string }[];
   };
-  nameGenerationStep?: {
-    text?: string;
-    form?: {
-      title?: string;
-      fields: FormFieldInput[];
-    };
+  edgeConfig?: {
+    type: string;
+    relationshipTypeVariable: string;
+    isActiveVariable?: string;
+    isGestationalCarrierVariable?: string;
   };
+  censusPrompt?: string;
   // Geospatial
   mapOptions?: MapOptionsEntry;
 };

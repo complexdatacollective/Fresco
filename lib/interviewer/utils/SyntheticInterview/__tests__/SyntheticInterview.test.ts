@@ -668,7 +668,7 @@ describe('SyntheticInterview', () => {
   });
 
   describe('FamilyPedigree', () => {
-    it('creates stage with all family tree fields', () => {
+    it('creates stage with new config structure', () => {
       const si = new SyntheticInterview();
       const nt = si.addNodeType({ name: 'Person' });
       const et = si.addEdgeType({ name: 'Family' });
@@ -688,20 +688,39 @@ describe('SyntheticInterview', () => {
           { label: 'Female', value: 'female' },
         ],
       });
+      const nameVar = nt.addVariable({ type: 'text', name: 'Name' });
+      const egoVar = nt.addVariable({ type: 'boolean', name: 'Is Ego' });
+      const relToEgoVar = nt.addVariable({
+        type: 'text',
+        name: 'Rel to Ego',
+      });
+      const isActiveVar = et.addVariable({
+        type: 'boolean',
+        name: 'Is Active',
+      });
+      const isGestVar = et.addVariable({
+        type: 'boolean',
+        name: 'Is Gest Carrier',
+      });
 
       const stage = si.addStage('FamilyPedigree', {
         subject: { entity: 'node', type: nt.id },
-        edgeType: { entity: 'edge', type: et.id },
-        relationshipTypeVariable: relVar.id,
-        nodeSexVariable: sexVar.id,
         initialNodes: 3,
-        nameGenerationStep: {
-          text: 'Provide info',
-          form: {
-            title: 'Info',
-            fields: [{ component: 'Text', prompt: 'Name' }],
-          },
+        nodeConfig: {
+          type: nt.id,
+          nodeLabelVariable: nameVar.id,
+          egoVariable: egoVar.id,
+          biologicalSexVariable: sexVar.id,
+          relationshipVariable: relToEgoVar.id,
+          form: [{ variable: nameVar.id, prompt: 'Name' }],
         },
+        edgeConfig: {
+          type: et.id,
+          relationshipTypeVariable: relVar.id,
+          isActiveVariable: isActiveVar.id,
+          isGestationalCarrierVariable: isGestVar.id,
+        },
+        censusPrompt: 'Build your family tree',
       });
       stage.addDiseaseNominationStep({
         text: 'Who has the disease?',
@@ -711,21 +730,26 @@ describe('SyntheticInterview', () => {
       const protocol = si.getProtocol();
       const stageConfig = protocol.stages[0] as Record<string, unknown>;
       expect(stageConfig.type).toBe('FamilyPedigree');
-      const edgeOptions = stageConfig.edgeOptions as Record<string, unknown>;
-      expect(edgeOptions.edgeType).toEqual({
-        entity: 'edge',
-        type: et.id,
-      });
-      expect(edgeOptions.relationshipTypeVariable).toBe(relVar.id);
-      expect(stageConfig.label).toBeDefined();
-      expect(stageConfig.nameGenerationStep).toBeDefined();
 
-      const diseaseSteps = stageConfig.diseaseNominationStep as {
+      const nodeConfig = stageConfig.nodeConfig as Record<string, unknown>;
+      expect(nodeConfig.type).toBe(nt.id);
+      expect(nodeConfig.nodeLabelVariable).toBe(nameVar.id);
+      expect(nodeConfig.biologicalSexVariable).toBe(sexVar.id);
+
+      const edgeConfig = stageConfig.edgeConfig as Record<string, unknown>;
+      expect(edgeConfig.type).toBe(et.id);
+      expect(edgeConfig.relationshipTypeVariable).toBe(relVar.id);
+      expect(edgeConfig.isActiveVariable).toBe(isActiveVar.id);
+
+      expect(stageConfig.censusPrompt).toBe('Build your family tree');
+      expect(stageConfig.label).toBeDefined();
+
+      const nomPrompts = stageConfig.nominationPrompts as {
         text: string;
         variable: string;
       }[];
-      expect(diseaseSteps).toHaveLength(1);
-      expect(diseaseSteps[0]!.text).toBe('Who has the disease?');
+      expect(nomPrompts).toHaveLength(1);
+      expect(nomPrompts[0]!.text).toBe('Who has the disease?');
     });
   });
 
