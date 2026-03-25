@@ -11,7 +11,7 @@ import {
 import {
   AdoptionBrackets,
   EgoIcon,
-} from '~/lib/pedigree-layout/components/FamilyPedigreeNode';
+} from '~/lib/pedigree-layout/components/PedigreeNode';
 import PedigreeKey from '~/lib/pedigree-layout/components/PedigreeKey';
 import PedigreeLayout from '~/lib/pedigree-layout/components/PedigreeLayout';
 

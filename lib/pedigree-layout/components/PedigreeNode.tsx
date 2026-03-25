@@ -1,0 +1,297 @@
+import { useSelector } from 'react-redux';
+import Node from '~/components/Node';
+import { useDragSource } from '~/lib/dnd';
+import {
+  type AdoptionStatus,
+  type NodeData,
+  type StoreEdge,
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
+import { useClickUnlessDragged } from '~/lib/pedigree-layout/useClickUnlessDragged';
+
+export function AdoptionBrackets({
+  children,
+  status,
+}: {
+  children: React.ReactNode;
+  status: AdoptionStatus;
+}) {
+  const bracketStyle =
+    'absolute top-1 bottom-1 w-1.5 border-white/80 border-y-2';
+
+  return (
+    <div className="relative" aria-label={`Adopted ${status}`} role="img">
+      <span className={`${bracketStyle} -left-2.5 border-l-2`} />
+      {children}
+      <span className={`${bracketStyle} -right-2.5 border-r-2`} />
+    </div>
+  );
+}
+
+/**
+ * Icon for the ego (self) node in the family tree.
+ * Based on the add-a-person icon (lib/ui/assets/icons/add-a-person-single.svg).
+ *
+ * Variants:
+ * - "platinum": For colored backgrounds - uses platinum shades
+ * - "slate": For white/platinum backgrounds - uses slate blue shades
+ */
+export function EgoIcon({
+  className,
+  variant = 'slate',
+}: {
+  className?: string;
+  variant?: 'platinum' | 'slate';
+}) {
+  const colors =
+    variant === 'platinum'
+      ? {
+          primary: 'var(--color-platinum)',
+          secondary: 'var(--color-platinum-dark)',
+        }
+      : {
+          primary: 'var(--color-slate-blue)',
+          secondary: 'var(--color-slate-blue-dark)',
+        };
+
+  return (
+    <svg
+      viewBox="0 0 139.8 167.5"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      {/* Head - upper half */}
+      <path
+        fill={colors.primary}
+        d="M69.9,0C46.1,0,26.8,21.4,26.8,47.8c-0.1,11.6,3.8,22.9,11.1,32l64-64C94,6.1,82.6,0,69.9,0z"
+      />
+      {/* Head - lower half */}
+      <path
+        fill={colors.secondary}
+        d="M37.9,79.8c7.9,9.7,19.3,15.8,32,15.8c23.8,0,43.1-21.4,43.1-47.8c0.1-11.6-3.8-22.9-11.1-32L37.9,79.8z"
+      />
+      {/* Neck */}
+      <path
+        fill={colors.secondary}
+        d="M94,103.4c-4.1,0-13.6-7.5-10.9-11.3H56.6c2.7,3.8-6.8,11.3-10.9,11.3l24.2,10.8L94,103.4z"
+      />
+      {/* Body - left side */}
+      <path
+        fill={colors.primary}
+        d="M100.3,105.3l-58.6,58.6C26.5,160,12.3,152.8,0,143c9.2-20.1,27.7-35.5,50.2-41.3c5.9,3.8,12.7,5.8,19.7,5.9c7-0.1,13.8-2.1,19.7-5.9C93.3,102.7,96.8,103.9,100.3,105.3z"
+      />
+      {/* Body - right side */}
+      <path
+        fill={colors.secondary}
+        d="M139.8,143c-27.6,22-63.9,29.8-98.1,20.9l58.6-58.6C117.8,112.5,131.9,125.9,139.8,143z"
+      />
+    </svg>
+  );
+}
+
+type ParentEdgeType = Exclude<StoreEdge['relationshipType'], 'partner'>;
+
+type RelationshipKind =
+  | { type: 'parent'; edgeType: ParentEdgeType }
+  | { type: 'child' }
+  | { type: 'partner' }
+  | { type: 'sibling' };
+
+function getRelationshipToEgo(
+  nodeId: string,
+  egoId: string,
+  edges: Map<string, StoreEdge>,
+): RelationshipKind | null {
+  for (const edge of edges.values()) {
+    if (edge.relationshipType === 'partner') {
+      if (
+        (edge.source === nodeId && edge.target === egoId) ||
+        (edge.source === egoId && edge.target === nodeId)
+      ) {
+        return { type: 'partner' };
+      }
+      continue;
+    }
+
+    // source is parent, target is child
+    if (edge.source === nodeId && edge.target === egoId) {
+      return { type: 'parent', edgeType: edge.relationshipType };
+    }
+    if (edge.source === egoId && edge.target === nodeId) {
+      return { type: 'child' };
+    }
+  }
+
+  // Sibling: shares a parent with ego
+  const nodeParents = new Set<string>();
+  const egoParents = new Set<string>();
+  for (const edge of edges.values()) {
+    if (edge.relationshipType === 'partner') continue;
+    if (edge.target === nodeId) nodeParents.add(edge.source);
+    if (edge.target === egoId) egoParents.add(edge.source);
+  }
+  for (const parent of nodeParents) {
+    if (egoParents.has(parent)) return { type: 'sibling' };
+  }
+
+  return null;
+}
+
+function relationshipLabel(
+  rel: RelationshipKind,
+  biologicalSex: string | undefined,
+): string {
+  switch (rel.type) {
+    case 'partner':
+      return 'Partner';
+    case 'child':
+      if (biologicalSex === 'male') return 'Son';
+      if (biologicalSex === 'female') return 'Daughter';
+      return 'Child';
+    case 'sibling':
+      if (biologicalSex === 'male') return 'Brother';
+      if (biologicalSex === 'female') return 'Sister';
+      return 'Sibling';
+    case 'parent':
+      switch (rel.edgeType) {
+        case 'donor':
+          if (biologicalSex === 'male') return 'Sperm Donor';
+          if (biologicalSex === 'female') return 'Egg Donor';
+          return 'Donor';
+        case 'surrogate':
+          return 'Surrogate';
+        case 'social':
+          if (biologicalSex === 'male') return 'Social Father';
+          if (biologicalSex === 'female') return 'Social Mother';
+          return 'Social Parent';
+        case 'biological':
+          if (biologicalSex === 'male') return 'Father';
+          if (biologicalSex === 'female') return 'Mother';
+          return 'Parent';
+      }
+  }
+}
+
+/**
+ * Computes display labels for all nodes in the pedigree.
+ * Named nodes use their name. Unnamed nodes get a relationship label
+ * derived from their edge connection to ego, with numbering when
+ * multiple nodes share the same role (e.g. "Sperm Donor #1").
+ */
+export function computeNodeDisplayLabels(
+  nodes: Map<string, NodeData>,
+  edges: Map<string, StoreEdge>,
+): Map<string, string> {
+  const egoEntry = [...nodes.entries()].find(([, n]) => n.isEgo);
+  if (!egoEntry) return new Map();
+  const egoId = egoEntry[0];
+
+  const labels = new Map<string, string>();
+  const roleBuckets = new Map<string, string[]>();
+
+  for (const [nodeId, node] of nodes) {
+    if (node.isEgo) continue;
+
+    if (node.label) {
+      labels.set(nodeId, node.label);
+      continue;
+    }
+
+    const rel = getRelationshipToEgo(nodeId, egoId, edges);
+    const role = rel
+      ? relationshipLabel(rel, node.biologicalSex)
+      : 'Family Member';
+
+    const bucket = roleBuckets.get(role) ?? [];
+    bucket.push(nodeId);
+    roleBuckets.set(role, bucket);
+  }
+
+  for (const [role, nodeIds] of roleBuckets) {
+    if (nodeIds.length === 1) {
+      labels.set(nodeIds[0]!, role);
+    } else {
+      nodeIds.forEach((id, i) => {
+        labels.set(id, `${role} #${i + 1}`);
+      });
+    }
+  }
+
+  return labels;
+}
+
+type PedigreeNodeProps = {
+  node: NodeData & { id: string };
+  displayLabel: string;
+  allowDrag: boolean;
+  selected?: boolean;
+  onTap?: (nodeId: string) => void;
+};
+
+export default function PedigreeNode({
+  node,
+  displayLabel,
+  allowDrag,
+  selected,
+  onTap,
+}: PedigreeNodeProps) {
+  const { id, isEgo, shape: nodeShape, adoptionStatus } = node;
+  const shape = nodeShape ?? 'square';
+
+  const nodeColor = useSelector(getNodeColorSelector);
+
+  const { handlePointerDown, handlePointerUp, shouldHandleClick } =
+    useClickUnlessDragged();
+
+  const { dragProps } = useDragSource({
+    type: 'FAMILY_TREE_NODE',
+    metadata: { itemType: 'FAMILY_TREE_NODE', placeholderId: id },
+    announcedName: displayLabel,
+    disabled: !allowDrag,
+  });
+
+  const nodeElement = (
+    <Node
+      className="shrink-0"
+      color={nodeColor}
+      size="sm"
+      label={isEgo ? '' : displayLabel}
+      ariaLabel={displayLabel}
+      shape={shape}
+      selected={selected}
+    >
+      {isEgo && (
+        <EgoIcon
+          className="pointer-events-none absolute top-1/2 left-1/2 size-8 -translate-1/2"
+          variant="platinum"
+        />
+      )}
+    </Node>
+  );
+
+  const wrappedNode = adoptionStatus ? (
+    <AdoptionBrackets status={adoptionStatus}>{nodeElement}</AdoptionBrackets>
+  ) : (
+    nodeElement
+  );
+
+  return (
+    <div
+      className="family-tree-node"
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onClick={() => {
+        if (shouldHandleClick()) {
+          onTap?.(id);
+        }
+      }}
+    >
+      <div
+        className="relative flex flex-col items-center gap-2 text-center"
+        {...dragProps}
+      >
+        {wrappedNode}
+      </div>
+    </div>
+  );
+}

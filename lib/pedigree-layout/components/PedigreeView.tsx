@@ -11,7 +11,9 @@ import AddPersonFields, {
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/AddPersonForm';
 import { useFamilyPedigreeStore } from '~/lib/interviewer/Interfaces/FamilyPedigree/FamilyPedigreeProvider';
 import { sexToShape } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
-import FamilyPedigreeNode from '~/lib/pedigree-layout/components/FamilyPedigreeNode';
+import PedigreeNode, {
+  computeNodeDisplayLabels,
+} from '~/lib/pedigree-layout/components/PedigreeNode';
 import NodeContextMenu, {
   type NodeContextMenuAction,
 } from '~/lib/pedigree-layout/components/NodeContextMenu';
@@ -147,6 +149,8 @@ export default function PedigreeView() {
     }
   };
 
+  const displayLabels = computeNodeDisplayLabels(nodes, edges);
+
   return (
     <div className="census-node-canvas relative size-full overflow-x-auto pt-6">
       <div className="relative flex size-full min-w-fit justify-center">
@@ -163,8 +167,9 @@ export default function PedigreeView() {
               onOpenChange={(open) => setOpenMenuNodeId(open ? node.id : null)}
               onAction={(action) => handleMenuAction(node.id, action)}
             >
-              <FamilyPedigreeNode
+              <PedigreeNode
                 node={node}
+                displayLabel={displayLabels.get(node.id) ?? ''}
                 allowDrag={node.readOnly !== true}
                 onTap={(nodeId) => setOpenMenuNodeId(nodeId)}
               />
