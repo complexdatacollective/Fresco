@@ -107,6 +107,57 @@ export const ClickCheckboxInFormField: Story = {
   },
 };
 
+function DialogCheckboxGroup() {
+  const [open, setOpen] = useState(true);
+
+  return (
+    <div>
+      <button onClick={() => setOpen(true)}>Open</button>
+      {open && (
+        <dialog open style={{ position: 'fixed', zIndex: 1000 }}>
+          <FormStoreProvider>
+            <DialogCheckboxInner onClose={() => setOpen(false)} />
+          </FormStoreProvider>
+        </dialog>
+      )}
+    </div>
+  );
+}
+
+function DialogCheckboxInner({ onClose }: { onClose: () => void }) {
+  return (
+    <div>
+      <Field
+        name="choices"
+        label="Pick options"
+        data-testid="dialog-checkboxes"
+        component={CheckboxGroupField}
+        options={[
+          { value: 'a', label: 'Option A' },
+          { value: 'b', label: 'Option B' },
+          { value: 'c', label: 'Option C' },
+        ]}
+        initialValue={['a', 'b', 'c']}
+      />
+      <button onClick={onClose}>Close</button>
+    </div>
+  );
+}
+
+export const ClickCheckboxInDialog: Story = {
+  render: () => <DialogCheckboxGroup />,
+  play: async () => {
+    const checkboxC = await screen.findByRole('checkbox', { name: 'Option C' });
+    await expect(checkboxC).toHaveAttribute('aria-checked', 'true');
+
+    await userEvent.click(checkboxC);
+
+    await waitFor(async () => {
+      await expect(checkboxC).toHaveAttribute('aria-checked', 'false');
+    });
+  },
+};
+
 export const ClickLabel: Story = {
   play: async () => {
     // Find the text label and click it instead of the checkbox button
