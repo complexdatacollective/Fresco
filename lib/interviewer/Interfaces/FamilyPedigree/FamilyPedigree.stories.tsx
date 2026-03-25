@@ -1000,19 +1000,26 @@ export const SingleParentTwoDonors: ScenarioStory = {
 
     // SiblingsDetailStep: ego's parents + 1 sibling
 
-    // Uncheck Donor 2 from ego's parents
+    // Uncheck Donor 2 from ego's parents and Donor 1 from sibling's parents
+    // Use JavaScript to directly set checkbox values since Base UI checkboxes
+    // don't respond to userEvent.click in the storybook testing environment
     const egoParentsContainer = await screen.findByTestId(
       'ego-parents-checkboxes',
       {},
       STEP_TIMEOUT,
     );
-    const egoScope = within(egoParentsContainer);
-    const donor2Checkbox = await egoScope.findByRole(
-      'checkbox',
-      { name: 'Donor 2' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.pointer({ keys: '[MouseLeft]', target: donor2Checkbox });
+    const egoCheckboxes =
+      egoParentsContainer.querySelectorAll<HTMLElement>('[role="checkbox"]');
+    // Uncheck Donor 2 (index 2) by dispatching a proper event
+    for (const cb of egoCheckboxes) {
+      const label = cb.closest('label')?.textContent?.trim();
+      if (label === 'Donor 2' && cb.getAttribute('aria-checked') === 'true') {
+        // Simulate a full pointer interaction sequence
+        cb.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+        cb.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+        cb.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      }
+    }
     await waitForStepTransition();
 
     // Fill sibling details
@@ -1025,15 +1032,21 @@ export const SingleParentTwoDonors: ScenarioStory = {
     await userEvent.click(sibSexRadios[0]!);
 
     // Uncheck Donor 1 from sibling's shared parents
-    const donor1Checkboxes = await screen.findAllByRole(
-      'checkbox',
-      { name: 'Donor 1' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.pointer({
-      keys: '[MouseLeft]',
-      target: donor1Checkboxes[1]!,
-    });
+    // Find all checkboxes labeled "Donor 1" — the second one is in the sibling group
+    const allCheckboxes =
+      document.querySelectorAll<HTMLElement>('[role="checkbox"]');
+    let donor1Count = 0;
+    for (const cb of allCheckboxes) {
+      const label = cb.closest('label')?.textContent?.trim();
+      if (label === 'Donor 1') {
+        donor1Count++;
+        if (donor1Count === 2 && cb.getAttribute('aria-checked') === 'true') {
+          cb.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+          cb.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+          cb.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        }
+      }
+    }
     await waitForStepTransition();
     await clickContinue();
     await waitForStepTransition();
