@@ -199,23 +199,6 @@ export const createFamilyPedigreeStore = (
         },
 
         generateQuickStartNetwork: (data) => {
-          // eslint-disable-next-line no-console
-          console.log(
-            '[generateQuickStartNetwork]',
-            JSON.stringify({
-              parentCount: data.parents.length,
-              parents: data.parents.map((p) => ({
-                name: p.name,
-                edgeType: p.edgeType,
-              })),
-              egoParentIndices: data.egoParentIndices,
-              siblingCount: data.siblings.length,
-              siblings: data.siblings.map((s) => ({
-                name: s.name,
-                shared: s.sharedParentIndices,
-              })),
-            }),
-          );
           get().clearNetwork();
 
           const egoId = get().addNode({
@@ -357,32 +340,6 @@ export const createFamilyPedigreeStore = (
               isActive: true,
             });
           }
-
-          // Debug: dump generated network
-          const { nodes: genNodes, edges: genEdges } = get().network;
-          // eslint-disable-next-line no-console
-          console.log(
-            '[generateQuickStartNetwork] RESULT nodes:',
-            [...genNodes.entries()].map(([id, n]) => ({
-              id: id.substring(0, 8),
-              label: n.label,
-              isEgo: n.isEgo,
-            })),
-          );
-          // eslint-disable-next-line no-console
-          console.log(
-            '[generateQuickStartNetwork] RESULT edges:',
-            [...genEdges.values()].map((e) => ({
-              src:
-                [...genNodes.entries()].find(([id]) => id === e.source)?.[1]
-                  ?.label || e.source.substring(0, 8),
-              tgt:
-                [...genNodes.entries()].find(([id]) => id === e.target)?.[1]
-                  ?.label || e.target.substring(0, 8),
-              type: e.relationshipType,
-              active: e.isActive,
-            })),
-          );
         },
 
         syncMetadata: () => {
