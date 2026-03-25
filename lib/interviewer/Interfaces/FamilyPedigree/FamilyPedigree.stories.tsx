@@ -1014,7 +1014,11 @@ export const SingleParentTwoDonors: ScenarioStory = {
     );
     donor2Cb.scrollIntoView();
     await userEvent.click(donor2Cb);
-    await waitForStepTransition();
+
+    // Verify the checkbox actually unchecked
+    await waitFor(async () => {
+      await expect(donor2Cb).toHaveAttribute('aria-checked', 'false');
+    });
 
     // Fill sibling details
     await typeInTextbox('Half Sib', 0);
@@ -1034,7 +1038,12 @@ export const SingleParentTwoDonors: ScenarioStory = {
     // Index 1 is the sibling's "Donor 1" checkbox
     donor1Cbs[1]!.scrollIntoView();
     await userEvent.click(donor1Cbs[1]!);
-    await waitForStepTransition();
+
+    // Verify the checkbox actually unchecked
+    await waitFor(async () => {
+      await expect(donor1Cbs[1]).toHaveAttribute('aria-checked', 'false');
+    });
+
     await clickContinue();
     await waitForStepTransition();
 
