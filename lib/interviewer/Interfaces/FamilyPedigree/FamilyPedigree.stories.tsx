@@ -1004,7 +1004,6 @@ export const SingleParentTwoDonors: ScenarioStory = {
     // Uncheck Donor 2 from ego's parents and Donor 1 from sibling's parents
     // Use raw (non-instrumented) userEvent because storybook's instrumented
     // userEvent doesn't properly trigger Base UI checkbox onCheckedChange
-    const rawUser = _rawUserEvent.setup();
     const egoParentsContainer = await screen.findByTestId(
       'ego-parents-checkboxes',
       {},
@@ -1016,7 +1015,7 @@ export const SingleParentTwoDonors: ScenarioStory = {
       { name: 'Donor 2' },
       STEP_TIMEOUT,
     );
-    await rawUser.click(donor2Checkbox);
+    await _rawUserEvent.click(donor2Checkbox);
     await waitForStepTransition();
 
     // Fill sibling details
@@ -1035,7 +1034,7 @@ export const SingleParentTwoDonors: ScenarioStory = {
       STEP_TIMEOUT,
     );
     // Index 1 is the sibling's "Donor 1" checkbox
-    await rawUser.click(donor1Checkboxes[1]!);
+    await _rawUserEvent.click(donor1Checkboxes[1]!);
     await waitForStepTransition();
     await clickContinue();
     await waitForStepTransition();
