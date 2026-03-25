@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
@@ -80,6 +80,28 @@ function SiblingsDetailForm() {
 
   const existingEgoParents = data.egoParentIndices as number[] | undefined;
 
+  const parentOptions = useMemo(
+    () =>
+      parents.map((p, pIdx) => ({
+        value: String(pIdx),
+        label: p.name || `Parent ${pIdx + 1}`,
+      })),
+    [parents],
+  );
+
+  const allParentIndices = useMemo(
+    () => parents.map((_, pIdx) => String(pIdx)),
+    [parents],
+  );
+
+  const egoParentsInitial = useMemo(
+    () =>
+      existingEgoParents
+        ? existingEgoParents.map((idx) => String(idx))
+        : allParentIndices,
+    [existingEgoParents, allParentIndices],
+  );
+
   return (
     <div className="flex flex-col gap-6 pt-4">
       {parents.length >= 3 && (
@@ -93,15 +115,8 @@ function SiblingsDetailForm() {
             label="Which of these parents are YOUR parents?"
             data-testid="ego-parents-checkboxes"
             component={CheckboxGroupField}
-            options={parents.map((p, pIdx) => ({
-              value: String(pIdx),
-              label: p.name || `Parent ${pIdx + 1}`,
-            }))}
-            initialValue={
-              existingEgoParents
-                ? existingEgoParents.map((idx) => String(idx))
-                : parents.map((_, pIdx) => String(pIdx))
-            }
+            options={parentOptions}
+            initialValue={egoParentsInitial}
           />
         </Surface>
       )}
@@ -120,14 +135,11 @@ function SiblingsDetailForm() {
               name={`sibling-${i}-sharedParents`}
               label={`Which of your parents are also ${existing?.[i]?.name || 'this sibling'}'s parent?`}
               component={CheckboxGroupField}
-              options={parents.map((p, pIdx) => ({
-                value: String(pIdx),
-                label: p.name || `Parent ${pIdx + 1}`,
-              }))}
+              options={parentOptions}
               initialValue={
                 existing?.[i]?.sharedParentIndices
                   ? existing[i].sharedParentIndices.map((idx) => String(idx))
-                  : parents.map((_, pIdx) => String(pIdx))
+                  : allParentIndices
               }
             />
           )}
