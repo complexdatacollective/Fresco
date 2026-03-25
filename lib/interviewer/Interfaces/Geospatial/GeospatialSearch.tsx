@@ -244,6 +244,7 @@ export default function GeospatialSearch({
                 value={query}
                 onChange={handleQueryChange}
                 onKeyDown={handleInputKeyDown}
+                data-testid="geospatial-search-input"
                 // ARIA combobox attributes
                 role="combobox"
                 aria-expanded={showSuggestions}
@@ -258,6 +259,7 @@ export default function GeospatialSearch({
                       size="sm"
                       onClick={handleClear}
                       aria-label="Clear search"
+                      data-testid="geospatial-search-clear"
                       tabIndex={-1}
                     />
                   ) : undefined

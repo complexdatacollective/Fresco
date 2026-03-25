@@ -176,7 +176,25 @@ export class ProtocolFixture {
 
     if (protocol.assetManifest) {
       for (const [assetId, asset] of Object.entries(protocol.assetManifest)) {
-        if (asset.type === 'apikey') continue;
+        // Handle API key assets (e.g., Mapbox token)
+        if (asset.type === 'apikey') {
+          if ('value' in asset && asset.value) {
+            await this.prisma.asset.create({
+              data: {
+                key: createId(),
+                assetId,
+                name: asset.name,
+                type: asset.type,
+                url: '', // API keys don't have URLs
+                size: 0,
+                value: asset.value,
+                protocols: { connect: { id: protocolId } },
+              },
+            });
+          }
+          continue;
+        }
+
         if (!('source' in asset)) continue;
 
         await this.prisma.asset.create({

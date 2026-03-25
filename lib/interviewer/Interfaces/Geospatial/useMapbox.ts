@@ -102,10 +102,6 @@ export const useMapbox = ({
   initialSelectionValue,
   onSelectionChange,
 }: UseMapboxProps) => {
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<mapboxgl.Map | null>(null);
-  const [isMapLoaded, setIsMapLoaded] = useState(false);
-
   const {
     center,
     initialZoom,
@@ -116,6 +112,11 @@ export const useMapbox = ({
     style,
     showTransit,
   } = mapOptions;
+
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState<number>(initialZoom);
 
   // get token value from asset manifest, using id
   const getApiAssetKeyValue = useSelector(makeGetApiKeyAssetValue);
@@ -309,6 +310,14 @@ export const useMapbox = ({
 
     mapRef.current.on('load', handleMapStyleLoad);
 
+    // Track zoom level changes for testing
+    mapRef.current.on('zoomend', () => {
+      const zoom = mapRef.current?.getZoom();
+      if (zoom !== undefined) {
+        setZoomLevel(zoom);
+      }
+    });
+
     return () => {
       mapRef.current?.remove();
     };
@@ -436,6 +445,8 @@ export const useMapbox = ({
     mapContainerRef,
     mapRef,
     accessToken,
+    isMapLoaded,
+    zoomLevel,
     handleResetMapZoom,
     handleZoomIn,
     handleZoomOut,

@@ -230,15 +230,115 @@ test.describe('SILOS Protocol', () => {
     await expect(interview.nextButton).toBeEnabled();
   });
 
-  test.fixme('Stage 8: Geospatial Interface', async ({ page, interview }) => {
+  test('Stage 8: Geospatial Interface', async ({ interview, stage, browserName }) => {
+    // Skip on Firefox - Playwright's Firefox lacks WebGL support for Mapbox GL JS
+    // See: https://bugzilla.mozilla.org/show_bug.cgi?id=1375585
+    test.skip(browserName === 'firefox', 'Firefox lacks WebGL support in Playwright');
+
     await interview.goto(8);
 
-    // todo: figure out api key handling to test map interactions
+    // --- Verify prompt is visible ---
+    await expect(stage.geospatial.getPrompt()).toBeVisible();
 
-    // For now, just verify the map container is visible
-    await expect(page.getByTestId('map-container')).toBeVisible();
+    // --- Verify core UI elements are visible ---
+    await expect(stage.geospatial.mapContainer).toBeVisible();
+    await expect(stage.geospatial.toolbar).toBeVisible();
 
-    // Information stage - should be able to proceed immediately
+    // Verify the current node (Me) is displayed
+    await expect(stage.geospatial.getNode('Me')).toBeVisible();
+
+    // --- Wait for map to fully load with all layers ---
+    await stage.geospatial.waitForMapLoad();
+    expect(await stage.geospatial.isMapLoaded()).toBe(true);
+
+    // --- Test zoom controls ---
+    await expect(stage.geospatial.zoomInButton).toBeVisible();
+    await expect(stage.geospatial.zoomOutButton).toBeVisible();
+    await expect(stage.geospatial.recenterButton).toBeVisible();
+
+    // Click zoom controls
+    await stage.geospatial.zoomIn();
+    await stage.geospatial.zoomOut();
+    await stage.geospatial.recenter();
+
+    // --- Test search toggle ---
+    await expect(stage.geospatial.searchToggle).toBeVisible();
+
+    // Open search panel
+    await stage.geospatial.openSearch();
+    expect(await stage.geospatial.isSearchOpen()).toBe(true);
+
+    // Verify search input is visible
+    await expect(stage.geospatial.searchInput).toBeVisible();
+
+    // --- Test actual search functionality ---
+    await stage.geospatial.searchInput.fill('Sidetrack');
+
+    // Wait for suggestions to appear
+    await expect(stage.geospatial.getSuggestions().first()).toBeVisible({
+      timeout: 10000,
+    });
+
+    // Verify we got suggestions
+    const suggestionCount = await stage.geospatial.getSuggestions().count();
+    expect(suggestionCount).toBeGreaterThan(0);
+
+    // Select the first suggestion - this should pan the map
+    await stage.geospatial.getSuggestions().first().click();
+
+    // Clear search and close panel
+    await stage.geospatial.closeSearch();
+    expect(await stage.geospatial.isSearchOpen()).toBe(false);
+
+    // --- Test map selection by clicking on a selectable area ---
+    // The silos protocol uses Chicago neighborhoods - click near center of map
+    // which should be within the selectable GeoJSON area
+    await stage.geospatial.clickOnMap(0.5, 0.5);
+
+    // Validation should be released after selecting an area
+    // Wait for the selection to register and pulse to appear
+    await expect
+      .poll(() => interview.nextButtonHasPulse(), { timeout: 5000 })
+      .toBe(true);
+
+    // --- Test deselection by clicking "Outside Selectable Areas" ---
+    // This will replace the map selection with "outside-selectable-areas"
+    await stage.geospatial.selectOutsideSelectableAreas();
+
+    // Verify overlay appears
+    await expect(stage.geospatial.outsideSelectableOverlay).toBeVisible();
+    expect(await stage.geospatial.isOutsideSelectableAreasSelected()).toBe(
+      true,
+    );
+
+    // Verify the button is now disabled (can't select again)
+    await expect(stage.geospatial.outsideSelectableAreasButton).toBeDisabled();
+
+    // Validation should still be released (we have a selection)
+    expect(await interview.nextButtonHasPulse()).toBe(true);
+
+    // Deselect the outside area
+    await stage.geospatial.deselectOutsideArea();
+
+    // Verify overlay disappears
+    await expect(stage.geospatial.outsideSelectableOverlay).not.toBeVisible();
+    expect(await stage.geospatial.isOutsideSelectableAreasSelected()).toBe(
+      false,
+    );
+
+    // Button should be enabled again
+    await expect(stage.geospatial.outsideSelectableAreasButton).toBeEnabled();
+
+    // Pulse should be gone (no selection)
+    expect(await interview.nextButtonHasPulse()).toBe(false);
+
+    // --- Make a selection to proceed to next stage ---
+    // Click on map to select an area
+    await stage.geospatial.clickOnMap(0.5, 0.5);
+    await expect
+      .poll(() => interview.nextButtonHasPulse(), { timeout: 5000 })
+      .toBe(true);
+
     await expect(interview.nextButton).toBeEnabled();
   });
 

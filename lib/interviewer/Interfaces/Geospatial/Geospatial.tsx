@@ -2,9 +2,9 @@ import {
   entityPrimaryKeyProperty,
   type VariableValue,
 } from '@codaco/shared-consts';
-import { type ExtendedMapOptions } from '~/lib/interviewer/Interfaces/Geospatial/useMapbox';
 import { type Action } from '@reduxjs/toolkit';
 import { LocateFixed, ZoomIn, ZoomOut } from 'lucide-react';
+import { type ExtendedMapOptions } from '~/lib/interviewer/Interfaces/Geospatial/useMapbox';
 // import 'mapbox-gl/dist/mapbox-gl.css';
 import { AnimatePresence, motion, type Variants } from 'motion/react';
 import dynamic from 'next/dynamic';
@@ -20,8 +20,8 @@ import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
-import CollapsablePrompts from '~/lib/interviewer/Interfaces/Sociogram/CollapsablePrompts';
 import { useMapbox } from '~/lib/interviewer/Interfaces/Geospatial/useMapbox';
+import CollapsablePrompts from '~/lib/interviewer/Interfaces/Sociogram/CollapsablePrompts';
 import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { type RootState } from '~/lib/interviewer/store';
 import { type Direction, type StageProps } from '~/lib/interviewer/types';
@@ -130,6 +130,8 @@ export default function GeospatialInterface({
     mapContainerRef,
     mapRef,
     accessToken,
+    isMapLoaded,
+    zoomLevel,
     handleResetMapZoom,
     handleZoomIn,
     handleZoomOut,
@@ -230,14 +232,19 @@ export default function GeospatialInterface({
   return (
     <div className="relative flex size-full flex-col" ref={dragSafeRef}>
       <motion.div
-        id="map-container"
         className="size-full"
         ref={mapContainerRef}
         variants={fadeVariants}
+        data-testid="map-container"
+        data-map-loaded={isMapLoaded}
+        data-zoom-level={zoomLevel}
       >
         {/* if outside-selectable-areas, add an overlay */}
         {initialSelectionValue === 'outside-selectable-areas' && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center">
+          <div
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center"
+            data-testid="outside-selectable-overlay"
+          >
             <div className="bg-background absolute inset-0 opacity-75" />
             <div className="relative z-20 flex w-1/3 flex-col items-center gap-6 text-center">
               <h2>
@@ -250,6 +257,7 @@ export default function GeospatialInterface({
                   setLocationValue(null);
                 }}
                 color="primary"
+                data-testid="deselect-outside-area-button"
               >
                 Deselect
               </Button>
@@ -274,6 +282,7 @@ export default function GeospatialInterface({
           spacing="none"
           elevation="none"
           className="bg-surface/60 absolute right-4 bottom-4 z-5 flex flex-col gap-2 rounded-xl p-2 shadow-2xl backdrop-blur-md"
+          data-testid="map-toolbar"
           variants={{
             initial: {
               opacity: 0,
@@ -291,6 +300,7 @@ export default function GeospatialInterface({
             icon={<ZoomIn />}
             aria-label="Zoom In"
             color="dynamic"
+            data-testid="map-zoom-in"
           />
           <IconButton
             size="lg"
@@ -298,6 +308,7 @@ export default function GeospatialInterface({
             icon={<ZoomOut />}
             aria-label="Zoom Out"
             color="dynamic"
+            data-testid="map-zoom-out"
           />
           <IconButton
             size="lg"
@@ -305,6 +316,7 @@ export default function GeospatialInterface({
             icon={<LocateFixed />}
             aria-label="Recenter Map"
             color="dynamic"
+            data-testid="map-recenter"
           />
         </MotionSurface>
 
@@ -333,6 +345,7 @@ export default function GeospatialInterface({
             color="primary"
             onClick={handleOutsideSelectableAreas}
             disabled={initialSelectionValue === 'outside-selectable-areas'}
+            data-testid="outside-selectable-areas-button"
           >
             Outside Selectable Areas
           </Button>

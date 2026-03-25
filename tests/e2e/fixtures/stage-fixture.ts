@@ -641,6 +641,315 @@ class CategoricalBinFixture {
 }
 
 /**
+ * Geospatial fixture for geospatial/map stages.
+ *
+ * Provides methods to interact with the map, search, zoom controls,
+ * and map selection features.
+ */
+class GeospatialFixture {
+  readonly page: Page;
+
+  constructor(page: Page) {
+    this.page = page;
+  }
+
+  /**
+   * Get the map container locator.
+   */
+  get mapContainer(): Locator {
+    return this.page.getByTestId('map-container');
+  }
+
+  /**
+   * Get the map toolbar locator.
+   */
+  get toolbar(): Locator {
+    return this.page.getByTestId('map-toolbar');
+  }
+
+  /**
+   * Get the zoom in button locator.
+   */
+  get zoomInButton(): Locator {
+    return this.page.getByTestId('map-zoom-in');
+  }
+
+  /**
+   * Get the zoom out button locator.
+   */
+  get zoomOutButton(): Locator {
+    return this.page.getByTestId('map-zoom-out');
+  }
+
+  /**
+   * Get the recenter button locator.
+   */
+  get recenterButton(): Locator {
+    return this.page.getByTestId('map-recenter');
+  }
+
+  /**
+   * Get the search toggle button locator.
+   */
+  get searchToggle(): Locator {
+    return this.page.getByTestId('geospatial-search-toggle');
+  }
+
+  /**
+   * Get the "Outside Selectable Areas" button locator.
+   */
+  get outsideSelectableAreasButton(): Locator {
+    return this.page.getByTestId('outside-selectable-areas-button');
+  }
+
+  /**
+   * Get the overlay shown when "outside selectable areas" is selected.
+   */
+  get outsideSelectableOverlay(): Locator {
+    return this.page.getByTestId('outside-selectable-overlay');
+  }
+
+  /**
+   * Get the deselect button within the overlay.
+   */
+  get deselectButton(): Locator {
+    return this.page.getByTestId('deselect-outside-area-button');
+  }
+
+  /**
+   * Get the prompt locator.
+   * @param text - Optional text pattern to filter the prompt by content.
+   */
+  getPrompt(text?: string | RegExp): Locator {
+    const prompt = this.page.getByTestId('prompt');
+    return text ? prompt.filter({ hasText: text }) : prompt;
+  }
+
+  /**
+   * Wait for the Mapbox map to be fully loaded with all layers.
+   * Checks for the data-map-loaded attribute which indicates all layers are ready.
+   */
+  async waitForMapLoad(): Promise<void> {
+    // First wait for the canvas to render
+    const canvas = this.mapContainer.locator('canvas.mapboxgl-canvas');
+    await expect(canvas).toBeVisible({ timeout: 30000 });
+
+    // Then wait for all layers to be loaded (data-map-loaded="true")
+    await expect(this.mapContainer).toHaveAttribute('data-map-loaded', 'true', {
+      timeout: 30000,
+    });
+  }
+
+  /**
+   * Check if the map has fully loaded with all layers.
+   */
+  async isMapLoaded(): Promise<boolean> {
+    const attr = await this.mapContainer.getAttribute('data-map-loaded');
+    return attr === 'true';
+  }
+
+  /**
+   * Wait for the map canvas to be visible (basic map render, not layers).
+   */
+  async waitForMapCanvas(): Promise<void> {
+    const canvas = this.mapContainer.locator('canvas.mapboxgl-canvas');
+    await expect(canvas).toBeVisible({ timeout: 30000 });
+  }
+
+  /**
+   * Get the current zoom level from the map container's data attribute.
+   * Returns the zoom level or null if not available.
+   */
+  async getZoomLevel(): Promise<number | null> {
+    const zoomAttr = await this.mapContainer.getAttribute('data-zoom-level');
+    return zoomAttr ? parseFloat(zoomAttr) : null;
+  }
+
+  /**
+   * Click the zoom in button and verify zoom level increased.
+   */
+  async zoomIn(): Promise<void> {
+    const zoomBefore = await this.getZoomLevel();
+    await this.zoomInButton.click();
+
+    // Verify zoom increased
+    if (zoomBefore !== null) {
+      await expect
+        .poll(() => this.getZoomLevel(), { timeout: 3000 })
+        .toBeGreaterThan(zoomBefore);
+    }
+  }
+
+  /**
+   * Click the zoom out button and verify zoom level decreased.
+   */
+  async zoomOut(): Promise<void> {
+    const zoomBefore = await this.getZoomLevel();
+    await this.zoomOutButton.click();
+
+    // Verify zoom decreased
+    if (zoomBefore !== null) {
+      await expect
+        .poll(() => this.getZoomLevel(), { timeout: 3000 })
+        .toBeLessThan(zoomBefore);
+    }
+  }
+
+  /**
+   * Click the recenter button to reset map to initial position.
+   */
+  async recenter(): Promise<void> {
+    await this.recenterButton.click();
+    // Wait for pan/zoom animation
+    await this.page.waitForTimeout(500);
+  }
+
+  /**
+   * Open the search panel by clicking the search toggle.
+   */
+  async openSearch(): Promise<void> {
+    const isOpen = await this.isSearchOpen();
+    if (!isOpen) {
+      await this.searchToggle.click();
+      // Wait for search panel to appear
+      await expect(
+        this.page.getByRole('combobox', { name: /search/i }),
+      ).toBeVisible();
+    }
+  }
+
+  /**
+   * Close the search panel.
+   */
+  async closeSearch(): Promise<void> {
+    const isOpen = await this.isSearchOpen();
+    if (isOpen) {
+      await this.searchToggle.click();
+      // Wait for search panel to disappear
+      await expect(
+        this.page.getByRole('combobox', { name: /search/i }),
+      ).not.toBeVisible();
+    }
+  }
+
+  /**
+   * Check if the search panel is open.
+   */
+  async isSearchOpen(): Promise<boolean> {
+    const expanded = await this.searchToggle.getAttribute('aria-expanded');
+    return expanded === 'true';
+  }
+
+  /**
+   * Get the search input locator.
+   */
+  get searchInput(): Locator {
+    return this.page.getByTestId('geospatial-search-input');
+  }
+
+  /**
+   * Get the search clear button locator.
+   */
+  get searchClearButton(): Locator {
+    return this.page.getByTestId('geospatial-search-clear');
+  }
+
+  /**
+   * Search for a location by typing in the search input.
+   * Waits for suggestions to appear after typing.
+   * @param query - The search query to type
+   */
+  async search(query: string): Promise<void> {
+    await this.openSearch();
+    await this.searchInput.fill(query);
+    // Wait for suggestions to appear (handles debounced API call)
+    await expect(this.getSuggestions().first()).toBeVisible({ timeout: 10000 });
+  }
+
+  /**
+   * Get search suggestions list.
+   */
+  getSuggestions(): Locator {
+    return this.page.getByRole('option');
+  }
+
+  /**
+   * Select a search suggestion by its text.
+   * @param text - The suggestion text to click
+   */
+  async selectSuggestion(text: string | RegExp): Promise<void> {
+    const suggestion = this.page.getByRole('option', { name: text });
+    await expect(suggestion).toBeVisible();
+    await suggestion.click();
+    // Wait for map to fly to location
+    await this.page.waitForTimeout(1000);
+  }
+
+  /**
+   * Clear the search input.
+   */
+  async clearSearch(): Promise<void> {
+    if (await this.searchClearButton.isVisible()) {
+      await this.searchClearButton.click();
+      // Verify input is cleared
+      await expect(this.searchInput).toHaveValue('');
+    }
+  }
+
+  /**
+   * Click the "Outside Selectable Areas" button.
+   */
+  async selectOutsideSelectableAreas(): Promise<void> {
+    await this.outsideSelectableAreasButton.click();
+    // Wait for overlay to appear
+    await expect(this.outsideSelectableOverlay).toBeVisible();
+  }
+
+  /**
+   * Deselect the "outside selectable areas" option.
+   */
+  async deselectOutsideArea(): Promise<void> {
+    await this.deselectButton.click();
+    // Wait for overlay to disappear
+    await expect(this.outsideSelectableOverlay).not.toBeVisible();
+  }
+
+  /**
+   * Check if "outside selectable areas" is currently selected.
+   */
+  async isOutsideSelectableAreasSelected(): Promise<boolean> {
+    return this.outsideSelectableOverlay.isVisible();
+  }
+
+  /**
+   * Click on the map at a specific position relative to the map container.
+   * @param x - X coordinate (0-1 as percentage of width)
+   * @param y - Y coordinate (0-1 as percentage of height)
+   */
+  async clickOnMap(x: number, y: number): Promise<void> {
+    const box = await this.mapContainer.boundingBox();
+    if (!box) {
+      throw new Error('Map container not visible');
+    }
+
+    const clickX = box.x + box.width * x;
+    const clickY = box.y + box.height * y;
+
+    await this.page.mouse.click(clickX, clickY);
+    // Wait for selection to register
+    await this.page.waitForTimeout(300);
+  }
+
+  /**
+   * Get the current node being displayed (from CollapsablePrompts).
+   * @param label - The node label to find
+   */
+  getNode(label: string): Locator {
+    return this.page.getByRole('button', { name: new RegExp(`^${label}`) });
+  }
+}
+
+/**
  * Node Panel fixture for side panel interactions.
  */
 class NodePanelFixture {
@@ -704,6 +1013,7 @@ export class StageFixture {
   readonly sociogram: SociogramFixture;
   readonly ordinalBin: OrdinalBinFixture;
   readonly categoricalBin: CategoricalBinFixture;
+  readonly geospatial: GeospatialFixture;
 
   constructor(page: Page) {
     this.page = page;
@@ -714,6 +1024,7 @@ export class StageFixture {
     this.sociogram = new SociogramFixture(page);
     this.ordinalBin = new OrdinalBinFixture(page);
     this.categoricalBin = new CategoricalBinFixture(page);
+    this.geospatial = new GeospatialFixture(page);
   }
 
   /**
