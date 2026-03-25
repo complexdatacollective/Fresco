@@ -1002,20 +1002,19 @@ export const SingleParentTwoDonors: ScenarioStory = {
     // SiblingsDetailStep: ego's parents + 1 sibling
 
     // Uncheck Donor 2 from ego's parents and Donor 1 from sibling's parents
-    // Use raw (non-instrumented) userEvent because storybook's instrumented
-    // userEvent doesn't properly trigger Base UI checkbox onCheckedChange
+    // Uncheck Donor 2 from ego's parents by clicking the label text.
+    // Note: userEvent.click on the checkbox button element doesn't work
+    // in storybook's testing environment due to Base UI + motion.button
+    // interaction. Clicking the text label within the <label> element
+    // triggers the native label-checkbox association.
     const egoParentsContainer = await screen.findByTestId(
       'ego-parents-checkboxes',
       {},
       STEP_TIMEOUT,
     );
     const egoScope = within(egoParentsContainer);
-    const donor2Checkbox = await egoScope.findByRole(
-      'checkbox',
-      { name: 'Donor 2' },
-      STEP_TIMEOUT,
-    );
-    await _rawUserEvent.click(donor2Checkbox);
+    const donor2Text = await egoScope.findByText('Donor 2', {}, STEP_TIMEOUT);
+    await userEvent.click(donor2Text);
     await waitForStepTransition();
 
     // Fill sibling details
@@ -1027,14 +1026,11 @@ export const SingleParentTwoDonors: ScenarioStory = {
     );
     await userEvent.click(sibSexRadios[0]!);
 
-    // Uncheck Donor 1 from sibling's shared parents
-    const donor1Checkboxes = await screen.findAllByRole(
-      'checkbox',
-      { name: 'Donor 1' },
-      STEP_TIMEOUT,
-    );
-    // Index 1 is the sibling's "Donor 1" checkbox
-    await _rawUserEvent.click(donor1Checkboxes[1]!);
+    // Uncheck Donor 1 from sibling's shared parents by clicking label text.
+    // There are 2 "Donor 1" text elements: ego group and sibling group.
+    const donor1Texts = await screen.findAllByText('Donor 1', {}, STEP_TIMEOUT);
+    // Index 1 is the sibling group's "Donor 1" text
+    await userEvent.click(donor1Texts[1]!);
     await waitForStepTransition();
     await clickContinue();
     await waitForStepTransition();
