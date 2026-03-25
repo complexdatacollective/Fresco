@@ -1001,22 +1001,18 @@ export const SingleParentTwoDonors: ScenarioStory = {
     // SiblingsDetailStep: ego's parents + 1 sibling
 
     // Uncheck Donor 2 from ego's parents
-    // Find the checkbox and click its parent label to toggle
     const egoParentsContainer = await screen.findByTestId(
       'ego-parents-checkboxes',
       {},
       STEP_TIMEOUT,
     );
     const egoScope = within(egoParentsContainer);
-    const donor2InEgo = await egoScope.findByRole(
+    const donor2Checkbox = await egoScope.findByRole(
       'checkbox',
       { name: 'Donor 2' },
       STEP_TIMEOUT,
     );
-    const donor2Label = donor2InEgo.closest('label');
-    if (donor2Label) {
-      await userEvent.click(donor2Label);
-    }
+    await userEvent.pointer({ keys: '[MouseLeft]', target: donor2Checkbox });
     await waitForStepTransition();
 
     // Fill sibling details
@@ -1034,11 +1030,10 @@ export const SingleParentTwoDonors: ScenarioStory = {
       { name: 'Donor 1' },
       STEP_TIMEOUT,
     );
-    // The sibling's "Donor 1" is the second one (index 1)
-    const donor1Label = donor1Checkboxes[1]?.closest('label');
-    if (donor1Label) {
-      await userEvent.click(donor1Label);
-    }
+    await userEvent.pointer({
+      keys: '[MouseLeft]',
+      target: donor1Checkboxes[1]!,
+    });
     await waitForStepTransition();
     await clickContinue();
     await waitForStepTransition();
