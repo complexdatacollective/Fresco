@@ -1000,7 +1000,8 @@ export const SingleParentTwoDonors: ScenarioStory = {
 
     // SiblingsDetailStep: ego's parents + 1 sibling
 
-    // Uncheck Donor 2 from ego's parents using testid container
+    // Uncheck Donor 2 from ego's parents
+    // Find the checkbox and click its parent label to toggle
     const egoParentsContainer = await screen.findByTestId(
       'ego-parents-checkboxes',
       {},
@@ -1012,8 +1013,10 @@ export const SingleParentTwoDonors: ScenarioStory = {
       { name: 'Donor 2' },
       STEP_TIMEOUT,
     );
-    // Use direct click — userEvent.click doesn't reliably toggle Base UI checkboxes
-    donor2InEgo.click();
+    const donor2Label = donor2InEgo.closest('label');
+    if (donor2Label) {
+      await userEvent.click(donor2Label);
+    }
     await waitForStepTransition();
 
     // Fill sibling details
@@ -1032,7 +1035,10 @@ export const SingleParentTwoDonors: ScenarioStory = {
       STEP_TIMEOUT,
     );
     // The sibling's "Donor 1" is the second one (index 1)
-    donor1Checkboxes[1]?.click();
+    const donor1Label = donor1Checkboxes[1]?.closest('label');
+    if (donor1Label) {
+      await userEvent.click(donor1Label);
+    }
     await waitForStepTransition();
     await clickContinue();
     await waitForStepTransition();
