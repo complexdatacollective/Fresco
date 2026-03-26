@@ -813,6 +813,61 @@ describe('generateQuickStartNetwork', () => {
     );
     expect(donor1ToSib).toBeUndefined();
   });
+
+  it('creates half-sibling other parent with parent edge and former partner edge', () => {
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    store.getState().generateQuickStartNetwork(
+      quickStart({
+        parents: [
+          { name: 'Mom', nameKnown: true, edgeType: 'biological' },
+          { name: 'Dad', nameKnown: true, edgeType: 'biological' },
+        ],
+        parentPartnerships: [{ parentIndices: [0, 1], isActive: true }],
+        siblings: [{ name: 'HalfSib', sharedParentIndices: [0] }],
+        halfSiblingOtherParents: [
+          {
+            name: 'OtherDad',
+            nameKnown: true,
+            siblingIndex: 0,
+            sharedParentIndices: [0],
+          },
+        ],
+      }),
+    );
+
+    const { nodes, edges } = store.getState().network;
+    // ego + 2 parents + 1 sibling + 1 other parent = 5
+    expect(nodes.size).toBe(5);
+
+    const otherDad = [...nodes.entries()].find(
+      ([, n]) => n.attributes[testConfig.nodeLabelVariable] === 'OtherDad',
+    )!;
+    const halfSib = [...nodes.entries()].find(
+      ([, n]) => n.attributes[testConfig.nodeLabelVariable] === 'HalfSib',
+    )!;
+    const mom = [...nodes.entries()].find(
+      ([, n]) => n.attributes[testConfig.nodeLabelVariable] === 'Mom',
+    )!;
+
+    // OtherDad -> HalfSib parent edge
+    const parentEdge = [...edges.values()].find(
+      (e) =>
+        e.source === otherDad[0] &&
+        e.target === halfSib[0] &&
+        e.relationshipType === 'biological',
+    );
+    expect(parentEdge).toBeDefined();
+
+    // OtherDad <-> Mom former partner edge
+    const partnerEdge = [...edges.values()].find(
+      (e) =>
+        e.relationshipType === 'partner' &&
+        ((e.source === otherDad[0] && e.target === mom[0]) ||
+          (e.source === mom[0] && e.target === otherDad[0])) &&
+        e.isActive === false,
+    );
+    expect(partnerEdge).toBeDefined();
+  });
 });
 
 describe('syncMetadata', () => {

@@ -420,10 +420,12 @@ export const createFamilyPedigreeStore = (
             }
           }
 
+          const siblingIds: string[] = [];
           for (const sibling of data.siblings) {
             const siblingId = get().addNode(
               personToNodeData(sibling, variableConfig),
             );
+            siblingIds.push(siblingId);
             for (const parentIdx of sibling.sharedParentIndices) {
               const parentId = parentIds[parentIdx];
               if (!parentId) continue;
@@ -447,6 +449,40 @@ export const createFamilyPedigreeStore = (
                 target: siblingId,
                 relationshipType: edgeType,
                 isActive: true,
+              });
+            }
+          }
+
+          for (const entry of data.halfSiblingOtherParents) {
+            const siblingNodeId = siblingIds[entry.siblingIndex];
+            if (!siblingNodeId) continue;
+
+            const otherParentId = get().addNode(
+              personToNodeData(
+                {
+                  name: entry.nameKnown ? entry.name : '',
+                  biologicalSex: entry.biologicalSex,
+                  attributes: entry.attributes,
+                },
+                variableConfig,
+              ),
+            );
+
+            get().addEdge({
+              source: otherParentId,
+              target: siblingNodeId,
+              relationshipType: 'biological',
+              isActive: true,
+            });
+
+            const sharedParentNodeId =
+              unifiedParentNodeIds[entry.sharedParentIndices[0]!];
+            if (sharedParentNodeId) {
+              get().addEdge({
+                source: otherParentId,
+                target: sharedParentNodeId,
+                relationshipType: 'partner',
+                isActive: false,
               });
             }
           }
