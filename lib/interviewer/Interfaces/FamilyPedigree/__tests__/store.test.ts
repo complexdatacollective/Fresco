@@ -868,6 +868,86 @@ describe('generateQuickStartNetwork', () => {
     );
     expect(partnerEdge).toBeDefined();
   });
+
+  it('creates sibling partner and niblings', () => {
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    store.getState().generateQuickStartNetwork(
+      quickStart({
+        parents: [
+          { name: 'Mom', nameKnown: true, edgeType: 'biological' },
+          { name: 'Dad', nameKnown: true, edgeType: 'biological' },
+        ],
+        parentPartnerships: [{ parentIndices: [0, 1], isActive: true }],
+        siblings: [{ name: 'Bro', sharedParentIndices: [0, 1] }],
+        siblingFamilies: [
+          {
+            siblingIndex: 0,
+            hasPartner: true,
+            partner: { name: 'SisterInLaw' },
+            children: [{ name: 'Niece' }],
+          },
+        ],
+      }),
+    );
+
+    const { nodes, edges } = store.getState().network;
+    // ego + 2 parents + bro + sister-in-law + niece = 6
+    expect(nodes.size).toBe(6);
+
+    const niece = [...nodes.entries()].find(
+      ([, n]) => n.attributes[testConfig.nodeLabelVariable] === 'Niece',
+    )!;
+    const bro = [...nodes.entries()].find(
+      ([, n]) => n.attributes[testConfig.nodeLabelVariable] === 'Bro',
+    )!;
+    const sil = [...nodes.entries()].find(
+      ([, n]) => n.attributes[testConfig.nodeLabelVariable] === 'SisterInLaw',
+    )!;
+
+    // Niece has 2 parent edges
+    const nieceParentEdges = [...edges.values()].filter(
+      (e) => e.target === niece[0] && e.relationshipType !== 'partner',
+    );
+    expect(nieceParentEdges).toHaveLength(2);
+
+    // Bro <-> SisterInLaw partner edge
+    const partnerEdge = [...edges.values()].find(
+      (e) =>
+        e.relationshipType === 'partner' &&
+        ((e.source === bro[0] && e.target === sil[0]) ||
+          (e.source === sil[0] && e.target === bro[0])),
+    );
+    expect(partnerEdge).toBeDefined();
+  });
+
+  it('creates niblings without partner (single parent sibling)', () => {
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    store.getState().generateQuickStartNetwork(
+      quickStart({
+        siblings: [{ name: 'Sis', sharedParentIndices: [] }],
+        siblingFamilies: [
+          {
+            siblingIndex: 0,
+            hasPartner: false,
+            children: [{ name: 'Nephew' }],
+          },
+        ],
+      }),
+    );
+
+    const { nodes, edges } = store.getState().network;
+    // ego + sis + nephew = 3
+    expect(nodes.size).toBe(3);
+
+    const nephew = [...nodes.entries()].find(
+      ([, n]) => n.attributes[testConfig.nodeLabelVariable] === 'Nephew',
+    )!;
+
+    const nephewParentEdges = [...edges.values()].filter(
+      (e) => e.target === nephew[0] && e.relationshipType !== 'partner',
+    );
+    expect(nephewParentEdges).toHaveLength(1);
+  });
 });
 
 describe('syncMetadata', () => {

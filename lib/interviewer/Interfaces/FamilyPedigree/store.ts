@@ -487,6 +487,45 @@ export const createFamilyPedigreeStore = (
             }
           }
 
+          // --- Extended family: Sibling partners & niblings ---
+          for (const sf of data.siblingFamilies) {
+            const siblingNodeId = siblingIds[sf.siblingIndex];
+            if (!siblingNodeId) continue;
+
+            let sibPartnerNodeId: string | undefined;
+            if (sf.hasPartner && sf.partner) {
+              sibPartnerNodeId = get().addNode(
+                personToNodeData(sf.partner, variableConfig),
+              );
+              get().addEdge({
+                source: siblingNodeId,
+                target: sibPartnerNodeId,
+                relationshipType: 'partner',
+                isActive: true,
+              });
+            }
+
+            for (const nibling of sf.children) {
+              const niblingId = get().addNode(
+                personToNodeData(nibling, variableConfig),
+              );
+              get().addEdge({
+                source: siblingNodeId,
+                target: niblingId,
+                relationshipType: 'biological',
+                isActive: true,
+              });
+              if (sibPartnerNodeId) {
+                get().addEdge({
+                  source: sibPartnerNodeId,
+                  target: niblingId,
+                  relationshipType: 'biological',
+                  isActive: true,
+                });
+              }
+            }
+          }
+
           let partnerId: string | undefined;
           if (data.partner.hasPartner) {
             partnerId = get().addNode(
