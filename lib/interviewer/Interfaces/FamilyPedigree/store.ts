@@ -293,6 +293,7 @@ export const createFamilyPedigreeStore = (
             }
           }
 
+          const bioParentIds: string[] = [];
           for (const bp of data.bioParents) {
             const bpId = get().addNode({
               ...personToNodeData(bp, variableConfig),
@@ -301,12 +302,58 @@ export const createFamilyPedigreeStore = (
                 [variableConfig.nodeLabelVariable]: bp.nameKnown ? bp.name : '',
               },
             });
+            bioParentIds.push(bpId);
             get().addEdge({
               source: bpId,
               target: egoId,
               relationshipType: 'biological',
               isActive: true,
             });
+          }
+
+          const unifiedParentNodeIds = [...parentIds, ...bioParentIds];
+
+          const grandparentIdsByBranch = new Map<number, [string, string]>();
+          for (
+            let branchIdx = 0;
+            branchIdx < data.parentBranches.length;
+            branchIdx++
+          ) {
+            const branch = data.parentBranches[branchIdx]!;
+            const parentNodeId = unifiedParentNodeIds[branch.parentIndex];
+            if (!parentNodeId) continue;
+
+            const gpIds: [string, string] = ['', ''];
+            for (const gpIdx of [0, 1] as const) {
+              const gp = branch.grandparents[gpIdx];
+              const gpId = get().addNode(
+                personToNodeData(
+                  {
+                    name: gp.nameKnown ? gp.name : '',
+                    biologicalSex: gp.biologicalSex,
+                    attributes: gp.attributes,
+                  },
+                  variableConfig,
+                ),
+              );
+              gpIds[gpIdx] = gpId;
+
+              get().addEdge({
+                source: gpId,
+                target: parentNodeId,
+                relationshipType: 'biological',
+                isActive: true,
+              });
+            }
+
+            get().addEdge({
+              source: gpIds[0],
+              target: gpIds[1],
+              relationshipType: 'partner',
+              isActive: true,
+            });
+
+            grandparentIdsByBranch.set(branchIdx, gpIds);
           }
 
           for (const sibling of data.siblings) {

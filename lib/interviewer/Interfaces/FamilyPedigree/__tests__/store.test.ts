@@ -536,6 +536,103 @@ describe('generateQuickStartNetwork', () => {
     expect(sib2ParentEdges).toHaveLength(2);
   });
 
+  it('creates grandparents for each parent branch', () => {
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    store.getState().generateQuickStartNetwork(
+      quickStart({
+        parents: [
+          { name: 'Mom', nameKnown: true, edgeType: 'biological' },
+          { name: 'Dad', nameKnown: true, edgeType: 'biological' },
+        ],
+        parentPartnerships: [{ parentIndices: [0, 1], isActive: true }],
+        parentBranches: [
+          {
+            parentIndex: 0,
+            grandparents: [
+              { name: 'Grandma1', nameKnown: true },
+              { name: 'Grandpa1', nameKnown: true },
+            ],
+            auntUncleCount: 0,
+            auntsUncles: [],
+          },
+          {
+            parentIndex: 1,
+            grandparents: [
+              { name: 'Grandma2', nameKnown: true },
+              { name: 'Grandpa2', nameKnown: true },
+            ],
+            auntUncleCount: 0,
+            auntsUncles: [],
+          },
+        ],
+      }),
+    );
+
+    const { nodes, edges } = store.getState().network;
+    // ego + 2 parents + 4 grandparents = 7
+    expect(nodes.size).toBe(7);
+
+    const grandma1 = [...nodes.entries()].find(
+      ([, n]) => n.attributes[testConfig.nodeLabelVariable] === 'Grandma1',
+    );
+    const grandpa1 = [...nodes.entries()].find(
+      ([, n]) => n.attributes[testConfig.nodeLabelVariable] === 'Grandpa1',
+    );
+    expect(grandma1).toBeDefined();
+    expect(grandpa1).toBeDefined();
+
+    const momEntry = [...nodes.entries()].find(
+      ([, n]) => n.attributes[testConfig.nodeLabelVariable] === 'Mom',
+    )!;
+
+    // Each grandparent has a parent edge to Mom
+    const gpToMomEdges = [...edges.values()].filter(
+      (e) => e.target === momEntry[0] && e.relationshipType !== 'partner',
+    );
+    expect(gpToMomEdges).toHaveLength(2);
+
+    // Grandparent pair has a partner edge
+    const gpPartnerEdges = [...edges.values()].filter(
+      (e) =>
+        e.relationshipType === 'partner' &&
+        ((e.source === grandma1![0] && e.target === grandpa1![0]) ||
+          (e.source === grandpa1![0] && e.target === grandma1![0])),
+    );
+    expect(gpPartnerEdges).toHaveLength(1);
+  });
+
+  it('creates grandparent nodes with empty name when nameKnown is false', () => {
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    store.getState().generateQuickStartNetwork(
+      quickStart({
+        parents: [{ name: 'Mom', nameKnown: true, edgeType: 'biological' }],
+        parentBranches: [
+          {
+            parentIndex: 0,
+            grandparents: [
+              { name: 'Grandma', nameKnown: true },
+              { name: 'UnknownGP', nameKnown: false },
+            ],
+            auntUncleCount: 0,
+            auntsUncles: [],
+          },
+        ],
+      }),
+    );
+
+    // ego + mom + 2 grandparents = 4
+    expect(store.getState().network.nodes.size).toBe(4);
+
+    // The unknown grandparent should have empty name
+    const unknownGP = [...store.getState().network.nodes.values()].find(
+      (n) =>
+        !n.isEgo &&
+        n.attributes[testConfig.nodeLabelVariable] === '' &&
+        n !== [...store.getState().network.nodes.values()].find((x) => x.isEgo),
+    );
+    expect(unknownGP).toBeDefined();
+  });
+
   it('single parent two donors: ego gets Mom+Donor1, sibling gets Mom+Donor2', () => {
     const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     store.getState().generateQuickStartNetwork(
