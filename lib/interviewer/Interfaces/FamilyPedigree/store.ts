@@ -356,6 +356,70 @@ export const createFamilyPedigreeStore = (
             grandparentIdsByBranch.set(branchIdx, gpIds);
           }
 
+          // --- Extended family: Aunts/uncles & cousins ---
+          for (
+            let branchIdx = 0;
+            branchIdx < data.parentBranches.length;
+            branchIdx++
+          ) {
+            const branch = data.parentBranches[branchIdx]!;
+            const gpIds = grandparentIdsByBranch.get(branchIdx);
+            if (!gpIds) continue;
+
+            for (const au of branch.auntsUncles) {
+              const auId = get().addNode(personToNodeData(au, variableConfig));
+
+              // Link to same grandparents as parent (full sibling simplification)
+              get().addEdge({
+                source: gpIds[0],
+                target: auId,
+                relationshipType: 'biological',
+                isActive: true,
+              });
+              get().addEdge({
+                source: gpIds[1],
+                target: auId,
+                relationshipType: 'biological',
+                isActive: true,
+              });
+
+              if (au.hasChildren) {
+                let auPartnerId: string | undefined;
+                if (au.hasPartner && au.partner) {
+                  auPartnerId = get().addNode(
+                    personToNodeData(au.partner, variableConfig),
+                  );
+                  get().addEdge({
+                    source: auId,
+                    target: auPartnerId,
+                    relationshipType: 'partner',
+                    isActive: true,
+                  });
+                }
+
+                for (const cousin of au.children) {
+                  const cousinId = get().addNode(
+                    personToNodeData(cousin, variableConfig),
+                  );
+                  get().addEdge({
+                    source: auId,
+                    target: cousinId,
+                    relationshipType: 'biological',
+                    isActive: true,
+                  });
+                  if (auPartnerId) {
+                    get().addEdge({
+                      source: auPartnerId,
+                      target: cousinId,
+                      relationshipType: 'biological',
+                      isActive: true,
+                    });
+                  }
+                }
+              }
+            }
+          }
+
           for (const sibling of data.siblings) {
             const siblingId = get().addNode(
               personToNodeData(sibling, variableConfig),

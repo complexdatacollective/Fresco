@@ -633,6 +633,123 @@ describe('generateQuickStartNetwork', () => {
     expect(unknownGP).toBeDefined();
   });
 
+  it('creates aunts/uncles linked to same grandparents as parent', () => {
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    store.getState().generateQuickStartNetwork(
+      quickStart({
+        parents: [{ name: 'Mom', nameKnown: true, edgeType: 'biological' }],
+        parentBranches: [
+          {
+            parentIndex: 0,
+            grandparents: [
+              { name: 'Grandma', nameKnown: true },
+              { name: 'Grandpa', nameKnown: true },
+            ],
+            auntUncleCount: 1,
+            auntsUncles: [{ name: 'Aunt', hasChildren: false, children: [] }],
+          },
+        ],
+      }),
+    );
+
+    const { nodes, edges } = store.getState().network;
+    // ego + mom + 2 grandparents + aunt = 5
+    expect(nodes.size).toBe(5);
+
+    const auntEntry = [...nodes.entries()].find(
+      ([, n]) => n.attributes[testConfig.nodeLabelVariable] === 'Aunt',
+    )!;
+
+    // Aunt should have 2 parent edges (from both grandparents)
+    const auntParentEdges = [...edges.values()].filter(
+      (e) => e.target === auntEntry[0] && e.relationshipType !== 'partner',
+    );
+    expect(auntParentEdges).toHaveLength(2);
+  });
+
+  it('creates cousins with aunt/uncle partner', () => {
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    store.getState().generateQuickStartNetwork(
+      quickStart({
+        parents: [{ name: 'Mom', nameKnown: true, edgeType: 'biological' }],
+        parentBranches: [
+          {
+            parentIndex: 0,
+            grandparents: [
+              { name: 'Grandma', nameKnown: true },
+              { name: 'Grandpa', nameKnown: true },
+            ],
+            auntUncleCount: 1,
+            auntsUncles: [
+              {
+                name: 'Aunt',
+                hasChildren: true,
+                hasPartner: true,
+                partner: { name: 'Uncle-in-law' },
+                children: [{ name: 'Cousin1' }],
+              },
+            ],
+          },
+        ],
+      }),
+    );
+
+    const { nodes, edges } = store.getState().network;
+    // ego + mom + 2 grandparents + aunt + uncle-in-law + cousin = 7
+    expect(nodes.size).toBe(7);
+
+    const cousinEntry = [...nodes.entries()].find(
+      ([, n]) => n.attributes[testConfig.nodeLabelVariable] === 'Cousin1',
+    )!;
+
+    // Cousin has 2 parent edges (aunt + uncle-in-law)
+    const cousinParentEdges = [...edges.values()].filter(
+      (e) => e.target === cousinEntry[0] && e.relationshipType !== 'partner',
+    );
+    expect(cousinParentEdges).toHaveLength(2);
+  });
+
+  it('creates cousins without partner (single parent)', () => {
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    store.getState().generateQuickStartNetwork(
+      quickStart({
+        parents: [{ name: 'Mom', nameKnown: true, edgeType: 'biological' }],
+        parentBranches: [
+          {
+            parentIndex: 0,
+            grandparents: [
+              { name: 'Grandma', nameKnown: true },
+              { name: 'Grandpa', nameKnown: true },
+            ],
+            auntUncleCount: 1,
+            auntsUncles: [
+              {
+                name: 'Uncle',
+                hasChildren: true,
+                hasPartner: false,
+                children: [{ name: 'Cousin1' }],
+              },
+            ],
+          },
+        ],
+      }),
+    );
+
+    const { nodes, edges } = store.getState().network;
+    // ego + mom + 2 grandparents + uncle + cousin = 6 (no partner)
+    expect(nodes.size).toBe(6);
+
+    const cousinEntry = [...nodes.entries()].find(
+      ([, n]) => n.attributes[testConfig.nodeLabelVariable] === 'Cousin1',
+    )!;
+
+    // Cousin has only 1 parent edge (uncle only)
+    const cousinParentEdges = [...edges.values()].filter(
+      (e) => e.target === cousinEntry[0] && e.relationshipType !== 'partner',
+    );
+    expect(cousinParentEdges).toHaveLength(1);
+  });
+
   it('single parent two donors: ego gets Mom+Donor1, sibling gets Mom+Donor2', () => {
     const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     store.getState().generateQuickStartNetwork(
