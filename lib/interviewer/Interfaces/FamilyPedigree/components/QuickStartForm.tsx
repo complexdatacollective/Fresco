@@ -139,6 +139,9 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
             (data.childrenWithPartner as PersonDetail[] | undefined) ?? [],
           otherChildren:
             (data.otherChildren as PersonDetail[] | undefined) ?? [],
+          parentBranches: [],
+          halfSiblingOtherParents: [],
+          siblingFamilies: [],
         };
         return quickStartData;
       },

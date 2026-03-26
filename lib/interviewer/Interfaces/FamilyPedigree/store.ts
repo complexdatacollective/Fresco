@@ -53,6 +53,41 @@ export type ParentPartnership = {
   isActive: boolean;
 };
 
+export type GrandparentDetail = PersonDetail & {
+  nameKnown: boolean;
+};
+
+export type AuntUncleDetail = PersonDetail &
+  (
+    | { hasChildren: false; children: [] }
+    | {
+        hasChildren: true;
+        hasPartner: boolean;
+        partner?: PersonDetail;
+        children: PersonDetail[];
+      }
+  );
+
+export type ParentBranch = {
+  parentIndex: number;
+  grandparents: [GrandparentDetail, GrandparentDetail];
+  auntUncleCount: number;
+  auntsUncles: AuntUncleDetail[];
+};
+
+export type SiblingFamily = {
+  siblingIndex: number;
+  hasPartner: boolean;
+  partner?: PersonDetail;
+  children: PersonDetail[];
+};
+
+export type HalfSiblingOtherParent = PersonDetail & {
+  nameKnown: boolean;
+  siblingIndex: number;
+  sharedParentIndices: number[];
+};
+
 export type QuickStartData = {
   adoptionStatus?: AdoptionStatus;
   parents: ParentDetail[];
@@ -64,6 +99,9 @@ export type QuickStartData = {
   partner: (PersonDetail & { hasPartner: true }) | { hasPartner: false };
   childrenWithPartner: PersonDetail[];
   otherChildren: PersonDetail[];
+  parentBranches: ParentBranch[];
+  halfSiblingOtherParents: HalfSiblingOtherParent[];
+  siblingFamilies: SiblingFamily[];
 };
 
 export type StoreEdge = {

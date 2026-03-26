@@ -315,6 +315,9 @@ const quickStart = (
   partner: { hasPartner: false },
   childrenWithPartner: [],
   otherChildren: [],
+  parentBranches: [],
+  halfSiblingOtherParents: [],
+  siblingFamilies: [],
   ...overrides,
 });
 
