@@ -2,10 +2,23 @@
 
 import { useSelector } from 'react-redux';
 import Field from '~/lib/form/components/Field/Field';
+import BooleanField from '~/lib/form/components/fields/Boolean';
 import InputField from '~/lib/form/components/fields/InputField';
+import NumberCounterField from '~/lib/form/components/fields/NumberCounterField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import { type CustomFieldValidation } from '~/lib/form/store/types';
-import { getBiologicalSexOptions } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
+import {
+  getBiologicalSexOptions,
+  getResolvedNodeFormFields,
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const COMPONENT_MAP: Record<string, React.ComponentType<any>> = {
+  Text: InputField,
+  Number: NumberCounterField,
+  RadioGroup: RadioGroupField,
+  Boolean: BooleanField,
+};
 
 type PersonFieldsProps = {
   index: number;
@@ -23,6 +36,7 @@ export default function PersonFields({
   sexCustomValidation,
 }: PersonFieldsProps) {
   const sexOptions = useSelector(getBiologicalSexOptions);
+  const formFields = useSelector(getResolvedNodeFormFields);
 
   return (
     <>
@@ -47,6 +61,20 @@ export default function PersonFields({
         custom={sexCustomValidation}
         validateOnChange
       />
+      {formFields.map((field) => {
+        const Component = COMPONENT_MAP[field.component];
+        if (!Component) return null;
+        return (
+          <Field
+            key={field.variableId}
+            name={`${prefix}-${index}-${field.variableId}`}
+            label={field.prompt}
+            component={Component}
+            options={field.options}
+            required={field.validation?.required === true}
+          />
+        );
+      })}
     </>
   );
 }

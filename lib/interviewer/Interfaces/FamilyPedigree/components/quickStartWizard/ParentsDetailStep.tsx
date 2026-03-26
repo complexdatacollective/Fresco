@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import { useWizard } from '~/lib/dialogs/useWizard';
@@ -12,8 +13,10 @@ import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
 import { PARENT_EDGE_TYPE_OPTIONS } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
+import { extractFormFieldAttributes } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/extractFormFieldAttributes';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import { type ParentDetail } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { getNodeForm } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 
 export default function ParentsDetailStep() {
@@ -35,6 +38,8 @@ function ParentsDetailForm() {
   const getFormValues = useFormStore((s) => s.getFormValues);
   const setFieldValue = useFormStore((s) => s.setFieldValue);
   const errors = useFormStore((s) => s.errors);
+  const rawFormFields = useSelector(getNodeForm);
+  const formFields = useMemo(() => rawFormFields ?? [], [rawFormFields]);
   const errorsRef = useRef(errors);
   errorsRef.current = errors;
 
@@ -109,6 +114,12 @@ function ParentsDetailForm() {
           return {
             name: typeof rawName === 'string' ? rawName : '',
             biologicalSex: typeof rawSex === 'string' ? rawSex : undefined,
+            attributes: extractFormFieldAttributes(
+              values,
+              'parent',
+              i,
+              formFields,
+            ),
             nameKnown: meta[i]?.nameKnown ?? false,
             biological:
               typeof rawBiological === 'boolean' ? rawBiological : true,
@@ -123,7 +134,14 @@ function ParentsDetailForm() {
       setStepData({ parents });
       return true;
     });
-  }, [validateForm, getFormValues, setStepData, setBeforeNext, parentCount]);
+  }, [
+    validateForm,
+    getFormValues,
+    setStepData,
+    setBeforeNext,
+    parentCount,
+    formFields,
+  ]);
 
   return (
     <div className="mt-6 flex flex-col gap-6">

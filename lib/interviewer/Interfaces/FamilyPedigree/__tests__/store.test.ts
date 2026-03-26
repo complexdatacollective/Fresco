@@ -29,8 +29,26 @@ describe('store creation', () => {
 
   it('creates a store with initial data', () => {
     const nodes = new Map<string, NodeData>([
-      ['n1', { label: 'ego', shape: 'square', isEgo: true }],
-      ['n2', { label: 'mother', shape: 'circle', isEgo: false }],
+      [
+        'n1',
+        {
+          isEgo: true,
+          attributes: {
+            [testConfig.nodeLabelVariable]: 'ego',
+            [testConfig.biologicalSexVariable]: 'male',
+          },
+        },
+      ],
+      [
+        'n2',
+        {
+          isEgo: false,
+          attributes: {
+            [testConfig.nodeLabelVariable]: 'mother',
+            [testConfig.biologicalSexVariable]: 'female',
+          },
+        },
+      ],
     ]);
     const edges = new Map<string, StoreEdge>([
       [
@@ -49,16 +67,22 @@ describe('store creation', () => {
 
     expect(state.network.nodes.size).toBe(2);
     expect(state.network.edges.size).toBe(1);
-    expect(state.network.nodes.get('n1')?.label).toBe('ego');
+    expect(
+      state.network.nodes.get('n1')?.attributes[testConfig.nodeLabelVariable],
+    ).toBe('ego');
   });
 });
 
 describe('addNode', () => {
   it('creates a node with a generated id', () => {
     const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
-    const id = store
-      .getState()
-      .addNode({ label: 'test', shape: 'square', isEgo: false });
+    const id = store.getState().addNode({
+      isEgo: false,
+      attributes: {
+        [testConfig.nodeLabelVariable]: 'test',
+        [testConfig.biologicalSexVariable]: 'male',
+      },
+    });
 
     expect(id).toBeDefined();
     expect(store.getState().network.nodes.has(id)).toBe(true);
@@ -66,25 +90,34 @@ describe('addNode', () => {
 
   it('stores data correctly without the id field', () => {
     const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
-    const id = store
-      .getState()
-      .addNode({ label: 'ego', shape: 'circle', isEgo: true, readOnly: false });
+    const id = store.getState().addNode({
+      isEgo: true,
+      readOnly: false,
+      attributes: {
+        [testConfig.nodeLabelVariable]: 'ego',
+        [testConfig.biologicalSexVariable]: 'female',
+      },
+    });
 
     const node = store.getState().network.nodes.get(id);
     expect(node).toEqual({
-      label: 'ego',
-      shape: 'circle',
       isEgo: true,
       readOnly: false,
+      attributes: {
+        [testConfig.nodeLabelVariable]: 'ego',
+        [testConfig.biologicalSexVariable]: 'female',
+      },
     });
     expect(node).not.toHaveProperty('id');
   });
 
   it('uses a provided id', () => {
     const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
-    const id = store
-      .getState()
-      .addNode({ id: 'custom-id', label: 'test', isEgo: false });
+    const id = store.getState().addNode({
+      id: 'custom-id',
+      isEgo: false,
+      attributes: { [testConfig.nodeLabelVariable]: 'test' },
+    });
 
     expect(id).toBe('custom-id');
     expect(store.getState().network.nodes.has('custom-id')).toBe(true);
@@ -95,18 +128,26 @@ describe('updateNode', () => {
   it('merges partial updates', () => {
     const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
     const id = store.getState().addNode({
-      label: 'test',
-      shape: 'square',
       isEgo: false,
       readOnly: false,
+      attributes: {
+        [testConfig.nodeLabelVariable]: 'test',
+        [testConfig.biologicalSexVariable]: 'male',
+      },
     });
 
-    store.getState().updateNode(id, { label: 'updated', readOnly: true });
+    store.getState().updateNode(id, {
+      readOnly: true,
+      attributes: {
+        [testConfig.nodeLabelVariable]: 'updated',
+        [testConfig.biologicalSexVariable]: 'male',
+      },
+    });
 
     const node = store.getState().network.nodes.get(id);
-    expect(node?.label).toBe('updated');
+    expect(node?.attributes[testConfig.nodeLabelVariable]).toBe('updated');
     expect(node?.readOnly).toBe(true);
-    expect(node?.shape).toBe('square');
+    expect(node?.attributes[testConfig.biologicalSexVariable]).toBe('male');
     expect(node?.isEgo).toBe(false);
   });
 });
@@ -114,15 +155,27 @@ describe('updateNode', () => {
 describe('removeNode', () => {
   it('deletes the node and cascading edges', () => {
     const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
-    const parentId = store
-      .getState()
-      .addNode({ label: 'parent', shape: 'circle', isEgo: false });
-    const childId = store
-      .getState()
-      .addNode({ label: 'child', shape: 'square', isEgo: false });
-    const unrelatedId = store
-      .getState()
-      .addNode({ label: 'other', shape: 'square', isEgo: false });
+    const parentId = store.getState().addNode({
+      isEgo: false,
+      attributes: {
+        [testConfig.nodeLabelVariable]: 'parent',
+        [testConfig.biologicalSexVariable]: 'female',
+      },
+    });
+    const childId = store.getState().addNode({
+      isEgo: false,
+      attributes: {
+        [testConfig.nodeLabelVariable]: 'child',
+        [testConfig.biologicalSexVariable]: 'male',
+      },
+    });
+    const unrelatedId = store.getState().addNode({
+      isEgo: false,
+      attributes: {
+        [testConfig.nodeLabelVariable]: 'other',
+        [testConfig.biologicalSexVariable]: 'male',
+      },
+    });
 
     store.getState().addEdge({
       source: parentId,
@@ -220,8 +273,14 @@ describe('removeEdge', () => {
 describe('clearNetwork', () => {
   it('removes all nodes and edges', () => {
     const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
-    store.getState().addNode({ label: 'a', isEgo: true });
-    store.getState().addNode({ label: 'b', isEgo: false });
+    store.getState().addNode({
+      isEgo: true,
+      attributes: { [testConfig.nodeLabelVariable]: 'a' },
+    });
+    store.getState().addNode({
+      isEgo: false,
+      attributes: { [testConfig.nodeLabelVariable]: 'b' },
+    });
     store.getState().addEdge({
       source: 'x',
       target: 'y',
@@ -270,7 +329,7 @@ describe('generateQuickStartNetwork', () => {
 
     const ego = [...nodes.values()].find((n) => n.isEgo);
     expect(ego).toBeDefined();
-    expect(ego?.label).toBe('');
+    expect(ego?.attributes[testConfig.nodeLabelVariable]).toBe('');
   });
 
   it('creates parents with parent edges and partner group', () => {
@@ -454,8 +513,12 @@ describe('generateQuickStartNetwork', () => {
     // ego + 3 parents + 2 siblings = 6
     expect(nodes.size).toBe(6);
 
-    const sib1Entry = [...nodes.entries()].find(([, n]) => n.label === 'Sib1')!;
-    const sib2Entry = [...nodes.entries()].find(([, n]) => n.label === 'Sib2')!;
+    const sib1Entry = [...nodes.entries()].find(
+      ([, n]) => n.attributes[testConfig.nodeLabelVariable] === 'Sib1',
+    )!;
+    const sib2Entry = [...nodes.entries()].find(
+      ([, n]) => n.attributes[testConfig.nodeLabelVariable] === 'Sib2',
+    )!;
 
     const sib1ParentEdges = [...edges.values()].filter(
       (e) => e.target === sib1Entry[0] && e.relationshipType !== 'partner',
@@ -505,7 +568,7 @@ describe('generateQuickStartNetwork', () => {
 
     // Ego should NOT have an edge from Donor 2
     const donor2Entry = [...nodes.entries()].find(
-      ([, n]) => n.label === 'Donor 2',
+      ([, n]) => n.attributes[testConfig.nodeLabelVariable] === 'Donor 2',
     )!;
     const donor2ToEgo = [...edges.values()].find(
       (e) => e.source === donor2Entry[0] && e.target === egoId,
@@ -514,7 +577,7 @@ describe('generateQuickStartNetwork', () => {
 
     // Sibling should have edges from Mom (biological) and Donor 2 (donor)
     const sibEntry = [...nodes.entries()].find(
-      ([, n]) => n.label === 'Half Sib',
+      ([, n]) => n.attributes[testConfig.nodeLabelVariable] === 'Half Sib',
     )!;
     const sibParentEdges = [...edges.values()].filter(
       (e) => e.target === sibEntry[0] && e.relationshipType !== 'partner',
@@ -526,7 +589,7 @@ describe('generateQuickStartNetwork', () => {
 
     // Sibling should NOT have an edge from Donor 1
     const donor1Entry = [...nodes.entries()].find(
-      ([, n]) => n.label === 'Donor 1',
+      ([, n]) => n.attributes[testConfig.nodeLabelVariable] === 'Donor 1',
     )!;
     const donor1ToSib = [...edges.values()].find(
       (e) => e.source === donor1Entry[0] && e.target === sibEntry[0],
@@ -549,7 +612,10 @@ describe('syncMetadata', () => {
       testConfig,
       mockDispatch,
     );
-    store.getState().addNode({ label: 'Ego', isEgo: true });
+    store.getState().addNode({
+      isEgo: true,
+      attributes: { [testConfig.nodeLabelVariable]: 'Ego' },
+    });
     store.getState().syncMetadata();
     expect(dispatched.length).toBe(1);
   });
@@ -586,7 +652,10 @@ describe('integration: full flow', () => {
     )!;
     const egoId = egoEntry[0];
 
-    const donorId = store.getState().addNode({ label: '', isEgo: false });
+    const donorId = store.getState().addNode({
+      isEgo: false,
+      attributes: { [testConfig.nodeLabelVariable]: '' },
+    });
     store.getState().addEdge({
       source: donorId,
       target: egoId,
@@ -595,10 +664,14 @@ describe('integration: full flow', () => {
     });
     expect(store.getState().network.nodes.size).toBe(4);
 
-    store.getState().updateNode(donorId, { label: 'Sperm Donor' });
-    expect(store.getState().network.nodes.get(donorId)?.label).toBe(
-      'Sperm Donor',
-    );
+    store.getState().updateNode(donorId, {
+      attributes: { [testConfig.nodeLabelVariable]: 'Sperm Donor' },
+    });
+    expect(
+      store.getState().network.nodes.get(donorId)?.attributes[
+        testConfig.nodeLabelVariable
+      ],
+    ).toBe('Sperm Donor');
 
     store.getState().syncMetadata();
     expect(dispatched.length).toBe(1);

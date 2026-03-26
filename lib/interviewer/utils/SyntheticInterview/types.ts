@@ -20,11 +20,24 @@ export type VariableEntry = {
   validation?: Record<string, unknown>;
 };
 
+export type ShapeMapping =
+  | {
+      variable: string;
+      type: 'discrete';
+      map: { value: string | number | boolean; shape: string }[];
+    }
+  | {
+      variable: string;
+      type: 'breakpoints';
+      thresholds: { value: number; shape: string }[];
+    };
+
 export type NodeTypeEntry = {
   id: string;
   name: string;
   color: string;
-  displayVariable: string;
+  icon: string;
+  shape: { default: string; dynamic?: ShapeMapping };
   variables: Map<string, VariableEntry>;
 };
 
@@ -287,7 +300,8 @@ export type EdgeEntry = {
 export type AddNodeTypeInput = {
   name?: string;
   color?: string;
-  displayVariable?: string;
+  icon?: string;
+  shape?: { default: string; dynamic?: ShapeMapping };
 };
 
 export type AddEdgeTypeInput = {

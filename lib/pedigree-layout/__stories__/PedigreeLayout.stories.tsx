@@ -1,13 +1,19 @@
 import { faker } from '@faker-js/faker';
 import type { Meta, StoryFn } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
-import Node from '~/components/Node';
+import Node, { type NodeShape } from '~/components/Node';
 import { useNodeMeasurement } from '~/hooks/useNodeMeasurement';
 import {
   type AdoptionStatus,
   type NodeData,
   type StoreEdge,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+
+function bioSexToShape(sex: string | undefined): NodeShape {
+  if (sex === 'female') return 'circle';
+  if (sex === 'male') return 'square';
+  return 'diamond';
+}
 import {
   AdoptionBrackets,
   EgoIcon,
@@ -82,21 +88,29 @@ function fakeName(sex?: 'male' | 'female') {
   return faker.person.fullName({ sex });
 }
 
+const STORY_BIO_SEX_VAR = 'biologicalSex';
+const STORY_LABEL_VAR = 'label';
+
 function buildNetwork(
   nodeDefs: {
     id: string;
     label: string;
-    shape?: 'square' | 'circle' | 'diamond';
+    biologicalSex?: string;
     isEgo?: boolean;
     adoptionStatus?: AdoptionStatus;
   }[],
   edgeDefs: StoreEdge[],
 ): NetworkData {
   const nodes = new Map<string, NodeData>();
-  for (const { id, label, shape, isEgo, adoptionStatus } of nodeDefs) {
+  for (const { id, label, biologicalSex, isEgo, adoptionStatus } of nodeDefs) {
+    const attributes: Record<string, unknown> = {
+      [STORY_LABEL_VAR]: label,
+    };
+    if (biologicalSex !== undefined) {
+      attributes[STORY_BIO_SEX_VAR] = biologicalSex;
+    }
     nodes.set(id, {
-      label,
-      shape,
+      attributes,
       isEgo: isEgo ?? false,
       readOnly: false,
       adoptionStatus,
@@ -115,8 +129,13 @@ function buildNetwork(
 const NETWORKS: Record<string, NetworkData> = {
   'Simple Couple': buildNetwork(
     [
-      { id: 'ego', label: fakeName('male'), shape: 'square', isEgo: true },
-      { id: 'partner', label: fakeName('female'), shape: 'circle' },
+      {
+        id: 'ego',
+        label: fakeName('male'),
+        biologicalSex: 'male',
+        isEgo: true,
+      },
+      { id: 'partner', label: fakeName('female'), biologicalSex: 'female' },
     ],
     [
       {
@@ -129,11 +148,16 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'Nuclear Family': buildNetwork(
     [
-      { id: 'father', label: fakeName('male'), shape: 'square' },
-      { id: 'mother', label: fakeName('female'), shape: 'circle' },
-      { id: 'ego', label: fakeName('male'), shape: 'square', isEgo: true },
-      { id: 'sister', label: fakeName('female'), shape: 'circle' },
-      { id: 'brother', label: fakeName('male'), shape: 'square' },
+      { id: 'father', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'mother', label: fakeName('female'), biologicalSex: 'female' },
+      {
+        id: 'ego',
+        label: fakeName('male'),
+        biologicalSex: 'male',
+        isEgo: true,
+      },
+      { id: 'sister', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'brother', label: fakeName('male'), biologicalSex: 'male' },
     ],
     [
       {
@@ -182,14 +206,19 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'Three Generations': buildNetwork(
     [
-      { id: 'pgf', label: fakeName('male'), shape: 'square' },
-      { id: 'pgm', label: fakeName('female'), shape: 'circle' },
-      { id: 'mgf', label: fakeName('male'), shape: 'square' },
-      { id: 'mgm', label: fakeName('female'), shape: 'circle' },
-      { id: 'father', label: fakeName('male'), shape: 'square' },
-      { id: 'mother', label: fakeName('female'), shape: 'circle' },
-      { id: 'ego', label: fakeName('male'), shape: 'square', isEgo: true },
-      { id: 'sister', label: fakeName('female'), shape: 'circle' },
+      { id: 'pgf', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'pgm', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'mgf', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'mgm', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'father', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'mother', label: fakeName('female'), biologicalSex: 'female' },
+      {
+        id: 'ego',
+        label: fakeName('male'),
+        biologicalSex: 'male',
+        isEgo: true,
+      },
+      { id: 'sister', label: fakeName('female'), biologicalSex: 'female' },
     ],
     [
       {
@@ -262,22 +291,27 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'Extended Family': buildNetwork(
     [
-      { id: 'pgf', label: fakeName('male'), shape: 'square' },
-      { id: 'pgm', label: fakeName('female'), shape: 'circle' },
-      { id: 'mgf', label: fakeName('male'), shape: 'square' },
-      { id: 'mgm', label: fakeName('female'), shape: 'circle' },
-      { id: 'father', label: fakeName('male'), shape: 'square' },
-      { id: 'mother', label: fakeName('female'), shape: 'circle' },
-      { id: 'aunt', label: fakeName('female'), shape: 'circle' },
-      { id: 'uncle-spouse', label: fakeName('male'), shape: 'square' },
-      { id: 'p-uncle', label: fakeName('male'), shape: 'square' },
-      { id: 'ego', label: fakeName('male'), shape: 'square', isEgo: true },
-      { id: 'partner', label: fakeName('female'), shape: 'circle' },
-      { id: 'sister', label: fakeName('female'), shape: 'circle' },
-      { id: 'cousin1', label: fakeName('male'), shape: 'square' },
-      { id: 'cousin2', label: fakeName('female'), shape: 'circle' },
-      { id: 'son', label: fakeName('male'), shape: 'square' },
-      { id: 'daughter', label: fakeName('female'), shape: 'circle' },
+      { id: 'pgf', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'pgm', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'mgf', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'mgm', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'father', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'mother', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'aunt', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'uncle-spouse', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'p-uncle', label: fakeName('male'), biologicalSex: 'male' },
+      {
+        id: 'ego',
+        label: fakeName('male'),
+        biologicalSex: 'male',
+        isEgo: true,
+      },
+      { id: 'partner', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'sister', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'cousin1', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'cousin2', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'son', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'daughter', label: fakeName('female'), biologicalSex: 'female' },
     ],
     [
       {
@@ -434,15 +468,15 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'Same-Sex Mothers': buildNetwork(
     [
-      { id: 'momA', label: fakeName('female'), shape: 'circle' },
-      { id: 'momB', label: fakeName('female'), shape: 'circle' },
+      { id: 'momA', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'momB', label: fakeName('female'), biologicalSex: 'female' },
       {
         id: 'daughter',
         label: fakeName('female'),
-        shape: 'circle',
+        biologicalSex: 'female',
         isEgo: true,
       },
-      { id: 'son', label: fakeName('male'), shape: 'square' },
+      { id: 'son', label: fakeName('male'), biologicalSex: 'male' },
     ],
     [
       {
@@ -479,9 +513,14 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'Same-Sex Fathers': buildNetwork(
     [
-      { id: 'dadA', label: fakeName('male'), shape: 'square' },
-      { id: 'dadB', label: fakeName('male'), shape: 'square' },
-      { id: 'child', label: fakeName('female'), shape: 'circle', isEgo: true },
+      { id: 'dadA', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'dadB', label: fakeName('male'), biologicalSex: 'male' },
+      {
+        id: 'child',
+        label: fakeName('female'),
+        biologicalSex: 'female',
+        isEgo: true,
+      },
     ],
     [
       {
@@ -506,9 +545,14 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'Single Parent': buildNetwork(
     [
-      { id: 'parent', label: fakeName('female'), shape: 'circle' },
-      { id: 'child1', label: fakeName('male'), shape: 'square', isEgo: true },
-      { id: 'child2', label: fakeName('female'), shape: 'circle' },
+      { id: 'parent', label: fakeName('female'), biologicalSex: 'female' },
+      {
+        id: 'child1',
+        label: fakeName('male'),
+        biologicalSex: 'male',
+        isEgo: true,
+      },
+      { id: 'child2', label: fakeName('female'), biologicalSex: 'female' },
     ],
     [
       {
@@ -527,10 +571,15 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'Three Co-Parents': buildNetwork(
     [
-      { id: 'parentA', label: fakeName('female'), shape: 'circle' },
-      { id: 'parentB', label: fakeName('female'), shape: 'circle' },
-      { id: 'parentC', label: fakeName('male'), shape: 'square' },
-      { id: 'child', label: fakeName('male'), shape: 'square', isEgo: true },
+      { id: 'parentA', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'parentB', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'parentC', label: fakeName('male'), biologicalSex: 'male' },
+      {
+        id: 'child',
+        label: fakeName('male'),
+        biologicalSex: 'male',
+        isEgo: true,
+      },
     ],
     [
       {
@@ -567,16 +616,16 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'Blended Family': buildNetwork(
     [
-      { id: 'parentA', label: fakeName('male'), shape: 'square' },
-      { id: 'exPartner', label: fakeName('female'), shape: 'circle' },
-      { id: 'newPartner', label: fakeName('female'), shape: 'circle' },
+      { id: 'parentA', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'exPartner', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'newPartner', label: fakeName('female'), biologicalSex: 'female' },
       {
         id: 'child1st',
         label: fakeName('female'),
-        shape: 'circle',
+        biologicalSex: 'female',
         isEgo: true,
       },
-      { id: 'child2nd', label: fakeName('male'), shape: 'square' },
+      { id: 'child2nd', label: fakeName('male'), biologicalSex: 'male' },
     ],
     [
       {
@@ -619,10 +668,15 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'Non-Binary Parent': buildNetwork(
     [
-      { id: 'nbParent', label: 'Alex', shape: 'diamond' },
-      { id: 'partner', label: fakeName('female'), shape: 'circle' },
-      { id: 'child1', label: fakeName('male'), shape: 'square', isEgo: true },
-      { id: 'child2', label: fakeName('female'), shape: 'circle' },
+      { id: 'nbParent', label: 'Alex', biologicalSex: 'intersex' },
+      { id: 'partner', label: fakeName('female'), biologicalSex: 'female' },
+      {
+        id: 'child1',
+        label: fakeName('male'),
+        biologicalSex: 'male',
+        isEgo: true,
+      },
+      { id: 'child2', label: fakeName('female'), biologicalSex: 'female' },
     ],
     [
       {
@@ -660,19 +714,24 @@ const NETWORKS: Record<string, NetworkData> = {
   'Sperm Donor': buildNetwork(
     [
       // Grandparents of momA
-      { id: 'gfA', label: fakeName('male'), shape: 'square' },
-      { id: 'gmA', label: fakeName('female'), shape: 'circle' },
+      { id: 'gfA', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'gmA', label: fakeName('female'), biologicalSex: 'female' },
       // Social parents
-      { id: 'momA', label: fakeName('female'), shape: 'circle' },
-      { id: 'momB', label: fakeName('female'), shape: 'circle' },
+      { id: 'momA', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'momB', label: fakeName('female'), biologicalSex: 'female' },
       // Donor
-      { id: 'donor', label: 'Sperm Donor', shape: 'square' },
+      { id: 'donor', label: 'Sperm Donor', biologicalSex: 'male' },
       // Children
-      { id: 'ego', label: fakeName('female'), shape: 'circle', isEgo: true },
-      { id: 'sibling', label: fakeName('male'), shape: 'square' },
+      {
+        id: 'ego',
+        label: fakeName('female'),
+        biologicalSex: 'female',
+        isEgo: true,
+      },
+      { id: 'sibling', label: fakeName('male'), biologicalSex: 'male' },
       // Ego's partner and child
-      { id: 'egoPartner', label: fakeName('male'), shape: 'square' },
-      { id: 'grandchild', label: fakeName('female'), shape: 'circle' },
+      { id: 'egoPartner', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'grandchild', label: fakeName('female'), biologicalSex: 'female' },
     ],
     [
       // Grandparents
@@ -762,22 +821,27 @@ const NETWORKS: Record<string, NetworkData> = {
   'Surrogacy': buildNetwork(
     [
       // Grandparents
-      { id: 'gfF', label: fakeName('male'), shape: 'square' },
-      { id: 'gmF', label: fakeName('female'), shape: 'circle' },
+      { id: 'gfF', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'gmF', label: fakeName('female'), biologicalSex: 'female' },
       // Social parents
-      { id: 'dadA', label: fakeName('male'), shape: 'square' },
-      { id: 'dadB', label: fakeName('male'), shape: 'square' },
+      { id: 'dadA', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'dadB', label: fakeName('male'), biologicalSex: 'male' },
       // Surrogate and egg donor
-      { id: 'surrogate', label: 'Surrogate', shape: 'circle' },
-      { id: 'eggDonor', label: 'Egg Donor', shape: 'circle' },
+      { id: 'surrogate', label: 'Surrogate', biologicalSex: 'female' },
+      { id: 'eggDonor', label: 'Egg Donor', biologicalSex: 'female' },
       // Children
-      { id: 'ego', label: fakeName('male'), shape: 'square', isEgo: true },
-      { id: 'sibling', label: fakeName('female'), shape: 'circle' },
+      {
+        id: 'ego',
+        label: fakeName('male'),
+        biologicalSex: 'male',
+        isEgo: true,
+      },
+      { id: 'sibling', label: fakeName('female'), biologicalSex: 'female' },
       // Uncle (dadA's brother)
-      { id: 'uncle', label: fakeName('male'), shape: 'square' },
+      { id: 'uncle', label: fakeName('male'), biologicalSex: 'male' },
       // Ego's partner and child
-      { id: 'egoPartner', label: fakeName('female'), shape: 'circle' },
-      { id: 'grandchild', label: fakeName('male'), shape: 'square' },
+      { id: 'egoPartner', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'grandchild', label: fakeName('male'), biologicalSex: 'male' },
     ],
     [
       // Grandparents
@@ -891,24 +955,29 @@ const NETWORKS: Record<string, NetworkData> = {
   'Donor + Surrogate': buildNetwork(
     [
       // Maternal grandparents of parentA
-      { id: 'mgf', label: fakeName('male'), shape: 'square' },
-      { id: 'mgm', label: fakeName('female'), shape: 'circle' },
+      { id: 'mgf', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'mgm', label: fakeName('female'), biologicalSex: 'female' },
       // Social parents
-      { id: 'parentA', label: fakeName('female'), shape: 'circle' },
-      { id: 'parentB', label: fakeName('female'), shape: 'circle' },
+      { id: 'parentA', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'parentB', label: fakeName('female'), biologicalSex: 'female' },
       // Donor and surrogate
-      { id: 'donor', label: 'Sperm Donor', shape: 'square' },
-      { id: 'surrogate', label: 'Surrogate', shape: 'circle' },
+      { id: 'donor', label: 'Sperm Donor', biologicalSex: 'male' },
+      { id: 'surrogate', label: 'Surrogate', biologicalSex: 'female' },
       // Children
-      { id: 'ego', label: fakeName('female'), shape: 'circle', isEgo: true },
-      { id: 'sibling', label: fakeName('male'), shape: 'square' },
+      {
+        id: 'ego',
+        label: fakeName('female'),
+        biologicalSex: 'female',
+        isEgo: true,
+      },
+      { id: 'sibling', label: fakeName('male'), biologicalSex: 'male' },
       // ParentA's sister and her family
-      { id: 'aunt', label: fakeName('female'), shape: 'circle' },
-      { id: 'auntPartner', label: fakeName('male'), shape: 'square' },
-      { id: 'cousin', label: fakeName('male'), shape: 'square' },
+      { id: 'aunt', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'auntPartner', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'cousin', label: fakeName('male'), biologicalSex: 'male' },
       // Ego's partner and child
-      { id: 'egoPartner', label: fakeName('male'), shape: 'square' },
-      { id: 'grandchild', label: fakeName('female'), shape: 'circle' },
+      { id: 'egoPartner', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'grandchild', label: fakeName('female'), biologicalSex: 'female' },
     ],
     [
       // Grandparents
@@ -1040,10 +1109,15 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'Single Parent Donor': buildNetwork(
     [
-      { id: 'mom', label: fakeName('female'), shape: 'circle' },
-      { id: 'donor', label: 'Sperm Donor', shape: 'square' },
-      { id: 'ego', label: fakeName('female'), shape: 'circle', isEgo: true },
-      { id: 'sibling', label: fakeName('male'), shape: 'square' },
+      { id: 'mom', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'donor', label: 'Sperm Donor', biologicalSex: 'male' },
+      {
+        id: 'ego',
+        label: fakeName('female'),
+        biologicalSex: 'female',
+        isEgo: true,
+      },
+      { id: 'sibling', label: fakeName('male'), biologicalSex: 'male' },
     ],
     [
       {
@@ -1074,11 +1148,16 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'Single Parent Two Donors': buildNetwork(
     [
-      { id: 'mom', label: fakeName('female'), shape: 'circle' },
-      { id: 'donor1', label: 'Sperm Donor 1', shape: 'square' },
-      { id: 'donor2', label: 'Sperm Donor 2', shape: 'square' },
-      { id: 'ego', label: fakeName('female'), shape: 'circle', isEgo: true },
-      { id: 'sibling', label: fakeName('male'), shape: 'square' },
+      { id: 'mom', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'donor1', label: 'Sperm Donor 1', biologicalSex: 'male' },
+      { id: 'donor2', label: 'Sperm Donor 2', biologicalSex: 'male' },
+      {
+        id: 'ego',
+        label: fakeName('female'),
+        biologicalSex: 'female',
+        isEgo: true,
+      },
+      { id: 'sibling', label: fakeName('male'), biologicalSex: 'male' },
     ],
     [
       {
@@ -1109,10 +1188,10 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'ART 1a: Donor Sperm (Cis Couple)': buildNetwork(
     [
-      { id: 'man', label: 'Man', shape: 'square' },
-      { id: 'woman', label: 'Woman', shape: 'circle' },
-      { id: 'donor', label: 'Sperm Donor', shape: 'square' },
-      { id: 'pregnancy', label: 'Pregnancy', shape: 'circle' },
+      { id: 'man', label: 'Man', biologicalSex: 'male' },
+      { id: 'woman', label: 'Woman', biologicalSex: 'female' },
+      { id: 'donor', label: 'Sperm Donor', biologicalSex: 'male' },
+      { id: 'pregnancy', label: 'Pregnancy', biologicalSex: 'female' },
     ],
     [
       {
@@ -1144,10 +1223,10 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'ART 1b: Donor Sperm (Women Couple)': buildNetwork(
     [
-      { id: 'woman1', label: 'Woman 1', shape: 'circle' },
-      { id: 'woman2', label: 'Woman 2', shape: 'circle' },
-      { id: 'donor', label: 'Sperm Donor', shape: 'square' },
-      { id: 'pregnancy', label: 'Pregnancy', shape: 'circle' },
+      { id: 'woman1', label: 'Woman 1', biologicalSex: 'female' },
+      { id: 'woman2', label: 'Woman 2', biologicalSex: 'female' },
+      { id: 'donor', label: 'Sperm Donor', biologicalSex: 'male' },
+      { id: 'pregnancy', label: 'Pregnancy', biologicalSex: 'female' },
     ],
     [
       {
@@ -1179,10 +1258,10 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'ART 1c: Unpartnered Woman, Same Donor': buildNetwork(
     [
-      { id: 'woman', label: 'Woman', shape: 'circle' },
-      { id: 'donor', label: 'Donor', shape: 'square' },
-      { id: 'son', label: 'Son', shape: 'square' },
-      { id: 'pregnancy', label: 'Pregnancy', shape: 'circle' },
+      { id: 'woman', label: 'Woman', biologicalSex: 'female' },
+      { id: 'donor', label: 'Donor', biologicalSex: 'male' },
+      { id: 'son', label: 'Son', biologicalSex: 'male' },
+      { id: 'pregnancy', label: 'Pregnancy', biologicalSex: 'female' },
     ],
     [
       {
@@ -1215,10 +1294,10 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'ART 1d: Trans Man Pregnant': buildNetwork(
     [
-      { id: 'transMan', label: 'Trans Man', shape: 'square' },
-      { id: 'cisWoman', label: 'Cis Woman', shape: 'circle' },
-      { id: 'donor', label: 'Sperm Donor', shape: 'square' },
-      { id: 'pregnancy', label: 'Pregnancy', shape: 'square' },
+      { id: 'transMan', label: 'Trans Man', biologicalSex: 'male' },
+      { id: 'cisWoman', label: 'Cis Woman', biologicalSex: 'female' },
+      { id: 'donor', label: 'Sperm Donor', biologicalSex: 'male' },
+      { id: 'pregnancy', label: 'Pregnancy', biologicalSex: 'male' },
     ],
     [
       {
@@ -1250,10 +1329,10 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'ART 1e: Nonbinary Person Pregnant': buildNetwork(
     [
-      { id: 'nonbinary', label: 'Nonbinary', shape: 'diamond' },
-      { id: 'transWoman', label: 'Trans Woman', shape: 'circle' },
-      { id: 'donor', label: 'Sperm Donor', shape: 'square' },
-      { id: 'pregnancy', label: 'Pregnancy', shape: 'diamond' },
+      { id: 'nonbinary', label: 'Nonbinary', biologicalSex: 'intersex' },
+      { id: 'transWoman', label: 'Trans Woman', biologicalSex: 'female' },
+      { id: 'donor', label: 'Sperm Donor', biologicalSex: 'male' },
+      { id: 'pregnancy', label: 'Pregnancy', biologicalSex: 'intersex' },
     ],
     [
       {
@@ -1285,11 +1364,11 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'ART 1f: Donated Embryo': buildNetwork(
     [
-      { id: 'man', label: 'Man', shape: 'square' },
-      { id: 'woman', label: 'Woman', shape: 'circle' },
-      { id: 'eggDonor', label: 'Egg Donor', shape: 'circle' },
-      { id: 'spermDonor', label: 'Sperm Donor', shape: 'square' },
-      { id: 'pregnancy', label: 'Pregnancy', shape: 'circle' },
+      { id: 'man', label: 'Man', biologicalSex: 'male' },
+      { id: 'woman', label: 'Woman', biologicalSex: 'female' },
+      { id: 'eggDonor', label: 'Egg Donor', biologicalSex: 'female' },
+      { id: 'spermDonor', label: 'Sperm Donor', biologicalSex: 'male' },
+      { id: 'pregnancy', label: 'Pregnancy', biologicalSex: 'female' },
     ],
     [
       {
@@ -1327,10 +1406,10 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'ART 2: Donor Egg': buildNetwork(
     [
-      { id: 'man', label: 'Man', shape: 'square' },
-      { id: 'woman', label: 'Woman', shape: 'circle' },
-      { id: 'eggDonor', label: 'Egg Donor', shape: 'circle' },
-      { id: 'pregnancy', label: 'Pregnancy', shape: 'circle' },
+      { id: 'man', label: 'Man', biologicalSex: 'male' },
+      { id: 'woman', label: 'Woman', biologicalSex: 'female' },
+      { id: 'eggDonor', label: 'Egg Donor', biologicalSex: 'female' },
+      { id: 'pregnancy', label: 'Pregnancy', biologicalSex: 'female' },
     ],
     [
       {
@@ -1362,10 +1441,10 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'ART 3: Surrogate Only': buildNetwork(
     [
-      { id: 'transMan', label: 'Trans Man', shape: 'square' },
-      { id: 'cisMan', label: 'Cis Man', shape: 'square' },
-      { id: 'surrogate', label: 'Surrogate', shape: 'circle' },
-      { id: 'pregnancy', label: 'Pregnancy', shape: 'square' },
+      { id: 'transMan', label: 'Trans Man', biologicalSex: 'male' },
+      { id: 'cisMan', label: 'Cis Man', biologicalSex: 'male' },
+      { id: 'surrogate', label: 'Surrogate', biologicalSex: 'female' },
+      { id: 'pregnancy', label: 'Pregnancy', biologicalSex: 'male' },
     ],
     [
       {
@@ -1396,10 +1475,10 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'ART 4a: Traditional Surrogacy': buildNetwork(
     [
-      { id: 'man', label: 'Man', shape: 'square' },
-      { id: 'woman', label: 'Woman', shape: 'circle' },
-      { id: 'donorCarrier', label: 'Donor/Carrier', shape: 'circle' },
-      { id: 'pregnancy', label: 'Pregnancy', shape: 'circle' },
+      { id: 'man', label: 'Man', biologicalSex: 'male' },
+      { id: 'woman', label: 'Woman', biologicalSex: 'female' },
+      { id: 'donorCarrier', label: 'Donor/Carrier', biologicalSex: 'female' },
+      { id: 'pregnancy', label: 'Pregnancy', biologicalSex: 'female' },
     ],
     [
       {
@@ -1431,12 +1510,12 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'ART 4b: Inseminate Sister': buildNetwork(
     [
-      { id: 'father', label: fakeName('male'), shape: 'square' },
-      { id: 'mother', label: fakeName('female'), shape: 'circle' },
-      { id: 'cisMan', label: 'Cis Man', shape: 'square' },
-      { id: 'transWoman', label: 'Trans Woman', shape: 'circle' },
-      { id: 'sister', label: 'Sister', shape: 'circle' },
-      { id: 'pregnancy', label: 'Pregnancy', shape: 'circle' },
+      { id: 'father', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'mother', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'cisMan', label: 'Cis Man', biologicalSex: 'male' },
+      { id: 'transWoman', label: 'Trans Woman', biologicalSex: 'female' },
+      { id: 'sister', label: 'Sister', biologicalSex: 'female' },
+      { id: 'pregnancy', label: 'Pregnancy', biologicalSex: 'female' },
     ],
     [
       {
@@ -1498,10 +1577,10 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'ART 5: Reciprocal IVF': buildNetwork(
     [
-      { id: 'partnerA', label: 'Partner A', shape: 'circle' },
-      { id: 'partnerB', label: 'Partner B', shape: 'circle' },
-      { id: 'spermDonor', label: 'Sperm Donor', shape: 'square' },
-      { id: 'pregnancy', label: 'Pregnancy', shape: 'circle' },
+      { id: 'partnerA', label: 'Partner A', biologicalSex: 'female' },
+      { id: 'partnerB', label: 'Partner B', biologicalSex: 'female' },
+      { id: 'spermDonor', label: 'Sperm Donor', biologicalSex: 'male' },
+      { id: 'pregnancy', label: 'Pregnancy', biologicalSex: 'female' },
     ],
     [
       {
@@ -1533,11 +1612,16 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'Known Bio Parent': buildNetwork(
     [
-      { id: 'biodad', label: fakeName('male'), shape: 'square' },
-      { id: 'mom', label: fakeName('female'), shape: 'circle' },
-      { id: 'stepdad', label: fakeName('male'), shape: 'square' },
-      { id: 'ego', label: fakeName('female'), shape: 'circle', isEgo: true },
-      { id: 'sibling', label: fakeName('male'), shape: 'square' },
+      { id: 'biodad', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'mom', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'stepdad', label: fakeName('male'), biologicalSex: 'male' },
+      {
+        id: 'ego',
+        label: fakeName('female'),
+        biologicalSex: 'female',
+        isEgo: true,
+      },
+      { id: 'sibling', label: fakeName('male'), biologicalSex: 'male' },
     ],
     [
       {
@@ -1592,14 +1676,14 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'Adoption: Adopted In': buildNetwork(
     [
-      { id: 'bioDad', label: fakeName('male'), shape: 'square' },
-      { id: 'bioMom', label: fakeName('female'), shape: 'circle' },
-      { id: 'adoptDad', label: fakeName('male'), shape: 'square' },
-      { id: 'adoptMom', label: fakeName('female'), shape: 'circle' },
+      { id: 'bioDad', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'bioMom', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'adoptDad', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'adoptMom', label: fakeName('female'), biologicalSex: 'female' },
       {
         id: 'child',
         label: fakeName('female'),
-        shape: 'circle',
+        biologicalSex: 'female',
         isEgo: true,
         adoptionStatus: 'in',
       },
@@ -1645,15 +1729,15 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'Adoption: Adopted Out': buildNetwork(
     [
-      { id: 'bioFather', label: fakeName('male'), shape: 'square' },
-      { id: 'bioMother', label: fakeName('female'), shape: 'circle' },
-      { id: 'sibling', label: fakeName('female'), shape: 'circle' },
-      { id: 'adoptFather', label: fakeName('male'), shape: 'square' },
-      { id: 'adoptMother', label: fakeName('female'), shape: 'circle' },
+      { id: 'bioFather', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'bioMother', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'sibling', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'adoptFather', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'adoptMother', label: fakeName('female'), biologicalSex: 'female' },
       {
         id: 'ego',
         label: fakeName('male'),
-        shape: 'square',
+        biologicalSex: 'male',
         isEgo: true,
         adoptionStatus: 'out',
       },
@@ -1711,15 +1795,15 @@ const NETWORKS: Record<string, NetworkData> = {
   ),
   'Adoption: By Relative': buildNetwork(
     [
-      { id: 'grandpa', label: fakeName('male'), shape: 'square' },
-      { id: 'grandma', label: fakeName('female'), shape: 'circle' },
-      { id: 'father', label: fakeName('male'), shape: 'square' },
-      { id: 'aunt', label: fakeName('female'), shape: 'circle' },
-      { id: 'uncle', label: fakeName('male'), shape: 'square' },
+      { id: 'grandpa', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'grandma', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'father', label: fakeName('male'), biologicalSex: 'male' },
+      { id: 'aunt', label: fakeName('female'), biologicalSex: 'female' },
+      { id: 'uncle', label: fakeName('male'), biologicalSex: 'male' },
       {
         id: 'child',
         label: fakeName('female'),
-        shape: 'circle',
+        biologicalSex: 'female',
         isEgo: true,
         adoptionStatus: 'by-relative',
       },
@@ -1808,11 +1892,15 @@ const NODE_MEASUREMENT_COMPONENTS: Record<string, React.ReactElement> = {
 
 const NODE_RENDERERS: Record<string, NodeRenderer> = {
   'Colored Node': (node) => {
+    const label = node.attributes[STORY_LABEL_VAR] as string | undefined;
+    const biologicalSex = node.attributes[STORY_BIO_SEX_VAR] as
+      | string
+      | undefined;
     const nodeEl = (
       <Node
         color="node-color-seq-1"
-        label={!node.isEgo ? node.label : ''}
-        shape={node.shape ?? 'square'}
+        label={!node.isEgo ? (label ?? '') : ''}
+        shape={bioSexToShape(biologicalSex)}
         size="sm"
       >
         {node.isEgo && (
@@ -1833,12 +1921,16 @@ const NODE_RENDERERS: Record<string, NodeRenderer> = {
     return nodeEl;
   },
   'Labeled Node': (node) => {
+    const label = node.attributes[STORY_LABEL_VAR] as string | undefined;
+    const biologicalSex = node.attributes[STORY_BIO_SEX_VAR] as
+      | string
+      | undefined;
     const nodeEl = (
       <Node
         className="shrink-0"
         color="node-color-seq-1"
-        label={!node.isEgo ? node.label : ''}
-        shape={node.shape ?? 'square'}
+        label={!node.isEgo ? (label ?? '') : ''}
+        shape={bioSexToShape(biologicalSex)}
         size="sm"
       >
         {node.isEgo && (
@@ -1856,11 +1948,9 @@ const NODE_RENDERERS: Record<string, NodeRenderer> = {
     );
     return (
       <div className="flex flex-col items-center gap-1 text-center">
-        <span className="invisible max-w-24 truncate text-xs">
-          {node.label}
-        </span>
+        <span className="invisible max-w-24 truncate text-xs">{label}</span>
         {wrappedNode}
-        <span className="max-w-24 truncate text-xs">{node.label}</span>
+        <span className="max-w-24 truncate text-xs">{label}</span>
       </div>
     );
   },
@@ -1871,13 +1961,13 @@ const NODE_RENDERERS: Record<string, NodeRenderer> = {
         width: 'clamp(24px, 5vw, 80px)',
         height: 'clamp(24px, 5vw, 80px)',
       }}
-      title={node.label}
+      title={node.attributes[STORY_LABEL_VAR] as string | undefined}
     />
   ),
   'Dot': (node) => (
     <div
       className={`m-4 size-4 rounded-full ${node.isEgo ? 'bg-mustard' : 'bg-white'}`}
-      title={node.label}
+      title={node.attributes[STORY_LABEL_VAR] as string | undefined}
     />
   ),
 };
@@ -1908,6 +1998,7 @@ export const Playground: StoryFn<StoryArgs> = ({ network, nodeStyle }) => {
         <PedigreeLayout
           nodes={stableNodes}
           edges={stableEdges}
+          biologicalSexVariable={STORY_BIO_SEX_VAR}
           nodeWidth={nodeWidth}
           nodeHeight={nodeHeight}
           renderNode={renderNode}

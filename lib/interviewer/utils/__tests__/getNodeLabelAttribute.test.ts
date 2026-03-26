@@ -8,6 +8,7 @@ describe('getNodeLabelAttribute', () => {
     const mockCodebook: NodeDefinition = {
       name: 'Person',
       color: 'node-color-seq-6',
+      shape: { default: 'circle' },
       variables: {
         'var-123': { name: 'name', type: 'text' },
         'var-456': { name: 'age', type: 'number' },
@@ -34,6 +35,7 @@ describe('getNodeLabelAttribute', () => {
     const mockCodebook: NodeDefinition = {
       name: 'Person',
       color: 'node-color-seq-5',
+      shape: { default: 'circle' },
       variables: {
         'var-123': { name: 'NAME', type: 'text' }, // Upper case
       },
@@ -58,6 +60,7 @@ describe('getNodeLabelAttribute', () => {
     const mockCodebook: NodeDefinition = {
       name: 'Person',
       color: 'node-color-seq-4',
+      shape: { default: 'circle' },
       variables: {
         'var-456': { name: 'age', type: 'number' },
       },
@@ -83,6 +86,7 @@ describe('getNodeLabelAttribute', () => {
     const mockCodebook: NodeDefinition = {
       name: 'Person',
       color: 'node-color-seq-3',
+      shape: { default: 'circle' },
       variables: {
         'var-456': { name: 'age', type: 'number' },
       },
@@ -108,6 +112,7 @@ describe('getNodeLabelAttribute', () => {
     const mockCodebook: NodeDefinition = {
       name: 'Person',
       color: 'node-color-seq-2',
+      shape: { default: 'circle' },
       variables: {
         'var-123': { name: 'firstName', type: 'text' },
         'var-456': { name: 'lastName', type: 'text' },
@@ -149,6 +154,7 @@ describe('getNodeLabelAttribute', () => {
     const mockCodebook: NodeDefinition = {
       name: 'Person',
       color: 'node-color-seq-1',
+      shape: { default: 'circle' },
       variables: {
         'var-123': { name: 'name', type: 'text' },
       },

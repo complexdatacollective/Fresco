@@ -58,6 +58,7 @@ type VariableRef = {
 type NodeTypeHandle = {
   id: string;
   addVariable: (opts?: AddVariableInput) => VariableRef;
+  setShape: (shape: NodeTypeEntry['shape']) => void;
 };
 
 type EdgeTypeHandle = {
@@ -210,22 +211,10 @@ export class SyntheticInterview {
       id,
       name: opts?.name ?? `Person ${this.nodeTypeCounter}`,
       color: opts?.color ?? NODE_COLORS[colorIndex]!,
-      displayVariable: '', // will be set after creating display variable
+      icon: opts?.icon ?? 'add-a-person',
+      shape: opts?.shape ?? { default: 'circle' },
       variables: new Map(),
     };
-
-    // Auto-create display variable
-    if (opts?.displayVariable) {
-      entry.displayVariable = opts.displayVariable;
-    } else {
-      const displayVarId = this.nextId('var');
-      entry.variables.set(displayVarId, {
-        id: displayVarId,
-        name: 'Name',
-        type: 'text',
-      });
-      entry.displayVariable = displayVarId;
-    }
 
     this.nodeTypes.set(id, entry);
 
@@ -233,6 +222,9 @@ export class SyntheticInterview {
       id,
       addVariable: (varOpts?: AddVariableInput) =>
         this.addVariableToNodeType(id, varOpts),
+      setShape: (shape: NodeTypeEntry['shape']) => {
+        entry.shape = shape;
+      },
     };
 
     return handle;
@@ -427,11 +419,7 @@ export class SyntheticInterview {
 
     // NameGeneratorQuickAdd
     if (type === 'NameGeneratorQuickAdd') {
-      const nodeTypeId = subject?.type;
-      if (nodeTypeId) {
-        const nodeType = this.nodeTypes.get(nodeTypeId);
-        entry.quickAdd = opts?.quickAdd ?? nodeType?.displayVariable ?? 'name';
-      }
+      entry.quickAdd = opts?.quickAdd ?? 'name';
     }
 
     // NameGeneratorRoster
@@ -477,9 +465,7 @@ export class SyntheticInterview {
           form: opts.nodeConfig.form ?? [],
         };
       } else if (subject) {
-        const nodeTypeEntry = this.nodeTypes.get(subject.type);
-        const nodeLabelVar =
-          nodeTypeEntry?.displayVariable ?? this.nextId('label-var');
+        const nodeLabelVar = this.nextId('label-var');
         const egoVar = this.nextId('ego-var');
         const bioSexVar = this.nextId('bio-sex-var');
         const relToEgoVar = this.nextId('rel-to-ego-var');
@@ -1350,7 +1336,8 @@ export class SyntheticInterview {
       node[id] = {
         name: entry.name,
         color: entry.color,
-        displayVariable: entry.displayVariable,
+        icon: entry.icon,
+        shape: entry.shape,
         variables,
       };
     }

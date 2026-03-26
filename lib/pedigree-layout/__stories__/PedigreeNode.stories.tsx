@@ -12,7 +12,19 @@ const mockProtocol = {
       person: {
         name: 'Person',
         color: 'node-color-seq-1',
-        displayVariable: 'name',
+        shape: {
+          default: 'square',
+          dynamic: {
+            variable: 'sex',
+            type: 'discrete',
+            map: [
+              { value: 'male', shape: 'square' },
+              { value: 'female', shape: 'circle' },
+              { value: 'intersex', shape: 'diamond' },
+              { value: 'non-binary', shape: 'diamond' },
+            ],
+          },
+        },
         variables: {
           name: { name: 'Name', type: 'text' },
           sex: { name: 'Sex', type: 'categorical' },
@@ -20,7 +32,21 @@ const mockProtocol = {
       },
     },
   },
-  stages: [],
+  stages: [
+    {
+      id: 'stage-1',
+      type: 'FamilyPedigree',
+      label: 'Family Tree',
+      subject: { entity: 'node', type: 'person' },
+      nodeConfig: {
+        type: 'person',
+        biologicalSexVariable: 'sex',
+        nodeLabelVariable: 'name',
+        egoVariable: 'isEgo',
+        relationshipVariable: 'rel',
+      },
+    },
+  ],
   experiments: { encryptedVariables: false },
   assets: [],
 };
@@ -66,16 +92,24 @@ const ReduxDecorator = (Story: React.ComponentType) => {
 };
 
 function createNode(
-  overrides: Partial<NodeData> & { id?: string } = {},
+  overrides: Partial<{
+    id: string;
+    isEgo: boolean;
+    readOnly: boolean;
+    interviewNetworkId: string;
+    biologicalSex: string;
+    label: string;
+  }> = {},
 ): NodeData & { id: string } {
   return {
     id: overrides.id ?? `node-${crypto.randomUUID()}`,
-    label: overrides.label ?? '',
     isEgo: overrides.isEgo ?? false,
-    shape: overrides.shape,
     readOnly: overrides.readOnly,
     interviewNetworkId: overrides.interviewNetworkId,
-    biologicalSex: overrides.biologicalSex,
+    attributes: {
+      name: overrides.label ?? '',
+      sex: overrides.biologicalSex,
+    },
   };
 }
 
@@ -97,110 +131,78 @@ type Story = StoryObj<typeof PedigreeNode>;
 
 export const NamedMale: Story = {
   args: {
-    node: createNode({ id: 'p1', label: 'John', shape: 'square' }),
+    node: createNode({ id: 'p1', label: 'John', biologicalSex: 'male' }),
     displayLabel: 'John',
   },
 };
 
 export const NamedFemale: Story = {
   args: {
-    node: createNode({ id: 'p2', label: 'Mary', shape: 'circle' }),
+    node: createNode({ id: 'p2', label: 'Mary', biologicalSex: 'female' }),
     displayLabel: 'Mary',
   },
 };
 
 export const UnnamedFather: Story = {
   args: {
-    node: createNode({
-      id: 'p3',
-      shape: 'square',
-      biologicalSex: 'male',
-    }),
+    node: createNode({ id: 'p3', biologicalSex: 'male' }),
     displayLabel: 'Father',
   },
 };
 
 export const UnnamedMother: Story = {
   args: {
-    node: createNode({
-      id: 'p4',
-      shape: 'circle',
-      biologicalSex: 'female',
-    }),
+    node: createNode({ id: 'p4', biologicalSex: 'female' }),
     displayLabel: 'Mother',
   },
 };
 
 export const SpermDonor: Story = {
   args: {
-    node: createNode({
-      id: 'p5',
-      shape: 'square',
-      biologicalSex: 'male',
-    }),
+    node: createNode({ id: 'p5', biologicalSex: 'male' }),
     displayLabel: 'Sperm Donor',
   },
 };
 
 export const EggDonor: Story = {
   args: {
-    node: createNode({
-      id: 'p6',
-      shape: 'circle',
-      biologicalSex: 'female',
-    }),
+    node: createNode({ id: 'p6', biologicalSex: 'female' }),
     displayLabel: 'Egg Donor',
   },
 };
 
 export const SpermDonorNumbered: Story = {
   args: {
-    node: createNode({
-      id: 'p7',
-      shape: 'square',
-      biologicalSex: 'male',
-    }),
+    node: createNode({ id: 'p7', biologicalSex: 'male' }),
     displayLabel: 'Sperm Donor #1',
   },
 };
 
 export const Surrogate: Story = {
   args: {
-    node: createNode({
-      id: 'p8',
-      shape: 'circle',
-      biologicalSex: 'female',
-    }),
+    node: createNode({ id: 'p8', biologicalSex: 'female' }),
     displayLabel: 'Surrogate',
   },
 };
 
 export const EgoNode: Story = {
   args: {
-    node: createNode({ id: 'p9', shape: 'circle', isEgo: true }),
+    node: createNode({ id: 'p9', biologicalSex: 'female', isEgo: true }),
     displayLabel: 'You',
   },
 };
 
 export const Selected: Story = {
   args: {
-    node: createNode({
-      id: 'p10',
-      label: 'Mike',
-      shape: 'square',
-    }),
+    node: createNode({ id: 'p10', label: 'Mike', biologicalSex: 'male' }),
     displayLabel: 'Mike',
     selected: true,
   },
 };
 
-export const Diamond: Story = {
+export const NonBinary: Story = {
   args: {
-    node: createNode({
-      id: 'p11',
-      shape: 'diamond',
-      biologicalSex: 'intersex',
-    }),
+    node: createNode({ id: 'p11', biologicalSex: 'non-binary' }),
     displayLabel: 'Sibling',
   },
 };
@@ -210,21 +212,17 @@ export const AllStates: Story = {
     <div className="flex flex-wrap gap-8">
       {[
         {
-          node: createNode({ id: 'a1', shape: 'square' }),
+          node: createNode({ id: 'a1', biologicalSex: 'male' }),
           displayLabel: 'Father',
           label: 'Father (unnamed)',
         },
         {
-          node: createNode({ id: 'a2', shape: 'circle' }),
+          node: createNode({ id: 'a2', biologicalSex: 'female' }),
           displayLabel: 'Mother',
           label: 'Mother (unnamed)',
         },
         {
-          node: createNode({
-            id: 'a3',
-            label: 'John',
-            shape: 'square',
-          }),
+          node: createNode({ id: 'a3', label: 'John', biologicalSex: 'male' }),
           displayLabel: 'John',
           label: 'Named male',
         },
@@ -232,25 +230,29 @@ export const AllStates: Story = {
           node: createNode({
             id: 'a4',
             label: 'Mary',
-            shape: 'circle',
+            biologicalSex: 'female',
           }),
           displayLabel: 'Mary',
           label: 'Named female',
         },
         {
-          node: createNode({ id: 'a5', shape: 'circle', isEgo: true }),
+          node: createNode({
+            id: 'a5',
+            biologicalSex: 'female',
+            isEgo: true,
+          }),
           displayLabel: 'You',
           label: 'Ego',
         },
         {
-          node: createNode({ id: 'a6', shape: 'square' }),
+          node: createNode({ id: 'a6', biologicalSex: 'male' }),
           displayLabel: 'Sperm Donor #1',
           label: 'Donor #1',
         },
         {
-          node: createNode({ id: 'a7', shape: 'diamond' }),
+          node: createNode({ id: 'a7', biologicalSex: 'non-binary' }),
           displayLabel: 'Sibling',
-          label: 'Diamond',
+          label: 'Non-binary',
         },
       ].map(({ node, displayLabel, label }) => (
         <div key={node.id} className="flex flex-col items-center gap-2">

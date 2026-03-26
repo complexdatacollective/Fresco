@@ -62,7 +62,7 @@ export const test = baseTest.extend<
   InterviewWorkerFixtures
 >({
   protocol: [
-    // eslint-disable-next-line no-empty-pattern
+     
     async ({ database }, use, workerInfo) => {
       const projectName = workerInfo.project.name;
       const suiteId = getSuiteId(projectName);

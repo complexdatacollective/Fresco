@@ -2,14 +2,20 @@
 
 import { useSelector } from 'react-redux';
 import Field from '~/lib/form/components/Field/Field';
+import BooleanField from '~/lib/form/components/fields/Boolean';
 import InputField from '~/lib/form/components/fields/InputField';
+import NumberCounterField from '~/lib/form/components/fields/NumberCounterField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import { PARENT_EDGE_TYPE_OPTIONS } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
 import {
   type NodeData,
   type StoreEdge,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
-import { getBiologicalSexOptions } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
+import {
+  getBiologicalSexOptions,
+  getNodeLabelVariable,
+  getResolvedNodeFormFields,
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 
 export type AddPersonMode = 'parent' | 'child' | 'partner' | 'sibling';
 
@@ -17,6 +23,14 @@ const CURRENT_EX_OPTIONS = [
   { value: 'current', label: 'Current' },
   { value: 'ex', label: 'Ex' },
 ];
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const COMPONENT_MAP: Record<string, React.ComponentType<any>> = {
+  Text: InputField,
+  Number: NumberCounterField,
+  RadioGroup: RadioGroupField,
+  Boolean: BooleanField,
+};
 
 type AddPersonFieldsProps = {
   mode: AddPersonMode;
@@ -32,6 +46,8 @@ export default function AddPersonFields({
   edges,
 }: AddPersonFieldsProps) {
   const sexOptions = useSelector(getBiologicalSexOptions);
+  const nodeLabelVariable = useSelector(getNodeLabelVariable);
+  const formFields = useSelector(getResolvedNodeFormFields);
 
   const partners =
     mode === 'child'
@@ -54,7 +70,7 @@ export default function AddPersonFields({
   const partnerOptions = [
     ...partners.map(({ id, node }) => ({
       value: id,
-      label: node.label || 'Unknown',
+      label: (node.attributes[nodeLabelVariable] as string) || 'Unknown',
     })),
     { value: '', label: 'No partner (solo)' },
   ];
@@ -74,6 +90,21 @@ export default function AddPersonFields({
         component={RadioGroupField}
         options={sexOptions}
       />
+
+      {formFields.map((field) => {
+        const Component = COMPONENT_MAP[field.component];
+        if (!Component) return null;
+        return (
+          <Field
+            key={field.variableId}
+            name={field.variableId}
+            label={field.prompt}
+            component={Component}
+            options={field.options}
+            required={field.validation?.required === true}
+          />
+        );
+      })}
 
       {mode === 'parent' && (
         <Field

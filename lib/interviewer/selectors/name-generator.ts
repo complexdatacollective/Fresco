@@ -26,7 +26,7 @@ export const getNodeIconName = createSelector(
   getSubjectType,
   (codebook, nodeType) => {
     const nodeIcon = nodeType
-      ? (codebook?.node?.[nodeType]?.iconVariant ?? 'add-a-person')
+      ? (codebook?.node?.[nodeType]?.icon ?? 'add-a-person')
       : 'add-a-person';
 
     return nodeIcon;

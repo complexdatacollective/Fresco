@@ -1,7 +1,6 @@
 import { enableMapSet } from 'immer';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { type NodeShape } from '~/components/Node';
 import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
 import { type useAppDispatch } from '~/lib/interviewer/store';
 import { type ParentEdge } from '~/schemas/familyPedigree';
@@ -19,28 +18,20 @@ export type VariableConfig = {
   isGestationalCarrierVariable: string;
 };
 
-export function sexToShape(sex: string | undefined): NodeShape | undefined {
-  if (sex === 'female') return 'circle';
-  if (sex === 'male') return 'square';
-  if (sex === 'intersex' || sex === 'unknown') return 'diamond';
-  return undefined;
-}
-
 export type NodeData = {
-  label: string;
-  shape?: NodeShape;
-  biologicalSex?: string;
   isEgo: boolean;
   readOnly?: boolean;
   interviewNetworkId?: string;
   diseases?: Map<string, boolean>;
   isBioRelative?: boolean;
   adoptionStatus?: AdoptionStatus;
+  attributes: Record<string, unknown>;
 };
 
 export type PersonDetail = {
   name: string;
   biologicalSex?: string;
+  attributes?: Record<string, unknown>;
 };
 
 export type ParentDetail = PersonDetail & {
@@ -109,12 +100,17 @@ type NetworkActions = {
 
 export type FamilyPedigreeStore = FamilyPedigreeState & NetworkActions;
 
-function personToNodeData(person: PersonDetail): NodeData {
+function personToNodeData(
+  person: PersonDetail,
+  variableConfig: VariableConfig,
+): NodeData {
   return {
-    label: person.name,
-    biologicalSex: person.biologicalSex,
-    shape: sexToShape(person.biologicalSex),
     isEgo: false,
+    attributes: {
+      [variableConfig.nodeLabelVariable]: person.name,
+      [variableConfig.biologicalSexVariable]: person.biologicalSex,
+      ...person.attributes,
+    },
   };
 }
 
@@ -202,9 +198,9 @@ export const createFamilyPedigreeStore = (
           get().clearNetwork();
 
           const egoId = get().addNode({
-            label: '',
             isEgo: true,
             adoptionStatus: data.adoptionStatus,
+            attributes: { [variableConfig.nodeLabelVariable]: '' },
           });
 
           const egoParentSet = data.egoParentIndices
@@ -214,10 +210,9 @@ export const createFamilyPedigreeStore = (
           const parentIds: string[] = [];
           for (let pi = 0; pi < data.parents.length; pi++) {
             const parent = data.parents[pi]!;
-            const parentId = get().addNode({
-              ...personToNodeData(parent),
-              label: parent.name,
-            });
+            const parentId = get().addNode(
+              personToNodeData(parent, variableConfig),
+            );
             parentIds.push(parentId);
 
             // Only create parent→ego edge if this parent is ego's parent
@@ -262,8 +257,11 @@ export const createFamilyPedigreeStore = (
 
           for (const bp of data.bioParents) {
             const bpId = get().addNode({
-              ...personToNodeData(bp),
-              label: bp.nameKnown ? bp.name : '',
+              ...personToNodeData(bp, variableConfig),
+              attributes: {
+                ...personToNodeData(bp, variableConfig).attributes,
+                [variableConfig.nodeLabelVariable]: bp.nameKnown ? bp.name : '',
+              },
             });
             get().addEdge({
               source: bpId,
@@ -274,7 +272,9 @@ export const createFamilyPedigreeStore = (
           }
 
           for (const sibling of data.siblings) {
-            const siblingId = get().addNode(personToNodeData(sibling));
+            const siblingId = get().addNode(
+              personToNodeData(sibling, variableConfig),
+            );
             for (const parentIdx of sibling.sharedParentIndices) {
               const parentId = parentIds[parentIdx];
               if (!parentId) continue;
@@ -304,7 +304,9 @@ export const createFamilyPedigreeStore = (
 
           let partnerId: string | undefined;
           if (data.partner.hasPartner) {
-            partnerId = get().addNode(personToNodeData(data.partner));
+            partnerId = get().addNode(
+              personToNodeData(data.partner, variableConfig),
+            );
             get().addEdge({
               source: egoId,
               target: partnerId,
@@ -314,7 +316,9 @@ export const createFamilyPedigreeStore = (
           }
 
           for (const child of data.childrenWithPartner) {
-            const childId = get().addNode(personToNodeData(child));
+            const childId = get().addNode(
+              personToNodeData(child, variableConfig),
+            );
             get().addEdge({
               source: egoId,
               target: childId,
@@ -332,7 +336,9 @@ export const createFamilyPedigreeStore = (
           }
 
           for (const child of data.otherChildren) {
-            const childId = get().addNode(personToNodeData(child));
+            const childId = get().addNode(
+              personToNodeData(child, variableConfig),
+            );
             get().addEdge({
               source: egoId,
               target: childId,
@@ -348,8 +354,9 @@ export const createFamilyPedigreeStore = (
           const serializedNodes = [...nodes.entries()].map(([id, node]) => ({
             id,
             interviewNetworkId: node.interviewNetworkId,
-            label: node.label,
-            shape: node.shape,
+            label:
+              (node.attributes[variableConfig.nodeLabelVariable] as string) ??
+              '',
             isEgo: node.isEgo,
             adoptionStatus: node.adoptionStatus,
           }));

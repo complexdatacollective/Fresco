@@ -52,7 +52,7 @@ const nodeVariants = cva({
     shape: {
       circle: 'rounded-full',
       square: 'rounded',
-      diamond: 'rotate-45 rounded',
+      diamond: 'scale-[0.85] rotate-45 rounded',
     },
     color: {
       'node-color-seq-1': 'outline-node-1 [--base:var(--color-node-1)]',
@@ -322,11 +322,16 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
         )}
       </AnimatePresence>
       {isDiamond ? (
-        <span className="-rotate-45">{nodeContent}</span>
+        <span className="scale-[1.176] -rotate-45">
+          {nodeContent}
+          {props.children}
+        </span>
       ) : (
-        nodeContent
+        <>
+          {nodeContent}
+          {props.children}
+        </>
       )}
-      {props.children}
     </motion.button>
   );
 });

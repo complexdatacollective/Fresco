@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
 import Node from '~/components/Node';
 import useDialog from '~/lib/dialogs/useDialog';
 import Field from '~/lib/form/components/Field/Field';
@@ -10,7 +11,18 @@ import AddPersonFields, {
   type AddPersonMode,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/AddPersonForm';
 import { useFamilyPedigreeStore } from '~/lib/interviewer/Interfaces/FamilyPedigree/FamilyPedigreeProvider';
-import { sexToShape } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import {
+  getBiologicalSexVariable,
+  getEgoVariable,
+  getNodeLabelVariable,
+  getResolvedNodeFormFields,
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
+import {
+  getIsActiveVariable,
+  getIsGestationalCarrierVariable,
+  getRelationshipTypeVariable,
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/edgeUtils';
 import PedigreeNode, {
   computeNodeDisplayLabels,
 } from '~/lib/pedigree-layout/components/PedigreeNode';
@@ -26,6 +38,25 @@ export default function PedigreeView() {
   const addNode = useFamilyPedigreeStore((s) => s.addNode);
   const addEdge = useFamilyPedigreeStore((s) => s.addEdge);
   const updateNode = useFamilyPedigreeStore((s) => s.updateNode);
+
+  const nodeLabelVariable = useSelector(getNodeLabelVariable);
+  const biologicalSexVariable = useSelector(getBiologicalSexVariable);
+  const egoVariable = useSelector(getEgoVariable);
+  const relationshipTypeVariable = useSelector(getRelationshipTypeVariable);
+  const isActiveVariable = useSelector(getIsActiveVariable);
+  const isGestationalCarrierVariable = useSelector(
+    getIsGestationalCarrierVariable,
+  );
+  const resolvedFormFields = useSelector(getResolvedNodeFormFields);
+
+  const variableConfig: VariableConfig = {
+    nodeLabelVariable,
+    biologicalSexVariable,
+    egoVariable,
+    relationshipTypeVariable,
+    isActiveVariable,
+    isGestationalCarrierVariable,
+  };
 
   const [openMenuNodeId, setOpenMenuNodeId] = useState<string | null>(null);
   const { openDialog } = useDialog();
@@ -57,11 +88,21 @@ export default function PedigreeView() {
       typeof result.biologicalSex === 'string'
         ? result.biologicalSex
         : undefined;
+
+    const formAttrs: Record<string, unknown> = {};
+    for (const field of resolvedFormFields) {
+      if (result[field.variableId] !== undefined) {
+        formAttrs[field.variableId] = result[field.variableId];
+      }
+    }
+
     const newNodeId = addNode({
-      label: name,
-      biologicalSex,
-      shape: sexToShape(biologicalSex),
       isEgo: false,
+      attributes: {
+        [nodeLabelVariable]: name,
+        [biologicalSexVariable]: biologicalSex,
+        ...formAttrs,
+      },
     });
 
     switch (mode) {
@@ -117,7 +158,11 @@ export default function PedigreeView() {
   };
 
   const handleEditName = async (nodeId: string) => {
-    const currentName = nodes.get(nodeId)?.label ?? '';
+    const currentNode = nodes.get(nodeId);
+    const currentName =
+      typeof currentNode?.attributes[nodeLabelVariable] === 'string'
+        ? currentNode.attributes[nodeLabelVariable]
+        : '';
 
     const result = await openDialog({
       type: 'form',
@@ -137,7 +182,10 @@ export default function PedigreeView() {
     if (!result) return;
 
     const name = typeof result.name === 'string' ? result.name : '';
-    updateNode(nodeId, { label: name });
+    if (!currentNode) return;
+    updateNode(nodeId, {
+      attributes: { ...currentNode.attributes, [nodeLabelVariable]: name },
+    });
   };
 
   const handleMenuAction = (nodeId: string, action: NodeContextMenuAction) => {
@@ -149,14 +197,15 @@ export default function PedigreeView() {
     }
   };
 
-  const displayLabels = computeNodeDisplayLabels(nodes, edges);
+  const displayLabels = computeNodeDisplayLabels(nodes, edges, variableConfig);
 
   return (
-    <div className="census-node-canvas relative size-full overflow-x-auto pt-6">
+    <div className="relative size-full overflow-x-auto pt-6">
       <div className="relative flex size-full min-w-fit justify-center">
         <PedigreeLayout
           nodes={nodes}
           edges={edges}
+          biologicalSexVariable={biologicalSexVariable}
           nodeWidth={nodeWidth}
           nodeHeight={nodeHeight}
           renderNode={(node) => (

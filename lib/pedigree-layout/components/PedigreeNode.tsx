@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import Node from '~/components/Node';
 import { useDragSource } from '~/lib/dnd';
@@ -5,8 +6,13 @@ import {
   type AdoptionStatus,
   type NodeData,
   type StoreEdge,
+  type VariableConfig,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
-import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
+import { getNodeShapeDefinition } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
+import {
+  getNodeColorSelector,
+  resolveNodeShape,
+} from '~/lib/interviewer/selectors/session';
 import { useClickUnlessDragged } from '~/lib/pedigree-layout/useClickUnlessDragged';
 
 export function AdoptionBrackets({
@@ -181,6 +187,7 @@ function relationshipLabel(
 export function computeNodeDisplayLabels(
   nodes: Map<string, NodeData>,
   edges: Map<string, StoreEdge>,
+  variableConfig: VariableConfig,
 ): Map<string, string> {
   const egoEntry = [...nodes.entries()].find(([, n]) => n.isEgo);
   if (!egoEntry) return new Map();
@@ -192,15 +199,18 @@ export function computeNodeDisplayLabels(
   for (const [nodeId, node] of nodes) {
     if (node.isEgo) continue;
 
-    if (node.label) {
-      labels.set(nodeId, node.label);
+    const label =
+      (node.attributes[variableConfig.nodeLabelVariable] as string) ?? '';
+    if (label) {
+      labels.set(nodeId, label);
       continue;
     }
 
+    const biologicalSex = node.attributes[
+      variableConfig.biologicalSexVariable
+    ] as string | undefined;
     const rel = getRelationshipToEgo(nodeId, egoId, edges);
-    const role = rel
-      ? relationshipLabel(rel, node.biologicalSex)
-      : 'Family Member';
+    const role = rel ? relationshipLabel(rel, biologicalSex) : 'Family Member';
 
     const bucket = roleBuckets.get(role) ?? [];
     bucket.push(nodeId);
@@ -235,10 +245,15 @@ export default function PedigreeNode({
   selected,
   onTap,
 }: PedigreeNodeProps) {
-  const { id, isEgo, shape: nodeShape, adoptionStatus } = node;
-  const shape = nodeShape ?? 'square';
+  const { id, isEgo, adoptionStatus } = node;
 
   const nodeColor = useSelector(getNodeColorSelector);
+  const shapeDef = useSelector(getNodeShapeDefinition);
+
+  const shape = useMemo(() => {
+    if (!shapeDef) return 'square';
+    return resolveNodeShape(shapeDef, node.attributes);
+  }, [shapeDef, node.attributes]);
 
   const { handlePointerDown, handlePointerUp, shouldHandleClick } =
     useClickUnlessDragged();
@@ -262,7 +277,7 @@ export default function PedigreeNode({
     >
       {isEgo && (
         <EgoIcon
-          className="pointer-events-none absolute top-1/2 left-1/2 size-8 -translate-1/2"
+          className="pointer-events-none absolute top-1/2 left-1/2 size-12 -translate-1/2"
           variant="platinum"
         />
       )}
@@ -277,7 +292,6 @@ export default function PedigreeNode({
 
   return (
     <div
-      className="family-tree-node"
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       onClick={() => {

@@ -1,12 +1,15 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
+import { extractFormFieldAttributes } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/extractFormFieldAttributes';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import { type PersonDetail } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { getNodeForm } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 
 export default function OtherChildrenDetailStep() {
   return (
@@ -21,6 +24,8 @@ function OtherChildrenDetailForm() {
   const validateForm = useFormStore((s) => s.validateForm);
   const getFormValues = useFormStore((s) => s.getFormValues);
   const errors = useFormStore((s) => s.errors);
+  const rawFormFields = useSelector(getNodeForm);
+  const formFields = useMemo(() => rawFormFields ?? [], [rawFormFields]);
   const errorsRef = useRef(errors);
   errorsRef.current = errors;
 
@@ -45,6 +50,12 @@ function OtherChildrenDetailForm() {
           return {
             name: typeof rawName === 'string' ? rawName : '',
             biologicalSex: typeof rawSex === 'string' ? rawSex : undefined,
+            attributes: extractFormFieldAttributes(
+              values,
+              'otherChild',
+              i,
+              formFields,
+            ),
           };
         },
       );
@@ -52,7 +63,14 @@ function OtherChildrenDetailForm() {
       setStepData({ otherChildren });
       return true;
     });
-  }, [validateForm, getFormValues, setStepData, setBeforeNext, childCount]);
+  }, [
+    validateForm,
+    getFormValues,
+    setStepData,
+    setBeforeNext,
+    childCount,
+    formFields,
+  ]);
 
   return (
     <div className="flex flex-col gap-6 pt-4">

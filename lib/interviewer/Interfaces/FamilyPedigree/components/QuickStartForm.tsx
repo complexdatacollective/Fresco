@@ -130,6 +130,9 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
                 name:
                   typeof data.partnerName === 'string' ? data.partnerName : '',
                 biologicalSex: data.partnerSex as string | undefined,
+                attributes:
+                  (data.partnerAttributes as Record<string, unknown>) ??
+                  undefined,
               }
             : { hasPartner: false },
           childrenWithPartner:

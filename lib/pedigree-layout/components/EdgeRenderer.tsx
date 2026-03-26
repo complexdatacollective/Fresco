@@ -267,6 +267,8 @@ type PedigreeEdgeSvgProps = {
   color: string;
   width: number;
   height: number;
+  offsetX?: number;
+  offsetY?: number;
 };
 
 export function PedigreeEdgeSvg({
@@ -274,6 +276,8 @@ export function PedigreeEdgeSvg({
   color,
   width,
   height,
+  offsetX = 0,
+  offsetY = 0,
 }: PedigreeEdgeSvgProps) {
   const svgElements = useMemo(() => {
     if (!connectorData) return [];
@@ -348,7 +352,11 @@ export function PedigreeEdgeSvg({
       width={width}
       height={height}
     >
-      {svgElements}
+      {offsetX !== 0 || offsetY !== 0 ? (
+        <g transform={`translate(${offsetX},${offsetY})`}>{svgElements}</g>
+      ) : (
+        svgElements
+      )}
     </svg>
   );
 }

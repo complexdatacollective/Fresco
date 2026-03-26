@@ -372,8 +372,8 @@ describe('SyntheticInterview', () => {
       const network = si.getNetwork();
       for (const node of network.nodes) {
         const attrs = node[entityAttributesProperty];
-        // Should have display variable + 2 added variables
-        expect(Object.keys(attrs).length).toBeGreaterThanOrEqual(3);
+        // Should have 2 added variables (Age, Active)
+        expect(Object.keys(attrs).length).toBeGreaterThanOrEqual(2);
       }
     });
 

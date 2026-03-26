@@ -24,6 +24,7 @@ type PedigreeLayoutNode = NodeData & { id: string };
 type PedigreeLayoutProps = {
   nodes: Map<string, NodeData>;
   edges: Map<string, StoreEdge>;
+  biologicalSexVariable: string;
   nodeWidth: number;
   nodeHeight: number;
   renderNode: (node: PedigreeLayoutNode) => ReactNode;
@@ -32,6 +33,7 @@ type PedigreeLayoutProps = {
 export default function PedigreeLayout({
   nodes,
   edges,
+  biologicalSexVariable,
   nodeWidth,
   nodeHeight,
   renderNode,
@@ -50,7 +52,11 @@ export default function PedigreeLayout({
     if (dimensions.nodeWidth === 0 || dimensions.nodeHeight === 0) return null;
     if (nodes.size === 0) return null;
 
-    const { input, indexToId, idToIndex } = storeToPedigreeInput(nodes, edges);
+    const { input, indexToId, idToIndex } = storeToPedigreeInput(
+      nodes,
+      edges,
+      biologicalSexVariable,
+    );
     if (input.id.length === 0) return null;
 
     const layout = alignPedigree(input);
@@ -64,7 +70,7 @@ export default function PedigreeLayout({
     );
 
     return { positions, connectorData };
-  }, [nodes, edges, dimensions]);
+  }, [nodes, edges, biologicalSexVariable, dimensions]);
 
   const bioRelatives = useMemo(() => {
     const egoEntry = [...nodes.entries()].find(([, n]) => n.isEgo);
@@ -84,6 +90,11 @@ export default function PedigreeLayout({
 
   const { positions, connectorData } = layoutResult;
 
+  // Diamond nodes overflow their container because scale(0.85) + rotate(45°)
+  // produces a bounding box ~1.2× the node size. Add inset so nodes and edges
+  // are shifted inward, preventing diamond tips from being clipped.
+  const diamondInset = Math.ceil(nodeWidth * 0.1);
+
   let totalWidth = 0;
   let totalHeight = 0;
   for (const pos of positions.values()) {
@@ -92,6 +103,9 @@ export default function PedigreeLayout({
     if (rightEdge > totalWidth) totalWidth = rightEdge;
     if (bottomEdge > totalHeight) totalHeight = bottomEdge;
   }
+
+  totalWidth += diamondInset * 2;
+  totalHeight += diamondInset * 2;
 
   const edgeColor = 'var(--color-edge-1)';
 
@@ -105,6 +119,8 @@ export default function PedigreeLayout({
         color={edgeColor}
         width={totalWidth}
         height={totalHeight}
+        offsetX={diamondInset}
+        offsetY={diamondInset}
       />
       {Array.from(nodes.entries()).map(([id, node]) => {
         const pos = positions.get(id);
@@ -115,8 +131,8 @@ export default function PedigreeLayout({
             key={id}
             className="absolute"
             style={{
-              top: pos.y,
-              left: pos.x,
+              top: pos.y + diamondInset,
+              left: pos.x + diamondInset,
               width: metrics.containerWidth,
               height: metrics.containerHeight,
             }}

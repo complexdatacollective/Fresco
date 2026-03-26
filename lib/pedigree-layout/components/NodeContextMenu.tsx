@@ -40,7 +40,9 @@ export default function NodeContextMenu({
 
   return (
     <Menu.Root open={open} onOpenChange={onOpenChange}>
-      <Menu.Trigger render={<div />}>{children}</Menu.Trigger>
+      <Menu.Trigger nativeButton={false} render={<div />}>
+        {children}
+      </Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner sideOffset={8}>
           <Menu.Popup

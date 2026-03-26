@@ -18,7 +18,7 @@ export default function GestationalCarrierStep() {
 }
 
 function getParentLabel(parent: ParentDetail | undefined, index: number) {
-  return parent?.name || `Parent ${index + 1}`;
+  return parent?.name ?? `Parent ${index + 1}`;
 }
 
 function GestationalCarrierForm() {

@@ -29,7 +29,7 @@ const draw = (delay: number) => ({
     pathLength: 1,
     transition: {
       pathLength: {
-        type: 'spring',
+        type: 'spring' as const,
         delay: BASE_DELAY + delay,
         // Increase damping to prevent overshoot (which causes weird visual glitches with lines)
         damping: 20,

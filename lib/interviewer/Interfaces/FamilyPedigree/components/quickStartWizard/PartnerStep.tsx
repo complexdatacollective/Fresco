@@ -1,13 +1,16 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
 import NumberCounterField from '~/lib/form/components/fields/NumberCounterField';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
+import { extractFormFieldAttributes } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/extractFormFieldAttributes';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
+import { getNodeForm } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 
 export default function PartnerStep() {
   return (
@@ -22,6 +25,8 @@ function PartnerForm() {
   const validateForm = useFormStore((s) => s.validateForm);
   const getFormValues = useFormStore((s) => s.getFormValues);
   const errors = useFormStore((s) => s.errors);
+  const rawFormFields = useSelector(getNodeForm);
+  const formFields = useMemo(() => rawFormFields ?? [], [rawFormFields]);
   const errorsRef = useRef(errors);
   errorsRef.current = errors;
 
@@ -50,11 +55,17 @@ function PartnerForm() {
       setStepData({
         partnerName: typeof rawName === 'string' ? rawName : '',
         partnerSex: typeof rawSex === 'string' ? rawSex : undefined,
+        partnerAttributes: extractFormFieldAttributes(
+          values,
+          'partner',
+          0,
+          formFields,
+        ),
         childrenWithPartnerCount: childrenCountRef.current,
       });
       return true;
     });
-  }, [validateForm, getFormValues, setStepData, setBeforeNext]);
+  }, [validateForm, getFormValues, setStepData, setBeforeNext, formFields]);
 
   return (
     <div className="flex flex-col gap-6 pt-4">

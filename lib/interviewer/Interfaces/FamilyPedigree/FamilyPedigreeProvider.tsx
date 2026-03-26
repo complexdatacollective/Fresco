@@ -5,7 +5,6 @@ import { useSelector } from 'react-redux';
 import { useStore } from 'zustand';
 import {
   createFamilyPedigreeStore,
-  sexToShape,
   type FamilyPedigreeStore,
   type FamilyPedigreeStoreApi,
   type NodeData,
@@ -52,7 +51,6 @@ export const FamilyPedigreeProvider = ({
   const isGestationalCarrierVariable = useSelector(
     getIsGestationalCarrierVariable,
   );
-
   const variableConfig: VariableConfig = {
     nodeLabelVariable,
     biologicalSexVariable,
@@ -71,38 +69,24 @@ export const FamilyPedigreeProvider = ({
         ]),
       );
 
-      const label = (node.attributes[nodeLabelVariable] ?? '') as string;
-      const biologicalSex = node.attributes[biologicalSexVariable] as
-        | string
-        | undefined;
-
       return [
         node._uid,
         {
-          label,
-          biologicalSex,
-          shape: sexToShape(biologicalSex),
           isEgo: false,
           readOnly: false,
           interviewNetworkId: node._uid,
           diseases,
+          attributes: { ...node.attributes },
         },
       ];
     }),
   );
 
   if (ego != null) {
-    const biologicalSex = ego.attributes[biologicalSexVariable] as
-      | string
-      | undefined;
-    const label = (ego.attributes[nodeLabelVariable] ?? 'You') as string;
-
     initialNodes.set(ego._uid, {
-      label,
-      biologicalSex,
-      shape: sexToShape(biologicalSex),
       isEgo: true,
       readOnly: true,
+      attributes: { ...ego.attributes },
     });
   }
 

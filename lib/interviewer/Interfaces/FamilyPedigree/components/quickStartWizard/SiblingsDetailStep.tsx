@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
@@ -10,11 +11,13 @@ import CheckboxGroupField from '~/lib/form/components/fields/CheckboxGroup';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
+import { extractFormFieldAttributes } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/extractFormFieldAttributes';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import {
   type ParentDetail,
   type SiblingDetail,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { getNodeForm } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 
 export default function SiblingsDetailStep() {
   return (
@@ -29,12 +32,17 @@ function SiblingsDetailForm() {
   const validateForm = useFormStore((s) => s.validateForm);
   const getFormValues = useFormStore((s) => s.getFormValues);
   const errors = useFormStore((s) => s.errors);
+  const rawFormFields = useSelector(getNodeForm);
+  const formFields = useMemo(() => rawFormFields ?? [], [rawFormFields]);
   const errorsRef = useRef(errors);
   errorsRef.current = errors;
 
   const siblingCount = (data.siblingCount as number | undefined) ?? 0;
   const existing = data.siblings as SiblingDetail[] | undefined;
-  const parents = (data.parents as ParentDetail[] | undefined) ?? [];
+  const parents = useMemo(
+    () => (data.parents as ParentDetail[] | undefined) ?? [],
+    [data.parents],
+  );
 
   useEffect(() => {
     setBeforeNext(async () => {
@@ -65,6 +73,12 @@ function SiblingsDetailForm() {
           return {
             name: typeof rawName === 'string' ? rawName : '',
             biologicalSex: typeof rawSex === 'string' ? rawSex : undefined,
+            attributes: extractFormFieldAttributes(
+              values,
+              'sibling',
+              i,
+              formFields,
+            ),
             sharedParentIndices,
           };
         },
@@ -76,7 +90,15 @@ function SiblingsDetailForm() {
       });
       return true;
     });
-  }, [validateForm, getFormValues, setStepData, setBeforeNext, siblingCount]);
+  }, [
+    validateForm,
+    getFormValues,
+    setStepData,
+    setBeforeNext,
+    siblingCount,
+    parents,
+    formFields,
+  ]);
 
   const existingEgoParents = data.egoParentIndices as number[] | undefined;
 
@@ -84,7 +106,7 @@ function SiblingsDetailForm() {
     () =>
       parents.map((p, pIdx) => ({
         value: String(pIdx),
-        label: p.name || `Parent ${pIdx + 1}`,
+        label: p.name ?? `Parent ${pIdx + 1}`,
       })),
     [parents],
   );
@@ -133,7 +155,7 @@ function SiblingsDetailForm() {
           {parents.length > 0 && (
             <Field
               name={`sibling-${i}-sharedParents`}
-              label={`Which of your parents are also ${existing?.[i]?.name || 'this sibling'}'s parent?`}
+              label={`Which of your parents are also ${existing?.[i]?.name ?? 'this sibling'}'s parent?`}
               component={CheckboxGroupField}
               options={parentOptions}
               initialValue={

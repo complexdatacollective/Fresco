@@ -1,4 +1,3 @@
-import { type NodeShape } from '~/components/Node';
 import {
   computeLayoutMetrics,
   type LayoutDimensions,
@@ -31,22 +30,23 @@ type ConversionResult = {
   idToIndex: Map<string, number>;
 };
 
-function shapeToSex(shape: NodeShape | undefined): Sex {
-  if (shape === 'circle') return 'female';
-  if (shape === 'square') return 'male';
-  if (shape === 'diamond') return 'intersex';
+function biologicalSexToSex(biologicalSex: string | undefined): Sex {
+  if (biologicalSex === 'female') return 'female';
+  if (biologicalSex === 'male') return 'male';
+  if (biologicalSex === 'intersex') return 'intersex';
   return 'unknown';
 }
 
-function shapeToGender(shape: NodeShape | undefined): Gender {
-  if (shape === 'circle') return 'woman';
-  if (shape === 'square') return 'man';
+function biologicalSexToGender(biologicalSex: string | undefined): Gender {
+  if (biologicalSex === 'female') return 'woman';
+  if (biologicalSex === 'male') return 'man';
   return 'unknown';
 }
 
 export function storeToPedigreeInput(
   nodes: Map<string, NodeData>,
   edges: Map<string, StoreEdge>,
+  biologicalSexVariable: string,
 ): ConversionResult {
   const indexToId: string[] = [];
   const idToIndex = new Map<string, number>();
@@ -60,9 +60,15 @@ export function storeToPedigreeInput(
 
   const n = indexToId.length;
   const id: string[] = indexToId.slice();
-  const sex: Sex[] = indexToId.map((nid) => shapeToSex(nodes.get(nid)?.shape));
+  const sex: Sex[] = indexToId.map((nid) =>
+    biologicalSexToSex(
+      nodes.get(nid)?.attributes[biologicalSexVariable] as string | undefined,
+    ),
+  );
   const gender: Gender[] = indexToId.map((nid) =>
-    shapeToGender(nodes.get(nid)?.shape),
+    biologicalSexToGender(
+      nodes.get(nid)?.attributes[biologicalSexVariable] as string | undefined,
+    ),
   );
   const parents: ParentConnection[][] = Array.from({ length: n }, () => []);
   const relations: Relation[] = [];

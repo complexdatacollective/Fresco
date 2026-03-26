@@ -1,4 +1,8 @@
-import type { Codebook, StageSubject } from '@codaco/protocol-validation';
+import type {
+  Codebook,
+  NodeDefinition,
+  StageSubject,
+} from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   type EntityPrimaryKey,
@@ -8,7 +12,7 @@ import {
 import { createSelector } from '@reduxjs/toolkit';
 import { intersection, invariant } from 'es-toolkit';
 import { filter, includes } from 'es-toolkit/compat';
-import { type NodeColorSequence } from '~/components/Node';
+import { type NodeColorSequence, type NodeShape } from '~/components/Node';
 import customFilter from '~/lib/network-query/filter';
 import { getCodebook, getStages } from '../ducks/modules/protocol';
 import { type RootState } from '../store';
@@ -308,6 +312,49 @@ export const getNodeColorSelector = createSelector(
     }
 
     return codebook.node?.[nodeType]?.color ?? 'node-color-seq-1';
+  },
+);
+
+/**
+ * Resolves a node's shape from the codebook shape definition and a node's
+ * attributes. Uses the dynamic mapping (discrete or breakpoints) when
+ * configured, falling back to the default shape.
+ */
+export function resolveNodeShape(
+  shapeDef: NodeDefinition['shape'],
+  attributes: Record<string, unknown>,
+): NodeShape {
+  if (!shapeDef.dynamic) return shapeDef.default;
+
+  const variableValue = attributes[shapeDef.dynamic.variable];
+
+  if (shapeDef.dynamic.type === 'discrete') {
+    const match = shapeDef.dynamic.map.find(
+      (entry) => entry.value === variableValue,
+    );
+    return match?.shape ?? shapeDef.default;
+  }
+
+  // Breakpoints: value must be numeric
+  if (typeof variableValue !== 'number') return shapeDef.default;
+  const { thresholds } = shapeDef.dynamic;
+
+  // Walk thresholds in reverse — return the first shape whose threshold
+  // the value meets or exceeds.
+  for (let i = thresholds.length - 1; i >= 0; i--) {
+    if (variableValue >= thresholds[i]!.value) {
+      return thresholds[i]!.shape;
+    }
+  }
+  return shapeDef.default;
+}
+
+export const getNodeShapeDefinition = createSelector(
+  getCodebook,
+  getSubjectType,
+  (codebook, nodeType): NodeDefinition['shape'] | null => {
+    if (!nodeType) return null;
+    return codebook.node?.[nodeType]?.shape ?? null;
   },
 );
 

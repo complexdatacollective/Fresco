@@ -20,12 +20,18 @@ const TEST_DIMENSIONS: LayoutDimensions = {
   nodeHeight: 100,
 };
 
+const TEST_BIO_SEX_VAR = 'biologicalSex';
+
 function makeNodes(
-  entries: { id: string; shape?: 'square' | 'circle'; isEgo?: boolean }[],
+  entries: { id: string; biologicalSex?: 'male' | 'female'; isEgo?: boolean }[],
 ) {
   const map = new Map<string, NodeData>();
-  for (const { id, shape, isEgo } of entries) {
-    map.set(id, { label: id, shape, isEgo: isEgo ?? false });
+  for (const { id, biologicalSex, isEgo } of entries) {
+    const attributes: Record<string, unknown> = {};
+    if (biologicalSex !== undefined) {
+      attributes[TEST_BIO_SEX_VAR] = biologicalSex;
+    }
+    map.set(id, { attributes, isEgo: isEgo ?? false });
   }
   return map;
 }
@@ -70,7 +76,11 @@ function makeEdges(
 
 describe('storeToPedigreeInput', () => {
   test('empty graph produces empty input', () => {
-    const { input } = storeToPedigreeInput(new Map(), new Map());
+    const { input } = storeToPedigreeInput(
+      new Map(),
+      new Map(),
+      TEST_BIO_SEX_VAR,
+    );
     expect(input.id).toHaveLength(0);
     expect(input.parents).toHaveLength(0);
     expect(input.sex).toHaveLength(0);
@@ -78,10 +88,13 @@ describe('storeToPedigreeInput', () => {
   });
 
   test('single node produces correct single-element arrays', () => {
-    const nodes = makeNodes([{ id: 'ego', shape: 'square', isEgo: true }]);
+    const nodes = makeNodes([
+      { id: 'ego', biologicalSex: 'male', isEgo: true },
+    ]);
     const { input, indexToId, idToIndex } = storeToPedigreeInput(
       nodes,
       new Map(),
+      TEST_BIO_SEX_VAR,
     );
 
     expect(input.id).toEqual(['ego']);
@@ -94,9 +107,9 @@ describe('storeToPedigreeInput', () => {
 
   test('nuclear family produces correct parent connections from edges', () => {
     const nodes = makeNodes([
-      { id: 'father', shape: 'square' },
-      { id: 'mother', shape: 'circle' },
-      { id: 'child', shape: 'square', isEgo: true },
+      { id: 'father', biologicalSex: 'male' },
+      { id: 'mother', biologicalSex: 'female' },
+      { id: 'child', biologicalSex: 'male', isEgo: true },
     ]);
     const edges = makeEdges([
       { source: 'father', target: 'mother', relationshipType: 'partner' },
@@ -112,7 +125,11 @@ describe('storeToPedigreeInput', () => {
       },
     ]);
 
-    const { input, idToIndex } = storeToPedigreeInput(nodes, edges);
+    const { input, idToIndex } = storeToPedigreeInput(
+      nodes,
+      edges,
+      TEST_BIO_SEX_VAR,
+    );
 
     const childIdx = idToIndex.get('child')!;
     const fatherIdx = idToIndex.get('father')!;
@@ -129,11 +146,11 @@ describe('storeToPedigreeInput', () => {
 
   test('three-generation pedigree produces correct indexing', () => {
     const nodes = makeNodes([
-      { id: 'gf', shape: 'square' },
-      { id: 'gm', shape: 'circle' },
-      { id: 'father', shape: 'square' },
-      { id: 'mother', shape: 'circle' },
-      { id: 'child', shape: 'circle', isEgo: true },
+      { id: 'gf', biologicalSex: 'male' },
+      { id: 'gm', biologicalSex: 'female' },
+      { id: 'father', biologicalSex: 'male' },
+      { id: 'mother', biologicalSex: 'female' },
+      { id: 'child', biologicalSex: 'female', isEgo: true },
     ]);
     const edges = makeEdges([
       { source: 'gf', target: 'gm', relationshipType: 'partner' },
@@ -160,7 +177,11 @@ describe('storeToPedigreeInput', () => {
       },
     ]);
 
-    const { input, idToIndex } = storeToPedigreeInput(nodes, edges);
+    const { input, idToIndex } = storeToPedigreeInput(
+      nodes,
+      edges,
+      TEST_BIO_SEX_VAR,
+    );
 
     const fatherIdx = idToIndex.get('father')!;
     const gfIdx = idToIndex.get('gf')!;
@@ -182,16 +203,16 @@ describe('storeToPedigreeInput', () => {
 
   test('partner edges produce Relation entries with code 4', () => {
     const nodes = makeNodes([
-      { id: 'a', shape: 'square' },
-      { id: 'b', shape: 'circle' },
-      { id: 'c', shape: 'circle' },
+      { id: 'a', biologicalSex: 'male' },
+      { id: 'b', biologicalSex: 'female' },
+      { id: 'c', biologicalSex: 'female' },
     ]);
     const edges = makeEdges([
       { source: 'a', target: 'b', relationshipType: 'partner' },
       { source: 'a', target: 'c', relationshipType: 'partner' },
     ]);
 
-    const { input } = storeToPedigreeInput(nodes, edges);
+    const { input } = storeToPedigreeInput(nodes, edges, TEST_BIO_SEX_VAR);
 
     expect(input.relation).toHaveLength(2);
     expect(input.relation![0]!.code).toBe(4);
@@ -200,8 +221,8 @@ describe('storeToPedigreeInput', () => {
 
   test('single parent produces one parent connection', () => {
     const nodes = makeNodes([
-      { id: 'parent', shape: 'square' },
-      { id: 'child', shape: 'circle' },
+      { id: 'parent', biologicalSex: 'male' },
+      { id: 'child', biologicalSex: 'female' },
     ]);
     const edges = makeEdges([
       {
@@ -211,7 +232,11 @@ describe('storeToPedigreeInput', () => {
       },
     ]);
 
-    const { input, idToIndex } = storeToPedigreeInput(nodes, edges);
+    const { input, idToIndex } = storeToPedigreeInput(
+      nodes,
+      edges,
+      TEST_BIO_SEX_VAR,
+    );
     const childIdx = idToIndex.get('child')!;
 
     expect(input.parents[childIdx]).toHaveLength(1);
@@ -222,7 +247,7 @@ describe('storeToPedigreeInput', () => {
 
   test('node with undefined sex is mapped to unknown', () => {
     const nodes = makeNodes([{ id: 'x' }]);
-    const { input } = storeToPedigreeInput(nodes, new Map());
+    const { input } = storeToPedigreeInput(nodes, new Map(), TEST_BIO_SEX_VAR);
     expect(input.sex[0]).toBe('unknown');
     expect(input.gender[0]).toBe('unknown');
   });
@@ -246,7 +271,7 @@ describe('storeToPedigreeInput', () => {
       },
     ]);
 
-    const result = storeToPedigreeInput(nodes, edges);
+    const result = storeToPedigreeInput(nodes, edges, TEST_BIO_SEX_VAR);
     const childIdx = result.idToIndex.get('child')!;
     const edgeTypes = result.input.parents[childIdx]!.map((p) => p.edgeType);
     expect(edgeTypes).toContain('biological');
@@ -334,9 +359,9 @@ describe('pedigreeLayoutToPositions', () => {
 describe('buildConnectorData', () => {
   test('produces connector data with pixel-space coordinates', () => {
     const nodes = makeNodes([
-      { id: 'father', shape: 'square' },
-      { id: 'mother', shape: 'circle' },
-      { id: 'child', shape: 'square', isEgo: true },
+      { id: 'father', biologicalSex: 'male' },
+      { id: 'mother', biologicalSex: 'female' },
+      { id: 'child', biologicalSex: 'male', isEgo: true },
     ]);
     const edges = makeEdges([
       { source: 'father', target: 'mother', relationshipType: 'partner' },
@@ -352,7 +377,7 @@ describe('buildConnectorData', () => {
       },
     ]);
 
-    const { input } = storeToPedigreeInput(nodes, edges);
+    const { input } = storeToPedigreeInput(nodes, edges, TEST_BIO_SEX_VAR);
     const layout = alignPedigree(input);
     const { connectors } = buildConnectorData(
       layout,
@@ -373,9 +398,9 @@ describe('buildConnectorData', () => {
 describe('end-to-end: store → layout → positions', () => {
   test('parents are above children (smaller y)', () => {
     const nodes = makeNodes([
-      { id: 'father', shape: 'square' },
-      { id: 'mother', shape: 'circle' },
-      { id: 'child', shape: 'square', isEgo: true },
+      { id: 'father', biologicalSex: 'male' },
+      { id: 'mother', biologicalSex: 'female' },
+      { id: 'child', biologicalSex: 'male', isEgo: true },
     ]);
     const edges = makeEdges([
       { source: 'father', target: 'mother', relationshipType: 'partner' },
@@ -391,7 +416,11 @@ describe('end-to-end: store → layout → positions', () => {
       },
     ]);
 
-    const { input, indexToId } = storeToPedigreeInput(nodes, edges);
+    const { input, indexToId } = storeToPedigreeInput(
+      nodes,
+      edges,
+      TEST_BIO_SEX_VAR,
+    );
     const layout = alignPedigree(input);
     const positions = pedigreeLayoutToPositions(
       layout,
@@ -405,14 +434,18 @@ describe('end-to-end: store → layout → positions', () => {
 
   test('partners are on same row (same y)', () => {
     const nodes = makeNodes([
-      { id: 'father', shape: 'square' },
-      { id: 'mother', shape: 'circle' },
+      { id: 'father', biologicalSex: 'male' },
+      { id: 'mother', biologicalSex: 'female' },
     ]);
     const edges = makeEdges([
       { source: 'father', target: 'mother', relationshipType: 'partner' },
     ]);
 
-    const { input, indexToId } = storeToPedigreeInput(nodes, edges);
+    const { input, indexToId } = storeToPedigreeInput(
+      nodes,
+      edges,
+      TEST_BIO_SEX_VAR,
+    );
     const layout = alignPedigree(input);
     const positions = pedigreeLayoutToPositions(
       layout,
@@ -425,10 +458,10 @@ describe('end-to-end: store → layout → positions', () => {
 
   test('siblings are on same row (same y)', () => {
     const nodes = makeNodes([
-      { id: 'father', shape: 'square' },
-      { id: 'mother', shape: 'circle' },
-      { id: 'ego', shape: 'square', isEgo: true },
-      { id: 'sibling', shape: 'circle' },
+      { id: 'father', biologicalSex: 'male' },
+      { id: 'mother', biologicalSex: 'female' },
+      { id: 'ego', biologicalSex: 'male', isEgo: true },
+      { id: 'sibling', biologicalSex: 'female' },
     ]);
     const edges = makeEdges([
       { source: 'father', target: 'mother', relationshipType: 'partner' },
@@ -454,7 +487,11 @@ describe('end-to-end: store → layout → positions', () => {
       },
     ]);
 
-    const { input, indexToId } = storeToPedigreeInput(nodes, edges);
+    const { input, indexToId } = storeToPedigreeInput(
+      nodes,
+      edges,
+      TEST_BIO_SEX_VAR,
+    );
     const layout = alignPedigree(input);
     const positions = pedigreeLayoutToPositions(
       layout,
@@ -467,11 +504,11 @@ describe('end-to-end: store → layout → positions', () => {
 
   test('all nodes receive positions', () => {
     const nodes = makeNodes([
-      { id: 'gf', shape: 'square' },
-      { id: 'gm', shape: 'circle' },
-      { id: 'father', shape: 'square' },
-      { id: 'mother', shape: 'circle' },
-      { id: 'ego', shape: 'circle', isEgo: true },
+      { id: 'gf', biologicalSex: 'male' },
+      { id: 'gm', biologicalSex: 'female' },
+      { id: 'father', biologicalSex: 'male' },
+      { id: 'mother', biologicalSex: 'female' },
+      { id: 'ego', biologicalSex: 'female', isEgo: true },
     ]);
     const edges = makeEdges([
       { source: 'gf', target: 'gm', relationshipType: 'partner' },
@@ -498,7 +535,11 @@ describe('end-to-end: store → layout → positions', () => {
       },
     ]);
 
-    const { input, indexToId } = storeToPedigreeInput(nodes, edges);
+    const { input, indexToId } = storeToPedigreeInput(
+      nodes,
+      edges,
+      TEST_BIO_SEX_VAR,
+    );
     const layout = alignPedigree(input);
     const positions = pedigreeLayoutToPositions(
       layout,

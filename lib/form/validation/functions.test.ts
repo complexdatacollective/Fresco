@@ -17,6 +17,7 @@ describe('Validation Functions', () => {
         person: {
           name: 'Person',
           color: 'node-color-seq-1',
+          shape: { default: 'circle' },
           variables: {
             testAttribute: {
               name: 'Test Attribute',
@@ -712,10 +713,13 @@ describe('Validation Functions', () => {
     it('should throw error when attribute is not in codebook', () => {
       expect(() => {
         validations
-          .lessThanVariable({
+          .lessThanVariable(
+            {
               attribute: 'missingAttribute',
               type: 'number',
-            }, createMockContext())({})
+            },
+            createMockContext(),
+          )({})
           .safeParse(10);
       }).toThrow('Comparison variable not found in codebook');
     });
