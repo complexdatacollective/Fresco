@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
 import BooleanField from '~/lib/form/components/fields/Boolean';
@@ -13,7 +13,10 @@ import {
 
 export default function SiblingFamilyCountStep() {
   const { data, setStepData, setBeforeNext } = useWizard();
-  const siblings = (data.siblings as SiblingDetail[] | undefined) ?? [];
+  const siblings = useMemo(
+    () => (data.siblings as SiblingDetail[] | undefined) ?? [],
+    [data.siblings],
+  );
   const existingFamilies = data.siblingFamilies as SiblingFamily[] | undefined;
 
   const [hasChildrenMap, setHasChildrenMap] = useState<
