@@ -78,7 +78,7 @@ export function edgeExists(
 }
 
 const FamilyPedigreeStageMetadataSchema = z.object({
-  hasCompletedQuickStart: z.boolean(),
+  isNetworkCommitted: z.boolean(),
   nodes: z.optional(
     z.array(
       z.object({

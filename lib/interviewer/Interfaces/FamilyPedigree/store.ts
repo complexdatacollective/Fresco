@@ -592,7 +592,7 @@ export const createFamilyPedigreeStore = (
 
           dispatch?.(
             updateStageMetadata({
-              hasCompletedQuickStart: true,
+              isNetworkCommitted: true,
               nodes: serializedNodes,
               edges: serializedEdges,
             }),
