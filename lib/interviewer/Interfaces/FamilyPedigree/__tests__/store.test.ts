@@ -948,6 +948,116 @@ describe('generateQuickStartNetwork', () => {
     );
     expect(nephewParentEdges).toHaveLength(1);
   });
+
+  it('quick-start with full extended family produces correct network', () => {
+    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    store.getState().generateQuickStartNetwork(
+      quickStart({
+        parents: [
+          {
+            name: 'Mom',
+            nameKnown: true,
+            edgeType: 'biological',
+            biological: true,
+          },
+          {
+            name: 'Dad',
+            nameKnown: true,
+            edgeType: 'biological',
+            biological: true,
+          },
+        ],
+        parentPartnerships: [{ parentIndices: [0, 1], isActive: true }],
+        siblings: [
+          { name: 'Sis', sharedParentIndices: [0, 1] },
+          { name: 'HalfBro', sharedParentIndices: [0] },
+        ],
+        partner: { hasPartner: true, name: 'Spouse' },
+        childrenWithPartner: [{ name: 'Kid' }],
+        parentBranches: [
+          {
+            parentIndex: 0,
+            grandparents: [
+              { name: 'MGrandma', nameKnown: true },
+              { name: 'MGrandpa', nameKnown: true },
+            ],
+            auntUncleCount: 1,
+            auntsUncles: [
+              {
+                name: 'Aunt',
+                hasChildren: true,
+                hasPartner: true,
+                partner: { name: 'UncleInLaw' },
+                children: [{ name: 'Cousin1' }],
+              },
+            ],
+          },
+          {
+            parentIndex: 1,
+            grandparents: [
+              { name: 'PGrandma', nameKnown: true },
+              { name: 'PGrandpa', nameKnown: false },
+            ],
+            auntUncleCount: 0,
+            auntsUncles: [],
+          },
+        ],
+        halfSiblingOtherParents: [
+          {
+            name: 'OtherDad',
+            nameKnown: true,
+            siblingIndex: 1,
+            sharedParentIndices: [0],
+          },
+        ],
+        siblingFamilies: [
+          {
+            siblingIndex: 0,
+            hasPartner: true,
+            partner: { name: 'BroInLaw' },
+            children: [{ name: 'Niece' }],
+          },
+        ],
+      }),
+    );
+
+    const { nodes, edges } = store.getState().network;
+
+    // Count nodes:
+    // ego(1) + parents(2) + grandparents(4) + aunt(1) + uncle-in-law(1) +
+    // cousin(1) + siblings(2) + otherDad(1) + spouse(1) + kid(1) +
+    // broInLaw(1) + niece(1) = 17
+    expect(nodes.size).toBe(17);
+
+    const nodeByName = (name: string) =>
+      [...nodes.entries()].find(
+        ([, n]) => n.attributes[testConfig.nodeLabelVariable] === name,
+      )!;
+
+    // PGrandpa has nameKnown: false, so should have empty label
+    const unknownGP = [...nodes.values()].filter(
+      (n) => n.attributes[testConfig.nodeLabelVariable] === '' && !n.isEgo,
+    );
+    expect(unknownGP.length).toBeGreaterThanOrEqual(1);
+
+    // OtherDad -> HalfBro parent edge exists
+    const otherDadEntry = nodeByName('OtherDad');
+    const halfBroEntry = nodeByName('HalfBro');
+    const odToHb = [...edges.values()].find(
+      (e) =>
+        e.source === otherDadEntry[0] &&
+        e.target === halfBroEntry[0] &&
+        e.relationshipType === 'biological',
+    );
+    expect(odToHb).toBeDefined();
+
+    // Niece has 2 parent edges (Sis + BroInLaw)
+    const nieceEntry = nodeByName('Niece');
+    const nieceParents = [...edges.values()].filter(
+      (e) => e.target === nieceEntry[0] && e.relationshipType !== 'partner',
+    );
+    expect(nieceParents).toHaveLength(2);
+  });
 });
 
 describe('syncMetadata', () => {
