@@ -88,15 +88,19 @@ const maxLength: ValidationFunction<number> = (max) => () => {
 
   const hint = `Enter at most ${max} characters.`;
 
-  return z.prefault(
-    z
-      .string()
-      .check(
-        z.maxLength(max, `Too long. Enter fewer than than ${max} characters.`),
-        z.meta({ hint }),
-      ),
-    '',
-  );
+  return z
+    .prefault(
+      z
+        .string()
+        .check(
+          z.maxLength(
+            max,
+            `Too long. Enter fewer than than ${max} characters.`,
+          ),
+        ),
+      '',
+    )
+    .check(z.meta({ hint }));
 };
 
 /**
@@ -107,15 +111,16 @@ const minLength: ValidationFunction<number> = (min) => () => {
 
   const hint = `Enter at least ${min} characters.`;
 
-  return z.prefault(
-    z
-      .string()
-      .check(
-        z.minLength(min, `Too short. Enter at least ${min} characters.`),
-        z.meta({ hint }),
-      ),
-    '',
-  );
+  return z
+    .prefault(
+      z
+        .string()
+        .check(
+          z.minLength(min, `Too short. Enter at least ${min} characters.`),
+        ),
+      '',
+    )
+    .check(z.meta({ hint }));
 };
 
 /**
@@ -127,15 +132,14 @@ const minValue: ValidationFunction<number> = (min) => () => {
 
   const hint = `Enter a value greater than or equal to ${min}.`;
 
-  return z.prefault(
-    z.coerce
-      .number()
-      .check(
-        z.gte(min, `Too small. Value must be at least ${min}.`),
-        z.meta({ hint }),
-      ),
-    min - 1,
-  );
+  return z
+    .prefault(
+      z.coerce
+        .number()
+        .check(z.gte(min, `Too small. Value must be at least ${min}.`)),
+      min - 1,
+    )
+    .check(z.meta({ hint }));
 };
 
 /**
@@ -147,15 +151,14 @@ const maxValue: ValidationFunction<number> = (max) => () => {
 
   const hint = `Enter a value less than or equal to ${max}.`;
 
-  return z.prefault(
-    z.coerce
-      .number()
-      .check(
-        z.lte(max, `Too large. Value must be at most ${max}.`),
-        z.meta({ hint }),
-      ),
-    max - 1,
-  );
+  return z
+    .prefault(
+      z.coerce
+        .number()
+        .check(z.lte(max, `Too large. Value must be at most ${max}.`)),
+      max - 1,
+    )
+    .check(z.meta({ hint }));
 };
 
 /**
@@ -166,18 +169,19 @@ const minSelected: ValidationFunction<number> = (min) => () => {
 
   const hint = `Select at least ${min} value${min === 1 ? '' : 's'}.`;
 
-  return z.prefault(
-    z
-      .array(z.unknown())
-      .check(
-        z.minLength(
-          min,
-          `Too few selected. Select at least ${min} value${min === 1 ? '' : 's'}.`,
+  return z
+    .prefault(
+      z
+        .array(z.unknown())
+        .check(
+          z.minLength(
+            min,
+            `Too few selected. Select at least ${min} value${min === 1 ? '' : 's'}.`,
+          ),
         ),
-        z.meta({ hint }),
-      ),
-    [],
-  );
+      [],
+    )
+    .check(z.meta({ hint }));
 };
 
 /**
@@ -188,18 +192,19 @@ const maxSelected: ValidationFunction<number> = (max) => () => {
 
   const hint = `Select a maximum of ${max} value${max === 1 ? '' : 's'}.`;
 
-  return z.prefault(
-    z
-      .array(z.unknown())
-      .check(
-        z.maxLength(
-          max,
-          `Too many items selected. Select a maximum of ${max} value${max === 1 ? '' : 's'}.`,
+  return z
+    .prefault(
+      z
+        .array(z.unknown())
+        .check(
+          z.maxLength(
+            max,
+            `Too many items selected. Select a maximum of ${max} value${max === 1 ? '' : 's'}.`,
+          ),
         ),
-        z.meta({ hint }),
-      ),
-    Array.from({ length: max }, () => null),
-  );
+      Array.from({ length: max }, () => null),
+    )
+    .check(z.meta({ hint }));
 };
 
 /**
@@ -410,12 +415,9 @@ const pattern: ValidationFunction<{
     invariant(regex, 'Regex must be specified');
     invariant(hint, 'Hint must be specified for pattern validation');
 
-    return z.prefault(
-      z
-        .string()
-        .check(z.regex(new RegExp(regex), errorMessage), z.meta({ hint })),
-      '',
-    );
+    return z
+      .prefault(z.string().check(z.regex(new RegExp(regex), errorMessage)), '')
+      .check(z.meta({ hint }));
   };
 
 /**
@@ -589,10 +591,9 @@ const lessThanOrEqualToVariable: ValidationFunction<{
 const email = () => () => {
   const hint = 'Must be a valid email address.';
 
-  return z.prefault(
-    z.email('Enter a valid email address.').check(z.meta({ hint })),
-    '',
-  );
+  return z
+    .prefault(z.email('Enter a valid email address.'), '')
+    .check(z.meta({ hint }));
 };
 
 const custom = () => () => void 0; // Placeholder for custom validation handled elsewhere

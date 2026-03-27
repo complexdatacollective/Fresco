@@ -1,14 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
+import { action } from 'storybook/actions';
+import Form from '~/lib/form/components/Form';
+import SubmitButton from '~/lib/form/components/SubmitButton';
 import InputField from '~/lib/form/components/fields/InputField';
-import NumberCounterField from '~/lib/form/components/fields/NumberCounterField';
 import ToggleField from '~/lib/form/components/fields/ToggleField';
+import Field from './Field';
 import UnconnectedField from './UnconnectedField';
 
 const componentMap = {
   InputField,
   ToggleField,
-  NumberCounterField,
 } as const;
 
 type ComponentKey = keyof typeof componentMap;
@@ -48,7 +50,7 @@ const meta: Meta = {
   argTypes: {
     component: {
       control: 'select',
-      options: ['InputField', 'ToggleField', 'NumberCounterField'],
+      options: ['InputField', 'ToggleField'],
       description: 'The field component to render',
       table: {
         type: { summary: 'React.ComponentType' },
@@ -183,7 +185,6 @@ export const Default: Story = {
     const readOnly = args.readOnly as boolean;
     const [textValue, setTextValue] = useState('');
     const [toggleValue, setToggleValue] = useState(false);
-    const [counterValue, setCounterValue] = useState(3);
 
     const Component = componentMap[component];
 
@@ -193,13 +194,6 @@ export const Default: Story = {
           return {
             value: toggleValue,
             onChange: (v: boolean | undefined) => setToggleValue(v ?? false),
-          };
-        case 'NumberCounterField':
-          return {
-            value: counterValue,
-            minValue: 0,
-            maxValue: 10,
-            onChange: (v: number | undefined) => setCounterValue(v ?? 0),
           };
         case 'InputField':
           return {
@@ -225,5 +219,140 @@ export const Default: Story = {
         />
       </div>
     );
+  },
+};
+
+/**
+ * Demonstrates the `hint` prop on a connected Field inside a Form.
+ * The hint provides supplementary guidance below the label.
+ */
+export const WithHint: Story = {
+  render: () => (
+    <div className="max-w-lg">
+      <Form
+        onSubmit={async (data) => {
+          action('form-submitted')(data);
+          return { success: true };
+        }}
+      >
+        <Field
+          name="username"
+          label="Username"
+          hint="Must be between 3 and 20 characters. Only letters, numbers, and underscores."
+          component={InputField}
+          required
+          minLength={3}
+          maxLength={20}
+        />
+        <Field
+          name="bio"
+          label="Bio"
+          hint="Tell us a bit about yourself."
+          component={InputField}
+          maxLength={200}
+        />
+        <SubmitButton>Submit</SubmitButton>
+      </Form>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'The `hint` prop renders supplementary text below the label. It accepts a `ReactNode` so you can pass plain text or formatted content.',
+      },
+    },
+  },
+};
+
+/**
+ * Demonstrates the `showValidationHints` prop on a connected Field.
+ * When enabled, a human-readable summary of the validation rules is
+ * rendered below the hint text (e.g. "Enter at least 3 characters.").
+ */
+export const WithValidationHints: Story = {
+  render: () => (
+    <div className="max-w-lg">
+      <Form
+        onSubmit={async (data) => {
+          action('form-submitted')(data);
+          return { success: true };
+        }}
+      >
+        <Field
+          name="username"
+          label="Username"
+          hint="Choose a unique username."
+          component={InputField}
+          showValidationHints
+          required
+          minLength={3}
+          maxLength={20}
+        />
+        <Field
+          name="email"
+          label="Email"
+          hint="We'll use this to contact you."
+          component={InputField}
+          showValidationHints
+          required
+          minLength={5}
+          maxLength={254}
+        />
+        <Field
+          name="no-validations"
+          label="Nickname (optional)"
+          hint="This field has no validation rules, so no hints are shown even with showValidationHints."
+          component={InputField}
+          showValidationHints
+        />
+        <SubmitButton>Submit</SubmitButton>
+      </Form>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "When `showValidationHints` is true, a bulleted list of the field's validation requirements appears below the hint. This helps participants understand what is expected before they start typing. Fields with no validation rules show nothing extra.",
+      },
+    },
+  },
+};
+
+/**
+ * Shows how `hint` and `showValidationHints` work together — the hint
+ * appears first, followed by the auto-generated validation summary.
+ */
+export const HintWithValidationHints: Story = {
+  render: () => (
+    <div className="max-w-lg">
+      <Form
+        onSubmit={async (data) => {
+          action('form-submitted')(data);
+          return { success: true };
+        }}
+      >
+        <Field
+          name="password"
+          label="Password"
+          hint="Use a mix of letters, numbers, and symbols for a strong password."
+          component={InputField}
+          showValidationHints
+          required
+          minLength={8}
+          maxLength={64}
+        />
+        <SubmitButton>Submit</SubmitButton>
+      </Form>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'When both `hint` and `showValidationHints` are set, the hint text appears first, followed by the auto-generated validation rule summary.',
+      },
+    },
   },
 };

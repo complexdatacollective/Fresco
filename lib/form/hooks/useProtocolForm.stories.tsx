@@ -15,7 +15,7 @@
  *
  * ## How It Works
  *
- * 1. **Takes protocol field definitions** - Array of `{ variable, prompt }` objects
+ * 1. **Takes protocol field definitions** - Array of `{ variable, prompt, hint?, showValidationHints? }` objects
  * 2. **Looks up variable metadata** - Uses Redux selectors to get codebook info
  * 3. **Maps to form components** - Converts protocol types to form field components
  * 4. **Extracts validation** - Pulls validation rules from variable definitions
@@ -392,7 +392,7 @@ const ProtocolFormDemo = ({
       className="elevation-high bg-surface w-2xl rounded p-10"
     >
       {fieldComponents}
-      <SubmitButton className="mt-6">Submit</SubmitButton>
+      <SubmitButton>Submit</SubmitButton>
     </Form>
   );
 };
@@ -842,6 +842,72 @@ export const ContextDependentValidations: Story = {
       description: {
         story:
           'A comprehensive example demonstrating all context-dependent validations: unique, sameAs, differentFrom, and greaterThanVariable.',
+      },
+    },
+  },
+};
+
+export const HintText: Story = {
+  args: {
+    fields: [
+      {
+        variable: 'name',
+        prompt: 'What is your name?',
+        hint: 'Enter your full legal name as it appears on official documents.',
+      },
+      {
+        variable: 'email',
+        prompt: 'What is your email?',
+        hint: 'We will use this to send you a confirmation.',
+      },
+      {
+        variable: 'age',
+        prompt: 'How old are you?',
+      },
+    ],
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Demonstrates the `hint` property on protocol fields. Hints provide supplementary guidance below the field label.',
+      },
+    },
+  },
+};
+
+export const ValidationHints: Story = {
+  args: {
+    fields: [
+      {
+        variable: 'name',
+        prompt: 'What is your name?',
+        hint: 'Enter your full legal name.',
+        showValidationHints: true,
+      },
+      {
+        variable: 'email',
+        prompt: 'What is your email?',
+        showValidationHints: true,
+      },
+      {
+        variable: 'age',
+        prompt: 'How old are you?',
+        showValidationHints: true,
+      },
+      {
+        variable: 'favoriteColors',
+        prompt: 'Select your favorite colors',
+        hint: 'Pick the colors you like most.',
+        showValidationHints: true,
+      },
+    ],
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Demonstrates `showValidationHints` combined with `hint`. When enabled, a human-readable summary of validation rules (e.g. "required", "between 2 and 100 characters") is displayed below the hint text.',
       },
     },
   },

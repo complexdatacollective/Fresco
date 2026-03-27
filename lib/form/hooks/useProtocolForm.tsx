@@ -53,17 +53,21 @@ const fieldTypeMap: Record<ComponentType, React.ComponentType<any>> = {
  * @param subject - Optional subject to use for looking up codebook variables.
  *                  If provided, uses subject from props instead of Redux state.
  *                  Required for SlidesForm where subject comes from item props.
+ * @param namespace - Optional prefix for field names (e.g. "partner-0") to
+ *                    avoid collisions when multiple instances share a form store.
  */
 export default function useProtocolForm({
   fields,
   autoFocus = false,
   initialValues,
   subject,
+  namespace,
 }: {
   fields: FormField[];
   autoFocus?: boolean;
   initialValues?: Record<string, FieldValue>;
   subject?: Subject;
+  namespace?: string;
 }) {
   const validationContext = useSelector(
     getValidationContext,
@@ -76,9 +80,15 @@ export default function useProtocolForm({
   );
 
   const fieldsWithMetadata = fieldsMetadata.map((field, index) => {
+    const fieldName = namespace
+      ? `${namespace}-${field.variable}`
+      : field.variable;
+
     const props: {
       name: string;
       label: string;
+      hint?: string;
+      showValidationHints?: boolean;
       component?: string;
       options?: unknown[];
       useColumns?: boolean;
@@ -93,9 +103,13 @@ export default function useProtocolForm({
       autoFocus?: boolean;
       validationContext?: ValidationContext;
     } & Partial<ValidationPropsCatalogue> = {
-      name: field.variable,
+      name: fieldName,
       label: field.label,
       component: field.component,
+      ...(field.hint !== undefined && { hint: field.hint }),
+      ...(field.showValidationHints !== undefined && {
+        showValidationHints: field.showValidationHints,
+      }),
     };
 
     // Set autoFocus on the first field if requested

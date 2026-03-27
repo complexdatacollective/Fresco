@@ -55,7 +55,7 @@ const createFieldMetadata = (
     return [];
   }
 
-  return fields.map(({ variable, prompt }) => {
+  return fields.map(({ variable, prompt, hint, showValidationHints }) => {
     if (!variables[variable]) {
       throw new Error(`Missing codebook entry for variable: ${variable}`);
     }
@@ -71,6 +71,8 @@ const createFieldMetadata = (
       ...(codebookEntry as CodebookVariableWithComponent),
       variable,
       label: prompt,
+      hint,
+      showValidationHints,
     };
   });
 };
