@@ -105,8 +105,8 @@ export type FormSubmissionResult =
       success: false;
     } & Partial<FlattenedErrors>);
 
-export type FormSubmitHandler = (
-  values: unknown,
+export type FormSubmitHandler<T = Record<string, FieldValue>> = (
+  values: T,
 ) => FormSubmissionResult | Promise<FormSubmissionResult>;
 
 export type FormConfig = {

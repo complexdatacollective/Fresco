@@ -62,7 +62,6 @@ export const test = baseTest.extend<
   InterviewWorkerFixtures
 >({
   protocol: [
-     
     async ({ database }, use, workerInfo) => {
       const projectName = workerInfo.project.name;
       const suiteId = getSuiteId(projectName);

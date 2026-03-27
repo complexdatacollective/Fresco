@@ -26,6 +26,12 @@ export class InterviewFixture {
    */
   interviewId = '';
 
+  /**
+   * Optional prefix for screenshot names. Set this in beforeAll/beforeEach
+   * to avoid snapshot name collisions between test files testing the same stages.
+   */
+  snapshotPrefix = '';
+
   constructor(page: Page) {
     this.page = page;
   }
@@ -41,6 +47,7 @@ export class InterviewFixture {
   /**
    * Manually capture a screenshot with the given name.
    * Useful in afterEach hooks to capture end state.
+   * The snapshotPrefix is NOT automatically prepended - use the full name you want.
    */
   async capture(name: string, options?: CaptureOptions): Promise<void> {
     if (this.captureFn) {
@@ -82,7 +89,8 @@ export class InterviewFixture {
     await this.waitForStageLoad();
 
     // Capture screenshot on stage load
-    await this.capture(`stage-${stageIndex}`, captureOptions);
+    const prefix = this.snapshotPrefix ? `${this.snapshotPrefix}-` : '';
+    await this.capture(`${prefix}stage-${stageIndex}`, captureOptions);
   }
 
   /**

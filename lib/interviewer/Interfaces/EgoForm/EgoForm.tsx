@@ -118,11 +118,19 @@ const EgoFormInner = (props: EgoFormProps) => {
   useBeforeNext(beforeNext);
 
   const handleSubmitForm = useCallback(
-    async (formData: unknown) => {
-      await dispatch(updateEgo(formData as Record<string, VariableValue>));
+    async (formData: Record<string, FieldValue>) => {
+      // Only include fields from this stage to avoid overwriting values
+      // from previous EgoForm stages. Missing fields (unanswered questions)
+      // are set to null rather than omitted.
+      const stageFieldIds = form.fields.map((f) => f.variable);
+      const completeData = Object.fromEntries(
+        stageFieldIds.map((id) => [id, formData[id] ?? null]),
+      ) as Record<string, VariableValue>;
+
+      await dispatch(updateEgo(completeData));
       return { success: true };
     },
-    [dispatch],
+    [dispatch, form.fields],
   );
 
   useEffect(() => {

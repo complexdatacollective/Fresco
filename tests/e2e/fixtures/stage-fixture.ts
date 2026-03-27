@@ -54,9 +54,16 @@ class FormFixture {
   /**
    * Select a radio option within a field.
    */
-  async selectRadio(fieldName: string, optionLabel: string): Promise<void> {
+  async selectRadio(
+    fieldName: string,
+    optionLabel: string | RegExp,
+    options?: { exact?: boolean },
+  ): Promise<void> {
     const field = this.getField(fieldName);
-    const radio = field.getByRole('radio', { name: optionLabel });
+    const radio = field.getByRole('radio', {
+      name: optionLabel,
+      exact: options?.exact ?? true,
+    });
     await radio.click();
     await expect(radio).toBeChecked();
   }

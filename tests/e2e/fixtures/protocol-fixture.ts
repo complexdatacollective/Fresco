@@ -89,6 +89,28 @@ export class ProtocolFixture {
 
     const protocolJson = JSON.parse(protocolString) as VersionedProtocol;
 
+    // Check if this protocol already exists (by content hash)
+    const protocolHash = hash(protocolJson);
+    const existing = await this.prisma.protocol.findUnique({
+      where: { hash: protocolHash },
+      select: { id: true, stages: true, codebook: true, name: true },
+    });
+
+    if (existing) {
+      log(
+        'test',
+        `Reusing existing protocol "${existing.name}" (${existing.id})`,
+      );
+      return {
+        protocolId: existing.id,
+        name: existing.name ?? 'Untitled',
+        stages: existing.stages as CurrentProtocol['stages'],
+        codebook: existing.codebook as Codebook,
+        assetBasePath: `${this.assetServerUrl}/${existing.id}`,
+      };
+    }
+
+    // New protocol - extract assets and insert
     const protocolId = createId();
 
     const protocolAssetDir = path.join(this.assetDir, protocolId);
@@ -102,7 +124,33 @@ export class ProtocolFixture {
       this.assetServerUrl,
     ) as CurrentProtocol;
 
-    await this.insertProtocol(protocolId, rewrittenProtocol);
+    // Pass the original hash (computed on protocolJson, not rewrittenProtocol)
+    // so the hash used for insert matches the hash used for lookup
+    const result = await this.insertProtocol(
+      protocolId,
+      rewrittenProtocol,
+      protocolHash,
+    );
+
+    // If another worker already inserted this protocol (race condition),
+    // clean up our extracted assets and return the existing protocol's info
+    if (result.alreadyExisted) {
+      await fs.rm(protocolAssetDir, { recursive: true, force: true });
+      const existing = await this.prisma.protocol.findUnique({
+        where: { id: result.id },
+        select: { id: true, name: true, stages: true, codebook: true },
+      });
+      if (!existing) {
+        throw new Error(`Protocol ${result.id} not found after race condition`);
+      }
+      return {
+        protocolId: existing.id,
+        name: existing.name ?? 'Untitled',
+        stages: existing.stages as CurrentProtocol['stages'],
+        codebook: existing.codebook as Codebook,
+        assetBasePath: `${this.assetServerUrl}/${existing.id}`,
+      };
+    }
 
     this.installedProtocols.push(protocolId);
 
@@ -151,28 +199,53 @@ export class ProtocolFixture {
   private async insertProtocol(
     protocolId: string,
     protocol: CurrentProtocol,
-  ): Promise<void> {
-    const protocolHash = hash(protocol);
+    protocolHash: string,
+  ): Promise<{ id: string; alreadyExisted: boolean }> {
     const now = new Date();
 
-    await this.prisma.protocol.create({
-      data: {
-        id: protocolId,
-        hash: protocolHash,
-        name: protocol.name ?? 'E2E Test Protocol',
-        schemaVersion: protocol.schemaVersion,
-        description: protocol.description ?? '',
-        importedAt: now,
-        lastModified: protocol.lastModified
-          ? new Date(protocol.lastModified)
-          : now,
-        stages: protocol.stages as Prisma.InputJsonValue,
-        codebook: protocol.codebook as Prisma.InputJsonValue,
-        experiments: protocol.experiments
-          ? (protocol.experiments as Prisma.InputJsonValue)
-          : undefined,
-      },
-    });
+    try {
+      await this.prisma.protocol.create({
+        data: {
+          id: protocolId,
+          hash: protocolHash,
+          name: protocol.name ?? 'E2E Test Protocol',
+          schemaVersion: protocol.schemaVersion,
+          description: protocol.description ?? '',
+          importedAt: now,
+          lastModified: protocol.lastModified
+            ? new Date(protocol.lastModified)
+            : now,
+          stages: protocol.stages as Prisma.InputJsonValue,
+          codebook: protocol.codebook as Prisma.InputJsonValue,
+          experiments: protocol.experiments
+            ? (protocol.experiments as Prisma.InputJsonValue)
+            : undefined,
+        },
+      });
+    } catch (error) {
+      // Handle race condition: another worker may have inserted the same protocol.
+      // Check for Prisma unique constraint violation (P2002).
+      const isPrismaUniqueConstraint =
+        error !== null &&
+        typeof error === 'object' &&
+        'code' in error &&
+        error.code === 'P2002';
+
+      if (isPrismaUniqueConstraint) {
+        const existing = await this.prisma.protocol.findUnique({
+          where: { hash: protocolHash },
+          select: { id: true },
+        });
+        if (existing) {
+          log(
+            'test',
+            `Protocol already exists (race condition), reusing ${existing.id}`,
+          );
+          return { id: existing.id, alreadyExisted: true };
+        }
+      }
+      throw error;
+    }
 
     if (protocol.assetManifest) {
       for (const [assetId, asset] of Object.entries(protocol.assetManifest)) {
@@ -210,6 +283,8 @@ export class ProtocolFixture {
         });
       }
     }
+
+    return { id: protocolId, alreadyExisted: false };
   }
 
   async createInterview(
@@ -299,12 +374,53 @@ export class ProtocolFixture {
   }
 
   /**
+   * Wait for an ego attribute to have a specific value in the database.
+   * Polls the database until the attribute matches or timeout is reached.
+   * Useful for ensuring form data has synced before navigation.
+   *
+   * @param interviewId - The interview ID to check
+   * @param attributeId - The ego attribute ID (variable UUID from the protocol)
+   * @param expectedValue - The expected value (compared via JSON.stringify)
+   * @param options - Optional timeout (default 10s) and polling interval (default 500ms)
+   * @throws Error if the attribute doesn't match within the timeout
+   */
+  async waitForEgoAttribute(
+    interviewId: string,
+    attributeId: string,
+    expectedValue: unknown,
+    options: { timeout?: number; interval?: number } = {},
+  ): Promise<void> {
+    const { timeout = 10000, interval = 500 } = options;
+    const startTime = Date.now();
+
+    // Use JSON comparison to handle arrays and objects correctly
+    const expectedJson = JSON.stringify(expectedValue);
+
+    while (Date.now() - startTime < timeout) {
+      const state = await this.getNetworkState(interviewId);
+      const actualValue = state.ego.attributes[attributeId];
+      if (JSON.stringify(actualValue) === expectedJson) {
+        log('test', `Ego attribute ${attributeId} = ${expectedJson}`);
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, interval));
+    }
+
+    const finalState = await this.getNetworkState(interviewId);
+    throw new Error(
+      `Timeout waiting for ego attribute ${attributeId} to be ${expectedJson}. ` +
+      `Actual value: ${JSON.stringify(finalState.ego.attributes[attributeId])} after ${timeout}ms`,
+    );
+  }
+
+  /**
    * Log the current network state for debugging.
    */
   async logNetworkState(interviewId: string): Promise<void> {
     const state = await this.getNetworkState(interviewId);
     log('test', `Network state for interview ${interviewId}:`);
     log('test', `  Current step: ${state.currentStep}`);
+    log('test', `  Ego attributes: ${JSON.stringify(state.ego.attributes)}`);
     log('test', `  Nodes (${state.nodes.length}):`);
     for (const node of state.nodes) {
       log('test', `    - ${node._uid}: ${JSON.stringify(node.attributes)}`);

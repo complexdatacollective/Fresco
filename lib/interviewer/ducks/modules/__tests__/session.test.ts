@@ -444,7 +444,7 @@ describe('addEdge', () => {
 
 describe('updateEgo', () => {
   describe('default attributes', () => {
-    it('includes all codebook variables even when only some are provided', async () => {
+    it('returns only the submitted attributes without adding defaults', async () => {
       // Setup: codebook has 3 ego variables
       const store = createTestStoreWithEgo({
         egoVariables: {
@@ -461,12 +461,13 @@ describe('updateEgo', () => {
         }),
       );
 
-      // Verify: all variables should be in the payload, missing ones as null
+      // Verify: only submitted attributes are returned.
+      // EgoForm is responsible for ensuring all stage fields are included
+      // (with null if unanswered). The thunk doesn't add defaults for ALL
+      // ego variables, as that would overwrite values from previous EgoForm stages.
       expect(result.type).toBe('NETWORK/UPDATE_EGO/fulfilled');
       expect(result.payload).toEqual({
         'ego-var-1': 25,
-        'ego-var-2': null,
-        'ego-var-3': null,
       });
     });
   });

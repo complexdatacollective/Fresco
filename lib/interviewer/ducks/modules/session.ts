@@ -409,11 +409,11 @@ export const updateEgo = createAsyncThunk(
       `Invalid ego attributes: ${invalidKeys.join(', ')} do not exist in protocol codebook`,
     );
 
-    // Merge with default attributes to ensure all codebook variables exist
-    return {
-      ...getDefaultAttributesForEntityType(egoVariables),
-      ...egoAttributes,
-    };
+    // Return only the submitted attributes. The reducer merges with existing.
+    // EgoForm ensures all fields for its stage are included (with null if
+    // unanswered), so we don't need to merge with defaults here. Merging with
+    // ALL ego defaults would overwrite values from previous EgoForm stages.
+    return egoAttributes;
   },
 );
 
