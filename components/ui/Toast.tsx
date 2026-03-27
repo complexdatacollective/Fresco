@@ -71,8 +71,8 @@ function ToastItem({ toast }: ToastItemProps) {
       toast={toast}
       className={cx(
         'focusable',
-        '[--peek:calc(var(--spacing)*4)]', // space between toasts when stacked
-        '[--gap:calc(var(--spacing)*4)]', // space between toasts when expanded, and swipe area
+        '[--peek:--spacing(4)]', // space between toasts when stacked
+        '[--gap:--spacing(4)]', // space between toasts when expanded, and swipe area
         '[--scale:calc(max(0,1-(var(--toast-index)*0.1)))]', // scale factor for stacked toasts (10% smaller per position)
         '[--shrink:calc(1-var(--scale))]', // inverse of scale, used for height offset
         '[--stack-opacity:calc(1-(var(--toast-index)*0.2))]', // opacity for stacked toasts (20% more transparent per position)

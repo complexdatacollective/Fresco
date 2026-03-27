@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import {
   Cloud,
   CreditCard,
-  Github,
+  GitFork,
   Keyboard,
   LifeBuoy,
   LogOut,
@@ -85,7 +85,7 @@ export const Default: Story = {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
-          <Github className="mr-2 size-4" />
+          <GitFork className="mr-2 size-4" />
           <span>GitHub</span>
         </DropdownMenuItem>
         <DropdownMenuItem>

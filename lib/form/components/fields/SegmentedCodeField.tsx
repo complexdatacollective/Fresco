@@ -41,7 +41,7 @@ const segmentVariants = compose(
       size: {
         sm: 'size-10',
         md: 'size-12',
-        lg: 'h-13 w-13',
+        lg: 'size-13',
         xl: 'size-14',
       },
     },
