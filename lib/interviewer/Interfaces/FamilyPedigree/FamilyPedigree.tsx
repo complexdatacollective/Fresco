@@ -25,6 +25,7 @@ import {
   getStageMetadata,
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
+import FamilyPedigreePlaceholder from '~/lib/pedigree-layout/components/FamilyPedigreePlaceholder';
 import PedigreeView from '~/lib/pedigree-layout/components/PedigreeView';
 import { type StageProps } from '../../types';
 
@@ -136,12 +137,18 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
         />
         <div className="relative flex grow items-center justify-center">
           {showQuickStart ? (
-            <QuickStartForm
-              onSubmit={(data) => {
-                generateQuickStartNetwork(data);
-                void handleConfirmAndAdvance();
-              }}
-            />
+            <>
+              <div className="flex flex-col items-center gap-6">
+                <FamilyPedigreePlaceholder className="w-96 max-w-full opacity-25" />
+                <Paragraph
+                  emphasis="muted"
+                  margin="none"
+                  className="text-center"
+                >
+                  Your family tree will appear here
+                </Paragraph>
+              </div>
+            </>
           ) : (
             <>
               <PedigreeView />
@@ -172,6 +179,14 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
             </>
           )}
         </div>
+        {showQuickStart && (
+          <QuickStartForm
+            onSubmit={(data) => {
+              generateQuickStartNetwork(data);
+              void handleConfirmAndAdvance();
+            }}
+          />
+        )}
       </div>
 
       {stageElement &&

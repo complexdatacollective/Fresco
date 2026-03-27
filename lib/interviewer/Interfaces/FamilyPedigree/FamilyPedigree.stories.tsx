@@ -326,10 +326,11 @@ async function selectRadio(name: string) {
   await userEvent.click(radio);
 }
 
-async function selectRadioByIndex(name: string, index = 0) {
+async function selectRadioByIndex(name: string | RegExp, index = 0) {
   const radios = await screen.findAllByRole('radio', { name }, STEP_TIMEOUT);
   const radio = radios[index];
-  if (!radio) throw new Error(`No radio "${name}" at index ${index}`);
+  if (!radio)
+    throw new Error(`No radio "${name.toString()}" at index ${index}`);
   await userEvent.click(radio);
 }
 
@@ -479,7 +480,7 @@ export const NuclearFamily: ScenarioStory = {
     await waitForStepTransition();
 
     // ParentsDetailStep: Parent 1 (bio, name known, "Robert", Man)
-    await selectRadioByIndex('Yes', 0); // bio parent 1
+    // Edge type defaults to "Biological Parent" — no change needed
     await toggleSwitch("I know this person's name", true);
     await typeInTextbox('Robert', 0);
     const maleRadios = await screen.findAllByRole(
@@ -495,20 +496,8 @@ export const NuclearFamily: ScenarioStory = {
     );
     await userEvent.click(manGenderRadios[0]!);
     // Parent 2 (bio, name known, "Linda", Woman)
-    const yesRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Yes' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(yesRadios[1]!);
-    const switches = await screen.findAllByRole(
-      'switch',
-      { name: "I know this person's name" },
-      STEP_TIMEOUT,
-    );
-    if (switches[1]?.getAttribute('aria-checked') !== 'true') {
-      await userEvent.click(switches[1]!);
-    }
+    // Edge type defaults to "Biological Parent" — no change needed
+    await toggleSwitch("I know this person's name", true, 1);
     await typeInTextbox('Linda', 1);
     const femaleRadios = await screen.findAllByRole(
       'radio',
@@ -601,8 +590,7 @@ export const SingleParent: ScenarioStory = {
     await clickContinue();
     // await waitForStepTransition();
 
-    // ParentsDetailStep: Parent 1 (bio, name known, "Linda", Woman)
-    await selectRadio('Yes');
+    // ParentsDetailStep: Parent 1 ("Linda", Woman)
     await toggleSwitch("I know this person's name", true);
     await typeInTextbox('Linda', 0);
     await selectRadio('Female');
@@ -654,9 +642,8 @@ export const SameSexMothers: ScenarioStory = {
     await clickContinue();
     await waitForStepTransition();
 
-    // ParentsDetailStep: both bio, both Woman
-    // Parent 1: bio, "Linda", Woman
-    await selectRadioByIndex('Yes', 0);
+    // ParentsDetailStep: both Woman
+    // Parent 1: "Linda", Woman
     await toggleSwitch("I know this person's name", true);
     await typeInTextbox('Linda', 0);
     const femaleRadios1 = await screen.findAllByRole(
@@ -672,21 +659,8 @@ export const SameSexMothers: ScenarioStory = {
     );
     await userEvent.click(womanGenderRadios1[0]!);
 
-    // Parent 2: bio, "Patricia", Woman
-    const yesRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Yes' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(yesRadios[1]!);
-    const switches = await screen.findAllByRole(
-      'switch',
-      { name: "I know this person's name" },
-      STEP_TIMEOUT,
-    );
-    if (switches[1]?.getAttribute('aria-checked') !== 'true') {
-      await userEvent.click(switches[1]!);
-    }
+    // Parent 2: "Patricia", Woman
+    await toggleSwitch("I know this person's name", true, 1);
     await typeInTextbox('Patricia', 1);
     const femaleRadios2 = await screen.findAllByRole(
       'radio',
@@ -719,7 +693,6 @@ export const SameSexMothers: ScenarioStory = {
     await navigateExtendedFamilySteps(2);
 
     // SiblingsDetailStep: skipped (0 siblings)
-    // HalfSiblingParentsStep, SiblingFamilyCountStep: skipped (0 siblings)
     // PartnerStep: skipped (no partner)
 
     // OtherChildrenCountStep: 0
@@ -746,8 +719,7 @@ export const SpermDonor: ScenarioStory = {
     await waitForStepTransition();
 
     // ParentsDetailStep: 3 parents
-    // Parent 1: bio, "Linda", Woman
-    await selectRadioByIndex('Yes', 0);
+    // Parent 1: "Linda", Woman
     await toggleSwitch("I know this person's name", true);
     await typeInTextbox('Linda', 0);
     const femaleRadios = await screen.findAllByRole(
@@ -763,21 +735,8 @@ export const SpermDonor: ScenarioStory = {
     );
     await userEvent.click(womanGenderRadios[0]!);
 
-    // Parent 2: bio, "Patricia", Woman
-    const yesRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Yes' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(yesRadios[1]!);
-    const switches = await screen.findAllByRole(
-      'switch',
-      { name: "I know this person's name" },
-      STEP_TIMEOUT,
-    );
-    if (switches[1]?.getAttribute('aria-checked') !== 'true') {
-      await userEvent.click(switches[1]!);
-    }
+    // Parent 2: "Patricia", Woman
+    await toggleSwitch("I know this person's name", true, 1);
     await typeInTextbox('Patricia', 1);
     const femaleRadios2 = await screen.findAllByRole(
       'radio',
@@ -792,8 +751,8 @@ export const SpermDonor: ScenarioStory = {
     );
     await userEvent.click(womanGenderRadios2[1]!);
 
-    // Parent 3: donor (not bio), "Carlos", Man
-    await selectRadioByIndex('Sperm/Egg Donor', 2);
+    // Parent 3: donor, "Carlos", Man
+    await selectRadioByIndex(/Donor/, 2);
     await waitForStepTransition();
     await toggleSwitch("I know this person's name", true, 2);
     await typeInTextbox('Carlos', 2);
@@ -887,8 +846,7 @@ export const BlendedFamily: ScenarioStory = {
     await waitForStepTransition();
 
     // ParentsDetailStep: 3 parents
-    // Parent 1: bio, "Robert", Man
-    await selectRadioByIndex('Yes', 0);
+    // Parent 1: "Robert", Man
     await toggleSwitch("I know this person's name", true);
     await typeInTextbox('Robert', 0);
     const maleRadios = await screen.findAllByRole(
@@ -904,21 +862,8 @@ export const BlendedFamily: ScenarioStory = {
     );
     await userEvent.click(manGenderRadios[0]!);
 
-    // Parent 2: bio, "Susan", Woman
-    const yesRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Yes' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(yesRadios[1]!);
-    const switches = await screen.findAllByRole(
-      'switch',
-      { name: "I know this person's name" },
-      STEP_TIMEOUT,
-    );
-    if (switches[1]?.getAttribute('aria-checked') !== 'true') {
-      await userEvent.click(switches[1]!);
-    }
+    // Parent 2: "Susan", Woman
+    await toggleSwitch("I know this person's name", true, 1);
     await typeInTextbox('Susan', 1);
     const femaleRadios = await screen.findAllByRole(
       'radio',
@@ -933,9 +878,8 @@ export const BlendedFamily: ScenarioStory = {
     );
     await userEvent.click(womanGenderRadios[1]!);
 
-    // Parent 3: social (not bio — forced), "Karen", Woman
-    // Select "Social Parent" edge type for parent 3
-    await selectRadioByIndex('Social Parent (adoptive, step, foster)', 2);
+    // Parent 3: social, "Karen", Woman
+    await selectRadioByIndex(/Social Parent/, 2);
     await waitForStepTransition();
     await toggleSwitch("I know this person's name", true, 2);
     await typeInTextbox('Karen', 2);
@@ -1006,8 +950,7 @@ export const TransParent: ScenarioStory = {
     await clickContinue();
     await waitForStepTransition();
 
-    // ParentsDetailStep: Parent 1 (bio, "Alex", Male — trans man)
-    await selectRadioByIndex('Yes', 0);
+    // ParentsDetailStep: Parent 1 ("Alex", Male — trans man)
     await toggleSwitch("I know this person's name", true);
     await typeInTextbox('Alex', 0);
     const maleRadios = await screen.findAllByRole(
@@ -1023,21 +966,8 @@ export const TransParent: ScenarioStory = {
     );
     await userEvent.click(transManGenderRadios[0]!);
 
-    // Parent 2 (bio, "Priya", Female)
-    const yesRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Yes' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(yesRadios[1]!);
-    const switches = await screen.findAllByRole(
-      'switch',
-      { name: "I know this person's name" },
-      STEP_TIMEOUT,
-    );
-    if (switches[1]?.getAttribute('aria-checked') !== 'true') {
-      await userEvent.click(switches[1]!);
-    }
+    // Parent 2 ("Priya", Female)
+    await toggleSwitch("I know this person's name", true, 1);
     await typeInTextbox('Priya', 1);
     const femaleRadios = await screen.findAllByRole(
       'radio',
@@ -1118,8 +1048,7 @@ export const NonBinaryEgo: ScenarioStory = {
     await waitForStepTransition();
 
     // ParentsDetailStep: 2 parents
-    // Parent 1: bio, "Tomoko", Female
-    await selectRadioByIndex('Yes', 0);
+    // Parent 1: "Tomoko", Female
     await toggleSwitch("I know this person's name", true);
     await typeInTextbox('Tomoko', 0);
     const femaleRadios1 = await screen.findAllByRole(
@@ -1135,21 +1064,8 @@ export const NonBinaryEgo: ScenarioStory = {
     );
     await userEvent.click(womanGenderRadios1[0]!);
 
-    // Parent 2: bio, "Kenji", Male
-    const yesRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Yes' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(yesRadios[1]!);
-    const switches = await screen.findAllByRole(
-      'switch',
-      { name: "I know this person's name" },
-      STEP_TIMEOUT,
-    );
-    if (switches[1]?.getAttribute('aria-checked') !== 'true') {
-      await userEvent.click(switches[1]!);
-    }
+    // Parent 2: "Kenji", Male
+    await toggleSwitch("I know this person's name", true, 1);
     await typeInTextbox('Kenji', 1);
     const maleRadios = await screen.findAllByRole(
       'radio',
@@ -1232,20 +1148,18 @@ export const AdoptedIn: ScenarioStory = {
     await clickContinue();
     await waitForStepTransition();
 
-    // ParentsDetailStep: both social (not bio)
-    // Parent 1: social, not bio, "James", Man
-    await selectRadioByIndex('Social Parent (adoptive, step, foster)', 0);
+    // ParentsDetailStep: both social
+    // Parent 1: social, "James", Man
+    await selectRadioByIndex(/Social Parent/, 0);
     await waitForStepTransition();
-    await selectRadioByIndex('No', 0); // not bio parent
     await toggleSwitch("I know this person's name", true);
     await typeInTextbox('James', 0);
     await selectRadioByIndex('Male', 0);
     await selectRadioByIndex('Man', 0);
 
-    // Parent 2: social, not bio, "Barbara", Woman
-    await selectRadioByIndex('Social Parent (adoptive, step, foster)', 1);
+    // Parent 2: social, "Barbara", Woman
+    await selectRadioByIndex(/Social Parent/, 1);
     await waitForStepTransition();
-    await selectRadioByIndex('No', 1); // not bio parent
     await toggleSwitch("I know this person's name", true, 1);
     await typeInTextbox('Barbara', 1);
     await selectRadioByIndex('Female', 1);
@@ -1331,9 +1245,8 @@ export const SingleParentTwoDonors: ScenarioStory = {
     await waitForStepTransition();
 
     // ParentsDetailStep: 3 parents
-    // Parent 1: biological, bio=yes, "Linda", Woman
+    // Parent 1: biological, "Linda", Woman
     // Edge type defaults to "Biological Parent" — no change needed
-    await selectRadioByIndex('Yes', 0); // bio parent
     await toggleSwitch("I know this person's name", true);
     await typeInTextbox('Linda', 0);
     const femaleRadios = await screen.findAllByRole(
@@ -1349,17 +1262,16 @@ export const SingleParentTwoDonors: ScenarioStory = {
     );
     await userEvent.click(womanGenderRadios[0]!);
 
-    // Parent 2: donor, bio=yes, "Carlos", Man
-    await selectRadioByIndex('Sperm/Egg Donor', 1);
+    // Parent 2: donor, "Carlos", Man
+    await selectRadioByIndex(/Donor/, 1);
     await waitForStepTransition();
-    await selectRadioByIndex('Yes', 1);
     await toggleSwitch("I know this person's name", true, 1);
     await typeInTextbox('Carlos', 1);
     await selectRadioByIndex('Male', 1);
     await selectRadioByIndex('Man', 1);
 
     // Parent 3: donor, "Marco", Man
-    await selectRadioByIndex('Sperm/Egg Donor', 2);
+    await selectRadioByIndex(/Donor/, 2);
     await waitForStepTransition();
     await toggleSwitch("I know this person's name", true, 2);
     await typeInTextbox('Marco', 2);
@@ -1380,7 +1292,7 @@ export const SingleParentTwoDonors: ScenarioStory = {
     await clickContinue();
     await waitForStepTransition();
 
-    // BioParentsStep: skipped (2 bio parents: Linda + Carlos)
+    // BioParentsStep: skipped (2 bio parents)
 
     // GestationalCarrierStep: Parent 1 (Linda)
     await selectNthRadio(0); // Linda = parent index 0
@@ -1493,8 +1405,7 @@ export const WithPartnerAndChildren: ScenarioStory = {
     await waitForStepTransition();
 
     // ParentsDetailStep: 2 parents
-    // Parent 1: bio, "Robert", Man
-    await selectRadioByIndex('Yes', 0);
+    // Parent 1: "Robert", Man
     await toggleSwitch("I know this person's name", true);
     await typeInTextbox('Robert', 0);
     const maleRadios = await screen.findAllByRole(
@@ -1510,21 +1421,8 @@ export const WithPartnerAndChildren: ScenarioStory = {
     );
     await userEvent.click(manGenderRadios[0]!);
 
-    // Parent 2: bio, "Linda", Woman
-    const yesRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Yes' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(yesRadios[1]!);
-    const switches = await screen.findAllByRole(
-      'switch',
-      { name: "I know this person's name" },
-      STEP_TIMEOUT,
-    );
-    if (switches[1]?.getAttribute('aria-checked') !== 'true') {
-      await userEvent.click(switches[1]!);
-    }
+    // Parent 2: "Linda", Woman
+    await toggleSwitch("I know this person's name", true, 1);
     await typeInTextbox('Linda', 1);
     const femaleRadios = await screen.findAllByRole(
       'radio',

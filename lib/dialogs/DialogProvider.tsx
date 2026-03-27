@@ -79,6 +79,10 @@ export type WizardDialog = BaseDialog & {
     totalSteps: number;
   }> | null;
   onFinish?: (data: Record<string, unknown>) => unknown;
+  confirmCancel?: {
+    title: string;
+    description: string;
+  };
 };
 
 // Helper type to extract return type from a dialog
@@ -130,14 +134,41 @@ export const DialogContext = createContext<DialogContextType | null>(null);
 function WizardDialogRenderer({
   dialog,
   closeDialog,
+  openDialog,
 }: {
   dialog: DialogState & { type: 'wizard' };
   closeDialog: DialogContextType['closeDialog'];
+  openDialog: DialogContextType['openDialog'];
 }) {
+  const guardedCloseDialog = useCallback(
+    async <T,>(id: string, value: T | null) => {
+      if (value !== null || !dialog.confirmCancel) {
+        await closeDialog(id, value);
+        return;
+      }
+
+      const confirmed = await openDialog({
+        type: 'choice',
+        title: dialog.confirmCancel.title,
+        description: dialog.confirmCancel.description,
+        intent: 'destructive',
+        actions: {
+          primary: { label: 'Cancel wizard', value: true },
+          cancel: { label: 'Continue editing', value: false },
+        },
+      });
+
+      if (confirmed === true) {
+        await closeDialog(id, null);
+      }
+    },
+    [closeDialog, openDialog, dialog.confirmCancel],
+  );
+
   const wizardProps = useWizardState({
     dialog,
     dialogId: dialog.id,
-    closeDialog,
+    closeDialog: guardedCloseDialog,
   });
 
   if (!wizardProps) return null;
@@ -146,7 +177,7 @@ function WizardDialogRenderer({
     <Dialog
       title={wizardProps.title}
       description={wizardProps.description}
-      closeDialog={() => closeDialog(dialog.id, null)}
+      closeDialog={() => void guardedCloseDialog(dialog.id, null)}
       accent={dialog.intent}
       open={dialog.open}
       footer={wizardProps.footer}
@@ -388,6 +419,7 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
           key={dialog.id}
           dialog={dialog}
           closeDialog={closeDialog}
+          openDialog={openDialog}
         />
       );
     }

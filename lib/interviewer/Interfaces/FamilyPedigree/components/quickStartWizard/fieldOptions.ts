@@ -1,11 +1,30 @@
-import { type ParentEdgeType } from '~/lib/pedigree-layout/types';
+import { type RichSelectOption } from '~/lib/form/components/fields/RichSelectGroup';
 
-export const PARENT_EDGE_TYPE_OPTIONS: {
-  value: ParentEdgeType;
-  label: string;
-}[] = [
-  { value: 'biological', label: 'Biological Parent' },
-  { value: 'social', label: 'Social Parent (adoptive, step, foster)' },
-  { value: 'donor', label: 'Sperm/Egg Donor' },
-  { value: 'surrogate', label: 'Surrogate Carrier' },
+export const PARENT_EDGE_TYPE_OPTIONS: (RichSelectOption & {
+  value: string;
+})[] = [
+  {
+    value: 'biological',
+    label: 'Biological Parent',
+    description: 'A parent who is genetically related to you',
+  },
+  {
+    value: 'social',
+    label: 'Social Parent',
+    description: 'An adoptive, step, or foster parent',
+  },
+  {
+    value: 'donor',
+    label: 'Donor',
+    description: 'Someone who donated sperm or an egg for your conception',
+  },
+  {
+    value: 'surrogate',
+    label: 'Surrogate',
+    description: 'Someone who carried you during pregnancy',
+  },
 ];
+
+export function isBiologicalEdgeType(edgeType: string): boolean {
+  return edgeType === 'biological' || edgeType === 'donor';
+}

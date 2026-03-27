@@ -1,9 +1,7 @@
 'use client';
 
-import Paragraph from '~/components/typography/Paragraph';
-import { Button } from '~/components/ui/Button';
+import { AnimatePresence, motion } from 'motion/react';
 import useDialog from '~/lib/dialogs/useDialog';
-import FamilyPedigreePlaceholder from '~/lib/pedigree-layout/components/FamilyPedigreePlaceholder';
 import AdoptionStatusStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/AdoptionStatusStep';
 import AuntUncleChildrenStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/AuntUncleChildrenStep';
 import AuntUncleCountStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/AuntUncleCountStep';
@@ -35,6 +33,7 @@ import {
   type SiblingDetail,
   type SiblingFamily,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import ActionButton from '~/lib/interviewer/components/ActionButton';
 
 type QuickStartFormProps = {
   onSubmit: (data: QuickStartData) => void;
@@ -48,6 +47,11 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
       type: 'wizard',
       title: 'Build your family tree',
       progress: null,
+      confirmCancel: {
+        title: 'Cancel wizard?',
+        description:
+          'All information you have entered will be lost. You will need to start the wizard again to complete this task.',
+      },
       steps: [
         {
           title: 'Adoption status',
@@ -242,15 +246,22 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
     }
   };
 
+  const variants = {
+    initial: { opacity: 0, y: '100%' },
+    animate: { opacity: 1, y: '0rem' },
+  };
+
   return (
-    <div className="flex flex-col items-center gap-6">
-      <FamilyPedigreePlaceholder className="w-96 max-w-full opacity-25" />
-      <Paragraph emphasis="muted" margin="none" className="text-center">
-        Your family tree will appear here
-      </Paragraph>
-      <Button color="primary" onClick={() => void handleClick()}>
-        Get started
-      </Button>
-    </div>
+    <AnimatePresence>
+      <motion.div
+        key="get-started-button"
+        className="absolute right-12 bottom-4 z-20"
+        variants={variants}
+        initial="initial"
+        animate="animate"
+      >
+        <ActionButton iconName="Network" onClick={() => void handleClick()} />
+      </motion.div>
+    </AnimatePresence>
   );
 }

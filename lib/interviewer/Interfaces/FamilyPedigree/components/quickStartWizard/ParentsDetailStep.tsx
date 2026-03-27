@@ -7,17 +7,19 @@ import Heading from '~/components/typography/Heading';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import Field from '~/lib/form/components/Field/Field';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
-import BooleanField from '~/lib/form/components/fields/Boolean';
+import RichSelectGroupField from '~/lib/form/components/fields/RichSelectGroup';
 import ToggleField from '~/lib/form/components/fields/ToggleField';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
-import { PARENT_EDGE_TYPE_OPTIONS } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
+import {
+  isBiologicalEdgeType,
+  PARENT_EDGE_TYPE_OPTIONS,
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
 import { extractFormFieldAttributes } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/extractFormFieldAttributes';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import { type ParentDetail } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import { getNodeForm } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
-import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 
 export default function ParentsDetailStep() {
   return (
@@ -36,7 +38,6 @@ function ParentsDetailForm() {
   const { data, setStepData, setBeforeNext } = useWizard();
   const validateForm = useFormStore((s) => s.validateForm);
   const getFormValues = useFormStore((s) => s.getFormValues);
-  const setFieldValue = useFormStore((s) => s.setFieldValue);
   const errors = useFormStore((s) => s.errors);
   const rawFormFields = useSelector(getNodeForm);
   const formFields = useMemo(() => rawFormFields ?? [], [rawFormFields]);
@@ -62,37 +63,6 @@ function ParentsDetailForm() {
     );
   };
 
-  // Track which parents are biological reactively via stable string key
-  const bioStateKey = useFormStore((s) => {
-    const parts: string[] = [];
-    for (let i = 0; i < parentCount; i++) {
-      const val = s.fields.get(`parent-${i}-isBioParent`)?.value;
-      parts.push(val === true ? 'T' : val === false ? 'F' : 'U');
-    }
-    return parts.join('');
-  });
-
-  const bioParentIndices = useMemo(() => {
-    const indices: number[] = [];
-    for (let i = 0; i < bioStateKey.length; i++) {
-      if (bioStateKey[i] === 'T') indices.push(i);
-    }
-    return indices;
-  }, [bioStateKey]);
-
-  const bioCount = bioParentIndices.length;
-
-  // When bio count reaches 2, force remaining parents to non-biological
-  useEffect(() => {
-    if (bioCount >= 2) {
-      for (let i = 0; i < parentCount; i++) {
-        if (bioStateKey[i] !== 'T') {
-          setFieldValue(`parent-${i}-isBioParent`, false);
-        }
-      }
-    }
-  }, [bioCount, parentCount, bioStateKey, setFieldValue]);
-
   useEffect(() => {
     setBeforeNext(async () => {
       const isValid = await validateForm();
@@ -108,8 +78,12 @@ function ParentsDetailForm() {
         (_, i) => {
           const rawName = values[`parent-${i}-name`];
           const rawSex = values[`parent-${i}-sex`];
-          const rawBiological = values[`parent-${i}-isBioParent`];
           const rawEdgeType = values[`parent-${i}-edgeType`];
+
+          const edgeType =
+            typeof rawEdgeType === 'string'
+              ? (rawEdgeType as ParentDetail['edgeType'])
+              : 'biological';
 
           return {
             name: typeof rawName === 'string' ? rawName : '',
@@ -121,12 +95,8 @@ function ParentsDetailForm() {
               formFields,
             ),
             nameKnown: meta[i]?.nameKnown ?? false,
-            biological:
-              typeof rawBiological === 'boolean' ? rawBiological : true,
-            edgeType:
-              typeof rawEdgeType === 'string'
-                ? (rawEdgeType as ParentDetail['edgeType'])
-                : 'biological',
+            biological: isBiologicalEdgeType(edgeType),
+            edgeType,
           };
         },
       );
@@ -146,27 +116,16 @@ function ParentsDetailForm() {
   return (
     <div className="mt-6 flex flex-col gap-6">
       {Array.from({ length: parentCount }, (_, i) => {
-        const isBioDisabled = bioCount >= 2 && bioStateKey[i] !== 'T';
-
         return (
           <Surface key={i} level={1} spacing="sm">
             <Heading level="h3">Parent {i + 1}</Heading>
             <Field
               name={`parent-${i}-edgeType`}
               label="Relationship type"
-              component={RadioGroupField}
+              component={RichSelectGroupField}
               options={PARENT_EDGE_TYPE_OPTIONS}
               initialValue={existing?.[i]?.edgeType ?? 'biological'}
               required
-            />
-            <Field
-              name={`parent-${i}-isBioParent`}
-              label="This is my biological parent"
-              hint="This means someone who provided either sperm or an egg for your conception."
-              component={BooleanField}
-              initialValue={existing?.[i]?.biological}
-              required
-              disabled={isBioDisabled}
             />
             <UnconnectedField
               inline
