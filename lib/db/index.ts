@@ -11,6 +11,47 @@ import { PrismaClient } from '~/lib/db/generated/client';
 import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
 import { captureException } from '../posthog-server';
 
+/**
+ * Safely parse data with a Zod schema. On failure:
+ * - Development: logs a warning and returns the fallback so the app stays usable
+ * - Production: captures the exception to PostHog and throws, which is caught
+ *   by the nearest error.tsx boundary rather than crashing the entire app
+ */
+function safeParseField<T>(
+  schema: {
+    safeParse: (data: unknown) => {
+      success: boolean;
+      data?: T;
+      error?: unknown;
+    };
+  },
+  data: unknown,
+  fieldName: string,
+  fallback: T,
+): T {
+  const result = schema.safeParse(data);
+
+  if (result.success && result.data !== undefined) {
+    return result.data;
+  }
+
+  const parseError = result.error;
+
+  if (env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-console
+    console.warn(`[Prisma] Failed to parse "${fieldName}" field:`, parseError);
+    return fallback;
+  }
+
+  void captureException(parseError, {
+    context: `prisma.result.${fieldName}`,
+  });
+
+  throw new Error(
+    `Failed to parse "${fieldName}" from database. This is likely a data integrity issue.`,
+  );
+}
+
 const createPrismaClient = () => {
   const adapter = env.USE_NEON_POSTGRES_ADAPTER
     ? new PrismaNeon({ connectionString: env.DATABASE_URL })
@@ -60,14 +101,22 @@ const createPrismaClient = () => {
             network: true,
           },
           compute: ({ network }) => {
+            const emptyNetwork = {
+              nodes: [],
+              edges: [],
+              ego: { _uid: 'empty', attributes: {} },
+            };
+
             if (!network) {
-              return NcNetworkSchema.parse({
-                nodes: [],
-                edges: [],
-                ego: { _uid: 'empty', attributes: {} },
-              });
+              return NcNetworkSchema.parse(emptyNetwork);
             }
-            return NcNetworkSchema.parse(network);
+
+            return safeParseField(
+              NcNetworkSchema,
+              network,
+              'interview.network',
+              NcNetworkSchema.parse(emptyNetwork),
+            );
           },
         },
         stageMetadata: {
@@ -78,14 +127,12 @@ const createPrismaClient = () => {
             if (!stageMetadata) {
               return null;
             }
-            const result = StageMetadataSchema.safeParse(stageMetadata);
-
-            if (!result.success) {
-              void captureException(result.error);
-              return null;
-            }
-
-            return result.data;
+            return safeParseField(
+              StageMetadataSchema,
+              stageMetadata,
+              'interview.stageMetadata',
+              null,
+            );
           },
         },
       },
@@ -98,14 +145,13 @@ const createPrismaClient = () => {
             codebook: true,
           },
           compute: ({ name, schemaVersion, stages, codebook }) => {
-            const protocolSchema = VersionedProtocolSchema.parse({
-              name,
-              schemaVersion,
-              stages,
-              codebook,
-              experiments: {},
-            });
-            return protocolSchema.stages;
+            const parsed = safeParseField(
+              VersionedProtocolSchema,
+              { name, schemaVersion, stages, codebook, experiments: {} },
+              'protocol.stages',
+              null,
+            );
+            return parsed?.stages ?? [];
           },
         },
         codebook: {
@@ -119,14 +165,16 @@ const createPrismaClient = () => {
             schemaVersion,
             codebook,
           }): VersionedProtocol['codebook'] => {
-            const protocolSchema = VersionedProtocolSchema.parse({
-              name,
-              schemaVersion,
-              stages: [],
-              codebook,
-              experiments: {},
-            });
-            return protocolSchema.codebook;
+            const parsed = safeParseField(
+              VersionedProtocolSchema,
+              { name, schemaVersion, stages: [], codebook, experiments: {} },
+              'protocol.codebook',
+              null,
+            );
+            return (
+              parsed?.codebook ??
+              ({ edge: {}, node: {} } as VersionedProtocol['codebook'])
+            );
           },
         },
         experiments: {
@@ -140,14 +188,13 @@ const createPrismaClient = () => {
               return {};
             }
 
-            const protocolSchema = CurrentProtocolSchema.parse({
-              name,
-              schemaVersion,
-              stages: [],
-              codebook: {},
-              experiments,
-            });
-            return protocolSchema.experiments ?? {};
+            const parsed = safeParseField(
+              CurrentProtocolSchema,
+              { name, schemaVersion, stages: [], codebook: {}, experiments },
+              'protocol.experiments',
+              null,
+            );
+            return parsed?.experiments ?? {};
           },
         },
       },

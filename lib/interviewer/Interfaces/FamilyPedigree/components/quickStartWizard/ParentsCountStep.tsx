@@ -5,7 +5,7 @@ import { useWizard } from '~/lib/dialogs/useWizard';
 import Field from '~/lib/form/components/Field/Field';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
 import BooleanField from '~/lib/form/components/fields/Boolean';
-import NumberCounterField from '~/lib/form/components/fields/NumberCounterField';
+import InputField from '~/lib/form/components/fields/InputField';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
@@ -27,10 +27,10 @@ function ParentsCountForm() {
   errorsRef.current = errors;
 
   const [parentCount, setParentCount] = useState(
-    (data.parentCount as number | undefined) ?? 2,
+    (data.parentCount as string | undefined) ?? '2',
   );
   const [siblingCount, setSiblingCount] = useState(
-    (data.siblingCount as number | undefined) ?? 0,
+    (data.siblingCount as string | undefined) ?? '0',
   );
 
   const existingHasPartner =
@@ -69,12 +69,13 @@ function ParentsCountForm() {
         inline
         label="How many parents do you have?"
         hint="This includes donors/surrogates, step, adoptive, and anyone else that you identify as a parent."
-        component={NumberCounterField}
+        component={InputField}
+        type="number"
         value={parentCount}
-        minValue={0}
-        maxValue={20}
+        min={0}
+        max={20}
         onChange={(v) => {
-          const newCount = v ?? 0;
+          const newCount = v ?? '0';
           setParentCount(newCount);
         }}
       />
@@ -82,12 +83,13 @@ function ParentsCountForm() {
         name="siblingCount"
         inline
         label="How many siblings do you have?"
-        component={NumberCounterField}
+        component={InputField}
+        type="number"
         value={siblingCount}
-        minValue={0}
-        maxValue={20}
+        min={0}
+        max={20}
         onChange={(v) => {
-          const newCount = v ?? 0;
+          const newCount = v ?? '0';
           setSiblingCount(newCount);
         }}
       />
