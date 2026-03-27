@@ -3,7 +3,7 @@ import {
   type ParentDetail,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
-export type AllParentEntry = {
+type AllParentEntry = {
   name: string;
   biologicalSex?: string;
   source: 'parents' | 'bioParents';
