@@ -72,6 +72,12 @@ type InputFieldProps = CreateFormFieldProps<
     size?: VariantProps<typeof textSizeVariants>['size'];
     prefixComponent?: ReactNode;
     suffixComponent?: ReactNode;
+    // Forwards the native React ChangeEvent to the caller. Needed when
+    // InputField is used as a base-ui `render` prop (e.g. Combobox.Input),
+    // because base-ui's internal onChange handler expects the full event
+    // (it reads event.nativeEvent.inputType), while InputField's own
+    // onChange only passes the string value.
+    nativeOnChange?: React.ChangeEventHandler<HTMLInputElement>;
   }
 >;
 
@@ -84,6 +90,7 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
       className,
       value,
       onChange,
+      nativeOnChange,
       type = 'text',
       disabled,
       readOnly,
@@ -131,7 +138,10 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
           className={inputVariants({ className })}
           type={type}
           {...inputProps}
-          onChange={(e) => onChange?.(e.target.value)}
+          onChange={(e) => {
+            onChange?.(e.target.value);
+            nativeOnChange?.(e);
+          }}
           onWheel={(e) => {
             if (isNumber) {
               e.currentTarget.blur();

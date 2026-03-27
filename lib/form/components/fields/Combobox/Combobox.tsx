@@ -175,13 +175,24 @@ function ComboboxField(props: ComboboxFieldProps) {
               <div className="flex items-center gap-2 p-2">
                 <Combobox.Input
                   placeholder={searchPlaceholder}
-                  render={
-                    <InputField
-                      size="sm"
-                      type="search"
-                      prefixComponent={<SearchIcon />}
-                    />
-                  }
+                  render={({ onChange, ...rest }) => {
+                    // base-ui's render prop types (HTMLProps) are structurally
+                    // incompatible with InputField's types (e.g. value, onBlur,
+                    // aria-required differ) but semantically correct at runtime.
+                    const inputFieldProps =
+                      rest as unknown as React.ComponentPropsWithRef<
+                        typeof InputField
+                      >;
+                    return (
+                      <InputField
+                        {...inputFieldProps}
+                        size="sm"
+                        prefixComponent={<SearchIcon />}
+                        className="w-full"
+                        nativeOnChange={onChange}
+                      />
+                    );
+                  }}
                 />
               </div>
             )}
