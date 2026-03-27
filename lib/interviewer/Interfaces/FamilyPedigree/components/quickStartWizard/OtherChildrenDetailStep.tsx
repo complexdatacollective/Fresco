@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
+import Surface from '~/components/layout/Surface';
+import Heading from '~/components/typography/Heading';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
@@ -52,8 +54,7 @@ function OtherChildrenDetailForm() {
             biologicalSex: typeof rawSex === 'string' ? rawSex : undefined,
             attributes: extractFormFieldAttributes(
               values,
-              'otherChild',
-              i,
+              `otherChild-${i}`,
               formFields,
             ),
           };
@@ -75,16 +76,18 @@ function OtherChildrenDetailForm() {
   return (
     <div className="flex flex-col gap-6 pt-4">
       {Array.from({ length: childCount }, (_, i) => (
-        <div key={i} className="flex flex-col gap-3 rounded-lg border p-4">
-          <h3 className="text-sm font-medium">Child {i + 1}</h3>
+        <Surface key={i} level={1} spacing="sm">
+          <Heading level="h3">Child {i + 1}</Heading>
           <PersonFields
-            index={i}
-            prefix="otherChild"
+            nameToggle={false}
+            namespace={`otherChild-${i}`}
             initial={{
               name: existing?.[i]?.name,
+              sex: existing?.[i]?.biologicalSex,
+              attributes: existing?.[i]?.attributes,
             }}
           />
-        </div>
+        </Surface>
       ))}
     </div>
   );

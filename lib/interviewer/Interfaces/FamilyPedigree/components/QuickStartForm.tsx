@@ -3,13 +3,9 @@
 import { AnimatePresence, motion } from 'motion/react';
 import useDialog from '~/lib/dialogs/useDialog';
 import AdoptionStatusStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/AdoptionStatusStep';
-import AuntUncleChildrenStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/AuntUncleChildrenStep';
-import AuntUncleCountStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/AuntUncleCountStep';
-import AuntUncleDetailStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/AuntUncleDetailStep';
 import BioParentsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/BioParentsStep';
 import ChildrenWithPartnerDetailStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/ChildrenWithPartnerDetailStep';
 import GestationalCarrierStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/GestationalCarrierStep';
-import GrandparentsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/GrandparentsStep';
 import HalfSiblingParentsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/HalfSiblingParentsStep';
 import OtherChildrenCountStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/OtherChildrenCountStep';
 import OtherChildrenDetailStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/OtherChildrenDetailStep';
@@ -17,21 +13,16 @@ import ParentPartnershipsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/
 import ParentsCountStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/ParentsCountStep';
 import ParentsDetailStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/ParentsDetailStep';
 import PartnerStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PartnerStep';
-import SiblingFamilyCountStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/SiblingFamilyCountStep';
-import SiblingFamilyDetailStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/SiblingFamilyDetailStep';
 import SiblingsDetailStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/SiblingsDetailStep';
-import { getAllParents } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/getAllParents';
 import {
   type AdoptionStatus,
   type BioParentDetail,
   type HalfSiblingOtherParent,
-  type ParentBranch,
   type ParentDetail,
   type ParentPartnership,
   type PersonDetail,
   type QuickStartData,
   type SiblingDetail,
-  type SiblingFamily,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import ActionButton from '~/lib/interviewer/components/ActionButton';
 
@@ -84,39 +75,24 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
         {
           title: 'Gestational carrier',
           content: GestationalCarrierStep,
-        },
-        {
-          title: 'Grandparents',
-          description: "Please tell us about each parent's parents.",
-          content: GrandparentsStep,
-          skip: (d) => getAllParents(d).length === 0,
-        },
-        {
-          title: 'Aunts & uncles',
-          description: 'How many siblings does each of your parents have?',
-          content: AuntUncleCountStep,
-          skip: (d) => getAllParents(d).length === 0,
-        },
-        {
-          title: 'Aunt & uncle details',
-          description: "Please tell us about your parents' siblings.",
-          content: AuntUncleDetailStep,
+          // Skip when exactly one biological parent was assigned female at
+          // birth, since the carrier is unambiguous. When zero or multiple
+          // are female (e.g. egg donor + carrier) we need to ask.
           skip: (d) => {
-            const branches =
-              (d.parentBranches as ParentBranch[] | undefined) ?? [];
-            return branches.every((b) => b.auntUncleCount === 0);
-          },
-        },
-        {
-          title: 'Cousins',
-          description: "Please tell us about your aunts' and uncles' families.",
-          content: AuntUncleChildrenStep,
-          skip: (d) => {
-            const branches =
-              (d.parentBranches as ParentBranch[] | undefined) ?? [];
-            return branches.every((b) =>
-              b.auntsUncles.every((au) => !au.hasChildren),
-            );
+            const parents = (d.parents as ParentDetail[] | undefined) ?? [];
+            const bioParents =
+              (d.bioParents as PersonDetail[] | undefined) ?? [];
+
+            const biologicalParents = [
+              ...parents.filter((p) => p.biological !== false),
+              ...bioParents,
+            ];
+
+            const femaleCount = biologicalParents.filter(
+              (p) => p.biologicalSex === 'female',
+            ).length;
+
+            return femaleCount === 1;
           },
         },
         {
@@ -144,25 +120,6 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
                 [...egoSet].every((idx) => sibSet.has(idx))
               );
             });
-          },
-        },
-        {
-          title: "Siblings' families",
-          description: 'Do any of your siblings have children?',
-          content: SiblingFamilyCountStep,
-          skip: (d) => (d.siblingCount as number | undefined) === 0,
-        },
-        {
-          title: "Siblings' family details",
-          description: "Tell us about your siblings' partners and children.",
-          content: SiblingFamilyDetailStep,
-          skip: (d) => {
-            const families =
-              (d.siblingFamilies as SiblingFamily[] | undefined) ?? [];
-            return (
-              families.length === 0 ||
-              families.every((sf) => sf.children.length === 0)
-            );
           },
         },
         {
@@ -228,14 +185,12 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
             (data.childrenWithPartner as PersonDetail[] | undefined) ?? [],
           otherChildren:
             (data.otherChildren as PersonDetail[] | undefined) ?? [],
-          parentBranches:
-            (data.parentBranches as ParentBranch[] | undefined) ?? [],
+          parentBranches: [],
           halfSiblingOtherParents:
             (data.halfSiblingOtherParents as
               | HalfSiblingOtherParent[]
               | undefined) ?? [],
-          siblingFamilies:
-            (data.siblingFamilies as SiblingFamily[] | undefined) ?? [],
+          siblingFamilies: [],
         };
         return quickStartData;
       },

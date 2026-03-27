@@ -110,8 +110,7 @@ function AuntUncleChildrenForm() {
                   typeof rawPartnerSex === 'string' ? rawPartnerSex : undefined,
                 attributes: extractFormFieldAttributes(
                   values,
-                  `auntUnclePartner-${parentIdx}`,
-                  auIdx,
+                  `auntUnclePartner-${parentIdx}-${auIdx}`,
                   formFields,
                 ),
               };
@@ -130,8 +129,7 @@ function AuntUncleChildrenForm() {
                     typeof rawSex === 'string' ? rawSex : undefined,
                   attributes: extractFormFieldAttributes(
                     values,
-                    `cousin-${parentIdx}-${auIdx}`,
-                    childIdx,
+                    `cousin-${parentIdx}-${auIdx}-${childIdx}`,
                     formFields,
                   ),
                 };
@@ -216,11 +214,12 @@ function AuntUncleChildrenForm() {
                       <Surface level={3} spacing="sm">
                         <Heading level="h4">{auName}&apos;s partner</Heading>
                         <PersonFields
-                          index={auIdx}
-                          prefix={`auntUnclePartner-${parentIdx}`}
+                          nameToggle={false}
+                          namespace={`auntUnclePartner-${parentIdx}-${auIdx}`}
                           initial={{
                             name: existingPartner?.name,
                             sex: existingPartner?.biologicalSex,
+                            attributes: existingPartner?.attributes,
                           }}
                         />
                       </Surface>
@@ -235,11 +234,12 @@ function AuntUncleChildrenForm() {
                             {auName}&apos;s child {childIdx + 1}
                           </Heading>
                           <PersonFields
-                            index={childIdx}
-                            prefix={`cousin-${parentIdx}-${auIdx}`}
+                            nameToggle={false}
+                            namespace={`cousin-${parentIdx}-${auIdx}-${childIdx}`}
                             initial={{
                               name: existingChild?.name,
                               sex: existingChild?.biologicalSex,
+                              attributes: existingChild?.attributes,
                             }}
                           />
                         </Surface>

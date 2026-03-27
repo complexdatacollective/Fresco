@@ -1,13 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { useWizard } from '~/lib/dialogs/useWizard';
-import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
-import ToggleField from '~/lib/form/components/fields/ToggleField';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
@@ -68,19 +66,6 @@ function HalfSiblingParentsForm() {
   const findExisting = (sibIdx: number): HalfSiblingOtherParent | undefined =>
     existing.find((e) => e.siblingIndex === sibIdx);
 
-  const [nameKnownState, setNameKnownState] = useState<Record<number, boolean>>(
-    () => {
-      const initial: Record<number, boolean> = {};
-      for (const { siblingIndex } of halfSiblings) {
-        initial[siblingIndex] = findExisting(siblingIndex)?.nameKnown ?? true;
-      }
-      return initial;
-    },
-  );
-
-  const nameKnownRef = useRef(nameKnownState);
-  nameKnownRef.current = nameKnownState;
-
   useEffect(() => {
     setBeforeNext(async () => {
       const isValid = await validateForm();
@@ -90,7 +75,6 @@ function HalfSiblingParentsForm() {
       }
 
       const values = getFormValues();
-      const nameKnown = nameKnownRef.current;
 
       const halfSiblingOtherParents: HalfSiblingOtherParent[] =
         halfSiblings.map(({ siblingIndex, sibling }) => {
@@ -102,11 +86,12 @@ function HalfSiblingParentsForm() {
             biologicalSex: typeof rawSex === 'string' ? rawSex : undefined,
             attributes: extractFormFieldAttributes(
               values,
-              'halfSibParent',
-              siblingIndex,
+              `halfSibParent-${siblingIndex}`,
               formFields,
             ),
-            nameKnown: nameKnown[siblingIndex] ?? true,
+            nameKnown: Boolean(
+              values[`halfSibParent-${siblingIndex}-nameKnown`],
+            ),
             siblingIndex,
             sharedParentIndices: sibling.sharedParentIndices,
           };
@@ -137,7 +122,6 @@ function HalfSiblingParentsForm() {
     <div className="flex flex-col gap-6">
       {halfSiblings.map(({ siblingIndex, sibling }) => {
         const siblingName = sibling.name || `Sibling ${siblingIndex + 1}`;
-        const nameKnown = nameKnownState[siblingIndex] ?? true;
         const existingEntry = findExisting(siblingIndex);
 
         return (
@@ -147,27 +131,13 @@ function HalfSiblingParentsForm() {
               You mentioned that {siblingName} doesn&apos;t share all your
               parents.
             </Paragraph>
-            <UnconnectedField
-              inline
-              name={`halfSibParent-${siblingIndex}-nameKnown`}
-              label="I know this person's name"
-              component={ToggleField}
-              value={nameKnown}
-              onChange={(v) => {
-                setNameKnownState((prev) => ({
-                  ...prev,
-                  [siblingIndex]: v ?? true,
-                }));
-              }}
-            />
             <PersonFields
-              index={siblingIndex}
-              prefix="halfSibParent"
+              namespace={`halfSibParent-${siblingIndex}`}
               initial={{
                 name: existingEntry?.name,
                 sex: existingEntry?.biologicalSex,
+                attributes: existingEntry?.attributes,
               }}
-              showName={nameKnown}
             />
           </Surface>
         );

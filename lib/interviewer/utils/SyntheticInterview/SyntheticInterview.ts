@@ -510,7 +510,7 @@ export class SyntheticInterview {
         opts?.censusPrompt ??
         this.valueGen.generatePromptText('FamilyPedigree');
 
-      entry.nominationPrompts = [];
+      entry.nominationPrompts = opts?.nominationPrompts ?? [];
     }
 
     // Geospatial

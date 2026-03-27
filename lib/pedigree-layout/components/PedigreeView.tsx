@@ -85,9 +85,7 @@ export default function PedigreeView() {
 
     const name = typeof result.name === 'string' ? result.name : '';
     const biologicalSex =
-      typeof result.biologicalSex === 'string'
-        ? result.biologicalSex
-        : undefined;
+      typeof result.sex === 'string' ? result.sex : undefined;
 
     const formAttrs: Record<string, unknown> = {};
     for (const field of resolvedFormFields) {
@@ -106,7 +104,7 @@ export default function PedigreeView() {
     });
 
     switch (mode) {
-      case 'parent':
+      case 'parent': {
         addEdge({
           source: newNodeId,
           target: nodeId,
@@ -115,7 +113,22 @@ export default function PedigreeView() {
             'biological',
           isActive: true,
         });
+
+        // Create partner edges with existing parents if specified
+        for (const [key, value] of Object.entries(result)) {
+          if (!key.startsWith('partnership-')) continue;
+          const parentId = key.replace('partnership-', '');
+          if (value === 'current' || value === 'ex') {
+            addEdge({
+              source: newNodeId,
+              target: parentId,
+              relationshipType: 'partner',
+              isActive: value === 'current',
+            });
+          }
+        }
         break;
+      }
       case 'child': {
         addEdge({
           source: nodeId,
@@ -134,17 +147,44 @@ export default function PedigreeView() {
         }
         break;
       }
-      case 'partner':
+      case 'partner': {
         addEdge({
           source: nodeId,
           target: newNodeId,
           relationshipType: 'partner',
           isActive: result.current !== 'ex',
         });
+
+        // Create parent edges to the anchor's children if specified
+        for (const [key, value] of Object.entries(result)) {
+          if (!key.startsWith('parentType-')) continue;
+          const childId = key.replace('parentType-', '');
+          if (
+            value === 'biological' ||
+            value === 'social' ||
+            value === 'donor' ||
+            value === 'surrogate'
+          ) {
+            addEdge({
+              source: newNodeId,
+              target: childId,
+              relationshipType: value,
+              isActive: true,
+            });
+          }
+        }
         break;
-      case 'sibling':
+      }
+      case 'sibling': {
+        const sharedParents = Array.isArray(result.sharedParents)
+          ? new Set(result.sharedParents.map(String))
+          : null;
+
         for (const edge of edges.values()) {
           if (edge.relationshipType !== 'partner' && edge.target === nodeId) {
+            // If sharedParents was specified, only copy edges for selected parents
+            if (sharedParents && !sharedParents.has(edge.source)) continue;
+
             addEdge({
               source: edge.source,
               target: newNodeId,
@@ -154,6 +194,7 @@ export default function PedigreeView() {
           }
         }
         break;
+      }
     }
   };
 

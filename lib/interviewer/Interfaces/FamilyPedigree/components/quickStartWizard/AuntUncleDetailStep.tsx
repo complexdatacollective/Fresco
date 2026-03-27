@@ -7,7 +7,7 @@ import Heading from '~/components/typography/Heading';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
 import BooleanField from '~/lib/form/components/fields/Boolean';
-import NumberCounterField from '~/lib/form/components/fields/NumberCounterField';
+import InputField from '~/lib/form/components/fields/InputField';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
@@ -131,8 +131,7 @@ function AuntUncleDetailForm() {
               biologicalSex: typeof rawSex === 'string' ? rawSex : undefined,
               attributes: extractFormFieldAttributes(
                 values,
-                `auntUncle-${parentIdx}`,
-                auIdx,
+                `auntUncle-${parentIdx}-${auIdx}`,
                 formFields,
               ),
             };
@@ -230,11 +229,12 @@ function AuntUncleDetailForm() {
                     {parentName}&apos;s sibling {auIdx + 1}
                   </Heading>
                   <PersonFields
-                    index={auIdx}
-                    prefix={`auntUncle-${parentIdx}`}
+                    nameToggle={false}
+                    namespace={`auntUncle-${parentIdx}-${auIdx}`}
                     initial={{
                       name: existingAU?.name,
                       sex: existingAU?.biologicalSex,
+                      attributes: existingAU?.attributes,
                     }}
                   />
                   <UnconnectedField
@@ -252,14 +252,15 @@ function AuntUncleDetailForm() {
                         name={`auntUncle-${parentIdx}-${auIdx}-childCount`}
                         inline
                         label="How many children?"
-                        component={NumberCounterField}
-                        value={childCount}
-                        minValue={1}
-                        maxValue={20}
+                        component={InputField}
+                        type="number"
+                        value={String(childCount)}
+                        min={1}
+                        max={20}
                         onChange={(v) => {
                           setChildCounts((prev) => ({
                             ...prev,
-                            [key]: v ?? 1,
+                            [key]: Number(v) || 1,
                           }));
                         }}
                       />

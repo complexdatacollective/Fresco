@@ -8,6 +8,7 @@ import {
   type StoreEdge,
   type VariableConfig,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { computeAllDisplayLabels } from '~/lib/pedigree-layout/utils/getDisplayLabel';
 import { getNodeShapeDefinition } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 import {
   getNodeColorSelector,
@@ -95,94 +96,10 @@ export function EgoIcon({
   );
 }
 
-type ParentEdgeType = Exclude<StoreEdge['relationshipType'], 'partner'>;
-
-type RelationshipKind =
-  | { type: 'parent'; edgeType: ParentEdgeType }
-  | { type: 'child' }
-  | { type: 'partner' }
-  | { type: 'sibling' };
-
-function getRelationshipToEgo(
-  nodeId: string,
-  egoId: string,
-  edges: Map<string, StoreEdge>,
-): RelationshipKind | null {
-  for (const edge of edges.values()) {
-    if (edge.relationshipType === 'partner') {
-      if (
-        (edge.source === nodeId && edge.target === egoId) ||
-        (edge.source === egoId && edge.target === nodeId)
-      ) {
-        return { type: 'partner' };
-      }
-      continue;
-    }
-
-    // source is parent, target is child
-    if (edge.source === nodeId && edge.target === egoId) {
-      return { type: 'parent', edgeType: edge.relationshipType };
-    }
-    if (edge.source === egoId && edge.target === nodeId) {
-      return { type: 'child' };
-    }
-  }
-
-  // Sibling: shares a parent with ego
-  const nodeParents = new Set<string>();
-  const egoParents = new Set<string>();
-  for (const edge of edges.values()) {
-    if (edge.relationshipType === 'partner') continue;
-    if (edge.target === nodeId) nodeParents.add(edge.source);
-    if (edge.target === egoId) egoParents.add(edge.source);
-  }
-  for (const parent of nodeParents) {
-    if (egoParents.has(parent)) return { type: 'sibling' };
-  }
-
-  return null;
-}
-
-function relationshipLabel(
-  rel: RelationshipKind,
-  biologicalSex: string | undefined,
-): string {
-  switch (rel.type) {
-    case 'partner':
-      return 'Partner';
-    case 'child':
-      if (biologicalSex === 'male') return 'Son';
-      if (biologicalSex === 'female') return 'Daughter';
-      return 'Child';
-    case 'sibling':
-      if (biologicalSex === 'male') return 'Brother';
-      if (biologicalSex === 'female') return 'Sister';
-      return 'Sibling';
-    case 'parent':
-      switch (rel.edgeType) {
-        case 'donor':
-          if (biologicalSex === 'male') return 'Sperm Donor';
-          if (biologicalSex === 'female') return 'Egg Donor';
-          return 'Donor';
-        case 'surrogate':
-          return 'Surrogate';
-        case 'social':
-          if (biologicalSex === 'male') return 'Social Father';
-          if (biologicalSex === 'female') return 'Social Mother';
-          return 'Social Parent';
-        case 'biological':
-          if (biologicalSex === 'male') return 'Father';
-          if (biologicalSex === 'female') return 'Mother';
-          return 'Parent';
-      }
-  }
-}
-
 /**
  * Computes display labels for all nodes in the pedigree.
- * Named nodes use their name. Unnamed nodes get a relationship label
- * derived from their edge connection to ego, with numbering when
- * multiple nodes share the same role (e.g. "Sperm Donor #1").
+ * Named nodes use their name. Unnamed nodes get a BFS-based relationship
+ * label with numbering when multiple nodes share the same role.
  */
 export function computeNodeDisplayLabels(
   nodes: Map<string, NodeData>,
@@ -193,25 +110,28 @@ export function computeNodeDisplayLabels(
   if (!egoEntry) return new Map();
   const egoId = egoEntry[0];
 
+  const computedLabels = computeAllDisplayLabels(
+    egoId,
+    nodes,
+    edges,
+    variableConfig,
+  );
+
   const labels = new Map<string, string>();
   const roleBuckets = new Map<string, string[]>();
 
   for (const [nodeId, node] of nodes) {
     if (node.isEgo) continue;
 
-    const label =
-      (node.attributes[variableConfig.nodeLabelVariable] as string) ?? '';
-    if (label) {
-      labels.set(nodeId, label);
+    const storedName = node.attributes[variableConfig.nodeLabelVariable] as
+      | string
+      | undefined;
+    if (storedName) {
+      labels.set(nodeId, storedName);
       continue;
     }
 
-    const biologicalSex = node.attributes[
-      variableConfig.biologicalSexVariable
-    ] as string | undefined;
-    const rel = getRelationshipToEgo(nodeId, egoId, edges);
-    const role = rel ? relationshipLabel(rel, biologicalSex) : 'Family Member';
-
+    const role = computedLabels.get(nodeId) ?? 'Family Member';
     const bucket = roleBuckets.get(role) ?? [];
     bucket.push(nodeId);
     roleBuckets.set(role, bucket);

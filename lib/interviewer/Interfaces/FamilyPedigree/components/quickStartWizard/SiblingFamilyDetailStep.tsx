@@ -81,8 +81,7 @@ function SiblingFamilyDetailForm() {
               typeof rawPartnerSex === 'string' ? rawPartnerSex : undefined,
             attributes: extractFormFieldAttributes(
               values,
-              'siblingPartner',
-              sibIdx,
+              `siblingPartner-${sibIdx}`,
               formFields,
             ),
           };
@@ -101,8 +100,7 @@ function SiblingFamilyDetailForm() {
               biologicalSex: typeof rawSex === 'string' ? rawSex : undefined,
               attributes: extractFormFieldAttributes(
                 values,
-                `nibling-${sibIdx}`,
-                childIdx,
+                `nibling-${sibIdx}-${childIdx}`,
                 formFields,
               ),
             };
@@ -160,11 +158,12 @@ function SiblingFamilyDetailForm() {
               <Surface level={2} spacing="sm">
                 <Heading level="h4">{siblingName}&apos;s partner</Heading>
                 <PersonFields
-                  index={sibIdx}
-                  prefix="siblingPartner"
+                  nameToggle={false}
+                  namespace={`siblingPartner-${sibIdx}`}
                   initial={{
                     name: existingPartner?.name,
                     sex: existingPartner?.biologicalSex,
+                    attributes: existingPartner?.attributes,
                   }}
                 />
               </Surface>
@@ -177,11 +176,12 @@ function SiblingFamilyDetailForm() {
                     {siblingName}&apos;s child {childIdx + 1}
                   </Heading>
                   <PersonFields
-                    index={childIdx}
-                    prefix={`nibling-${sibIdx}`}
+                    nameToggle={false}
+                    namespace={`nibling-${sibIdx}-${childIdx}`}
                     initial={{
                       name: existingChild?.name,
                       sex: existingChild?.biologicalSex,
+                      attributes: existingChild?.attributes,
                     }}
                   />
                 </Surface>

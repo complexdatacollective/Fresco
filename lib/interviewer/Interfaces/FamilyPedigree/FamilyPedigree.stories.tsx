@@ -17,29 +17,35 @@ function createFamilyPedigreeInterview(seed: number) {
     type: 'text',
     component: 'Text',
   });
+
+  // These values are shared with Architect, which creates them automatically.
   const sexVar = nodeType.addVariable({
-    name: 'Biological Sex',
+    name: 'Sex at birth',
     type: 'categorical',
     options: [
       { label: 'Male', value: 'male' },
       { label: 'Female', value: 'female' },
       { label: 'Intersex', value: 'intersex' },
+      { label: 'Prefer not to say', value: 'prefer_not_to_say' },
     ],
     component: 'RadioGroup',
   });
   const genderVar = nodeType.addVariable({
-    name: 'Gender Identity',
+    name: 'Current Gender Identity',
     type: 'categorical',
     options: [
       { label: 'Man', value: 'man' },
       { label: 'Woman', value: 'woman' },
-      { label: 'Trans man', value: 'trans_man' },
-      { label: 'Trans woman', value: 'trans_woman' },
       { label: 'Non-binary', value: 'non_binary' },
+      { label: 'Genderqueer/Gender non-conforming', value: 'genderqueer' },
+      { label: 'Two-Spirit', value: 'two_spirit' },
+      { label: 'Other', value: 'other' },
+      { label: 'Prefer not to say', value: 'prefer_not_to_say' },
     ],
     component: 'RadioGroup',
     validation: { required: true },
   });
+
   // Dynamic shape mapping based on gender identity
   nodeType.setShape({
     default: 'diamond',
@@ -49,29 +55,30 @@ function createFamilyPedigreeInterview(seed: number) {
       map: [
         { value: 'man', shape: 'square' },
         { value: 'woman', shape: 'circle' },
-        { value: 'trans_man', shape: 'square' },
-        { value: 'trans_woman', shape: 'circle' },
         { value: 'non_binary', shape: 'diamond' },
+        { value: 'genderqueer', shape: 'diamond' },
+        { value: 'two_spirit', shape: 'diamond' },
+        { value: 'other', shape: 'diamond' },
+        { value: 'prefer_not_to_say', shape: 'diamond' },
       ],
     },
   });
   const diseaseVar = nodeType.addVariable({
     name: 'Has Disease',
     type: 'boolean',
-    component: 'Boolean',
   });
   const isEgoVar = nodeType.addVariable({
     name: 'Is Ego',
     type: 'boolean',
-    component: 'Boolean',
   });
   const relationshipToEgoVar = nodeType.addVariable({
     name: 'Relationship to Ego',
     type: 'text',
-    component: 'Text',
   });
 
   const edgeType = si.addEdgeType({ name: 'Family' });
+
+  // These values are shared with Architect, which creates them automatically.
   const relationshipVar = edgeType.addVariable({
     name: 'Relationship',
     type: 'categorical',
@@ -97,7 +104,6 @@ function createFamilyPedigreeInterview(seed: number) {
     nameVar,
     sexVar,
     genderVar,
-
     diseaseVar,
     isEgoVar,
     relationshipToEgoVar,
@@ -121,14 +127,13 @@ function FamilyPedigreeStoryWrapper({
   );
 
   return (
-    <div className="flex h-dvh w-full">
-      <StoryInterviewShell rawPayload={rawPayload} disableSync />
+    <div className="h-screen">
+      <StoryInterviewShell rawPayload={rawPayload} disableSync />;
     </div>
   );
 }
 
 type StoryArgs = {
-  diseaseStepCount: 0 | 1 | 2;
   scaffoldingText: string;
 };
 
@@ -139,19 +144,12 @@ const meta: Meta<StoryArgs> = {
     layout: 'fullscreen',
   },
   argTypes: {
-    diseaseStepCount: {
-      control: 'radio',
-      options: [0, 1, 2],
-      description:
-        'Number of disease nomination steps (0 = none, 1 = single, 2 = multiple)',
-    },
     scaffoldingText: {
       control: 'text',
       description: 'Text displayed in the census prompt',
     },
   },
   args: {
-    diseaseStepCount: 1,
     scaffoldingText: 'Please create your family tree by adding family members.',
   },
 };
@@ -160,36 +158,29 @@ export default meta;
 type Story = StoryObj<StoryArgs>;
 
 export const Default: Story = {
-  render: ({ diseaseStepCount, scaffoldingText }) => {
+  render: ({ scaffoldingText }) => {
     const buildFn = () => {
       const {
         si,
         nodeType,
         nameVar,
-
         sexVar,
         genderVar,
+        diseaseVar,
         edgeType,
         relationshipVar,
         isActiveVar,
         isGestCarrierVar,
-        diseaseVar,
         isEgoVar,
         relationshipToEgoVar,
       } = createFamilyPedigreeInterview(1);
-
-      const disease2Var = nodeType.addVariable({
-        name: 'Has Diabetes',
-        type: 'boolean',
-        component: 'Boolean',
-      });
 
       si.addInformationStage({
         title: 'Welcome',
         text: 'Before the main stage.',
       });
 
-      const stage = si.addStage('FamilyPedigree', {
+      si.addStage('FamilyPedigree', {
         label: 'Family Tree',
         subject: { entity: 'node', type: nodeType.id },
         initialNodes: 0,
@@ -199,7 +190,12 @@ export const Default: Story = {
           egoVariable: isEgoVar.id,
           biologicalSexVariable: sexVar.id,
           relationshipVariable: relationshipToEgoVar.id,
-          form: [{ variable: genderVar.id, prompt: 'Gender Identity' }],
+          form: [
+            {
+              variable: genderVar.id,
+              prompt: 'How does this person identify their gender?',
+            },
+          ],
         },
         edgeConfig: {
           type: edgeType.id,
@@ -208,20 +204,14 @@ export const Default: Story = {
           isGestationalCarrierVariable: isGestCarrierVar.id,
         },
         censusPrompt: scaffoldingText,
+        nominationPrompts: [
+          {
+            id: '1',
+            text: 'Please nominate any family members who have been diagnosed with X',
+            variable: diseaseVar.id,
+          },
+        ],
       });
-
-      if (diseaseStepCount >= 1) {
-        stage.addDiseaseNominationStep({
-          text: 'Which family members have the disease?',
-          variable: diseaseVar.id,
-        });
-      }
-      if (diseaseStepCount >= 2) {
-        stage.addDiseaseNominationStep({
-          text: 'Which family members have diabetes?',
-          variable: disease2Var.id,
-        });
-      }
 
       si.addInformationStage({
         title: 'Complete',
@@ -454,7 +444,7 @@ async function finishWizardAndConfirm() {
 // Scenario stories
 // ---------------------------------------------------------------------------
 
-type ScenarioStory = StoryObj<Meta<StoryArgs>>;
+type ScenarioStory = StoryObj<StoryArgs>;
 
 const scenarioRender = () => {
   const buildFn = () => buildScenarioInterview();
@@ -462,7 +452,7 @@ const scenarioRender = () => {
 };
 
 export const NuclearFamily: ScenarioStory = {
-  args: { diseaseStepCount: 0, scaffoldingText: '' },
+  args: { scaffoldingText: '' },
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
@@ -573,7 +563,7 @@ export const NuclearFamily: ScenarioStory = {
 };
 
 export const SingleParent: ScenarioStory = {
-  args: { diseaseStepCount: 0, scaffoldingText: '' },
+  args: { scaffoldingText: '' },
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
@@ -625,7 +615,7 @@ export const SingleParent: ScenarioStory = {
 };
 
 export const SameSexMothers: ScenarioStory = {
-  args: { diseaseStepCount: 0, scaffoldingText: '' },
+  args: { scaffoldingText: '' },
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
@@ -701,7 +691,7 @@ export const SameSexMothers: ScenarioStory = {
 };
 
 export const SpermDonor: ScenarioStory = {
-  args: { diseaseStepCount: 0, scaffoldingText: '' },
+  args: { scaffoldingText: '' },
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
@@ -828,7 +818,7 @@ export const SpermDonor: ScenarioStory = {
 };
 
 export const BlendedFamily: ScenarioStory = {
-  args: { diseaseStepCount: 0, scaffoldingText: '' },
+  args: { scaffoldingText: '' },
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
@@ -933,7 +923,7 @@ export const BlendedFamily: ScenarioStory = {
 };
 
 export const TransParent: ScenarioStory = {
-  args: { diseaseStepCount: 0, scaffoldingText: '' },
+  args: { scaffoldingText: '' },
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
@@ -1030,7 +1020,7 @@ export const TransParent: ScenarioStory = {
 };
 
 export const NonBinaryEgo: ScenarioStory = {
-  args: { diseaseStepCount: 0, scaffoldingText: '' },
+  args: { scaffoldingText: '' },
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
@@ -1131,7 +1121,7 @@ export const NonBinaryEgo: ScenarioStory = {
 };
 
 export const AdoptedIn: ScenarioStory = {
-  args: { diseaseStepCount: 0, scaffoldingText: '' },
+  args: { scaffoldingText: '' },
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
@@ -1227,7 +1217,7 @@ export const AdoptedIn: ScenarioStory = {
 // component from mounting. The story works fine in the Storybook UI.
 export const SingleParentTwoDonors: ScenarioStory = {
   tags: ['!test'],
-  args: { diseaseStepCount: 0, scaffoldingText: '' },
+  args: { scaffoldingText: '' },
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
@@ -1387,7 +1377,7 @@ export const SingleParentTwoDonors: ScenarioStory = {
 };
 
 export const WithPartnerAndChildren: ScenarioStory = {
-  args: { diseaseStepCount: 0, scaffoldingText: '' },
+  args: { scaffoldingText: '' },
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();

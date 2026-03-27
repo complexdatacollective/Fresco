@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
-import NumberCounterField from '~/lib/form/components/fields/NumberCounterField';
+import InputField from '~/lib/form/components/fields/InputField';
 import {
   getAllParents,
   getParentDisplayName,
@@ -15,10 +15,10 @@ export default function AuntUncleCountStep() {
   const allParents = useMemo(() => getAllParents(data), [data]);
   const existingBranches = data.parentBranches as ParentBranch[] | undefined;
 
-  const [counts, setCounts] = useState<number[]>(() =>
+  const [counts, setCounts] = useState<string[]>(() =>
     allParents.map((_, idx) => {
       const existing = existingBranches?.find((b) => b.parentIndex === idx);
-      return existing?.auntUncleCount ?? 0;
+      return existing?.auntUncleCount?.toString() ?? '0';
     }),
   );
 
@@ -36,7 +36,7 @@ export default function AuntUncleCountStep() {
             { name: '', nameKnown: false },
             { name: '', nameKnown: false },
           ],
-          auntUncleCount: currentCounts[idx] ?? 0,
+          auntUncleCount: Number(currentCounts[idx]) || 0,
           auntsUncles: existing?.auntsUncles ?? [],
         };
       });
@@ -54,12 +54,13 @@ export default function AuntUncleCountStep() {
           name={`auntUncleCount-${idx}`}
           inline
           label={`How many siblings does ${getParentDisplayName(entry, idx)} have?`}
-          component={NumberCounterField}
-          value={counts[idx] ?? 0}
-          minValue={0}
-          maxValue={20}
+          component={InputField}
+          type="number"
+          value={counts[idx] ?? '0'}
+          min={0}
+          max={20}
           onChange={(v) => {
-            const newCount = v ?? 0;
+            const newCount = v ?? '0';
             setCounts((prev) => prev.map((c, i) => (i === idx ? newCount : c)));
           }}
         />

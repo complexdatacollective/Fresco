@@ -26,8 +26,19 @@ export default function ParentPartnershipsStep() {
   );
 }
 
-function getParentLabel(parent: ParentDetail | undefined, index: number) {
-  return parent?.name ?? `Parent ${index + 1}`;
+const EDGE_TYPE_LABELS: Record<string, string> = {
+  biological: 'Biological parent',
+  social: 'Social parent',
+  donor: 'Donor',
+  surrogate: 'Surrogate',
+};
+
+function getParentLabel(parent: ParentDetail | undefined) {
+  if (parent?.name) return parent.name;
+
+  const role = EDGE_TYPE_LABELS[parent?.edgeType ?? ''] ?? 'Parent';
+
+  return `${role} (assigned ${parent?.biologicalSex} at birth)`;
 }
 
 function ParentPartnershipsForm() {
@@ -98,7 +109,7 @@ function ParentPartnershipsForm() {
           <Field
             key={`partnership-${i}-${j}`}
             name={`partnership-${i}-${j}`}
-            label={`Are ${getParentLabel(parents[i], i)} and ${getParentLabel(parents[j], j)} partners?`}
+            label={`Are ${getParentLabel(parents[i])} and ${getParentLabel(parents[j])} partners?`}
             component={RadioGroupField}
             options={partnershipOptions}
             initialValue={initialValue}

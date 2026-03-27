@@ -75,8 +75,7 @@ function SiblingsDetailForm() {
             biologicalSex: typeof rawSex === 'string' ? rawSex : undefined,
             attributes: extractFormFieldAttributes(
               values,
-              'sibling',
-              i,
+              `sibling-${i}`,
               formFields,
             ),
             sharedParentIndices,
@@ -143,13 +142,15 @@ function SiblingsDetailForm() {
         </Surface>
       )}
       {Array.from({ length: siblingCount }, (_, i) => (
-        <div key={i} className="flex flex-col gap-3 rounded border p-4">
+        <Surface key={i} level={1} spacing="sm">
           <Heading level="h3">Sibling {i + 1}</Heading>
           <PersonFields
-            index={i}
-            prefix="sibling"
+            nameToggle={false}
+            namespace={`sibling-${i}`}
             initial={{
               name: existing?.[i]?.name,
+              sex: existing?.[i]?.biologicalSex,
+              attributes: existing?.[i]?.attributes,
             }}
           />
           {parents.length > 0 && (
@@ -165,7 +166,7 @@ function SiblingsDetailForm() {
               }
             />
           )}
-        </div>
+        </Surface>
       ))}
     </div>
   );

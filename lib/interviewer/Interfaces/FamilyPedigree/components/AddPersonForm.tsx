@@ -2,35 +2,23 @@
 
 import { useSelector } from 'react-redux';
 import Field from '~/lib/form/components/Field/Field';
-import BooleanField from '~/lib/form/components/fields/Boolean';
-import InputField from '~/lib/form/components/fields/InputField';
-import NumberCounterField from '~/lib/form/components/fields/NumberCounterField';
+import CheckboxGroupField from '~/lib/form/components/fields/CheckboxGroup';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import { PARENT_EDGE_TYPE_OPTIONS } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
+import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import {
   type NodeData,
   type StoreEdge,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
-import {
-  getBiologicalSexOptions,
-  getNodeLabelVariable,
-  getResolvedNodeFormFields,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
+import { getNodeLabelVariable } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 
 export type AddPersonMode = 'parent' | 'child' | 'partner' | 'sibling';
 
 const CURRENT_EX_OPTIONS = [
   { value: 'current', label: 'Current' },
   { value: 'ex', label: 'Ex' },
+  { value: 'none', label: 'Not partners' },
 ];
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const COMPONENT_MAP: Record<string, React.ComponentType<any>> = {
-  Text: InputField,
-  Number: NumberCounterField,
-  RadioGroup: RadioGroupField,
-  Boolean: BooleanField,
-};
 
 type AddPersonFieldsProps = {
   mode: AddPersonMode;
@@ -39,16 +27,24 @@ type AddPersonFieldsProps = {
   edges: Map<string, StoreEdge>;
 };
 
+function getNodeName(
+  nodeId: string,
+  nodes: Map<string, NodeData>,
+  nodeLabelVariable: string,
+): string {
+  const node = nodes.get(nodeId);
+  return (node?.attributes[nodeLabelVariable] as string) || 'Unknown';
+}
+
 export default function AddPersonFields({
   mode,
   anchorNodeId,
   nodes,
   edges,
 }: AddPersonFieldsProps) {
-  const sexOptions = useSelector(getBiologicalSexOptions);
   const nodeLabelVariable = useSelector(getNodeLabelVariable);
-  const formFields = useSelector(getResolvedNodeFormFields);
 
+  // For 'child' mode: find partners of the anchor node
   const partners =
     mode === 'child'
       ? [...edges.values()]
@@ -75,36 +71,39 @@ export default function AddPersonFields({
     { value: '', label: 'No partner (solo)' },
   ];
 
+  // Find existing parents of the anchor node (used in 'parent' and 'sibling' modes)
+  const existingParents =
+    mode === 'parent' || mode === 'sibling'
+      ? [...edges.values()]
+          .filter(
+            (edge) =>
+              edge.relationshipType !== 'partner' &&
+              edge.target === anchorNodeId,
+          )
+          .map((edge) => edge.source)
+          .filter((id) => nodes.has(id))
+      : [];
+
+  // For 'partner' mode: find children of the anchor node
+  const children =
+    mode === 'partner'
+      ? [...edges.values()]
+          .filter(
+            (edge) =>
+              edge.relationshipType !== 'partner' &&
+              edge.source === anchorNodeId,
+          )
+          .map((edge) => edge.target)
+          .filter((id) => nodes.has(id))
+      : [];
+
   return (
     <>
-      <Field
-        name="name"
-        label="Name"
-        component={InputField}
-        placeholder="Enter name or leave blank if unknown"
+      <PersonFields
+        nameToggle={mode === 'partner'}
+        nameRequired={false}
+        namePlaceholder="Enter name or leave blank if unknown"
       />
-
-      <Field
-        name="biologicalSex"
-        label="Sex assigned at birth"
-        component={RadioGroupField}
-        options={sexOptions}
-      />
-
-      {formFields.map((field) => {
-        const Component = COMPONENT_MAP[field.component];
-        if (!Component) return null;
-        return (
-          <Field
-            key={field.variableId}
-            name={field.variableId}
-            label={field.prompt}
-            component={Component}
-            options={field.options}
-            required={field.validation?.required === true}
-          />
-        );
-      })}
 
       {mode === 'parent' && (
         <Field
@@ -115,6 +114,18 @@ export default function AddPersonFields({
           initialValue="biological"
         />
       )}
+
+      {mode === 'parent' &&
+        existingParents.map((parentId) => (
+          <Field
+            key={`partnership-${parentId}`}
+            name={`partnership-${parentId}`}
+            label={`Relationship with ${getNodeName(parentId, nodes, nodeLabelVariable)}?`}
+            component={RadioGroupField}
+            options={CURRENT_EX_OPTIONS}
+            initialValue="current"
+          />
+        ))}
 
       {mode === 'child' && partners.length > 0 && (
         <Field
@@ -130,10 +141,38 @@ export default function AddPersonFields({
           name="current"
           label="Current or ex partner?"
           component={RadioGroupField}
-          options={CURRENT_EX_OPTIONS}
+          options={CURRENT_EX_OPTIONS.filter((o) => o.value !== 'none')}
           initialValue="current"
         />
       )}
+
+      {mode === 'sibling' && existingParents.length > 0 && (
+        <Field
+          name="sharedParents"
+          label="Which parents are shared?"
+          component={CheckboxGroupField}
+          options={existingParents.map((id) => ({
+            value: id,
+            label: getNodeName(id, nodes, nodeLabelVariable),
+          }))}
+          initialValue={existingParents}
+        />
+      )}
+
+      {mode === 'partner' &&
+        children.map((childId) => (
+          <Field
+            key={`parentType-${childId}`}
+            name={`parentType-${childId}`}
+            label={`Parent type for ${getNodeName(childId, nodes, nodeLabelVariable)}?`}
+            component={RadioGroupField}
+            options={[
+              ...PARENT_EDGE_TYPE_OPTIONS,
+              { value: 'none', label: 'Not a parent' },
+            ]}
+            initialValue="biological"
+          />
+        ))}
     </>
   );
 }

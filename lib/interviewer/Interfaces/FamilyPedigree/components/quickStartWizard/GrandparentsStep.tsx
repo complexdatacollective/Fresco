@@ -1,12 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import { useWizard } from '~/lib/dialogs/useWizard';
-import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
-import ToggleField from '~/lib/form/components/fields/ToggleField';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
@@ -30,10 +28,6 @@ export default function GrandparentsStep() {
   );
 }
 
-type GrandparentMeta = {
-  nameKnown: boolean;
-};
-
 function GrandparentsForm() {
   const { data, setStepData, setBeforeNext } = useWizard();
   const validateForm = useFormStore((s) => s.validateForm);
@@ -55,33 +49,6 @@ function GrandparentsForm() {
       gpIdx
     ];
 
-  const [gpMeta, setGpMeta] = useState<GrandparentMeta[][]>(() =>
-    allParents.map((_, parentIdx) =>
-      [0, 1].map((gpIdx) => ({
-        nameKnown: findExistingGp(parentIdx, gpIdx as 0 | 1)?.nameKnown ?? true,
-      })),
-    ),
-  );
-
-  const gpMetaRef = useRef(gpMeta);
-  gpMetaRef.current = gpMeta;
-
-  const updateGpMeta = (
-    parentIdx: number,
-    gpIdx: number,
-    updates: Partial<GrandparentMeta>,
-  ) => {
-    setGpMeta((prev) =>
-      prev.map((parentRow, pi) =>
-        pi === parentIdx
-          ? parentRow.map((gp, gi) =>
-              gi === gpIdx ? { ...gp, ...updates } : gp,
-            )
-          : parentRow,
-      ),
-    );
-  };
-
   useEffect(() => {
     setBeforeNext(async () => {
       const isValid = await validateForm();
@@ -91,7 +58,6 @@ function GrandparentsForm() {
       }
 
       const values = getFormValues();
-      const meta = gpMetaRef.current;
 
       const parentBranches: ParentBranch[] = allParents
         .filter((_, parentIdx) => parentIdx < allParents.length)
@@ -101,18 +67,18 @@ function GrandparentsForm() {
           ].map((gpIdx) => {
             const rawName = values[`grandparent-${parentIdx}-${gpIdx}-name`];
             const rawSex = values[`grandparent-${parentIdx}-${gpIdx}-sex`];
-            const nameKnown = meta[parentIdx]?.[gpIdx]?.nameKnown ?? true;
 
             return {
               name: typeof rawName === 'string' ? rawName : '',
               biologicalSex: typeof rawSex === 'string' ? rawSex : undefined,
               attributes: extractFormFieldAttributes(
                 values,
-                `grandparent-${parentIdx}`,
-                gpIdx,
+                `grandparent-${parentIdx}-${gpIdx}`,
                 formFields,
               ),
-              nameKnown,
+              nameKnown: Boolean(
+                values[`grandparent-${parentIdx}-${gpIdx}-nameKnown`],
+              ),
             };
           }) as [GrandparentDetail, GrandparentDetail];
 
@@ -146,29 +112,17 @@ function GrandparentsForm() {
             <Heading level="h3">{parentName}&apos;s parents</Heading>
             {([0, 1] as const).map((gpIdx) => {
               const existingGp = findExistingGp(parentIdx, gpIdx);
-              const nameKnown = gpMeta[parentIdx]?.[gpIdx]?.nameKnown ?? true;
 
               return (
                 <Surface key={gpIdx} level={2} spacing="sm">
                   <Heading level="h4">Grandparent {gpIdx + 1}</Heading>
-                  <UnconnectedField
-                    inline
-                    name={`grandparent-${parentIdx}-${gpIdx}-nameKnown`}
-                    label="I know this person's name"
-                    component={ToggleField}
-                    value={nameKnown}
-                    onChange={(v) => {
-                      updateGpMeta(parentIdx, gpIdx, { nameKnown: v ?? true });
-                    }}
-                  />
                   <PersonFields
-                    index={gpIdx}
-                    prefix={`grandparent-${parentIdx}`}
+                    namespace={`grandparent-${parentIdx}-${gpIdx}`}
                     initial={{
                       name: existingGp?.name,
                       sex: existingGp?.biologicalSex,
+                      attributes: existingGp?.attributes,
                     }}
-                    showName={nameKnown}
                   />
                 </Surface>
               );

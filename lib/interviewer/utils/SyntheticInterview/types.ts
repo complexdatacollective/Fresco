@@ -387,6 +387,7 @@ export type AddStageInput = {
     isGestationalCarrierVariable?: string;
   };
   censusPrompt?: string;
+  nominationPrompts?: { id: string; text: string; variable: string }[];
   // Geospatial
   mapOptions?: MapOptionsEntry;
 };

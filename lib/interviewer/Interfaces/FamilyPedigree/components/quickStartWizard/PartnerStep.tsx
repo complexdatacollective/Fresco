@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
-import NumberCounterField from '~/lib/form/components/fields/NumberCounterField';
+import InputField from '~/lib/form/components/fields/InputField';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
@@ -57,8 +57,7 @@ function PartnerForm() {
         partnerSex: typeof rawSex === 'string' ? rawSex : undefined,
         partnerAttributes: extractFormFieldAttributes(
           values,
-          'partner',
-          0,
+          'partner-0',
           formFields,
         ),
         childrenWithPartnerCount: childrenCountRef.current,
@@ -70,23 +69,27 @@ function PartnerForm() {
   return (
     <div className="flex flex-col gap-6 pt-4">
       <PersonFields
-        index={0}
-        prefix="partner"
+        nameToggle={false}
+        namespace="partner-0"
         initial={{
           name: existingName,
           sex: existingSex,
+          attributes: data.partnerAttributes as
+            | Record<string, unknown>
+            | undefined,
         }}
       />
       <UnconnectedField
         name="childrenWithPartnerCount"
         inline
         label="How many children do you have with your partner?"
-        component={NumberCounterField}
-        value={childrenWithPartnerCount}
-        minValue={0}
-        maxValue={20}
+        component={InputField}
+        type="number"
+        value={String(childrenWithPartnerCount)}
+        min={0}
+        max={20}
         onChange={(v) => {
-          setChildrenWithPartnerCount(v ?? 0);
+          setChildrenWithPartnerCount(Number(v) || 0);
         }}
       />
     </div>

@@ -17,8 +17,19 @@ export default function GestationalCarrierStep() {
   );
 }
 
-function getParentLabel(parent: ParentDetail | undefined, index: number) {
-  return parent?.name ?? `Parent ${index + 1}`;
+const EDGE_TYPE_LABELS: Record<string, string> = {
+  biological: 'Biological parent',
+  social: 'Social parent',
+  donor: 'Donor',
+  surrogate: 'Surrogate',
+};
+
+function getParentLabel(parent: ParentDetail | undefined) {
+  if (parent?.name) return parent.name;
+
+  const role = EDGE_TYPE_LABELS[parent?.edgeType ?? ''] ?? 'Parent';
+
+  return `${role} (assigned ${parent?.biologicalSex} at birth)`;
 }
 
 function GestationalCarrierForm() {
@@ -42,7 +53,7 @@ function GestationalCarrierForm() {
   const options = [
     ...allParents.map((parent, i) => ({
       value: String(i),
-      label: getParentLabel(parent as ParentDetail | undefined, i),
+      label: getParentLabel(parent as ParentDetail | undefined),
     })),
     { value: 'none', label: 'None / Unknown' },
   ];

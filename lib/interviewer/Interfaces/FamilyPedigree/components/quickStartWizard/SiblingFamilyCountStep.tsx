@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
 import BooleanField from '~/lib/form/components/fields/Boolean';
-import NumberCounterField from '~/lib/form/components/fields/NumberCounterField';
+import InputField from '~/lib/form/components/fields/InputField';
 import {
   type PersonDetail,
   type SiblingDetail,
@@ -120,12 +120,16 @@ export default function SiblingFamilyCountStep() {
                   name={`sibling-${i}-childCount`}
                   inline
                   label="How many?"
-                  component={NumberCounterField}
-                  value={childCount}
-                  minValue={1}
-                  maxValue={20}
+                  component={InputField}
+                  type="number"
+                  value={String(childCount)}
+                  min={1}
+                  max={20}
                   onChange={(v) => {
-                    setChildCounts((prev) => ({ ...prev, [i]: v ?? 1 }));
+                    setChildCounts((prev) => ({
+                      ...prev,
+                      [i]: Number(v) || 1,
+                    }));
                   }}
                 />
                 <UnconnectedField

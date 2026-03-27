@@ -3,6 +3,7 @@ import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
 import { type useAppDispatch } from '~/lib/interviewer/store';
+import { computeAllDisplayLabels } from '~/lib/pedigree-layout/utils/getDisplayLabel';
 import { type ParentEdge } from '~/schemas/familyPedigree';
 
 enableMapSet();
@@ -575,15 +576,30 @@ export const createFamilyPedigreeStore = (
         syncMetadata: () => {
           const { nodes, edges } = get().network;
 
-          const serializedNodes = [...nodes.entries()].map(([id, node]) => ({
-            id,
-            interviewNetworkId: node.interviewNetworkId,
-            label:
+          const egoEntry = [...nodes.entries()].find(([, n]) => n.isEgo);
+          const egoId = egoEntry?.[0];
+
+          const computedLabels = egoId
+            ? computeAllDisplayLabels(egoId, nodes, edges, variableConfig)
+            : new Map<string, string>();
+
+          const serializedNodes = [...nodes.entries()].map(([id, node]) => {
+            let label =
               (node.attributes[variableConfig.nodeLabelVariable] as string) ??
-              '',
-            isEgo: node.isEgo,
-            adoptionStatus: node.adoptionStatus,
-          }));
+              '';
+
+            if (!label && !node.isEgo) {
+              label = computedLabels.get(id) ?? 'Family Member';
+            }
+
+            return {
+              id,
+              interviewNetworkId: node.interviewNetworkId,
+              label,
+              isEgo: node.isEgo,
+              adoptionStatus: node.adoptionStatus,
+            };
+          });
 
           const serializedEdges = [...edges.entries()].map(([id, edge]) => ({
             id,

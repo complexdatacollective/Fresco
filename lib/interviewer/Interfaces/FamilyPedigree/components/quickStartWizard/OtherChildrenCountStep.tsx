@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
-import NumberCounterField from '~/lib/form/components/fields/NumberCounterField';
+import InputField from '~/lib/form/components/fields/InputField';
 
 export default function OtherChildrenCountStep() {
   const { data, setStepData } = useWizard();
@@ -23,12 +23,13 @@ export default function OtherChildrenCountStep() {
         name="otherChildrenCount"
         inline
         label="How many children do you have from other relationships?"
-        component={NumberCounterField}
-        value={count}
-        minValue={0}
-        maxValue={20}
+        component={InputField}
+        type="number"
+        value={String(count)}
+        min={0}
+        max={20}
         onChange={(v) => {
-          const newCount = v ?? 0;
+          const newCount = Number(v) || 0;
           setCount(newCount);
           setStepData({ otherChildrenCount: newCount });
         }}

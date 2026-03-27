@@ -1,13 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { useWizard } from '~/lib/dialogs/useWizard';
-import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
-import ToggleField from '~/lib/form/components/fields/ToggleField';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
@@ -43,16 +41,6 @@ function BioParentsForm() {
 
   const existing = data.bioParents as BioParentDetail[] | undefined;
 
-  const [nameKnownState, setNameKnownState] = useState<boolean[]>(() =>
-    Array.from(
-      { length: missingCount },
-      (_, i) => existing?.[i]?.nameKnown ?? false,
-    ),
-  );
-
-  const nameKnownRef = useRef(nameKnownState);
-  nameKnownRef.current = nameKnownState;
-
   useEffect(() => {
     setBeforeNext(async () => {
       const isValid = await validateForm();
@@ -62,7 +50,6 @@ function BioParentsForm() {
       }
 
       const values = getFormValues();
-      const nameKnown = nameKnownRef.current;
       const bioParents: BioParentDetail[] = Array.from(
         { length: missingCount },
         (_, i) => {
@@ -74,11 +61,10 @@ function BioParentsForm() {
             biologicalSex: typeof rawSex === 'string' ? rawSex : undefined,
             attributes: extractFormFieldAttributes(
               values,
-              'bioParent',
-              i,
+              `bioParent-${i}`,
               formFields,
             ),
-            nameKnown: nameKnown[i] ?? false,
+            nameKnown: Boolean(values[`bioParent-${i}-nameKnown`]),
           };
         },
       );
@@ -114,25 +100,13 @@ function BioParentsForm() {
             <Heading level="h3">
               Biological parent {bioParentCount + i + 1}
             </Heading>
-            <UnconnectedField
-              inline
-              name={`bioParent-${i}-nameKnown`}
-              label="I know this person's name"
-              component={ToggleField}
-              value={nameKnownState[i] ?? false}
-              onChange={(v) => {
-                setNameKnownState((prev) =>
-                  prev.map((val, idx) => (idx === i ? (v ?? false) : val)),
-                );
-              }}
-            />
             <PersonFields
-              index={i}
-              prefix="bioParent"
+              namespace={`bioParent-${i}`}
               initial={{
                 name: existing?.[i]?.name,
+                sex: existing?.[i]?.biologicalSex,
+                attributes: existing?.[i]?.attributes,
               }}
-              showName={nameKnownState[i] ?? false}
             />
           </Surface>
         ))}
