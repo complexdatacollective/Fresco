@@ -155,7 +155,6 @@ type PedigreeNodeProps = {
   displayLabel: string;
   allowDrag: boolean;
   selected?: boolean;
-  onTap?: (nodeId: string) => void;
 };
 
 export default function PedigreeNode({
@@ -163,7 +162,6 @@ export default function PedigreeNode({
   displayLabel,
   allowDrag,
   selected,
-  onTap,
 }: PedigreeNodeProps) {
   const { id, isEgo, adoptionStatus } = node;
 
@@ -214,9 +212,9 @@ export default function PedigreeNode({
     <div
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
-      onClick={() => {
-        if (shouldHandleClick()) {
-          onTap?.(id);
+      onClick={(e) => {
+        if (!shouldHandleClick()) {
+          e.stopPropagation();
         }
       }}
     >

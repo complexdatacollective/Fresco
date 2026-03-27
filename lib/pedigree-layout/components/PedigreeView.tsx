@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import Node from '~/components/Node';
 import useDialog from '~/lib/dialogs/useDialog';
@@ -58,7 +57,6 @@ export default function PedigreeView() {
     isGestationalCarrierVariable,
   };
 
-  const [openMenuNodeId, setOpenMenuNodeId] = useState<string | null>(null);
   const { openDialog } = useDialog();
 
   const { nodeWidth, nodeHeight } = useNodeMeasurement({
@@ -230,7 +228,6 @@ export default function PedigreeView() {
   };
 
   const handleMenuAction = (nodeId: string, action: NodeContextMenuAction) => {
-    setOpenMenuNodeId(null);
     if (action === 'editName') {
       void handleEditName(nodeId);
     } else {
@@ -253,15 +250,12 @@ export default function PedigreeView() {
             <NodeContextMenu
               nodeId={node.id}
               edges={edges}
-              open={openMenuNodeId === node.id}
-              onOpenChange={(open) => setOpenMenuNodeId(open ? node.id : null)}
               onAction={(action) => handleMenuAction(node.id, action)}
             >
               <PedigreeNode
                 node={node}
                 displayLabel={displayLabels.get(node.id) ?? ''}
                 allowDrag={node.readOnly !== true}
-                onTap={(nodeId) => setOpenMenuNodeId(nodeId)}
               />
             </NodeContextMenu>
           )}

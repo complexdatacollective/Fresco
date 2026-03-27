@@ -1,7 +1,6 @@
 'use client';
 
 import { type ReactNode } from 'react';
-import Paragraph from '~/components/typography/Paragraph';
 import { cx } from '~/utils/cva';
 import FieldErrors from '../FieldErrors';
 import { FieldLabel } from '../FieldLabel';
@@ -69,18 +68,20 @@ export function BaseField({
       <div
         className={cx(
           inline &&
-            'tablet-portrait:flex-row tablet-portrait:items-center tablet-portrait:justify-between tablet-portrait:gap-4',
+            'tablet-portrait:flex-row tablet-portrait:align-middle tablet-portrait:items-center tablet-portrait:justify-between tablet-portrait:gap-4',
           'flex flex-col',
         )}
       >
-        <div className={cx(inline && 'min-w-0')}>
+        <div className={cx(inline && 'min-w-0', !inline && 'mb-4')}>
           <FieldLabel id={`${id}-label`} htmlFor={id} required={required}>
             {label}
           </FieldLabel>
-          <Hint id={`${id}-hint`}>
-            {hint && <Paragraph>{hint}</Paragraph>}
-            {validationSummary}
-          </Hint>
+          {(hint ?? validationSummary) && (
+            <Hint id={`${id}-hint`}>
+              {hint}
+              {validationSummary}
+            </Hint>
+          )}
         </div>
         <div className={cx(inline && 'shrink-0')}>{children}</div>
       </div>

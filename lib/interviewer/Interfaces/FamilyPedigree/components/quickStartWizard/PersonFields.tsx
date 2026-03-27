@@ -3,12 +3,12 @@
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import Field from '~/lib/form/components/Field/Field';
+import { type FieldValue } from '~/lib/form/components/Field/types';
 import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
 import InputField from '~/lib/form/components/fields/InputField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import ToggleField from '~/lib/form/components/fields/ToggleField';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
-import { type FieldValue } from '~/lib/form/components/Field/types';
 import { type CustomFieldValidation } from '~/lib/form/store/types';
 import {
   getBiologicalSexOptions,
@@ -24,7 +24,6 @@ type PersonFieldsProps = {
     /** Initial values for custom protocol form fields, keyed by variable ID. */
     attributes?: Record<string, unknown>;
   };
-  nameRequired?: boolean;
   namePlaceholder?: string;
   sexCustomValidation?: CustomFieldValidation | CustomFieldValidation[];
   /**
@@ -44,7 +43,6 @@ function prefixed(namespace: string | undefined, field: string) {
 export default function PersonFields({
   namespace,
   initial,
-  nameRequired = true,
   namePlaceholder = 'Enter name',
   sexCustomValidation,
   nameToggle = true,
@@ -52,9 +50,7 @@ export default function PersonFields({
   const sexOptions = useSelector(getBiologicalSexOptions);
   const nodeType = useSelector(getNodeType);
   const nodeForm = useSelector(getNodeForm);
-  const [nameKnown, setNameKnown] = useState(
-    nameToggle ? Boolean(initial?.name) : true,
-  );
+  const [nameKnown, setNameKnown] = useState(true);
 
   const { fieldComponents } = useProtocolForm({
     subject: {
@@ -90,7 +86,7 @@ export default function PersonFields({
           placeholder={namePlaceholder}
           autoFocus
           initialValue={initial?.name ?? ''}
-          required={nameRequired}
+          required
         />
       )}
       <Field

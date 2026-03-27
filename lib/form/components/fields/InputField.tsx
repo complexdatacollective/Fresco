@@ -44,7 +44,8 @@ const inputVariants = compose(
       'cursor-[inherit]',
       '[font-size:inherit]', // Ensure input inherits text size from wrapper
       'p-0',
-      'field-sizing-content shrink-0 grow basis-0 border-none bg-transparent outline-none focus:ring-0',
+      'field-sizing-content min-w-6 shrink-0 grow basis-0',
+      'border-none bg-transparent outline-none focus:ring-0',
       'transition-none',
       // Hide browser's native clear button on search inputs (we provide our own)
       '[&::-webkit-search-cancel-button]:hidden',

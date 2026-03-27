@@ -940,3 +940,161 @@ export const BeforeNextDeterministic: StoryObj<Meta<WizardStoryArgs>> = {
     });
   },
 };
+
+/**
+ * Demonstrates the `confirmCancel` option, which shows a confirmation
+ * dialog when the user clicks Cancel or the close button. If confirmed,
+ * the wizard closes with `null`. If dismissed, the wizard stays open.
+ */
+export const ConfirmCancel: StoryObj<Meta<WizardStoryArgs>> = {
+  args: {
+    onResult: fn(),
+  },
+  render: (args) => {
+    const { openDialog } = useDialog();
+
+    const handleOpen = async () => {
+      const result = await openDialog({
+        type: 'wizard',
+        title: 'Guarded Wizard',
+        confirmCancel: {
+          title: 'Discard progress?',
+          description:
+            'All information you have entered will be lost. You will need to start the wizard again.',
+        },
+        steps: [
+          {
+            title: 'Enter your name',
+            description: 'We need your name to get started.',
+            content: NameStep,
+          },
+          {
+            title: 'Choose a role',
+            content: RoleStep,
+          },
+        ],
+      });
+
+      args.onResult(result);
+    };
+
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Button onClick={handleOpen}>Open Guarded Wizard</Button>
+      </div>
+    );
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    // Open the wizard
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Open Guarded Wizard' }),
+    );
+    const dialog = await screen.findByRole('dialog');
+
+    // Enter some data so the user has something to lose
+    const nameInput = await screen.findByRole('textbox', {}, { timeout: 5000 });
+    await userEvent.type(nameInput, 'Alice');
+
+    // Click Cancel — should show confirmation dialog
+    await userEvent.click(
+      within(dialog).getByRole('button', { name: 'Cancel' }),
+    );
+
+    // Confirmation dialog should appear
+    await waitFor(async () => {
+      await expect(screen.getByText('Discard progress?')).toBeVisible();
+    });
+
+    // Dismiss the confirmation — click "Continue editing"
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Continue editing' }),
+    );
+
+    // Wizard should still be open with data intact
+    await waitFor(async () => {
+      await expect(screen.getByRole('textbox')).toHaveValue('Alice');
+    });
+
+    // Click Cancel again
+    await userEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Cancel',
+      }),
+    );
+
+    // This time confirm the cancellation
+    await waitFor(async () => {
+      await expect(screen.getByText('Discard progress?')).toBeVisible();
+    });
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Cancel wizard' }),
+    );
+
+    // Wizard should close with null
+    await waitFor(async () => {
+      await expect(args.onResult).toHaveBeenCalledWith(null);
+    });
+  },
+};
+
+/**
+ * Verifies that completing the wizard normally (via Finish) does NOT
+ * trigger the confirm cancel dialog, even when `confirmCancel` is set.
+ */
+export const ConfirmCancelAllowsFinish: StoryObj<Meta<WizardStoryArgs>> = {
+  args: {
+    onResult: fn(),
+  },
+  render: (args) => {
+    const { openDialog } = useDialog();
+
+    const handleOpen = async () => {
+      const result = await openDialog({
+        type: 'wizard',
+        title: 'Finish Without Confirm',
+        confirmCancel: {
+          title: 'Discard progress?',
+          description: 'You will lose your data.',
+        },
+        steps: [
+          {
+            title: 'Enter your name',
+            content: NameStep,
+          },
+        ],
+      });
+
+      args.onResult(result);
+    };
+
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Button onClick={handleOpen}>Open Wizard</Button>
+      </div>
+    );
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Open Wizard' }));
+    await screen.findByRole('dialog');
+
+    const nameInput = await screen.findByRole('textbox', {}, { timeout: 5000 });
+    await userEvent.type(nameInput, 'Bob');
+
+    // Click Finish — should NOT show confirmation, should complete normally
+    await userEvent.click(screen.getByRole('button', { name: 'Finish' }));
+
+    await waitFor(async () => {
+      await expect(args.onResult).toHaveBeenCalledWith({ name: 'Bob' });
+    });
+
+    // Confirm dialog should never have appeared
+    await expect(
+      screen.queryByText('Discard progress?'),
+    ).not.toBeInTheDocument();
+  },
+};

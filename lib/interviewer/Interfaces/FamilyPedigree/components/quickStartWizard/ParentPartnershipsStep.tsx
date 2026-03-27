@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import Paragraph from '~/components/typography/Paragraph';
 import { useWizard } from '~/lib/dialogs/useWizard';
 import Field from '~/lib/form/components/Field/Field';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
@@ -13,9 +14,9 @@ import {
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
 const partnershipOptions = [
-  { value: 'current', label: 'Current partner' },
-  { value: 'ex', label: 'Ex-partner' },
-  { value: 'none', label: 'Not partners' },
+  { value: 'current', label: 'Current partners' },
+  { value: 'ex', label: 'Ex-partners' },
+  { value: 'none', label: 'Never partners' },
 ];
 
 export default function ParentPartnershipsStep() {
@@ -110,6 +111,19 @@ function ParentPartnershipsForm() {
             key={`partnership-${i}-${j}`}
             name={`partnership-${i}-${j}`}
             label={`Are ${getParentLabel(parents[i])} and ${getParentLabel(parents[j])} partners?`}
+            hint={
+              <>
+                <Paragraph>
+                  This includes current and past romantic partnerships, but{' '}
+                  <strong>not co-parenting partnerships</strong> where the
+                  parents were never romantically involved.
+                </Paragraph>
+                <Paragraph>
+                  If either parent is <strong>deceased</strong>, please answer
+                  based on whether they were partners while both were alive.
+                </Paragraph>
+              </>
+            }
             component={RadioGroupField}
             options={partnershipOptions}
             initialValue={initialValue}

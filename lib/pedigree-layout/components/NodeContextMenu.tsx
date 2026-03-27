@@ -17,20 +17,16 @@ export type NodeContextMenuAction =
 type NodeContextMenuProps = {
   nodeId: string;
   edges: Map<string, StoreEdge>;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   onAction: (action: NodeContextMenuAction) => void;
   children: ReactNode;
 };
 
 const menuItemClass =
-  'cursor-pointer px-3 py-1.5 text-sm font-semibold select-none data-highlighted:bg-selected/10';
+  'cursor-pointer px-3 py-1.5 text-sm font-semibold select-none data-highlighted:bg-selected';
 
 export default function NodeContextMenu({
   nodeId,
   edges,
-  open,
-  onOpenChange,
   onAction,
   children,
 }: NodeContextMenuProps) {
@@ -39,10 +35,8 @@ export default function NodeContextMenu({
   );
 
   return (
-    <Menu.Root open={open} onOpenChange={onOpenChange}>
-      <Menu.Trigger nativeButton={false} render={<div />}>
-        {children}
-      </Menu.Trigger>
+    <Menu.Root>
+      <Menu.Trigger nativeButton={false}>{children}</Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner sideOffset={8}>
           <Menu.Popup
@@ -50,6 +44,7 @@ export default function NodeContextMenu({
               <MotionSurface
                 level="popover"
                 elevation="none"
+                spacing="sm"
                 noContainer
                 className={cx(
                   'max-w-(--available-width) overflow-visible shadow-xl',

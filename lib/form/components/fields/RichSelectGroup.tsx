@@ -101,7 +101,7 @@ const indicatorVariants = compose(
 );
 
 const descriptionVariants = cva({
-  base: 'col-start-2 leading-snug',
+  base: 'col-start-2 leading-snug text-pretty text-current/70',
   variants: {
     size: {
       sm: 'text-xs',

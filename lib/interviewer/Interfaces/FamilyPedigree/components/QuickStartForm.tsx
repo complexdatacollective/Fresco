@@ -23,6 +23,7 @@ import {
   type PersonDetail,
   type QuickStartData,
   type SiblingDetail,
+  type SiblingFamily,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import ActionButton from '~/lib/interviewer/components/ActionButton';
 
@@ -99,7 +100,7 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
           title: 'Sibling details',
           description: 'Please now tell us about your siblings.',
           content: SiblingsDetailStep,
-          skip: (d) => (d.siblingCount as number | undefined) === 0,
+          skip: (d) => !d.siblingCount || d.siblingCount === 0,
         },
         {
           title: "Half-siblings' other parents",
@@ -190,7 +191,8 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
             (data.halfSiblingOtherParents as
               | HalfSiblingOtherParent[]
               | undefined) ?? [],
-          siblingFamilies: [],
+          siblingFamilies:
+            (data.siblingFamilies as SiblingFamily[] | undefined) ?? [],
         };
         return quickStartData;
       },

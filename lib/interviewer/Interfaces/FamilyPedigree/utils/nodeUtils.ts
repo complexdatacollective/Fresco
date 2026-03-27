@@ -9,7 +9,7 @@ const getNodeConfig = createSelector(getCurrentStage, (stage) => {
   return stage.nodeConfig;
 });
 
-const getNodeType = createSelector(getNodeConfig, (c) => c.type);
+export const getNodeType = createSelector(getNodeConfig, (c) => c.type);
 export const getNodeLabelVariable = createSelector(
   getNodeConfig,
   (c) => c.nodeLabelVariable,

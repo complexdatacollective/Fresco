@@ -10,11 +10,11 @@ import RichSelectGroupField from '~/lib/form/components/fields/RichSelectGroup';
 import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { focusFirstError } from '~/lib/form/utils/focusFirstError';
+import { extractFormFieldAttributes } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/extractFormFieldAttributes';
 import {
   isBiologicalEdgeType,
   PARENT_EDGE_TYPE_OPTIONS,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
-import { extractFormFieldAttributes } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/extractFormFieldAttributes';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import { type ParentDetail } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import { getNodeForm } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
@@ -94,14 +94,6 @@ function ParentsDetailForm() {
         return (
           <Surface key={i} level={1} spacing="sm">
             <Heading level="h3">Parent {i + 1}</Heading>
-            <Field
-              name={`parent-${i}-edgeType`}
-              label="Relationship type"
-              component={RichSelectGroupField}
-              options={PARENT_EDGE_TYPE_OPTIONS}
-              initialValue={existing?.[i]?.edgeType ?? 'biological'}
-              required
-            />
             <PersonFields
               namespace={`parent-${i}`}
               initial={{
@@ -109,6 +101,14 @@ function ParentsDetailForm() {
                 sex: existing?.[i]?.biologicalSex,
                 attributes: existing?.[i]?.attributes,
               }}
+            />
+            <Field
+              name={`parent-${i}-edgeType`}
+              label="Relationship type"
+              component={RichSelectGroupField}
+              options={PARENT_EDGE_TYPE_OPTIONS}
+              initialValue={existing?.[i]?.edgeType ?? 'biological'}
+              required
             />
           </Surface>
         );

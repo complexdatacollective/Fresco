@@ -4,7 +4,8 @@ import { useSelector } from 'react-redux';
 import Field from '~/lib/form/components/Field/Field';
 import CheckboxGroupField from '~/lib/form/components/fields/CheckboxGroup';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
-import { PARENT_EDGE_TYPE_OPTIONS } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
+import RichSelectGroupField from '~/lib/form/components/fields/RichSelectGroup';
+import { PARENT_EDGE_TYPE_OPTIONS_ALTER } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import {
   type NodeData,
@@ -99,18 +100,14 @@ export default function AddPersonFields({
 
   return (
     <>
-      <PersonFields
-        nameToggle={mode === 'partner'}
-        nameRequired={false}
-        namePlaceholder="Enter name or leave blank if unknown"
-      />
+      <PersonFields nameToggle={mode === 'partner'} />
 
       {mode === 'parent' && (
         <Field
           name="edgeType"
           label="Parent type"
-          component={RadioGroupField}
-          options={PARENT_EDGE_TYPE_OPTIONS}
+          component={RichSelectGroupField}
+          options={PARENT_EDGE_TYPE_OPTIONS_ALTER}
           initialValue="biological"
         />
       )}
@@ -165,10 +162,15 @@ export default function AddPersonFields({
             key={`parentType-${childId}`}
             name={`parentType-${childId}`}
             label={`Parent type for ${getNodeName(childId, nodes, nodeLabelVariable)}?`}
-            component={RadioGroupField}
+            component={RichSelectGroupField}
             options={[
-              ...PARENT_EDGE_TYPE_OPTIONS,
-              { value: 'none', label: 'Not a parent' },
+              ...PARENT_EDGE_TYPE_OPTIONS_ALTER,
+              {
+                value: 'none',
+                label: 'Not a parent',
+                description:
+                  'Select this if you are not a parent of this child',
+              },
             ]}
             initialValue="biological"
           />

@@ -145,7 +145,6 @@ function SiblingsDetailForm() {
         <Surface key={i} level={1} spacing="sm">
           <Heading level="h3">Sibling {i + 1}</Heading>
           <PersonFields
-            nameToggle={false}
             namespace={`sibling-${i}`}
             initial={{
               name: existing?.[i]?.name,

@@ -86,15 +86,18 @@ function PopoverTrigger({
   ...props
 }: PopoverTriggerProps) {
   if (asChild && isValidElement<Record<string, unknown>>(children)) {
+    // Extracted to a named lowercase function so Base UI's render-prop
+    // validation doesn't flag it as a React component (uppercase name).
+    const renderTrigger = (triggerProps: Record<string, unknown>) =>
+      cloneElement(children, {
+        ...triggerProps,
+        ...children.props,
+      } as Parameters<typeof cloneElement>[1]);
+
     return (
       <BasePopover.Trigger
         nativeButton={nativeButton ?? isButtonElement(children)}
-        render={(triggerProps) =>
-          cloneElement(children, {
-            ...triggerProps,
-            ...children.props,
-          } as Parameters<typeof cloneElement>[1])
-        }
+        render={renderTrigger}
         {...props}
       />
     );
