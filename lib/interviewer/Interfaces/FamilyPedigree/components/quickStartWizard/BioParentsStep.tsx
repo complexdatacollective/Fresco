@@ -1,115 +1,184 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
-import { useWizard } from '~/lib/dialogs/useWizard';
-import useFormStore from '~/lib/form/hooks/useFormStore';
-import FormStoreProvider from '~/lib/form/store/formStoreProvider';
-import { focusFirstError } from '~/lib/form/utils/focusFirstError';
-import { extractFormFieldAttributes } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/extractFormFieldAttributes';
-import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
+import { Alert, AlertDescription } from '~/components/ui/Alert';
+import Field from '~/lib/form/components/Field/Field';
+import FieldGroup from '~/lib/form/components/FieldGroup';
+import FieldNamespace from '~/lib/form/components/FieldNamespace';
+import BooleanField from '~/lib/form/components/fields/Boolean';
+import InputField from '~/lib/form/components/fields/InputField';
+import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
+import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import {
-  type BioParentDetail,
-  type ParentDetail,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
-import { getNodeForm } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
+  getBiologicalSexOptions,
+  getNodeForm,
+  getNodeType,
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 
-export default function BioParentsStep() {
-  return (
-    <FormStoreProvider>
-      <BioParentsForm />
-    </FormStoreProvider>
-  );
-}
+export default function BioParentsForm() {
+  const sexOptions = useSelector(getBiologicalSexOptions);
+  const nodeType = useSelector(getNodeType);
+  const nodeForm = useSelector(getNodeForm);
 
-function BioParentsForm() {
-  const { data, setStepData, setBeforeNext } = useWizard();
-  const validateForm = useFormStore((s) => s.validateForm);
-  const getFormValues = useFormStore((s) => s.getFormValues);
-  const errors = useFormStore((s) => s.errors);
-  const rawFormFields = useSelector(getNodeForm);
-  const formFields = useMemo(() => rawFormFields ?? [], [rawFormFields]);
-  const errorsRef = useRef(errors);
-  errorsRef.current = errors;
+  const { fieldComponents } = useProtocolForm({
+    subject: {
+      entity: 'node',
+      type: nodeType,
+    },
+    fields: nodeForm ?? [],
+  });
 
-  const parents = (data.parents as ParentDetail[] | undefined) ?? [];
-  const bioParentCount = parents.filter((p) => p.biological !== false).length;
-  const missingCount = Math.max(0, 2 - bioParentCount);
-
-  const existing = data.bioParents as BioParentDetail[] | undefined;
-
-  useEffect(() => {
-    setBeforeNext(async () => {
-      const isValid = await validateForm();
-      if (!isValid) {
-        setTimeout(() => focusFirstError(errorsRef.current), 0);
-        return false;
-      }
-
-      const values = getFormValues();
-      const bioParents: BioParentDetail[] = Array.from(
-        { length: missingCount },
-        (_, i) => {
-          const rawName = values[`bioParent-${i}-name`];
-          const rawSex = values[`bioParent-${i}-sex`];
-
-          return {
-            name: typeof rawName === 'string' ? rawName : '',
-            biologicalSex: typeof rawSex === 'string' ? rawSex : undefined,
-            attributes: extractFormFieldAttributes(
-              values,
-              `bioParent-${i}`,
-              formFields,
-            ),
-            nameKnown: Boolean(values[`bioParent-${i}-nameKnown`]),
-          };
-        },
-      );
-
-      setStepData({ bioParents });
-      return true;
-    });
-  }, [
-    validateForm,
-    getFormValues,
-    setStepData,
-    setBeforeNext,
-    missingCount,
-    formFields,
-  ]);
+  const { fieldComponents: fieldComponents2 } = useProtocolForm({
+    subject: {
+      entity: 'node',
+      type: nodeType,
+    },
+    fields: nodeForm ?? [],
+  });
 
   return (
     <>
       <Paragraph>
-        For the purposes of this task, we need to ask you about your biological
-        parents specifically, and not just your parents in general.
+        When building a pedigree, we need to ask you about your biological
+        parents, and not just your parents in general. If you were conceived via
+        an egg or sperm donor, the donor is considered your biological parent,
+        even if they did not raise you.
       </Paragraph>
       <Paragraph>
-        {bioParentCount > 0
-          ? ` You identified ${bioParentCount} biological parent${bioParentCount === 1 ? '' : 's'} previously.`
-          : ''}{' '}
-        Please tell us about your other biological parent
-        {missingCount > 1 ? 's' : ''}.
+        We will ask about people who raised you (e.g. adoptive parents, social
+        parents) in a later step.
       </Paragraph>
       <div className="flex flex-col gap-6">
-        {Array.from({ length: missingCount }, (_, i) => (
-          <Surface key={i} level={1} spacing="sm">
-            <Heading level="h3">
-              Biological parent {bioParentCount + i + 1}
-            </Heading>
-            <PersonFields
-              namespace={`bioParent-${i}`}
-              initial={{
-                name: existing?.[i]?.name,
-                sex: existing?.[i]?.biologicalSex,
-                attributes: existing?.[i]?.attributes,
-              }}
+        <Surface level={1} spacing="sm">
+          <FieldNamespace prefix="egg-parent">
+            <div className="mb-8">
+              <Heading level="h3">Egg Parent</Heading>
+              <Alert variant="info">
+                <AlertDescription>
+                  The egg parent is the person who contributed the egg that you
+                  were conceived with. If you were conceived via an egg donor,
+                  the egg donor is the egg parent, even if they did not carry
+                  you during pregnancy.
+                </AlertDescription>
+              </Alert>
+            </div>
+            <Field
+              name="name-known"
+              label="Do you know this person's name?"
+              component={BooleanField}
+              required
             />
-          </Surface>
-        ))}
+            <FieldGroup
+              watch={['name-known']}
+              condition={(values) => values['name-known'] === true}
+            >
+              <Field
+                name="name"
+                label="What is their name?"
+                component={InputField}
+                autoFocus
+                required
+              />
+            </FieldGroup>
+            <Field
+              name="gestationalCarrier"
+              label="Did this parent carry you during pregnancy?"
+              hint="If you were carried by a different person (e.g. a gestational carrier or surrogate), select 'No' here and we'll ask you about the carrier in the next step."
+              component={BooleanField}
+              initialValue={true}
+              required
+            />
+            <Field
+              name="raised-by"
+              label="Was this person involved in raising you?"
+              component={BooleanField}
+              required
+            />
+            <Field
+              name="sex-at-birth"
+              label="What was this person's sex assigned at birth?"
+              component={RadioGroupField}
+              options={sexOptions}
+              initialValue="female"
+              required
+            />
+            {fieldComponents}
+          </FieldNamespace>
+        </Surface>
+        <Surface level={1} spacing="sm">
+          <FieldNamespace prefix="sperm-parent">
+            <Heading level="h3">Sperm Parent</Heading>
+            <Alert variant="info">
+              <AlertDescription>
+                The sperm parent is the person who contributed the sperm that
+                you were conceived with. If you were conceived via a sperm
+                donor, the sperm donor is the sperm parent, even if they did not
+                raise you.
+              </AlertDescription>
+            </Alert>
+            <Field
+              name="name-known"
+              label="Do you know this person's name?"
+              component={BooleanField}
+              required
+            />
+            <FieldGroup
+              watch={['name-known']}
+              condition={(values) => values['name-known'] === true}
+            >
+              <Field
+                name="name"
+                label="What is their name?"
+                component={InputField}
+                autoFocus
+                required
+              />
+            </FieldGroup>
+            <Field
+              name="raised-by"
+              label="Was this person involved in raising you?"
+              component={BooleanField}
+              required
+            />
+            <Field
+              name="sex-at-birth"
+              label="What was this person's sex assigned at birth?"
+              component={RadioGroupField}
+              options={sexOptions}
+              initialValue="male"
+              required
+            />
+            {fieldComponents2}
+          </FieldNamespace>
+        </Surface>
+        <Surface level={1} spacing="sm">
+          <Heading level="h3">Other parents</Heading>
+          <Field
+            label="Do you have any additional parents?"
+            hint="This includes adoptive parents, stepparents, or any other parents who are not your biological parents."
+            name="hasOtherParents"
+            component={BooleanField}
+            required
+          />
+          <FieldGroup
+            watch={['hasOtherParents']}
+            condition={(values) => values.hasOtherParents === true}
+          >
+            <Field
+              label="How many additional parents do you have?"
+              name="otherParentCount"
+              component={InputField}
+              type="number"
+              min={1}
+              initialValue="1"
+              autoFocus
+              required
+            />
+          </FieldGroup>
+        </Surface>
       </div>
     </>
   );
