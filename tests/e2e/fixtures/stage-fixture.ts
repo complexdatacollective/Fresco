@@ -21,6 +21,51 @@ async function getDndAnnouncement(page: Page): Promise<string> {
 }
 
 /**
+ * Navigate keyboard DnD to a specific drop target by reading announcements.
+ *
+ * @param page - Playwright Page instance
+ * @param sourceLocator - The draggable node to pick up
+ * @param targetText - Text to match within the DnD announcement. Pass the
+ *   bin/target label — it appears in all announcement formats:
+ *   - OrdinalBin: "Drop target 1 of 5: Container for the value 'Very close'"
+ *   - CategoricalBin: "Drop target 1 of 3: Category: Cisgender Male"
+ *   - Delete bin: "Drop target X of Y: Delete bin"
+ * @param maxSteps - Maximum arrow presses before giving up (default 20)
+ */
+async function navigateDndToTarget(
+  page: Page,
+  sourceLocator: Locator,
+  targetText: string,
+  maxSteps = 20,
+): Promise<void> {
+  // Must use evaluate for focus — nodes have tabIndex=-1 (roving tabindex)
+  // and Playwright's .focus() fails silently in WebKit for unfocusable elements.
+  await sourceLocator.evaluate((el) => (el as HTMLElement).focus());
+  await sourceLocator.press('Control+d');
+
+  // After Ctrl+D, the DnD system creates a visual clone of the dragged node,
+  // so sourceLocator may resolve to 2 elements. Use page.keyboard for
+  // subsequent presses since focus is already established.
+  let found = false;
+  for (let i = 0; i < maxSteps; i++) {
+    await page.keyboard.press('ArrowRight');
+    const announcement = await getDndAnnouncement(page);
+    if (announcement.includes(targetText)) {
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) {
+    throw new Error(
+      `Could not find DnD target "${targetText}" after ${maxSteps} steps`,
+    );
+  }
+
+  await page.keyboard.press('Enter');
+}
+
+/**
  * Form fixture for EgoForm/AlterForm/NameGenerator stages.
  *
  * Provides methods to interact with form fields using their data-field-name attribute.
@@ -186,15 +231,6 @@ class NameGeneratorFixture {
   }
 
   /**
-   * Get the prompt locator.
-   * @param text - Optional text pattern to filter the prompt by content.
-   */
-  getPrompt(text?: string | RegExp): Locator {
-    const prompt = this.page.getByTestId('prompt');
-    return text ? prompt.filter({ hasText: text }) : prompt;
-  }
-
-  /**
    * Open the add node form by clicking the add button.
    */
   async openAddForm(): Promise<void> {
@@ -224,15 +260,6 @@ class SociogramFixture {
 
   constructor(page: Page) {
     this.page = page;
-  }
-
-  /**
-   * Get the prompt locator.
-   * @param text - Optional text pattern to filter the prompt by content.
-   */
-  getPrompt(text?: string | RegExp): Locator {
-    const prompt = this.page.getByTestId('prompt');
-    return text ? prompt.filter({ hasText: text }) : prompt;
   }
 
   /**
@@ -269,6 +296,8 @@ class SociogramFixture {
    * the second click creates/toggles the edge.
    */
   async connectNodes(fromLabel: string, toLabel: string): Promise<void> {
+    const edgesBefore = await this.getEdgeCount();
+
     await this.clickNode(fromLabel);
     // Wait for linking state
     await expect(this.getNode(fromLabel)).toHaveAttribute(
@@ -280,8 +309,8 @@ class SociogramFixture {
     await expect(this.getNode(fromLabel)).not.toHaveAttribute(
       'data-node-linking',
     );
-    // Wait for edge render (Redux dispatch → component re-render → RAF)
-    await this.page.waitForTimeout(200);
+    // Wait for edge count to change (works for both connect and disconnect)
+    await expect.poll(() => this.getEdgeCount()).not.toBe(edgesBefore);
   }
 
   /**
@@ -324,15 +353,6 @@ class OrdinalBinFixture {
   }
 
   /**
-   * Get the prompt locator.
-   * @param text - Optional text pattern to filter the prompt by content.
-   */
-  getPrompt(text?: string | RegExp): Locator {
-    const prompt = this.page.getByTestId('prompt');
-    return text ? prompt.filter({ hasText: text }) : prompt;
-  }
-
-  /**
    * Get the drawer toggle button.
    * The button has aria-label "Collapse drawer" or "Expand drawer".
    */
@@ -354,12 +374,9 @@ class OrdinalBinFixture {
    * Returns the bin container that includes both the heading and the node list.
    */
   getBin(label: string): Locator {
-    // Find the heading with the label (exact match to avoid "Very close" matching "Not very close")
-    return this.page
-      .getByRole('heading', { name: label, level: 4, exact: true })
-      .locator(
-        'xpath=ancestor::div[contains(@class, "row-span-2") or contains(@class, "col-span-2")]',
-      );
+    return this.page.locator('[data-testid^="ordinal-bin-"]').filter({
+      has: this.page.getByRole('heading', { name: label, level: 4, exact: true }),
+    });
   }
 
   /**
@@ -395,36 +412,12 @@ class OrdinalBinFixture {
    */
   async dragNodeToBin(nodeLabel: string, binLabel: string): Promise<void> {
     const node = this.getNodeInDrawer(nodeLabel);
-    const bin = this.getBinNodeList(binLabel);
-
     await expect(node).toBeVisible();
-    await expect(bin).toBeVisible();
 
-    // Use keyboard DnD (Ctrl+D, arrow keys, Enter) for cross-browser reliability.
-    // Nodes have tabIndex=-1, so we must focus programmatically.
-    await node.evaluate((el) => (el as HTMLElement).focus());
-    await node.press('Control+d');
+    await navigateDndToTarget(this.page, node, binLabel);
 
-    // Navigate to the correct drop target by reading the DnD announcement.
-    // OrdinalBin targets are announced as "Container for the value '<label>'"
-    let found = false;
-    for (let i = 0; i < 10; i++) {
-      await node.press('ArrowRight');
-      const announcement = await getDndAnnouncement(this.page);
-      if (announcement.includes(binLabel)) {
-        found = true;
-        break;
-      }
-    }
-
-    if (!found) {
-      throw new Error(
-        `Could not navigate to ordinal bin "${binLabel}" via keyboard DnD`,
-      );
-    }
-
-    await node.press('Enter');
-    await this.page.waitForTimeout(300);
+    await expect(this.getNodeInDrawer(nodeLabel)).not.toBeVisible();
+    await expect(this.getNodeInBin(nodeLabel, binLabel)).toBeVisible();
   }
 
   /**
@@ -436,31 +429,12 @@ class OrdinalBinFixture {
     toBinLabel: string,
   ): Promise<void> {
     const node = this.getNodeInBin(nodeLabel, fromBinLabel);
-
     await expect(node).toBeVisible();
 
-    // Use keyboard DnD: focus the node in its current bin, then navigate to target.
-    await node.evaluate((el) => (el as HTMLElement).focus());
-    await node.press('Control+d');
+    await navigateDndToTarget(this.page, node, toBinLabel);
 
-    let found = false;
-    for (let i = 0; i < 10; i++) {
-      await node.press('ArrowRight');
-      const announcement = await getDndAnnouncement(this.page);
-      if (announcement.includes(toBinLabel)) {
-        found = true;
-        break;
-      }
-    }
-
-    if (!found) {
-      throw new Error(
-        `Could not navigate from bin "${fromBinLabel}" to bin "${toBinLabel}"`,
-      );
-    }
-
-    await node.press('Enter');
-    await this.page.waitForTimeout(300);
+    await expect(this.getNodeInBin(nodeLabel, fromBinLabel)).not.toBeVisible();
+    await expect(this.getNodeInBin(nodeLabel, toBinLabel)).toBeVisible();
   }
 }
 
@@ -477,15 +451,6 @@ class CategoricalBinFixture {
   }
 
   /**
-   * Get the prompt locator.
-   * @param text - Optional text pattern to filter the prompt by content.
-   */
-  getPrompt(text?: string | RegExp): Locator {
-    const prompt = this.page.getByTestId('prompt');
-    return text ? prompt.filter({ hasText: text }) : prompt;
-  }
-
-  /**
    * Get the drawer toggle button showing uncategorized count.
    * The button has aria-label "Collapse drawer" or "Expand drawer".
    */
@@ -496,7 +461,7 @@ class CategoricalBinFixture {
   /**
    * Get the number of uncategorized nodes from the drawer toggle text.
    */
-  async getUncategorizedCount(): Promise<number> {
+  async getUnplacedCount(): Promise<number> {
     const text = await this.drawerToggle.textContent();
     const match = /(\d+)\s*unplaced/.exec(text ?? '');
     return match ? parseInt(match[1]!, 10) : 0;
@@ -535,22 +500,28 @@ class CategoricalBinFixture {
    * Expand a category bin by clicking it.
    */
   async expandBin(label: string): Promise<void> {
-    const bin = this.getBin(label);
     if (!(await this.isBinExpanded(label))) {
-      await bin.click();
-      // Wait for expansion animation
-      await this.page.waitForTimeout(300);
+      await this.page
+        .getByRole('button', { name: new RegExp(`Category ${label}`) })
+        .click();
+      await expect(
+        this.page.locator('[class*="catbin-expanded"]'),
+      ).toBeVisible();
     }
   }
 
   /**
-   * Collapse an expanded bin by clicking outside or on its header.
+   * Collapse an expanded bin by clicking the interface container.
+   * The container's onClick calls setExpandedBinIndex(null) which collapses
+   * any expanded bin. We cannot click the expanded header directly because
+   * onToggleExpand only sets the same index (no-op), not a toggle.
    */
   async collapseBin(label: string): Promise<void> {
     if (await this.isBinExpanded(label)) {
-      // Click outside the bin to collapse
-      await this.page.locator('.interface').click();
-      await this.page.waitForTimeout(300);
+      await this.page.getByTestId('categorical-bin-interface').click();
+      await expect(
+        this.page.locator('[class*="catbin-expanded"]'),
+      ).not.toBeVisible();
     }
   }
 
@@ -565,11 +536,16 @@ class CategoricalBinFixture {
    * Get a node within an expanded bin's node list.
    * Note: binLabel is used by callers to ensure the correct bin is expanded first.
    */
-  getNodeInBin(nodeLabel: string, _binLabel: string): Locator {
-    // When expanded, the bin contains a NodeList with options
-    return this.page
+  getNodeInBin(nodeLabel: string, binLabel: string): Locator {
+    const expandedBin = this.page
       .locator('[class*="catbin-expanded"]')
-      .getByRole('option', { name: nodeLabel });
+      .filter({
+        has: this.page.getByRole('button', {
+          name: new RegExp(`Category ${binLabel}`),
+          expanded: true,
+        }),
+      });
+    return expandedBin.getByRole('option', { name: nodeLabel });
   }
 
   /**
@@ -577,32 +553,16 @@ class CategoricalBinFixture {
    */
   async dragNodeToBin(nodeLabel: string, binLabel: string): Promise<void> {
     const node = this.getNodeInDrawer(nodeLabel);
-    const bin = this.getBin(binLabel);
+    const countBefore = await this.getNodeCountInBin(binLabel);
 
     await expect(node).toBeVisible();
-    await expect(bin).toBeVisible();
 
-    await node.evaluate((el) => (el as HTMLElement).focus());
-    await node.press('Control+d');
+    await navigateDndToTarget(this.page, node, binLabel);
 
-    // Navigate to the correct drop target by reading the DnD announcement.
-    // CategoricalBin targets are announced as "Category: <label>"
-    let found = false;
-    for (let i = 0; i < 10; i++) {
-      await node.press('ArrowRight');
-      const announcement = await getDndAnnouncement(this.page);
-      if (announcement.includes(binLabel)) {
-        found = true;
-        break;
-      }
-    }
-
-    if (!found) {
-      throw new Error(`Could not navigate to category bin "${binLabel}"`);
-    }
-
-    await node.press('Enter');
-    await this.page.waitForTimeout(300);
+    await expect(this.getNodeInDrawer(nodeLabel)).not.toBeVisible();
+    await expect
+      .poll(() => this.getNodeCountInBin(binLabel))
+      .toBeGreaterThan(countBefore);
   }
 
   /**
@@ -618,29 +578,17 @@ class CategoricalBinFixture {
     await this.expandBin(fromBinLabel);
 
     const node = this.getNodeInBin(nodeLabel, fromBinLabel);
+    const countBefore = await this.getNodeCountInBin(toBinLabel);
     await expect(node).toBeVisible();
 
-    await node.evaluate((el) => (el as HTMLElement).focus());
-    await node.press('Control+d');
+    await navigateDndToTarget(this.page, node, toBinLabel);
 
-    let found = false;
-    for (let i = 0; i < 10; i++) {
-      await node.press('ArrowRight');
-      const announcement = await getDndAnnouncement(this.page);
-      if (announcement.includes(toBinLabel)) {
-        found = true;
-        break;
-      }
-    }
-
-    if (!found) {
-      throw new Error(
-        `Could not navigate from bin "${fromBinLabel}" to bin "${toBinLabel}"`,
-      );
-    }
-
-    await node.press('Enter');
-    await this.page.waitForTimeout(300);
+    await expect(
+      this.getNodeInBin(nodeLabel, fromBinLabel),
+    ).not.toBeVisible();
+    await expect
+      .poll(() => this.getNodeCountInBin(toBinLabel))
+      .toBeGreaterThan(countBefore);
 
     // Collapse any expanded bin
     await this.collapseBin(fromBinLabel);
@@ -721,15 +669,6 @@ class GeospatialFixture {
    */
   get deselectButton(): Locator {
     return this.page.getByTestId('deselect-outside-area-button');
-  }
-
-  /**
-   * Get the prompt locator.
-   * @param text - Optional text pattern to filter the prompt by content.
-   */
-  getPrompt(text?: string | RegExp): Locator {
-    const prompt = this.page.getByTestId('prompt');
-    return text ? prompt.filter({ hasText: text }) : prompt;
   }
 
   /**
@@ -943,8 +882,6 @@ class GeospatialFixture {
     const clickY = box.y + box.height * y;
 
     await this.page.mouse.click(clickX, clickY);
-    // Wait for selection to register
-    await this.page.waitForTimeout(300);
   }
 
   /**
@@ -1000,9 +937,14 @@ class NodePanelFixture {
     // must focus them programmatically rather than via Tab.
     await nodeInPanel.evaluate((el) => (el as HTMLElement).focus());
     await nodeInPanel.press('Control+d');
-    await nodeInPanel.press('ArrowRight');
-    await nodeInPanel.press('Enter');
-    await this.page.waitForTimeout(300);
+    // After Ctrl+D, DnD creates a visual clone so the locator may match 2
+    // elements. Use page.keyboard since focus is already established.
+    await this.page.keyboard.press('ArrowRight');
+    await this.page.keyboard.press('Enter');
+
+    await expect(
+      this.page.getByTestId('node-list').getByRole('option', { name: label }),
+    ).toBeVisible();
   }
 }
 
@@ -1035,6 +977,15 @@ export class StageFixture {
   }
 
   /**
+   * Get the prompt locator.
+   * @param text - Optional text pattern to filter the prompt by content.
+   */
+  getPrompt(text?: string | RegExp): Locator {
+    const prompt = this.page.getByTestId('prompt');
+    return text ? prompt.filter({ hasText: text }) : prompt;
+  }
+
+  /**
    * Get a node by its label.
    * Nodes are rendered with role="option" in the node list.
    */
@@ -1051,16 +1002,8 @@ export class StageFixture {
   async deleteNode(label: string): Promise<void> {
     const node = this.getNode(label);
 
-    await node.focus();
-    await node.press('Control+d');
+    await navigateDndToTarget(this.page, node, 'Delete bin');
 
-    // Navigate to the delete bin
-    for (let i = 0; i < 10; i++) {
-      await this.page.keyboard.press('ArrowDown');
-      await this.page.waitForTimeout(100);
-    }
-
-    await this.page.keyboard.press('Enter');
     await node.waitFor({ state: 'hidden', timeout: 5000 });
   }
 }

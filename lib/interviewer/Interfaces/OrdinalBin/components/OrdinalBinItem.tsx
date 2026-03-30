@@ -120,6 +120,7 @@ const OrdinalBinItem = memo((props: OrdinalBinItemProps) => {
 
   return (
     <motion.div
+      data-testid={`ordinal-bin-${index}`}
       className={panelClasses}
       variants={itemVariants}
       style={

@@ -261,7 +261,7 @@ test.describe('SILOS Protocol', () => {
       await interview.goto(8);
 
       // --- Verify prompt is visible ---
-      await expect(stage.geospatial.getPrompt()).toBeVisible();
+      await expect(stage.getPrompt()).toBeVisible();
 
       // --- Verify core UI elements are visible ---
       await expect(stage.geospatial.mapContainer).toBeVisible();
@@ -440,7 +440,7 @@ test.describe('SILOS Protocol', () => {
       await interview.goto(11);
 
       // Verify the first prompt is visible (close ties)
-      await expect(stage.nameGenerator.getPrompt()).toBeVisible();
+      await expect(stage.getPrompt()).toBeVisible();
 
       // --- Test validation: attempt to add person without required age ---
       await stage.nameGenerator.openAddForm();
@@ -504,7 +504,7 @@ test.describe('SILOS Protocol', () => {
 
       // Verify we're on the second prompt (drug use)
       await expect(
-        stage.nameGenerator.getPrompt(/marijuana|drugs/i),
+        stage.getPrompt(/marijuana|drugs/i),
       ).toBeVisible();
 
       // --- Test drag and drop from side panel ---
@@ -555,7 +555,7 @@ test.describe('SILOS Protocol', () => {
     }) => {
       await interview.goto(12);
 
-      await expect(stage.nameGenerator.getPrompt()).toBeVisible();
+      await expect(stage.getPrompt()).toBeVisible();
 
       // --- Verify Alice is NOT in the side panel (she's 17, under 18 filter) ---
       await expect(stage.nodePanel.panel).toBeVisible();
@@ -615,7 +615,7 @@ test.describe('SILOS Protocol', () => {
       await interview.goto(13, { maxDiffPixelRatio: 0.1 });
 
       // Verify the first prompt is visible (connect close ties)
-      await expect(stage.sociogram.getPrompt()).toBeVisible();
+      await expect(stage.getPrompt()).toBeVisible();
 
       // Verify nodes are visible on the canvas
       await expect(stage.sociogram.getNode('Dan')).toBeVisible();
@@ -648,7 +648,7 @@ test.describe('SILOS Protocol', () => {
       await interview.nextButton.click();
 
       // Verify we're on the second prompt (drug partners)
-      await expect(stage.sociogram.getPrompt(/drug/i)).toBeVisible();
+      await expect(stage.getPrompt(/drug/i)).toBeVisible();
 
       // --- Test highlighting: Alice should already be highlighted ---
       // Alice was added to the drug use prompt in Stage 11, so she should be highlighted
@@ -687,7 +687,7 @@ test.describe('SILOS Protocol', () => {
       await interview.goto(15);
 
       // Verify the prompt is visible
-      await expect(stage.ordinalBin.getPrompt()).toBeVisible();
+      await expect(stage.getPrompt()).toBeVisible();
 
       // Verify bins are visible (from protocol: Very close, Close, Somewhat close, Not very close, Not close at all)
       await expect(
@@ -754,7 +754,7 @@ test.describe('SILOS Protocol', () => {
       await interview.goto(16);
 
       // ========== PROMPT 1: Gender ==========
-      await expect(stage.categoricalBin.getPrompt()).toBeVisible();
+      await expect(stage.getPrompt()).toBeVisible();
 
       // Verify category bins are visible
       await expect(
@@ -764,7 +764,7 @@ test.describe('SILOS Protocol', () => {
 
       // Verify nodes are in the drawer (uncategorized)
       const genderUncategorizedCount =
-        await stage.categoricalBin.getUncategorizedCount();
+        await stage.categoricalBin.getUnplacedCount();
       expect(genderUncategorizedCount).toBeGreaterThanOrEqual(4);
 
       // Drag all nodes to gender bins
@@ -795,7 +795,7 @@ test.describe('SILOS Protocol', () => {
 
       // ========== PROMPT 2: Hispanic/Latino ==========
       await interview.nextButton.click();
-      await expect(stage.categoricalBin.getPrompt(/Hispanic/i)).toBeVisible();
+      await expect(stage.getPrompt(/Hispanic/i)).toBeVisible();
 
       // Verify bins
       await expect(
@@ -830,7 +830,7 @@ test.describe('SILOS Protocol', () => {
       // ========== PROMPT 3: Race/Ethnicity ==========
       await interview.nextButton.click();
       await expect(
-        stage.categoricalBin.getPrompt(/race|ethnic/i),
+        stage.getPrompt(/race|ethnic/i),
       ).toBeVisible();
 
       // Verify bins
@@ -853,7 +853,7 @@ test.describe('SILOS Protocol', () => {
       // ========== PROMPT 4: Sexual Identity ==========
       await interview.nextButton.click();
       await expect(
-        stage.categoricalBin.getPrompt(/sexual identity/i),
+        stage.getPrompt(/sexual identity/i),
       ).toBeVisible();
 
       // Verify bins
