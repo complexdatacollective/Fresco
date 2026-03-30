@@ -233,7 +233,7 @@ export default function useProtocolForm({
   const fieldComponents: ReactNode = namespace ? (
     <FieldNamespace prefix={namespace}>{renderedFields}</FieldNamespace>
   ) : (
-    <>{renderedFields}</>
+    renderedFields
   );
 
   return { fieldComponents };

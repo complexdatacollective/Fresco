@@ -222,9 +222,10 @@ export const createFormStore = (options?: FormStoreOptions) => {
         });
 
         set((state) => {
-          const dormantValue = state.dormantValues.get(config.name);
-          const hasDormantValue = dormantValue !== undefined;
-          const value = hasDormantValue ? dormantValue : config.initialValue;
+          const hasDormantValue = state.dormantValues.has(config.name);
+          const value = hasDormantValue
+            ? state.dormantValues.get(config.name)
+            : config.initialValue;
 
           if (hasDormantValue) {
             state.dormantValues.delete(config.name);
