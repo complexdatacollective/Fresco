@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import Paragraph from '~/components/typography/Paragraph';
 import useDialog from '~/lib/dialogs/useDialog';
+import AdditionalParentsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/AdditionalParentsStep';
 import BioParentsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/BioParentsStep';
 import ChildrenWithPartnerDetailStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/ChildrenWithPartnerDetailStep';
 import HalfSiblingParentsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/HalfSiblingParentsStep';
@@ -60,7 +61,7 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
         },
         {
           title: 'Additional parents',
-          content: () => <></>,
+          content: AdditionalParentsStep,
           skip: ({ getFieldValue }) =>
             getFieldValue('hasOtherParents') !== true,
         },
