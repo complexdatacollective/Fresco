@@ -8,6 +8,7 @@ import { Button } from '~/components/ui/Button';
 import { type FieldValue } from '~/lib/form/components/Field/types';
 import { FormWithoutProvider } from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
+import useFormStore from '~/lib/form/hooks/useFormStore';
 import FormStoreProvider from '~/lib/form/store/formStoreProvider';
 import { generatePublicId } from '~/utils/generatePublicId';
 import Dialog from './Dialog';
@@ -62,13 +63,18 @@ export type FormDialog = BaseDialog & {
   cancelLabel?: string;
 };
 
+export type GetFieldValue = (fieldName: string) => FieldValue | undefined;
+
 export type WizardStep = {
   title: string;
   description?: string;
   content: React.ComponentType;
   nextLabel?: string;
   backLabel?: string;
-  skip?: (data: Record<string, unknown>) => boolean;
+  skip?: (
+    data: Record<string, unknown>,
+    getFieldValue: GetFieldValue,
+  ) => boolean;
 };
 
 export type WizardDialog = BaseDialog & {
@@ -131,6 +137,45 @@ export type DialogContextType = {
 
 export const DialogContext = createContext<DialogContextType | null>(null);
 
+function WizardDialogContent({
+  dialog,
+  dialogId,
+  guardedCloseDialog,
+}: {
+  dialog: DialogState & { type: 'wizard' };
+  dialogId: string;
+  guardedCloseDialog: (id: string, value: unknown) => Promise<void>;
+}) {
+  const getFieldState = useFormStore((s) => s.getFieldState);
+
+  const getFieldValue: GetFieldValue = useCallback(
+    (fieldName: string) => getFieldState(fieldName)?.value,
+    [getFieldState],
+  );
+
+  const wizardProps = useWizardState({
+    dialog,
+    dialogId,
+    closeDialog: guardedCloseDialog,
+    getFieldValue,
+  });
+
+  if (!wizardProps) return null;
+
+  return (
+    <Dialog
+      title={wizardProps.title}
+      description={wizardProps.description}
+      closeDialog={() => void guardedCloseDialog(dialogId, null)}
+      accent={dialog.intent}
+      open={dialog.open}
+      footer={wizardProps.footer}
+    >
+      {wizardProps.children}
+    </Dialog>
+  );
+}
+
 function WizardDialogRenderer({
   dialog,
   closeDialog,
@@ -165,26 +210,13 @@ function WizardDialogRenderer({
     [closeDialog, openDialog, dialog.confirmCancel],
   );
 
-  const wizardProps = useWizardState({
-    dialog,
-    dialogId: dialog.id,
-    closeDialog: guardedCloseDialog,
-  });
-
-  if (!wizardProps) return null;
-
   return (
     <FormStoreProvider debug persistFieldValues>
-      <Dialog
-        title={wizardProps.title}
-        description={wizardProps.description}
-        closeDialog={() => void guardedCloseDialog(dialog.id, null)}
-        accent={dialog.intent}
-        open={dialog.open}
-        footer={wizardProps.footer}
-      >
-        {wizardProps.children}
-      </Dialog>
+      <WizardDialogContent
+        dialog={dialog}
+        dialogId={dialog.id}
+        guardedCloseDialog={guardedCloseDialog}
+      />
     </FormStoreProvider>
   );
 }

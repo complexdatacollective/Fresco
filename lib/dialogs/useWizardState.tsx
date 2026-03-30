@@ -4,7 +4,10 @@ import { Loader2 } from 'lucide-react';
 import { type ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import Pips from '~/components/ui/Pips';
-import { type WizardDialog } from '~/lib/dialogs/DialogProvider';
+import {
+  type GetFieldValue,
+  type WizardDialog,
+} from '~/lib/dialogs/DialogProvider';
 import {
   type BeforeNextHandler,
   WizardContext,
@@ -15,6 +18,7 @@ type UseWizardStateArgs = {
   dialog: WizardDialog;
   dialogId: string;
   closeDialog: (id: string, value: unknown) => Promise<void>;
+  getFieldValue: GetFieldValue;
 };
 
 type WizardDialogProps = {
@@ -28,6 +32,7 @@ export default function useWizardState({
   dialog,
   dialogId,
   closeDialog,
+  getFieldValue,
 }: UseWizardStateArgs): WizardDialogProps | null {
   const [stepIndex, setStepIndex] = useState(0);
   const [data, setData] = useState<Record<string, unknown>>({});
@@ -52,25 +57,25 @@ export default function useWizardState({
       let candidate = from + delta;
       while (candidate >= 0 && candidate < totalSteps) {
         const step = dialog.steps[candidate];
-        if (!step?.skip?.(dataRef.current)) return candidate;
+        if (!step?.skip?.(dataRef.current, getFieldValue)) return candidate;
         candidate += delta;
       }
       return null;
     },
-    [dialog.steps, totalSteps],
+    [dialog.steps, totalSteps, getFieldValue],
   );
 
   const activeStepCount = useMemo(() => {
-    return dialog.steps.filter((s) => !s.skip?.(data)).length;
-  }, [dialog.steps, data]);
+    return dialog.steps.filter((s) => !s.skip?.(data, getFieldValue)).length;
+  }, [dialog.steps, data, getFieldValue]);
 
   const activeStepIndex = useMemo(() => {
     let idx = 0;
     for (let i = 0; i < stepIndex; i++) {
-      if (!dialog.steps[i]?.skip?.(data)) idx++;
+      if (!dialog.steps[i]?.skip?.(data, getFieldValue)) idx++;
     }
     return idx;
-  }, [dialog.steps, data, stepIndex]);
+  }, [dialog.steps, data, stepIndex, getFieldValue]);
 
   const isFirstActive = findNextUnskipped(-1, 'forward') === stepIndex;
   const isLastActive = findNextUnskipped(totalSteps, 'backward') === stepIndex;
