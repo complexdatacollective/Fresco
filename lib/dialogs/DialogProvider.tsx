@@ -153,7 +153,7 @@ function WizardDialogRenderer({
         description: dialog.confirmCancel.description,
         intent: 'destructive',
         actions: {
-          primary: { label: 'Cancel wizard', value: true },
+          primary: { label: 'Exit and lose progress', value: true },
           cancel: { label: 'Continue editing', value: false },
         },
       });
@@ -174,16 +174,18 @@ function WizardDialogRenderer({
   if (!wizardProps) return null;
 
   return (
-    <Dialog
-      title={wizardProps.title}
-      description={wizardProps.description}
-      closeDialog={() => void guardedCloseDialog(dialog.id, null)}
-      accent={dialog.intent}
-      open={dialog.open}
-      footer={wizardProps.footer}
-    >
-      {wizardProps.children}
-    </Dialog>
+    <FormStoreProvider debug persistFieldValues>
+      <Dialog
+        title={wizardProps.title}
+        description={wizardProps.description}
+        closeDialog={() => void guardedCloseDialog(dialog.id, null)}
+        accent={dialog.intent}
+        open={dialog.open}
+        footer={wizardProps.footer}
+      >
+        {wizardProps.children}
+      </Dialog>
+    </FormStoreProvider>
   );
 }
 
