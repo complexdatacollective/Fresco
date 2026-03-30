@@ -11,6 +11,7 @@ import {
   makeValidationHints,
 } from '../validation/helpers';
 import { validationPropKeys } from '../validation/functions';
+import { useFieldNamespace } from '../components/FieldNamespace';
 import useFormStore from './useFormStore';
 
 /**
@@ -113,6 +114,9 @@ export function useField(config: UseFieldConfig): UseFieldResult {
     ...validationProps
   } = config;
 
+  const namespace = useFieldNamespace();
+  const resolvedName = namespace ? `${namespace}.${name}` : name;
+
   const id = useId();
 
   // Memoize the validation function based on validation props
@@ -144,11 +148,11 @@ export function useField(config: UseFieldConfig): UseFieldResult {
     [showValidationHints, validationPropsJson, validationContext],
   );
 
-  const fieldState = useFormStore((state) => state.getFieldState(name));
+  const fieldState = useFormStore((state) => state.getFieldState(resolvedName));
   const isSubmitting = useFormStore((state) => state.isSubmitting);
 
   const fieldErrors = useFormStore(
-    useShallow((state) => state.getFieldErrors(name)),
+    useShallow((state) => state.getFieldErrors(resolvedName)),
   );
   const registerField = useFormStore((store) => store.registerField);
   const unregisterField = useFormStore((store) => store.unregisterField);
@@ -189,31 +193,31 @@ export function useField(config: UseFieldConfig): UseFieldResult {
   // Register field on mount
   useEffect(() => {
     registerField({
-      name,
+      name: resolvedName,
       initialValue,
       validation,
     });
 
     return () => {
-      unregisterField(name);
+      unregisterField(resolvedName);
     };
-  }, [name, initialValue, validation, unregisterField, registerField]);
+  }, [resolvedName, initialValue, validation, unregisterField, registerField]);
 
   const handleChange = useCallback(
     (value: FieldValue) => {
-      setFieldValue(config.name, value);
+      setFieldValue(resolvedName, value);
 
       // If validateOnChange is enabled, use debounced validation
       // Otherwise, only validate after the field has been blurred once
       if (config.validateOnChange) {
-        debouncedValidate(config.name);
+        debouncedValidate(resolvedName);
       } else if (fieldState?.meta.isBlurred) {
         // After first blur, validate immediately on change (no debounce)
-        void validateField(config.name);
+        void validateField(resolvedName);
       }
     },
     [
-      config.name,
+      resolvedName,
       config.validateOnChange,
       setFieldValue,
       fieldState?.meta.isBlurred,
@@ -238,15 +242,15 @@ export function useField(config: UseFieldConfig): UseFieldResult {
       }
 
       // Mark the field as having been blurred at least once
-      setFieldBlurred(config.name);
+      setFieldBlurred(resolvedName);
 
       // For validateOnChange fields, don't validate on blur - the debounced
       // change validation handles it. For other fields, validate on blur.
       if (!config.validateOnChange) {
-        void validateField(config.name);
+        void validateField(resolvedName);
       }
     },
-    [config.name, config.validateOnChange, setFieldBlurred, validateField],
+    [resolvedName, config.validateOnChange, setFieldBlurred, validateField],
   );
 
   // Show invalid styling when showing error text - keep them in sync
@@ -264,7 +268,7 @@ export function useField(config: UseFieldConfig): UseFieldResult {
       isValidating: fieldState?.meta.isValidating ?? false,
     },
     containerProps: {
-      'data-field-name': name, // Used for scrolling to field errors
+      'data-field-name': resolvedName, // Used for scrolling to field errors
     },
     fieldProps: {
       // Use initialValue as fallback before field is registered in the store
