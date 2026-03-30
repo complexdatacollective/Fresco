@@ -54,6 +54,32 @@ describe('Object Path Utils', () => {
 
       expect(getValue(obj, '')).toBe(obj);
     });
+
+    it('should get value using bracket notation', () => {
+      const obj = {
+        steps: [
+          { 'egg-parent': { name: 'Alice' } },
+          { 'sperm-parent': { name: 'Bob' } },
+        ],
+      };
+
+      expect(getValue(obj, 'steps[0].egg-parent.name')).toBe('Alice');
+      expect(getValue(obj, 'steps[1].sperm-parent.name')).toBe('Bob');
+    });
+
+    it('should get value with nested bracket notation', () => {
+      const obj = {
+        data: [{ items: [{ value: 'found' }] }],
+      };
+
+      expect(getValue(obj, 'data[0].items[0].value')).toBe('found');
+    });
+
+    it('should return undefined for out-of-bounds bracket index', () => {
+      const obj = { steps: [{ name: 'Alice' }] };
+
+      expect(getValue(obj, 'steps[5].name')).toBeUndefined();
+    });
   });
 
   describe('setValue', () => {
@@ -164,6 +190,72 @@ describe('Object Path Utils', () => {
       // Empty path should set the root, but our implementation doesn't handle this case
       // This is expected behavior - empty path is not a valid use case
       expect(obj).toEqual({ 'name': 'John', '': { name: 'Jane' } });
+    });
+
+    it('should create arrays when using bracket notation', () => {
+      const obj: Record<string, unknown> = {};
+
+      setValue(obj, 'steps[0].name', 'Alice');
+
+      expect(obj).toEqual({
+        steps: [{ name: 'Alice' }],
+      });
+      expect(Array.isArray(obj.steps)).toBe(true);
+    });
+
+    it('should set values at specific array indices', () => {
+      const obj: Record<string, unknown> = {};
+
+      setValue(obj, 'steps[0].name', 'Alice');
+      setValue(obj, 'steps[1].name', 'Bob');
+
+      expect(obj).toEqual({
+        steps: [{ name: 'Alice' }, { name: 'Bob' }],
+      });
+    });
+
+    it('should handle sparse arrays', () => {
+      const obj: Record<string, unknown> = {};
+
+      setValue(obj, 'steps[2].name', 'Charlie');
+
+      const steps = obj.steps as unknown[];
+      expect(Array.isArray(steps)).toBe(true);
+      expect(steps.length).toBe(3);
+      expect(steps[0]).toBeUndefined();
+      expect(steps[1]).toBeUndefined();
+      expect(steps[2]).toEqual({ name: 'Charlie' });
+    });
+
+    it('should handle nested bracket notation with objects', () => {
+      const obj: Record<string, unknown> = {};
+
+      setValue(obj, 'steps[0].egg-parent.name', 'Alice');
+      setValue(obj, 'steps[0].egg-parent.age', 30);
+      setValue(obj, 'steps[0].sperm-parent.name', 'Bob');
+
+      expect(obj).toEqual({
+        steps: [
+          {
+            'egg-parent': { name: 'Alice', age: 30 },
+            'sperm-parent': { name: 'Bob' },
+          },
+        ],
+      });
+    });
+
+    it('should handle mixed bracket and dot notation deeply', () => {
+      const obj: Record<string, unknown> = {};
+
+      setValue(obj, 'data[0].items[0].value', 'found');
+
+      expect(obj).toEqual({
+        data: [{ items: [{ value: 'found' }] }],
+      });
+      expect(Array.isArray(obj.data)).toBe(true);
+      expect(
+        Array.isArray((obj.data as Record<string, unknown>[])[0]?.items),
+      ).toBe(true);
     });
   });
 });
