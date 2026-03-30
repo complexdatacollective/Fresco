@@ -2,6 +2,7 @@ import {
   type ComponentType,
   type FormField,
 } from '@codaco/protocol-validation';
+import { type ReactNode } from 'react';
 import { useSelector } from 'react-redux';
 import {
   getValidationContext,
@@ -10,6 +11,7 @@ import {
   type Subject,
 } from '~/lib/interviewer/selectors/forms';
 import Field from '../components/Field/Field';
+import FieldNamespace from '../components/FieldNamespace';
 import {
   type FieldValue,
   type ValidationPropsCatalogue,
@@ -80,9 +82,7 @@ export default function useProtocolForm({
   );
 
   const fieldsWithMetadata = fieldsMetadata.map((field, index) => {
-    const fieldName = namespace
-      ? `${namespace}-${field.variable}`
-      : field.variable;
+    const fieldName = field.variable;
 
     const props: {
       name: string;
@@ -222,12 +222,18 @@ export default function useProtocolForm({
     return props;
   });
 
-  const fieldComponents = fieldsWithMetadata.map(
+  const renderedFields = fieldsWithMetadata.map(
     ({ component, ...fieldProps }, index) => {
       const FieldComponent = fieldTypeMap[component as ComponentType];
 
       return <Field key={index} {...fieldProps} component={FieldComponent} />;
     },
+  );
+
+  const fieldComponents: ReactNode = namespace ? (
+    <FieldNamespace prefix={namespace}>{renderedFields}</FieldNamespace>
+  ) : (
+    <>{renderedFields}</>
   );
 
   return { fieldComponents };
