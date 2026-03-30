@@ -65,16 +65,18 @@ export type FormDialog = BaseDialog & {
 
 export type GetFieldValue = (fieldName: string) => FieldValue | undefined;
 
+export type SkipContext = {
+  data: Record<string, unknown>;
+  getFieldValue: GetFieldValue;
+};
+
 export type WizardStep = {
   title: string;
   description?: string;
   content: React.ComponentType;
   nextLabel?: string;
   backLabel?: string;
-  skip?: (
-    data: Record<string, unknown>,
-    getFieldValue: GetFieldValue,
-  ) => boolean;
+  skip?: (context: SkipContext) => boolean;
 };
 
 export type WizardDialog = BaseDialog & {

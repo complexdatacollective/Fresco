@@ -1,17 +1,14 @@
 'use client';
 
 import { AnimatePresence, motion } from 'motion/react';
+import Paragraph from '~/components/typography/Paragraph';
 import useDialog from '~/lib/dialogs/useDialog';
-import AdoptionStatusStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/AdoptionStatusStep';
 import BioParentsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/BioParentsStep';
 import ChildrenWithPartnerDetailStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/ChildrenWithPartnerDetailStep';
-import GestationalCarrierStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/GestationalCarrierStep';
 import HalfSiblingParentsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/HalfSiblingParentsStep';
 import OtherChildrenCountStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/OtherChildrenCountStep';
 import OtherChildrenDetailStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/OtherChildrenDetailStep';
 import ParentPartnershipsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/ParentPartnershipsStep';
-import ParentsCountStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/ParentsCountStep';
-import ParentsDetailStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/ParentsDetailStep';
 import PartnerStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PartnerStep';
 import SiblingsDetailStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/SiblingsDetailStep';
 import {
@@ -46,67 +43,43 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
       },
       steps: [
         {
-          title: 'Adoption status',
-          content: AdoptionStatusStep,
+          title: 'Creating your family pedigree',
+          content: () => (
+            <>
+              <Paragraph>
+                This wizard will guide you through a series of questions to
+                quickly build a family pedigree. A pedigree is a family tree
+                diagram that shows your relatives and their health information.
+              </Paragraph>
+            </>
+          ),
         },
         {
-          title: 'Your family',
-          content: ParentsCountStep,
+          title: 'Your biological parents',
+          content: BioParentsStep,
         },
         {
-          title: 'Parent details',
-          description:
-            'Please provide us with further details about each parent that you mentioned.',
-          content: ParentsDetailStep,
-          skip: (d) => (d.parentCount as number | undefined) === 0,
+          title: 'Additional parents',
+          content: () => <></>,
+          skip: ({ getFieldValue }) =>
+            getFieldValue('hasOtherParents') !== true,
         },
         {
           title: 'Parent partnerships',
           content: ParentPartnershipsStep,
-          skip: (d) => ((d.parentCount as number | undefined) ?? 0) < 2,
-        },
-        {
-          title: 'Biological parents',
-          content: BioParentsStep,
-          skip: (d) => {
-            const parents = (d.parents as ParentDetail[] | undefined) ?? [];
-            return parents.filter((p) => p.biological !== false).length >= 2;
-          },
-        },
-        {
-          title: 'Gestational carrier',
-          content: GestationalCarrierStep,
-          // Skip when exactly one biological parent was assigned female at
-          // birth, since the carrier is unambiguous. When zero or multiple
-          // are female (e.g. egg donor + carrier) we need to ask.
-          skip: (d) => {
-            const parents = (d.parents as ParentDetail[] | undefined) ?? [];
-            const bioParents =
-              (d.bioParents as PersonDetail[] | undefined) ?? [];
-
-            const biologicalParents = [
-              ...parents.filter((p) => p.biological !== false),
-              ...bioParents,
-            ];
-
-            const femaleCount = biologicalParents.filter(
-              (p) => p.biologicalSex === 'female',
-            ).length;
-
-            return femaleCount === 1;
-          },
+          skip: ({ data: d }) => Number(d.parentCount ?? 0) < 2,
         },
         {
           title: 'Sibling details',
           description: 'Please now tell us about your siblings.',
           content: SiblingsDetailStep,
-          skip: (d) => !d.siblingCount || d.siblingCount === 0,
+          skip: ({ data: d }) => Number(d.siblingCount ?? 0) === 0,
         },
         {
           title: "Half-siblings' other parents",
           description: 'Tell us about the other parent of your half-siblings.',
           content: HalfSiblingParentsStep,
-          skip: (d) => {
+          skip: ({ data: d }) => {
             const siblings = (d.siblings as SiblingDetail[] | undefined) ?? [];
             if (siblings.length === 0) return true;
             const parents = (d.parents as ParentDetail[] | undefined) ?? [];
@@ -127,16 +100,16 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
           title: 'Partner details',
           description: 'Next, tell us about your current partner.',
           content: PartnerStep,
-          skip: (d) => !(d.hasPartner as boolean | undefined),
+          skip: ({ data: d }) => !(d.hasPartner as boolean | undefined),
         },
         {
           title: 'Children with partner details',
           description:
             'Please tell us about each of your children with your current partner.',
           content: ChildrenWithPartnerDetailStep,
-          skip: (d) =>
+          skip: ({ data: d }) =>
             !(d.hasPartner as boolean | undefined) ||
-            (d.childrenWithPartnerCount as number | undefined) === 0,
+            Number(d.childrenWithPartnerCount ?? 0) === 0,
         },
         {
           title: 'Other children',
@@ -147,7 +120,8 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
           description:
             'Please tell us about each of your other children from prior relationships.',
           content: OtherChildrenDetailStep,
-          skip: (d) => (d.otherChildrenCount as number | undefined) === 0,
+          skip: ({ data: d }) =>
+            (d.otherChildrenCount as number | undefined) === 0,
           nextLabel: 'Get started',
         },
       ],
@@ -217,7 +191,11 @@ export default function QuickStartForm({ onSubmit }: QuickStartFormProps) {
         initial="initial"
         animate="animate"
       >
-        <ActionButton iconName="Network" onClick={() => void handleClick()} />
+        <ActionButton
+          aria-label="Build family tree"
+          iconName="Network"
+          onClick={() => void handleClick()}
+        />
       </motion.div>
     </AnimatePresence>
   );

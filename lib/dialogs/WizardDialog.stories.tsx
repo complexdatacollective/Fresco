@@ -301,7 +301,7 @@ export const WithSkip: StoryObj<Meta<WizardStoryArgs>> = {
             title: 'Partner Details',
             description: 'Tell us about your partner.',
             content: PartnerDetailsStep,
-            skip: (data) => data.hasPartner !== true,
+            skip: ({ data }) => data.hasPartner !== true,
           },
           {
             title: 'Confirm',

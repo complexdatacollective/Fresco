@@ -57,7 +57,8 @@ export default function useWizardState({
       let candidate = from + delta;
       while (candidate >= 0 && candidate < totalSteps) {
         const step = dialog.steps[candidate];
-        if (!step?.skip?.(dataRef.current, getFieldValue)) return candidate;
+        if (!step?.skip?.({ data: dataRef.current, getFieldValue }))
+          return candidate;
         candidate += delta;
       }
       return null;
@@ -66,13 +67,14 @@ export default function useWizardState({
   );
 
   const activeStepCount = useMemo(() => {
-    return dialog.steps.filter((s) => !s.skip?.(data, getFieldValue)).length;
+    return dialog.steps.filter((s) => !s.skip?.({ data, getFieldValue }))
+      .length;
   }, [dialog.steps, data, getFieldValue]);
 
   const activeStepIndex = useMemo(() => {
     let idx = 0;
     for (let i = 0; i < stepIndex; i++) {
-      if (!dialog.steps[i]?.skip?.(data, getFieldValue)) idx++;
+      if (!dialog.steps[i]?.skip?.({ data, getFieldValue })) idx++;
     }
     return idx;
   }, [dialog.steps, data, stepIndex, getFieldValue]);

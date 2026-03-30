@@ -802,7 +802,7 @@ describe('Wizard Dialog setBeforeNext', () => {
             {
               title: 'Step 2 (conditional)',
               content: MiddleStep,
-              skip: (d) => d.skipMiddle === true,
+              skip: ({ data: d }) => d.skipMiddle === true,
             },
             { title: 'Step 3', content: ThirdStep },
           ]}
@@ -910,7 +910,7 @@ describe('Wizard Dialog skip', () => {
             {
               title: 'Step 2 (conditional)',
               content: MiddleStep,
-              skip: (d) => d.skipMiddle === true,
+              skip: ({ data: d }) => d.skipMiddle === true,
             },
             { title: 'Step 3', content: ThirdStep },
           ]}
