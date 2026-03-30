@@ -104,7 +104,6 @@ export default function CheckboxGroupField(props: CheckboxGroupProps) {
             >
               <Checkbox
                 name={name}
-                value={String(option.value)}
                 {...(isControlled
                   ? { checked: isChecked }
                   : { defaultChecked: isChecked })}

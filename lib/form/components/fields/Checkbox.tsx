@@ -28,16 +28,13 @@ const checkboxIndicatorVariants = compose(
   }),
 );
 
-/**
- * Checkbox is a UI primitive component, not a form field.
- * It uses the native checked/onCheckedChange API from @base-ui/react/checkbox.
- * For form usage, wrap with the Field component.
- */
 type CheckboxProps = Omit<
   ComponentPropsWithoutRef<typeof BaseCheckbox.Root>,
-  'size'
+  'size' | 'value' | 'onChange'
 > &
   VariantProps<typeof checkboxRootVariants> & {
+    value?: boolean;
+    onChange?: (value: boolean | undefined) => void;
     disabled?: boolean;
     readOnly?: boolean;
   };
@@ -47,6 +44,8 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
     {
       className,
       size = 'md',
+      value,
+      onChange,
       onCheckedChange,
       checked,
       defaultChecked = false,
@@ -57,13 +56,20 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
     },
     ref,
   ) => {
+    // Support both form system (value/onChange) and base-ui (checked/onCheckedChange) APIs.
+    // Form system props take precedence when provided.
+    const resolvedChecked = onChange !== undefined ? value : checked;
+    const resolvedOnCheckedChange: typeof onCheckedChange =
+      onChange !== undefined
+        ? (newChecked) => onChange(newChecked)
+        : onCheckedChange;
+
     // Determine if controlled or uncontrolled mode
-    // Controlled: onCheckedChange prop is provided (form system always uses this pattern)
-    // We use onCheckedChange as the indicator because the form system may pass undefined
-    // checked initially while the store is hydrating, but will always provide onCheckedChange
-    const isControlled = onCheckedChange !== undefined;
+    const isControlled = resolvedOnCheckedChange !== undefined;
     // For controlled mode, use false as fallback to prevent uncontrolled->controlled switch
-    const controlledChecked = isControlled ? (checked ?? false) : undefined;
+    const controlledChecked = isControlled
+      ? (resolvedChecked ?? false)
+      : undefined;
 
     const [internalChecked, setInternalChecked] = useState(defaultChecked);
     const isChecked = isControlled ? controlledChecked : internalChecked;
@@ -75,7 +81,7 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
       if (!isControlled) {
         setInternalChecked(newChecked);
       }
-      onCheckedChange?.(newChecked, eventDetails);
+      resolvedOnCheckedChange?.(newChecked, eventDetails);
     };
 
     return (
