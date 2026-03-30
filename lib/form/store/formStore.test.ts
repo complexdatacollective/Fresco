@@ -947,12 +947,10 @@ describe('FormStore', () => {
 
     it('should reset to initial state using reset method', () => {
       // Modify some state
-      store
-        .getState()
-        .registerField({
-          name: 'newField',
-          validation: z.optional(z.string()),
-        });
+      store.getState().registerField({
+        name: 'newField',
+        validation: z.optional(z.string()),
+      });
       store.getState().setSubmitting(true);
 
       const initialState = store.getInitialState();
@@ -1021,6 +1019,113 @@ describe('FormStore', () => {
       expect(field?.meta.isDirty).toBe(true);
       expect(fieldErrors).toEqual(['validation error']);
       expect(field?.meta.isValid).toBe(false);
+    });
+  });
+
+  describe('Field value persistence', () => {
+    let persistentStore: ReturnType<typeof createFormStore>;
+
+    beforeEach(() => {
+      persistentStore = createFormStore({ persistFieldValues: true });
+      vi.clearAllMocks();
+    });
+
+    it('should save value to dormantValues when unregistering with persistence enabled', () => {
+      persistentStore.getState().registerField({
+        name: 'email',
+        initialValue: 'initial@example.com',
+      });
+
+      persistentStore.getState().setFieldValue('email', 'changed@example.com');
+      persistentStore.getState().unregisterField('email');
+
+      // Field should be removed from active fields
+      expect(persistentStore.getState().getFieldState('email')).toBeUndefined();
+
+      // But dormantValues should have the value
+      expect(persistentStore.getState().dormantValues.get('email')).toBe(
+        'changed@example.com',
+      );
+    });
+
+    it('should restore dormant value when re-registering a field', () => {
+      persistentStore.getState().registerField({
+        name: 'email',
+        initialValue: 'initial@example.com',
+      });
+
+      persistentStore.getState().setFieldValue('email', 'changed@example.com');
+      persistentStore.getState().unregisterField('email');
+
+      // Re-register with a different initialValue
+      persistentStore.getState().registerField({
+        name: 'email',
+        initialValue: 'new-initial@example.com',
+      });
+
+      // Should use the dormant value, not the new initialValue
+      const field = persistentStore.getState().getFieldState('email');
+      expect(field?.value).toBe('changed@example.com');
+      expect(field?.meta.isTouched).toBe(true);
+      expect(field?.meta.isDirty).toBe(true);
+    });
+
+    it('should remove entry from dormantValues after restoring', () => {
+      persistentStore.getState().registerField({
+        name: 'email',
+        initialValue: 'initial@example.com',
+      });
+
+      persistentStore.getState().setFieldValue('email', 'changed@example.com');
+      persistentStore.getState().unregisterField('email');
+
+      expect(persistentStore.getState().dormantValues.has('email')).toBe(true);
+
+      persistentStore.getState().registerField({
+        name: 'email',
+        initialValue: 'initial@example.com',
+      });
+
+      expect(persistentStore.getState().dormantValues.has('email')).toBe(false);
+    });
+
+    it('should use initialValue when no dormant value exists', () => {
+      persistentStore.getState().registerField({
+        name: 'newField',
+        initialValue: 'fresh-value',
+      });
+
+      const field = persistentStore.getState().getFieldState('newField');
+      expect(field?.value).toBe('fresh-value');
+    });
+
+    it('should NOT save dormant values when persistence is disabled', () => {
+      // Use the default store (no persistence)
+      store.getState().registerField({
+        name: 'email',
+        initialValue: 'initial@example.com',
+      });
+
+      store.getState().setFieldValue('email', 'changed@example.com');
+      store.getState().unregisterField('email');
+
+      expect(store.getState().dormantValues.size).toBe(0);
+    });
+
+    it('should clear dormantValues on form reset', () => {
+      persistentStore.getState().registerField({
+        name: 'email',
+        initialValue: 'initial@example.com',
+      });
+
+      persistentStore.getState().setFieldValue('email', 'changed@example.com');
+      persistentStore.getState().unregisterField('email');
+
+      expect(persistentStore.getState().dormantValues.size).toBe(1);
+
+      persistentStore.getState().reset();
+
+      expect(persistentStore.getState().dormantValues.size).toBe(0);
     });
   });
 });

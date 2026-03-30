@@ -15,10 +15,14 @@ type FormStoreProviderProps = {
   children: ReactNode;
 } & FormStoreOptions;
 
-const FormStoreProvider = ({ children, debug }: FormStoreProviderProps) => {
+const FormStoreProvider = ({
+  children,
+  debug,
+  persistFieldValues,
+}: FormStoreProviderProps) => {
   const storeRef = useRef<FormStoreApi>(undefined);
 
-  storeRef.current ??= createFormStore({ debug });
+  storeRef.current ??= createFormStore({ debug, persistFieldValues });
 
   return (
     <FormStoreContext.Provider value={storeRef.current}>

@@ -127,6 +127,7 @@ const calculateFormValidity = (
 
 export type FormStore = {
   fields: Map<string, FieldState>;
+  dormantValues: Map<string, FieldValue>;
   errors: FlattenedErrors;
   isSubmitting: boolean;
   isValidating: boolean;
@@ -172,14 +173,17 @@ export type FormStoreApi = ReturnType<typeof createFormStore>;
 
 export type FormStoreOptions = {
   debug?: boolean;
+  persistFieldValues?: boolean;
 };
 
 export const createFormStore = (options?: FormStoreOptions) => {
   const logger = createFormLogger(options?.debug ?? false);
+  const persistFieldValues = options?.persistFieldValues ?? false;
 
   return createStore<FormStore>()(
     immer((set, get, _store) => ({
       fields: new Map(),
+      dormantValues: new Map(),
       errors: { formErrors: [], fieldErrors: {} },
 
       isSubmitting: false,
@@ -200,6 +204,7 @@ export const createFormStore = (options?: FormStoreOptions) => {
       reset: () => {
         set((state) => {
           state.fields.clear();
+          state.dormantValues.clear();
           state.errors = { formErrors: [], fieldErrors: {} };
           state.isSubmitting = false;
           state.isValidating = false;
@@ -217,24 +222,29 @@ export const createFormStore = (options?: FormStoreOptions) => {
         });
 
         set((state) => {
+          const dormantValue = state.dormantValues.get(config.name);
+          const hasDormantValue = dormantValue !== undefined;
+          const value = hasDormantValue ? dormantValue : config.initialValue;
+
+          if (hasDormantValue) {
+            state.dormantValues.delete(config.name);
+          }
+
           const fieldState: FieldState = {
             initialValue: config.initialValue,
             validation: config.validation,
-            value: config.initialValue,
+            value,
             meta: {
               isValidating: false,
-              isTouched: false,
+              isTouched: hasDormantValue,
               isBlurred: false,
-              isDirty: false,
-              // Fields without validation are considered valid by default
+              isDirty: hasDormantValue,
               isValid: !config.validation,
             },
           };
 
-          // Store field state with dot notation key (flat structure)
           state.fields.set(config.name, fieldState);
 
-          // Recalculate form validity
           state.isValid = calculateFormValidity(
             state.fields,
             state.errors.formErrors,
@@ -249,6 +259,13 @@ export const createFormStore = (options?: FormStoreOptions) => {
         const currentState = get();
         if (currentState.fields.has(fieldName)) {
           set((state) => {
+            if (persistFieldValues) {
+              const field = state.fields.get(fieldName);
+              if (field) {
+                state.dormantValues.set(fieldName, field.value);
+              }
+            }
+
             state.fields.delete(fieldName);
 
             // Clean up any errors for this field
